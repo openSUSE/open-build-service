@@ -127,7 +127,7 @@ class PackageController < ApplicationController
     @package.free_directory if discard_cache? || @revision != params[:rev] || @expand != params[:expand] || @srcmd5 != params[:srcmd5]
     Service.free_cache(:all) if discard_cache?
     @srcmd5   = params[:srcmd5]
-    @revision = params[:rev]
+    @revision_parameter = params[:rev]
     @current_rev = Package.current_rev(@project.name, @package.name)
     @expand = 1
     @expand = begin Integer(params[:expand]) rescue 1 end if params[:expand]
@@ -148,7 +148,7 @@ class PackageController < ApplicationController
           redirect_to :action => :show, :project => params[:project], :package => params[:package] and return
         end
       else
-        flash[:error] = "No such revision: #{@revision}"
+        flash[:error] = "No such revision: #{@revision_parameter}"
         redirect_to :action => :files, :project => params[:project], :package => params[:package] and return
       end
     end
