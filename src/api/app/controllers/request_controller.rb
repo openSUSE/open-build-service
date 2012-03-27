@@ -1268,16 +1268,6 @@ class RequestController < ApplicationController
             target_package = target_project.db_packages.find_by_name(action.source.package)
           end
         end
-        if source_project and req.state.name == "new" and params[:newstate] == "revoked"  and not permission_granted
-           # source project owners should be able to revoke submit requests as well
-           source_package = source_project.db_packages.find_by_name(action.source.package)
-           if ( source_package and not @http_user.can_modify_package? source_package ) or
-              ( not source_package and not @http_user.can_modify_project? source_project )
-             render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "No permission to revoke request #{req.id} (type #{action.value('type')})"
-             return
-           end
-        end
 
       elsif [ "delete", "add_role", "set_bugowner" ].include? action.value("type")
         # target must exist
@@ -1305,8 +1295,8 @@ class RequestController < ApplicationController
       end
 
       # general source write permission check (for revoke)
-      if ( source_package and @http_user.can_modify_package? source_package ) or
-         ( not source_package and source_project and @http_user.can_modify_project? source_project )
+      if ( source_package and @http_user.can_modify_package?(source_package,true) ) or
+         ( not source_package and source_project and @http_user.can_modify_project?(source_project,true) )
            write_permission_in_some_source = true
       end
     
