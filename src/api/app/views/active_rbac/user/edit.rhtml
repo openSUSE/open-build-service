@@ -3,7 +3,7 @@
 <% form_tag :action => 'update', :id => @user do %>
   <%= render(:partial => "form") %>
 
-  <%= submit_tag "Apply Changes", :name => 'submit[update]' %>
+  <%= submit_tag "Apply Changes", :name => 'submit' %>
 <% end %>
 
 <%= link_to 'Show', :action => 'show', :id => @user %> |

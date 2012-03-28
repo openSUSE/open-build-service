@@ -2,6 +2,8 @@ class ActiveRbac::RoleController < ActiveRbac::ComponentController
   # The RbacHelper allows us to render +acts_as_tree+ AR elegantly
   helper RbacHelper
 
+  skip_before_filter :validate_params, :only => [:update]
+
   # Use the configured layout.
   layout "rbac.rhtml"
 

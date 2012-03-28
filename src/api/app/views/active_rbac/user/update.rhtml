@@ -2,7 +2,7 @@
 
 <% form_for :user, :url => { :action => :update, :id => @user } do |form| %>
   <%= render(:partial => 'form') %>
-  <%= submit_tag "Apply Changes", :name => 'submit[update]' %>
+  <%= submit_tag "Apply Changes", :name => 'submit' %>
 <% end %>
 
 <%= link_to('Show', :action => 'show', :id => @user) %> |

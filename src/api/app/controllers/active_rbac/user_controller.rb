@@ -3,7 +3,7 @@ class ActiveRbac::UserController < ActiveRbac::ComponentController
   # The RbacHelper allows us to render +acts_as_tree+ AR elegantly
   helper RbacHelper
 
-  skip_before_filter :validate_params, :only => [:create]
+  skip_before_filter :validate_params, :only => [:create, :update, :show]
 
   # Use the configured layout.
   #layout "rbac.rhtml"
