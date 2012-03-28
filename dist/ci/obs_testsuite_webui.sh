@@ -77,7 +77,6 @@ rake --trace db:drop db:create db:migrate
 
 echo "Invoke rake"
 rake --trace ci:setup:testunit test CI_REPORTS=results
-rake --trace test:rcov
 cd ../..
 
 echo "Contents of src/api/log/test.log:"

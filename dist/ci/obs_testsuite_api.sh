@@ -52,7 +52,6 @@
 
 echo "Invoke rake"
 rake --trace ci:setup:testunit test CI_REPORTS=results
-rake --trace test:rcov
 cd ../..
 
 echo "Output test.log"
