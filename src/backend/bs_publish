@@ -182,6 +182,12 @@ sub db_sync {
   db_open('') unless $db_oldsync_read;
   return unless @db_sync;
   my $data = Storable::nfreeze(\@db_sync);
+  my $ops = @db_sync;
+  for (@db_sync) {
+    $ops += @$_ if $_ && ref($_) eq 'ARRAY';
+  }
+  my $timeout = $ops / 30;
+  $timeout = 60 if $timeout < 60;
   my $param = {
     'uri' => "$BSConfig::srcserver/search/published",
     'request' => 'POST',
@@ -190,7 +196,7 @@ sub db_sync {
     'headers' => [ 'Content-Type: application/octet-stream' ],
     'data' => $data,
   };
-  print "    syncing database\n";
+  print "    syncing database ($ops ops)\n";
   eval {
     BSRPC::rpc($param, undef, 'cmd=updatedb');
   };
