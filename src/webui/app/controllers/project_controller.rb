@@ -12,7 +12,7 @@ include RequestHelper
 class ProjectController < ApplicationController
 
   before_filter :require_project, :except => [:repository_arch_list,
-    :autocomplete_projects, :clear_failed_comment, :edit_comment_form, :index, 
+    :autocomplete_projects, :autocomplete_incidents, :clear_failed_comment, :edit_comment_form, :index, 
     :list, :list_all, :list_public, :new, :package_buildresult, :save_new, :save_prjconf,
     :rebuild_time_png, :new_incident]
   before_filter :load_requests, :only => [:delete, :view,
@@ -57,6 +57,12 @@ class ProjectController < ApplicationController
     render :json => @projects
   end
 
+  def autocomplete_incidents
+    required_parameters :term
+    get_filtered_projectlist params[:term], '', true
+    render :json => @projects
+  end
+
   def autocomplete_packages
     required_parameters :term
     packages :norender => true
@@ -81,7 +87,7 @@ class ProjectController < ApplicationController
   end
   private :project_key
 
-  def get_filtered_projectlist(filterstring, excludefilter='')
+  def get_filtered_projectlist(filterstring, excludefilter='', only_incidents=false)
     # remove illegal xpath characters
     filterstring.gsub!(/[\[\]\n]/, '')
     filterstring.gsub!(/[']/, '&apos;')
@@ -90,7 +96,11 @@ class ProjectController < ApplicationController
     predicate += " and " if !predicate.empty? and !excludefilter.blank?
     predicate += "not(starts-with(@name,'#{excludefilter}'))" if !excludefilter.blank?
     predicate += " and " if !predicate.empty?
-    predicate += "not(@kind='maintenance_incident')" # Filter all maintenance incidents
+    if only_incidents
+      predicate += "@kind='maintenance_incident')"
+    else
+      predicate += "not(@kind='maintenance_incident')" # Filter all maintenance incidents
+    end
     result = find_cached Collection, :id, :what => "project", :predicate => predicate, :expires_in => 2.minutes
     @projects = Array.new
     result.each { |p| @projects << p.name }

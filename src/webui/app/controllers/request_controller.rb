@@ -240,6 +240,17 @@ class RequestController < ApplicationController
     redirect_to :controller => 'request', :action => 'show', :id => req.value("id")
   end
 
+  def set_incident_dialog
+  end
+  def set_incident
+    begin
+      BsRequest.set_incident(params[:id], params[:incident_project])
+      flash[:note] = "Set target of request #{id} to incident #{params[:incident_project]}"
+    rescue BsRequest::ModifyError => e
+      flash[:error] = e.message
+    end
+  end
+
 private
 
   def change_request(changestate, params)

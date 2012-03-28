@@ -1,0 +1,29 @@
+<div id="dialog_wrapper">
+  <div class="dialog" id="disable_mask"></div>
+  <div class="dialog darkgrey_box">
+    <div class="box box-shadow">
+      <h2 class="box-header">Set Incident</h2>
+
+      <p>Change the submit target of this request to an already existing incident.</p>
+
+      <% form_tag(:action => 'set_incident') do %>
+        <%= hidden_field_tag(:id, @request_id) %>
+        <p>
+          <%= label_tag(:incident_project, 'Incident:') %><br/>
+          <%= text_field_tag(:incident_project, '', :size => 40) %><br/>
+        </p>
+        <div class="buttons">
+          <%= submit_tag('Ok') %>
+          <%= link_to_function('Cancel', 'remove_dialog()') %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<% javascript_tag do %>
+  $("#incident_project").autocomplete({
+    source: '<%= url_for :controller => 'project', :action => 'autocomplete_incidents' %>',
+    minLength: 2
+  });
+<% end %>

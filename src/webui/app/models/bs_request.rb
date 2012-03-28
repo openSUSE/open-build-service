@@ -117,6 +117,20 @@ class BsRequest < ActiveXML::Base
       raise ModifyError, "unknown changestate #{changestate}"
     end
 
+    def set_incident(id, incident_project)
+      begin
+        path = "/request/#{id}?cmd=setincident&incident=#{incident_project}"
+        transport ||= ActiveXML::Config::transport_for :bsrequest
+        transport.direct_http URI(path), :method => "POST", :data => ''
+        BsRequest.free_cache(id)
+        return true
+      rescue ActiveXML::Transport::ForbiddenError, ActiveXML::Transport::NotFoundError => e
+        message, _, _ = ActiveXML::Transport.extract_error_message e
+        raise ModifyError, message
+      end
+      raise ModifyError, "Unable to merge with incident #{incident_project}"
+    end
+
     def find_last_request(opts)
       unless opts[:targetpackage] and opts[:targetproject] and opts[:sourceproject] and opts[:sourcepackage]
         raise RuntimeError, "missing parameters"
