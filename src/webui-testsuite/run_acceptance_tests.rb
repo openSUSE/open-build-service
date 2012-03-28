@@ -83,7 +83,8 @@ port=nil
 
 options = { 
   :port => DEFAULT_PORT,
-  :headless => true
+  :headless => true,
+  :stop_on_fail => false
 }
 
 limitto = OptionParser.new do |opts|
@@ -95,6 +96,10 @@ limitto = OptionParser.new do |opts|
   
   opts.on('-s', '--show', 'Show the browser instead of running headless') do
     options[:headless] = false
+  end
+
+  opts.on('-f', '--stop-on-fail', 'Stop running tests on first failed test') do
+    options[:stop_on_fail] = true
   end
 
   opts.on( '-h', '--help', 'Display this screen' ) do
@@ -194,7 +199,7 @@ driver = WebDriver.for :firefox #, :remote , "http://localhost:5910'
 #driver.manage.timeouts.implicit_wait = 3 # seconds
 $page = WebPage.new driver
 time_started = Time.now
-TestRunner.run do |test|
+TestRunner.run(options[:stop_on_fail]) do |test|
   if test.status == :ready then
     print((test.name.to_s+"                                               ")[0,55])
     STDOUT.flush

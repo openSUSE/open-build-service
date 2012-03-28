@@ -16,7 +16,7 @@ class TestRunner
   # @param [Block] optional status update block, if such given every test will
   #   be yielded twice to the block. Once before start and once after finish.
   #
-  def self.run
+  def self.run(stop_on_fail)
     raise "No tests added for run!" if @@tests.empty?
     @@status = :running
     skipped_tests = []
@@ -39,6 +39,9 @@ class TestRunner
          teststorun = skipped_tests + [test] + teststorun
          test.status = :ready
          skipped_tests = []
+      end
+      if test.status == :fail && stop_on_fail.true?
+	teststorun = []	
       end
     end
     @@current_test  = nil

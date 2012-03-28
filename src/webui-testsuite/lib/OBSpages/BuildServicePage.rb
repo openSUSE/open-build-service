@@ -112,6 +112,14 @@ class BuildServicePage < WebPage
   # correct user is logged in - :depends on works if it's working one by one in line
   def verify_login user
     cu = current_user
+    if user == :none
+      return if cu == :none
+      logout
+      if @driver.current_url != @url
+        @driver.get @url
+      end
+      return
+    end
     if cu != user[:login]
       unless cu == :none
         logout
@@ -141,6 +149,14 @@ class BuildServicePage < WebPage
     end
   end
   
+  # verifies the correct user is logged in
+  def navigate_to page, options={}
+     if options[:user]
+       verify_login options[:user]
+     end
+     super
+  end
+
   
   # ============================================================================
   # Checks if the user has new requests
