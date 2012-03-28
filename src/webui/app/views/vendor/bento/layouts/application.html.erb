@@ -16,9 +16,10 @@
     <%= stylesheet_link_tag "/themes/bento/css/style", :media => "screen", :title => "Normal" %>
     <%= stylesheet_link_tag "style", :media => "screen" %>
 
+
     <%= yield :content_for_head %>
 
-    <%= javascript_include_tag 'jquery-1.7.1.min', '/themes/bento/js/script', 'jquery-ui-1.7.2.min', 'jrails', 'application', :cache => 'layout-squashed' %>
+    <%= javascript_include_tag 'jquery-1.7.1.min', 'jquery-ui-1.8.18.custom.min', 'jrails', '/themes/bento/js/script', 'application', :cache => 'layout-squashed' %>
 
     <% javascript_tag do %>
       <%= yield :head_javascript %>
