@@ -79,7 +79,7 @@
             });
           <% end %>
         </div>
-        <div class="review_descision_display <%= 'hidden' if @can_add_reviews && @my_open_reviews.length > 0 %>" id="review_descision_display_-1">
+        <div class="review_descision_display" style="<%= 'display: none;' if @can_add_reviews && @my_open_reviews.length > 0 %>" id="review_descision_display_-1">
           <% if @can_handle_request %>
             <% form_tag({:action => 'changerequest'}, {:id => 'request_handle_form'}) do %>
               <p><%= text_area_tag(:reason, 'Please add a comment', :size => '80x2', :style => "width: 99%") %></p>
@@ -99,12 +99,16 @@
                 <% if @state == 'declined' && (@is_author || @is_target_maintainer) %>
                   <%= submit_tag 'Reopen request', :name => 'new' %>
                 <% end %>
-                <% if @can_add_reviews %>
-                  <span style="float: right;">
+                <span style="float: right;">
+                  <% if @can_add_reviews %>
                     <%= link_to_remote(image_tag('icons/user_add.png', :title => 'Add a review'), :url => {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}) %>
                     <%= link_to_remote('Add a review', :url => {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}) %>
-                  </span>
-                <% end %>
+                  <% end %>
+                  <% if reqtype(@req) == 'incident' %>
+                    <%= link_to_remote(image_tag('icons/package_link.png', :title => 'Merge with existing incident'), :url => {:controller => 'request', :action => 'set_incident_dialog', :id => @id}) %>
+                    <%= link_to_remote('Merge with existing incident', :url => {:controller => 'request', :action => 'set_incident_dialog', :id => @id}) %>
+                  <% end %>
+                </span>
               </p>
             <% end %>
             <% javascript_tag do %>
@@ -185,7 +189,7 @@
     <% end %>
   <% end %>
   <% @actions.each_with_index do |action, action_index| %>
-    <div class="action_display <%= 'hidden' if action_index > 0 %>" id="action_display_<%= action_index %>">
+    <div class="action_display" style="<%= 'display: none;' if action_index > 0 %>" id="action_display_<%= action_index %>">
       <p>
         <b>
           <% if action[:type] == 'submit' %>
