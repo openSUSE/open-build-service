@@ -40,7 +40,7 @@ class TestRunner
          test.status = :ready
          skipped_tests = []
       end
-      if test.status == :fail && stop_on_fail.true?
+      if test.status == :fail && stop_on_fail == true
 	teststorun = []	
       end
     end
