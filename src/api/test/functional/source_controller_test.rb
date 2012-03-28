@@ -436,9 +436,8 @@ class SourceControllerTest < ActionController::IntegrationTest
 
     # Get data again and check that it is the changed data
     get url_for(:action => :project_meta, :project => project)
-    doc = REXML::Document.new( @response.body )
-    d = doc.elements["//description"]
-    assert_equal new_desc, d.text if doesmatch
+    assert_response :success
+    assert_equal new_desc, Xmlhash.parse(@response.body)["description"] if doesmatch
   end
   private :do_change_project_meta_test
 

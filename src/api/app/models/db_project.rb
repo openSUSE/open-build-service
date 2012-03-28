@@ -181,7 +181,7 @@ class DbProject < ActiveRecord::Base
           # FIXME3.0: we should limit this to maintainer and reader role only ?
           #            
 	  fprjs = ProjectUserRoleRelationship.forbidden_project_ids
-          cond = "(db_projects.id not in (#{fprjs.join(',')}))" 
+          cond = "(db_projects.id not in (#{fprjs.join(',')}))" unless fprjs.blank?
           if options[:conditions].nil?
             options[:conditions] = cond if cond
           else
