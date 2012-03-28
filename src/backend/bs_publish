@@ -816,6 +816,9 @@ sub deleterepo {
   my $prp_ext = $prp;
   $prp_ext =~ s/:/:\//g;
   my $extrep = "$extrepodir/$prp_ext";
+  if ($BSConfig::publishredirect && exists($BSConfig::publishredirect->{$prp})) {
+    $extrep = $BSConfig::publishredirect->{$prp};
+  }
   if (! -d $extrep) {
     rmdir("$extrepodir/$projid_ext");
     print "    nothing to delete...\n";
