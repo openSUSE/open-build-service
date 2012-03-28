@@ -2694,10 +2694,23 @@ sub publisheddir {
   my @res = ();
   if (!defined($projid)) {
     @res = listpublished($extrepodir);
+    if ($BSConfig::publishredirect) {
+      for (keys %{$BSConfig::publishredirect}) {
+        push @res, (split('/', $_, 2))[0];
+      }
+      @res = unify(@res);
+    }
   } elsif (!defined($repoid)) {
     my $prp_ext = $projid;
     $prp_ext =~ s/:/:\//g;
     @res = listpublished("$extrepodir/$prp_ext");
+    if ($BSConfig::publishredirect) {
+      for (keys %{$BSConfig::publishredirect}) {
+        my @p = split('/', $_, 2);
+	push @res, $p[1] if $p[0] eq $projid;
+      }
+      @res = unify(@res);
+    }
   } elsif (!defined($arch)) {
     my $prp_ext = "$projid/$repoid";
     $prp_ext =~ s/:/:\//g;
@@ -2714,7 +2727,7 @@ sub publisheddir {
       $extrep = $BSConfig::publishredirect->{"$projid/$repoid"};
     }
     return publishedfile($cgi, $projid, $repoid, undef, $arch) if -f "$extrep/$arch";
-    if ($cgi->{'view'} eq 'ymp') {
+    if ($cgi->{'view'} && $cgi->{'view'} eq 'ymp') {
       my $binaryname = $arch;
       my $binary;
       my @archs = ls($extrep);
