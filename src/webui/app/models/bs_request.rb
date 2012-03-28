@@ -273,7 +273,7 @@ class BsRequest < ActiveXML::Base
       case item.name
         when "new" then
           if last_history_item && last_history_item.name == "review"
-            what, color = "acCEPted review", "green" # Moving back to state 'new'
+            what, color = "accepted review", "green" # Moving back to state 'new'
           elsif last_history_item && last_history_item.name == "declined"
             what, color = "reopened", "maroon"
           else
