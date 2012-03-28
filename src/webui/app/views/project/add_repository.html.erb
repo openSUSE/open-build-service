@@ -3,27 +3,23 @@
    project_bread_crumb @pagetitle
 -%>
 
+<%# TODO FIXME: Get rid of 'target_repo_txt', it was / is entirely broken... %>
+
 <%= render :partial => "tabs" %>
 
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag 'jquery.autocomplete' %>
-<% end %>
-<%= javascript_include_tag 'jquery.autocomplete.pack' %>
-
 <% content_for :ready_function do %>
-  $('#target_repo').hide();
-  $("#target_project").autocomplete('<%= url_for(:controller => 'project', :action => 'autocomplete_projects') %>', {minChars: 2, matchCase: false}).result(function() {
+  function autocomplete_repositories(project_name) {
     $('#target_repo').hide();
     $('#target_repo_txt').show();
     $('#loader-repo').show();
     $('#target_repo').html('');
     $.ajax({
       url: '<%= url_for :controller => :project, :action => :autocomplete_repositories %>',
-      data: {project: $("#target_project").attr('value')},
+      data: {project: project_name},
       success: function(data){
         $('#target_repo').removeAttr('disabled');
         // suggest a name:
-        $('#repo_name').attr('value', $("#target_project").attr('value').replace(/:/g,'_') + '_' + data.split('\n').shift());
+        $('#repo_name').attr('value', project_name.replace(/:/g,'_') + '_' + data.split('\n').shift());
         $.each(data.split('\n'), function(idx, val) {
           $('#target_repo').append( new Option( val ) );
           $('#target_repo').show();
@@ -34,10 +30,19 @@
         $('#loader-repo').hide();
       }
     });
+  }
+
+  $("#target_project").autocomplete({
+    source: '<%= url_for(:controller => 'project', :action => 'autocomplete_projects') %>',
+    minLength: 2,
+    select: function (event, ui) { autocomplete_repositories(ui.item.value); },
+    change: function () { autocomplete_repositories($('#target_project').attr('value')); },
   });
 
-  $("#target_repo_txt").autocomplete('<%= url_for(:controller => 'project', :action => 'autocomplete_repositories', :project => @project) %>',
-    { minChars: 2, matchCase: false } );
+  $("#target_repo_txt").autocomplete({
+    source: '<%= url_for(:controller => 'project', :action => 'autocomplete_repositories', :project => @project) %>',
+    minLength: 2,
+  });
 
   $('#target_repo').change(function() {
     $('#repo_name').attr('value', $("#target_project").attr('value').replace(/:/g,'_') + '_' + $(this).val());
@@ -53,7 +58,7 @@
     <strong>Repository: </strong><br/>
     <%= text_field_tag "target_repo_txt", "", :id => 'target_repo_txt', :size => 60 %>
     <%= image_tag('ajax-loader.gif', :id => 'loader-repo', :class => 'hidden') %>
-    <%= select_tag "target_repo", options_for_select([""]), :id => 'target_repo', :disabled => true %><br/>
+    <%= select_tag "target_repo", options_for_select([""]), :id => 'target_repo', :style => 'display: none', :disabled => true %><br/>
     <!-- Don't offer new name if we add this repo to an existing one as path -->
     <% if @torepository %>
       <%= hidden_field_tag( "torepository", @torepository ) %><br/>

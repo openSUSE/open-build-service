@@ -1,12 +1,5 @@
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag 'jquery.autocomplete' %>
-<% end %>
-<%= javascript_include_tag 'jquery.autocomplete.pack' %>
-
 <% javascript_tag do %>
-  $('#maintained_project').autocomplete('<%= url_for :controller => 'project', :action => 'autocomplete_projects' %>', {
-    minChars: 2, matchCase: true, max: 50
-  });
+  $('#maintained_project').autocomplete({source: '<%= url_for :controller => 'project', :action => 'autocomplete_projects' %>', minLength: 2});
 <% end %>
 
 <div id="dialog_wrapper">

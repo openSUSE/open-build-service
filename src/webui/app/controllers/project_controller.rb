@@ -52,24 +52,23 @@ class ProjectController < ApplicationController
   end
 
   def autocomplete_projects
-    required_parameters :q
-    get_filtered_projectlist params[:q], ''
-    render :text => @projects.join("\n")
+    required_parameters :term
+    get_filtered_projectlist params[:term], ''
+    render :json => @projects
   end
 
   def autocomplete_packages
-    required_parameters :q
+    required_parameters :term
     packages :norender => true
-    if valid_package_name_read?( params[:q] ) or params[:q] == ""
-      render :text => @packages.each.select{|p| p.name.index(params[:q]) }.map{|p| p.name}.join("\n")
+    if valid_package_name_read?( params[:term] ) or params[:term] == ""
+      render :json => @packages.each.select{|p| p.name.index(params[:term]) }.map{|p| p.name}
     else
-      render :text => ""
+      render :text => '[]'
     end
   end
 
   def autocomplete_repositories
-    @repos = @project.repositories
-    render :text => @repos.join("\n")
+    render :json => @project.repositories
   end
 
   def project_key(a)
@@ -274,7 +273,6 @@ class ProjectController < ApplicationController
         end
       end
     end
-
     render :show, :status => params[:nextstatus] if params[:nextstatus]
   end
 

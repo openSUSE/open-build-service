@@ -2,10 +2,7 @@
 <% @layouttype = 'custom' %>
 <% @crumb_list = [link_to('Requests', :controller => :home, :action => :requests), @id] %>
 
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag 'jquery.autocomplete' %>
-<% end %>
-<%= javascript_include_tag 'jquery.autocomplete.pack', 'jquery.expander.min' %>
+<%= javascript_include_tag 'jquery.expander.min' %>
 
 <% content_for :ready_function do %>
   $('#expandable_comment').expander({slicePoint: 320, expandText: '[+]', expandPrefix: ' ', userCollapseText: '[-]',});

@@ -163,10 +163,9 @@ class UserController < ApplicationController
     redirect_to :controller => :user, :action => :change_my_password
   end 
 
-  def autocomplete_users
-    required_parameters :q
-    @users = Person.list(params[:q])
-    render :text => @users.join("\n")
+  def autocomplete
+    required_parameters :term
+    render :json => Person.list(params[:term])
   end
 
 end

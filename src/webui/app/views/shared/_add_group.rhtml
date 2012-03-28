@@ -1,18 +1,13 @@
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag 'jquery.autocomplete' %>
-<% end %>
-<%= javascript_include_tag 'jquery.autocomplete.pack' %>
-
 <h3><%= @pagetitle %></h3>
 
 <% form_tag :action => :save_group do %>
   <p>
-    <strong>Group:</strong><br/>
+    <b>Group:</b><br/>
     <%= text_field_tag 'groupid', params[:groupid], :size => '25' %><br/>
     <% javascript_tag do %>
-      $("#groupid").autocomplete('<%= url_for :controller => :group, :action => :autocomplete_groups %>', {minChars: 2, matchCase: true, max: 50});
+      $("#groupid").autocomplete({source: '<%= url_for :controller => 'group', :action => 'autocomplete' %>', minLength: 2});
     <% end %>
-    <strong>Role:</strong><br/>
+    <b>Role:</b><br/>
     <%= select_tag 'role', options_for_select(@roles, params[:role]) %><br/>
     <%= hidden_field_tag 'package', @package %>
     <%= hidden_field_tag 'project', @project %>

@@ -1,15 +1,6 @@
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag 'jquery.autocomplete' %>
-<% end %>
-<%= javascript_include_tag 'jquery.autocomplete.pack', 'jquery.tablesorter' %>
+<%= javascript_include_tag 'jquery.tablesorter' %>
 
 <% javascript_tag do %>
-  var lastTimeoutId = 0;
-  function deferUpdateDisplayWhileInputHappens() {
-    window.clearTimeout(lastTimeoutId);
-    lastTimeoutId = window.setTimeout(updateSupersedeAndDevelPackageDisplay, 500);
-  }
-
   function updateSupersedeAndDevelPackageDisplay() {
     if ($('#targetproject')[0].value.length > 0) {
       if ($('#targetproject')[0].value == $('#sourceproject')[0].value) {
@@ -58,14 +49,13 @@
 
   $('#devel_project_name').click(function() { $('#targetproject').attr('value', $('#devel_project_name').html()); });
 
-  $('#targetproject').keyup(deferUpdateDisplayWhileInputHappens);
-
   updateSupersedeAndDevelPackageDisplay();
 
-  $('#targetproject').autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>', {
-    minChars: 2, matchCase: true, max: 50
-  }).result(function(event, item) {
-    updateSupersedeAndDevelPackageDisplay();
+  $('#targetproject').autocomplete({
+    source: '<%= url_for :controller => :project, :action => :autocomplete_projects %>',
+    minLength: 2,
+    select: updateSupersedeAndDevelPackageDisplay,
+    change: updateSupersedeAndDevelPackageDisplay,
   });
   /*$("#targetpackage").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
     minChars: 0, matchCase: true, max: 50, extraParams: {project: function() { return $("#target_project").val(); }}

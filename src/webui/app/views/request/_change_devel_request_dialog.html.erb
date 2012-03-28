@@ -1,8 +1,3 @@
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag 'jquery.autocomplete' %>
-<% end %>
-<%= javascript_include_tag 'jquery.autocomplete.pack' %>
-
 <div id="dialog_wrapper">
   <div class="dialog" id="disable_mask"></div>
   <div class="dialog darkgrey_box">
@@ -38,7 +33,5 @@
 </div>
 
 <% javascript_tag do %>
-  $('#devel_project').autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>', {
-    minChars: 2, matchCase: true, max: 50
-  });
+  $("#devel_project").autocomplete({source: '<%= url_for :controller => 'project', :action => 'autocomplete_projects' %>', minLength: 2});
 <% end %>

@@ -3,14 +3,8 @@
 <% project_bread_crumb @package.name -%>
 <%= render :partial => "package/tabs" %>
 
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag 'jquery.autocomplete' %>
-<% end %>
-<%= javascript_include_tag 'jquery.autocomplete.pack' %>
-
 <% content_for :ready_function do %> 
-  $("#target_project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>',
-  { minChars: 2, matchCase: true, max: 50 } );
+  $("#target_project").autocomplete({source: '<%= url_for :controller => 'project', :action => 'autocomplete_projects' %>', minLength: 2});
 
   $('#target_project').result(function(event, data, formatted) {
   if (data) {
@@ -20,6 +14,7 @@
   });
 
 
+  /*TODO: Feel free to port this from jquery.autocomplete to jQueryUI....
   get_repos_for_project = function() {
   $.ajax({ url: '<%= url_for :controller => :project, :action => :autocomplete_repositories %>',
   data: {project: $("#target_project").attr('value')},
@@ -39,13 +34,22 @@
   $("#target_repo_loader").hide();
   },
   });
-  };
+  };*/
 
-  $("#target_package").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
-  matchCase: true, max: 50, minChars: 0,
-  extraParams: {
-  project: function(){ return get_package_project(); }
-  }
+  $("#target_package").autocomplete({
+    source: function (request, response) {
+      $.ajax({
+        url: '<%= url_for :controller => 'project', :action => 'autocomplete_packages' %>', 
+        data: { 
+          project: get_package_project,
+          term: request.term,
+        },
+        success: function(data) { 
+          response($.map(data, function(item) { return { label: item, value: item } }));
+        },
+      });
+    },
+    minLength: 2,
   });
 
   $("#add_repo_toggle").click(function () {
