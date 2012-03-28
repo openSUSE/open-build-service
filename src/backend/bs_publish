@@ -959,10 +959,9 @@ sub publish {
 
   if ($BSConfig::publishredirect && exists($BSConfig::publishredirect->{$prp})) {
     $extrep = $BSConfig::publishredirect->{$prp};
-    $prp_ext = undef;
   }
   $extrep .= $dbgsplit if $dbgsplit;
-  $prp_ext .= $dbgsplit if $prp_ext && $dbgsplit;
+  $prp_ext .= $dbgsplit;
   
   # we now know that $reporoot/$prp/*/:repo will not change.
   # Build repo by mixing all architectures.
@@ -1353,10 +1352,10 @@ sub publish {
 
   # put in published database
   my $binarydb = db_open('binary');
-  updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @db_deleted ], [ map {"$prp_ext/$_"} @db_changed ]) if $binarydb && defined($prp_ext);
+  updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @db_deleted ], [ map {"$prp_ext/$_"} @db_changed ]) if $binarydb;
 
   # mark file origins so we can gather per package statistics
-  if ($BSConfig::markfileorigins && defined($prp_ext)) {
+  if ($BSConfig::markfileorigins) {
     print "    marking file origins\n";
     for my $f (sort @db_changed) {
       my $origin = $binaryorigins->{$f};
@@ -1473,7 +1472,7 @@ publishprog_done:
   }
 
   # push the repo (unless there's a redirect)
-  if (defined($prp_ext) && !($BSConfig::publishredirect && $BSConfig::publishredirect->{$prp})) {
+  if (!($BSConfig::publishredirect && $BSConfig::publishredirect->{$prp})) {
     # push to stageserver
     if ($BSConfig::stageserver && $BSConfig::stageserver =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
       print "    running rsync to $1 at ".localtime(time)."\n";
