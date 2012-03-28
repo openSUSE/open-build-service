@@ -1,6 +1,7 @@
 class AdminController < ApplicationController
   layout "rbac"
    
+  skip_before_filter :validate_params, :only => [:create_tag, :update_tag, :create_blacklist_tag, :update_blacklist_tag ]
   skip_before_filter :extract_user, :only => [:killme, :startme]
   before_filter :require_admin, :except => [:killme, :startme]
 
