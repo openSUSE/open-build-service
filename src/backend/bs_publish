@@ -961,7 +961,7 @@ sub publish {
     $extrep = $BSConfig::publishredirect->{$prp};
   }
   $extrep .= $dbgsplit if $dbgsplit;
-  $prp_ext .= $dbgsplit;
+  $prp_ext .= $dbgsplit if $dbgsplit;
   
   # we now know that $reporoot/$prp/*/:repo will not change.
   # Build repo by mixing all architectures.
