@@ -15,7 +15,7 @@ class TC80__Spider < TestCase
       end
       link.fragment = nil
       link.normalize!
-      next unless link.hostname == 'localhost'
+      next unless link.host == 'localhost'
       next unless link.port == @port
       unless @pages_visited.has_key? link.to_s
         @pages_to_visit[link.to_s] ||= [baseuri.to_s, element.text]
