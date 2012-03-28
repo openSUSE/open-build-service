@@ -44,7 +44,7 @@ class ProjectController < ApplicationController
     @important_projects = get_important_projects
     @filterstring = params[:searchtext] || ''
     @excludefilter = params['excludefilter'] if params['excludefilter'] and params['excludefilter'] != 'undefined'
-    get_filtered_projectlist @filterstring, @excludefilter
+    get_filtered_projectlist @filterstring, @excludefilter, :prefix_search => false
     if request.xhr? && !mobile_request?
       render :partial => 'search_project' and return
     end
@@ -59,7 +59,7 @@ class ProjectController < ApplicationController
 
   def autocomplete_incidents
     required_parameters :term
-    get_filtered_projectlist params[:term], '', true
+    get_filtered_projectlist params[:term], '', :only_incidents => true
     render :json => @projects
   end
 
@@ -87,16 +87,21 @@ class ProjectController < ApplicationController
   end
   private :project_key
 
-  def get_filtered_projectlist(filterstring, excludefilter='', only_incidents=false)
+  def get_filtered_projectlist(filterstring, excludefilter='', opts={})
+    opts = {:only_incidents => false, :prefix_search => true}.merge(opts)
     # remove illegal xpath characters
     filterstring.gsub!(/[\[\]\n]/, '')
     filterstring.gsub!(/[']/, '&apos;')
     filterstring.gsub!(/["]/, '&quot;')
-    predicate = filterstring.empty? ? '' : "contains(@name, '#{filterstring}')"
+    if opts[:prefix_search]
+      predicate = filterstring.empty? ? '' : "starts-with(@name, '#{filterstring}')"
+    else
+      predicate = filterstring.empty? ? '' : "contains(@name, '#{filterstring}')"
+    end
     predicate += " and " if !predicate.empty? and !excludefilter.blank?
     predicate += "not(starts-with(@name,'#{excludefilter}'))" if !excludefilter.blank?
     predicate += " and " if !predicate.empty?
-    if only_incidents
+    if opts[:only_incidents]
       predicate += "@kind='maintenance_incident')"
     else
       predicate += "not(@kind='maintenance_incident')" # Filter all maintenance incidents
