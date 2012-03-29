@@ -3,8 +3,6 @@
 
 <%= render :partial => "tabs" %>
 
-<%= javascript_include_tag 'jquery.tablesorter' %>
-
 <% content_for :head_javascript do %>
   function insertRow() {
     var name     = document.getElementById('add_new_parameter').value;

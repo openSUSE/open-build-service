@@ -2,8 +2,6 @@
 <% @layouttype = 'custom' %>
 <% @crumb_list = [link_to('Requests', :controller => :home, :action => :requests), @id] %>
 
-<%= javascript_include_tag 'jquery.expander.min' %>
-
 <% content_for :ready_function do %>
   $('#expandable_comment').expander({slicePoint: 320, expandText: '[+]', expandPrefix: ' ', userCollapseText: '[-]',});
 <% end %>

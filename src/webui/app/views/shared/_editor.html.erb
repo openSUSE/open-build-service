@@ -5,7 +5,6 @@
 <% no_border ||= false %>
 
 <% content_for :content_for_head do %>
-  <%= stylesheet_link_tag 'cm2/suse' %>
   <style type="text/css">
     <% if no_border %>
       .CodeMirror {
@@ -21,7 +20,6 @@
     }
   </style>
 <% end %>
-<%= javascript_include_tag 'cm2/codemirror', 'cm2/codemirror-ui', "cm2/mode/#{mode}" %>
 
 <% uid = rand().to_s()[2..-1] # unique id to allow including multiple editors %>
 <textarea id="editor_<%= uid %>" name="editor_<%= uid %>" style="display: none;" rows="0" cols="0"><%= force_utf8_and_transform_nonprintables(text) %></textarea>

@@ -1,5 +1,3 @@
-<%= javascript_include_tag 'jquery.tablesorter' %>
-
 <% if @user and @user.is_maintainer?(@project, @package) %>
   <% content_for :head_javascript do %>
     function change_role() {

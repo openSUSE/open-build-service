@@ -4,8 +4,6 @@
   <p class="info filtered_by">Currently active filter <strong><%= h(@project_filter) %></strong> [<%= link_to 'Remove Filter', :controller => 'monitor', :action => :old %>]</p>
 <% end %>
 
-<%= javascript_include_tag 'jquery.tablesorter' %>
-
 <% content_for :ready_function do %>
        // call the tablesorter plugin
         $(".tablesorter").tablesorter({ 

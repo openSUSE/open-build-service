@@ -3,8 +3,6 @@
 
 <%= render :partial => 'tabs' %>
 
-<%= javascript_include_tag 'jquery.tablesorter' %>
-
 <h3>Maintained Projects</h3>
 <% if @maintained_projects.length > 0 %>
   <table cellspacing='1' id="maintained_projects_table" class="tablesorter">
