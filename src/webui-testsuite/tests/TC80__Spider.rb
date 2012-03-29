@@ -66,7 +66,7 @@ class TC80__Spider < TestCase
     @wait = Selenium::WebDriver::Wait.new(:timeout => 6, :interval => 0.1)
     @port = URI.parse( $data[:url] ).port
     @driver = $page.driver
-    @driver.navigate.to($data[:url])
+    navigate_to MainPage, :user => :none
     getlinks
     crawl
     

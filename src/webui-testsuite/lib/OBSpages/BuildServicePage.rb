@@ -112,22 +112,19 @@ class BuildServicePage < WebPage
   # correct user is logged in - :depends on works if it's working one by one in line
   def verify_login user
     cu = current_user
-    if user == :none
-      return if cu == :none
-      logout
-      if @driver.current_url != @url
-        @driver.get @url
-      end
-      return
-    end
-    if cu != user[:login]
+    if cu != user
       unless cu == :none
         logout
         if @driver.current_url != @url
           @driver.get @url
         end
       end
-      login_as user
+      if user != :none
+        login_as user
+      end
+      if @driver.current_url != @url
+         @driver.get @url
+      end
     end
   end
 
