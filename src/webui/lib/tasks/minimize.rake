@@ -1,4 +1,6 @@
 require 'tempfile'
+require 'rubygems'
+require 'cssmin'
 
 # Beware, order matters:
 JAVASCRIPT_FILENAMES = [
@@ -65,20 +67,20 @@ CSS_FILENAMES = [
   'public/themes/bento/css/reset.css',
   'public/themes/bento/css/960.css',
   'public/themes/bento/css/base.css',
-  'public/themes/bento/css/base.fluid.fix.css',
-  'public/themes/bento/css/grid.css',
-  'public/themes/bento/css/print.css',
-  'public/themes/bento/css/style.css',
-  #'public/themes/bento/css/style.fluid.css',
-  #'public/themes/tumblr-bento/html/style.css',
-  'public/stylesheets/style.css',
+  #'public/themes/bento/css/base.fluid.fix.css', # We don't use fluid
+  #'public/themes/bento/css/grid.css', # Dunno where this is used?
+  #'public/themes/bento/css/print.css', # Seems unused
+  #'public/themes/bento/css/style.css', # Only includes reset,960,base
+  #'public/themes/bento/css/style.fluid.css', # We don't use fluid
+  'public/stylesheets/style.css', # OBS global overrides for Bento
   'public/stylesheets/dialog.css',
   'public/stylesheets/monitor.css',
   'public/stylesheets/package.css',
   'public/stylesheets/project.css',
-  #'public/stylesheets/jquery.mobile-1.0rc2.min.css',
   'public/stylesheets/jquery.tooltip.css',
-  'public/stylesheets/cm2/suse.css',
+  'public/stylesheets/cm2/suse.css', # CodeMirror2 OBS styles
+  #'public/themes/tumblr-bento/html/style.css',
+  #'public/stylesheets/jquery.mobile-1.0rc2.min.css',
   #'public/stylesheets/style.mobile.css',
 ]
 
@@ -101,7 +103,30 @@ namespace :minimize do
 
   desc 'Minimize CSS'
   task :css do
-    #TODO
+    MINIFIED_CSS_FILENAME = 'public/stylesheets/obs.min.css'
+
+    tmpfile = Tempfile.new('ugly_css')
+    CSS_FILENAMES.each do |css_filename|
+      puts "Minify CSS file '#{css_filename}'"
+      File.open(css_filename, 'r') do |css_file|
+        css_file.each do |line|
+          # Rewrite CSS url('NOW_WRONG_PATH/image.png'):
+          line.gsub!(/url\(['"]?([A-Za-z0-9_\-\/]+\.png)['"]?\)/) do |match|
+            save_group = $1 # Will otherwise be overwritten by 'split()'
+            # Set new path relative to 'public/' directory:
+            "url('/#{File.dirname(css_filename).split('/', 2)[1]}/#{save_group}')"
+          end
+          tmpfile.write(line)
+        end
+      end
+    end
+    tmpfile.close
+    File.open(tmpfile.path, 'r') do |tmpfile|
+      File.delete(MINIFIED_CSS_FILENAME) if File.exists?(MINIFIED_CSS_FILENAME)
+      File.open(MINIFIED_CSS_FILENAME, 'w') do |mincss|
+        mincss.puts(CSSMin.minify(tmpfile))
+      end
+    end
   end
 
 end

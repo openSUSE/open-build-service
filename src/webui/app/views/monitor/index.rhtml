@@ -2,10 +2,6 @@
 <% @crumb_list = ['Monitor'] %>
 <% @metarobots = 'nofollow' %>
 
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag 'monitor', :media => 'all' %>
-<% end %>
-
 <% if @workerstatus %>
   <%= render :partial => 'lights' %>
   <%= render :partial => 'workers_table' %>

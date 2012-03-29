@@ -1,9 +1,5 @@
 <% no_target ||= false %>
 
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag 'jquery.tooltip' %>
-<% end %>
-
 <% content_for :head_javascript do %>
   function updateRequestDisplay() {
     $('#spinner').show();

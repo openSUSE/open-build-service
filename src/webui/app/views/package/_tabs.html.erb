@@ -5,10 +5,6 @@
   });
 <% end %>
 
-<% content_for :content_for_head do %>
-  <%= stylesheet_link_tag "package", :media => "all" %>
-<% end %>
-
 <div class="box-header header-tabs">
   <ul id="package_tabs">
     <% if @package.name == "patchinfo" %>
