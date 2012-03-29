@@ -123,7 +123,7 @@ namespace :deploy do
   desc "Send email notification of deployment"
   task :notify do
     #diff = `#{source.local.diff(current_revision)}`
-    diff_log = `#{source.local.log( source.next_revision(current_revision) )}`
+    diff_log = `#{source.local.log(source.local.next_revision(current_revision), branch)}`
     user = `whoami`
     body = %Q[From: obs-webui-deploy@suse.de
 To: #{deploy_notification_to.join(", ")}
