@@ -1,17 +1,18 @@
 #!/bin/sh
 #
-# This script runs WebUI selenium tests
+# This script runs all build service test suites and calculates code coverage
 #
 
 ###############################################################################
 # Job configuration template
 ###############################################################################
 #
-# Project name: obs_testsuite_webui-testsuite
+# Project name: obs_testsuite_coverage
 # Description:
-#   OBS WebUI selenium testsuite on git master branch.
+#   OBS testsuite code coverage on git master branch.
 #
-#   Updates source code repository and runs webui-testsuite.
+#   Updates source code repository and runs all testsuites. It
+#   generates coverage reports and todo/fixme reports as well as code statistics.
 #
 # Source Code Management:
 #   Git:
@@ -24,11 +25,11 @@
 #
 # Build Triggers:
 #   Poll SCM:
-#     Schedule: */5 * * * *
+#     Schedule: 2 1 * * *
 #
 # Build:
 #   Execute shell:
-#     Command: sh dist/ci/obs_testsuite_webui-testsuite.sh
+#     Command: sh dist/ci/obs_testsuite_coverage.sh
 #
 # Post Build Actions: #FIXME
 #   Publish JUnit test result report:
@@ -37,6 +38,8 @@
 #     Rake working directory: src/webui
 #   Publish Rails stats report: 1
 #     Rake working directory: src/webui
+#   Publish Rcov report:
+#     Rcov report directory:  src/webui/coverage
 #
 
 ###############################################################################
@@ -51,20 +54,24 @@ set -xe
 
 setup_git
 setup_api
-setup_webui
 
-echo "Running Acceptance Tests"
-cd src/webui-testsuite
-ruby ./run_acceptance_tests.rb
-
+echo "Enter API rails root and running rcov"
+cd src/api
+rake --trace test:rcov || true
 cd ../..
 
-echo "Contents of src/api/log/test.log:"
-cat src/api/log/test.log
-echo
+echo "Enter WebUI rails root and running rcov"
+setup_api
+setup_webui
 
-echo "Contents of src/webui/log/test.log:"
-cat src/webui/log/test.log
-echo
+cd src/webui
+rake --trace test:rcov || true
+cd ../..
+
+cd src/webui-testsuite
+# FIXME there is no point in running this at the moment because we need to add means of starting
+# webui and api server under code coverage (easy part) _and_ have jenkins merge the results
+# ruby ./run_acceptance_tests.rb || true
+cd ../..
 
 cleanup

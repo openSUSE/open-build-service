@@ -1,7 +1,6 @@
 #!/bin/sh
 #
-# This script runs both API unit and integration tests and produces coverage
-# and todo/fixme reports as well as code statistics.
+# This script runs both API unit and integration tests 
 #
 
 ###############################################################################
@@ -12,8 +11,7 @@
 # Description:
 #   OBS API testsuite on git master branch.
 #
-#   Updates source code repository and runs unit and integration tests. It also
-#   generates coverage reports.
+#   Updates source code repository and runs unit and integration tests.
 #
 # Source Code Management:
 #   Git:
@@ -40,8 +38,6 @@
 #     Rake working directory: src/api
 #   Publish Rails stats report: 1
 #     Rake working directory: src/api
-#   Publish Rcov report:
-#     Rcov report directory:  src/api/coverage
 #
 
 ###############################################################################
@@ -51,14 +47,16 @@
 # Either invoke as described above or copy into an 'Execute shell' 'Command'.
 #
 
-set -e 
-set -x
-
+set -xe
 . `dirname $0`/obs_testsuite_common.sh
+
+setup_git
+setup_api
+
+cd src/api
 
 echo "Invoke rake"
 rake --trace ci:setup:testunit test CI_REPORTS=results || true
-rake --trace test:rcov || true
 cd ../..
 
 echo "Output test.log"
