@@ -70,10 +70,12 @@ class ProjectPage < BuildServicePage
     if @advanced_tabs.include? tab then
       if @driver.include? :xpath => tab_xpath + "[text()='Advanced']" then
         @driver[ :xpath => tab_xpath + "[text()='Advanced']" ].click
+        wait_for_javascript
       end
     end
 
     @driver[ :xpath => tab_xpath + "[text()='" + tab + "']" ].click
+    wait_for_javascript
     $page =  @available_tabs[tab].new_ready @driver
   end
   

@@ -43,7 +43,7 @@ class TC80__Spider < TestCase
       begin
         @driver.navigate.to(theone)
         puts "crawled #{theone}"
-        @wait.until { 
+        wait.until { 
           @driver.execute_script('return jQuery.active') == 0
         }
         unless @driver.find_elements(:css => "div#flash-messages div.ui-state-error").empty?
@@ -63,7 +63,6 @@ class TC80__Spider < TestCase
     @pages_to_visit = Hash.new
     @pages_visited = Hash.new
 
-    @wait = Selenium::WebDriver::Wait.new(:timeout => 6, :interval => 0.1)
     @port = URI.parse( $data[:url] ).port
     @driver = $page.driver
     navigate_to MainPage, :user => :none

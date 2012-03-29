@@ -48,6 +48,7 @@ class UserHomePage < BuildServicePage
   #
   def change_user_real_name new_name
     @driver[:xpath => "//div[@id='content']//a[@href='/user/edit']"].click
+    wait_for_javascript
     
     #validate { 
     #  @driver.page_source.include? "Editing User Data for User " + current_user[:login] }

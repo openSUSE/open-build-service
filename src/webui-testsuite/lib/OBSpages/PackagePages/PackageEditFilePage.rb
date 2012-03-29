@@ -49,27 +49,24 @@ class PackageEditFilePage < PackagePage
     # new edit page does not allow comments
  #   validate { @driver.page_source.include? "Comment your changes (optional):" }
     
-    assert @driver.find_element(:css => "a.save")["class"].split(" ").include? "inactive"
-    @driver[:css => "div.CodeMirror textarea"].clear
-    Selenium::WebDriver::Wait.new(:timeout => 6, :interval => 0.1).until {
-      puts "cleared", @driver.find_element(:css => "a.save")["class"]
-      !@driver.find_element(:css => "a.save")["class"].split(" ").include? "inactive"
-    }
-
-    @driver[:css => "div.CodeMirror textarea"].send_keys new_content
-    Selenium::WebDriver::Wait.new(:timeout => 6, :interval => 0.1).until {
-      puts "after new ", @driver.find_element(:css => "a.save")["class"]
-      !@driver.find_element(:css => "a.save")["class"].split(" ").include? "inactive"
+    textarea = @driver[:css => "div.CodeMirror textarea"]
+    savebutton = @driver.find_element(:css => "a.save")
+    assert savebutton["class"].split(" ").include? "inactive"
+    
+    textarea.send_keys([:control, 'a'])
+    textarea.send_keys([:control, 'x'])
+    textarea.send_keys new_content
+    wait.until {
+      !savebutton["class"].split(" ").include? "inactive"
     }
  #   @driver[:css => "div#content input#comment"].clear
  #   @driver[:css => "div#content input#comment"].send_keys commit_message
 
-    assert !@driver.find_element(:css => "a.save")["class"].split(" ").include?("inactive")
+    assert !savebutton["class"].split(" ").include?("inactive")
     @driver[:css => "a.save"].click
-    
-    Selenium::WebDriver::Wait.new(:timeout => 6, :interval => 0.1).until {
-	    puts @driver.find_element(:css => "a.save")["class"]
-      @driver.find_element(:css => "a.save")["class"].split(" ").include? "inactive"
+    wait_for_javascript
+    wait.until {
+      savebutton["class"].split(" ").include? "inactive"
     }
 #    assert_equal flash_message, "Successfully saved file #{@file}"
 #    assert_equal flash_message_type, :info 

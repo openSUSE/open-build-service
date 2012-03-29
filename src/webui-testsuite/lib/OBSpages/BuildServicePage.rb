@@ -318,4 +318,10 @@ class BuildServicePage < WebPage
   def page_source
     @driver.page_source
   end
+
+  def wait_for_javascript
+    wait.until {
+      @driver.execute_script('return jQuery.active') == 0
+    }
+  end
 end

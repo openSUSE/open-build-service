@@ -117,4 +117,7 @@ class WebPage
     File.open(path, "w").write(@driver.page_source)
   end
 
+  def wait
+    @wait ||= Selenium::WebDriver::Wait.new(:timeout => 600, :interval => 0.1)
+  end
 end

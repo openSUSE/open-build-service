@@ -3,7 +3,7 @@ class TC01__Login < TestCase
   test :login_as_user do
   
     navigate_to MainPage, :user => :none
-    login_as $data[:user2]
+    login_as $data[:user1]
     logout
   end
 
