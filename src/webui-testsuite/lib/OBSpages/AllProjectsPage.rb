@@ -46,7 +46,10 @@ class AllProjectsPage < BuildServicePage
       @driver[:id => "searchtext"].clear       
       @driver[:id => "searchtext"].send_keys pattern.to_s
       @driver[:id => "searchtext"].send_keys :enter
+
+      @url = $data[:url] + "/project/list?searchtext=#{pattern}"
     end
+    
   end
   
   def current_project_filter
