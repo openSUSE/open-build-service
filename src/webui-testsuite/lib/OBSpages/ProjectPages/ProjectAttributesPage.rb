@@ -30,21 +30,6 @@ class ProjectAttributesPage < ProjectPage
     @url = $data[:url] + "/project/attributes?project=" + CGI.escape(@project)
   end
   
-  PROJECT_ATTRIBUTES = [ "NSTEST:status",
-			 "OBS:VeryImportantProject",
-                         "OBS:UpdateProject",
-			 "OBS:Maintained",
-			 "OBS:RequestCloned",
-			 "OBS:InitializeDevelPackage",
-                         "OBS:MaintenanceProject",
-                         "OBS:MaintenanceIdTemplate",
-                         "OBS:RejectRequests",
-			 "OBS:ApprovedRequestSource",
-			 "OBS:BranchTarget",
-			 "OBS:ScreenShots",
-		         "OBS:ProjectStatusPackageFailComment",
-			 "OBS:QualityCategory" ].sort
-
   def project_attributes
     attributes_table = @driver[:xpath => "//div[@id='content']//table"]
     rows = attributes_table.find_elements :xpath => ".//tr"
@@ -62,8 +47,8 @@ class ProjectAttributesPage < ProjectPage
   def add_new_attribute attribute
     attribute[:value]  ||= ""
     attribute[:expect] ||= :success
-    puts "not included #{attribute[:name]}" unless PROJECT_ATTRIBUTES.include? attribute[:name]
-    assert PROJECT_ATTRIBUTES.include? attribute[:name]
+    puts "not included #{attribute[:name]}" unless ATTRIBUTES.include? attribute[:name]
+    assert ATTRIBUTES.include? attribute[:name]
 
     @driver[
       :xpath => "//div[@id='content']//a[text()='Add a new attribute']"].click
@@ -75,8 +60,8 @@ class ProjectAttributesPage < ProjectPage
     
     options = @driver.find_elements :xpath => xpath_options
     options_array = options.collect { |opt| opt.text }
-    puts options_array.inspect unless options_array.sort == PROJECT_ATTRIBUTES
-    assert options_array.sort == PROJECT_ATTRIBUTES
+    puts options_array.inspect unless options_array.sort == ATTRIBUTES
+    assert options_array.sort == ATTRIBUTES
     
     @driver[:xpath => xpath_options + "[text()='#{attribute[:name]}']"].click
     @driver[:id => "values"].clear
@@ -103,7 +88,7 @@ class ProjectAttributesPage < ProjectPage
 
   def edit_attribute attribute
     attribute[:expect] ||= :success
-    assert PROJECT_ATTRIBUTES.include? attribute[:name]
+    assert ATTRIBUTES.include? attribute[:name]
     
     attributes_table = @driver[:xpath => "//div[@id='content']//table"]
     rows = attributes_table.find_elements :xpath => ".//tr"
@@ -143,7 +128,7 @@ class ProjectAttributesPage < ProjectPage
 
   def delete_attribute attribute
     attribute[:expect] ||= :success
-    assert PROJECT_ATTRIBUTES.include? attribute[:name]
+    assert ATTRIBUTES.include? attribute[:name]
     
     attributes_table = @driver[:xpath => "//div[@id='content']//table"]
     rows = attributes_table.find_elements :xpath => ".//tr"
@@ -158,7 +143,6 @@ class ProjectAttributesPage < ProjectPage
     assert_equal popup.text, "Really remove attribute '#{attribute[:name]}'?"
 
     popup.accept
-    wait = Selenium::WebDriver::Wait.new(:timeout => 10) # seconds
     wait.until { @driver.find_element(:id => "flash-messages") }
 
     #sleep 1 # http://code.google.com/p/selenium/issues/detail?id=3147

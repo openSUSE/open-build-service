@@ -31,22 +31,6 @@ class PackageAttributesPage < PackagePage
     @url = @driver.current_url
   end
   
-  PACKAGE_ATTRIBUTES = [ "NSTEST:status",
-			 "OBS:VeryImportantProject",
-                         "OBS:UpdateProject",
-			 "OBS:Maintained",
-			 "OBS:RequestCloned",
-                         "OBS:InitializeDevelPackage",
-                         "OBS:MaintenanceProject",
-                         "OBS:MaintenanceIdTemplate",
-                         "OBS:RejectRequests",
-                         "OBS:ApprovedRequestSource",
-			 "OBS:BranchTarget", 
-			 "OBS:ScreenShots", 
-			 "OBS:ProjectStatusPackageFailComment", 
-			 "OBS:QualityCategory" ]
-
-  
   # ============================================================================
   #
   def package_attributes
@@ -69,7 +53,7 @@ class PackageAttributesPage < PackagePage
   def add_new_attribute attribute
     attribute[:value]  ||= ""
     attribute[:expect] ||= :success
-    assert PACKAGE_ATTRIBUTES.include? attribute[:name]
+    assert ATTRIBUTES.include? attribute[:name]
 
     @driver[
       :xpath => "//div[@id='content']//a[text()='Add a new attribute']"].click
@@ -82,7 +66,7 @@ class PackageAttributesPage < PackagePage
     
     options = @driver.find_elements :xpath => xpath_options
     options_array = options.collect { |opt| opt.text }
-    assert_equal options_array, PACKAGE_ATTRIBUTES
+    assert_equal options_array.sort, ATTRIBUTES
     
     @driver[:xpath => xpath_options + "[text()='#{attribute[:name]}']"].click
     @driver[:id => "values"].clear
@@ -115,7 +99,7 @@ class PackageAttributesPage < PackagePage
   #
   def edit_attribute attribute
     attribute[:expect] ||= :success
-    assert PACKAGE_ATTRIBUTES.include? attribute[:name]
+    assert ATTRIBUTES.include? attribute[:name]
     
     attributes_table = @driver[:xpath => "//div[@id='content']//table"]
     rows = attributes_table.find_elements :xpath => ".//tr"
@@ -158,7 +142,7 @@ class PackageAttributesPage < PackagePage
   #
   def delete_attribute attribute
     attribute[:expect] ||= :success
-    assert PACKAGE_ATTRIBUTES.include? attribute[:name]
+    assert ATTRIBUTES.include? attribute[:name]
     
     attributes_table = @driver[:xpath => "//div[@id='content']//table"]
     rows = attributes_table.find_elements :xpath => ".//tr"
