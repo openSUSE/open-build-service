@@ -68,8 +68,8 @@ class RequestController < ApplicationController
     @is_target_maintainer = @req.is_target_maintainer?(session[:login])
 
     @my_open_reviews, @other_open_reviews = @req.reviews_for_user_and_others(@user)
-    @can_add_reviews = ['new', 'review'].include?(@state) && (@is_author || @is_target_maintainer || @my_open_reviews.length > 0)
-    @can_handle_request = ['new', 'review', 'declined'].include?(@state) && (@is_target_maintainer || @is_author)
+    @can_add_reviews = ['new', 'review'].include?(@state) && (@is_author || @is_target_maintainer || @my_open_reviews.length > 0) && session[:login]
+    @can_handle_request = ['new', 'review', 'declined'].include?(@state) && (@is_target_maintainer || @is_author) && session[:login]
 
     @events = @req.events()
     @actions = @req.actions(!@spider_bot) # Don't fetch diff for spiders, may take to long
