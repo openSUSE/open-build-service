@@ -3853,6 +3853,7 @@ sub sourcediff {
   undef $fmax unless $fmax;
   undef $tmax unless $tmax;
 
+  my $have0rev = (defined($cgi->{'rev'}) && $cgi->{'rev'} eq '0') || (defined($cgi->{'orev'}) && $cgi->{'orev'} eq '0');
   my $rev;
   if ($cgi->{'meta'}) {
     $rev = getrev_meta($projid, $packid, $cgi->{'rev'});
@@ -3866,6 +3867,7 @@ sub sourcediff {
   if (!defined($cgi->{'oproject'}) && !defined($cgi->{'opackage'}) && !defined($cgi->{'orev'}) && $rev->{'rev'}) {
     die("revision is not a simple commit\n") unless $rev->{'rev'} =~ /^\d+$/s;
     $orev = $rev->{'rev'} - 1;
+    $have0rev = 1 if $orev == 0;
     $cgi->{'olinkrev'} = 'linkrev' if !defined($cgi->{'olinkrev'});
   }
   if ($cgi->{'meta'}) {
@@ -3876,7 +3878,7 @@ sub sourcediff {
   my $olinkinfo = {};
   my $ofiles = lsrev($orev, $olinkinfo);
   $ofiles = handleservice($orev, $ofiles, $olinkinfo->{'xservicemd5'}) if $cgi->{'expand'} && $olinkinfo->{'xservicemd5'};
-  if (($cgi->{'expand'} || ($files->{'_link'} && !$ofiles->{'_link'} && $cgi->{'orev'}!="0") || ($ofiles->{'_link'} && !$files->{'_link'} && $cgi->{'rev'}!="0"))) {
+  if ($cgi->{'expand'} || (!$have0rev && $files->{'_link'} && !$ofiles->{'_link'}) || (!$have0rev && $ofiles->{'_link'} && !$files->{'_link'})) {
     # expand links
     if ($files->{'_link'}) {
       $rev->{'linkrev'} = $cgi->{'linkrev'} if $cgi->{'linkrev'};
