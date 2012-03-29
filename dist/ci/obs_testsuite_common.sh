@@ -65,7 +65,17 @@ setup_webui() {
 }
 
 cleanup() {
+  echo "Killing backend processes"
+  if fuser -v $PWD | egrep 'perl|ruby'; then
+    list=`fuser -v $PWD 2>&1 | egrep 'perl|ruby' | sed -e "s,^ *$USER *,,;"  | cut '-d ' -f1`
+    for p in $list; do
+      echo "Kill $p"
+      # the process might have gone away on its own, so use || true
+      kill $p || true
+    done
+  fi
+
   echo "Remove log/tmp files to save disc space"
   rm -rf src/api/{log,tmp}/* \
-         src/webui/{log,tmp}/*
+         src/webui/{log,tmp}/* || true
 }
