@@ -40,7 +40,7 @@ class PackageOverviewPage < PackagePage
   def delete_package
     @driver[:xpath => "//div[@id='content']//a[text()='Delete package']"].click
 
-    validate { @driver.include? :xpath => "//div[@id='dialog_wrapper']//b[text()='Delete Confirmation']" }
+    validate { @driver.include? :xpath => "//div[@id='dialog_wrapper']//h2[text()='Delete Confirmation']" }
     
     @driver[:xpath => "//form[@action='/package/remove']//input[@name='commit'][@value='Ok']"].click
     
