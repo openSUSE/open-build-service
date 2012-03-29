@@ -3875,7 +3875,7 @@ sub sourcediff {
   my $olinkinfo = {};
   my $ofiles = lsrev($orev, $olinkinfo);
   $ofiles = handleservice($orev, $ofiles, $olinkinfo->{'xservicemd5'}) if $cgi->{'expand'} && $olinkinfo->{'xservicemd5'};
-  if ($cgi->{'expand'} || ($files->{'_link'} && !$ofiles->{'_link'}) || ($ofiles->{'_link'} && !$files->{'_link'})) {
+  if (($cgi->{'expand'} || ($files->{'_link'} && !$ofiles->{'_link'} && $cgi->{'orev'}!="0") || ($ofiles->{'_link'} && !$files->{'_link'} && $cgi->{'rev'}!="0"))) {
     # expand links
     if ($files->{'_link'}) {
       $rev->{'linkrev'} = $cgi->{'linkrev'} if $cgi->{'linkrev'};
