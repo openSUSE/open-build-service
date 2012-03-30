@@ -44,8 +44,6 @@ module ActiveRbacMixins
       # the validation.
       def self.included(base)
         base.class_eval do
-          # roles are arranged in a tree
-          acts_as_tree :order => 'title'
           # roles have n:m relations for users
           has_and_belongs_to_many :users, :uniq => true
           # roles have n:m relations to groups
@@ -54,16 +52,11 @@ module ActiveRbacMixins
           has_and_belongs_to_many :static_permissions, :uniq => true
           # protect users and groups from mass assigning - we want to do those
           # manually
-          attr_protected :users, :parent, :static_permissions
+          attr_protected :users, :static_permissions
 
           # This method returns the whole inheritance tree upwards, i.e. this role
-          # and all parents as a list.
           def ancestors_and_self
             result = [self]
-
-            if parent != nil
-              result << parent.ancestors_and_self
-            end
 
             result.flatten!
             result.uniq!
@@ -116,8 +109,7 @@ module ActiveRbacMixins
             return result
           end
 
-          # This method returns all permissions granted to this role and all
-          # of its parents.
+          # This method returns all permissions granted to this role
           def all_static_permissions
             result = []
 
@@ -127,21 +119,6 @@ module ActiveRbacMixins
             result.uniq!
 
             return result
-          end
-
-          # We're overriding "parent=" below. So we alias the one from the acts_as_tree
-          # mixin to "old_parent=".
-          alias_method :old_parent=, :parent=
-
-          # We protect the parent attribute here. If a group is given as a parent, that
-          # is a descendant from this group, we raise a RecursionInTree error and stop
-          # assignment.
-          def parent=(value)
-            if descendants_and_self.include?(value)
-              raise RecursionInTree, "Trying to set parent to descendant", caller
-            else
-              self.old_parent = value
-            end
           end
 
           # This method blocks destroying a role if it still has children. This method
@@ -166,11 +143,6 @@ module ActiveRbacMixins
           validates_uniqueness_of :title, 
                                   :message => 'is the name of an already existing role.'
 
-          # Implement ActiveRecords' validate method here to enforce that parents in
-          # tree are actually roles.
-          def validate
-            errors.add(:parent, "must be a valid role.") unless parent.instance_of? Role or parent.nil?
-          end
         end
       end
     end
