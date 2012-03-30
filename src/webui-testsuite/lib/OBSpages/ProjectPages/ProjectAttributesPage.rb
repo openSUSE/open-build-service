@@ -138,6 +138,7 @@ class ProjectAttributesPage < ProjectPage
     end
     assert_equal results.count, 1
     results.first.find_element(:xpath => ".//a[2]/img").click
+    wait_for_javascript
 
     popup = @driver.switch_to.alert
     assert_equal popup.text, "Really remove attribute '#{attribute[:name]}'?"

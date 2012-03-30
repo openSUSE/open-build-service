@@ -31,7 +31,9 @@ class BuildServicePage < WebPage
     super
     assert_equal current_user, @user
     assert_equal @driver.current_url, @url 
-    validate { @driver.page_source.include?  '<a href="/">openSUSE Build Service</a>' }
+    res = wait_for_page
+    assert_equal res.shift["id"], "header-logo"
+    assert_equal res.shift.text, "openSUSE Build Service"
   end
   
   
@@ -338,4 +340,13 @@ class BuildServicePage < WebPage
       @driver.execute_script('return jQuery.active') == 0
     }
   end
+
+  def wait_for_page
+    res = nil
+    wait.until {
+      res = @driver.find_elements(:xpath => '//a[@href="/"]')
+    }
+    res
+  end
+
 end

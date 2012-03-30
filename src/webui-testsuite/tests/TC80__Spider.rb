@@ -42,7 +42,7 @@ class TC80__Spider < TestCase
 
       begin
         @driver.navigate.to(theone)
-        puts "crawled #{theone}"
+        #puts "crawled #{theone}"
         wait.until { 
           @driver.execute_script('return jQuery.active') == 0
         }
@@ -51,6 +51,7 @@ class TC80__Spider < TestCase
         end
         unless @driver.find_elements(:css => "#exception-error").empty?
           raiseit("error", theone)
+          raise "Found error"
         end
       rescue Timeout::Error, Selenium::WebDriver::Error::JavascriptError
         next

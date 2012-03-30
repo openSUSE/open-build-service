@@ -39,9 +39,11 @@ class ProjectOverviewPage < ProjectPage
   def delete_project options = {}
     @driver[:xpath => 
       "//div[@id='content']//a[text()='Delete project']"].click
+    wait_for_javascript
 
     validate { @driver.include? :xpath => "//div[@id='dialog_wrapper']//h2[text()='Delete Confirmation']" }
     @driver[:xpath => "//form[@action='/project/delete']//input[@name='commit'][@value='Ok']"].click
+    wait_for_javascript
     
     assert_equal flash_message, "Project '#{@project}' was removed successfully" 
     assert_equal flash_message_type, :info 
@@ -62,6 +64,7 @@ class ProjectOverviewPage < ProjectPage
   def request_deletion description
     @driver[:xpath => 
       "//div[@id='content']//a[text()='Request deletion']"].click
+    wait_for_javascript
       
     validate { @driver.include? :xpath => 
       "//div[@id='dialog_wrapper']//b[text()='Create Delete Request']" }
@@ -71,6 +74,7 @@ class ProjectOverviewPage < ProjectPage
       
     @driver[:xpath => "//form[@action='/request/delete_request?method=post']
       //input[@name='commit'][@value='Ok']"].click
+    wait_for_javascript
       
     $page = RequestDetailsPage.new_ready @driver
   end
@@ -98,6 +102,8 @@ class ProjectOverviewPage < ProjectPage
   def open_create_subproject
     @driver[:xpath => 
       "//div[@id='content']//a[text()='Create subproject']"].click
+    wait_for_javascript
+
     $page = NewProjectPage.new_ready @driver
 
   end
@@ -111,6 +117,7 @@ class ProjectOverviewPage < ProjectPage
     assert (new_info[:title] or new_info[:description]) != nil
     
     @driver[:xpath => "//div[@id='content']//a[text()='Edit description']"].click
+    wait_for_javascript
     validate { @driver.page_source.include?( "Edit Project Information of " + project) }
     validate { @driver.page_source.include? "Title:" }
     validate { @driver.page_source.include? "Description:" }
@@ -129,7 +136,8 @@ class ProjectOverviewPage < ProjectPage
     end
     
     @driver[:xpath => "//form[@action='/project/save']//input[@name='commit'][@value='Save changes']"].click
-    
+    wait_for_javascript
+
     validate_page
     unless new_info[:title].nil?
       validate { project_title == new_info[:title] }
