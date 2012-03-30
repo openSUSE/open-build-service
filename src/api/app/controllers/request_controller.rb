@@ -1678,8 +1678,10 @@ class RequestController < ApplicationController
           node.packager    req.creator
           node.category    "recommended" # update_patchinfo may switch to security
           node.rating      "low"
-          node.summary     req.description.text.split(/\n|\r\n/)[0] # first line only
-          node.description req.description.text
+          if req.description
+            node.summary     req.description.text.split(/\n|\r\n/)[0] # first line only
+            node.description req.description.text
+          end
         end
         data =ActiveXML::Base.new(node.target!)
         xml = update_patchinfo( data, patchinfo, true ) # update issues

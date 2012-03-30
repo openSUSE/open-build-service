@@ -110,7 +110,6 @@ class MaintenanceTests < ActionController::IntegrationTest
                                      <source project="kde4" package="kdelibs" />
                                      <target project="My:Maintenance" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
                                    </action>
-                                   <description>To fix my bug</description>
                                    <state name="new" />
                                  </request>'
     assert_response :success
@@ -150,7 +149,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/#{incidentProject}/patchinfo/_patchinfo"
     assert_response :success
     assert_tag :tag => 'packager', :content => "tom"
-    assert_tag :tag => 'description', :content => "To fix my bug"
+    assert_no_tag :tag => 'description'
 
     # again but find update project automatically and use a linked package
     prepare_request_with_user "tom", "thunder"
