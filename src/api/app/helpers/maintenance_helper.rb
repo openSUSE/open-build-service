@@ -611,8 +611,10 @@ module MaintenanceHelper
               end
             end  
             if incident_pkg
-              p[:copy_from_devel] = incident_pkg
-              logger.info "sources will get copied from incident package #{p[:copy_from_devel].db_project.name}/#{p[:copy_from_devel].name}"
+              unless incident_pkg.db_project == mp
+                p[:copy_from_devel] = incident_pkg
+                logger.info "sources will get copied from incident package #{p[:copy_from_devel].db_project.name}/#{p[:copy_from_devel].name}"
+              end
             end
           elsif not copy_from_devel and p[:package].class == DbPackage and ( p[:package].develproject or p[:package].develpackage or p[:package].db_project.develproject )
             p[:package] = p[:package].resolve_devel_package
