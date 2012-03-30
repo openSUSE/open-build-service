@@ -610,10 +610,8 @@ module MaintenanceHelper
               end
             end  
             if incident_pkg
-              unless incident_pkg.db_project == mp
-                p[:copy_from_devel] = incident_pkg
-                logger.info "sources will get copied from incident package #{p[:copy_from_devel].db_project.name}/#{p[:copy_from_devel].name}"
-              end
+              p[:copy_from_devel] = incident_pkg
+              logger.info "sources will get copied from incident package #{p[:copy_from_devel].db_project.name}/#{p[:copy_from_devel].name}"
             end
           elsif not copy_from_devel and p[:package].class == DbPackage and ( p[:package].develproject or p[:package].develpackage or p[:package].db_project.develproject )
             p[:package] = p[:package].resolve_devel_package
@@ -885,7 +883,7 @@ module MaintenanceHelper
         end
 
         # fetch newer sources from devel package, if defined
-        if p[:copy_from_devel]
+        if p[:copy_from_devel] and p[:copy_from_devel].db_project != tpkg.db_project
           msg="fetch+updates+from+devel+package+#{CGI.escape(p[:copy_from_devel].db_project.name)}/#{CGI.escape(p[:copy_from_devel].name)}"
           msg="fetch+updates+from+open+incident+project+#{CGI.escape(p[:copy_from_devel].db_project.name)}" if p[:copy_from_devel].db_project.project_type == "maintenance_incident"
           answer = Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(p[:copy_from_devel].db_project.name)}&opackage=#{CGI.escape(p[:copy_from_devel].name)}&user=#{CGI.escape(@http_user.login)}&comment=#{msg}", nil
