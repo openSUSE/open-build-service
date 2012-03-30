@@ -1,6 +1,4 @@
 require 'tempfile'
-require 'rubygems'
-require 'cssmin'
 
 # Beware, order matters:
 JAVASCRIPT_FILENAMES = [
@@ -103,6 +101,8 @@ namespace :minimize do
 
   desc 'Minimize CSS'
   task :css do
+    require 'rubygems'
+    require 'cssmin'
     MINIFIED_CSS_FILENAME = 'public/stylesheets/obs.min.css'
 
     tmpfile = Tempfile.new('ugly_css')
