@@ -78,5 +78,6 @@ if File.exists? fname
   STDERR.puts "Using local environment #{fname}"
   eval File.read(fname)  
 else
-  STDERR.puts "Using global environment #{fname} (development.#{Socket.gethostname}.rb not found)"
+  STDERR.puts "Custom development.#{Socket.gethostname}.rb not found - using defaults"
 end
+

@@ -24,18 +24,32 @@ module ActiveSupport
   end
 end
 
-module ActionController
-  module Benchmarking
-    
-    def view_runtime
-      brt = Suse::Backend.runtime * 1000
-      xrt = ActiveXML::LibXMLNode.runtime * 1000
-      # this is the most stupid place to put it, but there is no other code path
-      # without monkey patching _heavily_ the benckmarking module
+module APIInstrumentation
+  module ControllerRuntime
+    extend ActiveSupport::Concern
+
+    protected
+
+    def append_info_to_payload(payload)
+      super
+      payload[:backend_runtime] = Suse::Backend.runtime * 1000
+      payload[:xml_runtime] = ActiveXML::LibXMLNode.runtime * 1000
       Suse::Backend.reset_runtime
       ActiveXML::LibXMLNode.reset_runtime
-      "Backend: %.0f, View: %.0f, XML: %.0f" % [brt, @view_runtime, xrt]
     end
 
+    module ClassMethods
+      def log_process_action(payload)
+        messages, backend_runtime, xml_runtime = super, payload[:backend_runtime], payload[:xml_runtime]
+        messages << ("Backend: %.1fms" % backend_runtime.to_f) if backend_runtime
+        messages << ("XML: %.1fms" % xml_runtime.to_f) if xml_runtime
+        messages
+      end
+    end
   end
 end
+
+ActiveSupport.on_load(:action_controller) do
+  include APIInstrumentation::ControllerRuntime
+end
+

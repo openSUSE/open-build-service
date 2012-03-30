@@ -132,7 +132,7 @@ class ApplicationController < ActionController::Base
           # Generate and store a fake pw in the OBS DB that no-one knows
           # FIXME: we should allow NULL passwords in DB, but that needs user management cleanup
           chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
-          fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("C*")
+          fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("a"*24)
           @http_user = User.create(
             :login => proxy_user,
             :password => fakepw,
@@ -567,9 +567,9 @@ class ApplicationController < ActionController::Base
           :message => exception.message
       end
     else
-      if send_exception_mail?
-        ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {})
-      end
+      #if send_exception_mail?
+      #  ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {})
+      #end
       bt = exception.backtrace.join("\n")
       render_error :message => "Uncaught exception: #{exception.message}\n#{bt}", :status => 400
     end
@@ -785,6 +785,12 @@ class ApplicationController < ActionController::Base
     pairs = []
     par.sort.each { |pair| pairs << pair.join('=') }
     url_for( options ).split('://').last + "/"+ pairs.join(',').gsub(' ', '-')
+  end
+
+  def log_process_action(payload)
+     messages = super
+     puts "LPA #{messages.join}"
+     messages
   end
 
 end
