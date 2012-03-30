@@ -5,7 +5,7 @@ class ApidocsController < ApplicationController
 
   def index
     logger.debug "PATH: #{request.path}"
-    filename = File.expand_path(APIDOCS_LOCATION) + "/index.html"
+    filename = File.expand_path(CONFIG['apidocs_location']) + "/index.html"
     if ( !File.exist?( filename ) )
       render :text => "Unable to load API documentation source file", :layout => "rbac"
     else
@@ -16,8 +16,8 @@ class ApidocsController < ApplicationController
   def file
     file = params[:file]
     if ( file =~ /\.(xml|xsd|rng)$/ )
-      if File.exist?( File.expand_path(SCHEMA_LOCATION) + "/" + file )
-        send_file( File.expand_path(SCHEMA_LOCATION) + "/" + file, :type => "text/xml",
+      if File.exist?( File.expand_path(CONFIG['schema_location']) + "/" + file )
+        send_file( File.expand_path(CONFIG['schema_location']) + "/" + file, :type => "text/xml",
           :disposition => "inline" )
       else
         render_error :status => 404, :errorcode => 'file_not_found', :message => 'file was not found'

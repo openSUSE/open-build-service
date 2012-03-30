@@ -154,7 +154,7 @@ module Suse
         @backend_time += timedelta
         logger.debug "request took #{timedelta}"
 
-        if (defined? EXTENDED_BACKEND_LOG) and EXTENDED_BACKEND_LOG
+        if (defined? CONFIG['extended_backend_log']) and CONFIG['extended_backend_log']
           if data.nil?
             @@backend_logger.info "(no data)"
           elsif data.class == 'String' and data[0,1] == "<"

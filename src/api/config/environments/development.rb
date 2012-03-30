@@ -47,14 +47,14 @@ CONFIG['source_host'] = "localhost"
 CONFIG['source_port'] = 5352
 SOURCE_PROTOCOL = "http"
 
-# ATTENTION: If PROXY_AUTH_MODE is :on, the frontend takes the user
+# ATTENTION: If CONFIG['proxy_auth_mode'] is :on, the frontend takes the user
 # name that is coming as headervalue X-username as a 
 # valid user does no further authentication. So take care...
-# PROXY_AUTH_MODE can be :off, :on or :simulate
-PROXY_AUTH_TEST_USER = "test"
-PROXY_AUTH_MODE = :off
+# CONFIG['proxy_auth_mode'] can be :off, :on or :simulate
+CONFIG['proxy_auth_test_user'] = "test"
+CONFIG['proxy_auth_mode'] = :off
 
-LDAP_MODE = :off
+CONFIG['ldap_mode'] = :off
 # LDAP Servers separated by ':'.
 # OVERRIDE with your company's ldap servers. Servers are picked randomly for
 # each connection to distribute load.
@@ -66,8 +66,8 @@ LDAP_SEARCH_ATTR = "sAMAccountName"
 # Max number of times to attempt to contact the LDAP servers
 MAX_LDAP_ATTEMPTS = 10
 
-EXTENDED_BACKEND_LOG = true
-DOWNLOAD_URL='http://download.opensuse.org/repositories'
+CONFIG['extended_backend_log'] = true
+CONFIG['download_url']='http://download.opensuse.org/repositories'
 YMP_URL='http://software.opensuse.org/ymp'
 
 RESPONSE_SCHEMA_VALIDATION = true

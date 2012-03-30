@@ -101,15 +101,15 @@ class ApplicationController < ActionController::Base
 
   def extract_user
     mode = :basic
-    mode = ICHAIN_MODE if defined? ICHAIN_MODE
-    mode = PROXY_AUTH_MODE if defined? PROXY_AUTH_MODE
+    mode = CONFIG['ichain_mode'] if defined? CONFIG['ichain_mode']
+    mode = CONFIG['proxy_auth_mode'] if defined? CONFIG['proxy_auth_mode']
     if mode == :on || mode == :simulate # configured in the the environment file
       @auth_method = :proxy
       proxy_user = request.env['HTTP_X_USERNAME']
       if proxy_user
         logger.info "iChain user extracted from header: #{proxy_user}"
       elsif mode == :simulate
-        proxy_user = PROXY_AUTH_TEST_USER
+        proxy_user = CONFIG['proxy_auth_test_user']
         logger.debug "iChain user extracted from config: #{proxy_user}"
       end
 
@@ -209,13 +209,13 @@ class ApplicationController < ActionController::Base
         render_error( :message => "User '#{login}' did not provide a password", :status => 401 ) and return false
       end
 
-      if defined?( LDAP_MODE ) && LDAP_MODE == :on
+      if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
         begin
           require 'ldap'
           logger.debug( "Using LDAP to find #{login}" )
           ldap_info = User.find_with_ldap( login, passwd )
         rescue LoadError
-          logger.warn "LDAP_MODE selected but 'ruby-ldap' module not installed."
+          logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
           ldap_info = nil # now fall through as if we'd not found a user
         rescue Exception
           logger.debug "#{login} not found in LDAP."

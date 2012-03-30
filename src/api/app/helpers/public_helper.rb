@@ -1,6 +1,6 @@
 module PublicHelper
   def download_url(path)
-     path ? File.join(DOWNLOAD_URL, path) : ""
+     path ? File.join(CONFIG['download_url'], path) : ""
   end
 
   def ymp_url(path)

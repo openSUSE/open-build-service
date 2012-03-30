@@ -13,8 +13,8 @@ rescue Exception => e
   raise e
 end
 
-APIDOCS_LOCATION = File.expand_path("../../docs/api/html/")
-SCHEMA_LOCATION = File.expand_path("public/schema")+"/"
+CONFIG['apidocs_location'] = File.expand_path("../../docs/api/html/")
+CONFIG['schema_location'] = File.expand_path("public/schema")+"/"
 
 ActionController::Base.perform_caching = true
 #ActiveRbac.controller_layout = "rbac"

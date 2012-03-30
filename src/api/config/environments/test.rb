@@ -32,9 +32,9 @@ CONFIG['source_host'] = "localhost"
 CONFIG['source_port'] = 3200
 SOURCE_PROTOCOL = "http"
 
-PROXY_AUTH_MODE=:off
+CONFIG['proxy_auth_mode']=:off
 
-LDAP_MODE = :off
+CONFIG['ldap_mode'] = :off
 # LDAP Servers separated by ':'.
 # OVERRIDE with your company's ldap servers. Servers are picked randomly for
 # each connection to distribute load.

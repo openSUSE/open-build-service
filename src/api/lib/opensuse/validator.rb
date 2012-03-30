@@ -74,7 +74,7 @@ module Suse
   class ValidationError < Exception; end
   
   class Validator
-    @schema_location = SCHEMA_LOCATION
+    @schema_location = CONFIG['schema_location']
 
     class << self
       attr_reader :schema_location

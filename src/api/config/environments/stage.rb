@@ -18,9 +18,9 @@ config.action_controller.perform_caching             = true
 # Disable delivery errors if you bad email addresses should just be ignored
 # config.action_mailer.raise_delivery_errors = false
 
-PROXY_AUTH_MODE = :on
+CONFIG['proxy_auth_mode'] = :on
 
-LDAP_MODE = :off
+CONFIG['ldap_mode'] = :off
 # LDAP Servers separated by ':'.
 # OVERRIDE with your company's ldap servers. Servers are picked randomly for
 # each connection to distribute load.
@@ -32,7 +32,7 @@ LDAP_SEARCH_ATTR = "sAMAccountName"
 # Max number of times to attempt to contact the LDAP servers
 MAX_LDAP_ATTEMPTS = 10
 
-EXTENDED_BACKEND_LOG = false
+CONFIG['extended_backend_log'] = false
 
 CONFIG['source_host'] = "storage"
 CONFIG['source_port'] = 5352

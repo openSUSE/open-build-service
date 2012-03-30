@@ -464,7 +464,7 @@ module UserMixins
 
           # Check if ldap group support is enabled?
           def self.ldapgroup_enabled?
-            if defined?( LDAP_MODE ) && LDAP_MODE == :on
+            if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
               if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
                 return true
               end

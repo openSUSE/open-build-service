@@ -18,9 +18,9 @@ config.log_level = :info
 
 end
 
-PROXY_AUTH_MODE = :off
+CONFIG['proxy_auth_mode'] = :off
 
-LDAP_MODE = :off
+CONFIG['ldap_mode'] = :off
 # LDAP Servers separated by ':'.
 # OVERRIDE with your company's ldap servers. Servers are picked randomly for
 # each connection to distribute load.
@@ -76,7 +76,7 @@ LDAP_AUTH_ATTR="userPassword"
 LDAP_AUTH_MECH=:md5
 
 # Whether to update the user info to LDAP server, it does not take effect 
-# when LDAP_MODE is not set.
+# when CONFIG['ldap_mode'] is not set.
 # Since adding new entry operation are more depend on your slapd db define, it might not 
 # compatiable with all LDAP server settings, you can use other LDAP client tools for your specific usage
 LDAP_UPDATE_SUPPORT = :off
@@ -113,9 +113,9 @@ CONFIG['source_host'] = "localhost"
 CONFIG['source_port'] = 5352
 SOURCE_PROTOCOL = "http"
 
-EXTENDED_BACKEND_LOG = false
+CONFIG['extended_backend_log'] = false
 
-DOWNLOAD_URL='http://localhost:82/'
+CONFIG['download_url']='http://localhost:82/'
 #YMP_URL='http://software.opensuse.org/ymp'
 
 #require 'hermes'
