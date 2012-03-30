@@ -84,7 +84,9 @@ port=nil
 options = { 
   :port => DEFAULT_PORT,
   :headless => true,
-  :stop_on_fail => false
+  :stop_on_fail => false,
+  :pause_on_exit => false,
+  :details => true
 }
 
 limitto = OptionParser.new do |opts|
@@ -100,6 +102,14 @@ limitto = OptionParser.new do |opts|
 
   opts.on('-f', '--stop-on-fail', 'Stop running tests on first failed test') do
     options[:stop_on_fail] = true
+  end
+
+  opts.on('--pause-on-exit', 'Wait for user input at the end') do
+   options[:pause_on_exit] = true
+  end
+
+  opts.on('--no-details', 'Do not output details about errors') do
+    options[:details] = false
   end
 
   opts.on( '-h', '--help', 'Display this screen' ) do
@@ -253,6 +263,8 @@ puts ""
 
 # Save report and display details
 report.save $data[:report_path] + "report.html"
-puts fail_details unless ARGV.include? "--no-details"
-gets if ARGV.include? "--pause-on-exit"
+puts fail_details if options[:details]
+gets if options[:pause_on_exit]
+
+exit 1 if failed > 0
 
