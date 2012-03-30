@@ -15,8 +15,8 @@ class TC21__DeleteProject < TestCase
   depend_on :create_home_project_for_user
     
     navigate_to ProjectOverviewPage, 
-      :user => $data[:user1],
-      :project => "home:user1"
+      :user => $data[:user2],
+      :project => "home:user2"
     delete_project
   end
 
