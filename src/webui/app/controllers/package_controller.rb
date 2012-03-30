@@ -1092,7 +1092,7 @@ class PackageController < ApplicationController
   end
 
   def attributes
-    @attributes = find_cached(Attribute, {:project => @project.name, :package => @package.to_s}, :expires_in => 2.minutes)
+    @attributes = Attribute.find(:project => @project.name, :package => @package.to_s)
   end
 
   def edit
