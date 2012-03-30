@@ -17,7 +17,7 @@ end
 # check for still running daemons from former run
 [ '3200', '3201', '3202' ].each do |port|
   begin
-    Net::HTTP.start(SOURCE_HOST, 3201) {|http| http.get('/') }
+    Net::HTTP.start(CONFIG['source_host'], 3201) {|http| http.get('/') }
     puts "ERROR Port #{port} is already in use, maybe from former unclean shutdown, aborting ..."
     exit 1
   rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
@@ -55,7 +55,7 @@ File.open("#{Rails.root}/../backend/BSConfig.pm.template") do |template|
     line.gsub!(/(our \$bsgroup)/, '#\1')
     line.gsub!(/our \$bsdir = .*/, "our $bsdir = '#{Rails.root}/tmp/backend_data';")
     line.gsub!(/our \$servicedir = .*/, "our $servicedir = '#{Rails.root}/test/fixtures/backend/services';")
-    line.gsub!(/:5352/, ":#{SOURCE_PORT}")
+    line.gsub!(/:5352/, ":#{CONFIG['source_port']}")
     line.gsub!(/:5252/, ":3201") # repservier, used via source server
     line.gsub!(/:5152/, ":3202") # source service, used via source server
     file.print line
@@ -155,7 +155,7 @@ end
 while true
   puts "Connecting to srcserver..."
   begin
-    Net::HTTP.start(SOURCE_HOST, SOURCE_PORT) {|http| http.get('/') }
+    Net::HTTP.start(CONFIG['source_host'], CONFIG['source_port']) {|http| http.get('/') }
   rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
     sleep 0.5
     next
@@ -166,7 +166,7 @@ end
 while true
   puts "Connecting to repserver..."
   begin
-    Net::HTTP.start(SOURCE_HOST, 3201) {|http| http.get('/') }
+    Net::HTTP.start(CONFIG['source_host'], 3201) {|http| http.get('/') }
   rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
     sleep 0.5
     next
@@ -177,7 +177,7 @@ end
 while true
   puts "Connecting to serviceserver..."
   begin
-    Net::HTTP.start(SOURCE_HOST, 3202) {|http| http.get('/') }
+    Net::HTTP.start(CONFIG['source_host'], 3202) {|http| http.get('/') }
   rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
     sleep 0.5
     next

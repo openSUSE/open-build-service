@@ -8,7 +8,7 @@ ActiveXML::Base.config do |conf|
   conf.lazy_evaluation = true
 
   conf.setup_transport do |map|
-    map.default_server :rest, "#{SOURCE_PROTOCOL}://#{SOURCE_HOST}:#{SOURCE_PORT}"
+    map.default_server :rest, "#{SOURCE_PROTOCOL}://#{CONFIG['source_host']}:#{CONFIG['source_port']}"
 
     map.connect :project, "bssql:///"
     map.connect :package, "bssql:///"

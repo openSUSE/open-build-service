@@ -34,8 +34,8 @@ MAX_LDAP_ATTEMPTS = 10
 
 EXTENDED_BACKEND_LOG = false
 
-SOURCE_HOST = "storage"
-SOURCE_PORT = 5352
+CONFIG['source_host'] = "storage"
+CONFIG['source_port'] = 5352
 SOURCE_PROTOCOL = "http"
 
 ActionController::AbstractRequest.relative_url_root = "/stage"

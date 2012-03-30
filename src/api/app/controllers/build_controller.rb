@@ -211,7 +211,7 @@ class BuildController < ApplicationController
       
       render :status => 200, :text => Proc.new {|request,output|
         backend_request = Net::HTTP::Get.new(path)
-        Net::HTTP.start(SOURCE_HOST,SOURCE_PORT) do |http|
+        Net::HTTP.start(CONFIG['source_host'],CONFIG['source_port']) do |http|
           http.request(backend_request) do |response|
             response.read_body do |chunk|
               output.write(chunk)

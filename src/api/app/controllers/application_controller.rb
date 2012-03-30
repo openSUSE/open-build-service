@@ -311,8 +311,8 @@ class ApplicationController < ActionController::Base
   hide_action :setup_backend  
   def setup_backend
     # initialize backend on every request
-    Suse::Backend.source_host = SOURCE_HOST
-    Suse::Backend.source_port = SOURCE_PORT
+    Suse::Backend.source_host = CONFIG['source_host']
+    Suse::Backend.source_port = CONFIG['source_port']
   end
 
   hide_action :add_api_version
@@ -326,7 +326,7 @@ class ApplicationController < ActionController::Base
     # apache & mod_xforward case
     if CONFIG['use_xforward'] and CONFIG['use_xforward'] != "false"
       logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
-      headers['X-Forward'] = "http://#{SOURCE_HOST}:#{SOURCE_PORT}#{path}"
+      headers['X-Forward'] = "http://#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
       head(200)
       return
     end
@@ -342,7 +342,7 @@ class ApplicationController < ActionController::Base
 
     logger.debug "[backend] VOLLEY: #{path}"
     Suse::Backend.start_test_backend 
-    backend_http = Net::HTTP.new(SOURCE_HOST, SOURCE_PORT)
+    backend_http = Net::HTTP.new(CONFIG['source_host'], CONFIG['source_port'])
     backend_http.read_timeout = 1000
 
     file = Tempfile.new 'volley', :encoding => 'ascii-8bit'

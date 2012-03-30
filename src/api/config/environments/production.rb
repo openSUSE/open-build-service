@@ -109,8 +109,8 @@ LDAP_GROUP_MEMBER_ATTR = "member"
 # If you do want to import the group data from LDAP to OBS DB manuallly, please set if to :off
 DISALLOW_GROUP_CREATION_WITH_API = :on
 
-SOURCE_HOST = "localhost"
-SOURCE_PORT = 5352
+CONFIG['source_host'] = "localhost"
+CONFIG['source_port'] = 5352
 SOURCE_PROTOCOL = "http"
 
 EXTENDED_BACKEND_LOG = false

@@ -17,8 +17,8 @@ module Suse
     class NotFoundError < HTTPError
     end
       
-    @source_host = SOURCE_HOST
-    @source_port = SOURCE_PORT
+    @source_host = CONFIG['source_host']
+    @source_port = CONFIG['source_port']
 
     @@backend_logger = Logger.new( "#{Rails.root}/log/backend_access.log" )
     @backend_time = 0

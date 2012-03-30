@@ -32,8 +32,8 @@ LDAP_SEARCH_ATTR = "sAMAccountName"
 # Max number of times to attempt to contact the LDAP servers
 MAX_LDAP_ATTEMPTS = 10
 
-SOURCE_HOST = "storage"
-SOURCE_PORT = 5352
+CONFIG['source_host'] = "storage"
+CONFIG['source_port'] = 5352
 SOURCE_PROTOCOL = "http"
 
 EXTENDED_BACKEND_LOG = false

@@ -28,8 +28,8 @@ config.active_support.deprecation = :log
 
 end
 
-SOURCE_HOST = "localhost"
-SOURCE_PORT = 3200
+CONFIG['source_host'] = "localhost"
+CONFIG['source_port'] = 3200
 SOURCE_PROTOCOL = "http"
 
 PROXY_AUTH_MODE=:off

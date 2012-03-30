@@ -3,6 +3,16 @@
 # Load the rails application
 require File.expand_path('../application', __FILE__)
 
+path = Rails.root.join("config/options.yml")
+
+begin
+  CONFIG = YAML.load_file(path)
+rescue Exception => e
+  puts "Error while parsing config file #{path}"
+  CONFIG = Hash.new
+  raise e
+end
+
 APIDOCS_LOCATION = File.expand_path("../../docs/api/html/")
 SCHEMA_LOCATION = File.expand_path("public/schema")+"/"
 
