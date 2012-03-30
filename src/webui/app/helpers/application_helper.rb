@@ -342,7 +342,7 @@ module ApplicationHelper
   def tab(text, opts)
     opts[:package] = @package.to_s if @package
     opts[:project] = @project.to_s
-    if @current_action.to_s == opts[:action].to_s
+    if @current_action.to_s == opts[:action].to_s and @current_controller.to_s == opts[:controller]
       link = "<li class='selected'>"
     else
       link = "<li>"
