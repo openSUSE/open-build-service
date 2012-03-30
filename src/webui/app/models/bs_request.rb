@@ -306,7 +306,8 @@ class BsRequest < ActiveXML::Base
     last_review_item = nil
     self.each_review do |item|
       if ['accepted', 'declined'].include?(item.state)
-        events[item.when] = {:who => item.who, :what => "#{item.state} review for #{reviewer_for_history_item(item)}", :when => item.when, :comment => item.value('comment')}
+        #events[item.when] = {:who => item.who, :what => "#{item.state} review for #{reviewer_for_history_item(item)}", :when => item.when, :comment => item.value('comment')}
+        events[item.when] = {:who => item.who, :what => "#{item.state} review", :when => item.when, :comment => item.value('comment')}
         events[item.when][:color] = "green" if item.state == "accepted"
         events[item.when][:color] = "red" if item.state == "declined"
       end
@@ -325,7 +326,8 @@ class BsRequest < ActiveXML::Base
               # TODO: There is still a case left, see sr #106286, factory-auto added a review for autobuild-team, the
               # request # remained in state 'review', but another review was accepted in between. That is kind of hard
               # to grasp from the pack of <history/>, <review/> and <state/> items without breaking # the other cases ;-)
-              what, color = "accepted review for #{last_history_item.value('who')}", 'green'
+              #what, color = "accepted review for #{last_history_item.value('who')}", 'green'
+              what, color = "accepted review", 'green'
               comment = last_review_item.value('comment') # Yes, the comment for the last history item is in the last review ;-)
             when 'declined' then what, color = 'reopened request', 'maroon'
           end
