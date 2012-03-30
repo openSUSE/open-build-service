@@ -1,7 +1,7 @@
 class PatchinfoController < ApplicationController
   include ApplicationHelper
   before_filter :require_all
-  before_filter :get_tracker, :get_binaries, :except => [:show_patchinfo, :delete]
+  before_filter :get_tracker, :get_binaries, :except => [:show, :delete]
   before_filter :require_exists, :except => [:new_patchinfo]
   helper :package
 
@@ -49,7 +49,7 @@ class PatchinfoController < ApplicationController
     end
   end
 
-  def show_patchinfo
+  def show
     read_patchinfo
     @pkg_names = Array.new
     packages = find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds )
@@ -208,7 +208,7 @@ class PatchinfoController < ApplicationController
         flash[:error] = "Timeout when saving file. Please try again."
       end
       Patchinfo.free_cache(:project=> @project, :package => @package)
-      redirect_to :controller => "patchinfo", :action => "show_patchinfo",
+      redirect_to :controller => "patchinfo", :action => "show",
         :project => @project.name, :package => @package
     end
     if valid_params == false
@@ -252,7 +252,7 @@ class PatchinfoController < ApplicationController
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
     end
-    redirect_to :controller => 'project', :action => 'show_patchinfo', :project => @project
+    redirect_to :controller => 'project', :action => 'show', :project => @project
   end
 
   def valid_summary? name
