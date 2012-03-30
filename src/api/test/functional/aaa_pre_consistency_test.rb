@@ -1,1 +1,10 @@
-../test_consistency_helper.rb
+require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_consistency_helper"
+
+class AAAPreConsistency < ActionController::IntegrationTest
+  fixtures :all
+
+  def test_resubmit_fixtures
+    resubmit_all_fixtures
+  end
+end
+
