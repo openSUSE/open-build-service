@@ -415,7 +415,7 @@ class RequestController < ApplicationController
                   if repo and repo.architectures.first
                     # skip excluded patchinfos
                     status = state.get_elements("/resultlist/result[@repository='#{repo.name}' and @arch='#{repo.architectures.first.name}']").first
-                    unless status and s=status.get_elements("/status[@package='#{pkg.name}']").first and s.attributes['code'] == "excluded"
+                    unless status and s=status.get_elements("status[@package='#{pkg.name}']").first and s.attributes['code'] == "excluded"
                       binaries = REXML::Document.new( backend_get("/build/#{URI.escape(pkg.db_project.name)}/#{URI.escape(repo.name)}/#{URI.escape(repo.architectures.first.name)}/#{URI.escape(pkg.name)}") )
                       l = binaries.get_elements("binarylist/binary")
                       if l and l.count > 0
