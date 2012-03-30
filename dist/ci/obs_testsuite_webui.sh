@@ -56,7 +56,7 @@ setup_webui
 cd src/webui
 
 echo "Invoke rake"
-rake --trace ci:setup:testunit test CI_REPORTS=results
+rake --trace ci:setup:testunit test CI_REPORTS=results || ret=1
 cd ../..
 
 echo "Contents of src/api/log/test.log:"
@@ -68,3 +68,4 @@ cat src/webui/log/test.log
 echo
 
 cleanup
+exit $ret

@@ -19,6 +19,8 @@ setup_git() {
 
   echo "Set environment variables"
   export RAILS_ENV=test
+  
+  ret=0
 }
 
 setup_api() {

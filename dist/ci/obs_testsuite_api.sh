@@ -56,12 +56,13 @@ setup_api
 cd src/api
 
 echo "Invoke rake"
-rake --trace ci:setup:testunit test CI_REPORTS=results || true
+rake --trace ci:setup:testunit test CI_REPORTS=results || ret=1
 cd ../..
 
 echo "Output test.log"
 cat src/api/log/test.log
 echo
 
-echo "Remove log/tmp files to save disc space"
-rm -rf src/api/{log,tmp}/*
+cleanup
+exit $ret
+
