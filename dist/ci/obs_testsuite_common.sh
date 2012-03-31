@@ -36,7 +36,9 @@ setup_api() {
   cp config/options.yml.example config/options.yml
 
   echo "Install missing gems locally"
-  rake --trace gems:install
+  rm Gemfile.lock
+  bundle list
+  git diff Gemfile.lock
 
   chmod a+x script/server script/start_test_backend
 
