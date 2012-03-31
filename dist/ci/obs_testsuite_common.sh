@@ -40,7 +40,7 @@ setup_api() {
   bundle list
   git diff Gemfile.lock
 
-  chmod a+x script/server script/start_test_backend
+  chmod a+x script/start_test_backend
 
   echo "Initialize test database, run migrations, load seed data"
   rake --trace db:drop db:create db:setup db:migrate
