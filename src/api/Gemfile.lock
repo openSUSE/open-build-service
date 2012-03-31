@@ -88,7 +88,7 @@ GEM
     treetop (1.4.9)
       polyglot (>= 0.3.1)
     tzinfo (0.3.30)
-    xmlhash (1.2)
+    xmlhash (1.2.1)
     yajl-ruby (0.7.6)
 
 PLATFORMS
@@ -102,8 +102,8 @@ DEPENDENCIES
   exception_notification
   fast_xs
   mysql2
-  nokogiri
-  rails (= 3.2.1)
+  nokogiri (~> 1.5.0)
+  rails (~> 3.2.1)
   rdoc
-  xmlhash (= 1.2)
+  xmlhash (>= 1.2.1)
   yajl-ruby
