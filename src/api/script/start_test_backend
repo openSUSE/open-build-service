@@ -7,7 +7,7 @@ Suse::Backend.do_not_start_test_backend
 
 perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
 
-if File.exists?("#{Rails.root}/tmp/backend_data") 
+if File.exists?("#{Rails.root}/tmp/backend_config") 
   puts "Old backend data is there. checking if we can stop it"
   %w{bs_srcserver bs_repserver bs_service bs_sched bs_publish}.each do |srv|
     system("cd #{Rails.root}/tmp/backend_config && exec perl #{perlopts} ./#{srv} --stop 2>&1 && sleep 2")

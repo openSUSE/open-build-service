@@ -33,6 +33,7 @@ CONFIG['source_port'] = 3200
 SOURCE_PROTOCOL = "http"
 
 CONFIG['proxy_auth_mode']=:off
+CONFIG['download_url'] = 'http://example.com/download'
 
 CONFIG['ldap_mode'] = :off
 # LDAP Servers separated by ':'.

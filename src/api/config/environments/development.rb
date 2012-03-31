@@ -67,7 +67,6 @@ LDAP_SEARCH_ATTR = "sAMAccountName"
 MAX_LDAP_ATTEMPTS = 10
 
 CONFIG['extended_backend_log'] = true
-CONFIG['download_url']='http://download.opensuse.org/repositories'
 YMP_URL='http://software.opensuse.org/ymp'
 
 RESPONSE_SCHEMA_VALIDATION = true
