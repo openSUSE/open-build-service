@@ -3,7 +3,6 @@ if @tag.class == Tag
   @tag = @tag.name
 end 
 
-xml.instruct!
 
 xml.collection(:tag => CGI::escapeHTML(@tag)) do
 

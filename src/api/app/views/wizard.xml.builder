@@ -1,4 +1,3 @@
-xml.instruct!
 xml.wizard("last" => @wizard_form.last ? "true" : "false") do
   xml.label(@wizard_form.label)
   xml.legend(@wizard_form.legend)

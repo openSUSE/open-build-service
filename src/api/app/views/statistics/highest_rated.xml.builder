@@ -1,5 +1,4 @@
 
-xml.instruct!
 
 xml.highest_rated do
 

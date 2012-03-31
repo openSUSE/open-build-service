@@ -1,5 +1,4 @@
 
-xml.instruct!
 
 xml.activity do
 

@@ -1,5 +1,4 @@
 
-xml.instruct!
 
 root_attrs = {}
 root_attrs[:count] = @messages.length if @messages

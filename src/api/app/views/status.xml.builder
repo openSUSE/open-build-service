@@ -1,4 +1,3 @@
-xml.instruct!
 xml.status( "code" => @errorcode ) do
   xml.summary @summary
   xml.details @details

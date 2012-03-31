@@ -1,5 +1,4 @@
 
-xml.instruct!
 
 xml.packages do
   @packages.each do |name,pkg|

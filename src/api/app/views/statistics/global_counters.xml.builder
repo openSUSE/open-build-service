@@ -1,4 +1,3 @@
-xml.instruct!
 
 xml.global_counters do
 

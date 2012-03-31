@@ -1,4 +1,3 @@
-xml.instruct!
 
 xml.latest_updated do
   @list.each do |item|

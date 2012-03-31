@@ -1,4 +1,3 @@
-xml.instruct!
 
 xml.tagcloud(:distribution_method => @distribution_method, :steps => @steps, :user => params[:user]) do  
 

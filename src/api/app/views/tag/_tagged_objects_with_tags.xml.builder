@@ -1,5 +1,4 @@
 
-xml.instruct!
 
 xml.collection(:user => @user.login) do
   

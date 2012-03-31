@@ -1,6 +1,4 @@
 
-xml.instruct!
-
 if @group_by_mode
 
   xml.download_counter( :all => @all, :first => @first, :last => @last ) do

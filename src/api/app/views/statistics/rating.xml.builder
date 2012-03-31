@@ -1,6 +1,4 @@
 
-xml.instruct!
-
 if @package and @project
   xml.rating( @rating[:score],
     :count => @rating[:count], :project => @project, :package => @package,
