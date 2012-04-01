@@ -83,8 +83,7 @@ class ProjectPage < BuildServicePage
   # ============================================================================
   #
   def selected_tab
-    tab_xpath  = "//div[@id='content']//div[@class='box-header header-tabs']"
-    tab_xpath += "//li[@class='selected']/a"
+    tab_xpath  = "//ul[@id='project_tabs']//li[@class='selected']/a"
     results = @driver.find_elements :xpath => tab_xpath
     return results.first.text unless results.empty?
     return :none

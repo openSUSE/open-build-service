@@ -118,6 +118,7 @@ limitto = OptionParser.new do |opts|
   end
 end.parse!
 
+outputlines = false
 if options[:port] == DEFAULT_PORT
   frontend = Thread.new do
     puts "Starting test webui at port #{options[:port]} ..."
@@ -132,6 +133,8 @@ if options[:port] == DEFAULT_PORT
     while webui_out
       begin
         line = webui_out.gets
+	puts line if outputlines
+	break if line.nil?
       rescue IOError
         break
       end
@@ -149,6 +152,7 @@ while true
       res = http.get('/main/startme')
       case res
         when Net::HTTPSuccess, Net::HTTPRedirection, Net::HTTPUnauthorized
+          outputlines = false
           # OK
         else
           puts "Webui did not response nicely"
