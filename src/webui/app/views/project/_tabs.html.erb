@@ -5,8 +5,8 @@
   });
 <% end %>
 
-<div class="box-header header-tabs">
-  <ul id="project_tabs">
+<div class="box-header header-tabs" id="project_tabs">
+  <ul>
     <%= tab 'Overview', :controller => :project, :action => :show %>
     <% if @is_maintenance_project && !@spider_bot %>
       <%= tab 'Incidents', :controller => :project, :action => :maintenance_incidents %>

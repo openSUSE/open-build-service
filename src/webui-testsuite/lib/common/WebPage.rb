@@ -48,7 +48,6 @@ class WebPage
   #
   def refresh_page
     @driver.navigate.refresh
-    sleep 1
   end
   
   

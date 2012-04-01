@@ -12,8 +12,10 @@ class ProjectPage < BuildServicePage
   def validate_page
     super
     validate { @project == project }
+    st = selected_tab
     if @available_tabs.has_value? self.class then
-      assert_equal @available_tabs[selected_tab], self.class
+      assert st != :none && !st.empty?, "no tab in #{@tabs_id} selected"
+      assert_equal @available_tabs[st], self.class
     else
       assert_equal selected_tab, :none
     end
@@ -28,6 +30,7 @@ class ProjectPage < BuildServicePage
     @project = options[:project]
     @available_tabs = ALL_PROJECT_TABS
     @advanced_tabs  = ADVANCED_PROJECT_TABS
+    @tabs_id = 'project_tabs'
     assert @project != nil
   end
   
@@ -40,6 +43,7 @@ class ProjectPage < BuildServicePage
     @project = project_namespace + project_name
     @available_tabs = ALL_PROJECT_TABS
     @advanced_tabs  = ADVANCED_PROJECT_TABS
+    @tabs_id = 'project_tabs'
   end
   
   ALL_PROJECT_TABS = { "Users"          => ProjectUsersPage,
@@ -75,7 +79,6 @@ class ProjectPage < BuildServicePage
     end
 
     @driver[ :xpath => tab_xpath + "[text()='" + tab + "']" ].click
-    wait_for_javascript
     $page =  @available_tabs[tab].new_ready @driver
   end
   
@@ -83,8 +86,8 @@ class ProjectPage < BuildServicePage
   # ============================================================================
   #
   def selected_tab
-    tab_xpath  = "//ul[@id='project_tabs']//li[@class='selected']/a"
-    results = @driver.find_elements :xpath => tab_xpath
+    tab_xpath  = ".//li[@class='selected']/a"
+    results = @driver[:id => @tabs_id].find_elements :xpath => tab_xpath
     return results.first.text unless results.empty?
     return :none
   end

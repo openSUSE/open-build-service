@@ -28,6 +28,7 @@ class PackagePage < ProjectPage
     @package = options[:package]
     @available_tabs = ALL_PACKAGE_TABS
     @advanced_tabs  = ADVANCED_PACKAGE_TABS
+    @tabs_id = 'package_tabs'
     assert @package != nil
   end
     
@@ -40,6 +41,7 @@ class PackagePage < ProjectPage
     @package = package
     @available_tabs = ALL_PACKAGE_TABS
     @advanced_tabs  = ADVANCED_PACKAGE_TABS
+    @tabs_id = 'package_tabs'
   end
   
 
@@ -61,6 +63,5 @@ class PackagePage < ProjectPage
     assert @driver.current_url.include? "package="
     CGI.unescapeHTML @driver.current_url.split("package=").last.split("&").first
   end
-
 
 end

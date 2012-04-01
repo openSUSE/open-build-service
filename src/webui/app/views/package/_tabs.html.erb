@@ -5,8 +5,8 @@
   });
 <% end %>
 
-<div class="box-header header-tabs">
-  <ul id="package_tabs">
+<div class="box-header header-tabs" id="package_tabs">
+  <ul>
     <% if @package.name == "patchinfo" %>
       <%= tab 'Details', :controller => 'patchinfo', :action => 'show' %>
     <% end %>
