@@ -502,11 +502,11 @@ module ActiveXML
           end
         rescue Timeout::Error => err
           logger.error "--> caught timeout, closing HTTP"
-          @http.finish
+          @http.finish if @http.started?
           @http = nil
           raise err
         rescue SocketError, Errno::EINTR, Errno::EPIPE, EOFError, Net::HTTPBadResponse, IOError => err
-          @http.finish
+          @http.finish if @http.started?
           @http = nil
           if retries < max_retries
             logger.error "--> caught #{err.class}: #{err.message}, retrying with new HTTP connection"
