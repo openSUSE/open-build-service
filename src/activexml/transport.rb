@@ -512,7 +512,7 @@ module ActiveXML
             logger.error "--> caught #{err.class}: #{err.message}, retrying with new HTTP connection"
             retry
           end
-          raise Error, "Connection failed #{err.class}: #{err.message}"
+          raise Error, "Connection failed #{err.class}: #{err.message} for #{url}"
         rescue SystemCallError => err
           begin
             @http.finish
