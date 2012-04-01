@@ -615,6 +615,10 @@ class PackageController < ApplicationController
         flash[:error] = 'No file or URI given.'
         redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
       else
+        if !valid_file_name?(filename)
+          flash[:error] = "'#{filename}' is not a valid filename."
+          redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
+        end
         begin
           @package.save_file :filename => filename
         rescue ActiveXML::Transport::Error => e
