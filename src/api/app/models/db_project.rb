@@ -462,8 +462,6 @@ class DbProject < ActiveRecord::Base
       end
 
       #--- maintenance-related parts ---#
-      # The attribute 'type' is only set for maintenance and maintenance incident projects.
-      kind_element = project.value(:kind)
       # First remove all maintained project relations
       maintained_projects.each do |maintained_project|
         maintained_project.maintenance_project_id = nil
