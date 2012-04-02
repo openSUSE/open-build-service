@@ -7,7 +7,7 @@
   <div class="box show_left clearfix">
     <div class="grid_7 alpha omega">
       <h3 id="project_title"><%=h @project.title %><%=  h( @project ) if @project.title.to_s.blank? -%></h3>
-      <pre class="plain"><%= @project.description.text %></pre>
+      <pre class="plain" id="description"><%= @project.description.text %></pre>
     </div>
     <div class="grid_3 alpha omega">
       <h4>Information</h4>
