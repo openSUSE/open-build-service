@@ -192,7 +192,7 @@
           to
           <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:tprj], :package => action[:tpkg], :short => true} %>
           </b>
-          <% if @can_handle_request %>
+          <% if @can_handle_request && @is_target_maintainer %>
             <% if !action[:creator_is_target_maintainer] %>
               <%# TODO: Make this work for each submit action individually: %>
               <br/><%= check_box_tag(:add_submitter_as_maintainer, "#{action[:tprj]}_#_#{action[:tpkg]}", false, :class => 'submitter_is_maintainer_checkbox') %> Add
