@@ -91,7 +91,7 @@
                 <% if ['new', 'review', 'declined'].include?(@state) && @is_author %>
                   <%= submit_tag 'Revoke request', :name => 'revoked' %>
                 <% end %>
-                <% if @state == 'declined' && (@is_author || @is_target_maintainer) %>
+                <% if @state == 'declined' %>
                   <%= submit_tag 'Reopen request', :name => 'new' %>
                 <% end %>
                 <span style="float: right;">
