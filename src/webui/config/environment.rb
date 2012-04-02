@@ -43,7 +43,7 @@ init = Rails::Initializer.run do |config|
   # config.action_controller.fragment_cache_store = :file_store, "#{RAILS_ROOT}/cache"
 
   config.gem 'daemons'
-  config.gem 'delayed_job'
+  config.gem 'delayed_job', :version => '<3.0'
   config.gem 'exception_notification', :version => '<= 1.1'
   config.gem 'erubis'
   config.gem 'rails_xss'
