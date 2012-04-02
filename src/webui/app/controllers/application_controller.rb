@@ -408,11 +408,15 @@ class ApplicationController < ActionController::Base
     return if @@frontend
     @@frontend = IO.popen("#{RAILS_ROOT}/script/start_test_api")
     puts "Starting test API with pid: #{@@frontend.pid}"
+    lines = []
     while true do
       line = @@frontend.gets
-      raise RuntimeError.new('Frontend died') unless line
+      unless line
+        puts lines.join()
+        raise RuntimeError.new('Frontend died')
+      end
       break if line =~ /Test API ready/
-      logger.debug line.strip
+      lines << line
     end
     puts "Test API up and running with pid: #{@@frontend.pid}"
     at_exit do

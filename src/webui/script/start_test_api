@@ -17,6 +17,8 @@ rescue Errno::ECONNREFUSED, Errno::ENETUNREACH, Timeout::Error
   # all is good, no API no cry
 end
 
+lines = []
+outputlines = true
 frontend = Thread.new do
   puts "Starting test API at port #{FRONTEND_PORT} ..."
   cmdline = "./script/rails"
@@ -34,7 +36,12 @@ frontend = Thread.new do
   while frontend_out
     begin
       line = frontend_out.gets
-      logger.debug line.strip unless line.blank?
+      lines << line if outputlines
+      if line.nil?
+        puts "api died"
+        puts lines.join()
+        exit 1
+      end
     rescue IOError
       break
     end
@@ -50,6 +57,7 @@ while true
       res = http.get('/')
       case res
         when Net::HTTPSuccess, Net::HTTPRedirection, Net::HTTPUnauthorized
+          outputlines = false
           # OK
         else
           puts "API did not response nicely"

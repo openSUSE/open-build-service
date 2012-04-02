@@ -169,6 +169,7 @@ while true
           webui_out.close
           webui_out = nil
           frontend.join
+	  puts lines.join()
           exit 1
       end
     end
