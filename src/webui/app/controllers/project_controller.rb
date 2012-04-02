@@ -249,7 +249,7 @@ class ProjectController < ApplicationController
                                              :code => ['failed', 'broken', 'unresolvable'], 
                                              :expires_in => 2.minutes ) unless @spider_bot
       ret = Array.new
-      if buildresult
+      if buildresult.has_elements?
         buildresult.each( 'result/status' ) { |e| ret << e.value('package') }
       end
       ret.uniq.size
