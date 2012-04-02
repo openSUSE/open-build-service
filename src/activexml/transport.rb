@@ -532,7 +532,7 @@ module ActiveXML
             logger.error "Couldn't finish http connection: #{e.message}"
           end
           @http = nil
-          raise ConnectionError, "Failed to establish connection: " + err.message
+          raise ConnectionError, "Failed to establish connection for #{url}: " + err.message
         ensure
           logger.debug "Request took #{Time.now - start} seconds"
           @@api_time += Time.now - start
