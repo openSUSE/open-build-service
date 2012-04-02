@@ -1,7 +1,0 @@
-<h2>New group</h2>
-<% form_for :group, :url => { :action => :create } do |form| %>
-  <%= render(:partial => 'form') %>
-  <%= submit_tag "Create Group" %>
-<% end %>
-
-<%= link_to 'Back', :action => 'list' %>

@@ -17,14 +17,14 @@ class Role < ActiveRecord::Base
     def rolecache
       return @cache if @cache
       @cache = Hash.new
-      find(:all).each do |role|
+      all.each do |role|
         @cache[role.title] = role
       end
       return @cache
     end
 
     def get_by_title(title)
-      r = find :first, :conditions => ["title = BINARY ?", title]
+      r = where("title = BINARY ?", title).first
       raise RoleNotFoundError.new( "Error: Role '#{title}' not found." ) unless r
       return r
     end

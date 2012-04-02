@@ -31,9 +31,6 @@ new_user_registration: allow
 # via setting it to "false"
 #allow_user_to_create_home_project: true
 
-# This URL points to the backend source server
-source_server_url: http://localhost:5352
-
 # Minimum count of rating votes a project/package needs to # be taken in account
 # for global statistics:
 min_votes_for_rating: 3

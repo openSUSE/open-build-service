@@ -494,14 +494,14 @@ class DbProject < ActiveRecord::Base
 
           user=User.get_by_login(person.userid)
 
-          begin
-            ProjectUserRoleRelationship.create(
+          pr = ProjectUserRoleRelationship.new(
               :user => user,
               :role => Role.rolecache[person.role],
-              :db_project => self
-            )
-          rescue ActiveRecord::RecordNotUnique
-            logger.debug "user '#{person.userid}' already has the role '#{person.role}' in project '#{self.name}'"
+              :db_project => self )
+          if pr.valid?
+            pr.save!
+          else
+            logger.debug "user '#{person.userid}' already has the role '#{person.role}' in project '#{self.name}': #{pr.errors}"
           end
         end
       end

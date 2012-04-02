@@ -1,8 +1,0 @@
-<h2>New Permission</h2>
-
-<% form_for :permission, :url => { :action => :create } do |form| %>
-  <%= render(:partial => 'form') %>
-  <%= submit_tag "Create New Permission" %>
-<% end %>
-
-<%= link_to 'back to list', :action => 'list' %>

@@ -1,8 +1,0 @@
-<h2>Editing role <%= @role.title %></h2>
-<% form_for :role, :url => { :action => :update, :id => @role  } do |form| %>
-  <%= render(:partial => 'form') %>
-  <%= submit_tag 'Apply Changes' %>
-<% end %>
-
-<%= link_to 'Show', :action => 'show', :id => @role %> |
-<%= link_to 'Back', :action => 'list' %>

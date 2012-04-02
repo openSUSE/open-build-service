@@ -10,15 +10,11 @@ begin
 rescue Exception => e
   puts "Error while parsing config file #{path}"
   CONFIG = Hash.new
-  raise e
 end
 
 CONFIG['apidocs_location'] ||= File.expand_path("../../docs/api/html/")
 CONFIG['schema_location'] ||= File.expand_path("public/schema")+"/"
 CONFIG['download_url'] ||= 'http://download.opensuse.org/repositories'
-
-ActionController::Base.perform_caching = true
-#ActiveRbac.controller_layout = "rbac"
 
 # Initialize the rails application
 OBSApi::Application.initialize!

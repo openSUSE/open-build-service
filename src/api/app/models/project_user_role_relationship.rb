@@ -5,13 +5,14 @@ class ProjectUserRoleRelationship < ActiveRecord::Base
 
   @@project_user_cache = nil
 
-  def validate_on_create
+  validate :check_duplicates, :on => :create
+  def check_duplicates
     unless self.user
-      errors.add "Can not assign role to nonexistent user"
+      errors.add(:user, "Can not assign role to nonexistent user")
     end
 
-    if ProjectUserRoleRelationship.find(:first, :conditions => ["db_project_id = ? AND role_id = ? AND bs_user_id = ?", self.db_project, self.role, self.user])
-      errors.add "User already has this role"
+    if ProjectUserRoleRelationship.where("db_project_id = ? AND role_id = ? AND bs_user_id = ?", self.db_project, self.role, self.user).first
+      errors.add(:role, "User already has this role")
     end
   end
 

@@ -58,66 +58,6 @@ class DbPackage < ActiveRecord::Base
       return DbProject.check_access?(dbpkg.db_project)
     end
 
-    # own custom find
-    def find_later(*args)
-      options = args.extract_options!
-      validate_find_options(options)
-      set_readonly_option!(options)
-
-      def securedfind_byids(args,options)
-        dbpkg=find_from_ids(args,options)
-        return if dbpkg.nil?
-        return unless DbPackage.check_access?(dbpkg)
-        return dbpkg
-      end
-
-      def securedfind_every(options)
-        options[:joins] = "" if options[:joins].nil?
-        options[:joins] += " LEFT JOIN db_projects prj ON db_packages.db_project_id = prj.id"
-        options[:group] = "db_packages.id" unless options[:group] # is creating a DISTINCT select to have uniq results
-
-        unless User.currentAdmin
-          # limit to projects which have no "access" flag, except user has any role inside
-          # FIXME3.0: we should limit this to maintainer and reader role only ?
-          #
-
-	  fprjs = ProjectUserRoleRelationship.forbidden_project_ids
-          cond = "(prj.id not in (#{fprjs.join(',')}))" unless fprjs.blank?
-          if options[:conditions].nil?
-            options[:conditions] = cond if cond
-          else
-            if options[:conditions].class == String
-              options[:conditions] = options[:conditions]
-            else
-              options[:conditions][0] = cond + "AND (" + options[:conditions][0] + ")" if cond
-            end
-          end
-        end
-        return find_every(options)
-      end
-
-      def securedfind_last(options)
-        dbpkg = find_last(options)
-        return if dbpkg.nil?
-        return unless DbPackage.check_access?(dbpkg)
-        return dbpkg
-      end
-
-      def securedfind_initial(options)
-        dbpkg = find_initial(options)
-        return if dbpkg.nil?
-        return unless DbPackage.check_access?(dbpkg)
-        return dbpkg
-      end
-
-      case args.first
-        when :first then securedfind_initial(options)
-        when :last  then securedfind_last(options)
-        when :all   then securedfind_every(options)
-        else    securedfind_byids(args, options)
-      end
-    end
-
     def store_axml( package )
       dbp = nil
       DbPackage.transaction do
@@ -302,7 +242,7 @@ class DbPackage < ActiveRecord::Base
     end
 
     def find_by_name(name)
-      find :first, :conditions => ["name = BINARY ?", name]
+      where("name = BINARY ?", name).first
     end
 
   end
@@ -553,14 +493,14 @@ class DbPackage < ActiveRecord::Base
           end
         else
           user = User.get_by_login(person.userid)
-          begin
-            PackageUserRoleRelationship.create(
+          pu = PackageUserRoleRelationship.create(
               :user => user,
               :role => Role.rolecache[person.role],
-              :db_package => self
-            )
-          rescue ActiveRecord::RecordNotUnique
-            logger.debug "user '#{person.userid}' already has the role '#{person.role}' in package '#{self.name}'"
+              :db_package => self)
+          if pu.valid?
+            pu.save!
+          else
+            logger.debug "user '#{person.userid}' already has the role '#{person.role}' in package '#{self.name}': #{pu.errors}"
           end
         end
       end

@@ -3,7 +3,9 @@ class ProjectGroupRoleRelationship < ActiveRecord::Base
   belongs_to :group, :foreign_key => 'bs_group_id'
   belongs_to :role
 
-  def validate_on_create
+  validate :check_duplicates, :on => :create
+
+  def check_duplicates
     unless self.group
       errors.add "Can not assign role to nonexistent group"
     end

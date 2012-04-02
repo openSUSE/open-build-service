@@ -88,6 +88,8 @@ module OBSApi
     
     config.active_record.schema_format = :sql
     
+    config.action_controller.perform_caching = true
+
     # See Rails::Configuration for more options
     config.after_initialize do
       #ExceptionNotifier.exception_recipients = CONFIG["exception_recipients"]
