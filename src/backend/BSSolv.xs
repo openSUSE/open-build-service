@@ -17,6 +17,9 @@
 #include "repo_write.h"
 #include "repo_rpmdb.h"
 #include "repo_deb.h"
+#if 1
+#include "repo_arch.h"
+#endif
 
 typedef struct _Expander {
   Pool *pool;
@@ -108,7 +111,7 @@ makeevr(Pool *pool, char *e, char *v, char *r)
     s = v;
   if (r)
     s = pool_tmpjoin(pool, s, "-", r);
-  return str2id(pool, s, 1);
+  return pool_str2id(pool, s, 1);
 }
 
 static inline char *
@@ -142,7 +145,7 @@ dep2id(Pool *pool, char *s)
     {
       id = dep2id(pool, n + 1);
       *n = 0;
-      id = rel2id(pool, dep2id(pool, s), id, REL_OR, 1);
+      id = pool_rel2id(pool, dep2id(pool, s), id, REL_OR, 1);
       *n = '|';
       return id;
     }
@@ -151,7 +154,7 @@ dep2id(Pool *pool, char *s)
   n = s;
   while (*s && *s != ' ' && *s != '\t' && *s != '<' && *s != '=' && *s != '>')
     s++;
-  id = strn2id(pool, n, s - n, 1);
+  id = pool_strn2id(pool, n, s - n, 1);
   if (!*s)
     return id;
   while (*s == ' ' || *s == '\t')
@@ -175,7 +178,7 @@ dep2id(Pool *pool, char *s)
   n = s;
   while (*s && *s != ' ' && *s != '\t')
     s++;
-  return rel2id(pool, id, strn2id(pool, n, s - n, 1), flags, 1);
+  return pool_rel2id(pool, id, pool_strn2id(pool, n, s - n, 1), flags, 1);
 }
 
 static inline void
@@ -220,11 +223,11 @@ expander_installed(Expander *xp, Id p, Map *installed, Map *conflicts, Queue *ou
 	    continue;
 	  if (MAPTST(&xp->ignoredx, id))
 	    {
-	      Id xid = str2id(pool, pool_tmpjoin(pool, id2str(pool, s->name), ":", id2str(pool, id)), 0);
+	      Id xid = pool_str2id(pool, pool_tmpjoin(pool, pool_id2str(pool, s->name), ":", pool_id2str(pool, id)), 0);
 	      if (xid && MAPTST(&xp->ignored, xid))
 		continue;
 	    }
-	  n = id2str(pool, id);
+	  n = pool_id2str(pool, id);
 	  if (!strncmp(n, "rpmlib(", 7))
 	    {
 	      MAPEXP(&xp->ignored, id);
@@ -294,7 +297,7 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 	    continue;
 	  if (xp->debug)
 	    {
-	      printf("added %s because of %s (direct dep)\n", id2str(pool, pool->solvables[q].name), dep2str(pool, id));
+	      printf("added %s because of %s (direct dep)\n", pool_id2str(pool, pool->solvables[q].name), pool_dep2str(pool, id));
 	      fflush(stdout);
 	    }
 	  expander_installed(xp, q, &installed, &conflicts, out, &todo); /* unique match! */
@@ -323,7 +326,7 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 	}
       else
 	ambcnt -= 2;
-// printf("todo %s %s ambcnt %d\n", id2str(pool, pool->solvables[who].name), dep2str(pool, id), ambcnt);
+// printf("todo %s %s ambcnt %d\n", pool_id2str(pool, pool->solvables[who].name), pool_dep2str(pool, id), ambcnt);
 // fflush(stdout);
       whon = pool->solvables[who].name;
       queue_empty(&qq);
@@ -337,7 +340,7 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 	    break;
 	  if (who && MAPTST(&xp->ignoredx, pn))
 	    {
-	      Id xid = str2id(pool, pool_tmpjoin(pool, id2str(pool, whon), ":", id2str(pool, pn)), 0);
+	      Id xid = pool_str2id(pool, pool_tmpjoin(pool, pool_id2str(pool, whon), ":", pool_id2str(pool, pn)), 0);
 	      if (xid && MAPTST(&xp->ignored, xid))
 		break;
 	    }
@@ -359,9 +362,9 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 	  queue_push2(&todo, id, who);
 	  if (xp->debug)
 	    {
-	      printf("undecided about %s:%s:", id2str(pool, whon), dep2str(pool, id));
+	      printf("undecided about %s:%s:", pool_id2str(pool, whon), pool_dep2str(pool, id));
 	      for (i = 0; i < qq.count; i++)
-	        printf(" %s", id2str(pool, pool->solvables[qq.elements[i]].name));
+	        printf(" %s", pool_id2str(pool, pool->solvables[qq.elements[i]].name));
 	      printf("\n");
 	      fflush(stdout);
 	    }
@@ -379,7 +382,7 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 		continue;
 	      if (who && MAPTST(&xp->prefernegx, pn))
 		{
-		  Id xid = str2id(pool, pool_tmpjoin(pool, id2str(pool, whon), ":", id2str(pool, pn)), 0);
+		  Id xid = pool_str2id(pool, pool_tmpjoin(pool, pool_id2str(pool, whon), ":", pool_id2str(pool, pn)), 0);
 		  if (xid && MAPTST(&xp->preferneg, xid))
 		    continue;
 		}
@@ -405,7 +408,7 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 		}
 	      if (who && MAPTST(&xp->preferposx, pn))
 		{
-		  Id xid = str2id(pool, pool_tmpjoin(pool, id2str(pool, whon), ":", id2str(pool, pn)), 0);
+		  Id xid = pool_str2id(pool, pool_tmpjoin(pool, pool_id2str(pool, whon), ":", pool_id2str(pool, pn)), 0);
 		  if (xid && MAPTST(&xp->preferpos, xid))
 		    {
 		      queue_push2(&posfoundq, xid, p);
@@ -478,7 +481,7 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 	}
       if (xp->debug)
 	{
-	  printf("added %s because of %s:%s\n", id2str(pool, pool->solvables[qq.elements[0]].name), id2str(pool, whon), dep2str(pool, id));
+	  printf("added %s because of %s:%s\n", pool_id2str(pool, pool->solvables[qq.elements[0]].name), pool_id2str(pool, whon), pool_dep2str(pool, id));
 	  fflush(stdout);
 	}
       expander_installed(xp, qq.elements[0], &installed, &conflicts, out, &todo);
@@ -543,7 +546,7 @@ create_considered(Pool *pool, Repo *repoonly, Map *considered)
   Repo *repo;
 
   map_init(considered, pool->nsolvables);
-  best = sat_calloc(sizeof(Id), pool->ss.nstrings);
+  best = solv_calloc(sizeof(Id), pool->ss.nstrings);
   FOR_REPOS(ridx, repo)
     {
       if (repoonly && repo != repoonly)
@@ -565,7 +568,7 @@ create_considered(Pool *pool, Repo *repoonly, Map *considered)
 		    continue;
 		  if (sb->arch != ARCH_NOARCH && sb->arch != ARCH_ALL)
 		    {
-		      r = strcmp(id2str(pool, sb->arch), id2str(pool, s->arch));
+		      r = strcmp(pool_id2str(pool, sb->arch), pool_id2str(pool, s->arch));
 		      if (r >= 0)
 			continue;
 		    }
@@ -573,12 +576,12 @@ create_considered(Pool *pool, Repo *repoonly, Map *considered)
 	      else if (s->evr != sb->evr)
 		{
 		  /* same repo, check versions */
-		  int r = evrcmp(pool, sb->evr, s->evr, EVRCMP_COMPARE);
+		  int r = pool_evrcmp(pool, sb->evr, s->evr, EVRCMP_COMPARE);
 		  if (r > 0)
 		    continue;
 		  else if (r == 0)
 		    {
-		      r = strcmp(id2str(pool, sb->evr), id2str(pool, s->evr));
+		      r = strcmp(pool_id2str(pool, sb->evr), pool_id2str(pool, s->evr));
 		      if (r >= 0)
 			continue;
 		    }
@@ -596,7 +599,7 @@ create_considered(Pool *pool, Repo *repoonly, Map *considered)
 	  MAPSET(considered, p);
 	}
     }
-  sat_free(best);
+  solv_free(best);
 }
 
 struct metaline {
@@ -629,18 +632,20 @@ static int metacmp(const void *ap, const void *bp)
 Id
 repodata_addbin(Repodata *data, char *path, char *s, int sl, char *sid)
 {
-  Pool *pool = data->repo->pool;
   char *sp;
   Id p;
 
-  p = pool->nsolvables;
-  if (!strcmp(s + sl - 4, ".rpm"))
-    repo_add_rpms(data->repo, (const char **)&path, 1, REPO_REUSE_REPODATA|REPO_NO_INTERNALIZE|RPM_ADD_WITH_PKGID|RPM_ADD_NO_FILELIST|RPM_ADD_NO_RPMLIBREQS);
-  else if (!strcmp(s + sl - 4, ".deb"))
-    repo_add_debs(data->repo, (const char **)&path, 1, REPO_REUSE_REPODATA|REPO_NO_INTERNALIZE|DEBS_ADD_WITH_PKGID);
+  if (sl >= 4 && !strcmp(s + sl - 4, ".rpm"))
+    p = repo_add_rpm(data->repo, (const char *)path, REPO_REUSE_REPODATA|REPO_NO_INTERNALIZE|RPM_ADD_WITH_PKGID|RPM_ADD_NO_FILELIST|RPM_ADD_NO_RPMLIBREQS);
+  else if (sl >= 4 && !strcmp(s + sl - 4, ".deb"))
+    p = repo_add_deb(data->repo, (const char *)path, REPO_REUSE_REPODATA|REPO_NO_INTERNALIZE|DEBS_ADD_WITH_PKGID);
+#ifdef ARCH_ADD_WITH_PKGID
+  else if (sl >= 11 && (!strcmp(s + sl - 11, ".pkg.tar.gz") || !strcmp(s + sl - 11, ".pkg.tar.xz")))
+    p = repo_add_arch_pkg(data->repo, (const char *)path, REPO_REUSE_REPODATA|REPO_NO_INTERNALIZE|ARCH_ADD_WITH_PKGID);
+#endif
   else
     return 0;
-  if (pool->nsolvables == p)
+  if (!p)
     return 0;
   if ((sp = strrchr(s, '/')) != 0)
     {
@@ -696,8 +701,8 @@ depsort(HV *deps, SV *mapp, SV *cycp, ...)
 	    queue_init(&cycles);
 
 	    hm = mkmask(items);
-	    ht = sat_calloc(hm + 1, sizeof(*ht));
-	    names = sat_calloc(items, sizeof(char *));
+	    ht = solv_calloc(hm + 1, sizeof(*ht));
+	    names = solv_calloc(items, sizeof(char *));
 	    nv = 1;
 	    for (i = 3; i < items; i++)
 	      {
@@ -769,7 +774,7 @@ depsort(HV *deps, SV *mapp, SV *cycp, ...)
 		  }
 		queue_push(&edata, 0);
 	      }
-	    sat_free(ht);
+	    solv_free(ht);
 
 	    if (0)
 	      {
@@ -786,7 +791,7 @@ depsort(HV *deps, SV *mapp, SV *cycp, ...)
 		
 
 	    /* now everything is set up, sort em! */
-	    mark = sat_calloc(vedge.count, sizeof(Id));
+	    mark = solv_calloc(vedge.count, sizeof(Id));
 	    for (i = vedge.count - 1; i; i--)
 	      queue_push(&todo, i);
 	    EXTEND(SP, vedge.count - 1);
@@ -885,8 +890,8 @@ depsort(HV *deps, SV *mapp, SV *cycp, ...)
 	    queue_free(&edata);
 	    queue_free(&vedge);
 	    queue_free(&todo);
-	    sat_free(mark);
-	    sat_free(names);
+	    solv_free(mark);
+	    solv_free(names);
 	}
 
 void
@@ -910,8 +915,8 @@ gen_meta(AV *subp, ...)
 
 	    queue_init_buffer(&cycles, cycles_buf, sizeof(cycles_buf)/sizeof(*cycles_buf));
 	    hm = mkmask(av_len(subp) + 2);
-	    ht = sat_calloc(hm + 1, sizeof(*ht));
-	    subpacks = sat_calloc(av_len(subp) + 2, sizeof(char *));
+	    ht = solv_calloc(hm + 1, sizeof(*ht));
+	    subpacks = solv_calloc(av_len(subp) + 2, sizeof(char *));
 	    for (j = 0; j <= av_len(subp); j++)
 	      {
 		SV **svp = av_fetch(subp, j, 0);
@@ -926,7 +931,7 @@ gen_meta(AV *subp, ...)
 		subpacks[j + 1] = s;
 	      }
 
-	    lines = sat_calloc(items - 1, sizeof(*lines));
+	    lines = solv_calloc(items - 1, sizeof(*lines));
 	    nlines = items - 1;
 	    /* lines are of the form "md5sum  pkg/pkg..." */
 	    for (i = 0, lp = lines; i < nlines; i++, lp++)
@@ -982,8 +987,8 @@ gen_meta(AV *subp, ...)
 		lp->nslash = ns;
 		lp->lastoff = lo - s;
 	      }
-	    sat_free(ht);
-	    sat_free(subpacks);
+	    solv_free(ht);
+	    solv_free(subpacks);
 
 	    /* if we found cycles, prune em */
 	    if (cycles.count)
@@ -991,11 +996,11 @@ gen_meta(AV *subp, ...)
 		char *cycledata = 0;
 		int cycledatalen = 0;
 
-		cycledata = sat_extend(cycledata, cycledatalen, 1, 1, 255);
+		cycledata = solv_extend(cycledata, cycledatalen, 1, 1, 255);
 		cycledata[0] = 0;
 		cycledatalen += 1;
 		hm = mkmask(cycles.count);
-		ht = sat_calloc(hm + 1, sizeof(*ht));
+		ht = solv_calloc(hm + 1, sizeof(*ht));
 		for (i = 0; i < cycles.count; i++)
 		  {
 		    char *se;
@@ -1013,7 +1018,7 @@ gen_meta(AV *subp, ...)
 		      }
 		    if (id)
 		      continue;
-		    cycledata = sat_extend(cycledata, cycledatalen, strlen(s) + 1, 1, 255);
+		    cycledata = solv_extend(cycledata, cycledatalen, strlen(s) + 1, 1, 255);
 		    ht[h] = cycledatalen;
 		    strcpy(cycledata + cycledatalen, s);
 		    cycledatalen += strlen(s) + 1;
@@ -1060,8 +1065,8 @@ gen_meta(AV *subp, ...)
 		        lp->killed = 1;
 		      }
 		  }
-		sat_free(ht);
-		cycledata = sat_free(cycledata);
+		solv_free(ht);
+		cycledata = solv_free(cycledata);
 		queue_free(&cycles);
 	      }
 
@@ -1070,7 +1075,7 @@ gen_meta(AV *subp, ...)
 	      qsort(lines, nlines, sizeof(*lines), metacmp);
 
 	    hm = mkmask(nlines);
-	    ht = sat_calloc(hm + 1, sizeof(*ht));
+	    ht = solv_calloc(hm + 1, sizeof(*ht));
 	    for (i = 0, lp = lines; i < nlines; i++, lp++)
 	      {
 		if (lp->killed)
@@ -1091,7 +1096,7 @@ gen_meta(AV *subp, ...)
 		else
 		  ht[h] = i + 1;
 	      }
-	    sat_free(ht);
+	    solv_free(ht);
 	    j = 0;
 	    for (i = 0, lp = lines; i < nlines; i++, lp++)
 	      if (!lp->killed)
@@ -1105,7 +1110,7 @@ gen_meta(AV *subp, ...)
 		sv = newSVpv(lp->l, 0);
 		PUSHs(sv_2mortal(sv));
 	      }
-	    sat_free(lines);
+	    solv_free(lines);
 	}
 
 MODULE = BSSolv		PACKAGE = BSSolv::pool		PREFIX = pool
@@ -1113,16 +1118,19 @@ MODULE = BSSolv		PACKAGE = BSSolv::pool		PREFIX = pool
 PROTOTYPES: ENABLE
 
 BSSolv::pool
-new(packname = "BSSolv::pool")
-    char *packname;
+new(char *packname = "BSSolv::pool")
     CODE:
 	{
 	    Pool *pool = pool_create();
 	    pool_setdisttype(pool, DISTTYPE_RPM);
-	    buildservice_id = str2id(pool, "buildservice:id", 1);
-	    buildservice_repocookie= str2id(pool, "buildservice:repocookie", 1);
-	    buildservice_external = str2id(pool, "buildservice:external", 1);
-	    buildservice_dodurl = str2id(pool, "buildservice:dodurl", 1);
+#ifdef POOL_FLAG_HAVEDISTEPOCH
+	    /* make newer mandriva work, hopefully there are no ill effects... */
+	    pool_set_flag(pool, POOL_FLAG_HAVEDISTEPOCH, 1);
+#endif
+	    buildservice_id = pool_str2id(pool, "buildservice:id", 1);
+	    buildservice_repocookie= pool_str2id(pool, "buildservice:repocookie", 1);
+	    buildservice_external = pool_str2id(pool, "buildservice:external", 1);
+	    buildservice_dodurl = pool_str2id(pool, "buildservice:dodurl", 1);
 	    pool_freeidhashes(pool);
 	    RETVAL = pool;
 	}
@@ -1133,9 +1141,19 @@ void
 settype(BSSolv::pool pool, char *type)
     CODE:
 	if (!strcmp(type, "rpm"))
-	  pool_setdisttype(pool, DISTTYPE_RPM);
+	  {
+	    pool_setdisttype(pool, DISTTYPE_RPM);
+#ifdef POOL_FLAG_HAVEDISTEPOCH
+	    pool_set_flag(pool, POOL_FLAG_HAVEDISTEPOCH, 1);
+#endif
+	  }
 	else if (!strcmp(type, "deb"))
-	  pool_setdisttype(pool, DISTTYPE_DEB);
+	  {
+	    pool_setdisttype(pool, DISTTYPE_DEB);
+#ifdef POOL_FLAG_HAVEDISTEPOCH
+	    pool_set_flag(pool, POOL_FLAG_HAVEDISTEPOCH, 0);
+#endif
+	  }
 	else
 	  croak("settype: unknown type '%s'\n", type);
 
@@ -1150,7 +1168,7 @@ repofromfile(BSSolv::pool pool, char *name, char *filename)
 	    XSRETURN_UNDEF;
 	}
 	RETVAL = repo_create(pool, name);
-	repo_add_solv(RETVAL, fp);
+	repo_add_solv(RETVAL, fp, 0);
 	fclose(fp);
     OUTPUT:
 	RETVAL
@@ -1170,7 +1188,7 @@ repofromstr(BSSolv::pool pool, char *name, SV *sv)
 	    XSRETURN_UNDEF;
 	}
 	RETVAL = repo_create(pool, name);
-	repo_add_solv(RETVAL, fp);
+	repo_add_solv(RETVAL, fp, 0);
 	fclose(fp);
     OUTPUT:
 	RETVAL
@@ -1192,15 +1210,21 @@ repofrombins(BSSolv::pool pool, char *name, char *dir, ...)
 		char *sid = SvPV_nolen(ST(i + 1));
 		if (sl < 4)
 		  continue;
-		if (strcmp(s + sl - 4, ".rpm") && strcmp(s + sl - 4, ".deb"))
+		if (strcmp(s + sl - 4, ".rpm")
+                    && strcmp(s + sl - 4, ".deb")
+#ifdef ARCH_ADD_WITH_PKGID
+                    && (sl < 11 || strcmp(s + sl - 11, ".pkg.tar.gz"))
+                    && (sl < 11 || strcmp(s + sl - 11, ".pkg.tar.xz"))
+#endif
+		   )
 		  continue;
-		if (sl > 10 && !strcmp(s + sl - 10, ".patch.rpm"))
+		if (sl >= 10 && !strcmp(s + sl - 10, ".patch.rpm"))
 		  continue;
-		if (sl > 10 && !strcmp(s + sl - 10, ".nosrc.rpm"))
+		if (sl >= 10 && !strcmp(s + sl - 10, ".nosrc.rpm"))
 		  continue;
-		if (sl > 8 && !strcmp(s + sl - 8, ".src.rpm"))
+		if (sl >= 8 && !strcmp(s + sl - 8, ".src.rpm"))
 		  continue;
-		path = sat_dupjoin(dir, "/", s);
+		path = solv_dupjoin(dir, "/", s);
 		repodata_addbin(data, path, s, (int)sl, sid);
 		free(path);
 	      }
@@ -1239,11 +1263,11 @@ repofromdata(BSSolv::pool pool, char *name, HV *rhv)
 		  continue;	/* need to have a name */
 		p = repo_add_solvable(repo);
 		s = pool_id2solvable(pool, p);
-		s->name = str2id(pool, str, 1);
+		s->name = pool_str2id(pool, str, 1);
 		str = hvlookupstr(hv, "arch", 4);
 		if (!str)
 		  str = "";	/* dummy, need to have arch */
-	        s->arch = str2id(pool, str, 1);
+	        s->arch = pool_str2id(pool, str, 1);
 		s->evr = makeevr(pool, hvlookupstr(hv, "epoch", 5), hvlookupstr(hv, "version", 7), hvlookupstr(hv, "release", 7));
 		str = hvlookupstr(hv, "path", 4);
 		if (str)
@@ -1303,7 +1327,7 @@ repofromdata(BSSolv::pool pool, char *name, HV *rhv)
 		      }
 		  }
 		if (s->evr)
-		  s->provides = repo_addid_dep(repo, s->provides, rel2id(pool, s->name, s->evr, REL_EQ, 1), 0);
+		  s->provides = repo_addid_dep(repo, s->provides, pool_rel2id(pool, s->name, s->evr, REL_EQ, 1), 0);
 	      }
 	    repodata_set_str(data, SOLVID_META, buildservice_repocookie, REPOCOOKIE);
 	    if (name && !strcmp(name, "/external/"))
@@ -1323,9 +1347,9 @@ createwhatprovides(BSSolv::pool pool)
 	if (pool->considered)
 	  {
 	    map_free(pool->considered);
-	    sat_free(pool->considered);
+	    solv_free(pool->considered);
 	  }
-	pool->considered = sat_calloc(sizeof(Map), 1);
+	pool->considered = solv_calloc(sizeof(Map), 1);
 	create_considered(pool, 0, pool->considered);
 	pool_createwhatprovides(pool);
 
@@ -1389,7 +1413,7 @@ consideredpackages(BSSolv::pool pool)
 const char *
 pkg2name(BSSolv::pool pool, int p)
     CODE:
-	RETVAL = id2str(pool, pool->solvables[p].name);
+	RETVAL = pool_id2str(pool, pool->solvables[p].name);
     OUTPUT:
 	RETVAL
 
@@ -1397,7 +1421,7 @@ const char *
 pkg2srcname(BSSolv::pool pool, int p)
     CODE:
 	if (solvable_lookup_void(pool->solvables + p, SOLVABLE_SOURCENAME))
-	  RETVAL = id2str(pool, pool->solvables[p].name);
+	  RETVAL = pool_id2str(pool, pool->solvables[p].name);
 	else
 	  RETVAL = solvable_lookup_str(pool->solvables + p, SOLVABLE_SOURCENAME);
     OUTPUT:
@@ -1457,7 +1481,11 @@ pkg2fullpath(BSSolv::pool pool, int p, char *myarch)
 int
 pkg2sizek(BSSolv::pool pool, int p)
     CODE:
+#ifdef SOLV_KV_NUM
+	RETVAL = solvable_lookup_sizek(pool->solvables + p, SOLVABLE_DOWNLOADSIZE, 0);
+#else
 	RETVAL = solvable_lookup_num(pool->solvables + p, SOLVABLE_DOWNLOADSIZE, 0);
+#endif
     OUTPUT:
 	RETVAL
 
@@ -1475,8 +1503,8 @@ pkg2data(BSSolv::pool pool, int p)
 		XSRETURN_EMPTY;
 	    RETVAL = newHV();
 	    sv_2mortal((SV*)RETVAL);
-	    (void)hv_store(RETVAL, "name", 4, newSVpv(id2str(pool, s->name), 0), 0);
-	    ss = id2str(pool, s->evr);
+	    (void)hv_store(RETVAL, "name", 4, newSVpv(pool_id2str(pool, s->name), 0), 0);
+	    ss = pool_id2str(pool, s->evr);
 	    se = ss;
 	    while (*se >= '0' && *se <= '9')
 	      se++;
@@ -1493,7 +1521,7 @@ pkg2data(BSSolv::pool pool, int p)
 	      }
 	    else
 	      (void)hv_store(RETVAL, "version", 7, newSVpv(ss, 0), 0);
-	    (void)hv_store(RETVAL, "arch", 4, newSVpv(id2str(pool, s->arch), 0), 0);
+	    (void)hv_store(RETVAL, "arch", 4, newSVpv(pool_id2str(pool, s->arch), 0), 0);
 	    av = newAV();
 	    if (s->provides)
 	      {
@@ -1502,7 +1530,7 @@ pkg2data(BSSolv::pool pool, int p)
 		  {
 		    if (id == SOLVABLE_FILEMARKER)
 		      break;
-		    av_push(av, newSVpv(dep2str(pool, id), 0));
+		    av_push(av, newSVpv(pool_dep2str(pool, id), 0));
 		  }
 	      }
 	    (void)hv_store(RETVAL, "provides", 8, newRV_noinc((SV*)av), 0);
@@ -1514,7 +1542,7 @@ pkg2data(BSSolv::pool pool, int p)
 		  {
 		    if (id == SOLVABLE_PREREQMARKER)
 		      continue;
-		    ss = dep2str(pool, id);
+		    ss = pool_dep2str(pool, id);
 		    if (*ss == '/')
 		      continue;
 		    if (*ss == 'r' && !strncmp(ss, "rpmlib(", 7))
@@ -1524,7 +1552,7 @@ pkg2data(BSSolv::pool pool, int p)
 	      }
 	    (void)hv_store(RETVAL, "requires", 8, newRV_noinc((SV*)av), 0);
 	    if (solvable_lookup_void(s, SOLVABLE_SOURCENAME))
-	      ss = id2str(pool, s->name);
+	      ss = pool_id2str(pool, s->name);
 	    else
 	      ss = solvable_lookup_str(s, SOLVABLE_SOURCENAME);
 	    if (ss)
@@ -1564,7 +1592,7 @@ DESTROY(BSSolv::pool pool)
         if (pool->considered)
 	  {
 	    map_free(pool->considered);
-	    pool->considered = sat_free(pool->considered);
+	    pool->considered = solv_free(pool->considered);
 	  }
 	pool_free(pool);
 
@@ -1588,7 +1616,7 @@ pkgnames(BSSolv::repo repo)
 	      {
 		if (!MAPTST(&c, p))
 		  continue;
-		PUSHs(sv_2mortal(newSVpv(id2str(pool, s->name), 0)));
+		PUSHs(sv_2mortal(newSVpv(pool_id2str(pool, s->name), 0)));
 		PUSHs(sv_2mortal(newSViv(p)));
 	      }
 	    map_free(&c);
@@ -1603,7 +1631,7 @@ tofile(BSSolv::repo repo, char *filename)
 	    fp = fopen(filename, "w");
 	    if (fp == 0)
 	      croak("%s: %s\n", filename, Strerror(errno));
-	    repo_write(repo, fp, myrepowritefilter, 0, 0);
+	    repo_write_filtered(repo, fp, myrepowritefilter, 0, 0);
 	    if (fclose(fp))
 	      croak("fclose: %s\n",  Strerror(errno));
 	}
@@ -1624,7 +1652,7 @@ tofile_fd(BSSolv::repo repo, int fd)
 		close(fd2);
 		croak("fdopen: %s\n", Strerror(e));
 	      }
-	    repo_write(repo, fp, myrepowritefilter, 0, 0);
+	    repo_write_filtered(repo, fp, myrepowritefilter, 0, 0);
 	    if (fclose(fp))
 	      {
 		int e = errno;
@@ -1643,7 +1671,7 @@ tostr(BSSolv::repo repo)
 	    fp = open_memstream(&buf, &len);
 	    if (fp == 0)
 	      croak("open_memstream: %s\n", Strerror(errno));
-	    repo_write(repo, fp, myrepowritefilter, 0, 0);
+	    repo_write_filtered(repo, fp, myrepowritefilter, 0, 0);
 	    if (fclose(fp))
 	      croak("fclose: %s\n",  Strerror(errno));
 	    RETVAL = newSVpvn(buf, len);
@@ -1683,7 +1711,7 @@ updatefrombins(BSSolv::repo repo, char *dir, ...)
 		  }
 	      }
 	    hm = mkmask(2 * repo->nsolvables + 1);
-	    ht = sat_calloc(hm + 1, sizeof(*ht));
+	    ht = solv_calloc(hm + 1, sizeof(*ht));
 	    oldcookie = repo_lookup_str(repo, SOLVID_META, buildservice_repocookie);
 	    if (oldcookie && !strcmp(oldcookie, REPOCOOKIE))
 	      {
@@ -1708,15 +1736,20 @@ updatefrombins(BSSolv::repo repo, char *dir, ...)
 		char *sid = SvPV_nolen(ST(i + 1));
 		if (sl < 4)
 		  continue;
-		if (strcmp(s + sl - 4, ".rpm") && strcmp(s + sl - 4, ".deb"))
-		  continue;
+		if (strcmp(s + sl - 4, ".rpm")
+                    && strcmp(s + sl - 4, ".deb")
+#ifdef ARCH_ADD_WITH_PKGID
+                    && (sl < 11 || strcmp(s + sl - 11, ".pkg.tar.gz"))
+                    && (sl < 11 || strcmp(s + sl - 11, ".pkg.tar.xz"))
+#endif
+		   )
 		if (sl > 10 && !strcmp(s + sl - 10, ".patch.rpm"))
 		  continue;
 		if (sl > 10 && !strcmp(s + sl - 10, ".nosrc.rpm"))
 		  continue;
 		if (sl > 8 && !strcmp(s + sl - 8, ".src.rpm"))
 		  continue;
-		path = sat_dupjoin(dir, "/", s);
+		path = solv_dupjoin(dir, "/", s);
 		h = strhash(sid) & hm;
 		hh = HASHCHAIN_START;
 		while ((id = ht[h]) != 0)
@@ -1749,14 +1782,15 @@ updatefrombins(BSSolv::repo repo, char *dir, ...)
 		  }
 		free(path);
 	      }
-	    sat_free(ht);
+	    solv_free(ht);
 	    if (oldcookie)
 	      {
-		if (strcmp(oldcookie, REPOCOOKIE))
+		if (strcmp(oldcookie, REPOCOOKIE) != 0)
 		  {
-		    if (data && data != repo->repodata)
+		    Repodata *firstrepodata = repo_id2repodata(repo, 1);
+		    if (data && data != firstrepodata)
 		      repodata_internalize(data);
-		    data = repo->repodata;
+		    data = firstrepodata;
 		    repodata_set_str(data, SOLVID_META, buildservice_repocookie, REPOCOOKIE);
 		  }
 	      }
@@ -1864,10 +1898,10 @@ new(char *packname = "BSSolv::expander", BSSolv::pool pool, HV *config)
 			neg = 1;
 			str++;
 		      }
-		    id = str2id(pool, str, 1);
+		    id = pool_str2id(pool, str, 1);
 		    id2 = 0;
 		    if ((str = strchr(str, ':')) != 0)
-		      id2 = str2id(pool, str + 1, 1);
+		      id2 = pool_str2id(pool, str + 1, 1);
 		    if (neg)
 		      {
 			MAPEXP(&xp->preferneg, id);
@@ -1906,10 +1940,10 @@ new(char *packname = "BSSolv::expander", BSSolv::pool pool, HV *config)
 		    if (!str)
 		      continue;
 		 
-		    id = str2id(pool, str, 1);
+		    id = pool_str2id(pool, str, 1);
 		    id2 = 0;
 		    if ((str = strchr(str, ':')) != 0)
-		      id2 = str2id(pool, str + 1, 1);
+		      id2 = pool_str2id(pool, str + 1, 1);
 		    MAPEXP(&xp->ignored, id);
 		    MAPSET(&xp->ignored, id);
 		    if (id2)
@@ -1939,11 +1973,11 @@ new(char *packname = "BSSolv::expander", BSSolv::pool pool, HV *config)
 		    p = strchr(str, ':');
 		    if (!p)
 		      continue;
-		    id = strn2id(pool, str, p - str, 1);
+		    id = pool_strn2id(pool, str, p - str, 1);
 		    str = p + 1;
 		    while ((p = strchr(str, ',')) != 0)
 		      {
-			id2 = strn2id(pool, str, p - str, 1);
+			id2 = pool_strn2id(pool, str, p - str, 1);
 			queue_push2(&xp->conflictsq, id, id2);
 			MAPEXP(&xp->conflicts, id);
 			MAPSET(&xp->conflicts, id);
@@ -1951,7 +1985,7 @@ new(char *packname = "BSSolv::expander", BSSolv::pool pool, HV *config)
 			MAPSET(&xp->conflicts, id2);
 			str = p + 1;
 		      }
-		    id2 = str2id(pool, str, 1);
+		    id2 = pool_str2id(pool, str, 1);
 		    queue_push2(&xp->conflictsq, id, id2);
 		    MAPEXP(&xp->conflicts, id);
 		    MAPSET(&xp->conflicts, id);
@@ -1979,7 +2013,7 @@ new(char *packname = "BSSolv::expander", BSSolv::pool pool, HV *config)
 
 		    if (!SvROK(sv) || SvTYPE(SvRV(sv)) != SVt_PVAV)
 		      continue;
-		    id = str2id(pool, str, 1);
+		    id = pool_str2id(pool, str, 1);
 		    queue_empty(&q);
 		    FOR_PROVIDES(p, pp, id)
 		      queue_push(&q, p);
@@ -1993,7 +2027,7 @@ new(char *packname = "BSSolv::expander", BSSolv::pool pool, HV *config)
 			str = SvPV_nolen(sv);
 			if (!str)
 			  continue;
-			id2 = str2id(pool, str, 0);
+			id2 = pool_str2id(pool, str, 0);
 			FOR_PROVIDES(p, pp, id2)
 			  {
 			    int j;
@@ -2047,7 +2081,7 @@ expand(BSSolv::expander xp, ...)
 		char *s = SvPV_nolen(ST(i));
 		if (*s == '-')
 		  {
-		    Id id = str2id(pool, s + 1, 1);
+		    Id id = pool_str2id(pool, s + 1, 1);
 		    MAPEXP(&xp->ignored, id);
 		    if (MAPTST(&xp->ignored, id))
 		      continue;
@@ -2055,7 +2089,7 @@ expand(BSSolv::expander xp, ...)
 		    queue_push(&revertignore, id);
 		    if ((s = strchr(s + 1, ':')) != 0)
 		      {
-			id = str2id(pool, s + 1, 1);
+			id = pool_str2id(pool, s + 1, 1);
 			MAPEXP(&xp->ignored, id);
 			if (MAPTST(&xp->ignoredx, id))
 			  continue;
@@ -2105,9 +2139,9 @@ expand(BSSolv::expander xp, ...)
 			id = out.elements[i + 1];
 			who = out.elements[i + 2];
 			if (who)
-		          sv = newSVpvf("nothing provides %s needed by %s", dep2str(pool, id), id2str(pool, pool->solvables[who].name));
+		          sv = newSVpvf("nothing provides %s needed by %s", pool_dep2str(pool, id), pool_id2str(pool, pool->solvables[who].name));
 			else
-		          sv = newSVpvf("nothing provides %s", dep2str(pool, id));
+		          sv = newSVpvf("nothing provides %s", pool_dep2str(pool, id));
 			i += 3;
 		      }
 		    else if (type == ERROR_CHOICE)
@@ -2117,16 +2151,16 @@ expand(BSSolv::expander xp, ...)
 			for (j = i + 3; out.elements[j]; j++)
 			  {
 			    Solvable *s = pool->solvables + out.elements[j];
-			    str = pool_tmpjoin(pool, str, " ", id2str(pool, s->name));
+			    str = pool_tmpjoin(pool, str, " ", pool_id2str(pool, s->name));
 			  }
 			if (*str)
 			  str++;	/* skip starting ' ' */
 			id = out.elements[i + 1];
 			who = out.elements[i + 2];
 			if (who)
-		          sv = newSVpvf("have choice for %s needed by %s: %s", dep2str(pool, id), id2str(pool, pool->solvables[who].name), str);
+		          sv = newSVpvf("have choice for %s needed by %s: %s", pool_dep2str(pool, id), pool_id2str(pool, pool->solvables[who].name), str);
 			else
-		          sv = newSVpvf("have choice for %s: %s", dep2str(pool, id), str);
+		          sv = newSVpvf("have choice for %s: %s", pool_dep2str(pool, id), str);
 			i = j + 1;
 		      }
 		    else
@@ -2141,7 +2175,7 @@ expand(BSSolv::expander xp, ...)
 		for (i = 0; i < out.count; i++)
 		  {
 		    Solvable *s = pool->solvables + out.elements[i];
-		    PUSHs(sv_2mortal(newSVpv(id2str(pool, s->name), 0)));
+		    PUSHs(sv_2mortal(newSVpv(pool_id2str(pool, s->name), 0)));
 		  }
 	      }
 	    queue_free(&out);
@@ -2159,4 +2193,4 @@ DESTROY(BSSolv::expander xp)
 	map_free(&xp->prefernegx);
 	queue_free(&xp->conflictsq);
 	map_free(&xp->conflicts);
-	sat_free(xp);
+	solv_free(xp);
