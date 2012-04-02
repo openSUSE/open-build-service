@@ -28,7 +28,12 @@ class PackageController < ApplicationController
     fill_status_cache unless @buildresult.blank?
     linking_packages
     @nr_files = 0
-    @nr_files = @package.files.size unless @spider_bot
+    begin
+      @nr_files = @package.files.size unless @spider_bot
+    rescue ActiveXML::Transport::ForbiddenError => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e      
+      flash[:warn] = "Files could not be accessed: #{message}"
+    end
   end
 
   def linking_packages
@@ -61,8 +66,13 @@ class PackageController < ApplicationController
     @arch = params[:arch]
     @repository = params[:repository]
     @filename = params[:filename]
-    @fileinfo = find_cached(Fileinfo, :project => @project, :package => @package, :repository => @repository, :arch => @arch,
-      :filename => @filename, :view => 'fileinfo_ext')
+    begin
+      @fileinfo = find_cached(Fileinfo, :project => @project, :package => @package, :repository => @repository, :arch => @arch,
+        :filename => @filename, :view => 'fileinfo_ext')
+    rescue ActiveXML::Transport::ForbiddenError => e
+      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      flash[:error] = "File #{@filename} can not be downloaded from #{@project}: #{message}"
+    end 
     unless @fileinfo
       flash[:error] = "File \"#{@filename}\" could not be found in #{@repository}/#{@arch}"
       redirect_to :controller => "package", :action => :binaries, :project => @project, 
@@ -128,7 +138,14 @@ class PackageController < ApplicationController
     Service.free_cache(:all) if discard_cache?
     @srcmd5   = params[:srcmd5]
     @revision_parameter = params[:rev]
-    @current_rev = Package.current_rev(@project.name, @package.name)
+    begin
+      @current_rev = Package.current_rev(@project.name, @package.name)
+    rescue ActiveXML::Transport::ForbiddenError => e
+      message, _, _ = ActiveXML::Transport.extract_error_message e
+      flash[:error] = "Could not access files: #{message}"
+      redirect_to :action => :show, :project => @project.name, :package => @package.name and return
+    end
+
     @expand = 1
     @expand = begin Integer(params[:expand]) rescue 1 end if params[:expand]
     @expand = 0 if @spider_bot
@@ -161,7 +178,13 @@ class PackageController < ApplicationController
   end
 
   def revisions
-    @max_revision = Package.current_rev(@project, @package.name).to_i
+    begin
+      @max_revision = Package.current_rev(@project, @package.name).to_i
+    rescue ActiveXML::Transport::ForbiddenError => e
+      message, _, _ = ActiveXML::Transport.extract_error_message e
+      flash[:error] = "Could not access revisions: #{message}"
+      redirect_to :action => :show, :project => @project.name, :package => @package.name and return
+    end
     @upper_bound = @max_revision
     if params[:showall]
       p = find_cached(Package, @package.name, :project => @project)
