@@ -118,7 +118,8 @@ limitto = OptionParser.new do |opts|
   end
 end.parse!
 
-outputlines = false
+lines = []
+outputlines = true
 if options[:port] == DEFAULT_PORT
   frontend = Thread.new do
     puts "Starting test webui at port #{options[:port]} ..."
@@ -133,8 +134,12 @@ if options[:port] == DEFAULT_PORT
     while webui_out
       begin
         line = webui_out.gets
-	puts line if outputlines
-	break if line.nil?
+	lines << line if outputlines
+	if line.nil?
+          puts "webui died"
+	  puts lines.join()
+	  exit 1
+	end
       rescue IOError
         break
       end

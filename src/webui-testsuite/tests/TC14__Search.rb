@@ -4,8 +4,8 @@ class TC14__Search < TestCase
   test :search_for_home_projects do
   depend_on :create_home_project_for_user,
             :create_home_project_for_second_user,
-            :create_home_project_for_admin
-  
+            :create_home_project_for_admin,
+            :change_global_project_title 
     navigate_to SearchPage, :user => :none
     search(
       :text => "Home", 
@@ -13,8 +13,9 @@ class TC14__Search < TestCase
       :in   => [:title])
     refresh_page
     results = search_results
-    #puts results.inspect
-    assert results.include? :type => :project, :project_name => "home:user1"
+    # be careful not to pick any project where we changed the title
+    assert !results.include?(:type => :project, :project_name => "home:user1")
+    assert results.include? :type => :project, :project_name => "home:adrian"
     assert results.include? :type => :project, :project_name => "home:user2" 
     assert results.include? :type => :project, :project_name => "home:king" 
     # the api fixtures add home dirs too

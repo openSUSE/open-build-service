@@ -157,7 +157,8 @@ class PackageAttributesPage < PackagePage
     validate { popup.text == "Really remove attribute '#{attribute[:name]}'?" }
 
     popup.accept
-    sleep 1 # http://code.google.com/p/selenium/issues/detail?id=3147
+    wait_for_javascript
+    wait_for_page
 
     if attribute[:expect] == :success
       assert_equal flash_message, "Attribute sucessfully deleted!"
