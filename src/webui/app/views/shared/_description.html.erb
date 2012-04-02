@@ -1,9 +1,0 @@
-<p id="description">
-  <% unless description.blank? %>
-    <% description.split("\n").each do |line| %>
-      <%= h(line) %><br/>
-    <% end %>
-  <% else %>
-    <i>No description set</i>
-  <% end %>
-</p>

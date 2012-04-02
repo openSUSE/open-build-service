@@ -329,3 +329,16 @@ table.patchinfo td { vertical-align: middle; }
   font-weight: normal;
   margin: -1px;
 }
+
+/* A <pre> tag that looks like a <p>: */
+pre.plain {
+  background-color: white;
+  border: 0px;
+  font-family: sans-serif;
+}
+/* Remove default margin/padding when put into tables: */
+td pre.plain {
+  margin: 0px;
+  padding: 0px;
+  background-color: #F6F6F6;
+}

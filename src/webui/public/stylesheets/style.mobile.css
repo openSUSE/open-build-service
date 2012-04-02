@@ -18,3 +18,10 @@ img {
 .ui-li .ui-btn-inner {
     padding-right: 35px;
 }
+
+/* A <pre> tag that looks like a <p>: */
+pre.plain {
+  background-color: white;
+  border: 0px;
+  font-family: sans-serif;
+}

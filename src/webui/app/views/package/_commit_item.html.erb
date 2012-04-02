@@ -23,7 +23,7 @@
   <% end %>
   <%= fuzzy_time_string(Time.at(commit[:time].to_i).to_s) %> (revision <%= commit[:revision] %>)<br/>
   <% unless commit[:user] == "_service" %>
-    <span style="margin: 0.3em .3em .5em 2em"><%= format_comment(commit[:comment]) %></span><br/>
+    <pre class="plain"><%= commit[:comment] %></pre>
   <% end %>
   <%= link_to(image_tag('icons/brick.png'), { :controller => :package, :action => :rdiff,
     :package => @package, :project => @project,

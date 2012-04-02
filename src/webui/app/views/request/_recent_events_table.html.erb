@@ -23,7 +23,7 @@
       </tr>
       <% if event[:comment] && !event[:comment].empty? %>
         <tr class="odd">
-          <td colspan="3" class="expandable_event_comment"><%= raw escape_and_transform_newlines(event[:comment]) %></td>
+          <td colspan="3" class="expandable_event_comment"><pre class="plain"><%= event[:comment] %></pre></td>
         </tr>
       <% end %>
     <% end %>

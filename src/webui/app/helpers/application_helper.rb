@@ -315,30 +315,6 @@ module ApplicationHelper
     ERB::Util::h(rawid.gsub(/[+&: .\/\~\(\)@]/, '_'))
   end
 
-  def format_comment(comment)
-    comment ||= '-'
-    comment = ERB::Util::h(comment).gsub(%r{[\n\r]}, '<br/>')
-    # Proper-width tab expansion - a gem from perlfaq4:
-    while comment.sub!(/\t+/) {' ' * ($&.length * 8 - $`.length % 8)}
-    end
-    # Newlines...`
-    comment = '<br/>' + comment
-    comment.gsub!(/[\n\r]/, "<br />")
-    # Initial space must be protected, or it may/will be eaten.
-    comment.gsub!(%{<br/> }, "<br/>&nbsp;")
-    # Keep lines breakable by retaining U+20. Keep the width by
-    # transforming every other space into U+A0. The browser will
-    # display U+A0 as U+20, which means it is safe for copy and paste
-    # to a terminal. Avoid any other characters (U+2002/&ensp;) because
-    # they will not be transformed to U+20 during C&P.
-    comment.gsub!(/  /, " &nbsp;")
-
-    # always prepend a newline so the following code can eat up leading spaces over all lines
-    comment.gsub!('(<br/> *) ', '\1&nbsp;')
-    comment.gsub!(%r{^<br/>}, '')
-    return comment.html_safe
-  end
-
   def tab(text, opts)
     opts[:package] = @package.to_s if @package
     opts[:project] = @project.to_s
@@ -382,11 +358,6 @@ module ApplicationHelper
     text2_free = half_length - text2.length
     text2_free = 0 if text2_free < 0
     return [elide(text1, half_length + text2_free, mode), elide(text2, half_length + text1_free, mode)]
-  end
-
-  #TODO: Alternatively, the API could sanitize request comments/descriptions:
-  def escape_and_transform_newlines(text)
-    return CGI.escapeHTML(text).gsub(/[\n\r]/, '<br/>')
   end
 
   def force_utf8_and_transform_nonprintables(text)
