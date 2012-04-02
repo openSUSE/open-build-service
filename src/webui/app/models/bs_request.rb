@@ -186,6 +186,16 @@ class BsRequest < ActiveXML::Base
       Person.find_cached(login)
     end
 
+    def created_at(req)
+      if req.has_element?(:history)
+        #NOTE: 'req' can be a LibXMLNode or not. Depends on code path. Also depends on luck and random quantum effects. ActiveXML sucks big time!
+        return req.history.when if req.history.class == ActiveXML::LibXMLNode
+        return req.history[0][:when]
+      else
+        return req.state.when
+      end
+    end
+
     def sorted_filenames_from_sourcediff(sourcediff)
       # Sort files into categories by their ending and add all of them to a hash. We
       # will later use the sorted and concatenated categories as key index into the per action file hash.
@@ -233,6 +243,10 @@ class BsRequest < ActiveXML::Base
 
   def creator
     return BsRequest.creator(self)
+  end
+
+  def created_at
+    return BsRequest.created_at(self)
   end
 
   def reviews_for_user_and_others(user)
