@@ -21,7 +21,7 @@ lines = []
 outputlines = true
 frontend = Thread.new do
   puts "Starting test API at port #{FRONTEND_PORT} ..."
-  cmdline = "./script/rails"
+  cmdline = "ruby ./script/rails"
   if ENV["DO_COVERAGE"]
     cmdline="rcov --aggregate coverage/aggregate.data ./script/rails --"
   end
