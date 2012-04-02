@@ -384,22 +384,9 @@ module ApplicationHelper
     return [elide(text1, half_length + text2_free, mode), elide(text2, half_length + text1_free, mode)]
   end
 
-  def escape_and_transform_nonprintables(text)
-    text = CGI.escapeHTML(text)
-    # Proper-width tab expansion - a gem from perlfaq4:
-    while text.sub!(/\t+/) {' ' * ($&.length * 8 - $`.length % 8)}
-    end
-    # Newlines...
-    text.gsub!(/[\n\r]/, "<br />\n")
-    # Initial space must be protected, or it may/will be eaten.
-    text.gsub!(/^ /, "&nbsp;")
-    # Keep lines breakable by retaining U+20. Keep the width by
-    # transforming every other space into U+A0. The browser will
-    # display U+A0 as U+20, which means it is safe for copy and paste
-    # to a terminal. Avoid any other characters (U+2002/&ensp;) because
-    # they will not be transformed to U+20 during C&P.
-    text.gsub!(/  /, " &nbsp;")
-    return text
+  #TODO: Alternatively, the API could sanitize request comments/descriptions:
+  def escape_and_transform_newlines(text)
+    return CGI.escapeHTML(text).gsub(/[\n\r]/, '<br/>')
   end
 
   def force_utf8_and_transform_nonprintables(text)

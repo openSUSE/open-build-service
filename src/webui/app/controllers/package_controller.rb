@@ -899,7 +899,6 @@ class PackageController < ApplicationController
       @initiallog = ''
     end
     @offset = (@offset || 0) + @initiallog.length
-    @initiallog = escape_and_transform_nonprintables(@initiallog)
     @initiallog.gsub!(/([^a-zA-Z0-9&;<>\/\n \t()])/n) do
       if $1[0].to_i < 32
         ''
@@ -927,7 +926,6 @@ class PackageController < ApplicationController
         @finished = true
       else
         @offset += log_chunk.length
-        log_chunk = escape_and_transform_nonprintables(log_chunk)
       end
 
     rescue Timeout::Error => ex
@@ -1068,7 +1066,7 @@ class PackageController < ApplicationController
     begin
       rpmlint_log = frontend.get_rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
       res = ''
-      escape_and_transform_nonprintables(rpmlint_log).lines.each do |line|
+      rpmlint_log.lines.each do |line|
         if line.match(/\w+(?:\.\w+)+: W: /)
           res += "<span style=\"color: olive;\">#{line}</span>"
         elsif line.match(/\w+(?:\.\w+)+: E: /)
