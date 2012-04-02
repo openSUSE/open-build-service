@@ -123,7 +123,11 @@ outputlines = true
 if options[:port] == DEFAULT_PORT
   frontend = Thread.new do
     puts "Starting test webui at port #{options[:port]} ..."
-    webui_out = IO.popen("cd ../webui; exec ./script/server -e test -p #{options[:port]} 2>&1")
+    cmdline="./script/server"
+    if ENV["DO_COVERAGE"]
+      cmdline="rcov --aggregate coverage/aggregate.data ./script/server --"
+    end
+    webui_out = IO.popen("cd ../webui; exec #{cmdline} -e test -p #{options[:port]} 2>&1")
     puts "Webui started with PID: #{webui_out.pid}"
     begin
       Process.setpgid webui_out.pid, 0

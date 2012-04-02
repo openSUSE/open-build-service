@@ -52,11 +52,13 @@
 set -xe
 . `dirname $0`/obs_testsuite_common.sh
 
+export DO_COVERAGE=1
 setup_git
 setup_api
 
 echo "Enter API rails root and running rcov"
 cd src/api
+mkdir coverage
 rake --trace test:rcov || true
 cd ../..
 
@@ -65,13 +67,14 @@ setup_api
 setup_webui
 
 cd src/webui
+mkdir coverage
 rake --trace test:rcov || true
 cd ../..
 
 cd src/webui-testsuite
 # FIXME there is no point in running this at the moment because we need to add means of starting
 # webui and api server under code coverage (easy part) _and_ have jenkins merge the results
-# ruby ./run_acceptance_tests.rb || true
+ruby ./run_acceptance_tests.rb || true
 cd ../..
 
 cleanup

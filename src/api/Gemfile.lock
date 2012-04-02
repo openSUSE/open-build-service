@@ -77,6 +77,7 @@ GEM
       rdoc (~> 3.4)
       thor (~> 0.14.6)
     rake (0.9.2)
+    rcov (1.0.0)
     rdoc (3.11)
       json (~> 1.4)
     sprockets (2.1.2)
@@ -103,6 +104,7 @@ DEPENDENCIES
   mysql2
   nokogiri (~> 1.5.0)
   rails (~> 3.2.1)
+  rcov
   rdoc
   xmlhash (>= 1.2.1)
   yajl-ruby
