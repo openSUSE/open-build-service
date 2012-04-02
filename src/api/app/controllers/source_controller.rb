@@ -367,7 +367,9 @@ class SourceController < ApplicationController
       if [ '_project', '_pattern' ].include? target_package_name and not request.delete?
         tprj = DbProject.get_by_name target_project_name
       else
-        tpkg = DbPackage.get_by_project_and_name(target_project_name, target_package_name, true, follow_project_links)
+	use_source = true
+	use_source = false if command == "showlinked"
+        tpkg = DbPackage.get_by_project_and_name(target_project_name, target_package_name, use_source, follow_project_links)
         tprj = tpkg.db_project unless tpkg.nil? # for remote package case
         if request.delete? or (request.post? and not read_commands.include? command)
           # unlock
