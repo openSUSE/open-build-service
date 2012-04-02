@@ -1355,11 +1355,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     get "/source/home:tom:branches:BaseDistro:Update/_meta"
     assert_response :success
-    pi = REXML::Document.new( @response.body )
-    pi.elements['//repository'].add_element 'releasetarget'
-    pi.elements['//releasetarget'].add_attribute REXML::Attribute.new('project', 'BaseDistro:Update')
-    pi.elements['//releasetarget'].add_attribute REXML::Attribute.new('repository', 'BaseDistroUpdateProject_repo')
-    put "/source/home:tom:branches:BaseDistro:Update/_meta", pi.to_s
+    meta = REXML::Document.new( @response.body )
+    meta.elements['//repository'].add_element 'releasetarget'
+    meta.elements['//releasetarget'].add_attribute REXML::Attribute.new('project', 'BaseDistro:Update')
+    meta.elements['//releasetarget'].add_attribute REXML::Attribute.new('repository', 'BaseDistroUpdateProject_repo')
+    put "/source/home:tom:branches:BaseDistro:Update/_meta", meta.to_s
     assert_response :success
 
     # retry
@@ -1386,10 +1386,24 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response 400
     assert_tag :tag => "status", :attributes => { :code => "build_not_finished" }
 
-    # remove architecture
+    # _patchinfo still incomplete
+    prepare_request_with_user "maintenance_coord", "power"
+    post "/request?cmd=create&ignore_build_state=1", rq
+    assert_response 400
+    assert_tag :tag => "status", :attributes => { :code => "incomplete_patchinfo" }
+
+    # fix patchinfo
     prepare_request_with_user "tom", "thunder"
-    pi.elements['//repository'].delete_element 'arch'
-    put "/source/home:tom:branches:BaseDistro:Update/_meta", pi.to_s
+    get "/source/home:tom:branches:BaseDistro:Update/patchinfo/_patchinfo"
+    assert_response :success
+    pi = REXML::Document.new( @response.body )
+    pi.elements['//summary'].text = "My Summary"
+    put "/source/home:tom:branches:BaseDistro:Update/patchinfo/_patchinfo", pi.to_s
+    assert_response :success
+
+    # remove architecture
+    meta.elements['//repository'].delete_element 'arch'
+    put "/source/home:tom:branches:BaseDistro:Update/_meta", meta.to_s
     assert_response :success
 
     prepare_request_with_user "maintenance_coord", "power"
@@ -1399,9 +1413,9 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     # add a wrong architecture
     prepare_request_with_user "tom", "thunder"
-    pi.elements['//repository'].add_element 'arch'
-    pi.elements['//arch'].text = "ppc"
-    put "/source/home:tom:branches:BaseDistro:Update/_meta", pi.to_s
+    meta.elements['//repository'].add_element 'arch'
+    meta.elements['//arch'].text = "ppc"
+    put "/source/home:tom:branches:BaseDistro:Update/_meta", meta.to_s
     assert_response :success
 
     prepare_request_with_user "maintenance_coord", "power"
