@@ -27,9 +27,9 @@
   <% if msg %>
     <p>
     <%= link_to_remote(image_tag('icons/package_go.png', :title => msg),
-      :url => {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => target_project, :targetpackage => target_package, :revision => @rev, :readonly => true}) %>
+      :url => {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => target_project, :targetpackage => target_package, :revision => @rev}) %>
     <%= link_to_remote(msg,
-      :url => {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => target_project, :targetpackage => target_package, :revision => @rev, :readonly => true}) %>
+      :url => {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => target_project, :targetpackage => target_package, :revision => @rev}) %>
     </p>
   <% end %>
 <% end %>
