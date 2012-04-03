@@ -32,14 +32,6 @@
           <%= @maintained_projects.length %> <%= link_to("maintained project#{@maintained_projects.length == 1 ? '' : 's'}", :action => 'maintained_projects', :project => @project) %>
         </li>
       <% else %> <!-- also for incident project -->
-        <li>
-          <% if @nr_packages == 0 %>
-            <%= image_tag 'icons/exclamation.png' %>
-          <% else %>
-            <%= image_tag 'icons/accept.png' %>
-          <% end %>
-          <%= link_to pluralize(@nr_packages, "Package"), :action => 'packages', :project => @project %>
-        </li>
         <% if @nr_of_problem_packages and @nr_of_problem_packages > 0 %>
           <li>
             <%= image_tag 'icons/exclamation.png' %>
@@ -187,13 +179,45 @@
 </div>
 
 <% if @is_maintenance_project %>
-  <%# Show some maintenance stuff here %>
+  <%# TODO: Show some maintenance stuff here %>
 <% else %>
   <div class="grid_10 alpha box box-shadow">
-    TODO, show packages...
+    <h2 class="box-header">Packages (<%= @packages.length %>)</h2>
+    <% if @packages.length > 0 %>
+      <div class="show_left show_right"><%# TODO: Drop this bento hack %>
+        <table id="packages_table">
+          <thead>
+            <tr><th>Name</th></tr>
+          </thead>
+          <tbody>
+            <% @packages.each do |package| %>
+              <tr>
+                <td><%= link_to(package, :controller => 'package', :action => 'show', :project => @project, :package => package) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p><i>Project contains no packages</i></p>
+    <% end %>
   </div>
-
   <div class="grid_6 omega box box-shadow">
     <%= render :partial => 'shared/buildresult_box', :locals => {:project => @project.value('name')} %>
   </div>
 <% end %>
+
+<% javascript_tag do %>
+  $(document).ready(function() {
+    $.extend($.fn.dataTable.defaults, {
+      'iDisplayLength': 25,
+    });
+
+    <% if @packages.length > 0 %>
+      $('#packages_table').dataTable({
+        "bSort": false,
+      });
+    <% end %>
+  });
+<% end %>
+

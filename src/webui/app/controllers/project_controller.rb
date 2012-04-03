@@ -580,33 +580,9 @@ class ProjectController < ApplicationController
     send_data(png, :type => 'image/png', :disposition => 'inline')
   end
 
-  def load_packages
-    @packages = find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds )
-  end
-  protected :load_packages
-
-  def packages(opts = {})
-    opts = {:norender => false}.merge opts
-    load_packages
-    # push to long time cache for the project frontpage
-    names = []
-    @packages.each do |pkg|
-	    names << pkg.value(:name)
-    end
-    Rails.cache.write("#{@project}_packages_mainpage", names, :expires_in => 30.minutes)
-    @patchinfo = []
-    unless @packages.blank?
-      @packages.each do |p|
-        # FIXME: correct check would be to check if a source file "_patchinfo" exists
-        @patchinfo << p.name if p.name =~ %r{^_patchinfo} or p.name =~ %r{^patchinfo}
-      end
-    end
-    @filterstring = params[:searchtext] || ''
-    get_filtered_packagelist @filterstring
-    return if opts[:norender] # norender when used through other actions (like autocomplete_packages)
-    if request.xhr?
-      render :partial => 'search_packages' and return
-    end
+  def packages
+    headers["Status"] = "301 Moved Permanently"
+    redirect_to :action => 'show', :project => @project
   end
 
   def requests

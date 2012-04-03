@@ -12,7 +12,6 @@
       <%= tab 'Incidents', :controller => :project, :action => :maintenance_incidents %>
       <%= tab 'Maintained Projects', :controller => :project, :action => :maintained_projects %>
     <% else %> <!-- also for incident project -->
-      <%= tab 'Packages', :controller => :project, :action => :packages unless @project.is_remote? %>
       <%= tab "Repositories", :controller => :project, :action => :repositories unless @project.is_remote? or @spider_bot %>
     <% end %>
     <% if @project.to_hash.has_key?("repository") && !@spider_bot -%>
