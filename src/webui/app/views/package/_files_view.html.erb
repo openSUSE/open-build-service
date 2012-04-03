@@ -59,9 +59,9 @@
     <% else %>
       <h3>Latest Revision</h3>
     <% end %>
-    <p>
+    <div style="margin-left: 1.2em">
       <%= render :partial => 'commit_item', :locals => {:rev => @revision } %>
-    </p>
+    </div>
   <% end %>
 
 </div>
