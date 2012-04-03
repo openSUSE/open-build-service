@@ -50,6 +50,9 @@ use BSCando;
 
 use strict;
 
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
+
 my $buildroot;
 my $port;
 my $statedir;
@@ -745,7 +748,7 @@ sub manage_cache {
       unlink("$cachefile.$$");
       next unless link_or_copy($path, "$cachefile.$$");
       rename("$cachefile.$$", $cachefile) || die("rename $cachefile.$$ $cachefile: $!\n");
-      if ($path =~ /^(.*)\.(?:deb|rpm)$/) {
+      if ($path =~ /^(.*)\.(?:$binsufsre)$/) {
         my $mpath = "$1.meta";
         if (-s $mpath) {
           unlink("$cachefile.meta.$$");
@@ -818,7 +821,7 @@ sub getbinaries_cache {
     if ($_->{'error'}) {
       $bv{$_->{'name'}} = $_;
     } else {
-      next unless $_->{'name'} =~ /(.*)\.(?:rpm|deb)$/;
+      next unless $_->{'name'} =~ /(.*)\.(?:$binsufsre)$/;
       $bv{$1} = $_;
     }
   }
@@ -842,7 +845,7 @@ sub getbinaries_cache {
       die unless @s;
       if (!$nometa) {
 	my $mn = $bv->{'name'};
-        $mn =~ s/\.(?:rpm|deb)/.meta/;
+        $mn =~ s/\.(?:$binsufsre)/.meta/;
         if (link_or_copy("$cachefile.meta", "$dir/$mn")) {
 	  local *F;
 	  open(F, '<', "$dir/$mn") || die;
@@ -900,7 +903,7 @@ sub getbinaries_cache {
     die("Error\n") unless ref($res) eq 'ARRAY';
     my %havemeta;
     for my $r (@$res) {
-      if ($r->{'name'} =~ /^(.*)\.(?:rpm|deb)$/) {
+      if ($r->{'name'} =~ /^(.*)\.(?:$binsufsre)$/) {
 	my $n = $1;
 	my @s = stat("$dir/$r->{'name'}");
 	die unless @s;
@@ -1502,12 +1505,11 @@ sub dobuild {
   for my $bdep (@bdep) {
     next if $bdep->{'package'} || $bdep->{'noinstall'} || ($bdep->{'repoarch'} && $bdep->{'repoarch'} eq 'src');
     my $bin = $bdep->{'name'};
-    if (-e "$pkgdir/$bin.rpm") {
-      push @rpmlist, "$bin $pkgdir/$bin.rpm";
-    } elsif (-e "$pkgdir/$bin.deb") {
-      push @rpmlist, "$bin $pkgdir/$bin.deb";
-    } else {
-      die("missing package: $bin\n");
+    for my $osuf (@binsufs, '__notfound') {
+      die("missing package: $bin\n") if $osuf eq '__notfound';
+      next unless -e "$pkgdir/$bin.$osuf";
+      push @rpmlist, "$bin $pkgdir/$bin.$osuf";
+      last;
     }
   }
   push @rpmlist, "localkiwi $localkiwi/localkiwi.rpm" if $localkiwi && -e "$localkiwi/localkiwi.rpm";
@@ -1977,6 +1979,7 @@ if ($ex == 0) {
   push @d, map {"RPMS/$_"} sort(ls("$buildroot/.build.packages/RPMS"));
   push @d, 'SRPMS';
   @d = ('DEBS') if $buildinfo->{'file'} =~ /\.dsc$/;
+  @d = ('ARCHPKGS') if $buildinfo->{'file'} eq 'PKGBUILD';
   @d = ('KIWI') if $buildinfo->{'file'} =~ /\.kiwi$/;
   push @d, 'OTHER';
   for my $d ('.', @d) {

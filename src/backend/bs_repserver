@@ -88,6 +88,9 @@ my $extrepodb = "$BSConfig::bsdir/db/published";
 
 my $ajaxsocket = "$rundir/bs_repserver.ajax";
 
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
+
 sub unify {
   my %h = map {$_ => 1} @_;
   return grep(delete($h{$_}), @_); 
@@ -123,11 +126,11 @@ sub addrepo_scan {
   my @bins;
   local *D;
   if (opendir(D, $dir)) {
-    @bins = grep {/\.(?:rpm|deb)$/} readdir(D);
+    @bins = grep {/\.(?:$binsufsre)$/} readdir(D);
     closedir D;
     if (!@bins && -s "$dir.subdirs") {
       for my $subdir (split(' ', readstr("$dir.subdirs"))) {
-        push @bins, map {"$subdir/$_"} grep {/\.(?:rpm|deb)$/} ls("$dir/$subdir");    }
+        push @bins, map {"$subdir/$_"} grep {/\.(?:$binsufsre)$/} ls("$dir/$subdir");    }
     }
   }
   for (splice @bins) {
@@ -236,16 +239,16 @@ sub getbinaryversions {
       $needscan = 1;
     }
     my $r;
-    if ($path =~ /\.rpm$/) {
-      $r = {'name' => "$n.rpm"};
-    } else {
-      $r = {'name' => "$n.deb"};
+    if ($path !~ /\.($binsufsre)$/) {
+      push @res, {'name' => $n, 'error' => 'unknown suffix'};
+      next;
     }
+    $r = {'name' => "$n.$1"};
     $r->{'hdrmd5'} = $hdrmd5;
     $r->{'sizek'} = $sizek;
     push @res, $r;
     next if $cgi->{'nometa'};
-    next unless $path =~ s/\.(?:rpm|deb)$//;
+    next unless $path =~ s/\.(?:$binsufsre)$//;
     local *F;
     if (!open(F, '<', "$path.meta")) {
       next unless open(F, '<', "$path-MD5SUMS.meta");
@@ -267,7 +270,7 @@ sub getpackagebinaryversionlist {
   my $prp = "$projid/$repoid";
   my @res;
   for my $packid (@$packids) {
-    my @bins = grep {/\.(?:rpm|deb)$/} ls("$reporoot/$prp/$arch/$packid");
+    my @bins = grep {/\.(?:$binsufsre)$/} ls("$reporoot/$prp/$arch/$packid");
     @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
     my @pres;
     # should use bininfo instead, but we need the leadsigmd5
@@ -313,13 +316,13 @@ sub getbinaries {
       return unless defined $path;
       $needscan = 1;
     }
-    if ($path =~ /\.rpm$/) {
-      push @send, {'name' => "$n.rpm", 'filename' => $path};
-    } else {
-      push @send, {'name' => "$n.deb", 'filename' => $path};
+    if ($path !~ /\.($binsufsre)$/) {
+      push @send, {'name' => $n, 'error' => 'unknown suffix'};
+      next;
     }
+    push @send, {'name' => "$n.$1", 'filename' => $path};
     next if $cgi->{'nometa'};
-    next unless $path =~ s/\.(?:rpm|deb)$//;
+    next unless $path =~ s/\.(?:$binsufsre)$//;
     if (-e "$path.meta" || ! -e "$path-MD5SUMS.meta") {
       push @send, {'name' => "$n.meta", 'filename' => "$path.meta"};
     } else {
@@ -463,7 +466,7 @@ sub getbinarylist_repository {
 	next;
       }
       my $n = $bin;
-      $n .= $1 if $path =~ /(\.rpm|\.deb)$/;
+      $n .= ".$1" if $path =~ /\.($binsufsre)$/;
       push @files, {'name' => $n, 'filename' => $fd},
     }
     undef $repo;
@@ -506,16 +509,16 @@ sub getbinarylist_repository {
 	$needscan = 1;
       }
       my $r;
-      if ($path =~ /\.rpm$/) {
-	$r = {'name' => "$bin.rpm"};
-      } else {
-	$r = {'name' => "$bin.deb"};
-      }    
+      if ($path !~ /\.($binsufsre)$/) {
+	push @res, {'name' => $bin, 'error' => 'unknown suffix'};
+	next;
+      }
+      $r = {'name' => "$bin.$1"};
       $r->{'hdrmd5'} = $hdrmd5;
       $r->{'sizek'} = $sizek;
       push @res, $r;
       next if $cgi->{'nometa'};
-      next unless $path =~ s/\.(?:rpm|deb)$//;
+      next unless $path =~ s/\.(?:$binsufsre)$//;
       local *F;
       if (!open(F, '<', "$path.meta")) {
 	next unless open(F, '<', "$path-MD5SUMS.meta");
@@ -547,7 +550,7 @@ sub getbinarylist_repository {
     }
     my $path = $pool->pkg2path($p);
     my $n = $bin;
-    $n .= $1 if $path =~ /(\.rpm|\.deb)$/;
+    $n .= ".$1" if $path =~ /\.($binsufsre)$/;
     my $r = {'filename' => $view eq 'names' ? $n : $path };
     my $id = $pool->pkg2bsid($p);
     if ($id) {
@@ -612,7 +615,7 @@ sub getbinarylist {
     return undef;
   }
   if ($view eq 'binaryversions') {
-    my @bins = grep {/\.(?:rpm|deb)$/} ls("$reporoot/$prp/$arch/$packid");
+    my @bins = grep {/\.(?:$binsufsre)$/} ls("$reporoot/$prp/$arch/$packid");
     @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
     my @res;
     # should use bininfo instead, but we need the leadsigmd5
@@ -942,7 +945,7 @@ sub isolder {
 
 sub putbinary {
   my ($cgi, $projid, $repoid, $arch, $bin) = @_;
-  die("file name must end in .deb, .rpm, or .cpio\n") unless $bin =~ /\.(?:rpm|deb|cpio)$/;
+  die("file name must end in .deb, .rpm, or .cpio\n") unless $bin =~ /\.(?:$binsufsre|cpio)$/;
   mkdir_p($uploaddir);
   my $tdir = "$reporoot/$projid/$repoid/$arch/:full";
   if ($bin =~ /\.cpio$/) {
@@ -952,7 +955,7 @@ sub putbinary {
       rmdir($fdir);
     }
     mkdir_p($fdir);
-    my $uploaded = BSServer::read_cpio($fdir, 'accept' => '^.+\.(?:rpm|deb|iso|meta)$');
+    my $uploaded = BSServer::read_cpio($fdir, 'accept' => '^.+\.(?:$binsufsre|iso|meta)$');
     die("upload error\n") unless $uploaded;
     if ($cgi->{'wipe'}) {
       for (ls($tdir)) {
@@ -965,7 +968,7 @@ sub putbinary {
       my $fn = $file->{'name'};
       next if $cgi->{'ignoreolder'} && isolder("$tdir/$fn", "$fdir/$fn");
       rename("$fdir/$fn", "$tdir/$fn") || die("rename $fdir/$fn $tdir/$fn: $!\n");
-      $fn =~ s/\.(?:rpm|deb|meta)$//;
+      $fn =~ s/\.(?:$binsufsre|meta)$//;
       unlink("$tdir/$fn.meta") unless $upfiles{"$fn.meta"};
     }
     unlink("$fdir/$_") for ls($fdir);
@@ -985,7 +988,7 @@ sub putbinary {
     }
     mkdir_p($tdir);
     rename($fn, $tn) || die("rename $fn $tn: $!\n");
-    if ($tn =~ s/\.(?:rpm|deb)$//) {
+    if ($tn =~ s/\.(?:$binsufsre)$//) {
       unlink("$tn.meta");
     }
   }
@@ -1004,7 +1007,7 @@ sub delbinary {
 
   my $tdir = "$reporoot/$projid/$repoid/$arch/:full";
   unlink("$tdir/$bin") || die("404 $projid/$repoid/$arch/$bin: $!\n");
-  if ($bin =~ s/\.(?:rpm|deb)$//) {
+  if ($bin =~ s/\.(?:$binsufsre)$//) {
     unlink("$tdir/$bin.meta");
   }
   dirty($projid, $repoid, $arch);
@@ -1354,7 +1357,7 @@ sub putjob {
   # calculate binary info to speed up scheduler
   my $bininfo = {};
   for my $file (@$uploaded) {
-    next unless $file->{'name'} =~ /\.(?:rpm|deb)$/;
+    next unless $file->{'name'} =~ /\.(?:$binsufsre)$/;
     my @s = stat("$dir/$file->{'name'}");
     next unless @s;
     my $id = "$s[9]/$s[7]/$s[1]";
@@ -2324,6 +2327,9 @@ sub getbuildinfo_post {
   } elsif ($bconf->{'type'} eq 'spec') {
     $d = Build::Rpm::parse($bconf, $descr);
     $info->{'file'} = 'upload.spec';
+  } elsif ($bconf->{'type'} eq 'arch') {
+    $d = Build::Arch::parse($bconf, $descr);
+    $info->{'file'} = 'PKGBUILD';
   } else {
     die("unknown repository type $bconf->{'type'}\n");
   }
@@ -2679,7 +2685,7 @@ sub listpublished {
 sub findympbinary {
   my ($binarydir, $binaryname) = @_;
   for my $b (ls($binarydir)) {
-    next unless $b =~ /\.(?:rpm|deb)$/;
+    next unless $b =~ /\.(?:$binsufsre)$/;
     next unless $b =~ /^\Q$binaryname\E/;
     my $data = Build::query("$binarydir/$b", 'evra' => 1);
     if ($data->{'name'} eq $binaryname || "$data->{'name'}-$data->{'version'}" eq $binaryname) {
@@ -2830,7 +2836,7 @@ sub fileinfo {
   my $res = {'filename' => $filename};
   my $q = {};
   die("filename: $!\n") unless -f $filepath;
-  if ($filename =~ /\.(?:rpm|deb)$/) {
+  if ($filename =~ /\.(?:$binsufsre)$/) {
     $q = Build::query($filepath, 'evra' => 1, 'description' => 1, 'alldeps' => 1);
     data2utf8xml($q);
   } elsif ($filename =~ /\.ymp$/) {

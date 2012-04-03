@@ -88,6 +88,9 @@ my $eventlay = [qw{number time type project package repository arch}];
 my $ajaxsocket = "$rundir/bs_srcserver.ajax";
 my $uploaddir = "$srcrep/:upload";
 
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
+
 my $repoid;
 my %packagequota;
 
@@ -2185,6 +2188,10 @@ sub findfile {
   # create filename -> return value hash
   my %files = map {$_ => [$files->{$_}, $_]} keys %$files;
 
+  if ($ext eq 'arch') {
+    return @{$files{'PKGBUILD'}} if $files{'PKGBUILD'};
+    return (undef, undef);
+  }
   # map services files to their real name
   if ($files{'_service'}) {
     for (sort keys %files) {
@@ -5058,7 +5065,7 @@ sub getbinary {
   my $view = $cgi->{'view'} || '';
   if ($proj->{'remoteurl'} && $packid eq '_repository' && !$view) {
     # hack: reroute to /getbinaries so that our local cache is used
-    die("need the raw package name as filename for remote repository access\n") if $filename =~ /\.(?:rpm|deb)$/;
+    die("need the raw package name as filename for remote repository access\n") if $filename =~ /\.(?:$binsufsre)$/;
     my @args;
     push @args, "project=$projid";
     push @args, "repository=$repoid";
@@ -5461,6 +5468,8 @@ sub binary_key_to_data {
     $versrel = $1;
   } elsif ($name =~ s/_([^_]+)_[^_]+\.deb$//) {
     $versrel = $1;
+  } elsif ($name =~ s/-([^-]+-[^-]+)-[^-]+\.pkg\.tar\..z$//) {
+    $versrel = $1;
   }
   my ($version, $release) = ($versrel, undef);
   ($version, $release) = ($1, $2) if $version =~ /^(.*)-(.*?)$/;
@@ -5478,6 +5487,7 @@ sub binary_key_to_data {
   my $type;
   $type = 'rpm' if $binary =~ /\.rpm$/;
   $type = 'deb' if $binary =~ /\.deb$/;
+  $type = 'arch' if $binary =~ /\.pkg\.tar\..z$/;
   my $res = {
     'name' => $name,
     'versrel' => $versrel,
@@ -6296,7 +6306,7 @@ sub worker_getbinaries {
     for my $f (@{$cpio || []}) {
       my $bin = $f->{'name'};
       $bin =~ s/^upload.*?://;
-      $bin =~ s/\.(:?rpm|deb)$//;
+      $bin =~ s/\.(?:$binsufsre)$//;
       if (!$fetch{$bin}) {
         unlink("$remotecache/$f->{'name'}");
 	next;

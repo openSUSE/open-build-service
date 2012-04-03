@@ -63,6 +63,9 @@ my $extrepodb = "$BSConfig::bsdir/db/published";
 
 my $myeventdir = "$eventdir/publish";
 
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
+
 sub qsystem {
   my @args = @_;
   my $pid;
@@ -225,6 +228,8 @@ sub updatebinaryindex {
       $n = $1;
     } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
       $n = $1;
+    } elsif ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+-[a-zA-Z][^\/\.\-]*\.pkg\.tar\..z$/) {
+      $n = $1;
     } else {
       next;
     }
@@ -236,6 +241,8 @@ sub updatebinaryindex {
     if ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
       $n = $1;
     } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
+      $n = $1;
+    } elsif ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+-[a-zA-Z][^\/\.\-]*\.pkg\.tar\..z$/) {
       $n = $1;
     } else {
       next;
@@ -853,7 +860,7 @@ sub deleterepo {
       } else {
         unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
       }
-      push @db_deleted, $p if $p =~ /\.(?:rpm|deb)$/;
+      push @db_deleted, $p if $p =~ /\.(?:$binsufsre)$/;
     }
   }
   # update repoinfo
@@ -1031,7 +1038,7 @@ sub publish {
 	}
       }
       $bin =~ s/^.*?:://;	# strip package name for now
-      #next unless $bin =~ /\.(?:rpm|deb)$/;
+      #next unless $bin =~ /\.(?:$binsufsre)$/;
       my $p;
       if ($bin =~ /^.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.d?rpm$/) {
 	$p = "$1/$bin";
@@ -1048,6 +1055,10 @@ sub publish {
 	$p = "$q->{'arch'}/$q->{'name'}_$q->{'version'}";
 	$p .= "-$q->{'release'}" if defined $q->{'release'};
 	$p .= "_$q->{'arch'}.deb";
+      } elsif ($bin =~ /\.(?:$binsufsre)$/) {
+	# our default
+	my $q = Build::query("$r/$rbin", 'evra' => 1);
+	$p = "$q->{'arch'}/$bin";
       } else {
 	if ($bin =~ /\.iso(:?\.sha256)?$/) {
 	  $p = "iso/$bin";
@@ -1170,14 +1181,14 @@ sub publish {
       if (!exists($bins{$p})) {
 	print "      - $p\n";
         unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
-        push @db_deleted, $p if $p =~ /\.(?:rpm|deb)$/;
+        push @db_deleted, $p if $p =~ /\.(?:$binsufsre)$/;
         $changed = 1;
 	next;
       }
       if ("$s[9]/$s[7]/$s[1]" ne $bins_id{$p}) {
         unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
         link($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
-	push @db_changed, $p if $p =~ /\.(?:rpm|deb)$/;
+	push @db_changed, $p if $p =~ /\.(?:$binsufsre)$/;
 	push @changed, $p;
         $changed = 1;
       }
@@ -1197,7 +1208,7 @@ sub publish {
 	} else {
 	  unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
 	}
-	push @db_deleted, $p if $p =~ /\.(?:rpm|deb)$/;
+	push @db_deleted, $p if $p =~ /\.(?:$binsufsre)$/;
         $changed = 1;
 	next;
       }
@@ -1226,7 +1237,7 @@ sub publish {
 	} else {
           link($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
 	}
-	push @db_changed, $p if $p =~ /\.(?:rpm|deb)$/;
+	push @db_changed, $p if $p =~ /\.(?:$binsufsre)$/;
 	push @changed, $p;
         $changed = 1;
       }
@@ -1250,7 +1261,7 @@ sub publish {
     } else {
       link($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
     }
-    push @db_changed, $p if $p =~ /\.(?:rpm|deb)$/;
+    push @db_changed, $p if $p =~ /\.(?:$binsufsre)$/;
     push @changed, $p;
     $changed = 1;
   }

@@ -57,6 +57,9 @@ my $testmode;
 
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
 
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
+
 BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
 BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
@@ -191,10 +194,10 @@ sub findbins_dir {
   my ($dir, $cache) = @_;
   my @bins;
   if (ref($dir)) {
-    @bins = grep {/\.(?:rpm|deb|iso)$/} @$dir;
+    @bins = grep {/\.(?:$binsufsre)$/} @$dir;
   } else {
     @bins = ls($dir);
-    @bins = map {"$dir/$_"} grep {/\.(?:rpm|deb|iso|raw|raw\.install)$/} sort @bins;
+    @bins = map {"$dir/$_"} grep {/\.(?:$binsufsre|raw|raw\.install)$/} sort @bins;
   }
   my $repobins = {};
   for my $bin (@bins) {
@@ -311,11 +314,11 @@ sub addrepo_scan {
   my @bins;
   local *D;
   if (opendir(D, $dir)) {
-    @bins = grep {/\.(?:rpm|deb)$/} readdir(D);
+    @bins = grep {/\.(?:$binsufsre)$/} readdir(D);
     closedir D;
     if (!@bins && -s "$dir.subdirs") {
       for my $subdir (split(' ', readstr("$dir.subdirs"))) {
-        push @bins, map {"$subdir/$_"} grep {/\.(?:rpm|deb)$/} ls("$dir/$subdir");
+        push @bins, map {"$subdir/$_"} grep {/\.(?:$binsufsre)$/} ls("$dir/$subdir");
       }
     }
   } else {
@@ -564,6 +567,7 @@ sub set_building {
   my $prptype = $bconf->{'type'};
   $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
   my $packtype = $1 || 'spec';
+  $packtype = 'arch' if $info->{'file'} eq 'PKGBUILD';
 
   my $searchpath = [];
   my $syspath;
@@ -1390,9 +1394,9 @@ sub createexportjob {
     my $r = $oldrepo->{$rp};
     next unless $r->{'source'};	# no src rpms in full tree
     next if $seen{$r->{'id'}};
-    my $suf = $rp;
-    $suf =~ s/.*\.//;
-    push @replaced, {'name' => "$r->{'name'}.$suf", 'id' => $r->{'id'}};
+    my $suf;
+    $suf = $1 if $rp =~ /\.($binsufsre)$/;
+    push @replaced, {'name' => "$r->{'name'}.$suf", 'id' => $r->{'id'}} if $suf;
   }
   if (@replaced) {
     writexml("$dir/replaced.xml", undef, {'name' => 'replaced', 'entry' => \@replaced}, $BSXML::dir);
@@ -1505,7 +1509,7 @@ sub update_dst_full {
       $cache = BSUtil::retrieve("$jobdir/.bininfo", 1);
       unlink("$jobdir/.bininfo");
     }
-    $jobrepo = findbins_dir([ map {"$jobdir/$_"} grep {/\.(?:rpm|deb)$/ && !/\.delta\.rpm$/} @jobfiles ], $cache);
+    $jobrepo = findbins_dir([ map {"$jobdir/$_"} grep {/\.(?:$binsufsre)$/ && !/\.delta\.rpm$/} @jobfiles ], $cache);
   } else {
     $jobrepo = {};
   }
@@ -1525,7 +1529,7 @@ sub update_dst_full {
     # get old state
     my @oldfiles = sort(ls($dst));
     @oldfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && $_ ne '.bininfo'} @oldfiles;
-    $oldrepo = findbins_dir([ map {"$dst/$_"} grep {/\.(?:rpm|deb)$/ && !/\.delta\.rpm$/} @oldfiles ]);
+    $oldrepo = findbins_dir([ map {"$dst/$_"} grep {/\.(?:$binsufsre)$/ && !/\.delta\.rpm$/} @oldfiles ]);
 
     # move files over
     mkdir_p($dst);
@@ -1696,8 +1700,9 @@ sub update_dst_full {
   $dep2meta = $repodatas{$prp}->{'meta'} if $repodatas{$prp} && $repodatas{$prp}->{'meta'};
   for my $rp (@movetofull) {
     my $r = $new{$rp};
-    my $suf = $rp;
-    $suf =~ s/.*\.//;
+    my $suf;
+    $suf = $1 if $rp =~ /\.($binsufsre)$/;
+    next unless $suf;
     my $n = $r->{'name'};
     my @s = stat("$dst/$rp");
     next unless @s;
@@ -1711,12 +1716,10 @@ sub update_dst_full {
     rename("$dst/$rp.dup", "$gdst/:full/$n.$suf") || die("rename $dst/$rp.dup $gdst/:full/$n.$suf: $!\n");
     unlink("$dst/$rp.dup");
     $old{"$n.$suf"} = "$s[9]/$s[7]/$s[1]";
-    if ($suf eq 'rpm') {
-      unlink("$gdst/:full/$n.deb");
-      delete $old{"$n.deb"};
-    } else {
-      unlink("$gdst/:full/$n.rpm");
-      delete $old{"$n.rpm"};
+    for my $osuf (@binsufs) {
+      next if $suf eq $osuf;
+      unlink("$gdst/:full/$n.$osuf");
+      delete $old{"$n.$osuf"};
     }
     if ($meta) {
       link($meta, "$meta.dup");
@@ -1733,8 +1736,9 @@ sub update_dst_full {
   for my $rp (sort keys %$oldrepo) {
     my $r = $oldrepo->{$rp};
     next unless $r->{'source'};	# no src rpms in full tree
-    my $suf = $rp;
-    $suf =~ s/.*\.//;
+    my $suf;
+    $suf = $1 if $rp =~ /\.($binsufsre)$/;
+    next unless $suf;
     my $n = $r->{'name'};
     next if $fnew{$n};		# got new version, already deleted old
 
@@ -1744,13 +1748,13 @@ sub update_dst_full {
     next unless @s && $r->{'id'} eq "$s[9]/$s[7]/$s[1]";
     # package no longer built, kill full entry
     print "      - :full/$n.$suf\n";
-    unlink("$gdst/:full/$n.rpm");
-    unlink("$gdst/:full/$n.deb");
+    for my $osuf (@binsufs) {
+      unlink("$gdst/:full/$n.$osuf");
+      delete $old{"$n.$osuf"};
+    }
     unlink("$gdst/:full/$n.iso");
     unlink("$gdst/:full/$n.meta");
     unlink("$gdst/:full/$n-MD5SUMS.meta");
-    delete $old{"$n.rpm"};
-    delete $old{"$n.deb"};
     delete $dep2meta->{$n} if $dep2meta;
   }
   
@@ -4015,7 +4019,7 @@ sub checkaggregate {
 	  }
 	} else {
 	  my $d = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
-	  my @d = grep {$_ eq 'updateinfo.xml' || /\.(?:rpm|deb)$/} ls($d);
+	  my @d = grep {$_ eq 'updateinfo.xml' || /\.(?:$binsufsre)$/} ls($d);
 	  for my $b (sort @d) {
 	    my @s = stat("$d/$b");
 	    next unless @s;
@@ -4128,7 +4132,7 @@ sub rebuildaggregate {
         } else {
 	  my $d = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
 	  $updateinfo = "$d/updateinfo.xml" if -f "$d/updateinfo.xml";
-	  @d = grep {/\.(?:rpm|deb)$/} ls($d);
+	  @d = grep {/\.(?:$binsufsre)$/} ls($d);
           @d = map {"$d/$_"} sort(@d);
           $nosource = 1 if -e "$d/.nosourceaccess";
 	}
@@ -5451,7 +5455,7 @@ while(1) {
     my $rprp = $pool->pkg2reponame($p);
     my $n = $pool->pkg2name($p);
     $dep2pkg{$n} = $p;
-    $dep2src{$n} = $pool->pkg2srcname($p);
+    $dep2src{$n} = $pool->pkg2srcname($p) || $n;
     if ($rprp eq $prp) {
       $depislocal{$n} = 1;
     } else {
@@ -5495,7 +5499,7 @@ while(1) {
       next;
     }
 
-    # select correct info and set packtype
+    # select correct info (actually no longer needed, wrong packtype nowadays means excluded)
     my %info = map {$_->{'repository'} => $_} @{$pdata->{'info'} || []};
     my $info = $info{$repoid};
     if (!$info) {
@@ -5520,10 +5524,8 @@ while(1) {
 
     $pkg2src{$packid} = $info->{'name'};
 
-    $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
-    my $packtype = $1 || 'spec';
     my @deps = @{$info->{'dep'} || []};
-    if ($packtype eq 'kiwi') {
+    if ($info->{'file'} =~ /\.kiwi$/) {
       # do not expand kiwi dependencies
       $pdeps{$packid} = \@deps;
       next;
@@ -5718,6 +5720,7 @@ while(1) {
       }
     }
 
+    # select correct info (actually no longer needed, wrong packtype nowadays means excluded)
     my %info = map {$_->{'repository'} => $_} @{$pdata->{'info'} || []};
     my $info = $info{$repoid};
     if (!$info) {
@@ -5747,6 +5750,8 @@ while(1) {
       $packtype = 'aggregate';
     } elsif ($pdata->{'patchinfo'}) {
       $packtype = 'patchinfo';
+    } elsif ($info->{'file'} && $info->{'file'} eq 'PKGBUILD') {
+      $packtype = 'arch';
     } elsif ($info->{'file'} && $info->{'file'} =~ /\.(spec|dsc|kiwi)$/) {
       $packtype = $1;
     }
@@ -5848,7 +5853,7 @@ while(1) {
       next;
     }
 
-    # packtype is now spec/deb
+    # packtype is now spec/deb/arch...
 
     if ($experrors{$packid}) {
       # retry expansion of this one
