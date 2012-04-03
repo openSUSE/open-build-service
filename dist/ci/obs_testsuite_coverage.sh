@@ -58,6 +58,9 @@ setup_api
 
 echo "Enter API rails root and running rcov"
 cd src/api
+echo "gem 'rcov'" >> Gemfile
+bundle show
+git diff Gemfile Gemfile.lock
 mkdir -p coverage
 rake --trace test:rcov || true
 cd ../..
