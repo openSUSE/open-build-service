@@ -1140,6 +1140,9 @@ new(char *packname = "BSSolv::pool")
 void
 settype(BSSolv::pool pool, char *type)
     CODE:
+#ifdef POOL_FLAG_HAVEDISTEPOCH
+	pool_set_flag(pool, POOL_FLAG_HAVEDISTEPOCH, 0);
+#endif
 	if (!strcmp(type, "rpm"))
 	  {
 	    pool_setdisttype(pool, DISTTYPE_RPM);
@@ -1147,13 +1150,14 @@ settype(BSSolv::pool pool, char *type)
 	    pool_set_flag(pool, POOL_FLAG_HAVEDISTEPOCH, 1);
 #endif
 	  }
+#ifdef DISTTYPE_DEB
 	else if (!strcmp(type, "deb"))
-	  {
-	    pool_setdisttype(pool, DISTTYPE_DEB);
-#ifdef POOL_FLAG_HAVEDISTEPOCH
-	    pool_set_flag(pool, POOL_FLAG_HAVEDISTEPOCH, 0);
+	  pool_setdisttype(pool, DISTTYPE_DEB);
 #endif
-	  }
+#ifdef DISTTYPE_ARCH
+	else if (!strcmp(type, "arch"))
+	  pool_setdisttype(pool, DISTTYPE_ARCH);
+#endif
 	else
 	  croak("settype: unknown type '%s'\n", type);
 
