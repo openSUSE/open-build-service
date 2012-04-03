@@ -598,10 +598,30 @@ sub getbinarylist {
     exit(0);
   }
   my %binaries = map {$_ => 1} @{$cgi->{'binary'} || []};
+  my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
+  if (!@bins && $cgi->{'localdep'}){
+    my $prj = BSRPC::rpc("$BSConfig::srcserver/source/$projid/_meta", $BSXML::proj);
+    if ($prj->{'mountproject'} && $cgi->{'allowremote'} && $view eq 'cpio') {
+      my @args;
+      push @args, "view=$view";
+      push @args, map {"binary=$_"} @{$cgi->{'binary'} || []};
+      BSHandoff::handoff("$rundir/bs_srcserver.ajax", "/build/$projid/$repoid/$arch/$packid", undef, @args);
+      return undef;
+    }
+    for my $repo (@{$prj->{"repository"}}) {
+      if ($repo->{"name"} eq $repoid && $repo->{"linkedbuild"} eq "localdep") {
+        my $linked_prj = $prj->{"link"}->[0]->{"project"};
+        if ($linked_prj ne $cgi->{'prevlink'} && $linked_prj eq $repo->{"path"}->[0]->{"project"}){
+          $cgi->{'prevlink'} = $projid;
+          getbinarylist($cgi, $linked_prj, $repo->{"path"}->[0]->{"repository"}, $arch, $packid);
+          return undef;
+        }
+      }
+    }
+  }
+  @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
   if ($view eq 'cpio') {
     my @files;
-    my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
-    @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
     for (sort @bins) {
       next if %binaries && !$binaries{$_};
       my $fd = gensym;
@@ -612,8 +632,6 @@ sub getbinarylist {
     return undef;
   }
   if ($view eq 'binaryversions') {
-    my @bins = grep {/\.(?:rpm|deb)$/} ls("$reporoot/$prp/$arch/$packid");
-    @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
     my @res;
     # should use bininfo instead, but we need the leadsigmd5
     for my $bin (sort @bins) {
@@ -631,8 +649,6 @@ sub getbinarylist {
   }
   die("unsupported view '$view'\n") if $view;
   my @res;
-  my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
-  @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
   for (sort @bins) {
     next if %binaries && !$binaries{$_};
     my @s = stat("$reporoot/$prp/$arch/$packid/$_");
@@ -2106,12 +2122,14 @@ sub getbuildinfo {
   my @vmdeps = Build::get_vminstalls($bconf);
   my @cbpdeps = Build::get_cbpreinstalls($bconf); # crossbuild preinstall
   my @cbdeps = Build::get_cbinstalls($bconf);  # crossbuild install
+  my @sb2deps = Build::get_sb2installs($bconf);  # sb2 install
   my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
   my %bdeps = map {$_ => 1} @bdeps;
   my %pdeps = map {$_ => 1} @pdeps;
   my %vmdeps = map {$_ => 1} @vmdeps;
   my %cbpdeps = map {$_ => 1} @cbpdeps;
   my %cbdeps = map {$_ => 1} @cbdeps;
+  my %sb2deps = map {$_ => 1} @sb2deps;
   my %edeps = map {$_ => 1} @edeps;
 
   if ($packtype eq 'kiwi' && $kiwitype eq 'product') {
@@ -2214,7 +2232,7 @@ sub getbuildinfo {
       push @{$allnames{$n}}, $p;
       $dep2pkg{$n} = $p;
     }
-    @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps, @cbpdeps, @cbdeps);
+    @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps, @cbpdeps, @cbdeps, @sb2deps);
     for (@bdeps) {
       for my $p (@{$allnames{$_} || []}) {
 	my $b = {'name' => $_};
@@ -2244,7 +2262,7 @@ sub getbuildinfo {
     return ($ret, $BSXML::buildinfo);
   }
 
-  @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps, @cbpdeps, @cbdeps);
+  @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps, @cbpdeps, @cbdeps, @sb2deps);
   for (@bdeps) {
     my $b = {'name' => $_};
     my $p = $dep2pkg{$_};
@@ -2261,6 +2279,7 @@ sub getbuildinfo {
     $b->{'vminstall'} = 1 if $vmdeps{$_};
     $b->{'cbpreinstall'} = 1 if $cbpdeps{$_};
     $b->{'cbinstall'} = 1 if $cbdeps{$_};
+    $b->{'sb2install'} = 1 if $sb2deps{$_};
     $b->{'runscripts'} = 1 if $runscripts{$_};
     $b->{'notmeta'} = 1 unless $edeps{$_};
     $b->{'noinstall'} = 1 if $packtype eq 'kiwi' && $edeps{$_} && !($bdeps{$_} || $vmdeps{$_} || $pdeps{$_});
@@ -2976,7 +2995,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
-  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool?' => \&getbinarylist,
+  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? localdep:bool? prevlink:? allowremote:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,

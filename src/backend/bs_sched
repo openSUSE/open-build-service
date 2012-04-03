@@ -640,20 +640,23 @@ sub set_building {
   my @vmdeps = Build::get_vminstalls($bconf);
   my @cbpdeps = Build::get_cbpreinstalls($bconf); # crossbuild preinstall
   my @cbdeps = Build::get_cbinstalls($bconf);  # crossbuild install
+  my @sb2deps = Build::get_sb2installs($bconf);  # sb2 install
   my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
   my %bdeps = map {$_ => 1} @bdeps;
   my %pdeps = map {$_ => 1} @pdeps;
   my %vmdeps = map {$_ => 1} @vmdeps;
   my %cbpdeps = map {$_ => 1} @cbpdeps;
   my %cbdeps = map {$_ => 1} @cbdeps;
+  my %sb2deps = map {$_ => 1} @sb2deps;
   my %edeps = map {$_ => 1} @$edeps;
-  @bdeps = unify(@pdeps, @vmdeps, @$edeps, @bdeps, @cbpdeps, @cbdeps);
+  @bdeps = unify(@pdeps, @vmdeps, @$edeps, @bdeps, @cbpdeps, @cbdeps, @sb2deps);
   for (@bdeps) {
     $_ = {'name' => $_};
     $_->{'preinstall'} = 1 if $pdeps{$_->{'name'}};
     $_->{'vminstall'} = 1 if $vmdeps{$_->{'name'}};
     $_->{'cbpreinstall'} = 1 if $cbpdeps{$_->{'name'}};
     $_->{'cbinstall'} = 1 if $cbdeps{$_->{'name'}};
+    $_->{'sb2install'} = 1 if $sb2deps{$_->{'name'}};
     $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
     $_->{'notmeta'} = 1 unless $edeps{$_->{'name'}};
     $_->{'noinstall'} = 1 if $packtype eq 'kiwi' && $edeps{$_->{'name'}} && !($bdeps{$_->{'name'}} || $vmdeps{$_->{'name'}} || $pdeps{$_->{'name'}});

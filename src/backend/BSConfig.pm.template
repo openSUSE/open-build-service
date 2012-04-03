@@ -28,10 +28,14 @@ use Socket;
 my $hostname = Net::Domain::hostfqdn() || 'localhost';
 my $ip = quotemeta inet_ntoa(inet_aton($hostname)); # IP corresponding to hostname (only used for $ipaccess)
 
+#my $frontend = 'frontend.mydomain.com'; # FQDN of the WebUI/API server if it's not localhost
+#my $frontendip = quotemeta inet_ntoa(inet_aton($frontend)); # IP of the WebUI/API Server (only used for $ipaccess)
+
 # If defined, restrict access to the backend servers (bs_repserver, bs_srcserver, bs_service)
 our $ipaccess = {
    '127\..*' => 'rw', # only the localhost can write to the backend
    "^$ip" => 'rw',    # Permit IP of FQDN
+#   "^$frontendip" => 'rw', # Permit IP of WebUI/API
    '.*' => 'worker',  # build results can be delivered from any client in the network
 };
 

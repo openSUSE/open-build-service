@@ -1342,7 +1342,7 @@ sub getoldpackages {
     'directory' => $odir,
     'timeout' => $gettimeout,
     'receiver' => \&BSHTTP::cpio_receiver,
-  }, undef, 'view=cpio', 'noajax=1');
+  }, undef, 'view=cpio', 'noajax=1', 'localdep=1', 'allowremote=1');
   rmdir($odir);	# if not needed
 }
 
@@ -1519,6 +1519,9 @@ sub dobuild {
   }
   if (grep {$_->{'cbinstall'}} @bdep) {
     push @rpmlist, "cbinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'cbinstall'}} @bdep);
+  }
+  if (grep {$_->{'sb2install'}} @bdep) {
+    push @rpmlist, "sb2install: ".join(' ', map {$_->{'name'}} grep {$_->{'sb2install'}} @bdep);
   }
   writestr("$buildroot/.build.rpmlist", undef, join("\n", @rpmlist)."\n");
 
@@ -2007,7 +2010,8 @@ if (!$ex) {
     sysseek(LL, -10240, 2);
     sysread(LL, $data, 10240);
     close LL;
-    if ($data =~ /^mount: error while loading shared libraries:/) {
+    if ($data =~ /^mount: error while loading shared libraries:/m) {
+      print "Wait ... spotted failed build. Host is good.\n";
       $code = 'failed';
     }
   }
