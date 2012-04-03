@@ -149,6 +149,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/#{incidentProject}/patchinfo/_patchinfo"
     assert_response :success
     assert_tag :tag => 'packager', :content => "tom"
+    assert_tag( :tag => "patchinfo", :attributes => { :incident => "0" } )
     assert_no_tag :tag => 'description'
 
     # again but find update project automatically and use a linked package
@@ -202,6 +203,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_tag :tag => 'packager', :content => "tom"
     assert_tag :tag => 'description', :content => "To fix my bug"
+    assert_tag( :tag => "patchinfo", :attributes => { :incident => "1" } )
 
     # reopen ...
     prepare_request_with_user "maintenance_coord", "power"
