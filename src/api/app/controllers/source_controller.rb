@@ -1,4 +1,3 @@
-require 'yajl'
 require 'workers/copy_project_job'
 
 include ProductHelper
