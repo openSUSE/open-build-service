@@ -5,7 +5,7 @@ class GroupControllerTest < ActionController::IntegrationTest
   fixtures :all
 
   def test_list_groups
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     get "/group"
     assert_response 401
 
@@ -18,7 +18,7 @@ class GroupControllerTest < ActionController::IntegrationTest
   end
 
   def test_list_users_of_group
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     get "/group/not_existing_group"
     assert_response 401
 
@@ -32,7 +32,7 @@ class GroupControllerTest < ActionController::IntegrationTest
   end
 
   def test_groups_of_user
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     get "/person/adrian/group"
     assert_response 401
 

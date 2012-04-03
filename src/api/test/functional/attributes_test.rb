@@ -7,7 +7,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
   fixtures :all
 
   def test_index
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     get "/attribute/"
     assert_response 401
 
@@ -76,7 +76,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     post "/attribute/TEST/_meta", data
     assert_response :success
 
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     data = "<definition namespace='TEST' name='Dummy'>
               <count>2</count>
               <default>
@@ -120,7 +120,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     post "/attribute/TEST/_meta", data
     assert_response :success
 
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     data = "<definition namespace='TEST' name='Dummy'>
               <count>2</count>
               <default>
@@ -168,7 +168,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
   end
 
   def test_create_attributes_project
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "tom", "thunder"
 
     data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
@@ -246,7 +246,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
   end
 
   def test_create_attributes_package
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "fred", "geröllheimer"
 
     data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
@@ -299,7 +299,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response 404
 
     # no permission check
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/source/kde4/kdelibs/_attribute", data
     assert_response 403
@@ -325,7 +325,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_xml_tag :tag => "status", :attributes => { :code => "invalid_attribute" }
 
     # delete
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "fred", "geröllheimer"
     post "/source/kde4/kdelibs/_attribute", data
     assert_response :success

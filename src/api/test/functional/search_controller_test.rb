@@ -5,7 +5,7 @@ class SearchControllerTest < ActionController::IntegrationTest
   fixtures :all
 
   def test_search_unknown
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     get "/search/attribute?namespace=OBS&name=FailedCommend"
     assert_response 401
 
@@ -16,7 +16,7 @@ class SearchControllerTest < ActionController::IntegrationTest
   end
 
   def test_search_one_maintained_package
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     get "/search/attribute?namespace=OBS&name=Maintained"
     assert_response 401
 

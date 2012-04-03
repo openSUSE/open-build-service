@@ -193,7 +193,7 @@ class RequestControllerTest < ActionController::IntegrationTest
 
   # FIXME: we need a way to test this with api anonymous config and without
   def test_create_request_anonymous
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     post "/request?cmd=create", load_backend_file('request/add_role')
     assert_response 401
   end
@@ -230,7 +230,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     id = node.value(:id)
 
     # do the real mbranch for default maintained packages
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "tom", "thunder"
     post "/source", :cmd => "branch", :request => id
     assert_response :success
@@ -290,7 +290,7 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_create_request_and_supersede
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     req = load_backend_file('request/works')
 
     prepare_request_with_user "Iggy", "asdfasdf"
@@ -369,7 +369,7 @@ class RequestControllerTest < ActionController::IntegrationTest
 
   # MeeGo BOSS: is using multiple reviews by same user for each step
   def test_create_request_and_multiple_reviews
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     req = load_backend_file('request/works')
 
     prepare_request_with_user "Iggy", "asdfasdf"
@@ -425,7 +425,7 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_change_review_state_after_leaving_review_phase
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     req = load_backend_file('request/works')
 
     prepare_request_with_user "Iggy", "asdfasdf"
@@ -838,7 +838,7 @@ end
   end
 
   def test_create_and_revoke_submit_request_permissions
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     req = load_backend_file('request/works')
 
     post "/request?cmd=create", req
@@ -919,7 +919,7 @@ end
     assert_xml_tag( :tag => "review", :attributes => { :by_project => "home:tom", :by_package => nil } )
 
     # and revoke it
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     post "/request/#{id}?cmd=changestate&newstate=revoked"
     assert_response 401
 
@@ -939,7 +939,7 @@ end
     assert_xml_tag( :tag => "state", :attributes => { :name => "revoked" } )
 
     # decline by_package review
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     post "/request/#{id_by_package}?cmd=changereviewstate&newstate=declined&by_project=home:Iggy&by_package=TestPack"
     assert_response 401
 
@@ -1478,7 +1478,7 @@ end
   #
   #
   def test_submit_from_source_protected_project
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "sourceaccess_homer", "homer"
     post "/request?cmd=create", load_backend_file('request/from_source_protected_valid')
     assert_response :success
@@ -1492,7 +1492,7 @@ end
     assert_response :success
 
     # diffs are secret for others
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     post "/request/#{id}?cmd=diff", nil
     assert_response 401
     prepare_request_with_user "Iggy", "asdfasdf"
@@ -1502,7 +1502,7 @@ end
 
   # create requests to hidden from external
   def request_hidden(user, pass, backend_file)
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     req = load_backend_file(backend_file)
     post "/request?cmd=create", req
     assert_response 401
@@ -1564,7 +1564,7 @@ end
     post "/request?cmd=create", load_backend_file('request/hidden_add_role_fail')
     # should fail as this user shouldn't see the target package at all.
     assert_response 404 if $ENABLE_BROKEN_TEST
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "adrian", "so_alone"
     post "/request?cmd=create", load_backend_file('request/hidden_add_role')
     assert_response :success
@@ -1644,7 +1644,7 @@ end
   end
 
   def test_project_delete_request_with_pending
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
 
     # try to replay rq 74774
     prepare_request_with_user "Iggy", "asdfasdf"

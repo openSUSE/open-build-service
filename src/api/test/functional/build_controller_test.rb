@@ -40,7 +40,7 @@ class BuildControllerTest < ActionController::IntegrationTest
   end
 
   def test_upload_binaries
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     post "/build/home:Iggy/10.2/i586/TestPack", nil
     assert_response 401
 
@@ -66,7 +66,7 @@ class BuildControllerTest < ActionController::IntegrationTest
   end
 
   def test_dispatchprios
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     get "/build/_dispatchprios"
     assert_response 401
 
@@ -82,7 +82,7 @@ class BuildControllerTest < ActionController::IntegrationTest
   end
 
   def test_read_from_repository
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/build/home:Iggy/10.2/i586/_repository/not_existing.rpm"
     assert_response 404
@@ -101,7 +101,7 @@ class BuildControllerTest < ActionController::IntegrationTest
   end
 
   def test_delete_from_repository
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     delete "/build/home:Iggy/10.2/i586/_repository/delete_me.rpm"
     assert_response 401
 
@@ -263,7 +263,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response 403
     assert_match(/download_binary_no_permission/, @response.body)
     # retry with maintainer
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "binary_homer", "homer"
     get "/build/BinaryprotectedProject/nada/i586/bdpack/_log"
     assert_response :success
@@ -290,7 +290,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     get "/build/HiddenProject/_result?package=pack"
     assert_response 404
     # retry with maintainer
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/build/HiddenProject/_result?package=pack"
     assert_response :success
@@ -318,7 +318,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response 404
     assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
     # success on valid
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/build/HiddenProject/nada/i586/pack/package?view=fileinfo"
     assert_response 404
@@ -337,7 +337,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response 403
     assert_match(/download_binary_no_permission/, @response.body)
     # success on valid
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "binary_homer", "homer"
     get "/build/BinaryprotectedProject/nada/i586/bdpack/package?view=fileinfo"
     assert_response 404
@@ -368,7 +368,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response 404
     assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
     # success on valid
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/build/HiddenProject/nada/i586/pack/"
     assert_response :success
@@ -454,7 +454,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_match(/unknown_project/, @response.body)
 
     #valid
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "adrian", "so_alone" 
     get "/build/HiddenProject"
     assert_response :success
@@ -499,7 +499,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     get "/build/HiddenProject/nada/i586/_jobhistory?package=pack"
     assert_response 404
     # retry with maintainer
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/build/HiddenProject/nada/i586/_jobhistory"
     assert_response :success

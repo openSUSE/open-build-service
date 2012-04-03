@@ -39,7 +39,7 @@ class PersonControllerTest < ActionController::IntegrationTest
   end
 
   def test_userinfo_with_empty_auth_header
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     get "/person/tom"
     assert_response 401
   end
@@ -115,7 +115,7 @@ class PersonControllerTest < ActionController::IntegrationTest
   end
 
   def test_register
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     data = '<unregisteredperson>
               <login>adrianSuSE</login>
               <email>adrian@suse.de</email>

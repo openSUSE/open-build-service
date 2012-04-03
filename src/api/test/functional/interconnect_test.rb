@@ -6,7 +6,7 @@ class InterConnectTests < ActionController::IntegrationTest
   fixtures :all
    
   def test_anonymous_access
-    ActionController::IntegrationTest::reset_auth 
+    reset_auth 
     get "/public/lastevents" # OBS 2.1
     assert_response :success
     assert_xml_tag :tag => "events", :attributes => {:sync => "lost"}
@@ -351,7 +351,7 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response 404
     get "/source/HiddenRemoteInstance:BaseDistro"
     assert_response 404
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "hidden_homer", "homer"
     get "/source/HiddenRemoteInstance"
     assert_response :success
@@ -371,7 +371,7 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response 404
     get "/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/pack1"
     assert_response 404
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "hidden_homer", "homer"
     get "/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository"
     assert_response :success

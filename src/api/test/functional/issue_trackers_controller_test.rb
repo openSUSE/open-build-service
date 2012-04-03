@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class IssueTrackersControllerTest < ActionController::IntegrationTest
   def test_should_get_index
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     # Get all issue trackers
     get '/issue_trackers'
     assert_response :success
@@ -25,7 +25,7 @@ class IssueTrackersControllerTest < ActionController::IntegrationTest
       <show-url>http://example.com/@@@</show-url>
     </issue-tracker>
     EOF
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     post '/issue_trackers', issue_tracker_xml
     assert_response 401
     prepare_request_with_user "adrian", "so_alone"

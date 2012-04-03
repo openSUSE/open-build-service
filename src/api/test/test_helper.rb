@@ -51,11 +51,15 @@ module ActionController
 
     @@auth = nil
 
-    def self.reset_auth
+    def reset_auth
       @@auth = nil
     end
 
     def self.basic_auth
+      return @@auth
+    end
+
+    def basic_auth
       return @@auth
     end
 

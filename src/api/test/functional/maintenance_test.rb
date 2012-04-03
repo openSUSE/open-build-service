@@ -5,7 +5,7 @@ class MaintenanceTests < ActionController::IntegrationTest
   fixtures :all
   
   def test_create_maintenance_project
-    ActionController::IntegrationTest::reset_auth 
+    reset_auth 
     prepare_request_with_user "tom", "thunder"
     
     put "/source/home:tom:maintenance/_meta", '<project name="home:tom:maintenance" > <title/> <description/> </project>'
@@ -34,7 +34,7 @@ class MaintenanceTests < ActionController::IntegrationTest
   end
 
   def test_branch_package
-    ActionController::IntegrationTest::reset_auth 
+    reset_auth 
     prepare_request_with_user "tom", "thunder"
 
     # branch a package which does not exist in update project via project link
@@ -633,7 +633,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                            </project>'
     assert_response :success
 
-    ActionController::IntegrationTest::reset_auth 
+    reset_auth 
     post "/source/Temp:Maintenance", :cmd => "createmaintenanceincident"
     assert_response 401
 

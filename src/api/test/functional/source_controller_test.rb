@@ -22,7 +22,7 @@ if $ENABLE_BROKEN_TEST
     assert_no_match(/entry name="HiddenProject"/, @response.body)
 end
     #retry with maintainer
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/source"
     assert_response :success 
@@ -37,7 +37,7 @@ end
     assert_response :success 
     assert_match(/entry name="SourceprotectedProject"/, @response.body)
     #retry with maintainer
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/source"
     assert_response :success 
@@ -60,7 +60,7 @@ end
     assert_response 404
     assert_match(/unknown_project/, @response.body)
     #retry with maintainer
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/source/HiddenProject"
     assert_response :success 
@@ -80,7 +80,7 @@ end
       :children => { :count => 2 }
     assert_match(/entry name="target"/, @response.body)
     #retry with maintainer
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/source/SourceprotectedProject"
     assert_response :success 
@@ -128,7 +128,7 @@ end
     assert_response 404
     assert_match(/unknown_project/, @response.body)
     #retry with maintainer
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/source/HiddenProject/_meta"
     assert_response :success
@@ -141,7 +141,7 @@ end
     assert_response :success
     assert_xml_tag :tag => "project", :attributes => { :name => "SourceprotectedProject" }
     #retry with maintainer
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "sourceaccess_homer", "homer"
     get "/source/SourceprotectedProject/_meta"
     assert_response :success
@@ -171,7 +171,7 @@ end
     assert_response 404
     assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
     #retry with maintainer
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/source/HiddenProject/pack"
     assert_response :success
@@ -185,7 +185,7 @@ end
     get "/source/SourceprotectedProject/pack"
     assert_response 403
     #retry with maintainer
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "sourceaccess_homer", "homer"
     get "/source/SourceprotectedProject/pack"
     assert_response :success
@@ -207,7 +207,7 @@ end
     assert_response 404
     assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
     #retry with maintainer
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/source/HiddenProject/pack/_meta"
     assert_response :success
@@ -221,7 +221,7 @@ end
     assert_response :success
     assert_xml_tag :tag => "package", :attributes => { :name => "pack" , :project => "SourceprotectedProject"}
     # retry with maintainer
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     prepare_request_with_user "sourceaccess_homer", "homer"
     get "/source/SourceprotectedProject/pack/_meta"
     assert_response :success
@@ -333,7 +333,7 @@ end
     subprojectmeta="<project name='kde4:subproject'><title></title><description/></project>"
 
     # nobody
-    ActionController::IntegrationTest::reset_auth 
+    reset_auth 
     put url_for(:controller => :source, :action => :project_meta, :project => "kde4:subproject"), subprojectmeta
     assert_response 401
     prepare_request_with_user "tom", "thunder"
@@ -1359,7 +1359,7 @@ end
     assert_equal( @response.body.to_s, origstring, message="Package file was changed without permissions" )
 
     # invalid permission
-    ActionController::IntegrationTest::reset_auth 
+    reset_auth 
     delete "/source/kde4/kdelibs/my_patch.diff"
     assert_response 401
 
@@ -1372,7 +1372,7 @@ end
   end
   
   def test_get_project_meta_history
-    ActionController::IntegrationTest::reset_auth 
+    reset_auth 
     get "/source/kde4/_project/_history"
     assert_response 401
     prepare_request_with_user "fredlibs", "geröllheimer"
@@ -1385,7 +1385,7 @@ end
   end
 
   def test_remove_and_undelete_operations
-    ActionController::IntegrationTest::reset_auth 
+    reset_auth 
     delete "/source/kde4/kdelibs"
     assert_response 401
     delete "/source/kde4"
@@ -1592,7 +1592,7 @@ end
 
 
   def test_pattern
-    ActionController::IntegrationTest::reset_auth 
+    reset_auth 
     put "/source/kde4/_pattern/mypattern", load_backend_file("pattern/digiKam.xml")
     assert_response 401
 
@@ -1640,7 +1640,7 @@ end
   end
 
   def test_prjconf
-    ActionController::IntegrationTest::reset_auth 
+    reset_auth 
     get url_for(:controller => :source, :action => :project_config, :project => "DoesNotExist")
     assert_response 401
     prepare_request_with_user "adrian_nobody", "so_alone"
@@ -1661,7 +1661,7 @@ end
   end
 
   def test_pubkey
-    ActionController::IntegrationTest::reset_auth 
+    reset_auth 
     prepare_request_with_user "tom", "thunder"
     get url_for(:controller => :source, :action => :project_pubkey, :project => "DoesNotExist")
     assert_response 404
@@ -2107,7 +2107,7 @@ end
   end
 
   def test_delete_and_undelete_permissions
-    ActionController::IntegrationTest::reset_auth 
+    reset_auth 
     delete "/source/kde4/kdelibs"
     assert_response 401
     delete "/source/kde4"
@@ -2147,7 +2147,7 @@ end
   end
 
   def test_branch_package_delete_and_undelete
-    ActionController::IntegrationTest::reset_auth 
+    reset_auth 
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
     assert_response 401
     prepare_request_with_user "fredlibs", "geröllheimer"
@@ -2223,7 +2223,7 @@ end
     assert_xml_tag( :tag => "data", :attributes => { :name => "sourcepackage"}, :content => "kdelibs_DEVEL_package" )
 
     # delete package
-    ActionController::IntegrationTest::reset_auth 
+    reset_auth 
     delete "/source/home:tom:branches:home:Iggy/TestPack"
     assert_response 401
 

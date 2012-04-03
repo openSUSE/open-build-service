@@ -5,7 +5,7 @@ class SourceServicesTest < ActionController::IntegrationTest
   fixtures :all
   
   def test_get_servicelist
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     get "/service"
     assert_response 401
 

@@ -28,7 +28,7 @@ class DistributionControllerTest < ActionController::IntegrationTest
              </distributions>
              ' 
 
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     put "/distributions", data
     assert_response 401
 
@@ -40,7 +40,7 @@ class DistributionControllerTest < ActionController::IntegrationTest
     put "/distributions", data
     assert_response 200
 
-    ActionController::IntegrationTest::reset_auth
+    reset_auth
     get "/distributions"
     assert_response 401
 
