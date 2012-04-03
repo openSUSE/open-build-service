@@ -263,7 +263,7 @@
               <% end %>
 
               <%#TODO: Redo source/target link display %>
-              <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => sourcediff[:filenames], :files => sourcediff[:files], :source => {:project => project, :package => package, :rev => rev}, :css_id => "diff_action_#{action_index}_#{action[:type]}_#{sourcediff_index}", :editor_width => '520px'}) %>
+              <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => sourcediff[:filenames], :files => sourcediff[:files], :source => {:project => project, :package => package, :rev => rev}, :css_id => "diff_action_#{action_index}_#{action[:type]}_#{sourcediff_index}", :editor_width => '550px'}) %>
               <p><%= link_to('Back to top', '#') %></p>
             </div>
           </div>

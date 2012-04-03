@@ -34,6 +34,7 @@
 <% if filenames && filenames.length > 0 %>
   <table>
     <tbody>
+      <% last_file_id = nil %>
       <% filenames.each_with_index do |filename, index| %>
         <% file_element = files[filename] %>
         <% file_id = "#{valid_xml_id(filename)}_#{css_id}_#{index}" %>
@@ -60,23 +61,27 @@
             <% rev = (rev.to_i - 1).to_s if file_element.state == 'deleted' %>
             <%# TODO: drop this check for '/' once we can 'view' files inside tarballs: %>
             <%= link_to_unless(Package.is_binary_file?(filename) || filename.include?('/'), filename, :controller => 'package', :action => 'view_file', :project => source[:project], :package => source[:package], :file => filename, :rev => rev) %>
+            <% if index > 0 %>
+              <span style="float: right;">
+                <%= link_to('^', :anchor => "diff_headline_#{last_file_id}") %>
+              </span>
+            <% end %>
           </td>
         </tr>
         <% if file_diff_text.length > 0 %>
           <% if is_expanded %>
             <tr id="diff_view_<%= file_id %>">
-              <td align="center" valign="bottom"><%= link_to('Up', :anchor => "diff_headline_#{file_id}") %></td>
-              <td colspan="2">
+              <td colspan="3">
                 <%= render :partial => "shared/editor", :locals => {:text => file_diff_text, :mode => 'diff', :read_only => true, :height => 'auto', :no_border => true, :width => editor_width} %>
               </td>
             </tr>
           <% else %>
             <tr id="diff_view_<%= file_id %>" class="hidden">
-              <td align="center" valign="bottom"><%= link_to('Up', :anchor => "diff_headline_#{file_id}") %></td>
-              <td colspan="2" id="diff_view_<%= file_id %>_placeholder"><%= file_diff_text %></td>
+              <td colspan="3" id="diff_view_<%= file_id %>_placeholder"><%= file_diff_text %></td>
             </tr>
           <% end %>
         <% end %>
+        <% last_file_id = file_id %>
       <% end %>
     </tbody>
   </table>
