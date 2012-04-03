@@ -8,12 +8,8 @@ class StatusController < ApplicationController
     # this displays the status messages the Admin can enter for users.
     if request.get?
 
-      @messages = StatusMessage.find :all,
-        :conditions => "ISNULL(deleted_at)",
-        :limit => params[:limit],
-        :order => 'status_messages.created_at DESC',
-        :include => :user
-      @count = StatusMessage.find( :first, :select => 'COUNT(*) AS cnt' ).cnt
+      @messages = StatusMessage.alive.limit(params[:limit]).order("created_at DESC").includes(:user).all
+      @count = StatusMessage.alive.count
 
     elsif request.put?
 
@@ -113,7 +109,7 @@ class StatusController < ApplicationController
     hours = begin Integer(params[:hours] || '24') rescue 24 end
     logger.debug "#{Time.now.to_i} to #{hours.to_i}"
     starttime = Time.now.to_i - hours.to_i * 3600
-    values = StatusHistory.find(:all, :conditions => [ "time >= ? AND \`key\` = ?", starttime, params[:key] ]).collect {|line| [line.time.to_i, line.value.to_f] }
+    values = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, params[:key]).select([:time, :value]).all.collect {|line| [line.time.to_i, line.value.to_f] }
     builder = Builder::XmlMarkup.new( :indent => 2 )
     xml = builder.history do
       StatusHelper.resample(values, samples).each do |time,val|
@@ -240,7 +236,7 @@ class StatusController < ApplicationController
 
   def bsrequest
     required_parameters :id
-    req = BsRequest.find :id => params[:id]
+    req = BsRequest.find(:id => params[:id])
     unless req
       render_error :status => 403, :errorcode => "unknown request", :message => "request #{params[:id]} does not exist" and return
     end

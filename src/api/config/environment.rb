@@ -3,7 +3,7 @@
 # Load the rails application
 require File.expand_path('../application', __FILE__)
 
-path = Rails.root.join("config/options.yml")
+path = Rails.root.join("config", "options.yml")
 
 begin
   CONFIG = YAML.load_file(path)

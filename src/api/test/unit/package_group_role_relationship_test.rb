@@ -1,7 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class PackageGroupRoleRelationshipTest < ActiveSupport::TestCase
-  fixtures :package_group_role_relationships, :db_packages, :roles, :groups
 
   def test_validation
     # empty == invalid

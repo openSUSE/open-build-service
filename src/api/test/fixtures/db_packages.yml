@@ -12,7 +12,7 @@ Basedistro_Update_pack2:
   develproject_id: 
   bcntsynctag: 
   develpackage_id: 
-db_packages_1:
+kdelibs:
   id: 1
   db_project_id: 2
   name: kdelibs
@@ -40,7 +40,7 @@ db_packages_10089:
   develproject_id: 
   bcntsynctag: 
   develpackage_id: 
-db_packages_10095:
+TestPack:
   id: 10095
   db_project_id: 502
   name: TestPack

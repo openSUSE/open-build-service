@@ -1,35 +1,35 @@
-package_user_role_relationships_1013880641:
-  id: 1013880641
+fred_maintainer_package_1:
+  id: 3
   db_package_id: 10095
   bs_user_id: 1
   role_id: 3
-package_user_role_relationships_132136071:
-  id: 132136071
+fred_maintainer_package_2:
+  id: 2
   db_package_id: 10195
   bs_user_id: 1
   role_id: 3
-package_user_role_relationships_2:
-  id: 2
+Iggy_maintainer_TestPack:
+  id: 1
   db_package_id: 10095
   bs_user_id: 267
   role_id: 3
-package_user_role_relationships_459963165:
-  id: 459963165
+adrian_maintainer_2:
+  id: 4
   db_package_id: 11006
   bs_user_id: 42
   role_id: 3
-package_user_role_relationships_639512723:
-  id: 639512723
+fred_maintainer:
+  id: 5
   db_package_id: 1
   bs_user_id: 4
   role_id: 3
-package_user_role_relationships_950742816:
-  id: 950742816
+adrian_reviewer:
+  id: 6
   db_package_id: 1
   bs_user_id: 42
   role_id: 6
 reviewer_for_Basedistro_pack2:
-  id: 950742817
+  id: 7
   db_package_id: 10094
   bs_user_id: 1
   role_id: 6

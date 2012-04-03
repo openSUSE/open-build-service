@@ -3,6 +3,8 @@ class PackageGroupRoleRelationship < ActiveRecord::Base
   belongs_to :group, :foreign_key => "bs_group_id"
   belongs_to :role
 
+  has_many :groups_users, :through => :group
+
   validates :group, :presence => true
   validates :db_package, :presence => true
   validates :role, :presence => true

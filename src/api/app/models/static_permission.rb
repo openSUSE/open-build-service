@@ -12,4 +12,7 @@ require 'active_rbac_mixins/static_permission_mixins'
 class StaticPermission < ActiveRecord::Base
   include ActiveRbacMixins::StaticPermissionMixins::Core
   include ActiveRbacMixins::StaticPermissionMixins::Validation
+
+  has_many :roles_static_permissions
+
 end

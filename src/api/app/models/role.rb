@@ -11,7 +11,15 @@ class Role < ActiveRecord::Base
   include ActiveRbacMixins::RoleMixins::Validation
   include ActiveRbacMixins::RoleMixins::Core
 
-  has_many :project_user_role_relationships
+  belongs_to :groups_roles
+  belongs_to :attrib_type_modifiable_bies
+  belongs_to :package_group_role_relationships
+  belongs_to :package_user_role_relationships
+  belongs_to :project_group_role_relationships
+  belongs_to :project_user_role_relationships
+  belongs_to :roles_static_permissions
+  belongs_to :roles_users
+
 
   class << self
     def rolecache
@@ -54,4 +62,9 @@ class Role < ActiveRecord::Base
     logger.debug "updating role cache (role '#{title}' deleted)"
     rolecache.delete title
   end
+
+  def self.ids_with_permission(perm_string)
+    RolesStaticPermission.joins(:static_permission).where(:static_permissions => { :title => perm_string } ).select("role_id").map { |rs| rs.role_id }
+  end
+
 end

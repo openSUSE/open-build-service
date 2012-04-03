@@ -34,7 +34,7 @@ db_projects_1001:
   maintenance_project_id: 
   type_id: 1
   develproject_id: 
-db_projects_2:
+kde4:
   id: 2
   name: kde4
   title: blub
@@ -276,7 +276,7 @@ db_projects_5002:
   maintenance_project_id: 
   type_id: 
   develproject_id: 
-db_projects_5003:
+cplusplus:
   id: 5003
   name: c++
   title: 
@@ -288,7 +288,7 @@ db_projects_5003:
   maintenance_project_id: 
   type_id: 
   develproject_id: 
-db_projects_5007:
+home_adrian:
   id: 5007
   name: home:adrian
   title: adrian's Home Project

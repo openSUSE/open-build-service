@@ -12,7 +12,6 @@ class DbProject < ActiveRecord::Base
 
   has_many :project_user_role_relationships, :dependent => :delete_all
   has_many :project_group_role_relationships, :dependent => :delete_all
-  has_many :groups, :through => :project_group_role_relationships
   has_many :db_packages, :dependent => :destroy
   has_many :attribs, :dependent => :destroy
   has_many :repositories, :dependent => :destroy

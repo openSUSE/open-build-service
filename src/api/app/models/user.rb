@@ -48,13 +48,13 @@ class User < ActiveRecord::Base
     end
 
     def get_by_login(login)
-      u = find :first, :conditions => ["login = BINARY ?", login]
+      u = where("login = BINARY ?", login).first
       raise UserNotFoundError.new( "Error: User '#{login}' not found." ) unless u
       return u
     end
 
     def find_by_email(email)
-      return find :first, :conditions => ["email = ?", email]
+      return where(:email => email).first
     end
   end
 
@@ -188,19 +188,19 @@ class User < ActiveRecord::Base
     end
     if group.kind_of? String
       group = Group.find_by_title(group)
+      return false unless group
     end
     if group.kind_of? Fixnum
       group = Group.find(group)
     end
     unless group.kind_of? Group
-      raise ArgumentError, "illegal parameter type to User#is_in_group?: #{group.class.name}"
+      raise ArgumentError, "illegal parameter type to User#is_in_group?: #{group.class}"
     end
     if User.ldapgroup_enabled?
-      return true if user_in_group_ldap?(self.login, group) 
+      return user_in_group_ldap?(self.login, group) 
     else 
-      return true if groups.find(:all, :conditions => [ "id = ?", group ]).length > 0
+      return !groups_users.where(:group_id => group.id).first.nil?
     end
-    return false
   end
 
   def is_locked? object
@@ -370,7 +370,7 @@ class User < ActiveRecord::Base
     ldapgroups = Array.new
     # check with LDAP
     if User.ldapgroup_enabled?
-      grouplist = Group.find(:all)
+      grouplist = Group.all
       begin
         ldapgroups = User.render_grouplist_ldap(grouplist, self.login)
       rescue Exception
@@ -399,7 +399,7 @@ class User < ActiveRecord::Base
   
   def local_permission_check_with_ldap ( perm_string, object)
     logger.debug "Checking permission with ldap: object '#{object.name}', perm '#{perm_string}'" 
-    rel = StaticPermission.find :first, :conditions => ["title = ?", perm_string] 
+    rel = StaticPermission.where("title = ?", perm_string).first
     if rel
       static_permission_id = rel.id
       logger.debug "Get perm_id '#{static_permission_id}'" 
@@ -452,7 +452,7 @@ class User < ActiveRecord::Base
     case object
       when DbPackage
         logger.debug "running local role package check: user #{self.login}, package #{object.name}, role '#{role.title}'"
-        rels = package_user_role_relationships.where("db_package_id = ? and role_id = ?", object.id, role.id).first
+        rels = object.package_user_role_relationships.where(:role_id => role.id, :bs_user_id => self.id).first
         return true if rels
         rels = PackageGroupRoleRelationship.find :first, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = bs_group_id", 
                                                   :conditions => ["ug.user_id = ? and db_package_id = ? and role_id = ?", self, object, role]
@@ -466,7 +466,7 @@ class User < ActiveRecord::Base
         return has_local_role?(role, object.db_project)
       when DbProject
         logger.debug "running local role project check: user #{self.login}, project #{object.name}, role '#{role.title}'"
-        rels = project_user_role_relationships.find :first, :conditions => ["db_project_id = ? and role_id = ?", object.id, role.id]
+        rels = object.project_user_role_relationships.where(:role_id => role.id, :bs_user_id => self.id).first
         return true if rels
         rels = ProjectGroupRoleRelationship.find :first, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = bs_group_id", 
                                                   :conditions => ["ug.user_id = ? and db_project_id = ? and role_id = ?", self, object, role], :select => "ug.user_id"
@@ -487,20 +487,16 @@ class User < ActiveRecord::Base
   # if context is a project, check it, then if needed go down through all namespaces until hitting the root
   # return false if none of the checks succeed
   def has_local_permission?( perm_string, object )
+    roles = Role.ids_with_permission(perm_string)
+    return false unless roles
     case object
     when DbPackage
       logger.debug "running local permission check: user #{self.login}, package #{object.name}, permission '#{perm_string}'"
       #check permission for given package
-      rels = package_user_role_relationships.find :all, :conditions => ["db_package_id = ?", object], :include => :role
-      rels += PackageGroupRoleRelationship.find :all, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = bs_group_id", 
-                                                :conditions => ["ug.user_id = ? and db_package_id = ?", self.id, object.id],
-                                                :include => :role
-      for rel in rels do
-        if rel.role.static_permissions.find(:first, :conditions => ["title = ?", perm_string])
-          logger.debug "permission granted"
-          return true
-        end
-      end
+      rel = object.package_user_role_relationships.where(:bs_user_id => self.id).joins(:role).where("roles.id in (?)", roles).first
+      return true if rel
+      rel = object.package_group_role_relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).joins(:role).where("roles.id in (?)", roles).first
+      return true if rel
 
       # check with LDAP
       if User.ldapgroup_enabled?
@@ -513,16 +509,10 @@ class User < ActiveRecord::Base
     when DbProject
       logger.debug "running local permission check: user #{self.login}, project #{object.name}, permission '#{perm_string}'"
       #check permission for given project
-      rels = project_user_role_relationships.find :all, :conditions => ["db_project_id = ? ", object], :include => :role
-      rels += ProjectGroupRoleRelationship.find :all, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = bs_group_id", 
-                                                :conditions => ["ug.user_id = ? and db_project_id = ?", self.id, object.id],
-                                                :include => :role
-      for rel in rels do
-        if rel.role.static_permissions.find(:first, :conditions => ["title = ?", perm_string])
-          logger.debug "permission granted"
-          return true
-        end
-      end
+      rel = object.project_user_role_relationships.where(:bs_user_id => self.id).joins(:role).where("roles.id in (?)", roles).first
+      return true if rel
+      rel = object.project_group_role_relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).joins(:role).where("roles.id in (?)", roles).first
+      return true if rel
 
       # check with LDAP
       if User.ldapgroup_enabled?

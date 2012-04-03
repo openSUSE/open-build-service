@@ -3,15 +3,17 @@ class ProjectGroupRoleRelationship < ActiveRecord::Base
   belongs_to :group, :foreign_key => 'bs_group_id'
   belongs_to :role
 
-  validate :check_duplicates, :on => :create
+  has_many :groups_users, :through => :group
+
+  validates :group, :presence => true
+  validates :db_project, :presence => true
+  validates :role, :presence => true
+
+  validate :check_duplicates
 
   def check_duplicates
-    unless self.group
-      errors.add "Can not assign role to nonexistent group"
-    end
-
-    if ProjectGroupRoleRelationship.find(:first, :conditions => ["db_project_id = ? AND role_id = ? AND bs_group_id = ?", self.db_project, self.role, self.group])
-      errors.add "Group already has this role"
+    if ProjectGroupRoleRelationship.where("db_project_id = ? AND role_id = ? AND bs_group_id = ?", self.db_project, self.role, self.group).first
+      errors.add(:group, "Group already has this role")
     end
   end
 end
