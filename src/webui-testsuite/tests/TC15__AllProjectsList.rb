@@ -87,7 +87,7 @@ class TC15__AllProjectsList < TestCase
 
 
   test :filter_all_projects_by_user do
-  depend_on :login_as_user
+  depend_on :login_as_user, :create_subproject_with_long_description, :create_subproject_with_only_name, :create_subproject_for_user
   
     navigate_to AllProjectsPage, :user => :none
     filter_projects(

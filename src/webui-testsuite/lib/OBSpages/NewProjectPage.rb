@@ -80,7 +80,7 @@ class NewProjectPage < BuildServicePage
     
     if creating_home_project? then
       new_project[:name] ||= current_user[:login]
-      assert new_project[:name] == current_user[:login]
+      assert_equal new_project[:name], current_user[:login]
     else
       new_project[:name] ||= ""
       @driver[:id => "name"].clear
@@ -105,7 +105,7 @@ class NewProjectPage < BuildServicePage
       validate { flash_message_type == :info }
       $page = ProjectOverviewPage.new_ready @driver
       new_project[:description] = "No description set" if new_project[:description].empty?
-      assert CGI::escapeHTML(new_project[:description]) == $page.project_description
+      assert_equal CGI::escapeHTML(new_project[:description]), $page.project_description
       current_user[:created_projects] << new_project[:namespace] + new_project[:name]
     elsif new_project[:expect] == :invalid_name
       validate { flash_message == "Invalid project name '#{new_project[:name]}'." }

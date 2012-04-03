@@ -397,5 +397,14 @@ module ApplicationHelper
     end
   end
 
+  def description_wrapper(description)
+    unless description.blank?
+      content_tag(:pre, description, :id => "description", :class => "plain")
+    else
+      content_tag(:p, :id => "description") do
+        content_tag(:i, "No description set")
+      end
+    end
+  end
 end
 

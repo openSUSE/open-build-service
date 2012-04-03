@@ -6,7 +6,7 @@
   <div class="box show_left clearfix">
     <div class="grid_7 alpha omega">
       <h3 id="package_title"><%=h @package.title %><%= h(@package) if @package.title.to_s.blank? -%></h3>
-      <pre class="plain" id="description"><%= @package.description.text %></pre>
+      <%= description_wrapper(@package.description.text) %>
     </div>
     <div class="grid_3 alpha omega">
       <h4>Information</h4>
