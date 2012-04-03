@@ -135,6 +135,10 @@
                   <%= link_to('Create package', :controller => 'project', :action => 'new_package', :project => @project) %>
                 </li>
                 <li>
+                  <%= link_to image_tag('icons/package_link.png', :title => 'Branch existing package'), :controller => :project, :action => :new_package_branch, :project => @project %>
+                  <%= link_to 'Branch existing package', :controller => :project, :action => :new_package_branch, :project => @project %>
+                </li>
+                <li>
                   <%= link_to(image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => 'project', :action => 'new', :ns => @project.name) %>
                   <%= link_to('Create subproject', :controller => 'project', :action => 'new', :ns => @project.name) %>
                 </li>
