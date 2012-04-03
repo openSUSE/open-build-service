@@ -81,7 +81,7 @@
       </td>
       <td>
         <% rt[:packages].each do |package| %>
-          <%= link_to(package.value('name').split('.', 2)[0], :action => 'packages', :project => incident.value('name'), :package => package.value('name')) %><br/>
+          <%= link_to(package.value('name').split('.', 2)[0], :controller => 'package', :action => 'show', :project => incident.value('name'), :package => package.value('name')) %><br/>
         <% end %>
       </td>
       <td>
