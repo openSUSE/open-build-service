@@ -20,13 +20,7 @@
     <div class="box show_left clearfix">
       <div class="grid_7 alpha omega">
         <h3><%= @pagetitle %> (<%= @state %>)</h3>
-        <% if @req.value(:description) %>
-          <% if @req.value(:description).empty? %>
-            <p><i>No request description</i></p>
-          <% else %>
-            <pre class="plain" id="expandable_comment"><%= @req.value(:description) %></pre>
-          <% end %>
-        <% end %>
+        <%= description_wrapper(@req.value('description')) %>
       </div>
       <div class="grid_3 alpha omega">
         <h4>Information</h4>
