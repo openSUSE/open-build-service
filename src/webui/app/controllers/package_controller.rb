@@ -25,11 +25,13 @@ class PackageController < ApplicationController
         mail = find_cached(Person, bugowner).email
         @bugowners_mail.push(mail.to_s) if mail
     end unless @spider_bot
+    @current_rev = Package.current_rev(@project.name, @package.name)
+    @revision = params[:rev]
     fill_status_cache unless @buildresult.blank?
     linking_packages
-    @nr_files = 0
     begin
-      @nr_files = @package.files.size unless @spider_bot
+      #TODO generate file list here:
+      @package.files.size unless @spider_bot
     rescue ActiveXML::Transport::ForbiddenError => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e      
       flash[:warn] = "Files could not be accessed: #{message}"
