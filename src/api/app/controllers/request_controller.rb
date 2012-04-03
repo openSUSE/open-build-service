@@ -1695,7 +1695,12 @@ class RequestController < ApplicationController
 
         # create patchinfo XML file
         node = Builder::XmlMarkup.new(:indent=>2)
-        xml = node.patchinfo() do |n|
+        attrs = { }
+        if patchinfo.db_project.project_type == "maintenance_incident"
+          # this is a maintenance incident project, the sub project name is the maintenance ID
+          attrs[:incident] = patchinfo.db_project.name.gsub(/.*:/, '')
+        end
+        xml = node.patchinfo(attrs) do |n|
           node.packager    req.creator
           node.category    "recommended" # update_patchinfo may switch to security
           node.rating      "low"
