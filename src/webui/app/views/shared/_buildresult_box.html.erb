@@ -6,28 +6,26 @@
   <% controller = 'project' %>
 <% end %>
 
-<div class="box show_right">
-  <div class="box-header header-tabs">
-    <ul id="result_select_<%= index %>">
-      <li class="selected">
-        <a class="result_select_link_<%= index %>" id="result_select_link_<%= index %>_0" href="#">Build Results</a>
-        <%= image_tag('reload.png', :alt => 'Reload', :title => 'Reload', :onclick => 'update_build_result()', :class => "result_reload_#{index}", :id => "result_reload_#{index}_0") %>
-        <%= image_tag('ajax-loader.gif', :id => "result_spinner_#{index}_0") %>
+<div class="box-header header-tabs">
+  <ul id="result_select_<%= index %>">
+    <li class="selected">
+      <a class="result_select_link_<%= index %>" id="result_select_link_<%= index %>_0" href="#">Build Results</a>
+      <%= image_tag('reload.png', :alt => 'Reload', :title => 'Reload', :onclick => 'update_build_result()', :class => "result_reload_#{index}", :id => "result_reload_#{index}_0") %>
+      <%= image_tag('ajax-loader.gif', :id => "result_spinner_#{index}_0") %>
+    </li>
+    <% if controller == 'package' %>
+      <li>
+        <a class="result_select_link_<%= index %>" id="result_select_link_<%= index %>_1" href="#">Rpmlint Results</a>
+        <%= image_tag('reload.png', :alt => 'Reload', :title => 'Reload', :onclick => 'update_rpmlint_result()', :class => "result_reload_#{index}", :id => "result_reload_#{index}_1", :style => 'display: none') %>
+        <%= image_tag('ajax-loader.gif', :id => "result_spinner_#{index}_1", :class => 'hidden') %>
       </li>
-      <% if controller == 'package' %>
-        <li>
-          <a class="result_select_link_<%= index %>" id="result_select_link_<%= index %>_1" href="#">Rpmlint Results</a>
-          <%= image_tag('reload.png', :alt => 'Reload', :title => 'Reload', :onclick => 'update_rpmlint_result()', :class => "result_reload_#{index}", :id => "result_reload_#{index}_1", :style => 'display: none') %>
-          <%= image_tag('ajax-loader.gif', :id => "result_spinner_#{index}_1", :class => 'hidden') %>
-        </li>
-      <% end %>
-    </ul>
-  </div>
-  <div class="result_display_<%= index %>" id="result_display_<%= index %>_0"></div>
-  <% if controller == 'package' %>
-    <div class="result_display_<%= index %>" id="result_display_<%= index %>_1"></div>
-  <% end %>
+    <% end %>
+  </ul>
 </div>
+<div class="result_display_<%= index %>" id="result_display_<%= index %>_0"></div>
+<% if controller == 'package' %>
+  <div class="result_display_<%= index %>" id="result_display_<%= index %>_1"></div>
+<% end %>
 
 <% javascript_tag do %>
   var tab_index_<%= index %> = 0;

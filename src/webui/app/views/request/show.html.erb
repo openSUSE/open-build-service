@@ -15,145 +15,27 @@
   <% end -%>
 </div>
 
-<div class="grid_16 box box-shadow alpha omega">
+<div class="grid_16 alpha omega box box-shadow">
   <div class="grid_10 alpha">
-    <div class="box show_left clearfix">
-      <div class="grid_7 alpha omega">
-        <h3><%= @pagetitle %> (<%= @state %>)</h3>
-        <%= description_wrapper(@req.value('description')) %>
-      </div>
-      <div class="grid_3 alpha omega">
-        <h4>Information</h4>
-        <ul class="clean_list">
-          <li><%= image_tag('icons/information.png') %> In state <b><%= @state %></b></li>
-          <% if @superseded_by %>
-            <li><%= image_tag('icons/exclamation.png') %> Superseded by <%= link_to @superseded_by, :id => @superseded_by %></li>
-          <% end %>
-          <% if @other_open_reviews.length > 0 %>
-            <% @other_open_reviews.each do |review| %>
-              <li>
-                <%= image_tag('icons/exclamation.png') %> Open review for
-                <%= render :partial => 'reviewer', :locals => {:review => review} %>
-              </li>
-            <% end %>
-          <% end %>
-        </ul>
-      </div>
-    </div>
-
-    <% if @can_add_reviews || @can_handle_request %>
-      <div class="box show_left">
-        <div class="box-header header-tabs">
-          <ul id="review_descision_select">
-            <% if @can_handle_request %>
-              <li class="<%= 'selected' if !@can_add_reviews || @my_open_reviews.length == 0 %>">
-                <a class="review_descision_link" id="review_descision_link_-1" href="#">My Decision</a>
-              </li>
-            <% end %>
-            <% if @can_add_reviews && @my_open_reviews.length > 0 %>
-              <% @my_open_reviews.each_with_index do |open_review, index| %>
-                <li class="<%= 'selected' if @my_open_reviews.length > 0 && index == 0 %>">
-                <a class="review_descision_link" id="review_descision_link_<%= index %>" href="#">Review for <%= render :partial => 'reviewer', :locals => {:review => open_review, :no_link => true, :no_icon => true} %></a>
-                </li>
-              <% end %>
-            <% end %>
-          </ul>
-          <% javascript_tag do %>
-            $('.review_descision_link').click(function (event) {
-              $('#review_descision_select li.selected').attr('class', '');
-              $(event.target).parent().attr('class', 'selected')
-              $('.review_descision_display').hide();
-              index = event.target.id.split('review_descision_link_')[1]
-              $('#review_descision_display_' + index).show();
-              return false;
-            });
-          <% end %>
-        </div>
-        <div class="review_descision_display" style="<%= 'display: none;' if @can_add_reviews && @my_open_reviews.length > 0 %>" id="review_descision_display_-1">
-          <% if @can_handle_request %>
-            <% form_tag({:action => 'changerequest'}, {:id => 'request_handle_form'}) do %>
-              <p><%= text_area_tag(:reason, 'Please add a comment', :size => '80x2', :style => "width: 99%") %></p>
-              <p>
-                <%= hidden_field_tag(:id, @id) %>
-                <% if ['new', 'review'].include?(@state) && @is_target_maintainer %>
-                  <% if @state == 'review' %>
-                    <%= submit_tag 'Accept request', :name => 'accepted', :id => 'accept_request_button', :confirm => 'Do you really want to approve this request, despite of open review requests?' %>
-                  <% else %>
-                    <%= submit_tag 'Accept request', :name => 'accepted', :id => 'accept_request_button' %>
-                  <% end %>
-                  <%= submit_tag 'Decline request', :name => 'declined' if !@is_author %>
-                <% end %>
-                <% if ['new', 'review', 'declined'].include?(@state) && @is_author %>
-                  <%= submit_tag 'Revoke request', :name => 'revoked' %>
-                <% end %>
-                <% if @state == 'declined' %>
-                  <%= submit_tag 'Reopen request', :name => 'new' %>
-                <% end %>
-                <span style="float: right;">
-                  <% if @can_add_reviews %>
-                    <%= link_to_remote(image_tag('icons/user_add.png', :title => 'Add a review'), :url => {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}) %>
-                    <%= link_to_remote('Add a review', :url => {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}) %>
-                  <% end %>
-                  <% if reqtype(@req) == 'incident' %>
-                    <%= link_to_remote(image_tag('icons/package_link.png', :title => 'Merge with existing incident'), :url => {:controller => 'request', :action => 'set_incident_dialog', :id => @id}) %>
-                    <%= link_to_remote('Merge with existing incident', :url => {:controller => 'request', :action => 'set_incident_dialog', :id => @id}) %>
-                  <% end %>
-                </span>
-              </p>
-            <% end %>
-            <% javascript_tag do %>
-              $('#accept_request_button').click(function (data) {
-                /* Add some hidden elements to carry HTML form data that is found at other DOM places for design reasons.  */
-                if ($('.submitter_is_maintainer_checkbox').size() != 0 &&
-                    $('.submitter_is_maintainer_checkbox').is(':checked')) {
-                  additional_element = '<input id="' + $('.submitter_is_maintainer_checkbox').attr('id') +
-                             '" name="' + $('.submitter_is_maintainer_checkbox').attr('name') +
-                             '" type="hidden" value="' + $('.submitter_is_maintainer_checkbox').attr('value') + '"/>'
-                  $('#request_handle_form p:last').append(additional_element);
-                }
-                if ($('.forward_checkbox').size() != 0 &&
-                    $('.forward_checkbox').is(':checked')) {
-                  $('.forward_checkbox').each(function (index) {
-                    additional_element = '<input id="' + $(this).attr('id') +
-                               '" name="' + $(this).attr('name') +
-                               '" type="hidden" value="' + $(this).attr('value') + '"/>'
-                    $('#request_handle_form p:last').append(additional_element);
-                  });
-                }
-              });
-            <% end %>
-          <% end %>
-        </div>
-        <% if @can_add_reviews && @my_open_reviews.length > 0 %>
-          <% @my_open_reviews.each_with_index do |review, index| %>
-            <div class="review_descision_display <%= 'hidden' if index != 0 %>" id="review_descision_display_<%= index %>">
-              <% form_tag(:action => "modify_review") do %>
-                <p><%= text_area_tag("review_comment_#{index}", review.value('comment'), :size => '80x2', :style => "width: 99%", :class => 'review_comment') %></p>
-                <p>
-                  <%= hidden_field_tag("review_request_id_#{index}", @id) %>
-                  <%= hidden_field_tag("review_by_user_#{index}", review.value('by_user')) if review.value('by_user') %>
-                  <%= hidden_field_tag("review_by_group_#{index}", review.value('by_group')) if review.value('by_group') %>
-                  <%= hidden_field_tag("review_by_project_#{index}", review.value('by_project')) if review.value('by_project') %>
-                  <%= hidden_field_tag("review_by_package_#{index}", review.value('by_package')) if review.value('by_package') %>
-                  <%= submit_tag 'Accept review', :name => 'accepted' %>
-                  <%= submit_tag 'Decline review', :name => 'declined' %>
-                </p>
-              <% end %>
-            </div>
-          <% end %>
-        <% end %>
-        <% javascript_tag do %>
-          $('.review_comment, #reason').click(function () { $(this).text(''); });
-        <% end %>
-      </div>
-    <% end %>
+    <h3><%= @pagetitle %> (<%= @state %>)</h3>
+    <%= description_wrapper(@req.value('description')) %>
   </div>
-
   <div class="grid_6 omega">
-    <div class="box show_right">
-      <h2 class="box-header">Request History</h2>
-      <%= render :partial => 'recent_events_table' %>
-    </div>
+    <ul class="clean_list">
+      <li><%= image_tag('icons/user_green.png') %> Created by <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => @req.creator.value('login'), :no_icon => true} %> <%= fuzzy_time_string(@req.created_at.to_s) %></li>
+      <li><%= image_tag('icons/information.png') %> In state <b><%= @state %></b></li>
+      <% if @superseded_by %>
+        <li><%= image_tag('icons/exclamation.png') %> Superseded by <%= link_to @superseded_by, :id => @superseded_by %></li>
+      <% end %>
+      <% if @other_open_reviews.length > 0 %>
+        <% @other_open_reviews.each do |review| %>
+          <li>
+            <%= image_tag('icons/exclamation.png') %> Open review for
+            <%= render :partial => 'reviewer', :locals => {:review => review} %>
+          </li>
+        <% end %>
+      <% end %>
+    </ul>
   </div>
 </div>
 
@@ -249,7 +131,6 @@
       <% if action[:sourcediff] %>
         <% action[:sourcediff].each_with_index do |sourcediff, sourcediff_index| %>
           <div class="grid_10 alpha">
-            <div class="box show_left">
               <h2 class="box-header">Source Diff</h2>
               <% if action[:type] == 'delete' %>
                 <% project, package, rev = sourcediff[:old].project, sourcediff[:old].package, sourcediff[:old].rev %>
@@ -266,22 +147,136 @@
 
               <%#TODO: Redo source/target link display %>
               <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => sourcediff[:filenames], :files => sourcediff[:files], :source => {:project => project, :package => package, :rev => rev}, :css_id => "diff_action_#{action_index}_#{action[:type]}_#{sourcediff_index}", :editor_width => '550px'}) %>
-              <p><%= link_to('Back to top', '#') %></p>
-            </div>
           </div>
-
           <div class="grid_6 omega">
-            <%= render :partial => 'shared/buildresult_box', :locals => {:project => project, :package => package, :index => action_index} %>
-
+              <%= render :partial => 'shared/buildresult_box', :locals => {:project => project, :package => package, :index => action_index} %>
             <% if sourcediff[:issues].length > 0 %>
-              <div class="box show_right">
                 <h2 class="box-header">Mentioned Issues (<%= sourcediff[:issues].length %>)</h2>
                 <%= render :partial => 'issues_table', :locals => {:issues => sourcediff[:issues]} %>
-              </div>
             <% end %>
           </div>
         <% end %>
       <% end %>
     </div>
   <% end %>
+</div>
+
+<div class="grid_16 alpha omega">
+  <div class="grid_10 alpha">
+    <div class="box box-shadow">
+      <% if @can_add_reviews || @can_handle_request %>
+        <div class="box-header header-tabs">
+          <ul id="review_descision_select">
+            <% if @can_handle_request %>
+              <li class="<%= 'selected' if !@can_add_reviews || @my_open_reviews.length == 0 %>">
+                <a class="review_descision_link" id="review_descision_link_-1" href="#">My Decision</a>
+              </li>
+            <% end %>
+            <% if @can_add_reviews && @my_open_reviews.length > 0 %>
+              <% @my_open_reviews.each_with_index do |open_review, index| %>
+                <li class="<%= 'selected' if @my_open_reviews.length > 0 && index == 0 %>">
+                <a class="review_descision_link" id="review_descision_link_<%= index %>" href="#">Review for <%= render :partial => 'reviewer', :locals => {:review => open_review, :no_link => true, :no_icon => true} %></a>
+                </li>
+              <% end %>
+            <% end %>
+          </ul>
+          <% javascript_tag do %>
+            $('.review_descision_link').click(function (event) {
+              $('#review_descision_select li.selected').attr('class', '');
+              $(event.target).parent().attr('class', 'selected')
+              $('.review_descision_display').hide();
+              index = event.target.id.split('review_descision_link_')[1]
+              $('#review_descision_display_' + index).show();
+            });
+          <% end %>
+        </div>
+        <div class="review_descision_display" style="<%= 'display: none;' if @can_add_reviews && @my_open_reviews.length > 0 %>" id="review_descision_display_-1">
+          <% if @can_handle_request %>
+            <% form_tag({:action => 'changerequest'}, {:id => 'request_handle_form'}) do %>
+              <p><%= text_area_tag(:reason, 'Please add a comment', :size => '80x2', :style => "width: 99%") %></p>
+              <p>
+                <%= hidden_field_tag(:id, @id) %>
+                <% if ['new', 'review'].include?(@state) && @is_target_maintainer %>
+                  <% if @state == 'review' %>
+                    <%= submit_tag 'Accept request', :name => 'accepted', :id => 'accept_request_button', :confirm => 'Do you really want to approve this request, despite of open review requests?' %>
+                  <% else %>
+                    <%= submit_tag 'Accept request', :name => 'accepted', :id => 'accept_request_button' %>
+                  <% end %>
+                  <%= submit_tag 'Decline request', :name => 'declined' if !@is_author %>
+                <% end %>
+                <% if ['new', 'review', 'declined'].include?(@state) && @is_author %>
+                  <%= submit_tag 'Revoke request', :name => 'revoked' %>
+                <% end %>
+                <% if @state == 'declined' %>
+                  <%= submit_tag 'Reopen request', :name => 'new' %>
+                <% end %>
+                <span style="float: right;">
+                  <% if @can_add_reviews %>
+                    <%= link_to_remote(image_tag('icons/user_add.png', :title => 'Add a review'), :url => {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}) %>
+                    <%= link_to_remote('Add a review', :url => {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}) %>
+                  <% end %>
+                  <% if reqtype(@req) == 'incident' %>
+                    <%= link_to_remote(image_tag('icons/package_link.png', :title => 'Merge with existing incident'), :url => {:controller => 'request', :action => 'set_incident_dialog', :id => @id}) %>
+                    <%= link_to_remote('Merge with existing incident', :url => {:controller => 'request', :action => 'set_incident_dialog', :id => @id}) %>
+                  <% end %>
+                </span>
+              </p>
+            <% end %>
+            <% javascript_tag do %>
+              $('#accept_request_button').click(function (data) {
+                /* Add some hidden elements to carry HTML form data that is found at other DOM places for design reasons.  */
+                if ($('.submitter_is_maintainer_checkbox').size() != 0 &&
+                    $('.submitter_is_maintainer_checkbox').is(':checked')) {
+                  additional_element = '<input id="' + $('.submitter_is_maintainer_checkbox').attr('id') +
+                             '" name="' + $('.submitter_is_maintainer_checkbox').attr('name') +
+                             '" type="hidden" value="' + $('.submitter_is_maintainer_checkbox').attr('value') + '"/>'
+                  $('#request_handle_form p:last').append(additional_element);
+                }
+                if ($('.forward_checkbox').size() != 0 &&
+                    $('.forward_checkbox').is(':checked')) {
+                  $('.forward_checkbox').each(function (index) {
+                    additional_element = '<input id="' + $(this).attr('id') +
+                               '" name="' + $(this).attr('name') +
+                               '" type="hidden" value="' + $(this).attr('value') + '"/>'
+                    $('#request_handle_form p:last').append(additional_element);
+                  });
+                }
+              });
+            <% end %>
+          <% end %>
+        </div>
+        <% if @can_add_reviews && @my_open_reviews.length > 0 %>
+          <% @my_open_reviews.each_with_index do |review, index| %>
+            <div class="review_descision_display <%= 'hidden' if index != 0 %>" id="review_descision_display_<%= index %>">
+              <% form_tag(:action => "modify_review") do %>
+                <p><%= text_area_tag("review_comment_#{index}", review.value('comment'), :size => '80x2', :style => "width: 99%", :class => 'review_comment') %></p>
+                <p>
+                  <%= hidden_field_tag("review_request_id_#{index}", @id) %>
+                  <%= hidden_field_tag("review_by_user_#{index}", review.value('by_user')) if review.value('by_user') %>
+                  <%= hidden_field_tag("review_by_group_#{index}", review.value('by_group')) if review.value('by_group') %>
+                  <%= hidden_field_tag("review_by_project_#{index}", review.value('by_project')) if review.value('by_project') %>
+                  <%= hidden_field_tag("review_by_package_#{index}", review.value('by_package')) if review.value('by_package') %>
+                  <%= submit_tag 'Accept review', :name => 'accepted' %>
+                  <%= submit_tag 'Decline review', :name => 'declined' %>
+                </p>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+        <% javascript_tag do %>
+          $('.review_comment, #reason').click(function () { $(this).text(''); });
+        <% end %>
+      <% else %>
+        <p><i>There's nothing to be done right now</i></p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="grid_6 omega">
+    <div class="box box-shadow">
+      <h2 class="box-header">Request History</h2>
+      <%# TODO: Replace with reviews listing only, nobody cares for the history %>
+      <%= render :partial => 'recent_events_table' %>
+    </div>
+  </div>
 </div>

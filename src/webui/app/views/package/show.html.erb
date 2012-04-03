@@ -1,79 +1,75 @@
 <% @pagetitle = "Show #{@project} / #{@package}" %>
+<% @layouttype = 'custom' %>
 <% package_bread_crumb %>
 
-<%= render :partial => 'tabs' %>
-<div class="grid_10 alpha">
-  <div class="box show_left clearfix">
-    <div class="grid_7 alpha omega">
-      <h3 id="package_title"><%=h @package.title %><%= h(@package) if @package.title.to_s.blank? -%></h3>
-      <%= description_wrapper(@package.description.text) %>
-    </div>
-    <div class="grid_3 alpha omega">
-      <h4>Information</h4>
-      <ul class="clean_list">
-        <li>
-          <% @nr_files %>
-          <% if @nr_files == 0 %>
-            <%= image_tag 'icons/exclamation.png' %>
-          <% else %>
-            <%= image_tag 'icons/accept.png' %>
-          <% end %>
-          <%= @nr_files %> <%= link_to "file#{@nr_files == 1 ? "" : "s"}", :action => :files, :project => @project, :package => @package %>
-        </li>
-        <% if @failures and @failures > 0 %>
-          <li>
-            <%= image_tag 'icons/exclamation.png' %> 
-            <%= @failures %>
-            <%= link_to "error#{@failures == 1 ? "" : "s"}", :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
-          </li>
-        <% end %>
-
-        <%= render :partial => "shared/open_requests" %>
-
-        <% if @package.has_element? :devel %>
-          <li>
-            <% dpackage = @package.devel.value("package") || @package.name %>
-            <%= image_tag 'icons/information.png' %>
-            Developed at <%= link_to(elide(@package.devel.project, 44), :action => :show, :controller => :package, :project => @package.devel.project, :package => dpackage) %>
-          </li>
-        <% end %>
-        <% if not @package.developed_packages.blank? %>
-          <li>
-            <%= image_tag 'icons/information.png' %>
-            Devel package for
-            <% @package.developed_packages.each_with_index do |pkg, index| %>
-              <%= ',' if index > 0 %>
-              <%= link_to("#{elide(pkg.project, 40)}", :action => 'show', :project => pkg.project, :package => pkg.name) %>
-            <% end %>
-          </li>
-        <% end %>
-
-        <% if @package.name =~ %r{^_patchinfo} %>
-          <li>
-            <%= image_tag 'icons/information.png' %>
-            Has a <%= link_to 'patchinfo', :controller => :patchinfo, :action => :show, :package => @package, :project => @project %>
-            for <%= link_to 'maintenance updates', 'http://wiki.opensuse.org/openSUSE:Maintenance' %>
-            <%#TODO: Fix this hard link %>
-          </li>
-        <% end %>
-
-        <% if @linking_packages and @linking_packages.size > 0 %>
-          <li>
-            <%= image_tag 'icons/information.png' %>
-            <%= @linking_packages.size %> <%= link_to_remote "derived packages", :url => { :action => :linking_packages, :project => @project, :package => @package } %>
-          </li>
-        <% end %>
-      </ul>
-    </div>
+<div class="grid_16 alpha omega box box-shadow">
+  <%= render :partial => 'tabs' %>
+  <div class="grid_10 alpha">
+    <h3 id="package_title"><%=h @package.title %><%= h(@package) if @package.title.to_s.blank? -%></h3>
+    <% if @package.description.text.empty? %>
+     <p><i>No description</i></p>
+    <% else %>
+      <pre class="plain"><%= @package.description.text %></pre>
+    <% end %>
   </div>
+  <div class="grid_6 omega">
+    <ul class="clean_list">
+      <li>
+        <% @nr_files %>
+        <% if @nr_files == 0 %>
+          <%= image_tag 'icons/exclamation.png' %>
+        <% else %>
+          <%= image_tag 'icons/accept.png' %>
+        <% end %>
+        <%= @nr_files %> <%= link_to "file#{@nr_files == 1 ? "" : "s"}", :action => :files, :project => @project, :package => @package %>
+      </li>
+      <% if @failures and @failures > 0 %>
+        <li>
+          <%= image_tag 'icons/exclamation.png' %> 
+          <%= @failures %>
+          <%= link_to "error#{@failures == 1 ? "" : "s"}", :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
+        </li>
+      <% end %>
 
+      <%= render :partial => "shared/open_requests" %>
+
+      <% if @package.has_element? :devel %>
+        <li>
+          <% dpackage = @package.devel.value("package") || @package.name %>
+          <%= image_tag 'icons/information.png' %>
+          Developed at <%= link_to(elide(@package.devel.project, 44), :action => :show, :controller => :package, :project => @package.devel.project, :package => dpackage) %>
+        </li>
+      <% end %>
+      <% if not @package.developed_packages.blank? %>
+        <li>
+          <%= image_tag 'icons/information.png' %>
+          Devel package for
+          <% @package.developed_packages.each_with_index do |pkg, index| %>
+            <%= ',' if index > 0 %>
+            <%= link_to("#{elide(pkg.project, 40)}", :action => 'show', :project => pkg.project, :package => pkg.name) %>
+          <% end %>
+        </li>
+      <% end %>
+
+      <% if @package.name =~ %r{^_patchinfo} %>
+        <li>
+          <%= image_tag 'icons/information.png' %>
+          Has a <%= link_to 'patchinfo', :controller => :patchinfo, :action => :show, :package => @package, :project => @project %>
+          for <%= link_to 'maintenance updates', 'http://wiki.opensuse.org/openSUSE:Maintenance' %>
+          <%#TODO: Fix this hard link %>
+        </li>
+      <% end %>
+
+      <% if @linking_packages and @linking_packages.size > 0 %>
+        <li>
+          <%= image_tag 'icons/information.png' %>
+          <%= @linking_packages.size %> <%= link_to_remote "derived packages", :url => { :action => :linking_packages, :project => @project, :package => @package } %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
   <% if (not @bugowners_mail.empty? and !BUGZILLA_HOST.nil?) or session[:login] %>
-    <div class="box show_left">
-      <div class="box-header header-tabs">
-        <ul>
-          <li class="selected"><a href="#">My Actions</a></li>
-        </ul>
-      </div>
+    <div class="grid_16 alpha omega">
       <ul class="horizontal-list">
         <% unless @bugowners_mail.empty? or BUGZILLA_HOST.nil? %>
           <li>
@@ -124,6 +120,10 @@
   <% end %>
 </div>
 
-<div class="grid_6 omega">
+<div class="grid_10 alpha box box-shadow">
+  TODO, show sources...
+</div>
+
+<div class="grid_6 omega box box-shadow">
   <%= render :partial => 'shared/buildresult_box', :locals => {:project => @project.value('name'), :package => @package.value('name')} %>
 </div>
