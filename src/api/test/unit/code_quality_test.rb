@@ -1,8 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'find'
 
-RAILS_BASE_PATH = File.dirname(__FILE__) + '/../../'
-RAILS_BASE_DIRS = ['app', 'db', 'config', 'lib', 'test', 'vendor/plugins'].map{|dir| RAILS_BASE_PATH + '/' + dir}
+RAILS_BASE_DIRS = ['app', 'db', 'config', 'lib', 'test'].map{|dir| Rails.root.join(dir) }
 
 class CodeQualityTest < ActiveSupport::TestCase
   def setup
