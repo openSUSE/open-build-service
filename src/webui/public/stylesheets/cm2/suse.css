@@ -1,5 +1,5 @@
 .CodeMirror {
-  line-height: 1em;
+  line-height: 1.1em;
   font-family: monospace;
 }
 
@@ -34,7 +34,7 @@
   border-radius: 0;
   border-width: 0; margin: 0; padding: 0; background: transparent;
   font-family: inherit;
-  font-size: inherit;
+  font-size: 1em;
   padding: 0; margin: 0;
   white-space: pre;
   word-wrap: normal;
@@ -131,9 +131,9 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   background:#eee;
   position:relative;
 }
-.codemirror-ui-button-frame input,.codemirror-ui-button-frame label {
+/*.codemirror-ui-button-frame input,.codemirror-ui-button-frame label {
   font-size:0.6em;
-}
+}*/
 .codemirror-ui-button-frame label input {
   margin:0px 2px;
   vertical-align:middle;
