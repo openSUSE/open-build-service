@@ -5,46 +5,72 @@
 
 <%= render :partial => "tabs" %>
 
-<% unless @parentprojects.blank? %>
-  <div class="section">
-    <h3>Parent projects of <%= @project %></h3>
-    <ul>
-      <% @parentprojects.each do |key, value| %>
-        <li>
-          <%= link_to key, :action => :show, :project => key %>
-          <% if value.has_element?(:title) and not value.title.text.empty? %>
-            <i>(<%= value.title %>)</i>
-          <% end %>
-        </li>
-      <% end %>
-    </ul>
+<% if @parentprojects.length > 0 %>
+  <h3>Parent projects of <%= @project %></h3>
+  <div class="show_left show_right clearfix"><%# TODO: Drop this bento hack %>
+    <table id="parentprojects_table">
+      <thead>
+        <tr>
+          <th>Parent project</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @parentprojects.each do |name, project| %>
+          <tr>
+            <td><%= link_to name, :action => 'show', :project => name %></td>
+            <td><%= project.value('title') %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
   </div>
 <% end %>
 
-<div class="section">
-  <h3><%= @pagetitle %></h3>
+<h3><%= @pagetitle %></h3>
+<% prjlen = @project.name.length %>
+<% if @subprojects.length > 0 %>
+  <div class="show_left show_right clearfix"><%# TODO: Drop this bento hack %>
+    <table id="subprojects_table">
+      <thead>
+        <tr>
+          <th>Subproject</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @subprojects.each do |name, project| %>
+          <tr>
+            <td><%= link_to name.slice(prjlen + 1, name.length), :action => 'show', :project => name %></td>
+            <td><%= project.value('title') %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <p><i>This projects has no subprojects</i></p>
+<% end %>
+<% if @project.can_edit?(session[:login]) %>
+  <p>
+    <%= link_to image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => :project, :action => :new, :ns => @project.name %>
+    <%= link_to 'Create subproject', :controller => :project, :action => :new, :ns => @project.name %>
+  </p>
+<% end %>
 
-  <% prjlen = @project.name.length %>
-  <% if !@subprojects.blank? %>
-    <ul>
-      <% @subprojects.each do |key, value| %>
-        <li>
-        <%= link_to key.slice(prjlen + 1, key.length), :action => :show, :project => key %>
-          <% if value.has_element?(:title) and not value.title.text.empty? %>
-            <i>(<%= value.title %>)</i>
-          <% end %>
-        </li>
-      <% end %>
-    </ul>
-  <% else %>
-    <p><i>No subprojects found</i></p>
+<% if @subprojects.length > 0 %>
+  <% javascript_tag do %>
+    $(document).ready(function() {
+      $.extend($.fn.dataTable.defaults, {
+        'iDisplayLength': 25,
+      });
+
+      $('#parentprojects_table').dataTable({
+        'bPaginate': false,
+        'bFilter': false,
+        'bInfo': false,
+      });
+      $('#subprojects_table').dataTable();
+    });
   <% end %>
-
-  <% if @project.can_edit?(session[:login]) %>
-    <p>
-      <%= link_to image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => :project, :action => :new, :ns => @project.name %>
-      <%= link_to 'Create subproject', :controller => :project, :action => :new, :ns => @project.name %>
-    </p>
-  <% end %>
-</div>
-
+<% end %>
