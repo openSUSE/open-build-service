@@ -9,7 +9,7 @@ instructions or use the OBS Appliance from
 
 There is also an install medium with installs OBS on hard disc now.
 
-README.UPDATERS file has informations for updaters.
+dist/README.UPDATERS file has informations for updaters.
 
 OBS Appliance users who have setup their LVM can just replace 
 their appliance image without data loss. The migration will 
@@ -70,10 +70,13 @@ Former OBS versions used lighttpd as default web server. We have switched to
 apache with mod_rails (known as passenger) as default web server. 
 We have also added an mod_xforward apache module to allow unloading the rails
 stack with long running requests to the backend.
-Please note that current apache2 versions have a known bug which cuts the http
-headers regardless to it's configuration. Please use apache2 from openSUSE:Tools
-project to get this fixed for now.
+Please note that apache2 version 2.2.10 has a known bug which cuts the http
+headers regardless to its configuration.  We created a patch for 2.2.10.  If
+you're using version 2.2.10, please use our patched apache2 from the openSUSE:Tools
+project.  Apache2 with version 2.2.12 or later from SLE11 SP1 (or later) already
+has the patch.
 Also the patched version of rubygem-passenger from openSUSE:Tools project is recommended.
+Anything later than version 3.0.8-2.24 should be sufficient.
 
 Known incompatible changes to OBS 2.1:
 ======================================
@@ -157,7 +160,8 @@ Requirements:
 
 * Use osc 0.134 or later to get access to the new features.
 
-* Usage of Ruby on Rails version 2.3.14 is recommended.
+* Usage of Ruby on Rails version 2.3.14 is recommended.  This should also be available
+  from the openSUSE:Tools project, so long as you're running SLES11 SP1 or later.
 
 General Notes:
 ==============
