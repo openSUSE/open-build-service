@@ -13,91 +13,93 @@
     <% end %>
   </div>
   <div class="grid_6 omega">
-    <ul class="clean_list">
-      <% if @is_maintenance_project %>
-        <li>
-          <% if @open_maintenance_incidents %>
-            <%= image_tag 'icons/accept.png' %>
-          <% else %>
-            <%= image_tag 'icons/exclamation.png' %>
-          <% end %>
-          <%= @open_maintenance_incidents.length %> <%= link_to "open incident#{@open_maintenance_incidents.length == 1 ? '' : 's'}", :action => 'maintenance_incidents', :project => @project %>
-        </li>
-        <li>
-          <% if @maintained_projects.length == 0 %>
-            <%= image_tag 'icons/exclamation.png' %>
-          <% else %>
-            <%= image_tag 'icons/accept.png' %>
-          <% end %>
-          <%= @maintained_projects.length %> <%= link_to("maintained project#{@maintained_projects.length == 1 ? '' : 's'}", :action => 'maintained_projects', :project => @project) %>
-        </li>
-      <% else %> <!-- also for incident project -->
-        <% if @nr_of_problem_packages and @nr_of_problem_packages > 0 %>
+    <% if (@is_maintenance_project || @nr_of_problem_packages && @nr_of_problem_packages > 0 || @has_patchinfo || @is_incident_project || @releasetargets.length > 0 || @project.is_remote? || @linking_projects.length > 0 || @project_maintenance_project || @project.is_locked?) %>
+      <ul class="clean_list">
+        <% if @is_maintenance_project %>
           <li>
-            <%= image_tag 'icons/exclamation.png' %>
-            <%= @nr_of_problem_packages %>
-            <%= link_to "build error#{@nr_of_problem_packages == 1 ? '' : 's'}", :action => 'monitor', :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0 %>
+            <% if @open_maintenance_incidents %>
+              <%= image_tag 'icons/accept.png' %>
+            <% else %>
+              <%= image_tag 'icons/exclamation.png' %>
+            <% end %>
+            <%= @open_maintenance_incidents.length %> <%= link_to "open incident#{@open_maintenance_incidents.length == 1 ? '' : 's'}", :action => 'maintenance_incidents', :project => @project %>
           </li>
-        <% end %>
-        <% if @has_patchinfo %>
           <li>
-            <%= image_tag 'icons/accept.png' %>
-            <%= link_to('Patchinfo present', :controller => 'patchinfo', :action => 'show', :project => @project, :package => 'patchinfo') %>
+            <% if @maintained_projects.length == 0 %>
+              <%= image_tag 'icons/exclamation.png' %>
+            <% else %>
+              <%= image_tag 'icons/accept.png' %>
+            <% end %>
+            <%= @maintained_projects.length %> <%= link_to("maintained project#{@maintained_projects.length == 1 ? '' : 's'}", :action => 'maintained_projects', :project => @project) %>
           </li>
-        <% end %>
-        <% if @is_incident_project %>
-          <% if !@has_patchinfo %>
+        <% else %> <!-- also for incident project -->
+          <% if @nr_of_problem_packages and @nr_of_problem_packages > 0 %>
             <li>
               <%= image_tag 'icons/exclamation.png' %>
-              <%= link_to_if(@project.can_edit?(session[:login]), 'Patchinfo missing', :controller => 'patchinfo', :action => 'new_patchinfo', :project => @project, :package => 'patchinfo') %>
+              <%= @nr_of_problem_packages %>
+              <%= link_to "build error#{@nr_of_problem_packages == 1 ? '' : 's'}", :action => 'monitor', :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0 %>
             </li>
           <% end %>
-          <% if @open_release_requests.length > 0 %>
+          <% if @has_patchinfo %>
             <li>
-              <%= image_tag 'icons/flag_green.png' %>
-              <%= @open_release_requests.length %>
-              <% if @open_release_requests.length == 1 %>
-                <%= link_to('release request', :controller => 'request', :action => 'show', :id => @open_release_requests[0].value('id')) %>
-              <% else %>
-                <%= link_to('release requests', :action => 'requests', :project => @project.value('name'), :type => 'maintenance_release') %>
-              <% end %>
+              <%= image_tag 'icons/accept.png' %>
+              <%= link_to('Patchinfo present', :controller => 'patchinfo', :action => 'show', :project => @project, :package => 'patchinfo') %>
+            </li>
+          <% end %>
+          <% if @is_incident_project %>
+            <% if !@has_patchinfo %>
+              <li>
+                <%= image_tag 'icons/exclamation.png' %>
+                <%= link_to_if(@project.can_edit?(session[:login]), 'Patchinfo missing', :controller => 'patchinfo', :action => 'new_patchinfo', :project => @project, :package => 'patchinfo') %>
+              </li>
+            <% end %>
+            <% if @open_release_requests.length > 0 %>
+              <li>
+                <%= image_tag 'icons/flag_green.png' %>
+                <%= @open_release_requests.length %>
+                <% if @open_release_requests.length == 1 %>
+                  <%= link_to('release request', :controller => 'request', :action => 'show', :id => @open_release_requests[0].value('id')) %>
+                <% else %>
+                  <%= link_to('release requests', :action => 'requests', :project => @project.value('name'), :type => 'maintenance_release') %>
+                <% end %>
+              </li>
+            <% end %>
+          <% end %>
+          <% if @releasetargets.length > 0 %>
+            <li>
+              <%= image_tag 'icons/information.png' %>
+              <%= link_to pluralize(@releasetargets.length, "Release Target"), :action => 'meta', :project => @project %>
             </li>
           <% end %>
         <% end %>
-        <% if @releasetargets.length > 0 %>
+
+        <%= render :partial => 'shared/open_requests' %>
+
+        <% if @project.is_remote? %>
           <li>
             <%= image_tag 'icons/information.png' %>
-            <%= link_to pluralize(@releasetargets.length, "Release Target"), :action => 'meta', :project => @project %>
+            This project is linking the remote obs instance at: <i><a href="<%= @project.value 'remoteurl' %>"><%= @project.value 'remoteurl' %></a></i>
           </li>
         <% end %>
-      <% end %>
-
-      <%= render :partial => 'shared/open_requests' %>
-
-      <% if @project.is_remote? %>
-        <li>
-          <%= image_tag 'icons/information.png' %>
-          This project is linking the remote obs instance at: <i><a href="<%= @project.value 'remoteurl' %>"><%= @project.value 'remoteurl' %></a></i>
-        </li>
-      <% end %>
-      <% if @linking_projects.size > 0 %>
-        <li>
-          <%= image_tag 'icons/information.png' %>
-          <%= @linking_projects.size %> <%= link_to_remote("linking project#{@linking_projects.size == 1 ? '' : 's'}", :url => {:action => 'linking_projects', :project => @project }) %>
-        </li>
-      <% end %>
-      <% if @project_maintenance_project %>
-        <li>
-          <%= image_tag('icons/accept.png') %>
-          Maintained by <%= link_to(@project_maintenance_project, :action => 'show', :project => @project_maintenance_project) %>
-        </li>
-      <% end %>
-      <% if @project.is_locked? %>
-        <li>
-          <%= image_tag 'icons/lock.png' %> is locked
-        </li>
-      <% end %>
-    </ul>
+        <% if @linking_projects.size > 0 %>
+          <li>
+            <%= image_tag 'icons/information.png' %>
+            <%= @linking_projects.size %> <%= link_to_remote("linking project#{@linking_projects.size == 1 ? '' : 's'}", :url => {:action => 'linking_projects', :project => @project }) %>
+          </li>
+        <% end %>
+        <% if @project_maintenance_project %>
+          <li>
+            <%= image_tag('icons/accept.png') %>
+            Maintained by <%= link_to(@project_maintenance_project, :action => 'show', :project => @project_maintenance_project) %>
+          </li>
+        <% end %>
+        <% if @project.is_locked? %>
+          <li>
+            <%= image_tag 'icons/lock.png' %> is locked
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
   </div>
   <% if (not @bugowners_mail.empty? and !BUGZILLA_HOST.nil?) or session[:login] %>
     <div class="grid_16 alpha omega">
@@ -207,17 +209,16 @@
   </div>
 <% end %>
 
-<% javascript_tag do %>
-  $(document).ready(function() {
-    $.extend($.fn.dataTable.defaults, {
-      'iDisplayLength': 25,
-    });
+<% if @packages.length > 0 %>
+  <% javascript_tag do %>
+    $(document).ready(function() {
+      $.extend($.fn.dataTable.defaults, {
+        'iDisplayLength': 25,
+      });
 
-    <% if @packages.length > 0 %>
       $('#packages_table').dataTable({
         "bSort": false,
       });
-    <% end %>
-  });
+    });
+  <% end %>
 <% end %>
-
