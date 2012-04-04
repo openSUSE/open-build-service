@@ -1,4 +1,4 @@
-<% @pagetitle = "Request #{@id}" %>
+<% @pagetitle = "#{reqtype(@req).capitalize} Request #{@id}" %>
 <% @layouttype = 'custom' %>
 <% @crumb_list = [link_to('Requests', :controller => :home, :action => :requests), @id] %>
 
