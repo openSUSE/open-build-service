@@ -65,6 +65,7 @@
               $('.review_descision_display').hide();
               index = event.target.id.split('review_descision_link_')[1]
               $('#review_descision_display_' + index).show();
+              return false;
             });
           <% end %>
         </div>
@@ -174,6 +175,7 @@
         $('.action_display').hide();
         index = event.target.id.split('action_select_link_')[1]
         $('#action_display_' + index).show();
+        return false;
       });
     <% end %>
   <% end %>
