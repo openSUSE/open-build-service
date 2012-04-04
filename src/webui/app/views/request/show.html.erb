@@ -22,7 +22,7 @@
   </div>
   <div class="grid_6 omega">
     <ul class="clean_list">
-      <li><%= image_tag('icons/user_green.png') %> Created by <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => @req.creator.value('login'), :no_icon => true} %> <%= fuzzy_time_string(@req.created_at.to_s) %></li>
+      <li><%= image_tag('icons/user_green.png') %> Created by <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => @req.creator.value('login'), :no_icon => true, :short => true} %> <%= fuzzy_time_string(@req.created_at.to_s) %></li>
       <li><%= image_tag('icons/information.png') %> In state <b><%= @state %></b></li>
       <% if @superseded_by %>
         <li><%= image_tag('icons/exclamation.png') %> Superseded by <%= link_to @superseded_by, :id => @superseded_by %></li>
@@ -66,15 +66,15 @@
       <p>
         <% if action[:type] == 'submit' %>
           <b>Submit
-            <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:sprj], :package => action[:spkg], :rev => action[:srev], :short => true} %>
+            <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:sprj], :package => action[:spkg], :rev => action[:srev]} %>
           to
-          <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:tprj], :package => action[:tpkg], :short => true} %>
+          <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:tprj], :package => action[:tpkg]} %>
           </b>
           <% if @can_handle_request && @is_target_maintainer %>
             <% if !action[:creator_is_target_maintainer] %>
               <%# TODO: Make this work for each submit action individually: %>
               <br/><%= check_box_tag(:add_submitter_as_maintainer, "#{action[:tprj]}_#_#{action[:tpkg]}", false, :class => 'submitter_is_maintainer_checkbox') %> Add
-              <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => @req.creator().login, :no_icon => true} %> as maintainer for
+              <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => @req.creator().login, :no_icon => true, :short => true} %> as maintainer for
               <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action[:tprj], :package => action[:tpkg], :short => true} %>
             <% end %>
 
@@ -131,28 +131,27 @@
       <% if action[:sourcediff] %>
         <% action[:sourcediff].each_with_index do |sourcediff, sourcediff_index| %>
           <div class="grid_10 alpha">
-              <h2 class="box-header">Source Diff</h2>
-              <% if action[:type] == 'delete' %>
-                <% project, package, rev = sourcediff[:old].project, sourcediff[:old].package, sourcediff[:old].rev %>
-              <% else %>
-                <% project, package, rev = sourcediff[:new].project, sourcediff[:new].package, sourcediff[:new].rev %>
-              <% end %>
+            <% if action[:type] == 'delete' %>
+              <% project, package, rev = sourcediff[:old].project, sourcediff[:old].package, sourcediff[:old].rev %>
+            <% else %>
+              <% project, package, rev = sourcediff[:new].project, sourcediff[:new].package, sourcediff[:new].rev %>
+            <% end %>
 
-              <% if action[:sourcediff].length != 1 %>
-                <h4>
-                  <%= sourcediff[:new].project %> / <%= sourcediff[:new].package %> (rev <%= sourcediff[:new].rev %>) -
-                  <%= sourcediff[:old].project %> / <%= sourcediff[:old].package %> (rev <%= sourcediff[:old].rev %>)
-                </h4>
-              <% end %>
+            <% if action[:sourcediff].length != 1 %>
+              <h4>
+                <%= sourcediff[:new].project %> / <%= sourcediff[:new].package %> (rev <%= sourcediff[:new].rev %>) -
+                <%= sourcediff[:old].project %> / <%= sourcediff[:old].package %> (rev <%= sourcediff[:old].rev %>)
+              </h4>
+            <% end %>
 
-              <%#TODO: Redo source/target link display %>
-              <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => sourcediff[:filenames], :files => sourcediff[:files], :source => {:project => project, :package => package, :rev => rev}, :css_id => "diff_action_#{action_index}_#{action[:type]}_#{sourcediff_index}", :editor_width => '550px'}) %>
+            <%#TODO: Redo source/target link display %>
+            <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => sourcediff[:filenames], :files => sourcediff[:files], :source => {:project => project, :package => package, :rev => rev}, :css_id => "diff_action_#{action_index}_#{action[:type]}_#{sourcediff_index}", :editor_width => '550px'}) %>
           </div>
           <div class="grid_6 omega">
-              <%= render :partial => 'shared/buildresult_box', :locals => {:project => project, :package => package, :index => action_index} %>
+            <%= render :partial => 'shared/buildresult_box', :locals => {:project => project, :package => package, :index => action_index} %>
             <% if sourcediff[:issues].length > 0 %>
-                <h2 class="box-header">Mentioned Issues (<%= sourcediff[:issues].length %>)</h2>
-                <%= render :partial => 'issues_table', :locals => {:issues => sourcediff[:issues]} %>
+              <p><b>Mentioned Issues (<%= sourcediff[:issues].length %>)</b></p>
+              <%= render :partial => 'issues_table', :locals => {:issues => sourcediff[:issues]} %>
             <% end %>
           </div>
         <% end %>
@@ -187,6 +186,7 @@
               $('.review_descision_display').hide();
               index = event.target.id.split('review_descision_link_')[1]
               $('#review_descision_display_' + index).show();
+              return false;
             });
           <% end %>
         </div>

@@ -1057,7 +1057,7 @@ class PackageController < ApplicationController
     @repo_arch_hash = {}
     @buildresult = find_hashed(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
     @buildresult.elements('result') do |result|
-      hash_key = valid_xml_id(result.value('repository'))
+      hash_key = valid_xml_id(elide(result.value('repository'), 30))
       @repo_arch_hash[hash_key] ||= []
       @repo_arch_hash[hash_key] << result['arch']
     end
