@@ -8,8 +8,7 @@
   <%= image_tag('ajax-loader.gif', :id => "rpmlint_spinner_#{index}", :class => 'hidden') %>
 </p>
 
-<p style="font-size: 0.8em; line-height: 1.2em;" id="rpmlint_display_<%= index %>">
-</p>
+<pre style="font-size: 0.8em;" class="plain" id="rpmlint_display_<%= index %>"></pre>
 
 <% javascript_tag do %>
   function update_arch_display(data) {
