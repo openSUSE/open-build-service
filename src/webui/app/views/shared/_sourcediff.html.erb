@@ -40,7 +40,7 @@
         <% file_id = "#{valid_xml_id(filename)}_#{css_id}_#{index}" %>
         <% file_diff_text = file_element.value(:diff) || '' %>
         <% file_state = file_element.value('state').capitalize %>
-        <% is_expanded = !file_state == 'Deleted' && !filename.include?('/') && (filename == '_patchinfo' || filename.ends_with?('.spec') || filename.ends_with?('.changes')) %>
+        <% is_expanded = file_state != 'Deleted' && !filename.include?('/') && (filename == '_patchinfo' || filename.ends_with?('.spec') || filename.ends_with?('.changes')) %>
         <tr id="diff_headline_<%= file_id %>">
           <td style="width: 16px"><%# NOTE: Hand-crafted value for both '[+]' and '[-]' %>
             <% if file_diff_text.length > 0 %>
