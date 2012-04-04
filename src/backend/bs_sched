@@ -3458,7 +3458,7 @@ sub checkpatchinfo {
     return ('excluded') unless $ok;
   }
 
-  return ('broken', $patchinfo->{'stopped'}) if $patchinfo->{'stopped'};
+  return ('broken', "patchinfo is stopped: ".$patchinfo->{'stopped'}) if $patchinfo->{'stopped'};
   return ('broken', 'patchinfo lacks category') unless $patchinfo->{'category'};
 
   my $ptype = 'local';
