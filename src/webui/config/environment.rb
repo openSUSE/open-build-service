@@ -46,6 +46,7 @@ init = Rails::Initializer.run do |config|
   config.gem 'erubis'
   config.gem 'rails_xss'
   config.gem 'nokogiri'
+  config.gem 'test-unit', :lib => false
   config.gem 'ci_reporter', :lib => false # ci_reporter generates XML reports for Test::Unit
   config.gem 'xmlhash'
   config.gem 'fast_xs'
