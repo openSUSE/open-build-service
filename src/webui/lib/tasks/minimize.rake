@@ -84,6 +84,9 @@ CSS_FILENAMES = [
   #'public/stylesheets/style.mobile.css',
 ]
 
+desc 'Mimimize all static assets'
+task :minimize => ['minimize:css', 'minimize:js']
+
 namespace :minimize do
 
   desc 'Minimize JavaScript with UglifyJS'
