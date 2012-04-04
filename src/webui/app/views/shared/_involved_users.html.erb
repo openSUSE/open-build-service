@@ -45,59 +45,53 @@
 
 <div id="involved_users">
   <% if @users and @users.length > 0 %>
-    <h3>Users <%= image_tag 'ajax-loader.gif', :id => 'user_spinner', :class => 'hidden' %></h3>
-    <table cellspacing='1' id="user_table" class="tablesorter">
-      <thead>
-        <tr>
-          <th>User</th>
-          <th colspan="<%= @roles.length %>">Roles</th>
-          <th>Actions</th>
-        </tr>
-        <tr>
-          <td></td>
-          <% @roles.each do |role| %>
-            <td><%= role.capitalize %></td>
-          <% end %>
-          <td></td>
-        </tr>
-      </thead>
-      <tbody>
-        <% @users.each do |user| %>
+    <h3>User Roles <%= image_tag 'ajax-loader.gif', :id => 'user_spinner', :class => 'hidden' %></h3>
+    <div class="show_left show_right clearfix"><%# TODO: Drop this bento hack %>
+      <table id="user_table">
+        <thead>
           <tr>
-            <td><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => user}%></td>
+            <td>Username</td>
             <% @roles.each do |role| %>
+              <td><%= role.capitalize %></td>
+            <% end %>
+            <td></td>
+          </tr>
+        </thead>
+        <tbody>
+          <% @users.each do |user| %>
+            <tr>
+              <td><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => user}%></td>
+              <% @roles.each do |role| %>
+                <td>
+                  <% if defined? @package %>
+                    <%= check_box_tag("user_" + role + "_" + user, '', @package.user_has_role?(user, role), :disabled => true, :class => "trigger") %>
+                    <% if @project.user_has_role?(user, role) %>
+                      <%= link_to(image_tag('project.png', :alt => "Inherited from project", :title => "Inherited from project"), :controller => "project", :action => "users", :project => @project) %>
+                    <% end %>
+                  <% else %>
+                    <%= check_box_tag("user_" + role + "_" + user, '', @project.user_has_role?(user, role), :disabled => true, :class => "trigger") %>
+                  <% end %>
+                  <% if @user and @user.is_maintainer?(@project, @package) %>
+                    <% javascript_tag do %>
+                      $('#user_<%= role %>_<%= user %>').enable();
+                      $('#user_<%= role %>_<%= user %>').change(change_role);
+                    <% end %>
+                  <% end %>
+                </td>
+              <% end %>
               <td>
-                <% if defined? @package %>
-                  <%= check_box_tag("user_" + role + "_" + user, '', @package.user_has_role?(user, role), :disabled => true, :class => "trigger") %>
-                  <% if @project.user_has_role?(user, role) %>
-                    <%= link_to(image_tag('project.png', :alt => "Inherited from project", :title => "Inherited from project"), :controller => "project", :action => "users", :project => @project) %>
-                  <% end %>
-                <% else %>
-                  <%= check_box_tag("user_" + role + "_" + user, '', @project.user_has_role?(user, role), :disabled => true, :class => "trigger") %>
-                <% end %>
+                <% mail_to = 'mailto:' + Person.email_for_login(user) + '?subject=openSUSE%20Build%20Service%20-%20' + @project.name %>
+                <% mail_to += '/' + @package.name if defined? @package %>
+                <%= link_to(image_tag('icons/email.png', :alt => "Send mail", :title => "Send mail to user"), mail_to) %>
                 <% if @user and @user.is_maintainer?(@project, @package) %>
-                  <% javascript_tag do %>
-                    $('#user_<%= role %>_<%= user %>').enable();
-                    $('#user_<%= role %>_<%= user %>').change(change_role);
-                  <% end %>
+                  <%= link_to image_tag('icons/user_delete.png', :alt => "Remove", :title => "Remove user"), {:action => "remove_person", :project => @project, :package => @package, :userid => user}, {:confirm => "Really remove '#{user}'?", :method => :post}%>
                 <% end %>
               </td>
-            <% end %>
-            <td>
-              <% mail_to = 'mailto:' + Person.email_for_login(user) + '?subject=openSUSE%20Build%20Service%20-%20' + @project.name %>
-              <% mail_to += '/' + @package.name if defined? @package %>
-              <%= link_to(image_tag('icons/email.png', :alt => "Send mail", :title => "Send mail to user"), mail_to) %>
-              <% if @user and @user.is_maintainer?(@project, @package) %>
-                <%= link_to image_tag('icons/user_delete.png', :alt => "Remove", :title => "Remove user"), {:action => "remove_person", :project => @project, :package => @package, :userid => user}, {:confirm => "Really remove '#{user}'?", :method => :post}%>
-              <% end %>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-    <% javascript_tag do %>
-      $('#user_table').tablesorter({ widgets: ['zebra'], sortList: [[0,0]], headers: {1: {sorter: false}, 2: {sorter: false}} });
-    <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
   <% end %>
   <% if @user and @user.is_maintainer?(@project, @package) %>
     <p>
@@ -107,60 +101,52 @@
   <% end %>
 
   <% if @groups and @groups.length > 0 %>
-    <h3>Groups <%= image_tag 'ajax-loader.gif', :id => 'group_spinner', :class => 'hidden' %></h3>
-    <table cellspacing='1' id="group_table" class="tablesorter">
-      <thead>
-        <tr>
-          <th>Group</th>
-          <th colspan="<%= @roles.length %>">Roles</th>
-          <% if @user and @user.is_maintainer?(@project, @package) %>
-            <th>Actions</th>
-          <% end %>
-        </tr>
-        <tr>
-          <td></td>
-          <% @roles.each do |role| %>
-            <td><%= role.capitalize %></td>
-          <% end %>
-          <% if @user and @user.is_maintainer?(@project, @package) %>
-            <td></td>
-          <% end %>
-        </tr>
-      </thead>
-      <tbody>
-        <% @groups.each do |group| %>
+    <h3>Group Roles <%= image_tag 'ajax-loader.gif', :id => 'group_spinner', :class => 'hidden' %></h3>
+    <div class="show_left show_right clearfix"><%# TODO: Drop this bento hack %>
+      <table id="group_table">
+        <thead>
           <tr>
-            <td><%= group %></td>
+            <td>Group name</td>
             <% @roles.each do |role| %>
-              <td>
-                <% if defined? @package %>
-                  <%= check_box_tag("group_" + role + "_" + group, '', @package.group_has_role?(group, role), :disabled => true, :class => :trigger) %>
-                  <% if @project.group_has_role?(group, role) %>
-                    <%= link_to(image_tag('project.png', :alt => "Inherited from project", :title => "Inherited from project"), :controller => "project", :action => "users", :project => @project) %>
-                  <% end %>
-                <% else %>
-                  <%= check_box_tag("group_" + role + "_" + group, '', @project.group_has_role?(group, role), :disabled => true, :class => :trigger) %>
-                <% end %>
-                <% if @user and @user.is_maintainer?(@project, @package) %>
-                  <% javascript_tag do %>
-                    $('#group_<%= role %>_<%= group %>').enable();
-                    $('#group_<%= role %>_<%= group %>').change(change_role);
-                  <% end %>
-                <% end %>
-              </td>
+              <td><%= role.capitalize %></td>
             <% end %>
             <% if @user and @user.is_maintainer?(@project, @package) %>
-              <td>
-                <%= link_to image_tag('icons/group_delete.png', :alt => "Remove", :title => "Remove group"), {:action => "remove_group", :project => @project, :package => @package, :groupid => group}, {:confirm => "Really remove '#{group}'?", :method => :post}%>
-              </td>
+              <td></td>
             <% end %>
           </tr>
-        <% end %>
-      </tbody>
-    </table>
-    <% javascript_tag do %>
-      $('#group_table').tablesorter({ widgets: ['zebra'], sortList: [[0,0]], headers: {1: {sorter: false}, 2: {sorter: false}} });
-    <% end %>
+        </thead>
+        <tbody>
+          <% @groups.each do |group| %>
+            <tr>
+              <td><%= group %></td>
+              <% @roles.each do |role| %>
+                <td>
+                  <% if defined? @package %>
+                    <%= check_box_tag("group_" + role + "_" + group, '', @package.group_has_role?(group, role), :disabled => true, :class => :trigger) %>
+                    <% if @project.group_has_role?(group, role) %>
+                      <%= link_to(image_tag('project.png', :alt => "Inherited from project", :title => "Inherited from project"), :controller => "project", :action => "users", :project => @project) %>
+                    <% end %>
+                  <% else %>
+                    <%= check_box_tag("group_" + role + "_" + group, '', @project.group_has_role?(group, role), :disabled => true, :class => :trigger) %>
+                  <% end %>
+                  <% if @user and @user.is_maintainer?(@project, @package) %>
+                    <% javascript_tag do %>
+                      $('#group_<%= role %>_<%= group %>').enable();
+                      $('#group_<%= role %>_<%= group %>').change(change_role);
+                    <% end %>
+                  <% end %>
+                </td>
+              <% end %>
+              <% if @user and @user.is_maintainer?(@project, @package) %>
+                <td>
+                  <%= link_to image_tag('icons/group_delete.png', :alt => "Remove", :title => "Remove group"), {:action => "remove_group", :project => @project, :package => @package, :groupid => group}, {:confirm => "Really remove '#{group}'?", :method => :post}%>
+                </td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
   <% end %>
   <% if @user and @user.is_maintainer?(@project, @package) %>
     <p>
@@ -169,3 +155,26 @@
     </p>
   <% end %>
 </div>
+
+<% javascript_tag do %>
+  $(document).ready(function() {
+    <% if @users and @users.length > 0 %>
+      $('#user_table').dataTable({
+        'aoColumns': [
+          null, 
+          <% @roles.length.times do %>null,<% end %>
+          {'bSortable': false}
+        ]
+      });
+    <% end %>
+    <% if @groups and @groups.length > 0 %>
+      $('#group_table').dataTable({
+        'aoColumns': [
+          null, 
+          <% @roles.length.times do %>null,<% end %>
+          {'bSortable': false}
+        ]
+      });
+    <% end %>
+  });
+<% end %>
