@@ -61,10 +61,6 @@
 <% if @subprojects.length > 0 %>
   <% javascript_tag do %>
     $(document).ready(function() {
-      $.extend($.fn.dataTable.defaults, {
-        'iDisplayLength': 25,
-      });
-
       $('#parentprojects_table').dataTable({
         'bPaginate': false,
         'bFilter': false,

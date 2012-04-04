@@ -212,10 +212,6 @@
 <% if @packages.length > 0 %>
   <% javascript_tag do %>
     $(document).ready(function() {
-      $.extend($.fn.dataTable.defaults, {
-        'iDisplayLength': 25,
-      });
-
       $('#packages_table').dataTable({
         "bSort": false,
       });
