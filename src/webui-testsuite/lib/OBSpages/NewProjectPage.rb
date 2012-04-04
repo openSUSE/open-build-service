@@ -31,7 +31,7 @@ class NewProjectPage < BuildServicePage
   def initialize web_driver, options={}
     super
     @namespace = options[:namespace] || ""
-    @user ||= $data[:user]
+    assert @user != :none
     @url = $data[:url] + "/project/new"
     unless @namespace == ""
       namespace = @namespace.clone
