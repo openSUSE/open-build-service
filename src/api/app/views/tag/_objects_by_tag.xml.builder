@@ -4,13 +4,13 @@ if @tag.class == Tag
 end 
 
 
-xml.collection(:tag => CGI::escapeHTML(@tag)) do
+xml.collection(:tag => @tag) do
 
   if @projects
     @projects.each do |project|
-      xml.project(:name => project.name, :title => CGI::escapeHTML(project.title) ) do
-        project.tags.find(:all, :group => "name").each do |tag|
-          xml.tag(:name => CGI::escapeHTML(tag.name))
+      xml.project(:name => project.name, :title => project.title ) do
+        project.tags.each do |tag|
+          xml.tag(:name => tag.name)
         end
      end
     end
@@ -18,9 +18,9 @@ xml.collection(:tag => CGI::escapeHTML(@tag)) do
   
   if @packages 
     @packages.each do |package|
-      xml.package(:project => package.db_project.name, :name => package.name, :title => CGI::escapeHTML(package.title) ) do
-        package.tags.find(:all, :group => "name").each do |tag|
-          xml.tag(:name => CGI::escapeHTML(tag.name))
+      xml.package(:project => package.db_project.name, :name => package.name, :title => package.title ) do
+        package.tags.each do |tag|
+          xml.tag(:name => tag.name)
         end
       end
     end

@@ -93,7 +93,6 @@ class IssueTracker < ActiveRecord::Base
   def enforced_update_all_issues()
     update_time_stamp = Time.at(Time.now.to_f - 5)
 
-    issues = Issue.find :all, :conditions => ["issue_tracker_id = BINARY ?", self.id]
     ids = issues.map{ |x| x.name.to_s }
 
     if private_fetch_issues(ids)
@@ -107,7 +106,7 @@ class IssueTracker < ActiveRecord::Base
   def fetch_issues(issues=nil)
     unless issues
       # find all new issues for myself
-      issues = Issue.find :all, :conditions => ["ISNULL(state) and issue_tracker_id = BINARY ?", self.id]
+      issues = self.issues.stateless
     end
 
     ids = issues.map{ |x| x.name.to_s }

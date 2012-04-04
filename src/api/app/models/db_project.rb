@@ -156,65 +156,6 @@ class DbProject < ActiveRecord::Base
       return !dbp.project_user_role_relationships.where("db_project_id = ? and bs_user_id = ?", dbp.id, User.currentID).first.nil?
     end
 
-    # own version of find
-    def find_later(*args)
-      options = args.extract_options!
-      validate_find_options(options)
-      set_readonly_option!(options)
-
-      def securedfind_byids(args,options)
-        dbp=find_from_ids(args,options)
-        return if dbp.nil?
-        return unless check_access?(dbp)
-        return dbp
-      end
-
-      def securedfind_every(options)
-        unless User.currentAdmin
-          # limit to projects which have no "access" flag, except user has any role inside
-          # FIXME3.0: we should limit this to maintainer and reader role only ?
-          #            
-	  fprjs = ProjectUserRoleRelationship.forbidden_project_ids
-          cond = "(db_projects.id not in (#{fprjs.join(',')}))" unless fprjs.blank?
-          if options[:conditions].nil?
-            options[:conditions] = cond if cond
-          else
-            if options[:conditions].class == String
-              options[:conditions] = options[:conditions] # TDWTF ?!?
-            elsif options[:conditions].class == Hash and cond
-              wacky = ''
-              options[:conditions].keys.each {|k| wacky += ' AND (' + k.to_s + ')'}
-              options[:conditions] = cond + wacky
-            else
-              options[:conditions][0] = cond + "AND (" + options[:conditions][0] + ")" if cond
-            end
-          end
-        end
-        return find_every(options)
-      end
-
-      def securedfind_last(options)
-        dbp = find_last(options)
-        return if dbp.nil?
-        return unless check_access?(dbp)
-        return dbp
-      end
-
-      def securedfind_initial(options)
-        dbp = find_initial(options)
-        return if dbp.nil?
-        return unless check_access?(dbp)
-        return dbp
-      end
-
-      case args.first
-        when :first then securedfind_initial(options)
-        when :last  then securedfind_last(options)
-        when :all   then securedfind_every(options)
-        else    securedfind_byids(args, options)
-      end
-    end
-    
     # returns an object of project(local or remote) or raises an exception
     # should be always used when a project is required
     # The return value is either a DbProject for local project or an xml 
@@ -235,7 +176,7 @@ class DbProject < ActiveRecord::Base
 
     # to check existens of a project (local or remote)
     def exists_by_name(name)
-      dbp = find :first, :conditions => ["name = BINARY ?", name]
+      dbp = where("name = BINARY ?", name).first
       if dbp.nil?
         return true if find_remote_project(name)
         return false

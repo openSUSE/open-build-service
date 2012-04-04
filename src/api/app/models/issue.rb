@@ -5,6 +5,8 @@ class Issue < ActiveRecord::Base
   belongs_to :issue_tracker
   belongs_to :owner, :class_name => "User"
 
+  scope :stateless, where("state is NULL")
+
   def self.get_by_name_and_tracker( name, issue_tracker_name, force_update=nil )
     issue_tracker = IssueTracker.find_by_name( issue_tracker_name )
     raise IssueTrackerNotFoundError.new( "Error: Issue Tracker '#{issue_tracker_name}' not found." ) unless issue_tracker
