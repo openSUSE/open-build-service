@@ -3964,6 +3964,17 @@ sub sourcediff {
     BSServer::reply_file(\*F, $view eq 'xml' ? 'Content-Type: text/xml' : 'Content-Type: text/plain');
     return undef;
   }
+  local *LF;
+  mkdir_p("$diffcache/".substr($cacheid, 0, 2));
+  BSUtil::lockopen(\*LF, '>>', "$cn.run");
+  # retry open, maybe somebody else has created the diff meanwhile
+  if (open(F, '<', $cn)) {
+    unlink("$cn.run");
+    close LF;
+    utime(time, time, $cn);
+    BSServer::reply_file(\*F, $view eq 'xml' ? 'Content-Type: text/xml' : 'Content-Type: text/plain');
+    return undef;
+  }
   my $tmpdir = "$uploaddir/srcdiff$$";
   my $d;
   if ($view eq 'xml') {
@@ -3983,6 +3994,8 @@ sub sourcediff {
   }
   mkdir_p("$diffcache/".substr($cacheid, 0, 2));
   writestr("$diffcache/.new$$", $cn, $d);
+  unlink("$cn.run");
+  close LF;
   return ($d, $view eq 'xml' ? 'Content-Type: text/xml' : 'Content-Type: text/plain');
 }
 
