@@ -277,6 +277,7 @@ module ActiveXML
 
     def to_s
       #raise "to_s is obsolete #{self.inspect}"
+      return '<empty node>' unless _data
       ret = ''
       _data.children.each do |node|
         if node.text?
