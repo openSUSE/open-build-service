@@ -30,8 +30,8 @@ class ActiveRbac::GroupController < ActiveRbac::ComponentController
   # Display a form to create a new group on GET. Handle the form submission
   # from this form on POST and display errors if there were any.
   def create
-    # disllow the group create if LDAP_GROUP_SUPPORT and DISALLOW_GROUP_CREATION_WITH_API is :on
-    if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
+    # disllow the group create if CONFIG['ldap_group_support'] and DISALLOW_GROUP_CREATION_WITH_API is :on
+    if defined?( CONFIG['ldap_group_support'] ) && CONFIG['ldap_group_support'] == :on
       if defined?( DISALLOW_GROUP_CREATION_WITH_API ) && DISALLOW_GROUP_CREATION_WITH_API == :on
         flash[:error] = 'LDAP mode enabled, groups can only be created via LDAP.'
         redirect_to :action => 'list'

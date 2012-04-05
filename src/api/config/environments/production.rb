@@ -91,7 +91,7 @@ LDAP_SN_ATTR_REQUIRED = :on
 # Whether to search group info from ldap, it does not take effect
 # when LDAP_GROUP_SUPPOR is not set.
 # Please also set below LDAP_GROUP_* configs correctly to ensure the operation works properly
-LDAP_GROUP_SUPPORT = :off
+CONFIG['ldap_group_support'] = :off
 # OVERRIDE with your company's ldap search base for groups
 LDAP_GROUP_SEARCH_BASE = "ou=OBSGROUPS,dc=EXAMPLE,dc=COM"
 # The attribute the group name is stored in
@@ -105,7 +105,7 @@ LDAP_GROUP_MEMBER_ATTR = "member"
 # The attribute the user memberof is stored in
 # LDAP_USER_MEMBEROF_ATTR = "memberof"
 
-# Do not allow creating group via API to avoid the conflicts when LDAP_GROUP_SUPPORT is :on
+# Do not allow creating group via API to avoid the conflicts when CONFIG['ldap_group_support'] is :on
 # If you do want to import the group data from LDAP to OBS DB manuallly, please set if to :off
 DISALLOW_GROUP_CREATION_WITH_API = :on
 

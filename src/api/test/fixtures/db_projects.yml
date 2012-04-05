@@ -155,7 +155,7 @@ db_projects_226:
   maintenance_project_id: 
   type_id: 
   develproject_id: 
-db_projects_3000:
+HiddenProject:
   id: 3000
   name: HiddenProject
   title: This project is not visible and not accessable except for adrian

@@ -20,6 +20,7 @@ class Role < ActiveRecord::Base
   belongs_to :roles_static_permissions
   belongs_to :roles_users
 
+  scope :global, where(:global => true)
 
   class << self
     def rolecache

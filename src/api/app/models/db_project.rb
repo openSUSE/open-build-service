@@ -140,7 +140,7 @@ class DbProject < ActiveRecord::Base
             # LDAP
 # FIXME: please do not do special things here for ldap. please cover this in a generic group modell.
             if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
-              if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
+              if defined?( CONFIG['ldap_group_support'] ) && CONFIG['ldap_group_support'] == :on
                 if us.user_in_group_ldap?(User.currentID, group.bs_group_id)
                   ret = ret + 1
                 end
@@ -490,7 +490,7 @@ class DbProject < ActiveRecord::Base
           if !(group=Group.find_by_title(ge.groupid))
             # check with LDAP
             if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
-              if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
+              if defined?( CONFIG['ldap_group_support'] ) && CONFIG['ldap_group_support'] == :on
                 if User.find_group_with_ldap(ge.groupid)
                   logger.debug "Find and Create group '#{ge.groupid}' from LDAP"
                   newgroup = Group.create( :title => ge.groupid )

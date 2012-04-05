@@ -1,9 +1,9 @@
-project_group_role_relationships_570062654:
+test_group_maintainer_HiddenProject:
   id: 570062654
   db_project_id: 3000
   bs_group_id: 99
   role_id: 3
-project_group_role_relationships_572565733:
+test_group_maintainer_kde4:
   id: 572565733
   db_project_id: 2
   bs_group_id: 99

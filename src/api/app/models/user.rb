@@ -95,7 +95,7 @@ class User < ActiveRecord::Base
       end
       person.realname( realname )
 
-      self.roles.find(:all, :conditions => [ "global = true" ]).each do |role|
+      self.roles.global.each do |role|
         person.globalrole( role.title )
       end
 
@@ -270,7 +270,7 @@ class User < ActiveRecord::Base
 
     return true  if is_admin?
 
-    abies = object.attrib_namespace_modifiable_bies.find(:all, :include => [:user, :group])
+    abies = object.attrib_namespace_modifiable_bies.includes([:user, :group])
     abies.each do |mod_rule|
       next if mod_rule.user and mod_rule.user != self
       next if mod_rule.group and not is_in_group? mod_rule.group
@@ -358,13 +358,6 @@ class User < ActiveRecord::Base
     return false
   end
 
-  # add deprecation warning to has_permission method
-  alias_method :has_global_permission?, :has_permission?
-  def has_permission?(*args)
-    logger.warn "DEPRECATION: User#has_permission? is deprecated, use User#has_global_permission?"
-    has_global_permission?(*args)
-  end
-
   def groups_ldap ()
     logger.debug "List the groups #{self.login} is in"
     ldapgroups = Array.new
@@ -397,33 +390,12 @@ class User < ActiveRecord::Base
     return false
   end
   
-  def local_permission_check_with_ldap ( perm_string, object)
-    logger.debug "Checking permission with ldap: object '#{object.name}', perm '#{perm_string}'" 
-    rel = StaticPermission.where("title = ?", perm_string).first
-    if rel
-      static_permission_id = rel.id
-      logger.debug "Get perm_id '#{static_permission_id}'" 
-    else
-      logger.debug "Failed to search the static_permission_id"
-      return false
-    end
-                                                       
-    case object
-      when DbPackage
-        rels = PackageGroupRoleRelationship.find :all, :joins => "LEFT OUTER JOIN roles_static_permissions rolperm ON rolperm.role_id = package_group_role_relationships.role_id", 
-                                                  :conditions => ["rolperm.static_permission_id = ? and db_package_id = ?", static_permission_id, object],
-                                                  :include => :group            
-      when DbProject
-        rels = ProjectGroupRoleRelationship.find :all, :joins => "LEFT OUTER JOIN roles_static_permissions rolperm ON rolperm.role_id = project_group_role_relationships.role_id", 
-                                                  :conditions => ["rolperm.static_permission_id = ? and db_project_id = ?", static_permission_id, object],
-                                                  :include => :group
-    end    
-
-    rels.each do |r|
+  def local_permission_check_with_ldap ( group_relationships )
+    group_relationships.each do |r|
       return false if r.group.nil?
       #check whether current user is in this group
-      return true if user_in_group_ldap?(self.login, r.group.title) 
-    end  
+      return true if user_in_group_ldap?(self.login, r.group) 
+    end
     logger.debug "Failed with local_permission_check_with_ldap"
     return false
   end
@@ -433,16 +405,14 @@ class User < ActiveRecord::Base
     logger.debug "Checking role with ldap: object #{object.name}, role #{role.title}"
     case object
       when DbPackage
-        rels = PackageGroupRoleRelationship.find :all, :conditions => ["db_package_id = ? and role_id = ?", object, role], 
-                                                     :include => [:group]                                              
+        rels = object.package_group_role_relationships.where(:role_id => role.id).includes(:group)
       when DbProject
-        rels = ProjectGroupRoleRelationship.find :all, :conditions => ["db_project_id = ? and role_id = ?", object, role],
-                                                     :include => [:group]
+        rels = object.project_group_role_relationships.where(:role_id => role.id).includes(:group)
     end
     for rel in rels
       return false if rel.group.nil?
       #check whether current user is in this group
-      return true if user_in_group_ldap?(self.login, rel.group.title) 
+      return true if user_in_group_ldap?(self.login, rel.group) 
     end
     logger.debug "Failed with local_role_check_with_ldap"
     return false
@@ -454,8 +424,7 @@ class User < ActiveRecord::Base
         logger.debug "running local role package check: user #{self.login}, package #{object.name}, role '#{role.title}'"
         rels = object.package_user_role_relationships.where(:role_id => role.id, :bs_user_id => self.id).first
         return true if rels
-        rels = PackageGroupRoleRelationship.find :first, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = bs_group_id", 
-                                                  :conditions => ["ug.user_id = ? and db_package_id = ? and role_id = ?", self, object, role]
+	rels = object.package_group_role_relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where(:role_id => role.id).first
         return true if rels
 
         # check with LDAP
@@ -468,8 +437,7 @@ class User < ActiveRecord::Base
         logger.debug "running local role project check: user #{self.login}, project #{object.name}, role '#{role.title}'"
         rels = object.project_user_role_relationships.where(:role_id => role.id, :bs_user_id => self.id).first
         return true if rels
-        rels = ProjectGroupRoleRelationship.find :first, :joins => "LEFT OUTER JOIN groups_users ug ON ug.group_id = bs_group_id", 
-                                                  :conditions => ["ug.user_id = ? and db_project_id = ? and role_id = ?", self, object, role], :select => "ug.user_id"
+        rels = object.project_group_role_relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where(:role_id => role.id).first
         return true if rels
 
         # check with LDAP
@@ -489,46 +457,44 @@ class User < ActiveRecord::Base
   def has_local_permission?( perm_string, object )
     roles = Role.ids_with_permission(perm_string)
     return false unless roles
+    users = nil
+    groups = nil
+    parent = nil
     case object
     when DbPackage
       logger.debug "running local permission check: user #{self.login}, package #{object.name}, permission '#{perm_string}'"
       #check permission for given package
-      rel = object.package_user_role_relationships.where(:bs_user_id => self.id).joins(:role).where("roles.id in (?)", roles).first
-      return true if rel
-      rel = object.package_group_role_relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).joins(:role).where("roles.id in (?)", roles).first
-      return true if rel
-
-      # check with LDAP
-      if User.ldapgroup_enabled?
-        return true if local_permission_check_with_ldap(perm_string, object)
-      end
-
-      #check permission of parent project
-      logger.debug "permission not found, trying parent project '#{object.db_project.name}'"
-      return has_local_permission?(perm_string, object.db_project)
+      users = object.package_user_role_relationships
+      groups = object.package_group_role_relationships
+      parent = object.db_project
     when DbProject
       logger.debug "running local permission check: user #{self.login}, project #{object.name}, permission '#{perm_string}'"
       #check permission for given project
-      rel = object.project_user_role_relationships.where(:bs_user_id => self.id).joins(:role).where("roles.id in (?)", roles).first
-      return true if rel
-      rel = object.project_group_role_relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).joins(:role).where("roles.id in (?)", roles).first
-      return true if rel
-
-      # check with LDAP
-      if User.ldapgroup_enabled?
-        return true if local_permission_check_with_ldap(perm_string, object)
-      end
-
-      if (parent = object.find_parent)
-        logger.debug "permission not found, trying parent project '#{parent.name}'"
-        #recursively step down through parent projects
-        return has_local_permission?(perm_string, parent)
-      end
-      return false
+      users = object.project_user_role_relationships
+      groups = object.project_group_role_relationships
+      parent = object.find_parent
     when nil
       return has_global_permission?(perm_string)
     else
+      return false
     end
+    rel = users.where(:bs_user_id => self.id).where("role_id in (?)", roles).first
+    return true if rel
+    rel = groups.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where("role_id in (?)", roles).first
+    return true if rel
+
+    # check with LDAP
+    if User.ldapgroup_enabled?
+      return true if local_permission_check_with_ldap(groups.where("role_id in (?)", roles))
+    end
+    
+    if parent 
+      #check permission of parent project
+      logger.debug "permission not found, trying parent project '#{object.db_project.name}'"
+      return has_local_permission?(perm_string, parent)
+    end
+
+    return false
   end
 
   def involved_projects_ids

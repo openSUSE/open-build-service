@@ -1,9 +1,9 @@
-attrib_namespace_modifiable_bies_624394835:
+king_can_change_obs:
   id: 624394835
   attrib_namespace_id: 9
   bs_user_id: 2
   bs_group_id: 
-attrib_namespace_modifiable_bies_624394844:
+Admin_can_change_obs:
   id: 624394844
   attrib_namespace_id: 9
   bs_user_id: 280

@@ -545,7 +545,7 @@ class DbPackage < ActiveRecord::Base
           unless group
             # check with LDAP
             if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
-              if defined?( LDAP_GROUP_SUPPORT ) && LDAP_GROUP_SUPPORT == :on
+              if defined?( CONFIG['ldap_group_support'] ) && CONFIG['ldap_group_support'] == :on
                 if User.find_group_with_ldap(ge.groupid)
                   logger.debug "Find and Create group '#{ge.groupid}' from LDAP"
                   newgroup = Group.create( :title => ge.groupid )

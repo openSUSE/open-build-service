@@ -121,7 +121,7 @@ class AttributeController < ApplicationController
     end
 
     if request.get?
-      at = ans.attrib_types.find( :first, :conditions=>{:name=>name} )
+      at = ans.attrib_types.where(:name => name).first
       if at
         render :text => at.render_axml, :content_type => 'text/xml'
       else
