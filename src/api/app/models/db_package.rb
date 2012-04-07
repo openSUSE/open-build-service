@@ -720,10 +720,7 @@ class DbPackage < ActiveRecord::Base
   end
 
   def each_user( opt={}, &block )
-    users = User.find :all,
-      :select => "bu.*, r.title AS role_name",
-      :joins => "bu, package_user_role_relationships purr, roles r",
-      :conditions => ["bu.id = purr.bs_user_id AND purr.db_package_id = ? AND r.id = purr.role_id", self.id]
+    users = package_user_role_relationships.joins(:role, :user).select("users.login as login, roles.title AS role_name")
     if( block )
       users.each do |u|
         block.call u
@@ -733,10 +730,7 @@ class DbPackage < ActiveRecord::Base
   end
 
   def each_group( opt={}, &block )
-    groups = Group.find :all,
-      :select => "bg.*, r.title AS role_name",
-      :joins => "bg, package_group_role_relationships pgrr, roles r",
-      :conditions => ["bg.id = pgrr.bs_group_id AND pgrr.db_package_id = ? AND r.id = pgrr.role_id", self.id]
+    groups = package_group_role_relationships.joins(:role, :group).select("groups.title as title, roles.title as role_name")
     if( block )
       groups.each do |g|
         block.call g

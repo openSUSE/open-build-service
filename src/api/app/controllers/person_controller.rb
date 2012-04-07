@@ -21,9 +21,9 @@ class PersonController < ApplicationController
     end
 
     if params[:prefix]
-      list = User.find(:all, :conditions => ["login LIKE ?", params[:prefix] + '%'])
+      list = User.where("login LIKE ?", params[:prefix] + '%').all
     else
-      list = User.all()
+      list = User.all
     end
 
     builder = Builder::XmlMarkup.new(:indent => 2)
@@ -211,11 +211,11 @@ class PersonController < ApplicationController
     remove_from_watchlist = old_watchlist.collect {|i| new_watchlist.include?(i) ? nil : i}.compact
 
     remove_from_watchlist.each do |name|
-      WatchedProject.find_by_name( name, :conditions => [ 'bs_user_id = ?', user.id ] ).destroy
+      user.watched_projects.find_by_name(name).destroy
     end
 
     add_to_watchlist.each do |name|
-      user.watched_projects << WatchedProject.new( :name => name )
+      user.watched_projects.create :name => name
     end
     true
   end

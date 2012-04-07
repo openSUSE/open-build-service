@@ -114,4 +114,12 @@ class DbPackageTest < ActiveSupport::TestCase
      # pretty silly
      assert_equal 0, @package.rating[:count]
   end
+
+  def test_render
+     xml = db_packages(:kdelibs).render_axml
+     assert_equal Xmlhash.parse(xml), {"name"=>"kdelibs", 
+	     "project"=>"kde4", "title"=>"blub", "description"=>"blub", 
+	     "devel"=>{"project"=>"home:coolo:test", "package"=>"kdelibs_DEVEL_package"}, 
+	     "person"=>[{"userid"=>"fredlibs", "role"=>"maintainer"}, {"userid"=>"adrian", "role"=>"reviewer"}], "group"=>{"groupid"=>"test_group", "role"=>"maintainer"}}
+  end
 end

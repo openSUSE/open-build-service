@@ -11,7 +11,7 @@ class Issue < ActiveRecord::Base
     issue_tracker = IssueTracker.find_by_name( issue_tracker_name )
     raise IssueTrackerNotFoundError.new( "Error: Issue Tracker '#{issue_tracker_name}' not found." ) unless issue_tracker
 
-    issue = Issue.find_by_name name, :conditions => [ "issue_tracker_id = BINARY ?", issue_tracker.id ]
+    issue = issue_tracker.issues.by_name(name).first
     raise IssueNotFoundError.new( "Error: Issue '#{name}' not found." ) unless issue
     
     if force_update
@@ -31,15 +31,15 @@ class Issue < ActiveRecord::Base
     raise IssueTrackerNotFoundError.new( "Error: Issue Tracker '#{issue_tracker_name}' not found." ) unless issue_tracker
 
     # find existing
-    issue = Issue.find_by_name name, :conditions => [ "issue_tracker_id = BINARY ?", issue_tracker.id ]
+    issue = issue_tracker.issues.find_by_name name
 
     # create missing
-    issue = Issue.create( :name => name, :issue_tracker => issue_tracker ) if issue.nil? and create_missing
+    issue = issue_tracker.issues.create( :name => name ) if issue.nil? and create_missing
 
     # force update
     if force_update and not issue.nil?
       issue.fetch_updates
-      return Issue.find_by_name name, :conditions => [ "issue_tracker_id = BINARY ?", issue_tracker.id ]
+      issue = issue_tracker.issues.find_by_name name
     end
 
     return issue

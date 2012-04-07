@@ -15,8 +15,7 @@ class TagController < ApplicationController
     begin
       @user = User.get_by_login(params[:user])
       
-      @taggings = Tagging.find(:all,
-                               :conditions => ["taggable_type = ? AND user_id = ?","DbProject",@user.id])
+      @taggings = Tagging.where("taggable_type = ? AND user_id = ?","DbProject",@user.id).all
       @projects_tags = {}
       @taggings.each do |tagging|
         project = DbProject.find(tagging.taggable_id)
@@ -41,8 +40,7 @@ class TagController < ApplicationController
   def get_tagged_packages_by_user
     begin
       @user = User.get_by_login(params[:user])
-      @taggings = Tagging.find(:all,
-                               :conditions => ["taggable_type = ? AND user_id = ?","DbPackage",@user.id])
+      @taggings = Tagging.where("taggable_type = ? AND user_id = ?","DbPackage",@user.id).all
       @packages_tags = {}
       @taggings.each do |tagging|
         package = DbPackage.find(tagging.taggable_id)
@@ -150,7 +148,7 @@ class TagController < ApplicationController
     @name = params[:project]
     @project = DbProject.get_by_name(params[:project])
     
-    @tags = @project.tags.find(:all, :order => :name, :conditions => ["taggings.user_id = ?",user.id])
+    @tags = @project.tags.where("taggings.user_id = ?", user.id).order(:name).all
     if do_render
       render :partial => "tags"
     else
@@ -167,7 +165,7 @@ class TagController < ApplicationController
     @package = DbPackage.get_by_project_and_name(params[:project], params[:package], false, false)
     @project = @package.db_project
     
-    @tags = @package.tags.find(:all, :order => :name, :conditions => ["taggings.user_id = ?",user.id])
+    @tags = @package.tags.where("taggings.user_id = ?",user.id).order(:name).all
     if do_render
       render :partial => "tags"
     else
