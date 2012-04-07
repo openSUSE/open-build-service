@@ -468,10 +468,10 @@ class StatisticsController < ApplicationController
     @list = Array.new
     list.each do |type, id|
       if type == :project
-        item = DbProject.find_by_id(id)
+        item = DbProject.find(id)
         next unless DbProject.check_access?(item)
       else
-        item = DbPackage.find_by_id(id)
+        item = DbPackage.find(id)
         next unless item
         next unless DbPackage.check_access?(item)
       end

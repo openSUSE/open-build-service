@@ -89,7 +89,7 @@ class Issue < ActiveRecord::Base
 
       if self.owner_id
         # self.owner must not by used, since it is reserved by rails
-        o = User.find_by_id self.owner_id
+        o = User.find self.owner_id
         issue.owner do |owner|
           owner.login(o.login)
           owner.email(o.email)

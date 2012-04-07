@@ -232,7 +232,7 @@ class RequestController < ApplicationController
     elsif obj.class == DbPackage
       if defined? obj.package_user_role_relationships
         obj.package_user_role_relationships.find(:all, :conditions => ["role_id = ?", Role.get_by_title("reviewer").id] ).each do |r|
-          reviewers << User.find_by_id(r.bs_user_id)
+          reviewers << User.find(r.bs_user_id)
         end
       end
       prj = obj.db_project
@@ -242,7 +242,7 @@ class RequestController < ApplicationController
     # add reviewers of project in any case
     if defined? prj.project_user_role_relationships
       prj.project_user_role_relationships.find(:all, :conditions => ["role_id = ?", Role.get_by_title("reviewer").id] ).each do |r|
-        reviewers << User.find_by_id(r.bs_user_id)
+        reviewers << User.find(r.bs_user_id)
       end
     end
     return reviewers
@@ -258,7 +258,7 @@ class RequestController < ApplicationController
     elsif obj.class == DbPackage
       if defined? obj.package_group_role_relationships
         obj.package_group_role_relationships.find(:all, :conditions => ["role_id = ?", Role.get_by_title("reviewer").id] ).each do |r|
-          review_groups << Group.find_by_id(r.bs_group_id)
+          review_groups << Group.find(r.bs_group_id)
         end
       end
       prj = obj.db_project
@@ -268,7 +268,7 @@ class RequestController < ApplicationController
     # add reviewers of project in any case
     if defined? prj.project_group_role_relationships
       prj.project_group_role_relationships.find(:all, :conditions => ["role_id = ?", Role.get_by_title("reviewer").id] ).each do |r|
-        review_groups << Group.find_by_id(r.bs_group_id)
+        review_groups << Group.find(r.bs_group_id)
       end
     end
     return review_groups

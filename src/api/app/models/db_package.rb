@@ -2,7 +2,9 @@ class DbPackage < ActiveRecord::Base
   include FlagHelper
 
   class CycleError < Exception; end
-  class DeleteError < Exception; end
+  class DeleteError < Exception
+    attr_accessor :packages
+  end
   class ReadAccessError < Exception; end
   class UnknownObjectError < Exception; end
   class ReadSourceAccessError < Exception; end
@@ -249,12 +251,17 @@ class DbPackage < ActiveRecord::Base
   # NOTE: this is no permission check, should it be added ?
   def can_be_deleted?
     # check if other packages have me as devel package
-    msg = nil
+    msg = ""
+    packs = []
     self.develpackages.each do |dpkg|
-      msg ||= ""
       msg += dpkg.db_project.name + "/" + dpkg.name + ", "
+      packs << dpkg
     end
-    raise DeleteError.new "Package is used by following packages as devel package: #{msg}" if msg
+    unless msg.blank?
+      de = DeleteError.new "Package is used by following packages as devel package: #{msg}"
+      de.packages = packs
+      raise de
+    end
   end
 
   def find_project_local_linking_packages
@@ -746,7 +753,7 @@ class DbPackage < ActiveRecord::Base
         o = nil
         if i.issue.owner_id
           # self.owner must not by used, since it is reserved by rails
-          o = User.find_by_id i.issue.owner_id
+          o = User.find i.issue.owner_id
         end
         next if login and (not o or not login == o.login)
         i.issue.render_body(package, i.change)

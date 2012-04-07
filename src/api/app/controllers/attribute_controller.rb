@@ -152,7 +152,7 @@ class AttributeController < ApplicationController
 
       entry = ans.attrib_types.where("name = ?", name ).first
       if entry
-          db = AttribType.find_by_id( entry.id ) # get a writable object
+          db = AttribType.find( entry.id ) # get a writable object
           logger.debug "* updating existing attribute definitions"
           db.update_from_xml(xml_element)
       else

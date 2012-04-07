@@ -116,7 +116,7 @@ class PackInfo
           develpack.to_xml(:builder => xml)
         end
       end
-      db_pack = DbPackage.find_by_id(@db_pack_id)
+      db_pack = DbPackage.find(@db_pack_id)
       xml.persons do
         db_pack.each_user do |ulogin, role_name|
           xml.person( :userid => ulogin, :role => role_name )

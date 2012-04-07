@@ -63,8 +63,8 @@ class DbProject < ActiveRecord::Base
       #replace links to this projects with links to the "deleted" project
       del_repo = DbProject.find_by_name("deleted").repositories[0]
       lreps.each do |link_rep|
-        link_rep.path_elements.find(:all, :include => ["link"]).each do |pe|
-          next unless Repository.find_by_id(pe.repository_id).db_project_id == self.id
+        link_rep.path_elements.includes(:link).each do |pe|
+          next unless Repository.find(pe.repository_id).db_project_id == self.id
           pe.link = del_repo
           pe.save
           #update backend
@@ -222,7 +222,7 @@ class DbProject < ActiveRecord::Base
           # hmm calling a private class method is not the best idea..
           lpro = nil # FIXME2.4
         else
-          lpro = DbProject.by_name(local_project).select("id,name,remoteurl")
+          lpro = DbProject.find_by_name(local_project, select: "id,name,remoteurl")
         end
         return lpro, remote_project unless lpro.nil? or lpro.remoteurl.nil?
       end
@@ -251,7 +251,15 @@ class DbProject < ActiveRecord::Base
   def can_be_deleted?
     # check all packages
     self.db_packages.each do |pkg|
-      pkg.can_be_deleted? # throws
+      begin
+        pkg.can_be_deleted? # throws
+      rescue DbPackage::DeleteError => e
+        e.packages.each do |p|
+          if p.db_project != self
+	    raise DeleteError.new "Package #{self.name}/{pkg.name} can not be deleted as it's devel package of #{p.db_project.name}/#{p.name}"
+	  end
+        end
+      end
     end
 
     # do not allow to remove maintenance master projects if there are incident projects
@@ -653,7 +661,7 @@ class DbProject < ActiveRecord::Base
       # delete remaining repositories in repocache
       repocache.each do |name, object|
         #find repositories that link against this one and issue warning if found
-        list = PathElement.find( :all, :conditions => ["repository_id = ?", object.id] )
+        list = PathElement.where(repository_id: object.id).all
         unless list.empty?
           logger.debug "offending repo: #{object.inspect}"
           if force
@@ -778,7 +786,7 @@ class DbProject < ActiveRecord::Base
             o = nil
             if i.issue.owner_id
               # self.owner must not by used, since it is reserved by rails
-              o = User.find_by_id i.issue.owner_id
+              o = User.find i.issue.owner_id
             end
             next if login and (not o or not login == o.login)
             i.issue.render_body(package, i.change)
@@ -985,7 +993,7 @@ class DbProject < ActiveRecord::Base
             params[:trigger]    = rt.trigger    unless rt.trigger.blank?
             r.releasetarget( params )
           end
-          repo.path_elements.find(:all, :include => [:link]).each do |pe|
+          repo.path_elements.includes(:link).each do |pe|
             if pe.link.remote_project_name
               project_name = pe.link.db_project.name+":"+pe.link.remote_project_name
             else
@@ -1178,7 +1186,7 @@ class DbProject < ActiveRecord::Base
   end
 
   def project_type
-    mytype = DbProjectType.find_by_id(type_id) if type_id
+    mytype = DbProjectType.find(type_id) if type_id
     return 'standard' unless mytype
     return mytype.name
   end
