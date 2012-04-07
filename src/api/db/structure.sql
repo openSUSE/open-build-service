@@ -148,17 +148,14 @@ CREATE TABLE `db_packages` (
   `url` varchar(255) DEFAULT NULL,
   `update_counter` int(11) DEFAULT '0',
   `activity_index` float DEFAULT '100',
-  `develproject_id` int(11) DEFAULT NULL,
   `bcntsynctag` varchar(255) DEFAULT NULL,
   `develpackage_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `packages_all_index` (`db_project_id`,`name`(255)),
-  KEY `devel_project_id_index` (`develproject_id`),
   KEY `devel_package_id_index` (`develpackage_id`),
   KEY `index_db_packages_on_db_project_id` (`db_project_id`),
   KEY `updated_at_index` (`updated_at`),
   CONSTRAINT `db_packages_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`),
-  CONSTRAINT `db_packages_ibfk_2` FOREIGN KEY (`develproject_id`) REFERENCES `db_projects` (`id`),
   CONSTRAINT `db_packages_ibfk_3` FOREIGN KEY (`develpackage_id`) REFERENCES `db_packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -886,6 +883,8 @@ INSERT INTO schema_migrations (version) VALUES ('20120319104301');
 INSERT INTO schema_migrations (version) VALUES ('20120319133739');
 
 INSERT INTO schema_migrations (version) VALUES ('20120320134850');
+
+INSERT INTO schema_migrations (version) VALUES ('20120407173644');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

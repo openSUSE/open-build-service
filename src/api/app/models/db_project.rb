@@ -17,7 +17,6 @@ class DbProject < ActiveRecord::Base
   has_many :repositories, :dependent => :destroy
   has_many :messages, :as => :db_object, :dependent => :delete_all
 
-  has_many :develpackages, :class_name => "DbPackage", :foreign_key => 'develproject_id'
   has_many :linkedprojects, :order => :position, :class_name => "LinkedProject", :foreign_key => 'db_project_id'
 
   has_many :taggings, :as => :taggable, :dependent => :delete_all
@@ -79,10 +78,6 @@ class DbProject < ActiveRecord::Base
     self.db_packages.each do |pkg|
       if pkg.develpackage_id
         pkg.develpackage_id = nil
-        pkg.save
-      end
-      if pkg.develproject_id
-        pkg.develproject_id = nil
         pkg.save
       end
     end
@@ -254,13 +249,6 @@ class DbProject < ActiveRecord::Base
 
   # NOTE: this is no permission check, should it be added ?
   def can_be_deleted?
-    # check if other packages have me as devel project
-    unless self.develpackages.empty?
-      msg = "Unable to delete project #{self.name}; following packages use this project as develproject: "
-      msg += self.develpackages.map {|pkg| pkg.db_project.name+"/"+pkg.name}.join(", ")
-      raise DeleteError.new "project is used by following projects as devel project: #{msg}"
-    end
-
     # check all packages
     self.db_packages.each do |pkg|
       pkg.can_be_deleted? # throws

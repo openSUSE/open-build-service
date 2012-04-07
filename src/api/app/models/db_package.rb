@@ -8,8 +8,6 @@ class DbPackage < ActiveRecord::Base
   class ReadSourceAccessError < Exception; end
   belongs_to :db_project
 
-  belongs_to :develproject, :class_name => "DbProject" # This shall become migrated to develpackage in future
-
   has_many :package_user_role_relationships, :dependent => :destroy
   has_many :package_group_role_relationships, :dependent => :destroy
   has_many :messages, :as => :db_object, :dependent => :destroy
@@ -388,7 +386,7 @@ class DbPackage < ActiveRecord::Base
     if pkg == pkg.develpackage
       raise CycleError.new "Package defines itself as devel package"
     end
-    while ( pkg.develproject or pkg.develpackage or pkg.db_project.develproject )
+    while ( pkg.develpackage or pkg.db_project.develproject )
       #logger.debug "resolve_devel_package #{pkg.inspect}"
 
       # cycle detection
@@ -405,15 +403,6 @@ class DbPackage < ActiveRecord::Base
         # A package has a devel package definition
         pkg = pkg.develpackage
         prj_name = pkg.db_project.name
-      elsif pkg.develproject
-        # A package has a devel package definition via project name (not used anymore)
-        # Supporting the obsolete, but not yet migrated devel project table
-        prj = pkg.develproject
-        prj_name = prj.name
-        pkg = prj.db_packages.get_by_name(pkg.name)
-        if pkg.nil?
-          return nil
-        end
       else
         # Take project wide devel project definitions into account
         prj = pkg.db_project.develproject
@@ -438,9 +427,6 @@ class DbPackage < ActiveRecord::Base
       self.bcntsynctag = nil
       self.bcntsynctag = package.value(:bcntsynctag)
 
-      # old column, get removed now always and migrated to new develpackage
-      # might get reused later for defining devel projects in project meta
-      self.develproject = nil
       #--- devel project ---#
       self.develpackage = nil
       if package.has_element? :devel
@@ -845,8 +831,6 @@ class DbPackage < ActiveRecord::Base
       
       if develpackage
         package.devel( :project => develpackage.db_project.name, :package => develpackage.name )
-      elsif develproject
-        package.devel( :project => develproject.name )
       end
 
       each_user do |u|

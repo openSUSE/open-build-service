@@ -9,7 +9,6 @@ Basedistro_Update_pack2:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 kdelibs:
@@ -23,7 +22,6 @@ kdelibs:
   url: 
   update_counter: 0
   activity_index: 100
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 1234
 db_packages_10089:
@@ -37,7 +35,6 @@ db_packages_10089:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 TestPack:
@@ -51,7 +48,6 @@ TestPack:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_10096:
@@ -65,7 +61,6 @@ db_packages_10096:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_10097:
@@ -79,7 +74,6 @@ db_packages_10097:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_10098:
@@ -93,7 +87,6 @@ db_packages_10098:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 11098
 db_packages_10099:
@@ -107,7 +100,6 @@ db_packages_10099:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_10100:
@@ -121,7 +113,6 @@ db_packages_10100:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_10195:
@@ -135,7 +126,6 @@ db_packages_10195:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_11000:
@@ -149,7 +139,6 @@ db_packages_11000:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_11001:
@@ -163,7 +152,6 @@ db_packages_11001:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_11002:
@@ -177,7 +165,6 @@ db_packages_11002:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_11006:
@@ -191,7 +178,6 @@ db_packages_11006:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_11007:
@@ -205,7 +191,6 @@ db_packages_11007:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_11008:
@@ -219,7 +204,6 @@ db_packages_11008:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_11009:
@@ -233,7 +217,6 @@ db_packages_11009:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_11010:
@@ -247,7 +230,6 @@ db_packages_11010:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_11011:
@@ -261,7 +243,6 @@ db_packages_11011:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_11017:
@@ -275,7 +256,6 @@ db_packages_11017:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_11098:
@@ -289,7 +269,6 @@ db_packages_11098:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_11200:
@@ -303,7 +282,6 @@ db_packages_11200:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_1234:
@@ -317,7 +295,6 @@ db_packages_1234:
   url: 
   update_counter: 0
   activity_index: 100
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_1336:
@@ -331,7 +308,6 @@ db_packages_1336:
   url: http://geblubberblah/total/egal
   update_counter: 0
   activity_index: 100
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_1355:
@@ -345,7 +321,6 @@ db_packages_1355:
   url: http://httpd.apache.org
   update_counter: 0
   activity_index: 100
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_1356:
@@ -359,7 +334,6 @@ db_packages_1356:
   url: http://some.url
   update_counter: 0
   activity_index: 100
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_2:
@@ -373,7 +347,6 @@ db_packages_2:
   url: 
   update_counter: 0
   activity_index: 100
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_253895098:
@@ -387,7 +360,6 @@ db_packages_253895098:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_289270358:
@@ -401,7 +373,6 @@ db_packages_289270358:
   url: ''
   update_counter: 1
   activity_index: 10
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_63:
@@ -415,7 +386,6 @@ db_packages_63:
   url: http://some.url
   update_counter: 0
   activity_index: 100
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
 db_packages_64:
@@ -429,6 +399,5 @@ db_packages_64:
   url: http://some.url
   update_counter: 0
   activity_index: 100
-  develproject_id: 
   bcntsynctag: 
   develpackage_id: 
