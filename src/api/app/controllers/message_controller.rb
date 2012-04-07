@@ -7,8 +7,7 @@ class MessageController < ApplicationController
 
     # get project and package if params are set
     @project = DbProject.find_by_name params[:project]
-    @package = DbPackage.find :first, :conditions => [
-      'name=? AND db_project_id=?', params[:package], @project.id
+    @package = DbPackage.where('name=? AND db_project_id=?', params[:package], @project.id).first
     ] if @project
 
     if request.get?

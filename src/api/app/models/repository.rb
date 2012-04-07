@@ -14,12 +14,11 @@ class Repository < ActiveRecord::Base
 
   class << self
     def find_by_name(name)
-      find :first, :conditions => ["name = BINARY ?", name]
+      where("name = BINARY ?", name).first
     end
 
     def find_by_project_and_repo_name( project, repo )
-      result = find :first, :include => :db_project,
-        :conditions => ["db_projects.name = BINARY ? AND repositories.name = BINARY ? AND ISNULL(remote_project_name)", project, repo]
+      result = joins(:db_project).where("db_projects.name = BINARY ? AND repositories.name = BINARY ? AND ISNULL(remote_project_name)", project, repo).first
 
       return result unless result.nil?
 

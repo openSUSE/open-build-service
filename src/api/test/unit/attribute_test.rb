@@ -179,4 +179,12 @@ class AttributeTest < ActiveSupport::TestCase
       @package.store_attribute_axml(xml)
     end
   end
+
+  def test_list
+    atypes = AttribType.list_all.map { |a| a.name }.sort
+    assert_equal atypes, ["ApprovedRequestSource", "BranchTarget", "InitializeDevelPackage", "Maintained", "MaintenanceIdTemplate", "MaintenanceProject", "ProjectStatusPackageFailComment", "QualityCategory", "RejectRequests", "RequestCloned", "ScreenShots", "UpdateProject", "VeryImportantProject", "status"]
+
+    atypes = AttribType.list_all("NSTEST").map { |a| a.name }.sort
+    assert_equal atypes, ["status"]
+  end
 end

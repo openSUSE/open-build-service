@@ -911,12 +911,9 @@ class DbPackage < ActiveRecord::Base
   end
 
   def activity
-    package = DbPackage.find :first,
-      :conditions => "db_packages.id = #{self.id}",
-      :select => "db_packages.*, " +
-      "( #{DbPackage.activity_algorithm} ) AS act_tmp," +
-      "IF( @activity<0, 0, @activity ) AS activity_value"
-    return package.activity_value.to_f
+    package = DbPackage.find_by_sql("SELECT db_packages.*, ( #{DbPackage.activity_algorithm} ) AS act_tmp,
+	                             IF( @activity<0, 0, @activity ) AS activity_value FROM `db_packages` WHERE id = #{self.id} LIMIT 1")
+    return package.shift.activity_value.to_f
   end
 
   def update_timestamp

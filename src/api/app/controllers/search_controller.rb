@@ -111,7 +111,7 @@ class SearchController < ApplicationController
       if params[:project]
          packages = DbPackage.get_by_project_and_name(params[:project], params[:package])
       else
-         packages = DbPackage.find(:all, :conditions => ["name = BINARY ?", params[:package]])
+         packages = DbPackage.where("name = BINARY ?", params[:package]).all
       end
     elsif project
       packages = project.db_packages
@@ -120,7 +120,7 @@ class SearchController < ApplicationController
     if packages
       attribs = Attrib.find(:all, :conditions => ["attrib_type_id = ? AND db_package_id in (?)", attrib.id, packages.collect { |p| p.id }])
     else
-      attribs = Attrib.find(:all, :conditions => ["attrib_type_id = ?", attrib.id])
+      attribs = attrib.attribs
     end
     values = AttribValue.find(:all, :conditions => [ "attrib_id IN (?)", attribs.collect { |a| a.id } ])
     attribValues = Hash.new

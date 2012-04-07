@@ -81,7 +81,7 @@ module MaintenanceHelper
       end
       # set default bugowner if missing
       bugowner = Role.get_by_title("bugowner")
-      unless tprj.project_user_role_relationships.find :first, :conditions => ["role_id = ?", bugowner], :include => :role
+      unless tprj.project_user_role_relationships.where("role_id = ?", bugowner.id).includes(:role).first
         tprj.add_user( @http_user, bugowner )
       end
       # and write it

@@ -19,77 +19,77 @@ OBS_ScreenShots:
   type: 
   value_count: 
   attrib_namespace_id: 9
-attrib_types_56:
+OBS_VeryImportantProject:
   id: 56
   name: VeryImportantProject
   description: 
   type: 
   value_count: 0
   attrib_namespace_id: 9
-attrib_types_57:
+OBS_UpdateProject:
   id: 57
   name: UpdateProject
   description: 
   type: 
   value_count: 1
   attrib_namespace_id: 9
-attrib_types_58:
+OBS_Maintained:
   id: 58
   name: Maintained
   description: 
   type: 
   value_count: 0
   attrib_namespace_id: 9
-attrib_types_59:
+NSTEST_status:
   id: 59
   name: status
   description: 
   type: 
   value_count: 
   attrib_namespace_id: 8
-attrib_types_60:
+OBS_RequestCloned:
   id: 60
   name: RequestCloned
   description: 
   type: 
   value_count: 1
   attrib_namespace_id: 9
-attrib_types_61:
+OBS_InitializeDevelPackage:
   id: 61
   name: InitializeDevelPackage
   description: 
   type: 
   value_count: 0
   attrib_namespace_id: 9
-attrib_types_62:
+OBS_MaintenanceProject:
   id: 62
   name: MaintenanceProject
   description: 
   type: 
   value_count: 0
   attrib_namespace_id: 9
-attrib_types_63:
+OBS_MaintenanceIdTemplate:
   id: 63
   name: MaintenanceIdTemplate
   description: 
   type: 
   value_count: 1
   attrib_namespace_id: 9
-attrib_types_64:
+OBS_RejectRequests:
   id: 64
   name: RejectRequests
   description: 
   type: 
   value_count: 1
   attrib_namespace_id: 9
-attrib_types_65:
+OBS_ApprovedRequestSource:
   id: 65
   name: ApprovedRequestSource
   description: 
   type: 
   value_count: 0
   attrib_namespace_id: 9
-attrib_types_66:
+OBS_BranchTarget:
   id: 66
   name: BranchTarget
   description: 

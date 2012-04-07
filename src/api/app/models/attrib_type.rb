@@ -12,9 +12,9 @@ class AttribType < ActiveRecord::Base
   class << self
     def list_all(namespace=nil)
       if namespace
-        find :all, :joins => "JOIN attrib_namespaces an ON attrib_types.attrib_namespace_id = an.id", :conditions => ["an.name = BINARY ?", namespace], :select => "attrib_types.id,attrib_types.name"
+        joins(:attrib_namespace).where("attrib_namespaces.name = BINARY ?", namespace).select("attrib_types.id,attrib_types.name").all
       else
-        find :all, :select => "id,name"
+        select("id,name").all
       end
     end
 
@@ -30,7 +30,7 @@ class AttribType < ActiveRecord::Base
       unless namespace and name
         raise ArgumentError, "Need namespace and name as parameters"
       end
-      find :first, :joins => "JOIN attrib_namespaces an ON attrib_types.attrib_namespace_id = an.id", :conditions => ["attrib_types.name = BINARY ? and an.name = BINARY ?", name, namespace]
+      joins(:attrib_namespace).where("attrib_namespaces.name = BINARY ? and attrib_types.name = BINARY ?", namespace, name).first
     end
   end
 
@@ -69,7 +69,7 @@ class AttribType < ActiveRecord::Base
          attr.count self.value_count
        end
 
-       abies = attrib_type_modifiable_bies.find(:all, :include => [:user, :group, :role])
+       abies = attrib_type_modifiable_bies.includes(:user, :group, :role).all
        if abies.length > 0
          abies.each do |mod_rule|
            p={}
