@@ -52,17 +52,14 @@
 set -xe
 . `dirname $0`/obs_testsuite_common.sh
 
-export DO_COVERAGE=1
+export DO_COVERAGE=rcov
 setup_git
 setup_api
 
 echo "Enter API rails root and running rcov"
 cd src/api
-echo "gem 'rcov'" >> Gemfile
-bundle show
-git diff Gemfile Gemfile.lock
 mkdir -p coverage
-rake --trace test:rcov || true
+rake --trace test || true
 cd ../..
 
 echo "Enter WebUI rails root and running rcov"
@@ -71,7 +68,7 @@ setup_webui
 
 cd src/webui
 mkdir -p coverage
-rake --trace test:rcov || true
+rake --trace test || true
 cd ../..
 
 cd src/webui-testsuite

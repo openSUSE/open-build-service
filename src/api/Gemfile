@@ -15,4 +15,5 @@ gem 'rdoc'
 gem 'xmlhash', '>=1.2.1'
 gem 'fast_xs'
 gem 'test-unit', '>= 2.0'
-#gem 'memcache-client'
+gem 'memcache-client', :require => false
+gem 'simplecov-rcov', :require => false, :group => :test

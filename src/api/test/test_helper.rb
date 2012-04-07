@@ -1,6 +1,20 @@
 ENV["RAILS_ENV"] = "test"
+require 'simplecov'
+require 'simplecov-rcov'
+SimpleCov.start 'rails' if ENV["DO_COVERAGE"]
+
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
+
+class SimpleCov::Formatter::MergedFormatter
+  def format(result)
+    SimpleCov::Formatter::HTMLFormatter.new.format(result)
+    SimpleCov::Formatter::RcovFormatter.new.format(result)
+  end
+end
+
+SimpleCov.formatter = SimpleCov::Formatter::MergedFormatter
+
 # uncomment to enable tests which currently are known to fail, but where either the test
 # or the code has to be fixed
 #$ENABLE_BROKEN_TEST=true

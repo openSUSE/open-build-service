@@ -22,9 +22,6 @@ outputlines = true
 frontend = Thread.new do
   puts "Starting test API at port #{FRONTEND_PORT} ..."
   cmdline = "ruby ./script/rails"
-  if ENV["DO_COVERAGE"]
-    cmdline="rcov --aggregate coverage/aggregate.data ./script/rails --"
-  end
   frontend_out = IO.popen("cd #{RAILS_ROOT}/../api; exec #{cmdline} server -e test -p #{FRONTEND_PORT} 2>&1")
   puts "API started with PID: #{frontend_out.pid}"
   begin
