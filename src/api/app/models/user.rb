@@ -199,7 +199,7 @@ class User < ActiveRecord::Base
     if User.ldapgroup_enabled?
       return user_in_group_ldap?(self.login, group) 
     else 
-      return !groups_users.where(:group_id => group.id).first.nil?
+      return !groups_users.where(group_id: group.id).first.nil?
     end
   end
 
@@ -207,6 +207,15 @@ class User < ActiveRecord::Base
     object.is_locked?
   end
 
+  # This method returns true if the user is granted the permission with one
+  # of the given permission titles.
+  def has_global_permission?(perm_string)
+    logger.debug "has_global_permission? #{perm_string}"
+    all_roles.detect do |role|
+      return true if role.static_permissions.where("static_permissions.title = ?", perm_string).first
+    end
+  end
+  
   # project is instance of DbProject
   def can_modify_project?(project, ignoreLock=nil)
     unless project.kind_of? DbProject
@@ -490,7 +499,7 @@ class User < ActiveRecord::Base
     
     if parent 
       #check permission of parent project
-      logger.debug "permission not found, trying parent project '#{object.db_project.name}'"
+      logger.debug "permission not found, trying parent project '#{parent.name}'"
       return has_local_permission?(perm_string, parent)
     end
 

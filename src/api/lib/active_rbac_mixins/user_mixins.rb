@@ -225,23 +225,6 @@ module UserMixins
             return permissions
           end
 
-          # This method returns true if the user is granted the permission with one
-          # of the given permission titles.
-          def has_permission?(*permission_titles)
-            all_roles.detect do |role| 
-              role.static_permissions.detect do |permission|
-                permission_titles.include?(permission.title)
-              end
-            end
-          end
-          
-          # Returns false. is_anonymous? will only return true on AnonymousUser
-          # objects.
-          def is_anonymous?
-            false
-          end
-          
-
           # This method creates a new registration token for the current user. Raises 
           # a MultipleRegistrationTokens Exception if the user already has a 
           # registration token assigned to him.
