@@ -9,7 +9,9 @@ require 'rails/test_help'
 class SimpleCov::Formatter::MergedFormatter
   def format(result)
     SimpleCov::Formatter::HTMLFormatter.new.format(result)
-    SimpleCov::Formatter::RcovFormatter.new.format(result)
+    if ENV["DO_COVERAGE"] == "rcov"
+      SimpleCov::Formatter::RcovFormatter.new.format(result)
+    end
   end
 end
 

@@ -453,6 +453,9 @@ class DbPackage < ActiveRecord::Base
       end
 
       package.each_person do |person|
+        if not Role.rolecache.has_key? person.role
+          raise SaveError, "illegal role name '#{person.role}'"
+        end
         if usercache.has_key? person.userid
           #user has already a role in this package
           pcache = usercache[person.userid]
@@ -461,13 +464,10 @@ class DbPackage < ActiveRecord::Base
             pcache[person.role] = :keep
           else
             #new role
-            if not Role.rolecache.has_key? person.role
-              raise SaveError, "illegal role name '#{person.role}'"
-            end
-            PackageUserRoleRelationship.create(
-              :user => User.get_by_login(person.userid),
-              :role => Role.rolecache[person.role],
-              :db_package => self
+            PackageUserRoleRelationship.create!(
+              user: User.get_by_login(person.userid),
+              role: Role.rolecache[person.role],
+              db_package: self
             )
           end
         else
@@ -479,7 +479,7 @@ class DbPackage < ActiveRecord::Base
           if pu.valid?
             pu.save!
           else
-            logger.debug "user '#{person.userid}' already has the role '#{person.role}' in package '#{self.name}': #{pu.errors}"
+            logger.debug "user '#{person.userid}' (role '#{person.role}') in package '#{self.name}': #{pu.errors.to_a.join(',')}"
           end
         end
       end
@@ -665,7 +665,7 @@ class DbPackage < ActiveRecord::Base
 
     if role.global
       #only nonglobal roles may be set in a project
-      raise SaveError, "tried to set global role '#{role_title}' for user '#{user}' in package '#{self.name}'"
+      raise SaveError, "tried to set global role '#{role.title}' for user '#{user}' in package '#{self.name}'"
     end
 
     unless user.kind_of? User

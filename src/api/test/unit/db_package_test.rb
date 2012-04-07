@@ -126,4 +126,65 @@ class DbPackageTest < ActiveSupport::TestCase
   def test_can_be_deleted
     assert !db_packages(:kdelibs).can_be_deleted?
   end
+
+  def test_store
+    orig = Xmlhash.parse(@package.to_axml)
+
+    assert_raise DbPackage::SaveError do
+      @package.store_axml(
+      ActiveXML::Base.new("<package name='TestPack' project='home:Iggy'>
+        <title>My Test package</title>
+        <description></description>
+        <devel project='Notexistant'/>
+      </package>"))
+    end
+    assert_raise DbPackage::SaveError do
+      @package.store_axml(
+        ActiveXML::Base.new("<package name='TestPack' project='home:Iggy'>
+	                       <title>My Test package</title>
+			       <description></description>
+			       <devel project='home:Iggy' package='nothing'/>
+			     </package>"))
+    end
+
+    assert_raise UserNotFoundError do
+     @package.store_axml(
+       ActiveXML::Base.new("<package name='TestBack' project='home:Iggy'>
+	            <title>My Test package</title>
+		    <description></description>
+		    <person userid='alice' role='maintainer'/>
+                 </package>"))
+    end
+
+    assert_raise DbPackage::SaveError do
+      @package.store_axml(
+         ActiveXML::Base.new("<package name='TestBack' project='home:Iggy'>
+                              <title>My Test package</title>
+                              <description></description>
+			      <person userid='tom' role='coolman'/>
+                            </package>"))
+    end
+
+    assert_equal orig, Xmlhash.parse(@package.to_axml)
+    assert @package.store_axml(
+      ActiveXML::Base.new("<package name='TestPack' project='home:Iggy'>
+        <title>My Test package</title>
+        <description></description>
+        <person userid='fred' role='bugowner'/>
+        <person userid='Iggy' role='maintainer'/>
+      </package>")).nil?
+  end
+
+  def test_add_user
+    orig = @package.to_axml
+    @package.add_user('tom', 'maintainer')
+    @package.store_axml(ActiveXML::Base.new(orig))
+
+    assert_raise DbPackage::SaveError do
+      @package.add_user('tom', 'Admin')
+    end
+    assert_equal orig, @package.to_axml
+
+  end
+
 end
