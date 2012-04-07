@@ -11,7 +11,7 @@ cve_numbers:
   label: ! '@@@'
   issues_updated: '2011-07-29 14:00:21'
   enable_fetch: 0
-issue_trackers_25:
+boost:
   id: 25
   name: boost
   kind: trac
@@ -24,7 +24,7 @@ issue_trackers_25:
   label: ! '@@@'
   issues_updated: '2011-07-29 14:00:21'
   enable_fetch: 0
-issue_trackers_26:
+bco:
   id: 26
   name: bco
   kind: bugzilla
@@ -37,7 +37,7 @@ issue_trackers_26:
   label: ! '@@@'
   issues_updated: '2011-07-29 14:00:21'
   enable_fetch: 0
-issue_trackers_27:
+perl_rt:
   id: 27
   name: RT
   kind: ''
@@ -50,7 +50,7 @@ issue_trackers_27:
   label: ! '@@@'
   issues_updated: '2011-07-29 14:00:21'
   enable_fetch: 0
-issue_trackers_28:
+deb:
   id: 28
   name: deb
   kind: bugzilla
@@ -63,7 +63,7 @@ issue_trackers_28:
   label: ! '@@@'
   issues_updated: '2011-07-29 14:00:21'
   enable_fetch: 0
-issue_trackers_29:
+fdo:
   id: 29
   name: fdo
   kind: bugzilla
@@ -76,7 +76,7 @@ issue_trackers_29:
   label: ! '@@@'
   issues_updated: '2011-07-29 14:00:21'
   enable_fetch: 0
-issue_trackers_30:
+gcc:
   id: 30
   name: GCC
   kind: bugzilla
@@ -89,7 +89,7 @@ issue_trackers_30:
   label: ! '@@@'
   issues_updated: '2011-07-29 14:00:21'
   enable_fetch: 0
-issue_trackers_31:
+bgo:
   id: 31
   name: bgo
   kind: bugzilla
@@ -102,7 +102,7 @@ issue_trackers_31:
   label: ! '@@@'
   issues_updated: '2011-07-29 14:00:21'
   enable_fetch: 0
-issue_trackers_32:
+bio:
   id: 32
   name: bio
   kind: bugzilla
@@ -115,7 +115,7 @@ issue_trackers_32:
   label: ! '@@@'
   issues_updated: '2011-07-29 14:00:21'
   enable_fetch: 0
-issue_trackers_33:
+bko:
   id: 33
   name: bko
   kind: bugzilla
@@ -128,7 +128,7 @@ issue_trackers_33:
   label: ! '@@@'
   issues_updated: '2011-07-29 14:00:21'
   enable_fetch: 0
-issue_trackers_34:
+kde:
   id: 34
   name: kde
   kind: bugzilla

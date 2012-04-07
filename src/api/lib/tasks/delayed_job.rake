@@ -12,7 +12,7 @@ namespace :jobs do
 
   desc "Update issue data of all changed issues in remote tracker"
   task(:updateissues => :environment) {
-    IssueTracker.find(:all).each do |t|
+    IssueTracker.all.each do |t|
       next unless t.enable_fetch
       t.update_issues
     end
@@ -20,7 +20,7 @@ namespace :jobs do
 
   desc "Update issue data of ALL issues now"
   task(:enforceissuesupdate => :environment) {
-    IssueTracker.find(:all).each do |t|
+    IssueTracker.all.each do |t|
       next unless t.enable_fetch
       t.enforced_update_all_issues
     end

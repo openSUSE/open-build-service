@@ -56,4 +56,10 @@ class StatusControllerTest < ActionController::IntegrationTest
     get "/status/project/home:Iggy"
     assert_response :success
   end
+
+  def test_bsrequest
+    get "/status/bsrequest?id=997"
+    assert_response :success
+  end
+
 end

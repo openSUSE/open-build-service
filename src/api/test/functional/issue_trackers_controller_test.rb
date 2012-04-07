@@ -92,4 +92,14 @@ class IssueTrackersControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_update_job
+    IssueTracker.write_to_backend
+
+    f = IssueTracker.find_by_name!("RT")
+    f.update_issues
+    f.enforced_update_all_issues
+
+    Delayed::Worker.new(:quiet => true).work_off
+
+  end
 end

@@ -153,42 +153,6 @@ module UserMixins
             end
           end
 
-          # This method returns all roles assigned to the given user - including
-          # the ones he gets by being assigned a child role (i.e. the parents)
-          # and the one he gets through his groups (inheritance is also considered)
-          # here.
-          def all_roles
-            result = Array.new
-
-            for role in self.roles
-              result << role.ancestors_and_self
-            end
-
-            for group in self.groups
-              result << group.all_roles
-            end
-
-            result.flatten!
-            result.uniq!
-
-            return result
-          end
-
-          # This method returns all groups assigned to the given user - including
-          # the ones he gets by being assigned through group inheritance.
-          def all_groups
-            result = Array.new
-
-            for group in self.groups
-              result << group.ancestors_and_self
-            end
-
-            result.flatten!
-            result.uniq!
-
-            return result
-          end
-   
           # This method returns all groups assigned to the given user via ldap - including
           # the ones he gets by being assigned through group inheritance.
           def all_groups_ldap(group_ldap)

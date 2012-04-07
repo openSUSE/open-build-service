@@ -101,20 +101,6 @@ class DbProject < ActiveRecord::Base
       lpro && lpro[0].remoteurl
     end
 
-    def is_hidden?(name)
-      options = {:conditions => ["name = BINARY ?", name]}
-      validate_find_options(options)
-      set_readonly_option!(options)
-
-      dbp = find_initial(options)
-      return nil if dbp.nil?
-      rels = dbp.flags.count :conditions => 
-          ["db_project_id = ? and flag = 'access' and status = 'disable'", dbp.id]
-      return true if rels > 0
-      return false
-    end
-
-
     def check_access?(dbp=self)
       return false if dbp.nil?
       # check for 'access' flag
@@ -124,11 +110,9 @@ class DbProject < ActiveRecord::Base
 
       # simple check for involvement --> involved users can access
       # dbp.id, User.currentID
-      grouprels_exist = dbp.project_group_role_relationships.count :conditions => ["db_project_id = ?" , dbp.id]
+      grouprels = dbp.project_group_role_relationships.all
 
-      if grouprels_exist > 0
-        # fetch project groups
-        grouprels = dbp.project_group_role_relationships.find(:all, :conditions => ["db_project_id = ?", dbp.id])
+      if grouprels
         ret = 0
         grouprels.each do |grouprel|
           # check if User.currentID belongs to group
@@ -153,7 +137,7 @@ class DbProject < ActiveRecord::Base
         return true if ret > 0
       end
 
-      return !dbp.project_user_role_relationships.where("db_project_id = ? and bs_user_id = ?", dbp.id, User.currentID).first.nil?
+      return !dbp.project_user_role_relationships.where(bs_user_id: User.currentID).first.nil?
     end
 
     # returns an object of project(local or remote) or raises an exception
@@ -241,9 +225,9 @@ class DbProject < ActiveRecord::Base
         logger.debug "checking local project #{local_project}, remote_project #{remote_project}"
         if skip_access
           # hmm calling a private class method is not the best idea..
-          lpro = find_initial :conditions => ["name = BINARY ?", local_project], :select => "id,name,remoteurl"
+          lpro = nil # FIXME2.4
         else
-          lpro = DbProject.find_by_name(local_project, :select => "id,name,remoteurl")
+          lpro = DbProject.by_name(local_project).select("id,name,remoteurl")
         end
         return lpro, remote_project unless lpro.nil? or lpro.remoteurl.nil?
       end
@@ -277,17 +261,9 @@ class DbProject < ActiveRecord::Base
       raise DeleteError.new "project is used by following projects as devel project: #{msg}"
     end
 
-    # check all packages, if any get refered as develpackage
+    # check all packages
     self.db_packages.each do |pkg|
-      msg = ""
-      pkg.develpackages.each do |dpkg|
-        if self != dpkg.db_project
-          msg += dpkg.db_project.name + "/" + dpkg.name + ", "
-        end
-      end
-      unless msg == ""
-        raise DeleteError.new "packages in this project are used by following packages as devel package: #{msg}"
-      end
+      pkg.can_be_deleted? # throws
     end
 
     # do not allow to remove maintenance master projects if there are incident projects

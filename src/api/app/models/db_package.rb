@@ -43,10 +43,6 @@ class DbPackage < ActiveRecord::Base
 
   class << self
 
-    def is_hidden?(project, package)
-      return DbProject.is_hidden?(project)
-    end
-
     def check_dbp_access?(dbp)
       return false unless dbp.class == DbProject
       return false if dbp.nil?
@@ -255,13 +251,12 @@ class DbPackage < ActiveRecord::Base
   # NOTE: this is no permission check, should it be added ?
   def can_be_deleted?
     # check if other packages have me as devel package
-    unless self.develpackages.empty?
-      msg = ""
-      self.develpackages.each do |dpkg|
-        msg += dpkg.db_project.name + "/" + dpkg.name + ", "
-      end
-      raise DeleteError.new "Package is used by following packages as devel package: #{msg}"
+    msg = nil
+    self.develpackages.each do |dpkg|
+      msg ||= ""
+      msg += dpkg.db_project.name + "/" + dpkg.name + ", "
     end
+    raise DeleteError.new "Package is used by following packages as devel package: #{msg}" if msg
   end
 
   def find_project_local_linking_packages
@@ -392,7 +387,6 @@ class DbPackage < ActiveRecord::Base
 
     if pkg == pkg.develpackage
       raise CycleError.new "Package defines itself as devel package"
-      return nil
     end
     while ( pkg.develproject or pkg.develpackage or pkg.db_project.develproject )
       #logger.debug "resolve_devel_package #{pkg.inspect}"
@@ -404,7 +398,6 @@ class DbPackage < ActiveRecord::Base
           str = str + " -- " + key
         end
         raise CycleError.new "There is a cycle in devel definition at #{str}"
-        return nil
       end
       processed[str] = 1
       # get project and package name

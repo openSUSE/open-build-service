@@ -236,6 +236,7 @@ class StatusController < ApplicationController
 
   def bsrequest
     required_parameters :id
+    Suse::Backend.start_test_backend if Rails.env.test?
     req = BsRequest.find(:id => params[:id])
     unless req
       render_error :status => 403, :errorcode => "unknown request", :message => "request #{params[:id]} does not exist" and return

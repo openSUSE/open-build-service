@@ -211,7 +211,7 @@ class User < ActiveRecord::Base
   # of the given permission titles.
   def has_global_permission?(perm_string)
     logger.debug "has_global_permission? #{perm_string}"
-    all_roles.detect do |role|
+    self.roles.detect do |role|
       return true if role.static_permissions.where("static_permissions.title = ?", perm_string).first
     end
   end

@@ -122,4 +122,8 @@ class DbPackageTest < ActiveSupport::TestCase
 	     "devel"=>{"project"=>"home:coolo:test", "package"=>"kdelibs_DEVEL_package"}, 
 	     "person"=>[{"userid"=>"fredlibs", "role"=>"maintainer"}, {"userid"=>"adrian", "role"=>"reviewer"}], "group"=>{"groupid"=>"test_group", "role"=>"maintainer"}}
   end
+
+  def test_can_be_deleted
+    assert !db_packages(:kdelibs).can_be_deleted?
+  end
 end

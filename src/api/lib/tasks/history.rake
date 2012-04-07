@@ -6,22 +6,21 @@ namespace :db do
     task :rescale => :environment do
      logger = Rails.logger
 
-     maxtime = StatusHistory.find( :first, :select => 'max(`time`) as time' ).time
+     maxtime = StatusHistory.maximum(:time)
      sql = ActiveRecord::Base.connection()
-     sql.execute "delete from status_histories where time < #{maxtime-365*24*3600}"
+     sql.execute "delete from status_histories where time < #{maxtime-365*24*3600}" if maxtime
 
      def cleanup(key, offset, maxtimeoffset)
 
       # we try to make sure all keys are in the same time slots, so start with the overall time
-      maxtime = StatusHistory.find( :first, :select => 'max(`time`) as time' ).time
+      maxtime = StatusHistory.maximum(:time)
       maxtime -= maxtimeoffset
       maxtime = (maxtime / offset) * offset
 
-      mintime = StatusHistory.find( :first, :select => 'min(`time`) as time' ).time
+      mintime = StatusHistory.minimum(:time)
       mintime = (mintime / offset) * offset
       
-      allitems = StatusHistory.find( :all, :conditions => [ '`key` = ? and `time` < ?',
-                                     key, maxtime ], :order => :time )
+      allitems = StatusHistory.where('`key` = ? and `time` < ?', key, maxtime).order(:time ).all
 	return unless allitems.length > 0
         curmintime = mintime
         while allitems.length > 0
@@ -42,7 +41,7 @@ namespace :db do
           end
      end
      
-     keys = StatusHistory.find( :all, :select => 'DISTINCT `key`' ).collect {|item| item.key}
+     keys = StatusHistory.select('DISTINCT `key`' ).all.collect {|item| item.key}
      keys.each do |key|
        StatusHistory.transaction do
 

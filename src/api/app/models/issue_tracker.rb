@@ -1,6 +1,5 @@
 require 'xmlrpc/client'
 require 'opensuse/backend'
-require 'workers/update_package_meta_job.rb'
 
 class IssueTracker < ActiveRecord::Base
   has_many :issues, :dependent => :destroy
@@ -20,17 +19,24 @@ class IssueTracker < ActiveRecord::Base
     Suse::Backend.put_source(path, IssueTracker.all.to_xml(DEFAULT_RENDER_PARAMS))
 
     # We need to parse again ALL sources ...
-    Delayed::Job.enqueue UpdatePackageMetaJob.new
-  end
-
-  def self.get_by_name(name)
-    tracker = self.find_by_name(name)
-    raise UnknownObjectError unless tracker
-    return tracker
+    IssueTracker.first.delay.update_package_metadata
   end
 
   before_validation(:on => :create) do
     self.issues_updated ||= Time.now
+  end
+
+  def update_package_metadata
+    DbProject.find(:all).each do |prj|
+      next unless DbProject.exists?(prj)
+      prj.db_packages.each do |pkg|
+        next unless DbPackage.exists?(pkg)
+        begin
+          pkg.set_package_kind
+        rescue Suse::Backend::HTTPError
+        end
+      end
+    end
   end
 
   # Checks if the given issue belongs to this issue tracker
