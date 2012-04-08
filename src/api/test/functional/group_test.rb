@@ -15,6 +15,14 @@ class GroupControllerTest < ActionController::IntegrationTest
     assert_xml_tag :tag => 'directory', :child => {:tag => 'entry'}
     assert_xml_tag :tag => 'entry', :attributes => {:name => 'test_group'}
     assert_xml_tag :tag => 'entry', :attributes => {:name => 'test_group_b'}
+
+    get "/group?login=adrian"
+    assert_response :success
+    assert_xml_tag :tag => 'entry', :attributes => {:name => 'test_group'}
+
+    get "/group?prefix=test"
+    assert_response :success
+    assert_xml_tag :tag => 'entry', :attributes => {:name => 'test_group'}
   end
 
   def test_list_users_of_group
