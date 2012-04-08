@@ -251,8 +251,11 @@ OBSApi::Application.routes.draw do
     match 'status/request/:id' => 'status#request'
     match 'status/project/:id' => 'status#project', :constraints => { :id => /[^\/]*/ }
 
+    match "/404" => "main#notfound"
+
     # Install the default route as the lowest priority.
     match '/:controller(/:action(/:id))'
     match ':controller/:action'
+
   end
 end

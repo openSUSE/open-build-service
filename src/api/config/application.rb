@@ -90,6 +90,8 @@ module OBSApi
     
     config.action_controller.perform_caching = true
 
+    config.exceptions_app = self.routes
+
     # See Rails::Configuration for more options
     config.after_initialize do
       #ExceptionNotifier.exception_recipients = CONFIG["exception_recipients"]

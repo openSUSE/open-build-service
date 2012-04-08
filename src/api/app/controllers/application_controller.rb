@@ -29,9 +29,6 @@ class ApplicationController < ActionController::Base
   @user_permissions = nil
   @http_user = nil
 
-  helper RbacHelper
-
-
   before_filter :validate_xml_request, :add_api_version
   if defined?( RESPONSE_SCHEMA_VALIDATION ) && RESPONSE_SCHEMA_VALIDATION == true
     after_filter :validate_xml_response
@@ -443,9 +440,6 @@ class ApplicationController < ActionController::Base
   end
 
   def rescue_with_handler(exception)
-	  logger.debug("\n#{exception.class} (#{exception.message}):\n  " +
-		                          exception.backtrace.join("\n  ") + "\n\n")
-
     case exception
     when Suse::Backend::NotFoundError
       render_error :message => exception.message, :status => 404

@@ -39,9 +39,7 @@ class ArchitecturesController < ApplicationController
   # GET /architecture/i386
   # GET /architecture/i386.xml
   def show
-    unless params[:id]
-      render_error :status => 400, :errorcode => "missing_parameter'", :message => "Missing parameter 'name'" and return
-    end
+    required_parameters :id
     @architecture = Architecture.find_by_name(params[:id])
     unless @architecture
       render_error :status => 400, :errorcode => "unknown_architecture", :message => "Architecture does not exist: #{params[:id]}" and return
@@ -61,9 +59,7 @@ class ArchitecturesController < ApplicationController
 
   # POST /architecture/i386
   def create
-    unless params[:id]
-      render_error :status => 400, :errorcode => "missing_parameter'", :message => "Missing parameter 'name'" and return
-    end
+    required_parameters :id
 
     xml = REXML::Document.new(request.raw_post)
     @architecture = Architecture.new(
@@ -83,9 +79,7 @@ class ArchitecturesController < ApplicationController
 
   # PUT /architecture/i385
   def update
-    unless params[:id]
-      render_error :status => 400, :errorcode => "missing_parameter'", :message => "Missing parameter 'name'" and return
-    end
+    required_parameters :id
     @architecture = Architecture.find_by_name(params[:id])
     unless @architecture
       render_error :status => 400, :errorcode => "unknown_architecture", :message => "Architecture does not exist: #{params[:id]}" and return
@@ -104,9 +98,7 @@ class ArchitecturesController < ApplicationController
 
   # DELETE /architecture/i386
   def delete
-    unless params[:id]
-      render_error :status => 400, :errorcode => "missing_parameter'", :message => "Missing parameter 'name'" and return
-    end
+    required_parameters :id
     @architecture = Architecture.find_by_name(params[:id])
     @architecture.destroy
 
