@@ -123,11 +123,7 @@ outputlines = true
 if options[:port] == DEFAULT_PORT
   frontend = Thread.new do
     puts "Starting test webui at port #{options[:port]} ..."
-    cmdline="./script/server"
-    if ENV["DO_COVERAGE"]
-      cmdline="rcov --aggregate coverage/aggregate.data ./script/server --"
-    end
-    webui_out = IO.popen("cd ../webui; exec #{cmdline} -e test -p #{options[:port]} 2>&1")
+    webui_out = IO.popen("cd ../webui; exec ./script/server -e test -p #{options[:port]} 2>&1")
     puts "Webui started with PID: #{webui_out.pid}"
     begin
       Process.setpgid webui_out.pid, 0
@@ -219,7 +215,8 @@ if options[:headless]
   display = Headless.new
   display.start
 end
-driver = WebDriver.for :firefox #, :remote , "http://localhost:5910'
+driver = WebDriver.for :firefox
+#driver = WebDriver.for :chrome #, :remote , "http://localhost:5910'
 #driver.manage.timeouts.implicit_wait = 3 # seconds
 $page = WebPage.new driver
 time_started = Time.now

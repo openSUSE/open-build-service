@@ -94,8 +94,12 @@ class TestCase
       @message = error.inspect + "\n"
       error.backtrace.each { |line| @message += line + "\n" }
       @screenshot = $data[:report_path] + "#{@name}.png"
-      $page.save_screenshot @screenshot
-      $page.save_source_html $data[:report_path] + "#{@name}.source.html"
+      begin
+        $page.save_screenshot @screenshot
+        $page.save_source_html $data[:report_path] + "#{@name}.source.html"
+      rescue Exception => error
+        # keep original error 
+      end
     else
       @status = :pass
       @message = "Cheers!"
