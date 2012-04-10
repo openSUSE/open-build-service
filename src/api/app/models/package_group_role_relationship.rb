@@ -9,8 +9,9 @@ class PackageGroupRoleRelationship < ActiveRecord::Base
   validates :db_package, :presence => true
   validates :role, :presence => true
 
-  validate :check_uniqueness
+  attr_accessible :db_package, :group, :role
 
+  validate :check_uniqueness
   protected
   def check_uniqueness
     if PackageGroupRoleRelationship.where("db_package_id = ? AND role_id = ? AND bs_group_id = ?", self.db_package, self.role, self.group).first

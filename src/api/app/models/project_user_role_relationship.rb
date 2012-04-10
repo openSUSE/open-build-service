@@ -3,6 +3,8 @@ class ProjectUserRoleRelationship < ActiveRecord::Base
   belongs_to :user, :foreign_key => 'bs_user_id'
   belongs_to :role
 
+  attr_accessible :db_project, :user, :role
+
   @@project_user_cache = nil
 
   validate :check_duplicates, :on => :create

@@ -8,10 +8,12 @@ class Architecture < ActiveRecord::Base
 
   has_many :flags
 
+  attr_accessible :available, :recommended
+
   def self.archcache
     return @cache if @cache
     @cache = Hash.new
-    find(:all).each do |arch|
+    Architecture.all.each do |arch|
       @cache[arch.name] = arch
     end
     return @cache

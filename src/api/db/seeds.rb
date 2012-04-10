@@ -104,9 +104,7 @@ DbProjectType.find_or_create_by_name("maintenance_release")
 
 # default repository to link when original one got removed
 d = DbProject.find_or_create_by_name("deleted")
-r = Repository.new( :name => "deleted", :db_project => d )
-d.repositories << r
-d.save
+d.repositories.create name: "deleted"
 
 # set default configuration settings
 Configuration.find_or_create_by_title_and_description("Open Build Service", <<-EOT

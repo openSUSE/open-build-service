@@ -30,6 +30,8 @@ class DbPackage < ActiveRecord::Base
   has_many :db_package_kinds, :dependent => :destroy
   has_many :db_package_issues, :dependent => :destroy
 
+  attr_accessible :name, :title, :description
+
   # disable automatic timestamp updates (updated_at and created_at)
   # but only for this class, not(!) for all ActiveRecord::Base instances
   def record_timestamps

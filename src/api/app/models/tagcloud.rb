@@ -27,14 +27,13 @@ class Tagcloud
 
     elsif opt[:scope] == "user"
       user = opt[:user]
-      @tags = user.tags.find(:all, :group => "name")
+      @tags = user.tags.group(:name).all
       #initialize the tag count in the user context
       @tags.each do |tag|
         tag.count(:scope => "user", :user => user)
       end
 
     else
-#      @tags = Tag.find(:all, :group => "id")
       @tags = Tag.find( :all,
                  :from => 'tags, taggings',
                  :select => 'tags.*, count(tags.id) AS sql_count',

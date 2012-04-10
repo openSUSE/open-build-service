@@ -5,6 +5,8 @@ class Issue < ActiveRecord::Base
   belongs_to :issue_tracker
   belongs_to :owner, :class_name => "User"
 
+  attr_accessible :name
+
   scope :stateless, where("state is NULL")
 
   def self.get_by_name_and_tracker( name, issue_tracker_name, force_update=nil )

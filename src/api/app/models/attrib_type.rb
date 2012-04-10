@@ -9,6 +9,8 @@ class AttribType < ActiveRecord::Base
   has_many :allowed_values, :class_name => 'AttribAllowedValue', :dependent => :destroy
   has_many :attrib_type_modifiable_bies, :class_name => 'AttribTypeModifiableBy', :dependent => :destroy
 
+  attr_accessible :name, :attrib_namespace
+
   class << self
     def list_all(namespace=nil)
       if namespace

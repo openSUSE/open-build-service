@@ -6,6 +6,8 @@ class Flag < ActiveRecord::Base
 
   belongs_to :architecture
 
+  attr_accessible :repo, :status, :flag, :position, :architecture, :db_project, :db_package
+
   def to_xml(builder)
     raise RuntimeError.new( "FlagError: No flag-status set. \n #{self.inspect}" ) if self.status.nil?
     options = Hash.new

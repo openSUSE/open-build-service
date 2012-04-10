@@ -78,7 +78,7 @@ class IssueTrackersController < ApplicationController
     respond_to do |format|
       begin
         ret = @issue_tracker.update_attributes(request.request_parameters)
-      rescue ActiveRecord::UnknownAttributeError
+      rescue ActiveRecord::UnknownAttributeError, ActiveModel::MassAssignmentSecurity::Error
         # User didn't really upload www-form-urlencoded data but raw XML, try to parse that
         xml = Nokogiri::XML(request.raw_post).root
         attribs = {}

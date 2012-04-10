@@ -10,7 +10,7 @@ class GroupController < ApplicationController
       user = User.get_by_login(params[:login])
       list = user.groups
     else
-      list = Group.find(:all)
+      list = Group.all
     end
     if params[:prefix]
       list = list.find_all {|group| group.title.match(/^#{params[:prefix]}/)}
@@ -28,7 +28,7 @@ class GroupController < ApplicationController
     required_parameters :title
 
     @group = Group.get_by_title( params[:title] )
-    @involved_users = GroupsUser.find(:all, :conditions => ["group_id = ?", @group])
+    @involved_users = @group.groups_users.all
   end
 
   private

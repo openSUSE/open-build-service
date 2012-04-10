@@ -4,9 +4,11 @@ class AttribNamespace < ActiveRecord::Base
   has_many :attrib_types, :dependent => :destroy
   has_many :attrib_namespace_modifiable_bies, :class_name => 'AttribNamespaceModifiableBy', :dependent => :destroy
 
+  attr_accessible :name
+
   class << self
     def list_all
-      find :all, :select => "id,name"
+      AttribNamespace.select("id,name").all
     end
   end
 

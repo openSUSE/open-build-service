@@ -7,6 +7,8 @@ class Attrib < ActiveRecord::Base
   belongs_to :attrib_type
   has_many :values, :class_name => 'AttribValue', :order => :position, :dependent => :destroy
 
+  attr_accessible :attrib_type, :binary, :db_project 
+
   def cachekey
     if binary
       "#{attrib_type.attrib_namespace.name}|#{attrib_type.name}|#{binary}"

@@ -309,7 +309,7 @@ class User < ActiveRecord::Base
     return true if is_admin?
 
     # check modifiable_by rules
-    abies = atype.attrib_type_modifiable_bies.find(:all, :include => [:user, :group, :role])
+    abies = atype.attrib_type_modifiable_bies.includes([:user, :group, :role])
     if abies.length > 0
       abies.each do |mod_rule|
         next if mod_rule.user and mod_rule.user != self

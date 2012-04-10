@@ -9,8 +9,9 @@ class ProjectGroupRoleRelationship < ActiveRecord::Base
   validates :db_project, :presence => true
   validates :role, :presence => true
 
-  validate :check_duplicates
+  attr_accessible :db_project, :group, :role
 
+  validate :check_duplicates
   def check_duplicates
     if ProjectGroupRoleRelationship.where("db_project_id = ? AND role_id = ? AND bs_group_id = ?", self.db_project, self.role, self.group).first
       errors.add(:group, "Group already has this role")

@@ -4,6 +4,8 @@ class LinkedProject < ActiveRecord::Base
 
   validate :validate_duplicates
 
+  attr_accessible :db_project, :linked_db_project, :position, :linked_remote_project_name
+
   protected
   def validate_duplicates
     if not self.db_project

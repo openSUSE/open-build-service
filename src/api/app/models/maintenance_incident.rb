@@ -5,6 +5,8 @@ class MaintenanceIncident < ActiveRecord::Base
   belongs_to :db_project, :class_name => "DbProject"
   belongs_to :maintenance_db_project, :class_name => "DbProject"
 
+  attr_accessible :maintenance_db_project
+
   def project_name
       unless self.incident_id
         sql = ActiveRecord::Base.connection();

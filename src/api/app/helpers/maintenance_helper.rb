@@ -44,7 +44,7 @@ module MaintenanceHelper
     mi = nil
     tprj = nil
     DbProject.transaction do
-      mi = MaintenanceIncident.new( :maintenance_db_project_id => maintenanceProject.id ) 
+      mi = MaintenanceIncident.new( :maintenance_db_project => maintenanceProject ) 
       tprj = DbProject.new :name => mi.project_name
       if baseProject
         # copy as much as possible from base project

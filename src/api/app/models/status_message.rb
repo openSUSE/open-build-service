@@ -4,6 +4,8 @@ class StatusMessage < ActiveRecord::Base
 
   scope :alive, where(:deleted_at => nil)
 
+  attr_accessible :message, :user
+
   def delete
     self.deleted_at = Time.now
     self.save
