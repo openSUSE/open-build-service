@@ -16,7 +16,7 @@ class ApidocsController < ApplicationController
   def file
     file = params[:file]
     if ( file =~ /\.(xml|xsd|rng)$/ )
-      file = File.expand( File.join(CONFIG['schema_location'], file) )
+      file = File.expand_path( File.join(CONFIG['schema_location'], file) )
       if File.exist?( file )
         send_file( file, :type => "text/xml",
           :disposition => "inline" )
