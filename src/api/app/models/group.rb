@@ -1,22 +1,32 @@
-require 'active_rbac_mixins/group_mixins'
 
 # The Group class represents a group record in the database and thus a group
 # in the ActiveRbac model. Groups are arranged in trees and have a title.
 # Groups have an arbitrary number of roles and users assigned to them.
 #
-# The Group ActiveRecord class mixes in the "ActiveRbacMixins::GroupMixins::*" modules.
-# These modules contain the actual implementation. It is kept there so
-# you can easily provide your own model files without having to all lines
-# from the engine's directory
-#
 class Group < ActiveRecord::Base
-  include ActiveRbacMixins::GroupMixins::Validation
-  include ActiveRbacMixins::GroupMixins::Core
-
   has_many :groups_users, :foreign_key => 'group_id'
   has_many :project_group_role_relationships, :foreign_key => 'bs_group_id'
   has_many :package_group_role_relationships, :foreign_key => 'bs_group_id'
 
+  validates_format_of  :title,
+                       :with => %r{^[\w\-]*$},
+                       :message => 'must not contain invalid characters.'
+  validates_length_of  :title,
+                       :in => 2..100, :allow_nil => true,
+                       :too_long => 'must have less than 100 characters.',
+                       :too_short => 'must have more than two characters.',
+                       :allow_nil => false
+  # We want to validate a group's title pretty thoroughly.
+  validates_uniqueness_of :title,
+                          :message => 'is the name of an already existing group.'
+
+  # groups have a n:m relation to user
+  has_and_belongs_to_many :users, :uniq => true
+  # groups have a n:m relation to groups
+  has_and_belongs_to_many :roles, :uniq => true
+
+  attr_accessible :title
+  
   class << self
     def render_group_list(user=nil)
 
@@ -61,12 +71,6 @@ class Group < ActiveRecord::Base
       raise GroupNotFoundError.new( "Error: Group '#{title}' not found." ) unless g
       return g
     end
-  end
-
-  def render_axml
-    # FIXME: where is this used? it was commited to git without test case or use
-    logger.debug "----------------- rendering group #{self.title} ------------------------"
-    "<group><title>#{self.title.fast_xs}</title></group>"
   end
 
 end
