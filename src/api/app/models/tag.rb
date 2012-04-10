@@ -2,17 +2,13 @@ class Tag < ActiveRecord::Base
   
   has_many :taggings, :dependent => :destroy
   has_many :db_projects, :through => :taggings,
-  :conditions => "taggings.taggable_type = 'DbProject'"
+           conditions: "taggings.taggable_type = 'DbProject'"
   has_many :db_packages, :through => :taggings,
-  :conditions => "taggings.taggable_type = 'DbPackage'"
+           conditions: "taggings.taggable_type = 'DbPackage'"
   
   has_many :users, :through => :taggings
 
   attr_accessor :cached_count
-  
-  def before_save
-  end
-  
   
   def count(opt={})
     if @cached_count 

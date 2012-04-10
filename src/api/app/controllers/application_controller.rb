@@ -22,6 +22,9 @@ class IssueNotFoundError < Exception; end
 
 class ApplicationController < ActionController::Base
 
+  # cross site scripting is rather unlikely for us, but we better play safe
+  protect_from_forgery
+
   # Do never use a layout here since that has impact on every controller
   layout nil
   # session :disabled => true

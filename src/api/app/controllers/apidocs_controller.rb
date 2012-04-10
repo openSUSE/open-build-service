@@ -16,8 +16,9 @@ class ApidocsController < ApplicationController
   def file
     file = params[:file]
     if ( file =~ /\.(xml|xsd|rng)$/ )
-      if File.exist?( File.expand_path(CONFIG['schema_location']) + "/" + file )
-        send_file( File.expand_path(CONFIG['schema_location']) + "/" + file, :type => "text/xml",
+      file = File.expand( File.join(CONFIG['schema_location'], file) )
+      if File.exist?( file )
+        send_file( file, :type => "text/xml",
           :disposition => "inline" )
       else
         render_error :status => 404, :errorcode => 'file_not_found', :message => 'file was not found'

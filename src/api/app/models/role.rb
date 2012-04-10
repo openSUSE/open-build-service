@@ -8,7 +8,7 @@
 class Role < ActiveRecord::Base
 
   validates_format_of :title,
-                      :with => %r{^[\w \$\^\-\.#\*\+&'"]*$},
+                      :with => %r{^\w*$},
                       :message => 'must not contain invalid characters.'
   validates_length_of :title,
                       :in => 2..100, :allow_nil => true,
@@ -35,9 +35,8 @@ class Role < ActiveRecord::Base
   has_and_belongs_to_many :groups, :uniq => true
   # roles have n:m relations to permissions
   has_and_belongs_to_many :static_permissions, :uniq => true
-  # protect users and groups from mass assigning - we want to do those
-  # manually
-  attr_protected :users, :static_permissions
+
+  attr_accessible :title, :global
 
   scope :global, where(:global => true)
 

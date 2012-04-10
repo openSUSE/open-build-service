@@ -7,7 +7,7 @@ class AdminController < ApplicationController
 
   def list_blacklist_tags
     
-    @tags = BlacklistTag.find(:all)  
+    @tags = BlacklistTag.all
     @tags ||= []
     
     @number_of_tags = @tags.size
@@ -31,34 +31,34 @@ class AdminController < ApplicationController
     
     session[:column] = params[:column] if params[:column]
     
-    
     order_by = (session[:column] ||= 'id')
     sort_by = (session[:sort] ||= 'ASC')
     
-    
     unless allowed_order_by_arguments.include? order_by
       raise ArgumentError.new( "unknown argument '#{session[:column]}'" )
+    else
+      order = order_by
     end
     
     unless allowed_sort_by_arguments.include? sort_by
       raise ArgumentError.new( "unknown argument '#{session[:sort]}'" )
+    else
+      order = order + " " + sort_by
     end
     
-    logger.debug "[TAG: order_by: #{order_by}"
+    logger.debug "[TAG: order_by: #{order}"
     
-    if order_by == 'count' and sort_by == "ASC"
-      tags = Tag.find(:all)
+    if order_by == 'count'
+      tags = Tag.all
       
-      @tags = tags.sort { |x,y| x.count <=> y.count }
-      
-    elsif order_by == 'count' and sort_by == "DESC"
-      tags = Tag.find(:all)
-      
-      @tags = tags.sort { |x,y| y.count <=> x.count }
+      if sort_by == "ASC"
+        @tags = tags.sort { |x,y| x.count <=> y.count }
+      else
+        @tags = tags.sort { |x,y| x.count <=> y.count }
+      end
       
     else
-      
-      @tags = Tag.find(:all, :order => order_by + ' ' + sort_by)
+      @tags = Tag.order(order).all
       
     end
     
@@ -68,7 +68,7 @@ class AdminController < ApplicationController
   
   
   def tags_summary
-    tags = Tag.find(:all)
+    tags = Tag.all
     unused_tags = []
     tags.each do |tag|
       unused_tags << tag if tag.count == 0
@@ -112,8 +112,8 @@ class AdminController < ApplicationController
   
   def show_tag
     @tag = Tag.find(params[:id])
-    @tagged_projects = @tag.db_projects.find(:all, :group => 'name')
-    @tagged_packages = @tag.db_packages.find(:all, :group => 'name')
+    @tagged_projects = @tag.db_projects.group(:name).all
+    @tagged_packages = @tag.db_packages.group(:name).all
   rescue
     invalid_tag
   end
