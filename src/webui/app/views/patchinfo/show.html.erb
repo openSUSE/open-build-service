@@ -6,7 +6,7 @@
   <div class="grid_8 alpha">
   <div class="box show_left show_right">
     <div class="box" style="background-color:#DDDDDD; margin-top: 0">
-    <h2 style="display: inline"><%= @category %> update for <%= @pkg_names.join(", ") %></h2>
+    <h2 style="display: inline"><%= @category %> update for <%= truncate(@pkg_names.join(", "), :length => 20) %></h2>
     <span>
       <% if (@project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] )) && !@project.is_locked? %>
         <span>
@@ -31,7 +31,11 @@
       </div>
     <% end %>
     <strong><%= @summary %></strong><br/>
-    This update was submitted from <%=  render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => @packager.login} %> and rated as <span style="color: <%=patchinfo_rating_color(@rating)%>"><%=@rating%></span>
+    <% if @packager %>
+      This update was submitted from <%=  render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => @packager.login} %> and rated as <span style="color: <%=patchinfo_rating_color(@rating)%>"><%=@rating%></span>
+    <% else %>
+      This update is rated as <span style="color: <%=patchinfo_rating_color(@rating)%>"><%=@rating%></span>
+    <% end %>
   </div>
      <div class="box show_left show_right">
        <b>Description:</b><br/>
