@@ -30,10 +30,10 @@ class BuildServicePage < WebPage
   def validate_page
     super
     res = wait_for_page
-    assert_equal current_user, @user
-    assert_equal @driver.current_url, @url 
     assert_equal res.shift["id"], "header-logo"
     assert_equal res.shift.text, "openSUSE Build Service"
+    assert_equal current_user, @user
+    assert_equal @driver.current_url, @url
   end
   
   

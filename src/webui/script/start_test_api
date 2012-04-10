@@ -17,6 +17,7 @@ rescue Errno::ECONNREFUSED, Errno::ENETUNREACH, Timeout::Error
   # all is good, no API no cry
 end
 
+dienow = false
 lines = []
 outputlines = true
 frontend = Thread.new do
@@ -34,7 +35,7 @@ frontend = Thread.new do
     begin
       line = frontend_out.gets
       lines << line if outputlines
-      if line.nil?
+      if line.nil? && !dienow
         puts "api died"
         puts lines.join()
         exit 1
@@ -77,16 +78,26 @@ system("cd #{RAILS_ROOT}/../api ; RAILS_ENV=test rake db:fixtures:load")
 puts "Test API ready."
 $stdout.flush
 
-dienow = false
 trap("INT") { dienow = true }
 
 while !dienow do
   sleep 1
 end
 
-puts "kill #{frontend_out.pid}"
-Process.kill "INT", frontend_out.pid
+puts "got signal handler"
 
-frontend_out.close
+begin
+  Net::HTTP.start(FRONTEND_HOST, FRONTEND_PORT) do |http|
+    http.get("/admin/killme")
+  end
+  # if we reach this, the API went down cleanly
+  Process.wait(frontend_out.pid)
+rescue Errno::ECONNREFUSED, Errno::ENETUNREACH, Timeout::Error
+  # API is already gone
+  puts "kill #{frontend_out.pid}"
+  Process.kill "INT", frontend_out.pid
+  frontend_out.close
+end
+
 frontend_out = nil
 frontend.join

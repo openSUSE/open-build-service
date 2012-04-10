@@ -4,21 +4,13 @@
 if ENV["DO_COVERAGE"]
   require 'simplecov'
   require 'simplecov-rcov'
+  SimpleCov.command_name "server"
+  # check .simplecov for details
   SimpleCov.start 'rails'
-
-  class SimpleCov::Formatter::MergedFormatter
-    def format(result)
-      SimpleCov::Formatter::HTMLFormatter.new.format(result)
-      if ENV["DO_COVERAGE"] == "rcov"
-        SimpleCov::Formatter::RcovFormatter.new.format(result)
-      end
-    end
-  end
-
-  SimpleCov.formatter = SimpleCov::Formatter::MergedFormatter
 end
 
 APP_PATH = File.expand_path('../../config/application',  __FILE__)
 require File.expand_path('../../config/boot',  __FILE__)
+
 require 'rails/commands'
 
