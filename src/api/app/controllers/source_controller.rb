@@ -1,5 +1,3 @@
-require 'workers/copy_project_job'
-
 include ProductHelper
 include MaintenanceHelper
 include ValidationHelper
@@ -1209,31 +1207,6 @@ class SourceController < ApplicationController
     render :text => prj.expand_flags.to_json, :content_type => 'text/json'
   end
 
-  # called either directly or from delayed job
-  def do_project_copy( tproject, params )
-    # copy entire project in the backend
-    begin
-      path = "/source/#{URI.escape(tproject)}"
-      path << build_query_from_hash(params, [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory, :makeolder])
-      Suse::Backend.post path, nil
-    rescue
-      # we need to check results of backend in any case (also timeout error eg)
-    end
-
-    # set user if nil, needed for delayed job in DbPackage model
-    if User.current == nil
-      User.current = User.find_by_login(params[:user])
-    end
-
-    # restore all package meta data objects in DB
-    backend_pkgs = Collection.find :package, :match => "@project='#{tproject}'"
-    backend_pkgs.each_package do |package|
-      path = "/source/#{URI.escape(tproject)}/#{package.name}/_meta"
-      Package.new(backend_get(path), :project => tproject).save
-      DbPackage.find_by_project_and_name(tproject, package.name).sources_changed
-    end
-  end
-
   private
 
   # POST /source?cmd=createmaintenanceincident
@@ -1498,7 +1471,7 @@ class SourceController < ApplicationController
     end
 
     # create new project object based on oproject
-    unless DbProject.find_by_name project_name
+    unless p = DbProject.find_by_name(project_name)
       oprj = DbProject.get_by_name( oproject )
       p = DbProject.new :name => project_name, :title => oprj.title, :description => oprj.description
       p.add_user @http_user, "maintainer"
@@ -1520,16 +1493,15 @@ class SourceController < ApplicationController
     end
 
     if params.has_key? :nodelay
-      do_project_copy(project_name, params)
+      p.do_project_copy(params)
       render_ok
     else
       # inject as job
-      c = CopyProjectJob.new
-      c.delay.perform(project_name, params)
+      p.delay.do_project_copy(params)
       render_invoked
     end
   end
-
+  
   # POST /source/<project>?cmd=createpatchinfo
   def index_project_createpatchinfo
     #project_name = params[:project]
@@ -1972,7 +1944,7 @@ class SourceController < ApplicationController
         return
       end
     end
-
+    
     prj.store
     render_ok
   end

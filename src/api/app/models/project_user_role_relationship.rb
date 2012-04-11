@@ -37,7 +37,7 @@ class ProjectUserRoleRelationship < ActiveRecord::Base
        ret
   end
 
-  def save
+  def after_save
      logger.debug "ProjectUserRoleRelationship saved!"
      @@project_user_cache = nil 
      super

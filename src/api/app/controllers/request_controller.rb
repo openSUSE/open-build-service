@@ -181,8 +181,8 @@ class RequestController < ApplicationController
         render :text => c.body, :content_type => "text/xml"
       end
     else
-      # directory list of all requests. not very usefull but for backward compatibility...
-      # OBS3: make this more usefull
+      # directory list of all requests. not very useful but for backward compatibility...
+      # OBS3: make this more useful
       pass_to_backend
     end
   end

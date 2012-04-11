@@ -736,31 +736,9 @@ class ApplicationController < ActionController::Base
   public :dispatch_command
   hide_action :dispatch_command
 
+
   def build_query_from_hash(hash, key_list=nil)
-    key_list ||= hash.keys
-    query = key_list.map do |key|
-      if hash.has_key?(key)
-        str = hash[key].to_s
-        begin
-          Iconv.iconv( "UCS4", "UTF-8", str )
-        rescue => e
-          raise IllegalEncodingError.new("Illegal encoded parameter #{e.class} #{e.message}")
-        end
-
-        if hash[key].nil?
-          # just a boolean argument ?
-          [hash[key]].flatten.map {|x| "#{key}"}.join("&")
-        else
-          [hash[key]].flatten.map {|x| "#{key}=#{CGI.escape(hash[key].to_s)}"}.join("&")
-        end
-      end
-    end
-
-    if query.empty?
-      return ""
-    else
-      return "?"+query.compact.join('&')
-    end
+    Suse::Backend.build_query_from_hash(hash, key_list)
   end
 
   def query_parms_missing?(*list)

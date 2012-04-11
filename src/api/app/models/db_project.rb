@@ -1279,6 +1279,31 @@ class DbProject < ActiveRecord::Base
     tocheck_repos.uniq
   end
 
+  # called either directly or from delayed job
+  def do_project_copy( params )
+    # copy entire project in the backend
+    begin
+      path = "/source/#{URI.escape(self.name)}"
+      path << Suse::Backend.build_query_from_hash(params, [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory, :makeolder])
+      Suse::Backend.post path, nil
+    rescue Suse::Backend::HTTPError => e
+      logger.debug "copy failed: #{e.message}"
+      # we need to check results of backend in any case (also timeout error eg)
+    end
+
+    # set user if nil, needed for delayed job in DbPackage model
+    User.current ||= User.find_by_login(params[:user])
+
+    # restore all package meta data objects in DB
+    backend_pkgs = Collection.find :package, :match => "@project='#{self.name}'"
+    backend_pkgs.each_package do |package|
+      path = "/source/#{URI.escape(self.name)}/#{package.name}/_meta"
+      Package.new(Suse::Backend.get(path).body.to_s, :project => self.name).save
+    end
+    reload
+    db_packages.each { |p| p.sources_changed }
+  end
+
   def bsrequest_repos_map(project, backend)
     ret = Hash.new
     uri = URI( "/getprojpack?project=#{CGI.escape(project.to_s)}&nopackages&withrepos&expandedrepos" )

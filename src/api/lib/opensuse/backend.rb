@@ -140,6 +140,33 @@ module Suse
       alias_method :post_source, :post
       alias_method :delete_source, :delete
 
+      def build_query_from_hash(hash, key_list=nil)
+        key_list ||= hash.keys
+        query = key_list.map do |key|
+          if hash.has_key?(key)
+            str = hash[key].to_s
+            begin
+              Iconv.iconv( "UCS4", "UTF-8", str )
+            rescue => e
+              raise IllegalEncodingError.new("Illegal encoded parameter #{e.class} #{e.message}")
+            end
+
+            if hash[key].nil?
+              # just a boolean argument ?
+              [hash[key]].flatten.map {|x| "#{key}"}.join("&")
+            else
+              [hash[key]].flatten.map {|x| "#{key}=#{CGI.escape(hash[key].to_s)}"}.join("&")
+            end
+          end
+        end
+
+        if query.empty?
+          return ""
+        else
+          return "?"+query.compact.join('&')
+        end
+      end
+
       private
 
       def now
@@ -176,37 +203,37 @@ module Suse
         end
       end
 
-  @@backend = nil
-
-  public
-
-  def test_backend?
-    return true if @@backend && @@backend != :dont
-  end
-
-  def do_not_start_test_backend 
-    @@backend = :dont
-  end
-
-  def start_test_backend
-    return unless Rails.env.test?
-    return if @@backend
-    logger.debug "Starting test backend..."
-    @@backend = IO.popen("#{Rails.root}/script/start_test_backend")
-    logger.debug "Test backend started with pid: #{@@backend.pid}"
-    while true do
-      line = @@backend.gets
-      raise RuntimeError.new('Backend died') unless line
-      break if line =~ /DONE NOW/
-      logger.debug line.strip
-    end
-    ActiveXML::Config.global_write_through = true
-    at_exit do
-      logger.debug "kill #{@@backend.pid}"
-      Process.kill "INT", @@backend.pid
       @@backend = nil
-    end
-  end
+
+      public
+
+      def test_backend?
+        return true if @@backend && @@backend != :dont
+      end
+
+      def do_not_start_test_backend 
+        @@backend = :dont
+      end
+
+      def start_test_backend
+        return unless Rails.env.test?
+        return if @@backend
+        logger.debug "Starting test backend..."
+        @@backend = IO.popen("#{Rails.root}/script/start_test_backend")
+        logger.debug "Test backend started with pid: #{@@backend.pid}"
+        while true do
+          line = @@backend.gets
+          raise RuntimeError.new('Backend died') unless line
+          break if line =~ /DONE NOW/
+          logger.debug line.strip
+        end
+        ActiveXML::Config.global_write_through = true
+        at_exit do
+          logger.debug "kill #{@@backend.pid}"
+          Process.kill "INT", @@backend.pid
+          @@backend = nil
+        end
+      end
 
     end
   end

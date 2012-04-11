@@ -1,5 +1,3 @@
-require 'workers/fetch_issues'
-
 class Issue < ActiveRecord::Base
   has_many :db_package_issues, :foreign_key => 'issue_id', :dependent => :destroy
   belongs_to :issue_tracker
@@ -62,8 +60,10 @@ class Issue < ActiveRecord::Base
   end
 
   def after_create
-    # inject update job after issue got created
-    Delayed::Job.enqueue FetchIssues.new
+    # inject update jobs after issue got created
+    IssueTracker.all.each do |t|
+      t.delay.fetch_issues()
+    end
   end
 
   def fetch_updates
