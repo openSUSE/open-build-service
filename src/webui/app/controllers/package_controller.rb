@@ -1198,7 +1198,7 @@ class PackageController < ApplicationController
       logger.error "Package #{@project}/#{params[:package]} not valid"
       unless request.xhr?
         flash[:error] = "\"#{params[:package]}\" is not a valid package name"
-        redirect_to :controller => "project", :action => :packages, :project => @project, :nextstatus => 404 and return
+        redirect_to :controller => 'project', :action => 'show', :project => @project, :nextstatus => 404 and return
       else
         render :text => "\"#{params[:package]}\" is not a valid package name", :status => 404 and return
       end
@@ -1210,7 +1210,7 @@ class PackageController < ApplicationController
       rescue ActiveXML::Transport::Error => e
         flash[:error] = e.message
         unless request.xhr?
-          redirect_to :controller => "project", :action => :packages, :project => @project, :nextstatus => 400 and return
+          redirect_to :controller => 'project', :action => 'show', :project => @project, :nextstatus => 400 and return
         else
         render :text => e.message, :status => 404 and return
         end
@@ -1219,7 +1219,7 @@ class PackageController < ApplicationController
     unless @package
       unless request.xhr?
         flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
-        redirect_to :controller => "project", :action => :packages, :project => @project, :nextstatus => 404
+        redirect_to :controller => 'project', :action => 'show', :project => @project, :nextstatus => 404
       else
         render :text => "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\"", :status => 404 and return
       end

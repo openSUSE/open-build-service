@@ -51,7 +51,7 @@ module PackageHelper
 
   def package_bread_crumb( *args )
     args.insert(0, link_to_if(params['action'] != 'show', @package, :controller => :package, :action => :show, :project => @project, :package => @package ))
-    args.insert(0, link_to( 'Packages', :controller => :project, :action => :packages, :project => @project ))
+    args.insert(0, link_to('Packages', :controller => 'project', :action => 'show', :project => @project))
     project_bread_crumb( *args )
   end
 

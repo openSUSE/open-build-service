@@ -13,7 +13,7 @@ class PatchinfoController < ApplicationController
       rescue ActiveXML::Transport::Error => e
         message, _, _ = ActiveXML::Transport.extract_error_message e
         flash[:error] = message
-        redirect_to :controller => "project", :action => 'packages'
+        redirect_to :controller => 'project', :action => 'show'
       end
     end
     @tracker = "bnc"
