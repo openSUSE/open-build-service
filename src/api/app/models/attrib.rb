@@ -8,6 +8,7 @@ class Attrib < ActiveRecord::Base
   has_many :values, :class_name => 'AttribValue', :order => :position, :dependent => :destroy
 
   attr_accessible :attrib_type, :binary, :db_project 
+  scope :nobinary, where(:binary => nil)
 
   def cachekey
     if binary

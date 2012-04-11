@@ -59,7 +59,7 @@ class SourceController < ApplicationController
 
   def projectlist
     # list all projects (visible to user)
-    dir = DbProject.find(:all, :select => 'name').map {|i| i.name }.sort
+    dir = DbProject.select(:name).all.map {|i| i.name }.sort
     output = String.new
     output << "<?xml version='1.0' encoding='UTF-8'?>\n"
     output << "<directory>\n"
@@ -108,7 +108,7 @@ class SourceController < ApplicationController
             end
             pass_to_backend
 	  elsif pro.kind_of? DbProject
-            dir = pro.db_packages.find(:all, :select => "db_packages.name").map { |i| i.name }.sort
+            dir = pro.db_packages.select("db_packages.name").all.map { |i| i.name }.sort
             output = String.new
             output << "<directory count='#{dir.length}'>\n"
             output << dir.map { |item| "  <entry name=\"#{item.fast_xs}\"/>\n" }.join
@@ -147,7 +147,7 @@ class SourceController < ApplicationController
           # replace links to this projects with links to the "deleted" project
           del_repo = DbProject.find_by_name("deleted").repositories[0]
           lreps.each do |link_rep|
-            link_rep.path_elements.find(:all).each { |pe| pe.destroy }
+            link_rep.path_elements.each { |pe| pe.destroy }
             link_rep.path_elements.create(:link => del_repo, :position => 1)
             link_rep.save
             # update backend

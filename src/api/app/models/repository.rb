@@ -13,7 +13,7 @@ class Repository < ActiveRecord::Base
 
   attr_accessible :name
 
-  scope :not_remote, where("ISNULL(remote_project_name)")
+  scope :not_remote, where(:remote_project_name => nil)
 
   class << self
     def find_by_name(name)

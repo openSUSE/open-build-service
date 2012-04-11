@@ -35,7 +35,7 @@ class AttribNamespace < ActiveRecord::Base
 
   def render_axml
     builder = Nokogiri::XML::Builder.new
-    abies = attrib_namespace_modifiable_bies.find(:all, :include => [:user, :group])
+    abies = attrib_namespace_modifiable_bies.includes([:user, :group]).all
     if abies.length > 0
       builder.namespace(:name => self.name) do |an|
          abies.each do |mod_rule|
@@ -56,7 +56,7 @@ class AttribNamespace < ActiveRecord::Base
   def self.anscache
     return @cache if @cache
     @cache = Hash.new
-    find(:all).each do |ns|
+    all.each do |ns|
       @cache[ns.name] = ns
     end
     return @cache

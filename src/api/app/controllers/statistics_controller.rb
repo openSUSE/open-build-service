@@ -91,12 +91,8 @@ class StatisticsController < ApplicationController
 
   def most_active_projects
     # get all packages including activity values
-    @packages = DbPackage.find :all,
-      :order => 'activity_value DESC',
-      :limit => @limit,
-      :select => 'db_packages.*, ' +
-        "( #{DbPackage.activity_algorithm} ) AS act_tmp," +
-        'IF( @activity<0, 0, @activity ) AS activity_value'
+    @packages = DbPackage.select("db_packages.*, ( #{DbPackage.activity_algorithm} ) AS act_tmp," + 'IF( @activity<0, 0, @activity ) AS activity_value').
+	    limit(@limit).order('activity_value DESC').all
     # count packages per project and sum up activity values
     projects = {}
     @packages.each do |package|
@@ -120,13 +116,8 @@ class StatisticsController < ApplicationController
 
   def most_active_packages
     # get all packages including activity values
-    @packages = DbPackage.find :all,
-      :order => 'activity_value DESC',
-      :limit => @limit,
-      :select => 'db_packages.*, ' +
-        "( #{DbPackage.activity_algorithm} ) AS act_tmp," +
-        'IF( @activity<0, 0, @activity ) AS activity_value'
-
+    @packages = DbPackage.select("db_packages.*, ( #{DbPackage.activity_algorithm} ) AS act_tmp," + 'IF( @activity<0, 0, @activity ) AS activity_value').
+	                limit(@limit).order('activity_value DESC').all
     return @packages
   end
 

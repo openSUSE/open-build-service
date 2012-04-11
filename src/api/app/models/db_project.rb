@@ -140,8 +140,13 @@ class DbProject < ActiveRecord::Base
     # The return value is either a DbProject for local project or an xml 
     # array for a remote project
     def get_by_name(name, opts = {})
-      opts[:conditions] = ["name = BINARY ?", name]
-      dbp = find :first, opts
+      arel = where("name = BINARY ?", name)
+      if opts[:select]
+         arel = arel.select(opts[:select])
+	 opts.delete :select
+      end
+      raise "unsupport options #{opts.inspect}" if opts.size > 0
+      dbp = arel.first
       if dbp.nil?
         dbp, remote_name = find_remote_project(name)
         return dbp.name + ":" + remote_name if dbp
@@ -169,8 +174,13 @@ class DbProject < ActiveRecord::Base
     # to be obsoleted, this function is not throwing exceptions on problems
     # use get_by_name or exists_by_name instead
     def find_by_name(name, opts = {})
-      opts[:conditions] = ["name = BINARY ?", name]
-      dbp = find :first, opts
+      arel = where("name = BINARY ?", name)
+      if opts[:select]
+        arel = arel.select(opts[:select])
+        opts.delete :select
+      end
+      raise "unsupport options #{opts.inspect}" if opts.size > 0
+      dbp = arel.first
       return if dbp.nil?
       return unless check_access?(dbp)
       return dbp
@@ -778,7 +788,7 @@ class DbProject < ActiveRecord::Base
     if binary
       raise RuntimeError, "binary packages are not allowed in project attributes"
     end
-    a = attribs.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = BINARY ? and attrib_namespaces.name = BINARY ? and ISNULL(attribs.binary)", name, namespace).first
+    a = attribs.nobinary.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = BINARY ? and attrib_namespaces.name = BINARY ?", name, namespace).first
     if a && a.readonly? # FIXME: joins make things read only
       a = attribs.where(:id => a.id).first
     end 

@@ -34,14 +34,9 @@ class Tagcloud
       end
 
     else
-      @tags = Tag.find( :all,
-                 :from => 'tags, taggings',
-                 :select => 'tags.*, count(tags.id) AS sql_count',
-                 :conditions => 'tags.id=taggings.tag_id',
-                 :group => 'tags.id'
-                 )
+      @tags = Tag.includes(:taggings).all
       @tags.each do |tag|
-        tag.cached_count = tag.sql_count.to_i
+        tag.cached_count = tag.taggings.count
       end
 
       #initialize the tag count and remove unused tags from the list
