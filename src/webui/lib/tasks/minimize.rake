@@ -1,3 +1,4 @@
+require 'fileutils'
 require 'tempfile'
 
 # Beware, order matters:
@@ -87,9 +88,11 @@ desc 'Mimimize all static assets'
 task :minimize => ['minimize:css', 'minimize:js']
 
 namespace :minimize do
+  require 'rubygems'
 
-  desc 'Minimize JavaScript with UglifyJS'
+  desc 'Minimize JavaScript'
   task :js do
+    require 'uglifier'
     # UglifyJS only accepts one input file, thus put everything into one big blob:
     tmpfile = Tempfile.new('ugly_js')
     JAVASCRIPT_FILENAMES.each do |js_filename|
@@ -99,13 +102,12 @@ namespace :minimize do
       end
     end
     tmpfile.close
-    system("uglifyjs -v #{tmpfile.path} > public/javascripts/obs.min.js")
-    tmpfile.unlink
+    Uglifier.compile(File.read(tmpfile.path))
+    FileUtils.mv(tmpfile.path, 'public/javascripts/obs.min.js')
   end
 
   desc 'Minimize CSS'
   task :css do
-    require 'rubygems'
     require 'cssmin'
     MINIFIED_CSS_FILENAME = 'public/stylesheets/obs.min.css'
 

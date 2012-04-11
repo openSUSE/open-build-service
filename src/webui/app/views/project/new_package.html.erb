@@ -21,7 +21,7 @@
   <%= text_field_tag 'title', @package_title, :size => 80 %><br/>
   <strong>Description:</strong><br/>
   <%= text_area_tag 'description', @package_description, :cols => 80, :rows => 10 %><br/>
-  <% unless HIDE_PRIVATE_OPTIONS == true %>
+  <% unless CONFIG['hide_private_options'] == true %>
     <%= check_box_tag :source_protection %>Deny access to sources of package.<br/>
   <% end %>
   <%= check_box_tag :disable_publishing %>Disable build results publishing.

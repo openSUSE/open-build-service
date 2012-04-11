@@ -97,10 +97,10 @@
       </ul>
     <% end %>
   </div>
-  <% if (not @bugowners_mail.empty? and !BUGZILLA_HOST.nil?) or session[:login] %>
+  <% if (not @bugowners_mail.empty? and !CONFIG['bugzilla_host'].nil?) or session[:login] %>
     <div class="grid_16 alpha omega">
       <ul class="horizontal-list">
-        <% if not @bugowners_mail.empty? and !BUGZILLA_HOST.nil? %>
+        <% if not @bugowners_mail.empty? and !CONFIG['bugzilla_host'].nil? %>
           <li>
             <%= link_to(image_tag('tools-report-bug.png', :title => 'Report bug'), bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>
             <%= link_to('Report bug', bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>

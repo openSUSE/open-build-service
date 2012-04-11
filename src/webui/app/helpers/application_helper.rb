@@ -69,8 +69,8 @@ module ApplicationHelper
   end
 
   def repo_url(project, repo='' )
-    if defined? DOWNLOAD_URL
-      "#{DOWNLOAD_URL}/" + project.to_s.gsub(/:/,':/') + "/#{repo}"
+    if defined? CONFIG['download_url']
+      "#{CONFIG['download_url']}/" + project.to_s.gsub(/:/,':/') + "/#{repo}"
     else
       nil
     end
@@ -90,12 +90,12 @@ module ApplicationHelper
   end
 
   def bugzilla_url(email_list="", desc="")
-    return '' if BUGZILLA_HOST.nil?
+    return '' if CONFIG['bugzilla_host'].nil?
     assignee = email_list.first if email_list
     if email_list.length > 1
       cc = ("&cc=" + email_list[1..-1].join("&cc=")) if email_list
     end
-    URI.escape("#{BUGZILLA_HOST}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd party software&assigned_to=#{assignee}#{cc}&short_desc=#{desc}")
+    URI.escape("#{CONFIG['bugzilla_host']}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd party software&assigned_to=#{assignee}#{cc}&short_desc=#{desc}")
   end
 
   def get_random_sponsor_image

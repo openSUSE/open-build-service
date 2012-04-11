@@ -1,14 +1,39 @@
+# Edit this Gemfile to bundle your application's dependencies.
+# This preamble is the current preamble for Rails 3 apps; edit as needed.
 source 'http://rubygems.org'
 
-gem 'rails', '2.3.14'
+gem 'rails', '~>3.2.1'
+
+# Gems used only for assets and not required in production environments by default.
+group :assets do
+  gem 'cssmin', '>= 1.0.2'
+  gem 'uglifier', '>= 1.2.2'
+end
+
+group :development do
+  gem 'pry', '>= 0.9.8.4'
+  #gem 'pry-doc', '>= 0.4.1'
+  gem 'sqlite3'
+end
+
+group :test do
+  gem 'ci_reporter'
+  gem 'simplecov-rcov', :require => false, :group => :test
+  gem 'test-unit', '>= 2.0'
+  # See test/test_helper.rb for details:
+  gem 'webrat', '>=0.7.3' # , :git => 'git://github.com/kalv/webrat.git'
+end
+
+gem 'mysql2'
 gem 'nokogiri', '~>1.5.0'
-gem 'xmlhash', '=1.2.2'
-gem 'exception_notification', '<1.1'
-gem 'erubis'
-gem 'rails_xss'
-gem 'test-unit'
-gem 'ci_reporter'
+gem 'delayed_job', '>3.0'
+gem 'delayed_job_active_record'
+gem 'exception_notification', '>=2.3'
+gem 'has_mobile_views', '>= 0.0.2'
+gem 'yajl-ruby'
+gem 'rdoc'
+gem 'xmlhash', '>=1.2.1'
 gem 'fast_xs'
-gem 'webrat', '>=0.4.3'
-gem 'sqlite3'
+gem 'memcache-client', :require => false
+gem 'jquery-rails'
 

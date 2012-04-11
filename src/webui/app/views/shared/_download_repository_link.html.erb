@@ -1,5 +1,5 @@
-<% unless DOWNLOAD_URL.nil? %>
-  <% url = "#{DOWNLOAD_URL}/#{project.to_s.gsub(/:/,':/')}/#{repository}" %>
+<% unless CONFIG['download_url'].nil? %>
+  <% url = "#{CONFIG['download_url']}/#{project.to_s.gsub(/:/,':/')}/#{repository}" %>
   <%= link_to(image_tag('icons/drive_web.png'), url) %>
   <%= link_to('Go to download repository', url) %>
 <% end %>
