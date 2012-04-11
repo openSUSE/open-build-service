@@ -154,7 +154,7 @@ class DbPackage < ActiveRecord::Base
       SELECT pack.*
       FROM db_packages pack
       LEFT OUTER JOIN db_projects pro ON pack.db_project_id = pro.id
-      WHERE pro.name = BINARY ? AND pack.name = BINARY ?
+      WHERE pro.name = ? AND pack.name = ?
       END_SQL
 
       result = DbPackage.find_by_sql [sql, project.to_s, package.to_s]
@@ -169,7 +169,7 @@ class DbPackage < ActiveRecord::Base
       FROM db_packages pack
       LEFT OUTER JOIN db_projects pro ON pack.db_project_id = pro.id
       LEFT OUTER JOIN db_package_kinds kinds ON kinds.db_package_id = pack.id
-      WHERE pro.name = BINARY ? AND kinds.kind = BINARY ?
+      WHERE pro.name = ? AND kinds.kind = ?
       END_SQL
 
       result = DbPackage.find_by_sql [sql, project.to_s, kind.to_s]
@@ -186,11 +186,11 @@ class DbPackage < ActiveRecord::Base
       FROM db_packages pack
       LEFT OUTER JOIN attribs attr ON pack.id = attr.db_package_id
       LEFT OUTER JOIN attribs attrprj ON pack.db_project_id = attrprj.db_project_id
-      WHERE ( attr.attrib_type_id = BINARY ? or attrprj.attrib_type_id = BINARY ? )
+      WHERE ( attr.attrib_type_id = ? or attrprj.attrib_type_id = ? )
       END_SQL
 
       if package
-        sql += " AND pack.name = BINARY ? GROUP by pack.id"
+        sql += " AND pack.name = ? GROUP by pack.id"
         ret = DbPackage.find_by_sql [sql, attrib_type.id.to_s, attrib_type.id.to_s, package]
         ret.each do |dbpkg|
           ret.delete(dbpkg) unless DbPackage.check_access?(dbpkg)
@@ -212,11 +212,11 @@ class DbPackage < ActiveRecord::Base
       FROM db_packages pack
       LEFT OUTER JOIN attribs attr ON pack.id = attr.db_package_id
       LEFT OUTER JOIN attrib_values val ON attr.id = val.attrib_id
-      WHERE attr.attrib_type_id = BINARY ? AND val.value = BINARY ?
+      WHERE attr.attrib_type_id = ? AND val.value = ?
       END_SQL
 
       if package
-        sql += " AND pack.name = BINARY ?"
+        sql += " AND pack.name = ?"
         ret = DbPackage.find_by_sql [sql, attrib_type.id.to_s, value.to_s, package]
         ret.each do |dbpkg|
           ret.delete(dbpkg) unless DbPackage.check_access?(dbpkg)
@@ -237,10 +237,6 @@ class DbPackage < ActiveRecord::Base
         'db_packages.activity_index - ' +
         'POWER( TIME_TO_SEC( TIMEDIFF( NOW(), db_packages.updated_at ))/86400, 1.55 ) /10 ' +
         ')'
-    end
-
-    def find_by_name(name)
-      where("name = BINARY ?", name).first
     end
 
   end
@@ -652,9 +648,9 @@ class DbPackage < ActiveRecord::Base
 
   def find_attribute( namespace, name, binary=nil )
     if binary
-      a = attribs.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = BINARY ? and attrib_namespaces.name = BINARY ? AND attribs.binary = BINARY ?", name, namespace, binary).first
+      a = attribs.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = ? and attrib_namespaces.name = ? AND attribs.binary = ?", name, namespace, binary).first
     else
-      a = attribs.nobinary.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = BINARY ? and attrib_namespaces.name = BINARY ?", name, namespace).first
+      a = attribs.nobinary.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = ? and attrib_namespaces.name = ?", name, namespace).first
     end
     if a && a.readonly? # FIXME - there must be a way with :through to get this without readonly
       a = attribs.where(:id => a.id).first

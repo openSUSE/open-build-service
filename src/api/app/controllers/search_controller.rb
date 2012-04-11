@@ -111,7 +111,7 @@ class SearchController < ApplicationController
       if params[:project]
          packages = DbPackage.get_by_project_and_name(params[:project], params[:package])
       else
-         packages = DbPackage.where("name = BINARY ?", params[:package]).all
+         packages = DbPackage.where(name: params[:package]).all
       end
     elsif project
       packages = project.db_packages

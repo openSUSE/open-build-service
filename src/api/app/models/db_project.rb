@@ -140,7 +140,7 @@ class DbProject < ActiveRecord::Base
     # The return value is either a DbProject for local project or an xml 
     # array for a remote project
     def get_by_name(name, opts = {})
-      arel = where("name = BINARY ?", name)
+      arel = where(name: name)
       if opts[:select]
          arel = arel.select(opts[:select])
 	 opts.delete :select
@@ -160,7 +160,7 @@ class DbProject < ActiveRecord::Base
 
     # to check existens of a project (local or remote)
     def exists_by_name(name)
-      dbp = where("name = BINARY ?", name).first
+      dbp = where(name: name).first
       if dbp.nil?
         return true if find_remote_project(name)
         return false
@@ -174,7 +174,7 @@ class DbProject < ActiveRecord::Base
     # to be obsoleted, this function is not throwing exceptions on problems
     # use get_by_name or exists_by_name instead
     def find_by_name(name, opts = {})
-      arel = where("name = BINARY ?", name)
+      arel = where(name: name)
       if opts[:select]
         arel = arel.select(opts[:select])
         opts.delete :select
@@ -194,7 +194,7 @@ class DbProject < ActiveRecord::Base
       SELECT prj.*
       FROM db_projects prj
       LEFT OUTER JOIN attribs attrprj ON prj.id = attrprj.db_project_id
-      WHERE attrprj.attrib_type_id = BINARY ?
+      WHERE attrprj.attrib_type_id = ?
       END_SQL
 
       sql += " GROUP by prj.id"
@@ -246,7 +246,7 @@ class DbProject < ActiveRecord::Base
       FROM db_projects prj
       LEFT OUTER JOIN linked_projects lp ON lp.db_project_id = prj.id
       LEFT OUTER JOIN db_projects lprj ON lprj.id = lp.linked_db_project_id
-      WHERE lprj.name = BINARY ?
+      WHERE lprj.name = ?
       END_SQL
       # ACL TODO: should be check this or do we break functionality ?
       DbProject.find_by_sql [sql, self.name]
@@ -788,7 +788,7 @@ class DbProject < ActiveRecord::Base
     if binary
       raise RuntimeError, "binary packages are not allowed in project attributes"
     end
-    a = attribs.nobinary.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = BINARY ? and attrib_namespaces.name = BINARY ?", name, namespace).first
+    a = attribs.nobinary.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = ? and attrib_namespaces.name = ?", name, namespace).first
     if a && a.readonly? # FIXME: joins make things read only
       a = attribs.where(:id => a.id).first
     end 

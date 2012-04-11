@@ -1,30 +1,30 @@
 CREATE TABLE `architectures` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8 NOT NULL,
   `recommended` tinyint(1) DEFAULT '0',
   `available` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `arch_name_index` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `attrib_allowed_values` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `attrib_type_id` int(11) NOT NULL,
-  `value` text,
+  `value` text CHARACTER SET utf8,
   PRIMARY KEY (`id`),
   KEY `attrib_type_id` (`attrib_type_id`),
   CONSTRAINT `attrib_allowed_values_ibfk_1` FOREIGN KEY (`attrib_type_id`) REFERENCES `attrib_types` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `attrib_default_values` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `attrib_type_id` int(11) NOT NULL,
-  `value` text NOT NULL,
+  `value` text CHARACTER SET utf8 NOT NULL,
   `position` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `attrib_type_id` (`attrib_type_id`),
   CONSTRAINT `attrib_default_values_ibfk_1` FOREIGN KEY (`attrib_type_id`) REFERENCES `attrib_types` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `attrib_namespace_modifiable_bies` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -43,10 +43,10 @@ CREATE TABLE `attrib_namespace_modifiable_bies` (
 
 CREATE TABLE `attrib_namespaces` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) DEFAULT NULL,
+  `name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_attrib_namespaces_on_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `attrib_type_modifiable_bies` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -60,9 +60,9 @@ CREATE TABLE `attrib_type_modifiable_bies` (
 
 CREATE TABLE `attrib_types` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `type` varchar(255) DEFAULT NULL,
+  `name` varchar(255) CHARACTER SET utf8 NOT NULL,
+  `description` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `type` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `value_count` int(11) DEFAULT NULL,
   `attrib_namespace_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
@@ -70,24 +70,24 @@ CREATE TABLE `attrib_types` (
   KEY `index_attrib_types_on_name` (`name`),
   KEY `attrib_namespace_id` (`attrib_namespace_id`),
   CONSTRAINT `attrib_types_ibfk_1` FOREIGN KEY (`attrib_namespace_id`) REFERENCES `attrib_namespaces` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `attrib_values` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `attrib_id` int(11) NOT NULL,
-  `value` text NOT NULL,
+  `value` text CHARACTER SET utf8 NOT NULL,
   `position` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_attrib_values_on_attrib_id_and_position` (`attrib_id`,`position`),
   KEY `index_attrib_values_on_attrib_id` (`attrib_id`),
   CONSTRAINT `attrib_values_ibfk_1` FOREIGN KEY (`attrib_id`) REFERENCES `attribs` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `attribs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `attrib_type_id` int(11) NOT NULL,
   `db_package_id` int(11) DEFAULT NULL,
-  `binary` varchar(255) DEFAULT NULL,
+  `binary` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `db_project_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `attribs_index` (`attrib_type_id`,`db_package_id`,`db_project_id`,`binary`),
@@ -97,23 +97,23 @@ CREATE TABLE `attribs` (
   CONSTRAINT `attribs_ibfk_1` FOREIGN KEY (`attrib_type_id`) REFERENCES `attrib_types` (`id`),
   CONSTRAINT `attribs_ibfk_2` FOREIGN KEY (`db_package_id`) REFERENCES `db_packages` (`id`),
   CONSTRAINT `attribs_ibfk_3` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `blacklist_tags` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) DEFAULT NULL,
+  `name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `configurations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) DEFAULT NULL,
-  `description` text,
+  `title` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `description` text CHARACTER SET utf8,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `db_package_issues` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -141,14 +141,14 @@ CREATE TABLE `db_packages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_project_id` int(11) NOT NULL,
   `name` tinyblob NOT NULL,
-  `title` varchar(255) DEFAULT NULL,
-  `description` text,
+  `title` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `description` text CHARACTER SET utf8,
   `created_at` datetime DEFAULT '0000-00-00 00:00:00',
   `updated_at` datetime DEFAULT '0000-00-00 00:00:00',
-  `url` varchar(255) DEFAULT NULL,
+  `url` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `update_counter` int(11) DEFAULT '0',
   `activity_index` float DEFAULT '100',
-  `bcntsynctag` varchar(255) DEFAULT NULL,
+  `bcntsynctag` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `develpackage_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `packages_all_index` (`db_project_id`,`name`(255)),
@@ -157,23 +157,23 @@ CREATE TABLE `db_packages` (
   KEY `updated_at_index` (`updated_at`),
   CONSTRAINT `db_packages_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`),
   CONSTRAINT `db_packages_ibfk_3` FOREIGN KEY (`develpackage_id`) REFERENCES `db_packages` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `db_project_types` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `db_projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` tinyblob NOT NULL,
-  `title` varchar(255) DEFAULT NULL,
-  `description` text,
+  `title` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `description` text CHARACTER SET utf8,
   `created_at` datetime DEFAULT '0000-00-00 00:00:00',
   `updated_at` datetime DEFAULT '0000-00-00 00:00:00',
-  `remoteurl` varchar(255) DEFAULT NULL,
-  `remoteproject` varchar(255) DEFAULT NULL,
+  `remoteurl` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `remoteproject` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `type_id` int(11) DEFAULT NULL,
   `maintenance_project_id` int(11) DEFAULT NULL,
   `develproject_id` int(11) DEFAULT NULL,
@@ -182,7 +182,7 @@ CREATE TABLE `db_projects` (
   KEY `updated_at_index` (`updated_at`),
   KEY `devel_project_id_index` (`develproject_id`),
   KEY `index_db_projects_on_maintenance_project_id` (`maintenance_project_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `db_projects_tags` (
   `db_project_id` int(11) NOT NULL,
@@ -197,37 +197,37 @@ CREATE TABLE `delayed_jobs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `priority` int(11) DEFAULT '0',
   `attempts` int(11) DEFAULT '0',
-  `handler` text,
-  `last_error` text,
+  `handler` text CHARACTER SET utf8,
+  `last_error` text CHARACTER SET utf8,
   `run_at` datetime DEFAULT NULL,
   `locked_at` datetime DEFAULT NULL,
   `failed_at` datetime DEFAULT NULL,
-  `locked_by` varchar(255) DEFAULT NULL,
-  `queue` varchar(255) DEFAULT NULL,
+  `locked_by` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `queue` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `downloads` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `baseurl` varchar(255) DEFAULT NULL,
-  `metafile` varchar(255) DEFAULT NULL,
-  `mtype` varchar(255) DEFAULT NULL,
+  `baseurl` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `metafile` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `mtype` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `architecture_id` int(11) DEFAULT NULL,
   `db_project_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_downloads_on_db_project_id` (`db_project_id`),
   KEY `index_downloads_on_architecture_id` (`architecture_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `flags` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `status` enum('enable','disable') NOT NULL,
-  `repo` varchar(255) DEFAULT NULL,
+  `status` enum('enable','disable') CHARACTER SET utf8 NOT NULL,
+  `repo` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `db_project_id` int(11) DEFAULT NULL,
   `db_package_id` int(11) DEFAULT NULL,
   `architecture_id` int(11) DEFAULT NULL,
   `position` int(11) NOT NULL,
-  `flag` enum('useforbuild','sourceaccess','binarydownload','debuginfo','build','publish','access','lock') NOT NULL,
+  `flag` enum('useforbuild','sourceaccess','binarydownload','debuginfo','build','publish','access','lock') CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   KEY `index_flags_on_db_package_id` (`db_package_id`),
   KEY `index_flags_on_db_project_id` (`db_project_id`),
@@ -236,17 +236,17 @@ CREATE TABLE `flags` (
   CONSTRAINT `flags_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`),
   CONSTRAINT `flags_ibfk_2` FOREIGN KEY (`db_package_id`) REFERENCES `db_packages` (`id`),
   CONSTRAINT `flags_ibfk_3` FOREIGN KEY (`architecture_id`) REFERENCES `architectures` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `groups` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
-  `title` varchar(200) NOT NULL DEFAULT '',
+  `title` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '',
   `parent_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `groups_parent_id_index` (`parent_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `groups_roles` (
   `group_id` int(11) NOT NULL DEFAULT '0',
@@ -277,74 +277,74 @@ CREATE TABLE `incident_counter` (
 
 CREATE TABLE `issue_trackers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `kind` enum('bugzilla','cve','fate','trac','launchpad','sourceforge') DEFAULT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `url` varchar(255) NOT NULL,
-  `show_url` varchar(255) DEFAULT NULL,
-  `regex` varchar(255) NOT NULL,
-  `user` varchar(255) DEFAULT NULL,
-  `password` varchar(255) DEFAULT NULL,
-  `label` text NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8 NOT NULL,
+  `kind` enum('bugzilla','cve','fate','trac','launchpad','sourceforge') CHARACTER SET utf8 DEFAULT NULL,
+  `description` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `url` varchar(255) CHARACTER SET utf8 NOT NULL,
+  `show_url` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `regex` varchar(255) CHARACTER SET utf8 NOT NULL,
+  `user` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `password` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `label` text CHARACTER SET utf8 NOT NULL,
   `issues_updated` datetime NOT NULL,
   `enable_fetch` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `issues` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8 NOT NULL,
   `issue_tracker_id` int(11) NOT NULL,
-  `summary` varchar(255) DEFAULT NULL,
+  `summary` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `owner_id` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
-  `state` enum('OPEN','CLOSED','UNKNOWN') DEFAULT NULL,
+  `state` enum('OPEN','CLOSED','UNKNOWN') CHARACTER SET utf8 DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `owner_id` (`owner_id`),
   KEY `issue_tracker_id` (`issue_tracker_id`),
   KEY `index_issues_on_name_and_issue_tracker_id` (`name`,`issue_tracker_id`),
   CONSTRAINT `issues_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`),
   CONSTRAINT `issues_ibfk_2` FOREIGN KEY (`issue_tracker_id`) REFERENCES `issue_trackers` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `linked_projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_project_id` int(11) NOT NULL,
   `linked_db_project_id` int(11) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
-  `linked_remote_project_name` varchar(255) DEFAULT NULL,
+  `linked_remote_project_name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `linked_projects_index` (`db_project_id`,`linked_db_project_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `maintenance_incidents` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_project_id` int(11) DEFAULT NULL,
   `maintenance_db_project_id` int(11) DEFAULT NULL,
   `request` int(11) DEFAULT NULL,
-  `updateinfo_id` varchar(255) DEFAULT NULL,
+  `updateinfo_id` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `incident_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_maintenance_incidents_on_db_project_id` (`db_project_id`),
   KEY `index_maintenance_incidents_on_maintenance_db_project_id` (`maintenance_db_project_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `messages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_object_id` int(11) DEFAULT NULL,
-  `db_object_type` varchar(255) DEFAULT NULL,
+  `db_object_type` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `send_mail` tinyint(1) DEFAULT NULL,
   `sent_at` datetime DEFAULT NULL,
   `private` tinyint(1) DEFAULT NULL,
   `severity` int(11) DEFAULT NULL,
-  `text` text,
+  `text` text CHARACTER SET utf8,
   PRIMARY KEY (`id`),
   KEY `object` (`db_object_id`),
   KEY `user` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `package_group_role_relationships` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -409,14 +409,14 @@ CREATE TABLE `ratings` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `score` int(11) DEFAULT NULL,
   `db_object_id` int(11) DEFAULT NULL,
-  `db_object_type` varchar(255) DEFAULT NULL,
+  `db_object_type` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `object` (`db_object_id`),
   KEY `user` (`user_id`),
   CONSTRAINT `ratings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `release_targets` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -431,11 +431,11 @@ CREATE TABLE `release_targets` (
 CREATE TABLE `repositories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_project_id` int(11) NOT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `remote_project_name` varchar(255) DEFAULT NULL,
-  `rebuild` enum('transitive','direct','local') DEFAULT NULL,
-  `block` enum('all','local','never') DEFAULT NULL,
-  `linkedbuild` enum('off','localdep','all') DEFAULT NULL,
+  `name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `remote_project_name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `rebuild` enum('transitive','direct','local') CHARACTER SET utf8 DEFAULT NULL,
+  `block` enum('all','local','never') CHARACTER SET utf8 DEFAULT NULL,
+  `linkedbuild` enum('off','localdep','all') CHARACTER SET utf8 DEFAULT NULL,
   `hostsystem_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`db_project_id`,`name`,`remote_project_name`),
@@ -443,7 +443,7 @@ CREATE TABLE `repositories` (
   KEY `hostsystem_id` (`hostsystem_id`),
   CONSTRAINT `repositories_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`),
   CONSTRAINT `repositories_ibfk_2` FOREIGN KEY (`hostsystem_id`) REFERENCES `repositories` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `repository_architectures` (
   `repository_id` int(11) NOT NULL,
@@ -457,13 +457,13 @@ CREATE TABLE `repository_architectures` (
 
 CREATE TABLE `roles` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(100) NOT NULL DEFAULT '',
+  `title` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
   `parent_id` int(11) DEFAULT NULL,
   `global` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `roles_parent_id_index` (`parent_id`),
   CONSTRAINT `roles_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `roles` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `roles_static_permissions` (
   `role_id` int(11) NOT NULL DEFAULT '0',
@@ -485,42 +485,42 @@ CREATE TABLE `roles_users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `schema_migrations` (
-  `version` varchar(255) NOT NULL,
+  `version` varchar(255) CHARACTER SET utf8 NOT NULL,
   UNIQUE KEY `unique_schema_migrations` (`version`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `static_permissions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(200) NOT NULL DEFAULT '',
+  `title` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   UNIQUE KEY `static_permissions_title_index` (`title`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `status_histories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `time` int(11) DEFAULT NULL,
-  `key` varchar(255) DEFAULT NULL,
+  `key` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `value` float NOT NULL,
   PRIMARY KEY (`id`),
   KEY `index_status_histories_on_time_and_key` (`time`,`key`),
   KEY `index_status_histories_on_key` (`key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `status_messages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
-  `message` text,
+  `message` text CHARACTER SET utf8,
   `user_id` int(11) DEFAULT NULL,
   `severity` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `user` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `taggings` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `taggable_id` int(11) DEFAULT NULL,
-  `taggable_type` varchar(255) DEFAULT NULL,
+  `taggable_type` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `tag_id` int(11) DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -530,15 +530,15 @@ CREATE TABLE `taggings` (
   KEY `user_id` (`user_id`),
   CONSTRAINT `taggings_ibfk_1` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`),
   CONSTRAINT `taggings_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `tags` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8 NOT NULL,
   `created_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `tags_name_unique_index` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `updateinfo_counter` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -553,14 +553,14 @@ CREATE TABLE `updateinfo_counter` (
 CREATE TABLE `user_registrations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL DEFAULT '0',
-  `token` text NOT NULL,
+  `token` text CHARACTER SET utf8 NOT NULL,
   `created_at` datetime DEFAULT NULL,
   `expires_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_registrations_user_id_index` (`user_id`),
   KEY `user_registrations_expires_at_index` (`expires_at`),
   CONSTRAINT `user_registrations_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -569,27 +569,27 @@ CREATE TABLE `users` (
   `last_logged_in_at` datetime DEFAULT NULL,
   `login_failure_count` int(11) NOT NULL DEFAULT '0',
   `login` tinyblob NOT NULL,
-  `email` varchar(200) NOT NULL DEFAULT '',
-  `realname` varchar(200) NOT NULL DEFAULT '',
-  `password` varchar(100) NOT NULL DEFAULT '',
-  `password_hash_type` varchar(20) NOT NULL DEFAULT '',
-  `password_salt` varchar(10) NOT NULL DEFAULT '1234512345',
-  `password_crypted` varchar(64) DEFAULT NULL,
+  `email` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `realname` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `password` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `password_hash_type` varchar(20) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `password_salt` varchar(10) CHARACTER SET utf8 NOT NULL DEFAULT '1234512345',
+  `password_crypted` varchar(64) CHARACTER SET utf8 DEFAULT NULL,
   `state` int(11) NOT NULL DEFAULT '1',
-  `adminnote` text,
+  `adminnote` text CHARACTER SET utf8,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_login_index` (`login`(255)),
   KEY `users_password_index` (`password`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `watched_projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `bs_user_id` int(11) NOT NULL DEFAULT '0',
-  `name` varchar(100) NOT NULL DEFAULT '',
+  `name` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `watched_projects_users_fk_1` (`bs_user_id`),
   CONSTRAINT `watched_projects_ibfk_1` FOREIGN KEY (`bs_user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 INSERT INTO schema_migrations (version) VALUES ('1');
 
@@ -872,6 +872,8 @@ INSERT INTO schema_migrations (version) VALUES ('20120320134850');
 INSERT INTO schema_migrations (version) VALUES ('20120407173644');
 
 INSERT INTO schema_migrations (version) VALUES ('20120411112931');
+
+INSERT INTO schema_migrations (version) VALUES ('20120411121152');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

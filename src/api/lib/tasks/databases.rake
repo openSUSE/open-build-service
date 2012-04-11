@@ -48,8 +48,6 @@ namespace :db do
       structure.gsub!(%r{AUTO_INCREMENT=[0-9]* }, '')
       structure.gsub!('auto_increment', 'AUTO_INCREMENT')
       structure.gsub!(%r{default([, ])}, 'DEFAULT\1')
-      structure.gsub!(' COLLATE=utf8_unicode_ci', '')
-      structure.gsub!(' COLLATE utf8_unicode_ci', '')
       structure.gsub!(%r{KEY  *}, 'KEY ')
       structure += "\n"
       # sort the constraint lines always in the same order

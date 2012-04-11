@@ -16,13 +16,8 @@ class Repository < ActiveRecord::Base
   scope :not_remote, where(:remote_project_name => nil)
 
   class << self
-    def find_by_name(name)
-      where("name = BINARY ?", name).first
-    end
-
     def find_by_project_and_repo_name( project, repo )
       result = not_remote.joins(:db_project).where(:db_projects => {:name => project}, :name => repo).first
-
       return result unless result.nil?
 
       #no local repository found, check if remote repo possible

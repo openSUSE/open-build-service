@@ -14,7 +14,7 @@ class AttribType < ActiveRecord::Base
   class << self
     def list_all(namespace=nil)
       if namespace
-        joins(:attrib_namespace).where("attrib_namespaces.name = BINARY ?", namespace).select("attrib_types.id,attrib_types.name").all
+        joins(:attrib_namespace).where("attrib_namespaces.name = ?", namespace).select("attrib_types.id,attrib_types.name").all
       else
         select("id,name").all
       end
@@ -32,7 +32,7 @@ class AttribType < ActiveRecord::Base
       unless namespace and name
         raise ArgumentError, "Need namespace and name as parameters"
       end
-      joins(:attrib_namespace).where("attrib_namespaces.name = BINARY ? and attrib_types.name = BINARY ?", namespace, name).first
+      joins(:attrib_namespace).where("attrib_namespaces.name = ? and attrib_types.name = ?", namespace, name).first
     end
   end
 

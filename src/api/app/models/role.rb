@@ -51,7 +51,7 @@ class Role < ActiveRecord::Base
     end
 
     def get_by_title(title)
-      r = where("title = BINARY ?", title).first
+      r = where(title: title).first
       raise RoleNotFoundError.new( "Error: Role '#{title}' not found." ) unless r
       return r
     end

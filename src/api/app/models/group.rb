@@ -67,7 +67,7 @@ class Group < ActiveRecord::Base
     end
 
     def get_by_title(title)
-      g = where("title = BINARY ?", title).first
+      g = where(title: title).first
       raise GroupNotFoundError.new( "Error: Group '#{title}' not found." ) unless g
       return g
     end

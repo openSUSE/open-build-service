@@ -48,7 +48,7 @@ class User < ActiveRecord::Base
     end
 
     def get_by_login(login)
-      u = where("login = BINARY ?", login).first
+      u = where(login: login).first
       raise UserNotFoundError.new( "Error: User '#{login}' not found." ) unless u
       return u
     end
