@@ -51,8 +51,8 @@ class ConfigurationController < ApplicationController
     end
 
     begin
-      data = "title=#{CGI.escape(params[:title])}%20Open%20Build%20Service&description=#{CGI.escape(params[:description])}"
-      response = ActiveXML::Config::transport_for(:configuration).direct_http(URI('/configuration'), :method => 'PUT', :content_type => 'application/x-www-form-urlencoded', :data => data)
+      data = "<configuration><description>#{CGI.escapeHTML(params[:description])}</description><title><#{CGI.escapeHTML(params[:title])}/title></configuration>"
+      response = ActiveXML::Config::transport_for(:configuration).direct_http(URI('/configuration'), :method => 'PUT', :data => data)
       flash[:note] = "Updated configuration"
       Rails.cache.delete('configuration')
     rescue ActiveXML::Transport::Error => e

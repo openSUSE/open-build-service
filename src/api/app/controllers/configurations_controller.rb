@@ -27,16 +27,11 @@ class ConfigurationsController < ApplicationController
     @configuration = ::Configuration.first
 
     respond_to do |format|
-      begin
-        ret = @configuration.update_attributes(request.request_parameters)
-      rescue ActiveRecord::UnknownAttributeError
-        # User didn't really upload www-form-urlencoded data but raw XML, try to parse that
-        xml = Xmlhash.parse(request.raw_post).get("configuration")
-        attribs = {}
-        attribs[:title] = xml["title"]
-        attribs[:description] = xml["description"]
-        ret = @configuration.update_attributes(attribs)
-      end
+      xml = Xmlhash.parse(request.raw_post).get("configuration")
+      attribs = {}
+      attribs[:title] = xml["title"]
+      attribs[:description] = xml["description"]
+      ret = @configuration.update_attributes(attribs)
       if ret
         format.xml  { head :ok }
         format.json { head :ok }
