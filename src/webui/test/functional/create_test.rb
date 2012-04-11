@@ -14,9 +14,7 @@ class CreateProjectTest < ActionController::IntegrationTest
 
    def test_create_package
       visit '/project/show?project=home:tom'
-      assert_contain(/Packages (0)/)
-      
-      click_link 'Packages'
+      assert_contain(/Packages \(0\)/)
       assert_contain(/This project does not contain any packages/)
 
       click_link 'Create package'
@@ -38,7 +36,7 @@ class CreateProjectTest < ActionController::IntegrationTest
      assert_response :success 
 
      assert_contain 'home:tom:coolstuff'
-     assert_contain(/Packages (0)/)
+     assert_contain(/Packages \(0\)/)
    end
 end
 
