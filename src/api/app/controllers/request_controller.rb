@@ -231,7 +231,7 @@ class RequestController < ApplicationController
       prj = obj
     elsif obj.class == DbPackage
       if defined? obj.package_user_role_relationships
-        obj.package_user_role_relationships.find(:all, :conditions => ["role_id = ?", Role.get_by_title("reviewer").id] ).each do |r|
+        obj.package_user_role_relationships.where(role_id: Role.get_by_title("reviewer").id ).each do |r|
           reviewers << User.find(r.bs_user_id)
         end
       end
@@ -241,7 +241,7 @@ class RequestController < ApplicationController
 
     # add reviewers of project in any case
     if defined? prj.project_user_role_relationships
-      prj.project_user_role_relationships.find(:all, :conditions => ["role_id = ?", Role.get_by_title("reviewer").id] ).each do |r|
+      prj.project_user_role_relationships.where(role_id: Role.get_by_title("reviewer").id ).each do |r|
         reviewers << User.find(r.bs_user_id)
       end
     end
@@ -257,7 +257,7 @@ class RequestController < ApplicationController
       prj = obj
     elsif obj.class == DbPackage
       if defined? obj.package_group_role_relationships
-        obj.package_group_role_relationships.find(:all, :conditions => ["role_id = ?", Role.get_by_title("reviewer").id] ).each do |r|
+        obj.package_group_role_relationships.where(role_id: Role.get_by_title("reviewer").id ).each do |r|
           review_groups << Group.find(r.bs_group_id)
         end
       end
@@ -267,7 +267,7 @@ class RequestController < ApplicationController
 
     # add reviewers of project in any case
     if defined? prj.project_group_role_relationships
-      prj.project_group_role_relationships.find(:all, :conditions => ["role_id = ?", Role.get_by_title("reviewer").id] ).each do |r|
+      prj.project_group_role_relationships.where(role_id: Role.get_by_title("reviewer").id ).each do |r|
         review_groups << Group.find(r.bs_group_id)
       end
     end
@@ -435,7 +435,7 @@ class RequestController < ApplicationController
               unless e and DbPackage.exists_by_project_and_name( tprj, tpkg, true, false)
                 if action.value("type") == "maintenance_release"
                   newPackages << pkg
-                  pkg.db_project.repositories.find(:all, :include => [:release_targets]).each do |repo|
+                  pkg.db_project.repositories.includes(:release_targets).each do |repo|
                     repo.release_targets.each do |rt|
                       newTargets << rt.target_repository.db_project.name
                     end
@@ -451,7 +451,7 @@ class RequestController < ApplicationController
             # is this package source going to a project which is specified as release target ?
             if action.value("type") == "maintenance_release"
               found = nil
-              pkg.db_project.repositories.find(:all, :include => [:release_targets]).each do |repo|
+              pkg.db_project.repositories.includes(:release_targets).each do |repo|
                 repo.release_targets.each do |rt|
                   if rt.target_repository.db_project.name == tprj
                      found = 1
@@ -673,7 +673,7 @@ class RequestController < ApplicationController
         if action.value("type") == "maintenance_release"
           # get sure that the releasetarget definition exists or we release without binaries
           prj = DbProject.get_by_name(action.source.project)
-          prj.repositories.find(:all, :include => [:release_targets]).each do |repo|
+          prj.repositories.includes(:release_targets).each do |repo|
             unless repo.release_targets.size > 0
               render_error :status => 400, :errorcode => "repository_without_releasetarget",
                 :message => "Release target definition is missing in #{prj.name} / #{repo.name}"
@@ -1485,11 +1485,11 @@ class RequestController < ApplicationController
           bugowner = Role.get_by_title("bugowner")
           if action.target.has_attribute? 'package'
              object = object.db_packages.find_by_name(action.target.package)
-              PackageUserRoleRelationship.find(:all, :conditions => ["db_package_id = ? AND role_id = ?", object, bugowner]).each do |r|
+              PackageUserRoleRelationship.where("db_package_id = ? AND role_id = ?", object, bugowner).each do |r|
                 r.destroy
              end
           else
-              ProjectUserRoleRelationship.find(:all, :conditions => ["db_project_id = ? AND role_id = ?", object, bugowner]).each do |r|
+              ProjectUserRoleRelationship.where("db_project_id = ? AND role_id = ?", object, bugowner).each do |r|
                 r.destroy
              end
           end

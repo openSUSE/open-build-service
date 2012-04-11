@@ -6,7 +6,7 @@ class TagController < ApplicationController
   
   #list all available tags as xml list
   def list_xml
-    @taglist = Tag.find(:all)
+    @taglist = Tag.all
     render :partial => "listxml"
   end
   private :list_xml
@@ -64,7 +64,7 @@ class TagController < ApplicationController
   
   def get_tags_by_user
     @user = @http_user
-    @tags = @user.tags.find(:all, :group => "name")
+    @tags = @user.tags.group(:name).all
     @tags
   end
   
@@ -80,9 +80,9 @@ class TagController < ApplicationController
       raise TagNotFoundError.new("Tag #{t} not found") unless tag
 
       unless first_run         
-        @projects = @projects & tag.db_projects.find(:all, :group => "name", :order => "name")      
+        @projects = @projects & tag.db_projects.group(:name).order(:name).all
       else
-        @projects = tag.db_projects.find(:all, :group => "name", :order => "name")
+        @projects = tag.db_projects.group(:name).order(:name).all
         first_run = false 
       end
     end
@@ -106,9 +106,9 @@ class TagController < ApplicationController
       raise TagNotFoundError.new("Tag #{t} not found") unless tag
       
       unless first_run
-        @packages = @packages & tag.db_packages.find(:all, :group => "name", :order => "name")
+        @packages = @packages & tag.db_packages.group(:name).order(:name).all
       else
-        @packages = tag.db_packages.find(:all, :group => "name", :order => "name")
+        @packages = tag.db_packages.group(:name).order(:name).all
         first_run = false
       end
     end
@@ -255,7 +255,7 @@ class TagController < ApplicationController
   
   #TODO helper function, delete me
   def get_taglist
-    tags = Tag.find(:all, :order => :name)
+    tags = Tag.order(:name).all
     return tags
   end
   
@@ -267,7 +267,7 @@ class TagController < ApplicationController
       logger.debug "GET REQUEST for project_tags. User: #{@user}"
       @type = "project" 
       @name = params[:project]
-      @tags = @project.tags.find(:all, :group => "name", :order => :name)
+      @tags = @project.tags.group(:name).order(:name).all
       render :partial => "tags"
       
     elsif request.put?
@@ -312,7 +312,7 @@ class TagController < ApplicationController
       logger.debug "[TAG:] GET REQUEST for package_tags. User: #{@user}"
       
       @type = "package" 
-      @tags = @package.tags.find(:all, :group => "name")
+      @tags = @package.tags.group(:name).all
       render :partial => "tags"
       
     elsif request.put?

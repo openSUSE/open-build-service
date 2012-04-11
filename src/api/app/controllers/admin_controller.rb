@@ -190,7 +190,7 @@ class AdminController < ApplicationController
   
   
   def delete_unused_tags
-    tags = Tag.find(:all)
+    tags = Tag.all
     unused_tags = []
     tags.each do |tag|
       unused_tags << tag if tag.count == 0

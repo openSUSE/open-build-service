@@ -169,7 +169,7 @@ class PublicController < ApplicationController
     d = scan_distfile(distfile)
 
     @binary_links = {}
-    @pkg.db_project.repositories.find(:all, :include => {:path_elements => {:link => :db_project}}).each do |repo|
+    @pkg.db_project.repositories.includes({:path_elements => {:link => :db_project}}).each do |repo|
       # TODO: this code doesnt handle path elements and layering
       # TODO: walk the path and find the base repos? is that desired?
       dist = d[repo.name]

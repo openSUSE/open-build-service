@@ -18,9 +18,7 @@ class MessageController < ApplicationController
       elsif @project
         @messages = @project.messages
       else
-        @messages = Message.find :all,
-          :limit => params[:limit],
-          :order => 'created_at DESC'
+        @messages = Message.limit(params[:limit]).order('created_at DESC').all
       end
 
     elsif request.put?

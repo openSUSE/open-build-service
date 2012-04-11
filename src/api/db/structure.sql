@@ -207,26 +207,6 @@ CREATE TABLE `delayed_jobs` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `download_stats` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `db_project_id` int(11) DEFAULT NULL,
-  `db_package_id` int(11) DEFAULT NULL,
-  `repository_id` int(11) DEFAULT NULL,
-  `architecture_id` int(11) DEFAULT NULL,
-  `filename` varchar(255) DEFAULT NULL,
-  `filetype` varchar(10) DEFAULT NULL,
-  `version` varchar(255) DEFAULT NULL,
-  `release` varchar(255) DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL,
-  `counted_at` datetime DEFAULT NULL,
-  `count` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `project` (`db_project_id`),
-  KEY `package` (`db_package_id`),
-  KEY `repository` (`repository_id`),
-  KEY `arch` (`architecture_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE `downloads` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `baseurl` varchar(255) DEFAULT NULL,
@@ -890,6 +870,8 @@ INSERT INTO schema_migrations (version) VALUES ('20120319133739');
 INSERT INTO schema_migrations (version) VALUES ('20120320134850');
 
 INSERT INTO schema_migrations (version) VALUES ('20120407173644');
+
+INSERT INTO schema_migrations (version) VALUES ('20120411112931');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
