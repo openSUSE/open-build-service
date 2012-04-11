@@ -34,14 +34,14 @@ class ProjectControllerTest < ActionController::IntegrationTest
   end
 
   def test_packages_empty
-    get "/project/packages?project=home:coolo"
+    get "/project/show?project=home:coolo"
     assert_response :success
     assert( assigns(:packages).size == 0 )
     assert( assigns(:project) )
   end
 
   def test_packages_kde4
-    get "/project/packages?project=kde4"
+    get "/project/show?project=kde4"
     assert_response :success
     assert( assigns(:packages).size == 2 )
     assert( assigns(:project) )
