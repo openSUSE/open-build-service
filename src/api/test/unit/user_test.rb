@@ -12,6 +12,10 @@ class UserTest < ActiveSupport::TestCase
   def test_basics
     assert @project
     assert @user
+
+    a = StaticPermission.new :title => 'this-one-should_go_through'
+    assert a.valid?
+    a.delete
   end
 
   def test_access
