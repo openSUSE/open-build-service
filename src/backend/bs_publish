@@ -1432,7 +1432,7 @@ sub publish {
       return;
     }
     if (system($BSConfig::publishprogram->{$prp}, $prp, $extrep)) {
-      die("      $BSConfig::publishprogram{$prp} failed: $?\n");
+      die("      $BSConfig::publishprogram->{$prp} failed: $?\n");
     }
     goto publishprog_done;
   }
