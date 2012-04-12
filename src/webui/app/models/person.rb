@@ -137,34 +137,38 @@ class Person < ActiveXML::Base
         hash = { :package => { :project => pi.project, :name => pi.name } }
         issues = Array.new
 
-        # get users open issues for package
-        path = "/source/#{URI.escape(pi.project)}/#{URI.escape(pi.name)}?view=issues&states=OPEN&login=#{CGI.escape(login)}"
-        frontend = ActiveXML::Config::transport_for( :package )
-        answer = frontend.direct_http URI(path), :method => "GET"
-        doc = ActiveXML::Base.new(answer)
-        doc.each("/package/issue") do |s|
-          i = {}
-          i[:name]= s.find_first("name").text
-          i[:tracker]= s.find_first("tracker").text
-          i[:label]= s.find_first("label").text
-          i[:url]= s.find_first("url").text
-          if summary=s.find_first("summary")
-            i[:summary] = summary.text
+        begin
+          # get users open issues for package
+          path = "/source/#{URI.escape(pi.project)}/#{URI.escape(pi.name)}?view=issues&states=OPEN&login=#{CGI.escape(login)}"
+          frontend = ActiveXML::Config::transport_for( :package )
+          answer = frontend.direct_http URI(path), :method => "GET"
+          doc = ActiveXML::Base.new(answer)
+          doc.each("/package/issue") do |s|
+            i = {}
+            i[:name]= s.find_first("name").text
+            i[:tracker]= s.find_first("tracker").text
+            i[:label]= s.find_first("label").text
+            i[:url]= s.find_first("url").text
+            if summary=s.find_first("summary")
+              i[:summary] = summary.text
+            end
+            if state=s.find_first("state")
+              i[:state] = state.text
+            end
+            if login=s.find_first("login")
+              i[:login] = login.text
+            end
+            if updated_at=s.find_first("updated_at")
+              i[:updated_at] = updated_at.text
+            end
+            issues << i
           end
-          if state=s.find_first("state")
-            i[:state] = state.text
-          end
-          if login=s.find_first("login")
-            i[:login] = login.text
-          end
-          if updated_at=s.find_first("updated_at")
-            i[:updated_at] = updated_at.text
-          end
-          issues << i
-        end
 
-        hash[:issues] = issues
-        array << hash
+          hash[:issues] = issues
+          array << hash
+        rescue ActiveXML::Transport::NotFoundError => e
+          # Ugly catch for projects that where deleted while this loop is running... bnc#755463)
+        end
       end
       return array
     end
