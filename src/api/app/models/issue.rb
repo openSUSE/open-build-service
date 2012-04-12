@@ -49,7 +49,7 @@ class Issue < ActiveRecord::Base
     {
         'OPEN' => 1,
         'CLOSED' => 2,
-        'UNKNOWN' => 3,
+        'UNKNOWN' => 3
     }
   end
 
