@@ -13,65 +13,67 @@
     <% end %>
   </div>
   <div class="grid_6 omega">
-    <ul class="clean_list">
-      <% if @failures and @failures > 0 %>
-        <li>
-          <%= image_tag 'icons/exclamation.png' %>
-          <%= @failures %>
-          <%= link_to "error#{@failures == 1 ? "" : "s"}", :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
-        </li>
-      <% end %>
+    <% if @failures && @failures > 0 || @package.has_element?(:devel) || !@package.developed_packages.blank? || @package.name =~ %r{^_patchinfo} || @linking_packages && @linking_packages.size > 0 || @package.linkinfo %>
+      <ul class="clean_list">
+        <% if @failures && @failures > 0 %>
+          <li>
+            <%= image_tag 'icons/exclamation.png' %>
+            <%= @failures %>
+            <%= link_to "error#{@failures == 1 ? "" : "s"}", :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
+          </li>
+        <% end %>
 
-      <%= render :partial => "shared/open_requests" %>
+        <%= render :partial => "shared/open_requests" %>
 
-      <% if @package.has_element? :devel %>
-        <li>
-          <% dpackage = @package.devel.value("package") || @package.name %>
-          <%= image_tag 'icons/information.png' %>
-          Developed at <%= link_to(elide(@package.devel.project, 44), :action => :show, :controller => :package, :project => @package.devel.project, :package => dpackage) %>
-        </li>
-      <% end %>
-      <% if not @package.developed_packages.blank? %>
-        <li>
-          <%= image_tag 'icons/information.png' %>
-          Devel package for
-          <% @package.developed_packages.each_with_index do |pkg, index| %>
-            <%= ',' if index > 0 %>
-            <%= link_to("#{elide(pkg.project, 40)}", :action => 'show', :project => pkg.project, :package => pkg.name) %>
-          <% end %>
-        </li>
-      <% end %>
-      <% if @package.name =~ %r{^_patchinfo} %>
-        <li>
-          <%= image_tag 'icons/information.png' %>
-          Has a <%= link_to 'patchinfo', :controller => :patchinfo, :action => :show, :package => @package, :project => @project %>
-          for <%= link_to 'maintenance updates', 'http://wiki.opensuse.org/openSUSE:Maintenance' %>
-          <%#TODO: Fix this hard link %>
-        </li>
-      <% end %>
-      <% if @linking_packages and @linking_packages.size > 0 %>
-        <li>
-          <%= image_tag 'icons/information.png' %>
-          <%= @linking_packages.size %> <%= link_to_remote "derived packages", :url => { :action => :linking_packages, :project => @project, :package => @package } %>
-        </li>
-      <% end %>
-      <% if @package.linkinfo %>
-        <% linked_project, linked_package = @package.linkinfo.project, @package.linkinfo.package %>
-        <li>
-          <%= image_tag 'icons/package_link.png' %> Links to
-          <%= render :partial => 'shared/project_or_package_link', :locals => {:project => linked_project, :package => linked_package, :short => true} %>
-        </li>
-        <% if @package.linkinfo.value :error %>
-          <li><%= image_tag 'icons/exclamation.png' %> Link has errors: <i><%= @package.linkinfo.error %></i></li>
-        <% else %>
-          <%#TODO: Only display if there is really a diff: %>
+        <% if @package.has_element? :devel %>
+          <li>
+            <% dpackage = @package.devel.value("package") || @package.name %>
+            <%= image_tag 'icons/information.png' %>
+            Developed at <%= link_to(elide(@package.devel.project, 44), :action => :show, :controller => :package, :project => @package.devel.project, :package => dpackage) %>
+          </li>
+        <% end %>
+        <% if !@package.developed_packages.blank? %>
           <li>
             <%= image_tag 'icons/information.png' %>
-            Could have <%= link_to 'a link diff', :action => :rdiff, :oproject => linked_project, :opackage => linked_package, :project => @project, :package => @package, :rev => @revision %>
+            Devel package for
+            <% @package.developed_packages.each_with_index do |pkg, index| %>
+              <%= ',' if index > 0 %>
+              <%= link_to("#{elide(pkg.project, 40)}", :action => 'show', :project => pkg.project, :package => pkg.name) %>
+            <% end %>
           </li>
-        <% end%>
-      <% end %>
-    </ul>
+        <% end %>
+        <% if @package.name =~ %r{^_patchinfo} %>
+          <li>
+            <%= image_tag 'icons/information.png' %>
+            Has a <%= link_to 'patchinfo', :controller => :patchinfo, :action => :show, :package => @package, :project => @project %>
+            for <%= link_to 'maintenance updates', 'http://wiki.opensuse.org/openSUSE:Maintenance' %>
+            <%#TODO: Fix this hard link %>
+          </li>
+        <% end %>
+        <% if @linking_packages && @linking_packages.size > 0 %>
+          <li>
+            <%= image_tag 'icons/information.png' %>
+            <%= @linking_packages.size %> <%= link_to_remote "derived packages", :url => { :action => :linking_packages, :project => @project, :package => @package } %>
+          </li>
+        <% end %>
+        <% if @package.linkinfo %>
+          <% linked_project, linked_package = @package.linkinfo.project, @package.linkinfo.package %>
+          <li>
+            <%= image_tag 'icons/package_link.png' %> Links to
+            <%= render :partial => 'shared/project_or_package_link', :locals => {:project => linked_project, :package => linked_package, :short => true} %>
+          </li>
+          <% if @package.linkinfo.value :error %>
+            <li><%= image_tag 'icons/exclamation.png' %> Link has errors: <i><%= @package.linkinfo.error %></i></li>
+          <% else %>
+            <%#TODO: Only display if there is really a diff: %>
+            <li>
+              <%= image_tag 'icons/information.png' %>
+              Could have <%= link_to 'a link diff', :action => :rdiff, :oproject => linked_project, :opackage => linked_package, :project => @project, :package => @package, :rev => @revision %>
+            </li>
+          <% end%>
+        <% end %>
+      </ul>
+    <% end %>
   </div>
   <% if (not @bugowners_mail.empty? and !BUGZILLA_HOST.nil?) or session[:login] %>
     <div class="grid_16 alpha omega">
