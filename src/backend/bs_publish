@@ -568,7 +568,7 @@ EOL
   close(OUT) || die("close: $!\n");
 
   open(OUT,">>$extrep/Release") || die("$extrep/Release: $!\n");
-  foreach my $f ( "Release", "Packages", "Packages.gz" ) {
+  foreach my $f ( "Release", "Packages", "Packages.gz", "Sources", "Sources.gz" ) {
   
     open(FILE,"<$extrep/$f") || die;
     my @all = <FILE>;
