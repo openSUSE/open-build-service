@@ -14,7 +14,7 @@ class ApidocsController < ApplicationController
   end
 
   def file
-    file = params[:file]
+    file = params[:filename]
     if ( file =~ /\.(xml|xsd|rng)$/ )
       file = File.expand_path( File.join(CONFIG['schema_location'], file) )
       if File.exist?( file )

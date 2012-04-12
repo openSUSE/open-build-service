@@ -53,11 +53,11 @@ class AdminControllerTest < ActionController::IntegrationTest
     assert_equal "Invalid tag 42", flash[:error]
     assert_response 302
 
-    get_html "/admin/move_tag", :id => 1
+    get_html "/admin/move_tag/1"
     assert_response 302
     assert_equal "No such tag 1", flash[:note]
 
-    get_html "/admin/move_tag", :id => 462
+    get_html "/admin/move_tag/462"
     assert_response 302
     assert_equal "Tag was successfully moved.", flash[:note]
 

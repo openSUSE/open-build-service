@@ -762,7 +762,7 @@ class User < ActiveRecord::Base
   end
 
   validates_format_of    :login, 
-                         :with => %r{^[\w \$\^\-\.#\*\+&'"]*$}, 
+                         :with => %r{\A[\w \$\^\-\.#\*\+&'"]*\z}, 
                          :message => 'must not contain invalid characters.'
   validates_length_of    :login, 
                          :in => 2..100, :allow_nil => true,
@@ -775,7 +775,7 @@ class User < ActiveRecord::Base
   # However, this is not *so* bad since users have to answer on their email
   # to confirm their registration.
   validates_format_of :email, 
-                      :with => %r{^([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+$},
+                      :with => %r{\A([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+\z},
                       :message => 'must be a valid email address.'
 
   # We want to validate the format of the password and only allow alphanumeric
@@ -785,7 +785,7 @@ class User < ActiveRecord::Base
   # include this condition in your :if parameter to validates_format_of when
   # overriding the password format validation.
   validates_format_of :password,
-  :with => %r{^[\w\.\- !?(){}|~*]+$},
+  :with => %r{\A[\w\.\- !?(){}|~*]+\z},
   :message => 'must not contain invalid characters.',
   :if => Proc.new { |user| user.new_password? and not user.password.nil? }
 

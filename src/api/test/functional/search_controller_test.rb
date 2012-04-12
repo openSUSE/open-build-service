@@ -172,7 +172,7 @@ end
 
   def test_search_repository_id
     prepare_request_with_user "Iggy", "asdfasdf" 
-    get "/search/repository_id"
+    get "/search/repository/id"
     assert_response :success
     assert_xml_tag :tag => 'collection'
     repos = get_repos
@@ -182,7 +182,7 @@ if $ENABLE_BROKEN_TESTS
 end
 
     prepare_request_with_user "king", "sunflower" 
-    get "/search/repository_id"
+    get "/search/repository/id"
     assert_response :success
     assert_xml_tag :tag => 'collection'
     repos = get_repos

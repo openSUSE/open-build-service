@@ -1003,12 +1003,12 @@ class SourceController < ApplicationController
     end
   end
 
-  # /source/:project/:package/:file
+  # /source/:project/:package/:filename
   def file
     valid_http_methods :get, :delete, :put
     project_name = params[:project]
     package_name = params[:package]
-    file = params[:file]
+    file = params[:filename]
     if file.empty?
 	return index_package
     end
@@ -1054,7 +1054,7 @@ class SourceController < ApplicationController
       end
     end
 
-    # GET /source/:project/:package/:file
+    # GET /source/:project/:package/:filename
     if request.get?
       if pack # local package
         path = "/source/#{URI.escape(pack.db_project.name)}/#{URI.escape(pack.name)}/#{URI.escape(file)}"
@@ -1064,7 +1064,7 @@ class SourceController < ApplicationController
       return
     end
 
-    # PUT /source/:project/:package/:file
+    # PUT /source/:project/:package/:filename
     if request.put?
       unless allowed
         render_error :status => 403, :errorcode => 'put_file_no_permission',
@@ -1075,20 +1075,20 @@ class SourceController < ApplicationController
       path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink, :meta])
 
       # file validation where possible
-      if params[:file] == "_link"
+      if params[:filename] == "_link"
          validator = Suse::Validator.validate( "link", request.raw_post.to_s)
-      elsif params[:file] == "_aggregate"
+      elsif params[:filename] == "_aggregate"
          validator = Suse::Validator.validate( "aggregate", request.raw_post.to_s)
       elsif params[:package] == "_pattern"
          validator = Suse::Validator.validate( "pattern", request.raw_post.to_s)
-      elsif params[:file] == "_service"
+      elsif params[:filename] == "_service"
          validator = Suse::Validator.validate( "service", request.raw_post.to_s)
-      elsif params[:file] == "_patchinfo"
+      elsif params[:filename] == "_patchinfo"
          validator = Suse::Validator.validate( "patchinfo", request.raw_post.to_s)
       end
 
       # verify link
-      if params[:file] == "_link"
+      if params[:filename] == "_link"
         data = ActiveXML::Base.new(request.raw_post.to_s)
         if data
           tproject_name = data.value("project") || project_name
@@ -1107,7 +1107,7 @@ class SourceController < ApplicationController
       end
 
       # verify patchinfo data
-      if params[:file] == "_patchinfo"
+      if params[:filename] == "_patchinfo"
         data = ActiveXML::Base.new(request.raw_post.to_s)
         if data and data.packager
           # bugzilla only knows email adresses, so we support automatic conversion
@@ -1156,7 +1156,7 @@ class SourceController < ApplicationController
 
       update_product_autopackages params[:project] if package_name == "_product"
 
-    # DELETE /source/:project/:package/:file
+    # DELETE /source/:project/:package/:filename
     elsif request.delete?
       path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink])
 

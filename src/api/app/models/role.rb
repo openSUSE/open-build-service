@@ -8,7 +8,7 @@
 class Role < ActiveRecord::Base
 
   validates_format_of :title,
-                      :with => %r{^\w*$},
+                      :with => %r{\A\w*\z},
                       :message => 'must not contain invalid characters.'
   validates_length_of :title,
                       :in => 2..100, :allow_nil => true,

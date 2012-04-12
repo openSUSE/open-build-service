@@ -32,13 +32,13 @@ class PublicController < ApplicationController
   end
   private :check_package_access
 
-  # GET /public/build/:prj/:repo/:arch/:pkg
+  # GET /public/build/:project/:repository/:arch/:package
   def build
     valid_http_methods :get
-    required_parameters :prj
+    required_parameters :project
 
     # project visible/known ? 
-    DbProject.get_by_name(params[:prj])
+    DbProject.get_by_name(params[:project])
 
     path = unshift_public(request.path)
     path << "?#{request.query_string}" unless request.query_string.empty?
@@ -46,67 +46,67 @@ class PublicController < ApplicationController
     pass_to_backend path
   end
 
-  # GET /public/source/:prj/_meta
+  # GET /public/source/:project/_meta
   def project_meta
     valid_http_methods :get
 
     # project visible/known ? 
-    DbProject.get_by_name(params[:prj])
+    DbProject.get_by_name(params[:project])
 
     pass_to_backend unshift_public(request.path)
   end
 
-  # GET /public/source/:prj
+  # GET /public/source/:project
   def project_index
     valid_http_methods :get
 
     # project visible/known ? 
-    DbProject.get_by_name(params[:prj])
+    DbProject.get_by_name(params[:project])
     
     pass_to_backend unshift_public(request.path)
   end
 
-  # GET /public/source/:prj/_config
-  # GET /public/source/:prj/_pubkey
+  # GET /public/source/:project/_config
+  # GET /public/source/:project/_pubkey
   def project_file
     valid_http_methods :get
 
     # project visible/known ? 
-    DbProject.get_by_name(params[:prj])
+    DbProject.get_by_name(params[:project])
 
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?
     pass_to_backend path
   end
 
-  # GET /public/source/:prj/:pkg
+  # GET /public/source/:project/:package
   def package_index
     valid_http_methods :get
 
-    check_package_access(params[:prj], params[:pkg])
+    check_package_access(params[:project], params[:package])
 
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?
     pass_to_backend path
   end
 
-  # GET /public/source/:prj/:pkg/_meta
+  # GET /public/source/:project/:package/_meta
   def package_meta
     valid_http_methods :get
 
-    check_package_access(params[:prj], params[:pkg], false)
+    check_package_access(params[:project], params[:package], false)
 
     pass_to_backend unshift_public(request.path)
   end
 
-  # GET /public/source/:prj/:pkg/:file
+  # GET /public/source/:project/:package/:filename
   def source_file
     valid_http_methods :get
-    file = params[:file]
+    file = params[:filename]
 
-    check_package_access(params[:prj], params[:pkg])
+    check_package_access(params[:project], params[:package])
 
-    path = "/source/#{CGI.escape(params[:prj])}/#{CGI.escape(params[:pkg])}/#{CGI.escape(file)}"
+    path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}/#{CGI.escape(file)}"
 
     if request.get?
       path += build_query_from_hash(params, [:rev])
@@ -135,15 +135,15 @@ class PublicController < ApplicationController
     render :text => DistributionController.read_distfile, :content_type => "text/xml"
   end
 
-  # GET /public/binary_packages/:prj/:pkg
+  # GET /public/binary_packages/:project/:package
   def binary_packages
 
-    check_package_access(params[:prj], params[:pkg], false)
-    @pkg = DbPackage.find_by_project_and_name(params[:prj], params[:pkg])
+    check_package_access(params[:project], params[:package], false)
+    @pkg = DbPackage.find_by_project_and_name(params[:project], params[:package])
 
     distfile = ActiveXML::XMLNode.new(DistributionController.read_distfile)
     begin
-       binaries = Collection.find :id, :what => 'published/binary', :match => "@project='#{params[:prj]}' and @package='#{params[:pkg]}'"
+       binaries = Collection.find :id, :what => 'published/binary', :match => "@project='#{params[:project]}' and @package='#{params[:package]}'"
     rescue
       render_error :status => 400, :errorcode => 'search_failure', :message => "The search can't get executed."
       return

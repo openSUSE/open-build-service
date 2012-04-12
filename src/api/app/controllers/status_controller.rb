@@ -182,7 +182,7 @@ class StatusController < ApplicationController
   # private :update_workerstatus_cache
 
   def project
-    dbproj = DbProject.get_by_name(params[:id])
+    dbproj = DbProject.get_by_name(params[:project])
     key='project_status_xml_%s' % dbproj.name
     xml = Rails.cache.fetch(key, :expires_in => 10.minutes) do
       @packages = dbproj.complex_status(backend)

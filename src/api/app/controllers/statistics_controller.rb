@@ -161,8 +161,8 @@ class StatisticsController < ApplicationController
     # not just needs this to be fast, it also needs to catch errors in case projects or packages
     # disappear after the cache hit. So we do not spend too much logic in access flags, but check
     # the cached values afterwards if they are valid and accessible
-    packages = DbPackage.find_by_sql("select id,updated_at from db_packages ORDER by updated_at DESC LIMIT #{@limit * 2}")
-    projects = DbProject.find_by_sql("select id,updated_at from db_projects ORDER by updated_at DESC LIMIT #{@limit * 2}")
+    packages = DbPackage.select("id,updated_at").order("updated_at DESC").limit(@limit*2).all
+    projects = DbProject.select("id,updated_at").order("updated_at DESC").limit(@limit*2).all
 
     list = projects
     list.concat packages

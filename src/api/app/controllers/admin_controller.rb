@@ -21,7 +21,9 @@ class AdminController < ApplicationController
     allowed_order_by_arguments = ['id', 'name' , 'count' , 'created_at']
     allowed_sort_by_arguments = ['ASC', 'DESC']
     
-    
+    sort_by = 'ASC' 
+    order_by = 'id'
+
     #toggle sort direction
     if session[:column] == params[:column] 
       if session[:sort] == 'ASC' then session[:sort] = 'DESC'  
@@ -31,23 +33,14 @@ class AdminController < ApplicationController
     
     session[:column] = params[:column] if params[:column]
     
-    order_by = (session[:column] ||= 'id')
-    sort_by = (session[:sort] ||= 'ASC')
+    index = allowed_order_by_arguments.index session[:column]
+    order_by = allowed_order_by_arguments[index] if index
     
-    unless allowed_order_by_arguments.include? order_by
-      raise ArgumentError.new( "unknown argument '#{session[:column]}'" )
-    else
-      order = order_by
-    end
+    index = allowed_sort_by_arguments.index session[:sort]
+    sort_by = allowed_sort_by_arguments[index] if index
     
-    unless allowed_sort_by_arguments.include? sort_by
-      raise ArgumentError.new( "unknown argument '#{session[:sort]}'" )
-    else
-      order = order + " " + sort_by
-    end
-    
-    logger.debug "[TAG: order_by: #{order}"
-    
+    order = order_by + " " + sort_by
+
     if order_by == 'count'
       tags = Tag.all
       
@@ -84,7 +77,7 @@ class AdminController < ApplicationController
   
   
   def create_tag
-    @tag = Tag.new(params[:tag])
+    @tag = Tag.new(params[:id])
     if @tag.save
       flash[:notice] = 'Tag was successfully created.'
       redirect_to :action => 'list_tags'
@@ -100,7 +93,7 @@ class AdminController < ApplicationController
   
   
   def create_blacklist_tag
-    @tag = BlacklistTag.new(params[:tag])
+    @tag = BlacklistTag.new(params[:id])
     if @tag.save
       flash[:notice] = 'Tag was successfully created.'
       redirect_to :action => 'list_blacklist_tags'
@@ -144,7 +137,7 @@ class AdminController < ApplicationController
     @tag = Tag.find(params[:id])
     if @tag.update_attributes(params[:tag])
       flash[:note] = 'Tag was successfully updated.'
-      redirect_to :action => 'show_tag', :id => @tag
+      redirect_to :action => 'show_tag', :id => @tag.id
     else
       render :action => 'edit_tag'
     end
@@ -155,7 +148,7 @@ class AdminController < ApplicationController
     @tag = BlacklistTag.find(params[:id])
     if @tag.update_attributes(params[:tag])
       flash[:note] = 'Tag was successfully updated.'
-      redirect_to :action => 'show_blacklist_tag', :id => @tag
+      redirect_to :action => 'show_blacklist_tag', :id => @tag.id
     else
       render :action => 'edit_blacklist_tag'
     end

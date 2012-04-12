@@ -1345,16 +1345,16 @@ end
                                assertresp3, asserteq3, assertresp4)
     # write without permission: 
     prepare_request_with_user "tom", "thunder"
-    get url_for(:controller => :source, :action => :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff")
+    get url_for(:controller => :source, :action => :file, :project => "kde4", :package => "kdelibs", :filename => "my_patch.diff")
     assert_response :success
     origstring = @response.body.to_s
     teststring = "&;"
-    put url_for(:controller => :source, :action => :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff"), teststring
+    put url_for(:controller => :source, :action => :file, :project => "kde4", :package => "kdelibs", :filename => "my_patch.diff"), teststring
     assert_response( 403, message="Was able to write a package file without permission" )
     assert_xml_tag( :tag => "status" )
     
     # check that content is unchanged: 
-    get url_for(:controller => :source, :action => :file, :project => "kde4", :package => "kdelibs", :file => "my_patch.diff")
+    get url_for(:controller => :source, :action => :file, :project => "kde4", :package => "kdelibs", :filename => "my_patch.diff")
     assert_response :success
     assert_equal( @response.body.to_s, origstring, message="Package file was changed without permissions" )
 

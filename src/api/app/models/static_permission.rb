@@ -14,7 +14,7 @@ class StaticPermission < ActiveRecord::Base
                           :message => 'is the name of an already existing static permission.'
   validates_presence_of   :title, :message => 'must be given.'
     
-  validates_format_of     :title, :with => %r{^[\w\-\_]*$}, 
+  validates_format_of     :title, :with => %r{\A[\w\-]*\z}, 
                           :message => 'must not contain invalid characters.'
 
   attr_accessible :title

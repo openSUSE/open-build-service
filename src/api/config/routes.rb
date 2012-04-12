@@ -6,6 +6,9 @@ OBSApi::Application.routes.draw do
 
     resource :configuration, :only => [:show, :update]
 
+    cons = { :project => %r{[^\/]*}, :package => %r{[^\/]*}, :binary => %r{[^\/]*}, :user => %r{[^\/]*}, :login => %r{[^\/]*}, :title => %r{[^\/]*}, :service => %r{\w[^\/]*},
+             :repository => %r{[^\/]*}, :filename => %r{[^\/]*}, :arch => %r{[^\/]*}, :id => %r{\d*} }
+
     ### /person
     match 'person' => 'person#index'
     # FIXME: this is no clean namespace, a person "register" or "changepasswd" could exist ...
@@ -14,55 +17,72 @@ OBSApi::Application.routes.draw do
     match 'person/register' => 'person#register'
     match 'person/changepasswd' => 'person#change_my_password'
     # bad api, to be removed for OBS 3. Use /group?person=:login instead
-    match 'person/:login/group' => 'person#grouplist', :constraints => { :login => /[^\/]*/ }
+    match 'person/:login/group' => 'person#grouplist', :constraints => cons
 
-    match 'person/:login' => 'person#userinfo', :constraints => { :login => /[^\/]*/ }
+    match 'person/:login' => 'person#userinfo', :constraints => cons
 
     ### /group
     match 'group' => 'group#index'
-    match 'group/:title' => 'group#show', :constraints => { :title => /[^\/]*/ }
+    match 'group/:title' => 'group#show', :constraints => cons
 
     ### /service
-    match 'service/:service' => 'service#index_service', :constraints => { :service => /\w[^\/]*/ }
+    match 'service' => 'service#index'
+    match 'service/:service' => 'service#index_service', :constraints => cons
 
     ### /source
     
-    match 'source/:project/:package/_wizard' => 'wizard#package_wizard', :constraints => { :project => /[^\/]*/, :package => /[^\/]*/ }
-    match 'source/:project/:package/_tags' => 'tag#package_tags', :constraints => { :project => /[^\/]*/, :package => /[^\/]*/ }
-    match 'source/:project/_tags' => 'tag#project_tags', :constraints => { :project => /[^\/]*/ }
-      
-    controller :admin do
-      match 'admin' => 'admin#index', :defaults => { :format => 'html' }
-      match 'admin/:action', :defaults => { :format => 'html' }
-      match 'admin(/:action(/:id))', :defaults => { :format => 'html' }
+    match 'source/:project/:package/_wizard' => 'wizard#package_wizard', :constraints => cons
+    match 'source/:project/:package/_tags' => 'tag#package_tags', :constraints => cons
+    match 'source/:project/_tags' => 'tag#project_tags', :constraints => cons
+
+    match 'about' => 'about#index'
+
+    controller :admin, :defaults => { :format => 'html' } do
+      match 'admin' => :index
+      match 'admin/list_blacklist_tags' => :list_blacklist_tags
+      match 'admin/list_tags' => :list_tags
+      match 'admin/tags_summary/:id' => :tags_summary
+      match 'admin/new_tag' => :new_tag
+      match 'admin/create_tag/:id' => :create_tag
+      match 'admin/new_blacklist_tag/:id' => :new_blacklist_tag
+      match 'admin/create_blacklist_tag/:id' => :create_blacklist_tag
+      match 'admin/show_tag/:id' => :show_tag
+      match 'admin/show_blacklist_tag/:id' => :show_blacklist_tag
+      match 'admin/edit_tag/:id' => :edit_tag
+      match 'admin/edit_blacklist_tag/:id' => :edit_blacklist_tag
+      match 'admin/update_tag/:id' => :update_tag
+      match 'admin/update_blacklist_tag/:id' => :update_blacklist_tag
+      match 'admin/destroy_tag/:id' => :destroy_tag
+      match 'admin/destroy_blacklist_tag/:id' => :destroy_blacklist_tag
+      match 'admin/move_tag/:id' => :move_tag
+      match 'admin/delete_unused_tags' => :delete_unused_tags
+      match 'admin/invalid_tag/:id' => :invalid_tag
+      match 'admin/killme' => :killme
+      match 'admin/startme' => :startme
     end
     
     controller :source do
 
-      pcons = { :project => /[^\/]*/, :package => /[^\/]*/ }
+      match 'source' => :index
 
       # project level
-      match 'source/:project' => :index_project, :constraints => pcons
-      match 'source/:project/_meta' => :project_meta, :constraints => pcons
-      match 'source/:project/_webui_flags' => :project_flags, :constraints => pcons
-      match 'source/:project/_attribute' => :attribute_meta, :constraints => pcons
-      match 'source/:project/_attribute/:attribute' => :attribute_meta, :constraints => pcons
-      match 'source/:project/_config' => :project_config, :constraints => pcons
-      match 'source/:project/_pubkey' => :project_pubkey, :constraints => pcons
-
-      pcons = { :project => /[^\/]*/, :package => /[^\/]*/ }
+      match 'source/:project' => :index_project, :constraints => cons
+      match 'source/:project/_meta' => :project_meta, :constraints => cons
+      match 'source/:project/_webui_flags' => :project_flags, :constraints => cons
+      match 'source/:project/_attribute' => :attribute_meta, :constraints => cons
+      match 'source/:project/_attribute/:attribute' => :attribute_meta, :constraints => cons
+      match 'source/:project/_config' => :project_config, :constraints => cons
+      match 'source/:project/_pubkey' => :project_pubkey, :constraints => cons
 
       # package level
-      match '/source/:project/:package/_meta' => :package_meta, :constraints => pcons
-      match 'source/:project/:package/_webui_flags' => :package_flags, :constraints => pcons
-      match 'source/:project/:package/_attribute' => :attribute_meta, :constraints => pcons
-      match 'source/:project/:package/_attribute/:attribute' => :attribute_meta, :constraints => pcons
-      match 'source/:project/:package/:binary/_attribute' => :attribute_meta, :constraints =>  pcons.merge(:binary => /[^\/]*/)
-      match 'source/:project/:package/:binary/_attribute/:attribute' => :attribute_meta, 
-      :constraints =>  pcons.merge(:binary => /[^\/]*/)
-      match 'source/:project/:package/:file' => :file, 
-      :constraints =>  pcons.merge(:file => /[^\/]*/)
-      match 'source/:project/:package' => :index_package, :constraints => pcons
+      match '/source/:project/:package/_meta' => :package_meta, :constraints => cons
+      match 'source/:project/:package/_webui_flags' => :package_flags, :constraints => cons
+      match 'source/:project/:package/_attribute' => :attribute_meta, :constraints => cons
+      match 'source/:project/:package/_attribute/:attribute' => :attribute_meta, :constraints => cons
+      match 'source/:project/:package/:binary/_attribute' => :attribute_meta, :constraints =>  cons
+      match 'source/:project/:package/:binary/_attribute/:attribute' => :attribute_meta,  :constraints =>  cons
+      match 'source/:project/:package/:filename' => :file, :constraints =>  cons
+      match 'source/:project/:package' => :index_package, :constraints => cons
     end
 
     ### /attribute
@@ -90,118 +110,162 @@ OBSApi::Application.routes.draw do
     ### moved to source section
 
     #Get objects by tag.
-    match 'tag/:tag/_projects' => 'tag#get_projects_by_tag'
-    match 'tag/:tag/_packages' => 'tag#get_packages_by_tag'
-    match 'tag/:tag/_all' => 'tag#get_objects_by_tag'
+    controller :tag do
+      match 'tag/:tag/_projects' => :get_projects_by_tag
+      match 'tag/:tag/_packages' => :get_packages_by_tag
+      match 'tag/:tag/_all' => :get_objects_by_tag
+      
+      #Get a tagcloud including all tags.
+      match 'tag/tagcloud' => :tagcloud
 
-    #Get a tagcloud including all tags.
-    match 'tag/_tagcloud' => 'tag#tagcloud'
+      match 'tag/get_tagged_projects_by_user' => :get_tagged_projects_by_user
+      match 'tag/get_tagged_packages_by_user' => :get_tagged_packages_by_user
+      match 'tag/get_tags_by_user' => :get_tags_by_user
+      match 'tag/tags_by_user_and_object' => :tags_by_user_and_object
+      match 'tag/get_tags_by_user_and_project' => :get_tags_by_user_and_project
+      match 'tag/get_tags_by_user_and_package' => :get_tags_by_user_and_package
+      match 'tag/most_popular_tags' => :most_popular_tags
+      match 'tag/most_recent_tags' => :most_recent_tags
+      match 'tag/get_taglist' => :get_taglist
+      match 'tag/project_tags' => :project_tags
+      match 'tag/package_tags' => :package_tags
+
+    end
 
 
     ### /user
 
     #Get objects tagged by user. (objects with tags)
-    match 'user/:user/tags/_projects' => 'tag#get_tagged_projects_by_user', :constraints => { :user => /[^\/]*/ }
-    match 'user/:user/tags/_packages' => 'tag#get_tagged_packages_by_user', :constraints => { :user => /[^\/]*/ }
+    match 'user/:user/tags/_projects' => 'tag#get_tagged_projects_by_user', :constraints => cons
+    match 'user/:user/tags/_packages' => 'tag#get_tagged_packages_by_user', :constraints => cons
 
     #Get tags by user.
-    match 'user/:user/tags/_tagcloud' => 'tag#tagcloud', :constraints => { :user => /[^\/]*/ }
+    match 'user/:user/tags/_tagcloud' => 'tag#tagcloud', :constraints => cons
       
     #Get tags for a certain object by user.
-    match 'user/:user/tags/:project' => 'tag#tags_by_user_and_object', :constraints => {  :project => /[^\/]*/, :user => /[^\/]*/ }
-    match 'user/:user/tags/:project/:package' => 'tag#tags_by_user_and_object', :constraints => { :project => /[^\/]*/, :package => /[^\/]*/, :user => /[^\/]*/ }
+    match 'user/:user/tags/:project' => 'tag#tags_by_user_and_object', :constraints => cons
+    match 'user/:user/tags/:project/:package' => 'tag#tags_by_user_and_object', :constraints => cons
 
     ### /statistics
     # Routes for statistics
     # ---------------------
+    controller :statistics do
 
-    # Download statistics
-    #
-    match 'statistics/download_counter' => 'statistics#download_counter'
+      # Download statistics
+      #
+      match 'statistics/download_counter' => :download_counter
 
-    # Timestamps
-    #
-    match 'statistics/added_timestamp/:project' => 'statistics#added_timestamp', :constraints => { :project => /[^\/]*/ }
-    match 'statistics/added_timestamp/:project/:package' => 'statistics#added_timestamp', 
-    :constraints => {  :project => /[^\/]*/, :package => /[^\/]*/ }
-    match 'statistics/updated_timestamp/:project' => 'statistics#updated_timestamp', :constraints => { :project => /[^\/]*/ }
-    match 'statistics/updated_timestamp/:project/:package' => 'statistics#updated_timestamp',
-    :constraints => { :project => /[^\/]*/, :package => /[^\/]*/ }
+      # Timestamps
+      #
+      match 'statistics/added_timestamp/:project' => :added_timestamp, :constraints => cons
+      match 'statistics/added_timestamp/:project/:package' => :added_timestamp, :constraints => cons
+      match 'statistics/updated_timestamp/:project' => :updated_timestamp, :constraints => cons
+      match 'statistics/updated_timestamp/:project/:package' => :updated_timestamp, :constraints => cons
 
-    # Ratings
-    #
-    match 'statistics/rating/:project' => 'statistics#rating', :constraints => { :project => /[^\/]*/ }
-    match 'statistics/rating/:project/:package' => 'statistics#rating', :constraints => { :project => /[^\/]*/, :package => /[^\/]*/ }
+      # Ratings
+      #
+      match 'statistics/rating/:project' => :rating, :constraints => cons
+      match 'statistics/rating/:project/:package' => :rating, :constraints => cons
+      
+      # Activity
+      #
+      match 'statistics/activity/:project' => :activity, :constraints => cons
+      match 'statistics/activity/:project/:package' => :activity, :constraints => cons
 
-    # Activity
-    #
-    match 'statistics/activity/:project' => 'statistics#activity', :constraints => { :project => /[^\/]*/ }
-    match 'statistics/activity/:project/:package' => 'statistics#activity', :constraints => { :project => /[^\/]*/, :package => /[^\/]*/ }
+      # Newest stats
+      #
+      match 'statistics/newest_stats' => :newest_stats
 
-    # Newest stats
-    #
-    match 'statistics/newest_stats' => 'statistics#newest_stats'
+      match 'statistics' => :index
+      match 'statistics/highest_rated' => :highest_rated
+      match 'statistics/download_counter' => :download_counter
+      match 'statistics/newest_stats' => :newest_stats
+      match 'statistics/most_active_projects' => :most_active_projects
+      match 'statistics/most_active_packages' => :most_active_packages
+      match 'statistics/latest_added' => :latest_added
+      match 'statistics/latest_updated' => :latest_updated
+      match 'statistics/global_counters' => :global_counters
+      match 'statistics/latest_built' => :latest_built
+      match 'statistics/get_limit' => :get_limit
+
+    end
 
     ### /status_message
 
-    # Routes for status_messages
-    # --------------------------
-    match 'status_message' => 'status#messages'
+    controller :status do
+
+      # Routes for status_messages
+      # --------------------------
+      match 'status_message' => 'status#messages'
+      
+      match 'status/messages' => :messages
+      match 'status/workerstatus' => :workerstatus
+      match 'status/history'  => :history
+      match 'status/project/:project' => :project, :constraints => cons
+      match 'status/bsrequest' => :bsrequest
+
+    end
 
     ### /message
 
     # Routes for messages
     # --------------------------
     match 'message/:id' => 'message#index'
+    match 'message' => 'message#index'
 
 
     ### /search
 
-    # ACL(/search/published/binary/id) TODO: direct passed call to  "pass_to_backend'
-    match 'search/published/binary/id' => 'search#pass_to_backend'
-    # ACL(/search/published/pattern/id) TODO: direct passed call to  'pass_to_backend'
-    match 'search/published/pattern/id'  => 'search#pass_to_backend'
-    match 'search/project/id' => 'search#project_id'
-    match 'search/package/id' => 'search#package_id'
-    match 'search/project' => 'search#project'
-    match 'search/package' => 'search#package'
-    match 'search/attribute' => 'search#attribute'
-    match 'search' => 'search#pass_to_backend'
+    controller :search do
+
+      # ACL(/search/published/binary/id) TODO: direct passed call to  "pass_to_backend'
+      match 'search/published/binary/id' => :pass_to_backend
+      # ACL(/search/published/pattern/id) TODO: direct passed call to  'pass_to_backend'
+      match 'search/published/pattern/id'  => :pass_to_backend
+      match 'search/project/id' => :project_id
+      match 'search/package/id' => :package_id
+      match 'search/project' => :project
+      match 'search/package' => :package
+      match 'search/attribute' => :attribute
+      match 'search' => :pass_to_backend
+
+      match 'search/repository/id' => :repository_id
+      match 'search/issue' => :issue
+      match 'search/attribute' => :attribute
+
+    end
 
     ### /build
 
     match 'build/:project/:repository/:arch/:package/_status' => 'build#index',
-    :constraints => { :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/ }
+    :constraints => cons
     match 'build/:project/:repository/:arch/:package/_log' => 'build#logfile', 
-    :constraints => { :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/ }
+    :constraints => cons
     match 'build/:project/:repository/:arch/:package/_buildinfo' => 'build#buildinfo', 
-    :constraints => { :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/ }
+    :constraints => cons
     match 'build/:project/:repository/:arch/:package/_history' => 'build#index',
-    :constraints => { :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/ }
+    :constraints => cons
     match 'build/:project/:repository/:arch/:package/:filename' => 'build#file', 
-    :constraints => { :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/, :filename => /[^\/]*/ }
+    :constraints => cons
     match 'build/:project/:repository/:arch/_builddepinfo' => 'build#builddepinfo', 
-    :constraints => { :project => /[^\/]*/, :repository => /[^\/]*/, :arch => /[^\/]*/ }
-    match 'build/:project/:repository/:arch/:package' => 'build#index',
-    :constraints => { :project => /[^\/]*/, :repository => /[^\/]*/, :package => /[^\/]*/ }
-    match 'build/:project/:repository/_buildconfig' => 'build#index',
-    :constraints => { :project => /[^\/]*/, :repository => /[^\/]*/ }
-    match 'build/:project/:repository/:arch' => 'build#index', 
-    :constraints => { :project => /[^\/]*/, :repository => /[^\/]*/ }
-    match 'build/:project/_result' => 'build#result', :constraints => { :project => /[^\/]*/ }
-    match 'build/:project/:repository' => 'build#index', :constraints => { :project => /[^\/]*/, :repository => /[^\/]*/ }
+    :constraints => cons
+    match 'build/:project/:repository/:arch/:package' => 'build#index', :constraints => cons
+    match 'build/:project/:repository/_buildconfig' => 'build#index', :constraints => cons
+    match 'build/:project/:repository/:arch' => 'build#index', :constraints => cons
+    match 'build/:project/_result' => 'build#result', :constraints => cons
+    match 'build/:project/:repository' => 'build#index', :constraints => cons
     # the web client does no longer use that route, but we keep it for backward compat
     match 'build/_workerstatus' => 'status#workerstatus'
-    match 'build/:project' => 'build#project_index', :constraints => { :project => /[^\/]*/ }
+    match 'build/:project' => 'build#project_index', :constraints => cons
     match 'build' => 'source#index'
 
     ### /published
 
-    match 'published/:project/:repository/:arch/:binary' => 'published#index', :constraints => { :project => /[^\/]*/, :repository => /[^\/]*/, :binary => /[^\/]*/ }
+    match 'published/:project/:repository/:arch/:binary' => 'published#index', :constraints => cons
     # :arch can be also a ymp for a pattern :/
-    match 'published/:project/:repository/:arch' => 'published#index', :constraints => { :project => /[^\/]*/, :repository => /[^\/]*/, :arch => /[^\/]*/ }
-    match 'published/:project/:repository/' => 'published#index', :constraints => { :project => /[^\/]*/, :repository => /[^\/]*/ }
-    match 'published/:project' => 'published#index', :constraints => { :project => /[^\/]*/ }
+    match 'published/:project/:repository/:arch' => 'published#index', :constraints => cons
+    match 'published/:project/:repository/' => 'published#index', :constraints => cons
+    match 'published/:project' => 'published#index', :constraints => cons
     match 'published/' => 'published#index'
 
     ### /request
@@ -219,43 +283,38 @@ OBSApi::Application.routes.draw do
     ### /apidocs
 
     match 'apidocs' => 'apidocs#index'
-    match 'apidocs/:file' => 'apidocs#file', :constraints => { :file => /[^\/]*/ }
-
-    match '/active_rbac/registration/confirm/:user/:token' => 'active_rbac/registration#confirm'
-
+    match 'apidocs/:filename' => 'apidocs#file', :constraints => cons
 
     ### /distributions
 
-    match '/distributions' => 'distribution#index'
+    match 'distributions' => 'distribution#index'
 
     ### /public
     
-    match '/public/build/:prj' => 'public#build', :constraints => { :prj => /[^\/]*/ }
-    match '/public/build/:prj/:repo' => 'public#build', :constraints => { :prj => /[^\/]*/, :repo => /[^\/]*/ }
-    match '/public/build/:prj/:repo/:arch/:pkg' => 'public#build', :constraints => { :prj => /[^\/]*/, :repo => /[^\/]*/, :pkg => /[^\/]*/ }
-    match '/public/source/:prj' => 'public#project_index', :constraints => { :prj => /[^\/]*/ }
-    match '/public/source/:prj/_meta' => 'public#project_meta', :constraints => { :prj => /[^\/]*/ }
-    match '/public/source/:prj/_config' => 'public#project_file', :constraints => { :prj => /[^\/]*/ }
-    match '/public/source/:prj/_pubkey' => 'public#project_file', :constraints => { :prj => /[^\/]*/ }
-    match '/public/source/:prj/:pkg' => 'public#package_index', :constraints => { :prj => /[^\/]*/, :pkg => /[^\/]*/ }
-    match '/public/source/:prj/:pkg/_meta' => 'public#package_meta', :constraints => { :prj => /[^\/]*/, :pkg => /[^\/]*/ }
-    match '/public/source/:prj/:pkg/:file' => 'public#source_file', :constraints => {  :prj => /[^\/]*/, :pkg => /[^\/]*/, :file => /[^\/]*/ }
-    match '/public/lastevents' => 'public#lastevents'
-    match '/public/distributions' => 'public#distributions'
-    match '/public/binary_packages/:prj/:pkg' => 'public#binary_packages', :constraints => { :prj => /[^\/]*/, :pkg => /[^\/]*/ }
-    match 'public/status/:action' => 'status#index'
+    controller :public do
+      match 'public' => :index
+      match 'public/build/:project' => :build, :constraints => cons
+      match 'public/build/:project/:repository' => :build, :constraints => cons
+      match 'public/build/:project/:repository/:arch/:package' => :build, :constraints => cons
+      match 'public/source/:project' => :project_index, :constraints => cons
+      match 'public/source/:project/_meta' => :project_meta, :constraints => cons
+      match 'public/source/:project/_config' => :project_file, :constraints => cons
+      match 'public/source/:project/_pubkey' => :project_file, :constraints => cons
+      match 'public/source/:project/:package' => :package_index, :constraints => cons
+      match 'public/source/:project/:package/_meta' => :package_meta, :constraints => cons
+      match 'public/source/:project/:package/:filename' => :source_file, :constraints => cons
+      match 'public/lastevents' => :lastevents
+      match 'public/distributions' => :distributions
+      match 'public/binary_packages/:project/:package' => :binary_packages, :constraints => cons
+    end
 
-    ### /status
-    
-    # action request somehow does not work
-    match 'status/request/:id' => 'status#request'
-    match 'status/project/:id' => 'status#project', :constraints => { :id => /[^\/]*/ }
+    match 'public/status/:action' => 'status#index'
 
     match "/404" => "main#notfound"
 
-    # Install the default route as the lowest priority.
-    match '/:controller(/:action(/:id))'
-    match ':controller/:action'
+    # Do not install default routes for maximum security
+    #match ':controller(/:action(/:id))'
+    #match ':controller/:action'
 
   end
 end
