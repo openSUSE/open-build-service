@@ -97,9 +97,12 @@ module ApplicationHelper
   end
 
   def get_random_sponsor_image
-    sponsors = ["/themes/bento/images/sponsors/sponsor_amd.png",
+    sponsors = [
+      "/themes/bento/images/sponsors/sponsor_suse.png",
+      "/themes/bento/images/sponsors/sponsor_amd.png",
       "/themes/bento/images/sponsors/sponsor_b1-systems.png",
-      "/themes/bento/images/sponsors/sponsor_ip-exchange2.png"]
+      "/themes/bento/images/sponsors/sponsor_ip-exchange2.png",
+      "/themes/bento/images/sponsors/sponsor_heinlein.png"]
     return sponsors[rand(sponsors.size)]
   end
 
