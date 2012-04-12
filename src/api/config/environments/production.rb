@@ -127,7 +127,7 @@ CONFIG['download_url']='http://localhost:82/'
 #end
 
 # disabled on production for performance reasons
-# RESPONSE_SCHEMA_VALIDATION = true
+# CONFIG['response_schema_validation'] = true
 
 #require 'memory_debugger'
 # dumps the objects after every request

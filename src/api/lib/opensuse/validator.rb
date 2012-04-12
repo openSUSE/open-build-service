@@ -49,7 +49,7 @@ module ActionController
 
     # This method should be called in the ApplicationController of your Rails app.
     def validate_xml_response
-      if request.format != "json" && response.status.to_s == "200 OK" && response.headers['Content-Type'] !~ /.*\/json/i
+      if request.format != "json" && response.status.to_s[0..2] == "200" && response.headers['Content-Type'] !~ /.*\/json/i && response.headers["Content-Disposition"] != "attachment"
         opt = params()
         opt[:method] = request.method.to_s
         opt[:type] = "response"

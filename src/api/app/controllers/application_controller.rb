@@ -33,7 +33,7 @@ class ApplicationController < ActionController::Base
   @http_user = nil
 
   before_filter :validate_xml_request, :add_api_version
-  if defined?( RESPONSE_SCHEMA_VALIDATION ) && RESPONSE_SCHEMA_VALIDATION == true
+  if CONFIG['response_schema_validation'] == true
     after_filter :validate_xml_response
   end
 

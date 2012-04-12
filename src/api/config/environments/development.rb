@@ -69,7 +69,7 @@ MAX_LDAP_ATTEMPTS = 10
 CONFIG['extended_backend_log'] = true
 YMP_URL='http://software.opensuse.org/ymp'
 
-RESPONSE_SCHEMA_VALIDATION = true
+CONFIG['response_schema_validation'] = true
 
 require 'socket'
 fname = "#{Rails.root}/config/environments/development.#{Socket.gethostname}.rb"

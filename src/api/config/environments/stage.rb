@@ -40,4 +40,4 @@ SOURCE_PROTOCOL = "http"
 
 ActionController::AbstractRequest.relative_url_root = "/stage"
 
-RESPONSE_SCHEMA_VALIDATION = true
+CONFIG['response_schema_validation'] = true
