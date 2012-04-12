@@ -216,6 +216,7 @@ class User < ActiveRecord::Base
 
   # package is instance of DbPackage
   def can_modify_package?(package, ignoreLock=nil)
+    return false if package.nil? # happens with remote packages easily
     unless package.kind_of? DbPackage
       raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}"
     end

@@ -223,6 +223,11 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response :success
     post "/source/UseRemoteInstance/pack1", :cmd => "branch"
     assert_response :success
+    # test source modifications
+    post "/build/UseRemoteInstance/pack1", :cmd => "set_flag"
+    assert_response 403
+    post "/build/UseRemoteInstance/pack1", :cmd => "unlock"
+    assert_response 403
     get "/source/UseRemoteInstance/NotExisting"
     assert_response 404
     get "/source/UseRemoteInstance/NotExisting/_meta"
