@@ -1060,7 +1060,7 @@ class PackageController < ApplicationController
       hash_key = valid_xml_id(elide(result.value('repository'), 30))
       @repo_arch_hash[hash_key] ||= []
       @repo_arch_hash[hash_key] << result['arch']
-    end
+    end if @buildresult
     render :partial => 'rpmlint_result', :locals => {:index => params[:index]}
   end
 
