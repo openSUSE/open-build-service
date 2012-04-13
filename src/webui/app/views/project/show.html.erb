@@ -78,7 +78,7 @@
         <% if @project.is_remote? %>
           <li>
             <%= image_tag 'icons/information.png' %>
-            This project is linking the remote obs instance at: <i><a href="<%= @project.value 'remoteurl' %>"><%= @project.value 'remoteurl' %></a></i>
+            Links against the remote OBS instance at: <i><%= link_to_if(@project.value('remoteurl'), @project.value('remoteurl')) %></i>
           </li>
         <% end %>
         <% if @linking_projects.size > 0 %>
