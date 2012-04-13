@@ -614,6 +614,21 @@ class DbProject < ActiveRecord::Base
           was_updated = true
         end
 
+        #set host hostsystem
+        if repo.has_element? :hostsystem
+          target_repo = Repository.find_by_project_and_repo_name( repo.hostsystem.project, repo.hostsystem.repository )
+          unless target_repo
+            raise SaveError, "Unknown target repository '#{repo.hostsystem.project}/#{repo.hostsystem.repository}'"
+          end
+          if target_repo != current_repo.hostsystem
+            current_repo.hostsystem = target_repo
+            was_updated = true
+          end
+        elsif current_repo.hostsystem
+          current_repo.hostsystem = nil
+          was_updated = true
+        end
+
         #destroy all current pathelements
         current_repo.path_elements.each { |pe| pe.destroy }
 
@@ -992,6 +1007,9 @@ class DbProject < ActiveRecord::Base
             params[:repository] = rt.target_repository.name
             params[:trigger]    = rt.trigger    unless rt.trigger.blank?
             r.releasetarget( params )
+          end
+          if repo.hostsystem
+            r.hostsystem( :project => repo.hostsystem.db_project.name, :repository => repo.hostsystem.name )
           end
           repo.path_elements.includes(:link).each do |pe|
             if pe.link.remote_project_name

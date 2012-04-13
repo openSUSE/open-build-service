@@ -58,6 +58,10 @@ our $repo = [
 	    'project',
 	    'repository',
      ]],
+     [ 'hostsystem' =>
+	    'project',
+	    'repository',
+     ],
       [ 'arch' ],
 	'status',
 ];

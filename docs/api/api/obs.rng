@@ -229,6 +229,16 @@
               </attribute>
             </element>
         </zeroOrMore>
+        <optional>
+          <element name="hostsystem">
+            <attribute name="repository">
+              <data type="string" />
+            </attribute>
+            <attribute name="project">
+              <data type="string" />
+            </attribute>
+          </element>
+        </optional>
         <zeroOrMore>
           <element name="arch">
             <ref name="build-arch" />
