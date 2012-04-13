@@ -1054,13 +1054,18 @@ class PackageController < ApplicationController
 
   def rpmlint_result
     render :text => 'no ajax', :status => 400 and return unless request.xhr?
-    @repo_arch_hash = {}
+    @repo_list, @repo_arch_hash = [], {}
     @buildresult = find_hashed(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
+    repos = [] # Temp var
     @buildresult.elements('result') do |result|
       hash_key = valid_xml_id(elide(result.value('repository'), 30))
       @repo_arch_hash[hash_key] ||= []
       @repo_arch_hash[hash_key] << result['arch']
+      repos << result.value('repository')
     end if @buildresult
+    repos.uniq.each do |repo_name|
+      @repo_list << [repo_name, valid_xml_id(elide(repo_name, 30))]
+    end
     render :partial => 'rpmlint_result', :locals => {:index => params[:index]}
   end
 
