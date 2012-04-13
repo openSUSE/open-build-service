@@ -54,8 +54,9 @@ class RequestController < ApplicationController
   end
 
   def show
+    redirect_back_or_to :controller => 'home', :action => 'requests' and return if !params[:id]
     begin
-      @req = find_cached(BsRequest, params[:id]) if params[:id]
+      @req = find_cached(BsRequest, params[:id])
     rescue ActiveXML::Transport::Error => e
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_back_or_to :controller => "home", :action => "requests" and return
