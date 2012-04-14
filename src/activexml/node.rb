@@ -479,7 +479,7 @@ module ActiveXML
     def internal_data #nodoc
       _data
     end
-    protected :internal_data
+#    protected :internal_data
   end
 
   class XMLNode < LibXMLNode

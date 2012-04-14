@@ -1,101 +1,5 @@
 module SpiderIntegrator
   
-  # This is an abstract representation of a form that we can spider.
-  # It's a loose wrapper around HTML::Tag, except that we can modify its attributes
-  class SpiderableForm
-    attr_accessor :method, :action, :query_hash
-    
-    def initialize(tag)
-      @form = tag
-      self.method = @form['method']
-      self.action = @form['action']
-    end
-    
-    def method=(m)
-      @method = m.downcase if m
-    end
-    
-    def find_all(*args)
-      @form.find_all(*args)
-    end
-    
-    def mutate_inputs!(mutate_existing_values = false)
-      input_hash = mutate_existing_values ? { '_mutated' => true } : { '_modified' => true }
-    
-      @form.find_all(:tag => 'input').each do |input|
-        if input['name'] == '_method' # and value.in?['put','post',..] # rails is faking the post/put etc
-          self.method = input['value']
-        else
-          if input['name'].nil?
-            if input['onclick']
-              # we already queued this link as ajax
-              next
-            elsif input['type'] == 'submit'
-              # no problem, we expect that
-            else
-              $stderr.puts "Warning: input has no name and is effectively useless: #{input.attributes.inspect}"
-              next
-            end
-          end # name is nil
-
-          case input['type']
-          when 'checkbox'
-            input_hash[ input['name'] ]
-          when 'hidden'
-            input_hash[ input['name'] ] = create_data(input, mutate_existing_values)
-          when 'file'
-            # nothing. todo: try uploading some data here.
-          when 'submit'
-            input_hash[ input['name'] || 'Submit' ] = create_data(input, mutate_existing_values)
-          else
-            input_hash[ input['name'] ] = create_data(input, mutate_existing_values)
-          end
-        end
-      end
-      @form.find_all(:tag => 'textarea').each do |input|
-        input_hash[ input['name'] ] = create_data(input, mutate_existing_values)
-      end
-      @form.find_all(:tag => 'select').each do |select|
-        options = select.find_all(:tag => 'option')
-        option = options[ rand(options.length) ]
-        input_hash[ select['name'] ] = option['value'] if option and select['name']
-      end
-
-      @query_hash = input_hash
-    end
-
-    # Randomly create data to push to form values, depending on the name of the input field.
-    #
-    # We're trying to be clever about the sort of crap to push into the field.
-    # Todo: if an existing value is given, try mutating it.
-    def create_data(input, mutate = false)
-      value = mutate ? nil : input['value'] 
-
-      return value || case input['name']
-        when /amount/ 
-           rand(10000) - 5000
-        when /_id$/   
-           rand(500)
-        when /uploaded_data/ # attachment_fu
-          nil
-        when nil
-          # wtf!
-          input['value']
-          #{}"wtf"
-        else
-          rand(10000).to_s
-        end
-    end
-   
-    # Returns the form's "method". Method must be one of
-    # get, put, post, delete or head
-    #def method
-    #  @method.downcase if %w( get put post delete head ).include?(@method.downcase)
-    #end
-
-    # method_missing proxy perhaps?
-  end
-
 #
 # SpiderIntegrator is an includable module for your integration tests
 # that will 'spider' over your entire rails application, gathering
@@ -186,7 +90,6 @@ module SpiderIntegrator
   #   
   # You can override certain instance methods if necessary:
   #    @links_to_visit : array containing SpiderIntegrator::Link.new( dest_url, source_url ) objects
-  #    @forms_to_visit : array containing SpiderIntegrator::Form.new( method, action, query, source ) objects
   #   
   # You may find it useful to have two spider tests, one logged in and one logged out.
   def spider( body, uri, options )
@@ -206,28 +109,21 @@ module SpiderIntegrator
   protected
   # You probably don't want to be calling these from within your test.
 
-  # Use HTML::Document to suck the links and forms out of the spidered page.
-  # todo: use hpricot or something else more fun (we will need to validate 
-  # the html in this case since HTML::Document does it by default)
   def consume_page( html, url )
+	  body = nil
     begin
-      body = HTML::Document.new html
+      body = ActiveXML::Base.new html
     rescue
       puts "HARDCORE!! #{url}"
     end
-    body.find_all(:tag=>'a').each do |tag|
-      queue_link( tag, url ) unless tag['onclick']
-    end
-    body.find_all(:tag=>'link').each do |tag|
-      # Strip appended browser-caching numbers from asset paths like ?12341234
-      queue_link( tag, url )
-    end
-    body.find_all(:tag => 'input', :attributes => { :name => nil }) do |input|
-      queue_link( tag, url ) if tag['onclick']
-    end
-    body.find_all(:tag =>'form').each do |form|
-      form = SpiderableForm.new form
-      queue_form( form, url )
+    body.internal_data.traverse do |tag|
+      next unless tag.element? 
+      if tag.name == 'a'
+        queue_link( tag, url ) unless tag['onclick']
+      end
+      if tag.name == 'link'
+        queue_link( tag, url )
+      end
     end
     @@last_perc.times { $stdout.write "\b" }
     $stdout.write "."
@@ -252,33 +148,21 @@ module SpiderIntegrator
     @ignore = {}
     @ignore[:urls] = Hash.new(false)
     @ignore[:url_patterns] = Hash.new(false)
-    @ignore[:forms] = Hash.new(false)
-    @ignore[:form_patterns] = Hash.new(false)
 
     options[:ignore_urls].each do |option|
       @ignore[:url_patterns][option] = true if option.is_a? Regexp
       @ignore[:urls][option] = true if option.is_a? String
     end
     
-    options[:ignore_forms].each do |option|
-      @ignore[:form_patterns][option] = true if option.is_a? Regexp
-      @ignore[:forms][option] = true if option.is_a? String
-    end
-
     @verbosity = options[:verbose]
     
     console "Spidering will ignore the following URLs #{@ignore[:urls].keys.inspect}"
     console "Spidering will ignore the following URL patterns #{@ignore[:url_patterns].keys.inspect}"
-    console "Spidering will ignore the following form URLs #{@ignore[:forms].keys.inspect}"
-    console "Spidering will ignore the following form URL patterns #{@ignore[:form_patterns].keys.inspect}"
     
     @links_to_visit ||= []
-    @forms_to_visit ||= []
     @visited_urls = Hash.new(false)
-    @visited_forms = Hash.new(false)
     
     @visited_urls.merge! @ignore[:urls]
-    @visited_forms.merge! @ignore[:forms] 
     
   end
   
@@ -293,19 +177,6 @@ module SpiderIntegrator
         @visited_urls[uri] = true
         return true 
       end
-    end
-    return false
-  end
-  
-  def spider_should_ignore_form?(uri)
-    return true if @visited_forms[uri] == true
-    
-    @ignore[:form_patterns].keys.each do |pattern|
-        if pattern.match(uri)
-          console  "- #{uri} ( Ignored by pattern #{pattern.inspect})"
-          @visited_forms[uri] = true
-          return true 
-        end
     end
     return false
   end
@@ -349,27 +220,6 @@ module SpiderIntegrator
       @visited_urls[next_link.uri] = true
     end
 
-    console  "\nTesting forms.."
-    until @forms_to_visit.empty?
-      next_form = @forms_to_visit.shift
-      next if spider_should_ignore_form?(next_form.action)
-      printf '.'
-      begin
-        send(next_form.method, next_form.action, next_form.query)
-      rescue => err
-        printf "*"
-        (@errors[next_form.action]||=[]) << "Could not spider page :#{next_form.method} '#{next_form.action}' with #{next_form.query.inspect} because of error #{err.message}"
-        @stacktraces[next_form.action] = err.inspect
-      end
-      unless %w( 200 201 302 ).include?( @response.code )
-        @errors[next_form.action] = "Received response code #{ @response.code } for #{next_form.method} '#{ next_form.action }' with " + \
-          next_form.query.inspect + " from #{ next_form.source }"
-        # console @response.body
-        @stacktraces[next_form.action] = @response.body.gsub("<head>.*?</head>", "") # unless @response.code == 404 # don't show 404s
-      end
-      consume_page( @response.body, next_form.action )
-      @visited_forms[next_form.action] = true
-    end
   end
   
   # Finalize the test and display any errors.
@@ -410,8 +260,8 @@ module SpiderIntegrator
   #   only the ajax action will be followed in that case.  This behavior probably should be changed
   #
   def queue_link( tag, source )
-    onclick = tag.attributes['onclick']
-    dest = (onclick =~ /^new Ajax.Updater\(['"].*?['"], ['"](.*?)['"]/i) ? $1 : tag.attributes['href']
+    onclick = tag['onclick']
+    dest = (onclick =~ /^new Ajax.Updater\(['"].*?['"], ['"](.*?)['"]/i) ? $1 : tag['href']
     return if dest.nil?
     return if onclick =~ /confirm/
     dest.gsub!(/([?]\d+)$/, '') # fix asset caching
@@ -423,18 +273,7 @@ module SpiderIntegrator
     end
   end
 
-  # Parse the variables and elements from a form, including inputs and textareas,
-  # and fill them with crap.
-  def queue_form( form, source )
-    form.action ||= source
-    form.mutate_inputs!(false)
-    
-    #@forms_to_visit << SpiderIntegrator::Form.new( form.method, form.action, form.query_hash, source )
-    # @forms_to_visit << SpiderIntegrator::Form.new( form_method, form_action, mutate_inputs(form, true), source )
-  end
-
   SpiderIntegrator::Link = Struct.new( :uri, :source )
-  SpiderIntegrator::Form = Struct.new( :method, :action, :query, :source )
 end 
 
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"        
