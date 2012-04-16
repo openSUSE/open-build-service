@@ -50,7 +50,6 @@ class ProjectPage < BuildServicePage
                        "Project Config" => ProjectConfigPage,
                        "Status"         => ProjectStatusPage,
                        "Overview"       => ProjectOverviewPage,
-                       "Packages"       => ProjectPackagesPage,
                        "Requests"       => ProjectRequestsPage,
                        "Meta"           => ProjectRawConfigPage,
                        "Attributes"     => ProjectAttributesPage,

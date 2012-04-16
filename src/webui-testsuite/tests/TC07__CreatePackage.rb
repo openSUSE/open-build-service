@@ -4,7 +4,7 @@ class TC07__CreatePackage < TestCase
   test :create_home_project_package_for_user do
   depend_on :create_home_project_for_user
   
-    navigate_to ProjectPackagesPage,
+    navigate_to ProjectPage,
       :user => $data[:user1],
       :project => "home:user1"
     open_new_package
@@ -18,7 +18,7 @@ class TC07__CreatePackage < TestCase
   test :create_home_project_package_for_second_user do
   depend_on :create_home_project_for_second_user
   
-    navigate_to ProjectPackagesPage,
+    navigate_to ProjectPage,
       :user => $data[:user2],
       :project => "home:user2"
     open_new_package
@@ -33,7 +33,7 @@ class TC07__CreatePackage < TestCase
   test :create_subproject_package_for_user do
   depend_on :create_subproject_for_user
 
-    navigate_to ProjectPackagesPage,
+    navigate_to ProjectPage,
       :user => $data[:user1],
       :project => "home:user1:SubProject1"
     open_new_package
@@ -47,7 +47,7 @@ class TC07__CreatePackage < TestCase
   test :create_global_project_package do
   depend_on :create_global_project
 
-    navigate_to ProjectPackagesPage,
+    navigate_to ProjectPage,
       :user => $data[:admin],
       :project => "PublicProject1"
     open_new_package
@@ -61,7 +61,7 @@ class TC07__CreatePackage < TestCase
   test :create_package_without_name do
   depend_on :create_home_project_for_user
     
-    navigate_to ProjectPackagesPage,
+    navigate_to ProjectPage,
       :user => $data[:user1],
       :project => "home:user1"
     open_new_package
@@ -76,7 +76,7 @@ class TC07__CreatePackage < TestCase
   test :create_package_name_with_spaces do
   depend_on :create_home_project_for_user
   
-      navigate_to ProjectPackagesPage,
+      navigate_to ProjectPage,
       :user => $data[:user1],
       :project => "home:user1"
     open_new_package
@@ -91,7 +91,7 @@ class TC07__CreatePackage < TestCase
   test :create_package_with_only_name do
   depend_on :create_home_project_for_user
   
-      navigate_to ProjectPackagesPage,
+      navigate_to ProjectPage,
       :user => $data[:user1],
       :project => "home:user1"
     open_new_package
@@ -105,7 +105,7 @@ class TC07__CreatePackage < TestCase
   test :create_package_with_long_description do
   depend_on :create_home_project_for_user
     
-    navigate_to ProjectPackagesPage,
+    navigate_to ProjectPage,
       :user => $data[:user1],
       :project => "home:user1"
     open_new_package
@@ -119,7 +119,7 @@ class TC07__CreatePackage < TestCase
   test :create_package_duplicate_name do
   depend_on :create_home_project_package_for_user
   
-    navigate_to ProjectPackagesPage,
+    navigate_to ProjectPage,
       :user => $data[:user1],
       :project => "home:user1"
     open_new_package

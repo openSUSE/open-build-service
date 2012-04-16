@@ -6,7 +6,7 @@ class TC10__BranchPackage < TestCase
             :create_home_project_for_second_user,
             :add_new_source_file_to_home_project_package
   
-    navigate_to ProjectPackagesPage,
+    navigate_to ProjectPage,
       :user => $data[:user2],
       :project => "home:user2"
     open_branch_package
@@ -21,7 +21,7 @@ class TC10__BranchPackage < TestCase
   depend_on :create_subproject_package_for_user,
             :create_home_project_for_second_user
   
-    navigate_to ProjectPackagesPage,
+    navigate_to ProjectPage,
       :user => $data[:user2],
       :project => "home:user2"
     open_branch_package
@@ -37,7 +37,7 @@ class TC10__BranchPackage < TestCase
             :create_home_project_for_second_user,
 	    :add_new_source_file_to_global_project_package
   
-    navigate_to ProjectPackagesPage,
+    navigate_to ProjectPage,
       :user => $data[:user2],
       :project => "home:user2"
     open_branch_package
@@ -51,7 +51,7 @@ class TC10__BranchPackage < TestCase
   test :branch_package_twice_duplicate_name do
   depend_on :branch_package_for_home_project
   
-    navigate_to ProjectPackagesPage,
+    navigate_to ProjectPage,
       :user => $data[:user2],
       :project => "home:user2"
     open_branch_package
@@ -66,7 +66,7 @@ class TC10__BranchPackage < TestCase
   test :branch_package_twice do
   depend_on :branch_package_for_home_project
   
-    navigate_to ProjectPackagesPage,
+    navigate_to ProjectPage,
       :user => $data[:user2],
       :project => "home:user2"
     open_branch_package
@@ -81,7 +81,7 @@ class TC10__BranchPackage < TestCase
   depend_on :create_home_project_package_for_user,
             :create_home_project_for_second_user
   
-    navigate_to ProjectPackagesPage,
+    navigate_to ProjectPage,
       :user => $data[:user2],
       :project => "home:user2"
     open_branch_package
@@ -96,7 +96,7 @@ class TC10__BranchPackage < TestCase
   depend_on :create_home_project_package_for_user,
             :create_home_project_for_second_user
   
-    navigate_to ProjectPackagesPage,
+    navigate_to ProjectPage,
       :user => $data[:user2],
       :project => "home:user2"
     open_branch_package
@@ -111,7 +111,7 @@ class TC10__BranchPackage < TestCase
   depend_on :create_home_project_package_for_user,
             :create_home_project_for_second_user
   
-    navigate_to ProjectPackagesPage,
+    navigate_to ProjectPage,
       :user => $data[:user2],
       :project => "home:user2"
     open_branch_package
@@ -127,7 +127,7 @@ class TC10__BranchPackage < TestCase
   depend_on :create_home_project_package_for_user,
             :create_home_project_for_second_user
   
-    navigate_to ProjectPackagesPage,
+    navigate_to ProjectPage,
       :user => $data[:user2],
       :project => "home:user2"
     open_branch_package

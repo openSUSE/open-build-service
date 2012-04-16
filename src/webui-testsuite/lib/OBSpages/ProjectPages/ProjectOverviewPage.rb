@@ -10,8 +10,7 @@ class ProjectOverviewPage < ProjectPage
   def validate_page
     super
     ps = @driver.page_source
-    #validate { ps.include? "Information" }
-    #validate { ps.include? "Actions" }
+    validate { ps.include? "Packages" }
     validate { ps.include? "Build Results" }
   end
 

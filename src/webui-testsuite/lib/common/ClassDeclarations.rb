@@ -22,7 +22,6 @@ class WebPage;   end
             class ProjectConfigPage       < ProjectPage; end
             class ProjectStatusPage       < ProjectPage; end
             class ProjectOverviewPage     < ProjectPage; end
-            class ProjectPackagesPage     < ProjectPage; end
             class ProjectRequestsPage     < ProjectPage; end
             class ProjectRawConfigPage    < ProjectPage; end
             class ProjectAttributesPage   < ProjectPage; end   
