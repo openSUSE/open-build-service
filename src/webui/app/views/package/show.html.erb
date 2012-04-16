@@ -6,7 +6,7 @@
   <%= render :partial => 'tabs' %>
   <div class="grid_10 alpha">
     <h3 id="package_title"><%=h @package.title %><%= h(@package) if @package.title.to_s.blank? -%></h3>
-    <%= description_wrapper(@project.description.text) %>
+    <%= description_wrapper(@package.description.text) %>
   </div>
   <div class="grid_6 omega">
     <% if @failures && @failures > 0 || @package.has_element?(:devel) || !@package.developed_packages.blank? || @package.name =~ %r{^_patchinfo} || @linking_packages && @linking_packages.size > 0 || @package.linkinfo %>
