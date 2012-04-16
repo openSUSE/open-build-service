@@ -460,7 +460,6 @@ CREATE TABLE `repositories` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`db_project_id`,`name`,`remote_project_name`),
   KEY `remote_project_name_index` (`remote_project_name`),
-  KEY `hostsystem` (`hostsystem`),
   KEY `hostsystem_id` (`hostsystem_id`),
   CONSTRAINT `repositories_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`),
   CONSTRAINT `repositories_ibfk_2` FOREIGN KEY (`hostsystem_id`) REFERENCES `repositories` (`id`)
@@ -878,6 +877,8 @@ INSERT INTO schema_migrations (version) VALUES ('20120223105426');
 
 INSERT INTO schema_migrations (version) VALUES ('20120304205014');
 
+INSERT INTO schema_migrations (version) VALUES ('20120312204300');
+
 INSERT INTO schema_migrations (version) VALUES ('20120313113554');
 
 INSERT INTO schema_migrations (version) VALUES ('20120313131909');
@@ -889,8 +890,6 @@ INSERT INTO schema_migrations (version) VALUES ('20120319133739');
 INSERT INTO schema_migrations (version) VALUES ('20120320134850');
 
 INSERT INTO schema_migrations (version) VALUES ('20120407173644');
-
-INSERT INTO schema_migrations (version) VALUES ('20120312204300');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
