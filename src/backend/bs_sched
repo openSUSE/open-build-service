@@ -1910,7 +1910,12 @@ sub get_projpacks {
   die("ERROR: source server did not report a repoid") unless $projpacksin->{'repoid'};
   if (! -e "$reporoot/_repoid") {
     mkdir_p("$reporoot") unless -d "$reporoot";
-    writestr("$reporoot/._repoid", "$reporoot/_repoid", $projpacksin->{'repoid'});
+    eval {
+      writestr("$reporoot/._repoid", "$reporoot/_repoid", $projpacksin->{'repoid'});
+    };
+    if ($@ and ! -e "$reporoot/_repoid") { # There's a race to create this file - as long as it exists we're happy.
+      die $@;
+    }
   }
   my $buildrepoid = readstr("$reporoot/_repoid");
   die("ERROR: My repository id($buildrepoid) has wrong length(".length($buildrepoid).")") unless length($buildrepoid) == 9;
