@@ -68,6 +68,11 @@ private
       flash[:error] = "Project not found: #{params[:project]}"
       redirect_to :controller => "project", :action => "list_public" and return
     end
+    if @project.is_remote?
+       flash[:error] = "Attribute access to remote project is not yet supported"
+       redirect_to :controller => "package", :action => :show, :project => params[:project], :package => params[:package]
+       return
+    end
     @is_maintenance_project = false
     @is_maintenance_project = true if @project.project_type and @project.project_type == "maintenance"
     @package = find_cached(Package, params[:package], :project => @project.name) if params[:package]

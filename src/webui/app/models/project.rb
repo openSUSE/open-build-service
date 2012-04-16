@@ -95,7 +95,7 @@ class Project < ActiveXML::Base
   #check if named project comes from a remote OBS instance
   def self.is_remote?(pro_name)
     p = Project.find pro_name
-    return true if p && p.has_element?(:mountproject)
+    return true if p && p.is_remote?
     return false
   end
   
@@ -249,6 +249,7 @@ class Project < ActiveXML::Base
     
   def linking_projects
     result = []
+    return result if is_remote?
     begin
       fc = FrontendCompat.new
       answer = fc.do_post(nil, {:project => self.name, :cmd => 'showlinked'})
@@ -341,7 +342,8 @@ class Project < ActiveXML::Base
   end
 
   def is_remote?
-    to_hash.has_key? "remoteurl"
+    th = to_hash
+    th.has_key?("remoteurl") || th.has_key?("mountproject")
   end
 
   # Returns a list of pairs (full name, short name) for each parent

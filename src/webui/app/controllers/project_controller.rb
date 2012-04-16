@@ -156,7 +156,11 @@ class ProjectController < ApplicationController
   end
 
   def attributes
-    @attributes = Attribute.find(:project => @project.name)
+    if @project.is_remote?
+      @attributes = nil
+    else
+      @attributes = Attribute.find(:project => @project.name)
+    end
   end
 
   def new
@@ -444,6 +448,12 @@ class ProjectController < ApplicationController
   end
 
   def repositories
+    if @project.is_remote?
+      # TODO support flagdetails for remote instances in the API
+      flash[:error] = "You can't show repositories for remote instances"
+      redirect_to :action => :show, :project => params[:project]
+      return
+    end
     # overwrite @project with different view
     # TODO to get this cached we need to make sure it gets purged on repo updates
     @project = Project.find( params[:project], :view => :flagdetails )

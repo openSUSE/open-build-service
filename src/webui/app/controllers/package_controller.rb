@@ -1124,7 +1124,11 @@ class PackageController < ApplicationController
   end
 
   def attributes
-    @attributes = Attribute.find(:project => @project.name, :package => @package.to_s)
+    if @project.is_remote?
+      @attributes = nil
+    else
+      @attributes = Attribute.find(:project => @project.name, :package => @package.to_s)
+    end
   end
 
   def edit
