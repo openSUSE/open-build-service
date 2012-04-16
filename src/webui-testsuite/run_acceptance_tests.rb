@@ -4,6 +4,7 @@ require 'headless'
 require 'colored'
 require 'net/http'
 require 'optparse'
+require 'builder'
 
 #$DEBUG = 1;
 
@@ -202,6 +203,7 @@ $data[:invalid_user][:password] = 'dasdsad'
 Dir.mkdir $data[:report_path] unless File.exists? $data[:report_path]
 report = HtmlReport.new
 fail_details = String.new
+builder = Builder::XmlMarkup.new
 passed  = 0
 failed  = 0
 skipped = 0
@@ -220,28 +222,33 @@ driver = WebDriver.for :firefox
 #driver.manage.timeouts.implicit_wait = 3 # seconds
 $page = WebPage.new driver
 time_started = Time.now
-TestRunner.run(options[:stop_on_fail]) do |test|
-  if test.status == :ready then
-    print((test.name.to_s+"                                               ")[0,55])
-    STDOUT.flush
-  else
-    puts case(test.status)
-      when :pass then
-        passed += 1
-        test.status.to_s.bold.green
-      when :fail then 
-        failed += 1
-        fail_details += "\n#{failed}) #{test.name}:\n#{test.message}".red
-        test.status.to_s.bold.red
-      when :skip then
-        skipped += 1
-        test.status.to_s.bold.blue
-      when :rescheduled then
-        test.status.to_s.bold.green
-      else
-        raise 'Invalid status value!'
+builder.testsuite do
+  TestRunner.run(options[:stop_on_fail]) do |test|
+    if test.status == :ready then
+      print((test.name.to_s+"                                               ")[0,55])
+      STDOUT.flush
+    else
+      puts case(test.status)
+           when :pass then
+             passed += 1
+             test.status.to_s.bold.green
+           when :fail then 
+             failed += 1
+             fail_details += "\n#{failed}) #{test.name}:\n#{test.message}".red
+             test.status.to_s.bold.red
+           when :skip then
+             skipped += 1
+             test.status.to_s.bold.blue
+           when :rescheduled then
+             test.status.to_s.bold.green
+           else
+             raise 'Invalid status value!'
+           end
+      unless test.status == :rescheduled
+        report.add test 
+        test.to_xml(builder)
+      end
     end
-    report.add test unless test.status == :rescheduled
   end
 end
 time_ended = Time.now
@@ -277,5 +284,8 @@ report.save $data[:report_path] + "report.html"
 puts fail_details if options[:details]
 gets if options[:pause_on_exit]
 
-exit 1 if failed > 0
+report = File.new $data[:report_path] + "junit-result.xml", "w"
+report.write builder.target!
+report.close
 
+exit 1 if failed > 0

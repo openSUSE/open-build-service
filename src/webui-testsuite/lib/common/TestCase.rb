@@ -167,4 +167,21 @@ class TestCase
   end
 
 
+  def to_xml(builder)
+     case(self.status)
+      when :pass then
+       builder.testcase :classname => self.class, :name => self.name
+      when :fail then 
+       builder.testcase(:classname => self.class, :name => self.name) do
+        builder.failure :type => "exception" do
+          self.message
+        end
+      end
+      when :skip then
+       builder.testcase(:classname => self.class, :name => self.name) do
+        builder.skipped
+      end
+    end
+  end
+
 end
