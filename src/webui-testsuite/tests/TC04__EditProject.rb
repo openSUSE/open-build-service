@@ -137,7 +137,6 @@ class TC04__EditProject < TestCase
     open_tab "Project Config"
     open_tab "Status"
     open_tab "Overview"
-    open_tab "Packages"
     open_tab "Repositories" 
     open_tab "Requests" 
     open_tab "Meta"
