@@ -6,8 +6,7 @@ class Repository < ActiveRecord::Base
   has_many :path_elements, :foreign_key => 'parent_id', :dependent => :delete_all, :order => "position"
   has_many :links, :class_name => "PathElement", :foreign_key => 'repository_id'
   has_many :download_stats
-  has_one :hostsystem, :class_name => "Repository", :foreign_key => 'hostsystem'
-
+  has_one :hostsystem, :class_name => "Repository", :foreign_key => 'hostsystem_id'
 
   has_many :repository_architectures, :order => "position", :dependent => :delete_all
   has_many :architectures, :through => :repository_architectures, :order => "position"
@@ -20,7 +19,7 @@ class Repository < ActiveRecord::Base
     end
 
     def find_by_project_and_repo_name( project, repo )
-      result = joins(:db_project).where("db_projects.name = BINARY ? AND repositories.name = BINARY ? AND ISNULL(remote_project_name)", project, repo).first
+      result = not_remote.joins(:db_project).where(:db_projects => {:name => project}, :name => repo).first
 
       return result unless result.nil?
 
