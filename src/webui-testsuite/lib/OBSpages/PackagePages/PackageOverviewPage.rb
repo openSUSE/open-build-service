@@ -44,10 +44,9 @@ class PackageOverviewPage < PackagePage
     @driver[:xpath => "//form[@action='/package/remove']//input[@name='commit'][@value='Ok']"].click
     
     msg = "Package '#{@package}' was removed successfully from project '#{@project}'"
+    $page = ProjectOverviewPage.new_ready @driver
     assert_equal flash_message, msg 
     assert_equal flash_message_type, :info
-    
-    $page = ProjectOverviewPage.new_ready @driver
   end
   
   
