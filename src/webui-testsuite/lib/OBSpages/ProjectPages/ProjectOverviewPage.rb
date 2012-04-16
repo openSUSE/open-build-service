@@ -99,12 +99,27 @@ class ProjectOverviewPage < ProjectPage
   # ============================================================================
   #
   def open_create_subproject
-    @driver[:xpath => 
-      "//div[@id='content']//a[text()='Create subproject']"].click
+    @driver[:xpath => "//div[@id='content']//a[text()='Create subproject']"].click
     wait_for_javascript
-
     $page = NewProjectPage.new_ready @driver
+  end
 
+
+  # ============================================================================
+  #
+  def open_new_package
+    @driver[:xpath => "//div[@id='content']//a[text()='Create package']"].click
+    wait_for_javascript
+    $page = NewPackagePage.new_ready @driver
+  end
+
+
+  # ============================================================================
+  #
+  def open_branch_package
+    @driver[:xpath => "//div[@id='content']//a[text()='Branch existing package']"].click
+    wait_for_javascript
+    $page = NewPackageBranchPage.new_ready @driver
   end
   
   

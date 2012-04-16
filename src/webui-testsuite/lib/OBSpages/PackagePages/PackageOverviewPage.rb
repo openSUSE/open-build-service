@@ -10,8 +10,7 @@ class PackageOverviewPage < PackagePage
   def validate_page
     super
     assert @url.start_with? $data[:url] + "/package/show"
-    validate { @driver.page_source.include? "Information" }
-    validate { @driver.page_source.include? "Actions" }
+    validate { @driver.page_source.include? "Sources" }
     validate { @driver.page_source.include? "Build Results" }
   end
   
