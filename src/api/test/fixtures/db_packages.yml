@@ -50,7 +50,7 @@ TestPack:
   activity_index: 10
   bcntsynctag: 
   develpackage_id: 
-db_packages_10096:
+pack1:
   id: 10096
   db_project_id: 2042
   name: pack1

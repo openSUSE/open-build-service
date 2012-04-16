@@ -46,7 +46,7 @@ kde4:
   maintenance_project_id: 
   type_id: 
   develproject_id: 
-db_projects_2042:
+BaseDistro:
   id: 2042
   name: BaseDistro
   title: This is a base distro

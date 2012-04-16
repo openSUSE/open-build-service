@@ -489,6 +489,7 @@ class SourceController < ApplicationController
     # init and validation
     #--------------------
     valid_http_methods :get, :post, :delete
+    required_parameters :project
     params[:user] = @http_user.login if @http_user
     binary=nil
     binary=params[:binary] if params[:binary]
@@ -505,6 +506,13 @@ class SourceController < ApplicationController
       end
       @attribute_container = DbProject.get_by_name(params[:project])
     end
+
+    if @attribute_container.nil?
+      render_error :status => 404, :errorcode => "not_existing_attribute",
+                   :message => "Attribute is not defined in system"
+      return
+    end
+
     # is the attribute type defined at all ?
     if params[:attribute]
       # Valid attribute
@@ -668,6 +676,10 @@ class SourceController < ApplicationController
     if request.get?
       if DbProject.find_remote_project project_name
         # project from remote buildservice, get metadata from backend
+	if params[:view]
+	  render_error :status => 404, :errorcode => "invalid_project_parameters"
+	  return
+	end
         pass_to_backend
       else
         # access check
@@ -1324,9 +1336,11 @@ class SourceController < ApplicationController
   # POST /source/<project>?cmd=showlinked
   def index_project_showlinked
     valid_http_methods :post
+    required_parameters :project
     project_name = params[:project]
 
-    pro = DbProject.get_by_name(project_name)
+    # FIXME2.4 implement test case for hidden projects and hidden links
+    pro = DbProject.find_by_name(project_name)
 
     builder = Builder::XmlMarkup.new( :indent => 2 )
     xml = builder.collection() do |c|

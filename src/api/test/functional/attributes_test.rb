@@ -167,6 +167,12 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_xml_tag :child => { :tag => 'entry', :attributes => { :name => "Maintained" } }
   end
 
+  def test_invalid_get
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/source/RemoteInstance:BaseDistro/pack1/_attribute"
+    assert_response 404
+  end
+
   def test_create_attributes_project
     reset_auth
     prepare_request_with_user "tom", "thunder"
