@@ -9,7 +9,7 @@
     <%= description_wrapper(@package.description.text) %>
   </div>
   <div class="grid_6 omega">
-    <% if @failures && @failures > 0 || @package.has_element?(:devel) || !@package.developed_packages.blank? || @package.name =~ %r{^_patchinfo} || @linking_packages && @linking_packages.size > 0 || @package.linkinfo %>
+    <% if @failures && @failures > 0 || @package.has_element?(:devel) || !@package.developed_packages.blank? || @package.name =~ %r{^_patchinfo} || @linking_packages && @linking_packages.size > 0 || @linkinfo %>
       <ul class="clean_list">
         <% if @failures && @failures > 0 %>
           <li>
@@ -52,14 +52,14 @@
             <%= @linking_packages.size %> <%= link_to_remote "derived packages", :url => { :action => :linking_packages, :project => @project, :package => @package } %>
           </li>
         <% end %>
-        <% if @package.linkinfo %>
-          <% linked_project, linked_package = @package.linkinfo.project, @package.linkinfo.package %>
+        <% if @linkinfo %>
+          <% linked_project, linked_package = @linkinfo.project, @linkinfo.package %>
           <li>
             <%= image_tag 'icons/package_link.png' %> Links to
             <%= render :partial => 'shared/project_or_package_link', :locals => {:project => linked_project, :package => linked_package, :short => true} %>
           </li>
-          <% if @package.linkinfo.value :error %>
-            <li><%= image_tag 'icons/exclamation.png' %> Link has errors: <i><%= @package.linkinfo.error %></i></li>
+          <% if @linkinfo.value :error %>
+            <li><%= image_tag 'icons/exclamation.png' %> Link has errors: <i><%= @linkinfo.error %></i></li>
           <% else %>
             <%#TODO: Only display if there is really a diff: %>
             <li>
@@ -169,7 +169,7 @@
   <% end %>
   <div class="clearfix"></div><%# TODO: Not nice, dataTables should clear %>
   <p>
-    <% if @package.linkinfo && @revision_parameter.nil? %>
+    <% if @linkinfo && @revision_parameter.nil? %>
        <%= image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden') %>
       <span style="font-size: small; font-weight: normal">
         <% if @expand && @expand.to_s == "1" %>
