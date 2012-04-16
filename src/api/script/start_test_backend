@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 ENV['RAILS_ENV'] = 'test'
-require File.dirname(__FILE__) + '/../config/boot'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 
 Suse::Backend.do_not_start_test_backend
