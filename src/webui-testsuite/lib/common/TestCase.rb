@@ -173,9 +173,7 @@ class TestCase
        builder.testcase :classname => self.class, :name => self.name
       when :fail then 
        builder.testcase(:classname => self.class, :name => self.name) do
-        builder.failure :type => "exception" do
-          self.message
-        end
+        builder.failure(self.message, :type => "exception")
       end
       when :skip then
        builder.testcase(:classname => self.class, :name => self.name) do
