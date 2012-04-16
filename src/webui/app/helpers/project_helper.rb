@@ -41,7 +41,7 @@ module ProjectHelper
   def project_bread_crumb(*args)
     @crumb_list = [link_to('Projects', :controller => 'project', :action => :list_public)]
     return if @spider_bot
-    if !@project.is_remote?
+    unless @project.nil? || @project.is_remote?
       prj_parents = nil
       if @namespace # corner case where no project object is available (i.e. 'new' action)
         prj_parents = Project.parent_projects(@namespace)
