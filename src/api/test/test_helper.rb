@@ -118,7 +118,7 @@ module ActionController
     end
 
     def inject_build_job( project, package, repo, arch )
-      job=IO.popen("find #{RAILS_ROOT}/tmp/backend_data/jobs/#{arch}/ -name #{project}::#{repo}::#{package}-*")
+      job=IO.popen("find #{Rails.root}/tmp/backend_data/jobs/#{arch}/ -name #{project}::#{repo}::#{package}-*")
       jobfile=job.readlines.first.chomp
       jobid=""
       IO.popen("md5sum #{jobfile}|cut -d' ' -f 1") do |io|
@@ -129,14 +129,15 @@ module ActionController
       f = File.open("#{jobfile}:status", 'w')
       f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> <workerid>simulated</workerid> <hostarch>#{arch}</hostarch> </jobstatus>" )
       f.close
-      system("cd #{RAILS_ROOT}/test/fixtures/backend/binary/; exec find . -name '*#{arch}.rpm' -o -name '*src.rpm' -o -name logfile | cpio -H newc -o 2>/dev/null | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=#{arch}&code=success&job=#{jobfile.gsub(/.*\//, '')}&jobid=#{jobid}' > /dev/null")
+      system("cd #{Rails.root}/test/fixtures/backend/binary/; exec find . -name '*#{arch}.rpm' -o -name '*src.rpm' -o -name logfile | cpio -H newc -o 2>/dev/null | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=#{arch}&code=success&job=#{jobfile.gsub(/.*\//, '')}&jobid=#{jobid}' > /dev/null")
       system("echo \"#{verifymd5}  #{package}\" > #{jobfile}:dir/meta")
     end
 
     def wait_for_publisher
+      Rails.logger.debug "Wait for publisher"
       counter = 0
       while counter < 100
-        events = Dir.open("#{RAILS_ROOT}/tmp/backend_data/events/publish")
+        events = Dir.open("#{Rails.root}/tmp/backend_data/events/publish")
         #  3 => ".", ".." and ".ping"
         break unless events.count > 3
         sleep 0.5
@@ -148,8 +149,9 @@ module ActionController
     end
 
     def run_scheduler( arch )
-      perlopts="-I#{RAILS_ROOT}/../backend -I#{RAILS_ROOT}/../backend/build"
-      IO.popen("cd #{RAILS_ROOT}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode #{arch}") do |io|
+      Rails.logger.debug "RUN_SCHEDULER #{arch}"
+      perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
+      IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode #{arch}") do |io|
          # just for waiting until scheduler finishes
          io.each {|line| line.strip.chomp unless line.blank? }
       end
