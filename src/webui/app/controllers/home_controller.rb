@@ -34,7 +34,7 @@ class HomeController < ApplicationController
         content = f.read
         f.close
       end
-      content
+      content.force_encoding("ASCII-8BIT")
     end
 
     render :text => content, :layout => false, :content_type => "image/png"
