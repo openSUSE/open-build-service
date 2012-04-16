@@ -150,7 +150,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => 'packager', :content => "tom"
     assert_xml_tag( :tag => "patchinfo", :attributes => { :incident => "0" } )
-    assert_xml_no_tag :tag => 'description'
+    assert_no_xml_tag :tag => 'description'
 
     # again but find update project automatically and use a linked package
     prepare_request_with_user "tom", "thunder"
@@ -621,8 +621,8 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     get "/source/#{incidentProject}/patchinfo?view=issues"
     assert_response :success
-    assert_xml_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => nil }
-    assert_xml_no_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => "" }
+    assert_no_xml_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => nil }
+    assert_no_xml_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => "" }
     assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change=>"kept"} }, :tag => 'name', :content => "1042"
   end
 
@@ -837,7 +837,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag :tag => "status", :attributes => { :code => "releasetarget_not_found" }
     get "/source/#{incidentProject}/patchinfo/_meta"
     assert_xml_tag( :parent => {:tag => "build"}, :tag => "enable", :attributes => { :repository => nil, :arch => nil} )
-    assert_xml_no_tag( :parent => { :tag => "publish" }, :tag => "enable", :attributes => { :repository => nil, :arch => nil} ) # not published due to access disable
+    assert_no_xml_tag( :parent => { :tag => "publish" }, :tag => "enable", :attributes => { :repository => nil, :arch => nil} ) # not published due to access disable
     get "/source/#{incidentProject}/patchinfo?view=issues"
     assert_response :success
     assert_no_xml_tag :parent => { :tag => 'issue' }, :tag => 'issue', :attributes => { :change => nil }
@@ -1025,7 +1025,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag( :parent => {:tag => "lock"}, :tag => "enable" )
     assert_xml_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil ) # but still not out there
     assert_xml_tag( :parent => {:tag => "publish"}, :tag => "disable", :content => nil )
-    assert_xml_no_tag( :parent => { :tag => "lock" }, :tag => "disable" ) # disable got removed
+    assert_no_xml_tag( :parent => { :tag => "lock" }, :tag => "disable" ) # disable got removed
 
     # unlock would fail due to open request
     post "/source/#{incidentProject}", { :cmd => "unlock", :comment => "cleanup" }
