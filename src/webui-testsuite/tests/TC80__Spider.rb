@@ -44,11 +44,11 @@ class TC80__Spider < TestCase
     return if url.end_with? "/package/revisions?package=pack&project=SourceprotectedProject"
     return if url.end_with? "/package/users?package=pack&project=SourceprotectedProject"
 
-    puts "Found #{message} on #{url}, crawling path"
+    log :error, "Found #{message} on #{url}, crawling path"
     indent = ' '
     while @pages_visited.has_key? url
       url, text = @pages_visited[url]
-      puts "#{indent}#{url} ('#{text}')"
+      log :error, "#{indent}#{url} ('#{text}')"
       indent += '  '
     end
     #raise "Found #{message}"
@@ -62,7 +62,7 @@ class TC80__Spider < TestCase
 
       begin
         @driver.navigate.to(theone)
-        #puts "crawled #{theone}"
+        log :info, "crawled #{theone}"
         wait.until { 
           @driver.execute_script('return jQuery.active') == 0
         }

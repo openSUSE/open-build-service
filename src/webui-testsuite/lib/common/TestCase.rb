@@ -8,7 +8,7 @@
 class TestCase
 
   attr_reader :name, :status, :message, :screenshot, 
-              :time_started, :time_completed
+              :time_started, :time_completed, :stderr, :stdout
   attr_writer :status
 
   class LimitsHaveBeenExpanded < Exception; end
@@ -56,7 +56,15 @@ class TestCase
     tests.collect { |t| self.new t } 
   end
   
-   
+  def log(status, msg)
+    if status == :error
+      @stderr += msg + "\n"
+      puts msg
+    else
+      @stdout += msg + "\n"
+    end 
+  end
+
   # ============================================================================
   # Creates a new instance of the given test case which has the purpose of 
   # running one particular test.
@@ -71,6 +79,8 @@ class TestCase
     end
     @name   = test_name
     @status = :ready
+    @stdout = ''
+    @stderr = ''
   end
   
   
@@ -168,18 +178,15 @@ class TestCase
 
 
   def to_xml(builder)
-     case(self.status)
-      when :pass then
-       builder.testcase :classname => self.class, :name => self.name
+    builder.testcase :classname => self.class, :name => self.name do
+      case(self.status)
       when :fail then 
-       builder.testcase(:classname => self.class, :name => self.name) do
         builder.failure(self.message, :type => "exception")
-      end
       when :skip then
-       builder.testcase(:classname => self.class, :name => self.name) do
         builder.skipped
       end
+      builder.tag!("system-out", self.stdout)
+      builder.tag!("system-err", self.stderr)
     end
   end
-
 end
