@@ -597,6 +597,18 @@ module UserMixins
           # password in the active directory server.  Returns nil unless 
           # credentials are correctly found using LDAP.
           def self.find_with_ldap(login, password)
+            if defined?( LDAP_OBSDB_FILTER ) && LDAP_OBSDB_FILTER == :on
+              logger.debug( "LDAP_OBSDB_FILTER = :on" )
+              logger.debug( "Looking for user (#{login}) in obs database before using ldap" )
+              db_con = User.find_by_login( login )
+              if db_con.nil?
+                logger.debug( "User (#{login}) not found in obs database" )
+                return nil
+              else
+                logger.debug( "User (#{login}) found in obs database" )
+              end
+            end
+
             logger.debug( "Looking for #{login} using ldap" )
             ldap_info = Array.new
             # use cache to check the password firstly
