@@ -4,7 +4,7 @@
 <% if review.has_attribute?(:by_user) %>
   <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => review.value(:by_user), :short => true, :no_link => no_link, :no_icon => no_icon} %>
 <% elsif review.has_attribute?(:by_group) %>
-  <%= review.value(:by_group) %>
+  <%= link_to_if(!no_link, review.value(:by_group), group_path(review.value(:by_group))) %>
 <% elsif review.has_attribute?(:by_project) %>
   <% if review.has_attribute?(:by_package) %>
     <%= link_to_if(!no_link, "#{review.value('by_project')} / #{review.value('by_package')}", :controller => 'package', :action => 'users', :project => review.value(:by_project), :package => review.value(:by_package)) %>

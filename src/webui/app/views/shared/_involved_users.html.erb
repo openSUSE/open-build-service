@@ -118,7 +118,7 @@
         <tbody>
           <% @groups.each do |group| %>
             <tr>
-              <td><%= group %></td>
+              <td><%= link_to(group, group_path(group)) %></td>
               <% @roles.each do |role| %>
                 <td>
                   <% if defined? @package %>
