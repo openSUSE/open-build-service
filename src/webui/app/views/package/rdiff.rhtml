@@ -4,34 +4,37 @@
 <%= render :partial => "tabs" %>
 
 <% if @oproject and @opackage %>
-  <%# FIXME: Ugly fix for spider test: %>
-  <h3>Difference Between Revision <%= @rev %> and <%= link_to_unless(RAILS_ENV['test'], h(@oproject + "/" + @opackage), :action => :show, :package => @opackage, :project => @oproject) %></h3>
+  <h3>Difference Between Revision <%= @rev %> and <%= render :partial => 'shared/project_or_package_link', :locals => {:project => @oproject, :package => @opackage, :short => true} %></h3>
 <% else %>
   <h3>Changes of Revision <%= @rev %></h3>
 <% end %>
 
+<%= render(:partial => 'shared/sourcediff', :locals => {:filenames => @filenames, :files => @files, :source => {:project => @project, :package => @package, :rev => @rev}, :editor_width => '915px'}) %>
+
 <% if @last_req %>
-<p>The previous request <%= @last_req %> was declined <%= "%s by %s:" % [fuzzy_time_string(@last_req.state.when), @last_req.state.who ] %> <%= @last_req.state.comment %></p>
+  <p class="error">
+    The previous request <%= link_to(@last_req.id, :controller => 'request', :action => 'show', :id => @last_req.id) %> was declined <%= fuzzy_time_string(@last_req.state.when) %> by
+    <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => @last_req.state.who, :short => true} %> with the following message:
+  </p>
+  <pre><%= @last_req.state.comment %></pre>
 <% end %>
 
 <% if session[:login] && @filenames && !@filenames.empty? %>
   <% if @oproject && @opackage && !Project.has_attribute?(@oproject, 'OBS', 'RejectRequests') && !Package.has_attribute?(@oproject, @opackage, 'OBS', 'RejectRequests') %>
-    <% msg = "Submit to #{h(@oproject.to_s + '/' + @opackage.to_s)}" %>
+    <% msg = "Submit to #{h(@oproject.to_s + ' / ' + @opackage.to_s)}" %>
     <% target_project, target_package = @oproject, @opackage %>
   <% elsif @rev != @last_rev %>
-    <% msg = "Revert #{h(@project.to_s + '/' + @package.to_s)} to revision #{@rev}" %>
+    <% msg = "Revert #{h(@project.to_s + ' / ' + @package.to_s)} to revision #{@rev}" %>
     <% target_project, target_package = @project, nil %>
   <% else %>
     <% msg = nil %>
   <% end %>
   <% if msg %>
     <p>
-    <%= link_to_remote(image_tag('icons/package_go.png', :title => msg),
-      :url => {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => target_project, :targetpackage => target_package, :revision => @rev}) %>
-    <%= link_to_remote(msg,
-      :url => {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => target_project, :targetpackage => target_package, :revision => @rev}) %>
+      <%= link_to_remote(image_tag('icons/package_go.png', :title => msg),
+        :url => {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => target_project, :targetpackage => target_package, :revision => @rev}) %>
+      <%= link_to_remote(msg,
+        :url => {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => target_project, :targetpackage => target_package, :revision => @rev}) %>
     </p>
   <% end %>
 <% end %>
-
-<%= render(:partial => 'shared/sourcediff', :locals => {:filenames => @filenames, :files => @files, :source => {:project => @project, :package => @package, :rev => @rev}, :editor_width => '915px'}) %>
