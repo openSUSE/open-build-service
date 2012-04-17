@@ -5096,7 +5096,7 @@ while(1) {
 	      $changed_dirty{$prp} = 1;
 	    }
 	  }
-	  $changed->{$projid} = 2;
+	  $changed_high{$projid} = 2;	# $changed only works for prps
 	  # more work if the project was deleted
 	  # (if it's just a config change we really do not care about source links)
 	  if (!$projpacks->{$projid} || $deepcheck{$projid}) {
