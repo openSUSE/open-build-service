@@ -42,3 +42,5 @@ class WebPage;   end
                 class PackageRepositoriesPage < PackagePage; end
                 class PackageAddFilePage      < PackagePage; end
                 class PackageEditFilePage     < PackagePage; end
+        class GroupIndexPage < BuildServicePage; end
+        class GroupShowPage < BuildServicePage; end
