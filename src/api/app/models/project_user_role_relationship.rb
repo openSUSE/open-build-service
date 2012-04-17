@@ -39,14 +39,14 @@ class ProjectUserRoleRelationship < ActiveRecord::Base
       ret << project_id unless users[userid]
     end
     # we always put a 0 in there to avoid having to check for NULL
-    ret = [0] if ret.blank?
+    ret << 0 if ret.blank?
     ret
   end
   
-  def after_save
-    logger.debug "ProjectUserRoleRelationship saved!"
-    @@project_user_cache = nil 
-    super
+  def self.discard_cache
+    @@project_user_cache = nil
   end
+
+  after_create 'ProjectUserRoleRelationship.discard_cache'
   
 end

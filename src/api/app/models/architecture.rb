@@ -10,6 +10,10 @@ class Architecture < ActiveRecord::Base
 
   attr_accessible :available, :recommended, :name
 
+  def self.discard_cache
+    @cache = nil
+  end
+
   def self.archcache
     return @cache if @cache
     @cache = Hash.new
@@ -23,25 +27,7 @@ class Architecture < ActiveRecord::Base
     self.class.archcache
   end
 
-  def after_create
-    logger.debug "updating arch cache (new arch '#{name}', id \##{id})"
-    archcache[name] = self
-  end
-
-  def after_update
-    logger.debug "updating arch cache (arch name for id \##{id} changed to '#{name}')"
-    archcache.each do |k,v|
-      if v.id == id
-        archcache.delete k
-        break
-      end
-    end
-    archcache[name] = self
-  end
-
-  def after_destroy
-    logger.debug "updating arch cache (arch '#{name}' deleted)"
-    archcache.delete name
-  end
+  after_save 'Architecture.discard_cache'
+  after_destroy 'Architecture.discard_cache'
 end
 

@@ -59,7 +59,8 @@ class Issue < ActiveRecord::Base
     return self.states['UNKNOWN']
   end
 
-  def after_create
+  after_create :fetch_issues
+  def fetch_issues
     # inject update jobs after issue got created
     IssueTracker.all.each do |t|
       t.delay.fetch_issues()

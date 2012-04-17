@@ -53,38 +53,4 @@ class AttribNamespace < ActiveRecord::Base
       Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
-  def self.anscache
-    return @cache if @cache
-    @cache = Hash.new
-    all.each do |ns|
-      @cache[ns.name] = ns
-    end
-    return @cache
-  end
-
-  def anscache
-    self.class.anscache
-  end
-
-  def after_create
-    logger.debug "updating attrib namespace cache (new name '#{name}', id \##{id})"
-    anscache[name] = self
-  end
-
-  def after_update
-    logger.debug "updating attrib namespace cache (name for id \##{id} changed to '#{name}')"
-    anscache.each do |k,v|
-      if v.id == id
-        anscache.delete k
-        break
-      end
-    end
-    anscache[name] = self
-  end
-
-  def after_destroy
-    logger.debug "updating attrib namespace cache (name '#{name}' deleted)"
-    anscache.delete name
-  end
-
 end

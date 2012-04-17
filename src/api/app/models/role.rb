@@ -41,6 +41,10 @@ class Role < ActiveRecord::Base
   scope :global, where(:global => true)
 
   class << self
+    def discard_cache
+      @cache = nil
+    end
+
     def rolecache
       return @cache if @cache
       @cache = Hash.new
@@ -61,26 +65,12 @@ class Role < ActiveRecord::Base
     self.class.rolecache
   end
 
-  def after_create
-    logger.debug "updating role cache (new role '#{title}', id \##{id})"
-    rolecache[title] = self
+  def discard_cache
+    self.class.discard_cache
   end
 
-  def after_update
-    logger.debug "updating role cache (role name for id \##{id} changed to '#{title}')"
-    rolecache.each do |k,v|
-      if v.id == id
-        rolecache.delete k
-        break
-      end
-    end
-    rolecache[title] = self
-  end
-
-  def after_destroy
-    logger.debug "updating role cache (role '#{title}' deleted)"
-    rolecache.delete title
-  end
+  after_save :discard_cache
+  after_destroy :discard_cache
 
   def self.ids_with_permission(perm_string)
     RolesStaticPermission.joins(:static_permission).where(:static_permissions => { :title => perm_string } ).select("role_id").map { |rs| rs.role_id }

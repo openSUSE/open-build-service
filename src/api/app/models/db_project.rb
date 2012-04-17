@@ -8,7 +8,8 @@ class DbProject < ActiveRecord::Base
   class ReadAccessError < Exception; end
   class UnknownObjectError < Exception; end
 
-  before_destroy :cleanup_before_destroy?
+  before_destroy :cleanup_before_destroy
+  after_save 'ProjectUserRoleRelationship.discard_cache'
 
   has_many :project_user_role_relationships, :dependent => :delete_all
   has_many :project_group_role_relationships, :dependent => :delete_all
@@ -49,12 +50,7 @@ class DbProject < ActiveRecord::Base
     self.name.gsub(/:/, ':/')
   end
   
-  def destroy
-    # basically empty, but needed here to get the cleanup_before_destroy? method called
-    super
-  end
-
-  def cleanup_before_destroy?
+  def cleanup_before_destroy
     # find linking repositories
     lreps = Array.new
     self.repositories.each do |repo|
@@ -85,11 +81,6 @@ class DbProject < ActiveRecord::Base
       end
     end
   end
-
-#  def before_validation
-#  def after_create
-#    raise ReadAccessError.new "Unknown project" unless DbProject.check_access?(self)
-#  end
 
   class << self
 
