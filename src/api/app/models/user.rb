@@ -986,10 +986,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  def is_locked? object
-    object.is_locked?
-  end
-
   # This method returns true if the user is granted the permission with one
   # of the given permission titles.
   def has_global_permission?(perm_string)
@@ -1004,7 +1000,7 @@ class User < ActiveRecord::Base
     unless project.kind_of? DbProject
       raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
     end
-    return false if is_locked? project and not ignoreLock
+    return false if not ignoreLock and project.is_locked?
     return true if is_admin?
     return true if has_global_permission? "change_project"
     return true if has_local_permission? "change_project", project
@@ -1017,7 +1013,7 @@ class User < ActiveRecord::Base
     unless package.kind_of? DbPackage
       raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}"
     end
-    return false if is_locked? package and not ignoreLock
+    return false if not ignoreLock and package.is_locked?
     return true if is_admin?
     return true if has_global_permission? "change_package"
     return true if has_local_permission? "change_package", package
@@ -1030,7 +1026,7 @@ class User < ActiveRecord::Base
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
 
-    return false if is_locked? project
+    return false if project.is_locked?
     return true if is_admin?
     return true if has_global_permission? "create_package"
     return true if has_local_permission? "create_package", project
