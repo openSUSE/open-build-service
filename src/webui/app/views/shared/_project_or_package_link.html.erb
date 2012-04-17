@@ -2,7 +2,8 @@
 <% rev ||= nil %>
 <% short ||= false %>
 
-<% project_exists = Project.find_cached(project) %>
+<% prj = Project.find_cached(project) %>
+<% project_exists = prj && !prj.is_remote? %>
 <% if package %>
   <% if !short %>
     package
@@ -10,7 +11,7 @@
 
   <%= link_to_if(project_exists, project, :controller => 'project', :action => 'show', :project => project) %>
   /
-  <% package_exists = Package.find_cached(package, :project => project) %>
+  <% package_exists = Package.find_cached(package, :project => project) && !prj.is_remote? %>
   <%= link_to_if(package_exists, package, :controller => 'package', :action => 'show', :project => project, :package => package) %>
   <% if rev && rev != Package.current_rev(project, package) %>
     (<%= link_to_if(package_exists, "revision #{elide(rev, 10)}", :controller => 'package', :action => 'files', :project => project, :package => package, :rev => rev) %>)

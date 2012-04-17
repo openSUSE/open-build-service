@@ -64,7 +64,7 @@
             <%#TODO: Only display if there is really a diff: %>
             <li>
               <%= image_tag 'icons/information.png' %>
-              Could have <%= link_to 'a link diff', :action => :rdiff, :oproject => linked_project, :opackage => linked_package, :project => @project, :package => @package, :rev => @revision %>
+              Could have <%= link_to_if !Project.is_remote?(linked_project), 'a link diff', :action => :rdiff, :oproject => linked_project, :opackage => linked_package, :project => @project, :package => @package, :rev => @revision %>
             </li>
           <% end%>
         <% end %>
