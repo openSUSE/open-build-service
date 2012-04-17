@@ -245,7 +245,8 @@ CREATE TABLE `groups` (
   `title` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '',
   `parent_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `groups_parent_id_index` (`parent_id`)
+  KEY `groups_parent_id_index` (`parent_id`),
+  KEY `index_groups_on_title` (`title`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `groups_roles` (
@@ -874,6 +875,8 @@ INSERT INTO schema_migrations (version) VALUES ('20120407173644');
 INSERT INTO schema_migrations (version) VALUES ('20120411112931');
 
 INSERT INTO schema_migrations (version) VALUES ('20120411121152');
+
+INSERT INTO schema_migrations (version) VALUES ('20120417115800');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
