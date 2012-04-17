@@ -1,0 +1,28 @@
+<% @pagetitle = "Group #{@group.value('title')}" %>
+
+<h2><%=h @pagetitle %></h2>
+
+<div class="show_left show_right clearfix"><%# TODO: Drop this bento hack %>
+  <table id="group_members_table">
+    <thead>
+      <tr>
+        <th>Group members</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @group.person.each do |member| %>
+        <tr>
+          <td><%= link_to(member.userid, :controller => 'home', :action => 'index', :user => member.userid) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<p><%= link_to('Show all groups', groups_path) %></p>
+
+<% javascript_tag do %>
+  $(document).ready(function() {
+    $('#group_members_table').dataTable();
+  });
+<% end %>
