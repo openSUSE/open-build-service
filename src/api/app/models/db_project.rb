@@ -42,6 +42,9 @@ class DbProject < ActiveRecord::Base
 
   attr_accessible :name, :title, :description
 
+  default_scope { where("db_projects.id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
+
+
   def download_name
     self.name.gsub(/:/, ':/')
   end
@@ -100,27 +103,25 @@ class DbProject < ActiveRecord::Base
       return false if dbp.nil?
       # check for 'access' flag
 
-      return true if User.currentAdmin
       return true unless ProjectUserRoleRelationship.forbidden_project_ids.include? dbp.id
 
       # simple check for involvement --> involved users can access
-      # dbp.id, User.currentID
+      # dbp.id, User.current
       grouprels = dbp.project_group_role_relationships.all
 
       if grouprels
         ret = 0
         grouprels.each do |grouprel|
-          # check if User.currentID belongs to group
-          us = User.find(User.currentID)
+          # check if User.current belongs to group
           if grouprel and grouprel.bs_group_id
             # LOCAL
             # if user is in group -> return true
-            ret = ret + 1 if us.is_in_group?(grouprel.bs_group_id)
+            ret = ret + 1 if User.current.is_in_group?(grouprel.bs_group_id)
             # LDAP
 # FIXME: please do not do special things here for ldap. please cover this in a generic group modell.
             if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
               if defined?( CONFIG['ldap_group_support'] ) && CONFIG['ldap_group_support'] == :on
-                if us.user_in_group_ldap?(User.currentID, group.bs_group_id)
+                if User.current.user_in_group_ldap?(group.bs_group_id)
                   ret = ret + 1
                 end
               end
@@ -132,7 +133,7 @@ class DbProject < ActiveRecord::Base
         return true if ret > 0
       end
 
-      return !dbp.project_user_role_relationships.where(bs_user_id: User.currentID).first.nil?
+      return false
     end
 
     # returns an object of project(local or remote) or raises an exception
@@ -188,23 +189,7 @@ class DbProject < ActiveRecord::Base
 
 
     def find_by_attribute_type( attrib_type )
-      # One sql statement is faster than a ruby loop
-      # attribute match in project
-      sql =<<-END_SQL
-      SELECT prj.*
-      FROM db_projects prj
-      LEFT OUTER JOIN attribs attrprj ON prj.id = attrprj.db_project_id
-      WHERE attrprj.attrib_type_id = ?
-      END_SQL
-
-      sql += " GROUP by prj.id"
-      ret = DbProject.find_by_sql [sql, attrib_type.id.to_s]
-      return if ret.nil?
-      return ret if User.currentAdmin
-      ret.each do |dbp|
-        ret.delete(dbp) unless check_access?(dbp)
-      end
-      return ret
+      return DbProject.joins(:attribs).where(:attribs => { :attrib_type_id => attrib_type.id })
     end
 
     def store_axml( project )

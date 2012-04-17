@@ -86,7 +86,7 @@ class SourceController < ApplicationController
     #---------------------
     if request.get?
       if params.has_key? :deleted
-        unless DbProject.exists_by_name project_name
+        unless DbProject.find_by_name project_name
           # project is deleted or not accessable
           validate_visibility_of_deleted_project(project_name)
         end

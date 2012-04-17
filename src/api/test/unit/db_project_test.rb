@@ -8,7 +8,6 @@ class DbProjectTest < ActiveSupport::TestCase
   def setup
     @project = db_projects( :home_Iggy )
   end
-  
     
   def test_flags_to_axml
     #check precondition

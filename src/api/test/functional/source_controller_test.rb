@@ -18,17 +18,14 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     get "/source"
     assert_response :success 
-if $ENABLE_BROKEN_TEST
     assert_no_match(/entry name="HiddenProject"/, @response.body)
-end
+
     #retry with maintainer
     reset_auth
     prepare_request_with_user "adrian", "so_alone"
     get "/source"
     assert_response :success 
-if $ENABLE_BROKEN_TEST
     assert_match(/entry name="HiddenProject"/, @response.body)
-end
   end
 
   def test_get_projectlist_with_sourceaccess_protected_project
@@ -367,9 +364,6 @@ end
   end
 
   def test_put_project_meta_hidden_project
-unless $ENABLE_BROKEN_TESTS
-    return
-end
     prj="HiddenProject"
     # uninvolved user
     resp1=404
@@ -682,7 +676,7 @@ end
 
     if !( response2 && tag2 )
       #dummy write to check blocking
-      put url_for(:controller => :source, :action => :package_meta, :project => project, package => package), "<package><title></title><description></description></package>"
+      put url_for(:controller => :source, :action => :package_meta, :project => project, :package => package), "<package><title></title><description></description></package>"
       assert_response 404
 #      assert_match(/unknown_package/, @response.body)
       assert_match(/unknown_project/, @response.body)
@@ -741,9 +735,6 @@ end
 
 
   def test_put_package_meta_hidden_package
-unless $ENABLE_BROKEN_TESTS
-    return
-end
     prj="HiddenProject"
     pkg="pack"
     resp1=404

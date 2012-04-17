@@ -805,29 +805,12 @@ class User < ActiveRecord::Base
       Thread.current[:user]
     end
     
-    def currentID
-      Thread.current[:id]
-    end
-    
-    def currentAdmin
-      Thread.current[:admin]
-    end
-
     def current=(user)
       Thread.current[:user] = user
     end
 
-    def currentID=(id)
-      Thread.current[:id] = id
-    end
-
-    def currentAdmin=(isadmin)
-      Thread.current[:admin] = isadmin
-    end
-
     def nobodyID
-      return Thread.current[:nobody_id] if Thread.current[:nobody_id]
-      Thread.current[:nobody_id] = get_by_login("_nobody_").id
+      return Thread.current[:nobody_id] ||= get_by_login("_nobody_").id
     end
 
     def get_by_login(login)
@@ -962,7 +945,10 @@ class User < ActiveRecord::Base
   #####################
 
   def is_admin?
-    !roles.find_by_title("Admin", :select => "roles.id").nil?
+    if @is_admin.nil?
+      @is_admin = !roles.find_by_title("Admin", :select => "roles.id").nil?
+    end
+    @is_admin
   end
 
   def is_in_group?(group)
@@ -1320,7 +1306,7 @@ class User < ActiveRecord::Base
                                   LEFT JOIN flags f on f.db_project_id = prj.id
                                   LEFT JOIN project_user_role_relationships aur ON aur.db_project_id = prj.id
                                   where prj.id in (#{projects.join(',')})
-                                  and (f.flag is null or f.flag != 'access' or aur.id = #{User.currentID})")
+                                  and (f.flag is null or f.flag != 'access' or aur.id = #{User.current.id})")
   end
 
   # lists packages maintained by this user and are not in maintained projects
@@ -1360,7 +1346,7 @@ class User < ActiveRecord::Base
                                   LEFT JOIN flags f on f.db_project_id = pkg.db_project_id
                                   LEFT JOIN project_user_role_relationships aur ON aur.db_project_id = pkg.db_project_id
                                   where pkg.id in (#{packages.join(',')})
-                                  and (f.flag is null or f.flag != 'access' or aur.id = #{User.currentID})")
+                                  and (f.flag is null or f.flag != 'access' or aur.id = #{User.current.id})")
  
   end
 

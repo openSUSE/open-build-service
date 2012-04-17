@@ -64,7 +64,7 @@ class SearchController < ApplicationController
           # already checked in this case
         elsif item.kind_of? Repository
           # This returns nil if access is not allowed
-          next unless DbProject.find item.db_project_id
+          next if ProjectUserRoleRelationship.forbidden_project_ids.include? item.db_project_id
         elsif item.kind_of? Issue
           # all our hosted issues are public atm
         else

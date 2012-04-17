@@ -41,8 +41,6 @@ unless @http_user
   system("rake --trace db:fixtures:load")
 end
 User.current = @http_user
-User.currentID = @http_user.id
-User.currentAdmin = @http_user.is_admin?
 
 puts "Creating backend config at #{Rails.root}/tmp/backend_config/BSConfig.pm"
 FileUtils.mkdir "#{Rails.root}/tmp/backend_config"
@@ -390,8 +388,6 @@ end
 
 @http_user = nil
 User.current = nil
-User.currentID = nil
-User.currentAdmin = false
 
 puts "DONE NOW"
 $stdout.flush

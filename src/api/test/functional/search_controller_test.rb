@@ -88,9 +88,7 @@ class SearchControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "Iggy", "asdfasdf"
     get "/search/project", :match => '[@name="HiddenProject"]'
     assert_response :success
-if $ENABLE_BROKEN_TESTS
     assert_xml_tag :tag => 'collection', :children => { :count => 0 }
-end
   end
   # <<< Testing HiddenProject - flag "access" set to "disabled"
 
@@ -108,16 +106,12 @@ end
     prepare_request_with_user "Iggy", "asdfasdf"
     get "/search/package", :match => '[@name="pack" and @project="HiddenProject"]'
     assert_response :success
-if $ENABLE_BROKEN_TESTS
     assert_xml_tag :tag => 'collection', :children => { :count => 0 }
-end
 
     get "/search/package", :match => '[@name="pack"]'
     assert_response :success
     assert_xml_tag :tag => 'package', :attributes => { :project => "SourceprotectedProject", :name => "pack" }
-if $ENABLE_BROKEN_TESTS
     assert_no_xml_tag :tag => 'package', :attributes => { :project => "HiddenProject", :name => "pack" }
-end
   end
   # <<< Testing package inside HiddenProject - flag "access" set to "disabled" in Project
 
@@ -177,9 +171,7 @@ end
     assert_xml_tag :tag => 'collection'
     repos = get_repos
     assert repos.include?('home:Iggy/10.2')
-if $ENABLE_BROKEN_TESTS
     assert !repos.include?('HiddenProject/nada'), "HiddenProject repos public"
-end
 
     prepare_request_with_user "king", "sunflower" 
     get "/search/repository/id"
@@ -187,9 +179,7 @@ end
     assert_xml_tag :tag => 'collection'
     repos = get_repos
     assert repos.include?('home:Iggy/10.2')
-if $ENABLE_BROKEN_TESTS
     assert repos.include?('HiddenProject/nada'), "HiddenProject repos public"
-end
   end
 
   def get_package_count

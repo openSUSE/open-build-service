@@ -754,8 +754,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
     get "/source/home:adrian:ProtectedProject/package"
     assert_response :success
 
-#FIXME2.4
-if $ENABLE_BROKEN_TEST
     # now we check if the project creation has changed the error message
     prepare_request_with_user "tom", "thunder"
     get "/source/home:adrian:ProtectedProject"
@@ -767,7 +765,6 @@ if $ENABLE_BROKEN_TEST
     get "/source/home:adrian:ProtectedProject/package/_meta"
     assert_response 404
     assert_match error_message3, @response.body
-end
 
     # cleanup
     prepare_request_with_user "king", "sunflower"

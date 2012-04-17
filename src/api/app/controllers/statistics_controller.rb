@@ -117,7 +117,7 @@ class StatisticsController < ApplicationController
   def most_active_packages
     # get all packages including activity values
     @packages = DbPackage.select("db_packages.*, ( #{DbPackage.activity_algorithm} ) AS act_tmp," + 'IF( @activity<0, 0, @activity ) AS activity_value').
-	                limit(@limit).order('activity_value DESC').all
+      limit(@limit).order('activity_value DESC').all
     return @packages
   end
 

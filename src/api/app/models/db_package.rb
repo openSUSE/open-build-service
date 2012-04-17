@@ -32,6 +32,8 @@ class DbPackage < ActiveRecord::Base
 
   attr_accessible :name, :title, :description
 
+  default_scope { where("db_packages.db_project_id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
+
   # disable automatic timestamp updates (updated_at and created_at)
   # but only for this class, not(!) for all ActiveRecord::Base instances
   def record_timestamps
@@ -102,12 +104,10 @@ class DbPackage < ActiveRecord::Base
       raise ReadAccessError, "#{project}/#{package}" unless check_access?(pkg)
 
       if use_source and (pkg.disabled_for?('sourceaccess', nil, nil) or pkg.db_project.disabled_for?('sourceaccess', nil, nil))
-        if User.current.nil?
+        unless User.current
           raise ReadSourceAccessError, "#{project}/#{package}"
-        else
-          u = User.find(User.currentID)
-          raise ReadSourceAccessError, "#{project}/#{package}" unless u.can_source_access?(pkg)
         end
+        raise ReadSourceAccessError, "#{project}/#{package}" unless User.current.can_source_access?(pkg)
       end
       return pkg
     end
