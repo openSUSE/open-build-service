@@ -3,7 +3,7 @@
 
 <%= render :partial => "tabs" %>
 
-<h3><%= @pagetitle %></h3>
+<h3><%= @pagetitle %> <% if @rev %>(Revision <%= @rev %>)<% end %></h3>
 <% if @rev %>
   <p>Currently displaying revision <i><%= @rev %></i>, <%= link_to('show latest', :project => @project, :package => @package, :file => @filename, :expand => @expand ) %></p>
 <% end %>
