@@ -591,7 +591,9 @@ class PackageController < ApplicationController
       Rails.cache.delete("%s_packages_mainpage" % @project)
       Rails.cache.delete("%s_problem_packages" % @project)
       Package.free_cache( :all, :project => @project.name )
-      Package.free_cache( @package.name, :project => @project )
+      Package.free_cache( @package.name, :project => @project.name )
+      # Invalidate flag details (for repositories view):
+      Package.free_cache( @package.name, :project => @project.name, :view => :flagdetails )
     rescue ActiveXML::Transport::Error => e
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
