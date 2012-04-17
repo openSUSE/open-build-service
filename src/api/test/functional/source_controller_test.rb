@@ -1431,7 +1431,7 @@ end
     assert_response :success
 
     # delete entire project
-    delete "/source/kde4" 
+    delete "/source/kde4?user=illegal&comment=drop%20project" 
     assert_response :success
 
     get "/source/kde4" 
@@ -1454,6 +1454,16 @@ end
     get "/source", :deleted => 1
     assert_response 403
     assert_match(/only admins can see deleted projects/, @response.body)
+
+    # check history
+    get "/source/kde4/_project/_history?deleted=1" 
+    assert_response :success
+    assert_xml_tag( :parent => { :tag => "revision" }, :tag => "user", :content => "fredlibs" )
+    assert_xml_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "drop project" )
+    get "/source/kde4/_project/_history?meta=1&deleted=1" 
+    assert_xml_tag( :parent => { :tag => "revision" }, :tag => "user", :content => "fredlibs" )
+    assert_xml_tag( :parent => { :tag => "revision" }, :tag => "comment", :content => "drop project" )
+    assert_response :success
 
     prepare_request_with_user "fredlibs", "geröllheimer"
     # undelete project

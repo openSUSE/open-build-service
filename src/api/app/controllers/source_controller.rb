@@ -190,7 +190,7 @@ class SourceController < ApplicationController
         params[:user] = @http_user.login
         path = "/source/#{pro.name}"
         path << build_query_from_hash(params, [:user, :comment])
-        Suse::Backend.delete "/source/#{pro.name}"
+        Suse::Backend.delete path
         logger.debug "delete request to backend: #{path}"
       end
 
@@ -1005,6 +1005,18 @@ class SourceController < ApplicationController
     return unless @http_user
     params[:user] = @http_user.login
 
+    if params.has_key?(:deleted) and request.get? 
+      if DbProject.exists_by_name(project_name)
+        validate_read_access_of_deleted_package(project_name, package_name)
+        pass_to_backend
+        return
+      elsif package_name == "_project"
+        validate_visibility_of_deleted_project(project_name)
+        pass_to_backend
+        return
+      end
+    end
+
     prj = DbProject.get_by_name(project_name)
     pack = nil
     allowed = false
@@ -1012,32 +1024,25 @@ class SourceController < ApplicationController
     if package_name == "_project" or package_name == "_pattern"
       allowed = permissions.project_change? prj
     else
-      if params.has_key? :deleted
-        validate_read_access_of_deleted_package(project_name, package_name)
-        pass_to_backend
-        return
-      else
-        if request.get? 
-          # a readable package, even on remote instance is enough here
-          begin
-            pack = DbPackage.get_by_project_and_name(project_name, package_name)
-          rescue DbPackage::UnknownObjectError
-          end
-        else
-          # we need a local package here in any case for modifications
+      if request.get? 
+        # a readable package, even on remote instance is enough here
+        begin
           pack = DbPackage.get_by_project_and_name(project_name, package_name)
-          allowed = permissions.package_change? pack
+        rescue DbPackage::UnknownObjectError
         end
+      else
+        # we need a local package here in any case for modifications
+        pack = DbPackage.get_by_project_and_name(project_name, package_name)
+        allowed = permissions.package_change? pack
+      end
 
-        if pack.nil? and request.get?
-          # Check if this is a package on a remote OBS instance
-          answer = Suse::Backend.get(request.path)
-          if answer
-            pass_to_backend
-            return
-          end
+      if pack.nil? and request.get?
+        # Check if this is a package on a remote OBS instance
+        answer = Suse::Backend.get(request.path)
+        if answer
+          pass_to_backend
+          return
         end
-
       end
     end
 
