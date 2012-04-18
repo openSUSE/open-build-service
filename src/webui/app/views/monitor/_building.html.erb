@@ -4,23 +4,6 @@
   build_count = @workerstatus.elements("building").length
 %>
   <h2>Building</h2>
-  <div class="info">
-    <% form_tag do -%>
-      <div>
-      Filter projects:
-      <%= text_field_tag :project, @project_filter, :style => "width: 15em;" -%>
-      <%= link_to image_tag( 'clear.png', :id => 'clear', :alt => 'clear',
-        :title => 'clear input'),
-        :controller => params[:controller], :action => params[:action] %>
-      <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
-      </div>
-    <% end -%>
-    <%= observe_field( :project, :frequency => 0.5, :update => 'building_list',
-      :url => { :controller => 'monitor', :action  => 'filtered_list' },
-      :loading => "$('#spinner').show()", :complete => "$('#spinner').hide()",
-      :with => "'project=' + encodeURIComponent(value)") %>
-  </div>
-  <p>You can filter the list in the monitor either by using the filter links in the table or by entering the project name in the editbox. In the editbox you can use partial project names.</p>
   <% if build_count > 0 %>
     <p class="info">Hover the job time field to see the start time.</p>
     <p class="info"><%= @configuration['title'] %> reports <%= build_count %> running jobs.</p>

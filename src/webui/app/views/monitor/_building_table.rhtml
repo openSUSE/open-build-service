@@ -1,107 +1,72 @@
 <div id="building_list">
-
-<% if @project_filter %>
-  <p class="info filtered_by">Currently active filter <strong><%= h(@project_filter) %></strong> [<%= link_to 'Remove Filter', :controller => 'monitor', :action => :old %>]</p>
-<% end %>
-
-<% content_for :ready_function do %>
-       // call the tablesorter plugin
-        $(".tablesorter").tablesorter({ 
-          headers: {
-             sorter: "text",
-	     3: { sorter: "numeric" }
-            },
-        textExtraction: function(node) {
-            // extract data from markup and return it  
-	    if ($(node).is(".starttime")) {
-		return $(node).children(".sorttime:first").html();
-	    } else if ($(node).is(".package") || $(node).is(".repository") ) {
-               return $(node).children("a:first").html().toLowerCase();
-            } else {
-                return $(node).html();
-            }
-        }
-       } );
-       var sorting = [[3,1]]; 
-       $(".tablesorter").trigger("sorton",[sorting]); 
-<% end %>
-
 <% if @workerstatus.has_key? "building" %>
-<table class="building tablesorter">
-  <thead>
-    <tr>
-      <th>Project</th>
-      <th>Package</th>
-      <th>Repository - Build Arch</th>
-      <th>Job time</th>
-      <th>Build Host</th>
-      <th>Host Arch</th>
-     </tr>
-  </thead>
-  <tbody>
-      <% @workerstatus.elements("building").sort {|a,b| b["starttime"] <=> a["starttime"] }.each do |b|
-          next if (!@project_filter.nil? && b["project"] !~ /#{Regexp.quote(@project_filter)}/i )
-      %>
-    <tr>
-        <td class="project">
+  <table class="building" id="building_table">
+    <thead>
+      <tr>
+        <th>Project</th>
+        <th>Package</th>
+        <th>Repository - Build Arch</th>
+        <th>Job time</th>
+        <th>Build Host</th>
+        <th>Host Arch</th>
+       </tr>
+    </thead>
+    <tbody>
+      <% @workerstatus.elements("building").sort {|a,b| b["starttime"] <=> a["starttime"] }.each do |b| %>
+        <tr>
+          <td class="project">
             <% if b["project"].include? "---" %>
--------
+            -------
             <% else %>
-                <% project = b["project"] %>
-                <%= link_to project, :controller => 'project', :action => 'show', :project => project %>
-                <% if (!@project_filter) || (@project_filter != project) %>
-                    <span class="filter_by">
-                      <%= link_to 'filter', { :controller => 'monitor', :action => 'old' , :project => project } %>
-                    </span>
-                <% end %>
+              <% project = b["project"] %>
+              <%= link_to project, :controller => 'project', :action => 'show', :project => project %>
             <% end %>
-        </td>
-        <td class="package">
+          </td>
+          <td class="package">
             <% if b["package"].include? "---" %>
--------
+              -------
             <% else %>
-                <%= link_to b["package"], :controller => 'package', :action => 'show', :project => project, :package => b["package"] %>
+              <%= link_to b["package"], :controller => 'package', :action => 'show', :project => project, :package => b["package"] %>
             <% end %>
-        </td>
-        <td class="repository arch">
+          </td>
+          <td class="repository arch">
             <% if b["repository"].include? "---" %>
--------
+              -------
             <% else %>
-                <%= link_to b["repository"] + ' - ' + b["arch"],
-                      :controller => 'package',
-                      :action => 'live_build_log',
-                      :project => b["project"],
-                      :package => b["package"],
-                      :repository => b["repository"],
-                      :arch => b["arch"]
-                %>
+              <%= link_to b["repository"] + ' - ' + b["arch"], :controller => 'package', :action => 'live_build_log',
+                      :project => b["project"], :package => b["package"], :repository => b["repository"], :arch => b["arch"] %>
             <% end %>
-        </td>
-        <%
-          start_time = Time.at(b["starttime"].to_i)
-          if start_time < @dead_line
-            n = ((start_time - @dead_line).abs/60/@interval_steps).round
-            n = (@max_color < n) ? 0 : @max_color - n
-            warning_style = "style=\"background-color: rgb(255,#{n},0);\""
-          else
-            warning_style = nil
-          end
-        %>
-        <td class="starttime" <%= raw warning_style if warning_style %> title="start time: <%= start_time.iso8601  %>">
-              <%= distance_of_time_in_words(@time_now, start_time, true) %>
-	      <span style="display: none" class="sorttime"><%= b["starttime"].to_i %></span>
-        </td>
-        <td class="uri">
-            <%= b["workerid"] %>
-        </td>
-        <td class="hostarch">
-            <%= b["hostarch"] %>
-        </td>
-    </tr>
-    <% end %>
-  </tbody>
-</table>
+          </td>
+          <%
+            start_time = Time.at(b["starttime"].to_i)
+            if start_time < @dead_line
+              n = ((start_time - @dead_line).abs/60/@interval_steps).round
+              n = (@max_color < n) ? 0 : @max_color - n
+              warning_style = "style=\"background-color: rgb(255,#{n},0);\""
+            else
+              warning_style = nil
+            end
+          %>
+          <td class="starttime" <%= raw warning_style if warning_style %> title="start time: <%= start_time.iso8601  %>">
+            <span style="display: none" class="sorttime"><%= b["starttime"].to_i %></span>
+            <%= distance_of_time_in_words(@time_now, start_time, true) %>
+          </td>
+          <td class="uri"><%= b["workerid"] %></td>
+          <td class="hostarch"><%= b["hostarch"] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <% content_for :ready_function do %>
+    $('#building_table').dataTable({
+      'aaSorting': [[3, 'desc']],
+      'bInfo': false,
+      'bPaginate': false,
+      'oSearch': {'sSearch': '<%= @project_filter %>', 'bRegex': false, 'bSmart': false},
+    });
+  <% end %>
 <% else %>
-	<p><i>No build jobs</i></p>
+  <p><i>No build jobs</i></p>
 <% end %>
 </div>
