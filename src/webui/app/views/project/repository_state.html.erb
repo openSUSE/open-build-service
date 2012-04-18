@@ -11,7 +11,7 @@ project_bread_crumb("Repository State")
 <% @repositories.each do |repository| %>
   <div style="margin-bottom: 1.2em" id="<%= valid_xml_id(repository) %>" >
 
-    <h3><%= @pagetitle %></h3>
+    <h3>State of Repository <%= repository %> for <%= @project %></h3>
 
     <p>
       <%= render :partial => "shared/download_repository_link", :locals => {:project => @project, :repository => repository} %>
