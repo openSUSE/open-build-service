@@ -93,7 +93,7 @@
       </table>
     </div>
   <% end %>
-  <% if @user and @user.is_maintainer?(@project, @package) %>
+  <% if @user && @user.is_maintainer?(@project, @package) %>
     <p>
       <%= link_to image_tag('icons/user_add.png', :alt => "Add user", :title => "Add user"), :action => :add_person, :package => @package, :project => @project %>
       <%= link_to 'Add user', :action => :add_person, :package => @package, :project => @project %>
@@ -110,7 +110,7 @@
             <% @roles.each do |role| %>
               <td><%= role.capitalize %></td>
             <% end %>
-            <% if @user and @user.is_maintainer?(@project, @package) %>
+            <% if @user && @user.is_maintainer?(@project, @package) %>
               <td></td>
             <% end %>
           </tr>
@@ -164,7 +164,9 @@
           null, 
           <% @roles.length.times do %>null,<% end %>
           {'bSortable': false}
-        ]
+        ],
+        'bInfo': false,
+        'bPaginate': false,
       });
     <% end %>
     <% if @groups and @groups.length > 0 %>
@@ -172,7 +174,13 @@
         'aoColumns': [
           null, 
           <% @roles.length.times do %>null,<% end %>
-        ]
+          <% if @user && @user.is_maintainer?(@project, @package) %>
+            {'bSortable': false}
+          <% end %>
+        ],
+        'bFilter': false,
+        'bInfo': false,
+        'bPaginate': false,
       });
     <% end %>
   });
