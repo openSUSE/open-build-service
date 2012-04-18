@@ -1,5 +1,5 @@
 <% @pagetitle = "Sources of #{@package} (Project #{@project.name})" %>
-<% package_bread_crumb 'Sources' -%>
+<% package_bread_crumb 'Sources' %>
 
 <%= render :partial => "tabs" %>
 
@@ -23,23 +23,9 @@
   }
 <% end %>
 
-<% content_for :ready_function do %>
-  $("#files_table").tablesorter( {
-    sortList: [[0,1]],
-    widgets: ['zebra'],
-    headers: {
-      3: { sorter: false }
-    }
-  } );
-<% end %>
-
 <%= render :partial => 'links' if (@package.linkinfo && !@package.linkinfo.has_attribute?('error')) %>
-
-<!-- Service list -->
-
 <%= render :partial => 'services' %>
 
-<!-- Source file list -->
 <h3>Source Files <%= image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden') %>
 <% if @package.linkinfo && @revision_parameter.nil? %>
   <span style="font-size: small; font-weight: normal">

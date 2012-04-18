@@ -1,17 +1,12 @@
-<% # locals:
-#   file_list: list of source files in package
--%>
-
-<div id="files_view">
-
-  <% unless @files.empty? %>
-    <table cellspacing='1' id="files_table" class="tablesorter">
+<% unless @files.empty? %>
+  <div class="show_left show_right clearfix"><%# TODO: Drop this bento hack %>
+    <table id="files_table">
       <thead>
         <tr>
-          <th class="header" style="min-width: 100px;">Filename</th>
-          <th class="header">Size</th>
-          <th class="header" style="min-width: 90px;">Changed</th>
-          <th>Actions</th>
+          <th>Filename</th>
+          <th>Size</th>
+          <th>Changed</th>
+          <th style="width: 1%">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -24,8 +19,8 @@
                 (Global Patch)
               <% end %>
             </td>
-            <td><span class="hidden"><%= file[:size].rjust(10, '0') %></span><%=h human_readable_fsize( file[:size] )%></td>
-            <td><span class="hidden"><%= file[:mtime] %></span><%= fuzzy_time_string( Time.at(file[:mtime].to_i).to_s ) %></td>
+            <td><span class="hidden"><%= file[:size].rjust(10, '0') %></span><%= human_readable_fsize(file[:size]) %></td>
+            <td><span class="hidden"><%= file[:mtime] %></span><%= fuzzy_time_string(Time.at(file[:mtime].to_i).to_s) %></td>
             <!-- limit download for anonymous user to avoid getting killed by crawlers -->
             <td><%= if @user or file[:size].to_i < ( 4 * 1024 * 1024 )
                       link_to image_tag('icons/page_white_get.png', :alt => "Download", :title => "Download File"), file_url( @project, @package, file[:name], file[:srcmd5] )
@@ -42,27 +37,33 @@
         <% end %>
       </tbody>
     </table>
+  </div>
+  <% javascript_tag do %>
+    $(document).ready(function() {
+      $('#files_table').dataTable({
+        'aoColumns': [null, null, null, {'bSortable': false}],
+      });
+    });
+  <% end %>
+<% else %>
+  <p><i>This package has no files yet</i></p>
+<% end %>
+
+<% if @package.can_edit?( session[:login] ) %>
+  <p>
+    <%= link_to image_tag('icons/page_white_add.png', :alt => "Add", :title => "Add file"),
+      :action => :add_file, :project => @project, :package => @package %>
+    <%= link_to 'Add file', :action => :add_file, :project => @project, :package => @package %>
+  </p>
+<% end %>
+
+<% unless @files.empty? or @spider_bot %>
+  <% if @revision && !(@revision == @current_rev)%>
+    <h3>Revision <%= @revision %> (latest revision is <%=  @current_rev %>)</h3>
   <% else %>
-    <p><i>This package has no files yet</i></p>
+    <h3>Latest Revision</h3>
   <% end %>
-
-  <% if @package.can_edit?( session[:login] ) %>
-    <p><%= link_to image_tag('icons/page_white_add.png', :alt => "Add", :title => "Add file"),
-        :action => :add_file, :project => @project, :package => @package %>
-      <%= link_to 'Add file', :action => :add_file, :project => @project, :package => @package %>
-    </p>
-  <% end %>
-
-  <% unless @files.empty? or @spider_bot %>
-    <% if @revision && !(@revision == @current_rev)%>
-      <h3>Revision <%= @revision %> (latest revision is <%=  @current_rev %>)</h3>
-    <% else %>
-      <h3>Latest Revision</h3>
-    <% end %>
-    <div style="margin-left: 1.2em">
-      <%= render :partial => 'commit_item', :locals => {:rev => @revision } %>
-    </div>
-  <% end %>
-
-</div>
-
+  <div style="margin-left: 1.2em">
+    <%= render :partial => 'commit_item', :locals => {:rev => @revision } %>
+  </div>
+<% end %>
