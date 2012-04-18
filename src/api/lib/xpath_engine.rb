@@ -7,7 +7,7 @@ class XpathEngine
 
   def initialize
     @lexer = REXML::Parsers::XPathParser.new
-
+    
     @tables = {
       'attribute' => 'attribs',
       'package' => 'db_packages',
@@ -15,8 +15,9 @@ class XpathEngine
       'person' => 'users',
       'repository' => 'repositories',
       'issue' => 'issues',
+      'request' => 'requests'
     }
-
+    
     @attribs = {
       'db_packages' => {
         '@project' => {:cpart => 'db_projects.name'},
@@ -126,6 +127,16 @@ class XpathEngine
           ['LEFT JOIN users ON users.id = issues.owner_id']},
         'owner/@login' => {:cpart => 'users.login', :joins => 
           ['LEFT JOIN users ON users.id = issues.owner_id']},
+      },
+      'requests' => {
+        'state/@name' => { :cpart => 'bs_requests.state' },
+        'state/@who' => { :cpart => 'bs_requests.commenter' },
+        'action/@type' => { :cpart => 'bs_request_actions.action_type' },
+        'action/target/@project' => { :cpart => 'bs_request_actions.target_project' },
+        'action/target/@package' => { :cpart => 'bs_request_actions.target_package' },
+        'action/source/@project' => { :cpart => 'bs_request_actions.source_project' },
+        'action/source/@package' => { :cpart => 'bs_request_actions.source_package' },
+        'history/@who' => { :cpart => 'bs_request_histories.commenter' }
       }
     }
 
@@ -150,10 +161,10 @@ class XpathEngine
 
     begin
       @stack = @lexer.parse xpath
-    rescue NoMethodError
+    rescue NoMethodError => e
       # if the input contains a [ in random place, rexml will throw
       #  undefined method `[]' for nil:NilClass
-      raise IllegalXpathError, "failed to parse"
+      raise IllegalXpathError, "failed to parse #{e.inspect}"
     end
     #logger.debug "starting stack: #{@stack.inspect}"
 
@@ -220,6 +231,9 @@ class XpathEngine
     when 'repositories'
       model = Repository
       includes = [:db_project]
+    when 'requests'
+      model = BsRequest
+      includes = [:bs_request_actions, :bs_request_histories, :reviews]
     when 'issues'
       model = Issue
       includes = [:issue_tracker]
@@ -237,7 +251,7 @@ class XpathEngine
     @limit = opt['limit'].to_i if opt['limit']
     @offset = opt['offset'].to_i if opt['offset']
 
-    #logger.debug "-- cond_ary: #{cond_ary.inspect} --"
+    logger.debug "-- cond_ary: #{cond_ary.inspect} -- #{@joins.flatten.inspect}"
     model.find_each(:select => select, :include => includes, :joins => @joins.flatten.uniq.join(" "),
                     :conditions => cond_ary, :order => @sort_order, :group => model.table_name + ".id") do |item|
       # Add some pagination. Standard :offset & :limit aren't available for ActiveModel#find_each,

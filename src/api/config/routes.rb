@@ -227,6 +227,8 @@ OBSApi::Application.routes.draw do
       match 'search/project' => :project
       match 'search/package' => :package
       match 'search/attribute' => :attribute
+      match 'search/request' => :bs_request
+      match 'search/request/id' => :bs_request_id
       match 'search' => :pass_to_backend
 
       match 'search/repository/id' => :repository_id
@@ -273,8 +275,6 @@ OBSApi::Application.routes.draw do
     resources :request, :only => [:index, :show, :update, :create]
     
     match 'request/:id' => 'request#command'
-    # ACL(/search/request) TODO: direct passed call to  'pass_to_backend'
-    match 'search/request' => 'request#pass_to_backend'
 
     ### /lastevents
 

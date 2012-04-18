@@ -31,7 +31,10 @@ class Hash
   end
 
   def value(name)
-    return self[name.to_s]
+    sub = self[name.to_s]
+    return nil unless sub
+    return '' if sub.blank? # avoid {}
+    return sub
   end
 
   def has_element?(name)
@@ -299,7 +302,7 @@ module ActiveXML
       xmlnode = Nokogiri::XML::Document.parse(node, nil, nil, Nokogiri::XML::ParseOptions::STRICT).root
       _data.add_child(xmlnode)
       cleanup_cache
-      xmlnode
+      LibXMLNode.new(xmlnode)
     end
 
     def add_element ( element, attrs=nil )
@@ -402,8 +405,6 @@ module ActiveXML
 	  return ret if ret && ret.kind_of?(String)
       end
       return @value_cache[symbols] if @value_cache.has_key?(symbols)
-
-      return nil unless _data
 
       if _data.attributes.has_key?(symbols)
         return @value_cache[symbols] = _data.attributes[symbols].value

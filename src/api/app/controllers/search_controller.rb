@@ -27,6 +27,14 @@ class SearchController < ApplicationController
     search(:issue, true)
   end
 
+  def bs_request
+    search(:request, true)
+  end
+
+  def bs_request_id
+    search(:request, false)
+  end
+
   def attribute
     unless params[:namespace] and params[:name]
       render_error :status => 400, :message => "need namespace and name parameter"
@@ -54,12 +62,12 @@ class SearchController < ApplicationController
 
     xe = XpathEngine.new
 
-    output = String.new
-    output << "<?xml version='1.0' encoding='UTF-8'?>\n"
-    output << "<collection>\n"
+    output = ActiveXML::Base.new '<collection/>'
+    matches = 0
 
     begin
       xe.find("/#{what}[#{predicate}]", params.slice(:sort_by, :order, :limit, :offset).merge({"render_all" => render_all})) do |item|
+        matches = matches + 1
         if item.kind_of? DbPackage or item.kind_of? DbProject
           # already checked in this case
         elsif item.kind_of? Repository
@@ -67,21 +75,22 @@ class SearchController < ApplicationController
           next if ProjectUserRoleRelationship.forbidden_project_ids.include? item.db_project_id
         elsif item.kind_of? Issue
           # all our hosted issues are public atm
+        elsif item.kind_of? BsRequest
+          # requests leak (FIXME)
         else
           render_error :status => 400, :message => "unknown object received from collection %s (#{item.inspect})" % predicate
           return
         end
         
-        str = (render_all ? item.to_axml : item.to_axml_id)
-        output << str.split(/\n/).map {|l| l.match(/\s*\</) ? "  "+l : l}.join("\n") + "\n"
+        output.add_node(render_all ? item.to_axml : item.to_axml_id)
       end
     rescue XpathEngine::IllegalXpathError => e
       render_error :status => 400, :message => "illegal xpath %s (#{e.message})" % predicate
       return
     end
 
-    output << "</collection>\n"
-    render :text => output, :content_type => "text/xml"
+    output.set_attribute("matches", matches.to_s)
+    render :text => output.dump_xml, :content_type => "text/xml"
   end
 
   # specification of this function:

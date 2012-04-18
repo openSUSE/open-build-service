@@ -108,7 +108,7 @@
   <xs:element name="history">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="comment" type="xs:string"/>
+        <xs:element name="comment" type="xs:string" minOccurs="0" maxOccurs="1"/>
       </xs:sequence>
       <xs:attribute name="name"  type="states" use="required"/>
       <xs:attribute name="who"   type="xs:string" use="required"/>

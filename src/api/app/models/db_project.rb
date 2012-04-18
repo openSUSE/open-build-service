@@ -1226,16 +1226,16 @@ class DbProject < ActiveRecord::Base
 
   def open_requests_with_project_as_source_or_target
     # Includes also requests for packages contained in this project
-    predicate = "(state/@name='new' or state/@name='review' or state/@name='declined') and (action/source/@project='#{self.name}' or action/target/@project='#{self.name}')"
-    collection = Suse::Backend.post("/search/request?match=#{CGI.escape(predicate)}", nil).body
-    return collection.scan(/request id\="(\d+)"/).flatten # A list of request ids
+    rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
+    rel = rel.where("bs_request_actions.source_project = ? or bs_request_actions.target_project = ?", self.name, self.name)
+    return BsRequest.where(id: rel.select("bs_requests.id").all.map { |r| r.id})
   end
 
   def open_requests_with_by_project_review
     # Includes also by_package reviews for packages contained in this project
-    predicate = "(state/@name='new' or state/@name='review') and (review[@state='new' and @by_project='#{self.name}'])"
-    collection = Suse::Backend.post("/search/request?match=#{CGI.escape(predicate)}", nil).body
-    return collection.scan(/request id\="(\d+)"/).flatten # A list of request ids
+    rel = BsRequest.where(state: [:new, :review])
+    rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? ", self.name)
+    return BsRequest.where(id: rel.select("bs_requests.id").all.map { |r| r.id})
   end
 
   # list only the repositories that have a target project in the build path

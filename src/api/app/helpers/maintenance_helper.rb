@@ -81,7 +81,7 @@ module MaintenanceHelper
       end
       # set default bugowner if missing
       bugowner = Role.get_by_title("bugowner")
-      unless tprj.project_user_role_relationships.where("role_id = ?", bugowner.id).includes(:role).first
+      unless tprj.project_user_role_relationships.where("role_id = ?", bugowner.id).first
         tprj.add_user( @http_user, bugowner )
       end
       # and write it
@@ -413,21 +413,20 @@ module MaintenanceHelper
     @packages = []
     if params[:request]
       # find packages from request
-      data = Suse::Backend.get("/request/#{params[:request]}").body
-      req = BsRequest.new(data)
+      req = BsRequest.find(params[:request])
 
-      req.each_action do |action|
+      req.bs_request_actions.each do |action|
         prj=nil
         pkg=nil
-        if action.has_element? 'source'
-          if action.source.has_attribute? 'package'
-            pkg = DbPackage.get_by_project_and_name action.source.project, action.source.package
-          elsif action.source.has_attribute? 'project'
-            prj = DbProject.get_by_name action.source.project
+        if action.source_project || action.source_package
+          if action.source_package
+            pkg = DbPackage.get_by_project_and_name action.source_project, action.source_package
+          elsif action.source_project
+            prj = DbProject.get_by_name action.source_project
           end
         end
 
-        @packages.push({ :link_target_project => action.source.project, :package => pkg, :target_package => "#{pkg.name}.#{pkg.db_project.name}" })
+        @packages.push({ :link_target_project => action.source_project, :package => pkg, :target_package => "#{pkg.name}.#{pkg.db_project.name}" })
       end
     elsif params[:project] and params[:package]
       pkg = nil

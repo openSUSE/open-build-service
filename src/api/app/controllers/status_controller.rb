@@ -237,225 +237,225 @@ class StatusController < ApplicationController
   def bsrequest
     required_parameters :id
     Suse::Backend.start_test_backend if Rails.env.test?
-    req = BsRequest.find(:id => params[:id])
-    unless req
-      render_error :status => 403, :errorcode => "unknown request", :message => "request #{params[:id]} does not exist" and return
-    end
-    if req.action.value('type') != 'submit'
-      render :text => "<status id='#{params[:id]}' code='unknown'>Not submit</status>\n" and return
-    end
 
-    begin
-      sproj = DbProject.get_by_name(req.action.source.project)
-      tproj = DbProject.get_by_name(req.action.target.project)
-    rescue DbProject::UnknownObjectError => e
-      render :text => "<status id='#{params[:id]}' code='error'>Can't find project #{e.message}k</status>\n" and return
-    end
-    
-    tocheck_repos = sproj.repositories_linking_project(tproj, backend)
-    if tocheck_repos.empty?
-      render :text => "<status id='#{params[:id]}' code='warning'>No repositories build against target</status>\n"
-      return
-    end
-    begin
-      dir = Directory.find(:project => req.action.source.project,
-        :package => req.action.source.package,
-        :expand => 1, :rev => req.action.source.value('rev'))
-    rescue ActiveXML::Transport::Error => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
-      render :text => "<status id='#{params[:id]}' code='error'>Can't list sources: #{message}</status>\n"
-      return
-    end
-    unless dir
-      render :text => '<status code="error">Source package does not exist</status>\n' and return
-    end
-    srcmd5 = dir.value('srcmd5')
+    BsRequestAction.where(bs_request_id: params[:id]).each do |action|
 
-    # check current srcmd5
-    begin
-      cdir = Directory.find(:project => req.action.source.project,
-        :package => req.action.source.package,
-        :expand => 1)
-      csrcmd5 = cdir.value('srcmd5') if cdir
-    rescue ActiveXML::Transport::Error => e
-      csrcmd5 = nil
-    end
-
-    outputxml = "<status id='#{params[:id]}'>\n"
-    
-    re_filename = Regexp.new('^(.*)-([^-]*)-([^-]*)\.([^-.]*).rpm')
-    tocheck_repos.each do |srep|
-      outputxml << " <repository name='#{srep.name}'>\n"
-      trepo = []
-      archs = []
-      srep.each_path do |p|
-        if p.project != sproj.name
-          r = Repository.find_by_project_and_repo_name(p.project, p.value(:repository))
-          if r.db_project = tproj
-            r.architectures.each {|a| archs << a.name }
-          end
-          trepo << [p.project, p.value(:repository)]
-        end
+      if action.action_type != :submit
+        render :text => "<status id='#{params[:id]}' code='unknown'>Not submit</status>\n" and return
       end
-      archs.uniq!
-      unless trepo and not trepo.nil?
-        render :text => "<status id='#{params[:id]}' code='warning'>Can not find repository building against target</status>\n" and return
+
+      begin
+        sproj = DbProject.get_by_name(action.source_project)
+        tproj = DbProject.get_by_name(action.target_project)
+      rescue DbProject::UnknownObjectError => e
+        render :text => "<status id='#{params[:id]}' code='error'>Can't find project #{e.message}k</status>\n" and return
       end
-      logger.debug "trepo #{trepo.inspect}"
-      archs.each do |arch|
-        everbuilt = 0
-        eversucceeded = 0
-        buildcode=nil
-        hist = Jobhistory.find(:project => sproj.name,
-          :repository => srep.name,
-          :package => req.action.source.package,
-          :arch => arch.to_s, :limit => 20 )
-        next unless hist
-        hist.each_jobhist do |jh|
-          next if jh.srcmd5 != srcmd5
-          everbuilt = 1
-          if jh.code == 'succeeded' || jh.code == 'unchanged'
-            buildcode='succeeded'
-            eversucceeded = 1
-            break
+      
+      tocheck_repos = sproj.repositories_linking_project(tproj, backend)
+      if tocheck_repos.empty?
+        render :text => "<status id='#{params[:id]}' code='warning'>No repositories build against target</status>\n"
+        return
+      end
+      begin
+        dir = Directory.find(:project => action.source_project,
+                             :package => action.source_package,
+                             :expand => 1, :rev => action.source_rev)
+      rescue ActiveXML::Transport::Error => e
+        message, code, api_exception = ActiveXML::Transport.extract_error_message e
+        render :text => "<status id='#{params[:id]}' code='error'>Can't list sources: #{message}</status>\n"
+        return
+      end
+      unless dir
+        render :text => '<status code="error">Source package does not exist</status>\n' and return
+      end
+      srcmd5 = dir.value('srcmd5')
+      
+      # check current srcmd5
+      begin
+        cdir = Directory.find(:project => action.source_project,
+                              :package => action.source_package,
+                              :expand => 1)
+        csrcmd5 = cdir.value('srcmd5') if cdir
+      rescue ActiveXML::Transport::Error => e
+        csrcmd5 = nil
+      end
+      
+      outputxml = "<status id='#{params[:id]}'>\n"
+      
+      re_filename = Regexp.new('^(.*)-([^-]*)-([^-]*)\.([^-.]*).rpm')
+      tocheck_repos.each do |srep|
+        outputxml << " <repository name='#{srep.name}'>\n"
+        trepo = []
+        archs = []
+        srep.each_path do |p|
+          if p.project != sproj.name
+            r = Repository.find_by_project_and_repo_name(p.project, p.value(:repository))
+            if r.db_project = tproj
+              r.architectures.each {|a| archs << a.name }
+            end
+            trepo << [p.project, p.value(:repository)]
           end
         end
-        logger.debug "arch:#{arch} md5:#{srcmd5} successed:#{eversucceeded} built:#{everbuilt}"
-        missingdeps=[]
-        if eversucceeded == 1
-          uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/#{CGI.escape(req.action.source.package.to_s)}/_buildinfo")
-          begin
-            buildinfo = ActiveXML::Base.new( backend.direct_http( uri ) )
-          rescue ActiveXML::Transport::Error => e
-            # if there is an error, we ignore
-            message, code, api_exception = ActiveXML::Transport.extract_error_message e
-            render :text => "<status id='#{params[:id]}' code='error'>Can't get buildinfo: #{message}</status>\n"
-            return
+        archs.uniq!
+        unless trepo and not trepo.nil?
+          render :text => "<status id='#{params[:id]}' code='warning'>Can not find repository building against target</status>\n" and return
+        end
+        logger.debug "trepo #{trepo.inspect}"
+        archs.each do |arch|
+          everbuilt = 0
+          eversucceeded = 0
+          buildcode=nil
+          hist = Jobhistory.find(:project => sproj.name,
+                                 :repository => srep.name,
+                                 :package => action.source_package,
+                                 :arch => arch.to_s, :limit => 20 )
+          next unless hist
+          hist.each_jobhist do |jh|
+            next if jh.srcmd5 != srcmd5
+            everbuilt = 1
+            if jh.code == 'succeeded' || jh.code == 'unchanged'
+              buildcode='succeeded'
+              eversucceeded = 1
+              break
+            end
           end
-          packages = Hash.new
-          trepo.each do |p, r|
+          logger.debug "arch:#{arch} md5:#{srcmd5} successed:#{eversucceeded} built:#{everbuilt}"
+          missingdeps=[]
+          if eversucceeded == 1
+            uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/#{CGI.escape(action.source_package.to_s)}/_buildinfo")
             begin
-              packages.merge!(bsrequest_repo_list(p, r, arch.to_s))
+              buildinfo = ActiveXML::Base.new( backend.direct_http( uri ) )
             rescue ActiveXML::Transport::Error => e
+              # if there is an error, we ignore
               message, code, api_exception = ActiveXML::Transport.extract_error_message e
-              render :text => "<status id='#{params[:id]}' code='error'>Can't list #{p}/#{r}/#{arch.to_s}: #{message}</status>\n"
+              render :text => "<status id='#{params[:id]}' code='error'>Can't get buildinfo: #{message}</status>\n"
               return
             end
-          end
-
-	  # expansion error
-	  if buildinfo.has_element? :error
-             missingdeps << buildinfo.value(:error)
-	     buildcode='failed' 
-	  end
-
-          buildinfo.each_bdep do |b|
-            unless b.value(:preinstall)
-              unless packages.has_key? b.value(:name)
-                missingdeps << b.name
+            packages = Hash.new
+            trepo.each do |p, r|
+              begin
+                packages.merge!(bsrequest_repo_list(p, r, arch.to_s))
+              rescue ActiveXML::Transport::Error => e
+                message, code, api_exception = ActiveXML::Transport.extract_error_message e
+                render :text => "<status id='#{params[:id]}' code='error'>Can't list #{p}/#{r}/#{arch.to_s}: #{message}</status>\n"
+                return
               end
             end
-          end
-          
-          # we track the binaries we built and what they depend on - to then filter out
-          # the own binaries from that list
-          tmp_md = Array.new
-          ownbinaries = Hash.new
-          uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/#{CGI.escape(req.action.source.package.to_s)}")
-          binaries = ActiveXML::Base.new( backend.direct_http( uri ) ) 
-          binaries.each_binary do |f|
-            # match to the repository filename
-            m = re_filename.match(f.value(:filename))
-            next unless m
-            filename_file = m[1]
-            filename_version = m[2]
-            filename_release = m[3]
-            filename_arch = m[4]
-            # work around as long as we build ia64 baselibs (soon to be gone)
-            next if filename_arch == "ia64"
-            ownbinaries[filename_file] = 1
-            md = nil
-            begin
-              md = bsrequest_repo_file(sproj.name, srep.name, filename_arch, filename_file, filename_version, filename_release)
-            rescue ActiveXML::Transport::NotFoundError
-              if filename_arch != arch && filename_arch != 'src'
-                filename_arch = arch.to_s
-                retry
-              end
-            rescue NotInRepo => e
-              render :text => "<status id='#{params[:id]}' code='building'>Not in repo #{f.value(:filename)} - #{e}</status>"
-              return
+
+            # expansion error
+            if buildinfo.has_element? :error
+              missingdeps << buildinfo.value(:error)
+              buildcode='failed' 
             end
-            if md && md.size > 0 && filename_arch == arch
-              md.each do |pl|
-                if pl.kind_of?(String)
-                  tmp_md << pl unless packages.has_key?(pl)
-                else
-                  found = nil
-                  pl.each do |p|
-                    found = 1 if packages.has_key?(p)
-                  end
-                  if found.nil?
-                    tmp_md << pl.join('|')
+
+            buildinfo.each_bdep do |b|
+              unless b.value(:preinstall)
+                unless packages.has_key? b.value(:name)
+                  missingdeps << b.name
+                end
+              end
+            end
+            
+            # we track the binaries we built and what they depend on - to then filter out
+            # the own binaries from that list
+            tmp_md = Array.new
+            ownbinaries = Hash.new
+            uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/#{CGI.escape(action.source_package.to_s)}")
+            binaries = ActiveXML::Base.new( backend.direct_http( uri ) ) 
+            binaries.each_binary do |f|
+              # match to the repository filename
+              m = re_filename.match(f.value(:filename))
+              next unless m
+              filename_file = m[1]
+              filename_version = m[2]
+              filename_release = m[3]
+              filename_arch = m[4]
+              # work around as long as we build ia64 baselibs (soon to be gone)
+              next if filename_arch == "ia64"
+              ownbinaries[filename_file] = 1
+              md = nil
+              begin
+                md = bsrequest_repo_file(sproj.name, srep.name, filename_arch, filename_file, filename_version, filename_release)
+              rescue ActiveXML::Transport::NotFoundError
+                if filename_arch != arch && filename_arch != 'src'
+                  filename_arch = arch.to_s
+                  retry
+                end
+              rescue NotInRepo => e
+                render :text => "<status id='#{params[:id]}' code='building'>Not in repo #{f.value(:filename)} - #{e}</status>"
+                return
+              end
+              if md && md.size > 0 && filename_arch == arch
+                md.each do |pl|
+                  if pl.kind_of?(String)
+                    tmp_md << pl unless packages.has_key?(pl)
+                  else
+                    found = nil
+                    pl.each do |p|
+                      found = 1 if packages.has_key?(p)
+                    end
+                    if found.nil?
+                      tmp_md << pl.join('|')
+                    end
                   end
                 end
               end
             end
-          end
-          tmp_md.each do |p|
-            missingdeps << p unless ownbinaries.has_key?(p)
-          end
-        end
-
-        # if the package does not appear in build history, check flags
-        if everbuilt == 0
-          spkg = DbPackage.find_by_project_and_name req.action.source.project, req.action.source.package
-          buildflag=spkg.find_flag_state("build", srep.name, arch.to_s) if spkg
-          logger.debug "find_flag_state #{srep.name} #{arch.to_s} #{buildflag}"
-          if buildflag == 'disable'
-            buildcode='disabled'
-          end
-        end
-
-        if !buildcode && srcmd5 != csrcmd5 && everbuilt == 1
-          buildcode='failed' # has to be
-        end
-	
-        unless buildcode
-          buildcode="unknown"
-          begin
-            uri = URI( "/build/#{CGI.escape(sproj.name)}/_result?package=#{CGI.escape(req.action.source.package.to_s)}&repository=#{CGI.escape(srep.name)}&arch=#{CGI.escape(arch.to_s)}" )
-            resultlist = ActiveXML::Base.new( backend.direct_http( uri ) )
-            currentcode = nil
-            resultlist.each_result do |r|
-              r.each_status { |s| currentcode = s.value(:code) }
-            end
-          rescue ActiveXML::Transport::Error
-            currentcode = nil
-          end
-          if ['unresolvable', 'failed', 'broken'].include?(currentcode)
-            buildcode='failed'
-          end
-          if ['building', 'scheduled', 'finished', 'signing', 'blocked'].include?(currentcode)
-            buildcode='building'
-          end
-          if currentcode == 'excluded'
-            buildcode='excluded'
-          end
-          # if it's currently succeeded but !everbuilt, it's different sources
-          if currentcode == 'succeeded'
-            if srcmd5 == csrcmd5
-              buildcode='building' # guesssing
-            else
-              buildcode='outdated'
+            tmp_md.each do |p|
+              missingdeps << p unless ownbinaries.has_key?(p)
             end
           end
+
+          # if the package does not appear in build history, check flags
+          if everbuilt == 0
+            spkg = DbPackage.find_by_project_and_name action.source_project, action.source_package
+            buildflag=spkg.find_flag_state("build", srep.name, arch.to_s) if spkg
+            logger.debug "find_flag_state #{srep.name} #{arch.to_s} #{buildflag}"
+            if buildflag == 'disable'
+              buildcode='disabled'
+            end
+          end
+
+          if !buildcode && srcmd5 != csrcmd5 && everbuilt == 1
+            buildcode='failed' # has to be
+          end
+          
+          unless buildcode
+            buildcode="unknown"
+            begin
+              uri = URI( "/build/#{CGI.escape(sproj.name)}/_result?package=#{CGI.escape(action.source_package.to_s)}&repository=#{CGI.escape(srep.name)}&arch=#{CGI.escape(arch.to_s)}" )
+              resultlist = ActiveXML::Base.new( backend.direct_http( uri ) )
+              currentcode = nil
+              resultlist.each_result do |r|
+                r.each_status { |s| currentcode = s.value(:code) }
+              end
+            rescue ActiveXML::Transport::Error
+              currentcode = nil
+            end
+            if ['unresolvable', 'failed', 'broken'].include?(currentcode)
+              buildcode='failed'
+            end
+            if ['building', 'scheduled', 'finished', 'signing', 'blocked'].include?(currentcode)
+              buildcode='building'
+            end
+            if currentcode == 'excluded'
+              buildcode='excluded'
+            end
+            # if it's currently succeeded but !everbuilt, it's different sources
+            if currentcode == 'succeeded'
+              if srcmd5 == csrcmd5
+                buildcode='building' # guesssing
+              else
+                buildcode='outdated'
+              end
+            end
+          end
+          outputxml << "  <arch arch='#{arch.to_s}' result='#{buildcode}'"
+          outputxml << " missing='#{missingdeps.uniq.join(',').to_xs}'" if (missingdeps.size > 0 && buildcode == 'succeeded')
+          outputxml << "/>\n"
         end
-        outputxml << "  <arch arch='#{arch.to_s}' result='#{buildcode}'"
-        outputxml << " missing='#{missingdeps.uniq.join(',').to_xs}'" if (missingdeps.size > 0 && buildcode == 'succeeded')
-        outputxml << "/>\n"
+        outputxml << " </repository>\n"
       end
-      outputxml << " </repository>\n"
     end
     outputxml << "</status>\n"
 

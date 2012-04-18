@@ -166,7 +166,7 @@ class AttributeController < ApplicationController
       render_ok
     elsif request.delete?
       at = ans.attrib_types.where("name = ?", name ).first
-      at.destroy
+      at.destroy if at
       render_ok
     else
       render_error :status => 400, :errorcode => 'illegal_request',

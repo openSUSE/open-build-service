@@ -13,7 +13,6 @@ class MissingParameterError < Exception; end
 class InvalidParameterError < Exception; end
 class IllegalRequestError < Exception; end
 class IllegalEncodingError < Exception; end
-class UserNotFoundError < Exception; end
 class GroupNotFoundError < Exception; end
 class RoleNotFoundError < Exception; end
 class TagNotFoundError < Exception; end
@@ -420,19 +419,14 @@ class ApplicationController < ActionController::Base
   end
   private :strip_sensitive_data_from
 
-  # default uses logger.fatal, but we have too many unknown object exceptions to make that useful
-  # in production
-  def log_error(exception)
-    case exception
-    when DbProject::UnknownObjectError, DbPackage::UnknownObjectError
-      logger.debug("\n#{exception.class} (#{exception.message}):\n  " +
-                   clean_backtrace(exception).join("\n  ") + "\n\n")
-    else
-      super
-    end
+  def show_detailed_exceptions?
+    true
   end
 
   def rescue_with_handler(exception)
+
+    logger.debug exception.backtrace.join("\n")
+
     case exception
     when Suse::Backend::NotFoundError
       render_error :message => exception.message, :status => 404
@@ -468,6 +462,8 @@ class ApplicationController < ActionController::Base
                    :message => message
     when ActionController::RoutingError, ActiveRecord::RecordNotFound
       render_error :message => exception.message, :status => 404, :errorcode => "not_found"
+    when ActiveRecord::RecordInvalid
+      render_error :message => "Record not valid: #{exception.record.inspect} - #{exception.record.errors.full_messages}", :status => 400, :errorcode => "record_invalid"
     when AbstractController::ActionNotFound
       render_error :message => exception.message, :status => 403, :errorcode => "unknown_action"
     when ActionView::MissingTemplate
@@ -536,15 +532,6 @@ class ApplicationController < ActionController::Base
           :message => "Issue Tracker not found"
       else
         render_error :status => 404, :errorcode => 'issue_tracker_not_found',
-          :message => exception.message
-      end
-    when UserNotFoundError
-      logger.error "UserNotFoundError: #{exception.message}"
-      if exception.message == ""
-        render_error :status => 404, :errorcode => 'user_not_found',
-          :message => "User not found"
-      else
-        render_error :status => 404, :errorcode => 'user_not_found',
           :message => exception.message
       end
     when GroupNotFoundError
@@ -673,7 +660,7 @@ class ApplicationController < ActionController::Base
 
   def backend
     Suse::Backend.start_test_backend if Rails.env.test?
-    @backend ||= ActiveXML::Config.transport_for :bsrequest
+    @backend ||= ActiveXML::Config.transport_for :directory
   end
 
   def backend_get( path )

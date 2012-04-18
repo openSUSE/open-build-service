@@ -21,9 +21,6 @@ ActiveXML::Base.config do |conf|
     #map.connect :package, "rest:///source/:project/:name/_meta",
     #    :all    => "rest:///source/:project"
     
-    map.connect :bsrequest, "rest:///request/:id",
-      :all => "rest:///request"
-
     map.connect :collection, "rest:///search/:what?:match",
       :id => "rest:///search/:what/id?:match",
       :package => "rest:///search/package?:match",

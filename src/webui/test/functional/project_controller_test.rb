@@ -34,10 +34,8 @@ class ProjectControllerTest < ActionController::IntegrationTest
   end
 
   def test_packages_empty
-    get "/project/show?project=home:coolo"
+    get "/package/rdiff?opackage=pack2&oproject=BaseDistro2.0&package=pack2_linked&project=BaseDistro2.0"
     assert_response :success
-    assert( assigns(:packages).size == 0 )
-    assert( assigns(:project) )
   end
 
   def test_packages_kde4

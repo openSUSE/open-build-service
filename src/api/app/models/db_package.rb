@@ -916,15 +916,15 @@ class DbPackage < ActiveRecord::Base
   end
 
   def open_requests_with_package_as_source_or_target
-    predicate = "(state/@name='new' or state/@name='review' or state/@name='declined') and ((action/source/@project='#{self.db_project.name}' and action/source/@package='#{self.name}') or (action/target/@project='#{self.db_project.name}' and action/target/@package='#{self.name}'))"
-    collection = Suse::Backend.post("/search/request?match=#{CGI.escape(predicate)}", nil).body
-    return collection.scan(/request id\="(\d+)"/).flatten # A list of request ids
+    rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
+    rel = rel.where("(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?) or (bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)", self.db_project.name, self.name, self.db_project.name, self.name)
+    return BsRequest.where(id: rel.select("bs_requests.id").all.map { |r| r.id})
   end
 
   def open_requests_with_by_package_review
-    predicate = "(state/@name='new' or state/@name='review') and (review[@state='new' and @by_project='#{self.db_project.name}' and @by_package='#{self.name}'])"
-    collection = Suse::Backend.post("/search/request?match=#{CGI.escape(predicate)}", nil).body
-    return collection.scan(/request id\="(\d+)"/).flatten # A list of request ids
+    rel = BsRequest.where(state: [:new, :review])
+    rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? and reviews.by_package = ? ", self.db_project.name, self.name)
+    return BsRequest.where(id: rel.select("bs_requests.id").all.map { |r| r.id})
   end
 
 end

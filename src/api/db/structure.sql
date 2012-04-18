@@ -106,6 +106,69 @@ CREATE TABLE `blacklist_tags` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `bs_request_action_accept_infos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `bs_request_action_id` int(11) DEFAULT NULL,
+  `rev` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `srcmd5` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `xsrcmd5` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `osrcmd5` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oxsrcmd5` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `bs_request_action_id` (`bs_request_action_id`),
+  CONSTRAINT `bs_request_action_accept_infos_ibfk_1` FOREIGN KEY (`bs_request_action_id`) REFERENCES `bs_request_actions` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `bs_request_actions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `bs_request_id` int(11) DEFAULT NULL,
+  `action_type` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `target_project` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `target_package` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `target_releaseproject` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `source_project` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `source_package` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `source_rev` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `sourceupdate` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `updatelink` tinyint(1) DEFAULT '0',
+  `person_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `group_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `role` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `bs_request_id` (`bs_request_id`),
+  CONSTRAINT `bs_request_actions_ibfk_1` FOREIGN KEY (`bs_request_id`) REFERENCES `bs_requests` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `bs_request_histories` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `bs_request_id` int(11) DEFAULT NULL,
+  `state` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `comment` text COLLATE utf8_bin,
+  `commenter` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `superseded_by` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `bs_request_id` (`bs_request_id`),
+  CONSTRAINT `bs_request_histories_ibfk_1` FOREIGN KEY (`bs_request_id`) REFERENCES `bs_requests` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `bs_requests` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `description` text COLLATE utf8_bin,
+  `creator` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `state` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `comment` text COLLATE utf8_bin,
+  `commenter` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `superseded_by` int(11) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_bs_requests_on_creator` (`creator`),
+  KEY `index_bs_requests_on_state` (`state`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `configurations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
@@ -455,6 +518,31 @@ CREATE TABLE `repository_architectures` (
   CONSTRAINT `repository_architectures_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
   CONSTRAINT `repository_architectures_ibfk_2` FOREIGN KEY (`architecture_id`) REFERENCES `architectures` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `reviews` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `bs_request_id` int(11) DEFAULT NULL,
+  `creator` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `reviewer` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `reason` text COLLATE utf8_unicode_ci,
+  `state` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `by_user` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `by_group` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `by_project` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `by_package` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_reviews_on_creator` (`creator`),
+  KEY `index_reviews_on_reviewer` (`reviewer`),
+  KEY `index_reviews_on_state` (`state`),
+  KEY `index_reviews_on_by_user` (`by_user`),
+  KEY `index_reviews_on_by_group` (`by_group`),
+  KEY `index_reviews_on_by_project` (`by_project`),
+  KEY `index_reviews_on_by_package_and_by_project` (`by_package`,`by_project`),
+  KEY `bs_request_id` (`bs_request_id`),
+  CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`bs_request_id`) REFERENCES `bs_requests` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `roles` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -877,6 +965,10 @@ INSERT INTO schema_migrations (version) VALUES ('20120411112931');
 INSERT INTO schema_migrations (version) VALUES ('20120411121152');
 
 INSERT INTO schema_migrations (version) VALUES ('20120417115800');
+
+INSERT INTO schema_migrations (version) VALUES ('20120418121859');
+
+INSERT INTO schema_migrations (version) VALUES ('20120424141421');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

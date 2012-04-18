@@ -1,0 +1,24 @@
+missing_projects:
+  id: 998
+  description: ''
+  creator: tom
+  state: new
+  commenter: tom
+missing_source_project:
+  id: 997
+  description: ''
+  creator: tom
+  state: new
+  commenter: tom
+missing_target_project:
+  id: 999
+  description: ''
+  creator: tom
+  state: new
+  commenter: tom
+submit_from_home_project:
+  id: 1000
+  description: test home project shortening
+  creator: Iggy
+  state: new
+  commenter: Iggy

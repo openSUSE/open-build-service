@@ -182,6 +182,12 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert repos.include?('HiddenProject/nada'), "HiddenProject repos public"
   end
 
+  def test_search_request
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/search/request", match: "(action/target/@package='pack2' and action/target/@project='BaseDistro2.0' and action/source/@project='BaseDistro2.0' and action/source/@package='pack2_linked' and action/@type='submit')"
+    assert_response :success
+  end
+
   def get_package_count
     return ActiveXML::Base.new(@response.body).each_package.length
   end

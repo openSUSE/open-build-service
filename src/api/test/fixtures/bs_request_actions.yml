@@ -1,0 +1,45 @@
+bs_request_actions_1:
+  id: 1
+  bs_request_id: 999
+  action_type: submit
+  target_project: NeitherExisting
+  target_package: unknown
+  source_project: NotExisiting
+  source_package: notthere
+  source_rev: '1'
+  sourceupdate: cleanup
+bs_request_actions_2:
+  id: 2
+  bs_request_id: 997
+  action_type: submit
+  target_project: kde4
+  target_package: kdelibs
+  source_project: NotExisiting
+  source_package: notthere
+  source_rev: '1'
+  sourceupdate: cleanup
+bs_request_actions_3:
+  id: 3
+  bs_request_id: 998
+  action_type: submit
+  target_project: NeitherExisting
+  target_package: unknown
+  source_project: kde4
+  source_package: kdelibs
+  source_rev: '1'
+  sourceupdate: cleanup
+bs_request_actions_4:
+  id: 4
+  bs_request_id: 998
+  action_type: delete
+  target_project: NeitherExisting
+  target_package: unknown2
+bs_request_actions_5:
+  id: 5
+  bs_request_id: 1000
+  action_type: submit
+  target_project: Apache
+  target_package: BranchPack
+  source_project: home:Iggy:branches:kde4
+  source_package: BranchPack
+  source_rev: '1'

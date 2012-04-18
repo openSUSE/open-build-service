@@ -7,16 +7,7 @@ class RequestControllerTest < ActionController::IntegrationTest
   fixtures :all
 
   def teardown
-    return unless Suse::Backend.test_backend?
-    prepare_request_with_user "king", "sunflower"
-    get "/request"
-    assert_response :success
-    dir = Xmlhash.parse(@response.body)
-    dir.elements("entry") do |p|
-      next if [ "997", "998", "999" ].include? p["name"] # skip fixture data
-      Suse::Backend.delete "/request/#{p["name"]}"
-      assert_response :success
-    end
+    BsRequest.where("id not in (997, 998, 999, 1000)").each { |r| r.destroy }
   end
 
   def test_set_and_get_1
@@ -141,15 +132,15 @@ class RequestControllerTest < ActionController::IntegrationTest
 
     post "/request?cmd=create", load_backend_file('request/no_such_user')
     assert_response 404
-    assert_xml_tag( :tag => "status", :attributes => { :code => 'user_not_found' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'not_found' }, child: { content: %r{Couldn.t find User} } )
 
     post "/request?cmd=create", load_backend_file('request/no_such_group')
     assert_response 404
-    assert_xml_tag( :tag => "status", :attributes => { :code => 'group_not_found' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'not_found' }, child: { content: %r{Couldn.t find Group} } )
 
     post "/request?cmd=create", load_backend_file('request/no_such_role')
     assert_response 404
-    assert_xml_tag( :tag => "status", :attributes => { :code => 'role_not_found' } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'not_found' }, child: { content: %r{Couldn.t find Role} }  )
 
     post "/request?cmd=create", load_backend_file('request/no_such_target_project')
     assert_response 404
@@ -471,6 +462,7 @@ class RequestControllerTest < ActionController::IntegrationTest
 
   def test_search_and_involved_requests
     prepare_request_with_user "Iggy", "asdfasdf"
+
     # make sure there is at least one
     req = load_backend_file('request/1')
     post "/request?cmd=create", req
@@ -498,6 +490,11 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_xml_tag( :tag => "request", :attributes => { :id => id} )
 
+    # test "osc rq"
+    get "/search/request", :match => "(state/@who='coolo' or history/@who='coolo')"
+    assert_response :success
+    assert_xml_tag tag: "collection", children: { count: 1 }
+
     # old style listing
     get "/request"
     assert_response :success
@@ -507,12 +504,13 @@ class RequestControllerTest < ActionController::IntegrationTest
     get "/request?view=collection"
     assert_response 404
 
-if $ENABLE_BROKEN_TEST
-   #FIXME there is no code in this test creating request from HiddenProject
     # collection of user involved requests
     get "/request?view=collection&user=Iggy&states=new,review"
     assert_response :success
     assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
+if $ENABLE_BROKEN_TEST
+    #FIXME there is no code in this test creating request from HiddenProject
+
     assert_xml_tag( :tag => "source", :attributes => { :project => "HiddenProject", :package => "pack"} )
 end
 
@@ -528,7 +526,7 @@ end
     get "/request?view=collection&project=kde4&states=new,review"
     assert_response :success
     assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
-    assert_xml_tag( :tag => "collection", :attributes => { :matches => "1"} )
+    assert_xml_tag( :tag => "collection", :attributes => { :matches => "3"} )
 
 if $ENABLE_BROKEN_TEST
 #FIXME:    Either we need to fix complete request controller including search not to show requests with 
@@ -928,7 +926,7 @@ end
     assert_response 403
     post "/request/ILLEGAL_CONTENT?cmd=changestate&newstate=revoked"
     assert_response 404
-    assert_match(/Request ID is not a number/, @response.body)
+    assert_xml_tag tag: "status", attributes: { code: "not_found" }
 
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request/#{id}?cmd=changestate&newstate=revoked"
@@ -1004,7 +1002,7 @@ end
       assert_response :success
       assert_xml_tag( :tag => "review", :attributes => { :state => "declined", :by_user => "fred" } )
    
-      # reopen it again and validate that the request opene the review as well
+      # reopen it again and validate that the request opens the review as well
       prepare_request_with_user "Iggy", "asdfasdf"
       post "/request/#{id}?cmd=changestate&newstate=#{newstate}&comment=But+I+want+it"
       assert_response :success
@@ -1220,9 +1218,9 @@ end
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", req
     assert_response :success
-    assert_xml_tag( :tag => "request" )
-    assert_xml_tag( :tag => "request", :child => { :tag => 'state' } )
-    assert_xml_tag( :tag => "state", :attributes => { :name => 'review' } )
+    # we upload 2 and 2 default reviewers are added
+    assert_xml_tag( children: { only: { tag: "review" }, count: 4 } )
+    assert_xml_tag( :tag => "state", :attributes => { :name => 'review' }, :parent => { :tag => "request" } )
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -1239,7 +1237,7 @@ end
     assert_match(/review state change for group test_group is not permitted for Iggy/, @response.body)
     post "/request/987654321?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response 404
-    assert_match(/No such request/, @response.body)
+    assert_match(/Couldn't find BsRequest with id=987654321/, @response.body)
 
     # Only partly matching by_ arguments
     prepare_request_with_user "adrian", "so_alone"
@@ -1258,18 +1256,15 @@ end
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag( :tag => "request" )
-    assert_xml_tag( :tag => "request", :child => { :tag => 'state' } )
-    assert_xml_tag( :tag => "state", :attributes => { :name => 'review' } ) #remains in review state
-    get "/request/#{id}"
+    assert_xml_tag( :tag => "state", :attributes => { :name => 'review' }, 
+                    :parent => { :tag => "request" } ) #remains in review state
 
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag( :tag => "request" )
-    assert_xml_tag( :tag => "request", :child => { :tag => 'state' } )
-    assert_xml_tag( :tag => "state", :attributes => { :name => 'new' } ) #switch to new after last review
+    assert_xml_tag( :tag => "state", :attributes => { :name => 'new' }, 
+                    :parent => { :tag => "request" } ) #switch to new after last review
 
     # approve accepted and check initialized devel package
     post "/request/#{id}?cmd=changestate&newstate=accepted"
@@ -1437,6 +1432,7 @@ end
             <state who='king' name='new'/>
           </request>"
     post "/request?cmd=create", req
+    # we explicitly decided to ignore the who, so tom will become creator
     assert_response :success
     assert_xml_tag( :tag => "request" )
     node = ActiveXML::XMLNode.new(@response.body)

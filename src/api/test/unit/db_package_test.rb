@@ -147,7 +147,7 @@ class DbPackageTest < ActiveSupport::TestCase
 			     </package>"))
     end
 
-    assert_raise UserNotFoundError do
+    assert_raise ActiveRecord::RecordNotFound do
      @package.store_axml(
        ActiveXML::Base.new("<package name='TestBack' project='home:Iggy'>
 	            <title>My Test package</title>

@@ -5,6 +5,7 @@ SimpleCov.start 'rails' if ENV["DO_COVERAGE"]
 
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
+require 'test/unit/assertions'
 
 # uncomment to enable tests which currently are known to fail, but where either the test
 # or the code has to be fixed
@@ -89,13 +90,13 @@ module ActionController
     def assert_xml_tag(conds)
       node = ActiveXML::Base.new(@response.body)
       ret = node.find_matching(NodeMatcher::Conditions.new(conds))
-      assert ret, "expected tag, but no tag found matching #{conds.inspect} in:\n#{node.dump_xml}" unless ret
+      raise Test::Unit::AssertionFailedError.new("expected tag, but no tag found matching #{conds.inspect} in:\n#{node.dump_xml}") unless ret
     end
 
     def assert_no_xml_tag(conds)
      node = ActiveXML::Base.new(@response.body)
      ret = node.find_matching(NodeMatcher::Conditions.new(conds))
-     assert !ret, "expected no tag, but found tag matching #{conds.inspect} in:\n#{node.dump_xml}" if ret
+     raise Test::Unit::AssertionFailedError.new("expected no tag, but found tag matching #{conds.inspect} in:\n#{node.dump_xml}") if ret
     end
 
     # useful to fix our test cases

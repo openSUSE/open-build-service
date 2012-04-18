@@ -45,7 +45,7 @@ setup_api
 
 echo "Enter API rails root and running rcov"
 cd src/api
-rake --trace test || ret=1
+rake --trace ci:setup:testunit test CI_REPORTS=results || ret=1
 cd ../..
 
 echo "Enter WebUI rails root and running rcov"
@@ -53,14 +53,17 @@ setup_api
 setup_webui
 
 cd src/webui
-rake --trace test || ret=1
+rake --trace ci:setup:testunit test CI_REPORTS=results || ret=1
 cd ../..
 
 cd src/webui-testsuite
-# FIXME there is no point in running this at the moment because we need to add means of starting
-# webui and api server under code coverage (easy part) _and_ have jenkins merge the results
 ruby ./run_acceptance_tests.rb || ret=1
 cd ../..
+
+mkdir results
+for i in src/api/results/*.xml src/webui/results/*.xml src/webui-testsuite/results/*.xml; do
+ cp -v $i results/`echo $i | sed -e 's,/,-,g'`
+done
 
 echo "Contents of src/api/log/test.log:"
 cat src/api/log/test.log

@@ -162,15 +162,14 @@ class SourceController < ApplicationController
       # Find open requests with 'pro' as source or target and decline/revoke them.
       # Revoke if source or decline if target went away, pick the first action that matches to decide...
       # Note: As requests are a backend matter, it's pointless to include them into the transaction below
-      pro.open_requests_with_project_as_source_or_target.each do |request_id|
-        request = BsRequest.find(request_id)
-        request.each_action do |action|
-          if action.source and action.source.project == pro.name
-            request.change_state('revoked', @http_user.login, :comment => "The source project '#{pro.name}' was removed")
+      pro.open_requests_with_project_as_source_or_target.each do |request|
+        request.bs_request_actions.each do |action|
+          if action.source_project == pro.name
+            request.change_state('revoked', :comment => "The source project '#{pro.name}' was removed")
             break
           end
-          if action.target and action.target.project == pro.name
-            request.change_state('declined', @http_user.login, :comment => "The target project '#{pro.name}' was removed")
+          if action.target_project == pro.name
+            request.change_state('declined', :comment => "The target project '#{pro.name}' was removed")
             break
           end
         end
@@ -178,8 +177,8 @@ class SourceController < ApplicationController
 
       # Find open requests which have a review involving this project (or it's packages) and remove those reviews
       # but leave the requests otherwise untouched.
-      pro.open_requests_with_by_project_review.each do |request_id|
-        BsRequest.find(request_id).remove_reviews(:by_project => pro.name)
+      pro.open_requests_with_by_project_review.each do |request|
+        request.remove_reviews(:by_project => pro.name)
       end
 
 
@@ -332,6 +331,7 @@ class SourceController < ApplicationController
       # The branch command may be used just for simulation
       unless params[:dryrun]
         # we require a target, but are we allowed to modify the existing target ?
+        # FIXME2.4: this assignment of follow_project is bogus
         if DbProject.exists_by_name(target_project_name) and DbPackage.exists_by_project_and_name(target_project_name, target_package_name, follow_project_links=false)
           tpkg = DbPackage.get_by_project_and_name(target_project_name, target_package_name, follow_project_links=false)
           unless @http_user.can_modify_package?(tpkg)
@@ -431,15 +431,14 @@ class SourceController < ApplicationController
       # Find open requests with 'tpkg' as source or target and decline/revoke them.
       # Revoke if source or decline if target went away, pick the first action that matches to decide...
       # Note: As requests are a backend matter, it's pointless to include them into the transaction below
-      tpkg.open_requests_with_package_as_source_or_target.each do |request_id|
-        request = BsRequest.find(request_id)
-        request.each_action do |action|
-          if action.source and action.source.project == tpkg.db_project.name and action.source.package == tpkg.name
-            request.change_state('revoked', @http_user.login, :comment => "The source package '#{tpkg.db_project.name} / #{tpkg.name}' was removed")
+      tpkg.open_requests_with_package_as_source_or_target.each do |request|
+        request.bs_request_actions.each do |action|
+          if action.source_project == tpkg.db_project.name and action.source_package == tpkg.name
+            request.change_state('revoked', :comment => "The source package '#{tpkg.db_project.name} / #{tpkg.name}' was removed")
             break
           end
-          if action.target and action.target.project == tpkg.db_project.name and action.target.package == tpkg.name
-            request.change_state('declined', @http_user.login, :comment => "The target package '#{tpkg.db_project.name} / #{tpkg.name}' was removed")
+          if action.target_project == tpkg.db_project.name and action.target_package == tpkg.name
+            request.change_state('declined', :comment => "The target package '#{tpkg.db_project.name} / #{tpkg.name}' was removed")
             break
           end
         end
@@ -447,8 +446,8 @@ class SourceController < ApplicationController
 
       # Find open requests which have a review involving this package and remove those reviews
       # but leave the requests otherwise untouched.
-      tpkg.open_requests_with_by_package_review.each do |request_id|
-        BsRequest.find(request_id).remove_reviews(:by_project => tpkg.db_project.name, :by_package => tpkg.name)
+      tpkg.open_requests_with_by_package_review.each do |request|
+        request.remove_reviews(:by_project => tpkg.db_project.name, :by_package => tpkg.name)
       end
 
       # exec
@@ -593,7 +592,7 @@ class SourceController < ApplicationController
 
       # init
       begin
-        req = BsRequest.new(request.body.read)
+        req = ActiveXML::Base.new(request.body.read)
         req.element_name # trigger XML parsing
       rescue ActiveXML::ParseError => e
         render_error :message => "Invalid XML",
@@ -1345,12 +1344,11 @@ class SourceController < ApplicationController
 
     pro = DbProject.get_by_name(project_name)
     if pro.project_type == "maintenance_incident"
-      predicate = "(state/@name='new' or state/@name='review' or state/@name='declined') and action/@type='maintenance_release' and action/source/@project='#{pro.name}'"
-      collection = Suse::Backend.post("/search/request?match=#{CGI.escape(predicate)}", nil).body
-      c = collection.scan(/request id\="(\d+)"/)
-      if c.length > 0
+      rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
+      rel = rel.where(bs_request_actions: { action_type: 'maintenance_release', source_project: pro.name})
+      if rel.first
         render_error :status => 403, :errorcode => "open_release_request",
-          :message => "Unlock of maintenance incident #{} is not possible, because there is a running release request: #{c.flatten}"
+          :message => "Unlock of maintenance incident #{} is not possible, because there is a running release request: #{rel.first.id}"
         return
       end
     end

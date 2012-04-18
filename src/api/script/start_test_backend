@@ -284,16 +284,6 @@ Suse::Backend.put( '/source/kde4/kdelibs/_meta', DbPackage.find_by_name('kdelibs
 Suse::Backend.put( '/source/kde4/kdelibs/my_patch.diff', 'argl')
 Suse::Backend.put( '/source/home:tom/_meta', DbProject.find_by_name('home:tom').to_axml)
 Suse::Backend.put( '/source/c%2b%2b/_meta', DbProject.find_by_name('c++').to_axml)
-# inject broken requests
-system("mkdir -p #{Rails.root}/tmp/backend_data/requests")
-system("echo 1 > #{Rails.root}/tmp/backend_data/requests/.nextid")
-
-system("cp #{Rails.root}/test/fixtures/backend/request/missing_source_project #{Rails.root}/tmp/backend_data/requests/997")
-system("cp #{Rails.root}/test/fixtures/backend/request/missing_target_project #{Rails.root}/tmp/backend_data/requests/998")
-system("cp #{Rails.root}/test/fixtures/backend/request/missing_projects #{Rails.root}/tmp/backend_data/requests/999")
-system("cp #{Rails.root}/test/fixtures/backend/request/submit_from_home_project #{Rails.root}/tmp/backend_data/requests/1000")
-
-system("cp #{Rails.root}/test/fixtures/backend/request/submit_from_home_project #{Rails.root}/tmp/backend_data/requests/1000")
 
 # manual placing of files
 FileUtils.cp("#{Rails.root}/test/fixtures/backend/source/_pubkey", "#{Rails.root}/tmp/backend_data/projects/BaseDistro.pkg/_pubkey")
@@ -367,14 +357,6 @@ IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_sched 
    # just for waiting until scheduler finishes
    io.each {|line| logger.debug line.strip unless line.blank? }
 end
-
-# reindex all requests
-IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_admin --update-request-db") do |io|
-   # just for waiting until scheduler finishes
-   io.each {|line| logger.debug line.strip unless line.blank? }
-end
-
-
 
 # copy build result 
 Suse::Backend.post( '/build/HiddenProject/nada/i586/packCopy?cmd=copy&opackage=pack', nil )
