@@ -502,17 +502,17 @@ module ActiveXML
           end
         rescue Timeout::Error => err
           logger.error "--> caught timeout, closing HTTP"
-          @http.finish
+          @http.finish if @http.started?
           @http = nil
           raise err
         rescue SocketError, Errno::EINTR, Errno::EPIPE, EOFError, Net::HTTPBadResponse, IOError => err
-          @http.finish
+          @http.finish if @http.started?
           @http = nil
           if retries < max_retries
             logger.error "--> caught #{err.class}: #{err.message}, retrying with new HTTP connection"
             retry
           end
-          raise Error, "Connection failed #{err.class}: #{err.message}"
+          raise Error, "Connection failed #{err.class}: #{err.message} for #{url}"
         rescue SystemCallError => err
           begin
             @http.finish
@@ -520,7 +520,7 @@ module ActiveXML
             logger.error "Couldn't finish http connection: #{e.message}"
           end
           @http = nil
-          raise ConnectionError, "Failed to establish connection: " + err.message
+          raise ConnectionError, "Failed to establish connection for #{url}: " + err.message
         ensure
           logger.debug "Request took #{Time.now - start} seconds"
         end

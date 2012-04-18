@@ -179,9 +179,11 @@ module ActiveXML
 
     def each(symbol = nil)
       result = Array.new
-      each_with_index(symbol) do |node, index|
-        result << node
-        yield node if block_given?
+      if _data
+        each_with_index(symbol) do |node, index|
+          result << node
+          yield node if block_given?
+        end
       end
       return result
     end
@@ -208,8 +210,8 @@ module ActiveXML
        if @node_cache.has_key?(symbol)
           return @node_cache[symbol]
        else
-          e = _data.xpath(symbol)
-          if e.empty?
+          e = _data.xpath(symbol) if _data
+          if !e or e.empty?
             return @node_cache[symbol] = nil
           end
           node = create_node_with_relations(e.first)
@@ -279,6 +281,7 @@ module ActiveXML
 
     def to_s
       #raise "to_s is obsolete #{self.inspect}"
+      return '<empty node>' unless _data
       ret = ''
       _data.children.each do |node|
         if node.text?
@@ -354,15 +357,15 @@ module ActiveXML
     end
 
     def has_elements?
-      return !_data.element_children.empty?
+      return (_data and !_data.element_children.empty?)
     end
 
     def has_attribute?( query )
-      _data.attributes.has_key?(query.to_s)
+      _data and _data.attributes.has_key?(query.to_s)
     end
 
     def has_attributes?
-      !_data.attribute_nodes.empty?
+      _data and !_data.attribute_nodes.empty?
     end
 
     def delete_attribute( name )

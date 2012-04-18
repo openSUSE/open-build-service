@@ -26,7 +26,10 @@ use Net::Domain;
 use Socket;
 
 my $hostname = Net::Domain::hostfqdn() || 'localhost';
-my $ip = quotemeta inet_ntoa(inet_aton($hostname)); # IP corresponding to hostname (only used for $ipaccess)
+# IP corresponding to hostname (only used for $ipaccess); fallback to localhost since inet_aton may fail to resolve at shutdown.
+my $ip = quotemeta inet_ntoa(inet_aton($hostname) || inet_aton("localhost"));
+
+my $frontend = undef; # FQDN of the WebUI/API server if it's not $hostname
 
 # If defined, restrict access to the backend servers (bs_repserver, bs_srcserver, bs_service)
 our $ipaccess = {
@@ -34,6 +37,12 @@ our $ipaccess = {
    "^$ip" => 'rw',    # Permit IP of FQDN
    '.*' => 'worker',  # build results can be delivered from any client in the network
 };
+
+# IP of the WebUI/API Server (only used for $ipaccess)
+if ($frontend) {
+  my $frontendip = quotemeta inet_ntoa(inet_aton($frontend) || inet_aton("localhost"));
+  $ipaccess->{$frontendip} = 'rw' ; # in dotted.quad format
+}
 
 our $obsname = $hostname; # unique identifier for this Build Service instance
 # Change also the SLP reg files in /etc/slp.reg.d/ when you touch hostname or port
