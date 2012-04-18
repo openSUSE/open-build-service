@@ -1449,7 +1449,7 @@ class ProjectController < ApplicationController
     if @spider_bot
       @incidents = []
     else
-      @incidents = @project.maintenance_incidents(params[:type] || 'open', {:limit => 20})
+      @incidents = @project.maintenance_incidents(params[:type] || 'open')
     end
   end
 

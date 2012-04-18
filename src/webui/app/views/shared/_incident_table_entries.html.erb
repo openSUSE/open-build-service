@@ -8,13 +8,11 @@
           <%= link_to(short_incident_name(@project, incident), :action => 'show', :project => incident.value('name')) %>
         </td>
         <td rowspan="<%= release_targets_ng.length %>">
-          <span class="expandable_incident_description">
-            <% if rt[:patchinfo] && rt[:patchinfo].value('summary') && !rt[:patchinfo].value('summary').empty? %>
-              <%= link_to(rt[:patchinfo].value('summary'), :action => 'show', :project => incident.value('name')) %>
-            <% else %>
-              <i><%= link_to(incident.value('title'), :action => 'show', :project => incident.value('name')) %></i>
-            <% end %>
-          </span>
+          <% if rt[:patchinfo] && rt[:patchinfo].value('summary') && !rt[:patchinfo].value('summary').empty? %>
+            <%= link_to(rt[:patchinfo].value('summary'), :action => 'show', :project => incident.value('name')) %>
+          <% else %>
+            <i><%= link_to(incident.value('title'), :action => 'show', :project => incident.value('name')) %></i>
+          <% end %>
         </td>
         <td rowspan="<%= release_targets_ng.length %>" class="nowrap">
           <% rqs_in = incident.requests({:roles => 'target', :states => 'new,review'}) %>
@@ -57,7 +55,7 @@
           <%= link_to('Missing patchinfo', {:controller => 'patchinfo', :action => 'new_patchinfo', :project => incident.value('name'), :package => 'patchinfo'}, {:style => 'color: red;'}) %>
         </td>
       <% end %>
-      <td colspan="2" class="nowrap">
+      <td class="nowrap">
         <% if rt[:patchinfo] %>
           <% patchinfo_issues_by_tracker = rt[:patchinfo].issues_by_tracker %>
         <% else %>
@@ -99,12 +97,3 @@
     </tr>
   <% end %>
 <% end %>
-
-<%# XHTML doesn't like script tags in tables, so let's fake around %>
-<tr class="hidden">
-  <td>
-    <% javascript_tag do %>
-      $('.expandable_incident_description').expander({slicePoint: 120, expandText: '[+]', expandPrefix: ' ', userCollapseText: '[-]',});
-    <% end %>
-  </td>
-</tr>

@@ -1,23 +1,19 @@
 <% incident_table_id ||= 'incident_table' %>
 
 <% if incidents.blank? %>
-  <p>No incidents.</p>
+  <p><i>No incidents.</i></p>
 <% else %>
-  <table id="<%= incident_table_id %>" class="tablesorter">
+  <table id="<%= incident_table_id %>">
     <thead>
       <tr>
-        <th rowspan="2" style="width: 1%">ID</th>
-        <th rowspan="2" style="width: 40%">Summary</th>
-        <th rowspan="2" style="width: 1%">Info</th>
-        <th rowspan="2" style="width: 1%">Release Targets</th>
-        <th colspan="3" style="width: 1%">Patchinfo</th>
-        <th colspan="3" style="width: 1%">Packages</th>
-      </tr>
-      <tr>
+        <th>Id</th>
+        <th>Summary</th>
+        <th>Info</th>
+        <th>Release Targets</th>
         <th>Category</th>
         <th>Rating</th>
-        <th colspan="2" style="width: 1%">Issues</th>
-        <th>Names</th>
+        <th>Issues</th>
+        <th>Packages</th>
         <th>Build</th>
       </tr>
     </thead>

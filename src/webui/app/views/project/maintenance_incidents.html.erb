@@ -12,7 +12,7 @@
   <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
 </p>
 
-<div id="incident_display">
+<div id="incident_display" class="clearfix">
   <%= render(:partial => 'shared/incident_table', :locals => {:incidents => @incidents, :incident_table_id => 'incident_table'}) unless not defined?(@incidents) %>
 </div>
 
