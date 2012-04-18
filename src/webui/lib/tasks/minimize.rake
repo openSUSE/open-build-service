@@ -8,7 +8,6 @@ JAVASCRIPT_FILENAMES = [
   'public/javascripts/jquery.flot.min.js',
   'public/javascripts/jquery.flot.stack.min.js',
   #'public/javascripts/jquery.mobile-1.0rc2.min.js',
-  'public/javascripts/jquery.tablesorter.js',
   'public/javascripts/jquery.tooltip.min.js',
   'public/javascripts/jquery-ui-1.8.18.custom.min.js',
   'public/javascripts/jrails.js',

@@ -181,41 +181,6 @@ div#log_space_wrapper p {
     min-height: 0px;
 }
 
-
-/* tablesorter styles */
-table.tablesorter {
-}
-table.tablesorter thead tr th, table.tablesorter tfoot tr th {
-    background-color: #DDDDDD;
-    border: 1px solid #FFF;
-    font-size: 8pt;
-    padding: 4px;
-}
-table.tablesorter thead tr .header {
-    background-image: url(../images/bg.gif);
-    background-repeat: no-repeat;
-    background-position: center right;
-    cursor: pointer;
-}
-table.tablesorter tbody td {
-    color: #3D3D3D;
-    padding: 4px;
-    background-color: #FFF;
-    vertical-align: top;
-}
-table.tablesorter tbody tr.odd td, tr.odd td {
-    background-color: #F6F6F6;
-}
-table.tablesorter thead tr .headerSortUp {
-    background-image: url(../images/asc.gif);
-}
-table.tablesorter thead tr .headerSortDown {
-    background-image: url(../images/desc.gif);
-}
-table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
-    background-color: #3399CC;
-}
-
 /* package and project view */
 .show_left  { margin-left: 10px; }
 .show_right { margin-right: 10px; }
