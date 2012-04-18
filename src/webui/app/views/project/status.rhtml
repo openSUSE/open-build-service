@@ -3,10 +3,6 @@
    project_bread_crumb 'Status'
 -%>
 
-<% content_for :ready_function do %>
-  $('.tablesorter').tablesorter({widgets: ['zebra']});
-<% end %>
-
 <%= render :partial => "tabs" %>
 
 <h3><%= h @pagetitle %></h3>
@@ -42,13 +38,13 @@
 
   <% show_devel_project = !(@packages.select {|p| !p['develproject'].blank? }.empty?) %>
 
-  <div>
-    <table class='tablesorter' cellspacing='1'>
+  <div class="show_left show_right clearfix"><%# TODO: Drop this bento hack %>
+    <table id="status_table">
       <thead>
         <tr>
           <th>Name</th>
           <% if show_devel_project %>
-              <th class="nowrap">Devel Project</th>
+            <th>Devel project</th>
           <% end %>
           <th style="width: 99%">Summary</th>
         </tr>
@@ -142,7 +138,7 @@
               <% else -%>
                 <%= image_tag("icons/information.png", :size => "16x16", :title => "So-so" ) %>
               <% end -%>
-              <%= link_to h(elide(p['name'], 20)), :controller => :package, :action => :show, :project => @project.name, :package => p['name'] %>
+              <%= link_to h(p['name']), :controller => :package, :action => :show, :project => @project.name, :package => p['name'] %>
             </td>
             <% if show_devel_project %>
               <td>
@@ -159,6 +155,13 @@
       </tbody>
     </table>
   </div>
+  <% javascript_tag do %>
+    $(document).ready(function() {
+      $('#status_table').dataTable({
+        'iDisplayLength': 50,
+      });
+    });
+  <% end %>
 <% end %>
 
 <% if @project.can_edit?(session[:login]) and not comments_to_clear.empty? %>
