@@ -1913,6 +1913,8 @@ sub get_projpacks {
     $buildrepoid = readstr("$reporoot/_repoid");
   };
   unless ($buildrepoid) {
+    # set the repoid on first run
+    $buildrepoid = $projpacksin->{'repoid'};
     mkdir_p("$reporoot") unless -d "$reporoot";
     eval {
       # it does not matter which bs_sched for which architecture succeeds to write this file
