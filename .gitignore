@@ -70,3 +70,4 @@
 .so
 nbproject
 *.vim
+*.pid
