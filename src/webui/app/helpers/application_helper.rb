@@ -371,7 +371,7 @@ module ApplicationHelper
     end
     # Ged rid of stuff that shouldn't be part of PCDATA:
     new_text.gsub!(/([^a-zA-Z0-9&;<>\/\n \t()])/n) do
-      if $1[0].to_i < 32
+      if $1[0].getbyte(0) < 32
         ''
       else
         $1
