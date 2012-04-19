@@ -160,11 +160,9 @@ available after adding the SDK to the available installation repositories.
 
     cd /srv/www/obs/api/
     sudo RAILS_ENV="production" rake db:setup
-    sudo chown -R wwwrun.www log tmp
 
     cd /srv/www/obs/webui/
     sudo RAILS_ENV="production" rake db:setup
-    sudo chown -R wwwrun.www log tmp
 
 
 3.2 Setup and configure apache2 for the api and webui
