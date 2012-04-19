@@ -207,11 +207,6 @@ Generate an ssl certificate via following commands:
 3.2.1 Change /srv/www/obs/webui/config/options.yml
 ==================================================
 
-If you change the hostnames/IPs of the api, you need to adjust 
-"source_server_url" accordingly in
-
-  /srv/www/obs/webui/config/options.yml
-
 You should set "exception_recipients" to a valid mail address which
 should receive notification mail if the WebUI hits any program exception.
 
