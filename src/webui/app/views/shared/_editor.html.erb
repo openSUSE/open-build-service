@@ -6,7 +6,7 @@
 
 <% content_for :content_for_head do %>
   <style type="text/css">
-    <% if no_border %>
+    <% if no_border || read_only %>
       .CodeMirror {
         border-width: 0 0 0 0
       }
