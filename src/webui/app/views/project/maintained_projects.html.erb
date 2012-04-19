@@ -5,31 +5,29 @@
 
 <h3>Maintained Projects</h3>
 <% if @maintained_projects.length > 0 %>
-  <div class="show_left show_right"><%# TODO: Drop this bento hack %>
-    <table id="maintained_projects_table">
-      <thead>
+  <table id="maintained_projects_table">
+    <thead>
+      <tr>
+        <th class="hidden">Name</th>
+        <% if @project.can_edit?(session[:login]) %>
+          <th style="width: 1%">Actions</th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% @maintained_projects.each do |maintained_project| %>
         <tr>
-          <th class="hidden">Name</th>
+          <td><%= link_to(maintained_project, :action => 'show', :project => maintained_project) %></td>
           <% if @project.can_edit?(session[:login]) %>
-            <th style="width: 1%">Actions</th>
+            <td>
+              <%# TODO: Convert into a dialog and use link_to_remote %>
+              <%= link_to(image_tag('icons/brick_delete.png', :title => 'Remove project from maintenance'), :controller => 'project', :action => 'remove_maintained_project', :project => @project, :maintained_project => maintained_project) %>
+            </td>
           <% end %>
         </tr>
-      </thead>
-      <tbody>
-        <% @maintained_projects.each do |maintained_project| %>
-          <tr>
-            <td><%= link_to(maintained_project, :action => 'show', :project => maintained_project) %></td>
-            <% if @project.can_edit?(session[:login]) %>
-              <td>
-                <%# TODO: Convert into a dialog and use link_to_remote %>
-                <%= link_to(image_tag('icons/brick_delete.png', :title => 'Remove project from maintenance'), :controller => 'project', :action => 'remove_maintained_project', :project => @project, :maintained_project => maintained_project) %>
-              </td>
-            <% end %>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
+      <% end %>
+    </tbody>
+  </table>
   <% javascript_tag do %>
     $(document).ready(function() {
       $('#maintained_projects_table').dataTable({

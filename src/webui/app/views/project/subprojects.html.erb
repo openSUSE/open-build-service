@@ -7,47 +7,43 @@
 
 <% if @parentprojects.length > 0 %>
   <h3>Parent projects of <%= @project %></h3>
-  <div class="show_left show_right clearfix"><%# TODO: Drop this bento hack %>
-    <table id="parentprojects_table">
-      <thead>
+  <table id="parentprojects_table">
+    <thead>
+      <tr>
+        <th>Parent project</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @parentprojects.each do |name, project| %>
         <tr>
-          <th>Parent project</th>
-          <th>Description</th>
+          <td><%= link_to name, :action => 'show', :project => name %></td>
+          <td><%= project.value('title') %></td>
         </tr>
-      </thead>
-      <tbody>
-        <% @parentprojects.each do |name, project| %>
-          <tr>
-            <td><%= link_to name, :action => 'show', :project => name %></td>
-            <td><%= project.value('title') %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
+      <% end %>
+    </tbody>
+  </table>
 <% end %>
 
 <h3><%= @pagetitle %></h3>
 <% prjlen = @project.name.length %>
 <% if @subprojects.length > 0 %>
-  <div class="show_left show_right clearfix"><%# TODO: Drop this bento hack %>
-    <table id="subprojects_table">
-      <thead>
+  <table id="subprojects_table">
+    <thead>
+      <tr>
+        <th>Subproject</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @subprojects.each do |name, project| %>
         <tr>
-          <th>Subproject</th>
-          <th>Description</th>
+          <td><%= link_to name.slice(prjlen + 1, name.length), :action => 'show', :project => name %></td>
+          <td><%= project.value('title') %></td>
         </tr>
-      </thead>
-      <tbody>
-        <% @subprojects.each do |name, project| %>
-          <tr>
-            <td><%= link_to name.slice(prjlen + 1, name.length), :action => 'show', :project => name %></td>
-            <td><%= project.value('title') %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
+      <% end %>
+    </tbody>
+  </table>
 <% else %>
   <p><i>This project has no subprojects</i></p>
 <% end %>

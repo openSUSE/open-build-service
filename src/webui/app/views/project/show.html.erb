@@ -182,20 +182,18 @@
   <div class="grid_10 alpha box box-shadow">
     <h2 class="box-header">Packages (<%= @packages.length %>)</h2>
     <% if @packages.length > 0 %>
-      <div class="show_left show_right"><%# TODO: Drop this bento hack %>
-        <table id="packages_table">
-          <thead>
-            <tr><th class="hidden">Name</th></tr>
-          </thead>
-          <tbody>
-            <% @packages.each do |package| %>
-              <tr>
-                <td><%= link_to(package, :controller => 'package', :action => 'show', :project => @project, :package => package) %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
+      <table id="packages_table">
+        <thead>
+          <tr><th class="hidden">Name</th></tr>
+        </thead>
+        <tbody>
+          <% @packages.each do |package| %>
+            <tr>
+              <td><%= link_to(package, :controller => 'package', :action => 'show', :project => @project, :package => package) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
     <% else %>
       <p><i>This project does not contain any packages</i></p>
     <% end %>

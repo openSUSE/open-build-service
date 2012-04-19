@@ -311,3 +311,18 @@ td pre.plain {
 .error {
   color: red;
 }
+
+div.dataTables_wrapper {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+/* jquery.dataTables adds a wrapper div around every table, but fails to clear floats:
+ */
+div.dataTables_wrapper:after {
+  visibility: hidden;
+  display: block;
+  font-size: 0;
+  content:"\0020";
+  clear: both;
+  height: 0;
+}

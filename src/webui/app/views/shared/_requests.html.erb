@@ -6,88 +6,86 @@
 <% if requests.blank? %>
   <p>No requests.</p>
 <% else %>
-  <div class="show_left show_right clearfix"><%# TODO: Drop this bento hack %>
-    <table id="<%= request_table_id %>">
-      <thead>
-        <tr>
-          <th>Modified</th>
-          <th>Source</th>
-          <% if !no_target %>
-            <th>Target</th>
+  <table id="<%= request_table_id %>">
+    <thead>
+      <tr>
+        <th>Modified</th>
+        <th>Source</th>
+        <% if !no_target %>
+          <th>Target</th>
+        <% end %>
+        <th>Requester</th>
+        <th>Type</th>
+        <% if !hide_state %>
+          <th>State</th>
+        <% end %>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% requests.each do |req| -%>
+        <% ae = req.submit if req.has_element? :submit
+        ae = req.action if req.has_element? :action %>
+        <tr id="tr_request_<%= req.value(:id)%>">
+          <% if req.has_element? :state %>
+            <td class="nowrap"><span class="hidden"><%= Time.parse(req.state.when).to_i %></span><%= fuzzy_time_string(req.state.when) %></td>
           <% end %>
-          <th>Requester</th>
-          <th>Type</th>
-          <% if !hide_state %>
-            <th>State</th>
-          <% end %>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% requests.each do |req| -%>
-          <% ae = req.submit if req.has_element? :submit
-          ae = req.action if req.has_element? :action %>
-          <tr id="tr_request_<%= req.value(:id)%>">
-            <% if req.has_element? :state %>
-              <td class="nowrap"><span class="hidden"><%= Time.parse(req.state.when).to_i %></span><%= fuzzy_time_string(req.state.when) %></td>
+          <td class="request_source">
+            <% if ae.has_element? :source %> <!-- <%= ae.source.project %> --> 
+              <% if ae.source.has_attribute? :package %> <!-- <%= ae.source.package %> -->
+                <% src_proj = format_projectname(ae.source.project, BsRequest.creator(req).login) 
+                src_pack = elide(ae.source.package, elide_len >> 1) %>
+                 <%= link_to(src_proj, {:controller => :project, :action => :show, :project => ae.source.project}, { :title => ae.source.project} ) %> /  
+                 <% if Package.exists?(ae.source.project, ae.source.package) %>
+                  <%= link_to(src_pack, :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
+                <% else %>
+                  <%= src_pack %>
+                <% end %>
+              <% else %>
+                <%# Happens for maintenance requests, no source package there %>
+                <%= link_to(elide(ae.source.project, elide_len), :controller => :project, :action => :show, :project => ae.source.project) %>
+              <% end %>
             <% end %>
-            <td class="request_source">
-              <% if ae.has_element? :source %> <!-- <%= ae.source.project %> --> 
-                <% if ae.source.has_attribute? :package %> <!-- <%= ae.source.package %> -->
-                  <% src_proj = format_projectname(ae.source.project, BsRequest.creator(req).login) 
-                  src_pack = elide(ae.source.package, elide_len >> 1) %>
-                   <%= link_to(src_proj, {:controller => :project, :action => :show, :project => ae.source.project}, { :title => ae.source.project} ) %> /  
-                   <% if Package.exists?(ae.source.project, ae.source.package) %>
-                    <%= link_to(src_pack, :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
+          </td>
+          <% if !no_target%>
+            <td>
+              <% if ae.has_element?(:target) %>
+                <% if not @project or @project.name != ae.target.project %> <!-- <%= ae.target.project %> -->
+                  <% if ae.target.has_attribute?(:package) and not (ae.has_element?(:source) and Package.exists?(ae.source.project, ae.source.package) and ae.source.package == ae.target.package) %> <!-- /<%= ae.target.package %> -->
+                    <% tgt_proj, tgt_pack = elide_two(ae.target.project, ae.target.package, elide_len) %>
+                    <%= link_to(tgt_proj, :controller => :project, :action => :show, :project => ae.target.project) %> /
+                    <%= link_to(tgt_pack, :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
                   <% else %>
-                    <%= src_pack %>
+                    <%= link_to(elide(ae.target.project, elide_len), :controller => :project, :action => :show, :project => ae.target.project) %>
                   <% end %>
                 <% else %>
-                  <%# Happens for maintenance requests, no source package there %>
-                  <%= link_to(elide(ae.source.project, elide_len), :controller => :project, :action => :show, :project => ae.source.project) %>
-                <% end %>
-              <% end %>
-            </td>
-            <% if !no_target%>
-              <td>
-                <% if ae.has_element?(:target) %>
-                  <% if not @project or @project.name != ae.target.project %> <!-- <%= ae.target.project %> -->
-                    <% if ae.target.has_attribute?(:package) and not (ae.has_element?(:source) and Package.exists?(ae.source.project, ae.source.package) and ae.source.package == ae.target.package) %> <!-- /<%= ae.target.package %> -->
-                      <% tgt_proj, tgt_pack = elide_two(ae.target.project, ae.target.package, elide_len) %>
-                      <%= link_to(tgt_proj, :controller => :project, :action => :show, :project => ae.target.project) %> /
-                      <%= link_to(tgt_pack, :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
-                    <% else %>
-                      <%= link_to(elide(ae.target.project, elide_len), :controller => :project, :action => :show, :project => ae.target.project) %>
-                    <% end %>
-                  <% else %>
-                    <% if ae.target.has_attribute?(:package) and Package.exists?(@project.name, ae.target.package) %> <!-- <%= ae.target.package %> -->
-                      <%= link_to(elide(ae.target.package, elide_len), :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
-                    <% elsif ae.value(:type) == "delete" %>
-                      This project
-                    <% end %>
+                  <% if ae.target.has_attribute?(:package) and Package.exists?(@project.name, ae.target.package) %> <!-- <%= ae.target.package %> -->
+                    <%= link_to(elide(ae.target.package, elide_len), :controller => :package, :action => :show, :project => ae.target.project, :package => ae.target.package) %>
+                  <% elsif ae.value(:type) == "delete" %>
+                    This project
                   <% end %>
                 <% end %>
-              </td>
-            <% end %>
-            <td class="nowrap"><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => BsRequest.creator(req).login, :short => true}%></td>
-            <td class="nowrap"><%= reqtype(req) %></td>
-            <% if !hide_state %>
-              <td class="nowrap"><%= req.state.name %></td>
-            <% end %>
-            <td>
-              <%= link_to(image_tag('req-showdiff.png', :size => '16x16', :alt => "Show #{reqtype(req)} request ##{req.value(:id)}", :title => "Show #{reqtype(req)} request ##{req.value(:id)}"), :controller => :request, :action => :show, :id => req.value(:id)) -%>
-              <% if ae.has_element? :source and ae.source.has_attribute? :package %>
-                <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build results', :title => 'Build results', :id => "req_#{req.value(:id)}"), :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
-                <% javascript_tag do %>
-                  setup_buildresult_tooltip('<%= "req_#{req.value(:id)}" %>', '<%= url_for :controller => 'project', :action => 'show', :project => ae.source.project, :package => ae.source.package %>');
-                <% end %>
               <% end %>
             </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
+          <% end %>
+          <td class="nowrap"><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => BsRequest.creator(req).login, :short => true}%></td>
+          <td class="nowrap"><%= reqtype(req) %></td>
+          <% if !hide_state %>
+            <td class="nowrap"><%= req.state.name %></td>
+          <% end %>
+          <td>
+            <%= link_to(image_tag('req-showdiff.png', :size => '16x16', :alt => "Show #{reqtype(req)} request ##{req.value(:id)}", :title => "Show #{reqtype(req)} request ##{req.value(:id)}"), :controller => :request, :action => :show, :id => req.value(:id)) -%>
+            <% if ae.has_element? :source and ae.source.has_attribute? :package %>
+              <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build results', :title => 'Build results', :id => "req_#{req.value(:id)}"), :controller => :package, :action => :show, :project => ae.source.project, :package => ae.source.package) %>
+              <% javascript_tag do %>
+                setup_buildresult_tooltip('<%= "req_#{req.value(:id)}" %>', '<%= url_for :controller => 'project', :action => 'show', :project => ae.source.project, :package => ae.source.package %>');
+              <% end %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
   <% javascript_tag do %>
     $(document).ready(function() {
       $('#<%= request_table_id %>').dataTable({

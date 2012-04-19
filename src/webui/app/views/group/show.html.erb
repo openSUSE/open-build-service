@@ -2,22 +2,20 @@
 
 <h2><%=h @pagetitle %></h2>
 
-<div class="show_left show_right clearfix"><%# TODO: Drop this bento hack %>
-  <table id="group_members_table">
-    <thead>
+<table id="group_members_table">
+  <thead>
+    <tr>
+      <th>Group members</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @group.person.each do |member| %>
       <tr>
-        <th>Group members</th>
+        <td><%= link_to(member.userid, :controller => 'home', :action => 'index', :user => member.userid) %></td>
       </tr>
-    </thead>
-    <tbody>
-      <% @group.person.each do |member| %>
-        <tr>
-          <td><%= link_to(member.userid, :controller => 'home', :action => 'index', :user => member.userid) %></td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-</div>
+    <% end %>
+  </tbody>
+</table>
 
 <p><%= link_to('Show all groups', groups_path) %></p>
 

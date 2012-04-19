@@ -5,28 +5,26 @@
 
 <% if @groups.length > 0 %>
   <p>The following groups are configured in this OBS instance:</p>
-  <div class="show_left show_right clearfix"><%# TODO: Drop this bento hack %>
-    <table id="group_table">
-      <thead>
+  <table id="group_table">
+    <thead>
+      <tr>
+        <th>Group name</th>
+        <th>Members</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @groups.each do |group| %>
         <tr>
-          <th>Group name</th>
-          <th>Members</th>
+          <td><%= link_to(group.title, :action => 'show', :id => group.value('title')) %></td>
+          <td>
+          <% group.person.each do |member| %>
+            <%= link_to(member.userid, :controller => 'home', :action => 'index', :user => member.userid) %>, 
+          <% end %>
+          </td>
         </tr>
-      </thead>
-      <tbody>
-        <% @groups.each do |group| %>
-          <tr>
-            <td><%= link_to(group.title, :action => 'show', :id => group.value('title')) %></td>
-            <td>
-            <% group.person.each do |member| %>
-              <%= link_to(member.userid, :controller => 'home', :action => 'index', :user => member.userid) %>, 
-            <% end %>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
+      <% end %>
+    </tbody>
+  </table>
 <% else %>
   <p><i>There are no groups configured</i></p>
 <% end %>
