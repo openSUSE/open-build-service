@@ -3,7 +3,7 @@
 CodeMirror.defineMode("spec", function(config, modeConfig) {
   var arch = /^(i386|i586|i686|x86_64|ppc64|ppc|ia64|s390x|s390|sparc64|sparcv9|sparc|noarch|alphaev6|alpha|hppa|mipsel)/;
 
-  var preamble = /^(Name|Version|Release|License|Summary|Url|Group|Source|BuildArch|BuildEnhances|BuildRequires|BuildSuggests|BuildSupplements|BuildRoot|AutoReqProv|Provides|Requires(\(\w+\))?|Obsoletes|Conflicts|Recommends|Source\d*|Patch\d*|Enhances|ExclusiveArch|NoSource|Suggests|Supplements|DistTag|CvsId|SvnId):/i;
+  var preamble = /^(Name|Version|Release|License|Summary|Url|Group|Source|BuildArch|BuildEnhances|BuildRequires|BuildSuggests|BuildSupplements|BuildRoot|AutoReqProv|Provides|PreReq|Requires(\(\w+\))?|Obsoletes|Conflicts|Recommends|Source\d*|Patch\d*|Enhances|ExclusiveArch|NoSource|Suggests|Supplements|DistTag|CvsId|SvnId):/i;
   var section = /^%(debug_package|package|description|prep|build|install|files|clean|changelog|preun|postun|pre|post|triggerin|triggerun|pretrans|posttrans|verifyscript|check|triggerpostun|triggerprein|trigger)/;
   var control_flow_complex = /^%(ifnarch|ifarch|if)/; // rpm control flow macros
   var control_flow_simple = /^%(else|endif)/; // rpm control flow macros
@@ -19,9 +19,8 @@ CodeMirror.defineMode("spec", function(config, modeConfig) {
     },
     token: function (stream, state) {
       var ch = stream.peek();
-      if (ch == "#") { stream.skipToEnd(); return "comment"; }
-
       if (stream.sol()) {
+        if (ch == "#") { stream.skipToEnd(); return "comment"; }
         if (stream.match(preamble)) { return "preamble"; }
         if (stream.match(section)) { return "section"; }
       }
