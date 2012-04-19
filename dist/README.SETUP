@@ -145,6 +145,9 @@ available after adding the SDK to the available installation repositories.
     mysql> GRANT all privileges
       ON api_production.*
       TO 'obs'@'%', 'obs'@'localhost';
+    mysql> GRANT all privileges
+      ON webui_production.*
+      TO 'obs'@'%', 'obs'@'localhost';
     mysql> FLUSH PRIVILEGES;
     mysql> quit
 
