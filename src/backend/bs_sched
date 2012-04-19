@@ -1912,11 +1912,19 @@ sub get_projpacks {
 
   # Be sure that this is the right source server for my binary packages
   die("ERROR: source server did not report a repoid") unless $projpacksin->{'repoid'};
-  if (! -e "$reporoot/_repoid") {
+  my $buildrepoid;
+  eval {
+    $buildrepoid = readstr("$reporoot/_repoid");
+  };
+  unless ($buildrepoid) {
+    # set the repoid on first run
+    $buildrepoid = $projpacksin->{'repoid'};
     mkdir_p("$reporoot") unless -d "$reporoot";
-    writestr("$reporoot/._repoid", "$reporoot/_repoid", $projpacksin->{'repoid'});
+    eval {
+      # it does not matter which bs_sched for which architecture succeeds to write this file
+      writestr("$reporoot/._repoid", "$reporoot/_repoid", $projpacksin->{'repoid'});
+    };
   }
-  my $buildrepoid = readstr("$reporoot/_repoid");
   die("ERROR: My repository id($buildrepoid) has wrong length(".length($buildrepoid).")") unless length($buildrepoid) == 9;
   die("ERROR: source server repository id($projpacksin->{'repoid'}) does not match my repository id($buildrepoid)") unless $buildrepoid eq $projpacksin->{'repoid'};
 
