@@ -28,13 +28,14 @@ ActionController::Base.relative_url_root = CONFIG['relative_url_root'] if CONFIG
 require 'ostruct'
 
 # Exception notifier plugin configuration
-ExceptionNotifier.sender_address = '"OBS Webclient" <admin@opensuse.org>'
-ExceptionNotifier.email_prefix = '[OBS WebUI Error] '
-ExceptionNotifier.exception_recipients = CONFIG['exception_recipients']
+#TODO: Find replacement:
+# ExceptionNotifier.sender_address = '"OBS Webclient" <admin@opensuse.org>'
+# ExceptionNotifier.email_prefix = '[OBS WebUI Error] '
+# ExceptionNotifier.exception_recipients = CONFIG['exception_recipients']
 
 SOURCEREVISION = 'master'
 begin
-  SOURCEREVISION = File.open("#{RAILS_ROOT}/REVISION").read
+  SOURCEREVISION = File.open("#{Rails.root}/REVISION").read
 rescue Errno::ENOENT
 end
 unless defined?(PROXY_AUTH_MODE) and not PROXY_AUTH_MODE.blank?

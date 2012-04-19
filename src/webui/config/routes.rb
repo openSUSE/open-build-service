@@ -1,30 +1,40 @@
-ActionController::Routing::Routes.draw do |map|
-  # Add your own custom routes here.
-  # The priority is based upon order of creation: first created -> highest priority.
-  
-  # Here's a sample route:
-  # map.connect 'products/:id', :controller => 'catalog', :action => 'view'
-  # Keep in mind you can assign values other than :controller and :action
+OBSWebUI::Application.routes.draw do
 
-  map.connect '/', :controller => 'main'
-  map.connect '/main/news.:format', :controller => 'main', :action => 'news'
-  map.connect '/main/latest_updates.:format', :controller => 'main', :action => 'latest_updates'
+  controller :main do 
+    match '/' => :index
+    match '/main/systemstatus' => :systemstatus
+    match '/main/news' => :news
+    match '/main/latest_updates' => :latest_updates
+    match '/main/sitemap' => :sitemap
+    match '/main/sitemap_projects' => :sitemap_projects
+    match '/main/sitemap_projects_subpage' => :sitemap_projects_subpage
+    match '/main/sitemap_projects_packages' => :sitemap_projects_packages
+    match '/main/sitemap_projects_prjconf' => :sitemap_projects_prjconf
+    match '/main/sitemap_packages' => :sitemap_packages
+    match '/main/add_news_dialog' => :add_news_dialog
+    match '/main/add_news' => :add_news
+    match '/main/delete_message_dialog' => :delete_message_dialog
+    match '/main/delete_message' => :delete_message
+  end
 
-  map.connect ':project/:repository/:pkgrev', :controller => 'package', :action => 'files', :requirements => { :project => /[^\/]+/, :repository => /[^\/]+/, :pkgrev => /[a-fA-F0-9]{32}-(.+)/ }
+  controller :user do
+    match '/user/do_login' => :do_login
+    match '/user/edit' => :edit
+    match '/user/register' => :register
+    match '/user/login' => :login
+    match '/user/logout' => :logout
+    match '/user/save' => :save
+    match '/user/change_password' => :change_password
+    match '/user/autocomplete' => :autocomplete
+  end
 
-  map.resources :groups, :controller => 'group', :only => [:index, :show]
+  controller :package do
+    match ':project/:repository/:pkgrev' => :files, :requirements => { :project => /[^\/]+/, :repository => /[^\/]+/, :pkgrev => /[a-fA-F0-9]{32}-(.+)/ }
 
-  # REST style paths
-  # -> disabled, because this doesn't work for project/package names that conatain colons (:)
-  #
-  #map.connect '/project/show/:project', :controller => 'project', :action => 'show'
-  #map.connect '/project/view/:project', :controller => 'project', :action => 'view'
-  #
-  #map.connect '/package/show/:project/:package', :controller => 'package', :action => 'show'
-  #map.connect '/package/view/:project/:package', :controller => 'package', :action => 'view'
+  end
 
+  resources :groups, :controller => 'group', :only => [:index, :show]
 
-  # Install the default route as the lowest priority.
-  map.connect ':controller/:action/:id', :action => /[^\/]*/, :id => /[^\/]*/
-  map.connect ':controller/:action', :action => /[^\/]*/
+  #TODO: Get rid of default routes and either add them by hand or use resources:
+  match ':controller(/:action(/:id))(.:format)'
 end

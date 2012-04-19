@@ -70,10 +70,10 @@ PROXY_AUTH_MODE = :off
 
 # Check for custom development environment that takes precedence:
 require 'socket'
-local_path = "#{Rails.root}/config/environments/development.#{Socket.gethostname}.rb"
-begin
-  eval File.read(local_path)
-  STDERR.puts "Using local development environment #{local_path}"
-rescue Object => e
-  STDERR.puts "No local development environment found: #{e}"
+fname = "#{Rails.root}/config/environments/development.#{Socket.gethostname}.rb"
+if File.exists? fname
+  STDERR.puts "Using local development environment #{fname}"
+  eval File.read(fname)  
+else
+  STDERR.puts "Custom development.#{Socket.gethostname}.rb not found - using defaults"
 end

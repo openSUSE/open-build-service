@@ -19,9 +19,11 @@ module ActiveSupport
       end
    
       message = prefix + "[\033[#{color}m%-5s\033[0m|#%5d] %s\n" % [sevstring, $$, message]
-      buffer << message
-      auto_flush
-      message
+     #buffer << message
+     #auto_flush
+     #message
+      #TODO: Stolen from API code, check back:
+      @log.add(severity, message, progname, &block)
     end
   end
 end
@@ -29,7 +31,8 @@ end
 module ActionController
   module Benchmarking
 
-    alias :old_arr :active_record_runtime
+    #TODO: Check this:
+    #alias :old_arr :active_record_runtime
 
     def active_record_runtime
       t = old_arr
