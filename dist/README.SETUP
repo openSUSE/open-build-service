@@ -83,9 +83,9 @@ By default, the local hostname is used.
 =========================================
 
 If you have installed the package "obs-worker", edit the file
-/etc/sysconfig/obs-worker to change the variable OBS_REPO_SERVERS to
+/etc/sysconfig/obs-server to change the variable OBS_REPO_SERVERS to
 "main.fqdn:5252" where "main.fqdn" is the output of "hostname -f" or
-the IP on the *main* machine.
+the IP of the machine where the repserver is running.
 
 
 3. Run the api
