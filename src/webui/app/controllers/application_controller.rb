@@ -21,9 +21,6 @@ class ApplicationController < ActionController::Base
      prepend_before_filter :start_test_api
   end
 
-  # Scrub sensitive parameters from your log
-  filter_parameter_logging :password unless Rails.env.test?
-
   class InvalidHttpMethodError < Exception; end
   class MissingParameterError < Exception; end
   class ValidationError < Exception
