@@ -969,7 +969,10 @@ class RequestController < ApplicationController
             path = "/source/#{CGI.escape(action.source.project)}/#{CGI.escape(spkg.name)}?cmd=diff&filelimit=10000"
             unless provided_in_other_action
               # do show the same diff multiple times, so just diff unexpanded so we see possible link changes instead
-              path += "&expand=1"
+              # also get sure that the request would not modify the link in the target
+              unless action.has_element? 'options' and action.options.value(:updatelink) == "true"
+                path += "&expand=1"
+              end
             end
             if tpkg
               path += "&oproject=#{CGI.escape(target_project)}&opackage=#{CGI.escape(target_package)}"
