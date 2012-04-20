@@ -1355,8 +1355,7 @@ end
               <source project='home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' rev='1' />
               <target project='DummY' package='pack2' />
               <options>
-                <sourceupdate>cleanup</sourceupdate>
-                <updatelink>true</updatelink>
+                <sourceupdate>noupdate</sourceupdate>
               </options>
             </action>
             <description>SUBMIT</description>
@@ -1386,8 +1385,46 @@ end
     # pack2 got created
     get "/source/DummY/pack2/_link"
     assert_response :success
+    assert_xml_tag( :tag => "link", :attributes => { :project => 'BaseDistro2.0', :package => nil } )
+
+    ### try again with update link
+    # create request
+    req = "<request>
+            <action type='submit'>
+              <source project='home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' rev='1' />
+              <target project='DummY' package='pack2' />
+              <options>
+                <sourceupdate>cleanup</sourceupdate>
+                <updatelink>true</updatelink>
+              </options>
+            </action>
+            <description>SUBMIT</description>
+            <state who='Iggy' name='new'/>
+          </request>"
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_xml_tag( :tag => "request" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
+
+    # ensure that the diff shows the link change
+    post "/request/#{id}?cmd=diff&view=xml", nil
+    assert_response :success
+    assert_xml_tag( :parent => { :tag => "file", :attributes => { :state => "changed" } }, :tag => "old", :attributes => { :name => "_link" } )
+
+    # accept the request
+    prepare_request_with_user "king", "sunflower"
+    post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
+    assert_response :success
+
+    # the link in pack2 got changed
+    get "/source/DummY/pack2/_link"
+    assert_response :success
     assert_xml_tag( :tag => "link", :attributes => { :project => 'BaseDistro2.0:LinkedUpdateProject', :package => nil } )
 
+
+    ###
     # create delete request two times
     prepare_request_with_user "tom", "thunder"
     req = "<request>
