@@ -1,8 +1,6 @@
 # Filters added to this controller will be run for all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
-require 'person'
-
 class ApplicationController < ActionController::Base
 
   Rails.cache.set_domain if Rails.cache.respond_to?('set_domain');
@@ -34,10 +32,6 @@ class ApplicationController < ActionController::Base
       @xml = _xml
       @errors = _errors
     end
-  end
-
-  def is_advanced_tab?
-    ["prjconf", "attributes", "meta", "status"].include? @action_name
   end
 
   protected

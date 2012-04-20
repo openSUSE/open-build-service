@@ -30,7 +30,8 @@ class HomeController < ApplicationController
       http.finish if http
 
       unless content
-        f = File.open("#{RAILS_ROOT}/public/images/local/default_face.png", "r")
+        #TODO/FIXME: Looks like an asset...
+        f = File.open("#{Rails.root}/public/images/local/default_face.png", "r")
         content = f.read
         f.close
       end

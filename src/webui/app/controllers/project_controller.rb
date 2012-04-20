@@ -1,15 +1,14 @@
-require 'project_status'
-require 'collection'
-require 'buildresult'
-require 'role'
-require 'models/package'
-require 'json'
-
-include ActionView::Helpers::UrlHelper
-include ApplicationHelper
-include RequestHelper
+# require 'project_status'
+# require 'collection'
+# require 'buildresult'
+# require 'role'
+# require 'package'
+# require 'json'
 
 class ProjectController < ApplicationController
+
+  include ApplicationHelper
+  include RequestHelper
 
   before_filter :require_project, :except => [:repository_arch_list,
     :autocomplete_projects, :autocomplete_incidents, :clear_failed_comment, :edit_comment_form, :index, 
@@ -1548,15 +1547,23 @@ class ProjectController < ApplicationController
     pname=@project.name
     cachekey="project_requests_#{pname}"
     Rails.cache.delete(cachekey) if discard_cache?
-    @requests = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
-       req = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => pname}) \
+
+    #TODO: 'you don't want to put it in cache' when config.cache_story default is set:
+   #@requests = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
+   #   req = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => pname}) \
+   #       + BsRequest.list({:states => 'new', :roles => "target", :project => pname}) \
+   #       + BsRequest.list({:states => 'new,review', :types => 'maintenance_incident', :project => pname, :roles => 'source'})
+   #   if @is_maintenance_project
+   #     req += BsRequest.list({:states => 'new', :types => 'maintenance_release', :project => pname, :roles => 'source', :subprojects => true})
+   #   end
+   #   req
+   # end
+    @requests = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => pname}) \
            + BsRequest.list({:states => 'new', :roles => "target", :project => pname}) \
            + BsRequest.list({:states => 'new,review', :types => 'maintenance_incident', :project => pname, :roles => 'source'})
-       if @is_maintenance_project
-         req += BsRequest.list({:states => 'new', :types => 'maintenance_release', :project => pname, :roles => 'source', :subprojects => true})
-       end
-       req
-     end
+    if @is_maintenance_project
+      @requests += BsRequest.list({:states => 'new', :types => 'maintenance_release', :project => pname, :roles => 'source', :subprojects => true})
+    end
   end
 
 end

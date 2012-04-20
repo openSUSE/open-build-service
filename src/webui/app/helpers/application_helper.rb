@@ -409,5 +409,9 @@ module ApplicationHelper
       end
     end
   end
+
+  def is_advanced_tab?
+    ["prjconf", "attributes", "meta", "status"].include? @action_name
+  end
 end
 

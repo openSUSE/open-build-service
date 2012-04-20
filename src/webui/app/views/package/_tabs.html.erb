@@ -18,7 +18,7 @@
       <%= tab "Requests", :controller => 'package', :action => 'requests' %>
       <%= tab 'Users', :controller => 'package', :action => 'users' %>
     <% end -%>
-    <% if @controller.is_advanced_tab? %>
+    <% if is_advanced_tab? %>
       <% content_for :ready_function do %>
         $("#advanced_tabs").show();
       <% end %>

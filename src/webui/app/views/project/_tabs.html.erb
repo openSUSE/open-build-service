@@ -23,7 +23,7 @@
       <%= tab 'Subprojects', :controller => :project, :action => :subprojects unless @project.is_remote? or @is_maintenance_project %>
     <% end -%>
 
-    <% if @controller.is_advanced_tab? %>
+    <% if is_advanced_tab? %>
       <% content_for :ready_function do %>
         $("#advanced_tabs").show();
       <% end %>

@@ -1,7 +1,3 @@
-require 'models/workerstatus'
-require 'models/global_counters'
-require 'models/latest_updated'
-
 class MainController < ApplicationController
 
   def index

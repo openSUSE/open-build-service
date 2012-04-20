@@ -1,5 +1,3 @@
-require 'models/group'
-
 class GroupController < ApplicationController
 
   include ApplicationHelper
