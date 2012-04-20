@@ -48,13 +48,17 @@ module OBSWebUI
     # This will create an empty whitelist of attributes available for mass-assignment for all models
     # in your app. As such, your models will need to explicitly whitelist or blacklist accessible
     # parameters by using an attr_accessible or attr_protected declaration.
-    # config.active_record.whitelist_attributes = true
+    config.active_record.whitelist_attributes = true
+    #NOTE: The above can't hurt, altough we currently only have ActiveXML models ATM.
 
     # Enable the asset pipeline
     config.assets.enabled = true
 
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
+
+    #TODO: Port /public directory structure to {app/lib/vender}/assets:
+    config.assets.paths << Rails.root.join('public', 'images') << Rails.root.join('public', 'stylesheets') << Rails.root.join('public', 'javascripts') << Rails.root.join('public', 'themes', 'bento', 'images')
 
     # Skip frameworks you're not going to use
     #config.frameworks -= [ :action_web_service, :active_resource ]
@@ -78,7 +82,7 @@ module OBSWebUI
     # rake gems:install (installs the needed gems)
     # rake gems:unpack (this unpacks the gems to vendor/gems)
     
-    #config.cache_store = :mem_cache_store, 'localhost:11211', {:namespace => 'obs-api', :compress => true }
+    #config.cache_store = :mem_cache_store, 'localhost:11211', {:namespace => 'obs-webui', :compress => true }
     
     # Activate observers that should always be running
     # config.active_record.observers = :cacher, :garbage_collector
