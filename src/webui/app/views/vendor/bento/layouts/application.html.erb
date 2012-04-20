@@ -80,10 +80,10 @@
     <!-- Start: Main Content Area -->
     <div id="content" class="container_16 content-wrapper">
       <% if @layouttype == "custom" %>
-        <%= @content_for_layout %>
+        <%= content_for?(:content) ? yield(:content) : yield %>
       <% else %>
         <div class="grid_16 box box-shadow alpha omega">
-          <%= @content_for_layout %>
+          <%= content_for?(:content) ? yield(:content) : yield %>
         </div>
       <% end %>
     </div>
