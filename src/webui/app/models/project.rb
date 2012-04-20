@@ -1,3 +1,5 @@
+require 'frontend_compat'
+
 class Project < ActiveXML::Base
   
   default_find_parameter :name
