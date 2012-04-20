@@ -1,7 +1,7 @@
 <h3><%= @pagetitle %></h3>
 
 <div style="display: inline">
-  <% form_tag({:action => :list}, {:method => :get, :id => 'filter_projects_form' }) do -%>
+  <% form_tag({:controller => 'project', :action => 'list'}, {:method => :get, :id => 'filter_projects_form' }) do %>
     <p>
       <strong>Filter projects:</strong>
       <%= text_field_tag "searchtext", @filterstring -%>
@@ -17,12 +17,27 @@
   <% end-%>
 </div>
 
-<%= observe_field( :searchtext, :frequency => 0.8, :update => :project_list,
+<%#TODO: Finish porting these to jQuery, http://www.simonecarletti.com/blog/2010/06/unobtrusive-javascript-in-rails-3/%>
+<%#TOOD: Or port to dataTables instead %>
+<%# observe_field( :searchtext, :frequency => 0.8, :update => :project_list,
   :url => { :controller => 'project', :action  => :list },
   :loading => '$("#searchtext").addClass( "ac_loading" )', :complete => "$('#searchtext').removeClass( 'ac_loading' )",
   :with => "'searchtext=' + encodeURIComponent(value) + '&excludefilter=' + $('#excludefilter:checked').attr('value')") %>
-
-<%= observe_field( :excludefilter, :frequency => 0.5, :update => :project_list,
+<%# observe_field( :excludefilter, :frequency => 0.5, :update => :project_list,
   :url => { :controller => 'project', :action  => :list },
   :loading => '$("#searchtext").addClass( "ac_loading" )', :complete => "$('#searchtext').removeClass( 'ac_loading' )",
   :with => "'searchtext=' + encodeURIComponent($('#searchtext').attr('value')) + '&excludefilter=' + $('#excludefilter:checked').attr('value')") %>
+<% javascript_tag do %>
+  jQuery(function($) {
+    $('#searchtext').change(function() {
+      $.post('<%= url_for(:controller => 'project', :action  => 'list') %>', function(data) {
+        $('#project_list').html(data);
+      });
+    });
+    $('#excludefilter').change(function() {
+      $.post('<%= url_for(:controller => 'project', :action  => 'list') %>', function(data) {
+        $('#project_list').html(data);
+      });
+    });
+  })
+<% end %>

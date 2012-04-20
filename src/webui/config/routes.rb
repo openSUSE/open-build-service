@@ -28,6 +28,23 @@ OBSWebUI::Application.routes.draw do
     match '/user/autocomplete' => :autocomplete
   end
 
+  controller :home do
+    match '' => :index
+    match 'icon' => :icon
+    match 'my_work' => :my_work
+    match 'requests' => :requests
+    match 'home_project' => :home_project
+    match 'list_my' => :list_my
+    match 'remove_watched_project' => :remove_watched_project
+  end
+
+  controller :project do
+    match 'list_public' => :list_public
+    match 'list_all' => :list_all
+    match 'list' => :list
+    match 'show' => :show
+  end
+
   controller :package do
     match ':project/:repository/:pkgrev' => :files, :requirements => { :project => /[^\/]+/, :repository => /[^\/]+/, :pkgrev => /[a-fA-F0-9]{32}-(.+)/ }
 
