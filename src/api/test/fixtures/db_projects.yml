@@ -1,73 +1,50 @@
-db_projects_1:
-  id: 1
-  name: kde
-  title: blub
-  description: bla
-  created_at: '2003-03-03 04:03:03'
-  updated_at: '2004-04-04 06:04:04'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
-db_projects_1000:
-  id: 1000
-  name: deleted
-  title: 
-  description: 
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 14:00:21'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
-db_projects_1001:
-  id: 1001
-  name: home:tom
-  title: ''
-  description: ''
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 16:13:50'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 1
-  develproject_id: 
-kde4:
-  id: 2
-  name: kde4
-  title: blub
-  description: bla
-  created_at: '2008-04-28 07:05:05'
-  updated_at: '2008-04-28 08:06:06'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
 BaseDistro:
   id: 2042
   name: BaseDistro
   title: This is a base distro
   description: This could be openSUSE:11.2 project for example
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
-  remoteurl: 
-  remoteproject: 
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
   maintenance_project_id: 2048
-  type_id: 
-  develproject_id: 
+HiddenProject:
+  id: 3000
+  name: HiddenProject
+  title: This project is not visible and not accessable except for adrian
+  description: for testing read/view permissions = access disabled
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
+cplusplus:
+  id: 5003
+  name: c++
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
+db_projects_1:
+  id: 1
+  name: kde
+  title: blub
+  description: bla
+  created_at: 2003-03-03 04:03:03.000000000 Z
+  updated_at: 2004-04-04 06:04:04.000000000 Z
+db_projects_1000:
+  id: 1000
+  name: deleted
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
+db_projects_1001:
+  id: 1001
+  name: home:tom
+  title: ''
+  description: ''
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 16:13:50.000000000 Z
+  type_id: 1
 db_projects_2043:
   id: 2043
   name: BaseDistro:Update
   title: This is an update project for the base distro
   description: contains official released updates
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
   type_id: 4
   develproject_id: 3043
 db_projects_2044:
@@ -75,219 +52,164 @@ db_projects_2044:
   name: home:adrian:BaseDistro
   title: This is a project source linked project to BaseDistro
   description: For testing project linking
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
 db_projects_2045:
   id: 2045
   name: BaseDistro2.0
   title: This is another base distro
   description: This could be openSUSE:11.3 project for example
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
 db_projects_2046:
   id: 2046
   name: BaseDistro2.0:LinkedUpdateProject
   title: This is another update project for the base distro
   description: contains official released updates, but this one has a project link
     to the original one
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 2048
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
   type_id: 4
-  develproject_id: 
+  maintenance_project_id: 2048
 db_projects_2047:
   id: 2047
   name: BaseDistro3
   title: This is another base distro, without update project
   description: Base distro without update project
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 2048
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
   type_id: 4
-  develproject_id: 
+  maintenance_project_id: 2048
 db_projects_2048:
   id: 2048
   name: My:Maintenance
   title: official maintenance space
   description: official maintenance space, maintained by maintenance ;)
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 14:00:21'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
   type_id: 2
-  develproject_id: 
 db_projects_215:
   id: 215
   name: home:dmayr
   title: my home project
   description: description
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2007-01-26 13:14:22'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2007-01-26 13:14:22.000000000 Z
 db_projects_226:
   id: 226
   name: Apache
   title: Up-to-date Apache packages
   description: description
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
-HiddenProject:
-  id: 3000
-  name: HiddenProject
-  title: This project is not visible and not accessable except for adrian
-  description: for testing read/view permissions = access disabled
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
 db_projects_3001:
   id: 3001
   name: SourceprotectedProject
   title: This project has unaccessable source except for adrian
   description: for testing read/view permissions = sourceaccess disabled
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
 db_projects_3002:
   id: 3002
   name: BinaryprotectedProject
   title: This project has unaccessable binaries except for adrian
   description: for testing read/view permissions = binarydownload disabled
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
 db_projects_3004:
   id: 3004
   name: CopyTest
   title: This project serves as copy target/source
   description: for testing access/sourceacces
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
 db_projects_3005:
   id: 3005
   name: home:adrian:ProtectionTest
   title: This is used to try to get source rpm binaries from SourceprotectedProject
   description: ''
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
 db_projects_3006:
   id: 3006
   name: HiddenRemoteInstance
   title: Remoteurl project which is hidden (access disabled)
   description: for testing hidden remoteurl projects (access disabled)
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
   remoteurl: http://localhost:3200
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
 db_projects_3043:
   id: 3043
   name: Devel:BaseDistro:Update
   title: This is a a devel project container for update project for the base distro
   description: contains candidate changes for next updates
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
 db_projects_5000:
   id: 5000
   name: RemoteInstance
   title: This project is offering ourself content again via OBS inter-connect
   description: for testing remoteurl support. This is using the source server directly
     atm, should be change to use an own api instance.
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
   remoteurl: http://localhost:3200
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
 db_projects_5001:
   id: 5001
   name: UseRemoteInstance
   title: This project is project linking to remote instance
   description: for testing remoteurl support
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
 db_projects_5002:
   id: 5002
   name: LocalProject
   title: This project is a local project
   description: for testing remoteurl support
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
-cplusplus:
-  id: 5003
-  name: c++
-  title: 
-  description: 
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 14:00:21'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
+db_projects_503:
+  id: 503
+  name: home:fred:DeleteProject
+  title: This project gets deleted by request test
+  description: ''
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
+db_projects_504:
+  id: 504
+  name: home:Iggy:branches:kde4
+  title: Iggy Home Project
+  description: ''
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
+db_projects_505:
+  id: 505
+  name: home:fred
+  title: can be used for operations, to be cleaned up afterwards
+  description: ''
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
+db_projects_600:
+  id: 600
+  name: home:coolo
+  title: ''
+  description: ''
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 15:04:23.000000000 Z
+  type_id: 1
+db_projects_601:
+  id: 601
+  name: home:coolo:test
+  title: only a test
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
+home_Iggy:
+  id: 502
+  name: home:Iggy
+  title: Iggy Home Project
+  description: ''
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
 home_adrian:
   id: 5007
   name: home:adrian
@@ -295,82 +217,12 @@ home_adrian:
   description: Please add a suitable description and don't forget to add some repositories
     you want to build your packages against (just click on 'Repositories' above).
     Have fun!
-  created_at: '2011-09-19 11:19:37'
-  updated_at: '2011-09-19 11:19:37'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
-home_Iggy:
-  id: 502
-  name: home:Iggy
-  title: Iggy Home Project
-  description: ''
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
-db_projects_503:
-  id: 503
-  name: home:fred:DeleteProject
-  title: This project gets deleted by request test
-  description: ''
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
-db_projects_504:
-  id: 504
-  name: home:Iggy:branches:kde4
-  title: Iggy Home Project
-  description: ''
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
-db_projects_505:
-  id: 505
-  name: home:fred
-  title: can be used for operations, to be cleaned up afterwards
-  description: ''
-  created_at: '2005-01-01 01:00:01'
-  updated_at: '2005-01-01 01:00:01'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
-db_projects_600:
-  id: 600
-  name: home:coolo
-  title: ''
-  description: ''
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 15:04:23'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 1
-  develproject_id: 
-db_projects_601:
-  id: 601
-  name: home:coolo:test
-  title: only a test
-  description: 
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 14:00:21'
-  remoteurl: 
-  remoteproject: 
-  maintenance_project_id: 
-  type_id: 
-  develproject_id: 
+  created_at: 2011-09-19 11:19:37.000000000 Z
+  updated_at: 2011-09-19 11:19:37.000000000 Z
+kde4:
+  id: 2
+  name: kde4
+  title: blub
+  description: bla
+  created_at: 2008-04-28 07:05:05.000000000 Z
+  updated_at: 2008-04-28 08:06:06.000000000 Z

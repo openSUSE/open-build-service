@@ -10,10 +10,9 @@ def force_hash( record )
   record.each do |key, value|
     key = key.dup.force_encoding("UTF-8")
     if value
-       value = value.dup.force_encoding("UTF-8") if value.kind_of? String
-       begin value = Integer(value) rescue value end
+      value = value.dup.force_encoding("UTF-8") if value.kind_of? String
+      ret[key] = value
     end
-    ret[key] = value
   end
   ret
 end

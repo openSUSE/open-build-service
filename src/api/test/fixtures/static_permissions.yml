@@ -1,54 +1,54 @@
-global_project_change:
-  id: 1
-  title: global_project_change
-create_package:
-  id: 10
-  title: create_package
-download_binaries:
-  id: 11
-  title: download_binaries
-source_access:
-  id: 12
-  title: source_access
-private_view:
-  id: 13
-  title: private_view
 access:
   id: 14
   title: access
-global_change_project:
-  id: 19
-  title: global_change_project
-global_project_create:
-  id: 2
-  title: global_project_create
-global_create_project:
-  id: 20
-  title: global_create_project
+change_package:
+  id: 9
+  title: change_package
+change_project:
+  id: 7
+  title: change_project
+create_package:
+  id: 10
+  title: create_package
+create_project:
+  id: 8
+  title: create_project
+download_binaries:
+  id: 11
+  title: download_binaries
 global_change_package:
   id: 21
   title: global_change_package
+global_change_project:
+  id: 19
+  title: global_change_project
 global_create_package:
   id: 22
   title: global_create_package
+global_create_project:
+  id: 20
+  title: global_create_project
 global_package_change:
   id: 3
   title: global_package_change
 global_package_create:
   id: 4
   title: global_package_create
-status_message_create:
-  id: 5
-  title: status_message_create
+global_project_change:
+  id: 1
+  title: global_project_change
+global_project_create:
+  id: 2
+  title: global_project_create
+private_view:
+  id: 13
+  title: private_view
 set_download_counters:
   id: 6
   title: set_download_counters
-change_project:
-  id: 7
-  title: change_project
-create_project:
-  id: 8
-  title: create_project
-change_package:
-  id: 9
-  title: change_package
+source_access:
+  id: 12
+  title: source_access
+status_message_create:
+  id: 5
+  title: status_message_create

@@ -1,98 +1,68 @@
-OBS_ProjectStatusPackageFailComment:
-  id: 74
-  name: ProjectStatusPackageFailComment
-  description: 
-  type: 
-  value_count: 1
-  attrib_namespace_id: 9
-OBS_QualityCategory:
-  id: 75
-  name: QualityCategory
-  description: 
-  type: 
-  value_count: 1
-  attrib_namespace_id: 9
-OBS_ScreenShots:
-  id: 73
-  name: ScreenShots
-  description: 
-  type: 
-  value_count: 
-  attrib_namespace_id: 9
-OBS_VeryImportantProject:
-  id: 56
-  name: VeryImportantProject
-  description: 
-  type: 
-  value_count: 0
-  attrib_namespace_id: 9
-OBS_UpdateProject:
-  id: 57
-  name: UpdateProject
-  description: 
-  type: 
-  value_count: 1
-  attrib_namespace_id: 9
-OBS_Maintained:
-  id: 58
-  name: Maintained
-  description: 
-  type: 
-  value_count: 0
-  attrib_namespace_id: 9
 NSTEST_status:
   id: 59
   name: status
-  description: 
-  type: 
-  value_count: 
   attrib_namespace_id: 8
-OBS_RequestCloned:
-  id: 60
-  name: RequestCloned
-  description: 
-  type: 
-  value_count: 1
-  attrib_namespace_id: 9
-OBS_InitializeDevelPackage:
-  id: 61
-  name: InitializeDevelPackage
-  description: 
-  type: 
-  value_count: 0
-  attrib_namespace_id: 9
-OBS_MaintenanceProject:
-  id: 62
-  name: MaintenanceProject
-  description: 
-  type: 
-  value_count: 0
-  attrib_namespace_id: 9
-OBS_MaintenanceIdTemplate:
-  id: 63
-  name: MaintenanceIdTemplate
-  description: 
-  type: 
-  value_count: 1
-  attrib_namespace_id: 9
-OBS_RejectRequests:
-  id: 64
-  name: RejectRequests
-  description: 
-  type: 
-  value_count: 1
-  attrib_namespace_id: 9
 OBS_ApprovedRequestSource:
   id: 65
   name: ApprovedRequestSource
-  description: 
-  type: 
   value_count: 0
   attrib_namespace_id: 9
 OBS_BranchTarget:
   id: 66
   name: BranchTarget
-  description: 
-  type: 
+  value_count: 0
+  attrib_namespace_id: 9
+OBS_InitializeDevelPackage:
+  id: 61
+  name: InitializeDevelPackage
+  value_count: 0
+  attrib_namespace_id: 9
+OBS_Maintained:
+  id: 58
+  name: Maintained
+  value_count: 0
+  attrib_namespace_id: 9
+OBS_MaintenanceIdTemplate:
+  id: 63
+  name: MaintenanceIdTemplate
+  value_count: 1
+  attrib_namespace_id: 9
+OBS_MaintenanceProject:
+  id: 62
+  name: MaintenanceProject
+  value_count: 0
+  attrib_namespace_id: 9
+OBS_ProjectStatusPackageFailComment:
+  id: 74
+  name: ProjectStatusPackageFailComment
+  value_count: 1
+  attrib_namespace_id: 9
+OBS_QualityCategory:
+  id: 75
+  name: QualityCategory
+  value_count: 1
+  attrib_namespace_id: 9
+OBS_RejectRequests:
+  id: 64
+  name: RejectRequests
+  value_count: 1
+  attrib_namespace_id: 9
+OBS_RequestCloned:
+  id: 60
+  name: RequestCloned
+  value_count: 1
+  attrib_namespace_id: 9
+OBS_ScreenShots:
+  id: 73
+  name: ScreenShots
+  attrib_namespace_id: 9
+OBS_UpdateProject:
+  id: 57
+  name: UpdateProject
+  value_count: 1
+  attrib_namespace_id: 9
+OBS_VeryImportantProject:
+  id: 56
+  name: VeryImportantProject
   value_count: 0
   attrib_namespace_id: 9

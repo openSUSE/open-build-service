@@ -1,8 +1,8 @@
 Admin:
   id: 280
-  created_at: '2012-01-17 09:54:31'
-  updated_at: '2012-01-17 09:54:31'
-  last_logged_in_at: '2012-01-17 09:54:31'
+  created_at: 2012-01-17 09:54:31.000000000 Z
+  updated_at: 2012-01-17 09:54:31.000000000 Z
+  last_logged_in_at: 2012-01-17 09:54:31.000000000 Z
   login_failure_count: 0
   login: Admin
   email: root@localhost
@@ -12,12 +12,10 @@ Admin:
   password_salt: 6H2zF0vSjj
   password_crypted: osQq6OKjF0f8I
   state: 2
-  adminnote: 
 Iggy:
   id: 267
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 14:00:21'
-  last_logged_in_at: 
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: Iggy
   email: Iggy@pop.org
@@ -25,14 +23,11 @@ Iggy:
   password: 6a204bd89f3c8348afd5c77c717a097a
   password_hash_type: md5
   password_salt: ''
-  password_crypted: 
   state: 2
-  adminnote: 
 _nobody_:
   id: 5
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 14:00:21'
-  last_logged_in_at: 
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: _nobody_
   email: nobody@localhost
@@ -40,14 +35,11 @@ _nobody_:
   password: e10adc3949ba59abbe56e057f20f883e
   password_hash_type: md5
   password_salt: ''
-  password_crypted: 
   state: 3
-  adminnote: 
 adrian:
   id: 42
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 14:00:21'
-  last_logged_in_at: 
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: adrian
   email: adrian@suse.de
@@ -55,14 +47,11 @@ adrian:
   password: 65e53e3c6c7e3eb0935a1f7900e3cd13
   password_hash_type: md5
   password_salt: ''
-  password_crypted: 
   state: 2
-  adminnote: 
 adrian_downloader:
   id: 44
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 14:00:21'
-  last_logged_in_at: 
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: adrian_downloader
   email: adrian@suse.de
@@ -70,14 +59,11 @@ adrian_downloader:
   password: 65e53e3c6c7e3eb0935a1f7900e3cd13
   password_hash_type: md5
   password_salt: ''
-  password_crypted: 
   state: 2
-  adminnote: 
 adrian_nobody:
   id: 45
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 14:00:21'
-  last_logged_in_at: 
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: adrian_nobody
   email: adrian@suse.de
@@ -85,14 +71,11 @@ adrian_nobody:
   password: 65e53e3c6c7e3eb0935a1f7900e3cd13
   password_hash_type: md5
   password_salt: ''
-  password_crypted: 
   state: 2
-  adminnote: 
 adrian_reader:
   id: 43
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 14:00:21'
-  last_logged_in_at: 
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: adrian_reader
   email: adrian@suse.de
@@ -100,14 +83,11 @@ adrian_reader:
   password: 65e53e3c6c7e3eb0935a1f7900e3cd13
   password_hash_type: md5
   password_salt: ''
-  password_crypted: 
   state: 2
-  adminnote: 
 binary_homer:
   id: 47
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 14:00:21'
-  last_logged_in_at: 
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: binary_homer
   email: homer@nospam.net
@@ -115,14 +95,11 @@ binary_homer:
   password: dfa8327f5bfa4c672a04f9b38e348a70
   password_hash_type: md5
   password_salt: ''
-  password_crypted: 
   state: 2
-  adminnote: 
 fred:
   id: 1
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 14:00:21'
-  last_logged_in_at: 
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: fred
   email: fred@feuerstein.de
@@ -130,14 +107,11 @@ fred:
   password: 2dc36b2b9ccf93751ec0db81f4c7bc79
   password_hash_type: md5
   password_salt: ''
-  password_crypted: 
   state: 2
-  adminnote: 
 fredlibs:
   id: 4
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 14:00:21'
-  last_logged_in_at: 
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: fredlibs
   email: fred@feuerstein.de
@@ -145,14 +119,11 @@ fredlibs:
   password: 2dc36b2b9ccf93751ec0db81f4c7bc79
   password_hash_type: md5
   password_salt: ''
-  password_crypted: 
   state: 2
-  adminnote: 
 hidden_homer:
   id: 46
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 14:00:21'
-  last_logged_in_at: 
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: hidden_homer
   email: homer@nospam.net
@@ -160,14 +131,11 @@ hidden_homer:
   password: dfa8327f5bfa4c672a04f9b38e348a70
   password_hash_type: md5
   password_salt: ''
-  password_crypted: 
   state: 2
-  adminnote: 
 king:
   id: 2
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 14:00:21'
-  last_logged_in_at: 
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: king
   email: king@all-the-kings.org
@@ -175,14 +143,11 @@ king:
   password: e5e7105d5c05d9c0cc5944ff1341b533
   password_hash_type: md5
   password_salt: ''
-  password_crypted: 
   state: 2
-  adminnote: 
 maintenance_coord:
   id: 172
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 14:00:21'
-  last_logged_in_at: 
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: maintenance_coord
   email: dirkmueller@suse.de
@@ -190,14 +155,11 @@ maintenance_coord:
   password: 62cd275989e78ee56a81f0265a87562e
   password_hash_type: md5
   password_salt: ''
-  password_crypted: 
   state: 2
-  adminnote: 
 sourceaccess_homer:
   id: 49
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 14:00:21'
-  last_logged_in_at: 
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: sourceaccess_homer
   email: homer@nospam.net
@@ -205,14 +167,11 @@ sourceaccess_homer:
   password: dfa8327f5bfa4c672a04f9b38e348a70
   password_hash_type: md5
   password_salt: ''
-  password_crypted: 
   state: 2
-  adminnote: 
 tom:
   id: 3
-  created_at: '2011-07-29 14:00:21'
-  updated_at: '2011-07-29 14:00:21'
-  last_logged_in_at: 
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: tom
   email: tschmidt@suse.de
@@ -220,14 +179,12 @@ tom:
   password: 5c7686c0284e0875b26de99c1008e998
   password_hash_type: md5
   password_salt: ''
-  password_crypted: 
   state: 2
-  adminnote: 
 user1:
   id: 268
-  created_at: '2012-01-16 13:36:00'
-  updated_at: '2012-01-16 13:36:00'
-  last_logged_in_at: '2012-01-16 13:36:00'
+  created_at: 2012-01-16 13:36:00.000000000 Z
+  updated_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
   login_failure_count: 0
   login: user1
   email: test@example.com
@@ -237,12 +194,11 @@ user1:
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
   state: 2
-  adminnote: 
 user2:
   id: 269
-  created_at: '2012-01-16 13:36:00'
-  updated_at: '2012-01-16 13:36:00'
-  last_logged_in_at: '2012-01-16 13:36:00'
+  created_at: 2012-01-16 13:36:00.000000000 Z
+  updated_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
   login_failure_count: 0
   login: user2
   email: test@example.com
@@ -252,12 +208,11 @@ user2:
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
   state: 2
-  adminnote: 
 user3:
   id: 270
-  created_at: '2012-01-16 13:36:00'
-  updated_at: '2012-01-16 13:36:00'
-  last_logged_in_at: '2012-01-16 13:36:00'
+  created_at: 2012-01-16 13:36:00.000000000 Z
+  updated_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
   login_failure_count: 0
   login: user3
   email: test@example.com
@@ -267,12 +222,11 @@ user3:
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
   state: 2
-  adminnote: 
 user4:
   id: 271
-  created_at: '2012-01-16 13:36:00'
-  updated_at: '2012-01-16 13:36:00'
-  last_logged_in_at: '2012-01-16 13:36:00'
+  created_at: 2012-01-16 13:36:00.000000000 Z
+  updated_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
   login_failure_count: 0
   login: user4
   email: test@example.com
@@ -282,12 +236,11 @@ user4:
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
   state: 2
-  adminnote: 
 user5:
   id: 272
-  created_at: '2012-01-16 13:36:00'
-  updated_at: '2012-01-16 13:36:00'
-  last_logged_in_at: '2012-01-16 13:36:00'
+  created_at: 2012-01-16 13:36:00.000000000 Z
+  updated_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
   login_failure_count: 0
   login: user5
   email: test@example.com
@@ -297,12 +250,11 @@ user5:
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
   state: 2
-  adminnote: 
 user6:
   id: 273
-  created_at: '2012-01-16 13:36:00'
-  updated_at: '2012-01-16 13:36:00'
-  last_logged_in_at: '2012-01-16 13:36:00'
+  created_at: 2012-01-16 13:36:00.000000000 Z
+  updated_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
   login_failure_count: 0
   login: user6
   email: test@example.com
@@ -312,12 +264,11 @@ user6:
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
   state: 2
-  adminnote: 
 user7:
   id: 274
-  created_at: '2012-01-16 13:36:00'
-  updated_at: '2012-01-16 13:36:00'
-  last_logged_in_at: '2012-01-16 13:36:00'
+  created_at: 2012-01-16 13:36:00.000000000 Z
+  updated_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
   login_failure_count: 0
   login: user7
   email: test@example.com
@@ -327,12 +278,11 @@ user7:
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
   state: 2
-  adminnote: 
 user8:
   id: 275
-  created_at: '2012-01-16 13:36:00'
-  updated_at: '2012-01-16 13:36:00'
-  last_logged_in_at: '2012-01-16 13:36:00'
+  created_at: 2012-01-16 13:36:00.000000000 Z
+  updated_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
   login_failure_count: 0
   login: user8
   email: test@example.com
@@ -342,12 +292,11 @@ user8:
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
   state: 2
-  adminnote: 
 user9:
   id: 276
-  created_at: '2012-01-16 13:36:00'
-  updated_at: '2012-01-16 13:36:00'
-  last_logged_in_at: '2012-01-16 13:36:00'
+  created_at: 2012-01-16 13:36:00.000000000 Z
+  updated_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
   login_failure_count: 0
   login: user9
   email: test@example.com
@@ -357,4 +306,3 @@ user9:
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
   state: 2
-  adminnote: 

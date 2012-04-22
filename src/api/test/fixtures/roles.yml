@@ -1,35 +1,28 @@
 Admin:
   id: 1
   title: Admin
-  parent_id: 
   global: 1
 User:
   id: 2
   title: User
-  parent_id: 
   global: 1
 bugowner:
   id: 4
   title: bugowner
-  parent_id: 
   global: 0
 downloader:
   id: 5
   title: downloader
-  parent_id: 
   global: 0
 maintainer:
   id: 3
   title: maintainer
-  parent_id: 
   global: 0
 reader:
   id: 7
   title: reader
-  parent_id: 
   global: 0
 reviewer:
   id: 6
   title: reviewer
-  parent_id: 
   global: 0

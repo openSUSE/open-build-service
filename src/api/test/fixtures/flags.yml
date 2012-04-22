@@ -1,10 +1,7 @@
 flags_129437008:
   id: 129437008
   status: disable
-  repo: 
   db_project_id: 3006
-  db_package_id: 
-  architecture_id: 
   position: 1
   flag: publish
 flags_212298610:
@@ -12,7 +9,6 @@ flags_212298610:
   status: disable
   repo: '10.2'
   db_project_id: 502
-  db_package_id: 
   architecture_id: 1
   position: 1
   flag: debuginfo
@@ -21,33 +17,25 @@ flags_220542956:
   status: enable
   repo: '10.2'
   db_project_id: 502
-  db_package_id: 
   architecture_id: 2
   position: 2
   flag: debuginfo
 flags_238287425:
   id: 238287425
   status: disable
-  repo: 
   db_project_id: 3000
-  db_package_id: 
-  architecture_id: 
   position: 1
   flag: access
 flags_361997832:
   id: 361997832
   status: disable
-  repo: 
   db_project_id: 3002
-  db_package_id: 
-  architecture_id: 
   position: 1
   flag: publish
 flags_370537857:
   id: 370537857
   status: enable
   repo: '10.2'
-  db_project_id: 
   db_package_id: 10095
   architecture_id: 2
   position: 1
@@ -56,7 +44,6 @@ flags_377253800:
   id: 377253800
   status: enable
   repo: '10.2'
-  db_project_id: 
   db_package_id: 10095
   architecture_id: 2
   position: 1
@@ -64,19 +51,13 @@ flags_377253800:
 flags_421651534:
   id: 421651534
   status: disable
-  repo: 
   db_project_id: 3002
-  db_package_id: 
-  architecture_id: 
   position: 1
   flag: binarydownload
 flags_463292953:
   id: 463292953
   status: disable
-  repo: 
   db_project_id: 3006
-  db_package_id: 
-  architecture_id: 
   position: 1
   flag: access
 flags_512515298:
@@ -84,7 +65,6 @@ flags_512515298:
   status: disable
   repo: '10.2'
   db_project_id: 502
-  db_package_id: 
   architecture_id: 1
   position: 1
   flag: build
@@ -93,42 +73,31 @@ flags_521011324:
   status: disable
   repo: '10.2'
   db_project_id: 502
-  db_package_id: 
   architecture_id: 2
   position: 2
   flag: build
 flags_632907309:
   id: 632907309
   status: disable
-  repo: 
   db_project_id: 3001
-  db_package_id: 
-  architecture_id: 
   position: 1
   flag: sourceaccess
 flags_688596071:
   id: 688596071
   status: disable
-  repo: 
   db_project_id: 3001
-  db_package_id: 
-  architecture_id: 
   position: 1
   flag: publish
 flags_792784507:
   id: 792784507
   status: disable
-  repo: 
   db_project_id: 3000
-  db_package_id: 
-  architecture_id: 
   position: 1
   flag: publish
 flags_801465961:
   id: 801465961
   status: enable
   repo: '10.2'
-  db_project_id: 
   db_package_id: 10095
   architecture_id: 1
   position: 1
@@ -138,7 +107,6 @@ flags_811918905:
   status: disable
   repo: '10.2'
   db_project_id: 502
-  db_package_id: 
   architecture_id: 2
   position: 1
   flag: publish
@@ -147,25 +115,18 @@ flags_813496:
   status: enable
   repo: '10.2'
   db_project_id: 502
-  db_package_id: 
   architecture_id: 1
   position: 2
   flag: publish
 flags_BaseDistro2_0_LinkedUpdateProject_build_disable:
   id: 477459121
   status: disable
-  repo: 
   db_project_id: 2046
-  db_package_id: 
-  architecture_id: 
   position: 2
   flag: build
 flags_BaseDistro2_0_LinkedUpdateProject_publish_disable:
   id: 477459122
   status: disable
-  repo: 
   db_project_id: 2046
-  db_package_id: 
-  architecture_id: 
   position: 3
   flag: publish

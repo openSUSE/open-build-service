@@ -1,13 +1,3 @@
-fred_maintainer_package_1:
-  id: 3
-  db_package_id: 10095
-  bs_user_id: 1
-  role_id: 3
-fred_maintainer_package_2:
-  id: 2
-  db_package_id: 10195
-  bs_user_id: 1
-  role_id: 3
 Iggy_maintainer_TestPack:
   id: 1
   db_package_id: 10095
@@ -18,16 +8,26 @@ adrian_maintainer_2:
   db_package_id: 11006
   bs_user_id: 42
   role_id: 3
-fred_maintainer:
-  id: 5
-  db_package_id: 1
-  bs_user_id: 4
-  role_id: 3
 adrian_reviewer:
   id: 6
   db_package_id: 1
   bs_user_id: 42
   role_id: 6
+fred_maintainer:
+  id: 5
+  db_package_id: 1
+  bs_user_id: 4
+  role_id: 3
+fred_maintainer_package_1:
+  id: 3
+  db_package_id: 10095
+  bs_user_id: 1
+  role_id: 3
+fred_maintainer_package_2:
+  id: 2
+  db_package_id: 10195
+  bs_user_id: 1
+  role_id: 3
 reviewer_for_Basedistro_pack2:
   id: 7
   db_package_id: 10094
