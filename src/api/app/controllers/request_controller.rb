@@ -1239,6 +1239,11 @@ class RequestController < ApplicationController
           # maintenance incident target permission checks
           if [ "maintenance_incident" ].include? action.value("type")
             if params[:cmd] == "setincident"
+              if target_project.project_type == "maintenance_incident"
+                render_error :status => 404, :errorcode => "target_not_maintenance",
+                  :message => "The target project is already an incident, changing is not possible via set_incident"
+                return
+              end
               unless target_project.project_type == "maintenance"
                 render_error :status => 404, :errorcode => "target_not_maintenance",
                   :message => "The target project is not of type maintenance but #{target_project.project_type}"
