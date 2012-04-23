@@ -1,4 +1,4 @@
-<% content_for :head_javascript do %>
+<%= content_for :head_javascript do %>
 
   var logfileinfo = "package";
   var container_width = -1;
@@ -52,7 +52,7 @@
   }
 <% end %>
 
-<% content_for :ready_function do %>
+<%= content_for :ready_function do %>
        $("#worker_display option:selected").each(function() { logfileinfo=$(this).attr("value"); });
 
        resizeMonitorBoxes();

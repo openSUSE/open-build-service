@@ -4,7 +4,7 @@
     <div class="box box-shadow">
       <h2 class="box-header">Delete Confirmation</h2>
       <p>Really delete this message?</p>
-      <% form_tag({:controller => 'main', :action => 'delete_message'}, :method => 'post') do %>
+      <%= form_tag({:controller => 'main', :action => 'delete_message'}, :method => 'post') do %>
         <%= hidden_field_tag(:message_id, params[:message_id]) %>
         <div class="buttons">
           <%= submit_tag('Ok') %>

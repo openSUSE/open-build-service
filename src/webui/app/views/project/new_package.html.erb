@@ -13,7 +13,7 @@
 -->
 <h2><%= @pagetitle %> for <%= @project.name %></h2>
 
-<% form_tag :controller => :package, :action => "save_new" do %>
+<%= form_tag :controller => :package, :action => "save_new" do %>
 <p>
   <strong>Name:</strong><br/>
   <%= text_field_tag 'name', @package_name, :size => 80 %><br/>

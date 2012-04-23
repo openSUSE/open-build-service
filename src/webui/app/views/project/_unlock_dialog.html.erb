@@ -5,7 +5,7 @@
       <h2 class="box-header">Unlock Confirmation</h2>
       <p>Do you really want to unlock <%= render :partial => 'shared/project_or_package_link', :locals => {:project => @project.value('name')} %>?</p>
 
-      <% form_tag({:controller => 'project', :action => 'unlock'}, :method => 'post') do %>
+      <%= form_tag({:controller => 'project', :action => 'unlock'}, :method => 'post') do %>
         <%= hidden_field_tag(:project, @project) %>
         <p>
           <%= label_tag(:comment, 'Comment:') %><br/>

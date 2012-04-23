@@ -1,4 +1,4 @@
-<% content_for :content_for_head do %>
+<%= content_for :content_for_head do %>
   <%= auto_discovery_link_tag(:rss, {:controller => 'main', :action => 'latest_updates', :format => 'rss'}, {:title => 'Latest updates'}) %>
 <% end %>
 

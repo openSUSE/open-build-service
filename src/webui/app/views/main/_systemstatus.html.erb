@@ -8,7 +8,7 @@
         currently <%= @workerstatus.elements("building").length %> of <%= @workerstatus["clients"] %> build hosts are busy building packages.
         At the moment <%= @waiting_packages %> packages are waiting on the different architectures.
       </p>
-      <% javascript_tag do %>
+      <%= javascript_tag do %>
         $.plot($("#overallgraph"), [ { data: <%= MonitorHelper.print_statistics_array(@busy) %>, label: "Busy workers", color: 3} ],
         {
           series: { stack: true, lines: { show: true, steps: false, fill: true } }, 

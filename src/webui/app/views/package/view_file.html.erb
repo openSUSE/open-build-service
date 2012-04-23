@@ -13,7 +13,7 @@
     <% if @filename.ends_with?('.changes') %>
       <%# Rather hacky attempt to provide 'osc vc'-like functionality, would benefit of proper 'snippet' support for editor: %>
       <%= link_to_function('Insert changes entry template', 'addChangesEntryTemplate()') %><br/><br/>
-      <% javascript_tag do %>
+      <%= javascript_tag do %>
         var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 

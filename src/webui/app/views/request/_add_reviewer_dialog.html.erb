@@ -6,7 +6,7 @@
 
       <p>Add a reviewer to request <%= @request_id %></p>
 
-      <% form_tag(:action => "add_reviewer") do %>
+      <%= form_tag(:action => "add_reviewer") do %>
         <%= hidden_field_tag(:id, @request_id) %>
         <p>
           <%= label_tag(:review_type, "Type:") %><br/>
@@ -14,28 +14,28 @@
           <span id="review_user_span">
             <%= label_tag(:review_user, "User:") %><br/>
             <%= text_field_tag(:review_user) %><br/>
-            <% javascript_tag do %>
+            <%= javascript_tag do %>
               $("#review_user").autocomplete('<%= url_for :controller => :user, :action => :autocomplete_users %>', {minChars: 2, matchCase: true, max: 50});
             <% end %>
           </span>
           <span id="review_group_span" class="hidden">
             <%= label_tag(:review_group, "Group:") %><br/>
             <%= text_field_tag(:review_group) %><br/>
-            <% javascript_tag do %>
+            <%= javascript_tag do %>
               $("#review_group").autocomplete('<%= url_for :controller => :group, :action => :autocomplete_groups %>', {minChars: 2, matchCase: true, max: 50});
             <% end %>
           </span>
           <span id="review_project_span" class="hidden">
             <%= label_tag(:review_project, "Project:") %><br/>
             <%= text_field_tag(:review_project) %><br/>
-            <% javascript_tag do %>
+            <%= javascript_tag do %>
               $("#review_project").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_projects %>', {minChars: 2, matchCase: true, max: 50});
             <% end %>
           </span>
           <span id="review_package_span" class="hidden">
             <%= label_tag(:review_package, "Package:") %><br/>
             <%= text_field_tag(:review_package) %><br/>
-            <% javascript_tag do %>
+            <%= javascript_tag do %>
               $("#review_package").autocomplete('<%= url_for :controller => :project, :action => :autocomplete_packages %>', {
                 minChars: 0, matchCase: true, max: 50, extraParams: {project: function() { return $("#review_project").val(); }}
               });
@@ -43,7 +43,7 @@
           </span>
           <%= label_tag(:review_comment, "Comment for reviewer:") %><br/>
           <%= text_area_tag('review_comment', nil, :size => '80x3') %>
-          <% javascript_tag do %>
+          <%= javascript_tag do %>
             $('#review_type').change(function() {
               switch($('#review_type option:selected').attr('value')) {
                 case "user": {

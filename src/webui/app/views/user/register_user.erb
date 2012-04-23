@@ -7,7 +7,7 @@
  
   <p>You need to register an account to work with OBS first, please fill the following data:</p>
  
-  <% form_tag :controller => 'user', :action => 'register', :method => :post do %>
+  <%= form_tag :controller => 'user', :action => 'register', :method => :post do %>
     <p>
       <strong>Login:</strong><br/>
       <%= text_field_tag 'login'  %><br/>

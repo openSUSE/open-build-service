@@ -4,7 +4,7 @@
     <div class="message error"><%= error %></div>
   <% end %>
 
-  <% form_remote_tag :update => valid_xml_id(repository.name), :url => { :action => :update_target } do %>
+  <%= form_remote_tag :update => valid_xml_id(repository.name), :url => { :action => :update_target } do %>
     <p>
       <b>Architectures:</b>
       <% @repository_arch_hash.each do |arch, value| %>

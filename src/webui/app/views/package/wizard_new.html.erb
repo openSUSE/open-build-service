@@ -3,7 +3,7 @@
 
 <h2>New Package in project <%= @project.name %></h2>
 
-<% form_tag :action => "wizard_new" do %>
+<%= form_tag :action => "wizard_new" do %>
   <strong>Name:</strong><br/>
   <%= text_field_tag 'name', '', :size => 80 %><br/>
   <p><%= submit_tag 'Next' %></p>

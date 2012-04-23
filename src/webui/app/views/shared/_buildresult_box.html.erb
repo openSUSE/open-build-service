@@ -27,7 +27,7 @@
   <div class="result_display_<%= index %>" id="result_display_<%= index %>_1"></div>
 <% end %>
 
-<% javascript_tag do %>
+<%= javascript_tag do %>
   var tab_index_<%= index %> = 0;
 
   <% if controller == 'package' %>

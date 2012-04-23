@@ -11,7 +11,7 @@ else
   submit = "Next"
 end
 %>
-<% form_tag({:action => action}, {:multipart => true}) do %>
+<%= form_tag({:action => action}, {:multipart => true}) do %>
   <% @wizard.each_entry do |entry| %>
     <p>
       <strong><label for="wizard[<%= entry.name %>]"><%= entry.label %></label></strong><br/>

@@ -2,7 +2,7 @@
 <% @layouttype = 'custom' %>
 <% @crumb_list = [link_to('Requests', :controller => :home, :action => :requests), @id] %>
 
-<% content_for :ready_function do %>
+<%= content_for :ready_function do %>
   $('#description').expander({slicePoint: 300, expandText: '[+]', expandPrefix: ' ', userCollapseText: '[-]',});
 <% end %>
 
@@ -50,7 +50,7 @@
         <% end %>
       </ul>
     </div>
-    <% javascript_tag do %>
+    <%= javascript_tag do %>
       $('.action_select_link').click(function (event) {
         $('#action_select li.selected').attr('class', '');
         $(event.target).parent().attr('class', 'selected')
@@ -179,7 +179,7 @@
               <% end %>
             <% end %>
           </ul>
-          <% javascript_tag do %>
+          <%= javascript_tag do %>
             $('.review_descision_link').click(function (event) {
               $('#review_descision_select li.selected').attr('class', '');
               $(event.target).parent().attr('class', 'selected')
@@ -192,7 +192,7 @@
         </div>
         <div class="review_descision_display" style="<%= 'display: none;' if @can_add_reviews && @my_open_reviews.length > 0 %>" id="review_descision_display_-1">
           <% if @can_handle_request %>
-            <% form_tag({:action => 'changerequest'}, {:id => 'request_handle_form'}) do %>
+            <%= form_tag({:action => 'changerequest'}, {:id => 'request_handle_form'}) do %>
               <p><%= text_area_tag(:reason, 'Please add a comment', :size => '80x2', :style => "width: 99%") %></p>
               <p>
                 <%= hidden_field_tag(:id, @id) %>
@@ -222,7 +222,7 @@
                 </span>
               </p>
             <% end %>
-            <% javascript_tag do %>
+            <%= javascript_tag do %>
               $('#accept_request_button').click(function (data) {
                 /* Add some hidden elements to carry HTML form data that is found at other DOM places for design reasons.  */
                 if ($('.submitter_is_maintainer_checkbox').size() != 0 &&
@@ -248,7 +248,7 @@
         <% if @can_add_reviews && @my_open_reviews.length > 0 %>
           <% @my_open_reviews.each_with_index do |review, index| %>
             <div class="review_descision_display <%= 'hidden' if index != 0 %>" id="review_descision_display_<%= index %>">
-              <% form_tag(:action => "modify_review") do %>
+              <%= form_tag(:action => "modify_review") do %>
                 <p><%= text_area_tag("review_comment_#{index}", review.value('comment'), :size => '80x2', :style => "width: 99%", :class => 'review_comment') %></p>
                 <p>
                   <%= hidden_field_tag("review_request_id_#{index}", @id) %>
@@ -263,7 +263,7 @@
             </div>
           <% end %>
         <% end %>
-        <% javascript_tag do %>
+        <%= javascript_tag do %>
           $('.review_comment, #reason').click(function () { $(this).text(''); });
         <% end %>
       <% else %>

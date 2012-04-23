@@ -1,10 +1,10 @@
 <h3><%= @pagetitle %></h3>
 
-<% form_tag :action => :save_group do %>
+<%= form_tag :action => :save_group do %>
   <p>
     <b>Group:</b><br/>
     <%= text_field_tag 'groupid', params[:groupid], :size => '25' %><br/>
-    <% javascript_tag do %>
+    <%= javascript_tag do %>
       $("#groupid").autocomplete({source: '<%= url_for :controller => 'group', :action => 'autocomplete' %>', minLength: 2});
     <% end %>
     <b>Role:</b><br/>

@@ -10,7 +10,7 @@
       <% else %>
         <p>Do you want to request to set the devel project for <%= render :partial => 'shared/project_or_package_link', :locals => {:project => @project.value('name'), :package => @package.value('name')} %>?</p>
       <% end %>
-      <% form_tag(:action => 'change_devel_request', :method => 'post') do %>
+      <%= form_tag(:action => 'change_devel_request', :method => 'post') do %>
         <%= hidden_field_tag(:project, @project.value('name')) %>
         <%= hidden_field_tag(:package, @package.value('name')) %>
         <p>
@@ -32,6 +32,6 @@
   </div>
 </div>
 
-<% javascript_tag do %>
+<%= javascript_tag do %>
   $("#devel_project").autocomplete({source: '<%= url_for :controller => 'project', :action => 'autocomplete_projects' %>', minLength: 2});
 <% end %>

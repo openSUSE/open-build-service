@@ -7,12 +7,12 @@
 
 <p>The filename is taken from the uploaded file if none is provided. Alternatively, if only a filename is provided, a new empty file is created (i.e. touched).</p>
 
-<% form_tag({:action => :save_file, :project => @project, :package => @package}, {:multipart => true}) do %>
+<%= form_tag({:action => :save_file, :project => @project, :package => @package}, {:multipart => true}) do %>
   <p>
     <b>Filename (taken from uploaded file if empty):</b><br/>
     <%= text_field_tag('filename', '', :size => 80) %><br/>
     <b>Upload from</b> <%= select_tag('file_type', options_for_select([['local file', 'local'], ['remote URL', 'remote']])) %> :<br/>
-    <% javascript_tag do %>
+    <%= javascript_tag do %>
       $('#file_type').change(function() {
         if ($('#file_type option:selected').attr('value') == 'local') {
           $('#file').show();

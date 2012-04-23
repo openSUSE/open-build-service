@@ -1,5 +1,5 @@
 <% if issues && issues.length > 0 %>
-  <% content_for :ready_function do %>
+  <%= content_for :ready_function do %>
     $('.expandable_issue_description').expander({slicePoint: 50, sliceEarlierAt: '<br>', expandText: '[+]', expandPrefix: ' ', userCollapseText: '[-]',});
   <% end %>
 
@@ -31,7 +31,7 @@
   </table>
   <%# Stupid XHTML-1.0 strict doesn't like 'target', but all browsers do. Thus, sneak around validation to %>
   <%# allow opening a new window upon click: %>
-  <% javascript_tag do %>
+  <%= javascript_tag do %>
     $('a.issue_tracker_link').attr('target', '_blank')
   <% end %>
 <% end %>

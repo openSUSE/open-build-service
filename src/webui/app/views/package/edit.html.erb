@@ -6,7 +6,7 @@
 
 <h2><%= @pagetitle %></h2>
 
-<% form_tag :action => :save do %>
+<%= form_tag :action => :save do %>
   <p>
     <strong>Title:</strong><br/>
     <%= text_field_tag( 'title', @package.title, :size => 80 ) %><br/>

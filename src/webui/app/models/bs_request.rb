@@ -363,7 +363,8 @@ class BsRequest < ActiveXML::Base
   end
 
   def actions(with_diff = true)
-    return Rails.cache.fetch("request_#{value('id')}_actions", :expires_in => 7.days) do
+    #TODO: Fix!
+    #return Rails.cache.fetch("request_#{value('id')}_actions", :expires_in => 7.days) do
       actions, action_index = [], 0
       each_action do |xml|
         action = {:type => xml.value('type'), :xml => xml}
@@ -438,11 +439,12 @@ class BsRequest < ActiveXML::Base
         actions << action
       end
       actions
-    end
+    #end
   end
 
   def actiondiffs
-    return Rails.cache.fetch("request_#{value('id')}_actiondiffs", :expires_in => 7.days) do
+    #TODO: Fix!
+    #return Rails.cache.fetch("request_#{value('id')}_actiondiffs", :expires_in => 7.days) do
       actiondiffs = []
       begin
         transport ||= ActiveXML::Config::transport_for :bsrequest
@@ -457,7 +459,7 @@ class BsRequest < ActiveXML::Base
       rescue ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => e
       end
       actiondiffs
-    end
+    #end
   end
 
   # Check if 'user' is maintainer in _all_ request targets:

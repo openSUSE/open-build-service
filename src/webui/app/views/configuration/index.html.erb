@@ -19,7 +19,7 @@ as well as managing users and groups.
     <div class="show_left box">
       <h3>Available Scheduler Architectures</h3>
       <p>You can recommended architectures to be selected by default when a new project or package is created. The new project or package will then build against this architecture (for it's configured repositories).</p>
-      <% form_tag(:action => 'update_architectures') do %>
+      <%= form_tag(:action => 'update_architectures') do %>
         <table>
           <thead>
             <tr>
@@ -47,7 +47,7 @@ as well as managing users and groups.
 <div class="grid_8 omega">
   <div class="show_right box">
     <h3>User Interface</h3>
-    <% form_tag(:action => 'update_configuration') do %>
+    <%= form_tag(:action => 'update_configuration') do %>
       <p>
         <%= label_tag :title, 'Title:' %><br/>
         <%= text_field_tag :title, @configuration['title'].gsub(" Open Build Service", "") %> Open Build Service

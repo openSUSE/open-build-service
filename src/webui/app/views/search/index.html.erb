@@ -1,7 +1,7 @@
 <% @pagetitle = "Search" %>
 <% @crumb_list = [@pagetitle] -%>
 
-<% content_for :ready_function do %>
+<%= content_for :ready_function do %>
   $('#search_text').focus();
 <% end %>
 
@@ -11,7 +11,7 @@
 <%= link_to 'software.opensuse.org', 'http://software.opensuse.org/search' %>.</p>
 
 <div id="search_form">
-  <% form_tag({:controller => 'search', :action => 'search'}, {:method => :get}) do -%>
+  <%= form_tag({:controller => 'search', :action => 'search'}, {:method => :get}) do -%>
     <p>
 
       Search term: <%= text_field_tag 'search_text', params[:search_text], :size => 35 -%>

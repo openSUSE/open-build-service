@@ -2,7 +2,7 @@
    @metarobots = "noindex,nofollow"
    project_bread_crumb( 'Status Monitor' ) -%>
 
-<% content_for :ready_function do %>
+<%= content_for :ready_function do %>
   project_monitor_ready();
 <% end %>
 
@@ -12,7 +12,7 @@
 <div id="monitor-wrapper">
 
   <!-- Filter Settings -->
-  <% form_tag({:controller => 'project', :action => 'monitor'}, :method => :get) do %>
+  <%= form_tag({:controller => 'project', :action => 'monitor'}, :method => :get) do %>
     <div id='filter_settings'>
       <%= submit_tag 'Filter:'%>
       <span class="strong filterlink" id="statuslink">Status <%= image_tag 'arrow.png' %></span>

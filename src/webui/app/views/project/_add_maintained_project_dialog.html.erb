@@ -1,4 +1,4 @@
-<% javascript_tag do %>
+<%= javascript_tag do %>
   $('#maintained_project').autocomplete({source: '<%= url_for :controller => 'project', :action => 'autocomplete_projects' %>', minLength: 2});
 <% end %>
 
@@ -9,7 +9,7 @@
       <h2 class="box-header">Add Project to Maintenance</h2>
       <p>Do you want to maintain <%= render :partial => 'shared/project_or_package_link', :locals => {:project => @project.value('name')} %>?</p>
 
-      <% form_tag({:controller => 'project', :action => 'add_maintained_project'}) do %>
+      <%= form_tag({:controller => 'project', :action => 'add_maintained_project'}) do %>
         <%= hidden_field_tag(:project, @project.value('name')) %>
         <p>
           <%= label_tag(:maintained_project, 'Project to maintain:') %><br/>

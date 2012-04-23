@@ -16,7 +16,7 @@
 
 <h2><%= h @pagetitle %> <%= h @selected_attribute_name %></h2>
 
-<% form_tag :action => "save" do %>
+<%= form_tag :action => "save" do %>
   <p>
     <% if @selected_attribute_name %>
       <% values =  @selected_attribute_value %>

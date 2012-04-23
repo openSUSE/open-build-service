@@ -1,10 +1,10 @@
 <h3><%= @pagetitle %></h3>
 
-<% form_tag :action => :save_person do %>
+<%= form_tag :action => :save_person do %>
   <p>
     <b>User:</b><br/>
     <%= text_field_tag 'userid', params[:userid] %><br/>
-    <% javascript_tag do %>
+    <%= javascript_tag do %>
       $("#userid").autocomplete({source: '<%= url_for :controller => 'user', :action => 'autocomplete' %>', minLength: 2});
     <% end %>
     <b>Role:</b><br/>

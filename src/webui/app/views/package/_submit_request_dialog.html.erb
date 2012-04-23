@@ -1,4 +1,4 @@
-<% javascript_tag do %>
+<%= javascript_tag do %>
   function updateSupersedeAndDevelPackageDisplay() {
     if ($('#targetproject')[0].value.length > 0) {
       if ($('#targetproject')[0].value == $('#sourceproject')[0].value) {
@@ -72,7 +72,7 @@
       <% tprj = @package.linkinfo.project if @package.linkinfo # fill in from linkinfo %>
       <% tprj = params[:targetproject] if params[:targetproject] # allow to override by parameter %>
 
-      <% form_tag({:controller => "package", :action => "submit_request"}, :method => "post") do %>
+      <%= form_tag({:controller => "package", :action => "submit_request"}, :method => "post") do %>
         <%= hidden_field_tag(:project, @project) %>
         <%= hidden_field_tag(:package, @package) %>
         <%= hidden_field_tag(:rev, @revision) %>

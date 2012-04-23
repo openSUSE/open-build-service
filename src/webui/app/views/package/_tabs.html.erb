@@ -1,4 +1,4 @@
-<% content_for :ready_function do %>
+<%= content_for :ready_function do %>
   $("#advanced_tabs_trigger").click(function() {
     $("#advanced_tabs").show();
     $("#advanced_tabs_trigger").remove();
@@ -19,7 +19,7 @@
       <%= tab 'Users', :controller => 'package', :action => 'users' %>
     <% end -%>
     <% if is_advanced_tab? %>
-      <% content_for :ready_function do %>
+      <%= content_for :ready_function do %>
         $("#advanced_tabs").show();
       <% end %>
     <% else %>

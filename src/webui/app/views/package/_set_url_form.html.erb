@@ -1,5 +1,5 @@
 
-<% form_remote_tag :url => { :action => :set_url },
+<%= form_remote_tag :url => { :action => :set_url },
   :loading => "$('#url_form_spinner').show()",
   :complete => "$('#url_form_spinner').hide()",
   :update => 'url_area' do %>

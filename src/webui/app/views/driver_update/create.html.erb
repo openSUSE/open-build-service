@@ -3,7 +3,7 @@
 <% project_bread_crumb @package.name -%>
 <%= render :partial => "package/tabs" %>
 
-<% content_for :ready_function do %> 
+<%= content_for :ready_function do %> 
   $("#target_project").autocomplete({source: '<%= url_for :controller => 'project', :action => 'autocomplete_projects' %>', minLength: 2});
 
   $('#target_project').result(function(event, data, formatted) {
@@ -138,7 +138,7 @@
   your workstation when using osc.</p>
 
 
-<% form_tag :controller => "driver_update", :action => "save" do %>
+<%= form_tag :controller => "driver_update", :action => "save" do %>
 
 
   <h2>General Configuration:</h2>

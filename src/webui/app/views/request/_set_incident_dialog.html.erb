@@ -6,7 +6,7 @@
 
       <p>Change the submit target of this request to an already existing incident.</p>
 
-      <% form_tag(:action => 'set_incident') do %>
+      <%= form_tag(:action => 'set_incident') do %>
         <%= hidden_field_tag(:id, @request_id) %>
         <p>
           <%= label_tag(:incident_project, 'Incident:') %><br/>
@@ -21,7 +21,7 @@
   </div>
 </div>
 
-<% javascript_tag do %>
+<%= javascript_tag do %>
   $("#incident_project").autocomplete({
     source: '<%= url_for :controller => 'project', :action => 'autocomplete_incidents' %>',
     minLength: 2

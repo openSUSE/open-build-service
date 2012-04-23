@@ -5,7 +5,7 @@ package_bread_crumb 'Build Log'
 
 <%= render :partial => "tabs" %>
 
-<% content_for :head_javascript do %>
+<%= content_for :head_javascript do %>
 
   var scrollmode=0;
   var offset=<%= @offset %>;
@@ -67,7 +67,7 @@ package_bread_crumb 'Build Log'
   }
 <% end -%>
 
-<% content_for :ready_function do %>
+<%= content_for :ready_function do %>
   refresh(<%= @offset %>, 1);
   $('.start_refresh').click(start_refresh);
   $('.stop_refresh').click(stop_refresh);

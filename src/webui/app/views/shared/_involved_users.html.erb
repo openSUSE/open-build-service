@@ -1,5 +1,5 @@
 <% if @user and @user.is_maintainer?(@project, @package) %>
-  <% content_for :head_javascript do %>
+  <%= content_for :head_javascript do %>
     function change_role() {
       str = $(this).attr('id');
 
@@ -71,7 +71,7 @@
                   <%= check_box_tag("user_" + role + "_" + user, '', @project.user_has_role?(user, role), :disabled => true, :class => "trigger") %>
                 <% end %>
                 <% if @user and @user.is_maintainer?(@project, @package) %>
-                  <% javascript_tag do %>
+                  <%= javascript_tag do %>
                     $('#user_<%= role %>_<%= user %>').enable();
                     $('#user_<%= role %>_<%= user %>').change(change_role);
                   <% end %>
@@ -127,7 +127,7 @@
                   <%= check_box_tag("group_" + role + "_" + group, '', @project.group_has_role?(group, role), :disabled => true, :class => :trigger) %>
                 <% end %>
                 <% if @user and @user.is_maintainer?(@project, @package) %>
-                  <% javascript_tag do %>
+                  <%= javascript_tag do %>
                     $('#group_<%= role %>_<%= group %>').enable();
                     $('#group_<%= role %>_<%= group %>').change(change_role);
                   <% end %>
@@ -152,7 +152,7 @@
   <% end %>
 </div>
 
-<% javascript_tag do %>
+<%= javascript_tag do %>
   $(document).ready(function() {
     <% if @users and @users.length > 0 %>
       $('#user_table').dataTable({

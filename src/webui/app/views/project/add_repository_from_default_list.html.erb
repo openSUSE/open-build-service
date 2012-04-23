@@ -11,10 +11,8 @@
 <%= link_to "pick one via advanced interface", :action => :add_repository, :project => @project %>.
 </p>
 
-<% form_tag( {:action => :save_targets, :project => @project} ) do -%>
-
+<%= form_tag(:action => :save_targets, :project => @project) do %>
   <% vendors = @distributions.all_vendors %>
-
   <% vendors.each do |vendor| %>
     <h3><%= image_tag( "distributions/#{vendor.downcase}.png", :width => 40 ) %> <%=h vendor -%> distributions</h3>
     <p>
@@ -60,7 +58,6 @@
   </p>
 <% end %>
 
-<% content_for :ready_function do %>
+<%= content_for :ready_function do %>
   $('.repocheckbox').click(function() { $('#submitrepos').enable(); } );
-<% end -%>
-
+<% end %>

@@ -5,7 +5,7 @@
       <h2 class="box-header">Delete Confirmation</h2>
       <p>Do you really want to delete <%= render :partial => 'shared/project_or_package_link', :locals => {:project => @project.value('name')} %>?</p>
 
-      <% form_tag({:controller => 'project', :action => 'delete'}, :method => 'post') do %>
+      <%= form_tag({:controller => 'project', :action => 'delete'}, :method => 'post') do %>
         <%= hidden_field_tag(:project, @project) %>
         <% if @linking_projects and @linking_projects.length > 0 %>
           <p>Other projects still have source links to this project:</p>

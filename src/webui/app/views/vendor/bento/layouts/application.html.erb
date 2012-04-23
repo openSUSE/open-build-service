@@ -18,7 +18,7 @@
     <%= yield :content_for_head %>
 
     <%= javascript_include_tag 'obs.min' %>
-    <% javascript_tag do %>
+    <%= javascript_tag do %>
       <%= yield :head_javascript %>
       <% if CONFIG['theme'] == 'bento' %>
       var _paq = _paq || [];

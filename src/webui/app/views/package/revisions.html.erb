@@ -20,7 +20,7 @@
   <% if @lower_bound > 1 || @max_revision > @upper_bound %>
     <p><%= link_to('Show all', :action  => 'revisions', :project => @project, :package => @package, :showall => 1) %></p>
   <% end %>
-  <% javascript_tag do %>
+  <%= javascript_tag do %>
     <% if @max_revision > @upper_bound %>
       $('#go_up_button').show();
     <% end %>

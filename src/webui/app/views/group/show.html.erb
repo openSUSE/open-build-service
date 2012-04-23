@@ -19,7 +19,7 @@
 
 <p><%= link_to('Show all groups', groups_path) %></p>
 
-<% javascript_tag do %>
+<%= javascript_tag do %>
   $(document).ready(function() {
     $('#group_members_table').dataTable();
   });

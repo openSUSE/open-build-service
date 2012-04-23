@@ -11,7 +11,7 @@ project will also change the files in the branched package in your project.</p>
 <p>You can add patches to the branched package without affecting the original
 package.</p>
 
-<% form_tag :controller => "package", :action => "save_new_link" do %>
+<%= form_tag :controller => "package", :action => "save_new_link" do %>
 <p>
   <strong>Name of original project:</strong><br/>
   <%= text_field_tag 'linked_project', @linked_project, :size => 80, :id => 'linked_project' %><br/>
@@ -27,7 +27,7 @@ package.</p>
 <p><%= submit_tag "Create Branch" %></p>
 <% end %>
 
-<% javascript_tag do %>
+<%= javascript_tag do %>
   $("#linked_project").autocomplete({source: '<%= url_for :controller => :project, :action => :autocomplete_projects %>', minLength: 2});
   $("#linked_package").autocomplete({
     source: 

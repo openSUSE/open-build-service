@@ -16,7 +16,7 @@
   <%= render(:partial => 'shared/incident_table', :locals => {:incidents => @incidents, :incident_table_id => 'incident_table'}) unless not defined?(@incidents) %>
 </div>
 
-<% javascript_tag do %>
+<%= javascript_tag do %>
   function updateIncidentDisplay() {
     $('#spinner').show();
     $.ajax({

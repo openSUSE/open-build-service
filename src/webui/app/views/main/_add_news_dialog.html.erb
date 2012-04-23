@@ -3,7 +3,7 @@
   <div class="dialog darkgrey_box">
     <div class="box box-shadow">
       <h2 class="box-header">Add New Message</h2>
-      <% form_tag({:controller => 'main', :action => 'add_news'}, :method => 'post') do %>
+      <%= form_tag({:controller => 'main', :action => 'add_news'}, :method => 'post') do %>
         <p>
           <%= label_tag(:message, 'Message:') %><br/>
           <%= text_area_tag(:message, '', :size => '40x3') %><br/>

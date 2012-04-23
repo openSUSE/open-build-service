@@ -1,6 +1,6 @@
 <%= render :partial => "package/tabs" %>
 
-<% form_tag({:action => "save"}, :id => "patchinfo")  do %>
+<%= form_tag({:action => "save"}, :id => "patchinfo")  do %>
   <div class="section">
     <div class="grid_8 alpha">
       <div class="box show_left show_right">
@@ -11,7 +11,7 @@
           <p>
             <strong>Packager:</strong><br/>
             <%= text_field_tag 'packager', @packager %>
-            <% javascript_tag do %>
+            <%= javascript_tag do %>
               $("#packager").autocomplete({source: '<%= url_for :controller => 'user', :action => 'autocomplete' %>', minLength: 2});
             <% end %>
           </p>
@@ -119,7 +119,7 @@
         </div>
       </div>
     </div>
-  <% content_for :head_javascript do %>
+  <%= content_for :head_javascript do %>
     function enable_block_reason(){
     if ($("input[name='block']:checked").val() == "true"){
     $("#block_reason").removeAttr("disabled");

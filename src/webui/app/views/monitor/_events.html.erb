@@ -3,7 +3,7 @@
 <div class="grid_7 prefix_1 alpha" >
  <div class="box box-shadow">
     <h2 class="box-header">Options</h2>
-    <% form_tag(:controller => "main", :action => "index") do %>
+    <%= form_tag(:controller => "main", :action => "index") do %>
       <p>
         <strong>Architecture:</strong>
         <%= select_tag(:architecture_display, options_for_select(@available_arch_list)) %><br/>
@@ -37,7 +37,7 @@
 
 <div class="clear"></div>
 
-<% content_for :head_javascript do %>
+<%= content_for :head_javascript do %>
 
    var arch_to_show = "<%= @available_arch_list[0] %>"
    var time_to_show = "24";
@@ -98,7 +98,7 @@
    }
 <% end %>
 
-<% content_for :ready_function do %>
+<%= content_for :ready_function do %>
        /* plot an empty set */
        plotValues({ 'building': [], 
                     'idle': [],

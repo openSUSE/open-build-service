@@ -9,7 +9,7 @@
 
 <% comments_to_clear = [] %>
 
-<% form_tag({:action => :status}, :method => :get) do %>
+<%= form_tag({:action => :status}, :method => :get) do %>
   <p>
     <%= hidden_field_tag(:project, @project.name) -%>
     <% if @develprojects.size > 2 %>
@@ -153,7 +153,7 @@
       <% end %>
     </tbody>
   </table>
-  <% javascript_tag do %>
+  <%= javascript_tag do %>
     $(document).ready(function() {
       $('#status_table').dataTable({
         'iDisplayLength': 50,

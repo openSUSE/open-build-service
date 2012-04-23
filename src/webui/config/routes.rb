@@ -220,7 +220,7 @@ OBSWebUI::Application.routes.draw do
     match 'request/add_reviewer_dialog' => :add_reviewer_dialog
     match 'request/add_reviewer' => :add_reviewer
     match 'request/modify_review' => :modify_review
-    match 'request/show' => :show
+    match 'request/show/:id' => :show
     match 'request/sourcediff' => :sourcediff
     match 'request/changerequest' => :changerequest
     match 'request/diff' => :diff

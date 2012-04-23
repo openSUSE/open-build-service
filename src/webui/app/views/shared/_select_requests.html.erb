@@ -1,6 +1,6 @@
 <% no_target ||= false %>
 
-<% content_for :head_javascript do %>
+<%= content_for :head_javascript do %>
   function updateRequestDisplay() {
     $('#spinner').show();
     $.ajax({
@@ -27,7 +27,7 @@
     });
   }
 <% end %>
-<% content_for :ready_function do %>
+<%= content_for :ready_function do %>
   <%= "updateRequestDisplay();" unless defined?(requests) %>
 <% end %>
 

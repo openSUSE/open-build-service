@@ -55,7 +55,7 @@
 <% end %>
 
 <% if @subprojects.length > 0 %>
-  <% javascript_tag do %>
+  <%= javascript_tag do %>
     $(document).ready(function() {
       $('#parentprojects_table').dataTable({
         'bPaginate': false,

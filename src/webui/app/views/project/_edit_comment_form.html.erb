@@ -1,4 +1,4 @@
- <% form_remote_tag :url => { :action => :edit_comment, :project => @project, :package => @package },
+ <%= form_remote_tag :url => { :action => :edit_comment, :project => @project, :package => @package },
    :update => valid_xml_id("comment_#{@package}") do -%>
    <%= text_field_tag('text', @comment) %>
    <%= hidden_field_tag('last_comment', @comment) %>

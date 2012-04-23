@@ -2,7 +2,7 @@
 
 <h2>Editing User Data for User <%=h @user.login %></h2>
 
-<% form_tag :action => :save do -%>
+<%= form_tag :action => :save do -%>
    <div>
 	 <p><strong>Real Name:</strong></p>
 	<p><%= text_field_tag( "realname", @user.realname, :size => 80 ) %></p>

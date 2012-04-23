@@ -1,4 +1,4 @@
-<% content_for :head_javascript do %>
+<%= content_for :head_javascript do %>
   function collapse_expand(file_id) {
     if ($('#diff_view_' + file_id + '_placeholder').length == 1) {
       $.ajax({
@@ -44,9 +44,9 @@
         <tr id="diff_headline_<%= file_id %>">
           <td style="width: 16px"><%# NOTE: Hand-crafted value for both '[+]' and '[-]' %>
             <% if file_diff_text.length > 0 %>
-              <%= link_to_function('[-]', :onclick => "collapse_expand('#{file_id}')", :id => "collapse_#{file_id}") %>
-              <%= link_to_function('[+]', :onclick => "collapse_expand('#{file_id}')", :id => "expand_#{file_id}") %>
-              <% javascript_tag do %>
+              <%= link_to_function('[-]', "collapse_expand('#{file_id}')", :id => "collapse_#{file_id}") %>
+              <%= link_to_function('[+]', "collapse_expand('#{file_id}')", :id => "expand_#{file_id}") %>
+              <%= javascript_tag do %>
                 <% if is_expanded %>
                   $('#expand_<%= file_id %>').hide();
                 <% else %>

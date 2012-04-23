@@ -204,7 +204,7 @@
 <% end %>
 
 <% if @packages.length > 0 %>
-  <% javascript_tag do %>
+  <%= javascript_tag do %>
     $(document).ready(function() {
       $('#packages_table').dataTable({
         "bSort": false,

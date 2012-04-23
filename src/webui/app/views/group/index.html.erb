@@ -29,7 +29,7 @@
   <p><i>There are no groups configured</i></p>
 <% end %>
 
-<% javascript_tag do %>
+<%= javascript_tag do %>
   $(document).ready(function() {
     <% if @groups.length > 0 %>
       $('#group_table').dataTable();

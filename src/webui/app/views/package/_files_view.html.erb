@@ -36,7 +36,7 @@
       <% end %>
     </tbody>
   </table>
-  <% javascript_tag do %>
+  <%= javascript_tag do %>
     $(document).ready(function() {
       $('#files_table').dataTable({
         'aoColumns': [null, null, null, {'bSortable': false}],

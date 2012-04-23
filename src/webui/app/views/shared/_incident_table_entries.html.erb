@@ -89,7 +89,7 @@
         <% else %>
           <%= link_to(image_tag('icons/exclamation.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => incident.value('name')) %>
         <% end %>
-        <% javascript_tag do %>
+        <%= javascript_tag do %>
           setup_buildresult_tooltip('<%= buildresult_css_id %>', '<%= url_for :controller => 'project', :action => 'buildresult', :project => incident.value('name') %>');
         <% end %>
       </td>

@@ -5,7 +5,7 @@
 
 <% if PROXY_AUTH_MODE == :on %>
   <div>
-    <% form_tag(PROXY_AUTH_LOGIN_PAGE, :method => :post, :id => 'login_form', :enctype => 'application/x-www-form-urlencoded') do %>
+    <%= form_tag(PROXY_AUTH_LOGIN_PAGE, :method => :post, :id => 'login_form', :enctype => 'application/x-www-form-urlencoded') do %>
       <%= hidden_field_tag(:url, "#{@return_to_host}#{@return_to_path}") %>
       <%= hidden_field_tag(:context, 'default') %>
       <%= hidden_field_tag(:proxypath, 'reserve') %>
@@ -40,7 +40,7 @@
 <% else %>
 
   <div id="login-form">
-    <% form_tag( :controller => :user, :action => :do_login ) do %>
+    <%= form_tag( :controller => :user, :action => :do_login ) do %>
       <%= hidden_field_tag(:return_to_path, @return_to_path) %>
       <table class="vertical">
         <tr>

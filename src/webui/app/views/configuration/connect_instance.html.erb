@@ -1,4 +1,4 @@
-<% content_for :head_javascript do %>
+<%= content_for :head_javascript do %>
 function useOpenSUSE(){
 	document.getElementById('name').value = "openSUSE.org";
 	document.getElementById('remoteurl').value = "https://api.opensuse.org/public";
@@ -36,7 +36,7 @@ function useMeeGo(){
 </div>
 
 <h3>Add custom OBS instance</h3>
-<% form_tag  :action => :save_instance do -%>
+<%= form_tag  :action => :save_instance do -%>
   <table id="instance">
     <tr>
       <td><strong>Local Project Name:</strong></td>

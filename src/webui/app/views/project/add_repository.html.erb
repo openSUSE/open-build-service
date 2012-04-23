@@ -7,7 +7,7 @@
 
 <%= render :partial => "tabs" %>
 
-<% content_for :ready_function do %>
+<%= content_for :ready_function do %>
   function autocomplete_repositories(project_name) {
     $('#target_repo').hide();
     $('#target_repo_txt').show();
@@ -51,7 +51,7 @@
 
 <h2>Advanced Search for Build Targets</h2>
 
-<% form_tag({:action => :save_targets, :project => @project}) do -%>
+<%= form_tag({:action => :save_targets, :project => @project}) do -%>
   <p>
     <strong>Project: </strong><br/>
     <%= text_field_tag 'target_project', '', :size => 60, :id => 'target_project' %><br/>

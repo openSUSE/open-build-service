@@ -4,7 +4,7 @@
     <div class="box box-shadow">
       <h2 class="box-header">Submit as Update</h2>
       <p>This will submit your project as a Maintenance Incident Request.</p>
-      <% form_tag({:controller => 'project', :action => 'new_incident_request'}, :method => :post) do %>
+      <%= form_tag({:controller => 'project', :action => 'new_incident_request'}, :method => :post) do %>
         <%= hidden_field_tag(:project, @project) %>
         <p>
           <%= label_tag(:sourceproject, "Project submitted as Update:") %><br/>

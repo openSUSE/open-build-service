@@ -3,7 +3,7 @@
 
 <%= render :partial => "tabs" %>
 
-<% content_for :head_javascript do %>
+<%= content_for :head_javascript do %>
   function insertRow() {
     var name     = document.getElementById('add_new_parameter').value;
     var service  = document.getElementById('servicename').value;

@@ -28,7 +28,7 @@
   <p>Have fun building software.</p>
   <p>Your Build Service Team</p>
   
-  <% form_tag :controller => 'user', :action => 'register', :method => :post do %>
+  <%= form_tag :controller => 'user', :action => 'register', :method => :post do %>
     <%= hidden_field_tag 'register', 'true' %>
     <%= submit_tag "Let me build my packages!" %>
   <% end %>
