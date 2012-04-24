@@ -158,6 +158,8 @@ OBSWebUI::Application.routes.draw do
     match 'project/attributes' => :attributes
     match 'project/new' => :new
     match 'project/new_incident' => :new_incident
+    match 'project/new_package' => :new_package
+    match 'project/new_package_branch' => :new_package_branch
     match 'project/incident_request_dialog' => :incident_request_dialog
     match 'project/new_incident_request' => :new_incident_request
     match 'project/release_request_dialog' => :release_request_dialog
@@ -246,6 +248,7 @@ OBSWebUI::Application.routes.draw do
     match 'user/do_login' => :do_login
     match 'user/edit' => :edit
     match 'user/register' => :register
+    match 'user/register_user' => :register_user
     match 'user/login' => :login
     match 'user/logout' => :logout
     match 'user/save' => :save

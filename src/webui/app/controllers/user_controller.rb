@@ -122,6 +122,9 @@ class UserController < ApplicationController
     redirect_to :controller => :project, :action => :new, :ns => "home:#{login}"
   end
 
+  def register_user
+  end
+
   def change_password
     valid_http_methods(:post)
     # check the valid of the params  

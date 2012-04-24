@@ -199,6 +199,12 @@ class ProjectController < ApplicationController
     redirect_to :action => 'show', :project => target_project and return
   end
 
+  def new_package
+  end
+
+  def new_package_branch
+  end
+
   def incident_request_dialog
     #TODO: Currently no way to find out where to send until the project 'maintained' relationship
     #      is really used. The API will find out magically here though.
