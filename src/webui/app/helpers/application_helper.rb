@@ -9,7 +9,7 @@ module ActionView
     @@rails_root = nil
     def real_public
       return @@rails_root if @@rails_root
-      @@rails_root = Pathname.new("#{RAILS_ROOT}/public").realpath
+      @@rails_root = Rails.root.join('public')
     end
 
     @@icon_cache = Hash.new
@@ -19,14 +19,14 @@ module ActionView
         return @@icon_cache[_source]
       end
       new_path = "/vendor/#{CONFIG['theme']}#{_source}"
-      if File.exists?("#{RAILS_ROOT}/public#{new_path}")
+      if File.exists?("#{Rails.root.to_s}/public#{new_path}")
         source = new_path
-      elsif File.exists?("#{RAILS_ROOT}/public#{_source}")
+      elsif File.exists?("#{Rails.root.to_s}/public#{_source}")
         source = _source
       else
         return super(_source)
       end
-      source=Pathname.new("#{RAILS_ROOT}/public#{source}").realpath
+      source=Pathname.new("#{Rails.root.to_s}/public#{source}").realpath
       source="/" + Pathname.new(source).relative_path_from(real_public).to_s
       Rails.logger.debug "using themed file: #{_source} -> #{source}"
       source = super(source)

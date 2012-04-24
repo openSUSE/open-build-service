@@ -543,11 +543,11 @@ class ProjectController < ApplicationController
     f.write(jobs.dump_xml)
     f.close
     outdir = Dir.mktmpdir
-    logger.debug "cd #{RAILS_ROOT}/vendor/diststats && perl ./mkdiststats --srcdir=#{indir} --destdir=#{outdir} 
+    logger.debug "cd #{Rails.root.join('vendor', 'diststats').to_s} && perl ./mkdiststats --srcdir=#{indir} --destdir=#{outdir} 
              --outfmt=xml #{@project.name}/#{@repository}/#{@arch} --width=910
              --buildhosts=#{@hosts} --scheduler=#{@scheduler}"
     fork do
-      Dir.chdir("#{RAILS_ROOT}/vendor/diststats")
+      Dir.chdir(Rails.root.join('vendor', 'diststats'))
       system("perl", "./mkdiststats", "--srcdir=#{indir}", "--destdir=#{outdir}", 
              "--outfmt=xml", "#{@project.name}/#{@repository}/#{@arch}", "--width=910",
              "--buildhosts=#{@hosts}", "--scheduler=#{@scheduler}")

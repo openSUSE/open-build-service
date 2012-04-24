@@ -45,7 +45,7 @@ class ApplicationController < ActionController::Base
       @return_to_host += "://"
       @return_to_host += Object.const_defined?(:EXTERNAL_WEBUI_HOST) ? EXTERNAL_WEBUI_HOST : request.host
     end
-    @return_to_path = params['return_to_path'] || request.env['REQUEST_URI'].gsub(/.*:\/\/[^\/]*\//, '/').gsub(/&/, '&amp;')
+    @return_to_path = params['return_to_path'] || request.env['PATH_INFO'].gsub(/.*:\/\/[^\/]*\//, '/').gsub(/&/, '&amp;')
     logger.debug "Setting return_to: \"#{@return_to_path}\""
   end
 
@@ -397,7 +397,7 @@ class ApplicationController < ActionController::Base
   @@frontend = nil
   def start_test_api
     return if @@frontend
-    @@frontend = IO.popen("#{RAILS_ROOT}/script/start_test_api")
+    @@frontend = IO.popen(Rails.root.join('script', 'start_test_api').to_s)
     puts "Starting test API with pid: #{@@frontend.pid}"
     lines = []
     while true do
