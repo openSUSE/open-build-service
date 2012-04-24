@@ -257,9 +257,9 @@ class ApplicationController < ActionController::Base
   end
 
   def valid_http_methods(*methods)
-    methods.map {|x| x.to_s.downcase.to_s}
+    methods.map! {|x| x.to_s.upcase}
     unless methods.include? request.method
-      raise InvalidHttpMethodError, "Invalid HTTP Method: #{request.method.to_s.upcase}"
+      raise InvalidHttpMethodError, "Invalid HTTP Method: #{request.method}"
     end
   end
 
