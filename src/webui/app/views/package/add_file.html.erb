@@ -3,7 +3,7 @@
 
 <%= render :partial => "tabs" %>
 
-<h3>Add File to <%= h(@package.name) %> (Project <%= h(@project.name) %>)</h3>
+<h3>Add File to <%= @package.name %> (Project <%= @project.name %>)</h3>
 
 <p>The filename is taken from the uploaded file if none is provided. Alternatively, if only a filename is provided, a new empty file is created (i.e. touched).</p>
 

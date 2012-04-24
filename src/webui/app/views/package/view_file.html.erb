@@ -1,5 +1,5 @@
 <% @pagetitle = "File #{@filename} of Package #{@package}" %>
-<% package_bread_crumb(link_to('Files', :action => :files, :project => @project, :package => @package, :rev => @rev), h(@filename)) %>
+<% package_bread_crumb(link_to('Files', :action => :files, :project => @project, :package => @package, :rev => @rev), @filename) %>
 
 <%= render :partial => "tabs" %>
 

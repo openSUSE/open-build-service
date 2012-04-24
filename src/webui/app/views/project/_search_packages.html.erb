@@ -8,7 +8,7 @@
         <h3>Products</h3>
         <p>
           <% @packages.each.select{|p| /^_product/.match( p.name ) }.collect{|p| p.name }.each do |package| -%>
-            | <%= link_to highlight( h(package.sub(/_product:/, '')), @filterstring ), { :controller => 'package', :action => :show, :project=> @project, :package => package}, :class => 'nowrap' %>
+            | <%= link_to highlight( package.sub(/_product:/, ''), @filterstring ), { :controller => 'package', :action => :show, :project=> @project, :package => package}, :class => 'nowrap' %>
           <% end %>
         </p>
       <% end %>
@@ -17,7 +17,7 @@
         <h3>Patchinfos</h3>
         <p>
           <% @patchinfo.each do |info| -%>
-            | <%= link_to highlight( h(info), @filterstring ), { :controller => 'patchinfo', :action => :show, :project => @project, :package => info}, :class => 'nowrap' %>
+            | <%= link_to highlight( info, @filterstring ), { :controller => 'patchinfo', :action => :show, :project => @project, :package => info}, :class => 'nowrap' %>
           <%end%>
         </p>
       <%end%>
@@ -29,7 +29,7 @@
             @current_char = package[0,1] %>
           </p><p><b><%= @current_char %></b>
           <% end %>
-          | <%= link_to highlight( h(package), @filterstring ), { :controller => 'package', :action => :show, :project=> @project, :package => package}, :class => 'nowrap' %>
+          | <%= link_to highlight( package, @filterstring ), { :controller => 'package', :action => :show, :project=> @project, :package => package}, :class => 'nowrap' %>
         <% end%>
       </p>
     </div>

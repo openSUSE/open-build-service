@@ -12,14 +12,14 @@
           -%>
           <tr>
             <% if index == 0 %>
-              <td class="nowrap" title="<%= h r %>" rowspan="<%= archs.length %>">
+              <td class="nowrap" title="<%= r %>" rowspan="<%= archs.length %>">
                 <%= link_to(elide(r, 26), {:action => :binaries, :controller => :package, :project => @project, :package => @package, :repository => r}, {:title => "Binaries for #{r}"}) %>
               </td>
               <% index += 1 -%>
             <% end # if -%>
             <td class="arch">
               <div class="nowrap" style="margin: 0 0.5ex">
-                <%= repo_status_icon @repostatushash[r][a] %> <%= h(a) %>
+                <%= repo_status_icon @repostatushash[r][a] %> <%= a %>
               </div>
             </td>
             <%= arch_repo_table_cell r, a, @package.name %>

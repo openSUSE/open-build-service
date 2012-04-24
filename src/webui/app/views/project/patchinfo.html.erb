@@ -15,7 +15,7 @@
   <h3>Patchinfo</h3>
   <p>
     <% @patchinfo.each do |package| -%>
-      <%= link_to h(package), { :controller => 'patchinfo', :action => :edit_patchinfo, :project=> @project, :package => package}, :class => 'nowrap' %>
+      <%= link_to package, { :controller => 'patchinfo', :action => :edit_patchinfo, :project=> @project, :package => package}, :class => 'nowrap' %>
     <% end%>
   </p>
 </div>

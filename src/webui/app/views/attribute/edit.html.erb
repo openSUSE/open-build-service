@@ -14,7 +14,7 @@
   <%= render :partial => "project/tabs" %>
 <% end %>
 
-<h2><%= h @pagetitle %> <%= h @selected_attribute_name %></h2>
+<h2><%= @pagetitle %> <%= @selected_attribute_name %></h2>
 
 <%= form_tag :action => "save" do %>
   <p>

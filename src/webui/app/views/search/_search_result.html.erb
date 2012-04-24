@@ -34,17 +34,17 @@
           <% end %>
 
           <% if result[:data].has_element?( 'title' ) && !result[:data].title.to_s.empty? %>
-            ( <%= highlight( h(result[:data].title.to_s.dup), @search_text ) -%> )
+            ( <%= highlight( result[:data].title.to_s.dup, @search_text ) -%> )
           <% end %>
          </p>
 
           <% if result[:data].has_element?( 'description' ) && !result[:data].description.to_s.empty? %>
             <p>
             <% descr = result[:data].description.to_s.dup[0,150] + '...' if not
-            descr = excerpt( result[:data].description.to_s.dup, @search_text, 150 ) %>
+            descr = excerpt(result[:data].description.to_s.dup, @search_text, 150 ) %>
 
             <% descr.split(/\n/).each do |line| -%>
-              <%= highlight( h(line), @search_text) -%><br/>
+              <%= highlight(line, @search_text) -%><br/>
             <% end %>
             </p>
           <% end %>

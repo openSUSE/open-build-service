@@ -20,9 +20,9 @@
             end
           %>
             <div class="statuslight <%= "status_" + state %>" style="margin: auto"></div>
-            <div class="statusarch">[<%=h sched["arch"] %>]</div>
+            <div class="statusarch">[<%= sched["arch"] %>]</div>
             <span class="hidden statustext">
-              <%=h sched["arch"] %>: <%=h sched["state"] %>
+              <%= sched["arch"] %>: <%= sched["state"] %>
               <% if sched.has_key? "starttime" -%>
                 <% start_time = Time.at(sched["starttime"].to_i) -%>
                 for <%= distance_of_time_in_words(@time_now, start_time, true) %> (last restart: <%= start_time.iso8601 %>)

@@ -21,10 +21,10 @@
         <% unless @avail_status_values.empty? -%>
         <ul>
           <% @avail_status_values.each do |s| %>
-            <% id=h(s).gsub(' ', '') -%>
+            <% id=s.gsub(' ', '') -%>
             <li class="nowrap filteritem" id="li_<%= id %>">
               <%= check_box_tag id, 1, @status_filter.include?(s), :class => "statusitem" %>
-              <label for="<%= id %>" class="strong"><%= h s %></label>
+              <label for="<%= id %>" class="strong"><%= s %></label>
             </li>
           <% end %>
         </ul>
@@ -86,7 +86,7 @@
           <th></th>
           <% @repohash.sort.each do |repo,archlist|
             next if archlist.empty? -%>
-            <th colspan="<%=h archlist.length %>"><span class="strong"><%=h repo %></span></th>
+            <th colspan="<%= archlist.length %>"><span class="strong"><%= repo %></span></th>
           <% end -%>
         </tr>
         <!-- arch row -->
@@ -94,7 +94,7 @@
           <th></th>
           <% @repohash.sort.each do |repo, archlist| -%>
             <% archlist.sort.each do |arch| -%>
-              <th class="buildstatus"><%= repo_status_icon @repostatushash[repo][arch] %> <%=h arch %></th>
+              <th class="buildstatus"><%= repo_status_icon @repostatushash[repo][arch] %> <%= arch %></th>
             <% end -%>
           <% end -%>
         </tr>

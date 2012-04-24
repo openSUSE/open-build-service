@@ -11,7 +11,7 @@
           <p>Other projects still have source links to this project:</p>
           <ul>
             <% @linking_projects.each do |link| %>
-              <li><%= link_to(h(elide(link.name, 40)), :controller => 'project', :action => 'show', :project => link) %></li>
+              <li><%= link_to(elide(link.name, 40), :controller => 'project', :action => 'show', :project => link) %></li>
             <% end %>
           </ul>
           <%= check_box_tag(:ignore_linking_projects)%> Ignore project source links

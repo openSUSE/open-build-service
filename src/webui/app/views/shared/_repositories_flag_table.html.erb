@@ -3,7 +3,7 @@
     <th></th>
     <th style="width: 6ex">All</th>
     <% @project.architectures.each do |arch| %>
-      <th style="width: 6ex"><%=h arch %></th>
+      <th style="width: 6ex"><%= arch %></th>
     <% end %>
   </tr>
 
@@ -18,11 +18,11 @@
   <% @project.repositories.each do |repo| %>
     <tr>
       <td class="reponame">
-        <strong title="<%=h repo %>">
+        <strong title="<%= repo %>">
           <% if defined? @package %>
-            <%= link_to(h(elide(repo, 18)), :action => "binaries", :project => @project, :package => @package, :repository => repo) %>
+            <%= link_to(elide(repo, 18), :action => "binaries", :project => @project, :package => @package, :repository => repo) %>
           <% else %>
-            <%= link_to(h(elide(repo, 18)), :action => "repository_state", :project => @project, :repository => repo) %>
+            <%= link_to(elide(repo, 18), :action => "repository_state", :project => @project, :repository => repo) %>
           <% end %>
         </strong>
       </td>

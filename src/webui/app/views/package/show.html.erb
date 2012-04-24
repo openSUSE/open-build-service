@@ -5,7 +5,7 @@
 <div class="grid_16 alpha omega box box-shadow">
   <%= render :partial => 'tabs' %>
   <div class="grid_10 alpha">
-    <h3 id="package_title"><%=h @package.title %><%= h(@package) if @package.title.to_s.blank? -%></h3>
+    <h3 id="package_title"><%= @package.title %><%= @package if @package.title.to_s.blank? -%></h3>
     <%= description_wrapper(@package.description.text) %>
   </div>
   <div class="grid_6 omega">
@@ -140,14 +140,14 @@
         <% @files.each do |file| %>
           <tr>
             <td>
-              <%= link_to_if(file[:viewable], nbsp(h(file[:name])), :action => :view_file, :project => @project, :package => @package, :file => file[:name], :rev => file[:srcmd5], :expand => @expand) %>
+              <%= link_to_if(file[:viewable], nbsp(file[:name]), :action => :view_file, :project => @project, :package => @package, :file => file[:name], :rev => file[:srcmd5], :expand => @expand) %>
               <% if @link && @link.has_add_patch?(file[:name]) %>
                 (Added Patch)
               <% elsif @link && @link.has_patch?(file[:name]) %>
                 (Global Patch)
               <% end %>
             </td>
-            <td><%=h human_readable_fsize(file[:size]) %></td>
+            <td><%= human_readable_fsize(file[:size]) %></td>
             <td><%= fuzzy_time_string(Time.at(file[:mtime].to_i).to_s) %></td>
             <td>
               <%# limit download for anonymous user to avoid getting killed by crawlers %>

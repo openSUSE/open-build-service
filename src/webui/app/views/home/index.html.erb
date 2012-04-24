@@ -18,7 +18,7 @@
 <p>
   <strong>Real name:</strong>
   <% if @displayed_user.realname && !@displayed_user.realname.to_s.empty? %>
-    <%= h(@displayed_user.realname) %>
+    <%= @displayed_user.realname %>
   <% else %>
     <em>No real name set.</em>
   <% end %>

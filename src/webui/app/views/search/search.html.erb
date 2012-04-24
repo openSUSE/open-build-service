@@ -3,8 +3,8 @@
 -%>
 
 <h3><%= @pagetitle %>
-  <% if !@search_text.blank? %>for &quot;<%= h(@search_text) -%>&quot;<% end %>
-  <% if !@attribute.blank? %>with attribute &quot;<%= h(@attribute) -%>&quot;<% end %>
+  <% if !@search_text.blank? %>for &quot;<%= @search_text -%>&quot;<% end %>
+  <% if !@attribute.blank? %>with attribute &quot;<%= @attribute -%>&quot;<% end %>
   <% if @results %>&nbsp;(<%= @results.length -%>)<% end %>
 </h3>
 

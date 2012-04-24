@@ -3,11 +3,11 @@
 <h2>XML errors</h2>
 <ul>
   <% errors.each do |msg| %>
-    <li><%= h msg %></li>
+    <li><%= msg %></li>
   <% end -%>
 </ul>
 
 <h2>HTML Code</h2>
 <div style="position: relative; margin-left: 15px; margin-right: 15px;">
-  <%= render :partial => "shared/editor", :locals => {:text => h(oldbody), :mode => 'xml'} %>
+  <%= render :partial => "shared/editor", :locals => {:text => oldbody, :mode => 'xml'} %>
 </div>

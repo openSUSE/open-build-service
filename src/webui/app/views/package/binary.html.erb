@@ -21,7 +21,7 @@
     <% description = @fileinfo.value('description') %>
     <% if description %>
       <% description.split( /\n/ ).each do |line| %>
-        <%= h line -%><br/>
+        <%= line -%><br/>
       <% end %>
     <% else %>
       <i>No description set</i>

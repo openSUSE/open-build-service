@@ -5,7 +5,7 @@
 
 <%= render :partial => "tabs" %>
 
-<h3><%= h @pagetitle %></h3>
+<h3><%= @pagetitle %></h3>
 
 <% comments_to_clear = [] %>
 
@@ -105,7 +105,7 @@
         # ignore the upstream version if there are already changes pending
         if p['upstream_version'] and sortkey.nil?
           if p['upstream_url']
-            outs << "New upstream version <a href=\"" + h(p['upstream_url']) + "\">" + h(p['upstream_version']) + "</a> available"
+            outs << "New upstream version <a href=\"" + p['upstream_url'] + "\">" + p['upstream_version'] + "</a> available"
           else
             outs << "New upstream version " + p['upstream_version'] + " available"
           end
@@ -129,7 +129,7 @@
         -%>
         <tr>
           <td class="nowrap">
-            <span class="hidden"><%= h p['name'] %></span>
+            <span class="hidden"><%= p['name'] %></span>
             <% if icon == "error" -%>
               <%= image_tag("icons/exclamation.png", :size => "16x16", :title => "Error" ) %>
             <% elsif icon == "ok" -%>
@@ -137,12 +137,12 @@
             <% else -%>
               <%= image_tag("icons/information.png", :size => "16x16", :title => "So-so" ) %>
             <% end -%>
-            <%= link_to h(p['name']), :controller => :package, :action => :show, :project => @project.name, :package => p['name'] %>
+            <%= link_to p['name'], :controller => :package, :action => :show, :project => @project.name, :package => p['name'] %>
           </td>
           <% if show_devel_project %>
             <td>
-              <span class="hidden"><%= h p['develproject'] %></span>
-              <%= link_to h(p['develproject']), :controller => :package, :action => :show, :project => p['develproject'], :package => p['name'] if p['develproject'] %>
+              <span class="hidden"><%= p['develproject'] %></span>
+              <%= link_to p['develproject'], :controller => :package, :action => :show, :project => p['develproject'], :package => p['name'] if p['develproject'] %>
             </td>
           <% end %>
           <td>

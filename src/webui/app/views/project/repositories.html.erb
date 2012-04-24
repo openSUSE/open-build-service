@@ -12,7 +12,7 @@
   <% @project.each_repository do |repository| %>
     <div style="margin-bottom: 1.2em" id="<%= valid_xml_id(repository.name) %>">
       <div style="margin-left: 15px">
-        <strong><%= link_to(h(repository.name), :action => 'repository_state', :project => @project, :repository => repository) %></strong>
+        <strong><%= link_to(repository.name, :action => 'repository_state', :project => @project, :repository => repository) %></strong>
         <i>(<%= repository.each_arch.join(', ') %>)</i>
       </div>
       <div style="margin-left: 30px">
@@ -21,7 +21,7 @@
             <% if path.project == 'deleted' %>
               <%= image_tag 'icons/exclamation.png' %> Target repository has been removed
             <% else %>
-              <span><%= h path.project + '/' + path.repository %></span><br/>
+              <span><%= path.project + '/' + path.repository %></span><br/>
             <% end %>
           <% end -%>
         <% rescue; end %>

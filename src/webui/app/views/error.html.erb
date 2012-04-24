@@ -22,26 +22,26 @@
 <h3>Error Details:</h3>
 <p>
   <% if local_assigns[:code] %>
-    <strong>Errorcode: </strong><%= h code %><br/>
+    <strong>Errorcode: </strong><%= code %><br/>
   <% end %>
   <% if local_assigns[:message] %>
-    <strong>Message: </strong><%= h message %><br/>
+    <strong>Message: </strong><%= message %><br/>
   <% end %>
 </p>
 
 <% if local_assigns[:api_exception] -%>
   <h3>Exception from API:</h3>
-  <p><strong><%=h api_exception.get_text 'type' %>: </strong><%=h api_exception.get_text 'message' %></p>
+  <p><strong><%= api_exception.get_text 'type' %>: </strong><%= api_exception.get_text 'message' %></p>
   <h4>Stack Trace:</h4>
   <pre>
-  <%=h api_exception.get_elements( '//backtrace/line' ).map {|e| e.text }.join("\n") %>
+  <%= api_exception.get_elements( '//backtrace/line' ).map {|e| e.text }.join("\n") %>
   </pre>
 <% end -%>
 
 <% if  local_assigns[:exception] -%>
   <h3>Exception from Webclient:</h3>
-  <p><strong><%=h exception.class.name %>: </strong><%=h exception.message %></p>
+  <p><strong><%= exception.class.name %>: </strong><%= exception.message %></p>
   <h4>Stack Trace:</h4>
-  <pre><%=h(exception.backtrace.join("\n")) %></pre>
+  <pre><%= exception.backtrace.join("\n") %></pre>
 <% end -%>
 

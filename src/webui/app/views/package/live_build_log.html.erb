@@ -73,8 +73,8 @@ package_bread_crumb 'Build Log'
   $('.stop_refresh').click(stop_refresh);
 <% end -%>
 
-<h2>Build Log for Package <%=h @package%> (Project <%=h @project%>)</h2>
-<p><strong>Repository:</strong> <%=h @repo%> <strong>Architecture:</strong> <%=h @arch%></p>
+<h2>Build Log for Package <%= @package %> (Project <%= @project %>)</h2>
+<p><strong>Repository:</strong> <%= @repo %> <strong>Architecture:</strong> <%= @arch %></p>
 <p><strong>Status:</strong> <span id="status">Updating...</span></p>
 
 

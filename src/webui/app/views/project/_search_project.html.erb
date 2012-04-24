@@ -30,7 +30,7 @@
           <% @prj_head = '' -%>
           <% @current_prj = '' -%>
         <%- end -%>
-        | <%= link_to highlight( h(project), @filterstring ), {:action => :show, :project => project }, :class => 'nowrap' -%>
+        | <%= link_to highlight( project, @filterstring ), {:action => :show, :project => project }, :class => 'nowrap' -%>
       <% end %>
     </p>
   </div>

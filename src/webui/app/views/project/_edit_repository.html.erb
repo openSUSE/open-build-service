@@ -1,5 +1,5 @@
 <div class="box" style="margin: 1em" id="<%= valid_xml_id(repository.name) %>">
-  <h2 class="box-header">Edit <%= h(repository.name) %></h2>
+  <h2 class="box-header">Edit <%= repository.name %></h2>
   <% if local_assigns[:error] %>
     <div class="message error"><%= error %></div>
   <% end %>
@@ -22,7 +22,7 @@
             <% if path.project == 'deleted' %>
               <%= image_tag 'icons/exclamation.png' %> Target repository has been removed
             <% else %>
-              <span><%= h path.project + "/" + path.repository %></span>
+              <span><%= path.project + "/" + path.repository %></span>
               <% if repository.each_path.length > 1 %>
                 <% if path != repository.each_path.first %>
                     <%= link_to(image_tag('icons/arrow_up.png'), {:action => :move_path_up, :project => @project, :repository => repository.name, :path_project => path.project, :path_repository => path.repository}, {:class => 'x', :method => :post}) -%>

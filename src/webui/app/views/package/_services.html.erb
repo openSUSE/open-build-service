@@ -11,7 +11,7 @@
       <div>
         <% object_id = "service_#{number}" %>
         <div class="service" id="<%= object_id %>" style="margin-left: 15px; ">
-          <%= image_tag('icons/cog.png') %> <b><%= h Service.summary(service.name) %></b>
+          <%= image_tag('icons/cog.png') %> <b><%= Service.summary(service.name) %></b>
           <div style="color: #999; font-size: 8pt; margin-left: 2em;">
             <%= link_text = "Show Parameters"
             link_text = image_tag('icons/cog_edit.png') + " Edit Parameters" if @package.can_edit?( session[:login] )
@@ -38,7 +38,7 @@
         Source processing is currently broken:
       </h4>
       <pre id="code" class="text">
-        <%=h @serviceerror %>
+        <%= @serviceerror %>
       </pre>
     </div>
   <% end %>

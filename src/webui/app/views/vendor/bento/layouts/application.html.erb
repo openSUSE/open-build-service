@@ -11,7 +11,7 @@
 
     <link href="<%= CONFIG['relative_url_root'] %>/favicon.ico" rel="shortcut icon" />
 
-    <title><%=h "#{@pagetitle} - " if @pagetitle -%><%= @configuration ? @configuration['title'] : 'Open Build Service' %></title>
+    <title><%= "#{@pagetitle} - " if @pagetitle -%><%= @configuration ? @configuration['title'] : 'Open Build Service' %></title>
 
     <%= stylesheet_link_tag 'obs.min', :media => 'all' %>
 

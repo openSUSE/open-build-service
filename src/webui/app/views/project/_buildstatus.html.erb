@@ -21,7 +21,7 @@
               <% index += 1 %>
             <% end %>
             <td class="nowrap">
-              <%= repo_status_icon @repostatushash[repo][arch] %> <%= h(arch) %>
+              <%= repo_status_icon @repostatushash[repo][arch] %> <%= arch %>
             </td>
             <td style="width: 1%">
               <% counts.each do |code, count| %>

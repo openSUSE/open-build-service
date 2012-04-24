@@ -5,7 +5,7 @@
 
 <%= render :partial => "tabs" %>
 
-<h2>Add Repositories to Project <%=h @project%></h2>
+<h2>Add Repositories to Project <%= @project%></h2>
 
 <p>Please choose the repositories that your packages will be built for by following default list. Or 
 <%= link_to "pick one via advanced interface", :action => :add_repository, :project => @project %>.
@@ -14,7 +14,7 @@
 <%= form_tag(:action => :save_targets, :project => @project) do %>
   <% vendors = @distributions.all_vendors %>
   <% vendors.each do |vendor| %>
-    <h3><%= image_tag( "distributions/#{vendor.downcase}.png", :width => 40 ) %> <%=h vendor -%> distributions</h3>
+    <h3><%= image_tag( "distributions/#{vendor.downcase}.png", :width => 40 ) %> <%= vendor -%> distributions</h3>
     <p>
       <% @distributions.each("distribution[@vendor='#{vendor}']") do |dist|
         name = dist.find_first('name').text
@@ -25,12 +25,12 @@
         selected = true if @project.has_element?("repository/path[@project='#{project}' and @repository='#{repo}']")
         -%>
 
-        <span class="nowrap"><%= check_box_tag 'repo[]', h(reponame), selected, :disabled => selected, :id => 'repo_' + h(reponame), :class => "repocheckbox" -%>
-          <%= hidden_field_tag h(reponame) + "_repo", h(project + '/' + repo) -%>
+        <span class="nowrap"><%= check_box_tag 'repo[]', reponame, selected, :disabled => selected, :id => 'repo_' + reponame, :class => "repocheckbox" -%>
+          <%= hidden_field_tag reponame + "_repo", (project + '/' + repo) -%>
           <% @available_architectures.each do |arch| %>
-            <%= hidden_field_tag(h(reponame) + "_arch[]", arch.name, :id => h(reponame) + "_arch_" + h(arch.name)) if arch.recommended == "true" %>
+            <%= hidden_field_tag(reponame + "_arch[]", arch.name, :id => reponame + "_arch_" + arch.name) if arch.recommended == "true" %>
           <% end %>
-          <%= h(name) %>
+          <%= name %>
         </span>
       <% end -%>
     </p>
