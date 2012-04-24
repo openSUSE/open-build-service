@@ -12,7 +12,6 @@ class ApplicationController < ActionController::Base
   after_filter :set_charset
   after_filter :validate_xhtml
   after_filter :clean_cache
-  protect_from_forgery
   has_mobile_views
 
   if Rails.env.test?
