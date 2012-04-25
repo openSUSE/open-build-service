@@ -365,9 +365,9 @@ module ApplicationHelper
 
   def force_utf8_and_transform_nonprintables(text)
     begin
-      new_text = Iconv.iconv('UTF-8//IGNORE//TRANSLIT', 'UTF-8', text)[0]
-    rescue
-      new_text = 'You tried to display binary garbage, but got this beautiful message instead!'
+      new_text = text.encode('utf-8')
+    rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError => e
+      new_text = 'You probably tried to display binary garbage, but got this beautiful message instead!'
     end
     # Ged rid of stuff that shouldn't be part of PCDATA:
     new_text.gsub!(/([^a-zA-Z0-9&;<>\/\n \t()])/n) do
