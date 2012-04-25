@@ -15,7 +15,7 @@ end
   </p>
 <% end %>
 
-<%= form_tag :action => 'save_new' do -%>
+<%= form_tag :action => 'save_new', :method => 'post' do %>
   <p>
     <b>Project Name:</b><br/>
     <% if @project_name %>
@@ -40,4 +40,4 @@ end
     <%= check_box_tag :maintenance_project, false %>Create as maintenance project.
   </p>
   <p><%= submit_tag "Create Project" %></p>
-<% end -%>
+<% end %>
