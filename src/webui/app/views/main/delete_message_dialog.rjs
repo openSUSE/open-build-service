@@ -1,1 +1,0 @@
-page.replace 'dialog_wrapper', :partial => 'delete_message_dialog'

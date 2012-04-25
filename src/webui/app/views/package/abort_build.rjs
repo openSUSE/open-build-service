@@ -1,7 +1,0 @@
-
-page.replace_html 'info_message', @message
-
-page.show 'info_message'
-page.delay(4) do
-  page.hide 'info_message'
-end

@@ -4,12 +4,12 @@
     <div class="message error"><%= error %></div>
   <% end %>
 
-  <%= form_remote_tag :update => valid_xml_id(repository.name), :url => { :action => :update_target } do %>
+  <%# TODO: jQuery for: form_remote_tag :update => valid_xml_id(repository.name), :url => { :action => :update_target } do %>
+  <%= form_tag({:action => 'update_target'}, :remote => true) do %>
     <p>
       <b>Architectures:</b>
       <% @repository_arch_hash.each do |arch, value| %>
-        <%= check_box_tag "arch[#{arch}]", "", value %><%= arch %>
-        <%= observe_field "arch_#{arch}", :function => "document.getElementById('save_button').disabled = false" %>
+        <%= check_box_tag "arch[#{arch}]", "", value, :class => 'arch_check_box' %><%= arch %>
       <% end %>
       <%= hidden_field_tag :project, @project %> <%= hidden_field_tag :repo, repository.name %>
     </p>
@@ -48,3 +48,9 @@
   <% end %>
 
 </div>
+
+<%= javascript_tag do %>
+  $('#arch_check_box').change(function () {
+    $('#save_button').enable();
+  });
+<% end %>

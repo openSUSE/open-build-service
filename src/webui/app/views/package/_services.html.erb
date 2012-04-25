@@ -15,7 +15,7 @@
           <div style="color: #999; font-size: 8pt; margin-left: 2em;">
             <%= link_text = "Show Parameters"
             link_text = image_tag('icons/cog_edit.png') + " Edit Parameters" if @package.can_edit?( session[:login] )
-            link_to_remote( link_text, :url => { :action => :service_parameter, :project => @project, :package => @package, :servicename => service.name, :serviceid => number } ) %>
+            link_to(link_text, {:action => :service_parameter, :project => @project, :package => @package, :servicename => service.name, :serviceid => number}, :remote => true) %>
             <% if @package.can_edit?( session[:login] ) %>
                | <%= image_tag('icons/cog_delete.png') %>
                <%= link_to( "Remove this service", {:action => :remove_service, :project => @project, :package => @package, :id => number}, :confirm => "Remove this service (#{service.name}) ?") %>
@@ -46,8 +46,8 @@
 
 <% if @package.can_edit?( session[:login] ) %>
   <p>
-    <%= link_to_remote image_tag('icons/cog_add.png'), :url => { :action => :add_service, :project => @project, :package => @package} %>
-    <%= link_to_remote 'Add service for source processing', :url => { :action => :add_service, :project => @project, :package => @package} %>
+    <%= link_to(image_tag('icons/cog_add.png'), {:action => :add_service, :project => @project, :package => @package}, :remote => true) %>
+    <%= link_to('Add service for source processing', {:action => :add_service, :project => @project, :package => @package}, :remote => true) %>
 
     <%= link_to image_tag('icons/cog_go.png'), {:action => :execute_services, :project => @project, :package => @package },
       {:confirm => "Execute all services now?", :method => :post } unless @services.blank? %>

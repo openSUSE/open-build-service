@@ -1,1 +1,0 @@
-page.replace 'dialog_wrapper', :partial => 'incident_request_dialog'

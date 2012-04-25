@@ -1,2 +1,0 @@
-page.replace 'dialog_wrapper', :partial => 'add_maintained_project_dialog'
-

@@ -109,8 +109,14 @@
 
 </div></div>
 
-<%= observe_field( :add_new_parameter, :frequency => 0.5, :update => :value_input_field,
-      :url => { :controller => 'package', :action  => 'service_parameter_value', :project => @project, :package => @package, :servicename => @servicename},
-      :loading => "$('#spinner_parameter_editor').show();", :complete => "$('#spinner_parameter_editor').hide();",
-      :with => "'parameter=' + encodeURIComponent($('#add_new_parameter').attr('value')) + '&setid=add_new_value'") %>
-
+<%= javascript_tag do %>
+  $('#add_parameter_name').change(function () {
+    $('#spinner_parameter_editor').show();
+    $.ajax({
+      type: 'POST',
+      url: '<%= url_for(:controller => 'package', :action  => 'service_parameter_value', :project => @project, :package => @package, :servicename => @servicename) %>',
+      data: 'parameter=' + encodeURIComponent($('#add_new_parameter').attr('value')) + '&setid=add_new_value',
+      success: function(data) { $('#value_input_field').html(data); },
+      complete: function() { $('#spinner_parameter_editor').hide(); },
+  });
+<% end %>

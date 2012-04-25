@@ -414,10 +414,5 @@ module ApplicationHelper
     ["prjconf", "attributes", "meta", "status"].include? @action_name
   end
 
-  #TODO/FIXME: Port all link_to_remote to link_to(..., :remote => true), http://code.alexreisner.com/articles/link-to-remote-with-ujs.html
-  #TODO/FIXME: This method only silences the errors for now, there's more important stuff waiting...
-  def link_to_remote(body, url_options = {}, html_options = {})
-    return 'PORT link_to_remote!!!'
-  end
 end
 

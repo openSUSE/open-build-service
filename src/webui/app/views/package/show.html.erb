@@ -49,7 +49,7 @@
         <% if @linking_packages && @linking_packages.size > 0 %>
           <li>
             <%= image_tag 'icons/information.png' %>
-            <%= @linking_packages.size %> <%= link_to_remote "derived packages", :url => { :action => :linking_packages, :project => @project, :package => @package } %>
+            <%= @linking_packages.size %> <%= link_to("derived packages", {:action => :linking_packages, :project => @project, :package => @package }, :remote => true) %>
           </li>
         <% end %>
         <% if @linkinfo %>
@@ -83,12 +83,12 @@
         <% if session[:login] %>
           <% if @current_rev %>
             <li>
-              <%= link_to_remote image_tag('icons/arrow_branch.png', :title => 'Branch package'), :url => {:action => :branch_dialog, :project => @project, :package => @package} %>
-              <%= link_to_remote 'Branch package', :url => { :action => :branch_dialog, :project => @project, :package => @package} %>
+              <%= link_to(image_tag('icons/arrow_branch.png', :title => 'Branch package'), {:action => :branch_dialog, :project => @project, :package => @package}, :remote => true) %>
+              <%= link_to('Branch package', {:action => :branch_dialog, :project => @project, :package => @package}, :remote => true) %>
             </li>
             <li>
-              <%= link_to_remote image_tag('icons/package_go.png', :title => 'Submit package'), :url => { :action => :submit_request_dialog, :project => @project, :package => @package} %>
-              <%= link_to_remote 'Submit package', :url => { :action => :submit_request_dialog, :project => @project, :package => @package} %>
+              <%= link_to(image_tag('icons/package_go.png', :title => 'Submit package'), {:action => :submit_request_dialog, :project => @project, :package => @package}, :remote => true) %>
+              <%= link_to('Submit package', {:action => :submit_request_dialog, :project => @project, :package => @package}, :remote => true) %>
             </li>
           <% end %>
           <% if @package.can_edit?(session[:login]) %>
@@ -97,24 +97,24 @@
               <%= link_to "Edit description", :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
             </li>
             <li>
-              <%= link_to_remote image_tag('icons/package_delete.png', :title => 'Delete package'), :url => { :action => :delete_dialog, :package => @package, :project => @project } -%>
-              <%= link_to_remote 'Delete package', :url => { :action => :delete_dialog, :package => @package, :project => @project } -%>
+              <%= link_to(image_tag('icons/package_delete.png', :title => 'Delete package'), {:action => :delete_dialog, :package => @package, :project => @project}, :remote => true) %>
+              <%= link_to('Delete package', {:action => :delete_dialog, :package => @package, :project => @project}, :remote => true) %>
             </li>
           <% else %>
             <li>
-              <%= link_to_remote(image_tag('icons/user_add.png', :title => "Request role addition"), :url => {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}) %>
-              <%= link_to_remote("Request role addition", :url => {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}) %>
+              <%= link_to(image_tag('icons/user_add.png', :title => "Request role addition"), {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}, :remote => true) %>
+              <%= link_to("Request role addition", {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}, :remote => true) %>
             </li>
             <li>
-              <%= link_to_remote image_tag('icons/package_delete.png', :title => 'Request deletion'), :url => {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package} %>
-              <%= link_to_remote 'Request deletion', :url => {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package} %>
+              <%= link_to(image_tag('icons/package_delete.png', :title => 'Request deletion'), {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package}, :remote => true) %>
+              <%= link_to('Request deletion', {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package}, :remote => true) %>
             </li>
           <% end %>
           <%# TODO: only users w/o rights should see this, maintainers should get a different dialog: %>
           <% if @package.has_element?(:devel) %>
             <li>
-              <%= link_to_remote(image_tag('icons/arrow_switch.png', :title => 'Request devel project change'), :url => {:controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package}) %>
-              <%= link_to_remote('Request devel project change', :url => {:controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package}) %>
+              <%= link_to(image_tag('icons/arrow_switch.png', :title => 'Request devel project change'), {:controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package}, :remote => true) %>
+              <%= link_to('Request devel project change', {:controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package}, :remote => true) %>
             </li>
           <% end %>
         <% end %>

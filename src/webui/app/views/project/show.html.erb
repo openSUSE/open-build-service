@@ -67,7 +67,7 @@
               <%= link_to pluralize(@releasetargets.length, "Release Target"), :action => 'meta', :project => @project %>
             </li>
           <% end %>
-        <% end %>
+        <% end %> 
 
         <%= render :partial => 'shared/open_requests' %>
 
@@ -80,7 +80,7 @@
         <% if @linking_projects.size > 0 %>
           <li>
             <%= image_tag 'icons/information.png' %>
-            <%= @linking_projects.size %> <%= link_to_remote("linking project#{@linking_projects.size == 1 ? '' : 's'}", :url => {:action => 'linking_projects', :project => @project }) %>
+            <%= @linking_projects.size %> <%= link_to("linking project#{@linking_projects.size == 1 ? '' : 's'}", {:action => 'linking_projects', :project => @project}, :remote => true) %>
           </li>
         <% end %>
         <% if @project_maintenance_project %>
@@ -111,8 +111,8 @@
             <% unless @project.is_remote? %>
               <% if @is_incident_project && @nr_packages > 0 && @has_patchinfo && @open_release_requests.length == 0 %>
                 <li>
-                  <%= link_to_remote(image_tag('icons/brick_go.png', :title => 'Request to release'), :url => {:controller => 'project', :action => 'release_request_dialog', :project => @project}) %>
-                  <%= link_to_remote('Request to release', :url => {:controller => 'project', :action => 'release_request_dialog', :project => @project}) %>
+                <%= link_to(image_tag('icons/brick_go.png', :title => 'Request to release'), {:controller => 'project', :action => 'release_request_dialog', :project => @project}, :remote => true) %>
+                  <%= link_to('Request to release', :controller => 'project', :action => 'release_request_dialog', :project => @project, :remote => true) %>
                 </li>
               <% elsif @is_maintenance_project %>
                 <li>
@@ -140,8 +140,8 @@
                 <% end %>
                 <% if !@is_incident_project && @releasetargets.length > 0 %>
                   <li>
-                    <%= link_to_remote(image_tag('icons/brick_go.png', :title => 'Submit as Update'), :url => {:controller => 'project', :action => 'incident_request_dialog', :project => @project}) %>
-                    <%= link_to_remote('Submit as Update', :url => {:controller => 'project', :action => 'incident_request_dialog', :project => @project}) %>
+                  <%= link_to(image_tag('icons/brick_go.png', :title => 'Submit as Update'), {:controller => 'project', :action => 'incident_request_dialog', :project => @project}, :remote => true) %>
+                  <%= link_to('Submit as Update', {:controller => 'project', :action => 'incident_request_dialog', :project => @project}, :remote => true) %>
                   </li>
                 <% end %>
               <% end %>
@@ -151,23 +151,23 @@
               <%= link_to("Edit description", :action => 'edit', :project => @project) %>
             </li>
             <li>
-              <%= link_to_remote(image_tag('icons/brick_delete.png', :title => 'Delete project'), :url => {:controller => 'project', :action => 'delete_dialog', :project => @project.name}) %>
-              <%= link_to_remote('Delete project', :url => {:controller => 'project', :action => 'delete_dialog', :project => @project.name}) %>
+            <%= link_to(image_tag('icons/brick_delete.png', :title => 'Delete project'), {:controller => 'project', :action => 'delete_dialog', :project => @project.name}, :remote => true) %>
+            <%= link_to('Delete project', {:controller => 'project', :action => 'delete_dialog', :project => @project.name}, :remote => true) %>
             </li>
             <% if @project.is_locked? %>
               <li>
-                <%= link_to_remote(image_tag('icons/lock_open.png', :title => 'Unlock project'), :url => {:controller => 'project', :action => 'unlock_dialog', :project => @project.name}) %>
-                <%= link_to_remote('Unlock project', :url => {:controller => 'project', :action => 'unlock_dialog', :project => @project.name}) %>
+              <%= link_to(image_tag('icons/lock_open.png', :title => 'Unlock project'), {:controller => 'project', :action => 'unlock_dialog', :project => @project.name, :remote => true}) %>
+              <%= link_to('Unlock project', {:controller => 'project', :action => 'unlock_dialog', :project => @project.name}, :remote => true) %>
               </li>
             <% end %>
           <% else %>
             <li>
-              <%= link_to_remote(image_tag('icons/user_add.png', :title => "Request role addition"), :url => {:controller => 'request', :action => 'add_role_request_dialog', :project => @project}) %>
-              <%= link_to_remote("Request role addition", :url => {:controller => 'request', :action => 'add_role_request_dialog', :project => @project}) %>
+            <%= link_to(image_tag('icons/user_add.png', :title => "Request role addition"), {:controller => 'request', :action => 'add_role_request_dialog', :project => @project}, :remote => true) %>
+            <%= link_to("Request role addition", {:controller => 'request', :action => 'add_role_request_dialog', :project => @project}, :remote => true) %>
             </li>
             <li>
-              <%= link_to_remote(image_tag('icons/package_delete.png', :title => 'Request Deletion'), :url => {:controller => 'request', :action => 'delete_request_dialog', :project => @project}) %>
-              <%= link_to_remote('Request deletion', :url => {:controller => 'request', :action => 'delete_request_dialog', :project => @project}) %>
+            <%= link_to(image_tag('icons/package_delete.png', :title => 'Request Deletion'), {:controller => 'request', :action => 'delete_request_dialog', :project => @project}, :remote => true) %>
+            <%= link_to('Request deletion', {:controller => 'request', :action => 'delete_request_dialog', :project => @project}, :remote => true) %>
             </li>
           <% end %>
         <% end %>
