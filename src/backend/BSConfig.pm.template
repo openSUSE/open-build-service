@@ -87,8 +87,11 @@ our $bsgroup = 'obsrun';
 # To enable package downloading from backend on demand
 our $enable_download_on_demand = 1;
 
-# Disable fdatasync calls, increases the speed on not-journaled filesystems,
-# but may lead to data corruption on system crash
+# Disable fdatasync calls, increases the speed, but may lead to data 
+# corruption on system crash when the filesystem does not guarantees
+# data write before rename.
+# It is esp. required on XFS filesystem.
+# It is safe to be disabled on ext4 and btrfs filesystems.
 #our $disable_data_sync = 1;
 
 # Package rc script / backend communication + log files
