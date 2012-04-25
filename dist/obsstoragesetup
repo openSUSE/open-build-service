@@ -245,7 +245,7 @@ EOF
 			fi
 
 			if [ -z "$OBS_WORKER_ROOT_SIZE" ]; then
-				VG_SIZE=`vgdisplay OBS --units M | grep "Free  PE" | sed 's,.* \([^ ]*\) MB$,\1,'`
+				VG_SIZE=`vgdisplay -c OBS | awk -F':' '{print( int(int($12) / 1024) )}'`
 				VG_SIZE=$(( $VG_SIZE - $OBS_WORKER_CACHE_SIZE - ( $NUM * $OBS_WORKER_SWAP_SIZE ) ))
 				OBS_WORKER_ROOT_SIZE=$(( $VG_SIZE / $NUM ))
 				if test $OBS_WORKER_ROOT_SIZE -lt $(( 4 * 1024 )); then
@@ -369,6 +369,7 @@ EOF
 			else
 				#plain chroot build
 				mkdir -p "$OBS_WORKER_DIRECTORY/$name"
+				mkfs -text4 $i || exit
 				mount $i "$OBS_WORKER_DIRECTORY/$name"
 			fi
 			OBS_WORKER_INSTANCES=$(( $OBS_WORKER_INSTANCES + 1 ))
