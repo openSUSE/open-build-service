@@ -369,6 +369,7 @@ EOF
 			else
 				#plain chroot build
 				mkdir -p "$OBS_WORKER_DIRECTORY/$name"
+				mkfs -text4 $i || exit
 				mount $i "$OBS_WORKER_DIRECTORY/$name"
 			fi
 			OBS_WORKER_INSTANCES=$(( $OBS_WORKER_INSTANCES + 1 ))
