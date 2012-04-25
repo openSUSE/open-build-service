@@ -128,7 +128,7 @@ class RequestController < ApplicationController
 
             # find requests where user is maintainer in target project
             userprojects = user.involved_projects.select("db_projects.name").map { |p| "'#{p.name}'" }
-            or_in_and << "reviews.by_project in (#{userprojects.join(',')})"
+            or_in_and << "reviews.by_project in (#{userprojects.join(',')})" unless userprojects.blank?
 
             ## find request where user is maintainer in target package, except we have to project already
             user.involved_packages.select("name,db_project_id").includes(:db_project).each do |ip|
