@@ -1,3 +1,5 @@
+/* TODO/FIXME: the images used in url() seem to be missing for a while now */
+
 .dialog {
   z-index: 90;
   position: fixed;
@@ -16,7 +18,7 @@
   margin-top: 0px;
   width: 100%;
   margin-left: 0px;
-  background-image: url(/images/transparency_grey_20.png)
+  background-image: url(transparency_grey_20.png)
 }
 
 .dialog .box_content {

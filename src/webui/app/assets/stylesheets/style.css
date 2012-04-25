@@ -22,7 +22,7 @@ textarea {
 .ajax_large_loader { 
     width: 32px;
     height: 32px;
-    background-image: url(../images/large-loader.gif);
+    background-image: url(large-loader.gif);
 }
 
 #build_result_popup { 

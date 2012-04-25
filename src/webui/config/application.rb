@@ -57,8 +57,8 @@ module OBSWebUI
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
 
-    #TODO: Port /public directory structure to {app/lib/vender}/assets:
-    config.assets.paths << Rails.root.join('public', 'images') << Rails.root.join('public', 'stylesheets') << Rails.root.join('public', 'javascripts') << Rails.root.join('public', 'themes', 'bento', 'images')
+    #TODO: Port bento directory structure to lib/assets:
+    config.assets.paths << Rails.root.join('public', 'themes') << Rails.root.join('public', 'themes', 'bento', 'images')
 
     # Skip frameworks you're not going to use
     #config.frameworks -= [ :action_web_service, :active_resource ]

@@ -13,11 +13,11 @@
 
     <title><%= "#{@pagetitle} - " if @pagetitle -%><%= @configuration ? @configuration['title'] : 'Open Build Service' %></title>
 
-    <%= stylesheet_link_tag 'obs.min', :media => 'all' %>
+    <%= stylesheet_link_tag 'application' %>
 
     <%= yield :content_for_head %>
 
-    <%= javascript_include_tag 'obs.min' %>
+    <%= javascript_include_tag 'application' %>
     <%= javascript_tag do %>
       <%= yield :head_javascript %>
       <% if CONFIG['theme'] == 'bento' %>
@@ -43,15 +43,15 @@
         <% end %>
         <%= yield :ready_function %>
       });
+      <%#TODO: Check back, this shouldn't be needed anymore: %>
       <%# See: http://henrik.nyh.se/2008/05/rails-authenticity-token-with-jquery and %>
-      <% if protect_against_forgery? %>
-        var CSRF_PROTECT_AUTH_TOKEN = <%= raw form_authenticity_token.inspect %>;
-      <% end %>
+      <%# if protect_against_forgery? %>
+        //var CSRF_PROTECT_AUTH_TOKEN = <%= raw form_authenticity_token.inspect %>;
+      <%# end %>
     <% end %>
+    <%= csrf_meta_tag %>
   </head>
-
   <body>
-
     <%= render :partial => 'layouts/header' %>
 
     <div id="subheader" class="container_16">
@@ -72,7 +72,7 @@
       <%= render :partial => "layouts/personal_navigation"  %>
     </div>
 
-    <%= render(:partial => "layouts/flash", :object => flash) %>
+    <%= render :partial => "layouts/flash", :object => flash  %>
 
     <!-- this is needed for the delete confirm dialogues -->
     <div id="dialog_wrapper" style="display: none"></div>
@@ -89,9 +89,7 @@
     </div>
     <!-- End: Main Content Area -->
 
-
     <div style="clear: both;"></div>
-    <!-- Start: Footer -->
     <div id="footer" class="container_12">
       <% if session[:login] -%>
         <div class="box_content grid_3">
@@ -136,17 +134,13 @@
         </ul>
       </div>
 
-      <%= render(:partial => "layouts/sponsor") %>
+      <%= render :partial => "layouts/sponsor"  %>
 
       <div id="footer-legal" class="grid_12">
         <p>
           <a href="http://openbuildservice.org">Open Build Service (OBS)</a> is an <a href="http://www.opensuse.org">openSUSE project</a>.
         </p>
       </div>
-
     </div>
-    <!-- End: Footer -->
-
-
   </body>
 </html>

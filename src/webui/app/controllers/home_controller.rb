@@ -31,7 +31,7 @@ class HomeController < ApplicationController
 
       unless content
         #TODO/FIXME: Looks like an asset...
-        f = File.open("#{Rails.root}/public/images/local/default_face.png", "r")
+        f = File.open("#{Rails.root}/app/assets/images/default_face.png", "r")
         content = f.read
         f.close
       end

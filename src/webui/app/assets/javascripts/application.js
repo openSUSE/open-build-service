@@ -1,5 +1,70 @@
-// Place your application-specific JavaScript functions and classes here
-// This file is automatically included by javascript_include_tag :defaults
+// This is a manifest file that'll be compiled into application.js, which will include all the files
+// listed below.
+//
+// Any JavaScript/Coffee file within this directory, lib/assets/javascripts, vendor/assets/javascripts,
+// or vendor/assets/javascripts of plugins, if any, can be referenced here using a relative path.
+//
+// It's not advisable to add code directly here, but if you do, it'll appear at the bottom of the
+// the compiled file.
+//
+// WARNING: THE FIRST BLANK LINE MARKS THE END OF WHAT'S TO BE PROCESSED, ANY BLANK LINE SHOULD
+// GO AFTER THE REQUIRES BELOW.
+//
+//= require jquery
+//= require jquery_ujs
+//
+//= require jquery.dataTables.min.js
+//= require jquery.expander.min.js
+//= require jquery.flot.min.js
+//= require jquery.flot.stack.min.js
+//= require jquery.tooltip.min.js
+//= require jquery-ui-1.8.18.custom.min.js
+//= require bento/js/script.js
+//= require cm2/codemirror.js
+//= require cm2/codemirror-ui-find.js
+//= require cm2/codemirror-ui.js
+//= require cm2/mode/changes.js
+//= require cm2/mode/clike.js
+//= require cm2/mode/clojure.js
+//= require cm2/mode/coffeescript.js
+//= require cm2/mode/css.js
+//= require cm2/mode/diff.js
+//# require cm2/mode/ecl.js
+//# require cm2/mode/gfm.js
+//= require cm2/mode/go.js
+//= require cm2/mode/groovy.js
+//= require cm2/mode/haskell.js
+//= require cm2/mode/htmlembedded.js
+//= require cm2/mode/htmlmixed.js
+//= require cm2/mode/javascript.js
+//= require cm2/mode/jinja2.js
+//= require cm2/mode/less.js
+//= require cm2/mode/lua.js
+//= require cm2/mode/markdown.js
+//= require cm2/mode/mysql.js
+//# require cm2/mode/ntriples.js
+//= require cm2/mode/pascal.js
+//= require cm2/mode/perl.js
+//= require cm2/mode/php.js
+//# require cm2/mode/plsql.js
+//= require cm2/mode/prjconf.js
+//= require cm2/mode/properties.js
+//= require cm2/mode/python.js
+//= require cm2/mode/r.js
+//= require cm2/mode/rst.js
+//= require cm2/mode/ruby.js
+//# require cm2/mode/rust.js
+//= require cm2/mode/scheme.js
+//= require cm2/mode/smalltalk.js
+//# require cm2/mode/sparql.js
+//= require cm2/mode/spec.js
+//# require cm2/mode/stex.js
+//# require cm2/mode/tiddlywiki.js
+//# require cm2/mode/velocity.js
+//# require cm2/mode/verilog.js
+//= require cm2/mode/xml.js
+//= require cm2/mode/xmlpure.js
+//= require cm2/mode/yaml.js
 
 // toggle visibility of an element via the CSS "display" property
 // -> does NOT reserve the needed space for the element when not displayed
