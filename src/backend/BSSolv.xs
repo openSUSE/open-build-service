@@ -1457,7 +1457,11 @@ pkg2fullpath(BSSolv::pool pool, int p, char *myarch)
 int
 pkg2sizek(BSSolv::pool pool, int p)
     CODE:
+#ifdef SOLV_KV_NUM64
+	RETVAL = solvable_lookup_sizek(pool->solvables + p, SOLVABLE_DOWNLOADSIZE, 0);
+#else
 	RETVAL = solvable_lookup_num(pool->solvables + p, SOLVABLE_DOWNLOADSIZE, 0);
+#endif
     OUTPUT:
 	RETVAL
 
