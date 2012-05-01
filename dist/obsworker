@@ -265,10 +265,12 @@ case "$1" in
 
         # fetch worker sources from server
         echo "Fetching initial worker code from $WORKER_CODE"
+	read DUMMYHTTP WORKER DUMMYPORT <<< ${WORKER_CODE//:/ }
+	[[ $WORKER ]] && NO_WORKER_PROXY="--noproxy ${WORKER#//}"
         mkdir -p "$workerbootdir"
         pushd "$workerbootdir" > /dev/null
         I=0
-        while ! curl -s "$WORKER_CODE"/getworkercode | cpio --quiet --extract ; do
+        while ! curl ${NO_WORKER_PROXY:-""} -s "$WORKER_CODE"/getworkercode | cpio --quiet --extract ; do
           # we need to wait for rep server maybe
           I=$(( $I + 1 ))
           if test "10" -lt "$I"; then
