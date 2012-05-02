@@ -283,7 +283,13 @@ sub server {
   }
   if ($conf->{'dispatch'}) {
     eval {
-      my $req = readrequest();
+      my $req;
+      do {
+        local $SIG{'ALRM'} = sub {POSIX::_exit(0);};
+        alarm(60);	# should be enough to read the request
+        $req = readrequest();
+        alarm(0);
+      };
       $conf->{'dispatch'}->($conf, $req);
     };
     reply_error($conf, $@) if $@;
