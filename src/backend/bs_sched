@@ -1694,6 +1694,7 @@ sub update_dst_full {
   my %fnew;
   my $dep2meta;
   $dep2meta = $repodatas{$prp}->{'meta'} if $repodatas{$prp} && $repodatas{$prp}->{'meta'};
+  my $linkedmeta = 0;
   for my $rp (@movetofull) {
     my $r = $new{$rp};
     my $suf = $rp;
@@ -1719,8 +1720,13 @@ sub update_dst_full {
       delete $old{"$n.rpm"};
     }
     if ($meta) {
+      if ($BSConfig::maxmetahardlink && ++$linkedmeta >= $BSConfig::maxmetahardlink) {
+	# workaround for btrfs hardlink limitation. sigh.
+	writestr("$meta.dup", $meta, readstr($meta));
+	$linkedmeta = 0;
+      }
       link($meta, "$meta.dup");
-      rename("$meta.dup", "$gdst/:full/$n.meta");
+      rename("$meta.dup", "$gdst/:full/$n.meta") || die("rename $meta.dup $gdst/:full/$n.meta: $!\n");
       unlink("$meta.dup");
     } else {
       unlink("$gdst/:full/$n.meta");
