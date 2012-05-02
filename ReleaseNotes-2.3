@@ -158,6 +158,13 @@ Requirements:
 * The OBS server should not run on a system with less than 2GB memory. 
   4GB is recommended, esp. when the same system is also building packages.
 
+* Filesystems which may be used for the backend data:
+  - XFS is fully validated to work. You should keep the default to do datasync in
+    BSConfig.pm to avoid corrupted files on system crashes. It is known not to be
+    the best performing FS for OBS.
+  - Ext4 is not validated but should work. datasync calls can be savely disabled.
+  - BTRFS is known to have hard link limitations which currently can break OBS.
+
 * Use osc 0.134 or later to get access to the new features.
 
 * Usage of Ruby on Rails version 2.3.14 is recommended.  This should also be available
