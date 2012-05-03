@@ -6441,11 +6441,12 @@ sub worker_lastevents {
       push @events, $ev;
     }
   }
-  # return a sync reply every 100 events for two reasons
+  # return a sync reply every 100 events / 5 minutes for two reasons
   # - get rid of old peers
   # - survive history truncation
   $cgi->{'start_orig'} ||= $cgi->{'start'};
-  if ($BSStdServer::isajax && !@events && $nextno < $cgi->{'start_orig'} + 100) {
+  $cgi->{'req_time'} ||= time();
+  if ($BSStdServer::isajax && !@events && $nextno < $cgi->{'start_orig'} + 100 && $s[9] < $cgi->{'req_time'} + 300) {
     # small hack: update cgi to the next event number
     $cgi->{'start'} = $nextno if $cgi->{'start'} < $nextno;
     return undef;
