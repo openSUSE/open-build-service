@@ -188,7 +188,7 @@ case "$1" in
                 DEVICE="$OBS_WORKER_DIRECTORY/root_$I/root"
                 SWAP="$OBS_WORKER_DIRECTORY/root_$I/swap"
                 if [ -n "$OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE" -a -n "$OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE" ]; then
-                    OBS_WORKER_OPT="$OBS_WORKER_OPT1 $VMDISK_AUTOSETUP $VMDISK_ROOT_FILESIZE $VMDISK_SWAP_FILESIZE $VMDISK_FILESYSTEM"
+                    OBS_WORKER_OPT="$OBS_WORKER_OPT1 $VMDISK_AUTOSETUP $VMDISK_ROOT_FILESIZE $VMDISK_SWAP_FILESIZE $VMDISK_FILESYSTEM $VMDISK_MOUNT_OPTIONS"
                 elif [ ! -e "$DEVICE" -o ! -e "$SWAP" ]; then
                         echo "ERROR: worker is configured to use a VM, but one or all of the following devices/files do not exist: $DEVICE, $SWAP"
                         exit 1
