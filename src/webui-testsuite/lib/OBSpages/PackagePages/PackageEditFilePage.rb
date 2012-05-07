@@ -49,7 +49,14 @@ class PackageEditFilePage < PackagePage
     # new edit page does not allow comments
  #   validate { @driver.page_source.include? "Comment your changes (optional):" }
     
-    textarea = @driver[:css => "div.CodeMirror textarea"]
+    textarea = nil
+    wait.until {
+      # we need to click into the code block before we can send keys - tricky!
+      codelines = @driver[:css => ".CodeMirror-lines"]
+      codelines.click if codelines
+      textarea = @driver[:css => ".CodeMirror textarea"]
+      textarea.displayed?
+    }
     savebutton = @driver.find_element(:css => "a.save")
     assert savebutton["class"].split(" ").include? "inactive"
     
