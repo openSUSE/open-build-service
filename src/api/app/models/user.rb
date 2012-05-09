@@ -1285,7 +1285,6 @@ class User < ActiveRecord::Base
   protected :involved_projects_ids
   
   def involved_projects
-    projects = involved_projects_ids
     # now filter the projects that are not visible
     return DbProject.where(id: involved_projects_ids)
   end
