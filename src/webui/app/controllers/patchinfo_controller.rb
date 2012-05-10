@@ -217,13 +217,15 @@ class PatchinfoController < ApplicationController
       @binaries = params[:selected_binaries]
       @binarylist = params[:available_binaries]
       @issues = Array.new
-      params[:issue].each_with_index do |new_issue, index|
-        issue = Array.new
-        issue << new_issue
-        issue << params[:issuetracker][index]
-        issue << params[:issueurl][index]
-        issue << params[:issuesum][index]
-        @issues << issue
+      if params[:issue]
+        params[:issue].each_with_index do |new_issue, index|
+          issue = Array.new
+          issue << new_issue
+          issue << params[:issuetracker][index]
+          issue << params[:issueurl][index]
+          issue << params[:issuesum][index]
+          @issues << issue
+        end
       end
       @category = params[:category]
       @rating = params[:rating]
