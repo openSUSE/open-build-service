@@ -57,6 +57,7 @@ my $uploaddir = "$BSConfig::bsdir/upload";
 
 my $maxchild = 4;
 
+my $sign_supports_S;
 
 sub readblk {
   my ($fd, $blk, $num, $blksize) = @_;
@@ -273,6 +274,8 @@ sub signjob {
       writestr("$uploaddir/signer.$$", undef, $signkey);
       push @signargs, '-P', "$uploaddir/signer.$$";
     }
+    unlink("$jobdir/.checksums");
+    push @signargs, '-S', "$jobdir/.checksums" if $sign_supports_S;
     for my $signfile (@signfiles) {
       if ($info->{'file'} eq '_aggregate' && ($signfile =~ /\.d?rpm$/)) {
 	# special aggregate handling: remove old sigs
@@ -381,6 +384,8 @@ sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!"
 for my $event (grep {s/::inprogress$//s} ls($myeventdir)) {
   rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
 }
+
+$sign_supports_S = 1 if system($BSConfig::sign, "-t", "-S", "/dev/null") == 0;
 
 my %chld;
 my $pid;

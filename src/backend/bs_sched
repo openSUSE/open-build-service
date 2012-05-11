@@ -1247,7 +1247,7 @@ sub prpfinished {
     my @all = sort(ls($pdir));
     my $debian = grep {/\.dsc$/} @all;
     my $nosourceaccess = grep {$_ eq '.nosourceaccess'} @all;
-    @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne '.bininfo' && $_ ne 'reason' && $_ ne '.nosourceaccess'} @all;
+    @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne '.bininfo' && $_ ne 'reason' && $_ ne '.nosourceaccess' && $_ ne '.checksums'} @all;
     for my $bin (@all) {
       next if $bin eq '.updateinfodata';
       my $rbin = $bin;
