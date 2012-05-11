@@ -53,6 +53,23 @@ fi
 rc_reset
 case "$1" in
 	start)
+
+		round_down_to_pe()
+		#    round_down_to_pe <REQUESTED_SIZE_MiB> <EXTENT_SIZE_kiB>
+		#
+		# Round size supplied to allign with the nearest lower
+		# PE count and print the result
+		{
+			local ARG_SIZE=$1
+			local ARG_PE=$2
+			echo $((
+					( ( $ARG_SIZE * 1024 )
+					- ( ( $ARG_SIZE * 1024 )
+						% $ARG_PE ) )
+					/ 1024
+			))
+		}
+
 		# configure sshd if wanted
 		if [ ! -e /root/.ssh/authorized_keys ]; then
 			if [ -n "$OBS_ROOT_SSHD_KEY_URL" ]; then
@@ -234,15 +251,18 @@ EOF
 			done
 			pvs=( $pvs )
 			pv_count_real=${#pvs[@]}
+			PE_SIZE=`vgdisplay -c OBS | cut -d: -f13`
 
 			if [ -z "$OBS_WORKER_CACHE_SIZE" ]; then
 				# 25 GB sounds like a good default for cache.
 				OBS_WORKER_CACHE_SIZE=$(( 25 * 1024 ))
 			fi
+			OBS_WORKER_CACHE_SIZE=`round_down_to_pe $OBS_WORKER_CACHE_SIZE $PE_SIZE`
 
 			if [ -z "$OBS_WORKER_SWAP_SIZE" ]; then
 				OBS_WORKER_SWAP_SIZE=512
 			fi
+			OBS_WORKER_SWAP_SIZE=`round_down_to_pe $OBS_WORKER_SWAP_SIZE $PE_SIZE`
 
 			if [ -z "$OBS_WORKER_ROOT_SIZE" ]; then
 				VG_SIZE=`vgdisplay -c OBS | awk -F':' '{print( int(int($12) / 1024) )}'`
@@ -253,6 +273,7 @@ EOF
 					exit 1
 				fi
 			fi
+			OBS_WORKER_ROOT_SIZE=`round_down_to_pe $OBS_WORKER_ROOT_SIZE $PE_SIZE`
 
 			if test "$NUM" -ge "$pv_count_real"; then
 				# More or equal build instances than disks
