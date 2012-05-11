@@ -59,6 +59,20 @@ my $maxchild = 4;
 
 my $sign_supports_S;
 
+sub check_sign_S {
+  my $pid = BSUtil::xfork();
+  return unless defined $pid;
+  if (!$pid) {
+    open(STDOUT, ">/dev/null");
+    open(STDERR, ">&STDOUT");
+    my @signargs;
+    push @signargs, '--project', 'dummy'if $BSConfig::sign_project;
+    exec($BSConfig::sign, @signargs, '-S', '/dev/null', '-k');
+    die("$BSConfig::sign: $!\n");
+  }
+  $sign_supports_S if waitpid($pid, 0) == $pid && !$?;
+}
+
 sub readblk {
   my ($fd, $blk, $num, $blksize) = @_;
   $blksize ||= 2048;
@@ -263,7 +277,7 @@ sub signjob {
   my @signfiles = grep {/\.(?:d?rpm|sha256|iso)$/} @files;
   if (@signfiles) {
     my @signargs;
-    push @signargs, '--project', $projid if $BSConfig::sign_project || $BSConfig::sign_project;
+    push @signargs, '--project', $projid if $BSConfig::sign_project;
     my $param = {
       'uri' => "$BSConfig::srcserver/getsignkey",
       'timeout' => 60,
@@ -385,7 +399,8 @@ for my $event (grep {s/::inprogress$//s} ls($myeventdir)) {
   rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
 }
 
-$sign_supports_S = 1 if system($BSConfig::sign, "-t", "-S", "/dev/null") == 0;
+check_sign_S();
+print "warning: sign does not seem to support checksum files, please update\n" unless $sign_supports_S;
 
 my %chld;
 my $pid;
