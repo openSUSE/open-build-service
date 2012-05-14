@@ -3,16 +3,15 @@
 require 'optparse'
 require 'rubygems'
 require 'active_support'
+require 'builder'
 
 require 'erb'
 include ERB::Util
 
-require "ftools"
-
 $LOAD_PATH << "#{File.dirname(__FILE__)}/../lib"
 
-require "rest.rb"
-require "rest_htmlprinter.rb"
+require "rest"
+require "rest_htmlprinter"
 
 class Options
 

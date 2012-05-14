@@ -1,5 +1,7 @@
 #!/usr/bin/ruby
 
+require 'fileutils'
+
 class XmlFile
 
   @@include_dir = ""
@@ -39,7 +41,7 @@ class XmlFile
       end
     end
     
-    File.copy( find_file( file_name ), output_dir )
+    FileUtils.copy( find_file( file_name ), output_dir )
     
   end
   
