@@ -86,7 +86,7 @@ while (1) {
     next unless $js->{'workerid'} eq $worker->{'workerid'};
     #print "checking worker $wname\n";
     my $param = {
-      'uri' => "$js->{'uri'}/info",
+      'uri' => "$js->{'uri'}/worker",
       'timeout' => 60,
     };
     eval {

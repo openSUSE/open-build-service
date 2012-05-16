@@ -1795,6 +1795,21 @@ if ($path eq '/info') {
   }
   BSServer::reply($info, 'Content-Type: text/xml');
   exit(0);
+} elsif ($path eq '/worker') {
+  my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
+  if ($cgi->{'jobid'}) {
+    die("not building a job\n") if $state->{'state'} ne 'building';
+    die("building a different job\n") if $cgi->{'jobid'} ne $state->{'jobid'};
+  }
+  my $info = {};
+  $info->{'hostarch'} = $hostarch;
+  $info->{'port'} = $port;
+  $info->{'workerid'} = $workerid if defined $workerid;
+  # $info->{'job'} = $state->{'job'};
+  # $info->{'arch'} = $state->{'arch'};
+  $info = XMLout($BSXML::worker, $info);
+  BSServer::reply($info, 'Content-Type: text/xml');
+  exit(0);
 } elsif ($path eq '/logfile') {
   my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
   die("not building\n") if $state->{'state'} ne 'building';
