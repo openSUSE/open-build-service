@@ -1,15 +1,12 @@
-To setup an own backend:
+To setup an own backend from git:
 
 1) Copy BSConfig.pm.template to BSConfig.pm
 2) Change BSConfig.pm to match your local paths and server names.
    Currently the server runs with user "bsrun" and group "bsrun",
    so you have to add them to your system.
-3) create a directory "build" and check out the current version of the
-   build scripts from novellforge:
-   https://forgesvn1.novell.com/svn/opensuse/trunk/buildservice/src/build
-
-   *** The build directory must be accessable as a subdirectory of the working
-       directory of the following services
+3) Initialize build code (provides needed package format parsers):
+     # git submodule init
+     # git submodule update
 
 3) run a src server:
    ./bs_srcserver
