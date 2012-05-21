@@ -10,14 +10,14 @@ can more easily package a single program for many distributions, and many
 openSUSE releases, making more packages available to users regardless of what
 distribution they use. 
 
+Services, news and updates can be found on following portal page
+
+  http://www.open-build-service.org
+
 Further documentation for the Open Build Service can be found at the openSUSE wiki
 on the Open Build Service portal page:
 
   http://en.opensuse.org/Portal:Build_Service
-
-Some running Open Build Service instances are listed here:
-
-  http://www.open-build-service.org/instances.html
 
 
 Organization
