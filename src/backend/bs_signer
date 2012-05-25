@@ -305,7 +305,7 @@ sub signjob {
         unlink("$uploaddir/signer.$$") if $signkey;
 	close F;
 	print("sign failed: $? - checking digest\n");
-        if (system('rpm', '--checksig', '--nodigest', "$jobdir/$signfile")) {
+        if (system('rpm', '--checksig', '--nosignature', "$jobdir/$signfile")) {
 	  print("rpm checksig failed: $? - restarting job\n");
 	  BSUtil::cleandir($jobdir);
 	  rmdir($jobdir);
