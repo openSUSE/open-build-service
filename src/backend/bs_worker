@@ -1574,7 +1574,7 @@ sub dobuild {
   push @args, '--reason', "Building $packid for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
   push @args, '--disturl', $disturl;
   push @args, '--linksources' if $localkiwi;
-  push @args, '--signdummy' if $kiwimode && !$localkiwi && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product' && -e "$statedir/build/signdummy";
+  push @args, '--signdummy' if $kiwimode && (!$localkiwi || ! -e "$localkiwi/localkiwi.rpm") && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product' && -e "$statedir/build/signdummy";
   push @args, "$srcdir/$buildinfo->{'file'}";
   qsystem(@args);
 
@@ -1633,6 +1633,42 @@ sub dobuild {
   return 0;
 }
 
+sub buildkiwitree {
+  my ($destfile, @todo) = @_;
+  my %tree;
+  @todo = map {($_, '')} @todo;
+  while (@todo) {
+    my $dir = shift @todo;
+    my $sdir = shift @todo;
+    for my $f (sort(ls($dir))) {
+      my $sf = "$sdir$f";
+      $f = "$dir/$f";
+      next if $tree{$sf};
+      if (-l $f) {
+	my $sl = readlink($f);
+	die("readlink $f: $!\n") unless defined $sl;
+	$tree{$sf} = "l ". BSRPC::urlencode($sf) . " " . BSRPC::urlencode($sl);
+      } elsif (-d $f) {
+	$tree{$sf} = "d ". BSRPC::urlencode($sf);
+	push @todo, $f, "$sf/";
+      } elsif (-f $f) {
+        my $leadsigmd5 = '';
+	Build::queryhdrmd5($f, \$leadsigmd5) if $f =~ /\.rpm$/;
+	if ($leadsigmd5) {
+	  $tree{$sf} = "f ". BSRPC::urlencode($sf) . " " . $leadsigmd5;
+	} else {
+	  $tree{$sf} = "f ". BSRPC::urlencode($sf);
+	}
+      }
+    }
+  }
+  local *F;
+  open(F, '>', $destfile) || die("$destfile: $!\n");
+  for (sort keys %tree) {
+    print F "$tree{$_}\n";
+  }
+  close(F) || die("close $destfile: $!\n");
+}
 
 if (defined($oneshot)) {
   $oneshot = time() + $oneshot;
@@ -1777,7 +1813,9 @@ close RUNLOCK;
 
 my $req = BSServer::readrequest();
 my $path = $req->{'path'};
-my $cgi = BSServer::parse_cgi($req);
+my $multies;
+$multies = {'file' => undef} if $path eq '/kiwitree';
+my $cgi = BSServer::parse_cgi($req, $multies);
 if ($path eq '/info') {
   # check state?
   my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
@@ -1792,6 +1830,21 @@ if ($path eq '/info') {
     $info = "<buildinfo>\n  <error>".$state->{'state'}."</error>\n</buildinfo>\n";
   }
   BSServer::reply($info, 'Content-Type: text/xml');
+  exit(0);
+} elsif ($path eq '/kiwitree') {
+  my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
+  if ($cgi->{'jobid'}) {
+    die("not building a job\n") if $state->{'state'} ne 'building';
+    die("building a different job\n") if $cgi->{'jobid'} ne $state->{'jobid'};
+  }
+  my $kiwitreefile = "$buildroot/.build.packages/.kiwitree";
+  die("kiwitreefile does not exist\n") unless -e $kiwitreefile;
+  my @send;
+  for my $f (@{$cgi->{'file'} || []}) {
+    die("$f: $!\n") unless -f "$buildroot/.build.packages/KIWI/$f";
+    push @send, { 'name' => $f, 'filename' => "$buildroot/.build.packages/KIWI/$f" };
+  }
+  BSServer::reply_cpio(\@send);
   exit(0);
 } elsif ($path eq '/logfile') {
   my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
@@ -1977,6 +2030,7 @@ if ($hostcheck) {
 }
 
 my @send;
+my $kiwitree;
 if ($ex == 0 && $buildinfo->{'reason'} ne "rebuild counter sync" && -f "$buildroot/.build.packages/same_result_marker") {
   $ex = 2;
 }
@@ -1989,11 +2043,27 @@ if ($ex == 0) {
   push @d, 'OTHER';
   for my $d ('.', @d) {
     my @files = sort(ls("$buildroot/.build.packages/$d"));
-    @files = grep {$_ ne 'same_result_marker'} @files;
+    @files = grep {$_ ne 'same_result_marker' && $_ ne '.kiwitree'} @files;
+    if ($localkiwi && ! -d "$localkiwi/jobs/$buildinfo->{'arch'}" && $d eq 'KIWI') {
+      $kiwitree = 1 if grep {-d "$buildroot/.build.packages/$d/$_"} @files;
+      next if $kiwitree;
+    }
     @files = grep {-f "$buildroot/.build.packages/$d/$_"} @files;
     push @send, map {"$buildroot/.build.packages/$d/$_"} @files;
   }
   @send = map {{name => (split('/', $_))[-1], filename => $_}} @send;
+  if ($kiwitree) {
+    my $kiwitreefile = "$buildroot/.build.packages/.kiwitree";
+    eval {
+      die(".kiwitree already exists\n") if -e $kiwitreefile;
+      buildkiwitree($kiwitreefile , "$buildroot/.build.packages/KIWI");
+      push @send, { name => '.kiwitree', filename => $kiwitreefile };
+    };
+    if ($@) {
+      print "could not create kiwitree: $@\n";
+      $ex = 1;
+    }
+  }
   if (!@send && !$localkiwi) {
     print "build did not create anything to send back!\n";
     $ex = 1;
@@ -2056,6 +2126,7 @@ if (!$testmode) {
   };
   my $now = time();
   my @args = ("job=$buildinfo->{'job'}", "arch=$buildinfo->{'arch'}", "jobid=$jobid", "code=$code", "now=$now");
+  push @args, "kiwitree=1" if $kiwitree && $code eq 'succeeded';
   if ($code eq 'badhost') {
     # don't transmit anything in the badhost case
     $param = {
