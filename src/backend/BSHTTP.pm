@@ -218,7 +218,11 @@ sub cpio_receiver {
     my $sizepad = $size;
     $sizepad += 4 - ($size % 4) if $size % 4;
     last if !$size && $name eq 'TRAILER!!!';
-    die("cpio filename contains a '/': $name\n") if $name =~ /\//s;
+    if ($param->{'acceptsubdirs'}) {
+      die("cpio filename is illegal: $name\n") if "/$name/" =~ /\/\.{0,2}\//s;
+    } else {
+      die("cpio filename contains a '/': $name\n") if $name =~ /\//s;
+    }
     die("cpio filename is '.' or '..'\n") if $name eq '.' || $name eq '..';
     if ($param->{'accept'}) {
       if (ref($param->{'accept'})) {
