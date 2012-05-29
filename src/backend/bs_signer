@@ -87,8 +87,12 @@ sub signfilter {
   if (!$pid) {
     close WH;
     open(STDIN, "<&RH");
-    exec('sign', '-d', @signargs);
-    die("sign: $!\n");
+    eval {
+      exec('sign', '-d', @signargs);
+      die("sign: $!\n");
+    };
+    warn($@) if $@;
+    exit 1;
   }
   close RH;
   print WH $content;
@@ -187,6 +191,7 @@ sub signisofiles {
 	$sf = substr($sf, 0, $len);
         die("selected wrong file\n") if $sum != unpack("%32C*", $sf);
 	my $sig = signfilter($sf);
+	die("returned signature is empty\n") unless $sig;
 	die("returned signature is too big\n") if length($sig) > 2048;
 	# replace old content
 	writeblk($fd, $e->[1], $sig . ("\0" x (2048 - length($sig))));
@@ -260,6 +265,16 @@ sub signjob {
   my $projid = $info->{'project'};
   my @files = sort(ls($jobdir));
   my @signfiles = grep {/\.(?:d?rpm|sha256|iso)$/} @files;
+  if (grep {$_ eq '.kiwitree_tosign'} @files) {
+    for my $f (split("\n", readstr("$jobdir/.kiwitree_tosign"))) {
+      next if $f eq '';
+      $f =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
+      die("bad file in kiwitree_tosign: $f\n") if "/$f/" =~ /\/\.{0,2}\//s;
+      die("bad file in kiwitree_tosign: $f\n") unless $f =~ /^(.*)\.asc$/s;
+      push @signfiles, $f if -s "$jobdir/$f" && -e "$jobdir/$1";
+    }
+    unlink("$jobdir/.kiwitree_tosign");
+  }
   if (@signfiles) {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project || $BSConfig::sign_project;
@@ -284,17 +299,26 @@ sub signjob {
       }
       my @signmode;
       @signmode = ('-r') if $signfile =~ /\.drpm$/;
+      if ($signfile =~ /\.asc$/s) {
+	next unless (-s $signfile) == 2048;
+	my $signfilec = readstr($signfile);
+	next if substr($signfilec, 0, 8) ne "sIGnMe!\n";
+	@signmode = ('-d');
+	$signfile =~ s/\.asc$//s;
+      }
       if (system($BSConfig::sign, @signargs, @signmode, "$jobdir/$signfile")) {
         unlink("$uploaddir/signer.$$") if $signkey;
 	close F;
-	print("sign failed: $? - checking digest\n");
-        if (system('rpm', '--checksig', '--nosignature', "$jobdir/$signfile")) {
-	  print("rpm checksig failed: $? - restarting job\n");
-	  BSUtil::cleandir($jobdir);
-	  rmdir($jobdir);
-	  unlink("$jobsdir/$arch/$job:status");
-	  close F;
-	  return undef;
+	if ($signfile =~ /\.rpm$/) {
+	  print("sign failed: $? - checking digest\n");
+	  if (system('rpm', '--checksig', '--nosignature', "$jobdir/$signfile")) {
+	    print("rpm checksig failed: $? - restarting job\n");
+	    BSUtil::cleandir($jobdir);
+	    rmdir($jobdir);
+	    unlink("$jobsdir/$arch/$job:status");
+	    close F;
+	    return undef;
+	  }
 	}
 	die("sign $jobdir/$signfile failed\n");
       }
