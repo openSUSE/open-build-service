@@ -2061,6 +2061,7 @@ if ($ex == 0) {
     };
     if ($@) {
       print "could not create kiwitree: $@\n";
+      BSUtil::appendstr("$buildroot/.build.log", "\ncould not create kiwitree: $@\n");
       $ex = 1;
     }
   }
