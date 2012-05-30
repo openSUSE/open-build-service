@@ -103,8 +103,8 @@ sub signfilter {
     close WH;
     open(STDIN, "<&RH");
     eval {
-      exec('sign', '-d', @signargs);
-      die("sign: $!\n");
+      exec($BSConfig::sign, @signargs, '-d');
+      die("$BSConfig::sign: $!\n");
     };
     warn($@) if $@;
     exit 1;
@@ -205,7 +205,7 @@ sub signisofiles {
 	my $sf = readblk($fd, $se[0]->[1], ($len + 0x7ff) >> 11);
 	$sf = substr($sf, 0, $len);
         die("selected wrong file\n") if $sum != unpack("%32C*", $sf);
-	my $sig = signfilter($sf);
+	my $sig = signfilter($sf, @signargs);
 	die("returned signature is empty\n") unless $sig;
 	die("returned signature is too big\n") if length($sig) > 2048;
 	# replace old content
@@ -249,7 +249,7 @@ sub signiso {
   my ($file, @signargs) = @_;
   local *ISO;
   open(ISO, '+<', $file) || die("$file: $!\n");
-  my $signed = signisofiles(\*ISO);
+  my $signed = signisofiles(\*ISO, @signargs);
   retagmd5iso(\*ISO) if $signed;
   close(ISO) || die("close $file: $!\n");
 }
@@ -288,7 +288,6 @@ sub signjob {
       die("bad file in kiwitree_tosign: $f\n") unless $f =~ /^(.*)\.asc$/s;
       push @signfiles, $f if -s "$jobdir/$f" && -e "$jobdir/$1";
     }
-    unlink("$jobdir/.kiwitree_tosign");
   }
   if (@signfiles) {
     my @signargs;
@@ -317,8 +316,8 @@ sub signjob {
       my @signmode;
       @signmode = ('-r') if $signfile =~ /\.drpm$/;
       if ($signfile =~ /\.asc$/s) {
-	next unless (-s $signfile) == 2048;
-	my $signfilec = readstr($signfile);
+	next unless (-s "$jobdir/$signfile") == 2048;
+	my $signfilec = readstr("$jobdir/$signfile");
 	next if substr($signfilec, 0, 8) ne "sIGnMe!\n";
 	@signmode = ('-d');
 	$signfile =~ s/\.asc$//s;
@@ -364,6 +363,8 @@ sub signjob {
   $jobstatus->{'code'} = 'finished';
   writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
   close F;
+
+  unlink("$jobdir/.kiwitree_tosign");
 
   return 1;
 }
