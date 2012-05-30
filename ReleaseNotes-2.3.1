@@ -1,0 +1,32 @@
+#
+# openSUSE Build Service 2.3.1
+#
+
+Updaters from any OBS 2.3 release can just ugrade the packages and restart
+all services. Updaters from former releases should read the
+README.UPDATERS file.
+
+Feature backports:
+==================
+
+* Support remote product build tree building
+* Make kiwi support packages configurable. Defaults are:
+    Substitute: kiwi-setup:image kiwi createrepo tar
+    Substitute: kiwi-setup:product kiwi
+
+Changes:
+========
+
+* Added Fedora-17 default target
+* bnc and fate issue tags are also accepted with whitespace: bnc #123
+  (This requires to run migrations on api).
+* Increased timeouts for OBS inter connects
+
+Bugfixes:
+=========
+
+* Use right architecture on spec file parsing when project configuration contains a "Target:" line
+* Fixed warning messages about 'nextstate' in dispatcher
+* Fixed urls in webui to www.open-build-service.org
+* Init script fixes for automatic deployment of workers
+* Fixed debian handling for exporting sources
