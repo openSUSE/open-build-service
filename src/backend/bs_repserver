@@ -1334,6 +1334,8 @@ sub receivekiwitree {
     print "receivekiwitree: fetching ".(keys %todo)." files\n";
     my $param = {
       'uri' => "$js->{'uri'}/kiwitree",
+      'request' => 'POST',
+      'headers' => [ 'Content-Type: application/x-www-form-urlencoded' ],
       'directory' => $dir,
       'timeout' => 600,
       'acceptsubdirs' => 1,
