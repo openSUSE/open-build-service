@@ -70,7 +70,7 @@ sub check_sign_S {
     exec($BSConfig::sign, @signargs, '-S', '/dev/null', '-k');
     die("$BSConfig::sign: $!\n");
   }
-  $sign_supports_S if waitpid($pid, 0) == $pid && !$?;
+  $sign_supports_S = 1 if waitpid($pid, 0) == $pid && !$?;
 }
 
 sub readblk {
