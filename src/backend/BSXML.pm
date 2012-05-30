@@ -755,6 +755,7 @@ our $workerstatus = [
 our $workerstate = [
     'workerstate' =>
 	'state',
+	'nextstate',	# for exit/restart
 	'jobid',
 ];
 
