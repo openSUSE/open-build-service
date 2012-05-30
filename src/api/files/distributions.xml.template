@@ -96,6 +96,14 @@
   <icon url="https://static.opensuse.org/distributions/logos/debian.png"/>
   <link>http://www.debian.org/</link>
  </distribution>
+ <distribution vendor="Fedora" version="17" id="fedora-15">
+  <name>Fedora 17</name>
+  <project>openSUSE.org:Fedora:17</project>
+  <reponame>Fedora_17</reponame>
+  <repository>standard</repository>
+  <icon url="https://static.opensuse.org/distributions/logos/fedora.png"/>
+  <link>http://fedoraproject.org/</link>
+ </distribution>
  <distribution vendor="Fedora" version="16" id="fedora-15">
   <name>Fedora 16</name>
   <project>openSUSE.org:Fedora:16</project>
