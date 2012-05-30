@@ -2145,6 +2145,7 @@ if (!$testmode) {
   };
   my $now = time();
   my @args = ("job=$buildinfo->{'job'}", "arch=$buildinfo->{'arch'}", "jobid=$jobid", "code=$code", "now=$now");
+  push @args, "workerid=$workerid" if defined $workerid;
   push @args, "kiwitree=1" if $kiwitree && $code eq 'succeeded';
   if ($code eq 'badhost') {
     # don't transmit anything in the badhost case

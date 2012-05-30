@@ -1365,6 +1365,7 @@ sub putjob {
   my $oldjobstatus = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus);
   die("different jobid\n") if $oldjobstatus->{'jobid'} ne $jobid;
   die("job is not building\n") if $oldjobstatus->{'code'} ne 'building';
+  die("job is building on a different worker\n") if $cgi->{'workerid'} && $oldjobstatus->{'workerid'} && $cgi->{'workerid'} ne $oldjobstatus->{'workerid'};
 
   my $infoxml = readstr("$jobsdir/$arch/$job");
   my $infoxmlmd5 = Digest::MD5::md5_hex($infoxml);
@@ -1422,7 +1423,7 @@ sub putjob {
     $jobstatus = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus);
     die("different jobid\n") if $jobstatus->{'jobid'} ne $jobid;
     die("job is not building\n") if $jobstatus->{'code'} ne 'building';
-    die("job is building on a different host\n") if $jobstatus->{'workerid'} ne $oldjobstatus->{'workerid'} || $jobstatus->{'starttime'} ne $oldjobstatus->{'starttime'};
+    die("job is building on a different worker\n") if $jobstatus->{'workerid'} ne $oldjobstatus->{'workerid'} || $jobstatus->{'starttime'} ne $oldjobstatus->{'starttime'};
     if (!@$uploaded && -e $dir) {
       # local image building hack
       rmdir($tmpdir);
@@ -3118,7 +3119,7 @@ my $dispatches = [
   '!worker /worker $arch $port $state: workerid:? working:bool? memory:num? disk:num? buildarch:arch* tellnojob:bool?' => \&workerstate,
   '!worker /getbuildcode' => \&getbuildcode,
   '!worker /getworkercode' => \&getworkercode,
-  '!worker POST:/putjob $arch $job $jobid:md5 $code:? now:num? kiwitree:bool?' => \&putjob,
+  '!worker POST:/putjob $arch $job $jobid:md5 $code:? now:num? kiwitree:bool? workerid:?' => \&putjob,
   '!worker /getbinaries $project $repository $arch binaries: nometa:bool?' => \&getbinaries,
   '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
   '!worker /getjobdata $arch $job $jobid:md5' => \&getjobdata,
