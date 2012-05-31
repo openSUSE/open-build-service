@@ -598,8 +598,9 @@ sub set_building {
   my @bdeps = ( @{$info->{'dep'} || []}, @{$info->{'prereq'} || []} );
 
   if ($packtype eq 'kiwi') {
-    # packages used for build environment, this should go to project config ...
-    @bdeps = ('kiwi', 'createrepo', 'tar');
+    # packages used for build environment setup
+    @bdeps = @{$bconf->{'substitute'}->{'kiwi-setup:image'} || []};
+    @bdeps = ('kiwi', 'createrepo', 'tar') unless @bdeps;	# default
     push @bdeps, grep {/^kiwi-.*:/} @{$info->{'dep'} || []};
   }
 
@@ -3071,7 +3072,8 @@ sub checkkiwiproduct {
 #print "deps: @deps\n";
   if ($archs[0] eq $myarch) {
     # calculate packages needed for building
-    my @kdeps = 'kiwi';
+    my @kdeps = @{$bconf->{'substitute'}->{'kiwi-setup:product'} || []};
+    @kdeps = ('kiwi') unless @kdeps;	# default
     push @kdeps, grep {/^kiwi-.*:/} @{$info->{'dep'} || []};
     my $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
