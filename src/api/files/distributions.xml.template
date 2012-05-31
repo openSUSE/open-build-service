@@ -88,14 +88,6 @@
   <icon url="https://static.opensuse.org/distributions/logos/debian.png"/>
   <link>http://www.debian.org/</link>
  </distribution>
- <distribution vendor="Debian" version="5.0" id="debian-5.0">
-  <name>Debian 5.0</name>
-  <project>openSUSE.org:Debian:5.0</project>
-  <reponame>Debian_5.0</reponame>
-  <repository>standard</repository>
-  <icon url="https://static.opensuse.org/distributions/logos/debian.png"/>
-  <link>http://www.debian.org/</link>
- </distribution>
  <distribution vendor="Fedora" version="17" id="fedora-15">
   <name>Fedora 17</name>
   <project>openSUSE.org:Fedora:17</project>
