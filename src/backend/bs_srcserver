@@ -2660,8 +2660,9 @@ sub getprojpack {
 	      if ($type eq 'kiwi' && $d->{'imagetype'}[0] ne 'product') {
 	        $rinfo->{'error'} = 'excluded' if defined($BSConfig::localarch) && $arch eq 'local';
 	      }
-	      $rinfo->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $arch} @{$d->{'exclarch'}};
-	      $rinfo->{'error'} = 'excluded' if $d->{'badarch'} && grep {$_ eq $arch} @{$d->{'badarch'}};
+	      my $myarch = $conf->{'target'} ? (split('-', $conf->{'target'}))[0] : $arch;
+	      $rinfo->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $myarch} @{$d->{'exclarch'}};
+	      $rinfo->{'error'} = 'excluded' if $d->{'badarch'} && grep {$_ eq $myarch} @{$d->{'badarch'}};
 	      for ('imagetype', 'path', 'extrasource') {
 	        $rinfo->{$_} = $d->{$_} if exists $d->{$_};
 	      }
