@@ -213,6 +213,7 @@ sub retagmd5iso {
   my $tags = ';'.substr($blk, 0x8373, 0x200);
   return unless $tags =~ /;md5sum=[0-9a-fA-F]{32}/;
   print "updating md5sum tag\n";
+  substr($blk, 0x0000, 0x200) = "\0" x 0x200;
   substr($blk, 0x8373, 0x200) = ' ' x 0x200;
   my $numblks = unpack("V", substr($blk, 0x8050, 4));
   die("bad block number\n") if $numblks < 17;
