@@ -1260,7 +1260,7 @@ sub receivekiwitree_scan {
     $prpaps{"$dep->{'project'}/$dep->{'repository'}/$repoarch/$dep->{'package'}"} = 1;
   }
   for my $prpap (sort keys %prpaps) {
-    my @bins = grep {/\.(?:$binsufsre)$/} ls("$reporoot/$prpap");
+    my @bins = grep {/\.(?:rpm|deb)$/} ls("$reporoot/$prpap");
     @bins = filtersources(@bins) if -e "$reporoot/$prpap/.nosourceaccess";
     for my $bin (sort @bins) {
       my $leadsigmd5;
