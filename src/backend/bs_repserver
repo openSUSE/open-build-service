@@ -2053,8 +2053,13 @@ sub getbuildinfo {
   }
   if ($packtype eq 'kiwi') {
     # packages used for build environment
-    @deps = ('kiwi');
-    push @deps, 'createrepo', 'tar' if $kiwitype ne 'product';
+    if ($kiwitype ne 'product') {
+      @deps = @{$bconf->{'substitute'}->{'kiwi-setup:image'} || []};
+      @deps = ('kiwi', 'createrepo', 'tar') unless @deps;       # default
+    } else {
+      @deps = @{$bconf->{'substitute'}->{'kiwi-setup:product'} || []};
+      @deps = ('kiwi') unless @deps;
+    }
     push @deps, grep {/^kiwi-.*:/} @{$info->{'dep'} || []};
   }
 
