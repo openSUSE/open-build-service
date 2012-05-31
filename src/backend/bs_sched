@@ -1247,7 +1247,7 @@ sub prpfinished {
     my @all = sort(ls($pdir));
     my $debian = grep {/\.dsc$/} @all;
     my $nosourceaccess = grep {$_ eq '.nosourceaccess'} @all;
-    @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne '.bininfo' && $_ ne 'reason' && $_ ne '.nosourceaccess' && $_ ne '.checksums'} @all;
+    @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne '.bininfo' && $_ ne 'reason' && $_ ne '.nosourceaccess' && $_ ne '.checksums' && !/^\.waiting_for_/} @all;
     for my $bin (@all) {
       next if $bin eq '.updateinfodata';
       my $rbin = $bin;
@@ -5640,6 +5640,8 @@ while(1) {
   my @cpacks = @packs;
   my %cycpass;
   my $nharder = 0;
+  my $pkgmetaread = 0;
+  my %pkgmetaused;
   my $needed;
 
   my $prjuseforbuildenabled = 1;
@@ -5966,6 +5968,7 @@ while(1) {
 	}
         $mylastcheck .= 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
         $mylastcheck .= "$meta_s[9]/$meta_s[7]/$meta_s[1]";
+        $lastcheck{"$prp/$packid"} = $mylastcheck;
       } else {
         delete $lastcheck{"$prp/$packid"};
         undef $mylastcheck;
@@ -6023,10 +6026,12 @@ while(1) {
 	my $path = $pool->pkg2fullpath($pkg, $myarch);
 	if ($depislocal{$bpack} && $path) {
 	  my $meta = $dep2meta->{$bpack};
+	  $pkgmetaused{$bpack} = 1;
 	  if (!$meta) {
 	    my @m;
 	    my $mf = substr("$reporoot/$path", 0, -4);
 	    #print "        reading meta for $r->{'path'}\n";
+	    $pkgmetaread++;
 	    if (open(F, '<', "$mf.meta") || open(F, '<', "$mf-MD5SUMS.meta")) {
 	      @m = <F>;
 	      close F;
@@ -6115,6 +6120,16 @@ relsynccheck:
     $packstatus{$packid} = 'scheduled';
   }
 
+  # delete unused pkgmeta
+  my $pkgmetadropped = 0;
+  if ($repodatas{$prp} && $repodatas{$prp}->{'meta'}) {
+    my $dep2meta = $repodatas{$prp}->{'meta'};
+    for (grep {!$pkgmetaused{$_}} keys %$dep2meta) {
+      delete $dep2meta->{$_};
+      $pkgmetadropped++;
+    }
+  }
+
   # delete global entries from notready
   for (keys %notready) {
     delete $notready{$_} if $notready{$_} == 2;
@@ -6192,6 +6207,7 @@ relsynccheck:
   }
   print "    looked harder: $nharder\n" if $nharder;
   print "    building: ".scalar(keys %building).", notready: ".scalar(keys %notready).", unfinished: ".scalar(keys %unfinished)."\n";
+  print "    pkg meta used: ".scalar(keys %pkgmetaused).", pkg meta read: $pkgmetaread, pkg meta dropped: $pkgmetadropped\n";
   print "    took $prpchecktime seconds to check the packages\n";
 
   my $schedulerstate;
@@ -6251,6 +6267,9 @@ relsynccheck:
 	  delete $lastcheck{"$prp/$_"} for @packs;
 	  delete $repodatas{$prp};
 	}
+      } else {
+        # at least free the pkg meta cache
+	delete $repodatas{$prp}->{'meta'} if $repodatas{$prp};
       }
     }
   } else {
