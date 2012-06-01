@@ -1,54 +1,58 @@
 #
 # spec file for package obs-server
 #
-# Copyright (c) 2008 SUSE LINUX Products GmbH, Nuernberg, Germany.
-# This file and all modifications and additions to the pristine
-# package are under the same license as the package itself.
+# Copyright (c) 2012 SUSE LINUX Products GmbH, Nuernberg, Germany.
 #
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
+
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
 
-
 Name:           obs-server
 Summary:        The Open Build Service -- Server Component
-
-Version:        2.2.64
-Release:        0
-License:        GPL
+License:        GPL-2.0 ; GPL-3.0
 Group:          Productivity/Networking/Web/Utilities
+Version:        2.3.1
+Release:        0
 Url:            http://en.opensuse.org/Build_Service
-BuildRoot:      /var/tmp/%name-root
-# git clone git://github.com/openSUSE/open-build-service.git build-service-1.7.54; tar cfvj obs-server-1.7.54.tar.bz2 --exclude=.git\* build-service-1.7.54/
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+# git clone git://gitorious.org/opensuse/build-service.git build-service-1.7.54; tar cfvj obs-server-1.7.54.tar.bz2 --exclude=.git\* build-service-1.7.54/
 Source:         obs-server-%version.tar.bz2
-# git clone git://github.com/openSUSE/opensuse-themes.git opensuse-themes-0.9; tar cfvj opensuse-themes-0.9.tar.bz2 --exclude=.git\* opensuse-themes-0.9
-Source1:        opensuse-themes-2.2.62.tar.bz2
-Autoreqprov:    on
+# git clone git://gitorious.org/opensuse/themes.git opensuse-themes-0.9; tar cfvj opensuse-themes-0.9.tar.bz2 --exclude=.git\* opensuse-themes-0.9
+Source1:        opensuse-themes-2.3.0.tar.bz2
 BuildRequires:  python-devel
-BuildRequires:  obs-common
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
 # atm the obs rails version patch above unifies that setting among the applications
 # also see requires in the obs-server-api sub package
-BuildRequires:  rubygem-rails-2_3 >= 2.3.8
-BuildRequires:  rubygem-rmagick
-BuildRequires:  build >= 2009.05.04
+BuildRequires:  build >= 2012.05.31
 BuildRequires:  perl-BSSolv
-BuildRequires:  lighttpd
-Requires:       build >= 2009.05.04
-Requires:       perl-BSSolv
+BuildRequires:  rubygem-rails-2_3 >= 2.3.14
+BuildRequires:  rubygem-rmagick
+PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
+Conflicts:      obs-productconverter < %version-%release
+Requires:       build >= 2012.05.31
+Requires:       obs-worker
+Requires:       perl-BSSolv >= 0.18.0
 # Required by source server
-Requires:       patch diffutils
+Requires:       diffutils
+Requires:       patch
 PreReq:         sysvinit
 
-%if 0%{?suse_version} >= 1030
-BuildRequires:  fdupes
-%endif
 %if 0%{?suse_version:1}
-PreReq:         %fillup_prereq %insserv_prereq permissions
+BuildRequires:  fdupes
+PreReq:         %fillup_prereq %insserv_prereq permissions pwdutils
 %endif
 
-%if 0%{?suse_version} >= 1020
+%if 0%{?suse_version:1}
 Recommends:     yum yum-metadata-parser repoview dpkg
 Recommends:     createrepo
 Conflicts:      createrepo < 0.9.8
@@ -58,24 +62,41 @@ Recommends:     openslp-server
 Recommends:     obs-signd
 Recommends:     inst-source-utils
 %else
-Requires:       yum yum-metadata-parser dpkg
 Requires:       createrepo >= 0.4.10
+Requires:       dpkg
+Requires:       yum
+Requires:       yum-metadata-parser
 %endif
-Requires:       perl-Compress-Zlib perl-Net-SSLeay perl-Socket-MsgHdr perl-XML-Parser
+Requires:       perl-Compress-Zlib
+Requires:       perl-File-Sync >= 0.10
+Requires:       perl-Net-SSLeay
+Requires:       perl-Socket-MsgHdr
+Requires:       perl-XML-Parser
 
 %description
+The Open Build Service (OBS) backend is used to store all sources and binaries. It also
+calculates the need for new build jobs and distributes it.
+
 Authors:
 --------
-    The openSUSE Team <opensuse-buildservice@opensuse.org>
+    The Open Build Service Team <opensuse-buildservice@opensuse.org>
 
 %package -n obs-worker
-Requires:	perl-TimeDate screen curl perl-XML-Parser perl-Compress-Zlib cpio
+Requires:       cpio
+Requires:       curl
+Requires:       perl-Compress-Zlib
+Requires:       perl-TimeDate
+Requires:       perl-XML-Parser
+Requires:       screen
 # For runlevel script:
 Requires:       curl
 Recommends:     openslp lvm2
+#Conflicts:      systemd
 # requires from build script
-Requires:       bash binutils bsdtar
-Summary:        The openSUSE Build Service -- Build Host Component
+Requires:       bash
+Requires:       binutils
+Requires:       bsdtar
+Summary:        The Open Build Service -- Build Host Component
 Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
@@ -85,13 +106,13 @@ Requires:       lzma
 %endif
 %if 0%{?suse_version} >= 1120
 BuildArch:      noarch
-Requires:	util-linux >= 2.16
+Requires:       util-linux >= 2.16
 %else
 %ifarch x86_64
-Requires:	linux32
+Requires:       linux32
 %endif
 %ifarch ppc64
-Requires:	powerpc32
+Requires:       powerpc32
 %endif
 %endif
 
@@ -101,42 +122,55 @@ packages in this obs installation.  Install it alongside obs-server to
 run a local playground test installation.
 
 %package -n obs-api
-Summary:        The openSUSE Build Service -- The Frontend part
+Summary:        The Open Build Service -- The API and WEBUI
 Group:          Productivity/Networking/Web/Utilities
-Requires:       obs-common >= 2.1.79
+Obsoletes:      obs-common <= 2.2.90
 %if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
 
-Requires:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql
+#For lighttpd
+#Recommends:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql
+#For apache
+Recommends:     apache2 apache2-mod_xforward rubygem-passenger-apache2
+
+Requires:       mysql
+Requires:       ruby-mysql
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
-Requires:       rubygem-rails-2_3 >= 2.3.8
-Requires:       rubygem-rack >= 1.1.0
-Requires:       rubygem-libxml-ruby
+Requires:       rubygem-ci_reporter
 Requires:       rubygem-daemons
-Requires:       rubygem-delayed_job
+Requires:       rubygem-delayed_job < 2.0.0
+Requires:       rubygem-json
+Requires:       rubygem-libxml-ruby
+Requires:       rubygem-rack >= 1.1.0
+Requires:       rubygem-rails-2_3 >= 2.3.14
+%if 0%{?suse_version} >= 1210
+Requires:       rubygem-erubis-2_6
+%else
 Requires:       rubygem-erubis
+%endif
+Requires:       rubygem-nokogiri
 Requires:       rubygem-rails_xss
 %if 0%{?suse_version} >= 1020
 Supplements:    ruby-ldap
 %endif
 # requires for webui:
 Requires:       ghostscript-fonts-std
-Requires:       rubygem-gruff
-Requires:       rubygem-sqlite3
-Requires:       rubygem-rmagick
 Requires:       rubygem-exception_notification < 2.0
+Requires:       rubygem-gruff
+Requires:       rubygem-rmagick
+Requires:       rubygem-sqlite3
 Recommends:     memcached
+Summary:        The Open Build Service -- The API and WEBUI
 Group:          Productivity/Networking/Web/Utilities
-Summary:        The openSUSE Build Service -- The Frontend part
 
 %description -n obs-api
 This is the API server instance, and the web client for the 
 OBS.
 
 %package -n obs-source_service
-Summary:        The openSUSE Build Service -- source service daemon
+Summary:        The Open Build Service -- source service daemon
 Group:          Productivity/Networking/Web/Utilities
 # Our default services, used in osc and webui
 Recommends:     obs-service-download_url
@@ -151,7 +185,7 @@ This component is optional and not required to run the service.
 
 
 %package -n obs-productconverter
-Summary:        The openSUSE Build Service -- product definition utility
+Summary:        The Open Build Service -- product definition utility
 Group:          Productivity/Networking/Web/Utilities
 # For perl library files, TODO: split out obs-lib subpackage?
 Requires:       obs-server
@@ -161,9 +195,11 @@ bs_productconvert is a utility to create Kiwi- and Spec- files from a
 product definition.
 
 %package -n obs-utils
-Summary:        The openSUSE Build Service -- utilities
+Summary:        The Open Build Service -- utilities
 Group:          Productivity/Networking/Web/Utilities
-Requires:       osc build ruby 
+Requires:       build
+Requires:       osc
+Requires:       ruby
 
 %description -n obs-utils
 obs_mirror_project is a tool to copy the binary data of a project from one obs to another
@@ -191,11 +227,17 @@ cd -
 # First install all dist files
 #
 cd dist
-# configure lighttpd web service
+# configure apache web service (new default since OBS 2.3)
+mkdir -p $RPM_BUILD_ROOT/etc/apache2/vhosts.d/
+install -m 0644 obs-apache2.conf $RPM_BUILD_ROOT/etc/apache2/vhosts.d/obs.conf
+# configure lighttpd web service (default until OBS 2.1)
 mkdir -p $RPM_BUILD_ROOT/etc/lighttpd/vhosts.d/
-install -m 0644 obs.conf $RPM_BUILD_ROOT/etc/lighttpd/vhosts.d/
+install -m 0644 obs-lighttpd.conf $RPM_BUILD_ROOT/etc/lighttpd/vhosts.d/obs.conf
 install -m 0644 rails.include $RPM_BUILD_ROOT/etc/lighttpd/vhosts.d/rails.inc
 install -m 0644 cleanurl-v5.lua $RPM_BUILD_ROOT/etc/lighttpd/
+# install overview page template
+mkdir -p $RPM_BUILD_ROOT/srv/www/obs/overview
+install -m 0644 overview.html.TEMPLATE $RPM_BUILD_ROOT/srv/www/obs/overview/
 # install obs mirror script and obs copy script
 install -d -m 755 $RPM_BUILD_ROOT/usr/sbin/
 install -m 0755 obs_mirror_project obs_project_update $RPM_BUILD_ROOT/usr/sbin/
@@ -210,14 +252,14 @@ for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispat
 done
 # install logrotate
 install -d -m 755 $RPM_BUILD_ROOT/etc/logrotate.d/
-for i in obs-api.logrotate obs-build.logrotate obs-server.logrotate ; do
-  install -m 0755 $i \
-           $RPM_BUILD_ROOT/etc/logrotate.d/
+for i in obs-api obs-build obs-server ; do
+  install -m 0644 ${i}.logrotate \
+           $RPM_BUILD_ROOT/etc/logrotate.d/$i
 done
 # install fillups
 FILLUP_DIR=$RPM_BUILD_ROOT/var/adm/fillup-templates
 install -d -m 755 $FILLUP_DIR
-install -m 0644 sysconfig.obs-server sysconfig.obs-worker $FILLUP_DIR/
+install -m 0644 sysconfig.obs-server $FILLUP_DIR/
 # install cronjobs
 CRON_DIR=$RPM_BUILD_ROOT/etc/cron.d
 install -d -m 755 $CRON_DIR
@@ -245,7 +287,6 @@ exec /usr/lib/obs/server/bs_serverstatus "\$@"
 EOF
 chmod 0755 $RPM_BUILD_ROOT/usr/sbin/obs_serverstatus
 
-
 #
 # Install all web and api parts.
 #
@@ -253,9 +294,10 @@ cd ../src
 for i in api webui; do
   mkdir -p $RPM_BUILD_ROOT/srv/www/obs/
   cp -a $i $RPM_BUILD_ROOT/srv/www/obs/$i
+  rm $RPM_BUILD_ROOT/srv/www/obs/$i/lib/activexml
+  mkdir $RPM_BUILD_ROOT/srv/www/obs/$i/lib/activexml
+  cp -a activexml/* $RPM_BUILD_ROOT/srv/www/obs/$i/lib/activexml/
 done
-rm $RPM_BUILD_ROOT/srv/www/obs/api/README_LOGIN
-rm $RPM_BUILD_ROOT/srv/www/obs/api/files/specfiletemplate
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/log
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/tmp
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/webui/log
@@ -270,15 +312,12 @@ touch $RPM_BUILD_ROOT/srv/www/obs/webui/db/database.db
 #set default api on localhost for the webui
 # 
 mv $RPM_BUILD_ROOT/srv/www/obs/api/files/distributions.xml.template $RPM_BUILD_ROOT/srv/www/obs/api/files/distributions.xml
-sed 's,FRONTEND_HOST.*,FRONTEND_HOST = "127.0.42.2",' \
-  $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb > tmp-file \
-  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb"
-sed 's,FRONTEND_PORT.*,FRONTEND_PORT = 80,' \
-  $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb > tmp-file \
-  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb"
-sed 's,api.opensuse.org,127.0.42.2,' \
-  $RPM_BUILD_ROOT/srv/www/obs/webui/app/helpers/package_helper.rb > tmp-file \
-  && mv tmp-file "$RPM_BUILD_ROOT/srv/www/obs/webui/app/helpers/package_helper.rb"
+sed -i 's,FRONTEND_HOST.*,FRONTEND_HOST = "127.0.42.2",' \
+  $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb
+sed -i 's,FRONTEND_PORT.*,FRONTEND_PORT = 80,' \
+  $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb
+sed -i 's,api.opensuse.org,127.0.42.2,' \
+  $RPM_BUILD_ROOT/srv/www/obs/webui/app/helpers/package_helper.rb
 
 #
 # Install webui theme
@@ -296,11 +335,11 @@ cp -a ../docs/api/api/*.{rng,xsd}    $RPM_BUILD_ROOT/srv/www/obs/docs/api
 #
 # Fix symlinks to common, could be much cleaner ...
 #
-rm -f $RPM_BUILD_ROOT/srv/www/obs/api/lib/common $RPM_BUILD_ROOT/srv/www/obs/webui/lib/common
-ln -sf /srv/www/obs/common/lib $RPM_BUILD_ROOT/srv/www/obs/api/lib/common
-ln -sf /srv/www/obs/common/lib $RPM_BUILD_ROOT/srv/www/obs/webui/lib/common
-ln -sf /srv/www/obs/common/images $RPM_BUILD_ROOT/srv/www/obs/api/public/images/common
-ln -sf /srv/www/obs/common/images $RPM_BUILD_ROOT/srv/www/obs/webui/public/images/common
+#rm -f $RPM_BUILD_ROOT/srv/www/obs/api/lib/common $RPM_BUILD_ROOT/srv/www/obs/webui/lib/common
+#ln -sf /srv/www/obs/common/lib $RPM_BUILD_ROOT/srv/www/obs/api/lib/common
+#ln -sf /srv/www/obs/common/lib $RPM_BUILD_ROOT/srv/www/obs/webui/lib/common
+#ln -sf /srv/www/obs/common/images $RPM_BUILD_ROOT/srv/www/obs/api/public/images/common
+#ln -sf /srv/www/obs/common/images $RPM_BUILD_ROOT/srv/www/obs/webui/public/images/common
 ln -sf /srv/www/obs/docs/api $RPM_BUILD_ROOT/srv/www/obs/api/public/schema
 #
 # change script names to allow to start them with startproc
@@ -318,20 +357,14 @@ cp BSConfig.pm.template BSConfig.pm
 
 install -d -m 755 $RPM_BUILD_ROOT/usr/lib/obs/server/
 install -d -m 755 $RPM_BUILD_ROOT/usr/lib/obs/server/build # dummy, it is a %ghost
-install -d -m 755 $RPM_BUILD_ROOT/srv/obs/log
-install -d -m 755 $RPM_BUILD_ROOT/srv/obs/run
+#for i in build events info jobs log projects repos run sources trees workers; do
+#  install -d -m 755 $RPM_BUILD_ROOT/srv/obs/$i
+#done
 # install executables and code
 cp -a * $RPM_BUILD_ROOT/usr/lib/obs/server/
 rm -r   $RPM_BUILD_ROOT/usr/lib/obs/server/testdata
 rm      $RPM_BUILD_ROOT/usr/lib/obs/server/Makefile.PL
-# create symlink to build scritps
-#rm -rf $RPM_BUILD_ROOT/usr/lib/obs/server/build
-#ln -sf /usr/lib/build $RPM_BUILD_ROOT/usr/lib/obs/server/build
-
-#
-# Cleanup stuff which should not be in git :/
-#
-rm $RPM_BUILD_ROOT/srv/www/obs/webui/config/build.opensuse.org.diff
+cd ..
 
 #
 # turn duplicates into hard links
@@ -343,10 +376,11 @@ rm $RPM_BUILD_ROOT/srv/www/obs/webui/config/build.opensuse.org.diff
 %fdupes $RPM_BUILD_ROOT/srv/www/obs
 %endif
 
-# hack for old rpm on 11.2 and before
-%if 0%{?suse_version} <= 1120
-touch $RPM_BUILD_ROOT/srv/www/obs/webui/config/database.yml
-%endif
+# these config files must not be hard linked
+install api/config/database.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/database.yml
+install api/config/options.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/options.yml
+install webui/config/database.yml.example $RPM_BUILD_ROOT/srv/www/obs/webui/config/database.yml
+install webui/config/options.yml.example $RPM_BUILD_ROOT/srv/www/obs/webui/config/options.yml
 
 %pre
 /usr/sbin/groupadd -r obsrun 2> /dev/null || :
@@ -357,7 +391,7 @@ touch $RPM_BUILD_ROOT/srv/www/obs/webui/config/database.yml
 /usr/sbin/useradd -r -o -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
 
 %preun
-for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsstoragesetup ; do
+for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner ; do
 %stop_on_removal $service
 done
 
@@ -365,9 +399,10 @@ done
 %stop_on_removal obsworker
 
 %post
+[ -d /srv/obs ] || install -d -o obsrun -g obsrun /srv/obs
 %run_permissions
 %{fillup_and_insserv -n obs-server}
-for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsstoragesetup ; do
+for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner ; do
 %restart_on_update $service
 done
 
@@ -390,43 +425,40 @@ fi
 %insserv_cleanup
 %verifyscript -n obs-server
 %verify_permissions
+# cleanup empty directory just in case
+rmdir /srv/obs 2> /dev/null || :
 
 %post -n obs-worker
-%{fillup_and_insserv -n obs-worker}
-%restart_on_update obsworker
+%{fillup_and_insserv -n obs-server}
+# NOT used on purpose: restart_on_update obsworker
+# This can cause problems when building chroot
+# and bs_worker is anyway updating itself at runtime based on server code
+
+%pre -n obs-api
+# help rpm to turn a directory in a symlink
+if [ -d /srv/www/obs/webui/public/vendor/neutral/images -a ! -L /srv/www/obs/webui/public/vendor/neutral/images ]; then
+  mv /srv/www/obs/webui/public/vendor/neutral/images /srv/www/obs/webui/public/vendor/neutral/images.rpmold
+fi
 
 %post -n obs-api
 %{fillup_and_insserv -n obs-server}
-if [ -e /srv/www/obs/webclient/config/database.yml ] && [ ! -e /srv/www/obs/webui/config/database.yml ]; then
-  cp /srv/www/obs/webclient/config/database.yml /srv/www/obs/webui/config/database.yml
-fi
 if [ -e /srv/www/obs/frontend/config/database.yml ] && [ ! -e /srv/www/obs/api/config/database.yml ]; then
   cp /srv/www/obs/frontend/config/database.yml /srv/www/obs/api/config/database.yml
 fi
 # updaters can keep their production_slave config
 for i in production_slave.rb production.rb development_base.rb; do
-  if [ -e /srv/www/obs/webclient/config/environments/$i ] && [ ! -e /srv/www/obs/webui/config/environments/$i ]; then
-    cp /srv/www/obs/webclient/config/environments/$i /srv/www/obs/webui/config/environments/$i
-  fi
   if [ -e /srv/www/obs/frontend/config/environments/$i ] && [ ! -e /srv/www/obs/api/config/environments/$i ]; then
     cp /srv/www/obs/frontend/config/environments/$i /srv/www/obs/api/config/environments/$i
   fi
 done
-# install initial version of database config
-if [ ! -e /srv/www/obs/webui/config/database.yml ]; then
-  cp -a /srv/www/obs/webui/config/database.yml.example /srv/www/obs/webui/config/database.yml
+# for update from 2.1(lighttpd), do a chown
+if [ `stat -c %U /srv/www/obs/api/config/secret.key` == lighttpd ]; then
+  chown wwwrun.www /srv/www/obs/api/config/secret.key
 fi
-if [ ! -e /srv/www/obs/api/config/database.yml ]; then
-  cp -a /srv/www/obs/api/config/database.yml.example /srv/www/obs/api/config/database.yml
+if [ `stat -c %U /srv/www/obs/webui/config/secret.key` == lighttpd ]; then
+  chown wwwrun.www /srv/www/obs/webui/config/secret.key
 fi
-# for update to 1.7, new names of components
-if [ -e /etc/lighttpd/vhosts.d/obs.conf ]; then
-  sed -i -e 's,/srv/www/obs/webclient,/srv/www/obs/webui,' \
-	 -e 's,/srv/www/obs/frontend,/srv/www/obs/api,' \
-	 /etc/lighttpd/vhosts.d/obs.conf
-fi
-echo '**** Keep in mind to run rake db:migrate after updating this package (read README.UPDATERS) ****'
-%restart_on_update lighttpd
+echo '**** Keep in mind to run rake db:migrate after updating this package and restart apache (read README.UPDATERS) ****'
 
 %postun -n obs-api
 %insserv_cleanup
@@ -440,7 +472,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir /etc/slp.reg.d
 %dir /usr/lib/obs
 %dir /usr/lib/obs/server
-/etc/logrotate.d/obs-server.logrotate
+/etc/logrotate.d/obs-server
 /etc/init.d/obsdispatcher
 /etc/init.d/obspublisher
 /etc/init.d/obsrepserver
@@ -448,7 +480,6 @@ rm -rf $RPM_BUILD_ROOT
 /etc/init.d/obssrcserver
 /etc/init.d/obswarden
 /etc/init.d/obssigner
-/etc/init.d/obsstoragesetup
 /usr/sbin/obs_admin
 /usr/sbin/obs_serverstatus
 /usr/sbin/rcobsdispatcher
@@ -458,10 +489,10 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/rcobssrcserver
 /usr/sbin/rcobswarden
 /usr/sbin/rcobssigner
-/usr/sbin/rcobsstoragesetup
 /usr/lib/obs/server/plugins
 /usr/lib/obs/server/BSAccess.pm
 /usr/lib/obs/server/BSBuild.pm
+/usr/lib/obs/server/BSCando.pm
 /usr/lib/obs/server/BSConfig.pm.template
 /usr/lib/obs/server/BSEvents.pm
 /usr/lib/obs/server/BSFileDB.pm
@@ -495,6 +526,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/XML
 /usr/lib/obs/server/bs_admin
 /usr/lib/obs/server/bs_archivereq
+/usr/lib/obs/server/bs_check_consistency
 /usr/lib/obs/server/bs_dispatch
 /usr/lib/obs/server/bs_publish
 /usr/lib/obs/server/bs_repserver
@@ -509,10 +541,9 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/BSSolv.pm
 /usr/lib/obs/server/BSSolv.xs
 /usr/lib/obs/server/typemap
+/usr/lib/obs/server/worker-deltagen.spec
 %config(noreplace) /usr/lib/obs/server/BSConfig.pm
 %config(noreplace) /etc/slp.reg.d/*
-%attr(-,obsrun,obsrun) /srv/obs
-/var/adm/fillup-templates/sysconfig.obs-server
 # created via %post, since rpm fails otherwise while switching from 
 # directory to symlink
 %ghost /usr/lib/obs/server/build
@@ -526,32 +557,31 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n obs-worker
 %defattr(-,root,root)
-/var/adm/fillup-templates/sysconfig.obs-worker
+/var/adm/fillup-templates/sysconfig.obs-server
 /etc/init.d/obsworker
 /etc/init.d/obsstoragesetup
 /usr/sbin/rcobsworker
 /usr/sbin/rcobsstoragesetup
-# intentionally packaged in server and api package
-/var/adm/fillup-templates/sysconfig.obs-server
 
 %files -n obs-api
 %defattr(-,root,root)
 %doc dist/{README.UPDATERS,README.SETUP} docs/openSUSE.org.xml ReleaseNotes-* README COPYING AUTHORS
+/srv/www/obs/overview
+
 %dir /srv/www/obs
 %dir /srv/www/obs/api
 %dir /srv/www/obs/api/config
 %dir /srv/www/obs/api/config/initializers
 %dir /srv/www/obs/api/config/environments
 %dir /srv/www/obs/api/files
-/etc/logrotate.d/obs-build.logrotate
-/etc/logrotate.d/obs-api.logrotate
+/etc/logrotate.d/obs-build
+/etc/logrotate.d/obs-api
 /etc/init.d/obsapidelayed
 /etc/init.d/obsapisetup
 /usr/sbin/rcobsapisetup
 /usr/sbin/rcobsapidelayed
 /srv/www/obs/api/app
 /srv/www/obs/api/db
-/srv/www/obs/api/doc
 /srv/www/obs/api/files/wizardtemplate.spec
 /srv/www/obs/api/lib
 /srv/www/obs/api/public
@@ -560,8 +590,6 @@ rm -rf $RPM_BUILD_ROOT
 /srv/www/obs/api/test
 /srv/www/obs/api/vendor
 /srv/www/obs/docs
-# intentionally packaged in server and api package
-/var/adm/fillup-templates/sysconfig.obs-server
 
 #
 # some files below config actually are _not_ config files
@@ -571,10 +599,12 @@ rm -rf $RPM_BUILD_ROOT
 /srv/www/obs/api/config/boot.rb
 /srv/www/obs/api/config/routes.rb
 /srv/www/obs/api/config/environments/development.rb
-/srv/www/obs/api/config/database.yml.example
+%attr(0640,root,www) %config(noreplace) /srv/www/obs/api/config/database.yml*
+%attr(0644,root,root) %config(noreplace) /srv/www/obs/api/config/options.yml*
 /srv/www/obs/api/config/environments/production_test.rb
 /srv/www/obs/api/config/initializers/options.rb
 /srv/www/obs/api/config/initializers/logging.rb
+/srv/www/obs/api/config/initializers/create_runtime_directories.rb
 
 %config /srv/www/obs/api/config/environment.rb
 %config(noreplace) /srv/www/obs/api/config/lighttpd.conf
@@ -583,23 +613,20 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /srv/www/obs/api/config/environments/stage.rb
 %config(noreplace) /srv/www/obs/api/config/environments/development_base.rb
 %config(noreplace) /srv/www/obs/api/config/active_rbac_config.rb
-%config(noreplace) /srv/www/obs/api/config/options.yml
 %config(noreplace) /srv/www/obs/api/files/distributions.xml
 %config(noreplace) /etc/cron.d/obs-api
-%attr(0644,root,root) %ghost %config(noreplace) /srv/www/obs/webui/config/database.yml
 
-%dir %attr(-,lighttpd,lighttpd) /srv/www/obs/api/log
-%verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/api/log/production.log
-%attr(-,lighttpd,lighttpd) /srv/www/obs/api/tmp
+%dir %attr(-,wwwrun,www) /srv/www/obs/api/log
+%verify(not size md5) %attr(-,wwwrun,www) /srv/www/obs/api/log/production.log
+%attr(-,wwwrun,www) /srv/www/obs/api/tmp
 
 # starting the webui part
 %dir /srv/www/obs/webui
 # sqlite3 needs write permissions
-%dir %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/db
+%dir %attr(-,wwwrun,www) /srv/www/obs/webui/db
 /srv/www/obs/webui/app
 /srv/www/obs/webui/db/migrate
 /srv/www/obs/webui/db/schema.rb
-/srv/www/obs/webui/doc
 /srv/www/obs/webui/lib
 /srv/www/obs/webui/public
 /srv/www/obs/webui/Rakefile
@@ -615,21 +642,28 @@ rm -rf $RPM_BUILD_ROOT
 /srv/www/obs/webui/README.theme
 /srv/www/obs/webui/config/initializers/options.rb
 /srv/www/obs/webui/config/initializers/logging.rb
-/srv/www/obs/webui/config/database.yml.example
+/srv/www/obs/webui/config/initializers/create_runtime_directories.rb
+/srv/www/obs/webui/config/initializers/xhtml_init.rb
 
 %config /srv/www/obs/webui/config/boot.rb
 %config /srv/www/obs/webui/config/environment.rb
-%config(noreplace) /srv/www/obs/webui/config/options.yml
 %config(noreplace) /srv/www/obs/webui/config/environments/production.rb
 %config(noreplace) /srv/www/obs/webui/config/environments/test.rb
 %config(noreplace) /srv/www/obs/webui/config/environments/stage.rb
 %config(noreplace) /srv/www/obs/webui/config/environments/development_base.rb
 %config(noreplace) /srv/www/obs/webui/config/initializers/theme_support.rb
+%attr(0640,root,www) %config(noreplace) /srv/www/obs/webui/config/database.yml*
+%attr(0644,root,root) %config(noreplace) /srv/www/obs/webui/config/options.yml*
 
-%dir %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/log
-%config(noreplace) %verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/db/database.db
-%config(noreplace) %verify(not size md5) %attr(-,lighttpd,lighttpd) /srv/www/obs/webui/log/production.log
-%attr(-,lighttpd,lighttpd) /srv/www/obs/webui/tmp
+%dir %attr(-,wwwrun,www) /srv/www/obs/webui/log
+%config(noreplace) %verify(not size md5) %attr(-,wwwrun,www) /srv/www/obs/webui/db/database.db
+%config(noreplace) %verify(not size md5) %attr(-,wwwrun,www) /srv/www/obs/webui/log/production.log
+%attr(-,wwwrun,www) /srv/www/obs/webui/tmp
+
+# these dirs primarily belong to apache2:
+%dir /etc/apache2
+%dir /etc/apache2/vhosts.d
+%config(noreplace) /etc/apache2/vhosts.d/obs.conf
 
 # these dirs primarily belong to lighttpd:
 %config(noreplace) /etc/lighttpd/vhosts.d/obs.conf
@@ -648,4 +682,4 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/obs_productconvert
 /usr/lib/obs/server/bs_productconvert
 
-%changelog -n obs-server
+%changelog
