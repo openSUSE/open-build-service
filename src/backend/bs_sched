@@ -388,6 +388,13 @@ sub getconfig {
   my @c = split("\n", $config);
   my $c = Build::read_config($arch, \@c);
   $c->{'repotype'} = [ 'rpm-md' ] unless @{$c->{'repotype'}};
+  # compatibility with older build versions
+  if (!$c->{'binarytype'}) {
+    $c->{'binarytype'} = 'rpm' if $c->{'type'} eq 'spec' || $c->{'type'} eq 'kiwi';
+    $c->{'binarytype'} = 'deb' if $c->{'type'} eq 'dsc';
+    $c->{'binarytype'} = 'arch' if $c->{'type'} eq 'arch';
+    $c->{'binarytype'} ||= 'UNKNWON';
+  }
   return $c;
 }
 
@@ -2863,7 +2870,7 @@ sub checkkiwiimage {
   }
 
   my $pool = BSSolv::pool->new();
-  $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
+  $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
 
   for my $aprp (@aprps) {
     if (!checkprpaccess($aprp, $prp)) {
@@ -2981,7 +2988,7 @@ sub rebuildkiwiimage {
     my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
     # setup pool again for kiwi system expansion
     my $pool = BSSolv::pool->new();
-    $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
+    $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
     for my $aprp (@aprps) {
       if (!checkprpaccess($aprp, $prp)) {
 	print "      - $packid (kiwi-image)\n";
@@ -3076,7 +3083,7 @@ sub checkkiwiproduct {
     @kdeps = ('kiwi') unless @kdeps;	# default
     push @kdeps, grep {/^kiwi-.*:/} @{$info->{'dep'} || []};
     my $pool = BSSolv::pool->new();
-    $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
+    $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
 
     my $savemyarch = $myarch;
     for my $aprp (@bprps) {
@@ -5439,7 +5446,7 @@ while(1) {
 
   # Step 2b: set up pool and repositories
   my $pool = BSSolv::pool->new();
-  $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
+  $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
 
   my %building;
   my %dep2src;

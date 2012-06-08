@@ -777,6 +777,22 @@ sub getlogfile {
   return undef;
 }
 
+sub getconfig {
+  my ($projid, $repoid, $arch, $path) = @_;
+
+  my @configpath = map {"path=$_"} @{$path || []};
+  my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
+  my $bconf = Build::read_config($arch, [split("\n", $config)]);
+  # compatibility with older build versions
+  if (!$bconf->{'binarytype'}) {
+    $bconf->{'binarytype'} = 'rpm' if $bconf->{'type'} eq 'spec' || $bconf->{'type'} eq 'kiwi';
+    $bconf->{'binarytype'} = 'deb' if $bconf->{'type'} eq 'dsc';
+    $bconf->{'binarytype'} = 'arch' if $bconf->{'type'} eq 'arch';
+    $bconf->{'binarytype'} ||= 'UNKNWON';
+  }
+  return $bconf;
+}
+
 sub getbinary_info {
   my ($cgi, $projid, $repoid, $arch, $path) = @_;
   my @s = stat($path);
@@ -813,8 +829,7 @@ sub getbinary_info {
   $res->{'filename'} = $path;
   $res->{'filename'} =~ s/.*\///;
   if ($cgi->{'view'} && $cgi->{'view'} eq 'fileinfo_ext') {
-    my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
-    my $bconf = Build::read_config($arch, [split("\n", $config)]);
+    my $bconf = getconfig($projid, $repoid, $arch);
     my $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', "project=$projid", "repository=$repoid", "arch=$arch", "nopackages");
     die("404 no such project/repository\n") unless $projpack->{'project'};
     my $proj = $projpack->{'project'}->[0];
@@ -824,7 +839,7 @@ sub getbinary_info {
     my %remotemap = map {$_->{'project'} => $_} @{$projpack->{'remotemap'} || []};
     my @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
     my $pool = BSSolv::pool->new();
-    $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
+    $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
     for my $prp (@prp) {
       my ($rprojid, $rrepoid) = split('/', $prp, 2);
       my $r;
@@ -2021,12 +2036,11 @@ sub getbuildinfo {
     }
     # a repo with no path will expand to just the prp as the only element
     if ($kiwitype eq 'image' || @{$repo->{'path'} || []} < 2) {
-      @configpath = map {"path=$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
-      unshift @configpath, "path=$projid/$repoid" unless @configpath;
+      @configpath = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
+      unshift @configpath, "$projid/$repoid" unless @configpath;
     }
   }
-  my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
-  my $bconf = Build::read_config($arch, [split("\n", $config)]);
+  my $bconf = getconfig($projid, $repoid, $arch, \@configpath);
 
   my $ret;
   $ret->{'project'} = $projid;
@@ -2093,7 +2107,7 @@ sub getbuildinfo {
   $ret->{'file'} = $info->{'file'} unless $uploaded;
 
   my $pool = BSSolv::pool->new();
-  $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
+  $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
 
   if ($pdata->{'ldepfile'}) {
     # have local deps, add them to pool
@@ -2184,12 +2198,11 @@ sub getbuildinfo {
   my $epool;
   if ($packtype eq 'kiwi' && $kiwitype eq 'image' && @{$repo->{'path'} || []} >= 2) {
     # use different path for system setup
-    my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
-    $bconf = Build::read_config($arch, [split("\n", $config)]);
+    $bconf = getconfig($projid, $repoid, $arch);
     @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
     $epool = $pool;
     $pool = BSSolv::pool->new();
-    $pool->settype('deb') if $bconf->{'type'} eq 'dsc';
+    $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
     for my $prp (@prp) {
       my ($rprojid, $rrepoid) = split('/', $prp, 2);
       my $r;
@@ -2407,8 +2420,7 @@ sub getbuildinfo_post {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
   undef $packid if $packid eq '_repository';
-  my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
-  my $bconf = Build::read_config($arch, [split("\n", $config)]);
+  my $bconf = getconfig($projid, $repoid, $arch);
 
   my $fn = "$uploaddir/$$";
   my $descr = $fn;
