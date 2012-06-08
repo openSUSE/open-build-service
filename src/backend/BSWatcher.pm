@@ -795,7 +795,10 @@ sub rpc_recv_handler {
     return;
   }
 
-  rpc_error($ev, "chunked decoder not implemented yet for non-receiver requests\n") if $chunked;
+  if ($chunked) {
+    rpc_error($ev, "chunked decoder not implemented yet for non-receiver requests\n");
+    return;
+  }
   if ($ev->{'rpceof'} && $cl && length($ans) < $cl) {
     rpc_error($ev, "EOF from $ev->{'rpcdest'}");
     return;
