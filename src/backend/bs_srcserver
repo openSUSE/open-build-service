@@ -4752,6 +4752,12 @@ sub sourcebranch {
   my $l = {};
   $l->{'project'} = $oprojid if $oprojid ne $projid;
   $l->{'package'} = $opackid if $opackid ne $packid;
+  # a missing package entry is bad if the project has sourceaccess
+  # disabled, so check if that's the case
+  eval {
+    checksourceaccess($oprojid, $opackid) if $opackid eq $packid && $oprojid ne $projid;
+  };
+  $l->{'package'} = $opackid if $@;
   $l->{'missingok'} = "true" if defined $cgi->{'missingok'} && $orev->{'srcmd5'} eq $emptysrcmd5;
   $l->{'rev'} = $cgi->{'orev'} if defined $cgi->{'orev'};
   $l->{'baserev'} = $orev->{'srcmd5'};
