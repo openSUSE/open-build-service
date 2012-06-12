@@ -1225,6 +1225,7 @@ sub prpfinished {
   my $rdir = "$reporoot/$prp/$myarch/:repo";
 
   my $rinfo;
+  my $rinfo_packid2bins;
 
   # link all packages into :repo
   my %origin;
@@ -1237,15 +1238,20 @@ sub prpfinished {
 
   for my $packid (@$packs) {
     if ($pubenabled && !$pubenabled->{$packid}) {
-      # publishing of this package is disabled
+      # publishing of this package is disabled, copy binary list from old info
       if (!$rinfo) {
 	$rinfo = {};
 	$rinfo = BSUtil::retrieve("${rdir}info") if -s "${rdir}info";
 	$rinfo->{'binaryorigins'} ||= {};
+	# create package->binaries helper hash
+	$rinfo_packid2bins = {};
+	my $rb = $rinfo->{'binaryorigins'};
+	for (keys %$rb) {
+	  push @{$rinfo_packid2bins->{$rb->{$_}}}, $_;
+	}
       }
       print "        $packid: publishing disabled\n";
-      my @all = grep {$rinfo->{'binaryorigins'}->{$_} eq $packid} keys %{$rinfo->{'binaryorigins'}};
-      for my $bin (@all) {
+      for my $bin (@{$rinfo_packid2bins->{$packid} || []}) {
         next if exists $origin{$bin};	# first one wins
         $origin{$bin} = $packid;
       }
@@ -1294,9 +1300,9 @@ sub prpfinished {
 	  next;
 	}
 	if ($risdir && $pisdir) {
-	  my $rinfo = BSUtil::treeinfo("$rdir/$rbin");
-	  my $pinfo = BSUtil::treeinfo("$pdir/$bin");
-	  next if join(',', @$rinfo) eq join(',', @$pinfo);
+	  my $rdirinfo = BSUtil::treeinfo("$rdir/$rbin");
+	  my $pdirinfo = BSUtil::treeinfo("$pdir/$bin");
+	  next if join(',', @$rdirinfo) eq join(',', @$pdirinfo);
 	}
         print "      ! :repo/$rbin ($packid)\n";
 	if ($risdir) {
@@ -1322,6 +1328,7 @@ sub prpfinished {
       $changed = 1;
     }
   }
+  undef $rinfo_packid2bins;	# no longer needed
   for my $rbin (sort(ls($rdir))) {
     next if exists $origin{$rbin};
     if (0) {
