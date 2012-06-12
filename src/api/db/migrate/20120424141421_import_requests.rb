@@ -6,7 +6,7 @@ class ImportRequests < ActiveRecord::Migration
     end
     reqs = []
     dir.each_entry do |e|
-      reqs << e.value(:name).to_i
+      reqs << e.value(:name).to_i if e.value(:name).to_i > 0
     end if dir
     reqs.sort.each do |e|
       xml = backend.direct_http( URI( "/request/#{e}" ) )
