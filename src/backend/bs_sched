@@ -1503,6 +1503,11 @@ sub update_dst_full {
 
   my ($projid, $repoid) = split('/', $prp, 2);
 
+  # do extra preloadimage processing
+  if ((defined($dst) && -e "$dst/.preloadimage") || (defined($jobdir) && -e "$jobdir/.preloadimage")) {
+    update_preloadimage($prp, $packid, $dst, $jobdir);
+  }
+
   # check for lock and patchinfo
   if ($projpacks->{$projid} && $projpacks->{$projid}->{'package'} && $projpacks->{$projid}->{'package'}->{$packid}) {
     my $locked = 0;
@@ -1811,7 +1816,7 @@ sub update_preloadimage {
     $imagedata = $newimagedata;
   }
   BSUtil::cleandir($dst);
-  my @all = grep {/(?:\.tar\.xz|\.tar\.gz|\.info)$/} sort(ls($jobdir));
+  my @all = grep {/(?:\.tar\.xz|\.tar\.gz|\.info)$/} grep {!/\./} sort(ls($jobdir));
   my %all = map {$_ => 1} @all;
   my @imgs = grep {s/\.info$//} @all;
   for my $img (@imgs) {
@@ -1819,8 +1824,8 @@ sub update_preloadimage {
     next if (-s "$jobdir/$img.info") > 100000;
     if (-f "$jobdir/$img.tar.xz") {
       $tar = "$img.tar.xz";
-    } elsif (-f "$jobdir/$img.tar.xz") {
-      $tar = "$img.tar.xz";
+    } elsif (-f "$jobdir/$img.tar.gz") {
+      $tar = "$img.tar.gz";
     }
     next unless $tar;
     my $info = readstr("$jobdir/$img.info", 1);
@@ -1837,7 +1842,7 @@ sub update_preloadimage {
     rename("$jobdir/$tar", "$dst/.$id") || die("rename $jobdir/$tar $dst/$.$id: $!\n");
     link("$dst/.$id", "$dst/$tar") || die("link $dst/.$id $dst/$tar: $!\n");
     rename("$jobdir/$img.info", "$dst/$img.info") || die("rename $jobdir/$img.info $dst/$img.info: $!\n");
-    push @$imagedata, {'package' => $packid, 'id' => $id, 'bitstring' => $b, 'hdrids' => \@hdrids};
+    push @$imagedata, {'package' => $packid, 'id' => $id, 'file' => $tar, 'bitstring' => $b, 'hdrids' => \@hdrids};
     $dirty = 1;
   }
   if ($dirty) {
@@ -2711,6 +2716,7 @@ sub jobfinished {
   mkdir_p("$gdst/:logfiles.success");
   mkdir_p("$gdst/:logfiles.fail");
 
+  unlink("$jobdatadir/.preloadimage");
   BSUtil::touch("$jobdatadir/.preloadimage") if $info->{'file'} eq 'preloadimage';
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);

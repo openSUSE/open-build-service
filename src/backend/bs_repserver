@@ -922,6 +922,14 @@ sub getbinary_repository {
 sub getbinary {
   my ($cgi, $projid, $repoid, $arch, $packid, $bin) = @_;
   return getbinary_repository($cgi, $projid, $repoid, $arch, $bin) if $packid eq '_repository';
+  # small preloadimage hack, see getpreloadimageinfos() function
+  if ($bin =~ /^_preloadimage\.([0-9a-f]{32})$/) {
+    my $path = "$reporoot/$projid/$repoid/$arch/$packid/.preloadimage.$1";
+    if (-s $path) {
+      BSServer::reply_file($path, 'Content-Type: application/octet-stream');
+      return undef;
+    }
+  }
   my $path = "$reporoot/$projid/$repoid/$arch/$packid/$bin";
   if (-e "$reporoot/$projid/$repoid/$arch/$packid/.nosourceaccess") {
     my @bins = ls("$reporoot/$projid/$repoid/$arch/$packid");
@@ -1101,6 +1109,31 @@ sub workerstate {
     die("unknown state: $state\n");
   }
   return $BSStdServer::return_ok;
+}
+
+sub getpreloadimageinfos {
+  my ($cgi, $prpas) = @_;
+  my @infos;
+  my $match = $cgi->{'match'};
+  if ($match) {
+    die("match must be 512 byte in hex\n") unless $match =~ /^[0-9a-f]{1024}$/s;
+    $match = pack('H*', $match);
+  }
+  for my $prpa (@$prpas) {
+    next unless -e "$reporoot/$prpa/:preloadimages";
+    my $images = BSUtil::retrieve("$reporoot/$prpa/:preloadimages", 1);
+    next unless $images;
+    for my $img (@$images) {
+      # the "&" below is not a numeric/logic "and", but a bitstring operation
+      next if defined($match) && ($img->{'bitstring'} & $match) ne $img->{'bitstring'};
+      $img->{'path'} = "$prpa/$img->{'package'}/_preloadimage.$img->{'id'}";
+      next unless -s "$reporoot/$prpa/$img->{'package'}/.$img->{'id'}";
+      push @infos, $img;
+    }
+  }
+  # send answer as perl storable
+  my $answer = "pst0".Storable::nfreeze(\@infos);
+  return ($answer, 'Content-Type: application/octet-stream');
 }
 
 sub dirty {
@@ -3141,6 +3174,7 @@ my $dispatches = [
   '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
   '!worker /getjobdata $arch $job $jobid:md5' => \&getjobdata,
   '!worker /getpackagebinaryversionlist $project $repository $arch $package+' => \&getpackagebinaryversionlist,
+  '!worker /getpreloadimageinfos $prpa+ match:' => \&getpreloadimageinfos,
 
   # published files
   '/published' => \&publisheddir,

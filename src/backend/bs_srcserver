@@ -2188,10 +2188,13 @@ sub findfile {
   # create filename -> return value hash
   my %files = map {$_ => [$files->{$_}, $_]} keys %$files;
 
+  return @{$files{'preloadimage'}} if @$files == 1 && $files->{'preloadimage'};
+
   if ($ext eq 'arch') {
     return @{$files{'PKGBUILD'}} if $files{'PKGBUILD'};
     return (undef, undef);
   }
+
   # map services files to their real name
   if ($files{'_service'}) {
     for (sort keys %files) {
@@ -2639,7 +2642,13 @@ sub getprojpack {
 	    }
 	    $rinfo->{'file'} = $file;
 	    # get build dependency info
-            my $d = Build::parse($conf, "$srcrep/$packid/$md5-$file");
+            my $d;
+            if ($file eq 'preloadimage') {
+	      # it's actually a spec file for now
+	      $d = Build::Rpm::parse($conf, "$srcrep/$packid/$md5-$file");
+	    } else {
+              $d = Build::parse($conf, "$srcrep/$packid/$md5-$file");
+	    }
 	    data2utf8xml($d);
             if (defined($d->{'name'})) {
 	      my $version = defined($d->{'version'}) ? $d->{'version'} : 'unknown';
