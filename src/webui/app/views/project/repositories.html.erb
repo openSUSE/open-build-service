@@ -29,8 +29,12 @@
         <div style="margin-top: 1em">
           <% if @project.can_edit?( session[:login] ) %>
             <%= image_tag('icons/drive_edit.png') %>
-            <%#TODO: jquery for ', :update => valid_xml_id(repository.name)' %>
-            <%= link_to('Edit repository', {:action => :edit_repository, :project => @project, :repository => repository.name}, :remote => true) %>
+            <%= link_to('Edit repository', {:action => :edit_repository, :project => @project, :repository => repository.name}, :id => 'edit_repository_link', :remote => true) %>
+            <%= javascript_tag do %>
+              $('#edit_repository_link').bind('ajax:success', function (event, data, status, xhr) {
+                $("#<%= valid_xml_id(repository.name) %>").html(data);
+              });
+            <% end %>
             <%= image_tag('icons/drive_delete.png') %>
             <%= link_to('Remove repository', {:action => :remove_target, :project => @project, :target => repository.name},
               {:confirm => "Really remove repository '#{repository.name}'?", :class => 'x', :method => :post}) %>

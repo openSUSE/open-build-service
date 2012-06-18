@@ -13,6 +13,7 @@ module ProjectHelper
   def show_status_comment( comment, package, firstfail, comments_to_clear )
     status_comment_html = "".html_safe
     if comment
+      # TODO: Port _to_remote helpers to jQuery
       status_comment_html = ERB::Util::h(comment)
       if !firstfail
         if @project.can_edit?( session[:login] )

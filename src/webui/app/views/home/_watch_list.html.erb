@@ -11,8 +11,8 @@
           <td>
             <%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), 
                 :controller => :project, :action => :monitor, :project => project %>
-            <%= link_to_remote image_tag('list-remove.png', :size => '16x16', :alt => 'Remove', :title => 'Remove'), 
-                {:url => {:action => :remove_watched_project, :project => project}, :update => '__watchlist'}, {:class => 'x'} %>
+            <%= link_to(image_tag('list-remove.png', :size => '16x16', :alt => 'Remove', :title => 'Remove'), 
+                        {:action => :remove_watched_project, :project => project}, {:class => 'x', :remote => true}) %>
           </td>
         </tr>
       <% end %>
@@ -22,3 +22,11 @@
     <p>Add a project in watchlist menu to watch a project.</p>
   <% end %>
 </div>
+
+<%= javascript_tag do %>
+  $(document).ready(function() {
+    $('.x').bind('ajax:success', function (event, data, status, xhr) {
+      $("#__watchlist").html(data);
+    });
+  });
+<% end %>

@@ -43,11 +43,6 @@
         <% end %>
         <%= yield :ready_function %>
       });
-      <%#TODO: Check back, this shouldn't be needed anymore: %>
-      <%# See: http://henrik.nyh.se/2008/05/rails-authenticity-token-with-jquery and %>
-      <%# if protect_against_forgery? %>
-        //var CSRF_PROTECT_AUTH_TOKEN = <%= raw form_authenticity_token.inspect %>;
-      <%# end %>
     <% end %>
     <%= csrf_meta_tag %>
   </head>

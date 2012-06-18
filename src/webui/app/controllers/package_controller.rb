@@ -1028,7 +1028,7 @@ class PackageController < ApplicationController
   def import_spec
     all_files = @package.files
     all_files.each do |file|
-      @specfile_name = file[:name] if file[:name].grep(/\.spec/) != []
+      @specfile_name = file[:name] if file[:name].end_with?('.spec')
     end
     specfile_content = frontend.get_source(
       :project => params[:project], :package => params[:package], :filename => @specfile_name
@@ -1091,15 +1091,6 @@ class PackageController < ApplicationController
     end
   end
 
-  def set_url_form
-    if @package.has_element? :url
-      @new_url = @package.url.to_s
-    else
-      @new_url = 'http://'
-    end
-    render :partial => "set_url_form"
-  end
-
   def meta
     begin
       @meta = frontend.get_source(:project => params[:project], :package => params[:package], :filename => '_meta')
@@ -1135,16 +1126,6 @@ class PackageController < ApplicationController
   end
 
   def edit
-  end
-
-  def set_url
-    @package.set_url params[:url]
-    render :partial => 'url_line', :locals => { :url => params[:url] }
-  end
-
-  def remove_url
-    @package.remove_url
-    redirect_to :action => "show", :project => params[:project], :package => params[:package]
   end
 
   def repositories

@@ -12,15 +12,22 @@
     <%= text_field_tag( 'title', @package.title, :size => 80 ) %><br/>
     <strong>Description:</strong>
     <% if params[:spec_count] == "1" %>
-      <%= link_to_remote "[Import from specfile]", {
-        :url => { :action => :import_spec, :project => @project, :package => @package, :import => 'description' },
-        :update => 'description', :position => :bottom,
-        :loading => "$('#spinner').show()", :complete => "$('#spinner').hide()", } %>
-      <img alt="" id="spinner" src="/images/rotating-tail.gif" style="display:none;" />
+      <%= link_to('Import from specfile', {:action => 'import_spec', :project => @project, :package => @package, :import => 'description'}, {:id => 'import-spec-link', :remote => true}) %>
+      <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
     <% end %><br/>
     <%= text_area_tag( "description", @package.description, :cols => "80", :rows => "20" ) %><br/>
     <%= hidden_field_tag( "project", @project.name ) %>
     <%= hidden_field_tag( "package", @package.name ) %>
   </p>
   <p><%= submit_tag %></p>
+<% end %>
+
+<%= javascript_tag do %>
+  $(document).ready(function() {
+    var toggleLoading = function () { $('#spinner').toggle(); };
+    $('#import-spec-link')
+      .bind('ajax:loading', toggleLoading)
+      .bind('ajax:complete', toggleLoading)
+      .bind('ajax:success', function (event, data, status, xhr) { $("#description").html(data); });
+  });
 <% end %>

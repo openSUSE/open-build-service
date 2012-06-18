@@ -1,8 +1,0 @@
-<% if session[:login] -%>
-<div id="watchlink">
-<%= link_to_remote watch_link_text,
-:update => 'watchlink',
-:url => {:action => :toggle_watch, :project => @project.name}
-%>
-</div>
-<% end -%>

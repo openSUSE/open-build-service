@@ -15,6 +15,8 @@ OBSWebUI::Application.routes.draw do
     match 'main/add_news' => :add_news
     match 'main/delete_message_dialog' => :delete_message_dialog
     match 'main/delete_message' => :delete_message
+    # TODO: Only show this in 'test' environment (for webui-testsuite), can this be done here?
+    match 'main/startme' => :startme
   end
 
   controller :atttribute do
@@ -122,6 +124,7 @@ OBSWebUI::Application.routes.draw do
     match 'package/remove_url' => :remove_url
     match 'package/repositories' => :repositories
     match 'package/change_flag' => :change_flag
+    match 'package/import_spec' => :import_spec
   end
 
   controller :patchinfo do

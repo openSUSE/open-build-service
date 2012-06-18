@@ -4,8 +4,7 @@
     <div class="message error"><%= error %></div>
   <% end %>
 
-  <%# TODO: jQuery for: form_remote_tag :update => valid_xml_id(repository.name), :url => { :action => :update_target } do %>
-  <%= form_tag({:action => 'update_target'}, :remote => true) do %>
+  <%= form_tag({:action => 'update_target'}, :id => 'update_target_form', :remote => true) do %>
     <p>
       <b>Architectures:</b>
       <% @repository_arch_hash.each do |arch, value| %>
@@ -52,5 +51,11 @@
 <%= javascript_tag do %>
   $('#arch_check_box').change(function () {
     $('#save_button').enable();
+  });
+
+  $(document).ready(function() {
+    $('#update_target_form').bind('ajax:success', function (event, data, status, xhr) {
+      $("#<%= valid_xml_id(repository.name) %>").html(data);
+    });
   });
 <% end %>

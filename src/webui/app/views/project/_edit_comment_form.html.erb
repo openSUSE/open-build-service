@@ -1,8 +1,13 @@
- <%= form_remote_tag :url => { :action => :edit_comment, :project => @project, :package => @package },
-   :update => valid_xml_id("comment_#{@package}") do -%>
-   <%= text_field_tag('text', @comment) %>
-   <%= hidden_field_tag('last_comment', @comment) %>
-   <%= submit_tag 'Save' %>
+<%= form_remote({:action => :edit_comment, :project => @project, :package => @package}, :id => 'edit_comment_form', :remote => true) do %>
+  <%= text_field_tag('text', @comment) %>
+  <%= hidden_field_tag('last_comment', @comment) %>
+  <%= submit_tag 'Save' %>
+<% end %>
 
- <% end -%>
-
+<%= javascript_tag do %>
+  $(document).ready(function() {
+    $(''edit_comment_form').bind('ajax:success', function (event, data, status, xhr) {
+      $("#<%= valid_xml_id("comment_#{@package}") %>").html(data);
+    });
+  });
+<% end %>

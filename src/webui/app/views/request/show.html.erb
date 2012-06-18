@@ -212,12 +212,12 @@
                 <% end %>
                 <span style="float: right;">
                   <% if @can_add_reviews %>
-                    <%= link_to_remote(image_tag('icons/user_add.png', :title => 'Add a review'), :url => {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}) %>
-                    <%= link_to_remote('Add a review', :url => {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}) %>
+                    <%= link_to(image_tag('icons/user_add.png', :title => 'Add a review'), {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}, :remote => true) %>
+                    <%= link_to('Add a review', {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}, :remote => true) %>
                   <% end %>
                   <% if reqtype(@req) == 'incident' %>
-                    <%= link_to_remote(image_tag('icons/package_link.png', :title => 'Merge with existing incident'), :url => {:controller => 'request', :action => 'set_incident_dialog', :id => @id}) %>
-                    <%= link_to_remote('Merge with existing incident', :url => {:controller => 'request', :action => 'set_incident_dialog', :id => @id}) %>
+                    <%= link_to(image_tag('icons/package_link.png', :title => 'Merge with existing incident'), {:controller => 'request', :action => 'set_incident_dialog', :id => @id}, :remote => true) %>
+                    <%= link_to('Merge with existing incident', {:controller => 'request', :action => 'set_incident_dialog', :id => @id}, :remote => true) %>
                   <% end %>
                 </span>
               </p>

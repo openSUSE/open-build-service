@@ -124,7 +124,7 @@ outputlines = true
 if options[:port] == DEFAULT_PORT
   frontend = Thread.new do
     puts "Starting test webui at port #{options[:port]} ..."
-    webui_out = IO.popen("cd ../webui; unset BUNDLE_GEMFILE; bundle exec ./script/server -e test -p #{options[:port]} 2>&1")
+    webui_out = IO.popen("cd ../webui; unset BUNDLE_GEMFILE; bundle exec rails server -e test -p #{options[:port]} 2>&1")
     puts "Webui started with PID: #{webui_out.pid}"
     begin
       Process.setpgid webui_out.pid, 0
