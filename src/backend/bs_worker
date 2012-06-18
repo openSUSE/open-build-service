@@ -620,6 +620,13 @@ sub rm_rf {
   die("rmdir $dir failed\n") if -d $dir;
 }
 
+sub importbuild {
+    return if defined &Build::queryhdrmd5;
+    unshift @INC, "$statedir/build";
+    require Build;
+    Build->import();
+}
+
 sub getsources {
   my ($buildinfo, $dir) = @_;
 
@@ -796,11 +803,7 @@ sub manage_cache {
 sub getbinaries_cache {
   my ($dir, $server, $projid, $repoid, $arch, $nometa, $bins, $bvl) = @_;
 
-  if (!defined &Build::queryhdrmd5) {
-    unshift @INC, "$statedir/build";
-    require Build;
-    Build->import();
-  }
+  importbuild() unless defined &Build::queryhdrmd5;
   if (! -d $dir) {
     mkdir_p($dir) || die("mkdir_p $dir: $!\n");
   }
@@ -953,11 +956,7 @@ sub getbinaries_kiwiproduct {
   my ($buildinfo, $dir, $srcdir) = @_;
 
   # we need the Build package for queryhdrmd5
-  if (!defined &Build::queryhdrmd5) {
-    unshift @INC, "$statedir/build";
-    require Build;
-    Build->import();
-  }
+  importbuild() unless defined &Build::queryhdrmd5;
 
   # create list of prpaps
   my @kdeps;
@@ -1471,11 +1470,7 @@ sub getbinaries {
   }
 
   # we need the Build package for queryhdrmd5
-  if (!defined &Build::queryhdrmd5) {
-    unshift @INC, "$statedir/build";
-    require Build;
-    Build->import();
-  }
+  importbuild() unless defined &Build::queryhdrmd5;
 
   my @bdep = @{$buildinfo->{'bdep'} || []};
   my %bdep_noinstall = map {$_->{'name'} => 1} grep {$_->{'noinstall'} && ($_->{'repoarch'} || '') ne 'src'} @bdep;
@@ -1504,7 +1499,7 @@ sub getbinaries {
   }
 
   my %bvls;		# bvl cache, the query is not free
-  if (@todo && !$kiwimode && $preinstallimagedata && $Build::features::preinstallimage && $Build::features::preinstallimage) {
+  if (@todo && !$kiwimode && $preinstallimagedata && $Build::features::preinstallimage) {
     my ($imagefile, $imagebins) = getpreinstallimage($buildinfo, $dir, \@todo, \%bvls);
     if ($imagefile && $imagebins) {
       $preinstallimagedata->{'imagename'} = $imagefile;
@@ -1747,9 +1742,25 @@ sub dobuild {
     $buildinfo->{'file'} = 'worker-deltagen.spec';
   } else {
     push @meta, getsources($buildinfo, $srcdir);
+    importbuild() unless defined &Build::queryhdrmd5;
+    if (!$kiwimode && $Build::features::preinstallimage && -s "$srcdir/$buildinfo->{'file'}") {
+      # check if we may use a preloadimage
+      local *F;
+      my $needbins;
+      if (open(F, '<', "$srcdir/$buildinfo->{'file'}")) {
+	while(<F>) {
+	  chomp;
+	  next unless /^#\s*needsbinariesforbuild\s*$/s;
+	  undef $preinstallimagedata;	# can't use an image, sorry
+	  last;
+	}
+	close F;
+      }
+    }
     print "packages, ";
     push @meta, getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
   }
+  $preinstallimagedata ||= {};
 
   writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
 
@@ -1778,7 +1789,10 @@ sub dobuild {
   for my $bdep (@bdep) {
     next if $bdep->{'package'} || $bdep->{'noinstall'} || ($bdep->{'repoarch'} && $bdep->{'repoarch'} eq 'src');
     my $bin = $bdep->{'name'};
-    next if $imagebins{$bin};
+    if ($imagebins{$bin}) {
+	push @rpmlist, "$bin preinstallimage";
+	next;
+    }
     for my $osuf (@binsufs, '__notfound') {
       die("missing package: $bin\n") if $osuf eq '__notfound';
       next unless -e "$pkgdir/$bin.$osuf";
