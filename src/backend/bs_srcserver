@@ -2188,7 +2188,7 @@ sub findfile {
   # create filename -> return value hash
   my %files = map {$_ => [$files->{$_}, $_]} keys %$files;
 
-  return @{$files{'preloadimage'}} if @$files == 1 && $files->{'preloadimage'};
+  return @{$files{'preloadimage'}} if keys(%files) == 1 && $files{'preloadimage'};
 
   if ($ext eq 'arch') {
     return @{$files{'PKGBUILD'}} if $files{'PKGBUILD'};

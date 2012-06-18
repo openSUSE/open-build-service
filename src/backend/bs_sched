@@ -160,13 +160,11 @@ sub sortedmd5toreason {
 }
 
 sub diffsortedmd5 {
-  my $md5off = shift;
-  my $fromp = shift;
-  my $top = shift;
+  my ($fromp, $top) = @_;
 
-  my @ret = ();
-  my @from = map {[$_, substr($_, 0, $md5off).substr($_, $md5off+($md5off ? 33 : 34))]} @$fromp;
-  my @to   = map {[$_, substr($_, 0, $md5off).substr($_, $md5off+($md5off ? 33 : 34))]} @$top;
+  my @ret;
+  my @from = map {[$_, substr($_, 34)]} @$fromp;
+  my @to   = map {[$_, substr($_, 34)]} @$top;
   @from = sort {$a->[1] cmp $b->[1] || $a->[0] cmp $b->[0]} @from;
   @to   = sort {$a->[1] cmp $b->[1] || $a->[0] cmp $b->[0]} @to;
 
@@ -3039,7 +3037,7 @@ sub checkkiwiimage {
     print "        nothing changed\n";
     return ('done');
   }
-  my @diff = diffsortedmd5(0, \@meta, \@new_meta);
+  my @diff = diffsortedmd5(\@meta, \@new_meta);
   print "      - $packid (kiwi-image)\n";
   print "        $_\n" for @diff;
   print "        meta change, start build\n";
@@ -3409,7 +3407,7 @@ sub checkkiwiproduct {
     print "        nothing changed\n";
     return ('done');
   }
-  my @diff = diffsortedmd5(0, \@meta, \@new_meta);
+  my @diff = diffsortedmd5(\@meta, \@new_meta);
   print "      - $packid (kiwi-product)\n";
   print "        $_\n" for @diff;
   print "        meta change, start build\n";
@@ -4089,7 +4087,7 @@ sub checkaggregate {
     print "        blocked (@blocked)\n";
     return ('blocked', join(', ', @blocked));
   }
-  my @new_meta = ();
+  my @new_meta;
   my $error;
   for my $aggregate (@aggregates) {
     my $aprojid = $aggregate->{'project'};
@@ -4162,7 +4160,7 @@ sub checkaggregate {
     print "        nothing changed\n";
     return ('done');
   }
-  my @diff = diffsortedmd5(0, \@meta, \@new_meta);
+  my @diff = diffsortedmd5(\@meta, \@new_meta);
   print "      - $packid (aggregate)\n";
   print "        $_\n" for @diff;
   my $new_meta = join('', map {"$_\n"} @new_meta);
@@ -4338,7 +4336,7 @@ sub checkpreloadimage {
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $edeps = $ctx->{'edeps'}->{$packid} || [];
-  my @new_meta = ();
+  my @new_meta;
   my $notready = $ctx->{'notready'};
   my $dep2src = $ctx->{'dep2src'};
   my $dep2pkg = $ctx->{'dep2pkg'};
@@ -4363,7 +4361,7 @@ sub checkpreloadimage {
     print "        nothing changed\n";
     return ('done');
   }
-  my @diff = diffsortedmd5(0, \@meta, \@new_meta);
+  my @diff = diffsortedmd5(\@meta, \@new_meta);
   print "      - $packid (preloadimage)\n";
   print "        $_\n" for @diff;
   return ('scheduled', [ $edeps,  {'explain' => 'meta change', 'packagechange' => sortedmd5toreason(@diff)} ]);
@@ -4561,7 +4559,7 @@ sub checkpackage {
       }
       goto relsynccheck;
     }
-    my @diff = diffsortedmd5(0, \@meta, \@new_meta);
+    my @diff = diffsortedmd5(\@meta, \@new_meta);
     print "      - $packid ($packtype)\n";
     print "        $_\n" for @diff;
     print "        meta change, start build\n";
@@ -6096,8 +6094,8 @@ while(1) {
   $ctx->{'relsyncmax'} = $relsyncmax;
 
   # Step 2d: check status of all packages
-  my %packstatus = ();
-  my %packerror = ();
+  my %packstatus;
+  my %packerror;
   my @cpacks = @packs;
   my %cycpass;
   my $nharder = 0;
