@@ -1218,15 +1218,95 @@ sub getbinaries_kiwiproduct {
   return @meta;
 }
 
+sub getpreloadimage_metas {
+  my ($buildinfo, $dir, $metas) = @_;
+
+  my $prpa = "$buildinfo->{'project'}/$buildinfo->{'repository'}/$buildinfo->{'arch'}";
+  my @bins = sort(keys %$metas);
+  my @todo;
+  if ($cachedir) {
+    # check the cache
+    for my $bin (@bins) {
+      my $bv = $metas->{$bin};
+      my $cacheid =  Digest::MD5::md5_hex("$prpa/$bv->{'hdrmd5'}");
+      my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+      if (link_or_copy("$cachefile.meta", "$dir/$bin.meta")) {
+	local *F;
+	open(F, '<', "$dir/$bin.meta") || die;
+	my $ctx = Digest::MD5->new;
+	$ctx->addfile(*F);
+	close F;
+	next if $ctx->hexdigest() eq $bv->{'metamd5'};
+	unlink("$dir/$bin.meta");
+      }
+      push @todo, $bin;
+    }
+  } else {
+    @todo = @bins;
+  }
+  return 1 unless @todo;
+
+  # get missing ones for the repo server for this build
+  my @args;
+  push @args, "project=$buildinfo->{'project'}";
+  push @args, "repository=$buildinfo->{'repository'}";
+  push @args, "arch=$buildinfo->{'arch'}";
+  push @args, "binaries=".join(',', @todo);
+  push @args, "metaonly=1";
+  my $repo = (grep {$_->{'project'} eq $buildinfo->{'project'} && $_->{'repository'} eq $buildinfo->{'repository'}} @{$buildinfo->{'path'} || []})[0] || {};
+  my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
+  my $res;
+  eval {
+    $res = BSRPC::rpc({
+      'uri' => "$server/getbinaries",
+      'directory' => $dir,
+      'timeout' => $gettimeout,
+      'receiver' => \&BSHTTP::cpio_receiver,
+    }, undef, @args);
+    die("Error\n") unless ref($res);
+  };
+  warn($@) if $@;
+  return undef unless $res;
+  my %havemeta;
+  for my $r (@$res) {
+    next unless $r->{'name'} =~ /^(.*)\.meta$/;
+    my $bin = $1;
+    my $bv = $metas->{$bin};
+    die("downloaded the wrong meta\n") unless $bv;
+    local *F;
+    next unless open(F, '<', "$dir/$bin.meta");
+    my $ctx = Digest::MD5->new;
+    $ctx->addfile(*F);
+    close F;
+    if ($ctx->hexdigest() eq $bv->{'metamd5'}) {
+      # matching meta!
+      $havemeta{$bin} = 1;
+      if ($cachedir) {
+	# put in cache so that we don't need to download it the next time
+	my $cacheid =  Digest::MD5::md5_hex("$prpa/$bv->{'hdrmd5'}");
+	my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+	unlink("$cachefile.meta.$$");
+	if (link_or_copy("$dir/$bin.meta", "$cachefile.meta.$$")) {
+	  rename("$cachefile.meta.$$", "$cachefile.meta") || die("rename $cachefile.meta.$$ $cachefile.meta: $!\n");
+	}
+      }
+    } else {
+      unlink("$dir/$bin.meta");
+    }
+  }
+  return (grep {!$havemeta{$_}} @bins) ? 1 : undef;
+}
+
 sub getpreloadimage {
   my ($buildinfo, $dir, $todo, $bvls) = @_;
 
   # get all bvls to calculate image data
   my @bins = @$todo;
-  my @prpas;
+  my %prpas;	# server -> prpas on this server
   my %hdrmd5s;
   my $projid = $buildinfo->{'project'};
   my $repoid = $buildinfo->{'repository'};
+  my %metas;
   for my $repo (@{$buildinfo->{'path'} || []}) {
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
     my $nometa = $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid ? 1 : 0;
@@ -1245,17 +1325,18 @@ sub getpreloadimage {
     };
     warn($@) if $@;
     last unless $bvl;	# stop here
-    push @prpas, "$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}" if $server eq $buildinfo->{'reposerver'};
+    push @{$prpas{$server}}, "$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}" if $server ne $buildinfo->{'srcserver'};
     $bvls->{"$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}"} = $bvl if $bvls;
     my %bv;
     for (@{$bvl->{'binary'} || []}) {
       if ($_->{'error'}) {
 	$bv{$_->{'name'}} = $_;
       } else {
-	$bv{$1} = $_ if $_->{'name'} =~ /(.*)\.(?:$binsufsre)$/;
+	next unless $_->{'name'} =~ /(.*)\.(?:$binsufsre)$/;
+	$bv{$1} = $_;
+	$metas{$1} = $_ if !$nometa && $_->{'metamd5'};
       }
     }
-    my $bad;
     for my $bin (@bins) {
       my $bv = $bv{$bin} || {};
       $hdrmd5s{$bin} = $bv->{'hdrmd5'} unless $bv->{'error'};
@@ -1267,36 +1348,42 @@ sub getpreloadimage {
   for (keys %hdrmd5s) {
     delete $hdrmd5s{$_} unless defined $hdrmd5s{$_};
   }
-  return (undef, []) unless %hdrmd5s && @prpas;
+  return (undef, []) unless %hdrmd5s && %prpas;
 
-  # ok, now check if there is an image on the server
+  # ok, now check if there is an image on one of the repo servers
   my $match = "\0" x 512;
   for (values %hdrmd5s) {
     vec($match, hex(substr($_, 0, 3)), 1) = 1;
   }
   $match = unpack("H*", $match);	# hexify
-  my $images;
-  eval { 
-    $images = BSRPC::rpc({
-      'uri' => "$buildinfo->{'reposerver'}/getpreloadimageinfos",
-      'timeout' => $gettimeout,
-    }, undef, "match=$match", map {"prpa=$_"} @prpas);
-  };
-  warn($@) if $@;
-  if ($images && substr($images, 0, 4) eq 'pst0') {
-    eval {
-      $images = Storable::thaw(substr($images, 4));
+  my @images;
+  for my $server (sort(keys %prpas)) {
+    my $serverimages;
+    eval { 
+      $serverimages = BSRPC::rpc({
+	'uri' => "$buildinfo->{'reposerver'}/getpreloadimageinfos",
+	'timeout' => $gettimeout,
+      }, undef, "match=$match", map {"prpa=$_"} @{$prpas{$server}});
     };
     warn($@) if $@;
+    if ($serverimages && substr($serverimages, 0, 4) eq 'pst0') {
+      eval {
+	$serverimages = Storable::thaw(substr($serverimages, 4));
+      };
+      warn($@) if $@;
+    }
+    $serverimages = [] unless $serverimages && ref($serverimages);
+    $_->{'server'} = $server for @$serverimages;
+    push @images, @$serverimages;
   }
-  $images = [] unless $images && ref($images);
+
+  # got all available images, now find a good one to use
   my $imagefile;
   my $imageinfo;
-  while (@$images) {
+  while (@images) {
     my $bestimgn = 2;
     my $bestimg;
-    # find us a nice image
-    for my $img (@$images) {
+    for my $img (@images) {
       # check if it really fits!
       next if @{$img->{'hdrids'} || []} < $bestimgn;
       next unless $img->{'sizek'};
@@ -1325,9 +1412,11 @@ sub getpreloadimage {
 	      # put entry on top
 	      manage_cache($cachesize, [ [$cacheid, $s[7]] ], undef);
 	    }
-	    $imagefile = $ifile;
-	    $imageinfo = $bestimg;
-	    last;
+	    if (getpreloadimage_metas($buildinfo, $dir, \%metas)) {
+	      $imagefile = $ifile;
+	      $imageinfo = $bestimg;
+	      last;
+	    }
 	  }
 	  unlink "$dir/$ifile";
 	}
@@ -1339,7 +1428,7 @@ sub getpreloadimage {
     my $res;
     eval {
       $res = BSRPC::rpc({
-	'uri' => "$buildinfo->{'reposerver'}/build/$bestimg->{'prpa'}/$bestimg->{'path'}",
+	'uri' => "$bestimg->{'server'}/build/$bestimg->{'prpa'}/$bestimg->{'path'}",
 	'timeout' => $gettimeout,
 	'receiver' => \&BSHTTP::file_receiver,
 	'filename' => "$dir/$ifile",
@@ -1356,9 +1445,11 @@ sub getpreloadimage {
 	manage_cache($cachesize, undef, [ [$cacheid, $s[7], "$dir/$ifile"] ]);
 	unlink("$dir/$ifile.meta");
       }
-      $imagefile = $ifile;
-      $imageinfo = $bestimg;
-      last;
+      if (getpreloadimage_metas($buildinfo, $dir, \%metas)) {
+        $imagefile = $ifile;
+        $imageinfo = $bestimg;
+        last;
+      }
     }
 
     # that did not turn out well, try another image

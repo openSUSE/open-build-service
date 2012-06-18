@@ -320,7 +320,7 @@ sub getbinaries {
       push @send, {'name' => $n, 'error' => 'unknown suffix'};
       next;
     }
-    push @send, {'name' => "$n.$1", 'filename' => $path};
+    push @send, {'name' => "$n.$1", 'filename' => $path} unless $cgi->{'metaonly'};
     next if $cgi->{'nometa'};
     next unless $path =~ s/\.(?:$binsufsre)$//;
     if (-e "$path.meta" || ! -e "$path-MD5SUMS.meta") {
@@ -3171,7 +3171,7 @@ my $dispatches = [
   '!worker /getbuildcode' => \&getbuildcode,
   '!worker /getworkercode' => \&getworkercode,
   '!worker POST:/putjob $arch $job $jobid:md5 $code:? now:num? kiwitree:bool? workerid:?' => \&putjob,
-  '!worker /getbinaries $project $repository $arch binaries: nometa:bool?' => \&getbinaries,
+  '!worker /getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool?' => \&getbinaries,
   '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
   '!worker /getjobdata $arch $job $jobid:md5' => \&getjobdata,
   '!worker /getpackagebinaryversionlist $project $repository $arch $package+' => \&getpackagebinaryversionlist,
@@ -3202,7 +3202,7 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename*' => \&getbinarylist,
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:?' => \&getbinary,
   '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? summary:bool?' => \&getresult,
-  '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&getbinaries,
+  '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool?' => \&getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
 ];
 
