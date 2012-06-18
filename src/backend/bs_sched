@@ -1828,21 +1828,26 @@ sub update_preloadimage {
       $tar = "$img.tar.gz";
     }
     next unless $tar;
+    my @s = stat($tar);
+    next unless @s;
     my $info = readstr("$jobdir/$img.info", 1);
     next unless $info;
     my $id = Digest::MD5::md5_hex($info);
     # calculate bitstring
     my $b = "\0" x 512;
     my @hdrids;
+    my @bins;
     for (split("\n", readstr("$jobdir/$img.info", 1))) {
-      next unless /^([0-9a-f]{16})/;
+      next unless /^([0-9a-f]{16})  ([^ ]+)$/s;
       vec($b, hex(substr($1, 0, 3)), 1) = 1;
       push @hdrids, $1;
+      push @bins, $2;
     }
     rename("$jobdir/$tar", "$dst/.$id") || die("rename $jobdir/$tar $dst/$.$id: $!\n");
     link("$dst/.$id", "$dst/$tar") || die("link $dst/.$id $dst/$tar: $!\n");
     rename("$jobdir/$img.info", "$dst/$img.info") || die("rename $jobdir/$img.info $dst/$img.info: $!\n");
-    push @$imagedata, {'package' => $packid, 'id' => $id, 'file' => $tar, 'bitstring' => $b, 'hdrids' => \@hdrids};
+    my $sizek = int(($s[7] + 1023) / 1024);
+    push @$imagedata, {'package' => $packid, 'hdrid' => $id, 'file' => $tar, 'sizek' => $sizek, 'bitstring' => $b, 'hdrids' => \@hdrids, 'bins' => \@bins};
     $dirty = 1;
   }
   if ($dirty) {

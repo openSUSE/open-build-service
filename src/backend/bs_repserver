@@ -1126,8 +1126,9 @@ sub getpreloadimageinfos {
     for my $img (@$images) {
       # the "&" below is not a numeric/logic "and", but a bitstring operation
       next if defined($match) && ($img->{'bitstring'} & $match) ne $img->{'bitstring'};
-      $img->{'path'} = "$prpa/$img->{'package'}/_preloadimage.$img->{'id'}";
-      next unless -s "$reporoot/$prpa/$img->{'package'}/.$img->{'id'}";
+      $img->{'prpa'} = $prpa";
+      $img->{'path'} = "$img->{'package'}/_preloadimage.$img->{'hdrid'}";
+      next unless -s "$reporoot/$prpa/$img->{'package'}/.$img->{'hdrid'}";
       push @infos, $img;
     }
   }

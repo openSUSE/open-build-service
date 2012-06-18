@@ -794,7 +794,7 @@ sub manage_cache {
 }
 
 sub getbinaries_cache {
-  my ($dir, $server, $projid, $repoid, $arch, $nometa, $bins) = @_;
+  my ($dir, $server, $projid, $repoid, $arch, $nometa, $bins, $bvl) = @_;
 
   if (!defined &Build::queryhdrmd5) {
     unshift @INC, "$statedir/build";
@@ -805,8 +805,20 @@ sub getbinaries_cache {
     mkdir_p($dir) || die("mkdir_p $dir: $!\n");
   }
   my %ret;
-  my $bvl;
-  if ($cachedir) {
+  undef $bvl unless $cachedir;	# no use here if ther's no cachedir
+  if ($bvl) {
+    # check if it contains everything we want to know
+    my %bv;
+    for (@{$bvl->{'binary'} || []}) {
+      if ($_->{'error'}) {
+        $bv{$_->{'name'}} = 1;
+      } else {
+        $bv{$1} = 1 if $_->{'name'} =~ /(.*)\.(?:$binsufsre)$/;
+      }
+    }
+    undef $bvl if grep {!$bv{$_}} @$bins;
+  }
+  if ($cachedir && !$bvl) {
     my @args;
     push @args, "project=$projid";
     push @args, "repository=$repoid";
@@ -827,8 +839,7 @@ sub getbinaries_cache {
     if ($_->{'error'}) {
       $bv{$_->{'name'}} = $_;
     } else {
-      next unless $_->{'name'} =~ /(.*)\.(?:$binsufsre)$/;
-      $bv{$1} = $_;
+      $bv{$1} = $_ if $_->{'name'} =~ /(.*)\.(?:$binsufsre)$/;
     }
   }
   my @downloadbins;
@@ -1207,8 +1218,158 @@ sub getbinaries_kiwiproduct {
   return @meta;
 }
 
+sub getpreloadimage {
+  my ($buildinfo, $dir, $todo, $bvls) = @_;
+
+  # get all bvls to calculate image data
+  my @bins = @$todo;
+  my @prpas;
+  my %hdrmd5s;
+  my $projid = $buildinfo->{'project'};
+  my $repoid = $buildinfo->{'repository'};
+  for my $repo (@{$buildinfo->{'path'} || []}) {
+    my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
+    my $nometa = $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid ? 1 : 0;
+    my @args;
+    push @args, "project=$repo->{'project'}";
+    push @args, "repository=$repo->{'repository'}";
+    push @args, "arch=$buildinfo->{'arch'}";
+    push @args, "nometa" if $nometa;
+    push @args, "binaries=".join(',', @bins);
+    my $bvl;
+    eval {
+      $bvl = BSRPC::rpc({
+	'uri' => "$server/getbinaryversions",
+	'timeout' => $gettimeout,
+      }, $BSXML::binaryversionlist, @args);
+    };
+    warn($@) if $@;
+    last unless $bvl;	# stop here
+    push @prpas, "$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}" if $server eq $buildinfo->{'reposerver'};
+    $bvls->{"$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}"} = $bvl if $bvls;
+    my %bv;
+    for (@{$bvl->{'binary'} || []}) {
+      if ($_->{'error'}) {
+	$bv{$_->{'name'}} = $_;
+      } else {
+	$bv{$1} = $_ if $_->{'name'} =~ /(.*)\.(?:$binsufsre)$/;
+      }
+    }
+    my $bad;
+    for my $bin (@bins) {
+      my $bv = $bv{$bin} || {};
+      $hdrmd5s{$bin} = $bv->{'hdrmd5'} unless $bv->{'error'};
+    }
+    @bins = grep {!exists $hdrmd5s{$_}} @bins;
+    last unless @bins;
+  }
+  # wipe error packages from hdrmd5s
+  for (keys %hdrmd5s) {
+    delete $hdrmd5s{$_} unless defined $hdrmd5s{$_};
+  }
+  return (undef, []) unless %hdrmd5s && @prpas;
+
+  # ok, now check if there is an image on the server
+  my $match = "\0" x 512;
+  for (values %hdrmd5s) {
+    vec($match, hex(substr($_, 0, 3)), 1) = 1;
+  }
+  $match = unpack("H*", $match);	# hexify
+  my $images;
+  eval { 
+    $images = BSRPC::rpc({
+      'uri' => "$buildinfo->{'reposerver'}/getpreloadimageinfos",
+      'timeout' => $gettimeout,
+    }, undef, "match=$match", map {"prpa=$_"} @prpas);
+  };
+  warn($@) if $@;
+  if ($images && substr($images, 0, 4) eq 'pst0') {
+    eval {
+      $images = Storable::thaw(substr($images, 4));
+    };
+    warn($@) if $@;
+  }
+  $images = [] unless $images && ref($images);
+  my $imagefile;
+  my $imageinfo;
+  while (@$images) {
+    my $bestimgn = 2;
+    my $bestimg;
+    # find us a nice image
+    for my $img (@$images) {
+      # check if it really fits!
+      next if @{$img->{'hdrids'} || []} < $bestimgn;
+      next unless $img->{'sizek'};
+      next if grep {!$hdrmd5s{$_}} @{$img->{'hdrids'} || []};
+      $bestimg = $img;
+    }
+    last unless $bestimg;	# nothing fits
+    # try this one
+    my $ifile = "preloadimage.$bestimg->{'tar'}";
+
+    # check if the image is in the cache
+    my $cacheid;
+    my $cachefile;
+    if ($cachedir) {
+      $cacheid =  Digest::MD5::md5_hex("$bestimg->{'prpa'}/$bestimg->{'hdrmd5'}");
+      $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+      my $cachefilemeta = readstr("$cachefile.meta", 1) || '';
+      if ($cachefilemeta eq "$bestimg->{'hdrmd5'}  :preloadimage") {
+	if (link_or_copy($cachefile, "$dir/$ifile")) {
+	  # re-check to make races unlikely
+	  $cachefilemeta = readstr("$cachefile.meta", 1) || '';
+	  if ($cachefilemeta eq "$bestimg->{'hdrmd5'}  :preloadimage") {
+	    # looks good, use it!
+	    my @s = stat("$dir/$ifile");
+	    if (@s) {
+	      # put entry on top
+	      manage_cache($cachesize, [ [$cacheid, $s[7]] ], undef);
+	    }
+	    $imagefile = $ifile;
+	    $imageinfo = $bestimg;
+	    last;
+	  }
+	  unlink "$dir/$ifile";
+	}
+      }
+    }
+
+    # nope, download it
+    manage_cache($cachesize - $bestimg->{'sizek'} * 1024) if $cachedir;	# make room
+    my $res;
+    eval {
+      $res = BSRPC::rpc({
+	'uri' => "$buildinfo->{'reposerver'}/build/$bestimg->{'prpa'}/$bestimg->{'path'}",
+	'timeout' => $gettimeout,
+	'receiver' => \&BSHTTP::file_receiver,
+	'filename' => "$dir/$ifile",
+      });
+    };
+    if ($@) {
+      warn($@);
+      unlink("$dir/$ifile");
+    } elsif (-s "$dir/$ifile") {
+      my @s = stat(_);
+      if ($cachedir && @s) {
+	# put in cache (and fake meta)
+	writestr("$dir/$ifile.meta", "$bestimg->{'hdrmd5'}  :preloadimage");
+	manage_cache($cachesize, undef, [ [$cacheid, $s[7], "$dir/$ifile"] ]);
+	unlink("$dir/$ifile.meta");
+      }
+      $imagefile = $ifile;
+      $imageinfo = $bestimg;
+      last;
+    }
+
+    # that did not turn out well, try another image
+    $bestimg->{'hdrids'} = [];	# disables this image
+  }
+
+  return $imagefile, $imageinfo->{'bins'} || [];
+}
+
 sub getbinaries {
-  my ($buildinfo, $dir, $srcdir) = @_;
+  my ($buildinfo, $dir, $srcdir, $preloadimagedata) = @_;
 
   mkdir_p($dir);
   my $kiwimode;
@@ -1251,6 +1412,18 @@ sub getbinaries {
     @todo = grep {$bdep_noinstall{$_} || !$bdep_notmeta{$_}} @bdep;
   }
 
+  my %bvls;		# bvl cache, the query is not free
+  if (@todo && !$kiwimode && $preloadimagedata && $Build::features::preloadimage && $Build::features::preloadimage) {
+    my ($imagefile, $imagebins) = getpreloadimage($buildinfo, $dir, \@todo, \%bvls);
+    if ($imagefile && $imagebins) {
+      $preloadimagedata->{'imagename'} = $imagefile;
+      $preloadimagedata->{'imagenbins'} = $imagebins;
+      # remove image packages from todo
+      my %imgbins = map {$_ => 1} @$imagebins;
+      @todo = grep {!$imgbins{$_}} @todo;
+    }
+  }
+
   for my $repo (@{$buildinfo->{'path'} || []}) {
     last if !@todo && !$kiwimode;
     my @args;
@@ -1268,7 +1441,8 @@ sub getbinaries {
     }
     my $nometa = 0;
     $nometa = 1 if $kiwimode || $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid;
-    my $got = getbinaries_cache($ddir, $repo->{'server'}, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, $nometa, $dlbins);
+    my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
+    my $got = getbinaries_cache($ddir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, $nometa, $dlbins, $bvls{"$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}"});
     for (keys %$got) {
       $done{$_} = $got->{$_}->{'name'};
       $meta{$_} = 1 if !$nometa && $got->{$_}->{'meta'};
@@ -1469,12 +1643,13 @@ sub dobuild {
   rm_rf($oldpkgdir) if -d $oldpkgdir;
 
   my @meta;
+  my $preloadimagedata = {};
   print "fetching sources, ";
   mkdir($srcdir) || die("mkdir $srcdir: $!\n");
   if ($deltamode) {
     push @meta, getdeltasources($buildinfo, $srcdir);
     print "packages, ";
-    getbinaries($buildinfo, $pkgdir, $srcdir);
+    getbinaries($buildinfo, $pkgdir, $srcdir, $preloadimagedata);
     undef $oldpkgdir;
     my $spec = readstr("$statedir/worker/worker-deltagen.spec", 1) || readstr("worker-deltagen.spec");
     writestr("$srcdir/worker-deltagen.spec", undef, $spec);
@@ -1482,7 +1657,7 @@ sub dobuild {
   } else {
     push @meta, getsources($buildinfo, $srcdir);
     print "packages, ";
-    push @meta, getbinaries($buildinfo, $pkgdir, $srcdir);
+    push @meta, getbinaries($buildinfo, $pkgdir, $srcdir, $preloadimagedata);
   }
 
   writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
@@ -1508,15 +1683,20 @@ sub dobuild {
   # build rpmlist for build script
   my @rpmlist;
   my @bdep = @{$buildinfo->{'bdep'} || []};
+  my %imagebins = map {$_ => 1} @{$preloadimagedata->{'imagebins'} || []};
   for my $bdep (@bdep) {
     next if $bdep->{'package'} || $bdep->{'noinstall'} || ($bdep->{'repoarch'} && $bdep->{'repoarch'} eq 'src');
     my $bin = $bdep->{'name'};
+    next if $imagebins{$bin};
     for my $osuf (@binsufs, '__notfound') {
       die("missing package: $bin\n") if $osuf eq '__notfound';
       next unless -e "$pkgdir/$bin.$osuf";
       push @rpmlist, "$bin $pkgdir/$bin.$osuf";
       last;
     }
+  }
+  if ($preloadimagedata->{'imagename'}) {
+    push @rpmlist, "preloadimage: $pkgdir/$preloadimagedata->{'imagename'}";
   }
   push @rpmlist, "localkiwi $localkiwi/localkiwi.rpm" if $localkiwi && -e "$localkiwi/localkiwi.rpm";
   push @rpmlist, "preinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'preinstall'}} @bdep);
