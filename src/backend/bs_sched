@@ -573,7 +573,7 @@ sub set_building {
   $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
   my $packtype = $1 || 'spec';
   $packtype = 'arch' if $info->{'file'} eq 'PKGBUILD';
-  $packtype = 'preloadimage' if $info->{'file'} eq 'preloadimage';
+  $packtype = 'preinstallimage' if $info->{'file'} eq 'preinstallimage';
 
   my $searchpath = [];
   my $syspath;
@@ -1259,7 +1259,7 @@ sub prpfinished {
     my $pdir = "$reporoot/$prp/$myarch/$packid";
     my @all = sort(ls($pdir));
     my $debian = grep {/\.dsc$/} @all;
-    next if grep {$_ eq '.preloadimage'} @all;
+    next if grep {$_ eq '.preinstallimage'} @all;
     my $nosourceaccess = grep {$_ eq '.nosourceaccess'} @all;
     @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne '.bininfo' && $_ ne 'reason' && $_ ne '.nosourceaccess' && $_ ne '.checksums' && !/^\.waiting_for_/} @all;
     for my $bin (@all) {
@@ -1501,9 +1501,9 @@ sub update_dst_full {
 
   my ($projid, $repoid) = split('/', $prp, 2);
 
-  # do extra preloadimage processing
-  if ((defined($dst) && -e "$dst/.preloadimage") || (defined($jobdir) && -e "$jobdir/.preloadimage")) {
-    update_preloadimage($prp, $packid, $dst, $jobdir);
+  # do extra preinstallimage processing
+  if ((defined($dst) && -e "$dst/.preinstallimage") || (defined($jobdir) && -e "$jobdir/.preinstallimage")) {
+    update_preinstallimage($prp, $packid, $dst, $jobdir);
   }
 
   # check for lock and patchinfo
@@ -1802,12 +1802,12 @@ sub update_dst_full {
   delete $repodatas{$prp}->{'solv'};
 }
 
-sub update_preloadimage {
+sub update_preinstallimage {
   my ($prp, $packid, $dst, $jobdir) = @_;
   my $gdst = "$reporoot/$prp/$myarch";
   my $dirty;
   # wipe old
-  my $imagedata = BSUtil::retrieve("$gdst/:preloadimages", 1) || [];
+  my $imagedata = BSUtil::retrieve("$gdst/:preinstallimages", 1) || [];
   my $newimagedata = [ grep {$_->{'package'} ne $packid} @$imagedata ];
   if (@$newimagedata != @$imagedata) {
     $dirty = 1;
@@ -1850,9 +1850,9 @@ sub update_preloadimage {
   }
   if ($dirty) {
     if (@$imagedata) {
-      BSUtil::store("$gdst/.:preloadimages", "$gdst/:preloadimages", $imagedata);
+      BSUtil::store("$gdst/.:preinstallimages", "$gdst/:preinstallimages", $imagedata);
     } else {
-      unlink("$gdst/:preloadimages");
+      unlink("$gdst/:preinstallimages");
     }
   }
 }
@@ -2719,8 +2719,8 @@ sub jobfinished {
   mkdir_p("$gdst/:logfiles.success");
   mkdir_p("$gdst/:logfiles.fail");
 
-  unlink("$jobdatadir/.preloadimage");
-  BSUtil::touch("$jobdatadir/.preloadimage") if $info->{'file'} eq 'preloadimage';
+  unlink("$jobdatadir/.preinstallimage");
+  BSUtil::touch("$jobdatadir/.preinstallimage") if $info->{'file'} eq 'preinstallimage';
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
@@ -4327,10 +4327,10 @@ sub rebuildaggregate {
 ##########################################################################
 ##########################################################################
 ##
-##  preloadimage type handling
+##  preinstallimage type handling
 ##
 
-sub checkpreloadimage {
+sub checkpreinstallimage {
   my ($ctx, $packid, $pdata, $info) = @_;
 
   my $projid = $ctx->{'project'};
@@ -4357,17 +4357,17 @@ sub checkpreloadimage {
     chomp @meta;
   }
   if (join('\n', @meta) eq join('\n', @new_meta)) {
-    print "      - $packid (preloadimage)\n";
+    print "      - $packid (preinstallimage)\n";
     print "        nothing changed\n";
     return ('done');
   }
   my @diff = diffsortedmd5(\@meta, \@new_meta);
-  print "      - $packid (preloadimage)\n";
+  print "      - $packid (preinstallimage)\n";
   print "        $_\n" for @diff;
   return ('scheduled', [ $edeps,  {'explain' => 'meta change', 'packagechange' => sortedmd5toreason(@diff)} ]);
 }
 
-sub rebuildpreloadimage {
+sub rebuildpreinstallimage {
   my ($ctx, $packid, $pdata, $info, $data) = @_;
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
@@ -4834,10 +4834,10 @@ my %handlers = (
     'check' => \&checkaggregate,
     'rebuild' => \&rebuildaggregate,
   },
-  'preloadimage' => {
+  'preinstallimage' => {
     'expand' => \&Build::get_build,
-    'check' => \&checkpreloadimage,
-    'rebuild' => \&rebuildpreloadimage,
+    'check' => \&checkpreinstallimage,
+    'rebuild' => \&rebuildpreinstallimage,
   },
 );
 
@@ -5972,8 +5972,8 @@ while(1) {
     } elsif ($info && $info->{'file'}) {
       if ($info->{'file'} eq 'PKGBUILD') {
         $packtype = 'arch';
-      } elsif ($info->{'file'} eq 'preloadimage') {
-        $packtype = 'preloadimage';
+      } elsif ($info->{'file'} eq 'preinstallimage') {
+        $packtype = 'preinstallimage';
       } elsif ($info->{'file'} =~ /\.(spec|dsc|kiwi)$/) {
         $packtype = $1;
 	if ($packtype eq 'kiwi') {
