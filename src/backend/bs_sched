@@ -4020,7 +4020,7 @@ sub rebuildpatchinfo {
 # globals used: $projpacks
 #
 sub checkaggregate {
-  my ($ctx, $packid, $pdata) = @_;
+  my ($ctx, $packid, $pdata, $info) = @_;
 
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
