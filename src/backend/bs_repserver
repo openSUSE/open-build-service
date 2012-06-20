@@ -1116,22 +1116,31 @@ sub getpreinstallimageinfos {
   my @infos;
   my $match = $cgi->{'match'};
   if ($match) {
-    die("match must be 512 byte in hex\n") unless $match =~ /^[0-9a-f]{1024}$/s;
-    $match = pack('H*', $match);
+    if ($match eq 'body') {
+      $match = BSServer::read_data(512, 1);
+    } else {
+      die("match must be 512 byte in hex\n") unless $match =~ /^[0-9a-f]{1024}$/s;
+      $match = pack('H*', $match);
+    }
+    die("bad match\n") unless length($match) == 512;
   }
+  my $imagescnt = 0;
   for my $prpa (@$prpas) {
     next unless -e "$reporoot/$prpa/:preinstallimages";
     my $images = BSUtil::retrieve("$reporoot/$prpa/:preinstallimages", 1);
     next unless $images;
+    $imagescnt += @$images;
     for my $img (@$images) {
       # the "&" below is not a numeric/logic "and", but a bitstring operation
       next if defined($match) && ($img->{'bitstring'} & $match) ne $img->{'bitstring'};
       $img->{'prpa'} = $prpa;
       $img->{'path'} = "$img->{'package'}/_preinstallimage.$img->{'hdrid'}";
-      next unless -s "$reporoot/$prpa/$img->{'package'}/.$img->{'hdrid'}";
+      next unless -s "$reporoot/$prpa/$img->{'package'}/.preinstallimage.$img->{'hdrid'}";
+      delete $img->{'bins'};	# currently not needed
       push @infos, $img;
     }
   }
+  print "- sending data for ".@infos." of $imagescnt images\n";
   # send answer as perl storable
   my $answer = "pst0".Storable::nfreeze(\@infos);
   return ($answer, 'Content-Type: application/octet-stream');
@@ -3175,7 +3184,7 @@ my $dispatches = [
   '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
   '!worker /getjobdata $arch $job $jobid:md5' => \&getjobdata,
   '!worker /getpackagebinaryversionlist $project $repository $arch $package+' => \&getpackagebinaryversionlist,
-  '!worker /getpreinstallimageinfos $prpa+ match:' => \&getpreinstallimageinfos,
+  '!worker /getpreinstallimageinfos $prpa+ match:?' => \&getpreinstallimageinfos,
 
   # published files
   '/published' => \&publisheddir,
