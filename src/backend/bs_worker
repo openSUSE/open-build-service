@@ -1293,7 +1293,7 @@ sub getpreinstallimage_metas {
       unlink("$dir/$bin.meta");
     }
   }
-  return (grep {!$havemeta{$_}} @bins) ? 1 : undef;
+  return (grep {!$havemeta{$_}} @bins) ? undef : 1;
 }
 
 sub getpreinstallimage {
@@ -1309,6 +1309,7 @@ sub getpreinstallimage {
   for my $repo (@{$buildinfo->{'path'} || []}) {
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
     my $nometa = $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid ? 1 : 0;
+    $nometa = 1 if $buildinfo->{'file'} eq 'preinstallimage';
     my @args;
     push @args, "project=$repo->{'project'}";
     push @args, "repository=$repo->{'repository'}";
@@ -1347,22 +1348,25 @@ sub getpreinstallimage {
   for (keys %hdrmd5s) {
     delete $hdrmd5s{$_} unless defined $hdrmd5s{$_};
   }
-  return (undef, []) unless %hdrmd5s && %prpas;
+  return (undef, {}) unless %hdrmd5s && %prpas;
 
   # ok, now check if there is an image on one of the repo servers
   my $match = "\0" x 512;
   for (values %hdrmd5s) {
     vec($match, hex(substr($_, 0, 3)), 1) = 1;
   }
-  $match = unpack("H*", $match);	# hexify
+  #$match = unpack("H*", $match);	# hexify
   my @images;
   for my $server (sort(keys %prpas)) {
     my $serverimages;
     eval { 
       $serverimages = BSRPC::rpc({
 	'uri' => "$buildinfo->{'reposerver'}/getpreinstallimageinfos",
+	'request' => 'POST',
+	'data' => $match,
+	'headers' => [ 'Content-Type: application/octet-stream' ],
 	'timeout' => $gettimeout,
-      }, undef, "match=$match", map {"prpa=$_"} @{$prpas{$server}});
+      }, undef, "match=body", map {"prpa=$_"} @{$prpas{$server}});
     };
     warn($@) if $@;
     if ($serverimages && substr($serverimages, 0, 4) eq 'pst0') {
@@ -1379,6 +1383,8 @@ sub getpreinstallimage {
   # got all available images, now find a good one to use
   my $imagefile;
   my $imageinfo;
+  my %neededhdrmd5s;
+  $neededhdrmd5s{$_} = 1 for values %hdrmd5s;
   while (@images) {
     my $bestimgn = 2;
     my $bestimg;
@@ -1386,12 +1392,12 @@ sub getpreinstallimage {
       # check if it really fits!
       next if @{$img->{'hdrids'} || []} < $bestimgn;
       next unless $img->{'sizek'};
-      next if grep {!$hdrmd5s{$_}} @{$img->{'hdrids'} || []};
+      next if grep {!$neededhdrmd5s{$_}} @{$img->{'hdrids'} || []};
       $bestimg = $img;
     }
     last unless $bestimg;	# nothing fits
     # try this one
-    my $ifile = "preinstallimage.$bestimg->{'tar'}";
+    my $ifile = "preinstallimage.$bestimg->{'file'}";
 
     # check if the image is in the cache
     my $cacheid;
@@ -1455,7 +1461,13 @@ sub getpreinstallimage {
     $bestimg->{'hdrids'} = [];	# disables this image
   }
 
-  return $imagefile, $imageinfo->{'bins'} || [];
+  return undef, {} unless $imagefile;
+  my %imagebins;
+  my %havehdrmd5 = map {$_ => 1} @{$imageinfo->{'hdrids'} || []};
+  for my $bin (keys %hdrmd5s) {
+    $imagebins{$bin} = $hdrmd5s{$bin} if $havehdrmd5{$hdrmd5s{$bin}};
+  }
+  return $imagefile, \%imagebins, \%metas;
 }
 
 sub getbinaries {
@@ -1499,16 +1511,19 @@ sub getbinaries {
   }
 
   my %bvls;		# bvl cache, the query is not free
-  if (@todo && !$kiwimode && $preinstallimagedata && $Build::features::preinstallimage) {
-    my ($imagefile, $imagebins) = getpreinstallimage($buildinfo, $dir, \@todo, \%bvls);
-    if ($imagefile && $imagebins) {
+  my ($imagefile, $imagebins);
+  if (@todo && !$kiwimode && $preinstallimagedata && $Build::Features::preinstallimage) {
+    my $imagemetas;
+    ($imagefile, $imagebins, $imagemetas) = getpreinstallimage($buildinfo, $dir, \@todo, \%bvls);
+    if ($imagefile && $imagebins && $imagemetas) {
       $preinstallimagedata->{'imagename'} = $imagefile;
-      $preinstallimagedata->{'imagenbins'} = $imagebins;
+      $preinstallimagedata->{'imagebins'} = $imagebins;
+      $meta{$_} = 1 for keys $imagemetas;
       # remove image packages from todo
-      my %imgbins = map {$_ => 1} @$imagebins;
-      @todo = grep {!$imgbins{$_}} @todo;
+      @todo = grep {!$imagebins->{$_}} @todo;
     }
   }
+  $imagebins ||= {};
 
   for my $repo (@{$buildinfo->{'path'} || []}) {
     last if !@todo && !$kiwimode;
@@ -1527,6 +1542,7 @@ sub getbinaries {
     }
     my $nometa = 0;
     $nometa = 1 if $kiwimode || $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid;
+    $nometa = 1 if $buildinfo->{'file'} eq 'preinstallimage';
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
     my $got = getbinaries_cache($ddir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, $nometa, $dlbins, $bvls{"$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}"});
     for (keys %$got) {
@@ -1574,7 +1590,7 @@ sub getbinaries {
       my $m;
       $m = readstr("$dir/$dep.meta", 1) if $meta{$dep};
       if (!$m) {
-	my $id = Build::queryhdrmd5("$dir/$done{$dep}") || "deaddeaddeaddeaddeaddeaddeaddead";
+	my $id = $imagebins->{$dep} || Build::queryhdrmd5("$dir/$done{$dep}") || "deaddeaddeaddeaddeaddeaddeaddead";
 	push @meta, "$id  $dep";
       } else {
 	chomp $m;
@@ -1743,7 +1759,7 @@ sub dobuild {
   } else {
     push @meta, getsources($buildinfo, $srcdir);
     importbuild() unless defined &Build::queryhdrmd5;
-    if (!$kiwimode && $Build::features::preinstallimage && -s "$srcdir/$buildinfo->{'file'}") {
+    if (!$kiwimode && $Build::Features::preinstallimage && -s "$srcdir/$buildinfo->{'file'}") {
       # check if we may use a preloadimage
       local *F;
       my $needbins;
@@ -1764,7 +1780,7 @@ sub dobuild {
 
   writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
 
-  getoldpackages($buildinfo, $oldpkgdir) if $oldpkgdir && !$kiwimode;
+  getoldpackages($buildinfo, $oldpkgdir) if $oldpkgdir && !$kiwimode && $buildinfo->{'file'} ne 'preinstallimage';
 
   my @configpath;
   if ($kiwimode) {
@@ -1785,11 +1801,11 @@ sub dobuild {
   # build rpmlist for build script
   my @rpmlist;
   my @bdep = @{$buildinfo->{'bdep'} || []};
-  my %imagebins = map {$_ => 1} @{$preinstallimagedata->{'imagebins'} || []};
+  my $imagebins = $preinstallimagedata->{'imagebins'} || {};
   for my $bdep (@bdep) {
     next if $bdep->{'package'} || $bdep->{'noinstall'} || ($bdep->{'repoarch'} && $bdep->{'repoarch'} eq 'src');
     my $bin = $bdep->{'name'};
-    if ($imagebins{$bin}) {
+    if ($imagebins->{$bin}) {
 	push @rpmlist, "$bin preinstallimage";
 	next;
     }
