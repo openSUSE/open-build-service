@@ -373,9 +373,11 @@ Parameters:
   flag: modify this flag (build/publish/..) for set_flag command
   status: enable or disable for set_flag command
   comment: description for the history
+  # for copy command only:
+  resign: resign all binaries with new target project key
+  makeolder: make a split, the source is bumped by two numbers and target by one
   withhistory: copies sources with history on copy command
   withbinaries: copies also binaries on copy command
-
 
 === Packages
 
