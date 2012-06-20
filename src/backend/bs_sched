@@ -1813,8 +1813,8 @@ sub update_preinstallimage {
     $dirty = 1;
     $imagedata = $newimagedata;
   }
-  BSUtil::cleandir($dst);
-  my @all = grep {/(?:\.tar\.xz|\.tar\.gz|\.info)$/} grep {!/\./} sort(ls($jobdir));
+  my @all;
+  @all = grep {/(?:\.tar\.xz|\.tar\.gz|\.info)$/} grep {!/^\./} sort(ls($jobdir)) if $jobdir;
   my %all = map {$_ => 1} @all;
   my @imgs = grep {s/\.info$//} @all;
   for my $img (@imgs) {
@@ -1826,7 +1826,7 @@ sub update_preinstallimage {
       $tar = "$img.tar.gz";
     }
     next unless $tar;
-    my @s = stat($tar);
+    my @s = stat("$jobdir/$tar");
     next unless @s;
     my $info = readstr("$jobdir/$img.info", 1);
     next unless $info;
@@ -1836,14 +1836,17 @@ sub update_preinstallimage {
     my @hdrids;
     my @bins;
     for (split("\n", readstr("$jobdir/$img.info", 1))) {
-      next unless /^([0-9a-f]{16})  ([^ ]+)$/s;
+      next unless /^([0-9a-f]{32})  ([^ ]+)$/s;
       vec($b, hex(substr($1, 0, 3)), 1) = 1;
       push @hdrids, $1;
       push @bins, $2;
     }
-    rename("$jobdir/$tar", "$dst/.$id") || die("rename $jobdir/$tar $dst/$.$id: $!\n");
-    link("$dst/.$id", "$dst/$tar") || die("link $dst/.$id $dst/$tar: $!\n");
-    rename("$jobdir/$img.info", "$dst/$img.info") || die("rename $jobdir/$img.info $dst/$img.info: $!\n");
+    unlink("$jobdir/.preinstallimage.$id");
+    link("$jobdir/$tar", "$jobdir/.preinstallimage.$id") || die("link $jobdir/$tar $jobdir/.preinstallimage.$id");
+    if ($dst && $dst ne $jobdir) {
+      unlink("$dst/.preinstallimage.$id");
+      link("$jobdir/.preinstallimage.$id", "$dst/.preinstallimage.$id") || die("link $jobdir/.$id $dst/.preinstallimage.$id");
+    }
     my $sizek = int(($s[7] + 1023) / 1024);
     push @$imagedata, {'package' => $packid, 'hdrid' => $id, 'file' => $tar, 'sizek' => $sizek, 'bitstring' => $b, 'hdrids' => \@hdrids, 'bins' => \@bins};
     $dirty = 1;
@@ -2920,6 +2923,61 @@ sub importevent {
 ##########################################################################
 ##########################################################################
 ##
+##
+
+sub metacheck {
+  my ($ctx, $packid, $packtype, $new_meta, $data) = @_;
+  
+  my $prp = $ctx->{'prp'};
+  my @meta = split("\n", (readstr("$reporoot/$prp/$myarch/:meta/$packid", 1) || ''));
+  if (!@meta) {
+    print "      - $packid ($packtype)\n";
+    print "        start build\n";
+    return ('scheduled', [ @$data, {'explain' => 'new build'} ]);
+  }
+  if ($meta[0] ne $new_meta->[0]) {
+    print "      - $packid ($packtype)\n";
+    print "        src change, start build\n";
+    return ('scheduled', [ @$data, {'explain' => 'source change', 'oldsource' => substr($meta[0], 0, 32)} ]);
+  }
+  if (@meta == 2 && $meta[1] =~ /^fake/) {
+    my @s = stat("$reporoot/$prp/$myarch/:meta/$packid");
+    if (!@s || $s[9] + 14400 > time()) {
+      print "      - $packid ($packtype)\n";
+      print "        buildsystem setup failure\n";
+      return ('failed')
+    }
+    print "      - $packid (preinstallimage)\n";
+    print "        retrying bad build\n";
+    return ('scheduled', [ @$data, { 'explain' => 'retrying bad build' } ]);
+  }
+  if (join('\n', @meta) eq join('\n', @$new_meta)) {
+    if (($packtype eq 'kiwi-image' || $packtype eq 'kiwi-product') && $ctx->{'relsynctrigger'}->{$packid}) {
+      print "      - $packid ($packtype)\n";
+      print "        rebuild counter sync\n";
+      return ('scheduled', [ @$data, {'explain' => 'rebuild counter sync'} ]);
+    }
+    print "      - $packid ($packtype)\n";
+    print "        nothing changed\n";
+    return ('done');
+  }
+  my $repo = $ctx->{'repo'};
+  if (($packtype eq 'kiwi-image' || $packtype eq 'kiwi-product') && $repo->{'rebuild'} && $repo->{'rebuild'} eq 'local') {
+    print "      - $packid ($packtype)\n";
+    print "        nothing changed\n";
+    return ('done');
+  }
+  my @diff = diffsortedmd5(\@meta, $new_meta);
+  print "      - $packid ($packtype)\n";
+  print "        $_\n" for @diff;
+  print "        meta change, start build\n";
+  return ('scheduled', [ @$data, {'explain' => 'meta change', 'packagechange' => sortedmd5toreason(@diff)} ]);
+}
+
+
+##########################################################################
+##########################################################################
+##
 ##  kiwi-image package type handling
 ##
 sub checkkiwiimage {
@@ -3011,37 +3069,7 @@ sub checkkiwiimage {
       return ('blocked', join(', ', @blocked));
     }
   }
-  my @meta = split("\n", (readstr("$reporoot/$prp/$myarch/:meta/$packid", 1) || ''));
-  if (!@meta || !$meta[0]) {
-    print "      - $packid (kiwi-image)\n";
-    print "        start build\n";
-    return ('scheduled', [ $bconf, \@edeps, {'explain' => 'new build'} ]);
-  }
-  if ($meta[0] ne $new_meta[0]) {
-    print "      - $packid (kiwi-image)\n";
-    print "        src change, start build\n";
-    return ('scheduled', [ $bconf, \@edeps, {'explain' => 'source change', 'oldsource' => substr($meta[0], 0, 32)} ]);
-  }
-  if (join('\n', @meta) eq join('\n', @new_meta)) {
-    if ($ctx->{'relsynctrigger'}->{$packid}) {
-      print "      - $packid (kiwi-image)\n";
-      print "        rebuild counter sync\n";
-      return ('scheduled', [ $bconf, \@edeps, {'explain' => 'rebuild counter sync'} ]);
-    }
-    print "      - $packid (kiwi-image)\n";
-    print "        nothing changed\n";
-    return ('done');
-  }
-  if ($repo->{'rebuild'} && $repo->{'rebuild'} eq 'local') {
-    print "      - $packid (kiwi-image)\n";
-    print "        nothing changed\n";
-    return ('done');
-  }
-  my @diff = diffsortedmd5(\@meta, \@new_meta);
-  print "      - $packid (kiwi-image)\n";
-  print "        $_\n" for @diff;
-  print "        meta change, start build\n";
-  return ('scheduled', [ $bconf, \@edeps, {'explain' => 'meta change', 'packagechange' => sortedmd5toreason(@diff)} ]);
+  return metacheck($ctx, $packid, 'kiwi-image', \@new_meta, [ $bconf, \@edeps ]);
 }
 
 sub rebuildkiwiimage {
@@ -3386,32 +3414,7 @@ sub checkkiwiproduct {
     $id ||= "deaddeaddeaddeaddeaddeaddeaddead";
     push @new_meta, "$id  $rpms_meta{$rpm}";
   }
-  my @meta;
-  if (open(F, '<', "$reporoot/$projid/$repoid/$myarch/:meta/$packid")) {
-    @meta = <F>;
-    close F;
-    chomp @meta;
-  }
-  if (join('\n', @meta) eq join('\n', @new_meta)) {
-    if ($ctx->{'relsynctrigger'}->{$packid}) {
-      print "      - $packid (kiwi-product)\n";
-      print "        rebuild counter sync\n";
-      return ('scheduled', [ $bconf, \@rpms, {'explain' => 'rebuild counter sync'} ]);
-    }
-    print "      - $packid (kiwi-product)\n";
-    print "        nothing changed\n";
-    return ('done');
-  }
-  if ($repo->{'rebuild'} && $repo->{'rebuild'} eq 'local') {
-    print "      - $packid (kiwi-product)\n";
-    print "        nothing changed\n";
-    return ('done');
-  }
-  my @diff = diffsortedmd5(\@meta, \@new_meta);
-  print "      - $packid (kiwi-product)\n";
-  print "        $_\n" for @diff;
-  print "        meta change, start build\n";
-  return ('scheduled', [ $bconf, \@rpms, {'explain' => 'meta change', 'packagechange' => sortedmd5toreason(@diff)} ]);
+  return metacheck($ctx, $packid, 'kiwi-product', \@new_meta, [ $bconf, \@rpms ]);
 }
 
 sub rebuildkiwiproduct {
@@ -4349,22 +4352,7 @@ sub checkpreinstallimage {
   }
   @new_meta = BSSolv::gen_meta([], @new_meta);
   unshift @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
-  my @meta;
-  local *F;
-  if (open(F, '<', "$reporoot/$projid/$repoid/$myarch/:meta/$packid")) {
-    @meta = <F>;
-    close F;
-    chomp @meta;
-  }
-  if (join('\n', @meta) eq join('\n', @new_meta)) {
-    print "      - $packid (preinstallimage)\n";
-    print "        nothing changed\n";
-    return ('done');
-  }
-  my @diff = diffsortedmd5(\@meta, \@new_meta);
-  print "      - $packid (preinstallimage)\n";
-  print "        $_\n" for @diff;
-  return ('scheduled', [ $edeps,  {'explain' => 'meta change', 'packagechange' => sortedmd5toreason(@diff)} ]);
+  return metacheck($ctx, $packid, 'preinstallimage', \@new_meta, [ $edeps ]);
 }
 
 sub rebuildpreinstallimage {
@@ -4373,7 +4361,7 @@ sub rebuildpreinstallimage {
   my $repoid = $ctx->{'repository'};
   my $edeps = $data->[0];
   my $reason = $data->[1];
-  my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $ctx->{'conf'}, [], $edeps, undef, $reason, $ctx->{'relsyncmax'}, 0);
+  my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $ctx->{'conf'}, [], $edeps, $ctx->{'prpsearchpath'}, $reason, $ctx->{'relsyncmax'}, 0);
   return ('broken', $joberror) unless $job;
   return ('scheduled', $job);
 }
@@ -4444,7 +4432,7 @@ sub checkpackage {
       close F;
       chomp @meta;
       $mylastcheck = substr($meta[0], 0, 32);
-      if (@meta == 2 && $meta[1] =~ /fake/) {
+      if (@meta == 2 && $meta[1] =~ /^fake/) {
 	$mylastcheck .= 'fakefakefakefakefakefakefakefake';
       } else {
 	$mylastcheck .= Digest::MD5::md5_hex(join("\n", @meta));
