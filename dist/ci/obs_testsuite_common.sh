@@ -36,9 +36,9 @@ setup_api() {
   cp config/options.yml.example config/options.yml
 
   echo "Install missing gems locally"
-  rm Gemfile.lock
+  mv Gemfile.lock Gemfile.lock.orig
   bundle list
-  git diff Gemfile.lock
+  diff -u Gemfile.lock.orig Gemfile.lock || :
 
   chmod a+x script/start_test_backend
 

@@ -54,6 +54,7 @@ GEM
     multi_json (1.3.5)
     mysql2 (0.3.11)
     nokogiri (1.5.2)
+    pkg-config (1.1.3)
     polyglot (0.3.3)
     rack (1.4.1)
     rack-cache (1.2)
@@ -97,7 +98,8 @@ GEM
       polyglot
       polyglot (>= 0.3.1)
     tzinfo (0.3.33)
-    xmlhash (1.2.1)
+    xmlhash (1.2.2)
+      pkg-config
     yajl-ruby (1.1.0)
 
 PLATFORMS
@@ -116,5 +118,5 @@ DEPENDENCIES
   rdoc
   simplecov-rcov
   test-unit (>= 2.0)
-  xmlhash (>= 1.2.1)
+  xmlhash (= 1.2.2)
   yajl-ruby
