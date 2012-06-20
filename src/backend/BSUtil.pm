@@ -116,6 +116,18 @@ sub readxml {
   return $@ ? undef : $d;
 }
 
+sub fromxml {
+  my ($d, $dtd, $nonfatal) = @_;
+  return XMLin($dtd, $d) unless $nonfatal;
+  eval { $d = XMLin($dtd, $d); };
+  return $@ ? undef : $d;
+}
+
+sub toxml {
+  my ($d, $dtd) = @_;
+  return XMLout($dtd, $d);
+}
+
 sub touch($) {
   my ($file) = @_;
   if (-e $file) {
