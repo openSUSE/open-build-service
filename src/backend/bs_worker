@@ -1348,7 +1348,7 @@ sub getpreinstallimage {
   for (keys %hdrmd5s) {
     delete $hdrmd5s{$_} unless defined $hdrmd5s{$_};
   }
-  return (undef, {}) unless %hdrmd5s && %prpas;
+  return undef unless %hdrmd5s && %prpas;
 
   # ok, now check if there is an image on one of the repo servers
   my $match = "\0" x 512;
@@ -1461,13 +1461,16 @@ sub getpreinstallimage {
     $bestimg->{'hdrids'} = [];	# disables this image
   }
 
-  return undef, {} unless $imagefile;
+  return undef unless $imagefile;
   my %imagebins;
   my %havehdrmd5 = map {$_ => 1} @{$imageinfo->{'hdrids'} || []};
   for my $bin (keys %hdrmd5s) {
     $imagebins{$bin} = $hdrmd5s{$bin} if $havehdrmd5{$hdrmd5s{$bin}};
   }
-  return $imagefile, \%imagebins, \%metas;
+  my $imagesource = $imageinfo->{'prpa'};
+  $imagesource =~ s/\/[^\/]*$//;	# strip arch
+  $imagesource .= "/$imageinfo->{'package'}" if $imageinfo->{'package'};
+  return $imagefile, \%imagebins, $imagesource, \%metas;
 }
 
 sub getbinaries {
@@ -1513,11 +1516,13 @@ sub getbinaries {
   my %bvls;		# bvl cache, the query is not free
   my ($imagefile, $imagebins);
   if (@todo && !$kiwimode && $preinstallimagedata && $Build::Features::preinstallimage) {
+    my $imagesource;
     my $imagemetas;
-    ($imagefile, $imagebins, $imagemetas) = getpreinstallimage($buildinfo, $dir, \@todo, \%bvls);
+    ($imagefile, $imagebins, $imagesource, $imagemetas) = getpreinstallimage($buildinfo, $dir, \@todo, \%bvls);
     if ($imagefile && $imagebins && $imagemetas) {
       $preinstallimagedata->{'imagename'} = $imagefile;
       $preinstallimagedata->{'imagebins'} = $imagebins;
+      $preinstallimagedata->{'imagesource'} = $imagesource;
       $meta{$_} = 1 for keys $imagemetas;
       # remove image packages from todo
       @todo = grep {!$imagebins->{$_}} @todo;
@@ -1816,9 +1821,8 @@ sub dobuild {
       last;
     }
   }
-  if ($preinstallimagedata->{'imagename'}) {
-    push @rpmlist, "preinstallimage: $pkgdir/$preinstallimagedata->{'imagename'}";
-  }
+  push @rpmlist, "preinstallimage: $pkgdir/$preinstallimagedata->{'imagename'}" if $preinstallimagedata->{'imagename'};
+  push @rpmlist, "preinstallimagesource: $preinstallimagedata->{'imagesource'}" if $preinstallimagedata->{'imagesource'};
   push @rpmlist, "localkiwi $localkiwi/localkiwi.rpm" if $localkiwi && -e "$localkiwi/localkiwi.rpm";
   push @rpmlist, "preinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'preinstall'}} @bdep);
   push @rpmlist, "vminstall: ".join(' ', map {$_->{'name'}} grep {$_->{'vminstall'}} @bdep);
