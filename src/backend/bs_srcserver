@@ -2642,13 +2642,7 @@ sub getprojpack {
 	    }
 	    $rinfo->{'file'} = $file;
 	    # get build dependency info
-            my $d;
-            if ($file eq 'preinstallimage') {
-	      # it's actually a spec file for now
-	      $d = Build::Rpm::parse($conf, "$srcrep/$packid/$md5-$file");
-	    } else {
-              $d = Build::parse($conf, "$srcrep/$packid/$md5-$file");
-	    }
+            my $d = Build::Rpm::parse($conf, "$srcrep/$packid/$md5-$file");
 	    data2utf8xml($d);
             if (defined($d->{'name'})) {
 	      my $version = defined($d->{'version'}) ? $d->{'version'} : 'unknown';
@@ -2661,12 +2655,12 @@ sub getprojpack {
 		$rinfo->{'prereq'} = \@prereqs if @prereqs;
 	      }
 	      # KIWI Products need local arch added if we have it defined on this server
-	      if ($type eq 'kiwi' && $d->{'imagetype'}[0] eq 'product' && $d->{'exclarch'}) {
+	      if ($type eq 'kiwi' && ($d->{'imagetype'}[0] || '') eq 'product' && $d->{'exclarch'}) {
 		$rinfo->{'imagearch'} = [ @{$d->{'exclarch'}} ];
 	        unshift @{$d->{'exclarch'}}, 'local' if defined($BSConfig::localarch);
 	      }
 	      # KIWI Images don't build with local arch
-	      if ($type eq 'kiwi' && $d->{'imagetype'}[0] ne 'product') {
+	      if ($type eq 'kiwi' && ($d->{'imagetype'}[0] || '') ne 'product') {
 	        $rinfo->{'error'} = 'excluded' if defined($BSConfig::localarch) && $arch eq 'local';
 	      }
 	      my $myarch = $conf->{'target'} ? (split('-', $conf->{'target'}))[0] : $arch;
