@@ -87,11 +87,9 @@ sub serveropen {
     } else {
       bind(MS, sockaddr_in($port, INADDR_ANY)) || die "bind: $!\n";
     }
-  }
-  BSUtil::drop_privs_to($user, $group);
-  if (ref($port) || $port !~ /^&/) {
     listen(MS , 512) || die "listen: $!\n";
   }
+  BSUtil::drop_privs_to($user, $group);
 }
 
 sub serveropen_unix {
@@ -741,6 +739,8 @@ sub compile_dispatches {
     $p[0] .= ".*" if @p == 1 && $p[0] =~ /^[A-Z]*\\:$/;
     $p[0] = '.*' if $p[0] eq '\\:.*';
     $p[0] = "(?:GET|HEAD|POST):$p[0]" if $p[0] !~ /:/;
+    $p[-1] = '.*' if $p[-1] eq '\.\.\.';
+    $p[-1] = '(.*)' if $p[-1] eq "([^\\/]*)" && $args[-1] eq '...';
     my $multis = '';
     my $singles = '';
     my $hasstar;
