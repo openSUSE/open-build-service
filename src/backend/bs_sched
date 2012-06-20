@@ -4178,6 +4178,7 @@ sub checkaggregate {
 #         $repoid    - our repository
 #         $packid    - aggregate package
 #         $pdata     - package data information
+#         $info      - file and dependency information
 #         $new_meta  - the new meta file data
 # output: new package status
 #         package status details
@@ -4185,7 +4186,7 @@ sub checkaggregate {
 # globals used: $projpacks
 #
 sub rebuildaggregate {
-  my ($ctx, $packid, $pdata, $new_meta) = @_;
+  my ($ctx, $packid, $pdata, $info, $new_meta) = @_;
 
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
@@ -4305,7 +4306,7 @@ sub rebuildaggregate {
   if (!BSUtil::lockcreatexml(\*F, "$myjobsdir/.$job", "$myjobsdir/$job:status", $jobstatus, $BSXML::jobstatus)) {
     die("job lock failed\n");
   }
-  my $info = {
+  my $buildinfo = {
     'project' => $projid,
     'repository' => $repoid,
     'package' => $packid,
@@ -4313,7 +4314,7 @@ sub rebuildaggregate {
     'job' => $job,
     'file' => '_aggregate',
   };
-  writexml("$myjobsdir/.$job", "$myjobsdir/$job", $info, $BSXML::buildinfo);
+  writexml("$myjobsdir/.$job", "$myjobsdir/$job", $buildinfo, $BSXML::buildinfo);
   close(F);
   print "        scheduled\n";
 
