@@ -118,5 +118,5 @@ DEPENDENCIES
   rdoc
   simplecov-rcov
   test-unit (>= 2.0)
-  xmlhash (>= 1.2.1)
+  xmlhash (>= 1.2.2)
   yajl-ruby

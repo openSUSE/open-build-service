@@ -2,16 +2,12 @@ language: ruby
 rvm:
   - 1.9.3
 before_script:
-#  - sudo apt-get update
-  - sudo apt-get install liblzma-dev librpm-dev libxml-parser-perl libfile-sync-perl
-  - sudo gem install -v 2.3.14 rails
-  - sudo gem install sqlite3
-  - sudo gem install exception_notification -v 1.0.20090728
-  - sudo gem install rails_xss webrat headless
-  - ( cd src/api; bundle install )
   - mysql -e 'create database ci_api_test;'
   - sed -e 's,password:.*,password:,' -i src/api/config/database.yml.example
-  - bash -xe dist/ci/install-perl-deps.sh
-
-script: bash -x dist/ci/obs_testsuite_all.sh
-
+  - bash -x dist/ci/obs_testsuite_travis_before.sh
+env:
+  - SUBTEST=api
+  - SUBTEST=webui
+  - SUBTEST=webui-testsuite
+  - SUBTEST=webui-testsuite-spider
+script: bash -x dist/ci/obs_testsuite_travis.sh

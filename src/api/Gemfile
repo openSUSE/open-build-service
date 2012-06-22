@@ -12,7 +12,7 @@ gem 'exception_notification', '>=2.3'
 gem 'yajl-ruby'
 gem 'ci_reporter'
 gem 'rdoc'
-gem 'xmlhash', '>=1.2.1'
+gem 'xmlhash', '>=1.2.2'
 gem 'fast_xs'
 gem 'test-unit', '>= 2.0'
 gem 'memcache-client', :require => false
