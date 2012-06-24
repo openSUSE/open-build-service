@@ -1,13 +1,25 @@
 language: ruby
 rvm:
   - 1.9.3
-before_script:
-  - mysql -e 'create database ci_api_test;'
-  - sed -e 's,password:.*,password:,' -i src/api/config/database.yml.example
-  - bash -x dist/ci/obs_testsuite_travis_before.sh
-env:
-  - SUBTEST=api
-  - SUBTEST=webui
-  - SUBTEST=webui-testsuite
-  - SUBTEST=webui-testsuite-spider
+before_script: bash -x dist/ci/obs_testsuite_travis_before.sh
 script: bash -x dist/ci/obs_testsuite_travis.sh
+env:
+  # just one special test
+  #- SUBTEST=webui-testsuite:add_all_permited_package_attributes_for_second_user
+  #- SUBTEST=api:functional/source_controller_test.rb:test_read_file REMOVEGEMLOCK=true
+  # full api test suite
+  - SUBTEST=api
+  # full webrat test suite
+  - SUBTEST=webui
+  # selenium without spider
+  - SUBTEST=webui-testsuite
+  # selenium spider only
+  - SUBTEST=webui-testsuite:spider_anonymously
+  # api and webui webrat with latest gems
+  - SUBTEST=api REMOVEGEMLOCK=true
+  - SUBTEST=webui REMOVEGEMLOCK=true
+matrix:
+  include:
+    - rvm: ruby-head
+      env: SUBTEST=api REMOVEGEMLOCK=true
+

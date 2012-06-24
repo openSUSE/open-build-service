@@ -12,29 +12,41 @@
 
 set -xe
 
+mysql -e 'create database ci_api_test;'
+sed -e 's,password:.*,password:,' -i src/api/config/database.yml.example
+
 pushd src/api
+if test "$REMOVEGEMLOCK" = true; then
+  rm Gemfile.lock
+fi  
 bundle install
 popd
-
-pushd `mktemp -d`
 
 # dependencies of backend
 sudo apt-get install liblzma-dev librpm-dev libxml-parser-perl libfile-sync-perl python-rpm python-urlgrabber python-sqlitecachec python-libxml2
 
 case "$SUBTEST" in
  webui*)
-  # dependencie
-  sudo gem install -v 2.3.14 rails
-  sudo gem install sqlite3
-  sudo gem install -v 1.0.20090728 exception_notification
+  sudo apt-get install firefox
+  pushd src/webui-testsuite
+  if test "$REMOVEGEMLOCK" = true; then
+    rm Gemfile.lock
+  fi
+  bundle install
+  cd ../webui
+  if test "$REMOVEGEMLOCK" = true; then
+    rm Gemfile.lock
+  fi
+  bundle install
+  popd
+
   for file in $GEM_HOME/gems/activesupport-2.3.14/lib/active_support/core_ext/load_error.rb; do
     sudo sed -i -e 's,no such file to load,cannot load such file,' $file
   done
-  sudo gem install rails_xss webrat
-  sudo apt-get install firefox 
-  sudo gem install headless colored selenium-webdriver
   ;;
 esac
+
+pushd `mktemp -d`
 
 wget https://api.opensuse.org/public/source/openSUSE:Factory/perl-BSSolv/libsolv-0.1.0.tar.bz2
 tar xf libsolv-0.1.0.tar.bz2
@@ -59,7 +71,7 @@ perl Makefile.PL
 make
 sudo make install_vendor
 
-wget http://search.cpan.org/CPAN/authors/id/M/MJ/MJP/Socket-MsgHdr-0.04.tar.gz
+wget https://api.opensuse.org/public/source/openSUSE:Factory/perl-Socket-MsgHdr/Socket-MsgHdr-0.04.tar.gz
 tar xvf Socket-MsgHdr-0.04.tar.gz
 pushd Socket-MsgHdr-0.04
 perl Makefile.PL
