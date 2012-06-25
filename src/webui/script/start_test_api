@@ -23,7 +23,7 @@ outputlines = true
 frontend = Thread.new do
   puts "Starting test API at port #{FRONTEND_PORT} ..."
   cmdline = "ruby ./script/rails"
-  frontend_out = IO.popen("cd #{RAILS_ROOT}/../api; exec #{cmdline} server -e test -p #{FRONTEND_PORT} 2>&1")
+  frontend_out = IO.popen("cd #{RAILS_ROOT}/../api; unset BUNDLE_GEMFILE; bundle exec #{cmdline} server -e test -p #{FRONTEND_PORT} 2>&1")
   puts "API started with PID: #{frontend_out.pid}"
   begin
     Process.setpgid frontend_out.pid, 0
@@ -74,7 +74,7 @@ while true
 end
 
 puts "Loading API fixtures... "
-system("cd #{RAILS_ROOT}/../api ; RAILS_ENV=test rake db:fixtures:load")
+system("cd #{RAILS_ROOT}/../api ; unset BUNDLE_GEMFILE; RAILS_ENV=test bundle exec rake db:fixtures:load")
 puts "Test API ready."
 $stdout.flush
 
