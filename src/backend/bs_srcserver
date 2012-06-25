@@ -921,7 +921,6 @@ sub addrev {
       }
     }
   }
-
   if ($packid eq '_pattern' && ! -e "$projectsdir/$projid.pkg/$packid.xml") {
     # upgrade pseudo _pattern package to real package
     my $pack = {
@@ -2153,7 +2152,12 @@ sub getprojectservices {
   }
 
   # find further projects via package link
-  my $packagerev = getrev($projid, $packid, $cgi->{'rev'});
+  my $packagerev;
+  eval {
+     $packagerev = getrev($projid, $packid, $cgi->{'rev'});
+  };
+  return ($services, $BSXML::services) unless $packagerev;
+
   my $packagefiles = lsrev($packagerev);
   my $l;
   $l = repreadxml($packagerev, '_link', $packagefiles->{'_link'}, $BSXML::link, 1) if $packagefiles->{'_link'};

@@ -414,4 +414,25 @@ class InterConnectTests < ActionController::IntegrationTest
     delete "/source/home:tom:remote"
     assert_response :success
   end
+
+  def test_remove_broken_link
+    prepare_request_with_user "Iggy", "asdfasdf"
+    put "/source/home:Iggy/TestLinkPack/_meta", "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
+    assert_response :success
+    put "/source/home:Iggy/TestLinkPack/_link", "<link project='RemoteInstance:home:Iggy' package='TestPack' rev='invalid' />"
+    assert_response :success
+    get "/source/home:Iggy/TestLinkPack"
+    assert_response :success
+    get "/source/RemoteInstance:home:Iggy/TestLinkPack"
+    assert_response 400 # always expanded against remote
+    get "/source/home:Iggy/TestLinkPack?expand=1"
+    assert_response 400
+
+    delete "/source/home:Iggy/TestLinkPack/_link"
+    assert_response :success
+
+    delete "/source/home:Iggy/TestLinkPack"
+    assert_response :success
+  end
+
 end
