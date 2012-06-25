@@ -853,10 +853,7 @@ class User < ActiveRecord::Base
       person.login( self.login )
       person.email( self.email )
       realname = self.realname
-      unless Kconv.isutf8(self.realname)
-	ic_ignore = Iconv.new('UTF-8//IGNORE', 'UTF-8')
-	realname = ic_ignore.iconv(realname)
-      end
+      realname.toutf8
       person.realname( realname )
 
       self.roles.global.each do |role|

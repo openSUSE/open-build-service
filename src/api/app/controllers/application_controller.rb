@@ -5,8 +5,6 @@ require 'opensuse/permission'
 require 'opensuse/backend'
 require 'opensuse/validator'
 require 'rexml/document'
-# to be removed 
-require 'iconv'
 
 class InvalidHttpMethodError < Exception; end
 class MissingParameterError < Exception; end

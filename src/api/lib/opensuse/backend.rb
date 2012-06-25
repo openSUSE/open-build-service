@@ -145,10 +145,9 @@ module Suse
         query = key_list.map do |key|
           if hash.has_key?(key)
             str = hash[key].to_s
-            begin
-              Iconv.iconv( "UCS4", "UTF-8", str )
-            rescue => e
-              raise IllegalEncodingError.new("Illegal encoded parameter #{e.class} #{e.message}")
+            str.toutf8
+	    unless str.isutf8
+              raise IllegalEncodingError.new("Illegal encoded parameter")
             end
 
             if hash[key].nil?
