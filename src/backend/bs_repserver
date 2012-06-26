@@ -1134,8 +1134,8 @@ sub getpreinstallimageinfos {
       # the "&" below is not a numeric/logic "and", but a bitstring operation
       next if defined($match) && ($img->{'bitstring'} & $match) ne $img->{'bitstring'};
       $img->{'prpa'} = $prpa;
-      $img->{'path'} = "$img->{'package'}/_preinstallimage.$img->{'hdrid'}";
-      next unless -s "$reporoot/$prpa/$img->{'package'}/.preinstallimage.$img->{'hdrid'}";
+      $img->{'path'} = "$img->{'package'}/_preinstallimage.$img->{'hdrmd5'}";
+      next unless -s "$reporoot/$prpa/$img->{'package'}/.preinstallimage.$img->{'hdrmd5'}";
       delete $img->{'bins'};	# currently not needed
       push @infos, $img;
     }

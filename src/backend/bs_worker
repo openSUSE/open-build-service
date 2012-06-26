@@ -1390,9 +1390,9 @@ sub getpreinstallimage {
     my $bestimg;
     for my $img (@images) {
       # check if it really fits!
-      next if @{$img->{'hdrids'} || []} < $bestimgn;
-      next unless $img->{'sizek'};
-      next if grep {!$neededhdrmd5s{$_}} @{$img->{'hdrids'} || []};
+      next if @{$img->{'hdrmd5s'} || []} < $bestimgn;
+      next unless $img->{'sizek'} && $img->{'hdrmd5'};
+      next if grep {!$neededhdrmd5s{$_}} @{$img->{'hdrmd5s'} || []};
       # ignore our own image
       next if $img->{'prpa'} eq "$projid/$repoid/$buildinfo->{'arch'}" && $img->{'package'} eq $buildinfo->{'package'};
       $bestimg = $img;
@@ -1408,11 +1408,11 @@ sub getpreinstallimage {
       $cacheid =  Digest::MD5::md5_hex("$bestimg->{'prpa'}/$bestimg->{'hdrmd5'}");
       $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
       my $cachefilemeta = readstr("$cachefile.meta", 1) || '';
-      if ($cachefilemeta eq "$bestimg->{'hdrmd5'}  :preinstallimage") {
+      if ($cachefilemeta eq "$bestimg->{'hdrmd5'}  :preinstallimage\n") {
 	if (link_or_copy($cachefile, "$dir/$ifile")) {
 	  # re-check to make races unlikely
 	  $cachefilemeta = readstr("$cachefile.meta", 1) || '';
-	  if ($cachefilemeta eq "$bestimg->{'hdrmd5'}  :preinstallimage") {
+	  if ($cachefilemeta eq "$bestimg->{'hdrmd5'}  :preinstallimage\n") {
 	    # looks good, use it!
 	    my @s = stat("$dir/$ifile");
 	    if (@s) {
@@ -1448,7 +1448,7 @@ sub getpreinstallimage {
       my @s = stat(_);
       if ($cachedir && @s) {
 	# put in cache (and fake meta)
-	writestr("$dir/$ifile.meta", "$bestimg->{'hdrmd5'}  :preinstallimage");
+	writestr("$dir/$ifile.meta", undef, "$bestimg->{'hdrmd5'}  :preinstallimage\n");
 	manage_cache($cachesize, undef, [ [$cacheid, $s[7], "$dir/$ifile"] ]);
 	unlink("$dir/$ifile.meta");
       }
@@ -1460,12 +1460,12 @@ sub getpreinstallimage {
     }
 
     # that did not turn out well, try another image
-    $bestimg->{'hdrids'} = [];	# disables this image
+    $bestimg->{'hdrmd5s'} = [];	# disables this image
   }
 
   return undef unless $imagefile;
   my %imagebins;
-  my %havehdrmd5 = map {$_ => 1} @{$imageinfo->{'hdrids'} || []};
+  my %havehdrmd5 = map {$_ => 1} @{$imageinfo->{'hdrmd5s'} || []};
   for my $bin (keys %hdrmd5s) {
     $imagebins{$bin} = $hdrmd5s{$bin} if $havehdrmd5{$hdrmd5s{$bin}};
   }

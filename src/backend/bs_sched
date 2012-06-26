@@ -1833,12 +1833,12 @@ sub update_preinstallimage {
     my $id = Digest::MD5::md5_hex($info);
     # calculate bitstring
     my $b = "\0" x 512;
-    my @hdrids;
+    my @hdrmd5s;
     my @bins;
     for (split("\n", readstr("$jobdir/$img.info", 1))) {
       next unless /^([0-9a-f]{32})  ([^ ]+)$/s;
       vec($b, hex(substr($1, 0, 3)), 1) = 1;
-      push @hdrids, $1;
+      push @hdrmd5s, $1;
       push @bins, $2;
     }
     unlink("$jobdir/.preinstallimage.$id");
@@ -1848,7 +1848,7 @@ sub update_preinstallimage {
       link("$jobdir/.preinstallimage.$id", "$dst/.preinstallimage.$id") || die("link $jobdir/.$id $dst/.preinstallimage.$id");
     }
     my $sizek = int(($s[7] + 1023) / 1024);
-    push @$imagedata, {'package' => $packid, 'hdrid' => $id, 'file' => $tar, 'sizek' => $sizek, 'bitstring' => $b, 'hdrids' => \@hdrids, 'bins' => \@bins};
+    push @$imagedata, {'package' => $packid, 'hdrmd5' => $id, 'file' => $tar, 'sizek' => $sizek, 'bitstring' => $b, 'hdrmd5s' => \@hdrmd5s, 'bins' => \@bins};
     $dirty = 1;
   }
   if ($dirty) {
