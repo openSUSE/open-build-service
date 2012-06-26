@@ -92,11 +92,11 @@ class SourceController < ApplicationController
         end
         pass_to_backend
       else
-        # for access check
-        pro = DbProject.get_by_name(project_name, :select => "id,name")
-        if (!pro || !pro.kind_of?(DbProject)) && DbProject.is_remote_project?(project_name)
+        if DbProject.is_remote_project?(project_name)
+          # not a local project, hand over to backend
           pass_to_backend
-	elsif pro
+	else
+          pro = DbProject.get_by_name(project_name)
           raise DbProject::UnknownObjectError(project_name) unless pro
           # we let the backend list the packages after we verified the project is visible
           if params.has_key? :view
@@ -105,11 +105,17 @@ class SourceController < ApplicationController
               return
             end
             pass_to_backend
-	  elsif pro.kind_of? DbProject
-            dir = pro.db_packages.select("db_packages.name").all.map { |i| i.name }.sort
+	  else
+            packages=nil
+            if params.has_key? :expand
+              packages = pro.expand_all_packages
+            else
+              packages = pro.db_packages
+            end
+            packages = packages.sort{|a,b| a.name<=>b.name}
             output = String.new
-            output << "<directory count='#{dir.length}'>\n"
-            output << dir.map { |item| "  <entry name=\"#{item.fast_xs}\"/>\n" }.join
+            output << "<directory count='#{packages.length}'>\n"
+            output << packages.map { |p| p.db_project==pro ? "  <entry name=\"#{p.name}\"/>\n" : "  <entry name=\"#{p.name}\" originproject=\"#{p.db_project.name}\"/>\n" }.join
             output << "</directory>\n"
             render :text => output, :content_type => "text/xml"
           end

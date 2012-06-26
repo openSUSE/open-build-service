@@ -391,6 +391,7 @@ XmlResult: package directory.xsd
 Parameters:
 
   deleted: show deleted package instead of existing
+  expand: include also packages from linked projects
   view: issues, optional, can be used to show all tracked issues for all packages in project
 
 

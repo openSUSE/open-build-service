@@ -733,7 +733,6 @@ class SourceControllerTest < ActionController::IntegrationTest
     assert_xml_tag( :tag => "user", :content => "adrian" )
   end
 
-
   def test_put_package_meta_hidden_package
     prj="HiddenProject"
     pkg="pack"
@@ -1681,6 +1680,16 @@ end
   def test_linked_project_operations
     # first go with a read-only user
     prepare_request_with_user "tom", "thunder"
+    # listings
+    get "/source/BaseDistro2.0:LinkedUpdateProject"
+    assert_response :success
+    assert_xml_tag( :tag => "directory", :attributes => { :count => "0" } )
+    get "/source/BaseDistro2.0:LinkedUpdateProject?expand=1"
+    assert_response :success
+    assert_xml_tag( :tag => "directory", :attributes => { :count => "2" } )
+    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2", :originproject => "BaseDistro2.0" } )
+    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2_linked", :originproject => "BaseDistro2.0" } )
+
     # pack2 exists only via linked project
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2"
     assert_response :success

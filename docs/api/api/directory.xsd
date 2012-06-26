@@ -37,6 +37,7 @@
       <xs:attribute name="size" type="xs:string"/>
       <xs:attribute name="md5" type="xs:string"/>
       <xs:attribute name="mtime" type="xs:string"/>
+      <xs:attribute name="originproject" type="xs:string"/>
       <xs:attribute name="available" type="xs:boolean"/>
       <xs:attribute name="recommended" type="xs:boolean"/>
     </xs:complexType>
