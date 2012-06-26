@@ -1399,6 +1399,7 @@ sub getpreinstallimage {
     last unless $bestimg;	# nothing fits
     # try this one
     my $ifile = "preinstallimage.$bestimg->{'file'}";
+    unlink("$dir/$ifile");
 
     # check if the image is in the cache
     my $cacheid;
@@ -1424,8 +1425,8 @@ sub getpreinstallimage {
 	      last;
 	    }
 	  }
-	  unlink "$dir/$ifile";
 	}
+	unlink("$dir/$ifile");
       }
     }
 
@@ -1442,7 +1443,6 @@ sub getpreinstallimage {
     };
     if ($@) {
       warn($@);
-      unlink("$dir/$ifile");
     } elsif (-s "$dir/$ifile") {
       my @s = stat(_);
       if ($cachedir && @s) {
@@ -1457,6 +1457,7 @@ sub getpreinstallimage {
         last;
       }
     }
+    unlink("$dir/$ifile");
 
     # that did not turn out well, try another image
     $bestimg->{'hdrmd5s'} = [];	# disables this image
@@ -1471,6 +1472,7 @@ sub getpreinstallimage {
   my $imagesource = $imageinfo->{'prpa'};
   $imagesource =~ s/\/[^\/]*$//;	# strip arch
   $imagesource .= "/$imageinfo->{'package'}" if $imageinfo->{'package'};
+  $imagesource .= " [$imageinfo->{'hdrmd5'}]";
   return $imagefile, \%imagebins, $imagesource, \%metas;
 }
 
