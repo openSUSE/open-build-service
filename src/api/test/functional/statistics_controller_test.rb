@@ -126,19 +126,19 @@ class StatisticsControllerTest < ActionController::IntegrationTest
    get url_for(:controller => :statistics, :action => :rating , :project => "HiddenProject", :package => "NOT_EXISTING")
    assert_response 404
 
-   get url_for(:controller => :statistics, :action => :rating , :project => "HiddenProject")
+   get url_for(:controller => :statistics, :action => :rating , :project => "HiddenProject", :package => nil)
    assert_response :success
 
    get url_for(:controller => :statistics, :action => :activity, :project => "kde4", :package => "kdelibs")
    assert_response :success
 
-   get url_for(:controller => :statistics, :action => :activity, :project => "kde4")
+   get url_for(:controller => :statistics, :action => :activity, :project => "kde4", :package => nil)
    assert_response :success
 
    get url_for(:controller => :statistics, :action => :activity , :project => "HiddenProject", :package => "pack")
    assert_response :success
 
-   get url_for(:controller => :statistics, :action => :activity , :project => "HiddenProject")
+   get url_for(:controller => :statistics, :action => :activity , :project => "HiddenProject", :package => nil)
    assert_response :success
 
    # no access to HiddenProject
@@ -146,7 +146,7 @@ class StatisticsControllerTest < ActionController::IntegrationTest
    get url_for(:controller => :statistics, :action => :rating, :project => "kde4", :package => "kdelibs")
    assert_response :success
 
-   get url_for(:controller => :statistics, :action => :rating , :project => "HiddenProject")
+   get url_for(:controller => :statistics, :action => :rating , :project => "HiddenProject", :package => nil)
    assert_response 404
 
    get url_for(:controller => :statistics, :action => :rating , :project => "HiddenProject", :package => "NOT_EXISTING")
