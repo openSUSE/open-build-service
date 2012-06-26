@@ -761,18 +761,17 @@ sub manage_cache {
       unlink("$cachefile.$$");
       next unless link_or_copy($path, "$cachefile.$$");
       rename("$cachefile.$$", $cachefile) || die("rename $cachefile.$$ $cachefile: $!\n");
-      if ($path =~ /^(.*)\.(?:$binsufsre)$/) {
-        my $mpath = "$1.meta";
-        if (-s $mpath) {
-          unlink("$cachefile.meta.$$");
-          if (link_or_copy($mpath, "$cachefile.meta.$$")) {
-            rename("$cachefile.meta.$$", "$cachefile.meta") || die("rename $cachefile.meta.$$ $cachefile.meta: $!\n");
-	  } else {
-	    unlink("$cachefile.meta");
-	  }
+      my $mpath = "$path.meta";
+      $mpath = "$1.meta" if $path =~ /^(.*)\.(?:$binsufsre)$/;
+      if (-s $mpath) {
+	unlink("$cachefile.meta.$$");
+	if (link_or_copy($mpath, "$cachefile.meta.$$")) {
+	  rename("$cachefile.meta.$$", "$cachefile.meta") || die("rename $cachefile.meta.$$ $cachefile.meta: $!\n");
 	} else {
 	  unlink("$cachefile.meta");
 	}
+      } else {
+	unlink("$cachefile.meta");
       }
       unshift @$content, $c;
       $content{$c->[0]} = $c->[1];
