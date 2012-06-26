@@ -113,34 +113,6 @@ class User < ActiveRecord::Base
   # After saving the object into the database, the password is not new any more.
   after_save '@new_password = false'
 
-  # This method writes the attribute "password" to the hashed version. It is 
-  # called in the after_validation hook set by the "after_validation" command
-  # above.
-  # The password is only encrypted when no errors occurred on validation, the
-  # password is new and the password is not nil.
-  # This method also sets the "password_salt" property's value used in 
-  # User#hash_string.
-  # After encryption, the password's "new" state is reset and the confirmation
-  # is cleared. The password hash's type will also be set to "not new" since
-  # we get problems with double validation (as it happens when using save!)
-  # otherwise.
-  def encrypt_password
-    if errors.count == 0 and @new_password and not password.nil?
-      # generate a new 10-char long hash only Base64 encoded so things are compatible
-      self.password_salt = [Array.new(10){rand(256).chr}.join].pack("m")[0..9]; 
-
-      # write encrypted password to object property
-      write_attribute(:password, hash_string(password))
-
-      # mark password as "not new" any more
-      @new_password = false
-      self.password_confirmation = nil
-      
-      # mark the hash type as "not new" any more
-      @new_hash_type = false
-    end
-  end
-
   # This method returns all groups assigned to the given user via ldap - including
   # the ones he gets by being assigned through group inheritance.
   def all_groups_ldap(group_ldap)
@@ -729,9 +701,6 @@ class User < ActiveRecord::Base
            end
   end
 
-  # After validation, the password should be encrypted  
-  after_validation :encrypt_password
-
   # Model Validation
 
   validates_presence_of   :login, :email, :password, :password_hash_type, :state,
@@ -822,8 +791,9 @@ class User < ActiveRecord::Base
     end
   end
 
-  def encrypt_password
-    if errors.count == 0 and @new_password and not password.nil?
+  # After validation, the password should be encrypted  
+  after_validation(:on => :create) do 
+    if errors.empty? and @new_password and !password.nil?
       # generate a new 10-char long hash only Base64 encoded so things are compatible
       self.password_salt = [Array.new(10){rand(256).chr}.join].pack("m")[0..9];
 
@@ -841,7 +811,7 @@ class User < ActiveRecord::Base
       # mark the hash type as "not new" any more
       @new_hash_type = false
     else 
-      logger.debug "Error - skipping to create user"
+      logger.debug "Error - skipping to create user #{errors.empty?} #{@new_password.inspect} #{password.inspect}"
     end
   end
 
