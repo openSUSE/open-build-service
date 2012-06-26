@@ -7,11 +7,11 @@ class ProjectControllerTest < ActionController::IntegrationTest
   end
 
   def test_edit
-    get '/user/edit'
-    assert_response :success
+    visit '/user/edit'
 
     fill_in "realname", :with => "Tom Thunder"
     click_button "Save changes"
+    follow_redirect!
     assert_contain("User data for user 'tom' successfully updated.")
   end
 

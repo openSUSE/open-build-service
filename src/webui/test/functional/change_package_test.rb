@@ -8,6 +8,7 @@ class ChangePackageTest < ActionController::IntegrationTest
       fill_in "Username", :with => "Iggy"
       fill_in "Password", :with => "asdfasdf"
       click_button "Login"
+      follow_redirect!
       assert_contain("You are logged in now")
       assert_contain("Welcome to ")
    end
@@ -15,7 +16,6 @@ class ChangePackageTest < ActionController::IntegrationTest
    def test_add_and_submit_file
      fill_in 'search', :with => 'kdelibs'
      click_button 'Search'
-     assert_response :success
      assert_contain("project home:coolo:test")
      
      click_link 'kdelibs_DEVEL_package'

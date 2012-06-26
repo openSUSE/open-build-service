@@ -110,9 +110,10 @@ module SpiderIntegrator
   # You probably don't want to be calling these from within your test.
 
   def consume_page( html, url )
-	  body = nil
+    body = nil
     begin
       body = ActiveXML::Base.new html
+      body.internal_data
     rescue
       puts "HARDCORE!! #{url}"
     end
@@ -191,32 +192,26 @@ module SpiderIntegrator
       next_link = @links_to_visit.shift
       next if spider_should_ignore_url?(next_link.uri)
       
-      get next_link.uri
-      if %w( 200 201 302 401 403 ).include?( @response.code )
-        console "GET '#{next_link.uri}'"
-      elsif @response.code == '404'
-        #if next_link.uri =~ /\.(html|png|jpg|gif)$/ # static file, probably.
-        if exists = File.exist?(File.expand_path("#{RAILS_ROOT}/public/#{next_link.uri}"))
-          console "STATIC: #{next_link.uri}"
-          case File.extname(next_link.uri)
-          when /jpe?g|gif|psd|png|eps|pdf|css/
-            console "Not parsing #{next_link.uri} because it looks like non-text" 
-          when /html|te?xt|css|js/
-            @response.body = File.open("#{RAILS_ROOT}/public/#{next_link.uri}").read
-          else
-            console "I don't know how to handle static file #{next_link.uri}. Send patches!"
-          end
-        else
-          console  "? #{next_link.uri} ( 404 File not found from #{next_link.source} and File exist is #{exists})"          
-          @errors[next_link.uri] = "File not found: #{next_link.uri} from #{next_link.source}"
-        end
-      else
-        console  "! #{ next_link.uri } ( Received response code #{ @response.code }  - from #{ next_link.source } )"
-        @errors[next_link.uri] = "Received response code #{ @response.code } for URI #{ next_link.uri } from #{ next_link.source }"
-          
-        @stacktraces[next_link.uri] = @response.body
+      begin
+        get next_link.uri
+      rescue => e
+        @errors[next_link.uri] = "Received exception for URI #{ next_link.uri } from #{ next_link.source }:\n#{e}" 
+	@visited_urls[next_link.uri] = true
+	next
       end
-      @response.each { |chunk| consume_page( chunk, next_link.uri ) }
+
+      if [ 200, 201, 302, 401, 403 ].include?( last_response.status )
+        console "GET '#{next_link.uri} #{last_response.status}'"
+      else
+        console  "! #{ next_link.uri } ( Received response code #{ last_response.status }  - from #{ next_link.source } )"
+        @errors[next_link.uri] = "Received response code #{ last_response.status } for URI #{ next_link.uri } from #{ next_link.source }"
+
+        @stacktraces[next_link.uri] = response_body
+      end
+      content_type = last_response.headers["Content-Type"].split(';')[0]
+      if %w{text/xml text/html}.include? content_type
+        consume_page( response_body, next_link.uri )
+      end
       @visited_urls[next_link.uri] = true
     end
 
@@ -287,7 +282,7 @@ class SpiderTest < ActionController::IntegrationTest
   def test_1spider
      get("/")
      setup_spider(:ignore_urls => [%r{irc:.*}, %r{bugzilla.novell.com}, '/user/logout'], :verbose => false )
-     do_spider(@response.body, '')
+     do_spider(response_body, '')
      @@errorurls = @errors.keys
      assert_equal Hash.new, @errors
      logout
@@ -297,8 +292,8 @@ class SpiderTest < ActionController::IntegrationTest
      login_tom
      
      unless @@errorurls.empty?
+       puts "#{@@errorurls[0]}"
        get @@errorurls[0]
-       assert_response :success
      end
      logout
   end

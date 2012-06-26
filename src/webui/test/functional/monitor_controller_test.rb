@@ -7,11 +7,9 @@ class MonitorControllerTest < ActionController::IntegrationTest
   end
 
   def test_monitor
-    get "/monitor"
-    assert_response :success
+    visit "/monitor"
 
-    get "/monitor/old"
-    assert_response :success
+    visit "/monitor/old"
   end
  
 end

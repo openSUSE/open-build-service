@@ -122,9 +122,7 @@ class Person < ActiveXML::Base
     opts = {:cache => true}.merge opts
     cachekey = "#{login}_involved_requests"
     Rails.cache.delete cachekey unless opts[:cache]
-    return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
-      BsRequest.list(:states => 'new,review', :user => login)
-    end
+    BsRequest.list(:states => 'new,review', :user => login)
   end
 
   def running_patchinfos(opts = {})
@@ -179,7 +177,7 @@ class Person < ActiveXML::Base
     opts = {:cache => true}.merge opts
     cachekey = "#{login}_requests_that_need_work"
     Rails.cache.delete cachekey unless opts[:cache]
-    #TODO: 'you don't want to put it in cache' when config.cache_story default is set:
+    #TODO: make this a xmlhash
     #return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
       [BsRequest.list({:states => 'declined', :roles => "creator", :user => login}),
        BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => "reviewer", :user => login}),

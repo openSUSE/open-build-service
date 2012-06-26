@@ -10,16 +10,15 @@ class AddRepoTest < ActionController::IntegrationTest
       fill_in "Username", :with => "Iggy"
       fill_in "Password", :with => "asdfasdf"
       click_button "Login"
+      follow_redirect!
       assert_contain("You are logged in now")
       assert_contain("Welcome to ")
    end
 
    def test_add_default
      click_link 'Iggy'
-     assert_response :success
 
      click_link 'Home Project'
-     assert_response :success
 
      click_link 'Repositories'
      assert_contain("Repositories of home:Iggy")

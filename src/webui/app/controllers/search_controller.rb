@@ -16,8 +16,17 @@ class SearchController < ApplicationController
       if @search_text.starts_with?("obs://")
         # The user entered an OBS-specific RPM disturl, redirect to package source files with respective revision
         disturl_project, _, disturl_pkgrev = @search_text.split('/')[3..5]
-        disturl_rev, disturl_package = disturl_pkgrev.split('-', 2)
-        redirect_to :controller => 'package', :action => 'files', :project => disturl_project, :package => disturl_package, :rev => disturl_rev and return
+	unless disturl_pkgrev.nil? 
+          disturl_rev, disturl_package = disturl_pkgrev.split('-', 2)
+	  unless disturl_package.nil? || disturl_rev.nil?
+            redirect_to :controller => 'package', :action => 'files', :project => disturl_project, :package => disturl_package, :rev => disturl_rev 
+	  end
+	  return
+	end
+	# if we're here, we're screwed
+	# TODO: document the purpose
+	flash[:error] = "obs:// searches are not random"
+	redirect_to :action => 'index' and return
       end
       @search_text = @search_text.gsub("'", "").gsub("[", "").gsub("]", "").gsub("\n", "")
     end

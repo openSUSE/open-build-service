@@ -17,43 +17,31 @@ class ProjectControllerTest < ActionController::IntegrationTest
   end
 
   def test_list
-    get "/project"
-    assert_redirected_to "/project/list_public"
-    get "/project/list_public"
-    assert_response :success
-    assert assigns(:important_projects).each.blank?
-    assert( assigns(:projects).size > 1 )
+    visit "/project"
+    follow_redirect!
   end
  
   def test_show
-    get "/project/show?project=Apache"
-    assert_response :success
-    assert( assigns(:packages).size == 4 )
-    assert( assigns(:nr_of_problem_packages) == 0 )
-    assert( assigns(:project) )
+    visit "/project/show?project=Apache"
   end
 
   def test_packages_empty
-    get "/package/rdiff?opackage=pack2&oproject=BaseDistro2.0&package=pack2_linked&project=BaseDistro2.0"
-    assert_response :success
+    visit "/package/rdiff?opackage=pack2&oproject=BaseDistro2.0&package=pack2_linked&project=BaseDistro2.0"
   end
 
   def test_packages_kde4
-    get "/project/show?project=kde4"
-    assert_response :success
-    assert( assigns(:packages).size == 2 )
-    assert( assigns(:project) )
+    visit "/project/show?project=kde4"
   end
   
   def test_group_access_adrian_kde4
     logout
     login_adrian
     # adrian is maintainer via group on kde4 
-    get "/project/show?project=kde4"
+    visit "/project/show?project=kde4"
     # really simple test to get started
-    assert_match(/title="Delete project"/, @response.body)
-    assert_match(/title="Edit description"/, @response.body)
-    assert_match(/title="Create subproject"/, @response.body)
+    assert_have_xpath '//img[@title="Delete project"]'
+    assert_have_xpath '//img[@title="Edit description"]'
+    assert_have_xpath '//img[@title="Create subproject"]'
     logout
     login_tom
   end

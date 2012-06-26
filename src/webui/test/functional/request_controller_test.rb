@@ -7,20 +7,22 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_request
-    get "/requests"
-    assert_response 404
+    assert_raises(ActionController::RoutingError) do
+      get "/requests"
+    end
   end
 
   def test_my_involved_requests
-    get "/home/requests?user=Iggy"
-    assert_response :success
+    visit "/home/requests?user=Iggy"
 
-    assert_tag :tag => "table", :attributes => { :id => "request_table" }, :descendant => { :tag => "tr" }
+    assert_have_selector "table#request_table tr"
 
     # walk over the table
-    assert_select('tr#tr_request_1000') do
-      assert_select('.request_source') do
-        assert_tag :tag => "a", :attributes => { :title => "home:Iggy:branches:kde4" }, :content => "~:kde4"
+    assert_have_selector('tr#tr_request_1000') do
+      assert_have_selector('.request_source') do
+        assert_have_xpath '//a[@title="home:Iggy:branches:kde4"]' do
+	  assert_contain "~:kde4"
+	end
       end
     end
   end
