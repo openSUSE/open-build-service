@@ -8,7 +8,7 @@ module ActiveSupport
     NUMBER_TO_COLOR_MAP = {0=>'0;37', 1=>'32', 2=>'33', 3=>'31', 4=>'31', 5=>'37'}
 
     def add(severity, message = nil, progname = nil, &block)
-      return if @level > severity
+      return if self.level > severity
       sevstring = NUMBER_TO_NAME_MAP[severity]
       color = NUMBER_TO_COLOR_MAP[severity]
       message = (message || (block && block.call) || progname).to_s
