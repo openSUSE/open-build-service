@@ -1126,12 +1126,6 @@ end
     #STDERR.puts(@response.body)
     assert_response 404
     assert_xml_tag( :tag => "status" )
-    
-    # we need to be bruteforce, a get with full path will only trigger an elimination of .. in the url
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs/../kdebase") 
-    #STDERR.puts(@response.body)
-    assert_response( 404, "Was able to read file outside of package scope" )
-    assert_xml_tag( :tag => "status" )
   end
 
   def test_read_file_hidden_proj
