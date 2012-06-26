@@ -169,3 +169,8 @@ flags_BaseDistro2_0_LinkedUpdateProject_publish_disable:
   db_project_id: "2046"
   id: "477459122"
   status: disable
+flags_BaseDistro_pack1_useforbuild_disable:
+  status: disable
+  db_package_id: 10096
+  position: 1
+  flag: useforbuild
