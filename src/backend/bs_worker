@@ -1393,6 +1393,8 @@ sub getpreinstallimage {
       next if @{$img->{'hdrids'} || []} < $bestimgn;
       next unless $img->{'sizek'};
       next if grep {!$neededhdrmd5s{$_}} @{$img->{'hdrids'} || []};
+      # ignore our own image
+      next if $img->{'prpa'} eq "$projid/$repoid/$buildinfo->{'arch'}" && $img->{'package'} eq $buildinfo->{'package'};
       $bestimg = $img;
     }
     last unless $bestimg;	# nothing fits
@@ -1765,7 +1767,7 @@ sub dobuild {
     push @meta, getsources($buildinfo, $srcdir);
     importbuild() unless defined &Build::queryhdrmd5;
     if (!$kiwimode && $Build::Features::preinstallimage && -s "$srcdir/$buildinfo->{'file'}") {
-      # check if we may use a preloadimage
+      # check if we may use a preinstallimage
       local *F;
       my $needbins;
       if (open(F, '<', "$srcdir/$buildinfo->{'file'}")) {
