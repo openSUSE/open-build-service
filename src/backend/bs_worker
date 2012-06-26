@@ -1309,7 +1309,7 @@ sub getpreinstallimage {
   for my $repo (@{$buildinfo->{'path'} || []}) {
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
     my $nometa = $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid ? 1 : 0;
-    $nometa = 1 if $buildinfo->{'file'} eq 'preinstallimage';
+    $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
     my @args;
     push @args, "project=$repo->{'project'}";
     push @args, "repository=$repo->{'repository'}";
@@ -1549,7 +1549,7 @@ sub getbinaries {
     }
     my $nometa = 0;
     $nometa = 1 if $kiwimode || $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid;
-    $nometa = 1 if $buildinfo->{'file'} eq 'preinstallimage';
+    $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
     my $got = getbinaries_cache($ddir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, $nometa, $dlbins, $bvls{"$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}"});
     for (keys %$got) {

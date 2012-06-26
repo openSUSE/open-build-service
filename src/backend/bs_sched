@@ -573,7 +573,7 @@ sub set_building {
   $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
   my $packtype = $1 || 'spec';
   $packtype = 'arch' if $info->{'file'} eq 'PKGBUILD';
-  $packtype = 'preinstallimage' if $info->{'file'} eq 'preinstallimage';
+  $packtype = 'preinstallimage' if $info->{'file'} eq '_preinstallimage';
 
   my $searchpath = [];
   my $syspath;
@@ -2723,7 +2723,7 @@ sub jobfinished {
   mkdir_p("$gdst/:logfiles.fail");
 
   unlink("$jobdatadir/.preinstallimage");
-  BSUtil::touch("$jobdatadir/.preinstallimage") if $info->{'file'} eq 'preinstallimage';
+  BSUtil::touch("$jobdatadir/.preinstallimage") if $info->{'file'} eq '_preinstallimage';
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
@@ -2947,7 +2947,7 @@ sub metacheck {
       print "        buildsystem setup failure\n";
       return ('failed')
     }
-    print "      - $packid (preinstallimage)\n";
+    print "      - $packid ($packtype)\n";
     print "        retrying bad build\n";
     return ('scheduled', [ @$data, { 'explain' => 'retrying bad build' } ]);
   }
@@ -5961,7 +5961,7 @@ while(1) {
     } elsif ($info && $info->{'file'}) {
       if ($info->{'file'} eq 'PKGBUILD') {
         $packtype = 'arch';
-      } elsif ($info->{'file'} eq 'preinstallimage') {
+      } elsif ($info->{'file'} eq '_preinstallimage') {
         $packtype = 'preinstallimage';
       } elsif ($info->{'file'} =~ /\.(spec|dsc|kiwi)$/) {
         $packtype = $1;
