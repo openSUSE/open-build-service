@@ -251,6 +251,7 @@ sub cpio_receiver {
     my $ctx;
     $ctx = Digest::MD5->new if $withmd5;
     if (defined($dn)) {
+      unlink("$dn/$name") unless $param->{'no_unlink'};
       open(F, '>', "$dn/$name") || die("$dn/$name: $!\n");
     } else {
       $res[-1]->{'data'} = '';
