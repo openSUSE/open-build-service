@@ -1830,7 +1830,7 @@ sub update_preinstallimage {
     next unless @s;
     my $info = readstr("$jobdir/$img.info", 1);
     next unless $info;
-    my $id = Digest::MD5::md5_hex($info);
+    my $id = Digest::MD5::md5_hex("$info/$s[9]/$s[7]/$s[1]");
     # calculate bitstring
     my $b = "\0" x 512;
     my @hdrmd5s;
