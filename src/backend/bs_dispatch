@@ -562,6 +562,15 @@ while (1) {
       # bring em to front!
       @b = ((grep {$srcchange{$_}} @b), (grep {!$srcchange{$_}} @b));
     }
+    my @preinstalljobs = grep {($ic->{$_}->{'file'} || '') eq '_preinstallimage'} @b;
+    if (@preinstalljobs) {
+      # bring em to front!
+      my %preinstalljobs = map {$_ => 1} @preinstalljobs;
+      @b = ((grep {$preinstalljobs{$_}} @b), (grep {!$preinstalljobs{$_}} @b));
+      if (!$didsrcchange{$prpa}) {
+	$srcchange{$_} = 1 for @preinstalljobs;
+      }
+    }
 
     my $rerun;
     for my $job (@b) {
