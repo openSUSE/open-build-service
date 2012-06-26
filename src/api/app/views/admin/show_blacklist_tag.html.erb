@@ -1,9 +1,0 @@
-<% for column in BlacklistTag.content_columns %>
-<p>
-  <b><%= column.human_name %>:</b> <%=h @tag.send(column.name) %>
-</p>
-<% end %>
-
-<br/><br/>
-<%= link_to 'Edit', :action => 'edit_blacklist_tag', :id => @tag %> |
-<%= link_to 'Back', :action => 'list_blacklist_tags' %>

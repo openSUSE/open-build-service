@@ -37,26 +37,7 @@ OBSApi::Application.routes.draw do
 
     match 'about' => 'about#index'
 
-    controller :admin, :defaults => { :format => 'html' } do
-      match 'admin' => :index
-      match 'admin/list_blacklist_tags' => :list_blacklist_tags
-      match 'admin/list_tags' => :list_tags
-      match 'admin/tags_summary/:id' => :tags_summary
-      match 'admin/new_tag' => :new_tag
-      match 'admin/create_tag/:id' => :create_tag
-      match 'admin/new_blacklist_tag/:id' => :new_blacklist_tag
-      match 'admin/create_blacklist_tag/:id' => :create_blacklist_tag
-      match 'admin/show_tag/:id' => :show_tag
-      match 'admin/show_blacklist_tag/:id' => :show_blacklist_tag
-      match 'admin/edit_tag/:id' => :edit_tag
-      match 'admin/edit_blacklist_tag/:id' => :edit_blacklist_tag
-      match 'admin/update_tag/:id' => :update_tag
-      match 'admin/update_blacklist_tag/:id' => :update_blacklist_tag
-      match 'admin/destroy_tag/:id' => :destroy_tag
-      match 'admin/destroy_blacklist_tag/:id' => :destroy_blacklist_tag
-      match 'admin/move_tag/:id' => :move_tag
-      match 'admin/delete_unused_tags' => :delete_unused_tags
-      match 'admin/invalid_tag/:id' => :invalid_tag
+    controller :admin do
       match 'admin/killme' => :killme
       match 'admin/startme' => :startme
     end

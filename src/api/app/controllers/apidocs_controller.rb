@@ -7,9 +7,9 @@ class ApidocsController < ApplicationController
     logger.debug "PATH: #{request.path}"
     filename = File.expand_path(CONFIG['apidocs_location']) + "/index.html"
     if ( !File.exist?( filename ) )
-      render :text => "Unable to load API documentation source file", :layout => "rbac"
+      render :text => "Unable to load API documentation source file"
     else
-      render( :file => filename, :layout => "rbac" )
+      render :file => filename
     end
   end
 

@@ -38,7 +38,7 @@ class ApplicationController < ActionController::Base
 
   # skip the filter for the user stuff
   before_filter :extract_user, :except => :register
-  before_filter :setup_backend, :add_api_version, :restrict_admin_pages
+  before_filter :setup_backend, :add_api_version
   before_filter :shutup_rails
   before_filter :set_current_user
   before_filter :validate_params
@@ -52,12 +52,6 @@ class ApplicationController < ActionController::Base
   protected
   def set_current_user
     User.current = @http_user
-  end
-
-  def restrict_admin_pages
-     if params[:controller] =~ /^active_rbac/
-        return require_admin
-     end
   end
 
   def require_admin
@@ -141,7 +135,6 @@ class ApplicationController < ActionController::Base
         render_error( :message => "No user header found found!", :status => 401 ) and return false
       end
     else
-      #active_rbac is used for authentication
       @auth_method = :basic
 
       if request.env.has_key? 'X-HTTP_AUTHORIZATION'
@@ -262,8 +255,6 @@ class ApplicationController < ActionController::Base
 
             @http_user = newuser
           end
-
-          session[:rbac_user_id] = @http_user.id
         else
           logger.debug( "User not found with LDAP, falling back to database" )
           @http_user = User.find_with_credentials login, passwd
