@@ -1506,6 +1506,14 @@ class MaintenanceTests < ActionController::IntegrationTest
   def test_copy_project_for_release
     # as user
     prepare_request_with_user "tom", "thunder"
+    get "/source/BaseDistro/pack1/_meta"
+    assert_response :success
+    assert_xml_tag :tag => "disable", :parent => { :tag => "useforbuild" }
+    get "/source/BaseDistro/pack2/_meta"
+    assert_response :success
+    get "/source/BaseDistro/pack3/_meta"
+    assert_response :success
+    assert_xml_tag :tag => "bcntsynctag", :content => "pack1"
     post "/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro"
     assert_response 403
     post "/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro"
@@ -1530,6 +1538,13 @@ class MaintenanceTests < ActionController::IntegrationTest
     packages = ActiveXML::XMLNode.new(@response.body)
     assert_equal opackages.dump_xml, packages.dump_xml
 
+    # compare package meta
+    get "/source/CopyOfBaseDistro/pack1/_meta"
+    assert_response :success
+    assert_xml_tag(:parent => { :tag => "useforbuild" }, :tag => "disable")
+    get "/source/CopyOfBaseDistro/pack3/_meta"
+    assert_response :success
+    assert_xml_tag(:tag => "bcntsynctag", :content => "pack1")
     # compare revisions
     get "/source/BaseDistro/pack2/_history"
     assert_response :success

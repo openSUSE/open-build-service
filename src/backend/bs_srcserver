@@ -4474,7 +4474,9 @@ sub copyproject {
 	'project' => $projid,
 	'name' => $packid,
       };
-      for (qw{title description sourceaccess}) {
+      # everything except person, group, devel and lock
+      for (keys %$opack) {
+        next if $_ eq 'person' || $_ eq 'group' || $_ eq 'devel' || $_ eq 'lock';
         $pack->{$_} = $opack->{$_} if defined $opack->{$_};
       }
       mkdir_p($uploaddir);

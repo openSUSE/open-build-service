@@ -50,7 +50,6 @@ db_packages_10098:
   description: ''
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
-  url: ''
   update_counter: 1
   activity_index: 10.0
   develpackage_id: 11098
@@ -62,7 +61,6 @@ db_packages_10099:
   description: ''
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
-  url: ''
   update_counter: 1
   activity_index: 10.0
 db_packages_10100:
@@ -73,7 +71,6 @@ db_packages_10100:
   description: ''
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
-  url: ''
   update_counter: 1
   activity_index: 10.0
 db_packages_10195:
@@ -280,6 +277,7 @@ db_packages_253895098:
   description: ''
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
+  bcntsynctag: pack1
   url: ''
   update_counter: 1
   activity_index: 10.0
