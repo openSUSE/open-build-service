@@ -39,10 +39,6 @@ case "$SUBTEST" in
   fi
   bundle install
   popd
-
-  for file in $GEM_HOME/gems/activesupport-2.3.14/lib/active_support/core_ext/load_error.rb; do
-    sudo sed -i -e 's,no such file to load,cannot load such file,' $file
-  done
   ;;
 esac
 
