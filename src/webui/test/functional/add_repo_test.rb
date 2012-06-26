@@ -1,7 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 require 'webrat'
-require 'webrat/integrations/rails'
 
 class AddRepoTest < ActionController::IntegrationTest
 

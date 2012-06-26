@@ -7,3 +7,10 @@ require File.expand_path('../config/application', __FILE__)
 OBSWebUI::Application.load_tasks
 
 require File.join(File.dirname(__FILE__), 'config', 'boot')
+
+begin
+  require 'ci/reporter/rake/test_unit'
+rescue LoadError
+  puts "Please run 'rake gems:install' to install the 'ci_reporter' gem."
+end
+
