@@ -1,9 +1,12 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
+require 'webrat'
+require 'webrat/integrations/rails'
+
 class AddRepoTest < ActionController::IntegrationTest
 
    def setup
-      visit '/'
+      webrat_session.visit '/'
       click_link "Login"
       fill_in "Username", :with => "Iggy"
       fill_in "Password", :with => "asdfasdf"

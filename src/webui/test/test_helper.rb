@@ -5,31 +5,8 @@ require 'rails/test_help'
 require 'webrat'
 
 Webrat.configure do |config|
-   config.mode = :rails
+   config.mode = :rack
 end
-
-# Webrat Rails-3 compatibilty hack to be used instead of 'https://github.com/kalv/webrat.
-# See http://groups.google.com/group/webrat/browse_thread/thread/fb5ff3fccd97f3df
-# Webrat.configure do |config|
-#    config.mode = :rack
-# end
-# module Webrat
-#   class Session
-#     def current_host
-#       URI.parse(current_url).host || @custom_headers['Host'] || default_current_host
-#     end
-#     def default_current_host
-#       adapter.class==Webrat::RackAdapter ? 'example.org' : 'www.example.com'
-#     end 
-#   end
-#   class Link
-#     def click_post(options = {})
-#       method = options[:method] || http_method
-#       return if href =~ /^#/ && method == :get
-#       @session.request_page(absolute_href, method, data)
-#     end
-#   end
-# end
 
 module ActionController
   class IntegrationTest

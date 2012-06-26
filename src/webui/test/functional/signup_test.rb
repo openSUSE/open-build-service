@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class WebratTest < ActionController::IntegrationTest
+class SignupTest < ActionController::IntegrationTest
 
     def test_login
       logout

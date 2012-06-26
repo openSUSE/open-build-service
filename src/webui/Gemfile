@@ -19,9 +19,9 @@ end
 group :test do
   gem 'ci_reporter'
   gem 'simplecov-rcov', :require => false, :group => :test
-  gem 'test-unit', '>= 2.0'
+  gem 'test-unit', '~> 2.4.8'
   # See test/test_helper.rb for details:
-  gem 'webrat', '>=0.7.3' # , :git => 'git://github.com/kalv/webrat.git'
+  gem 'webrat', '>=0.7.3'
 end
 
 gem 'mysql2'
