@@ -53,7 +53,7 @@ my $jobsdir = "$BSConfig::bsdir/jobs";
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
 BSUtil::restartexit($ARGV[0], 'warden', "$rundir/bs_warden");
-print "starting build service worker warden\n";
+print BSUtil::isotime().": starting build service worker warden\n";
 
 # get lock
 mkdir_p($rundir);
@@ -101,7 +101,7 @@ while (1) {
 	close F;
 	next;
       }
-      print "restarting build of $job building on $js->{'workerid'}\n";
+      print BSUtil::isotime().": restarting build of $job building on $js->{'workerid'}\n";
       unlink("$jobsdir/$arch/$job:status");
       unlink("$workersdir/building/$wname");
       delete $building{$wname};
@@ -114,12 +114,12 @@ while (1) {
   for my $i (qw{1 2 3 4 5}) {
     if (-e "$rundir/bs_warden.exit") {
       unlink("$rundir/bs_warden.exit");
-      print "exiting...\n";
+      print BSUtil::isotime().": exiting...\n";
       exit(0);
     }
     if (-e "$rundir/bs_warden.restart") {
       unlink("$rundir/bs_warden.restart");
-      print "restarting...\n";
+      print BSUtil::isotime().": restarting...\n";
       exec($0);
       die("$0: $!\n");
     }
