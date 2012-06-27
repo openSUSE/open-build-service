@@ -10,6 +10,10 @@ echo "Setup git submodules"
 git submodule init
 git submodule update
 
+if [ -n "$USE_MASTER_BACKEND" ]; then
+  git checkout master -- src/backend
+fi
+
 echo "Setup backend configuration template"
 sed -i -e "s|my \$hostname = .*$|my \$hostname = 'localhost';|" \
        -e "s|our \$bsuser = 'obsrun';|our \$bsuser = 'jenkins';|" \
