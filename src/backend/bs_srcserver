@@ -2646,7 +2646,7 @@ sub getprojpack {
 	    }
 	    $rinfo->{'file'} = $file;
 	    # get build dependency info
-            my $d = Build::Rpm::parse($conf, "$srcrep/$packid/$md5-$file");
+	    my $d = Build::parse($conf, "$srcrep/$packid/$md5-$file");
 	    data2utf8xml($d);
             if (defined($d->{'name'})) {
 	      my $version = defined($d->{'version'}) ? $d->{'version'} : 'unknown';
