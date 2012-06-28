@@ -245,8 +245,8 @@ class ApplicationController < ActionController::Base
     @status = opt[:status] || 400
     @code = opt[:code] || @status
     @message = opt[:message] || "No message set"
-    @exception = opt[:exception] if local_request?
-    @api_exception = opt[:api_exception] if local_request?
+    @exception = opt[:exception] if show_detailed_exceptions?
+    @api_exception = opt[:api_exception] if show_detailed_exceptions?
     logger.debug "ERROR: #{@code}; #{@message}"
     if request.xhr?
       render :text => @message, :status => @status, :layout => false
@@ -291,7 +291,7 @@ class ApplicationController < ActionController::Base
   end
 
   def send_exception_mail?
-    return !local_request? && !Rails.env.development? && ExceptionNotifier.exception_recipients && ExceptionNotifier.exception_recipients.length > 0
+    return !show_detailed_exceptions? && !Rails.env.development? && ExceptionNotifier.exception_recipients && ExceptionNotifier.exception_recipients.length > 0
   end
 
   def instantiate_controller_and_action_names
