@@ -39,7 +39,7 @@ case $SUBTEST in
   webui-testsuite:*)
    cd src/webui-testsuite
    SUBTEST=${SUBTEST/webui-testsuite:/}
-   bundle exec ruby ./run_acceptance_tests.rb $SUBTEST || ret=1
+   bundle exec ruby ./run_acceptance_tests.rb -f $SUBTEST || ret=1
    ;;
   webui:*)
    echo "Enter WebUI rails root"

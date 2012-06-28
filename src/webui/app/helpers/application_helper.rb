@@ -400,7 +400,7 @@ module ApplicationHelper
   end
 
   def is_advanced_tab?
-    ["prjconf", "attributes", "meta", "status"].include? @action_name
+    ["prjconf", "attributes", "meta", "status"].include? @current_action.to_s
   end
 
 end
