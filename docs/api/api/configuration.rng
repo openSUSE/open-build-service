@@ -16,6 +16,7 @@
         <element name="description">
           <text/>
         </element>
+      <empty/>
       </interleave>
     </element>
   </define>
