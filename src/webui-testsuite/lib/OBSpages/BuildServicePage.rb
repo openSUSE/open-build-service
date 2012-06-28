@@ -42,7 +42,7 @@ class BuildServicePage < WebPage
   #
   def initialize web_driver, options={}
     super
-    puts "#{self.class}.initialize #{options.inspect}"
+    #puts "#{self.class}.initialize #{options.inspect}"
     @user = options[:user]
   end
   
@@ -52,7 +52,7 @@ class BuildServicePage < WebPage
   #
   def initialize_ready web_driver
     super
-    puts "#{self.class}.initialize_ready #{current_user.inspect}"
+    #puts "#{self.class}.initialize_ready #{current_user.inspect}"
     @user = current_user
   end
   
@@ -65,7 +65,7 @@ class BuildServicePage < WebPage
   #
   def restore
     super
-    puts "#{self.class}.restore #{@user.inspect}"
+    #puts "#{self.class}.restore #{@user.inspect}"
     @driver.get @url
     wait_for_page
     if @user.nil? then
