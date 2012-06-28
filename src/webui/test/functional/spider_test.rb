@@ -281,7 +281,7 @@ class SpiderTest < ActionController::IntegrationTest
 
   def test_1spider
      get("/")
-     setup_spider(:ignore_urls => [%r{irc:.*}, %r{bugzilla.novell.com}, '/user/logout'], :verbose => false )
+     setup_spider(:ignore_urls => [%r{irc:.*}, %r{bugzilla.novell.com}, '/user/logout', %r{/project/linking_projects}, %r{/package/linking_packages}], :verbose => false )
      do_spider(response_body, '')
      @@errorurls = @errors.keys
      assert_equal Hash.new, @errors

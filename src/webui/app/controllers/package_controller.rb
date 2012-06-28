@@ -27,7 +27,7 @@ class PackageController < ApplicationController
     end unless @spider_bot
     @revision = params[:rev]
     fill_status_cache unless @buildresult.blank?
-    linking_packages
+    set_linking_packages
     begin
       @current_rev = Package.current_rev(@project.name, @package.name)
       #TODO generate file list here:
@@ -39,7 +39,7 @@ class PackageController < ApplicationController
     end
   end
 
-  def linking_packages
+  def set_linking_packages
     if @spider_bot
       @linking_packages = [] and return
     end
@@ -48,6 +48,11 @@ class PackageController < ApplicationController
     @linking_packages = Rails.cache.fetch( cache_string, :expires_in => 30.minutes) do
        @package.linking_packages
     end
+  end
+
+  def linking_packages
+    render :text => '<no_ajax/>', :status => 400 and return if not request.xhr?
+    set_linking_packages
   end
 
   def dependency
@@ -1286,10 +1291,10 @@ class PackageController < ApplicationController
     return if @spider_bot
     cachekey="package_reviews_#{@project.name}_#{@package.name}"
     Rails.cache.delete(cachekey) if discard_cache?
-    @requests = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
+    # TODO make requests xmlhashs to be cachable
+    @requests =
       BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => @project.name, :package => @package.name}) + 
       BsRequest.list({:states => 'new', :roles => "target", :project => @project.name, :package => @package.name})
-    end
   end
 
 end

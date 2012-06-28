@@ -49,10 +49,10 @@ package_bread_crumb 'Build Log'
   autoscroll();
   offset = newoffset;
   if (autorefresh) {
-  <%= javascript_options = options_for_ajax(:url => {:action => :update_build_log, :package => @package,
-      :project => @project, :arch => @arch, :repository => @repo}, :error => 'stop_refresh()')
+   // javascript_options = options_for_ajax(:url => {:action => :update_build_log, :package => @package,
+   //   :project => @project, :arch => @arch, :repository => @repo}, :error => 'stop_refresh()')
 
-  "var options = #{javascript_options}; options['url'] = options['url'] + '&offset=' + offset + ';&' + 'initial=' + initial;" %>
+  <%= "var options; options['url'] = options['url'] + '&offset=' + offset + ';&' + 'initial=' + initial;" %>
   <%=    "$.ajax(options);" %>
   }
   }

@@ -284,7 +284,7 @@ class ProjectController < ApplicationController
       ret.keys.size
     end
 
-    linking_projects
+    set_linking_projects
     load_buildresult
     @project_maintenance_project = @project.maintenance_project unless @spider_bot
 
@@ -308,7 +308,7 @@ class ProjectController < ApplicationController
     end
   end
 
-  def linking_projects
+  def set_linking_projects
     if @spider_bot
       @linking_projects = [] and return
     end
@@ -316,6 +316,11 @@ class ProjectController < ApplicationController
     @linking_projects = Rails.cache.fetch("%s_linking_projects" % @project.name, :expires_in => 30.minutes) do
        @project.linking_projects
     end
+  end
+
+  def linking_projects
+    render :text => '<no_ajax/>', :status => 400 and return if not request.xhr?
+    set_linking_projects
   end
 
   # TODO we need the architectures in api/distributions
