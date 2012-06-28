@@ -68,6 +68,7 @@ my $vmdisk_rootsize;
 my $vmdisk_swapsize;
 my $vmdisk_filesystem;
 my $vmdisk_mount_options;
+my $hugetlbfs;
 my $workerid;
 my $srcserver;
 my @reposervers;
@@ -189,6 +190,9 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --vmdisk-filesystem <none|ext3|ext4>
                    : filesystem to use for autosetup root disk image
+
+       --hugetlbfs HUGETLBFSPATH
+                   : Use hugetlb for memory management, path to mounted hugetlbfs.
 
        --test      : enable test mode
 
@@ -348,6 +352,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--vmdisk-mount-options') {
     shift @ARGV;
     $vmdisk_mount_options = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--hugetlbfs') {
+    shift @ARGV;
+    $hugetlbfs = shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--build') {
@@ -1862,6 +1871,7 @@ sub dobuild {
     push @args, '--vmdisk-filesystem', $vmdisk_filesystem if $vmdisk_filesystem;
     # mount options require quoting due to arguments which might start with "-o ..."
     push @args, '--vmdisk-mount-options', "\"$vmdisk_mount_options\"" if $vmdisk_mount_options;
+    push @args, '--hugetlbfs', "\"$hugetlbfs\"" if $hugetlbfs;
   } elsif ($vm =~ /lxc/) {
     push @args, '--root', $buildroot;
     push @args, '--vm-type', $vm;

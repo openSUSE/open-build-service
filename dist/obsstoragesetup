@@ -414,6 +414,22 @@ EOF
 			TOTALMEM=$(( `free | sed -n 's/^Mem:[ ]*\([^ ]*\).*/\1/p'` / 1024 ))
 			INSTANCEMEM=$(( $TOTALMEM / ( 2 * $OBS_WORKER_INSTANCES ) ))
 			echo "OBS_INSTANCE_MEMORY=\"$INSTANCEMEM\"" >> /etc/buildhost.config
+			if grep ^flags /proc/cpuinfo | egrep -q " (svm|vmx) " && test -n "$RUN_VIRT"; then
+                                # try to use hugetlb on kvm
+                                if !grep -q \ /hugetlbfs /proc/mounts; then
+					mkdir -p /hugetlbfs
+			                HUGETLBINSTANCEMEM=$(( $INSTANCEMEM * 512 )) # 2k blocks
+                                        # register huge table memory pages
+                                        echo "$HUGETLBINSTANCEMEM" > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
+                                        # enable it if it was successful
+                                        if [ "$HUGETLBINSTANCEMEM" == `cat /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages` ] && \
+ 					   mount hugetlbfs /hugetlbfs -t hugetlbfs; then
+	                			echo "OBS_VM_USE_HUGETLBFS=\"/hugetlbfs\"" >> /etc/buildhost.config
+					else
+						echo "WARNING: registration of huge table memory pages failed!"
+					fi
+                                fi
+                        fi
 			# append user presets
 			echo "" >> /etc/buildhost.config
 			echo "### preconfigured values from /etc/buildhost.config.presets" >> /etc/buildhost.config

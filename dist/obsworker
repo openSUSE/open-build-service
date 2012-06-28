@@ -199,6 +199,9 @@ case "$1" in
                 DEVICE="--device $DEVICE"
                 SWAP="--swap $SWAP"
                 MEMORY="--vm-memory $OBS_INSTANCE_MEMORY"
+                if [ -n "$OBS_VM_USE_HUGETLBFS" ]; then
+                    HUGETLBFS="--hugetlbfs $OBS_VM_USE_HUGETLBFS"
+                fi
             else
                 mkdir -p $R
                 DEVICE=
@@ -206,7 +209,7 @@ case "$1" in
                 MEMORY=
             fi
 	    echo "screen -t $title nice -n $OBS_NICE ./bs_worker $vmopt $port --root $R" \
-                "--statedir $workerdir/$I --id $HOSTNAME/$I $REPO_PARAM" \
+                "--statedir $workerdir/$I --id $HOSTNAME/$I $REPO_PARAM $HUGETLBFS" \
                 "$OBS_JOBS $OBS_TEST $OBS_WORKER_OPT $TMPFS $DEVICE $SWAP $MEMORY" \
                 >> $screenrc
 	    mkdir -p $workerdir/$I
