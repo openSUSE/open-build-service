@@ -6,7 +6,8 @@ class ConfigurationsController < ApplicationController
   before_filter :require_admin, :only => [:update]
 
   validate_action :show => {:method => :get, :response => :configuration}
-  validate_action :update => {:method => :put, :request => :configuration}
+# webui is using this route with parameters instead of content
+#  validate_action :update => {:method => :put, :request => :configuration}
 
   # GET /configuration
   # GET /configuration.json
@@ -29,8 +30,8 @@ class ConfigurationsController < ApplicationController
     respond_to do |format|
       xml = Xmlhash.parse(request.raw_post).get("configuration")
       attribs = {}
-      attribs[:title] = xml["title"]
-      attribs[:description] = xml["description"]
+      attribs[:title] = xml["title"] || params["title"]
+      attribs[:description] = xml["description"] || params["description"]
       ret = @configuration.update_attributes(attribs)
       if ret
         format.xml  { head :ok }

@@ -6,15 +6,24 @@ class ConfigurationsControllerTest < ActionController::IntegrationTest
   end
 
   def test_show_and_update_configuration
+    prepare_request_with_user "tom", "thunder"
     get '/configuration'
     assert_response :success
     config = @response.body
     put '/configuration', config
     assert_response 403 # Normal users can't change site-wide configuration
     prepare_request_with_user 'king', 'sunflower' # User with admin rights
+    get '/configuration'
+    assert_response :success
     put '/configuration', config
     assert_response :success
-    put '/configuration?title=%22openSUSE%20Build%20Service%22&description=%22Long%20description%22'
-    assert_response 400
+    # webui is using this way to store data
+    put '/configuration?title=openSUSE&description=blah_fasel'
+    assert_response :success
+    prepare_request_with_user "tom", "thunder"
+    get '/configuration.xml'
+    assert_response :success
+    assert_xml_tag :tag => "title", :content => "openSUSE"
+    assert_xml_tag :tag => "description", :content => "blah_fasel"
   end
 end
