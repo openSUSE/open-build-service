@@ -144,7 +144,7 @@ DEPENDENCIES
   rdoc
   simplecov-rcov
   sqlite3
-  test-unit (~> 2.4.8)
+  test-unit (= 2.4.8)
   uglifier (>= 1.2.2)
   webrat (>= 0.7.3)
   xmlhash (>= 1.2.1)

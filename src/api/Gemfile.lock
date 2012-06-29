@@ -117,6 +117,6 @@ DEPENDENCIES
   rails (~> 3.2.1)
   rdoc
   simplecov-rcov
-  test-unit (~> 2.4.8)
+  test-unit (= 2.4.8)
   xmlhash (>= 1.2.2)
   yajl-ruby
