@@ -56,7 +56,7 @@ setup_webui
 echo "Running Acceptance Tests"
 cd src/webui-testsuite
 export OBS_REPORT_DIR=results/
-ruby ./run_acceptance_tests.rb || ret=1
+bundle exec ruby ./run_acceptance_tests.rb || ret=1
 
 cd ../..
 
