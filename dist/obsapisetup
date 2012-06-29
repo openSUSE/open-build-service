@@ -120,8 +120,13 @@ case "$1" in
 		OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
 		OS=`head -n 1 /etc/SuSE-release`
                 if [ ! -e /obs/MySQL/api_production ]; then
-			echo -n "Initialize OBS api database (first time only)"
+			echo -n "Initialize MySQL databases (first time only)"
 			mysqladmin -u root create api_production
+			mysqladmin -u root create webui_production
+			mysqladmin -u root password "opensuse"
+		fi
+                if [ ! -e /obs/MySQL/api_production ]; then
+			echo -n "Initialize OBS api database (first time only)"
         		cd $apidir
 			RAILS_ENV=production rake db:setup >> $apidir/log/db_migrate.log
                         ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key )
@@ -136,8 +141,6 @@ case "$1" in
 		fi
                 if [ ! -e /obs/MySQL/webui_production ]; then
 			echo -n "Initialize OBS webui database (first time only)"
-			mysqladmin -u root create webui_production
-			mysqladmin -u root password "opensuse"
         		cd $webuidir
 			RAILS_ENV=production rake db:setup >> $webuidir/log/db_migrate.log
                         ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key)
