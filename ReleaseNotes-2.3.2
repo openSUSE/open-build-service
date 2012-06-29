@@ -1,0 +1,31 @@
+#
+# openSUSE Build Service 2.3.2
+#
+
+Updaters from any OBS 2.3 release can just ugrade the packages and restart
+all services. Updaters from former releases should read the
+README.UPDATERS file.
+
+Feature backports:
+==================
+
+* none
+
+Changes:
+========
+
+* support xz compressed kiwi images
+* documentation and theming updates
+* do not leave out sourceaccess protected package on branching (bnc#766119(
+
+Bugfixes:
+=========
+
+* fixed dieing source ajax source when doing OBS interconnect
+* removal of not expandable _link files is working now
+* package meta data on project copy takes all elements now, except
+  person, group and devel.
+* initial webui database setup on appliance works now
+* no error when using appliance without OBS LVM volume group
+* webui is able to store OBS configuration now.
+
