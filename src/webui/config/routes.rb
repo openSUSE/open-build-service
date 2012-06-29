@@ -19,10 +19,10 @@ OBSWebUI::Application.routes.draw do
     match 'main/startme' => :startme
   end
 
-  controller :atttribute do
-    match 'atttribute/edit' => :edit
-    match 'atttribute/save' => :save
-    match 'atttribute/delete' => :delete
+  controller :attribute do
+    match 'attribute/edit' => :edit
+    match 'attribute/save' => :save
+    match 'attribute/delete' => :delete
   end
 
   controller :configuration do
