@@ -4339,30 +4339,50 @@ sub checkpreinstallimage {
 
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
+
+  # check if we're blocked
   my $edeps = $ctx->{'edeps'}->{$packid} || [];
-  my @new_meta;
   my $notready = $ctx->{'notready'};
   my $dep2src = $ctx->{'dep2src'};
   my $dep2pkg = $ctx->{'dep2pkg'};
   my @blocked = grep {$notready->{$dep2src->{$_}}} @$edeps;
   return ('blocked', join(', ', @blocked)) if @blocked;
+
+  # expand like in set_building, so that we have all used packages
+  # in the meta file
+  my $bconf = $ctx->{'conf'};
+  my ($eok, @bdeps) = Build::get_build($bconf, [], @{$info->{'dep'} || []});
+  if (!$eok) {
+    print "        unresolvables:\n";
+    print "          $_\n" for @bdeps;
+    return (undef, "unresolvable: ".join(', ', @bdeps));
+  }
+  my @pdeps = Build::get_preinstalls($bconf);
+  my @vmdeps = Build::get_vminstalls($bconf);
+  my @cbpdeps = Build::get_cbpreinstalls($bconf);
+  my @cbdeps = Build::get_cbinstalls($bconf);
+  @bdeps = unify(@pdeps, @vmdeps, @bdeps, @cbpdeps, @cbdeps);
+
+  # create meta
   my $pool = $ctx->{'pool'};
-  for my $dep (@$edeps) {
+  my @new_meta;
+  for my $dep (@bdeps) {
     my $pkgid = $pool->pkg2pkgid($dep2pkg->{$dep});
     push @new_meta, "$pkgid  $dep";
   }
   @new_meta = BSSolv::gen_meta([], @new_meta);
+
   unshift @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
-  return metacheck($ctx, $packid, 'preinstallimage', \@new_meta, [ $edeps ]);
+  return metacheck($ctx, $packid, 'preinstallimage', \@new_meta, \@bdeps);
 }
 
 sub rebuildpreinstallimage {
   my ($ctx, $packid, $pdata, $info, $data) = @_;
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
-  my $edeps = $data->[0];
+  my $bdeps = $data->[0];
   my $reason = $data->[1];
-  my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $ctx->{'conf'}, [], $edeps, $ctx->{'prpsearchpath'}, $reason, $ctx->{'relsyncmax'}, 0);
+  my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $ctx->{'conf'}, [], $bdeps, $ctx->{'prpsearchpath'}, $reason, $ctx->{'relsyncmax'}, 0);
   return ('broken', $joberror) unless $job;
   return ('scheduled', $job);
 }
@@ -4824,7 +4844,7 @@ my %handlers = (
     'rebuild' => \&rebuildaggregate,
   },
   'preinstallimage' => {
-    'expand' => \&Build::get_build,
+    'expand' => \&Build::get_deps,
     'check' => \&checkpreinstallimage,
     'rebuild' => \&rebuildpreinstallimage,
   },
