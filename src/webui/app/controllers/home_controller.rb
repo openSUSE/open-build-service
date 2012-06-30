@@ -21,8 +21,10 @@ class HomeController < ApplicationController
       http = Net::HTTP.new("www.gravatar.com")
       begin
         http.start
-        response, content = http.get "/avatar/#{hash}?s=#{size}&d=wavatar" unless Rails.env.test?
-	content = nil unless response.is_a?(Net::HTTPSuccess)
+        response = http.get "/avatar/#{hash}?s=#{size}&d=wavatar" unless Rails.env.test?
+        if response.is_a?(Net::HTTPSuccess)
+          content = response.body
+        end
       rescue SocketError, Errno::EINTR, Errno::EPIPE, EOFError, Net::HTTPBadResponse, IOError, Errno::ETIMEDOUT, Errno::ECONNREFUSED => err
 	logger.debug "#{err} when fetching http://www.gravatar.com/avatar/#{hash}?s=#{size}"
         http = nil
