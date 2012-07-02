@@ -28,6 +28,7 @@ class ApplicationController < ActionController::Base
 
   @user_permissions = nil
   @http_user = nil
+  @skip_validation = false
 
   before_filter :validate_xml_request, :add_api_version
   if CONFIG['response_schema_validation'] == true
@@ -306,6 +307,7 @@ class ApplicationController < ActionController::Base
       logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
       headers['X-Forward'] = "http://#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
       head(200)
+      @skip_validation = true
       return
     end
 
@@ -315,6 +317,7 @@ class ApplicationController < ActionController::Base
       headers['X-Rewrite-URI'] = path
       headers['X-Rewrite-Host'] = CONFIG['x_rewrite_host']
       head(200)
+      @skip_validation = true
       return
     end
 
