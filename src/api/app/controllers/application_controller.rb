@@ -323,12 +323,7 @@ class ApplicationController < ActionController::Base
     backend_http = Net::HTTP.new(CONFIG['source_host'], CONFIG['source_port'])
     backend_http.read_timeout = 1000
 
-    if RUBY_VERSION < '1.9'
-      file = Tempfile.new 'volley'
-    else
-      file = Tempfile.new 'volley', :encoding => 'ascii-8bit'
-    end
-
+    file = Tempfile.new 'volley', :encoding => 'ascii-8bit'
     opts = { :url_based_filename => true }
     
     backend_http.request_get(path) do |res|
@@ -347,11 +342,7 @@ class ApplicationController < ActionController::Base
 
   hide_action :download_request
   def download_request
-    if RUBY_VERSION < '1.9'
-      file = Tempfile.new 'volley'
-    else
-      file = Tempfile.new 'volley', :encoding => 'ascii-8bit'
-    end
+    file = Tempfile.new 'volley', :encoding => 'ascii-8bit'
     b = request.body
     buffer = String.new
     while b.read(40960, buffer)
