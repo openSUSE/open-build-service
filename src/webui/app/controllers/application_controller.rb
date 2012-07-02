@@ -44,7 +44,7 @@ class ApplicationController < ActionController::Base
       @return_to_host += "://"
       @return_to_host += Object.const_defined?(:EXTERNAL_WEBUI_HOST) ? EXTERNAL_WEBUI_HOST : request.host
     end
-    @return_to_path = params['return_to_path'] || request.env['ORIGINAL_FULLPATH'].gsub(/.*:\/\/[^\/]*\//, '/').gsub(/&/, '&amp;')
+    @return_to_path = params['return_to_path'] || request.env['ORIGINAL_FULLPATH']
     logger.debug "Setting return_to: \"#{@return_to_path}\""
   end
 
