@@ -57,6 +57,7 @@ class PackageAttributesPage < PackagePage
 
     @driver[
       :xpath => "//div[@id='content']//a[text()='Add a new attribute']"].click
+    wait_for_page
 
     xpath_options = "//select[@id='attribute']/option"
     ps = @driver.page_source

@@ -37,13 +37,20 @@ class BuildServicePage < WebPage
     assert_equal @driver.current_url, @url
   end
   
-  
+  def _userstring(user) 
+	  if user == :none
+		  "none"
+	  else
+		  user[:login]
+	  end
+  end
+
   # ============================================================================
   # (see WebPage#initialize)
   #
   def initialize web_driver, options={}
     super
-    #puts "#{self.class}.initialize #{options.inspect}"
+    #puts "\n  #{self.class}.initialize #{_userstring(options[:user])}"
     @user = options[:user]
   end
   
@@ -53,7 +60,7 @@ class BuildServicePage < WebPage
   #
   def initialize_ready web_driver
     super
-    #puts "#{self.class}.initialize_ready #{current_user.inspect}"
+    #puts "\n  #{self.class}.initialize_ready #{_userstring(current_user)}"
     @user = current_user
   end
   
@@ -66,18 +73,14 @@ class BuildServicePage < WebPage
   #
   def restore
     super
-    #puts "#{self.class}.restore #{@user.inspect}"
-    @driver.get @url
+    if @driver.current_url != @url
+      @driver.get @url
+    end
     wait_for_page
-    if @user.nil? then
+    if @user.nil?
       @user = current_user
-    elsif @user != current_user then
-      user = if @user == :none then :none else @user.clone end
-      if user_is_logged? then
-        logout
-        @driver.get @url
-      end
-      login_as user unless user == :none
+    else
+      verify_login @user
     end
   end
   
@@ -102,9 +105,10 @@ class BuildServicePage < WebPage
       //input[@name='commit'][@value='Login']"].click
 
     if expect == :admin || expect == :success
+      #puts "\n  login_as @user = #{_userstring(user)}"
       @user = user
       
-      validate { user_is_logged? }      
+      validate { user_is_logged? }
       if expect == :admin && is_interconnect_page?
 	 $page = InterconnectPage.new_ready @driver
 	 return :interconnect
@@ -117,6 +121,8 @@ class BuildServicePage < WebPage
       assert_equal flash_message, "Authentication failed"
       assert_equal flash_message_type, :alert 
       
+      #puts "\n  login failed - user none"
+      @user = :none
       $page = LoginPage.new_ready @driver
     end
   end
@@ -138,13 +144,16 @@ class BuildServicePage < WebPage
         logout
         if @driver.current_url != @url
           @driver.get @url
+	  wait_for_page
         end
       end
       if user != :none
         login_as user
+	wait_for_page
       end
       if @driver.current_url != @url
          @driver.get @url
+	 wait_for_page
       end
     end
   end
@@ -159,8 +168,9 @@ class BuildServicePage < WebPage
       "//div[@id='subheader']//a[@href='/user/logout']"].click
     validate { not user_is_logged? }
     
+    #puts "\n  logout user = none"
+    @user = :none
     if self.class == MainPage then
-      @user = :none
       validate_page
     else
       $page = MainPage.new_ready @driver
@@ -239,11 +249,16 @@ class BuildServicePage < WebPage
   # @return [Hash, :none] the credentials of the current user or :none.
   #
   def current_user
-    return :none unless user_is_logged?
+    unless user_is_logged?
+      return :none
+    end
     username = @driver[:xpath => "//div[@id='subheader']//a[@href='/home']"].text
     matched_users = Array.new
-    $data.each_value { 
-      |user| matched_users << user if Hash === user and user[:login] == username }
+    $data.each_value do |user|
+      if Hash === user and user[:login] == username
+         matched_users << user
+      end
+    end
     assert matched_users.size == 1
     matched_users.first
   end
@@ -253,9 +268,12 @@ class BuildServicePage < WebPage
   # Checks if a user is logged
   #
   def user_is_logged?
-    x = @driver.find_elements :xpath => 
-      "//div[@id='subheader']/div/a[@href='/user/logout']"
-    not x.empty?
+    x = nil
+    wait.until {
+      x = @driver.find_elements(id: 'subheader')
+      !x.empty?
+    }
+    return x && x.first && !x.first.find_elements(xpath: "//a[text()='Logout']").empty?
   end
   
   
@@ -350,6 +368,7 @@ class BuildServicePage < WebPage
     res = nil
     wait.until {
       res = @driver.find_elements(:xpath => '//a[@href="/"]')
+      !res.empty?
     }
     res
   end

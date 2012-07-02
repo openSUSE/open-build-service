@@ -14,6 +14,8 @@ set -xe
 
 . `dirname $0`/obs_testsuite_common.sh
 
+export OBS_REPORT_DIR=results/
+
 case $SUBTEST in
   api)
    echo "Enter API rails root and running rcov"
@@ -28,7 +30,11 @@ case $SUBTEST in
   webui-testsuite)
    cd src/webui-testsuite
    rm ./tests/TC80__Spider.rb
-   bundle exec ./run_acceptance_tests.rb || ret=1
+   if ! bundle exec ./run_acceptance_tests.rb -f; then
+     ret=1
+     tail -n 500 ../webui/log/test.log
+     cat results/*.source.html
+   fi
    ;;
   webui-gemshead)
    cd src/api
@@ -39,7 +45,11 @@ case $SUBTEST in
   webui-testsuite:*)
    cd src/webui-testsuite
    SUBTEST=${SUBTEST/webui-testsuite:/}
-   bundle exec ruby ./run_acceptance_tests.rb -f $SUBTEST || ret=1
+   if ! bundle exec ruby ./run_acceptance_tests.rb -f $SUBTEST; then
+     ret=1
+     tail -n 500 ../webui/log/test.log
+     cat results/*.source.html
+   fi
    ;;
   webui:*)
    echo "Enter WebUI rails root"
