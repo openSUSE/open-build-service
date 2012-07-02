@@ -180,6 +180,7 @@ OBSApi::Application.routes.draw do
       match 'status_message' => 'status#messages'
       
       match 'status/messages' => :messages
+      match 'status/messages/:id' => :messages, :constraints => cons
       match 'status/workerstatus' => :workerstatus
       match 'status/history'  => :history
       match 'status/project/:project' => :project, :constraints => cons

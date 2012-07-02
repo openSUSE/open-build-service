@@ -7,9 +7,14 @@ class StatusController < ApplicationController
   def messages
     # this displays the status messages the Admin can enter for users.
     if request.get?
-
-      @messages = StatusMessage.alive.limit(params[:limit]).order("created_at DESC").includes(:user).all
-      @count = StatusMessage.alive.count
+      
+      if params[:id]
+        @messages = [ StatusMessage.find( params[:id] ) ]
+        @count = 1
+      else
+        @messages = StatusMessage.alive.limit(params[:limit]).order("created_at DESC").includes(:user).all
+        @count = @messages.size
+      end
 
     elsif request.put?
 

@@ -12,4 +12,3 @@ xml.status_messages( :count => @count ) do
     )
   end
 end
-
