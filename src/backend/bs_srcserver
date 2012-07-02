@@ -6430,6 +6430,20 @@ sub worker_lastevents {
   }
 
   if ($cgi->{'start'} < $firstno) {
+    my $cnt = $nextno - $cgi->{'start'};
+    if ($cnt > 5) {
+      @events = BSFileDB::fdb_getall_reverse("$eventdir/lastevents", $eventlay, $cnt);
+      @events = reverse @events;
+      if (@events < 20) {
+        @lastev_cache = @events;
+        @lastev_stat = @s;
+      }
+      $firstno = @events ? $events[0]->{'number'} : 0;
+      $nextno = @events ? $events[-1]->{'number'} + 1 : 1;
+    }
+  }
+
+  if ($cgi->{'start'} < $firstno) {
     # we have to get them all
     @events = BSFileDB::fdb_getall("$eventdir/lastevents", $eventlay);
     # re-calculate in case something has changed
