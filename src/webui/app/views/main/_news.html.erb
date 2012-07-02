@@ -9,7 +9,7 @@
       <%= link_to(image_tag('feeds.png', :title => 'RSS Feed', :class => 'alignright'), :action => 'news', :format => 'rss') %>
     </h2>
     <% if @news.count.to_i > 0 %>
-      <table>
+      <table id="messages">
         <tbody>
           <% @news.each_message do |msg| %>
             <tr id="message_<%= msg.msg_id %>">

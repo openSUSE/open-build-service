@@ -59,5 +59,34 @@ class MainPage < BuildServicePage
       "//div[@id='content']//a[text()='New Project']"].click
     $page=NewProjectPage.new_ready @driver
   end
-  
+
+  def add_new_message(message, severity)
+    @driver[xpath: "//div[@id='content']//a[text()='Add new message']"].click
+    wait_for_javascript
+    textarea = @driver[id: "message"]
+    textarea.click
+    textarea.send_keys message
+    @driver[id: "severity"].find_element(xpath: "option[text()='#{severity}']").click
+    @driver[xpath:  "//input[@name='commit'][@value='Ok']"].click
+    $page = MainPage.new_ready @driver
+    validate { @driver.page_source.include? message }
+  end
+
+  def delete_message(text)
+    thetr = nil
+    @driver.find_elements(xpath: "//table[@id='messages']//tr").each do |tr|
+      if tr.find_element(css: "td").text != text
+        puts "different text '#{tr.find_element(css: "td").text}' '#{text}'"
+        next
+      end
+      thetr = tr
+    end
+    assert !thetr.nil?
+    thetr.find_element(xpath: "td/a/img[@alt='Comment_delete']").click
+    wait_for_javascript
+    @driver[id: "dialog_wrapper"].find_element(xpath: "//input[@name='commit']").click
+    
+    $page = MainPage.new_ready @driver
+  end
+
 end

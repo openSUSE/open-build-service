@@ -30,6 +30,7 @@ class BuildServicePage < WebPage
   def validate_page
     super
     res = wait_for_page
+    assert res
     assert_equal res.shift["id"], "header-logo"
     assert_equal res.shift.text, "openSUSE Build Service"
     assert_equal current_user, @user
