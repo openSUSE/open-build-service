@@ -2957,14 +2957,14 @@ sub metacheck {
       print "        rebuild counter sync\n";
       return ('scheduled', [ @$data, {'explain' => 'rebuild counter sync'} ]);
     }
-    print "      - $packid ($packtype)\n";
-    print "        nothing changed\n";
+    #print "      - $packid ($packtype)\n";
+    #print "        nothing changed\n";
     return ('done');
   }
   my $repo = $ctx->{'repo'};
   if (($packtype eq 'kiwi-image' || $packtype eq 'kiwi-product') && $repo->{'rebuild'} && $repo->{'rebuild'} eq 'local') {
-    print "      - $packid ($packtype)\n";
-    print "        nothing changed\n";
+    #print "      - $packid ($packtype)\n";
+    #print "        nothing changed\n";
     return ('done');
   }
   my @diff = diffsortedmd5(\@meta, $new_meta);
