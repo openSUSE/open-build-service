@@ -1127,7 +1127,7 @@ sub getpreinstallimageinfos {
   my $imagescnt = 0;
   for my $prpa (@$prpas) {
     next unless -e "$reporoot/$prpa/:preinstallimages";
-    if (-l _) {
+    if (-l "$reporoot/$prpa/:preinstallimages") {
       # small hack: allow symlink to another prpa's file
       my $l = readlink("$reporoot/$prpa/:preinstallimages") || '';
       my @l = split('/', "$prpa////$l", -1);
