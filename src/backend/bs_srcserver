@@ -2038,7 +2038,7 @@ sub addrev_meta {
   $suf ||= 'mrev';
   my $md5;
   my $rpackid = defined($packid) ? $packid : '_project';
-  if ($file) {
+  if (defined($rfile) && defined($tmpfile)) {
     mkdir_p($uploaddir);
     BSUtil::cp($tmpfile, "$uploaddir/addrev_meta$$");
     chmod(0600, "$uploaddir/addrev_meta$$") if !defined($packid) && $suf eq 'mrev' && $rfile eq '_signkey';
@@ -2082,8 +2082,14 @@ sub addrev_meta {
     $nrev->{'vrev'} = $rev->{'vrev'} if $rev && defined $rev->{'vrev'};
   }
   BSFileDB::fdb_add_i(\*FF,  $srcrevlay, $nrev);
-  if ($file) {
-    rename($tmpfile, $file) || die("rename $tmpfile $file: $!\n");
+  if (defined($file)) {
+    if (defined($tmpfile)) {
+      rename($tmpfile, $file) || die("rename $tmpfile $file: $!\n");
+    } else {
+      unlink($file);
+    }
+  } elsif (defined($tmpfile)) {
+    unlink($tmpfile);
   }
   close FF;	# free lock
 }
@@ -2800,10 +2806,8 @@ sub deletekey {
     die("must have a key for signing\n") unless $sk;
   }
   # XXX: these are two commits...
-  addrev_meta($cgi, $projid, undef, undef, undef, '_pubkey');
-  addrev_meta($cgi, $projid, undef, undef, undef, '_signkey');
-  unlink("$projectsdir/$projid.pkg/_signkey");
-  unlink("$projectsdir/$projid.pkg/_pubkey");
+  addrev_meta($cgi, $projid, undef, undef, "$projectsdir/$projid.pkg/_pubkey", '_pubkey');
+  addrev_meta($cgi, $projid, undef, undef, "$projectsdir/$projid.pkg/_signkey", '_signkey');
   rmdir("$projectsdir/$projid.pkg");
   return $BSStdServer::return_ok;
 }
@@ -3556,8 +3560,7 @@ sub putprojectconfig {
     addrev_meta($cgi, $projid, undef, "$uploaddir/$$", "$projectsdir/$projid.conf", '_config', 'rev');
   } else {
     unlink("$uploaddir/$$");
-    addrev_meta($cgi, $projid, undef, undef, undef, '_config', 'rev');
-    unlink("$projectsdir/$projid.conf");
+    addrev_meta($cgi, $projid, undef, undef, "$projectsdir/$projid.conf", '_config', 'rev');
   }
   notify_repservers('project', $projid);
   BSNotify::notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
@@ -3567,8 +3570,7 @@ sub putprojectconfig {
 
 sub delprojectconfig {
   my ($cgi, $projid) = @_;
-  addrev_meta($cgi, $projid, undef, undef, undef, '_config', 'rev');
-  unlink("$projectsdir/$projid.conf");
+  addrev_meta($cgi, $projid, undef, undef, "$projectsdir/$projid.conf", '_config', 'rev');
   notify_repservers('project', $projid);
   BSNotify::notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
   return $BSStdServer::return_ok;
