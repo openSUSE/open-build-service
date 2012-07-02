@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
-
-  <include href="obs.rng" />
-
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" ns="http://buildservice.org/api" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <include href="obs.rng"/>
   <start>
     <ref name="distributions-element"/>
   </start>
-
   <define ns="" name="distributions-element">
     <element name="distributions">
       <zeroOrMore>
@@ -14,7 +11,6 @@
       </zeroOrMore>
     </element>
   </define>
-
   <define ns="" name="distribution-element">
     <element name="distribution">
       <attribute name="id">
@@ -48,15 +44,18 @@
       </interleave>
     </element>
   </define>
-
   <define ns="" name="icon-element">
     <element name="icon">
-      <attribute name="width">
-        <data type="int"/>
-      </attribute>
-      <attribute name="height">
-        <data type="int"/>
-      </attribute>
+      <optional>
+        <attribute name="width">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="height">
+          <data type="int"/>
+        </attribute>
+      </optional>
       <attribute name="url">
         <data type="string"/>
       </attribute>

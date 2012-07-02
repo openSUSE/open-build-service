@@ -4,7 +4,7 @@
     <project>openSUSE:11.0</project>
     <repository>standard</repository>
     <reponame>openSUSE_11.0</reponame>
-    <icon width="8" height="8" url="http://opensuse.org/static/os11logo8.png"/>
+    <icon width="8" url="http://opensuse.org/static/os11logo8.png"/>
     <icon width="16" height="16" url="http://opensuse.org/static/os11logo16.png"/>
     <link>http://www.opensuse.org</link>
   </distribution>
@@ -13,7 +13,7 @@
     <project>openSUSE:10.3</project>
     <reponame>openSUSE_10.3</reponame>
     <repository>standard</repository>
-    <icon width="8" height="8" url="http://opensuse.org/static/os10logo8.png"/>
+    <icon url="http://opensuse.org/static/os10logo8.png"/>
     <icon width="16" height="16" url="http://opensuse.org/static/os10logo16.png"/>
     <link>http://www.opensuse.org</link>
   </distribution>
@@ -22,7 +22,7 @@
     <project>Fedora:9</project>
     <reponame>Fedora_9</reponame>
     <repository>standard</repository>
-    <icon width="8" height="8" url="http://opensuse.org/static/fed9logo8.png"/>
+    <icon height="8" url="http://opensuse.org/static/fed9logo8.png"/>
     <icon width="16" height="16" url="http://opensuse.org/static/fed9logo16.png"/>
     <link>http://www.fedoraproject.org</link>
   </distribution>
