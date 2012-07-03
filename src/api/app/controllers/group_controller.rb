@@ -1,13 +1,11 @@
 
 class GroupController < ApplicationController
 
-  before_filter :have_login
-
   def index
     valid_http_methods :get
 
     if params[:login]
-      user = User.get_by_login(params[:login])
+      user = User.find_by_login!(params[:login])
       list = user.groups
     else
       list = Group.all
@@ -27,16 +25,8 @@ class GroupController < ApplicationController
     valid_http_methods :get
     required_parameters :title
 
-    @group = Group.get_by_title( params[:title] )
+    @group = Group.find_by_title!( params[:title] )
     @involved_users = @group.groups_users.all
-  end
-
-  private
-
-  # filter to check if a user is logged in
-  def have_login
-    raise "extract_user should have made one" unless @http_user
-    render_error( message: "Access to group information denied", status: 401 ) if @http_user.login == '_nobody_'
   end
 
 end
