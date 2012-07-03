@@ -1404,6 +1404,7 @@ sub getpreinstallimage {
       # ignore our own image
       next if $img->{'prpa'} eq "$projid/$repoid/$buildinfo->{'arch'}" && $img->{'package'} eq $buildinfo->{'package'};
       $bestimg = $img;
+      $bestimgn = @{$img->{'hdrmd5s'} || []};
     }
     last unless $bestimg;	# nothing fits
     # try this one
