@@ -4600,11 +4600,7 @@ sub rebuildpackage {
   my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $ctx->{'conf'},
      $ctx->{'subpacks'}->{$info->{'name'}} || [], $ctx->{'edeps'}->{$packid} || [],
      $ctx->{'prpsearchpath'}, $data->[0], $ctx->{'relsyncmax'}, $needed->{$packid} || 0);
-  if (!$job) {
-    # could not start job...
-    return ('unresolvable', $1) if $joberror =~ /^unresolvable: (.*)$/;
-    return ('broken', $joberror);
-  }
+  return ('broken', $joberror) unless $job;	# could not start job
   return ('scheduled', $job);
 }
 
@@ -6276,6 +6272,8 @@ while(1) {
       if ($astatus eq 'scheduled') {
         $building{$packid} = $aerror || 'job'; # aerror contains jobid in this case
         undef $aerror;
+      } elsif ($astatus eq 'broken' && $aerror =~ /^unresolvable: (.*)/) {
+	($astatus, $aerror) = ('unresolvable', $1);
       }
       unlink("$reporoot/$prp/$myarch/:repodone");
     }
