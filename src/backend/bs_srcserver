@@ -2092,6 +2092,9 @@ sub addrev_meta {
     unlink($tmpfile);
   }
   close FF;	# free lock
+  $nrev->{'project'} = $projid;
+  $nrev->{'package'} = $rpackid;
+  return $nrev;
 }
 
 sub readproj {
