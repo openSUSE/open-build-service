@@ -416,8 +416,8 @@ my @simclasses = (
   'spec',
   'dsc',
   'changes',
-  '(?:diff?|patch)(?:\.gz|\.bz2)?',
-  '(?:tar|tar\.gz|tar\.bz2|tgz|tbz)',
+  '(?:diff?|patch)(?:\.gz|\.bz2|\.xz)?',
+  '(?:tar|tar\.gz|tar\.bz2|tar\.xz|tgz|tbz)',
 );
 
 sub findsim {
