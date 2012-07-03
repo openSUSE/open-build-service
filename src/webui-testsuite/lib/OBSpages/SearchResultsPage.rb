@@ -59,8 +59,9 @@ class SearchResultsPage < BuildServicePage
   def search_results
     raw_results = @driver.find_elements :xpath => "//table[@id='search_result']//tr"
     raw_results.collect do |row|
-      case row.find_element(:xpath => ".//img").attribute("alt")
-        when "Bricks"
+      alt = row.find_element(:xpath => ".//img").attribute("alt")
+      case alt
+        when "Project"
           { :type         => :project, 
             :project_name => row.find_element(:xpath => ".//a").text }
         when "Package"
@@ -68,7 +69,7 @@ class SearchResultsPage < BuildServicePage
             :package_name => row.find_elements(:xpath => ".//a").first.text,
             :project_name => row.find_elements(:xpath => ".//a").last.text }
         else
-          fail "Unrecognized result icon."
+          fail "Unrecognized result icon. #{alt}"
       end
     end
   end

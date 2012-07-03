@@ -5,7 +5,8 @@ class TC14__Search < TestCase
   depend_on :create_home_project_for_user,
             :create_home_project_for_second_user,
             :create_home_project_for_admin,
-            :change_global_project_title 
+            :change_global_project_title,
+	    :change_home_project_title
     navigate_to SearchPage, :user => :none
     search(
       :text => "Home", 
