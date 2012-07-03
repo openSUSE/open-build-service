@@ -47,7 +47,7 @@ class AllProjectsPage < BuildServicePage
       @driver[:id => "searchtext"].send_keys pattern.to_s
       @driver[:id => "searchtext"].send_keys :enter
 
-      @url = $data[:url] + "/project/list?searchtext=#{pattern}"
+      @url = $data[:url] + "/project/list?utf8=%E2%9C%93&searchtext=#{pattern}"
     end
     
   end
