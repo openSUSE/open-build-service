@@ -25,7 +25,7 @@ ActiveXML::Base.config do |conf|
       :tags_by_object => "rest:///source/:project/:package/_tags"
 
     map.connect :person, "rest:///person/:login"
-    map.connect :group, "rest:///group/show/:title",
+    map.connect :group, "rest:///group/:title",
       :all => "rest:///group/"
     map.connect :persongroup, "rest:///person/:login/group"
 
