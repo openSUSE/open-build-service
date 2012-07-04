@@ -1010,6 +1010,7 @@ sub addrev {
       $acceptinfo->{'rev'} = $rev->{'rev'};
       $acceptinfo->{'srcmd5'} = $rev->{'srcmd5'};
       addacceptinfo($requestid, $projid, $packid, $acceptinfo);
+      $rev->{'acceptinfo'} = $acceptinfo if $cgi->{'withacceptinfo'};
     }
     extract_old_prjsource($projid, $rev);
     unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
@@ -1059,6 +1060,7 @@ sub addrev {
       };
     }
     addacceptinfo($requestid, $projid, $packid, $acceptinfo);
+    $rev->{'acceptinfo'} = $acceptinfo if $cgi->{'withacceptinfo'};
   }
 
   # send out hermes notification
@@ -4760,7 +4762,7 @@ sub sourcecopy {
 
   delete $rev->{'project'};
   delete $rev->{'package'};
-  return ($rev, $BSXML::revision);
+  return ($rev, $BSXML::revision_acceptinfo);
 }
 
 sub sourcebranch {
@@ -4807,7 +4809,7 @@ sub sourcebranch {
   delete $rev->{'package'};
   BSNotify::notify("SRCSRV_BRANCH_COMMAND", {project => $projid, package => $packid, targetproject => $oprojid, targetpackage => $opackid,
                                              user => $cgi->{'user'}});
-  return ($rev, $BSXML::revision);
+  return ($rev, $BSXML::revision_acceptinfo);
 }
 
 sub linktobranch {
@@ -6827,8 +6829,8 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=servicediff rev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool?' => \&servicediff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? time:num? version:? vrev:? noservice:bool? servicemark:?' => \&sourcecommitfilelist,
-  'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? noservice:bool? withvrev:bool?' => \&sourcecopy,
-  'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? requestid:num? force:bool? keepcontent:bool? missingok:bool? noservice:bool?' => \&sourcebranch,
+  'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? noservice:bool? withvrev:bool? withacceptinfo:bool?' => \&sourcecopy,
+  'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? requestid:num? force:bool? keepcontent:bool? missingok:bool? noservice:bool? withacceptinfo:bool?' => \&sourcebranch,
   'POST:/source/$project/$package cmd=linktobranch rev? user:? comment:? linkrev?' => \&linktobranch,
   'POST:/source/$project/$package cmd=deleteuploadrev' => \&deleteuploadrev,
   'POST:/source/$project/$package cmd=undelete user:? comment:? time:num?' => \&undeletepackage,

@@ -602,6 +602,17 @@ our $revision = [
 	'requestid',
 ];
 
+our $revision_acceptinfo = [
+    @$revision,
+      [ 'acceptinfo' =>
+	    'rev',
+	    'srcmd5',
+	    'osrcmd5',
+	    'xsrcmd5',
+	    'oxsrcmd5',
+      ],
+];
+
 our $revisionlist = [
     'revisionlist' =>
       [ $revision ]
