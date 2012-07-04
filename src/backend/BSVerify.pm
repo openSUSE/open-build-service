@@ -394,6 +394,23 @@ sub verify_nevraquery {
   verify_simple($f);
 }
 
+sub verify_attribute {
+  my $attribute = $_;
+  die("no namespace defined\n") unless $attribute->{'namespace'};
+  die("no name defined\n") unless $attribute->{'name'};
+  verify_simple($attribute->{'name'});
+  for my $value (@{$attribute->{'value'} || []}) {
+    verify_simple($value);
+  }
+}
+
+sub verify_attributes {
+  my $attributes = $_;
+  for my $attribute (@{$attributes || []}) {
+    verify_attribute($attribute);
+  }
+}
+
 our $verifyers = {
   'project' => \&verify_projid,
   'package' => \&verify_packid,
@@ -414,20 +431,5 @@ our $verifyers = {
   'resultview' => \&verify_resultview,
 };
 
-sub verify_attribute {
-  my $attribute = $_;
-  die("No namespace defined\n") unless $attribute->{'namespace'};
-  die("No name defined\n") unless $attribute->{'name'};
-  for my $value (@{$attribute->{'value'} || []}) {
-    verify_simple($value);
-  }
-}
-
-sub verify_attributes {
-  my $attributes = $_;
-  for my $attribute (@{$attributes || []}) {
-    verify_attribute($attribute);
-  }
-}
-
 1;
+
