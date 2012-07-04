@@ -1301,7 +1301,7 @@ sub getpreinstallimage_metas {
       unlink("$dir/$bin.meta");
     }
   }
-  return (grep {!$havemeta{$_}} @bins) ? undef : 1;
+  return (grep {!$havemeta{$_}} @todo) ? undef : 1;
 }
 
 sub getpreinstallimage {
