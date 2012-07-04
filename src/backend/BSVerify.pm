@@ -398,7 +398,9 @@ sub verify_attribute {
   my $attribute = $_;
   die("no namespace defined\n") unless $attribute->{'namespace'};
   die("no name defined\n") unless $attribute->{'name'};
+  verify_simple($attribute->{'namespace'});
   verify_simple($attribute->{'name'});
+  verify_simple($attribute->{'binary'}) if $attribute->{'binary'};
   for my $value (@{$attribute->{'value'} || []}) {
     verify_simple($value);
   }
