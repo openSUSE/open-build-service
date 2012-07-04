@@ -229,7 +229,6 @@ PUT /source/<project>/_meta
 Parameters:
 
   comment: comment, optional
-  user: user, optional
 
 XmlBody: project
 
@@ -247,7 +246,6 @@ Parameters:
          in the other repository is replaced by one pointing to 'deleted/standard',
          preventing the build and publishing of the other repository.
   comment: comment, optional
-  user: user, optional
 
 
 XmlResult: status
@@ -267,7 +265,6 @@ POST /source/<project>/_attribute/<attribute>
 Parameters:
 
   comment: comment, optional
-  user: user, optional
 
 XmlResult: status
 
@@ -279,7 +276,6 @@ DELETE /source/<project>/_attribute/<attribute>
 Parameters:
 
   comment: comment, optional
-  user: user, optional
 
 XmlResult: status
 
@@ -302,7 +298,6 @@ PUT /source/<project>/_config
 Parameters:
 
   comment: comment, optional
-  user: user, optional
 
 XmlResult: status
 
@@ -438,7 +433,6 @@ PUT /source/<project>/<package>/_meta
 Parameters:
 
   comment: comment, optional
-  user: user, optional
 
 XmlBody: package
 
@@ -452,7 +446,6 @@ DELETE /source/<project>/<package>
 Parameters:
 
   comment: comment, optional
-  user: user, optional
 
 XmlResult: status
 
@@ -471,7 +464,6 @@ POST /source/<project>/<package>/_attribute/<attribute>
 Parameters:
 
   comment: comment, optional
-  user: user, optional
 
 XmlResult: status
 
@@ -483,7 +475,6 @@ DELETE /source/<project>/<package>/_attribute/<attribute>
 Parameters:
 
   comment: comment, optional
-  user: user, optional
 
 XmlResult: status
 
@@ -574,7 +565,6 @@ Parameters:
 
   rev: revision, mandatory
   comment: comment, optional
-  user: user, optional
 
 XmlResult: status
 
@@ -699,7 +689,6 @@ POST /source/<project>/<package>/<binary>/_attribute/<attribute>
 Parameters:
 
   comment: comment, optional
-  user: user, optional
 
 XmlResult: status
 
@@ -711,7 +700,6 @@ DELETE /source/<project>/<package>/<binary>/_attribute/<attribute>
 Parameters:
 
   comment: comment, optional
-  user: user, optional
 
 XmlResult: status
 
