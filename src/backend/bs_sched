@@ -4786,6 +4786,7 @@ sub getremoteevents {
       $watch = "project/$ev->{'project'}";
     } elsif ($ev->{'type'} eq 'package') {
       $watch = "package/$ev->{'project'}/$ev->{'package'}";
+      $watch = "package/$ev->{'project'}" unless defined $watchremote->{$watch};
     } elsif ($ev->{'type'} eq 'repository') {
       $watch = "repository/$ev->{'project'}/$ev->{'repository'}/$myarch";
     } else {
