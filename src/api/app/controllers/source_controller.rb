@@ -498,7 +498,7 @@ class SourceController < ApplicationController
     binary=params[:binary] if params[:binary]
     # valid post commands
     raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
-    if params[:package]
+    if params[:package] and params[:package] != "_project"
       @attribute_container = DbPackage.get_by_project_and_name(params[:project], params[:package], false)
     else
       # project
@@ -549,7 +549,13 @@ class SourceController < ApplicationController
       # init
       # checks
       # exec
-      render :text => @attribute_container.render_attribute_axml(params), :content_type => 'text/xml'
+      if params[:rev]
+        path = "/source/#{URI.escape(params[:project])}/#{URI.escape(params[:package]||'_project')}/_attribute?meta=1&rev=#{CGI.escape(params[:rev])}"
+        answer = Suse::Backend.get(path)
+        render :text => answer.body.to_s, :content_type => 'text/xml'
+      else
+        render :text => @attribute_container.render_attribute_axml(params), :content_type => 'text/xml'
+      end
       return
 
     # /request.get?
@@ -583,8 +589,7 @@ class SourceController < ApplicationController
 
       # exec
       ac.destroy
-# FIXME: define how to write it to backend
-#      @attribute_container.store
+      @attribute_container.write_attributes(params[:comment])
       render_ok
 
     # /request.delete?
@@ -607,37 +612,38 @@ class SourceController < ApplicationController
       end
 
       # checks
-    if params[:attribute]
-      unless @http_user.can_create_attribute_in? @attribute_container, :namespace => name_parts[0], :name => name_parts[1]
-        render_error :status => 403, :errorcode => "change_attribute_no_permission",
-          :message => "user #{user.login} has no permission to change attribute"
-        return
-      end
-    else
-        req.each_attribute do |attr|
-          begin
-            can_create = @http_user.can_create_attribute_in? @attribute_container, :namespace => attr.namespace, :name => attr.name
-          rescue ActiveRecord::RecordNotFound => e
-            render_error :status => 404, :errorcode => "not_found",
-              :message => e.message
-            return
-          rescue ArgumentError => e
-            render_error :status => 400, :errorcode => "change_attribute_attribute_error",
-              :message => e.message
-            return
-          end
-          unless can_create
-            render_error :status => 403, :errorcode => "change_attribute_no_permission",
-              :message => "user #{user.login} has no permission to change attribute"
-            return
-          end
+      if params[:attribute]
+        unless @http_user.can_create_attribute_in? @attribute_container, :namespace => name_parts[0], :name => name_parts[1]
+          render_error :status => 403, :errorcode => "change_attribute_no_permission",
+            :message => "user #{user.login} has no permission to change attribute"
+          return
         end
-    end
+      else
+          req.each_attribute do |attr|
+            begin
+              can_create = @http_user.can_create_attribute_in? @attribute_container, :namespace => attr.namespace, :name => attr.name
+            rescue ActiveRecord::RecordNotFound => e
+              render_error :status => 404, :errorcode => "not_found",
+                :message => e.message
+              return
+            rescue ArgumentError => e
+              render_error :status => 400, :errorcode => "change_attribute_attribute_error",
+                :message => e.message
+              return
+            end
+            unless can_create
+              render_error :status => 403, :errorcode => "change_attribute_no_permission",
+                :message => "user #{user.login} has no permission to change attribute"
+              return
+            end
+          end
+      end
 
       # exec
+      changed = false
       req.each_attribute do |attr|
         begin
-          @attribute_container.store_attribute_axml(attr, binary)
+          changed = true if @attribute_container.store_attribute_axml(attr, binary)
         rescue DbProject::SaveError => e
           render_error :status => 403, :errorcode => "save_error", :message => e.message
           return
@@ -646,8 +652,7 @@ class SourceController < ApplicationController
           return
         end
       end
-# FIXME: define how to write it to backend
-#      @attribute_container.store
+      @attribute_container.write_attributes(params[:comment]) if changed
       render_ok
 
     # /request.post?

@@ -2037,6 +2037,7 @@ sub addrev_meta {
 
   $suf ||= 'mrev';
   my $md5;
+  undef $packid if $packid && $packid eq '_project';
   my $rpackid = defined($packid) ? $packid : '_project';
   if (defined($rfile) && defined($tmpfile)) {
     mkdir_p($uploaddir);
@@ -3837,11 +3838,27 @@ sub putfile {
   my ($cgi, $projid, $packid, $filename) = @_;
   die("no filename\n") unless defined($filename) && $filename ne '';
   die("bad filename\n") if $filename =~ /\// || $filename =~ /^\./;
-  my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
-  die("file '$filename' is read-only\n") if ($filename =~ /^_service:/) && !$cgi->{'force'};
   mkdir_p($uploaddir);
   my $uploaded = BSServer::read_file("$uploaddir/$$", 'withmd5' => 1);
   die("upload failed\n") unless $uploaded;
+
+  if ($cgi->{'meta'}) {
+    if ($filename eq '_attribute') {
+      my $attribs = readxml("$uploaddir/$$", $BSXML::attributes);
+      BSVerify::verify_attributes($attribs);
+      writexml("$uploaddir/$$", undef, $attribs, $BSXML::attributes);
+    } else {
+      die("unsupported meta operation\n");
+    }
+    undef $projid if $projid eq '_project';
+    my $rev = addrev_meta($cgi, $projid, $packid, "$uploaddir/$$", undef, $filename);
+    delete $rev->{'project'};
+    delete $rev->{'package'};
+    return ($rev, $BSXML::revision);
+  }
+
+  my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
+  die("file '$filename' is read-only\n") if ($filename =~ /^_service:/) && !$cgi->{'force'};
   addfile($projid, $packid, "$uploaddir/$$", $filename, $uploaded->{'md5'});
   # create new meta file
   my $files;
@@ -6820,8 +6837,8 @@ my $dispatches = [
   'PUT:/source/$project/$package/_meta user:? comment:? requestid:num?' => \&putpackage,
   'DELETE:/source/$project/$package user:? comment:? requestid:num?' => \&delpackage,
   '/source/$project/$package/$filename rev? expand:bool? meta:bool? deleted:bool?' => \&getfile,
-  'PUT:/source/$project/$package/$filename rev? user:? comment:? keeplink:bool? force:bool?' => \&putfile,
-  'DELETE:/source/$project/$package/$filename rev? user:? comment:? keeplink:bool? force:bool?' => \&delfile,
+  'PUT:/source/$project/$package/$filename rev? user:? comment:? keeplink:bool? force:bool? meta:bool?' => \&putfile,
+  'DELETE:/source/$project/$package/$filename rev? user:? comment:? keeplink:bool? force:bool? meta:bool?' => \&delfile,
 
   # /published name spec: access published binaries
   '/published' => \&published,

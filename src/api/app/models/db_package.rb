@@ -615,17 +615,27 @@ class DbPackage < ActiveRecord::Base
       end
     end
     # update or create attribute entry
+    changed = false
     a = find_attribute(attrib.namespace, attrib.name, binary)
-    if a
-      a.update_from_xml(attrib)
-    else
+    if a.nil?
       # create the new attribute entry
       if binary
-        self.attribs.new(:attrib_type => atype, :binary => binary).update_from_xml(attrib)
+        a = self.attribs.create(:attrib_type => atype, :binary => binary)
       else
-        self.attribs.new(:attrib_type => atype).update_from_xml(attrib)
+        a = self.attribs.create(:attrib_type => atype)
       end
+      changed = true
     end
+    # write values
+    changed = true if a.update_from_xml(attrib)
+    return changed
+  end
+
+  def write_attributes(comment=nil)
+    login = User.current.login
+    path = "/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}/_attribute?meta=1&user=#{CGI.escape(login)}"
+    path += "&comment=#{CGI.escape(opt[:comment])}" if comment
+    Suse::Backend.put_source( path, render_attribute_axml )
   end
 
   def store(opt={})
@@ -733,7 +743,7 @@ class DbPackage < ActiveRecord::Base
     end
   end
 
-  def render_issues_axml(params)
+  def render_issues_axml(params={})
     builder = Nokogiri::XML::Builder.new
 
     filter_changes = states = nil
@@ -763,7 +773,7 @@ class DbPackage < ActiveRecord::Base
                                             Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
-  def render_attribute_axml(params)
+  def render_attribute_axml(params={})
     builder = Nokogiri::XML::Builder.new
 
     builder.attributes() do |a|

@@ -174,7 +174,6 @@ class AttributeControllerTest < ActionController::IntegrationTest
   end
 
   def test_create_attributes_project
-    reset_auth
     prepare_request_with_user "tom", "thunder"
 
     data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
@@ -236,6 +235,18 @@ class AttributeControllerTest < ActionController::IntegrationTest
     get "/source/home:tom/_attribute/OBS:Maintained"
     assert_response :success
 
+    # check history
+    get "/source/home:tom/_project?meta=1"
+    assert_response :success
+    assert_xml_tag :tag => "entry", :attributes => { :name => "_attribute" }
+    get "/source/home:tom/_project/_history?meta=1"
+    assert_response :success
+    assert_xml_tag( :tag => "revisionlist" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    revision = node.each_revision.last
+    assert_equal revision.user.text, "tom"
+    srcmd5 = revision.srcmd5.text
+
     # delete
     prepare_request_with_user "tom", "thunder"
     post "/source/home:tom/_attribute", data
@@ -245,6 +256,16 @@ class AttributeControllerTest < ActionController::IntegrationTest
     delete "/source/home:tom/_attribute/OBS:Maintained"
     assert_response 404
 
+    # get old revision
+    # both ways need to work, first one for backward compatibility
+    get "/source/home:tom/_attribute?rev=#{srcmd5}"
+    assert_response :success
+    assert_xml_tag( :tag => "attribute", :attributes => { :namespace => "OBS", :name => "Maintained" } )
+    get "/source/home:tom/_project/_attribute?meta=1&rev=#{srcmd5}"
+    assert_response :success
+    assert_xml_tag( :tag => "attribute", :attributes => { :namespace => "OBS", :name => "Maintained" } )
+
+    # get current
     get "/source/home:tom/_attribute/OBS:Maintained"
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)
@@ -305,7 +326,6 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response 404
 
     # no permission check
-    reset_auth
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/source/kde4/kdelibs/_attribute", data
     assert_response 403
@@ -330,6 +350,18 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response 400
     assert_xml_tag :tag => "status", :attributes => { :code => "invalid_attribute" }
 
+    # check history
+    get "/source/kde4/kdelibs?meta=1"
+    assert_response :success
+    assert_xml_tag :tag => "entry", :attributes => { :name => "_attribute" }
+    get "/source/kde4/kdelibs/_history?meta=1"
+    assert_response :success
+    assert_xml_tag( :tag => "revisionlist" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    revision = node.each_revision.last
+    assert_equal revision.user.text, "fred"
+    srcmd5 = revision.srcmd5.text
+
     # delete
     reset_auth
     prepare_request_with_user "fred", "geröllheimer"
@@ -347,10 +379,15 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response :success
     node = ActiveXML::XMLNode.new(@response.body)
     assert_equal node.has_element?(:attribute), false
+
+    # get old revision
+    get "/source/kde4/kdelibs/_attribute?meta=1&rev=#{srcmd5}"
+    assert_response :success
+    assert_xml_tag( :tag => "attribute", :attributes => { :namespace => "OBS", :name => "Maintained" } )
+    assert_xml_tag( :tag => "attribute", :attributes => { :namespace => "OBS", :name => "Maintained", :binary => "kdelibs-devel" } )
   end
 
 # FIXME:
-# * attribute search operations missing, but already partly tested via source mbranch
 # * value based test are missing
 
 end

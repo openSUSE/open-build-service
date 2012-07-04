@@ -1445,4 +1445,19 @@ our $appdata = [
       [ $appdataitem ]
 ];
 
+our $attribute = [
+    'attribute' => 
+           'namespace', 
+           'name', 
+           'binary', 
+        [[ 'value' =>
+               '_content',
+        ]],
+];
+
+our $attributes = [
+     'attributes' => 
+         [ $attribute ],
+];
+
 1;

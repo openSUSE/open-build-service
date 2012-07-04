@@ -708,7 +708,6 @@ class DbProject < ActiveRecord::Base
       Suse::Backend.put_source( path, to_axml )
     end
 
-    # FIXME: store attributes also to backend 
   end
 
   def store_attribute_axml( attrib, binary=nil )
@@ -744,13 +743,25 @@ class DbProject < ActiveRecord::Base
         end
       end
     end
+
     # update or create attribute entry
-    if a = find_attribute(attrib.namespace, attrib.name)
-      a.update_from_xml(attrib)
-    else
+    changed = false
+    a = find_attribute(attrib.namespace, attrib.name)
+    if a.nil?
       # create the new attribute entry
-      self.attribs.new(:attrib_type => atype).update_from_xml(attrib)
+      a = self.attribs.create(:attrib_type => atype)
+      changed = true
     end
+    # write values
+    changed = true if a.update_from_xml(attrib)
+    return changed
+  end
+
+  def write_attributes(comment=nil)
+    login = User.current.login
+    path = "/source/#{URI.escape(self.name)}/_project/_attribute?meta=1&user=#{CGI.escape(login)}"
+    path += "&comment=#{CGI.escape(opt[:comment])}" if comment
+    Suse::Backend.put_source( path, render_attribute_axml )
   end
 
   def find_attribute( namespace, name, binary=nil )
@@ -771,7 +782,7 @@ class DbProject < ActiveRecord::Base
     return a
   end
 
-  def render_issues_axml(params)
+  def render_issues_axml(params={})
     builder = Nokogiri::XML::Builder.new
 
     filter_changes = states = nil
@@ -802,10 +813,10 @@ class DbProject < ActiveRecord::Base
                                             Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
-  def render_attribute_axml(params)
+  def render_attribute_axml(params={})
     builder = Nokogiri::XML::Builder.new
 
-    done={};
+    done={}
     builder.attributes() do |a|
       attribs.each do |attr|
         next if params[:name] and not attr.attrib_type.name == params[:name]

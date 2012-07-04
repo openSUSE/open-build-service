@@ -20,7 +20,6 @@ class Attrib < ActiveRecord::Base
 
   def update_from_xml(node)
     update_values = false
-
     update_values = true unless node.each_value.length == self.values.count
 
     node.each_value.each_with_index do |val, i|
@@ -37,9 +36,11 @@ class Attrib < ActiveRecord::Base
         self.values << AttribValue.new(:value => val.text, :position => position)
         position += 1
       end
+
+     self.save!
     end
 
-    self.save
+    return update_values
   end
 
 end
