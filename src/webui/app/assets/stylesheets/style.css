@@ -125,6 +125,10 @@ div#log_space_wrapper p {
     background-color: #eee;
 }
 
+div#log_space_wrapper pre {
+    line-height: 150%;
+}
+
 /* main page (/) */
 #proceed_list { height: 2em; margin-bottom: 40px;  }
 #proceed_list li {
