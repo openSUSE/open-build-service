@@ -1,8 +1,16 @@
 class ImportRequests < ActiveRecord::Migration
   def up
+    return if Rails.env.test?
     backend = ActiveXML::Config.transport_for :directory
-    unless Rails.env.test?
+    begin
       dir = ActiveXML::XMLNode.new(backend.direct_http( URI( "/request" ) ))
+    rescue ActiveXML::Transport::ConnectionError => e
+      if Rails.env.development?
+        puts "Ignoring errors and skipping migration of requests in development mode\n#{e.inspect}"
+	return
+      else
+        raise e
+      end
     end
     reqs = []
     dir.each_entry do |e|
