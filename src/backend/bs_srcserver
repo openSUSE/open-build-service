@@ -6785,6 +6785,18 @@ sub getissuetrackers {
 
 ####################################################################
 
+sub external_notification {
+  my ($cgi, $type) = @_;
+  my $param = {};
+  for (keys %$cgi) {
+    $param->{$_} = $cgi->{$_} unless $_ eq '_type' || /^\./;
+  }
+  BSNotify::notify($type, $param);
+  return $BSStdServer::return_ok;
+}
+
+####################################################################
+
 sub hello {
   my ($cgi) = @_;
   return "<hello name=\"Source Repository Ajax Server\" repoid=\"$repoid\" />\n" if $BSStdServer::isajax;
@@ -6928,6 +6940,9 @@ my $dispatches = [
   'PUT:/request/$id:num user:?' => \&putrequest,
   'DELETE:/request/$id:num' => \&delrequest,
   '/search/request $match: limit:num?' => \&search_request,
+
+  # notifications
+  'POST:/notify/$_type: *:?' => \&external_notification,
 
   '/ajaxstatus' => \&getajaxstatus,
   '/serverstatus' => \&BSStdServer::serverstatus,
