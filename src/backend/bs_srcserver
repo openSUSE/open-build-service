@@ -3850,7 +3850,6 @@ sub putfile {
     } else {
       die("unsupported meta operation\n");
     }
-    undef $projid if $projid eq '_project';
     my $rev = addrev_meta($cgi, $projid, $packid, "$uploaddir/$$", undef, $filename);
     delete $rev->{'project'};
     delete $rev->{'package'};
@@ -4849,6 +4848,15 @@ sub delfile {
   my ($cgi, $projid, $packid, $filename) = @_;
   die("no filename\n") unless defined($filename) && $filename ne '';
   die("bad filename\n") if $filename =~ /\// || $filename =~ /^\./;
+  if ($cgi->{'meta'}) {
+    if ($filename ne '_attribute') {
+      die("unsupported meta operation\n");
+    }
+    my $rev = addrev_meta($cgi, $projid, $packid, undef, undef, $filename);
+    delete $rev->{'project'};
+    delete $rev->{'package'};
+    return ($rev, $BSXML::revision);
+  }
   die("file '$filename' is read-only\n") if ($filename =~ /^_service:/) && !$cgi->{'force'};
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   my $files;
