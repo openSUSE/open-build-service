@@ -1205,21 +1205,16 @@ class DbProject < ActiveRecord::Base
     packages = self.db_packages.all
     p_map = Hash.new
     packages.each { |i| p_map[i.name] = 1 } # existing packages map
-    # first path, all packages from direct linked projects
-    self.linkedprojects.each do |lp|
-      lp.linked_db_project.db_packages.each do |p|
-        unless p_map[p.name]
-          packages << p
-          p_map[p.name] = 1
-        end
-      end
-    end
     # second path, all packages from indirect linked projects
     self.linkedprojects.each do |lp|
-      lp.linked_db_project.expand_all_packages.each do |p|
-        unless p_map[p.name]
-          packages << p
-          p_map[p.name] = 1
+      if lp.linked_db_project.nil?
+        # FIXME: this is a remote project
+      else
+        lp.linked_db_project.expand_all_packages.each do |p|
+          unless p_map[p.name]
+            packages << p
+            p_map[p.name] = 1
+          end
         end
       end
     end
