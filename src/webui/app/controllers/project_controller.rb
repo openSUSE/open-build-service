@@ -252,8 +252,15 @@ class ProjectController < ApplicationController
     end
     @packages = Rails.cache.fetch("%s_packages_mainpage" % @project, :expires_in => 30.minutes) do
       ret = [] 
-      find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds ).each do |pkg|
-	      ret << pkg.value(:name)
+      find_cached(Package, :expand, :project => @project.name, :expires_in => 30.seconds ).each do |pkg_element|
+              pkg = Hash.new
+              pkg[:name] = pkg_element.value(:name)
+              if pkg_element.value(:originproject)
+                pkg[:project] = pkg_element.value(:originproject)
+              else  
+                pkg[:project] = @project.name
+              end  
+              ret << pkg
       end
       ret
     end
@@ -291,7 +298,7 @@ class ProjectController < ApplicationController
     # An incident has a patchinfo if there is a package 'patchinfo' with file '_patchinfo', try to find that:
     @has_patchinfo = false
     @packages.each do |pkg_element|
-      if pkg_element == 'patchinfo'
+      if pkg_element[:name] == 'patchinfo'
         Package.find_cached(pkg_element, :project => @project).files.each do |pkg_file|
           @has_patchinfo = true if pkg_file[:name] == '_patchinfo'
         end

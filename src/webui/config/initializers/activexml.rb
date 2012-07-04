@@ -14,6 +14,7 @@ ActiveXML::Base.config do |conf|
       :issues => "rest:///source/:name?view=issues"
     map.connect :package, "rest:///source/:project/:name/_meta?:view",
       :all    => "rest:///source/:project",
+      :expand    => "rest:///source/:project?expand=1",
       :issues => "rest:///source/:project/:name?view=issues"
 
     map.connect :tagcloud, "rest:///tag/tagcloud?limit=:limit",
