@@ -6104,7 +6104,6 @@ while(1) {
   my %packerror;
   my @cpacks = @packs;
   my %cycpass;
-  my $nharder = 0;
   my $needed;
   $ctx->{'packstatus'} = \%packstatus;
   $ctx->{'cychash'} = \%cychash;
@@ -6362,7 +6361,7 @@ while(1) {
   for my $status (sort keys %{{map {$_ => 1} values %packstatus}}) {
     print "    $status: ".scalar(grep {$_ eq $status} values %packstatus)."\n";
   }
-  print "    looked harder: $nharder\n" if $nharder;
+  print "    looked harder: $ctx->{'nharder'}\n" if $ctx->{'nharder'};
   print "    building: ".scalar(keys %building).", notready: ".scalar(keys %notready).", unfinished: ".scalar(keys %unfinished)."\n";
   print "    took $prpchecktime seconds to check the packages\n";
 
