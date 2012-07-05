@@ -2643,7 +2643,7 @@ sub getprojpack {
             my ($md5, $file) = findfile($rev, $repoid, $type, $files);
 	    if (!$md5) {
 	      # no spec/dsc/kiwi file found
-	      if (grep {/\.(?:spec|dsc|kiwi)$/} keys %$files) {
+	      if ($files->{'_preinstallimage'} || grep {/\.(?:spec|dsc|kiwi)$/} keys %$files) {
 		# only different types available
 		$rinfo->{'error'} = 'excluded';
 	      }
