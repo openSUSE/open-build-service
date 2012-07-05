@@ -145,4 +145,8 @@ class BsRequestAction < ActiveRecord::Base
       bs_request_action_accept_info.render_xml(builder) unless bs_request_action_accept_info.nil?
     end
   end
+  
+  def set_acceptinfo(ai)
+    self.bs_request_action_accept_info = BsRequestActionAcceptInfo.create(ai)
+  end
 end

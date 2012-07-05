@@ -408,8 +408,6 @@ class ApplicationController < ActionController::Base
 
   def rescue_with_handler(exception)
 
-    logger.debug exception.backtrace.join("\n")
-
     case exception
     when Suse::Backend::NotFoundError
       render_error :message => exception.message, :status => 404

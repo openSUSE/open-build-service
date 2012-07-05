@@ -1537,9 +1537,10 @@ class RequestController < ApplicationController
             :user => @http_user.login,
             :oproject => action.source_project,
             :opackage => action.source_package,
-            :noservice => "1",
+            :noservice => 1,
             :requestid => params[:id],
-            :comment => params[:comment]
+            :comment => params[:comment],
+	    :withacceptinfo => 1
           }
           cp_params[:orev] = action.source_rev if action.source_rev
           cp_params[:dontupdatesource] = 1 if sourceupdate == "noupdate"
@@ -1586,8 +1587,11 @@ class RequestController < ApplicationController
           end
 
           cp_path = "/source/#{action.target_project}/#{action.target_package}"
-          cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :orev, :expand, :keeplink, :comment, :requestid, :dontupdatesource, :noservice])
-          Suse::Backend.post cp_path, nil
+          cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :orev, :expand, :keeplink, :comment, :requestid, :dontupdatesource, :noservice, :withacceptinfo])
+          result = Suse::Backend.post cp_path, nil
+	  result = Xmlhash.parse(result.body)
+	  action.set_acceptinfo(result["acceptinfo"])
+
           target_package.sources_changed
 
           # cleanup source project

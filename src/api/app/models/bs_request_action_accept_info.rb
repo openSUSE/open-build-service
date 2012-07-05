@@ -10,4 +10,5 @@ class BsRequestActionAcceptInfo < ActiveRecord::Base
     attributes[:oxsrcmd5] = self.oxsrcmd5 unless self.oxsrcmd5.blank?
     builder.acceptinfo attributes
   end
+
 end
