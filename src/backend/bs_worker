@@ -1536,8 +1536,6 @@ sub dobuild {
 
   push @args, "$statedir/build/build";
   if ($vm =~ /(xen|kvm)/) {
-    # add a bit delay - not all workers should start at the same time after idle.
-    sleep (int(rand(5)) + 1); 
     mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
     push @args, '--root', "$buildroot/.mount";
     push @args, $vm, "$vm_root";
