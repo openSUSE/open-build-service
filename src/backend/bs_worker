@@ -1226,10 +1226,17 @@ sub getbinaries_kiwiproduct {
 }
 
 sub getpreinstallimage_metas {
-  my ($buildinfo, $dir, $metas) = @_;
+  my ($buildinfo, $dir, $metas, $img, $hdrmd5s) = @_;
 
   my $prpa = "$buildinfo->{'project'}/$buildinfo->{'repository'}/$buildinfo->{'arch'}";
-  my @bins = sort(keys %$metas);
+
+  # find out which metas are needed for this image
+  my @bins;
+  my %havehdrmd5 = map {$_ => 1} @{$img->{'hdrmd5s'} || []};
+  for my $bin (sort(keys %$metas)) {
+    push @bins, $bin if $hdrmd5s->{$bin} && $havehdrmd5{$hdrmd5s->{$bin}};
+  }
+
   my @todo;
   if ($cachedir) {
     # check the cache
@@ -1429,7 +1436,7 @@ sub getpreinstallimage {
 	      # put entry on top
 	      manage_cache($cachesize, [ [$cacheid, $s[7]] ], undef);
 	    }
-	    if (getpreinstallimage_metas($buildinfo, $dir, \%metas)) {
+	    if (getpreinstallimage_metas($buildinfo, $dir, \%metas, $bestimg, \%hdrmd5s)) {
 	      $imagefile = $ifile;
 	      $imageinfo = $bestimg;
 	      last;
@@ -1461,7 +1468,7 @@ sub getpreinstallimage {
 	manage_cache($cachesize, undef, [ [$cacheid, $s[7], "$dir/$ifile"] ]);
 	unlink("$dir/$ifile.meta");
       }
-      if (getpreinstallimage_metas($buildinfo, $dir, \%metas)) {
+      if (getpreinstallimage_metas($buildinfo, $dir, \%metas, $bestimg, \%hdrmd5s)) {
         $imagefile = $ifile;
         $imageinfo = $bestimg;
         last;
@@ -1474,10 +1481,14 @@ sub getpreinstallimage {
   }
 
   return undef unless $imagefile;
+
   my %imagebins;
   my %havehdrmd5 = map {$_ => 1} @{$imageinfo->{'hdrmd5s'} || []};
   for my $bin (keys %hdrmd5s) {
     $imagebins{$bin} = $hdrmd5s{$bin} if $havehdrmd5{$hdrmd5s{$bin}};
+  }
+  for my $bin (keys %metas) {
+    delete $metas{$_} unless $imagebins{$bin};	# only return metas on the image
   }
   my $imagesource = $imageinfo->{'prpa'};
   $imagesource =~ s/\/[^\/]*$//;	# strip arch
