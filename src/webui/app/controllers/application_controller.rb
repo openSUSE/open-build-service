@@ -188,7 +188,7 @@ class ApplicationController < ActionController::Base
     case exception
     when ActionController::RoutingError
       render_error :status => 404, :message => "no such route"
-    when ActionController::UnknownAction
+    when AbstractController::ActionNotFound
       render_error :status => 404, :message => "unknown action"
     when ActiveXML::Transport::ForbiddenError
       # switch to registration on first access
@@ -258,7 +258,7 @@ class ApplicationController < ActionController::Base
 
   def valid_http_methods(*methods)
     methods.map! {|x| x.to_s.upcase}
-    unless methods.include? request.method
+    unless methods.include? request.request_method.to_s.upcase
       raise InvalidHttpMethodError, "Invalid HTTP Method: #{request.method}"
     end
   end

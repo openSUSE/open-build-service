@@ -13,7 +13,7 @@
 //= require jquery
 //= require jquery_ujs
 //
-//= require jquery.dataTables.min.js
+//= require jquery.dataTables.js
 //= require jquery.expander.min.js
 //= require jquery.flot.min.js
 //= require jquery.flot.stack.min.js

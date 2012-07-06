@@ -46,15 +46,15 @@ package_bread_crumb 'Build Log'
   }
 
   function refresh(newoffset, initial) {
-  autoscroll();
-  offset = newoffset;
-  if (autorefresh) {
-   // javascript_options = options_for_ajax(:url => {:action => :update_build_log, :package => @package,
-   //   :project => @project, :arch => @arch, :repository => @repo}, :error => 'stop_refresh()')
-
-  <%= "var options; options['url'] = options['url'] + '&offset=' + offset + ';&' + 'initial=' + initial;" %>
-  <%=    "$.ajax(options);" %>
-  }
+    autoscroll();
+    offset = newoffset;
+    if (autorefresh) {
+    var options = { type: 'GET', data: null, error: 'stop_refresh()' };
+   
+    <%= "baseurl = '" + CGI.unescapeHTML(url_for(action: :update_build_log, package: @package, project: @project, arch: @arch, repository: @repo)) + "';" %>
+    options['url'] = baseurl + '&offset=' + offset + ';&' + 'initial=' + initial;
+    $.ajax(options);
+    }
   }
   function show_abort() {
     $(".link_abort_build").show();

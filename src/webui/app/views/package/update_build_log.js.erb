@@ -1,0 +1,15 @@
+<% if @finished %>
+  build_finished();
+  hide_abort();
+<% else %>
+  show_abort();
+  insert_html(:bottom, 'log_space', log_chunk);
+
+<% if @log_chunk.length < maxsize || @initial == 0 %>
+  autoscroll();
+  setTimeout(function() { refresh(<%= @offset %>, 0); },2000);
+<% else %>
+  refresh(<%= @offset %>, <%= @initial %> );
+<% end %>
+<% end %>
+

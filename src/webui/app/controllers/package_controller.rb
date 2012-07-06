@@ -925,43 +925,23 @@ class PackageController < ApplicationController
     maxsize = 1024 * 64
 
     begin
-      log_chunk = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + maxsize)
+      @log_chunk = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + maxsize)
 
-      if( log_chunk.length == 0 )
+      if( @log_chunk.length == 0 )
         @finished = true
       else
         @offset += log_chunk.length
       end
 
     rescue Timeout::Error => ex
-      log_chunk = ""
+      @log_chunk = ""
 
     rescue => e
-      log_chunk = "No live log available"
+      @log_chunk = "No live log available"
       @finished = true
     end
 
-    render :update do |page|
-
-      logger.debug 'finished ' + @finished.to_s
-
-      if @finished
-        page.call 'build_finished'
-        page.call 'hide_abort'
-      else
-        page.call 'show_abort'
-        page.insert_html :bottom, 'log_space', log_chunk
-        if log_chunk.length < maxsize || @initial == 0
-          page.call 'autoscroll'
-          page.delay(2) do
-            page.call 'refresh', @offset, 0
-          end
-        else
-          logger.debug 'call refresh without delay'
-          page.call 'refresh', @offset, @initial
-        end
-      end
-    end
+    logger.debug 'finished ' + @finished.to_s
   end
 
   def abort_build

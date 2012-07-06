@@ -14,7 +14,7 @@ config.log_level        = :debug
 config.action_controller.consider_all_requests_local = false
 config.action_controller.perform_caching             = true
 
-config.cache_store = :compressed_mem_cache_store, 'localhost:11211', {:namespace => 'obs-webclient-stage'}
+config.cache_store = :mem_cache_store, 'localhost:11211', {:namespace => 'obs-webclient-stage', compress: true}
 
 config.action_controller.session = {
     :prefix => "ruby_webclient_stage_session",
