@@ -254,7 +254,7 @@ OBSApi::Application.routes.draw do
 
     ### /request
     
-    resources :request, :only => [:index, :show, :update, :create]
+    resources :request, :only => [:index, :show, :update, :create, :destroy]
     
     match 'request/:id' => 'request#command'
 

@@ -612,6 +612,7 @@ end
     # cleanup
     put "/source/home:Iggy/TestPack/_meta", oldmeta.dup
     assert_response :success
+
   end
 
   def test_reject_request_creation
@@ -1721,6 +1722,32 @@ end
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request/#{iddelete}?cmd=changestate&newstate=accepted"
     assert_response :success
+  end
+
+  def test_delete_request_id
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    req = load_backend_file('request/1')
+    post "/request?cmd=create", req
+    assert_response :success
+    
+    node = Xmlhash.parse(@response.body)
+    id = node['id']
+    get "/request/#{id}"    
+    assert_response :success
+
+    # old admins can do that
+    delete "/request/#{id}"
+    assert_response 403
+    assert_xml_tag :tag => 'summary', :content => "Requires admin privileges"
+
+    prepare_request_with_user "king", "sunflower"
+    delete "/request/#{id}"
+    assert_response :success
+
+    get "/request/#{id}"    
+    assert_response 404
+
   end
 
 end

@@ -47,10 +47,30 @@ class Review < ActiveRecord::Base
     attributes[:by_user] = self.by_user if self.by_user
     attributes[:by_package] = self.by_package if self.by_package
     attributes[:by_project] = self.by_project if self.by_project
-
+    
     builder.review(attributes) do
       builder.comment! self.reason if self.reason
     end
   end
-
+  
+  def notify_parameters(params = {})
+    hermes_type = nil
+    if self.by_package
+      hermes_type = "SRCSRV_REQUEST_REVIEWER_PACKAGE_ADDED"
+      params[:newreviewer_project] = self.by_project
+      params[:newreviewer_package] = self.by_package
+    elsif self.by_project
+      hermes_type = "SRCSRV_REQUEST_REVIEWER_PROJECT_ADDED"
+      params[:newreviewer_project] = self.by_project
+    elsif self.by_user
+      hermes_type = "SRCSRV_REQUEST_REVIEWER_ADDED"
+      params[:newreviewer] = self.by_user
+    elsif self.by_group
+      hermes_type = "SRCSRV_REQUEST_REVIEWER_GROUP_ADDED"
+      params[:newreviewer_group] = self.by_group
+    end
+    params[:comment] = self.reason
+    
+    return hermes_type, params
+  end
 end

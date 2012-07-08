@@ -62,6 +62,8 @@ our $repodownload = "http://$hostname/repositories";
 #
 # Notification Plugin
 #our $notification_plugin = "notify_hermes";
+#
+#FIXME2.4 belongs in API
 # Does the notify plugin supports multiple actions?
 # Hermes doesn't, BOSS does.
 #our $multiaction_notify_support = 0

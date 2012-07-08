@@ -50,6 +50,7 @@ sub loadPackage {
   return $obj;    
 }
 
+# FIXME2.4 remove whole function
 # Create parameters for BS Requests
 sub requestParams( $$ )
 {

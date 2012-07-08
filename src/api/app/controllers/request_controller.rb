@@ -10,7 +10,7 @@ class RequestController < ApplicationController
   alias_method :create, :dispatch_command
 
   #TODO: allow PUT for non-admins
-  before_filter :require_admin, :only => [:update]
+  before_filter :require_admin, :only => [:update, :destroy]
 
   # GET /request
   def index
@@ -194,18 +194,25 @@ class RequestController < ApplicationController
       oldrequest = BsRequest.find params[:id]
       oldrequest.destroy
 
+      notify = oldrequest.notify_parameters
+      Suse::Backend.send_notification("SRCSRV_REQUEST_CHANGE", notify)
+
       req = BsRequest.new_from_xml(request.body.read)
       req.id = params[:id]
       req.save!
-
+      
       send_data(req.render_xml, :type => "text/xml")
     end
   end
 
   # DELETE /request/:id
-  #def destroy
-  # Do we want to allow to delete requests at all ?
-  #end
+  def destroy
+    request = BsRequest.find(params[:id])
+    notify = request.notify_parameters
+    request.destroy # throws us out of here if failing
+    Suse::Backend.send_notification("SRCSRV_REQUEST_DELETE", notify)
+    render_ok
+  end
 
   private
 
@@ -487,7 +494,6 @@ class RequestController < ApplicationController
 
 
   def create_expand_targets(req)
-
     per_package_locking = nil
 
     newactions = []
@@ -879,6 +885,14 @@ class RequestController < ApplicationController
     # create the actual request
     #
     req.save!
+    notify = req.notify_parameters
+    Suse::Backend.send_notification('SRCSRV_REQUEST_CREATE', notify)
+
+    req.reviews.each do |review|
+      hermes_type, review_notify = review.notify_parameters(notify.dup)
+      Suse::Backend.send_notification(hermes_type, review_notify) if hermes_type
+    end
+
     render :text => req.render_xml, :content_type => 'text/xml'
   end
 
@@ -1454,6 +1468,7 @@ class RequestController < ApplicationController
         end
       end
     end
+
     # job done by changing target
     if params[:cmd] == "setincident"
       req.save!

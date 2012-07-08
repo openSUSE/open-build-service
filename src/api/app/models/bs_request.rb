@@ -1,4 +1,5 @@
 require 'xmlhash'
+require 'opensuse/backend'
 
 class BsRequest < ActiveRecord::Base
 
@@ -12,7 +13,9 @@ class BsRequest < ActiveRecord::Base
   validate :check_supersede_state
   validates_length_of :comment, :maximum=>300000
   validates_length_of :description, :maximum=>300000
-  
+
+  after_update :send_state_change
+
   def check_supersede_state
     if self.state == :superseded && self.superseded_by.nil?
       errors.add(:superseded_by, "Superseded_by should be set")
@@ -206,6 +209,17 @@ class BsRequest < ActiveRecord::Base
         end
       end
       self.save!
+
+      notify = self.notify_parameters
+      case state 
+      when :accepted 
+        Suse::Backend.send_notification("SRCSRV_REQUEST_ACCEPTED", notify)
+      when :declined
+        Suse::Backend.send_notification("SRCSRV_REQUEST_DECLINED", notify)
+      when :revoked
+        Suse::Backend.send_notification("SRCSRV_REQUEST_REVOKED", notify)
+      end
+
     end
   end
 
@@ -276,6 +290,18 @@ class BsRequest < ActiveRecord::Base
       end
 
       self.save!
+
+      notify = self.notify_parameters
+      if go_new_state 
+        case state 
+        when :accepted 
+          Suse::Backend.send_notification("SRCSRV_REVIEW_ACCEPTED", notify)
+        when :declined
+          Suse::Backend.send_notification("SRCSRV_REVIEW_DECLINED", notify)
+        when :revoked
+          Suse::Backend.send_notification("SRCSRV_REVIEW_REVOKED", notify)
+        end
+      end
     end
   end
 
@@ -290,10 +316,44 @@ class BsRequest < ActiveRecord::Base
       self.commenter = User.current.login
       self.comment = opts[:comment] if opts[:comment]
       
-      self.reviews.create reason: opts[:comment], by_user: opts[:by_user], by_group: opts[:by_group], by_project: opts[:by_project], 
+      newreview = self.reviews.create reason: opts[:comment], by_user: opts[:by_user], by_group: opts[:by_group], by_project: opts[:by_project], 
                           by_package: opts[:by_package], creator: User.current.login
       self.save!
+
+      hermes_type, params = newreview.notify_parameters(self.notify_parameters)
+      Suse::Backend.send_notification(hermes_type, params) if hermes_type
     end
   end
 
+  def send_state_change
+    Suse::Backend.send_notification("SRCSRV_REQUEST_STATECHANGE", self.notify_parameters) if self.state_changed?
+  end
+
+  def notify_parameters(ret = {})
+    ret[:id] = self.id
+    ret[:type] = '' # old style
+    ret[:description] = self.description
+    ret[:state] = self.state
+    ret[:when] = self.updated_at.strftime("%Y-%m-%dT%H:%M:%S") 
+    ret[:comment] = self.comment
+    ret[:author] = self.creator
+
+    if CONFIG['multiaction_notify_support']
+      # Use a nested data structure to support multiple actions in one request
+      ret[:actions] = []
+      self.bs_request_actions.each do |a|
+        ret[:actions] << a.notify_params
+      end
+    else
+      # This is the old code that doesn't handle multiple actions in one request.
+      # The last one just wins ....
+      # Needed until Hermes supports $reqinfo{'actions'}
+      self.bs_request_actions.each do |a|
+        ret = a.notify_params(ret)
+      end
+    end
+    return ret
+  end
+
 end
+          

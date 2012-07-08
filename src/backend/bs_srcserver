@@ -1009,6 +1009,7 @@ sub addrev {
     if ($acceptinfo) {
       $acceptinfo->{'rev'} = $rev->{'rev'};
       $acceptinfo->{'srcmd5'} = $rev->{'srcmd5'};
+      # FIXME2.4 remove the call
       addacceptinfo($requestid, $projid, $packid, $acceptinfo);
       $rev->{'acceptinfo'} = $acceptinfo if $cgi->{'withacceptinfo'};
     }
@@ -1059,6 +1060,7 @@ sub addrev {
 	$acceptinfo->{'xsrcmd5'} = $rev{'srcmd5'};
       };
     }
+    # FIXME2.4 remove
     addacceptinfo($requestid, $projid, $packid, $acceptinfo);
     $rev->{'acceptinfo'} = $acceptinfo if $cgi->{'withacceptinfo'};
   }
@@ -5847,6 +5849,7 @@ sub getrequestlist {
   return ({'entry' => \@requests}, $BSXML::dir);
 };
 
+# FIXME2.4 remove
 sub nextreqid {
   local *F;
   mkdir_p($requestsdir);
@@ -5863,6 +5866,7 @@ sub nextreqid {
   return $nextid;
 }
 
+# FIXME2.4 remove
 sub writereq {
   my ($oreq, $req) = @_;
 
@@ -5883,6 +5887,7 @@ sub writereq {
   }
 }
 
+# FIXME2.4 remove
 sub putrequest {
   my ($cgi, $id) = @_;
   my $reqxml = BSServer::read_data(1000000);
@@ -5901,6 +5906,7 @@ sub putrequest {
   return $BSStdServer::return_ok;
 }
 
+# FIXME2.4 remove
 sub createrequest {
   my ($cgi) = @_;
 
@@ -6022,6 +6028,7 @@ sub getrequest {
   return ($req, $BSXML::request);
 }
 
+# FIXME2.4 remove
 sub postrequest {
   my ($cgi, $id) = @_;
 
@@ -6183,6 +6190,7 @@ sub postrequest {
   return $BSStdServer::return_ok;
 }
 
+# FIXME2.4 remove
 sub delrequest {
   my ($cgi, $id) = @_;
   my $oreq = readxml("$requestsdir/$id", $BSXML::request, 1);
@@ -6193,6 +6201,7 @@ sub delrequest {
   return $BSStdServer::return_ok;
 }
 
+# FIXME2.4 remove
 sub fetchreq {
   my ($db, $key) = @_;
   my $req = readxml("$requestsdir/$key", $BSXML::request, 1) || {};
@@ -6200,6 +6209,7 @@ sub fetchreq {
   return $req;
 }
 
+# FIXME2.4 remove
 sub search_request {
   my ($cgi, $match) = @_;
   my $db = BSDB::opendb($reqindexdb, '');
@@ -6217,6 +6227,7 @@ sub search_request {
   return ($res, $BSXML::collection);
 }
 
+# FIXME2.4 remove
 sub addacceptinfo {
   my ($id, $projid, $packid, $acceptinfo) = @_;
   my $oreq = readxml("$requestsdir/$id", $BSXML::request, 1);
