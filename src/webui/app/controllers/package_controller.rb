@@ -922,15 +922,15 @@ class PackageController < ApplicationController
     @initial = params[:initial]
     @offset = params[:offset].to_i
     @finished = false
-    maxsize = 1024 * 64
+    @maxsize = 1024 * 64
 
     begin
-      @log_chunk = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + maxsize)
+      @log_chunk = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + @maxsize)
 
       if( @log_chunk.length == 0 )
         @finished = true
       else
-        @offset += log_chunk.length
+        @offset += @log_chunk.length
       end
 
     rescue Timeout::Error => ex

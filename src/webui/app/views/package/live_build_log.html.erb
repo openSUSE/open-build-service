@@ -49,7 +49,7 @@ package_bread_crumb 'Build Log'
     autoscroll();
     offset = newoffset;
     if (autorefresh) {
-    var options = { type: 'GET', data: null, error: 'stop_refresh()' };
+    var options = { type: 'GET', data: null, error: 'stop_refresh()', cache: false };
    
     <%= "baseurl = '" + CGI.unescapeHTML(url_for(action: :update_build_log, package: @package, project: @project, arch: @arch, repository: @repo)) + "';" %>
     options['url'] = baseurl + '&offset=' + offset + ';&' + 'initial=' + initial;
