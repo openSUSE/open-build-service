@@ -416,7 +416,7 @@ EOF
 			echo "OBS_INSTANCE_MEMORY=\"$INSTANCEMEM\"" >> /etc/buildhost.config
 			if grep ^flags /proc/cpuinfo | egrep -q " (svm|vmx) " && test -n "$RUN_VIRT"; then
                                 # try to use hugetlb on kvm
-                                if !grep -q \ /hugetlbfs /proc/mounts; then
+                                if ! grep -q \ /hugetlbfs /proc/mounts; then
 					mkdir -p /hugetlbfs
 			                HUGETLBINSTANCEMEM=$(( $INSTANCEMEM * 512 )) # 2k blocks
                                         # register huge table memory pages
