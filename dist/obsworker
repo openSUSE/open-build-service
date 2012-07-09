@@ -20,7 +20,9 @@
 
 . /etc/rc.status
 
-. /etc/sysconfig/proxy
+if test -e /etc/sysconfig/proxy; then
+  . /etc/sysconfig/proxy
+fi
 if test -e /etc/sysconfig/obs-server; then
   # optional on workers
   . /etc/sysconfig/obs-server
