@@ -427,6 +427,7 @@ EOF
 	                			echo "OBS_VM_USE_HUGETLBFS=\"/hugetlbfs\"" >> /etc/buildhost.config
 					else
 						echo "WARNING: registration of huge table memory pages failed!"
+                                                echo "Just `cat /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages` of $HUGETLBINSTANCEMEM registered"
 					fi
                                 fi
                         fi
