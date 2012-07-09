@@ -916,10 +916,14 @@ class RequestController < ApplicationController
       path = nil
       if [:submit, :maintenance_release, :maintenance_incident].include?(action.action_type)
         spkgs = []
-        if action.source_package
-          spkgs << DbPackage.get_by_project_and_name( action.source_project, action.source_package )
+        if ai = action.bs_request_action_accept_info
+          spkgs << action.source_package
         else
-          spkgs = DbProject.get_by_name( action.source_project ).db_packages
+          if action.source_package
+            spkgs << DbPackage.get_by_project_and_name( action.source_project, action.source_package ).name
+          else
+            spkgs = DbProject.get_by_name( action.source_project ).db_packages.select("name")
+          end
         end
 
         spkgs.each do |spkg|
@@ -934,7 +938,7 @@ class RequestController < ApplicationController
           # maintenance_release creates new packages instance, but are changing the source only according to the link
           provided_in_other_action=false
           if target_package.nil? or [ :maintenance_release, :maintenance_incident ].include? action.action_type
-            data = REXML::Document.new( backend_get("/source/#{URI.escape(action.source_project)}/#{URI.escape(spkg.name)}") )
+            data = REXML::Document.new( backend_get("/source/#{URI.escape(action.source_project)}/#{URI.escape(spkg)}") )
             e = data.elements["directory/linkinfo"]
             if e
               target_project = e.attributes["project"]
@@ -984,7 +988,7 @@ class RequestController < ApplicationController
               DbProject.get_by_name( target_project )
             end
 
-            path = "/source/#{CGI.escape(action.source_project)}/#{CGI.escape(spkg.name)}?cmd=diff&filelimit=10000"
+            path = "/source/#{CGI.escape(action.source_project)}/#{CGI.escape(spkg)}?cmd=diff&filelimit=10000"
             unless provided_in_other_action
               # do show the same diff multiple times, so just diff unexpanded so we see possible link changes instead
               # also get sure that the request would not modify the link in the target
@@ -999,7 +1003,7 @@ class RequestController < ApplicationController
               if action.source_rev # Use source rev for diffing (if available)
                 path += "&orev=0&rev=#{action.source_rev}"
               else # Otherwise generate diff for latest source package revision
-                spkg_rev = Directory.find(:project => action.source_project, :package => spkg.name).rev
+                spkg_rev = Directory.find(:project => action.source_project, :package => spkg).rev
                 path += "&orev=0&rev=#{spkg_rev}"
               end
             end
