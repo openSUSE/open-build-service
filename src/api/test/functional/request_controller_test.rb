@@ -1388,10 +1388,13 @@ end
     assert_xml_tag( :tag => "link", :attributes => { :project => 'BaseDistro2.0', :package => nil } )
 
     ### try again with update link
+    # do some modification
+    put "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/NEW_FILE", "NEW content"
+    assert_response :success
     # create request
     req = "<request>
             <action type='submit'>
-              <source project='home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' rev='1' />
+              <source project='home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' rev='2' />
               <target project='DummY' package='pack2' />
               <options>
                 <sourceupdate>cleanup</sourceupdate>
@@ -1423,6 +1426,16 @@ end
     assert_response :success
     assert_xml_tag( :tag => "link", :attributes => { :project => 'BaseDistro2.0:LinkedUpdateProject', :package => nil } )
 
+    # the diff is still working due to acceptinfo
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag( :parent => { :tag => "action", :attributes => { :type => "submit" } }, :tag => "acceptinfo", :attributes => { :rev => "3" } )
+    post "/request/#{id}?cmd=diff", nil
+    assert_response :success
+    assert_match /NEW_FILE/, @response.body
+    post "/request/#{id}?cmd=diff&view=xml", nil
+    assert_response :success
+    assert_xml_tag( :parent => { :tag => "file", :attributes => { :state => "added" } }, :tag => "new", :attributes => { :name => "NEW_FILE" } )
 
     ###
     # create delete request two times
