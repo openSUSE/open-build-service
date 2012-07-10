@@ -19,8 +19,17 @@ Changes:
 Bugfixes:
 =========
 
+* Fix initial database setup on appliances (regression in 2.3.2)
+
 * New packages got not detected, when using project project links to 
   a remote OBS instance.
+  Either a scheduler cold start is needed or an
+ 
+    # obs_admin --deep-check-project ...
+
+  for a propper recalculation of the project.
+
 * Request diffs were broken when the source got removed.
+
 * removed a sleep on each package build
 

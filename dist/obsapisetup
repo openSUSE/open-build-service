@@ -119,13 +119,15 @@ case "$1" in
 		echo
 		OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
 		OS=`head -n 1 /etc/SuSE-release`
+                RUN_INITIAL_SETUP=""
                 if [ ! -e /obs/MySQL/api_production ]; then
 			echo -n "Initialize MySQL databases (first time only)"
 			mysqladmin -u root create api_production
 			mysqladmin -u root create webui_production
 			mysqladmin -u root password "opensuse"
+                        RUN_INITIAL_SETUP="true"
 		fi
-                if [ ! -e /obs/MySQL/api_production ]; then
+                if [ -n "$RUN_INITIAL_SETUP" ]; then
 			echo -n "Initialize OBS api database (first time only)"
         		cd $apidir
 			RAILS_ENV=production rake db:setup >> $apidir/log/db_migrate.log
@@ -139,7 +141,7 @@ case "$1" in
 			RAILS_ENV=production rake db:migrate >> $apidir/log/db_migrate.log
 			echo
 		fi
-                if [ ! -e /obs/MySQL/webui_production ]; then
+                if [ -n "$RUN_INITIAL_SETUP" ]; then
 			echo -n "Initialize OBS webui database (first time only)"
         		cd $webuidir
 			RAILS_ENV=production rake db:setup >> $webuidir/log/db_migrate.log
