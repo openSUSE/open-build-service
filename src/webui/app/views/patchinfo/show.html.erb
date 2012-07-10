@@ -15,7 +15,7 @@
 
         <span>
           <%= link_to image_tag('icons/package_delete.png', :title => 'Remove Patchinfo'), {:action => :remove, :project => @project, :package => @package},
-            {:confirm => "Really remove '#{@package}'?", :method => :post } %>
+            :data => { :confirm => "Really remove '#{@package}'?", :method => :post } %>
         </span>
       <% end %>
     </span>
