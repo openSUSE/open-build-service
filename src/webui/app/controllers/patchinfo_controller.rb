@@ -129,13 +129,9 @@ class PatchinfoController < ApplicationController
   end
 
   def save
+    valid_http_methods = :post
     filename = "_patchinfo"
     valid_params = true
-    if request.method != :post
-      flash[:warn] = "Saving Patchinfo failed because this was no POST request. " +
-        "This probably happened because you were logged out in between. Please try again."
-      redirect_to :controller => "patchinfo", :action => "create", :project => @project, :package => @package
-    end
     required_parameters :project, :package
     file = @file.data
     flash[:error] = nil
@@ -207,7 +203,7 @@ class PatchinfoController < ApplicationController
       rescue Timeout::Error => e
         flash[:error] = "Timeout when saving file. Please try again."
       end
-      Patchinfo.free_cache(:project=> @project, :package => @package)
+      Rails.cache.clear
       redirect_to :controller => "patchinfo", :action => "show",
         :project => @project.name, :package => @package
     end
@@ -217,13 +213,15 @@ class PatchinfoController < ApplicationController
       @binaries = params[:selected_binaries]
       @binarylist = params[:available_binaries]
       @issues = Array.new
-      params[:issue].each_with_index do |new_issue, index|
-        issue = Array.new
-        issue << new_issue
-        issue << params[:issuetracker][index]
-        issue << params[:issueurl][index]
-        issue << params[:issuesum][index]
-        @issues << issue
+      if params[:issue]
+        params[:issue].each_with_index do |new_issue, index|
+          issue = Array.new
+          issue << new_issue
+          issue << params[:issuetracker][index]
+          issue << params[:issueurl][index]
+          issue << params[:issuesum][index]
+          @issues << issue
+        end
       end
       @category = params[:category]
       @rating = params[:rating]
