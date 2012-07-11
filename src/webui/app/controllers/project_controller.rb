@@ -24,7 +24,7 @@ class ProjectController < ApplicationController
                                                             :edit_repository, :update_target]
 
   before_filter :load_releasetargets, :only => [ :show, :incident_request_dialog ]
-  prepend_before_filter :lockout_spiders, :only => [:requests]
+  prepend_before_filter :lockout_spiders, :only => [:requests, :rebuild_time]
 
   def index
     redirect_to :action => 'list_public'
@@ -593,7 +593,6 @@ class ProjectController < ApplicationController
   end
 
   def rebuild_time_png
-    redirect_to :action => "list_public" and return unless request.xhr?
     key = params[:key]
     png = Rails.cache.read("rebuild-%s.png" % key)
     headers['Content-Type'] = 'image/png'
