@@ -93,7 +93,7 @@ class HomeController < ApplicationController
 
   def overwrite_user
     @displayed_user = @user
-    user = find_cached(Person, params['user'] ) if params['user']
+    user = find_cached(Person, params['user'] ) if params['user'] && !params['user'].empty?
     @displayed_user = user if user
   end
   private :overwrite_user
