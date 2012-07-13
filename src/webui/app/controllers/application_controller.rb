@@ -2,9 +2,11 @@
 # Likewise, all the methods added will be available for all controllers.
 
 class ApplicationController < ActionController::Base
+  include Mobvious::Rails::Controller
 
   Rails.cache.set_domain if Rails.cache.respond_to?('set_domain');
 
+  before_filter :check_mobile_views
   before_filter :instantiate_controller_and_action_names
   before_filter :set_return_to, :reset_activexml, :authenticate
   before_filter :check_user
@@ -12,7 +14,6 @@ class ApplicationController < ActionController::Base
   after_filter :set_charset
   after_filter :validate_xhtml
   after_filter :clean_cache
-  has_mobile_views
 
   if Rails.env.test?
      prepend_before_filter :start_test_api
@@ -361,7 +362,9 @@ class ApplicationController < ActionController::Base
   def validate_xhtml
     return if Rails.env.production? or Rails.env.stage?
     return if request.xhr?
-    return if mobile_request?
+    for_device_type :mobile do
+      return
+    end
     return if !(response.status =~ /200/ && response.headers['Content-Type'] =~ /text\/html/i)
 
     errors = []
@@ -452,4 +455,17 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def mobile_request?
+    for_device_type :mobile do
+      return true
+    end
+    false
+  end
+
+  def check_mobile_views
+    logger.debug "#{device_type}, #{request.env['mobvious.device_type']}"
+    for_device_type :mobile do
+      prepend_view_path Rails.root.join('app', 'mobile_views')
+    end
+  end
 end

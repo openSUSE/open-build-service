@@ -101,5 +101,7 @@ module OBSWebUI
       #ExceptionNotifier.exception_recipients = CONFIG["exception_recipients"]
       #ExceptionNotifier.sender_address = CONFIG["exception_sender"]
     end unless Rails.env.test?
+
+    config.middleware.use Mobvious::Manager
   end
 end

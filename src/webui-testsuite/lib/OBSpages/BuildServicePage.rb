@@ -210,9 +210,9 @@ class BuildServicePage < WebPage
   # @return [String]
   #
   def flash_message
-    results = @driver.find_elements :xpath => "//div[@id='flash-messages']//span"
+    results = @driver.find_elements :xpath => "//div[@id='flash-messages']//p"
     if results.empty?
-      return ""
+      return "none"
     end
     raise "One flash expected, but we had more." if results.count != 1
     return results.first.text
@@ -224,7 +224,7 @@ class BuildServicePage < WebPage
   # @return [array]
   #
   def flash_messages
-    results = @driver.find_elements :xpath => "//div[@id='flash-messages']//span"
+    results = @driver.find_elements :xpath => "//div[@id='flash-messages']//p"
     ret = []
     results.each { |r| ret << r.text }
     return ret

@@ -1,6 +1,6 @@
 <%
 @nr_packages = 0
-@nr_packages = @packages.each.size if @packages
+@nr_packages = @packages.size if @packages
 -%>
 
 <h3><%=h @project.title %><%=  h( @project ) if @project.title.to_s.blank? -%></h3>
@@ -25,7 +25,7 @@
       <% @packages.each do |package| -%>
         <% i = i + 1 %>
         <% break if i > 200 %>
-        <li><%= link_to package.name, :controller => :package, :action => :show, :project => @project, :package => package %></li>
+        <li><%= link_to package, :controller => :package, :action => :show, :project => @project, :package => package %></li>
       <% end -%>
       <%= raw "<li>... (only showing the first 200)</li>" if @nr_packages > 200 %>
     </ul>

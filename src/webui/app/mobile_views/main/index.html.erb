@@ -3,7 +3,7 @@
 
 
 <% if !session[:login] -%>
-  <p class="centered">Please <%= link_to 'login', {:controller => :main, :action => :login}, 'data-rel' => "dialog", 'data-transition' => "slideup" %> with your openSUSE account.</p>
+  <p class="centered">Please <%= link_to 'login', {:controller => :user, :action => :login}, 'data-rel' => "dialog", 'data-transition' => "slideup" %> with your openSUSE account.</p>
 <% end %>
 
 

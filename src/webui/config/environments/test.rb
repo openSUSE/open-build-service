@@ -43,3 +43,4 @@ PROXY_AUTH_HOST = "https://build.opensuse.org"
 PROXY_AUTH_LOGIN_PAGE = "https://build.opensuse.org/ICSLogin"
 PROXY_AUTH_LOGOUT_PAGE = "/cmd/ICSLogout"
 PROXY_AUTH_MODE = :off
+

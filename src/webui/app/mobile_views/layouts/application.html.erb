@@ -11,9 +11,10 @@
     <link rel="apple-touch-icon" sizes="72x72" href="/images/fatelogo_72x72.png" />
     <link rel="apple-touch-icon" sizes="114x114" href="/images/fatelogo_114x114.png" />
 
-    <%= stylesheet_link_tag "jquery.mobile-1.0rc2.min" %>
+    <%= stylesheet_link_tag "jquery.mobile" %>
     <%= stylesheet_link_tag "style.mobile" %>
-    <%= javascript_include_tag "jquery-1.7.1.min", "jquery.mobile-1.0rc2.min" %>
+    
+    <%= javascript_include_tag 'mobile' %>
 
     <title><%= h "#{@page_title || 'OBS'}" %></title>
 
@@ -47,7 +48,7 @@
 
       </div>
       <div data-role="content">
-        <%= @content_for_layout %>
+        <%= content_for?(:content) ? yield(:content) : yield %>
       </div>
 
       <% unless flash.blank? %>
