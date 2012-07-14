@@ -111,6 +111,16 @@
       </div>
       <% end -%>
 
+      <% if request.env['mobile_device_type'] == :forced_desktop %>
+      <div class="box_content grid_3">
+        <strong class="grey-medium spacer1">Mobile</strong>
+        <ul>
+          <li><%= link_to "Switch to Mobile", params.merge({force_view: :mobile}) %></li>
+        </ul>
+      </div>
+
+      <% end %>
+
       <div class="box_content grid_3">
         <strong class="grey-medium spacer1">Help</strong>
         <ul>

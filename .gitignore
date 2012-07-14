@@ -54,6 +54,7 @@
 /src/webui/db/*.db
 /src/webui/db/development_structure.sql
 /src/webui/log
+/src/webui/public/assets
 /src/webui/mkmf.log
 /src/webui/public/main/*.html
 /src/webui/public/documentation/obs

@@ -403,5 +403,8 @@ module ApplicationHelper
     ["prjconf", "attributes", "meta", "status"].include? @current_action.to_s
   end
 
+  def mobile_request?
+    request.env['mobile_device_type'] == :mobile
+  end
 end
 

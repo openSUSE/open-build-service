@@ -35,6 +35,4 @@ gem 'xmlhash', '>=1.2.1'
 gem 'fast_xs'
 gem 'memcache-client', :require => false
 gem 'jquery-rails'
-gem 'mobvious'
-gem 'mobvious-rails'
-gem 'coffee-script'
+gem 'mobileesp_converted'

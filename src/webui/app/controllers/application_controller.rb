@@ -4,8 +4,6 @@
 require 'frontend_compat'
 
 class ApplicationController < ActionController::Base
-  include Mobvious::Rails::Controller
-
   Rails.cache.set_domain if Rails.cache.respond_to?('set_domain');
 
   before_filter :check_mobile_views
@@ -364,9 +362,6 @@ class ApplicationController < ActionController::Base
   def validate_xhtml
     return if Rails.env.production? or Rails.env.stage?
     return if request.xhr?
-    for_device_type :mobile do
-      return
-    end
     return if !(response.status =~ /200/ && response.headers['Content-Type'] =~ /text\/html/i)
 
     errors = []
@@ -458,16 +453,33 @@ class ApplicationController < ActionController::Base
   end
 
   def mobile_request?
-    for_device_type :mobile do
-      return true
+    if params.has_key? :force_view
+      # check if it's a reset
+      if session[:force_view].to_s != 'mobile' && params[:force_view].to_s == 'mobile'
+        session.delete :force_view 
+      else
+        session[:force_view] = params[:force_view]
+      end
     end
-    false
+    if session.has_key? :force_view
+      if session[:force_view].to_s == 'mobile'
+        request.env['mobile_device_type'] = :mobile
+      else
+        request.env['mobile_device_type'] = :forced_desktop
+      end
+    end
+    unless request.env.has_key? 'mobile_device_type'
+      mobileesp = MobileESPConverted::UserAgentInfo.new(request.user_agent, request.env['HTTP_ACCEPT'])
+      if mobileesp.is_tier_generic_mobile || mobileesp.is_tier_iphone || mobileesp.is_tier_rich_css || mobileesp.is_tier_tablet
+        request.env['mobile_device_type'] = :mobile
+      else
+        request.env['mobile_device_type'] = :desktop
+      end
+    end
+    return request.env['mobile_device_type'] == :mobile
   end
 
   def check_mobile_views
-    logger.debug "#{device_type}, #{request.env['mobvious.device_type']}"
-    for_device_type :mobile do
-      prepend_view_path Rails.root.join('app', 'mobile_views')
-    end
+    prepend_view_path(Rails.root.join('app', 'mobile_views')) if mobile_request?
   end
 end
