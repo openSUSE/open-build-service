@@ -14,11 +14,10 @@
 //= require jquery_ujs
 //
 //= require jquery.dataTables.js
-//= require jquery.expander.min.js
-//= require jquery.flot.min.js
-//= require jquery.flot.stack.min.js
-//= require jquery.tooltip.min.js
-//= require jquery-ui-1.8.18.custom.min.js
+//= require jquery.expander.js
+//= require jquery.flot.js
+//= require jquery.flot.stack.js
+//= require jquery.tooltip.js
 //= require bento/js/script.js
 //= require cm2/codemirror.js
 //= require cm2/codemirror-ui-find.js
