@@ -21,7 +21,7 @@ OBSWebUI::Application.configure do
   # Generate digests for assets URLs
   config.assets.digest = true
 
-done
+end
 
 # Host name gets changed by obsapisetup on each boot
 FRONTEND_HOST = "localhost"
