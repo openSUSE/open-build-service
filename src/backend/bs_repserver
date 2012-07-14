@@ -2030,6 +2030,7 @@ sub getbuildinfo {
   $ret->{'package'} = $packid if defined $packid;
   $ret->{'downloadurl'} = $BSConfig::repodownload if defined $BSConfig::repodownload;;
   $ret->{'arch'} = $arch;
+  $ret->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
   $ret->{'path'} = $repo->{'path'} || [];
   my @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
   if ($packtype eq 'kiwi') {
