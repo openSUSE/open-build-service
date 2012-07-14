@@ -1430,7 +1430,7 @@ end
     assert_xml_tag( :parent => { :tag => "action", :attributes => { :type => "submit" } }, :tag => "acceptinfo", :attributes => { :rev => "3" } )
     post "/request/#{id}?cmd=diff", nil
     assert_response :success
-    assert_match /NEW_FILE/, @response.body
+    assert_match %{NEW_FILE}, @response.body
     post "/request/#{id}?cmd=diff&view=xml", nil
     assert_response :success
     assert_xml_tag( :parent => { :tag => "file", :attributes => { :state => "added" } }, :tag => "new", :attributes => { :name => "NEW_FILE" } )

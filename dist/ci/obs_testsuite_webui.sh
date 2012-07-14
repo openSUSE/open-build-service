@@ -56,7 +56,7 @@ setup_webui
 cd src/webui
 
 echo "Invoke rake"
-bundle exec rake --trace ci:setup:testunit test CI_REPORTS=results || ret=1
+bundle exec rake --trace ci:setup:minitest test CI_REPORTS=results || ret=1
 cd ../..
 
 echo "Contents of src/api/log/test.log:"

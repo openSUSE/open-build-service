@@ -9,7 +9,7 @@ OBSWebUI::Application.load_tasks
 require File.join(File.dirname(__FILE__), 'config', 'boot')
 
 begin
-  require 'ci/reporter/rake/test_unit'
+  require 'ci/reporter/rake/minitest'
 rescue LoadError
   puts "Please run 'rake gems:install' to install the 'ci_reporter' gem."
 end

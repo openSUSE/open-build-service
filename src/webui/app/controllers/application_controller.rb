@@ -469,11 +469,15 @@ class ApplicationController < ActionController::Base
       end
     end
     unless request.env.has_key? 'mobile_device_type'
-      mobileesp = MobileESPConverted::UserAgentInfo.new(request.user_agent, request.env['HTTP_ACCEPT'])
-      if mobileesp.is_tier_generic_mobile || mobileesp.is_tier_iphone || mobileesp.is_tier_rich_css || mobileesp.is_tier_tablet
-        request.env['mobile_device_type'] = :mobile
-      else
+      if request.user_agent.nil? || request.env['HTTP_ACCEPT'].nil?
         request.env['mobile_device_type'] = :desktop
+      else
+        mobileesp = MobileESPConverted::UserAgentInfo.new(request.user_agent, request.env['HTTP_ACCEPT'])
+        if mobileesp.is_tier_generic_mobile || mobileesp.is_tier_iphone || mobileesp.is_tier_rich_css || mobileesp.is_tier_tablet
+          request.env['mobile_device_type'] = :mobile
+        else
+          request.env['mobile_device_type'] = :desktop
+        end
       end
     end
     return request.env['mobile_device_type'] == :mobile

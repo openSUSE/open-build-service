@@ -13,14 +13,14 @@ class ImportRequests < ActiveRecord::Migration
       end
     end
     reqs = []
-    dir.each_entry do |e|
-      reqs << e.value(:name).to_i if e.value(:name).to_i > 0
+    dir.each_entry do |entry|
+      reqs << entry.value(:name).to_i if entry.value(:name).to_i > 0
     end if dir
-    reqs.sort.each do |e|
-      xml = backend.direct_http( URI( "/request/#{e}" ) )
+    reqs.sort.each do |req|
+      xml = backend.direct_http( URI( "/request/#{req}" ) )
       r = BsRequest.new_from_xml xml
       unless r.save
-        puts e, r.errors.full_messages.join("\n")
+        puts req, r.errors.full_messages.join("\n")
       end
     end
 
