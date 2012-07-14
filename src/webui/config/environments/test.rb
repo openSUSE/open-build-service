@@ -34,13 +34,13 @@ OBSWebUI::Application.configure do
   config.cache_store = :memory_store
 end
 
-FRONTEND_HOST = "localhost"
-FRONTEND_PORT = 3203
-FRONTEND_PROTOCOL = 'http'
-FRONTEND_LDAP_MODE = :off
+CONFIG['frontend_host'] = "localhost"
+CONFIG['frontend_port'] = 3203
+CONFIG['frontend_protocol'] = 'http'
+CONFIG['frontend_ldap_mode'] = :off
 
-PROXY_AUTH_HOST = "https://build.opensuse.org"
-PROXY_AUTH_LOGIN_PAGE = "https://build.opensuse.org/ICSLogin"
-PROXY_AUTH_LOGOUT_PAGE = "/cmd/ICSLogout"
-PROXY_AUTH_MODE = :off
+CONFIG['proxy_auth_host'] = "https://build.opensuse.org"
+CONFIG['proxy_auth_login_page'] = "https://build.opensuse.org/ICSLogin"
+CONFIG['proxy_auth_logout_page'] = "/cmd/ICSLogout"
+CONFIG['proxy_auth_mode'] = :off
 

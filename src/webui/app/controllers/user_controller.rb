@@ -12,8 +12,8 @@ class UserController < ApplicationController
     reset_session
     @user = nil
     @return_to_path = "/"
-    if PROXY_AUTH_MODE == :on
-      redirect_to PROXY_AUTH_LOGOUT_PAGE
+    if CONFIG['proxy_auth_mode'] == :on
+      redirect_to CONFIG['proxy_auth_logout_page']
     else
       redirect_to '/'
     end
@@ -66,7 +66,7 @@ class UserController < ApplicationController
 
   def register
     valid_http_methods(:post)
-    unless FRONTEND_LDAP_MODE == :off
+    unless CONFIG['frontend_ldap_mode'] == :off
       flash[:error] = 'Registering currently not possible with LDAP mode'
       redirect_back_or_to :controller => 'main', :action => 'index' and return
     end

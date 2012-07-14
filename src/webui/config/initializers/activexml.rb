@@ -1,12 +1,10 @@
 require "activexml/activexml"
 
-unless defined?(FRONTEND_PROTOCOL) and not FRONTEND_PROTOCOL.blank?
-  FRONTEND_PROTOCOL = "http"
-end
+CONFIG['frontend_protocol'] ||= "http"
 
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
-    map.default_server :rest, "#{FRONTEND_PROTOCOL}://#{FRONTEND_HOST}:#{FRONTEND_PORT}"
+    map.default_server :rest, "#{CONFIG['frontend_protocol']}://#{CONFIG['frontend_host']}:#{CONFIG['frontend_port']}"
 
     map.connect :project, "rest:///source/:name/_meta?:view",
       :all    => "rest:///source/",

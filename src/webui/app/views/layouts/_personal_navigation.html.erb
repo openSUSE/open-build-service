@@ -7,13 +7,13 @@
     <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %> |
     <%= link_to "Logout", { :controller => 'user', :action => 'logout' }, :method => :post %>
   <% else %>
-    <% if PROXY_AUTH_MODE == :on %>
-      <% if defined?(PROXY_AUTH_REGISTER_PAGE) %>
-        <%= link_to "Register", "#{PROXY_AUTH_REGISTER_PAGE}?%22#{@return_to_host}#{@return_to_path}%22" %> |
+    <% if CONFIG['proxy_auth_mode'] == :on %>
+      <% unless CONFIG['proxy_auth_register_page'].blank? %>
+        <%= link_to "Register", "#{CONFIG['proxy_auth_register_page']}?%22#{@return_to_host}#{@return_to_path}%22" %> |
       <% end %>
       <%= link_to 'Login', { :controller => :user, :action => :login }, :id => "login-trigger" %>
       <div id="login-form">
-        <%= form_tag(PROXY_AUTH_LOGIN_PAGE, :method => :post, :id => 'login_form', :enctype => 'application/x-www-form-urlencoded') do %>
+        <%= form_tag(CONFIG['proxy_auth_login_page'], :method => :post, :id => 'login_form', :enctype => 'application/x-www-form-urlencoded') do %>
           <p>
             <%= hidden_field_tag(:url, "#{@return_to_host}#{@return_to_path}") %>
             <%= hidden_field_tag(:context, 'default') %>
@@ -32,7 +32,7 @@
         <% end %>
       </div>
     <% else %>
-      <% unless FRONTEND_LDAP_MODE == :on %>
+      <% unless CONFIG['frontend_ldap_mode'] == :on %>
         <%= link_to 'Register', :controller => :user, :action => :register_user %> |
       <% end %>
       <%= link_to 'Login', { :controller => :user, :action => :login }, :id => 'login-trigger' %>

@@ -8,7 +8,7 @@ frontend_out = nil
 logger = Rails.logger
 
 begin
-  Net::HTTP.start(FRONTEND_HOST, FRONTEND_PORT) do |http|
+  Net::HTTP.start(CONFIG['frontend_host'], CONFIG['frontend_port']) do |http|
     http.get("/admin/killme")
   end
   # if we reach this, the old API has gone away - now wait for it to lay down
@@ -21,9 +21,9 @@ dienow = false
 lines = []
 outputlines = true
 frontend = Thread.new do
-  puts "Starting test API at port #{FRONTEND_PORT} ..."
+  puts "Starting test API at port #{CONFIG['frontend_port']} ..."
   cmdline = "ruby ./script/rails"
-  frontend_out = IO.popen("cd #{Rails.root.join('..', 'api').to_s}; unset BUNDLE_GEMFILE; exec bundle exec #{cmdline} server -e test -p #{FRONTEND_PORT} 2>&1")
+  frontend_out = IO.popen("cd #{Rails.root.join('..', 'api').to_s}; unset BUNDLE_GEMFILE; exec bundle exec #{cmdline} server -e test -p #{CONFIG['frontend_port']} 2>&1")
   puts "API started with PID: #{frontend_out.pid}"
   begin
     Process.setpgid frontend_out.pid, 0
@@ -49,7 +49,7 @@ end
 while true
   puts "Waiting for API to serve requests..."
   begin
-    Net::HTTP.start(FRONTEND_HOST, FRONTEND_PORT) do |http|
+    Net::HTTP.start(CONFIG['frontend_host'], CONFIG['frontend_port']) do |http|
       http.open_timeout = 15
       http.read_timeout = 15
       res = http.get('/')
@@ -87,7 +87,7 @@ end
 puts "got signal handler"
 
 begin
-  Net::HTTP.start(FRONTEND_HOST, FRONTEND_PORT) do |http|
+  Net::HTTP.start(CONFIG['frontend_host'], CONFIG['frontend_port']) do |http|
     http.get("/admin/killme")
   end
   # if we reach this, the API went down cleanly

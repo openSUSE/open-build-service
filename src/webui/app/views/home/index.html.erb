@@ -27,7 +27,7 @@
 
 <% if @displayed_user.to_s == session[:login] %>
   <p><%= image_tag('icons/user_edit.png') %> <%= link_to("Edit user data", :controller => "user", :action => "edit") %></p>
-  <% if defined?( CHANGE_PASSWD ) && CHANGE_PASSWD == 'on' %>
+  <% if CONFIG['change_passwd'].to_s == 'on' %>
     <p><%= image_tag('icons/key.png') %> <%= link_to("Change password", :controller => "user", :action => "change_my_password") %></p>
   <% end %>
 <% end %>

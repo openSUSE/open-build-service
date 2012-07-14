@@ -29,16 +29,16 @@ end
 # Disable delivery errors if you bad email addresses should just be ignored
 # config.action_mailer.raise_delivery_errors = false
 
-FRONTEND_HOST = "api.opensuse.org"
-FRONTEND_PORT = 80
-FRONTEND_PROTOCOL = 'http'
-FRONTEND_LDAP_MODE = :off
-EXTERNAL_FRONTEND_HOST = "api.opensuse.org"
-EXTERNAL_FRONTEND_PORT = 443
-EXTERNAL_FRONTEND_PROTOCOL = 'https'
+CONFIG['frontend_host'] = "api.opensuse.org"
+CONFIG['frontend_port'] = 80
+CONFIG['frontend_protocol'] = 'http'
+CONFIG['frontend_ldap_mode'] = :off
+CONFIG['external_frontend_host'] = "api.opensuse.org"
+CONFIG['external_frontend_port'] = 443
+CONFIG['external_frontend_protocol'] = 'https'
 
-# PROXY_AUTH_MODE can be one of  'on', 'off' or 'simulate'
-PROXY_AUTH_MODE = :on
-PROXY_AUTH_HOST = "https://build.opensuse.org"
-PROXY_AUTH_LOGIN_PAGE = "https://build.opensuse.org/ICSLogin"
-PROXY_AUTH_LOGOUT_PAGE = "/cmd/ICSLogout"
+# CONFIG['proxy_auth_mode'] can be one of  'on', 'off' or 'simulate'
+CONFIG['proxy_auth_mode'] = :on
+CONFIG['proxy_auth_host'] = "https://build.opensuse.org"
+CONFIG['proxy_auth_login_page'] = "https://build.opensuse.org/ICSLogin"
+CONFIG['proxy_auth_logout_page'] = "/cmd/ICSLogout"

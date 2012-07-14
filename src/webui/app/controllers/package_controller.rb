@@ -864,7 +864,7 @@ class PackageController < ApplicationController
     # apache & mod_xforward case
     if CONFIG['use_xforward'] and CONFIG['use_xforward'] != "false"
       logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
-      headers['X-Forward'] = "#{FRONTEND_PROTOCOL}://#{FRONTEND_HOST}:#{FRONTEND_PORT}#{path}"
+      headers['X-Forward'] = "#{CONFIG['frontend_protocol']}://#{CONFIG['frontend_host']}:#{CONFIG['frontend_port']}#{path}"
       head(200)
       return
     end
@@ -872,7 +872,7 @@ class PackageController < ApplicationController
     # lighttpd 1.5 case
     if CONFIG['use_lighttpd_x_rewrite']
       headers['X-Rewrite-URI'] = path
-      headers['X-Rewrite-Host'] = FRONTEND_HOST
+      headers['X-Rewrite-Host'] = CONFIG['frontend_host']
       head(200) and return
     end
 

@@ -38,35 +38,35 @@ OBSWebUI::Application.configure do
   config.log_level = :debug
 end
 
-FRONTEND_HOST = "api.opensuse.org"
-FRONTEND_PORT = 443
-FRONTEND_PROTOCOL = 'https'
-FRONTEND_LDAP_MODE = :off
+CONFIG['frontend_host'] = "api.opensuse.org"
+CONFIG['frontend_port'] = 443
+CONFIG['frontend_protocol'] = 'https'
+CONFIG['frontend_ldap_mode'] = :off
 
 # use this when the users see the api at another url (for rpm-, file-downloads)
-#EXTERNAL_FRONTEND_PROTOCOL = "https"
-#EXTERNAL_FRONTEND_HOST = "api.opensuse.org"
-#EXTERNAL_FRONTEND_PORT = 443
+#CONFIG['external_frontend_protocol'] = "https"
+#CONFIG['external_frontend_host'] = "api.opensuse.org"
+#CONFIG['external_frontend_port'] = 443
 
-# If PROXY_AUTH_MODE is set to "simulate", iChain is simulated in the
+# If CONFIG['proxy_auth_mode'] is set to "simulate", iChain is simulated in the
 # way that the ichain header entry is set to the value specified
-# in the PROXY_AUTH_TEST_USER variable here below.
+# in the CONFIG['proxy_auth_test_user'] variable here below.
 # ATTENTION: If you set an IP address here the frontend takes the
 # user name that is coming as headervalue X-username as a valid
 # user and does not further authentication. So take care...
 # ATTENTION 2: The PROXY_AUTH_* entries must correspond with the entries
 # in the frontend otherwise funny things happen.
 
-# PROXY_AUTH_MODE can be one of  'on', 'off' or 'simulate'
-PROXY_AUTH_MODE = :off
-#PROXY_AUTH_HOST = "https://build.opensuse.org"
-#PROXY_AUTH_REGISTER_PAGE = "https://en.opensuse.org/ICSLogin/?%22http://en.opensuse.org/index.php%22"
-#PROXY_AUTH_LOGIN_PAGE = "https://build.opensuse.org/ICSLogin"
-#PROXY_AUTH_LOGOUT_PAGE = "/cmd/ICSLogout"
-#EXTERNAL_WEBUI_PROTOCOL = "https"
-#EXTERNAL_WEBUI_HOST = "build.opensuse.org"
-#PROXY_AUTH_TEST_USER = "adrianSuSE"
-#PROXY_AUTH_TEST_EMAIL = "foo@bar.com"
+# CONFIG['proxy_auth_mode'] can be one of  'on', 'off' or 'simulate'
+CONFIG['proxy_auth_mode'] = :off
+#CONFIG['proxy_auth_host'] = "https://build.opensuse.org"
+#CONFIG['proxy_auth_register_page'] = "https://en.opensuse.org/ICSLogin/?%22http://en.opensuse.org/index.php%22"
+#CONFIG['proxy_auth_login_page'] = "https://build.opensuse.org/ICSLogin"
+#CONFIG['proxy_auth_logout_page'] = "/cmd/ICSLogout"
+#CONFIG['external_webui_protocol'] = "https"
+#CONFIG['external_webui_host'] = "build.opensuse.org"
+#CONFIG['proxy_auth_test_user'] = "adrianSuSE"
+#CONFIG['proxy_auth_test_email'] = "foo@bar.com"
 
 # Check for custom development environment that takes precedence:
 require 'socket'

@@ -3,9 +3,9 @@
 
 <% @return_to_path ='' %>
 
-<% if PROXY_AUTH_MODE == :on %>
+<% if CONFIG['proxy_auth_mode'] == :on %>
   <div>
-    <%= form_tag(PROXY_AUTH_LOGIN_PAGE, :method => :post, :id => 'login_form', :enctype => 'application/x-www-form-urlencoded') do %>
+    <%= form_tag(CONFIG['proxy_auth_login_page'], :method => :post, :id => 'login_form', :enctype => 'application/x-www-form-urlencoded') do %>
       <%= hidden_field_tag(:url, "#{@return_to_host}#{@return_to_path}") %>
       <%= hidden_field_tag(:context, 'default') %>
       <%= hidden_field_tag(:proxypath, 'reserve') %>

@@ -1,7 +1,7 @@
 <% @pagetitle = "Please Login" %>
 
-<% if PROXY_AUTH_MODE == :on %>
-  <form action="<%= PROXY_AUTH_LOGIN_PAGE %>"
+<% if CONFIG['proxy_auth_mode'] == :on %>
+  <form action="<%= CONFIG['proxy_auth_login_page'] %>"
         method="post" enctype="application/x-www-form-urlencoded">
     <div>
       <input name="url" value="<%= "#{@return_to_host}#{@return_to_path}" %>" type="hidden" />
@@ -28,12 +28,12 @@
   </div>
 
   <p>
-    <% if PROXY_AUTH_MODE == :on %>
+    <% if CONFIG['proxy_auth_mode'] == :on %>
       Or
-      <%= link_to "register", PROXY_AUTH_REGISTER_PAGE + "?%22#{@return_to_host}#{@return_to_path}%22" %>
+      <%= link_to "register", CONFIG['proxy_auth_register_page'] + "?%22#{@return_to_host}#{@return_to_path}%22" %>
       as a new user.
     <% else %>
-      <% unless FRONTEND_LDAP_MODE == :on %>
+      <% unless CONFIG['frontend_ldap_mode'] == :on %>
         Or
         <%= link_to "register", :controller => :user, :action => :register_user %>
         as a new user.

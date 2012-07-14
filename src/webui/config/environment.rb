@@ -12,8 +12,6 @@ rescue Exception => e
   CONFIG = Hash.new
 end
 
-CONFIG['apidocs_location'] ||= File.expand_path('../../docs/api/html/')
-CONFIG['schema_location'] ||= "#{File.expand_path('public/schema')}/"
 CONFIG['download_url'] ||= 'http://download.opensuse.org/repositories'
 
 # Initialize the rails application
@@ -38,9 +36,5 @@ begin
   SOURCEREVISION = File.open("#{Rails.root}/REVISION").read
 rescue Errno::ENOENT
 end
-unless defined?(PROXY_AUTH_MODE) and not PROXY_AUTH_MODE.blank?
-  PROXY_AUTH_MODE = :off
-end
-unless defined?(FRONTEND_LDAP_MODE) and not FRONTEND_LDAP_MODE.blank?
-  FRONTEND_LDAP_MODE = :off
-end
+CONFIG['proxy_auth_mode'] ||= :off
+CONFIG['frontend_ldap_mode'] ||= :off

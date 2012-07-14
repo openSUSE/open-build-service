@@ -41,9 +41,9 @@ class ApplicationController < ActionController::Base
       @return_to_host = params['return_to_host']
     else
       # we have a proxy in front of us
-      @return_to_host = Object.const_defined?(:EXTERNAL_WEBUI_PROTOCOL) ? EXTERNAL_WEBUI_PROTOCOL : "http"
+      @return_to_host = CONFIG['external_webui_protocol'] || "http"
       @return_to_host += "://"
-      @return_to_host += Object.const_defined?(:EXTERNAL_WEBUI_HOST) ? EXTERNAL_WEBUI_HOST : request.host
+      @return_to_host += CONFIG['external_webui_host'] || request.host
     end
     @return_to_path = params['return_to_path'] || request.env['ORIGINAL_FULLPATH']
     logger.debug "Setting return_to: \"#{@return_to_path}\""
@@ -60,8 +60,8 @@ class ApplicationController < ActionController::Base
       render :text => 'Please login' and return if request.xhr?
       flash[:error] = "Please login to access the requested page."
       mode = :off
-      mode = ICHAIN_MODE if defined? ICHAIN_MODE
-      mode = PROXY_AUTH_MODE if defined? PROXY_AUTH_MODE
+      mode = CONFIG['ichain_mode'] unless CONFIG['ichain_mode'].blank?
+      mode = CONFIG['proxy_auth_mode'] unless CONFIG['proxy_auth_mode'].blank?
       if (mode == :off)
         redirect_to :controller => :user, :action => :login, :return_to_host => @return_to_host, :return_to_path => @return_to_path
       else
@@ -73,8 +73,8 @@ class ApplicationController < ActionController::Base
   # sets session[:login] if the user is authenticated
   def authenticate
     mode = :off
-    mode = ICHAIN_MODE if defined? ICHAIN_MODE
-    mode = PROXY_AUTH_MODE if defined? PROXY_AUTH_MODE
+    mode = CONFIG['ichain_mode'] unless CONFIG['ichain_mode'].blank?
+    mode = CONFIG['proxy_auth_mode'] unless CONFIG['proxy_auth_mode'].blank?
     logger.debug "Authenticating with iChain mode: #{mode}"
     if mode == :on || mode == :simulate
       authenticate_ichain
@@ -90,10 +90,10 @@ class ApplicationController < ActionController::Base
 
   def authenticate_ichain
     mode = :off
-    mode = ICHAIN_MODE if defined? ICHAIN_MODE
-    mode = PROXY_AUTH_HOST if defined? PROXY_AUTH_HOST
+    mode = CONFIG['ichain_mode'] unless CONFIG['ichain_mode'].blank?
+    mode = CONFIG['proxy_auth_host'] unless CONFIG['proxy_auth_host'].blank?
     ichain_user = request.env['HTTP_X_USERNAME']
-    ichain_user = ICHAIN_TEST_USER if mode == :simulate and ICHAIN_TEST_USER
+    ichain_user = CONFIG['ichain_test_user'] if mode == :simulate and CONFIG['ichain_test_user']
     ichain_email = request.env['HTTP_X_EMAIL']
     ichain_email = ICHAIN_TEST_EMAIL if mode == :simulate and ICHAIN_TEST_EMAIL
     if ichain_user
@@ -213,7 +213,7 @@ class ApplicationController < ActionController::Base
     when ActionController::InvalidAuthenticityToken
       render_error :status => 401, :message => 'Invalid authenticity token'
     when ActiveXML::Transport::ConnectionError
-      render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 503
+      render_error :message => "Unable to connect to API host. (#{CONFIG['frontend_host']})", :status => 503
     when Timeout::Error
       render :template => "timeout" and return
     when ValidationError
@@ -225,7 +225,7 @@ class ApplicationController < ActionController::Base
       render_error :message => "Invalid HTTP method used", :status => 400
     when Net::HTTPBadResponse
       # The api sometimes sends responses without a proper "Status:..." line (when it restarts?)
-      render_error :message => "Unable to connect to API host. (#{FRONTEND_HOST})", :status => 503
+      render_error :message => "Unable to connect to API host. (#{CONFIG['frontend_host']})", :status => 503
     else
       if code != 404 && send_exception_mail?
         ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {})

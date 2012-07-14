@@ -24,17 +24,18 @@ OBSWebUI::Application.configure do
 end
 
 # Host name gets changed by obsapisetup on each boot
-FRONTEND_HOST = "localhost"
-FRONTEND_PORT = 81
-FRONTEND_PROTOCOL = 'http'
+CONFIG['frontend_host'] = "localhost"
+CONFIG['frontend_port'] = 81
+CONFIG['frontend_protocol'] = 'http'
 
 # use this when the users see the api at another url (for rpm-, file-downloads)
-#EXTERNAL_FRONTEND_HOST = "api.opensuse.org"
+#CONFIG['external_frontend_host'] = "api.opensuse.org"
 
-BUGZILLA_HOST = nil
-DOWNLOAD_URL = "http://localhost:82"
+CONFIG['bugzilla_host'] = nil
+CONFIG['download_url'] = "http://localhost:82"
 
 # ICHAIN_MODE can be one of  'on', 'off' or 'simulate'
-ICHAIN_MODE = "off"
+CONFIG['ichain_mode'] = "off"
 
-BASE_NAMESPACE = nil
+CONFIG['base_namespace'] =  nil
+
