@@ -1964,7 +1964,8 @@ sub copybuild_binary {
 	  "$orig_dir/:repoinfo",
 	  glob("$orig_dir/:full/*.meta"),
 	 ){
-    my ($destname = $_) =~ s/$orig_dir/$dest_dir/;
+    my $destname;
+    ($destname = $_) =~ s/$orig_dir/$dest_dir/;
     copy($_, $destname) || warn("error copying $_\n");
   }
 
@@ -1974,7 +1975,8 @@ sub copybuild_binary {
 	  glob("$orig_dir/:repo/*"),
 	  glob("$orig_dir/:meta/*"),
 	 ){
-    my ($destname = $_) =~ s/$orig_dir/$dest_dir/;
+    my $destname;
+    ($destname = $_) =~ s/$orig_dir/$dest_dir/;
     link($_, $destname) || warn("error linking $_\n");
   }
 
@@ -2003,7 +2005,8 @@ sub copybuild_binary {
 	       "$orig_dir/$opackid/logfile",
 	       "$orig_dir/$opackid/history",
 	       "$orig_dir/$opackid/status",) {
-	my ($destname = $_) =~ s/$orig_dir/$dest_dir/;
+	my $destname;
+	($destname = $_) =~ s/$orig_dir/$dest_dir/;
 	copy($_, $destname) || warn("error copying $_\n");
       }
     }

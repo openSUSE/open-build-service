@@ -5380,7 +5380,8 @@ sub sourcecommitfilelist {
   return getfilelist($cgi, $projid, $packid);
 }
 
-sub ping {
+# Ask the scheduler to look at events
+sub ping_scheduler {
   my ($arch) = @_;
   local *F;
   if (sysopen(F, "$eventdir/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
@@ -5425,7 +5426,7 @@ sub copyproject {
     notify_repservers('project', $projid);
   }
 
-  my @archs_to_ping;
+  my %archs_to_ping;
   # use {} as we do not want to copy project linked packages
   my @pkgs = findpackages($oprojid);
   delete $cgi->{'servicemark'};		# just in case...
@@ -5534,38 +5535,11 @@ sub copyproject {
 	$lastorev = BSFileDB::fdb_add_i("$projectsdir/$oprojid.pkg/$packid.rev", $srcrevlay, $lastorev);
       }
     }
-    # XXX: does this make any sense?
-    #if ($cgi->{'withbinaries'}) {
-    #  for my $repo (@{$proj->{'repository'} || []}) {
-    #    my $orepo = (grep {$_->{'name'} eq $repo->{'name'}} @{$oproj->{'repository'} || []})[0];
-    #    next unless $orepo;
-    #    for my $arch (@{$repo->{'arch'} || []}) {
-    #      next unless grep {$_ eq $arch} @{$orepo->{'arch'} || []};
-
-    #      # same source and target repo/arch in both projects exists
-    #      my @args;
-    #      push @args, "cmd=copy";
-    #      push @args, "oproject=$oprojid";
-    #      push @args, "opackage=$packid"; # same package name
-    #      push @args, "orepository=$repo->{'name'}"; # same repo name
-    #      push @args, 'resign=1' if $cgi->{'resign'};
-    #      push @args, 'withbinaries=1';
-    #      my $param = {
-    #        'uri' => "$BSConfig::reposerver/build/$projid/$repo->{'name'}/$arch/$packid",
-    #        'request' => 'POST',
-    #      };
-    #      eval {
-    #        # ignore failures for now
-    #        BSWatcher::rpc($param, undef, @args);
-    #      };
-    #      warn($@) if $@;
-    #      push(@archs_to_ping, $arch) unless $arch ~~ @archs_to_ping;
-    #    }
-    #  }
-    #}
   }
   if ($cgi->{'withbinaries'}) {
 
+      # Iterate over all repositories and arches and call the repo
+      # service to copy the binaries
       for my $repo (@{$proj->{'repository'} || []}) {
 	my $orepo = (grep {$_->{'name'} eq $repo->{'name'}} @{$oproj->{'repository'} || []})[0];
 	next unless $orepo;
@@ -5574,7 +5548,7 @@ sub copyproject {
 
 	  # same source and target repo/arch in both projects exists
 	  my @args;
-	  push @args, "cmd=copy";
+	  push @args, "cmd=copybinary"; # Note this is the Mer-specific service
 	  push @args, "oproject=$oprojid";
 	  push @args, "orepository=$repo->{'name'}"; # same repo name
           push @args, 'withbinaries=1';
@@ -5587,12 +5561,12 @@ sub copyproject {
 	    BSWatcher::rpc($param, undef, @args);
 	  };
           warn($@) if $@;
-          push(@archs_to_ping, $arch) unless $arch ~~ @archs_to_ping;
+	  $archs_to_ping{$arch} = 1; # Record schedulers to notify them after all copies are done
         }
       }
 
-    foreach (@archs_to_ping) {
-      ping($_);
+    foreach (keys %archs_to_ping) {
+      ping_scheduler($_);
     }
   }
   # check all packages in project
