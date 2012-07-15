@@ -1,5 +1,6 @@
 include MaintenanceHelper
 include ValidationHelper
+include FlagHelper
 
 require 'builder/xchar'
 require 'event'
@@ -1225,9 +1226,21 @@ class SourceController < ApplicationController
       else # local project
         @project = Project.new :name => project_name, :title => oprj.title, :description => oprj.description
         @project.save
+        build_disabled = false
+        publish_disabled = false
+
         oprj.flags.each do |f|
           @project.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == 'lock'
+          if f.flag == "build" and f.status == "disable"
+            build_disabled = true
+          end
+          if f.flag == "publish" and f.status == "disable"
+            publish_disabled = true
+          end
         end
+
+        @project.flags.create(:status => 'disable', :flag => 'build') if not build_disabled
+        @project.flags.create(:status => 'disable', :flag => 'publish') if not publish_disabled
 
         oprj.linkedprojects.each do |l|
           @project.linkedprojects.create( :linked_remote_project_name => l.linked_remote_project_name , :position => l.position ) if l.linked_remote_project_name
@@ -1252,6 +1265,9 @@ class SourceController < ApplicationController
 
     if params.has_key? :nodelay
       @project.do_project_copy(params)
+      @project.flags.delete_if { |f| f.flag == "build" and f.status == "disable" }
+      @project.flags.delete_if { |f| f.flag == "publish" and f.status == "disable" }
+      @project.store
       render_ok
     else
       # inject as job

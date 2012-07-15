@@ -5380,6 +5380,15 @@ sub sourcecommitfilelist {
   return getfilelist($cgi, $projid, $packid);
 }
 
+sub ping {
+  my ($arch) = @_;
+  local *F;
+  if (sysopen(F, "$eventdir/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
+    syswrite(F, 'x');
+    close(F);
+  }
+}
+
 # copy sources of entire project, project exists ensured by api.
 sub copyproject {
   my ($cgi, $projid) = @_;
@@ -5408,6 +5417,15 @@ sub copyproject {
     addrev($cgi, $projid, '_project', $files);
   }
 
+  if ($cgi->{'withprjconf'}) {
+    my ($projconf, $notused) = getprojectconfig($cgi, $oprojid);
+    writestr("$uploaddir/_projconf_copyproj_${oprojid}_${projid}", undef, $projconf);
+    addrev_meta($cgi, $projid, undef, "$uploaddir/_projconf_copyproj_${oprojid}_${projid}", "$projectsdir/$projid.conf", '_config', 'rev');
+    unlink("$uploaddir/_projconf_copyproj_${oprojid}_${projid}");
+    notify_repservers('project', $projid);
+  }
+
+  my @archs_to_ping;
   # use {} as we do not want to copy project linked packages
   my @pkgs = findpackages($oprojid);
   delete $cgi->{'servicemark'};		# just in case...
@@ -5517,7 +5535,37 @@ sub copyproject {
       }
     }
     # XXX: does this make any sense?
-    if ($cgi->{'withbinaries'}) {
+    #if ($cgi->{'withbinaries'}) {
+    #  for my $repo (@{$proj->{'repository'} || []}) {
+    #    my $orepo = (grep {$_->{'name'} eq $repo->{'name'}} @{$oproj->{'repository'} || []})[0];
+    #    next unless $orepo;
+    #    for my $arch (@{$repo->{'arch'} || []}) {
+    #      next unless grep {$_ eq $arch} @{$orepo->{'arch'} || []};
+
+    #      # same source and target repo/arch in both projects exists
+    #      my @args;
+    #      push @args, "cmd=copy";
+    #      push @args, "oproject=$oprojid";
+    #      push @args, "opackage=$packid"; # same package name
+    #      push @args, "orepository=$repo->{'name'}"; # same repo name
+    #      push @args, 'resign=1' if $cgi->{'resign'};
+    #      push @args, 'withbinaries=1';
+    #      my $param = {
+    #        'uri' => "$BSConfig::reposerver/build/$projid/$repo->{'name'}/$arch/$packid",
+    #        'request' => 'POST',
+    #      };
+    #      eval {
+    #        # ignore failures for now
+    #        BSWatcher::rpc($param, undef, @args);
+    #      };
+    #      warn($@) if $@;
+    #      push(@archs_to_ping, $arch) unless $arch ~~ @archs_to_ping;
+    #    }
+    #  }
+    #}
+  }
+  if ($cgi->{'withbinaries'}) {
+
       for my $repo (@{$proj->{'repository'} || []}) {
 	my $orepo = (grep {$_->{'name'} eq $repo->{'name'}} @{$oproj->{'repository'} || []})[0];
 	next unless $orepo;
@@ -5528,12 +5576,10 @@ sub copyproject {
 	  my @args;
 	  push @args, "cmd=copy";
 	  push @args, "oproject=$oprojid";
-	  push @args, "opackage=$packid"; # same package name
 	  push @args, "orepository=$repo->{'name'}"; # same repo name
-	  push @args, 'resign=1' if $cgi->{'resign'};
-	  push @args, 'norebuild=1';
+          push @args, 'withbinaries=1';
 	  my $param = {
-	    'uri' => "$reposerver/build/$projid/$repo->{'name'}/$arch/$packid",
+	    'uri' => "$reposerver/build/$projid/$repo->{'name'}/$arch",
 	    'request' => 'POST',
 	  };
 	  eval {
@@ -5541,8 +5587,12 @@ sub copyproject {
 	    BSWatcher::rpc($param, undef, @args);
 	  };
           warn($@) if $@;
-	}
+          push(@archs_to_ping, $arch) unless $arch ~~ @archs_to_ping;
+        }
       }
+
+    foreach (@archs_to_ping) {
+      ping($_);
     }
   }
   # check all packages in project
@@ -7832,7 +7882,7 @@ my $dispatches = [
   'POST:/source/$project cmd=createkey user:? comment:?' => \&createkey,
   'POST:/source/$project cmd=extendkey user:? comment:?' => \&extendkey,
   'POST:/source/$project cmd=undelete user:? comment:?' => \&undeleteproject,
-  'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool? makeolder:bool? resign:bool? noservice:bool?' => \&copyproject,
+  'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool? makeolder:bool? resign:bool? noservice:bool? withprjconf:bool?' => \&copyproject,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
   '/source/$project view=info parse:bool? nofilename:bool? repository? arch? package* withchangesmd5:bool?' => \&getprojectsourceinfo,
   '/source/$project deleted:bool? expand:bool? noorigins:bool?' => \&getpackagelist,
