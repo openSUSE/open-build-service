@@ -1,5 +1,6 @@
 * Sun Jul 15 2012 David Greaves <david@dgreaves.com> - 2.3.1-2
  - Uses Mer's new binary copyprj code by Islam Amer
+ - git tag 2.3.1-mer2 0e1fc95e
 
 * Thu Jun 28 2012 David Greaves <david@dgreaves.com> - 2.3.1-1
  - Initial release of Mer OBS
