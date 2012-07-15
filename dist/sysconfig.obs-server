@@ -148,6 +148,14 @@ OBS_WORKER_TEST_MODE=""
 OBS_WORKER_HOSTLABELS=""
 
 ## Path:        Applications/OBS
+## Description: Name worker instances individually. Allows 1 instance to be named as a powerworker
+## Type:        ("yes" | "")
+## Default:     ""
+## Config:      OBS
+#
+OBS_WORKER_DISCRETE_IDS=""
+
+## Path:        Applications/OBS
 ## Description: Register in SLP server
 ## Type:        ("yes" | "no")
 ## Default:     "yes"

@@ -296,7 +296,9 @@ case "$1" in
             fi
 	    I_INDEX=$I
             I=$(( $I + 1 ))
-	    if [ "$OBS_VM_TYPE" = 'zvm' ]; then
+	    if [ "$OBS_WORKER_DISCRETE_IDS" = "yes" ]; then
+		WORKERID="${HOSTNAME}-${I}:1"
+	    elif [ "$OBS_VM_TYPE" = 'zvm' ]; then
 		WORKERID="${HOSTNAME}:${WORKERS[$I_INDEX]}"
 	    else
                 WORKERID="${HOSTNAME}:$I"
