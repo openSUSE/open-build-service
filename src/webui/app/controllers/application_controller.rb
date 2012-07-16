@@ -60,7 +60,6 @@ class ApplicationController < ActionController::Base
       render :text => 'Please login' and return if request.xhr?
       flash[:error] = "Please login to access the requested page."
       mode = :off
-      mode = CONFIG['ichain_mode'] unless CONFIG['ichain_mode'].blank?
       mode = CONFIG['proxy_auth_mode'] unless CONFIG['proxy_auth_mode'].blank?
       if (mode == :off)
         redirect_to :controller => :user, :action => :login, :return_to_host => @return_to_host, :return_to_path => @return_to_path
@@ -73,11 +72,10 @@ class ApplicationController < ActionController::Base
   # sets session[:login] if the user is authenticated
   def authenticate
     mode = :off
-    mode = CONFIG['ichain_mode'] unless CONFIG['ichain_mode'].blank?
     mode = CONFIG['proxy_auth_mode'] unless CONFIG['proxy_auth_mode'].blank?
     logger.debug "Authenticating with iChain mode: #{mode}"
     if mode == :on || mode == :simulate
-      authenticate_ichain
+      authenticate_proxy
     else
       authenticate_form_auth
     end
@@ -88,21 +86,20 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def authenticate_ichain
+  def authenticate_proxy
     mode = :off
-    mode = CONFIG['ichain_mode'] unless CONFIG['ichain_mode'].blank?
     mode = CONFIG['proxy_auth_host'] unless CONFIG['proxy_auth_host'].blank?
-    ichain_user = request.env['HTTP_X_USERNAME']
-    ichain_user = CONFIG['ichain_test_user'] if mode == :simulate and CONFIG['ichain_test_user']
-    ichain_email = request.env['HTTP_X_EMAIL']
-    ichain_email = ICHAIN_TEST_EMAIL if mode == :simulate and ICHAIN_TEST_EMAIL
-    if ichain_user
-      session[:login] = ichain_user
-      session[:email] = ichain_email
+    proxy_user = request.env['HTTP_X_USERNAME']
+    proxy_user = CONFIG['proxy_test_user'] if mode == :simulate and CONFIG['proxy_test_user']
+    proxy_email = request.env['HTTP_X_EMAIL']
+    proxy_email = ICHAIN_TEST_EMAIL if mode == :simulate and ICHAIN_TEST_EMAIL
+    if proxy_user
+      session[:login] = proxy_user
+      session[:email] = proxy_email
       # Set the headers for direct connection to the api, TODO: is this thread safe?
       transport = ActiveXML::Config.transport_for( :project )
-      transport.set_additional_header( "X-Username", ichain_user )
-      transport.set_additional_header( "X-Email", ichain_email ) if ichain_email
+      transport.set_additional_header( "X-Username", proxy_user )
+      transport.set_additional_header( "X-Email", proxy_email ) if proxy_email
     else
       session[:login] = nil
       session[:email] = nil

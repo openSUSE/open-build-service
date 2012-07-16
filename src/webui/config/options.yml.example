@@ -68,11 +68,6 @@ exception_recipients: []
 # Do not show options to make projects private
 #hide_private_options: true
 
-# old name for proxy_auth_mode
-#ichain_mode: :off
-# old name for proxy_auth_test_user
-#ichain_test_user
-
 #proxy_auth_mode: :off
 #proxy_auth_host: https://build.opensuse.org
 #proxy_auth_login_page: https://build.opensuse.org/ICSLogin
