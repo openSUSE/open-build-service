@@ -104,14 +104,6 @@
   <icon url="https://static.opensuse.org/distributions/logos/fedora.png"/>
   <link>http://fedoraproject.org/</link>
  </distribution>
- <distribution vendor="Fedora" version="15" id="fedora-15">
-  <name>Fedora 15</name>
-  <project>openSUSE.org:Fedora:15</project>
-  <reponame>Fedora_15</reponame>
-  <repository>standard</repository>
-  <icon url="https://static.opensuse.org/distributions/logos/fedora.png"/>
-  <link>http://fedoraproject.org/</link>
- </distribution>
  <distribution vendor="ScientificLinux" version="ScientificLinux-6" id="ScientificLinux-RHEL-6">
   <name>ScientificLinux 6</name>
   <project>openSUSE.org:ScientificLinux:6</project>
