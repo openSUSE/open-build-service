@@ -190,7 +190,7 @@ class ApplicationController < ActionController::Base
         render_error( :message => "User '#{login}' did not provide a password", :status => 401 ) and return false
       end
 
-      if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
+      if CONFIG['ldap_mode'] == :on
         begin
           require 'ldap'
           logger.debug( "Using LDAP to find #{login}" )

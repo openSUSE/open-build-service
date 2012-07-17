@@ -37,3 +37,90 @@ min_votes_for_rating: 3
 
 # Set to true to verify XML reponses comply to the schema
 response_schema_validation: false
+
+source_host: localhost
+source_port: 5352
+#source_protocol: https
+
+extended_backend_log: false
+
+#apidocs_location
+
+# Do not allow creating group via API to avoid the conflicts when CONFIG['ldap_group_support'] is :on
+# If you do want to import the group data from LDAP to OBS DB manuallly, please set if to :off
+disallow_group_creation_with_api: :on
+
+download_url: http://localhost:82/
+
+#ichain_mode
+
+#multiaction_notify_support
+#new_user_registration
+
+# proxy_auth_mode can be :off, :on or :simulate
+proxy_auth_mode: :off
+
+# ATTENTION: If proxy_auth_mode'is :on, the frontend takes the user
+# name that is coming as headervalue X-username as a 
+# valid user does no further authentication. So take care...
+proxy_auth_test_user: coolguy
+
+yml_url: http://software.opensuse.org/ymp
+
+#schema_location
+
+#version
+#webui_host
+
+# LDAP options
+
+ldap_mode: :off
+
+# Sam Account Name is the login name for LDAP 
+ldap_search_attr: sAMAccountName
+
+# OVERRIDE with your company's ldap search base for the users who will use OBS
+ldap_search_base: OU=Organizational Unit,DC=Domain Component
+
+# LDAP Servers separated by ':'.
+# OVERRIDE with your company's ldap servers. Servers are picked randomly for
+# each connection to distribute load.
+ldap_servers: ldap1.mycompany.com:ldap2.mycompany.com
+
+# Max number of times to attempt to contact the LDAP servers
+max_ldap_attempts: 15
+
+# The attribute the user memberof is stored in
+ldap_user_memberof_attr: memberof
+
+# Perform the group_user search with the member attribute of group entry or memberof attribute of user entry
+# It depends on your ldap define
+# The attribute the group member is stored in
+ldap_group_member_attr: member
+
+# If you're using CONFIG['ldap_authenticate']=:ldap then you should ensure that 
+# ldaps is used to transfer the credentials over SSL or use the StartTLS extension
+ldap_ssl: :on
+
+# Use StartTLS extension of LDAP
+ldap_start_tls: :off
+
+#ldap_search_user
+#ldap_sn_attr_required
+#ldap_update_support
+#ldap_user_filter
+#ldap_auth_attr
+#ldap_authenticate
+#ldap_auth_mech
+#ldap_entry_base
+#ldap_group_objectclass_attr
+#ldap_group_search_base
+#ldap_group_support
+#ldap_group_title_attr
+#ldap_mail_attr
+#ldap_max_attempts
+#ldap_name_attr
+#ldap_object_class
+#ldap_port
+#ldap_referrals
+#ldap_search_auth

@@ -18,25 +18,16 @@ config.action_controller.perform_caching             = true
 # Disable delivery errors if you bad email addresses should just be ignored
 # config.action_mailer.raise_delivery_errors = false
 
-CONFIG['proxy_auth_mode'] = :on
-
-CONFIG['ldap_mode'] = :off
 # LDAP Servers separated by ':'.
 # OVERRIDE with your company's ldap servers. Servers are picked randomly for
 # each connection to distribute load.
-LDAP_SERVERS = "ldap1.mycompany.com:ldap2.mycompany.com"
+CONFIG['ldap_servers'] = "ldap1.mycompany.com:ldap2.mycompany.com"
 # OVERRIDE with your company's ldap search base for the users who will use OBS
-LDAP_SEARCH_BASE = "OU=Organizational Unit,DC=Domain Component"
+CONFIG['ldap_search_base'] = "OU=Organizational Unit,DC=Domain Component"
 # Sam Account Name is the login name for LDAP 
-LDAP_SEARCH_ATTR = "sAMAccountName"
+CONFIG['ldap_search_attr'] = "sAMAccountName"
 # Max number of times to attempt to contact the LDAP servers
-MAX_LDAP_ATTEMPTS = 10
-
-CONFIG['extended_backend_log'] = false
-
-CONFIG['source_host'] = "storage"
-CONFIG['source_port'] = 5352
-SOURCE_PROTOCOL = "http"
+CONFIG['max_ldap_attempts'] = 10
 
 ActionController::AbstractRequest.relative_url_root = "/stage"
 

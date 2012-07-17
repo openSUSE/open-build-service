@@ -3,7 +3,7 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 include PublicHelper
 
 PublicHelper::DOWNLOAD_URL = "http://example.com/download"
-PublicHelper::YMP_URL = "http://example.com/ymp"
+CONFIG['ymp_url'] = "http://example.com/ymp"
 
 class PublicHelperTest < ActiveSupport::TestCase
   def test_download_url
@@ -12,8 +12,8 @@ class PublicHelperTest < ActiveSupport::TestCase
   end
 
   def test_ymp_url
-    assert_equal "#{PublicHelper::YMP_URL}/foo", ymp_url("foo")
-    assert_equal "#{PublicHelper::YMP_URL}/", ymp_url("")
+    assert_equal "#{CONFIG['ymp_url']}/foo", ymp_url("foo")
+    assert_equal "#{CONFIG['ymp_url']}/", ymp_url("")
   end
 end
 

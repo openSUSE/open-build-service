@@ -4,6 +4,6 @@ module PublicHelper
   end
 
   def ymp_url(path)
-     path ? File.join(YMP_URL, path) : ""
+     path ? File.join(CONFIG['ymp_url'], path) : ""
   end
 end

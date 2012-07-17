@@ -32,7 +32,7 @@ ActiveXML::Base.config do |conf|
 
   conf.setup_transport do |map|
 
-    map.default_server :rest, "#{SOURCE_PROTOCOL}://#{CONFIG['source_host']}:#{CONFIG['source_port']}"
+    map.default_server :rest, "#{CONFIG['source_protocol']}://#{CONFIG['source_host']}:#{CONFIG['source_port']}"
 
     map.connect :project, "bssql:///", :write_through => :false
     map.connect :package, "bssql:///", :write_through => :false

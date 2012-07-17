@@ -43,32 +43,8 @@ OBSApi::Application.configure do
 
 end
 
-CONFIG['source_host'] = "localhost"
-CONFIG['source_port'] = 5352
-SOURCE_PROTOCOL = "http"
-
-# ATTENTION: If CONFIG['proxy_auth_mode'] is :on, the frontend takes the user
-# name that is coming as headervalue X-username as a 
-# valid user does no further authentication. So take care...
-# CONFIG['proxy_auth_mode'] can be :off, :on or :simulate
-CONFIG['proxy_auth_test_user'] = "test"
-CONFIG['proxy_auth_mode'] = :off
-
-CONFIG['ldap_mode'] = :off
-# LDAP Servers separated by ':'.
-# OVERRIDE with your company's ldap servers. Servers are picked randomly for
-# each connection to distribute load.
-LDAP_SERVERS = "ldap1.mycompany.com:ldap2.mycompany.com"
-# OVERRIDE with your company's ldap search base for the users who will use OBS
-LDAP_SEARCH_BASE = "OU=Organizational Unit,DC=Domain Component"
-# Sam Account Name is the login name for LDAP 
-LDAP_SEARCH_ATTR = "sAMAccountName"
-# Max number of times to attempt to contact the LDAP servers
-MAX_LDAP_ATTEMPTS = 10
-
 CONFIG['extended_backend_log'] = true
-YMP_URL='http://software.opensuse.org/ymp'
-
+CONFIG['ymp_url']='http://software.opensuse.org/ymp'
 CONFIG['response_schema_validation'] = true
 
 require 'socket'

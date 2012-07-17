@@ -110,11 +110,11 @@ class PersonController < ApplicationController
   def register
     valid_http_methods :post, :put
 
-    if defined?(CONFIG['ldap_mode']) && CONFIG['ldap_mode'] == :on
+    if CONFIG['ldap_mode'] == :on
       render_error :message => "LDAP mode enabled, users can only be registered via LDAP", :errorcode => "err_register_save", :status => 400
       return
     end
-    if (defined?(CONFIG['proxy_auth_mode']) and CONFIG['proxy_auth_mode'] == :on) or (defined?(CONFIG['ichain_mode']) and CONFIG['ichain_mode'] == :on)
+    if CONFIG['proxy_auth_mode'] == :on or CONFIG['ichain_mode'] == :on
       render_error :message => "Proxy authentification mode, manual registration is disabled", :errorcode => "err_register_save", :status => 400
       return
     end
@@ -253,8 +253,8 @@ class PersonController < ApplicationController
     newpassword = Base64.decode64(URI.unescape(password))
     
     #change password to LDAP if LDAP is enabled    
-    if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
-      if defined?( LDAP_SSL ) && LDAP_SSL == :on
+    if CONFIG['ldap_mode'] == :on
+      if CONFIG['ldap_ssl'] == :on
         require 'base64'
         begin
           logger.debug( "Using LDAP to change password for #{login}" )
@@ -267,7 +267,7 @@ class PersonController < ApplicationController
           return
         end
       else
-        render_error :status => 404, :errorcode => 'change_passwd_no_security', :message => "LDAP mode enabled, the user password can only be changed with LDAP_SSL enabling."
+        render_error :status => 404, :errorcode => 'change_passwd_no_security', :message => "LDAP mode enabled, the user password can only be changed with CONFIG['ldap_ssl'] enabling."
         return
       end
     end

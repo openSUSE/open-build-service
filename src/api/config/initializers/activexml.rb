@@ -1,14 +1,12 @@
 require "activexml/activexml"
 
-unless defined?(SOURCE_PROTOCOL) and not SOURCE_PROTOCOL.blank?
-  SOURCE_PROTOCOL = "http"
-end
+CONFIG['source_protocol'] ||= "http"
 
 ActiveXML::Base.config do |conf|
   conf.lazy_evaluation = true
 
   conf.setup_transport do |map|
-    map.default_server :rest, "#{SOURCE_PROTOCOL}://#{CONFIG['source_host']}:#{CONFIG['source_port']}"
+    map.default_server :rest, "#{CONFIG['source_protocol']}://#{CONFIG['source_host']}:#{CONFIG['source_port']}"
 
     map.connect :project, "bssql:///"
     map.connect :package, "bssql:///"
