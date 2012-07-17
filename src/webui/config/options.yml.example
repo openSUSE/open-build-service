@@ -40,12 +40,6 @@ exception_recipients: []
 # Show option to change password (not possible if passwords are controlled by proxy)
 #change_passwd: on
 
-# hostname of API
-#frontend_host: our-api
-# # port of API
-#frontend_port: 80
-#frontend_protocol: http
-
 # if your users access the hosts through a proxy (or just a different name, use this to
 # overwrite the settings for users)
 #external_frontend_host: api.opensuse.org
@@ -56,19 +50,24 @@ exception_recipients: []
 #external_webui_host: build.opensuse.org
 #external_webui_protocol: https
 
-# if the api runs against ldap
+# if the api runs against ldap (:on && :off)
 #frontend_ldap_mode: :on
 
 # hostname of API
-#frontend_host: api.opensuse.org
+frontend_host: api.opensuse.org
 # port of API
-#frontend_port: 443
-#frontend_protocol: https
+frontend_port: 443
+frontend_protocol: https
 
 # Do not show options to make projects private
 #hide_private_options: true
 
-#proxy_auth_mode: :off
+# old name for proxy_auth_mode
+#ichain_mode: :off
+# old name for proxy_auth_test_user
+#ichain_test_user
+
+proxy_auth_mode: :off
 #proxy_auth_host: https://build.opensuse.org
 #proxy_auth_login_page: https://build.opensuse.org/ICSLogin
 #proxy_auth_logout_page: /cmd/ICSLogout

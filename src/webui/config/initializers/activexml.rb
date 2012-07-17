@@ -1,6 +1,7 @@
 require "activexml/activexml"
 
 CONFIG['frontend_protocol'] ||= "http"
+CONFIG['frontend_port'] ||= 80
 
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|

@@ -38,36 +38,6 @@ OBSWebUI::Application.configure do
   config.log_level = :debug
 end
 
-CONFIG['frontend_host'] = "api.opensuse.org"
-CONFIG['frontend_port'] = 443
-CONFIG['frontend_protocol'] = 'https'
-CONFIG['frontend_ldap_mode'] = :off
-
-# use this when the users see the api at another url (for rpm-, file-downloads)
-#CONFIG['external_frontend_protocol'] = "https"
-#CONFIG['external_frontend_host'] = "api.opensuse.org"
-#CONFIG['external_frontend_port'] = 443
-
-# If CONFIG['proxy_auth_mode'] is set to "simulate", iChain is simulated in the
-# way that the ichain header entry is set to the value specified
-# in the CONFIG['proxy_auth_test_user'] variable here below.
-# ATTENTION: If you set an IP address here the frontend takes the
-# user name that is coming as headervalue X-username as a valid
-# user and does not further authentication. So take care...
-# ATTENTION 2: The PROXY_AUTH_* entries must correspond with the entries
-# in the frontend otherwise funny things happen.
-
-# CONFIG['proxy_auth_mode'] can be one of  'on', 'off' or 'simulate'
-CONFIG['proxy_auth_mode'] = :off
-#CONFIG['proxy_auth_host'] = "https://build.opensuse.org"
-#CONFIG['proxy_auth_register_page'] = "https://en.opensuse.org/ICSLogin/?%22http://en.opensuse.org/index.php%22"
-#CONFIG['proxy_auth_login_page'] = "https://build.opensuse.org/ICSLogin"
-#CONFIG['proxy_auth_logout_page'] = "/cmd/ICSLogout"
-#CONFIG['external_webui_protocol'] = "https"
-#CONFIG['external_webui_host'] = "build.opensuse.org"
-#CONFIG['proxy_auth_test_user'] = "adrianSuSE"
-#CONFIG['proxy_auth_test_email'] = "foo@bar.com"
-
 # Check for custom development environment that takes precedence:
 require 'socket'
 fname = "#{Rails.root}/config/environments/development.#{Socket.gethostname}.rb"
@@ -77,3 +47,4 @@ if File.exists? fname
 else
   STDERR.puts "Custom development.#{Socket.gethostname}.rb not found - using defaults"
 end
+

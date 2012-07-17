@@ -67,32 +67,6 @@ OBSWebUI::Application.configure do
   # config.active_record.auto_explain_threshold_in_seconds = 0.5
 end
 
-CONFIG['frontend_host'] = "api.opensuse.org"
-CONFIG['frontend_port'] = 443
-CONFIG['frontend_protocol'] = 'https'
-CONFIG['frontend_ldap_mode'] = :off
-
 # Enable the interface to change user's password, it can be one of 'on', 'off'
-CONFIG['change_passwd'] = "on"
-
-##
-## The following is needed when the authentification is done by a proxy server in front
-## of OBS. The external api name is usually different to the local one in this case.
-##
-CONFIG['proxy_auth_host'] = "https://build.opensuse.org"
-CONFIG['proxy_auth_login_page'] = "https://build.opensuse.org/ICSLogin"
-CONFIG['proxy_auth_logout_page'] = "/cmd/ICSLogout"
-# CONFIG['external_frontend_host'] = "api.opensuse.org"
-# CONFIG['external_frontend_port'] = 443
-# CONFIG['external_frontend_protocol'] = 'https'
-# CONFIG['proxy_auth_mode'] can be one of  'on', 'off' or 'simulate'
-CONFIG['proxy_auth_mode'] = :off
-#CONFIG['proxy_auth_host'] = "https://build.opensuse.org"
-#CONFIG['proxy_auth_register_page'] = "https://en.opensuse.org/ICSLogin"
-#CONFIG['proxy_auth_login_page'] = "https://build.opensuse.org/ICSLogin"
-#CONFIG['proxy_auth_logout_page'] = "/cmd/ICSLogout"
-#CONFIG['external_webui_protocol'] = "https"
-#CONFIG['external_webui_host'] = "build.opensuse.org"
-#CONFIG['proxy_auth_test_user'] = "adrianSuSE"
-#CONFIG['proxy_auth_test_email'] = "foo@bar.com"
+# CONFIG['change_passwd'] = "on"
 
