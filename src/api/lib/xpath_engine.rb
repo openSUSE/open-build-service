@@ -136,7 +136,11 @@ class XpathEngine
         'action/target/@package' => { :cpart => 'bs_request_actions.target_package' },
         'action/source/@project' => { :cpart => 'bs_request_actions.source_project' },
         'action/source/@package' => { :cpart => 'bs_request_actions.source_package' },
-        'history/@who' => { :cpart => 'bs_request_histories.commenter' }
+        'history/@who' => { :cpart => 'bs_request_histories.commenter' },
+        'submit/target/@project' => { empty: true },
+        'submit/target/@package' => { empty: true },
+        'submit/source/@project' => { empty: true },
+        'submit/source/@package' => { empty: true },
       }
     }
 
@@ -334,6 +338,9 @@ class XpathEngine
         a << "@"+expr.shift
       when :literal
         value = (escape ? escape_for_like(expr.shift) : expr.shift)
+        if @last_key and @attribs[table][@last_key][:empty]
+          return ""
+        end
         if @last_key and @attribs[table][@last_key][:split]
           tvalues = value.split(@attribs[table][@last_key][:split])
           if tvalues.size != 2
@@ -355,6 +362,9 @@ class XpathEngine
     @last_key = key
     raise IllegalXpathError, "unable to evaluate '#{key}' for '#{table}'" unless @attribs[table].has_key? key
     #logger.debug "-- found key: #{key} --"
+    if @attribs[table][key][:empty]
+      return nil
+    end
     if @attribs[table][key][:joins]
       @joins << @attribs[table][key][:joins]
     end
@@ -374,7 +384,11 @@ class XpathEngine
     lval = evaluate_expr(lv, root)
     rval = evaluate_expr(rv, root)
 
-    condition = "#{lval} = #{rval}"
+    if lval.nil? or rval.nil?
+      condition = '0'
+    else
+      condition = "#{lval} = #{rval}"
+    end
     #logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition
@@ -386,7 +400,12 @@ class XpathEngine
     lval = evaluate_expr(lv, root)
     rval = evaluate_expr(rv, root)
 
-    condition = "#{lval} != #{rval}"
+    if lval.nil? or rval.nil?
+      condition = '1'
+    else
+      condition = "#{lval} != #{rval}"
+    end
+
     #logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition
@@ -425,7 +444,11 @@ class XpathEngine
     hs = evaluate_expr(haystack, root)
     ne = evaluate_expr(needle, root, true)
 
-    condition = "LOWER(CONVERT(#{hs} USING latin1)) LIKE LOWER(CONCAT('%',#{ne},'%'))"
+    if hs.nil? or ne.nil?
+      condition = '0'
+    else
+      condition = "LOWER(CONVERT(#{hs} USING latin1)) LIKE LOWER(CONCAT('%',#{ne},'%'))"
+    end
     #logger.debug "-- condition : [#{condition}]"
 
     @conditions << condition
