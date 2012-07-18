@@ -7,3 +7,5 @@ gem 'headless'
 gem 'colored'
 gem 'builder'
 
+# it's only used for jenkins, but we better track it somewhere
+gem 'flog'
