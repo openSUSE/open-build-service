@@ -5,6 +5,7 @@
 <% no_border ||= false %>
 
 <%= content_for :content_for_head do %>
+  <%= javascript_include_tag 'cm2' %>
   <style type="text/css">
     <% if no_border || read_only %>
       .CodeMirror {
