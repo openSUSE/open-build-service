@@ -21,7 +21,7 @@ class PublicController < ApplicationController
     key = "public_package:" + project + ":" + package
     allowed = Rails.cache.fetch(key, :expires_in => 30.minutes) do
       begin
-        DbPackage.get_by_project_and_name(project, package, use_source=false)
+        DbPackage.get_by_project_and_name(project, package, use_source: false)
         true
       rescue Exception
         false

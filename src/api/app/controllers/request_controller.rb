@@ -379,7 +379,7 @@ class RequestController < ApplicationController
       end
       # Will this be a new package ?
       unless missing_ok_link
-        unless e and DbPackage.exists_by_project_and_name( tprj, tpkg, true, false)
+        unless e and DbPackage.exists_by_project_and_name( tprj, tpkg, follow_project_links: true, allow_remote_packages: false)
           if action.action_type == :maintenance_release
             newPackages << pkg
             pkg.db_project.repositories.includes(:release_targets).each do |repo|
@@ -588,7 +588,7 @@ class RequestController < ApplicationController
         return false
       end
       if action.source_package
-        spkg = DbPackage.get_by_project_and_name(action.source_project, action.source_package, true, true)
+        spkg = DbPackage.get_by_project_and_name(action.source_project, action.source_package, use_source: true, follow_project_links: true)
       end
     end
 
@@ -980,9 +980,9 @@ class RequestController < ApplicationController
           else
             # for requests not yet accepted or accepted with OBS 2.0 and before
             tpkg = linked_tpkg = nil
-            if DbPackage.exists_by_project_and_name( target_project, target_package, false )
+            if DbPackage.exists_by_project_and_name( target_project, target_package, follow_project_links: false )
               tpkg = DbPackage.get_by_project_and_name( target_project, target_package )
-            elsif DbPackage.exists_by_project_and_name( target_project, target_package, true )
+            elsif DbPackage.exists_by_project_and_name( target_project, target_package, follow_project_links: true )
               tpkg = linked_tpkg = DbPackage.get_by_project_and_name( target_project, target_package )
             else
               DbProject.get_by_name( target_project )
@@ -1243,7 +1243,7 @@ class RequestController < ApplicationController
           end
           # accept also a remote source package
           if source_package.nil? and [ :submit ].include? action.action_type
-            unless DbPackage.exists_by_project_and_name( source_project.name, action.source_package, true, true)
+            unless DbPackage.exists_by_project_and_name( source_project.name, action.source_package, follow_project_links: true, allow_remote_packages: true)
               render_error :status => 404, :errorcode => "unknown_package",
                 :message => "Source package is missing for request #{req.id} (type #{action.action_type})"
               return
@@ -1634,7 +1634,7 @@ class RequestController < ApplicationController
 
       elsif action.action_type == :delete
           if action.target_package
-            package = DbPackage.get_by_project_and_name(action.target_project, action.target_package, true, false)
+            package = DbPackage.get_by_project_and_name(action.target_project, action.target_package, use_source: true, follow_project_links: false)
             package.destroy
             delete_path = "/source/#{action.target_project}/#{action.target_package}"
           else

@@ -118,8 +118,8 @@ module MaintenanceHelper
       end
       # patchinfos are handled as new packages
       if pkg.db_package_kinds.find_by_kind 'patchinfo'
-        if DbPackage.exists_by_project_and_name(incidentProject.name, pkg.name, follow_project_links=false)
-          new_pkg = DbPackage.get_by_project_and_name(incidentProject.name, pkg.name, follow_project_links=false)
+        if DbPackage.exists_by_project_and_name(incidentProject.name, pkg.name, follow_project_links: false)
+          new_pkg = DbPackage.get_by_project_and_name(incidentProject.name, pkg.name, use_source: false, follow_project_links: false)
         else
           new_pkg = incidentProject.db_packages.create(:name => pkg.name, :title => pkg.title, :description => pkg.description)
           new_pkg.flags.create(:status => "enable", :flag => "build")
@@ -142,7 +142,7 @@ module MaintenanceHelper
                           :project => releaseproject, :package => package_name }
         branch_params[:requestid] = request.id if request
         # it is fine to have new packages
-        unless DbPackage.exists_by_project_and_name(releaseproject, package_name, follow_project_links=true)
+        unless DbPackage.exists_by_project_and_name(releaseproject, package_name, follow_project_links: true)
           branch_params[:missingok]= 1
         end
         ret = do_branch branch_params
@@ -165,8 +165,8 @@ module MaintenanceHelper
 
         # a new package for all targets
         if e and e.attributes["package"]
-          if DbPackage.exists_by_project_and_name(incidentProject.name, pkg.name, follow_project_links=false)
-            new_pkg = DbPackage.get_by_project_and_name(incidentProject.name, pkg.name, follow_project_links=false)
+          if DbPackage.exists_by_project_and_name(incidentProject.name, pkg.name, follow_project_links: false)
+            new_pkg = DbPackage.get_by_project_and_name(incidentProject.name, pkg.name, use_source: false, follow_project_links: false)
           else
             new_pkg = DbPackage.new(:name => pkg.name, :title => pkg.title, :description => pkg.description)
             incidentProject.db_packages << new_pkg
@@ -206,8 +206,8 @@ module MaintenanceHelper
 
     # create package container, if missing
     tpkg = nil
-    if DbPackage.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links=false)
-      tpkg = DbPackage.get_by_project_and_name(targetProject.name, targetPackageName, follow_project_links=false)
+    if DbPackage.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links: false)
+      tpkg = DbPackage.get_by_project_and_name(targetProject.name, targetPackageName, use_source: false, follow_project_links: false)
     else
       tpkg = DbPackage.new(:name => targetPackageName, :title => sourcePackage.title, :description => sourcePackage.description)
       targetProject.db_packages << tpkg
@@ -310,8 +310,8 @@ module MaintenanceHelper
 
       # only if package does not contain a _patchinfo file
       lpkg = nil
-      if DbPackage.exists_by_project_and_name(targetProject.name, basePackageName, follow_project_links=false)
-        lpkg = DbPackage.get_by_project_and_name(targetProject.name, basePackageName, follow_project_links=false)
+      if DbPackage.exists_by_project_and_name(targetProject.name, basePackageName, follow_project_links: false)
+        lpkg = DbPackage.get_by_project_and_name(targetProject.name, basePackageName, use_source: false, follow_project_links: false)
       else
         lpkg = DbPackage.new(:name => basePackageName, :title => sourcePackage.title, :description => sourcePackage.description)
         targetProject.db_packages << lpkg
@@ -432,7 +432,7 @@ module MaintenanceHelper
       pkg = nil
       prj = DbProject.get_by_name params[:project]
       if params[:missingok]
-        if DbPackage.exists_by_project_and_name(params[:project], params[:package], true, true)
+        if DbPackage.exists_by_project_and_name(params[:project], params[:package], follow_project_links: true, allow_remote_packages: true)
           return { :status => 400, :errorcode => 'not_missing',
             :message => "Branch call with missingok paramater but branch source (#{params[:project]}/#{params[:package]}) exists." }
         end

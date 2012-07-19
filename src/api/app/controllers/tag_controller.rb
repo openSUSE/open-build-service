@@ -162,7 +162,7 @@ class TagController < ApplicationController
     @type = "package" 
 
     @name = params[:package]
-    @package = DbPackage.get_by_project_and_name(params[:project], params[:package], false, false)
+    @package = DbPackage.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: false)
     @project = @package.db_project
     
     @tags = @package.tags.where("taggings.user_id = ?",user.id).order(:name).all
@@ -235,7 +235,7 @@ class TagController < ApplicationController
       collection.each_package do |package|
         project = DbProject.get_by_name(package.project)
         
-        pack = DbPackage.get_by_project_and_name( project.name, package.name, false, false )
+        pack = DbPackage.get_by_project_and_name( project.name, package.name, use_source: false, follow_project_links: false )
         
         packages << pack
       end
@@ -364,7 +364,7 @@ class TagController < ApplicationController
     
     if params[:package]
       logger.debug "[TAG:] Package selected"
-      @package = DbPackage.get_by_project_and_name(params[:project], params[:package], false, false)
+      @package = DbPackage.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: false)
       
       old_tags = get_tags_by_user_and_package( false )
       old_tags.each do |old_tag|

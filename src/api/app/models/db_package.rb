@@ -77,9 +77,15 @@ class DbPackage < ActiveRecord::Base
     # returns an object of package or raises an exception
     # should be always used when a project is required
     # in case you don't access sources or build logs in any way use 
-    # use_source=false to skip check for sourceaccess permissions
+    # use_source: false to skip check for sourceaccess permissions
     # function returns a nil object in case the package is on remote instance
-    def get_by_project_and_name( project, package, use_source=true, follow_project_links=true )
+    def get_by_project_and_name( project, package, opts = {} )
+      raise "get_by_project_and_name expects a hash as third arg" unless opts.kind_of? Hash
+      opts = { use_source: true, follow_project_links: true }.merge(opts)
+      use_source = opts.delete :use_source
+      follow_project_links = opts.delete :follow_project_links
+      raise "get_by_project_and_name passed unknown options #{opts.inspect}" unless opts.empty?
+      logger.debug "get_by_project_and_name #{opts.inspect}"
       if project.class == DbProject
         prj = project
       else
@@ -113,9 +119,11 @@ class DbPackage < ActiveRecord::Base
     end
 
     # to check existens of a project (local or remote)
-    def exists_by_project_and_name( project, package, follow_project_links=true, allow_remote_packages=false )
+    def exists_by_project_and_name( project, package, opts = {} )
+      raise "get_by_project_and_name expects a hash as third arg" unless opts.kind_of? Hash
+      opts = { follow_project_links: true, allow_remote_packages: false}.merge(opts)
       if DbProject.is_remote_project?( project )
-        if allow_remote_packages
+        if opts[:allow_remote_packages]
           begin
             answer = Suse::Backend.get("/source/#{URI.escape(project)}/#{URI.escape(package)}")
             return true if answer
@@ -125,14 +133,14 @@ class DbPackage < ActiveRecord::Base
         return false
       end
       prj = DbProject.get_by_name( project )
-      if follow_project_links
+      if opts[:follow_project_links]
         pkg = prj.find_package(package)
       else
         pkg = prj.db_packages.find_by_name(package)
       end
       if pkg.nil?
         # local project, but package may be in a linked remote one
-        if allow_remote_packages
+        if opts[:allow_remote_packages]
           begin
             answer = Suse::Backend.get("/source/#{URI.escape(project)}/#{URI.escape(package)}")
             return true if answer
