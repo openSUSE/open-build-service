@@ -1161,6 +1161,25 @@ sub getbinaries_kiwiproduct {
 	  rename("$ddir/$_.new.rpm", "$ddir/$_") || die("rename $ddir/$_.new.rpm $ddir/$_: $!\n");
 	}
         $res = [ map {{'name' => $_}} @good ];
+	$res = BSRPC::rpc({
+	  'uri' => "$server/build/$projid/$repoid/$arch/$packid",
+	  'directory' => $ddir,
+	  'binaries' => "appdata.xml",
+	  'timeout' => $gettimeout,
+	  'map' => sub {
+	    my ($param, $name) = @_;
+            return undef if $name eq "rpmlint.log";
+	    if ($name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+	      my $rarch = $1;
+	      mkdir_p("$param->{'directory'}/$rarch");
+	      $name = "$rarch/$name";
+	    } else { 
+	      $name = "$arch/$name";
+	    }
+	    return $name;
+	  },
+	  'receiver' => \&BSHTTP::cpio_receiver,
+	}, undef, 'view=cpio');
       } else {
 	%knownmd5 = ();
         for (@good) {
@@ -1173,6 +1192,7 @@ sub getbinaries_kiwiproduct {
 	  'timeout' => $gettimeout,
 	  'map' => sub {
 	    my ($param, $name) = @_;
+            return undef if $name eq "rpmlint.log";
 	    if ($name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
 	      my $rarch = $1;
 	      mkdir_p("$param->{'directory'}/$rarch");
