@@ -252,7 +252,7 @@ class ProjectController < ApplicationController
     end
     @packages = Rails.cache.fetch("%s_packages_mainpage" % @project, :expires_in => 30.minutes) do
       ret = [] 
-      find_cached(Package, :expand, :project => @project.name, :expires_in => 30.seconds ).each do |pkg_element|
+      find_cached(Package, :all, :project => @project.name, expand: "1", :expires_in => 30.seconds ).each do |pkg_element|
               pkg = Hash.new
               pkg[:name] = pkg_element.value(:name)
               if pkg_element.value(:originproject)
