@@ -194,7 +194,7 @@
             <tr>
               <td><%= link_to(package[:name], :controller => 'package', :action => 'show', :project => package[:project], :package => package[:name]) %></td>
               <% if package[:project] != @project.name %>
-              <td>Linked from <%= link_to package[:project], {:action => :show, :project => package[:project] }, :class => 'nowrap' -%></td>
+              <td><%= link_to "Linked from " + package[:project], {:action => :show, :project => package[:project] }, :class => 'nowrap' -%></td>
               <% else %>
               <td><%= @project.name %></td>
               <% end %>
@@ -215,7 +215,7 @@
   <%= javascript_tag do %>
     $(document).ready(function() {
       $('#packages_table').dataTable({
-        "aLengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
+        "bSort": false,
       });
     });
   <% end %>
