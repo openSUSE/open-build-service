@@ -150,6 +150,20 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response :success
     post "/source/RemoteInstance:BaseDistro/pack1", :cmd => "branch"
     assert_response :success
+    get "/source/RemoteInstance:BaseDistro2.0:LinkedUpdateProject"
+    assert_response :success
+    # remote is always expanded
+#    assert_xml_tag( :tag => "directory", :attributes => { :count => "2" } ) # backend does not provide a counter
+    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2" } )
+    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2_linked" } )
+if $ENABLE_BROKEN_TEST
+#FIXME2.4: backend does not support expand=1 yet
+    get "/source/RemoteInstance:BaseDistro2.0:LinkedUpdateProject?expand=1"
+    assert_response :success
+    assert_xml_tag( :tag => "directory", :attributes => { :count => "2" } )
+    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2", :originproject => "BaseDistro2.0" } )
+    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2_linked", :originproject => "BaseDistro2.0" } )
+end
     # test binary operations
     prepare_request_with_user "king", "sunflower"
     post "/build/RemoteInstance:BaseDistro", :cmd => "wipe", :package => "pack1"
@@ -223,6 +237,16 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response :success
     post "/source/UseRemoteInstance/pack1", :cmd => "branch"
     assert_response :success
+    get "/source/UseRemoteInstance"
+    assert_response :success
+    assert_xml_tag( :tag => "directory", :attributes => { :count => "0" } )
+if $ENABLE_BROKEN_TEST
+#FIXME2.4: backend does not support expand=1 yet
+    get "/source/UseRemoteInstance?expand=1"
+    assert_response :success
+    assert_xml_tag( :tag => "directory", :attributes => { :count => "1" } )
+    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack1", :originproject => "BaseDistro2.0" } )
+end
     # test source modifications
     post "/build/UseRemoteInstance/pack1", :cmd => "set_flag"
     assert_response 403
