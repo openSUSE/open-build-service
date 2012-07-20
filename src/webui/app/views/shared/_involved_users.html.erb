@@ -87,11 +87,13 @@
               </td>
             <% end %>
             <td>
-              <% mail_to = 'mailto:' + Person.email_for_login(user) + '?subject=openSUSE%20Build%20Service%20-%20' + @project.name %>
-              <% mail_to += '/' + @package.name if defined? @package %>
-              <%= link_to(image_tag('icons/email.png', :alt => "Send mail", :title => "Send mail to user"), mail_to) %>
-              <% if @user and @user.is_maintainer?(@project, @package) %>
-                <%= link_to image_tag('icons/user_delete.png', :alt => "Remove", :title => "Remove user"), {:action => "remove_person", :project => @project, :package => @package, :userid => user}, {:confirm => "Really remove '#{user}'?", :method => :post}%>
+              <% if @user -%>
+                <% mail_to = 'mailto:' + Person.email_for_login(user) + '?subject=openSUSE%20Build%20Service%20-%20' + @project.name %>
+                <% mail_to += '/' + @package.name if defined? @package %>
+                <%= link_to(image_tag('icons/email.png', :alt => "Send mail", :title => "Send mail to user"), mail_to) %>
+                <% if @user.is_maintainer?(@project, @package) %>
+                  <%= link_to image_tag('icons/user_delete.png', :alt => "Remove", :title => "Remove user"), {:action => "remove_person", :project => @project, :package => @package, :userid => user}, {:confirm => "Really remove '#{user}'?", :method => :post}%>
+                <% end %>
               <% end %>
             </td>
           </tr>
