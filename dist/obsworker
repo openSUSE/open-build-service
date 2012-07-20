@@ -211,7 +211,7 @@ case "$1" in
                 MEMORY=
             fi
 	    echo "screen -t $title nice -n $OBS_NICE ./bs_worker $vmopt $port --root $R" \
-                "--statedir $workerdir/$I --id $HOSTNAME/$I $REPO_PARAM $HUGETLBFS" \
+                "--statedir $workerdir/$I --id ${HOSTNAME}_$I $REPO_PARAM $HUGETLBFS" \
                 "$OBS_JOBS $OBS_TEST $OBS_WORKER_OPT $TMPFS $DEVICE $SWAP $MEMORY" \
                 >> $screenrc
 	    mkdir -p $workerdir/$I
