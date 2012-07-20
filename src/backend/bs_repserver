@@ -1098,7 +1098,7 @@ sub workerstate {
     if (-d "$workersdir/disable") {
       my @dis = ls("$workersdir/disable");
       for (@dis) {
-        next unless $workerid =~ /^\Q$_\E/;
+        next unless $workerid =~ /^$_/;
         print "worker ip $peerip id $workerid is disabled\n";
         return $BSStdServer::return_ok;
       }
