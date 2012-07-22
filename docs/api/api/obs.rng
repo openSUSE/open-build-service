@@ -158,6 +158,14 @@
         <ref name="build-arch" />
       </attribute>
     </optional>
+    <optional>
+      <attribute name="package">
+        <data type="string" />
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="explicit"/> <!-- this is not part of meta data, just visible when expanding via view=flagdetails -->
+    </optional>
   </define>
 
   <define ns="" name="flag-element">

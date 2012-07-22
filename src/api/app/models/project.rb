@@ -773,7 +773,7 @@ class Project < ActiveRecord::Base
 
     flags = Array.new
     prj_flags.each do |f|
-      flags << f if f.is_relevant_for?(repo, arch)
+      flags << f if f.is_relevant_for?(repo, arch) and f.package.nil?
     end if prj_flags
 
     flags.sort! { |a,b| a.specifics <=> b.specifics }

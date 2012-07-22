@@ -2982,9 +2982,21 @@ sub getprojpack {
 
       my $enable = defined($penable) ? {%$penable} : undef;
       my $disable = {%$pdisable};
-      if (!$cgi->{'ignoredisable'} && $pinfo->{'build'}) {
-        for (@{$proj->{'repository'} || []}) {
-          my $default = exists($disable->{$_->{'name'}}) ? 0 : 1;
+      for (@{$proj->{'repository'} || []}) {
+        my $default = exists($disable->{$_->{'name'}}) ? 0 : 1;
+        if (!$cgi->{'ignoredisable'} && $jinfo->{'build'}) {
+          # look for per package overrides in the prj meta
+          my $disen = BSUtil::enabled($_->{'name'}, $jinfo->{'build'}, $default, $arch, $packid);
+          if ($disen) {
+            $enable->{$_->{'name'}} = 1;
+            delete $disable->{$_->{'name'}};
+          } else {
+            $disable->{$_->{'name'}} = 1;
+            delete $enable->{$_->{'name'}};
+          }
+        }
+
+        if (!$cgi->{'ignoredisable'} && $pinfo->{'build'}) {
           my $disen = BSUtil::enabled($_->{'name'}, $pinfo->{'build'}, $default, $arch);
           if ($disen) {
             $enable->{$_->{'name'}} = 1;

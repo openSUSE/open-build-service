@@ -65,12 +65,14 @@ module FlagHelper
           arch = Architecture.find_by_name!(arch) if arch
           
           repo = xmlflag['repository']
+          package = xmlflag['package']
             
           #instantiate new flag object
           self.flags.new(:status => status, :position => position, :flag => flagtype) do |flag|
             #set the flag attributes
             flag.repo = repo
             flag.architecture = arch
+            flag.package = package
           end
           position += 1
         end

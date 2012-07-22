@@ -477,15 +477,18 @@ sub isotime {
 # +4 if the repo matches
 #
 sub enabled {
-  my ($repoid, $disen, $default, $arch) = @_;
+  my ($repoid, $disen, $default, $arch, $packid) = @_;
 
   # filter matching elements, check for shortcuts
   return $default unless $disen;
   my @dis = grep { (!defined($_->{'arch'}) || $_->{'arch'} eq $arch) && 
+                   # if a packid was provided and a matching flag is found use it , otherwise skip this flag
+                   (defined($packid) ? (defined($_->{'package'}) && $_->{'package'} eq $packid) : (!defined($_->{'package'})) ) &&
                    (!defined($_->{'repository'}) || $_->{'repository'} eq $repoid)
                  } @{$disen->{'disable'} || []};
   return 1 if !@dis && $default;
   my @ena = grep { (!defined($_->{'arch'}) || $_->{'arch'} eq $arch) && 
+                   (defined($packid) ? (defined($_->{'package'}) && $_->{'package'} eq $packid) : (!defined($_->{'package'})) ) &&
                    (!defined($_->{'repository'}) || $_->{'repository'} eq $repoid)
                  } @{$disen->{'enable'} || []};
   return @dis ? 0 : $default unless @ena;

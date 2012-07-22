@@ -74,10 +74,12 @@ our @disableenable = (
      [[	'disable' =>
 	'arch',
 	'repository',
+        'package',
      ]],
      [[	'enable' =>
 	'arch',
 	'repository',
+        'package',
      ]],
 );
 
