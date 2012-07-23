@@ -184,12 +184,20 @@
     <% if @packages.length > 0 %>
       <table id="packages_table">
         <thead>
-          <tr><th class="hidden">Name</th></tr>
+          <tr>
+          <th>Name</th>
+          <th>Project</th>
+          </tr>
         </thead>
         <tbody>
           <% @packages.each do |package| %>
             <tr>
-              <td><%= link_to(package, :controller => 'package', :action => 'show', :project => @project, :package => package) %></td>
+              <td><%= link_to(package[:name], :controller => 'package', :action => 'show', :project => package[:project], :package => package[:name]) %></td>
+              <% if package[:project] != @project.name %>
+              <td>Linked from <%= link_to package[:project], {:action => :show, :project => package[:project] }, :class => 'nowrap' -%></td>
+              <% else %>
+              <td><%= @project.name %></td>
+              <% end %>
             </tr>
           <% end %>
         </tbody>
@@ -207,7 +215,7 @@
   <%= javascript_tag do %>
     $(document).ready(function() {
       $('#packages_table').dataTable({
-        "bSort": false,
+        "aLengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
       });
     });
   <% end %>
