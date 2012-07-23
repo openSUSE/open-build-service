@@ -38,7 +38,7 @@ OBSWebUI::Application.configure do
   config.log_level = :debug
 end
 
-FRONTEND_HOST = "api.opensuse.org"
+FRONTEND_HOST = "api-test.opensuse.org"
 FRONTEND_PORT = 443
 FRONTEND_PROTOCOL = 'https'
 FRONTEND_LDAP_MODE = :off
