@@ -47,11 +47,16 @@ class BuildControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "adrian", "so_alone"
     post "/build/home:Iggy/10.2/i586/TestPack", nil
     assert_response 403
+    put "/build/home:Iggy/10.2/i586/_repository/rpm.rpm", "/dev/null"
+    assert_response 403
 
     prepare_request_with_user "king", "sunflower"
     post "/build/home:Iggy/10.2/i586/TestPack", nil
     assert_response 400 # actually a success, it reached the backend
     assert_xml_tag :tag => "status", :attributes => { :code => "400", :origin => "backend" }
+
+    put "/build/home:Iggy/10.2/i586/_repository/rpm.rpm", "/dev/null"
+    assert_response 200
 
     # check not supported methods
     post "/build/home:Iggy/10.2/i586/_repository", nil

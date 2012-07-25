@@ -939,10 +939,16 @@ Result: binarylist
 
 POST /build/<project>/<repository>/<arch>/_repository?match=
 
-  Get list of binaries in given repository (binaries produced by all packages
-  of the project), filtered by given match
+  Uploads binaries to a given repository. ADMIN ONLY
 
-Result: binarylist
+Result: status
+
+
+PUT /build/<project>/<repository>/<arch>/_repository/<file>
+
+  Uploads binaries into the repository. ADMIN ONLY.
+
+Result: status
 
 
 GET /build/<project>/<repository>/<arch>/_repository/<binaryname>

@@ -142,7 +142,7 @@ class BuildController < ApplicationController
 
   # /build/:project/:repository/:arch/:package/:filename
   def file
-    valid_http_methods :get, :delete
+    valid_http_methods :get, :put, :delete
     required_parameters :project, :repository, :arch, :package, :filename
 
     # read access permission check
@@ -156,7 +156,7 @@ class BuildController < ApplicationController
 
     if prj.class == DbProject and prj.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(prj)
       render_error :status => 403, :errorcode => "download_binary_no_permission",
-      :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
+        :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
       return
     end
 
@@ -220,6 +220,14 @@ class BuildController < ApplicationController
         end
       }
     else
+      if request.put?
+        unless @http_user.is_admin?
+          # this route can be used publish binaries without history changes in sources
+          render_error :status => 403, :errorcode => "upload_binary_no_permission",
+            :message => "No permission to upload binaries."
+          return
+        end
+      end
       pass_to_backend path
     end
   end
