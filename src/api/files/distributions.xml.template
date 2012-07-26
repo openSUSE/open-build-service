@@ -8,18 +8,18 @@
   <icon url="https://static.opensuse.org/distributions/logos/opensuse.png"/>
   <link>http://www.opensuse.org/</link>
  </distribution>
- <distribution vendor="openSUSE" version="12.1" id="opensuse-12.1">
-  <name>openSUSE 12.1</name>
-  <project>openSUSE.org:openSUSE:12.1</project>
-  <reponame>openSUSE_12.1</reponame>
+ <distribution vendor="openSUSE" version="12.2" id="opensuse-12.2">
+  <name>openSUSE 12.2</name>
+  <project>openSUSE.org:openSUSE:12.2</project>
+  <reponame>openSUSE_12.2</reponame>
   <repository>standard</repository>
   <icon url="https://static.opensuse.org/distributions/logos/opensuse.png"/>
   <link>http://www.opensuse.org/</link>
  </distribution>
- <distribution vendor="openSUSE" version="11.4" id="opensuse-11.4">
-  <name>openSUSE 11.4</name>
-  <project>openSUSE.org:openSUSE:11.4</project>
-  <reponame>openSUSE_11.4</reponame>
+ <distribution vendor="openSUSE" version="12.1" id="opensuse-12.1">
+  <name>openSUSE 12.1</name>
+  <project>openSUSE.org:openSUSE:12.1</project>
+  <reponame>openSUSE_12.1</reponame>
   <repository>standard</repository>
   <icon url="https://static.opensuse.org/distributions/logos/opensuse.png"/>
   <link>http://www.opensuse.org/</link>
