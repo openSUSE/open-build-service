@@ -4686,7 +4686,7 @@ sub sourcecopy {
   if ($files->{'_link'} && $cgi->{'expand'}) {
     my %olrev = %$orev;		# copy so that orev still points to unexpanded sources
     $files = handlelinks(\%olrev, $files);
-    die("broken link: $files\n") unless ref $files;
+    die("broken link in $oprojid/$opackid: $files\n") unless ref $files;
     $vrev = $olrev{'vrev'} if $cgi->{'withvrev'};
   }
 
