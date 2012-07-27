@@ -682,6 +682,7 @@ while (@ARGV) {
     my $project = shift @ARGV;
     my $repo = shift @ARGV;
     my $arch = shift @ARGV;
+    wipe_notyet($project, $repo, $arch);
     scan_repo( $project, $repo, $arch );
   } elsif ($arg eq "--force-check-project") {
     die("ERROR: need project, repository and architecture as argument!\n") if @ARGV < 3;
