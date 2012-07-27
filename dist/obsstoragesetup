@@ -95,7 +95,7 @@ case "$1" in
 				# remove everything first
 				vgreduce --removemissing --force OBS
 				vgremove -f OBS
-				pvremove `pvdisplay  | grep "PV Name" | awk '{ print $3 }'`
+				pvremove -ff `pvdisplay  | grep "PV Name" | awk '{ print $3 }'`
 
 				# Find unpartitioned disks and create LVM partition on them
 				for disk in `hwinfo --disk | grep "Device File:" |\
