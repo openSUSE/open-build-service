@@ -113,7 +113,6 @@ while (1) {
       $res = BSRPC::rpc($param, undef, "jobid=$js->{'jobid'}", "nostream=1", "start=$offset");
     };
     $kill_job = "kvm spinnlock bug" if ($res && $res =~ /INFO: rcu_sched self-detected stall on CPU/);
-    $kill_job = "kvm memory page bug" if ($res && $res =~ /BUG: unable to handle kernel NULL pointer dereference at/);
 
     # kill job
     if ($kill_job) {
