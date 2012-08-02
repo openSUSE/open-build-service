@@ -84,7 +84,6 @@ while (1) {
     my $js = readxml("$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
     next unless $js && $js->{'code'} eq 'building';
     next unless $js->{'workerid'} eq $worker->{'workerid'};
-    my $kill_job;
     #print "checking worker $wname\n";
     my $param = {
       'uri' => "$js->{'uri'}/worker",
@@ -95,27 +94,6 @@ while (1) {
     };
     if ($@) {
       warn($@);
-      $kill_job = "host seems to be dead.";
-    } else {
-      $b->{'lastcheck'} = $now;
-    }
-
-    # detect kvm spinlock bugs
-    my $param = {
-      'uri' => "$js->{'uri'}/logfile",
-      'timeout' => 4,
-    };
-    my $res;
-    eval {
-      $res = BSRPC::rpc($param, undef, "view=entry");
-      my $directory = XMLin($BSXML::dir, $res);
-      my $offset = $directory->{'entry'}[0]->{'size'} - 250;
-      $res = BSRPC::rpc($param, undef, "jobid=$js->{'jobid'}", "nostream=1", "start=$offset");
-    };
-    $kill_job = "kvm spinnlock bug" if ($res && $res =~ /INFO: rcu_sched self-detected stall on CPU/);
-
-    # kill job
-    if ($kill_job) {
       local *F;
       my $js2 = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
       if (!$js2 || $js2->{'code'} ne 'building' || $js2->{'jobid'} ne $js->{'jobid'} || $js2->{'workerid'} ne $js->{'workerid'}) {
@@ -123,11 +101,13 @@ while (1) {
 	close F;
 	next;
       }
-      print BSUtil::isotime().": restarting build of $job building on $js->{'workerid'}, ".$kill_job."\n";
+      print BSUtil::isotime().": restarting build of $job building on $js->{'workerid'}\n";
       unlink("$jobsdir/$arch/$job:status");
       unlink("$workersdir/building/$wname");
       delete $building{$wname};
       close F;
+    } else {
+      $b->{'lastcheck'} = $now;
     }
   }
   #print "sleeping\n";
