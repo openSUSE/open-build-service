@@ -3043,31 +3043,31 @@ sub checkkiwiimage {
     push @new_meta, "$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}";
   }
 
-  if (!$repo->{'block'} || $repo->{'block'} ne 'never') {
-    my $notready = $ctx->{'notready'};
-    my $prpnotready = $ctx->{'prpnotready'};
-    my @blocked;
-    for my $repo ($pool->repos()) {
-      my $aprp = $repo->name();
+  my $notready = $ctx->{'notready'};
+  my $prpnotready = $ctx->{'prpnotready'};
+  my @blocked;
+  for my $arepo ($pool->repos()) {
+    my $aprp = $arepo->name();
+    if (!$repo->{'block'} || $repo->{'block'} ne 'never') {
       my $nr = ($prp eq $aprp ? $notready : $prpnotready->{$aprp}) || {};
       my @b = grep {$nr->{$_}} @edeps;
       if (@b) {
-        @b = map {"$aprp/$_"} @b if $prp ne $aprp;
-        push @blocked, @b;
+	@b = map {"$aprp/$_"} @b if $prp ne $aprp;
+	push @blocked, @b;
       }
       next if @blocked;
-      my %names = $repo->pkgnames();
-      for my $dep (sort(@edeps)) {
-        my $p = $names{$dep};
-        next unless $p;
-        push @new_meta, $pool->pkg2pkgid($p)."  $aprp/$dep";
-      }
     }
-    if (@blocked) {
-      print "      - $packid (kiwi-image)\n";
-      print "        blocked (@blocked)\n";
-      return ('blocked', join(', ', @blocked));
+    my %names = $arepo->pkgnames();
+    for my $dep (sort(@edeps)) {
+      my $p = $names{$dep};
+      next unless $p;
+      push @new_meta, $pool->pkg2pkgid($p)."  $aprp/$dep";
     }
+  }
+  if (@blocked) {
+    print "      - $packid (kiwi-image)\n";
+    print "        blocked (@blocked)\n";
+    return ('blocked', join(', ', @blocked));
   }
   return metacheck($ctx, $packid, 'kiwi-image', \@new_meta, [ $bconf, \@edeps ]);
 }
