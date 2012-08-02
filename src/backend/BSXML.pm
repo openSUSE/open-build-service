@@ -360,6 +360,7 @@ our $dir = [
 	    'mtime',
 	    'error',
 	    'id',
+	    'originproject',	# for package listing
      ]]
 ];
 
