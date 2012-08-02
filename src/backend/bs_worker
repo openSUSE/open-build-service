@@ -1508,7 +1508,7 @@ sub getpreinstallimage {
     $imagebins{$bin} = $hdrmd5s{$bin} if $havehdrmd5{$hdrmd5s{$bin}};
   }
   for my $bin (keys %metas) {
-    delete $metas{$_} unless $imagebins{$bin};	# only return metas on the image
+    delete $metas{$bin} unless $imagebins{$bin};	# only return metas on the image
   }
   my $imagesource = $imageinfo->{'prpa'};
   $imagesource =~ s/\/[^\/]*$//;	# strip arch
