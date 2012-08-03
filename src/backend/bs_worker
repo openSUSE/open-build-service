@@ -1035,7 +1035,7 @@ sub getbinaries_kiwiproduct {
 	my $rarch;
 	if ($name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
 	  $rarch = $1;
-	} elsif ($name =~ /appdata.xml$/) {
+	} elsif ($name =~ /appdata\.xml$/) {
 	  $rarch = $arch; 
 	}
 	next unless $rarch;
@@ -1083,6 +1083,11 @@ sub getbinaries_kiwiproduct {
       if ($bvl) {
 	for my $bv (@{$bvl->{'binary'} || []}) {
 	  my $bin = $bv->{'name'};
+	  if ($bin =~ /appdata\.xml$/) {
+	    push @bad, $bv;	# currently not in cache
+	    $downloadsizek += $bv->{'sizek'};
+	    next;
+	  }
 	  next unless $bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
 	  my $rarch = $1;
 	  my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}");
@@ -1124,12 +1129,15 @@ sub getbinaries_kiwiproduct {
 	    'timeout' => $gettimeout,
 	    'map' => sub {
 	      my ($param, $name) = @_;
+	      my $rarch;
 	      if ($name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
-		my $rarch = $1;
-		mkdir_p("$param->{'directory'}/$rarch");
-		$name = "$rarch/$name.new.rpm";
+		$rarch = $1;
+	      } elsif ($name =~ /appdata\.xml$/) {
+	        $rarch = $arch; 
 	      }
-	      return $name;
+	      return undef unless $rarch;
+	      mkdir_p("$param->{'directory'}/$rarch");
+	      return "$rarch/$name.new.rpm";
 	    },
 	    'receiver' => \&BSHTTP::cpio_receiver,
 	  }, undef, 'view=cpio', map {"binary=$_->{'name'}"} @bad);
@@ -1138,18 +1146,29 @@ sub getbinaries_kiwiproduct {
 	  # delete everything as a file might be incomplete
           for my $bv (@bad) {
 	    my $bin = $bv->{'name'};
-	    next unless $bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
-            my $rarch = $1;
-	    unlink("$ddir/$rarch/$bin.new.rpm");
+	    if ($bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+	      unlink("$ddir/$1/$bin.new.rpm");
+	    } elsif ($bin =~ /appdata\.xml$/) {
+	      unlink("$ddir/$arch/$bin.new.rpm");
+	    }
 	  }
 	}
         for my $bv (splice @bad) {
 	  my $bin = $bv->{'name'};
-	  next unless $bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
-          my $rarch = $1;
+	  my $rarch;
+	  if ($bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+	    $rarch = $1;
+	  } elsif ($bin =~ /appdata\.xml$/) {
+	    $rarch = $arch; 
+	  }
+	  next unless $rarch;
 	  my @s = stat("$ddir/$rarch/$bin.new.rpm");
 	  if (!@s) {
 	    push @bad, $bv;
+	    next;
+	  }
+	  if (!$bv->{'hdrmd5'}) {
+	    push @good, "$rarch/$bin";
 	    next;
 	  }
 	  my $leadsigmd5 = '';
@@ -1183,14 +1202,15 @@ sub getbinaries_kiwiproduct {
 	  'timeout' => $gettimeout,
 	  'map' => sub {
 	    my ($param, $name) = @_;
+	    my $rarch;
 	    if ($name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
-	      my $rarch = $1;
-	      mkdir_p("$param->{'directory'}/$rarch");
-	      $name = "$rarch/$name";
-	    } else { 
-	      $name = "$arch/$name";
+	      $rarch = $1;
+	    } elsif ($name =~ /appdata\.xml$/) {
+	      $rarch = $arch;
 	    }
-	    return $name;
+	    return undef unless $rarch;
+	    mkdir_p("$param->{'directory'}/$rarch");
+	    return "$rarch/$name";
 	  },
 	  'receiver' => \&BSHTTP::cpio_receiver,
 	}, undef, 'view=cpio');
