@@ -270,17 +270,20 @@ sub getpackagebinaryversionlist {
   my $prp = "$projid/$repoid";
   my @res;
   for my $packid (@$packids) {
-    my @bins = grep {/\.(?:$binsufsre)$/} ls("$reporoot/$prp/$arch/$packid");
+    my @bins = grep {/(?:\.(?:$binsufsre)|-appdata\.xml)$/} ls("$reporoot/$prp/$arch/$packid");
     @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
     my @pres;
     # should use bininfo instead, but we need the leadsigmd5
     for my $bin (sort @bins) {
       my @s = stat("$reporoot/$prp/$arch/$packid/$bin");
       next unless @s;
-      my $leadsigmd5;
-      my $hdrmd5 = Build::queryhdrmd5("$reporoot/$prp/$arch/$packid/$bin", \$leadsigmd5);
-      next unless $hdrmd5;
-      my $r = {'name' => $bin, 'hdrmd5' => $hdrmd5, 'sizek' => ($s[7] + 512) >> 10};
+      my ($hdrmd5, $leadsigmd5);
+      if ($bin !~ /-appdata\.xml$/) {
+        $hdrmd5 = Build::queryhdrmd5("$reporoot/$prp/$arch/$packid/$bin", \$leadsigmd5);
+        next unless $hdrmd5;
+      }
+      my $r = {'name' => $bin, 'sizek' => ($s[7] + 512) >> 10};
+      $r->{'hdrmd5'} = $hdrmd5 if $hdrmd5;
       $r->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
       push @pres, $r;
     }
@@ -582,7 +585,7 @@ sub filtersources {
   for my $bin (splice @bins) {
     next if $bin =~ /\.(?:no)?src\.rpm$/;
     next if $bin =~ /-debug(:?info|source).*\.rpm$/;
-    next if $debian && ($bin !~ /\.deb$/);
+    next if $debian && ($bin !~ /\.deb$/) && ($bin !~ /-appdata\.xml$/);
     push @bins, $bin;
   }
   return @bins;
@@ -615,7 +618,7 @@ sub getbinarylist {
     return undef;
   }
   if ($view eq 'binaryversions') {
-    my @bins = grep {/\.(?:$binsufsre)$/} ls("$reporoot/$prp/$arch/$packid");
+    my @bins = grep {/(?:\.(?:$binsufsre)|-appdata\.xml)$/} ls("$reporoot/$prp/$arch/$packid");
     @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
     my @res;
     # should use bininfo instead, but we need the leadsigmd5
@@ -623,10 +626,13 @@ sub getbinarylist {
       next if %binaries && !$binaries{$bin};
       my @s = stat("$reporoot/$prp/$arch/$packid/$bin");
       next unless @s;
-      my $leadsigmd5;
-      my $hdrmd5 = Build::queryhdrmd5("$reporoot/$prp/$arch/$packid/$bin", \$leadsigmd5);
-      next unless $hdrmd5;
-      my $r = {'name' => $bin, 'hdrmd5' => $hdrmd5, 'sizek' => ($s[7] + 512) >> 10};
+      my ($hdrmd5, $leadsigmd5);
+      if ($bin !~ /-appdata\.xml$/) {
+        $hdrmd5 = Build::queryhdrmd5("$reporoot/$prp/$arch/$packid/$bin", \$leadsigmd5);
+        next unless $hdrmd5;
+      }
+      my $r = {'name' => $bin, 'sizek' => ($s[7] + 512) >> 10};
+      $r->{'hdrmd5'} = $hdrmd5 if $hdrmd5;
       $r->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
       push @res, $r;
     }
