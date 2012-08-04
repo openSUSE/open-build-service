@@ -1328,8 +1328,17 @@ class User < ActiveRecord::Base
     while !ping and count < max_ldap_attempts
       count += 1
       server = ldap_servers[rand(ldap_servers.length)]
-      # Ruby only contains TCP echo ping.  Use system ping for real ICMP ping.
-      ping = system("ping -c 1 #{server} >/dev/null 2>/dev/null")
+
+      if not defined?( CONFIG['ldap_ping_test'] ) || (defined?( CONFIG['ldap_ping_test'] ) && CONFIG['ldap_ping_test'] == :on)
+        # this is the default behavior for 2.3 and earlier
+	 
+        # Ruby only contains TCP echo ping.  Use system ping for real ICMP ping.
+        ping = system("ping -c 1 #{server} >/dev/null 2>/dev/null")
+      else
+	# pretend that ping was successful 
+        ping = true
+      end
+
     end
     
     if count == max_ldap_attempts

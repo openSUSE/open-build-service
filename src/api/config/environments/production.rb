@@ -23,8 +23,10 @@ end
 # Authentication with Windows 2003 AD requires
 CONFIG['ldap_referrals'] = :off
 
-# Max number of times to attempt to contact the LDAP servers
+# Max number of times to attempt to contact the LDAP servers (Test via ICMP).
 CONFIG['ldap_max_attempts'] = 10
+# Enable availability tests (ping/ICMP) of LDAP Servers
+CONFIG['ldap_ping_test'] = :on
 
 # OVERRIDE with your company's ldap search base for the users who will use OBS
 CONFIG['ldap_search_base'] = "OU=Organizational Unit,DC=Domain Component"
