@@ -1335,7 +1335,7 @@ class User < ActiveRecord::Base
         # Ruby only contains TCP echo ping.  Use system ping for real ICMP ping.
         ping = system("ping -c 1 #{server} >/dev/null 2>/dev/null")
       else
-	# pretend that ping was successful 
+        # pretend that ping was successful
         ping = true
       end
 
