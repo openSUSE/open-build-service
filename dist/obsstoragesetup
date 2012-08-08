@@ -242,7 +242,7 @@ EOF
 
 			# Look for PV devices in OBS VG
 			pvs=""
-			for i in `vgdisplay -v OBS 2>/dev/null | grep "PV Name" | awk '{ print $3 }'`; do
+			for i in `vgdisplay -v OBS 2>/dev/null | grep "PV Name" | awk '{ print $3 }' | sort`; do
 				if [ -L $i ]; then
 					pvs="$pvs `readlink -f $i`"
 				else
@@ -250,7 +250,7 @@ EOF
 				fi
 			done
 			pvs=( $pvs )
-			pv_count_real=${#pvs[@]}
+			pv_count=${#pvs[@]}
 			PE_SIZE=`vgdisplay -c OBS | cut -d: -f13`
 			[ "0$PE_SIZE" -gt 0 ] || exit 0
 
@@ -276,39 +276,40 @@ EOF
 			fi
 			OBS_WORKER_ROOT_SIZE=`round_down_to_pe $OBS_WORKER_ROOT_SIZE $PE_SIZE`
 
-			if test "$NUM" -ge "$pv_count_real"; then
+			if test "$NUM" -ge "$pv_count"; then
 				# More or equal build instances than disks
 				# create LV's and try to distribute them on PV's best as possible
 				o1=0
 				o2=1
-				if [ $pv_count_real -gt 1 ]; then
-					pv_count=$(( ($pv_count_real / 2) * 2 )) # be sure that we have an equal number
-				elif [ $pv_count_real -eq 1 ]; then
-					o2=0
-					pv_count=1
-				else
-					# FIXME: error handling
-					echo "BUG"
-				fi
-				offset=1
-				if [ "$pv_count_real" == "$pv_count" ]; then
-				  offset=0
-				fi
+				# MAGIC AT WORK! we append the first items here for the code later to find a 2nd and 3rd offset in the loop
+				pvs=( ${pvs[*]} ${pvs[0]} ${pvs[0]})
 
 				pv_idx=0
 				I="0"
 				while test "$NUM" -gt "$I"; do
 					I=$(( $I + 1 ))
 		
-					lvcreate -n worker_root_${I} -L ${OBS_WORKER_ROOT_SIZE}M OBS ${pvs[$(( $pv_idx + $o1 + $offset ))]} || exit
-		                        lvcreate -n worker_swap_${I} -L ${OBS_WORKER_SWAP_SIZE}M OBS ${pvs[$(( $pv_idx + $o2 + $offset ))]} || exit
+					lverr=$(mktemp)
+					if ! lvcreate -n worker_root_${I} -L ${OBS_WORKER_ROOT_SIZE}M OBS ${pvs[$(( $pv_idx + $o1 ))]} 2> $lverr; then
+						if grep "Insufficient free space" $lverr; then 
+							I=$(( $I - 1 ))
+						else	
+							cat $lverr >&2
+							exit
+						fi
+					else
+ 			                        lvcreate -n worker_swap_${I} -L ${OBS_WORKER_SWAP_SIZE}M OBS ${pvs[$(( $pv_idx + $o2 ))]} || exit
+					fi
+					rm -f $lverr
 		                        pv_idx=$(( $pv_idx + 2 ))
-		                        if [ $pv_idx -ge $pv_count ]; then
+		                        if [ $pv_idx -eq $pv_count ]; then
 						pv_idx=0
 						# swap offset, so that swap and root partitions are not on same device
 						a=$o1
 						o1=$o2
 						o2=$a
+		                        elif [ $pv_idx -gt $pv_count ]; then
+						pv_idx=1
 		                        fi
 				done
 			else
@@ -316,7 +317,7 @@ EOF
 				# Use striping to boost IO performance
 				I="0"
 				# FIXME: this is a bit too simple, it can't handle float numbers
-				disks_per_instance=$(( $pv_count_real / $NUM ))
+				disks_per_instance=$(( $pv_count / $NUM ))
 				while test "$NUM" -gt "$I"; do
 					I=$(( $I + 1 ))
 	
