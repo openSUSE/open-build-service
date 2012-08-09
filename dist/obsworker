@@ -123,8 +123,8 @@ if [ "$OBS_VM_TYPE" = "xen" -o "$OBS_VM_TYPE" = "kvm" ]; then
         if [ -n "$OBS_VM_DISK_AUTOSETUP_MOUNT_OPTIONS" ]; then
             VMDISK_MOUNT_OPTIONS="--vmdisk-mount-options ${OBS_VM_DISK_AUTOSETUP_MOUNT_OPTIONS}"
         fi
-        if [ -n "$VMDISK_ROOT_CLEAN" ];then
-            VMDISK_CLEAN="--vmdisk-cleanup $VMDISK_ROOT_CLEAN"
+        if [ -n "$OBS_VM_DISK_CLEAN" ];then
+            VMDISK_CLEAN="--vmdisk-clean"
         fi
     fi
 fi
