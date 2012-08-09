@@ -68,6 +68,7 @@ my $vmdisk_rootsize;
 my $vmdisk_swapsize;
 my $vmdisk_filesystem;
 my $vmdisk_mount_options;
+my $vmdisk_cleanup;
 my $hugetlbfs;
 my $workerid;
 my $srcserver;
@@ -362,6 +363,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--vmdisk-mount-options') {
     shift @ARGV;
     $vmdisk_mount_options = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--vmdisk-cleanup') {
+    shift @ARGV;
+    $vmdisk_cleanup = shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--hugetlbfs') {
@@ -1911,6 +1917,7 @@ sub dobuild {
     push @args, '--vmdisk-filesystem', $vmdisk_filesystem if $vmdisk_filesystem;
     # mount options require quoting due to arguments which might start with "-o ..."
     push @args, '--vmdisk-mount-options', "\"$vmdisk_mount_options\"" if $vmdisk_mount_options;
+    push @args, '--vmdisk-cleanup', $vmdisk_cleanup if $vmdisk_cleanup;
     push @args, '--hugetlbfs', $hugetlbfs if $hugetlbfs;
   } elsif ($vm =~ /lxc/) {
     push @args, '--root', $buildroot;
