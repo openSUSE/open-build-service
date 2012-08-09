@@ -43,6 +43,8 @@ Patch12: 0012-repserver-Make-prjlinks-a-bit-more-transparent.patch
 Patch13: 0013-backend-refactor-prjcopy-code-to-be-faster-and-less-.patch
 Patch14: 0014-Revert-changes-to-upstream-copybuild-leave-that-unto.patch
 Patch15: 0015-Use-the-copybinary-repo-server-API-Clarify-a-little-.patch
+Patch16: 0016-Provide-OBS_WORKER_DISCRETE_IDS-to-permit-worker-ins.patch
+Patch17: 0017-api-backend-Allow-per-package-build-flag-in-project-.patch
 
 BuildRequires:  python-devel
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
@@ -243,6 +245,8 @@ Authors:       Susanne Oberhauser, Martin Mohring
 %patch13 -p1
 %patch14 -p1
 %patch15 -p1
+%patch16 -p1
+%patch17 -p1
 # drop build script, we require the installed one from own package
 rm -rf src/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
