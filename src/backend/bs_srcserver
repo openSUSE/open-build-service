@@ -4646,18 +4646,22 @@ sub sourcecopy {
     }
   }
 
-  my $vrev;
-  $vrev = $orev->{'vrev'} if $cgi->{'withvrev'};
+  my $oldvrev = $orev->{'vrev'};
   if ($files->{'_link'} && $cgi->{'expand'}) {
     my %olrev = %$orev;		# copy so that orev still points to unexpanded sources
     $files = handlelinks(\%olrev, $files);
-    die("broken link: $files\n") unless ref $files;
-    $vrev = $olrev{'vrev'} if $cgi->{'withvrev'};
+    die("broken link in $oprojid/$opackid: $files\n") unless ref $files;
+    $oldvrev = $olrev{'vrev'};
   }
 
   copyfiles($projid, $packid, $oprojid, $opackid, $files);
 
-  $cgi->{'vrev'} = $vrev if defined $vrev;
+  if ($cgi->{'withvrev'} && !$cgi->{'vrev'} && defined($oldvrev)) {
+    $cgi->{'vrev'} = $oldvrev;
+    # bump vrev so that new builds will have a bigger release number
+    # (just like in copyproject)
+    $cgi->{'vrev'} =~ s/(\d+)$/$1+1/e;
+  }
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   my $rev = addrev($cgi, $projid, $packid, $files, $cgi->{'rev'});
   delete $cgi->{'vrev'};
