@@ -1060,10 +1060,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag :tag => "link", :attributes => { :project => nil, :package => "pack2.#{incidentID}" }
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2?expand=1"
     assert_response :success
-    assert_xml_tag( :tag => "directory", :attributes => { :vrev => "2.9" } )
+    assert_xml_tag( :tag => "directory", :attributes => { :vrev => "2.10" } )
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2.#{incidentID}"
     assert_response :success
-    assert_xml_tag( :tag => "directory", :attributes => { :vrev => "2.9" } )
+    assert_xml_tag( :tag => "directory", :attributes => { :vrev => "2.10" } )
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2.#{incidentID}/_link"
     assert_response 404
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2_linked.#{incidentID}/_link"
