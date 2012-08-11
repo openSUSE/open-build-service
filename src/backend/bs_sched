@@ -384,8 +384,8 @@ sub addrepo_scan {
 
 
 sub enabled {
-  my ($repoid, $disen, $default) = @_;
-  return BSUtil::enabled($repoid, $disen, $default, $myarch);
+  my ($repoid, $disen, $default, $packid) = @_;
+  return BSUtil::enabled($repoid, $disen, $default, $myarch, $packid);
 }
 
 
@@ -8694,7 +8694,7 @@ NEXTPRP:
 	  next;
 	}
       } else {
-	if (!$projbuildenabled) {
+	if (!$projbuildenabled && !enabled($repoid, $projpacks->{$projid}->{'build'}, $projbuildenabled, $packid)) {
 	  $packstatus{$packid} = 'disabled';
 	  next;
 	}
