@@ -280,7 +280,7 @@ sub signjob {
   my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo);
   my $projid = $info->{'project'};
   my @files = sort(ls($jobdir));
-  my @signfiles = grep {/\.(?:d?rpm|sha256|iso)$/} @files;
+  my @signfiles = grep {/\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz)$/} @files;
   if (grep {$_ eq '.kiwitree_tosign'} @files) {
     for my $f (split("\n", readstr("$jobdir/.kiwitree_tosign"))) {
       next if $f eq '';
@@ -316,6 +316,7 @@ sub signjob {
       }
       my @signmode;
       @signmode = ('-r') if $signfile =~ /\.drpm$/;
+      @signmode = ('-D') if $signfile =~ /\.pkg\.tar\.(?:gz|xz)$/;
       if ($signfile =~ /\.asc$/s) {
 	next unless (-s "$jobdir/$signfile") == 2048;
 	my $signfilec = readstr("$jobdir/$signfile");
