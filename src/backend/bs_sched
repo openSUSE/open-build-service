@@ -6009,6 +6009,13 @@ while(1) {
       $pdeps{$packid} = [];
       next;
     }
+    if (exists($pdata->{'originproject'})) {
+      # this is a package from a project link
+      if (!$repo->{'linkedbuild'} || ($repo->{'linkedbuild'} ne 'localdep' && $repo->{'linkedbuild'} ne 'all')) {
+        $pdeps{$packid} = [];
+        next;
+      }
+    }
     $pkg2src{$packid} = $info->{'name'};
 
     my @deps = @{$info->{'dep'} || []};
