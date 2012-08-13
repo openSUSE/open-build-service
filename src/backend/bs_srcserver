@@ -1897,6 +1897,12 @@ sub identical {
 }
 
 sub findprojects {
+  my ($deleted) = @_;
+  if ($deleted) {
+    my @projids = grep {s/\.pkg$//} ls("$projectsdir/_deleted");
+    @projids = grep {! -e "$projectsdir/$_.xml"} @projids;
+    return sort @projids;
+  }
   local *D;
   mkdir_p("$projectsdir") || die("creating $projectsdir: $!\n");
   opendir(D, $projectsdir) || die("$projectsdir: $!\n");
@@ -1906,42 +1912,86 @@ sub findprojects {
 }
 
 sub findpackages {
-  my ($projid, $proj, $nonfatal, $seen) = @_;
+  my ($projid, $proj, $nonfatal, $seen, $origins, $noexpand, $deleted) = @_;
   $proj ||= readproj($projid, 1) || {};
   local *D;
   my @packids;
+
+  # if this is a remote project, forward to remote server
+  if ($proj->{'remoteurl'}) {
+    my $r;
+    my @args;
+    push @args, 'deleted=1' if $deleted;
+    push @args, 'expand=1' unless $noexpand || $deleted;
+    eval {
+      $r = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::dir);
+    };
+    if ($@ && $@ !~ /^404/) {
+      die($@) unless $nonfatal;
+      warn($@);
+    }
+    @packids = map {$_->{'name'}} @{($r || {})->{'entry'} || []};
+    if ($origins) {
+      for my $entry (@{($r || {})->{'entry'} || []}) {
+	$origins->{$entry->{'name'}} = defined($entry->{'originproject'}) ? maptoremote($proj, $entry->{'originproject'}) : $projid;
+      }
+    }
+    return @packids;
+  }
+
+  # handle deleted packages
+  if ($deleted) {
+    # we never expand deleted packages
+    @packids = grep {s/\.mrev\.del$//} ls("$projectsdir/$projid.pkg");
+    @packids = grep {! -e "$projectsdir/$projid.pkg/$_.xml"} @packids;
+    @packids = sort @packids;
+    if ($origins) {
+      for (@packids) {
+        $origins->{$_} = $projid unless defined $origins->{$_};
+      }
+    }
+    return @packids;
+  }
+
+  # get local packages
   if (opendir(D, "$projectsdir/$projid.pkg")) {
     @packids = grep {s/\.xml$//} readdir(D);
     closedir(D);
+    if ($origins) {
+      for (@packids) {
+        $origins->{$_} = $projid unless defined $origins->{$_};
+      }
+    }
   }
-  if ($proj->{'link'}) {
+
+  # handle project links
+  if ($proj->{'link'} && !$noexpand) {
     $seen ||= {};
+    $seen->{$projid} = 1;
     for my $lprojid (map {$_->{'project'}} @{$proj->{'link'}}) {
       next if $seen->{$lprojid};
       $seen->{$lprojid} = 1;
       my @lpackids;
+      my $lorigins = defined($origins) ? {} : undef;
       my $lproj = readproj($lprojid, 1);
       if (!$lproj || $lproj->{'remoteurl'}) {
         $lproj = remoteprojid($lprojid);
-	my $r;
-	eval {
-	  $r = BSRPC::rpc({'uri' => "$lproj->{'remoteurl'}/source/$lproj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::dir);
-	};
-        if ($@ && $@ !~ /^404/) {
-          die($@) unless $nonfatal;
-          warn($@);
-        }
-	@lpackids = map {$_->{'name'}} @{($r || {})->{'entry'} || []};
-      } else {
-	@lpackids = findpackages($lprojid, undef, $nonfatal, $seen);
+	next unless $lproj;	# linked project does not exist
       }
+      @lpackids = findpackages($lprojid, $lproj, $nonfatal, $seen, $lorigins);
       if (grep {$_ eq '_product'} @packids) {
 	@lpackids = grep {$_ ne '_product' && !/^_product:/} @lpackids;
       }
       push @packids, @lpackids;
+      if ($origins && $lorigins) {
+        for (@lpackids) {
+          $origins->{$_} = $lorigins->{$_} unless defined $origins->{$_};
+        }
+      }
     }
     @packids = unify(@packids);
   }
+
   return sort @packids;
 }
 
@@ -2722,14 +2772,7 @@ sub getprojpack {
 
 sub getprojectlist {
   my ($cgi) = @_;
-  my @projects;
-  if (!$cgi->{'deleted'}) {
-    @projects = findprojects();
-  } else {
-    @projects = grep {s/\.pkg$//} ls("$projectsdir/_deleted");
-    @projects = grep {! -e "$projectsdir/$_.xml"} @projects;
-    @projects = sort @projects;
-  }
+  my @projects = findprojects($cgi->{'deleted'});
   @projects = map {{'name' => $_}} @projects;
   return ({'entry' => \@projects}, $BSXML::dir);
 }
@@ -2976,22 +3019,19 @@ sub undeleteproject {
 
 sub getpackagelist {
   my ($cgi, $projid, $repoid, $arch) = @_;
-  my @packages;
-  if ($cgi->{'deleted'}) {
-    @packages = grep {s/\.mrev\.del$//} ls("$projectsdir/$projid.pkg");
-    @packages = grep {! -e "$projectsdir/$projid.pkg/$_.xml"} @packages;
-    @packages = sort @packages;
-  } else {
-    my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
-    if ($proj->{'remoteurl'}) {
-      my @args;
-      push @args, "deleted" if $cgi->{'deleted'};
-      return BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::dir, @args), $BSXML::dir;
-    }
-    @packages = findpackages($projid, $proj);
+  my $origins = $cgi->{'noorigins'} ? undef : {};
+  my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
+  my @packages = findpackages($projid, $proj, 0, {}, $origins, !$cgi->{'expand'}, $cgi->{'deleted'});
+  for (@packages) {
+    $_ = {'name' => $_};
+    $_->{'originproject'} = $origins->{$_->{'name'}} if $origins && $origins->{$_->{'name'}} ne $projid;
   }
-  my @plist = map {{'name' => $_}} @packages;
-  return ({'entry' => \@plist}, $BSXML::dir);
+  return ({'entry' => \@packages}, $BSXML::dir);
+}
+
+sub getpackagelist_build {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+  return getpackagelist({ %$cgi, 'expand' => 1, 'noorigins' => 1 }, $projid, $repoid, $arch);
 }
 
 sub getpackage {
@@ -6836,7 +6876,7 @@ my $dispatches = [
   'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool? makeolder:bool? resign:bool?' => \&copyproject,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
   '/source/$project view=info parse:bool? repository? arch? package*' => \&getprojectsourceinfo,
-  '/source/$project deleted:bool?' => \&getpackagelist,
+  '/source/$project deleted:bool? expand:bool? noorigins:bool?' => \&getpackagelist_build,
 
   'DELETE:/source/$project user:? comment:? requestid:num?' => \&delproject,
   '/source/$project/_meta rev?' => \&getproject,
@@ -6931,7 +6971,7 @@ my $dispatches = [
   '/build/$project/_result oldstate:md5? view:resultview* lastbuild:bool? repository* arch* package* code:*' => \&getresult,
   '/build/$project/$repository' => \&getarchlist,
   '/build/$project/$repository/_buildconfig path:prp*' => \&getbuildconfig,
-  '/build/$project/$repository/$arch' => \&getpackagelist,
+  '/build/$project/$repository/$arch' => \&getpackagelist_build,
   '/build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
