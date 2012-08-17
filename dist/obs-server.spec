@@ -528,14 +528,15 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/bs_archivereq
 /usr/lib/obs/server/bs_check_consistency
 /usr/lib/obs/server/bs_dispatch
+/usr/lib/obs/server/bs_mkarchrepo
 /usr/lib/obs/server/bs_publish
 /usr/lib/obs/server/bs_repserver
 /usr/lib/obs/server/bs_sched
 /usr/lib/obs/server/bs_serverstatus
-/usr/lib/obs/server/bs_srcserver
-/usr/lib/obs/server/bs_worker
 /usr/lib/obs/server/bs_signer
+/usr/lib/obs/server/bs_srcserver
 /usr/lib/obs/server/bs_sshgit
+/usr/lib/obs/server/bs_worker
 /usr/lib/obs/server/bs_warden
 /usr/lib/obs/server/worker
 /usr/lib/obs/server/BSSolv.pm
