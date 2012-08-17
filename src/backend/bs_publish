@@ -608,6 +608,51 @@ sub deleterepo_debian {
 
 ##########################################################################
 
+sub createrepo_arch {
+  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo) = @_;
+
+  deleterepo_arch($extrep);
+  my $rname = $projid;
+  $rname .= "_$repoid" if $repoid ne 'standard';
+  $rname =~ s/:/_/g;
+  for my $arch (ls($extrep)) {
+    next unless -d "$extrep/$arch";
+    print "    running bs_mkarchrepo $arch\n";
+    qsystem("$INC[0]/bs_mkarchrepo", $rname, "$extrep/$arch") && die("    repo creation failed: $?\n");
+    if (-e "$extrep/$arch/$rname.db.tar.gz") {
+      symlink("$rname.db.tar.gz", "$extrep/$arch/$rname.db");
+    }
+    if (-e "$extrep/$arch/$rname.files.tar.gz") {
+      symlink("$rname.files.tar.gz", "$extrep/$arch/$rname.files");
+    }
+    if ($BSConfig::sign) {
+      my @signargs;
+      push @signargs, '--project', $projid if $BSConfig::sign_project;
+      push @signargs, @$signargs;
+      if (-e "$extrep/$arch/$rname.db.tar.gz") {
+        qsystem($BSConfig::sign, @signargs, '-D', "$extrep/$arch/$rname.db.tar.gz") && die("    sign failed: $?\n");
+        symlink("$rname.db.tar.gz.sig", "$extrep/$arch/$rname.db.sig");
+      }
+      if (-e "$extrep/$arch/$rname.files.tar.gz") {
+        qsystem($BSConfig::sign, @signargs, '-D', "$extrep/$arch/$rname.files.tar.gz") && die("    sign failed: $?\n");
+        symlink("$rname.files.tar.gz.sig", "$extrep/$arch/$rname.files.sig");
+      }
+    }
+  }
+}
+
+sub deleterepo_arch {
+  my ($extrep) = @_;
+  for my $arch (ls($extrep)) {
+    next unless -d "$extrep/$arch";
+    for (grep {/\.(?:\?db|db\.tar\.gz|files|files\.tar\.gz)(?:\.sig)?$/} ls("$extrep/$arch")) {
+      unlink("$extrep/$arch/$_");
+    }
+  }
+}
+
+##########################################################################
+
 sub createpatterns_rpmmd {
   my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $patterns) = @_;
 
@@ -1057,6 +1102,9 @@ sub publish {
 	$p = "$q->{'arch'}/$q->{'name'}_$q->{'version'}";
 	$p .= "-$q->{'release'}" if defined $q->{'release'};
 	$p .= "_$q->{'arch'}.deb";
+      } elsif ($bin =~ /\.(?:pkg\.tar\.gz|pkg\.tar\.xz)$/) {
+	$p = "$arch/$bin";
+	$p = "i686/$bin" if $arch eq 'i586';	# HACK
       } elsif ($bin =~ /\.(?:$binsufsre)$/) {
 	# our default
 	my $q = Build::query("$r/$rbin", 'evra' => 1);
@@ -1460,6 +1508,11 @@ sub publish {
     createrepo_debian($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
   } else {
     deleterepo_debian($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
+  }
+  if ($repotype{'arch'}) {
+    createrepo_arch($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
+  } else {
+    deleterepo_arch($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
   }
 
   if ($patterntype{'ymp'}) {
