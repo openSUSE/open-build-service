@@ -3020,7 +3020,7 @@ sub undeleteproject {
 sub getpackagelist {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $origins = $cgi->{'noorigins'} ? undef : {};
-  my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
+  my $proj = checkprojrepoarch($projid, $repoid, $arch, 1) unless $cgi->{'deleted'};
   my @packages = findpackages($projid, $proj, 0, {}, $origins, !$cgi->{'expand'}, $cgi->{'deleted'});
   for (@packages) {
     $_ = {'name' => $_};
