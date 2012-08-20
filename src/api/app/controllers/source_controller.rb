@@ -1823,6 +1823,9 @@ class SourceController < ApplicationController
       if answer
         p = Package.new(answer.body, :project => params[:project])
         p.name = params[:package]
+        p.remove_all_persons
+        p.remove_all_groups
+        p.remove_devel_project
         p.save
         tpkg = DbPackage.find_by_project_and_name(params[:project], params[:package])
       else

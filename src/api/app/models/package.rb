@@ -34,6 +34,12 @@ class Package < ActiveXML::Base
     end
   end
 
+  def remove_all_groups
+    self.each_group do |e|
+      delete_element e
+    end
+  end
+
   def remove_devel_project
     self.each_devel do |e|
       delete_element e
