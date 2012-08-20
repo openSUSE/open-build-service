@@ -63,7 +63,9 @@ class PublicController < ApplicationController
     # project visible/known ? 
     DbProject.get_by_name(params[:project])
     
-    pass_to_backend unshift_public(request.path)
+    path = unshift_public(request.path)
+    path += "?expand=1&noorigins=1" # to stay compatible to OBS <2.4
+    pass_to_backend path
   end
 
   # GET /public/source/:project/_config
