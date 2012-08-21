@@ -20,7 +20,7 @@ Name:           obs-server
 Summary:        The Open Build Service -- Server Component
 License:        GPL-2.0 ; GPL-3.0
 Group:          Productivity/Networking/Web/Utilities
-Version:        2.3.1
+Version:        2.3.4
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -382,6 +382,15 @@ install api/config/options.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/op
 install webui/config/database.yml.example $RPM_BUILD_ROOT/srv/www/obs/webui/config/database.yml
 install webui/config/options.yml.example $RPM_BUILD_ROOT/srv/www/obs/webui/config/options.yml
 
+%if 0%{?suse_version} < 1140
+# old rpm requires files also when they are ghost
+for i in /srv/www/obs/api/log/access.log /srv/www/obs/api/log/backend_access.log \
+         /srv/www/obs/api/log/delayed_job.log /srv/www/obs/api/log/error.log \
+         /srv/www/obs/api/log/lastevents.access.log /srv/www/obs/webui/log/access.log \
+         /srv/www/obs/webui/log/error.log 
+do touch $RPM_BUILD_ROOT/$i; done
+%endif
+
 %pre
 /usr/sbin/groupadd -r obsrun 2> /dev/null || :
 /usr/sbin/useradd -r -o -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
@@ -452,10 +461,10 @@ for i in production_slave.rb production.rb development_base.rb; do
   fi
 done
 # for update from 2.1(lighttpd), do a chown
-if [ `stat -c %U /srv/www/obs/api/config/secret.key` == lighttpd ]; then
+if test -e /srv/www/obs/api/config/secret.key && test `stat -c %U /srv/www/obs/api/config/secret.key` == lighttpd; then
   chown wwwrun.www /srv/www/obs/api/config/secret.key
 fi
-if [ `stat -c %U /srv/www/obs/webui/config/secret.key` == lighttpd ]; then
+if test -e /srv/www/obs/webui/config/secret.key && test `stat -c %U /srv/www/obs/webui/config/secret.key` == lighttpd; then
   chown wwwrun.www /srv/www/obs/webui/config/secret.key
 fi
 echo '**** Keep in mind to run rake db:migrate after updating this package and restart apache (read README.UPDATERS) ****'
@@ -671,6 +680,14 @@ rm -rf $RPM_BUILD_ROOT
 %dir /etc/lighttpd/vhosts.d
 %config /etc/lighttpd/cleanurl-v5.lua
 %config /etc/lighttpd/vhosts.d/rails.inc
+
+%ghost %attr(0640,wwwrun,www) /srv/www/obs/api/log/access.log
+%ghost %attr(0640,wwwrun,www) /srv/www/obs/api/log/backend_access.log
+%ghost %attr(0640,wwwrun,www) /srv/www/obs/api/log/delayed_job.log
+%ghost %attr(0640,wwwrun,www) /srv/www/obs/api/log/error.log
+%ghost %attr(0640,wwwrun,www) /srv/www/obs/api/log/lastevents.access.log
+%ghost %attr(0640,wwwrun,www) /srv/www/obs/webui/log/access.log
+%ghost %attr(0640,wwwrun,www) /srv/www/obs/webui/log/error.log
 
 %files -n obs-utils
 %defattr(-,root,root)
