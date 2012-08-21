@@ -812,7 +812,13 @@ sub checkprpaccess {
   my ($projid, $repoid) = split('/', $prp, 2);
   # not ok if prp is unprotected
   return 0 if checkaccess('access', $projid, undef, $repoid);
-  # both prp and aprp are proteced. check if the roles match
+  # both prp and aprp are proteced.
+  return 1 if $aprojid eq $projid;	# they hopefully know what they are doing
+  # check if publishing flags match unless aprojid is remote
+  if (!$remoteprojs{$aprojid} && !checkaccess('publish', $aprojid, undef, $arepoid)) {
+    return 0 if checkaccess('publish', $projid, undef, $repoid);
+  }
+  # check if the roles match
   return checkroles('access', $aprojid, undef, $projid, undef);
 }
 
