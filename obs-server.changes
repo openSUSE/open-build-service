@@ -1,3 +1,9 @@
+* Tue Aug 21 2012 David Greaves <david@dgreaves.com> - 2.3.1-mer4
+ - migration fix
+ - Patches fdrom Islam Amer:
+   - Allow package build flags in prjmeta to override arch flags
+   - Try harder to preserve flags. Also preserve package flags in the project meta
+
 * Thu Aug 09 2012 David Greaves <david@dgreaves.com> - 2.3.1-mer3
  - Provide OBS_WORKER_DISCRETE_IDS
  - Allow per package build flag in project meta

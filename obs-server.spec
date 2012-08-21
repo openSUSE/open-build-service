@@ -21,7 +21,7 @@ Summary:        The Open Build Service -- Server Component
 License:        GPL-2.0 ; GPL-3.0
 Group:          Productivity/Networking/Web/Utilities
 Version:        2.3.1
-Release:        2
+Release:        mer4
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 # git clone git://gitorious.org/opensuse/build-service.git build-service-1.7.54; tar cfvj obs-server-1.7.54.tar.bz2 --exclude=.git\* build-service-1.7.54/
@@ -43,8 +43,11 @@ Patch12: 0012-repserver-Make-prjlinks-a-bit-more-transparent.patch
 Patch13: 0013-backend-refactor-prjcopy-code-to-be-faster-and-less-.patch
 Patch14: 0014-Revert-changes-to-upstream-copybuild-leave-that-unto.patch
 Patch15: 0015-Use-the-copybinary-repo-server-API-Clarify-a-little-.patch
-Patch16: 0016-Provide-OBS_WORKER_DISCRETE_IDS-to-permit-worker-ins.patch
+Patch16: 0016-backend-Provide-OBS_WORKER_DISCRETE_IDS-to-permit-wo.patch
 Patch17: 0017-api-backend-Allow-per-package-build-flag-in-project-.patch
+Patch18: 0018-Allow-package-build-flags-in-prjmeta-to-override-arc.patch
+Patch19: 0019-Try-harder-to-preserve-flags.-Also-preserve-package-.patch
+Patch20: 0020-Correct-the-api-db-migration.patch
 
 BuildRequires:  python-devel
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
@@ -247,6 +250,9 @@ Authors:       Susanne Oberhauser, Martin Mohring
 %patch15 -p1
 %patch16 -p1
 %patch17 -p1
+%patch18 -p1
+%patch19 -p1
+%patch20 -p1
 # drop build script, we require the installed one from own package
 rm -rf src/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
