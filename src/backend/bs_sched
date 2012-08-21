@@ -4149,6 +4149,7 @@ sub checkaggregate {
 	    $m .= "$binary->{'filename'}\0$binary->{'mtime'}/$binary->{'size'}/0\0";
 	  }
 	} else {
+	  next if $aprojid eq $projid && $arepoid eq $repoid && $apackid eq $packid;
 	  my $d = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
 	  my @d = grep {$_ eq 'updateinfo.xml' || /\.(?:$binsufsre)$/} ls($d);
 	  for my $b (sort @d) {
@@ -4264,6 +4265,7 @@ sub rebuildaggregate {
 	    push @d, "$jobdatadir/$bin->{'name'}";
 	  }
         } else {
+	  next if $aprojid eq $projid && $arepoid eq $repoid && $apackid eq $packid;
 	  my $d = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
 	  $updateinfo = "$d/updateinfo.xml" if -f "$d/updateinfo.xml";
 	  @d = grep {/\.(?:$binsufsre)$/} ls($d);
