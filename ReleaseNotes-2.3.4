@@ -1,0 +1,33 @@
+#
+# openSUSE Build Service 2.3.4
+#
+
+Updaters from any OBS 2.3 release can just ugrade the packages and restart
+all services. Updaters from former releases should read the
+README.UPDATERS file.
+
+Feature backports:
+==================
+
+* Added "Hostarch" in _buildinfo for osc local builds of cross builds
+
+Changes:
+========
+
+* Added openSUSE 12.2 to default target list
+
+* Removed openSUSE 11.4 from default target list (EOL soon)
+
+* Fedora 15 is EOL, removed from default list
+
+Bugfixes:
+=========
+
+* webui: fixed underscores in code listings
+
+* webui: Do not expose user email address in anonymous mode
+
+* backend: increase vrev on package source copy
+
+* obsworker: do not fail when no /etc/sysconfig/proxy exists
+
