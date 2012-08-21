@@ -40,6 +40,14 @@
   <icon url="https://static.opensuse.org/distributions/logos/opensuse.png"/>
   <link>http://www.opensuse.org/</link>
  </distribution>
+ <distribution vendor="openSUSE" version="12.2ARM" id="opensuse-12.2-ARM">
+  <name>openSUSE Factory ARM</name>
+  <project>openSUSE.org:openSUSE:12.2:ARM</project>
+  <reponame>openSUSE_12.2_ARM</reponame>
+  <repository>standard</repository>
+  <icon url="https://static.opensuse.org/distributions/logos/opensuse.png"/>
+  <link>http://www.opensuse.org/</link>
+ </distribution>
  <distribution vendor="SUSE" version="SLE-11" id="suse-SLE-11-SP2">
   <name>SUSE SLE-11 SP2</name>
   <project>openSUSE.org:SUSE:SLE-11:SP2</project>
