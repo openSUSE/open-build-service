@@ -6593,18 +6593,22 @@ eval {
       }
       if (!%unfinished && !$publisherror) {
 	$prpfinished{$prp} = 1;
+	# write out lastcheck cache and delete it
+	if ($lastcheck{$prp} && %{$lastcheck{$prp}}) {
+	  BSUtil::store("$reporoot/$prp/$myarch/.:lastcheck", "$reporoot/$prp/$myarch/:lastcheck", $lastcheck{$prp}) if $lastcheck{$prp};
+	} else {
+	  unlink("$reporoot/$prp/$myarch/:lastcheck");
+	}
+	delete $lastcheck{$prp};
+	# delete pkg meta cache
+	delete $repodatas{$prp}->{'meta'} if $repodatas{$prp};
 	if (!$prpnoleaf{$prp}) {
-	  # only free data if all projects we depend on are finished, too.
+	  # only free repo data if all projects we depend on are finished, too.
 	  # (we always have to do the expansion if something changes)
 	  if (! grep {!$prpfinished{$_}} @{$prpdeps{$prp}}) {
 	    print "    leaf prp, freeing data\n";
-	    BSUtil::store("$reporoot/$prp/$myarch/.:lastcheck", "$reporoot/$prp/$myarch/:lastcheck", $lastcheck{$prp}) if $lastcheck{$prp};
-	    delete $lastcheck{$prp};
 	    delete $repodatas{$prp};
 	  }
-	} else {
-	  # at least free the pkg meta cache
-	  delete $repodatas{$prp}->{'meta'} if $repodatas{$prp};
 	}
       }
     } else {
