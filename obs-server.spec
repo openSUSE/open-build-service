@@ -21,7 +21,7 @@ Summary:        The Open Build Service -- Server Component
 License:        GPL-2.0 ; GPL-3.0
 Group:          Productivity/Networking/Web/Utilities
 Version:        2.3.1
-Release:        mer4
+Release:        4
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 # git clone git://gitorious.org/opensuse/build-service.git build-service-1.7.54; tar cfvj obs-server-1.7.54.tar.bz2 --exclude=.git\* build-service-1.7.54/
