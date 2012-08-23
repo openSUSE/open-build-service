@@ -48,6 +48,7 @@ Patch17: 0017-api-backend-Allow-per-package-build-flag-in-project-.patch
 Patch18: 0018-Allow-package-build-flags-in-prjmeta-to-override-arc.patch
 Patch19: 0019-Try-harder-to-preserve-flags.-Also-preserve-package-.patch
 Patch20: 0020-Correct-the-api-db-migration.patch
+Patch21: 0021-Remove-validation-from-Configuration-screen.patch
 
 BuildRequires:  python-devel
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
@@ -253,6 +254,7 @@ Authors:       Susanne Oberhauser, Martin Mohring
 %patch18 -p1
 %patch19 -p1
 %patch20 -p1
+%patch21 -p1
 # drop build script, we require the installed one from own package
 rm -rf src/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf

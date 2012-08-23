@@ -3,6 +3,7 @@
  - Patches fdrom Islam Amer:
    - Allow package build flags in prjmeta to override arch flags
    - Try harder to preserve flags. Also preserve package flags in the project meta
+ - Ignore validation in configuration screen
 
 * Thu Aug 09 2012 David Greaves <david@dgreaves.com> - 2.3.1-mer3
  - Provide OBS_WORKER_DISCRETE_IDS
