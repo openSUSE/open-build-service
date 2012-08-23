@@ -4464,7 +4464,7 @@ sub checkpackage {
   # with 4 elements to save precious memory
   # srcmd5.metamd5.hdrmetamd5.statdata (32+32+32+x)
   my $lastcheck = $ctx->{'lastcheck'};
-  my $mylastcheck = $lastcheck->{"$prp/$packid"};
+  my $mylastcheck = $lastcheck->{$packid};
   my @meta;
   if (!@meta_s || !$mylastcheck || substr($mylastcheck, 96) ne "$meta_s[9]/$meta_s[7]/$meta_s[1]") {
     if (open(F, '<', "$reporoot/$prp/$myarch/:meta/$packid")) {
@@ -4480,9 +4480,9 @@ sub checkpackage {
       }
       $mylastcheck .= 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
       $mylastcheck .= "$meta_s[9]/$meta_s[7]/$meta_s[1]";
-      $lastcheck->{"$prp/$packid"} = $mylastcheck;
+      $lastcheck->{$packid} = $mylastcheck;
     } else {
-      delete $lastcheck->{"$prp/$packid"};
+      delete $lastcheck->{$packid};
       undef $mylastcheck;
     }
   }
@@ -4563,7 +4563,7 @@ sub checkpackage {
       # print "      - $packid ($packtype)\n";
       # print "        nothing changed (looked harder)\n";
       $ctx->{'nharder'}++;
-      $lastcheck->{"$prp/$packid"} = $mylastcheck;
+      $lastcheck->{$packid} = $mylastcheck;
       goto relsynccheck;
     }
     # something changed, read in old meta (if not already done)
@@ -4581,10 +4581,10 @@ sub checkpackage {
       # print "        nothing changed (looked harder)\n";
       $ctx->{'nharder'}++;
       if ($repo->{'rebuild'} && $repo->{'rebuild'} eq 'direct') {
-	$lastcheck->{"$prp/$packid"} = $mylastcheck;
+	$lastcheck->{$packid} = $mylastcheck;
       } else {
 	# should not happen, delete lastcheck cache
-	delete $lastcheck->{"$prp/$packid"};
+	delete $lastcheck->{$packid};
       }
       goto relsynccheck;
     }
@@ -5864,9 +5864,8 @@ eval {
 	delete $prpunfinished{$prp};
 	delete $prpchecktimes{$prp};
 	delete $repodatas{$prp};
-
+	delete $lastcheck{$prp};
 	for my $dir (ls("$reporoot/$prp/$myarch")) {
-	  delete $lastcheck{"$prp/$dir"};
 	  # need lock for deleting publish area
 	  next if $dir eq ':repo' || $dir eq ':repoinfo';
 	  if (-d "$reporoot/$prp/$myarch/$dir") {
@@ -5881,7 +5880,7 @@ eval {
 	killbuilding($prp);
 	prpfinished($prp);
 	# now that :repo is gone we can remove the directory
-	while(!rmdir("$reporoot/$prp/$myarch")) {
+	while (!rmdir("$reporoot/$prp/$myarch")) {
 	  die("$reporoot/$prp/$myarch: $!\n") unless -e "$reporoot/$prp/$myarch/:schedulerstate.dirty";
 	  print "rep server created dirty file $reporoot/$prp/$myarch/:schedulerstate.dirty, retry ...\n";
 	  unlink("$reporoot/$prp/$myarch/:schedulerstate.dirty");
@@ -5988,11 +5987,20 @@ eval {
 
     print "  - $prp\n";
 
+    if (!$lastcheck{$prp}) {
+      my $oldlastcheck = BSUtil::retrieve("$reporoot/$prp/$myarch/:lastcheck", 1) || {};
+      my $packs = $projpacks->{$projid}->{'package'} || {};
+      for (keys %$oldlastcheck) {
+	# delete old cruft
+	delete $oldlastcheck->{$_} unless $packs->{$_};
+      }
+      $lastcheck{$prp} = $oldlastcheck;
+    }
     my $ctx = { 'project' => $projid, 'repository' => $repoid, 'prp' => $prp,
 		'repo' => $repo,
 		'prpsearchpath' => $prpsearchpath{$prp} || [], 'conf' => $bconf,
 		'prpfinished' => \%prpfinished, 'prpnotready' => \%prpnotready,
-		'lastcheck' => \%lastcheck };
+		'lastcheck' => $lastcheck{$prp} };
 
     if ($repo->{'status'} && $repo->{'status'} eq 'disabled') {
       print "      disabled\n";
@@ -6025,7 +6033,7 @@ eval {
 	  print "      - $packid: is excluded\n";
 	}
       }
-      delete $lastcheck{"$prp/$packid"};
+      delete $lastcheck{$prp}->{$packid};
       my $gdst = "$reporoot/$prp/$myarch";
       # delete full entries
       my $useforbuildenabled = 1;
@@ -6590,7 +6598,8 @@ eval {
 	  # (we always have to do the expansion if something changes)
 	  if (! grep {!$prpfinished{$_}} @{$prpdeps{$prp}}) {
 	    print "    leaf prp, freeing data\n";
-	    delete $lastcheck{"$prp/$_"} for @packs;
+	    BSUtil::store("$reporoot/$prp/$myarch/.:lastcheck", "$reporoot/$prp/$myarch/:lastcheck", $lastcheck{$prp}) if $lastcheck{$prp};
+	    delete $lastcheck{$prp};
 	    delete $repodatas{$prp};
 	  }
 	} else {
