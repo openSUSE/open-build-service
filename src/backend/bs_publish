@@ -195,7 +195,7 @@ sub db_sync {
     'uri' => "$BSConfig::srcserver/search/published",
     'request' => 'POST',
     'maxredirects' => 3,
-    'timeout' => 60,
+    'timeout' => $timeout,
     'headers' => [ 'Content-Type: application/octet-stream' ],
     'data' => $data,
   };
