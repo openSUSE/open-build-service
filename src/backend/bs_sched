@@ -6225,12 +6225,17 @@ eval {
 	}
       }
     }
+    my %prunedsubpacks;
+    for (values %pkg2src) {
+      $prunedsubpacks{$_} = $subpacks{$_} if $subpacks{$_};
+    }
     BSUtil::store("$reporoot/$prp/$myarch/.:depends", "$reporoot/$prp/$myarch/:depends", {
       'pkgdeps' => \%pdeps,
-      'subpacks' => \%subpacks,
+      'subpacks' => \%prunedsubpacks,
       'pkg2src' => \%pkg2src,
       'cycles' => \@cycles,
     });
+    %prunedsubpacks = ();
     # remove old entries again
     for (keys %pkgdisabled) {
       $pdeps{$_} = [];
