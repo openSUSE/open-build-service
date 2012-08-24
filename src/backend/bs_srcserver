@@ -4694,6 +4694,7 @@ sub sourcecopy {
   die("need a revision to copy\n") if !$cgi->{'rev'} && !$cgi->{'orev'} && $oprojid eq $projid && $opackid eq $packid && !($files->{'_link'} && $cgi->{'expand'});
 
   my $autosimplifylink;
+  my $autosimplifylink_lrev;
 
   if ($files->{'_link'} && !$cgi->{'dontupdatesource'} && !$cgi->{'rev'}) {
     # fix me: do this in a more generic way
@@ -4705,9 +4706,10 @@ sub sourcecopy {
       $lprojid = $ol->{'project'} if exists $ol->{'project'};
       $lpackid = $ol->{'package'} if exists $ol->{'package'};
       if ($lprojid eq $projid && $lpackid eq $packid) {
-        # copy destination is target of link
+	# copy destination is target of link
 	# we're integrating this link
-        $lrev = getrev($lprojid, $lpackid, $lrev);
+	$lrev = getrev($lprojid, $lpackid, $lrev);
+	$autosimplifylink_lrev = { %$lrev };
 	my $lfiles = $cgi->{'noservice'} && !$cgi->{'expand'} ? lsrev_service({ %$lrev }) : lsrev($lrev);
 	if ($lfiles->{'_link'} && !$cgi->{'expand'}) {
 	  # link to a link, join
@@ -4743,12 +4745,26 @@ sub sourcecopy {
 
   if ($autosimplifylink && !defined($autosimplifylink->{'rev'})) {
     $orev->{'srcmd5'} = $orev_srcmd5;	# back to unexpanded
+
+    # make sure that vrev doesn't decrease when copying to the
+    # link target
+    my $vrevbump = 0;
+    if ($rev && $autosimplifylink_lrev && $rev->{'version'} ne $autosimplifylink_lrev->{'version'}) {
+      # version change, check if vrev went down
+      my $vrev1 = $rev->{'vrev'} || '0';
+      my $vrev2 = $autosimplifylink_lrev->{'vrev'} || '0';
+      $vrev1 =~ s/.*?(\d+)$/$1/;
+      $vrev2 =~ s/.*?(\d+)$/$1/;
+      $vrevbump = $vrev2 > $vrev1 ? $vrev2 - $vrev1 : 0;
+    }
+
     my $isbranch = grep {(keys %$_)[0] eq 'branch'} @{$autosimplifylink->{'patches'}->{''} || []};
     if ($isbranch) {
       # update base rev so that there are no changes
       # FIXME: this is a gross hack...
       # we should not need to update the baserev, instead we should change
       # the way branches get applied
+
       my $ofiles = lsrev($orev);
       delete $ofiles->{'_link'};
       copyfiles($projid, $packid, $oprojid, $opackid, $ofiles);
@@ -4776,6 +4792,10 @@ sub sourcecopy {
 	      writexml("$uploaddir/$$", undef, $latestl, $BSXML::link);
               $latestfiles->{'_link'} = addfile($oprojid, $opackid, "$uploaddir/$$", '_link');
               my $servicemark = update_link_in_service($latestorev, $latestfiles, $latestlinkinfo->{'xservicemd5'}, 1);
+	      if ($vrevbump) {
+		$cgi->{'vrev'} = $latestorev->{'vrev'};
+		$cgi->{'vrev'} =~ s/(\d+)$/$1 + $vrevbump/e;
+	      }
               addrev({ %$cgi, 'user' => 'buildservice-autocommit', 'comment' => 'baserev update by copy to link target', 'servicemark' => $servicemark }, $oprojid, $opackid, $latestfiles);
 	    }
 	  }
@@ -4797,11 +4817,16 @@ sub sourcecopy {
           my $ofiles = {};
           $ofiles->{'_link'} = addfile($oprojid, $opackid, "$uploaddir/$$", '_link');
           my $servicemark = update_link_in_service($latestorev, $ofiles, $latestlinkinfo->{'xservicemd5'}, 0);
+	  if ($vrevbump) {
+	    $cgi->{'vrev'} = $latestorev->{'vrev'};
+	    $cgi->{'vrev'} =~ s/(\d+)$/$1 + $vrevbump/e;
+	  }
           addrev({ %$cgi, 'user' => 'buildservice-autocommit', 'comment' => 'auto commit by copy to link target', 'servicemark' => $servicemark }, $oprojid, $opackid, $ofiles);
         }
       };
       warn($@) if $@;
     }
+    delete $cgi->{'vrev'} if $vrevbump;
   }
 
   runservice($cgi, $rev, $files) unless $cgi->{'noservice'};
