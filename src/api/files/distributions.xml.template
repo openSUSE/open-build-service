@@ -41,7 +41,7 @@
   <link>http://www.opensuse.org/</link>
  </distribution>
  <distribution vendor="openSUSE" version="12.2ARM" id="opensuse-12.2-ARM">
-  <name>openSUSE Factory ARM</name>
+  <name>openSUSE 12.2 ARM</name>
   <project>openSUSE.org:openSUSE:12.2:ARM</project>
   <reponame>openSUSE_12.2_ARM</reponame>
   <repository>standard</repository>
