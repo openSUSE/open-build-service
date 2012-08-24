@@ -989,6 +989,8 @@ sub makedeltas {
     }
   }
 
+  my %ddir = map {$_ => 1} ls($ddir);
+
   for my $packid (@{$packs || []}) {
     next if $pubenabled && !$pubenabled->{$packid};
     my $pdir = "$reporoot/$prp/$myarch/$packid";
@@ -1040,30 +1042,31 @@ sub makedeltas {
 	  next unless @s;
 	  my $deltaid = Digest::MD5::md5_hex("$packid/$bin/$aprp/$obin/$s[9]/$s[7]/$s[1]");
 	  $deltaids{$deltaid} = 1;
-	  if (-e "$ddir/$deltaid" && (-e "$ddir/$deltaid.dseq" || ! -s "$ddir/$deltaid")) {
+          if ($ddir{$deltaid}) {
+	    next unless $ddir{"$deltaid.dseq"};		# delta was too big
 	    # make sure we don't already have this one
 	    if (!grep {$_->[1] eq $obin} @{$havedelta{"$packid/$bin"} || []}) {
 	      push @{$havedelta{"$packid/$bin"}}, [ $deltaid, $obin ];
 	    }
-	  } else {
-	    $unfinished = 1;
-	    next if $running_ids{$deltaid};
-	    push @needdelta, [ "$aextrep/$binarch/$obin", "$pdir/$bin", $deltaid ];
-	    $jobsize += $s[7] + $binstat[7];
-	    if ($jobsize > 500000000) {
-	      # flush the job
-	      if ($running_jobs >= $maxjobs) {
-		print "    too many delta jobs running\n";
-	        $partial_job = 1;
-	        last;
-	      }
-	      $suffix++ if defined $suffix;
-	      my ($job, $joberror) = createdeltajob($projid, $repoid, '_deltas', $bconf, $prpsearchpath, $suffix, \@needdelta);
-	      return (undef, $joberror) if $joberror;
-	      $running_jobs++ if $job;
-	      @needdelta = ();
-	      $jobsize = 0;
+            next;
+          }
+	  $unfinished = 1;
+	  next if $running_ids{$deltaid};
+	  push @needdelta, [ "$aextrep/$binarch/$obin", "$pdir/$bin", $deltaid ];
+	  $jobsize += $s[7] + $binstat[7];
+	  if ($jobsize > 500000000) {
+	    # flush the job
+	    if ($running_jobs >= $maxjobs) {
+	      print "    too many delta jobs running\n";
+	      $partial_job = 1;
+	      last;
 	    }
+	    $suffix++ if defined $suffix;
+	    my ($job, $joberror) = createdeltajob($projid, $repoid, '_deltas', $bconf, $prpsearchpath, $suffix, \@needdelta);
+	    return (undef, $joberror) if $joberror;
+	    $running_jobs++ if $job;
+	    @needdelta = ();
+	    $jobsize = 0;
 	  }
 	}
 	last if $partial_job;
