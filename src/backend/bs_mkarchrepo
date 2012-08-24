@@ -2,8 +2,9 @@
 
 BEGIN {
   my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
   unshift @INC,  "$wd/build";
-  unshift @INC,  $wd; 
+  unshift @INC,  "$wd";
 }
 
 use strict;
