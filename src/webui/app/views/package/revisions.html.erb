@@ -11,7 +11,7 @@
     <% @upper_bound.downto(@lower_bound) do |rev| %>
       <div id="commit_item_<%= rev %>">
         <%= render(:partial => 'commit_item', :locals => {:rev => rev }) %>
-        <%= link_to(image_tag('icons/folder_go.png'), :action => 'files', :project => @project, :package => @package, :rev => rev) %>
+        <%= link_to(image_tag('folder_go.png'), :action => 'files', :project => @project, :package => @package, :rev => rev) %>
         <%= link_to('Show source', :action => 'files', :project => @project, :package => @package, :rev => rev) %>
       </div>
     <% end %>

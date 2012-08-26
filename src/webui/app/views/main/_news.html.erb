@@ -16,20 +16,20 @@
               <td>
                 <% case msg.severity.to_i 
                    when 3 %>
-                    <%= image_tag('icons/exclamation.png') %>
+                    <%= image_tag('exclamation.png') %>
                   <% when 2 %>
-                    <%= image_tag('icons/error.png') %>
+                    <%= image_tag('error.png') %>
                   <% when 1 %>
-                    <%= image_tag('icons/accept.png') %>
+                    <%= image_tag('accept.png') %>
                   <% else %>
-                    <%= image_tag('icons/information.png') %>
+                    <%= image_tag('information.png') %>
                 <% end %>
                 <%= raw msg.to_s %>
               </td>
               <td class="nowrap" style="width: 1%"><%= fuzzy_time_string(msg.created_at) %></td>
               <td class="nowrap" style="width: 1%"><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => msg.value(:user), :short => true }%></td>
               <% if @user and @user.is_admin? %>
-                <td class="norwap" style="width: 1%"><%= link_to(image_tag('icons/comment_delete.png', :title => 'Remove message'), {:controller => 'main', :action => 'delete_message_dialog', :message_id => msg.msg_id}, :remote => true) %></td>
+                <td class="norwap" style="width: 1%"><%= link_to(image_tag('comment_delete.png', :title => 'Remove message'), {:controller => 'main', :action => 'delete_message_dialog', :message_id => msg.msg_id}, :remote => true) %></td>
               <% end %>
             </tr>
           <% end %>
@@ -39,7 +39,7 @@
 
     <% if @user and @user.is_admin? %>
       <p>
-      <%= link_to(image_tag('icons/comment_add.png', :title => 'Add new message'), {:controller => 'main', :action => 'add_news_dialog'}, :remote => true) %>
+      <%= link_to(image_tag('comment_add.png', :title => 'Add new message'), {:controller => 'main', :action => 'add_news_dialog'}, :remote => true) %>
       <%= link_to('Add new message', {:controller => 'main', :action => 'add_news_dialog'}, :remote => true) %>
       </p>
     <% end %>

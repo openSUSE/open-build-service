@@ -19,9 +19,9 @@
           <% if rqs_in && rqs_in.length > 0 %>
             <% text = "#{rqs_in.length} open request#{rqs_in.length == 1 ? '' : 's'}" %>
             <% if rqs_in.length == 1 %>
-              <%= link_to(image_tag('icons/exclamation.png', :alt => text, :title => text), :controller => 'request', :action => 'show', :id => rqs_in[0].value('id')) %>
+              <%= link_to(image_tag('exclamation.png', :alt => text, :title => text), :controller => 'request', :action => 'show', :id => rqs_in[0].value('id')) %>
             <% else %>
-              <%= link_to(image_tag('icons/exclamation.png', :alt => text, :title => text), :action => 'requests', :project => incident.value('name')) %>
+              <%= link_to(image_tag('exclamation.png', :alt => text, :title => text), :action => 'requests', :project => incident.value('name')) %>
             <% end %>
           <% end %>
           <% rqs_out = incident.requests({:roles => 'source', :states => 'new,review,declined', :types => 'maintenance_release'}) %>
@@ -32,7 +32,7 @@
             <% end %>
           <% else %>
             <% if incident.is_locked? %>
-              <%= image_tag('icons/lock.png', :alt => 'Locked', :title => 'Locked') %>
+              <%= image_tag('lock.png', :alt => 'Locked', :title => 'Locked') %>
             <% end %>
           <% end %>
           <% if rt[:patchinfo] && rt[:patchinfo].value('stopped') && !rt[:patchinfo].value('stopped').empty? %>
@@ -51,7 +51,7 @@
         </td>
       <% else %>
         <td colspan="2">
-          <%= link_to(image_tag('icons/exclamation.png', :alt => 'Missing patchinfo', :title => 'Missing patchinfo'), :controller => 'patchinfo', :action => 'new_patchinfo', :project => incident.value('name'), :package => 'patchinfo') %>
+          <%= link_to(image_tag('exclamation.png', :alt => 'Missing patchinfo', :title => 'Missing patchinfo'), :controller => 'patchinfo', :action => 'new_patchinfo', :project => incident.value('name'), :package => 'patchinfo') %>
           <%= link_to('Missing patchinfo', {:controller => 'patchinfo', :action => 'new_patchinfo', :project => incident.value('name'), :package => 'patchinfo'}, {:style => 'color: red;'}) %>
         </td>
       <% end %>
@@ -85,9 +85,9 @@
       <td>
         <% buildresult_css_id = "incident_#{valid_xml_id(incident.value('name'))}_results_#{valid_xml_id(rt_name)}" %>
         <% if incident.build_succeeded?(rt[:reponame]) %>
-          <%= link_to(image_tag('icons/tick.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => incident.value('name')) %>
+          <%= link_to(image_tag('tick.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => incident.value('name')) %>
         <% else %>
-          <%= link_to(image_tag('icons/exclamation.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => incident.value('name')) %>
+          <%= link_to(image_tag('exclamation.png', :alt => 'Build results', :title => 'Build results', :id => buildresult_css_id), :action => :show, :project => incident.value('name')) %>
         <% end %>
         <%= javascript_tag do %>
           setup_buildresult_tooltip('<%= buildresult_css_id %>', '<%= url_for :controller => 'project', :action => 'buildresult', :project => incident.value('name') %>');

@@ -131,11 +131,11 @@
           <td class="nowrap">
             <span class="hidden"><%= p['name'] %></span>
             <% if icon == "error" -%>
-              <%= image_tag("icons/exclamation.png", :size => "16x16", :title => "Error" ) %>
+              <%= image_tag("exclamation.png", :size => "16x16", :title => "Error" ) %>
             <% elsif icon == "ok" -%>
-              <%= image_tag("icons/accept.png", :size => "16x16", :title => "Ok" ) %>
+              <%= image_tag("accept.png", :size => "16x16", :title => "Ok" ) %>
             <% else -%>
-              <%= image_tag("icons/information.png", :size => "16x16", :title => "So-so" ) %>
+              <%= image_tag("information.png", :size => "16x16", :title => "So-so" ) %>
             <% end -%>
             <%= link_to p['name'], :controller => :package, :action => :show, :project => @project.name, :package => p['name'] %>
           </td>

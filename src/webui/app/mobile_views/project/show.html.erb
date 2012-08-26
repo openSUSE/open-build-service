@@ -36,7 +36,7 @@
 <% unless @requests.blank? %>
 <div data-role="collapsible" data-collapsed="true">
   <h3>Requests (<%= @requests.size %>)</h3>
-  <%= image_tag 'icons/information.png' %> There <%= plural(@requests.size, "is", "are") %>
+  <%= image_tag 'information.png' %> There <%= plural(@requests.size, "is", "are") %>
   <% if @requests.size == 1 -%>
     1 open <%= link_to "request", :action => :show, :controller => :request, :id => @requests[0].value(:id) %>
   <% else -%>
@@ -50,9 +50,9 @@
   <div data-role="collapsible" data-collapsed="true">
     <h3>Build Status
       <% if @buildresult.flatten.select{|state| ['failed', 'unresolvable', 'broken'].include? state }.empty? %>
-        <%= image_tag 'icons/accept.png' %>
+        <%= image_tag 'accept.png' %>
       <% else %>
-        <%= image_tag 'icons/exclamation.png' %>
+        <%= image_tag 'exclamation.png' %>
       <% end -%>
     </h3>
     <div id='buildstatus'>

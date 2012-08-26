@@ -38,7 +38,7 @@
             <%if @issues%>
               <% @issues.reject{|issue| issue.blank? }.each do |issue| %>
                 <div id="issue_<%= issue[0] %>_<%= issue[1] %>">
-                  <%= link_to image_tag('icons/bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#issue_#{issue[0]}_#{issue[1]}').remove(); return false;", :style => "clear:both;", :id => "remove_#{issue[0]}_#{issue[1]}" %>
+                  <%= link_to image_tag('bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#issue_#{issue[0]}_#{issue[1]}').remove(); return false;", :style => "clear:both;", :id => "remove_#{issue[0]}_#{issue[1]}" %>
                   <%= hidden_field_tag "issue[]", "#{issue[0]}", :id => "issueid_#{issue[0]}_#{issue[1]}" %>
                   <%= hidden_field_tag "issuetracker[]", "#{issue[1]}", :id => "issuetracker_#{issue[0]}_#{issue[1]}" %>
                   <%= hidden_field_tag "issueurl[]", "#{issue[2]}", :id => "issueurl_#{issue[0]}_#{issue[1]}" %>
@@ -60,7 +60,7 @@
             <p>
               <%= select_tag "tracker", options_for_select(@trackerlist, :selected => @tracker)%>
               <%= text_field_tag 'issueid', @issueid %>
-              <%= link_to image_tag('icons/bug_add.png', :alt => "Add Bug", :title => "Add an additional bug here (must have 6 numbers) single or a comma-separated list e.g.: \"123456, 654321\""), '#', :onclick => 'append_bug($("#issueid").val(), $("#tracker").val()); return false;' %>
+              <%= link_to image_tag('bug_add.png', :alt => "Add Bug", :title => "Add an additional bug here (must have 6 numbers) single or a comma-separated list e.g.: \"123456, 654321\""), '#', :onclick => 'append_bug($("#issueid").val(), $("#tracker").val()); return false;' %>
               <%= image_tag('ajax-loader.gif', :id => "issue_spinner", :class => "hidden") %>
             </p>
           </div>
@@ -156,7 +156,7 @@
     $("#issue_spinner").hide();
     $("#issuelist").append( "<div id='issue_" + data[0] + "_" + data[1] + "'>" +
       "<a id='remove_" + data[0] + "_" + data[1] +"' onclick='$(\"#issue_" + data[0] + "_" + data[1] + "\").remove(); return false;' href='#'>" +
-          "<img src='/themes/bento/images/icons/bug_delete.png' title='Remove Bug' alt='Remove Bug'></a>" +
+	      "<img src=' + <%= asset_path('bug_delete.png') %>' title='Remove Bug' alt='Remove Bug'></a>" +
       "<input type='hidden' name='issue[]' id='issueid_" + data[0] + "_" + data[1] + "' value='" + data[0] +  "'/>" +
       "<input type='hidden' name='issuetracker[]' id='issuetracker_" + data[0] + "_" + data[1] + "' value='" + data[1] +  "'/>" +
       "<input type='hidden' name='issueurl[]' id='issueurl_" + data[0] + "_" + data[1] + "' value='" + data[2] +  "'/>" +

@@ -79,7 +79,7 @@
   var key = (project + '_' + repo).replace(/[:\.]/g,'_');
   var html = '<div id="' + key +'"><p><%= image_tag("project.png", :title => "Project") %> ' + project + ' / ' + repo;
       var html = html + '<input type="hidden" name="projects[]" value="' + project + '/' + repo + '" />';
-      var html = html + ' <a href="#" onclick="remove_element(\'' + key + '\'); return false;"><%= image_tag("icons/drive_delete.png", :title => "Remove Repository") %></a></p></div>';
+      var html = html + ' <a href="#" onclick="remove_element(\'' + key + '\'); return false;"><%= image_tag("drive_delete.png", :title => "Remove Repository") %></a></p></div>';
   return html;
   }
 
@@ -96,7 +96,7 @@
   create_package_line = function(key, package) {
   var html = '<div id="' + key +'"><p><%= image_tag("package.png", :title => "Package") %> ' + package;
       var html = html + '<input type="hidden" name="packages[]" value="' + package + '" />';
-      var html = html + ' <a href="#" onclick="remove_element(\'' + key + '\'); return false;"><%= image_tag("icons/package_delete.png", :title => "Remove Package") %></a></p></div>';
+      var html = html + ' <a href="#" onclick="remove_element(\'' + key + '\'); return false;"><%= image_tag("package_delete.png", :title => "Remove Package") %></a></p></div>';
   return html;
   }
 
@@ -176,7 +176,7 @@
       <% key = repo.gsub(/[:\.\/]/, '_')  %>
       <div id="<%= key %>"><p><%= image_tag("project.png", :title => "Project") %> <%= repo %>
           <input type="hidden" name="projects[]" value="<%= "#{repo}" %>" />
-          <a href="#" onclick="remove_element('<%= key %>'); return false;"><%= image_tag("icons/drive_delete.png", :title => "Remove Repository") %></a></p></div>
+          <a href="#" onclick="remove_element('<%= key %>'); return false;"><%= image_tag("drive_delete.png", :title => "Remove Repository") %></a></p></div>
     <% end %>
     <% if @repositories.blank? %>
       <div id="no_inst_repos"><p><i>No installation repositories configured yet.</i></p></div>
@@ -185,7 +185,7 @@
 
 
   <div id="add_repo_toggle"><p>
-      <%= image_tag("icons/drive_add.png", :title => "Add Repository") %>
+      <%= image_tag("drive_add.png", :title => "Add Repository") %>
       <%= link_to 'Add repository', '#' %>
     </p></div>
 
@@ -196,7 +196,7 @@
       <span id="target_repo_loader" style="display: none; margin-left: 15px;"><%= image_tag("ajax-loader.gif", :title => "Loading") %> Loading repositories</span>
     </p>
     <div id="add_repo"><p>
-        <%= image_tag("icons/drive_add.png", :title => "Add Repository") %>
+        <%= image_tag("drive_add.png", :title => "Add Repository") %>
         <%= link_to 'Add this repository', '#' %>
       </p>
     </div>
@@ -210,7 +210,7 @@
     <% @packages.each do |pack| %>
       <div id="pack_<%= pack %>"><p><%= image_tag("package.png", :title => "Package") %> <%= pack %>
           <input type="hidden" name="packages[]" value="<%= "#{pack}" %>" />
-          <a href="#" onclick="remove_element('pack_<%= pack %>'); return false;"><%= image_tag("icons/package_delete.png", :title => "Remove Package") %></a></p>
+          <a href="#" onclick="remove_element('pack_<%= pack %>'); return false;"><%= image_tag("package_delete.png", :title => "Remove Package") %></a></p>
         <div id="pack_<%= pack %>_binaries" style="margin-left: 15px;">
           <div style="margin-left: 15px;">
             <% unless @binary_packages[pack].blank? %>
@@ -219,7 +219,7 @@
                   <%= image_tag("package.png", :title => "Binary Package") %>
                   <input type="hidden" value="<%= pack %>/<%= binary %>" name="binaries[]"/>
                   <%= binary %> <a onclick="remove_element('binary_<%= binary %>'); return false;" href="#">
-                    <%= image_tag("icons/package_delete.png", :title => "Remove Package") %></a>
+                    <%= image_tag("package_delete.png", :title => "Remove Package") %></a>
                 </div>
               <% end %>
             <% end %>
@@ -238,7 +238,7 @@
       Name:
       <%= text_field_tag 'target_package', '', :size => 50, :id => 'target_package' %> <i>(gets auto-completed)</i> </p>
     <div id="add_package"><p>
-        <%= image_tag("icons/package_add.png", :title => "Add Package") %>
+        <%= image_tag("package_add.png", :title => "Add Package") %>
         <%= link_to 'Add this package', '#' %>
       </p>
     </div>

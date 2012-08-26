@@ -10,11 +10,11 @@
     <span>
       <% if (@project.is_maintainer?( session[:login] ) || @package.is_maintainer?( session[:login] )) && !@project.is_locked? %>
         <span>
-          <%= link_to image_tag('icons/package_edit.png', :title => 'Edit Patchinfo'), :action => :edit_patchinfo, :project => @project, :package => @package, :spec_count => @spec_count %>
+          <%= link_to image_tag('package_edit.png', :title => 'Edit Patchinfo'), :action => :edit_patchinfo, :project => @project, :package => @package, :spec_count => @spec_count %>
         </span>
 
         <span>
-          <%= link_to image_tag('icons/package_delete.png', :title => 'Remove Patchinfo'), {:action => :remove, :project => @project, :package => @package},
+          <%= link_to image_tag('package_delete.png', :title => 'Remove Patchinfo'), {:action => :remove, :project => @project, :package => @package},
             :data => { :confirm => "Really remove '#{@package}'?", :method => :post } %>
         </span>
       <% end %>

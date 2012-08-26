@@ -13,7 +13,7 @@
       <ul class="clean_list">
         <% if @failures && @failures > 0 %>
           <li>
-            <%= image_tag 'icons/exclamation.png' %>
+            <%= image_tag 'exclamation.png' %>
             <%= @failures %>
             <%= link_to "error#{@failures == 1 ? "" : "s"}", :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
           </li>
@@ -24,13 +24,13 @@
         <% if @package.has_element? :devel %>
           <li>
             <% dpackage = @package.devel.value("package") || @package.name %>
-            <%= image_tag 'icons/information.png' %>
+            <%= image_tag 'information.png' %>
             Developed at <%= link_to(elide(@package.devel.project, 44), :action => :show, :controller => :package, :project => @package.devel.project, :package => dpackage) %>
           </li>
         <% end %>
         <% if !@package.developed_packages.blank? %>
           <li>
-            <%= image_tag 'icons/information.png' %>
+            <%= image_tag 'information.png' %>
             Devel package for
             <% @package.developed_packages.each_with_index do |pkg, index| %>
               <%= ',' if index > 0 %>
@@ -40,7 +40,7 @@
         <% end %>
         <% if @package.name =~ %r{^_patchinfo} %>
           <li>
-            <%= image_tag 'icons/information.png' %>
+            <%= image_tag 'information.png' %>
             Has a <%= link_to 'patchinfo', :controller => :patchinfo, :action => :show, :package => @package, :project => @project %>
             for <%= link_to 'maintenance updates', 'http://wiki.opensuse.org/openSUSE:Maintenance' %>
             <%#TODO: Fix this hard link %>
@@ -48,22 +48,22 @@
         <% end %>
         <% if @linking_packages && @linking_packages.size > 0 %>
           <li>
-            <%= image_tag 'icons/information.png' %>
+            <%= image_tag 'information.png' %>
             <%= @linking_packages.size %> <%= link_to("derived packages", {:action => :linking_packages, :project => @project, :package => @package }, :remote => true) %>
           </li>
         <% end %>
         <% if @linkinfo %>
           <% linked_project, linked_package = @linkinfo.project, @linkinfo.package %>
           <li>
-            <%= image_tag 'icons/package_link.png' %> Links to
+            <%= image_tag 'package_link.png' %> Links to
             <%= render :partial => 'shared/project_or_package_link', :locals => {:project => linked_project, :package => linked_package, :short => true} %>
           </li>
           <% if @linkinfo.value :error %>
-            <li><%= image_tag 'icons/exclamation.png' %> Link has errors: <i><%= @linkinfo.error %></i></li>
+            <li><%= image_tag 'exclamation.png' %> Link has errors: <i><%= @linkinfo.error %></i></li>
           <% else %>
             <%#TODO: Only display if there is really a diff: %>
             <li>
-              <%= image_tag 'icons/information.png' %>
+              <%= image_tag 'information.png' %>
               Could have <%= link_to_if !Project.is_remote?(linked_project), 'a link diff', :action => :rdiff, :oproject => linked_project, :opackage => linked_package, :project => @project, :package => @package, :rev => @revision %>
             </li>
           <% end%>
@@ -83,37 +83,37 @@
         <% if session[:login] %>
           <% if @current_rev %>
             <li>
-              <%= link_to(image_tag('icons/arrow_branch.png', :title => 'Branch package'), {:action => :branch_dialog, :project => @project, :package => @package}, :remote => true) %>
+              <%= link_to(image_tag('arrow_branch.png', :title => 'Branch package'), {:action => :branch_dialog, :project => @project, :package => @package}, :remote => true) %>
               <%= link_to('Branch package', {:action => :branch_dialog, :project => @project, :package => @package}, :remote => true) %>
             </li>
             <li>
-              <%= link_to(image_tag('icons/package_go.png', :title => 'Submit package'), {:action => :submit_request_dialog, :project => @project, :package => @package}, :remote => true) %>
+              <%= link_to(image_tag('package_go.png', :title => 'Submit package'), {:action => :submit_request_dialog, :project => @project, :package => @package}, :remote => true) %>
               <%= link_to('Submit package', {:action => :submit_request_dialog, :project => @project, :package => @package}, :remote => true) %>
             </li>
           <% end %>
           <% if @package.can_edit?(session[:login]) %>
             <li>
-              <%= link_to image_tag('icons/package_edit.png', :title => "Edit description"), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
+              <%= link_to image_tag('package_edit.png', :title => "Edit description"), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
               <%= link_to "Edit description", :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
             </li>
             <li>
-              <%= link_to(image_tag('icons/package_delete.png', :title => 'Delete package'), {:action => :delete_dialog, :package => @package, :project => @project}, :remote => true) %>
+              <%= link_to(image_tag('package_delete.png', :title => 'Delete package'), {:action => :delete_dialog, :package => @package, :project => @project}, :remote => true) %>
               <%= link_to('Delete package', {:action => :delete_dialog, :package => @package, :project => @project}, :remote => true) %>
             </li>
           <% else %>
             <li>
-              <%= link_to(image_tag('icons/user_add.png', :title => "Request role addition"), {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}, :remote => true) %>
+              <%= link_to(image_tag('user_add.png', :title => "Request role addition"), {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}, :remote => true) %>
               <%= link_to("Request role addition", {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}, :remote => true) %>
             </li>
             <li>
-              <%= link_to(image_tag('icons/package_delete.png', :title => 'Request deletion'), {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package}, :remote => true) %>
+              <%= link_to(image_tag('package_delete.png', :title => 'Request deletion'), {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package}, :remote => true) %>
               <%= link_to('Request deletion', {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package}, :remote => true) %>
             </li>
           <% end %>
           <%# TODO: only users w/o rights should see this, maintainers should get a different dialog: %>
           <% if @package.has_element?(:devel) %>
             <li>
-              <%= link_to(image_tag('icons/arrow_switch.png', :title => 'Request devel project change'), {:controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package}, :remote => true) %>
+              <%= link_to(image_tag('arrow_switch.png', :title => 'Request devel project change'), {:controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package}, :remote => true) %>
               <%= link_to('Request devel project change', {:controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package}, :remote => true) %>
             </li>
           <% end %>
@@ -152,10 +152,10 @@
             <td>
               <%# limit download for anonymous user to avoid getting killed by crawlers %>
               <% if @user or file[:size].to_i < ( 4 * 1024 * 1024 ) %>
-                <%= link_to image_tag('icons/page_white_get.png', :alt => "Download", :title => "Download File"), file_url(@project, @package, file[:name], file[:srcmd5]) %>
+                <%= link_to image_tag('page_white_get.png', :alt => "Download", :title => "Download File"), file_url(@project, @package, file[:name], file[:srcmd5]) %>
               <% end %>
               <% if @package.can_edit?( session[:login] ) %>
-                <%= link_to image_tag('icons/page_white_delete.png', :alt => "Remove", :title => "Remove File"), {:action => :remove_file, :project => @project,
+                <%= link_to image_tag('page_white_delete.png', :alt => "Remove", :title => "Remove File"), {:action => :remove_file, :project => @project,
                   :package => @package, :filename => file[:name]},
                   {:confirm => "Really remove file '#{file[:name]}'?", :method => :post }%>
               <% end %>
@@ -180,7 +180,7 @@
       </span>
     <% end %>
     <% if @package.can_edit?( session[:login] ) %>
-      <%= link_to image_tag('icons/page_white_add.png', :title => "Add file"), :action => :add_file, :project => @project, :package => @package %>
+      <%= link_to image_tag('page_white_add.png', :title => "Add file"), :action => :add_file, :project => @project, :package => @package %>
       <%= link_to 'Add file', :action => :add_file, :project => @project, :package => @package %>
     <% end %>
   </p>

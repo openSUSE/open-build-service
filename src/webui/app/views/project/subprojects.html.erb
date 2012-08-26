@@ -49,7 +49,7 @@
 <% end %>
 <% if @project.can_edit?(session[:login]) %>
   <p>
-    <%= link_to image_tag('icons/brick_add.png', :title => 'Create subproject'), :controller => :project, :action => :new, :ns => @project.name %>
+    <%= link_to image_tag('brick_add.png', :title => 'Create subproject'), :controller => :project, :action => :new, :ns => @project.name %>
     <%= link_to 'Create subproject', :controller => :project, :action => :new, :ns => @project.name %>
   </p>
 <% end %>

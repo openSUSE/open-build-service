@@ -22,15 +22,15 @@
   </div>
   <div class="grid_6 omega">
     <ul class="clean_list">
-      <li><%= image_tag('icons/user_green.png') %> Created by <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => @req.creator.value('login'), :no_icon => true, :short => true} %> <%= fuzzy_time_string(@req.created_at.to_s) %></li>
-      <li><%= image_tag('icons/information.png') %> In state <b><%= @state %></b></li>
+      <li><%= image_tag('user_green.png') %> Created by <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => @req.creator.value('login'), :no_icon => true, :short => true} %> <%= fuzzy_time_string(@req.created_at.to_s) %></li>
+      <li><%= image_tag('information.png') %> In state <b><%= @state %></b></li>
       <% if @superseded_by %>
-        <li><%= image_tag('icons/exclamation.png') %> Superseded by <%= link_to @superseded_by, :id => @superseded_by %></li>
+        <li><%= image_tag('exclamation.png') %> Superseded by <%= link_to @superseded_by, :id => @superseded_by %></li>
       <% end %>
       <% if @other_open_reviews.length > 0 %>
         <% @other_open_reviews.each do |review| %>
           <li>
-            <%= image_tag('icons/exclamation.png') %> Open review for
+            <%= image_tag('exclamation.png') %> Open review for
             <%= render :partial => 'reviewer', :locals => {:review => review} %>
           </li>
         <% end %>
@@ -212,11 +212,11 @@
                 <% end %>
                 <span style="float: right;">
                   <% if @can_add_reviews %>
-                    <%= link_to(image_tag('icons/user_add.png', :title => 'Add a review'), {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}, :remote => true) %>
+                    <%= link_to(image_tag('user_add.png', :title => 'Add a review'), {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}, :remote => true) %>
                     <%= link_to('Add a review', {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}, :remote => true) %>
                   <% end %>
                   <% if reqtype(@req) == 'incident' %>
-                    <%= link_to(image_tag('icons/package_link.png', :title => 'Merge with existing incident'), {:controller => 'request', :action => 'set_incident_dialog', :id => @id}, :remote => true) %>
+                    <%= link_to(image_tag('package_link.png', :title => 'Merge with existing incident'), {:controller => 'request', :action => 'set_incident_dialog', :id => @id}, :remote => true) %>
                     <%= link_to('Merge with existing incident', {:controller => 'request', :action => 'set_incident_dialog', :id => @id}, :remote => true) %>
                   <% end %>
                 </span>

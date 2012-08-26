@@ -9,7 +9,7 @@
 
       <% if session[:login] %>
         <span style="float: right">
-          <%= link_to image_tag('icons/brick_add.png', :title => 'Create project'), :controller => :project, :action => :new %>
+          <%= link_to image_tag('brick_add.png', :title => 'Create project'), :controller => :project, :action => :new %>
           <%= link_to 'Create new project', :controller => :project, :action => :new %>
         </span>
       <% end %>

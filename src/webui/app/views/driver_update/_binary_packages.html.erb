@@ -6,7 +6,7 @@
   <%= image_tag("package.png", :title => "Package") %>
   <input type="hidden" name="binaries[]" value="<%= "#{@package}/#{binary}" %>" /> <%= binary %>
   <a href="#" onclick="remove_element('<%= key %>'); return false;">
-  <%= image_tag("icons/package_delete.png", :title => "Remove Package") %></a>
+  <%= image_tag("package_delete.png", :title => "Remove Package") %></a>
   </div>
 <% end %>
 </div>

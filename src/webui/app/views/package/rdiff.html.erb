@@ -31,7 +31,7 @@
   <% end %>
   <% if msg %>
     <p>
-      <%= link_to(image_tag('icons/package_go.png', :title => msg),
+      <%= link_to(image_tag('package_go.png', :title => msg),
           {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => target_project, :targetpackage => target_package, :revision => @rev}, :remote => true) %>
       <%= link_to(msg,
           {:action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => target_project, :targetpackage => target_package, :revision => @rev}, :remote => true) %>

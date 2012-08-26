@@ -4,9 +4,9 @@
   <div data-role="collapsible" data-collapsed="true">
     <h3><%= h repo %>
       <% if archarray.flatten.select{|state| ['failed', 'unresolvable', 'broken'].include? state }.empty? %>
-        <%= image_tag 'icons/accept.png' %>
+        <%= image_tag 'accept.png' %>
       <% else %>
-        <%= image_tag 'icons/exclamation.png' %>
+        <%= image_tag 'exclamation.png' %>
       <% end -%>
     </h3>
     <% archarray.each do |arch, counts| -%>

@@ -82,9 +82,9 @@
               <% if @user -%>
                 <% mail_to = 'mailto:' + Person.email_for_login(user) + '?subject=openSUSE%20Build%20Service%20-%20' + @project.name %>
                 <% mail_to += '/' + @package.name if defined? @package %>
-                <%= link_to(image_tag('icons/email.png', :alt => "Send mail", :title => "Send mail to user"), mail_to) %>
+                <%= link_to(image_tag('email.png', :alt => "Send mail", :title => "Send mail to user"), mail_to) %>
                 <% if @user.is_maintainer?(@project, @package) %>
-                  <%= link_to image_tag('icons/user_delete.png', :alt => "Remove", :title => "Remove user"), {:action => "remove_person", :project => @project, :package => @package, :userid => user}, {:confirm => "Really remove '#{user}'?", :method => :post}%>
+                  <%= link_to image_tag('user_delete.png', :alt => "Remove", :title => "Remove user"), {:action => "remove_person", :project => @project, :package => @package, :userid => user}, {:confirm => "Really remove '#{user}'?", :method => :post}%>
                 <% end %>
               <% end %>
             </td>
@@ -95,7 +95,7 @@
   <% end %>
   <% if @user && @user.is_maintainer?(@project, @package) %>
     <p>
-      <%= link_to image_tag('icons/user_add.png', :alt => "Add user", :title => "Add user"), :action => :add_person, :package => @package, :project => @project %>
+      <%= link_to image_tag('user_add.png', :alt => "Add user", :title => "Add user"), :action => :add_person, :package => @package, :project => @project %>
       <%= link_to 'Add user', :action => :add_person, :package => @package, :project => @project %>
     </p>
   <% end %>
@@ -138,7 +138,7 @@
             <% end %>
             <% if @user and @user.is_maintainer?(@project, @package) %>
               <td>
-                <%= link_to image_tag('icons/group_delete.png', :alt => "Remove", :title => "Remove group"), {:action => "remove_group", :project => @project, :package => @package, :groupid => group}, {:confirm => "Really remove '#{group}'?", :method => :post}%>
+                <%= link_to image_tag('group_delete.png', :alt => "Remove", :title => "Remove group"), {:action => "remove_group", :project => @project, :package => @package, :groupid => group}, {:confirm => "Really remove '#{group}'?", :method => :post}%>
               </td>
             <% end %>
           </tr>
@@ -148,7 +148,7 @@
   <% end %>
   <% if @user and @user.is_maintainer?(@project, @package) %>
     <p>
-      <%= link_to image_tag('icons/group_add.png', :alt => "Add group", :title => "Add group"), :action => :add_group, :package => @package, :project => @project %>
+      <%= link_to image_tag('group_add.png', :alt => "Add group", :title => "Add group"), :action => :add_group, :package => @package, :project => @project %>
       <%= link_to 'Add group', :action => :add_group, :package => @package, :project => @project %>
     </p>
   <% end %>

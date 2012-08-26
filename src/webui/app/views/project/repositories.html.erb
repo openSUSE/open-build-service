@@ -19,7 +19,7 @@
         <% begin -%>
           <% repository.each_path do |path| %>
             <% if path.project == 'deleted' %>
-              <%= image_tag 'icons/exclamation.png' %> Target repository has been removed
+              <%= image_tag 'exclamation.png' %> Target repository has been removed
             <% else %>
               <span><%= path.project + '/' + path.repository %></span><br/>
             <% end %>
@@ -28,14 +28,14 @@
 
         <div style="margin-top: 1em">
           <% if @project.can_edit?( session[:login] ) %>
-            <%= image_tag('icons/drive_edit.png') %>
+            <%= image_tag('drive_edit.png') %>
             <%= link_to('Edit repository', {:action => :edit_repository, :project => @project, :repository => repository.name}, :id => 'edit_repository_link', :remote => true) %>
             <%= javascript_tag do %>
               $('#edit_repository_link').bind('ajax:success', function (event, data, status, xhr) {
                 $("#<%= valid_xml_id(repository.name) %>").html(data);
               });
             <% end %>
-            <%= image_tag('icons/drive_delete.png') %>
+            <%= image_tag('drive_delete.png') %>
             <%= link_to('Remove repository', {:action => :remove_target, :project => @project, :target => repository.name},
               {:confirm => "Really remove repository '#{repository.name}'?", :class => 'x', :method => :post}) %>
             <%= render :partial => 'shared/download_repository_link', :locals => {:project => @project, :repository => repository} %>
@@ -48,7 +48,7 @@
 
 <% if @project.can_edit?( session[:login] ) %>
   <p>
-    <%= link_to(image_tag('icons/drive_add.png', :title => 'Add repository'), :action => 'add_repository_from_default_list', :project => @project) %>
+    <%= link_to(image_tag('drive_add.png', :title => 'Add repository'), :action => 'add_repository_from_default_list', :project => @project) %>
     <%= link_to('Add repositories', :action => 'add_repository_from_default_list', :project => @project) %>
   </p>
 <% end %>
