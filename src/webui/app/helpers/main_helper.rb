@@ -1,10 +1,9 @@
 module MainHelper
 
   def proceed_link(_image, _text, link_opts)
-    out = "<li>" + link_to(image_tag(_image), link_opts) +  "<br/>"
-    out += "<span class='proceed_text'>" + link_to(h(_text), link_opts) + "</span>"
-    out += "</li>"
-    return out.html_safe
+    content_tag(:li, 
+      (link_to(sprite_tag(_image), link_opts) + tag(:br) +
+       content_tag(:span, link_to(_text, link_opts), class: 'proceed_text')))
   end
 
 end

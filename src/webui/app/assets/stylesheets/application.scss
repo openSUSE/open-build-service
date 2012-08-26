@@ -8,17 +8,17 @@
  * You're free to add application-wide styles to this file and they'll appear at the top of the
  * compiled file, but it's generally better to create a new file per style scope.
  *
- *= require_self
- *
- *= require bento/css/reset.css
- *= require bento/css/960.css
- *= require bento/css/base.css
- *= require style.css
- *= require dialog.css
- *= require monitor.css
- *= require package.css
- *= require project.css
- *= require jquery.dataTables.css
- *= require jquery.tooltip.css
- *= require cm2/suse.css
 */
+@import "compass";
+@import "bento/reset";
+@import "bento/960";
+@import "bento/base";
+
+@import "style";
+@import "monitor";
+@import "package";
+@import "project";
+@import "jquery.dataTables";
+@import "jquery.tooltip";
+@import "cm2/suse";
+

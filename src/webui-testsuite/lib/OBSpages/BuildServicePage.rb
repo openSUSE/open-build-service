@@ -278,24 +278,6 @@ class BuildServicePage < WebPage
   
   
   # ============================================================================
-  # Opens home project link in the header of any OBS page.
-  # @note Checks if home project doesn't exist yet and spawns 
-  #   a NewProjectPage. In any other case leads to ProjectOverviewPage.
-  #
-  def open_home_project
-    @driver[:xpath => 
-      "//div[@id='subheader']//a[starts-with(@*,'/project/show?project=home')]"].click
-    sleep 2
-    
-    if flash_message.include? "Your home project doesn't exist yet"
-      $page = NewProjectPage.new_ready @driver
-    else
-      $page = ProjectOverviewPage.new_ready @driver
-    end
-  end
-  
-  
-  # ============================================================================
   # Opens user's home profile from the link in the header.
   #
   def open_home

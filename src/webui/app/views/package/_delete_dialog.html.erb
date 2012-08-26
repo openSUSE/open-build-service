@@ -1,4 +1,3 @@
-<div id="dialog_wrapper">
   <div class="dialog" id="disable_mask"></div>
   <div class="dialog darkgrey_box" id="del_dialog">
     <div class="box box-shadow">
@@ -6,13 +5,14 @@
       <p>Do you really want to delete <%= render :partial => 'shared/project_or_package_link', :locals => {:project => @project.value('name'), :package => @package.value('name')} %>?</p>
 
       <%= form_tag({:controller => :package, :action => :remove}, :method => :post) do %>
+        <div>
         <%= hidden_field_tag(:project, @project) %>
         <%= hidden_field_tag(:package, @package) %>
         <div class="buttons">
           <%= submit_tag("Ok") %>
           <%= link_to_function("Cancel", 'remove_dialog()') %>
         </div>
+       </div>
       <% end %>
     </div>
   </div>
-</div>

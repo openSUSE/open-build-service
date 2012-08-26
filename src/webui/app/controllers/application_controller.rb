@@ -357,6 +357,7 @@ class ApplicationController < ActionController::Base
     return if Rails.env.production? or Rails.env.stage?
     return if request.xhr?
     return unless (response.status.to_i == 200 && response.content_type =~ /text\/html/i)
+    response.headers['Content-Type'] = 'application/xhtml+xml'
 
     errors = []
     xmlbody = String.new response.body

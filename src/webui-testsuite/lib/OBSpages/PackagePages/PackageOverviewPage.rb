@@ -37,7 +37,8 @@ class PackageOverviewPage < PackagePage
   # ============================================================================
   #
   def delete_package
-    @driver[:xpath => "//div[@id='content']//a[text()='Delete package']"].click
+    @driver[id: 'delete-package'].click
+    wait_for_javascript
 
     validate { @driver.include? :xpath => "//div[@id='dialog_wrapper']//h2[text()='Delete Confirmation']" }
     
@@ -53,8 +54,8 @@ class PackageOverviewPage < PackagePage
   # ============================================================================
   #
   def request_deletion description
-    @driver[:xpath => 
-      "//div[@id='content']//a[text()='Request deletion']"].click
+    @driver[xpath: "//*[@id='content']//*[text()='Request deletion']"].click
+    wait_for_javascript 
       
     validate { @driver.include? :xpath => 
       "//div[@id='dialog_wrapper']//b[text()='Create Delete Request']" }

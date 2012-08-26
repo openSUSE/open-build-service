@@ -5,7 +5,7 @@
 **  License:   see copyright/COPYRIGHT
 */
 
-@import url(dialog.css); /* style for dialog boxes */
+@import "dialog"; /* style for dialog boxes */
 
 .nowrap {
     white-space: nowrap;
@@ -164,16 +164,36 @@ div#log_space_wrapper pre {
     position:relative;
 }
 
-.flagimage:hover{z-index:25; }
+.flagimage:hover {
+  z-index:25; 
 
-.flagimage:hover div.flagtoggle {
-    text-align: left;
-    display:block;
+  div.flagtoggle {
+    display: block;
     background: white;
-    border: 1px solid black;
+    border: 1px solid black; 
     position:absolute;
     top:10px; 
     left:5ex; 
+    padding: 5px;
+    text-align: left;
+
+    div.iconwrapper {
+      position: relative;
+    }
+
+    div.icon_24 {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+    }
+
+    a { 
+      margin-left: 30px;
+      min-height: 27px;
+      display: block;
+    }
+  }
+
 }
 
 .flagerror {
@@ -190,7 +210,6 @@ div#log_space_wrapper pre {
 .show_right { margin-right: 10px; }
 
 table.patchinfo td { vertical-align: middle; }
-
 
 .flot_legend table { 
   display: inline;
@@ -215,11 +234,13 @@ table.patchinfo td { vertical-align: middle; }
 
 .horizontal-list {
   list-style: none inside;
-}
-.horizontal-list li {
+
+ li {
   float: left;
   margin: 0 0 0.5em 0;
-}
+ }
+} 
+
 .horizontal-list:after {
   content: ".";
   display: block;
@@ -329,4 +350,22 @@ div.dataTables_wrapper:after {
   content:"\0020";
   clear: both;
   height: 0;
+}
+
+$icons-layout:smart;
+$icons-sprite-dimensions:true;
+@import "icons/*.png";
+@include all-icons-sprites;
+
+.icon_24 {
+  width: 24px;
+  height: 24px;
+}
+
+.inlineblock {
+  display: inline-block;
+}
+
+#add-new-message {
+  margin-left: 5px;
 }

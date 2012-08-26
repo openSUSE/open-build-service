@@ -11,13 +11,13 @@
     <tbody>
       <% @latest_updates.each do |update| %>
         <tr>
-          <td>
+           <td>
             <% if update.element_name == 'package' %>
-              <%= image_tag 'package.png' %>
-              <%= link_to(elide(update.name, 20), :controller => 'package', :action => 'show', :project => update.project, :package => update.name) %>
+              <%= sprite_tag 'package' %>
+	      <%= link_to(elide(update.name, 20), :controller => 'package', :action => 'show', :project => update.project, :package => update.name) %>
             <% elsif update.element_name == 'project' %>
-              <%= image_tag 'project.png' %>
-              <%= link_to(elide(update.name, 20), :controller => 'project', :action => 'show', :project => update.name) %>
+              <%= sprite_tag 'project' %>
+	      <%= link_to(elide(update.name, 20), :controller => 'project', :action => 'show', :project => update.name) %>
             <% end %>
           </td>
           <td class="nowrap" style="width: 1%"><%= fuzzy_time_string(update.updated) %></td>

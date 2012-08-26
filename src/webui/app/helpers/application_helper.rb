@@ -257,52 +257,44 @@ module ApplicationHelper
     if flag
       if flag.has_attribute? :explicit
         if flag.element_name == 'disable'
-          image = "#{flags.element_name}_disabled_blue.png"
+          image = "#{flags.element_name}_disabled_blue"
         else
-          image = "#{flags.element_name}_enabled_blue.png"
+          image = "#{flags.element_name}_enabled_blue"
         end
       else
         if flag.element_name == 'disable'
-          image = "#{flags.element_name}_disabled_grey.png"
+          image = "#{flags.element_name}_disabled_grey"
         else
-          image = "#{flags.element_name}_enabled_grey.png"
+          image = "#{flags.element_name}_enabled_grey"
         end
       end
 
       if @user && @user.is_maintainer?(@project, @package)
         opts = { :project => @project, :repository => repository, :arch => arch, :package => @package, :flag => flags.element_name, :action => :change_flag }
-        out = "<div class='flagimage'>" + image_tag(image) + "<div class='hidden flagtoggle'>"
+        out = "<div class='flagimage'>" + "<div class='icons-#{image} icon_24'/>" + "<div class='hidden flagtoggle'>"
         unless flag.has_attribute? :explicit and flag.element_name == 'disable'
           out += 
-            "<div class='nowrap'>" +
-            image_tag("#{flags.element_name}_disabled_blue.png", :alt => '0', :size => "24x24") +
-            link_to("Explicitly disable", opts.merge({ :cmd => :set_flag, :status => :disable }), {:class => :flag_trigger}) +
-            "</div>"
+            "<div class='iconwrapper'><div class='icons-#{flags.element_name}_disabled_blue icon_24'></div>" +
+            link_to("Explicitly disable", opts.merge({ :cmd => :set_flag, :status => :disable }), {:class => "nowrap flag_trigger"}) + "</div>"
         end
         if flag.element_name == 'disable'
           out += 
-            "<div class='nowrap'>" +
-            image_tag("#{flags.element_name}_enabled_grey.png", :alt => '1', :size => "24x24") +
-            link_to("Take default", opts.merge({ :cmd => :remove_flag }),:class => :flag_trigger) +
-            "</div>"
+            "<div class='iconwrapper'><div class='icons-#{flags.element_name}_enabled_grey icon_24'></div>" +
+            link_to("Take default", opts.merge({ :cmd => :remove_flag }),:class => "nowrap flag_trigger") + "</div>"
         else
           out += 
-            "<div class='nowrap'>" +
-            image_tag("#{flags.element_name}_disabled_grey.png", :alt => '0', :size => "24x24") +
-            link_to("Take default", opts.merge({ :cmd => :remove_flag }), :class => :flag_trigger)+
-            "</div>"
+	    "<div class='iconwrapper'><div class='icons-#{flags.element_name}_disabled_grey icon_24'></div>" +
+            link_to("Take default", opts.merge({ :cmd => :remove_flag }), :class => "nowrap flag_trigger") + "</div>"
         end if flag.has_attribute? :explicit
         unless flag.has_attribute? :explicit and flag.element_name != 'disable'
           out += 
-            "<div class='nowrap'>" +
-            image_tag("#{flags.element_name}_enabled_blue.png", :alt => '1', :size => "24x24") +
-            link_to("Explicitly enable", opts.merge({ :cmd => :set_flag, :status => :enable }), :class => :flag_trigger) +
-            "</div>"
+	    "<div class='iconwrapper'><div class='icons-#{flags.element_name}_enabled_blue icon_24'></div>" + 
+            link_to("Explicitly enable", opts.merge({ :cmd => :set_flag, :status => :enable }), :class => "nowrap flag_trigger") + "</div>"
         end
         out += "</div></div>"
         out.html_safe
       else
-        image_tag(image)
+        sprite_tag(image)
       end
     else
       ""
@@ -406,5 +398,15 @@ module ApplicationHelper
   def mobile_device?
     request.env['mobile_device_type'] == :mobile
   end
+
+  def sprite_tag(icon, opts = {})
+    if opts.has_key? :class
+	    opts[:class] += " icons-#{icon} inlineblock"
+    else
+	    opts[:class] = "icons-#{icon} inlineblock"
+    end
+    tag("span", opts)
+  end
+
 end
 
