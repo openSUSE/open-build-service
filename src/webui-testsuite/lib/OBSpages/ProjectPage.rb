@@ -69,15 +69,19 @@ class ProjectPage < BuildServicePage
     assert @available_tabs.include? tab 
     
     tab_xpath = 
-      "//div[@id='content']//div[@class='box-header header-tabs']//li/a" 
-    if @advanced_tabs.include? tab then
-      if @driver.include? :xpath => tab_xpath + "[text()='Advanced']" then
-        @driver[ :xpath => tab_xpath + "[text()='Advanced']" ].click
-        wait_for_javascript
+      "//div[@id='#{@tabs_id}']//li/a" 
+    if @advanced_tabs.include? tab
+      trigger = @driver.find_elements(:css => "#advanced_tabs_trigger")
+      if !trigger.first.nil? && trigger.first.displayed?
+        trigger.first.click
+	wait.until do
+          t = @driver.find_element( :xpath => tab_xpath + "[text()='#{tab}']" ) 
+	  t && t.displayed?
+      end
       end
     end
 
-    @driver[ :xpath => tab_xpath + "[text()='" + tab + "']" ].click
+    @driver[ :xpath => tab_xpath + "[text()='#{tab}']" ].click
     $page =  @available_tabs[tab].new_ready @driver
   end
   

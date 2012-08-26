@@ -1,7 +1,7 @@
 <%= content_for :ready_function do %>
   $("#advanced_tabs_trigger").click(function() {
     $("#advanced_tabs").show();
-    $("#advanced_tabs_trigger").remove();
+    $("#advanced_list_item").hide();
   });
 <% end %>
 
@@ -23,7 +23,7 @@
         $("#advanced_tabs").show();
       <% end %>
     <% else %>
-      <li><a href="#" id="advanced_tabs_trigger">Advanced</a></li>
+      <li id="advanced_list_item"><a href="#" id="advanced_tabs_trigger">Advanced</a></li>
     <% end %>
   </ul>
   <% unless @spider_bot -%>

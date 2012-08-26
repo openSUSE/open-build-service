@@ -8,11 +8,11 @@
       data: {
         'states': $('#request_state_select')[0].value,
         'types': $('#request_type_select')[0].value,
-        <%= "'user': '" + userid.to_s + "'," unless not defined?(userid)  %>
-        <%= "'project': '" + project.to_s + "'," unless not defined?(project) %>
-        <%= "'package': '" + package.to_s + "'," unless not defined?(package) %>
-        <%= "'subprojects': 'true'," if defined?(subprojects) && subprojects %>
-        <%= "'no_target': 'true'," if no_target %>
+	<%= raw("'user': '#{userid}',") if defined?(userid)  %>
+	<%= raw("'project': '#{project}',") if defined?(project) %>
+	<%= raw("'package'': '#{package}',") if defined?(package) %>
+        <%= raw("'subprojects': 'true',") if defined?(subprojects) && subprojects %>
+        <%= raw("'no_target': 'true',") if no_target %>
       },
       success: function(data) {
         $('#request_display').html(data);

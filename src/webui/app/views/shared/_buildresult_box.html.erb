@@ -48,9 +48,9 @@
       $.ajax({
         url: '<%= url_for(:controller => controller, :action => 'rpmlint_result') %>',
         data: {
-          <%= "'project': '" + project + "'," unless not defined?(project) %>
-          <%= "'package': '" + package + "'," unless not defined?(package) %>
-          <%= "'index': '" + index.to_s + "'," unless not defined?(index) %>
+          <%= raw("'project': '#{project}',") if defined?(project) %>
+	  <%= raw("'package': '#{package}',") if defined?(package) %>
+	  <%= raw("'index': '#{index}',") if defined?(index) %>
         },
         success: function(data) {
           $('#result_display_<%= index %>_1').html(data);
@@ -77,9 +77,9 @@
     $.ajax({
       url: '<%= url_for(:controller => controller, :action => 'buildresult') %>',
       data: {
-        <%= "'project': '" + project + "'," unless not defined?(project) %>
-        <%= "'package': '" + package + "'," unless not defined?(package) %>
-        <%= "'index': '" + index.to_s + "'," unless not defined?(index) %>
+        <%= raw("'project': '#{project}',") if defined?(project) %>
+	<%= raw("'package': '#{package}',") if defined?(package) %>
+	<%= raw("'index': '#{index}',") if defined?(index) %>
       },
       success: function(data) {
         $('#result_display_<%= index %>_0').html(data);
