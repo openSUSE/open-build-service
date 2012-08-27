@@ -11,7 +11,7 @@ git submodule init
 git submodule update
 
 if [ -n "$USE_MASTER_BACKEND" ]; then
-  git checkout master -- src/backend
+  git checkout origin/master -- src/backend
 fi
 
 echo "Setup backend configuration template"
