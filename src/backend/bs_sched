@@ -4541,8 +4541,14 @@ sub checkpackage {
 	my $meta = $dep2meta->{$bpack};
 	if (!$meta) {
 	  my @m;
+	  # the next line works for deb and rpm
 	  my $mf = substr("$reporoot/$path", 0, -4);
-	  #print "        reading meta for $r->{'path'}\n";
+	  #print "        reading meta for $path\n";
+	  if (! -e "$mf.meta") {
+	    # the generic version
+	    $mf = "$reporoot/$path";
+	    $mf =~ s/\.(?:$binsufsre)$//;
+	  }
 	  if (open(F, '<', "$mf.meta") || open(F, '<', "$mf-MD5SUMS.meta")) {
 	    @m = <F>;
 	    close F;
