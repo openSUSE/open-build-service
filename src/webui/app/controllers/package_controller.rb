@@ -856,6 +856,33 @@ class PackageController < ApplicationController
     redirect_to :action => 'view_file', :package => package, :project => project, :filename => filename
   end
 
+  class RawOutPutStreamer
+    def initialize(frontend, project, package, repository, arch)
+      @frontend = frontend
+      @project = project
+      @package = package
+      @repository = repository
+      @arch = arch
+      @offset = 0
+      @maxsize = 1024 * 256
+    end
+
+    def each
+      begin
+        chunk = @frontend.get_log_chunk(@project, @package, @repository, @arch, @offset, @offset + @maxsize )
+      rescue ActiveXML::Transport::Error
+        puts "error!"
+        return
+      end
+      puts "chunk #{chunk.length}"
+      if chunk.length == 0
+        return  
+      end
+      @offset += chunk.length
+      yield chunk
+    end
+  end
+
   def rawlog
     valid_http_methods :get
 
@@ -877,22 +904,7 @@ class PackageController < ApplicationController
     end
 
     headers['Content-Type'] = 'text/plain'
-    render :text => proc { |response, output|
-      maxsize = 1024 * 256
-      offset = 0
-      while true
-        begin
-          chunk = frontend.get_log_chunk(params[:project], params[:package], params[:repository], params[:arch], offset, offset + maxsize )
-        rescue ActiveXML::Transport::Error
-          chunk = ''
-        end
-        if chunk.length == 0
-          break
-        end
-        offset += chunk.length
-        output.write(chunk)
-      end
-    }
+    self.response_body = RawOutPutStreamer.new(frontend, params[:project], params[:package], params[:repository], params[:arch])
   end
 
   def live_build_log

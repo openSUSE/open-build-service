@@ -344,9 +344,6 @@ class ApplicationController < ActionController::Base
  
   private
 
-  def assert_xml_validates
-  end
-
   def put_body_to_tempfile(xmlbody)
     file = Tempfile.new('xml').path
     file = File.open(file + ".xml", "w")
@@ -359,13 +356,17 @@ class ApplicationController < ActionController::Base
   def validate_xhtml
     return if Rails.env.production? or Rails.env.stage?
     return if request.xhr?
-    return if !(response.status =~ /200/ && response.headers['Content-Type'] =~ /text\/html/i)
+    return unless (response.status.to_i == 200 && response.content_type =~ /text\/html/i)
 
     errors = []
     xmlbody = String.new response.body
     xmlbody.gsub!(/[\n\r]/, "\n")
     xmlbody.gsub!(/&[^;]*sp;/, '')
-    
+    # rails kind of invented their own html ;(
+    xmlbody.gsub!(%r{ data-method=\"[^\"]*\"}, ' ')
+    xmlbody.gsub!(%r{ data-remote=\"[^\"]*\"}, ' ')
+    xmlbody.gsub!(%r{ data-confirm=\"[^\"]*\"}, ' ')
+
     begin
       document = Nokogiri::XML::Document.parse(xmlbody, nil, nil, Nokogiri::XML::ParseOptions::STRICT)
     rescue Nokogiri::XML::SyntaxError => e
@@ -385,7 +386,7 @@ class ApplicationController < ActionController::Base
     end
 
     unless document
-      erase_render_results
+      self.instance_variable_set(:@_response_body, nil)
       raise ValidationError.new xmlbody, errors
     end
   end

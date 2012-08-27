@@ -2,6 +2,7 @@
 
 <h2><%= @pagetitle %></h2>
 
+<% if @group.person.has_elements? %>
 <table id="group_members_table">
   <thead>
     <tr>
@@ -16,6 +17,9 @@
     <% end %>
   </tbody>
 </table>
+<% else %>
+  <p><i>This group does not contain users</i></p>
+<% end %>
 
 <p><%= link_to('Show all groups', groups_path) %></p>
 
