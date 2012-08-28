@@ -36,12 +36,11 @@ class ProjectOverviewPage < ProjectPage
   # ============================================================================
   #
   def delete_project options = {}
-    @driver[:xpath => 
-      "//div[@id='content']//a[text()='Delete project']"].click
+    @driver[id: 'delete-project'].click
     wait_for_javascript
 
-    validate { @driver.include? :xpath => "//div[@id='dialog_wrapper']//h2[text()='Delete Confirmation']" }
-    @driver[:xpath => "//form[@action='/project/delete']//input[@name='commit'][@value='Ok']"].click
+    assert_equal @driver.find_element(css: 'div#dialog_wrapper h2').text, 'Delete Confirmation'
+    @driver[css: "form[action='/project/delete'] input[name='commit']"].click
     wait_for_javascript
     
     assert_equal flash_message, "Project '#{@project}' was removed successfully" 
@@ -61,18 +60,15 @@ class ProjectOverviewPage < ProjectPage
   # ============================================================================
   #
   def request_deletion description
-    @driver[:xpath => 
-      "//div[@id='content']//a[text()='Request deletion']"].click
+    @driver[id: 'request-deletion'].click
     wait_for_javascript
       
-    validate { @driver.include? :xpath => 
-      "//div[@id='dialog_wrapper']//b[text()='Create Delete Request']" }
+    assert_equal @driver.find_element(css: 'div#dialog_wrapper h2').text, 'Create Delete Request'
     
     @driver[:id => "description"].clear
     @driver[:id => "description"].send_keys description
       
-    @driver[:xpath => "//form[@action='/request/delete_request?method=post']
-      //input[@name='commit'][@value='Ok']"].click
+    @driver[css: "form[action='/request/delete_request?method=post'] input[@name='commit']"].click
     wait_for_javascript
       
     $page = RequestDetailsPage.new_ready @driver
@@ -99,7 +95,7 @@ class ProjectOverviewPage < ProjectPage
   # ============================================================================
   #
   def open_create_subproject
-    @driver[:xpath => "//div[@id='content']//a[text()='Create subproject']"].click
+    @driver[id: 'link-create-subproject'].click
     wait_for_javascript
     $page = NewProjectPage.new_ready @driver
   end
@@ -108,7 +104,7 @@ class ProjectOverviewPage < ProjectPage
   # ============================================================================
   #
   def open_new_package
-    @driver[:xpath => "//div[@id='content']//a[text()='Create package']"].click
+    @driver[xpath: "//*[@id='content']//*[text()='Create package']"].click
     wait_for_javascript
     $page = NewPackagePage.new_ready @driver
   end
@@ -117,7 +113,7 @@ class ProjectOverviewPage < ProjectPage
   # ============================================================================
   #
   def open_branch_package
-    @driver[:xpath => "//div[@id='content']//a[text()='Branch existing package']"].click
+    @driver[xpath: "//*[@id='content']//*[text()='Branch existing package']"].click
     wait_for_javascript
     $page = NewPackageBranchPage.new_ready @driver
   end
@@ -130,7 +126,7 @@ class ProjectOverviewPage < ProjectPage
   def change_project_info new_info
     assert (new_info[:title] or new_info[:description]) != nil
     
-    @driver[:xpath => "//div[@id='content']//a[text()='Edit description']"].click
+    @driver[xpath: "//*[@id='content']//*[text()='Edit description']"].click
     wait_for_javascript
     validate { @driver.page_source.include?( "Edit Project Information of " + project) }
     validate { @driver.page_source.include? "Title:" }
@@ -149,7 +145,7 @@ class ProjectOverviewPage < ProjectPage
       @driver[:id => "description"].send_keys new_info[:description]
     end
     
-    @driver[:xpath => "//form[@action='/project/save']//input[@name='commit'][@value='Save changes']"].click
+    @driver[css: "form[action='/project/save'] input[name='commit']"].click
     wait_for_javascript
 
     validate_page

@@ -98,7 +98,7 @@ class NewProjectPage < BuildServicePage
     @driver[:id => "description"].send_keys new_project[:description]
     @driver[:id => "maintenance_project"].click if new_project[:maintenance]
     @driver[:id => "access_protection"].click if new_project[:access_protection]
-    @driver[:xpath => "//div[@id='content']//input[@name='commit']"].click
+    @driver[css: "div#content input[name='commit']"].click
     
     if new_project[:expect] == :success
       validate { flash_message == message_prefix + "was created successfully" }

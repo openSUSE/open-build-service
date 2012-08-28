@@ -34,8 +34,7 @@ class MyProjectsPage < BuildServicePage
   end
 
   def open_project project_name
-    @driver[:xpath =>
-      "//table[@id='involved_prj-table']//a[text()='#{project_name}']"].click
+    @driver[xpath: "//table[@id='involved_prj-table']//a[text()='#{project_name}']"].click
     $page = ProjectOverviewPage.new_ready @driver
   end
   

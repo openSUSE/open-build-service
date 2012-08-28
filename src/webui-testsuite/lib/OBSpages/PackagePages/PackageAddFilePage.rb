@@ -48,18 +48,17 @@ class PackageAddFilePage < PackagePage
     
 #    @driver[:id => "filename"].focus
     @driver[:id => "filename"].send_keys file[:name]
-    xpath_select = "//select[@id='file_type']//"
+    css_select = "select#file_type "
     if file[:upload_from] == :local_file then
-      @driver[:xpath => xpath_select + "option[@value='local']"].click
+      @driver[css: css_select + "option[value='local']"].click
       #@driver[:id => "file"].focus
       @driver[:id => "file"].send_keys file[:upload_path]
     else
-      @driver[:xpath => xpath_select + "option[@value='remote']"].click
+      @driver[css: css_select + "option[value='remote']"].click
       #@driver[:id => "file_url"].focus
       @driver[:id => "file_url"].send_keys file[:upload_path]
     end
-    @driver[:xpath => 
-      "//div[@id='content']//input[@name='commit']"].click
+    @driver[css: "div#content input[name='commit']"].click
     
     # get file's name from upload path in case it wasn't specified caller
     file[:name] = File.basename(file[:upload_path]) if file[:name] == ""

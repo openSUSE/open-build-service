@@ -11,7 +11,6 @@ class ApplicationController < ActionController::Base
   before_filter :set_return_to, :reset_activexml, :authenticate
   before_filter :check_user
   before_filter :require_configuration
-  after_filter :set_charset
   after_filter :validate_xhtml
   after_filter :clean_cache
 
@@ -47,12 +46,6 @@ class ApplicationController < ActionController::Base
     end
     @return_to_path = params['return_to_path'] || request.env['ORIGINAL_FULLPATH']
     logger.debug "Setting return_to: \"#{@return_to_path}\""
-  end
-
-  def set_charset
-    if !request.xhr? && !headers.has_key?('Content-Type')
-      headers['Content-Type'] = "text/html; charset=utf-8"
-    end
   end
 
   def require_login
@@ -354,10 +347,10 @@ class ApplicationController < ActionController::Base
   private :put_body_to_tempfile
 
   def validate_xhtml
-    return if Rails.env.production? or Rails.env.stage?
     return if request.xhr?
     return unless (response.status.to_i == 200 && response.content_type =~ /text\/html/i)
-    response.headers['Content-Type'] = 'application/xhtml+xml'
+    response.headers['Content-Type'] = 'application/xhtml+xml; charset=utf-8'
+    return if Rails.env.production? or Rails.env.stage?
 
     errors = []
     xmlbody = String.new response.body

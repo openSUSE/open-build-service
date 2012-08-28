@@ -54,7 +54,7 @@ class LoginPage < BuildServicePage
     @driver[:id => "user_login"].send_keys user[:login]
     @driver[:id => "user_password"].clear
     @driver[:id => "user_password"].send_keys user[:password]
-    @driver[:xpath => "//div[@id='loginform']//input[@name='login']"].click
+    @driver[css: "div#loginform input[name='login']"].click
 
     if expect == :success
       assert_equal flash_message, "You are logged in now"

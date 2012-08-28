@@ -8,7 +8,7 @@ class TC12__AddPackageAttributes < TestCase
       :user => $data[:user1],
       :package => "HomePackage1",
       :project => "home:user1"
-    open_tab "Attributes"
+    open_tab "attributes"
     add_new_attribute(
       :name  => "OBS:RequestCloned",
       :value => "cloneclone")
@@ -29,7 +29,7 @@ class TC12__AddPackageAttributes < TestCase
       :user => $data[:user2],
       :package => "Home2Package1",
       :project => "home:user2"
-    open_tab "Attributes"
+    open_tab "attributes"
     add_new_attribute(
       :name  => "OBS:RequestCloned",
       :value => "cloneclone")
@@ -50,7 +50,7 @@ class TC12__AddPackageAttributes < TestCase
       :user => $data[:user1],
       :package => "HomePackage1",
       :project => "home:user1"
-    open_tab "Attributes"
+    open_tab "attributes"
     add_new_attribute(
       :name   => "OBS:VeryImportantProject",
       :value  => "",
@@ -93,7 +93,7 @@ class TC12__AddPackageAttributes < TestCase
       :user => $data[:user1],
       :package => "HomePackage1",
       :project => "home:user1"
-    open_tab "Attributes"
+    open_tab "attributes"
     add_new_attribute(
       :name   => "OBS:QualityCategory",
       :value  => "invalid_value",
@@ -108,7 +108,7 @@ class TC12__AddPackageAttributes < TestCase
       :user => $data[:user1],
       :package => "HomePackage1",
       :project => "home:user1"
-    open_tab "Attributes"
+    open_tab "attributes"
     add_new_attribute(
       :name   => "OBS:ProjectStatusPackageFailComment",
       :value  => "val1,val2,val3",
@@ -123,7 +123,7 @@ class TC12__AddPackageAttributes < TestCase
       :user => $data[:user1],
       :package => "HomePackage1",
       :project => "home:user1"
-    open_tab "Attributes"
+    open_tab "attributes"
     add_new_attribute(
       :name  => "OBS:RequestCloned",
       :value => "value1")
@@ -140,7 +140,7 @@ class TC12__AddPackageAttributes < TestCase
       :user => $data[:admin],
       :package => "SubPackage1",
       :project => "home:user1:SubProject1"
-    open_tab "Attributes"
+    open_tab "attributes"
     add_new_attribute(
       :name  => "OBS:VeryImportantProject")
     add_new_attribute(

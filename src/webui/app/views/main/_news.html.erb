@@ -29,7 +29,7 @@
               <td class="nowrap" style="width: 1%"><%= fuzzy_time_string(msg.created_at) %></td>
               <td class="nowrap" style="width: 1%"><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => msg.value(:user), :short => true }%></td>
               <% if @user and @user.is_admin? %>
-                <td class="norwap" style="width: 1%"><%= link_to(sprite_tag('comment_delete', :title => 'Remove message'), {:controller => 'main', :action => 'delete_message_dialog', :message_id => msg.msg_id}, :remote => true) %></td>
+                <td class="norwap" style="width: 1%"><%= link_to(sprite_tag('comment_delete', :title => 'Remove message'), {:controller => 'main', :action => 'delete_message_dialog', :message_id => msg.msg_id}, :remote => true, class: 'delete-message') %></td>
               <% end %>
             </tr>
           <% end %>

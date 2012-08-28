@@ -58,7 +58,7 @@
       </thead>
       <tbody>
         <% @users.each do |user| %>
-          <tr>
+  	<tr id='user-<%= valid_xml_id(user) %>'>
             <td><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => user}%></td>
             <% @roles.each do |role| %>
               <td>
@@ -84,7 +84,7 @@
                 <% mail_to += '/' + @package.name if defined? @package %>
                 <%= link_to(image_tag('email.png', :alt => "Send mail", :title => "Send mail to user"), mail_to) %>
                 <% if @user.is_maintainer?(@project, @package) %>
-                  <%= link_to image_tag('user_delete.png', :alt => "Remove", :title => "Remove user"), {:action => "remove_person", :project => @project, :package => @package, :userid => user}, {:confirm => "Really remove '#{user}'?", :method => :post}%>
+                  <%= link_to image_tag('user_delete.png', :alt => "Remove", :title => "Remove user"), {:action => "remove_person", :project => @project, :package => @package, :userid => user}, {:confirm => "Really remove '#{user}'?", :method => :post, class: 'remove-user'}%>
                 <% end %>
               <% end %>
             </td>
@@ -96,7 +96,7 @@
   <% if @user && @user.is_maintainer?(@project, @package) %>
     <p>
       <%= link_to image_tag('user_add.png', :alt => "Add user", :title => "Add user"), :action => :add_person, :package => @package, :project => @project %>
-      <%= link_to 'Add user', :action => :add_person, :package => @package, :project => @project %>
+      <%= link_to 'Add user', { :action => :add_person, :package => @package, :project => @project }, id: 'add-user' %>
     </p>
   <% end %>
 

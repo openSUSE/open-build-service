@@ -45,16 +45,16 @@ class PackagePage < ProjectPage
   end
   
 
-  ALL_PACKAGE_TABS = { "Users"        => PackageUsersPage,
-                       "Sources"      => PackageSourcesPage,
-                       "Overview"     => PackageOverviewPage,
-                       "Requests"     => PackageRequestsPage,
-                       "Meta"         => PackageRawConfigPage,
-                       "Revisions"    => PackageRevisionsPage,
-                       "Attributes"   => PackageAttributesPage,
-                       "Repositories" => PackageRepositoriesPage }
+  ALL_PACKAGE_TABS = { "users"        => PackageUsersPage,
+                       "sources"      => PackageSourcesPage,
+                       "overview"     => PackageOverviewPage,
+                       "requests"     => PackageRequestsPage,
+                       "meta"         => PackageRawConfigPage,
+                       "revisions"    => PackageRevisionsPage,
+                       "attributes"   => PackageAttributesPage,
+                       "repositories" => PackageRepositoriesPage }
               
-  ADVANCED_PACKAGE_TABS = [ "Meta", "Attributes" ]
+  ADVANCED_PACKAGE_TABS = [ "meta", "attributes" ]
   
   
   # ============================================================================

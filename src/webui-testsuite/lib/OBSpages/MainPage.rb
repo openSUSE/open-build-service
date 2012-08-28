@@ -31,50 +31,45 @@ class MainPage < BuildServicePage
   end
   
   def open_status_monitor
-    @driver[:xpath => 
-      "//div[@id='content']//a[@href='/monitor']"].click
+    @driver[css: "div#content a[href='/monitor']"].click
     $page=StatusMonitorPage.new_ready @driver
   end
   
   def open_search
-    @driver[:xpath => 
-      "//div[@id='content']//a[@href='/search']"].click
+    @driver[css: "div#content a[href='/search']"].click
     $page=SearchPage.new_ready @driver
   end
   
   def open_all_projects
-    @driver[:xpath => 
-      "//div[@id='content']//a[@href='/project/list_public']"].click
+    @driver[css: "div#content a[href='/project/list_public']"].click
     $page=AllProjectsPage.new_ready @driver
   end
   
   def open_my_projects
-    @driver[:xpath => 
-      "//div[@id='content']//a[@href='/home/list_my']"].click
+    @driver[css: "div#content a[href='/home/list_my']"].click
     $page=MyProjectsPage.new_ready @driver
   end
   
   def open_new_project
-    @driver[:xpath => 
-      "//div[@id='content']//a[text()='New Project']"].click
+    @driver[css: "#proceed-document-new a"].click
     $page=NewProjectPage.new_ready @driver
   end
 
   def add_new_message(message, severity)
-    @driver[xpath: "//div[@id='content']//a[text()='Add new message']"].click
+    @driver[id: 'add-new-message'].click
     wait_for_javascript
     textarea = @driver[id: "message"]
     textarea.click
     textarea.send_keys message
-    @driver[id: "severity"].find_element(xpath: "option[text()='#{severity}']").click
-    @driver[xpath:  "//input[@name='commit'][@value='Ok']"].click
+    @driver[id: "severity"].find_elements(css: "option").each { |o| o.click if o.text == severity }
+    @driver[css: "input[name='commit']"].click
     $page = MainPage.new_ready @driver
     validate { @driver.page_source.include? message }
   end
 
   def delete_message(text)
     thetr = nil
-    @driver.find_elements(xpath: "//table[@id='messages']//tr").each do |tr|
+    @driver.find_elements(css: "table#messages tr").each do |tr|
       if tr.find_element(css: "td").text != text
         puts "different text '#{tr.find_element(css: "td").text}' '#{text}'"
         next
@@ -82,9 +77,9 @@ class MainPage < BuildServicePage
       thetr = tr
     end
     assert !thetr.nil?
-    thetr.find_element(xpath: "td/a/img[@alt='Comment_delete']").click
+    thetr.find_element(css: ".delete-message").click
     wait_for_javascript
-    @driver[id: "dialog_wrapper"].find_element(xpath: "//input[@name='commit']").click
+    @driver[id: "dialog_wrapper"].find_element(css: "input[name='commit']").click
     
     $page = MainPage.new_ready @driver
   end

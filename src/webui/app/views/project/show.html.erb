@@ -130,7 +130,7 @@
                 </li>
                 <li>
                   <%= link_to(image_tag('brick_add.png', :title => 'Create subproject'), :controller => 'project', :action => 'new', :ns => @project.name) %>
-                  <%= link_to('Create subproject', :controller => 'project', :action => 'new', :ns => @project.name) %>
+		  <%= link_to('Create subproject', { :controller => 'project', :action => 'new', :ns => @project.name}, id: "link-create-subproject") %>
                 </li>
                 <%if !@has_patchinfo %>
                   <li>
@@ -148,11 +148,11 @@
             <% end %>
             <li>
               <%= link_to(image_tag('brick_edit.png', :title => "Edit description"), :action => 'edit', :project => @project) %>
-              <%= link_to("Edit description", :action => 'edit', :project => @project) %>
+	      <%= link_to("Edit description", { :action => 'edit', :project => @project}, id: 'edit-description') %>
             </li>
             <li>
             <%= link_to(image_tag('brick_delete.png', :title => 'Delete project'), {:controller => 'project', :action => 'delete_dialog', :project => @project.name}, :remote => true) %>
-            <%= link_to('Delete project', {:controller => 'project', :action => 'delete_dialog', :project => @project.name}, :remote => true) %>
+            <%= link_to('Delete project', {:controller => 'project', :action => 'delete_dialog', :project => @project.name}, :remote => true, id: 'delete-project') %>
             </li>
             <% if @project.is_locked? %>
               <li>
@@ -167,7 +167,7 @@
             </li>
             <li>
             <%= link_to(image_tag('package_delete.png', :title => 'Request Deletion'), {:controller => 'request', :action => 'delete_request_dialog', :project => @project}, :remote => true) %>
-            <%= link_to('Request deletion', {:controller => 'request', :action => 'delete_request_dialog', :project => @project}, :remote => true) %>
+            <%= link_to('Request deletion', {:controller => 'request', :action => 'delete_request_dialog', :project => @project}, :remote => true, id: 'request-deletion') %>
             </li>
           <% end %>
         <% end %>

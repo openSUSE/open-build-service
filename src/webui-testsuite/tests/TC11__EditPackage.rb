@@ -145,14 +145,14 @@ class TC11__EditPackage < TestCase
 
   
   def switch_tabs
-    open_tab "Attributes" 
-    open_tab "Meta"
-    open_tab "Sources"
-    open_tab "Overview"
-    open_tab "Revisions"
-    open_tab "Repositories" 
-    open_tab "Requests"
-    open_tab "Users"
+    open_tab "attributes" 
+    open_tab "meta"
+    open_tab "sources"
+    open_tab "overview"
+    open_tab "revisions"
+    open_tab "repositories" 
+    open_tab "requests"
+    open_tab "users"
   end
   
   

@@ -39,7 +39,7 @@ class PackageUsersPage < PackagePage
   # ============================================================================
   #
   def add_user *args
-    @driver[:xpath => "//div[@id='content']//a[text()='Add user']"].click
+    @driver[id: 'add-user'].click
     $page = PackageAddUserPage.new_ready @driver
     $page.add_user *args
   end
@@ -48,7 +48,7 @@ class PackageUsersPage < PackagePage
   # ============================================================================
   #
   def add_group *args
-    @driver[:xpath => "//div[@id='content']//a[text()='Add group'"].click
+    @driver[id: 'add-group'].click
     $page = PackageAddGroupPage.new_ready @driver
     $page.add_group *args
   end
@@ -85,15 +85,13 @@ class PackageUsersPage < PackagePage
     assert options[:name] != nil
     assert options[:name] != ""
     
-    row = @driver[:xpath => 
-      "//table[@id='user_table']//tr[.//a[@href='/home?user=#{options[:name]}']]"]
-    cell = row.find_elements :css => "td"
+    row = @driver[css: "tr#user-#{options[:name]}"]
+    cell = row.find_elements css: "td"
 
     def edit_role cell, new_value 
       unless new_value.nil?
-        unless cell.find_element(:css => "input").selected? == new_value
-          cell.find_element(:css => "input").click
-        end
+	input = cell.find_element(css: "input")
+        input.click unless input.selected? == new_value
       end
     end
     
@@ -111,7 +109,7 @@ class PackageUsersPage < PackagePage
   #
   def delete_user user
     href="/home?user=Admin"
-    @driver[:xpath => "//table[@id='user_table']//tr[.//a[@href='/home?user=#{user}']]//a/img[@alt='Remove']"].click
+    @driver[css: "table#user_table tr a[href='/home?user=#{user}'] a img[alt='Remove']"].click
       
     popup = @driver.switch_to.alert
     validate { popup.text == "Really remove '#{user}'?" }

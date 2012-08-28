@@ -7,7 +7,7 @@ class TC17__EditProjectUsers < TestCase
     navigate_to ProjectOverviewPage,
       :user => $data[:user1],
       :project => "home:user1"
-    open_tab "Users"
+    open_tab "users"
     edit_user :name => :user3,
       :reviewer   => true,
       :downloader => true
@@ -20,7 +20,7 @@ class TC17__EditProjectUsers < TestCase
     navigate_to ProjectOverviewPage,
       :user => $data[:user1],
       :project => "home:user1"
-    open_tab "Users"
+    open_tab "users"
     edit_user :name => :user3,
       :reviewer   => false,
       :downloader => false
@@ -33,7 +33,7 @@ class TC17__EditProjectUsers < TestCase
     navigate_to ProjectOverviewPage,
       :user => $data[:user1],
       :project => "home:user1"
-    open_tab "Users"
+    open_tab "users"
     edit_user :name => :user6,
       :maintainer => false,
       :bugowner   => false,
@@ -49,7 +49,7 @@ class TC17__EditProjectUsers < TestCase
     navigate_to ProjectOverviewPage,
       :user => $data[:user1],
       :project => "home:user1"
-    open_tab "Users"
+    open_tab "users"
     edit_user :name => :user4,
       :maintainer => true,
       :bugowner   => true,

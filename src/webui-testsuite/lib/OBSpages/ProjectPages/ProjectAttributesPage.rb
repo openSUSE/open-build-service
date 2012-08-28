@@ -31,13 +31,13 @@ class ProjectAttributesPage < ProjectPage
   end
   
   def project_attributes
-    attributes_table = @driver[:xpath => "//div[@id='content']//table"]
-    rows = attributes_table.find_elements :xpath => ".//tr"
+    attributes_table = @driver[css: "div#content table"]
+    rows = attributes_table.find_elements xpath: ".//tr"
     rows.delete_at 0    # removing first row as it contains the headers
     attributes = Hash.new
     rows.each do |row|
-      attr  = row.find_element(:xpath => ".//td[1]").text
-      value = row.find_element(:xpath => ".//td[2]").text
+      attr  = row.find_element(xpath: ".//td[1]").text
+      value = row.find_element(xpath: ".//td[2]").text
       value = "" if value == "no values set"
       attributes[attr] = value
     end
@@ -50,24 +50,21 @@ class ProjectAttributesPage < ProjectPage
     puts "not included #{attribute[:name]}" unless ATTRIBUTES.include? attribute[:name]
     assert ATTRIBUTES.include? attribute[:name]
 
-    @driver[
-      :xpath => "//div[@id='content']//a[text()='Add a new attribute']"].click
+    @driver[xpath: "//*[@id='content']//*[text()='Add a new attribute']"].click
 
-    xpath_options = "//select[@id='attribute']/option"
     validate { @driver.page_source.include? 'Add New Attribute' }
     validate { @driver.page_source.include? 'Attribute name:' }
     validate { @driver.page_source.include? 'Values (e.g. "bar,foo,..."):' }
     
-    options = @driver.find_elements :xpath => xpath_options
+    options = @driver.find_elements css: "select#attribute option"
     options_array = options.collect { |opt| opt.text }
     puts options_array.inspect unless options_array.sort == ATTRIBUTES
     assert options_array.sort == ATTRIBUTES
     
-    @driver[:xpath => xpath_options + "[text()='#{attribute[:name]}']"].click
+    @driver[css: "select#attribute"].find_element(xpath: ".//*[text()='#{attribute[:name]}']").click
     @driver[:id => "values"].clear
     @driver[:id => "values"].send_keys attribute[:value]
-    @driver[:xpath => 
-      "//div[@id='content']//input[@name='commit']"].click
+    @driver[css: "div#content input[name='commit']"].click
 
     if attribute[:expect] == :success
       validate { flash_message == "Attribute sucessfully added!" }
@@ -90,22 +87,22 @@ class ProjectAttributesPage < ProjectPage
     attribute[:expect] ||= :success
     assert ATTRIBUTES.include? attribute[:name]
     
-    attributes_table = @driver[:xpath => "//div[@id='content']//table"]
-    rows = attributes_table.find_elements :xpath => ".//tr"
+    attributes_table = @driver[css: "div#content table"]
+    rows = attributes_table.find_elements xpath: ".//tr"
     rows.delete_at 0    # removing first row as it contains the headers
     results = rows.select do |row|
-      row.find_element(:xpath => ".//td[1]").text == attribute[:name]
+      row.find_element(xpath: ".//td[1]").text == attribute[:name]
     end
     assert results.count == 1
     
-    results.first.find_element(:xpath => ".//a[1]").click
+    results.first.find_element(xpath: ".//a[1]").click
 
     validate { @driver.page_source.include? "Edit Attribute #{attribute[:name]}" }
     validate { @driver.page_source.include? 'Values (e.g. "bar,foo,..."):' }
     
     @driver[:id => "values"].clear
     @driver[:id => "values"].send_keys attribute[:new_value]
-    @driver[:xpath => "//div[@id='content']//input[@name='commit']"].click
+    @driver[css: "div#content input[name='commit']"].click
 
     if attribute[:expect] == :success
       validate { flash_message == "Attribute sucessfully added!" }
@@ -130,14 +127,14 @@ class ProjectAttributesPage < ProjectPage
     attribute[:expect] ||= :success
     assert ATTRIBUTES.include? attribute[:name]
     
-    attributes_table = @driver[:xpath => "//div[@id='content']//table"]
-    rows = attributes_table.find_elements :xpath => ".//tr"
+    attributes_table = @driver[css: "div#content table"]
+    rows = attributes_table.find_elements xpath: ".//tr"
     rows.delete_at 0    # removing first row as it contains the headers
     results = rows.select do |row|
-      row.find_element(:xpath => ".//td[1]").text == attribute[:name]
+      row.find_element(xpath: ".//td[1]").text == attribute[:name]
     end
     assert_equal results.count, 1
-    results.first.find_element(:xpath => ".//a[2]/img").click
+    results.first.find_element(xpath: ".//a[2]/img").click
 
     popup = @driver.switch_to.alert
     assert_equal popup.text, "Really remove attribute '#{attribute[:name]}'?"

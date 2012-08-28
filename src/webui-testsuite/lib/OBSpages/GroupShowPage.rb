@@ -37,7 +37,9 @@ class GroupShowPage < BuildServicePage
   # Click on first user link
   #
   def open_first_user
-    @driver[:xpath => "//table[@id='group_members_table']//a[starts-with(@href,'/home?user=')]"].click
+    @driver.find_elements(css: "table#group_members_table a").each do |link|	  
+      link.click if link.attribute("href").start_with? $data[:url] + '/home?user='
+    end
     #$page = UserHomePage.new_ready @driver
   end
   

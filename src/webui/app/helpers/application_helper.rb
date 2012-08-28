@@ -310,17 +310,14 @@ module ApplicationHelper
     ERB::Util::h(rawid.gsub(/[+&: .\/\~\(\)@]/, '_'))
   end
 
-  def tab(text, opts)
+  def tab(id, text, opts)
     opts[:package] = @package.to_s if @package
     opts[:project] = @project.to_s
+    link_opts = {id: "tab-#{id}"}
     if @current_action.to_s == opts[:action].to_s and @current_controller.to_s == opts[:controller].to_s
-      link = "<li class='selected'>"
-    else
-      link = "<li>"
+      link_opts[:class] = "selected"
     end
-    link += link_to(h(text), opts)
-    link += "</li>"
-    return link.html_safe
+    return content_tag("li", link_to(h(text), opts), link_opts)
   end
 
   # Shortens a text if it longer than 'length'. 

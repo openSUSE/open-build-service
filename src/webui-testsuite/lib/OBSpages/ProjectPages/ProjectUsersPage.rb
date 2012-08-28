@@ -37,7 +37,7 @@ class ProjectUsersPage < ProjectPage
   # ============================================================================
   #
   def add_user *args
-    @driver[:xpath => "//div[@id='content']//a[text()='Add user']"].click
+    @driver[id: 'add-user'].click
     $page = ProjectAddUserPage.new_ready @driver
     $page.add_user *args
   end
@@ -46,7 +46,7 @@ class ProjectUsersPage < ProjectPage
   # ============================================================================
   #
   def add_group *args
-    @driver[:xpath => "//div[@id='content']//a[text()='Add group'"].click
+    @driver[xpath: "//div[@id='content']//a[text()='Add group'"].click
     $page = ProjectAddGroupPage.new_ready @driver
     $page.add_group *args
   end
@@ -83,8 +83,7 @@ class ProjectUsersPage < ProjectPage
     assert options[:name] != nil
     assert options[:name] != ""
     
-    row = @driver[:xpath => 
-      "//table[@id='user_table']//tr[.//a[@href='/home?user=#{options[:name]}']]"]
+    row = @driver[css: "table#user_table tr#user-#{valid_xml_id(options[:name].to_s)}"]
     cell = row.find_elements :css => "td"
 
     def edit_role cell, new_value 
@@ -109,7 +108,8 @@ class ProjectUsersPage < ProjectPage
   #
   def delete_user user
     href="/home?user=Admin"
-    @driver[:xpath => "//table[@id='user_table']//tr[.//a[@href='/home?user=#{user}']]//a/img[@alt='Remove']"].click
+    
+    @driver[css: "table#user_table tr#user-#{valid_xml_id(options[:name].to_s)} a.remove-user"].click
     popup = @driver.switch_to.alert
     validate { popup.text == "Really remove '#{user}'?" }
     popup.accept

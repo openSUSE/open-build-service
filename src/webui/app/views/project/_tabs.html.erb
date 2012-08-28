@@ -7,20 +7,20 @@
 
 <div class="box-header header-tabs" id="project_tabs">
   <ul>
-    <%= tab 'Overview', :controller => :project, :action => :show %>
+    <%= tab 'overview', 'Overview', :controller => :project, :action => :show %>
     <% if @is_maintenance_project && !@spider_bot %>
-      <%= tab 'Incidents', :controller => :project, :action => :maintenance_incidents %>
-      <%= tab 'Maintained Projects', :controller => :project, :action => :maintained_projects %>
+      <%= tab 'incidents', 'Incidents', :controller => :project, :action => :maintenance_incidents %>
+      <%= tab 'maintained', 'Maintained Projects', :controller => :project, :action => :maintained_projects %>
     <% else %> <!-- also for incident project -->
-      <%= tab "Repositories", :controller => :project, :action => :repositories unless @project.is_remote? or @spider_bot %>
+      <%= tab 'repositories', "Repositories", :controller => :project, :action => :repositories unless @project.is_remote? or @spider_bot %>
     <% end %>
     <% if @project.to_hash.has_key?("repository") && !@spider_bot -%>
-      <%= tab "Monitor", :controller => :project, :action => :monitor %>
+      <%= tab 'monitor', "Monitor", :controller => :project, :action => :monitor %>
     <% end -%>
     <% unless @spider_bot -%>
-      <%= tab "Requests", :controller => :project, :action => 'requests' %>
-      <%= tab 'Users', :controller => :project, :action => :users unless @project.is_remote? %>
-      <%= tab 'Subprojects', :controller => :project, :action => :subprojects unless @project.is_remote? or @is_maintenance_project %>
+      <%= tab 'requests', "Requests", :controller => :project, :action => 'requests' %>
+      <%= tab 'users', 'Users', :controller => :project, :action => :users unless @project.is_remote? %>
+      <%= tab 'subprojects', 'Subprojects', :controller => :project, :action => :subprojects unless @project.is_remote? or @is_maintenance_project %>
     <% end -%>
 
     <% if is_advanced_tab? %>
@@ -33,11 +33,11 @@
   </ul>
   <div id="advanced_tabs" class="hidden">
     <ul>
-      <%= tab 'Project Config', :controller => :project, :action => :prjconf unless @project.is_remote? or @is_maintenance_project %>
+      <%= tab 'projectconfig', 'Project Config', :controller => :project, :action => :prjconf unless @project.is_remote? or @is_maintenance_project %>
       <% unless @spider_bot -%>
-        <%= tab 'Attributes', :controller => :project, :action => :attributes %>
-        <%= tab "Meta", :controller => :project, :action => :meta %>
-        <%= tab 'Status', :controller => :project, :action => :status unless @project.is_remote? or @is_maintenance_project %>
+        <%= tab 'attributes', 'Attributes', :controller => :project, :action => :attributes %>
+        <%= tab 'meta', "Meta", :controller => :project, :action => :meta %>
+        <%= tab 'status', 'Status', :controller => :project, :action => :status unless @project.is_remote? or @is_maintenance_project %>
       <% end -%>
     </ul>
   </div>

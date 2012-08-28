@@ -40,14 +40,18 @@ class UserHomePage < BuildServicePage
   # ============================================================================
   #
   def user_real_name
-    @driver[:xpath => "//div[@id='content']//p[strong[text()='Real name:']]"].text[11..-1]
+    begin
+      t = @driver[css: "div#content span#real-name"].text
+    rescue Selenium::WebDriver::Error::NoSuchElementError 
+      ''
+    end
   end
   
   
   # ============================================================================
   #
   def change_user_real_name new_name
-    @driver[:xpath => "//div[@id='content']//a[@href='/user/edit']"].click
+    @driver[css: "div#content a[href='/user/edit']"].click
     wait_for_javascript
     
     #validate { 
@@ -56,15 +60,13 @@ class UserHomePage < BuildServicePage
     
     @driver[:id => "realname"].clear
     @driver[:id => "realname"].send_keys new_name
-    @driver[:xpath => "//form[@action='/user/save']
-      //input[@name='commit'][@value='Save changes']"].click
+    @driver[css: "form[action='/user/save'] input[name='commit']"].click
     
     assert_equal flash_message,
         "User data for user '#{current_user[:login]}' successfully updated."
     assert_equal flash_message_type, :info
     validate_page
     
-    new_name = "No real name set." if new_name == ""
     validate { user_real_name == new_name }
   end
   

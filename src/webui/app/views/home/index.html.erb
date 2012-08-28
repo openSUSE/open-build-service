@@ -16,9 +16,9 @@
 </table>
 
 <p>
-  <strong>Real name:</strong>
+  <strong id='real-name-label'>Real name:</strong>
   <% if @displayed_user.realname && !@displayed_user.realname.to_s.empty? %>
-    <%= @displayed_user.realname %>
+	  <span id='real-name'><%= @displayed_user.realname %></span>
   <% else %>
     <em>No real name set.</em>
   <% end %>

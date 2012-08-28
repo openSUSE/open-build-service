@@ -8,15 +8,15 @@
 <div class="box-header header-tabs" id="package_tabs">
   <ul>
     <% if @package.name == "patchinfo" %>
-      <%= tab 'Details', :controller => 'patchinfo', :action => 'show' %>
+      <%= tab 'details', 'Details', :controller => 'patchinfo', :action => 'show' %>
     <% end %>
-    <%= tab 'Overview', :controller => 'package', :action => 'show' %>
-    <%= tab 'Sources', :controller => 'package', :action => 'files' %>
+    <%= tab 'overview', 'Overview', :controller => 'package', :action => 'show' %>
+    <%= tab 'sources', 'Sources', :controller => 'package', :action => 'files' %>
     <% unless @spider_bot -%>
-      <%= tab 'Repositories', :controller => 'package', :action => 'repositories' %>
-      <%= tab 'Revisions', :controller => 'package', :action => 'revisions' %>
-      <%= tab "Requests", :controller => 'package', :action => 'requests' %>
-      <%= tab 'Users', :controller => 'package', :action => 'users' %>
+      <%= tab 'repositories', 'Repositories', :controller => 'package', :action => 'repositories' %>
+      <%= tab 'revisions', 'Revisions', :controller => 'package', :action => 'revisions' %>
+      <%= tab 'requests', "Requests", :controller => 'package', :action => 'requests' %>
+      <%= tab 'users', 'Users', :controller => 'package', :action => 'users' %>
     <% end -%>
     <% if is_advanced_tab? %>
       <%= content_for :ready_function do %>
@@ -29,8 +29,8 @@
   <% unless @spider_bot -%>
     <div id="advanced_tabs" class="hidden">
       <ul>
-        <%= tab 'Attributes', :controller => 'package', :action => 'attributes' %>
-        <%= tab 'Meta', :controller => 'package', :action => 'meta' %>
+        <%= tab 'attributes', 'Attributes', :controller => 'package', :action => 'attributes' %>
+        <%= tab 'meta', 'Meta', :controller => 'package', :action => 'meta' %>
       </ul>
     </div>
   <% end -%>

@@ -3,6 +3,9 @@
 # of Open Build Service pages like header, footer, breadcrumb etc.
 # @abstract
 #
+
+require 'erb'
+
 class BuildServicePage < WebPage  
 
   ATTRIBUTES = [ "NSTEST:status",
@@ -32,7 +35,6 @@ class BuildServicePage < WebPage
     res = wait_for_page
     assert res
     assert_equal res.shift["id"], "header-logo"
-    assert_equal res.shift.text, "openSUSE Build Service"
     assert_equal current_user, @user
     assert_equal @driver.current_url, @url
   end
@@ -96,13 +98,12 @@ class BuildServicePage < WebPage
     assert([:success,:error,:admin].include? expect)
     validate { !user_is_logged? }
 
-    @driver[:id => "login-trigger"].click
-    @driver[:id => "username"].clear
-    @driver[:id => "username"].send_keys user[:login]
-    @driver[:id => "password"].clear
-    @driver[:id => "password"].send_keys user[:password]
-    @driver[:xpath => "//div[@id='login-form']
-      //input[@name='commit'][@value='Login']"].click
+    @driver[id: "login-trigger"].click
+    @driver[id: "username"].clear
+    @driver[id: "username"].send_keys user[:login]
+    @driver[id: "password"].clear
+    @driver[id: "password"].send_keys user[:password]
+    @driver[css: "div#login-form input[name=commit]"].click
 
     if expect == :admin || expect == :success
       #puts "\n  login_as @user = #{_userstring(user)}"
@@ -129,8 +130,7 @@ class BuildServicePage < WebPage
   
   # checks if the admin ended on the interconnect setup page
   def is_interconnect_page?
-    x = @driver.find_element :xpath =>
-            "//div[@id='content']/div/h2"
+    x = @driver.find_element css: "div#content > div > h2"
     return x.text == "Connect a remote Open Build Service instance"
   end
   
@@ -164,8 +164,7 @@ class BuildServicePage < WebPage
   # @note In any other case spawns new MainPage without logged user.
   #
   def logout
-    @driver[:xpath => 
-      "//div[@id='subheader']//a[@href='/user/logout']"].click
+    @driver[css: "div#subheader a[href='/user/logout']"].click
     validate { not user_is_logged? }
     
     #puts "\n  logout user = none"
@@ -190,8 +189,7 @@ class BuildServicePage < WebPage
   # Checks if the user has new requests
   #
   def user_has_new_requests?
-    results = @driver.find_elements :xpath => 
-      "//div[@id='subheader']//a[@href='/home/my_work']"
+    results = @driver.find_elements css: "div#subheader a[href='/home/my_work']"
     not results.empty?
   end
   
@@ -210,7 +208,7 @@ class BuildServicePage < WebPage
   # @return [String]
   #
   def flash_message
-    results = @driver.find_elements :xpath => "//div[@id='flash-messages']//p"
+    results = @driver.find_elements css: "div#flash-messages p"
     if results.empty?
       return "none"
     end
@@ -224,7 +222,7 @@ class BuildServicePage < WebPage
   # @return [array]
   #
   def flash_messages
-    results = @driver.find_elements :xpath => "//div[@id='flash-messages']//p"
+    results = @driver.find_elements css: "div#flash-messages p"
     ret = []
     results.each { |r| ret << r.text }
     return ret
@@ -236,7 +234,7 @@ class BuildServicePage < WebPage
   # @return [:info, :alert]
   #
   def flash_message_type
-    results = @driver.find_elements :xpath => "//div[@id='flash-messages']//span"
+    results = @driver.find_elements css: "div#flash-messages span"
     return nil if results.empty?
     return :info  if results.first.attribute("class").include? "info"
     return :alert if results.first.attribute("class").include? "alert" 
@@ -252,7 +250,7 @@ class BuildServicePage < WebPage
     unless user_is_logged?
       return :none
     end
-    username = @driver[:xpath => "//div[@id='subheader']//a[@href='/home']"].text
+    username = @driver[css: "div#subheader a[href='/home']"].text
     matched_users = Array.new
     $data.each_value do |user|
       if Hash === user and user[:login] == username
@@ -273,7 +271,7 @@ class BuildServicePage < WebPage
       x = @driver.find_elements(id: 'subheader')
       !x.empty?
     }
-    return x && x.first && !x.first.find_elements(xpath: "//a[text()='Logout']").empty?
+    return x && x.first && !x.first.find_elements(css: "a#logout-link").empty?
   end
   
   
@@ -281,8 +279,7 @@ class BuildServicePage < WebPage
   # Opens user's home profile from the link in the header.
   #
   def open_home
-    @driver[:xpath => 
-      "//div[@id='subheader']//a[@href='/home']"].click
+    @driver[css: "div#subheader a[href='/home']"].click
     $page = UserHomePage.new_ready @driver
   end
   
@@ -291,8 +288,7 @@ class BuildServicePage < WebPage
   # Opens the Status Monitor page from the link in the footer.
   #
   def open_status_monitor
-    @driver[:xpath => 
-      "//div[@id='footer']//a[@href='/monitor']"].click
+    @driver[css: "div#footer a[href='/monitor']"].click
     $page=StatusMonitorPage.new_ready @driver
   end
   
@@ -301,8 +297,7 @@ class BuildServicePage < WebPage
   # Opens the Search page from the link in the footer.
   #
   def open_search
-    @driver[:xpath => 
-      "//div[@id='footer']//a[@href='/search']"].click
+    @driver[css: "div#footer a[href='/search']"].click
     $page=SearchPage.new_ready @driver
   end
   
@@ -311,8 +306,7 @@ class BuildServicePage < WebPage
   # Opens All Projects page from the link in the footer.
   #
   def open_all_projects
-    @driver[:xpath => 
-      "//div[@id='footer']//a[@href='/project/list_public']"].click
+    @driver[css: "div#footer a[href='/project/list_public']"].click
     $page=AllProjectsPage.new_ready @driver
   end
   
@@ -321,8 +315,7 @@ class BuildServicePage < WebPage
   # Opens user's projects page from the link in the footer.
   #
   def open_my_projects
-    @driver[:xpath => 
-      "//div[@id='footer']//a[@href='/home/list_my']"].click
+    @driver[css: "div#footer a[href='/home/list_my']"].click
     $page=MyProjectsPage.new_ready @driver
   end
   
@@ -331,8 +324,7 @@ class BuildServicePage < WebPage
   # Opens user's work page from the link in the footer.
   #
   def open_my_work
-    @driver[:xpath => 
-      "//div[@id='footer']//a[@href='/home/my_work']"].click
+    @driver[css: "div#footer a[href='/home/my_work']"].click
     $page = MyWorkPage.new_ready @driver
   end
 
@@ -349,10 +341,14 @@ class BuildServicePage < WebPage
   def wait_for_page
     res = nil
     wait.until {
-      res = @driver.find_elements(:xpath => '//a[@href="/"]')
+      res = @driver.find_elements(id: 'header-logo')
       !res.empty?
     }
     res
   end
 
+  def valid_xml_id(rawid)
+    rawid = '_' + rawid if rawid !~ /^[A-Za-z_]/ # xs:ID elements have to start with character or '_'
+    ERB::Util::h(rawid.gsub(/[+&: .\/\~\(\)@]/, '_'))
+  end
 end

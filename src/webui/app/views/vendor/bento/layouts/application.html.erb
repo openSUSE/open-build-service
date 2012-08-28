@@ -93,7 +93,7 @@
             <li><%= link_to "My Projects", :controller => :home, :action => :list_my %></li>
             <li><%= link_to "My Work", :controller => :home, :action => :my_work %></li>
             <li><%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %></li>
-            <li><%= link_to 'Logout', :controller => 'user', :action => 'logout' %></li>
+	    <li><%= link_to 'Logout', { :controller => 'user', :action => 'logout'} %></li>
           </ul>
         </div>
       <% end -%>

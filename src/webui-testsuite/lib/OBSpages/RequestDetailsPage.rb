@@ -37,8 +37,7 @@ class RequestDetailsPage < BuildServicePage
   # ============================================================================
   #
   def accept_request
-    @driver[:xpath => 
-    "//div[@id='content']//input[@name='accepted'][@value='Accept request']"].click
+    @driver[xpath: "//div[@id='content']//input[@name='accepted'][@value='Accept request']"].click
 
     validate { flash_message == "Request accepted!" }
     validate { flash_message_type == :info }

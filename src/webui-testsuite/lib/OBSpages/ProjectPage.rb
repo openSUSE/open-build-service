@@ -46,18 +46,18 @@ class ProjectPage < BuildServicePage
     @tabs_id = 'project_tabs'
   end
   
-  ALL_PROJECT_TABS = { "Users"          => ProjectUsersPage,
-                       "Project Config" => ProjectConfigPage,
-                       "Status"         => ProjectStatusPage,
-                       "Overview"       => ProjectOverviewPage,
-                       "Requests"       => ProjectRequestsPage,
-                       "Meta"           => ProjectRawConfigPage,
-                       "Attributes"     => ProjectAttributesPage,
-                       "Subprojects"    => ProjectSubprojectsPage,
-                       "Repositories"   => ProjectRepositoriesPage }
+  ALL_PROJECT_TABS = { "users"          => ProjectUsersPage,
+                       "projectconfig"  => ProjectConfigPage,
+                       "status"         => ProjectStatusPage,
+                       "overview"       => ProjectOverviewPage,
+                       "requests"       => ProjectRequestsPage,
+                       "meta"           => ProjectRawConfigPage,
+                       "attributes"     => ProjectAttributesPage,
+                       "subprojects"    => ProjectSubprojectsPage,
+                       "repositories"   => ProjectRepositoriesPage }
                      
-  ADVANCED_PROJECT_TABS = [ "Project Config", "Status",
-                            "Meta", "Attributes" ]  
+  ADVANCED_PROJECT_TABS = [ "projectconfig", "status",
+                            "meta", "attributes" ]  
              
   
   # ============================================================================
@@ -68,20 +68,18 @@ class ProjectPage < BuildServicePage
     end
     assert @available_tabs.include? tab 
     
-    tab_xpath = 
-      "//div[@id='#{@tabs_id}']//li/a" 
     if @advanced_tabs.include? tab
       trigger = @driver.find_elements(:css => "#advanced_tabs_trigger")
       if !trigger.first.nil? && trigger.first.displayed?
         trigger.first.click
 	wait.until do
-          t = @driver.find_element( :xpath => tab_xpath + "[text()='#{tab}']" ) 
+          t = @driver.find_element( id: "tab-#{tab}" ) 
 	  t && t.displayed?
       end
       end
     end
 
-    @driver[ :xpath => tab_xpath + "[text()='#{tab}']" ].click
+    @driver[ css: "li#tab-#{tab} a" ].click
     $page =  @available_tabs[tab].new_ready @driver
   end
   
@@ -89,10 +87,10 @@ class ProjectPage < BuildServicePage
   # ============================================================================
   #
   def selected_tab
-    tab_xpath  = ".//li[@class='selected']/a"
-    results = @driver[:id => @tabs_id].find_elements :xpath => tab_xpath
-    return results.first.text unless results.empty?
-    return :none
+    results = @driver[:id => @tabs_id].find_elements css: "li.selected"
+    return :none if results.empty?
+    id = results.first.attribute('id')
+    id.gsub(%r{tab-},'')
   end
   
   

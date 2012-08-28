@@ -51,7 +51,7 @@ class NewPackageBranchPage < ProjectPage
     @driver[:id => "linked_package"].send_keys new_branch[:original_name]
     @driver[:id => "target_package"].clear
     @driver[:id => "target_package"].send_keys new_branch[:name]
-    @driver[:xpath => "//div[@id='content']//input[@name='commit']"].click
+    @driver[css: "div#content input[name='commit']"].click
 
     if new_branch[:expect] == :success
       assert_equal flash_message, "Branched package #{@project} / #{new_branch[:name]}" 

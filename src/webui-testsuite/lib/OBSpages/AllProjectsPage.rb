@@ -74,12 +74,12 @@ class AllProjectsPage < BuildServicePage
   end
   
  def open_project project_name
-    @driver[:xpath => "//div[@id='project_list']//a[text()='#{project_name}']"].click
+    @driver[xpath: "//div[@id='project_list']//a[text()='#{project_name}']"].click
     $page = ProjectOverviewPage.new_ready @driver
   end
   
   def open_new_project
-    @driver[:xpath => "//div[@id='content']//a[@href='/project/new']"].click
+    @driver[css: "div#content a[href='/project/new']"].click
     $page=NewProjectPage.new_ready @driver
   end
 end

@@ -133,15 +133,15 @@ class TC04__EditProject < TestCase
 
   
   def switch_tabs
-    open_tab "Attributes" 
-    open_tab "Project Config"
-    open_tab "Status"
-    open_tab "Overview"
-    open_tab "Repositories" 
-    open_tab "Requests" 
-    open_tab "Meta"
-    open_tab "Subprojects"
-    open_tab "Users"
+    open_tab "attributes" 
+    open_tab "projectconfig"
+    open_tab "status"
+    open_tab "overview"
+    open_tab "repositories" 
+    open_tab "requests" 
+    open_tab "meta"
+    open_tab "subprojects"
+    open_tab "users"
   end
   
   

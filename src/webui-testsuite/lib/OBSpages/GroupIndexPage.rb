@@ -32,9 +32,14 @@ class GroupIndexPage < BuildServicePage
   # Click on first group link
   #
   def open_first_group
-    #@driver[:xpath => "//div[@id='content']//tbody/tr[0]/td[0]/a"].click
-    @driver[:xpath => "//table[@id='group_table']//a[starts-with(@href,'/groups/')]"].click
-    $page = GroupShowPage.new_ready @driver
+    @driver.find_elements(css: "table#group_table a").each do |link|
+      if link.attribute("href").start_with?($data[:url] + "/groups")
+         link.click
+	 $page = GroupShowPage.new_ready @driver
+	 return
+      end
+    end
+    assert false
   end
   
 end

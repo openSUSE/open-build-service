@@ -40,9 +40,9 @@ class PackageOverviewPage < PackagePage
     @driver[id: 'delete-package'].click
     wait_for_javascript
 
-    validate { @driver.include? :xpath => "//div[@id='dialog_wrapper']//h2[text()='Delete Confirmation']" }
+    assert_equal @driver[css: "div#dialog_wrapper h2"].text, 'Delete Confirmation'
     
-    @driver[:xpath => "//form[@action='/package/remove']//input[@name='commit'][@value='Ok']"].click
+    @driver[css: "form[action='/package/remove'] input[name='commit']"].click
     
     msg = "Package '#{@package}' was removed successfully from project '#{@project}'"
     $page = ProjectOverviewPage.new_ready @driver
@@ -57,14 +57,12 @@ class PackageOverviewPage < PackagePage
     @driver[xpath: "//*[@id='content']//*[text()='Request deletion']"].click
     wait_for_javascript 
       
-    validate { @driver.include? :xpath => 
-      "//div[@id='dialog_wrapper']//b[text()='Create Delete Request']" }
+    assert_equal @driver[css: "div#dialog_wrapper b"].text, 'Create Delete Request'
     
     @driver[:id => "description"].clear
     @driver[:id => "description"].send_keys description
       
-    @driver[:xpath => "//form[@action='/request/delete_request?method=post']
-      //input[@name='commit'][@value='Ok']"].click
+    @driver[css: "form[action='/request/delete_request?method=post'] input[name='commit']"].click
     
     $page = RequestDetailsPage.new_ready @driver
   end
@@ -89,8 +87,7 @@ class PackageOverviewPage < PackagePage
   def change_package_info new_info
     assert (new_info[:title] or new_info[:description]) != nil
 
-    @driver[:xpath => 
-      "//div[@id='content']//a[text()='Edit description']"].click
+    @driver[id: "edit-description"].click
     validate { @driver.page_source.include?(
       "Edit Package Information of #{@package} (Project #{@project})") }
     validate { @driver.page_source.include? "Title:" }
@@ -109,7 +106,7 @@ class PackageOverviewPage < PackagePage
       @driver[:id => "description"].send_keys new_info[:description]
     end
     
-    @driver[:xpath => "//form[@action='/package/save']//input[@name='commit'][@value='Save changes']"].click
+    @driver[css: "form[action='/package/save'] input[name='commit']"].click
     
     validate_page
     unless new_info[:title].nil?

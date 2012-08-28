@@ -35,8 +35,7 @@ class PackageSourcesPage < PackagePage
   # ============================================================================
   #
   def open_add_file
-    @driver[:xpath => 
-      "//div[@id='content']//a[text()='Add file']"].click
+    @driver[xpath: "//*[@id='content']//*[text()='Add file']"].click
     $page=PackageAddFilePage.new_ready @driver
   end
   
@@ -44,7 +43,7 @@ class PackageSourcesPage < PackagePage
   # ============================================================================
   #
   def open_file file
-    @driver[:xpath => ".//tr/td[1]/a[text()='#{file}']"].click
+    @driver[css: "tr##{valid_xml_id('file-' + file)} td:first-child a"].click
     $page = PackageEditFilePage.new_ready @driver
   end
   

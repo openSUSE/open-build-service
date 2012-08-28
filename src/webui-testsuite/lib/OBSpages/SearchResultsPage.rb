@@ -57,17 +57,17 @@ class SearchResultsPage < BuildServicePage
   # ============================================================================
   #
   def search_results
-    raw_results = @driver.find_elements :xpath => "//table[@id='search_result']//tr"
+    raw_results = @driver.find_elements css: "table#search_result tr"
     raw_results.collect do |row|
-      alt = row.find_element(:xpath => ".//img").attribute("alt")
+      alt = row.find_element(css: "img").attribute("alt")
       case alt
         when "Project"
           { :type         => :project, 
-            :project_name => row.find_element(:xpath => ".//a").text }
+            :project_name => row.find_element(css: "a").text }
         when "Package"
           { :type         => :package, 
-            :package_name => row.find_elements(:xpath => ".//a").first.text,
-            :project_name => row.find_elements(:xpath => ".//a").last.text }
+            :package_name => row.find_elements(css: "a").first.text,
+            :project_name => row.find_elements(css: "a").last.text }
         else
           fail "Unrecognized result icon. #{alt}"
       end
@@ -89,7 +89,7 @@ class SearchResultsPage < BuildServicePage
       raise ArgumentError
     end
     
-    @driver[:xpath => "//table[@id='search_result']//tr[#{index}]//a"].click
+    @driver.find_elements(css: "table#search_result tr")[index].find_element(css: "a").click
     if result[:type] == :project  then
       $page = ProjectOverviewPage.new_ready @driver
     else

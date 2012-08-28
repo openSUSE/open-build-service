@@ -55,8 +55,9 @@ class SearchPage < BuildServicePage
     title.click       if options[:in].include?(:title)     != title.selected?
     description.click if options[:in].include?(:description) != description.selected?
     unless options[:attribute].nil?
-      @driver[:xpath => 
-        "//select[@id='attribute']/option[text()='#{options[:attribute]}']"].click
+      @driver.find_elements(css: "select#attribute option").each do |o|
+	 o.click if o.text == options[:attribute] 
+      end
     end
     @driver[:css => "#content form input[name=commit]"].click
     

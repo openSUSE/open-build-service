@@ -10,7 +10,7 @@
     </thead>
     <tbody>
       <% @files.each do |file| %>
-        <tr><td>
+         <tr id="file-<%= valid_xml_id(file[:name]) %>"><td>
             <%= link_to_if(file[:viewable], nbsp(file[:name]), :action => :view_file, :project => @project, :package => @package, :file => file[:name], :rev => file[:srcmd5], :expand => @expand ) %>
             <% if @link && @link.has_add_patch?( file[:name] ) %>
               (Added Patch)

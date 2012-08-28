@@ -55,7 +55,7 @@ class NewPackagePage < ProjectPage
     @driver[:id => "title"].send_keys new_package[:title]
     @driver[:id => "description"].clear
     @driver[:id => "description"].send_keys new_package[:description]
-    @driver[:xpath => "//div[@id='content']//input[@name='commit']"].click
+    @driver[css: "div#content input[name='commit']"].click
  
     if new_package[:expect] == :success
       assert_equal flash_message, message_prefix + "was created successfully" 

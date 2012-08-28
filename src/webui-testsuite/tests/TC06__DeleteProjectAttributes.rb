@@ -7,7 +7,7 @@ class TC06__DeleteProjectAttributes < TestCase
     navigate_to ProjectOverviewPage,
       :user    => $data[:user1],
       :project => "home:user2"
-    open_tab "Attributes"
+    open_tab "attributes"
     delete_attribute(
       :name =>  "OBS:RequestCloned",
       :expect => :no_permission)
@@ -26,7 +26,7 @@ class TC06__DeleteProjectAttributes < TestCase
     navigate_to ProjectOverviewPage,
       :user => $data[:user1],
       :project => "home:user1"
-    open_tab "Attributes"
+    open_tab "attributes"
     delete_attribute :name => "OBS:RequestCloned"
     delete_attribute :name => "OBS:ProjectStatusPackageFailComment"
     delete_attribute :name => "OBS:InitializeDevelPackage"
@@ -39,7 +39,7 @@ class TC06__DeleteProjectAttributes < TestCase
     navigate_to ProjectOverviewPage,
       :user => $data[:user1],
       :project => "home:user1:SubProject1"
-    open_tab "Attributes"
+    open_tab "attributes"
     delete_attribute(
       :name   => "OBS:VeryImportantProject",
       :expect => :no_permission)
@@ -58,7 +58,7 @@ class TC06__DeleteProjectAttributes < TestCase
     navigate_to ProjectOverviewPage,
       :user => $data[:admin],
       :project => "home:user1:SubProject1"
-    open_tab "Attributes"
+    open_tab "attributes"
     delete_attribute :name => "OBS:VeryImportantProject"
     delete_attribute :name => "OBS:UpdateProject"
     delete_attribute :name => "OBS:RejectRequests"
@@ -79,7 +79,7 @@ class TC06__DeleteProjectAttributes < TestCase
     navigate_to ProjectOverviewPage,
       :user => $data[:admin],
       :project => "home:user2"
-    open_tab "Attributes"
+    open_tab "attributes"
     delete_attribute :name => "OBS:RequestCloned"
     delete_attribute :name => "OBS:ProjectStatusPackageFailComment"
     delete_attribute :name => "OBS:InitializeDevelPackage"

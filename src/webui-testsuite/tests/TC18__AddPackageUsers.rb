@@ -8,7 +8,7 @@ class TC18__AddPackageUsers < TestCase
       :user => $data[:user1],
       :package => "HomePackage1",
       :project => "home:user1"
-    open_tab "Users"
+    open_tab "users"
     add_user "user2", "maintainer"
   end
   
@@ -20,7 +20,7 @@ class TC18__AddPackageUsers < TestCase
       :user => $data[:user1],
       :package => "HomePackage1",
       :project => "home:user1"
-    open_tab "Users"
+    open_tab "users"
     add_user "user3", "bugowner"
   end
   
@@ -32,7 +32,7 @@ class TC18__AddPackageUsers < TestCase
       :user => $data[:user1],
       :package => "HomePackage1",
       :project => "home:user1"
-    open_tab "Users"
+    open_tab "users"
     add_user "user4", "reviewer"
   end
   
@@ -44,7 +44,7 @@ class TC18__AddPackageUsers < TestCase
       :user => $data[:user1],
       :package => "HomePackage1",
       :project => "home:user1"
-    open_tab "Users"
+    open_tab "users"
     add_user "user5", "downloader"
   end
   
@@ -56,7 +56,7 @@ class TC18__AddPackageUsers < TestCase
       :user => $data[:user1],
       :package => "HomePackage1",
       :project => "home:user1"
-    open_tab "Users"
+    open_tab "users"
     add_user "user6", "reader"
   end
   
@@ -68,7 +68,7 @@ class TC18__AddPackageUsers < TestCase
       :user => $data[:user1],
       :package => "HomePackage1",
       :project => "home:user1"
-    open_tab "Users"
+    open_tab "users"
     add_user "user6", "reviewer"
     add_user "user6", "downloader"
   end
@@ -81,7 +81,7 @@ class TC18__AddPackageUsers < TestCase
       :user => $data[:user1],
       :package => "HomePackage1",
       :project => "home:user1"
-    open_tab "Users"
+    open_tab "users"
     add_user "king", "maintainer"
     add_user "king", "bugowner"
     add_user "king", "reviewer"
@@ -97,7 +97,7 @@ class TC18__AddPackageUsers < TestCase
       :user => $data[:user1],
       :package => "HomePackage1",
       :project => "home:user1"
-    open_tab "Users"
+    open_tab "users"
     add_user "sadasxsacxsacsa", "reader", :expect => :unknown_user
   end
   
@@ -109,7 +109,7 @@ class TC18__AddPackageUsers < TestCase
       :user => $data[:user1],
       :package => "HomePackage1",
       :project => "home:user1"
-    open_tab "Users"
+    open_tab "users"
     add_user "", "maintainer", :expect => :invalid_username
   end
   
@@ -121,7 +121,7 @@ class TC18__AddPackageUsers < TestCase
       :user => $data[:user1],
       :package => "HomePackage1",
       :project => "home:user1"
-    open_tab "Users"
+    open_tab "users"
     add_user '~@$@#%#%@$0-=<m,.,\/\/12`;.{{}}{}', "maintainer", :expect => :invalid_username
   end
   
@@ -133,7 +133,7 @@ class TC18__AddPackageUsers < TestCase
       :user => $data[:user1],
       :package => "HomePackage1",
       :project => "home:user1"
-    open_tab "Users"
+    open_tab "users"
     add_user 'still-buggy?', "maintainer", :expect => :invalid_username
   end
   

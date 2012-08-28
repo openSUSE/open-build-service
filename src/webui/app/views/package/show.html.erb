@@ -94,11 +94,11 @@
           <% if @package.can_edit?(session[:login]) %>
             <li>
               <%= link_to image_tag('package_edit.png', :title => "Edit description"), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
-              <%= link_to "Edit description", :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
+	      <%= link_to "Edit description", { :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count }, id: 'edit-description' -%>
             </li>
             <li>
               <%= link_to(image_tag('package_delete.png', :title => 'Delete package'), {:action => :delete_dialog, :package => @package, :project => @project}, :remote => true) %>
-              <%= link_to('Delete package', {:action => :delete_dialog, :package => @package, :project => @project}, :remote => true) %>
+              <%= link_to('Delete package', {:action => :delete_dialog, :package => @package, :project => @project}, :remote => true, id: 'delete-package') %>
             </li>
           <% else %>
             <li>

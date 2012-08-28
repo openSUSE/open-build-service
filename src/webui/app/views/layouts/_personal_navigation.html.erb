@@ -5,7 +5,7 @@
       <%= link_to pluralize(@nr_requests_that_need_work, 'Request'), {:controller => 'home', :action => 'my_work'}, {:title => "Number of requests concerning #{@user}"} %>
     <% end %> |
     <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %> |
-    <%= link_to "Logout", { :controller => 'user', :action => 'logout' }, :method => :post %>
+    <%= link_to "Logout", { :controller => 'user', :action => 'logout' }, :method => :post, id: 'logout-link' %>
   <% else %>
     <% if CONFIG['proxy_auth_mode'] == :on %>
       <% unless CONFIG['proxy_auth_register_page'].blank? %>
@@ -28,14 +28,14 @@
             <%= password_field_tag(:password, '') %>
           </p>
           <p><%= submit_tag('Login', :onclick => 'fillEmptyFields();') %></p>
-          <p class="slim-footer"><%= link_to('Cancel', '#', :id => 'close-login') %></p>
+          <p class="slim-footer"><%= link_to('Cancel', '#', id: 'close-login') %></p>
         <% end %>
       </div>
     <% else %>
       <% unless CONFIG['frontend_ldap_mode'] == :on %>
         <%= link_to 'Register', :controller => :user, :action => :register_user %> |
       <% end %>
-      <%= link_to 'Login', { :controller => :user, :action => :login }, :id => 'login-trigger' %>
+      <%= link_to 'Login', { :controller => :user, :action => :login }, id: 'login-trigger' %>
       <div id="login-form">
         <%= form_tag(:controller => :user, :action => :do_login) do %>
           <p>

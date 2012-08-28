@@ -8,7 +8,7 @@ class TC13__DeletePackageAttributes < TestCase
       :user    => $data[:user1],
       :package => "Home2Package1",
       :project => "home:user2"
-    open_tab "Attributes"
+    open_tab "attributes"
     delete_attribute(
       :name =>  "OBS:RequestCloned",
       :expect => :no_permission)
@@ -28,7 +28,7 @@ class TC13__DeletePackageAttributes < TestCase
       :user => $data[:user1],
       :package => "HomePackage1",
       :project => "home:user1"
-    open_tab "Attributes"
+    open_tab "attributes"
     delete_attribute :name => "OBS:RequestCloned"
     delete_attribute :name => "OBS:ProjectStatusPackageFailComment"
     delete_attribute :name => "OBS:InitializeDevelPackage"
@@ -42,7 +42,7 @@ class TC13__DeletePackageAttributes < TestCase
       :user => $data[:user1],
       :package => "SubPackage1",
       :project => "home:user1:SubProject1"
-    open_tab "Attributes"
+    open_tab "attributes"
     delete_attribute(
       :name   => "OBS:VeryImportantProject",
       :expect => :no_permission)
@@ -68,7 +68,7 @@ class TC13__DeletePackageAttributes < TestCase
       :user => $data[:admin],
       :package => "SubPackage1",
       :project => "home:user1:SubProject1"
-    open_tab "Attributes"
+    open_tab "attributes"
     delete_attribute :name => "OBS:VeryImportantProject"
     delete_attribute :name => "OBS:UpdateProject"
     delete_attribute :name => "OBS:MaintenanceProject"
@@ -84,7 +84,7 @@ class TC13__DeletePackageAttributes < TestCase
       :user => $data[:admin],
       :package => "Home2Package1",
       :project => "home:user2"
-    open_tab "Attributes"
+    open_tab "attributes"
     delete_attribute :name => "OBS:RequestCloned"
     delete_attribute :name => "OBS:ProjectStatusPackageFailComment"
     delete_attribute :name => "OBS:InitializeDevelPackage"
