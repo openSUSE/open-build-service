@@ -1522,9 +1522,6 @@ sub read_bininfo {
   $bininfo = {};
   @bininfo_s = ();
   for my $file (ls($dir)) {
-    my @s = stat("$dir/$file");
-    next unless @s;
-    my $id = "$s[9]/$s[7]/$s[1]";
     if ($file !~ /\.(?:$binsufsre)$/) {
       if ($file =~ /-appdata\.xml$/) {
 	local *F;
@@ -1534,10 +1531,13 @@ sub read_bininfo {
 	my $ctx = Digest::MD5->new;
 	$ctx->addfile(*F);
 	close F;
-	$bininfo->{$file} = {'md5sum' => $ctx->hexdigest(), 'filename' => $file, 'id' => $id};
+	$bininfo->{$file} = {'md5sum' => $ctx->hexdigest(), 'filename' => $file, 'id' => "$s[9]/$s[7]/$s[1]"};
       }
       next;
     }
+    my @s = stat("$dir/$file");
+    next unless @s;
+    my $id = "$s[9]/$s[7]/$s[1]";
     my $data;
     eval {
       my $leadsigmd5;
