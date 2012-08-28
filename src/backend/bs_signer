@@ -346,19 +346,29 @@ sub signjob {
     # we have changed the file ids, thus we need to re-create
     # the .bininfo file
     my $bininfo = {};
+    my $oldbininfo = BSUtil::retrieve("$jobdir/.bininfo", 1) || {};
     for my $file (@files) {
-      next unless $file =~ /\.(?:rpm|deb)$/;
       my @s = stat("$jobdir/$file");
-      next unless @s;
       my $id = "$s[9]/$s[7]/$s[1]";
+      next unless @s;
+      if ($file !~ /\.(?:rpm|deb)$/) {
+	$bininfo->{$file} = $oldbininfo->{$file} if $oldbininfo->{$file};
+	next;
+      }
       my $data = Build::query("$jobdir/$file", 'evra' => 1);
+      die("$jobdir/$file: query failed") unless $data;
       eval {
         BSVerify::verify_nevraquery($data);
       };
       die("$jobdir/$file: $@") if $@;
-      $bininfo->{$id} = $data;
+      my $leadsigmd5;
+      die("$jobdir/$file: queryhdrmd5 failed\n") unless Build::queryhdrmd5("$jobdir/$file", \$leadsigmd5);
+      $data->{'filename'} = $file;
+      $data->{'id'} = $id;
+      $bininfo->{$file} = $data;
     }
-    Storable::nstore($bininfo, "$jobdir/.bininfo") if %$bininfo;
+    $bininfo->{'.bininfo'} = {};	# mark new version
+    BSUtil::store("$jobdir/.bininfo", undef, $bininfo);
   }
   
   # write finished job status and release lock

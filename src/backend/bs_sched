@@ -1504,6 +1504,100 @@ sub compile_exportfilter {
   return \@res;
 }
 
+sub read_bininfo {
+  my ($dir, $withid) = @_;
+  my $bininfo;
+  my @bininfo_s;
+  local *BI;
+  if (open(BI, '<', "$dir/.bininfo")) {
+    @bininfo_s = stat(BI);
+    $bininfo = BSUtil::retrieve(\*BI, 1) if @bininfo_s && $bininfo_s[7];
+    close BI;
+    if ($bininfo) {
+      $bininfo->{'.bininfo'} = {'id' => "$bininfo_s[9]/$bininfo_s[7]/$bininfo_s[1]"} if $withid;
+      return $bininfo;
+    }
+  }
+  # old style bininfo or no bininfo, create it
+  $bininfo = {};
+  @bininfo_s = ();
+  for my $file (ls($dir)) {
+    my @s = stat("$dir/$file");
+    next unless @s;
+    my $id = "$s[9]/$s[7]/$s[1]";
+    if ($file !~ /\.(?:$binsufsre)$/) {
+      if ($file =~ /-appdata\.xml$/) {
+	local *F;
+	open(F, '<', "$dir/$file") || next;
+	my @s = stat(F);
+	next unless @s;
+	my $ctx = Digest::MD5->new;
+	$ctx->addfile(*F);
+	close F;
+	$bininfo->{$file} = {'md5sum' => $ctx->hexdigest(), 'filename' => $file, 'id' => $id};
+      }
+      next;
+    }
+    my $data;
+    eval {
+      my $leadsigmd5;
+      die("$dir/$file: no hdrmd5\n") unless Build::queryhdrmd5("$dir/$file", \$leadsigmd5);
+      $data = Build::query("$dir/$file", 'evra' => 1);
+      die("$dir/$file: queury failed\n") unless $data;
+      BSVerify::verify_nevraquery($data);
+      $data->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
+    };
+    if ($@) {
+      warn($@);
+      next;
+    }
+    $data->{'filename'} = $file;
+    $data->{'id'} = $id;
+    $bininfo->{$file} = $data;
+  }
+  eval {
+    BSUtil::store("$dir/.bininfo.new", "$dir/.bininfo", $bininfo);
+    @bininfo_s = stat("$dir/.bininfo");
+    $bininfo->{'.bininfo'} = {'id' => "$bininfo_s[9]/$bininfo_s[7]/$bininfo_s[1]"} if @bininfo_s && $withid;
+  };
+  warn($@) if $@;
+  return $bininfo;
+}
+
+sub read_gbininfo {
+  my ($dir) = @_;
+
+  return {} unless -d $dir;
+  my $gbininfo = BSUtil::retrieve("$dir/:bininfo", 1);
+  my $gbininfo_m;
+  if ($gbininfo) {
+    return $gbininfo unless -e "$dir/:bininfo.merge";
+    $gbininfo_m = BSUtil::retrieve("$dir/:bininfo.merge", 1);
+  }
+  if ($gbininfo && $gbininfo_m) {
+    for (keys %$gbininfo_m) {
+      if ($gbininfo_m->{$_}) {
+	$gbininfo->{$_} = $gbininfo_m->{$_};
+      } else {
+	delete $gbininfo->{$_};
+      }
+    }
+  } else {
+    $gbininfo = {};
+    for my $packid (grep {!/^[:\.]/} ls($dir)) {
+      next if $packid eq '_deltas';
+      next unless -d "$dir/$packid";
+      $gbininfo->{$packid} = read_bininfo("$dir/$packid", 1);
+    }
+  }
+  eval {
+    BSUtil::store("$dir/.:bininfo", "$dir/:bininfo", $gbininfo);
+  };
+  warn($@) if $@;
+  unlink("$dir/:bininfo.merge");
+  return $gbininfo;
+}
+
 #
 # moves binary packages from jobrepo to dst and updates full repository
 #
@@ -1533,14 +1627,19 @@ sub update_dst_full {
 
   my $jobrepo;
   my @jobfiles;
+  my $jobbininfo;
   if (defined($jobdir)) {
     @jobfiles = sort(ls($jobdir));
     @jobfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && $_ ne '.bininfo'} @jobfiles;
-    my $cache;
-    if (-e "$jobdir/.bininfo") {
-      $cache = BSUtil::retrieve("$jobdir/.bininfo", 1);
+    $jobbininfo = BSUtil::retrieve("$jobdir/.bininfo", 1);
+    if ($jobbininfo && !($dst && $jobdir eq $dst) && !$jobbininfo->{'.bininfo'}) {
+      # old style jobdir bininfo, ignore
       unlink("$jobdir/.bininfo");
+      undef $jobbininfo;
     }
+    $jobbininfo ||= read_bininfo($jobdir);
+    delete $jobbininfo->{'.bininfo'};	# delete new version marker
+    my $cache = { map {$_->{'id'} => $_} grep {$_->{'id'}} values %$jobbininfo };
     $jobrepo = findbins_dir([ map {"$jobdir/$_"} grep {/\.(?:$binsufsre)$/ && !/\.delta\.rpm$/} @jobfiles ], $cache);
   } else {
     $jobrepo = {};
@@ -1553,10 +1652,12 @@ sub update_dst_full {
 
   my $oldrepo;
   my $isimport;
+  my $bininfo;
 
   if ($dst && $jobdir && $dst eq $jobdir) {
     # a "refresh" operation, nothing to do here
     $oldrepo = $jobrepo;
+    $bininfo = $jobbininfo;
   } elsif ($dst) {
     # get old state
     my @oldfiles = sort(ls($dst));
@@ -1573,6 +1674,7 @@ sub update_dst_full {
       }
       rename("$jobdir/$f", "$dst/$f") || die("rename $jobdir/$f $dst/$f: $!\n");
       $new{$f} = 1;
+      $bininfo->{$f} = $jobbininfo->{$f} if $jobbininfo->{$f};
     }
     for my $f (grep {!$new{$_}} @oldfiles) {
       if (! -l "$dst/$f" && -d _) {
@@ -1600,15 +1702,26 @@ sub update_dst_full {
     $dst = $jobdir;	# get em from the jobdir
   }
 
+  # write .bininfo file and update :bininfo.merge (jobdir is undef for package deletion)
   if (!$isimport) {
-    # write .bininfo file
-    my $bininfo = '';
-    for my $rp (sort keys %$jobrepo) {
-      my $nn = $rp;
-      $nn =~ s/.*\///;
-      $bininfo .= "$jobrepo->{$rp}->{'hdrmd5'}  $nn\n";
+    my @bininfo_s;
+    if (defined($jobdir) && defined($bininfo)) {
+      BSUtil::store("$dst/.bininfo.new", "$dst/.bininfo", $bininfo);
+      @bininfo_s = stat("$dst/.bininfo");
+      $bininfo->{'.bininfo'} = {'id' => "$bininfo_s[9]/$bininfo_s[7]/$bininfo_s[1]"} if @bininfo_s;
+    } else {
+      unlink("$dst/.bininfo");
     }
-    writestr("$dst/.bininfo.new", "$dst/.bininfo", $bininfo);
+
+    my $gbininfo = {};
+    $gbininfo = BSUtil::retrieve("$gdst/:bininfo.merge", 1) if -e "$gdst/:bininfo.merge";
+    if ($gbininfo) {
+      $gbininfo->{$packid} = defined($jobdir) ? $bininfo : undef;
+      BSUtil::store("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", $gbininfo);
+    } else {
+      writestr("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", '');	# corrupt file, mark
+    }
+    delete $bininfo->{'.bininfo'} if $bininfo;
   }
 
   ##################################################################
@@ -3154,6 +3267,38 @@ sub rebuildkiwiimage {
 ##
 my %bininfo_cache;
 
+sub read_bininfo_oldok {
+  my ($dir) = @_;
+  my @s = stat("$dir/.bininfo");
+  if (@s) {
+    my $bininfo = BSUtil::retrieve("$dir/.bininfo", 1);
+    if ($bininfo) {
+      $bininfo->{'.bininfo'} = {'id' => "$s[9]/$s[7]/$s[1]"};
+      return $bininfo;
+    }
+    local *F;
+    if (open(F, '<', "$dir/.bininfo")) {
+      $bininfo = {};
+      while (<F>) {
+	chomp;
+	next unless length($_) > 34;
+	my $file = substr($_, 34);
+	next unless $file =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	$bininfo->{$file} = {'filename' => $file, 'hdrmd5' => substr($_, 0, 32), 'name' => $1, 'arch' => $2};
+      }
+      close(F);
+      $bininfo->{'.bininfo'} = {'id' => "$s[9]/$s[7]/$s[1]"};
+      return $bininfo;
+    }
+  }
+  my $bininfo = {};
+  for my $file (ls($dir)) {
+    next unless $file =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+    $bininfo->{$file} = {'filename' => $file, 'name' => $1, 'arch' => $2};
+  }
+  return $bininfo;
+}
+
 sub checkkiwiproduct {
   my ($ctx, $packid, $pdata, $info) = @_;
 
@@ -3343,37 +3488,20 @@ sub checkkiwiproduct {
 	my $bis;
 	my @bininfo_s = stat("$reporoot/$aprp/$arch/$apackid/.bininfo");
         if (-s _) {
-	  $bis = $bininfo_cache{"$aprp/$arch/$apackid/.bininfo"};
-	  if (!defined($bis->[0]) || $bis->[0] ne "$bininfo_s[9]/$bininfo_s[7]/$bininfo_s[1]") {
-	    local *F;
-	    undef $bis;
-	    if (open(F, '<', "$reporoot/$aprp/$arch/$apackid/.bininfo")) {
-	      @bininfo_s = stat(F);
-	      die unless @bininfo_s;
-	      my $bisc = '';
-	      1 while sysread(F, $bisc, 8192, length($bisc));
-	      close F;
-	      $bis = ["$bininfo_s[9]/$bininfo_s[7]/$bininfo_s[1]", $bisc];
-	      $bininfo_cache{"$aprp/$arch/$apackid/.bininfo"} = $bis;
-	    }
-	  }
-	}
-	if ($bis) {
-	  for my $bi (split("\n", $bis->[1])) {
-	    my $b = substr($bi, 34);
-	    next unless $b =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
-	    $needit = 1 if $deps{$1} || ($allpacks && !$deps{"-$1"});
-	    push @got, "$aprp/$arch/$apackid/$b";
-	    $rpms_hdrmd5{$got[-1]} = substr($bi, 0, 32);
-	    $rpms_meta{$got[-1]} = "$aprp/$arch/$apackid/$1.$2";
+	  $bis = $bininfo_cache{"$aprp/$arch/$apackid"};
+	  if (!$bis || $bis->{'.bininfo'}->{'id'} ne "$bininfo_s[9]/$bininfo_s[7]/$bininfo_s[1]") {
+	    $bis = read_bininfo_oldok("$aprp/$arch/$apackid");
+	    $bininfo_cache{"$aprp/$arch/$apackid"} = $bis if $bis->{'.bininfo'};
 	  }
 	} else {
-          for my $b (ls("$reporoot/$aprp/$arch/$apackid")) {
-	    next unless $b =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
-	    $needit = 1 if $deps{$1} || ($allpacks && !$deps{"-$1"});
-	    push @got, "$aprp/$arch/$apackid/$b";
-	    $rpms_meta{$got[-1]} = "$aprp/$arch/$apackid/$1.$2";
-          }
+	  $bis = read_bininfo_oldok("$aprp/$arch/$apackid");
+	}
+	for my $b (values %$bis) {
+	  next unless $b->{'filename'} && $b->{'filename'} =~ /\.rpm$/;
+	  $needit = 1 if $deps{$b->{'name'}} || ($allpacks && !$deps{"-$b->{'name'}"});
+	  push @got, "$aprp/$arch/$apackid/$b->{'filename'}";
+	  $rpms_hdrmd5{$got[-1]} = $b->{'hdrmd5'} if $b->{'hdrmd5'};
+	  $rpms_meta{$got[-1]} = "$aprp/$arch/$apackid/$b->{'name'}.$b->{'arch'}";
         }
 	next unless $needit;
 	# ok we need it. check if the package is built.
@@ -3814,7 +3942,7 @@ sub rebuildpatchinfo {
   my @upackages;
   my $broken;
   my %metas;
-  my $bininfo = '';
+  my $bininfo = {};
   my $updateinfodata;
   my %updateinfodata_tocopy;
   my %binaryfilter = map {$_ => 1} @{$patchinfo->{'binary'} || []};
@@ -3882,15 +4010,19 @@ sub rebuildpatchinfo {
         my $error = "link $from/$bin $jobdatadir/$bin: $!\n";
         return ('broken', $error);
       }
+      my @s = stat("$jobdatadir/$bin");
+      return ('broken', "$jobdatadir/$bin: stat failed") unless @s;
       if ($ptype eq 'binary') {
         # be extra careful with em, recalculate meta
-	my @s = stat("$jobdatadir/$bin");
 	$m .= "$bin\0$s[9]/$s[7]/$s[1]\0" if @s;
       }
       my $d;
       eval {
         $d = Build::query("$jobdatadir/$bin", 'evra' => 1, 'unstrippedsource' => 1);
 	BSVerify::verify_nevraquery($d);
+	my $leadsigmd5 = '';
+	die("$jobdatadir/$bin: no hdrmd5\n") unless Build::queryhdrmd5("$jobdatadir/$bin", \$leadsigmd5);
+	$d->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
       };
       if (@$ || !$d) {
         return ('broken', "$bin: bad rpm");
@@ -3902,7 +4034,9 @@ sub rebuildpatchinfo {
         next;
       }
       $donebins{$bin} = $tocopy;
-      $bininfo .= "$d->{'hdrmd5'}  $bin\n";
+      $bininfo->{$bin} = {'name' => $d->{'name'}, 'arch' => $d->{'arch'}, 'hdrmd5' => $d->{'hdrmd5'}, 'filename' => $bin, 'id' => "$s[9]/$s[7]/$s[1]"};
+      $bininfo->{$bin}->{'leadsigmd5'} = $d->{'leadsigmd5'} if $d->{'leadsigmd5'};
+      $bininfo->{$bin}->{'md5sum'} = $d->{'md5sum'} if $d->{'md5sum'};
       my $upd = {
 	'name' => $d->{'name'},
 	'version' => $d->{'version'},
@@ -4020,7 +4154,7 @@ sub rebuildpatchinfo {
   BSUtil::touch("$dst/.nosourceaccess") unless checkaccess('sourceaccess', $projid, $packid, $repoid);
   BSUtil::cleandir($jobdatadir);
   rmdir($jobdatadir);
-  writestr("$dst/.bininfo.new", "$dst/.bininfo", $bininfo) if $bininfo;
+  BSUtil::store("$dst/.bininfo.new", "$dst/.bininfo", $bininfo) if $bininfo;
   return ('done');
 }
 
@@ -5952,6 +6086,10 @@ eval {
       next if $remoteprojs{$projid};
       print "  - $prp: no longer exists\n";
       next;
+    }
+
+    if (-e "$reporoot/$prp/$myarch/:bininfo.merge" || ! -e "$reporoot/$prp/$myarch/:bininfo") {
+      read_gbininfo("$reporoot/$prp/$myarch");
     }
 
     my $bconf = getconfig($myarch, $prpsearchpath{$prp});

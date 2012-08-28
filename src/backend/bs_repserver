@@ -1538,16 +1538,36 @@ sub putjob {
   # calculate binary info to speed up scheduler
   my $bininfo = {};
   for my $file (@$uploaded) {
-    next unless $file->{'name'} =~ /\.(?:$binsufsre)$/;
     my @s = stat("$dir/$file->{'name'}");
     next unless @s;
     my $id = "$s[9]/$s[7]/$s[1]";
     my $data;
+    if ($file->{'name'} !~ /\.(?:$binsufsre)$/) {
+      if ($file->{'name'} =~ /^.*-appdata.xml$/) {
+	# used in product building, store md5sum
+	local *F;
+	open(F, '<', "$dir/$file->{'name'}");
+	@s = stat(F);
+	next unless @s;
+	$id = "$s[9]/$s[7]/$s[1]";
+	my $ctx = Digest::MD5->new;
+	$ctx->addfile(*F);
+	close F;
+	$data = {'md5sum' => $ctx->hexdigest(), 'filename' => $file->{'name'}, 'id' => $id };
+	$bininfo->{$file->{'name'}} = $data;
+      }
+      next;
+    }
     eval {
-      die("has no hdrmd5\n") unless Build::queryhdrmd5("$dir/$file->{'name'}");
+      my $leadsigmd5;
+      die("has no hdrmd5\n") unless Build::queryhdrmd5("$dir/$file->{'name'}", \$leadsigmd5);
       $data = Build::query("$dir/$file->{'name'}", 'evra' => 1);
+      die("query failed\n") unless $data;
       BSVerify::verify_nevraquery($data);
+      $data->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
     };
+    $data->{'filename'} = $file->{'name'};
+    $data->{'id'} = $id;
     if ($@) {
       BSUtil::appendstr("$dir/logfile", "$file->{'name'}: $@");
       unlink("$dir/$file->{'name'}");
@@ -1555,9 +1575,10 @@ sub putjob {
       $jobstatus->{'result'} = 'failed';
       next;
     }
-    $bininfo->{$id} = $data;
+    $bininfo->{$file->{'name'}} = $data;
   }
-  BSUtil::store("$dir/.bininfo", undef, $bininfo) if %$bininfo;
+  $bininfo->{'.bininfo'} = {};
+  BSUtil::store("$dir/.bininfo", undef, $bininfo);
 
   # write build stats for dispatcher
   my @l = ($projid, $repoid, $arch, $info->{'package'}, $jobstatus->{'starttime'},  $jobstatus->{'endtime'}, $jobstatus->{'result'}, $jobstatus->{'workerid'}, $jobstatus->{'hostarch'});
