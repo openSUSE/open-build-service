@@ -1587,7 +1587,14 @@ sub read_gbininfo {
     for my $packid (grep {!/^[:\.]/} ls($dir)) {
       next if $packid eq '_deltas';
       next unless -d "$dir/$packid";
-      $gbininfo->{$packid} = read_bininfo("$dir/$packid", 1);
+      my $bininfo = read_bininfo("$dir/$packid", 1);
+      if ($bininfo) {
+	for (values %$bininfo) {
+	  delete $_->{'provides'};
+	  delete $_->{'requires'};
+	}
+	$gbininfo->{$packid} = $bininfo;
+      }
     }
   }
   eval {
@@ -1716,7 +1723,16 @@ sub update_dst_full {
     my $gbininfo = {};
     $gbininfo = BSUtil::retrieve("$gdst/:bininfo.merge", 1) if -e "$gdst/:bininfo.merge";
     if ($gbininfo) {
-      $gbininfo->{$packid} = defined($jobdir) ? $bininfo : undef;
+      if (defined($jobdir) && $bininfo) {
+	# currently not needed, maybe later
+	for (values %$bininfo) {
+	  delete $_->{'provides'};
+	  delete $_->{'requires'};
+	}
+	$gbininfo->{$packid} = $bininfo;
+      } else {
+        $gbininfo->{$packid} = undef;
+      }
       BSUtil::store("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", $gbininfo);
     } else {
       writestr("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", '');	# corrupt file, mark

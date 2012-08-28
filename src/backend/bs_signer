@@ -363,6 +363,7 @@ sub signjob {
       die("$jobdir/$file: $@") if $@;
       my $leadsigmd5;
       die("$jobdir/$file: queryhdrmd5 failed\n") unless Build::queryhdrmd5("$jobdir/$file", \$leadsigmd5);
+      $data->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
       $data->{'filename'} = $file;
       $data->{'id'} = $id;
       $bininfo->{$file} = $data;
