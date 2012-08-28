@@ -540,10 +540,12 @@ sub retrieve {
   my ($fn, $nonfatal) = @_;
   my $dd;
   if (!$nonfatal) {
-    $dd = Storable::retrieve($fn);
+    $dd = ref($fn) ? Storable::fd_retrieve($fn) : Storable::retrieve($fn);
     die("retrieve $fn: $!\n") unless $dd;
   } else {
-    eval { $dd = Storable::retrieve($fn); };
+    eval {
+      $dd = ref($fn) ? Storable::fd_retrieve($fn) : Storable::retrieve($fn);
+    };
     if (!$dd && $nonfatal == 2) {
       if ($@) {
         warn($@);
