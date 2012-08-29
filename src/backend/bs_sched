@@ -3506,11 +3506,11 @@ sub checkkiwiproduct {
         if (-s _) {
 	  $bis = $bininfo_cache{"$aprp/$arch/$apackid"};
 	  if (!$bis || $bis->{'.bininfo'}->{'id'} ne "$bininfo_s[9]/$bininfo_s[7]/$bininfo_s[1]") {
-	    $bis = read_bininfo_oldok("$aprp/$arch/$apackid");
+	    $bis = read_bininfo_oldok("$reporoot/$aprp/$arch/$apackid");
 	    $bininfo_cache{"$aprp/$arch/$apackid"} = $bis if $bis->{'.bininfo'};
 	  }
 	} else {
-	  $bis = read_bininfo_oldok("$aprp/$arch/$apackid");
+	  $bis = read_bininfo_oldok("$reporoot/$aprp/$arch/$apackid");
 	}
 	for my $b (values %$bis) {
 	  next unless $b->{'filename'} && $b->{'filename'} =~ /\.rpm$/;
