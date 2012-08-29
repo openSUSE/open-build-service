@@ -1522,6 +1522,7 @@ sub read_bininfo {
   $bininfo = {};
   @bininfo_s = ();
   for my $file (ls($dir)) {
+    $bininfo->{'.nosourceaccess'} = {} if $file eq '.nosourceaccess';
     if ($file !~ /\.(?:$binsufsre)$/) {
       if ($file =~ /-appdata\.xml$/) {
 	local *F;
@@ -1665,6 +1666,7 @@ sub update_dst_full {
     # a "refresh" operation, nothing to do here
     $oldrepo = $jobrepo;
     $bininfo = $jobbininfo;
+    $bininfo->{'.nosourceaccess'} = {} if -e "$dst/.nosourceaccess";
   } elsif ($dst) {
     # get old state
     my @oldfiles = sort(ls($dst));
@@ -1694,7 +1696,10 @@ sub update_dst_full {
     # we only check 'sourceaccess', not 'access' here. 'access' has
     # to be handled anyway, so we don't gain anything by limiting
     # source access.
-    BSUtil::touch("$dst/.nosourceaccess") unless checkaccess('sourceaccess', $projid, $packid, $repoid);
+    if (!checkaccess('sourceaccess', $projid, $packid, $repoid)) {
+      BSUtil::touch("$dst/.nosourceaccess");
+      $bininfo->{'.nosourceaccess'} = {};
+    }
   } else {
     # dst = undef is true for importevents
     $isimport = 1;
@@ -4167,10 +4172,13 @@ sub rebuildpatchinfo {
   for my $f (ls($jobdatadir)) {
     rename("$jobdatadir/$f", "$dst/$f") || die("rename $jobdatadir/$f $dst/$f: $!\n");
   }
-  BSUtil::touch("$dst/.nosourceaccess") unless checkaccess('sourceaccess', $projid, $packid, $repoid);
+  if (!checkaccess('sourceaccess', $projid, $packid, $repoid)) {
+    BSUtil::touch("$dst/.nosourceaccess");
+    $bininfo->{'.nosourceaccess'} = {};
+  }
   BSUtil::cleandir($jobdatadir);
   rmdir($jobdatadir);
-  BSUtil::store("$dst/.bininfo.new", "$dst/.bininfo", $bininfo) if $bininfo;
+  BSUtil::store("$dst/.bininfo.new", "$dst/.bininfo", $bininfo);
   return ('done');
 }
 
