@@ -269,6 +269,38 @@ sub getpackagebinaryversionlist {
   my ($cgi, $projid, $repoid, $arch, $packids) = @_;
   my $prp = "$projid/$repoid";
   my @res;
+  
+  # new code
+  my $gbininfo = read_gbininfo("$reporoot/$prp/$arch");
+  if ($gbininfo) {
+    my %packids = map {$_ => 1} @{$packids || []};
+    for my $packid (sort keys %$gbininfo) {
+      next if %packids && !$packids{$packid};
+      my $bininfo = $gbininfo->{$packid};
+      filtersources_bininfo($bininfo) if $bininfo->{'.nosourceaccess'};
+      my @pres;
+      for (sort keys %$bininfo) {
+	my $bin = $bininfo->{$_};
+	next unless exists $bin->{'filename'};
+	my $r = { 'name' => $bin->{'filename'} };
+	$r->{'hdrmd5'} = $bin->{'hdrmd5'} if $bin->{'hdrmd5'};
+	$r->{'leadsigmd5'} = $bin->{'leadsigmd5'} if $bin->{'leadsigmd5'};
+	my $size = (split('/', $bin->{'id'}))[1];
+	$r->{'sizek'} = ($size + 512) >> 10;
+	push @pres, $r;
+      }
+      push @res, {'package' => $packid, 'binary' => \@pres};
+    }
+    return ({ 'binaryversionlist' => \@res }, $BSXML::packagebinaryversionlist);
+  }
+
+  # old code
+  $packids ||= [];
+  if (!@$packids) {
+    for my $packid (grep {!/^[:\.]/} sort(ls("$reporoot/$prp/$arch"))) {
+      push @$packids, $packid if $packid ne '_deltas' && -d "$reporoot/$prp/$arch/$packid";
+    }
+  }
   for my $packid (@$packids) {
     my @bins = grep {/(?:\.(?:$binsufsre)|-appdata\.xml)$/} ls("$reporoot/$prp/$arch/$packid");
     @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
@@ -591,6 +623,57 @@ sub filtersources {
   return @bins;
 }
 
+sub filtersources_bininfo {
+  my ($bininfo) = @_;
+  return unless $bininfo->{'.nosourceaccess'};
+  for my $bin (keys %$bininfo) {
+    delete $bininfo->{$bin} if $bin =~ /\.(?:no)?src\.rpm$/;
+    delete $bininfo->{$bin} if $bin =~ /-debug(:?info|source).*\.rpm$/;
+  }
+}
+
+sub read_bininfo {
+  my ($dir) = @_;
+  my $bininfo = BSUtil::retrieve("$dir/.bininfo", 1);
+  return $bininfo if $bininfo;
+  # .bininfo not present or old style, generate it
+  $bininfo = {};
+  $bininfo->{'.nosourceaccess'} = {} if -e "$dir/.nosourceaccess";
+  my @bins = grep {/(?:\.(?:$binsufsre)|-appdata\.xml)$/} ls($dir);
+  for my $bin (@bins) {
+    my @s = stat("$dir/$bin");
+    next unless @s;
+    my ($hdrmd5, $leadsigmd5);
+    if ($bin !~ /-appdata\.xml$/) {
+      $hdrmd5 = Build::queryhdrmd5("$dir/$bin", \$leadsigmd5);
+      next unless $hdrmd5;
+    }
+    my $r = {'filename' => $bin, 'id' => "$s[9]/$s[7]/$s[1]"};
+    $r->{'hdrmd5'} = $hdrmd5 if $hdrmd5;
+    $r->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
+    $bininfo->{$bin} = $r;
+  }
+  return $bininfo;
+}
+
+sub read_gbininfo {
+  my ($dir) = @_;
+  my $gbininfo = BSUtil::retrieve("$dir/:bininfo", 1);
+  if ($gbininfo) {
+    my $gbininfo_m = BSUtil::retrieve("$dir/:bininfo.merge", 1);
+    if ($gbininfo_m) {
+      for (keys %$gbininfo_m) {
+	if ($gbininfo_m->{$_}) {
+	  $gbininfo->{$_} = $gbininfo_m->{$_};
+	} else {
+	  delete $gbininfo->{$_};
+	}
+      }
+    }
+  }
+  return $gbininfo;
+}
+
 sub getbinarylist {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   return getbinarylist_repository($cgi, $projid, $repoid, $arch) if $packid eq '_repository';
@@ -618,22 +701,17 @@ sub getbinarylist {
     return undef;
   }
   if ($view eq 'binaryversions') {
-    my @bins = grep {/(?:\.(?:$binsufsre)|-appdata\.xml)$/} ls("$reporoot/$prp/$arch/$packid");
-    @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
+    my $bininfo = read_bininfo("$reporoot/$prp/$arch/$packid");
+    filtersources_bininfo($bininfo) if $bininfo->{'.nosourceaccess'};
     my @res;
-    # should use bininfo instead, but we need the leadsigmd5
-    for my $bin (sort @bins) {
-      next if %binaries && !$binaries{$bin};
-      my @s = stat("$reporoot/$prp/$arch/$packid/$bin");
-      next unless @s;
-      my ($hdrmd5, $leadsigmd5);
-      if ($bin !~ /-appdata\.xml$/) {
-        $hdrmd5 = Build::queryhdrmd5("$reporoot/$prp/$arch/$packid/$bin", \$leadsigmd5);
-        next unless $hdrmd5;
-      }
-      my $r = {'name' => $bin, 'sizek' => ($s[7] + 512) >> 10};
-      $r->{'hdrmd5'} = $hdrmd5 if $hdrmd5;
-      $r->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
+    for (sort keys %$bininfo) {
+      my $bin = $bininfo->{$_};
+      next if %binaries && !$binaries{$bin->{'filename'}};
+      my $r = { 'name' => $bin->{'filename'} };
+      $r->{'hdrmd5'} = $bin->{'hdrmd5'} if $bin->{'hdrmd5'};
+      $r->{'leadsigmd5'} = $bin->{'leadsigmd5'} if $bin->{'leadsigmd5'};
+      my $size = (split('/', $bin->{'id'}))[1];
+      $r->{'sizek'} = ($size + 512) >> 10;
       push @res, $r;
     }
     return ({ 'binary' => \@res }, $BSXML::binaryversionlist);
@@ -3220,7 +3298,7 @@ my $dispatches = [
   '!worker /getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool?' => \&getbinaries,
   '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
   '!worker /getjobdata $arch $job $jobid:md5' => \&getjobdata,
-  '!worker /getpackagebinaryversionlist $project $repository $arch $package+' => \&getpackagebinaryversionlist,
+  '!worker /getpackagebinaryversionlist $project $repository $arch $package*' => \&getpackagebinaryversionlist,
   '!worker /getpreinstallimageinfos $prpa+ match:?' => \&getpreinstallimageinfos,
 
   # published files

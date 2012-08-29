@@ -3029,11 +3029,6 @@ sub getpackagelist {
   return ({'entry' => \@packages}, $BSXML::dir);
 }
 
-sub getpackagelist_build {
-  my ($cgi, $projid, $repoid, $arch) = @_;
-  return getpackagelist({ %$cgi, 'expand' => 1, 'noorigins' => 1 }, $projid, $repoid, $arch);
-}
-
 sub getpackage {
   my ($cgi, $projid, $packid) = @_;
   my $proj;
@@ -5149,6 +5144,21 @@ sub getjobhistory {
   return ($res, $BSXML::jobhistlist);
 }
 
+sub getpackagelist_build {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+  if ($cgi->{'view'}) {
+    die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'binaryversions';
+    checkprojrepoarch($projid, $repoid, $arch);
+    my @args;
+    push @args, "project=$projid";
+    push @args, "repository=$repoid";
+    push @args, "arch=$arch";
+    push @args, map {"package=$_"} @{$cgi->{'package'} || []};
+    my $res = BSWatcher::rpc("$BSConfig::reposerver/getpackagebinaryversionlist", $BSXML::packagebinaryversionlist, @args);
+    return ($res, $BSXML::packagebinaryversionlist);
+  }
+  return getpackagelist({ %$cgi, 'expand' => 1, 'noorigins' => 1 }, $projid, $repoid, $arch);
+}
 
 sub getbinarylist {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
@@ -6996,7 +7006,7 @@ my $dispatches = [
   '/build/$project/_result oldstate:md5? view:resultview* lastbuild:bool? repository* arch* package* code:*' => \&getresult,
   '/build/$project/$repository' => \&getarchlist,
   '/build/$project/$repository/_buildconfig path:prp*' => \&getbuildconfig,
-  '/build/$project/$repository/$arch' => \&getpackagelist_build,
+  '/build/$project/$repository/$arch view:?' => \&getpackagelist_build,
   '/build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
