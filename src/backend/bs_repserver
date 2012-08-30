@@ -269,11 +269,21 @@ sub getpackagebinaryversionlist {
   my ($cgi, $projid, $repoid, $arch, $packids) = @_;
   my $prp = "$projid/$repoid";
   my @res;
+
+  my $code;
+  if ($cgi->{'withcode'}) {
+    my $ps = BSUtil::retrieve("$reporoot/$projid/$repoid/$arch/:packstatus", 1);;
+    $ps ||= convertoldpackstatus("$projid/$repoid/$arch");
+    $code = ($ps || {})->{'packstatus'} || {};
+  }
   
   # new code
   my $gbininfo = read_gbininfo("$reporoot/$prp/$arch");
   if ($gbininfo) {
     my %packids = map {$_ => 1} @{$packids || []};
+    if ($code) {
+      $gbininfo->{$_} ||= {} for %$code;
+    }
     for my $packid (sort keys %$gbininfo) {
       next if %packids && !$packids{$packid};
       my $bininfo = $gbininfo->{$packid};
@@ -290,6 +300,7 @@ sub getpackagebinaryversionlist {
 	push @pres, $r;
       }
       push @res, {'package' => $packid, 'binary' => \@pres};
+      $res[-1]->{'code'} = $code->{$packid} || 'unknown' if $code;
     }
     return ({ 'binaryversionlist' => \@res }, $BSXML::packagebinaryversionlist);
   }
@@ -299,6 +310,10 @@ sub getpackagebinaryversionlist {
   if (!@$packids) {
     for my $packid (grep {!/^[:\.]/} sort(ls("$reporoot/$prp/$arch"))) {
       push @$packids, $packid if $packid ne '_deltas' && -d "$reporoot/$prp/$arch/$packid";
+    }
+    if ($code) {
+      push @$packids, keys %$code;
+      @$packids = unify(sort(@$packids));
     }
   }
   for my $packid (@$packids) {
@@ -320,6 +335,7 @@ sub getpackagebinaryversionlist {
       push @pres, $r;
     }
     push @res, {'package' => $packid, 'binary' => \@pres};
+    $res[-1]->{'code'} = $code->{$packid} || 'unknown' if $code;
   }
   return ({ 'binaryversionlist' => \@res }, $BSXML::packagebinaryversionlist);
 }
@@ -2123,7 +2139,7 @@ sub getkiwiproductpackages {
       # support for remote projects
       if (!$gbininfo && $remotemap->{$aprojid}) {
 	my $remoteproj = $remotemap->{$aprojid};
-	print "fetching remote project binary state for $aprp\n";
+	print "fetching remote project binary state for $aprp/$arch\n";
 	my $param = {
 	  'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$arepoid/$arch",
 	  'timeout' => 200,
@@ -3337,7 +3353,7 @@ my $dispatches = [
   '!worker /getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool?' => \&getbinaries,
   '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
   '!worker /getjobdata $arch $job $jobid:md5' => \&getjobdata,
-  '!worker /getpackagebinaryversionlist $project $repository $arch $package*' => \&getpackagebinaryversionlist,
+  '!worker /getpackagebinaryversionlist $project $repository $arch $package* withcode:bool?' => \&getpackagebinaryversionlist,
   '!worker /getpreinstallimageinfos $prpa+ match:?' => \&getpreinstallimageinfos,
 
   # published files

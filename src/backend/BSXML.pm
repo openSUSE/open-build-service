@@ -645,7 +645,8 @@ our $binaryversionlist = [
 our $packagebinaryversionlist = [
     'packagebinaryversionlist' =>
      [[ 'binaryversionlist' =>
-            'package',
+	    'package',
+	    'code',
          [[ 'binary' =>
 		'name',
 		'sizek',

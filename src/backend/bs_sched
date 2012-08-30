@@ -2705,7 +2705,7 @@ sub addrepo_remote {
 }
 
 sub read_gbininfo_remote {
-  my ($prpa, $remoteproj, $retryprpa) = @_;
+  my ($prpa, $remoteproj, $retryprpa, $packstatus) = @_;
 
   return undef if !$remoteproj || $remoteproj->{'error'};
   print "    fetching remote project binary state for $prpa\n";
@@ -2717,7 +2717,7 @@ sub read_gbininfo_remote {
   };
   my $packagebinarylist;
   eval {
-    $packagebinarylist = BSRPC::rpc($param, $BSXML::packagebinaryversionlist, "view=binaryversions");
+    $packagebinarylist = BSRPC::rpc($param, $BSXML::packagebinaryversionlist, "view=binaryversionscode");
   };
   if ($@) {
     warn($@);
@@ -2736,6 +2736,7 @@ sub read_gbininfo_remote {
       $bins{$binary->{'name'}} = {'filename' => $binary->{'name'}, 'name' => $1, 'arch' => $2};
     }
     $gbininfo->{$binaryversionlist->{'package'}} = \%bins;
+    $packstatus->{$binaryversionlist->{'package'}} = $binaryversionlist->{'code'} if $packstatus && $binaryversionlist->{'code'};
   }
   return $gbininfo;
 }
@@ -3539,7 +3540,7 @@ sub checkkiwiproduct {
 	if ($arch eq 'local' && $BSConfig::localarch) {
 	  $gbininfo = {};
 	} else {
-	  $gbininfo = read_gbininfo_remote("$aprp/$arch", $remoteprojs{$aprojid}, "$prp/$myarch");
+	  $gbininfo = read_gbininfo_remote("$aprp/$arch", $remoteprojs{$aprojid}, "$prp/$myarch", $ps);
 	}
 	if (!$gbininfo) {
 	  print "      - $packid (kiwi-product)\n";
