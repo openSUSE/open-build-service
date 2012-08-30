@@ -1565,8 +1565,9 @@ sub read_bininfo {
   return $bininfo;
 }
 
+# alien: gbininfo is from another scheduler
 sub read_gbininfo {
-  my ($dir) = @_;
+  my ($dir, $alien) = @_;
 
   return {} unless -d $dir;
   my $gbininfo = BSUtil::retrieve("$dir/:bininfo", 1);
@@ -1584,7 +1585,10 @@ sub read_gbininfo {
       }
     }
   } else {
+    return undef if $alien;
     $gbininfo = {};
+    my @dir = split('/', $dir);
+    print "    rebuilding project repoinfo for $dir[-3]/$dir[-2]...\n";
     for my $packid (grep {!/^[:\.]/} ls($dir)) {
       next if $packid eq '_deltas';
       next unless -d "$dir/$packid";
@@ -1598,6 +1602,7 @@ sub read_gbininfo {
       }
     }
   }
+  return $gbininfo if $alien;
   eval {
     BSUtil::store("$dir/.:bininfo", "$dir/:bininfo", $gbininfo);
   };
@@ -3385,7 +3390,7 @@ sub checkkiwiproduct {
 	return ('broken', "repository $aprp is unavailable");
       }
       $myarch = $BSConfig::localarch if $myarch eq 'local' && $BSConfig::localarch;
-      $repodatas{$aprp} = {'dontwrite' => 1} if $myarch ne $savemyarch;
+      $repodatas{$aprp} = {'dontwrite' => 1, 'lastscan' => time()} if $myarch ne $savemyarch;
       my $r = addrepo($pool, $aprp);
       delete $repodatas{$aprp} if $myarch ne $savemyarch;
       $myarch = $savemyarch;
@@ -3492,6 +3497,19 @@ sub checkkiwiproduct {
 	$ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } } if $ps;
       }
       $ps = ($ps || {})->{'packstatus'} || {};
+
+      my $gbininfo = read_gbininfo("$reporoot/$aprp/$arch", $arch eq $myarch ? 0 : 1);
+      if (!$gbininfo && -d "$eventdir/$arch") {
+        print "    requesting :repoinfo for $aprp/$arch\n";
+        # tell other scheduler that it is missing
+	my $ev = {
+	  'type' => 'unblocked',
+	  'project' => $aprojid,
+	  'repository' => $arepoid,
+	};
+	sendevent($ev, $arch, "unblocked::${projid}::${repoid}");
+      }
+
       for my $apackid (@apackids) {
         if (($allpacks && !$deps{"-$apackid"} && !$deps{'-'.($known{$apackid} || '')}) || $deps{$apackid} || $deps{$known{$apackid} || ''}) {
 	  # hey, we probably need this package! wait till it's finished
@@ -3503,21 +3521,27 @@ sub checkkiwiproduct {
 	    next;
 	  }
         }
-        # hmm, we don't know if we really need it. scan content.
+
+        # hmm, we don't know if we really need it. check repoinfo.
+	my $bininfo;
+	if ($gbininfo) {
+	  $bininfo = $gbininfo->{$apackid} || {};
+	} else {
+	  my @bininfo_s = stat("$reporoot/$aprp/$arch/$apackid/.bininfo");
+          if (-s _) {
+	    $bininfo = $bininfo_cache{"$aprp/$arch/$apackid"};
+	    if (!$bininfo || $bininfo->{'.bininfo'}->{'id'} ne "$bininfo_s[9]/$bininfo_s[7]/$bininfo_s[1]") {
+	      $bininfo = read_bininfo_oldok("$reporoot/$aprp/$arch/$apackid");
+	      $bininfo_cache{"$aprp/$arch/$apackid"} = $bininfo if $bininfo->{'.bininfo'};
+	    }
+	  } else {
+	    $bininfo = read_bininfo_oldok("$reporoot/$aprp/$arch/$apackid");
+	  }
+	}
+
 	my @got;
 	my $needit;
-	my $bis;
-	my @bininfo_s = stat("$reporoot/$aprp/$arch/$apackid/.bininfo");
-        if (-s _) {
-	  $bis = $bininfo_cache{"$aprp/$arch/$apackid"};
-	  if (!$bis || $bis->{'.bininfo'}->{'id'} ne "$bininfo_s[9]/$bininfo_s[7]/$bininfo_s[1]") {
-	    $bis = read_bininfo_oldok("$reporoot/$aprp/$arch/$apackid");
-	    $bininfo_cache{"$aprp/$arch/$apackid"} = $bis if $bis->{'.bininfo'};
-	  }
-	} else {
-	  $bis = read_bininfo_oldok("$reporoot/$aprp/$arch/$apackid");
-	}
-	for my $b (values %$bis) {
+	for my $b (values %$bininfo) {
 	  next unless $b->{'filename'} && $b->{'filename'} =~ /\.rpm$/;
 	  $needit = 1 if $deps{$b->{'name'}} || ($allpacks && !$deps{"-$b->{'name'}"});
 	  push @got, "$aprp/$arch/$apackid/$b->{'filename'}";
