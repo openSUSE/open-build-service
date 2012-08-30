@@ -633,7 +633,7 @@ our $buildhist = [
 our $binaryversionlist = [
     'binaryversionlist' =>
      [[ 'binary' =>
-	    'name',
+	    'name',	# should be filename instead. sigh.
 	    'sizek',
 	    'error',
 	    'hdrmd5',
