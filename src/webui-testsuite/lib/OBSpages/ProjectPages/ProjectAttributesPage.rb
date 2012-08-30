@@ -128,13 +128,12 @@ class ProjectAttributesPage < ProjectPage
     assert ATTRIBUTES.include? attribute[:name]
     
     attributes_table = @driver[css: "div#content table"]
-    rows = attributes_table.find_elements xpath: ".//tr"
-    rows.delete_at 0    # removing first row as it contains the headers
+    rows = attributes_table.find_elements css: "tr.attribute-values"
     results = rows.select do |row|
-      row.find_element(xpath: ".//td[1]").text == attribute[:name]
+      row.find_element(css: "td.attribute-name").text == attribute[:name]
     end
     assert_equal results.count, 1
-    results.first.find_element(xpath: ".//a[2]/img").click
+    results.first.find_element(css: "input.delete-attribute").click
 
     popup = @driver.switch_to.alert
     assert_equal popup.text, "Really remove attribute '#{attribute[:name]}'?"
@@ -142,7 +141,6 @@ class ProjectAttributesPage < ProjectPage
     popup.accept
     wait.until { @driver.find_element(:id => "flash-messages") }
 
-    #sleep 1 # http://code.google.com/p/selenium/issues/detail?id=3147
     if attribute[:expect] == :success
       assert_equal flash_message, "Attribute sucessfully deleted!"
       assert_equal flash_message_type, :info

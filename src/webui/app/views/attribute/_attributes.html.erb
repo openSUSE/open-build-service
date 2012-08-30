@@ -11,19 +11,19 @@
        <% end %>
       </tr>
       <% @attributes.each do |attribute| %>
-        <tr>
-          <td><%= attribute.namespace %>:<%= attribute.name %></td>
-          <td>
+        <tr class='attribute-values'>
+          <td class='attribute-name'><%= attribute.namespace %>:<%= attribute.name %></td>
+          <td class='attribute-value'>
             <% attribute.each do |value| %>
               <%= value %><br/>
             <% end %>
           </td>
        <% if @user %>
           <td>
-            <%= link_to(image_tag('note_edit.png', :alt => 'Edit values', :title => 'Edit values'), :controller => 'attribute', :action => 'edit', :project => @project.name, :package => @package, :namespace => attribute.namespace, :name => attribute.name) %>
-            <%= link_to(image_tag('note_delete.png', :alt => 'Delete attribute', :title => 'Delete attribute'), 
+            <%= link_to(image_tag('note_edit.png', :alt => 'Edit values', :title => 'Edit values'), { :controller => 'attribute', :action => 'edit', :project => @project.name, :package => @package, :namespace => attribute.namespace, :name => attribute.name }, class: 'edit-values') %>
+            <%= button_to('Delete attribute',
               {:controller => 'attribute', :action => 'delete', :project => @project.name, :package => @package, :namespace => attribute.namespace, :name => attribute.name},
-              {:confirm => "Really remove attribute '#{attribute.namespace}:#{attribute.name}'?", :method => :post}) %>
+              {confirm: "Really remove attribute '#{attribute.namespace}:#{attribute.name}'?", method: :delete, class: 'delete-attribute'}) %>
           </td>
        <% end %>
         </tr>

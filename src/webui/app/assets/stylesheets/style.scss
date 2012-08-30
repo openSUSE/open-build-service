@@ -354,7 +354,7 @@ div.dataTables_wrapper:after {
 
 $icons-layout:smart;
 $icons-sprite-dimensions:true;
-@import "icons/*.png";
+@import "icons/*.png"; 
 @include all-icons-sprites;
 
 .icon_24 {
@@ -370,3 +370,17 @@ $icons-sprite-dimensions:true;
   margin-left: 5px;
 }
 
+.attribute-values {
+  form,div {
+    display: inline; 
+  }
+}
+
+.delete-attribute {
+ display: inline;
+ cursor:pointer;
+ border: none;
+ text-indent: -1000em;
+ background: sprite($icons-sprites, note_delete) no-repeat !important;
+ @include sprite-dimensions($icons-sprites, note_delete);
+}

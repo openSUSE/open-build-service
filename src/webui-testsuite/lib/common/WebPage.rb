@@ -117,6 +117,6 @@ class WebPage
   end
 
   def wait
-    @wait ||= Selenium::WebDriver::Wait.new(:timeout => 600, :interval => 0.1)
+    @wait ||= Selenium::WebDriver::Wait.new(:timeout => 20, :interval => 0.1)
   end
 end

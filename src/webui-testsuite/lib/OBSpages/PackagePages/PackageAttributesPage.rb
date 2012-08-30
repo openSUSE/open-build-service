@@ -144,13 +144,12 @@ class PackageAttributesPage < PackagePage
     assert ATTRIBUTES.include? attribute[:name]
     
     attributes_table = @driver[css: "div#content table"]
-    rows = attributes_table.find_elements xpath: ".//tr"
-    rows.delete_at 0    # removing first row as it contains the headers
+    rows = attributes_table.find_elements css: "tr.attribute-values"
     results = rows.select do |row|
-      row.find_element(xpath: ".//td[1]").text == attribute[:name]
+      row.find_element(css: "td.attribute-name").text == attribute[:name]
     end
     assert results.count == 1
-    results.first.find_element(xpath: ".//a[2]/img").click
+    results.first.find_element(css: "input.delete-attribute").click
 
     popup = @driver.switch_to.alert
     validate { popup.text == "Really remove attribute '#{attribute[:name]}'?" }
