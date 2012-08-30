@@ -2614,7 +2614,7 @@ sub fetchremoteconfig {
   my $proj = $remoteprojs{$projid};
   return undef if !$proj || $proj->{'error'};
   return $proj->{'config'} if exists $proj->{'config'};
-  print "fetching remote project config for $projid\n";
+  print "    fetching remote project config for $projid\n";
   my $c;
   my $param = {
     'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_config",
@@ -2702,6 +2702,42 @@ sub addrepo_remote {
     $repodatas{$prp}->{'lastscan'} = time();
     return $r;
   }
+}
+
+sub read_gbininfo_remote {
+  my ($prpa, $remoteproj, $retryprpa) = @_;
+
+  return undef if !$remoteproj || $remoteproj->{'error'};
+  print "    fetching remote project binary state for $prpa\n";
+  my ($projid, $repoid, $arch) = split('/', $prpa, 3);
+  my $param = {
+    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch",
+    'timeout' => 200,
+    'proxy' => $proxy,
+  };
+  my $packagebinarylist;
+  eval {
+    $packagebinarylist = BSRPC::rpc($param, $BSXML::packagebinaryversionlist, "view=binaryversions");
+  };
+  if ($@) {
+    warn($@);
+    my $error = $@;
+    $error =~ s/\n$//s;
+    $retryprpa ||= $prpa;
+    ($projid, $repoid, $arch) = split('/', $retryprpa, 3);
+    addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch}) if $error !~ /remote error:/;
+    return undef;
+  }
+  my $gbininfo = {};
+  for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
+    my %bins;
+    for my $binary (@{$binaryversionlist->{'binary'} || []}) {
+      next unless $binary->{'name'} =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+      $bins{$binary->{'name'}} = {'filename' => $binary->{'name'}, 'name' => $1, 'arch' => $2};
+    }
+    $gbininfo->{$binaryversionlist->{'package'}} = \%bins;
+  }
+  return $gbininfo;
 }
 
 #
@@ -3498,7 +3534,22 @@ sub checkkiwiproduct {
       }
       $ps = ($ps || {})->{'packstatus'} || {};
 
-      my $gbininfo = read_gbininfo("$reporoot/$aprp/$arch", $arch eq $myarch ? 0 : 1);
+      my $gbininfo;
+      if ($remoteprojs{$aprojid}) {
+	if ($arch eq 'local' && $BSConfig::localarch) {
+	  $gbininfo = {};
+	} else {
+	  $gbininfo = read_gbininfo_remote("$aprp/$arch", $remoteprojs{$aprojid}, "$prp/$myarch");
+	}
+	if (!$gbininfo) {
+	  print "      - $packid (kiwi-product)\n";
+	  print "        project binary state of $aprp is unavailable\n";
+	  return ('broken', "project binary state of $aprp is unavailable");
+	}
+	@apackids = unify(@apackids, sort keys %$gbininfo);
+      } else {
+        $gbininfo = read_gbininfo("$reporoot/$aprp/$arch", $arch eq $myarch ? 0 : 1);
+      }
       if (!$gbininfo && -d "$eventdir/$arch") {
         print "    requesting :repoinfo for $aprp/$arch\n";
         # tell other scheduler that it is missing
