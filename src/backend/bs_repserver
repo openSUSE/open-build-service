@@ -2104,7 +2104,7 @@ sub getjobhistory {
 }
 
 sub getkiwiproductpackages {
-  my ($proj, $repo, $pdata, $info, $deps) = @_;
+  my ($proj, $repo, $pdata, $info, $deps, $remotemap) = @_;
 
   my @got;
   my %imagearch = map {$_ => 1} @{$info->{'imagearch'} || []};
@@ -2119,6 +2119,45 @@ sub getkiwiproductpackages {
     my %known;
     my ($aprojid, $arepoid) = split('/', $aprp, 2);
     for my $arch (@archs) {
+      my $gbininfo = read_gbininfo("$reporoot/$aprp/$arch");
+      # support for remote projects
+      if (!$gbininfo && $remotemap->{$aprojid}) {
+	my $remoteproj = $remotemap->{$aprojid};
+	print "fetching remote project binary state for $aprp\n";
+	my $param = {
+	  'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$arepoid/$arch",
+	  'timeout' => 200,
+	  'proxy' => $proxy,
+	};
+	my $packagebinarylist = BSRPC::rpc($param, $BSXML::packagebinaryversionlist, "view=binaryversions");
+	$gbininfo = {};
+	for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
+	  my %bins;
+	  for my $binary (@{$binaryversionlist->{'binary'} || []}) {
+	    next unless $binary->{'name'} =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	    $bins{$binary->{'name'}} = {'filename' => $binary->{'name'}, 'name' => $1, 'arch' => $2};
+	  }
+	  $gbininfo->{$binaryversionlist->{'package'}} = \%bins;
+	}
+      }
+
+      # fast if we have gbininfo
+      if ($gbininfo) {
+        for my $apackid (sort keys %$gbininfo) {
+	  my $bininfo = $gbininfo->{$apackid} || {};
+	  next unless grep {defined($_->{'name'}) && ($deps{$_->{'name'}} || $allpacks && !$deps{"-$_->{'name'}"})} values %$bininfo;
+	  # need it
+	  for my $bf (sort keys %$bininfo) {
+	    my $b = $bininfo->{$bf};
+            next unless $b->{'filename'};
+	    if ($b->{'filename'} =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/ || $b->{'filename'} =~ /^.*-appdata.xml$/) {
+	      push @got, "$aprp/$arch/$apackid/$b->{'filename'}";
+	    }
+	  }
+	}
+	next;
+      }
+
       my $depends = BSUtil::retrieve("$reporoot/$aprp/$arch/:depends", 1);
       next unless $depends && $depends->{'subpacks'};
       my %apackids = (%{$depends->{'subpacks'} || {}}, %{$depends->{'pkgdeps'}});
@@ -2432,7 +2471,7 @@ sub getbuildinfo {
     }
 
     # now the binaries from the packages
-    my @bins = getkiwiproductpackages($proj, $repo, $pdata, $info, \@edeps);
+    my @bins = getkiwiproductpackages($proj, $repo, $pdata, $info, \@edeps, \%remotemap);
     for my $b (@bins) {
       my @bn = split('/', $b);
       my $d = { 'binary' => $bn[-1] };
