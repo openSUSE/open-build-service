@@ -4317,12 +4317,7 @@ sub checkaggregate {
     } else {
       @arepoids = ($repoid);
     }
-    my @apackids;
-    if ($aggregate->{'package'}) {
-      @apackids = @{$aggregate->{'package'}};
-    } elsif (!$remoteprojs{$aprojid}) {
-      @apackids = sort keys(%{($projpacks->{$aprojid} || {})->{'package'} || {}});
-    }
+    my @apackids = @{$aggregate->{'package'} || []};
     my $abinfilter;
     $abinfilter = { map {$_ => 1} @{$aggregate->{'binary'}} } if $aggregate->{'binary'};
     for my $arepoid (@arepoids) {
@@ -4387,12 +4382,7 @@ sub checkaggregate {
   my $error;
   for my $aggregate (@$aggregates) {
     my $aprojid = $aggregate->{'project'};
-    my @apackids;
-    if ($aggregate->{'package'}) {
-      @apackids = @{$aggregate->{'package'}};
-    } else {
-      @apackids = sort keys(%{($projpacks->{$aprojid} || {})->{'package'} || {}});
-    }
+    my @apackids = @{$aggregate->{'package'} || []};
     my @arepoids = grep {!exists($_->{'target'}) || $_->{'target'} eq $repoid} @{$aggregate->{'repository'} || []};
     if (@arepoids) {
       @arepoids = map {$_->{'source'}} grep {exists($_->{'source'})} @arepoids;
@@ -4503,12 +4493,7 @@ sub rebuildaggregate {
     } else {
       @arepoids = ($repoid);
     }
-    my @apackids;
-    if ($aggregate->{'package'}) {
-      @apackids = @{$aggregate->{'package'}};
-    } else {
-      @apackids = sort keys(%{($projpacks->{$aprojid} || {})->{'package'} || {}});
-    }
+    my @apackids = @{$aggregate->{'package'} || []};
     my $abinfilter;
     $abinfilter = { map {$_ => 1} @{$aggregate->{'binary'}} } if $aggregate->{'binary'};
     for my $arepoid (reverse @arepoids) {
