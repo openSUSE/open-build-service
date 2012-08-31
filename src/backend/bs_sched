@@ -3973,6 +3973,7 @@ sub checkaggregate {
 	$ps = (readxml("$reporoot/$aprp/$myarch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
 	$ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } } if $ps;
       }
+      $ps = ($ps || {})->{'packstatus'} || {};
       for my $apackid (@apackids) {
 	my $s = $ps->{$apackid} || '';
         if ($s eq 'scheduled' || $s eq 'blocked' || $s eq 'finished') {
