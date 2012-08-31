@@ -1056,23 +1056,28 @@ sub getbinaries_kiwiproduct {
     } else {
       my $bvl;
       if ($cachedir) {
-	if ($server eq $buildinfo->{'reposerver'}) {
-	  my $pbvl = $packagebinaryversionlist{"$projid/$repoid/$arch"};
-	  if (!$pbvl) {
-	    eval {
+	my $pbvl = $packagebinaryversionlist{"$projid/$repoid/$arch"};
+	if (!$pbvl) {
+	  eval {
+	    if ($server ne $buildinfo->{'srcserver'}) {
 	      $pbvl = BSRPC::rpc({
 		'uri' => "$server/getpackagebinaryversionlist",
 		'timeout' => $gettimeout,
 	      }, $BSXML::packagebinaryversionlist, "project=$projid", "repository=$repoid", "arch=$arch", map {"package=$_"} @{$prpapackages{"$projid/$repoid/$arch"}});
-	    };
-	    undef $pbvl if $@;
-	    warn($@) if $@;
-	    $pbvl = { map {$_->{'package'} => $_} @{$pbvl->{'binaryversionlist'} || []} } if $pbvl;
-	    $pbvl ||= {};
-	    $packagebinaryversionlist{"$projid/$repoid/$arch"} = $pbvl;
-	  }
-          $bvl = $pbvl->{$packid};
+	    } else {
+	      $pbvl = BSRPC::rpc({
+		'uri' => "$server/build/$projid/$repoid/$arch",
+		'timeout' => $gettimeout,
+	      }, $BSXML::packagebinaryversionlist, "view=binaryversions", map {"package=$_"} @{$prpapackages{"$projid/$repoid/$arch"}});
+	    }
+	  };
+	  undef $pbvl if $@;
+	  warn($@) if $@;
+	  $pbvl = { map {$_->{'package'} => $_} @{$pbvl->{'binaryversionlist'} || []} } if $pbvl;
+	  $pbvl ||= {};
+	  $packagebinaryversionlist{"$projid/$repoid/$arch"} = $pbvl;
 	}
+        $bvl = $pbvl->{$packid};
 	if (!defined($bvl)) {
 	  eval {
 	    $bvl = BSRPC::rpc({
