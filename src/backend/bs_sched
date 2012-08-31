@@ -242,6 +242,7 @@ my $projpacks;		# global project/package data
 #  'meta'       meta cache
 #  'solv'       solv data cache (for remote repos)
 my %repodatas;		# our repository knowledge
+my %repodatas_alien;	# repositories from other archs
 
 # add :full repo to pool
 sub addrepo {
@@ -269,6 +270,23 @@ sub addrepo {
     return addrepo_remote($pool, $prp, $remoteprojs{$projid});
   }
   return addrepo_scan($pool, $prp);
+}
+
+# add repo belonging to a different architecture
+sub addrepo_alien {
+  my ($pool, $prp, $arch) = @_;
+
+  $repodatas_alien{"$prp/$arch"}->{'dontwrite'} = 1;
+  my $oldrepodata = $repodatas{$prp};
+  $repodatas{$prp} = $repodatas_alien{"$prp/$arch"};
+  my $savemyarch = $myarch;
+  $myarch = $arch;
+  my $r = addrepo($pool, $prp);
+  $myarch = $savemyarch;
+  $repodatas_alien{"$prp/$arch"} = $repodatas{$prp};
+  delete $repodatas{$prp};
+  $repodatas{$prp} = $oldrepodata if $oldrepodata;
+  return $r;
 }
 
 # add :full repo to pool, make sure repo is up-to-data by
@@ -344,7 +362,7 @@ sub addrepo_scan {
   if ($dirty && $cache && !$repodatas{$prp}->{'dontwrite'}) {
     writesolv("$dir.solv.new", "$dir.solv", $cache);
   }
-  $repodatas{$prp}->{'lastscan'} = time();
+  $repodatas{$prp}->{'lastscan'} = time() unless $dirty && $repodatas{$prp}->{'dontwrite'};
   return $cache;
 }
 
@@ -3429,18 +3447,14 @@ sub checkkiwiproduct {
     my $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
 
-    my $savemyarch = $myarch;
     for my $aprp (@bprps) {
       if (!checkprpaccess($aprp, $prp)) {
 	print "      - $packid (kiwi-product)\n";
 	print "        repository $aprp is unavailable";
 	return ('broken', "repository $aprp is unavailable");
       }
-      $myarch = $BSConfig::localarch if $myarch eq 'local' && $BSConfig::localarch;
-      $repodatas{$aprp} = {'dontwrite' => 1, 'lastscan' => time()} if $myarch ne $savemyarch;
-      my $r = addrepo($pool, $aprp);
-      delete $repodatas{$aprp} if $myarch ne $savemyarch;
-      $myarch = $savemyarch;
+      my $arch = $myarch eq 'local' && $BSConfig::localarch ? $BSConfig::localarch : $myarch;
+      my $r = $arch eq $myarch ? addrepo($pool, $aprp) : addrepo_alien($pool, $aprp, $arch);
       if (!$r) {
 	print "      - $packid (kiwi-product)\n";
 	print "        repository $aprp is unavailable";
