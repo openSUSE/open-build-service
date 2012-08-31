@@ -3502,10 +3502,11 @@ sub checkkiwiproduct {
       for my $aprp (@aprps) {
         my %pnames = map {$_ => 1} @{$used{$aprp}};
 	next unless %pnames;
+	# FIXME: does not work for remote repos
 	my $ps = BSUtil::retrieve("$reporoot/$aprp/$BSConfig::localarch/:packstatus", 1);
 	if (!$ps) {
 	  $ps = (readxml("$reporoot/$aprp/$BSConfig::localarch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
-	  $ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } } if $ps;
+	  $ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } };
 	}
         $ps = ($ps || {})->{'packstatus'} || {};
 	# FIXME: this assumes packid == pname
@@ -3555,7 +3556,7 @@ sub checkkiwiproduct {
       my $ps = BSUtil::retrieve("$reporoot/$aprp/$arch/:packstatus", 1);
       if (!$ps) {
 	$ps = (readxml("$reporoot/$aprp/$arch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
-	$ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } } if $ps;
+	$ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } };
       }
       $ps = ($ps || {})->{'packstatus'} || {};
 
@@ -3605,7 +3606,6 @@ sub checkkiwiproduct {
 	} else {
 	  $bininfo = read_bininfo_oldok("$reporoot/$aprp/$arch/$apackid");
 	}
-
 	my @got;
 	my $needit;
 	for my $b (values %$bininfo) {
@@ -4295,11 +4295,12 @@ sub checkaggregate {
 
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
-  my @aggregates = @{$pdata->{'aggregatelist'}->{'aggregate'} || []};
+  # clone it as we may patch the 'packages' array below
+  my $aggregates = Storable::dclone($pdata->{'aggregatelist'}->{'aggregate'} || []);
   my @broken;
   my @blocked;
   my $prpfinished = $ctx->{'prpfinished'};
-  for my $aggregate (@aggregates) {
+  for my $aggregate (@$aggregates) {
     my $aprojid = $aggregate->{'project'};
     my $proj = $remoteprojs{$aprojid} || $projpacks->{$aprojid};
     if (!$proj) {
@@ -4307,12 +4308,6 @@ sub checkaggregate {
       next;
     }
     if (!checkprpaccess($aprojid, $projid)) {
-      push @broken, $aprojid;
-      next;
-    }
-    if ($remoteprojs{$aprojid} && !$aggregate->{'package'}) {
-      # remote aggregates need packages, otherwise they are too
-      # expensive
       push @broken, $aprojid;
       next;
     }
@@ -4325,9 +4320,11 @@ sub checkaggregate {
     my @apackids;
     if ($aggregate->{'package'}) {
       @apackids = @{$aggregate->{'package'}};
-    } else {
+    } elsif (!$remoteprojs{$aprojid}) {
       @apackids = sort keys(%{($projpacks->{$aprojid} || {})->{'package'} || {}});
     }
+    my $abinfilter;
+    $abinfilter = { map {$_ => 1} @{$aggregate->{'binary'}} } if $aggregate->{'binary'};
     for my $arepoid (@arepoids) {
       my $aprp = "$aprojid/$arepoid";
       my $arepo = (grep {$_->{'name'} eq $arepoid} @{$proj->{'repository'} || []})[0];
@@ -4335,21 +4332,46 @@ sub checkaggregate {
 	push @broken, $aprp;
 	next;
       }
-      next if $remoteprojs{$aprojid} || $prpfinished->{$aprp};
+      next if !$remoteprojs{$aprojid} && $prpfinished->{$aprp} && $aggregate->{'package'};	# no need to check blocked state
       # notready/prpnotready is indexed with source binary names, so we cannot use it here...
       my $ps = BSUtil::retrieve("$reporoot/$aprp/$myarch/:packstatus", 1);
       if (!$ps) {
 	$ps = (readxml("$reporoot/$aprp/$myarch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
-	$ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } } if $ps;
+	$ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } };
+      }
+      $ps = ($ps || {})->{'packstatus'} || {};
+
+      if (!$aggregate->{'package'}) {
+        # calculate apackids using the gbininfo file
+        my $gbininfo;
+        if ($remoteprojs{$aprojid}) {
+          $gbininfo = read_gbininfo_remote("$aprp/$myarch", $remoteprojs{$aprojid}, "$projid/$repoid/$myarch", $ps);
+        } else {
+          $gbininfo = read_gbininfo("$reporoot/$aprp/$myarch");
+        }
+	if (!$gbininfo) {
+	  push @broken, $aprp;
+	  next;
+	}
+	for my $apackid (keys %$gbininfo) {
+	  my $bininfo = $gbininfo->{$apackid};
+	  if ($abinfilter) {
+	    next unless grep {defined($_->{'name'}) && $abinfilter->{$_->{'name'}}} values %$bininfo;
+	  }
+	  push @apackids, $apackid;
+	}
+	@apackids = unify(sort(@apackids));
       }
       for my $apackid (@apackids) {
-	my $s = $ps->{$apackid} || '';
-        if ($s eq 'scheduled' || $s eq 'blocked' || $s eq 'finished') {
+	my $code = $ps->{$apackid} || 'unknown';
+	if ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished') {
 	  next if $aprojid eq $projid && $arepoid eq $repoid && $apackid eq $packid;
 	  push @blocked, "$aprp/$apackid";
 	}
       }
     }
+    # patch in calculated package list
+    $aggregate->{'package'} ||= \@apackids;
   }
   if (@broken) {
     print "      - $packid (aggregate)\n";
@@ -4363,7 +4385,7 @@ sub checkaggregate {
   }
   my @new_meta;
   my $error;
-  for my $aggregate (@aggregates) {
+  for my $aggregate (@$aggregates) {
     my $aprojid = $aggregate->{'project'};
     my @apackids;
     if ($aggregate->{'package'}) {
@@ -4381,7 +4403,7 @@ sub checkaggregate {
       for my $apackid (@apackids) {
 	my $m = '';
         if ($remoteprojs{$aprojid}) {
-	  print "fetching remote binary data for $aprojid/$arepoid/$myarch/$apackid\n";
+	  print "    fetching remote binary data for $aprojid/$arepoid/$myarch/$apackid\n";
 	  my $param = {
 	    'uri' => "$remoteprojs{$aprojid}->{'remoteurl'}/build/$remoteprojs{$aprojid}->{'remoteproject'}/$arepoid/$myarch/$apackid",
 	    'timeout' => 20,
@@ -4439,7 +4461,7 @@ sub checkaggregate {
   print "      - $packid (aggregate)\n";
   print "        $_\n" for @diff;
   my $new_meta = join('', map {"$_\n"} @new_meta);
-  return ('scheduled', $new_meta);
+  return ('scheduled', [ $new_meta, $aggregates ]);
 }
 
 #
@@ -4458,12 +4480,13 @@ sub checkaggregate {
 # globals used: $projpacks
 #
 sub rebuildaggregate {
-  my ($ctx, $packid, $pdata, $info, $new_meta) = @_;
+  my ($ctx, $packid, $pdata, $info, $data) = @_;
 
+  my $new_meta = $data->[0];
+  my $aggregates = $data->[1];
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $prp = "$projid/$repoid";
-  my @aggregates = @{$pdata->{'aggregatelist'}->{'aggregate'} || []};
   my $job = jobname($prp, $packid);
   return ('scheduled', $job) if -s "$myjobsdir/$job";
   my $jobdatadir = "$myjobsdir/$job:dir";
@@ -4472,7 +4495,7 @@ sub rebuildaggregate {
   my $jobrepo = {};
   my %jobbins;
   my $error;
-  for my $aggregate (@aggregates) {
+  for my $aggregate (@$aggregates) {
     my $aprojid = $aggregate->{'project'};
     my @arepoids = grep {!exists($_->{'target'}) || $_->{'target'} eq $repoid} @{$aggregate->{'repository'} || []};
     if (@arepoids) {
