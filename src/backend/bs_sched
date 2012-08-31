@@ -3328,7 +3328,7 @@ sub rebuildkiwiimage {
 ##
 ##  kiwi-product package type handling
 ##
-my %bininfo_cache;
+my %bininfo_oldok_cache;
 
 sub read_bininfo_oldok {
   my ($dir) = @_;
@@ -3339,19 +3339,29 @@ sub read_bininfo_oldok {
       $bininfo->{'.bininfo'} = {'id' => "$s[9]/$s[7]/$s[1]"};
       return $bininfo;
     }
+    # check the old format cache
+    $bininfo = $bininfo_oldok_cache{$dir};
+    return $bininfo if $bininfo && $bininfo->{'.bininfo'}->{'id'} eq "$s[9]/$s[7]/$s[1]";
     local *F;
     if (open(F, '<', "$dir/.bininfo")) {
       $bininfo = {};
       while (<F>) {
 	chomp;
-	next unless length($_) > 34;
+        if (length($_) <= 34 || substr($_, 32, 2) ne '  ') {
+	  # seems to be a corrupt file
+	  undef $bininfo;
+	  last;
+	}
 	my $file = substr($_, 34);
 	next unless $file =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
 	$bininfo->{$file} = {'filename' => $file, 'hdrmd5' => substr($_, 0, 32), 'name' => $1, 'arch' => $2};
       }
       close(F);
-      $bininfo->{'.bininfo'} = {'id' => "$s[9]/$s[7]/$s[1]"};
-      return $bininfo;
+      if ($bininfo) {
+        $bininfo->{'.bininfo'} = {'id' => "$s[9]/$s[7]/$s[1]"};
+        $bininfo_oldok_cache{$dir} = $bininfo;
+        return $bininfo;
+      }
     }
   }
   my $bininfo = {};
@@ -3574,21 +3584,12 @@ sub checkkiwiproduct {
 	  }
         }
 
-        # hmm, we don't know if we really need it. check repoinfo.
+        # hmm, we don't know if we really need it. check bininfo.
 	my $bininfo;
 	if ($gbininfo) {
 	  $bininfo = $gbininfo->{$apackid} || {};
 	} else {
-	  my @bininfo_s = stat("$reporoot/$aprp/$arch/$apackid/.bininfo");
-          if (-s _) {
-	    $bininfo = $bininfo_cache{"$aprp/$arch/$apackid"};
-	    if (!$bininfo || $bininfo->{'.bininfo'}->{'id'} ne "$bininfo_s[9]/$bininfo_s[7]/$bininfo_s[1]") {
-	      $bininfo = read_bininfo_oldok("$reporoot/$aprp/$arch/$apackid");
-	      $bininfo_cache{"$aprp/$arch/$apackid"} = $bininfo if $bininfo->{'.bininfo'};
-	    }
-	  } else {
-	    $bininfo = read_bininfo_oldok("$reporoot/$aprp/$arch/$apackid");
-	  }
+	  $bininfo = read_bininfo_oldok("$reporoot/$aprp/$arch/$apackid");
 	}
 
 	my @got;
