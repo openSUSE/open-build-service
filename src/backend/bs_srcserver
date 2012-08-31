@@ -4965,7 +4965,7 @@ sub getarchlist {
   my ($cgi, $projid, $repoid) = @_;
   my $proj = checkprojrepoarch($projid, $repoid, undef, 1);
   if ($proj->{'remoteurl'}) {
-    return (BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::dir), $BSXML::dir);
+    return (BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid", 'proxy' => $proxy}, $BSXML::dir), $BSXML::dir);
   }
   my @repo = grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []};
   die("404 $repoid: no such repository\n") unless @repo;
@@ -5148,15 +5148,30 @@ sub getpackagelist_build {
   my ($cgi, $projid, $repoid, $arch) = @_;
   if ($cgi->{'view'}) {
     die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'binaryversions' || $cgi->{'view'} eq 'binaryversionscode';
-    checkprojrepoarch($projid, $repoid, $arch);
+    my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
+    my $param = {
+      'uri' => "$BSConfig::reposerver/getpackagebinaryversionlist",
+      'ignorestatus' => 1,
+      'receiver' => \&BSServer::reply_receiver,
+    };
     my @args;
     push @args, "project=$projid";
     push @args, "repository=$repoid";
     push @args, "arch=$arch";
     push @args, "withcode=1" if $cgi->{'view'} eq 'binaryversionscode';
     push @args, map {"package=$_"} @{$cgi->{'package'} || []};
-    my $res = BSWatcher::rpc("$BSConfig::reposerver/getpackagebinaryversionlist", $BSXML::packagebinaryversionlist, @args);
-    return ($res, $BSXML::packagebinaryversionlist);
+    if ($proj->{'remoteurl'}) {
+      @args = ("view=$cgi->{'view'}");
+      push @args, map {"package=$_"} @{$cgi->{'package'} || []};
+      $param->{'uri'} = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch";
+      $param->{'proxy'} = $proxy;
+      if (!$BSStdServer::isajax) {
+        BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch", undef, @args);
+        exit(0);
+      }
+    }
+    BSWatcher::rpc($param, undef, @args);
+    return undef;
   }
   return getpackagelist({ %$cgi, 'expand' => 1, 'noorigins' => 1 }, $projid, $repoid, $arch);
 }
@@ -7007,7 +7022,7 @@ my $dispatches = [
   '/build/$project/_result oldstate:md5? view:resultview* lastbuild:bool? repository* arch* package* code:*' => \&getresult,
   '/build/$project/$repository' => \&getarchlist,
   '/build/$project/$repository/_buildconfig path:prp*' => \&getbuildconfig,
-  '/build/$project/$repository/$arch view:?' => \&getpackagelist_build,
+  '/build/$project/$repository/$arch package* view:?' => \&getpackagelist_build,
   '/build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
@@ -7045,6 +7060,7 @@ my $dispatches_ajax = [
   '/' => \&hello,
   '/ajaxstatus' => \&getajaxstatus,
   '/build/$project/_result oldstate:md5? view:resultview* repository* arch* package* code:*' => \&getresult,
+  '/build/$project/$repository/$arch package* view:?' => \&getpackagelist_build,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool?' => \&getbinarylist,
   '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool?' => \&worker_getbinaries,
