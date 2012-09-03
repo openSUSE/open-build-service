@@ -58,7 +58,9 @@ setup_webui() {
   cp config/options.yml.example config/options.yml
 
   echo "Install missing gems locally"
-  #rake gems:install # TODO: Fix webui to make this work!
+  mv Gemfile.lock Gemfile.lock.orig
+  bundle list
+  diff -u Gemfile.lock.orig Gemfile.lock || :
 
   chmod +x script/start_test_api 
 
