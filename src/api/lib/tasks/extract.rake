@@ -28,7 +28,14 @@ namespace :db do
     tables = ENV['FIXTURES'] ? ENV['FIXTURES'].split(/,/) : ActiveRecord::Base.connection.tables - skip_tables
     tables.each do |table_name|
       i = "000"
-      oldhash = YAML.load_file( "#{Rails.root}/test/fixtures/#{table_name}.yml" ) || {}
+      begin
+        oldhash = YAML.load_file( "#{Rails.root}/test/fixtures/#{table_name}.yml" )
+      rescue Errno::ENOENT, TypeError
+	oldhash = {}
+      rescue => e
+	puts e.class
+	raise e
+      end
       idtokey = {}
       force_hash(oldhash).each do |key, record| 
         if record.has_key? 'id'

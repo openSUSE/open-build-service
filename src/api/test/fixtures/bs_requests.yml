@@ -4,21 +4,29 @@ missing_projects:
   creator: tom
   state: new
   commenter: tom
+  created_at: 2012-09-03 13:08:02.000000000 Z
+  updated_at: 2012-09-03 13:08:02.000000000 Z
 missing_source_project:
   id: 997
   description: ''
   creator: tom
   state: new
   commenter: tom
+  created_at: 2012-09-03 13:08:02.000000000 Z
+  updated_at: 2012-09-03 13:08:02.000000000 Z
 missing_target_project:
   id: 999
   description: ''
   creator: tom
   state: new
   commenter: tom
+  created_at: 2012-09-03 13:08:02.000000000 Z
+  updated_at: 2012-09-03 13:08:02.000000000 Z
 submit_from_home_project:
   id: 1000
   description: test home project shortening
   creator: Iggy
   state: new
   commenter: Iggy
+  created_at: 2012-09-03 13:08:02.000000000 Z
+  updated_at: 2012-09-03 13:08:02.000000000 Z
