@@ -1521,11 +1521,78 @@ end
     assert_response :success
   end
 
+  def test_branch_version_update_and_submit_request_back
+    # branch a package which does not exist in project, but project is linked
+    prepare_request_with_user "tom", "thunder"
+    post "/source/home:Iggy/TestPack", :cmd => :branch
+    assert_response :success
+
+    # version update
+    spec = File.open("#{Rails.root}/test/fixtures/backend/source/home:Iggy/TestPack/TestPack.spec").read()
+    spec.gsub!( /^Version:.*/, "Version: 2.42" )
+    spec.gsub!( /^Release:.*/, "Release: 1" )
+    Suse::Backend.put("/source/home:tom:branches:home:Iggy/TestPack/TestPack.spec", spec)
+    assert_response :success
+
+    get "/source/home:tom:branches:home:Iggy/TestPack?view=info&parse=1"
+    assert_response :success
+    assert_xml_tag( :tag => "version", :content => "2.42" )
+    assert_xml_tag( :tag => "release", :content => "1" )
+
+    get "/source/home:tom:branches:home:Iggy/TestPack?expand=1"
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert node.has_attribute?(:vrev)
+    vrev = node.value(:vrev)
+
+    # create request
+    req = "<request>
+            <action type='submit'>
+              <source project='home:tom:branches:home:Iggy' package='TestPack' />
+              <options>
+                <sourceupdate>update</sourceupdate>
+              </options>
+            </action>
+            <description>SUBMIT</description>
+            <state who='Iggy' name='new'/>
+          </request>"
+    post "/request?cmd=create", req
+    assert_response :success
+    assert_xml_tag( :tag => "request" )
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
+
+    # accept the request
+    prepare_request_with_user "king", "sunflower"
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response :success
+
+    get "/source/home:Iggy/TestPack?view=info&parse=1"
+    assert_response :success
+    assert_xml_tag( :tag => "version", :content => "2.42" )
+    assert_xml_tag( :tag => "release", :content => "1" )
+
+    # vrev must not get smaller after accept
+    get "/source/home:tom:branches:home:Iggy/TestPack?expand=1"
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert node.has_attribute?(:vrev)
+    vrev_after_accept = node.value(:vrev)
+    assert (vrev <= vrev_after_accept)
+ 
+    #cleanup
+    delete "/source/home:tom:branches:home:Iggy"
+    assert_response :success
+    # restore original spec file
+    Suse::Backend.put("/source/home:Iggy/TestPack/TestPack.spec", File.open("#{Rails.root}/test/fixtures/backend/source/home:Iggy/TestPack/TestPack.spec").read())
+    assert_response :success
+  end
+
   # test permissions on read protected objects
   #
   #
   def test_submit_from_source_protected_project
-    reset_auth
     prepare_request_with_user "sourceaccess_homer", "homer"
     post "/request?cmd=create", load_backend_file('request/from_source_protected_valid')
     assert_response :success
@@ -1691,8 +1758,6 @@ end
   end
 
   def test_project_delete_request_with_pending
-    reset_auth
-
     # try to replay rq 74774
     prepare_request_with_user "Iggy", "asdfasdf"
     meta="<project name='home:Iggy:todo'><title></title><description/><repository name='base'>
