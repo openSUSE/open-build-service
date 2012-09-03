@@ -209,6 +209,7 @@ sub runservice {
   die("No package defined for source update!") unless defined $packid;
   return if $packid eq '_project';
 
+  my $oldfiles = {};
   if ($files->{'/SERVICE'}) {
     # check serialization
     my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$rev->{'project'}/$rev->{'package'}" : "$treesdir/$rev->{'package'}";
@@ -224,6 +225,25 @@ sub runservice {
     }
     writestr("$treedir/.$smd5-_serviceerror", "$treedir/$smd5-_serviceerror", "service in progress\n");
     close FF;	# free lock
+
+    # get last servicerun result into oldfiles hash
+    my $revno = $rev->{'rev'};
+    if (length($revno || '') >= 32) {
+      # argh, find commit for that srcmd5
+      $revno = (findlastrev($rev) || {})->{'rev'};
+    }
+    if ($revno && $revno > 1) {
+      $revno = $revno - 1;	# get the commit before this one
+      eval {
+        my $oldfilerev = getrev($projid, $packid, $revno);
+	# XXX: what if it is inprogress?
+	$oldfiles = lsrev_service($oldfilerev) || {};
+      };
+      warn($@) if $@;
+      $oldfiles = {} if $oldfiles->{'_service_error'};
+      # strip all non-service results;
+      delete $oldfiles->{$_} for grep {!/^_service:/} keys %$oldfiles;
+    }
   }
 
   return if $packid eq '_project';
@@ -295,6 +315,7 @@ sub runservice {
 
   my @send = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} grep {$_ ne '/SERVICE'} sort(keys %$files);
   push @send, {'name' => '_serviceproject', 'data' => XMLout($BSXML::services, $projectservices)} if $projectservices;
+  push @send, map {{'name' => $_, 'filename' => "$srcrep/$packid/$oldfiles->{$_}-$_"}} grep {!$files->{$_}} sort(keys %$oldfiles);
 
   # run the source update in own process (do not wait for it)
   my $pid = xfork();
