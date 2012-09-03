@@ -297,7 +297,7 @@ module MaintenanceHelper
         end
         # remove maintenance release trigger in source
         if releasetarget.trigger == "maintenance"
-          releasetarget.trigger = "manual"
+          releasetarget.trigger = nil
           releasetarget.save!
           sourceRepo.db_project.store
         end
@@ -819,7 +819,7 @@ module MaintenanceHelper
                 trepo.repository_architectures.create :architecture => ra.architecture, :position => ra.position
               end
               trepo.path_elements.create(:link => repo, :position => 1)
-              trigger = "manual"
+              trigger = nil # manual
               trigger = "maintenance" if MaintenanceIncident.find_by_db_project_id( tprj.id ) # is target an incident project ?
               trepo.release_targets.create(:target_repository => repo, :trigger => trigger) if p[:link_target_project].project_type == "maintenance_release"
             end
