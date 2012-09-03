@@ -6,9 +6,9 @@ class IssueTracker < ActiveRecord::Base
 
   class UnknownObjectError < Exception; end
 
-  validates_presence_of :name, :regex, :url
+  validates_presence_of :name, :regex, :url, :kind
   validates_uniqueness_of :name, :regex
-  validates_inclusion_of :kind, :in => ['', 'other', 'bugzilla', 'cve', 'fate', 'trac', 'launchpad', 'sourceforge']
+  validates_inclusion_of :kind, :in => ['other', 'bugzilla', 'cve', 'fate', 'trac', 'launchpad', 'sourceforge']
 
   attr_accessible :name, :kind, :description, :regex, :label, :url, :enable_fetch, :issues_updated, :show_url
 

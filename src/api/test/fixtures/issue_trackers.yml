@@ -133,7 +133,7 @@ issue_trackers_37:
 issue_trackers_38:
   id: 38
   name: ITS
-  kind: ''
+  kind: 'other'
   description: OpenLDAP Issue Tracker
   url: http://www.openldap.org/its/
   show_url: http://www.openldap.org/its/index.cgi/Contrib?id=@@@
@@ -243,7 +243,7 @@ novell_bugzilla:
 perl_rt:
   id: 27
   name: RT
-  kind: ''
+  kind: 'other'
   description: CPAN Bugs
   url: https://rt.cpan.org/
   show_url: http://rt.cpan.org/Public/Bug/Display.html?id=@@@
