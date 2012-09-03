@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 ENV['RAILS_ENV'] = 'test'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
+require File.expand_path(File.dirname(__FILE__)) + "/../test/test_helper"
 
 Suse::Backend.do_not_start_test_backend
 
@@ -298,56 +299,11 @@ IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_sched 
    io.each {|line| logger.debug line.strip unless line.blank? }
 end
 
-# find out about the triggered build job and write back dispatching data
-
-# home:Iggy
-FindIggyJob=IO.popen("find #{Rails.root}/tmp/backend_data/jobs/i586/ -name home:Iggy::10.2::TestPack-*")
-IggyJob=FindIggyJob.readlines.first.chomp
-jobid=""
-IO.popen("md5sum #{IggyJob}|cut -d' ' -f 1") do |io|
-   jobid = io.readlines.first.chomp
-end
-f = File.open("#{IggyJob}:status", 'w')
-f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> </jobstatus>" )
-f.close
-# upload build result as a worker would do
-system("cd #{Rails.root}/test/fixtures/backend/binary/; exec find . -name '*i586.rpm' -o -name '*src.rpm' -o -name meta -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=i586&code=success&job=#{IggyJob.gsub(/.*\//, '')}&jobid=#{jobid}'")
-
-# HiddenProject
-jobid=""
-IO.popen("md5sum #{Rails.root}/tmp/backend_data/jobs/i586/HiddenProject::nada::pack-47a5fb1c73c75bb252283e2ad1110182|cut -d' ' -f 1") do |io|
-   jobid = io.readlines.first.chomp
-end
-f = File.open("#{Rails.root}/tmp/backend_data/jobs/i586/HiddenProject::nada::pack-47a5fb1c73c75bb252283e2ad1110182:status", 'w')
-f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> </jobstatus>" )
-f.close
-# upload build result as a worker would do
-system("cd #{Rails.root}/test/fixtures/backend/binary/; exec find . -name '*i586.rpm' -o -name '*src.rpm' -o -name meta -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=i586&code=success&job=HiddenProject::nada::pack-47a5fb1c73c75bb252283e2ad1110182&jobid=#{jobid}'")
-
-# BinaryAccess
-# BinaryprotectedProject::nada::bdpack-47a5fb1c73c75bb252283e2ad1110182
-jobid=""
-IO.popen("md5sum #{Rails.root}/tmp/backend_data/jobs/i586/BinaryprotectedProject::nada::bdpack-47a5fb1c73c75bb252283e2ad1110182|cut -d' ' -f 1") do |io|
-   jobid = io.readlines.first.chomp
-end
-f = File.open("#{Rails.root}/tmp/backend_data/jobs/i586/BinaryprotectedProject::nada::bdpack-47a5fb1c73c75bb252283e2ad1110182:status", 'w')
-f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> </jobstatus>" )
-f.close
-# upload build result as a worker would do
-system("cd #{Rails.root}/test/fixtures/backend/binary/; exec find . -name '*i586.rpm' -o -name '*src.rpm' -o -name meta -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=i586&code=success&job=BinaryprotectedProject::nada::bdpack-47a5fb1c73c75bb252283e2ad1110182&jobid=#{jobid}'")
-
-# SourceAccess
-FindSourceprotectedJob=IO.popen("find #{Rails.root}/tmp/backend_data/jobs/i586/ -name SourceprotectedProject::repo::pack*")
-SourceprotectedJob=FindSourceprotectedJob.readlines.first.chomp
-jobid=""
-IO.popen("md5sum #{SourceprotectedJob}|cut -d' ' -f 1") do |io|
-   jobid = io.readlines.first.chomp
-end
-f = File.open("#{SourceprotectedJob}:status", 'w')
-f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> </jobstatus>" )
-f.close
-# upload build result as a worker would do
-system("cd #{Rails.root}/test/fixtures/backend/binary/; exec find . -name '*i586.rpm' -o -name '*src.rpm' -o -name meta -o -name logfile | cpio -H newc -o | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=i586&code=success&job=#{SourceprotectedJob.gsub(/.*\//, '')}&jobid=#{jobid}'")
+# Inject build job results
+inject_build_job( "home:Iggy", "TestPack", "10.2", "i586" )
+inject_build_job( "HiddenProject", "pack", "nada", "i586" )
+inject_build_job( "BinaryprotectedProject", "bdpack", "nada", "i586" )
+inject_build_job( "SourceprotectedProject", "pack", "repo", "i586" )
 
 # upload a binary file to repository directly
 Suse::Backend.put( '/build/home:Iggy/10.2/i586/_repository/delete_me.rpm?wipe=1', File.open("#{Rails.root}/test/fixtures/backend/binary/delete_me-1.0-1.i586.rpm").read() )
