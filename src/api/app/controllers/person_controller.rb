@@ -1,4 +1,4 @@
-#require "rexml/document"
+require 'xmlhash'
 
 class PersonController < ApplicationController
 
@@ -78,10 +78,10 @@ class PersonController < ApplicationController
         end
       end
 
-      xml = REXML::Document.new(request.raw_post)
+      xml = Xmlhash.parse(request.raw_post)
       logger.debug("XML: #{request.raw_post}")
-      user.email = xml.elements["/person/email"].text
-      user.realname = xml.elements["/person/realname"].text
+      user.email = xml.value('email') || ''
+      user.realname = xml.value('realname') || ''
       update_watchlist(user, xml)
       user.save!
       render_ok
@@ -200,8 +200,8 @@ class PersonController < ApplicationController
     new_watchlist = []
     old_watchlist = []
 
-    xml.elements.each("/person/watchlist/project") do |e|
-      new_watchlist << e.attributes['name']
+    xml.get('watchlist').elements("project") do |e|
+      new_watchlist << e['name']
     end
 
     user.watched_projects.each do |wp|
