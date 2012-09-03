@@ -4600,7 +4600,7 @@ sub rebuildaggregate {
   print "        scheduled\n";
 
   my $ev = {'type' => 'built', 'arch' => $myarch, 'job' => $job};
-  if ($sign && grep {/\.rpm$/} keys %$jobrepo) {
+  if ($sign && grep {/\.(?:rpm|pkg\.tar\.gz|pkg\.tar.xz)$/} keys %$jobrepo) {
     sendevent($ev, 'signer', "finished:$myarch:$job");
   } else {
     sendevent($ev, $myarch, "finished:$job");
