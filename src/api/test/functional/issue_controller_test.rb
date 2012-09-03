@@ -1,6 +1,8 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class IssueControllerTest < ActionController::IntegrationTest
+  fixtures :all
+
   def test_get_issues
     reset_auth
     # bugs are public atm. Secret stuff should not get imported.
