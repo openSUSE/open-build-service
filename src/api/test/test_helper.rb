@@ -6,6 +6,22 @@ require 'action_controller/integration'
 # or the code has to be fixed
 #$ENABLE_BROKEN_TEST=true
 
+    def inject_build_job( project, package, repo, arch )
+      job=IO.popen("find #{Rails.root}/tmp/backend_data/jobs/#{arch}/ -name #{project}::#{repo}::#{package}-*")
+      jobfile=job.readlines.first.chomp
+      jobid=""
+      IO.popen("md5sum #{jobfile}|cut -d' ' -f 1") do |io|
+         jobid = io.readlines.first.chomp
+      end
+      data = REXML::Document.new(File.new(jobfile))
+      verifymd5 = data.elements["/buildinfo/verifymd5"].text
+      f = File.open("#{jobfile}:status", 'w')
+      f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> <workerid>simulated</workerid> <hostarch>#{arch}</hostarch> </jobstatus>" )
+      f.close
+      system("cd #{Rails.root}/test/fixtures/backend/binary/; exec find . -name '*#{arch}.rpm' -o -name '*src.rpm' -o -name logfile | cpio -H newc -o 2>/dev/null | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=#{arch}&code=success&job=#{jobfile.gsub(/.*\//, '')}&jobid=#{jobid}' > /dev/null")
+      system("echo \"#{verifymd5}  #{package}\" > #{jobfile}:dir/meta")
+    end
+
 module ActionController
   module Integration #:nodoc:
     class Session
