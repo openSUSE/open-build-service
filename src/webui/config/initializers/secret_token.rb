@@ -8,7 +8,7 @@ OBSWebUI::Application.config.secret_token = 'd5c20762e9f94e5992e135f6a201157530a
 
 #TODO: Maybe we can get rid of this mechanism and use the above directly?
 if File.exist?(Rails.root.join('config', 'secret.key'))
-  file = File.open(Rails.root.join('config', 'secret.key', 'r'))
+  file = File.open(Rails.root.join('config', 'secret.key'), 'r')
   secret = file.readline()
 end
 
