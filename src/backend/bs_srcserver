@@ -3753,7 +3753,7 @@ sub getfilelist {
     }
     delete $li->{'xservicemd5'};
     delete $li->{'lservicemd5'};
-  } elsif ($files->{'_service'} && !defined($cgi->{'rev'})) {
+  } elsif ($files->{'_service'} && $packid ne '_project' && !$cgi->{'meta'} && !defined($cgi->{'rev'})) {
     # check error/in progress
     $serviceinfo = {};
     my $lockfile = "$eventdir/service/${projid}::$packid";
