@@ -2298,20 +2298,17 @@ if ($vm eq "--xen" && $xenstore_maxsize && 0 + (-s '/var/lib/xenstored/tdb') > $
 }
 
 my $state = lockstate();
+die("I am not idle!\n") unless $state->{'state'} eq 'idle';
+
 if ($cgi->{'workercode'} && $cgi->{'port'} && $cgi->{'workercode'} ne $workercode && !$noworkercheck) {
-  $state->{'state'} = 'rebooting';
   my $peer = "${BSServer::peer}:$cgi->{'port'}";
   $workercode = getcode('worker', "http://$peer/getworkercode");
-  if (!$workercode) {
-    $state->{'state'} = 'broken';	# eek
-  } else {
-    print "activating new worker code $workercode\n";
-  }
+  die("could not update worker code\n") unless $workercode;
+  $state->{'state'} = 'rebooting';
+  print "activating new worker code $workercode\n";
   commitstate($state);
   die("rebooting...\n");
 }
-
-die("I am not idle!\n") unless $state->{'state'} eq 'idle';
 
 BSServer::read_file('job.new');
 my $infoxml = readstr('job.new');
