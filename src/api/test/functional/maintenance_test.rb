@@ -1527,9 +1527,6 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_no_xml_tag :tag => "path"
     assert_no_xml_tag :tag => "lock"
-    get "/source/home:tom:CopyOfBaseDistro/_config"
-    assert_response :success
-    assert_match /Empty project config/, @response.body
     delete "/source/home:tom:CopyOfBaseDistro"
     assert_response :success
 
@@ -1541,6 +1538,9 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_no_xml_tag :tag => "path"
     assert_no_xml_tag :tag => "lock"
+    get "/source/CopyOfBaseDistro/_config"
+    assert_response :success
+    assert_match /Empty project config/, @response.body
     get "/source/BaseDistro"
     assert_response :success
     opackages = ActiveXML::XMLNode.new(@response.body)
