@@ -667,16 +667,7 @@ class DbProject < ActiveRecord::Base
         unless list.empty?
           logger.debug "offending repo: #{object.inspect}"
           if force
-            #replace links to the repository with links to the "deleted" project repository
-            del_repo = DbProject.find_by_name("deleted").repositories[0]
-            list.each do |pe|
-              pe.link = del_repo
-              pe.save
-              #update backend
-              link_prj = link_rep.db_project
-              logger.info "updating project '#{link_prj.name}'"
-              Suse::Backend.put_source "/source/#{link_prj.name}/_meta", link_prj.to_axml
-            end
+            object.destroy!
           else
             linking_repos = list.map {|x| x.repository.db_project.name+"/"+x.repository.name}.join "\n"
             raise SaveError, "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:\n"+linking_repos

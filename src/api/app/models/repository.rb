@@ -2,6 +2,8 @@ class Repository < ActiveRecord::Base
 
   belongs_to :db_project
 
+  before_destroy :cleanup_before_destroy
+
   has_many :release_targets, :class_name => "ReleaseTarget", :foreign_key => 'repository_id'
   has_many :path_elements, :foreign_key => 'parent_id', :dependent => :delete_all, :order => "position"
   has_many :links, :class_name => "PathElement", :foreign_key => 'repository_id'
@@ -14,6 +16,26 @@ class Repository < ActiveRecord::Base
   attr_accessible :name
 
   scope :not_remote, where(:remote_project_name => nil)
+
+  def cleanup_before_destroy
+
+    # change all linking repository pathes
+    del_repo = nil
+
+    self.linking_repositories.each do |lrep|
+        lrep.path_elements.includes(:link).each do |pe|
+          next unless Repository.find(pe.repository_id).db_project_id == self.db_project.id
+          del_repo ||= DbProject.find_by_name("deleted").repositories[0]
+          pe.link = del_repo
+          pe.save
+          #update backend
+          link_prj = lrep.db_project
+          logger.info "updating project '#{link_prj.name}'"
+          Suse::Backend.put_source "/source/#{link_prj.name}/_meta", link_prj.to_axml
+        end
+    end
+
+  end
 
   class << self
     def find_by_project_and_repo_name( project, repo )
