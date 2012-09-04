@@ -15,14 +15,13 @@ env:
   - SUBTEST=webui-testsuite
   # selenium spider only
   - SUBTEST=webui-testsuite:spider_anonymously
+  # api and webui webrat with latest gems
+  - SUBTEST=api REMOVEGEMLOCK=true
+  - SUBTEST=webui REMOVEGEMLOCK=true
 matrix:
-  include: # api and webui webrat with latest gems
-    - rvm: ruby-head
-      env: SUBTEST=api REMOVEGEMLOCK=true
-    - rvm: ruby-head
-      env: SUBTEST=webui REMOVEGEMLOCK=true
   allow_failures:
-    - rvm: ruby-head
+    - env: SUBTEST=api REMOVEGEMLOCK=true
+    - env: SUBTEST=webui REMOVEGEMLOCK=true
 notifications:
   email:
     on_success: change
