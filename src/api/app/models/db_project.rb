@@ -1302,11 +1302,19 @@ class DbProject < ActiveRecord::Base
     # set user if nil, needed for delayed job in DbPackage model
     User.current ||= User.find_by_login(params[:user])
 
-    # restore all package meta data objects in DB
-    backend_pkgs = Collection.find :package, :match => "@project='#{self.name}'"
-    backend_pkgs.each_package do |package|
-      path = "/source/#{URI.escape(self.name)}/#{package.name}/_meta"
-      Package.new(Suse::Backend.get(path).body.to_s, :project => self.name).save
+    # avoid to write meta back to backend after reading
+    wt_state = ActiveXML::Config.global_write_through
+    begin
+      ActiveXML::Config.global_write_through = false
+
+      # restore all package meta data objects in DB
+      backend_pkgs = Collection.find :package, :match => "@project='#{self.name}'"
+      backend_pkgs.each_package do |package|
+        path = "/source/#{URI.escape(self.name)}/#{package.name}/_meta"
+        Package.new(Suse::Backend.get(path).body.to_s, :project => self.name, :write_through => false).save
+      end
+    ensure
+      ActiveXML::Config.global_write_through = wt_state
     end
     reload
     db_packages.each { |p| p.sources_changed }
