@@ -4545,6 +4545,14 @@ sub copyproject {
   $user = str2utf8xml($user);
   $comment = str2utf8xml($comment);
 
+  # copy _project data
+  if (-e "$projectsdir/$oprojid.pkg/_project.rev" || -e "$projectsdir/$oprojid.conf") {
+    my $lastorev = getrev($oprojid, '_project');
+    my $files = lsrev($lastorev);
+    copyfiles($projid, '_project', $oprojid, '_project', $files);
+    addrev($cgi, $projid, '_project', $files);
+  }
+
   # use {} as we do not want to copy project linked packages
   my @pkgs = findpackages($oprojid, {});
   for my $packid (@pkgs) {
@@ -4557,6 +4565,7 @@ sub copyproject {
       };
       # everything except person, group, devel and lock
       for (keys %$opack) {
+        next if $_ eq 'project' || $_ eq 'name';
         next if $_ eq 'person' || $_ eq 'group' || $_ eq 'devel' || $_ eq 'lock';
         $pack->{$_} = $opack->{$_} if defined $opack->{$_};
       }
