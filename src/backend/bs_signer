@@ -299,6 +299,7 @@ sub signjob {
     };
     my $signkey = BSRPC::rpc($param, undef, "project=$projid");
     if ($signkey) {
+      die("signkey does not support signing\n") if length($signkey) <= 1;
       mkdir_p($uploaddir);
       writestr("$uploaddir/signer.$$", undef, $signkey);
       push @signargs, '-P', "$uploaddir/signer.$$";
