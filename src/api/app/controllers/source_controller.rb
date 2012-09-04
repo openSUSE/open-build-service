@@ -1489,7 +1489,7 @@ class SourceController < ApplicationController
       p = DbProject.new :name => project_name, :title => oprj.title, :description => oprj.description
       p.add_user @http_user, "maintainer"
       oprj.flags.each do |f|
-        p.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo)
+        p.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == 'lock'
       end
       oprj.repositories.each do |repo|
         r = p.repositories.create :name => repo.name

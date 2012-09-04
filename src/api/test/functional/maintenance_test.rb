@@ -1504,6 +1504,11 @@ class MaintenanceTests < ActionController::IntegrationTest
   end
 
   def test_copy_project_for_release
+    # temporary lock the project to validate copy
+    prepare_request_with_user "king", "sunflower"
+    post "/source/BaseDistro?cmd=set_flag&flag=lock&status=enable"
+    assert_response :success
+
     # as user
     prepare_request_with_user "tom", "thunder"
     get "/source/BaseDistro/pack1/_meta"
@@ -1521,6 +1526,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/home:tom:CopyOfBaseDistro/_meta"
     assert_response :success
     assert_no_xml_tag :tag => "path"
+    assert_no_xml_tag :tag => "lock"
+    get "/source/home:tom:CopyOfBaseDistro/_config"
+    assert_response :success
+    assert_match /Empty project config/, @response.body
     delete "/source/home:tom:CopyOfBaseDistro"
     assert_response :success
 
@@ -1530,6 +1539,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/CopyOfBaseDistro/_meta"
     assert_response :success
+    assert_no_xml_tag :tag => "path"
+    assert_no_xml_tag :tag => "lock"
     get "/source/BaseDistro"
     assert_response :success
     opackages = ActiveXML::XMLNode.new(@response.body)
@@ -1568,7 +1579,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_not_equal time, copytime
     assert_equal copyhistory.each_revision.last.user.text, "king"
 
+    # cleanup and unlock
     delete "/source/CopyOfBaseDistro"
+    assert_response :success
+    post "/source/BaseDistro?cmd=unlock&comment=asd"
     assert_response :success
   end
 
