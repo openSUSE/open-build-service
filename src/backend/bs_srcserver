@@ -232,17 +232,20 @@ sub runservice {
       # argh, find commit for that srcmd5
       $revno = (findlastrev($rev) || {})->{'rev'};
     }
-    if ($revno && $revno > 1) {
+    while ($revno && $revno > 1) {
       $revno = $revno - 1;	# get the commit before this one
       eval {
         my $oldfilerev = getrev($projid, $packid, $revno);
-	# XXX: what if it is inprogress?
 	$oldfiles = lsrev_service($oldfilerev) || {};
       };
-      warn($@) if $@;
-      $oldfiles = {} if $oldfiles->{'_service_error'};
+      if ($@) {
+        warn($@);
+        next if $@ =~ /service in progress/;
+      }
+      $oldfiles = {} if !$oldfiles || $oldfiles->{'_service_error'};
       # strip all non-service results;
       delete $oldfiles->{$_} for grep {!/^_service:/} keys %$oldfiles;
+      last;
     }
   }
 
