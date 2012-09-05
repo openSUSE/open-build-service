@@ -31,6 +31,7 @@ module ActiveXML
       end
 
       attr_accessor :target_uri
+      attr_accessor :details
 
       def initialize( target_uri, opt={} )
       end
@@ -260,19 +261,9 @@ module ActiveXML
     class Rest < Abstract
       register_protocol 'rest'
 
-      @@api_time = 0
-
       class << self
         def spawn( target_uri, opt={} )
           @transport_obj ||= new( target_uri, opt )
-        end
-
-        def runtime
-          @@api_time
-        end
-
-        def reset_runtime
-          @@api_time = 0
         end
 
       end
@@ -534,8 +525,18 @@ module ActiveXML
           @http = nil
           raise ConnectionError, "Failed to establish connection for #{url}: " + err.message
         ensure
-          logger.debug "Request took #{Time.now - start} seconds"
-          @@api_time += Time.now - start
+          if self.details && self.details.respond_to?('add')
+             runtime = http_response["X-Runtime"]
+             payload = http_response["X-Opensuse-Runtimes"]
+             payload = JSON.parse(payload) if payload
+	     payload ||= {}
+	     if runtime 
+               payload[:runtime] = Float(runtime) * 1000
+	     end
+	     payload[:all] = (Time.now - start) * 1000
+             self.details.add(payload)
+             logger.debug "RT #{payload.inspect}"
+          end
         end
 
         unless keepalive

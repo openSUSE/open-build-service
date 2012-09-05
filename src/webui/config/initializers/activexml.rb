@@ -3,6 +3,28 @@ require "activexml/activexml"
 CONFIG['frontend_protocol'] ||= "http"
 CONFIG['frontend_port'] ||= 80
 
+class DetailsLogger
+  def initialize
+    @summary = Hash.new
+  end
+
+  def summary!
+    ret = @summary
+    @summary = Hash.new
+    return ret
+  end
+
+  def add(d)
+    d.each do |key,value|
+      key = "api-#{key}"
+      if value
+        @summary[key] ||= 0
+	@summary[key] += value
+      end
+    end
+  end
+end
+
 ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
     map.default_server :rest, "#{CONFIG['frontend_protocol']}://#{CONFIG['frontend_host']}:#{CONFIG['frontend_port']}"
@@ -106,7 +128,7 @@ ActiveXML::Base.config do |conf|
 
   end
   ActiveXML::Config.transport_for( :project ).set_additional_header( "User-Agent", "obs-webui/#{CONFIG['version']}" )
-
+  ActiveXML::Config.transport_for( :project ).details = DetailsLogger.new
 
 end
 

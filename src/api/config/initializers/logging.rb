@@ -36,6 +36,8 @@ module APIInstrumentation
       payload[:xml_runtime] = ActiveXML::LibXMLNode.runtime * 1000
       Suse::Backend.reset_runtime
       ActiveXML::LibXMLNode.reset_runtime
+      runtime = { view: payload[:view_runtime], db: payload[:db_runtime], backend: payload[:backend_runtime], xml: payload[:xml_runtime] }
+      response.headers["X-Opensuse-Runtimes"] = runtime.to_json
     end
 
     module ClassMethods

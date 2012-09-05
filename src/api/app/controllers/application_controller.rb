@@ -37,7 +37,7 @@ class ApplicationController < ActionController::Base
 
   # skip the filter for the user stuff
   before_filter :extract_user, :except => :register
-  before_filter :setup_backend, :add_api_version
+  before_filter :setup_backend
   before_filter :shutup_rails
   before_filter :set_current_user
   before_filter :validate_params
