@@ -18,21 +18,17 @@ class Repository < ActiveRecord::Base
   scope :not_remote, where(:remote_project_name => nil)
 
   def cleanup_before_destroy
-
     # change all linking repository pathes
     del_repo = nil
 
     self.linking_repositories.each do |lrep|
-        lrep.path_elements.includes(:link).each do |pe|
-          next unless Repository.find(pe.repository_id).db_project_id == self.db_project.id
-          del_repo ||= DbProject.find_by_name("deleted").repositories[0]
-          pe.link = del_repo
-          pe.save
-          #update backend
-          link_prj = lrep.db_project
-          logger.info "updating project '#{link_prj.name}'"
-          Suse::Backend.put_source "/source/#{link_prj.name}/_meta", link_prj.to_axml
-        end
+      lrep.path_elements.includes(:link).each do |pe|
+#        next unless Repository.find(pe.repository_id).db_project_id == self.db_project.id
+        del_repo ||= DbProject.find_by_name("deleted").repositories[0]
+        pe.link = del_repo
+        pe.save
+        lrep.db_project.store
+      end
     end
 
   end

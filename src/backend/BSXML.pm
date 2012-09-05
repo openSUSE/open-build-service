@@ -1061,7 +1061,7 @@ our $request = [
 		'project',
 		'package',
 		'releaseproject', # for incident request
-	        'repository', # for merge request
+	        'repository', # for release and delete request
 	  ],
 	  [ 'person' =>
 		'name',

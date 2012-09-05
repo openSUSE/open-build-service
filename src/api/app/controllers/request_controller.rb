@@ -797,6 +797,11 @@ class RequestController < ApplicationController
       if action.target_project
         tprj = DbProject.find_by_name action.target_project
         if action.target_package
+          if action.target_repository and action.action_type == :delete
+            render_error :status => 400, :errorcode => "invalid_request",
+              :message => "It is not possible to remove a package and a repository in the same action"
+            return
+          end
           if action.action_type == :maintenance_release
             # use orignal/stripped name and also GA projects for maintenance packages
             tpkg = tprj.find_package action.target_package.gsub(/\.[^\.]*$/, '')
@@ -1022,15 +1027,17 @@ class RequestController < ApplicationController
         if action.target_package
           path = "/source/#{CGI.escape(action.target_project)}/#{CGI.escape(action.target_package)}"
           path += "?cmd=diff&expand=1&filelimit=0&rev=0"
+          path += '&view=xml' if params[:view] == 'xml' # Request unified diff in full XML view
+          begin
+            action_diff += Suse::Backend.post(path, nil).body
+          rescue ActiveXML::Transport::Error
+            render_error :status => 404, :errorcode => 'diff_failure', :message => "The diff call for #{path} failed" and return
+          end
+        elsif action.target_repository
+          # no source diff 
         else
           #FIXME: Delete requests for whole projects needs project diff supporte in the backend (and api).
           render_error :status => 501, :errorcode => 'project_diff_failure', :message => "Project diff isn't implemented yet" and return
-        end
-        path += '&view=xml' if params[:view] == 'xml' # Request unified diff in full XML view
-        begin
-          action_diff += Suse::Backend.post(path, nil).body
-        rescue ActiveXML::Transport::Error
-          render_error :status => 404, :errorcode => 'diff_failure', :message => "The diff call for #{path} failed" and return
         end
       end
       if xml_request
@@ -1327,7 +1334,15 @@ class RequestController < ApplicationController
             end
           else
             if action.action_type == :delete
+              # this is valid for project and repository removal
               target_project.can_be_deleted?
+
+              if action.target_repository
+                r=Repository.find_by_project_and_repo_name(target_project.name, action.target_repository)
+                unless r
+                  render_error :status => 400, :errorcode => "repository_missing", :message => "The repository #{target_project} / #{action.target_repository} does not exist"
+                end
+              end
             end
           end
         end
@@ -1633,19 +1648,29 @@ class RequestController < ApplicationController
           end
 
       elsif action.action_type == :delete
-          if action.target_package
-            package = DbPackage.get_by_project_and_name(action.target_project, action.target_package, use_source: true, follow_project_links: false)
-            package.destroy
-            delete_path = "/source/#{action.target_project}/#{action.target_package}"
+          if action.target_repository
+            prj = DbProject.get_by_name(action.target_project)
+            r=Repository.find_by_project_and_repo_name(action.target_project, action.target_repository)
+            unless r
+              render_error :status => 404, :errorcode => "repository_missing", :message => "The repository #{action.target_project} / #{action.target_repository} does not exist"
+	      return
+            end
+            r.destroy
+            prj.store(params)
           else
-            project = DbProject.get_by_name(action.target_project)
-            project.destroy
-            delete_path = "/source/#{action.target_project}"
+            if action.target_package
+              package = DbPackage.get_by_project_and_name(action.target_project, action.target_package, use_source: true, follow_project_links: false)
+              package.destroy
+              delete_path = "/source/#{action.target_project}/#{action.target_package}"
+            else
+              project = DbProject.get_by_name(action.target_project)
+              project.destroy
+              delete_path = "/source/#{action.target_project}"
+            end
+            h = { :user => @http_user.login, :comment => params[:comment], :requestid => params[:id] }
+            delete_path << build_query_from_hash(h, [:user, :comment, :requestid])
+            Suse::Backend.delete delete_path
           end
-          h = { :user => @http_user.login, :comment => params[:comment], :requestid => params[:id] }
-          delete_path << build_query_from_hash(h, [:user, :comment, :requestid])
-          Suse::Backend.delete delete_path
-
       elsif action.action_type == :maintenance_incident
         # create or merge into incident project
         source = nil

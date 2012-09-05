@@ -9,7 +9,13 @@
    </options>
  </action>
  <action type="delete">
+   <target project="openSUSE:10.3" />
+ </action>
+ <action type="delete">
    <target project="openSUSE:10.3" package="kraft.old" />
+ </action>
+ <action type="delete">
+   <target project="openSUSE:10.3" repository="standard" />
  </action>
  <action type="add_role">
    <target project="openSUSE:10.3" package="kraft" />

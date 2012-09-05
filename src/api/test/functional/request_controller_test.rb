@@ -1800,6 +1800,72 @@ end
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request/#{iddelete}?cmd=changestate&newstate=accepted"
     assert_response :success
+
+    # cleanup
+    delete "/source/home:Iggy:todo"
+    assert_response 404 # already removed
+    prepare_request_with_user "tom", "thunder"
+    delete "/source/home:tom:branches:home:Iggy:todo"
+    assert_response :success
+  end
+
+  def test_repository_delete_request
+    prepare_request_with_user "Iggy", "asdfasdf"
+    meta="<project name='home:Iggy:todo'><title></title><description/><repository name='base'>
+      <path repository='BaseDistroUpdateProject_repo' project='BaseDistro:Update'/>
+        <arch>i586</arch>
+        <arch>x86_64</arch>
+     </repository>
+     </project>"
+
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:Iggy:todo"), meta
+    assert_response :success 
+ 
+    meta="<package name='realfun' project='home:Iggy:todo'><title/><description/></package>"
+    put url_for(:controller => :source, :action => :package_meta, :project => "home:Iggy:todo", :package => "realfun"), meta
+    assert_response :success
+
+    prepare_request_with_user "tom", "thunder"
+    post "/source/home:Iggy:todo/realfun", :cmd => "branch"
+    assert_response :success
+    
+    # verify
+    get "/source/home:tom:branches:home:Iggy:todo/realfun/_meta"
+    assert_response :success
+
+    # delete repository via request
+    rq = '<request>
+           <action type="delete">
+             <target project="home:Iggy:todo" repository="base"/>
+           </action>
+           <state name="new" />
+         </request>'
+
+    post "/request?cmd=create", rq
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert node.has_attribute?(:id)
+    iddelete = node.value('id')
+    
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/request/#{iddelete}?cmd=changestate&newstate=accepted"
+    assert_response :success
+
+    # verify
+    get "/source/home:Iggy:todo/_meta"
+    assert_response :success
+    assert_no_xml_tag :tag => 'repository', :attributes => { :name => "base" }
+    get "/source/home:tom:branches:home:Iggy:todo/_meta"
+    assert_response :success
+    assert_xml_tag :parent => { :tag => 'repository', :attributes => { :name => "base" } },
+                   :tag => 'path', :attributes => { :project => "deleted", :repository => "deleted" }
+
+    # cleanup
+    delete "/source/home:Iggy:todo"
+    assert_response :success
+    prepare_request_with_user "tom", "thunder"
+    delete "/source/home:tom:branches:home:Iggy:todo"
+    assert_response :success
   end
 
   def test_delete_request_id

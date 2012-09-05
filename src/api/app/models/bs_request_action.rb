@@ -9,7 +9,7 @@ class BsRequestAction < ActiveRecord::Base
   VALID_SOURCEUPDATE_OPTIONS = ["update", "noupdate", "cleanup"]
   validates_inclusion_of :sourceupdate, :in => VALID_SOURCEUPDATE_OPTIONS, :allow_nil => true
 
-  attr_accessible :source_package, :source_project, :source_rev, :target_package, :target_releaseproject,
+  attr_accessible :source_package, :source_project, :source_rev, :target_package, :target_releaseproject, :target_repository,
                   :target_project, :action_type, :bs_request_id, :sourceupdate, :updatelink, :person_name, :group_name, :role
 
   validate :check_sanity
@@ -26,6 +26,11 @@ class BsRequestAction < ActiveRecord::Base
       if person_name.blank? && group_name.blank?
         errors.add(:person_name, "Either person or group needs to be set")
       end
+    end
+    if action_type == :delete
+      errors.add(:source_project, "source can not be used in delete action") if source_project
+      errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
+      errors.add(:target_project, "must not target package and target repository") if target_repository and target_package
     end
     # TODO to be continued
   end
@@ -52,6 +57,7 @@ class BsRequestAction < ActiveRecord::Base
       a.target_package = target.delete("package")
       a.target_project = target.delete("project")
       a.target_releaseproject = target.delete("releaseproject")
+      a.target_repository = target.delete("repository")
 
       raise ArgumentError, "too much information #{target.inspect}" unless target.blank?
     end
@@ -132,6 +138,7 @@ class BsRequestAction < ActiveRecord::Base
         attributes = {}
         attributes[:project] = self.target_project unless self.target_project.blank?
         attributes[:package] = self.target_package unless self.target_package.blank?
+        attributes[:repository] = self.target_repository unless self.target_repository.blank?
         action.target attributes
       else
         raise "Not supported action type #{self.action_type}"

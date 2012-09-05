@@ -136,6 +136,7 @@ CREATE TABLE `bs_request_actions` (
   `group_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `role` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
+  `target_repository` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `bs_request_id` (`bs_request_id`),
   CONSTRAINT `bs_request_actions_ibfk_1` FOREIGN KEY (`bs_request_id`) REFERENCES `bs_requests` (`id`)
@@ -973,6 +974,8 @@ INSERT INTO schema_migrations (version) VALUES ('20120424141421');
 INSERT INTO schema_migrations (version) VALUES ('20120529150500');
 
 INSERT INTO schema_migrations (version) VALUES ('20120903122955');
+
+INSERT INTO schema_migrations (version) VALUES ('20120904122955');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

@@ -144,6 +144,7 @@
       <xs:attribute name="project" type="xs:string" use="required" />
       <xs:attribute name="package" type="xs:string" use="optional" />
       <xs:attribute name="releaseproject" type="xs:string" use="optional" />
+      <xs:attribute name="repository" type="xs:string" use="optional" />
     </xs:complexType>
   </xs:element>
 
