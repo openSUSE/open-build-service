@@ -1422,21 +1422,21 @@ sub receivekiwitree_scan {
   my ($buildinfo) = @_;
 
   my %res;
-  my %prpaps;
+  my %prpas;
   for my $dep (@{$buildinfo->{'bdep'} || []}) {
     next unless defined $dep->{'package'};
     my $repoarch = $dep->{'repoarch'} || $buildinfo->{'arch'};
     next if $repoarch eq 'src';
-    $prpaps{"$dep->{'project'}/$dep->{'repository'}/$repoarch/$dep->{'package'}"} = 1;
+    $prpas{"$dep->{'project'}/$dep->{'repository'}/$repoarch"}->{$dep->{'package'}} = 1;
   }
-  for my $prpap (sort keys %prpaps) {
-    my @bins = grep {/\.(?:$binsufsre)$/} ls("$reporoot/$prpap");
-    @bins = filtersources(@bins) if -e "$reporoot/$prpap/.nosourceaccess";
-    for my $bin (sort @bins) {
-      my $leadsigmd5;
-      eval { Build::queryhdrmd5("$reporoot/$prpap/$bin", \$leadsigmd5); };
-      next if $@ || !$leadsigmd5;
-      $res{$leadsigmd5} = "$prpap/$bin";
+  for my $prpa (sort keys %prpas) {
+    my $gbininfo = read_gbininfo("$reporoot/$prpa") || {};
+    for my $packid (sort keys %{$prpas{$prpa}}) {
+      my $bininfo = $gbininfo->{$packid} || read_bininfo("$reporoot/$prpa/$packid");
+      filtersources_bininfo($bininfo) if $bininfo->{'.nosourceaccess'};
+      for my $bin (values %$bininfo) {
+	$res{$bin->{'leadsigmd5'}} = "$prpa/$packid/$bin->{'filename'}" if $bin->{'leadsigmd5'};
+      }
     }
   }
   return \%res;
