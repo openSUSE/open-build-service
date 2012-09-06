@@ -184,7 +184,7 @@ case "$1" in
                 port=""
             fi
             I=$(( $I + 1 ))
-            title="$HOSTNAME/$I"
+            WORKERID="${HOSTNAME}:$I"
             R=$OBS_WORKER_DIRECTORY/root_$I
             # prepare obsworker startup in screen...
             TMPFS=
@@ -213,8 +213,8 @@ case "$1" in
                 SWAP=
                 MEMORY=
             fi
-	    echo "screen -t $title nice -n $OBS_NICE ./bs_worker $vmopt $port --root $R" \
-                "--statedir $workerdir/$I --id ${HOSTNAME}_$I $REPO_PARAM $HUGETLBFS" \
+	    echo "screen -t $WORKERID nice -n $OBS_NICE ./bs_worker $vmopt $port --root $R" \
+                "--statedir $workerdir/$I --id $WORKERID $REPO_PARAM $HUGETLBFS" \
                 "$OBS_JOBS $OBS_TEST $OBS_WORKER_OPT $TMPFS $DEVICE $SWAP $MEMORY" \
                 >> $screenrc
 	    mkdir -p $workerdir/$I
