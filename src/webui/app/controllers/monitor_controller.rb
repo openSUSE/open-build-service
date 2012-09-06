@@ -32,7 +32,7 @@ class MonitorController < ApplicationController
         workers_list << [b["workerid"], b["hostarch"]]
       end
       workers_list.each do |bid, barch|
-        hostname, subid = bid.gsub(%r{[:]}, '/').split('/')
+        hostname, subid = bid.gsub(%r{[-:]}, '/').split('/')
         id=bid.gsub(%r{[:./]}, '_')
         workers[hostname] ||= Hash.new
         workers[hostname]['_arch'] = barch
@@ -52,12 +52,12 @@ class MonitorController < ApplicationController
     workers = Hash.new
     max_time = 4 * 3600
     @workerstatus.elements("idle") do |b|
-      id=b["workerid"].gsub(%r{[:./]}, '_')
+      id=b["workerid"].gsub(%r{[-:./]}, '_')
       workers[id] = Hash.new
     end
 
     @workerstatus.elements("building") do |b|
-      id=b["workerid"].gsub(%r{[:./]}, '_')
+      id=b["workerid"].gsub(%r{[-:./]}, '_')
       delta = (Time.now - Time.at(b["starttime"].to_i)).round
       if delta < 5
 	delta = 5
