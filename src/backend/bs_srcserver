@@ -5970,6 +5970,13 @@ sub getsignkey {
 
 ####################################################################
 
+sub getlastidrequest {
+  my $lastid = readstr("$requestsdir/.nextid", 1) - 1;
+  
+  return ("$lastid", 'Content-Type: text/plain');
+}
+
+# FIXME2.4 remove
 sub getrequestlist {
   my ($cgi) = @_;
 
@@ -7075,7 +7082,8 @@ my $dispatches = [
   'POST:/request cmd: user:?' => \&createrequest,
   '/request' => \&getrequestlist,
   'POST:/request/$id:num cmd: newstate:? user:? comment:? by_user:? by_group:? by_project:? by_package:? superseded_by:?' => \&postrequest,
-  '/request/$id:num withkey:bool? oldkey:md5?' => \&getrequest,
+  '/request/_lastid' => \&getlastidrequest,                     # just required for migration into api
+  '/request/$id:num withkey:bool? oldkey:md5?' => \&getrequest, # just required for migration into api
   'PUT:/request/$id:num user:?' => \&putrequest,
   'DELETE:/request/$id:num' => \&delrequest,
   '/search/request $match: limit:num?' => \&search_request,

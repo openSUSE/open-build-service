@@ -8,9 +8,13 @@ OBSApi::Application.load_tasks
 
 require(File.join(File.dirname(__FILE__), 'config', 'boot'))
 
-# to be moved into own task file
-#require 'workers/update_issues.rb'
-#task(:updateissues => :environment) { Delayed::Job.enqueue UpdateIssuesJob.new }
+require 'workers/update_issues.rb'
+task(:updateissues => :environment) { Delayed::Job.enqueue UpdateIssuesJob.new }
+
+require 'workers/import_requests.rb'
+#task(:importrequests => :environment) { Delayed::Job.enqueue ImportRequestsDelayedJob.new }
+task(:importrequests => :environment) { i=ImportRequestsDelayedJob.new; i.perform }
+
 
 begin
   require 'ci/reporter/rake/minitest'

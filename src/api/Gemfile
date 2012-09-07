@@ -5,6 +5,7 @@ source 'http://rubygems.org'
 gem 'rails', '~>3.2.1'
 
 gem 'mysql2'
+gem 'daemons'
 gem 'nokogiri', '~>1.5.0'
 gem 'delayed_job', '>3.0'
 gem 'delayed_job_active_record'
