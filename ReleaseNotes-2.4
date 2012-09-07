@@ -3,31 +3,46 @@
 ### WARNING: This version is currently NOT for production use!
 ### WARNING:
 
+#
+# Open Build Service 2.4
+#
+
+Please read the README.SETUP file for initial installation
+instructions or use the OBS Appliance from
+
+  http://en.opensuse.org/Build_Service/OBS-Appliance
+
+There is also an install medium with installs OBS on hard disc now.
+
+dist/README.UPDATERS file has informations for updaters.
+
+OBS Appliance users who have setup their LVM can just replace 
+their appliance image without data loss. The migration will 
+happen automatically.
+
+
 Temporary Problems:
 ===================
-
- * Migration to Ruby 1.9 and Rails 3.2, WIP
-
- * hidden projects are not always hidden atm
 
  * No gui interface for managing users and groups. api
    routes have to be enhanced and webui needs to get support 
    for using it.
 
+Changes on purpose:
+===================
 
+ * Migration to Ruby 1.9 and Rails 3.2
 
-Changes on purpose for 2.4:
-===========================
+ * request database got move from backend to the api. Directly
+   after update all requests seem to have vanished, but a delayed
+   job is importing them again. This can take some hours dependening
+   on the amount of requests.
 
- * package meta of package copy command is not coping relationships and devel definitions anymore
+ * package meta of package copy command is not copying 
+  relationships and devel definitions anymore
 
-Changes
-=======
+ * Requests do require a description now in any case
 
-* Requests do require a description now in any case
-
-* database driver needs to be changed to "mysql2" in /srv/www/obs/api/config/database.yml
-
-* webui configurations got moved from environments/*.rb to config/options.yml.
-  TODO: import config settings on update
+ * webui configurations got moved from environments/*.rb to config/options.yml.
+   TODO: import config settings on update
 

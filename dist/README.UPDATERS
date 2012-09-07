@@ -1,3 +1,21 @@
+For Updaters to OBS 2.4 from OBS 2.3
+====================================
+
+ * In case the installation is not done via packages all 
+   rubygems according to Gemfile need to get installed.
+
+ * database driver needs to be changed to "mysql2" in /srv/www/obs/api/config/database.yml
+
+ * Database migration
+
+    # cd /srv/www/obs/api/
+    # RAILS_ENV="production" rake db:migrate
+    # chown -R wwwrun.www log tmp
+
+    # cd /srv/www/obs/webui/
+    # RAILS_ENV="production" rake db:migrate
+    # chown -R wwwrun.www log tmp
+
 For Updaters to OBS 2.3 from OBS 2.1
 ====================================
 
