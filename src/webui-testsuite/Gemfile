@@ -5,7 +5,8 @@ source 'http://rubygems.org'
 gem 'selenium-webdriver'
 gem 'headless'
 gem 'colored'
-gem 'builder'
+# in compliance with rails - better not require builder-3.1
+gem 'builder', '~> 3.0.0'
 
 # it's only used for jenkins, but we better track it somewhere
 gem 'flog'

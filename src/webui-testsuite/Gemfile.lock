@@ -28,7 +28,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  builder
+  builder (~> 3.0.0)
   colored
   flog
   headless
