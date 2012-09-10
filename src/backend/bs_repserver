@@ -1157,11 +1157,14 @@ sub workerstate {
       # worker must have crashed, discard old job...
       my $worker = readxml("$workersdir/building/$idlename", $BSXML::worker, 1);
       if ($worker && $worker->{'arch'} && $worker->{'job'}) {
-	print "restarting build of job $worker->{'arch'}/$worker->{'job'}\n";
 	local *F;
         my $js = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$worker->{'arch'}/$worker->{'job'}:status", $BSXML::jobstatus, 1);
 	if ($js) {
-          unlink("$jobsdir/$worker->{'arch'}/$worker->{'job'}:status") if $js->{'code'} eq 'building';
+	  # be extra careful here not to terminate jobs that run on different workers
+	  if ($js->{'code'} eq 'building' && (!defined($js->{'workerid'}) || $js->{'workerid'} eq $workerid)) {
+	    print "restarting build of job $worker->{'arch'}/$worker->{'job'}\n";
+	    unlink("$jobsdir/$worker->{'arch'}/$worker->{'job'}:status");
+	  }
 	  close F;
         }
       }
@@ -1433,6 +1436,7 @@ sub receivekiwitree_scan {
     my $gbininfo = read_gbininfo("$reporoot/$prpa") || {};
     for my $packid (sort keys %{$prpas{$prpa}}) {
       my $bininfo = $gbininfo->{$packid} || read_bininfo("$reporoot/$prpa/$packid");
+      next unless $bininfo;
       filtersources_bininfo($bininfo) if $bininfo->{'.nosourceaccess'};
       for my $bin (values %$bininfo) {
 	$res{$bin->{'leadsigmd5'}} = "$prpa/$packid/$bin->{'filename'}" if $bin->{'leadsigmd5'};
@@ -1480,7 +1484,7 @@ sub receivekiwitree {
       my $found;
       if ($extra) {
 	die("extra is not a md5 sum\n") unless $extra =~ /^[0-9a-f]{32}$/s;
-	$leads ||= receivekiwitree_scan($info);		# XXX: expensive
+	$leads ||= receivekiwitree_scan($info);
 	if ($leads->{$extra} && link("$reporoot/$leads->{$extra}", "$dir/$file")) {
 	  # make sure it's really the correct file
 	  my $leadsigmd5;
@@ -1532,7 +1536,7 @@ sub putjob {
   my $oldjobstatus = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus);
   die("different jobid\n") if $oldjobstatus->{'jobid'} ne $jobid;
   die("job is not building\n") if $oldjobstatus->{'code'} ne 'building';
-  die("job is building on a different worker\n") if $cgi->{'workerid'} && $oldjobstatus->{'workerid'} && $cgi->{'workerid'} ne $oldjobstatus->{'workerid'};
+  die("job is building on a different worker: $cgi->{'workerid'} -- $oldjobstatus->{'workerid'}\n") if $cgi->{'workerid'} && $oldjobstatus->{'workerid'} && $cgi->{'workerid'} ne $oldjobstatus->{'workerid'};
 
   my $infoxml = readstr("$jobsdir/$arch/$job");
   my $infoxmlmd5 = Digest::MD5::md5_hex($infoxml);
