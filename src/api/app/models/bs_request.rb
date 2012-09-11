@@ -79,8 +79,8 @@ class BsRequest < ActiveRecord::Base
       
       str = state.delete("when")
       request.updated_at = Time.zone.parse(str) if str
-      str = state.delete("superseded_by")
-      request.superseded_by = Integer(str) if str
+      str = state.delete("superseded_by") || ""
+      request.superseded_by = Integer(str) unless str.blank?
       raise ArgumentError, "too much information #{state.inspect}" unless state.blank?
 
       request.description = hashed.value("description")
