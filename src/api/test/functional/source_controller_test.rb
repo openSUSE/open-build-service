@@ -1416,6 +1416,8 @@ end
     assert_response 404
     get "/source/kde4/kdelibs/my_patch.diff", :deleted => 1, :rev => srcmd5
     assert_response :success
+    get "/source/kde4/kdelibs/my_patch.diff", :deleted => 1
+    assert_response :success
 
     # undelete single package
     post "/source/kde4/kdelibs", :cmd => :undelete
