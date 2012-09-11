@@ -1404,16 +1404,18 @@ end
     assert_xml_tag( :tag => "entry", :attributes => { :name => "kdelibs"} )
 
     # access to files of a deleted package
+    get "/source/kde4/kdelibs/_history"
+    assert_response 404
     get "/source/kde4/kdelibs/_history", :deleted => 1
     assert_response :success
-#if $ENABLE_BROKEN_TEST
-#   node = ActiveXML::XMLNode.new(@response.body)
-#   srcmd5 = node.each_revision.last.srcmd5.text 
-# FIXME: this is currently not working in backend
-#    get "/source/kde4/kdelibs", :deleted => 1, :rev => srcmd5
-#    assert_response :success
-#    get "/source/kde4/kdelibs/my_patch.diff", :deleted => 1, :rev => 
-#    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    srcmd5 = node.each_revision.last.srcmd5.text 
+    get "/source/kde4/kdelibs", :deleted => 1, :rev => srcmd5
+    assert_response :success
+    get "/source/kde4/kdelibs/my_patch.diff", :rev => srcmd5
+    assert_response 404
+    get "/source/kde4/kdelibs/my_patch.diff", :deleted => 1, :rev => srcmd5
+    assert_response :success
 
     # undelete single package
     post "/source/kde4/kdelibs", :cmd => :undelete
