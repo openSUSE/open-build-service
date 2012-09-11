@@ -827,6 +827,29 @@ sub getrev {
   return $rev;
 }
 
+# get a revision object for a deleted project/package
+# XXX: fold into getrev
+sub getrev_deleted {
+  my ($projid, $packid, $rev) = @_;
+  undef $rev if $rev && ($rev eq 'latest' || $rev eq 'build');
+  return getrev($projid, $packid, $rev) if defined($rev) && $rev !~ /^\d{1,31}$/;
+  my $revfile = $packid ne '_project' ? "$projectsdir/$projid.pkg/$packid.rev.del" : "$projectsdir/_deleted/$projid.pkg/_project.rev";
+  if ($packid ne '_project' && ! -e $revfile && ! -e "$projectsdir/$projid.xml" && -e "$projectsdir/_deleted/$projid.pkg") {
+    $revfile = "$projectsdir/_deleted/$projid.pkg/$packid.rev";
+  }
+  if (!defined($rev)) {
+    $rev = BSFileDB::fdb_getlast($revfile, $srcrevlay);
+  } elsif ($rev eq '0') {
+    $rev = {'srcmd5' => $emptysrcmd5};
+  } else {
+    $rev = BSFileDB::fdb_getmatch($revfile, $srcrevlay, 'rev', $rev);
+  }
+  die("no such revision\n") unless defined $rev;
+  $rev->{'project'} = $projid;
+  $rev->{'package'} = $packid;
+  return $rev;
+}
+
 sub addmeta {
   my ($projid, $packid, $files, $rev) = @_;
 
@@ -1966,8 +1989,12 @@ sub findpackages {
   # handle deleted packages
   if ($deleted) {
     # we never expand deleted packages
-    @packids = grep {s/\.mrev\.del$//} ls("$projectsdir/$projid.pkg");
-    @packids = grep {! -e "$projectsdir/$projid.pkg/$_.xml"} @packids;
+    if (! -e "$projectsdir/$projid.xml" && -d "$projectsdir/_deleted/$projid.pkg") {
+      @packids = grep {$_ ne '_meta' && $_ ne '_project'} grep {s/\.mrev$//} ls("$projectsdir/_deleted/$projid.pkg");
+    } else {
+      @packids = grep {s/\.mrev\.del$//} ls("$projectsdir/$projid.pkg");
+      @packids = grep {! -e "$projectsdir/$projid.pkg/$_.xml"} @packids;
+    }
     @packids = sort @packids;
     if ($origins) {
       for (@packids) {
@@ -2020,8 +2047,14 @@ sub findpackages {
 }
 
 sub getrev_meta {
-  my ($projid, $packid, $revid, $nonfatal) = @_;
-  my $revfile = defined($packid) ? "$projectsdir/$projid.pkg/$packid.mrev" : "$projectsdir/$projid.pkg/_meta.mrev";
+  my ($projid, $packid, $revid, $deleted, $nonfatal) = @_;
+  my $revfile = defined($packid) ? "$projectsdir/$projid.pkg/$packid.mrev" : "$projectsdir/$projid.pkg/_project.mrev";
+  if ($deleted) {
+    $revfile = defined($packid) ? "$projectsdir/$projid.pkg/$packid.mrev.del" : "$projectsdir/_deleted/$projid.pkg/_project.mrev";
+    if (defined($packid) && ! -e $revfile && ! -e "$projectsdir/$projid.xml" && -e "$projectsdir/_deleted/$projid.pkg") {
+      $revfile = "$projectsdir/_deleted/$projid.pkg/$packid.mrev";
+    }
+  }
   my $rev;
   if (!defined($revid) || $revid eq 'latest') {
     $rev = BSFileDB::fdb_getlast($revfile, $srcrevlay);
@@ -2032,9 +2065,10 @@ sub getrev_meta {
   }
   if ($rev) {
     $rev->{'project'} = $projid;
-    $rev->{'package'} = defined($packid) ? $packid : '_meta';
+    $rev->{'package'} = defined($packid) ? $packid : '_project';
   } elsif (!$nonfatal) {
-    die("404 revision '$revid' does not exist\n");
+    die("404 revision '$revid' does not exist\n") if $revid;
+    die("404 no revision\n");
   }
   return $rev;
 }
@@ -2194,7 +2228,7 @@ sub readpack {
   my ($projid, $packid, $nonfatal, $revid) = @_;
   my $pack;
   if ($revid) {
-    my $rev = getrev_meta($projid, $packid, $revid, $nonfatal);
+    my $rev = getrev_meta($projid, $packid, $revid, undef, $nonfatal);
     my $files = $rev ? lsrev($rev) : {};
     $pack = repreadxml($rev, '_meta', $files->{'_meta'}, $BSXML::pack, 1) if $files->{'_meta'};
   } else {
@@ -3067,11 +3101,11 @@ sub getpackage {
     }
     return ($pack, $BSXML::pack);
   }
-  if ($cgi->{'rev'}) {
+  if ($cgi->{'rev'} || $cgi->{'deleted'}) {
     # return the exact file here
     # we also do not look at project links
     # we return the data as string so that the md5 sum matches
-    my $rev = getrev_meta($projid, $packid, $cgi->{'rev'});
+    my $rev = getrev_meta($projid, $packid, $cgi->{'rev'}, $cgi->{'deleted'});
     my $files = lsrev($rev);
     die("404 _meta: no such file\n") unless $files->{'_meta'};
     my $meta = repreadstr($rev, '_meta', $files->{'_meta'});
@@ -3235,7 +3269,12 @@ sub getpackagehistory {
   $revfile = "$projectsdir/$projid.pkg";
   $revfile = "$projectsdir/_deleted/$projid.pkg" if $packid eq '_project' && $cgi->{'deleted'};
   $revfile .= $cgi->{'meta'} ? "/$packid.mrev" : "/$packid.rev";
-  $revfile .= '.del' if $packid ne '_project' && $cgi->{'deleted'};
+  if ($packid ne '_project' && $cgi->{'deleted'}) {
+    $revfile .= '.del';
+    if (! -e $revfile && ! -e "$projectsdir/$projid.xml" && -e "$projectsdir/_deleted/$projid.pkg") {
+      $revfile = "$projectsdir/_deleted/$projid.pkg/$packid.mrev";
+    }
+  }
   my $filter;
   if ($cgi->{'rev'}) {
     $filter = sub { return $cgi->{'rev'} eq $_[0]->{'rev'} || $cgi->{'rev'} eq $_[0]->{'srcmd5'} ? 1 : 0 };
@@ -3742,7 +3781,9 @@ sub getfilelist {
   my $view = $cgi->{'view'};
   my $rev;
   if ($cgi->{'meta'}) {
-    $rev = getrev_meta($projid, $packid, $cgi->{'rev'});
+    $rev = getrev_meta($projid, $packid, $cgi->{'rev'}, $cgi->{'deleted'});
+  } elsif ($cgi->{'deleted'}) {
+    $rev = getrev_deleted($projid, $packid, $cgi->{'rev'});
   } else {
     $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   }
@@ -3870,7 +3911,9 @@ sub getfile {
   die("bad filename\n") if $filename =~ /\// || $filename =~ /^\./;
   my $rev;
   if ($cgi->{'meta'}) {
-    $rev = getrev_meta($projid, $packid, $cgi->{'rev'});
+    $rev = getrev_meta($projid, $packid, $cgi->{'rev'}, $cgi->{'deleted'});
+  } elsif ($cgi->{'deleted'}) {
+    $rev = getrev_deleted($projid, $packid, $cgi->{'rev'});
   } else {
     $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   }
@@ -7001,7 +7044,7 @@ my $dispatches = [
   '/source/$project/$package view=info rev? linkrev? parse:bool? repository? arch?' => \&getpackagesourceinfo,
   '/source/$project/$package rev? linkrev? emptylink:bool? deleted:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool? meta:bool?' => \&getfilelist,
   '/source/$project/$package/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
-  '/source/$project/$package/_meta rev? deleted:bool?' => \&getpackage,
+  '/source/$project/$package/_meta rev? expand:bool? meta:bool? deleted:bool?' => \&getpackage,
   'PUT:/source/$project/$package/_meta user:? comment:? requestid:num?' => \&putpackage,
   'DELETE:/source/$project/$package user:? comment:? requestid:num?' => \&delpackage,
   '/source/$project/$package/$filename rev? expand:bool? meta:bool? deleted:bool?' => \&getfile,
