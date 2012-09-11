@@ -224,4 +224,12 @@
   <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png"/>
   <link>http://www.ubuntu.com/</link>
  </distribution>
+ <distribution vendor="Arch" version="Extra" id="arch-extra">
+  <name>Arch Extra</name>
+  <project>openSUSE.org:Arch:Extra</project>
+  <reponame>Arch_Extra</reponame>
+  <repository>standard</repository>
+  <icon url="https://static.opensuse.org/distributions/logos/arch.png"/>
+  <link>http://www.archlinux.org/</link>
+ </distribution>
 </distributions>
