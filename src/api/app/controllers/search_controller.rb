@@ -46,7 +46,7 @@ class SearchController < ApplicationController
   private
 
   def predicate_from_match_parameter(p)
-    if p=~ /\[(.*)\]/
+    if p=~ /^\[(.*)\]$/
       pred = $1
     else
       pred = p
