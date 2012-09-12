@@ -21,7 +21,7 @@ class StatusController < ApplicationController
       # check permissions
       unless permissions.status_message_create
         render_error :status => 403, :errorcode => "permission denied",
-          :message => "message(s) cannot be created, you have not sufficient permissions"
+        :message => "message(s) cannot be created, you have not sufficient permissions"
         return
       end
 
@@ -49,7 +49,7 @@ class StatusController < ApplicationController
         render_ok
       rescue RuntimeError
         render_error :status => 400, :errorcode => "error creating message(s)",
-          :message => "message(s) cannot be created"
+        :message => "message(s) cannot be created"
         return
       end
 
@@ -58,7 +58,7 @@ class StatusController < ApplicationController
       # check permissions
       unless permissions.status_message_create
         render_error :status => 403, :errorcode => "permission denied",
-          :message => "message cannot be deleted, you have not sufficient permissions"
+        :message => "message cannot be deleted, you have not sufficient permissions"
         return
       end
 
@@ -67,13 +67,13 @@ class StatusController < ApplicationController
         render_ok
       rescue
         render_error :status => 400, :errorcode => "error deleting message",
-          :message => "error deleting message - id not found or not given"
+        :message => "error deleting message - id not found or not given"
       end
 
     else
 
       render_error :status => 400, :errorcode => "only_put_or_get_method_allowed",
-        :message => "only PUT or GET method allowed for this action"
+      :message => "only PUT or GET method allowed for this action"
       return
 
     end
@@ -119,7 +119,7 @@ class StatusController < ApplicationController
     xml = builder.history do
       StatusHelper.resample(values, samples).each do |time,val|
         builder.value( :time => time,
-		      :value => val ) # for debug, :timestring => Time.at(time)  )
+                       :value => val ) # for debug, :timestring => Time.at(time)  )
       end
     end
     render :text => xml, :content_type => "text/xml"
@@ -243,8 +243,10 @@ class StatusController < ApplicationController
     required_parameters :id
     Suse::Backend.start_test_backend if Rails.env.test?
 
-    BsRequestAction.where(bs_request_id: params[:id]).each do |action|
+    outputxml = "<status id='#{params[:id]}'>\n"
 
+    BsRequestAction.where(bs_request_id: params[:id]).each do |action|
+      
       if action.action_type != :submit
         render :text => "<status id='#{params[:id]}' code='unknown'>Not submit</status>\n" and return
       end
@@ -284,8 +286,6 @@ class StatusController < ApplicationController
       rescue ActiveXML::Transport::Error => e
         csrcmd5 = nil
       end
-      
-      outputxml = "<status id='#{params[:id]}'>\n"
       
       re_filename = Regexp.new('^(.*)-([^-]*)-([^-]*)\.([^-.]*).rpm')
       tocheck_repos.each do |srep|
