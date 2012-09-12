@@ -5420,7 +5420,7 @@ sub event_exit {
   $schedstate->{'lookat_oobhigh'} = $ectx->{'lookat_high'};
   $schedstate->{'prpfinished'} = \%prpfinished;
   $schedstate->{'globalnotready'} = \%prpnotready;
-  $schedstate->{'fetchprojpacks'} = %{$ectx->{'fetchprojpacks'} || {}};
+  $schedstate->{'fetchprojpacks'} = $ectx->{'fetchprojpacks'} if %{$ectx->{'fetchprojpacks'} || {}};
   $schedstate->{'delayedfetchprojpacks'} = $ectx->{'delayedfetchprojpacks'};
   $schedstate->{'watchremote_start'} = \%watchremote_start;
   unlink("$rundir/bs_sched.$myarch.state");
