@@ -2767,7 +2767,7 @@ sub patchpackstatus {
   my ($prp, $packid, $code) = @_;
 
   $code ||= 'unknown';
-  appendstr("$reporoot/$prp/$myarch/:packstatus.finished", "$code $packid\n");
+  BSUtil::appendstr("$reporoot/$prp/$myarch/:packstatus.finished", "$code $packid\n");
   # touch mtime to make watchers see a change
   utime(time, time, "$reporoot/$prp/$myarch/:packstatus");
 }
