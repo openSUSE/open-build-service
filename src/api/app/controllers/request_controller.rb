@@ -144,6 +144,45 @@ class RequestController < ApplicationController
         end
       end
 
+      if params[:group]
+        inner_or = []
+        group = Group.get_by_title(params[:group])
+
+        # find requests where group is maintainer in target project
+        if roles.count == 0 or roles.include? "maintainer"
+          names = group.involved_projects.map { |p| p.name }
+          inner_or << "bs_request_actions.target_project in ('" + names.join("','") + "')"
+
+          ## find request where group is maintainer in target package, except we have to project already
+          group.involved_packages.each do |ip|
+            inner_or << "(bs_request_actions.target_project='#{ip.db_project.name}' and bs_request_actions.target_package='#{ip.name}')"
+          end
+        end
+
+        if roles.count == 0 or roles.include? "reviewer"
+          review_states.each do |r|
+            
+            # requests where the user is reviewer or own requests that are in review by someone else
+            or_in_and = [ "reviews.by_group='#{group.title}'" ]
+
+            # find requests where group is maintainer in target project
+            groupprojects = group.involved_projects.select("db_projects.name").map { |p| "'#{p.name}'" }
+            or_in_and << "reviews.by_project in (#{groupprojects.join(',')})" unless groupprojects.blank?
+
+            ## find request where user is maintainer in target package, except we have to project already
+            group.involved_packages.select("name,db_project_id").includes(:db_project).each do |ip|
+              or_in_and << "(reviews.by_project='#{ip.db_project.name}' and reviews.by_package='#{ip.name}')"
+            end
+
+            inner_or << "(reviews.state='#{r}' and (#{or_in_and.join(" or ")}))"
+          end
+        end
+
+        unless inner_or.empty?
+          rel = rel.where(inner_or.join(" or "))
+        end
+      end
+
       # Pagination: Discard 'offset' most recent requests (useful with 'count')
       if params[:offset]
         # TODO: Backend XPath engine needs better range support

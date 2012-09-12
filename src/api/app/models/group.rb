@@ -73,4 +73,33 @@ class Group < ActiveRecord::Base
     end
   end
 
+  def involved_projects_ids
+    # just for maintainer for now.
+    role = Role.rolecache["maintainer"]
+
+    ### all projects where user is maintainer
+    projects = ProjectGroupRoleRelationship.where(bs_group_id: id, role_id: role.id).select(:db_project_id).all.map {|ur| ur.db_project_id }
+
+    projects.uniq
+  end
+  protected :involved_projects_ids
+  
+  def involved_projects
+    # now filter the projects that are not visible
+    return DbProject.where(id: involved_projects_ids)
+  end
+
+  # lists packages maintained by this user and are not in maintained projects
+  def involved_packages
+    # just for maintainer for now.
+    role = Role.rolecache["maintainer"]
+
+    projects = involved_projects_ids
+    projects << -1 if projects.empty?
+
+    # all packages where group is maintainer
+    packages = PackageGroupRoleRelationship.where(bs_group_id: id, role_id: role.id).joins(:db_package).where("db_packages.db_project_id not in (?)", projects).select(:db_package_id).all.map {|ur| ur.db_package_id}
+
+    return DbPackage.where(id: packages).where("db_project_id not in (?)", projects)
+  end
 end

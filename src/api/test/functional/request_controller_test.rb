@@ -513,6 +513,9 @@ if $ENABLE_BROKEN_TEST
 
     assert_xml_tag( :tag => "source", :attributes => { :project => "HiddenProject", :package => "pack"} )
 end
+    get "/request?view=collection&group=test_group&states=new,review"
+    assert_response :success
+    assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
 
     # collection for given package
     get "/request?view=collection&project=kde4&package=wpa_supplicant&states=new,review"
