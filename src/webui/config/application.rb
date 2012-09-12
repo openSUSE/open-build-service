@@ -57,6 +57,9 @@ module OBSWebUI
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
 
+    # Precompile additional assets (application.js, application.css, and all non-JS/CSS are already added)
+    config.assets.precompile += %w( cm2.js mobile.css mobile.js )
+
     #TODO: Port bento directory structure to lib/assets:
     config.assets.paths << Rails.root.join('public', 'themes') << Rails.root.join('public', 'themes', 'bento', 'images')
 
