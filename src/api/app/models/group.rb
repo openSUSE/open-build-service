@@ -71,31 +71,58 @@ class Group < ActiveRecord::Base
 
   def involved_projects_ids
     # just for maintainer for now.
-    role = Role.rolecache["maintainer"]
+    role = Role.find_by_title "maintainer"
 
-    ### all projects where user is maintainer
-    projects = ProjectGroupRoleRelationship.where(bs_group_id: id, role_id: role.id).select(:db_project_id).all.map {|ur| ur.db_project_id }
+    ### all projects where group is maintainer
+    # ur is the target user role relationship
+    sql =
+    "SELECT prj.id
+    FROM db_projects prj
+    LEFT JOIN project_group_role_relationships ur ON prj.id = ur.db_project_id
+    WHERE ur.bs_group_id = #{id} and ur.role_id = #{role.id}"
+    projects = ActiveRecord::Base.connection.select_values sql
 
-    projects.uniq
+    projects += ActiveRecord::Base.connection.select_values sql
+    projects.uniq.map {|p| p.to_i }
   end
   protected :involved_projects_ids
   
   def involved_projects
+    projects = involved_projects_ids
+    return [] if projects.empty?
     # now filter the projects that are not visible
-    return DbProject.where(id: involved_projects_ids)
+    return DbProject.find_by_sql("SELECT distinct prj.* FROM db_projects prj 
+                                  LEFT JOIN flags f on f.db_project_id = prj.id
+                                  LEFT JOIN project_group_role_relationships aur ON aur.db_project_id = prj.id
+                                  where prj.id in (#{projects.join(',')})
+                                  and (f.flag is null or f.flag != 'access' or aur.id = #{User.currentID})")
   end
 
   # lists packages maintained by this user and are not in maintained projects
   def involved_packages
     # just for maintainer for now.
-    role = Role.rolecache["maintainer"]
+    role = Role.find_by_title "maintainer"
 
     projects = involved_projects_ids
     projects << -1 if projects.empty?
 
     # all packages where group is maintainer
-    packages = PackageGroupRoleRelationship.where(bs_group_id: id, role_id: role.id).joins(:db_package).where("db_packages.db_project_id not in (?)", projects).select(:db_package_id).all.map {|ur| ur.db_package_id}
+    sql =<<-END_SQL
+    SELECT pkg.id
+    FROM db_packages pkg
+    LEFT JOIN db_projects prj ON prj.id = pkg.db_project_id
+    LEFT JOIN package_group_role_relationships ur ON pkg.id = ur.db_package_id
+    WHERE ur.bs_user_id = #{id} and ur.role_id = #{role.id} and
+    prj.id not in (#{projects.join(',')})
+    END_SQL
+    packages = ActiveRecord::Base.connection.select_values sql
 
-    return DbPackage.where(id: packages).where("db_project_id not in (?)", projects)
+    return [] if packages.empty?
+    return DbPackage.find_by_sql("SELECT distinct pkg.* FROM db_packages pkg
+                                  LEFT JOIN flags f on f.db_project_id = pkg.db_project_id
+                                  LEFT JOIN project_user_role_relationships aur ON aur.db_project_id = pkg.db_project_id
+                                  where pkg.id in (#{packages.join(',')})
+                                  and (f.flag is null or f.flag != 'access' or aur.id = #{User.currentID})")
+ 
   end
 end
