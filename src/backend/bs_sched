@@ -5420,6 +5420,7 @@ sub event_exit {
   $schedstate->{'lookat_oobhigh'} = $ectx->{'lookat_high'};
   $schedstate->{'prpfinished'} = \%prpfinished;
   $schedstate->{'globalnotready'} = \%prpnotready;
+  $schedstate->{'fetchprojpacks'} = %{$ectx->{'fetchprojpacks'} || {}};
   $schedstate->{'delayedfetchprojpacks'} = $ectx->{'delayedfetchprojpacks'};
   $schedstate->{'watchremote_start'} = \%watchremote_start;
   unlink("$rundir/bs_sched.$myarch.state");
@@ -5776,6 +5777,19 @@ if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
     if ($schedstate->{'watchremote_start'}) {
       %watchremote_start = %{$schedstate->{'watchremote_start'}};
     }
+
+    if ($schedstate->{'fetchprojpacks'} && $schedstate->{'projpacks'}) {
+      my $ectx = {
+	'fetchprojpacks' => $schedstate->{'fetchprojpacks'},
+	'fetchprojpacks_nodelay' => { map {$_ => 1} keys %{$schedstate->{'fetchprojpacks'}} },
+	'delayedfetchprojpacks' => \%delayedfetchprojpacks,
+        'changed_low' => \%changed_low,
+        'changed_med' => \%changed_med,
+        'changed_high' => \%changed_high,
+        'changed_dirty' => \%changed_dirty,
+      };
+      do_fetchprojpacks($ectx) if %{$ectx->{'fetchprojpacks'}};
+    }
   }
 }
 
@@ -5982,42 +5996,49 @@ eval {
 		       } @events;
       }
 
-      # the event processing loop
-      while (@events) {
-	my $ev = shift @events;
-	$ev->{'type'} ||= 'unknown';
+      eval {
+	# the event processing loop
+	while (@events) {
+	  my $ev = shift @events;
+	  $ev->{'type'} ||= 'unknown';
 
-	# have to be extra careful with uploadbuild events. if the package is in
-	# (delayed)fetchprojpacks, delay event processing until we updated the projpack data.
-	if ($ev->{'type'} eq 'uploadbuild' && event_uploadbuild_delay($ectx, $ev)) {
-	  $gotevent = 1;
-	  next;
+	  # have to be extra careful with uploadbuild events. if the package is in
+	  # (delayed)fetchprojpacks, delay event processing until we updated the projpack data.
+	  if ($ev->{'type'} eq 'uploadbuild' && event_uploadbuild_delay($ectx, $ev)) {
+	    $gotevent = 1;
+	    next;
+	  }
+
+	  unlink("$myeventdir/$ev->{'evfilename'}") if $ev->{'evfilename'};
+	  delete $ev->{'evfilename'};
+
+	  if ($ev->{'type'} ne 'built' && $ectx->{'fullcache'}) {
+	    sync_fullcache($ectx->{'fullcache'});
+	    $ectx->{'fullcache'} = undef;
+	  }
+	  if ($ev->{'type'} eq 'built' && !$ectx->{'fullcache'}) {
+	    # turn on fullcache if the next event is also of type built
+	    $ectx->{'fullcache'} = {} if $events[0] && $events[0]->{'type'} eq 'built';
+	  }
+
+	  my $evhandler = $event_handlers{$ev->{'type'}};
+	  if ($evhandler) {
+	    $evhandler->($ectx, $ev);
+	    $notlow = $notmed = 0 if $ev->{'type'} eq 'admincheck';	# HACK
+	  } else {
+	    print "unknown event type '$ev->{'type'}'\n";
+	  }
 	}
 
-	unlink("$myeventdir/$ev->{'evfilename'}") if $ev->{'evfilename'};
-	delete $ev->{'evfilename'};
+	sync_fullcache($ectx->{'fullcache'}) if $ectx->{'fullcache'} && $ectx->{'fullcache'}->{'prp'};
 
-	if ($ev->{'type'} ne 'built' && $ectx->{'fullcache'}) {
-	  sync_fullcache($ectx->{'fullcache'});
-	  $ectx->{'fullcache'} = undef;
-	}
-	if ($ev->{'type'} eq 'built' && !$ectx->{'fullcache'}) {
-	  # turn on fullcache if the next event is also of type built
-	  $ectx->{'fullcache'} = {} if $events[0] && $events[0]->{'type'} eq 'built';
-	}
-
-	my $evhandler = $event_handlers{$ev->{'type'}};
-	if ($evhandler) {
-	  $evhandler->($ectx, $ev);
-	  $notlow = $notmed = 0 if $ev->{'type'} eq 'admincheck';	# HACK
-	} else {
-	  print "unknown event type '$ev->{'type'}'\n";
-	}
+	do_fetchprojpacks($ectx) if %{$ectx->{'fetchprojpacks'}};
+      };
+      if ($@) {
+        warn($@);
+        event_exit($ectx, {'type' => 'emergencydump'});
+        exit(1);
       }
-
-      sync_fullcache($ectx->{'fullcache'}) if $ectx->{'fullcache'} && $ectx->{'fullcache'}->{'prp'};
-
-      do_fetchprojpacks($ectx) if %{$ectx->{'fetchprojpacks'}};
 
       # add all changed_high entries to changed_med to make things simpler
       for (keys %changed_high) {
