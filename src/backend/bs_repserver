@@ -205,6 +205,34 @@ sub fetchdodbinary {
   return $localname;
 }
 
+sub readpackstatus {
+  my ($prpa) = @_;
+  my $psf = readstr("$reporoot/$prpa/:packstatus.finished");
+  my $ps = BSUtil::retrieve("$reporoot/$prpa/:packstatus", 1);;
+  if (!$ps) {
+    # backward compat: try old xml format
+    return undef unless -e "$reporoot/$prpa/:packstatus";
+    $ps = readxml("$reporoot/$prpa/:packstatus", $BSXML::packstatuslist, 1);
+    return undef unless $ps;
+    my %packstatus;
+    my %packerror;
+    for (@{$ps->{'packstatus'} || []}) {
+      $packstatus{$_->{'name'}} = $_->{'status'};
+      $packerror{$_->{'name'}} = $_->{'error'} if $_->{'error'};
+    }
+    $ps = {'packstatus' => \%packstatus, 'packerror' => \%packerror};
+  }
+  if ($psf) {
+    for (split("\n", $psf)) {
+      my ($code, $packid) = split(' ', $_, 2);
+      next unless ($ps->{'packstatus'}->{$packid} || '') eq 'scheduled';
+      $ps->{'packstatus'}->{$_} = 'finished';
+      $ps->{'packerror'}->{$_} = $code;
+    }
+  }
+  return $ps;
+}
+
 sub getbinaryversions {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $prp = "$projid/$repoid";
@@ -272,8 +300,7 @@ sub getpackagebinaryversionlist {
 
   my $code;
   if ($cgi->{'withcode'}) {
-    my $ps = BSUtil::retrieve("$reporoot/$projid/$repoid/$arch/:packstatus", 1);;
-    $ps ||= convertoldpackstatus("$projid/$repoid/$arch");
+    my $ps = readpackstatus("$projid/$repoid/$arch");
     $code = ($ps || {})->{'packstatus'} || {};
   }
   
@@ -765,8 +792,7 @@ sub getbuildstatus {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
   my $res = {'package' => $packid};
-  my $ps = BSUtil::retrieve("$reporoot/$projid/$repoid/$arch/:packstatus", 1);;
-  $ps ||= convertoldpackstatus("$projid/$repoid/$arch");
+  my $ps = readpackstatus("$projid/$repoid/$arch");
   if ($ps) {
     $ps = {
       'status' => $ps->{'packstatus'}->{$packid},
@@ -1901,19 +1927,6 @@ sub fixpackstatus {
   }
 }
 
-sub convertoldpackstatus {
-  my ($prpa) = @_;
-  my $ps = readxml("$reporoot/$prpa/:packstatus", $BSXML::packstatuslist, 1);
-  return unless $ps;
-  my %packstatus;
-  my %packerror;
-  for (@{$ps->{'packstatus'} || []}) {
-    $packstatus{$_->{'name'}} = $_->{'status'};
-    $packerror{$_->{'name'}} = $_->{'error'} if $_->{'error'};
-  }
-  return {'packstatus' => \%packstatus, 'packerror' => \%packerror};
-}
-
 sub getresult {
   my ($cgi, $prpas) = @_;
   if ($cgi->{'oldstate'} && $BSStdServer::isajax) {
@@ -1931,8 +1944,7 @@ sub getresult {
     my %sum;
     my ($projid, $repoid, $arch) = split('/', $prpa, 3);
     $state .= "$prpa\0\0";
-    my $ps = BSUtil::retrieve("$reporoot/$prpa/:packstatus", 1);
-    $ps ||= convertoldpackstatus($prpa);
+    my $ps = readpackstatus($prpa);
     $ps ||= {'packstatus' => {}, 'packerror' => {}};
     if (%packfilter) {
       for (keys %{$ps->{'packstatus'} || {}}) {
@@ -2036,8 +2048,7 @@ sub docommand {
       $allpacks = 1;
     }
     if (%code) {
-      my $ps = BSUtil::retrieve("$reporoot/$prpa/:packstatus", 1);
-      $ps ||= convertoldpackstatus($prpa);
+      my $ps = readpackstatus($prpa);
       fixpackstatus($prpa, $ps, \%buildingjobs);
       @packids = grep {$code{$ps->{'packstatus'}->{$_} || 'unknown'}} @packids;
     }
