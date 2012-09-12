@@ -161,12 +161,8 @@ class RequestController < ApplicationController
 
         if roles.count == 0 or roles.include? "reviewer"
           review_states.each do |r|
-            
-            # requests where the user is reviewer or own requests that are in review by someone else
-            or_in_and = [ "review/@by_group='#{group.title}'" ]
-
-
-            inner_or << "(review/@state='#{r}' and (#{or_in_and.join(" or ")}))"
+            # requests where the group is reviewer
+            inner_or << "(review[@state='#{r}' and @by_group='#{group.title}'])"
           end
         end
 
