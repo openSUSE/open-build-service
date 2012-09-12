@@ -136,6 +136,15 @@ class XpathEngine
         'action/target/@package' => { :cpart => 'bs_request_actions.target_package' },
         'action/source/@project' => { :cpart => 'bs_request_actions.source_project' },
         'action/source/@package' => { :cpart => 'bs_request_actions.source_package' },
+        'target/@project' => { :cpart => 'bs_request_actions.target_project' }, # osc is doing these 4 kinds of searches during submit
+        'target/@package' => { :cpart => 'bs_request_actions.target_package' },
+        'source/@project' => { :cpart => 'bs_request_actions.source_project' },
+        'source/@package' => { :cpart => 'bs_request_actions.source_package' },
+        'review/@by_user' => { :cpart => 'reviews.by_user' },
+        'review/@by_group' => { :cpart => 'reviews.by_group' },
+        'review/@by_project' => { :cpart => 'reviews.by_project' },
+        'review/@by_package' => { :cpart => 'reviews.by_package' },
+        'review/@state' => { :cpart => 'reviews.state' },
         'history/@who' => { :cpart => 'bs_request_histories.commenter' },
         'submit/target/@project' => { empty: true },
         'submit/target/@package' => { empty: true },
@@ -186,6 +195,7 @@ class XpathEngine
     @base_table = @tables[tablename]
     raise IllegalXpathError, "unknown table #{tablename}" unless @base_table
 
+
     while @stack.length > 0
       token = @stack.shift
       #logger.debug "next token: #{token.inspect}"
@@ -212,7 +222,7 @@ class XpathEngine
       when :predicate
         parse_predicate([], @stack.shift)
       else
-        raise IllegalXpathError, "unhandled token '#{token.inspect}'"
+        raise IllegalXpathError, "Unhandled token '#{token.inspect}'"
       end
     end
 
@@ -306,7 +316,9 @@ class XpathEngine
             parse_predicate(root, stack[0])
             stack.shift
           else
-            raise IllegalXpathError, "unhandled token in :qname '#{t.inspect}'"
+            parse_predicate(root, t)
+#            stack.shift
+#            raise IllegalXpathError, "unhandled token in :qname '#{t.inspect}'"
           end
           root.pop
         elsif t == :any

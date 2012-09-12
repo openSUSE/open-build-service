@@ -531,19 +531,22 @@ end
     assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_xml_tag( :tag => "collection", :attributes => { :matches => "3"} )
 
-if $ENABLE_BROKEN_TEST
-#FIXME:    Either we need to fix complete request controller including search not to show requests with 
-#          references or we need to document that requests can tell the existens of projects and packages
-# this is working for involved search now, but not for other requests like add_role with a target.
-    # tom searches for all request of adrian, but adrian has one in a hidden project which must not be viewable
+    # tom searches for all request of adrian, but adrian has one in a hidden project which must not be viewable ...
     prepare_request_with_user "tom", "thunder"
     get "/request?view=collection&user=adrian&states=new,review"
     assert_response :success
     assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_no_xml_tag( :tag => "target", :attributes => { :project => "HiddenProject"} )
 
-# FIXME: add test cases for group search and for involved project search
+if $ENABLE_BROKEN_TEST
+    # ... but adrian gets it
+    prepare_request_with_user "adrian", "so_alone"
+    get "/request?view=collection&user=adrian&states=new,review"
+    assert_response :success
+    assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "HiddenProject"} )
 end
+
   end
 
   def test_process_devel_request
@@ -867,6 +870,12 @@ end
     assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_xml_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
 
+    # test search via xpath as well
+    get "search/request", :match => "state/@name='review' and review[@by_project='home:Iggy' and @state='new']"
+    assert_response :success
+    assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
+    assert_xml_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
+
     # create request by maintainer
     prepare_request_with_user "Iggy", "asdfasdf"
     req = load_backend_file('request/submit_without_target')
@@ -902,6 +911,12 @@ end
     assert_response :success
     get "/request/#{id}"
     assert_response :success
+    assert_xml_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
+
+    # test search via xpath as well
+    get "search/request", :match => "state/@name='review' and review[@by_group='test_group' and @state='new']"
+    assert_response :success
+    assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_xml_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
 
     # invalid review, by_project is missing
