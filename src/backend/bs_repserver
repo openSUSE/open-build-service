@@ -226,8 +226,8 @@ sub readpackstatus {
     for (split("\n", $psf)) {
       my ($code, $packid) = split(' ', $_, 2);
       next unless ($ps->{'packstatus'}->{$packid} || '') eq 'scheduled';
-      $ps->{'packstatus'}->{$_} = 'finished';
-      $ps->{'packerror'}->{$_} = $code;
+      $ps->{'packstatus'}->{$packid} = 'finished';
+      $ps->{'packerror'}->{$packid} = $code;
     }
   }
   return $ps;
