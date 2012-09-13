@@ -525,7 +525,7 @@ module ActiveXML
           @http = nil
           raise ConnectionError, "Failed to establish connection for #{url}: " + err.message
         ensure
-          if self.details && self.details.respond_to?('add')
+          if self.details && self.details.respond_to?('add') && http_response
              runtime = http_response["X-Runtime"]
              payload = http_response["X-Opensuse-Runtimes"]
              payload = JSON.parse(payload) if payload

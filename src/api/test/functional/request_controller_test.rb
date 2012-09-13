@@ -420,10 +420,8 @@ class RequestControllerTest < ActionController::IntegrationTest
     get "/search/request", :match => "[review/@by_user='adrian']"
     assert_response :success
     assert_xml_tag( :tag => "review", :attributes => { :by_user => "adrian" } )
-if $ENABLE_BROKEN_TEST
     assert_xml_tag( :tag => "review", :attributes => { :by_user => "tom" } )
     assert_xml_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
-end
   end
 
   def test_change_review_state_after_leaving_review_phase

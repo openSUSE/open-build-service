@@ -199,6 +199,9 @@ class SearchControllerTest < ActionController::IntegrationTest
     get "search/request", :match => "state/@name='review' and review[@by_group='maintenance-team' and @state='new']"
     assert_response :success
 
+    get "/search/request", :match => "[@id=#{997}]"
+    assert_response :success
+
   end
 
   def get_package_count
