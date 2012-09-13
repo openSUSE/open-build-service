@@ -972,12 +972,12 @@ class User < ActiveRecord::Base
   end
 
   # project is instance of DbProject
-  def can_create_package_in?(project)
+  def can_create_package_in?(project, ignoreLock=nil)
     unless project.kind_of? DbProject
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
 
-    return false if project.is_locked?
+    return false if not ignoreLock and project.is_locked?
     return true if is_admin?
     return true if has_global_permission? "create_package"
     return true if has_local_permission? "create_package", project

@@ -1405,8 +1405,10 @@ class RequestController < ApplicationController
           write_permission_in_this_action = true
         end
       else
-        if target_project and @http_user.can_create_package_in? target_project
+        if target_project and @http_user.can_create_package_in?(target_project,true)
           write_permission_in_some_target = true
+        end
+        if target_project and @http_user.can_create_package_in?(target_project)
           write_permission_in_this_action = true
         end
       end

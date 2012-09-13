@@ -818,6 +818,13 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_xml_tag( :tag => "data", :attributes => { :name => "targetpackage"}, :content => "patchinfo" )
     assert_xml_tag( :tag => "data", :attributes => { :name => "targetproject"}, :content => incidentProject )
+    # add reader role for adrian
+    get "/source/" + incidentProject + "/_meta"
+    assert_response :success
+    meta = ActiveXML::XMLNode.new( @response.body )
+    e = meta.add_element "person", { :userid => 'adrian', :role => 'reader' }
+    put "/source/" + incidentProject + "/_meta", meta.dump_xml
+    assert_response :success
     get "/source/#{incidentProject}/patchinfo/_patchinfo"
     assert_response :success
     assert_xml_tag( :tag => "patchinfo", :attributes => { :incident => incidentID } )
@@ -1027,6 +1034,35 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag( :parent => {:tag => "access"}, :tag => "disable", :content => nil ) # but still not out there
     assert_xml_tag( :parent => {:tag => "publish"}, :tag => "disable", :content => nil )
     assert_no_xml_tag( :parent => { :tag => "lock" }, :tag => "disable" ) # disable got removed
+
+    # incident project not visible for tom
+    prepare_request_with_user "tom", "thunder"
+    raw_post "/request?cmd=create&addrevision=1", '<request>
+                                   <action type="maintenance_incident">
+                                     <source project="kde4" package="kdelibs" />
+                                     <target project="' + incidentProject + '" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 404
+    # new incident request accept is blocked, but decline works
+    prepare_request_with_user "adrian", "so_alone"
+    raw_post "/request?cmd=create&addrevision=1", '<request>
+                                   <action type="maintenance_incident">
+                                     <source project="kde4" package="kdelibs" />
+                                     <target project="' + incidentProject + '" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::XMLNode.new(@response.body)
+    assert node.has_attribute?(:id)
+    nreqid = node.value(:id)
+    prepare_request_with_user "maintenance_coord", "power"
+    post "/request/#{nreqid}?cmd=changestate&newstate=accepted"
+    assert_response 403
+    post "/request/#{nreqid}?cmd=changestate&newstate=declined"
+    assert_response :success
 
     # unlock would fail due to open request
     post "/source/#{incidentProject}", { :cmd => "unlock", :comment => "cleanup" }
