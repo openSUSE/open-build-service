@@ -413,6 +413,17 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_xml_tag( :tag => "state", :attributes => { :name => "review" } )
     assert_xml_tag( :parent => {:tag => "review", :attributes => { :state => "accepted", :by_user => "tom" }}, :tag => "comment", :content => 'review1' )
     assert_xml_tag( :parent => {:tag => "review", :attributes => { :state => "new", :by_user => "tom" }}, :tag => "comment", :content => 'reopen2' )
+
+    # search this request and verify that all reviews got rendered.
+    get "/search/request", :match => "[@id=#{id}]"
+    assert_response :success
+    get "/search/request", :match => "[review/@by_user='adrian']"
+    assert_response :success
+    assert_xml_tag( :tag => "review", :attributes => { :by_user => "adrian" } )
+if $ENABLE_BROKEN_TEST
+    assert_xml_tag( :tag => "review", :attributes => { :by_user => "tom" } )
+    assert_xml_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
+end
   end
 
   def test_change_review_state_after_leaving_review_phase
