@@ -876,7 +876,7 @@ sub set_repo_state {
   unlink("$reporoot/$prp/$myarch/:schedulerstate.dirty") if $state eq "scheduling";
   
   $state .= " $details" if $details;
-  writestr("$reporoot/$prp/$myarch/:schedulerstate.new", "$reporoot/$prp/$myarch/:schedulerstate", $state) if -d "$reporoot/$prp/$myarch";
+  writestr("$reporoot/$prp/$myarch/.:schedulerstate", "$reporoot/$prp/$myarch/:schedulerstate", $state) if -d "$reporoot/$prp/$myarch";
 }
 
 
@@ -2935,10 +2935,16 @@ sub jobfinished {
   my $h = {'versrel' => $info->{'versrel'}, 'bcnt' => $info->{'bcnt'}, 'time' => $now, 'srcmd5' => $info->{'srcmd5'}, 'rev' => $info->{'rev'}, 'reason' => $info->{'reason'}};
   BSFileDB::fdb_add("$reporoot/$prp/$myarch/$packid/history", $historylay, $h);
 
-  # update relsync file
-  my $relsync = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync", 1) || {};
-  $relsync->{$packid} = "$info->{'versrel'}.$info->{'bcnt'}";
-  BSUtil::store("$reporoot/$prp/$myarch/.:relsync", "$reporoot/$prp/$myarch/:relsync", $relsync);
+  # update relsync file (use relsync.merge if relsync is too big)
+  if (((-s "$reporoot/$prp/$myarch/:relsync") || 0) < 8192) {
+    my $relsync = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync", 1) || {};
+    $relsync->{$packid} = "$info->{'versrel'}.$info->{'bcnt'}";
+    BSUtil::store("$reporoot/$prp/$myarch/.:relsync", "$reporoot/$prp/$myarch/:relsync", $relsync);
+  } else {
+    my $relsync = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync.merge", 1) || {};
+    $relsync->{$packid} = "$info->{'versrel'}.$info->{'bcnt'}";
+    BSUtil::store("$reporoot/$prp/$myarch/.:relsync.merge", "$reporoot/$prp/$myarch/:relsync.merge", $relsync);
+  }
   
   # save logfile
   link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
@@ -4950,7 +4956,7 @@ sub updaterelsyncmax {
       $changed = 1;
     }
   }
-  BSUtil::store("$reporoot/$prp/$arch/:relsync.max.new", "$reporoot/$prp/$arch/:relsync.max", $relsyncmax) if $changed;
+  BSUtil::store("$reporoot/$prp/$arch/.:relsync.max", "$reporoot/$prp/$arch/:relsync.max", $relsyncmax) if $changed;
   close(F);
   return $changed;
 }
@@ -6213,8 +6219,21 @@ eval {
       next;
     }
 
+    # merge bininfo
     if (-e "$reporoot/$prp/$myarch/:bininfo.merge" || ! -e "$reporoot/$prp/$myarch/:bininfo") {
       read_gbininfo("$reporoot/$prp/$myarch");
+    }
+
+    # merge relsync
+    if (-e "$reporoot/$prp/$myarch/:relsync.merge") {
+      my $relsync_merge = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync.merge", 2);
+      if ($relsync_merge) {
+	my $relsync;
+	$relsync = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync", 2) if -e "$reporoot/$prp/$myarch/:relsync";
+	$relsync = { %{$relsync || {}} %$relsync_merge };
+	BSUtil::store("$reporoot/$prp/$myarch/.:relsync", "$reporoot/$prp/$myarch/:relsync", $relsync);
+      }
+      unlink("$reporoot/$prp/$myarch/:relsync.merge");
     }
 
     my $bconf = getconfig($myarch, $prpsearchpath{$prp});

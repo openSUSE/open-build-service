@@ -3256,7 +3256,16 @@ sub publishedfile {
 sub getrelsync {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $prp = "$projid/$repoid";
-  my $relsyncdata = readstr("$reporoot/$prp/$arch/:relsync");
+  my $relsyncdata;
+  my $relsync_merge = BSUtil::retrieve("$reporoot/$prp/$arch/:relsync.merge", 1);
+  if ($relsync_merge) {
+    my $relsync = BSUtil::retrieve("$reporoot/$prp/$arch/:relsync", 1) || {};
+    $relsync = { %$relsync, %$relsync_merge };
+    $relsyncdata = "pst0".Storable::nfreeze($relsync);
+  } else {
+    $relsyncdata = readstr("$reporoot/$prp/$arch/:relsync");
+    $relsyncdata ||= "pst0".Storable::nfreeze({});
+  }
   return ($relsyncdata, 'Content-Type: application/octet-stream');
 }
 
