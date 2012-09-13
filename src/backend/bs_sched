@@ -6226,7 +6226,7 @@ eval {
 
     # merge relsync
     if (-e "$reporoot/$prp/$myarch/:relsync.merge") {
-      print "   merging relsync data\n";
+      print "    merging relsync data\n";
       my $relsync_merge = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync.merge", 2);
       if ($relsync_merge) {
 	my $relsync;
