@@ -1,0 +1,1 @@
+../../../../public/themes/bento/js/global-navigation.js

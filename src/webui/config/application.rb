@@ -60,9 +60,6 @@ module OBSWebUI
     # Precompile additional assets (application.js, application.css, and all non-JS/CSS are already added)
     config.assets.precompile += %w( cm2.js mobile.css mobile.js )
 
-    #TODO: Port bento directory structure to lib/assets:
-    config.assets.paths << Rails.root.join('public', 'themes') << Rails.root.join('public', 'themes', 'bento', 'images')
-
     # Skip frameworks you're not going to use
     #config.frameworks -= [ :action_web_service, :active_resource ]
 
