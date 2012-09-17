@@ -1114,6 +1114,8 @@ sub publish {
 	  $p = "iso/$bin";
 	} elsif ($bin =~ /\.raw\.(:?gz|bz2|xz)(:?\.sha256)?$/) {
 	  $p = "$bin";
+	} elsif ($bin =~ /\.tbz?(:?\.sha256)?$/) {
+	  $p = "$bin";
 	} elsif ($bin =~ /\.raw(:?\.install)?(:?\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.tar\.(:?gz|bz2|xz)(:?\.sha256)?$/) {
