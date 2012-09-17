@@ -886,13 +886,31 @@ class RequestController < ApplicationController
           # projects may skip this by setting OBS:ApprovedRequestSource attributes
           if action.source_package
             spkg = DbPackage.find_by_project_and_name action.source_project, action.source_package
-            if spkg and not @http_user.can_modify_package? spkg and not spkg.db_project.find_attribute("OBS", "ApprovedRequestSource") and not spkg.find_attribute("OBS", "ApprovedRequestSource")
-              review_packages.push({ :by_project => action.source_project, :by_package => action.source_package })
+            if spkg and not @http_user.can_modify_package? spkg
+              if action.action_type == :submit
+                if action.sourceupdate or action.updatelink
+                  render_error :status => 403, :errorcode => "lacking_maintainership",
+                    :message => "Creating a submit request action with options requires maintainership in source package"
+                  return
+                end
+              end
+              if  not spkg.db_project.find_attribute("OBS", "ApprovedRequestSource") and not spkg.find_attribute("OBS", "ApprovedRequestSource")
+                review_packages.push({ :by_project => action.source_project, :by_package => action.source_package })
+              end
             end
           else
             sprj = DbProject.find_by_name action.source_project
             if sprj and not @http_user.can_modify_project? sprj and not sprj.find_attribute("OBS", "ApprovedRequestSource")
-              review_packages.push({ :by_project => action.source_project })
+              if action.action_type == :submit
+                if action.sourceupdate or action.updatelink
+                  render_error :status => 403, :errorcode => "lacking_maintainership",
+                    :message => "Creating a submit request action with options requires maintainership in source package"
+                  return
+                end
+              end
+              if  not sprj.find_attribute("OBS", "ApprovedRequestSource")
+                review_packages.push({ :by_project => action.source_project })
+              end
             end
           end
         end

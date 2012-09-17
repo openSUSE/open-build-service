@@ -2,9 +2,6 @@
   <action type='submit'>
     <source project='home:Iggy' package='TestPack' rev='1' />
     <target project='HiddenProject' package='pack' />
-    <options>
-      <sourceupdate>cleanup</sourceupdate>
-    </options>
   </action>
   <description/>
   <state who="adrian" name="new"/>
