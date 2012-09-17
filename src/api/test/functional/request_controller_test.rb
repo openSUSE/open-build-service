@@ -840,7 +840,13 @@ end
 
   def test_create_and_revoke_submit_request_permissions
     ActionController::IntegrationTest::reset_auth
-    req = load_backend_file('request/works')
+    req = "<request>
+             <action type='submit'>
+               <source project='home:Iggy' package='TestPack' rev='1' />
+               <target project='kde4' package='mypackage' />
+             </action>
+             <description/>
+          </request>"
 
     post "/request?cmd=create", req
     assert_response 401
@@ -965,6 +971,39 @@ end
     get "/request/#{id}"
     assert_response :success
     assert_xml_tag( :tag => "state", :attributes => { :name => "review" } )
+  end
+
+  def test_submit_cleanup_in_not_writable_source
+    prepare_request_with_user "Iggy", "asdfasdf"
+    [ 'cleanup', 'update' ].each do |modify|
+      req = "<request>
+              <action type='submit'>
+                <source project='Apache' package='apache2' rev='1' />
+                <target project='home:Iggy' package='apache2' />
+                <options>
+                  <sourceupdate>#{modify}</sourceupdate>
+                </options>
+              </action>
+              <description/>
+            </request>"
+      post "/request?cmd=create", req
+      assert_response 403
+      assert_xml_tag( :tag => "status", :attributes => { :code => 'lacking_maintainership' } )
+    end
+
+    req = "<request>
+            <action type='submit'>
+              <source project='Apache' package='apache2' rev='1' />
+              <target project='home:Iggy' package='apache2' />
+              <options>
+                <updatelink>true</updatelink>
+              </options>
+            </action>
+            <description/>
+          </request>"
+    post "/request?cmd=create", req
+    assert_response 403
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'lacking_maintainership' } )
   end
 
   def test_reopen_a_review_declined_request
