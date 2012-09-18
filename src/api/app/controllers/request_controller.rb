@@ -834,7 +834,6 @@ class RequestController < ApplicationController
           if action.source.has_attribute? 'package'
             spkg = DbPackage.find_by_project_and_name action.source.project, action.source.package
             if spkg and not @http_user.can_modify_package? spkg 
-              review_packages.push({ :by_project => action.source.project, :by_package => action.source.package })
               if action.value('type') == 'submit'
                 if action.has_element? :options
                   render_error :status => 403, :errorcode => "lacking_maintainership",
@@ -848,7 +847,7 @@ class RequestController < ApplicationController
             end
           else
             sprj = DbProject.find_by_name action.source.project
-            if sprj and not @http_user.can_modify_project? sprj and not sprj.find_attribute("OBS", "ApprovedRequestSource")
+            if sprj and not @http_user.can_modify_project? sprj
               if action.value('type') == 'submit'
                 if action.has_element? :options
                   render_error :status => 403, :errorcode => "lacking_maintainership",
@@ -856,7 +855,7 @@ class RequestController < ApplicationController
                   return
                 end
               end
-              if  not sprj.find_attribute("OBS", "ApprovedRequestSource")
+              if not sprj.find_attribute("OBS", "ApprovedRequestSource")
                 review_packages.push({ :by_project => action.source.project })
               end
             end
