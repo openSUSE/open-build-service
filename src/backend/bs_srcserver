@@ -6477,7 +6477,7 @@ sub worker_getbinaries {
   return undef if $BSStdServer::isajax && !$binarylist;
   my %binarylist;
   for my $b (@{$binarylist->{'binary'} || []}) {
-    if ($b->{'filename'} =~ /^(.*)(\.deb|\.rpm)$/) {
+    if ($b->{'filename'} =~ /^(.*)\.(?:$binsufsre)$/) {
       $binarylist{$1} = $b;
     } else {
       $binarylist{$b->{'filename'}} = $b;
