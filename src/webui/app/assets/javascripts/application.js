@@ -19,6 +19,8 @@
 //= require jquery.flot.stack.js
 //= require jquery.tooltip.js
 //= require bento/script.js
+//= require bento/global-navigation.js
+//= require bento/l10n/global-navigation-data-en_US.js
 
 // toggle visibility of an element via the CSS "display" property
 // -> does NOT reserve the needed space for the element when not displayed
