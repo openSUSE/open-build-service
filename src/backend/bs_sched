@@ -2031,6 +2031,7 @@ sub update_project_meta {
   $proj->{'package'} = $oldproj->{'package'} if $oldproj->{'package'};
   # check if the project meta has critical change
   return 0 unless identical($proj->{'build'}, $oldproj->{'build'});
+  return 0 unless identical($proj->{'link'}, $oldproj->{'link'});
   # XXX: could be more clever here
   return 0 unless identical($proj->{'repository'}, $oldproj->{'repository'});
 
