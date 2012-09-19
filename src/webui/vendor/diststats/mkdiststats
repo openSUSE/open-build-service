@@ -299,7 +299,7 @@ for $pack (keys %deps) {
 	    print "$pack failed, using default time\n";
 	}
     } else {
-	print "$pack never built, using default time\n";
+	#print "$pack never built, using default time\n";
 	$buildtime{$pack} = $default_build_time;
     }
   }
@@ -358,8 +358,9 @@ if ($debug) {
 
 taskstart "computing dependency graph";
 
+#$Dfs::warnings = 1;
 $dfs = new Dfs(\%pdeps);
-$dfs->startrdfs(@packs_to_setup);
+$dfs->starttarjan(@packs_to_setup);
 
 @todo = keys %{$dfs->{'begintime'}};
 

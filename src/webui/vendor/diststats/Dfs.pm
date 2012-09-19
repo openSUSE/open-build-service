@@ -151,13 +151,21 @@ sub addcycle($$)
 	}
     }
     $cid = $self->{'numcycles'}++ unless defined $cid;
-    for (@$pkgs) {
-	die "$_ $cyclepkgs->{$_} $cid\n" if exists $cyclepkgs->{$_} && $cyclepkgs->{$_} != $cid; # can't happen
-	$cyclepkgs->{$_} = $cid;
+    #printf STDERR "adding %s to cycle %d\n", join(',', @$pkgs), $cid;
+    for my $p (@$pkgs) {
+	die "$p $cyclepkgs->{$p} $cid\n" if exists $cyclepkgs->{$p} && $cyclepkgs->{$p} != $cid; # can't happen
+	if (!exists $cyclepkgs->{$p}) {
+	    $cyclepkgs->{$p} = $cid;
+	}
     }
 
     push @{$cycles->{$cid}}, @$pkgs;
 }
+
+sub min($$) {
+    $_[0] < $_[1] ? $_[0] : $_[1];
+}
+
 sub rdfsvisit
 {
     my ($self, $k) = @_;
@@ -172,7 +180,7 @@ sub rdfsvisit
 	warn "$k requires itself\n" if $warnings && ($p eq $k);
 
 	# unknown dep, should not happen here
-	next unless exists $self->{'visited'}->{$p};
+	die "unknown dep $p\n" unless exists $self->{'visited'}->{$p};
 
 	if($self->{'visited'}->{$p}==0)
 	{
@@ -184,9 +192,8 @@ sub rdfsvisit
 	elsif(!exists $self->{'endtime'}->{$p})
 	{
 	    my @l = $self->parents($k, $p);
-	    #warn "dependency loop: $k -> $p\n";
-	    $self->addcycle(\@l);
-	    warn "dependency loop: ",join(',', @l),"\n" if $warnings || $self->{'cyclefree'};
+	    #warn "back edge: $k -> $p\n";
+	    warn "dependency loop: ",join('/', sort(@l)),"\n" if $warnings || $self->{'cyclefree'};
 	    die if $self->{'cyclefree'};
 	    push @{$self->{'backwardedges'}->{$k}}, $p;
 	}
@@ -194,42 +201,73 @@ sub rdfsvisit
 	{
 	    push @{$self->{'reversedgraph'}->{$p}}, $k;
 	    $self->{'reverseorder'}->{$k}++;
-	    if ($self->{'backwardedges'}->{$p}) {
-		#printf STDERR "%s: checking %s edges to %s [%s]\n", $k, $p, join(',', @{$self->{'backwardedges'}->{$p}}), join(',', $self->parents($k));
-		my $pp = $k;
-		my @l = ($pp);
-		while ($pp = $self->{'parent'}->{$pp}) {
-		    push @l, $pp;
-		    if (grep { $_ eq $pp} @{$self->{'backwardedges'}->{$p}}) {
-			$self->addcycle(\@l);
-			warn "cross edge is part of a loop: $k -> $p\n" if $warnings;
-		    }
-		}
-	    }
 	}
     }
     $self->{'endtime'}->{$k}=$self->{'time'};
-    #printf STDERR "done %s %d\n", $k, $self->{'time'};
     push (@{$self->{'topsorted'}}, $k) if $self->{'do_topsort'};
     $self->{'time'}++;
 }
+
+# Tarjan's strongly connected components algorithm
+sub tarjanvisit
+{
+    my ($self, $k) = @_;
+    $self->{'begintime'}->{$k}=$self->{'endtime'}->{$k}=$self->{'time'};
+    $self->{'time'}++;
+    $self->{'visited'}->{$k}=1;
+    $self->{'scctmpH'}->{$k}=1;
+    push @{$self->{'scctmpA'}}, $k;
+
+    for my $p (@{$self->{'nodes'}->{$k}})
+    {
+	warn "$k requires itself\n" if $warnings && ($p eq $k);
+
+	# unknown dep, should not happen here
+	die "unknown dep $p\n" unless exists $self->{'visited'}->{$p};
+
+	if($self->{'visited'}->{$p}==0)
+	{
+	    $self->{'parent'}->{$p}=$k;
+	    $self->tarjanvisit($p);
+	    $self->{'endtime'}->{$k}=min($self->{'endtime'}->{$k}, $self->{'endtime'}->{$p});
+	}
+	elsif (exists $self->{'scctmpH'}->{$p})
+	{
+	    $self->{'endtime'}->{$k}=min($self->{'endtime'}->{$k}, $self->{'begintime'}->{$p});
+	}
+    }
+    if ($self->{'endtime'}->{$k} == $self->{'begintime'}->{$k}) {
+	my @c;
+	while (my $p = pop @{$self->{'scctmpA'}}) {
+	    delete $self->{'scctmpH'}->{$p};
+	    push @c, $p;
+	    last if $p eq $k;
+	}
+	$self->addcycle(\@c) if @c > 1;
+    }
+    push (@{$self->{'topsorted'}}, $k) if $self->{'do_topsort'};
+}
+
 
 sub _unify {
     my %h = map {$_ => 1} @_;
     return grep(delete($h{$_}), @_);
 }
 
-sub startrdfs
+sub _startrdfs
 {
+    my $tarjan = shift;
     my $self = shift;
     my $what = $_[0];
     my @tovisit;
-    for (qw/visited begintime endtime reversedgraph reverseorder cycles cyclepkgs/) {
+    for (qw/visited begintime endtime reversedgraph reverseorder cycles cyclepkgs scctmpH/) {
 	$self->{$_} = {};
     }
     $self->{'time'}=0;
     $self->{'numcycles'}=0;
-    $self->{'topsorted'}=[];
+    for (qw/topsorted scctmpA/) {
+	$self->{$_}=[];
+    }
     for my $node (keys %{$self->{'nodes'}})
     {
 	$self->{'visited'}->{$node}=0;
@@ -254,7 +292,11 @@ sub startrdfs
 	if (!exists $self->{'visited'}->{$node}) {
 	    print STDERR "$node not known, that should not happen\n";
 	} elsif($self->{'visited'}->{$node} == 0) {
-	    $self->rdfsvisit($node);
+	    if ($tarjan) {
+		$self->tarjanvisit($node);
+	    } else {
+		$self->rdfsvisit($node);
+	    }
 	    $self->{'number'}++;
 	}
     }
@@ -264,6 +306,17 @@ sub startrdfs
     }
 }
 
+sub startrdfs
+{
+    _startrdfs(0, @_);
+}
+
+sub starttarjan
+{
+    _startrdfs(1, @_);
+}
+
+# only works if tarjan!
 sub findcycles
 {
     my $self = shift;
