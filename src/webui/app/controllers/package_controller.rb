@@ -28,6 +28,26 @@ class PackageController < ApplicationController
     @revision = params[:rev]
     fill_status_cache unless @buildresult.blank?
     set_linking_packages
+    # for file list in overview page
+    @expand = 1
+    @expand = begin Integer(params[:expand]) rescue 1 end if params[:expand]
+    @expand = 0 if @spider_bot
+    begin
+      set_file_details
+    rescue ActiveXML::Transport::Error => e
+      message, _, _ = ActiveXML::Transport.extract_error_message e
+      if @expand == 1
+        @expand = 0
+        flash[:error] = "Files could not be expanded: " + message
+        begin
+          set_file_details
+        rescue ActiveXML::Transport::Error => e
+          message, _, _ = ActiveXML::Transport.extract_error_message e
+          # seems really bad even without expand
+          flash[:error] = "Files could not be expanded: " + message
+        end
+      end
+    end
     begin
       @current_rev = Package.current_rev(@project.name, @package.name)
       #TODO generate file list here:
