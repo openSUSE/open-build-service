@@ -696,7 +696,7 @@ class RequestController < ApplicationController
           end
         rescue ActiveXML::Transport::Error
           render_error :status => 400, :errorcode => "expand_error",
-          :message => "The source of package #{action.source_project}/#{action.source_package} rev=#{action.source_rev} are broken"
+            :message => "The source of package #{action.source_project}/#{action.source_package}#{action.source_rev ? " for revision #{action.source_rev}":''} is broken"
           return false
         end
       end
