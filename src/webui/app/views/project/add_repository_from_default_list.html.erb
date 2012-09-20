@@ -14,7 +14,7 @@
 <%= form_tag(:action => :save_targets, :project => @project) do %>
   <% vendors = @distributions.all_vendors %>
   <% vendors.each do |vendor| %>
-    <h3><%= image_tag( "distributions/#{vendor.downcase}.png", :width => 40 ) %> <%= vendor -%> distributions</h3>
+    <h3><%= sprite_tag( "distributions-#{vendor.downcase}" ) %> <%= vendor -%> distributions</h3>
     <p>
       <% @distributions.each("distribution[@vendor='#{vendor}']") do |dist|
         name = dist.find_first('name').text

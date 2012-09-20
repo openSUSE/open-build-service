@@ -98,3 +98,15 @@ copy $themedir/bento/css/960.css ./app/assets/stylesheets/bento/960.css
 copy $themedir/bento/css/base.css ./app/assets/stylesheets/bento/base.css
 copy $themedir/bento/css/grid.css ./app/assets/stylesheets/bento/grid.css
 copy $themedir/bento/css/reset.css ./app/assets/stylesheets/bento/reset.css
+
+copy $themedir/bento/images/distributions/arch.png ./app/assets/icons/distributions-arch.png
+copy $themedir/bento/images/distributions/centos.png ./app/assets/icons/distributions-centos.png
+copy $themedir/bento/images/distributions/debian.png ./app/assets/icons/distributions-debian.png
+copy $themedir/bento/images/distributions/fedora.png ./app/assets/icons/distributions-fedora.png
+copy $themedir/bento/images/distributions/kiwi.png ./app/assets/icons/distributions-kiwi.png
+copy $themedir/bento/images/distributions/mandriva.png ./app/assets/icons/distributions-mandriva.png
+copy $themedir/bento/images/distributions/opensuse.png ./app/assets/icons/distributions-opensuse.png
+copy $themedir/bento/images/distributions/redhat.png ./app/assets/icons/distributions-redhat.png
+copy $themedir/bento/images/distributions/suse.png ./app/assets/icons/distributions-suse.png
+copy $themedir/bento/images/distributions/ubuntu.png ./app/assets/icons/distributions-ubuntu.png
+
