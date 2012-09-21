@@ -62,6 +62,8 @@ $servicedir="/usr/lib/obs/service" unless $servicedir;
 my $rootservicedir = $servicedir;
 $rootservicedir = $BSConfig::serviceroot."/".$servicedir if $BSConfig::serviceroot;
 
+my $noproxy = $BSConfig::noproxy;
+
 sub usage {
   my ($ret) = @_;
 
@@ -131,6 +133,7 @@ sub run_source_update {
   # set environment
   $::ENV{'OBS_SERVICE_PROJECT'} = $projid;
   $::ENV{'OBS_SERVICE_PACKAGE'} = $packid;
+  $::ENV{'no_proxy'} = $noproxy;
 
   # run all services
   mkdir_p($myworkdir."/.tmp");
