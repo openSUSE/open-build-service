@@ -572,41 +572,53 @@ class User < ActiveRecord::Base
       end 
     end
 
-    if @@ldap_search_con.nil?
-      @@ldap_search_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
-    end
-    ldap_con = @@ldap_search_con
-    if ldap_con.nil?
-      logger.debug( "Unable to connect to LDAP server" )
-      return nil
-    end
-
-    if defined?( LDAP_USER_FILTER )
-      user_filter = "(&(#{LDAP_SEARCH_ATTR}=#{login})#{LDAP_USER_FILTER})"
-    else
-      user_filter = "(#{LDAP_SEARCH_ATTR}=#{login})"
-    end
-    logger.debug( "Search for #{user_filter}" )
+    # When the server closes the connection, @@ldap_search_con.nil? doesn't catch it
+    # @@ldap_search_con.bound? doesn't catch it as well. So when an error occurs, we
+    # simply it try it a seccond time, which forces the ldap connection to
+    # reinitialize (@@ldap_search_con is unbound and nil).
+    ldap_first_try = true
     dn = String.new
     ldap_password = String.new
-    begin
-      ldap_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
-        dn = entry.dn
-        ldap_info[0] = String.new(entry[LDAP_MAIL_ATTR][0])
-        if defined?( LDAP_AUTHENTICATE ) && LDAP_AUTHENTICATE == :local
-          if entry[LDAP_AUTH_ATTR] then
-            ldap_password = entry[LDAP_AUTH_ATTR][0]
-            logger.debug( "Get auth_attr:#{ldap_password}" )
-          else
-            logger.debug( "Failed to get attr:#{LDAP_AUTH_ATTR}" )
+    user_filter = String.new
+    1.times do
+      if @@ldap_search_con.nil?
+        @@ldap_search_con = initialize_ldap_con(LDAP_SEARCH_USER, LDAP_SEARCH_AUTH)
+      end
+      ldap_con = @@ldap_search_con
+      if ldap_con.nil?
+        logger.debug( "Unable to connect to LDAP server" )
+        return nil
+      end
+
+      if defined?( LDAP_USER_FILTER )
+        user_filter = "(&(#{LDAP_SEARCH_ATTR}=#{login})#{LDAP_USER_FILTER})"
+      else
+        user_filter = "(#{LDAP_SEARCH_ATTR}=#{login})"
+      end
+      logger.debug( "Search for #{user_filter}" )
+      begin
+        ldap_con.search( LDAP_SEARCH_BASE, LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
+          dn = entry.dn
+          ldap_info[0] = String.new(entry[LDAP_MAIL_ATTR][0])
+          if defined?( LDAP_AUTHENTICATE ) && LDAP_AUTHENTICATE == :local
+            if entry[LDAP_AUTH_ATTR] then
+              ldap_password = entry[LDAP_AUTH_ATTR][0]
+              logger.debug( "Get auth_attr:#{ldap_password}" )
+            else
+              logger.debug( "Failed to get attr:#{LDAP_AUTH_ATTR}" )
+            end
           end
         end
+      rescue
+        logger.debug( "Search failed:  error #{ @@ldap_search_con.err}: #{ @@ldap_search_con.err2string(@@ldap_search_con.err)}" )
+        @@ldap_search_con.unbind()
+        @@ldap_search_con = nil
+        if ldap_fist_try
+          ldap_first_try = false
+          redo
+        end
+        return nil
       end
-    rescue
-      logger.debug( "Search failed:  error #{ @@ldap_search_con.err}" )
-      @@ldap_search_con.unbind
-      @@ldap_search_con = nil
-      return nil
     end
     if dn.empty?
       logger.debug( "User not found in ldap" )
