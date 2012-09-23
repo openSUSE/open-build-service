@@ -31,7 +31,7 @@ GEM
     arel (3.0.2)
     builder (3.0.0)
     chunky_png (1.2.6)
-    ci_reporter (1.7.1)
+    ci_reporter (1.7.2)
       builder (>= 2.1.2)
     coderay (1.0.7)
     compass (0.12.2)
