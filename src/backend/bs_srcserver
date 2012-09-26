@@ -3750,7 +3750,6 @@ sub getfilelist_ajax {
       $needsize += $entry->{'size'};
     }
   }
-  print "havesize $havesize needsize $needsize need @need\n";
   my $serial;
   if (@need) {
     $serial = BSWatcher::serialize("$jev->{'remoteurl'}/source");
@@ -6481,9 +6480,9 @@ sub findremote {
   my $origprojid = $projid;
   my $proj = readproj($projid, 1);
   if ($proj) {
-    return ($BSConfig::reposerver, $projid) if !$proj->{'remoteurl'};
+    return ($BSConfig::reposerver, $projid, undef) if !$proj->{'remoteurl'};
     die("no remoteproject specified\n") unless $proj->{'remoteproject'};
-    return ($proj->{'remoteurl'}, $proj->{'remoteproject'});
+    return ($proj->{'remoteurl'}, $proj->{'remoteproject'}, $proxy);
   }
   my $rsuf = '';
   while ($projid =~ /^(.*)(:.*?)$/) {
@@ -6493,12 +6492,12 @@ sub findremote {
     next unless $proj;
     die("404 project '$origprojid' does not exist\n") unless $proj->{'remoteurl'};
     if ($proj->{'remoteproject'}) {
-      return ($proj->{'remoteurl'}, "$proj->{'remoteproject'}$rsuf");
+      return ($proj->{'remoteurl'}, "$proj->{'remoteproject'}$rsuf", $proxy);
     }
     $rsuf =~ s/^://;
-    return ($proj->{'remoteurl'}, $rsuf);
+    return ($proj->{'remoteurl'}, $rsuf, $proxy);
   }
-  die("404 project '$origprojid' does not exist\n") unless $proj->{'remoteurl'};
+  die("404 project '$origprojid' does not exist\n");
 }
 
 sub worker_getbinaries {
@@ -6515,14 +6514,14 @@ sub worker_getbinaries {
   }
   my $jev = $BSServerEvents::gev;
   my @binaries = split(',', $cgi->{'binaries'});
-  my ($remoteurl, $remoteprojid) = findremote($projid);
+  my ($remoteurl, $remoteprojid, $remoteproxy) = findremote($projid);
 
   my $binarylist;
   $binarylist = $jev->{'binarylist'} if $BSStdServer::isajax;
   if (!$binarylist) {
     my $param = {
       'uri' => "$remoteurl/build/$remoteprojid/$repoid/$arch/_repository",
-      'proxy' => $proxy,
+      'proxy' => $remoteproxy,
     };
     my $binarylistcpio = BSWatcher::rpc($param, $BSXML::binarylist, "view=names", map {"binary=$_"} @binaries);
     return undef if $BSStdServer::isajax && !$binarylistcpio;
@@ -6586,7 +6585,7 @@ sub worker_getbinaries {
       'tmpcpiofile' => "$remotecache/upload$serialmd5.cpio",
       'directory' => $remotecache,
       'map' => "upload$serialmd5:",
-      'proxy' => $proxy,
+      'proxy' => $remoteproxy,
     };
     # work around api bug: only get 50 packages at a time
     @fetch = splice(@fetch, 0, 50) if @fetch > 50;
@@ -6636,10 +6635,12 @@ sub worker_getbinaries {
 sub worker_getbinaryversions {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my @binaries = split(',', $cgi->{'binaries'});
-  my ($remoteurl, $remoteprojid) = findremote($projid);
-  my $uri = {'uri' => "$remoteurl/build/$remoteprojid/$repoid/$arch/_repository"};
-  $uri->{'proxy'} = $proxy if $remoteurl ne $BSConfig::reposerver;
-  my $bvl = BSWatcher::rpc($uri, $BSXML::binaryversionlist, 'view=binaryversions', 'nometa=1', map {"binary=$_"} @binaries);
+  my ($remoteurl, $remoteprojid, $remoteproxy) = findremote($projid);
+  my $param = {
+    'uri' => "$remoteurl/build/$remoteprojid/$repoid/$arch/_repository",
+    'proxy' => $remoteproxy,
+  };
+  my $bvl = BSWatcher::rpc($param, $BSXML::binaryversionlist, 'view=binaryversions', 'nometa=1', map {"binary=$_"} @binaries);
   return ($bvl, $BSXML::binaryversionlist);
 }
 
