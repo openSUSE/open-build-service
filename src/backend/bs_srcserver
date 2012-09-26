@@ -3739,13 +3739,57 @@ sub getfilelist_ajax {
     $getfilelist_ajax_inprogress{"$projid/$packid/$rev"} = $jev;
     $jev->{'handler'} = sub {delete $getfilelist_ajax_inprogress{"$projid/$packid/$rev"}};
   }
+  my $havesize = 0;
+  my $needsize = 0;
+  my @need;
+  for my $entry (@{$jev->{'filelist'}->{'entry'} || []}) {
+    if (-e "$srcrep/$packid/$entry->{'md5'}-$entry->{'name'}") {
+      $havesize += $entry->{'size'};
+    } else {
+      push @need, $entry;
+      $needsize += $entry->{'size'};
+    }
+  }
+  print "havesize $havesize needsize $needsize need @need\n";
   my $serial;
-  my $dir = $jev->{'filelist'};
-  for my $entry (@{$dir->{'entry'} || []}) {
-    next if -e "$srcrep/$packid/$entry->{'md5'}-$entry->{'name'}";
-    $serial ||= BSWatcher::serialize("$jev->{'remoteurl'}/source");
+  if (@need) {
+    $serial = BSWatcher::serialize("$jev->{'remoteurl'}/source");
     return undef unless $serial;
     mkdir_p($uploaddir);
+  }
+  if (@need > 1 && $havesize < 8192) {
+    # download full cpio source
+    my %need = map {$_->{'name'} => $_} @need;
+    my $tmpcpiofile = "$$-$jev->{'id'}-tmpcpio";
+    my $param = {
+      'uri' => "$jev->{'remoteurl'}/source/$jev->{'remoteproject'}/$packid",
+      'directory' => $uploaddir,
+      'tmpcpiofile' => "$uploaddir/$tmpcpiofile",
+      'withmd5' => 1,
+      'receiver' => \&BSHTTP::cpio_receiver,
+      'proxy' => $proxy,
+      'map' => sub { $need{$_[1]} ? "$tmpcpiofile.$_[1]" : undef },
+      'cpiopostfile' => sub {
+	my $name = substr($_[1]->{'name'}, length("$tmpcpiofile."));
+	die("file download confused\n") unless $need{$name} && $_[1]->{'md5'} eq $need{$name}->{'md5'};
+        addfile($projid, $packid, "$uploaddir/$_[1]->{'name'}", $name, $_[1]->{'md5'});
+       },
+    };
+    my $res;
+    eval {
+      $res = BSWatcher::rpc($param, undef, "rev=$cgi->{'rev'}", 'view=cpio');
+    };
+    if ($@) {
+      # notify scheduler that the download failed
+      my $err = $@;
+      BSWatcher::serialize_end($serial) if $serial;
+      notify_repservers('package', $projid, $packid);
+      die($err);
+    }
+    return undef unless $res;
+  }
+  for my $entry (@need) {
+    next if -e "$srcrep/$packid/$entry->{'md5'}-$entry->{'name'}";
     my $param = {
       'uri' => "$jev->{'remoteurl'}/source/$jev->{'remoteproject'}/$packid/$entry->{'name'}",
       'filename' => "$uploaddir/$$-$jev->{'id'}",
@@ -6469,28 +6513,35 @@ sub worker_getbinaries {
     BSHandoff::handoff($ajaxsocket, '/getbinaries', undef, @args);
     exit(0);
   }
+  my $jev = $BSServerEvents::gev;
   my @binaries = split(',', $cgi->{'binaries'});
   my ($remoteurl, $remoteprojid) = findremote($projid);
-  my $uri = {'uri' => "$remoteurl/build/$remoteprojid/$repoid/$arch/_repository"};
-  $uri->{'proxy'} = $proxy if $remoteurl ne $BSConfig::reposerver;
-  my $binarylist = BSWatcher::rpc($uri, $BSXML::binarylist, "view=names", map {"binary=$_"} @binaries);
-  return undef if $BSStdServer::isajax && !$binarylist;
-  my %binarylist;
-  for my $b (@{$binarylist->{'binary'} || []}) {
-    if ($b->{'filename'} =~ /^(.*)\.(?:$binsufsre)$/) {
-      $binarylist{$1} = $b;
-    } else {
-      $binarylist{$b->{'filename'}} = $b;
+
+  my $binarylist;
+  $binarylist = $jev->{'binarylist'} if $BSStdServer::isajax;
+  if (!$binarylist) {
+    my $param = {
+      'uri' => "$remoteurl/build/$remoteprojid/$repoid/$arch/_repository",
+      'proxy' => $proxy,
+    };
+    my $binarylistcpio = BSWatcher::rpc($param, $BSXML::binarylist, "view=names", map {"binary=$_"} @binaries);
+    return undef if $BSStdServer::isajax && !$binarylistcpio;
+    $binarylist = {};
+    for my $b (@{$binarylistcpio->{'binary'} || []}) {
+      my $bin = $b->{'filename'};
+      $bin =~ s/\.(?:$binsufsre)$//;
+      $binarylist->{$bin} = $b;
     }
+    $jev->{'binarylist'} = $binarylist if $BSStdServer::isajax;
   }
+
   my @fetch;
   my @reply;
-
   local *LOCK;
   mkdir_p($remotecache);
   BSUtil::lockopen(\*LOCK, '>>', "$remotecache/lock");
   for my $bin (@binaries) {
-    my $b = $binarylist{$bin};
+    my $b = $binarylist->{$bin};
     if (!$b || !$b->{'size'} || !$b->{'mtime'}) {
       push @reply, {'name' => $bin, 'error' => 'not available'};
       next;
@@ -6528,30 +6579,18 @@ sub worker_getbinaries {
     return undef unless $serial;
 
     print "fetch: @fetch\n";
-    my %fetch = map {$_ => $binarylist{$_}} @fetch;
+    my %fetch = map {$_ => $binarylist->{$_}} @fetch;
     my $param = {
       'uri' => "$remoteurl/build/$remoteprojid/$repoid/$arch/_repository",
       'receiver' => \&BSHTTP::cpio_receiver,
+      'tmpcpiofile' => "$remotecache/upload$serialmd5.cpio",
       'directory' => $remotecache,
       'map' => "upload$serialmd5:",
       'proxy' => $proxy,
     };
-    my $cpio;
-    if ($BSStdServer::isajax) {
-      $param->{'receiver'} = \&BSHTTP::file_receiver;
-      $param->{'filename'} = "$remotecache/upload$serialmd5.cpio";
-      local *F;
-      if (open(F, '<', $param->{'filename'})) {
-        unlink($param->{'filename'});
-	$cpio = BSHTTP::cpio_receiver(BSHTTP::fd2hdr(\*F), $param);
-	close F;
-      }
-    }
-
     # work around api bug: only get 50 packages at a time
-    @fetch = splice(@fetch, 0, 50) if !$cpio && @fetch > 50;
-
-    $cpio ||= BSWatcher::rpc($param, undef, "view=cpio", map {"binary=$_"} @fetch);
+    @fetch = splice(@fetch, 0, 50) if @fetch > 50;
+    my $cpio = BSWatcher::rpc($param, undef, "view=cpio", map {"binary=$_"} @fetch);
     return undef if $BSStdServer::isajax && !$cpio;
     for my $f (@{$cpio || []}) {
       my $bin = $f->{'name'};
@@ -6561,6 +6600,8 @@ sub worker_getbinaries {
         unlink("$remotecache/$f->{'name'}");
 	next;
       }
+      $binarylist->{$bin}->{'size'} = $f->{'size'};
+      $binarylist->{$bin}->{'mtime'} = $f->{'mtime'};
       my $cachemd5 = Digest::MD5::md5_hex("$projid/$repoid/$arch/$bin");
       substr($cachemd5, 2, 0, '/');
       mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
@@ -6572,6 +6613,7 @@ sub worker_getbinaries {
 
     if (@{$cpio || []} >= 50) {
       # work around api bug: get rest
+      delete $jev->{'binarylist'} if $BSStdServer::isajax;
       return worker_getbinaries($cgi, $projid, $repoid, $arch);
     }
 
