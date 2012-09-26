@@ -783,6 +783,12 @@ sub rpc_recv_handler {
     $ev->{'contentlength'} = $cl if !$chunked;
     if ($param->{'receiver'} == \&BSHTTP::file_receiver) {
       rpc_recv_file($ev, $chunked, $ans, $param->{'filename'}, $param->{'withmd5'});
+    } elsif ($param->{'receiver'} == \&BSHTTP::cpio_receiver) {
+      if (defined $param->{'tmpcpiofile'}) {
+        rpc_recv_file($ev, $chunked, $ans, $param->{'tmpcpiofile'});
+      } else {
+        rpc_error($ev, "need tmpcpiofile for cpio_receiver\n");
+      }
     } elsif ($param->{'receiver'} == \&BSServer::reply_receiver) {
       my $ct = $headers{'content-type'} || 'application/octet-stream';
       my @args;
@@ -912,6 +918,13 @@ sub rpc {
     if ($xmlargs) {
       die("answer is not xml\n") if $ans !~ /<.*?>/s;
       return XMLin($xmlargs, $ans);
+    }
+    if ($param->{'receiver'} == \&BSHTTP::cpio_receiver && defined($param->{'tmpcpiofile'})) {
+      local *CPIOFILE;
+      open(CPIOFILE, '<', $param->{'tmpcpiofile'}) || die("open tmpcpiofile: $!\n");
+      unlink($param->{'tmpcpiofile'});
+      $ans = BSHTTP::cpio_receiver(BSHTTP::fd2hdr(\*CPIOFILE), $param);
+      close CPIOFILE;
     }
     return $ans;
   }
