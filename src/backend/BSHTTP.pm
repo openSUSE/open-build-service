@@ -274,6 +274,7 @@ sub cpio_receiver {
       utime($mtime, $mtime, "$dn/$name");
     }
     $res[-1]->{'md5'} = $ctx->hexdigest if $ctx;
+    $param->{'cpiopostfile'}->($param, $res[-1]) if $param->{'cpiopostfile'};
   }
   return \@res;
 }
