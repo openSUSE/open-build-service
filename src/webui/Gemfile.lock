@@ -132,7 +132,7 @@ GEM
       nokogiri (>= 1.2.0)
       rack (>= 1.0)
       rack-test (>= 0.5.3)
-    xmlhash (1.2.2)
+    xmlhash (1.2.4)
       pkg-config
     yajl-ruby (1.1.0)
 
@@ -160,5 +160,5 @@ DEPENDENCIES
   sqlite3
   uglifier (>= 1.2.2)
   webrat (>= 0.7.3)
-  xmlhash (>= 1.2.1)
+  xmlhash (>= 1.2.4)
   yajl-ruby

@@ -99,7 +99,7 @@ GEM
       polyglot
       polyglot (>= 0.3.1)
     tzinfo (0.3.33)
-    xmlhash (1.2.2)
+    xmlhash (1.2.4)
       pkg-config
     yajl-ruby (1.1.0)
 
