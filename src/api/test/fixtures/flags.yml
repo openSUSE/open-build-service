@@ -128,12 +128,6 @@ flags_BaseDistro_pack1_useforbuild_disable:
   db_package_id: 10096
   position: 1
   flag: useforbuild
-flags_home_Iggy_build_enable:
-  id: 839512159
-  status: enable
-  db_project_id: 502
-  position: 3
-  flag: build
 home_Iggy_102_disabled:
   id: 212298610
   status: disable
