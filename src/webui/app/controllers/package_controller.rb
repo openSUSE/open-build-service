@@ -921,6 +921,13 @@ class PackageController < ApplicationController
       @initiallog = ''
     end
     @offset = (@offset || 0) + @initiallog.length
+    @initiallog.gsub!(/([^a-zA-Z0-9&;<>\/\n \t()])/n) do |c|
+      if c.ord < 32
+        ''
+      else
+        c
+      end
+    end
     @initiallog.encode!('UTF-8', invalid: :replace, xml: :text, undef: :replace, cr_newline: true)
     puts @initiallog
   end

@@ -51,7 +51,7 @@ package_bread_crumb 'Build Log'
     if (autorefresh) {
     var options = { type: 'GET', data: null, error: 'stop_refresh()', cache: false };
    
-    <%= "baseurl = '" + CGI.unescapeHTML(url_for(action: :update_build_log, package: @package, project: @project, arch: @arch, repository: @repo)) + "';" %>
+    <%= "baseurl = '".html_safe + CGI.unescapeHTML(url_for(action: :update_build_log, package: @package, project: @project, arch: @arch, repository: @repo)) + "';".html_safe %>
     options['url'] = baseurl + '&offset=' + offset + ';&' + 'initial=' + initial;
     $.ajax(options);
     }
@@ -81,7 +81,7 @@ package_bread_crumb 'Build Log'
 <%= render :partial => "live_log_controls" %>
 
 <div id="log_space_wrapper">
-  <pre id="log_space"><%= @initiallog %></pre>
+  <pre id="log_space"><%= raw @initiallog %></pre>
 </div>
 
 <% if not @initiallog.empty? %>
