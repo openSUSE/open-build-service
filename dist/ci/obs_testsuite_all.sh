@@ -57,6 +57,7 @@ bundle exec rake --trace ci:setup:minitest test CI_REPORTS=results || ret=1
 cd ../..
 
 cd src/webui-testsuite
+export OBS_REPORT_DIR=results/
 bundle exec ruby ./run_acceptance_tests.rb || ret=1
 cd ../..
 
