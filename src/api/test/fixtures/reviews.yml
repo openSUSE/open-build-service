@@ -1,0 +1,27 @@
+reviews_1:
+  id: 1
+  bs_request_id: 1000
+  creator: king
+  reason: see if users can review
+  state: new
+  by_user: tom
+  created_at: 2012-09-28 11:55:19.000000000 Z
+  updated_at: 2012-09-28 11:55:19.000000000 Z
+reviews_2:
+  id: 2
+  bs_request_id: 1000
+  creator: king
+  reason: one group review
+  state: new
+  by_group: test_group
+  created_at: 2012-09-28 11:56:46.000000000 Z
+  updated_at: 2012-09-28 11:56:46.000000000 Z
+reviews_3:
+  id: 3
+  bs_request_id: 1000
+  creator: king
+  reason: another group review
+  state: new
+  by_group: test_group_b
+  created_at: 2012-09-28 11:56:53.000000000 Z
+  updated_at: 2012-09-28 11:56:53.000000000 Z
