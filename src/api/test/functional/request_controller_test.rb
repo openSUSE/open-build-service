@@ -1647,7 +1647,7 @@ end
     node = ActiveXML::XMLNode.new(@response.body)
     assert node.has_attribute?(:vrev)
     vrev_after_accept = node.value(:vrev)
-    assert (vrev <= vrev_after_accept)
+    assert vrev <= vrev_after_accept
  
     #cleanup
     delete "/source/home:tom:branches:home:Iggy"

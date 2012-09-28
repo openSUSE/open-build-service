@@ -822,7 +822,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/" + incidentProject + "/_meta"
     assert_response :success
     meta = ActiveXML::XMLNode.new( @response.body )
-    e = meta.add_element "person", { :userid => 'adrian', :role => 'reader' }
+    meta.add_element "person", { :userid => 'adrian', :role => 'reader' }
     put "/source/" + incidentProject + "/_meta", meta.dump_xml
     assert_response :success
     get "/source/#{incidentProject}/patchinfo/_patchinfo"
@@ -1576,7 +1576,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_no_xml_tag :tag => "lock"
     get "/source/CopyOfBaseDistro/_config"
     assert_response :success
-    assert_match /Empty project config/, @response.body
+    assert_match %r{Empty project config}, @response.body
     get "/source/BaseDistro"
     assert_response :success
     opackages = ActiveXML::XMLNode.new(@response.body)
