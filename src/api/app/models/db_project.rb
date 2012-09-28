@@ -1085,6 +1085,8 @@ class DbProject < ActiveRecord::Base
       flags << f if f.is_relevant_for?(repo, arch)
     end if prj_flags
 
+    flags.sort! { |a,b| a.specifics <=> b.specifics }
+
     flags.each do |f|
       ret = f.status
       expl = f.is_explicit_for?(repo, arch)

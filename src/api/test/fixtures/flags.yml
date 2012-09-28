@@ -4,7 +4,7 @@ flags_129437008:
   db_project_id: 3006
   position: 1
   flag: publish
-flags_212298610:
+home_Iggy_102_disabled:
   id: 212298610
   status: disable
   repo: '10.2'
@@ -118,6 +118,12 @@ flags_813496:
   architecture_id: 1
   position: 2
   flag: publish
+flags_home_Iggy_build_enable:
+  id: 839512159
+  status: enable
+  db_project_id: 502
+  position: 3
+  flag: build
 flags_BaseDistro2_0_LinkedUpdateProject_build_disable:
   id: 477459121
   status: disable

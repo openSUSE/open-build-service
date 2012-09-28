@@ -2316,6 +2316,10 @@ end
     assert_response :success
     original = @response.body
 
+    get "/source/home:Iggy/_meta?view=flagdetails"
+    assert_response :success
+    assert_xml_tag tag: "disable", attributes: { "explicit" => "1", "arch" => "i586", "repository" => "10.2" }, parent: { tag: "build" }
+
     post "/source/home:unknown?cmd=set_flag&repository=10.2&arch=i586&flag=build"
     assert_response 404
 
