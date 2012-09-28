@@ -240,10 +240,11 @@ class XpathEngine
     when 'db_projects'
       model = DbProject
       if opt["render_all"]
+        select = "distinct(db_projects.id),db_projects.*"
         includes = [:repositories]
       else
         includes = []
-        select = "distinct(db_projects.id,db_projects.name)"
+        select = "distinct(db_projects.id),db_projects.name"
       end
     when 'repositories'
       model = Repository
