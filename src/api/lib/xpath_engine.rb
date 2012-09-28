@@ -236,20 +236,23 @@ class XpathEngine
     when 'db_packages'
       model = DbPackage
       includes = [:db_project]
+      select = "distinct(db_packages.id),db_packages.*"
     when 'db_projects'
       model = DbProject
       if opt["render_all"]
         includes = [:repositories]
       else
         includes = []
-        select = "db_projects.id,db_projects.name"
+        select = "distinct(db_projects.id,db_projects.name)"
       end
     when 'repositories'
       model = Repository
       includes = [:db_project]
+      select = "distinct(repositories.id),repositories.*"
     when 'requests'
       model = BsRequest
       includes = [:bs_request_actions, :bs_request_histories, :reviews]
+      select = "distinct(bs_requests.id),bs_requests.*"
     when 'issues'
       model = Issue
       includes = [:issue_tracker]
@@ -267,9 +270,10 @@ class XpathEngine
     @limit = opt['limit'].to_i if opt['limit']
     @offset = opt['offset'].to_i if opt['offset']
 
-    logger.debug "-- cond_ary: #{cond_ary.inspect} -- #{@joins.flatten.inspect}"
+    logger.debug("#{model.class}.find_each #{ { :select => select, :include => includes, :joins => @joins.flatten.uniq.join(' '),
+                    :conditions => cond_ary, :order => @sort_order, :group => model.table_name + ".id" }.inspect }")
     model.find_each(:select => select, :include => includes, :joins => @joins.flatten.uniq.join(" "),
-                    :conditions => cond_ary, :order => @sort_order, :group => model.table_name + ".id") do |item|
+                    :conditions => cond_ary, :order => @sort_order) do |item|
       # Add some pagination. Standard :offset & :limit aren't available for ActiveModel#find_each,
       # and the :start param only works on primary keys, but we're in a block so we can control
       # what we 'yield' after we constructed our (presumably) huge table with find_each...
