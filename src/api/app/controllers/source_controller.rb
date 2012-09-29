@@ -96,8 +96,7 @@ class SourceController < ApplicationController
           # not a local project, hand over to backend
           pass_to_backend
 	else
-          pro = DbProject.get_by_name(project_name)
-          raise DbProject::UnknownObjectError(project_name) unless pro
+          pro = DbProject.find_by_name!(project_name)
           # we let the backend list the packages after we verified the project is visible
           if params.has_key? :view
             if params["view"] == "issues"

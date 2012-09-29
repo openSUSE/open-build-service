@@ -10,15 +10,15 @@ class ProjectController < ApplicationController
   include ApplicationHelper
   include RequestHelper
 
+  before_filter :load_project_info, :only => [:show]
   before_filter :require_project, :except => [:repository_arch_list,
     :autocomplete_projects, :autocomplete_incidents, :clear_failed_comment, :edit_comment_form, :index, 
     :list, :list_all, :list_public, :new, :package_buildresult, :save_new, :save_prjconf,
-    :rebuild_time_png, :new_incident]
+    :rebuild_time_png, :new_incident, :show]
   before_filter :load_requests, :only => [:delete, :view,
     :edit, :save, :add_repository_from_default_list, :add_repository, :save_targets, :status, :prjconf,
     :remove_person, :save_person, :add_person, :add_group, :remove_target,
-    :show, :monitor, :requests,
-    :packages, :users, :subprojects, :repositories, :attributes, :meta]
+    :monitor, :requests, :packages, :users, :subprojects, :repositories, :attributes, :meta]
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete, :new]
   before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list, 
                                                             :edit_repository, :update_target]
@@ -245,48 +245,39 @@ class ProjectController < ApplicationController
     redirect_to :action => 'show', :project => params[:project]
   end
 
-  def load_packages_mainpage
-    if @spider_bot
-      @packages = []
-      return
+  def load_project_info
+    return unless check_valid_project_name
+    begin
+      @project_info = ApiDetails.find(:project_infos, :project => params[:project])
+    rescue ActiveXML::Transport::NotFoundError
+      return render_project_missing
     end
-    @packages = Rails.cache.fetch("%s_packages_mainpage" % @project, :expires_in => 30.minutes) do
-      ret = [] 
-      find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds ).each do |pkg|
-	      ret << pkg.value(:name)
-      end
-      ret
-    end
+    @project = Project.new(@project_info["xml"])
+    @packages = @project_info["packages"].map { |p| p[0] }
+    @open_maintenance_incidents = @project_info['incidents']
+    @linking_projects = @project_info['linking_projects']
+    @requests = @project_info['requests']
+    @nr_of_problem_packages = @project_info['nr_of_problem_packages']
+
+    # Is this a maintenance master project ?
+    @is_maintenance_project = @project.project_type == "maintenance"
+    @is_incident_project = @project.project_type == 'maintenance_incident'
+
+    @maintained_projects = @project_info['maintained_projects']
+    @open_release_requests = @project_info['open_release_requests']
   end
-  protected :load_packages_mainpage
 
   def show
+    required_parameters :project
     @bugowners_mail = []
     @project.bugowners.each do |bugowner|
       mail = find_cached(Person, bugowner).email
       @bugowners_mail.push(mail.to_s) if mail
     end unless @spider_bot
 
-    load_packages_mainpage
-
     @nr_packages = @packages.size
-    Rails.cache.delete("%s_problem_packages" % @project.name) if discard_cache?
-    @nr_of_problem_packages = Rails.cache.fetch("%s_problem_packages" % @project.name, :expires_in => 30.minutes) do
-      buildresult = find_hashed(Buildresult, :project => @project, :view => 'status', 
-                                             :code => ['failed', 'broken', 'unresolvable'], 
-                                             :expires_in => 2.minutes ) unless @spider_bot
-      ret = Hash.new
-      if buildresult
-        buildresult.elements('result') do |r|
-          r.elements('status') { |e| ret[e['package']] = 1 }
-        end
-      end
-      ret.keys.size
-    end
 
-    set_linking_projects
-    load_buildresult
-    @project_maintenance_project = @project.maintenance_project unless @spider_bot
+    @project_maintenance_project = @project_info['maintenance_project'] unless @spider_bot
 
     # An incident has a patchinfo if there is a package 'patchinfo' with file '_patchinfo', try to find that:
     @has_patchinfo = false
@@ -302,25 +293,18 @@ class ProjectController < ApplicationController
 
   def load_releasetargets
     @releasetargets = []
-    @open_maintenance_incidents = @project.maintenance_incidents('open')
     @project.each_repository do |repo|
       @releasetargets.push(repo.releasetarget.value('project') + "/" + repo.releasetarget.value('repository')) if repo.has_element?('releasetarget')
     end
   end
 
-  def set_linking_projects
-    if @spider_bot
-      @linking_projects = [] and return
-    end
+  def linking_projects
+    # TODO: remove this ajax call and replace it with a jquery dialog
+    render :text => '<no_ajax/>', :status => 400 and return if not request.xhr?
     Rails.cache.delete("%s_linking_projects" % @project.name) if discard_cache?
     @linking_projects = Rails.cache.fetch("%s_linking_projects" % @project.name, :expires_in => 30.minutes) do
        @project.linking_projects
     end
-  end
-
-  def linking_projects
-    render :text => '<no_ajax/>', :status => 400 and return if not request.xhr?
-    set_linking_projects
   end
 
   # TODO we need the architectures in api/distributions
@@ -403,7 +387,7 @@ class ProjectController < ApplicationController
       message, code, api_exception = ActiveXML::Transport.extract_error_message e
       flash[:error] = message
     end
-    if not @project.kind == 'maintenance'
+    if not @project.project_type == 'maintenance'
       parent_projects = @project.parent_projects()
       if parent_projects and parent_projects.length > 1
         redirect_to :action => 'show', :project => parent_projects[parent_projects.length - 2][0]
@@ -1504,37 +1488,45 @@ class ProjectController < ApplicationController
     return result.each.map {|x| x.name}
   end
 
-  def require_project
-    if !valid_project_name? params[:project]
+  def check_valid_project_name
+     if !valid_project_name? params[:project]
       unless request.xhr?
         flash[:error] = "#{params[:project]} is not a valid project name"
-        redirect_to :controller => "project", :action => "list_public", :nextstatus => 404 and return
+        redirect_to :controller => "project", :action => "list_public", :nextstatus => 404 and return false
       else
-        render :text => 'Not a valid project name', :status => 404 and return
+        render :text => 'Not a valid project name', :status => 404 and return false
       end
     end
-    @project = find_cached(Project, params[:project], :expires_in => 5.minutes )
+    return true
+  end
+
+  def render_project_missing
+    if @user and params[:project] == "home:#{@user}"
+      # checks if the user is registered yet
+      flash[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
+        " descriptive data and press the 'Create Project' button."
+      redirect_to :action => :new, :ns => "home:" + session[:login] and return
+    end
+    # remove automatically if a user watches a removed project
+    if @user and @user.watches? params[:project]
+      @user.remove_watched_project params[:project] and @user.save
+    end
+    unless request.xhr?
+      flash[:error] = "Project not found: #{params[:project]}"
+      redirect_to :controller => "project", :action => "list_public", :nextstatus => 404 and return
+    else
+      render :text => "Project not found: #{params[:project]}", :status => 404 and return
+    end
+  end
+
+  def require_project
+    return unless check_valid_project_name
+    @project ||= find_cached(Project, params[:project], :expires_in => 5.minutes )
     unless @project
-      if @user and params[:project] == "home:#{@user}"
-        # checks if the user is registered yet
-        flash[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
-          " descriptive data and press the 'Create Project' button."
-        redirect_to :action => :new, :ns => "home:" + session[:login] and return
-      end
-      # remove automatically if a user watches a removed project
-      if @user and @user.watches? params[:project]
-        @user.remove_watched_project params[:project] and @user.save
-      end
-      unless request.xhr?
-        flash[:error] = "Project not found: #{params[:project]}"
-        redirect_to :controller => "project", :action => "list_public", :nextstatus => 404 and return
-      else
-        render :text => "Project not found: #{params[:project]}", :status => 404 and return
-      end
+      return render_project_missing
     end
     # Is this a maintenance master project ?
-    @is_maintenance_project = false
-    @is_maintenance_project = true if @project.project_type and @project.project_type == "maintenance"
+    @is_maintenance_project = @project.project_type == "maintenance"
 
     if @is_maintenance_project
       @maintained_projects = []
@@ -1544,7 +1536,7 @@ class ProjectController < ApplicationController
     end
     # Is this a maintenance incident project?
     @is_incident_project = false
-    if @project.project_type and @project.project_type == 'maintenance_incident'
+    if @project.project_type == 'maintenance_incident'
       @is_incident_project = true
       @open_release_requests = BsRequest.list({:states => 'new,review', :types => 'maintenance_release', :project => @project.value('name'), :roles => 'source'})
     end
@@ -1555,25 +1547,8 @@ class ProjectController < ApplicationController
       @requests = [] and return
     end
     pname=@project.name
-    cachekey="project_requests_#{pname}"
-    Rails.cache.delete(cachekey) if discard_cache?
 
-    #TODO: 'you don't want to put it in cache' when config.cache_story default is set:
-   #@requests = Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
-   #   req = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => pname}) \
-   #       + BsRequest.list({:states => 'new', :roles => "target", :project => pname}) \
-   #       + BsRequest.list({:states => 'new,review', :types => 'maintenance_incident', :project => pname, :roles => 'source'})
-   #   if @is_maintenance_project
-   #     req += BsRequest.list({:states => 'new', :types => 'maintenance_release', :project => pname, :roles => 'source', :subprojects => true})
-   #   end
-   #   req
-   # end
-    @requests = BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => pname}) \
-           + BsRequest.list({:states => 'new', :roles => "target", :project => pname}) \
-           + BsRequest.list({:states => 'new,review', :types => 'maintenance_incident', :project => pname, :roles => 'source'})
-    if @is_maintenance_project
-      @requests += BsRequest.list({:states => 'new', :types => 'maintenance_release', :project => pname, :roles => 'source', :subprojects => true})
-    end
+    @requests = ApiDetails.find(:project_requests, :project => @project.name)
   end
 
 end

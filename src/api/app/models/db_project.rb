@@ -1195,11 +1195,11 @@ class DbProject < ActiveRecord::Base
   end
 
   def expand_all_packages
-    packages = self.db_packages.all
+    packages = self.db_packages.select([:name,:db_project_id])
     p_map = Hash.new
     packages.each { |i| p_map[i.name] = 1 } # existing packages map
     # second path, all packages from indirect linked projects
-    self.linkedprojects.each do |lp|
+    self.linkedprojects.all.each do |lp|
       if lp.linked_db_project.nil?
         # FIXME: this is a remote project
       else

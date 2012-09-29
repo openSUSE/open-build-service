@@ -287,6 +287,11 @@ OBSApi::Application.routes.draw do
 
     match 'public/status/:action' => 'status#index'
 
+    controller :webui do
+      match 'webui/project_infos' => :project_infos
+      match 'webui/project_requests' => :project_requests
+    end
+
     match "/404" => "main#notfound"
 
     # Do not install default routes for maximum security

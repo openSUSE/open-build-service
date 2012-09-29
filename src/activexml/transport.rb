@@ -322,9 +322,10 @@ module ActiveXML
           raise "Illegal first parameter, must be Symbol/String/Hash"
         end
 
-        #logger.debug "params #{params.inspect}"
-        #logger.debug "uri is: #{uri}"
-        url = substitute_uri( uri, params )
+        logger.debug "params #{params.inspect}"
+        logger.debug "uri is: #{uri}"
+	
+        url = Rest.substitute_uri( uri, params )
         if own_mimetype
           data = url.query
           url.query = nil
@@ -394,10 +395,8 @@ module ActiveXML
         http_do opt[:method], url, opt
       end
 
-      private
-
       #replaces the parameter parts in the uri from the config file with the correct values
-      def substitute_uri( uri, params )
+      def self.substitute_uri( uri, params )
 
         #logger.debug "[REST] reducing args: #{params.inspect}"
         params.delete(:conditions)
@@ -454,8 +453,10 @@ module ActiveXML
         else
           uri = ActiveXML::Config::TransportMap.target_for( symbolified_model )
         end
-        substitute_uri( uri, object.instance_variable_get("@init_options").merge(opt) )
+        Rest.substitute_uri( uri, object.instance_variable_get("@init_options").merge(opt) )
       end
+
+      private
 
       def http_do( method, url, opt={} )
         defaults = {:timeout => 60}

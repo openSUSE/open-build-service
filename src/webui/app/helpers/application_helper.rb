@@ -60,8 +60,8 @@ module ApplicationHelper
   def user
     if logged_in?
       begin
-        @user ||= find_cached(Person, session[:login] )
-      rescue Object => e
+        @user ||= Person.find_cached( session[:login] )
+      rescue RuntimeError => e
         logger.error "Cannot load person data for #{session[:login]} in application_helper"
       end
     end

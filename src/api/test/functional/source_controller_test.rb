@@ -55,7 +55,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     get "/source/HiddenProject"
     assert_response 404
-    assert_match(/unknown_project/, @response.body)
+    assert_match(/not_found/, @response.body)
     #retry with maintainer
     reset_auth
     prepare_request_with_user "adrian", "so_alone"
