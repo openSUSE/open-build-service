@@ -16,12 +16,27 @@ class CodeQualityTest < ActiveSupport::TestCase
 
   # Does a static syntax check, but doesn't interpret the code
   def test_static_ruby_syntax
+    # fast test first
+    tmpfile = Tempfile.new('output')
+    tmpfile.close
+    IO.popen("ruby -cv - 2>&1 > /dev/null | grep '^-' > #{tmpfile.path}", "w") do |io|
+      @ruby_files.each do |ruby_file|  
+        lines = File.open(ruby_file).read 
+        io.write(lines)
+      end
+    end
+    tmpfile.open
+    line = tmpfile.read
+    tmpfile.close
+    return if line.empty?
+    puts "testing syntax of each ruby file..."
     @ruby_files.each do |ruby_file|
       IO.popen("ruby -cv #{ruby_file} 2>&1 > /dev/null | grep #{Rails.root}") do |io|
         line = io.read
         assert(false, "ruby -cv #{ruby_file} gave output\n#{line}") unless line.empty?
       end
     end
+    puts "done"
   end
 
   # Checks that no 'debugger' statement is present in ruby code
