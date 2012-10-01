@@ -53,8 +53,8 @@ module APIInstrumentation
           apis << ("View: %.1fms" % api_runtime["api-view"].to_f) if api_runtime["api-view"]
           apis << ("Backend: %.1fms" % api_runtime["api-backend"].to_f) if api_runtime["api-backend"]
           apis << ("DB: %.1fms" % api_runtime["api-db"].to_f) if api_runtime["api-db"]
-          apis << ("HTTP: %.1fms" % (api_runtime["api-all"].to_f - api_runtime["api-runtime"].to_f))
-          messages << "API: %.1fms (#{apis.join(' , ')})" % api_runtime["api-all"]
+          apis << ("HTTP: %.1fms" % (api_runtime["api-all"].to_f - api_runtime["api-runtime"].to_f)) if (api_runtime["api-all"] && api_runtime["api-runtime"])
+          messages << "API: %.1fms (#{apis.join(' , ')})" % api_runtime["api-all"] if api_runtime["api-all"]
         end
         messages << ("XML: %.1fms" % xml_runtime.to_f) if xml_runtime
         messages
