@@ -999,6 +999,8 @@ sub publish {
     }
   }
   $dbgsplit ||= '' if $repotype{'splitdebug'} && $repotype{'splitdebug'}->[0];
+  my $archorder;
+  $archorder = $repotype{'archorder'} if $repotype{'archorder'};
 
   # is there a special subdirectory for binary packages configured?
   my $subdir = '';
@@ -1042,6 +1044,13 @@ sub publish {
   my %deltas;	# XXX remove hack
   my %deltainfos;
   my $deltainfos_state;
+
+  if ($archorder) {
+    my %archorder = map {$_ => 1} @$archorder;
+    my %archs = map {$_ => 1} @archs;
+    # last one wins in code below
+    @archs = ((grep {!$archorder{$_}} @archs), (grep {$archs{$_}} reverse(@$archorder)));
+  }
 
   for my $arch (@archs) {
     my $r = "$reporoot/$prp/$arch/:repo";
@@ -1140,10 +1149,12 @@ sub publish {
       my @s = stat("$reporoot/$prp/$arch/:repo/$rbin");
       next unless @s;
       if ($bins{$p}) {
-        # keep old file (FIXME: should do this different)
-        my @s2 = stat("$extrep/$p");
-        next if !@s2 || "$s[9]/$s[7]/$s[1]" ne "$s2[9]/$s2[7]/$s2[1]";
-        # argh, kill taken deltas again
+	if (!$archorder) {
+          # keep old file (FIXME: should do this different)
+          my @s2 = stat("$extrep/$p");
+          next if !@s2 || "$s[9]/$s[7]/$s[1]" ne "$s2[9]/$s2[7]/$s2[1]";
+	}
+        # replace already taken binary. kill taken deltas again
         for my $d (@{$deltas{"$r/$rbin"} || []}) {
 	  for my $dp (grep {$bins{$_} eq $d} keys %bins) {
 	    delete $bins{$dp};
