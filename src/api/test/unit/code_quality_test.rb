@@ -19,10 +19,14 @@ class CodeQualityTest < ActiveSupport::TestCase
     # fast test first
     tmpfile = Tempfile.new('output')
     tmpfile.close
+    io.write("# encoding: utf-8\n")
     IO.popen("ruby -cv - 2>&1 > /dev/null | grep '^-' > #{tmpfile.path}", "w") do |io|
       @ruby_files.each do |ruby_file|  
         lines = File.open(ruby_file).read 
-        io.write(lines)
+        begin
+          io.write(lines)
+        rescue Errno::EPIPE
+        end
       end
     end
     tmpfile.open
