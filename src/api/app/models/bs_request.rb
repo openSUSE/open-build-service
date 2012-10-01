@@ -60,7 +60,7 @@ class BsRequest < ActiveRecord::Base
         request.bs_request_actions << BsRequestAction.new_from_xml_hash(ac)
       end if actions
 
-      state = hashed.delete("state") || { "name" => "new" }
+      state = hashed.delete("state") || Xmlhash::XMLHash.new({ "name" => "new" })
       request.state = state.delete("name") { raise ArgumentError, "state without name" }
       request.state = :declined if request.state.to_s == "rejected"
       request.state = :accepted if request.state.to_s == "accept"

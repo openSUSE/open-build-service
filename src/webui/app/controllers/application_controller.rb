@@ -239,6 +239,7 @@ class ApplicationController < ActionController::Base
     @exception = opt[:exception] if show_detailed_exceptions?
     @api_exception = opt[:api_exception] if show_detailed_exceptions?
     logger.debug "ERROR: #{@code}; #{@message}"
+    logger.debug @exception.backtrace.join("\n") if @exception
     if request.xhr?
       render :text => @message, :status => @status, :layout => false
     else
@@ -277,7 +278,7 @@ class ApplicationController < ActionController::Base
 
   def find_hashed(classname, *args)
     ret = classname.find_cached( *args )
-    return {} unless ret
+    return Xmlhash::XMLHash.new({}) unless ret
     ret.to_hash
   end
 

@@ -13,7 +13,7 @@ gem 'exception_notification', '>=2.3'
 gem 'yajl-ruby'
 gem 'ci_reporter'
 gem 'rdoc'
-gem 'xmlhash', '>=1.2.2'
+gem 'xmlhash', '>=1.3.0'
 gem 'fast_xs'
 gem 'minitest'
 gem 'memcache-client', :require => false

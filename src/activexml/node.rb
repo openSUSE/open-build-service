@@ -2,56 +2,29 @@ require 'nokogiri'
 require 'json'
 require 'xmlhash'
 
-# adding a function to the ruby hash
-class Hash
-  def elements(name)
-    unless name.kind_of? String
-      raise ArgumentError, "expected string"
-    end
-    sub = self[name]
-    return [] unless sub
-    unless sub.kind_of? Array
-      if block_given?
-        yield sub
-	return
-      else
-        return [sub]
-      end
-    end
-    return sub unless block_given? 
-    sub.each do |n|
-      yield n
-    end
-  end
-
-  def get(name)
-    sub = self[name]
-    return sub if sub
-    return {}
-  end
-
-  def value(name)
-    sub = self[name.to_s]
-    return nil unless sub
-    return '' if sub.blank? # avoid {}
-    return sub
-  end
-
-  def has_element?(name)
-    return self.has_key? name.to_s
-  end
-
-  def has_attribute?(name) 
-    return self.has_key? name.to_s
-  end
-
-  def method_missing( symbol, *args, &block )
-    if args.size > 0 || !block.nil?
-      raise RuntimeError, "das geht zuweit #{symbol.inspect}(#{args.inspect})"
+# adding some more functions to XMLHash
+module Xmlhash
+  class XMLHash
+    def has_element?(name)
+      return self.has_key? name.to_s
     end
     
-    ActiveXML::Config.logger.debug "method_missing -#{symbol}- #{block.inspect}"
-    return self[symbol.to_s]
+    def has_attribute?(name) 
+      return self.has_key? name.to_s
+    end
+    
+    def initialize(opts = nil)
+      self.replace(opts) if opts
+    end
+    
+    def method_missing( symbol, *args, &block )
+      if args.size > 0 || !block.nil?
+        raise RuntimeError, "das geht zuweit #{symbol.inspect}(#{args.inspect})"
+      end
+      
+      ActiveXML::Config.logger.debug "method_missing -#{symbol}- #{block.inspect}"
+      return self[symbol.to_s]
+    end
   end
 end
 
