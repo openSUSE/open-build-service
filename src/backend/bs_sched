@@ -1031,14 +1031,14 @@ sub makedeltas {
       # use the searchpath, this may be configurable in a later version
       my @aprp = @$prpsearchpath;
       for my $aprp (@aprp) {
-	# look in the *published* repos. this does not work for
-	# projects that have publishing disabled, like "openSUSE:*"
-	# as a workaround, we also look at $bsdir/deltarepo/$aprp
+	# look in the *published* repos. We allow a special
+	# extradeltarepos override in the config.
 	if (!$oldbins{"$aprp/$binarch"}) {
 	  my $aextrep = $aprp;
 	  $aextrep =~ s/:/:\//g;
 	  $aextrep = "$extrepodir/$aextrep";
-	  $aextrep = "$bsdir/deltarepo/$aprp" if ! -d $aextrep && -d "$bsdir/deltarepo/$aprp";
+	  $aextrep = $BSConfig::publishredirect->{$aprp} if $BSConfig::publishredirect && defined($BSConfig::publishredirect->{$aprp});
+	  $aextrep = $BSConfig::extradeltarepos->{$aprp} if $BSConfig::extradeltarepos && defined($BSConfig::extradeltarepos->{$aprp});
 	  $oldbins{$aprp} = $aextrep;
 	  $oldbins{"$aprp/$binarch"} = {};
 	  for my $obin (sort(ls("$aextrep/$binarch"))) {
