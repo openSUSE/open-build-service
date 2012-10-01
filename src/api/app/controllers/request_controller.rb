@@ -1608,6 +1608,7 @@ class RequestController < ApplicationController
               end
             end
             target_package.remove_all_persons
+            target_package.remove_all_groups
             target_package.name = action.target.package
             target_package.save
 
