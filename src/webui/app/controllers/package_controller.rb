@@ -275,12 +275,13 @@ class PackageController < ApplicationController
 
   def set_file_details
     @forced_unexpand ||= ''
-    if not @revision and not @srcmd5
-      # on very first page load only
-      @revision = Package.current_rev(@project.name, @package.name)
-    end
     
     begin
+      if not @revision and not @srcmd5
+        # on very first page load only
+        @revision = Package.current_rev(@project.name, @package.name)
+      end
+
       if @srcmd5
         @files = @package.files(@srcmd5, @expand)
       else
@@ -1062,9 +1063,9 @@ class PackageController < ApplicationController
       @repo_list << [repo_name, valid_xml_id(elide(repo_name, 30))]
     end
     if @repo_list.empty?
-      render :partial => 'no_repositories'
+      render partial: 'no_repositories'
     else
-      render :partial => 'rpmlint_result', :locals => {:index => params[:index]}
+      render partial: 'rpmlint_result', locals: {index: params[:index]}
     end
   end
 
@@ -1072,6 +1073,7 @@ class PackageController < ApplicationController
     required_parameters :project, :package, :repository, :architecture
     begin
       rpmlint_log = frontend.get_rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
+      rpmlint_log.encode!(xml: :text)
       res = ''
       rpmlint_log.lines.each do |line|
         if line.match(/\w+(?:\.\w+)+: W: /)
@@ -1082,7 +1084,7 @@ class PackageController < ApplicationController
           res += line
         end
       end
-      render :text => res
+      render :text => res, content_type: "text/html"
     rescue ActiveXML::Transport::NotFoundError
       render :text => 'No rpmlint log'
     end

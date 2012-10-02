@@ -173,7 +173,7 @@ class ApplicationController < ActionController::Base
   end
 
   def rescue_with_handler( exception )
-    logger.error "rescue_action: caught #{exception.class}: #{exception.message}"
+    logger.error "rescue_action: caught #{exception.class}: #{exception.message} " # + exception.backtrace.join("\n")
     message, code, api_exception = ActiveXML::Transport.extract_error_message exception
 
     case exception
