@@ -90,8 +90,6 @@ module OBSWebUI
     # Make Active Record use UTC-base instead of local time
     # config.active_record.default_timezone = :utc
     
-    config.active_record.schema_format = :sql
-    
     config.action_controller.perform_caching = true
 
     config.exceptions_app = self.routes
