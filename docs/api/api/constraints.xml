@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<constraints>
+  <hostlabel>reference_benchmark_host</hostlabel>
+  <container>kvm</container>
+  <container>xen</container>
+  <linux>
+    <version>
+      <max>3.42</max>
+      <min>1.0</min>
+    </version>
+  </linux>
+  <hardware>
+    <cpu>
+      <flag>fpu</flag>
+      <flag>mmx</flag>
+    </cpu>
+    <cores>2</cores>
+    <disk>
+      <size unit="T">2</size>
+    </disk>
+    <memory>
+      <size unit="G">1.5</size>
+    </memory>
+  </hardware>
+</constraints>

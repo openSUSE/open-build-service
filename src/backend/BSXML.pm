@@ -1473,4 +1473,38 @@ our $attributes = [
          [ $attribute ],
 ];
 
+# define constraints for build jobs in packages or projects.
+our $constraints = [
+  [[ 'hostlabel' => '_content' ]], # workers might get labels defined by admin, for example for benchmarking.
+  [[ 'container' => '_content' ]], # xen/kvm/chroot
+  [ 'linux' =>
+    [ 'version' =>
+      [],
+      [ 'max' => '_content' ],
+      [ 'min' => '_content' ],
+    ],
+  ],
+  [ 'hardware' =>
+    [ 'cpu' =>
+      [[ 'flag' => '_content' ]],
+    ],
+  ],
+  [ 'cores' => '_content' ],
+  [ 'disk' =>
+      [ 'size' => 
+        'unit',
+        [],
+        '_content'
+      ],
+  ],
+  [ 'memory' =>
+      [ 'size' => 
+        'unit',
+        [],
+        '_content'
+      ],
+  ],
+];
+
+
 1;

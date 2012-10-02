@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <include href="obs.rng" />
+
+  <start>
+    <ref name="constraints-element"/>
+  </start>
+
+  <define ns="" name="constraints-element">
+    <element name="constraints">
+      <zeroOrMore>
+        <ref name="constraint-element"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define ns="" name="constraint-element">
+    <interleave> 
+      <zeroOrMore>
+        <element ns="" name="hostlabel">
+          <text/>
+        </element>
+      </zeroOrMore>
+      <zeroOrMore>
+        <element name="container">
+          <ref name="build-container"/>
+        </element>
+      </zeroOrMore>
+      <optional>
+        <element name="linux">
+           <element name="version">
+             <element name="max">
+               <text/>
+             </element>
+             <element name="min">
+               <text/>
+             </element>
+           </element>
+        </element>
+      </optional>
+      <optional>
+        <element name="hardware">
+          <interleave> 
+            <element name="cpu">
+              <oneOrMore> 
+                <element name="flag">
+                  <ref name="cpu-flags"/>
+                </element>
+              </oneOrMore> 
+            </element>
+            <element name="cores">
+              <data type="integer"/>
+            </element>
+            <element name="disk">
+              <ref name="size-unit"/>
+            </element>
+            <element name="memory">
+              <ref name="size-unit"/>
+            </element>
+          </interleave>
+        </element>
+      </optional>
+    </interleave> 
+  </define>
+
+</grammar>

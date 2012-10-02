@@ -297,4 +297,36 @@
     </element>
   </define>
 
+  <!-- worker and dispatcher constraint values -->
+  <define ns="" name="build-container">
+    <choice>
+      <value>chroot</value>
+      <value>kvm</value>
+      <value>xen</value>
+    </choice>
+  </define>
+
+  <define ns="" name="cpu-flags">
+    <choice>
+      <value>fpu</value>
+      <value>mmx</value>
+      <value>sse</value>
+      <value>sse2</value>
+    </choice>
+  </define>
+
+  <define ns="" name="size-unit">
+    <element name="size">
+      <attribute name="unit">
+        <choice>
+          <value>K</value>
+          <value>M</value>
+          <value>G</value>
+          <value>T</value>
+        </choice>
+      </attribute>
+      <data type="float"/>
+    </element>
+  </define>
+
 </grammar>
