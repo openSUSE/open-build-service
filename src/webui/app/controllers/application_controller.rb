@@ -264,7 +264,7 @@ class ApplicationController < ActionController::Base
   end
 
   def discard_cache?
-    cc = request.headers['Cache-Control']
+    cc = request.headers['HTTP_CACHE_CONTROL']
     return false if cc.blank?
     return true if cc == 'max-age=0'
     return false unless cc == 'no-cache'

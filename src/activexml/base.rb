@@ -89,7 +89,7 @@ module ActiveXML
 
         #FIXME: needs cleanup
         #TODO: factor out xml stuff to ActiveXML::Node
-        logger.debug "#{self.name}.find( #{cache_time.inspect}, #{args.join(', ')})"
+        #logger.debug "#{self.name}.find( #{cache_time.inspect}, #{args.join(', ')})"
 
         #TODO: somehow we need to set the transport again, as it was not set when subclassing.
         # only happens with rails >= 2.3.4 and config.cache_classes = true

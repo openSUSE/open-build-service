@@ -9,7 +9,8 @@ class PackageController < ApplicationController
   before_filter :require_project, :except => [:rawlog, :submit_request, :devel_project]
   before_filter :require_package, :except => [:rawlog, :submit_request, :save_new_link, :save_new, :devel_project ]
   # make sure it's after the require_, it requires both
-  before_filter :load_requests, :except =>   [:rawlog, :submit_request, :save_new_link, :save_new, :devel_project, :rpmlint_log ]
+  before_filter :load_requests, :except =>   [:rawlog, :submit_request, :save_new_link, :save_new, :devel_project, 
+                                              :rpmlint_log, :add_service ]
   before_filter :require_login, :only => [:branch]
   prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
@@ -162,7 +163,7 @@ class PackageController < ApplicationController
     
     if set_file_details
       unless @forced_unexpand.blank?
-        flash[:error] = "Files could not be expanded: #{forced_unexpand}"
+        flash[:error] = "Files could not be expanded: #{@forced_unexpand}"
       end
     else
       flash[:error] = "No such revision: #{@revision_parameter}"
