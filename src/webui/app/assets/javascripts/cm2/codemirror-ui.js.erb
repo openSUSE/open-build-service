@@ -23,16 +23,16 @@ CodeMirrorUI.prototype = {
     this.setDefaults(this.options, defaultOptions);
 
     this.buttonDefs = {
-      'save': ["Save", "save", this.options.imagePath + "/page_save.png", this.save],
-      'search': ["Search/Replace", "find_replace_popup", this.options.imagePath + "/find.png", this.find_replace_popup],
-      'searchClose': ["Close", "find_replace_popup_close", this.options.imagePath + "/cancel.png", this.find_replace_popup_close],
-      'searchDialog': ["Search/Replace", "find_replace_window", this.options.imagePath + "/find.png", this.find_replace_window],
-      'undo': ["Undo", "undo", this.options.imagePath + "/arrow_undo.png", this.undo],
-      'redo': ["Redo", "redo", this.options.imagePath + "/arrow_redo.png", this.redo],
-      'jump': ["Jump to line #", "jump", this.options.imagePath + "/page_go.png", this.jump],
-      'reindentSelection': ["Reformat selection", "reindentSelect", this.options.imagePath + "/text_indent.png", this.reindentSelection],
-      'reindent': ["Reformat whole document", "reindent", this.options.imagePath + "/page_refresh.png", this.reindent],
-      'about': ["About CodeMirror-UI", "about", this.options.imagePath + "/help.png", this.about]
+      'save': ["Save", "save", '<%= image_path "page_save.png" %>', this.save],
+      'search': ["Search/Replace", "find_replace_popup", '<%= image_path "find.png" %>', this.find_replace_popup],
+      'searchClose': ["Close", "find_replace_popup_close", '<%= image_path "cancel.png" %>', this.find_replace_popup_close],
+      'searchDialog': ["Search/Replace", "find_replace_window", '<%= image_path "find.png" %>', this.find_replace_window],
+      'undo': ["Undo", "undo", '<%= image_path "arrow_undo.png" %>', this.undo],
+      'redo': ["Redo", "redo", '<%= image_path "arrow_redo.png" %>', this.redo],
+      'jump': ["Jump to line #", "jump", '<%= image_path "page_go.png" %>', this.jump],
+      'reindentSelection': ["Reformat selection", "reindentSelect", '<%= image_path "text_indent.png" %>', this.reindentSelection],
+      'reindent': ["Reformat whole document", "reindent", '<%= image_path "page_refresh.png" %>', this.reindent],
+      'about': ["About CodeMirror-UI", "about", '<%= image_path "help.png" %>', this.about]
     };
 
     //place = CodeMirror.replace(place)
