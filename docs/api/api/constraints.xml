@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <constraints>
   <hostlabel>reference_benchmark_host</hostlabel>
-  <container>kvm</container>
-  <container>xen</container>
+  <sandbox>secure</sandbox>
   <linux>
     <version>
       <max>3.42</max>
       <min>1.0</min>
     </version>
+    <flavor>default</flavor>
   </linux>
   <hardware>
     <cpu>
       <flag>fpu</flag>
       <flag>mmx</flag>
     </cpu>
-    <cores>2</cores>
+    <processors>2</processors>
     <disk>
       <size unit="T">2</size>
     </disk>

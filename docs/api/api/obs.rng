@@ -298,11 +298,12 @@
   </define>
 
   <!-- worker and dispatcher constraint values -->
-  <define ns="" name="build-container">
+  <define ns="" name="build-sandbox">
     <choice>
       <value>chroot</value>
       <value>kvm</value>
       <value>xen</value>
+      <value>secure</value> <!-- xen or kvm -->
     </choice>
   </define>
 

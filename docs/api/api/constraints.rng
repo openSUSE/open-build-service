@@ -17,26 +17,33 @@
 
   <define ns="" name="constraint-element">
     <interleave> 
-      <zeroOrMore>
+      <optional>
         <element ns="" name="hostlabel">
           <text/>
         </element>
-      </zeroOrMore>
-      <zeroOrMore>
-        <element name="container">
-          <ref name="build-container"/>
+      </optional>
+      <optional>
+        <element name="sandbox">
+          <ref name="build-sandbox"/>
         </element>
-      </zeroOrMore>
+      </optional>
       <optional>
         <element name="linux">
-           <element name="version">
-             <element name="max">
+           <optional>
+             <element name="version">
+               <element name="max">
+                 <text/>
+               </element>
+               <element name="min">
+                 <text/>
+               </element>
+             </element>
+           </optional>
+           <optional>
+             <element ns="" name="flavor">
                <text/>
              </element>
-             <element name="min">
-               <text/>
-             </element>
-           </element>
+           </optional>
         </element>
       </optional>
       <optional>
@@ -49,7 +56,7 @@
                 </element>
               </oneOrMore> 
             </element>
-            <element name="cores">
+            <element name="processors">
               <data type="integer"/>
             </element>
             <element name="disk">
