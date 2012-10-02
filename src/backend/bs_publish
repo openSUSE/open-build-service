@@ -455,7 +455,7 @@ sub createrepo_hdlist2 {
     next if $arch =~ /^\./;
     my $r = "$extrep/$arch";
     next unless -d $r;
-    if (qsystem('genhdlist2', $r)) {
+    if (qsystem('genhdlist2', '--allow-empty-media', $r)) {
       print("    genhdlist2 failed: $?\n");
     }
   }
