@@ -9,7 +9,7 @@ class PackageController < ApplicationController
   before_filter :require_project, :except => [:rawlog, :submit_request, :devel_project]
   before_filter :require_package, :except => [:rawlog, :submit_request, :save_new_link, :save_new, :devel_project ]
   # make sure it's after the require_, it requires both
-  before_filter :load_requests, :except =>   [:rawlog, :submit_request, :save_new_link, :save_new, :devel_project ]
+  before_filter :load_requests, :except =>   [:rawlog, :submit_request, :save_new_link, :save_new, :devel_project, :rpmlint_log ]
   before_filter :require_login, :only => [:branch]
   prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
@@ -28,6 +28,8 @@ class PackageController < ApplicationController
     @revision = params[:rev]
     fill_status_cache unless @buildresult.blank?
     set_linking_packages
+    @expand = 1
+    set_file_details
     begin
       @current_rev = Package.current_rev(@project.name, @package.name)
       #TODO generate file list here:
@@ -157,25 +159,14 @@ class PackageController < ApplicationController
     @expand = 1
     @expand = begin Integer(params[:expand]) rescue 1 end if params[:expand]
     @expand = 0 if @spider_bot
-    begin
-      set_file_details
-    rescue ActiveXML::Transport::Error => e
-      message, _, _ = ActiveXML::Transport.extract_error_message e
-      if @expand == 1
-        @expand = 0
-        flash[:error] = "Files could not be expanded: " + message
-        begin
-          set_file_details
-        rescue ActiveXML::Transport::Error => e
-          message, _, _ = ActiveXML::Transport.extract_error_message e
-          # seems really bad even without expand
-          flash[:error] = "Files could not be expanded: " + message
-          redirect_to :action => :show, :project => params[:project], :package => params[:package] and return
-        end
-      else
-        flash[:error] = "No such revision: #{@revision_parameter}"
-        redirect_to :action => :files, :project => params[:project], :package => params[:package] and return
+    
+    if set_file_details
+      unless @forced_unexpand.blank?
+        flash[:error] = "Files could not be expanded: #{forced_unexpand}"
       end
+    else
+      flash[:error] = "No such revision: #{@revision_parameter}"
+      redirect_to :back
     end
   end
 
@@ -282,16 +273,28 @@ class PackageController < ApplicationController
   end
 
   def set_file_details
+    @forced_unexpand ||= ''
     if not @revision and not @srcmd5
       # on very first page load only
       @revision = Package.current_rev(@project.name, @package.name)
     end
-    if @srcmd5
-      @files = @package.files(@srcmd5, @expand)
-    else
-      @files = @package.files(@revision, @expand)
+    
+    begin
+      if @srcmd5
+        @files = @package.files(@srcmd5, @expand)
+      else
+        @files = @package.files(@revision, @expand)
+      end
+    rescue ActiveXML::Transport::Error => e
+      if @expand == 1
+        @forced_unexpand, _, _ = ActiveXML::Transport.extract_error_message e
+        @expand = 0
+        return set_file_details
+      end
+      @files = []
+      return false
     end
-
+    
     @spec_count = 0
     @files.each do |file|
       @spec_count += 1 if file[:ext] == "spec"
@@ -303,11 +306,12 @@ class PackageController < ApplicationController
         end
       end
     end
-
+    
     # check source service state
     @services = find_cached(Service,  :project => @project, :package => @package )
     @serviceerror = nil
     @serviceerror = @package.serviceinfo.value(:error) if @package.serviceinfo
+    return true
   end
   private :set_file_details
 
@@ -1068,10 +1072,15 @@ class PackageController < ApplicationController
     repos.uniq.each do |repo_name|
       @repo_list << [repo_name, valid_xml_id(elide(repo_name, 30))]
     end
-    render :partial => 'rpmlint_result', :locals => {:index => params[:index]}
+    if @repo_list.empty?
+      render :partial => 'no_repositories'
+    else
+      render :partial => 'rpmlint_result', :locals => {:index => params[:index]}
+    end
   end
 
   def rpmlint_log
+    required_parameters :project, :package, :repository, :architecture
     begin
       rpmlint_log = frontend.get_rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
       res = ''
@@ -1283,6 +1292,7 @@ class PackageController < ApplicationController
 
   def load_requests
     return if @spider_bot
+    return if request.xhr?
     cachekey="package_reviews_#{@project.name}_#{@package.name}"
     Rails.cache.delete(cachekey) if discard_cache?
     # TODO make requests xmlhashs to be cachable

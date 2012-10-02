@@ -55,15 +55,15 @@
         <% if @linkinfo %>
           <% linked_project, linked_package = @linkinfo.project, @linkinfo.package %>
           <li>
-            <%= image_tag 'package_link.png' %> Links to
+            <%= sprite_tag 'package_link' %> Links to
             <%= render :partial => 'shared/project_or_package_link', :locals => {:project => linked_project, :package => linked_package, :short => true} %>
           </li>
           <% if @linkinfo.value :error %>
-            <li><%= image_tag 'exclamation.png' %> Link has errors: <i><%= @linkinfo.error %></i></li>
+            <li><%= sprite_tag 'exclamation' %> Link has errors: <i><%= @linkinfo.error %></i></li>
           <% else %>
             <%#TODO: Only display if there is really a diff: %>
             <li>
-              <%= image_tag 'information.png' %>
+              <%= sprite_tag 'information' %>
               Could have <%= link_to_if !Project.is_remote?(linked_project), 'a link diff', :action => :rdiff, :oproject => linked_project, :opackage => linked_package, :project => @project, :package => @package, :rev => @revision %>
             </li>
           <% end%>
@@ -83,21 +83,21 @@
         <% if session[:login] %>
           <% if @current_rev %>
             <li>
-              <%= link_to(image_tag('arrow_branch.png', :title => 'Branch package'), {:action => :branch_dialog, :project => @project, :package => @package}, :remote => true) %>
+              <%= link_to(sprite_tag('arrow_branch'), {:action => :branch_dialog, :project => @project, :package => @package}, :remote => true) %>
               <%= link_to('Branch package', {:action => :branch_dialog, :project => @project, :package => @package}, :remote => true) %>
             </li>
             <li>
-              <%= link_to(image_tag('package_go.png', :title => 'Submit package'), {:action => :submit_request_dialog, :project => @project, :package => @package}, :remote => true) %>
+              <%= link_to(sprite_tag('package_go'), {:action => :submit_request_dialog, :project => @project, :package => @package}, :remote => true) %>
               <%= link_to('Submit package', {:action => :submit_request_dialog, :project => @project, :package => @package}, :remote => true) %>
             </li>
           <% end %>
           <% if @package.can_edit?(session[:login]) %>
             <li>
-              <%= link_to image_tag('package_edit.png', :title => "Edit description"), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
+              <%= link_to sprite_tag('package_edit'), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
 	      <%= link_to "Edit description", { :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count }, id: 'edit-description' -%>
             </li>
             <li>
-              <%= link_to(image_tag('package_delete.png', :title => 'Delete package'), {:action => :delete_dialog, :package => @package, :project => @project}, :remote => true) %>
+              <%= link_to(sprite_tag('package_delete'), {:action => :delete_dialog, :package => @package, :project => @project}, :remote => true) %>
               <%= link_to('Delete package', {:action => :delete_dialog, :package => @package, :project => @project}, :remote => true, id: 'delete-package') %>
             </li>
           <% else %>
@@ -124,79 +124,14 @@
 </div>
 
 <div class="grid_10 alpha box box-shadow">
-  <h2 class="box-header">Sources <% if @revision && @revision != @current_rev %>(Revision <%= @revision %>)<% end %></h2>
-  <%= render :partial => 'commit_item', :locals => {:rev => @current_rev } %>
-  <% if @files && @files.length > 0 %>
-    <table id="files_table">
-      <thead>
-        <tr>
-          <th>Filename</th>
-          <th>Size</th>
-          <th>Changed</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @files.each do |file| %>
-          <tr>
-            <td>
-              <%= link_to_if(file[:viewable], nbsp(file[:name]), :action => :view_file, :project => @project, :package => @package, :file => file[:name], :rev => file[:srcmd5], :expand => @expand) %>
-              <% if @link && @link.has_add_patch?(file[:name]) %>
-                (Added Patch)
-              <% elsif @link && @link.has_patch?(file[:name]) %>
-                (Global Patch)
-              <% end %>
-            </td>
-            <td><%= human_readable_fsize(file[:size]) %></td>
-            <td><%= fuzzy_time_string(Time.at(file[:mtime].to_i).to_s) %></td>
-            <td>
-              <%# limit download for anonymous user to avoid getting killed by crawlers %>
-              <% if @user or file[:size].to_i < ( 4 * 1024 * 1024 ) %>
-                <%= link_to image_tag('page_white_get.png', :alt => "Download", :title => "Download File"), file_url(@project, @package, file[:name], file[:srcmd5]) %>
-              <% end %>
-              <% if @package.can_edit?( session[:login] ) %>
-                <%= link_to image_tag('page_white_delete.png', :alt => "Remove", :title => "Remove File"), {:action => :remove_file, :project => @project,
-                  :package => @package, :filename => file[:name]},
-                  {:confirm => "Really remove file '#{file[:name]}'?", :method => :post }%>
-              <% end %>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  <% else %>
-    <p><i>This package has no files yet</i></p>
+  <h2 class="box-header">Sources</h2>
+  <% unless @forced_unexpand.blank? %>
+  <i>Sources could not be expanded: <%= @forced_unexpand %></i>
   <% end %>
-  <div class="clearfix"></div><%# TODO: Not nice, dataTables should clear %>
-  <p>
-    <% if @linkinfo && @revision_parameter.nil? %>
-       <%= image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden') %>
-      <span style="font-size: small; font-weight: normal">
-        <% if @expand && @expand.to_s == "1" %>
-          <%= link_to '(show unmerged sources)', :project => @project.name, :package => @package.name, :action => :files, :rev => @revision_parameter, :expand => "0" %>
-        <% else %>
-          <%= link_to '(show merged sources derived from linked package)', :project => @project.name, :package => @package.name, :action => :files, :rev => @revision_parameter, :expand => "1" %>
-        <% end %>
-      </span>
-    <% end %>
-    <% if @package.can_edit?( session[:login] ) %>
-      <%= link_to image_tag('page_white_add.png', :title => "Add file"), :action => :add_file, :project => @project, :package => @package %>
-      <%= link_to 'Add file', :action => :add_file, :project => @project, :package => @package %>
-    <% end %>
-  </p>
+  <%= render :partial => 'files_view' %>
 </div>
 
 <div class="grid_6 omega box box-shadow">
   <%= render :partial => 'shared/buildresult_box', :locals => {:project => @project.value('name'), :package => @package.value('name')} %>
 </div>
-
-<% if @files && @files.length > 0 %>
-  <%= javascript_tag do %>
-    $(document).ready(function() {
-      $('#files_table').dataTable({
-        'aoColumns': [null, null, null, {'bSortable': false}]
-      });
-    });
-  <% end %>
-<% end %>
 
