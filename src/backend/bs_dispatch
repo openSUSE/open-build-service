@@ -246,6 +246,11 @@ sub staleness {
   return $ret;
 }
 
+sub oracle {
+  my ($job, $worker) = @_;
+  return 1;
+}
+
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
 BSUtil::restartexit($ARGV[0], 'dispatcher', "$rundir/bs_dispatch");
@@ -344,6 +349,8 @@ while (1) {
   
   my @idle = grep {!/^\./} ls("$workersdir/idle");
   my %idlearch;
+  my %workerinfo;
+  my %workerinfo_mtime;
   for my $idle (@idle) {
     my $harch = (split(':', $idle, 2))[0];
     for (@{$cando{$harch} || []}) {
@@ -592,17 +599,55 @@ while (1) {
 	  my $idlehost = (split(':', $idle, 2))[1];
 	  push @idle, $idle if grep {$idlehost =~ /^$_/} @$BSConfig::powerhosts;
 	}
-        if (@idle == 0) {
-          print "Job can not be assigned on $arch due to lack of powerhosts: $job\n";
+        if (!@idle) {
+          print "job can not be assigned on $arch due to lack of powerhosts: $job\n";
           next;
         }
       }
       my $tries = 0;
       my $haveassigned;
       my ($project, $repository, $arch) = split('/', $prpa, 3);
-      for my $idle (@idle) {
+      my $lastoracle = 0;
+      my $lastoracleidle;
+      for my $idle (@idle, '__lastoracle') {
+	if ($idle eq '__lastoracle') {
+	  last unless $lastoracleidle;
+	  $idle = $lastoracleidle;
+	  $lastoracleidle = '__lastoracle';
+	}
 	last unless -e "$jobsdir/$arch/$job";
         next if $badhost{"$project/$ic->{$job}->{'package'}/$arch/@{[(split(':', $idle, 2))[1]]}"};
+	if (!$workerinfo{$idle}) {
+	  my @s = stat("$workersdir/idle/$idle");
+	  next unless @s;
+	  my $worker = readxml("$workersdir/idle/$idle", $BSXML::worker, 1);
+	  if (!$worker) {
+	    my $harch = (split(':', $idle, 2))[0];
+	    for (@{$cando{$harch} || []}) { 
+	       $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
+	    }
+	    next;
+	  }
+	  $workerinfo{$idle} = $worker;
+	  $workerinfo_mtime{$idle} = $s[7];
+	}
+        my $ora = oracle($ic->{$job}, $workerinfo{$idle});
+	next unless defined($ora) && $ora > 0;
+	if ($ora < 1) {
+	  if ($lastoracleidle && $lastoracleidle eq '__lastoracle') {
+	    my $widle = $now - $workerinfo_mtime{$idle};
+	    my $jwait = $now - $ic->{'job'}->{'readytime'};
+	    $widle = 0 if $widle < 0;
+	    $jwait = 0 if $jwait < 0;
+	    next if $widle / 60 < 1 - $ora && $jwait / 300 < 1 - $ora;
+	  } else {
+	    if ($ora > $lastoracle) {
+	      $lastoracleidle = $idle;
+	      $lastoracle = $ora;
+	    }
+	    next;
+	  }
+	}
 	last if $assigned && $tries >= 5;
 	$tries++;
 	my $res = assignjob($job, $idle, $arch);
