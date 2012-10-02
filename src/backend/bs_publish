@@ -65,6 +65,7 @@ my $myeventdir = "$eventdir/publish";
 
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
+my @binsufsrsync = map {"--include=*.$_"} @binsufs;
 
 sub qsystem {
   my @args = @_;
@@ -942,7 +943,7 @@ sub deleterepo {
     print "    running rsync to $1 at ".localtime(time)."\n";
     # rsync with a timeout of 1 hour
     # sync first just the binaries without deletion of the old ones, afterwards the rest(esp. meta data) and cleanup
-    qsystem('echo', "$projid_ext\0", 'rsync', '-ar0', '--include=*.rpm', '--include=*.deb', '--include=*/', '--exclude=*', '--timeout', '7200', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed at ".localtime(time).": $?\n");
+    qsystem('echo', "$projid_ext\0", 'rsync', '-ar0', @binsufsrsync, '--include=*/', '--exclude=*', '--timeout', '7200', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed at ".localtime(time).": $?\n");
     qsystem('echo', "$projid_ext\0", 'rsync', '-ar0', '--delete-after', '--exclude=repocache', '--delete-excluded', '--timeout', '7200', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed at ".localtime(time).": $?\n");
   }
   # push done trigger sync to other mirrors
@@ -1565,6 +1566,7 @@ publishprog_done:
     if ($BSConfig::stageserver && $BSConfig::stageserver =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
       print "    running rsync to $1 at ".localtime(time)."\n";
       # sync project repos, timeout 1 hour
+      qsystem('echo', "$prp_ext\0", 'rsync', '-ar0', @binsufsrsync, '--include=*/', '--exclude=*', '--timeout', '7200', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed at ".localtime(time).": $?\n");
       qsystem('echo', "$prp_ext\0", 'rsync', '-ar0', '--delete-after', '--exclude=repocache', '--timeout', '3600', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed: $?\n");
     }
 
