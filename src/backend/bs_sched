@@ -1048,10 +1048,15 @@ sub makedeltas {
 	}
 	my @cand = grep {$_ ne $bin} @{$oldbins{"$aprp/$binarch"}->{$binname}};
 	next unless @cand;
-	if (@cand > 1) {
-	  # sort version/release  FIXME: epoch? use file mtime instead?
-	  @cand = sort { Build::Rpm::verscmp($b, $a) } @cand;
+	# sort and delete everything newer than bin
+	# FIXME: what about the epoch? use file mtime instead?
+	push @cand, $bin;
+	@cand = sort { Build::Rpm::verscmp($a, $b) || ($a eq $bin ? -1 : $b eq $bin ? 1 : 0) } @cand;
+	for (splice @cand) {
+	  last if $_ eq $bin;
+	  unshift @cand, $_;	# put highest version first
 	}
+	next unless @cand;
 	# make this configurable
 	@cand = splice(@cand, 0, 1);
 	for my $obin (@cand) {
