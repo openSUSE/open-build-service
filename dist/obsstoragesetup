@@ -136,42 +136,18 @@ case "$1" in
 			fi
 		fi
 
-		echo "Looking for OBS Server LVM Volume"
+		echo "Looking for existing OBS Server LVM Volume"
                 if [ -e /dev/OBS/server ]; then
-			[ -L /obs ] && rm /obs
-			[ -d /obs ] || { rm -f /obs; mkdir /obs ; }
-# this fails on a configuration with OBS-server lvm on sdb
-#			[ -e /obs/repos ] || { ln -sf /obs/repos /srv/obs/repos ; }
-# using instead:
-			[ -d $backenddir -a ! -L $backenddir ] && { rm -rf $backenddir ; }
-			[ -L $backenddir ] || { ln -sf /obs $backenddir ; }
-			mount /dev/OBS/server /obs
-			[ -d /obs/log ] || mkdir /obs/log
-			[ -d /obs/run ] || mkdir /obs/run
-			[ -d /obs/build ] || mkdir /obs/build
-			[ -d /obs/events ] || mkdir /obs/events
-			[ -d /obs/jobs ] || mkdir /obs/jobs
-			[ -d /obs/info ] || mkdir /obs/info
-			[ -d /obs/projects ] || mkdir /obs/projects
-			[ -d /obs/workers ] || mkdir /obs/workers
-			chown obsrun.obsrun /obs/{,log,run,build,events,jobs,info,projects,workers}
-		else
-			echo "Setup local storage"
-               		if [ -e /obs -a ! -L /obs ]; then
-	       			echo "/obs already exists !"
-               		        exit 1
-               		fi
-			[ -L /obs ] && rm /obs
-			ln -s $backenddir /obs
+			mount /dev/OBS/server "$backenddir"
                 fi
 
 		# Only used if there is a local BSConfig
 		if [ -e /usr/lib/obs/server/BSConfig.pm ]; then
 			# create default gpg key if not existing
-			if [ ! -e /obs/obs-default-gpg.asc ] && grep -q "^our \$keyfile.*/obs/obs-default-gpg.asc.;$" /usr/lib/obs/server/BSConfig.pm; then
+			if [ ! -e /srv/obs/obs-default-gpg.asc ] && grep -q "^our \$keyfile.*/obs/obs-default-gpg.asc.;$" /usr/lib/obs/server/BSConfig.pm; then
 				echo -n Generating OBS default GPG key ....
-				mkdir -p /obs/gnupg/phrases
-				chmod -R 0700 /obs/gnupg
+				mkdir -p /srv/obs/gnupg/phrases
+				chmod -R 0700 /srv/obs/gnupg
 				cat >/tmp/obs-gpg.$$ <<EOF
 				     %echo Generating a default OBS instance key
 				     Key-Type: DSA
@@ -182,36 +158,36 @@ case "$1" in
 				     Name-Comment: key without passphrase
 				     Name-Email: defaultkey@localobs
 				     Expire-Date: 0
-				     %pubring /obs/gnupg/pubring.gpg
-				     %secring /obs/gnupg/secring.gpg
+				     %pubring /srv/obs/gnupg/pubring.gpg
+				     %secring /srv/obs/gnupg/secring.gpg
 				     %commit
 				     %echo done
 EOF
-				gpg2 --homedir /obs/gnupg --batch --gen-key /tmp/obs-gpg.$$
-				gpg2 --homedir /obs/gnupg --export -a > /obs/obs-default-gpg.asc
+				gpg2 --homedir /srv/obs/gnupg --batch --gen-key /tmp/obs-gpg.$$
+				gpg2 --homedir /srv/obs/gnupg --export -a > /srv/obs/obs-default-gpg.asc
 				# empty file just for accepting the key
-				touch "/obs/gnupg/phrases/defaultkey@localobs"
+				touch "/srv/obs/gnupg/phrases/defaultkey@localobs"
 			fi
 			# to update sign.conf also after an appliance update
-			if [ -e /obs/obs-default-gpg.asc ] && ! grep -q "^user" /etc/sign.conf; then
+			if [ -e /srv/obs/obs-default-gpg.asc ] && ! grep -q "^user" /etc/sign.conf; then
 				# extend signd config
 				echo "user: defaultkey@localobs"   >> /etc/sign.conf
 				echo "server: 127.0.0.1"           >> /etc/sign.conf
 				echo "allowuser: obsrun"           >> /etc/sign.conf
 				echo "allow: 127.0.0.1"            >> /etc/sign.conf
-				echo "phrases: /obs/gnupg/phrases" >> /etc/sign.conf
+				echo "phrases: /srv/obs/gnupg/phrases" >> /etc/sign.conf
 				echo done
 				rm /tmp/obs-gpg.$$
 				sed -i 's,^# \(our $sign =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
 				sed -i 's,^# \(our $forceprojectkeys =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
 			fi
-			if [ ! -e /obs/obs-default-gpg.asc ] ; then
+			if [ ! -e /srv/obs/obs-default-gpg.asc ] ; then
 			    sed -i 's,^\(our $sign =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
 			    sed -i 's,^\(our $forceprojectkeys =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
 			fi
 
                         # Force mysql to update database. FIXME: only on version update
-                        touch /obs/MySQL/.run-mysql_upgrade
+                        touch /srv/obs/MySQL/.run-mysql_upgrade
 		fi
 
 		if [ "$OBS_SETUP_WORKER_PARTITIONS" = "take_all" -o "$OBS_SETUP_WORKER_PARTITIONS" = "use_obs_vg" ]; then
