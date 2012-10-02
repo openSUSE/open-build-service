@@ -2006,9 +2006,17 @@ sub dobuild {
 }
 
 sub buildkiwitree {
-  my ($destfile, @todo) = @_;
+  my ($destfile, @dirs) = @_;
   my %tree;
-  @todo = map {($_, '')} @todo;
+  my @todo;
+  while (@dirs) {
+    my $dir = shift @dirs;
+    my $sdir = shift @dirs;
+    $sdir = '' unless defined $sdir;
+    next unless -d $dir;
+    $tree{$1} = "d ". BSRPC::urlencode($1) if $sdir =~ /^(.+)\/$/;
+    push @todo, $dir, $sdir;
+  }
   while (@todo) {
     my $dir = shift @todo;
     my $sdir = shift @todo;
@@ -2446,8 +2454,8 @@ if ($ex == 0) {
     my @files = sort(ls("$buildroot/.build.packages/$d"));
     @files = grep {$_ ne 'same_result_marker' && $_ ne '.kiwitree'} @files;
     if ($localkiwi && ! -d "$localkiwi/jobs/$buildinfo->{'arch'}" && $d eq 'KIWI') {
-      $kiwitree = 1 if grep {-d "$buildroot/.build.packages/$d/$_"} @files;
-      next if $kiwitree;
+      $kiwitree = [ grep {-d "$buildroot/.build.packages/$d/$_"} @files ];
+      undef $kiwitree unless @$kiwitree;
     }
     @files = grep {-f "$buildroot/.build.packages/$d/$_"} @files;
     push @send, map {"$buildroot/.build.packages/$d/$_"} @files;
@@ -2457,7 +2465,7 @@ if ($ex == 0) {
     my $kiwitreefile = "$buildroot/.build.packages/.kiwitree";
     eval {
       die(".kiwitree already exists\n") if -e $kiwitreefile;
-      buildkiwitree($kiwitreefile , "$buildroot/.build.packages/KIWI");
+      buildkiwitree($kiwitreefile, map { ("$buildroot/.build.packages/KIWI/$_", "$_/") } @$kiwitree);
       push @send, { name => '.kiwitree', filename => $kiwitreefile };
     };
     if ($@) {
