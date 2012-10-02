@@ -248,7 +248,7 @@ class PackageController < ApplicationController
   def service_parameter
     @serviceid = params[:serviceid]
     @servicename = params[:servicename]
-    @services = find_cached(Service,  :project => @project, :package => @package )
+    @services = find_cached(Service, project: @project, package: @package )
     @parameters = @services.getParameters(@serviceid)
   end
 
@@ -671,28 +671,16 @@ class PackageController < ApplicationController
     redirect_to :action => :files, :project => @project, :package => @package
   end
 
-  def add_or_move_service
-    id = params[:id]
-    @services = find_cached(Service,  :project => @project, :package => @package )
-    unless @services
-      @services = Service.new(:project => @project, :package => @package)
-    end
+  def reorder_services
+    required_parameters :project, :package, :item, :position
+    @services = find_cached(Service, project: @project, package: @package )
 
-    if id =~ /^new_service_/
-       id.gsub!( %r{^new_service_}, '' )
-       @services.addService( id, params[:position].to_i )
-       flash[:note] = "Service \##{id} added"
-    elsif id =~ /^service_/
-       id.gsub!( %r{^service_}, '' )
-       @services.moveService( id.to_i, params[:position].to_i )
-       flash[:note] = "Service \##{id} moved"
-    else
-       flash[:error] = "unkown object dropped"
-    end
-
+    id = params[:item]
+    id.gsub!( %r{^service_}, '' )
+    
+    @services.moveService( id.to_i, params[:position].to_i )
     @services.save
-    Service.free_cache :project => @project, :package => @package
-    redirect_to :action => :files, :project => @project, :package => @package and return
+    render partial: "service_list"
   end
 
   def execute_services

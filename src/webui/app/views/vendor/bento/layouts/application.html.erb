@@ -20,26 +20,12 @@
     <%= javascript_include_tag 'application' %>
     <%= javascript_tag do %>
       <%= yield :head_javascript %>
-      <% if CONFIG['theme'] == 'bento' %>
       var _paq = _paq || [];
-      <% end %>
       $(function() {
         <% if CONFIG['theme'] == 'bento' %>
-        var u = (("https:" == document.location.protocol) ? "https://beans.opensuse.org/piwik/" : "http://beans.opensuse.org/piwik/");
-        _paq.push(['setSiteId', 8]);
-        _paq.push(['setTrackerUrl', u + 'piwik.php']);
-        _paq.push(['trackPageView']);
-        _paq.push(['setDomains', ["*.opensuse.org"]]);
-        var d = document,
-        g = d.createElement('script'),
-        s = d.getElementsByTagName('script')[0];
-        g.type = 'text/javascript';
-        g.defer = true;
-        g.async = true;
-        g.src = u + 'piwik.js';
-        s.parentNode.insertBefore(g, s);
+          callPiwik();  
         <% else %>
-        setup_favorites();
+          setup_favorites();
         <% end %>
         <%= yield :ready_function %>
       });

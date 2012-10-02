@@ -11,6 +11,7 @@
 // GO AFTER THE REQUIRES BELOW.
 //
 //= require jquery
+//= require jquery-ui
 //= require jquery_ujs
 //
 //= require jquery.dataTables.js
@@ -21,6 +22,7 @@
 //= require bento/script.js
 //= require bento/global-navigation.js
 //= require bento/l10n/global-navigation-data-en_US.js
+//= require package
 
 // toggle visibility of an element via the CSS "display" property
 // -> does NOT reserve the needed space for the element when not displayed
@@ -257,6 +259,40 @@ function resizeMonitorBoxes()
         }
     });
   
+}
+
+function insertServiceRow() {
+    var name     = $('#add_new_parameter').value;
+    var service  = $('#servicename').value;
+    var value    = $('#add_new_value').value;
+    var number   = $('#count_parameters').value + 1;
+
+    $('#pTable tr:last').before('<tr class=\"row_'+number+'\">'+
+      '<td>'+name+'</td>'+
+      '<td id="added_parameter_'+number+'">...</td>'+
+      '<td><a href=\"#\" onclick=\"\$(\'tr.row_'+number+'\').remove(); return false;\">X</a></td>'+
+      '</tr>');
+    
+    document.getElementById('count_parameters').value = number;
+
+    var path="/package/service_parameter_value?number="+number+"&servicename="+encodeURIComponent(service)+"&parameter="+encodeURIComponent(name)+"&value="+encodeURIComponent(value)+"&package=<%= CGI.escape(@package.name) %>&project=<%= CGI.escape(@project.name) %>";
+    $("#pTable td#added_parameter_"+number).load(path);
+}
+
+function callPiwik() {
+    var u = (("https:" == document.location.protocol) ? "https://beans.opensuse.org/piwik/" : "http://beans.opensuse.org/piwik/");
+    _paq.push(['setSiteId', 8]);
+    _paq.push(['setTrackerUrl', u + 'piwik.php']);
+    _paq.push(['trackPageView']);
+    _paq.push(['setDomains', ["*.opensuse.org"]]);
+    var d = document,
+    g = d.createElement('script'),
+    s = d.getElementsByTagName('script')[0];
+    g.type = 'text/javascript';
+    g.defer = true;
+    g.async = true;
+    g.src = u + 'piwik.js';
+    s.parentNode.insertBefore(g, s);
 }
 
 $(document).ajaxSend(function(event, request, settings) {

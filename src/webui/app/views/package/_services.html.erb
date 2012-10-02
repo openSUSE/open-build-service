@@ -5,23 +5,10 @@
 
   <% unless @services.blank? %>
     <p><i>Services are applied in the displayed order. You can use drag&amp;drop to re-order them.</i></p>
-    <% @services.each_with_index do |service, number| %>
-      <div>
-        <% object_id = "service_#{number}" %>
-        <div class="service" id="<%= object_id %>" style="margin-left: 15px; ">
-          <%= sprite_tag('cog') %> <b><%= Service.summary(service.name) %></b>
-          <div style="color: #999; font-size: 8pt; margin-left: 2em;">
-            <%= link_text = "Show Parameters"
-            link_text = sprite_tag('cog_edit') + " Edit Parameters" if @package.can_edit?( session[:login] )
-            link_to(link_text, {:action => :service_parameter, :project => @project, :package => @package, :servicename => service.name, :serviceid => number}, :remote => true) %>
-            <% if @package.can_edit?( session[:login] ) %>
-               | <%= sprite_tag('cog_delete') %>
-               <%= link_to( "Remove this service", {:action => :remove_service, :project => @project, :package => @package, :id => number}, :confirm => "Remove this service (#{service.name}) ?") %>
-            <% end %>
-          </div>
-        </div>
-        <!-- :onDrop => "function(drag, drop) { window.location='/package/add_or_move_service?id=' + drop.draggable.first()[0].id + '&position=#{number}&package=#{@package}&project=#{@project}' }" -->
-      </div>
+
+    <%= render partial: "service_list" %>
+    <% content_for :ready_function do %>
+       makeServicesDragable(); 
     <% end %>
   <% end %>
 

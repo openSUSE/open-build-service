@@ -183,9 +183,15 @@ class Service < ActiveXML::Base
   end
 
   def moveService( from, to )
-     service_elements = each("/services/service")
-     return false if service_elements.count < from or service_elements.count < to or service_elements.count <= 0
-     service_elements[from-1].move_before(service_elements[to-1])
+    return if from == to
+    service_elements = each("/services/service")
+    return false if service_elements.count < from or service_elements.count < to or service_elements.count <= 0
+    logger.debug "moveService #{from}->#{to}"
+    if from > to
+      service_elements[from].move_before(service_elements[to])
+    else
+      service_elements[from].move_after(service_elements[to])
+    end
   end
 
   def error

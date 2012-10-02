@@ -95,7 +95,7 @@ OBSWebUI::Application.routes.draw do
     match 'package/remove' => :remove
     match 'package/add_file' => :add_file
     match 'package/save_file' => :save_file
-    match 'package/add_or_move_service' => :add_or_move_service
+    match 'package/reorder_services' => :reorder_services
     match 'package/execute_services' => :execute_services
     match 'package/remove_service' => :remove_service
     match 'package/remove_file' => :remove_file

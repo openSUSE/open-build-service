@@ -358,9 +358,7 @@ class ApplicationController < ActionController::Base
     xmlbody.gsub!(/[\n\r]/, "\n")
     xmlbody.gsub!(/&[^;]*sp;/, '')
     # rails kind of invented their own html ;(
-    xmlbody.gsub!(%r{ data-method=\"[^\"]*\"}, ' ')
-    xmlbody.gsub!(%r{ data-remote=\"[^\"]*\"}, ' ')
-    xmlbody.gsub!(%r{ data-confirm=\"[^\"]*\"}, ' ')
+    xmlbody.gsub!(%r{ data-\S+=\"[^\"]*\"}, ' ')
 
     begin
       document = Nokogiri::XML::Document.parse(xmlbody, nil, nil, Nokogiri::XML::ParseOptions::STRICT)

@@ -6,3 +6,8 @@ table.repostatus td.buildstatus { width: 11ex; }
 table.repostatus td.arch { width: 1%; margin: 1ex 0; }
 table.repostatus td.repo { max-width: 5em; }
 
+#services { list-style-type: none; }
+#services li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; }
+#services li .actions { margin-left: 16px; }
+
+#empty_service { background-color: yellow ; border: 1px solid black; }

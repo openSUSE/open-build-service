@@ -1,7 +1,7 @@
 <div>
 
-<%= javascript_tag do %>
-  $('#add_new_row').click(insertRow);
+<% content_for_ready_function do %>
+  $('#add_new_row').click(insertServiceRow);
 <% end %>
 
 <div class="dialog" id="disable_mask"></div>
