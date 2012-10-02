@@ -23,6 +23,7 @@ bundle install
 popd
 
 # dependencies of backend
+sudo apt-get update
 sudo apt-get install liblzma-dev librpm-dev libxml-parser-perl libfile-sync-perl python-rpm python-urlgrabber python-sqlitecachec python-libxml2
 
 case "$SUBTEST" in
