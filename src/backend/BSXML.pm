@@ -1475,35 +1475,33 @@ our $attributes = [
 
 # define constraints for build jobs in packages or projects.
 our $constraints = [
-  [[ 'hostlabel' => '_content' ]], # workers might get labels defined by admin, for example for benchmarking.
-  [[ 'sandbox' => '_content' ]], # xen/kvm/chroot/secure
+  'hostlabel', # workers might get labels defined by admin, for example for benchmarking.
+  'sandbox',   # xen/kvm/chroot/secure
   [ 'linux' =>
     [ 'version' =>
-      [],
-      [ 'max' => '_content' ],
-      [ 'min' => '_content' ],
+        [],
+        'max' ,
+        'min' ,
     ],
-    [ 'flavor' => '_content' ],
+    'flavor',
   ],
   [ 'hardware' =>
     [ 'cpu' =>
-      [[ 'flag' => '_content' ]],
+      [[ 'flag' ]],
     ],
-  ],
-  [ 'processors' => '_content' ],
-  [ 'disk' =>
-      [ 'size' => 
-        'unit',
-        [],
-        '_content'
-      ],
-  ],
-  [ 'memory' =>
-      [ 'size' => 
-        'unit',
-        [],
-        '_content'
-      ],
+    'processors',
+    [ 'disk' =>
+        [ 'size' => 
+            'unit',
+            '_content'
+        ],
+    ],
+    [ 'memory' =>
+        [ 'size' => 
+            'unit',
+            '_content'
+        ],
+    ],
   ],
 ];
 
