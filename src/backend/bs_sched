@@ -1009,6 +1009,8 @@ sub makedeltas {
 
   my %ddir = map {$_ => 1} ls($ddir);
 
+  # first collect all binary names
+  my %binarchnames;
   for my $packid (@{$packs || []}) {
     next if $pubenabled && !$pubenabled->{$packid};
     my $pdir = "$reporoot/$prp/$myarch/$packid";
@@ -1024,8 +1026,22 @@ sub makedeltas {
       next unless $bin =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.rpm$/;
       my $binname = $1;
       my $binarch = $2;
+      push @{$binarchnames{"$binarch/$binname"}}, [ $bin, $packid ];
+    }
+  }
+
+  for my $binarchname (sort keys %binarchnames) {
+    # we only want deltas against the highest version
+    my @binxs = sort {Build::Rpm::verscmp($b->[0], $a->[0])} @{$binarchnames{$binarchname}};
+    my $didbin;
+    for my $binx (@binxs) {
+      my ($bin, $packid) = @$binx;
+      last if $didbin && Build::Rpm::verscmp($didbin, $bin) > 0;
+      my $pdir = "$reporoot/$prp/$myarch/$packid";
       my @binstat = stat("$pdir/$bin");
       next unless @binstat;
+      $didbin = $bin;
+      my ($binarch, $binname) = split('/', $binarchname, 2);
 
       # find all delta candidates for this package. we currently just
       # use the searchpath, this may be configurable in a later version
@@ -1048,15 +1064,15 @@ sub makedeltas {
 	}
 	my @cand = grep {$_ ne $bin} @{$oldbins{"$aprp/$binarch"}->{$binname}};
 	next unless @cand;
+
 	# sort and delete everything newer than bin
 	# FIXME: what about the epoch? use file mtime instead?
 	push @cand, $bin;
-	@cand = sort { Build::Rpm::verscmp($a, $b) || ($a eq $bin ? -1 : $b eq $bin ? 1 : 0) } @cand;
-	for (splice @cand) {
-	  last if $_ eq $bin;
-	  unshift @cand, $_;	# put highest version first
-	}
+	@cand = sort { Build::Rpm::verscmp($b, $a) || ($a eq $bin ? 1 : $b eq $bin ? -1 : 0) } @cand;
+	shift @cand while $cand[0] ne $bin;
+	shift @cand;
 	next unless @cand;
+
 	# make this configurable
 	@cand = splice(@cand, 0, 1);
 	for my $obin (@cand) {
