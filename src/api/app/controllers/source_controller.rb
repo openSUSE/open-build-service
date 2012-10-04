@@ -1089,16 +1089,18 @@ class SourceController < ApplicationController
       path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink, :meta])
 
       # file validation where possible
-      if params[:filename] == "_link"
-         validator = Suse::Validator.validate( "link", request.raw_post.to_s)
-      elsif params[:filename] == "_aggregate"
+      if params[:filename] == "_aggregate"
          validator = Suse::Validator.validate( "aggregate", request.raw_post.to_s)
-      elsif params[:package] == "_pattern"
-         validator = Suse::Validator.validate( "pattern", request.raw_post.to_s)
+      elsif params[:filename] == "_constraints"
+         validator = Suse::Validator.validate( "constraints", request.raw_post.to_s)
+      elsif params[:filename] == "_link"
+         validator = Suse::Validator.validate( "link", request.raw_post.to_s)
       elsif params[:filename] == "_service"
          validator = Suse::Validator.validate( "service", request.raw_post.to_s)
       elsif params[:filename] == "_patchinfo"
          validator = Suse::Validator.validate( "patchinfo", request.raw_post.to_s)
+      elsif params[:package] == "_pattern"
+         validator = Suse::Validator.validate( "pattern", request.raw_post.to_s)
       end
 
       # verify link

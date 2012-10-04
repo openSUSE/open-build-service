@@ -1588,6 +1588,26 @@ end
     assert_match(/argl/, @response.body)
   end
 
+  def test_constraints
+    prepare_request_with_user "tom", "thunder"
+    get "/source/home:coolo:test"
+    assert_response :success
+    put "/source/home:coolo:test/_project/_constraints", "illegal"
+    assert_response 400
+    assert_match(/validation error/, @response.body)
+    put "/source/home:coolo:test/_project/_constraints", "<constraints> <hardware> <processors>3</processors> </hardware> </constraints>"
+    assert_response :success
+    put "/source/home:coolo:test/test/_meta", "<package project='home:coolo:test' name='test'><title/><description/></package>"
+    assert_response :success
+    put "/source/home:coolo:test/test/_constraints", "<constraints> <linux> <version><min>1.0</min></version> </linux> </constraints>"
+    assert_response :success
+
+    # cleanup
+    delete "/source/home:coolo:test/_project/_constraints"
+    assert_response :success
+    delete "/source/home:coolo:test/test"
+    assert_response :success
+  end
 
   def test_pattern
     reset_auth 

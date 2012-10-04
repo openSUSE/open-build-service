@@ -31,12 +31,16 @@
         <element name="linux">
            <optional>
              <element name="version">
-               <element name="max">
-                 <text/>
-               </element>
-               <element name="min">
-                 <text/>
-               </element>
+               <optional>
+                 <element name="max">
+                   <text/>
+                 </element>
+               </optional>
+               <optional>
+                 <element name="min">
+                   <text/>
+                 </element>
+               </optional>
              </element>
            </optional>
            <optional>
@@ -49,22 +53,30 @@
       <optional>
         <element name="hardware">
           <interleave> 
-            <element name="cpu">
-              <oneOrMore> 
-                <element name="flag">
-                  <ref name="cpu-flags"/>
-                </element>
-              </oneOrMore> 
-            </element>
-            <element name="processors">
-              <data type="integer"/>
-            </element>
-            <element name="disk">
-              <ref name="size-unit"/>
-            </element>
-            <element name="memory">
-              <ref name="size-unit"/>
-            </element>
+            <optional>
+              <element name="cpu">
+                <oneOrMore> 
+                  <element name="flag">
+                    <ref name="cpu-flags"/>
+                  </element>
+                </oneOrMore> 
+              </element>
+            </optional>
+            <optional>
+              <element name="processors">
+                <data type="integer"/>
+              </element>
+            </optional>
+            <optional>
+              <element name="disk">
+                <ref name="size-unit"/>
+              </element>
+            </optional>
+            <optional>
+             <element name="memory">
+               <ref name="size-unit"/>
+             </element>
+            </optional>
           </interleave>
         </element>
       </optional>
