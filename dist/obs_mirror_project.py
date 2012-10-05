@@ -78,6 +78,10 @@ if __name__ == '__main__':
     filenames = core.get_binarylist(conf.config['apiurl'], project, repository, architecture)
 
     for filename in filenames:
+	if filename.contains("debuginfo") or filename.contains("debugsource"):
+		print "Skipping debug package: %s" % filename
+		continue
+
         if not os.path.exists('%s/%s' % (destinationdir, filename)):
             attempt = 0
             done = False
