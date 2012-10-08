@@ -1472,49 +1472,47 @@ our $appdata = [
 
 our $attribute = [
     'attribute' => 
-           'namespace', 
-           'name', 
-           'binary', 
-        [[ 'value' =>
-               '_content',
-        ]],
+	'namespace', 
+        'name', 
+        'binary', 
+      [ 'value' ],
 ];
 
 our $attributes = [
      'attributes' => 
-         [ $attribute ],
+      [ $attribute ],
 ];
 
 # define constraints for build jobs in packages or projects.
 our $constraints = [
-  [],
-  'hostlabel', # workers might get labels defined by admin, for example for benchmarking.
-  'sandbox',   # xen/kvm/chroot/secure
+    [],
+    'hostlabel', # workers might get labels defined by admin, for example for benchmarking.
+    'sandbox',   # xen/kvm/chroot/secure
   [ 'linux' =>
-    [ 'version' =>
+      [ 'version' =>
         [],
         'max' ,
         'min' ,
-    ],
+      ],
     'flavor',
   ],
   [ 'hardware' =>
-    [ 'cpu' =>
-      [[ 'flag' ]],
-    ],
-    'processors',
-    [ 'disk' =>
-        [ 'size' => 
-            'unit',
-            '_content'
-        ],
-    ],
-    [ 'memory' =>
-        [ 'size' => 
-            'unit',
-            '_content'
-        ],
-    ],
+      [ 'cpu' =>
+	 [[ 'flag' ]],
+      ],
+	'processors',
+      [ 'disk' =>
+	  [ 'size' => 
+		'unit',
+		'_content'
+	  ],
+      ],
+      [ 'memory' =>
+	  [ 'size' => 
+		'unit',
+		'_content'
+          ],
+      ],
   ],
 ];
 
