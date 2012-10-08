@@ -341,6 +341,7 @@ module ActiveXML
           objdata = http_do( 'post', url, :data => data.to_s, :content_type => own_mimetype)
           raise RuntimeError.new("POST to %s returned no data" % url) if objdata.empty?
         end
+        objdata = objdata.force_encoding("UTF-8")
         return [objdata, params]
       end
 
