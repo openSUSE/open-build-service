@@ -665,8 +665,20 @@ our $worker = [
 	'port',
 	'workerid',
       [ 'buildarch' ],
+	'sandbox',
+      [ 'linux' =>
+        [],
+        'version',
+        'flavor'
+      ],
+      [ 'hardware' =>
+        [ 'cpu' =>
+          [[ 'flag' ]],
+        ],
+        'processors',
 	'memory',	# in MBytes
 	'disk',		# in MBytes
+      ],
 	'tellnojob',
 
 	'job',		# set when worker is busy
