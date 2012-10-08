@@ -13,10 +13,6 @@ module Xmlhash
       return self.has_key? name.to_s
     end
     
-    def initialize(opts = nil)
-      self.replace(opts) if opts
-    end
-    
     def method_missing( symbol, *args, &block )
       if args.size > 0 || !block.nil?
         raise RuntimeError, "das geht zuweit #{symbol.inspect}(#{args.inspect})"
