@@ -235,10 +235,16 @@ table.patchinfo td { vertical-align: middle; }
 .horizontal-list {
   list-style: none inside;
 
- li {
-  float: left;
-  margin: 0 0 0.5em 0;
- }
+  li {
+    float: left;
+    margin-right: 1em;
+    margin-left: 0;
+
+    span.inlineblock {
+      margin-right: 2px;
+      vertical-align: middle;
+    }
+  }
 } 
 
 .horizontal-list:after {
