@@ -390,3 +390,9 @@ $icons-sprite-dimensions:true;
  background: sprite($icons-sprites, note_delete) no-repeat !important;
  @include sprite-dimensions($icons-sprites, note_delete);
 }
+
+#breadcrump .icons-home_grey {
+  float: left;
+  margin-right: 5px;
+}
+

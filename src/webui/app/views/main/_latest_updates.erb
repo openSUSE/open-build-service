@@ -5,7 +5,7 @@
 <div class="box box-shadow">
   <h2 class="box-header">
     Latest Updates
-    <%= link_to(image_tag('feeds.png', :title => 'RSS Feed', :class => 'alignright'), :action => 'latest_updates', :format => 'rss') %>
+    <%= link_to('', { :action => 'latest_updates', :format => 'rss'}, { class: "alignright icons-feeds", title: "RSS Feed" }) %>
   </h2>
   <table>
     <tbody>

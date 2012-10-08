@@ -30,7 +30,7 @@
   <%= render :partial => 'news' %>
 
   <div id="workerstatus_placeholder"></div>
-  <%= javascript_tag do %>
+  <% content_for :ready_function do %>
     $.ajax({
       url: '<%= url_for(:controller => 'main', :action => 'systemstatus') %>',
       success: function(data) { $('#workerstatus_placeholder').html(data); }

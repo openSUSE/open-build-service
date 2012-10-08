@@ -88,7 +88,7 @@ copy $themedir/bento/images/icons/user_delete.png ./app/assets/icons/user_delete
 copy $themedir/bento/images/icons/user_edit.png ./app/assets/icons/user_edit.png
 copy $themedir/bento/images/icons/user_green.png ./app/assets/icons/user_green.png
 copy $themedir/bento/images/icons/help.png ./app/assets/icons/help.png
-copy $themedir/bento/images/home_grey.png ./app/assets/images/home_grey.png
+copy $themedir/bento/images/home_grey.png ./app/assets/icons/home_grey.png
 copy $themedir/bento/images/sponsors/sponsor_suse.png ./app/assets/icons/sponsor_suse.png
 copy $themedir/bento/images/sponsors/sponsor_amd.png ./app/assets/icons/sponsor_amd.png
 copy $themedir/bento/images/sponsors/sponsor_b1-systems.png ./app/assets/icons/sponsor_b1-systems.png

@@ -22,12 +22,12 @@
       <%= yield :head_javascript %>
       var _paq = _paq || [];
       $(function() {
+        <%= yield :ready_function %>
         <% if CONFIG['theme'] == 'bento' %>
           callPiwik();  
         <% else %>
           setup_favorites();
         <% end %>
-        <%= yield :ready_function %>
       });
     <% end %>
     <%= csrf_meta_tag %>
@@ -37,7 +37,7 @@
 
     <div id="subheader" class="container_16">
       <div id="breadcrump" class="grid_10 alpha">
-        <%= image_tag( "home_grey.png" ) %><%= link_to "#{@configuration ? @configuration['title'] : 'Open Build Service'}", :controller => 'main', :action => :index %>
+        <%= sprite_tag( "home_grey" ) %><%= link_to "#{@configuration ? @configuration['title'] : 'Open Build Service'}", :controller => 'main', :action => :index %>
         <% if @crumb_list %>
           <% @crumb_list.each do |link| %>
             &gt;
@@ -59,7 +59,8 @@
     <div id="dialog_wrapper" style="display: none"></div>
 
     <!-- Start: Main Content Area -->
-    <div id="content" class="container_16 content-wrapper">
+    <div id="content"><div class="container_16 content-wrapper">
+     
       <% if @layouttype == "custom" %>
         <%= content_for?(:content) ? yield(:content) : yield %>
       <% else %>
@@ -67,7 +68,7 @@
           <%= content_for?(:content) ? yield(:content) : yield %>
         </div>
       <% end %>
-    </div>
+    </div></div>
     <!-- End: Main Content Area -->
 
     <div style="clear: both;"></div>

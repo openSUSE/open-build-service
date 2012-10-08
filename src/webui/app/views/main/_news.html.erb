@@ -6,7 +6,7 @@
   <div class="box box-shadow">
     <h2 class="box-header">
       News
-      <%= link_to('', { :title => 'RSS Feed', :action => 'news', :format => 'rss'}, { class: 'alignright icons-feeds' }) %>
+      <%= link_to('', { :action => 'news', :format => 'rss'}, { class: 'alignright icons-feeds', title: "RSS Feed" }) %>
     </h2>
     <% if @news.count.to_i > 0 %>
       <table id="messages">

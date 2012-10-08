@@ -1,8 +1,8 @@
 <div class="box box-shadow">
   <h2 class="box-header">Feeds</h2>
   <ul class="feedbox">
-    <li><%= image_tag('feeds.png') %> <%= link_to 'Commits in openSUSE:Factory', 'https://hermes.opensuse.org/feeds/25549.rdf' %></li>
-    <li><%= image_tag('feeds.png') %> <%= link_to 'New projects created', 'https://hermes.opensuse.org/feeds/25546.rdf' %></li>
-    <li><%= image_tag('feeds.png') %> <%= link_to 'New packages created', 'https://hermes.opensuse.org/feeds/25545.rdf' %></li>
+    <li><%= sprite_tag('feeds') + link_to('Commits in openSUSE:Factory', 'https://hermes.opensuse.org/feeds/25549.rdf') %></li>
+    <li><%= sprite_tag('feeds') + link_to('New projects created', 'https://hermes.opensuse.org/feeds/25546.rdf') %></li>
+    <li><%= sprite_tag('feeds') + link_to('New packages created', 'https://hermes.opensuse.org/feeds/25545.rdf') %></li>
   </ul>
 </div>
