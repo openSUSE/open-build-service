@@ -579,6 +579,10 @@ sub header {
   return $post_hdrs->{$_[0]};
 }
 
+sub have_content {
+  return $post_hdrs ? 1 : 0;
+}
+
 ###########################################################################
 
 sub read_file {

@@ -2709,6 +2709,7 @@ sub getprojpack {
         } elsif ($cgi->{'withdeps'}) {
 	  my @dinfo;
 
+	  $pinfo->{'constraintsmd5'} = $files->{'_constrains'} if $files->{'_constraints'};
 	  for my $repo (@{$proj->{'repository'} || []}) {
 	    my $repoid = $repo->{'name'};
 	    next if $repoids && !$repoids->{$repoid};

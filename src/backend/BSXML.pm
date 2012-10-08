@@ -287,6 +287,7 @@ our $projpack = [
 		'verifymd5',	# tree id
 		'originproject',
 		'revtime',
+		'constraintsmd5',	# md5sum of constraints file in srcmd5
 		[ $linked ],
 		'error',
 		[ $packinfo ],
@@ -469,6 +470,7 @@ our $buildinfo = [
 	'bcnt',
 	'release',
 	'debuginfo',
+	'constraintsmd5',
       [ 'subpack' ],
       [ 'imagetype' ],
       [ 'dep' ],

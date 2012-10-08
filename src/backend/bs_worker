@@ -546,11 +546,17 @@ sub send_state {
       my $curstate = readxml("$statedir/state", $BSXML::workerstate, 1);
       last if $curstate && $curstate->{'state'} ne $state;
     }
+    my $param = {
+      'uri' => "$server/worker",
+      'timeout' => 3,
+    };
+    if ($state eq 'idle') {
+      my $worker = {};	# XXX: Adrian, fill in...
+      $param->{'request'} = 'POST';
+      $param->{'data'} = BSUtil::toxml($BSXML::worker, $worker);
+    }
     eval {
-      BSRPC::rpc({
-        'uri' => "$server/worker",
-	'timeout' => 3,
-      }, undef, @args);
+      BSRPC::rpc($param, undef, @args);
     };
     print "send_state $server: $@" if $@;
   }

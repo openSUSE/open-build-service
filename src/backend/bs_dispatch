@@ -127,6 +127,7 @@ my $builddircache = {};
 my %badhost;
 my %newestsrcchange;
 my %infocache;
+my %constraintscache;
 
 my %lastbuild;	# last time a job was build in that prpa
 
@@ -244,6 +245,25 @@ sub staleness {
   $ret = 0 if $ret < 0;
   #print "staleness $prpa: $ret\n";
   return $ret;
+}
+
+sub getconstraints {
+  my ($info, $constraintsmd5) = @_;
+  my $param = {
+    'uri' => "$BSConfig::srcserver/source/$info->{'project'}/$info->{'package'}/_constraints",
+    'timeout' => 300,
+  };
+  my $constraintsxml;
+  eval {
+    $constraintsxml = BSRPC::rpc($param, undef, "rev=$info->{'srcmd5'}");
+    die("huh? constaints md5 does not match\n") unless Digest::MD5::md5_hex($constraintsxml) eq $constraintsmd5;
+  };
+  if ($@) {
+    warn($@);
+    return [ time() + 600 ];	# better luck next time
+  }
+  return undef unless $constraintsxml;
+  return BSUtil::fromxml($constraintsxml, $BSXML::constraints, 1);
 }
 
 sub oracle {
@@ -609,7 +629,24 @@ while (1) {
       my ($project, $repository, $arch) = split('/', $prpa, 3);
       my $lastoracle = 0;
       my $lastoracleidle;
-      for my $idle (@idle, '__lastoracle') {
+      my $constraints;
+      if ($ic->{$job}->{'constraintsmd5'}) {
+	my $constraintsmd5 = $ic->{$job}->{'constraintsmd5'};
+	if (!exists($constraintscache{$constraintsmd5})) {
+	  $constraintscache{$constraintsmd5} = getconstraints($ic->{$job}, $constraintsmd5);
+	}
+	$constraints = $constraintscache{$constraintsmd5};
+	if (!ref($constraints)) {
+	  print "job has bad constraints file: $job\n";
+	  next;
+	}
+	if (ref($constraints) eq 'ARRAY') {
+	  delete($constraintscache{$constraintsmd5}) if $constraints->[0] < $now;
+	  next;
+	}
+	push @idle, '__lastoracle';
+      }
+      for my $idle (@idle) {
 	if ($idle eq '__lastoracle') {
 	  last unless $lastoracleidle;
 	  $idle = $lastoracleidle;
@@ -631,21 +668,23 @@ while (1) {
 	  $workerinfo{$idle} = $worker;
 	  $workerinfo_mtime{$idle} = $s[7];
 	}
-        my $ora = oracle($ic->{$job}, $workerinfo{$idle});
-	next unless defined($ora) && $ora > 0;
-	if ($ora < 1) {
-	  if ($lastoracleidle && $lastoracleidle eq '__lastoracle') {
-	    my $widle = $now - $workerinfo_mtime{$idle};
-	    my $jwait = $now - $ic->{'job'}->{'readytime'};
-	    $widle = 0 if $widle < 0;
-	    $jwait = 0 if $jwait < 0;
-	    next if $widle / 60 < 1 - $ora && $jwait / 300 < 1 - $ora;
-	  } else {
-	    if ($ora > $lastoracle) {
-	      $lastoracleidle = $idle;
-	      $lastoracle = $ora;
+	if ($constraints) {
+	  my $ora = oracle($ic->{$job}, $workerinfo{$idle}, $constraints);
+	  next unless defined($ora) && $ora > 0;
+	  if ($ora < 1) {
+	    if ($lastoracleidle && $lastoracleidle eq '__lastoracle') {
+	      my $widle = $now - $workerinfo_mtime{$idle};
+	      my $jwait = $now - $ic->{'job'}->{'readytime'};
+	      $widle = 0 if $widle < 0;
+	      $jwait = 0 if $jwait < 0;
+	      next if $widle / 60 < 1 - $ora && $jwait / 300 < 1 - $ora;
+	    } else {
+	      if ($ora > $lastoracle) {
+		$lastoracleidle = $idle;
+		$lastoracle = $ora;
+	      }
+	      next;
 	    }
-	    next;
 	  }
 	}
 	last if $assigned && $tries >= 5;

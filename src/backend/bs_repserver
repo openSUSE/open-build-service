@@ -1174,6 +1174,14 @@ sub workerstate {
   my $peerip = BSServer::getpeerdata();
   die("cannot get your ip address\n") unless $peerip;
   my $workerid = defined($cgi->{'workerid'}) ? $cgi->{'workerid'} : "$peerip:$peerport";
+  my $workerskel;
+  if (BSServer::have_content()) {
+    my $workerskelxml = read_data(BSServer::read_data(10000000));
+    $workerskel = BSUtil::fromxml($workerskelxml, $BSXML::worker);
+    for (qw{job arch}) {
+      delete $workerskel->{$_};
+    }
+  }
   my $idlename = "$harch:$workerid";
   $idlename =~ s/\//_/g;
   if ($state eq 'building' || $state eq 'exit') {
@@ -1221,8 +1229,7 @@ sub workerstate {
       'port' => $peerport,
       'workerid' => $workerid,
     };
-    $worker->{'buildarch'} = $cgi->{'buildarch'} if $cgi->{'buildarch'};
-    $worker->{'memory'} = $cgi->{'memory'} if $cgi->{'memory'};
+    $worker = { %$workerskel, %$worker } if $workerskel;
     $worker->{'tellnojob'} = $cgi->{'tellnojob'} if $cgi->{'tellnojob'};
     if (-d "$workersdir/disable") {
       my @dis = ls("$workersdir/disable");
