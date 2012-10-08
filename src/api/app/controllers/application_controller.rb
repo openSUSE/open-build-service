@@ -67,10 +67,13 @@ class ApplicationController < ActionController::Base
 
   def extract_user_public
     # to become _public_ special user 
-    @http_user = User.find_by_login( "_nobody_" )
-    @user_permissions = Suse::Permission.new( @http_user )
-    User.current = @http_user
-    return true
+    if CONFIG['allow_anonymous']
+      @http_user = User.find_by_login( "_nobody_" )
+      @user_permissions = Suse::Permission.new( @http_user )
+      return true
+    end
+    logger.error "No public access is configured"
+    render_error( :message => "No public access is configured", :status => 401 ) and return false
   end
 
   def validate_params
