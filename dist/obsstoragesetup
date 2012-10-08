@@ -134,6 +134,13 @@ case "$1" in
 				vgcreate OBS $DEVICES
 				vgscan
 			fi
+		elif [ "$OBS_SETUP_WORKER_PARTITIONS" = "use_obs_vg" ]; then
+			echo "Remove all LVM partitions in VG OBS for the worker"
+			if [ ! -d /dev/OBS ]; then
+				echo "ERROR: OBS is supposed to use VG 'OBS', which doesn't exist!"
+				exit 1
+			fi
+			lvremove -f OBS
 		fi
 
 		echo "Looking for existing OBS Server LVM Volume"
