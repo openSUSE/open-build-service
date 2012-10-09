@@ -19,8 +19,8 @@ class CodeQualityTest < ActiveSupport::TestCase
     # fast test first
     tmpfile = Tempfile.new('output')
     tmpfile.close
-    io.write("# encoding: utf-8\n")
     IO.popen("ruby -cv - 2>&1 > /dev/null | grep '^-' > #{tmpfile.path}", "w") do |io|
+      io.write("# encoding: utf-8\n")
       @ruby_files.each do |ruby_file|  
         lines = File.open(ruby_file).read 
         begin
