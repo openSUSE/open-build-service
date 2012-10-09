@@ -7,11 +7,10 @@
               :action => :index }, { :id => "header-logo"} -%>
 
       <ul id="global-navigation">
-        <!-- change link to en.o.o after transition -->
-        <li id="item-downloads"><a href="http://wiki.opensuse.org//openSUSE:Browse#Downloads">Downloads</a></li>
-        <li id="item-support"><a href="http://wiki.opensuse.org//openSUSE:Browse#Support">Support</a></li>
-        <li id="item-community"><a href="http://wiki.opensuse.org//openSUSE:Browse#Community">Community</a></li>
-        <li id="item-development"><a href="http://wiki.opensuse.org//openSUSE:Browse#Development">Development</a></li>
+        <li id="item-downloads"><a href="http://en.opensuse.org/openSUSE:Browse#Downloads">Downloads</a></li>
+        <li id="item-support"><a href="http://en.opensuse.org/openSUSE:Browse#Support">Support</a></li>
+        <li id="item-community"><a href="http://en.opensuse.org/openSUSE:Browse#Community">Community</a></li>
+        <li id="item-development"><a href="http://en.opensuse.org/openSUSE:Browse#Development">Development</a></li>
           <% if user -%>
             <li id="item-favorites" style="float: right;"><a href="<%= url_for :controller => "home", :action => :list_my %>">Watchlist</a></li>
           <% end -%>
