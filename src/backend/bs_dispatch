@@ -266,8 +266,52 @@ sub getconstraints {
   return BSUtil::fromxml($constraintsxml, $BSXML::constraints, 1);
 }
 
+# normalizes an xml size element to mega bytes
+sub getmbsize {
+  my ($se) = @_;
+  my $size = $se->{'size'};
+  $size /= (1024*1024) if $se->{'unit'} eq undef || $se->{'unit'} eq 'B';
+  $size /= 1024 if $se->{'unit'} eq 'K';
+  # already MegaBytes
+  $size *= 1024 if $se->{'unit'} eq 'G';
+  $size *= 1024 * 1024 if $se->{'unit'} eq 'T';
+  $size *= 1024 * 1024 * 1024 if $se->{'unit'} eq 'P';
+  return $size;
+}
+
 sub oracle {
-  my ($job, $worker) = @_;
+  my ($job, $worker, $constraints) = @_;
+  if ($constraints->{'hostlabel'}) {
+    return 0 unless grep {$constraints->{'hostlabel'}} @{$worker->{'hostlabel'}};
+  }
+  if ($constraints->{'sandbox'}) {
+    if ($constraints->{'sandbox'} eq 'secure') {
+      # we just define xen and kvm as entirely secure sandboxes atm
+      return 0 unless $worker->{'sandbox'} eq 'xen' || $worker->{'sandbox'} eq 'kvm';
+    } else {
+      return 0 unless ($constraints->{'sandbox'} eq $worker->{'sandbox'});
+    }
+  }
+  if ($constraints->{'linux'}) {
+    return 0 if ($constraints->{'linux'}->{'flavor'} && $constraints->{'linux'}->{'flavor'} ne $worker->{'linux'}->{'flavor'});
+    if ($constraints->{'linux'}->{'version'}) {
+      return 0 if ($constraints->{'linux'}->{'version'}->{'min'} && $constraints->{'linux'}->{'version'}->{'min'} ge $worker->{'linux'}->{'version'});
+      return 0 if ($constraints->{'linux'}->{'version'}->{'max'} && $constraints->{'linux'}->{'version'}->{'max'} le $worker->{'linux'}->{'version'});
+    }
+  }
+  if ($constraints->{'hardware'}) {
+    $constraints->{'hardware'}->{'processors'} = 0 unless defined($constraints->{'hardware'}->{'processors'});
+    $constraints->{'hardware'}->{'disk'}       = 0 unless defined($constraints->{'hardware'}->{'disk'});
+    $constraints->{'hardware'}->{'memory'}     = 0 unless defined($constraints->{'hardware'}->{'memory'});
+    return 0 if ($constraints->{'hardware'}->{'processors'} && $constraints->{'hardware'}->{'processors'} gt $worker->{'hardware'}->{'processors'});
+    return 0 if ($constraints->{'hardware'}->{'disk'} && getmbsize($constraints->{'hardware'}->{'disk'}) gt $worker->{'hardware'}->{'disk'});
+    return 0 if ($constraints->{'hardware'}->{'memory'} && getmbsize($constraints->{'hardware'}->{'memory'}) gt $worker->{'hardware'}->{'memory'});
+    if ($constraints->{'hardware'}->{'cpu'}) {
+      foreach($constraints->{'hardware'}->{'cpu'}->{'flag'}) {
+        return 0 unless grep {$_} @{$worker->{'cpu'}->{'flag'}};
+      }
+    }
+  }
   return 1;
 }
 
