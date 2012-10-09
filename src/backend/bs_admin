@@ -155,6 +155,10 @@ Debug Options
  --check-kiwi-xml <project> <package>
    Is parsing a kiwi xml file and puts out error messages, in case of errors.
 
+ --check-constraints <file>
+ --check-constraints <project> <package>
+   Validates a _constraints file
+
  --check-pattern-xml <file>
    Is parsing a pattern xml file and puts out error messages, in case of errors.
 
@@ -432,6 +436,18 @@ sub check_kiwi_xml {
   }
 }
 
+sub check_constraints_xml {
+  my ($project, $package) = @_;
+
+  my ($md5, $file) = find_latest_file($project, $package, '_constraints');
+  if (defined($md5) && defined($file)) {
+    my $f = "$srcrepdir/$package/$md5-$file";
+    check_xml_file($f, $BSXML::constraints);
+  } else {
+    die("ERROR: No _constraints file found in $project / $package !\n");
+  }
+}
+
 sub check_meta_xml {
   my ($project, $package) = @_;
   my $file;
@@ -578,6 +594,16 @@ while (@ARGV) {
       my $project = shift @ARGV;
       my $package = shift @ARGV;
       check_kiwi_xml($project, $package);
+    }
+  } elsif ($arg eq "--check-constraints") {
+    die("ERROR: need either file name or project and package as argument!\n") if @ARGV < 1;
+    if (@ARGV == 1){
+      my $file = shift @ARGV;
+      check_xml_file($file, $BSXML::constraints);
+    } else {
+      my $project = shift @ARGV;
+      my $package = shift @ARGV;
+      check_constraints_xml($project, $package);
     }
   } elsif ($arg eq "--parse-build-desc") {
     die("ERROR: need a file name as argument (spec, dsc or kiwi)!\n") if @ARGV < 1;
