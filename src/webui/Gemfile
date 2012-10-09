@@ -10,6 +10,7 @@ group :assets do
   gem 'uglifier', '>= 1.2.2'
   gem 'sass-rails'
   gem 'compass-rails'
+  gem 'jquery-datatables-rails'
 end
 
 group :development do
