@@ -50,6 +50,7 @@ after "deploy:update_code", "config:sync_static"
 after "deploy:create_symlink", "config:permissions"
 
 # workaround because we are using a subdirectory of the git repo as rails root
+before "deploy:finalize_update", "deploy:apidocs"
 before "deploy:finalize_update", "deploy:use_subdir"
 after "deploy:finalize_update", "deploy:reset_subdir"
 after "deploy:finalize_update", "deploy:notify"
@@ -152,6 +153,11 @@ Git log:
       puts "Error on rake test - will not deploy"
       exit 1
     end
+  end
+
+  desc "Create API docs"
+  task :apidocs do
+    run "cd #{release_path}/docs/api && make"
   end
 
 end

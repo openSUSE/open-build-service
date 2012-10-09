@@ -363,7 +363,7 @@ class ApplicationController < ActionController::Base
     begin
       document = Nokogiri::XML::Document.parse(xmlbody, nil, nil, Nokogiri::XML::ParseOptions::STRICT)
     rescue Nokogiri::XML::SyntaxError => e
-      errors << e.inspect
+      errors << ("[%s:%s]" % [e.line, e.column]) + e.inspect
       errors << put_body_to_tempfile(xmlbody)
     end
 
@@ -373,7 +373,7 @@ class ApplicationController < ActionController::Base
         document = nil
         errors << put_body_to_tempfile(xmlbody) 
         ses.each do |e|
-          errors << e.inspect
+          errors << ("[%s:%s]" % [e.line, e.column]) + e.inspect
         end
       end
     end

@@ -83,7 +83,8 @@ class HtmlPrinter < Printer
   def print_text text
     @html.p do |p|
       text.text.each do |t|
-        p << t << "\n"
+        p.span(t)
+        p.br
       end
     end
   end
@@ -137,7 +138,7 @@ class HtmlPrinter < Printer
   end
 
   def print_contents contents
-    @html.p do |p|
+    @html.div do |p|
       p << create_contents_list( contents.root, 1 )
     end
   end
@@ -155,12 +156,15 @@ class HtmlPrinter < Printer
     endresult = ""
     if ( !result.empty? )
       if ( section.level > min_level )
-        endresult = "<li>" + h( section.to_s ) + "</li>\n"
+        endresult = "<li>" + h( section.to_s )
       end
       if ( section.level >= min_level )
-        endresult += "<ul>\n" + result + "</ul>\n"
+        endresult += "<ul>\n" + result + "</ul>"
       else
         endresult = result
+      end
+      if ( section.level > min_level )
+        endresult += "</li>"
       end
     end
     endresult 

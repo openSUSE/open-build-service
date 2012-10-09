@@ -262,11 +262,6 @@ OBSApi::Application.routes.draw do
 
     match '/lastevents' => 'public#lastevents'
 
-    ### /apidocs
-
-    match 'apidocs' => 'apidocs#index'
-    match 'apidocs/:filename' => 'apidocs#file', :constraints => cons
-
     ### /distributions
 
     match 'distributions' => 'distribution#index'

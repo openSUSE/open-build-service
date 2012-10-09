@@ -38,3 +38,6 @@ rescue Errno::ENOENT
 end
 CONFIG['proxy_auth_mode'] ||= :off
 CONFIG['frontend_ldap_mode'] ||= :off
+
+CONFIG['apidocs_location'] ||= File.expand_path("../../docs/api/html/")
+

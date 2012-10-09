@@ -12,7 +12,6 @@ rescue Exception => e
   CONFIG = Hash.new
 end
 
-CONFIG['apidocs_location'] ||= File.expand_path("../../docs/api/html/")
 CONFIG['schema_location'] ||= File.expand_path("public/schema")+"/"
 CONFIG['download_url'] ||= 'http://download.opensuse.org/repositories'
 

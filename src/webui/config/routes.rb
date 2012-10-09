@@ -259,6 +259,10 @@ OBSWebUI::Application.routes.draw do
     match 'user/autocomplete' => :autocomplete
   end
 
+  ### /apidocs
+  match 'apidocs' => 'apidocs#index'
+  match 'apidocs/:filename' => 'apidocs#file', constraints: { :filename => %r{[^\/]*} }
+
   # Default route matcher:
   #match ':controller(/:action(/:id))(.:format)'
 end

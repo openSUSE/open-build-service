@@ -44,8 +44,6 @@ source_port: 5352
 
 extended_backend_log: false
 
-#apidocs_location
-
 # Do not allow creating group via API to avoid the conflicts when CONFIG['ldap_group_support'] is :on
 # If you do want to import the group data from LDAP to OBS DB manuallly, please set if to :off
 disallow_group_creation_with_api: :on
