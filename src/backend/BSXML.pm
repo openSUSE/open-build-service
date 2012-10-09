@@ -667,6 +667,7 @@ our $worker = [
 	'port',
 	'workerid',
       [ 'buildarch' ],
+      [ 'hostlabel' ],
 	'sandbox',
       [ 'linux' =>
         [],
@@ -675,10 +676,11 @@ our $worker = [
       ],
       [ 'hardware' =>
         [ 'cpu' =>
-          [[ 'flag' ]],
+          [ 'flag' ],
         ],
         'processors',
 	'memory',	# in MBytes
+	'swap',		# in MBytes
 	'disk',		# in MBytes
       ],
 	'tellnojob',

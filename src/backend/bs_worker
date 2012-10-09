@@ -80,6 +80,7 @@ my $oneshot;
 my $silent;
 my $hostcheck;
 my $localkiwi;
+my @hostlabel;
 
 my $jobs;
 my $cachedir;
@@ -187,6 +188,8 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --swap      : set kvm or xen swap device (default is <root>/swap file)
 
+       --hostlabel : define a host label for build constraints, can be used multiple times
+
        --vm-kernel : set kernel to use (xen/kvm)
 
        --vm-initrd : set initrd to use (xen/kvm)
@@ -288,6 +291,12 @@ while (@ARGV) {
     shift @ARGV;
     my $server = shift @ARGV;
     push @reposervers, $server unless grep {$_ eq $server} @reposervers;
+    next;
+  }
+  if ($ARGV[0] eq '--hostlabel') {
+    shift @ARGV;
+    my $label = shift @ARGV;
+    push @hostlabel, $label unless grep {$_ eq $label} @hostlabel;
     next;
   }
   if ($ARGV[0] eq '--id') {
@@ -499,6 +508,57 @@ if ($justbuild) {
   exit(0);
 }
 
+# collect environment information for the dispatcher. To be checked with job constraints
+my $workerenvstate = {};
+{
+  # host labels
+  if (@hostlabel) {
+    $workerenvstate->{'hostlabel'} = \@hostlabel if @hostlabel;
+  }
+  # sandbox
+  $workerenvstate->{'sandbox'} = 'chroot';
+  $workerenvstate->{'sandbox'} = 'xen' if $vm eq ' --xen';
+  $workerenvstate->{'sandbox'} = 'kvm' if $vm eq ' --kvm';
+  $workerenvstate->{'sandbox'} = 'lxc' if $vm eq 'lxc';
+  # linux kernel
+  my $str = readstr("/proc/version");
+  if ($str =~ /^Linux version ([^-]*)-([^-]*)-([^ ]*) .*$/s) {
+    my $linux = {};
+    $linux->{'version'} = $1."-".$2;
+    $linux->{'flavor'} = $3;
+    $workerenvstate->{'linux'} = $linux;
+  }
+  my $hw = {};
+  $hw->{'cpu'} = {};
+  $hw->{'processors'} = 0;
+  # memory, undefined in non vm mode since no guarantees are exist
+  if (open(FILE, "<", "/proc/cpuinfo")) {
+    while(<FILE>) {
+      if ($_ =~ /^processor/s) {
+        $hw->{'processors'} = $hw->{'processors'} + 1;
+      }
+      elsif ($_ =~ /^flags[\s]*:\s(.*)$/s) {
+        my @cpuflags = split(' ', $_);
+        $hw->{'cpu'}->{'flag'} = \@cpuflags;
+      }
+    }
+  }
+  $hw->{'memory'} = $vm_memory if $vm_memory;
+  $hw->{'swap'} = $vmdisk_swapsize if $vmdisk_swapsize;
+  $hw->{'disk'} = $vmdisk_rootsize if $vmdisk_rootsize;
+  if ($vm_root) {
+    if (-b $vm_root) {
+      if (open(SIZE, "/sbin/blockdev --getsize64 $vm_root|")){
+        my $size = <SIZE>;
+        $hw->{'disk'} = $size / ( 1024 * 1024 );
+      }
+    } else {
+      # implement me for loop device files
+    }
+  }
+  $workerenvstate->{'hardware'} = $hw;
+};
+
 sub stream_logfile {
   my ($nostream, $start, $end) = @_;
   open(F, "<$buildroot/.build.log") || die("$buildroot/.build.log: $!\n");
@@ -551,9 +611,8 @@ sub send_state {
       'timeout' => 3,
     };
     if ($state eq 'idle') {
-      my $worker = {};	# XXX: Adrian, fill in...
       $param->{'request'} = 'POST';
-      $param->{'data'} = BSUtil::toxml($BSXML::worker, $worker);
+      $param->{'data'} = BSUtil::toxml($workerenvstate, $BSXML::worker);
     }
     eval {
       BSRPC::rpc($param, undef, @args);
