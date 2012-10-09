@@ -115,7 +115,7 @@ class SourceController < ApplicationController
             packages = packages.sort{|a,b| a.name<=>b.name}
             output = String.new
             output << "<directory count='#{packages.length}'>\n"
-            output << packages.map { |p| p.db_project==pro ? "  <entry name=\"#{p.name}\"/>\n" : "  <entry name=\"#{p.name}\" originproject=\"#{p.db_project.name}\"/>\n" }.join
+            output << packages.map { |p| p.db_project_id==pro.id ? "  <entry name=\"#{p.name}\"/>\n" : "  <entry name=\"#{p.name}\" originproject=\"#{p.db_project.name}\"/>\n" }.join
             output << "</directory>\n"
             render :text => output, :content_type => "text/xml"
           end
