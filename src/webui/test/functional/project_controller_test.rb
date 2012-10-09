@@ -39,9 +39,8 @@ class ProjectControllerTest < ActionController::IntegrationTest
     # adrian is maintainer via group on kde4 
     visit "/project/show?project=kde4"
     # really simple test to get started
-    assert_have_xpath '//img[@title="Delete project"]'
-    assert_have_xpath '//img[@title="Edit description"]'
-    assert_have_xpath '//img[@title="Create subproject"]'
+    assert_have_xpath '//a[@id="delete-project"]'
+    assert_have_xpath '//a[@id="edit-description"]'
     logout
     login_tom
   end

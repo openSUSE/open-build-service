@@ -95,6 +95,7 @@ class ProjectOverviewPage < ProjectPage
   # ============================================================================
   #
   def open_create_subproject
+    open_tab "subprojects"
     @driver[id: 'link-create-subproject'].click
     wait_for_javascript
     $page = NewProjectPage.new_ready @driver
