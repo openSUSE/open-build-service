@@ -9,7 +9,7 @@ class AdminController < ApplicationController
     if Rails.env.test?
       Process.kill('INT', Process.pid)
     end
-    render :nothing => true and return
+    render_ok
   end
   
   # we need a way so the API uprises fully
@@ -19,7 +19,7 @@ class AdminController < ApplicationController
      if Rails.env.test?
        backend.direct_http(URI("/"))
      end
-     render :nothing => true and return
+     render_ok
   end
   
 end

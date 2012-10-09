@@ -9,56 +9,42 @@ class TagController < ApplicationController
     @taglist = Tag.all
     render :partial => "listxml"
   end
-  private :list_xml
   
   def get_tagged_projects_by_user
-    begin
-      @user = User.get_by_login(params[:user])
+    @user = User.get_by_login(params[:user])
       
-      @taggings = Tagging.where("taggable_type = ? AND user_id = ?","DbProject",@user.id).all
-      @projects_tags = {}
-      @taggings.each do |tagging|
-        project = DbProject.find(tagging.taggable_id)
-        tag = Tag.find(tagging.tag_id)
-        @projects_tags[project] = [] if @projects_tags[project] == nil
-        @projects_tags[project] <<  tag
-      end
-      @projects_tags.keys.each do |key|
-        @projects_tags[key].sort!{ |a,b| a.name.downcase <=> b.name.downcase }
-      end
-      @my_type = "project"
-      render :partial => "tagged_objects_with_tags"
-    
-
-    rescue Exception => error
-      render_error :status => 404, :errorcode => 'tag_error',
-      :message => error 
-    end 
+    @taggings = Tagging.where("taggable_type = ? AND user_id = ?","DbProject",@user.id).all
+    @projects_tags = {}
+    @taggings.each do |tagging|
+      project = DbProject.find(tagging.taggable_id)
+      tag = Tag.find(tagging.tag_id)
+      @projects_tags[project] = [] if @projects_tags[project] == nil
+      @projects_tags[project] <<  tag
+    end
+    @projects_tags.keys.each do |key|
+      @projects_tags[key].sort!{ |a,b| a.name.downcase <=> b.name.downcase }
+    end
+    @my_type = "project"
+    render :partial => "tagged_objects_with_tags"
   end
   
   
   def get_tagged_packages_by_user
-    begin
-      @user = User.get_by_login(params[:user])
-      @taggings = Tagging.where("taggable_type = ? AND user_id = ?","DbPackage",@user.id).all
-      @packages_tags = {}
-      @taggings.each do |tagging|
-        package = DbPackage.find(tagging.taggable_id)
-        tag = Tag.find(tagging.tag_id)
-        @packages_tags[package] = [] if @packages_tags[package] == nil
-        @packages_tags[package] <<  tag
-      end
-      @packages_tags.keys.each do |key|
-        @packages_tags[key].sort!{ |a,b| a.name.downcase <=> b.name.downcase }
-      end
-      @my_type = "package"
-      render :partial => "tagged_objects_with_tags"
+    @user = User.get_by_login(params[:user])
+    @taggings = Tagging.where("taggable_type = ? AND user_id = ?","DbPackage",@user.id).all
+    @packages_tags = {}
+    @taggings.each do |tagging|
+      package = DbPackage.find(tagging.taggable_id)
+      tag = Tag.find(tagging.tag_id)
+      @packages_tags[package] = [] if @packages_tags[package] == nil
+      @packages_tags[package] <<  tag
+    end
+    @packages_tags.keys.each do |key|
+      @packages_tags[key].sort!{ |a,b| a.name.downcase <=> b.name.downcase }
+    end
+    @my_type = "package"
+    render :partial => "tagged_objects_with_tags"
       
-      
-    rescue Exception => error
-      render_error :status => 404, :errorcode => 'tag_error',
-      :message => error 
-    end 
   end
   
   
@@ -296,7 +282,7 @@ class TagController < ApplicationController
       save_tags(@project, @tagCreator, @tags)
       
       logger.debug "PUT REQUEST for project_tags."     
-      render :nothing => true, :status => 200
+      render_ok
     end 
   end
   
@@ -338,7 +324,7 @@ class TagController < ApplicationController
       
       save_tags(@package, @tagCreator, @tags)
       
-      render :nothing => true, :status => 200
+      render_ok
       
     end
   end
@@ -385,7 +371,7 @@ class TagController < ApplicationController
     end    
     
     if not unsaved_tags
-      render :nothing => true, :status => 200
+      render_ok
     else  
       error = "[TAG:] There are rejected Tags: #{unsaved_tags.inspect}"
       logger.debug "#{error}"
@@ -394,7 +380,6 @@ class TagController < ApplicationController
       :message => error 
     end
   end
-  private :update_tags_by_object_and_user
   
   
   def taglistXML_to_tags(taglistXML)
@@ -422,7 +407,6 @@ class TagController < ApplicationController
     
     return tags, @unsaved_tags
   end
-  private :taglistXML_to_tags
   
   
   def save_tags(object, tagCreator, tags)
@@ -437,7 +421,6 @@ class TagController < ApplicationController
       end  
     end      
   end
-  private :save_tags
   
   
   #create an entry in the join table (taggings) if necessary
@@ -450,7 +433,6 @@ class TagController < ApplicationController
         @jointable.save
     end  
   end
-  private :create_relationship
   
   
   #get the tag as object
@@ -459,13 +441,11 @@ class TagController < ApplicationController
     raise RuntimeError.new( "Tag #{tagname} could not be saved. ERROR: #{tag.errors[:name]}" ) if not tag.valid?
     return tag
   end
-  private :s_to_tag
   
   
   def tag_error(params)
     render_error :status => 404, :errorcode => 'unknown_tag',
     :message => "Unknown tag #{params[:tag]}" 
   end
-  private :tag_error
   
 end

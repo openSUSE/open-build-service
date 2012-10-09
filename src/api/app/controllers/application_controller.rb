@@ -17,13 +17,10 @@ class TagNotFoundError < Exception; end
 class IssueTrackerNotFoundError < Exception; end
 class IssueNotFoundError < Exception; end
 
-class ApplicationController < ActionController::Base
+class ApplicationController < ActionController::API
 
-  # cross site scripting is rather unlikely for us, but we better play safe
-  protect_from_forgery
+  include ActionController::MimeResponds
 
-  # Do never use a layout here since that has impact on every controller
-  layout nil
   # session :disabled => true
 
   @user_permissions = nil
@@ -620,7 +617,7 @@ class ApplicationController < ActionController::Base
 
     logger.info "errorcode '#{@errorcode}' - #{@summary}"
     response.headers['X-Opensuse-Errorcode'] = @errorcode
-    render :template => 'status', :status => opt[:status], :layout => false
+    render :template => 'status', :status => opt[:status]
   end
 
   def render_ok(opt={})
@@ -631,7 +628,7 @@ class ApplicationController < ActionController::Base
     @summary = "Ok"
     @details = opt[:details] if opt[:details]
     @data = opt[:data] if opt[:data]
-    render :template => 'status', :status => 200, :layout => false
+    render :template => 'status', :status => 200
   end
 
   def render_invoked(opt={})
@@ -639,7 +636,7 @@ class ApplicationController < ActionController::Base
     @summary = "Job invoked"
     @details = opt[:details] if opt[:details]
     @data = opt[:data] if opt[:data]
-    render :template => 'status', :status => 200, :layout => false
+    render :template => 'status', :status => 200
   end
 
   def backend
