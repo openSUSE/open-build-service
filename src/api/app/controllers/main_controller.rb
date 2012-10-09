@@ -1,6 +1,7 @@
 class MainController < ApplicationController
 
   def index
+    redirect_to controller: "about", action: "index"
   end
 
   def notfound
