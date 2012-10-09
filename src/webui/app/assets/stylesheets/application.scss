@@ -8,6 +8,7 @@
  * You're free to add application-wide styles to this file and they'll appear at the top of the
  * compiled file, but it's generally better to create a new file per style scope.
  *
+ *= require dataTables/jquery.dataTables
 */
 @import "compass";
 @import "bento/reset";
@@ -18,7 +19,6 @@
 @import "monitor";
 @import "package";
 @import "project";
-@import "jquery.dataTables";
 @import "jquery.tooltip";
 @import "cm2/suse";
 
