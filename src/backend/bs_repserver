@@ -1176,7 +1176,7 @@ sub workerstate {
   my $workerid = defined($cgi->{'workerid'}) ? $cgi->{'workerid'} : "$peerip:$peerport";
   my $workerskel;
   if (BSServer::have_content()) {
-    my $workerskelxml = read_data(BSServer::read_data(10000000));
+    my $workerskelxml = BSServer::read_data(10000000);
     $workerskel = BSUtil::fromxml($workerskelxml, $BSXML::worker);
     for (qw{job arch}) {
       delete $workerskel->{$_};
