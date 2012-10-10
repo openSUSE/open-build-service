@@ -132,3 +132,8 @@ ActiveXML::Base.config do |conf|
 
 end
 
+if Rails.env.development?
+  ::Rack::MiniProfiler.profile_method(ActiveXML::Transport::Rest, :http_do) { |method,url| "#{method.to_s.upcase} #{url.path}?#{url.query}" }
+#  ::Rack::MiniProfiler.profile_method(ActiveXML::Base, :find_cached) { "Fetching" }
+end
+
