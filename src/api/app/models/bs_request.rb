@@ -317,7 +317,7 @@ class BsRequest < ActiveRecord::Base
       self.comment = opts[:comment] if opts[:comment]
       
       newreview = self.reviews.create reason: opts[:comment], by_user: opts[:by_user], by_group: opts[:by_group], by_project: opts[:by_project], 
-                          by_package: opts[:by_package], creator: User.current.login
+      by_package: opts[:by_package], creator: User.current.login
       self.save!
 
       hermes_type, params = newreview.notify_parameters(self.notify_parameters)
@@ -355,5 +355,161 @@ class BsRequest < ActiveRecord::Base
     return ret
   end
 
-end
+  def self.collection(opts)
+    roles = opts[:roles] || []
+    states = opts[:states] || []
+    types = opts[:types] || []
+    review_states = opts[:review_states] || [ "new" ]
+    
+    rel = BsRequest.joins(:bs_request_actions)
+    rel = rel.includes([:reviews, :bs_request_histories])
+    
+    # filter for request state(s)
+    unless states.blank?
+      rel = rel.where("bs_requests.state in (?)", states)
+    end
+    
+    # Filter by request type (submit, delete, ...)
+    unless types.blank?
+      rel = rel.where("bs_request_actions.action_type in (?)", types)
+    end
+
+    # FIXME2.4 this needs to be protected from SQL injection before 2.4
+
+    unless opts[:project].blank?
+      inner_or = []
+
+      if opts[:package].blank?
+        if roles.count == 0 or roles.include? "source"
+          if opts[:subprojects].blank?
+            inner_or << "bs_request_actions.source_project='#{opts[:project]}'"
+          else
+            inner_or << "(bs_request_actions.source_project like '#{opts[:project]}:%')"
+          end
+        end
+        if roles.count == 0 or roles.include? "target"
+          if opts[:subprojects].blank?
+            inner_or << "bs_request_actions.target_project='#{opts[:project]}'"
+          else
+            inner_or << "(bs_request_actions.target_project like '#{opts[:project]}:%')"
+          end
+        end
+
+        if roles.count == 0 or roles.include? "reviewer"
+          if states.count == 0 or states.include? "review"
+            review_states.each do |r|
+              inner_or << "(reviews.state='#{r}' and reviews.by_project='#{opts[:project]}')"
+            end
+          end
+        end
+      else
+        if roles.count == 0 or roles.include? "source"
+          inner_or << "(bs_request_actions.source_project='#{opts[:project]}' and bs_request_actions.source_package='#{opts[:package]}')" 
+        end
+        if roles.count == 0 or roles.include? "target"
+          inner_or << "(bs_request_actions.target_project='#{opts[:project]}' and bs_request_actions.target_package='#{opts[:package]}')" 
+        end
+        if roles.count == 0 or roles.include? "reviewer"
+          if states.count == 0 or states.include? "review"
+            review_states.each do |r|
+              inner_or << "(reviews.state='#{r}' and reviews.by_project='#{opts[:project]}' and reviews.by_package='#{opts[:package]}')"
+            end
+          end
+        end
+      end
+
+      if inner_or.count > 0
+        rel = rel.where(inner_or.join(" or "))
+      end
+    end
+
+    if opts[:user]
+      inner_or = []
+      user = User.get_by_login(opts[:user])
+      # user's own submitted requests
+      if roles.count == 0 or roles.include? "creator"
+        inner_or << "bs_requests.creator = '#{user.login}'"
+      end
+
+      # find requests where user is maintainer in target project
+      if roles.count == 0 or roles.include? "maintainer"
+        names = user.involved_projects.map { |p| p.name }
+        inner_or << "bs_request_actions.target_project in ('" + names.join("','") + "')"
+
+        ## find request where user is maintainer in target package, except we have to project already
+        user.involved_packages.each do |ip|
+          inner_or << "(bs_request_actions.target_project='#{ip.db_project.name}' and bs_request_actions.target_package='#{ip.name}')"
+        end
+      end
+
+      if roles.count == 0 or roles.include? "reviewer"
+        review_states.each do |r|
           
+          # requests where the user is reviewer or own requests that are in review by someone else
+          or_in_and = [ "reviews.by_user='#{user.login}'" ]
+          # include all groups of user
+          usergroups = user.groups.map { |g| "'#{g.title}'" }
+          or_in_and << "reviews.by_group in (#{usergroups.join(',')})" unless usergroups.blank?
+
+          # find requests where user is maintainer in target project
+          userprojects = user.involved_projects.select("db_projects.name").map { |p| "'#{p.name}'" }
+          or_in_and << "reviews.by_project in (#{userprojects.join(',')})" unless userprojects.blank?
+
+          ## find request where user is maintainer in target package, except we have to project already
+          user.involved_packages.select("name,db_project_id").includes(:db_project).each do |ip|
+            or_in_and << "(reviews.by_project='#{ip.db_project.name}' and reviews.by_package='#{ip.name}')"
+          end
+
+          inner_or << "(reviews.state='#{r}' and (#{or_in_and.join(" or ")}))"
+        end
+      end
+
+      unless inner_or.empty?
+        rel = rel.where(inner_or.join(" or "))
+      end
+    end
+
+    if opts[:group]
+      inner_or = []
+      group = Group.get_by_title(opts[:group])
+
+      # find requests where group is maintainer in target project
+      if roles.count == 0 or roles.include? "maintainer"
+        names = group.involved_projects.map { |p| p.name }
+        inner_or << "bs_request_actions.target_project in ('" + names.join("','") + "')"
+
+        ## find request where group is maintainer in target package, except we have to project already
+        group.involved_packages.each do |ip|
+          inner_or << "(bs_request_actions.target_project='#{ip.db_project.name}' and bs_request_actions.target_package='#{ip.name}')"
+        end
+      end
+
+      if roles.count == 0 or roles.include? "reviewer"
+        review_states.each do |r|
+          
+          # requests where the user is reviewer or own requests that are in review by someone else
+          or_in_and = [ "reviews.by_group='#{group.title}'" ]
+
+          # find requests where group is maintainer in target project
+          groupprojects = group.involved_projects.select("db_projects.name").map { |p| "'#{p.name}'" }
+          or_in_and << "reviews.by_project in (#{groupprojects.join(',')})" unless groupprojects.blank?
+
+          ## find request where user is maintainer in target package, except we have to project already
+          group.involved_packages.select("name,db_project_id").includes(:db_project).each do |ip|
+            or_in_and << "(reviews.by_project='#{ip.db_project.name}' and reviews.by_package='#{ip.name}')"
+          end
+
+          inner_or << "(reviews.state='#{r}' and (#{or_in_and.join(" or ")}))"
+        end
+      end
+
+      unless inner_or.empty?
+        rel = rel.where(inner_or.join(" or "))
+      end
+    end
+
+    return rel
+  end
+
+end
+
