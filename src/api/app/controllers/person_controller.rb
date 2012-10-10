@@ -51,7 +51,7 @@ class PersonController < ApplicationController
         logger.debug "Requested non-existing user"
         @errorcode = 404
         @summary = "Requested non-existing user"
-        render :template => 'error', :status => @errorcode and return
+        render_error status: @errorcode and return
       end
       if user.login != @http_user.login
         logger.debug "Generating for user from parameter #{user.login}"
@@ -74,7 +74,7 @@ class PersonController < ApplicationController
           logger.debug "Tried to create non-existing user without admin rights"
           @errorcode = 404
           @summary = "Requested non-existing user"
-          render :template => 'error', :status => @errorcode and return
+          render_error status: @errorcode and return
         end
       end
 

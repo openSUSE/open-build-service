@@ -578,31 +578,33 @@ class ApplicationController < ActionController::API
       request.body.size if request.body.respond_to? 'size'
     end
 
-    if opt[:status]
-      if opt[:status].to_i == 401
-        response.headers["WWW-Authenticate"] = 'basic realm="API login"'
-      end
-    else
-      opt[:status] = 400
-    end
-
-    @exception = opt[:exception]
-    @details = opt[:details]
-
-    @summary = "Internal Server Error"
     if opt[:message]
       @summary = opt[:message]
     elsif @exception
       @summary = @exception.message
     end
 
-    if opt[:errorcode]
-      @errorcode = opt[:errorcode]
-    elsif @exception
-      @errorcode = 'uncaught_exception'
-    else
-      @errorcode = 'unknown'
+    @exception = opt[:exception]
+    @details = opt[:details]
+    @errorcode = opt[:errorcode]
+    
+    opt[:status] ||= 400
+
+    if opt[:status].to_i == 401
+      response.headers["WWW-Authenticate"] = 'basic realm="API login"'
     end
+    if opt[:status].to_i == 404
+      @summary ||= "Not found"
+      @errorcode ||= "not_found"
+    end
+    
+    @summary ||= "Internal Server Error"
+
+    if @exception
+      @errorcode ||= 'uncaught_exception'
+    end
+
+    @errorcode ||= 'unknown'
 
     # if the exception was raised inside a template (-> @template.first_render != nil),
     # the instance variables created in here will not be injected into the template
