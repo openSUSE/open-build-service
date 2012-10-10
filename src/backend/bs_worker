@@ -2065,6 +2065,31 @@ sub dobuild {
     symlink('.', "$buildroot/.build.packages/SRPMS");
     symlink('.', "$buildroot/.build.packages/DEBS");
     symlink('.', "$buildroot/.build.packages/KIWI");
+    # convert build statistics into xml
+    if( -e "$buildroot/.build.packages/_statistics") {
+      my $stats = {};
+      my $disk = {};
+      my $iosectors = 0;
+      my $iorequests = 0;
+      open(FILE, "<", "$buildroot/.build.packages/_statistics") || die;
+      while(<FILE>) {
+        my ($key, $value) = split( ": ", $_ );
+        if ($key eq "MAX_mb_used_on_disk" ){
+          $disk->{'maxfillment'} = $value;
+          $stats->{'disk'} = $disk;
+        } elsif ($key eq "IO_requests_read" || $key eq "IO_requests_write" ){
+          $iorequests += $value;
+          $disk->{'iorequests'} = $iorequests;
+          $stats->{'disk'} = $disk;
+        } elsif ($key eq "IO_sectors_read" || $key eq "IO_sectors_write" ){
+          $iosectors += $value;
+          $disk->{'iosectors'} = $iosectors;
+          $stats->{'disk'} = $disk;
+        }
+      }
+      close FILE;
+      writexml("$buildroot/.build.packages/_statistics.new", "$buildroot/.build.packages/_statistics", $stats, $BSXML::buildstatistics);
+    }
   }
 
   return 0;

@@ -444,6 +444,17 @@ our $sourceinfolist = [
       [ $sourceinfo ],
 ];
 
+our $buildstatistics = [
+    'buildstatistics' =>
+	[ 'disk' =>
+              [],
+              'maxfillment',
+              'iorequests',
+              'iosectors',
+        ],
+#	'cpu' =>
+];
+
 our $buildinfo = [
     'buildinfo' =>
 	'project',
