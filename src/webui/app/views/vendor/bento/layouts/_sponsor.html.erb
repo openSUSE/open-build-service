@@ -1,0 +1,9 @@
+
+<%# render a single add on all pages but the frontpage %>
+<% if controller.controller_name != 'main' -%>
+
+  <strong class="grey-medium spacer1">Sponsor</strong>
+  <p>
+    <%= link_to( sprite_tag( get_random_sponsor_image ), 'http://en.opensuse.org/Sponsors' )%>
+  </p>
+<% end -%>

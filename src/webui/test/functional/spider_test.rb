@@ -209,7 +209,7 @@ module SpiderIntegrator
         @stacktraces[next_link.uri] = response_body
       end
       content_type = last_response.headers["Content-Type"].split(';')[0]
-      if %w{text/xml text/html}.include? content_type
+      if %w{text/html}.include? content_type
         consume_page( response_body, next_link.uri )
       end
       @visited_urls[next_link.uri] = true

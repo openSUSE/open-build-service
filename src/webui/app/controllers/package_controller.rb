@@ -865,10 +865,8 @@ class PackageController < ApplicationController
       begin
         chunk = @frontend.get_log_chunk(@project, @package, @repository, @arch, @offset, @offset + @maxsize )
       rescue ActiveXML::Transport::Error
-        puts "error!"
         return
       end
-      puts "chunk #{chunk.length}"
       if chunk.length == 0
         return  
       end
@@ -923,7 +921,6 @@ class PackageController < ApplicationController
       end
     end
     @initiallog.encode!('UTF-8', invalid: :replace, xml: :text, undef: :replace, cr_newline: true)
-    puts @initiallog
   end
 
 

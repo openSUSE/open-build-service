@@ -402,7 +402,7 @@ module ApplicationHelper
     else
 	    opts[:class] = "icons-#{icon} inlineblock"
     end
-    tag("span", opts)
+    content_tag(:span, '', opts)
   end
 
 end

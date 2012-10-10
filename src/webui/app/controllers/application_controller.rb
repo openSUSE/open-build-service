@@ -350,15 +350,17 @@ class ApplicationController < ActionController::Base
   def validate_xhtml
     return if request.xhr?
     return unless (response.status.to_i == 200 && response.content_type =~ /text\/html/i)
-    response.headers['Content-Type'] = 'application/xhtml+xml; charset=utf-8'
     return if Rails.env.production? or Rails.env.stage?
 
     errors = []
     xmlbody = String.new response.body
     xmlbody.gsub!(/[\n\r]/, "\n")
     xmlbody.gsub!(/&[^;]*sp;/, '')
-    # rails kind of invented their own html ;(
+    
+    # now to something fancy - patch HTML5 to look like xhtml 1.1
     xmlbody.gsub!(%r{ data-\S+=\"[^\"]*\"}, ' ')
+    xmlbody.gsub!('<!DOCTYPE html>', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">')
+    xmlbody.gsub!('<html>', '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">') 
 
     begin
       document = Nokogiri::XML::Document.parse(xmlbody, nil, nil, Nokogiri::XML::ParseOptions::STRICT)
