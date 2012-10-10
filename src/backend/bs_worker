@@ -2075,15 +2075,15 @@ sub dobuild {
       while(<FILE>) {
         my ($key, $value) = split( ": ", $_ );
         if ($key eq "MAX_mb_used_on_disk" ){
-          $disk->{'maxfillment'} = $value;
+          $disk->{'max_storage_usage'} = $value;
           $stats->{'disk'} = $disk;
         } elsif ($key eq "IO_requests_read" || $key eq "IO_requests_write" ){
           $iorequests += $value;
-          $disk->{'iorequests'} = $iorequests;
+          $disk->{'io_requests'} = $iorequests;
           $stats->{'disk'} = $disk;
         } elsif ($key eq "IO_sectors_read" || $key eq "IO_sectors_write" ){
           $iosectors += $value;
-          $disk->{'iosectors'} = $iosectors;
+          $disk->{'io_sectors'} = $iosectors;
           $stats->{'disk'} = $disk;
         }
       }

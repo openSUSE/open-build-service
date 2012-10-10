@@ -448,9 +448,9 @@ our $buildstatistics = [
     'buildstatistics' =>
 	[ 'disk' =>
               [],
-              'maxfillment',
-              'iorequests',
-              'iosectors',
+              'max_storage_usage',
+              'io_requests',
+              'io_sectors',
         ],
 #	'cpu' =>
 ];
