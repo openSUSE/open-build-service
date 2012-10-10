@@ -187,6 +187,9 @@ case "$1" in
             WORKERID="${HOSTNAME}:$I"
             R=$OBS_WORKER_DIRECTORY/root_$I
             # prepare obsworker startup in screen...
+            for i in $OBS_WORKER_HOSTLABELS; do
+               HOSTLABELS="$HOSTLABELS --hostlabel $i"
+            done
             TMPFS=
             if [ -n "$vmopt" -a "$OBS_VM_TYPE" = "xen" -o "$OBS_VM_TYPE" = "kvm" ]; then
                 mkdir -p $R
@@ -214,7 +217,7 @@ case "$1" in
                 MEMORY=
             fi
 	    echo "screen -t $WORKERID nice -n $OBS_NICE ./bs_worker $vmopt $port --root $R" \
-                "--statedir $workerdir/$I --id $WORKERID $REPO_PARAM $HUGETLBFS" \
+                "--statedir $workerdir/$I --id $WORKERID $REPO_PARAM $HUGETLBFS $HOSTLABELS" \
                 "$OBS_JOBS $OBS_TEST $OBS_WORKER_OPT $TMPFS $DEVICE $SWAP $MEMORY" \
                 >> $screenrc
 	    mkdir -p $workerdir/$I

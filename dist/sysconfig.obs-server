@@ -143,6 +143,17 @@ OBS_WORKER_JOBS="1"
 OBS_WORKER_TEST_MODE=""
 
 ## Path:        Applications/OBS
+## Description: define one or more labels for the build host.
+## Type:        string
+## Default:     ""
+## Config:      OBS
+#
+# A label can be used to build specific packages only on dedicated hosts.
+# For example for benchmarking.
+#
+OBS_WORKER_HOSTLABELS=""
+
+## Path:        Applications/OBS
 ## Description: Register in SLP server
 ## Type:        ("yes" | "no")
 ## Default:     "yes"
