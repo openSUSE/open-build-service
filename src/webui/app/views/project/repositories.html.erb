@@ -27,7 +27,7 @@
         <% rescue; end %>
 
         <div style="margin-top: 1em">
-          <% if @project.can_edit?( session[:login] ) %>
+          <% if @project.can_edit?( @user ) %>
             <%= image_tag('drive_edit.png') %>
             <%= link_to('Edit repository', {:action => :edit_repository, :project => @project, :repository => repository.name}, :id => 'edit_repository_link', :remote => true) %>
             <%= javascript_tag do %>
@@ -46,7 +46,7 @@
   <% end %>
 <% end %>
 
-<% if @project.can_edit?( session[:login] ) %>
+<% if @project.can_edit?( @user ) %>
   <p>
     <%= link_to(image_tag('drive_add.png', :title => 'Add repository'), :action => 'add_repository_from_default_list', :project => @project) %>
     <%= link_to('Add repositories', :action => 'add_repository_from_default_list', :project => @project) %>

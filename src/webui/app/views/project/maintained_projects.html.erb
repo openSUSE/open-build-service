@@ -9,7 +9,7 @@
     <thead>
       <tr>
         <th class="hidden">Name</th>
-        <% if @project.can_edit?(session[:login]) %>
+        <% if @project.can_edit?(@user) %>
           <th style="width: 1%">Actions</th>
         <% end %>
       </tr>
@@ -18,7 +18,7 @@
       <% @maintained_projects.each do |maintained_project| %>
         <tr>
           <td><%= link_to(maintained_project, :action => 'show', :project => maintained_project) %></td>
-          <% if @project.can_edit?(session[:login]) %>
+          <% if @project.can_edit?(@user) %>
             <td>
               <%# TODO: Convert into a dialog and use link_to + :remote => true %>
               <%= link_to(image_tag('brick_delete.png', :title => 'Remove project from maintenance'), :controller => 'project', :action => 'remove_maintained_project', :project => @project, :maintained_project => maintained_project) %>
@@ -39,7 +39,7 @@
   <p><i>No projects in maintenance</i></p>
 <% end %>
 
-<% if @project.can_edit?(session[:login]) %>
+<% if @project.can_edit?(@user) %>
   <p>
     <%= link_to(image_tag('brick_add.png', :title => 'Add project to maintenance'), {:controller => 'project', :action => 'add_maintained_project_dialog', :project => @project}, :remote => true) %>
     <%= link_to('Add project to maintenance', {:controller => 'project', :action => 'add_maintained_project_dialog', :project => @project}, :remote => true) %>

@@ -13,7 +13,7 @@
     <i><%= @servicedescription %></i>
 
     <p><div class="aligncenter buttons">
-      <% if @package.can_edit?( session[:login] ) %>
+      <% if @package.can_edit?( @user ) %>
         <%= form_tag({:controller => "package", :action => "update_parameters"}, :method => "post") %>
         <%= hidden_field_tag(:project, @project) %>
         <%= hidden_field_tag(:package, @package) %>
@@ -23,7 +23,7 @@
       <% end %>
        <table id="pTable">
        <tr><td valign="top">Parameter</td><td>Value</td>
-       <% if @package.can_edit?( session[:login] ) %>
+       <% if @package.can_edit?( @user ) %>
           <td>Remove</td>
        <% end %>
        </tr>
@@ -32,7 +32,7 @@
          <% @parameters.each do |p|%>
             <% number = number + 1 %>
             <% used_parameter[p[:name]] = 1 %>
-            <% if @package.can_edit?( session[:login] ) %>
+            <% if @package.can_edit?( @user ) %>
                <tr class="row_<%=number%>">
                   <td 
                     <%= if desc = Service.parameterDescription(@servicename, p[:name])
@@ -50,7 +50,7 @@
                <tr><td><%=p[:name]%></td>  <td><%=p[:value]%></td></tr>
             <% end %>
          <% end %>
-         <% if @package.can_edit?( session[:login] ) %>
+         <% if @package.can_edit?( @user ) %>
             <% Service.findAvailableParameters(@servicename).each do |parameter|%>
               <% name=parameter[0] %>
               <% p=parameter[1] %>
@@ -72,7 +72,7 @@
          <% end %>
          <%= hidden_field_tag(:count_parameters, number) %>
 
-         <% if @package.can_edit?( session[:login] ) %>
+         <% if @package.can_edit?( @user ) %>
            <% list=[]
               Service.findAvailableParameters(@servicename).keys.each do |p|
               unless used_parameter[p[:name]] and not ( d = Service.findAvailableParameters(@servicename) and d[p[:name]][:allowmultiple] )
@@ -94,7 +94,7 @@
 
        </table>
 
-     <% if @package.can_edit?( session[:login] ) %>
+     <% if @package.can_edit?( @user ) %>
        <input type="submit" />
      </form>
      <% end %>

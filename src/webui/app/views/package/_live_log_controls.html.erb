@@ -9,7 +9,7 @@
     :project => @project, :arch => @arch, :repository => @repo  %>
 </p>
 
-<% if @package.can_edit?( session[:login] ) %>
+<% if @package.can_edit?( @user ) %>
   <p><span class="link_trigger_rebuild hidden">
       <%= link_to image_tag( 'rebuild.png' ), { :action => 'trigger_rebuild', :project => @project, :package => @package, :arch => @arch, :repo => @repo }, :method => :delete %>
       <%= link_to "Trigger Rebuild", { :action => 'trigger_rebuild', :project => @project, :package => @package, :arch => @arch, :repo => @repo }, :method => :delete %>

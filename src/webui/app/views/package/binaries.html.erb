@@ -32,7 +32,7 @@
     </ul>
   <% end %>
   <p>
-    <% if @package.can_edit?(session[:login]) %>
+    <% if @package.can_edit?(@user) %>
       <%= link_to image_tag('rebuild.png'), { :controller => :package, :action => :trigger_rebuild, :arch => result.value('arch'), :project => @project, :package => @package, :repo => @repository }, { :method => :delete } %>
       <%= link_to 'Trigger',{ :controller => :package, :action => :trigger_rebuild, :arch => result['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => :delete} %> rebuild
 

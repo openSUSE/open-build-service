@@ -71,7 +71,7 @@
       </ul>
     <% end %>
   </div>
-  <% if (not @bugowners_mail.empty? and !CONFIG['bugzilla_host'].nil?) or session[:login] %>
+  <% if (not @bugowners_mail.empty? and !CONFIG['bugzilla_host'].nil?) or @user %>
     <div class="grid_16 alpha omega">
       <ul class="horizontal-list">
         <% unless @bugowners_mail.empty? or CONFIG['bugzilla_host'].nil? %>
@@ -80,7 +80,7 @@
             <%= link_to 'Report Bug', bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug") %>
           </li>
         <% end %>
-        <% if session[:login] %>
+        <% if @user %>
           <% if @current_rev %>
             <li>
               <%= link_to(sprite_tag('arrow_branch'), {:action => :branch_dialog, :project => @project, :package => @package}, :remote => true) %>
@@ -91,7 +91,7 @@
               <%= link_to('Submit package', {:action => :submit_request_dialog, :project => @project, :package => @package}, :remote => true) %>
             </li>
           <% end %>
-          <% if @package.can_edit?(session[:login]) %>
+          <% if @package.can_edit?(@user) %>
             <li>
               <%= link_to sprite_tag('package_edit'), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
 	      <%= link_to "Edit description", { :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count }, id: 'edit-description' -%>

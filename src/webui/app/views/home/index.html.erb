@@ -25,7 +25,7 @@
 </p>
 <p><strong>Email address:</strong> <%= mail_to(@displayed_user.email) %></p>
 
-<% if @displayed_user.to_s == session[:login] %>
+<% if @displayed_user.to_s == @user.login %>
   <p><%= image_tag('user_edit.png') %> <%= link_to("Edit user data", :controller => "user", :action => "edit") %></p>
   <% if CONFIG['change_passwd'].to_s == 'on' %>
     <p><%= image_tag('key.png') %> <%= link_to("Change password", :controller => "user", :action => "change_my_password") %></p>

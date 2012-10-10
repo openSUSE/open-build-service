@@ -1,10 +1,10 @@
 <div class="grid_6 omega" style="text-align: right;">
-  <% if session[:login] %>
-    <%= link_to session[:login], :controller => 'home', :action => :index %>
+  <% if @user %>
+    <%= link_to @user, :controller => 'home', :action => :index %>
     <% if @nr_requests_that_need_work and @nr_requests_that_need_work > 0 %> |
       <%= link_to pluralize(@nr_requests_that_need_work, 'Request'), {:controller => 'home', :action => 'my_work'}, {:title => "Number of requests concerning #{@user}"} %>
     <% end %> |
-    <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{session[:login]}" %> |
+    <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{@user}" %> |
     <%= link_to "Logout", { :controller => 'user', :action => 'logout' }, :method => :post, id: 'logout-link' %>
   <% else %>
     <% if CONFIG['proxy_auth_mode'] == :on %>

@@ -19,7 +19,7 @@
   <pre><%= @last_req.state.comment %></pre>
 <% end %>
 
-<% if session[:login] && @filenames && !@filenames.empty? %>
+<% if @user && @filenames && !@filenames.empty? %>
   <% if @oproject && @opackage && !Project.has_attribute?(@oproject, 'OBS', 'RejectRequests') && !Package.has_attribute?(@oproject, @opackage, 'OBS', 'RejectRequests') %>
     <% msg = "Submit to #{@oproject.to_s + ' / ' + @opackage.to_s}" %>
     <% target_project, target_package = @oproject, @opackage %>

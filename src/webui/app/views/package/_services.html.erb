@@ -1,6 +1,6 @@
 
 <!-- Service elements -->
-<% if @services || @package.can_edit?( session[:login] )%>
+<% if @services || @package.can_edit?( @user )%>
   <h3>Source Services</h3>
 
   <% unless @services.blank? %>
@@ -25,7 +25,7 @@
   <% end %>
 <% end %>
 
-<% if @package.can_edit?( session[:login] ) %>
+<% if @package.can_edit?( @user ) %>
   <p>
     <%= link_to(sprite_tag('cog_add'), {:action => :add_service, :project => @project, :package => @package}, :remote => true) %>
     <%= link_to('Add service for source processing', {:action => :add_service, :project => @project, :package => @package}, :remote => true) %>

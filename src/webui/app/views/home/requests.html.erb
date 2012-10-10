@@ -1,10 +1,10 @@
 <% @pagetitle = "Requests for #{@displayed_user}" %>
-<% @pagetitle = 'My Requests' if @displayed_user.to_s == session[:login] %>
+<% @pagetitle = 'My Requests' if @displayed_user.to_s == @user.login %>
 <% @crumb_list = [@pagetitle] %>
 
 <h3><%= @pagetitle %></h3>
 
-<% if @displayed_user.to_s != session[:login] %>
+<% if @displayed_user.to_s != @user.login %>
   <ul>
     <li><%= link_to('User profile', :controller => 'home', :user => @displayed_user.to_s) %></li>
     <li><%= link_to('Home project', :controller => 'project', :action => 'show', :project => 'home:' + @displayed_user.to_s) %></li>

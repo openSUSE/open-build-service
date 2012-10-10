@@ -9,11 +9,11 @@
       <b><%= Service.summary(service.name) %></b>
       <div class="actions">
 	<%= link_text = "Show Parameters"
-            link_text = sprite_tag('cog_edit') + " Edit Parameters" if @package.can_edit?( session[:login] )
+            link_text = sprite_tag('cog_edit') + " Edit Parameters" if @package.can_edit?( @user )
             link_to(link_text, {:action => :service_parameter, :project => @project, 
         :package => @package, :servicename => service.name, 
         :serviceid => number}, :remote => true) %>
-	<% if @package.can_edit?( session[:login] ) %>
+	<% if @package.can_edit?( @user ) %>
 	| <%= sprite_tag('cog_delete') %>
 	<%= link_to( "Remove this service", {:action => :remove_service, :project => @project, :package => @package, :id => number}, :confirm => "Remove this service (#{service.name}) ?") %>
 	<% end %>

@@ -162,6 +162,6 @@
   <% end %>
 <% end %>
 
-<% if @project.can_edit?(session[:login]) and not comments_to_clear.empty? %>
+<% if @project.can_edit?(@user) and not comments_to_clear.empty? %>
   <%= link_to('Clear all comments of not failing packages (%s)' % comments_to_clear.join(','), :action => :clear_failed_comment, :project => @project.name, "package" => comments_to_clear) %>
 <% end -%>
