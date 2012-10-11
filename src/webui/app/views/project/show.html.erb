@@ -74,7 +74,9 @@
         <% if @project.is_remote? %>
           <li>
             <%= sprite_tag 'information' %>
-            Links against the remote OBS instance at: <i><%= link_to_if(@project.value('remoteurl'), @project.value('remoteurl')) %></i>
+            Links against the remote OBS instance
+            at: <i><%= link_to_if(@project.value('remoteurl'),
+		       @project.value('remoteurl'), @project.value('remoteurl')) %></i>
           </li>
         <% end %>
         <% if @linking_projects.size > 0 %>
