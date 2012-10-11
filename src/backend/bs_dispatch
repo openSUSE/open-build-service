@@ -42,6 +42,7 @@ use List::Util;
 use Fcntl qw(:DEFAULT :flock);
 use XML::Structured ':bytes';
 use Storable;
+use Build::Rpm;	# for verscmp
 
 use BSConfig;
 use BSRPC;
@@ -279,38 +280,44 @@ sub getmbsize {
   return $size;
 }
 
+my %secure_sandboxes;
+if ($BSConfig::secure_sandboxes) {
+  %secure_sandboxes = map {$_ => 1} @$BSConfig::secure_sandboxes;
+} else {
+  $secure_sandboxes{$_} = 1 for qw{xen kvm};
+}
+
 sub oracle {
   my ($job, $worker, $constraints) = @_;
   if ($constraints->{'hostlabel'}) {
-    return 0 unless grep {$_ eq $constraints->{'hostlabel'}} @{$worker->{'hostlabel'}};
+    return 0 unless grep {$_ eq $constraints->{'hostlabel'}} @{$worker->{'hostlabel'} || []};
   }
   if ($constraints->{'sandbox'}) {
     if ($constraints->{'sandbox'} eq 'secure') {
       # we just define xen and kvm as entirely secure sandboxes atm
-      return 0 unless $worker->{'sandbox'} eq 'xen' || $worker->{'sandbox'} eq 'kvm';
+      return 0 unless $secure_sandboxes{$worker->{'sandbox'} || ''};
     } else {
-      return 0 unless ($constraints->{'sandbox'} eq $worker->{'sandbox'});
+      return 0 unless $constraints->{'sandbox'} eq ($worker->{'sandbox'} || '');
     }
   }
   if ($constraints->{'linux'}) {
-    return 0 if ($constraints->{'linux'}->{'flavor'} && $constraints->{'linux'}->{'flavor'} ne $worker->{'linux'}->{'flavor'});
+    return 0 unless $worker->{'linux'};
+    return 0 if $constraints->{'linux'}->{'flavor'} && $constraints->{'linux'}->{'flavor'} ne ($worker->{'linux'}->{'flavor'} || '');
     if ($constraints->{'linux'}->{'version'}) {
-      return 0 if ($constraints->{'linux'}->{'version'}->{'min'} && $constraints->{'linux'}->{'version'}->{'min'} >= $worker->{'linux'}->{'version'});
-      return 0 if ($constraints->{'linux'}->{'version'}->{'max'} && $constraints->{'linux'}->{'version'}->{'max'} <= $worker->{'linux'}->{'version'});
+      return 0 unless defined $worker->{'linux'}->{'version'};
+      return 0 if $constraints->{'linux'}->{'version'}->{'min'} && Build::Rpm::verscmp($constraints->{'linux'}->{'version'}->{'min'}, $worker->{'linux'}->{'version'}) > 0;
+      return 0 if $constraints->{'linux'}->{'version'}->{'max'} && Build::Rpm::verscmp($constraints->{'linux'}->{'version'}->{'max'}, $worker->{'linux'}->{'version'}) < 0;
     }
   }
   if ($constraints->{'hardware'}) {
-    $constraints->{'hardware'}->{'processors'} = 0 unless defined($constraints->{'hardware'}->{'processors'});
-    $constraints->{'hardware'}->{'disk'}       = 0 unless defined($constraints->{'hardware'}->{'disk'});
-    $constraints->{'hardware'}->{'memory'}     = 0 unless defined($constraints->{'hardware'}->{'memory'});
-    return 0 if ($constraints->{'hardware'}->{'processors'} && $constraints->{'hardware'}->{'processors'} > $worker->{'hardware'}->{'processors'});
-    return 0 if ($constraints->{'hardware'}->{'disk'} && getmbsize($constraints->{'hardware'}->{'disk'}) > $worker->{'hardware'}->{'disk'});
-    return 0 if ($constraints->{'hardware'}->{'memory'} && getmbsize($constraints->{'hardware'}->{'memory'}) > $worker->{'hardware'}->{'memory'});
+    return 0 unless $worker->{'hardware'};
+    return 0 if $constraints->{'hardware'}->{'processors'} && $constraints->{'hardware'}->{'processors'} > ($worker->{'hardware'}->{'processors'} || 0);
+    return 0 if $constraints->{'hardware'}->{'disk'} && getmbsize($constraints->{'hardware'}->{'disk'}) > ($worker->{'hardware'}->{'disk'} || 0);
+    return 0 if $constraints->{'hardware'}->{'memory'} && getmbsize($constraints->{'hardware'}->{'memory'}) > ($worker->{'hardware'}->{'memory'} || 0);
     if ($constraints->{'hardware'}->{'cpu'}) {
-      my %workerflags = map {$_ => 1} @{($worker->{'cpu'} || {})->{'flag'} || []};
-      for ($constraints->{'hardware'}->{'cpu'}->{'flag'}) {
-        return 0 unless grep {$workerflags{$_}} @{$worker->{'cpu'}->{'flag'}};
-      }
+      return 0 unless $worker->{'hardware'}->{'cpu'};
+      my %workerflags = map {$_ => 1} @{$worker->{'hardware'}->{'cpu'}->{'flag'} || []};
+      return 0 unless grep {$workerflags{$_}} @{$constraints->{'hardware'}->{'cpu'}->{'flag'} || []};
     }
   }
   return 1;
