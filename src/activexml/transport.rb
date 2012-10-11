@@ -537,7 +537,7 @@ module ActiveXML
 	     end
 	     payload[:all] = (Time.now - start) * 1000
              self.details.add(payload)
-             logger.debug "RT #{payload.inspect}"
+             logger.debug "RT #{url} #{payload.inspect}"
           end
         end
 

@@ -160,18 +160,15 @@
   <div class="grid_10 alpha box box-shadow">
     <h2 class="box-header">Packages (<%= @packages.length %>)</h2>
     <% if @packages.length > 0 %>
-      <table id="packages_table">
-        <thead>
-          <tr><th class="hidden">Name</th></tr>
-        </thead>
-        <tbody>
-          <% @packages.each do |package| %>
-            <tr>
-              <td><%= link_to(package, :controller => 'package', :action => 'show', :project => @project, :package => package) %></td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+       <div id="packages_table_wrapper" data-url="<%= url_for(:controller =>
+						  'package', :action => 'show', :project => @project, :package =>
+						  'REPLACEIT') %>">
+	<% content_for :ready_function do %> 
+	var packages = [ <%= @packages.map {|p| "['#{p}']"
+			     }.join(',').html_safe %> ];
+	renderPackagesTable(packages);
+	<% end %>
+       </div>
     <% else %>
       <p><i>This project does not contain any packages</i></p>
     <% end %>
@@ -193,12 +190,3 @@
   </div>
 <% end %>
 
-<% if @packages.length > 0 %>
-  <%= javascript_tag do %>
-    $(document).ready(function() {
-      $('#packages_table').dataTable({
-        "bSort": false,
-      });
-    });
-  <% end %>
-<% end %>

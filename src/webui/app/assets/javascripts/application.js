@@ -23,6 +23,7 @@
 //= require bento/global-navigation.js
 //= require bento/l10n/global-navigation-data-en_US.js
 //= require package
+//= require project
 
 // toggle visibility of an element via the CSS "display" property
 // -> does NOT reserve the needed space for the element when not displayed
