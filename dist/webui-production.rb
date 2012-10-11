@@ -15,8 +15,8 @@ config.action_controller.perform_caching             = true
 
 # Host name gets changed by obsapisetup on each boot
 FRONTEND_HOST = "localhost"
-FRONTEND_PORT = 81
-FRONTEND_PROTOCOL = 'http'
+FRONTEND_PORT = 443
+FRONTEND_PROTOCOL = 'https'
 
 # use this when the users see the api at another url (for rpm-, file-downloads)
 #EXTERNAL_FRONTEND_HOST = "api.opensuse.org"
