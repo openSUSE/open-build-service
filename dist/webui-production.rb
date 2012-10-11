@@ -25,8 +25,8 @@ end
 
 # Host name gets changed by obsapisetup on each boot
 CONFIG['frontend_host'] = "localhost"
-CONFIG['frontend_port'] = 81
-CONFIG['frontend_protocol'] = 'http'
+CONFIG['frontend_port'] = 444
+CONFIG['frontend_protocol'] = 'https'
 
 # use this when the users see the api at another url (for rpm-, file-downloads)
 #CONFIG['external_frontend_host'] = "api.opensuse.org"
