@@ -282,7 +282,7 @@ sub getmbsize {
 sub oracle {
   my ($job, $worker, $constraints) = @_;
   if ($constraints->{'hostlabel'}) {
-    return 0 unless grep {$constraints->{'hostlabel'}} @{$worker->{'hostlabel'}};
+    return 0 unless grep {$_ eq $constraints->{'hostlabel'}} @{$worker->{'hostlabel'}};
   }
   if ($constraints->{'sandbox'}) {
     if ($constraints->{'sandbox'} eq 'secure') {
@@ -295,20 +295,21 @@ sub oracle {
   if ($constraints->{'linux'}) {
     return 0 if ($constraints->{'linux'}->{'flavor'} && $constraints->{'linux'}->{'flavor'} ne $worker->{'linux'}->{'flavor'});
     if ($constraints->{'linux'}->{'version'}) {
-      return 0 if ($constraints->{'linux'}->{'version'}->{'min'} && $constraints->{'linux'}->{'version'}->{'min'} ge $worker->{'linux'}->{'version'});
-      return 0 if ($constraints->{'linux'}->{'version'}->{'max'} && $constraints->{'linux'}->{'version'}->{'max'} le $worker->{'linux'}->{'version'});
+      return 0 if ($constraints->{'linux'}->{'version'}->{'min'} && $constraints->{'linux'}->{'version'}->{'min'} >= $worker->{'linux'}->{'version'});
+      return 0 if ($constraints->{'linux'}->{'version'}->{'max'} && $constraints->{'linux'}->{'version'}->{'max'} <= $worker->{'linux'}->{'version'});
     }
   }
   if ($constraints->{'hardware'}) {
     $constraints->{'hardware'}->{'processors'} = 0 unless defined($constraints->{'hardware'}->{'processors'});
     $constraints->{'hardware'}->{'disk'}       = 0 unless defined($constraints->{'hardware'}->{'disk'});
     $constraints->{'hardware'}->{'memory'}     = 0 unless defined($constraints->{'hardware'}->{'memory'});
-    return 0 if ($constraints->{'hardware'}->{'processors'} && $constraints->{'hardware'}->{'processors'} gt $worker->{'hardware'}->{'processors'});
-    return 0 if ($constraints->{'hardware'}->{'disk'} && getmbsize($constraints->{'hardware'}->{'disk'}) gt $worker->{'hardware'}->{'disk'});
-    return 0 if ($constraints->{'hardware'}->{'memory'} && getmbsize($constraints->{'hardware'}->{'memory'}) gt $worker->{'hardware'}->{'memory'});
+    return 0 if ($constraints->{'hardware'}->{'processors'} && $constraints->{'hardware'}->{'processors'} > $worker->{'hardware'}->{'processors'});
+    return 0 if ($constraints->{'hardware'}->{'disk'} && getmbsize($constraints->{'hardware'}->{'disk'}) > $worker->{'hardware'}->{'disk'});
+    return 0 if ($constraints->{'hardware'}->{'memory'} && getmbsize($constraints->{'hardware'}->{'memory'}) > $worker->{'hardware'}->{'memory'});
     if ($constraints->{'hardware'}->{'cpu'}) {
-      foreach($constraints->{'hardware'}->{'cpu'}->{'flag'}) {
-        return 0 unless grep {$_} @{$worker->{'cpu'}->{'flag'}};
+      my %workerflags = map {$_ => 1} @{($worker->{'cpu'} || {})->{'flag'} || []};
+      for ($constraints->{'hardware'}->{'cpu'}->{'flag'}) {
+        return 0 unless grep {$workerflags{$_}} @{$worker->{'cpu'}->{'flag'}};
       }
     }
   }
