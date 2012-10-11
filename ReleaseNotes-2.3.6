@@ -1,0 +1,27 @@
+#
+# openSUSE Build Service 2.3.6
+#
+
+Updaters from any OBS 2.3 release can just ugrade the packages and restart
+all services. Updaters from former releases should read the
+README.UPDATERS file.
+
+Feature backports:
+==================
+
+* none
+
+Changes:
+========
+
+* api: run the rescale of build monitor statistics hourly
+
+* api: a package created by submit request took over group roles. Does not happen anymore.
+
+Bugfixes:
+=========
+
+* webui: fixed default config for api port (https now)
+
+* api: close /public route when anonymous access is set to disabled.
+
