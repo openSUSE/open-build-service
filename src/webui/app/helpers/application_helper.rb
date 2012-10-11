@@ -191,23 +191,23 @@ module ApplicationHelper
   
   def repo_status_icon( status )
     icon = case status
-    when "published" then "lorry.png"
-    when "publishing" then "cog_go.png"
-    when "outdated_published" then "lorry_error.png"
-    when "outdated_publishing" then "cog_error.png"
-    when "unpublished" then "lorry_flatbed.png"
-    when "outdated_unpublished" then "lorry_error.png"
-    when "building" then "cog.png"
-    when "outdated_building" then "cog_error.png"
-    when "finished" then "time.png"
-    when "outdated_finished" then "time_error.png"
-    when "blocked" then "time.png"
-    when "outdated_blocked" then "time_error.png"
-    when "broken" then "exclamation.png"
-    when "outdated_broken" then "exclamation.png"
-    when "scheduling" then "cog.png"
-    when "outdated_scheduling" then "cog_error.png"
-    else "eye.png"
+    when "published" then "lorry"
+    when "publishing" then "cog_go"
+    when "outdated_published" then "lorry_error"
+    when "outdated_publishing" then "cog_error"
+    when "unpublished" then "lorry_flatbed"
+    when "outdated_unpublished" then "lorry_error"
+    when "building" then "cog"
+    when "outdated_building" then "cog_error"
+    when "finished" then "time"
+    when "outdated_finished" then "time_error"
+    when "blocked" then "time"
+    when "outdated_blocked" then "time_error"
+    when "broken" then "exclamation"
+    when "outdated_broken" then "exclamation"
+    when "scheduling" then "cog"
+    when "outdated_scheduling" then "cog_error"
+    else "eye"
     end
 
     outdated = nil
@@ -229,7 +229,7 @@ module ApplicationHelper
 
     description = "State needs recalculations, former state was: " + description if outdated
 
-    image_tag icon, :size => "16x16", :title => description, :alt => description
+    sprite_tag icon, :title => description
   end
 
 

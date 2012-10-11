@@ -10,19 +10,23 @@
   <ul id="result_select_<%= index %>">
     <li class="selected">
       <a class="result_select_link_<%= index %>" id="result_select_link_<%= index %>_0" href="#">Build Results</a>
-      <%= image_tag('reload.png', :alt => 'Reload', :title => 'Reload', :onclick => 'update_build_result()', :class => "result_reload_#{index}", :id => "result_reload_#{index}_0") %>
+      <%= sprite_tag('reload', :title => 'Reload', :onclick => 'update_build_result()', :class => "result_reload_#{index}", :id => "result_reload_#{index}_0") %>
       <%= image_tag('ajax-loader.gif', :id => "result_spinner_#{index}_0") %>
     </li>
     <% if controller == 'package' %>
       <li>
         <a class="result_select_link_<%= index %>" id="result_select_link_<%= index %>_1" href="#">Rpmlint Results</a>
-        <%= image_tag('reload.png', :alt => 'Reload', :title => 'Reload', :onclick => 'update_rpmlint_result()', :class => "result_reload_#{index}", :id => "result_reload_#{index}_1", :style => 'display: none') %>
+        <%= sprite_tag('reload', :title => 'Reload', :onclick => 'update_rpmlint_result()', :class => "result_reload_#{index}", :id => "result_reload_#{index}_1", :style => 'display: none') %>
         <%= image_tag('ajax-loader.gif', :id => "result_spinner_#{index}_1", :class => 'hidden') %>
       </li>
     <% end %>
   </ul>
 </div>
-<div class="result_display_<%= index %>" id="result_display_<%= index %>_0"></div>
+<div class="result_display_<%= index %>" id="result_display_<%= index %>_0">
+<% if controller == 'project' %>
+  <%= render partial: 'project/buildstatus' %>
+<% end %>
+</div>
 <% if controller == 'package' %>
   <div class="result_display_<%= index %>" id="result_display_<%= index %>_1"></div>
 <% end %>
@@ -95,6 +99,11 @@
       }
     });
   }
-
-  update_build_result();
+	
+  <% if controller != 'project' %>
+    update_build_result();
+  <% else %>
+    $('#result_spinner_<%= index %>_0').hide();
+    $('#result_reload_<%= index %>_0').show();
+  <% end %>
 <% end %>
