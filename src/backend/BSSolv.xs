@@ -181,6 +181,114 @@ dep2id(Pool *pool, char *s)
   return pool_rel2id(pool, id, pool_strn2id(pool, n, s - n, 1), flags, 1);
 }
 
+static inline Offset
+importdeps(HV *hv, const char *key, int keyl, Repo *repo)
+{
+  Pool *pool = repo->pool;
+  int i;
+  AV *av = hvlookupav(hv, key, keyl);
+  Offset off = 0;
+  if (av)
+    {
+      for (i = 0; i <= av_len(av); i++)
+	{
+	  char *str = avlookupstr(av, i);
+	  if (str)
+	    off = repo_addid_dep(repo, off, dep2id(pool, str), 0);
+	}
+    }
+  return off;
+}
+
+void
+exportdeps(HV *hv, const char *key, int keyl, Repo *repo, Offset off, Id skey)
+{
+  Pool *pool = repo->pool;
+  AV *av;
+  Id id, *pp;
+  const char *str;
+
+  if (!off || !repo->idarraydata[off])
+    return;
+  pp = repo->idarraydata + off;
+  av = 0;
+  while ((id = *pp++))
+    {
+      if (id == SOLVABLE_FILEMARKER)
+	break;
+      str = pool_dep2str(pool, id);
+      if (ISRELDEP(id))
+	{
+	  Reldep *rd = GETRELDEP(pool, id);
+	  if (skey == SOLVABLE_CONFLICTS && rd->flags == REL_NAMESPACE && rd->name == NAMESPACE_OTHERPROVIDERS)
+	    {
+	    if (!strncmp(str, "namespace:", 10))
+	      str += 10;
+	    }
+	  if (skey == SOLVABLE_SUPPLEMENTS)
+	    {
+	      if (rd->flags == REL_NAMESPACE && rd->name == NAMESPACE_FILESYSTEM)
+		{
+		  if (!strncmp(str, "namespace:", 10))
+		    str += 10;
+		}
+	      else if (rd->flags == REL_NAMESPACE && rd->name == NAMESPACE_MODALIAS)
+		{
+		  if (!strncmp(str, "namespace:", 10))
+		    str += 10;
+		}
+	      else if (rd->flags == REL_AND)
+		{
+		  /* either packageand chain or modalias */
+		  str = 0;
+		  if (ISRELDEP(rd->evr))
+		    {
+		      Reldep *mrd = GETRELDEP(pool, rd->evr);
+		      if (mrd->flags == REL_NAMESPACE && mrd->name == NAMESPACE_MODALIAS)
+			{
+			  str = pool_tmpjoin(pool, "modalias(", pool_dep2str(pool, rd->name), ":");
+			  str = pool_tmpappend(pool, str, pool_dep2str(pool, mrd->evr), ")");
+			}
+		      else if (mrd->flags >= 8)
+			continue;
+		    }
+		  if (!str)
+		    {
+		      /* must be and chain */
+		      str = pool_dep2str(pool, rd->evr);
+		      for (;;)
+			{
+			  id = rd->name;
+			  if (!ISRELDEP(id))
+			    break;
+			  rd = GETRELDEP(pool, id);
+			  if (rd->flags != REL_AND)
+			    break;
+			  str = pool_tmpjoin(pool, pool_dep2str(pool, rd->evr), ":", str);
+			}
+		      str = pool_tmpjoin(pool, pool_dep2str(pool, id), ":", str);
+		      str = pool_tmpjoin(pool, "packageand(", str, ")");
+		    }
+		}
+	      else if (rd->flags >= 8)
+		continue;
+	    }
+	}
+      if (skey == SOLVABLE_REQUIRES)
+	{
+	  if (id == SOLVABLE_PREREQMARKER)
+	    continue;
+	  if (*str == 'r' && !strncmp(str, "rpmlib(", 7))
+	    continue;
+	}
+      if (!av)
+        av = newAV();
+      av_push(av, newSVpv(str, 0));
+    }
+  if (av)
+    (void)hv_store(hv, key, keyl, newRV_noinc((SV*)av), 0);
+}
+
 static inline void
 expander_installed(Expander *xp, Id p, Map *installed, Map *conflicts, Queue *out, Queue *todo)
 {
@@ -1247,8 +1355,6 @@ repofromdata(BSSolv::pool pool, char *name, HV *rhv)
 	    Repodata *data;
 	    SV *sv;
 	    HV *hv;
-	    AV *av;
-	    int i;
 	    char *str, *key;
 	    I32 keyl;
 	    Id p;
@@ -1296,26 +1402,14 @@ repofromdata(BSSolv::pool pool, char *name, HV *rhv)
 		str = hvlookupstr(hv, "hdrmd5", 6);
 		if (str && strlen(str) == 32)
 		  repodata_set_checksum(data, p, SOLVABLE_PKGID, REPOKEY_TYPE_MD5, str);
-		av = hvlookupav(hv, "provides", 8);
-		if (av)
-		  {
-		    for (i = 0; i <= av_len(av); i++)
-		      {
-			str = avlookupstr(av, i);
-			if (str)
-			  s->provides = repo_addid_dep(repo, s->provides, dep2id(pool, str), 0);
-		      }
-		  }
-		av = hvlookupav(hv, "requires", 8);
-		if (av)
-		  {
-		    for (i = 0; i <= av_len(av); i++)
-		      {
-			str = avlookupstr(av, i);
-			if (str)
-			  s->requires = repo_addid_dep(repo, s->requires, dep2id(pool, str), 0);
-		      }
-		  }
+	        s->provides    = importdeps(hv, "provides", 8, repo);
+	        s->obsoletes   = importdeps(hv, "obsoletes", 9, repo);
+	        s->conflicts   = importdeps(hv, "conflicts", 9, repo);
+	        s->requires    = importdeps(hv, "requires", 8, repo);
+	        s->recommends  = importdeps(hv, "recommends", 10, repo);
+	        s->suggests    = importdeps(hv, "suggests", 8, repo);
+	        s->supplements = importdeps(hv, "supplements", 11, repo);
+	        s->enhances    = importdeps(hv, "enhances", 8, repo);
 		if (!s->evr && s->provides)
 		  {
 		    /* look for self provides */
@@ -1498,7 +1592,6 @@ pkg2data(BSSolv::pool pool, int p)
     CODE:
 	{
 	    Solvable *s = pool->solvables + p;
-	    AV *av;
 	    Id id;
 	    const char *ss, *se;
 	    unsigned int medianr;
@@ -1526,35 +1619,14 @@ pkg2data(BSSolv::pool pool, int p)
 	    else
 	      (void)hv_store(RETVAL, "version", 7, newSVpv(ss, 0), 0);
 	    (void)hv_store(RETVAL, "arch", 4, newSVpv(pool_id2str(pool, s->arch), 0), 0);
-	    av = newAV();
-	    if (s->provides)
-	      {
-		Id *pp = s->repo->idarraydata + s->provides;
-		while ((id = *pp++))
-		  {
-		    if (id == SOLVABLE_FILEMARKER)
-		      break;
-		    av_push(av, newSVpv(pool_dep2str(pool, id), 0));
-		  }
-	      }
-	    (void)hv_store(RETVAL, "provides", 8, newRV_noinc((SV*)av), 0);
-	    av = newAV();
-	    if (s->requires)
-	      {
-		Id *pp = s->repo->idarraydata + s->requires;
-		while ((id = *pp++))
-		  {
-		    if (id == SOLVABLE_PREREQMARKER)
-		      continue;
-		    ss = pool_dep2str(pool, id);
-		    if (*ss == '/')
-		      continue;
-		    if (*ss == 'r' && !strncmp(ss, "rpmlib(", 7))
-		      continue;
-		    av_push(av, newSVpv(ss, 0));
-		  }
-	      }
-	    (void)hv_store(RETVAL, "requires", 8, newRV_noinc((SV*)av), 0);
+	    exportdeps(RETVAL, "provides", 8, s->repo, s->provides, SOLVABLE_PROVIDES);
+	    exportdeps(RETVAL, "obsoletes", 9, s->repo, s->obsoletes, SOLVABLE_OBSOLETES);
+	    exportdeps(RETVAL, "conflicts", 9, s->repo, s->conflicts, SOLVABLE_CONFLICTS);
+	    exportdeps(RETVAL, "requires", 8, s->repo, s->requires, SOLVABLE_REQUIRES);
+	    exportdeps(RETVAL, "recommends", 10, s->repo, s->recommends, SOLVABLE_RECOMMENDS);
+	    exportdeps(RETVAL, "suggests", 8, s->repo, s->suggests, SOLVABLE_SUGGESTS);
+	    exportdeps(RETVAL, "supplements", 11, s->repo, s->supplements, SOLVABLE_SUPPLEMENTS);
+	    exportdeps(RETVAL, "enhances", 8, s->repo, s->enhances, SOLVABLE_ENHANCES);
 	    if (solvable_lookup_void(s, SOLVABLE_SOURCENAME))
 	      ss = pool_id2str(pool, s->name);
 	    else
