@@ -1426,6 +1426,7 @@ sub createexportjob {
   local *F;
   my $jobstatus = {
     'code' => 'finished',
+    'result' => 'succeeded',
   };
   mkdir_p("$jobsdir/$arch") unless -d "$jobsdir/$arch";
   if (!BSUtil::lockcreatexml(\*F, "$jobsdir/$arch/.$job", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus)) {
@@ -4593,6 +4594,7 @@ sub rebuildaggregate {
   local *F;
   my $jobstatus = {
     'code' => 'finished',
+    'result' => 'succeeded',
   };
   if (!BSUtil::lockcreatexml(\*F, "$myjobsdir/.$job", "$myjobsdir/$job:status", $jobstatus, $BSXML::jobstatus)) {
     die("job lock failed\n");
