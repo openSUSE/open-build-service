@@ -25,7 +25,7 @@ for i in *.old ; do
   fi
   i="${i%.old}"
   rm -f "$odir/$i.drpm" "$odir/$i.out" "$odir/$i.seq" "$odir/$i.dseq"
-  if makedeltarpm $mopt -s "$odir/$i.seq" "$i.old" "$i.new" "$odir/$i.drpm" 2>&1 | tee "$i.err" ; then
+  if makedeltarpm $mopt -s "$odir/$i.seq" "$i.old" "$i.new" "$odir/$i.drpm" >"$i.err" 2>&1 ; then
     rm -f "$odir/$i.err"
     newsize=$(stat -c %s "$i.new")
     drpmsize=$(stat -c %s "$odir/$i.drpm")
@@ -46,6 +46,7 @@ for i in *.old ; do
     cp "$i.info" "$odir/$i.dseq"
     echo "Seq: $s" >> "$odir/$i.dseq"
   else
+    cat "$i.err"
     rm -f "$odir/$i.drpm" "$odir/$i.seq"
   fi
 done
