@@ -339,7 +339,7 @@ class ReadPermissionTest < ActionController::IntegrationTest
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # some user
     prepare_request_with_user "tom", "thunder"
-    resp=400       # axml store SaveError
+    resp=404       # unknown prj
     delresp=404    # unknown prj
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # maintainer

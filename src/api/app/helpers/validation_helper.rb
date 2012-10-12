@@ -40,9 +40,11 @@ module ValidationHelper
 
     r = Suse::Backend.get(metapath)
     raise DbPackage::UnknownObjectError, "#{project}/#{name}" unless r
-    dpkg = Package.new(r.body)
-    raise DbPackage::UnknownObjectError, "#{project}/#{name}" unless dpkg
-    raise DbPackage::ReadSourceAccessError, "#{project}/#{name}" if dpkg.disabled_for? 'sourceaccess' and not @http_user.is_admin?
+    return true if @http_user.is_admin?
+    if FlagHelper.xml_disabled_for?(Xmlhash.parse(r.body), 'sourceaccess')
+      raise DbPackage::ReadSourceAccessError, "#{project}/#{name}"
+    end
+    return true
   end
 
   def validate_visibility_of_deleted_project(project)
@@ -59,9 +61,12 @@ module ValidationHelper
 
     metapath = "/source/#{CGI.escape(project)}/_project/_meta?rev=#{lastrev.value('srcmd5')}&deleted=1"
     r = Suse::Backend.get(metapath)
-    dprj = Project.new(r.body)
-    #FIXME: actually a per user checking would be more accurate here
-    raise DbProject::UnknownObjectError, "#{project}" if dprj.nil? or (dprj.disabled_for? 'access' and not @http_user.is_admin?)
+    raise DbProject::UnknownObjectError unless r
+    return true if @http_user.is_admin?
+    if FlagHelper.xml_disabled_for?(Xmlhash.parse(r.body), 'access')
+      #FIXME: actually a per user checking would be more accurate here
+      raise DbProject::UnknownObjectError, "#{project}"
+    end
   end
 
 end

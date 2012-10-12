@@ -35,7 +35,7 @@ class DbProjectTest < ActiveSupport::TestCase
     assert_equal 0, @project.flags.size
     
     #project is given as axml
-    axml = ActiveXML::Base.new(
+    axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
         <description></description> 
@@ -55,7 +55,8 @@ class DbProjectTest < ActiveSupport::TestCase
     ['build', 'publish', 'debuginfo'].each do |flagtype|
       position = @project.update_flags(axml, flagtype, position)
     end
-      
+    
+    @project.save
     @project.reload
     
     #check results
@@ -92,7 +93,7 @@ class DbProjectTest < ActiveSupport::TestCase
     assert_equal 2, @project.type_flags('publish').size
     
     #project is given as axml
-    axml = ActiveXML::Base.new(
+    axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
         <description></description> 
@@ -109,7 +110,7 @@ class DbProjectTest < ActiveSupport::TestCase
     original = @project.to_axml
 
     #project is given as axml
-    axml = ActiveXML::Base.new(
+    axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
         <description></description>
@@ -121,17 +122,17 @@ class DbProjectTest < ActiveSupport::TestCase
       </project>"
       )
       
-    @project.store_axml(axml)
+    @project.update_from_xml(axml)
     
     assert_equal 0, @project.type_flags('build').size
     assert_equal 1, @project.type_flags('debuginfo').size        
 
-    @project.store_axml(ActiveXML::Base.new(original))
+    @project.update_from_xml(Xmlhash.parse(original))
   end  
 
   def test_ordering
     #project is given as axml
-    axml = ActiveXML::Base.new(
+    axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
         <description></description>
@@ -142,7 +143,7 @@ class DbProjectTest < ActiveSupport::TestCase
         </repository>
       </project>"
       )
-    @project.store_axml(axml)
+    @project.update_from_xml(axml)
     
     xml = @project.render_axml
     
@@ -152,7 +153,7 @@ class DbProjectTest < ActiveSupport::TestCase
     
     # now verify it's not happening randomly
     #project is given as axml
-    axml = ActiveXML::Base.new(
+    axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
         <description></description>
@@ -163,7 +164,7 @@ class DbProjectTest < ActiveSupport::TestCase
         </repository>
       </project>"
       )
-    @project.store_axml(axml)
+    @project.update_from_xml(axml)
 
     xml = @project.render_axml
     

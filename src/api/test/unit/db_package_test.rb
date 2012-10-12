@@ -36,7 +36,7 @@ class DbPackageTest < ActiveSupport::TestCase
     assert_equal 0, @package.flags.size
     
     #package is given as axml
-    axml = ActiveXML::Base.new(
+    axml = Xmlhash.parse(
       "<package name='TestPack' project='home:Iggy'>
         <title>My Test package</title>
         <description></description>
@@ -57,7 +57,8 @@ class DbPackageTest < ActiveSupport::TestCase
     ['build', 'publish', 'debuginfo'].each do |flagtype|
       position = @package.update_flags(axml, flagtype, position)
     end
-      
+    
+    @package.save
     @package.reload
     
     #check results
@@ -96,7 +97,7 @@ class DbPackageTest < ActiveSupport::TestCase
     assert_equal 1, @package.type_flags('publish').size
     
     #package is given as axml
-    axml = ActiveXML::Base.new(
+    axml = Xmlhash.parse(
       "<package name='TestPack' project='home:Iggy'>
         <title>My Test package</title>
         <description></description>
@@ -131,34 +132,34 @@ class DbPackageTest < ActiveSupport::TestCase
     orig = Xmlhash.parse(@package.to_axml)
 
     assert_raise DbPackage::SaveError do
-      @package.store_axml(
-      ActiveXML::Base.new("<package name='TestPack' project='home:Iggy'>
+      @package.update_from_xml(Xmlhash.parse(
+        "<package name='TestPack' project='home:Iggy'>
         <title>My Test package</title>
         <description></description>
         <devel project='Notexistant'/>
       </package>"))
     end
     assert_raise DbPackage::SaveError do
-      @package.store_axml(
-        ActiveXML::Base.new("<package name='TestPack' project='home:Iggy'>
-	                       <title>My Test package</title>
-			       <description></description>
-			       <devel project='home:Iggy' package='nothing'/>
-			     </package>"))
+      @package.update_from_xml(Xmlhash.parse(
+        "<package name='TestPack' project='home:Iggy'>
+	   <title>My Test package</title>
+	   <description></description>
+	   <devel project='home:Iggy' package='nothing'/>
+        </package>"))
     end
 
     assert_raise ActiveRecord::RecordNotFound do
-     @package.store_axml(
-       ActiveXML::Base.new("<package name='TestBack' project='home:Iggy'>
-	            <title>My Test package</title>
-		    <description></description>
-		    <person userid='alice' role='maintainer'/>
-                 </package>"))
+     @package.update_from_xml(Xmlhash.parse(
+       "<package name='TestBack' project='home:Iggy'>
+           <title>My Test package</title>
+           <description></description>
+	   <person userid='alice' role='maintainer'/>
+        </package>"))
     end
 
     assert_raise DbPackage::SaveError do
-      @package.store_axml(
-         ActiveXML::Base.new("<package name='TestBack' project='home:Iggy'>
+      @package.update_from_xml(Xmlhash.parse(
+         "<package name='TestBack' project='home:Iggy'>
                               <title>My Test package</title>
                               <description></description>
 			      <person userid='tom' role='coolman'/>
@@ -166,19 +167,19 @@ class DbPackageTest < ActiveSupport::TestCase
     end
 
     assert_equal orig, Xmlhash.parse(@package.to_axml)
-    assert @package.store_axml(
-      ActiveXML::Base.new("<package name='TestPack' project='home:Iggy'>
+    assert @package.update_from_xml(Xmlhash.parse(
+      "<package name='TestPack' project='home:Iggy'>
         <title>My Test package</title>
         <description></description>
         <person userid='fred' role='bugowner'/>
         <person userid='Iggy' role='maintainer'/>
-      </package>")).nil?
+      </package>"))
   end
 
   def test_add_user
     orig = @package.to_axml
     @package.add_user('tom', 'maintainer')
-    @package.store_axml(ActiveXML::Base.new(orig))
+    @package.update_from_xml(Xmlhash.parse(orig))
 
     assert_raise DbPackage::SaveError do
       @package.add_user('tom', 'Admin')

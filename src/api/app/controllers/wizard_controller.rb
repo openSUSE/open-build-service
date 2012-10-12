@@ -49,12 +49,10 @@ class WizardController < ApplicationController
     end
 
     # create package container
-    package = Package.find(params[:package], :project => params[:project])
-    e = package.add_element "title"
-    e.text = @wizard["summary"]
-    e = package.add_element "description"
-    e.text = @wizard["description"]
-    package.save
+    package = DbProject.find_by_name!(params[:project]).new(name: params[:package])
+    package.title = @wizard["summary"]
+    package.description = @wizard["description"]
+    package.store
 
     # create service file
     node = Builder::XmlMarkup.new(:indent=>2)

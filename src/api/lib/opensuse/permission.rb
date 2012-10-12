@@ -27,7 +27,7 @@ module Suse
 
       if project.kind_of? DbProject
         prj = project
-      elsif project.kind_of? Project or project.kind_of? String
+      elsif project.kind_of? String
         prj = DbProject.find_by_name( project )
       end
 
@@ -53,21 +53,9 @@ module Suse
         pkg = package
       else
         if project.nil?
-          if not package.kind_of? Package
-            raise RuntimeError, "autofetch of project only works with objects of class Package"
-          end
-          if package.parent_project_name.nil?
-            raise RuntimeError, "unable to determine parent project for package #{package}"
-          end
-          project = package.parent_project
+          raise RuntimeError, "autofetch of project only works with objects of class Package"
         end
 
-        if package.kind_of? Package
-           package = package.name
-        end
-        if project.kind_of? Project
-           project = project.name
-        end
         if project.kind_of? String
            project = project
         end
@@ -91,10 +79,6 @@ module Suse
         prj = obj.db_project
       elsif obj.kind_of? DbProject
         prj = obj
-      elsif obj.kind_of? Package
-        prj = DbProject.find_by_name( obj.parent_project.name )
-      elsif obj.kind_of? Project
-        prj = DbProject.find_by_name( obj.name )
       elsif obj.kind_of? String
         prj = DbProject.find_by_name( obj )
       else

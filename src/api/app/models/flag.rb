@@ -74,13 +74,12 @@ class Flag < ActiveRecord::Base
     end
   end
 
-  validate :validate_custom
-  protected
-  def validate_custom
-    errors.add(:name, "Please set either project_id or package_id.") unless self.db_project_id.nil? or self.db_package_id.nil?
-    errors.add(:name, "Please set either project_id or package_id.") if self.db_project_id.nil? and self.db_package_id.nil?
+  validate :validate_custom_save
+  def validate_custom_save
+    errors.add(:name, "Please set either project_id or package_id.") if self.db_project.nil? and self.db_package.nil?
     errors.add(:flag, "There needs to be a valid flag.") unless FlagHelper::TYPES.has_key?(self.flag)
     errors.add(:status, "Status needs to be enable or disable") unless (self.status == 'enable' or self.status == 'disable')
+    errors.add(:name, "Please set either project_id or package_id.") unless self.db_project_id.nil? or self.db_package_id.nil?
   end
 
 end

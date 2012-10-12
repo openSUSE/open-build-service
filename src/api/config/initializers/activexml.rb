@@ -8,9 +8,6 @@ ActiveXML::Base.config do |conf|
   conf.setup_transport do |map|
     map.default_server :rest, "#{CONFIG['source_protocol']}://#{CONFIG['source_host']}:#{CONFIG['source_port']}"
 
-    map.connect :project, "bssql:///"
-    map.connect :package, "bssql:///"
-
     map.connect :directory, "rest:///source/:project/:package?:expand&:rev&:meta&:linkrev&:emptylink&:view&:extension&:lastworking&:withlinked&:deleted"
     map.connect :jobhistory, "rest:///build/:project/:repository/:arch/_jobhistory?:package&:limit&:code"
 
@@ -29,5 +26,6 @@ ActiveXML::Base.config do |conf|
   # the default is not to write through, only once the backend started
   # we set this to true
   conf.global_write_through = false if Rails.env.test?
-
 end
+
+

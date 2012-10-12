@@ -408,6 +408,10 @@ class ApplicationController < ActionController::API
 
   def rescue_with_handler(exception)
 
+    bt = "\n" + exception.backtrace.join("\n")
+
+    logger.debug "#{exception.class}: errorcode #{exception.message}#{bt}"
+
     case exception
     when Suse::Backend::NotFoundError
       render_error :message => exception.message, :status => 404
@@ -434,6 +438,8 @@ class ApplicationController < ActionController::API
       render_error :message => "Error saving package: #{exception.message}", :errorcode => "package_save_error", :status => 400
     when DbProject::SaveError
       render_error :message => "Error saving project: #{exception.message}", :errorcode => "project_save_error", :status => 400
+    when DbProject::ForbiddenError
+        render_error :status => 403, errorcode: exception.errorcode, message: exception.message
     when DbPackage::DeleteError
       render_error :status => 400, :message => exception.message, :errorcode => "delete_error"
     when IllegalRequestError
@@ -444,7 +450,7 @@ class ApplicationController < ActionController::API
     when ActionController::RoutingError, ActiveRecord::RecordNotFound
       render_error :message => exception.message, :status => 404, :errorcode => "not_found"
     when ActiveRecord::RecordInvalid
-      render_error :message => "Record not valid: #{exception.record.inspect} - #{exception.record.errors.full_messages}", :status => 400, :errorcode => "record_invalid"
+      render_error :message => "Record not valid: #{exception.record.inspect} - #{exception.record.errors.inspect} - #{exception.record.errors.full_messages}", :status => 400, :errorcode => "record_invalid"
     when AbstractController::ActionNotFound
       render_error :message => exception.message, :status => 403, :errorcode => "unknown_action"
     when ActionView::MissingTemplate
@@ -533,12 +539,13 @@ class ApplicationController < ActionController::API
         render_error :status => 404, :errorcode => 'role_not_found',
           :message => exception.message
       end
+    when FlagHelper::InvalidFlag
+      render_error message: exception.message, errorcode: 'invalid_flag'
     else
       #if send_exception_mail?
       #  ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {})
       #end
-      bt = exception.backtrace.join("\n")
-      render_error :message => "Uncaught exception: #{exception.message}\n#{bt}", :status => 400
+      render_error status: 400
     end
   end
 
@@ -617,7 +624,6 @@ class ApplicationController < ActionController::API
     #      end
     #    end
 
-    logger.info "errorcode '#{@errorcode}' - #{@summary}"
     response.headers['X-Opensuse-Errorcode'] = @errorcode
     render :template => 'status', :status => opt[:status]
   end

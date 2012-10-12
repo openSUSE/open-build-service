@@ -706,37 +706,34 @@ class SourceController < ApplicationController
       request_data = request.raw_post
 
       # permission check
-      p = Project.new(request_data, :name => project_name)
-      if( p.name != project_name )
+      rdata = Xmlhash.parse(request_data)
+      if rdata['name'] != project_name 
         render_error :status => 400, :errorcode => 'project_name_mismatch',
-          :message => "project name in xml data does not match resource path component"
+                     :message => "project name in xml data ('#{rdata['name']}) does not match resource path component ('#{project_name}')"
         return
       end
       begin
-        prj = DbProject.get_by_name p.name
+        prj = DbProject.get_by_name rdata['name']
       rescue DbProject::UnknownObjectError
         prj = nil
       end
 
       # remote url project must be edited by the admin
       unless @http_user.is_admin?
-        if (p.has_element? :remoteurl or p.has_element? :remoteproject)
+        if rdata.has_key? 'remoteurl' or rdata.has_key? 'remoteproject'
           render_error :status => 403, :errorcode => "change_project_no_permission",
             :message => "admin rights are required to change remoteurl or remoteproject"
           return
         end
       end
 
-      # parse xml structure of uploaded data
-      rdata = ActiveXML::Base.new(request.raw_post.to_s)
-
       # Need permission
       logger.debug "Checking permission for the put"
       if prj
         # is lock explicit set to disable ? allow the un-freeze of the project in that case ...
         ignoreLock = nil
-# do not support unlock via meta data, just via command or request revoke for now
-#        ignoreLock = 1 if rdata.has_element?("lock/disable")
+        # do not support unlock via meta data, just via command or request revoke for now
+        # ignoreLock = true if rdata.has_element?("lock/disable")
 
         # project exists, change it
         unless @http_user.can_modify_project?(prj, ignoreLock)
@@ -752,22 +749,7 @@ class SourceController < ApplicationController
           return
         end
 
-        # check for raising read access permissions, which can't get ensured atm
-        unless prj.disabled_for?('access', nil, nil)
-          if p.disabled_for? :access
-             render_error :status => 403, :errorcode => "change_project_protection_level",
-               :message => "admin rights are required to raise the protection level of a project (it won't be safe anyway)"
-             return
-          end
-        end
-        unless prj.disabled_for?('sourceaccess', nil, nil)
-          if p.disabled_for? :sourceaccess
-             render_error :status => 403, :errorcode => "change_project_protection_level",
-               :message => "admin rights are required to raise the protection level of a project (it won't be safe anyway)"
-             return
-          end
-        end
-      else
+       else
         # project is new
         unless @http_user.can_create_project? project_name
           logger.debug "Not allowed to create new project"
@@ -778,14 +760,15 @@ class SourceController < ApplicationController
       end
 
       # the following code checks if the target project of a linked project exists or is not readable by user
-      rdata.each_link do |e|
+      rdata.elements('link') do |e|
         # permissions check
         tproject_name = e.value("project")
         tprj = DbProject.get_by_name(tproject_name)
 
         # The read access protection for own and linked project must be the same.
         # ignore this for remote targets
-        if tprj.class == DbProject and tprj.disabled_for?('access', nil, nil) and not p.disabled_for?('access')
+        if tprj.class == DbProject and tprj.disabled_for?('access', nil, nil) and 
+            !FlagHelper.xml_disabled_for?(rdata, 'access')
           render_error :status => 404, :errorcode => "project_read_access_failure" ,
                        :message => "project links work only when both projects have same read access protection level: #{project_name} -> #{tproject_name}"
           return
@@ -794,18 +777,22 @@ class SourceController < ApplicationController
         logger.debug "project #{project_name} link checked against #{tproject_name} projects permission"
       end
 
+      new_repo_names = {}
       # Check used repo pathes for existens and read access permissions
-      rdata.each("repository/path") do |e|
-        # permissions check
-        tproject_name = e.value("project")
-        tprj = DbProject.get_by_name(tproject_name)
-        if tprj.class == DbProject and tprj.disabled_for?('access', nil, nil) # user can access tprj, but backend would refuse to take binaries from there
-          render_error :status => 404, :errorcode => "repository_access_failure" ,
-                       :message => "The current backend implementation is not using binaries from read access protected projects #{tproject_name}"
-          return
+      rdata.elements('repository') do |r|
+        new_repo_names[r['name']] = 1
+        r.elements('path') do |e|
+          # permissions check
+          tproject_name = e.value("project")
+          tprj = DbProject.get_by_name(tproject_name)
+          if tprj.class == DbProject and tprj.disabled_for?('access', nil, nil) # user can access tprj, but backend would refuse to take binaries from there
+            render_error :status => 404, :errorcode => "repository_access_failure" ,
+            :message => "The current backend implementation is not using binaries from read access protected projects #{tproject_name}"
+            return
+          end
+          
+          logger.debug "project #{project_name} repository path checked against #{tproject_name} projects permission"
         end
-
-        logger.debug "project #{project_name} repository path checked against #{tproject_name} projects permission"
       end
 
       # find linking repos which get deleted
@@ -813,7 +800,7 @@ class SourceController < ApplicationController
       linkingRepositories = Array.new
       if prj
         prj.repositories.each do |repo|
-          if !rdata.has_element?("repository[@name='#{repo.name}']") and not repo.remote_project_name
+          if !new_repo_names[repo.name] and not repo.remote_project_name
             # collect repositories to remove
             removedRepositories << repo
             linkingRepositories += repo.linking_repositories
@@ -834,8 +821,18 @@ class SourceController < ApplicationController
       end
 
       # exec
-      p.add_person(:userid => @http_user.login) unless prj
-      p.save
+      unless prj
+        prj = DbProject.new(name: project_name)
+        DbProject.transaction do
+          prj.update_from_xml(rdata)
+          prj.add_user(@http_user.login, 'maintainer')
+        end
+      else
+        DbProject.transaction do
+          prj.update_from_xml(rdata)
+        end
+      end
+      prj.store
       render_ok
 
     # bad request
@@ -956,17 +953,17 @@ class SourceController < ApplicationController
     else
       # PUT /source/:project/:package/_meta
 
-      pkg_xml = Package.new( request.raw_post, :project => project_name, :name => package_name )
-
-      if (pkg_xml.project and pkg_xml.project != project_name)
+      rdata = Xmlhash.parse(request.raw_post)
+      
+      if rdata['project'] && rdata['project'] != project_name
         render_error :status => 400, :errorcode => 'project_name_mismatch',
-          :message => "project name in xml data does not match resource path component"
+                     :message => "project name in xml data does not match resource path component"
         return
       end
 
-      if (pkg_xml.name and pkg_xml.name != package_name)
+      if rdata['name'] && rdata['name'] != package_name
         render_error :status => 400, :errorcode => 'package_name_mismatch',
-          :message => "package name in xml data does not match resource path component"
+                     :message => "package name in xml data does not match resource path component"
         return
       end
 
@@ -985,7 +982,7 @@ class SourceController < ApplicationController
         end
 
         if pkg and not pkg.disabled_for?('sourceaccess', nil, nil)
-          if pkg_xml.disabled_for? :sourceaccess
+          if FlagHelper.xml_disabled_for?(rdata, 'sourceaccess')
              render_error :status => 403, :errorcode => "change_package_protection_level",
                :message => "admin rights are required to raise the protection level of a package"
              return
@@ -998,10 +995,12 @@ class SourceController < ApplicationController
             :message => "no permission to create a package in project '#{project_name}'"
           return
         end
+        pkg = prj.db_packages.new(name: package_name)
       end
-
+        
       begin
-        pkg_xml.save
+        pkg.update_from_xml(rdata)
+        pkg.store
       rescue DbPackage::CycleError => e
         render_error :status => 400, :errorcode => 'devel_cycle', :message => e.message
         return
@@ -1298,10 +1297,9 @@ class SourceController < ApplicationController
 
       # remove this repository, but be careful, because we may have done it already.
       if Repository.exists?(repo) and r=prj.repositories.find(repo)
-         logger.info "updating project '#{prj.name}'"
-         r.destroy
-         prj.save
-         prj.store({:lowprio => true}) # low prio storage
+        logger.info "updating project '#{prj.name}'"
+        r.destroy
+        prj.store({:lowprio => true}) # low prio storage
       end
     end
   end
@@ -1454,13 +1452,18 @@ class SourceController < ApplicationController
 
     # read meta data from backend to restore database object
     path = request.path + "/_meta"
-    Project.new(backend_get(path)).save
+    prj = DbProject.new(name: params[:project])
+    prj.update_from_xml(Xmlhash.parse(backend_get(path)))
+    prj.store
 
     # restore all package meta data objects in DB
     backend_pkgs = Collection.find :package, :match => "@project='#{project_name}'"
     backend_pkgs.each_package do |package|
       path = request.path + "/" + package.name + "/_meta"
-      Package.new(backend_get(path), :project => params[:project]).save
+      p = Xmlhash.parse(backend_get(path))
+      pkg = prj.db_packages.new(name: p['name'])
+      pkg.update_from_xml(p)
+      pkg.store
     end
   end
 
@@ -1682,7 +1685,10 @@ class SourceController < ApplicationController
 
     # read meta data from backend to restore database object
     path = request.path + "/_meta"
-    Package.new(backend_get(path), :project => params[:project]).save
+    prj = DbProject.find_by_name!(params[:project])
+    pkg = prj.db_packages.new(name: params[:package])
+    pkg.update_from_xml(Xmlhash.parse(backend_get(path)))
+    pkg.store
   end
 
   # FIXME: obsolete this for 3.0
@@ -1770,7 +1776,7 @@ class SourceController < ApplicationController
     pack = DbPackage.find_by_project_and_name( params[:project], params[:package] )
     if pack # in case of _project package
       pack.set_package_kind_from_commit(answer)
-      pack.update_timestamp
+      pack.update_activity
     end
 
     if params[:package] == "_product"
@@ -1820,14 +1826,19 @@ class SourceController < ApplicationController
     # create target package, if it does not exist
     tpkg = DbPackage.find_by_project_and_name(params[:project], params[:package])
     if tpkg.nil?
+      prj = DbProject.find_by_name!(params[:project])
       answer = Suse::Backend.get("/source/#{CGI.escape(sproject)}/#{CGI.escape(spackage)}/_meta")
       if answer
-        p = Package.new(answer.body, :project => params[:project])
-        p.name = params[:package]
-        p.remove_all_persons
-        p.remove_all_groups
-        p.remove_devel_project
-        p.save
+        DbPackage.transaction do
+          adata = Xmlhash.parse(answer.body)
+          adata['name'] = params[:package]
+          p = prj.db_packages.new(name: params[:package])
+          p.update_from_xml(adata)
+          p.remove_all_persons
+          p.remove_all_groups
+          p.develpackage = nil
+          p.store
+        end
         tpkg = DbPackage.find_by_project_and_name(params[:project], params[:package])
       else
         render_error :status => 404, :errorcode => 'unknown_package',
@@ -1951,14 +1962,13 @@ class SourceController < ApplicationController
     # Raising permissions afterwards is not secure. Do not allow this by default.
     unless @http_user.is_admin?
       if params[:flag] == "access" and params[:status] == "enable" and not prj.enabled_for?('access', params[:repository], params[:arch])
-        render_error :status => 403, :errorcode => "change_project_protection_level",
-        :message => "admin rights are required to raise the protection level of a project"
-        return
+        raise DbProject::ForbiddenError.new("change_project_protection_level",
+                                            "admin rights are required to raise the protection level of a project")
       end
-      if params[:flag] == "sourceaccess" and params[:status] == "enable" and not prj.enabled_for?('sourceaccess', params[:repository], params[:arch])
-        render_error :status => 403, :errorcode => "change_project_protection_level",
-        :message => "admin rights are required to raise the protection level of a project"
-        return
+      if params[:flag] == "sourceaccess" and params[:status] == "enable" and 
+          !prj.enabled_for?('sourceaccess', params[:repository], params[:arch])
+        raise DbProject::ForbiddenError.new("change_project_protection_level",
+                                            "admin rights are required to raise the protection level of a project")
       end
     end
     

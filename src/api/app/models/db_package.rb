@@ -31,16 +31,11 @@ class DbPackage < ActiveRecord::Base
   has_many :db_package_issues, :dependent => :destroy
 
   attr_accessible :name, :title, :description
+  after_save :write_to_backend
+  after_save :update_activity
 
   default_scope { where("db_packages.db_project_id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
 
-  # disable automatic timestamp updates (updated_at and created_at)
-  # but only for this class, not(!) for all ActiveRecord::Base instances
-  def record_timestamps
-    false
-  end
-
-  
 #  def after_create
 #    raise ReadAccessError.new "Unknown package" unless DbPackage.check_access?(self)
 #  end
@@ -56,22 +51,6 @@ class DbPackage < ActiveRecord::Base
       return false if dbpkg.nil?
       return false unless dbpkg.class == DbPackage
       return DbProject.check_access?(dbpkg.db_project)
-    end
-
-    def store_axml( package )
-      dbp = nil
-      DbPackage.transaction do
-        project_name = package.parent_project_name
-        dbp = DbPackage.find_by_project_and_name(project_name, package.name)
-        unless dbp
-          pro = DbProject.find_by_name project_name
-          raise SaveError, "unknown project '#{project_name}'" unless pro
-          dbp = DbPackage.new( :name => package.name.to_s )
-          pro.db_packages << dbp
-        end
-        dbp.store_axml( package )
-      end
-      return dbp
     end
 
     # returns an object of package or raises an exception
@@ -295,7 +274,6 @@ class DbPackage < ActiveRecord::Base
   end
 
   def sources_changed
-    self.update_timestamp
     self.set_package_kind
   end
 
@@ -433,160 +411,160 @@ class DbPackage < ActiveRecord::Base
     return pkg
   end
 
-  def store_axml( package )
-    DbPackage.transaction do
-      self.title = package.value(:title)
-      self.description = package.value(:description)
-      self.bcntsynctag = nil
-      self.bcntsynctag = package.value(:bcntsynctag)
+  def update_from_xml( xmlhash )
+    self.title = xmlhash.value('title')
+    self.description = xmlhash.value('description')
+    self.bcntsynctag = nil
+    self.bcntsynctag = xmlhash.value('bcntsynctag')
 
-      #--- devel project ---#
-      self.develpackage = nil
-      if package.has_element? :devel
-        prj_name = package.devel.value(:project) || package.value(:project)
-        pkg_name = package.devel.value(:package) || package.value(:name)
-        unless develprj = DbProject.find_by_name(prj_name)
-          raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
-        end
-        unless develpkg = develprj.db_packages.find_by_name(pkg_name)
-          raise SaveError, "value of develpackage has to be a existing package (package '#{pkg_name}' does not exist)"
-        end
-        self.develpackage = develpkg
+    #--- devel project ---#
+    self.develpackage = nil
+    if devel = xmlhash['devel']
+      prj_name = devel['project'] || xmlhash['project']
+      pkg_name = devel['package'] || xmlhash['name']
+      unless develprj = DbProject.find_by_name(prj_name)
+        raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
       end
-      #--- end devel project ---#
-
-      # just for cycle detection
-      self.resolve_devel_package
-
-      #--- update users ---#
-      usercache = Hash.new
-      self.package_user_role_relationships.each do |purr|
-        h = usercache[purr.user.login] ||= Hash.new
-        h[purr.role.title] = purr
+      unless develpkg = develprj.db_packages.find_by_name(pkg_name)
+        raise SaveError, "value of develpackage has to be a existing package (package '#{pkg_name}' does not exist)"
       end
+      self.develpackage = develpkg
+    end
+    #--- end devel project ---#
+    
+    # just for cycle detection
+    self.resolve_devel_package
+    
+    #--- update users ---#
+    usercache = Hash.new
+    self.package_user_role_relationships.each do |purr|
+      h = usercache[purr.user.login] ||= Hash.new
+      h[purr.role.title] = purr
+    end
 
-      package.each_person do |person|
-        if not Role.rolecache.has_key? person.role
-          raise SaveError, "illegal role name '#{person.role}'"
-        end
-        if usercache.has_key? person.userid
-          #user has already a role in this package
-          pcache = usercache[person.userid]
-          if pcache.has_key? person.role
-            #role already defined, only remove from cache
-            pcache[person.role] = :keep
-          else
-            #new role
-            PackageUserRoleRelationship.create!(
-              user: User.get_by_login(person.userid),
-              role: Role.rolecache[person.role],
-              db_package: self
-            )
-          end
+    # give ourselves an ID
+    self.save!
+
+    xmlhash.elements('person') do |person|
+      if not Role.rolecache.has_key? person['role']
+        raise SaveError, "illegal role name '#{person['role']}'"
+      end
+      if usercache.has_key? person['userid']
+        #user has already a role in this package
+        pcache = usercache[person['userid']]
+        if pcache.has_key? person['role']
+          #role already defined, only remove from cache
+          pcache[person['role']] = :keep
         else
-          user = User.get_by_login(person.userid)
-          pu = PackageUserRoleRelationship.create(
-              :user => user,
-              :role => Role.rolecache[person.role],
-              :db_package => self)
-          if pu.valid?
-            pu.save!
-          else
-            logger.debug "user '#{person.userid}' (role '#{person.role}') in package '#{self.name}': #{pu.errors.to_a.join(',')}"
-          end
+          #new role
+          PackageUserRoleRelationship.create!(
+                                              user: User.get_by_login(person['userid']),
+                                              role: Role.rolecache[person['role']],
+                                              db_package: self
+                                              )
         end
-      end
-
-      #delete all roles that weren't found in uploaded xml
-      usercache.each do |user, roles|
-        roles.each do |role, object|
-          next if object == :keep
-          object.destroy
-        end
-      end
-
-      #--- end update users ---#
-
-      #--- update group ---#
-      groupcache = Hash.new
-      self.package_group_role_relationships.each do |pgrr|
-        h = groupcache[pgrr.group.title] ||= Hash.new
-        h[pgrr.role.title] = pgrr
-      end
-
-      package.each_group do |ge|
-        if groupcache.has_key? ge.groupid
-          #group has already a role in this package
-          pcache = groupcache[ge.groupid]
-          if pcache.has_key? ge.role
-            #role already defined, only remove from cache
-            pcache[ge.role] = :keep
-          else
-            #new role
-            if not Role.rolecache.has_key? ge.role
-              raise SaveError, "illegal role name '#{ge.role}'"
-            end
-            PackageGroupRoleRelationship.create(
-              :group => Group.find_by_title(ge.groupid),
-              :role => Role.rolecache[ge.role],
-              :db_package => self
-            )
-          end
+      else
+        user = User.get_by_login(person['userid'])
+        pu = PackageUserRoleRelationship.create(
+                                                user: user,
+                                                role: Role.rolecache[person['role']],
+                                                db_package: self)
+        if pu.valid?
+          pu.save!
         else
-          group = Group.find_by_title(ge.groupid)
-          unless group
-            # check with LDAP
-            if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
-              if defined?( CONFIG['ldap_group_support'] ) && CONFIG['ldap_group_support'] == :on
-                if User.find_group_with_ldap(ge.groupid)
-                  logger.debug "Find and Create group '#{ge.groupid}' from LDAP"
-                  newgroup = Group.create( :title => ge.groupid )
-                  unless newgroup.errors.empty?
-                    raise SaveError, "unknown group '#{ge.groupid}', failed to create the ldap groupid on OBS"
-                  end
-                  group=Group.find_by_title(ge.groupid)
-                else
-                  raise SaveError, "unknown group '#{ge.groupid}' on LDAP server"
+          logger.debug "user '#{person['userid']}' (role '#{person['role']}') in package '#{self.name}': #{pu.errors.to_a.join(',')}"
+        end
+      end
+    end
+    
+    #delete all roles that weren't found in uploaded xml
+    usercache.each do |user, roles|
+      roles.each do |role, object|
+        next if object == :keep
+        object.destroy
+      end
+    end
+    
+    #--- end update users ---#
+    
+    #--- update group ---#
+    groupcache = Hash.new
+    self.package_group_role_relationships.each do |pgrr|
+      h = groupcache[pgrr.group.title] ||= Hash.new
+      h[pgrr.role.title] = pgrr
+    end
+    
+    xmlhash.elements('group') do |ge|
+      if groupcache.has_key? ge['groupid']
+        #group has already a role in this package
+        pcache = groupcache[ge['groupid']]
+        if pcache.has_key? ge['role']
+          #role already defined, only remove from cache
+          pcache[ge['role']] = :keep
+        else
+          #new role
+          if not Role.rolecache.has_key? ge['role']
+            raise SaveError, "illegal role name '#{ge['role']}'"
+          end
+          PackageGroupRoleRelationship.create(
+                                              :group => Group.find_by_title(ge['groupid']),
+                                              :role => Role.rolecache[ge['role']],
+                                              :db_package => self
+                                              )
+        end
+      else
+        group = Group.find_by_title(ge['groupid'])
+        unless group
+          # check with LDAP
+          if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
+            if defined?( CONFIG['ldap_group_support'] ) && CONFIG['ldap_group_support'] == :on
+              if User.find_group_with_ldap(ge['groupid'])
+                logger.debug "Find and Create group '#{ge['groupid']}' from LDAP"
+                newgroup = Group.create( :title => ge['groupid'] )
+                unless newgroup.errors.empty?
+                  raise SaveError, "unknown group '#{ge['groupid']}', failed to create the ldap groupid on OBS"
                 end
+                group=Group.find_by_title(ge['groupid'])
+              else
+                raise SaveError, "unknown group '#{ge['groupid']}' on LDAP server"
               end
             end
-
-            unless group
-              raise SaveError, "unknown group '#{ge.groupid}'"
-            end
           end
 
-          begin
-            PackageGroupRoleRelationship.create(
-              :group => group,
-              :role => Role.rolecache[ge.role],
-              :db_package => self
-            )
-          rescue ActiveRecord::RecordNotUnique
-            logger.debug "group '#{ge.groupid}' already has the role '#{ge.role}' in package '#{self.name}'"
+          unless group
+            raise SaveError, "unknown group '#{ge['groupid']}'"
           end
         end
-      end
 
-      #delete all roles that weren't found in uploaded xml
-      groupcache.each do |group, roles|
-        roles.each do |role, object|
-          next if object == :keep
-          object.destroy
+        begin
+          PackageGroupRoleRelationship.create(
+                                              :group => group,
+                                              :role => Role.rolecache[ge['role']],
+                                              :db_package => self
+                                              )
+        rescue ActiveRecord::RecordNotUnique
+          logger.debug "group '#{ge['groupid']}' already has the role '#{ge['role']}' in package '#{self.name}'"
         end
       end
-      #--- end update groups ---#
-
-      #---begin enable / disable flags ---#
-      update_all_flags(package)
-      
-      #--- update url ---#
-      self.url = package.value(:url)
-      #--- end update url ---#
-      
-      #--- regenerate cache and write result to backend ---#
-      store
     end
+
+    #delete all roles that weren't found in uploaded xml
+    groupcache.each do |group, roles|
+      roles.each do |role, object|
+        next if object == :keep
+        object.destroy
+      end
+    end
+    #--- end update groups ---#
+
+    #---begin enable / disable flags ---#
+    update_all_flags(xmlhash)
+    
+    #--- update url ---#
+    self.url = xmlhash.value('url')
+    #--- end update url ---#
+    
+    save!
   end
 
   def store_attribute_axml( attrib, binary=nil )
@@ -642,26 +620,26 @@ class DbPackage < ActiveRecord::Base
   def write_attributes(comment=nil)
     login = User.current.login
     path = "/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}/_attribute?meta=1&user=#{CGI.escape(login)}"
-    path += "&comment=#{CGI.escape(opt[:comment])}" if comment
+    path += "&comment=#{CGI.escape(comment)}" if comment
     Suse::Backend.put_source( path, render_attribute_axml )
   end
 
-  def store(opt={})
-    # store modified values to database and xml
+  def store(opts = {})
+    @commit_opts = opts
+    save!
+  end
 
-    # update timestamp and save
-    self.update_timestamp
-    self.save!
-
+  def write_to_backend
     # expire cache
     Rails.cache.delete('meta_package_%d' % id)
-
+    @commit_opts ||= {}
     #--- write through to backend ---#
-    if write_through?
+    if ActiveXML::Config.global_write_through
       path = "/source/#{self.db_project.name}/#{self.name}/_meta?user=#{URI.escape(User.current ? User.current.login : "_nobody_")}"
-      path += "&comment=#{CGI.escape(opt[:comment])}" unless opt[:comment].blank?
+      path += "&comment=#{CGI.escape(@commit_opts[:comment])}" unless @commit_opts[:comment].blank?
       Suse::Backend.put_source( path, to_axml )
     end
+    @commit_opts = {}
   end
 
   def find_attribute( namespace, name, binary=nil )
@@ -674,11 +652,6 @@ class DbPackage < ActiveRecord::Base
       a = attribs.where(:id => a.id).first
     end
     return a
-  end
-
-  def write_through?
-    conf = ActiveXML::Config
-    conf.global_write_through && (conf::TransportMap.options_for(:package)[:write_through] != :false)
   end
 
   def add_user( user, role )
@@ -696,9 +669,9 @@ class DbPackage < ActiveRecord::Base
     end
 
     PackageUserRoleRelationship.create(
-      :db_package => self,
-      :user => user,
-      :role => role )
+                                       :db_package => self,
+                                       :user => user,
+                                       :role => role )
   end
 
   def add_group( group, role )
@@ -716,9 +689,9 @@ class DbPackage < ActiveRecord::Base
     end
 
     PackageGroupRoleRelationship.create(
-      :db_package => self,
-      :group => group,
-      :role => role )
+                                        :db_package => self,
+                                        :group => group,
+                                        :role => role )
   end
 
   def each_user( opt={}, &block )
@@ -877,8 +850,8 @@ class DbPackage < ActiveRecord::Base
         end 
       end
 
-      package.url( url ) if url
-      package.bcntsynctag( bcntsynctag ) if bcntsynctag
+      package.url( url ) unless url.blank?
+      package.bcntsynctag( bcntsynctag ) unless bcntsynctag.blank?
 
     end
     logger.debug "----------------- end rendering package #{name} ------------------------"
@@ -916,7 +889,7 @@ class DbPackage < ActiveRecord::Base
     return package.shift.activity_value.to_f
   end
 
-  def update_timestamp
+  def update_activity
     # the value we add to the activity, when the object gets updated
     activity_addon = 10
     activity_addon += Math.log( self.update_counter ) if update_counter > 0
@@ -924,13 +897,19 @@ class DbPackage < ActiveRecord::Base
     new_activity = 100 if new_activity > 100
 
     self.activity_index = new_activity
-    self.created_at ||= Time.now
-    self.updated_at = Time.now
     self.update_counter += 1
   end
 
   def expand_flags
     return db_project.expand_flags(self)
+  end
+
+  def remove_all_persons
+    self.package_user_role_relationships.delete_all
+  end
+
+  def remove_all_groups
+    self.package_group_role_relationships.delete_all
   end
 
   def open_requests_with_package_as_source_or_target

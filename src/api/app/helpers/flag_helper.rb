@@ -1,6 +1,7 @@
 module FlagHelper
 
   class SaveError < Exception; end
+  class InvalidFlag < Exception; end
 
   def type_flags(type)
     ret = []
@@ -30,50 +31,47 @@ module FlagHelper
 
   def validate_type( flag ) 
     unless TYPES.has_key? flag.to_s
-      raise ArgumentError.new( "Error: unknown flag type '#{flag}' not found." )
+      raise InvalidFlag.new( "Error: unknown flag type '#{flag}' not found." )
     end
   end
 
-  def update_all_flags(obj)
+  def update_all_flags(xmlhash)
     Flag.transaction do
       self.flags.delete_all
       position = 1
       FlagHelper.flag_types.each do |flagtype|
-        position = update_flags( obj, flagtype , position )
+        position = update_flags( xmlhash, flagtype , position )
       end
     end
   end
 
-  def update_flags( obj, flagtype, position )
+  def update_flags( xmlhash, flagtype, position )
 
     #translate the flag types as used in the xml to model name + s
     validate_type flagtype
 
-    if obj.has_element? flagtype.to_s
-      
-      #select each build flag from xml
-      obj.send(flagtype).each do |xmlflag|
-
-        #get the selected architecture from data base
-        arch = nil
-        if xmlflag.has_attribute? :arch
-          arch = Architecture.find_by_name(xmlflag.arch)
-          raise SaveError.new( "Error: Architecture type '#{xmlflag.arch}' not found." ) if arch.nil?
+    #select each build flag from xml
+    xmlhash.elements(flagtype.to_s) do |xmlflags|
+      xmlflags.keys.each do |status|
+        xmlflags.elements(status) do |xmlflag|
+          
+          #get the selected architecture from data base
+          arch = xmlflag['arch']
+          arch = Architecture.find_by_name!(arch) if arch
+          
+          repo = xmlflag['repository']
+            
+          #instantiate new flag object
+          self.flags.new(:status => status, :position => position, :flag => flagtype) do |flag|
+            #set the flag attributes
+            flag.repo = repo
+            flag.architecture = arch
+          end
+          position += 1
         end
-
-        repo = xmlflag.repository if xmlflag.has_attribute? :repository
-        repo ||= nil
-
-        #instantiate new flag object
-        self.flags.create(:status => xmlflag.element_name, :position => position, :flag => flagtype) do |flag|
-          #set the flag attributes
-          flag.repo = repo
-          flag.architecture = arch
-        end
-        position += 1
       end
     end
-
+    
     return position
   end
 
@@ -150,4 +148,17 @@ module FlagHelper
       end
     end
   end
+
+  def self.xml_disabled_for?(xmlhash, flagtype)
+    Rails.logger.debug "xml_disabled? #{xmlhash.inspect}"
+    disabled = false
+    xmlhash.elements(flagtype.to_s) do |xmlflags|
+      xmlflags.keys.each do |status|
+        disabled = true if status == "disable"
+        return false if status == "enable"
+      end
+    end
+    return disabled
+  end
+  
 end

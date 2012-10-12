@@ -7,6 +7,15 @@ class DbProject < ActiveRecord::Base
   class DeleteError < Exception; end
   class ReadAccessError < Exception; end
   class UnknownObjectError < Exception; end
+  class ForbiddenError < Exception
+    def initialize(errorcode, message)
+      @errorcode = errorcode
+      super(message)
+    end
+    def errorcode
+      @errorcode
+    end
+  end
 
   before_destroy :cleanup_before_destroy
   after_save 'ProjectUserRoleRelationship.discard_cache'
@@ -183,17 +192,6 @@ class DbProject < ActiveRecord::Base
       return DbProject.joins(:attribs).where(:attribs => { :attrib_type_id => attrib_type.id })
     end
 
-    def store_axml( project )
-      dbp = nil
-      DbProject.transaction do
-        if !(dbp = DbProject.find_by_name(project.name))
-          dbp = DbProject.new( :name => project.name.to_s )
-        end
-        dbp.store_axml( project )
-      end
-      return dbp
-    end
-
     def find_remote_project(name, skip_access=false)
       return nil unless name
       fragments = name.split(/:/)
@@ -254,451 +252,458 @@ class DbProject < ActiveRecord::Base
         raise DeleteError.new "This maintenance project has incident projects and can therefore not be deleted."
       end
     end
-
+    
   end
 
-  def store_axml( project, force=nil )
-    DbProject.transaction do
-      logger.debug "### name comparison: self.name -> #{self.name}, project_name -> #{project.name.to_s}"
-      if self.name != project.name.to_s
-        raise SaveError, "project name mismatch: #{self.name} != #{project.name}"
+  def update_from_xml(xmlhash)
+    # check for raising read access permissions, which can't get ensured atm
+    unless self.new_record? || self.disabled_for?('access', nil, nil)
+      if FlagHelper.xml_disabled_for?(xmlhash, 'access')
+        raise ForbiddenError.new("change_project_protection_level",
+                                 "admin rights are required to raise the protection level of a project (it won't be safe anyway)")
       end
-
-      self.title = project.value(:title)
-      self.description = project.value(:description)
-      self.remoteurl = project.value(:remoteurl)
-      self.remoteproject = project.value(:remoteproject)
-      self.updated_at = Time.now
-      kind = project.value(:kind) || "standard"
-      project_type = DbProjectType.find_by_name(kind)
-      raise SaveError, "unable to find project kind '#{kind}'" if project_type.nil?
-      self.type_id = project_type.id
-      self.save!
-
-      #--- update linked projects ---#
-      position = 1
-      #destroy all current linked projects
-      self.linkedprojects.destroy_all
-
-      #recreate linked projects from xml
-      project.each_link do |l|
-        link = DbProject.find_by_name( l.project )
-        if link.nil?
-          if DbProject.find_remote_project(l.project)
-            self.linkedprojects.create(
-                :db_project => self,
-                :linked_remote_project_name => l.project,
-                :position => position
-            )
-          else
-            raise SaveError, "unable to link against project '#{l.project}'"
-          end
-        else
-          if link == self
-            raise SaveError, "unable to link against myself"
-          end
-          self.linkedprojects.create!(
-              :db_project => self,
-              :linked_db_project => link,
-              :position => position
-          )
-        end
-        position += 1
+    end
+    unless self.new_record? || self.disabled_for?('sourceaccess', nil, nil)
+      if FlagHelper.xml_disabled_for?(xmlhash, 'sourceaccess')
+        raise ForbiddenError.new("change_project_protection_level",
+                                 "admin rights are required to raise the protection level of a project (it won't be safe anyway)")
       end
-      #--- end of linked projects update  ---#
-
-      #--- devel project ---#
-      self.develproject = nil
-      if project.has_element? :devel
-        if project.devel.has_attribute? 'project'
-          prj_name = project.devel.project.to_s
-          unless develprj = DbProject.get_by_name(prj_name)
-            raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
-          end
-          if develprj == self
-            raise SaveError, "Devel project can not point to itself"
-          end
-          self.develproject = develprj
-
-        end
-      end
-      #--- end devel project ---#
-      # FIXME: it would be nicer to store only as needed
-      self.updated_at = Time.now
-      self.save!
-
-      # cycle detection
-      prj = self
-      processed = {}
-      while ( prj and prj.develproject )
-        prj_name = prj.name
-        # cycle detection
-        if processed[prj_name]
-          str = ""
-          processed.keys.each do |key|
-            str = str + " -- " + key
-          end
-          raise CycleError.new "There is a cycle in devel definition at #{str}"
-        end
-        processed[prj_name] = 1
-        prj = prj.develproject
-      end
-
-      #--- maintenance-related parts ---#
-      # The attribute 'type' is only set for maintenance and maintenance incident projects.
-      # kind_element = project.value(:kind)
-      # First remove all maintained project relations
-      maintained_projects.each do |maintained_project|
-        maintained_project.maintenance_project_id = nil
-        maintained_project.save!
-      end
-      # Set this project as the maintenance project for all maintained projects found in the XML
-      project.each("maintenance/maintains") do |maintains|
-        maintained_project = DbProject.get_by_name(maintains.value('project'))
-        maintained_project.maintenance_project_id = self.id
-        maintained_project.save!
-      end
-
-      #--- update users ---#
-      usercache = Hash.new
-      self.project_user_role_relationships.each do |purr|
-        h = usercache[purr.user.login] ||= Hash.new
-        h[purr.role.title] = purr
-      end
-
-      project.each_person do |person|
-        if usercache.has_key? person.userid
-          # user has already a role in this project
-          pcache = usercache[person.userid]
-          if pcache.has_key? person.role
-            #role already defined, only remove from cache
-            pcache[person.role] = :keep
-          else
-            #new role
-            if not Role.rolecache.has_key? person.value(:role)
-              raise SaveError, "illegal role name '#{person.value(:role)}'"
-            end
-
-            ProjectUserRoleRelationship.create(
-              :user => User.get_by_login(person.userid),
-              :role => Role.rolecache[person.role],
-              :db_project => self
-            )
-          end
-        else
-          if not Role.rolecache.has_key? person.role
-            raise SaveError, "illegal role name '#{person.role}'"
-          end
-
-          user=User.get_by_login(person.userid)
-
-          pr = ProjectUserRoleRelationship.new(
-              :user => user,
-              :role => Role.rolecache[person.role],
-              :db_project => self )
-          if pr.valid?
-            pr.save!
-          else
-            logger.debug "user '#{person.userid}' already has the role '#{person.role}' in project '#{self.name}': #{pr.errors}"
-          end
-        end
-      end
-      
-      #delete all roles that weren't found in the uploaded xml
-      usercache.each do |user, roles|
-        roles.each do |role, object|
-          next if object == :keep
-          object.destroy
-        end
-      end
-
-      #--- end update users ---#
-
-      #--- update groups ---#
-      groupcache = Hash.new
-      self.project_group_role_relationships.each do |pgrr|
-        h = groupcache[pgrr.group.title] ||= Hash.new
-        h[pgrr.role.title] = pgrr
-      end
-
-      project.each_group do |ge|
-        if groupcache.has_key? ge.groupid
-          # group has already a role in this project
-          pcache = groupcache[ge.groupid]
-          if pcache.has_key? ge.role
-            #role already defined, only remove from cache
-            pcache[ge.role] = :keep
-          else
-            #new role
-            if not Role.rolecache.has_key? ge.role
-              raise SaveError, "illegal role name '#{ge.role}'"
-            end
-
-            ProjectGroupRoleRelationship.create(
-              :group => Group.get_by_title(ge.groupid),
-              :role => Role.rolecache[ge.role],
-              :db_project => self
-            )
-          end
-        else
-          if not Role.rolecache.has_key? ge.role
-            raise SaveError, "illegal role name '#{ge.role}'"
-          end
-
-          if !(group=Group.find_by_title(ge.groupid))
-            # check with LDAP
-            if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
-              if defined?( CONFIG['ldap_group_support'] ) && CONFIG['ldap_group_support'] == :on
-                if User.find_group_with_ldap(ge.groupid)
-                  logger.debug "Find and Create group '#{ge.groupid}' from LDAP"
-                  newgroup = Group.create( :title => ge.groupid )
-                  unless newgroup.errors.empty?
-                    raise SaveError, "unknown group '#{ge.groupid}', failed to create the ldap groupid on OBS"
-                  end
-                  group=Group.find_by_title(ge.groupid)
-                else
-                  raise SaveError, "unknown group '#{ge.groupid}' on LDAP server"
-                end
-              end
-            end
-
-            unless group
-              raise SaveError, "unknown group '#{ge.groupid}'"
-            end
-          end
-
-          begin
-            ProjectGroupRoleRelationship.create(
-              :group => group,
-              :role => Role.rolecache[ge.role],
-              :db_project => self
-            )
-          rescue ActiveRecord::RecordNotUnique
-            logger.debug "group '#{ge.groupid}' already has the role '#{ge.role}' in project '#{self.name}'"
-          end
-        end
-      end
-      
-      #delete all roles that weren't found in the uploaded xml
-      groupcache.each do |group, roles|
-        roles.each do |role, object|
-          next if object == :keep
-          object.destroy
-        end
-      end
-      #--- end update groups ---#
-
-      #--- update flag group ---#
-      update_all_flags( project )
-
-      #--- update repository download settings ---#
-      dlcache = Hash.new
-      self.downloads.each do |dl|
-        dlcache["#{dl.architecture.name}"] = dl
-      end
-
-      project.each_download do |dl|
-        if dlcache.has_key? dl.arch.to_s
-          logger.debug "modifying download element, arch: #{dl.arch.to_s}"
-          cur = dlcache[dl.arch.to_s]
-        else
-          logger.debug "adding new download entry, arch #{dl.arch.to_s}"
-          cur = self.downloads.create
-          self.updated_at = Time.now
-        end
-        cur.metafile = dl.metafile.to_s
-        cur.mtype = dl.mtype.to_s
-        cur.baseurl = dl.baseurl.to_s
-        raise SaveError, "unknown architecture" unless Architecture.archcache.has_key? dl.arch.to_s
-        cur.architecture = Architecture.archcache[dl.arch.to_s]
-        cur.save!
-        dlcache.delete dl.arch.to_s
-      end
-
-      dlcache.each do |arch, object|
-        logger.debug "remove download entry #{arch}"
-        object.destroy
-      end
-
-      #--- update repositories ---#
-      repocache = Hash.new
-      self.repositories.each do |repo|
-        repocache[repo.name] = repo unless repo.remote_project_name
-      end
-
-      project.each_repository do |repo|
-        was_updated = false
-
-        if not repocache.has_key? repo.name
-          logger.debug "adding repository '#{repo.name}'"
-          current_repo = self.repositories.create( :name => repo.name )
-          was_updated = true
-        else
-          logger.debug "modifying repository '#{repo.name}'"
-          current_repo = repocache[repo.name]
-        end
-
-        #--- repository flags ---#
-        # check for rebuild configuration
-        if not repo.has_attribute? :rebuild and current_repo.rebuild
-          current_repo.rebuild = nil
-          was_updated = true
-        end
-        if repo.has_attribute? :rebuild
-          if repo.rebuild != current_repo.rebuild
-            current_repo.rebuild = repo.rebuild
-            was_updated = true
-          end
-        end
-        # check for block configuration
-        if not repo.has_attribute? :block and current_repo.block
-          current_repo.block = nil
-          was_updated = true
-        end
-        if repo.has_attribute? :block
-          if repo.block != current_repo.block
-            current_repo.block = repo.block
-            was_updated = true
-          end
-        end
-        # check for linkedbuild configuration
-        if not repo.has_attribute? :linkedbuild and current_repo.linkedbuild
-          current_repo.linkedbuild = nil
-          was_updated = true
-        end
-        if repo.has_attribute? :linkedbuild
-          if repo.linkedbuild != current_repo.linkedbuild
-            current_repo.linkedbuild = repo.linkedbuild
-            was_updated = true
-          end
-        end
-        #--- end of repository flags ---#
-
-        #destroy all current releasetargets
-        current_repo.release_targets.each { |rt| rt.destroy }
-
-        #recreate release targets from xml
-        repo.each_releasetarget do |rt|
-          target_repo = Repository.find_by_project_and_repo_name( rt.project, rt.repository )
-          unless target_repo
-            raise SaveError, "Unknown target repository '#{rt.project}/#{rt.repository}'"
-          end
-          unless target_repo.remote_project_name.nil?
-            raise SaveError, "Can not use remote repository as release target '#{rt.project}/#{rt.repository}'"
-          end
-          trigger = nil
-          if rt.has_attribute? :trigger and rt.trigger != "manual"
-            if rt.trigger != "maintenance"
-              # automatic triggers are only allowed inside the same project
-              unless rt.project == project.name
-                raise SaveError, "Automatic release updates are only allowed into a project to the same project"
-              end
-            end
-            trigger = rt.trigger
-          end
-          current_repo.release_targets.create :target_repository => target_repo, :trigger => trigger
-          was_updated = true
-        end
-
-        #set host hostsystem
-        if repo.has_element? :hostsystem
-          hostsystem = DbProject.get_by_name repo.hostsystem.project
-          target_repo = hostsystem.repositories.find_by_name repo.hostsystem.repository
-          unless target_repo
-            raise SaveError, "Unknown target repository '#{repo.hostsystem.project}/#{repo.hostsystem.repository}'"
-          end
-          if target_repo != current_repo.hostsystem
-            current_repo.hostsystem = target_repo
-            was_updated = true
-          end
-        elsif current_repo.hostsystem
-          current_repo.hostsystem = nil
-          was_updated = true
-        end
-
-        #destroy all current pathelements
-        current_repo.path_elements.each { |pe| pe.destroy }
-
-        #recreate pathelements from xml
-        position = 1
-        repo.each_path do |path|
-          link_repo = Repository.find_by_project_and_repo_name( path.project, path.repository )
-          if path.project == self.name and path.repository == repo.name
-            raise SaveError, "Using same repository as path element is not allowed"
-          end
-          unless link_repo
-            raise SaveError, "unable to walk on path '#{path.project}/#{path.repository}'"
-          end
-          current_repo.path_elements.create :link => link_repo, :position => position
-          position += 1
-          was_updated = true
-        end
-
-        was_updated = true if current_repo.repository_architectures.size > 0 or repo.each_arch.size > 0
-
-        if was_updated
-          current_repo.save!
-          self.updated_at = Time.now
-        end
-
-        #destroy architecture references
-	logger.debug "delete all of #{current_repo.id}"
-        RepositoryArchitecture.delete_all(["repository_id = ?", current_repo.id])
-
-        position = 1
-        repo.each_arch do |arch|
-          unless Architecture.archcache.has_key? arch.text
-            raise SaveError, "unknown architecture: '#{arch}'"
-          end
-          a = current_repo.repository_architectures.new :architecture => Architecture.archcache[arch.text]
-          a.position = position
-          position += 1
-          a.save
-          was_updated = true
-        end
-
-        repocache.delete repo.name
-      end
-
-      # delete remaining repositories in repocache
-      repocache.each do |name, object|
-        #find repositories that link against this one and issue warning if found
-        list = PathElement.where(repository_id: object.id).all
-        unless list.empty?
-          logger.debug "offending repo: #{object.inspect}"
-          if force
-            object.destroy!
-          else
-            linking_repos = list.map {|x| x.repository.db_project.name+"/"+x.repository.name}.join "\n"
-            raise SaveError, "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:\n"+linking_repos
-          end
-        end
-        logger.debug "deleting repository '#{name}'"
-        self.repositories.destroy object
-        self.updated_at = Time.now
-      end
-      repocache = nil
-      #--- end update repositories ---#
-      
-      store
-
-    end #transaction
-  end
-
-  def store(opt={})
-    # update timestamp and save
-    self.save!
-    # expire cache
-    Rails.cache.delete('meta_project_%d' % id)
-
-    if write_through?
-      login = User.current.login unless opt[:login] # Allow to override if User.current isn't available yet
-      path = "/source/#{self.name}/_meta?user=#{CGI.escape(login)}"
-      path += "&comment=#{CGI.escape(opt[:comment])}" unless opt[:comment].blank?
-      path += "&lowprio=1" if opt[:lowprio]
-      Suse::Backend.put_source( path, to_axml )
     end
 
+    logger.debug "### name comparison: self.name -> #{self.name}, project_name -> #{xmlhash['name']}"
+    if self.name != xmlhash['name']
+      raise SaveError, "project name mismatch: #{self.name} != #{xmlhash['name']}"
+    end
+
+    self.title = xmlhash.value('title')
+    self.description = xmlhash.value('description')
+    self.remoteurl = xmlhash.value('remoteurl')
+    self.remoteproject = xmlhash.value('remoteproject')
+    kind = xmlhash['kind'] || "standard"
+    project_type = DbProjectType.find_by_name(kind)
+    raise SaveError.new("unable to find project kind '#{kind}'") unless project_type
+    self.type_id = project_type.id
+
+    # give us an id
+    self.save!
+
+    #--- update linked projects ---#
+    position = 1
+    #destroy all current linked projects
+    self.linkedprojects.destroy_all
+
+    #recreate linked projects from xml
+    xmlhash.elements('link') do |l|
+      link = DbProject.find_by_name( l['project'] )
+      if link.nil?
+        if DbProject.find_remote_project(l['project'])
+          self.linkedprojects.create(db_project: self,
+                                     linked_remote_project_name: l['project'],
+                                     position: position)
+        else
+          raise SaveError, "unable to link against project '#{l['project']}'"
+        end
+      else
+        if link == self
+          raise SaveError, "unable to link against myself"
+        end
+        self.linkedprojects.create!(db_project: self,
+                                    linked_db_project: link,
+                                    position: position)
+      end
+      position += 1
+    end
+    #--- end of linked projects update  ---#
+    
+    #--- devel project ---#
+    self.develproject = nil
+    if devel = xmlhash['devel']
+      if prj_name = devel['project']
+        unless develprj = DbProject.get_by_name(prj_name)
+          raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
+        end
+        if develprj == self
+          raise SaveError, "Devel project can not point to itself"
+        end
+        self.develproject = develprj
+      end
+    end
+    #--- end devel project ---#
+
+    # cycle detection
+    prj = self
+    processed = {}
+    while ( prj and prj.develproject )
+      prj_name = prj.name
+      # cycle detection
+      if processed[prj_name]
+        str = ""
+        processed.keys.each do |key|
+          str = str + " -- " + key
+        end
+        raise CycleError.new "There is a cycle in devel definition at #{str}"
+      end
+      processed[prj_name] = 1
+      prj = prj.develproject
+      prj = self if prj && prj.id == self.id
+    end
+    
+    #--- maintenance-related parts ---#
+    # The attribute 'type' is only set for maintenance and maintenance incident projects.
+    # kind_element = xmlhash['kind)
+    # First remove all maintained project relations
+    maintained_projects.each do |maintained_project|
+      maintained_project.maintenance_project = nil
+      maintained_project.save!
+    end
+    # Set this project as the maintenance project for all maintained projects found in the XML
+    xmlhash.get('maintenance').elements("maintains") do |maintains|
+      maintained_project = DbProject.find_by_name!(maintains['project'])
+      maintained_project.maintenance_project = self
+      maintained_project.save!
+    end
+
+    #--- update users ---#
+    usercache = Hash.new
+    self.project_user_role_relationships.each do |purr|
+      h = usercache[purr.user.login] ||= Hash.new
+      h[purr.role.title] = purr
+    end
+
+    xmlhash.elements('person') do |person|
+      if usercache.has_key? person['userid']
+        # user has already a role in this project
+        pcache = usercache[person['userid']]
+        if pcache.has_key? person['role']
+          #role already defined, only remove from cache
+          pcache[person['role']] = :keep
+        else
+          #new role
+          if not Role.rolecache.has_key? person['role']
+            raise SaveError, "illegal role name '#{person['role']}'"
+          end
+          
+          ProjectUserRoleRelationship.create(user: User.get_by_login(person['userid']),
+                                             role: Role.rolecache[person['role']],
+                                             db_project: self)
+        end
+      else
+        if not Role.rolecache.has_key? person['role']
+          raise SaveError, "illegal role name '#{person.role}'"
+        end
+        
+        user=User.find_by_login!(person['userid'])
+
+        pr = ProjectUserRoleRelationship.new(user: user,
+                                             role: Role.rolecache[person['role']],
+                                             db_project: self )
+        if pr.valid?
+          pr.save
+        else
+          logger.debug "user '#{person['userid']}' already has the role '#{person['role']}' in project '#{self.name}': #{pr.errors}"
+        end
+      end
+    end
+      
+    #delete all roles that weren't found in the uploaded xml
+    usercache.each do |user, roles|
+      roles.each do |role, object|
+        next if object == :keep
+        object.destroy
+      end
+    end
+    
+    #--- end update users ---#
+    
+    #--- update groups ---#
+    groupcache = Hash.new
+    self.project_group_role_relationships.each do |pgrr|
+      h = groupcache[pgrr.group.title] ||= Hash.new
+      h[pgrr.role.title] = pgrr
+    end
+
+    xmlhash.elements('group') do |ge|
+      if groupcache.has_key? ge['groupid']
+        # group has already a role in this project
+        pcache = groupcache[ge['groupid']]
+        if pcache.has_key? ge['role']
+          #role already defined, only remove from cache
+          pcache[ge['role']] = :keep
+        else
+          #new role
+          if not Role.rolecache.has_key? ge['role']
+            raise SaveError, "illegal role name '#{ge['role']}'"
+          end
+          
+          ProjectGroupRoleRelationship.create(
+                                              :group => Group.get_by_title(ge['groupid']),
+                                              :role => Role.rolecache[ge['role']],
+                                              :db_project => self
+                                              )
+        end
+      else
+        if not Role.rolecache.has_key? ge['role']
+          raise SaveError, "illegal role name '#{ge['role']}'"
+        end
+        
+        if !(group=Group.find_by_title(ge['groupid']))
+          # check with LDAP
+          if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
+            if defined?( CONFIG['ldap_group_support'] ) && CONFIG['ldap_group_support'] == :on
+              if User.find_group_with_ldap(ge['groupid'])
+                logger.debug "Find and Create group '#{ge['groupid']}' from LDAP"
+                newgroup = Group.create( :title => ge['groupid'] )
+                unless newgroup.errors.empty?
+                  raise SaveError, "unknown group '#{ge['groupid']}', failed to create the ldap groupid on OBS"
+                end
+                group=Group.find_by_title(ge['groupid'])
+              else
+                raise SaveError, "unknown group '#{ge['groupid']}' on LDAP server"
+              end
+            end
+          end
+          
+          unless group
+            raise SaveError, "unknown group '#{ge['groupid']}'"
+          end
+        end
+        
+        begin
+          ProjectGroupRoleRelationship.create(
+                                              :group => group,
+                                              :role => Role.rolecache[ge['role']],
+                                              :db_project => self
+                                              )
+        rescue ActiveRecord::RecordNotUnique
+          logger.debug "group '#{ge['groupid']}' already has the role '#{ge['role']}' in project '#{self.name}'"
+        end
+      end
+    end
+    
+    #delete all roles that weren't found in the uploaded xml
+    groupcache.each do |group, roles|
+      roles.each do |role, object|
+        next if object == :keep
+        object.destroy
+      end
+    end
+    #--- end update groups ---#
+    
+    #--- update flag group ---#
+    update_all_flags( xmlhash )
+    
+    #--- update repository download settings ---#
+    dlcache = Hash.new
+    self.downloads.each do |dl|
+      dlcache["#{dl.architecture.name}"] = dl
+    end
+    
+    xmlhash.elements('download') do |dl|
+      if dlcache.has_key? dl.arch.to_s
+        logger.debug "modifying download element, arch: #{dl.arch.to_s}"
+        cur = dlcache[dl.arch.to_s]
+      else
+        logger.debug "adding new download entry, arch #{dl.arch.to_s}"
+        cur = self.downloads.create
+        self.updated_at = Time.now
+      end
+      cur.metafile = dl.metafile.to_s
+      cur.mtype = dl.mtype.to_s
+      cur.baseurl = dl.baseurl.to_s
+      raise SaveError, "unknown architecture" unless Architecture.archcache.has_key? dl.arch.to_s
+      cur.architecture = Architecture.archcache[dl.arch.to_s]
+      cur.save!
+      dlcache.delete dl.arch.to_s
+    end
+    
+    dlcache.each do |arch, object|
+      logger.debug "remove download entry #{arch}"
+      object.destroy
+    end
+    
+    #--- update repositories ---#
+    repocache = Hash.new
+    self.repositories.each do |repo|
+      repocache[repo.name] = repo unless repo.remote_project_name
+    end
+    
+    xmlhash.elements("repository") do |repo|
+      was_updated = false
+      
+      if not repocache.has_key? repo['name']
+        logger.debug "adding repository '#{repo['name']}'"
+        current_repo = self.repositories.new( :name => repo['name'] )
+        was_updated = true
+      else
+        logger.debug "modifying repository '#{repo['name']}'"
+        current_repo = repocache[repo['name']]
+      end
+      
+      #--- repository flags ---#
+      # check for rebuild configuration
+      if !repo.has_key? 'rebuild' and current_repo.rebuild
+        current_repo.rebuild = nil
+        was_updated = true
+      end
+      if repo.has_key? 'rebuild'
+        if repo['rebuild'] != current_repo.rebuild
+          current_repo.rebuild = repo['rebuild']
+          was_updated = true
+        end
+      end
+      # check for block configuration
+      if not repo.has_key? 'block' and current_repo.block
+        current_repo.block = nil
+        was_updated = true
+      end
+      if repo.has_key? 'block'
+        if repo['block'] != current_repo.block
+          current_repo.block = repo['block']
+          was_updated = true
+        end
+      end
+      # check for linkedbuild configuration
+      if not repo.has_key? 'linkedbuild' and current_repo.linkedbuild
+        current_repo.linkedbuild = nil
+        was_updated = true
+      end
+      if repo.has_key? 'linkedbuild'
+        if repo['linkedbuild'] != current_repo.linkedbuild
+          current_repo.linkedbuild = repo['linkedbuild']
+          was_updated = true
+        end
+      end
+      #--- end of repository flags ---#
+
+      #destroy all current releasetargets
+      current_repo.release_targets.each { |rt| rt.destroy }
+
+      #recreate release targets from xml
+      repo.elements("releasetarget") do |rt|
+        target_repo = Repository.find_by_project_and_repo_name( rt['project'], rt['repository'] )
+        unless target_repo
+          raise SaveError.new("Unknown target repository '#{rt['project']}/#{rt['repository']}'")
+        end
+        unless target_repo.remote_project_name.nil?
+          raise SaveError.new("Can not use remote repository as release target '#{rt['project']}/#{rt['repository']}'")
+        end
+        trigger = nil
+        if rt.has_key? 'trigger' and rt['trigger'] != "manual"
+          if rt['trigger'] != "maintenance"
+            # automatic triggers are only allowed inside the same project
+            unless rt['project'] == project.name
+              raise SaveError.new("Automatic release updates are only allowed into a project to the same project")
+            end
+          end
+          trigger = rt['trigger']
+        end
+        current_repo.release_targets.new :target_repository => target_repo, :trigger => trigger
+        was_updated = true
+      end
+
+      #set host hostsystem
+      if repo.has_key? 'hostsystem'
+        hostsystem = DbProject.get_by_name repo['hostsystem']['project']
+        target_repo = hostsystem.repositories.find_by_name repo['hostsystem']['repository']
+        unless target_repo
+          raise SaveError, "Unknown target repository '#{repo.hostsystem.project}/#{repo.hostsystem.repository}'"
+        end
+        if target_repo != current_repo.hostsystem
+          current_repo.hostsystem = target_repo
+          was_updated = true
+        end
+      elsif current_repo.hostsystem
+        current_repo.hostsystem = nil
+        was_updated = true
+      end
+
+      #destroy all current pathelements
+      current_repo.path_elements.each { |pe| pe.destroy }
+
+      #recreate pathelements from xml
+      position = 1
+      repo.elements('path') do |path|
+        link_repo = Repository.find_by_project_and_repo_name( path['project'], path['repository'] )
+        if path['project'] == self.name and path['repository'] == repo['name']
+          raise SaveError, "Using same repository as path element is not allowed"
+        end
+        unless link_repo
+          raise SaveError, "unable to walk on path '#{path.project}/#{path.repository}'"
+        end
+        current_repo.path_elements.new :link => link_repo, :position => position
+        position += 1
+        was_updated = true
+      end
+
+      was_updated = true if current_repo.architectures.size > 0 or repo.elements('arch').size > 0
+
+      if was_updated
+        current_repo.save!
+        self.updated_at = Time.now
+      end
+
+      #destroy architecture references
+      logger.debug "delete all of #{current_repo.id}"
+      RepositoryArchitecture.delete_all(["repository_id = ?", current_repo.id])
+
+      position = 1
+      repo.elements('arch') do |arch|
+        unless Architecture.archcache.has_key? arch
+          raise SaveError, "unknown architecture: '#{arch}'"
+        end
+        a = current_repo.repository_architectures.new :architecture => Architecture.archcache[arch]
+        a.position = position
+        position += 1
+        a.save
+        was_updated = true
+      end
+
+      repocache.delete repo['name']
+    end
+
+    # delete remaining repositories in repocache
+    repocache.each do |name, object|
+      #find repositories that link against this one and issue warning if found
+      list = PathElement.where(repository_id: object.id).all
+      unless list.empty?
+        logger.debug "offending repo: #{object.inspect}"
+        if force
+          object.destroy!
+        else
+          linking_repos = list.map {|x| x.repository.db_project.name+"/"+x.repository.name}.join "\n"
+          raise SaveError, "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:\n"+linking_repos
+        end
+      end
+      logger.debug "deleting repository '#{name}'"
+      self.repositories.destroy object
+      self.updated_at = Time.now
+    end
+    repocache = nil
+    #--- end update repositories ---#
+    
+    save!
+  end
+
+  def write_to_backend
+    logger.debug "write_to_backend"
+    # expire cache
+    Rails.cache.delete('meta_project_%d' % id)
+    @commit_opts ||= {}
+    
+    if ActiveXML::Config.global_write_through
+      login = User.current.login unless @commit_opts[:login] # Allow to override if User.current isn't available yet
+      path = "/source/#{self.name}/_meta?user=#{CGI.escape(login)}"
+      path += "&comment=#{CGI.escape(@commit_opts[:comment])}" unless @commit_opts[:comment].blank?
+      path += "&lowprio=1" if @commit_opts[:lowprio]
+      Suse::Backend.put_source( path, to_axml )
+    end
+    @commit_opts = {}
+  end
+
+  def store(opts = {})
+    @commit_opts = opts
+    save!
+    write_to_backend
   end
 
   def store_attribute_axml( attrib, binary=nil )
@@ -833,12 +838,6 @@ class DbProject < ActiveRecord::Base
                               :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                             Nokogiri::XML::Node::SaveOptions::FORMAT
   end
-
-  def write_through?
-    conf = ActiveXML::Config
-    conf.global_write_through && (conf::TransportMap.options_for(:project)[:write_through] != :false)
-  end
-  private :write_through?
 
   # step down through namespaces until a project is found, returns found project or nil
   def self.find_parent_for(project_name)
@@ -1295,21 +1294,14 @@ class DbProject < ActiveRecord::Base
     # set user if nil, needed for delayed job in DbPackage model
     User.current ||= User.find_by_login(params[:user])
 
-    # avoid to write meta back to backend after reading
-    wt_state = ActiveXML::Config.global_write_through
-    begin
-      ActiveXML::Config.global_write_through = false
-
-      # restore all package meta data objects in DB
-      backend_pkgs = Collection.find :package, :match => "@project='#{self.name}'"
-      backend_pkgs.each_package do |package|
-        path = "/source/#{URI.escape(self.name)}/#{package.name}/_meta"
-        Package.new(Suse::Backend.get(path).body.to_s, :project => self.name, :write_through => false).save
-      end
-    ensure
-      ActiveXML::Config.global_write_through = wt_state
+    # restore all package meta data objects in DB
+    backend_pkgs = Collection.find :package, :match => "@project='#{self.name}'"
+    backend_pkgs.each_package do |package|
+      path = "/source/#{URI.escape(self.name)}/#{package.name}/_meta"
+      p = self.db_packages.new(name: package.name)
+      p.update_from_xml(Xmlhash.parse(Suse::Backend.get(path).body))
+      p.save! # do not store
     end
-    reload
     db_packages.each { |p| p.sources_changed }
   end
 
@@ -1331,5 +1323,5 @@ class DbProject < ActiveRecord::Base
     return ret
   end
   private :bsrequest_repos_map
-    
+  
 end

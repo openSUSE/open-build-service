@@ -1499,22 +1499,25 @@ class RequestController < ApplicationController
             # create package in database
             linked_package = target_project.find_package(action.target_package)
             if linked_package
-              target_package = Package.new(linked_package.to_axml, :project => action.target_project)
+              newxml = Xmlhash.parse(linked_package.to_axml)
             else
-              # FIXME2.4 we have Package model
               answer = Suse::Backend.get("/source/#{URI.escape(action.source_project)}/#{URI.escape(action.source_package)}/_meta")
-              target_package = Package.new(answer.body.to_s, :project => action.target_project)
-              target_package.remove_all_flags
-              target_package.remove_devel_project
+              newxml = Xmlhash.parse(answer.body)
+            end
+            newxml['name'] = action.target_package
+            target_package = target_project.db_packages.new(name: newxml['name'])
+            target_package.update_from_xml(newxml)
+            if !linked_package
+              target_package.flags.destroy_all
+              target_package.develpackage = nil
               if initialize_devel_package
-                target_package.set_devel( :project => action.source_project, :package => action.source_package )
+                target_package.develpackage = DbPackage.find_by_project_and_name( action.source_project, action.source_package )
                 relinkSource=true
               end
             end
             target_package.remove_all_persons
             target_package.remove_all_groups
-            target_package.name = action.target_package
-            target_package.save
+            target_package.store
 
             # check if package was available via project link and create a branch from it in that case
             if linked_package
