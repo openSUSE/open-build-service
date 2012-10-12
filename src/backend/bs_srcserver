@@ -2539,6 +2539,20 @@ sub getprojpack {
     my @pinfo;
     my %bconfs;
 
+    my $exclude_all;
+    my $exclude_repos;
+    if (!$cgi->{'ignoredisable'} && defined($cgi->{'arch'})) {
+      $exclude_repos = {};
+      $exclude_all = 1;
+      for (@{$proj->{'repository'} || []}) {
+	if (grep {$_ eq $arch} @{$_->{'arch'} || []}) {
+	  undef $exclude_all;
+	} else {
+          $exclude_repos->{$_->{'name'}} = 1;
+	}
+      }
+    }
+
     for my $packid (@packages) {
 
       next if $packids && !$packids->{$packid};
@@ -2557,6 +2571,11 @@ sub getprojpack {
         $pinfo->{'build'}->{'enable'} = $pack->{'enable'} if $pack->{'enable'};
         $pinfo->{'build'}->{'disable'} = $pack->{'disable'} if $pack->{'disable'};
       }
+      if ($exclude_all) {
+	$pinfo->{'error'} = 'excluded';
+	next;
+      }
+
       my $enable = defined($penable) ? {%$penable} : undef;
       my $disable = {%$pdisable};
       if (!$cgi->{'ignoredisable'} && $pinfo->{'build'}) {
@@ -2716,6 +2735,10 @@ sub getprojpack {
 
 	    my $rinfo = {'repository' => $repoid};
 	    push @dinfo, $rinfo;
+	    if ($exclude_repos && $exclude_repos->{$repoid}) {
+	      $rinfo->{'error'} = 'excluded';
+	      next;
+	    }
 	    if ((!$disable || $disable->{$repoid}) && !(!$enable || $enable->{$repoid})) {
 	      $rinfo->{'error'} = 'disabled';
 	      next;
