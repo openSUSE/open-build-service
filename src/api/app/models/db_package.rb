@@ -8,7 +8,7 @@ class DbPackage < ActiveRecord::Base
   class ReadAccessError < Exception; end
   class UnknownObjectError < Exception; end
   class ReadSourceAccessError < Exception; end
-  belongs_to :db_project
+  belongs_to :project, foreign_key: :db_project_id
 
   has_many :package_user_role_relationships, :dependent => :destroy
   has_many :package_group_role_relationships, :dependent => :destroy
@@ -43,14 +43,14 @@ class DbPackage < ActiveRecord::Base
   class << self
 
     def check_dbp_access?(dbp)
-      return false unless dbp.class == DbProject
+      return false unless dbp.class == Project
       return false if dbp.nil?
-      return DbProject.check_access?(dbp)
+      return Project.check_access?(dbp)
     end
     def check_access?(dbpkg=self)
       return false if dbpkg.nil?
       return false unless dbpkg.class == DbPackage
-      return DbProject.check_access?(dbpkg.db_project)
+      return Project.check_access?(dbpkg.project)
     end
 
     # returns an object of package or raises an exception
@@ -65,11 +65,11 @@ class DbPackage < ActiveRecord::Base
       follow_project_links = opts.delete :follow_project_links
       raise "get_by_project_and_name passed unknown options #{opts.inspect}" unless opts.empty?
       logger.debug "get_by_project_and_name #{opts.inspect}"
-      if project.class == DbProject
+      if project.class == Project
         prj = project
       else
-        return nil if DbProject.is_remote_project?( project )
-        prj = DbProject.get_by_name( project )
+        return nil if Project.is_remote_project?( project )
+        prj = Project.get_by_name( project )
       end
       raise UnknownObjectError, "#{project}/#{package}" unless prj
       if follow_project_links
@@ -88,7 +88,7 @@ class DbPackage < ActiveRecord::Base
       raise UnknownObjectError, "#{project}/#{package}" if pkg.nil?
       raise ReadAccessError, "#{project}/#{package}" unless check_access?(pkg)
 
-      if use_source and (pkg.disabled_for?('sourceaccess', nil, nil) or pkg.db_project.disabled_for?('sourceaccess', nil, nil))
+      if use_source and (pkg.disabled_for?('sourceaccess', nil, nil) or pkg.project.disabled_for?('sourceaccess', nil, nil))
         unless User.current
           raise ReadSourceAccessError, "#{project}/#{package}"
         end
@@ -101,7 +101,7 @@ class DbPackage < ActiveRecord::Base
     def exists_by_project_and_name( project, package, opts = {} )
       raise "get_by_project_and_name expects a hash as third arg" unless opts.kind_of? Hash
       opts = { follow_project_links: true, allow_remote_packages: false}.merge(opts)
-      if DbProject.is_remote_project?( project )
+      if Project.is_remote_project?( project )
         if opts[:allow_remote_packages]
           begin
             answer = Suse::Backend.get("/source/#{URI.escape(project)}/#{URI.escape(package)}")
@@ -111,7 +111,7 @@ class DbPackage < ActiveRecord::Base
         end
         return false
       end
-      prj = DbProject.get_by_name( project )
+      prj = Project.get_by_name( project )
       if opts[:follow_project_links]
         pkg = prj.find_package(package)
       else
@@ -140,7 +140,7 @@ class DbPackage < ActiveRecord::Base
       sql =<<-END_SQL
       SELECT pack.*
       FROM db_packages pack
-      LEFT OUTER JOIN db_projects pro ON pack.db_project_id = pro.id
+      LEFT OUTER JOIN projects pro ON pack.db_project_id = pro.id
       WHERE pro.name = ? AND pack.name = ?
       END_SQL
 
@@ -154,7 +154,7 @@ class DbPackage < ActiveRecord::Base
       sql =<<-END_SQL
       SELECT pack.*
       FROM db_packages pack
-      LEFT OUTER JOIN db_projects pro ON pack.db_project_id = pro.id
+      LEFT OUTER JOIN projects pro ON pack.db_project_id = pro.id
       LEFT OUTER JOIN db_package_kinds kinds ON kinds.db_package_id = pack.id
       WHERE pro.name = ? AND kinds.kind = ?
       END_SQL
@@ -230,7 +230,7 @@ class DbPackage < ActiveRecord::Base
 
   def is_locked?
     return true if flags.find_by_flag_and_status "lock", "enable"
-    return self.db_project.is_locked?
+    return self.project.is_locked?
   end
 
   # NOTE: this is no permission check, should it be added ?
@@ -239,7 +239,7 @@ class DbPackage < ActiveRecord::Base
     msg = ""
     packs = []
     self.develpackages.each do |dpkg|
-      msg += dpkg.db_project.name + "/" + dpkg.name + ", "
+      msg += dpkg.project.name + "/" + dpkg.name + ", "
       packs << dpkg
     end
     unless msg.blank?
@@ -254,8 +254,8 @@ class DbPackage < ActiveRecord::Base
   end
 
   def find_linking_packages(project_local=nil)
-    path = "/search/package/id?match=(linkinfo/@package=\"#{CGI.escape(self.name)}\"+and+linkinfo/@project=\"#{CGI.escape(self.db_project.name)}\""
-    path += "+and+@project=\"#{CGI.escape(self.db_project.name)}\"" if project_local
+    path = "/search/package/id?match=(linkinfo/@package=\"#{CGI.escape(self.name)}\"+and+linkinfo/@project=\"#{CGI.escape(self.project.name)}\""
+    path += "+and+@project=\"#{CGI.escape(self.project.name)}\"" if project_local
     path += ")"
     answer = Suse::Backend.post path, nil
     data = REXML::Document.new(answer.body)
@@ -302,7 +302,7 @@ class DbPackage < ActiveRecord::Base
       # none given, detect by existing UNEXPANDED sources
       DbPackage.transaction do
         self.db_package_kinds.destroy_all unless _noreset
-        directory = Suse::Backend.get("/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}").body unless directory
+        directory = Suse::Backend.get("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}").body unless directory
         xml = Xmlhash.parse(directory)
         xml.elements("entry") do |e|
           if e["name"] == '_patchinfo'
@@ -321,8 +321,8 @@ class DbPackage < ActiveRecord::Base
 
     # update issue database based on file content
     if self.db_package_kinds.find_by_kind 'patchinfo'
-      patchinfo = Suse::Backend.get("/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}/_patchinfo")
-      DbProject.transaction do
+      patchinfo = Suse::Backend.get("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}/_patchinfo")
+      Project.transaction do
         self.db_package_issues.destroy_all
         xml = REXML::Document.new(patchinfo.body.to_s)
         xml.root.elements.each('issue') { |i|
@@ -336,7 +336,7 @@ class DbPackage < ActiveRecord::Base
       # all 
       begin
         # no expand=1, so only branches are tracked
-        issues = Suse::Backend.post("/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}?cmd=diff&orev=0&onlyissues=1&linkrev=base&view=xml", nil)
+        issues = Suse::Backend.post("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}?cmd=diff&orev=0&onlyissues=1&linkrev=base&view=xml", nil)
         xml = REXML::Document.new(issues.body.to_s)
         xml.root.elements.each('/sourcediff/issues/issue') { |i|
           issue = Issue.find_or_create_by_name_and_tracker( i.attributes['name'], i.attributes['tracker'] )
@@ -348,7 +348,7 @@ class DbPackage < ActiveRecord::Base
       # issues introduced by local changes
       if self.db_package_kinds.find_by_kind 'link'
         begin
-          issues = Suse::Backend.post("/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml", nil)
+          issues = Suse::Backend.post("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml", nil)
           xml = REXML::Document.new(issues.body.to_s)
           xml.root.elements.each('/sourcediff/issues/issue') { |i|
             issue = Issue.find_or_create_by_name_and_tracker( i.attributes['name'], i.attributes['tracker'] )
@@ -359,7 +359,7 @@ class DbPackage < ActiveRecord::Base
       end
 
       # store all
-      DbProject.transaction do
+      Project.transaction do
         self.db_package_issues.destroy_all
         issue_change.each do |issue, change|
           self.db_package_issues.create( :issue => issue, :change => change )
@@ -371,13 +371,13 @@ class DbPackage < ActiveRecord::Base
 
   def resolve_devel_package
     pkg = self
-    prj_name = pkg.db_project.name
+    prj_name = pkg.project.name
     processed = {}
 
     if pkg == pkg.develpackage
       raise CycleError.new "Package defines itself as devel package"
     end
-    while ( pkg.develpackage or pkg.db_project.develproject )
+    while ( pkg.develpackage or pkg.project.develproject )
       #logger.debug "resolve_devel_package #{pkg.inspect}"
 
       # cycle detection
@@ -393,10 +393,10 @@ class DbPackage < ActiveRecord::Base
       if pkg.develpackage
         # A package has a devel package definition
         pkg = pkg.develpackage
-        prj_name = pkg.db_project.name
+        prj_name = pkg.project.name
       else
         # Take project wide devel project definitions into account
-        prj = pkg.db_project.develproject
+        prj = pkg.project.develproject
         prj_name = prj.name
         pkg = prj.db_packages.get_by_name(pkg.name)
         if pkg.nil?
@@ -422,7 +422,7 @@ class DbPackage < ActiveRecord::Base
     if devel = xmlhash['devel']
       prj_name = devel['project'] || xmlhash['project']
       pkg_name = devel['package'] || xmlhash['name']
-      unless develprj = DbProject.find_by_name(prj_name)
+      unless develprj = Project.find_by_name(prj_name)
         raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
       end
       unless develpkg = develprj.db_packages.find_by_name(pkg_name)
@@ -619,7 +619,7 @@ class DbPackage < ActiveRecord::Base
 
   def write_attributes(comment=nil)
     login = User.current.login
-    path = "/source/#{URI.escape(self.db_project.name)}/#{URI.escape(self.name)}/_attribute?meta=1&user=#{CGI.escape(login)}"
+    path = "/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}/_attribute?meta=1&user=#{CGI.escape(login)}"
     path += "&comment=#{CGI.escape(comment)}" if comment
     Suse::Backend.put_source( path, render_attribute_axml )
   end
@@ -635,7 +635,7 @@ class DbPackage < ActiveRecord::Base
     @commit_opts ||= {}
     #--- write through to backend ---#
     if ActiveXML::Config.global_write_through
-      path = "/source/#{self.db_project.name}/#{self.name}/_meta?user=#{URI.escape(User.current ? User.current.login : "_nobody_")}"
+      path = "/source/#{self.project.name}/#{self.name}/_meta?user=#{URI.escape(User.current ? User.current.login : "_nobody_")}"
       path += "&comment=#{CGI.escape(@commit_opts[:comment])}" unless @commit_opts[:comment].blank?
       Suse::Backend.put_source( path, to_axml )
     end
@@ -732,7 +732,7 @@ class DbPackage < ActiveRecord::Base
     states = params[:states].split(",") if params[:states]
     login = params[:login]
 
-    builder.package( :project => self.db_project.name, :name => self.name ) do |package|
+    builder.package( :project => self.project.name, :name => self.name ) do |package|
       self.db_package_kinds.each do |k|
         package.kind(k.kind)
       end
@@ -787,7 +787,7 @@ class DbPackage < ActiveRecord::Base
 
       # show project values as fallback ?
       if params[:with_project]
-        db_project.attribs.each do |attr|
+        project.attribs.each do |attr|
           type_name = attr.attrib_type.attrib_namespace.name+":"+attr.attrib_type.name
           next if done[type_name]
           next if params[:name] and not attr.attrib_type.name == params[:name]
@@ -821,12 +821,12 @@ class DbPackage < ActiveRecord::Base
   def render_axml(view = nil)
     builder = Nokogiri::XML::Builder.new
     logger.debug "----------------- rendering package #{name} ------------------------"
-    builder.package( :name => name, :project => db_project.name ) do |package|
+    builder.package( :name => name, :project => project.name ) do |package|
       package.title( title )
       package.description( description )
       
       if develpackage
-        package.devel( :project => develpackage.db_project.name, :package => develpackage.name )
+        package.devel( :project => develpackage.project.name, :package => develpackage.name )
       end
 
       each_user do |u|
@@ -862,7 +862,7 @@ class DbPackage < ActiveRecord::Base
   end
 
   def to_axml_id
-    return "<package project='#{db_project.name.to_xs}' name='#{name.to_xs}'/>"
+    return "<package project='#{project.name.to_xs}' name='#{name.to_xs}'/>"
   end
 
   def rating( user_id=nil )
@@ -901,7 +901,7 @@ class DbPackage < ActiveRecord::Base
   end
 
   def expand_flags
-    return db_project.expand_flags(self)
+    return project.expand_flags(self)
   end
 
   def remove_all_persons
@@ -914,13 +914,13 @@ class DbPackage < ActiveRecord::Base
 
   def open_requests_with_package_as_source_or_target
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
-    rel = rel.where("(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?) or (bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)", self.db_project.name, self.name, self.db_project.name, self.name)
+    rel = rel.where("(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?) or (bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)", self.project.name, self.name, self.project.name, self.name)
     return BsRequest.where(id: rel.select("bs_requests.id").all.map { |r| r.id})
   end
 
   def open_requests_with_by_package_review
     rel = BsRequest.where(state: [:new, :review])
-    rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? and reviews.by_package = ? ", self.db_project.name, self.name)
+    rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? and reviews.by_package = ? ", self.project.name, self.name)
     return BsRequest.where(id: rel.select("bs_requests.id").all.map { |r| r.id})
   end
 

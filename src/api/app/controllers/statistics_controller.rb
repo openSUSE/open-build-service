@@ -36,7 +36,7 @@ class StatisticsController < ApplicationController
     @project = params[:project]
     @package = params[:package]
 
-    object = DbProject.get_by_name(@project)
+    object = Project.get_by_name(@project)
     object = DbPackage.get_by_project_and_name(@project, @package, use_source: false, follow_project_links: false) if @package
 
     if request.get?
@@ -96,7 +96,7 @@ class StatisticsController < ApplicationController
     # count packages per project and sum up activity values
     projects = {}
     @packages.each do |package|
-      pro = package.db_project.name
+      pro = package.project.name
       projects[pro] ||= { :count => 0, :sum => 0 }
       projects[pro][:count] += 1
       projects[pro][:sum] += package.activity_value.to_f
@@ -123,7 +123,7 @@ class StatisticsController < ApplicationController
 
 
   def activity
-    @project = DbProject.get_by_name(params[:project])
+    @project = Project.get_by_name(params[:project])
     @package = DbPackage.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: false) if params[:package]
   end
 
@@ -131,7 +131,7 @@ class StatisticsController < ApplicationController
   def latest_added
 
     packages = DbPackage.limit(@limit).order('created_at DESC, name').all
-    projects = DbProject.limit(@limit).order('created_at DESC, name').all
+    projects = Project.limit(@limit).order('created_at DESC, name').all
 
     list = projects 
     list.concat packages
@@ -148,7 +148,7 @@ class StatisticsController < ApplicationController
 
   def added_timestamp
 
-    @project = DbProject.get_by_name(params[:project])
+    @project = Project.get_by_name(params[:project])
     @package = DbPackage.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: true)
 
     # is it used at all ?
@@ -162,7 +162,7 @@ class StatisticsController < ApplicationController
     # disappear after the cache hit. So we do not spend too much logic in access flags, but check
     # the cached values afterwards if they are valid and accessible
     packages = DbPackage.select("id,updated_at").order("updated_at DESC").limit(@limit*2).all
-    projects = DbProject.select("id,updated_at").order("updated_at DESC").limit(@limit*2).all
+    projects = Project.select("id,updated_at").order("updated_at DESC").limit(@limit*2).all
 
     list = projects
     list.concat packages
@@ -179,8 +179,8 @@ class StatisticsController < ApplicationController
     @list = Array.new
     list.each do |type, id|
       if type == :project
-        item = DbProject.find(id)
-        next unless DbProject.check_access?(item)
+        item = Project.find(id)
+        next unless Project.check_access?(item)
       else
         item = DbPackage.find(id)
         next unless item
@@ -194,7 +194,7 @@ class StatisticsController < ApplicationController
 
   def updated_timestamp
 
-    @project = DbProject.get_by_name(params[:project])
+    @project = Project.get_by_name(params[:project])
     @package = DbPackage.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: true)
 
   end
@@ -204,7 +204,7 @@ class StatisticsController < ApplicationController
 
     @users = User.count
     @repos = Repository.count
-    @projects = DbProject.count
+    @projects = Project.count
     @packages = DbPackage.count
   end
 

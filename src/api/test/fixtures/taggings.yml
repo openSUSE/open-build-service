@@ -1,31 +1,31 @@
 taggings_1731:
   id: 1731
   taggable_id: 1
-  taggable_type: DbProject
+  taggable_type: Project
   tag_id: 461
   user_id: 267
 taggings_1732:
   id: 1732
   taggable_id: 2
-  taggable_type: DbProject
+  taggable_type: Project
   tag_id: 461
   user_id: 267
 taggings_1733:
   id: 1733
   taggable_id: 502
-  taggable_type: DbProject
+  taggable_type: Project
   tag_id: 461
   user_id: 267
 taggings_1734:
   id: 1734
   taggable_id: 502
-  taggable_type: DbProject
+  taggable_type: Project
   tag_id: 388
   user_id: 267
 taggings_1735:
   id: 1735
   taggable_id: 502
-  taggable_type: DbProject
+  taggable_type: Project
   tag_id: 462
   user_id: 267
 taggings_1736:
@@ -37,13 +37,13 @@ taggings_1736:
 taggings_1737:
   id: 1737
   taggable_id: 502
-  taggable_type: DbProject
+  taggable_type: Project
   tag_id: 463
   user_id: 267
 taggings_1738:
   id: 1738
   taggable_id: 1
-  taggable_type: DbProject
+  taggable_type: Project
   tag_id: 463
   user_id: 267
 taggings_1740:
@@ -67,13 +67,13 @@ taggings_1742:
 taggings_1743:
   id: 1743
   taggable_id: 502
-  taggable_type: DbProject
+  taggable_type: Project
   tag_id: 463
   user_id: 1
 taggings_1744:
   id: 1744
   taggable_id: 502
-  taggable_type: DbProject
+  taggable_type: Project
   tag_id: 462
   user_id: 1
 taggings_1745:

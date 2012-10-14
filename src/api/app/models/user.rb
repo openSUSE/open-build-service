@@ -958,9 +958,9 @@ class User < ActiveRecord::Base
     end
   end
   
-  # project is instance of DbProject
+  # project is instance of Project
   def can_modify_project?(project, ignoreLock=nil)
-    unless project.kind_of? DbProject
+    unless project.kind_of? Project
       raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
     end
     return false if not ignoreLock and project.is_locked?
@@ -983,9 +983,9 @@ class User < ActiveRecord::Base
     return false
   end
 
-  # project is instance of DbProject
+  # project is instance of Project
   def can_create_package_in?(project, ignoreLock=nil)
-    unless project.kind_of? DbProject
+    unless project.kind_of? Project
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
 
@@ -1003,7 +1003,7 @@ class User < ActiveRecord::Base
     return true if /^home:#{self.login}:/.match( project_name ) and CONFIG['allow_user_to_create_home_project'] != "false"
 
     return true if has_global_permission? "create_project"
-    p = DbProject.find_parent_for(project_name)
+    p = Project.find_parent_for(project_name)
     return false if p.nil?
     return true  if is_admin?
     return has_local_permission?( "create_project", p)
@@ -1033,7 +1033,7 @@ class User < ActiveRecord::Base
   end
 
   def can_create_attribute_in?(object, opts)
-    if not object.kind_of? DbProject and not object.kind_of? DbPackage
+    if not object.kind_of? Project and not object.kind_of? DbPackage
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
     unless opts[:namespace]
@@ -1061,7 +1061,7 @@ class User < ActiveRecord::Base
       end
     else
       # no rules set for attribute, just check package maintainer rules
-      if object.kind_of? DbProject
+      if object.kind_of? Project
         return can_modify_project?(object)
       else
         return can_modify_package?(object)
@@ -1158,7 +1158,7 @@ class User < ActiveRecord::Base
     case object
       when DbPackage
         rels = object.package_group_role_relationships.where(:role_id => role.id).includes(:group)
-      when DbProject
+      when Project
         rels = object.project_group_role_relationships.where(:role_id => role.id).includes(:group)
     end
     for rel in rels
@@ -1184,8 +1184,8 @@ class User < ActiveRecord::Base
           return true if local_role_check_with_ldap(role, object)
         end
 
-        return has_local_role?(role, object.db_project)
-      when DbProject
+        return has_local_role?(role, object.project)
+      when Project
         logger.debug "running local role project check: user #{self.login}, project #{object.name}, role '#{role.title}'"
         rels = object.project_user_role_relationships.where(:role_id => role.id, :bs_user_id => self.id).first
         return true if rels
@@ -1218,8 +1218,8 @@ class User < ActiveRecord::Base
       #check permission for given package
       users = object.package_user_role_relationships
       groups = object.package_group_role_relationships
-      parent = object.db_project
-    when DbProject
+      parent = object.project
+    when Project
       logger.debug "running local permission check: user #{self.login}, project #{object.name}, permission '#{perm_string}'"
       #check permission for given project
       users = object.project_user_role_relationships
@@ -1265,7 +1265,7 @@ class User < ActiveRecord::Base
   
   def involved_projects
     # now filter the projects that are not visible
-    return DbProject.where(id: involved_projects_ids)
+    return Project.where(id: involved_projects_ids)
   end
 
   # lists packages maintained by this user and are not in maintained projects

@@ -135,12 +135,12 @@ class AttributeTest < ActiveSupport::TestCase
     xml = ActiveXML::Base.new( axml )
 
     # store in a project
-    @project = DbProject.find_by_name( "kde4" )
+    @project = Project.find_by_name( "kde4" )
     assert_not_nil @project
     @project.store_attribute_axml(xml)
     @project.store
 
-    @p = DbProject.find_by_name( "kde4" )
+    @p = Project.find_by_name( "kde4" )
     assert_not_nil @p
     @a = @p.find_attribute( "OBS", "Maintained" )
     assert_not_nil @a
@@ -167,9 +167,9 @@ class AttributeTest < ActiveSupport::TestCase
     xml = ActiveXML::Base.new( axml )
 
     # store in a project
-    @project = DbProject.find_by_name( "kde4" )
+    @project = Project.find_by_name( "kde4" )
     assert_not_nil @project
-    assert_raise DbProject::SaveError do 
+    assert_raise Project::SaveError do 
       @project.store_attribute_axml(xml)
     end
     # store in a package

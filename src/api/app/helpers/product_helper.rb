@@ -5,7 +5,7 @@ module ProductHelper
 
     backend_pkgs = Collection.find :id, :what => 'package', :match => "@project='#{project}' and starts-with(@name,'_product:')"
     b_pkg_index = backend_pkgs.each_package.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
-    project = DbProject.find_by_name!(project)
+    project = Project.find_by_name!(project)
     frontend_pkgs = project.db_packages.where("`db_packages`.name LIKE '_product:%'").all
     f_pkg_index = frontend_pkgs.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
 

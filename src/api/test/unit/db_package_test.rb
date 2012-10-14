@@ -67,7 +67,7 @@ class DbPackageTest < ActiveSupport::TestCase
     assert_equal '10.2', @package.type_flags('build')[0].repo
     assert_equal 'i586', @package.type_flags('build')[0].architecture.name
     assert_equal 1, @package.type_flags('build')[0].position
-    assert_nil @package.type_flags('build')[0].db_project    
+    assert_nil @package.type_flags('build')[0].project
     assert_equal 'TestPack', @package.type_flags('build')[0].db_package.name
     assert_equal true, @package.enabled_for?('build', '10.2', 'i586')
     assert_equal false, @package.disabled_for?('build', '10.2', 'i586')
@@ -77,7 +77,7 @@ class DbPackageTest < ActiveSupport::TestCase
     assert_equal '10.1', @package.type_flags('publish')[0].repo
     assert_equal 'x86_64', @package.type_flags('publish')[0].architecture.name
     assert_equal 2, @package.type_flags('publish')[0].position
-    assert_nil @package.type_flags('publish')[0].db_project    
+    assert_nil @package.type_flags('publish')[0].project    
     assert_equal 'TestPack', @package.type_flags('publish')[0].db_package.name    
     
     assert_equal 1, @package.type_flags('debuginfo').size
@@ -85,7 +85,7 @@ class DbPackageTest < ActiveSupport::TestCase
     assert_equal '10.0', @package.type_flags('debuginfo')[0].repo
     assert_equal 'i586', @package.type_flags('debuginfo')[0].architecture.name
     assert_equal 3, @package.type_flags('debuginfo')[0].position
-    assert_nil @package.type_flags('debuginfo')[0].db_project  
+    assert_nil @package.type_flags('debuginfo')[0].project
     assert_equal 'TestPack', @package.type_flags('debuginfo')[0].db_package.name        
     
   end

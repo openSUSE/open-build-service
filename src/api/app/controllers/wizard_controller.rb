@@ -49,7 +49,7 @@ class WizardController < ApplicationController
     end
 
     # create package container
-    package = DbProject.find_by_name!(params[:project]).new(name: params[:package])
+    package = Project.find_by_name!(params[:project]).new(name: params[:package])
     package.title = @wizard["summary"]
     package.description = @wizard["description"]
     package.store

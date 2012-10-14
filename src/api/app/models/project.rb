@@ -1,6 +1,6 @@
 require 'opensuse/backend'
 
-class DbProject < ActiveRecord::Base
+class Project < ActiveRecord::Base
   include FlagHelper
 
   class CycleError < Exception; end
@@ -20,39 +20,37 @@ class DbProject < ActiveRecord::Base
   before_destroy :cleanup_before_destroy
   after_save 'ProjectUserRoleRelationship.discard_cache'
 
-  has_many :project_user_role_relationships, :dependent => :delete_all
-  has_many :project_group_role_relationships, :dependent => :delete_all
-  has_many :db_packages, :dependent => :destroy
-  has_many :attribs, :dependent => :destroy
-  has_many :repositories, :dependent => :destroy
+  has_many :project_user_role_relationships, :dependent => :delete_all, foreign_key: :db_project_id
+  has_many :project_group_role_relationships, :dependent => :delete_all, foreign_key: :db_project_id
+  has_many :db_packages, :dependent => :destroy, foreign_key: :db_project_id
+  has_many :attribs, :dependent => :destroy, foreign_key: :db_project_id
+  has_many :repositories, :dependent => :destroy, foreign_key: :db_project_id
   has_many :messages, :as => :db_object, :dependent => :delete_all
 
-  has_many :linkedprojects, :order => :position, :class_name => "LinkedProject", :foreign_key => 'db_project_id'
+  has_many :linkedprojects, :order => :position, :class_name => "LinkedProject", foreign_key: :db_project_id
 
   has_many :taggings, :as => :taggable, :dependent => :delete_all
   has_many :tags, :through => :taggings
 
   has_many :download_stats
-  has_many :downloads, :dependent => :delete_all
+  has_many :downloads, :dependent => :delete_all, foreign_key: :db_project_id
   has_many :ratings, :as => :db_object, :dependent => :delete_all
 
-  has_many :flags, :dependent => :delete_all
-
-  has_one :db_project_type
+  has_many :flags, dependent: :delete_all, foreign_key: :db_project_id
 
   # optional
-  has_one :maintenance_incident, :dependent => :destroy
+  has_one :maintenance_incident, :dependent => :destroy, foreign_key: :db_project_id
 
   # self-reference between devel projects and maintenance projects
-  has_many :maintained_projects, :class_name => "DbProject", :foreign_key => "maintenance_project_id"
-  belongs_to :maintenance_project, :class_name => "DbProject"
+  has_many :maintained_projects, :class_name => "Project", :foreign_key => "maintenance_project_id"
+  belongs_to :maintenance_project, :class_name => "Project"
 
-  has_many  :develprojects, :class_name => "DbProject", :foreign_key => 'develproject_id'
-  belongs_to :develproject, :class_name => "DbProject"
+  has_many  :develprojects, :class_name => "Project", :foreign_key => 'develproject_id'
+  belongs_to :develproject, :class_name => "Project"
 
   attr_accessible :name, :title, :description
 
-  default_scope { where("db_projects.id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
+  default_scope { where("projects.id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
 
 
   def download_name
@@ -69,14 +67,14 @@ class DbProject < ActiveRecord::Base
     end
     if lreps.length > 0
       #replace links to this projects with links to the "deleted" project
-      del_repo = DbProject.find_by_name("deleted").repositories[0]
+      del_repo = Project.find_by_name("deleted").repositories[0]
       lreps.each do |link_rep|
         link_rep.path_elements.includes(:link).each do |pe|
           next unless Repository.find(pe.repository_id).db_project_id == self.id
           pe.link = del_repo
           pe.save
           #update backend
-          link_prj = link_rep.db_project
+          link_prj = link_rep.project
           logger.info "updating project '#{link_prj.name}'"
           Suse::Backend.put_source "/source/#{link_prj.name}/_meta", link_prj.to_axml
         end
@@ -138,7 +136,7 @@ class DbProject < ActiveRecord::Base
 
     # returns an object of project(local or remote) or raises an exception
     # should be always used when a project is required
-    # The return value is either a DbProject for local project or an xml 
+    # The return value is either a Project for local project or an xml 
     # array for a remote project
     def get_by_name(name, opts = {})
       arel = where(name: name)
@@ -189,7 +187,7 @@ class DbProject < ActiveRecord::Base
 
 
     def find_by_attribute_type( attrib_type )
-      return DbProject.joins(:attribs).where(:attribs => { :attrib_type_id => attrib_type.id })
+      return Project.joins(:attribs).where(:attribs => { :attrib_type_id => attrib_type.id })
     end
 
     def find_remote_project(name, skip_access=false)
@@ -206,7 +204,7 @@ class DbProject < ActiveRecord::Base
           # hmm calling a private class method is not the best idea..
           lpro = nil # FIXME2.4
         else
-          lpro = DbProject.find_by_name(local_project, select: "id,name,remoteurl")
+          lpro = Project.find_by_name(local_project, select: "id,name,remoteurl")
         end
         return lpro, remote_project unless lpro.nil? or lpro.remoteurl.nil?
       end
@@ -217,13 +215,13 @@ class DbProject < ActiveRecord::Base
   def find_linking_projects
       sql =<<-END_SQL
       SELECT prj.*
-      FROM db_projects prj
+      FROM projects prj
       LEFT OUTER JOIN linked_projects lp ON lp.db_project_id = prj.id
-      LEFT OUTER JOIN db_projects lprj ON lprj.id = lp.linked_db_project_id
+      LEFT OUTER JOIN projects lprj ON lprj.id = lp.linked_db_project_id
       WHERE lprj.name = ?
       END_SQL
       # ACL TODO: should be check this or do we break functionality ?
-      DbProject.find_by_sql [sql, self.name]
+      Project.find_by_sql [sql, self.name]
   end
 
   def is_locked?
@@ -239,8 +237,8 @@ class DbProject < ActiveRecord::Base
         pkg.can_be_deleted? # throws
       rescue DbPackage::DeleteError => e
         e.packages.each do |p|
-          if p.db_project != self
-	    raise DeleteError.new "Package #{self.name}/{pkg.name} can not be deleted as it's devel package of #{p.db_project.name}/#{p.name}"
+          if p.project != self
+	    raise DeleteError.new "Package #{self.name}/{pkg.name} can not be deleted as it's devel package of #{p.project.name}/#{p.name}"
 	  end
         end
       end
@@ -294,10 +292,10 @@ class DbProject < ActiveRecord::Base
 
     #recreate linked projects from xml
     xmlhash.elements('link') do |l|
-      link = DbProject.find_by_name( l['project'] )
+      link = Project.find_by_name( l['project'] )
       if link.nil?
-        if DbProject.find_remote_project(l['project'])
-          self.linkedprojects.create(db_project: self,
+        if Project.find_remote_project(l['project'])
+          self.linkedprojects.create(project: self,
                                      linked_remote_project_name: l['project'],
                                      position: position)
         else
@@ -307,7 +305,7 @@ class DbProject < ActiveRecord::Base
         if link == self
           raise SaveError, "unable to link against myself"
         end
-        self.linkedprojects.create!(db_project: self,
+        self.linkedprojects.create!(project: self,
                                     linked_db_project: link,
                                     position: position)
       end
@@ -319,7 +317,7 @@ class DbProject < ActiveRecord::Base
     self.develproject = nil
     if devel = xmlhash['devel']
       if prj_name = devel['project']
-        unless develprj = DbProject.get_by_name(prj_name)
+        unless develprj = Project.get_by_name(prj_name)
           raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
         end
         if develprj == self
@@ -358,7 +356,7 @@ class DbProject < ActiveRecord::Base
     end
     # Set this project as the maintenance project for all maintained projects found in the XML
     xmlhash.get('maintenance').elements("maintains") do |maintains|
-      maintained_project = DbProject.find_by_name!(maintains['project'])
+      maintained_project = Project.find_by_name!(maintains['project'])
       maintained_project.maintenance_project = self
       maintained_project.save!
     end
@@ -385,7 +383,7 @@ class DbProject < ActiveRecord::Base
           
           ProjectUserRoleRelationship.create(user: User.get_by_login(person['userid']),
                                              role: Role.rolecache[person['role']],
-                                             db_project: self)
+                                             project: self)
         end
       else
         if not Role.rolecache.has_key? person['role']
@@ -396,7 +394,7 @@ class DbProject < ActiveRecord::Base
 
         pr = ProjectUserRoleRelationship.new(user: user,
                                              role: Role.rolecache[person['role']],
-                                             db_project: self )
+                                             project: self )
         if pr.valid?
           pr.save
         else
@@ -436,9 +434,9 @@ class DbProject < ActiveRecord::Base
           end
           
           ProjectGroupRoleRelationship.create(
-                                              :group => Group.get_by_title(ge['groupid']),
-                                              :role => Role.rolecache[ge['role']],
-                                              :db_project => self
+                                              group: Group.get_by_title(ge['groupid']),
+                                              role: Role.rolecache[ge['role']],
+                                              project: self
                                               )
         end
       else
@@ -472,7 +470,7 @@ class DbProject < ActiveRecord::Base
           ProjectGroupRoleRelationship.create(
                                               :group => group,
                                               :role => Role.rolecache[ge['role']],
-                                              :db_project => self
+                                              :project => self
                                               )
         rescue ActiveRecord::RecordNotUnique
           logger.debug "group '#{ge['groupid']}' already has the role '#{ge['role']}' in project '#{self.name}'"
@@ -603,7 +601,7 @@ class DbProject < ActiveRecord::Base
 
       #set host hostsystem
       if repo.has_key? 'hostsystem'
-        hostsystem = DbProject.get_by_name repo['hostsystem']['project']
+        hostsystem = Project.get_by_name repo['hostsystem']['project']
         target_repo = hostsystem.repositories.find_by_name repo['hostsystem']['repository']
         unless target_repo
           raise SaveError, "Unknown target repository '#{repo.hostsystem.project}/#{repo.hostsystem.repository}'"
@@ -670,7 +668,7 @@ class DbProject < ActiveRecord::Base
         if force
           object.destroy!
         else
-          linking_repos = list.map {|x| x.repository.db_project.name+"/"+x.repository.name}.join "\n"
+          linking_repos = list.map {|x| x.repository.project.name+"/"+x.repository.name}.join "\n"
           raise SaveError, "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:\n"+linking_repos
         end
       end
@@ -788,7 +786,7 @@ class DbProject < ActiveRecord::Base
 
     builder.project( :name => self.name ) do |project|
       self.db_packages.each do |pkg|
-        project.package( :project => pkg.db_project.name, :name => pkg.name ) do |package|
+        project.package( :project => pkg.project.name, :name => pkg.name ) do |package|
           pkg.db_package_issues.each do |i|
             next if filter_changes and not filter_changes.include? i.change
             next if states and (not i.issue.state or not states.include? i.issue.state)
@@ -848,7 +846,7 @@ class DbProject < ActiveRecord::Base
 
     while name_parts.length > 1
       name_parts.pop
-      if (p = DbProject.find_by_name name_parts.join(":"))
+      if (p = Project.find_by_name name_parts.join(":"))
         #parent project found
         return p
       end
@@ -876,7 +874,7 @@ class DbProject < ActiveRecord::Base
 
     logger.debug "adding user: #{user.login}, #{role.title}"
     ProjectUserRoleRelationship.create(
-      :db_project => self,
+      :project => self,
       :user => user,
       :role => role )
   end
@@ -896,7 +894,7 @@ class DbProject < ActiveRecord::Base
 
     logger.debug "adding group: #{group.title}, #{role.title}"
     ProjectGroupRoleRelationship.create(
-      :db_project => self,
+      :project => self,
       :group => group,
       :role => role )
   end
@@ -991,19 +989,19 @@ class DbProject < ActiveRecord::Base
         project.repository( params ) do |r|
           repo.release_targets.each do |rt|
             params = {}
-            params[:project]    = rt.target_repository.db_project.name
+            params[:project]    = rt.target_repository.project.name
             params[:repository] = rt.target_repository.name
             params[:trigger]    = rt.trigger    unless rt.trigger.blank?
             r.releasetarget( params )
           end
           if repo.hostsystem
-            r.hostsystem( :project => repo.hostsystem.db_project.name, :repository => repo.hostsystem.name )
+            r.hostsystem( :project => repo.hostsystem.project.name, :repository => repo.hostsystem.name )
           end
           repo.path_elements.includes(:link).each do |pe|
             if pe.link.remote_project_name
-              project_name = pe.link.db_project.name+":"+pe.link.remote_project_name
+              project_name = pe.link.project.name+":"+pe.link.remote_project_name
             else
-              project_name = pe.link.db_project.name
+              project_name = pe.link.project.name
             end
             r.path( :project => project_name, :repository => pe.link.name )
           end
@@ -1059,7 +1057,7 @@ class DbProject < ActiveRecord::Base
 
     # get all packages including activity values, we may not have access
     begin
-      @packages = DbPackage.find_by_sql("SELECT db_projects.*,( #{DbPackage.activity_algorithm} ) AS act_tmp,IF( @activity<0, 0, @activity ) AS activity_value FROM db_packages, db_projects WHERE (db_packages.db_project_id = db_projects.id AND db_projects.id = #{self.id}")
+      @packages = DbPackage.find_by_sql("SELECT projects.*,( #{DbPackage.activity_algorithm} ) AS act_tmp,IF( @activity<0, 0, @activity ) AS activity_value FROM db_packages, projects WHERE (db_packages.db_project_id = projects.id AND projects.id = #{self.id}")
       # count packages and sum up activity values
       project = { :count => 0, :sum => 0 }
       @packages.each do |package|
@@ -1229,16 +1227,16 @@ class DbProject < ActiveRecord::Base
   end
 
   def maintenance_project
-    return DbProject.find_by_id(maintenance_project_id)
+    return Project.find_by_id(maintenance_project_id)
   end
 
   def set_maintenance_project(project)
-    if project.class == DbProject
+    if project.class == Project
       self.maintenance_project_id = project.id
       self.save!
       return true
     elsif project.class == String
-      prj = DbProject.find_by_name(project)
+      prj = Project.find_by_name(project)
       if prj
         self.maintenance_project_id = prj.id
         self.save!

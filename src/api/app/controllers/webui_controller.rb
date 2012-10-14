@@ -4,14 +4,14 @@ class WebuiController < ApplicationController
   def project_infos
     required_parameters :project
     infos = Hash.new
-    pro = DbProject.find_by_name!(params[:project])
+    pro = Project.find_by_name!(params[:project])
     infos[:name] = pro.name
     infos[:packages] = Array.new
     pro.expand_all_packages.each do |p|
       if p.db_project_id==pro.id
         infos[:packages] << [p.name, nil]
       else
-        infos[:packages] << [p.name, p.db_project.name]
+        infos[:packages] << [p.name, p.project.name]
       end
     end
 
@@ -22,10 +22,10 @@ class WebuiController < ApplicationController
 
     if pro.project_type == "maintenance"
       mi = DbProjectType.find_by_name!('maintenance_incident')
-      subprojects = DbProject.where("db_projects.name like ?",  pro.name + ":").
+      subprojects = Project.where("projects.name like ?",  pro.name + ":").
         where(type_id: mi.id).joins(:repositories => :release_targets).
         where("release_targets.trigger = 'maintenance'")
-      infos[:incidents] = subprojects.select("db_projects.name").all
+      infos[:incidents] = subprojects.select("projects.name").all
 
       maintained_projects = []
       pro.maintained_projects.each do |mp|
@@ -63,7 +63,7 @@ class WebuiController < ApplicationController
   end
 
   def reviews_priv(prj)
-    prj = DbProject.find_by_name! prj
+    prj = Project.find_by_name! prj
     
     rel = BsRequest.collection(project: params[:project], states: ['review'], roles: ['reviewer'])
     reviews = rel.select("bs_request.id").all.map { |r| r.id }

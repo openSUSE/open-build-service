@@ -87,7 +87,7 @@ class StatusController < ApplicationController
     end
     data=ActiveXML::Base.new(data || update_workerstatus_cache)
     data.each_building do |b|
-      prj = DbProject.find_by_name(b.project)
+      prj = Project.find_by_name(b.project)
       # no prj -> we are not allowed
       if prj.nil?
         logger.debug "workerstatus2clean: hiding #{b.project} for user #{@http_user.login}"
@@ -187,7 +187,7 @@ class StatusController < ApplicationController
   # private :update_workerstatus_cache
 
   def project
-    dbproj = DbProject.get_by_name(params[:project])
+    dbproj = Project.get_by_name(params[:project])
     key='project_status_xml_%s' % dbproj.name
     xml = Rails.cache.fetch(key, :expires_in => 10.minutes) do
       @packages = dbproj.complex_status(backend)
@@ -252,9 +252,9 @@ class StatusController < ApplicationController
       end
 
       begin
-        sproj = DbProject.get_by_name(action.source_project)
-        tproj = DbProject.get_by_name(action.target_project)
-      rescue DbProject::UnknownObjectError => e
+        sproj = Project.get_by_name(action.source_project)
+        tproj = Project.get_by_name(action.target_project)
+      rescue Project::UnknownObjectError => e
         render :text => "<status id='#{params[:id]}' code='error'>Can't find project #{e.message}k</status>\n" and return
       end
       

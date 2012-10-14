@@ -5,7 +5,7 @@ class UserTest < ActiveSupport::TestCase
   fixtures :all
 
   def setup
-    @project = db_projects( :home_Iggy )
+    @project = projects( :home_Iggy )
     @user = User.find_by_login("Iggy")
   end
   
@@ -28,16 +28,16 @@ class UserTest < ActiveSupport::TestCase
 
     b = Role.find_by_title "bugowner"
     assert !@user.has_local_role?(b, @project )
-    assert !@user.has_local_role?(m, db_projects( :kde4 ))
+    assert !@user.has_local_role?(m, projects( :kde4 ))
 
     user = users(:adrian)
     assert !user.has_local_role?(m, @project )
     assert !user.has_local_role?(m, db_packages( :TestPack ) )
-    assert user.has_local_role?(m, db_projects( :kde4 ))
+    assert user.has_local_role?(m, projects( :kde4 ))
     assert user.has_local_role?(m, db_packages( :kdelibs ))
 
     tom = users( :tom )
-    assert !tom.has_local_permission?('change_project', db_projects( :kde4 ))
+    assert !tom.has_local_permission?('change_project', projects( :kde4 ))
     assert !tom.has_local_permission?('change_package', db_packages( :kdelibs ))
   end 
 
@@ -68,7 +68,7 @@ class UserTest < ActiveSupport::TestCase
     ldm, lgs, CONFIG['ldap_mode'], CONFIG['ldap_group_support'] = CONFIG['ldap_mode'], CONFIG['ldap_group_support'], :on, :on
     
     user = users( :tom )
-    assert !user.has_local_permission?('change_project', db_projects( :kde4) )
+    assert !user.has_local_permission?('change_project', projects( :kde4) )
     assert !user.has_local_permission?('change_package', db_packages( :kdelibs ))
 
     CONFIG['ldap_mode'], CONFIG['ldap_group_support'] = ldm, lgs

@@ -5,6 +5,6 @@ class PathElement < ActiveRecord::Base
   attr_accessible :link, :position
 
   #def to_s
-  # self.link.remote_project_name ? "#{self.link.db_project.name}:#{self.link.remote_project_name}/#{self.link.name}" : "#{self.link.db_project.name}/#{self.link.name}" 
+  # self.link.remote_project_name ? "#{self.link.project.name}:#{self.link.remote_project_name}/#{self.link.name}" : "#{self.link.project.name}/#{self.link.name}" 
   #end
 end

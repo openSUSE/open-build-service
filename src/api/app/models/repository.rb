@@ -1,6 +1,6 @@
 class Repository < ActiveRecord::Base
 
-  belongs_to :db_project
+  belongs_to :project, foreign_key: :db_project_id
 
   before_destroy :cleanup_before_destroy
 
@@ -23,11 +23,11 @@ class Repository < ActiveRecord::Base
 
     self.linking_repositories.each do |lrep|
       lrep.path_elements.includes(:link).each do |pe|
-#        next unless Repository.find(pe.repository_id).db_project_id == self.db_project.id
-        del_repo ||= DbProject.find_by_name("deleted").repositories[0]
+#        next unless Repository.find(pe.repository_id).db_project_id == self.db_project_id
+        del_repo ||= Project.find_by_name("deleted").repositories[0]
         pe.link = del_repo
         pe.save
-        lrep.db_project.store
+        lrep.project.store
       end
     end
 
@@ -35,12 +35,12 @@ class Repository < ActiveRecord::Base
 
   class << self
     def find_by_project_and_repo_name( project, repo )
-      result = not_remote.joins(:db_project).where(:db_projects => {:name => project}, :name => repo).first
+      result = not_remote.joins(:project).where(:projects => {:name => project}, :name => repo).first
       return result unless result.nil?
 
       #no local repository found, check if remote repo possible
 
-      local_project, remote_project = DbProject.find_remote_project(project)
+      local_project, remote_project = Project.find_remote_project(project)
       if local_project
         return find_or_create_by_db_project_id_and_name_and_remote_project_name(local_project.id, repo, remote_project)
       end
@@ -57,7 +57,7 @@ class Repository < ActiveRecord::Base
   end
 
   def to_axml_id
-    return "<repository project='#{db_project.name.to_xs}' name='#{name.to_xs}'/>"
+    return "<repository project='#{project.name.to_xs}' name='#{name.to_xs}'/>"
   end
 
 end

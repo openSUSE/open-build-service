@@ -38,7 +38,7 @@ class PublicController < ApplicationController
     required_parameters :project
 
     # project visible/known ? 
-    DbProject.get_by_name(params[:project])
+    Project.get_by_name(params[:project])
 
     path = unshift_public(request.path)
     path << "?#{request.query_string}" unless request.query_string.empty?
@@ -51,7 +51,7 @@ class PublicController < ApplicationController
     valid_http_methods :get
 
     # project visible/known ? 
-    DbProject.get_by_name(params[:project])
+    Project.get_by_name(params[:project])
 
     pass_to_backend unshift_public(request.path)
   end
@@ -61,7 +61,7 @@ class PublicController < ApplicationController
     valid_http_methods :get
 
     # project visible/known ? 
-    DbProject.get_by_name(params[:project])
+    Project.get_by_name(params[:project])
     
     path = unshift_public(request.path)
     path += "?expand=1&noorigins=1" # to stay compatible to OBS <2.4
@@ -74,7 +74,7 @@ class PublicController < ApplicationController
     valid_http_methods :get
 
     # project visible/known ? 
-    DbProject.get_by_name(params[:project])
+    Project.get_by_name(params[:project])
 
     path = unshift_public(request.path)
     path += "?#{request.query_string}" unless request.query_string.empty?
@@ -171,7 +171,7 @@ class PublicController < ApplicationController
     d = scan_distfile(distfile)
 
     @binary_links = {}
-    @pkg.db_project.repositories.includes({:path_elements => {:link => :db_project}}).each do |repo|
+    @pkg.project.repositories.includes({:path_elements => {:link => :project}}).each do |repo|
       # TODO: this code doesnt handle path elements and layering
       # TODO: walk the path and find the base repos? is that desired?
       dist = d[repo.name]
@@ -181,7 +181,7 @@ class PublicController < ApplicationController
           @binary_links[dist_id] ||= {}
           binary = binary_map[repo.name].select {|bin| bin.name == @pkg.name}.first
           if binary and dist.vendor == "openSUSE"
-            @binary_links[dist_id][:ymp] = { :url => ymp_url(File.join(@pkg.db_project.name, repo.name, @pkg.name+".ymp") ) }
+            @binary_links[dist_id][:ymp] = { :url => ymp_url(File.join(@pkg.project.name, repo.name, @pkg.name+".ymp") ) }
           end
 
           @binary_links[dist_id][:binary] ||= []
@@ -189,8 +189,8 @@ class PublicController < ApplicationController
             binary_type = b.method_missing(:type)
             @binary_links[dist_id][:binary] << {:type => binary_type, :arch => b.arch, :url => download_url(b.filepath)}
             if @binary_links[dist_id][:repository].blank?
-              repo_filename = (binary_type == 'rpm') ? "#{@pkg.db_project.name}.repo" : ''
-              repository_path = File.join(@pkg.db_project.download_name, repo.name, repo_filename)
+              repo_filename = (binary_type == 'rpm') ? "#{@pkg.project.name}.repo" : ''
+              repository_path = File.join(@pkg.project.download_name, repo.name, repo_filename)
               @binary_links[dist_id][:repository] ||= { :url => download_url(repository_path) }
             end
           end

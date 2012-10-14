@@ -13,10 +13,10 @@ class TagController < ApplicationController
   def get_tagged_projects_by_user
     @user = User.get_by_login(params[:user])
       
-    @taggings = Tagging.where("taggable_type = ? AND user_id = ?","DbProject",@user.id).all
+    @taggings = Tagging.where("taggable_type = ? AND user_id = ?","Project",@user.id).all
     @projects_tags = {}
     @taggings.each do |tagging|
-      project = DbProject.find(tagging.taggable_id)
+      project = Project.find(tagging.taggable_id)
       tag = Tag.find(tagging.tag_id)
       @projects_tags[project] = [] if @projects_tags[project] == nil
       @projects_tags[project] <<  tag
@@ -66,9 +66,9 @@ class TagController < ApplicationController
       raise TagNotFoundError.new("Tag #{t} not found") unless tag
 
       unless first_run         
-        @projects = @projects & tag.db_projects.group(:name).order(:name).all
+        @projects = @projects & tag.projects.group(:name).order(:name).all
       else
-        @projects = tag.db_projects.group(:name).order(:name).all
+        @projects = tag.projects.group(:name).order(:name).all
         first_run = false 
       end
     end
@@ -132,7 +132,7 @@ class TagController < ApplicationController
     user = User.get_by_login(params[:user])
     @type = "project"
     @name = params[:project]
-    @project = DbProject.get_by_name(params[:project])
+    @project = Project.get_by_name(params[:project])
     
     @tags = @project.tags.where("taggings.user_id = ?", user.id).order(:name).all
     if do_render
@@ -149,7 +149,7 @@ class TagController < ApplicationController
 
     @name = params[:package]
     @package = DbPackage.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: false)
-    @project = @package.db_project
+    @project = @package.project
     
     @tags = @package.tags.where("taggings.user_id = ?",user.id).order(:name).all
     if do_render
@@ -211,7 +211,7 @@ class TagController < ApplicationController
       #get the projects
       projects =[]
       collection.each_project do |project|
-        proj = DbProject.get_by_name(project.name)
+        proj = Project.get_by_name(project.name)
         
         projects << proj
       end
@@ -219,7 +219,7 @@ class TagController < ApplicationController
       #get the packages
       packages = []
       collection.each_package do |package|
-        project = DbProject.get_by_name(package.project)
+        project = Project.get_by_name(package.project)
         
         pack = DbPackage.get_by_project_and_name( project.name, package.name, use_source: false, follow_project_links: false )
         
@@ -249,7 +249,7 @@ class TagController < ApplicationController
     #get project name from the URL
     project_name = params[:project]
     if request.get?
-      @project = DbProject.get_by_name( project_name )
+      @project = Project.get_by_name( project_name )
       logger.debug "GET REQUEST for project_tags. User: #{@user}"
       @type = "project" 
       @name = params[:project]
@@ -258,7 +258,7 @@ class TagController < ApplicationController
       
     elsif request.put?
       
-      @project = DbProject.get_by_name( project_name )
+      @project = Project.get_by_name( project_name )
       logger.debug "Put REQUEST for project_tags. User: #{@http_user.login}" 
       
       #TODO Permission needed!
@@ -292,7 +292,7 @@ class TagController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
     if request.get?
-      @project = DbProject.get_by_name( project_name )
+      @project = Project.get_by_name( project_name )
       @package = DbPackage.find_by_db_project_id_and_name( @project.id, package_name )
       
       logger.debug "[TAG:] GET REQUEST for package_tags. User: #{@user}"
@@ -303,7 +303,7 @@ class TagController < ApplicationController
       
     elsif request.put?
       logger.debug "[TAG:] PUT REQUEST for package_tags."
-      @project = DbProject.get_by_name( project_name )
+      @project = Project.get_by_name( project_name )
       @package = DbPackage.find_by_db_project_id_and_name( @project.id, package_name )
       
       #TODO Permission needed!
@@ -338,7 +338,7 @@ class TagController < ApplicationController
       return
     end
 
-    @project = DbProject.get_by_name(params[:project])
+    @project = Project.get_by_name(params[:project])
     
     tags, unsaved_tags = taglistXML_to_tags(request.raw_post)
     
@@ -364,7 +364,7 @@ class TagController < ApplicationController
       old_tags = get_tags_by_user_and_project( false )
       old_tags.each do |old_tag|
         unless tag_hash.has_key? old_tag.name
-          Tagging.delete_all("user_id = #{@user.id} AND taggable_id = #{@project.id} AND taggable_type = 'DbProject' AND tag_id = #{old_tag.id}")
+          Tagging.delete_all("user_id = #{@user.id} AND taggable_id = #{@project.id} AND taggable_type = 'Project' AND tag_id = #{old_tag.id}")
         end
       end
       save_tags(@project,@user,tags)

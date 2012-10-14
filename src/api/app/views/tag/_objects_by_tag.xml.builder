@@ -18,7 +18,7 @@ xml.collection(:tag => @tag) do
   
   if @packages 
     @packages.each do |package|
-      xml.package(:project => package.db_project.name, :name => package.name, :title => package.title ) do
+      xml.package(:project => package.project.name, :name => package.name, :title => package.title ) do
         package.tags.each do |tag|
           xml.tag(:name => tag.name)
         end

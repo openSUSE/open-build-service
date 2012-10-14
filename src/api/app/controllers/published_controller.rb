@@ -3,7 +3,7 @@ class PublishedController < ApplicationController
   def index
     valid_http_methods :get, :post
 
-    prj = DbProject.get_by_name(params[:project]) if params[:project]
+    prj = Project.get_by_name(params[:project]) if params[:project]
 
     if prj 
       # This is no security feature as documented

@@ -11,7 +11,7 @@ class XpathEngine
     @tables = {
       'attribute' => 'attribs',
       'package' => 'db_packages',
-      'project' => 'db_projects',
+      'project' => 'projects',
       'person' => 'users',
       'repository' => 'repositories',
       'issue' => 'issues',
@@ -20,7 +20,7 @@ class XpathEngine
     
     @attribs = {
       'db_packages' => {
-        '@project' => {:cpart => 'db_projects.name'},
+        '@project' => {:cpart => 'projects.name'},
         '@name' => {:cpart => 'db_packages.name'},
         '@state' => {:cpart => 'issues.state', :joins => 
           ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
@@ -35,7 +35,7 @@ class XpathEngine
            ['LEFT JOIN db_package_kinds ON db_package_kinds.db_package_id = db_packages.id']},
         'devel/@project' => {:cpart => 'projs.name', :joins => 
           ['left join db_packages devels on db_packages.develpackage_id = devels.id',
-           'left join db_projects projs on devels.db_project_id=projs.id']},
+           'left join projects projs on devels.db_project_id=projs.id']},
         'devel/@package' => {:cpart => 'develpackage.name', :joins => 
           ['LEFT JOIN db_packages develpackage ON develpackage.id = db_packages.develpackage_id']},
         'issue/@state' => {:cpart => 'issues.state', :joins => 
@@ -83,39 +83,39 @@ class XpathEngine
            'LEFT JOIN attrib_types AS attrib_types_proj ON attribs_proj.attrib_type_id = attrib_types_proj.id',
            'LEFT JOIN attrib_namespaces AS attrib_namespaces_proj ON attrib_types_proj.attrib_namespace_id = attrib_namespaces_proj.id']},
       },
-      'db_projects' => {
-        '@name' => {:cpart => 'db_projects.name'},
+      'projects' => {
+        '@name' => {:cpart => 'projects.name'},
         '@kind' => {:cpart => 'pt.name', :joins => [
-          'LEFT JOIN db_project_types pt ON db_projects.type_id = pt.id']},
-        'title' => {:cpart => 'db_projects.title'},
-        'description' => {:cpart => 'db_projects.description'},
+          'LEFT JOIN db_project_types pt ON projects.type_id = pt.id']},
+        'title' => {:cpart => 'projects.title'},
+        'description' => {:cpart => 'projects.description'},
         'maintenance/maintains/@project' => {:cpart => 'maintained.name', :joins => [
-          'LEFT JOIN db_projects AS maintained ON db_projects.id = maintained.maintenance_project_id']},
+          'LEFT JOIN projects AS maintained ON projects.id = maintained.maintenance_project_id']},
         'person/@userid' => {:cpart => 'users.login', :joins => [
-          'LEFT JOIN project_user_role_relationships ON db_projects.id = project_user_role_relationships.db_project_id',
+          'LEFT JOIN project_user_role_relationships ON projects.id = project_user_role_relationships.db_project_id',
           'LEFT JOIN users ON users.id = project_user_role_relationships.bs_user_id']},
         'person/@role' => {:cpart => 'roles.title', :joins => [
-          'LEFT JOIN project_user_role_relationships ON db_projects.id = project_user_role_relationships.db_project_id',
+          'LEFT JOIN project_user_role_relationships ON projects.id = project_user_role_relationships.db_project_id',
           'LEFT JOIN roles ON project_user_role_relationships.role_id = roles.id']},
         'group/@groupid' => {:cpart => 'groups.title', :joins =>
-          ['LEFT JOIN project_group_role_relationships ON db_projects.id = project_group_role_relationships.db_project_id',
+          ['LEFT JOIN project_group_role_relationships ON projects.id = project_group_role_relationships.db_project_id',
            'LEFT JOIN groups ON groups.id = project_group_role_relationships.bs_group_id']},
         'group/@role' => {:cpart => 'roles.title', :joins =>
-          ['LEFT JOIN project_group_role_relationships ON db_projects.id = project_group_role_relationships.db_project_id',
+          ['LEFT JOIN project_group_role_relationships ON projects.id = project_group_role_relationships.db_project_id',
            'LEFT JOIN roles ON project_group_role_relationships.role_id = roles.id']},
         'repository/@name' => {:cpart => 'repositories.name'},
         'repository/path/@project' => {:cpart => 'childs.name', :joins => [
-          'join repositories r on r.db_project_id=db_projects.id',
+          'join repositories r on r.db_project_id=projects.id',
           'join path_elements pe on pe.parent_id=r.id',
           'join repositories r2 on r2.id=pe.repository_id',
-          'join db_projects childs on childs.id=r2.db_project_id']},
+          'join projects childs on childs.id=r2.db_project_id']},
         'repository/releasetarget/@trigger' => {:cpart => 'rt.trigger', :joins => [
-          'join repositories r on r.db_project_id=db_projects.id',
+          'join repositories r on r.db_project_id=projects.id',
           'join release_targets rt on rt.repository_id=r.id']},
         'package/@name' => {:cpart => 'packs.name', :joins => 
-          ['LEFT JOIN db_packages AS packs ON packs.db_project_id = db_projects.id']},
+          ['LEFT JOIN db_packages AS packs ON packs.db_project_id = projects.id']},
         'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name', :split => ':', :joins => 
-          ['LEFT JOIN attribs ON attribs.db_project_id = db_projects.id',
+          ['LEFT JOIN attribs ON attribs.db_project_id = projects.id',
            'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
            'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id']},
       },
@@ -235,20 +235,20 @@ class XpathEngine
     case @base_table
     when 'db_packages'
       model = DbPackage
-      includes = [:db_project]
+      includes = [:project]
       select = "distinct(db_packages.id),db_packages.*"
-    when 'db_projects'
-      model = DbProject
+    when 'projects'
+      model = Project
       if opt["render_all"]
-        select = "distinct(db_projects.id),db_projects.*"
+        select = "distinct(projects.id),projects.*"
         includes = [:repositories]
       else
         includes = []
-        select = "distinct(db_projects.id),db_projects.name"
+        select = "distinct(projects.id),projects.name"
       end
     when 'repositories'
       model = Repository
-      includes = [:db_project]
+      includes = [:project]
       select = "distinct(repositories.id),repositories.*"
     when 'requests'
       model = BsRequest
@@ -482,7 +482,7 @@ class XpathEngine
     # occor twice, hence the @condition_values_needed counter. For our example, the resulting SQL will
     # look like:
     #
-    #   SELECT * FROM db_projects p LEFT JOIN db_project_types t ON p.type_id = t.id 
+    #   SELECT * FROM projects p LEFT JOIN db_project_types t ON p.type_id = t.id 
     #            WHERE (NOT t.name = 'maintenance_incident' OR t.name IS NULL);
     #
     # Note that this can result in bloated SQL statements, so some trust in the query optimization

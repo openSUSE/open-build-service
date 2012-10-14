@@ -6,7 +6,7 @@ xml.most_active do
     xml.package(
       :activity => package.activity_value,
       :update_count => package.update_counter,
-      :project => package.db_project.name,
+      :project => package.project.name,
       :name => package.name
     )
   end

@@ -9,7 +9,7 @@ if ! proj
    puts "usage: update_project <project>"
    exit 1
 end 
-dbproj = DbProject.find_by_name(proj)
+dbproj = Project.find_by_name(proj)
 if ! dbproj
   puts "invalid project " + proj
   exit 1

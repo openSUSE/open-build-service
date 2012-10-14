@@ -76,7 +76,7 @@ class PackInfo
   attr_accessor :buildinfo
 
   def initialize(db_pack)
-    @project = db_pack.db_project.name
+    @project = db_pack.project.name
     @name = db_pack.name
     # we don't store the full package object as it can become huge
     @db_pack_id = db_pack.id
@@ -291,9 +291,9 @@ class ProjectStatusHelper
     return if mypackages.has_key? pack.key
 
     if dbpack.develpackage
-      pack.devel_project = dbpack.develpackage.db_project.name
+      pack.devel_project = dbpack.develpackage.project.name
       pack.devel_package = dbpack.develpackage.name
-      projects[pack.devel_project] = dbpack.develpackage.db_project
+      projects[pack.devel_project] = dbpack.develpackage.project
       add_recursively(mypackages, projects, dbpack.develpackage)
     end
     mypackages[pack.key] = pack

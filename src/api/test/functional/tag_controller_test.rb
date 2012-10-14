@@ -64,8 +64,8 @@ class TagControllerTest < ActionController::IntegrationTest
     u = User.find_by_login("Iggy")
     assert_kind_of User, u
     
-    p = DbProject.find_by_name("home:Iggy")
-    assert_kind_of DbProject, p
+    p = Project.find_by_name("home:Iggy")
+    assert_kind_of Project, p
     
     t = Tag.find_by_name("TagA")
     assert_kind_of Tag, t
@@ -83,8 +83,8 @@ class TagControllerTest < ActionController::IntegrationTest
     initial_user_tags = u.tags.clone
     assert_kind_of Array, initial_user_tags
     
-    p = DbProject.find_by_name("home:Iggy")
-    assert_kind_of DbProject, p
+    p = Project.find_by_name("home:Iggy")
+    assert_kind_of Project, p
     
     
     #Precondition check: Tag "TagX" should not exist.
@@ -118,8 +118,8 @@ class TagControllerTest < ActionController::IntegrationTest
     u = User.find_by_login("Iggy")
     assert_kind_of User, u
     
-    p = DbProject.find_by_name("home:Iggy")
-    assert_kind_of DbProject, p
+    p = Project.find_by_name("home:Iggy")
+    assert_kind_of Project, p
     
     #Precondition check: Tag "TagX" should not exist.
     t = Tag.find_by_name("TagX")
@@ -164,8 +164,8 @@ class TagControllerTest < ActionController::IntegrationTest
     u = User.find_by_login("Iggy")
     assert_kind_of User, u
     
-    p = DbProject.find_by_name("home:Iggy")
-    assert_kind_of DbProject, p
+    p = Project.find_by_name("home:Iggy")
+    assert_kind_of Project, p
     
     #tags to create
     tags = ["TagX", "TagY", "TagZ", "IamNotAllowed"]

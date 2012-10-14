@@ -5,7 +5,7 @@ xml.latest_updated do
 
     xml.package(
       :name => @package.name,
-      :project => @package.db_project.name,
+      :project => @package.project.name,
       :updated => @package.updated_at.xmlschema
     )
 

@@ -2,11 +2,11 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'json'
 #require '/usr/lib64/ruby/gems/1.9.1/gems/perftools.rb-2.0.0/lib/perftools.so'
 
-class DbProjectTest < ActiveSupport::TestCase
+class ProjectTest < ActiveSupport::TestCase
   fixtures :all
 
   def setup
-    @project = db_projects( :home_Iggy )
+    @project = projects( :home_Iggy )
   end
     
   def test_flags_to_axml
@@ -66,7 +66,7 @@ class DbProjectTest < ActiveSupport::TestCase
     assert_equal 'i586', @project.type_flags('build')[0].architecture.name
     assert_equal 1, @project.type_flags('build')[0].position
     assert_nil @project.type_flags('build')[0].db_package    
-    assert_equal 'home:Iggy', @project.type_flags('build')[0].db_project.name
+    assert_equal 'home:Iggy', @project.type_flags('build')[0].project.name
     
     assert_equal 1, @project.type_flags('publish').size
     assert_equal 'enable', @project.type_flags('publish')[0].status
@@ -74,7 +74,7 @@ class DbProjectTest < ActiveSupport::TestCase
     assert_equal 'x86_64', @project.type_flags('publish')[0].architecture.name
     assert_equal 2, @project.type_flags('publish')[0].position
     assert_nil @project.type_flags('publish')[0].db_package    
-    assert_equal 'home:Iggy', @project.type_flags('publish')[0].db_project.name  
+    assert_equal 'home:Iggy', @project.type_flags('publish')[0].project.name  
     
     assert_equal 1, @project.type_flags('debuginfo').size
     assert_equal 'disable', @project.type_flags('debuginfo')[0].status
@@ -82,7 +82,7 @@ class DbProjectTest < ActiveSupport::TestCase
     assert_equal 'i586', @project.type_flags('debuginfo')[0].architecture.name
     assert_equal 3, @project.type_flags('debuginfo')[0].position
     assert_nil @project.type_flags('debuginfo')[0].db_package    
-    assert_equal 'home:Iggy', @project.type_flags('debuginfo')[0].db_project.name      
+    assert_equal 'home:Iggy', @project.type_flags('debuginfo')[0].project.name      
     
   end
   
@@ -175,7 +175,7 @@ class DbProjectTest < ActiveSupport::TestCase
   end
     
   def test_benchmark_all
-    prjs = DbProject.find :all
+    prjs = Project.find :all
     #PerfTools::CpuProfiler.start("/tmp/profile") do
       x = Benchmark.realtime { prjs.each { |p| p.expand_flags.to_json } }
       y = Benchmark.realtime { prjs.each { |p| p.to_axml('flagdetails') } }
@@ -184,12 +184,12 @@ class DbProjectTest < ActiveSupport::TestCase
   end
 
   def test_create_maintenance_project_and_maintained_project
-    maintenance_project = DbProject.new(:name => 'Maintenance:Project')
+    maintenance_project = Project.new(:name => 'Maintenance:Project')
     assert_equal true, maintenance_project.set_project_type('maintenance')
     assert_equal 'maintenance', maintenance_project.project_type()
 
     # Create a project for which maintenance is done (i.e. a maintained project)
-    maintained_project = DbProject.new(:name => 'Maintained:Project')
+    maintained_project = Project.new(:name => 'Maintained:Project')
     assert_equal true, maintained_project.set_maintenance_project(maintenance_project)
     assert_equal true, maintained_project.set_maintenance_project(maintenance_project.name)
     assert_equal maintenance_project, maintained_project.maintenance_project()

@@ -4,8 +4,8 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
   fixtures :all
   
   def setup
-    @project = DbProject.find(502)
-    assert_kind_of DbProject, @project
+    @project = Project.find(502)
+    assert_kind_of Project, @project
     @package = DbPackage.find(10095)
     assert_kind_of DbPackage, @package
     @arch = Architecture.find(1)

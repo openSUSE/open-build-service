@@ -1,4 +1,4 @@
-xml.package :project => @pkg.db_project.name, :package => @pkg.name do
+xml.package :project => @pkg.project.name, :package => @pkg.name do
   xml.title @pkg.title
   xml.description @pkg.description
   xml.binaries do

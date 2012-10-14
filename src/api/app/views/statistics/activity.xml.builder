@@ -6,7 +6,7 @@ xml.activity do
 
     xml.package(
       :name => @package.name,
-      :project => @package.db_project.name,
+      :project => @package.project.name,
       :activity => @package.activity
     )
 

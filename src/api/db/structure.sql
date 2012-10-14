@@ -96,7 +96,7 @@ CREATE TABLE `attribs` (
   KEY `db_project_id` (`db_project_id`),
   CONSTRAINT `attribs_ibfk_1` FOREIGN KEY (`attrib_type_id`) REFERENCES `attrib_types` (`id`),
   CONSTRAINT `attribs_ibfk_2` FOREIGN KEY (`db_package_id`) REFERENCES `db_packages` (`id`),
-  CONSTRAINT `attribs_ibfk_3` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`)
+  CONSTRAINT `attribs_ibfk_3` FOREIGN KEY (`db_project_id`) REFERENCES `projects` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `blacklist_tags` (
@@ -219,7 +219,7 @@ CREATE TABLE `db_packages` (
   KEY `devel_package_id_index` (`develpackage_id`),
   KEY `index_db_packages_on_db_project_id` (`db_project_id`),
   KEY `updated_at_index` (`updated_at`),
-  CONSTRAINT `db_packages_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`),
+  CONSTRAINT `db_packages_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `projects` (`id`),
   CONSTRAINT `db_packages_ibfk_3` FOREIGN KEY (`develpackage_id`) REFERENCES `db_packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -229,31 +229,12 @@ CREATE TABLE `db_project_types` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-CREATE TABLE `db_projects` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` tinyblob NOT NULL,
-  `title` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `description` text CHARACTER SET utf8,
-  `created_at` datetime DEFAULT '0000-00-00 00:00:00',
-  `updated_at` datetime DEFAULT '0000-00-00 00:00:00',
-  `remoteurl` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `remoteproject` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `type_id` int(11) DEFAULT NULL,
-  `maintenance_project_id` int(11) DEFAULT NULL,
-  `develproject_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `projects_name_index` (`name`(255)),
-  KEY `updated_at_index` (`updated_at`),
-  KEY `devel_project_id_index` (`develproject_id`),
-  KEY `index_db_projects_on_maintenance_project_id` (`maintenance_project_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
 CREATE TABLE `db_projects_tags` (
   `db_project_id` int(11) NOT NULL,
   `tag_id` int(11) NOT NULL,
   UNIQUE KEY `projects_tags_all_index` (`db_project_id`,`tag_id`),
   KEY `tag_id` (`tag_id`),
-  CONSTRAINT `db_projects_tags_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`),
+  CONSTRAINT `db_projects_tags_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `projects` (`id`),
   CONSTRAINT `db_projects_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -297,7 +278,7 @@ CREATE TABLE `flags` (
   KEY `index_flags_on_db_project_id` (`db_project_id`),
   KEY `index_flags_on_flag` (`flag`),
   KEY `architecture_id` (`architecture_id`),
-  CONSTRAINT `flags_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`),
+  CONSTRAINT `flags_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `projects` (`id`),
   CONSTRAINT `flags_ibfk_2` FOREIGN KEY (`db_package_id`) REFERENCES `db_packages` (`id`),
   CONSTRAINT `flags_ibfk_3` FOREIGN KEY (`architecture_id`) REFERENCES `architectures` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -465,10 +446,29 @@ CREATE TABLE `project_user_role_relationships` (
   UNIQUE KEY `project_user_role_all_index` (`db_project_id`,`bs_user_id`,`role_id`),
   KEY `bs_user_id` (`bs_user_id`),
   KEY `role_id` (`role_id`),
-  CONSTRAINT `project_user_role_relationships_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`),
+  CONSTRAINT `project_user_role_relationships_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `projects` (`id`),
   CONSTRAINT `project_user_role_relationships_ibfk_2` FOREIGN KEY (`bs_user_id`) REFERENCES `users` (`id`),
   CONSTRAINT `project_user_role_relationships_ibfk_3` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `projects` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` tinyblob NOT NULL,
+  `title` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `description` text CHARACTER SET utf8,
+  `created_at` datetime DEFAULT '0000-00-00 00:00:00',
+  `updated_at` datetime DEFAULT '0000-00-00 00:00:00',
+  `remoteurl` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `remoteproject` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `type_id` int(11) DEFAULT NULL,
+  `maintenance_project_id` int(11) DEFAULT NULL,
+  `develproject_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `projects_name_index` (`name`(255)),
+  KEY `updated_at_index` (`updated_at`),
+  KEY `devel_project_id_index` (`develproject_id`),
+  KEY `index_db_projects_on_maintenance_project_id` (`maintenance_project_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `ratings` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -506,7 +506,7 @@ CREATE TABLE `repositories` (
   UNIQUE KEY `projects_name_index` (`db_project_id`,`name`,`remote_project_name`),
   KEY `remote_project_name_index` (`remote_project_name`),
   KEY `hostsystem_id` (`hostsystem_id`),
-  CONSTRAINT `repositories_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `db_projects` (`id`),
+  CONSTRAINT `repositories_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `projects` (`id`),
   CONSTRAINT `repositories_ibfk_2` FOREIGN KEY (`hostsystem_id`) REFERENCES `repositories` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -978,6 +978,8 @@ INSERT INTO schema_migrations (version) VALUES ('20120903122955');
 INSERT INTO schema_migrations (version) VALUES ('20120904122955');
 
 INSERT INTO schema_migrations (version) VALUES ('20120907114304');
+
+INSERT INTO schema_migrations (version) VALUES ('20121014124846');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

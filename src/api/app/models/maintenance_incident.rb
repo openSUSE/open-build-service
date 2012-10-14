@@ -2,8 +2,8 @@
 #
 class MaintenanceIncident < ActiveRecord::Base
 
-  belongs_to :db_project, :class_name => "DbProject"
-  belongs_to :maintenance_db_project, :class_name => "DbProject"
+  belongs_to :project, class_name: "Project", foreign_key: :db_project_id
+  belongs_to :maintenance_db_project, :class_name => "Project"
 
   attr_accessible :maintenance_db_project
 

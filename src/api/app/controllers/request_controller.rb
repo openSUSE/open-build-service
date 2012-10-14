@@ -106,7 +106,7 @@ class RequestController < ApplicationController
     prj = nil
 
     # check for reviewers in a package first
-    if obj.class == DbProject
+    if obj.class == Project
       prj = obj
     elsif obj.class == DbPackage
       if defined? obj.package_user_role_relationships
@@ -114,7 +114,7 @@ class RequestController < ApplicationController
           reviewers << User.find(r.bs_user_id)
         end
       end
-      prj = obj.db_project
+      prj = obj.project
     else
     end
 
@@ -132,7 +132,7 @@ class RequestController < ApplicationController
     review_groups = Array.new(0)
     prj = nil
     # check for reviewers in a package first
-    if obj.class == DbProject
+    if obj.class == Project
       prj = obj
     elsif obj.class == DbPackage
       if defined? obj.package_group_role_relationships
@@ -140,7 +140,7 @@ class RequestController < ApplicationController
           review_groups << Group.find(r.bs_group_id)
         end
       end
-      prj = obj.db_project
+      prj = obj.project
     else
     end
 
@@ -171,13 +171,13 @@ class RequestController < ApplicationController
       # find target via linkinfo or submit to all.
       # FIXME: this is currently handling local project links for packages with multiple spec files. 
       #        This can be removed when we handle this as shadow packages in the backend.
-      tprj = pkg.db_project.name
+      tprj = pkg.project.name
       tpkg = ltpkg = pkg.name
       rev = action.source_rev
       data = nil
       missing_ok_link=false
       suffix = ""
-      while tprj == pkg.db_project.name
+      while tprj == pkg.project.name
         # FIXME2.4 we have a Directory model!
         data = REXML::Document.new( backend_get("/source/#{URI.escape(tprj)}/#{URI.escape(ltpkg)}") )
         e = data.elements["directory/linkinfo"]
@@ -198,18 +198,18 @@ class RequestController < ApplicationController
         
         unless pkg.db_package_kinds.find_by_kind 'patchinfo'
           if action.target_releaseproject
-            releaseproject = DbProject.get_by_name action.target_releaseproject
+            releaseproject = Project.get_by_name action.target_releaseproject
           else
             unless tprj
               render_error :status => 400, :errorcode => 'no_maintenance_release_target',
               :message => "Maintenance incident request contains no defined release target project for package #{pkg.name}"
               return
             end
-            releaseproject = DbProject.get_by_name tprj
+            releaseproject = Project.get_by_name tprj
           end
           # Automatically switch to update project
           if a = releaseproject.find_attribute("OBS", "UpdateProject") and a.values[0]
-            releaseproject = DbProject.get_by_name a.values[0].value
+            releaseproject = Project.get_by_name a.values[0].value
           end
           unless releaseproject.project_type.to_sym == :maintenance_release
             render_error :status => 400, :errorcode => 'no_maintenance_release_target',
@@ -225,26 +225,26 @@ class RequestController < ApplicationController
         entries.each do |entry|
           next unless entry.attributes["name"] == "_patchinfo"
           # check for build state and binaries
-          state = REXML::Document.new( backend_get("/build/#{URI.escape(pkg.db_project.name)}/_result") )
-          repos = state.get_elements("/resultlist/result[@project='#{pkg.db_project.name}'')]")
+          state = REXML::Document.new( backend_get("/build/#{URI.escape(pkg.project.name)}/_result") )
+          repos = state.get_elements("/resultlist/result[@project='#{pkg.project.name}'')]")
           unless repos
             render_error :status => 400, :errorcode => 'build_not_finished',
-            :message => "The project'#{pkg.db_project.name}' has no building repositories"
+            :message => "The project'#{pkg.project.name}' has no building repositories"
             return
           end
           repos.each do |repo|
             unless ["finished", "publishing", "published", "unpublished"].include? repo.attributes['state']
               render_error :status => 400, :errorcode => 'build_not_finished',
-              :message => "The repository '#{pkg.db_project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']}"
+              :message => "The repository '#{pkg.project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']}"
               return
             end
           end
-          pkg.db_project.repositories.each do |repo|
+          pkg.project.repositories.each do |repo|
             if repo and repo.architectures.first
               # skip excluded patchinfos
               status = state.get_elements("/resultlist/result[@repository='#{repo.name}' and @arch='#{repo.architectures.first.name}']").first
               unless status and s=status.get_elements("status[@package='#{pkg.name}']").first and s.attributes['code'] == "excluded"
-                binaries = REXML::Document.new( backend_get("/build/#{URI.escape(pkg.db_project.name)}/#{URI.escape(repo.name)}/#{URI.escape(repo.architectures.first.name)}/#{URI.escape(pkg.name)}") )
+                binaries = REXML::Document.new( backend_get("/build/#{URI.escape(pkg.project.name)}/#{URI.escape(repo.name)}/#{URI.escape(repo.architectures.first.name)}/#{URI.escape(pkg.name)}") )
                 l = binaries.get_elements("binarylist/binary")
                 if l and l.count > 0
                   found_patchinfo = 1
@@ -263,9 +263,9 @@ class RequestController < ApplicationController
         unless e and DbPackage.exists_by_project_and_name( tprj, tpkg, follow_project_links: true, allow_remote_packages: false)
           if action.action_type == :maintenance_release
             newPackages << pkg
-            pkg.db_project.repositories.includes(:release_targets).each do |repo|
+            pkg.project.repositories.includes(:release_targets).each do |repo|
               repo.release_targets.each do |rt|
-                newTargets << rt.target_repository.db_project.name
+                newTargets << rt.target_repository.project.name
               end
             end
             next
@@ -279,16 +279,16 @@ class RequestController < ApplicationController
       # is this package source going to a project which is specified as release target ?
       if action.action_type == :maintenance_release
         found = nil
-        pkg.db_project.repositories.includes(:release_targets).each do |repo|
+        pkg.project.repositories.includes(:release_targets).each do |repo|
           repo.release_targets.each do |rt|
-            if rt.target_repository.db_project.name == tprj
+            if rt.target_repository.project.name == tprj
               found = 1
             end
           end
         end
         unless found
           render_error :status => 400, :errorcode => 'wrong_linked_package_source',
-          :message => "According to the source link of package #{pkg.db_project.name}/#{pkg.name} it would go to project #{tprj} which is not specified as release target."
+          :message => "According to the source link of package #{pkg.project.name}/#{pkg.name} it would go to project #{tprj} which is not specified as release target."
           return
         end
       end
@@ -317,7 +317,7 @@ class RequestController < ApplicationController
     newPackages.each do |pkg|
       releaseTargets=nil
       if pkg.db_package_kinds.find_by_kind 'patchinfo'
-        answer = Suse::Backend.get("/source/#{URI.escape(pkg.db_project.name)}/#{URI.escape(pkg.name)}/_patchinfo")
+        answer = Suse::Backend.get("/source/#{URI.escape(pkg.project.name)}/#{URI.escape(pkg.name)}/_patchinfo")
         data = ActiveXML::Base.new(answer.body)
         # validate _patchinfo for completeness
         unless data
@@ -386,7 +386,7 @@ class RequestController < ApplicationController
         # find maintenance project
         maintenanceProject = nil
         if action.target_project
-          maintenanceProject = DbProject.get_by_name action.target_project 
+          maintenanceProject = Project.get_by_name action.target_project 
         else
           # hardcoded default. frontends can lookup themselfs a different target via attribute search
           at = AttribType.find_by_name("OBS:MaintenanceProject")
@@ -395,7 +395,7 @@ class RequestController < ApplicationController
               :message => "Required OBS:Maintenance attribute not found, system not correctly deployed."
             return
           end
-          maintenanceProject = DbProject.find_by_attribute_type( at ).first
+          maintenanceProject = Project.find_by_attribute_type( at ).first
           unless maintenanceProject
             render_error :status => 400, :errorcode => 'project_not_found',
               :message => "There is no project flagged as maintenance project on server and no target in request defined."
@@ -418,7 +418,7 @@ class RequestController < ApplicationController
           packages << DbPackage.get_by_project_and_name( action.source_project, action.source_package )
           per_package_locking = 1
         else
-          packages = DbProject.get_by_name(action.source_project).db_packages
+          packages = Project.get_by_name(action.source_project).db_packages
         end
 
         na = create_expand_package(action, packages)
@@ -457,13 +457,13 @@ class RequestController < ApplicationController
       role = Role.find_by_title!(action.role)
     end
     if action.source_project
-      sprj = DbProject.get_by_name action.source_project
+      sprj = Project.get_by_name action.source_project
       unless sprj
         render_error :status => 404, :errorcode => 'unknown_project',
         :message => "Unknown source project #{action.source_project}"
         return false
       end
-      unless sprj.class == DbProject
+      unless sprj.class == Project
         render_error :status => 400, :errorcode => 'not_supported',
         :message => "Source project #{action.source_project} is not a local project. This is not supported yet."
         return false
@@ -474,13 +474,13 @@ class RequestController < ApplicationController
     end
 
     if action.target_project
-      tprj = DbProject.get_by_name action.target_project
-      if tprj.class == DbProject and tprj.project_type.to_sym == :maintenance_release and action.action_type == :submit
+      tprj = Project.get_by_name action.target_project
+      if tprj.class == Project and tprj.project_type.to_sym == :maintenance_release and action.action_type == :submit
         render_error :status => 400, :errorcode => 'submit_request_rejected',
         :message => "The target project #{action.target_project} is a maintenance release project, a submit action is not possible, please use the maintenance workflow instead."
         return false
       end
-      if tprj.class == DbProject and (a = tprj.find_attribute("OBS", "RejectRequests") and a.values.first)
+      if tprj.class == Project and (a = tprj.find_attribute("OBS", "RejectRequests") and a.values.first)
         render_error :status => 403, :errorcode => 'request_rejected',
         :message => "The target project #{action.target_project} is not accepting requests because: #{a.values.first.value.to_s}"
         return false
@@ -551,7 +551,7 @@ class RequestController < ApplicationController
         end
         raise "We should have expanded a target_project" unless action.target_project
         # validate project type
-        prj = DbProject.get_by_name(action.target_project)
+        prj = Project.get_by_name(action.target_project)
         unless [ "maintenance", "maintenance_incident" ].include? prj.project_type.to_s
           render_error :status => 400, :errorcode => "incident_has_no_maintenance_project",
           :message => "incident projects shall only create below maintenance projects"
@@ -561,7 +561,7 @@ class RequestController < ApplicationController
 
       if action.action_type == :maintenance_release
         # get sure that the releasetarget definition exists or we release without binaries
-        prj = DbProject.get_by_name(action.source_project)
+        prj = Project.get_by_name(action.source_project)
         prj.repositories.includes(:release_targets).each do |repo|
           unless repo.release_targets.size > 0
             render_error :status => 400, :errorcode => "repository_without_releasetarget",
@@ -676,7 +676,7 @@ class RequestController < ApplicationController
       tpkg = nil
 
       if action.target_project
-        tprj = DbProject.find_by_name action.target_project
+        tprj = Project.find_by_name action.target_project
         if action.target_package
           if action.target_repository and action.action_type == :delete
             render_error :status => 400, :errorcode => "invalid_request",
@@ -699,7 +699,7 @@ class RequestController < ApplicationController
       if action.source_project
         # if the user is not a maintainer if current devel package, the current maintainer gets added as reviewer of this request
         if action.action_type == :change_devel and tpkg.develpackage and not @http_user.can_modify_package?(tpkg.develpackage, 1)
-          review_packages.push({ :by_project => tpkg.develpackage.db_project.name, :by_package => tpkg.develpackage.name })
+          review_packages.push({ :by_project => tpkg.develpackage.project.name, :by_package => tpkg.develpackage.name })
         end
 
         if action.action_type == :maintenance_release
@@ -714,7 +714,7 @@ class RequestController < ApplicationController
           if per_package_locking
             object = spkg
           else
-            object = spkg.db_project
+            object = spkg.project
           end
           unless object.enabled_for?('lock', nil, nil)
             f = object.flags.find_by_flag_and_status("lock", "disable")
@@ -736,12 +736,12 @@ class RequestController < ApplicationController
                   return
                 end
               end
-              if  not spkg.db_project.find_attribute("OBS", "ApprovedRequestSource") and not spkg.find_attribute("OBS", "ApprovedRequestSource")
+              if  not spkg.project.find_attribute("OBS", "ApprovedRequestSource") and not spkg.find_attribute("OBS", "ApprovedRequestSource")
                 review_packages.push({ :by_project => action.source_project, :by_package => action.source_package })
               end
             end
           else
-            sprj = DbProject.find_by_name action.source_project
+            sprj = Project.find_by_name action.source_project
             if sprj and not @http_user.can_modify_project? sprj and not sprj.find_attribute("OBS", "ApprovedRequestSource")
               if action.action_type == :submit
                 if action.sourceupdate or action.updatelink
@@ -826,7 +826,7 @@ class RequestController < ApplicationController
           if action.source_package
             spkgs << DbPackage.get_by_project_and_name( action.source_project, action.source_package ).name
           else
-            spkgs = DbProject.get_by_name( action.source_project ).db_packages.select("name")
+            spkgs = Project.get_by_name( action.source_project ).db_packages.select("name")
           end
         end
 
@@ -889,7 +889,7 @@ class RequestController < ApplicationController
             elsif DbPackage.exists_by_project_and_name( target_project, target_package, follow_project_links: true )
               tpkg = linked_tpkg = DbPackage.get_by_project_and_name( target_project, target_package )
             else
-              DbProject.get_by_name( target_project )
+              Project.get_by_name( target_project )
             end
 
             path = "/source/#{CGI.escape(action.source_project)}/#{CGI.escape(spkg)}?cmd=diff&filelimit=10000"
@@ -1037,7 +1037,7 @@ class RequestController < ApplicationController
     if params[:by_project] and params[:by_package]
       pkg = DbPackage.get_by_project_and_name(params[:by_project], params[:by_package])
     elsif params[:by_project]
-      prj = DbProject.get_by_name(params[:by_project])
+      prj = Project.get_by_name(params[:by_project])
     end
 
     # generic permission checks
@@ -1114,7 +1114,7 @@ class RequestController < ApplicationController
     req.bs_request_actions.each do |action|
 
       # all action types need a target project in any case for accept
-      target_project = DbProject.find_by_name(action.target_project)
+      target_project = Project.find_by_name(action.target_project)
       target_package = source_package = nil
       if not target_project and params[:newstate] == "accepted"
         render_error :status => 400, :errorcode => 'not_existing_target',
@@ -1126,11 +1126,11 @@ class RequestController < ApplicationController
         source_package = nil
         if [ "declined", "revoked", "superseded" ].include? params[:newstate]
           # relaxed access checks for getting rid of request
-          source_project = DbProject.find_by_name(action.source_project)
+          source_project = Project.find_by_name(action.source_project)
         else
           # full read access checks
-          source_project = DbProject.get_by_name(action.source_project)
-          target_project = DbProject.get_by_name(action.target_project)
+          source_project = Project.get_by_name(action.source_project)
+          target_project = Project.get_by_name(action.target_project)
           if action.action_type == :change_devel and action.target_package.nil?
             render_error :status => 403, :errorcode => "post_request_no_permission",
               :message => "Target package is missing in request #{req.id} (type #{action.action_type})"
@@ -1168,7 +1168,7 @@ class RequestController < ApplicationController
                   :message => "The target project is not of type maintenance but #{target_project.project_type}"
                 return
               end
-              tip = DbProject.get_by_name(action.target_project + ":" + params[:incident])
+              tip = Project.get_by_name(action.target_project + ":" + params[:incident])
               if tip.is_locked?
                 render_error :status => 403, :errorcode => "project_locked",
                   :message => "The target project is locked"
@@ -1200,9 +1200,9 @@ class RequestController < ApplicationController
             # write access check in release targets
             source_project.repositories.each do |repo|
               repo.release_targets.each do |releasetarget|
-                unless @http_user.can_modify_project? releasetarget.target_repository.db_project
+                unless @http_user.can_modify_project? releasetarget.target_repository.project
                   render_error :status => 403, :errorcode => "release_target_no_permission",
-                    :message => "Release target project #{releasetarget.target_repository.db_project.name} is not writable by you"
+                    :message => "Release target project #{releasetarget.target_repository.project.name} is not writable by you"
                   return
                 end
               end
@@ -1350,12 +1350,12 @@ class RequestController < ApplicationController
     incident_project = nil
     req.bs_request_actions.each do |action|
       if action.action_type == :maintenance_incident
-        tprj = DbProject.get_by_name action.target_project
+        tprj = Project.get_by_name action.target_project
 
         if params[:cmd] == "setincident"
           # use an existing incident
           if tprj.project_type.to_s == "maintenance"
-            tprj = DbProject.get_by_name(action.target_project + ":" + params[:incident])
+            tprj = Project.get_by_name(action.target_project + ":" + params[:incident])
             action.target_project = tprj.name
             action.save!
           end
@@ -1364,7 +1364,7 @@ class RequestController < ApplicationController
           if tprj.project_type.to_s == "maintenance"
             # create incident if it is a maintenance project
             unless incident_project
-              incident_project = create_new_maintenance_incident(tprj, nil, req ).db_project
+              incident_project = create_new_maintenance_incident(tprj, nil, req ).project
               check_for_patchinfo = true
             end
             unless incident_project.name.start_with?(tprj.name)
@@ -1379,7 +1379,7 @@ class RequestController < ApplicationController
       elsif action.action_type == :maintenance_release
         if params[:cmd] == "changestate" and params[:newstate] == "revoked"
           # unlock incident project in the soft way
-          prj = DbProject.get_by_name(action.source_project)
+          prj = Project.get_by_name(action.source_project)
           f = prj.flags.find_by_flag_and_status("lock", "enable")
           if f
             prj.flags.delete(f)
@@ -1426,7 +1426,7 @@ class RequestController < ApplicationController
       sourceupdate = action.sourceupdate
 
       if action.action_type == :set_bugowner
-          object = DbProject.find_by_name(action.target_project)
+          object = Project.find_by_name(action.target_project)
           bugowner = Role.get_by_title("bugowner")
           if action.target_package
              object = object.db_packages.find_by_name(action.target_package)
@@ -1441,7 +1441,7 @@ class RequestController < ApplicationController
           object.add_user( action.person_name, bugowner )
           object.store
       elsif action.action_type == :add_role
-          object = DbProject.find_by_name(action.target_project)
+          object = Project.find_by_name(action.target_project)
           if action.target_package
              object = object.db_packages.find_by_name(action.target_package)
           end
@@ -1455,7 +1455,7 @@ class RequestController < ApplicationController
           end
           object.store
       elsif action.action_type == :change_devel
-          target_project = DbProject.get_by_name(action.target_project)
+          target_project = Project.get_by_name(action.target_project)
           target_package = target_project.db_packages.find_by_name(action.target_package)
           target_package.develpackage = DbPackage.get_by_project_and_name(action.source_project, action.source_package)
           begin
@@ -1485,7 +1485,7 @@ class RequestController < ApplicationController
           end
 
           #create package unless it exists already
-          target_project = DbProject.get_by_name(action.target_project)
+          target_project = Project.get_by_name(action.target_project)
           if action.target_package
             target_package = target_project.db_packages.find_by_name(action.target_package)
           else
@@ -1521,7 +1521,7 @@ class RequestController < ApplicationController
 
             # check if package was available via project link and create a branch from it in that case
             if linked_package
-              Suse::Backend.post "/source/#{CGI.escape(action.target_project)}/#{CGI.escape(action.target_package)}?cmd=branch&noservice=1&oproject=#{CGI.escape(linked_package.db_project.name)}&opackage=#{CGI.escape(linked_package.name)}", nil
+              Suse::Backend.post "/source/#{CGI.escape(action.target_project)}/#{CGI.escape(action.target_package)}?cmd=branch&noservice=1&oproject=#{CGI.escape(linked_package.project.name)}&opackage=#{CGI.escape(linked_package.name)}", nil
             end
           end
 
@@ -1554,7 +1554,7 @@ class RequestController < ApplicationController
 
       elsif action.action_type == :delete
           if action.target_repository
-            prj = DbProject.get_by_name(action.target_project)
+            prj = Project.get_by_name(action.target_project)
             r=Repository.find_by_project_and_repo_name(action.target_project, action.target_repository)
             unless r
               render_error :status => 404, :errorcode => "repository_missing", :message => "The repository #{action.target_project} / #{action.target_repository} does not exist"
@@ -1568,7 +1568,7 @@ class RequestController < ApplicationController
               package.destroy
               delete_path = "/source/#{action.target_project}/#{action.target_package}"
             else
-              project = DbProject.get_by_name(action.target_project)
+              project = Project.get_by_name(action.target_project)
               project.destroy
               delete_path = "/source/#{action.target_project}"
             end
@@ -1582,10 +1582,10 @@ class RequestController < ApplicationController
         if action.source_package
           source = DbPackage.get_by_project_and_name(action.source_project, action.source_package)
         else
-          source = DbProject.get_by_name(action.source_project)
+          source = Project.get_by_name(action.source_project)
         end
 
-        incident_project = DbProject.get_by_name(action.target_project)
+        incident_project = Project.get_by_name(action.target_project)
 
         # the incident got created before
         merge_into_maintenance_incident(incident_project, source, action.target_releaseproject, req)
@@ -1603,7 +1603,7 @@ class RequestController < ApplicationController
       # general source cleanup, used in submit and maintenance_incident actions
       if sourceupdate == "cleanup"
         # cleanup source project
-        source_project = DbProject.find_by_name(action.source_project)
+        source_project = Project.find_by_name(action.source_project)
         delete_path = nil
         if source_project.db_packages.count == 1 or action.source_package.nil?
           # remove source project, if this is the only package and not the user's home project
@@ -1658,9 +1658,9 @@ class RequestController < ApplicationController
         # create patchinfo XML file
         node = Builder::XmlMarkup.new(:indent=>2)
         attrs = { }
-        if patchinfo.db_project.project_type.to_s == "maintenance_incident"
+        if patchinfo.project.project_type.to_s == "maintenance_incident"
           # this is a maintenance incident project, the sub project name is the maintenance ID
-          attrs[:incident] = patchinfo.db_project.name.gsub(/.*:/, '')
+          attrs[:incident] = patchinfo.project.name.gsub(/.*:/, '')
         end
         xml = node.patchinfo(attrs) do |n|
           node.packager    req.creator
@@ -1672,7 +1672,7 @@ class RequestController < ApplicationController
         data =ActiveXML::Base.new(node.target!)
         xml = update_patchinfo( data, patchinfo, true ) # update issues
         p={ :user => @http_user.login, :comment => "generated by request id #{req.id} accept call" }
-        patchinfo_path = "/source/#{CGI.escape(patchinfo.db_project.name)}/patchinfo/_patchinfo"
+        patchinfo_path = "/source/#{CGI.escape(patchinfo.project.name)}/patchinfo/_patchinfo"
         patchinfo_path << build_query_from_hash(p, [:user, :comment])
         backend_put( patchinfo_path, data.dump_xml )
         patchinfo.sources_changed

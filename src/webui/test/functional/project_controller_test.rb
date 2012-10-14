@@ -23,6 +23,9 @@ class ProjectControllerTest < ActionController::IntegrationTest
  
   def test_show
     visit "/project/show?project=Apache"
+    assert_equal 200, response.status
+    visit "/project/show?project=My:Maintenance"
+    assert_equal 200, response.status
   end
 
   def test_packages_empty

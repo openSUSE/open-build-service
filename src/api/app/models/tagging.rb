@@ -3,7 +3,7 @@ class Tagging < ActiveRecord::Base
 
   belongs_to :user
   belongs_to :tag
-  belongs_to :db_projects,  :class_name => "DbProject",
+  belongs_to :projects,  :class_name => "Project",
                             :foreign_key => "taggable_id"
   belongs_to :db_packages,  :class_name => "DbPackage",
                             :foreign_key => "taggable_id"

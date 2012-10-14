@@ -161,7 +161,7 @@ class BsRequest < ActiveRecord::Base
            pkg = DbPackage.find_by_project_and_name r.by_project, r.by_package
            return true if pkg and user.can_modify_package? pkg
         else
-           prj = DbProject.find_by_name r.by_project
+           prj = Project.find_by_name r.by_project
            return true if prj and user.can_modify_project? prj
         end
       end
@@ -438,7 +438,7 @@ class BsRequest < ActiveRecord::Base
 
         ## find request where user is maintainer in target package, except we have to project already
         user.involved_packages.each do |ip|
-          inner_or << "(bs_request_actions.target_project='#{ip.db_project.name}' and bs_request_actions.target_package='#{ip.name}')"
+          inner_or << "(bs_request_actions.target_project='#{ip.project.name}' and bs_request_actions.target_package='#{ip.name}')"
         end
       end
 
@@ -452,12 +452,12 @@ class BsRequest < ActiveRecord::Base
           or_in_and << "reviews.by_group in (#{usergroups.join(',')})" unless usergroups.blank?
 
           # find requests where user is maintainer in target project
-          userprojects = user.involved_projects.select("db_projects.name").map { |p| "'#{p.name}'" }
+          userprojects = user.involved_projects.select("projects.name").map { |p| "'#{p.name}'" }
           or_in_and << "reviews.by_project in (#{userprojects.join(',')})" unless userprojects.blank?
 
           ## find request where user is maintainer in target package, except we have to project already
-          user.involved_packages.select("name,db_project_id").includes(:db_project).each do |ip|
-            or_in_and << "(reviews.by_project='#{ip.db_project.name}' and reviews.by_package='#{ip.name}')"
+          user.involved_packages.select("name,db_project_id").includes(:project).each do |ip|
+            or_in_and << "(reviews.by_project='#{ip.project.name}' and reviews.by_package='#{ip.name}')"
           end
 
           inner_or << "(reviews.state='#{r}' and (#{or_in_and.join(" or ")}))"
@@ -480,7 +480,7 @@ class BsRequest < ActiveRecord::Base
 
         ## find request where group is maintainer in target package, except we have to project already
         group.involved_packages.each do |ip|
-          inner_or << "(bs_request_actions.target_project='#{ip.db_project.name}' and bs_request_actions.target_package='#{ip.name}')"
+          inner_or << "(bs_request_actions.target_project='#{ip.project.name}' and bs_request_actions.target_package='#{ip.name}')"
         end
       end
 
@@ -491,12 +491,12 @@ class BsRequest < ActiveRecord::Base
           or_in_and = [ "reviews.by_group='#{group.title}'" ]
 
           # find requests where group is maintainer in target project
-          groupprojects = group.involved_projects.select("db_projects.name").map { |p| "'#{p.name}'" }
+          groupprojects = group.involved_projects.select("projects.name").map { |p| "'#{p.name}'" }
           or_in_and << "reviews.by_project in (#{groupprojects.join(',')})" unless groupprojects.blank?
 
           ## find request where user is maintainer in target package, except we have to project already
-          group.involved_packages.select("name,db_project_id").includes(:db_project).each do |ip|
-            or_in_and << "(reviews.by_project='#{ip.db_project.name}' and reviews.by_package='#{ip.name}')"
+          group.involved_packages.select("name,db_project_id").includes(:project).each do |ip|
+            or_in_and << "(reviews.by_project='#{ip.project.name}' and reviews.by_package='#{ip.name}')"
           end
 
           inner_or << "(reviews.state='#{r}' and (#{or_in_and.join(" or ")}))"

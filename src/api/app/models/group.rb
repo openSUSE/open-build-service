@@ -86,7 +86,7 @@ class Group < ActiveRecord::Base
   
   def involved_projects
     # now filter the projects that are not visible
-    return DbProject.where(id: involved_projects_ids)
+    return Project.where(id: involved_projects_ids)
   end
 
   # lists packages maintained by this user and are not in maintained projects

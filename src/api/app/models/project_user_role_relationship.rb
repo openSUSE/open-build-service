@@ -1,9 +1,9 @@
 class ProjectUserRoleRelationship < ActiveRecord::Base
-  belongs_to :db_project
-  belongs_to :user, :foreign_key => 'bs_user_id'
+  belongs_to :project, foreign_key: :db_project_id
+  belongs_to :user, foreign_key: :bs_user_id
   belongs_to :role
 
-  attr_accessible :db_project, :user, :role
+  attr_accessible :project, :user, :role
 
   @@project_user_cache = nil
 
@@ -13,12 +13,12 @@ class ProjectUserRoleRelationship < ActiveRecord::Base
       errors.add(:user, "Can not assign role to nonexistent user")
     end
     
-    if ProjectUserRoleRelationship.where("db_project_id = ? AND role_id = ? AND bs_user_id = ?", self.db_project, self.role, self.user).first
+    if ProjectUserRoleRelationship.where("db_project_id = ? AND role_id = ? AND bs_user_id = ?", self.project, self.role, self.user).first
       errors.add(:role, "User already has this role")
     end
   end
 
-  # this is to speed up secure DbProject.find
+  # this is to speed up secure Project.find
   def self.forbidden_project_ids
     unless @@project_user_cache
       @@project_user_cache = Hash.new

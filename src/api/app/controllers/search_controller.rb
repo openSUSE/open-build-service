@@ -68,7 +68,7 @@ class SearchController < ApplicationController
     begin
       xe.find("/#{what}[#{predicate}]", params.slice(:sort_by, :order, :limit, :offset).merge({"render_all" => render_all})) do |item|
         matches = matches + 1
-        if item.kind_of? DbPackage or item.kind_of? DbProject
+        if item.kind_of? DbPackage or item.kind_of? Project
           # already checked in this case
         elsif item.kind_of? Repository
           # This returns nil if access is not allowed
@@ -115,7 +115,7 @@ class SearchController < ApplicationController
       render_error :status => 404, :message => "no such attribute"
       return
     end
-    project = DbProject.get_by_name(params[:project]) if params[:project]
+    project = Project.get_by_name(params[:project]) if params[:project]
     if params[:package]
       if params[:project]
          packages = DbPackage.get_by_project_and_name(params[:project], params[:package])
@@ -137,7 +137,7 @@ class SearchController < ApplicationController
       attribValues[v.attrib_id] ||= Array.new
       attribValues[v.attrib_id] << v
     end
-    packages = DbPackage.where("db_packages.id IN (?)", attribs.collect { |a| a.db_package_id }).includes(:db_project).all
+    packages = DbPackage.where("db_packages.id IN (?)", attribs.collect { |a| a.db_package_id }).includes(:project).all
     pack2attrib = Hash.new
     attribs.each do |a|
       if a.db_package_id
@@ -145,7 +145,7 @@ class SearchController < ApplicationController
       end
     end
     packages.sort! { |x,y| x.name <=> y.name }
-    projects = packages.collect { |p| p.db_project }.uniq
+    projects = packages.collect { |p| p.project }.uniq
     builder = Builder::XmlMarkup.new( :indent => 2 )
     xml = builder.attribute(:namespace => namespace, :name => name) do
       projects.each do |proj|

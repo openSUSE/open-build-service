@@ -3,11 +3,11 @@
 
 class Attrib < ActiveRecord::Base
   belongs_to :db_package
-  belongs_to :db_project
+  belongs_to :project, foreign_key: :db_project_id
   belongs_to :attrib_type
   has_many :values, :class_name => 'AttribValue', :order => :position, :dependent => :destroy
 
-  attr_accessible :attrib_type, :binary, :db_project 
+  attr_accessible :attrib_type, :binary, :project 
   scope :nobinary, where(:binary => nil)
 
   def cachekey

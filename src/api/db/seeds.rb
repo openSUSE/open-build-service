@@ -103,7 +103,7 @@ DbProjectType.find_or_create_by_name("maintenance_incident")
 DbProjectType.find_or_create_by_name("maintenance_release")
 
 # default repository to link when original one got removed
-d = DbProject.find_or_create_by_name("deleted")
+d = Project.find_or_create_by_name("deleted")
 d.repositories.create name: "deleted"
 
 # set default configuration settings

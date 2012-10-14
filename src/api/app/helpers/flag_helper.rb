@@ -127,9 +127,9 @@ module FlagHelper
     end
 
     if state == :default
-      if self.respond_to? 'db_project'
+      if self.respond_to? 'project'
         logger.debug "flagcheck: package has default state, checking project"
-        state = self.db_project.find_flag_state(flag_type, repo, arch)
+        state = self.project.find_flag_state(flag_type, repo, arch)
       else
         state = FlagHelper.default_for(flag_type)
       end

@@ -436,9 +436,9 @@ class ApplicationController < ActionController::API
       render_error :message => "Timeout during progress", :status => 504, :errorcode => "timeout"
     when DbPackage::SaveError
       render_error :message => "Error saving package: #{exception.message}", :errorcode => "package_save_error", :status => 400
-    when DbProject::SaveError
+    when Project::SaveError
       render_error :message => "Error saving project: #{exception.message}", :errorcode => "project_save_error", :status => 400
-    when DbProject::ForbiddenError
+    when Project::ForbiddenError
         render_error :status => 403, errorcode: exception.errorcode, message: exception.message
     when DbPackage::DeleteError
       render_error :status => 400, :message => exception.message, :errorcode => "delete_error"
@@ -459,15 +459,15 @@ class ApplicationController < ActionController::API
       render_error :status => 400, :message => exception.message, :errorcode => "missing_parameter"
     when InvalidParameterError
       render_error :status => 400, :message => exception.message, :errorcode => "invalid_parameter"
-    when DbProject::CycleError
+    when Project::CycleError
       render_error :status => 400, :message => exception.message, :errorcode => "project_cycle"
-    when DbProject::DeleteError
+    when Project::DeleteError
       render_error :status => 400, :message => exception.message, :errorcode => "delete_error"
     when IssueTracker::UnknownObjectError
       render_error :status => 400, :message => exception.message, :errorcode => "unknown_issue_tracker"
 
     # unknown objects and no read access permission are handled in the same way by default
-    when DbProject::ReadAccessError, DbProject::UnknownObjectError
+    when Project::ReadAccessError, Project::UnknownObjectError
       logger.error "ReadAccessError: #{exception.message}"
       if exception.message == ""
         render_error :status => 404, :errorcode => 'unknown_project',

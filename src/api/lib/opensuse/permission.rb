@@ -25,10 +25,10 @@ module Suse
 
       return true if @user.has_global_permission?( "global_project_change" )
 
-      if project.kind_of? DbProject
+      if project.kind_of? Project
         prj = project
       elsif project.kind_of? String
-        prj = DbProject.find_by_name( project )
+        prj = Project.find_by_name( project )
       end
 
       if prj.nil?
@@ -77,10 +77,10 @@ module Suse
       # Get DbPackage object
       if obj.kind_of? DbPackage
         prj = obj.db_project
-      elsif obj.kind_of? DbProject
+      elsif obj.kind_of? Project
         prj = obj
       elsif obj.kind_of? String
-        prj = DbProject.find_by_name( obj )
+        prj = Project.find_by_name( obj )
       else
         raise RuntimeError, "Unhandle object type"
       end

@@ -26,8 +26,8 @@ packs.each do |p|
   begin
     p.resolve_devel_package
   rescue DbPackage::CycleError => e
-    projects[p.db_project.name] ||= Array.new
-    projects[p.db_project.name] << e.message
+    projects[p.project.name] ||= Array.new
+    projects[p.project.name] << e.message
   end
 end
 
@@ -37,22 +37,22 @@ projects.keys.sort.each do |p|
   end
 end
 
-check_foreign_key("db_project_id", "db_packages", "db_projects", 1);
-check_foreign_key("develproject_id", "db_packages", "db_projects", 0);
+check_foreign_key("db_project_id", "db_packages", "projects", 1);
+check_foreign_key("develproject_id", "db_packages", "projects", 0);
 check_foreign_key("develpackage_id", "db_packages", "db_packages", 0);
 check_foreign_key("repository_id", "architectures_repositories", "repositories", 1)
 check_foreign_key("architecture_id", "architectures_repositories", "architectures", 1)
 
 check_foreign_key("bs_user_id", "watched_projects", "users", 1);
 
-check_foreign_key("db_project_id", "db_projects_tags", "db_projects", 1);
-check_foreign_key("tag_id", "db_projects_tags", "tags", 1);
+check_foreign_key("db_project_id", "projects_tags", "projects", 1);
+check_foreign_key("tag_id", "projects_tags", "tags", 1);
 
 check_foreign_key("attrib_type_id", "attribs", "attrib_types", 1);
 check_foreign_key("db_package_id", "attribs", "db_packages", 1);
-check_foreign_key("db_project_id", "attribs", "db_projects", 1);
+check_foreign_key("db_project_id", "attribs", "projects", 1);
 
-check_foreign_key("db_project_id", "flags", "db_projects", 1);
+check_foreign_key("db_project_id", "flags", "projects", 1);
 check_foreign_key("db_package_id", "flags", "db_packages", 1);
 check_foreign_key("architecture_id", "flags", "architectures", 1);
 
@@ -70,7 +70,7 @@ check_foreign_key("db_package_id", "package_user_role_relationships", "db_packag
 check_foreign_key("bs_user_id", "package_user_role_relationships", "users", 1);
 check_foreign_key("role_id", "package_user_role_relationships", "roles", 1);
 
-check_foreign_key("db_project_id", "project_user_role_relationships", "db_projects", 1);
+check_foreign_key("db_project_id", "project_user_role_relationships", "projects", 1);
 check_foreign_key("bs_user_id", "project_user_role_relationships", "users", 1);
 check_foreign_key("role_id", "project_user_role_relationships", "roles", 1);
 
@@ -79,7 +79,7 @@ check_foreign_key("repository_id", "path_elements", "repositories", 1);
 
 check_foreign_key("user_id", "ratings", "users", 1);
 
-check_foreign_key("db_project_id", "repositories", "db_projects", 1);
+check_foreign_key("db_project_id", "repositories", "projects", 1);
 
 check_foreign_key("parent_id", "roles", "roles", 1);
 

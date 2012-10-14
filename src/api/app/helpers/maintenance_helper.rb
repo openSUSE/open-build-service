@@ -4,7 +4,7 @@ module MaintenanceHelper
 
   def update_patchinfo(patchinfo, pkg, enfore_issue_update=false)
     # collect bugnumbers from diff
-    pkg.db_project.db_packages.each do |p|
+    pkg.project.db_packages.each do |p|
       # create diff per package
       next if p.db_package_kinds.find_by_kind 'patchinfo'
 
@@ -43,9 +43,9 @@ module MaintenanceHelper
   def create_new_maintenance_incident( maintenanceProject, baseProject = nil, request = nil, noaccess = false )
     mi = nil
     tprj = nil
-    DbProject.transaction do
+    Project.transaction do
       mi = MaintenanceIncident.new( :maintenance_db_project => maintenanceProject ) 
-      tprj = DbProject.new :name => mi.project_name
+      tprj = Project.new :name => mi.project_name
       if baseProject
         # copy as much as possible from base project
         tprj.title = baseProject.title.dup if baseProject.title
@@ -69,14 +69,14 @@ module MaintenanceHelper
         ProjectUserRoleRelationship.create(
               :user => r.user,
               :role => r.role,
-              :db_project => tprj
+              :project => tprj
             )
       end
       maintenanceProject.project_group_role_relationships.each do |r| 
         ProjectGroupRoleRelationship.create(
               :group => r.group,
               :role => r.role,
-              :db_project => tprj
+              :project => tprj
             )
       end
       # set default bugowner if missing
@@ -98,7 +98,7 @@ module MaintenanceHelper
     # copy all or selected packages and project source files from base project
     # we don't branch from it to keep the link target.
     packages = nil
-    if base.class == DbProject
+    if base.class == Project
       packages = base.db_packages
     else
       packages = [base]
@@ -110,9 +110,9 @@ module MaintenanceHelper
       new_pkg = nil
 
       # find link target
-      data = REXML::Document.new( backend_get("/source/#{CGI.escape(pkg.db_project.name)}/#{CGI.escape(pkg.name)}") )
+      data = REXML::Document.new( backend_get("/source/#{CGI.escape(pkg.project.name)}/#{CGI.escape(pkg.name)}") )
       e = data.elements["directory/linkinfo"]
-      if e and e.attributes["project"] == pkg.db_project.name
+      if e and e.attributes["project"] == pkg.project.name
         # local link, skip it, it will come via branch command
         next
       end
@@ -182,11 +182,11 @@ module MaintenanceHelper
       cp_params = {
         :cmd => "copy",
         :user => @http_user.login,
-        :oproject => pkg.db_project.name,
+        :oproject => pkg.project.name,
         :opackage => pkg.name,
         :keeplink => 1,
         :expand => 1,
-        :comment => "Maintenance incident copy from project " + pkg.db_project.name
+        :comment => "Maintenance incident copy from project " + pkg.project.name
       }
       cp_params[:requestid] = request.id if request
       cp_path = "/source/#{CGI.escape(incidentProject.name)}/#{CGI.escape(new_pkg.name)}"
@@ -202,7 +202,7 @@ module MaintenanceHelper
 
   def release_package(sourcePackage, targetProjectName, targetPackageName, revision, sourceRepository, releasetargetRepository, timestamp, request = nil)
 
-    targetProject = DbProject.get_by_name targetProjectName
+    targetProject = Project.get_by_name targetProjectName
 
     # create package container, if missing
     tpkg = nil
@@ -232,10 +232,10 @@ module MaintenanceHelper
     # detect local links
     link = nil
     begin
-      link = Suse::Backend.get "/source/#{URI.escape(sourcePackage.db_project.name)}/#{URI.escape(sourcePackage.name)}/_link"
+      link = Suse::Backend.get "/source/#{URI.escape(sourcePackage.project.name)}/#{URI.escape(sourcePackage.name)}/_link"
     rescue Suse::Backend::HTTPError
     end
-    if link and ret = ActiveXML::XMLNode.new(link.body) and (ret.project.nil? or ret.project == sourcePackage.db_project.name)
+    if link and ret = ActiveXML::XMLNode.new(link.body) and (ret.project.nil? or ret.project == sourcePackage.project.name)
       ret.delete_attribute('project') # its a local link, project name not needed
       ret.set_attribute('package', ret.package.gsub(/\..*/,'') + targetPackageName.gsub(/.*\./, '.')) # adapt link target with suffix
       link_xml = ret.dump_xml
@@ -260,9 +260,9 @@ module MaintenanceHelper
       cp_params = {
         :cmd => "copy",
         :user => @http_user.login,
-        :oproject => sourcePackage.db_project.name,
+        :oproject => sourcePackage.project.name,
         :opackage => sourcePackage.name,
-        :comment => "Release from #{sourcePackage.db_project.name} / #{sourcePackage.name}",
+        :comment => "Release from #{sourcePackage.project.name} / #{sourcePackage.name}",
         :expand => "1",
         :withvrev => "1",
         :noservice => "1",
@@ -276,21 +276,21 @@ module MaintenanceHelper
     end
 
     # copy binaries
-    sourcePackage.db_project.repositories.each do |sourceRepo|
+    sourcePackage.project.repositories.each do |sourceRepo|
       sourceRepo.release_targets.each do |releasetarget|
         #FIXME2.5: filter given release and/or target repos here
         sourceRepo.architectures.each do |arch|
-          if releasetarget.target_repository.db_project == targetProject
+          if releasetarget.target_repository.project == targetProject
             cp_params = {
               :cmd => "copy",
-              :oproject => sourcePackage.db_project.name,
+              :oproject => sourcePackage.project.name,
               :opackage => sourcePackage.name,
               :orepository => sourceRepo.name,
               :user => @http_user.login,
               :resign => "1",
             }
             cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
-            cp_path = "/build/#{CGI.escape(releasetarget.target_repository.db_project.name)}/#{URI.escape(releasetarget.target_repository.name)}/#{URI.escape(arch.name)}/#{URI.escape(targetPackageName)}"
+            cp_path = "/build/#{CGI.escape(releasetarget.target_repository.project.name)}/#{URI.escape(releasetarget.target_repository.name)}/#{URI.escape(arch.name)}/#{URI.escape(targetPackageName)}"
             cp_path << build_query_from_hash(cp_params, [:cmd, :oproject, :opackage, :orepository, :setupdateinfoid, :resign])
             Suse::Backend.post cp_path, nil
           end
@@ -299,7 +299,7 @@ module MaintenanceHelper
         if releasetarget.trigger == "maintenance"
           releasetarget.trigger = nil
           releasetarget.save!
-          sourceRepo.db_project.store
+          sourceRepo.project.store
         end
       end
     end
@@ -339,10 +339,10 @@ module MaintenanceHelper
     end
 
     # publish incident if source is read protect, but release target is not. assuming it got public now.
-    if f=sourcePackage.db_project.flags.find_by_flag_and_status( 'access', 'disable' )
+    if f=sourcePackage.project.flags.find_by_flag_and_status( 'access', 'disable' )
       unless targetProject.flags.find_by_flag_and_status( 'access', 'disable' )
-        sourcePackage.db_project.flags.delete(f)
-        sourcePackage.db_project.store({:comment => "project become public though release"})
+        sourcePackage.project.flags.delete(f)
+        sourcePackage.project.store({:comment => "project become public though release"})
         # patchinfos stay unpublished, it is anyway too late to test them now ...
       end
     end
@@ -422,15 +422,15 @@ module MaintenanceHelper
           if action.source_package
             pkg = DbPackage.get_by_project_and_name action.source_project, action.source_package
           elsif action.source_project
-            prj = DbProject.get_by_name action.source_project
+            prj = Project.get_by_name action.source_project
           end
         end
 
-        @packages.push({ :link_target_project => action.source_project, :package => pkg, :target_package => "#{pkg.name}.#{pkg.db_project.name}" })
+        @packages.push({ :link_target_project => action.source_project, :package => pkg, :target_package => "#{pkg.name}.#{pkg.project.name}" })
       end
     elsif params[:project] and params[:package]
       pkg = nil
-      prj = DbProject.get_by_name params[:project]
+      prj = Project.get_by_name params[:project]
       if params[:missingok]
         if DbPackage.exists_by_project_and_name(params[:project], params[:package], follow_project_links: true, allow_remote_packages: true)
           return { :status => 400, :errorcode => 'not_missing',
@@ -438,8 +438,8 @@ module MaintenanceHelper
         end
       else
         pkg = DbPackage.get_by_project_and_name params[:project], params[:package]
-        unless prj.class == DbProject and prj.find_attribute("OBS", "BranchTarget")
-          prj = pkg.db_project if pkg 
+        unless prj.class == Project and prj.find_attribute("OBS", "BranchTarget")
+          prj = pkg.project if pkg 
         end
       end
       tpkg_name = params[:target_package]
@@ -464,29 +464,29 @@ module MaintenanceHelper
       end
       if params[:value]
         DbPackage.find_by_attribute_type_and_value( at, params[:value], params[:package] ) do |p|
-          logger.info "Found package instance #{p.db_project.name}/#{p.name} for attribute #{at.name} with value #{params[:value]}"
-          @packages.push({ :base_project => p.db_project, :link_target_project => p.db_project, :package => p, :target_package => "#{p.name}.#{p.db_project.name}" })
+          logger.info "Found package instance #{p.project.name}/#{p.name} for attribute #{at.name} with value #{params[:value]}"
+          @packages.push({ :base_project => p.project, :link_target_project => p.project, :package => p, :target_package => "#{p.name}.#{p.project.name}" })
         end
         # FIXME: how to handle linked projects here ? shall we do at all or has the tagger (who creates the attribute) to create the package instance ?
       else
         # Find all direct instances of a package
         DbPackage.find_by_attribute_type( at, params[:package] ).each do |p|
-          logger.info "Found package instance #{p.db_project.name}/#{p.name} for attribute #{at.name} and given package name #{params[:package]}"
-          @packages.push({ :base_project => p.db_project, :link_target_project => p.db_project, :package => p, :target_package => "#{p.name}.#{p.db_project.name}" })
+          logger.info "Found package instance #{p.project.name}/#{p.name} for attribute #{at.name} and given package name #{params[:package]}"
+          @packages.push({ :base_project => p.project, :link_target_project => p.project, :package => p, :target_package => "#{p.name}.#{p.project.name}" })
         end
         # Find all indirect instance via project links
         if params[:package]
           packages = []
-          DbProject.find_by_attribute_type( at ).each do |p|
+          Project.find_by_attribute_type( at ).each do |p|
             # FIXME: this will not find packages on linked remote projects
             pkgs = p.find_package( params[:package] )
             packages << pkgs if pkgs
           end
           packages.each do |pkg2|
             unless @packages.map {|p| p[:package] }.include? pkg2 # avoid double instances
-              logger.info "Found package instance via project link in #{pkg2.db_project.name}/#{pkg2.name} for attribute #{at.name} and given package name #{params[:package]}"
-              ltprj = pkg2.db_project
-              @packages.push({ :base_project => pkg2.db_project, :link_target_project => ltprj, :package => pkg2, :target_package => "#{pkg2.name}.#{pkg2.db_project.name}" })
+              logger.info "Found package instance via project link in #{pkg2.project.name}/#{pkg2.name} for attribute #{at.name} and given package name #{params[:package]}"
+              ltprj = pkg2.project
+              @packages.push({ :base_project => pkg2.project, :link_target_project => ltprj, :package => pkg2, :target_package => "#{pkg2.name}.#{pkg2.project.name}" })
             end
           end
         end
@@ -501,7 +501,7 @@ module MaintenanceHelper
 #    logger.debug "XXXXXXX BEFORE"
 #    @packages.each do |p|
 #      if p[:package].class == DbPackage
-#        logger.debug "X #{p[:package].db_project.name} #{p[:package].name} will point to #{p[:link_target_project].name}"
+#        logger.debug "X #{p[:package].project.name} #{p[:package].name} will point to #{p[:link_target_project].name}"
 #      else
 #        logger.debug "X #{p[:package]} will point to #{p[:link_target_project].inspect}"
 #      end
@@ -511,16 +511,16 @@ module MaintenanceHelper
     # Just requests should be nearly the same
     unless params[:request]
       @packages.each do |p|
-        next unless p[:link_target_project].class == DbProject # only for local source projects
+        next unless p[:link_target_project].class == Project # only for local source projects
         if p[:package].class == DbPackage
-          logger.debug "Check DbPackage #{p[:package].db_project.name}/#{p[:package].name}"
+          logger.debug "Check DbPackage #{p[:package].project.name}/#{p[:package].name}"
         else
           logger.debug "Check package string #{p[:package]}"
         end
         pkg = p[:package]
         prj = p[:link_target_project]
         if pkg.class == DbPackage
-          prj = pkg.db_project
+          prj = pkg.project
           pkg_name = pkg.name
         else
           pkg_name = pkg
@@ -531,14 +531,14 @@ module MaintenanceHelper
           if pa = DbPackage.find_by_project_and_name( a.values[0].value, pkg_name )
             # We have a package in the update project already, take that
             p[:package] = pa
-            unless p[:link_target_project].class == DbProject and p[:link_target_project].find_attribute("OBS", "BranchTarget")
-              p[:link_target_project] = pa.db_project
-              logger.info "branch call found package in update project #{pa.db_project.name}"
+            unless p[:link_target_project].class == Project and p[:link_target_project].find_attribute("OBS", "BranchTarget")
+              p[:link_target_project] = pa.project
+              logger.info "branch call found package in update project #{pa.project.name}"
             end
           else
-            update_prj = DbProject.find_by_name( a.values[0].value )
+            update_prj = Project.find_by_name( a.values[0].value )
             if update_prj
-              unless p[:link_target_project].class == DbProject and p[:link_target_project].find_attribute("OBS", "BranchTarget")
+              unless p[:link_target_project].class == Project and p[:link_target_project].find_attribute("OBS", "BranchTarget")
                 p[:link_target_project] = update_prj
               end
               update_pkg = update_prj.find_package( pkg_name )
@@ -547,13 +547,13 @@ module MaintenanceHelper
                 if update_prj.develproject and up = update_prj.develproject.find_package(pkg.name)
                   # nevertheless, check if update project has a devel project which contains an instance
                   p[:package] = up
-                  unless p[:link_target_project].class == DbProject and p[:link_target_project].find_attribute("OBS", "BranchTarget")
-                    p[:link_target_project] = up.db_project unless copy_from_devel
+                  unless p[:link_target_project].class == Project and p[:link_target_project].find_attribute("OBS", "BranchTarget")
+                    p[:link_target_project] = up.project unless copy_from_devel
                   end
-                  logger.info "link target will create package in update project #{up.db_project.name} for #{prj.name}"
+                  logger.info "link target will create package in update project #{up.project.name} for #{prj.name}"
                 else
                   p[:package] = pkg
-                  logger.info "link target will use old update in update project #{pkg.db_project.name} for #{prj.name}"
+                  logger.info "link target will use old update in update project #{pkg.project.name} for #{prj.name}"
                 end
               else
                 # The defined update project can't reach the package instance at all.
@@ -580,12 +580,12 @@ module MaintenanceHelper
 
           if copy_from_devel and p[:package].class == DbPackage
             p[:copy_from_devel] = p[:package].resolve_devel_package
-            logger.info "sources will get copied from devel package #{p[:copy_from_devel].db_project.name}/#{p[:copy_from_devel].name}" unless p[:copy_from_devel] == p[:package]
+            logger.info "sources will get copied from devel package #{p[:copy_from_devel].project.name}/#{p[:copy_from_devel].name}" unless p[:copy_from_devel] == p[:package]
           end
 
           if (p[:copy_from_devel].nil? or p[:copy_from_devel] == p[:package]) \
              and p[:package].class == DbPackage \
-             and p[:link_target_project].class == DbProject and p[:link_target_project].project_type == "maintenance_release" \
+             and p[:link_target_project].class == Project and p[:link_target_project].project_type == "maintenance_release" \
              and mp = p[:link_target_project].maintenance_project
             # no defined devel area or no package inside, but we branch from a release are: check in open incidents
 
@@ -600,9 +600,9 @@ module MaintenanceHelper
                 logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes["project"]} / #{e.attributes["name"]}"
               else
                 # is incident ?
-                if ipkg.db_project.project_type == "maintenance_incident" 
+                if ipkg.project.project_type == "maintenance_incident" 
                   # is a newer incident ?
-                  if incident_pkg.nil? or ipkg.db_project.name.gsub(/.*:/,'').to_i > incident_pkg.db_project.name.gsub(/.*:/,'').to_i
+                  if incident_pkg.nil? or ipkg.project.name.gsub(/.*:/,'').to_i > incident_pkg.project.name.gsub(/.*:/,'').to_i
                     incident_pkg = ipkg
                   end
                 end
@@ -610,11 +610,11 @@ module MaintenanceHelper
             end  
             if incident_pkg
               p[:copy_from_devel] = incident_pkg
-              logger.info "sources will get copied from incident package #{p[:copy_from_devel].db_project.name}/#{p[:copy_from_devel].name}"
+              logger.info "sources will get copied from incident package #{p[:copy_from_devel].project.name}/#{p[:copy_from_devel].name}"
             end
-          elsif not copy_from_devel and p[:package].class == DbPackage and ( p[:package].develpackage or p[:package].db_project.develproject )
+          elsif not copy_from_devel and p[:package].class == DbPackage and ( p[:package].develpackage or p[:package].project.develproject )
             p[:package] = p[:package].resolve_devel_package
-            p[:link_target_project] = p[:package].db_project
+            p[:link_target_project] = p[:package].project
             p[:target_package] = p[:package].name
             p[:target_package] += ".#{p[:link_target_project].name}" if extend_names
             # user specified target name
@@ -652,10 +652,10 @@ module MaintenanceHelper
         pkg = p[:package]
         if pkg.db_package_kinds.find_by_kind 'link'
           # is the package itself a local link ?
-          link = backend_get "/source/#{p[:package].db_project.name}/#{p[:package].name}/_link"
+          link = backend_get "/source/#{p[:package].project.name}/#{p[:package].name}/_link"
           ret = ActiveXML::XMLNode.new(link)
-          if ret.project.nil? or ret.project == p[:package].db_project.name
-            pkg = DbPackage.get_by_project_and_name(p[:package].db_project.name, ret.package)
+          if ret.project.nil? or ret.project == p[:package].project.name
+            pkg = DbPackage.get_by_project_and_name(p[:package].project.name, ret.package)
           end
         end
 
@@ -676,7 +676,7 @@ module MaintenanceHelper
             found = true if ep[:package] == ap
           end
           unless found
-            logger.info "found local linked package in project #{p[:package].db_project.name}, adding it as well #{ap.name}"
+            logger.info "found local linked package in project #{p[:package].project.name}, adding it as well #{ap.name}"
             @packages.push({ :base_project => p[:base_project], :link_target_project => p[:link_target_project], :link_target_package => p[:package].name, :package => ap, :target_package => target_package, :local_link => 1 })
           end
         end
@@ -686,7 +686,7 @@ module MaintenanceHelper
 #    logger.debug "XXXXXXX AFTER"
 #    @packages.each do |p|
 #      if p[:package].class == DbPackage
-#        logger.debug "X #{p[:package].db_project.name} #{p[:package].name} will point to #{p[:link_target_project].name}"
+#        logger.debug "X #{p[:package].project.name} #{p[:package].name} will point to #{p[:link_target_project].name}"
 #      else
 #        logger.debug "X #{p[:package]} will point to #{p[:link_target_project].inspect}"
 #      end
@@ -722,7 +722,7 @@ module MaintenanceHelper
     end
 
     #create branch project
-    if DbProject.exists_by_name target_project
+    if Project.exists_by_name target_project
       if noaccess
         return { :status => 403, :errorcode => "create_project_no_permission",
           :message => "The destination project already exists, so the api can't make it not readable" }
@@ -741,8 +741,8 @@ module MaintenanceHelper
         description = "This project was created as a clone of request #{params[:request]}"
       end
       add_repositories = true # new projects shall get repositories
-      DbProject.transaction do
-        tprj = DbProject.new :name => target_project, :title => title, :description => description
+      Project.transaction do
+        tprj = Project.new :name => target_project, :title => title, :description => description
         tprj.add_user @http_user, "maintainer"
         tprj.flags.create( :flag => 'build', :status => "disable" ) if extend_names
         tprj.flags.create( :flag => 'access', :status => "disable" ) if noaccess
@@ -752,14 +752,14 @@ module MaintenanceHelper
         ans = AttribNamespace.find_by_name "OBS"
         at = ans.attrib_types.where(:name => "RequestCloned").first
 
-        tprj = DbProject.get_by_name target_project
-        a = Attrib.new(:db_project => tprj, :attrib_type => at)
+        tprj = Project.get_by_name target_project
+        a = Attrib.new(:project => tprj, :attrib_type => at)
         a.values << AttribValue.new(:value => params[:request], :position => 1)
         a.save
       end
     end
 
-    tprj = DbProject.get_by_name target_project
+    tprj = Project.get_by_name target_project
     unless @http_user.can_modify_project?(tprj)
       return { :status => 403, :errorcode => "modify_project_no_permission",
         :message => "no permission to modify project '#{target_project}' while executing branch project command" }
@@ -771,8 +771,8 @@ module MaintenanceHelper
     @packages.each do |p|
       pac = p[:package]
       if pac.class == DbPackage
-        prj = pac.db_project
-      elsif p[:link_target_project].class == DbProject
+        prj = pac.project
+      elsif p[:link_target_project].class == Project
         # new package for local project
         prj = p[:link_target_project]
       else
@@ -802,7 +802,7 @@ module MaintenanceHelper
       end
 
       # create repositories, if missing
-      if p[:link_target_project].class == DbProject
+      if p[:link_target_project].class == Project
         p[:link_target_project].repositories.each do |repo|
           repoName = repo.name
           if extend_names
@@ -847,20 +847,20 @@ module MaintenanceHelper
 
       if p[:local_link]
         # copy project local linked packages
-        Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=copy&oproject=#{CGI.escape(p[:link_target_project].name)}&opackage=#{CGI.escape(p[:package].name)}&user=#{CGI.escape(@http_user.login)}", nil
+        Suse::Backend.post "/source/#{tpkg.project.name}/#{tpkg.name}?cmd=copy&oproject=#{CGI.escape(p[:link_target_project].name)}&opackage=#{CGI.escape(p[:package].name)}&user=#{CGI.escape(@http_user.login)}", nil
         # and fix the link
-        link = backend_get "/source/#{tpkg.db_project.name}/#{tpkg.name}/_link"
+        link = backend_get "/source/#{tpkg.project.name}/#{tpkg.name}/_link"
         ret = ActiveXML::XMLNode.new(link)
         ret.delete_attribute('project') # its a local link, project name not needed
         linked_package = p[:link_target_package]
         linked_package = params[:target_package] if params[:target_package] and params[:package] == ret.package  # user enforce a rename of base package
         linked_package += "." + tpkg.name.gsub(/^[^\.]*\./,'') if extend_names
         ret.set_attribute('package', linked_package)
-        answer = Suse::Backend.put "/source/#{tpkg.db_project.name}/#{tpkg.name}/_link?user=#{CGI.escape(@http_user.login)}", ret.dump_xml
+        answer = Suse::Backend.put "/source/#{tpkg.project.name}/#{tpkg.name}/_link?user=#{CGI.escape(@http_user.login)}", ret.dump_xml
         tpkg.sources_changed
       else
-        path = "/source/#{URI.escape(tpkg.db_project.name)}/#{URI.escape(tpkg.name)}"
-        oproject = p[:link_target_project].class == DbProject ? p[:link_target_project].name : p[:link_target_project]
+        path = "/source/#{URI.escape(tpkg.project.name)}/#{URI.escape(tpkg.name)}"
+        oproject = p[:link_target_project].class == Project ? p[:link_target_project].name : p[:link_target_project]
         myparam = { :cmd => "branch",
                     :noservice => "1",
                     :oproject => oproject,
@@ -875,17 +875,17 @@ module MaintenanceHelper
         answer = Suse::Backend.post path, nil
         if response
           # multiple package transfers, just tell the target project
-          response = {:targetproject => tpkg.db_project.name}
+          response = {:targetproject => tpkg.project.name}
         else
           # just a single package transfer, detailed answer
-          response = {:targetproject => tpkg.db_project.name, :targetpackage => tpkg.name, :sourceproject => oproject, :sourcepackage => myparam[:opackage]}
+          response = {:targetproject => tpkg.project.name, :targetpackage => tpkg.name, :sourceproject => oproject, :sourcepackage => myparam[:opackage]}
         end
 
         # fetch newer sources from devel package, if defined
-        if p[:copy_from_devel] and p[:copy_from_devel].db_project != tpkg.db_project
-          msg="fetch+updates+from+devel+package+#{CGI.escape(p[:copy_from_devel].db_project.name)}/#{CGI.escape(p[:copy_from_devel].name)}"
-          msg="fetch+updates+from+open+incident+project+#{CGI.escape(p[:copy_from_devel].db_project.name)}" if p[:copy_from_devel].db_project.project_type == "maintenance_incident"
-          answer = Suse::Backend.post "/source/#{tpkg.db_project.name}/#{tpkg.name}?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(p[:copy_from_devel].db_project.name)}&opackage=#{CGI.escape(p[:copy_from_devel].name)}&user=#{CGI.escape(@http_user.login)}&comment=#{msg}", nil
+        if p[:copy_from_devel] and p[:copy_from_devel].project != tpkg.project
+          msg="fetch+updates+from+devel+package+#{CGI.escape(p[:copy_from_devel].project.name)}/#{CGI.escape(p[:copy_from_devel].name)}"
+          msg="fetch+updates+from+open+incident+project+#{CGI.escape(p[:copy_from_devel].project.name)}" if p[:copy_from_devel].project.project_type == "maintenance_incident"
+          answer = Suse::Backend.post "/source/#{tpkg.project.name}/#{tpkg.name}?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(p[:copy_from_devel].project.name)}&opackage=#{CGI.escape(p[:copy_from_devel].name)}&user=#{CGI.escape(@http_user.login)}&comment=#{msg}", nil
         end
 
         tpkg.sources_changed

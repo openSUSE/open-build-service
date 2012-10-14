@@ -13,7 +13,7 @@ xml.collection(:user => @user.login) do
        end
     when "package"
        @packages_tags.keys.each do |key| 
-          xml.package(:project => key.db_project.name , :name => key.name, :title => CGI::escapeHTML(key.title) ) {
+          xml.package(:project => key.project.name , :name => key.name, :title => CGI::escapeHTML(key.title) ) {
              @packages_tags[key].each do |tag|
               xml.tag(:name => CGI::escapeHTML(tag.name))
              end

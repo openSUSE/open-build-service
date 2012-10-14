@@ -6,13 +6,13 @@ xml.latest_updated do
     if item.instance_of? DbPackage
       xml.package(
         :name => item.name,
-        :project => item.db_project.name,
+        :project => item.project.name,
         :updated => item.updated_at.xmlschema
       )
     end
 
     ### item is a project
-    if item.instance_of? DbProject
+    if item.instance_of? Project
       xml.project(
         :name => item.name,
         :updated => item.updated_at.xmlschema
