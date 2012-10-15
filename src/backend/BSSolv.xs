@@ -69,6 +69,8 @@ myrepowritefilter(Repo *repo, Repokey *key, void *kfdata)
     return KEY_STORAGE_DROPPED;
   if (key->name == SOLVABLE_LICENSE)
     return KEY_STORAGE_DROPPED;
+  if (key->name == SOLVABLE_PKGID)
+    return KEY_STORAGE_INCORE;
   i = repo_write_stdkeyfilter(repo, key, kfdata);
   if (i == KEY_STORAGE_VERTICAL_OFFSET)
     return KEY_STORAGE_DROPPED;
@@ -294,7 +296,7 @@ expander_installed(Expander *xp, Id p, Map *installed, Map *conflicts, Queue *ou
 {
   Pool *pool = xp->pool;
   Solvable *s = pool->solvables + p;
-  Id req, id, *reqp;
+  Id req, id, *reqp, con, *conp;
   const char *n;
 
   MAPSET(installed, p);
@@ -354,10 +356,61 @@ expander_installed(Expander *xp, Id p, Map *installed, Map *conflicts, Queue *ou
 	  queue_push2(todo, req, p);
 	}
     }
+  if (s->conflicts)
+    {
+      conp = s->repo->idarraydata + s->conflicts;
+      while ((con = *conp++) != 0)
+	{
+	  Id p2, pp2;
+	  FOR_PROVIDES(p2, pp2, con)
+	    {
+	      if (p2 == p)
+		continue;
+	      MAPEXP(conflicts, pool->nsolvables);
+	      MAPSET(conflicts, p2);
+	    }
+	}
+    }
+  if (s->obsoletes)
+    {
+      conp = s->repo->idarraydata + s->obsoletes;
+      while ((con = *conp++) != 0)
+	{
+	  Id p2, pp2;
+	  FOR_PROVIDES(p2, pp2, con)
+	    {
+	      if (p2 == p || !pool_match_nevr(pool, pool->solvables + p2, con))
+		continue;
+	      MAPEXP(conflicts, pool->nsolvables);
+	      MAPSET(conflicts, p2);
+	    }
+	}
+    }
 }
 
-#define ERROR_NOPROVIDER 1
-#define ERROR_CHOICE	 2
+static inline int
+expander_checkconflicts(Pool *pool, Id p, Map *installed, Id *conflicts, int isobsoletes)
+{
+  Id con, p2, pp2;
+  
+  while ((con = *conflicts++) != 0)
+    {
+      FOR_PROVIDES(p2, pp2, con)
+	{
+	  if (p == p2)
+	    continue;
+	  if (isobsoletes && !pool_match_nevr(pool, pool->solvables + p2, con))
+	    continue;
+	  if (MAPTST(installed, p2))
+	    return 1;
+	}
+    }
+  return 0;
+}
+
+#define ERROR_NOPROVIDER		1
+#define ERROR_CHOICE			2
+#define ERROR_CONFLICTINGPROVIDER	3
 
 
 int
@@ -369,7 +422,7 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
   Map conflicts;
   Solvable *s;
   Id q, p, pp;
-  int i, j, nerrors, doamb, ambcnt;
+  int i, j, nerrors, doamb, ambcnt, conflprov;
   Id id, who, whon, pn;
 
   map_init(&installed, pool->nsolvables);
@@ -438,6 +491,7 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 // fflush(stdout);
       whon = pool->solvables[who].name;
       queue_empty(&qq);
+      conflprov = 0;
       FOR_PROVIDES(p, pp, id)
 	{
 	  Id pn;
@@ -453,14 +507,27 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 		break;
 	    }
 	  if (conflicts.size && MAPTST(&conflicts, p))
-	    continue;
+	    {
+	      conflprov = 1;
+	      continue;
+	    }
+	  if (pool->solvables[p].conflicts && expander_checkconflicts(pool, p, &installed, pool->solvables[p].repo->idarraydata + pool->solvables[p].conflicts, 0))
+	    {
+	      conflprov = 1;
+	      continue;
+	    }
+	  if (pool->solvables[p].obsoletes && expander_checkconflicts(pool, p, &installed, pool->solvables[p].repo->idarraydata + pool->solvables[p].obsoletes, 1))
+	    {
+	      conflprov = 1;
+	      continue;
+	    }
 	  queue_push(&qq, p);
 	}
       if (p)
 	continue;
       if (qq.count == 0)
 	{
-	  queue_push(&errors, ERROR_NOPROVIDER);
+	  queue_push(&errors, conflprov ? ERROR_CONFLICTINGPROVIDER : ERROR_NOPROVIDER);
 	  queue_push2(&errors, id, who);
 	  continue;
 	}
@@ -2218,6 +2285,16 @@ expand(BSSolv::expander xp, ...)
 		          sv = newSVpvf("nothing provides %s needed by %s", pool_dep2str(pool, id), pool_id2str(pool, pool->solvables[who].name));
 			else
 		          sv = newSVpvf("nothing provides %s", pool_dep2str(pool, id));
+			i += 3;
+		      }
+		    else if (type == ERROR_CONFLICTINGPROVIDER)
+		      {
+			id = out.elements[i + 1];
+			who = out.elements[i + 2];
+			if (who)
+		          sv = newSVpvf("conflict for all providers of %s needed by %s", pool_dep2str(pool, id), pool_id2str(pool, pool->solvables[who].name));
+			else
+		          sv = newSVpvf("conflict for all providers of %s", pool_dep2str(pool, id));
 			i += 3;
 		      }
 		    else if (type == ERROR_CHOICE)
