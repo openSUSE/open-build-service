@@ -4,11 +4,11 @@ module MaintenanceHelper
 
   def update_patchinfo(patchinfo, pkg, enfore_issue_update=false)
     # collect bugnumbers from diff
-    pkg.project.db_packages.each do |p|
+    pkg.project.packages.each do |p|
       # create diff per package
-      next if p.db_package_kinds.find_by_kind 'patchinfo'
+      next if p.package_kinds.find_by_kind 'patchinfo'
 
-      p.db_package_issues.each do |i|
+      p.package_issues.each do |i|
         if i.change == "added"
           unless patchinfo.has_element?("issue[(@id='#{i.issue.name}' and @tracker='#{i.issue.issue_tracker.name}')]")
             e = patchinfo.add_element "issue"
@@ -99,7 +99,7 @@ module MaintenanceHelper
     # we don't branch from it to keep the link target.
     packages = nil
     if base.class == Project
-      packages = base.db_packages
+      packages = base.packages
     else
       packages = [base]
     end
@@ -117,11 +117,11 @@ module MaintenanceHelper
         next
       end
       # patchinfos are handled as new packages
-      if pkg.db_package_kinds.find_by_kind 'patchinfo'
-        if DbPackage.exists_by_project_and_name(incidentProject.name, pkg.name, follow_project_links: false)
-          new_pkg = DbPackage.get_by_project_and_name(incidentProject.name, pkg.name, use_source: false, follow_project_links: false)
+      if pkg.package_kinds.find_by_kind 'patchinfo'
+        if Package.exists_by_project_and_name(incidentProject.name, pkg.name, follow_project_links: false)
+          new_pkg = Package.get_by_project_and_name(incidentProject.name, pkg.name, use_source: false, follow_project_links: false)
         else
-          new_pkg = incidentProject.db_packages.create(:name => pkg.name, :title => pkg.title, :description => pkg.description)
+          new_pkg = incidentProject.packages.create(:name => pkg.name, :title => pkg.title, :description => pkg.description)
           new_pkg.flags.create(:status => "enable", :flag => "build")
           new_pkg.flags.create(:status => "enable", :flag => "publish") unless incidentProject.flags.find_by_flag_and_status( 'access', 'disable' )
           new_pkg.store
@@ -142,11 +142,11 @@ module MaintenanceHelper
                           :project => releaseproject, :package => package_name }
         branch_params[:requestid] = request.id if request
         # it is fine to have new packages
-        unless DbPackage.exists_by_project_and_name(releaseproject, package_name, follow_project_links: true)
+        unless Package.exists_by_project_and_name(releaseproject, package_name, follow_project_links: true)
           branch_params[:missingok]= 1
         end
         ret = do_branch branch_params
-        new_pkg = DbPackage.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
+        new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
 
       # use link target as fallback
       elsif e and not e.attributes["missingok"]
@@ -160,16 +160,16 @@ module MaintenanceHelper
                           :project => linked_project, :package => linked_package }
         branch_params[:requestid] = request.id if request
         ret = do_branch branch_params
-        new_pkg = DbPackage.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
+        new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
       else
 
         # a new package for all targets
         if e and e.attributes["package"]
-          if DbPackage.exists_by_project_and_name(incidentProject.name, pkg.name, follow_project_links: false)
-            new_pkg = DbPackage.get_by_project_and_name(incidentProject.name, pkg.name, use_source: false, follow_project_links: false)
+          if Package.exists_by_project_and_name(incidentProject.name, pkg.name, follow_project_links: false)
+            new_pkg = Package.get_by_project_and_name(incidentProject.name, pkg.name, use_source: false, follow_project_links: false)
           else
-            new_pkg = DbPackage.new(:name => pkg.name, :title => pkg.title, :description => pkg.description)
-            incidentProject.db_packages << new_pkg
+            new_pkg = Package.new(:name => pkg.name, :title => pkg.title, :description => pkg.description)
+            incidentProject.packages << new_pkg
             new_pkg.store
           end
         else
@@ -206,12 +206,12 @@ module MaintenanceHelper
 
     # create package container, if missing
     tpkg = nil
-    if DbPackage.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links: false)
-      tpkg = DbPackage.get_by_project_and_name(targetProject.name, targetPackageName, use_source: false, follow_project_links: false)
+    if Package.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links: false)
+      tpkg = Package.get_by_project_and_name(targetProject.name, targetPackageName, use_source: false, follow_project_links: false)
     else
-      tpkg = DbPackage.new(:name => targetPackageName, :title => sourcePackage.title, :description => sourcePackage.description)
-      targetProject.db_packages << tpkg
-      if sourcePackage.db_package_kinds.find_by_kind 'patchinfo'
+      tpkg = Package.new(:name => targetPackageName, :title => sourcePackage.title, :description => sourcePackage.description)
+      targetProject.packages << tpkg
+      if sourcePackage.package_kinds.find_by_kind 'patchinfo'
         # publish patchinfos only
         tpkg.flags.create( :flag => 'publish', :status => "enable" )
       end
@@ -305,16 +305,16 @@ module MaintenanceHelper
     end
 
     # create or update main package linking to incident package
-    unless sourcePackage.db_package_kinds.find_by_kind 'patchinfo'
+    unless sourcePackage.package_kinds.find_by_kind 'patchinfo'
       basePackageName = targetPackageName.gsub(/\.[^\.]*$/, '')
 
       # only if package does not contain a _patchinfo file
       lpkg = nil
-      if DbPackage.exists_by_project_and_name(targetProject.name, basePackageName, follow_project_links: false)
-        lpkg = DbPackage.get_by_project_and_name(targetProject.name, basePackageName, use_source: false, follow_project_links: false)
+      if Package.exists_by_project_and_name(targetProject.name, basePackageName, follow_project_links: false)
+        lpkg = Package.get_by_project_and_name(targetProject.name, basePackageName, use_source: false, follow_project_links: false)
       else
-        lpkg = DbPackage.new(:name => basePackageName, :title => sourcePackage.title, :description => sourcePackage.description)
-        targetProject.db_packages << lpkg
+        lpkg = Package.new(:name => basePackageName, :title => sourcePackage.title, :description => sourcePackage.description)
+        targetProject.packages << lpkg
         lpkg.store
       end
       upload_params = {
@@ -420,7 +420,7 @@ module MaintenanceHelper
         pkg=nil
         if action.source_project || action.source_package
           if action.source_package
-            pkg = DbPackage.get_by_project_and_name action.source_project, action.source_package
+            pkg = Package.get_by_project_and_name action.source_project, action.source_package
           elsif action.source_project
             prj = Project.get_by_name action.source_project
           end
@@ -432,12 +432,12 @@ module MaintenanceHelper
       pkg = nil
       prj = Project.get_by_name params[:project]
       if params[:missingok]
-        if DbPackage.exists_by_project_and_name(params[:project], params[:package], follow_project_links: true, allow_remote_packages: true)
+        if Package.exists_by_project_and_name(params[:project], params[:package], follow_project_links: true, allow_remote_packages: true)
           return { :status => 400, :errorcode => 'not_missing',
             :message => "Branch call with missingok paramater but branch source (#{params[:project]}/#{params[:package]}) exists." }
         end
       else
-        pkg = DbPackage.get_by_project_and_name params[:project], params[:package]
+        pkg = Package.get_by_project_and_name params[:project], params[:package]
         unless prj.class == Project and prj.find_attribute("OBS", "BranchTarget")
           prj = pkg.project if pkg 
         end
@@ -463,14 +463,14 @@ module MaintenanceHelper
           :message => "The given attribute #{params[:attribute]} does not exist" }
       end
       if params[:value]
-        DbPackage.find_by_attribute_type_and_value( at, params[:value], params[:package] ) do |p|
+        Package.find_by_attribute_type_and_value( at, params[:value], params[:package] ) do |p|
           logger.info "Found package instance #{p.project.name}/#{p.name} for attribute #{at.name} with value #{params[:value]}"
           @packages.push({ :base_project => p.project, :link_target_project => p.project, :package => p, :target_package => "#{p.name}.#{p.project.name}" })
         end
         # FIXME: how to handle linked projects here ? shall we do at all or has the tagger (who creates the attribute) to create the package instance ?
       else
         # Find all direct instances of a package
-        DbPackage.find_by_attribute_type( at, params[:package] ).each do |p|
+        Package.find_by_attribute_type( at, params[:package] ).each do |p|
           logger.info "Found package instance #{p.project.name}/#{p.name} for attribute #{at.name} and given package name #{params[:package]}"
           @packages.push({ :base_project => p.project, :link_target_project => p.project, :package => p, :target_package => "#{p.name}.#{p.project.name}" })
         end
@@ -500,7 +500,7 @@ module MaintenanceHelper
 
 #    logger.debug "XXXXXXX BEFORE"
 #    @packages.each do |p|
-#      if p[:package].class == DbPackage
+#      if p[:package].class == Package
 #        logger.debug "X #{p[:package].project.name} #{p[:package].name} will point to #{p[:link_target_project].name}"
 #      else
 #        logger.debug "X #{p[:package]} will point to #{p[:link_target_project].inspect}"
@@ -512,14 +512,14 @@ module MaintenanceHelper
     unless params[:request]
       @packages.each do |p|
         next unless p[:link_target_project].class == Project # only for local source projects
-        if p[:package].class == DbPackage
-          logger.debug "Check DbPackage #{p[:package].project.name}/#{p[:package].name}"
+        if p[:package].class == Package
+          logger.debug "Check Package #{p[:package].project.name}/#{p[:package].name}"
         else
           logger.debug "Check package string #{p[:package]}"
         end
         pkg = p[:package]
         prj = p[:link_target_project]
-        if pkg.class == DbPackage
+        if pkg.class == Package
           prj = pkg.project
           pkg_name = pkg.name
         else
@@ -528,7 +528,7 @@ module MaintenanceHelper
 
         # Check for defined update project
         if prj and a = prj.find_attribute(update_project_at[0], update_project_at[1]) and a.values[0]
-          if pa = DbPackage.find_by_project_and_name( a.values[0].value, pkg_name )
+          if pa = Package.find_by_project_and_name( a.values[0].value, pkg_name )
             # We have a package in the update project already, take that
             p[:package] = pa
             unless p[:link_target_project].class == Project and p[:link_target_project].find_attribute("OBS", "BranchTarget")
@@ -559,7 +559,7 @@ module MaintenanceHelper
                 # The defined update project can't reach the package instance at all.
                 # So we need to create a new package and copy sources
                 params[:missingok] = 1 # implicit missingok or better report an error ?
-                p[:copy_from_devel] = p[:package] if p[:package].class == DbPackage
+                p[:copy_from_devel] = p[:package] if p[:package].class == Package
                 p[:package] = pkg_name
               end
             end
@@ -568,7 +568,7 @@ module MaintenanceHelper
           # not yet existing target package
           p[:target_package] = p[:package]
           # existing target
-          p[:target_package] = "#{p[:package].name}" if p[:package].class == DbPackage
+          p[:target_package] = "#{p[:package].name}" if p[:package].class == Package
           # user specified target name
           p[:target_package] = params[:target_package] if params[:target_package]
           # extend parameter given
@@ -578,13 +578,13 @@ module MaintenanceHelper
         # validate and resolve devel package or devel project definitions
         unless params[:ignoredevel] or p[:copy_from_devel]
 
-          if copy_from_devel and p[:package].class == DbPackage
+          if copy_from_devel and p[:package].class == Package
             p[:copy_from_devel] = p[:package].resolve_devel_package
             logger.info "sources will get copied from devel package #{p[:copy_from_devel].project.name}/#{p[:copy_from_devel].name}" unless p[:copy_from_devel] == p[:package]
           end
 
           if (p[:copy_from_devel].nil? or p[:copy_from_devel] == p[:package]) \
-             and p[:package].class == DbPackage \
+             and p[:package].class == Package \
              and p[:link_target_project].class == Project and p[:link_target_project].project_type == "maintenance_release" \
              and mp = p[:link_target_project].maintenance_project
             # no defined devel area or no package inside, but we branch from a release are: check in open incidents
@@ -595,7 +595,7 @@ module MaintenanceHelper
             data = REXML::Document.new(answer.body)
             incident_pkg = nil
             data.elements.each("collection/package") do |e|
-              ipkg = DbPackage.find_by_project_and_name( e.attributes["project"], e.attributes["name"] )
+              ipkg = Package.find_by_project_and_name( e.attributes["project"], e.attributes["name"] )
               if ipkg.nil?
                 logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes["project"]} / #{e.attributes["name"]}"
               else
@@ -612,7 +612,7 @@ module MaintenanceHelper
               p[:copy_from_devel] = incident_pkg
               logger.info "sources will get copied from incident package #{p[:copy_from_devel].project.name}/#{p[:copy_from_devel].name}"
             end
-          elsif not copy_from_devel and p[:package].class == DbPackage and ( p[:package].develpackage or p[:package].project.develproject )
+          elsif not copy_from_devel and p[:package].class == Package and ( p[:package].develpackage or p[:package].project.develproject )
             p[:package] = p[:package].resolve_devel_package
             p[:link_target_project] = p[:package].project
             p[:target_package] = p[:package].name
@@ -647,15 +647,15 @@ module MaintenanceHelper
 
       # add packages which link them in the same project to support build of source with multiple build descriptions
       @packages.each do |p|
-        next unless p[:package].class == DbPackage # only for local packages
+        next unless p[:package].class == Package # only for local packages
 
         pkg = p[:package]
-        if pkg.db_package_kinds.find_by_kind 'link'
+        if pkg.package_kinds.find_by_kind 'link'
           # is the package itself a local link ?
           link = backend_get "/source/#{p[:package].project.name}/#{p[:package].name}/_link"
           ret = ActiveXML::XMLNode.new(link)
           if ret.project.nil? or ret.project == p[:package].project.name
-            pkg = DbPackage.get_by_project_and_name(p[:package].project.name, ret.package)
+            pkg = Package.get_by_project_and_name(p[:package].project.name, ret.package)
           end
         end
 
@@ -685,7 +685,7 @@ module MaintenanceHelper
 
 #    logger.debug "XXXXXXX AFTER"
 #    @packages.each do |p|
-#      if p[:package].class == DbPackage
+#      if p[:package].class == Package
 #        logger.debug "X #{p[:package].project.name} #{p[:package].name} will point to #{p[:link_target_project].name}"
 #      else
 #        logger.debug "X #{p[:package]} will point to #{p[:link_target_project].inspect}"
@@ -707,7 +707,7 @@ module MaintenanceHelper
       builder = Builder::XmlMarkup.new( :indent => 2 )
       xml = builder.collection() do
         @packages.each do |p|
-          if p[:package].class == DbPackage
+          if p[:package].class == Package
             builder.package(:project => p[:link_target_project].name, :package => p[:package].name) do
               builder.target(:project => target_project, :package => p[:target_package])
             end
@@ -770,7 +770,7 @@ module MaintenanceHelper
     response = nil
     @packages.each do |p|
       pac = p[:package]
-      if pac.class == DbPackage
+      if pac.class == Package
         prj = pac.project
       elsif p[:link_target_project].class == Project
         # new package for local project
@@ -787,18 +787,18 @@ module MaintenanceHelper
 
       # create branch package
       # no find_package call here to check really this project only
-      if tpkg = tprj.db_packages.find_by_name(pack_name)
+      if tpkg = tprj.packages.find_by_name(pack_name)
         unless params[:force]
           return { :status => 400, :errorcode => "double_branch_package",
             :message => "branch target package already exists: #{tprj.name}/#{tpkg.name}" }
         end
       else
-        if pac.class == DbPackage
-          tpkg = tprj.db_packages.new(:name => pack_name, :title => pac.title, :description => pac.description)
+        if pac.class == Package
+          tpkg = tprj.packages.new(:name => pack_name, :title => pac.title, :description => pac.description)
         else
-          tpkg = tprj.db_packages.new(:name => pack_name)
+          tpkg = tprj.packages.new(:name => pack_name)
         end
-        tprj.db_packages << tpkg
+        tprj.packages << tpkg
       end
 
       # create repositories, if missing
@@ -867,7 +867,7 @@ module MaintenanceHelper
                     :opackage => p[:package],
                     :user => @http_user.login,
                   }
-        myparam[:opackage] = p[:package].name if p[:package].class == DbPackage
+        myparam[:opackage] = p[:package].name if p[:package].class == Package
         myparam[:orev] = p[:rev] if p[:rev] and not p[:rev].empty?
         myparam[:missingok] = "1" if params[:missingok]
         path << build_query_from_hash(myparam, [:cmd, :oproject, :opackage, :user, :comment, :orev, :missingok])

@@ -6,7 +6,7 @@ class IssueTest < ActiveSupport::TestCase
   fixtures :issue_trackers
 
   def test_create_and_destroy
-    #pkg = DbPackage.find( 10095 )
+    #pkg = Package.find( 10095 )
     iggy = User.find_by_email("Iggy@pop.org")
     bnc = IssueTracker.find_by_name("bnc")
     issue = Issue.create :name => '0815', :issue_tracker => bnc

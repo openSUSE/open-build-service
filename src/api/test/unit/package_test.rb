@@ -1,10 +1,10 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class DbPackageTest < ActiveSupport::TestCase
+class PackageTest < ActiveSupport::TestCase
   fixtures :all
 
   def setup
-    @package = DbPackage.find( 10095 )
+    @package = Package.find( 10095 )
   end
   
   def test_flags_to_axml
@@ -68,7 +68,7 @@ class DbPackageTest < ActiveSupport::TestCase
     assert_equal 'i586', @package.type_flags('build')[0].architecture.name
     assert_equal 1, @package.type_flags('build')[0].position
     assert_nil @package.type_flags('build')[0].project
-    assert_equal 'TestPack', @package.type_flags('build')[0].db_package.name
+    assert_equal 'TestPack', @package.type_flags('build')[0].package.name
     assert_equal true, @package.enabled_for?('build', '10.2', 'i586')
     assert_equal false, @package.disabled_for?('build', '10.2', 'i586')
     
@@ -78,7 +78,7 @@ class DbPackageTest < ActiveSupport::TestCase
     assert_equal 'x86_64', @package.type_flags('publish')[0].architecture.name
     assert_equal 2, @package.type_flags('publish')[0].position
     assert_nil @package.type_flags('publish')[0].project    
-    assert_equal 'TestPack', @package.type_flags('publish')[0].db_package.name    
+    assert_equal 'TestPack', @package.type_flags('publish')[0].package.name    
     
     assert_equal 1, @package.type_flags('debuginfo').size
     assert_equal 'disable', @package.type_flags('debuginfo')[0].status
@@ -86,7 +86,7 @@ class DbPackageTest < ActiveSupport::TestCase
     assert_equal 'i586', @package.type_flags('debuginfo')[0].architecture.name
     assert_equal 3, @package.type_flags('debuginfo')[0].position
     assert_nil @package.type_flags('debuginfo')[0].project
-    assert_equal 'TestPack', @package.type_flags('debuginfo')[0].db_package.name        
+    assert_equal 'TestPack', @package.type_flags('debuginfo')[0].package.name        
     
   end
   
@@ -117,7 +117,7 @@ class DbPackageTest < ActiveSupport::TestCase
   end
 
   def test_render
-     xml = db_packages(:kdelibs).render_axml
+     xml = packages(:kdelibs).render_axml
      assert_equal Xmlhash.parse(xml), {"name"=>"kdelibs", 
 	     "project"=>"kde4", "title"=>"blub", "description"=>"blub", 
 	     "devel"=>{"project"=>"home:coolo:test", "package"=>"kdelibs_DEVEL_package"}, 
@@ -125,13 +125,13 @@ class DbPackageTest < ActiveSupport::TestCase
   end
 
   def test_can_be_deleted
-    assert !db_packages(:kdelibs).can_be_deleted?
+    assert !packages(:kdelibs).can_be_deleted?
   end
 
   def test_store
     orig = Xmlhash.parse(@package.to_axml)
 
-    assert_raise DbPackage::SaveError do
+    assert_raise Package::SaveError do
       @package.update_from_xml(Xmlhash.parse(
         "<package name='TestPack' project='home:Iggy'>
         <title>My Test package</title>
@@ -139,7 +139,7 @@ class DbPackageTest < ActiveSupport::TestCase
         <devel project='Notexistant'/>
       </package>"))
     end
-    assert_raise DbPackage::SaveError do
+    assert_raise Package::SaveError do
       @package.update_from_xml(Xmlhash.parse(
         "<package name='TestPack' project='home:Iggy'>
 	   <title>My Test package</title>
@@ -157,7 +157,7 @@ class DbPackageTest < ActiveSupport::TestCase
         </package>"))
     end
 
-    assert_raise DbPackage::SaveError do
+    assert_raise Package::SaveError do
       @package.update_from_xml(Xmlhash.parse(
          "<package name='TestBack' project='home:Iggy'>
                               <title>My Test package</title>
@@ -181,7 +181,7 @@ class DbPackageTest < ActiveSupport::TestCase
     @package.add_user('tom', 'maintainer')
     @package.update_from_xml(Xmlhash.parse(orig))
 
-    assert_raise DbPackage::SaveError do
+    assert_raise Package::SaveError do
       @package.add_user('tom', 'Admin')
     end
     assert_equal orig, @package.to_axml

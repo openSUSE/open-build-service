@@ -20,11 +20,11 @@ class UserTest < ActiveSupport::TestCase
 
   def test_access
     assert @user.has_local_permission? 'change_project', @project
-    assert @user.has_local_permission? 'change_package', db_packages( :TestPack )
+    assert @user.has_local_permission? 'change_package', packages( :TestPack )
     
     m = Role.find_by_title("maintainer")
     assert @user.has_local_role?(m, @project )
-    assert @user.has_local_role?(m, db_packages( :TestPack ) )
+    assert @user.has_local_role?(m, packages( :TestPack ) )
 
     b = Role.find_by_title "bugowner"
     assert !@user.has_local_role?(b, @project )
@@ -32,13 +32,13 @@ class UserTest < ActiveSupport::TestCase
 
     user = users(:adrian)
     assert !user.has_local_role?(m, @project )
-    assert !user.has_local_role?(m, db_packages( :TestPack ) )
+    assert !user.has_local_role?(m, packages( :TestPack ) )
     assert user.has_local_role?(m, projects( :kde4 ))
-    assert user.has_local_role?(m, db_packages( :kdelibs ))
+    assert user.has_local_role?(m, packages( :kdelibs ))
 
     tom = users( :tom )
     assert !tom.has_local_permission?('change_project', projects( :kde4 ))
-    assert !tom.has_local_permission?('change_package', db_packages( :kdelibs ))
+    assert !tom.has_local_permission?('change_package', packages( :kdelibs ))
   end 
 
   def test_group
@@ -69,7 +69,7 @@ class UserTest < ActiveSupport::TestCase
     
     user = users( :tom )
     assert !user.has_local_permission?('change_project', projects( :kde4) )
-    assert !user.has_local_permission?('change_package', db_packages( :kdelibs ))
+    assert !user.has_local_permission?('change_package', packages( :kdelibs ))
 
     CONFIG['ldap_mode'], CONFIG['ldap_group_support'] = ldm, lgs
   end

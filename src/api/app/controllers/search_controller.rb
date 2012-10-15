@@ -68,7 +68,7 @@ class SearchController < ApplicationController
     begin
       xe.find("/#{what}[#{predicate}]", params.slice(:sort_by, :order, :limit, :offset).merge({"render_all" => render_all})) do |item|
         matches = matches + 1
-        if item.kind_of? DbPackage or item.kind_of? Project
+        if item.kind_of? Package or item.kind_of? Project
           # already checked in this case
         elsif item.kind_of? Repository
           # This returns nil if access is not allowed
@@ -118,12 +118,12 @@ class SearchController < ApplicationController
     project = Project.get_by_name(params[:project]) if params[:project]
     if params[:package]
       if params[:project]
-         packages = DbPackage.get_by_project_and_name(params[:project], params[:package])
+         packages = Package.get_by_project_and_name(params[:project], params[:package])
       else
-         packages = DbPackage.where(name: params[:package]).all
+         packages = Package.where(name: params[:package]).all
       end
     elsif project
-      packages = project.db_packages
+      packages = project.packages
     end
 
     if packages
@@ -137,7 +137,7 @@ class SearchController < ApplicationController
       attribValues[v.attrib_id] ||= Array.new
       attribValues[v.attrib_id] << v
     end
-    packages = DbPackage.where("db_packages.id IN (?)", attribs.collect { |a| a.db_package_id }).includes(:project).all
+    packages = Package.where("packages.id IN (?)", attribs.collect { |a| a.db_package_id }).includes(:project).all
     pack2attrib = Hash.new
     attribs.each do |a|
       if a.db_package_id

@@ -5,6 +5,6 @@ class Tagging < ActiveRecord::Base
   belongs_to :tag
   belongs_to :projects,  :class_name => "Project",
                             :foreign_key => "taggable_id"
-  belongs_to :db_packages,  :class_name => "DbPackage",
+  belongs_to :packages,  :class_name => "Package",
                             :foreign_key => "taggable_id"
 end

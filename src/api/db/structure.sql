@@ -95,7 +95,7 @@ CREATE TABLE `attribs` (
   KEY `db_package_id` (`db_package_id`),
   KEY `db_project_id` (`db_project_id`),
   CONSTRAINT `attribs_ibfk_1` FOREIGN KEY (`attrib_type_id`) REFERENCES `attrib_types` (`id`),
-  CONSTRAINT `attribs_ibfk_2` FOREIGN KEY (`db_package_id`) REFERENCES `db_packages` (`id`),
+  CONSTRAINT `attribs_ibfk_2` FOREIGN KEY (`db_package_id`) REFERENCES `packages` (`id`),
   CONSTRAINT `attribs_ibfk_3` FOREIGN KEY (`db_project_id`) REFERENCES `projects` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -179,50 +179,6 @@ CREATE TABLE `configurations` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-CREATE TABLE `db_package_issues` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `db_package_id` int(11) NOT NULL,
-  `issue_id` int(11) NOT NULL,
-  `change` enum('added','deleted','changed','kept') DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `index_db_package_issues_on_db_package_id` (`db_package_id`),
-  KEY `index_db_package_issues_on_issue_id` (`issue_id`),
-  KEY `index_db_package_issues_on_db_package_id_and_issue_id` (`db_package_id`,`issue_id`),
-  CONSTRAINT `db_package_issues_ibfk_1` FOREIGN KEY (`db_package_id`) REFERENCES `db_packages` (`id`),
-  CONSTRAINT `db_package_issues_ibfk_2` FOREIGN KEY (`issue_id`) REFERENCES `issues` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `db_package_kinds` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `db_package_id` int(11) DEFAULT NULL,
-  `kind` enum('patchinfo','aggregate','link') NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `db_package_id` (`db_package_id`),
-  CONSTRAINT `db_package_kinds_ibfk_1` FOREIGN KEY (`db_package_id`) REFERENCES `db_packages` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `db_packages` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `db_project_id` int(11) NOT NULL,
-  `name` tinyblob NOT NULL,
-  `title` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `description` text CHARACTER SET utf8,
-  `created_at` datetime DEFAULT '0000-00-00 00:00:00',
-  `updated_at` datetime DEFAULT '0000-00-00 00:00:00',
-  `url` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `update_counter` int(11) DEFAULT '0',
-  `activity_index` float DEFAULT '100',
-  `bcntsynctag` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `develpackage_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `packages_all_index` (`db_project_id`,`name`(255)),
-  KEY `devel_package_id_index` (`develpackage_id`),
-  KEY `index_db_packages_on_db_project_id` (`db_project_id`),
-  KEY `updated_at_index` (`updated_at`),
-  CONSTRAINT `db_packages_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `projects` (`id`),
-  CONSTRAINT `db_packages_ibfk_3` FOREIGN KEY (`develpackage_id`) REFERENCES `db_packages` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
 CREATE TABLE `db_project_types` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) CHARACTER SET utf8 NOT NULL,
@@ -279,7 +235,7 @@ CREATE TABLE `flags` (
   KEY `index_flags_on_flag` (`flag`),
   KEY `architecture_id` (`architecture_id`),
   CONSTRAINT `flags_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `projects` (`id`),
-  CONSTRAINT `flags_ibfk_2` FOREIGN KEY (`db_package_id`) REFERENCES `db_packages` (`id`),
+  CONSTRAINT `flags_ibfk_2` FOREIGN KEY (`db_package_id`) REFERENCES `packages` (`id`),
   CONSTRAINT `flags_ibfk_3` FOREIGN KEY (`architecture_id`) REFERENCES `architectures` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -401,6 +357,28 @@ CREATE TABLE `package_group_role_relationships` (
   UNIQUE KEY `package_group_role_all_index` (`db_package_id`,`bs_group_id`,`role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `package_issues` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `db_package_id` int(11) NOT NULL,
+  `issue_id` int(11) NOT NULL,
+  `change` enum('added','deleted','changed','kept') DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_db_package_issues_on_db_package_id` (`db_package_id`),
+  KEY `index_db_package_issues_on_issue_id` (`issue_id`),
+  KEY `index_db_package_issues_on_db_package_id_and_issue_id` (`db_package_id`,`issue_id`),
+  CONSTRAINT `package_issues_ibfk_1` FOREIGN KEY (`db_package_id`) REFERENCES `packages` (`id`),
+  CONSTRAINT `package_issues_ibfk_2` FOREIGN KEY (`issue_id`) REFERENCES `issues` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `package_kinds` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `db_package_id` int(11) DEFAULT NULL,
+  `kind` enum('patchinfo','aggregate','link') NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `db_package_id` (`db_package_id`),
+  CONSTRAINT `package_kinds_ibfk_1` FOREIGN KEY (`db_package_id`) REFERENCES `packages` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `package_user_role_relationships` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_package_id` int(11) NOT NULL,
@@ -410,10 +388,32 @@ CREATE TABLE `package_user_role_relationships` (
   UNIQUE KEY `package_user_role_all_index` (`db_package_id`,`bs_user_id`,`role_id`),
   KEY `index_package_user_role_relationships_on_bs_user_id` (`bs_user_id`),
   KEY `role_id` (`role_id`),
-  CONSTRAINT `package_user_role_relationships_ibfk_1` FOREIGN KEY (`db_package_id`) REFERENCES `db_packages` (`id`),
+  CONSTRAINT `package_user_role_relationships_ibfk_1` FOREIGN KEY (`db_package_id`) REFERENCES `packages` (`id`),
   CONSTRAINT `package_user_role_relationships_ibfk_2` FOREIGN KEY (`bs_user_id`) REFERENCES `users` (`id`),
   CONSTRAINT `package_user_role_relationships_ibfk_3` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `packages` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `db_project_id` int(11) NOT NULL,
+  `name` tinyblob NOT NULL,
+  `title` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `description` text CHARACTER SET utf8,
+  `created_at` datetime DEFAULT '0000-00-00 00:00:00',
+  `updated_at` datetime DEFAULT '0000-00-00 00:00:00',
+  `url` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `update_counter` int(11) DEFAULT '0',
+  `activity_index` float DEFAULT '100',
+  `bcntsynctag` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `develpackage_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `packages_all_index` (`db_project_id`,`name`(255)),
+  KEY `devel_package_id_index` (`develpackage_id`),
+  KEY `index_db_packages_on_db_project_id` (`db_project_id`),
+  KEY `updated_at_index` (`updated_at`),
+  CONSTRAINT `packages_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `projects` (`id`),
+  CONSTRAINT `packages_ibfk_3` FOREIGN KEY (`develpackage_id`) REFERENCES `packages` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `path_elements` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -980,6 +980,8 @@ INSERT INTO schema_migrations (version) VALUES ('20120904122955');
 INSERT INTO schema_migrations (version) VALUES ('20120907114304');
 
 INSERT INTO schema_migrations (version) VALUES ('20121014124846');
+
+INSERT INTO schema_migrations (version) VALUES ('20121015121807');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

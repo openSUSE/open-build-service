@@ -1,5 +1,5 @@
 class Issue < ActiveRecord::Base
-  has_many :db_package_issues, :foreign_key => 'issue_id', :dependent => :destroy
+  has_many :package_issues, :foreign_key => 'issue_id', :dependent => :destroy
   belongs_to :issue_tracker
   belongs_to :owner, :class_name => "User"
 

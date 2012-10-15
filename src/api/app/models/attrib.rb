@@ -2,7 +2,7 @@
 # Attribute definitions are inside attrib_type
 
 class Attrib < ActiveRecord::Base
-  belongs_to :db_package
+  belongs_to :package
   belongs_to :project, foreign_key: :db_project_id
   belongs_to :attrib_type
   has_many :values, :class_name => 'AttribValue', :order => :position, :dependent => :destroy

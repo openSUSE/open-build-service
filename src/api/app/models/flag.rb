@@ -2,11 +2,11 @@ require 'rexml/document'
 
 class Flag < ActiveRecord::Base
   belongs_to :project, foreign_key: :db_project_id
-  belongs_to :db_package
+  belongs_to :package, foreign_key: :db_package_id
 
   belongs_to :architecture
 
-  attr_accessible :repo, :status, :flag, :position, :architecture, :project, :db_package
+  attr_accessible :repo, :status, :flag, :position, :architecture, :project, :package
 
   def to_xml(builder)
     raise RuntimeError.new( "FlagError: No flag-status set. \n #{self.inspect}" ) if self.status.nil?
@@ -69,14 +69,14 @@ class Flag < ActiveRecord::Base
   before_validation(:on => :create) do
     if self.project
       self.position = (self.project.flags.maximum(:position) || 0 ) + 1
-    elsif self.db_package
-      self.position = (self.db_package.flags.maximum(:position) || 0 ) + 1
+    elsif self.package
+      self.position = (self.package.flags.maximum(:position) || 0 ) + 1
     end
   end
 
   validate :validate_custom_save
   def validate_custom_save
-    errors.add(:name, "Please set either project_id or package_id.") if self.project.nil? and self.db_package.nil?
+    errors.add(:name, "Please set either project_id or package_id.") if self.project.nil? and self.package.nil?
     errors.add(:flag, "There needs to be a valid flag.") unless FlagHelper::TYPES.has_key?(self.flag)
     errors.add(:status, "Status needs to be enable or disable") unless (self.status == 'enable' or self.status == 'disable')
     errors.add(:name, "Please set either project_id or package_id.") unless self.db_project_id.nil? or self.db_package_id.nil?

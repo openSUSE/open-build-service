@@ -21,12 +21,12 @@ module ValidationHelper
   def validate_read_access_of_deleted_package(project, name)
     prj = Project.get_by_name project
     raise Project::ReadAccessError, "#{project}" if prj.disabled_for? 'access', nil, nil
-    raise DbPackage::ReadSourceAccessError, "#{target_project_name}/#{target_package_name}" if prj.disabled_for? 'sourceaccess', nil, nil
+    raise Package::ReadSourceAccessError, "#{target_project_name}/#{target_package_name}" if prj.disabled_for? 'sourceaccess', nil, nil
 
     begin
       r = Suse::Backend.get("/source/#{CGI.escape(project)}/#{name}/_history?deleted=1&meta=1")
     rescue
-      raise DbPackage::UnknownObjectError, "#{project}/#{name}"
+      raise Package::UnknownObjectError, "#{project}/#{name}"
     end
 
     data = ActiveXML::XMLNode.new(r.body.to_s)
@@ -39,10 +39,10 @@ module ValidationHelper
     end
 
     r = Suse::Backend.get(metapath)
-    raise DbPackage::UnknownObjectError, "#{project}/#{name}" unless r
+    raise Package::UnknownObjectError, "#{project}/#{name}" unless r
     return true if @http_user.is_admin?
     if FlagHelper.xml_disabled_for?(Xmlhash.parse(r.body), 'sourceaccess')
-      raise DbPackage::ReadSourceAccessError, "#{project}/#{name}"
+      raise Package::ReadSourceAccessError, "#{project}/#{name}"
     end
     return true
   end

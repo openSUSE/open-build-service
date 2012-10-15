@@ -6,7 +6,7 @@ class WizardController < ApplicationController
   def package_wizard
     prj_name = params[:project]
     pkg_name = params[:package]
-    pkg = DbPackage.get_by_project_and_name(prj_name, pkg_name)
+    pkg = Package.get_by_project_and_name(prj_name, pkg_name)
 
     if not @http_user.can_modify_package?(pkg)
       render_error :status => 403, :errorcode => "change_package_no_permission",

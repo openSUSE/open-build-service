@@ -1,4 +1,4 @@
-class DbPackage < ActiveRecord::Base
+class Package < ActiveRecord::Base
   include FlagHelper
 
   class CycleError < Exception; end
@@ -10,8 +10,8 @@ class DbPackage < ActiveRecord::Base
   class ReadSourceAccessError < Exception; end
   belongs_to :project, foreign_key: :db_project_id
 
-  has_many :package_user_role_relationships, :dependent => :destroy
-  has_many :package_group_role_relationships, :dependent => :destroy
+  has_many :package_user_role_relationships, :dependent => :destroy, foreign_key: :db_package_id
+  has_many :package_group_role_relationships, :dependent => :destroy, foreign_key: :db_package_id
   has_many :messages, :as => :db_object, :dependent => :destroy
 
   has_many :taggings, :as => :taggable, :dependent => :destroy
@@ -20,24 +20,24 @@ class DbPackage < ActiveRecord::Base
   has_many :download_stats
   has_many :ratings, :as => :db_object, :dependent => :destroy
 
-  has_many :flags, :order => :position, :dependent => :destroy
+  has_many :flags, :order => :position, :dependent => :destroy, foreign_key: :db_package_id
 
-  belongs_to :develpackage, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
-  has_many  :develpackages, :class_name => "DbPackage", :foreign_key => 'develpackage_id'
+  belongs_to :develpackage, :class_name => "Package", :foreign_key => 'develpackage_id'
+  has_many  :develpackages, :class_name => "Package", :foreign_key => 'develpackage_id'
 
-  has_many :attribs, :dependent => :destroy
+  has_many :attribs, :dependent => :destroy, foreign_key: :db_package_id
 
-  has_many :db_package_kinds, :dependent => :destroy
-  has_many :db_package_issues, :dependent => :destroy
+  has_many :package_kinds, :dependent => :destroy, foreign_key: :db_package_id
+  has_many :package_issues, :dependent => :destroy, foreign_key: :db_package_id
 
   attr_accessible :name, :title, :description
   after_save :write_to_backend
   after_save :update_activity
 
-  default_scope { where("db_packages.db_project_id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
+  default_scope { where("packages.db_project_id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
 
 #  def after_create
-#    raise ReadAccessError.new "Unknown package" unless DbPackage.check_access?(self)
+#    raise ReadAccessError.new "Unknown package" unless Package.check_access?(self)
 #  end
 
   class << self
@@ -49,7 +49,7 @@ class DbPackage < ActiveRecord::Base
     end
     def check_access?(dbpkg=self)
       return false if dbpkg.nil?
-      return false unless dbpkg.class == DbPackage
+      return false unless dbpkg.class == Package
       return Project.check_access?(dbpkg.project)
     end
 
@@ -75,7 +75,7 @@ class DbPackage < ActiveRecord::Base
       if follow_project_links
         pkg = prj.find_package(package)
       else
-        pkg = prj.db_packages.find_by_name(package)
+        pkg = prj.packages.find_by_name(package)
       end
       if pkg.nil? and follow_project_links
         # in case we link to a remote project we need to assume that the
@@ -115,7 +115,7 @@ class DbPackage < ActiveRecord::Base
       if opts[:follow_project_links]
         pkg = prj.find_package(package)
       else
-        pkg = prj.db_packages.find_by_name(package)
+        pkg = prj.packages.find_by_name(package)
       end
       if pkg.nil?
         # local project, but package may be in a linked remote one
@@ -139,29 +139,29 @@ class DbPackage < ActiveRecord::Base
     def find_by_project_and_name( project, package )
       sql =<<-END_SQL
       SELECT pack.*
-      FROM db_packages pack
+      FROM packages pack
       LEFT OUTER JOIN projects pro ON pack.db_project_id = pro.id
       WHERE pro.name = ? AND pack.name = ?
       END_SQL
 
-      result = DbPackage.find_by_sql [sql, project.to_s, package.to_s]
+      result = Package.find_by_sql [sql, project.to_s, package.to_s]
       ret = result[0]
-      return nil unless DbPackage.check_access?(ret)
+      return nil unless Package.check_access?(ret)
       return ret
     end
 
     def find_by_project_and_kind( project, kind )
       sql =<<-END_SQL
       SELECT pack.*
-      FROM db_packages pack
+      FROM packages pack
       LEFT OUTER JOIN projects pro ON pack.db_project_id = pro.id
-      LEFT OUTER JOIN db_package_kinds kinds ON kinds.db_package_id = pack.id
+      LEFT OUTER JOIN package_kinds kinds ON kinds.db_package_id = pack.id
       WHERE pro.name = ? AND kinds.kind = ?
       END_SQL
 
-      result = DbPackage.find_by_sql [sql, project.to_s, kind.to_s]
+      result = Package.find_by_sql [sql, project.to_s, kind.to_s]
       ret = result[0]
-      return nil unless DbPackage.check_access?(ret)
+      return nil unless Package.check_access?(ret)
       return ret
     end
 
@@ -170,7 +170,7 @@ class DbPackage < ActiveRecord::Base
       # attribute match in package or project
       sql =<<-END_SQL
       SELECT pack.*
-      FROM db_packages pack
+      FROM packages pack
       LEFT OUTER JOIN attribs attr ON pack.id = attr.db_package_id
       LEFT OUTER JOIN attribs attrprj ON pack.db_project_id = attrprj.db_project_id
       WHERE ( attr.attrib_type_id = ? or attrprj.attrib_type_id = ? )
@@ -178,16 +178,16 @@ class DbPackage < ActiveRecord::Base
 
       if package
         sql += " AND pack.name = ? GROUP by pack.id"
-        ret = DbPackage.find_by_sql [sql, attrib_type.id.to_s, attrib_type.id.to_s, package]
+        ret = Package.find_by_sql [sql, attrib_type.id.to_s, attrib_type.id.to_s, package]
         ret.each do |dbpkg|
-          ret.delete(dbpkg) unless DbPackage.check_access?(dbpkg)
+          ret.delete(dbpkg) unless Package.check_access?(dbpkg)
         end
         return ret
       end
       sql += " GROUP by pack.id"
-      ret = DbPackage.find_by_sql [sql, attrib_type.id.to_s, attrib_type.id.to_s]
+      ret = Package.find_by_sql [sql, attrib_type.id.to_s, attrib_type.id.to_s]
       ret.each do |dbpkg|
-        ret.delete(dbpkg) unless DbPackage.check_access?(dbpkg)
+        ret.delete(dbpkg) unless Package.check_access?(dbpkg)
       end
       return ret
     end
@@ -196,7 +196,7 @@ class DbPackage < ActiveRecord::Base
       # One sql statement is faster than a ruby loop
       sql =<<-END_SQL
       SELECT pack.*
-      FROM db_packages pack
+      FROM packages pack
       LEFT OUTER JOIN attribs attr ON pack.id = attr.db_package_id
       LEFT OUTER JOIN attrib_values val ON attr.id = val.attrib_id
       WHERE attr.attrib_type_id = ? AND val.value = ?
@@ -204,16 +204,16 @@ class DbPackage < ActiveRecord::Base
 
       if package
         sql += " AND pack.name = ?"
-        ret = DbPackage.find_by_sql [sql, attrib_type.id.to_s, value.to_s, package]
+        ret = Package.find_by_sql [sql, attrib_type.id.to_s, value.to_s, package]
         ret.each do |dbpkg|
-          ret.delete(dbpkg) unless DbPackage.check_access?(dbpkg)
+          ret.delete(dbpkg) unless Package.check_access?(dbpkg)
         end
         return ret
       end
       sql += " GROUP by pack.id"
-      ret = DbPackage.find_by_sql [sql, attrib_type.id.to_s, value.to_s]
+      ret = Package.find_by_sql [sql, attrib_type.id.to_s, value.to_s]
       ret.each do |dbpkg|
-        ret.delete(dbpkg) unless DbPackage.check_access?(dbpkg)
+        ret.delete(dbpkg) unless Package.check_access?(dbpkg)
       end
       return ret
     end
@@ -221,8 +221,8 @@ class DbPackage < ActiveRecord::Base
     def activity_algorithm
       # this is the algorithm (sql) we use for calculating activity of packages
       '@activity:=( ' +
-        'db_packages.activity_index - ' +
-        'POWER( TIME_TO_SEC( TIMEDIFF( NOW(), db_packages.updated_at ))/86400, 1.55 ) /10 ' +
+        'packages.activity_index - ' +
+        'POWER( TIME_TO_SEC( TIMEDIFF( NOW(), packages.updated_at ))/86400, 1.55 ) /10 ' +
         ')'
     end
 
@@ -262,7 +262,7 @@ class DbPackage < ActiveRecord::Base
     result = []
 
     data.elements.each("collection/package") do |e|
-      p = DbPackage.find_by_project_and_name( e.attributes["project"], e.attributes["name"] )
+      p = Package.find_by_project_and_name( e.attributes["project"], e.attributes["name"] )
       if p.nil?
         logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes["project"]} / #{e.attributes["name"]}"
       else
@@ -292,27 +292,27 @@ class DbPackage < ActiveRecord::Base
   def private_set_package_kind( kinds=nil, directory=nil, _noreset=nil )
     if kinds
       # set to given value
-      DbPackage.transaction do
-        self.db_package_kinds.destroy_all unless _noreset
+      Package.transaction do
+        self.package_kinds.destroy_all unless _noreset
         kinds.each do |k|
-          self.db_package_kinds.create :kind => k
+          self.package_kinds.create :kind => k
         end
       end
     else
       # none given, detect by existing UNEXPANDED sources
-      DbPackage.transaction do
-        self.db_package_kinds.destroy_all unless _noreset
+      Package.transaction do
+        self.package_kinds.destroy_all unless _noreset
         directory = Suse::Backend.get("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}").body unless directory
         xml = Xmlhash.parse(directory)
         xml.elements("entry") do |e|
           if e["name"] == '_patchinfo'
-            self.db_package_kinds.create :kind => 'patchinfo'
+            self.package_kinds.create :kind => 'patchinfo'
           end
           if e["name"] == '_aggregate'
-            self.db_package_kinds.create :kind => 'aggregate'
+            self.package_kinds.create :kind => 'aggregate'
           end
           if e["name"] == '_link'
-            self.db_package_kinds.create :kind => 'link'
+            self.package_kinds.create :kind => 'link'
           end
           # further types my be product, spec, dsc, kiwi in future
         end
@@ -320,14 +320,14 @@ class DbPackage < ActiveRecord::Base
     end
 
     # update issue database based on file content
-    if self.db_package_kinds.find_by_kind 'patchinfo'
+    if self.package_kinds.find_by_kind 'patchinfo'
       patchinfo = Suse::Backend.get("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}/_patchinfo")
       Project.transaction do
-        self.db_package_issues.destroy_all
+        self.package_issues.destroy_all
         xml = REXML::Document.new(patchinfo.body.to_s)
         xml.root.elements.each('issue') { |i|
           issue = Issue.find_or_create_by_name_and_tracker( i.attributes['id'], i.attributes['tracker'] )
-          self.db_package_issues.create( :issue => issue, :change => "kept" )
+          self.package_issues.create( :issue => issue, :change => "kept" )
         }
       end
     else
@@ -346,7 +346,7 @@ class DbPackage < ActiveRecord::Base
       end
 
       # issues introduced by local changes
-      if self.db_package_kinds.find_by_kind 'link'
+      if self.package_kinds.find_by_kind 'link'
         begin
           issues = Suse::Backend.post("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml", nil)
           xml = REXML::Document.new(issues.body.to_s)
@@ -360,9 +360,9 @@ class DbPackage < ActiveRecord::Base
 
       # store all
       Project.transaction do
-        self.db_package_issues.destroy_all
+        self.package_issues.destroy_all
         issue_change.each do |issue, change|
-          self.db_package_issues.create( :issue => issue, :change => change )
+          self.package_issues.create( :issue => issue, :change => change )
         end
       end
     end
@@ -398,7 +398,7 @@ class DbPackage < ActiveRecord::Base
         # Take project wide devel project definitions into account
         prj = pkg.project.develproject
         prj_name = prj.name
-        pkg = prj.db_packages.get_by_name(pkg.name)
+        pkg = prj.packages.get_by_name(pkg.name)
         if pkg.nil?
           return nil
         end
@@ -425,7 +425,7 @@ class DbPackage < ActiveRecord::Base
       unless develprj = Project.find_by_name(prj_name)
         raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
       end
-      unless develpkg = develprj.db_packages.find_by_name(pkg_name)
+      unless develpkg = develprj.packages.find_by_name(pkg_name)
         raise SaveError, "value of develpackage has to be a existing package (package '#{pkg_name}' does not exist)"
       end
       self.develpackage = develpkg
@@ -460,7 +460,7 @@ class DbPackage < ActiveRecord::Base
           PackageUserRoleRelationship.create!(
                                               user: User.get_by_login(person['userid']),
                                               role: Role.rolecache[person['role']],
-                                              db_package: self
+                                              package: self
                                               )
         end
       else
@@ -468,7 +468,7 @@ class DbPackage < ActiveRecord::Base
         pu = PackageUserRoleRelationship.create(
                                                 user: user,
                                                 role: Role.rolecache[person['role']],
-                                                db_package: self)
+                                                package: self)
         if pu.valid?
           pu.save!
         else
@@ -509,7 +509,7 @@ class DbPackage < ActiveRecord::Base
           PackageGroupRoleRelationship.create(
                                               :group => Group.find_by_title(ge['groupid']),
                                               :role => Role.rolecache[ge['role']],
-                                              :db_package => self
+                                              :package => self
                                               )
         end
       else
@@ -540,7 +540,7 @@ class DbPackage < ActiveRecord::Base
           PackageGroupRoleRelationship.create(
                                               :group => group,
                                               :role => Role.rolecache[ge['role']],
-                                              :db_package => self
+                                              :package => self
                                               )
         rescue ActiveRecord::RecordNotUnique
           logger.debug "group '#{ge['groupid']}' already has the role '#{ge['role']}' in package '#{self.name}'"
@@ -669,7 +669,7 @@ class DbPackage < ActiveRecord::Base
     end
 
     PackageUserRoleRelationship.create(
-                                       :db_package => self,
+                                       :package => self,
                                        :user => user,
                                        :role => role )
   end
@@ -689,7 +689,7 @@ class DbPackage < ActiveRecord::Base
     end
 
     PackageGroupRoleRelationship.create(
-                                        :db_package => self,
+                                        :package => self,
                                         :group => group,
                                         :role => role )
   end
@@ -733,10 +733,10 @@ class DbPackage < ActiveRecord::Base
     login = params[:login]
 
     builder.package( :project => self.project.name, :name => self.name ) do |package|
-      self.db_package_kinds.each do |k|
+      self.package_kinds.each do |k|
         package.kind(k.kind)
       end
-      self.db_package_issues.each do |i|
+      self.package_issues.each do |i|
         next if filter_changes and not filter_changes.include? i.change
         next if states and (not i.issue.state or not states.include? i.issue.state)
         o = nil
@@ -884,8 +884,8 @@ class DbPackage < ActiveRecord::Base
   end
 
   def activity
-    package = DbPackage.find_by_sql("SELECT db_packages.*, ( #{DbPackage.activity_algorithm} ) AS act_tmp,
-	                             IF( @activity<0, 0, @activity ) AS activity_value FROM `db_packages` WHERE id = #{self.id} LIMIT 1")
+    package = Package.find_by_sql("SELECT packages.*, ( #{Package.activity_algorithm} ) AS act_tmp,
+	                             IF( @activity<0, 0, @activity ) AS activity_value FROM `packages` WHERE id = #{self.id} LIMIT 1")
     return package.shift.activity_value.to_f
   end
 

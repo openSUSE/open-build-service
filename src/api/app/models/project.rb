@@ -22,7 +22,7 @@ class Project < ActiveRecord::Base
 
   has_many :project_user_role_relationships, :dependent => :delete_all, foreign_key: :db_project_id
   has_many :project_group_role_relationships, :dependent => :delete_all, foreign_key: :db_project_id
-  has_many :db_packages, :dependent => :destroy, foreign_key: :db_project_id
+  has_many :packages, :dependent => :destroy, foreign_key: :db_project_id
   has_many :attribs, :dependent => :destroy, foreign_key: :db_project_id
   has_many :repositories, :dependent => :destroy, foreign_key: :db_project_id
   has_many :messages, :as => :db_object, :dependent => :delete_all
@@ -81,7 +81,7 @@ class Project < ActiveRecord::Base
       end
     end
     # deleting local devel packages
-    self.db_packages.each do |pkg|
+    self.packages.each do |pkg|
       if pkg.develpackage_id
         pkg.develpackage_id = nil
         pkg.save
@@ -232,10 +232,10 @@ class Project < ActiveRecord::Base
   # NOTE: this is no permission check, should it be added ?
   def can_be_deleted?
     # check all packages
-    self.db_packages.each do |pkg|
+    self.packages.each do |pkg|
       begin
         pkg.can_be_deleted? # throws
-      rescue DbPackage::DeleteError => e
+      rescue Package::DeleteError => e
         e.packages.each do |p|
           if p.project != self
 	    raise DeleteError.new "Package #{self.name}/{pkg.name} can not be deleted as it's devel package of #{p.project.name}/#{p.name}"
@@ -785,9 +785,9 @@ class Project < ActiveRecord::Base
     login = params[:login]
 
     builder.project( :name => self.name ) do |project|
-      self.db_packages.each do |pkg|
+      self.packages.each do |pkg|
         project.package( :project => pkg.project.name, :name => pkg.name ) do |package|
-          pkg.db_package_issues.each do |i|
+          pkg.package_issues.each do |i|
             next if filter_changes and not filter_changes.include? i.change
             next if states and (not i.issue.state or not states.include? i.issue.state)
             o = nil
@@ -1057,7 +1057,7 @@ class Project < ActiveRecord::Base
 
     # get all packages including activity values, we may not have access
     begin
-      @packages = DbPackage.find_by_sql("SELECT projects.*,( #{DbPackage.activity_algorithm} ) AS act_tmp,IF( @activity<0, 0, @activity ) AS activity_value FROM db_packages, projects WHERE (db_packages.db_project_id = projects.id AND projects.id = #{self.id}")
+      @packages = Package.find_by_sql("SELECT projects.*,( #{Package.activity_algorithm} ) AS act_tmp,IF( @activity<0, 0, @activity ) AS activity_value FROM packages, projects WHERE (packages.db_project_id = projects.id AND projects.id = #{self.id}")
       # count packages and sum up activity values
       project = { :count => 0, :sum => 0 }
       @packages.each do |package|
@@ -1162,10 +1162,10 @@ class Project < ActiveRecord::Base
     processed[self]=1
 
     # package exists in this project
-    pkg = self.db_packages.find_by_name(package_name)
+    pkg = self.packages.find_by_name(package_name)
 #    return pkg unless pkg.nil?
     unless pkg.nil?
-      return pkg if DbPackage.check_access?(pkg)
+      return pkg if Package.check_access?(pkg)
     end
 
     # search via all linked projects
@@ -1182,7 +1182,7 @@ class Project < ActiveRecord::Base
         pkg = lp.linked_db_project.find_package(package_name, processed)
       end
       unless pkg.nil?
-        return pkg if DbPackage.check_access?(pkg)
+        return pkg if Package.check_access?(pkg)
       end
     end
 
@@ -1192,7 +1192,7 @@ class Project < ActiveRecord::Base
   end
 
   def expand_all_packages
-    packages = self.db_packages.select([:name,:db_project_id])
+    packages = self.packages.select([:name,:db_project_id])
     p_map = Hash.new
     packages.each { |i| p_map[i.name] = 1 } # existing packages map
     # second path, all packages from indirect linked projects
@@ -1289,18 +1289,18 @@ class Project < ActiveRecord::Base
       # we need to check results of backend in any case (also timeout error eg)
     end
 
-    # set user if nil, needed for delayed job in DbPackage model
+    # set user if nil, needed for delayed job in Package model
     User.current ||= User.find_by_login(params[:user])
 
     # restore all package meta data objects in DB
     backend_pkgs = Collection.find :package, :match => "@project='#{self.name}'"
     backend_pkgs.each_package do |package|
       path = "/source/#{URI.escape(self.name)}/#{package.name}/_meta"
-      p = self.db_packages.new(name: package.name)
+      p = self.packages.new(name: package.name)
       p.update_from_xml(Xmlhash.parse(Suse::Backend.get(path).body))
       p.save! # do not store
     end
-    db_packages.each { |p| p.sources_changed }
+    packages.each { |p| p.sources_changed }
   end
 
   def bsrequest_repos_map(project, backend)

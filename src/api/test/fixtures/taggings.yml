@@ -31,7 +31,7 @@ taggings_1735:
 taggings_1736:
   id: 1736
   taggable_id: 10095
-  taggable_type: DbPackage
+  taggable_type: Package
   tag_id: 462
   user_id: 267
 taggings_1737:
@@ -49,19 +49,19 @@ taggings_1738:
 taggings_1740:
   id: 1740
   taggable_id: 10095
-  taggable_type: DbPackage
+  taggable_type: Package
   tag_id: 464
   user_id: 267
 taggings_1741:
   id: 1741
   taggable_id: 10095
-  taggable_type: DbPackage
+  taggable_type: Package
   tag_id: 465
   user_id: 267
 taggings_1742:
   id: 1742
   taggable_id: 10095
-  taggable_type: DbPackage
+  taggable_type: Package
   tag_id: 463
   user_id: 267
 taggings_1743:
@@ -79,6 +79,6 @@ taggings_1744:
 taggings_1745:
   id: 1745
   taggable_id: 10095
-  taggable_type: DbPackage
+  taggable_type: Package
   tag_id: 462
   user_id: 1

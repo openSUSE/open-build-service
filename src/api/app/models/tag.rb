@@ -3,8 +3,8 @@ class Tag < ActiveRecord::Base
   has_many :taggings, :dependent => :destroy
   has_many :projects, :through => :taggings,
            conditions: "taggings.taggable_type = 'Project'"
-  has_many :db_packages, :through => :taggings,
-           conditions: "taggings.taggable_type = 'DbPackage'"
+  has_many :packages, :through => :taggings,
+           conditions: "taggings.taggable_type = 'Package'"
   
   has_many :users, :through => :taggings
 

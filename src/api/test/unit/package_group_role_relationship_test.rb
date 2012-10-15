@@ -11,7 +11,7 @@ class PackageGroupRoleRelationshipTest < ActiveSupport::TestCase
     pgr.role = Role.find_by_title("maintainer")
     assert_equal true, pgr.invalid?
     assert_equal false, pgr.save
-    pgr.db_package = DbPackage.find_by_name("kdelibs")
+    pgr.package = Package.find_by_name("kdelibs")
     assert_equal true, pgr.invalid?
     assert_equal false, pgr.save
     # bad group

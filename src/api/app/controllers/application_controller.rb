@@ -434,13 +434,13 @@ class ApplicationController < ActionController::API
       render_error :message => exception.message, :errorcode => "invalid_text_encoding", :status => 400
     when Timeout::Error
       render_error :message => "Timeout during progress", :status => 504, :errorcode => "timeout"
-    when DbPackage::SaveError
+    when Package::SaveError
       render_error :message => "Error saving package: #{exception.message}", :errorcode => "package_save_error", :status => 400
     when Project::SaveError
       render_error :message => "Error saving project: #{exception.message}", :errorcode => "project_save_error", :status => 400
     when Project::ForbiddenError
         render_error :status => 403, errorcode: exception.errorcode, message: exception.message
-    when DbPackage::DeleteError
+    when Package::DeleteError
       render_error :status => 400, :message => exception.message, :errorcode => "delete_error"
     when IllegalRequestError
       message = "Illegal request"
@@ -476,7 +476,7 @@ class ApplicationController < ActionController::API
         render_error :status => 404, :errorcode => 'unknown_project',
           :message => exception.message
       end
-    when DbPackage::ReadAccessError, DbPackage::UnknownObjectError
+    when Package::ReadAccessError, Package::UnknownObjectError
       logger.error "ReadAccessError: #{exception.message}"
       if exception.message == ""
         render_error :status => 404, :errorcode => 'unknown_package',
@@ -485,7 +485,7 @@ class ApplicationController < ActionController::API
         render_error :status => 404, :errorcode => 'unknown_package',
           :message => exception.message
       end
-    when DbPackage::ReadSourceAccessError
+    when Package::ReadSourceAccessError
       logger.error "ReadSourceAccessError: #{exception.message}"
       if exception.message == ""
         render_error :status => 403, :errorcode => 'source_access_no_permission',

@@ -49,7 +49,7 @@ module Suse
       logger.debug "User #{@user.login} wants to change the package"
 
       # Get DbPackage object
-      if package.kind_of? DbPackage
+      if package.kind_of? Package
         pkg = package
       else
         if project.nil?
@@ -60,7 +60,7 @@ module Suse
            project = project
         end
 
-        pkg = DbPackage.find_by_project_and_name( project, package )
+        pkg = Package.find_by_project_and_name( project, package )
         if pkg.nil?
           raise ArgumentError, "unable to find package object for #{project} / #{package}"
         end
@@ -74,8 +74,8 @@ module Suse
       logger.debug "User #{@user.login} wants to change the package"
 
 
-      # Get DbPackage object
-      if obj.kind_of? DbPackage
+      # Get Package object
+      if obj.kind_of? Package
         prj = obj.db_project
       elsif obj.kind_of? Project
         prj = obj

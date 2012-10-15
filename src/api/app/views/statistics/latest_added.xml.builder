@@ -3,7 +3,7 @@ xml.latest_added do
   @list.each do |item|
 
     ### item is a package
-    if item.instance_of? DbPackage
+    if item.instance_of? Package
       xml.package(
         :name => item.name,
         :project => item.project.name,

@@ -10,7 +10,7 @@ class XpathEngine
     
     @tables = {
       'attribute' => 'attribs',
-      'package' => 'db_packages',
+      'package' => 'packages',
       'project' => 'projects',
       'person' => 'users',
       'repository' => 'repositories',
@@ -19,67 +19,67 @@ class XpathEngine
     }
     
     @attribs = {
-      'db_packages' => {
+      'packages' => {
         '@project' => {:cpart => 'projects.name'},
-        '@name' => {:cpart => 'db_packages.name'},
+        '@name' => {:cpart => 'packages.name'},
         '@state' => {:cpart => 'issues.state', :joins => 
-          ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
-           'LEFT JOIN issues ON issues.id = db_package_issues.issue_id']},
+          ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
+           'LEFT JOIN issues ON issues.id = package_issues.issue_id']},
         'owner/@login' => {:cpart => 'users.login', :joins => 
-          ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
-           'LEFT JOIN issues ON issues.id = db_package_issues.issue_id',
+          ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
+           'LEFT JOIN issues ON issues.id = package_issues.issue_id',
            'LEFT JOIN users ON users.id = issues.owner_id']},
-        'title' => {:cpart => 'db_packages.title'},
-        'description' => {:cpart => 'db_packages.description'},
-        'kind' => {:cpart => 'db_package_kinds.kind', :joins =>
-           ['LEFT JOIN db_package_kinds ON db_package_kinds.db_package_id = db_packages.id']},
+        'title' => {:cpart => 'packages.title'},
+        'description' => {:cpart => 'packages.description'},
+        'kind' => {:cpart => 'package_kinds.kind', :joins =>
+           ['LEFT JOIN package_kinds ON package_kinds.db_package_id = packages.id']},
         'devel/@project' => {:cpart => 'projs.name', :joins => 
-          ['left join db_packages devels on db_packages.develpackage_id = devels.id',
+          ['left join packages devels on packages.develpackage_id = devels.id',
            'left join projects projs on devels.db_project_id=projs.id']},
         'devel/@package' => {:cpart => 'develpackage.name', :joins => 
-          ['LEFT JOIN db_packages develpackage ON develpackage.id = db_packages.develpackage_id']},
+          ['LEFT JOIN packages develpackage ON develpackage.id = packages.develpackage_id']},
         'issue/@state' => {:cpart => 'issues.state', :joins => 
-          ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
-           'LEFT JOIN issues ON issues.id = db_package_issues.issue_id']},
+          ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
+           'LEFT JOIN issues ON issues.id = package_issues.issue_id']},
         'issue/@name' => {:cpart => 'issues.name', :joins =>
-          ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
-           'LEFT JOIN issues ON issues.id = db_package_issues.issue_id',
+          ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
+           'LEFT JOIN issues ON issues.id = package_issues.issue_id',
           ]},
         'issue/@tracker' => {:cpart => 'issue_trackers.name', :joins =>
-          ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
+          ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
            'LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id'
           ]},
-        'issue/@change' => {:cpart => 'db_package_issues.change'},
+        'issue/@change' => {:cpart => 'package_issues.change'},
         'issue/owner/@email' => {:cpart => 'users.email', :joins => 
-          ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
-           'LEFT JOIN issues ON issues.id = db_package_issues.issue_id',
+          ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
+           'LEFT JOIN issues ON issues.id = package_issues.issue_id',
            'LEFT JOIN users ON users.id = issues.owner_id']},
         'issue/owner/@login' => {:cpart => 'users.login', :joins => 
-          ['LEFT JOIN db_package_issues ON db_packages.id = db_package_issues.db_package_id',
-           'LEFT JOIN issues ON issues.id = db_package_issues.issue_id',
+          ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
+           'LEFT JOIN issues ON issues.id = package_issues.issue_id',
            'LEFT JOIN users ON users.id = issues.owner_id']},
         'person/@userid' => {:cpart => 'users.login', :joins => 
-          ['LEFT JOIN package_user_role_relationships ON db_packages.id = package_user_role_relationships.db_package_id',
+          ['LEFT JOIN package_user_role_relationships ON packages.id = package_user_role_relationships.db_package_id',
            'LEFT JOIN users ON users.id = package_user_role_relationships.bs_user_id']},
         'person/@role' => {:cpart => 'roles.title', :joins =>
-          ['LEFT JOIN package_user_role_relationships ON db_packages.id = package_user_role_relationships.db_package_id',
+          ['LEFT JOIN package_user_role_relationships ON packages.id = package_user_role_relationships.db_package_id',
            'LEFT JOIN roles ON package_user_role_relationships.role_id = roles.id']},
         'group/@groupid' => {:cpart => 'groups.title', :joins =>
-          ['LEFT JOIN package_group_role_relationships ON db_packages.id = package_group_role_relationships.db_package_id',
+          ['LEFT JOIN package_group_role_relationships ON packages.id = package_group_role_relationships.db_package_id',
            'LEFT JOIN groups ON groups.id = package_group_role_relationships.bs_group_id']},
         'group/@role' => {:cpart => 'roles.title', :joins =>
-          ['LEFT JOIN package_group_role_relationships ON db_packages.id = package_group_role_relationships.db_package_id',
+          ['LEFT JOIN package_group_role_relationships ON packages.id = package_group_role_relationships.db_package_id',
            'LEFT JOIN roles ON package_group_role_relationships.role_id = roles.id']},
         'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name',
           :split => ':', :joins => 
-          ['LEFT JOIN attribs ON attribs.db_package_id = db_packages.id',
+          ['LEFT JOIN attribs ON attribs.db_package_id = packages.id',
            'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
            'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id',
-           'LEFT JOIN attribs AS attribsprj ON attribsprj.db_project_id = db_packages.db_project_id',   # include also, when set in project
+           'LEFT JOIN attribs AS attribsprj ON attribsprj.db_project_id = packages.db_project_id',   # include also, when set in project
            'LEFT JOIN attrib_types AS attrib_typesprj ON attribsprj.attrib_type_id = attrib_typesprj.id', 
            'LEFT JOIN attrib_namespaces AS attrib_namespacesprj ON attrib_typesprj.attrib_namespace_id = attrib_namespacesprj.id']},
         'project/attribute/@name' => {:cpart => 'attrib_namespaces_proj.name = ? AND attrib_types_proj.name', :split => ':', :joins =>
-          ['LEFT JOIN attribs AS attribs_proj ON attribs_proj.db_project_id = db_packages.db_project_id',
+          ['LEFT JOIN attribs AS attribs_proj ON attribs_proj.db_project_id = packages.db_project_id',
            'LEFT JOIN attrib_types AS attrib_types_proj ON attribs_proj.attrib_type_id = attrib_types_proj.id',
            'LEFT JOIN attrib_namespaces AS attrib_namespaces_proj ON attrib_types_proj.attrib_namespace_id = attrib_namespaces_proj.id']},
       },
@@ -113,7 +113,7 @@ class XpathEngine
           'join repositories r on r.db_project_id=projects.id',
           'join release_targets rt on rt.repository_id=r.id']},
         'package/@name' => {:cpart => 'packs.name', :joins => 
-          ['LEFT JOIN db_packages AS packs ON packs.db_project_id = projects.id']},
+          ['LEFT JOIN packages AS packs ON packs.db_project_id = projects.id']},
         'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name', :split => ':', :joins => 
           ['LEFT JOIN attribs ON attribs.db_project_id = projects.id',
            'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
@@ -233,10 +233,10 @@ class XpathEngine
     model = nil
     select = nil
     case @base_table
-    when 'db_packages'
-      model = DbPackage
+    when 'packages'
+      model = Package
       includes = [:project]
-      select = "distinct(db_packages.id),db_packages.*"
+      select = "distinct(packages.id),packages.*"
     when 'projects'
       model = Project
       if opt["render_all"]

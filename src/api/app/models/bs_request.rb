@@ -158,7 +158,7 @@ class BsRequest < ActiveRecord::Base
         return true if user.is_in_group? r.by_group
       elsif r.by_project
         if r.by_package
-           pkg = DbPackage.find_by_project_and_name r.by_project, r.by_package
+           pkg = Package.find_by_project_and_name r.by_project, r.by_package
            return true if pkg and user.can_modify_package? pkg
         else
            prj = Project.find_by_name r.by_project

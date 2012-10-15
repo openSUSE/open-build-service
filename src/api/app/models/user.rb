@@ -970,10 +970,10 @@ class User < ActiveRecord::Base
     return false
   end
 
-  # package is instance of DbPackage
+  # package is instance of Package
   def can_modify_package?(package, ignoreLock=nil)
     return false if package.nil? # happens with remote packages easily
-    unless package.kind_of? DbPackage
+    unless package.kind_of? Package
       raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}"
     end
     return false if not ignoreLock and package.is_locked?
@@ -1033,7 +1033,7 @@ class User < ActiveRecord::Base
   end
 
   def can_create_attribute_in?(object, opts)
-    if not object.kind_of? Project and not object.kind_of? DbPackage
+    if not object.kind_of? Project and not object.kind_of? Package
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
     unless opts[:namespace]
@@ -1094,7 +1094,7 @@ class User < ActiveRecord::Base
 
   def can_access_downloadbinany?(parm)
     return true if is_admin?
-    if parm.kind_of? DbPackage
+    if parm.kind_of? Package
       return true if can_download_binaries?(parm)
     end
     return true if can_access?(parm)
@@ -1103,7 +1103,7 @@ class User < ActiveRecord::Base
 
   def can_access_downloadsrcany?(parm)
     return true if is_admin?
-    if parm.kind_of? DbPackage
+    if parm.kind_of? Package
       return true if can_source_access?(parm)
     end
     return true if can_access?(parm)
@@ -1156,7 +1156,7 @@ class User < ActiveRecord::Base
   def local_role_check_with_ldap (role, object)
     logger.debug "Checking role with ldap: object #{object.name}, role #{role.title}"
     case object
-      when DbPackage
+      when Package
         rels = object.package_group_role_relationships.where(:role_id => role.id).includes(:group)
       when Project
         rels = object.project_group_role_relationships.where(:role_id => role.id).includes(:group)
@@ -1172,7 +1172,7 @@ class User < ActiveRecord::Base
 
   def has_local_role?( role, object )
     case object
-      when DbPackage
+      when Package
         logger.debug "running local role package check: user #{self.login}, package #{object.name}, role '#{role.title}'"
         rels = object.package_user_role_relationships.where(:role_id => role.id, :bs_user_id => self.id).first
         return true if rels
@@ -1213,7 +1213,7 @@ class User < ActiveRecord::Base
     groups = nil
     parent = nil
     case object
-    when DbPackage
+    when Package
       logger.debug "running local permission check: user #{self.login}, package #{object.name}, permission '#{perm_string}'"
       #check permission for given package
       users = object.package_user_role_relationships
@@ -1277,12 +1277,12 @@ class User < ActiveRecord::Base
     projects << -1 if projects.empty?
 
     # all packages where user is maintainer
-    packages = PackageUserRoleRelationship.where(bs_user_id: id, role_id: role.id).joins(:db_package).where("db_packages.db_project_id not in (?)", projects).select(:db_package_id).all.map {|ur| ur.db_package_id}
+    packages = PackageUserRoleRelationship.where(bs_user_id: id, role_id: role.id).joins(:package).where("packages.db_project_id not in (?)", projects).select(:db_package_id).all.map {|ur| ur.db_package_id}
 
     # all packages where user is maintainer via a group
     packages += PackageGroupRoleRelationship.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).select(:db_package_id).all.map {|ur| ur.db_package_id}
 
-    return DbPackage.where(id: packages).where("db_project_id not in (?)", projects)
+    return Package.where(id: packages).where("db_project_id not in (?)", projects)
   end
 
   protected

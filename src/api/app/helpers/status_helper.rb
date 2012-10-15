@@ -116,7 +116,7 @@ class PackInfo
           develpack.to_xml(:builder => xml)
         end
       end
-      db_pack = DbPackage.find(@db_pack_id)
+      db_pack = Package.find(@db_pack_id)
       xml.persons do
         db_pack.each_user do |ulogin, role_name|
           xml.person( :userid => ulogin, :role => role_name )
@@ -332,11 +332,11 @@ class ProjectStatusHelper
     end
     projects = Hash.new
     projects[dbproj.name] = dbproj
-    dbproj.db_packages.each do |dbpack|
+    dbproj.packages.each do |dbpack|
       next unless filter_by_package_name(dbpack.name)
       begin
         dbpack.resolve_devel_package
-      rescue DbPackage::CycleError
+      rescue Package::CycleError
         next
       end
       add_recursively(mypackages, projects, dbpack)
@@ -347,7 +347,7 @@ class ProjectStatusHelper
       update_projpack(name, backend, mypackages)
     end
 
-    dbproj.db_packages.each do |dbpack|
+    dbproj.packages.each do |dbpack|
       next unless filter_by_package_name(dbpack.name)
       key = dbproj.name + "/" + dbpack.name
       move_devel_package(mypackages, key)
@@ -365,7 +365,7 @@ class ProjectStatusHelper
     links.each do |proj, packages|
       tocheck = Array.new
       packages.each do |name|
-        pack = DbPackage.find_by_project_and_name(proj, name)
+        pack = Package.find_by_project_and_name(proj, name)
         next unless pack # broken link
         pack = PackInfo.new(pack)
         next if mypackages.has_key? pack.key

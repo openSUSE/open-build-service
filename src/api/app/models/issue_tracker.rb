@@ -31,8 +31,8 @@ class IssueTracker < ActiveRecord::Base
   def update_package_metadata
     Project.each do |prj|
       next unless Project.exists?(prj)
-      prj.db_packages.each do |pkg|
-        next unless DbPackage.exists?(pkg)
+      prj.packages.each do |pkg|
+        next unless Package.exists?(pkg)
         begin
           pkg.set_package_kind
         rescue Suse::Backend::HTTPError

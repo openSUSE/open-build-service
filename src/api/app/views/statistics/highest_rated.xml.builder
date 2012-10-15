@@ -4,12 +4,12 @@ xml.highest_rated do
 
   @ratings.each do |rating|
 
-    if rating.object_type == 'DbPackage'
+    if rating.object_type == 'Package'
       xml.package(
         :score => rating.score_calculated,
         :count => rating.count,
-        :project => rating.db_packages.project.name,
-        :name => rating.db_packages.name
+        :project => rating.packages.project.name,
+        :name => rating.packages.name
       )
     elsif rating.object_type == 'Project'
       xml.project(

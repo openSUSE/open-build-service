@@ -13,7 +13,7 @@ class PublicController < ApplicationController
 
     # don't use the cache for use_source
     if use_source
-      DbPackage.get_by_project_and_name(project, package)
+      Package.get_by_project_and_name(project, package)
       return
     end
 
@@ -21,14 +21,14 @@ class PublicController < ApplicationController
     key = "public_package:" + project + ":" + package
     allowed = Rails.cache.fetch(key, :expires_in => 30.minutes) do
       begin
-        DbPackage.get_by_project_and_name(project, package, use_source: false)
+        Package.get_by_project_and_name(project, package, use_source: false)
         true
       rescue Exception
         false
       end
     end
 
-    raise DbPackage::UnknownObjectError, "#{project} / #{package} " unless allowed
+    raise Package::UnknownObjectError, "#{project} / #{package} " unless allowed
   end
   private :check_package_access
 
@@ -141,7 +141,7 @@ class PublicController < ApplicationController
   def binary_packages
 
     check_package_access(params[:project], params[:package], false)
-    @pkg = DbPackage.find_by_project_and_name(params[:project], params[:package])
+    @pkg = Package.find_by_project_and_name(params[:project], params[:package])
 
     distfile = ActiveXML::XMLNode.new(DistributionController.read_distfile)
     begin

@@ -5,7 +5,7 @@ class BuildController < ApplicationController
 
     # for read access and visibility permission check
     if params[:package] and not ["_repository", "_jobhistory"].include?(params[:package])
-      DbPackage.get_by_project_and_name( params[:project], params[:package], use_source: false )
+      Package.get_by_project_and_name( params[:project], params[:package], use_source: false )
     else
       Project.get_by_name params[:project]
     end
@@ -17,7 +17,7 @@ class BuildController < ApplicationController
 
     if @http_user.is_admin?
       # check for a local package instance
-      DbPackage.get_by_project_and_name( params[:project], params[:package], use_source: false, follow_project_links: false )
+      Package.get_by_project_and_name( params[:project], params[:package], use_source: false, follow_project_links: false )
       pass_to_backend
     else
       render_error :status => 403, :errorcode => "execute_cmd_no_permission",
@@ -69,7 +69,7 @@ class BuildController < ApplicationController
           package_names = [params[:package]]
         end
         package_names.each do |pack_name|
-          pkg = DbPackage.find_by_project_and_name( prj.name, pack_name ) 
+          pkg = Package.find_by_project_and_name( prj.name, pack_name ) 
           if pkg.nil?
             allowed = permissions.project_change? prj
             if not allowed
@@ -119,7 +119,7 @@ class BuildController < ApplicationController
       # for osc local package build in this repository
       Project.get_by_name params[:project]
     else
-      DbPackage.get_by_project_and_name params[:project], params[:package], use_source: false
+      Package.get_by_project_and_name params[:project], params[:package], use_source: false
     end
 
     path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_buildinfo"
@@ -150,8 +150,8 @@ class BuildController < ApplicationController
     if params[:package] == "_repository"
       prj = Project.get_by_name params[:project]
     else
-      pkg = DbPackage.get_by_project_and_name params[:project], params[:package], use_source: false
-      prj = pkg.project if pkg.class == DbPackage
+      pkg = Package.get_by_project_and_name params[:project], params[:package], use_source: false
+      prj = pkg.project if pkg.class == Package
     end
 
     if prj.class == Project and prj.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(prj)
@@ -236,9 +236,9 @@ class BuildController < ApplicationController
     valid_http_methods :get
 
     # for permission check
-    pkg = DbPackage.get_by_project_and_name params[:project], params[:package]
+    pkg = Package.get_by_project_and_name params[:project], params[:package]
 
-    if pkg.class == DbPackage and pkg.project.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg.project)
+    if pkg.class == Package and pkg.project.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg.project)
       render_error :status => 403, :errorcode => "download_binary_no_permission",
       :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
       return

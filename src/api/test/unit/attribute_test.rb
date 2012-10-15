@@ -148,12 +148,12 @@ class AttributeTest < ActiveSupport::TestCase
 
 
     # store in a package
-    @package = DbPackage.find_by_project_and_name( "kde4", "kdebase" )
+    @package = Package.find_by_project_and_name( "kde4", "kdebase" )
     assert_not_nil @package
     @package.store_attribute_axml(xml)
     @package.store
 
-    @p = DbPackage.find_by_project_and_name( "kde4", "kdebase" )
+    @p = Package.find_by_project_and_name( "kde4", "kdebase" )
     assert_not_nil @p
     @a = @p.find_attribute( "OBS", "Maintained" )
     assert_not_nil @a
@@ -173,9 +173,9 @@ class AttributeTest < ActiveSupport::TestCase
       @project.store_attribute_axml(xml)
     end
     # store in a package
-    @package = DbPackage.find_by_project_and_name( "kde4", "kdebase" )
+    @package = Package.find_by_project_and_name( "kde4", "kdebase" )
     assert_not_nil @package
-    assert_raise DbPackage::SaveError do 
+    assert_raise Package::SaveError do 
       @package.store_attribute_axml(xml)
     end
   end

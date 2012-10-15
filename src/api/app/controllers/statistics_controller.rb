@@ -37,7 +37,7 @@ class StatisticsController < ApplicationController
     @package = params[:package]
 
     object = Project.get_by_name(@project)
-    object = DbPackage.get_by_project_and_name(@project, @package, use_source: false, follow_project_links: false) if @package
+    object = Package.get_by_project_and_name(@project, @package, use_source: false, follow_project_links: false) if @package
 
     if request.get?
 
@@ -91,7 +91,7 @@ class StatisticsController < ApplicationController
 
   def most_active_projects
     # get all packages including activity values
-    @packages = DbPackage.select("db_packages.*, ( #{DbPackage.activity_algorithm} ) AS act_tmp," + 'IF( @activity<0, 0, @activity ) AS activity_value').
+    @packages = Package.select("packages.*, ( #{Package.activity_algorithm} ) AS act_tmp," + 'IF( @activity<0, 0, @activity ) AS activity_value').
 	    limit(@limit).order('activity_value DESC').all
     # count packages per project and sum up activity values
     projects = {}
@@ -116,7 +116,7 @@ class StatisticsController < ApplicationController
 
   def most_active_packages
     # get all packages including activity values
-    @packages = DbPackage.select("db_packages.*, ( #{DbPackage.activity_algorithm} ) AS act_tmp," + 'IF( @activity<0, 0, @activity ) AS activity_value').
+    @packages = Package.select("packages.*, ( #{Package.activity_algorithm} ) AS act_tmp," + 'IF( @activity<0, 0, @activity ) AS activity_value').
       limit(@limit).order('activity_value DESC').all
     return @packages
   end
@@ -124,13 +124,13 @@ class StatisticsController < ApplicationController
 
   def activity
     @project = Project.get_by_name(params[:project])
-    @package = DbPackage.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: false) if params[:package]
+    @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: false) if params[:package]
   end
 
 
   def latest_added
 
-    packages = DbPackage.limit(@limit).order('created_at DESC, name').all
+    packages = Package.limit(@limit).order('created_at DESC, name').all
     projects = Project.limit(@limit).order('created_at DESC, name').all
 
     list = projects 
@@ -149,7 +149,7 @@ class StatisticsController < ApplicationController
   def added_timestamp
 
     @project = Project.get_by_name(params[:project])
-    @package = DbPackage.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: true)
+    @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: true)
 
     # is it used at all ?
   end
@@ -161,14 +161,14 @@ class StatisticsController < ApplicationController
     # not just needs this to be fast, it also needs to catch errors in case projects or packages
     # disappear after the cache hit. So we do not spend too much logic in access flags, but check
     # the cached values afterwards if they are valid and accessible
-    packages = DbPackage.select("id,updated_at").order("updated_at DESC").limit(@limit*2).all
+    packages = Package.select("id,updated_at").order("updated_at DESC").limit(@limit*2).all
     projects = Project.select("id,updated_at").order("updated_at DESC").limit(@limit*2).all
 
     list = projects
     list.concat packages
     ret = Array.new
     list.sort { |a,b| b.updated_at <=> a.updated_at }.each do |item|
-      if item.instance_of? DbPackage
+      if item.instance_of? Package
         ret << [:package, item.id]
       else
         ret << [:project, item.id]
@@ -182,9 +182,9 @@ class StatisticsController < ApplicationController
         item = Project.find(id)
         next unless Project.check_access?(item)
       else
-        item = DbPackage.find(id)
+        item = Package.find(id)
         next unless item
-        next unless DbPackage.check_access?(item)
+        next unless Package.check_access?(item)
       end
       @list << item
       break if @list.size == @limit
@@ -195,7 +195,7 @@ class StatisticsController < ApplicationController
   def updated_timestamp
 
     @project = Project.get_by_name(params[:project])
-    @package = DbPackage.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: true)
+    @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: true)
 
   end
 
@@ -205,7 +205,7 @@ class StatisticsController < ApplicationController
     @users = User.count
     @repos = Repository.count
     @projects = Project.count
-    @packages = DbPackage.count
+    @packages = Package.count
   end
 
 

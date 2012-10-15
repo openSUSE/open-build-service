@@ -109,7 +109,7 @@ class SourceController < ApplicationController
             if params.has_key? :expand
               packages = pro.expand_all_packages
             else
-              packages = pro.db_packages
+              packages = pro.packages
             end
             packages = packages.sort{|a,b| a.name<=>b.name}
             output = String.new
@@ -306,7 +306,7 @@ class SourceController < ApplicationController
     spkg = nil
     Project.get_by_name origin_project_name if origin_project_name
     if origin_package_name && ![ '_project', '_pattern' ].include?(origin_package_name) && !(params[:missingok] && command == 'branch')
-      spkg = DbPackage.get_by_project_and_name(origin_project_name, origin_package_name) if origin_package_name && ![ '_project', '_pattern' ].include?(origin_package_name)
+      spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name) if origin_package_name && ![ '_project', '_pattern' ].include?(origin_package_name)
     end
     if spkg
       # use real source in case we followed project link
@@ -319,7 +319,7 @@ class SourceController < ApplicationController
     # The target must exist, except for following cases
     if (request.post? and command == 'undelete') or (request.get? and deleted_package)
       tprj = Project.get_by_name(target_project_name)
-      if DbPackage.exists_by_project_and_name(target_project_name, target_package_name, follow_project_links: false)
+      if Package.exists_by_project_and_name(target_project_name, target_package_name, follow_project_links: false)
         render_error :status => 404, :errorcode => "package_exists",
           :message => "the package exists already #{tprj.name} #{target_package_name}"
         return
@@ -336,8 +336,8 @@ class SourceController < ApplicationController
       # The branch command may be used just for simulation
       unless params[:dryrun]
         # we require a target, but are we allowed to modify the existing target ?
-        if Project.exists_by_name(target_project_name) and DbPackage.exists_by_project_and_name(target_project_name, target_package_name, follow_project_links: false)
-          tpkg = DbPackage.get_by_project_and_name(target_project_name, target_package_name, use_source: false, follow_project_links: false)
+        if Project.exists_by_name(target_project_name) and Package.exists_by_project_and_name(target_project_name, target_package_name, follow_project_links: false)
+          tpkg = Package.get_by_project_and_name(target_project_name, target_package_name, use_source: false, follow_project_links: false)
           unless @http_user.can_modify_package?(tpkg)
             render_error :status => 403, :errorcode => "cmd_execution_no_permission",
               :message => "no permission to execute command '#{command}' for package #{tpkg.name} in project #{tpkg.project.name}"
@@ -370,7 +370,7 @@ class SourceController < ApplicationController
       else
         use_source = true
         use_source = false if command == "showlinked"
-        tpkg = DbPackage.get_by_project_and_name(target_project_name, target_package_name, use_source: use_source, follow_project_links: follow_project_links)
+        tpkg = Package.get_by_project_and_name(target_project_name, target_package_name, use_source: use_source, follow_project_links: follow_project_links)
         tprj = tpkg.project unless tpkg.nil? # for remote package case
         if request.delete? or (request.post? and not read_commands.include? command)
           # unlock
@@ -455,7 +455,7 @@ class SourceController < ApplicationController
       end
 
       # exec
-      DbPackage.transaction do
+      Package.transaction do
         tpkg.destroy
 
         params[:user] = @http_user.login
@@ -497,7 +497,7 @@ class SourceController < ApplicationController
     # valid post commands
     raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
     if params[:package] and params[:package] != "_project"
-      @attribute_container = DbPackage.get_by_project_and_name(params[:project], params[:package], use_source: false)
+      @attribute_container = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
     else
       # project
       if Project.is_remote_project?(params[:project])
@@ -645,7 +645,7 @@ class SourceController < ApplicationController
         rescue Project::SaveError => e
           render_error :status => 403, :errorcode => "save_error", :message => e.message
           return
-        rescue DbPackage::SaveError => e
+        rescue Package::SaveError => e
           render_error :status => 403, :errorcode => "save_error", :message => e.message
           return
         end
@@ -933,7 +933,7 @@ class SourceController < ApplicationController
 
     if request.get?
       # GET /source/:project/:package/_meta
-      pack = DbPackage.get_by_project_and_name( project_name, package_name, use_source: false )
+      pack = Package.get_by_project_and_name( project_name, package_name, use_source: false )
 
       if params.has_key?(:rev) or pack.nil? # and not pro_name 
         # check if this comes from a remote project, also true for _project package
@@ -968,13 +968,13 @@ class SourceController < ApplicationController
       end
 
       # check for project
-      if DbPackage.exists_by_project_and_name( project_name, package_name, follow_project_links: false )
+      if Package.exists_by_project_and_name( project_name, package_name, follow_project_links: false )
         # is lock explicit set to disable ? allow the un-freeze of the project in that case ...
         ignoreLock = nil
 # unlock only via command for now
 #        ignoreLock = 1 if Xmlhash.parse(request.raw_post).get("lock")["disable"]
 
-        pkg = DbPackage.get_by_project_and_name( project_name, package_name, use_source: false )
+        pkg = Package.get_by_project_and_name( project_name, package_name, use_source: false )
         unless @http_user.can_modify_package?(pkg, ignoreLock)
           render_error :status => 403, :errorcode => "change_package_no_permission",
             :message => "no permission to modify package '#{pkg.project.name}'/#{pkg.name}"
@@ -995,13 +995,13 @@ class SourceController < ApplicationController
             :message => "no permission to create a package in project '#{project_name}'"
           return
         end
-        pkg = prj.db_packages.new(name: package_name)
+        pkg = prj.packages.new(name: package_name)
       end
         
       begin
         pkg.update_from_xml(rdata)
         pkg.store
-      rescue DbPackage::CycleError => e
+      rescue Package::CycleError => e
         render_error :status => 400, :errorcode => 'devel_cycle', :message => e.message
         return
       end
@@ -1047,12 +1047,12 @@ class SourceController < ApplicationController
       if request.get? 
         # a readable package, even on remote instance is enough here
         begin
-          pack = DbPackage.get_by_project_and_name(project_name, package_name)
-        rescue DbPackage::UnknownObjectError
+          pack = Package.get_by_project_and_name(project_name, package_name)
+        rescue Package::UnknownObjectError
         end
       else
         # we need a local package here in any case for modifications
-        pack = DbPackage.get_by_project_and_name(project_name, package_name)
+        pack = Package.get_by_project_and_name(project_name, package_name)
         allowed = permissions.package_change? pack
       end
 
@@ -1109,13 +1109,13 @@ class SourceController < ApplicationController
           tpackage_name = data.value("package") || package_name
           if data.has_attribute? 'missingok'
             Project.get_by_name(tproject_name) # permission check
-            if DbPackage.exists_by_project_and_name(tproject_name, tpackage_name, follow_project_links: true, allow_remote_packages: true)
+            if Package.exists_by_project_and_name(tproject_name, tpackage_name, follow_project_links: true, allow_remote_packages: true)
               render_error :status => 400, :errorcode => 'not_missing',
                 :message => "Link contains a missingok statement but link target (#{tproject_name}/#{tpackage_name}) exists."
               return
             end
           else
-            DbPackage.get_by_project_and_name(tproject_name, tpackage_name)
+            Package.get_by_project_and_name(tproject_name, tpackage_name)
           end
         end
       end
@@ -1157,9 +1157,9 @@ class SourceController < ApplicationController
       # _pattern was not a real package in former OBS 2.0 and before, so we need to create the
       # package here implicit to stay api compatible.
       # FIXME3.0: to be revisited
-      if package_name == "_pattern" and not DbPackage.exists_by_project_and_name( project_name, package_name, follow_project_links: false )
-        pack = DbPackage.new(:name => "_pattern", :title => "Patterns", :description => "Package Patterns")
-        prj.db_packages << pack
+      if package_name == "_pattern" and not Package.exists_by_project_and_name( project_name, package_name, follow_project_links: false )
+        pack = Package.new(:name => "_pattern", :title => "Patterns", :description => "Package Patterns")
+        prj.packages << pack
         pack.save
       end
 
@@ -1206,7 +1206,7 @@ class SourceController < ApplicationController
       return
     end
 
-    pack = DbPackage.get_by_project_and_name( project_name, package_name, use_source: false )
+    pack = Package.get_by_project_and_name( project_name, package_name, use_source: false )
     render :text => pack.expand_flags.to_json, :content_type => 'text/json'
   end
 
@@ -1461,7 +1461,7 @@ class SourceController < ApplicationController
     backend_pkgs.each_package do |package|
       path = request.path + "/" + package.name + "/_meta"
       p = Xmlhash.parse(backend_get(path))
-      pkg = prj.db_packages.new(name: p['name'])
+      pkg = prj.packages.new(name: p['name'])
       pkg.update_from_xml(p)
       pkg.store
     end
@@ -1539,10 +1539,10 @@ class SourceController < ApplicationController
 
     # create patchinfo package
     pkg = nil
-    if DbPackage.exists_by_project_and_name( params[:project], pkg_name )
-      pkg = DbPackage.get_by_project_and_name params[:project], pkg_name
+    if Package.exists_by_project_and_name( params[:project], pkg_name )
+      pkg = Package.get_by_project_and_name params[:project], pkg_name
       unless params[:force]
-        if pkg.db_package_kinds.find_by_kind 'patchinfo'
+        if pkg.package_kinds.find_by_kind 'patchinfo'
           render_error :status => 400, :errorcode => "patchinfo_file_exists",
             :message => "createpatchinfo command: the patchinfo #{pkg_name} exists already. Either use force=1 re-create the _patchinfo or use updatepatchinfo for updating."
         else
@@ -1553,8 +1553,8 @@ class SourceController < ApplicationController
       end
     else
       prj = Project.get_by_name( params[:project] )
-      pkg = DbPackage.new(:name => pkg_name, :title => "Patchinfo", :description => "Collected packages for update")
-      prj.db_packages << pkg
+      pkg = Package.new(:name => pkg_name, :title => "Patchinfo", :description => "Collected packages for update")
+      prj.packages << pkg
       pkg.add_flag("build", "enable", nil, nil)
       pkg.add_flag("publish", "enable", nil, nil) unless prj.flags.find_by_flag_and_status("access", "disable")
       pkg.add_flag("useforbuild", "disable", nil, nil)
@@ -1588,7 +1588,7 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=updatepatchinfo
   def index_package_updatepatchinfo
 
-    pkg = DbPackage.get_by_project_and_name params[:project], params[:package]
+    pkg = Package.get_by_project_and_name params[:project], params[:package]
 
     # get existing file
     patchinfo_path = "/source/#{URI.escape(pkg.project.name)}/#{URI.escape(pkg.name)}/_patchinfo"
@@ -1617,7 +1617,7 @@ class SourceController < ApplicationController
 
     p = { :comment => params[:comment] }
 
-    pkg = DbPackage.get_by_project_and_name(params[:project], params[:package])
+    pkg = Package.get_by_project_and_name(params[:project], params[:package])
     f = pkg.flags.find_by_flag_and_status("lock", "enable")
     unless f
       render_error :status => 400, :errorcode => "not_locked",
@@ -1647,7 +1647,7 @@ class SourceController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
 
-    pack = DbPackage.find_by_project_and_name( project_name, package_name )
+    pack = Package.find_by_project_and_name( project_name, package_name )
 
     unless pack
       # package comes from remote instance or is hidden
@@ -1686,7 +1686,7 @@ class SourceController < ApplicationController
     # read meta data from backend to restore database object
     path = request.path + "/_meta"
     prj = Project.find_by_name!(params[:project])
-    pkg = prj.db_packages.new(name: params[:package])
+    pkg = prj.packages.new(name: params[:package])
     pkg.update_from_xml(Xmlhash.parse(backend_get(path)))
     pkg.store
   end
@@ -1716,7 +1716,7 @@ class SourceController < ApplicationController
     arch_name = params[:arch]
 
     # check for sources in this or linked project
-    pkg = DbPackage.find_by_project_and_name(project_name, package_name)
+    pkg = Package.find_by_project_and_name(project_name, package_name)
     unless pkg
       # check if this is a package on a remote OBS instance
       answer = Suse::Backend.get(request.path)
@@ -1754,7 +1754,7 @@ class SourceController < ApplicationController
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     pass_to_backend path
 
-    pack = DbPackage.find_by_project_and_name( params[:project], params[:package] )
+    pack = Package.find_by_project_and_name( params[:project], params[:package] )
     pack.sources_changed if pack # in case of _project package
 
     if params[:package] == "_product"
@@ -1773,7 +1773,7 @@ class SourceController < ApplicationController
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     answer = pass_to_backend path
     
-    pack = DbPackage.find_by_project_and_name( params[:project], params[:package] )
+    pack = Package.find_by_project_and_name( params[:project], params[:package] )
     if pack # in case of _project package
       pack.set_package_kind_from_commit(answer)
       pack.update_activity
@@ -1824,22 +1824,22 @@ class SourceController < ApplicationController
     spackage = params[:opackage] if params[:opackage]
 
     # create target package, if it does not exist
-    tpkg = DbPackage.find_by_project_and_name(params[:project], params[:package])
+    tpkg = Package.find_by_project_and_name(params[:project], params[:package])
     if tpkg.nil?
       prj = Project.find_by_name!(params[:project])
       answer = Suse::Backend.get("/source/#{CGI.escape(sproject)}/#{CGI.escape(spackage)}/_meta")
       if answer
-        DbPackage.transaction do
+        Package.transaction do
           adata = Xmlhash.parse(answer.body)
           adata['name'] = params[:package]
-          p = prj.db_packages.new(name: params[:package])
+          p = prj.packages.new(name: params[:package])
           p.update_from_xml(adata)
           p.remove_all_persons
           p.remove_all_groups
           p.develpackage = nil
           p.store
         end
-        tpkg = DbPackage.find_by_project_and_name(params[:project], params[:package])
+        tpkg = Package.find_by_project_and_name(params[:project], params[:package])
       else
         render_error :status => 404, :errorcode => 'unknown_package',
           :message => "Unknown package #{spackage} in project #{sproject}"
@@ -1860,7 +1860,7 @@ class SourceController < ApplicationController
     valid_http_methods :post
     params[:user] = @http_user.login
 
-    pack = DbPackage.find_by_project_and_name( params[:project], params[:package] )
+    pack = Package.find_by_project_and_name( params[:project], params[:package] )
 
     path = request.path
     path << build_query_from_hash(params, [:cmd, :comment, :user])
@@ -1888,7 +1888,7 @@ class SourceController < ApplicationController
     pkg_rev = params[:rev]
     pkg_linkrev = params[:linkrev]
 
-    pkg = DbPackage.get_by_project_and_name prj_name, pkg_name, use_source: true, follow_project_links: false
+    pkg = Package.get_by_project_and_name prj_name, pkg_name, use_source: true, follow_project_links: false
 
     #convert link to branch
     rev = ""
@@ -1928,7 +1928,7 @@ class SourceController < ApplicationController
     prj_name = params[:project]
     pkg_name = params[:package]
 
-    pkg = DbPackage.get_by_project_and_name prj_name, pkg_name, use_source: true, follow_project_links: false
+    pkg = Package.get_by_project_and_name prj_name, pkg_name, use_source: true, follow_project_links: false
 
     # first remove former flags of the same class
     begin
@@ -1982,7 +1982,7 @@ class SourceController < ApplicationController
 
     required_parameters :project, :package, :flag
     
-    pkg = DbPackage.get_by_project_and_name( params[:project], params[:package] )
+    pkg = Package.get_by_project_and_name( params[:project], params[:package] )
     
     pkg.remove_flag(params[:flag], params[:repository], params[:arch])
     pkg.store

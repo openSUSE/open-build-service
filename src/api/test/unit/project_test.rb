@@ -65,7 +65,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal '10.2', @project.type_flags('build')[0].repo
     assert_equal 'i586', @project.type_flags('build')[0].architecture.name
     assert_equal 1, @project.type_flags('build')[0].position
-    assert_nil @project.type_flags('build')[0].db_package    
+    assert_nil @project.type_flags('build')[0].package    
     assert_equal 'home:Iggy', @project.type_flags('build')[0].project.name
     
     assert_equal 1, @project.type_flags('publish').size
@@ -73,7 +73,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal '10.2', @project.type_flags('publish')[0].repo
     assert_equal 'x86_64', @project.type_flags('publish')[0].architecture.name
     assert_equal 2, @project.type_flags('publish')[0].position
-    assert_nil @project.type_flags('publish')[0].db_package    
+    assert_nil @project.type_flags('publish')[0].package    
     assert_equal 'home:Iggy', @project.type_flags('publish')[0].project.name  
     
     assert_equal 1, @project.type_flags('debuginfo').size
@@ -81,7 +81,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal '10.0', @project.type_flags('debuginfo')[0].repo
     assert_equal 'i586', @project.type_flags('debuginfo')[0].architecture.name
     assert_equal 3, @project.type_flags('debuginfo')[0].position
-    assert_nil @project.type_flags('debuginfo')[0].db_package    
+    assert_nil @project.type_flags('debuginfo')[0].package    
     assert_equal 'home:Iggy', @project.type_flags('debuginfo')[0].project.name      
     
   end

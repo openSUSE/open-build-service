@@ -368,7 +368,7 @@ end
 #    post "/source/RemoteInstance:BaseDistro/pack1", :cmd => :branch, :target_project => "LocalProject", :target_package => "branchedpackage"
 #    assert_response :success
 
-    Suse::Backend.put( '/source/LocalProject/newpackage/_meta', DbPackage.find_by_project_and_name("LocalProject", "newpackage").to_axml)
+    Suse::Backend.put( '/source/LocalProject/newpackage/_meta', Package.find_by_project_and_name("LocalProject", "newpackage").to_axml)
     Suse::Backend.put( '/source/LocalProject/newpackage/new_file', "adding stuff")
     post "/source/LocalProject/newpackage", :cmd => :diff, :oproject => "RemoteInstance:BaseDistro", :opackage => "pack1"
     assert_response :success
