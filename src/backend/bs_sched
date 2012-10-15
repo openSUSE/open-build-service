@@ -80,6 +80,7 @@ my $extrepodb = "$bsdir/db/published";
 my $uploaddir = "$bsdir/upload";
 my $rundir = $BSConfig::rundir || "$bsdir/run";
 my $infodir = "$bsdir/info";
+my $remotecache = "$BSConfig::bsdir/remotecache";
 
 if (@ARGV && $ARGV[0] eq '--testmode') {
   $testmode = 1;
@@ -256,15 +257,20 @@ sub addrepo {
       return $r if $r;
       delete $repodatas{$prp}->{'solv'};
     }
-    my $dir = "$reporoot/$prp/$myarch/:full";
-    if (-s "$dir.solv") {
+    my $solvfile = $repodatas{$prp}->{'solvfile'} || "$reporoot/$prp/$myarch/:full.solv";
+    if (-s $solvfile) {
       my $r;
-      eval {$r = $pool->repofromfile($prp, "$dir.solv");};
+      if ($repodatas{$prp}->{'solvfile'}) {
+	my @s = stat _;
+	utime time(), $s[9], $solvfile;	# update atime
+      }
+      eval {$r = $pool->repofromfile($prp, $solvfile);};
       return $r if $r;
     }
   }
   delete $repodatas{$prp}->{'solv'};
   delete $repodatas{$prp}->{'lastscan'};
+  delete $repodatas{$prp}->{'solvfile'};
   my ($projid, $repoid) = split('/', $prp, 2);
   if ($remoteprojs{$projid}) {
     return addrepo_remote($pool, $prp, $remoteprojs{$projid});
@@ -2682,6 +2688,10 @@ sub addrepo_remote {
 
   my ($projid, $repoid) = split('/', $prp, 2);
   return undef if !$remoteproj || $remoteproj->{'error'};
+
+  my $cachemd5 = Digest::MD5::md5_hex("$prp/$myarch");
+  substr($cachemd5, 2, 0, '/');
+
   print "    fetching remote repository state for $prp\n";
   my $param = {
     'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$myarch/_repository",
@@ -2703,7 +2713,19 @@ sub addrepo_remote {
     warn($@);
     my $error = $@;
     $error =~ s/\n$//s;
-    addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $myarch}) if $error !~ /remote error:/;
+    if ($error !~ /remote error:/) {
+      addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $myarch});
+      if (-s "$remotecache/$cachemd5.solv") {
+	# try last solv file
+	my $r;
+        eval {$r = $pool->repofromfile($prp, "$remotecache/$cachemd5.solv");};
+        if ($r) {
+	  $repodatas{$prp}->{'lastscan'} = time();
+	  $repodatas{$prp}->{'solvfile'} = "$remotecache/$cachemd5.solv";
+	  return $r;
+	}
+      }
+    }
     return undef;
   }
   my %cpio = map {$_->{'name'} => $_->{'data'}} @{$cpio || []};
@@ -2713,15 +2735,11 @@ sub addrepo_remote {
   if ($repostate && $repostate->{'blocked'}) {
     $prpnotready{$prp} = { map {$_ => 1} @{$repostate->{'blocked'}} };
   }
+  my $r;
+  my $solv;
   if (exists $cpio{'repositorysolv'} && $BSConfig::usesolvstate) {
-    my $r;
     eval {$r = $pool->repofromstr($prp, $cpio{'repositorysolv'}); };
     warn($@) if $@;
-    if ($r) {
-      $repodatas{$prp}->{'solv'} = $cpio{'repositorysolv'};
-      $repodatas{$prp}->{'lastscan'} = time();
-    }
-    return $r;
   } elsif (exists $cpio{'repositorycache'}) {
     my $cache;
     eval { $cache = Storable::thaw(substr($cpio{'repositorycache'}, 4)); };
@@ -2733,17 +2751,19 @@ sub addrepo_remote {
       delete $_->{'path'};
       delete $_->{'id'};
     }
-    my $r = $pool->repofromdata($prp, $cache);
-    $repodatas{$prp}->{'solv'} = $r->tostr();
-    $repodatas{$prp}->{'lastscan'} = time();
-    return $r;
+    $r = $pool->repofromdata($prp, $cache);
   } else {
     # return empty repo
-    my $r = $pool->repofrombins($prp, '');
-    $repodatas{$prp}->{'solv'} = $r->tostr();
-    $repodatas{$prp}->{'lastscan'} = time();
-    return $r;
+    $r = $pool->repofrombins($prp, '');
+    $repodatas{$prp}->{'solv'} = $r->tostr();	# small enough to keep it incore
   }
+  return undef unless $r;
+  # write solv file
+  mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
+  writesolv("$remotecache/$cachemd5.solv.new$$", "$remotecache/$cachemd5.solv", $r);
+  $repodatas{$prp}->{'lastscan'} = time();
+  $repodatas{$prp}->{'solvfile'} = "$remotecache/$cachemd5.solv";
+  return $r;
 }
 
 sub read_gbininfo_remote {
@@ -5243,12 +5263,12 @@ sub event_project {
 sub event_repository {
   my ($ectx, $ev) = @_;
 
-  my $changed_high = $ectx->{'changed_high'};
+  my $changed_med = $ectx->{'changed_med'};
   my $projid = $ev->{'project'};
   my $repoid = $ev->{'repository'};
   my $prp = "$projid/$repoid";
   delete $repodatas{$prp};
-  $changed_high->{$prp} = 2;
+  $changed_med->{$prp} = 2;
   delete $repounchanged{$prp};
 }
 
