@@ -654,6 +654,47 @@ sub deleterepo_arch {
 
 ##########################################################################
 
+sub createrepo_staticlinks {
+  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $options) = @_;
+
+  my $versioned = grep {$_ eq 'versioned'} @{$options || []};
+  for my $arch ('.', ls($extrep)) {
+    next unless -d "$extrep/$arch";
+    for (ls("$extrep/$arch")) {
+      next unless -f "$extrep/$arch/$_";
+      my $link;
+      if (/^(.*)-([^-]*)-[^-]*\.rpm$/s) {
+        $link = "$1.rpm";
+        $link = "$1-$2.rpm" if $versioned;
+      } elsif (/^(.*)_([^_]*)-[^_]*\.deb$/s) {
+        $link = "$1.deb";
+        $link = "${1}_$2.deb" if $versioned;
+      } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+([-\.].*\.(gz|bz2|xz))$/s) {
+        $link = "$1$3";
+        $link = "$1-$2$3" if $versioned;
+      } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+(\.(raw|iso|qcow2))$/s) {
+        $link = "$1$3";
+        $link = "$1-$2$3" if $versioned;
+      }
+      next unless $link;
+      symlink($_, "$extrep/$arch/$link");
+    }
+  }
+}
+
+sub deleterepo_staticlinks {
+  my ($extrep) = @_;
+  for my $arch ('.', ls($extrep)) {
+    next unless -d "$extrep/$arch";
+    for (ls("$extrep/$arch")) {
+      next unless -l "$extrep/$arch/$_";
+      unlink("$extrep/$arch/$_");
+    }
+  }
+}
+
+##########################################################################
+
 sub createpatterns_rpmmd {
   my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $patterns) = @_;
 
@@ -1527,6 +1568,11 @@ sub publish {
     createrepo_arch($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
   } else {
     deleterepo_arch($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
+  }
+  if ($repotype{'staticlinks'}) {
+    createrepo_staticlinks($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $repotype{'staticlinks'});
+  } else {
+    deleterepo_staticlinks($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $repotype{'staticlinks'});
   }
 
   if ($patterntype{'ymp'}) {
