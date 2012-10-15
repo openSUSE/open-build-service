@@ -2068,23 +2068,21 @@ sub dobuild {
     # convert build statistics into xml
     if( -e "$buildroot/.build.packages/_statistics") {
       my $stats = {};
-      my $disk = {};
       my $iosectors = 0;
       my $iorequests = 0;
       open(FILE, "<", "$buildroot/.build.packages/_statistics") || die;
       while(<FILE>) {
         my ($key, $value) = split( ": ", $_ );
         if ($key eq "MAX_mb_used_on_disk" ){
-          $disk->{'max_storage_usage'} = $value;
-          $stats->{'disk'} = $disk;
+          $stats->{'disk'}->{'max_usage'} = $value;
+        } elsif ($key eq "MAX_mb_used_memory" ){
+          $stats->{'memory'}->{'max_usage'} = $value;
         } elsif ($key eq "IO_requests_read" || $key eq "IO_requests_write" ){
           $iorequests += $value;
-          $disk->{'io_requests'} = $iorequests;
-          $stats->{'disk'} = $disk;
+          $stats->{'disk'}->{'io_requests'} = $iorequests;
         } elsif ($key eq "IO_sectors_read" || $key eq "IO_sectors_write" ){
           $iosectors += $value;
-          $disk->{'io_sectors'} = $iosectors;
-          $stats->{'disk'} = $disk;
+          $stats->{'disk'}->{'io_sectors'} = $iosectors;
         }
       }
       close FILE;
