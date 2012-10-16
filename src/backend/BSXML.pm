@@ -697,6 +697,7 @@ our $worker = [
 	'swap',		# in MBytes
 	'disk',		# in MBytes
       ],
+	'owner',
 	'tellnojob',
 
 	'job',		# set when worker is busy

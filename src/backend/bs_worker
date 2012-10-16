@@ -80,6 +80,7 @@ my $oneshot;
 my $silent;
 my $hostcheck;
 my $localkiwi;
+my $owner;
 my @hostlabel;
 
 my $jobs;
@@ -230,6 +231,9 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --hostcheck <hostcheck>
                    : call to check if the host can build the package
+
+       --owner <name>
+                   : report the build host owner name to server
 
        --cachedir <cachedir>
        --cachesize <size_in_mb>
@@ -425,6 +429,11 @@ while (@ARGV) {
     $localkiwi = shift @ARGV;
     next;
   }
+  if ($ARGV[0] eq '--owner') {
+    shift @ARGV;
+    $owner = shift @ARGV;
+    next;
+  }
   if ($ARGV[0] eq '--jobs') {
     shift @ARGV;
     $jobs = shift @ARGV;
@@ -520,6 +529,8 @@ my $workerenvstate = {};
   $workerenvstate->{'sandbox'} = 'xen' if $vm eq ' --xen';
   $workerenvstate->{'sandbox'} = 'kvm' if $vm eq ' --kvm';
   $workerenvstate->{'sandbox'} = 'lxc' if $vm eq 'lxc';
+  # build host owner
+  $workerenvstate->{'owner'} = $owner if $owner;
   # linux kernel
   my $str = readstr("/proc/version");
   if ($str =~ /^Linux version ([^-]*)-([^-]*)-([^ ]*) .*$/s) {

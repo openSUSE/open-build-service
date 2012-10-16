@@ -147,6 +147,10 @@ case "$1" in
             NUM=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`
         fi
 
+        if [ -n "$OBS_WORKER_OWNER" ]; then
+            HOSTOWNER="--owner $OBS_WORKER_OWNER"
+        fi
+
 	# print some config data
         echo "Run $NUM obsworker using $OBS_WORKER_DIRECTORY"
         echo -n "Type of obsworker is "
@@ -218,7 +222,7 @@ case "$1" in
             fi
 	    echo "screen -t $WORKERID nice -n $OBS_NICE ./bs_worker $vmopt $port --root $R" \
                 "--statedir $workerdir/$I --id $WORKERID $REPO_PARAM $HUGETLBFS $HOSTLABELS" \
-                "$OBS_JOBS $OBS_TEST $OBS_WORKER_OPT $TMPFS $DEVICE $SWAP $MEMORY" \
+                "$HOSTOWNER $OBS_JOBS $OBS_TEST $OBS_WORKER_OPT $TMPFS $DEVICE $SWAP $MEMORY" \
                 >> $screenrc
 	    mkdir -p $workerdir/$I
         done
