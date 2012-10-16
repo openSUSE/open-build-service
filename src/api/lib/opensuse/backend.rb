@@ -228,6 +228,7 @@ module Suse
       end
 
       def start_test_backend
+	#do_not_start_test_backend
         return unless Rails.env.test?
         return if @@backend
         logger.debug "Starting test backend..."
@@ -239,7 +240,7 @@ module Suse
           break if line =~ /DONE NOW/
           logger.debug line.strip
         end
-        ActiveXML::Config.global_write_through = true
+        CONFIG['global_write_through'] = true
         at_exit do
           logger.debug "kill #{@@backend.pid}"
           Process.kill "INT", @@backend.pid

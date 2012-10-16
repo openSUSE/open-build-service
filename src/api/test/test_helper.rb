@@ -40,7 +40,7 @@ module ActionController
 
       alias_method :real_process, :process
       def process(method, path, parameters, rack_env)
-        ActiveXML::Config.global_write_through = true
+        CONFIG['global_write_through'] = true
         self.accept = "text/xml,application/xml"
         real_process(method, path, parameters, add_auth(rack_env))
       end

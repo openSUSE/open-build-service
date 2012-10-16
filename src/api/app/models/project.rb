@@ -688,7 +688,7 @@ class Project < ActiveRecord::Base
     Rails.cache.delete('meta_project_%d' % id)
     @commit_opts ||= {}
     
-    if ActiveXML::Config.global_write_through
+    if CONFIG['global_write_through']
       login = User.current.login unless @commit_opts[:login] # Allow to override if User.current isn't available yet
       path = "/source/#{self.name}/_meta?user=#{CGI.escape(login)}"
       path += "&comment=#{CGI.escape(@commit_opts[:comment])}" unless @commit_opts[:comment].blank?

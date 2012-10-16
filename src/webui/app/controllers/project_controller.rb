@@ -1090,7 +1090,7 @@ class ProjectController < ApplicationController
 
   def clear_failed_comment
     # TODO(Jan): put this logic in the Attribute model
-    transport ||= ActiveXML::Config::transport_for(:package)
+    transport ||= ActiveXML::transport
     params["package"].to_a.each do |p|
       begin
         transport.direct_http URI("/source/#{params[:project]}/#{p}/_attribute/OBS:ProjectStatusPackageFailComment"), :method => "DELETE"

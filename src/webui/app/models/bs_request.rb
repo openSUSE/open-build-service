@@ -58,7 +58,7 @@ class BsRequest < ActiveXML::Base
     def addReview(id, opts)
       opts = {:user => nil, :group => nil, :project => nil, :package => nil, :comment => nil}.merge opts
 
-      transport ||= ActiveXML::Config::transport_for :bsrequest
+      transport ||= ActiveXML::transport
       path = "/request/#{id}?cmd=addreview"
       path << "&by_user=#{CGI.escape(opts[:user])}" unless opts[:user].blank?
       path << "&by_group=#{CGI.escape(opts[:group])}" unless opts[:group].blank?
@@ -82,7 +82,7 @@ class BsRequest < ActiveXML::Base
         raise ModifyError, "unknown changestate #{changestate}"
       end
 
-      transport ||= ActiveXML::Config::transport_for :bsrequest
+      transport ||= ActiveXML::transport
       path = "/request/#{id}?newstate=#{changestate}&cmd=changereviewstate"
       path << "&by_user=#{CGI.escape(opts[:user])}" unless opts[:user].blank?
       path << "&by_group=#{CGI.escape(opts[:group])}" unless opts[:group].blank?
@@ -101,7 +101,7 @@ class BsRequest < ActiveXML::Base
     def modify(id, changestate, opts)
       opts = {:superseded_by => nil, :force => false, :reason => ''}.merge opts
       if ["accepted", "declined", "revoked", "superseded", "new"].include?(changestate)
-        transport ||= ActiveXML::Config::transport_for :bsrequest
+        transport ||= ActiveXML::transport
         path = "/request/#{id}?newstate=#{changestate}&cmd=changestate"
         path += "&superseded_by=#{opts[:superseded_by]}" unless opts[:superseded_by].blank?
         path += "&force=1" if opts[:force]
@@ -120,7 +120,7 @@ class BsRequest < ActiveXML::Base
     def set_incident(id, incident_project)
       begin
         path = "/request/#{id}?cmd=setincident&incident=#{incident_project}"
-        transport ||= ActiveXML::Config::transport_for :bsrequest
+        transport ||= ActiveXML::transport
         transport.direct_http URI(path), :method => "POST", :data => ''
         BsRequest.free_cache(id)
         return true
@@ -151,7 +151,7 @@ class BsRequest < ActiveXML::Base
 
       opts.delete(:types) if opts[:types] == 'all' # All types means don't pass 'type' to backend
 
-      transport ||= ActiveXML::Config::transport_for :bsrequest
+      transport ||= ActiveXML::transport
       path = "/request?view=collection"
       path << "&states=#{CGI.escape(opts[:states])}" unless opts[:states].blank?
       path << "&roles=#{CGI.escape(opts[:roles])}" unless opts[:roles].blank?
@@ -447,7 +447,7 @@ class BsRequest < ActiveXML::Base
     #return Rails.cache.fetch("request_#{value('id')}_actiondiffs", :expires_in => 7.days) do
       actiondiffs = []
       begin
-        transport ||= ActiveXML::Config::transport_for :bsrequest
+        transport ||= ActiveXML::transport
         result = ActiveXML::Base.new(transport.direct_http(URI("/request/#{value('id')}?cmd=diff&view=xml&withissues=1"), :method => "POST", :data => ""))
         result.each_action do |action| # Parse each action and get the it's diff (per file)
           sourcediffs = []

@@ -90,9 +90,8 @@ class ApplicationController < ActionController::Base
       session[:login] = proxy_user
       session[:email] = proxy_email
       # Set the headers for direct connection to the api, TODO: is this thread safe?
-      transport = ActiveXML::Config.transport_for( :project )
-      transport.set_additional_header( "X-Username", proxy_user )
-      transport.set_additional_header( "X-Email", proxy_email ) if proxy_email
+      ActiveXML::transport.set_additional_header( "X-Username", proxy_user )
+      ActiveXML::transport.set_additional_header( "X-Email", proxy_email ) if proxy_email
     else
       session[:login] = nil
       session[:email] = nil
@@ -102,7 +101,7 @@ class ApplicationController < ActionController::Base
   def authenticate_form_auth
     if session[:login] and session[:passwd]
       # pass credentials to transport plugin, TODO: is this thread safe?
-      ActiveXML::Config.transport_for(:project).login session[:login], session[:passwd]
+      ActiveXML::transport.login session[:login], session[:passwd]
     end
   end
 
@@ -150,7 +149,7 @@ class ApplicationController < ActionController::Base
   end
 
   def reset_activexml
-    transport = ActiveXML::Config.transport_for(:project)
+    transport = ActiveXML::transport
     transport.delete_additional_header "X-Username"
     transport.delete_additional_header "X-Email"
     transport.delete_additional_header 'Authorization'
@@ -413,7 +412,7 @@ class ApplicationController < ActionController::Base
     @configuration = {}
     begin
       @configuration = Rails.cache.fetch('configuration', :expires_in => 30.minutes) do
-        response = ActiveXML::Config::transport_for(:configuration).direct_http(URI('/configuration.json'))
+        response = ActiveXML::transport.direct_http(URI('/configuration.json'))
         ActiveSupport::JSON.decode(response)
       end
     rescue ActiveXML::Transport::NotFoundError

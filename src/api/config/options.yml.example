@@ -122,3 +122,6 @@ ldap_start_tls: :off
 #ldap_port
 #ldap_referrals
 #ldap_search_auth
+
+# if set to false, the API will only fake writes to backend (useful in testing)
+# global_write_through: true

@@ -25,9 +25,7 @@ class DetailsLogger
   end
 end
 
-ActiveXML::Base.config do |conf|
-  conf.setup_transport do |map|
-    map.default_server :rest, "#{CONFIG['frontend_protocol']}://#{CONFIG['frontend_host']}:#{CONFIG['frontend_port']}"
+map = ActiveXML::setup_transport(CONFIG['frontend_protocol'], CONFIG['frontend_host'], CONFIG['frontend_port'])
 
     map.connect :project, "rest:///source/:name/_meta?:view",
       :all    => "rest:///source/",
@@ -126,14 +124,11 @@ ActiveXML::Base.config do |conf|
 
     map.connect :distribution, 'rest:///distributions', :all => 'rest:///distributions'
 
-  end
-  ActiveXML::Config.transport_for( :project ).set_additional_header( "User-Agent", "obs-webui/#{CONFIG['version']}" )
-  ActiveXML::Config.transport_for( :project ).details = DetailsLogger.new
-
-end
+  map.set_additional_header( "User-Agent", "obs-webui/#{CONFIG['version']}" )
+  map.details = DetailsLogger.new
 
 if Rails.env.development?
-  ::Rack::MiniProfiler.profile_method(ActiveXML::Transport::Rest, :http_do) { |method,url| "#{method.to_s.upcase} #{url.path}?#{url.query}" }
+  ::Rack::MiniProfiler.profile_method(ActiveXML::Transport, :http_do) { |method,url| "#{method.to_s.upcase} #{url.path}?#{url.query}" }
 #  ::Rack::MiniProfiler.profile_method(ActiveXML::Base, :find_cached) { "Fetching" }
 end
 

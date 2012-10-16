@@ -68,6 +68,10 @@ setup_webui() {
   rake --trace db:drop db:create db:migrate
 
   cd ../..
+  cd docs/api
+  make
+  cd ../..
+
 }
 
 cleanup() {

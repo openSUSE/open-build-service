@@ -8,7 +8,7 @@ class Patchinfo < ActiveXML::Base
   def save
     path = self.init_options[:package] ? "/source/#{self.init_options[:project]}/#{self.init_options[:package]}/_patchinfo" : "/source/#{self.init_options[:package]}/_patchinfo"
     begin
-      frontend = ActiveXML::Config::transport_for(:package)
+      frontend = ActiveXML::transport
       frontend.direct_http URI("#{path}"), :method => "POST", :data => self.dump_xml
       result = {:type => :note, :msg => "Patchinfo sucessfully updated!"}
     rescue ActiveXML::Transport::Error => e

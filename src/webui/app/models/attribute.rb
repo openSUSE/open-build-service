@@ -11,7 +11,7 @@ class Attribute < ActiveXML::Base
   def save
     path = self.init_options[:package] ? "/source/#{self.init_options[:project]}/#{self.init_options[:package]}/_attribute" : "/source/#{self.init_options[:project]}/_attribute"
     begin
-      frontend = ActiveXML::Config::transport_for( :package ) 
+      frontend = ActiveXML::transport 
       frontend.direct_http URI("#{path}"), :method => "POST", :data => self.dump_xml
       result = {:type => :note, :msg => "Attribute sucessfully added!"}
     rescue ActiveXML::Transport::Error => e
@@ -30,7 +30,7 @@ class Attribute < ActiveXML::Base
     end
 
     begin
-      frontend = ActiveXML::Config::transport_for( :package )
+      frontend = ActiveXML::transport
       frontend.direct_http URI("#{path}"), :method => "DELETE", :data => ""
       result = {:type => :note, :msg => "Attribute sucessfully deleted!"}
     rescue ActiveXML::Transport::Error => e

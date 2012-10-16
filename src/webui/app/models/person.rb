@@ -138,7 +138,7 @@ class Person < ActiveXML::Base
         begin
           # get users open issues for package
           path = "/source/#{URI.escape(pi.project)}/#{URI.escape(pi.name)}?view=issues&states=OPEN&login=#{CGI.escape(login)}"
-          frontend = ActiveXML::Config::transport_for( :package )
+          frontend = ActiveXML::transport
           answer = frontend.direct_http URI(path), :method => "GET"
           doc = ActiveXML::Base.new(answer)
           doc.each("/package/issue") do |s|
@@ -231,7 +231,7 @@ class Person < ActiveXML::Base
   def self.list(prefix=nil)
     prefix = URI.encode(prefix)
     user_list = Rails.cache.fetch("user_list_#{prefix.to_s}", :expires_in => 10.minutes) do
-      transport ||= ActiveXML::Config::transport_for(:person)
+      transport ||= ActiveXML::transport
       path = "/person?prefix=#{prefix}"
       begin
         logger.debug "Fetching user list from API"

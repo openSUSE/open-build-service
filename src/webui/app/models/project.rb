@@ -377,7 +377,7 @@ class Project < ActiveXML::Base
 
   def self.attributes(project_name)
     path = "/source/#{project_name}/_attribute/"
-    res = ActiveXML::Config::transport_for(:project).direct_http(URI("#{path}"))
+    res = ActiveXML::transport.direct_http(URI("#{path}"))
     return Collection.new(res)
   end
 
@@ -406,7 +406,7 @@ class Project < ActiveXML::Base
     path = "/search/project/?match=#{CGI.escape(predicate)}"
     path += "&limit=#{opts[:limit]}" if opts[:limit]
     path += "&offset=#{opts[:offset]}" if opts[:offset]
-    result = ActiveXML::Config::transport_for(:project).direct_http(URI(path))
+    result = ActiveXML::transport.direct_http(URI(path))
     return Collection.new(result).each
   end
 

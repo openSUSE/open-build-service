@@ -14,8 +14,7 @@ if ! dbproj
   puts "invalid project " + proj
   exit 1
 end
-backend = ActiveXML::Config.transport_for :bsrequest
-mypackages = dbproj.complex_status(backend)
+mypackages = dbproj.complex_status(ActiveXML::transport)
 builder = Builder::XmlMarkup.new(:indent => 2)
 xml = builder.project do
   mypackages.sort.each do |name, package|

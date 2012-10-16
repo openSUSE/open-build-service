@@ -6,8 +6,6 @@ module ActiveXML
 
   class Base < LibXMLNode
 
-    include ActiveXML::Config
-
     attr_reader :init_options
     attr_reader :cache_key
 
@@ -61,7 +59,7 @@ module ActiveXML
             if value.kind_of? Array
               hash[key.to_sym] = value
             else
-              hash[key.to_sym] = value.to_s 
+              hash[key.to_sym] = value.to_s
             end
           end
           args[0] = hash
@@ -77,7 +75,7 @@ module ActiveXML
       end
 
       def free_object_cache
-	@@object_cache = {}
+        @@object_cache = {}
       end
 
       def find_priv(cache_time, *args )
@@ -91,27 +89,22 @@ module ActiveXML
         #TODO: factor out xml stuff to ActiveXML::Node
         #logger.debug "#{self.name}.find( #{cache_time.inspect}, #{args.join(', ')})"
 
-        #TODO: somehow we need to set the transport again, as it was not set when subclassing.
-        # only happens with rails >= 2.3.4 and config.cache_classes = true
-        transport = config.transport_for(self.name.downcase.to_sym)
-        raise "No transport defined for model #{self.name}" unless transport
-
-	objhash = nil
+        objhash = nil
         begin
           if cache_time
             objdata, params, objhash = Rails.cache.fetch(cache_key, :expires_in => cache_time) do
-              objdata, params = transport.find( self, *(prepare_args(args)) )
-	      obj = self.new( objdata )
-	      [objdata, params, obj.to_hash]
+              objdata, params = ActiveXML::transport.find( self, *(prepare_args(args)) )
+              obj = self.new( objdata )
+              [objdata, params, obj.to_hash]
             end
           else
-            objdata, params = transport.find( self, *(prepare_args(args)) )
+            objdata, params = ActiveXML::transport.find( self, *(prepare_args(args)) )
           end
           obj = self.new( objdata ) unless obj
           obj.instance_variable_set( '@cache_key', cache_key ) if cache_key
           obj.instance_variable_set( '@init_options', params )
-	  obj.instance_variable_set( '@hash_cache', objhash) if objhash
-	  @@object_cache[cache_key] = obj
+          obj.instance_variable_set( '@hash_cache', objhash) if objhash
+          @@object_cache[cache_key] = obj
           return obj
         rescue ActiveXML::Transport::NotFoundError
           logger.debug "#{self.name}.find( #{args.map {|a| a.inspect}.join(', ')} ) did not find anything, return nil"
@@ -126,13 +119,13 @@ module ActiveXML
       def find_cached( *args )
         expires_in = 30.minutes
         if args.last.kind_of?(Hash) and args.last[:expires_in]
-          expires_in = args.last[:expires_in] 
+          expires_in = args.last[:expires_in]
           args.last.delete :expires_in
         end
         find_priv(expires_in, *args)
       end
 
-      def find_hashed( *args ) 
+      def find_hashed( *args )
         ret = find_cached( *args )
         return {} unless ret
         ret.to_hash
@@ -142,7 +135,7 @@ module ActiveXML
         # modify copy of args as it might be still used in the calling method
         free_args = args.dup
         options = free_args.last if free_args.last.kind_of?(Hash)
-        if options && options[:expires_in] 
+        if options && options[:expires_in]
           free_args[free_args.length-1] = free_args.last.dup
           free_args.last.delete :expires_in
         end
@@ -168,22 +161,20 @@ module ActiveXML
     end
 
     def save(opt={})
-      transport = TransportMap.transport_for(self.class.name.downcase.to_sym)
       if opt[:create]
-        @raw_data = transport.create self, opt
+        @raw_data = ActiveXML::transport.create self, opt
         @data = nil
-	@to_hash = nil
+        @to_hash = nil
       else
-        transport.save self, opt
-        Rails.cache.delete @cache_key if @cache_key
+        ActiveXML::transport.save self, opt
       end
+      Rails.cache.delete @cache_key if @cache_key
       return true
     end
 
     def delete(opt={})
       #logger.debug "Delete #{self.class}, opt: #{opt.inspect}"
-      transport = TransportMap.transport_for(self.class.name.downcase.to_sym)
-      transport.delete self, opt
+      ActiveXML::transport.delete self, opt
       Rails.cache.delete @cache_key if @cache_key
       return true
     end

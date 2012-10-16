@@ -634,7 +634,7 @@ class Package < ActiveRecord::Base
     Rails.cache.delete('meta_package_%d' % id)
     @commit_opts ||= {}
     #--- write through to backend ---#
-    if ActiveXML::Config.global_write_through
+    if CONFIG['global_write_through']
       path = "/source/#{self.project.name}/#{self.name}/_meta?user=#{URI.escape(User.current ? User.current.login : "_nobody_")}"
       path += "&comment=#{CGI.escape(@commit_opts[:comment])}" unless @commit_opts[:comment].blank?
       Suse::Backend.put_source( path, to_axml )

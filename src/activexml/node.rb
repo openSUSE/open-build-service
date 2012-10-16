@@ -18,7 +18,7 @@ module Xmlhash
         raise RuntimeError, "das geht zuweit #{symbol.inspect}(#{args.inspect})"
       end
       
-      ActiveXML::Config.logger.debug "method_missing -#{symbol}- #{block.inspect}"
+      Rails.logger.debug "method_missing -#{symbol}- #{block.inspect}"
       return self[symbol.to_s]
     end
   end
@@ -65,7 +65,7 @@ module ActiveXML
       end
 
       def logger
-        ActiveXML::Config.logger
+        Rails.logger
       end
 
       def handles_xml_element (*elements)
@@ -129,12 +129,8 @@ module ActiveXML
       if data.kind_of? Nokogiri::XML::Node
         @data = data.clone
       else
-        if ActiveXML::Config.lazy_evaluation
-          @raw_data = data.clone
-          @data = nil
-        else
-          parse(data)
-        end
+        @raw_data = data.clone
+        @data = nil
       end
     end
 
@@ -213,7 +209,7 @@ module ActiveXML
     end
 
     def logger
-      self.class.logger
+      Rails.logger
     end
 
     # this function is a simplified version of XML::Simple of cpan fame

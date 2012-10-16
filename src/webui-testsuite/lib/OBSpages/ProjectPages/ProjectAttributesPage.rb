@@ -67,12 +67,12 @@ class ProjectAttributesPage < ProjectPage
     @driver[css: "div#content input[name='commit']"].click
 
     if attribute[:expect] == :success
-      validate { flash_message == "Attribute sucessfully added!" }
-      validate { flash_message_type == :info }
+      assert_equal flash_message, "Attribute sucessfully added!"
+      assert_equal flash_message_type, :info
     elsif attribute[:expect] == :no_permission
-      validate { flash_message ==
-        "Saving attribute failed: user #{@user[:login]} has no permission to change attribute" }
-      validate { flash_message_type == :alert }
+      assert_equal flash_message, 
+        "Saving attribute failed: user #{@user[:login]} has no permission to change attribute"
+      assert_equal flash_message_type, :alert
     elsif attribute[:expect] == :value_not_allowed
       validate { flash_message.include?(
         "Saving attribute failed: attribute value #{attribute[:value]} for") }

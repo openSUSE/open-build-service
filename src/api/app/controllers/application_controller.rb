@@ -649,7 +649,7 @@ class ApplicationController < ActionController::API
 
   def backend
     Suse::Backend.start_test_backend if Rails.env.test?
-    @backend ||= ActiveXML::Config.transport_for :directory
+    @backend ||= ActiveXML.transport
   end
 
   def backend_get( path )

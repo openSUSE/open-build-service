@@ -32,7 +32,7 @@ module APIInstrumentation
 
     def append_info_to_payload(payload)
       super
-      payload[:transport_details] = ActiveXML::Config.transport_for( :project ).details.summary!
+      payload[:transport_details] = ActiveXML::transport.details.summary!
       payload[:xml_runtime] = ActiveXML::LibXMLNode.runtime * 1000
       ActiveXML::LibXMLNode.reset_runtime
       runtime = payload[:transport_details].clone

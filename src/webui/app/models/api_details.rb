@@ -13,9 +13,10 @@ class ApiDetails
       else raise "no valid info #{info}"
       end
     uri = URI(uri)
-    uri.scheme, uri.host, uri.port = ActiveXML::Config::TransportMap.get_default_server :rest
-    uri = ActiveXML::Transport::Rest.substitute_uri(uri, opts)
-    data = ActiveXML::Config::transport_for(:package).direct_http(uri)
+    transport = ActiveXML::transport
+    uri = transport.substitute_uri(uri, opts)
+    transport.replace_server_if_needed(uri)
+    data = transport.direct_http(uri)
     ActiveSupport::JSON.decode(data)
   end
 end

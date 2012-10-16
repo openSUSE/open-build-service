@@ -15,7 +15,7 @@ class FrontendCompat
   end
 
   def logger
-    ActiveXML::Config.logger
+    Rails.logger
   end
 
   def source_cmd( cmd, opt={} )
@@ -136,6 +136,6 @@ class FrontendCompat
   end
 
   def transport
-    @transport ||= ActiveXML::Config::transport_for( :project )
+    @transport ||= ActiveXML::transport
   end
 end

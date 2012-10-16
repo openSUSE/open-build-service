@@ -262,7 +262,7 @@ class Package < ActiveXML::Base
     end
 
 
-    frontend = ActiveXML::Config::transport_for( :package )
+    frontend = ActiveXML::transport
     begin
       answer = frontend.direct_http URI(path), :method => "GET"
     rescue
@@ -339,7 +339,7 @@ class Package < ActiveXML::Base
 
   def self.attributes(project_name, package_name)
     path = "/source/#{project_name}/#{package_name}/_attribute/"
-    res = ActiveXML::Config::transport_for(:package).direct_http(URI("#{path}"))
+    res = ActiveXML::transport.direct_http(URI("#{path}"))
     return Collection.new(res)
   end
 
@@ -361,7 +361,7 @@ class Package < ActiveXML::Base
   def linkdiff
     begin
       path = "/source/#{self.project}/#{self.name}?cmd=linkdiff&view=xml&withissues=1"
-      res = ActiveXML::Config::transport_for(:package).direct_http(URI("#{path}"), :method => 'POST', :data => '')
+      res = ActiveXML::transport.direct_http(URI("#{path}"), :method => 'POST', :data => '')
       return Sourcediff.new(res)
     rescue ActiveXML::Transport::Error
       return nil
