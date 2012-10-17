@@ -7,7 +7,7 @@ class BsRequest < ActiveXML::Base
 
   class << self
     def make_stub(opt)
-      option = source_package = target_package = ""
+      target_package = ""
       opt[:description] = "" if !opt.has_key? :description or opt[:description].nil?
       if opt[:targetpackage] and not opt[:targetpackage].empty?
         target_package = "package=\"#{opt[:targetpackage].to_xs}\""
@@ -65,7 +65,7 @@ class BsRequest < ActiveXML::Base
       path << "&by_project=#{CGI.escape(opts[:project])}" unless opts[:project].blank?
       path << "&by_package=#{CGI.escape(opts[:package])}" unless opts[:package].blank?
       begin
-        r = transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:comment]
+        transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:comment]
         BsRequest.free_cache(id)
         return true
       rescue ActiveXML::Transport::ForbiddenError => e
@@ -456,7 +456,7 @@ class BsRequest < ActiveXML::Base
           end
           actiondiffs << sourcediffs
         end
-      rescue ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => e
+      rescue ActiveXML::Transport::Error 
       end
       actiondiffs
     #end

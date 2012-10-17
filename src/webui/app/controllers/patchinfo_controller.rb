@@ -9,7 +9,7 @@ class PatchinfoController < ApplicationController
     unless find_cached(Package, "patchinfo", :project => @project )
       begin
         path = "/source/#{CGI.escape(params[:project])}?cmd=createpatchinfo"
-        result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "POST" ))
+        frontend.transport.direct_http( URI(path), :method => "POST" )
       rescue ActiveXML::Transport::Error => e
         message, _, _ = ActiveXML::Transport.extract_error_message e
         flash[:error] = message
@@ -34,7 +34,7 @@ class PatchinfoController < ApplicationController
 
   def updatepatchinfo
     path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=updatepatchinfo"
-    result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "POST" ))
+    frontend.transport.direct_http( URI(path), :method => "POST" )
     Patchinfo.free_cache(:project=> @project, :package => @package)
     redirect_to :action => "edit_patchinfo", :project => @project, :package => @package
   end
@@ -133,7 +133,6 @@ class PatchinfoController < ApplicationController
     filename = "_patchinfo"
     valid_params = true
     required_parameters :project, :package
-    file = @file.data
     flash[:error] = nil
     if !valid_summary? params[:summary]
       valid_params = false
@@ -145,7 +144,7 @@ class PatchinfoController < ApplicationController
     end
 
     if valid_params == true
-      name = "binary"
+      #name = "binary"
       packager = params[:packager]
       binaries = params[:selected_binaries]
       relogin = params[:relogin]
@@ -200,7 +199,7 @@ class PatchinfoController < ApplicationController
         frontend.put_file( xml, :project => @project,
           :package => @package, :filename => filename)
         flash[:note] = "Successfully edited #{@package}"
-      rescue Timeout::Error => e
+      rescue Timeout::Error 
         flash[:error] = "Timeout when saving file. Please try again."
       end
       Patchinfo.free_cache(:project=> @project, :package => @package)
@@ -247,7 +246,7 @@ class PatchinfoController < ApplicationController
       Package.free_cache( @package, :project => @project )
       Patchinfo.free_cache(:project=> @project, :package => @package)
     rescue ActiveXML::Transport::Error => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      message = ActiveXML::Transport.extract_error_message(e)[0]
       flash[:error] = message
     end
     redirect_to :controller => 'project', :action => 'show', :project => @project

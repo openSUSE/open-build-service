@@ -164,7 +164,7 @@ class Person < ActiveXML::Base
 
           hash[:issues] = issues
           array << hash
-        rescue ActiveXML::Transport::NotFoundError => e
+        rescue ActiveXML::Transport::NotFoundError
           # Ugly catch for projects that where deleted while this loop is running... bnc#755463)
         end
       end

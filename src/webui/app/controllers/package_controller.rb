@@ -37,7 +37,7 @@ class PackageController < ApplicationController
       @package.files.size unless @spider_bot
       @linkinfo = @package.linkinfo
     rescue ActiveXML::Transport::ForbiddenError => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e      
+      message = ActiveXML::Transport.extract_error_message(e)[0]
       flash[:warn] = "Files could not be accessed: #{message}"
     end
   end
@@ -81,7 +81,7 @@ class PackageController < ApplicationController
       @fileinfo = find_cached(Fileinfo, :project => @project, :package => @package, :repository => @repository, :arch => @arch,
         :filename => @filename, :view => 'fileinfo_ext')
     rescue ActiveXML::Transport::ForbiddenError => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      message = ActiveXML::Transport.extract_error_message(e)[0]
       flash[:error] = "File #{@filename} can not be downloaded from #{@project}: #{message}"
     end 
     unless @fileinfo
@@ -606,7 +606,7 @@ class PackageController < ApplicationController
       # Invalidate flag details (for repositories view):
       Package.free_cache( @package.name, :project => @project.name, :view => :flagdetails )
     rescue ActiveXML::Transport::Error => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      message = ActiveXML::Transport.extract_error_message(e)[0]
       flash[:error] = message
     end
     redirect_to :controller => 'project', :action => 'show', :project => @project
@@ -943,10 +943,10 @@ class PackageController < ApplicationController
         @offset += @log_chunk.length
       end
 
-    rescue Timeout::Error => ex
+    rescue Timeout::Error
       @log_chunk = ""
 
-    rescue => e
+    rescue
       @log_chunk = "No live log available"
       @finished = true
     end
@@ -989,7 +989,7 @@ class PackageController < ApplicationController
     begin
       frontend.cmd cmd, options
     rescue ActiveXML::Transport::Error => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      message = ActiveXML::Transport.extract_error_message(e)[0]
       flash[:error] = message
       redirect_to :action => :show, :project => @project, :package => @package and return
     end
@@ -1101,7 +1101,7 @@ class PackageController < ApplicationController
     begin
       frontend.put_file(params[:meta], :project => @project, :package => @package, :filename => '_meta')
     rescue ActiveXML::Transport::Error => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      message = ActiveXML::Transport.extract_error_message(e)[0]
       flash[:error] = message
       @meta = params[:meta]
       render :text => message, :status => 400, :content_type => "text/plain"

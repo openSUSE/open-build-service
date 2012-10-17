@@ -413,7 +413,7 @@ class Project < ActiveXML::Base
   def patchinfo
     begin
       return Patchinfo.find_cached(:project => self.name, :package => 'patchinfo')
-    rescue ActiveXML::Transport::Error, ActiveXML::ParseError => e
+    rescue ActiveXML::Transport::Error, ActiveXML::ParseError
       return nil
     end
   end

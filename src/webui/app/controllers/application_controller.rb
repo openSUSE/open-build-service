@@ -117,35 +117,35 @@ class ApplicationController < ActionController::Base
     return true if name == "_project"
     return true if name == "_product"
     return true if name == "_deltas"
-    return true if name =~ /^_product:[-_+\w\.:]*$/
-    return true if name =~ /^_patchinfo:[-_+\w\.:]*$/
-    name =~ /^[[:alnum:]][-_+\w\.:]*$/
+    return true if name =~ /^_product:[-+\w\.:]*$/
+    return true if name =~ /^_patchinfo:[-+\w\.:]*$/
+    name =~ /^[[:alnum:]][-+\w\.:]*$/
   end
 
   def valid_package_name_write? name
     return true if name =~ /^_project$/
     return true if name =~ /^_product$/
-    name =~ /^[[:alnum:]][-_+\w\.]*$/
+    name =~ /^[[:alnum:]][-+\w\.]*$/
   end
 
   def valid_file_name? name
-    name =~ /^[-\w_+~ ][-\w_\.+~ ]*$/
+    name =~ /^[-\w+~ ][-\w\.+~ ]*$/
   end
 
   def valid_role_name? name
-    name =~ /^[\w\-_\.+]+$/
+    name =~ /^[\w\-\.+]+$/
   end
 
   def valid_target_name? name
-    name =~ /^\w[-_\.\w&]*$/
+    name =~ /^\w[-\.\w&]*$/
   end
 
   def valid_user_name? name
-    name =~ /^[\w\-_\.+]+$/
+    name =~ /^[\w\-\.+]+$/
   end
 
   def valid_group_name? name
-    name =~ /^[\w\-_\.+]+$/
+    name =~ /^[\w\-\.+]+$/
   end
 
   def reset_activexml
@@ -373,8 +373,8 @@ class ApplicationController < ActionController::Base
       unless ses.empty?
         document = nil
         errors << put_body_to_tempfile(xmlbody) 
-        ses.each do |e|
-          errors << ("[%s:%s]" % [e.line, e.column]) + e.inspect
+        ses.each do |err|
+          errors << ("[%s:%s]" % [err.line, err.column]) + err.inspect
         end
       end
     end
@@ -417,7 +417,7 @@ class ApplicationController < ActionController::Base
       end
     rescue ActiveXML::Transport::NotFoundError
       logger.error 'Site configuration not found'
-    rescue ActiveXML::Transport::UnauthorizedError => e
+    rescue ActiveXML::Transport::UnauthorizedError
       @anonymous_forbidden = true
       logger.error 'Could not load all frontpage data, probably due to forbidden anonymous access in the api.'
     end

@@ -61,7 +61,7 @@ module ApplicationHelper
     if logged_in?
       begin
         @user ||= Person.find_cached( session[:login] )
-      rescue RuntimeError => e
+      rescue RuntimeError
         logger.error "Cannot load person data for #{session[:login]} in application_helper"
       end
     end
@@ -355,7 +355,7 @@ module ApplicationHelper
   def force_utf8_and_transform_nonprintables(text)
     begin
       new_text = text.encode('utf-8')
-    rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError => e
+    rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError
       new_text = 'You probably tried to display binary garbage, but got this beautiful message instead!'
     end
     # Ged rid of stuff that shouldn't be part of PCDATA:

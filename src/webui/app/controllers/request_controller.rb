@@ -20,7 +20,7 @@ class RequestController < ApplicationController
       opts[:comment] = params[:review_comment] if params[:review_comment]
 
       BsRequest.addReview(params[:id], opts)
-    rescue BsRequest::ModifyError => e
+    rescue BsRequest::ModifyError
       flash[:error] = "Unable add reviewever '#{params[:id]}'"
     end
     redirect_to :controller => :request, :action => "show", :id => params[:id]
@@ -57,7 +57,7 @@ class RequestController < ApplicationController
     redirect_back_or_to :controller => 'home', :action => 'requests' and return if !params[:id]
     begin
       @req = find_cached(BsRequest, params[:id])
-    rescue ActiveXML::Transport::Error => e
+    rescue ActiveXML::Transport::Error 
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_back_or_to :controller => "home", :action => "requests" and return
     end
@@ -192,7 +192,7 @@ class RequestController < ApplicationController
       req.save(:create => true)
       Rails.cache.delete "requests_new"
     rescue ActiveXML::Transport::Error => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      message = ActiveXML::Transport.extract_error_message(e)[0]
       flash[:error] = message
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
@@ -211,7 +211,7 @@ class RequestController < ApplicationController
       req.save(:create => true)
       Rails.cache.delete "requests_new"
     rescue ActiveXML::Transport::NotFoundError => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      message = ActiveXML::Transport.extract_error_message(e)[0]
       flash[:error] = message
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return

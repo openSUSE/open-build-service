@@ -12,7 +12,7 @@ class MainController < ApplicationController
         end
       end
     end
-  rescue ActiveXML::Transport::UnauthorizedError => e
+  rescue ActiveXML::Transport::UnauthorizedError
     @anonymous_forbidden = true
     logger.error "Could not load all frontpage data, probably due to forbidden anonymous access in the api."
   end
@@ -45,7 +45,7 @@ class MainController < ApplicationController
       end
     end
     render :partial => 'main/systemstatus'
-  rescue ActiveXML::Transport::UnauthorizedError => e
+  rescue ActiveXML::Transport::UnauthorizedError 
     @anonymous_forbidden = true
     render :text => '' # AJAX-request means no 'flash' available, don't render anything if we aren't allowed
   end
@@ -142,7 +142,7 @@ class MainController < ApplicationController
 
   def require_available_architectures
     super # Call ApplicationController implementation, but catch an additional exception
-  rescue ActiveXML::Transport::UnauthorizedError => e
+  rescue ActiveXML::Transport::UnauthorizedError
     @anonymous_forbidden = true
     logger.error "Could not load all frontpage data, probably due to forbidden anonymous access in the api."
   end

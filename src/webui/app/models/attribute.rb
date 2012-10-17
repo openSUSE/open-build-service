@@ -34,7 +34,7 @@ class Attribute < ActiveXML::Base
       frontend.direct_http URI("#{path}"), :method => "DELETE", :data => ""
       result = {:type => :note, :msg => "Attribute sucessfully deleted!"}
     rescue ActiveXML::Transport::Error => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      message = ActiveXML::Transport.extract_error_message(e)[0]
       result = {:type => :error, :msg => "Deleting attribute failed: " + message }
     end
 

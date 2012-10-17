@@ -96,7 +96,7 @@ class Service < ActiveXML::Base
     end
 
     def parameterDescription(serviceName, name)
-      return nil unless s = findService(serviceName)
+      return nil unless findService(serviceName)
       return nil unless @serviceParameterList[serviceName]
       return nil unless @serviceParameterList[serviceName][name]
       return ""  unless @serviceParameterList[serviceName][name][:description]

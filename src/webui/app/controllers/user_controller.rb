@@ -109,8 +109,8 @@ class UserController < ApplicationController
       person = Unregisteredperson.new(unreg_person_opts)
       person.save({:create => true})
     rescue ActiveXML::Transport::Error => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
-      flash[:error] = "#{message} (#{code})"
+      message = ActiveXML::Transport.extract_error_message(e)[0]
+      flash[:error] = message
       redirect_back_or_to :controller => "main", :action => "index" and return
     end
 
@@ -159,7 +159,7 @@ class UserController < ApplicationController
         flash[:error] = "Failed to change your password."
       end
     rescue ActiveXML::Transport::Error => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      message = ActiveXML::Transport.extract_error_message(e)[0]
       flash[:error] = message
     end
 

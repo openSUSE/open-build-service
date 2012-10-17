@@ -387,7 +387,7 @@ class ProjectController < ApplicationController
       Rails.cache.delete("%s_problem_packages" % @project)
       flash[:note] = "Project '#{@project}' was removed successfully"
     rescue ActiveXML::Transport::Error => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      message = ActiveXML::Transport.extract_error_message(e)[0]
       flash[:error] = message
     end
     if not @project.project_type == 'maintenance'
@@ -637,7 +637,7 @@ class ProjectController < ApplicationController
       else
         flash[:error] = "Failed to save project '#{@project}'"
       end
-    rescue ActiveXML::Transport::ForbiddenError => err
+    rescue ActiveXML::Transport::ForbiddenError
       flash[:error] = "You lack the permission to create the project '#{@project}'. " +
         "Please create it in your home:%s namespace" % session[:login]
       redirect_to :action => 'new', :ns => "home:" + session[:login] and return
@@ -713,7 +713,7 @@ class ProjectController < ApplicationController
       redirect_to :action => 'repositories', :project => @project and return
     end
   rescue ActiveXML::Transport::Error => e
-    message, code, api_exception = ActiveXML::Transport.extract_error_message e
+    message = ActiveXML::Transport.extract_error_message(e)[0]
     flash[:error] = "Failed to add project or repository: " + message
     redirect_back_or_to :action => 'repositories', :project => @project and return
   end
@@ -733,7 +733,7 @@ class ProjectController < ApplicationController
         flash[:error] = "Failed to remove target '#{params[:target]}'"
       end
     rescue ActiveXML::Transport::Error => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      message = ActiveXML::Transport.extract_error_message(e)[0]
       flash[:error] = "Failed to remove target '#{params[:target]}' " + message
     end
     redirect_to :action => :repositories, :project => @project
@@ -1050,7 +1050,7 @@ class ProjectController < ApplicationController
     begin
       frontend.put_file(params[:meta], :project => params[:project], :filename => '_meta')
     rescue ActiveXML::Transport::Error => e
-      message, code, api_exception = ActiveXML::Transport.extract_error_message e
+      message = ActiveXML::Transport.extract_error_message(e)[0]
       render :text => message, :status => 400, :content_type => "text/plain"
       return
     end
@@ -1095,7 +1095,7 @@ class ProjectController < ApplicationController
       begin
         transport.direct_http URI("/source/#{params[:project]}/#{p}/_attribute/OBS:ProjectStatusPackageFailComment"), :method => "DELETE"
       rescue ActiveXML::Transport::ForbiddenError => e
-        message, code, api_exception = ActiveXML::Transport.extract_error_message e
+        message = ActiveXML::Transport.extract_error_message(e)
         flash[:error] = message
         redirect_to :action => :status, :project => params[:project]
         return
@@ -1467,7 +1467,7 @@ class ProjectController < ApplicationController
     valid_http_methods :post
     begin
       path = "/source/#{CGI.escape(params[:project])}/?cmd=unlock&comment=#{CGI.escape(params[:comment])}"
-      result = ActiveXML::Base.new(frontend.transport.direct_http(URI(path), :method => "POST", :data => ''))
+      frontend.transport.direct_http(URI(path), :method => "POST", :data => '')
       flash[:success] = "Unlocked project #{params[:project]}"
       Project.free_cache(params[:project])
     rescue ActiveXML::Transport::Error => e
@@ -1492,7 +1492,7 @@ class ProjectController < ApplicationController
   end
 
   def check_valid_project_name
-     if !valid_project_name? params[:project]
+    if !valid_project_name? params[:project]
       unless request.xhr?
         flash[:error] = "#{params[:project]} is not a valid project name"
         redirect_to :controller => "project", :action => "list_public", :nextstatus => 404 and return false
@@ -1549,8 +1549,6 @@ class ProjectController < ApplicationController
     if @spider_bot
       @requests = [] and return
     end
-    pname=@project.name
-
     @requests = ApiDetails.find(:project_requests, :project => @project.name)
   end
 

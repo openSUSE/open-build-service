@@ -52,10 +52,10 @@ class ConfigurationController < ApplicationController
 
     begin
       data = "<configuration><description>#{CGI.escapeHTML(params[:description])}</description><title><#{CGI.escapeHTML(params[:title])}/title></configuration>"
-      response = ActiveXML::transport.direct_http(URI('/configuration'), :method => 'PUT', :data => data)
+      ActiveXML::transport.direct_http(URI('/configuration'), :method => 'PUT', :data => data)
       flash[:note] = "Updated configuration"
       Rails.cache.delete('configuration')
-    rescue ActiveXML::Transport::Error => e
+    rescue ActiveXML::Transport::Error 
       logger.debug "Failed to update configuration"
       flash[:error] = "Failed to update configuration"
     end

@@ -72,7 +72,7 @@ module ProjectHelper
 
   def rebuild_time_col( package )
      return '' if package.blank?
-     btime, etime = @timings[package]
+     btime = @timings[package][0]
      link_to( h(package), :controller => :package, :action => :show, :project => @project, :package => package) + " " + format_seconds(btime)
   end
 
