@@ -1,2 +1,2 @@
-class ProjectStatus < ActiveXML::Base
+class ProjectStatus < ActiveXML::Node
 end

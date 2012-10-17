@@ -1,2 +1,2 @@
-class Directory < ActiveXML::Base
+class Directory < ActiveXML::Node
 end

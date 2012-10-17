@@ -28,7 +28,7 @@ class StatusControllerTest < ActionController::IntegrationTest
   
     # delete it again
     get "/status/messages"
-    messages = ActiveXML::XMLNode.new @response.body
+    messages = ActiveXML::Node.new @response.body
 
     prepare_request_valid_user
     delete "/status/messages", :id => messages.message.value('msg_id')
@@ -42,7 +42,7 @@ class StatusControllerTest < ActionController::IntegrationTest
     assert_response 400
    
     get "/status/messages" 
-    messages = ActiveXML::XMLNode.new @response.body
+    messages = ActiveXML::Node.new @response.body
     assert_equal 0, messages.each.size
   end
 

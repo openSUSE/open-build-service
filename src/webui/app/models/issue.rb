@@ -1,2 +1,2 @@
-class Issue < ActiveXML::Base
+class Issue < ActiveXML::Node
 end

@@ -1,4 +1,4 @@
-class Package < ActiveXML::Base
+class Package < ActiveXML::Node
    
   handles_xml_element 'package'
 
@@ -125,7 +125,7 @@ class Package < ActiveXML::Base
       fc = FrontendCompat.new
       answer = fc.do_post nil, opt
 
-      doc = ActiveXML::Base.new(answer)
+      doc = ActiveXML::Node.new(answer)
       doc.each("/collection/package") do |e|
         hash = {}
         hash[:project] = e.value("project")
@@ -139,7 +139,7 @@ class Package < ActiveXML::Base
   end
 
   def user_has_role?(user, role)
-    user = Person.find_cached(user.to_s) if user.class == String or user.class == ActiveXML::LibXMLNode
+    user = Person.find_cached(user.to_s) if user.class == String or user.class == ActiveXML::Node
     if user
       each_person do |p|
         return true if p.role == role and p.userid == user.to_s
@@ -270,7 +270,7 @@ class Package < ActiveXML::Base
     end
 
     c = {}
-    doc = ActiveXML::Base.new(answer)
+    doc = ActiveXML::Node.new(answer)
     doc.each("/revisionlist/revision") do |s|
          c[:revision]= s.value("rev")
          c[:user]    = s.find_first("user").text

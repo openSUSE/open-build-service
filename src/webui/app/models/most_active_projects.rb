@@ -1,2 +1,2 @@
-class MostActiveProjects < ActiveXML::Base
+class MostActiveProjects < ActiveXML::Node
 end

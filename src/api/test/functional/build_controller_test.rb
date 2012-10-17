@@ -157,7 +157,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     get "/source/home:Iggy/TestPack"
     assert_response :success
     assert_no_xml_tag :tag => "xsrcmd5" # is no link, srcmd5 is valid
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     srcmd5 = node.srcmd5
 
     # osc local package build call
@@ -180,7 +180,7 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_xml_tag :tag => "versrel", :content => "1.0-#{ci_cnt}"
     assert_xml_tag :tag => "rev", :content => rev
     assert_xml_tag :tag => "path", :attributes => { :project => "home:Iggy", :repository => "10.2" }
-    #buildinfo = ActiveXML::XMLNode.new(@response.body)
+    #buildinfo = ActiveXML::Node.new(@response.body)
 
     # find scheduler job and compare it with buildinfo
 # FIXME: to be implemented, compare scheduler job with rep server job

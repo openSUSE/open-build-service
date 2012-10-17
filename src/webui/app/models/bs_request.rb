@@ -1,4 +1,4 @@
-class BsRequest < ActiveXML::Base
+class BsRequest < ActiveXML::Node
 
   class ListError < Exception; end
   class ModifyError < Exception; end
@@ -175,7 +175,7 @@ class BsRequest < ActiveXML::Base
       login = ''
       if req.has_element?(:history)
         #NOTE: 'req' can be a LibXMLNode or not. Depends on code path.
-        if req.history.class == ActiveXML::LibXMLNode
+        if req.history.class == ActiveXML::Node
           login = req.history.who
         else
           login = req.history.first[:who]
@@ -189,7 +189,7 @@ class BsRequest < ActiveXML::Base
     def created_at(req)
       if req.has_element?(:history)
         #NOTE: 'req' can be a LibXMLNode or not. Depends on code path. Also depends on luck and random quantum effects. ActiveXML sucks big time!
-        return req.history.when if req.history.class == ActiveXML::LibXMLNode
+        return req.history.when if req.history.class == ActiveXML::Node
         return req.history[0][:when]
       else
         return req.state.when
@@ -448,7 +448,7 @@ class BsRequest < ActiveXML::Base
       actiondiffs = []
       begin
         transport ||= ActiveXML::transport
-        result = ActiveXML::Base.new(transport.direct_http(URI("/request/#{value('id')}?cmd=diff&view=xml&withissues=1"), :method => "POST", :data => ""))
+        result = ActiveXML::Node.new(transport.direct_http(URI("/request/#{value('id')}?cmd=diff&view=xml&withissues=1"), :method => "POST", :data => ""))
         result.each_action do |action| # Parse each action and get the it's diff (per file)
           sourcediffs = []
           action.each_sourcediff do |sourcediff| # Parse earch sourcediff in that action

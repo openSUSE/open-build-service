@@ -1,4 +1,4 @@
-class Distribution < ActiveXML::Base
+class Distribution < ActiveXML::Node
   
   def all_vendors
      ret = Array.new

@@ -129,6 +129,6 @@ map = ActiveXML::setup_transport(CONFIG['frontend_protocol'], CONFIG['frontend_h
 
 if Rails.env.development?
   ::Rack::MiniProfiler.profile_method(ActiveXML::Transport, :http_do) { |method,url| "#{method.to_s.upcase} #{url.path}?#{url.query}" }
-#  ::Rack::MiniProfiler.profile_method(ActiveXML::Base, :find_cached) { "Fetching" }
+#  ::Rack::MiniProfiler.profile_method(ActiveXML::Node, :find_cached) { "Fetching" }
 end
 

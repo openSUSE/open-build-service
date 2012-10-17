@@ -1,4 +1,4 @@
-class Result < ActiveXML::Base
+class Result < ActiveXML::Node
   
 end
 

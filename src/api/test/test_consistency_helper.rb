@@ -13,7 +13,7 @@ def resubmit_all_fixtures
   # projects
   get "/source"
   assert_response :success
-  node = ActiveXML::XMLNode.new(@response.body)
+  node = ActiveXML::Node.new(@response.body)
   node.each_entry do |e|
     get "/source/#{e.name}/_meta"
     assert_response :success
@@ -29,7 +29,7 @@ def resubmit_all_fixtures
     # packages
     get "/source/#{e.name}"
     assert_response :success
-    packages = ActiveXML::XMLNode.new(@response.body)
+    packages = ActiveXML::Node.new(@response.body)
     packages.each_entry do |p|
       get "/source/#{e.name}/#{p.name}/_meta"
       assert_response :success

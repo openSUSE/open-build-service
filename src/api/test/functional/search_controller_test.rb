@@ -117,7 +117,7 @@ class SearchControllerTest < ActionController::IntegrationTest
 
   def get_repos
     ret = Array.new
-    col = ActiveXML::Base.new @response.body
+    col = ActiveXML::Node.new @response.body
     col.each_repository do |r|
       ret << "#{r.project}/#{r.name}"
     end
@@ -212,7 +212,7 @@ class SearchControllerTest < ActionController::IntegrationTest
   end
 
   def get_package_count
-    return ActiveXML::Base.new(@response.body).each_package.length
+    return ActiveXML::Node.new(@response.body).each_package.length
   end
 
   def test_pagination

@@ -1307,7 +1307,7 @@ class Project < ActiveRecord::Base
     ret = Hash.new
     uri = URI( "/getprojpack?project=#{CGI.escape(project.to_s)}&nopackages&withrepos&expandedrepos" )
     begin
-      xml = ActiveXML::Base.new( backend.direct_http( uri ) )
+      xml = ActiveXML::Node.new( backend.direct_http( uri ) )
     rescue ActiveXML::Transport::Error
       return ret
     end

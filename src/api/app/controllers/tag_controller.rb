@@ -206,7 +206,7 @@ class TagController < ApplicationController
       #packages atm.). Based on this objects the tagcloud will be calculated.
       request_data = request.raw_post
       
-      collection = ActiveXML::XMLNode.new( request_data )
+      collection = ActiveXML::Node.new( request_data )
       
       #get the projects
       projects =[]

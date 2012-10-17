@@ -33,9 +33,9 @@ module APIInstrumentation
     def append_info_to_payload(payload)
       super
       payload[:backend_runtime] = Suse::Backend.runtime * 1000
-      payload[:xml_runtime] = ActiveXML::LibXMLNode.runtime * 1000
+      payload[:xml_runtime] = ActiveXML::Node.runtime * 1000
       Suse::Backend.reset_runtime
-      ActiveXML::LibXMLNode.reset_runtime
+      ActiveXML::Node.reset_runtime
       runtime = { view: payload[:view_runtime], db: payload[:db_runtime], backend: payload[:backend_runtime], xml: payload[:xml_runtime] }
       response.headers["X-Opensuse-Runtimes"] = runtime.to_json
     end

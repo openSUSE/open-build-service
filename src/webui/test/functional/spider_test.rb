@@ -112,7 +112,7 @@ module SpiderIntegrator
   def consume_page( html, url )
     body = nil
     begin
-      body = ActiveXML::Base.new html
+      body = ActiveXML::Node.new html
       body.internal_data
     rescue
       puts "HARDCORE!! #{url}"

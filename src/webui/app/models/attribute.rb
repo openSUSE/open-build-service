@@ -1,4 +1,4 @@
-class Attribute < ActiveXML::Base
+class Attribute < ActiveXML::Node
 
   class << self
     def make_stub( opt )

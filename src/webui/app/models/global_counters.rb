@@ -1,2 +1,2 @@
-class GlobalCounters < ActiveXML::Base
+class GlobalCounters < ActiveXML::Node
 end

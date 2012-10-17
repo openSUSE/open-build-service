@@ -1,2 +1,2 @@
-class Fileinfo < ActiveXML::Base
+class Fileinfo < ActiveXML::Node
 end

@@ -1,6 +1,6 @@
 require 'frontend_compat'
 
-class Project < ActiveXML::Base
+class Project < ActiveXML::Node
   
   default_find_parameter :name
 
@@ -15,7 +15,7 @@ class Project < ActiveXML::Base
 
   handles_xml_element 'project'
 
-  class Repository < ActiveXML::XMLNode
+  class Repository < ActiveXML::Node
     handles_xml_element 'repository'
 
     def archs
@@ -255,7 +255,7 @@ class Project < ActiveXML::Base
     begin
       fc = FrontendCompat.new
       answer = fc.do_post(nil, {:project => self.name, :cmd => 'showlinked'})
-      doc = ActiveXML::Base.new(answer)
+      doc = ActiveXML::Node.new(answer)
       doc.each('/collection/project') {|e| result << e.value('name')}
     rescue ActiveXML::Transport::NotFoundError
       # No answer is ok, it only means no linking projects...
@@ -322,7 +322,7 @@ class Project < ActiveXML::Base
 
   def can_edit?(user)
     return false if not user
-    if user.class == String or user.class == ActiveXML::LibXMLNode
+    if user.class == String or user.class == ActiveXML::Node
       user = Person.find_cached(user.to_s)
       return false if not user
     end

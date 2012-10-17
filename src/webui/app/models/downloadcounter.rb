@@ -1,2 +1,2 @@
-class Downloadcounter < ActiveXML::Base
+class Downloadcounter < ActiveXML::Node
 end

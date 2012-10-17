@@ -1,4 +1,4 @@
-class IssueTracker < ActiveXML::Base
+class IssueTracker < ActiveXML::Node
 
   class ListError < Exception; end
   class ModifyError < Exception; end

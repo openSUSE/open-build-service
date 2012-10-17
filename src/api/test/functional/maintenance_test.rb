@@ -43,7 +43,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # check source link
     get "/source/home:tom:branches:BaseDistro:Update/pack1/_link"
     assert_response :success
-    ret = ActiveXML::XMLNode.new @response.body
+    ret = ActiveXML::Node.new @response.body
     assert_equal ret.project, "BaseDistro:Update"
     assert_nil ret.package
     assert_not_nil ret.baserev
@@ -56,7 +56,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # check source link
     get "/source/home:tom:branches:Devel:BaseDistro:Update/pack2/_link"
     assert_response :success
-    ret = ActiveXML::XMLNode.new @response.body
+    ret = ActiveXML::Node.new @response.body
     assert_equal ret.project, "Devel:BaseDistro:Update"
     assert_nil ret.package
     assert_not_nil ret.baserev
@@ -69,7 +69,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # check source link
     get "/source/home:tom:branches:Devel:BaseDistro:Update/pack3/_link"
     assert_response :success
-    ret = ActiveXML::XMLNode.new @response.body
+    ret = ActiveXML::Node.new @response.body
     assert_equal ret.project, "Devel:BaseDistro:Update"
     assert_nil ret.package
     assert_not_nil ret.baserev
@@ -82,7 +82,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # check source link
     get "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_link"
     assert_response :success
-    ret = ActiveXML::XMLNode.new @response.body
+    ret = ActiveXML::Node.new @response.body
     assert_equal ret.project, "BaseDistro2.0:LinkedUpdateProject"
     assert_nil ret.package
 
@@ -115,7 +115,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                  </request>'
     assert_response :success
     assert_xml_tag( :tag => "target", :attributes => { :project => "My:Maintenance", :releaseproject => "BaseDistro2.0:LinkedUpdateProject" } )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id1 = node.value(:id)
 
@@ -168,7 +168,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     # update project extended ?
     assert_xml_tag( :tag => "target", :attributes => { :project => "My:Maintenance", :releaseproject => "BaseDistro2.0:LinkedUpdateProject" } )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id2 = node.value(:id)
 
@@ -261,7 +261,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_no_xml_tag( :tag => "source", :attributes => { :rev => nil } )
     assert_xml_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id1 = node.value(:id)
 
@@ -311,7 +311,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                  </request>'
     assert_response :success
     assert_xml_tag( :tag => "target", :attributes => { :project => incidentProject } )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id2 = node.value(:id)
     # ... but do not use it
@@ -338,7 +338,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                  </request>'
     assert_response :success
     assert_xml_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id2 = node.value(:id)
 
@@ -551,7 +551,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                  </request>'
     assert_response :success
     assert_xml_tag( :tag => "target", :attributes => { :project => "My:Maintenance" } )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
     assert_xml_tag( :tag => "request", :children => { :count => 8, :only => { :tag => "action" } })
@@ -568,7 +568,7 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     # store data for later checks
     get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
-    oprojectmeta = ActiveXML::XMLNode.new(@response.body)
+    oprojectmeta = ActiveXML::Node.new(@response.body)
     assert_response :success
 
     # accept request
@@ -590,7 +590,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/#{incidentProject}/_meta"
     assert_response :success
     assert_xml_tag( :parent => {:tag => "build"}, :tag => "disable", :content => nil )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert_not_nil node.repository.element_name
     # repository definition must be the same, except for the maintenance trigger
     node.each_repository do |r|
@@ -821,7 +821,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # add reader role for adrian
     get "/source/" + incidentProject + "/_meta"
     assert_response :success
-    meta = ActiveXML::XMLNode.new( @response.body )
+    meta = ActiveXML::Node.new( @response.body )
     meta.add_element "person", { :userid => 'adrian', :role => 'reader' }
     put "/source/" + incidentProject + "/_meta", meta.dump_xml
     assert_response :success
@@ -830,7 +830,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag( :tag => "patchinfo", :attributes => { :incident => incidentID } )
     #FIXME: add another patchinfo pointing to a third place
     # add required informations about the update
-    pi = ActiveXML::Base.new( @response.body )
+    pi = ActiveXML::Node.new( @response.body )
     pi.summary.text = "if you are bored"
     pi.description.text = "if you are bored and really want fixes"
     pi.rating.text = "low"
@@ -942,7 +942,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # block patchinfo build
     get "/source/#{incidentProject}/patchinfo/_patchinfo"
     assert_response :success
-    pi = ActiveXML::Base.new( @response.body )
+    pi = ActiveXML::Node.new( @response.body )
     pi.add_element "stopped"
     pi.stopped.text = "The issue is not fixed for real yet"
     raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
@@ -1013,7 +1013,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2." + incidentID } )
     assert_xml_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "patchinfo." + incidentID } )
     assert_xml_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     reqid = node.value(:id)
 
@@ -1055,7 +1055,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     nreqid = node.value(:id)
     prepare_request_with_user "maintenance_coord", "power"
@@ -1464,7 +1464,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     reqid = node.value(:id)
 
@@ -1510,7 +1510,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     reqid = node.value(:id)
 
@@ -1579,10 +1579,10 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_match %r{Empty project config}, @response.body
     get "/source/BaseDistro"
     assert_response :success
-    opackages = ActiveXML::XMLNode.new(@response.body)
+    opackages = ActiveXML::Node.new(@response.body)
     get "/source/CopyOfBaseDistro"
     assert_response :success
-    packages = ActiveXML::XMLNode.new(@response.body)
+    packages = ActiveXML::Node.new(@response.body)
     assert_equal opackages.dump_xml, packages.dump_xml
 
     # compare package meta
@@ -1595,7 +1595,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # compare revisions
     get "/source/BaseDistro/pack2/_history"
     assert_response :success
-    history = ActiveXML::XMLNode.new(@response.body)
+    history = ActiveXML::Node.new(@response.body)
     srcmd5 = history.each_revision.last.srcmd5.text
     version = history.each_revision.last.version.text
     time = history.each_revision.last.time.text
@@ -1603,7 +1603,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_not_nil srcmd5
     get "/source/CopyOfBaseDistro/pack2/_history"
     assert_response :success
-    copyhistory = ActiveXML::XMLNode.new(@response.body)
+    copyhistory = ActiveXML::Node.new(@response.body)
     copysrcmd5 = copyhistory.each_revision.last.srcmd5.text
     copyversion = copyhistory.each_revision.last.version.text
     copytime = copyhistory.each_revision.last.time.text
@@ -1640,16 +1640,16 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/BaseDistro"
     assert_response :success
-    opackages = ActiveXML::XMLNode.new(@response.body)
+    opackages = ActiveXML::Node.new(@response.body)
     get "/source/CopyOfBaseDistro"
     assert_response :success
-    packages = ActiveXML::XMLNode.new(@response.body)
+    packages = ActiveXML::Node.new(@response.body)
     assert_equal opackages.to_s, packages.to_s
 
     # compare revisions
     get "/source/BaseDistro/pack2/_history"
     assert_response :success
-    history = ActiveXML::XMLNode.new(@response.body)
+    history = ActiveXML::Node.new(@response.body)
     srcmd5 = history.each_revision.last.srcmd5.text
     version = history.each_revision.last.version.text
     time = history.each_revision.last.time.text
@@ -1657,7 +1657,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_not_nil srcmd5
     get "/source/CopyOfBaseDistro/pack2/_history"
     assert_response :success
-    copyhistory = ActiveXML::XMLNode.new(@response.body)
+    copyhistory = ActiveXML::Node.new(@response.body)
     copysrcmd5 = copyhistory.each_revision.last.srcmd5.text
     copyversion = copyhistory.each_revision.last.version.text
     copytime = copyhistory.each_revision.last.time.text
@@ -1694,7 +1694,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # store revisions before copy
     get "/source/BaseDistro/pack2/_history"
     assert_response :success
-    originhistory = ActiveXML::XMLNode.new(@response.body)
+    originhistory = ActiveXML::Node.new(@response.body)
     originsrcmd5 = originhistory.each_revision.last.srcmd5.text
     originversion = originhistory.each_revision.last.version.text
     origintime = originhistory.each_revision.last.time.text
@@ -1709,16 +1709,16 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     get "/source/BaseDistro"
     assert_response :success
-    opackages = ActiveXML::XMLNode.new(@response.body)
+    opackages = ActiveXML::Node.new(@response.body)
     get "/source/CopyOfBaseDistro"
     assert_response :success
-    packages = ActiveXML::XMLNode.new(@response.body)
+    packages = ActiveXML::Node.new(@response.body)
     assert_equal opackages.to_s, packages.to_s
 
     # compare revisions of source project
     get "/source/BaseDistro/pack2/_history"
     assert_response :success
-    history = ActiveXML::XMLNode.new(@response.body)
+    history = ActiveXML::Node.new(@response.body)
     srcmd5 = history.each_revision.last.srcmd5.text
     version = history.each_revision.last.version.text
     time = history.each_revision.last.time.text
@@ -1734,7 +1734,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # compare revisions of destination project
     get "/source/CopyOfBaseDistro/pack2/_history"
     assert_response :success
-    copyhistory = ActiveXML::XMLNode.new(@response.body)
+    copyhistory = ActiveXML::Node.new(@response.body)
     copysrcmd5 = copyhistory.each_revision.last.srcmd5.text
     copyversion = copyhistory.each_revision.last.version.text
     copytime = copyhistory.each_revision.last.time.text

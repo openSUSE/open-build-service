@@ -1,2 +1,2 @@
-class Architecture < ActiveXML::Base
+class Architecture < ActiveXML::Node
 end

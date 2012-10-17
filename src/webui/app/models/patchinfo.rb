@@ -1,4 +1,4 @@
-class Patchinfo < ActiveXML::Base
+class Patchinfo < ActiveXML::Node
   class << self
     def make_stub( opt )
       "<patchinfo/>"

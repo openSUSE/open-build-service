@@ -1,4 +1,4 @@
-class Service < ActiveXML::Base
+class Service < ActiveXML::Node
 
   class << self
     def make_stub( opt )
@@ -203,7 +203,7 @@ class Service < ActiveXML::Base
     begin
       fc = FrontendCompat.new
       answer = fc.get_source opt
-      doc = ActiveXML::Base.new(answer)
+      doc = ActiveXML::Node.new(answer)
       doc.each("/directory/serviceinfo/error") do |e|
          return e.text
       end

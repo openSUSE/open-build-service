@@ -366,7 +366,7 @@ class PackageController < ApplicationController
       end
     end
 
-    filenames = BsRequest.sorted_filenames_from_sourcediff(ActiveXML::Base.new(rdiff))
+    filenames = BsRequest.sorted_filenames_from_sourcediff(ActiveXML::Node.new(rdiff))
     @files = filenames[:files]
     @filenames = filenames[:filenames]
   end
@@ -465,7 +465,7 @@ class PackageController < ApplicationController
     valid_http_methods(:post)
     begin
       path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=branch"
-      result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "POST", :data => "" ))
+      result = ActiveXML::Node.new(frontend.transport.direct_http( URI(path), :method => "POST", :data => "" ))
       result_project = result.find_first( "/status/data[@name='targetproject']" ).text
       result_package = result.find_first( "/status/data[@name='targetpackage']" ).text
     rescue ActiveXML::Transport::Error => e

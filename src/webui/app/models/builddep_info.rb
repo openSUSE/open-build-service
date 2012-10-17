@@ -1,2 +1,2 @@
-class BuilddepInfo < ActiveXML::Base
+class BuilddepInfo < ActiveXML::Node
 end

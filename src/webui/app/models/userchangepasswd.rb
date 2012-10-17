@@ -1,5 +1,5 @@
 
-class Userchangepasswd < ActiveXML::Base
+class Userchangepasswd < ActiveXML::Node
   class << self
     def make_stub( opt )
       login = ""

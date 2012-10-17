@@ -1,4 +1,4 @@
-class Unregisteredperson < ActiveXML::Base
+class Unregisteredperson < ActiveXML::Node
 
   default_find_parameter :login
   class << self

@@ -151,7 +151,7 @@ class ProjectStatusHelper
     d = Rails.cache.fetch(key, :expires_in => 2.hours) do
       backend.direct_http( URI(uri), :timeout => 1000 )
     end
-    ActiveXML::Base.new(d)
+    ActiveXML::Node.new(d)
   end
 
   def self.check_md5(proj, backend, packages, mypackages)
@@ -251,7 +251,7 @@ class ProjectStatusHelper
     Rails.cache.fetch(key) do
       Rails.cache.write(key + '_last', currentlast)
       d = backend.direct_http( URI(uri) , :timeout => 1000 )
-      data = ActiveXML::Base.new(d) unless d.blank?
+      data = ActiveXML::Node.new(d) unless d.blank?
       return nil unless data
       ret = Hash.new
       reponame = repo + "/" + arch

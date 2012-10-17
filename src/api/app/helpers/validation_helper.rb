@@ -29,7 +29,7 @@ module ValidationHelper
       raise Package::UnknownObjectError, "#{project}/#{name}"
     end
 
-    data = ActiveXML::XMLNode.new(r.body.to_s)
+    data = ActiveXML::Node.new(r.body.to_s)
     lastrev = nil
     data.each_revision {|rev| lastrev = rev}
     metapath = "/source/#{CGI.escape(project)}/#{name}/_meta"
@@ -54,7 +54,7 @@ module ValidationHelper
       raise Project::UnknownObjectError, "#{project}"
     end
 
-    data = ActiveXML::XMLNode.new(r.body.to_s)
+    data = ActiveXML::Node.new(r.body.to_s)
     lastrev = nil
     data.each_revision {|rev| lastrev = rev}
     raise Project::UnknownObjectError, "#{project}" unless lastrev

@@ -1,3 +1,3 @@
-class Sourcediff < ActiveXML::Base
+class Sourcediff < ActiveXML::Node
 end
 

@@ -132,7 +132,7 @@ class AttributeTest < ActiveSupport::TestCase
     assert_equal "OBS", @at.attrib_namespace.name
 
     axml = " <attribute namespace='OBS' name='Maintained' /> "
-    xml = ActiveXML::Base.new( axml )
+    xml = ActiveXML::Node.new( axml )
 
     # store in a project
     @project = Project.find_by_name( "kde4" )
@@ -164,7 +164,7 @@ class AttributeTest < ActiveSupport::TestCase
     axml = "<attribute namespace='OBS' name='Maintained' >
               <value>blah</value>
             </attribute> "
-    xml = ActiveXML::Base.new( axml )
+    xml = ActiveXML::Node.new( axml )
 
     # store in a project
     @project = Project.find_by_name( "kde4" )

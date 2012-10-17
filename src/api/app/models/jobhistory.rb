@@ -1,2 +1,2 @@
-class Jobhistory < ActiveXML::Base
+class Jobhistory < ActiveXML::Node
 end

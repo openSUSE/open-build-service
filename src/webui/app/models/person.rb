@@ -1,4 +1,4 @@
-class Person < ActiveXML::Base
+class Person < ActiveXML::Node
 
   class ListError < Exception; end
 
@@ -21,7 +21,7 @@ class Person < ActiveXML::Base
     if opt.has_key? :email
       email = opt[:email]
     end
-    doc = ActiveXML::Base.new '<person/>'
+    doc = ActiveXML::Node.new '<person/>'
     element = doc.add_element 'login'
     element.text = opt[:login]
     element = doc.add_element 'realname'
@@ -140,7 +140,7 @@ class Person < ActiveXML::Base
           path = "/source/#{URI.escape(pi.project)}/#{URI.escape(pi.name)}?view=issues&states=OPEN&login=#{CGI.escape(login)}"
           frontend = ActiveXML::transport
           answer = frontend.direct_http URI(path), :method => "GET"
-          doc = ActiveXML::Base.new(answer)
+          doc = ActiveXML::Node.new(answer)
           doc.each("/package/issue") do |s|
             i = {}
             i[:name]= s.find_first("name").text

@@ -1,10 +1,10 @@
-class Link < ActiveXML::Base
+class Link < ActiveXML::Node
 
   # redefine make_stub so that Link.new( :project => 'a', :package => 'b' ) works
   class << self
     def make_stub( opt )
       logger.debug "make stub params: #{opt.inspect}"
-      doc = ActiveXML::Base.new "<link/>"
+      doc = ActiveXML::Node.new "<link/>"
       doc.set_attribute('project', opt[:linked_project])
       doc.set_attribute('package', opt[:linked_package])
       doc
@@ -14,7 +14,7 @@ class Link < ActiveXML::Base
   # an 'add' patch adds the patch file to the package and uses it from the specfile
   def add_patch filename
     add_element "patches" if !self.has_element? :patches
-    patches = ActiveXML::LibXMLNode.new(data.find_first("/link/patches"))
+    patches = ActiveXML::Node.new(data.find_first("/link/patches"))
     #TODO: We need to add it a the correct place, but add_element cannot handle that
     patches.add_element "add", 'name' => filename
   end
@@ -22,7 +22,7 @@ class Link < ActiveXML::Base
   # an 'apply' patch patches directly the sources of the package before building
   def apply_patch filename
     add_element "patches" if !self.has_element? :patches
-    patches = ActiveXML::LibXMLNode.new(data.find_first("/link/patches"))
+    patches = ActiveXML::Node.new(data.find_first("/link/patches"))
     #TODO: We need to add it a the correct place, but add_element cannot handle that
     patches.add_element "apply", 'name' => filename
   end

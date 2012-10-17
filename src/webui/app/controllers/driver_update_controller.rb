@@ -39,7 +39,7 @@ class DriverUpdateController < PackageController
 
     #parse packages, binary packages from dud_packlist.xml file
     packlist = frontend.get_source( :project => @project.to_s, :package => @package.to_s, :filename => "dud_packlist.xml" )
-    xml = ActiveXML::Base.new(packlist)
+    xml = ActiveXML::Node.new(packlist)
     @packages = []
     @binary_packages = {}
     xml.each( "//binarylist" ) do |binarylist|

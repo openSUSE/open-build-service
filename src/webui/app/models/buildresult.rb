@@ -1,4 +1,4 @@
-class Buildresult < ActiveXML::Base
+class Buildresult < ActiveXML::Node
 
   @@avail_status_values =
     ['succeeded', 'failed', 'unresolvable', 'broken',

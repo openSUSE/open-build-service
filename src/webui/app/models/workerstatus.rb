@@ -1,2 +1,2 @@
-class Workerstatus < ActiveXML::Base
+class Workerstatus < ActiveXML::Node
 end

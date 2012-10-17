@@ -46,7 +46,7 @@ class MessageControllerTest < ActionController::IntegrationTest
 
     get "/message"
     assert_response :success
-    ret = ActiveXML::XMLNode.new @response.body
+    ret = ActiveXML::Node.new @response.body
     ret.each_message do |m|
       delete "/message/#{m.msg_id}"
       assert_response :success
@@ -63,7 +63,7 @@ class MessageControllerTest < ActionController::IntegrationTest
 
     get "/message"
     assert_response :success
-    ret = ActiveXML::XMLNode.new @response.body
+    ret = ActiveXML::Node.new @response.body
     ret.each_message do |m|
       delete "/message/#{m.msg_id}"
       assert_response :success

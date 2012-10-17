@@ -1,2 +1,2 @@
-class MostActivePackages < ActiveXML::Base
+class MostActivePackages < ActiveXML::Node
 end

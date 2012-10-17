@@ -17,7 +17,7 @@ class SourceServicesTest < ActionController::IntegrationTest
     # not using assert_xml_tag for doing a propper error message on missing 
     # source service packages
     download_url = set_version = download_files = nil
-    services = ActiveXML::XMLNode.new(@response.body)
+    services = ActiveXML::Node.new(@response.body)
     services.each_service do |s|
       if s.name == "download_url"
         download_url = 1
@@ -69,7 +69,7 @@ class SourceServicesTest < ActionController::IntegrationTest
     while true
       get "/source/#{project}/#{package}"
       assert_response :success
-      node = ActiveXML::XMLNode.new(@response.body)
+      node = ActiveXML::Node.new(@response.body)
       return unless node.has_element? "serviceinfo" 
       return if [ "failed", "succeeded" ].include? node.serviceinfo.code # else "running"
       i=i+1
@@ -120,7 +120,7 @@ class SourceServicesTest < ActionController::IntegrationTest
                                    </action>
                                  </request>'
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value('id')
 
@@ -154,7 +154,7 @@ class SourceServicesTest < ActionController::IntegrationTest
                                    </action>
                                  </request>'
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value('id')
     # accept

@@ -62,7 +62,7 @@ class SearchController < ApplicationController
 
     xe = XpathEngine.new
 
-    output = ActiveXML::Base.new '<collection/>'
+    output = ActiveXML::Node.new '<collection/>'
     matches = 0
 
     begin

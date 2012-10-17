@@ -1408,7 +1408,7 @@ end
     assert_response 404
     get "/source/kde4/kdelibs/_history", :deleted => 1
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     srcmd5 = node.each_revision.last.srcmd5.text 
     get "/source/kde4/kdelibs", :deleted => 1, :rev => srcmd5
     assert_response :success
@@ -1505,7 +1505,7 @@ end
 
     # verify the repo is updated
     get "/source/home:coolo:test/_meta"
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert_equal node.repository.name, "home_coolo"
     assert_equal node.repository.path.project, "deleted"
     assert_equal node.repository.path.repository, "deleted"
@@ -1799,7 +1799,7 @@ end
     assert_response :success
     get "/source/home:Iggy/TestPack/_history"
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     revision = node.each_revision.last.value :rev
 
     # standard copy
@@ -1869,7 +1869,7 @@ end
     get "/source/home:Iggy/TestPack/_history"
     assert_response :success
     assert_no_xml_tag :tag => "revisionlist", :children => { :count => 1 }
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     revision = node.each_revision.last.value :rev
     revision = revision.to_i + 1
     post "/source/home:Iggy/TestPack?cmd=commitfilelist", ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
@@ -2227,7 +2227,7 @@ end
     assert_response :success
 
     get "/source/home:tom:branches:home:Iggy/_meta"
-    ret = ActiveXML::XMLNode.new @response.body
+    ret = ActiveXML::Node.new @response.body
     assert_equal ret.repository.name, "10.2"
     assert_equal ret.repository.path.repository, "10.2"
     assert_equal ret.repository.path.project, "home:Iggy"
@@ -2235,7 +2235,7 @@ end
     # check source link
     get "/source/home:tom:branches:home:Iggy/TestPack/_link"
     assert_response :success
-    ret = ActiveXML::XMLNode.new @response.body
+    ret = ActiveXML::Node.new @response.body
     assert_equal ret.project, "home:Iggy"
     assert_nil ret.package
     assert_not_nil ret.baserev

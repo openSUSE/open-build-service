@@ -1,4 +1,4 @@
-class Group < ActiveXML::Base
+class Group < ActiveXML::Node
 
   default_find_parameter :title
   handles_xml_element :group

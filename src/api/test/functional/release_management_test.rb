@@ -28,12 +28,12 @@ class ReleaseManagementTests < ActionController::IntegrationTest
 
     get "/source/BaseDistro"
     assert_response :success
-    packages = ActiveXML::XMLNode.new(@response.body)
+    packages = ActiveXML::Node.new(@response.body)
     vrevs = {}
     packages.each_entry do |p|
       get "/source/BaseDistro/#{p.name}"
       assert_response :success
-      files = ActiveXML::XMLNode.new(@response.body)
+      files = ActiveXML::Node.new(@response.body)
       vrevs[p.name] = files.vrev 
     end
     assert_not_equal vrevs.count, 0
@@ -47,7 +47,7 @@ class ReleaseManagementTests < ActionController::IntegrationTest
     vrevs.each_key do |k|
       get "/source/BaseDistro/#{k}"
       assert_response :success
-      files = ActiveXML::XMLNode.new(@response.body)
+      files = ActiveXML::Node.new(@response.body)
       assert_equal "#{vrevs[k].to_i+2}", files.vrev 
     end
 
@@ -55,7 +55,7 @@ class ReleaseManagementTests < ActionController::IntegrationTest
     vrevs.each_key do |k|
       get "/source/TEST:BaseDistro/#{k}"
       assert_response :success
-      files = ActiveXML::XMLNode.new(@response.body)
+      files = ActiveXML::Node.new(@response.body)
       assert_equal "#{vrevs[k].to_i+1}.1", files.vrev 
     end
 
@@ -71,7 +71,7 @@ class ReleaseManagementTests < ActionController::IntegrationTest
     vrevs.each_key do |k|
       get "/source/BaseDistro/#{k}"
       assert_response :success
-      files = ActiveXML::XMLNode.new(@response.body)
+      files = ActiveXML::Node.new(@response.body)
       assert_equal "#{vrevs[k].to_i+4}", files.vrev 
     end
 
@@ -79,7 +79,7 @@ class ReleaseManagementTests < ActionController::IntegrationTest
     vrevs.each_key do |k|
       get "/source/TEST:BaseDistro/#{k}"
       assert_response :success
-      files = ActiveXML::XMLNode.new(@response.body)
+      files = ActiveXML::Node.new(@response.body)
       assert_equal "#{vrevs[k].to_i+3}.1", files.vrev 
     end
 

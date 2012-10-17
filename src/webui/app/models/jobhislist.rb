@@ -1,2 +1,2 @@
-class Jobhislist < ActiveXML::Base
+class Jobhislist < ActiveXML::Node
 end

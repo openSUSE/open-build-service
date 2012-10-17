@@ -273,7 +273,7 @@ end
     prepare_request_with_user "tom", "thunder"
     get "/source/LocalProject/remotepackage"
     assert_response :success
-    ret = ActiveXML::XMLNode.new @response.body
+    ret = ActiveXML::Node.new @response.body
     xsrcmd5 = ret.linkinfo.xsrcmd5
     assert_not_nil xsrcmd5
     post "/source/LocalProject/remotepackage", :cmd => "showlinked"
@@ -284,7 +284,7 @@ end
     assert_response 404
     get "/source/LocalProject/remotepackage/_link"
     assert_response :success
-    ret = ActiveXML::XMLNode.new @response.body
+    ret = ActiveXML::Node.new @response.body
     assert_equal ret.project, "RemoteInstance:BaseDistro"
     assert_equal ret.package, "pack1"
     get "/source/LocalProject/remotepackage/my_file?rev=#{xsrcmd5}"
@@ -324,7 +324,7 @@ end
                                    <state name="new" />
                                  </request>'
       assert_response :success
-      node = ActiveXML::XMLNode.new(@response.body)
+      node = ActiveXML::Node.new(@response.body)
       assert node.has_attribute?(:id)
       id = node.value('id')
 

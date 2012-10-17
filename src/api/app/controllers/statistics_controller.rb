@@ -48,7 +48,7 @@ class StatisticsController < ApplicationController
 
       # try to get previous rating of this user for this object
       previous_rating = Rating.where('object_type=? AND object_id=? AND user_id=?', object.class.name, object.id, @http_user.id).first
-      data = ActiveXML::Base.new( request.raw_post )
+      data = ActiveXML::Node.new( request.raw_post )
       if previous_rating
         # update previous rating
         previous_rating.score = data.to_s.to_i

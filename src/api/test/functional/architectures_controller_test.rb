@@ -51,7 +51,7 @@ class ArchitecturesControllerTest < ActionController::IntegrationTest
     get "/architectures/i586"
     assert_response :success
 
-    xml = ActiveXML::Base.new @response.body
+    xml = ActiveXML::Node.new @response.body
     xml.available.text = "true"
     put "/architectures/i586", xml.dump_xml
     assert_response :success

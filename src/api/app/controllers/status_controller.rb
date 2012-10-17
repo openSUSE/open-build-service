@@ -25,7 +25,7 @@ class StatusController < ApplicationController
         return
       end
 
-      new_messages = ActiveXML::XMLNode.new( request.raw_post )
+      new_messages = ActiveXML::Node.new( request.raw_post )
 
       begin
         if new_messages.has_element? 'message'
@@ -85,7 +85,7 @@ class StatusController < ApplicationController
     rescue Zlib::GzipFile::Error
       data = nil
     end
-    data=ActiveXML::Base.new(data || update_workerstatus_cache)
+    data=ActiveXML::Node.new(data || update_workerstatus_cache)
     data.each_building do |b|
       prj = Project.find_by_name(b.project)
       # no prj -> we are not allowed
@@ -203,7 +203,7 @@ class StatusController < ApplicationController
       backend.direct_http( uri )
     end
 
-    repo = ActiveXML::Base.new( data )
+    repo = ActiveXML::Node.new( data )
     repo.each_binary do |b|
       name=b.value(:name).sub('.rpm', '')
       ret[name] = 1
@@ -216,7 +216,7 @@ class StatusController < ApplicationController
     uri = "/build/#{CGI.escape(project)}/#{CGI.escape(repo)}/#{arch}/_repository/#{CGI.escape(file)}.rpm?view=fileinfo_ext"
     ret = []
     key = params[:id] + "-" + Digest::MD5.hexdigest(uri)
-    fileinfo = ActiveXML::Base.new( Rails.cache.fetch(key, :expires_in => 15.minutes) { backend.direct_http( URI( uri ) ) } )
+    fileinfo = ActiveXML::Node.new( Rails.cache.fetch(key, :expires_in => 15.minutes) { backend.direct_http( URI( uri ) ) } )
     if fileinfo.version.to_s != version
       raise NotInRepo, "version #{fileinfo.version}-#{fileinfo.release} (wanted #{version}-#{release})"
     end
@@ -329,7 +329,7 @@ class StatusController < ApplicationController
           if eversucceeded == 1
             uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/#{CGI.escape(action.source_package.to_s)}/_buildinfo")
             begin
-              buildinfo = ActiveXML::Base.new( backend.direct_http( uri ) )
+              buildinfo = ActiveXML::Node.new( backend.direct_http( uri ) )
             rescue ActiveXML::Transport::Error => e
               # if there is an error, we ignore
               message, code, api_exception = ActiveXML::Transport.extract_error_message e
@@ -366,7 +366,7 @@ class StatusController < ApplicationController
             tmp_md = Array.new
             ownbinaries = Hash.new
             uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/#{CGI.escape(action.source_package.to_s)}")
-            binaries = ActiveXML::Base.new( backend.direct_http( uri ) ) 
+            binaries = ActiveXML::Node.new( backend.direct_http( uri ) ) 
             binaries.each_binary do |f|
               # match to the repository filename
               m = re_filename.match(f.value(:filename))
@@ -429,7 +429,7 @@ class StatusController < ApplicationController
             buildcode="unknown"
             begin
               uri = URI( "/build/#{CGI.escape(sproj.name)}/_result?package=#{CGI.escape(action.source_package.to_s)}&repository=#{CGI.escape(srep.name)}&arch=#{CGI.escape(arch.to_s)}" )
-              resultlist = ActiveXML::Base.new( backend.direct_http( uri ) )
+              resultlist = ActiveXML::Node.new( backend.direct_http( uri ) )
               currentcode = nil
               resultlist.each_result do |r|
                 r.each_status { |s| currentcode = s.value(:code) }

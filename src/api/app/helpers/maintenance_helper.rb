@@ -235,7 +235,7 @@ module MaintenanceHelper
       link = Suse::Backend.get "/source/#{URI.escape(sourcePackage.project.name)}/#{URI.escape(sourcePackage.name)}/_link"
     rescue Suse::Backend::HTTPError
     end
-    if link and ret = ActiveXML::XMLNode.new(link.body) and (ret.project.nil? or ret.project == sourcePackage.project.name)
+    if link and ret = ActiveXML::Node.new(link.body) and (ret.project.nil? or ret.project == sourcePackage.project.name)
       ret.delete_attribute('project') # its a local link, project name not needed
       ret.set_attribute('package', ret.package.gsub(/\..*/,'') + targetPackageName.gsub(/.*\./, '.')) # adapt link target with suffix
       link_xml = ret.dump_xml
@@ -653,7 +653,7 @@ module MaintenanceHelper
         if pkg.package_kinds.find_by_kind 'link'
           # is the package itself a local link ?
           link = backend_get "/source/#{p[:package].project.name}/#{p[:package].name}/_link"
-          ret = ActiveXML::XMLNode.new(link)
+          ret = ActiveXML::Node.new(link)
           if ret.project.nil? or ret.project == p[:package].project.name
             pkg = Package.get_by_project_and_name(p[:package].project.name, ret.package)
           end
@@ -850,7 +850,7 @@ module MaintenanceHelper
         Suse::Backend.post "/source/#{tpkg.project.name}/#{tpkg.name}?cmd=copy&oproject=#{CGI.escape(p[:link_target_project].name)}&opackage=#{CGI.escape(p[:package].name)}&user=#{CGI.escape(@http_user.login)}", nil
         # and fix the link
         link = backend_get "/source/#{tpkg.project.name}/#{tpkg.name}/_link"
-        ret = ActiveXML::XMLNode.new(link)
+        ret = ActiveXML::Node.new(link)
         ret.delete_attribute('project') # its a local link, project name not needed
         linked_package = p[:link_target_package]
         linked_package = params[:target_package] if params[:target_package] and params[:package] == ret.package  # user enforce a rename of base package

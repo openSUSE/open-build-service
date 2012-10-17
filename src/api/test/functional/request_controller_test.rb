@@ -16,7 +16,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     req = load_backend_file('request/1')
     post "/request?cmd=create", req
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     id = node.value :id
 
     put( "/request/#{id}", load_backend_file('request/1'))
@@ -56,7 +56,7 @@ class RequestControllerTest < ActionController::IntegrationTest
                                    </action>
                                  </request>'
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value('id')
 
@@ -163,7 +163,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/set_bugowner')
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value('id')
 
@@ -193,7 +193,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", load_backend_file('request/add_role')
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value('id')
 
@@ -216,7 +216,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request?cmd=create", req
     assert_response :success
     assert_xml_tag( :tag => "request" )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
@@ -248,7 +248,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request?cmd=create", req
     assert_response :success
     assert_xml_tag( :tag => "request" )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
@@ -289,7 +289,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request?cmd=create", req
     assert_response :success
     assert_xml_tag( :tag => "request" )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
@@ -316,7 +316,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request?cmd=create", req
     assert_response :success
     assert_xml_tag( :tag => "request" )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
@@ -332,7 +332,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request?cmd=create", req
     assert_response :success
     assert_xml_tag( :tag => "request" )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
@@ -368,7 +368,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request?cmd=create", req
     assert_response :success
     assert_xml_tag( :tag => "request" )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
@@ -433,7 +433,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request?cmd=create", req
     assert_response :success
     assert_xml_tag( :tag => "request" )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
@@ -476,7 +476,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     req = load_backend_file('request/1')
     post "/request?cmd=create", req
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body) 
+    node = ActiveXML::Node.new(@response.body) 
     id = node.value :id
 
     prepare_request_with_user "king", "sunflower"
@@ -573,7 +573,7 @@ end
 
     post "/request?cmd=create", rq
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
@@ -587,7 +587,7 @@ end
 
     post "/request?cmd=create", rq
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     iddelete = node.value(:id)
 
@@ -683,7 +683,7 @@ end
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
     post "/request/#{id}?cmd=changestate&newstate=revoked"
@@ -724,7 +724,7 @@ end
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
     post "/request/#{id}?cmd=changestate&newstate=revoked"
@@ -739,7 +739,7 @@ end
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
     post "/request/#{id}?cmd=changestate&newstate=revoked"
@@ -758,7 +758,7 @@ end
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id1 = node.value(:id)
 
@@ -794,7 +794,7 @@ end
                                  </request>'
     assert_response :success
     assert_xml_tag( :tag => "target", :attributes => { :project => "kde4", :package => "kdebase" } )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id1 = node.value(:id)
 
@@ -808,7 +808,7 @@ end
                                  </request>'
     assert_response :success
     assert_xml_tag( :tag => "target", :attributes => { :project => "home:tom:branches:kde4", :package => "kdebase" } )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     #id2 = node.value(:id)
 
@@ -868,7 +868,7 @@ end
     assert_response :success
     assert_xml_tag( :tag => "request" )
     assert_xml_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id_by_package = node.value(:id)
 
@@ -901,7 +901,7 @@ end
     assert_response :success
     assert_xml_tag( :tag => "request" )
     assert_no_xml_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
@@ -1047,7 +1047,7 @@ end
       post "/request?cmd=create", req
       assert_response :success
       assert_xml_tag( :tag => "state", :attributes => { :name => "new" } )
-      node = ActiveXML::XMLNode.new(@response.body)
+      node = ActiveXML::Node.new(@response.body)
       assert node.has_attribute?(:id)
       id = node.value(:id)
    
@@ -1099,7 +1099,7 @@ end
     post "/request?cmd=create", req
     assert_response :success
     assert_xml_tag( :tag => "state", :attributes => { :name => "new" } )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
@@ -1170,7 +1170,7 @@ end
     assert_response :success
     post "/request?cmd=create", req
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
     assert_xml_tag( :tag => "review", :attributes => { :by_user => "adrian", :state => "new" } )
@@ -1285,7 +1285,7 @@ end
     # we upload 2 and 2 default reviewers are added
     assert_xml_tag( children: { only: { tag: "review" }, count: 4 } )
     assert_xml_tag( :tag => "state", :attributes => { :name => 'review' }, :parent => { :tag => "request" } )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
@@ -1356,7 +1356,7 @@ end
     post "/request?cmd=create", req
     assert_response :success
     assert_xml_tag( :tag => "request" )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
@@ -1382,7 +1382,7 @@ end
     post "/request?cmd=create", req
     assert_response :success
     assert_xml_tag( :tag => "request" )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
@@ -1411,7 +1411,7 @@ end
     # check source link
     get "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_link"
     assert_response :success
-    ret = ActiveXML::XMLNode.new @response.body
+    ret = ActiveXML::Node.new @response.body
     assert_equal ret.project, "BaseDistro2.0:LinkedUpdateProject"
     assert_nil ret.package # same package name
 
@@ -1430,7 +1430,7 @@ end
     post "/request?cmd=create", req
     assert_response :success
     assert_xml_tag( :tag => "request" )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
@@ -1473,7 +1473,7 @@ end
     post "/request?cmd=create", req
     assert_response :success
     assert_xml_tag( :tag => "request" )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
@@ -1517,19 +1517,19 @@ end
     # we explicitly decided to ignore the who, so tom will become creator
     assert_response :success
     assert_xml_tag( :tag => "request" )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
     post "/request?cmd=create", req
     assert_response :success
     assert_xml_tag( :tag => "request" )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id2 = node.value(:id)
     post "/request?cmd=create", req
     assert_response :success
     assert_xml_tag( :tag => "request" )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id3 = node.value(:id)
 
@@ -1609,7 +1609,7 @@ end
 
     get "/source/home:tom:branches:home:Iggy/TestPack?expand=1"
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
     vrev = node.value(:vrev)
 
@@ -1627,7 +1627,7 @@ end
     post "/request?cmd=create", req
     assert_response :success
     assert_xml_tag( :tag => "request" )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
@@ -1644,7 +1644,7 @@ end
     # vrev must not get smaller after accept
     get "/source/home:tom:branches:home:Iggy/TestPack?expand=1"
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
     vrev_after_accept = node.value(:vrev)
     assert vrev <= vrev_after_accept
@@ -1665,7 +1665,7 @@ end
     post "/request?cmd=create", load_backend_file('request/from_source_protected_valid')
     assert_response :success
     assert_xml_tag( :tag => "request" )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value('id')
 
@@ -1770,7 +1770,7 @@ end
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value('id')
 
@@ -1802,7 +1802,7 @@ end
     post "/request?cmd=create", req
     assert_response :success
     
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     id = node.value :id
     get "/request/#{id}"    
     assert_response :success
@@ -1861,7 +1861,7 @@ end
 
     post "/request?cmd=create", rq
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     iddelete = node.value('id')
     
@@ -1911,7 +1911,7 @@ end
 
     post "/request?cmd=create", rq
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     iddelete = node.value('id')
     

@@ -433,7 +433,7 @@ class ApplicationController < ActionController::Base
 
   # After filter to clean up caches
   def clean_cache
-    ActiveXML::Base.free_object_cache
+    ActiveXML::Node.free_object_cache
   end
 
   def require_available_architectures

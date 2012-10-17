@@ -27,7 +27,7 @@ Rails::Initializer.run do |config|
 
 end
 
-ActiveXML::Base.config do |conf|
+ActiveXML::Node.config do |conf|
   conf.lazy_evaluation = true
 
   conf.setup_transport do |map|
@@ -45,10 +45,10 @@ ActiveXML::Base.config do |conf|
 end
 
 
-class Xproject < ActiveXML::Base
+class Xproject < ActiveXML::Node
 end
 
-class Xpackage < ActiveXML::Base
+class Xpackage < ActiveXML::Node
 end
 
 

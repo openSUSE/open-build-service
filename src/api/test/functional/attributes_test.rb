@@ -198,7 +198,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/home:tom/_attribute/OBS:Maintained"
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert_equal node.has_element?(:attribute), true
     assert_equal node.attribute.has_attribute?(:binary), false
     assert_equal node.attribute.namespace, "OBS"
@@ -242,7 +242,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     get "/source/home:tom/_project/_history?meta=1"
     assert_response :success
     assert_xml_tag( :tag => "revisionlist" )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     revision = node.each_revision.last
     assert_equal revision.user.text, "tom"
     srcmd5 = revision.srcmd5.text
@@ -268,7 +268,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     # get current
     get "/source/home:tom/_attribute/OBS:Maintained"
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert_equal node.has_element?(:attribute), false
   end
 
@@ -307,7 +307,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/kde4/kdelibs/_attribute/OBS:Maintained"
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert_equal node.has_element?(:attribute), true
     assert_equal node.attribute.has_attribute?(:binary), false
     assert_equal node.attribute.namespace, "OBS"
@@ -316,7 +316,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained"
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert_equal node.attribute.has_attribute?(:binary), true
     assert_equal node.attribute.binary, "kdelibs-devel"
     assert_equal node.attribute.namespace, "OBS"
@@ -357,7 +357,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     get "/source/kde4/kdelibs/_history?meta=1"
     assert_response :success
     assert_xml_tag( :tag => "revisionlist" )
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     revision = node.each_revision.last
     assert_equal revision.user.text, "fred"
     srcmd5 = revision.srcmd5.text
@@ -377,7 +377,7 @@ class AttributeControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/source/kde4/kdelibs/_attribute/OBS:Maintained"
     assert_response :success
-    node = ActiveXML::XMLNode.new(@response.body)
+    node = ActiveXML::Node.new(@response.body)
     assert_equal node.has_element?(:attribute), false
 
     # get old revision

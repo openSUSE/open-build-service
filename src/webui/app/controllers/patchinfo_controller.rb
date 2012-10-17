@@ -281,17 +281,17 @@ class PatchinfoController < ApplicationController
       bug = issueid
     end
     path = "/issue_trackers/#{CGI.escape(tracker)}"
-    tracker_result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "GET" ))
+    tracker_result = ActiveXML::Node.new(frontend.transport.direct_http( URI(path), :method => "GET" ))
     regexp = "^"
     regexp += tracker_result.regex.text
     regexp += "$"
     regexp = Regexp.new(regexp)
     if bug =~ regexp
       path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}"
-      result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "GET" ))
+      result = ActiveXML::Node.new(frontend.transport.direct_http( URI(path), :method => "GET" ))
       if result.summary == nil
         path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}?force_update=1"
-        result = ActiveXML::Base.new(frontend.transport.direct_http( URI(path), :method => "GET" ))
+        result = ActiveXML::Node.new(frontend.transport.direct_http( URI(path), :method => "GET" ))
       end
       @issuesum = result.summary.text if result.summary
       @issuesum = "" if !result.summary

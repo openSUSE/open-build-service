@@ -24,7 +24,7 @@ class MessageController < ApplicationController
     elsif request.put?
 
       check_permissions or return
-      new_msg = ActiveXML::XMLNode.new( request.raw_post )
+      new_msg = ActiveXML::Node.new( request.raw_post )
       begin
         msg = Message.new
         msg.text = new_msg.to_s

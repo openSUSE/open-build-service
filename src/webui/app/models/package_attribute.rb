@@ -1,2 +1,2 @@
-class PackageAttribute < ActiveXML::Base
+class PackageAttribute < ActiveXML::Node
 end

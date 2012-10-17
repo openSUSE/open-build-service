@@ -1,2 +1,2 @@
-class LatestUpdated < ActiveXML::Base
+class LatestUpdated < ActiveXML::Node
 end

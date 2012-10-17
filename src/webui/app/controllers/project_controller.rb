@@ -188,7 +188,7 @@ class ProjectController < ApplicationController
     target_project = ''
     begin
       path = "/source/#{CGI.escape(params[:ns])}/?cmd=createmaintenanceincident"
-      result = ActiveXML::Base.new(frontend.transport.direct_http(URI(path), :method => "POST", :data => ""))
+      result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => "POST", :data => ""))
       result.each("/status/data[@name='targetproject']") { |n| target_project = n.text }
     rescue ActiveXML::Transport::Error => e
       message, _, _ = ActiveXML::Transport.extract_error_message e
@@ -212,7 +212,7 @@ class ProjectController < ApplicationController
   def new_incident_request
     begin
       req = BsRequest.new(:project => params[:project], :type => "maintenance_incident", :description => params[:description])
-      req.save(:create => true)
+      req.save(create: true)
       flash[:success] = "Created maintenance release request"
     rescue ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => e
       message, _, _ = ActiveXML::Transport.extract_error_message(e)
@@ -230,7 +230,7 @@ class ProjectController < ApplicationController
     else
       begin
         req = BsRequest.new(:project => params[:project], :type => "maintenance_release", :description => params[:description])
-        req.save(:create => true)
+        req.save(create: true)
         flash[:success] = "Created maintenance release request <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value("id"))}'>#{req.value("id")}</a>"
       rescue ActiveXML::Transport::NotFoundError => e
         message, _, _ = ActiveXML::Transport.extract_error_message(e)
@@ -557,7 +557,7 @@ class ProjectController < ApplicationController
     @pngkey = Digest::MD5.hexdigest( params.to_s )
     Rails.cache.write("rebuild-%s.png" % @pngkey, png)
     f=File.open(outdir + "/longest.xml")
-    longest = ActiveXML::LibXMLNode.new(f.read)
+    longest = ActiveXML::Node.new(f.read)
     @timings = Hash.new
     longest.timings.each_package do |p|
       @timings[p.value(:name)] = [p.value(:buildtime), p.value(:finished)]
