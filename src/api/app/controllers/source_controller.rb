@@ -733,7 +733,7 @@ class SourceController < ApplicationController
         # is lock explicit set to disable ? allow the un-freeze of the project in that case ...
         ignoreLock = nil
         # do not support unlock via meta data, just via command or request revoke for now
-        # ignoreLock = true if rdata.has_element?("lock/disable")
+        # ignoreLock = true if rdata.has_key?("lock/disable")
 
         # project exists, change it
         unless @http_user.can_modify_project?(prj, ignoreLock)

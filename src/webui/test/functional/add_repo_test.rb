@@ -5,6 +5,7 @@ require 'webrat'
 class AddRepoTest < ActionController::IntegrationTest
 
    def setup
+      webrat_session.visit '/main/startme'
       webrat_session.visit '/'
       click_link "Login"
       fill_in "Username", :with => "Iggy"

@@ -1362,7 +1362,7 @@ class ProjectController < ApplicationController
         next if @current_develproject != all_packages
       end
 
-      if p.has_element? :link
+      if p.has_key? 'link'
         plink = p['link']
         if currentpack['md5'] != plink['targetmd5']
           currentpack['problems'] << 'diff_against_link'

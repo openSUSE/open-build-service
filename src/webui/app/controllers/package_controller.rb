@@ -1264,7 +1264,7 @@ class PackageController < ApplicationController
     return unless @buildresult
 
     newr = Hash.new
-    @buildresult.elements("result").sort {|a,b| a.repository <=> b.repository}.each do |result|
+    @buildresult.elements("result").sort {|a,b| a['repository'] <=> b['repository']}.each do |result|
       repo = result["repository"]
       if result.has_key? "status"
         newr[repo] ||= Array.new

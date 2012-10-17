@@ -2,28 +2,6 @@ require 'nokogiri'
 require 'json'
 require 'xmlhash'
 
-# adding some more functions to XMLHash
-module Xmlhash
-  class XMLHash
-    def has_element?(name)
-      return self.has_key? name.to_s
-    end
-    
-    def has_attribute?(name) 
-      return self.has_key? name.to_s
-    end
-    
-    def method_missing( symbol, *args, &block )
-      if args.size > 0 || !block.nil?
-        raise RuntimeError, "das geht zuweit #{symbol.inspect}(#{args.inspect})"
-      end
-      
-      Rails.logger.debug "method_missing -#{symbol}-"
-      return self[symbol.to_s]
-    end
-  end
-end
-
 module ActiveXML
 
   class GeneralError < StandardError; end
