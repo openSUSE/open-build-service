@@ -865,11 +865,11 @@ sub sendpublishevent {
 }
 
 sub sendrepochangeevent {
-  my ($prp) = @_;
+  my ($prp, $type) = @_;
 
   my ($projid, $repoid) = split('/', $prp, 2);
   my $ev = {
-    'type' => 'repository',
+    'type' => ($type || 'repository'),
     'project' => $projid,
     'repository' => $repoid,
     'arch' => $myarch,
@@ -2965,6 +2965,7 @@ sub jobfinished {
   update_dst_full($prp, $packid, $dst, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp}, $fullcache);
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
+  $repounchanged{$prp} = 2 if $repounchanged{$prp};
   $changed->{$prp} ||= 1;
 
   # save meta file
@@ -3035,6 +3036,7 @@ sub aggregatefinished {
   update_dst_full($prp, $packid, $dst, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
+  $repounchanged{$prp} = 2 if $repounchanged{$prp};
   $changed->{$prp} ||= 1;
   unlink("$reporoot/$prp/$myarch/:repodone");
   unlink("$gdst/:logfiles.fail/$packid");
@@ -3134,6 +3136,7 @@ sub uploadbuildevent {
   update_dst_full($prp, $packid, $dst, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
+  $repounchanged{$prp} = 2 if $repounchanged{$prp};
   $changed->{$prp} ||= 1;
   unlink("$reporoot/$prp/$myarch/:repodone");
 }
@@ -3162,6 +3165,7 @@ sub importevent {
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
   update_dst_full($prp, $packid, undef, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
+  delete $repounchanged{$prp} if $useforbuildenabled;
   unlink($_) for @all;
   rmdir($jobdatadir);
 }
@@ -5093,8 +5097,8 @@ sub getremoteevents {
 	  push @remoteevents, {'type' => 'project', 'project' => $projid};
 	} elsif ($s[0] eq 'package') {
 	  push @remoteevents, {'type' => 'package', 'project' => $projid, 'package' => $s[2]};
-	} elsif ($s[0] eq 'repository') {
-	  push @remoteevents, {'type' => 'repository', 'project' => $projid, 'repository' => $s[2], 'arch' => $s[3]};
+	} elsif ($s[0] eq 'repository' || $s[0] eq 'repoinfo') {
+	  push @remoteevents, {'type' => $s[0], 'project' => $projid, 'repository' => $s[2], 'arch' => $s[3]};
 	}
       }
     }
@@ -5107,8 +5111,8 @@ sub getremoteevents {
     } elsif ($ev->{'type'} eq 'package') {
       $watch = "package/$ev->{'project'}/$ev->{'package'}";
       $watch = "package/$ev->{'project'}" unless defined $watchremote->{$watch};
-    } elsif ($ev->{'type'} eq 'repository') {
-      $watch = "repository/$ev->{'project'}/$ev->{'repository'}/$myarch";
+    } elsif ($ev->{'type'} eq 'repository' || $ev->{'type'} eq 'repoinfo') {
+      $watch = "$ev->{'type'}/$ev->{'project'}/$ev->{'repository'}/$myarch";
     } else {
       next;
     }
@@ -5267,9 +5271,13 @@ sub event_repository {
   my $projid = $ev->{'project'};
   my $repoid = $ev->{'repository'};
   my $prp = "$projid/$repoid";
-  delete $repodatas{$prp};
   $changed_med->{$prp} = 2;
-  delete $repounchanged{$prp};
+  if ($ev->{'type'} eq 'repository') {
+    delete $repodatas{$prp};
+    delete $repounchanged{$prp};
+  } elsif ($ev->{'type'} eq 'repoinfo') {
+    $repounchanged{$prp} = 2 if $repounchanged{$prp};
+  }
 }
 
 sub event_check {
@@ -5498,6 +5506,7 @@ my %event_handlers = (
   'projevent' => \&event_project,
   'lowprioproject' => \&event_project,
   'repository' => \&event_repository,
+  'repoinfo' => \&event_repository,
   'rebuild' => \&event_check,
   'recheck' => \&event_check,
   'admincheck' => \&event_check,
@@ -6267,6 +6276,7 @@ eval {
     # merge bininfo
     if (-e "$reporoot/$prp/$myarch/:bininfo.merge" || ! -e "$reporoot/$prp/$myarch/:bininfo") {
       read_gbininfo("$reporoot/$prp/$myarch");
+      $repounchanged{$prp} = 2 if $repounchanged{$prp};
     }
 
     # merge relsync
@@ -6856,6 +6866,9 @@ eval {
     # chance to work
     if (!$repounchanged{$prp} || (!%unfinished && !$prpfinished{$prp})) {
       sendrepochangeevent($prp);
+      $repounchanged{$prp} = 1;
+    } elsif ($repounchanged{$prp} == 2) {
+      sendrepochangeevent($prp, 'repoinfo');
       $repounchanged{$prp} = 1;
     }
 
