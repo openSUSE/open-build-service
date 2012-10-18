@@ -19,8 +19,6 @@ Contents:
 
 == About
 
-Host: api.opensuse.org
-
 GET /about
 
   Get information about API.
@@ -66,8 +64,6 @@ XmlResult: status
 
 == Issue Trackers
 
-Host: api.opensuse.org
-
 GET /issue_trackers
 
   Get the list of available issue trackers
@@ -109,8 +105,6 @@ Parameters:
 
 == Distribution List
 
-Host: api.opensuse.org
-
 GET /distributions
 
   Get the list of base distributions
@@ -118,8 +112,6 @@ GET /distributions
 XmlResult: distributions
 
 == User data
-
-Host: api.opensuse.org
 
 <userid>: Id of user
 <groupid> Id of group
@@ -178,9 +170,31 @@ POST /person/changepasswd
 Parameters:
   TODO
 
-== Sources
+== Group data
 
-Host: api.opensuse.org
+GET /group/<group title>
+
+  Read group data.
+
+XmlResult: group
+
+
+PUT /group/<group title>
+
+  Write group data.
+
+XmlBody: user
+XmlResult: status
+
+
+DELETE /group/<group title>
+
+  Delete a group.
+
+XmlResult: status
+
+
+== Sources
 
 === Projects
 
@@ -848,8 +862,6 @@ XmlResult: status
 
 <build>: Build repository
 
-Host: api.opensuse.org
-
 GET /build/
 
   List all repositories
@@ -1390,52 +1402,7 @@ XmlResult: status
   This section describes the obsolete API for build results. It will be replaced
   by the API available under /build.
 
-=== RPMs
-
-Host: api.opensuse.org
-
-
-GET /rpm/<project>/<platform>/<package>/<arch>/<rpmname>
-
-  Get RPM.
-
-Result: RPM
-
-
-GET /rpm/<project>/<repo>/<arch>/<package>/history
-
-  Get build history
-
-XmlResult: buildhistory
-
-
-GET /rpm/<project>/<repo>/<arch>/<package>/buildinfo
-
-  Get build information for local building
-
-XmlResult: buildinfo
-
-
-POST /rpm/<project>/<repo>/<arch>/<package>/buildinfo
-
-  Get build info for local building using the POSTed specfile
-
-Body: specfile
-
-XmlResult: buildinfo
-
-
-GET /rpm/<project>/<repo>/<arch>/<package>/status
-
-  Get build status of the specified project/package/repo/arch combination
-
-XmlResult: buildstatus
-
-
 === Build Results
-
-Host: api.opensuse.org
-
 
 GET /result/<project>/<platform>/result
 
@@ -1461,7 +1428,6 @@ Result: Build log as text file.
 
 == Statistics
 
-Host: api.opensuse.org
 <limit>: limit count of results. optional, defaults to 10.
 <group_by>: group results by: project, package, repo or arch.
 <type>: can be projects or packages. optional, defaults to packages
@@ -1551,7 +1517,6 @@ XmlResult: newest_stats
 
 == Status Messages
 
-Host: api.opensuse.org
 <limit>: limit count of messages. optional, defaults to unlimited.
 
 
@@ -1568,7 +1533,6 @@ XmlResult: status_message
 
 == Messages (for projects/packages)
 
-Host: api.opensuse.org
 <id>: message id
 <limit>: limit count of messages. optional, defaults to unlimited.
 
