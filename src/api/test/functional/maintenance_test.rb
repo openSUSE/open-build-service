@@ -1624,8 +1624,6 @@ class MaintenanceTests < ActionController::IntegrationTest
 
   def test_copy_project_with_history_and_binaries
     prepare_request_with_user "tom", "thunder"
-    post "/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withhistory=1"
-    assert_response 403
     assert_xml_tag :tag => "status", :attributes => { :code => "project_copy_no_permission" }
     post "/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withbinaries=1"
     assert_response 403

@@ -1480,11 +1480,6 @@ class SourceController < ApplicationController
           :message => "no permission to copy project with binaries for non admins"
         return
       end
-      if params[:withhistory]
-        render_error :status => 403, :errorcode => "project_copy_no_permission",
-          :message => "no permission to copy project with source history for non admins"
-        return
-      end
     end
 
     # create new project object based on oproject
