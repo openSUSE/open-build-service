@@ -4565,7 +4565,8 @@ sub copyproject {
       }
     }
   }
-  notify_repservers('project', $projid);
+  # check all packages in project
+  notify_repservers('package', $projid);
   return $BSStdServer::return_ok;
 }
 
