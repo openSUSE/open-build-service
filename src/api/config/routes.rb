@@ -23,7 +23,7 @@ OBSApi::Application.routes.draw do
 
     ### /group
     match 'group' => 'group#index'
-    match 'group/:title' => 'group#show', :constraints => cons
+    match 'group/:title' => 'group#groupinfo', :constraints => cons
 
     ### /service
     match 'service' => 'service#index'

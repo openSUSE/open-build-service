@@ -73,6 +73,50 @@ class Group < ActiveRecord::Base
     end
   end
 
+  def update_from_xml( xmlhash )
+    self.title = xmlhash.value('title')
+
+    # update user list
+    cache = Hash.new
+    self.groups_users.each do |gu|
+      cache[gu.user.id] = gu
+    end
+    self.save!
+
+    xmlhash.elements('person') do |person|
+      if cache.has_key? person['userid']
+        #user has already a role in this package
+        cache[User.find_by_login(person['userid']).id] = :keep
+      else
+        user = User.get_by_login(person['userid'])
+        gu = GroupsUser.create( user: user, group: self)
+        gu.save!
+      end
+    end
+
+    #delete all users which were not listed
+    cache.each do |login_id, gu|
+      next if gu == :keep
+      GroupsUser.delete_all(["user_id = ? AND group_id = ?", login_id, self.id])
+    end
+  end
+
+  def render_axml()
+    builder = Nokogiri::XML::Builder.new
+
+    builder.group() do |group|
+      group.title( self.title )
+
+      self.groups_users.each do |gu|
+        group.person( :userid => gu.user.login )
+      end
+    end
+
+    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
+                              :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                            Nokogiri::XML::Node::SaveOptions::FORMAT
+  end
+
   def involved_projects_ids
     # just for maintainer for now.
     role = Role.rolecache["maintainer"]
