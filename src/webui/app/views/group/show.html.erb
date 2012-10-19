@@ -2,7 +2,7 @@
 
 <h2><%= @pagetitle %></h2>
 
-<% if @group.each('person').length > 0 %>
+<% if @group.person.has_elements? %>
 <table id="group_members_table">
   <thead>
     <tr>
@@ -10,7 +10,7 @@
     </tr>
   </thead>
   <tbody>
-    <% @group.each('person') do |member| %>
+    <% @group.person.each do |member| %>
       <tr>
         <td><%= link_to(member.userid, :controller => 'home', :action => 'index', :user => member.userid) %></td>
       </tr>
