@@ -35,6 +35,7 @@ class GroupControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_xml_tag :parent => { :tag => 'group' }, :tag => 'title', :content => "test_group"
     assert_xml_tag :tag => 'person', :attributes => {:userid => 'adrian'}
+    assert_xml_tag :parent => { :tag => 'person' }, :tag => 'person', :attributes => {:userid => 'adrian'}
 
     get "/group/does_not_exist"
     assert_response 404
@@ -61,7 +62,7 @@ class GroupControllerTest < ActionController::IntegrationTest
     assert_response :success
 
     # add a user
-    xml2 = "<group><title>new_group</title> <person userid='fred' /> </group>"
+    xml2 = "<group><title>new_group</title> <person><person userid='fred' /></person> </group>"
     put "/group/new_group", xml2
     assert_response :success
     get "/group/new_group"

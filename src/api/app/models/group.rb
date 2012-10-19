@@ -83,14 +83,18 @@ class Group < ActiveRecord::Base
     end
     self.save!
 
-    xmlhash.elements('person') do |person|
-      if cache.has_key? person['userid']
-        #user has already a role in this package
-        cache[User.find_by_login(person['userid']).id] = :keep
-      else
-        user = User.get_by_login(person['userid'])
-        gu = GroupsUser.create( user: user, group: self)
-        gu.save!
+    persons = xmlhash.elements('person').first
+    if persons
+      persons.elements('person') do |person|
+        next unless person['userid']
+        if cache.has_key? person['userid']
+          #user has already a role in this package
+          cache[User.find_by_login(person['userid']).id] = :keep
+        else
+          user = User.get_by_login(person['userid'])
+          gu = GroupsUser.create( user: user, group: self)
+          gu.save!
+        end
       end
     end
 
@@ -107,8 +111,10 @@ class Group < ActiveRecord::Base
     builder.group() do |group|
       group.title( self.title )
 
-      self.groups_users.each do |gu|
-        group.person( :userid => gu.user.login )
+      group.person do |person|
+        self.groups_users.each do |gu|
+          person.person( :userid => gu.user.login )
+        end
       end
     end
 
