@@ -17,7 +17,7 @@
         <tr>
           <td><%= link_to(group.title, :action => 'show', :id => group.value('title')) %></td>
           <td>
-          <% group.person.each do |member| %>
+          <% group.each('person') do |member| %>
             <%= link_to(member.userid, :controller => 'home', :action => 'index', :user => member.userid) %>, 
           <% end %>
           </td>
