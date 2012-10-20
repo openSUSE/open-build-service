@@ -15,10 +15,6 @@ class ProjectController < ApplicationController
     :autocomplete_projects, :autocomplete_incidents, :clear_failed_comment, :edit_comment_form, :index, 
     :list, :list_all, :list_public, :new, :package_buildresult, :save_new, :save_prjconf,
     :rebuild_time_png, :new_incident, :show]
-  before_filter :load_requests, :only => [:delete, :view,
-    :edit, :save, :add_repository_from_default_list, :add_repository, :save_targets, :status, :prjconf,
-    :remove_person, :save_person, :add_person, :add_group, :remove_target,
-    :monitor, :requests, :packages, :users, :subprojects, :repositories, :attributes, :meta]
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete, :new]
   before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list, 
                                                             :edit_repository, :update_target]
@@ -592,6 +588,7 @@ class ProjectController < ApplicationController
   end
 
   def requests
+    @requests = ApiDetails.find(:project_requests, :project => @project.name)
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
   end
@@ -1543,13 +1540,6 @@ class ProjectController < ApplicationController
       @is_incident_project = true
       @open_release_requests = BsRequest.list({:states => 'new,review', :types => 'maintenance_release', :project => @project.value('name'), :roles => 'source'})
     end
-  end
-
-  def load_requests
-    if @spider_bot
-      @requests = [] and return
-    end
-    @requests = ApiDetails.find(:project_requests, :project => @project.name)
   end
 
 end

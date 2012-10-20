@@ -1,14 +1,14 @@
 <% unless @requests.blank? %>
   <li>
-  <%= image_tag("information.png") %>
+  <%= sprite_tag("information") %>
   <% if @requests.size == 1 %>
-    1 <%= link_to("open request", :action => "show", :controller => "request", :id => @requests[0].value(:id)) %>
+    1 <%= link_to("open request", :action => "show", :controller => "request", :id => @requests[0]) %>
   <% else %>
     <%= @requests.size %>
     <% if @package %>
-      <%= link_to("open request#{@requests.size > 1 ? "s" : ""}", :action => "requests", :project => @project, :package => @package) %>
+      <%= link_to("open requests", :action => "requests", :project => @project, :package => @package) %>
     <% else %>
-      <%= link_to("open request#{@requests.size > 1 ? "s" : ""}", :action => "requests", :project => @project) %>
+      <%= link_to("open requests", :action => "requests", :project => @project) %>
     <% end %>
   <% end %>
   </li>

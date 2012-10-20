@@ -1321,5 +1321,10 @@ class Project < ActiveRecord::Base
     return ret
   end
   private :bsrequest_repos_map
-  
+
+  def user_has_role?(user, role)
+    return true if self.project_user_role_relationships.where(role_id: role.id, bs_user_id: user.id).first
+    return !self.project_group_role_relationships.where(role_id: role).joins(:groups_users).where(groups_users: { user_id: user.id }).first.nil?
+  end
+
 end

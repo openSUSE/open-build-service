@@ -10,7 +10,7 @@
         'types': $('#request_type_select')[0].value,
 	<%= raw("'user': '#{userid}',") if defined?(userid)  %>
 	<%= raw("'project': '#{project}',") if defined?(project) %>
-	<%= raw("'package'': '#{package}',") if defined?(package) %>
+	<%= raw("'package': '#{package}',") if defined?(package) %>
         <%= raw("'subprojects': 'true',") if defined?(subprojects) && subprojects %>
         <%= raw("'no_target': 'true',") if no_target %>
       },
@@ -41,5 +41,5 @@
 </p>
 
 <div id="request_display">
-  <%= render(:partial => 'shared/requests', :locals => {:requests => requests, :no_target => no_target}) unless not defined?(requests) %>
+  <%= render(:partial => 'shared/requests', :locals => {:requests => requests, :no_target => no_target}) if defined?(requests) %>
 </div>

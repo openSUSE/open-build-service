@@ -508,7 +508,264 @@ class BsRequest < ActiveRecord::Base
       end
     end
 
+    if opts[:ids]
+      rel = rel.where(:id => opts[:ids])
+    end
+
     return rel
+  end
+  
+  def review_matches_user?(review, user)
+    return false unless user
+    if review.by_user
+      return user.login == review.by_user
+    end
+    if review.by_group
+      return user.is_in_group?(review.by_group)
+    end
+    if review.by_project
+      p = nil
+      m = "change_project"
+      if review.by_package
+        p = Package.find_by_project_and_name(review.by_project, review.by_package)
+        m = "change_package"
+      else
+        p = Project.find_by_name(review.by_project)
+      end
+      return false unless p
+      return user.has_local_permission?(m, p)
+    end
+    return false
+  end
+
+  def reviews_for_user_and_others(user)
+    user_reviews, other_open_reviews = [], []
+    self.reviews.where(state: 'new').each do |review|
+      if review_matches_user?(review, user)
+        user_reviews << review
+      else
+        other_open_reviews << review
+      end
+    end
+    return user_reviews, other_open_reviews
+  end
+
+  def events
+    # Try to find out what happened over time...
+    events = {}
+    last_history_item = nil
+    self.bs_request_histories.each do |item|
+      what, color = "", nil
+      case item.state
+        when "new" then
+          if last_history_item && last_history_item.state == "review"
+            what, color = "accepted review", "green" # Moving back to state 'new'
+          elsif last_history_item && last_history_item.state == "declined"
+            what, color = "reopened", "maroon"
+          else
+            what = "created request" # First history item, regardless of 'state' (may be 'review')
+          end
+        when "review" then
+          if !last_history_item # First history item
+            what = "created request"
+          elsif last_history_item && last_history_item.state == "declined"
+            what, color = "reopened review", 'maroon'
+          else # Other items...
+            what = "added review"
+          end
+        when "accepted" then what, color = "accepted request", "green"
+        when "declined" then
+          color = "red"
+          if last_history_item
+            case last_history_item.state
+              when "review" then what = "declined review"
+              when "new" then what = "declined request"
+            end
+          end
+        when "superseded" then what = "superseded request"
+      end
+
+      events[item.created_at] = {:who => item.commenter, :what => what, :when => item.created_at, :comment => item.comment }
+      events[item.created_at][:color] = color if color
+      last_history_item = item
+    end
+    last_review_item = nil
+    self.reviews.each do |item|
+      if ['accepted', 'declined'].include?(item.state)
+        events[item.created_at] = {:who => item.commenter, :what => "#{item.state} review", :when => item.created_at, :comment => item.comment}
+        events[item.created_at][:color] = "green" if item.state == "accepted"
+        events[item.created_at][:color] = "red" if item.state == "declined"
+      end
+      last_review_item = item
+    end
+    # The <state ... /> element describes the last event in request's history:
+    state, what, color = self.state, "", ""
+    comment = self.comment
+    case state
+      when "accepted" then what, color = "accepted request", "green"
+      when "declined" then what, color = "declined request", "red"
+      when "new", "review"
+        if last_history_item # Last history entry
+          case last_history_item.name
+            when 'review' then
+              # TODO: There is still a case left, see sr #106286, factory-auto added a review for autobuild-team, the
+              # request # remained in state 'review', but another review was accepted in between. That is kind of hard
+              # to grasp from the pack of <history/>, <review/> and <state/> items without breaking # the other cases ;-)
+              #what, color = "accepted review for #{last_history_item.value('who')}", 'green'
+              what, color = "accepted review", 'green'
+              comment = last_review_item.comment # Yes, the comment for the last history item is in the last review ;-)
+            when 'declined' then what, color = 'reopened request', 'maroon'
+          end
+        else
+          what = "created request"
+        end
+      when "superseded" then what, color = 'superseded request', 'green'
+      when "revoked" then what, color = 'revoked request', 'green'
+    end
+
+    events[self.updated_at] = {:who => self.commenter, :what => what, :when => self.updated_at, :comment => comment}
+    events[self.updated_at][:color] = color if color
+    events[self.updated_at][:superseded_by] = self.superseded_by if self.superseded_by
+    # That wasn't all to difficult, no? ;-)
+
+    sorted_events = [] # Store events sorted by key (i.e. datetime)
+    events.keys.sort.each { |key| sorted_events << events[key] }
+    return sorted_events
+  end
+
+  def webui_infos
+    result = Hash.new
+    result['id'] = self.id
+
+    result['description'] = self.description
+    result['state'] = self.state
+    result['creator'] = self.creator
+    result['created_at'] = self.created_at
+    result['superseded_by'] = self.superseded_by if self.superseded_by
+    result['is_target_maintainer'] = self.is_target_maintainer?(User.current)
+
+    result['my_open_reviews'], result['other_open_reviews'] = self.reviews_for_user_and_others(User.current)
+
+    result['events'] = self.events
+    result['actions'] = self.actions
+    result
+  end
+
+  # Check if 'user' is maintainer in _all_ request targets:
+  def is_target_maintainer?(user)
+    has_target, is_target_maintainer = false, true
+    self.bs_request_actions.each do |a|
+      logger.debug "is_target_m #{a.inspect}"
+      if a.target_project
+        has_target = true
+        if a.target_package
+          tpkg = Package.find_by_project_and_name(a.target_project, a.target_package)
+          is_target_maintainer &= user.can_modify_package?(tpkg) if tpkg
+        else
+          tprj = Project.find_by_name(a.target_project)
+          is_target_maintainer &= user.can_modify_project?(tprj) if tprj
+        end
+      end
+    end
+    has_target && is_target_maintainer
+  end
+
+
+  def actions(with_diff = true)
+    #TODO: Fix!
+    actions, action_index = [], 0
+    self.bs_request_actions.each do |xml|
+      action = {type: xml.action_type }
+      
+      if xml.source_project
+        action[:sprj] = xml.source_project
+        action[:spkg] = xml.source_package if xml.source_package
+        action[:srev] = xml.source_rev if xml.source_rev
+      end
+      if xml.target_project
+        action[:tprj] = xml.target_project
+        action[:tpkg] = xml.target_package
+      end
+
+      case xml.action_type # All further stuff depends on action type...
+      when :submit then
+        action[:name] = "Submit #{action[:spkg]}"
+        action[:sourcediff] = actiondiffs()[action_index] if with_diff
+        creator = User.find_by_login(self.creator)
+        target_package = Package.find_by_project_and_name(action[:tprj], action[:tpkg])
+        action[:creator_is_target_maintainer] = true if creator.has_local_role?(Role.rolecache['maintainer'], target_package)
+
+        if target_package
+          linkinfo = target_package.linkinfo
+          target_package.developed_packages.each do |dev_pkg|
+            action[:forward] ||= []
+            action[:forward] << {:project => dev_pkg.project, :package => dev_pkg.name, :type => 'devel'}
+          end
+          if linkinfo
+            lprj, lpkg = linkinfo.project, linkinfo.package
+            link_is_already_devel = false
+            if action[:forward]
+              action[:forward].each do |forward|
+                if forward[:project] == lprj && forward[:package] == lpkg
+                  link_is_already_devel = true
+                  break
+                end
+              end
+            end
+            if !link_is_already_devel
+              action[:forward] ||= []
+              action[:forward] << {:project => linkinfo.project, :package => linkinfo.package, :type => 'link'}
+            end
+          end
+        end
+
+      when :delete then
+        if action[:tpkg]
+          action[:name] = "Delete #{action[:tpkg]}"
+        else
+          action[:name] = "Delete #{action[:tprj]}"
+        end
+
+        if action[:tpkg] # API / Backend don't support whole project diff currently
+          action[:sourcediff] = actiondiffs()[action_index] if with_diff
+        end
+      when :add_role then 
+        action[:name] = 'Add Role'
+        action[:role] = xml.person.value('role')
+        action[:user] = xml.person.value('name')
+      when :change_devel then 
+        action[:name] = 'Change Devel'
+      when :set_bugowner then 
+        action[:name] = 'Set Bugowner'
+      when :maintenance_incident then
+        action[:name] = "Incident #{action[:spkg]}"
+        action[:sourcediff] = actiondiffs()[action_index] if with_diff
+      when :maintenance_release then
+        action[:name] = "Release #{action[:spkg]}"
+        action[:sourcediff] = actiondiffs()[action_index] if with_diff
+      end
+      action_index += 1
+      actions << action
+    end
+    actions
+  end
+
+  def actiondiffs
+    #TODO: Fix!
+    actiondiffs = []
+    begin
+      transport ||= ActiveXML::transport
+      result = ActiveXML::Node.new(transport.direct_http(URI("/request/#{self.id}?cmd=diff&view=xml&withissues=1"), :method => "POST", :data => ""))
+      result.each_action do |action| # Parse each action and get the it's diff (per file)
+        sourcediffs = []
+        action.each_sourcediff do |sourcediff| # Parse earch sourcediff in that action
+          sourcediffs << BsRequest.sorted_filenames_from_sourcediff(sourcediff)
+        end
+        actiondiffs << sourcediffs
+      end
+    rescue ActiveXML::Transport::Error 
+    end
+    actiondiffs
   end
 
 end

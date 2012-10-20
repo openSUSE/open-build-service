@@ -4,26 +4,27 @@
 
 <table>
   <tbody>
-    <% @events.each do |event| %>
+    <% logger.debug @events.inspect
+       @events.each do |event| %>
       <tr>
         <td class="nowrap" style="width: 1%;">
-          <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => event[:who], :short => true}%>
+          <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => event['who'], :short => true}%>
         </td>
         <td>
-          <% if event[:superseded_by] %>
-            <%= link_to(event[:what], :id => event[:superseded_by]) %>
+          <% if event['superseded_by'] %>
+            <%= link_to(event['what'], :id => event['superseded_by']) %>
           <% else %>
-            <span style="color: <%= event[:color] %>;"><%= event[:what] %></span>
+            <span style="color: <%= event[:color] %>;"><%= event['what'] %></span>
           <% end %>
         </td>
         <td class="nowrap" style="width: 1%;">
-          <span class="hidden"><%= Time.parse(event[:when]).to_i %></span>
-          <%= fuzzy_time_string(event[:when]) %>
+          <span class="hidden"><%= Time.parse(event['when']).to_i %></span>
+          <%= fuzzy_time_string(event['when']) %>
         </td>
       </tr>
-      <% if event[:comment] && !event[:comment].empty? %>
+      <% if !event['comment'].blank? %>
         <tr class="odd">
-          <td colspan="3" class="expandable_event_comment"><pre class="plain"><%= event[:comment] %></pre></td>
+          <td colspan="3" class="expandable_event_comment"><pre class="plain"><%= event['comment'] %></pre></td>
         </tr>
       <% end %>
     <% end %>

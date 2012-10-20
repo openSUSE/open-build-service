@@ -37,7 +37,8 @@ OBSWebUI::Application.configure do
   config.log_level = :debug
   
   config.cache_store = :memory_store
-  config.action_controller.perform_caching
+  config.action_controller.perform_caching = true
+
 end
 
 # Check for custom development environment that takes precedence:

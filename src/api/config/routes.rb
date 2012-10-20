@@ -49,7 +49,6 @@ OBSApi::Application.routes.draw do
       # project level
       match 'source/:project' => :index_project, :constraints => cons
       match 'source/:project/_meta' => :project_meta, :constraints => cons
-      match 'source/:project/_webui_flags' => :project_flags, :constraints => cons
       match 'source/:project/_attribute' => :attribute_meta, :constraints => cons
       match 'source/:project/_attribute/:attribute' => :attribute_meta, :constraints => cons
       match 'source/:project/_config' => :project_config, :constraints => cons
@@ -57,7 +56,6 @@ OBSApi::Application.routes.draw do
 
       # package level
       match '/source/:project/:package/_meta' => :package_meta, :constraints => cons
-      match 'source/:project/:package/_webui_flags' => :package_flags, :constraints => cons
       match 'source/:project/:package/_attribute' => :attribute_meta, :constraints => cons
       match 'source/:project/:package/_attribute/:attribute' => :attribute_meta, :constraints => cons
       match 'source/:project/:package/:binary/_attribute' => :attribute_meta, :constraints =>  cons
@@ -290,6 +288,12 @@ OBSApi::Application.routes.draw do
     controller :webui do
       match 'webui/project_infos' => :project_infos
       match 'webui/project_requests' => :project_requests
+      match 'webui/project_flags' => :project_flags
+      match 'webui/package_flags' => :package_flags
+      match 'webui/person_requests_that_need_work' => :person_requests_that_need_work
+      match 'webui/request_show' => :request_show
+      match 'webui/person_involved_requests' => :person_involved_requests
+      match 'webui/request_ids' => :request_ids
     end
 
     match "/404" => "main#notfound"

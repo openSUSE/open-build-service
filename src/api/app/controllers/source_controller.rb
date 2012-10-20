@@ -1192,35 +1192,6 @@ class SourceController < ApplicationController
     end
   end
 
-  # /source/:project/:package/_webui_flags
-  def package_flags
-    valid_http_methods :get
-    required_parameters :project, :package
-
-    project_name = params[:project]
-    package_name = params[:package]
-
-    unless valid_package_name? package_name
-      render_error :status => 400, :errorcode => "invalid_package_name",
-        :message => "invalid package name '#{package_name}'"
-      return
-    end
-
-    pack = Package.get_by_project_and_name( project_name, package_name, use_source: false )
-    render :text => pack.expand_flags.to_json, :content_type => 'text/json'
-  end
-
-  # /source/:project/_webui_flags
-  def project_flags
-    valid_http_methods :get
-    required_parameters :project
-
-    project_name = params[:project]
-
-    prj = Project.get_by_name( project_name )
-    render :text => prj.expand_flags.to_json, :content_type => 'text/json'
-  end
-
   private
 
   # POST /source?cmd=createmaintenanceincident

@@ -56,24 +56,25 @@ class RequestController < ApplicationController
   def show
     redirect_back_or_to :controller => 'home', :action => 'requests' and return if !params[:id]
     begin
-      @req = find_cached(BsRequest, params[:id])
+      @req = ApiDetails.find(:request_show, id: params[:id])
     rescue ActiveXML::Transport::Error 
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_back_or_to :controller => "home", :action => "requests" and return
     end
 
-    @id = Integer(@req.value("id"))
-    @state = @req.state.value("name")
-    @is_author = @req.creator().login == session[:login]
-    @superseded_by = @req.state.value("superseded_by")
-    @is_target_maintainer = @req.is_target_maintainer?(session[:login])
+    @id = @req['id']
+    @state = @req['state']
+    @is_author = @req["creator"] == session[:login]
+    @superseded_by = @req["superseded_by"]
+    @is_target_maintainer = @req['is_target_maintainer']
 
-    @my_open_reviews, @other_open_reviews = @req.reviews_for_user_and_others(@user)
+    @my_open_reviews = @req['my_open_reviews']
+    @other_open_reviews = @req['other_open_reviews']
     @can_add_reviews = ['new', 'review'].include?(@state) && (@is_author || @is_target_maintainer || @my_open_reviews.length > 0) && session[:login]
     @can_handle_request = ['new', 'review', 'declined'].include?(@state) && (@is_target_maintainer || @is_author) && session[:login]
 
-    @events = @req.events()
-    @actions = @req.actions(!@spider_bot) # Don't fetch diff for spiders, may take to long
+    @events = @req['events']
+    @actions = @req['actions']
 
     request_list = session[:requests]
     @request_before = nil
@@ -172,6 +173,8 @@ class RequestController < ApplicationController
     elide_len = 44
     elide_len = params[:elide_len].to_i if params[:elide_len]
     session[:requests] = requests.each.map {|r| Integer(r.value(:id)) }.sort
+    # TODO no need to parse XML here
+    requests = BsRequest.ids(session[:requests])
     render :partial => 'shared/requests', :locals => {:requests => requests, :elide_len => elide_len, :no_target => params[:no_target]}
   end
 

@@ -173,7 +173,10 @@ class ApplicationController < ActionController::Base
 
   def rescue_with_handler( exception )
     logger.error "rescue_action: caught #{exception.class}: #{exception.message} " # + exception.backtrace.join("\n")
-    message, code, api_exception = ActiveXML::Transport.extract_error_message exception
+    begin
+      message, code, api_exception = ActiveXML::Transport.extract_error_message exception
+    rescue Nokogiri::XML::XPath::SyntaxError
+    end
 
     case exception
     when ActionController::RoutingError
@@ -238,7 +241,10 @@ class ApplicationController < ActionController::Base
     @exception = opt[:exception] if show_detailed_exceptions?
     @api_exception = opt[:api_exception] if show_detailed_exceptions?
     logger.debug "ERROR: #{@code}; #{@message}"
-    logger.debug @exception.backtrace.join("\n") if @exception
+    if @exception
+      bt = @exception.backtrace.find_all {|line| line.start_with? Rails.root.to_s }.join("\n")
+      logger.debug bt
+    end
     if request.xhr?
       render :text => @message, :status => @status, :layout => false
     else
@@ -319,7 +325,10 @@ class ApplicationController < ActionController::Base
     if @user
       Rails.cache.set_domain(@user.to_s) if Rails.cache.respond_to?('set_domain');
       begin
-        @nr_requests_that_need_work = @user.requests_that_need_work(:cache => !discard_cache?).flatten.size
+        @nr_requests_that_need_work = 0
+        unless request.xhr?
+          @user.requests_that_need_work.each { |key,array| @nr_requests_that_need_work += array.size }
+        end
       rescue Timeout::Error
         # TODO: add all temporary errors here, but no catch all
       end
