@@ -971,6 +971,7 @@ sub createdeltajob {
     'path' => $searchpath,
     'needed' => 0,
   };
+  $binfo->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
 
   writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
   print "    created deltajob...\n";
@@ -3832,6 +3833,7 @@ sub rebuildkiwiproduct {
     'readytime' => $now,
   };
   $binfo->{'syspath'} = $syspath if $syspath;
+  $binfo->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
   $binfo->{'revtime'} = $pdata->{'revtime'} if $pdata->{'revtime'};
   $binfo->{'imagetype'} = $info->{'imagetype'} if $info->{'imagetype'};
   mkdir_p("$reporoot/$prp/$myarch/$packid");
