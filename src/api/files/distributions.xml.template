@@ -192,6 +192,14 @@
   <icon url="https://static.opensuse.org/distributions/logos/mandriva.png"/>
   <link>http://www.mandriva.com/</link>
  </distribution>
+ <distribution vendor="Ubuntu" version="12.10" id="ubuntu-12.10">
+  <name>Ubuntu 12.10</name>
+  <project>openSUSE.org:Ubuntu:12.10</project>
+  <reponame>xUbuntu_12.10</reponame>
+  <repository>standard</repository>
+  <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png"/>
+  <link>http://www.ubuntu.com/</link>
+ </distribution>
  <distribution vendor="Ubuntu" version="12.04" id="ubuntu-12.04">
   <name>Ubuntu 12.04</name>
   <project>openSUSE.org:Ubuntu:12.04</project>
@@ -204,14 +212,6 @@
   <name>Ubuntu 11.10</name>
   <project>openSUSE.org:Ubuntu:11.10</project>
   <reponame>xUbuntu_11.10</reponame>
-  <repository>standard</repository>
-  <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png"/>
-  <link>http://www.ubuntu.com/</link>
- </distribution>
- <distribution vendor="Ubuntu" version="11.04" id="ubuntu-11.04">
-  <name>Ubuntu 11.04</name>
-  <project>openSUSE.org:Ubuntu:11.04</project>
-  <reponame>xUbuntu_11.04</reponame>
   <repository>standard</repository>
   <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png"/>
   <link>http://www.ubuntu.com/</link>
