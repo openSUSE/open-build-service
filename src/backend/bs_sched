@@ -4687,8 +4687,13 @@ sub checkpreinstallimage {
   my $pool = $ctx->{'pool'};
   my @new_meta;
   for my $dep (@bdeps) {
-    my $pkgid = $pool->pkg2pkgid($dep2pkg->{$dep});
-    push @new_meta, "$pkgid  $dep";
+    my $p = $dep2pkg->{$dep};
+    if (!$p) {
+      print "      - $packid (preinstallimage)\n";
+      print "        unresolvables:\n          $dep\n";
+      return ('unresolvable', $dep);
+    }
+    push @new_meta, $pool->pkg2pkgid($p)."  $dep";
   }
   @new_meta = BSSolv::gen_meta([], @new_meta);
 
