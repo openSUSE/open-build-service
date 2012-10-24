@@ -53,6 +53,10 @@ exception_recipients: []
 # if the api runs against ldap (:on && :off)
 #frontend_ldap_mode: :on
 
+# enable gravatar icons in webui. This will tell www.gravatar.com the email adresses
+# of your users.
+#enable_gravatar: :off
+
 # hostname of API
 frontend_host: api.opensuse.org
 # port of API

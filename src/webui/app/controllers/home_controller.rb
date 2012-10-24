@@ -16,20 +16,22 @@ class HomeController < ApplicationController
     Rails.cache.delete(key) if discard_cache?
     content = Rails.cache.fetch(key, :expires_in => 5.hour) do
 
-      email = Person.email_for_login(user)
-      hash = Digest::MD5.hexdigest(email.downcase)
-      http = Net::HTTP.new("www.gravatar.com")
-      begin
-        http.start
-        response = http.get "/avatar/#{hash}?s=#{size}&d=wavatar" unless Rails.env.test?
-        if response.is_a?(Net::HTTPSuccess)
-          content = response.body
+      unless CONFIG['enable_gravatar'] == :off
+        email = Person.email_for_login(user)
+        hash = Digest::MD5.hexdigest(email.downcase)
+        http = Net::HTTP.new("www.gravatar.com")
+        begin
+          http.start
+          response = http.get "/avatar/#{hash}?s=#{size}&d=wavatar" unless Rails.env.test?
+          if response.is_a?(Net::HTTPSuccess)
+            content = response.body
+          end
+        rescue SocketError, Errno::EINTR, Errno::EPIPE, EOFError, Net::HTTPBadResponse, IOError, Errno::ETIMEDOUT, Errno::ECONNREFUSED => err
+          logger.debug "#{err} when fetching http://www.gravatar.com/avatar/#{hash}?s=#{size}"
+          http = nil
         end
-      rescue SocketError, Errno::EINTR, Errno::EPIPE, EOFError, Net::HTTPBadResponse, IOError, Errno::ETIMEDOUT, Errno::ECONNREFUSED => err
-	logger.debug "#{err} when fetching http://www.gravatar.com/avatar/#{hash}?s=#{size}"
-        http = nil
+        http.finish if http
       end
-      http.finish if http
 
       unless content
         #TODO/FIXME: Looks like an asset...
