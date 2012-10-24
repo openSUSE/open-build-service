@@ -6,10 +6,10 @@ class PackageController < ApplicationController
   include ApplicationHelper
   include PackageHelper
 
-  before_filter :require_project, :except => [:rawlog, :submit_request, :devel_project]
-  before_filter :require_package, :except => [:rawlog, :submit_request, :save_new_link, :save_new, :devel_project ]
+  before_filter :require_project, :except => [:rawlog, :rawsourcefile, :submit_request, :devel_project]
+  before_filter :require_package, :except => [:rawlog, :rawsourcefile, :submit_request, :save_new_link, :save_new, :devel_project ]
   # make sure it's after the require_, it requires both
-  before_filter :load_requests, :except =>   [:rawlog, :submit_request, :save_new_link, :save_new, :devel_project, 
+  before_filter :load_requests, :except =>   [:rawlog, :rawsourcefile, :submit_request, :save_new_link, :save_new, :devel_project, 
                                               :rpmlint_log, :add_service ]
   before_filter :require_login, :only => [:branch]
   prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
@@ -873,6 +873,31 @@ class PackageController < ApplicationController
       @offset += chunk.length
       yield chunk
     end
+  end
+
+  def rawsourcefile
+    valid_http_methods :get
+
+    path = "/source/#{params[:project]}/#{params[:package]}/#{params[:file]}"
+    path += "?rev=#{params[:srcmd5]}" unless params[:srcmd5].blank?
+
+    # apache & mod_xforward case
+    if CONFIG['use_xforward'] and CONFIG['use_xforward'] != "false"
+      logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
+      headers['X-Forward'] = "#{CONFIG['frontend_protocol']}://#{CONFIG['frontend_host']}:#{CONFIG['frontend_port']}#{path}"
+      head(200)
+      return
+    end
+
+    # lighttpd 1.5 case
+    if CONFIG['use_lighttpd_x_rewrite']
+      headers['X-Rewrite-URI'] = path
+      headers['X-Rewrite-Host'] = CONFIG['frontend_host']
+      head(200) and return
+    end
+
+    headers['Content-Type'] = 'text/plain'
+    self.response_body = frontend.transport.direct_http URI(path), :timeout => 500
   end
 
   def rawlog

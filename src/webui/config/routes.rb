@@ -105,6 +105,7 @@ OBSWebUI::Application.routes.draw do
     match 'package/remove_group' => :remove_group
     match 'package/view_file' => :view_file
     match 'package/save_modified_file' => :save_modified_file
+    match 'package/rawsourcefile' => :rawsourcefile
     match 'package/rawlog' => :rawlog
     match 'package/live_build_log' => :live_build_log
     match 'package/update_build_log' => :update_build_log

@@ -22,7 +22,9 @@
           <td><span class="hidden"><%= file[:mtime] %></span><%= fuzzy_time_string(Time.at(file[:mtime].to_i).to_s) %></td>
           <!-- limit download for anonymous user to avoid getting killed by crawlers -->
           <td><%= if @user or file[:size].to_i < ( 4 * 1024 * 1024 )
-                    link_to image_tag('page_white_get.png', :alt => "Download", :title => "Download File"), file_url( @project, @package, file[:name], file[:srcmd5] )
+                    link_to image_tag('page_white_get.png', :alt => "Download", :title => "Download File"), 
+                            :controller => :package, :action => :rawsourcefile, :package => @package,
+                           :project => @project, :file => file[:name], :srcmd5 => file[:srcmd5]
                   end %>
             <% unless file[:name].match(/^_service:/) %>
               <% if @package.can_edit?( @user ) %>
