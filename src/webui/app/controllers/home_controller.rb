@@ -19,7 +19,16 @@ class HomeController < ApplicationController
       unless CONFIG['enable_gravatar'] == :off
         email = Person.email_for_login(user)
         hash = Digest::MD5.hexdigest(email.downcase)
-        http = Net::HTTP.new("www.gravatar.com")
+        http = nil
+        proxyuri = ENV['HTTP_PROXY']
+        proxyuri = CONFIG['HTTP_PROXY'] unless CONFIG['HTTP_PROXY'].blank?
+        if proxyuri
+          proxy = URI.parse(proxyuri)
+          proxy_user, proxy_pass = proxy.userinfo.split(/:/) if proxyuri.userinfo
+          http = Net::HTTP::Proxy(proxy.host, proxy.port, proxy_user, proxy_pass).new("www.gravatar.com")
+        else
+          http = Net::HTTP.new("www.gravatar.com")
+        end
         begin
           http.start
           response = http.get "/avatar/#{hash}?s=#{size}&d=wavatar" unless Rails.env.test?
