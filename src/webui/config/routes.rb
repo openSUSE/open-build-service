@@ -140,6 +140,7 @@ OBSWebUI::Application.routes.draw do
     match 'patchinfo/valid_description?' => :valid_description?
     match 'patchinfo/new_tracker' => :new_tracker
     match 'patchinfo/get_issue_sum' => :get_issue_sum
+    match 'patchinfo/delete_dialog' => :delete_dialog
   end
 
   controller :privacy do

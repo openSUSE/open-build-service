@@ -252,6 +252,10 @@ class PatchinfoController < ApplicationController
     redirect_to :controller => 'project', :action => 'show', :project => @project
   end
 
+  def delete_dialog
+  end
+
+
   def valid_summary? name
     name != nil and name =~ /^.{10,}$/m
   end
