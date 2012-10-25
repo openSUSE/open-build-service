@@ -57,6 +57,9 @@ exception_recipients: []
 # of your users.
 #enable_gravatar: :off
 
+# Use this http_proxy (currently only used to download garavatar images)
+#http_proxy: 
+
 # hostname of API
 frontend_host: api.opensuse.org
 # port of API
