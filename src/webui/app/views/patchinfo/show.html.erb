@@ -7,18 +7,15 @@
   <div class="box show_left show_right">
     <div class="box" style="background-color:#DDDDDD; margin-top: 0">
     <h2 style="display: inline"><%= @category %> update for <%= truncate(@pkg_names.join(", "), :length => 20) %></h2>
-    <span>
-      <% if (@project.is_maintainer?( @user ) || @package.is_maintainer?( @user )) && !@project.is_locked? %>
-        <span>
-          <%= link_to image_tag('package_edit.png', :title => 'Edit Patchinfo'), :action => :edit_patchinfo, :project => @project, :package => @package, :spec_count => @spec_count %>
-        </span>
+      <% if @package.can_edit?(@user) %>
+        <ul class="horizontal-list">
+          <li><%= link_to sprite_tag('package_edit'), :action => 'edit_patchinfo', :project => @project, :package => @package, :spec_count => @spec_count -%>
+            <%= link_to "Edit patchinfo", { :action => 'edit_patchinfo', :project => @project, :package => @package, :spec_count => @spec_count }, id: 'edit-patchinfo' -%></li>
 
-        <span>
-          <%= link_to image_tag('package_delete.png', :title => 'Remove Patchinfo'), {:action => :remove, :project => @project, :package => @package},
-            :data => { :confirm => "Really remove '#{@package}'?", :method => :post } %>
-        </span>
+          <li><%= link_to(sprite_tag('package_delete'), {:action => :delete_dialog, :package => @package, :project => @project}, :remote => true) %>
+            <%= link_to('Delete patchinfo', {:action => :delete_dialog, :package => @package, :project => @project}, :remote => true, id: 'delete-patchinfo') %></li>
+        </ul>
       <% end %>
-    </span>
 </div>
     <% if @block %>
       <div class="box ui-state-error ui-widget-shadow" style="min-height:15px;">
@@ -30,16 +27,16 @@
         <% end %>
       </div>
     <% end %>
-    <strong><%= @summary %></strong><br/>
+    <strong id="summary"><%= @summary %></strong><br/>
     <% if @packager %>
-      This update was submitted from <%=  render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => @packager.login} %> and rated as <span style="color: <%=patchinfo_rating_color(@rating)%>"><%=@rating%></span>
+      <label id="info">This update was submitted from <%=  render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => @packager.login} %> and rated as <span style="color: <%=patchinfo_rating_color(@rating)%>"><%=@rating%></span></label>
     <% else %>
-      This update is rated as <span style="color: <%=patchinfo_rating_color(@rating)%>"><%=@rating%></span>
+      <label id="info">This update is rated as <span style="color: <%=patchinfo_rating_color(@rating)%>"><%=@rating%></span></label>
     <% end %>
   </div>
      <div class="box show_left show_right">
        <b>Description:</b><br/>
-    <%= @description %>
+    <%= description_wrapper(@description) %>
   </div>
     <div class="box show_left show_right">
       <b>Fixed bugs:</b><br/>
