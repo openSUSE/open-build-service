@@ -55,7 +55,7 @@ exception_recipients: []
 
 # enable gravatar icons in webui. This will tell www.gravatar.com the email adresses
 # of your users.
-#enable_gravatar: :off
+#use_gravatar: :off
 
 # Use this http_proxy (currently only used to download garavatar images)
 #http_proxy: 

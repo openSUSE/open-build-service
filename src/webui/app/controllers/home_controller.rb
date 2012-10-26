@@ -16,7 +16,7 @@ class HomeController < ApplicationController
     Rails.cache.delete(key) if discard_cache?
     content = Rails.cache.fetch(key, :expires_in => 5.hour) do
 
-      unless CONFIG['enable_gravatar'] == :off
+      unless CONFIG['use_gravatar'] == :off
         email = Person.email_for_login(user)
         hash = Digest::MD5.hexdigest(email.downcase)
         http = nil
