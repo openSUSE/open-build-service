@@ -53,9 +53,9 @@ exception_recipients: []
 # if the api runs against ldap (:on && :off)
 #frontend_ldap_mode: :on
 
-# enable gravatar icons in webui. This will tell www.gravatar.com the email adresses
-# of your users.
-#enable_gravatar: :off
+# enable gravatar icons in webui. This contacts www.gravatar.com and may tell the email adresses
+# of your users if they are registered there.
+#use_gravatar: :off
 
 # Use this http_proxy (currently only used to download garavatar images)
 #http_proxy: 
