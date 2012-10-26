@@ -1518,7 +1518,7 @@ our $constraints = [
   ],
   [ 'hardware' =>
       [ 'cpu' =>
-	 [[ 'flag' ]],
+	 [ 'flag' ],
       ],
 	'processors',
       [ 'disk' =>
