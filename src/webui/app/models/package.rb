@@ -332,7 +332,7 @@ class Package < ActiveXML::Node
   end
 
   def self.is_binary_file?(filename)
-    BINARY_EXTENSIONS.include?(File.extname(filename))
+    BINARY_EXTENSIONS.include?(File.extname(filename).downcase)
   end
 
   def self.attributes(project_name, package_name)
