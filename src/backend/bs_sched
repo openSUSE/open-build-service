@@ -245,6 +245,8 @@ my $projpacks;		# global project/package data
 my %repodatas;		# our repository knowledge
 my %repodatas_alien;	# repositories from other archs
 
+my %remotegbininfos;
+
 # add :full repo to pool
 sub addrepo {
   my ($pool, $prp) = @_;
@@ -2770,7 +2772,20 @@ sub addrepo_remote {
 sub read_gbininfo_remote {
   my ($prpa, $remoteproj, $retryprpa, $packstatus) = @_;
 
-  return undef if !$remoteproj || $remoteproj->{'error'};
+  return undef unless $remoteproj;
+  return undef if $remoteproj->{'error'};
+
+  my $cachemd5 = Digest::MD5::md5_hex($prpa);
+  substr($cachemd5, 2, 0, '/');
+
+  my $now = time();
+  if (!$packstatus && $remotegbininfos{$prpa} && ($remotegbininfos{$prpa}->{'lastfetch'} || 0) > $now - 3600) {
+    if (-s "$remotecache/$cachemd5.bininfo") {
+      my $gbininfo = BSUtil::fetch("$remotecache/$cachemd5.bininfo", 1);
+      return $gbininfo if $gbininfo;
+    }
+  }
+
   print "    fetching remote project binary state for $prpa\n";
   my ($projid, $repoid, $arch) = split('/', $prpa, 3);
   my $param = {
@@ -2795,12 +2810,26 @@ sub read_gbininfo_remote {
   for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
     my %bins;
     for my $binary (@{$binaryversionlist->{'binary'} || []}) {
-      next unless $binary->{'name'} =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
-      $bins{$binary->{'name'}} = {'filename' => $binary->{'name'}, 'name' => $1, 'arch' => $2};
+      my $filename = $binary->{'name'};
+      # XXX: should not rely on the filename here!
+      if ($filename =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+        $bins{$filename} = {'filename' => $filename, 'name' => $1, 'arch' => $2};
+      } elsif ($filename =~ /^([^\/]+)_[^\/]*_([^\/]*)\.deb$/) {
+        $bins{$filename} = {'filename' => $filename, 'name' => $1, 'arch' => $2};
+      } elsif ($filename =~ /^([^\/]+)-[^-]+-[^-]+-([a-zA-Z][^\/\.\-]*)\.pkg\.tar\..z$/) {
+        $bins{$filename} = {'filename' => $filename, 'name' => $1, 'arch' => $2};
+      } else {
+        $bins{$filename} = {'filename' => $filename};
+      }
+      $bins{$filename}->{'hdrmd5'} = $binary->{'hdrmd5'} if $binary->{'hdrmd5'};
+      $bins{$filename}->{'leadsigmd5'} = $binary->{'leadsigmd5'} if $binary->{'leadsigmd5'};
     }
     $gbininfo->{$binaryversionlist->{'package'}} = \%bins;
     $packstatus->{$binaryversionlist->{'package'}} = $binaryversionlist->{'code'} if $packstatus && $binaryversionlist->{'code'};
   }
+  mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
+  BSUtil::store("$remotecache/$cachemd5.bininfo.new$$", "$remotecache/$cachemd5.bininfo", $gbininfo);
+  $remotegbininfos{$prpa} = { 'lastfetch' => $now };
   return $gbininfo;
 }
 
