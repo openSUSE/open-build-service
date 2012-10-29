@@ -727,6 +727,7 @@ sub set_building {
   $binfo->{'syspath'} = $syspath if $syspath;
   $binfo->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
   $binfo->{'constraintsmd5'} = $pdata->{'constraintsmd5'} if $pdata->{'constraintsmd5'};
+  $binfo->{'prjconfconstraint'} = $bconf->{'constraint'} if @{$bconf->{'constraint'} || []};
   if ($pdata->{'revtime'}) {
     $binfo->{'revtime'} = $pdata->{'revtime'};
     # use max of revtime for interproject links

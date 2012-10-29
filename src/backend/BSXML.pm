@@ -485,6 +485,7 @@ our $buildinfo = [
 	'release',
 	'debuginfo',
 	'constraintsmd5',
+      [ 'prjconfconstraint' ],
       [ 'subpack' ],
       [ 'imagetype' ],
       [ 'dep' ],
