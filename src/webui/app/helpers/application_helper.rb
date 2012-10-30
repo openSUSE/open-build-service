@@ -98,14 +98,15 @@ module ApplicationHelper
     URI.escape("#{CONFIG['bugzilla_host']}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd party software&assigned_to=#{assignee}#{cc}&short_desc=#{desc}")
   end
 
-  def get_random_sponsor_image
-    sponsors = [
+  SPONSORS = [
       "sponsor_suse",
       "sponsor_amd",
       "sponsor_b1-systems",
       "sponsor_ip-exchange2",
       "sponsor_heinlein"]
-    return sponsors[rand(sponsors.size)]
+
+  def get_random_sponsor_image
+    return SPONSORS.sample
   end
 
   def image_url(source)
@@ -188,45 +189,46 @@ module ApplicationHelper
     return out.html_safe
   end
 
-  
+  REPO_STATUS_ICONS = {
+    "published"            => "lorry",
+    "publishing"           => "cog_go",
+    "outdated_published"   => "lorry_error",
+    "outdated_publishing"  => "cog_error",
+    "unpublished"          => "lorry_flatbed",
+    "outdated_unpublished" => "lorry_error",
+    "building"             => "cog",
+    "outdated_building"    => "cog_error",
+    "finished"             => "time",
+    "outdated_finished"    => "time_error",
+    "blocked"              => "time",
+    "outdated_blocked"     => "time_error",
+    "broken"               => "exclamation",
+    "outdated_broken"      => "exclamation",
+    "scheduling"           => "cog",
+    "outdated_scheduling"  => "cog_error",
+  }
+
+  REPO_STATUS_DESCRIPTIONS = {
+    "published"   => "Repository has been published",
+    "publishing"  => "Repository is being created right now",
+    "unpublished" => "Build finished, but repository publishing is disabled",
+    "building"    => "Build jobs exists",
+    "finished"    => "Build jobs have been processed, new repository is not yet created",
+    "blocked"     => "No build possible atm, waiting for jobs in other repositories",
+    "broken"      => "The repository setup is broken, build not possible",
+    "scheduling"  => "The repository state is being calculated right now",
+  }
+
   def repo_status_icon( status )
-    icon = case status
-    when "published" then "lorry"
-    when "publishing" then "cog_go"
-    when "outdated_published" then "lorry_error"
-    when "outdated_publishing" then "cog_error"
-    when "unpublished" then "lorry_flatbed"
-    when "outdated_unpublished" then "lorry_error"
-    when "building" then "cog"
-    when "outdated_building" then "cog_error"
-    when "finished" then "time"
-    when "outdated_finished" then "time_error"
-    when "blocked" then "time"
-    when "outdated_blocked" then "time_error"
-    when "broken" then "exclamation"
-    when "outdated_broken" then "exclamation"
-    when "scheduling" then "cog"
-    when "outdated_scheduling" then "cog_error"
-    else "eye"
-    end
+    icon = REPO_STATUS_ICONS[status] || "eye"
 
     outdated = nil
     if status =~ /^outdated_/
       status.gsub!( %r{^outdated_}, '' )
       outdated = true
     end
-    description = case status
-    when "published" then "Repository has been published"
-    when "publishing" then "Repository is being created right now"
-    when "unpublished" then "Build finished, but repository publishing is disabled"
-    when "building" then "Build jobs exists"
-    when "finished" then "Build jobs have been processed, new repository is not yet created"
-    when "blocked" then "No build possible atm, waiting for jobs in other repositories"
-    when "broken" then "The repository setup is broken, build not possible"
-    when "scheduling" then "The repository state is being calculated right now"
-    else "Unknown state of repository"
-    end
 
+    description = REPO_STATUS_DESCRIPTIONS[status] || "Unknown state of repository"
     description = "State needs recalculations, former state was: " + description if outdated
 
     sprite_tag icon, :title => description
