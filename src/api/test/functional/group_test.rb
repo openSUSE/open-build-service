@@ -83,6 +83,32 @@ class GroupControllerTest < ActionController::IntegrationTest
     assert_response 404
   end
 
+  def test_add_and_remove_users_from_group
+    prepare_request_valid_user
+    post "/group/test_group", :cmd => "add_user", :userid => "Iggy"
+    assert_response 403
+    post "/group/test_group", :cmd => "remove_user", :userid => "Iggy"
+    assert_response 403
+    get "/group/test_group"
+    assert_response :success
+    assert_no_xml_tag :tag => 'person', :attributes => {:userid => 'Iggy'}
+
+    # as admin
+    prepare_request_with_user "king", "sunflower"
+    post "/group/test_group", :cmd => "add_user", :userid => "Iggy"
+    assert_response :success
+    get "/group/test_group"
+    assert_response :success
+    assert_xml_tag :tag => 'person', :attributes => {:userid => 'Iggy'}
+    post "/group/test_group", :cmd => "remove_user", :userid => "Iggy"
+    assert_response :success
+    get "/group/test_group"
+    assert_response :success
+    assert_no_xml_tag :tag => 'person', :attributes => {:userid => 'Iggy'}
+
+    # done, back at old state
+  end
+
   def test_list_users_of_group
     reset_auth
     get "/group/not_existing_group"

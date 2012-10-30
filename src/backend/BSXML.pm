@@ -485,6 +485,7 @@ our $buildinfo = [
 	'release',
 	'debuginfo',
 	'constraintsmd5',
+      [ 'prjconfconstraint' ],
       [ 'subpack' ],
       [ 'imagetype' ],
       [ 'dep' ],
@@ -1518,7 +1519,7 @@ our $constraints = [
   ],
   [ 'hardware' =>
       [ 'cpu' =>
-	 [[ 'flag' ]],
+	 [ 'flag' ],
       ],
 	'processors',
       [ 'disk' =>

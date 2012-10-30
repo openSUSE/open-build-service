@@ -25,8 +25,13 @@ class GroupController < ApplicationController
     render :text => xml, :content_type => "text/xml"
   end
 
-  def groupinfo
-    valid_http_methods :get, :put, :delete
+  # generic function to handle all group related tasks
+  # GET for showing the group
+  # DELETE for removing it
+  # PUT for rewriting it completely including defined user list.
+  # POST for editing it, adding or remove users
+  def group
+    valid_http_methods :get, :put, :delete, :post
     required_parameters :title
 
     if !@http_user
@@ -45,9 +50,8 @@ class GroupController < ApplicationController
       group.destroy
       render_ok
       return
-    end
 
-    if request.put?
+    elsif request.put?
 
       group = Group.find_by_title(params[:title])
       if group.nil?
@@ -58,8 +62,25 @@ class GroupController < ApplicationController
 
       render_ok
       return
+    elsif request.post?
+      group = Group.get_by_title(URI.unescape(params[:title]))
+
+      if params[:cmd] == "add_user"
+        user = User.find_by_login!(params[:userid])
+        group.add_user user
+      elsif params[:cmd] == "remove_user"
+        user = User.find_by_login!(params[:userid])
+        group.remove_user user
+      else
+        render_error :status => 400, :errorcode => "unknown_command", :message => "cmd must be set to add_user or remove_user" 
+        return
+      end
+
+      render_ok
+      return
     end
 
+    # GET ...
     group = Group.get_by_title(URI.unescape(params[:title]))
     render :text => group.render_axml, :content_type => 'text/xml'
   end

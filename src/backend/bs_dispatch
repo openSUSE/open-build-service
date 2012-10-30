@@ -267,6 +267,116 @@ sub getconstraints {
   return BSUtil::fromxml($constraintsxml, $BSXML::constraints, 1);
 }
 
+# last one wins
+sub mergerconstraints {
+  my ($con, @other) = @_;
+  $con = Storable::dclone($con);
+  for my $con2 (@other) {
+    if ($con2->{'hostlabel'}) {
+      $con->{'hostlabel'} = $con2->{'hostlabel'};
+    }
+    if ($con2->{'sandbox'}) {
+      $con->{'sandbox'} = $con2->{'sandbox'};
+    }
+    if ($con2->{'linux'}) {
+      $con->{'linux'}->{'flavor'} = $con2->{'linux'}->{'flavor'} if $con2->{'linux'}->{'flavor'};
+      for ('min', 'max') {
+        $con->{'linux'}->{'version'}->{$_} = $con2->{'linux'}->{'version'}->{$_} if $con2->{'linux'}->{'version'} && $con2->{'linux'}->{'version'}->{$_};
+      }
+    }
+    if ($con2->{'hardware'}) {
+      for my $el (qw{processors disk memory}) {
+	$con->{'hardware'}->{$el} = Storable::dclone($con2->{'hardware'}->{$el}) if defined $con2->{'hardware'}->{$el};
+      }
+      if ($con2->{'hardware'}->{'cpu'} && $con2->{'hardware'}->{'cpu'}->{'flag'}) {
+	my %oldflags = map {$_ => 1} @{$con->{'hardware'}->{'cpu'}->{'flag'} || []};
+	for (@{$con2->{'hardware'}->{'cpu'}->{'flag'}}) {
+	  push @{$con->{'hardware'}->{'cpu'}->{'flag'}}, $_ unless $oldflags{$_};
+	}
+      }
+    }
+  }
+  return $con;
+}
+
+# constructs a data object from a list and a XML::Structured dtd
+sub list2struct {
+  my ($dtd, $list) = @_;
+  my $top = {};
+  for my $l (@{$list || []}) {
+    my @l = @$l;
+    next unless @l;
+    eval {
+      my @loc = split(':', shift @l);
+      my @how = @$dtd;
+      my $out = $top;
+      while (@loc) {
+	my $am = shift @how;
+	my $e = shift @loc;
+	my $addit;
+	my $delit;
+	$addit = 1 if $e =~ s/\+$//;
+	$delit = 1 if !$addit && $e =~ s/=$//;
+	my %known = map {ref($_) ? (!@$_ ? () : (ref($_->[0]) ? $_->[0]->[0] : $_->[0] => $_)) : ($_=> $_)} @how;
+	my $ke = $known{$e};
+	die("unknown element: $e\n") unless $ke;
+	delete $out->{$e} if $delit;
+	if ($delit && !@loc) {
+	  @how = ();
+	  last;
+	}
+	if (!ref($ke) || (@$ke == 1 && !ref($ke->[0]))) {
+	  die("element '$e' has subelements\n") if @loc;
+	  die("element '$e' contains attributes\n") if @l && $l[0] =~ /=/;
+	  delete $out->{$e} unless $addit;
+	  if (!ref($ke)) {
+	    die("element '$e' must be singleton\n") if exists $out->{$e};
+	    $out->{$e} = join(' ', @l);
+	  } else {
+	    push @{$out->{$e}}, @l;
+	  }
+	  @how = ();
+	} else {
+	  my $nout = {};
+	  if (@$ke == 1) {
+	    $nout = pop @{$out->{$e}} if exists $out->{$e} && !$addit;
+	    push @{$out->{$e}}, $nout;
+	    @how = @{$ke->[0]};
+	  } else {
+	    $nout = delete $out->{$e} if exists $out->{$e} && !$addit;
+	    die("element '$e' must be singleton\n") if exists $out->{$e};
+	    $out->{$e} = $nout;
+	    @how = @$ke;
+	  }
+	  $out = $nout;
+	}
+      }
+      if (@how) {
+	my $am = shift @how;
+	my %known = map {ref($_) ? (!@$_ ? () : (ref($_->[0]) ? $_->[0]->[0] : $_->[0] => $_)) : ($_=> $_)} @how;
+	while (@l && $l[0] =~ /^(.*?)=(.*)$/) {
+	  my ($a, $av) = ($1, $2);
+	  die("element '$am' contains unknown attribute '$a'\n") unless $known{$a};
+	  if (ref($known{$a})) {
+	    die("attribute '$a' in '$am' must be element\n") if @{$known{$a}} > 1 || ref($known{$a}->[0]);
+	    push @{$out->{$a}}, $av;
+	  } else {
+	    die("attribute '$a' in '$am' must be singleton\n") if exists $out->{$a};
+	    $out->{$a} = $av;
+	  }
+	  shift @l;
+	}
+	if (@l) {
+	  die("element '$am' contains content\n") unless $known{'_content'};
+	  $out->{'_content'} = join(' ', @l);
+	}
+      }
+    };
+    warn("list2struct: $@") if $@;
+  }
+  return $top;
+}
+
 # normalizes an xml size element to mega bytes
 sub getmbsize {
   my ($se) = @_;
@@ -696,8 +806,15 @@ while (1) {
 	  delete($constraintscache{$constraintsmd5}) if $constraints->[0] < $now;
 	  next;
 	}
-	push @idle, '__lastoracle';
       }
+      if ($ic->{'job'}->{'prjconstraint'}) {
+	my @l = map { [ split(' ', $_) ] } @{$ic->{'job'}->{'prjconstraint'}};
+	my $prjconstraints = list2struct($BSXML::constraints, \@l);
+	if ($prjconstraints) {
+	  $constraints = $constraints ? mergeconstraints($prjconstraints, $constraints) : $prjconstraints;
+	}
+      }
+      push @idle, '__lastoracle' if $constraints;
       for my $idle (@idle) {
 	if ($idle eq '__lastoracle') {
 	  last unless $lastoracleidle;

@@ -1676,6 +1676,8 @@ sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!"
 db_sync();
 
 my %publish_retry;
+my %publish_lasttime;
+my %publish_duration;
 
 while(1) {
   # drain ping pipe
@@ -1707,13 +1709,20 @@ while(1) {
       if (open(PPLOCK, '<', "$reporoot/$prp/.pplock")) {
         if (flock(PPLOCK, LOCK_EX | LOCK_NB)) {
 	  close PPLOCK;
-	  print "external publish program still running\n";
+	  print "$prp: external publish program still running\n";
 	  $publish_retry{$event} = time() + 60;
 	  next;
 	}
 	close PPLOCK;
       }
     }
+    my $starttime = time();
+    if ($publish_lasttime{$prp} && $publish_duration{$prp} > 300 && $publish_lasttime{$prp} + 5 * $publish_duration{$prp} > $starttime)
+      {
+	print "$prp: not yet\n";
+	$publish_retry{$event} = $starttime + 60 * 5;
+	next;
+      }
     rename("$myeventdir/$event", "$myeventdir/${event}::inprogress");
     BSNotify::notify('REPO_PUBLISH_STATE', { 'project' => $ev->{'project'}, 'repo' => $ev->{'repository'}, 'state' => 'publishing'} );
     eval {
@@ -1734,6 +1743,9 @@ while(1) {
       rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
       $publish_retry{$event} = time() + 60;
     } else {
+      my $now = time();
+      $publish_lasttime{$prp} = $now;
+      $publish_duration{$prp} = $now - $starttime;
       BSNotify::notify('REPO_PUBLISH_STATE', { 'project' => $ev->{'project'}, 'repo' => $ev->{'repository'}, 'state' => 'published'} );
       unlink("$myeventdir/${event}::inprogress");
     }

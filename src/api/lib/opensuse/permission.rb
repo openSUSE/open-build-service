@@ -70,29 +70,6 @@ module Suse
       return false
     end
 
-    def package_create?( obj )
-      logger.debug "User #{@user.login} wants to change the package"
-
-
-      # Get Package object
-      if obj.kind_of? Package
-        prj = obj.db_project
-      elsif obj.kind_of? Project
-        prj = obj
-      elsif obj.kind_of? String
-        prj = Project.find_by_name( obj )
-      else
-        raise RuntimeError, "Unhandle object type"
-      end
-
-      if pkg.nil?
-        raise "unable to find package object for #{project} / #{package}"
-      end
-
-      return true if @user.can_create_package_in?( prj )
-      return false
-    end
-
     def method_missing( perm, *args, &block)
 
       logger.debug "Dynamic Permission requested: <#{perm}>"
