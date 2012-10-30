@@ -187,6 +187,20 @@ XmlBody: user
 XmlResult: status
 
 
+POST /group/<group title>
+
+  Modify group data.
+
+  Multiple commands on processing group.
+  add_user: add a user to a group
+  remove_user: remove a user from a group
+
+Parameters:
+  userid: user login name, required for add_user and remove_user command
+
+XmlResult: status
+
+
 DELETE /group/<group title>
 
   Delete a group.

@@ -123,6 +123,15 @@ class Group < ActiveRecord::Base
                                             Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
+  def add_user(user)
+    gu = GroupsUser.create( user: user, group: self)
+    gu.save!
+  end
+
+  def remove_user(user)
+    GroupsUser.delete_all(["user_id = ? AND group_id = ?", user.id, self.id])
+  end
+
   def involved_projects_ids
     # just for maintainer for now.
     role = Role.rolecache["maintainer"]
