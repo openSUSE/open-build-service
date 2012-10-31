@@ -206,6 +206,11 @@ Generate an ssl certificate via following commands:
   cat /srv/obs/certs/server.key /srv/obs/certs/server.crt \
       > /srv/obs/certs/server.pem
 
+To allow the usage of https api in webui code you need to trust your
+certificate as well:
+
+  cp /srv/obs/certs/server.pem /etc/ssl/certs/
+  c_rehash /etc/ssl/certs/
 
 3.2.1 Change /srv/www/obs/webui/config/options.yml
 ==================================================

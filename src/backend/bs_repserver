@@ -2378,7 +2378,9 @@ sub getbuildinfo {
   } elsif (@subpacks) {
     $ret->{'subpack'} = [ @subpacks ];
   }
-  my @deps = ( @{$info->{'dep'} || []}, @{$info->{'prereq'} || []} );
+  my @deps = @{$info->{'prereq'} || []};
+  @deps = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @deps;
+  unshift @deps, @{$info->{'dep'} || []};
 
   # expand deps
   $Build::expand_dbg = 1 if $cgi->{'debug'};

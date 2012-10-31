@@ -1,10 +1,24 @@
 For Updaters to OBS 2.4 from OBS 2.3
 ====================================
 
- * In case the installation is not done via packages all 
-   rubygems according to Gemfile need to get installed.
+Appliance users can just do a package update and reboot or use the
+new appliance image to update their configurations.
+
+Other installations need merge manually configurations
+as described below (This is required due to the Rails 2.x
+to Rails 3.x switch).
+
+In case the installation is not done via packages all 
+rubygems according to Gemfile need to get installed.
+
+Please check the following files:
 
  * database driver needs to be changed to "mysql2" in /srv/www/obs/api/config/database.yml
+
+ * all config options with capital letters have been moved from 
+     /srv/www/obs/webui/config/environments/production.rb
+   to small letter variables in
+     /srv/www/obs/webui/config/options.yml
 
  * Database migration
 
