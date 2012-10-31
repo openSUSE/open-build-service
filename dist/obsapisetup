@@ -95,28 +95,28 @@ case "$1" in
 		fi
 		echo "$FQHOSTNAME" > /obs/.oldfqhostname
 
+		if grep -q ^FRONTEND_HOST /srv/www/obs/webui/config/environments/production.rb; then
+		    echo -n "Switching from Rails 2.x style configuration to Rails 3.x"
+                    for file in /srv/www/obs/api/config/environments/production.rb \
+                                /srv/www/obs/api/config/options.yml \
+                                /srv/www/obs/webui/config/environments/production.rb \
+                                /srv/www/obs/webui/config/options.yml; do
+                        [ -f "${file}.rpmnew" ] && mv "${file}.rpmnew" "$file"
+                    done
+                    sed -i 's,adapter:[ \t]*mysql.*,adapter: mysql2,' /srv/www/obs/api/config/database.yml
+                fi
+
 		echo -n "Adjust webui configuration for api"
-                # it would be better to solve this in lighttpd.conf to accept also localhost:444,
-                # but no idea how to solve this
-                sed -i 's,^FRONTEND_HOST = .*,FRONTEND_HOST = "'"$FQHOSTNAME"'",' \
-		    /srv/www/obs/webui/config/environments/production.rb
-                sed -i 's,^FRONTEND_PORT = .*,FRONTEND_PORT = 444,' \
-		    /srv/www/obs/webui/config/environments/production.rb
-                sed -i 's,^FRONTEND_PROTOCOL = .*,FRONTEND_PROTOCOL = "'"https"'",' \
-		    /srv/www/obs/webui/config/environments/production.rb
-                sed -i 's,^DOWNLOAD_URL = .*,DOWNLOAD_URL = \"http://'"$FQHOSTNAME:82"'\",' \
-		    /srv/www/obs/webui/config/environments/production.rb
+                sed -i 's,^frontend_host: .*,frontend_host: "'"$FQHOSTNAME"'",' \
+		    /srv/www/obs/webui/config/options.yml
+                sed -i 's,^frontend_port: .*,frontend_port: 444,' \
+		    /srv/www/obs/webui/config/options.yml
+                sed -i 's,^frontend_protocol: .*,frontend_protocol: "'"https"'",' \
+		    /srv/www/obs/webui/config/options.yml
+                sed -i 's,^download_url: .*,download_url: \"http://'"$FQHOSTNAME:82"'\",' \
+		    /srv/www/obs/webui/config/options.yml
                 sed -i -e /webui_url:/d -e /webui_host:/d -e /allow_anonymous:/d \
 		    /srv/www/obs/api/config/options.yml
-                echo "# the following lines are always written by obsapisetup!" >> /srv/www/obs/api/config/options.yml
-                echo "allow_anonymous: true" >> /srv/www/obs/api/config/options.yml
-		if [ "$FQHOSTNAME" == "localhost" ] ; then
-			echo "webui_host: localhost" >> /srv/www/obs/api/config/options.yml
-		else
-			echo "webui_host: `ip addr | sed -n 's,.*inet \(.*\)/.* brd.*,\1,p' | grep -v ^127. | head -n 1`" >> /srv/www/obs/api/config/options.yml
-		fi
-                echo "webui_url: https://$FQHOSTNAME:443" >> /srv/www/obs/api/config/options.yml
-		echo
 		OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
 		OS=`head -n 1 /etc/SuSE-release`
                 RUN_INITIAL_SETUP=""
@@ -186,6 +186,13 @@ test@email.address
                          exit 1
                        fi
                 fi
+
+                # webui has to trust the api ssl certificate
+                if [ ! -e /etc/ssl/certs/server.${FQHOSTNAME}.pem ]; then
+                       cp /srv/obs/certs/server.${FQHOSTNAME}.pem /etc/ssl/certs/
+                       c_rehash /etc/ssl/certs/ > /dev/null || true
+                fi
+
 		# change links for certs according to hostnames
 		rm /srv/obs/certs/server.crt /srv/obs/certs/server.pem
 		ln -sf /srv/obs/certs/server.${FQHOSTNAME}.crt /srv/obs/certs/server.crt
