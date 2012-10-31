@@ -58,6 +58,8 @@ use BSXPathKeys;
 use BSDB;
 use BSDBIndex;
 
+$Build::Rpm::unfilteredprereqs = 1 if defined $Build::Rpm::unfilteredprereqs;
+
 use strict;
 
 my $port = 5352;	#'SR'
