@@ -5,6 +5,26 @@ class Patchinfo < ActiveXML::Node
     end
   end
 
+  # FIXME: Layout and colors belong to CSS
+  RATING_COLORS = {
+    'low'       => 'green',
+    'moderate'  => 'olive',
+    'important' => 'red',
+    'critical'  => 'maroon',
+  }
+
+  RATINGS = RATING_COLORS.keys
+
+  CATEGORY_COLORS = {
+    'recommended' => 'green',
+    'security'    => 'maroon',
+    'optional'    => 'olive',
+    'feature'     => '',
+  }
+
+  # '' is a valid category
+  CATEGORIES = [''].concat(CATEGORY_COLORS.keys)
+
   def save
     path = self.init_options[:package] ? "/source/#{self.init_options[:project]}/#{self.init_options[:package]}/_patchinfo" : "/source/#{self.init_options[:package]}/_patchinfo"
     begin

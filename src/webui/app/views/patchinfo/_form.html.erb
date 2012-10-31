@@ -25,11 +25,11 @@
           </p>
           <p>
             <strong><%=image_tag("info.png", :title =>"Choose the category of your update", :alt => "Categoryinfo")%> Category:</strong>
-            <%= select_tag "category", options_for_select(["","recommended", "security", "optional", "feature"], @category)%>
+            <%= select_tag "category", options_for_select(Patchinfo::CATEGORIES, @category)%>
           </p>
           <p>
             <strong><%=image_tag("info.png", :title =>"Select the rating of this update", :alt => "Ratinginfo")%> Rating:</strong>
-            <%= select_tag "rating", options_for_select(["low","moderate", "important", "critical"], @rating)%>
+            <%= select_tag "rating", options_for_select(Patchinfo::RATINGS, @rating)%>
           </p>
         </div>
         <div class="box show_left show_right">
