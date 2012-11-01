@@ -15,13 +15,15 @@ module RequestHelper
     type
   end
 
+  STATE_ICONS = {
+    'new'      => 'icons/flag_green.png',
+    'review'   => 'icons/flag_yellow.png',
+    'declined' => 'icons/flag_red.png',
+  }
+
+  # FIXME: belongs to CSS
   def request_state_icon(request)
-    case request.state.value('name')
-      when 'new' then return 'icons/flag_green.png'
-      when 'review' then return 'icons/flag_yellow.png'
-      when 'declined' then return'icons/flag_red.png'
-      else return ''
-    end
+    STATE_ICONS[request.state.value('name')] || ''
   end
 
 end
