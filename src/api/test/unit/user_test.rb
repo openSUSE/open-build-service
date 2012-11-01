@@ -73,5 +73,8 @@ class UserTest < ActiveSupport::TestCase
 
     CONFIG['ldap_mode'], CONFIG['ldap_group_support'] = ldm, lgs
   end
-end
 
+  def test_states
+    assert_not_nil User.states
+  end
+end
