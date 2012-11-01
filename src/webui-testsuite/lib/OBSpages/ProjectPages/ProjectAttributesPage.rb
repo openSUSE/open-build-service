@@ -138,6 +138,8 @@ class ProjectAttributesPage < ProjectPage
     popup = @driver.switch_to.alert
     assert_equal popup.text, "Really remove attribute '#{attribute[:name]}'?"
 
+    # http://code.google.com/p/selenium/issues/detail?id=3544
+    sleep 1
     popup.accept
     wait.until { @driver.find_element(:id => "flash-messages") }
 
