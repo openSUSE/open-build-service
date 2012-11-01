@@ -28,12 +28,6 @@ class User < ActiveRecord::Base
   # git commit 107d7a612. Thus we have to explicitly list the allowed attributes:
   attr_accessible :login, :email, :realname, :password, :password_confirmation, :state
 
-  # This method returns a hash with the the available user states. 
-  # By default it returns the private class constant DEFAULT_STATES.
-  def self.states
-    default_states
-  end
-
   # This method returns an array with the names of all available
   # password hash types supported by this User class.
   def self.password_hash_types
@@ -888,16 +882,18 @@ class User < ActiveRecord::Base
         false
     end
   end
- 
+
+  STATES = {
+    'unconfirmed'        => 1,
+    'confirmed'          => 2,
+    'locked'             => 3,
+    'deleted'            => 4,
+    'ichainrequest'      => 5,
+    'retrieved_password' => 6,
+  }
+
   def self.states
-    {
-        'unconfirmed' => 1,
-        'confirmed' => 2,
-        'locked' => 3,
-        'deleted' => 4,
-        'ichainrequest' => 5,
-        'retrieved_password' => 6
-    }
+    STATES
   end
 
   # updates users email address and real name using data transmitted by authentification proxy
@@ -1298,20 +1294,6 @@ class User < ActiveRecord::Base
   end
 
   private
-  # This method returns a hash which contains a mapping of user states 
-  # valid by default and their description.
-  def self.default_states
-    {
-      'unconfirmed' => 1,
-      'confirmed' => 2,
-      'locked' => 3,
-      'deleted' => 4,
-      # The user has just retrieved his password and he must now
-      # it. The user cannot anything in this state but change his
-      # password after having logged in and retrieve another one.
-      'retrieved_password' => 5
-    }
-  end
 
   # This method returns an array which contains all valid hash types.
   def self.default_password_hash_types
