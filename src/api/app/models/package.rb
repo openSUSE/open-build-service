@@ -134,20 +134,8 @@ class Package < ActiveRecord::Base
       return true
     end
 
-    # should not be used directly, this function is not throwing exceptions on problems
-    # use get_by_name or exists_by_name instead
     def find_by_project_and_name( project, package )
-      sql =<<-END_SQL
-      SELECT pack.*
-      FROM packages pack
-      LEFT OUTER JOIN projects pro ON pack.db_project_id = pro.id
-      WHERE pro.name = ? AND pack.name = ?
-      END_SQL
-
-      result = Package.find_by_sql [sql, project.to_s, package.to_s]
-      ret = result[0]
-      return nil unless Package.check_access?(ret)
-      return ret
+      return Package.where(name: package.to_s, projects: { name: project }).includes(:project).first
     end
 
     def find_by_project_and_kind( project, kind )
@@ -924,4 +912,24 @@ class Package < ActiveRecord::Base
     return BsRequest.where(id: rel.select("bs_requests.id").all.map { |r| r.id})
   end
 
+  def user_has_role?(user, role)
+    return true if self.package_user_role_relationships.where(role_id: role.id, bs_user_id: user.id).first
+    return !self.package_group_role_relationships.where(role_id: role).joins(:groups_users).where(groups_users: { user_id: user.id }).first.nil?
+  end
+
+  def linkinfo
+    dir = Directory.find( :project => self.project.name, :package => self.name )
+    return nil unless dir
+    return dir.to_hash['linkinfo']
+  end
+
+  def developed_packages
+    packages = []
+    candidates = Package.where(develpackage_id: self).all
+    logger.debug candidates.inspect
+    candidates.each do |candidate|
+      packages << candidate unless candidate.linkinfo
+    end
+    return packages
+  end
 end

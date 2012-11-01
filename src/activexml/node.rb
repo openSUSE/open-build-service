@@ -24,12 +24,6 @@ module ActiveXML
       end
 
       def get_class(element_name)
-        # FIXME: lines below don't work with relations. the related model has to
-        # be pulled in when the relation is defined
-        #
-        # axbase_subclasses = ActiveXML::Node.subclasses.map {|sc| sc.downcase}
-        # if axbase_subclasses.include?( element_name )
-
         if @@elements.include? element_name
           return @@elements[element_name]
         end
@@ -138,10 +132,6 @@ module ActiveXML
           obj = @@object_cache[cache_key]
           return obj if obj
         end
-
-        #FIXME: needs cleanup
-        #TODO: factor out xml stuff to ActiveXML::Node
-        #Rails.logger.debug "#{self.name}.find( #{cache_time.inspect}, #{args.join(', ')})"
 
         objhash = nil
         begin
@@ -479,7 +469,7 @@ module ActiveXML
     def value( symbol ) 
       symbols = symbol.to_s
 
-      if @hash_cache 
+      if @hash_cache
         ret = @hash_cache[symbols]
         return ret if ret && ret.kind_of?(String)
       end

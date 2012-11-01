@@ -59,9 +59,15 @@ class HomeController < ApplicationController
       require_login 
       return
     end
-    @declined_requests, @open_reviews, @new_requests = @displayed_user.requests_that_need_work(:cache => false)
+    @requests = @displayed_user.requests_that_need_work
+    @declined_requests = BsRequest.ids(@requests['declined'])
+    @open_reviews = BsRequest.ids(@requests['reviews'])
+    @new_requests = BsRequest.ids(@requests['new'])
     @open_patchinfos = @displayed_user.running_patchinfos(:cache => false)
-    session[:requests] = (@declined_requests + @open_reviews  + @new_requests).each.map {|r| Integer(r.value(:id)) }
+    
+    logger.debug @new_requests.inspect
+
+    session[:requests] = (@declined_requests + @open_reviews  + @new_requests)
     respond_to do |format|
       format.html
       format.json do
@@ -76,8 +82,8 @@ class HomeController < ApplicationController
   end
 
   def requests
-    @requests = @displayed_user.involved_requests(:cache => false)
-    session[:requests] = @requests.each.map {|r| Integer(r.value(:id)) }
+    session[:requests] = ApiDetails.find(:person_involved_requests, login: @displayed_user.login)
+    @requests =  BsRequest.ids(session[:requests])
   end
 
   def home_project

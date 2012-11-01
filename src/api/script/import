@@ -34,9 +34,6 @@ ActiveXML::Node.config do |conf|
 
     map.default_server :rest, "#{CONFIG['source_protocol']}://#{CONFIG['source_host']}:#{CONFIG['source_port']}"
 
-    map.connect :project, "bssql:///", :write_through => :false
-    map.connect :package, "bssql:///", :write_through => :false
-
     map.connect :xproject, "rest:///source/:name/_meta",
       :all => "rest:///source/:name"
     map.connect :xpackage, "rest:///source/:project/:name/_meta",

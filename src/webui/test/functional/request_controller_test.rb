@@ -18,7 +18,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_have_selector "table#request_table tr"
 
     # walk over the table
-    assert_have_selector('tr#tr_request_1000') do
+    assert_have_selector('tr#tr_request_1000_1') do
       assert_have_selector('.request_source') do
         assert_have_xpath '//a[@title="home:Iggy:branches:kde4"]' do
 	  assert_contain "~:kde4"

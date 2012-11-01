@@ -185,7 +185,6 @@ class PackageTest < ActiveSupport::TestCase
       @package.add_user('tom', 'Admin')
     end
     assert_equal orig, @package.to_axml
-
   end
 
 end

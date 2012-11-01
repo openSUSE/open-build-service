@@ -19,7 +19,7 @@ class RequestController < ApplicationController
     if params[:view] == "collection"
 
       # Do not allow a full collection to avoid server load
-      if params[:project].blank? and params[:user].blank? and params[:states].blank? and params[:types].blank? and params[:reviewstates].blank?
+      if params[:project].blank? and params[:user].blank? and params[:states].blank? and params[:types].blank? and params[:reviewstates].blank? and params[:ids].blank?
        render_error :status => 404, :errorcode => 'require_filter',
          :message => "This call requires at least one filter, either by user, project or package or states or types or reviewstates"
        return
@@ -30,13 +30,16 @@ class RequestController < ApplicationController
       types = params[:types].split(',') if params[:types]
       states = params[:states].split(',') if params[:states]
       review_states = params[:reviewstates].split(',') if params[:reviewstates]
+      ids = params[:ids].split(',').map {|i| i.to_i } if params[:ids]
 
-      params.merge!({ states: states, types: types, review_states: review_states, roles: roles })
+      params.merge!({ states: states, types: types, review_states: review_states, roles: roles, ids: ids })
       rel = BsRequest.collection( params )
+      rel = rel.includes({ bs_request_actions: :bs_request_action_accept_info }, :bs_request_histories)
+      rel = rel.order('bs_requests.id')
 
       xml = ActiveXML::Node.new "<collection/>"
       matches=0
-      rel.includes({ bs_request_actions: :bs_request_action_accept_info }, :bs_request_histories).each do |r|
+      rel.each do |r|
         matches = matches+1
         xml.add_node(r.render_xml)
       end
@@ -1683,5 +1686,6 @@ class RequestController < ApplicationController
     req.change_state(params[:newstate], :comment => params[:comment], :superseded_by => params[:superseded_by])
     render_ok
   end
+
 end
 

@@ -31,9 +31,6 @@ module ActiveXML
 
     def connect( model, target, opt={} )
       opt.each do |key,value|
-        # workaround for :write_through option. fix would be to not configure
-        # additional routes and options using the same hash
-        next if key == :write_through
         opt[key] = URI(opt[key])
         replace_server_if_needed( opt[key] )
       end
@@ -364,26 +361,26 @@ module ActiveXML
       message = http_response.to_s if message.blank?
       raise Error, message
     end
-
-  def self.extract_error_message exception
-    message = exception.message[0..120]
-    code = nil
-    api_exception = nil
-    #Rails.logger.debug "extract #{exception.class} #{exception.message}"
-    begin
-      api_error = Xmlhash.parse( exception.message )
-    rescue TypeError
-      raise exception 
+    
+    def self.extract_error_message exception
+      message = exception.message[0..120]
+      code = nil
+      api_exception = nil
+      #Rails.logger.debug "extract #{exception.class} #{exception.message}"
+      begin
+        api_error = Xmlhash.parse( exception.message )
+      rescue TypeError
+        raise exception 
+      end
+      if api_error
+        code = api_error['code']
+        message = api_error.value('summary')
+        api_exception = api_error.value('exception')
+      else
+        Rails.logger.error "Couldn't parse error xml: #{exception.class} #{exception.message[0..120]}"
+      end
+      return message, code, api_exception
     end
-    if api_error
-      code = api_error['code']
-      message = api_error.value('summary')
-      api_exception = api_error.value('exception')
-    else
-      Rails.logger.error "Couldn't parse error xml: #{exception.class} #{exception.message[0..120]}"
-    end
-    return message, code, api_exception
+    
   end
-
- end
 end

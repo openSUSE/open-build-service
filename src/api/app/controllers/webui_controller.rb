@@ -59,7 +59,7 @@ class WebuiController < ApplicationController
       infos[:open_release_requests] = rel.select("bs_request.id").all.map { |r| r.id }
     end
   
-    render :json => infos
+    render json: infos
   end
 
   def reviews_priv(prj)
@@ -88,5 +88,84 @@ class WebuiController < ApplicationController
     required_parameters :project
     
     render json: reviews_priv(params[:project])
+  end
+
+  def person_requests_that_need_work
+    valid_http_methods :get
+    required_parameters :login
+    login = params[:login]
+    result = {}
+
+    rel = BsRequest.collection(user: login, states: ['declined'], roles: ['creator'])
+    result[:declined] = rel.select("bs_request.id").all.map { |r| r.id }
+
+    rel = BsRequest.collection(user: login, states: ['new'], roles: ['maintainer'])
+    result[:new] = rel.select("bs_request.id").all.map { |r| r.id }
+
+    rel = BsRequest.collection(user: login, roles: ['reviewer'], reviewstates: ['new'], states: ['review'])
+    result[:reviews] = rel.select("bs_request.id").all.map { |r| r.id }
+
+    render json: result
+  end
+
+  def person_involved_requests
+    valid_http_methods :get
+    required_parameters :login
+    rel = BsRequest.collection(user: params[:login], states: ['new', 'review'])
+    result = rel.select("bs_request.id").all.map { |r| r.id }
+
+    render json: result
+  end
+
+  # TODO - put in use
+  def package_flags
+    valid_http_methods :get
+    required_parameters :project, :package
+
+    project_name = params[:project]
+    package_name = params[:package]
+
+    unless valid_package_name? package_name
+      render_error :status => 400, :errorcode => "invalid_package_name",
+        :message => "invalid package name '#{package_name}'"
+      return
+    end
+
+    pack = Package.get_by_project_and_name( project_name, package_name, use_source: false )
+    render json: pack.expand_flags
+  end
+
+  # TODO - put in use
+  def project_flags
+    valid_http_methods :get
+    required_parameters :project
+
+    project_name = params[:project]
+
+    prj = Project.get_by_name( project_name )
+    render json: prj.expand_flags
+  end
+
+  def request_show
+    valid_http_methods :get
+    required_parameters :id
+
+    req = BsRequest.find(params[:id])
+    render json: req.webui_infos
+  end
+
+  def request_ids
+    valid_http_methods :get
+    required_parameters :ids
+    
+    rel = BsRequest.where( id: params[:ids].split(',') )
+    rel = rel.includes({ bs_request_actions: :bs_request_action_accept_info }, :bs_request_histories)
+    rel = rel.order('bs_requests.id')
+
+    result = []
+    rel.each do |r|
+      result << r.webui_infos
+    end
+    render json: result
   end
 end

@@ -42,6 +42,8 @@ OBSApi::Application.configure do
   # Enable debug logging by default
   config.log_level = :debug
 
+  config.action_controller.perform_caching = true
+
 end
 
 CONFIG['extended_backend_log'] = true

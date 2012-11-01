@@ -6,33 +6,6 @@ class Person < ActiveXML::Node
 
   handles_xml_element 'person'
   
-  # redefine make_stub so that Person.new( :login => 'login_name' ) works
-  def self.make_stub( opt )
-      
-    # stay backwards compatible to old arguments (:name instead of :login)
-    if not opt.has_key? :login
-      opt[:login] = opt[:name]
-    end
-    realname = ""
-    if opt.has_key? :realname
-      realname = opt[:realname]
-    end
-    email = ""
-    if opt.has_key? :email
-      email = opt[:email]
-    end
-    doc = ActiveXML::Node.new '<person/>'
-    element = doc.add_element 'login'
-    element.text = opt[:login]
-    element = doc.add_element 'realname'
-    element.text = realname
-    element = doc.add_element 'email'
-    element.text = email
-    element = doc.add_element 'state'
-    element.text = 5
-    doc
-  end
-  
   def self.find_cached(login, opts = {})
      if opts.has_key?(:is_current)
        # skip memcache
@@ -117,14 +90,6 @@ class Person < ActiveXML::Node
     Collection.find_cached(:id, :what => 'package', :predicate => predicate)
   end
 
-  # Returns all requests where this user is involved in any way
-  def involved_requests(opts = {})
-    opts = {:cache => true}.merge opts
-    cachekey = "#{login}_involved_requests"
-    Rails.cache.delete cachekey unless opts[:cache]
-    BsRequest.list(:states => 'new,review', :user => login)
-  end
-
   def running_patchinfos(opts = {})
     cachekey = "#{login}_patchinfos_that_need_work2"
     Rails.cache.delete cachekey unless opts[:cache]
@@ -173,16 +138,8 @@ class Person < ActiveXML::Node
   end
 
   # Returns a tuple (i.e., array) of open requests and open reviews.
-  def requests_that_need_work(opts = {})
-    opts = {:cache => true}.merge opts
-    cachekey = "#{login}_requests_that_need_work"
-    Rails.cache.delete cachekey unless opts[:cache]
-    #TODO: make this a xmlhash
-    #return Rails.cache.fetch(cachekey, :expires_in => 10.minutes) do
-      [BsRequest.list({:states => 'declined', :roles => "creator", :user => login}),
-       BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => "reviewer", :user => login}),
-       BsRequest.list({:states => 'new', :roles => "maintainer", :user => login})]
-    #end
+  def requests_that_need_work
+    ApiDetails.find(:person_requests_that_need_work, login: login)
   end
 
   def groups

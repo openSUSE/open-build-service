@@ -17,4 +17,13 @@ class BsRequestTest < ActiveSupport::TestCase
     assert req.id.nil?
     req.save!
   end
+
+  test "target_maintainer" do
+    req = bs_requests(:missing_source_project)
+
+    assert req.is_target_maintainer?(users(:adrian))
+    assert !req.is_target_maintainer?(users(:user1))
+
+  end
+
 end

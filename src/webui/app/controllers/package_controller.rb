@@ -9,8 +9,6 @@ class PackageController < ApplicationController
   before_filter :require_project, :except => [:rawlog, :rawsourcefile, :submit_request, :devel_project]
   before_filter :require_package, :except => [:rawlog, :rawsourcefile, :submit_request, :save_new_link, :save_new, :devel_project ]
   # make sure it's after the require_, it requires both
-  before_filter :load_requests, :except =>   [:rawlog, :rawsourcefile, :submit_request, :save_new_link, :save_new, :devel_project, 
-                                              :rpmlint_log, :add_service ]
   before_filter :require_login, :only => [:branch]
   prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
@@ -40,6 +38,11 @@ class PackageController < ApplicationController
       message = ActiveXML::Transport.extract_error_message(e)[0]
       flash[:warn] = "Files could not be accessed: #{message}"
     end
+
+    @requests = []
+    # TODO!!!
+    #BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => @project.name, :package => @package.name}) + 
+    #BsRequest.list({:states => 'new', :roles => "target", :project => @project.name, :package => @package.name})
   end
 
   def set_linking_packages
@@ -1301,17 +1304,6 @@ class PackageController < ApplicationController
     newr.keys.sort.each do |r|
       @buildresult << [r, newr[r].flatten.sort]
     end
-  end
-
-  def load_requests
-    return if @spider_bot
-    return if request.xhr?
-    cachekey="package_reviews_#{@project.name}_#{@package.name}"
-    Rails.cache.delete(cachekey) if discard_cache?
-    # TODO make requests xmlhashs to be cachable
-    @requests =
-      BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => @project.name, :package => @package.name}) + 
-      BsRequest.list({:states => 'new', :roles => "target", :project => @project.name, :package => @package.name})
   end
 
 end

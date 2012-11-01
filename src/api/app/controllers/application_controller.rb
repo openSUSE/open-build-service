@@ -408,7 +408,7 @@ class ApplicationController < ActionController::API
 
   def rescue_with_handler(exception)
 
-    bt = "\n" + exception.backtrace.join("\n")
+    bt = "\n" + exception.backtrace.find_all {|line| line.start_with? Rails.root.to_s }.join("\n")
 
     logger.debug "#{exception.class}: errorcode #{exception.message}#{bt}"
 
