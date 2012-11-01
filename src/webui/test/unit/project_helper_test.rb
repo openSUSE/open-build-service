@@ -3,7 +3,7 @@ require File.join File.dirname(__FILE__), '..', 'test_helper'
 include ProjectHelper
 include ActionView::Helpers::TagHelper
 
-class ApplicationHelperTest < ActiveSupport::TestCase
+class ProjectHelperTest < ActiveSupport::TestCase
   def test_patchinfo_rating_color
     color = ProjectHelper::patchinfo_rating_color('important')
     assert_equal 'red', color
