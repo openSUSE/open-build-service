@@ -109,7 +109,7 @@
         <% end -%>
           <% if @project.can_edit?( @user ) %>
             <% unless @project.is_remote? %>
-              <% if @is_incident_project && @nr_packages > 0 && @has_patchinfo && @open_release_requests.length == 0 %>
+              <% if @is_incident_project && !@packages.blank? && @has_patchinfo && @open_release_requests.length == 0 %>
                 <li>
                   <%= link_to(sprite_tag('brick_go') + 'Request to release', :controller => 'project', :action => 'release_request_dialog', :project => @project, :remote => true) %>
                 </li>
@@ -173,7 +173,7 @@
       <p><i>This project does not contain any packages</i></p>
     <% end %>
     <% if @project.can_edit?( @user ) %>
-      <% if !@project.is_remote? && !(@is_incident_project && @nr_packages > 0 && @has_patchinfo && @open_release_requests.length == 0) && !@is_maintenance_project %>
+      <% if !@project.is_remote? && !(@is_incident_project && !@packages.blank? && @has_patchinfo && @open_release_requests.length == 0) && !@is_maintenance_project %>
          <ul class="horizontal-list">
                 <li>
                   <%= link_to(sprite_tag('package_add') + 'Create package', :controller => 'project', :action => 'new_package', :project => @project) %>

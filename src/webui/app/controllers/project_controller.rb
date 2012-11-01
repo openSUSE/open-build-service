@@ -108,23 +108,6 @@ class ProjectController < ApplicationController
   end
   private :get_filtered_projectlist
 
-  def get_filtered_packagelist(filterstring)
-    # remove illegal xpath characters
-    filterstring.gsub!(/[\[\]\n]/, '')
-    filterstring.gsub!(/[']/, '&apos;')
-    filterstring.gsub!(/["]/, '&quot;')
-    predicate = filterstring.empty? ? '' : "contains(@name, '#{filterstring}')"
-    predicate += " and " if !predicate.empty?
-    predicate += "@project = '#{@project}'"
-    result = find_cached Collection, :id, :what => "package", :predicate => predicate, :expires_in => 2.minutes
-    @packages = Array.new
-    unless result.blank?
-      result.each { |p| @packages << p }
-      @packages =  @packages.sort_by { |a| a.name }
-    end
-  end
-  private :get_filtered_packagelist
-
   def users
     @users = @project.users
     @groups = @project.groups
@@ -249,7 +232,7 @@ class ProjectController < ApplicationController
       return render_project_missing
     end
     @project = Project.new(@project_info["xml"])
-    @packages = @project_info["packages"].map { |p| p[0] }
+    @packages = @project_info["packages"].map { |p| p[0] }.sort
     @open_maintenance_incidents = @project_info['incidents']
     @linking_projects = @project_info['linking_projects']
     @requests = @project_info['requests']
@@ -273,8 +256,6 @@ class ProjectController < ApplicationController
       mail = find_cached(Person, bugowner).email
       @bugowners_mail.push(mail.to_s) if mail
     end unless @spider_bot
-
-    @nr_packages = @packages.size
 
     @project_maintenance_project = @project_info['maintenance_project'] unless @spider_bot
 
