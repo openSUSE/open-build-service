@@ -1,28 +1,18 @@
-require File.join File.dirname(__FILE__), '..', 'test_helper'
+require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 include RequestHelper
 include ActionView::Helpers::TagHelper
 
+require 'xmlhash'
+
 class RequestHelperTest < ActiveSupport::TestCase
 
   def test_request_state_icon
-    request = RequestHelperTmp.new('new')
+    request = Xmlhash.parse("<request><state name='new'/></request>")
     assert_equal 'icons/flag_green.png', request_state_icon(request)
 
-    request = RequestHelperTmp.new('unknown')
+    request = Xmlhash.parse("<request/>")
     assert_equal '', request_state_icon(request)
   end
 end
 
-class RequestHelperTmp
-  @ret = nil
-  def initialize(ret)
-    @ret = ret
-  end
-  def state
-    self
-  end
-  def value(key)
-    @ret
-  end
-end
