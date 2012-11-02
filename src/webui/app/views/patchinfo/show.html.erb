@@ -41,7 +41,7 @@
     <div class="box show_left show_right">
       <b>Fixed bugs:</b><br/>
       <% @issues.each do |issue| %>
-        <%= link_to "#{issue[1].to_s} #{issue[0].to_s}", issue[2].to_s%>: <%= issue[3].to_s %>
+        <%= link_to("#{issue[0].to_s}##{issue[1].to_s}", issue[2].to_s)%>: <%= issue[3].to_s %>
         <br/>
       <%end%>
     </div>
