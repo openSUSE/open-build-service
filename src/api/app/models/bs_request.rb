@@ -184,13 +184,10 @@ class BsRequest < ActiveRecord::Base
     return self.save
   end
 
-  # FIXME2.4 get accept infos from backend
-  # FIXME2.4 add hermes notifications again
-
   def change_state(state, opts = {})
     state = state.to_sym
     BsRequest.transaction do
-      bs_request_histories.create comment: self.comment, commenter: self.commenter, state: self.state, superseded_by: self.superseded_by
+      bs_request_histories.create comment: self.comment, commenter: self.commenter, state: self.state, superseded_by: self.superseded_by, created_at: self.updated_at
 
       self.state = state
       self.commenter = User.current.login

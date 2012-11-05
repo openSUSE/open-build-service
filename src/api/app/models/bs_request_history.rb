@@ -1,5 +1,5 @@
 class BsRequestHistory < ActiveRecord::Base
-  attr_accessible :comment, :commenter, :state, :bs_request_id, :superseded_by
+  attr_accessible :comment, :commenter, :state, :bs_request_id, :superseded_by, :created_at
 
   belongs_to :bs_request 
   validates_inclusion_of :state, :in => VALID_REQUEST_STATES

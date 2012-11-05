@@ -59,14 +59,42 @@ class RequestControllerTest < ActionController::IntegrationTest
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value('id')
+    create_time = node.state.value('when')
 
-    # accept
+    # sleep to ensure that timestamps get handled correctly
+    sleep(1)
+
+    # create more history entries decline, reopen and finally accept it
+    post "/request/#{id}?cmd=changestate&newstate=declined"
+    assert_response :success
+    sleep(1)
+    post "/request/#{id}?cmd=changestate&newstate=new"
+    assert_response :success
+    sleep(1)
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response :success
 
     # package got created
     get "/source/home:Iggy/NEW_PACKAGE/new_file"
     assert_response :success
+
+    # validate request
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(:tag => "acceptinfo", :attributes => { :rev => '1', :srcmd5 => '1ded65e42c0f04bd08075dfd1fd08105', :osrcmd5 => 'd41d8cd98f00b204e9800998ecf8427e' })
+    assert_xml_tag(:tag => "state", :attributes => { :name => "accepted", :who => 'Iggy' })
+    assert_xml_tag(:tag => "history", :attributes => { :name => "new", :who => 'Iggy' })
+    # compare times
+    node = ActiveXML::Node.new(@response.body)
+    assert((node.state.value('when') > node.each_history.last.value('when')), "Current state is not newer than the former state")
+    assert_equal create_time, node.each_history.first.value('when')
+    oldhistory=nil
+    node.each_history do |h|
+      unless h
+        assert((h.value('when') > oldhistory.value('when')), "Current history is not newer than the former history")
+      end
+      oldhistory=h
+    end
 
     # missingok disapeared
     post "/source/home:Iggy:branches:home:Iggy", :cmd => :undelete
