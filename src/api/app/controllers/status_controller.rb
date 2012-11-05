@@ -295,9 +295,7 @@ class StatusController < ApplicationController
         srep.each_path do |p|
           if p.project != sproj.name
             r = Repository.find_by_project_and_repo_name(p.project, p.value(:repository))
-            if r.project == tproj
-              r.architectures.each {|a| archs << a.name }
-            end
+            r.architectures.each {|a| archs << a.name }
             trepo << [p.project, p.value(:repository)]
           end
         end
