@@ -244,9 +244,6 @@ class ProjectController < ApplicationController
 
     @maintained_projects = @project_info['maintained_projects']
     @open_release_requests = @project_info['open_release_requests']
-
-    # to be moved to api
-    load_buildresult
   end
 
   def show

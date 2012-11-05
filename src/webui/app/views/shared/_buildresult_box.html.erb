@@ -23,9 +23,6 @@
   </ul>
 </div>
 <div class="result_display_<%= index %>" id="result_display_<%= index %>_0">
-<% if controller == 'project' %>
-  <%= render partial: 'project/buildstatus' %>
-<% end %>
 </div>
 <% if controller == 'package' %>
   <div class="result_display_<%= index %>" id="result_display_<%= index %>_1"></div>
@@ -100,10 +97,5 @@
     });
   }
 	
-  <% if controller != 'project' %>
-    update_build_result();
-  <% else %>
-    $('#result_spinner_<%= index %>_0').hide();
-    $('#result_reload_<%= index %>_0').show();
-  <% end %>
+  update_build_result();
 <% end %>
