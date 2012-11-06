@@ -818,130 +818,14 @@ class RequestController < ApplicationController
     end
 
     req.bs_request_actions.each do |action|
-      action_diff = ''
-      action_counter += 1
-      path = nil
-      if [:submit, :maintenance_release, :maintenance_incident].include?(action.action_type)
-        spkgs = []
-        if ai = action.bs_request_action_accept_info
-          spkgs << action.source_package
-        else
-          if action.source_package
-            spkgs << Package.get_by_project_and_name( action.source_project, action.source_package ).name
-          else
-            spkgs = Project.get_by_name( action.source_project ).packages.select("name")
-          end
-        end
-
-        spkgs.each do |spkg|
-          target_project = target_package = nil
-
-          if action.target_project
-            target_project = action.target_project
-            target_package = action.target_package
-          end
-
-          # the target is by default the _link target
-          # maintenance_release creates new packages instance, but are changing the source only according to the link
-          provided_in_other_action=false
-          if target_package.nil? or [ :maintenance_release, :maintenance_incident ].include? action.action_type
-            data = REXML::Document.new( backend_get("/source/#{URI.escape(action.source_project)}/#{URI.escape(spkg)}") )
-            e = data.elements["directory/linkinfo"]
-            if e
-              target_project = e.attributes["project"]
-              target_package = e.attributes["package"]
-              if target_project == action.source_project
-                # a local link, check if the real source change gets also transported in a seperate action
-                req.bs_request_actions.each do |a|
-                  if action.source_project == a.source_project and e.attributes["package"] == a.source_package and \
-                     action.target_project == a.target_project
-                    provided_in_other_action=true
-                  end
-                end
-              end
-            end
-          end
-
-          # maintenance incidents shall show the final result after release
-          target_project = action.target_releaseproject if action.target_releaseproject
-
-          # fallback name as last resort
-          target_package = action.source_package if target_package.nil?
-
-          if ai = action.bs_request_action_accept_info
-            # OBS 2.1 adds acceptinfo on request accept
-            path = "/source/%s/%s?cmd=diff" % [CGI.escape(target_project), CGI.escape(target_package)]
-            if ai.xsrcmd5
-              path += "&rev=" + ai.xsrcmd5
-            else
-              path += "&rev=" + ai.srcmd5
-            end
-            if ai.oxsrcmd5
-              path += "&orev=" + ai.oxsrcmd5
-            elsif ai.osrcmd5
-              path += "&orev=" + ai.osrcmd5
-            else
-              # md5sum of empty package
-              path += "&orev=d41d8cd98f00b204e9800998ecf8427e"
-            end
-          else
-            # for requests not yet accepted or accepted with OBS 2.0 and before
-            tpkg = linked_tpkg = nil
-            if Package.exists_by_project_and_name( target_project, target_package, follow_project_links: false )
-              tpkg = Package.get_by_project_and_name( target_project, target_package )
-            elsif Package.exists_by_project_and_name( target_project, target_package, follow_project_links: true )
-              tpkg = linked_tpkg = Package.get_by_project_and_name( target_project, target_package )
-            else
-              Project.get_by_name( target_project )
-            end
-
-            path = "/source/#{CGI.escape(action.source_project)}/#{CGI.escape(spkg)}?cmd=diff&filelimit=10000"
-            unless provided_in_other_action
-              # do show the same diff multiple times, so just diff unexpanded so we see possible link changes instead
-              # also get sure that the request would not modify the link in the target
-              unless action.updatelink
-                path += "&expand=1"
-              end
-            end
-            if tpkg
-              path += "&oproject=#{CGI.escape(target_project)}&opackage=#{CGI.escape(target_package)}"
-              path += "&rev=#{action.source_rev}" if action.source_rev
-            else # No target package means diffing the source package against itself.
-              if action.source_rev # Use source rev for diffing (if available)
-                path += "&orev=0&rev=#{action.source_rev}"
-              else # Otherwise generate diff for latest source package revision
-                spkg_rev = Directory.find(:project => action.source_project, :package => spkg).rev
-                path += "&orev=0&rev=#{spkg_rev}"
-              end
-            end
-          end
-          # run diff
-          path += '&view=xml' if params[:view] == 'xml' # Request unified diff in full XML view
-          path += '&withissues=1' if params[:withissues] == '1' || params[:withissues] == 'true' # Include issues
-          begin
-            action_diff += Suse::Backend.post(path, nil).body
-          rescue ActiveXML::Transport::Error => e
-            render_error :status => 404, :errorcode => 'diff_failure', :message => "The diff call for #{path} failed" and return
-          end
-          path = nil # reset
-        end
-      elsif action.action_type == :delete
-        if action.target_package
-          path = "/source/#{CGI.escape(action.target_project)}/#{CGI.escape(action.target_package)}"
-          path += "?cmd=diff&expand=1&filelimit=0&rev=0"
-          path += '&view=xml' if params[:view] == 'xml' # Request unified diff in full XML view
-          begin
-            action_diff += Suse::Backend.post(path, nil).body
-          rescue ActiveXML::Transport::Error
-            render_error :status => 404, :errorcode => 'diff_failure', :message => "The diff call for #{path} failed" and return
-          end
-        elsif action.target_repository
-          # no source diff 
-        else
-          #FIXME: Delete requests for whole projects needs project diff supporte in the backend (and api).
-          render_error :status => 501, :errorcode => 'project_diff_failure', :message => "Project diff isn't implemented yet" and return
-        end
+      withissues = false
+      withissues = true if params[:withissues] == '1' || params[:withissues].to_s == 'true'
+      begin
+        action_diff = action.sourcediff(view: params[:view], withissues: withissues)
+      rescue BsRequestAction::DiffError => e
+        render_error :status => 404, :errorcode => 'diff_failure', :message => e.message and return
       end
+      
       if xml_request
         # Inject backend-provided XML diff into action XML:
         builder = Nokogiri::XML::Builder.new 

@@ -33,7 +33,7 @@ class ProjectControllerTest < ActionController::IntegrationTest
   end
 
   def test_packages_kde4
-    visit "/project/show?project=kde4"
+    visit "/package/rdiff?linkrev=base&package=pack2&project=BaseDistro2.0&rev=3"
   end
   
   def test_group_access_adrian_kde4

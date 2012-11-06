@@ -88,12 +88,8 @@ class Package < ActiveRecord::Base
       raise UnknownObjectError, "#{project}/#{package}" if pkg.nil?
       raise ReadAccessError, "#{project}/#{package}" unless check_access?(pkg)
 
-      if use_source and (pkg.disabled_for?('sourceaccess', nil, nil) or pkg.project.disabled_for?('sourceaccess', nil, nil))
-        unless User.current
-          raise ReadSourceAccessError, "#{project}/#{package}"
-        end
-        raise ReadSourceAccessError, "#{project}/#{package}" unless User.current.can_source_access?(pkg)
-      end
+      pkg.check_source_access! if use_source 
+
       return pkg
     end
 
@@ -214,8 +210,16 @@ class Package < ActiveRecord::Base
         ')'
     end
 
-  end
+  end # self
 
+  def check_source_access!
+    if self.disabled_for?('sourceaccess', nil, nil) or self.project.disabled_for?('sourceaccess', nil, nil)
+      unless User.current && User.current.can_source_access?(self)
+        raise ReadSourceAccessError, "#{self.project.name}/#{self.name}"
+      end
+    end
+  end
+  
   def is_locked?
     return true if flags.find_by_flag_and_status "lock", "enable"
     return self.project.is_locked?

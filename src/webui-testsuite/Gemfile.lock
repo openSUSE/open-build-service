@@ -2,7 +2,7 @@ GEM
   remote: http://rubygems.org/
   specs:
     addressable (2.3.2)
-    builder (3.0.0)
+    builder (3.0.4)
     childprocess (0.3.6)
       ffi (~> 1.0, >= 1.0.6)
     colored (1.2)

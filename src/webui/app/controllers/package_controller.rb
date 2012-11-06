@@ -369,9 +369,10 @@ class PackageController < ApplicationController
       end
     end
 
-    filenames = BsRequest.sorted_filenames_from_sourcediff(ActiveXML::Node.new(rdiff))
-    @files = filenames[:files]
-    @filenames = filenames[:filenames]
+    # we only look at [0] because this is a generic function for multi diffs - but we're sure we get one
+    filenames = sorted_filenames_from_sourcediff(rdiff)[0]
+    @files = filenames['files']
+    @filenames = filenames['filenames']
   end
 
   def wizard_new

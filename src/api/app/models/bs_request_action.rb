@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 class BsRequestAction < ActiveRecord::Base
 
+  class DiffError < Exception; end
+
   belongs_to :bs_request
   has_one :bs_request_action_accept_info, :dependent => :delete
 
@@ -201,7 +203,193 @@ class BsRequestAction < ActiveRecord::Base
       ret[:person] = nil
       ret[:role] = nil
     end
-    ret
+    return ret
+  end
+
+  def sourcediff(opts = {})
+    action_diff = ''
+    path = nil
+    if [:submit, :maintenance_release, :maintenance_incident].include?(self.action_type)
+      spkgs = []
+      ai = self.bs_request_action_accept_info
+      if ai # the old package can be gone
+        spkgs << self.source_package
+      else
+        if self.source_package
+          sp = Package.find_by_project_and_name( self.source_project, self.source_package )
+	  sp.check_source_access!
+          spkgs << sp.name
+        else
+          Project.find_by_name( self.source_project ).packages.each do |p|
+            p.check_source_access!
+            spkgs << p.name
+	  end
+        end
+      end
+
+      spkgs.each do |spkg|
+        target_project = self.target_project
+        target_package = self.target_package
+        
+        # the target is by default the _link target
+        # maintenance_release creates new packages instance, but are changing the source only according to the link
+        provided_in_other_action=false
+        if !self.target_package or [ :maintenance_release, :maintenance_incident ].include? self.action_type
+          data = Xmlhash.parse( ActiveXML.transport.direct_http(URI("/source/#{URI.escape(self.source_project)}/#{URI.escape(spkg)}") ) )
+          e = data.get('directory')['linkinfo']
+          if e
+            target_project = e["project"]
+            target_package = e["package"]
+            if target_project == self.source_project
+              # a local link, check if the real source change gets also transported in a seperate action
+              self.bs_request.bs_request_actions.each do |a|
+                if self.source_project == a.source_project and e["package"] == a.source_package and
+                    self.target_project == a.target_project
+                  provided_in_other_action=true
+                end
+              end
+            end
+          end
+        end
+
+        # maintenance incidents shall show the final result after release
+        target_project = self.target_releaseproject if self.target_releaseproject
+
+        # fallback name as last resort
+        target_package ||= self.source_package
+
+        ai = self.bs_request_action_accept_info
+        if ai
+          # OBS 2.1 adds acceptinfo on request accept
+          path = "/source/%s/%s?cmd=diff" % [CGI.escape(target_project), CGI.escape(target_package)]
+          if ai.xsrcmd5
+            path += "&rev=" + ai.xsrcmd5
+          else
+            path += "&rev=" + ai.srcmd5
+          end
+          if ai.oxsrcmd5
+            path += "&orev=" + ai.oxsrcmd5
+          elsif ai.osrcmd5
+            path += "&orev=" + ai.osrcmd5
+          else
+            # "md5sum" of empty package
+            path += "&orev=0"
+          end
+        else
+          # for requests not yet accepted or accepted with OBS 2.0 and before
+          tpkg = linked_tpkg = nil
+          if Package.exists_by_project_and_name( target_project, target_package, follow_project_links: false )
+            tpkg = Package.get_by_project_and_name( target_project, target_package )
+          elsif Package.exists_by_project_and_name( target_project, target_package, follow_project_links: true )
+            tpkg = linked_tpkg = Package.get_by_project_and_name( target_project, target_package )
+          else
+            Project.get_by_name( target_project )
+          end
+
+          path = "/source/#{CGI.escape(self.source_project)}/#{CGI.escape(spkg)}?cmd=diff&filelimit=10000"
+          unless provided_in_other_action
+            # do show the same diff multiple times, so just diff unexpanded so we see possible link changes instead
+            # also get sure that the request would not modify the link in the target
+            unless self.updatelink
+              path += "&expand=1"
+            end
+          end
+          if tpkg
+            path += "&oproject=#{CGI.escape(target_project)}&opackage=#{CGI.escape(target_package)}"
+            path += "&rev=#{self.source_rev}" if self.source_rev
+          else # No target package means diffing the source package against itself.
+            if self.source_rev # Use source rev for diffing (if available)
+              path += "&orev=0&rev=#{self.source_rev}"
+            else # Otherwise generate diff for latest source package revision
+	      # FIXME: move to Package model
+              spkg_rev = Directory.find(project: self.source_project, package: spkg).rev
+              path += "&orev=0&rev=#{spkg_rev}"
+            end
+          end
+        end
+        # run diff
+        path += '&view=xml' if opts[:view] == 'xml' # Request unified diff in full XML view
+        path += '&withissues=1' if opts[:withissues]
+        begin
+          action_diff += Suse::Backend.post(path, nil).body
+        rescue ActiveXML::Transport::Error => e
+          raise DiffError.new("The diff call for #{path} failed")
+        end
+        path = nil # reset
+      end
+    elsif self.action_type == :delete
+      if self.target_package
+        path = "/source/#{CGI.escape(self.target_project)}/#{CGI.escape(self.target_package)}"
+        path += "?cmd=diff&expand=1&filelimit=0&rev=0"
+        path += '&view=xml' if opts[:view] == 'xml' # Request unified diff in full XML view
+        begin
+          action_diff += Suse::Backend.post(path, nil).body
+        rescue ActiveXML::Transport::Error
+          raise DiffError.new("The diff call for #{path} failed")
+        end
+      elsif self.target_repository
+        # no source diff 
+      else
+        raise DiffError.new("Project diff isn't implemented yet")
+      end
+    end
+    return action_diff
+  end
+
+  # FIXME this is code duplicated in the webui for package diffs - this needs to move into the API to then
+  # move into helpers
+  def webui_infos
+    sd = self.sourcediff(view: 'xml', withissues: true)
+    return {} if sd.blank?
+    # Sort files into categories by their ending and add all of them to a hash. We
+    # will later use the sorted and concatenated categories as key index into the per action file hash.
+    changes_file_keys, spec_file_keys, patch_file_keys, other_file_keys = [], [], [], []
+    files_hash, issues_hash = {}, {}
+
+    parsed_sourcediff = []
+
+    sd = "<diffs>" + sd + "</diffs>"
+    Xmlhash.parse(sd).elements('sourcediff').each do |sourcediff|
+
+      sourcediff.elements('files').each do |file|
+        file = file.get('file')
+        if file['new']
+          filename = file['new']['name']
+        else # in case of deleted files
+          filename = file['old']['name']
+        end
+        if filename.include?('/')
+          other_file_keys << filename
+        else
+          if filename.ends_with?('.spec')
+            spec_file_keys << filename
+          elsif filename.ends_with?('.changes')
+            changes_file_keys << filename
+          elsif filename.match(/.*.(patch|diff|dif)/)
+            patch_file_keys << filename
+          else
+            other_file_keys << filename
+          end
+        end
+        files_hash[filename] = file
+      end
+      
+      if sourcediff['issues']
+        sourcediff.elements('issues').each do |issue|
+          next unless issue['name']
+          issues_hash[issue['label']] = Issue.find_by_name_and_tracker(issue['name'], issue['tracker'])
+        end
+      end
+      
+      parsed_sourcediff << {
+        'old' => sourcediff['old'],
+        'new' => sourcediff['new'],
+        'filenames' => changes_file_keys.sort + spec_file_keys.sort + patch_file_keys.sort + other_file_keys.sort,
+        'files' => files_hash,
+        'issues' => issues_hash
+      }
+    end
+    return parsed_sourcediff
   end
 
 end

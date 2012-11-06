@@ -176,50 +176,7 @@ class BsRequest < ActiveXML::Node
         raise ListError, message
       end
     end
-
-    def sorted_filenames_from_sourcediff(sourcediff)
-      # Sort files into categories by their ending and add all of them to a hash. We
-      # will later use the sorted and concatenated categories as key index into the per action file hash.
-      changes_file_keys, spec_file_keys, patch_file_keys, other_file_keys = [], [], [], []
-      files_hash, issues_hash = {}, {}
-
-      sourcediff.files.each do |file|
-        if file.new
-          filename = file.new.name.to_s
-        elsif file.old # in case of deleted files
-          filename = file.old.name.to_s
-        end
-        if filename.include?('/')
-          other_file_keys << filename
-        else
-          if filename.ends_with?('.spec')
-            spec_file_keys << filename
-          elsif filename.ends_with?('.changes')
-            changes_file_keys << filename
-          elsif filename.match(/.*.(patch|diff|dif)/)
-            patch_file_keys << filename
-          else
-            other_file_keys << filename
-          end
-        end
-        files_hash[filename] = file
-      end
-
-      if sourcediff.has_element?(:issues)
-        sourcediff.issues.each do |issue|
-          issues_hash[issue.value('label')] = Issue.find_cached(issue.value('name'), :tracker => issue.value('tracker'))
-        end
-      end
-
-      parsed_sourcediff = {
-        :old => sourcediff.old,
-        :new => sourcediff.new,
-        :filenames => changes_file_keys.sort + spec_file_keys.sort + patch_file_keys.sort + other_file_keys.sort,
-        :files => files_hash,
-        :issues => issues_hash
-      }
-      return parsed_sourcediff
-    end
+  
   end
 
   def history

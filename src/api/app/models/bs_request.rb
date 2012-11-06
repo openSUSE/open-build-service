@@ -644,7 +644,7 @@ class BsRequest < ActiveRecord::Base
     result['my_open_reviews'], result['other_open_reviews'] = self.reviews_for_user_and_others(User.current)
 
     result['events'] = self.events
-    result['actions'] = self.actions
+    result['actions'] = self.webui_actions
     result
   end
 
@@ -668,9 +668,9 @@ class BsRequest < ActiveRecord::Base
   end
 
 
-  def actions(with_diff = true)
+  def webui_actions(with_diff = true)
     #TODO: Fix!
-    actions, action_index = [], 0
+    actions = []
     self.bs_request_actions.each do |xml|
       action = {type: xml.action_type }
       
@@ -687,7 +687,7 @@ class BsRequest < ActiveRecord::Base
       case xml.action_type # All further stuff depends on action type...
       when :submit then
         action[:name] = "Submit #{action[:spkg]}"
-        action[:sourcediff] = actiondiffs()[action_index] if with_diff
+        action[:sourcediff] = xml.webui_infos if with_diff
         creator = User.find_by_login(self.creator)
         target_package = Package.find_by_project_and_name(action[:tprj], action[:tpkg])
         action[:creator_is_target_maintainer] = true if creator.has_local_role?(Role.rolecache['maintainer'], target_package)
@@ -724,7 +724,8 @@ class BsRequest < ActiveRecord::Base
         end
 
         if action[:tpkg] # API / Backend don't support whole project diff currently
-          action[:sourcediff] = actiondiffs()[action_index] if with_diff
+          action[:sourcediff] = xml.webui_infos if with_diff
+          # TODO2.4 BsRequest.sorted_filenames_from_sourcediff(sourcediff)
         end
       when :add_role then 
         action[:name] = 'Add Role'
@@ -736,33 +737,14 @@ class BsRequest < ActiveRecord::Base
         action[:name] = 'Set Bugowner'
       when :maintenance_incident then
         action[:name] = "Incident #{action[:spkg]}"
-        action[:sourcediff] = actiondiffs()[action_index] if with_diff
+        action[:sourcediff] = xml.webui_infos if with_diff
       when :maintenance_release then
         action[:name] = "Release #{action[:spkg]}"
-        action[:sourcediff] = actiondiffs()[action_index] if with_diff
+        action[:sourcediff] = xml.webui_infos if with_diff
       end
-      action_index += 1
       actions << action
     end
     actions
-  end
-
-  def actiondiffs
-    #TODO: Fix!
-    actiondiffs = []
-    begin
-      transport ||= ActiveXML::transport
-      result = ActiveXML::Node.new(transport.direct_http(URI("/request/#{self.id}?cmd=diff&view=xml&withissues=1"), :method => "POST", :data => ""))
-      result.each_action do |action| # Parse each action and get the it's diff (per file)
-        sourcediffs = []
-        action.each_sourcediff do |sourcediff| # Parse earch sourcediff in that action
-          sourcediffs << BsRequest.sorted_filenames_from_sourcediff(sourcediff)
-        end
-        actiondiffs << sourcediffs
-      end
-    rescue ActiveXML::Transport::Error 
-    end
-    actiondiffs
   end
 
 end
