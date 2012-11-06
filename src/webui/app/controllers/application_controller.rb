@@ -200,6 +200,9 @@ class ApplicationController < ActionController::Base
         end
       end
     when ActiveXML::Transport::UnauthorizedError
+      # do not try to access user
+      @user = nil
+      session[:login] = nil
       #ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {}) if send_exception_mail?
       render_error :status => 401, :message => 'Unauthorized access, please login'
     when ActionController::InvalidAuthenticityToken
