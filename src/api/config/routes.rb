@@ -204,6 +204,8 @@ OBSApi::Application.routes.draw do
       match 'search/published/pattern/id'  => :pass_to_backend
       match 'search/project/id' => :project_id
       match 'search/package/id' => :package_id
+      match 'search/project_id' => :project_id #FIXME3.0: to be removed
+      match 'search/package_id' => :package_id #FIXME3.0: to be removed
       match 'search/project' => :project
       match 'search/package' => :package
       match 'search/attribute' => :attribute

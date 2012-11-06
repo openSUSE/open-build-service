@@ -48,7 +48,11 @@ class SearchControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "Iggy", "asdfasdf"
     get "/search/package", :match => '[attribute/@name="OBS:Maintained" and @name="apache2"]'
     assert_response :success
-    assert_xml_tag :tag => 'collection', :children => { :count => 1 }
+    assert_xml_tag :tag => 'collection', :attributes => { :matches => 1 }
+    assert_xml_tag :child => { :tag => 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
+    get "/search/package/id", :match => '[attribute/@name="OBS:Maintained" and @name="apache2"]'
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :attributes => { :matches => 1 }
     assert_xml_tag :child => { :tag => 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
   end
 
@@ -71,6 +75,20 @@ class SearchControllerTest < ActionController::IntegrationTest
     get "/search/package", :match => '[attribute/@name="Maintained"]'
     assert_response 400
     assert_select "status[code] > summary", /illegal xpath attribute/
+  end
+
+  def test_xpath_old_osc
+    # old osc < 0.137 did use the search interface wrong, but that worked ... :/
+    # FIXME3.0: to be removed!
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/search/package_id", :match => '[attribute/@name="OBS:Maintained" and @name="apache2"]'
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :attributes => { :matches => 1 }
+    assert_xml_tag :child => { :tag => 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
+    get "/search/project_id", :match => '[@name="kde"]'
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :attributes => { :matches => 1 }
+    assert_xml_tag :child => { :tag => 'project', :attributes => { :name => 'kde' } }
   end
 
   # >>> Testing HiddenProject - flag "access" set to "disabled"
