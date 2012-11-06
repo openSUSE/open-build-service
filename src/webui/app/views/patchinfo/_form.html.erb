@@ -111,7 +111,7 @@
             <p><strong>Block release?</strong>
               <%= check_box_tag("block", true, @block, :onchange => "enable_block_reason()") %></p>
             <p><strong>Reason: </strong>
-              <%=text_field_tag "block_reason", @block_reason, :size => 45 %></p>
+              <%=text_field_tag "block_reason", @block_reason, :style => "width: 99%" %></p>
           </div>
           <div style="margin-left:5px;">
             <%= submit_tag "Save Patchinfo" %>
