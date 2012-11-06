@@ -111,7 +111,7 @@
             <% unless @project.is_remote? %>
               <% if @is_incident_project && !@packages.blank? && @has_patchinfo && @open_release_requests.length == 0 %>
                 <li>
-                  <%= link_to(sprite_tag('brick_go') + 'Request to release', :controller => 'project', :action => 'release_request_dialog', :project => @project, :remote => true) %>
+                  <%= link_to(sprite_tag('brick_go') + 'Request to release', {:controller => 'project', :action => 'release_request_dialog', :project => @project}, :remote => true) %>
                 </li>
               <% elsif @is_maintenance_project %>
                 <li>
