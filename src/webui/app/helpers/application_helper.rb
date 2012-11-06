@@ -1,6 +1,7 @@
 # vim: sw=2 et
 
 require 'digest/md5'
+require 'iconv'
 
 require 'action_view/helpers/asset_tag_helper.rb'
 module ActionView
@@ -356,8 +357,8 @@ module ApplicationHelper
 
   def force_utf8_and_transform_nonprintables(text)
     begin
-      new_text = text.encode('utf-8')
-    rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError
+      new_text = Iconv.conv('utf-8', 'utf-8', text)
+    rescue Iconv::IllegalSequence, Iconv::InvalidCharacter
       new_text = 'You probably tried to display binary garbage, but got this beautiful message instead!'
     end
     # Ged rid of stuff that shouldn't be part of PCDATA:
