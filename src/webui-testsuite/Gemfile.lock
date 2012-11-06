@@ -7,22 +7,22 @@ GEM
       ffi (~> 1.0, >= 1.0.6)
     colored (1.2)
     ffi (1.1.5)
-    flog (2.5.3)
-      ruby_parser (~> 2.0)
-      sexp_processor (~> 3.0)
+    flog (3.0.0)
+      ruby_parser (~> 3.0.0)
+      sexp_processor (~> 4.0)
     headless (0.3.1)
     libwebsocket (0.1.5)
       addressable
-    multi_json (1.3.6)
-    ruby_parser (2.3.1)
-      sexp_processor (~> 3.0)
+    multi_json (1.3.7)
+    ruby_parser (3.0.1)
+      sexp_processor (~> 4.1)
     rubyzip (0.9.9)
-    selenium-webdriver (2.25.0)
+    selenium-webdriver (2.26.0)
       childprocess (>= 0.2.5)
       libwebsocket (~> 0.1.3)
       multi_json (~> 1.0)
       rubyzip
-    sexp_processor (3.2.0)
+    sexp_processor (4.1.2)
 
 PLATFORMS
   ruby
