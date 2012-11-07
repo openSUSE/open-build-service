@@ -390,22 +390,6 @@ class ApplicationController < ActionController::API
   end
   public :pass_to_backend
 
-  def strip_sensitive_data_from(request)
-    # Strip HTTP_AUTHORIZATION header that contains the user's password
-    # try to get it where mod_rewrite might have put it
-    request.env["X-HTTP_AUTHORIZATION"] = "STRIPPED" if request.env.has_key? "X-HTTP_AUTHORIZATION"
-    # for Apace/mod_fastcgi with -pass-header Authorization
-    request.env["Authorization"] = "STRIPPED" if request.env.has_key? "Authorization"
-    # this is the regular location
-    request.env["HTTP_AUTHORIZATION"] = "STRIPPED" if request.env.has_key? "HTTP_AUTHORIZATION"
-    return request
-  end
-  private :strip_sensitive_data_from
-
-  def show_detailed_exceptions?
-    true
-  end
-
   def rescue_with_handler(exception)
 
     bt = "\n" + exception.backtrace.find_all {|line| line.start_with? Rails.root.to_s }.join("\n")
@@ -542,17 +526,11 @@ class ApplicationController < ActionController::API
     when FlagHelper::InvalidFlag
       render_error message: exception.message, errorcode: 'invalid_flag'
     else
-      #if send_exception_mail?
-      #  ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {})
-      #end
+      if Rails.application.config.middleware.include?("ExceptionNotifier")
+        ExceptionNotifier::Notifier.exception_notification(request.env, exception).deliver        
+      end
       render_error status: 400
     end
-  end
-
-  def send_exception_mail?
-    return false if Rails.env.test?
-    return false unless ExceptionNotifier.exception_recipients
-    return !local_request? && !Rails.env.development?
   end
 
   def permissions

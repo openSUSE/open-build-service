@@ -92,10 +92,8 @@ module OBSApi
 
     config.exceptions_app = self.routes
 
-    # See Rails::Configuration for more options
     config.after_initialize do
-      #ExceptionNotifier.exception_recipients = CONFIG["exception_recipients"]
-      #ExceptionNotifier.sender_address = CONFIG["exception_sender"]
+      # See Rails::Configuration for more options
     end unless Rails.env.test?
   end
 end
