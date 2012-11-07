@@ -164,7 +164,7 @@ class WebuiController < ApplicationController
 
     result = []
     rel.each do |r|
-      result << r.webui_infos
+      result << r.webui_infos(diffs: false)
     end
     render json: result
   end

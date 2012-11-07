@@ -630,7 +630,8 @@ class BsRequest < ActiveRecord::Base
     return sorted_events
   end
 
-  def webui_infos
+  def webui_infos(opts = {})
+    opts.reverse_merge!(diffs: true)
     result = Hash.new
     result['id'] = self.id
 
@@ -644,7 +645,7 @@ class BsRequest < ActiveRecord::Base
     result['my_open_reviews'], result['other_open_reviews'] = self.reviews_for_user_and_others(User.current)
 
     result['events'] = self.events
-    result['actions'] = self.webui_actions
+    result['actions'] = self.webui_actions(opts[:diffs])
     result
   end
 
