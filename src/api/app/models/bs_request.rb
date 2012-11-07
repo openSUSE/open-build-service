@@ -729,8 +729,8 @@ class BsRequest < ActiveRecord::Base
         end
       when :add_role then 
         action[:name] = 'Add Role'
-        action[:role] = xml.person.value('role')
-        action[:user] = xml.person.value('name')
+        action[:role] = xml.role
+        action[:user] = xml.person_name
       when :change_devel then 
         action[:name] = 'Change Devel'
       when :set_bugowner then 
