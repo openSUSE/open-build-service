@@ -173,7 +173,7 @@ DEPENDENCIES
   cssmin (>= 1.0.2)
   delayed_job (> 3.0)
   delayed_job_active_record
-  exception_notification (>= 2.3)
+  exception_notification
   fast_xs
   jquery-datatables-rails
   jquery-rails
