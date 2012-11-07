@@ -39,10 +39,69 @@ Changes on purpose:
    on the amount of requests.
 
  * package meta of package copy command is not copying 
-  relationships and devel definitions anymore
+   relationships and devel definitions anymore
 
  * Requests do require a description now in any case
 
  * webui configurations got moved from environments/*.rb to config/options.yml.
    TODO: import config settings on update
+
+ * Build Prerequires can be used also with the FileProvides feature in the
+   build configuration now.
+
+ * Regular users can copy entire projects (without binary results) now.
+
+ * Upload of binaries via api is allowed to administrators now.
+
+Features
+========
+
+ * Arch Linux package format support got added.
+
+ * Build Job Constraints handling. It can be used to define build
+   instance requirements for certain build jobs. Either for defined
+   package sources or for all repositories.
+
+   Documentation about this can be found here:
+
+    http://openbuildservice.org/help/manuals/obs-reference-guide/cha.obs.build_job_constraints.html
+
+ * Support of preinstall images, which can be used to speed up build
+   jobs. They need to be build manually, but get automatically used for
+   creating a build instance base in a faster way than just with installing
+   packages.
+
+ * Static links (without version and release numbers) for binary results 
+   in the published repositories can be configured now. This can be done via
+   the "staticlinks" keyword in Repotype: definition.
+
+ * Data about used resources of build jobs get collected. However it
+   gets not yet used for build job assignment
+
+ * Requests can be listed also for given groups now.
+
+ * Checkout of delete packages does not require a srcmd5 sum anymore.
+
+ * Delete Requests can be used to request deletion of repositories from 
+   a project.
+
+ * Support of creation of application data xml which can be used for app 
+   stores for application centric browsing versus package browsing.
+
+ * Support hugetable memory usage for kvm workers.
+
+ * Support building cross build formats, eg. building an rpm with a kiwi 
+   build description or an deb package via a .spec file.
+
+ * Efficient transport of product build results from worker to backend.
+
+Deprecated:
+===========
+
+The following calls have been marked as deprecated, they will get removed in OBS 3.0
+
+* api
+  - /person/$LOGIN/group   -> use /group?login=$LOGIN   instead
+  - /search/project_id     -> use /search/project/id    instead
+  - /search/package_id     -> use /search/package/id    instead
 
