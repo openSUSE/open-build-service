@@ -697,10 +697,10 @@ class BsRequest < ActiveRecord::Base
           linkinfo = target_package.linkinfo
           target_package.developed_packages.each do |dev_pkg|
             action[:forward] ||= []
-            action[:forward] << {:project => dev_pkg.project, :package => dev_pkg.name, :type => 'devel'}
+            action[:forward] << {project: dev_pkg.project.name, :package => dev_pkg.name, :type => 'devel'}
           end
           if linkinfo
-            lprj, lpkg = linkinfo.project, linkinfo.package
+            lprj, lpkg = linkinfo['project'], linkinfo['package']
             link_is_already_devel = false
             if action[:forward]
               action[:forward].each do |forward|
@@ -712,7 +712,7 @@ class BsRequest < ActiveRecord::Base
             end
             if !link_is_already_devel
               action[:forward] ||= []
-              action[:forward] << {:project => linkinfo.project, :package => linkinfo.package, :type => 'link'}
+              action[:forward] << {project: linkinfo['project'], package: linkinfo['package'], type: 'link'}
             end
           end
         end
