@@ -1,0 +1,10 @@
+<% filtered_session = @request.session.to_hash -%>
+
+* session id: <%= @request.ssl? ? "[FILTERED]" : (raw (@request.session['session_id'] || @request.env["rack.session.options"][:id]).inspect.html_safe) %>
+* login: <%= raw PP.singleline_pp(filtered_session["login"], "") %>
+* token: <%= raw PP.singleline_pp(filtered_session["_csrf_token"], "") %>
+<%if false %>
+* password: <%= raw PP.singleline_pp(filtered_session["password"], "") %> %>
+<% end %>
+* password: "[FILTERED]"
+

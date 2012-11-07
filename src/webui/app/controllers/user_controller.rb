@@ -32,7 +32,7 @@ class UserController < ApplicationController
     if params[:username] and params[:password]
       logger.debug "Doing form authorization to login user #{params[:username]}"
       session[:login] = params[:username]
-      session[:passwd] = params[:password]
+      session[:password] = params[:password]
       authenticate_form_auth
       begin
         p = Person.find( session[:login] )
@@ -115,7 +115,7 @@ class UserController < ApplicationController
     end
 
     session[:login] = login
-    session[:passwd] = unreg_person_opts[:password]
+    session[:password] = unreg_person_opts[:password]
     authenticate_form_auth
 
     flash[:success] = "Your buildservice account is now active."
@@ -128,7 +128,7 @@ class UserController < ApplicationController
   def change_password
     valid_http_methods(:post)
     # check the valid of the params  
-    if not params[:current_password] == session[:passwd]
+    if not params[:current_password] == session[:password]
       errmsg = "The value of current password does not match your current password. Please enter the password and try again."
     end
     if not params[:new_password] == params[:password_confirmation]
@@ -151,7 +151,7 @@ class UserController < ApplicationController
 
     begin
       if changepwd.save(:create => true)
-        session[:passwd] = params[:new_password]
+        session[:password] = params[:new_password]
         flash[:success] = "Your password has been changed successfully."
         redirect_to :controller => :home, :action => :index
         return

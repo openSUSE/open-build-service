@@ -99,9 +99,9 @@ class ApplicationController < ActionController::Base
   end
 
   def authenticate_form_auth
-    if session[:login] and session[:passwd]
+    if session[:login] and session[:password]
       # pass credentials to transport plugin, TODO: is this thread safe?
-      ActiveXML::transport.login session[:login], session[:passwd]
+      ActiveXML::transport.login session[:login], session[:password]
     end
   end
 
@@ -155,22 +155,6 @@ class ApplicationController < ActionController::Base
     transport.delete_additional_header 'Authorization'
   end
 
-  def strip_sensitive_data_from(request)
-    # Strip HTTP_AUTHORIZATION header that contains the user's password
-    # try to get it where mod_rewrite might have put it
-    request.env["X-HTTP_AUTHORIZATION"] = "STRIPPED" if request.env.has_key? "X-HTTP_AUTHORIZATION"
-    # for Apace/mod_fastcgi with -pass-header Authorization
-    request.env["Authorization"] = "STRIPPED" if request.env.has_key? "Authorization"
-    # this is the regular location
-    request.env["HTTP_AUTHORIZATION"] = "STRIPPED" if request.env.has_key? "HTTP_AUTHORIZATION"
-    return request
-  end
-  private :strip_sensitive_data_from
-
-  def show_detailed_exceptions?
-     true
-  end
-
   def rescue_with_handler( exception )
     logger.error "rescue_action: caught #{exception.class}: #{exception.message} " # + exception.backtrace.join("\n")
     begin
@@ -192,7 +176,6 @@ class ApplicationController < ActionController::Base
       elsif code == "unconfirmed_user"
         render :template => "user/unconfirmed" and return
       else
-        #ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {}) if send_exception_mail?
         if @user
           render_error :status => 403, :message => message
         else
@@ -203,7 +186,6 @@ class ApplicationController < ActionController::Base
       # do not try to access user
       @user = nil
       session[:login] = nil
-      #ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {}) if send_exception_mail?
       render_error :status => 401, :message => 'Unauthorized access, please login'
     when ActionController::InvalidAuthenticityToken
       render_error :status => 401, :message => 'Invalid authenticity token'
@@ -212,7 +194,6 @@ class ApplicationController < ActionController::Base
     when Timeout::Error
       render :template => "timeout" and return
     when ValidationError
-      ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {}) if send_exception_mail?
       render :template => "xml_errors", :locals => { :oldbody => exception.xml, :errors => exception.errors }, :status => 400
     when MissingParameterError 
       render_error :status => 400, :message => message
@@ -222,8 +203,8 @@ class ApplicationController < ActionController::Base
       # The api sometimes sends responses without a proper "Status:..." line (when it restarts?)
       render_error :message => "Unable to connect to API host. (#{CONFIG['frontend_host']})", :status => 503
     else
-      if code != 404 && send_exception_mail?
-        ExceptionNotifier.deliver_exception_notification(exception, self, strip_sensitive_data_from(request), {})
+      if code != 404 && Rails.application.config.middleware.include?("ExceptionNotifier")
+        ExceptionNotifier::Notifier.exception_notification(request.env, exception).deliver
       end
       render_error :status => 400, :code => code, :message => message,
         :exception => exception, :api_exception => api_exception
@@ -241,8 +222,8 @@ class ApplicationController < ActionController::Base
     @status = opt[:status] || 400
     @code = opt[:code] || @status
     @message = opt[:message] || "No message set"
-    @exception = opt[:exception] if show_detailed_exceptions?
-    @api_exception = opt[:api_exception] if show_detailed_exceptions?
+    @exception = opt[:exception] if Rails.application.config.consider_all_requests_local
+    @api_exception = opt[:api_exception] if Rails.application.config.consider_all_requests_local
     logger.debug "ERROR: #{@code}; #{@message}"
     if @exception
       bt = @exception.backtrace.find_all {|line| line.start_with? Rails.root.to_s }.join("\n")
@@ -288,10 +269,6 @@ class ApplicationController < ActionController::Base
     ret = classname.find_cached( *args )
     return Xmlhash::XMLHash.new({}) unless ret
     ret.to_hash
-  end
-
-  def send_exception_mail?
-    return !show_detailed_exceptions? && !Rails.env.development? && ExceptionNotifier.exception_recipients && ExceptionNotifier.exception_recipients.length > 0
   end
 
   def instantiate_controller_and_action_names

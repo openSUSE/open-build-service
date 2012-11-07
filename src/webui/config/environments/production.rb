@@ -62,6 +62,13 @@ OBSWebUI::Application.configure do
   # Log the query plan for queries taking more than this (works
   # with SQLite, MySQL, and PostgreSQL)
   # config.active_record.auto_explain_threshold_in_seconds = 0.5
+
+  # Exception notifications via ExceptionNotifier
+  # config.middleware.use ExceptionNotifier, 
+  # :email_prefix => "[OBS WebUI Error] ", 
+  # :sender_address => %{"OBS Webclient" <admin@opensuse.org>}, 
+  # :exception_recipients => %w{obs-errors@opensuse.org}
+
 end
 
 # Enable the interface to change user's password, it can be one of 'on', 'off'
