@@ -164,6 +164,10 @@ module ActiveSupport
       assert !ret, "expected no tag, but found tag matching #{conds.inspect} in:\n#{node.dump_xml}" if ret
     end
 
+    def load_backend_file(path)
+      File.open(ActionController::TestCase.fixture_path + "/backend/#{path}").read()
+    end
+
   end
 end
 
