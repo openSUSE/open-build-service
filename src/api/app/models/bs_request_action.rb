@@ -351,8 +351,7 @@ class BsRequestAction < ActiveRecord::Base
     sd = "<diffs>" + sd + "</diffs>"
     Xmlhash.parse(sd).elements('sourcediff').each do |sourcediff|
 
-      sourcediff.elements('files').each do |file|
-        file = file.get('file')
+      sourcediff.get('files').elements('file') do |file|
         if file['new']
           filename = file['new']['name']
         else # in case of deleted files
