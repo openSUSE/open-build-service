@@ -217,13 +217,15 @@ class BsRequestAction < ActiveRecord::Base
       else
         if self.source_package
           sp = Package.find_by_project_and_name( self.source_project, self.source_package )
-	  sp.check_source_access!
-          spkgs << sp.name
+          if sp
+            sp.check_source_access!
+            spkgs << sp.name
+          end
         else
           Project.find_by_name( self.source_project ).packages.each do |p|
             p.check_source_access!
             spkgs << p.name
-	  end
+          end
         end
       end
 

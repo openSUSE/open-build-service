@@ -212,11 +212,18 @@ class Package < ActiveRecord::Base
 
   end # self
 
-  def check_source_access!
+  def check_source_access?
     if self.disabled_for?('sourceaccess', nil, nil) or self.project.disabled_for?('sourceaccess', nil, nil)
       unless User.current && User.current.can_source_access?(self)
-        raise ReadSourceAccessError, "#{self.project.name}/#{self.name}"
+        return false
       end
+    end
+    return true
+  end
+
+  def check_source_access!
+    if !self.check_source_access?
+      raise ReadSourceAccessError, "#{self.project.name}/#{self.name}"
     end
   end
   

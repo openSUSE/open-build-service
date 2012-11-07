@@ -1707,6 +1707,7 @@ end
     assert_response 401
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request/#{id}?cmd=diff", nil
+    # make sure to always either show a diff or an error - empty diff is not an option
     assert_response 403
   end
 
