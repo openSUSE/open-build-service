@@ -53,7 +53,11 @@ module FlagHelper
     #select each build flag from xml
     xmlhash.elements(flagtype.to_s) do |xmlflags|
       xmlflags.keys.each do |status|
-        xmlflags.elements(status) do |xmlflag|
+	fs = xmlflags.elements(status)
+	if fs.empty? # make sure we treat empty too
+          fs << {}
+	end
+        fs.each do |xmlflag|
           
           #get the selected architecture from data base
           arch = xmlflag['arch']
