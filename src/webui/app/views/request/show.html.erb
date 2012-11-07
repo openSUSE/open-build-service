@@ -250,13 +250,13 @@
           <% @my_open_reviews.each_with_index do |review, index| %>
             <div class="review_descision_display <%= 'hidden' if index != 0 %>" id="review_descision_display_<%= index %>">
               <%= form_tag(:action => "modify_review") do %>
-                <p><%= text_area_tag("review_comment_#{index}", review.value('comment'), :size => '80x2', :style => "width: 99%", :class => 'review_comment') %></p>
+                <p><%= text_area_tag("review_comment_#{index}", review['comment'], :size => '80x2', :style => "width: 99%", :class => 'review_comment') %></p>
                 <p>
                   <%= hidden_field_tag("review_request_id_#{index}", @id) %>
-                  <%= hidden_field_tag("review_by_user_#{index}", review.value('by_user')) if review.value('by_user') %>
-                  <%= hidden_field_tag("review_by_group_#{index}", review.value('by_group')) if review.value('by_group') %>
-                  <%= hidden_field_tag("review_by_project_#{index}", review.value('by_project')) if review.value('by_project') %>
-                  <%= hidden_field_tag("review_by_package_#{index}", review.value('by_package')) if review.value('by_package') %>
+                  <%= hidden_field_tag("review_by_user_#{index}", review['by_user']) if review['by_user'] %>
+                  <%= hidden_field_tag("review_by_group_#{index}", review['by_group']) if review['by_group'] %>
+                  <%= hidden_field_tag("review_by_project_#{index}", review['by_project']) if review['by_project'] %>
+                  <%= hidden_field_tag("review_by_package_#{index}", review['by_package']) if review['by_package'] %>
                   <%= submit_tag 'Accept review', :name => 'accepted' %>
                   <%= submit_tag 'Decline review', :name => 'declined' %>
                 </p>
