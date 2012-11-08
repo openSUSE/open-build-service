@@ -343,7 +343,8 @@ class BsRequestAction < ActiveRecord::Base
   def webui_infos
     begin
       sd = self.sourcediff(view: 'xml', withissues: true)
-    rescue Suse::Backend::NotFoundError => e
+    rescue Suse::Backend::HTTPError => e
+      return { error: e.to_s }
     end
     return {} if sd.blank?
     # Sort files into categories by their ending and add all of them to a hash. We
