@@ -75,7 +75,7 @@
           <td class="nowrap"><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {user: req['creator'], short: true}%></td>
           <td class="nowrap"><%= reqtype(ae) %></td>
           <% if !hide_state %>
-            <td class="nowrap"><%= req['state']['name'] %></td>
+            <td class="nowrap"><%= req['state'] %></td>
           <% end %>
           <td>
             <%= link_to(image_tag('req-showdiff.png', :size => '16x16', 
