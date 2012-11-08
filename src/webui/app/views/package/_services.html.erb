@@ -1,6 +1,6 @@
 
 <!-- Service elements -->
-<% if @services || @package.can_edit?( @user )%>
+<% if @services %>
   <h3>Source Services</h3>
 
   <% unless @services.blank? %>
@@ -27,9 +27,12 @@
 
 <% if @package.can_edit?( @user ) %>
   <p>
+  <!-- FIXME -->
+  <% if false %>
     <%= link_to(sprite_tag('cog_add'), {:action => :add_service, :project => @project, :package => @package}, :remote => true) %>
     <%= link_to('Add service for source processing', {:action => :add_service, :project => @project, :package => @package}, :remote => true) %>
-
+  <% end %>
+  
     <%= link_to sprite_tag('cog_go'), {:action => :execute_services, :project => @project, :package => @package },
       {:confirm => "Execute all services now?", :method => :post } unless @services.blank? %>
     <%= link_to 'Run services now', {:action => :execute_services, :project => @project, :package => @package },
