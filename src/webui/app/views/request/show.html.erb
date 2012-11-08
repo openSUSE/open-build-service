@@ -66,28 +66,28 @@
       <p>
         <% if action['type'] == 'submit' %>
           <b>Submit
-            <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action['sprj'], :package => action['spkg'], :rev => action['srev']} %>
+            <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['sprj'], package: action['spkg'], :rev => action['srev']} %>
          to
-          <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action['tprj'], :package => action['tpkg']} %>
+          <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['tprj'], package: action['tpkg']} %>
           </b>
           <% if @can_handle_request && @is_target_maintainer %>
             <% if !action['creator_is_target_maintainer'] %>
               <%# TODO: Make this work for each submit action individually: %>
               <br/><%= check_box_tag(:add_submitter_as_maintainer, "#{action['tprj']}_#_#{action['tpkg']}", false, :class => 'submitter_is_maintainer_checkbox') %> Add
               <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => @req['creator'], :no_icon => true, :short => true} %> as maintainer for
-              <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action['tprj'], :package => action['tpkg'], :short => true} %>
+              <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['tprj'], package: action['tpkg'], :short => true} %>
             <% end %>
 
             <% if action['forward'] %>
               <%# TODO: Make this work for each submit action individually: %>
               <% action['forward'].each do |forward| %>
                 <% index = 0 %>
-                <% if forward[:type] == 'link' %>
-                  <br/><%= check_box_tag('forward_link', "#{forward[:project]}_#_#{forward[:package]}", false, :class => 'forward_checkbox') %> Forward to linked package
-                  <%= render :partial => 'shared/project_or_package_link', :locals => {:project => forward[:project], :package => forward[:package], :short => true} %><br/>
+                <% if forward['type'] == 'link' %>
+                  <br/><%= check_box_tag('forward_link', "#{forward['project']}_#_#{forward['package']}", false, :class => 'forward_checkbox') %> Forward to linked package
+                  <%= render :partial => 'shared/project_or_package_link', :locals => {project: forward['project'], package: forward['package'], :short => true} %><br/>
                 <% else %>
-                  <br/><%= check_box_tag("forward_devel_#{index}", "#{forward[:project]}_#_#{forward[:package]}", true, :class => 'forward_checkbox') %> Forward to developed package
-                  <%= render :partial => 'shared/project_or_package_link', :locals => {:project => forward[:project], :package => forward[:package], :short => true} %><br/>
+                  <br/><%= check_box_tag("forward_devel_#{index}", "#{forward['project']}_#_#{forward['package']}", true, :class => 'forward_checkbox') %> Forward to developed package
+                  <%= render :partial => 'shared/project_or_package_link', :locals => {project: forward['project'], package: forward['package'], :short => true} %><br/>
                   <% index += 1 %>
                 <% end %>
               <% end %>
@@ -96,34 +96,34 @@
 
         <% elsif action['type'] == 'delete' %>
           <b>Delete
-          <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action['tprj'], :package => action['tpkg']} %>
+          <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['tprj'], package: action['tpkg']} %>
           </b>
         <% elsif action['type'] == 'add_role' %>
           <b>
             <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => action['user']} %>
             wants the role <b><%= action['role'] %></b> for
-            <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action['tprj'], :package => action['tpkg']} %>
+            <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['tprj'], package: action['tpkg']} %>
           </b>
         <% elsif action['type'] == 'change_devel' %>
           <b>
             Set the devel project to
-            <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action['sprj'], :package => action['spkg']} %>
+            <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['sprj'], package: action['spkg']} %>
             for
-            <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action['tprj'], :package => action['tpkg']} %>
+            <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['tprj'], package: action['tpkg']} %>
           </b>
         <% elsif action['type'] == 'maintenance_incident' %>
           <b>
             Submit update from
-            <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action['sprj'], :package => action['spkg'], :homeproject => @req['creator']  } %>
+            <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['sprj'], package: action['spkg'], :homeproject => @req['creator']  } %>
             to
-            <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action['tprj'], :package => action['tpkg']} %>
+            <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['tprj'], package: action['tpkg']} %>
           </b>
         <% elsif action['type'] == 'maintenance_release' %>
           <b>
             Release
-            <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action['sprj'], :package => action['spkg']} %>
+            <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['sprj'], package: action['spkg']} %>
             to
-            <%= render :partial => 'shared/project_or_package_link', :locals => {:project => action['tprj'], :package => action['tpkg']} %>
+            <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['tprj'], package: action['tpkg']} %>
           </b>
         <% end %>
       </p>
@@ -146,10 +146,10 @@
             <% end %>
 
             <%#TODO: Redo source/target link display %>
-            <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => sourcediff['filenames'], :files => sourcediff['files'], :source => {:project => project, :package => package, :rev => rev}, :css_id => "diff_action_#{action_index}_#{action['type']}_#{sourcediff_index}", :editor_width => '550px'}) %>
+            <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => sourcediff['filenames'], :files => sourcediff['files'], :source => {project: project, package: package, :rev => rev}, :css_id => "diff_action_#{action_index}_#{action['type']}_#{sourcediff_index}", :editor_width => '550px'}) %>
           </div>
           <div class="grid_6 omega">
-            <%= render :partial => 'shared/buildresult_box', :locals => {:project => project, :package => package, :index => action_index} %>
+            <%= render :partial => 'shared/buildresult_box', :locals => {project: project, package: package, :index => action_index} %>
             <% if sourcediff['issues'].length > 0 %>
               <p><b>Mentioned Issues (<%= sourcediff['issues'].length %>)</b></p>
               <%= render :partial => 'issues_table', :locals => {:issues => sourcediff['issues']} %>
