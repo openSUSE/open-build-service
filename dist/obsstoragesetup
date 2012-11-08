@@ -94,7 +94,7 @@ case "$1" in
 				echo "Collect all LVM partitions for the worker"
 				# remove everything first
 				vgreduce --removemissing --force OBS
-				vgremove -f OBS
+				vgremove -ff OBS
 				pvremove -ff `pvdisplay  | grep "PV Name" | awk '{ print $3 }'`
 
 				# Find unpartitioned disks and create LVM partition on them
