@@ -465,6 +465,6 @@ class ApplicationController < ActionController::Base
   end
 
   def check_mobile_views
-    prepend_view_path(Rails.root.join('app', 'mobile_views')) if mobile_request?
+    #prepend_view_path(Rails.root.join('app', 'mobile_views')) if mobile_request?
   end
 end
