@@ -60,9 +60,8 @@ class ProjectController < ApplicationController
 
   def autocomplete_packages
     required_parameters :term
-    packages :norender => true
     if valid_package_name_read?( params[:term] ) or params[:term] == ""
-      render :json => @packages.each.select{|p| p.name.index(params[:term]) }.map{|p| p.name}
+      render :json => @project.packages.select{|p| p.name.index(params[:term]) }.map{|p| p.name}
     else
       render :text => '[]'
     end
