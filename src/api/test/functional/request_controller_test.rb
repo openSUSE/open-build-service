@@ -911,7 +911,7 @@ end
     assert_xml_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )
 
     # test search via xpath as well
-    get "search/request", :match => "state/@name='review' and review[@by_project='home:Iggy' and @state='new']"
+    get "/search/request", :match => "state/@name='review' and review[@by_project='home:Iggy' and @state='new']"
     assert_response :success
     assert_xml_tag( :tag => 'collection', :child => {:tag => 'request' } )
     assert_xml_tag( :tag => "review", :attributes => { :by_project => "home:Iggy", :by_package => "TestPack" } )

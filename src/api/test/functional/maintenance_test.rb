@@ -265,6 +265,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert node.has_attribute?(:id)
     id1 = node.value(:id)
 
+    # search as used by osc sees it
+    get "/search/request", :match => 'action/@type="maintenance_incident" and (state/@name="new" or state/@name="review") and starts-with(action/target/@project, "My:Maintenance")'
+    assert_response :success
+    assert_xml_tag :parent => { :tag => "collection" }, :tag => "request", :attributes => { :id => id1 }
+
     # accept request
     prepare_request_with_user "maintenance_coord", "power"
     post "/request/#{id1}?cmd=changestate&newstate=accepted"
