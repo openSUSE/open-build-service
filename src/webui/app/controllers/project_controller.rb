@@ -1094,7 +1094,7 @@ class ProjectController < ApplicationController
     @comment = params[:comment]
     @project = params[:project]
     @package = params[:package]
-    render :partial => "edit_comment_form"
+    @update = params[:update]
   end
 
   def edit_comment
@@ -1108,7 +1108,7 @@ class ProjectController < ApplicationController
     else
       @comment = params[:text]
     end
-    render :partial => "edit_comment"
+    @update = params[:update]
   end
 
   def status_filter_user(project, package, filter_for_user, project_maintainer_cache)

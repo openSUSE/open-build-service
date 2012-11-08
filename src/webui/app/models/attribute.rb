@@ -50,6 +50,10 @@ class Attribute < ActiveXML::Node
       end
     end
     
+    unless values.kind_of? Array
+      values = [values]
+    end
+
     new_attr = self.add_element 'attribute', 'name' => name, 'namespace' => namespace
     for x in values do
       value = new_attr.add_element 'value'
