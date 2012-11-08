@@ -63,7 +63,7 @@ class HomeController < ApplicationController
     @declined_requests = BsRequest.ids(@requests['declined'])
     @open_reviews = BsRequest.ids(@requests['reviews'])
     @new_requests = BsRequest.ids(@requests['new'])
-    @open_patchinfos = @displayed_user.running_patchinfos(:cache => false)
+    @open_patchinfos = @displayed_user.running_patchinfos
     
     session[:requests] = (@requests['declined'] + @requests['reviews'] + @requests['new'])
     respond_to do |format|
