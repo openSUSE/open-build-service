@@ -191,6 +191,7 @@ class BsRequest < ActiveRecord::Base
     BsRequest.transaction do
       bs_request_histories.create comment: self.comment, commenter: self.commenter, state: self.state, superseded_by: self.superseded_by, created_at: self.updated_at
 
+      oldstate = self.state
       self.state = state
       self.commenter = User.current.login
       self.comment = opts[:comment]
@@ -210,6 +211,7 @@ class BsRequest < ActiveRecord::Base
       self.save!
 
       notify = self.notify_parameters
+      notify[:oldstate] = oldstate
       case state 
       when :accepted 
         Suse::Backend.send_notification("SRCSRV_REQUEST_ACCEPTED", notify)
