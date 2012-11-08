@@ -341,7 +341,10 @@ class BsRequestAction < ActiveRecord::Base
   # FIXME this is code duplicated in the webui for package diffs - this needs to move into the API to then
   # move into helpers
   def webui_infos
-    sd = self.sourcediff(view: 'xml', withissues: true)
+    begin
+      sd = self.sourcediff(view: 'xml', withissues: true)
+    rescue Suse::Backend::NotFoundError => e
+    end
     return {} if sd.blank?
     # Sort files into categories by their ending and add all of them to a hash. We
     # will later use the sorted and concatenated categories as key index into the per action file hash.
