@@ -65,9 +65,7 @@ class HomeController < ApplicationController
     @new_requests = BsRequest.ids(@requests['new'])
     @open_patchinfos = @displayed_user.running_patchinfos(:cache => false)
     
-    logger.debug @new_requests.inspect
-
-    session[:requests] = (@declined_requests + @open_reviews  + @new_requests)
+    session[:requests] = (@requests['declined'] + @requests['reviews'] + @requests['new'])
     respond_to do |format|
       format.html
       format.json do
