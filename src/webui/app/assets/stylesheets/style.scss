@@ -358,7 +358,7 @@ div.dataTables_wrapper:after {
   height: 0;
 }
 
-$icons-layout:smart;
+$icons-spacing:2px;
 $icons-sprite-dimensions:true;
 @import "icons/*.png"; 
 @include all-icons-sprites;
