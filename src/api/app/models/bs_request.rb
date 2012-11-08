@@ -135,7 +135,9 @@ class BsRequest < ActiveRecord::Base
       attributes = { name: self.state, who: self.commenter, when: self.updated_at.strftime("%Y-%m-%dT%H:%M:%S") }
       attributes[:superseded_by] = self.superseded_by if self.superseded_by
       r.state(attributes) do |s|
-        s.comment! self.comment unless self.comment.nil?
+        comment = self.comment
+        comment ||= ''
+        s.comment! comment
       end
       self.reviews.each do |review|
         review.render_xml(r)
