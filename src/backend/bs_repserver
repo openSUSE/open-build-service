@@ -977,12 +977,13 @@ sub getbinary_info {
       die("repository $prp not available\n") unless $r;
     }
     $pool->createwhatprovides();
+    my %keep = map {$_ => 1} qw{name epoch version release arch};
     for my $prov (@{$res->{'provides'}}) {
       my $n = {'dep' => $prov};
       push @{$res->{'provides_ext'}}, $n;
       for my $p ($pool->whatrequires($prov)) {
 	my $rd = $pool->pkg2data($p);
-	delete $rd->{$_} for qw{provides requires source path hdrmd5 id};
+	delete $rd->{$_} for grep {!$keep{$_}} keys %$rd;
 	($rd->{'project'}, $rd->{'repository'}) = split('/', $pool->pkg2reponame($p), 2);
 	push @{$n->{'requiredby'}}, $rd;
       }
@@ -992,7 +993,7 @@ sub getbinary_info {
       push @{$res->{'requires_ext'}}, $n;
       for my $p ($pool->whatprovides($req)) {
 	my $rd = $pool->pkg2data($p);
-	delete $rd->{$_} for qw{provides requires source path hdrmd5 id};
+	delete $rd->{$_} for grep {!$keep{$_}} keys %$rd;
 	($rd->{'project'}, $rd->{'repository'}) = split('/', $pool->pkg2reponame($p), 2);
 	push @{$n->{'providedby'}}, $rd;
       }
