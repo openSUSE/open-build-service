@@ -12,12 +12,6 @@ theme: neutral
 # Set this when the api runs from a subdirectory
 #api_relative_url_root: /stage
 
-# Exceptions get mailed to these addresses:
-#exception_recipients: ['webclient_noreply@opensuse.org']
-exception_recipients: []
-
-#exception_sender: webrun@domain
-
 # Use static.opensuse.org for static style content
 #use_static: build.o.o
 

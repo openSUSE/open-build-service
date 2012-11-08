@@ -2,12 +2,6 @@
 # This file contains the default configuration of the Open Build Service API.
 #
 
-# Exceptions are mailed to these addresses:
-#exception_recipients: ["api_exceptions_noreply@opensuse.org"]
-exception_recipients: []
-# Exceptions mails are send by:
-exception_sender: "\"OBS API Admin\" <admin@your_instance.org>"
-
 # Add also webui_host setting if you want allow anonymous read access via webui
 #allow_anonymous: true
 #read_only_hosts: [ "build.opensuse.org", "software.opensuse.org" ]
