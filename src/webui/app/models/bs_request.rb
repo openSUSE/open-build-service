@@ -202,4 +202,10 @@ class BsRequest < ActiveXML::Node
     end
     return reviewer
   end
+
+  # return the login of the creator - to be obsoleted soon (FIXME2.4)
+  def creator
+    details = ApiDetails.find(:request_show, id: self.id)
+    return details['creator']
+  end
 end

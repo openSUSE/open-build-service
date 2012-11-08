@@ -121,7 +121,7 @@ class RequestController < ApplicationController
           else
             target = find_cached(Project, tprj)
           end
-          target.add_person(:userid => BsRequest.creator(@req).login, :role => "maintainer")
+          target.add_person(:userid => @req.creator, :role => "maintainer")
           target.save
         end
       end
