@@ -90,7 +90,7 @@ class BsRequestTest < ActiveSupport::TestCase
   <history name="review" who="Iggy" when="2012-11-07T21:13:13">
     <comment/>
   </history>
-  <description/>
+  <description>Left blank</description>
 </request>
 eos
     req = BsRequest.new_from_xml(xml)
