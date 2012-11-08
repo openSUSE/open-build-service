@@ -38,8 +38,8 @@
       <% filenames.each_with_index do |filename, index| %>
         <% file_element = files[filename] 
            file_id = "#{valid_xml_id(filename)}_#{css_id}_#{index}"
-           file_diff_text = '' 
-	   file_diff_text = file_element['diff']['_content'] if file_element.has_key? 'diff'
+	   file_diff_text = file_element['diff'] || {}
+           file_diff_text = file_diff_text['_content'] || ''
            file_state = file_element['state'].capitalize
            is_expanded = file_state != 'Deleted' && !filename.include?('/') && (filename == '_patchinfo' || filename.ends_with?('.spec') || filename.ends_with?('.changes')) 
         %>
