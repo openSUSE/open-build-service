@@ -13,6 +13,7 @@
 //= require cm2/codemirror
 //= require cm2/codemirror-ui-find
 //= require cm2/codemirror-ui
+//= require cm2/mode/baselibsconf
 //= require cm2/mode/changes
 //= require cm2/mode/clike
 //= require cm2/mode/clojure

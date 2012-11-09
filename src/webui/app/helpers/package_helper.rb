@@ -30,6 +30,7 @@ module PackageHelper
     return "bash" if filename.match(/^rc[\w-]+$/) # rc-scripts are shell
     return "python" if filename.match(/^.*rpmlintrc$/)
     return "makefile" if filename == "debian.rules"
+    return "baselibsconf" if filename == "baselibs.conf"
     return "spec" if filename.match(/^macros\.\w+/)
     ext = Pathname.new(filename).extname.downcase
     case ext
