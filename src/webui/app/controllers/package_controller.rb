@@ -949,7 +949,11 @@ class PackageController < ApplicationController
         c
       end
     end
-    @initiallog.encode!('UTF-8', invalid: :replace, xml: :text, undef: :replace, cr_newline: true)
+    begin
+      @initiallog.encode!(invalid: :replace, xml: :text, undef: :replace, cr_newline: true)
+    rescue Encoding::UndefinedConversionError 
+      # encode! is documented not to throw it if undef: is :replace, but at least we tried - and ruby 1.9.3 is buggy
+    end
   end
 
 
