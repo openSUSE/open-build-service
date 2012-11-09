@@ -344,7 +344,8 @@ class BsRequestAction < ActiveRecord::Base
     begin
       sd = self.sourcediff(view: 'xml', withissues: true)
     rescue Suse::Backend::HTTPError => e
-      return { error: e.to_s }
+      # array of error hash
+      return [ { error: e.to_s } ]
     end
     return {} if sd.blank?
     # Sort files into categories by their ending and add all of them to a hash. We
