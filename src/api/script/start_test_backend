@@ -9,7 +9,7 @@ perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
 
 if File.exists?("#{Rails.root}/tmp/backend_config") 
   puts "Old backend data is there. checking if we can stop it"
-  %w{bs_srcserver bs_repserver bs_service bs_sched bs_publish}.each do |srv|
+  %w{bs_srcserver bs_repserver bs_service bs_sched bs_publish bs_productconvert}.each do |srv|
     system("cd #{Rails.root}/tmp/backend_config && exec perl #{perlopts} ./#{srv} --stop 2>&1 && sleep 2")
   end 
 end
@@ -62,7 +62,7 @@ File.open("#{Rails.root}/../backend/BSConfig.pm.template") do |template|
 end
 file.close
 
-%w{bs_admin bs_srcserver bs_repserver bs_service bs_sched bs_publish}.each do |srv|
+%w{bs_admin bs_srcserver bs_repserver bs_service bs_sched bs_publish bs_productconvert}.each do |srv|
   FileUtils.symlink("#{Rails.root}/../backend/#{srv}", "#{Rails.root}/tmp/backend_config/#{srv}")
   unless system("cd #{Rails.root}/tmp/backend_config && exec perl -c #{perlopts} ./#{srv} 2>&1")
     puts "ERROR: syntax broken of #{srv}"

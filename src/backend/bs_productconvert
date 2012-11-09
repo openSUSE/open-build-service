@@ -27,6 +27,11 @@ BEGIN {
   chdir($wd);
   unshift @INC,  "$wd/build";
   unshift @INC,  "$wd";
+  # required just for the test suite :/
+  if (-d "$wd/../../../backend") {
+    unshift @INC,  "$wd/../../../backend/build";
+    unshift @INC,  "$wd/../../../backend";
+  }
 }
 
 use strict;
