@@ -104,7 +104,7 @@
       <ul class="horizontal-list">
         <% if not @bugowners_mail.empty? and !CONFIG['bugzilla_host'].nil? %>
           <li>
-            <%= link_to(sprite_tag('tools-report-bug.png') + 'Report bug', bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>
+            <%= link_to(sprite_tag('tools-report-bug') + 'Report bug', bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>
           </li>
         <% end -%>
           <% if @project.can_edit?( @user ) %>
@@ -120,12 +120,12 @@
               <% else %>
                 <%if !@has_patchinfo %>
                   <li>
-                    <%= link_to(sprite_tag( 'plugin_add' ) + 'Create Patchinfo', :controller => 'patchinfo', :action => :new_patchinfo, :project => @project) %>
+                    <%= link_to(sprite_tag( 'plugin_add' ) + 'Create patchinfo', :controller => 'patchinfo', :action => :new_patchinfo, :project => @project) %>
                   </li>
                 <% end %>
                 <% if !@is_incident_project && @releasetargets.length > 0 %>
                   <li>
-                  <%= link_to(sprite_tag('brick_go') + 'Submit as Update', {:controller => 'project', :action => 'incident_request_dialog', :project => @project}, :remote => true) %>
+                  <%= link_to(sprite_tag('brick_go') + 'Submit as update', {:controller => 'project', :action => 'incident_request_dialog', :project => @project}, :remote => true) %>
                   </li>
                 <% end %>
               <% end %>
