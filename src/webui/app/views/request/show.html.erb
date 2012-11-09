@@ -131,26 +131,29 @@
       <% if action['sourcediff'] %>
         <% action['sourcediff'].each_with_index do |sourcediff, sourcediff_index| %>
           <div class="grid_10 alpha">
-            <% if action['type'] == 'delete'
-	         t = sourcediff['old']
-               else
-                 t = sourcediff['new']
-               end
-               project, package, rev = t['project'], t['package'], t['rev'] %>
+	    <% if sourcediff['error'] %>
+              <%= content_tag(:p, content_tag(:i, sourcediff['error'], class: :error)) %>
+            <% else %>
+              <% if action['type'] == 'delete'
+		   t = sourcediff['old']
+		 else
+                   t = sourcediff['new']
+		 end
+		 project, package, rev = t['project'], t['package'], t['rev'] %>
 
-            <% if action['sourcediff'].length != 1 %>
-              <h4>
-                <%= sourcediff['new'].project %> / <%= sourcediff['new'].package %> (rev <%= sourcediff['new'].rev %>) -
-                <%= sourcediff['old'].project %> / <%= sourcediff['old'].package %> (rev <%= sourcediff['old'].rev %>)
-              </h4>
+              <% if action['sourcediff'].length != 1 %>
+                <h4>
+                  <%= sourcediff['new'].project %> / <%= sourcediff['new'].package %> (rev <%= sourcediff['new'].rev %>) -
+                  <%= sourcediff['old'].project %> / <%= sourcediff['old'].package %> (rev <%= sourcediff['old'].rev %>)
+                </h4>
+              <% end %>
+              <%#TODO: Redo source/target link display %>
+              <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => sourcediff['filenames'], :files => sourcediff['files'], :source => {project: project, package: package, :rev => rev}, :css_id => "diff_action_#{action_index}_#{action['type']}_#{sourcediff_index}", :editor_width => '550px'}) %>
             <% end %>
-
-            <%#TODO: Redo source/target link display %>
-            <%= render(:partial => 'shared/sourcediff', :locals => {:filenames => sourcediff['filenames'], :files => sourcediff['files'], :source => {project: project, package: package, :rev => rev}, :css_id => "diff_action_#{action_index}_#{action['type']}_#{sourcediff_index}", :editor_width => '550px'}) %>
           </div>
           <div class="grid_6 omega">
             <%= render :partial => 'shared/buildresult_box', :locals => {project: project, package: package, :index => action_index} %>
-            <% if sourcediff['issues'].length > 0 %>
+            <% if sourcediff['issues'] %>
               <p><b>Mentioned Issues (<%= sourcediff['issues'].length %>)</b></p>
               <%= render :partial => 'issues_table', :locals => {:issues => sourcediff['issues']} %>
             <% end %>
