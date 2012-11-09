@@ -2080,13 +2080,14 @@ end
     assert_response :success
   end
 
-  def test_create_project_with_repository_self_reference
+  def test_create_project_with_invalid_repository_reference
     prepare_request_with_user "tom", "thunder"
     put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temporary"), 
         '<project name="home:tom:temporary"> <title/> <description/> 
            <repository name="me" />
          </project>'
     assert_response :success
+    # self reference
     put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temporary"), 
         '<project name="home:tom:temporary"> <title/> <description/> 
            <repository name="me">
@@ -2094,6 +2095,37 @@ end
            </repository>
          </project>'
     assert_response 400
+    assert_xml_tag :tag => "status", :attributes => { :code => "package_save_error" }
+    assert_match(/Using same repository as path element is not allowed/, @response.body)
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temporary"), 
+        '<project name="home:tom:temporary"> <title/> <description/> 
+           <repository name="me">
+             <hostsystem project="home:tom:temporary" repository="me" />
+           </repository>
+         </project>'
+    assert_response 400
+    assert_xml_tag :tag => "status", :attributes => { :code => "package_save_error" }
+    assert_match(/Using same repository as hostsystem element is not allowed/, @response.body)
+    # not existing repo
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temporary"), 
+        '<project name="home:tom:temporary"> <title/> <description/> 
+           <repository name="me">
+             <path project="home:tom:temporary" repository="DOESNOTEXIST" />
+           </repository>
+         </project>'
+    assert_response 400
+    assert_xml_tag :tag => "status", :attributes => { :code => "package_save_error" }
+    assert_match(/unable to walk on path/, @response.body)
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temporary"), 
+        '<project name="home:tom:temporary"> <title/> <description/> 
+           <repository name="me">
+             <hostsystem project="home:tom:temporary" repository="DOESNOTEXIST" />
+           </repository>
+         </project>'
+    assert_response 400
+    assert_xml_tag :tag => "status", :attributes => { :code => "package_save_error" }
+    assert_match(/Unknown target repository/, @response.body)
+
     delete "/source/home:tom:temporary"
     assert_response :success
   end

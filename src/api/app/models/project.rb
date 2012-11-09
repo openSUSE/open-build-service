@@ -603,8 +603,11 @@ class Project < ActiveRecord::Base
       if repo.has_key? 'hostsystem'
         hostsystem = Project.get_by_name repo['hostsystem']['project']
         target_repo = hostsystem.repositories.find_by_name repo['hostsystem']['repository']
+        if repo['hostsystem']['project'] == self.name and repo['hostsystem']['repository'] == repo['name']
+          raise SaveError, "Using same repository as hostsystem element is not allowed"
+        end
         unless target_repo
-          raise SaveError, "Unknown target repository '#{repo.hostsystem.project}/#{repo.hostsystem.repository}'"
+          raise SaveError, "Unknown target repository '#{repo['hostsystem']['project']}/#{repo['hostsystem']['repository']}'"
         end
         if target_repo != current_repo.hostsystem
           current_repo.hostsystem = target_repo
@@ -626,7 +629,7 @@ class Project < ActiveRecord::Base
           raise SaveError, "Using same repository as path element is not allowed"
         end
         unless link_repo
-          raise SaveError, "unable to walk on path '#{path.project}/#{path.repository}'"
+          raise SaveError, "unable to walk on path '#{path['project']}/#{path['repository']}'"
         end
         current_repo.path_elements.new :link => link_repo, :position => position
         position += 1
