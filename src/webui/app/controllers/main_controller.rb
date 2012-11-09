@@ -21,7 +21,7 @@ class MainController < ApplicationController
   def systemstatus
     render :text => 'no ajax', :status => 400 and return unless request.xhr? # Only serve AJAX-requests
     if @spider_bot
-      @workerstatus = {}
+      @workerstatus = Xmlhash::XMLHash.new
     else
       @workerstatus = Rails.cache.fetch('frontpage_workerstatus', :expires_in => 15.minutes, :shared => true) do
         Workerstatus.find(:all).to_hash
