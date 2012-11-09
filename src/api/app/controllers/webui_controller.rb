@@ -22,10 +22,10 @@ class WebuiController < ApplicationController
 
     if pro.project_type == "maintenance"
       mi = DbProjectType.find_by_name!('maintenance_incident')
-      subprojects = Project.where("projects.name like ?",  pro.name + ":").
+      subprojects = Project.where("projects.name like ?",  pro.name + ":%").
         where(type_id: mi.id).joins(:repositories => :release_targets).
         where("release_targets.trigger = 'maintenance'")
-      infos[:incidents] = subprojects.select("projects.name").all
+      infos[:incidents] = subprojects.select("projects.name").map {|p| p.name }
 
       maintained_projects = []
       pro.maintained_projects.each do |mp|
