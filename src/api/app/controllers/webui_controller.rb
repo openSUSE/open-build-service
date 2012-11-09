@@ -25,7 +25,7 @@ class WebuiController < ApplicationController
       subprojects = Project.where("projects.name like ?",  pro.name + ":%").
         where(type_id: mi.id).joins(:repositories => :release_targets).
         where("release_targets.trigger = 'maintenance'")
-      infos[:incidents] = subprojects.select("projects.name").map {|p| p.name }
+      infos[:incidents] = subprojects.select("projects.name").map {|p| p.name }.sort.uniq
 
       maintained_projects = []
       pro.maintained_projects.each do |mp|
