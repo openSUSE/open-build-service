@@ -942,18 +942,6 @@ class PackageController < ApplicationController
       @initiallog = ''
     end
     @offset = (@offset || 0) + @initiallog.length
-    @initiallog.gsub!(/([^a-zA-Z0-9&;<>\/\n \t()])/n) do |c|
-      if c.ord < 32
-        ''
-      else
-        c
-      end
-    end
-    begin
-      @initiallog.encode!(invalid: :replace, xml: :text, undef: :replace, cr_newline: true)
-    rescue Encoding::UndefinedConversionError 
-      # encode! is documented not to throw it if undef: is :replace, but at least we tried - and ruby 1.9.3 is buggy
-    end
   end
 
 
@@ -985,6 +973,7 @@ class PackageController < ApplicationController
     end
 
     logger.debug 'finished ' + @finished.to_s
+
   end
 
   def abort_build
