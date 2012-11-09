@@ -552,7 +552,14 @@ class Project < ActiveXML::Node
 
   def requests(opts)
     opts = {:project => self.name}.merge opts
-    BsRequest.list(opts)
+    # FIXME2.4 use the API route directly
+    reqs = BsRequest.list(opts)
+    ids = []
+    # convert from XML to Hash as the API would do
+    reqs.each do |r|
+      ids << r.value('id').to_i
+    end
+    BsRequest.ids(ids)
   end
 
   def buildresults(view = 'summary')

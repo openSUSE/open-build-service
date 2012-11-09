@@ -19,7 +19,7 @@ module RequestHelper
 
   # FIXME: belongs to CSS
   def request_state_icon(request)
-    STATE_ICONS[request.get('state')['name']] || ''
+    STATE_ICONS[request['state']['name']] || ''
   end
 
 end

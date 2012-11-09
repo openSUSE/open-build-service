@@ -27,8 +27,8 @@
           <% rqs_out = incident.requests({:roles => 'source', :states => 'new,review,declined', :types => 'maintenance_release'}) %>
           <% if rqs_out && rqs_out.length > 0 %>
             <% rqs_out.each do |rq_out| %>
-              <% text = "Release request in state '#{rq_out.state.value('name')}'" %>
-              <%= link_to(sprite_tag(request_state_icon(rq_out), :title => text), :controller => 'request', :action => 'show', :id => rq_out.value('id')) %>
+              <% text = "Release request in state '#{rq_out['state']}'" %>
+              <%= link_to(sprite_tag(request_state_icon(rq_out), :title => text), :controller => 'request', :action => 'show', :id => rq_out['id']) %>
             <% end %>
           <% else %>
             <% if incident.is_locked? %>
