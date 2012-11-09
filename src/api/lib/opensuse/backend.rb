@@ -10,7 +10,13 @@ module Suse
       end
 
       def to_s
-        @resp.body
+        ret = @resp.body
+        xml = Xmlhash.parse(ret)
+        if xml.has_key? 'summary'
+	  return xml['summary']
+        else
+          return ret
+        end
       end
     end
 
