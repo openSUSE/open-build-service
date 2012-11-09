@@ -12,14 +12,13 @@ module RequestHelper
   end
 
   STATE_ICONS = {
-    'new'      => 'icons/flag_green.png',
-    'review'   => 'icons/flag_yellow.png',
-    'declined' => 'icons/flag_red.png',
+    'new'      => 'flag_green',
+    'review'   => 'flag_yellow',
+    'declined' => 'flag_red',
   }
 
-  # FIXME: belongs to CSS
-  def request_state_icon(request)
-    STATE_ICONS[request['state']['name']] || ''
+  def map_request_state_to_flag(state)
+    STATE_ICONS[state] || ''
   end
 
 end

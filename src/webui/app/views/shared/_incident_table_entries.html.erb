@@ -28,7 +28,7 @@
           <% if rqs_out && rqs_out.length > 0 %>
             <% rqs_out.each do |rq_out| %>
               <% text = "Release request in state '#{rq_out['state']}'" %>
-              <%= link_to(sprite_tag(request_state_icon(rq_out), :title => text), :controller => 'request', :action => 'show', :id => rq_out['id']) %>
+              <%= link_to(sprite_tag(map_request_state_to_flag(rq_out['state']), :title => text), :controller => 'request', :action => 'show', :id => rq_out['id']) %>
             <% end %>
           <% else %>
             <% if incident.is_locked? %>

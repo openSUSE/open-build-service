@@ -8,11 +8,9 @@ require 'xmlhash'
 class RequestHelperTest < ActiveSupport::TestCase
 
   def test_request_state_icon
-    request = Xmlhash.parse("<request><state name='new'/></request>")
-    assert_equal 'icons/flag_green.png', request_state_icon(request)
+    assert_equal 'flag_green', map_request_state_to_flag('new')
 
-    request = Xmlhash.parse("<request/>")
-    assert_equal '', request_state_icon(request)
+    assert_equal '', map_request_state_to_flag(nil)
   end
 end
 
