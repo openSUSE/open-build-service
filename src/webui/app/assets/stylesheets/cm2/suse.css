@@ -21,6 +21,8 @@
   text-align: right;
   padding: .4em .2em .4em .4em;
   white-space: pre !important;
+  /* gutter-text should have same height as CodeMirror-lines */
+  line-height: normal;
 }
 .CodeMirror-lines {
   padding: .4em;
