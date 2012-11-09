@@ -54,9 +54,9 @@
                 <%= sprite_tag 'flag_green' %>
                 <%= @open_release_requests.length %>
                 <% if @open_release_requests.length == 1 %>
-                  <%= link_to('release request', :controller => 'request', :action => 'show', :id => @open_release_requests[0].value('id')) %>
+                  <%= link_to('release request', controller: 'request', action: 'show', id: @open_release_requests[0]) %>
                 <% else %>
-                  <%= link_to('release requests', :action => 'requests', :project => @project.value('name'), :type => 'maintenance_release') %>
+                  <%= link_to('release requests', action: 'requests', project: @project.name, type: 'maintenance_release') %>
                 <% end %>
               </li>
             <% end %>
@@ -64,7 +64,7 @@
           <% if @releasetargets.length > 0 %>
             <li>
               <%= sprite_tag 'information' %>
-              <%= link_to pluralize(@releasetargets.length, "Release Target"), :action => 'meta', :project => @project %>
+              <%= link_to pluralize(@releasetargets.length, "Release Target"), action: 'meta', project: @project %>
             </li>
           <% end %>
         <% end %> 
