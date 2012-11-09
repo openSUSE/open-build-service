@@ -15,7 +15,7 @@ module ProductHelper
       if b_pkg_index.has_key?(pkg) and not f_pkg_index.has_key?(pkg)
         # new autopackage, import in database
 	p = project.packages.new(name: pkg)
-	p.update_from_xml(b_pkg_index[pkg].dump_xml)
+	p.update_from_xml(Xmlhash.parse(b_pkg_index[pkg].dump_xml))
 	p.store
       elsif f_pkg_index.has_key?(pkg) and not b_pkg_index.has_key?(pkg)
         # autopackage was removed, remove from database
