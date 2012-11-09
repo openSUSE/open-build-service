@@ -24,6 +24,8 @@
 BEGIN {
   my ($wd) = $0 =~ m-(.*)/- ;
   $wd ||= '.';
+  chdir($wd);
+  unshift @INC,  "$wd/build";
   unshift @INC,  "$wd";
 }
 
@@ -1266,7 +1268,7 @@ foreach my $medium ( @$media ){
     next if( $opt_m && $name ne $opt_m );
 
     # create one kiwi file each for every of the archsets
-    if ( defined(@{$medium->{archsets}}) ) {
+    if (@{$medium->{archsets}}) {
       my @archSets = @{$medium->{archsets}};
       foreach my $arch ( @archSets ) {
           my @archs;
