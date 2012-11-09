@@ -37,7 +37,8 @@ class WebuiController < ApplicationController
 
     infos[:linking_projects] = pro.find_linking_projects.map { |p| p.name }
 
-    infos[:requests] = reviews_priv(params[:project])
+    reqs = reviews_priv(params[:project])
+    infos[:requests] = (reqs['reviews'] + reqs['targets'] + reqs['incidents'] + reqs['maintenance_release']).sort.uniq
 
     infos[:nr_of_problem_packages] = 0
     
