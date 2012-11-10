@@ -271,7 +271,7 @@ module ActiveXML
     end
 
     def text= (what)
-      _data.content = what.fast_xs
+      _data.content = what
     end
 
     def each(symbol = nil)
