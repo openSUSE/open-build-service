@@ -229,7 +229,7 @@ OBSWebUI::Application.routes.draw do
     match 'request/show/:id' => :show
     match 'request/sourcediff' => :sourcediff
     match 'request/changerequest' => :changerequest
-    match 'request/diff' => :diff
+    match 'request/diff/:id' => :diff
     match 'request/list' => :list
     match 'request/list_small' => :list_small
     match 'request/delete_request_dialog' => :delete_request_dialog
