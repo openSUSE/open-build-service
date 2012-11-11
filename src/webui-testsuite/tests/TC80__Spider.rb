@@ -6,6 +6,7 @@ class TC80__Spider < TestCase
     baseuri = URI.parse(@driver.current_url)
     @driver.find_elements(:tag_name => "a").each do |element|
       next unless element.displayed?
+      next if element.attribute("data-remote")
       link = element.attribute("href")
       begin
         link = baseuri.merge(link)
@@ -69,7 +70,11 @@ class TC80__Spider < TestCase
         unless @driver.find_elements(:css => "div#flash-messages div.ui-state-error").empty?
           raiseit("flash alert", theone) 
         end
-        unless @driver.find_elements(:css => "#exception-error").empty?
+	foundISE=false
+	@driver.find_elements(css: 'h1').each do |h|
+          foundISE ||= h.text == 'Internal Server Error'
+        end
+        if !@driver.find_elements(:css => "#exception-error").empty? || foundISE
           raiseit("error", theone)
           raise "Found error"
         end
@@ -86,7 +91,7 @@ class TC80__Spider < TestCase
 
     @port = URI.parse( $data[:url] ).port
     @driver = $page.driver
-    navigate_to MainPage, :user => :none
+    navigate_to MainPage, user:  :none
 
     getlinks
     crawl
