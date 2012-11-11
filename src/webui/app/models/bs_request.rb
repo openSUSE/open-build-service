@@ -68,11 +68,9 @@ class BsRequest < ActiveXML::Node
         BsRequest.free_cache(id)
         return true
       rescue ActiveXML::Transport::ForbiddenError => e
-        message, _, _ = ActiveXML::Transport.extract_error_message e
-        raise ModifyError, message
+        raise ModifyError, e.summary
       rescue ActiveXML::Transport::NotFoundError => e
-        message, _, _ = ActiveXML::Transport.extract_error_message e
-        raise ModifyError, message
+        raise ModifyError, e.summary
       end
     end
 
@@ -90,9 +88,8 @@ class BsRequest < ActiveXML::Node
         ActiveXML::transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:comment]
         BsRequest.free_cache(id)
         return true
-      rescue ActiveXML::Transport::ForbiddenError, ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => e
-        message, _, _ = ActiveXML::Transport.extract_error_message e
-        raise ModifyError, message
+      rescue ActiveXML::Transport::Error => e
+        raise ModifyError, e.summary
       end
     end
 
@@ -107,8 +104,7 @@ class BsRequest < ActiveXML::Node
           BsRequest.free_cache(id)
           return true
         rescue ActiveXML::Transport::ForbiddenError, ActiveXML::Transport::NotFoundError => e
-          message, _, _ = ActiveXML::Transport.extract_error_message e
-          raise ModifyError, message
+          raise ModifyError, e.summary
         end
       end
       raise ModifyError, "unknown changestate #{changestate}"
@@ -121,8 +117,7 @@ class BsRequest < ActiveXML::Node
         BsRequest.free_cache(id)
         return true
       rescue ActiveXML::Transport::ForbiddenError, ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => e
-        message, _, _ = ActiveXML::Transport.extract_error_message e
-        raise ModifyError, message
+        raise ModifyError, e.summary
       end
       raise ModifyError, "Unable to merge with incident #{incident_project}"
     end

@@ -15,8 +15,7 @@ class Group < ActiveXML::Node
         Collection.new(response).each {|group| names << group.name}
         names
       rescue ActiveXML::Transport::Error => e
-        message, _, _ = ActiveXML::Transport.extract_error_message e
-        raise ListError, message
+        raise ListError, e.summary
       end
     end
     return group_list

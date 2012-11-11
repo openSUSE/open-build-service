@@ -11,8 +11,7 @@ class PatchinfoController < ApplicationController
         path = "/source/#{CGI.escape(params[:project])}?cmd=createpatchinfo"
         frontend.transport.direct_http( URI(path), :method => "POST" )
       rescue ActiveXML::Transport::Error => e
-        message, _, _ = ActiveXML::Transport.extract_error_message e
-        flash[:error] = message
+        flash[:error] = e.summary
         redirect_to :controller => 'project', :action => 'show'
       end
     end
@@ -245,8 +244,7 @@ class PatchinfoController < ApplicationController
       Package.free_cache( @package, :project => @project )
       Patchinfo.free_cache(:project=> @project, :package => @package)
     rescue ActiveXML::Transport::Error => e
-      message = ActiveXML::Transport.extract_error_message(e)[0]
-      flash[:error] = message
+      flash[:error] = e.summary
     end
     redirect_to :controller => 'project', :action => 'show', :project => @project
   end

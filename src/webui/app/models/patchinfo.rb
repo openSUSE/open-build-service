@@ -32,7 +32,7 @@ class Patchinfo < ActiveXML::Node
       frontend.direct_http URI("#{path}"), :method => "POST", :data => self.dump_xml
       result = {:type => :note, :msg => "Patchinfo sucessfully updated!"}
     rescue ActiveXML::Transport::Error => e
-      result = {:type => :error, :msg => "Saving Patchinfo failed: #{ActiveXML::Transport.extract_error_message( e )[0]}"}
+      result = {:type => :error, :msg => "Saving Patchinfo failed: #{e.summary}"}
     end
 
     return result

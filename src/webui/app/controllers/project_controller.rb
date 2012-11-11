@@ -169,8 +169,7 @@ class ProjectController < ApplicationController
       result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => "POST", :data => ""))
       result.each("/status/data[@name='targetproject']") { |n| target_project = n.text }
     rescue ActiveXML::Transport::Error => e
-      message, _, _ = ActiveXML::Transport.extract_error_message e
-      flash[:error] = message
+      flash[:error] = e.summary
       redirect_to :action => 'show', :project => params[:ns] and return
     end
     flash[:success] = "Created maintenance incident project #{target_project}"
@@ -193,8 +192,7 @@ class ProjectController < ApplicationController
       req.save(create: true)
       flash[:success] = "Created maintenance release request"
     rescue ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => e
-      message, _, _ = ActiveXML::Transport.extract_error_message(e)
-      flash[:error] = message
+      flash[:error] = e.summary
       redirect_back_or_to :action => 'show', :project => params[:project] and return
     end
     redirect_to :action => 'show', :project => params[:project]
@@ -211,12 +209,10 @@ class ProjectController < ApplicationController
         req.save(create: true)
         flash[:success] = "Created maintenance release request <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value("id"))}'>#{req.value("id")}</a>"
       rescue ActiveXML::Transport::NotFoundError => e
-        message, _, _ = ActiveXML::Transport.extract_error_message(e)
-        flash[:error] = message
+        flash[:error] = e.summary
         redirect_to(:action => 'show', :project => params[:project]) and return
       rescue ActiveXML::Transport::Error => e
-        message, _, _ = ActiveXML::Transport.extract_error_message(e)
-        flash[:error] = message
+        flash[:error] = e.summary
         redirect_back_or_to :action => 'show', :project => params[:project] and return
       end
     end
@@ -360,8 +356,7 @@ class ProjectController < ApplicationController
       Rails.cache.delete("%s_problem_packages" % @project)
       flash[:note] = "Project '#{@project}' was removed successfully"
     rescue ActiveXML::Transport::Error => e
-      message = ActiveXML::Transport.extract_error_message(e)[0]
-      flash[:error] = message
+      flash[:error] = e.summary
     end
     if not @project.project_type == 'maintenance'
       parent_projects = @project.parent_projects()
@@ -413,7 +408,7 @@ class ProjectController < ApplicationController
       @project.save
       render :partial => 'edit_repository', :locals => { :repository => repo, :has_data => true }
     rescue => e
-      render :partial => 'edit_repository', :locals => { :repository => repo, :error => "#{ActiveXML::Transport.extract_error_message( e )[0]}" }
+      render :partial => 'edit_repository', :locals => { :repository => repo, :error => "#{e.summary}" }
     end
   end
 
@@ -687,8 +682,7 @@ class ProjectController < ApplicationController
       redirect_to :action => 'repositories', :project => @project and return
     end
   rescue ActiveXML::Transport::Error => e
-    message = ActiveXML::Transport.extract_error_message(e)[0]
-    flash[:error] = "Failed to add project or repository: " + message
+    flash[:error] = "Failed to add project or repository: " + e.summary
     redirect_back_or_to :action => 'repositories', :project => @project and return
   end
 
@@ -707,8 +701,7 @@ class ProjectController < ApplicationController
         flash[:error] = "Failed to remove target '#{params[:target]}'"
       end
     rescue ActiveXML::Transport::Error => e
-      message = ActiveXML::Transport.extract_error_message(e)[0]
-      flash[:error] = "Failed to remove target '#{params[:target]}' " + message
+      flash[:error] = "Failed to remove target '#{params[:target]}' " + e.summary
     end
     redirect_to :action => :repositories, :project => @project
   end
@@ -1024,8 +1017,7 @@ class ProjectController < ApplicationController
     begin
       frontend.put_file(params[:meta], :project => params[:project], :filename => '_meta')
     rescue ActiveXML::Transport::Error => e
-      message = ActiveXML::Transport.extract_error_message(e)[0]
-      render :text => message, :status => 400, :content_type => "text/plain"
+      render :text => e.summary, :status => 400, :content_type => "text/plain"
       return
     end
 
@@ -1069,8 +1061,7 @@ class ProjectController < ApplicationController
       begin
         transport.direct_http URI("/source/#{params[:project]}/#{p}/_attribute/OBS:ProjectStatusPackageFailComment"), :method => "DELETE"
       rescue ActiveXML::Transport::ForbiddenError => e
-        message = ActiveXML::Transport.extract_error_message(e)
-        flash[:error] = message
+        flash[:error] = e.summary
         redirect_to :action => :status, :project => params[:project]
         return
       end
@@ -1375,6 +1366,7 @@ class ProjectController < ApplicationController
   end
 
   def maintained_projects
+    @maintained_projects = []
     @project.each("maintenance/maintains") do |maintained_project_name|
        @maintained_projects << maintained_project_name.value(:project)
     end
@@ -1448,8 +1440,7 @@ class ProjectController < ApplicationController
       flash[:success] = "Unlocked project #{params[:project]}"
       Project.free_cache(params[:project])
     rescue ActiveXML::Transport::Error => e
-      message, _, _ = ActiveXML::Transport.extract_error_message e
-      flash[:error] = message
+      flash[:error] = e.summary
     end
     redirect_to :action => 'show', :project => params[:project] and return
   end

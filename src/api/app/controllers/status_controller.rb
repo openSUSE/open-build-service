@@ -268,8 +268,7 @@ class StatusController < ApplicationController
                              :package => action.source_package,
                              :expand => 1, :rev => action.source_rev)
       rescue ActiveXML::Transport::Error => e
-        message, code, api_exception = ActiveXML::Transport.extract_error_message e
-        render :text => "<status id='#{params[:id]}' code='error'>Can't list sources: #{message}</status>\n"
+        render :text => "<status id='#{params[:id]}' code='error'>Can't list sources: #{e.summary}</status>\n"
         return
       end
       unless dir
@@ -330,8 +329,7 @@ class StatusController < ApplicationController
               buildinfo = ActiveXML::Node.new( backend.direct_http( uri ) )
             rescue ActiveXML::Transport::Error => e
               # if there is an error, we ignore
-              message, code, api_exception = ActiveXML::Transport.extract_error_message e
-              render :text => "<status id='#{params[:id]}' code='error'>Can't get buildinfo: #{message}</status>\n"
+              render :text => "<status id='#{params[:id]}' code='error'>Can't get buildinfo: #{e.summary}</status>\n"
               return
             end
             packages = Hash.new
@@ -339,8 +337,7 @@ class StatusController < ApplicationController
               begin
                 packages.merge!(bsrequest_repo_list(p, r, arch.to_s))
               rescue ActiveXML::Transport::Error => e
-                message, code, api_exception = ActiveXML::Transport.extract_error_message e
-                render :text => "<status id='#{params[:id]}' code='error'>Can't list #{p}/#{r}/#{arch.to_s}: #{message}</status>\n"
+                render :text => "<status id='#{params[:id]}' code='error'>Can't list #{p}/#{r}/#{arch.to_s}: #{e.summary}</status>\n"
                 return
               end
             end

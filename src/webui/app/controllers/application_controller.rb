@@ -165,11 +165,11 @@ class ApplicationController < ActionController::Base
       render_error :status => 404, :message => "unknown action"
     when ActiveXML::Transport::ForbiddenError
       # switch to registration on first access
-      if code == "unregistered_ichain_user"
+      if exception.code == "unregistered_ichain_user"
         render :template => "user/request_ichain" and return
-      elsif code == "unregistered_user"
+      elsif exception.code == "unregistered_user"
         render :template => "user/login" and return
-      elsif code == "unconfirmed_user"
+      elsif exception.code == "unconfirmed_user"
         render :template => "user/unconfirmed" and return
       else
         if @user

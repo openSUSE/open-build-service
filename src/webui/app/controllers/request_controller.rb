@@ -47,8 +47,7 @@ class RequestController < ApplicationController
     begin
       BsRequest.modifyReview(opts[:id], opts[:new_review_state], opts)
     rescue BsRequest::ModifyError => e
-      message, _, _ = ActiveXML::Transport.extract_error_message e
-      flash[:error] = message
+      flash[:error] = e.summary
     end
     redirect_to :action => 'show', :id => opts[:id]
   end
@@ -194,8 +193,7 @@ class RequestController < ApplicationController
       req.save(:create => true)
       Rails.cache.delete "requests_new"
     rescue ActiveXML::Transport::Error => e
-      message = ActiveXML::Transport.extract_error_message(e)[0]
-      flash[:error] = message
+      flash[:error] = e.summary
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
     end
@@ -213,8 +211,7 @@ class RequestController < ApplicationController
       req.save(:create => true)
       Rails.cache.delete "requests_new"
     rescue ActiveXML::Transport::NotFoundError => e
-      message = ActiveXML::Transport.extract_error_message(e)[0]
-      flash[:error] = message
+      flash[:error] = e.summary
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
     end
@@ -236,8 +233,7 @@ class RequestController < ApplicationController
       req.save(:create => true)
       Rails.cache.delete 'requests_new'
     rescue ActiveXML::Transport::NotFoundError => e
-      message, _, _ = ActiveXML::Transport.extract_error_message e
-      flash[:error] = message
+      flash[:error] = e.summary
       redirect_to :controller => 'package', :action => 'show', :project => params[:project], :package => params[:package] and return
     end
     redirect_to :controller => 'request', :action => 'show', :id => req.value("id")
