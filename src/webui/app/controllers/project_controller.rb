@@ -100,7 +100,7 @@ class ProjectController < ApplicationController
     else
       predicate += "not(@kind='maintenance_incident')" # Filter all maintenance incidents
     end
-    result = find_cached Collection, :id, :what => "project", :predicate => predicate, :expires_in => 2.minutes
+    result = Collection.find(:id, :what => "project", :predicate => predicate)
     @projects = Array.new
     result.each { |p| @projects << p.name }
     @projects =  @projects.sort_by { |a| project_key a }

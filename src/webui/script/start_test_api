@@ -73,8 +73,6 @@ while true
   break
 end
 
-puts "Loading API fixtures... "
-system("cd #{Rails.root.join('..', 'api').to_s}; unset BUNDLE_GEMFILE; RAILS_ENV=test exec bundle exec rake db:fixtures:load")
 puts "Test API ready."
 $stdout.flush
 
