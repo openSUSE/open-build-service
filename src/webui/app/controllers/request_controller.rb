@@ -21,7 +21,7 @@ class RequestController < ApplicationController
 
       BsRequest.addReview(params[:id], opts)
     rescue BsRequest::ModifyError
-      flash[:error] = "Unable add reviewever '#{params[:id]}'"
+      flash[:error] = "Unable add review to '#{params[:id]}'"
     end
     redirect_to :controller => :request, :action => "show", :id => params[:id]
   end
