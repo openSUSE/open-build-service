@@ -172,9 +172,9 @@ class WebuiController < ApplicationController
 
   def request_list
     # Do not allow a full collection to avoid server load
-    if params[:project].blank?
+    if params[:project].blank? && params[:user].blank? && params[:package].blank?
       render_error :status => 400, :errorcode => 'require_filter',
-      :message => "This call requires at least one filter, either by user, project or package or states or types or reviewstates"
+      :message => "This call requires at least one filter, either by user, project or package"
       return
     end
     
