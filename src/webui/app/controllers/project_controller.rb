@@ -1375,6 +1375,9 @@ class ProjectController < ApplicationController
   end
 
   def maintained_projects
+    @project.each("maintenance/maintains") do |maintained_project_name|
+       @maintained_projects << maintained_project_name.value(:project)
+    end
     redirect_back_or_to :action => 'show', :project => @project and return unless @is_maintenance_project
   end
 
@@ -1504,19 +1507,6 @@ class ProjectController < ApplicationController
     end
     # Is this a maintenance master project ?
     @is_maintenance_project = @project.project_type == "maintenance"
-
-    if @is_maintenance_project
-      @maintained_projects = []
-      @project.each("maintenance/maintains") do |maintained_project_name|
-        @maintained_projects << maintained_project_name.value(:project)
-      end
-    end
-    # Is this a maintenance incident project?
-    @is_incident_project = false
-    if @project.project_type == 'maintenance_incident'
-      @is_incident_project = true
-      @open_release_requests = BsRequest.list({:states => 'new,review', :types => 'maintenance_release', :project => @project.value('name'), :roles => 'source'})
-    end
   end
 
 end
