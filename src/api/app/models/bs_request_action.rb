@@ -346,6 +346,8 @@ class BsRequestAction < ActiveRecord::Base
     rescue Suse::Backend::HTTPError => e
       # array of error hash
       return [ { error: e.summary } ]
+    rescue Project::UnknownObjectError, Package::UnknownObjectError => e
+      return [ { error: e.message } ]
     end
     return {} if sd.blank?
     # Sort files into categories by their ending and add all of them to a hash. We
