@@ -119,4 +119,8 @@ class WebPage
   def wait
     @wait ||= Selenium::WebDriver::Wait.new(:timeout => 20, :interval => 0.1)
   end
+
+  def current_url
+    @driver.current_url
+  end
 end

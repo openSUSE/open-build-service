@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# encoding: utf-8
+
 class TC07__CreatePackage < TestCase
 
 
@@ -82,7 +85,6 @@ class TC07__CreatePackage < TestCase
     open_new_package
     create_package(
       :name => "invalid package name",
-      :title => "Title", 
       :description => "Empty home project package with invalid name. Must fail.",
       :expect => :invalid_name)
   end
@@ -97,7 +99,6 @@ class TC07__CreatePackage < TestCase
     open_new_package
     create_package(
       :name => "HomePackage-OnlyName",
-      :title => "", 
       :description => "")
   end
 
@@ -130,7 +131,28 @@ class TC07__CreatePackage < TestCase
       :expect => :already_exists)
   end
   
-  
+  test :create_package_strange_name do
+    depend_on :create_home_project_package_for_user
+    navigate_to ProjectOverviewPage,
+       user: $data[:user1],
+       project: "home:user1"
+    open_new_package
+    create_package name: "Testing包صفقة", expect: :invalid_name
+
+    create_package name: "Cplus+"
+    packageurl = $page.current_url
+    navigate_to ProjectOverviewPage,  project: "home:user1"
+    wait_for_javascript
+    foundcplus=nil
+    $page.driver.find_elements(css: "#packages_table a").each do |link|
+       next unless link.text == 'Cplus+'
+       foundcplus=link.attribute('href')	
+       break
+    end
+    assert !foundcplus.nil?
+    assert_equal packageurl, foundcplus
+  end
+
   # RUBY CODE ENDS HERE.
   # BELOW ARE APPENDED ALL DATA STRUCTURES USED BY THE TESTS.
   

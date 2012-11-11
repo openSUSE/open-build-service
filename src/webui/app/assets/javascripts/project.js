@@ -9,7 +9,7 @@ function renderPackagesTable(packages)
 				     "aoColumns": [
 					 {
 					     "fnRender": function ( obj ) {
-						 var url = packageurl.replace(/REPLACEIT/, obj.aData);
+						 var url = packageurl.replace(/REPLACEIT/, encodeURIComponent(obj.aData));
 						 return '<a href="' + url +'">' + obj.aData + '</a>';
 					     }
 					 } ]
