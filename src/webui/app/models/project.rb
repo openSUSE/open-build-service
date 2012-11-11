@@ -554,7 +554,7 @@ class Project < ActiveXML::Node
   def requests(opts)
     # called for the incidents requests
     opts = {:project => self.name}.merge opts
-    reqs = BsRequest.list_ids(opts)
+    ids = BsRequest.list_ids(opts)
     return BsRequest.ids(ids)
   end
 
