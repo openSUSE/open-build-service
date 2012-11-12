@@ -16,13 +16,13 @@ class AdminController < ApplicationController
   # of course we don't want to have this action visible 
   hide_action :startme unless Rails.env.test?
   def startme
-     if @@started
-       render_ok 
+     if @@started == true
+       render_ok
        return
-     end       
+     end
      @@started = true
      system("cd #{Rails.root.to_s}; unset BUNDLE_GEMFILE; RAILS_ENV=test exec bundle exec rake db:fixtures:load")
-     # for requests the ID is user visible, so reset it to get reproducible results	
+     # for requests the ID is user visible, so reset it to get reproducible results
      max=BsRequest.maximum(:id)
      BsRequest.connection.execute("alter table bs_requests AUTO_INCREMENT = #{max+1}")
      backend.direct_http(URI("/"))

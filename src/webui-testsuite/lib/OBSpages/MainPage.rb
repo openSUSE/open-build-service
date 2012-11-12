@@ -9,7 +9,7 @@ class MainPage < BuildServicePage
   #
   def validate_page
     super
-    validate { @driver.page_source.include? "Welcome to openSUSE Build Service" }
+    validate { @driver.page_source.include? "Welcome to Open Build Service" }
   end
   
 
