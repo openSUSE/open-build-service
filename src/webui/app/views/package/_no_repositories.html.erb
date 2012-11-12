@@ -1,12 +1,12 @@
 <div id="package_buildstatus">
   <% if not @project.has_element?(:repository) %>
     <p><i>The project this package belongs to currently has no <%= link_to "build targets", :controller => :project, :action => 'add_repository_from_default_list', :project => @project %> defined. </i></p>
-  <% elsif @buildresult.blank? %>
+  <% elsif @buildresult.elements('result').blank? %>
     <p><i>No build result available</i></p>
   <% else %>
 
     <table class="repostatus">
-      <% @buildresult.each do |r,archs|
+      <% @buildresult.elements('result') do |r,archs|
         index = 0
         archs.each do |a|
           -%>

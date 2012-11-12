@@ -48,6 +48,7 @@ class CodeQualityTest < ActiveSupport::TestCase
     @ruby_files.each do |ruby_file|
       File.open(ruby_file).each_with_index do |line, number|
         assert(false, "#{ruby_file}:#{number + 1} 'debugger' statement found!") if line.match(/^\s*debugger/)
+        assert(false, "#{ruby_file}:#{number + 1} 'save_and_open_page' statement found!") if line.match(/^\s*save_and_open_page/)
       end
     end
   end

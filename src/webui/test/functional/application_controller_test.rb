@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class ApplicationControllerTest < ActionController::IntegrationTest
+class ApplicationControllerTest < ActionDispatch::IntegrationTest
 
   include ApplicationHelper
 

@@ -15,6 +15,7 @@ set -xe
 . `dirname $0`/obs_testsuite_common.sh
 
 export OBS_REPORT_DIR=results/
+export HEADLESS=forsure
 
 case $SUBTEST in
   api)

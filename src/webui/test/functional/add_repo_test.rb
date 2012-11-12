@@ -1,50 +1,33 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-require 'webrat'
+class AddRepoTest < ActionDispatch::IntegrationTest
 
-class AddRepoTest < ActionController::IntegrationTest
-
-   def setup
-      onemore=false
-      begin
-        webrat_session.visit '/main/startme'
-      rescue Timeout::Error
-        onemore=true
-      end
-      if onemore
-        webrat_session.visit '/main/startme'
-      end
-      webrat_session.visit '/'
-      click_link "Login"
-      fill_in "Username", :with => "Iggy"
-      fill_in "Password", :with => "asdfasdf"
-      click_button "Login"
-      follow_redirect!
-      assert_contain("You are logged in now")
-      assert_contain("Welcome to ")
-   end
+  def setup
+    super
+    visit '/'
+    login_Iggy
+    
+    assert find('.mainhead').has_text?("Welcome to Open Build Service")
+  end
 
    def test_add_default
-     click_link 'Iggy'
-
-     click_link 'Home Project'
+     within('#subheader') do
+       click_link 'Home Project'
+     end
 
      click_link 'Repositories'
-     assert_contain("Repositories of home:Iggy")
-     assert_contain(/i586, x86_64/)
+     assert page.has_text?("Repositories of home:Iggy")
+     assert page.has_text?(/i586, x86_64/)
 
-     click_link 'Add'
-     assert_contain("Add Repositories to Project home:Iggy")
-     # requires javascript interaction
-     #assert_contain("openSUSE Factory")
+     click_link 'Add repositories'
+     page.has_text?("Add Repositories to Project home:Iggy")
+
+     assert page.has_text?("KIWI image build")
+
+     assert_equal 'true', find('#submitrepos')['disabled']
      
-     assert_raise(Webrat::DisabledFieldError) do
-       click_button "Add selected repositories"
-     end
-     # requires javascript interaction
-     #check 'repo_openSUSE_Factory'
-     #click_button "Add selected repositories"
-     #assert_response :success
+     check 'repo_images'
+     click_button "Add selected repositories"
    end
    
 end

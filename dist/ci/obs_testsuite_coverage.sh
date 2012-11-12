@@ -52,6 +52,7 @@
 set -xe
 . `dirname $0`/obs_testsuite_common.sh
 
+export HEADLESS=forsure
 export DO_COVERAGE=rcov
 setup_git
 setup_api

@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"        
 
-class MonitorControllerTest < ActionController::IntegrationTest
+class MonitorControllerTest < ActionDispatch::IntegrationTest
 
   def setup 
     login_tom

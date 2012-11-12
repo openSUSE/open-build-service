@@ -3,35 +3,70 @@ require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 require 'test/unit/assertions'
 
-require 'webrat'
+require 'headless'
 
-Webrat.configure do |config|
-   config.mode = :rack
-end
+require 'capybara/rails'
+Capybara.default_driver = :selenium
 
-module ActionController
-  class IntegrationTest
-    # will provide a user without special permissions
-    def login_tom
-      post '/user/do_login', :username => 'tom', :password => 'thunder', :return_to_path => '/'
-      follow_redirect!
-      assert_contain("You are logged in now")
+class ActionDispatch::IntegrationTest
+
+  # Make the Capybara DSL available
+  include Capybara::DSL
+
+  # somewhen in the future we will have the API use transactions for webui tests ;)
+  self.use_transactional_fixtures = false
+
+  def login_user(user, password, do_assert = true)
+    visit "/"
+    click_link 'login-trigger'
+    within('#login-form') do
+      fill_in 'Username', with: user
+      fill_in 'Password', with: password
+      click_button 'Login'
     end
-
-    def login_Iggy
-      post '/user/do_login', :username => 'Iggy', :password => 'asdfasdf', :return_to_path => '/'
-      follow_redirect!
-      assert_contain("You are logged in now")
+    if do_assert
+      assert find('#flash-messages').has_content?("You are logged in now")
     end
+  end
 
-    def login_adrian
-      post '/user/do_login', :username => 'adrian', :password => 'so_alone', :return_to_path => '/'
-      follow_redirect!
-      assert_contain("You are logged in now")
-    end
+  # will provide a user without special permissions
+  def login_tom
+    login_user('tom', 'thunder')
+  end
 
-    def logout
-      post '/user/logout'
+  def login_Iggy
+    login_user('Iggy', 'asdfasdf')
+  end
+
+  def login_adrian
+    login_user('adrian', 'so_alone')
+  end
+
+  def logout
+    ll = page.first('#logout-link')
+    ll.click if ll
+  end
+
+  @@display = nil
+
+  setup do
+    if !@@display && ENV['HEADLESS']
+      @@display = Headless.new
+      @@display.start
     end
+    return if ENV['API_STARTED']
+    5.times do
+      begin
+        visit '/main/startme'
+        ENV['API_STARTED'] = '1'
+        break
+      rescue Timeout::Error
+      end
+    end
+  end
+
+  teardown do
+    logout
+    Capybara.reset_sessions!
   end
 end
