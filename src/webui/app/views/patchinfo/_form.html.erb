@@ -96,7 +96,7 @@
               <input id="remove" type="button" value="&lt;" style="width:28px;"/><br/>
             </div>
             <div id="sele_bin" style="width:44%; float:left;">
-              <% if !selected_bin.empty? %>
+              <% if !selected_bin.blank? %>
                 <%= select_tag "selected_binaries", options_for_select(selected_bin), :multiple => true, :size => 6, :style => "width:100%;"%>
               <% else %>
                 <%= select_tag "selected_binaries", "<option value=''></option>".html_safe, :multiple => true, :size => 6, :style => "width:100%;" %>
