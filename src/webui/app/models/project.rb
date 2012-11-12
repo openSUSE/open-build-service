@@ -269,6 +269,7 @@ class Project < ActiveXML::Node
 
   def user_has_role?(user, role)
     user = Person.find_cached(user.to_s) if user.class == String
+    return false unless user
     login = user.to_hash["login"]
     if user && login
       to_hash.elements("person") do |p|
