@@ -6,7 +6,7 @@ class PatchinfoController < ApplicationController
   helper :package
 
   def new_patchinfo
-    unless find_cached(Package, "patchinfo", :project => @project )
+    unless Package.find("patchinfo", :project => @project )
       begin
         path = "/source/#{CGI.escape(params[:project])}?cmd=createpatchinfo"
         frontend.transport.direct_http( URI(path), :method => "POST" )
@@ -17,8 +17,8 @@ class PatchinfoController < ApplicationController
       end
     end
     @tracker = "bnc"
-    @package = find_cached(Package, "patchinfo", :project => @project )
-    @file = find_cached(Patchinfo, :project => @project, :package => @package )
+    @package = Package.find("patchinfo", :project => @project )
+    @file = Patchinfo.find(:project => @project, :package => @package )
     unless @file
       flash[:error] = "Patchinfo not found for #{params[:project]}"
       redirect_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
@@ -52,7 +52,7 @@ class PatchinfoController < ApplicationController
   def show
     read_patchinfo
     @pkg_names = Array.new
-    packages = find_cached(Package, :all, :project => @project.name, :expires_in => 30.seconds )
+    packages = Package.find(:all, :project => @project.name, :expires_in => 30.seconds )
     packages.each do |pkg|
       @pkg_names << pkg.value(:name)
     end
@@ -328,7 +328,7 @@ class PatchinfoController < ApplicationController
   end
 
   def require_all
-    @project = find_cached(Project, params[:project] )
+    @project = Project.find( params[:project] )
     unless @project
       flash[:error] = "Project not found: #{params[:project]}"
       redirect_to :controller => "project", :action => "list_public"
@@ -338,9 +338,9 @@ class PatchinfoController < ApplicationController
 
   def require_exists
     unless params[:package].blank?
-      @package = find_cached(Package, params[:package], :project => @project )
+      @package = Package.find( params[:package], :project => @project )
     end
-    @file = find_cached(Patchinfo, :project => @project, :package => @package )
+    @file = Patchinfo.find( :project => @project, :package => @package )
     opt = {:project => @project.name, :package => @package}
     opt.store(:patchinfo, @patchinfo.to_s)
     @patchinfo = Patchinfo.find(opt)
