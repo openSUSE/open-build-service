@@ -81,7 +81,7 @@
         </div>
         <div class="box show_left show_right">
           <p><strong><%=image_tag("info.png", :title =>"Move specific binaries to the right select box by using the arrows", :alt => "Binaryinfo")%> Binaries:</strong></p>
-          <% if !@binarylist.empty? %>
+          <% if !@binarylist.blank? %>
             <% available_bin = Array.new
             @binarylist.each {|d| available_bin << "#{d.to_s}"}
             selected_bin = Array.new
@@ -96,7 +96,7 @@
               <input id="remove" type="button" value="&lt;" style="width:28px;"/><br/>
             </div>
             <div id="sele_bin" style="width:44%; float:left;">
-              <% if !selected_bin.empty? %>
+              <% if !selected_bin.blank? %>
                 <%= select_tag "selected_binaries", options_for_select(selected_bin), :multiple => true, :size => 6, :style => "width:100%;"%>
               <% else %>
                 <%= select_tag "selected_binaries", "<option value=''></option>".html_safe, :multiple => true, :size => 6, :style => "width:100%;" %>
