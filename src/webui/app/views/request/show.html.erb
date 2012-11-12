@@ -153,7 +153,7 @@
           </div>
           <div class="grid_6 omega">
             <%= render :partial => 'shared/buildresult_box', locals: {project: project, package: package, index: action_index} %>
-            <% if sourcediff['issues'].length > 0 %>
+            <% if sourcediff['issues'] && sourcediff['issues'].length > 0 %>
               <p><b>Mentioned Issues (<%= sourcediff['issues'].length %>)</b></p>
               <%= render partial: 'issues_table', locals: {issues: sourcediff['issues']} %>
             <% end %>
