@@ -79,7 +79,7 @@
         </div>
         <div class="box show_left show_right">
           <p><strong><%=image_tag("info.png", :title =>"Move specific binaries to the right select box by using the arrows", :alt => "Binaryinfo")%> Binaries:</strong></p>
-          <% if !@binarylist.empty? %>
+          <% if !@binarylist.blank? %>
             <% available_bin = Array.new
             @binarylist.each {|d| available_bin << "#{d.to_s}"}
             selected_bin = Array.new
