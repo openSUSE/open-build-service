@@ -238,7 +238,7 @@ class BsRequestAction < ActiveRecord::Base
         provided_in_other_action=false
         if !self.target_package or [ :maintenance_release, :maintenance_incident ].include? self.action_type
           data = Xmlhash.parse( ActiveXML.transport.direct_http(URI("/source/#{URI.escape(self.source_project)}/#{URI.escape(spkg)}") ) )
-          e = data.get('directory')['linkinfo']
+          e = data['linkinfo']
           if e
             target_project = e["project"]
             target_package = e["package"]
