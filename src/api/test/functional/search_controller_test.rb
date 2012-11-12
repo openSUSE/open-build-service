@@ -200,6 +200,15 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert repos.include?('HiddenProject/nada'), "HiddenProject repos public"
   end
 
+  def test_osc_search_devel_package_after_request_accept
+    prepare_request_with_user "Iggy", "asdfasdf"
+
+    get "/search/package", match: "([devel/[@project='Devel:BaseDistro:Update' and @package='pack2']])"
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :attributes => { :matches => 1 }
+    assert_xml_tag :tag => 'package', :attributes => { :project => "BaseDistro:Update", :name => "pack2" }
+  end
+
   def test_search_request
     prepare_request_with_user "Iggy", "asdfasdf"
     get "/search/request", match: "(action/target/@package='pack2' and action/target/@project='BaseDistro2.0' and action/source/@project='BaseDistro2.0' and action/source/@package='pack2_linked' and action/@type='submit')"
