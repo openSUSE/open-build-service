@@ -381,12 +381,10 @@ class BsRequestAction < ActiveRecord::Base
         end
         files_hash[filename] = file
       end
-      
-      if sourcediff['issues']
-        sourcediff.elements('issues').each do |issue|
-          next unless issue['name']
-          issues_hash[issue['label']] = Issue.find_by_name_and_tracker(issue['name'], issue['tracker'])
-        end
+     
+      sourcediff.get('issues').elements('issue') do |issue|
+        next unless issue['name']
+        issues_hash[issue['label']] = Issue.find_by_name_and_tracker(issue['name'], issue['tracker'])
       end
       
       parsed_sourcediff << {
