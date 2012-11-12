@@ -1,4 +1,4 @@
-/srv/www/obs/webui/log/access.log {
+/srv/www/obs/webui/log/*log {
   compress
   dateext
   maxage 365
@@ -8,18 +8,5 @@
   missingok
   copytruncate
   create 664 wwwrun www
-}
-
-/srv/www/obs/webui/log/production.log {
-  compress
-  dateext
-  maxage 365
-  rotate 30
-  size +4096k
-  notifempty
-  missingok
-  copytruncate
-  create 664 wwwrun www
-  sharedscripts
 }
 
