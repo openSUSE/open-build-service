@@ -71,7 +71,7 @@ module ActiveXML
 
       uri = URI( target )
       replace_server_if_needed( uri )
-      logger.debug "setting up transport for model #{model}: #{uri} opts: #{opt}"
+      #logger.debug "setting up transport for model #{model}: #{uri} opts: #{opt}"
       @mapping[model] = {:target_uri => uri, :opt => opt}
     end
 

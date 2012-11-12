@@ -27,7 +27,11 @@ group :test do
   gem 'ci_reporter'
   gem 'simplecov-rcov', :require => false, :group => :test
   # See test/test_helper.rb for details:
-  gem 'webrat', '>=0.7.3'
+  gem 'capybara', '>=2.0'
+  #gem 'capybara-webkit', '>0.13'
+  # for save_and_open_page to debug
+  gem 'launchy'
+  gem 'headless'
 end
 
 gem 'mysql2'

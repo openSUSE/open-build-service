@@ -3,6 +3,8 @@ ENV['RAILS_ENV'] = 'test'
 require File.dirname(__FILE__) + '/../config/boot'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 
+$stderr.puts "Starting test API at port #{CONFIG['frontend_port']} ..."
+
 Thread.abort_on_exception = true
 frontend_out = nil
 logger = Rails.logger
@@ -21,10 +23,8 @@ dienow = false
 lines = []
 outputlines = true
 frontend = Thread.new do
-  puts "Starting test API at port #{CONFIG['frontend_port']} ..."
   cmdline = "ruby ./script/rails"
   frontend_out = IO.popen("cd #{Rails.root.join('..', 'api').to_s}; unset BUNDLE_GEMFILE; exec bundle exec #{cmdline} server -e test -p #{CONFIG['frontend_port']} 2>&1")
-  puts "API started with PID: #{frontend_out.pid}"
   begin
     Process.setpgid frontend_out.pid, 0
   rescue Errno::EACCES

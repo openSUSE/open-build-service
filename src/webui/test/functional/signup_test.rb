@@ -1,38 +1,23 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class SignupTest < ActionController::IntegrationTest
+class SignupTest < ActionDispatch::IntegrationTest
 
     def test_login
       logout
-      visit '/'
-      click_link "Login"
-      fill_in "Username", :with => "tom"
-      fill_in "Password", :with => "thunderz"
+      login_user("tom", "thunderz", false)
 
-      click_button "Login"
-      assert_contain("Please Login")
-      assert_contain("Authentication failed")
+      assert page.has_text?("Please Login")
+      assert page.has_text?("Authentication failed")
  
-      fill_in "Username", :with => "tom"
-      fill_in "Password", :with => "thunder"
-      click_button "Login"
-      follow_redirect!
-      assert_contain("You are logged in now")
+      login_user("tom", "thunder")
       logout
     end
 
     def test_setup_opensuse_org
-      visit '/'
-      click_link "Login"
-      fill_in "Username", :with => "king"
-      fill_in "Password", :with => "sunflower"
-      click_button "Login"
-      follow_redirect!
-      # first login as admin is redirected twice
-      follow_redirect!
-      #assert_contain("You are logged in now")
+      # first login as admin is redirected twice and does not get the flash
+      login_user("king", "sunflower", false)
 
-      assert_contain("Connect a remote Open Build Service instance")
+      assert page.has_text?("Connect a remote Open Build Service instance")
       logout
     end
 

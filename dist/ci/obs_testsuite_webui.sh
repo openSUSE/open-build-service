@@ -55,6 +55,8 @@ setup_webui
 
 cd src/webui
 
+export HEADLESS=forsure
+
 echo "Invoke rake"
 bundle exec rake ci:setup:minitest test CI_REPORTS=results --trace || ret=1
 cd ../..

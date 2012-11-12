@@ -161,7 +161,7 @@
 <% if @is_maintenance_project %>
   <%# TODO: Show some maintenance stuff here %>
 <% else %>
-  <div class="grid_10 alpha box box-shadow">
+  <div class="grid_10 alpha box box-shadow" id="packages_info">
     <h2 class="box-header">Packages (<%= @packages.length %>)</h2>
     <% if @packages.length > 0 %>
        <div id="packages_table_wrapper" data-url="<%= url_for(:controller =>

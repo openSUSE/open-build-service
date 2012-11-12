@@ -1,31 +1,21 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"        
-
-class ProjectControllerTest < ActionController::IntegrationTest
-
+class ProjectControllerTest < ActionDispatch::IntegrationTest
+  
   def setup 
+    super
     login_tom
-  end
-
-  def test_basic_project
-      @project = Project.find("home:Iggy")
-
-      assert_equal "i586", @project.architectures[0]
-      assert_equal "x86_64", @project.architectures[1]
-
-      assert_equal "10.2", @project.repositories[0]
-      assert_equal 1, @project.repositories.size
   end
 
   def test_list
     visit "/project"
-    follow_redirect!
+    assert find('#project_list h3').text =~ %r{All Public Projects}
   end
  
   def test_show
     visit "/project/show?project=Apache"
-    assert_equal 200, response.status
+    assert find('#project_title')
     visit "/project/show?project=My:Maintenance"
-    assert_equal 200, response.status
+    assert find('#project_title')
   end
 
   def test_packages_empty
@@ -42,10 +32,8 @@ class ProjectControllerTest < ActionController::IntegrationTest
     # adrian is maintainer via group on kde4 
     visit "/project/show?project=kde4"
     # really simple test to get started
-    assert_have_xpath '//a[@id="delete-project"]'
-    assert_have_xpath '//a[@id="edit-description"]'
-    logout
-    login_tom
+    assert page.find(:xpath, '//a[@id="delete-project"]')
+    assert page.find(:xpath, '//a[@id="edit-description"]')
   end
 
 end
