@@ -11,12 +11,14 @@ production:
   database: api_production
   username: root
   password: opensuse
+  encoding: utf8
 
 development:
   adapter: mysql2
   database: api_development
   username: root
   password: opensuse
+  encoding: utf8
   
 # Warning: The database defined as 'test' will be erased and
 # re-generated from your development database when you run 'rake'.
@@ -26,4 +28,5 @@ test:
   database: api_test
   username: root
   password: opensuse
+  encoding: utf8
 
