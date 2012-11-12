@@ -136,11 +136,11 @@ case "$1" in
 			fi
 		elif [ "$OBS_SETUP_WORKER_PARTITIONS" = "use_obs_vg" ]; then
 			echo "Remove all LVM partitions in VG OBS for the worker"
-			if [ ! -d /dev/OBS ]; then
-				echo "ERROR: OBS is supposed to use VG 'OBS', which doesn't exist!"
+			lvremove -f OBS
+			if [ $? -ne 0 ]; then
+				echo "ERROR: OBS cannot use the VG 'OBS'. Please check if it is available."
 				exit 1
 			fi
-			lvremove -f OBS
 		fi
 
 		echo "Looking for existing OBS Server LVM Volume"
