@@ -220,6 +220,9 @@ class MaintenanceTests < ActionController::IntegrationTest
   end
 
   def test_mbranch_and_maintenance_per_package_request
+    prepare_request_with_user "king", "sunflower"
+    put "/source/BaseDistro3/pack2/file", "NOOP"
+    assert_response :success
     # setup maintained attributes
     prepare_request_with_user "maintenance_coord", "power"
     # single packages
@@ -243,7 +246,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # do some file changes
     put "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject/new_file", "new_content_0815"
     assert_response :success
-    put "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro3/new_file", "new_content_2137"
+    put "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro3/file", "new_content_2137"
     assert_response :success
 
     # create maintenance request for one package
@@ -264,6 +267,24 @@ class MaintenanceTests < ActionController::IntegrationTest
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id1 = node.value(:id)
+
+    # validate that request is diffable (not broken)
+    post "/request/#{id1}?cmd=diff&view=xml", nil
+    assert_response :success
+    # the diffed packages
+    assert_xml_tag( :tag => "old", :attributes => { :project => "BaseDistro3", :package => "pack2", :srcmd5 => "c372a4bc923c1c400caa6b24a02aa969" } )
+    assert_xml_tag( :tag => "new", :attributes => { :project => "home:tom:branches:OBS_Maintained:pack2", :package => "pack2.BaseDistro3", :rev => "f21898281acc8d8d01f91b093005d9e2", :srcmd5 => "f21898281acc8d8d01f91b093005d9e2" })
+    # the diffed files
+    assert_xml_tag( :tag => "old", :attributes => { :name => "file", :md5 => "722d122e81cbbe543bd5520bb8678c0e", :size => "4" },
+                    :parent => { :tag => "file", :attributes => { :state => "changed" } } )
+    assert_xml_tag( :tag => "new", :attributes => { :name => "file", :md5 => "6c7c49c0d7106a1198fb8f1b3523c971", :size => "16" },
+                    :parent => { :tag => "file", :attributes => { :state => "changed" } } )
+    # the expected file transfer
+    assert_xml_tag( :tag => "source", :attributes => { :project => "home:tom:branches:OBS_Maintained:pack2", :package => "pack2.BaseDistro3", :rev => "f21898281acc8d8d01f91b093005d9e2" } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "My:Maintenance", :releaseproject => "BaseDistro3" } )
+    # diff contains the critical lines
+    assert_match( /^\-NOOP/, @response.body )
+    assert_match( /^\+new_content_2137/, @response.body )
 
     # search as used by osc sees it
     get "/search/request", :match => 'action/@type="maintenance_incident" and (state/@name="new" or state/@name="review") and starts-with(action/target/@project, "My:Maintenance")'
@@ -384,6 +405,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     #validate cleanup
     get "/source/home:tom:branches:OBS_Maintained:pack2"
     assert_response 404
+
+    #cleanup
+    prepare_request_with_user "king", "sunflower"
+    delete "/source/BaseDistro3/pack2/file"
+    assert_response :success
   end
 
   def test_mbranch_and_maintenance_entire_project_request
@@ -1241,6 +1267,12 @@ class MaintenanceTests < ActionController::IntegrationTest
 
     # cleanup
     delete "/source/#{incidentProject}"
+    assert_response :success
+    delete "/source/BaseDistro3/pack2.0"
+    assert_response :success
+    delete "/source/BaseDistro3/pack2/_link"
+    assert_response :success
+    raw_put "/source/BaseDistro3/pack2/package.spec", File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read()
     assert_response :success
   end
 
