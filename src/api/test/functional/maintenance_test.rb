@@ -412,6 +412,28 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_OBS_BranchTarget
+    prepare_request_with_user "king", "sunflower"
+    put "/source/ServicePack/_meta", "<project name='ServicePack'><title/><description/><link project='kde4'/></project>"
+    assert_response :success
+    post "/source/ServicePack/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    assert_response :success
+    post "/source/ServicePack/_attribute", "<attributes><attribute namespace='OBS' name='BranchTarget' /></attributes>"
+    assert_response :success
+
+    prepare_request_with_user "tom", "thunder"
+    post "/source", :cmd => "branch", :package => "kdelibs"
+    assert_response :success
+    assert_xml_tag :tag => "data", :attributes => { :name => "targetproject" }, :content => "home:tom:branches:OBS_Maintained:kdelibs"
+    assert_xml_tag :tag => "data", :attributes => { :name => "targetpackage" }, :content => "kdelibs.kde4"
+    assert_xml_tag :tag => "data", :attributes => { :name => "sourceproject" }, :content => "ServicePack"
+    assert_xml_tag :tag => "data", :attributes => { :name => "sourcepackage" }, :content => "kdelibs"
+
+    #cleanup
+    delete "/source/home:tom:branches:OBS_Maintained:kdelibs"
+    assert_response :success
+  end
+
   def test_mbranch_and_maintenance_entire_project_request
     prepare_request_with_user "king", "sunflower"
     put "/source/ServicePack/_meta", "<project name='ServicePack'><title/><description/><link project='kde4'/></project>"
