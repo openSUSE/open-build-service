@@ -8,33 +8,50 @@ class PersonController < ApplicationController
   validate_action :register => {:method => :put, :response => :status}
   validate_action :register => {:method => :post, :response => :status}
 
+  skip_before_filter :extract_user, :only => [:index, :register]
+
   # Returns a list of all users (that optionally start with a prefix)
   def index
-    valid_http_methods :get
+    valid_http_methods :get, :post
 
-    if !@http_user
-      logger.debug "No user logged in, permission to index denied"
-      @errorcode = 401
-      @summary = "No user logged in, permission to index denied"
-      render :template => 'error', :status => @errorcode
+    unless request.post? and params[:cmd] == "register"
+      extract_user
+
+      if !@http_user 
+        logger.debug "No user logged in, permission to index denied"
+        render_error :status => 401, :errorcode => "unknown_user",
+                     :message => "No anonymous access allowed"
+        return
+      end
+    end
+
+    if request.get?
+      if params[:prefix]
+        list = User.where("login LIKE ?", params[:prefix] + '%').all
+      else
+        list = User.all
+      end
+
+      builder = Builder::XmlMarkup.new(:indent => 2)
+      xml = builder.directory(:count => list.length) do |dir|
+        list.each {|user| dir.entry(:name => user.login)}
+      end
+      render :text => xml, :content_type => "text/xml"
       return
+    elsif request.post?
+      if params[:cmd] == "register"
+        internal_register
+        return
+      else
+        render_error :status => 400, :errorcode => "unknown_command",
+                     :message => "Allow commands are 'change_password'"
+        return
+      end
     end
-
-    if params[:prefix]
-      list = User.where("login LIKE ?", params[:prefix] + '%').all
-    else
-      list = User.all
-    end
-
-    builder = Builder::XmlMarkup.new(:indent => 2)
-    xml = builder.directory(:count => list.length) do |dir|
-      list.each {|user| dir.entry(:name => user.login)}
-    end
-    render :text => xml, :content_type => "text/xml"
   end
 
   def userinfo
-    valid_http_methods :get, :put
+    valid_http_methods :get, :put, :post
 
     if !@http_user
       logger.debug "No user logged in, permission to userinfo denied"
@@ -59,6 +76,28 @@ class PersonController < ApplicationController
       else
         logger.debug "Generating user info for logged in user #{@http_user.login}"
         render :text => @http_user.render_axml(true), :content_type => "text/xml"
+      end
+    elsif request.post?
+      if params[:cmd] == "change_password"
+        login ||= @http_user.login
+        password = request.raw_post.to_s.chomp
+        if login != @http_user.login and not @http_user.is_admin?
+          render_error :status => 403, :errorcode => "change_password_no_permission",
+                       :message => "No permission to change password for user #{login}"
+          return
+        end
+        if password.blank?
+          render_error :status => 404, :errorcode => "password_empty",
+                       :message => "No new password given in first line of the body"
+          return
+        end
+        change_password(login, password)
+        render_ok
+        return
+      else
+        render_error :status => 400, :errorcode => "unknown_command",
+                     :message => "Allow commands are 'change_password'"
+        return
       end
     elsif request.put?
       if user and user.login != @http_user.login and !@http_user.is_admin?
@@ -108,8 +147,12 @@ class PersonController < ApplicationController
   end
 
   def register
+    # FIXME 3.0, to be removed
     valid_http_methods :post, :put
+    internal_register
+  end
 
+  def internal_register
     if CONFIG['ldap_mode'] == :on
       render_error :message => "LDAP mode enabled, users can only be registered via LDAP", :errorcode => "err_register_save", :status => 400
       return
@@ -232,6 +275,11 @@ class PersonController < ApplicationController
     password = xml.elements["/userchangepasswd/password"].text
     login = URI.unescape(login)
 
+    change_password(login, URI.unescape(password))
+    render_ok
+  end
+
+  def change_password(login, password)
     if !@http_user
       logger.debug "No user logged in, permission to changing password denied"
       @errorcode = 401
@@ -239,7 +287,7 @@ class PersonController < ApplicationController
       render :template => 'error', :status => 401
     end
 
-    if not login or not password
+    if login.blank? or password.blank?
       render_error :status => 404, :errorcode => 'failed to change password',
             :message => "Failed to change password: missing parameter"
       return
@@ -249,16 +297,15 @@ class PersonController < ApplicationController
             :message => "No sufficiend permissions to change password for others"
       return
     end
-
-    newpassword = Base64.decode64(URI.unescape(password))
     
     #change password to LDAP if LDAP is enabled    
     if CONFIG['ldap_mode'] == :on
+      ldap_password = Base64.decode64(password)
       if CONFIG['ldap_ssl'] == :on
         require 'base64'
         begin
           logger.debug( "Using LDAP to change password for #{login}" )
-          result = User.change_password_ldap(login, newpassword)
+          result = User.change_password_ldap(login, ldap_password)
         rescue Exception
           logger.debug "CONFIG['ldap_mode'] selected but 'ruby-ldap' module not installed."
         end
@@ -274,11 +321,9 @@ class PersonController < ApplicationController
 
     #update password in users db
     @user = User.get_by_login(login)
-    logger.debug("find the user")
-    @user.password = newpassword
-    @user.password_confirmation = newpassword
-    @user.state = User.states['confirmed']
+    @user.update_password( password )
     @user.save!
-    render_ok
   end
+  private :change_password
+
 end

@@ -5,11 +5,8 @@ class PersonControllerTest < ActionController::IntegrationTest
 
   fixtures :all
 
-  def setup
-    prepare_request_valid_user
-  end
-
   def test_index
+    prepare_request_with_user "adrian", "so_alone"
     get "/person"
     assert_response :success
 
@@ -18,22 +15,26 @@ class PersonControllerTest < ActionController::IntegrationTest
   end
  
   def test_ichain
+    prepare_request_with_user "adrian", "so_alone"
     get "/person/tom", nil, { "username" => "fred" }
     assert_response :success
   end
 
   def test_userinfo_for_valid_http_user
+    prepare_request_with_user "adrian", "so_alone"
     get "/person/tom"
     assert_response :success   
     # This returns the xml content with the user info
   end
 
   def test_userinfo_from_param_valid
+    prepare_request_with_user "adrian", "so_alone"
     get "/person/fred"
     assert_response :success
   end
 
   def test_userinfo_from_param_invalid
+    prepare_request_with_user "adrian", "so_alone"
     get "/person/notfred"
     assert_response 404 
   end
@@ -114,7 +115,7 @@ class PersonControllerTest < ActionController::IntegrationTest
     assert_no_xml_tag :tag => 'person', :child => {:tag => 'globalrole', :content => "Admin"}
   end
 
-  def test_register
+  def test_register_and_change_password_new_way
     reset_auth
     data = '<unregisteredperson>
               <login>adrianSuSE</login>
@@ -125,6 +126,57 @@ class PersonControllerTest < ActionController::IntegrationTest
               <note>I do not trust this guy, this note is only allowed to be stored by admin</note>
             </unregisteredperson>"
            '
+    post "/person?cmd=register", data
+    assert_response :success
+
+    u = User.find_by_login "adrianSuSE"
+    assert_not_nil u
+    assert_equal u.login, "adrianSuSE"
+    assert_equal u.email, "adrian@suse.de"
+    assert_equal u.realname, "Adrian Schroeter"
+    assert_equal u.adminnote, ""
+
+    # change password
+    data = 'NEWPASSW0RD'
+    post "/person/adrianSuSE?cmd=change_password", data
+    assert_response 401
+
+    # wrong user
+    prepare_request_with_user "adrian", "so_alone"
+    post "/person/adrianSuSE?cmd=change_password", data
+    assert_response 403
+    assert_xml_tag :tag => 'status', :attributes => { :code => "change_password_no_permission" }
+
+    # admin
+    prepare_request_with_user "king", "sunflower"
+    post "/person/adrianSuSE?cmd=change_password", ""
+    assert_response 404
+    assert_xml_tag :tag => 'status', :attributes => { :code => "password_empty" }
+
+    post "/person/adrianSuSE?cmd=change_password", data
+    assert_response :success
+
+    u = User.find_by_login "adrianSuSE"
+    assert_not_nil u
+    assert_equal u.login, "adrianSuSE"
+    assert_equal u.password, data
+
+    #cleanup
+    u.destroy
+  end
+
+  def test_register_old_way
+    reset_auth
+    data = '<unregisteredperson>
+              <login>adrianSuSE</login>
+              <email>adrian@suse.de</email>
+              <realname>Adrian Schroeter</realname>
+              <state>locked</state>
+              <password>so_alone</password>
+              <note>I do not trust this guy, this note is only allowed to be stored by admin</note>
+            </unregisteredperson>"
+           '
+    # FIXME3.0: to be removed
     post "/person/register", data
     assert_response :success
 

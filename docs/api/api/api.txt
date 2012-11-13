@@ -1,6 +1,6 @@
 = openSUSE API
 
-Version: 2.3
+Version: 2.4
 
   Only authenticated users are allowed to access the API. Authentication is done
   by sending a Basic HTTP Authorisation header. 
@@ -132,45 +132,32 @@ XmlBody: user
 XmlResult: status
 
 
-GET /person/<userid>/<groupid>
+POST /person?cmd=register
 
-  Read user and group data.
-
-XmlResult: TODO
+  Can be used to register a new user, if OBS instance is allowing this.
 
 
-POST /person/register
+POST /person/<userid>
 
-  TODO
+  cmd=change_password to post the new password in the request body. Just the first line gets used.
 
-Parameters:
-  TODO
-
-
-PUT /person/register
-
-  TODO
-
-XmlBody: TODO
-XmlResult: TODO
-
-
-PUT /person/changepasswd
-
-  TODO
-
-XmlBody: TODO
-XmlResult: TODO
-
-
-POST /person/changepasswd
-
-  TODO
+XmlBody: password
+XmlResult: status
 
 Parameters:
-  TODO
+  cmd: change_password
+
 
 == Group data
+
+GET /group
+
+  List available groups
+
+XmlResult: directory
+
+Parameters:
+  login: List available groups of this user.
 
 GET /group/<group title>
 

@@ -11,14 +11,12 @@ OBSApi::Application.routes.draw do
 
     ### /person
     match 'person' => 'person#index'
-    # FIXME: this is no clean namespace, a person "register" or "changepasswd" could exist ...
-    #        suggested solution is POST person/:login?cmd=register
-    #        fix this for OBS 3.0
-    match 'person/register' => 'person#register'
-    match 'person/changepasswd' => 'person#change_my_password'
-    # bad api, to be removed for OBS 3. Use /group?person=:login instead
-    match 'person/:login/group' => 'person#grouplist', :constraints => cons
-
+    # FIXME3.0: this is no clean namespace, a person "register" or "changepasswd" could exist ...
+    #           remove these for OBS 3.0
+    match 'person/register' => 'person#register'                            # use /person?cmd=register POST instead
+    match 'person/changepasswd' => 'person#change_my_password'              # use /person/:login?cmd=changepassword POST instead
+    match 'person/:login/group' => 'person#grouplist', :constraints => cons # Use /group?person=:login GET instead
+    # /FIXME3.0
     match 'person/:login' => 'person#userinfo', :constraints => cons
 
     ### /group
