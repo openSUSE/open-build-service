@@ -22,12 +22,6 @@ module ActiveXML
           @xml = {'summary' => self.message[0..120], 'code' => '500'}
           return
         end
-      if api_error
-        message = api_error.value('summary')
-        api_exception = api_error.value('exception')
-      else
-
-      end
       end
 
       def api_exception
