@@ -482,7 +482,7 @@ module MaintenanceHelper
           pkg2 = lprj.find_package( params[:package] )
           unless pkg2.nil? or @packages.map {|p| p[:package] }.include? pkg2 # avoid double instances
             logger.info "Found package instance via project link in #{pkg2.project.name}/#{pkg2.name} for attribute #{at.name} and given package name #{params[:package]}"
-            if ltprj.class != Project or ltprj.find_attribute("OBS", "BranchTarget").nil?
+            if ltprj.find_attribute("OBS", "BranchTarget").nil?
               ltprj = pkg2.project
             end
             @packages.push({ :base_project => pkg2.project, :link_target_project => ltprj, :package => pkg2, :target_package => "#{pkg2.name}.#{pkg2.project.name}" })
