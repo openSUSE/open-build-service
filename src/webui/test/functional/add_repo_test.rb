@@ -5,7 +5,15 @@ require 'webrat'
 class AddRepoTest < ActionController::IntegrationTest
 
    def setup
-      webrat_session.visit '/main/startme'
+      onemore=false
+      begin
+        webrat_session.visit '/main/startme'
+      rescue Timeout::Error
+        onemore=true
+      end
+      if onemore
+        webrat_session.visit '/main/startme'
+      end
       webrat_session.visit '/'
       click_link "Login"
       fill_in "Username", :with => "Iggy"

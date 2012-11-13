@@ -34,14 +34,22 @@ class RequestController < ApplicationController
 
       params.merge!({ states: states, types: types, review_states: review_states, roles: roles, ids: ids })
       rel = BsRequest.collection( params )
-      rel = rel.includes({ bs_request_actions: :bs_request_action_accept_info }, :bs_request_histories)
+      if params[:select] == 'id' # more is not supported atm
+        rel = rel.select("bs_requests.id")
+      else
+        rel = rel.includes({ bs_request_actions: :bs_request_action_accept_info }, :bs_request_histories)
+      end
       rel = rel.order('bs_requests.id')
 
       xml = ActiveXML::Node.new "<collection/>"
       matches=0
       rel.each do |r|
         matches = matches+1
-        xml.add_node(r.render_xml)
+        if params[:select] == 'id'
+          xml.add_node("<request id='#{r.id}'/>")
+        else
+          xml.add_node(r.render_xml)
+        end
       end
       xml.set_attribute("matches", matches.to_s)
       render :text => xml.dump_xml, :content_type => "text/xml"

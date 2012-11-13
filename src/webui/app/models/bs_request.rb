@@ -58,14 +58,13 @@ class BsRequest < ActiveXML::Node
     def addReview(id, opts)
       opts = {:user => nil, :group => nil, :project => nil, :package => nil, :comment => nil}.merge opts
 
-      transport ||= ActiveXML::transport
       path = "/request/#{id}?cmd=addreview"
       path << "&by_user=#{CGI.escape(opts[:user])}" unless opts[:user].blank?
       path << "&by_group=#{CGI.escape(opts[:group])}" unless opts[:group].blank?
       path << "&by_project=#{CGI.escape(opts[:project])}" unless opts[:project].blank?
       path << "&by_package=#{CGI.escape(opts[:package])}" unless opts[:package].blank?
       begin
-        transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:comment]
+        ActiveXML::transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:comment]
         BsRequest.free_cache(id)
         return true
       rescue ActiveXML::Transport::ForbiddenError => e
@@ -82,14 +81,13 @@ class BsRequest < ActiveXML::Node
         raise ModifyError, "unknown changestate #{changestate}"
       end
 
-      transport ||= ActiveXML::transport
       path = "/request/#{id}?newstate=#{changestate}&cmd=changereviewstate"
       path << "&by_user=#{CGI.escape(opts[:user])}" unless opts[:user].blank?
       path << "&by_group=#{CGI.escape(opts[:group])}" unless opts[:group].blank?
       path << "&by_project=#{CGI.escape(opts[:project])}" unless opts[:project].blank?
       path << "&by_package=#{CGI.escape(opts[:package])}" unless opts[:package].blank?
       begin
-        transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:comment]
+        ActiveXML::transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:comment]
         BsRequest.free_cache(id)
         return true
       rescue ActiveXML::Transport::ForbiddenError, ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => e
@@ -101,12 +99,11 @@ class BsRequest < ActiveXML::Node
     def modify(id, changestate, opts)
       opts = {:superseded_by => nil, :force => false, :reason => ''}.merge opts
       if ["accepted", "declined", "revoked", "superseded", "new"].include?(changestate)
-        transport ||= ActiveXML::transport
         path = "/request/#{id}?newstate=#{changestate}&cmd=changestate"
         path += "&superseded_by=#{opts[:superseded_by]}" unless opts[:superseded_by].blank?
         path += "&force=1" if opts[:force]
         begin
-          transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:reason].to_s
+          ActiveXML::transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:reason].to_s
           BsRequest.free_cache(id)
           return true
         rescue ActiveXML::Transport::ForbiddenError, ActiveXML::Transport::NotFoundError => e
@@ -120,8 +117,7 @@ class BsRequest < ActiveXML::Node
     def set_incident(id, incident_project)
       begin
         path = "/request/#{id}?cmd=setincident&incident=#{incident_project}"
-        transport ||= ActiveXML::transport
-        transport.direct_http URI(path), :method => "POST", :data => ''
+        ActiveXML::transport.direct_http URI(path), :method => "POST", :data => ''
         BsRequest.free_cache(id)
         return true
       rescue ActiveXML::Transport::ForbiddenError, ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => e
@@ -150,14 +146,13 @@ class BsRequest < ActiveXML::Node
       ApiDetails.find(:request_ids, ids: ids.join(','))
     end
 
-    def list(opts)
+    def prepare_list_path(opts)
       unless opts[:states] or opts[:reviewstate] or opts[:roles] or opts[:types] or opts[:user] or opts[:project]
         raise RuntimeError, "missing parameters"
       end
-
+      
       opts.delete(:types) if opts[:types] == 'all' # All types means don't pass 'type' to backend
-
-      transport ||= ActiveXML::transport
+      
       path = "/request?view=collection"
       path << "&states=#{CGI.escape(opts[:states])}" unless opts[:states].blank?
       path << "&roles=#{CGI.escape(opts[:roles])}" unless opts[:roles].blank?
@@ -167,13 +162,32 @@ class BsRequest < ActiveXML::Node
       path << "&project=#{CGI.escape(opts[:project])}" unless opts[:project].blank?
       path << "&package=#{CGI.escape(opts[:package])}" unless opts[:package].blank?
       path << "&subprojects=1" if opts[:subprojects]
+      return path
+    end
+    
+    def list_ids(opts)
+      path = prepare_list_path(opts) + "&select=id"
       begin
         logger.debug "Fetching request list from api"
-        response = transport.direct_http URI("#{path}"), :method => "GET"
+        response = ActiveXML::transport.direct_http URI("#{path}"), :method => "GET"
+        ids = []
+        Collection.new(response).each do |l|
+          ids << l.value(:id)
+        end
+        return ids
+      rescue ActiveXML::Transport::Error => e
+        raise ListError, e.summary
+      end
+    end
+
+    def list(opts)
+      path = prepare_list_path(opts)
+      begin
+        logger.debug "Fetching request list from api"
+        response = ActiveXML::transport.direct_http URI("#{path}"), :method => "GET"
         return Collection.new(response).each # last statement, implicit return value of block, assigned to 'request_list' non-local variable
       rescue ActiveXML::Transport::Error => e
-        message, _, _ = ActiveXML::Transport.extract_error_message e
-        raise ListError, message
+        raise ListError, e.summary
       end
     end
   
