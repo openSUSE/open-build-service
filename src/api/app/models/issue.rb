@@ -87,15 +87,9 @@ class Issue < ActiveRecord::Base
     issue[:state] = self.state     if self.state
     issue[:summary] = self.summary if self.summary
 
+    # self.owner must not by used, since it is reserved by rails
     o = User.find_by_id self.owner_id
-    if o
-      # self.owner must not by used, since it is reserved by rails
-      issue[:owner] = {
-        login: o.login,
-        email: o.email,
-        realname: o.realname
-      }
-    end
+    issue[:owner] = o.login if o
     return issue
   end
   
