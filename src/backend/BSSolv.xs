@@ -39,6 +39,7 @@ typedef struct _Expander {
 
   int debug;
   int havefileprovides;
+  int ignoreconflicts;
 } Expander;
 
 typedef Pool *BSSolv__pool;
@@ -53,7 +54,7 @@ static Id buildservice_dodurl;
 /* make sure bit n is usable */
 #define MAPEXP(m, n) ((m)->size < (((n) + 8) >> 3) ? map_grow(m, n + 256) : 0)
 
-#define REPOCOOKIE "buildservice repo 1.0"
+#define REPOCOOKIE "buildservice repo 1.1"
 
 static int
 myrepowritefilter(Repo *repo, Repokey *key, void *kfdata)
@@ -356,43 +357,53 @@ expander_installed(Expander *xp, Id p, Map *installed, Map *conflicts, Queue *ou
 	  queue_push2(todo, req, p);
 	}
     }
-  if (s->conflicts)
+  if (!xp->ignoreconflicts)
     {
-      conp = s->repo->idarraydata + s->conflicts;
-      while ((con = *conp++) != 0)
+      if (s->conflicts)
 	{
-	  Id p2, pp2;
-	  FOR_PROVIDES(p2, pp2, con)
+	  conp = s->repo->idarraydata + s->conflicts;
+	  while ((con = *conp++) != 0)
 	    {
-	      if (p2 == p)
-		continue;
-	      MAPEXP(conflicts, pool->nsolvables);
-	      MAPSET(conflicts, p2);
+	      Id p2, pp2;
+	      FOR_PROVIDES(p2, pp2, con)
+		{
+		  if (p2 == p)
+		    continue;
+		  if (xp->debug)
+		    printf("adding conflict of %s with %s\n", pool_solvid2str(pool, p), pool_solvid2str(pool, p2));
+		  MAPEXP(conflicts, pool->nsolvables);
+		  MAPSET(conflicts, p2);
+		}
 	    }
 	}
-    }
-  if (s->obsoletes)
-    {
-      conp = s->repo->idarraydata + s->obsoletes;
-      while ((con = *conp++) != 0)
+      if (s->obsoletes)
 	{
-	  Id p2, pp2;
-	  FOR_PROVIDES(p2, pp2, con)
+	  conp = s->repo->idarraydata + s->obsoletes;
+	  while ((con = *conp++) != 0)
 	    {
-	      if (p2 == p || !pool_match_nevr(pool, pool->solvables + p2, con))
-		continue;
-	      MAPEXP(conflicts, pool->nsolvables);
-	      MAPSET(conflicts, p2);
+	      Id p2, pp2;
+	      FOR_PROVIDES(p2, pp2, con)
+		{
+		  if (p2 == p || !pool_match_nevr(pool, pool->solvables + p2, con))
+		    continue;
+		  if (xp->debug)
+		    printf("adding obsoletes of %s with %s\n", pool_solvid2str(pool, p), pool_solvid2str(pool, p2));
+		  MAPEXP(conflicts, pool->nsolvables);
+		  MAPSET(conflicts, p2);
+		}
 	    }
 	}
     }
 }
 
 static inline int
-expander_checkconflicts(Pool *pool, Id p, Map *installed, Id *conflicts, int isobsoletes)
+expander_checkconflicts(Expander *xp, Id p, Map *installed, Id *conflicts, int isobsoletes)
 {
+  Pool *pool = xp->pool;
   Id con, p2, pp2;
   
+  if (xp->ignoreconflicts)
+    return 0;
   while ((con = *conflicts++) != 0)
     {
       FOR_PROVIDES(p2, pp2, con)
@@ -402,7 +413,11 @@ expander_checkconflicts(Pool *pool, Id p, Map *installed, Id *conflicts, int iso
 	  if (isobsoletes && !pool_match_nevr(pool, pool->solvables + p2, con))
 	    continue;
 	  if (MAPTST(installed, p2))
-	    return 1;
+	    {
+	      if (xp->debug)
+		printf("ignoring provider %s because of %s with installed %s\n", pool_solvid2str(pool, p), isobsoletes ? "obsoletes" : "conflicts", pool_solvid2str(pool, p2));
+	      return 1;
+	    }
 	}
     }
   return 0;
@@ -452,19 +467,38 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 	    }
 	  q = p;
 	}
-      if (q)
+      if (!q)
 	{
-	  if (MAPTST(&installed, q))
-	    continue;
-	  if (xp->debug)
-	    {
-	      printf("added %s because of %s (direct dep)\n", pool_id2str(pool, pool->solvables[q].name), pool_dep2str(pool, id));
-	      fflush(stdout);
-	    }
-	  expander_installed(xp, q, &installed, &conflicts, out, &todo); /* unique match! */
+	  /* unclear, resolve later */
+	  queue_push2(&todo, id, 0);
+	  continue;
 	}
-      else
-	queue_push2(&todo, id, 0);
+      if (MAPTST(&installed, q))
+	continue;
+      if (conflicts.size && MAPTST(&conflicts, q))
+	{
+	  queue_push(&errors, ERROR_CONFLICTINGPROVIDER);
+	  queue_push2(&errors, id, 0);
+	  continue;
+	}
+      if (pool->solvables[q].conflicts && expander_checkconflicts(xp, q, &installed, pool->solvables[q].repo->idarraydata + pool->solvables[q].conflicts, 0))
+	{
+	  queue_push(&errors, ERROR_CONFLICTINGPROVIDER);
+	  queue_push2(&errors, id, 0);
+	  continue;
+	}
+      if (pool->solvables[q].obsoletes && expander_checkconflicts(xp, q, &installed, pool->solvables[q].repo->idarraydata + pool->solvables[q].obsoletes, 1))
+	{
+	  queue_push(&errors, ERROR_CONFLICTINGPROVIDER);
+	  queue_push2(&errors, id, 0);
+	  continue;
+	}
+      if (xp->debug)
+	{
+	  printf("added %s because of %s (direct dep)\n", pool_id2str(pool, pool->solvables[q].name), pool_dep2str(pool, id));
+	  fflush(stdout);
+	}
+      expander_installed(xp, q, &installed, &conflicts, out, &todo); /* unique match! */
     }
 
   doamb = 0;
@@ -489,7 +523,7 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 	ambcnt -= 2;
 // printf("todo %s %s ambcnt %d\n", pool_id2str(pool, pool->solvables[who].name), pool_dep2str(pool, id), ambcnt);
 // fflush(stdout);
-      whon = pool->solvables[who].name;
+      whon = who ? pool->solvables[who].name : 0;
       queue_empty(&qq);
       conflprov = 0;
       FOR_PROVIDES(p, pp, id)
@@ -508,15 +542,17 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 	    }
 	  if (conflicts.size && MAPTST(&conflicts, p))
 	    {
+	      if (xp->debug)
+		printf("ignoring conflicted provider %s\n", pool_solvid2str(pool, p));
 	      conflprov = 1;
 	      continue;
 	    }
-	  if (pool->solvables[p].conflicts && expander_checkconflicts(pool, p, &installed, pool->solvables[p].repo->idarraydata + pool->solvables[p].conflicts, 0))
+	  if (pool->solvables[p].conflicts && expander_checkconflicts(xp, p, &installed, pool->solvables[p].repo->idarraydata + pool->solvables[p].conflicts, 0))
 	    {
 	      conflprov = 1;
 	      continue;
 	    }
-	  if (pool->solvables[p].obsoletes && expander_checkconflicts(pool, p, &installed, pool->solvables[p].repo->idarraydata + pool->solvables[p].obsoletes, 1))
+	  if (pool->solvables[p].obsoletes && expander_checkconflicts(xp, p, &installed, pool->solvables[p].repo->idarraydata + pool->solvables[p].obsoletes, 1))
 	    {
 	      conflprov = 1;
 	      continue;
@@ -537,7 +573,7 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 	  queue_push2(&todo, id, who);
 	  if (xp->debug)
 	    {
-	      printf("undecided about %s:%s:", pool_id2str(pool, whon), pool_dep2str(pool, id));
+	      printf("undecided about %s:%s:", whon ? pool_id2str(pool, whon) : "(direct)", pool_dep2str(pool, id));
 	      for (i = 0; i < qq.count; i++)
 	        printf(" %s", pool_id2str(pool, pool->solvables[qq.elements[i]].name));
 	      printf("\n");
@@ -656,7 +692,7 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 	}
       if (xp->debug)
 	{
-	  printf("added %s because of %s:%s\n", pool_id2str(pool, pool->solvables[qq.elements[0]].name), pool_id2str(pool, whon), pool_dep2str(pool, id));
+	  printf("added %s because of %s:%s\n", pool_id2str(pool, pool->solvables[qq.elements[0]].name), whon ? pool_id2str(pool, whon) : "(direct)", pool_dep2str(pool, id));
 	  fflush(stdout);
 	}
       expander_installed(xp, qq.elements[0], &installed, &conflicts, out, &todo);
@@ -803,25 +839,34 @@ static int metacmp(const void *ap, const void *bp)
   return a - b;
 }
 
+#ifndef REPO_NO_LOCATION
+# define REPO_NO_LOCATION 0
+#endif
 
 Id
-repodata_addbin(Repodata *data, char *path, char *s, int sl, char *sid)
+repodata_addbin(Repodata *data, char *prefix, char *s, int sl, char *sid)
 {
+  Id p = 0;
+  char *path;
+#if REPO_NO_LOCATION == 0
   char *sp;
-  Id p;
+#endif
 
+  path = solv_dupjoin(prefix, "/", s);
   if (sl >= 4 && !strcmp(s + sl - 4, ".rpm"))
-    p = repo_add_rpm(data->repo, (const char *)path, REPO_REUSE_REPODATA|REPO_NO_INTERNALIZE|RPM_ADD_WITH_PKGID|RPM_ADD_NO_FILELIST|RPM_ADD_NO_RPMLIBREQS);
+    p = repo_add_rpm(data->repo, (const char *)path, REPO_REUSE_REPODATA|REPO_NO_INTERNALIZE|REPO_NO_LOCATION|RPM_ADD_WITH_PKGID|RPM_ADD_NO_FILELIST|RPM_ADD_NO_RPMLIBREQS);
   else if (sl >= 4 && !strcmp(s + sl - 4, ".deb"))
-    p = repo_add_deb(data->repo, (const char *)path, REPO_REUSE_REPODATA|REPO_NO_INTERNALIZE|DEBS_ADD_WITH_PKGID);
+    p = repo_add_deb(data->repo, (const char *)path, REPO_REUSE_REPODATA|REPO_NO_INTERNALIZE|REPO_NO_LOCATION|DEBS_ADD_WITH_PKGID);
 #ifdef ARCH_ADD_WITH_PKGID
   else if (sl >= 11 && (!strcmp(s + sl - 11, ".pkg.tar.gz") || !strcmp(s + sl - 11, ".pkg.tar.xz")))
-    p = repo_add_arch_pkg(data->repo, (const char *)path, REPO_REUSE_REPODATA|REPO_NO_INTERNALIZE|ARCH_ADD_WITH_PKGID);
+    p = repo_add_arch_pkg(data->repo, (const char *)path, REPO_REUSE_REPODATA|REPO_NO_INTERNALIZE|REPO_NO_LOCATION|ARCH_ADD_WITH_PKGID);
 #endif
-  else
-    return 0;
+  solv_free(path);
   if (!p)
     return 0;
+#if REPO_NO_LOCATION != 0
+  repodata_set_location(data, p, 0, 0, s);
+#else
   if ((sp = strrchr(s, '/')) != 0)
     {
       *sp = 0;
@@ -830,6 +875,7 @@ repodata_addbin(Repodata *data, char *path, char *s, int sl, char *sid)
     }
   else
     repodata_delete_uninternalized(data, p, SOLVABLE_MEDIADIR);
+#endif
   repodata_set_str(data, p, buildservice_id, sid);
   return p;
 }
@@ -1384,7 +1430,6 @@ repofrombins(BSSolv::pool pool, char *name, char *dir, ...)
 	    for (i = 3; i + 1 < items; i += 2)
 	      {
 		STRLEN sl;
-		char *path;
 		char *s = SvPV(ST(i), sl);
 		char *sid = SvPV_nolen(ST(i + 1));
 		if (sl < 4)
@@ -1403,9 +1448,7 @@ repofrombins(BSSolv::pool pool, char *name, char *dir, ...)
 		  continue;
 		if (sl >= 8 && !strcmp(s + sl - 8, ".src.rpm"))
 		  continue;
-		path = solv_dupjoin(dir, "/", s);
-		repodata_addbin(data, path, s, (int)sl, sid);
-		free(path);
+		repodata_addbin(data, dir, s, (int)sl, sid);
 	      }
 	    repo_set_str(repo, SOLVID_META, buildservice_repocookie, REPOCOOKIE);
 	    repo_internalize(repo);
@@ -1839,7 +1882,6 @@ updatefrombins(BSSolv::repo repo, char *dir, ...)
 	    Id p, id;
 	    Solvable *s;
 	    STRLEN sl;
-	    char *path;
 	    const char *oldcookie;
 	  
 	    map_init(&reused, repo->end - repo->start);
@@ -1892,7 +1934,6 @@ updatefrombins(BSSolv::repo repo, char *dir, ...)
 		  continue;
 		if (sl > 8 && !strcmp(s + sl - 8, ".src.rpm"))
 		  continue;
-		path = solv_dupjoin(dir, "/", s);
 		h = strhash(sid) & hm;
 		hh = HASHCHAIN_START;
 		while ((id = ht[h]) != 0)
@@ -1921,9 +1962,8 @@ updatefrombins(BSSolv::repo repo, char *dir, ...)
 		    dirty++;
 		    if (!data)
 		      data = repo_add_repodata(repo, 0);
-		    repodata_addbin(data, path, s, (int)sl, sid);
+		    repodata_addbin(data, dir, s, (int)sl, sid);
 		  }
-		free(path);
 	      }
 	    solv_free(ht);
 	    if (oldcookie)
@@ -2197,6 +2237,14 @@ new(char *packname = "BSSolv::expander", BSSolv::pool pool, HV *config)
 		  }
 		queue_free(&q);
 	      }
+	    svp = hv_fetch(config, "expandflags:ignoreconflicts", 27, 0);
+	    sv = svp ? *svp : 0;
+	    if (sv && SvTRUE(sv))
+	      xp->ignoreconflicts = 1;
+	    svp = hv_fetch(config, "expand_dbg", 10, 0);
+	    sv = svp ? *svp : 0;
+	    if (sv && SvTRUE(sv))
+	      xp->debug = 1;
 	    sv = get_sv("Build::expand_dbg", FALSE);
 	    if (sv && SvTRUE(sv))
 	      xp->debug = 1;
