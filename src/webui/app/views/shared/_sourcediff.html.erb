@@ -77,7 +77,7 @@
           <% if is_expanded %>
             <tr id="diff_view_<%= file_id %>">
               <td colspan="3">
-                <%= render :partial => "shared/editor", :locals => {:text => file_diff_text, :mode => 'diff'} %>
+                <%= render :partial => "shared/editor", :locals => {:text => file_diff_text, :mode => 'diff', read_only: true} %>
               </td>
             </tr>
           <% else %>
