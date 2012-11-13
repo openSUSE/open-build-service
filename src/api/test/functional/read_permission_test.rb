@@ -544,6 +544,9 @@ class ReadPermissionTest < ActionController::IntegrationTest
     prepare_request_with_user "tom", "thunder"
     get "/source/home:adrian:PublicProject/ProtectedPackage"
     assert_response 403
+    post "/source/home:tom:TEMP", :cmd => "copy", :oproject => "home:adrian:PublicProject"
+    assert_response 403
+    assert_xml_tag :tag => "status", :attributes => { :code => "project_copy_no_permission" }
     # try to access it via own project link
     put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temp"),
         '<project name="home:tom:temp"> <title/> <description/> <link project="home:adrian:PublicProject"/> </project>'

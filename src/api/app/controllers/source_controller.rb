@@ -1445,17 +1445,26 @@ class SourceController < ApplicationController
     oproject = params[:oproject]
     repository = params[:repository]
 
+    oprj = Project.get_by_name( oproject )
+
     unless @http_user.is_admin?
       if params[:withbinaries]
         render_error :status => 403, :errorcode => "project_copy_no_permission",
           :message => "no permission to copy project with binaries for non admins"
         return
       end
+
+      oprj.packages.each do |pkg|
+        if pkg.disabled_for?('sourceaccess', nil, nil)
+          render_error :status => 403, :errorcode => "project_copy_no_permission",
+            :message => "no permission to copy project due to source protected package #{pkg.name}"
+          return
+        end
+      end
     end
 
     # create new project object based on oproject
     unless p = Project.find_by_name(project_name)
-      oprj = Project.get_by_name( oproject )
       p = Project.new :name => project_name, :title => oprj.title, :description => oprj.description
       p.add_user @http_user, "maintainer"
       oprj.flags.each do |f|
