@@ -13,15 +13,6 @@ module Suse
         @resp.body
       end
 
-      def summary
-        ret = self.to_s
-        xml = Xmlhash.parse(ret)
-        if xml.has_key? 'summary'
-	  return xml['summary']
-        else
-          return ret
-        end
-      end
     end
 
     class NotFoundError < HTTPError

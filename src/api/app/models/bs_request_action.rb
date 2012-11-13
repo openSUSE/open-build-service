@@ -316,8 +316,8 @@ class BsRequestAction < ActiveRecord::Base
           action_diff += ActiveXML.transport.direct_http(URI(path), method: "POST", timeout: 10)
         rescue Timeout::Error
           raise DiffError.new("Timeout while diffing #{path}")
-        rescue ActiveXML::Transport::Error, Suse::Backend::HTTPError
-          raise DiffError.new("The diff call for #{path} failed")
+        rescue ActiveXML::Transport::Error => e
+          raise DiffError.new("The diff call for #{path} failed: #{e.summary}")
         end
         path = nil # reset
       end
@@ -330,8 +330,8 @@ class BsRequestAction < ActiveRecord::Base
           action_diff += ActiveXML.transport.direct_http(URI(path), method: "POST", timeout: 10)
         rescue Timeout::Error
           raise DiffError.new("Timeout while diffing #{path}")
-        rescue ActiveXML::Transport::Error, Suse::Backend::HTTPError
-          raise DiffError.new("The diff call for #{path} failed")
+        rescue ActiveXML::Transport::Error => e
+          raise DiffError.new("The diff call for #{path} failed: #{e.summary}")
         end
       elsif self.target_repository
         # no source diff 
@@ -347,10 +347,7 @@ class BsRequestAction < ActiveRecord::Base
   def webui_infos
     begin
       sd = self.sourcediff(view: 'xml', withissues: true)
-    rescue DiffError => e
-      # array of error hash
-      return [ { error: e.summary } ]
-    rescue Project::UnknownObjectError, Package::UnknownObjectError => e
+    rescue DiffError, Project::UnknownObjectError, Package::UnknownObjectError => e
       return [ { error: e.message } ]
     end
     return {} if sd.blank?
