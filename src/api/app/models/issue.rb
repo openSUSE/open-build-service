@@ -77,6 +77,28 @@ class Issue < ActiveRecord::Base
     return self.issue_tracker.label.gsub('@@@', self.name)
   end
 
+  def webui_infos
+    issue = { created_at: self.created_at }
+    issue[:updated_at] = self.updated_at  if self.updated_at
+    issue[:name] = self.name
+    issue[:tracker] = self.issue_tracker.name
+    issue[:label] = self.label
+    issue[:url] = self.issue_tracker.show_url.gsub('@@@', self.name)
+    issue[:state] = self.state     if self.state
+    issue[:summary] = self.summary if self.summary
+
+    o = User.find_by_id self.owner_id
+    if o
+      # self.owner must not by used, since it is reserved by rails
+      issue[:owner] = {
+        login: o.login,
+        email: o.email,
+        realname: o.realname
+      }
+    end
+    return issue
+  end
+  
   def render_body(node, change=nil)
     p={}
     p[:change] = change if change

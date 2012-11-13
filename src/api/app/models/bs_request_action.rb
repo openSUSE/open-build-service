@@ -385,7 +385,7 @@ class BsRequestAction < ActiveRecord::Base
      
       sourcediff.get('issues').elements('issue') do |issue|
         next unless issue['name']
-        issues_hash[issue['label']] = Issue.find_by_name_and_tracker(issue['name'], issue['tracker'])
+        issues_hash[issue['label']] = Issue.find_by_name_and_tracker(issue['name'], issue['tracker']).webui_infos
       end
       
       parsed_sourcediff << {
