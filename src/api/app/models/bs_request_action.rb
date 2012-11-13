@@ -313,8 +313,10 @@ class BsRequestAction < ActiveRecord::Base
         path += '&view=xml' if opts[:view] == 'xml' # Request unified diff in full XML view
         path += '&withissues=1' if opts[:withissues]
         begin
-          action_diff += Suse::Backend.post(path, nil).body
-        rescue ActiveXML::Transport::Error => e
+          action_diff += ActiveXML.transport.direct_http(URI(path), method: "POST", timeout: 10)
+        rescue Timeout::Error
+          raise DiffError.new("Timeout while diffing #{path}")
+        rescue ActiveXML::Transport::Error, Suse::Backend::HTTPError
           raise DiffError.new("The diff call for #{path} failed")
         end
         path = nil # reset
@@ -325,8 +327,10 @@ class BsRequestAction < ActiveRecord::Base
         path += "?cmd=diff&expand=1&filelimit=0&rev=0"
         path += '&view=xml' if opts[:view] == 'xml' # Request unified diff in full XML view
         begin
-          action_diff += Suse::Backend.post(path, nil).body
-        rescue ActiveXML::Transport::Error
+          action_diff += ActiveXML.transport.direct_http(URI(path), method: "POST", timeout: 10)
+        rescue Timeout::Error
+          raise DiffError.new("Timeout while diffing #{path}")
+        rescue ActiveXML::Transport::Error, Suse::Backend::HTTPError
           raise DiffError.new("The diff call for #{path} failed")
         end
       elsif self.target_repository
@@ -343,7 +347,7 @@ class BsRequestAction < ActiveRecord::Base
   def webui_infos
     begin
       sd = self.sourcediff(view: 'xml', withissues: true)
-    rescue Suse::Backend::HTTPError => e
+    rescue DiffError => e
       # array of error hash
       return [ { error: e.summary } ]
     rescue Project::UnknownObjectError, Package::UnknownObjectError => e

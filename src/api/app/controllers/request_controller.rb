@@ -800,6 +800,11 @@ class RequestController < ApplicationController
       Suse::Backend.send_notification(hermes_type, review_notify) if hermes_type
     end
 
+    # cache the diff (in the backend)
+    req.bs_request_actions.each do |a|
+      a.delay.webui_infos
+    end
+
     render :text => req.render_xml, :content_type => 'text/xml'
   end
 
