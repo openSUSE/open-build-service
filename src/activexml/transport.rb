@@ -47,6 +47,7 @@ module ActiveXML
       def code
         parse!
         return @xml['code']
+      end
     end
 
     class ConnectionError < Error; end
