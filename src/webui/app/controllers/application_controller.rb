@@ -157,10 +157,6 @@ class ApplicationController < ActionController::Base
 
   def rescue_with_handler( exception )
     logger.error "rescue_action: caught #{exception.class}: #{exception.message} " # + exception.backtrace.join("\n")
-    begin
-      message, code, api_exception = ActiveXML::Transport.extract_error_message exception
-    rescue Nokogiri::XML::XPath::SyntaxError
-    end
 
     case exception
     when ActionController::RoutingError
@@ -195,6 +191,10 @@ class ApplicationController < ActionController::Base
       render :template => "timeout" and return
     when ValidationError
       render :template => "xml_errors", :locals => { :oldbody => exception.xml, :errors => exception.errors }, :status => 400
+    when ActiveXML::Transport::Error
+      message = exception.summary
+      code = exception.code
+      api_exception = exception.api_exception
     when MissingParameterError 
       render_error :status => 400, :message => message
     when InvalidHttpMethodError

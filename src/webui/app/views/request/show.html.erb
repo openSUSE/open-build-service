@@ -183,7 +183,7 @@
               <% end %>
             <% end %>
           </ul>
-          <%= javascript_tag do %>
+          <% content_for :ready_function do %>
             $('.review_descision_link').click(function (event) {
               $('#review_descision_select li.selected').attr('class', '');
               $(event.target).parent().attr('class', 'selected')
@@ -226,7 +226,7 @@
                 </span>
               </p>
             <% end %>
-            <%= javascript_tag do %>
+            <% content_for :ready_function do %>
               $('#accept_request_button').click(function (data) {
                 /* Add some hidden elements to carry HTML form data that is found at other DOM places for design reasons.  */
                 if ($('.submitter_is_maintainer_checkbox').size() != 0 &&
@@ -267,7 +267,7 @@
             </div>
           <% end %>
         <% end %>
-        <%= javascript_tag do %>
+        <% content_for :ready_function do %>
           $('.review_comment, #reason').click(function () { $(this).text(''); });
         <% end %>
       <% else %>

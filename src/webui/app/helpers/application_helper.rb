@@ -408,5 +408,27 @@ module ApplicationHelper
     content_tag(:span, '', opts)
   end
 
+  def setup_codemirror_editor(opts = {})
+    return if @codemirror_editor_setup
+    @codemirror_editor_setup = true
+    opts.reverse_merge!({ read_only: false, no_border: false, width: 'auto', height: '660px' })
+
+    content_for(:content_for_head, javascript_include_tag('cm2'))
+
+    style = ''
+    if opts[:no_border] || opts[:read_only]
+      style += ".CodeMirror { border-width: 0 0 0 0; }\n"
+    end
+
+    style += ".CodeMirror-scroll {\n"
+    style += "height: #{opts[:height]}\n"
+    if opts[:height] == 'auto'
+      style += "overflow: auto;\n"
+    end
+    style += "width: #{opts[:width]}\n}\n"
+    content_for(:head_style, style)
+
+  end
+
 end
 

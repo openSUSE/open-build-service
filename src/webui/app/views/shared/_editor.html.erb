@@ -1,26 +1,7 @@
-<% width ||= 'auto' %>
-<% height ||= '600px' %>
 <% save ||= false %>
 <% read_only ||= false %>
-<% no_border ||= false %>
 
-<%= content_for :content_for_head do %>
-  <%= javascript_include_tag 'cm2' %>
-  <style type="text/css">
-    <% if no_border || read_only %>
-      .CodeMirror {
-        border-width: 0 0 0 0
-      }
-    <% end %>
-    .CodeMirror-scroll {
-      height: <%= height %>;
-      <% if height == 'auto' %>
-        overflow: auto;
-      <% end %>
-      width: <%= width %>;
-    }
-  </style>
-<% end %>
+<% setup_codemirror_editor(read_only: read_only) %>
 
 <% uid = rand().to_s()[2..-1] # unique id to allow including multiple editors %>
 <textarea id="editor_<%= uid %>" name="editor_<%= uid %>" style="display: none;" rows="0" cols="0"><%= force_utf8_and_transform_nonprintables(text) %></textarea>

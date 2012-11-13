@@ -11,7 +11,11 @@
     <title><%= "#{@pagetitle} - " if @pagetitle -%><%= @configuration ? @configuration['title'] : 'Open Build Service' %></title>
 
     <%= stylesheet_link_tag 'application' %>
-
+    <% if content_for?(:head_style) -%>
+      <style type="text/css">
+	<%= yield :head_style %>
+      </style>
+    <% end -%>
     <%= yield :content_for_head %>
 
     <%= javascript_include_tag 'application' %>
@@ -27,6 +31,7 @@
         <% end %>
       });
     <% end %>
+
     <%= csrf_meta_tag %>
   </head>
   <body>

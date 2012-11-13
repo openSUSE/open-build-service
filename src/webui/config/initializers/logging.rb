@@ -13,7 +13,8 @@ module ActiveSupport
       color = NUMBER_TO_COLOR_MAP[severity]
       message = (message || (block && block.call) || progname).to_s
       prefix=""
-      while message[0].ord == 13 or message[0].ord == 10
+      return if message.blank?
+      while message && (message[0].ord == 13 or message[0].ord == 10)
         prefix = prefix.concat(message[0])
         message = message[1..-1]
       end

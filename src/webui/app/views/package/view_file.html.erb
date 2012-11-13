@@ -42,7 +42,10 @@
       <% end %>
     <% end %>
 
-    <%= render :partial => "shared/editor", :locals => {:text => @file, :mode => guess_code_class(@filename), :save => {:url => {:controller => 'package', :action => 'save_modified_file'}, :method => 'POST', :data => {:project => @project, :package => @package, :file => '@@@', :comment => '', :filename => @filename, :rev => @rev}}} %>
+    <%= render :partial => "shared/editor", :locals => {text: @file, mode: guess_code_class(@filename), 
+			save: {url: {controller: 'package', action: 'save_modified_file'}, 
+			method: 'POST', 
+			data: {project: @project, package: @package, file: '@@@', comment: '', filename: @filename, rev: @rev}}} %>
     <%# TODO: Provide a comments field thru a callback!! %>
   <% else %>
     <%= render :partial => "shared/editor", :locals => {:text => @file, :mode => guess_code_class(@filename), :read_only => true} %>
