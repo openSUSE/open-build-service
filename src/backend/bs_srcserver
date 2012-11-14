@@ -5523,6 +5523,7 @@ sub getbuildinfo {
   checkprojrepoarch($projid, $repoid, $arch);
   my @args;
   push @args, 'internal=1' if $cgi->{'internal'};
+  push @args, 'debug=1' if $cgi->{'debug'};
   push @args, map {"add=$_"} @{$cgi->{'add'} || []};
   my $buildinfo = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo", $BSXML::buildinfo, @args);
   return ($buildinfo, $BSXML::buildinfo);
@@ -5532,6 +5533,7 @@ sub getbuildinfo_post {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
   my @args;
+  push @args, 'debug=1' if $cgi->{'debug'};
   push @args, map {"add=$_"} @{$cgi->{'add'} || []};
   my $param = {
     'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo",
@@ -7182,8 +7184,8 @@ my $dispatches = [
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool?' => \&getbinarylist,
-  'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:*' => \&getbuildinfo_post,
-  '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool?' => \&getbuildinfo,
+  'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* debug:bool?' => \&getbuildinfo_post,
+  '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,

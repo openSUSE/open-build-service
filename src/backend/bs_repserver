@@ -2384,6 +2384,7 @@ sub getbuildinfo {
   unshift @deps, @{$info->{'dep'} || []};
 
   # expand deps
+  $ret->{'expanddebug'} = '' if $cgi->{'debug'};
   $Build::expand_dbg = 1 if $cgi->{'debug'};
   @subpacks = () if $packtype eq 'kiwi';
   my @edeps;
@@ -2405,6 +2406,7 @@ sub getbuildinfo {
     @edeps = Build::get_deps($bconf, \@subpacks, @deps);
     $bconf->{'ignore'} = $bconfignore if $bconfignore;
     $bconf->{'ignoreh'} = $bconfignoreh if $bconfignoreh;
+    $ret->{'expanddebug'} .= $xp->debugstr() if defined($ret->{'expanddebug'}) && defined &BSSolv::expander::debugstr;
   } else {
     my $xp = BSSolv::expander->new($pool, $bconf);
     my $ownexpand = sub {
@@ -2415,6 +2417,7 @@ sub getbuildinfo {
     local *Build::expand = $ownexpand;
     use warnings 'redefine';
     @edeps = Build::get_deps($bconf, \@subpacks, @deps);
+    $ret->{'expanddebug'} .= $xp->debugstr() if defined($ret->{'expanddebug'}) && defined &BSSolv::expander::debugstr;
   }
   undef $Build::expand_dbg if $cgi->{'debug'};
   if (! shift @edeps) {
@@ -2471,6 +2474,8 @@ sub getbuildinfo {
   }
   undef $xp;
   undef $Build::expand_dbg if $cgi->{'debug'};
+  $ret->{'expanddebug'} .= "\n" if $ret->{'expanddebug'};
+  $ret->{'expanddebug'} .= $xp->debugstr() if defined($ret->{'expanddebug'}) && defined &BSSolv::expander::debugstr;
   if (! shift @bdeps) {
     $ret->{'error'} = "unresolvable: ".join(', ', @bdeps);
     return ($ret, $BSXML::buildinfo);

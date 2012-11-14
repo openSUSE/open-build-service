@@ -521,6 +521,7 @@ our $buildinfo = [
 	    'repository',
 	    'server',
      ]],
+	'expanddebug',
 ];
 
 our $jobstatus = [
