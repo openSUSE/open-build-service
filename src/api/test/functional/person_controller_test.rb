@@ -6,8 +6,15 @@ class PersonControllerTest < ActionController::IntegrationTest
   fixtures :all
 
   def test_index
+    reset_auth
+    get "/person/"
+    assert_response 401
+
     prepare_request_with_user "adrian", "so_alone"
     get "/person"
+    assert_response :success
+
+    get "/person/"
     assert_response :success
 
     get "/person?prefix=s"

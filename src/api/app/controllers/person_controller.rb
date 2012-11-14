@@ -15,12 +15,9 @@ class PersonController < ApplicationController
     valid_http_methods :get, :post
 
     unless request.post? and params[:cmd] == "register"
-      extract_user
-
-      if !@http_user 
+      
+      if !extract_user
         logger.debug "No user logged in, permission to index denied"
-        render_error :status => 401, :errorcode => "unknown_user",
-                     :message => "No anonymous access allowed"
         return
       end
     end

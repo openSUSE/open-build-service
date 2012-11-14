@@ -70,7 +70,8 @@ class ApplicationController < ActionController::API
       return true
     end
     logger.error "No public access is configured"
-    render_error( :message => "No public access is configured", :status => 401 ) and return false
+    render_error( :message => "No public access is configured", :status => 401 )
+    return false
   end
 
   def validate_params
