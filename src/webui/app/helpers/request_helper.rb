@@ -21,4 +21,14 @@ module RequestHelper
     STATE_ICONS[state] || ''
   end
 
+  STATE_COLORS = {
+    'new'        => 'green',
+    'declined'   => 'red',
+    'superseded' => 'red',
+  }
+
+  def request_state_color(state)
+    STATE_COLORS[state] || ''
+  end
+
 end
