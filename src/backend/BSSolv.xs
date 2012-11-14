@@ -718,7 +718,7 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 	      if (pool->solvables[p].obsoletes && (pc = expander_checkconflicts(xp, p, &installed, pool->solvables[p].repo->idarraydata + pool->solvables[p].obsoletes, 1)) != 0)
 		{
 		  queue_push(&errors, ERROR_PROVIDERINFO);
-		  queue_push2(&errors, -p, pc);
+		  queue_push2(&errors, p, -pc);
 		  continue;
 		}
 	    }
@@ -2513,8 +2513,8 @@ expand(BSSolv::expander xp, ...)
 		      {
 			Id who2 = out.elements[i + 2];
 			who = out.elements[i + 1];
-			if (who < 0)
-		          sv = newSVpvf("(provider %s obsoletes installed %s)", pool_id2str(pool, pool->solvables[-who].name), pool_id2str(pool, pool->solvables[who2].name));
+			if (who2 < 0)
+		          sv = newSVpvf("(provider %s obsoletes installed %s)", pool_id2str(pool, pool->solvables[who].name), pool_id2str(pool, pool->solvables[-who2].name));
 			else
 		          sv = newSVpvf("(provider %s conflicts with installed %s)", pool_id2str(pool, pool->solvables[who].name), pool_id2str(pool, pool->solvables[who2].name));
 			i += 3;
