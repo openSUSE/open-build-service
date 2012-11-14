@@ -99,7 +99,7 @@ class PatchinfoController < ApplicationController
     end
     @category = @file.category.to_s
     @rating = @file.rating.to_s if @file.rating
-
+    debugger
     @description = @summary = @category = nil
     @category = @file.category.to_s       if @file.has_element? 'category'
     @rating = @file.rating.to_s           if @file.has_element? 'rating'
@@ -201,7 +201,6 @@ class PatchinfoController < ApplicationController
       rescue Timeout::Error 
         flash[:error] = "Timeout when saving file. Please try again."
       end
-
       Package.free_cache( :all, :project => @project.name )
       Package.free_cache( @package.name, :project => @project )
       redirect_to :controller => "patchinfo", :action => "show",
@@ -363,7 +362,7 @@ class PatchinfoController < ApplicationController
     unless params[:package].blank?
       @package = find_cached(Package, params[:package], :project => @project )
     end
-    @file = find_cached(Patchinfo, :project => @project, :package => @package )
+    @file = Patchinfo.find(:project => @project.to_s, :package => @package.to_s)
     opt = {:project => @project.name, :package => @package}
     opt.store(:patchinfo, @patchinfo.to_s)
     @patchinfo = Patchinfo.find(opt)
