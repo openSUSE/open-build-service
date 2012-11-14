@@ -21,7 +21,7 @@
          </li>
       <% end -%>
       <% user.watched_projects.each do |project|-%>
-        <li id="watchlist_<%= Digest::MD5.hexdigest project %>">
+        <li>
           <%= image_tag 'project.png', :style => 'height: 16px; width: 16px;' %>
           <a href="<%= url_for :controller => 'project', :action => :show, :project => project %>">
           <span><%= elide(project, 32) %></span></a>
