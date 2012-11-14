@@ -639,7 +639,7 @@ expander_expand(Expander *xp, Queue *in, Queue *out)
 		{
 		  Id pc = findconflictsinfo(&conflictsinfo, p);
 		  if (pc)
-		    expander_dbg(xp, "ignoring provider %s of %s because installed %s %s it\n", pool_solvid2str(pool, p), pool_dep2str(pool, id), pool_solvid2str(pool, pc > 0 ? pc : -pc), pc > 0 ? "conflicts with " : "obsoletes");
+		    expander_dbg(xp, "ignoring provider %s of %s because installed %s %s it\n", pool_solvid2str(pool, p), pool_dep2str(pool, id), pool_solvid2str(pool, pc > 0 ? pc : -pc), pc > 0 ? "conflicts with" : "obsoletes");
 		  else
 		    expander_dbg(xp, "ignoring conflicted provider %s of %s\n", pool_solvid2str(pool, p), pool_dep2str(pool, id));
 		}
