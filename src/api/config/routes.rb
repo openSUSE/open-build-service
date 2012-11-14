@@ -294,6 +294,7 @@ OBSApi::Application.routes.draw do
       match 'webui/request_show' => :request_show
       match 'webui/person_involved_requests' => :person_involved_requests
       match 'webui/request_ids' => :request_ids
+      match 'webui/request_list' => :request_list
     end
 
     match "/404" => "main#notfound"

@@ -143,45 +143,40 @@ class BsRequest < ActiveXML::Node
     def ids(ids)
       return [] if ids.blank?
       logger.debug "Fetching request list from api"
-      ApiDetails.find(:request_ids, ids: ids.join(','))
+      ret = []
+      ids.each_slice(50) do |a|
+        ret.concat(ApiDetails.find(:request_ids, ids: a.join(',')))
+      end
+      return ret
     end
 
-    def prepare_list_path(opts)
+    def prepare_list_path(path, opts)
       unless opts[:states] or opts[:reviewstate] or opts[:roles] or opts[:types] or opts[:user] or opts[:project]
         raise RuntimeError, "missing parameters"
       end
       
       opts.delete(:types) if opts[:types] == 'all' # All types means don't pass 'type' to backend
       
-      path = "/request?view=collection"
-      path << "&states=#{CGI.escape(opts[:states])}" unless opts[:states].blank?
-      path << "&roles=#{CGI.escape(opts[:roles])}" unless opts[:roles].blank?
-      path << "&reviewstates=#{CGI.escape(opts[:reviewstates])}" unless opts[:reviewstates].blank?
-      path << "&types=#{CGI.escape(opts[:types])}" unless opts[:types].blank? # the API want's to have it that way, sigh...
-      path << "&user=#{CGI.escape(opts[:user])}" unless opts[:user].blank?
-      path << "&project=#{CGI.escape(opts[:project])}" unless opts[:project].blank?
-      path << "&package=#{CGI.escape(opts[:package])}" unless opts[:package].blank?
-      path << "&subprojects=1" if opts[:subprojects]
-      return path
+      query = []
+      query << "states=#{CGI.escape(opts[:states])}" unless opts[:states].blank?
+      query << "roles=#{CGI.escape(opts[:roles])}" unless opts[:roles].blank?
+      query << "reviewstates=#{CGI.escape(opts[:reviewstates])}" unless opts[:reviewstates].blank?
+      query << "types=#{CGI.escape(opts[:types])}" unless opts[:types].blank? # the API want's to have it that way, sigh...
+      query << "user=#{CGI.escape(opts[:user])}" unless opts[:user].blank?
+      query << "project=#{CGI.escape(opts[:project])}" unless opts[:project].blank?
+      query << "package=#{CGI.escape(opts[:package])}" unless opts[:package].blank?
+      query << "subprojects=1" if opts[:subprojects]
+      return path + "?" + query.join('&')
     end
     
     def list_ids(opts)
-      path = prepare_list_path(opts) + "&select=id"
-      begin
-        logger.debug "Fetching request list from api"
-        response = ActiveXML::transport.direct_http URI("#{path}"), :method => "GET"
-        ids = []
-        Collection.new(response).each do |l|
-          ids << l.value(:id)
-        end
-        return ids
-      rescue ActiveXML::Transport::Error => e
-        raise ListError, e.summary
-      end
+      path = prepare_list_path("/webui/request_list", opts)
+      data = ActiveXML::transport.direct_http(URI(path))
+      return ActiveSupport::JSON.decode(data)
     end
 
     def list(opts)
-      path = prepare_list_path(opts)
+      path = prepare_list_path("/request?view=collection", opts)
       begin
         logger.debug "Fetching request list from api"
         response = ActiveXML::transport.direct_http URI("#{path}"), :method => "GET"

@@ -362,9 +362,8 @@ class BsRequest < ActiveRecord::Base
     states = opts[:states] || []
     types = opts[:types] || []
     review_states = opts[:review_states] || [ "new" ]
-    
+
     rel = BsRequest.joins(:bs_request_actions)
-    rel = rel.includes([:reviews, :bs_request_histories])
     
     # filter for request state(s)
     unless states.blank?
@@ -400,6 +399,7 @@ class BsRequest < ActiveRecord::Base
         if roles.count == 0 or roles.include? "reviewer"
           if states.count == 0 or states.include? "review"
             review_states.each do |r|
+              rel = rel.includes(:reviews)
               inner_or << "(reviews.state='#{r}' and reviews.by_project='#{opts[:project]}')"
             end
           end
@@ -414,6 +414,7 @@ class BsRequest < ActiveRecord::Base
         if roles.count == 0 or roles.include? "reviewer"
           if states.count == 0 or states.include? "review"
             review_states.each do |r|
+              rel = rel.includes(:reviews)
               inner_or << "(reviews.state='#{r}' and reviews.by_project='#{opts[:project]}' and reviews.by_package='#{opts[:package]}')"
             end
           end
@@ -445,6 +446,7 @@ class BsRequest < ActiveRecord::Base
       end
 
       if roles.count == 0 or roles.include? "reviewer"
+        rel = rel.includes(:reviews)
         review_states.each do |r|
           
           # requests where the user is reviewer or own requests that are in review by someone else
@@ -487,6 +489,8 @@ class BsRequest < ActiveRecord::Base
       end
 
       if roles.count == 0 or roles.include? "reviewer"
+        rel = rel.includes(:reviews)
+        
         review_states.each do |r|
           
           # requests where the user is reviewer or own requests that are in review by someone else

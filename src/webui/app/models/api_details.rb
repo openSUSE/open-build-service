@@ -19,7 +19,7 @@ class ApiDetails
     uri = URI(uri)
     transport = ActiveXML::transport
     uri = transport.substitute_uri(uri, opts)
-    transport.replace_server_if_needed(uri)
+    #transport.replace_server_if_needed(uri)
     data = transport.direct_http(uri)
     data = ActiveSupport::JSON.decode(data)
     logger.debug "data #{JSON.pretty_generate(data)}"

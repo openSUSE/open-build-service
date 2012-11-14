@@ -67,17 +67,17 @@ class WebuiController < ApplicationController
     prj = Project.find_by_name! prj
     
     rel = BsRequest.collection(project: params[:project], states: ['review'], roles: ['reviewer'])
-    reviews = rel.select("bs_request.id").all.map { |r| r.id }
+    reviews = rel.select("bs_requests.id").all.map { |r| r.id }
 
     rel = BsRequest.collection(project: params[:project], states: ['new'], roles: ['target'])
-    targets = rel.select("bs_request.id").all.map { |r| r.id }
+    targets = rel.select("bs_requests.id").all.map { |r| r.id }
 
     rel = BsRequest.collection(project: params[:project], states: ['new'], roles: ['source'], types: ['maintenance_incident'])
-    incidents = rel.select("bs_request.id").all.map { |r| r.id }
+    incidents = rel.select("bs_requests.id").all.map { |r| r.id }
     
     if prj.project_type == "maintenance"
       rel = BsRequest.collection(project: params[:project], states: ['new'], roles: ['source'], types: ['maintenance_release'], subprojects: true)
-      maintenance_release = rel.select("bs_request.id").all.map { |r| r.id }
+      maintenance_release = rel.select("bs_requests.id").all.map { |r| r.id }
     else
       maintenance_release = []
     end
@@ -98,13 +98,13 @@ class WebuiController < ApplicationController
     result = {}
 
     rel = BsRequest.collection(user: login, states: ['declined'], roles: ['creator'])
-    result[:declined] = rel.select("bs_request.id").all.map { |r| r.id }
+    result[:declined] = rel.select("bs_requests.id").all.map { |r| r.id }
 
     rel = BsRequest.collection(user: login, states: ['new'], roles: ['maintainer'])
-    result[:new] = rel.select("bs_request.id").all.map { |r| r.id }
+    result[:new] = rel.select("bs_requests.id").all.map { |r| r.id }
 
     rel = BsRequest.collection(user: login, roles: ['reviewer'], reviewstates: ['new'], states: ['review'])
-    result[:reviews] = rel.select("bs_request.id").all.map { |r| r.id }
+    result[:reviews] = rel.select("bs_requests.id").all.map { |r| r.id }
 
     render json: result
   end
@@ -113,7 +113,7 @@ class WebuiController < ApplicationController
     valid_http_methods :get
     required_parameters :login
     rel = BsRequest.collection(user: params[:login], states: ['new', 'review'])
-    result = rel.select("bs_request.id").all.map { |r| r.id }
+    result = rel.select("bs_requests.id").all.map { |r| r.id }
 
     render json: result
   end
@@ -169,4 +169,47 @@ class WebuiController < ApplicationController
     end
     render json: result
   end
+
+  def request_list
+    # Do not allow a full collection to avoid server load
+    if params[:project].blank?
+      render_error :status => 400, :errorcode => 'require_filter',
+      :message => "This call requires at least one filter, either by user, project or package or states or types or reviewstates"
+      return
+    end
+    
+    # convert comma seperated values into arrays
+    if params[:roles]
+      roles = params[:roles].split(',') 
+    else
+      roles = []
+    end
+    types = params[:types].split(',') if params[:types]
+    if params[:states]
+      states = params[:states].split(',') 
+    else
+      states = []
+    end
+    review_states = params[:reviewstates].split(',') if params[:reviewstates]
+    
+    params.merge!({ states: states, types: types, review_states: review_states, roles: roles })
+    logger.debug "PARAMS #{params.inspect}"
+    ids = []
+    rel = nil
+
+    if params[:project]
+      if roles.empty? && (states.empty? || states.include?('review')) # it's wiser to split the queries
+        rel = BsRequest.collection( params.merge({ roles: ['reviewer'] } ) )
+        rel.select("bs_requests.id")
+        rel.each { |r| ids << r.id }
+        rel = BsRequest.collection( params.merge({ roles: ['target', 'source'] } ) )
+      end
+    end
+    rel = BsRequest.collection( params ) unless rel
+    rel.select("bs_requests.id")
+    rel.each { |r| ids << r.id }
+    
+    render json: ids.uniq.sort
+  end
+
 end

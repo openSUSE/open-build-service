@@ -139,6 +139,11 @@ CREATE TABLE `bs_request_actions` (
   `target_repository` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `bs_request_id` (`bs_request_id`),
+  KEY `index_bs_request_actions_on_target_project` (`target_project`),
+  KEY `index_bs_request_actions_on_target_package` (`target_package`),
+  KEY `index_bs_request_actions_on_source_project` (`source_project`),
+  KEY `index_bs_request_actions_on_source_package` (`source_package`),
+  KEY `index_bs_request_actions_on_target_project_and_source_project` (`target_project`,`source_project`),
   CONSTRAINT `bs_request_actions_ibfk_1` FOREIGN KEY (`bs_request_id`) REFERENCES `bs_requests` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -542,6 +547,8 @@ CREATE TABLE `reviews` (
   KEY `index_reviews_on_by_project` (`by_project`),
   KEY `index_reviews_on_by_package_and_by_project` (`by_package`,`by_project`),
   KEY `bs_request_id` (`bs_request_id`),
+  KEY `index_reviews_on_state_and_by_project` (`state`,`by_project`),
+  KEY `index_reviews_on_state_and_by_user` (`state`,`by_user`),
   CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`bs_request_id`) REFERENCES `bs_requests` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -984,6 +991,8 @@ INSERT INTO schema_migrations (version) VALUES ('20121015121807');
 INSERT INTO schema_migrations (version) VALUES ('20121112104534');
 
 INSERT INTO schema_migrations (version) VALUES ('20121112110642');
+
+INSERT INTO schema_migrations (version) VALUES ('20121114093616');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
