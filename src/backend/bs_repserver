@@ -2472,10 +2472,10 @@ sub getbuildinfo {
   } else {
     @bdeps = Build::get_deps($bconf, \@subpacks, @deps, @{$cgi->{'add'} || []});
   }
-  undef $xp;
-  undef $Build::expand_dbg if $cgi->{'debug'};
   $ret->{'expanddebug'} .= "\n" if $ret->{'expanddebug'};
   $ret->{'expanddebug'} .= $xp->debugstr() if defined($ret->{'expanddebug'}) && defined &BSSolv::expander::debugstr;
+  undef $xp;
+  undef $Build::expand_dbg if $cgi->{'debug'};
   if (! shift @bdeps) {
     $ret->{'error'} = "unresolvable: ".join(', ', @bdeps);
     return ($ret, $BSXML::buildinfo);
