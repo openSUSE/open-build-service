@@ -50,7 +50,8 @@ class UserController < ApplicationController
       flash[:success] = "You are logged in now"
       redirect_to params[:return_to_path] and return
     end
-    redirect_back_or_to :action => 'login'
+    flash.now[:error] = "Authentication failed"
+    redirect_to :action => 'login'
   end
 
   def save
