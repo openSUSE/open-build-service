@@ -13,6 +13,14 @@ class PackageController < ApplicationController
   prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
   def show
+    if lockout_spiders 
+      params.delete(:rev)
+      params.delete(:srcmd5)
+    end
+    
+    @srcmd5   = params[:srcmd5]
+    @revision_parameter = params[:rev]
+    
     begin 
       @buildresult = find_hashed(Buildresult, :project => @project, :package => @package, :view => 'status', 
                                               :expires_in => 5.minutes ) unless @spider_bot
@@ -26,20 +34,19 @@ class PackageController < ApplicationController
     end unless @spider_bot
     @revision = params[:rev]
     fill_status_cache unless @buildresult.blank?
-    set_linking_packages
+    set_linking_packages    
     @expand = 1
     @expand = begin Integer(params[:expand]) rescue 1 end if params[:expand]
     @expand = 0 if @spider_bot
-    set_file_details
-    begin
-      @current_rev = Package.current_rev(@project.name, @package.name)
-      #TODO generate file list here:
-      @package.files.size unless @spider_bot
-      @linkinfo = @package.linkinfo
-    rescue ActiveXML::Transport::ForbiddenError => e
-      message = ActiveXML::Transport.extract_error_message(e)[0]
-      flash[:warn] = "Files could not be accessed: #{message}"
+    if set_file_details
+      unless @forced_unexpand.blank?
+        flash[:error] = "Files could not be expanded: #{@forced_unexpand}"
+      end
+    elsif @revision_parameter
+      flash[:error] = "No such revision: #{@revision_parameter}"
+      redirect_to :back
     end
+
 
     @requests = []
     # TODO!!!
@@ -146,31 +153,6 @@ class PackageController < ApplicationController
     render :partial => 'commit_item', :locals => {:rev => params[:revision] }
   end
 
-  def files
-    if (params[:rev] || params[:srcmd5]) && lockout_spiders
-       return
-    end
-    @package.free_directory if discard_cache? || @revision != params[:rev] || @expand != params[:expand] || @srcmd5 != params[:srcmd5]
-    @srcmd5   = params[:srcmd5]
-    @revision_parameter = params[:rev]
-    begin
-      @current_rev = Package.current_rev(@project.name, @package.name)
-    rescue ActiveXML::Transport::ForbiddenError => e
-      message, _, _ = ActiveXML::Transport.extract_error_message e
-      flash[:error] = "Could not access files: #{message}"
-      redirect_to :action => :show, :project => @project.name, :package => @package.name and return
-    end
-
-    if set_file_details
-      unless @forced_unexpand.blank?
-        flash[:error] = "Files could not be expanded: #{@forced_unexpand}"
-      end
-    else
-      flash[:error] = "No such revision: #{@revision_parameter}"
-      redirect_to :back
-    end
-  end
-
   def revisions
     begin
       @max_revision = Package.current_rev(@project, @package.name).to_i
@@ -240,9 +222,10 @@ class PackageController < ApplicationController
     @forced_unexpand ||= ''
     
     begin
+      @current_rev = Package.current_rev(@project.name, @package.name)
       if not @revision and not @srcmd5
         # on very first page load only
-        @revision = Package.current_rev(@project.name, @package.name)
+        @revision = @current_rev
       end
 
       if @srcmd5
@@ -250,9 +233,10 @@ class PackageController < ApplicationController
       else
         @files = @package.files(@revision, @expand)
       end
+      @linkinfo = @package.linkinfo
     rescue ActiveXML::Transport::Error => e
       if @expand == 1
-        @forced_unexpand, _, _ = ActiveXML::Transport.extract_error_message e
+        @forced_unexpand = e.summary
         @expand = 0
         return set_file_details
       end
