@@ -99,7 +99,6 @@ class PatchinfoController < ApplicationController
     end
     @category = @file.category.to_s
     @rating = @file.rating.to_s if @file.rating
-    debugger
     @description = @summary = @category = nil
     @category = @file.category.to_s       if @file.has_element? 'category'
     @rating = @file.rating.to_s           if @file.has_element? 'rating'
