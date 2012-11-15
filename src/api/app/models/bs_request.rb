@@ -327,7 +327,7 @@ class BsRequest < ActiveRecord::Base
   end
 
   def send_state_change
-    Suse::Backend.send_notification("SRCSRV_REQUEST_STATECHANGE", self.notify_parameters) if self.state_changed?
+    Suse::Backend.send_notification("SRCSRV_REQUEST_STATECHANGE", self.notify_parameters) if self.state_was.to_s != self.state.to_s
   end
 
   def notify_parameters(ret = {})
