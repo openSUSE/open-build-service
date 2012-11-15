@@ -421,11 +421,11 @@ module ApplicationHelper
     end
 
     style += ".CodeMirror-scroll {\n"
-    style += "height: #{opts[:height]}\n"
+    style += "height: #{opts[:height]};\n"
     if opts[:height] == 'auto'
       style += "overflow: auto;\n"
     end
-    style += "width: #{opts[:width]}\n}\n"
+    style += "width: #{opts[:width]}; \n}\n"
     content_for(:head_style, style)
 
   end
