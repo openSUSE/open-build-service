@@ -16,9 +16,8 @@ class PatchinfoController < ApplicationController
         redirect_to :controller => 'project', :action => 'show'
       end
     end
-    @tracker = "bnc"
-    @package = Package.find("patchinfo", :project => @project )
-    @file = Patchinfo.find(:project => @project, :package => @package )
+    @package = find_cached(Package, "patchinfo", :project => @project )
+    @file = find_cached(Patchinfo, :project => @project, :package => @package )
     unless @file
       flash[:error] = "Patchinfo not found for #{params[:project]}"
       redirect_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
@@ -75,15 +74,15 @@ class PatchinfoController < ApplicationController
     if @file.has_element?("issue")
       @file.each_issue do |a|
         if a.text == ""
-          get_issue_sum(a.value(:id), a.tracker)
+          get_issue_sum(a.tracker, a.value(:id))
         end
         issue = Array.new
         issueid = a.value(:id)
         issueurl = IssueTracker.find(:name => a.tracker)
         issueurl = issueurl.each("/issue-tracker/show-url").first.text
         issueurl = issueurl.sub(/@@@/, issueid)
-        issue << issueid
         issue << a.tracker
+        issue << issueid
         issue << issueurl
         issue << a.text
         @issues << issue
@@ -100,7 +99,6 @@ class PatchinfoController < ApplicationController
     end
     @category = @file.category.to_s
     @rating = @file.rating.to_s if @file.rating
-
     @description = @summary = @category = nil
     @category = @file.category.to_s       if @file.has_element? 'category'
     @rating = @file.rating.to_s           if @file.has_element? 'rating'
@@ -150,9 +148,9 @@ class PatchinfoController < ApplicationController
       relogin = params[:relogin]
       reboot = params[:reboot]
       zypp_restart_needed = params[:zypp_restart_needed]
-      if params[:issue]
+      if params[:issueid]
         issues = Array.new
-        params[:issue].each_with_index do |new_issue, index|
+        params[:issueid].each_with_index do |new_issue, index|
           issue = Array.new
           issue << new_issue
           issue << params[:issuetracker][index]
@@ -202,7 +200,8 @@ class PatchinfoController < ApplicationController
       rescue Timeout::Error 
         flash[:error] = "Timeout when saving file. Please try again."
       end
-      Patchinfo.free_cache(:project=> @project, :package => @package)
+      Package.free_cache( :all, :project => @project.name )
+      Package.free_cache( @package.name, :project => @project )
       redirect_to :controller => "patchinfo", :action => "show",
         :project => @project.name, :package => @package
     end
@@ -212,8 +211,8 @@ class PatchinfoController < ApplicationController
       @binaries = params[:selected_binaries]
       @binarylist = params[:available_binaries]
       @issues = Array.new
-      if params[:issue]
-        params[:issue].each_with_index do |new_issue, index|
+      if params[:issueid]
+        params[:issueid].each_with_index do |new_issue, index|
           issue = Array.new
           issue << new_issue
           issue << params[:issuetracker][index]
@@ -252,6 +251,10 @@ class PatchinfoController < ApplicationController
     redirect_to :controller => 'project', :action => 'show', :project => @project
   end
 
+  def delete_dialog
+  end
+
+
   def valid_summary? name
     name != nil and name =~ /^.{10,}$/m
   end
@@ -262,45 +265,63 @@ class PatchinfoController < ApplicationController
   end
 
   def new_tracker
-    @issue = Array.new
-    @issue << params[:issueid]
-    @issue << params[:tracker]
-    issueurl = IssueTracker.find(:name => params[:tracker])
-    issueurl = issueurl.each("/issue-tracker/show-url").first.text
-    issueurl = issueurl.sub(/@@@/, params[:issueid])
-    @issue << issueurl
-    get_issue_sum(params[:issueid], params[:tracker])
-    @issue << @issuesum
-    render :nothing => true, :json => @issue
+    #new_issues = list of new issues to add
+    new_issues = params[:issues]
+    #collection with all informations of the new issues
+    issue_collection = Array.new
+    error = ""
+    new_issues.each do |new_issue|
+      #issue = collecting all informations of an new issue
+      issue = Array.new
+      if new_issue.starts_with? "CVE-"
+        issue[0] = "cve"
+        issue[1] = new_issue
+      elsif
+        issue = new_issue.split("#")
+      end
+      begin
+        issueurl = IssueTracker.find(:name => issue[0])
+        issueurl = issueurl.each("/issue-tracker/show-url").first.text
+        issueurl = issueurl.sub(/@@@/, issue[1])
+        issue << issueurl
+        get_issue_sum(issue[0], issue[1])
+        issue << @issuesum
+        issue_collection << issue
+      rescue
+        error += "#{issue[0]} "
+      end
+    end
+    error += "has no valid format" if error != ""
+    render :nothing => true, :json => { :error => error, :issues => issue_collection}
   end
 
-  def get_issue_sum(issueid, tracker)
-    if tracker != "cve"
+  def get_issue_sum(tracker, issueid)
+    if !issueid.starts_with? "CVE-"
       bug = tracker + "#" + issueid
     else
       bug = issueid
     end
     path = "/issue_trackers/#{CGI.escape(tracker)}"
-    tracker_result = ActiveXML::Node.new(frontend.transport.direct_http( URI(path), :method => "GET" ))
+    tracker_result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => "GET"))
     regexp = "^"
     regexp += tracker_result.regex.text
     regexp += "$"
     regexp = Regexp.new(regexp)
     if bug =~ regexp
       path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}"
-      result = ActiveXML::Node.new(frontend.transport.direct_http( URI(path), :method => "GET" ))
-      if result.summary == nil
+      result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => "GET"))
+      if result.summary.nil?
         path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}?force_update=1"
-        result = ActiveXML::Node.new(frontend.transport.direct_http( URI(path), :method => "GET" ))
+        result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => "GET"))
       end
       @issuesum = result.summary.text if result.summary
       @issuesum = "" if !result.summary
       @issuesum.gsub!(/\\|'/) { |c| "" }
     else
-      @issuesum = "invalid"
+      @error = "#{bug} has no valid format"
     end
-  end 
-    
+  end
+
   private
 
   def get_tracker
@@ -340,7 +361,7 @@ class PatchinfoController < ApplicationController
     unless params[:package].blank?
       @package = Package.find( params[:package], :project => @project )
     end
-    @file = Patchinfo.find( :project => @project, :package => @package )
+    @file = Patchinfo.find(:project => @project.to_s, :package => @package.to_s)
     opt = {:project => @project.name, :package => @package}
     opt.store(:patchinfo, @patchinfo.to_s)
     @patchinfo = Patchinfo.find(opt)

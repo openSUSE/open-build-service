@@ -17,6 +17,7 @@
           </p>
           <p>
             <strong><%=image_tag("info.png", :title =>"Enter a short summary. Mainpackage: shortdescription of the mainfix", :alt => "Summaryinfo")%> Summary:</strong>
+
             <%=  text_area_tag 'summary', @summary,  :size => "60x1" %>
           </p>
           <p>
@@ -39,11 +40,11 @@
               <% @issues.reject{|issue| issue.blank? }.each do |issue| %>
                 <div id="issue_<%= issue[0] %>_<%= issue[1] %>">
                   <%= link_to image_tag('bug_delete.png', :alt => "Remove Bug", :title => "Remove Bug"), '#', :onclick => "$('#issue_#{issue[0]}_#{issue[1]}').remove(); return false;", :style => "clear:both;", :id => "remove_#{issue[0]}_#{issue[1]}" %>
-                  <%= hidden_field_tag "issue[]", "#{issue[0]}", :id => "issueid_#{issue[0]}_#{issue[1]}" %>
-                  <%= hidden_field_tag "issuetracker[]", "#{issue[1]}", :id => "issuetracker_#{issue[0]}_#{issue[1]}" %>
+                  <%= hidden_field_tag "issueid[]", "#{issue[1]}", :id => "issueid_#{issue[0]}_#{issue[1]}" %>
+                  <%= hidden_field_tag "issuetracker[]", "#{issue[0]}", :id => "issuetracker_#{issue[0]}_#{issue[1]}" %>
                   <%= hidden_field_tag "issueurl[]", "#{issue[2]}", :id => "issueurl_#{issue[0]}_#{issue[1]}" %>
                   <%= hidden_field_tag "issuesum[]", "#{issue[3]}", :id => "issuesum_#{issue[0]}_#{issue[1]}" %>
-                  <%= link_to "#{issue[1].to_s} #{issue[0].to_s}", issue[2].to_s%>:&nbsp;
+                  <%= link_to "#{issue[0].to_s}##{issue[1].to_s}", issue[2].to_s%>:&nbsp;
                   <div id="issue_desc_<%= issue[0]%>_<%=issue[1]%>" onclick="change_issue_desc('<%=issue[0]%>_<%=issue[1]%>');">
                     <%=issue[3].to_s %>
                   </div>
@@ -58,9 +59,10 @@
           </div>
           <div class="box show_right show_left" style="margin-top:5px;">
             <p>
-              <%= select_tag "tracker", options_for_select(@trackerlist, :selected => @tracker)%>
-              <%= text_field_tag 'issueid', @issueid %>
-              <%= link_to image_tag('bug_add.png', :alt => "Add Bug", :title => "Add an additional bug here (must have 6 numbers) single or a comma-separated list e.g.: \"123456, 654321\""), '#', :onclick => 'append_bug($("#issueid").val(), $("#tracker").val()); return false;' %>
+              <label for='issue'>Add an additional bug (single or a comma-separated list e.g.: "bnc#123456, bgo#654321,CVE-2012-1234)"</label>
+              <input type="text" id="issue" name="issuelist" value="<%=@issueid%>"/>
+
+              <%= link_to image_tag('bug_add.png', :alt => "Add Bug", :title => "Add an additional bug here (must have 6 numbers) single or a comma-separated list e.g.: \"123456, 654321\""), '#', :onclick => 'append_bug($("#issue").val()); return false;' %>
               <%= image_tag('ajax-loader.gif', :id => "issue_spinner", :class => "hidden") %>
             </p>
           </div>
@@ -94,7 +96,7 @@
               <input id="remove" type="button" value="&lt;" style="width:28px;"/><br/>
             </div>
             <div id="sele_bin" style="width:44%; float:left;">
-              <% if !selected_bin.empty? %>
+              <% if !selected_bin.blank? %>
                 <%= select_tag "selected_binaries", options_for_select(selected_bin), :multiple => true, :size => 6, :style => "width:100%;"%>
               <% else %>
                 <%= select_tag "selected_binaries", "<option value=''></option>".html_safe, :multiple => true, :size => 6, :style => "width:100%;" %>
@@ -109,7 +111,7 @@
             <p><strong>Block release?</strong>
               <%= check_box_tag("block", true, @block, :onchange => "enable_block_reason()") %></p>
             <p><strong>Reason: </strong>
-              <%=text_field_tag "block_reason", @block_reason, :size => 45 %></p>
+              <%=text_field_tag "block_reason", @block_reason, :style => "width: 99%" %></p>
           </div>
           <div style="margin-left:5px;">
             <%= submit_tag "Save Patchinfo" %>
@@ -120,62 +122,66 @@
       </div>
     </div>
   <%= content_for :head_javascript do %>
-    function enable_block_reason(){
-    if ($("input[name='block']:checked").val() == "true"){
-    $("#block_reason").removeAttr("disabled");
-    }
-    else{
-    $("#block_reason").attr("disabled", "true");
-    }
-    }
-
-    function append_bug(issueid, tracker) {
-    $('#issue_spinner').show();
-    var issues = new Array();
-    issueid = issueid.replace(/, /g, ',');
-    issues = issueid.split(",");
-    jQuery.unique(issues)
-    for(var i = 0; i < issues.length; i++) {
-    issues[i] = issues[i].replace(/ /, '');
-    if ($("div#issue_" + issues[i] + "_" + tracker).length > 0){
-    alert("Tracker " + tracker + "issue " + issues[i] + " already exists");
-    $("#issue_spinner").hide();
-    }
-    else{
-    $.ajax({
-    url: "new_tracker",
-    type: "get",
-    dataType: "json",
-    data:{
-    issueid: issues[i],
-    tracker: tracker,
-    project: $("#project").val(),
-    package: $("#package").val()
-    },
-    success: function(data){
-    $("#issue_spinner").hide();
-    $("#issuelist").append( "<div id='issue_" + data[0] + "_" + data[1] + "'>" +
-      "<a id='remove_" + data[0] + "_" + data[1] +"' onclick='$(\"#issue_" + data[0] + "_" + data[1] + "\").remove(); return false;' href='#'>" +
-	      "<img src=' + <%= asset_path('bug_delete.png') %>' title='Remove Bug' alt='Remove Bug'></a>" +
-      "<input type='hidden' name='issue[]' id='issueid_" + data[0] + "_" + data[1] + "' value='" + data[0] +  "'/>" +
-      "<input type='hidden' name='issuetracker[]' id='issuetracker_" + data[0] + "_" + data[1] + "' value='" + data[1] +  "'/>" +
-      "<input type='hidden' name='issueurl[]' id='issueurl_" + data[0] + "_" + data[1] + "' value='" + data[2] +  "'/>" +
-      "<input type='hidden' name='issuesum[]' id='issuesum_" + data[0] + "_" + data[1] + "' value='" + data[3] +  "'/>" +
-      "<a href=\"" + data[2] + "\">" + data[1] + " " + data[0] + "</a>" + ":<br/>" +
-            "<div id='issue_desc_" + data[0] + "_" + data[1] + "' onclick='change_issue_desc(\"" + data[0] +
-                    "_" + data[1] + "\");'>" + data[3] + "</div>" +
-      "<div id='change_desc_" + data[0] + "_" + data[1] + "' style='display:none;'>" +
-        "<input id='desc_" + data[0] + "_" + data[1] + "' type='text' value='" + data[3] + "' size=" + data[3].length +
-                " name='desc_" + data[0] + "_" + data[1] + "'/><a onclick='changeDesc(\"ok\", \"" + data[0] + "_" + data[1] + "\"); return false;' href='#'>" +
-          "<img title='Change description' src='/images/ok.png' alt='Ok'></a>" +
-        "<a onclick='changeDesc(\"cancel\", \"" + data[0] + "_" + data[1] + "\"); return false;' href='#'>" +
-          "<img title='Cancel changes' src='/images/req-decline.png' alt='Cancel'></a></div></div>");
+      function enable_block_reason(){
+        if ($("input[name='block']:checked").val() == "true"){
+          $("#block_reason").removeAttr("disabled");
+        }
+        else{
+          $("#block_reason").attr("disabled", "true");
+        }
       }
-    });
-    };
-    };
-    return false;
-    }
+
+      function append_bug(issue) {
+        if (issue.length > 0){
+          $("#issue_spinner").show();
+          var issues = new Array();
+          issue = issue.replace(/ /g, "");
+          issues = issue.split(",");
+          jQuery.unique(issues);
+          $.ajax({
+            url: "new_tracker",
+            type: "get",
+            dataType: "json",
+            data:{
+              issues: issues,
+              project: $("#project").val(),
+              package: $("#package").val()
+            },
+            success: function(data){
+              if (data.error != ""){
+                alert(data.error);
+              };
+              jQuery.each(data.issues, function(){
+                if ($("div#issue_" + this[0] + "_" + this[1]).length > 0){
+                  return;
+                }
+                else{
+                  $("#issuelist").append( "<div id='issue_" + this[0] + "_" + this[1] + "'>" +
+                    "<a id='remove_" + this[0] + "_" + this[1] +"' onclick='$(\"#issue_" + this[0] + "_" + this[1] + "\").remove(); return false;' href='#'> " +
+	                "<img src='<%= asset_path('bug_delete.png') %>' title='Remove Bug' alt='Remove Bug'></a> " +
+                    "<input type='hidden' name='issueid[]' id='issueid_" + this[0] + "_" + this[1] + "' value='" + this[1] +  "'/>" +
+                    "<input type='hidden' name='issuetracker[]' id='issuetracker_" + this[0] + "_" + this[1] + "' value='" + this[0] +  "'/>" +
+                    "<input type='hidden' name='issueurl[]' id='issueurl_" + this[0] + "_" + this[1] + "' value='" + this[2] +  "'/>" +
+                    "<input type='hidden' name='issuesum[]' id='issuesum_" + this[0] + "_" + this[1] + "' value='" + this[3] +  "'/>" +
+                    "<a href=\"" + this[2] + "\" target='_blank'>" + this[0] + "#" + this[1] + "</a>" + ":<br/>" +
+                    "<div id='issue_desc_" + this[0] + "_" + this[1] + "' onclick='change_issue_desc(\"" + this[0] +
+                    "_" + this[1] + "\");'>" + this[3] + "</div>" +
+                    "<div id='change_desc_" + this[0] + "_" + this[1] + "' style='display:none;'>" +
+                    "<input id='desc_" + this[0] + "_" + this[1] + "' type='text' value='" + this[3] + "' size=" + this[3].length +
+                    " name='desc_" + this[0] + "_" + this[1] + "'/><a onclick='changeDesc(\"ok\", \"" + this[0] + "_" + this[1] + "\"); return false;' href='#'>" +
+                    "<img title='Change description' src='<%=asset_path('ok.png')%>', alt='Ok'></a>" +
+                    "<a onclick='changeDesc(\"cancel\", \"" + this[0] + "_" + this[1] + "\"); return false;' href='#'>" +
+                    "<img title='Cancel changes' src='<%=asset_path('req-decline.png')%>', alt='Cancel'></a></div></div>");
+
+                }
+              });
+              $("#issue").val("");
+              $("#issue_spinner").hide();
+            }
+          });
+        }
+        return false;
+      }
 
     function update_patchinfo() {
     $("#update_spinner").show();
@@ -230,7 +236,6 @@
 
     $(document).ready(function(){
     document.onkeypress = stopRKey;
-
     $("form").submit(function() {
     $('#selected_binaries option').attr('selected',true);
     $('#available_binaries option').attr('selected',true);
