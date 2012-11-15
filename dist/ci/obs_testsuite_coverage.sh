@@ -59,7 +59,7 @@ setup_api
 echo "Enter API rails root and running rcov"
 cd src/api
 mkdir -p coverage
-rake --trace test || true
+rake test --trace || true
 cd ../..
 
 echo "Enter WebUI rails root and running rcov"
@@ -68,7 +68,7 @@ setup_webui
 
 cd src/webui
 mkdir -p coverage
-rake --trace test || true
+rake test --trace || true
 cd ../..
 
 cd src/webui-testsuite

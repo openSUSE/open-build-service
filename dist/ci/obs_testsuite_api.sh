@@ -56,7 +56,7 @@ setup_api
 cd src/api
 
 echo "Invoke rake"
-bundle exec rake --trace ci:setup:minitest test CI_REPORTS=results || ret=1
+bundle exec rake ci:setup:minitest test CI_REPORTS=results --trace || ret=1
 cd ../..
 
 echo "Output test.log"

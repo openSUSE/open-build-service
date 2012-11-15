@@ -45,7 +45,7 @@ setup_api
 
 echo "Enter API rails root and running rcov"
 cd src/api
-bundle exec rake --trace ci:setup:minitest test CI_REPORTS=results || ret=1
+bundle exec rake ci:setup:minitest test CI_REPORTS=results --trace || ret=1
 cd ../..
 
 echo "Enter WebUI rails root and running rcov"
@@ -53,7 +53,7 @@ setup_api
 setup_webui
 
 cd src/webui
-bundle exec rake --trace ci:setup:minitest test CI_REPORTS=results || ret=1
+bundle exec rake ci:setup:minitest test CI_REPORTS=results --trace || ret=1
 cd ../..
 
 cd src/webui-testsuite
