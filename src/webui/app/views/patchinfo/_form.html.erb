@@ -59,7 +59,7 @@
           </div>
           <div class="box show_right show_left" style="margin-top:5px;">
             <p>
-              <label for='issue'>Add an additional bug here (must have 6 numbers) single or a comma-separated list e.g.: "123456, 654321"</label>
+              <label for='issue'>Add an additional bug (single or a comma-separated list e.g.: "bnc#123456, bgo#654321,CVE-2012-1234)"</label>
               <input type="text" id="issue" name="issuelist" value="<%=@issueid%>"/>
 
               <%= link_to image_tag('bug_add.png', :alt => "Add Bug", :title => "Add an additional bug here (must have 6 numbers) single or a comma-separated list e.g.: \"123456, 654321\""), '#', :onclick => 'append_bug($("#issue").val()); return false;' %>
@@ -133,7 +133,7 @@
 
       function append_bug(issue) {
         if (issue.length > 0){
-          $('#issue_spinner').show();
+          $("#issue_spinner").show();
           var issues = new Array();
           issue = issue.replace(/ /g, "");
           issues = issue.split(",");
@@ -176,10 +176,10 @@
                 }
               });
               $("#issue").val("");
+              $("#issue_spinner").hide();
             }
           });
         }
-        $("#issue_spinner").hide();
         return false;
       }
 
