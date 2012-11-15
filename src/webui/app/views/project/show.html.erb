@@ -122,6 +122,10 @@
                   <li>
                     <%= link_to(sprite_tag( 'plugin_add' ) + 'Create patchinfo', :controller => 'patchinfo', :action => :new_patchinfo, :project => @project) %>
                   </li>
+                <% else %>
+                  <li>
+                    <%= link_to(sprite_tag( 'information' ) + 'Show patchinfo', :controller => 'patchinfo', :action => 'show', :project => @project, :package => 'patchinfo') %>
+                   </li>
                 <% end %>
                 <% if !@is_incident_project && @releasetargets.length > 0 %>
                   <li>
