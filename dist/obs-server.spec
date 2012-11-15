@@ -18,9 +18,9 @@
 
 Name:           obs-server
 Summary:        The Open Build Service -- Server Component
-License:        GPL-2.0 ; GPL-3.0
+License:        GPL-2.0 and GPL-3.0
 Group:          Productivity/Networking/Web/Utilities
-Version:        2.3.4
+Version:        2.3.7
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
