@@ -1,7 +1,6 @@
 # vim: sw=2 et
 
 require 'digest/md5'
-require 'iconv'
 
 require 'action_view/helpers/asset_tag_helper.rb'
 module ActionView
@@ -356,20 +355,17 @@ module ApplicationHelper
   end
 
   def force_utf8_and_transform_nonprintables(text)
-    begin
-      new_text = Iconv.conv('utf-8', 'utf-8', text)
-    rescue Iconv::IllegalSequence, Iconv::InvalidCharacter
-      new_text = 'You probably tried to display binary garbage, but got this beautiful message instead!'
+    unless text.valid_encoding?
+      text = 'You probably tried to display binary garbage, but got this beautiful message instead!'
     end
     # Ged rid of stuff that shouldn't be part of PCDATA:
-    new_text.gsub!(/([^a-zA-Z0-9&;<>\/\n \t()])/n) do
+    return text.gsub(/([^a-zA-Z0-9&;<>\/\n \t()])/n) do
       if $1[0].getbyte(0) < 32
         ''
       else
         $1
       end
     end
-    return new_text
   end
 
   # Same as redirect_to(:back) if there is a valid HTTP referer, otherwise redirect_to()

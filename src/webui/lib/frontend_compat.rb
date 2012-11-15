@@ -148,6 +148,6 @@ class FrontendCompat
   end
 
   def transport
-    @transport ||= ActiveXML::transport
+    ActiveXML::transport
   end
 end

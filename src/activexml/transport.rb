@@ -379,13 +379,13 @@ module ActiveXML
     def handle_response( http_response )
       case http_response
       when Net::HTTPSuccess, Net::HTTPRedirection
-        return http_response.read_body
+        return http_response.read_body.force_encoding("UTF-8")
       when Net::HTTPNotFound
-        raise NotFoundError, http_response.read_body
+        raise NotFoundError, http_response.read_body.force_encoding("UTF-8")
       when Net::HTTPUnauthorized
-        raise UnauthorizedError, http_response.read_body
+        raise UnauthorizedError, http_response.read_body.force_encoding("UTF-8")
       when Net::HTTPForbidden
-        raise ForbiddenError, http_response.read_body
+        raise ForbiddenError, http_response.read_body.force_encoding("UTF-8")
       when Net::HTTPGatewayTimeOut
         raise Timeout::Error
       when Net::HTTPBadGateway
@@ -393,7 +393,7 @@ module ActiveXML
       end
       message = http_response.read_body
       message = http_response.to_s if message.blank?
-      raise Error, message
+      raise Error, message.force_encoding("UTF-8")
     end
     
     def self.extract_error_message exception
