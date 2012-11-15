@@ -7,9 +7,8 @@
 #
 class TestCase
 
-  attr_reader :name, :status, :message, :screenshot, 
-              :time_started, :time_completed, :stderr, :stdout
-  attr_writer :status
+  attr_reader :name, :message, :screenshot, :time_started, :time_completed, :stderr, :stdout
+  attr_accessor :status, :runtime
 
   class LimitsHaveBeenExpanded < Exception; end
 

@@ -227,17 +227,17 @@ time_started = Time.now
 builder.testsuite do
   TestRunner.run(options[:stop_on_fail]) do |test|
     if test.status == :ready then
-      print((test.name.to_s+"                                               ")[0,55])
+      print("#{test.name}                                               "[0,55])
       STDOUT.flush
     else
       puts case(test.status)
            when :pass then
              passed += 1
-             test.status.to_s.bold.green
+             test.status.to_s.bold.green + " (#{test.runtime})"
            when :fail then 
              failed += 1
              fail_details += "\n#{failed}) #{test.name}:\n#{test.message}".red
-             test.status.to_s.bold.red
+             test.status.to_s.bold.red + " (#{test.runtime})"
            when :skip then
              skipped += 1
              test.status.to_s.bold.blue

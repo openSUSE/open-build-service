@@ -1,3 +1,5 @@
+require 'benchmark'
+
 # ==============================================================================
 # Provides functionality to find, load and run tests from one/many test-cases.
 # @see TestCase
@@ -31,7 +33,7 @@ class TestRunner
         next
       end
       yield test if block_given?
-      test.run
+      test.runtime = Benchmark.realtime { test.run }
       @@results[test.name] = test.status unless test.status == :rescheduled
       @@previous_test = @@current_test
       yield test if block_given?
