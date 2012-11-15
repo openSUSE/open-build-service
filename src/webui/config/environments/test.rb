@@ -44,3 +44,6 @@ CONFIG['proxy_auth_login_page'] = "https://build.opensuse.org/ICSLogin"
 CONFIG['proxy_auth_logout_page'] = "/cmd/ICSLogout"
 CONFIG['proxy_auth_mode'] = :off
 
+# some defaults enforced
+CONFIG['theme'] = 'neutral'
+CONFIG['use_static'] = nil

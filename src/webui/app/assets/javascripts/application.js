@@ -91,53 +91,6 @@ function setup_buildresult_tooltip(element_id, url) {
     });
 }
 
-
-// include menu methods manually provided by bento menu otherwise
-function setup_favorites() {
-    if (!$('#item-favorites').offset()) {
-        return;
-    }
-    $('#menu-favorites').hide();
-
-    var position_menu = function(button_id, menu_id) {
-        var top = $('#global-navigation').height()-12;
-        if ($.browser.webkit) top += 1;
-        var left = $('#' + button_id).offset().left-15;
-        $('#' + menu_id).css({
-            left:'',
-            top:''
-        });
-        $('#' + menu_id).offset({
-            left:left,
-            top:top
-        });
-    }
-
-    // copied from global-navigation.js
-    $('#global-navigation li[id^=item-]').click(function(){
-        var name = $(this).attr('id').substring(5);
-        $("ul[id^=menu-]:visible").each(function() {
-            $(this).fadeOut('fast');
-        } );
-
-        if( $(this).hasClass('selected') ) {
-            $('#global-navigation li.selected').removeClass('selected');
-        } else {
-            $('#global-navigation li.selected').removeClass('selected');
-            position_menu('item-' + name, 'menu-' + name);
-            $('#menu-' + name).fadeIn();
-            $(this).addClass('selected');
-        }
-        return false;
-    });
-
-    $('.global-navigation-menu').mouseleave(function(){
-        $('#global-navigation li.selected').removeClass('selected');
-        $(this).fadeOut();
-    });
-
-}
-
 function fillEmptyFields() {
     if( document.getElementById('username').value == '' ){
         document.getElementById('username').value = "_";

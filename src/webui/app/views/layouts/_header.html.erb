@@ -6,11 +6,12 @@
         <%= link_to image_tag( "obs-logo_small.png", :height => 26 ) , { :controller => 'main',
               :action => :index }, { :id => "header-logo"} -%>
 
-        <% if user -%>
         <ul id="global-navigation">
-            <li id="item-favorites" style="float: right;"><a href="<%= url_for :controller => "home", :action => :list_my %>">Watchlist</a></li>
+  	  <li id="item-download"><a href="http://www.buildservice.org/">Download</a></li>
+	    <% if user -%>
+              <li id="item-favorites" style="float: right;"><a href="<%= url_for :controller => "home", :action => :list_my %>">Watchlist</a></li>
+            <% end -%>
         </ul>
-        <% end -%>
 
         <%= render :partial => "layouts/watch_and_search" %>
 

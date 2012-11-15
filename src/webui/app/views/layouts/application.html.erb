@@ -26,8 +26,6 @@
         <%= yield :ready_function %>
         <% if CONFIG['theme'] == 'bento' %>
           callPiwik();  
-        <% else %>
-          setup_favorites();
         <% end %>
       });
     <% end %>

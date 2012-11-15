@@ -23,10 +23,8 @@
   <% end %>
 </div>
 
-<%= javascript_tag do %>
-  $(document).ready(function() {
-    $('.x').bind('ajax:success', function (event, data, status, xhr) {
-      $("#__watchlist").html(data);
-    });
-  });
+<% content_for :ready_function do %>
+   $('.x').bind('ajax:success', function (event, data, status, xhr) {
+     $("#__watchlist").html(data);
+   });
 <% end %>
