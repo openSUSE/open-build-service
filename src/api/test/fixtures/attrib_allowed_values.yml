@@ -18,3 +18,11 @@ attrib_allowed_values_67:
   id: 67
   attrib_type_id: 59
   value: neutral
+Maintainer_DisableDevel:
+  id: 77
+  attrib_type_id: 77
+  value: DisableDevel
+Maintainer_BugownerOnly:
+  id: 78
+  attrib_type_id: 77
+  value: BugownerOnly
