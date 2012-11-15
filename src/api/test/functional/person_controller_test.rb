@@ -78,22 +78,32 @@ class PersonControllerTest < ActionController::IntegrationTest
     
     # get original data
     get "/person/tom"
-    
-    new_name = "Freddy Cool"
-    userinfo_xml = @response.body
-    # puts "raw user info: #{userinfo_xml}"
     assert_response :success
     
     # change the xml data set that came as response body
+    new_name = "Freddy Cool"
+    userinfo_xml = @response.body
     doc = REXML::Document.new( userinfo_xml )
-    d = doc.elements["/person/realname"]
-    d.text = new_name
+    doc.elements["//realname"].text = new_name
+    doc.elements["//watchlist"].add_element "project"
+    doc.elements["//project"].add_attribute REXML::Attribute.new('name', 'home:tom')
     
-    
-    # Write changed data back
+    # Write changed data back and validate result
     prepare_request_valid_user
     put "/person/tom", doc.to_s
     assert_response :success
+    get "/person/tom"
+    assert_response :success
+    assert_xml_tag :tag => "realname", :content => new_name
+    assert_xml_tag :tag => "project", :attributes => { :name => "home:tom" }
+
+    # remove watchlist item
+    doc.elements["//watchlist"].delete_element "project"
+    put "/person/tom", doc.to_s
+    assert_response :success
+    get "/person/tom"
+    assert_response :success
+    assert_no_xml_tag :tag => "project", :attributes => { :name => "home:tom" }
 
     prepare_request_with_user "adrian", "so_alone"
     put "/person/tom", doc.to_s

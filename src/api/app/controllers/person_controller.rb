@@ -255,7 +255,7 @@ class PersonController < ApplicationController
     end
 
     add_to_watchlist.each do |name|
-      user.watched_projects.create :name => name
+      user.watched_projects.new(:name => name)
     end
     true
   end
