@@ -56,6 +56,7 @@
 <% end %>
 
 <% unless @files.blank? or @spider_bot %>
+  <%= render :partial => 'links' if (@package.linkinfo && !@package.linkinfo.has_attribute?('error')) %>
   <% if @revision && !(@revision == @current_rev)%>
     <h3>Revision <%= @revision %> (latest revision is <%=  @current_rev %>)</h3>
   <% else %>

@@ -28,6 +28,8 @@ class PackageController < ApplicationController
     fill_status_cache unless @buildresult.blank?
     set_linking_packages
     @expand = 1
+    @expand = begin Integer(params[:expand]) rescue 1 end if params[:expand]
+    @expand = 0 if @spider_bot
     set_file_details
     begin
       @current_rev = Package.current_rev(@project.name, @package.name)
@@ -149,7 +151,6 @@ class PackageController < ApplicationController
        return
     end
     @package.free_directory if discard_cache? || @revision != params[:rev] || @expand != params[:expand] || @srcmd5 != params[:srcmd5]
-    Service.free_cache(:all) if discard_cache?
     @srcmd5   = params[:srcmd5]
     @revision_parameter = params[:rev]
     begin
@@ -160,10 +161,6 @@ class PackageController < ApplicationController
       redirect_to :action => :show, :project => @project.name, :package => @package.name and return
     end
 
-    @expand = 1
-    @expand = begin Integer(params[:expand]) rescue 1 end if params[:expand]
-    @expand = 0 if @spider_bot
-    
     if set_file_details
       unless @forced_unexpand.blank?
         flash[:error] = "Files could not be expanded: #{@forced_unexpand}"
@@ -172,12 +169,6 @@ class PackageController < ApplicationController
       flash[:error] = "No such revision: #{@revision_parameter}"
       redirect_to :back
     end
-  end
-
-  def service_parameter_value
-    @values=Service.findAvailableParameterValues(params[:servicename], params[:parameter])
-    render :partial => 'service_parameter_value_selector',
-           :locals => { :servicename => params[:servicename], :parameter => params[:parameter], :number => params[:number], :value => params[:value], :setid => params[:setid] }
   end
 
   def revisions
@@ -198,9 +189,6 @@ class PackageController < ApplicationController
       @visible_commits = [9, @upper_bound].min # Don't show more than 9 requests
     end
     @lower_bound = [1, @upper_bound - @visible_commits + 1].max
-  end
-
-  def add_service
   end
 
   def submit_request_dialog
@@ -248,34 +236,6 @@ class PackageController < ApplicationController
     redirect_to(:action => 'show', :project => params[:project], :package => params[:package])
   end
 
-  def service_parameter
-    @serviceid = params[:serviceid]
-    @servicename = params[:servicename]
-    @services = find_cached(Service, project: @project, package: @package )
-    @parameters = @services.getParameters(@serviceid)
-  end
-
-  def update_parameters
-    required_parameters :project, :package, :serviceid
-    @project = params[:project]
-    @package = params[:package]
-    @serviceid = params[:serviceid]
-    @services = find_cached(Service,  :project => @project, :package => @package )
-
-    parameters=[]
-    params.keys.each do |key|
-      next unless key =~ /^parameter_/
-      name = key.gsub(/^parameter_([^_]*)_/, '')
-      parameters << { :name => name, :value => params[key] }
-    end
-
-    @services.setParameters( @serviceid, parameters )
-    @services.save
-    Service.free_cache :project => @project, :package => @package
-
-    redirect_to :action => 'files', :project => @project, :package => @package
-  end
-
   def set_file_details
     @forced_unexpand ||= ''
     
@@ -313,9 +273,8 @@ class PackageController < ApplicationController
     end
     
     # check source service state
-    @services = find_cached(Service,  :project => @project, :package => @package )
-    @serviceerror = nil
-    @serviceerror = @package.serviceinfo.value(:error) if @package.serviceinfo
+    serviceerror = nil
+    serviceerror = @package.serviceinfo.value(:error) if @package.serviceinfo
     return true
   end
   private :set_file_details
@@ -673,46 +632,6 @@ class PackageController < ApplicationController
 
     flash[:success] = "The file #{filename} has been added."
     @package.free_directory
-    redirect_to :action => :files, :project => @project, :package => @package
-  end
-
-  def reorder_services
-    required_parameters :project, :package, :item, :position
-    @services = find_cached(Service, project: @project, package: @package )
-
-    id = params[:item]
-    id.gsub!( %r{^service_}, '' )
-    
-    @services.moveService( id.to_i, params[:position].to_i )
-    @services.save
-    render partial: "service_list"
-  end
-
-  def execute_services
-    @services = find_cached(Service,  :project => @project, :package => @package )
-    if @services
-      @services.execute()
-      flash[:note] = "Service execution got triggered"
-    else
-      flash[:error] = "No services to execute"
-    end
-    redirect_to :action => :files, :project => @project, :package => @package and return
-  end
-
-  def remove_service
-    required_parameters :id
-    id = params[:id].gsub( %r{^service_}, '' ).to_i
-    @services = find_cached(Service,  :project => @project, :package => @package )
-    unless @services
-      flash[:error] = "Service \##{id} not found"
-      redirect_to :action => :files, :project => @project, :package => @package 
-      return
-    end
-    @services.removeService( id )
-    @services.save
-    Service.free_cache :project => @project, :package => @package
-    Directory.free_cache( :project => @project, :package => @package )
-    flash[:note] = "Service \##{id} got removed"
     redirect_to :action => :files, :project => @project, :package => @package
   end
 

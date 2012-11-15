@@ -72,15 +72,9 @@ OBSWebUI::Application.routes.draw do
     match 'package/users' => :users
     match 'package/requests' => :requests
     match 'package/commits' => :commits
-    match 'package/files' => :files
-    #match 'package/files/:project/:repository/:pkgrev' => :files, :constaints => { :project => /[^\/]+/, :repository => /[^\/]+/, :pkgrev => /[a-fA-F0-9]{32}-(.+)/ }
-    match 'package/service_parameter_value' => :service_parameter_value
     match 'package/revisions' => :revisions
-    match 'package/add_service' => :add_service
     match 'package/submit_request_dialog' => :submit_request_dialog
     match 'package/submit_request' => :submit_request
-    match 'package/service_parameter' => :service_parameter
-    match 'package/update_parameters' => :update_parameters
     match 'package/add_person' => :add_person
     match 'package/add_group' => :add_group
     match 'package/rdiff' => :rdiff
@@ -95,9 +89,6 @@ OBSWebUI::Application.routes.draw do
     match 'package/remove' => :remove
     match 'package/add_file' => :add_file
     match 'package/save_file' => :save_file
-    match 'package/reorder_services' => :reorder_services
-    match 'package/execute_services' => :execute_services
-    match 'package/remove_service' => :remove_service
     match 'package/remove_file' => :remove_file
     match 'package/save_person' => :save_person
     match 'package/save_group' => :save_group

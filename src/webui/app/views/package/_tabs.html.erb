@@ -11,7 +11,6 @@
       <%= tab 'details', 'Details', :controller => 'patchinfo', :action => 'show' %>
     <% end %>
     <%= tab 'overview', 'Overview', :controller => 'package', :action => 'show' %>
-    <%= tab 'sources', 'Sources', :controller => 'package', :action => 'files' %>
     <% unless @spider_bot -%>
       <%= tab 'repositories', 'Repositories', :controller => 'package', :action => 'repositories' %>
       <%= tab 'revisions', 'Revisions', :controller => 'package', :action => 'revisions' %>
