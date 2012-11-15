@@ -2,14 +2,14 @@
  <% if user -%>
   <ul class="global-navigation-menu global-navigation-menu-favorites" id="menu-favorites">
     <li>
-      <a href="<%= url_for :controller => "home", :action => :list_my %>">
+      <a href="<%= url_for controller: "home", action: :list_my %>">
       <span>Watchlist ...</span>
       <span class="desc">Your watched and involved projects</span></a>
     </li>
     <% if user -%>
       <% if params[:project] -%>
          <li>
-           <a href="<%= url_for :controller => "project", :action => :toggle_watch, :project => params[:project] %>">
+           <a id="toggle_watch" href="<%= url_for controller: "project", action: :toggle_watch, project: params[:project] %>">
            <% if user.watches? params[:project] -%>
              <span>Remove this project from Watchlist</span>
              <span class="desc">Do not watch this project anymore</span>
@@ -22,9 +22,8 @@
       <% end -%>
       <% user.watched_projects.each do |project|-%>
         <li>
-          <%= image_tag 'project.png', :style => 'height: 16px; width: 16px;' %>
-          <a href="<%= url_for :controller => 'project', :action => :show, :project => project %>">
-          <span><%= elide(project, 32) %></span></a>
+          <%= link_to( sprite_tag('project') + content_tag(:span, elide(project, 32)), 
+               controller: 'project', action: :show, project: project) %>
         </li>
       <% end -%>
     <% end -%>
@@ -32,10 +31,10 @@
 <%- end -%>
 
 
-<%= form_tag({:controller => 'search', :action => 'search'}, {:method => :post, :id => "global-search-form", :class => "label-overlay"}) do -%>
+<%= form_tag({controller: 'search', action: 'search'}, {:method => :post, :id => "global-search-form", :class => "label-overlay"}) do -%>
   <div style="display: inline">
     <label for="search" class="hidden">Search</label>
-    <%= text_field_tag 'search_text', '', :id => 'search'-%>
+    <%= text_field_tag 'search_text', '', id: 'search'-%>
     <input type="submit" value="Search" class="hidden" />
   </div>
 <% end %>
