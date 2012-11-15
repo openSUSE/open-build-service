@@ -29,7 +29,7 @@ class UserController < ApplicationController
 
   def do_login
     @return_to_path = params['return_to_path'] || "/"
-    if params[:username] and params[:password]
+    if !params[:username].blank? and params[:password]
       logger.debug "Doing form authorization to login user #{params[:username]}"
       session[:login] = params[:username]
       session[:password] = params[:password]
