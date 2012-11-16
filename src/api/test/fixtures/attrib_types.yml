@@ -22,10 +22,6 @@ OBS_Maintained:
   name: Maintained
   value_count: 0
   attrib_namespace_id: 9
-OBS_Maintainer:
-  id: 77
-  name: Maintainer
-  attrib_namespace_id: 9
 OBS_MaintenanceIdTemplate:
   id: 63
   name: MaintenanceIdTemplate
