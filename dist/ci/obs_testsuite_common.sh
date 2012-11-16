@@ -42,8 +42,8 @@ setup_api() {
 
   chmod a+x script/start_test_backend
 
-  echo "Initialize test database, run migrations, load seed data"
-  rake db:drop db:create db:setup db:migrate --trace
+  echo "Initialize test database, load seed data"
+  rake db:drop db:create db:setup --trace
   cd ../..
 }
 
@@ -64,8 +64,8 @@ setup_webui() {
 
   chmod +x script/start_test_api 
 
-  echo "Initialize test database, run migrations, load seed data"
-  rake db:drop db:create db:migrate --trace
+  echo "Initialize test database, load seed data"
+  rake db:drop db:create db:setup --trace
 
   cd ../..
   cd docs/api
