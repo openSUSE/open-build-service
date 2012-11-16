@@ -1,13 +1,17 @@
 require 'selenium/client'
+require 'benchmark'
+require 'nokogiri'
 
 class TC80__Spider < TestCase
 
-  def getlinks
-    baseuri = URI.parse(@driver.current_url)
-    @driver.find_elements(:tag_name => "a").each do |element|
-      next unless element.displayed?
-      next if element.attribute("data-remote")
-      link = element.attribute("href")
+  def getlinks(baseuri, body)
+    baseuri = URI.parse(baseuri)
+
+    body.traverse do |tag|
+      next unless tag.element? 
+      next unless tag.name == 'a'
+      next if tag.attributes['data-remote']
+      link = tag.attributes['href']
       begin
         link = baseuri.merge(link)
       rescue ArgumentError 
@@ -16,10 +20,12 @@ class TC80__Spider < TestCase
       end
       link.fragment = nil
       link.normalize!
-      next unless link.host == 'localhost'
-      next unless link.port == @port
-      unless @pages_visited.has_key? link.to_s
-        @pages_to_visit[link.to_s] ||= [baseuri.to_s, element.text]
+      next unless link.host == baseuri.host
+      next unless link.port == baseuri.port
+      link = link.to_s
+      next if link =~ %r{/mini-profiler-resources}
+      unless @pages_visited.has_key? link
+        @pages_to_visit[link] ||= [baseuri.to_s, tag.content]
       end
     end
   end
@@ -55,46 +61,53 @@ class TC80__Spider < TestCase
     #raise "Found #{message}"
   end
 
-  def crawl
+  def crawl(driver)
     while @pages_to_visit.length > 0
       theone = @pages_to_visit.keys.sort.first
       @pages_visited[theone] = @pages_to_visit[theone]
       @pages_to_visit.delete theone
 
+      navtime = Benchmark.realtime do 
+        begin
+          driver.navigate.to(theone)
+          log :info, "crawled #{theone}"
+          wait.until { 
+            driver.execute_script('return jQuery.active') == 0
+          }
+        rescue Timeout::Error, Selenium::WebDriver::Error::JavascriptError
+          next
+        end
+      end
+      body = nil
       begin
-        @driver.navigate.to(theone)
-        log :info, "crawled #{theone}"
-        wait.until { 
-          @driver.execute_script('return jQuery.active') == 0
-        }
-        unless @driver.find_elements(:css => "div#flash-messages div.ui-state-error").empty?
-          raiseit("flash alert", theone) 
-        end
-	foundISE=false
-	@driver.find_elements(css: 'h1').each do |h|
-          foundISE ||= h.text == 'Internal Server Error'
-        end
-        if !@driver.find_elements(:css => "#exception-error").empty? || foundISE
-          raiseit("error", theone)
-          raise "Found error"
-        end
-      rescue Timeout::Error, Selenium::WebDriver::Error::JavascriptError
+        body = Nokogiri::XML::Document.parse(driver.page_source, nil, nil, Nokogiri::XML::ParseOptions::STRICT).root
+      rescue Nokogiri::XML::SyntaxError
+        puts "HARDCORE!! #{baseuri}"
         next
       end
-      getlinks
+      if !body.css("div#flash-messages div.ui-state-error").empty?
+        raiseit("flash alert", theone) 
+      end
+      body.css('h1').each do |h|
+        if h.content == 'Internal Server Error'
+          raiseit("Internal Server Error", theone)
+        end
+      end
+      body.css("#exception-error").each do |e|
+        raiseit("error '#{e.content}'", theone)
+        raise "Found error"
+      end
+      getlinks(theone, body)
+      #puts "#{Time.now} #{theone} #{navtime}"
     end
   end
 
   test :spider_anonymously do
-    @pages_to_visit = Hash.new
+    url = $data[:url]
+    @pages_to_visit = { url => [nil, nil] }
     @pages_visited = Hash.new
 
-    @port = URI.parse( $data[:url] ).port
-    @driver = $page.driver
-    navigate_to MainPage, user:  :none
-
-    getlinks
-    crawl
+    crawl($page.driver)
     
   end
 

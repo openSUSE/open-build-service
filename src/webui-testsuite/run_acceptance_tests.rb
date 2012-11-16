@@ -162,10 +162,12 @@ while true
           # OK
         else
           puts "Webui did not response nicely"
-          Process.kill "INT", webui_out.pid
-          webui_out.close
+	  if webui_out
+            Process.kill "INT", webui_out.pid
+            webui_out.close
+	  end
           webui_out = nil
-          frontend.join
+          frontend.join if frontend
 	  puts lines.join()
           exit 1
       end

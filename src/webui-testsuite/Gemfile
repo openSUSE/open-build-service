@@ -5,6 +5,7 @@ source 'http://rubygems.org'
 gem 'selenium-webdriver'
 gem 'headless'
 gem 'colored'
+gem 'nokogiri'
 # in compliance with rails - better not require builder-3.1
 gem 'builder', '~> 3.0.0'
 
