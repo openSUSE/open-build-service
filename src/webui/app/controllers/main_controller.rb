@@ -149,7 +149,7 @@ class MainController < ApplicationController
 
   # we need a way so everyone 
   # of course we don't want to have this action visible 
-  hide_action :startme unless Rails.env.test?
+  hide_action :startme unless Rails.env.test? || Rails.env.development?
   def startme
      if Rails.env.test?
        frontend.transport.direct_http URI("/admin/startme")
