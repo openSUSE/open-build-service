@@ -32,23 +32,20 @@ organized like this:
 Note that the three parts each also have their own documentation found in their
 respective subdirectories.
 
-
 Installation, deployment and development
 ----------------------------------------
 
 These topics are covered in the INSTALL file and on the
 [openSUSE wiki](http://en.opensuse.org/Portal:Build_Service).
 
-Licensing
----------
+###Licensing
 
 The Open Build Service is Free Software and is released under the terms of
 the GPL, except where noted. Additionally, 3rd-party content (like, but not
 exclusively, the webui icon theme) may be released under a different license.
 Please check the respective files for details.
 
-Contact
--------
+###Contact
 
 The Build Service project is hosted on [Github](http://github.com/opensuse/open-build-service)
 and you can discuss with the OBS Team via IRC on the channel
