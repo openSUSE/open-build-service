@@ -19,7 +19,7 @@ class SearchController < ApplicationController
 	unless disturl_pkgrev.nil? 
           disturl_rev, disturl_package = disturl_pkgrev.split('-', 2)
 	  unless disturl_package.nil? || disturl_rev.nil?
-            redirect_to :controller => 'package', :action => 'files', :project => disturl_project, :package => disturl_package, :rev => disturl_rev 
+            redirect_to :controller => 'package', :action => 'show', :project => disturl_project, :package => disturl_package, :rev => disturl_rev 
 	  end
 	  return
 	end
