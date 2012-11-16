@@ -1,4 +1,4 @@
-class TC21__DeleteProject < TestCase
+class TC72__DeleteProject < TestCase
 
 
   test :delete_subproject do

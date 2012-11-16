@@ -227,7 +227,7 @@ time_started = Time.now
 builder.testsuite do
   TestRunner.run(options[:stop_on_fail]) do |test|
     if test.status == :ready then
-      print((test.name.to_s+"                                               ")[0,55])
+      print("#{Time.now} #{test.name}                                               "[0,55])
       STDOUT.flush
     else
       puts case(test.status)

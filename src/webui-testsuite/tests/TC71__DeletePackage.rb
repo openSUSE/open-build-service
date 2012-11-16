@@ -1,4 +1,4 @@
-class TC20__DeletePackage < TestCase
+class TC71__DeletePackage < TestCase
 
 
   test :delete_subproject_package_for_user do

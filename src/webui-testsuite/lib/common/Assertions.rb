@@ -49,6 +49,16 @@ module Assertions
   def assert_equal valueA, valueB
     fail "not equal '#{valueA}' and '#{valueB}'" unless valueA == valueB
   end
+  
+  def assert_match pattern, string, message=""
+    pattern = case(pattern)
+              when String
+                Regexp.new(Regexp.escape(pattern))
+              else
+                pattern
+              end
+    fail "<#{string}> expected to be =~\n<#{pattern}>." unless string =~ pattern
+  end
 end
 
 class SkipTestError  < StandardError; end
