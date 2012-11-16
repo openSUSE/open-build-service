@@ -1,4 +1,4 @@
-/srv/www/obs/webui/log/access.log {
+/srv/www/obs/webui/log/apache*log {
   compress
   dateext
   maxage 365
