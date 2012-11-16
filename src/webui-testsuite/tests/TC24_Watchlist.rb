@@ -1,4 +1,4 @@
-class TC24__Groups < TestCase
+class TC24__Watchlists < TestCase
 
   test :watchlists do
     navigate_to ProjectOverviewPage, 
