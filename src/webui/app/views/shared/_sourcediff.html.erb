@@ -61,11 +61,17 @@
           </td>
           <td style="width: 1%"><%= file_state %></td>
           <td>
+          <!-- Most files don't exist when the package is linked, so keeping in mind the statement below don't even bother
+          to try to show them... -->
+          <% unless @linkinfo %>
             <%# NOTE: Currently rather crude hack, deleted files aren't available in current source revision, thus use previous: %>
             <% rev = source[:rev] %>
             <% rev = (rev.to_i - 1).to_s if file_element['state'] == 'deleted' %>
             <%# TODO: drop this check for '/' once we can 'view' files inside tarballs: %>
-            <%= link_to_unless(Package.is_binary_file?(filename) || filename.include?('/'), filename, :controller => 'package', :action => 'view_file', :project => source[:project], :package => source[:package], :file => filename, :rev => rev) %>
+            <%= link_to_unless(Package.is_binary_file?(filename) || filename.include?('/'), filename, :controller => 'package', :action => 'view_file', :project => source[:project], :package => source[:package], :file => filename, :rev => rev ) %>
+          <% else %>
+          <%= filename %>
+          <% end %>
             <% if index > 0 %>
               <span style="float: right;">
                 <%= link_to('^', :anchor => "diff_headline_#{last_file_id}") %>

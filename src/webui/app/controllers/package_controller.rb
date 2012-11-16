@@ -276,6 +276,7 @@ class PackageController < ApplicationController
   def rdiff
     required_parameters :project, :package
     @last_rev = Package.current_rev(@project, @package.name)
+    @linkinfo = @package.linkinfo
     if params[:oproject] and params[:opackage]
       @oproject, @opackage = params[:oproject], params[:opackage]
       @last_req = BsRequest.find_last_request(:targetproject => @oproject, :targetpackage => @opackage, :sourceproject => params[:project], :sourcepackage => params[:package])
@@ -616,7 +617,7 @@ class PackageController < ApplicationController
 
     flash[:success] = "The file #{filename} has been added."
     @package.free_directory
-    redirect_to :action => :files, :project => @project, :package => @package
+    redirect_to :action => :show, :project => @project, :package => @package
   end
 
   def remove_file
@@ -632,7 +633,7 @@ class PackageController < ApplicationController
     else
       flash[:note] = "Failed to remove file '#{filename}'"
     end
-    redirect_to :action => :files, :project => @project, :package => @package
+    redirect_to :action => :show, :project => @project, :package => @package
   end
 
   def save_person
@@ -707,7 +708,7 @@ class PackageController < ApplicationController
     @filename = params[:file] || ''
     if Package.is_binary_file?(@filename) # We don't want to display binary files
       flash[:error] = "Unable to display binary file #{@filename}"
-      redirect_back_or_to :action => :files, :project => @project, :package => @package and return
+      redirect_back_or_to :action => :show, :project => @project, :package => @package and return
     end
     @rev = params[:rev]
     @expand = params[:expand]
@@ -729,10 +730,10 @@ class PackageController < ApplicationController
       @file = frontend.get_source(:project => @project.to_s, :package => @package.to_s, :filename => @filename, :rev => @rev, :expand => @expand)
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = "File not found: #{@filename}"
-      redirect_to :action => :files, :package => @package, :project => @project and return
+      redirect_to :action => :show, :package => @package, :project => @project and return
     rescue ActiveXML::Transport::Error => e
       flash[:error] = "Error: #{e}"
-      redirect_back_or_to :action => :files, :project => @project, :package => @package and return
+      redirect_back_or_to :action => :show, :project => @project, :package => @package and return
     end
     if @spider_bot
       render :template => "package/simple_file_view" and return
