@@ -57,7 +57,7 @@ class WebuiController < ApplicationController
 
     if pro.project_type == 'maintenance_incident'
       rel = BsRequest.collection(project: params[:project], states: ['new','review'], types: ['maintenance_release'], roles: ['source'])
-      infos[:open_release_requests] = rel.select("bs_request.id").all.map { |r| r.id }
+      infos[:open_release_requests] = rel.select("bs_requests.id").all.map { |r| r.id }
     end
   
     render json: infos
