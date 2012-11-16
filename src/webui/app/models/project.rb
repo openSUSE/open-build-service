@@ -552,14 +552,10 @@ class Project < ActiveXML::Node
   end
 
   def requests(opts)
-    # TODO: find out where it's called
+    # called for the incidents requests
     opts = {:project => self.name}.merge opts
     reqs = BsRequest.list_ids(opts)
-    ret = []
-    reqs.each_slice(40) do |ids|
-      ret << BsRequest.ids(ids)
-    end
-    return ret
+    return BsRequest.ids(ids)
   end
 
   def buildresults(view = 'summary')
