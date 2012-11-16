@@ -1,25 +1,13 @@
 [![Build Status](https://secure.travis-ci.org/openSUSE/open-build-service.png?branch=master)](https://travis-ci.org/openSUSE/open-build-service)
-==================
+
 Open Build Service
 ==================
+[The Open Build Service (OBS)](http://www.open-build-service.org) is a generic system
+to build and distribute binary packages from sources in an automatic, consistent and
+reproducible way. You can release packages as well as updates, add-ons, appliances and
+entire distributions for a wide range of operating systems and hardware architectures.
 
-The Open Build Service (OBS) is an open and complete distribution
-development platform designed to encourage developers to compile packages for
-multiple Linux distributions including openSUSE, Red Hat, Mandriva, Ubuntu,
-Fedora and Debian. It typically simplifies the packaging process, so developers
-can more easily package a single program for many distributions, and many
-openSUSE releases, making more packages available to users regardless of what
-distribution they use. 
-
-Services, news and updates can be found on following portal page
-
-  http://www.open-build-service.org
-
-Further documentation for the Open Build Service can be found at the openSUSE wiki
-on the Open Build Service portal page:
-
-  http://en.opensuse.org/Portal:Build_Service
-
+More information can be found on [openbuildservice.org](http://www.openbuildservice.org)
 
 Organization
 ============
@@ -49,9 +37,8 @@ respective subdirectories.
 Installation, deployment and development
 ========================================
 
-These topics are covered in the file INSTALL and on the openSUSE wiki (see
-above).
-
+These topics are covered in the [INSTALL](INSTALL) file
+and on the [openSUSE wiki](http://en.opensuse.org/Portal:Build_Service).
 
 Licensing
 =========
@@ -61,21 +48,12 @@ the GPL, except where noted. Additionally, 3rd-party content (like, but not
 exclusively, the webui icon theme) may be released under a different license.
 Please check the respective files for details.
 
-
 Contact
 =======
 
-The Build Service project is hosted on Github and can be found here:
-
-    http://github.com/opensuse/open-build-service
-
-You can discuss with the Build Service Team via IRC (FreeNode) on this channel:
-
-    #opensuse-buildservice
-
-Or you can use the official mailing list:
-
-    opensuse-buildservice@opensuse.org
-
+The Build Service project is hosted on [Github](http://github.com/opensuse/open-build-service)
+and you can discuss with the OBS Team via IRC on the channel
+[#openbuildservice](irc://freenode.net/openbuildservice). Or you can use our mailing list
+[opensuse-buildservice@opensuse.org](mailto:opensuse-buildservice+subscribe@opensuse.org)
 
     Your Open Build Service Team
