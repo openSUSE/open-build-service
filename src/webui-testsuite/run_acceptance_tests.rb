@@ -200,6 +200,9 @@ $data[:invalid_user] = Hash.new
 $data[:invalid_user][:login] = 'dasdasd'
 $data[:invalid_user][:password] = 'dasdsad'
 
+$data[:hero] = Hash.new
+$data[:hero][:login] = 'maintenance_coord'
+$data[:hero][:password] = 'power'
 
 # Prepare folders and variables needed for the run
 Dir.mkdir $data[:report_path] unless File.exists? $data[:report_path]
