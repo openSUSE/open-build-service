@@ -4,7 +4,7 @@ source 'http://rubygems.org'
 
 # do not use rails but only a subset for API, we don't render any kind of HTML
 gem 'rails-api'
-gem 'activerecord', '~>3.2.8'
+gem 'activerecord', '~>3.2.9'
 
 gem 'mysql2'
 gem 'daemons'
