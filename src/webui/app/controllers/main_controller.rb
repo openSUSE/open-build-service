@@ -151,9 +151,7 @@ class MainController < ApplicationController
   # of course we don't want to have this action visible 
   hide_action :startme unless Rails.env.test? || Rails.env.development?
   def startme
-     if Rails.env.test?
-       frontend.transport.direct_http URI("/admin/startme")
-     end
+     frontend.transport.direct_http URI("/")
      render_error :status => 200, :message => "no error"
      return
   end

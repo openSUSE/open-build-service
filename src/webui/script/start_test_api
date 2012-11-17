@@ -52,7 +52,7 @@ while true
     Net::HTTP.start(CONFIG['frontend_host'], CONFIG['frontend_port']) do |http|
       http.open_timeout = 15
       http.read_timeout = 15
-      res = http.get('/')
+      res = http.get('/admin/startme')
       case res
         when Net::HTTPSuccess, Net::HTTPRedirection, Net::HTTPUnauthorized
           outputlines = false
