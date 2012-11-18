@@ -7,7 +7,7 @@ GEM
       ffi (~> 1.0, >= 1.0.6)
     colored (1.2)
     ffi (1.1.5)
-    flog (3.0.0)
+    flog (3.1.0)
       ruby_parser (~> 3.0.0)
       sexp_processor (~> 4.0)
     headless (0.3.1)
