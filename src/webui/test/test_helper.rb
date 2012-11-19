@@ -54,7 +54,6 @@ class ActionDispatch::IntegrationTest
       @@display = Headless.new
       @@display.start
     end
-    return if ENV['API_STARTED']
     5.times do
       begin
         visit '/main/startme'
@@ -62,11 +61,13 @@ class ActionDispatch::IntegrationTest
         break
       rescue Timeout::Error
       end
-    end
+    end unless ENV['API_STARTED']
+    ActiveXML::transport.direct_http(URI("/test/test_start"))
   end
 
   teardown do
     logout
     Capybara.reset_sessions!
+    ActiveXML::transport.direct_http(URI("/test/test_end"))
   end
 end

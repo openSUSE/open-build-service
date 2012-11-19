@@ -30,6 +30,7 @@ GEM
     ci_reporter (1.7.3)
       builder (>= 2.1.2)
     daemons (1.1.9)
+    database_cleaner (0.9.1)
     delayed_job (3.0.4)
       activesupport (~> 3.0)
     delayed_job_active_record (0.3.3)
@@ -128,6 +129,7 @@ DEPENDENCIES
   activerecord (~> 3.2.9)
   ci_reporter
   daemons
+  database_cleaner
   delayed_job (> 3.0)
   delayed_job_active_record
   exception_notification (>= 2.3)

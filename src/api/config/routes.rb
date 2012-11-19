@@ -35,9 +35,11 @@ OBSApi::Application.routes.draw do
 
     match 'about' => 'about#index'
 
-    controller :admin do
-      match 'admin/killme' => :killme
-      match 'admin/startme' => :startme
+    controller :test do
+      match 'test/killme' => :killme
+      match 'test/startme' => :startme
+      match 'test/test_start' => :test_start
+      match 'test/test_end' => :test_end
     end
     
     controller :source do

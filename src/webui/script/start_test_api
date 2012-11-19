@@ -11,7 +11,7 @@ logger = Rails.logger
 
 begin
   Net::HTTP.start(CONFIG['frontend_host'], CONFIG['frontend_port']) do |http|
-    http.get("/admin/killme")
+    http.get("/test/killme")
   end
   # if we reach this, the old API has gone away - now wait for it to lay down
   sleep 2
@@ -52,7 +52,7 @@ while true
     Net::HTTP.start(CONFIG['frontend_host'], CONFIG['frontend_port']) do |http|
       http.open_timeout = 15
       http.read_timeout = 15
-      res = http.get('/admin/startme')
+      res = http.get('/test/startme')
       case res
         when Net::HTTPSuccess, Net::HTTPRedirection, Net::HTTPUnauthorized
           outputlines = false
@@ -86,7 +86,7 @@ puts "got signal handler"
 
 begin
   Net::HTTP.start(CONFIG['frontend_host'], CONFIG['frontend_port']) do |http|
-    http.get("/admin/killme")
+    http.get("/test/killme")
   end
   # if we reach this, the API went down cleanly
   Process.wait(frontend_out.pid)

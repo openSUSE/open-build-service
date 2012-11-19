@@ -1,11 +1,19 @@
-class AdminController < ApplicationController
+if Rails.env.test? || Rails.env.development?
+  require 'database_cleaner'
+  DatabaseCleaner.strategy = :transaction
+end
+
+class TestController < ApplicationController
   skip_before_filter :extract_user
+  before_filter do 
+    return true if Rails.env.test? || Rails.env.development?
+    render_error  message: "This is only accessible for testing environments", :status => 403
+    return false
+  end
 
   @@started = false
 
   # we need a way so the API sings killing me softly
-  # of course we don't want to have this action visible 
-  hide_action :killme unless Rails.env.test?
   def killme
     Process.kill('INT', Process.pid)
     @@started = false
@@ -13,8 +21,6 @@ class AdminController < ApplicationController
   end
   
   # we need a way so the API uprises fully
-  # of course we don't want to have this action visible 
-  hide_action :startme unless Rails.env.test?
   def startme
      if @@started == true
        render_ok
@@ -29,4 +35,15 @@ class AdminController < ApplicationController
      render_ok
   end
   
+  def test_start
+    DatabaseCleaner.start
+    render_ok
+  end
+
+
+  def test_end
+    DatabaseCleaner.clean
+    Rails.cache.clear
+    render_ok
+  end
 end
