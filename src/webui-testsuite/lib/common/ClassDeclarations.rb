@@ -33,7 +33,6 @@ class WebPage;   end
                 class PackageUsersPage        < PackagePage; end
                 class PackageAddUserPage      < PackagePage; end
                 class PackageAddGroupPage     < PackagePage; end
-                class PackageSourcesPage      < PackagePage; end
                 class PackageOverviewPage     < PackagePage; end
                 class PackageRequestsPage     < PackagePage; end
                 class PackageRawConfigPage    < PackagePage; end

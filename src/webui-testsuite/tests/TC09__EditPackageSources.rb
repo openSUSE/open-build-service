@@ -4,7 +4,7 @@ class TC09__EditPackageSources < TestCase
   test :erase_file_content do
   depend_on :add_source_file_from_big_local_file
     
-    navigate_to PackageSourcesPage,
+    navigate_to PackageOverviewPage,
       :project => "home:user1",
       :package => "HomePackage1",
       :user => $data[:user1]
@@ -16,7 +16,7 @@ class TC09__EditPackageSources < TestCase
   test :edit_empty_file do
   depend_on :add_new_source_file_to_home_project_package
     
-    navigate_to PackageSourcesPage,
+    navigate_to PackageOverviewPage,
       :project => "home:user1",
       :package => "HomePackage1",
       :user => $data[:user1]
@@ -28,7 +28,7 @@ class TC09__EditPackageSources < TestCase
   test :change_file_with_comment do
   depend_on :add_source_file_from_local_file
     
-    navigate_to PackageSourcesPage,
+    navigate_to PackageOverviewPage,
       :project => "home:user1",
       :package => "HomePackage1",
       :user => $data[:user1]
@@ -41,7 +41,7 @@ class TC09__EditPackageSources < TestCase
   test :change_file_without_comment do
   depend_on :add_source_file_from_local_file
     
-    navigate_to PackageSourcesPage,
+    navigate_to PackageOverviewPage,
       :project => "home:user1",
       :package => "HomePackage1",
       :user => $data[:user1]
@@ -53,7 +53,7 @@ class TC09__EditPackageSources < TestCase
   test :change_file_with_long_comment do
   depend_on :add_source_file_from_local_file
     
-    navigate_to PackageSourcesPage,
+    navigate_to PackageOverviewPage,
       :project => "home:user1",
       :package => "HomePackage1",
       :user => $data[:user1]

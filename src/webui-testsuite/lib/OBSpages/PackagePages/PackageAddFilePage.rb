@@ -66,7 +66,7 @@ class PackageAddFilePage < PackagePage
     if file[:expect] == :success
       assert_equal flash_message, "The file #{file[:name]} has been added."
       assert_equal flash_message_type, :info
-      $page = PackageSourcesPage.new_ready @driver
+      $page = PackageOverviewPage.new_ready @driver
       # TODO: Check that new file is in the list
     elsif file[:expect] == :no_path_given
       assert_equal flash_message_type, :alert 

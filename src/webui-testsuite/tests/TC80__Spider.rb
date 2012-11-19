@@ -11,6 +11,7 @@ class TC80__Spider < TestCase
       next unless tag.element? 
       next unless tag.name == 'a'
       next if tag.attributes['data-remote']
+      next if tag.attributes['data-method']
       link = tag.attributes['href']
       begin
         link = baseuri.merge(link)
@@ -106,7 +107,8 @@ class TC80__Spider < TestCase
     url = $data[:url]
     @pages_to_visit = { url => [nil, nil] }
     @pages_visited = Hash.new
-
+    navigate_to MainPage, user:  :none
+    
     crawl($page.driver)
     
   end
