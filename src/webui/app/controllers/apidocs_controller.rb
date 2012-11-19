@@ -3,6 +3,10 @@ class ApidocsController < ApplicationController
   # Apidocs is insensitive static information, no login needed therefore
   skip_before_filter :extract_user
 
+  def root
+    redirect_to action: :index
+  end
+
   def index
     logger.debug "PATH: #{request.path}"
     filename = File.expand_path(CONFIG['apidocs_location']) + "/index.html"

@@ -253,7 +253,8 @@ OBSWebUI::Application.routes.draw do
   end
 
   ### /apidocs
-  match 'apidocs' => 'apidocs#index'
+  match 'apidocs' => 'apidocs#root'
+  match 'apidocs/index' => 'apidocs#index'
   match 'apidocs/:filename' => 'apidocs#file', constraints: { :filename => %r{[^\/]*} }
 
   # Default route matcher:

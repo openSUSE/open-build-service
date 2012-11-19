@@ -3,9 +3,10 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 class ApidocsControllerTest < ActionDispatch::IntegrationTest 
 
   def test_index
-    # rails 3 will always go to #index
-    visit "/apidocs/" 
-    # no interest in comparing with index.html
+    # test relative links
+    visit "/apidocs" 
+    first('.request').find(:link, 'Example').click
+    assert page.source =~ %r{<title>Open Build Service API</title>}
   end
 
   def test_subpage
