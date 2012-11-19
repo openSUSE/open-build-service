@@ -147,13 +147,4 @@ class MainController < ApplicationController
     logger.error "Could not load all frontpage data, probably due to forbidden anonymous access in the api."
   end
 
-  # we need a way so everyone 
-  # of course we don't want to have this action visible 
-  hide_action :startme unless Rails.env.test? || Rails.env.development?
-  def startme
-     frontend.transport.direct_http URI("/")
-     render_error :status => 200, :message => "no error"
-     return
-  end
-
 end

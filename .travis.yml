@@ -13,11 +13,9 @@ env:
   - SUBTEST=webui
   # selenium without spider
   - SUBTEST=webui-testsuite
-  # selenium spider only
-  - SUBTEST=webui-testsuite:spider_anonymously
   # api and webui webrat with latest gems
-  - SUBTEST=api REMOVEGEMLOCK=true
-  - SUBTEST=webui REMOVEGEMLOCK=true
+#  - SUBTEST=api REMOVEGEMLOCK=true
+#  - SUBTEST=webui REMOVEGEMLOCK=true
 matrix:
   allow_failures:
     - env: SUBTEST=api REMOVEGEMLOCK=true

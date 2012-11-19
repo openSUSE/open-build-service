@@ -1,8 +1,9 @@
-require 'selenium/client'
+require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+
 require 'benchmark'
 require 'nokogiri'
 
-class TC80__Spider < TestCase
+class SpiderTest < ActionDispatch::IntegrationTest
 
   def getlinks(baseuri, body)
     baseuri = URI.parse(baseuri)
@@ -52,17 +53,18 @@ class TC80__Spider < TestCase
     return if url.end_with? "/package/revisions?package=pack&project=SourceprotectedProject"
     return if url.end_with? "/package/users?package=pack&project=SourceprotectedProject"
 
-    log :error, "Found #{message} on #{url}, crawling path"
+    $stderr.puts "Found #{message} on #{url}, crawling path"
     indent = ' '
     while @pages_visited.has_key? url
       url, text = @pages_visited[url]
-      log :error, "#{indent}#{url} ('#{text}')"
+      break if url.blank?
+      $stderr.puts "#{indent}#{url} ('#{text}')"
       indent += '  '
     end
     #raise "Found #{message}"
   end
 
-  def crawl(driver)
+  def crawl
     while @pages_to_visit.length > 0
       theone = @pages_to_visit.keys.sort.first
       @pages_visited[theone] = @pages_to_visit[theone]
@@ -70,22 +72,19 @@ class TC80__Spider < TestCase
 
       navtime = Benchmark.realtime do 
         begin
-          driver.navigate.to(theone)
-          log :info, "crawled #{theone}"
-          wait.until { 
-            driver.execute_script('return jQuery.active') == 0
-          }
-        rescue Timeout::Error, Selenium::WebDriver::Error::JavascriptError
+          page.visit(theone)
+          page.first(:id, 'header-logo')
+        rescue Timeout::Error
           next
         end
       end
       body = nil
       begin
-        body = Nokogiri::XML::Document.parse(driver.page_source, nil, nil, Nokogiri::XML::ParseOptions::STRICT).root
+        body = Nokogiri::XML::Document.parse(page.source, nil, nil, Nokogiri::XML::ParseOptions::STRICT).root
       rescue Nokogiri::XML::SyntaxError
-        puts "HARDCORE!! #{baseuri}"
-        next
+        #puts "HARDCORE!! #{theone}"
       end
+      next unless body
       if !body.css("div#flash-messages div.ui-state-error").empty?
         raiseit("flash alert", theone) 
       end
@@ -103,14 +102,19 @@ class TC80__Spider < TestCase
     end
   end
 
-  test :spider_anonymously do
-    url = $data[:url]
-    @pages_to_visit = { url => [nil, nil] }
+  def setup
+    # rack_test: 79s, selenium: 402s, webkit: TODO
+    Capybara.current_driver = :rack_test
+    super
+  end
+
+  test "spider anonymously" do
+    visit "/"
+    puts page.current_url
+    @pages_to_visit = { page.current_url => [nil, nil] }
     @pages_visited = Hash.new
-    navigate_to MainPage, user:  :none
     
-    crawl($page.driver)
-    
+    crawl
   end
 
 end

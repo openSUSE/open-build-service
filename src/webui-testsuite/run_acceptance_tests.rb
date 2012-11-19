@@ -155,7 +155,7 @@ while true
       http.open_timeout = 15
       http.read_timeout = 15
       # we need to ask for something that is available without login _and_ starts api and backend too
-      res = http.get('/main/startme')
+      res = http.get('/')
       case res
         when Net::HTTPSuccess, Net::HTTPRedirection, Net::HTTPUnauthorized
           outputlines = false

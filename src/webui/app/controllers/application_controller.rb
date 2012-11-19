@@ -173,9 +173,9 @@ class ApplicationController < ActionController::Base
         render :template => "user/unconfirmed" and return
       else
         if @user
-          render_error :status => 403, :message => message
+          render_error :status => 403, :message => exception.summary
         else
-          render_error :status => 401, :message => message
+          render_error :status => 401, :message => exception.summary
         end
       end
     when ActiveXML::Transport::UnauthorizedError

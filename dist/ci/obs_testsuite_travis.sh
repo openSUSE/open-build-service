@@ -30,18 +30,11 @@ case $SUBTEST in
    ;;
   webui-testsuite)
    cd src/webui-testsuite
-   rm ./tests/TC80__Spider.rb
    if ! bundle exec ./run_acceptance_tests.rb -f; then
      ret=1
      tail -n 500 ../webui/log/test.log
      cat results/*.source.html
    fi
-   ;;
-  webui-gemshead)
-   cd src/api
-   bundle exec rake ci:setup:minitest test CI_REPORTS=results --trace || ret=1
-   cd ../webui
-   rake ci:setup:minitest test CI_REPORTS=results --trace || ret=1
    ;;
   webui-testsuite:*)
    cd src/webui-testsuite

@@ -54,20 +54,24 @@ class ActionDispatch::IntegrationTest
       @@display = Headless.new
       @@display.start
     end
+    olddriver = Capybara.current_driver
+    Capybara.current_driver = :rack_test
     5.times do
       begin
-        visit '/main/startme'
+        visit '/'
         ENV['API_STARTED'] = '1'
         break
       rescue Timeout::Error
       end
     end unless ENV['API_STARTED']
     ActiveXML::transport.direct_http(URI("/test/test_start"))
+    Capybara.current_driver = olddriver
   end
 
   teardown do
     logout
     Capybara.reset_sessions!
     ActiveXML::transport.direct_http(URI("/test/test_end"))
+    Capybara.use_default_driver
   end
 end
