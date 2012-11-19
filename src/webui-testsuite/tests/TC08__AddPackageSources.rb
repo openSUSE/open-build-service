@@ -4,7 +4,7 @@ class TC08__AddPackageSources < TestCase
   test :add_new_source_file_to_home_project_package do
   depend_on :create_home_project_package_for_user
     
-    navigate_to PackageSourcesPage,
+    navigate_to PackageOverviewPage,
       :project => "home:user1",
       :package => "HomePackage1",
       :user => $data[:user1]
@@ -16,7 +16,7 @@ class TC08__AddPackageSources < TestCase
   test :add_new_source_file_to_subproject_package do
   depend_on :create_subproject_package_for_user
     
-    navigate_to PackageSourcesPage,
+    navigate_to PackageOverviewPage,
       :project => "home:user1:SubProject1",
       :package => "SubPackage1",
       :user => $data[:user1]
@@ -28,7 +28,7 @@ class TC08__AddPackageSources < TestCase
   test :add_new_source_file_to_global_project_package do
   depend_on :create_global_project_package
     
-    navigate_to PackageSourcesPage,
+    navigate_to PackageOverviewPage,
       :project => "PublicProject1",
       :package => "PublicPackage1",
       :user => $data[:admin]
@@ -53,7 +53,7 @@ class TC08__AddPackageSources < TestCase
     source_file.write NORMAL_SOURCE
     source_file.close
     
-    navigate_to PackageSourcesPage,
+    navigate_to PackageOverviewPage,
       :project => "home:user1",
       :package => "HomePackage1",
       :user => $data[:user1]
@@ -71,7 +71,7 @@ class TC08__AddPackageSources < TestCase
     source_file.write NORMAL_SOURCE
     source_file.close
     
-    navigate_to PackageSourcesPage,
+    navigate_to PackageOverviewPage,
       :project => "home:user1",
       :package => "HomePackage1",
       :user => $data[:user1]
@@ -90,7 +90,7 @@ class TC08__AddPackageSources < TestCase
     source_file.write BIG_SOURCE
     source_file.close
     
-    navigate_to PackageSourcesPage,
+    navigate_to PackageOverviewPage,
       :project => "home:user1",
       :package => "HomePackage1",
       :user => $data[:user1]
@@ -107,7 +107,7 @@ class TC08__AddPackageSources < TestCase
     source_file = File.new "EmptySource1.c", "w"
     source_file.close
     
-    navigate_to PackageSourcesPage,
+    navigate_to PackageOverviewPage,
       :project => "home:user1",
       :package => "HomePackage1",
       :user => $data[:user1]
@@ -122,7 +122,7 @@ class TC08__AddPackageSources < TestCase
   depend_on :create_home_project_package_for_user
   
     skip # known failure TODO
-    navigate_to PackageSourcesPage,
+    navigate_to PackageOverviewPage,
       :project => "home:user1",
       :package => "HomePackage1",
       :user => $data[:user1]
@@ -139,7 +139,7 @@ class TC08__AddPackageSources < TestCase
   depend_on :create_home_project_package_for_user
   
     skip # you can not test that with firefox, it won't allow uploads of non existant files
-    navigate_to PackageSourcesPage,
+    navigate_to PackageOverviewPage,
       :project => "home:user1",
       :package => "HomePackage1",
       :user => $data[:user1]
@@ -155,7 +155,7 @@ class TC08__AddPackageSources < TestCase
   depend_on :create_package_with_only_name
  
     skip # service file is created that will fail - somewhen 
-    navigate_to PackageSourcesPage,
+    navigate_to PackageOverviewPage,
       :project => "home:user1",
       :package => "HomePackage-OnlyName",
       :user => $data[:user1]
@@ -171,7 +171,7 @@ class TC08__AddPackageSources < TestCase
   test :add_source_file_with_invalid_name do
   depend_on :create_home_project_package_for_user
   
-    navigate_to PackageSourcesPage,
+    navigate_to PackageOverviewPage,
       :project => "home:user1",
       :package => "HomePackage1",
       :user => $data[:user1]
@@ -186,7 +186,7 @@ class TC08__AddPackageSources < TestCase
   test :add_source_file_all_fields_empty do
   depend_on :create_home_project_package_for_user
   
-    navigate_to PackageSourcesPage,
+    navigate_to PackageOverviewPage,
       :project => "home:user1", :package => "HomePackage1", :user => $data[
       :user1]
     open_add_file

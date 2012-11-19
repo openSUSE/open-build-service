@@ -147,7 +147,6 @@ class TC11__EditPackage < TestCase
   def switch_tabs
     open_tab "attributes" 
     open_tab "meta"
-    open_tab "sources"
     open_tab "overview"
     open_tab "revisions"
     open_tab "repositories" 

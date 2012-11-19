@@ -79,7 +79,7 @@ class PackageEditFilePage < PackagePage
 #    assert_equal flash_message_type, :info 
     
     # does not leave
-    # $page = PackageSourcesPage.new_ready @driver
+    # $page = PackageOverviewPage.new_ready @driver
   end
   
   

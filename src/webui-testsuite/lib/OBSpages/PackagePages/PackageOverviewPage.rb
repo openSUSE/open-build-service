@@ -118,5 +118,19 @@ class PackageOverviewPage < PackagePage
     
   end
 
+  # ============================================================================
+  #
+  def open_add_file
+    @driver[xpath: "//*[@id='content']//*[text()='Add file']"].click
+    $page=PackageAddFilePage.new_ready @driver
+  end
+  
+  
+  # ============================================================================
+  #
+  def open_file file
+    @driver[css: "tr##{valid_xml_id('file-' + file)} td:first-child a"].click
+    $page = PackageEditFilePage.new_ready @driver
+  end
 
 end

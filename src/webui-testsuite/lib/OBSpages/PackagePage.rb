@@ -46,7 +46,6 @@ class PackagePage < ProjectPage
   
 
   ALL_PACKAGE_TABS = { "users"        => PackageUsersPage,
-                       "sources"      => PackageSourcesPage,
                        "overview"     => PackageOverviewPage,
                        "requests"     => PackageRequestsPage,
                        "meta"         => PackageRawConfigPage,
