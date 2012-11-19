@@ -70,13 +70,11 @@ class SpiderTest < ActionDispatch::IntegrationTest
       @pages_visited[theone] = @pages_to_visit[theone]
       @pages_to_visit.delete theone
 
-      navtime = Benchmark.realtime do 
-        begin
-          page.visit(theone)
-          page.first(:id, 'header-logo')
-        rescue Timeout::Error
-          next
-        end
+      begin
+        page.visit(theone)
+        page.first(:id, 'header-logo')
+      rescue Timeout::Error
+        next
       end
       body = nil
       begin
@@ -98,7 +96,6 @@ class SpiderTest < ActionDispatch::IntegrationTest
         raise "Found error"
       end
       getlinks(theone, body)
-      #puts "#{Time.now} #{theone} #{navtime}"
     end
   end
 
