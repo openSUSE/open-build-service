@@ -42,11 +42,15 @@ class ActionDispatch::IntegrationTest
     login_user('adrian', 'so_alone')
   end
 
+  def login_king
+     login_user("king", "sunflower", false)
+  end
+
   def logout
     ll = page.first('#logout-link')
     ll.click if ll
   end
-
+  
   @@display = nil
 
   setup do
@@ -69,6 +73,10 @@ class ActionDispatch::IntegrationTest
   end
 
   teardown do
+    if !passed?
+      Dir.mkdir(Rails.root.join("tmp", "capybara"))
+      save_page(Rails.root.join("tmp", "capybara", self.__name__ + ".html"))
+    end
     logout
     Capybara.reset_sessions!
     ActiveXML::transport.direct_http(URI("/test/test_end"))

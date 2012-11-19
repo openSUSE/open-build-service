@@ -86,7 +86,7 @@ class ProjectOverviewPage < ProjectPage
   # will probably get trimmed and stripped when displayed.
   #
   def project_description
-    @driver[:id => "description"].text
+    @driver[:id => "description_text"].text
   end
   
   

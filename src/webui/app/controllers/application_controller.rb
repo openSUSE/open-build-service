@@ -377,6 +377,10 @@ class ApplicationController < ActionController::Base
   @@frontend = nil
   def start_test_api
     return if @@frontend
+    if ENV['API_STARTED']
+      @@frontend = :dont
+      return
+    end
     @@frontend = IO.popen(Rails.root.join('script', 'start_test_api').to_s)
     puts "Starting test API with pid: #{@@frontend.pid}"
     lines = []

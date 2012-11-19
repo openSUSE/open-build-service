@@ -78,7 +78,7 @@ class PackageOverviewPage < PackagePage
   # ============================================================================
   #
   def package_description
-    @driver[:id => "description"].text
+    @driver[:id => "description_text"].text
   end
   
   

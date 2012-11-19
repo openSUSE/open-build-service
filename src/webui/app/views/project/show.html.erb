@@ -8,9 +8,9 @@
     <h3 id="project_title"><%= @project.title %><%= @project if @project.title.to_s.blank? -%></h3>
     <%= description_wrapper(@project.description.text) %>
   </div>
-  <div class="grid_6 omega">
+  <div class="grid_6 omega" id="infos_list">
     <% if (@is_maintenance_project || @nr_of_problem_packages && @nr_of_problem_packages > 0 || @has_patchinfo || @is_incident_project || @releasetargets.length > 0 || @project.is_remote? || @linking_projects.length > 0 || @project_maintenance_project || @project.is_locked?) %>
-      <ul class="clean_list" id="infos_list">
+      <ul class="clean_list">
         <% if @is_maintenance_project %>
           <li>
             <% if @open_maintenance_incidents %>

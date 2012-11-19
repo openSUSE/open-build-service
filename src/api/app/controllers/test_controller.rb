@@ -44,6 +44,9 @@ class TestController < ApplicationController
   def test_end
     DatabaseCleaner.clean
     Rails.cache.clear
+    # for requests the ID is user visible, so reset it to get reproducible results
+    max=BsRequest.maximum(:id)
+    BsRequest.connection.execute("alter table bs_requests AUTO_INCREMENT = #{max+1}")
     render_ok
   end
 end
