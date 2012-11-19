@@ -11,7 +11,7 @@ if File.exists?("#{Rails.root}/tmp/backend_config")
   puts "Old backend data is there. checking if we can stop it"
   %w{bs_srcserver bs_repserver bs_service bs_sched bs_publish bs_productconvert}.each do |srv|
     system("cd #{Rails.root}/tmp/backend_config && exec perl #{perlopts} ./#{srv} --stop 2>&1 && sleep 2")
-  end 
+  end
 end
 
 # check for still running daemons from former run
@@ -26,6 +26,8 @@ end
   end
 end
 
+schedulerdone_file = Rails.root.join("tmp", "scheduler.done")
+File.delete(schedulerdone_file) if File.exists?(schedulerdone_file)
 Thread.abort_on_exception = true
 srcsrv_out = nil
 reposrv_out = nil
@@ -184,7 +186,7 @@ while true
   break
 end
 
-
+puts "Writing config data..."
 Suse::Backend.put( '/issue_trackers', IssueTracker.all.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS))
 Suse::Backend.put( '/source/BaseDistro/_meta', Project.find_by_name('BaseDistro').to_axml)
 Suse::Backend.put( '/source/BaseDistro/_config', "# Empty project config" )
@@ -289,43 +291,48 @@ Suse::Backend.put( '/source/c%2b%2b/_meta', Project.find_by_name('c++').to_axml)
 # manual placing of files
 FileUtils.cp("#{Rails.root}/test/fixtures/backend/source/_pubkey", "#{Rails.root}/tmp/backend_data/projects/BaseDistro.pkg/_pubkey")
 
-#
-# Prepare backend meta and binary data
-#
-
-# run scheduler once
-IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
-   # just for waiting until scheduler finishes
-   io.each {|line| logger.debug line.strip unless line.blank? }
-end
-
-# Inject build job results
-inject_build_job( "home:Iggy", "TestPack", "10.2", "i586" )
-inject_build_job( "HiddenProject", "pack", "nada", "i586" )
-inject_build_job( "BinaryprotectedProject", "bdpack", "nada", "i586" )
-inject_build_job( "SourceprotectedProject", "pack", "repo", "i586" )
-
-# upload a binary file to repository directly
-Suse::Backend.put( '/build/home:Iggy/10.2/i586/_repository/delete_me.rpm?wipe=1', File.open("#{Rails.root}/test/fixtures/backend/binary/delete_me-1.0-1.i586.rpm").read() )
-
-# run scheduler again to handle the build result
-IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
-   # just for waiting until scheduler finishes
-   io.each {|line| logger.debug line.strip unless line.blank? }
-end
-
-# copy build result 
-Suse::Backend.post( '/build/HiddenProject/nada/i586/packCopy?cmd=copy&opackage=pack', nil )
-Suse::Backend.post( '/build/BaseDistro/BaseDistro_repo/i586/pack2?cmd=copy&oproject=home:Iggy&orepository=10.2&opackage=TestPack', nil )
-
-# run scheduler again to handle the copy build event
-IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
-   # just for waiting until scheduler finishes
-   io.each {|line| logger.debug line.strip unless line.blank? }
-end
-
 @http_user = nil
 User.current = nil
+
+scheduler_thread = Thread.new do
+  #
+  # Prepare backend meta and binary data
+  #
+  
+  # run scheduler once
+  IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
+    # just for waiting until scheduler finishes
+    io.each {|line| logger.debug line.strip unless line.blank? }
+  end
+  
+  # Inject build job results
+  inject_build_job( "home:Iggy", "TestPack", "10.2", "i586" )
+  inject_build_job( "HiddenProject", "pack", "nada", "i586" )
+  inject_build_job( "BinaryprotectedProject", "bdpack", "nada", "i586" )
+  inject_build_job( "SourceprotectedProject", "pack", "repo", "i586" )
+  
+  # upload a binary file to repository directly
+  Suse::Backend.put( '/build/home:Iggy/10.2/i586/_repository/delete_me.rpm?wipe=1', File.open("#{Rails.root}/test/fixtures/backend/binary/delete_me-1.0-1.i586.rpm").read() )
+  
+  # run scheduler again to handle the build result
+  IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
+    # just for waiting until scheduler finishes
+    io.each {|line| logger.debug line.strip unless line.blank? }
+  end
+  
+  # copy build result 
+  Suse::Backend.post( '/build/HiddenProject/nada/i586/packCopy?cmd=copy&opackage=pack', nil )
+  Suse::Backend.post( '/build/BaseDistro/BaseDistro_repo/i586/pack2?cmd=copy&oproject=home:Iggy&orepository=10.2&opackage=TestPack', nil )
+  
+  # run scheduler again to handle the copy build event
+  IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
+    # just for waiting until scheduler finishes
+    io.each {|line| logger.debug line.strip unless line.blank? }
+  end
+
+  # touch the file
+  File.open(schedulerdone_file, "w")
+end
 
 puts "DONE NOW"
 $stdout.flush
@@ -346,7 +353,7 @@ Process.kill "TERM", -servicesrv_out.pid
 puts "kill #{publishsrv_out.pid}"
 Process.kill "TERM", -publishsrv_out.pid
 
-
+scheduler_thread.join
 srcsrv_out.close
 srcsrv_out = nil
 srcsrv.join
