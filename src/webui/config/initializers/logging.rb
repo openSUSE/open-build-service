@@ -12,9 +12,9 @@ module ActiveSupport
       sevstring = NUMBER_TO_NAME_MAP[severity]
       color = NUMBER_TO_COLOR_MAP[severity]
       message = (message || (block && block.call) || progname).to_s
+      message ||= ''
       prefix=""
-      return if message.nil?
-      while message && (message[0].ord == 13 or message[0].ord == 10)
+      while !message.blank? && [13,10].include?(message[0].ord)
         prefix = prefix.concat(message[0])
         message = message[1..-1]
       end
