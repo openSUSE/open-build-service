@@ -43,6 +43,67 @@ class SearchController < ApplicationController
     find_attribute(params[:namespace], params[:name])
   end
 
+  def owner
+    params[:attribute] ||= "OBS:BugownerRootProject"
+
+    Suse::Backend.start_test_backend if Rails.env.test?
+
+    unless params[:binary]
+      render_error :status => 400, :errorcode => "no_binary",
+                   :message => "The search needs at least a 'binary' parameter"
+      return
+    end
+
+    at = AttribType.find_by_name(params[:attribute])
+    unless at
+      render_error :status => 404, :errorcode => "unknown_attribute_type",
+                   :message => "Attribute Type #{params[:attribute]} does not exist"
+      return
+    end
+
+    projects = []
+    if params[:project]
+      # default project specified
+      projects = [Project.get_by_name(params[:project])]
+    else
+      # Find all marked projects
+      projects = Project.find_by_attribute_type(at)
+      unless projects.length > 0
+        render_error :status => 400, :errorcode => "attribute_not_set",
+                     :message => "The attribute type #{params[:attribute]} is not set on any projects. No default projects defined."
+        return
+      end
+    end
+
+    # search in each marked project
+    @assignees = []
+    projects.each do |project|
+
+      attrib = project.attribs.find_by_attrib_type_id(at.id)
+      limit  = params[:limit] || 1
+      filter = ["maintainer","bugowner"]
+      devel  = true
+      if params[:filter]
+        filter=params[:filter].split(",")
+      else
+        if attrib and v=attrib.values.find_by_value("BugownerOnly")
+          filter=["bugowner"]
+        end
+      end
+      if params[:devel]
+        devel=false if [ "0", "false" ].include? params[:devel]
+      else
+        if attrib and v=attrib.values.find_by_value("DisableDevel")
+          devel=false
+        end
+      end
+
+      @assignees = project.find_assignees(params[:binary], limit.to_i, devel, filter)
+
+    end
+
+  end
+
   private
 
   def predicate_from_match_parameter(p)

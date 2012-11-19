@@ -1414,7 +1414,17 @@ class RequestController < ApplicationController
 
             # check if package was available via project link and create a branch from it in that case
             if linked_package
-              Suse::Backend.post "/source/#{CGI.escape(action.target_project)}/#{CGI.escape(action.target_package)}?cmd=branch&noservice=1&oproject=#{CGI.escape(linked_package.project.name)}&opackage=#{CGI.escape(linked_package.name)}", nil
+              h = {}
+              h[:cmd] = "branch"
+              h[:user] = @http_user.login
+              h[:comment] = "empty branch to project linked package"
+              h[:requestid] = params[:id]
+              h[:noservice] = "1"
+              h[:oproject] = linked_package.project.name
+              h[:opackage] = linked_package.name
+              cp_path = "/source/#{CGI.escape(action.target_project)}/#{CGI.escape(action.target_package)}"
+              cp_path << build_query_from_hash(h, [:user, :comment, :cmd, :oproject, :opackage, :requestid, :orev, :noservice])
+              Suse::Backend.post cp_path, nil
             end
           end
 

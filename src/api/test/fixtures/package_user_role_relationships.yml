@@ -3,6 +3,11 @@ Iggy_maintainer_TestPack:
   db_package_id: 10095
   bs_user_id: 267
   role_id: 3
+Iggy_bugowner_TestPack:
+  id: 8
+  db_package_id: 10095
+  bs_user_id: 267
+  role_id: 4
 adrian_maintainer_2:
   id: 4
   db_package_id: 11006
