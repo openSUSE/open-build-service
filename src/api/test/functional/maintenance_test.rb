@@ -4,6 +4,11 @@ require 'source_controller'
 class MaintenanceTests < ActionController::IntegrationTest 
   fixtures :all
   
+  def setup
+    super
+    wait_for_scheduler_start
+  end
+
   def test_create_maintenance_project
     reset_auth 
     prepare_request_with_user "tom", "thunder"

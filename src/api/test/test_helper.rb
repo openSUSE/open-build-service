@@ -127,7 +127,7 @@ module ActionController
       Rails.logger.debug "Wait for publisher"
       counter = 0
       while counter < 100
-        events = Dir.open("#{Rails.root}/tmp/backend_data/events/publish")
+        events = Dir.open(Rails.root.join("tmp/backend_data/events/publish"))
         #  3 => ".", ".." and ".ping"
         break unless events.count > 3
         sleep 0.5
@@ -135,6 +135,19 @@ module ActionController
       end
       if counter == 100
         raise "Waited 50 seconds for publisher"
+      end
+    end
+
+    def wait_for_scheduler_start
+      # make sure it's actually tried to start
+      Suse::Backend.start_test_backend
+      Rails.logger.debug "Wait for scheduler thread to finish start"
+      counter = 0
+      marker = Rails.root.join("tmp", "scheduler.done")
+      while counter < 100
+        return if File.exists?(marker)
+        sleep 0.5
+        counter = counter + 1
       end
     end
 
