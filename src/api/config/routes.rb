@@ -209,6 +209,7 @@ OBSApi::Application.routes.draw do
       match 'search/project' => :project
       match 'search/package' => :package
       match 'search/attribute' => :attribute
+      match 'search/owner' => :owner
       match 'search/request' => :bs_request
       match 'search/request/id' => :bs_request_id
       match 'search' => :pass_to_backend
