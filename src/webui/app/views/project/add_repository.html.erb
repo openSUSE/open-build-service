@@ -19,8 +19,8 @@
       success: function(data){
         $('#target_repo').removeAttr('disabled');
         // suggest a name:
-        $('#repo_name').attr('value', project_name.replace(/:/g,'_') + '_' + data.split('\n').shift());
-        $.each(data.split('\n'), function(idx, val) {
+        $('#repo_name').attr('value', project_name.replace(/:/g,'_') + '_' + data[0]);
+        $.each(data, function(idx, val) {
           $('#target_repo').append( new Option( val ) );
           $('#target_repo').show();
           $('#target_repo_txt').hide();
