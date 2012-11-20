@@ -78,6 +78,11 @@ at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
 at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "ScreenShots")
 at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
 
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "OwnerRootProject")
+at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
+at.allowed_values << AttribAllowedValue.new( :value => "DisableDevel" )
+at.allowed_values << AttribAllowedValue.new( :value => "BugownerOnly" )
+
 at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "RequestCloned", :value_count => 1)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)
 at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "ProjectStatusPackageFailComment", :value_count => 1)
@@ -89,7 +94,6 @@ at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)
 
 at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "QualityCategory", :value_count => 1)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)
-
 at.allowed_values << AttribAllowedValue.new( :value => "Stable" )
 at.allowed_values << AttribAllowedValue.new( :value => "Testing" )
 at.allowed_values << AttribAllowedValue.new( :value => "Development" )

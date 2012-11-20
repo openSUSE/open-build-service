@@ -1194,12 +1194,33 @@ class Project < ActiveRecord::Base
     return nil
   end
 
+  def expand_all_projects
+    projects = [self.name]
+    p_map = Hash.new
+    projects.each { |i| p_map[i] = 1 } # existing projects map
+    # add all linked and indirect linked projects
+    self.linkedprojects.each do |lp|
+      if lp.linked_db_project.nil?
+        # FIXME: this is a remote project
+      else
+        lp.linked_db_project.expand_all_projects.each do |p|
+          unless p_map[p]
+            projects << p
+            p_map[p] = 1
+          end
+        end
+      end
+    end
+
+    return projects
+  end
+
   def expand_all_packages
     packages = self.packages.select([:name,:db_project_id])
     p_map = Hash.new
     packages.each { |i| p_map[i.name] = 1 } # existing packages map
     # second path, all packages from indirect linked projects
-    self.linkedprojects.all.each do |lp|
+    self.linkedprojects.each do |lp|
       if lp.linked_db_project.nil?
         # FIXME: this is a remote project
       else
@@ -1213,6 +1234,101 @@ class Project < ActiveRecord::Base
     end
 
     return packages
+  end
+
+  def extract_maintainer(rootproject, pkg, filter)
+    return nil unless pkg
+    return nil unless Package.check_access?(pkg)
+    m = {}
+
+    m[:rootproject] = rootproject.name
+    m[:project] = pkg.project.name
+    m[:package] = pkg.name
+
+    pkg.package_user_role_relationships.each do |p|
+      if filter.include? p.role.title
+        m[:users] ||= {}
+        m[:users][p.role.title] ||= []
+        m[:users][p.role.title] << p.user.login
+      end
+    end
+    pkg.package_group_role_relationships.each do |p|
+      if filter.include? p.role.title
+        m[:groups] ||= {}
+        m[:groups][p.role.title] ||= []
+        m[:groups][p.role.title] << p.group.title
+      end
+    end
+    # did it it match? if not fallback to project level
+    unless m[:users] or m[:groups]
+      m[:package] = nil
+      pkg.project.project_user_role_relationships.each do |p|
+        if filter.include? p.role.title
+          m[:users] ||= {}
+          m[:users][p.role.title] ||= []
+          m[:users][p.role.title] << p.user.login
+        end
+      end
+      pkg.project.project_group_role_relationships.each do |p|
+        if filter.include? p.role.title
+          m[:groups] ||= {}
+          m[:groups][p.role.title] ||= []
+          m[:groups][p.role.title] << p.group.title
+        end
+      end
+    end
+    # still not matched? Ignore it
+    return nil unless  m[:users] or m[:groups]
+
+    return m
+  end
+  private :extract_maintainer
+
+  def find_assignees(binary_name, limit=1, devel=true, filter=["maintainer","bugowner"])
+    maintainers=[]
+    pkg=nil
+    projects=self.expand_all_projects
+
+    # binary search via all projects
+    prjlist = projects.map { |p| "@project='#{CGI.escape(p)}'" }
+    path = "/search/published/binary/id?match=(@name='"+CGI.escape(binary_name)+"'"
+    path += "+and+("
+    path += prjlist.join("+or+")
+    path += "))"
+    answer = Suse::Backend.post path, nil
+    data = Xmlhash.parse(answer.body)
+
+    # found binary package?
+    return [] if data["matches"].to_i == 0
+
+    projects.each do |prj|
+      data["binary"].each do |b|
+        next unless b["project"] == prj
+
+        pkg = Package.find_by_project_and_name( prj, b["package"] )
+        next if pkg.nil?
+
+        # optional check for devel package instance first
+        m = nil
+        m = extract_maintainer(self, pkg.resolve_devel_package, filter) if devel == true
+        m = extract_maintainer(self, pkg, filter) unless m
+        next unless m
+
+        # avoid double entries
+        found=false
+        maintainers.each do |ma|
+          found=true if ma[:project] == m[:project] and ma[:package] ==  m[:package]
+        end
+        next if found==true
+
+        # add entry
+        maintainers << m
+        limit = limit - 1
+        return maintainers if limit == 0
+      end
+    end
+
+    return maintainers
   end
 
   def project_type

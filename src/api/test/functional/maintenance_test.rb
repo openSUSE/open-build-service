@@ -1494,6 +1494,103 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_validate_evergreen_reviewers
+    # Evergreen is an on-top project to our official Update project.
+    # While the official one is using reviewers, the evergreen is linking
+    # to it, but does not want to use reviewers
+
+    # add temporary reviewer
+    prepare_request_with_user "king", "sunflower"
+    get "/source/BaseDistro:Update/_meta"
+    assert_response :success
+    meta = originmeta = ActiveXML::Node.new( @response.body )
+    meta.add_element "person", { :userid => 'adrian', :role => 'reviewer' }
+    put "/source/BaseDistro:Update/_meta", meta.dump_xml
+    assert_response :success
+
+    # ensure target package exists
+    get "/source/BaseDistro:Update/pack2/_meta"
+    assert_response :success
+
+    prepare_request_with_user "tom", "thunder"
+    # create project
+    put "/source/home:tom:EVERGREEN/_meta", "<project name='home:tom:EVERGREEN'> <title/> <description/> 
+                                         <link project='BaseDistro:Update'/>
+                                         <repository name='dummy'>
+                                           <releasetarget project='BaseDistro:Update' repository='BaseDistroUpdateProject_repo' trigger='maintenance' />
+                                           <arch>i586</arch>
+                                          </repository>
+                                        </project>"
+    assert_response :success
+    post "/source/home:tom:EVERGREEN/_attribute", "<attributes><attribute namespace='OBS' name='BranchTarget' /></attributes>"
+    assert_response :success
+    # create package
+    put "/source/home:tom:EVERGREEN/pack/_meta", "<package name='pack'> <title/> <description/> </package>"
+    assert_response :success
+
+    # create release request with default reviewer
+    post "/request?cmd=create", '<request>
+                                   <action type="maintenance_release">
+                                     <source project="home:tom:EVERGREEN" package="pack" />
+                                     <target project="BaseDistro:Update" package="pack2" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    assert_xml_tag :tag => "review"
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:id)
+    reqid = node.value(:id)
+    # revoke to unlock the source
+    post "/request/#{reqid}?cmd=changestate&newstate=revoked"
+    assert_response :success
+
+    # create release request WITHOUT default reviewer
+    post "/request?cmd=create", '<request>
+                                   <action type="maintenance_release">
+                                     <source project="home:tom:EVERGREEN" package="pack" />
+                                     <target project="home:tom:EVERGREEN" package="pack2" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    assert_no_xml_tag :tag => "review"
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:id)
+    reqid = node.value(:id)
+    # revoke to unlock the source
+    post "/request/#{reqid}?cmd=changestate&newstate=revoked"
+    assert_response :success
+
+    # but get reviewer added if defined in own project
+    prepare_request_with_user "king", "sunflower"
+    put "/source/home:tom:EVERGREEN/pack2/_meta", "<package name='pack2'> <title/> <description/> <person userid='adrian' role='reviewer' /> </package>"
+    assert_response :success
+    prepare_request_with_user "tom", "thunder"
+    post "/request?cmd=create", '<request>
+                                   <action type="maintenance_release">
+                                     <source project="home:tom:EVERGREEN" package="pack" />
+                                     <target project="home:tom:EVERGREEN" package="pack2" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    assert_xml_tag :tag => "review"
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:id)
+    reqid = node.value(:id)
+    # revoke to unlock the source
+    post "/request/#{reqid}?cmd=changestate&newstate=revoked"
+    assert_response :success
+
+    #cleanup
+    prepare_request_with_user "king", "sunflower"
+    put "/source/BaseDistro:Update/_meta", originmeta.dump_xml
+    assert_response :success
+    delete "/source/home:tom:EVERGREEN"
+    assert_response :success
+  end
+
   def test_try_to_release_without_permissions_binary_permissions
     prepare_request_with_user "tom", "thunder"
     # create project without trigger

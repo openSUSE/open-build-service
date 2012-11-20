@@ -1742,14 +1742,15 @@ while(1) {
       }
       rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
       $publish_retry{$event} = time() + 60;
+      db_sync();
     } else {
       my $now = time();
       $publish_lasttime{$prp} = $now;
       $publish_duration{$prp} = $now - $starttime;
       BSNotify::notify('REPO_PUBLISH_STATE', { 'project' => $ev->{'project'}, 'repo' => $ev->{'repository'}, 'state' => 'published'} );
+      db_sync();
       unlink("$myeventdir/${event}::inprogress");
     }
-    db_sync();
   }
 
   # check for restart/exit

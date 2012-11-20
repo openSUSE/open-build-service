@@ -688,8 +688,13 @@ class RequestController < ApplicationController
             return
           end
           if action.action_type == :maintenance_release
-            # use orignal/stripped name and also GA projects for maintenance packages
-            tpkg = tprj.find_package action.target_package.gsub(/\.[^\.]*$/, '')
+            # use orignal/stripped name and also GA projects for maintenance packages.
+            # But do not follow project links, if we have a branch target project, like in Evergreen case
+            if tprj.find_attribute("OBS", "BranchTarget")
+              tpkg = tprj.packages.find_by_name action.target_package.gsub(/\.[^\.]*$/, '')
+            else
+              tpkg = tprj.find_package action.target_package.gsub(/\.[^\.]*$/, '')
+            end
           else
             # just the direct affected target
             tpkg = tprj.packages.find_by_name action.target_package
@@ -1075,6 +1080,18 @@ class RequestController < ApplicationController
               end
             end
           end
+          # validate that specified sources do not have conflicts on accepting request
+          if [ :submit, :maintenance_incident ].include? action.action_type and params[:cmd] == "changestate" and params[:newstate] == "accepted"
+            url = "/source/#{CGI.escape(action.source_project)}/#{CGI.escape(action.source_package)}?expand=1"
+            url << "&rev=#{CGI.escape(action.source_rev)}" if action.source_rev
+            begin
+              c = backend_get(url)
+            rescue ActiveXML::Transport::Error
+              render_error :status => 400, :errorcode => "expand_error",
+                :message => "The source of package #{action.source_project}/#{action.source_package}#{action.source_rev ? " for revision #{action.source_rev}":''} is broken"
+              return false
+            end
+          end
           # maintenance_release accept check
           if [ :maintenance_release ].include? action.action_type and params[:cmd] == "changestate" and params[:newstate] == "accepted"
             # compare with current sources
@@ -1414,7 +1431,17 @@ class RequestController < ApplicationController
 
             # check if package was available via project link and create a branch from it in that case
             if linked_package
-              Suse::Backend.post "/source/#{CGI.escape(action.target_project)}/#{CGI.escape(action.target_package)}?cmd=branch&noservice=1&oproject=#{CGI.escape(linked_package.project.name)}&opackage=#{CGI.escape(linked_package.name)}", nil
+              h = {}
+              h[:cmd] = "branch"
+              h[:user] = @http_user.login
+              h[:comment] = "empty branch to project linked package"
+              h[:requestid] = params[:id]
+              h[:noservice] = "1"
+              h[:oproject] = linked_package.project.name
+              h[:opackage] = linked_package.name
+              cp_path = "/source/#{CGI.escape(action.target_project)}/#{CGI.escape(action.target_package)}"
+              cp_path << build_query_from_hash(h, [:user, :comment, :cmd, :oproject, :opackage, :requestid, :orev, :noservice])
+              Suse::Backend.post cp_path, nil
             end
           end
 

@@ -4,6 +4,11 @@ class SearchControllerTest < ActionController::IntegrationTest
   
   fixtures :all
 
+  def setup
+    super
+    wait_for_scheduler_start
+  end
+
   def test_search_unknown
     reset_auth
     get "/search/attribute?namespace=OBS&name=FailedCommend"
@@ -258,6 +263,138 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => 'collection'
     assert get_package_count == (all_packages_count - 3)
+  end
+
+  def test_find_owner
+    prepare_request_with_user "king", "sunflower"
+
+    get "/search/owner"
+    assert_response 400
+    assert_xml_tag :tag => 'status', :attributes => { :code => "no_binary" }
+
+    # must be after first search controller call or backend might not be started on single test case runs
+    wait_for_publisher()
+
+    get "/search/owner?binary='package'"
+    assert_response 400
+    assert_xml_tag :tag => 'status', :attributes => { :code => "attribute_not_set" }
+
+    get "/search/owner?binary='package'&attribute='OBS:does_not_exist'"
+    assert_response 404
+    assert_xml_tag :tag => 'status', :attributes => { :code => "unknown_attribute_type" }
+
+    post "/source/home:Iggy/_attribute", "<attributes><attribute namespace='OBS' name='OwnerRootProject' /></attributes>"
+    assert_response :success
+
+    get "/search/owner?binary=package"
+    assert_response :success
+    assert_xml_tag :tag => 'owner', :attributes => { :rootproject => "home:Iggy", :project => "home:Iggy", :package => "TestPack" }
+    assert_xml_tag :tag => 'person', :attributes => { :name => "fred", :role => "maintainer" }
+    assert_xml_tag :tag => 'person', :attributes => { :name => "Iggy", :role => "maintainer" }
+    assert_xml_tag :tag => 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
+
+    get "/search/owner?binary=package&filter=bugowner"
+    assert_response :success
+    assert_xml_tag :tag => 'owner', :attributes => { :rootproject => "home:Iggy", :project => "home:Iggy", :package => "TestPack" }
+    assert_no_xml_tag :tag => 'person', :attributes => { :name => "fred", :role => "maintainer" }
+    assert_no_xml_tag :tag => 'person', :attributes => { :name => "Iggy", :role => "maintainer" }
+    assert_xml_tag :tag => 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
+
+    # set devel package (this one has another devel package in home:coolo:test)
+    pkg = Package.find_by_project_and_name "home:Iggy", "TestPack"
+    pkg.develpackage = Package.find_by_project_and_name "kde4", "kdelibs"
+    pkg.save
+
+    # include devel package
+    get "/search/owner?binary=package"
+    assert_response :success
+#    assert_no_xml_tag :tag => 'owner', :attributes => { :package => nil }
+    assert_xml_tag :tag => 'owner', :attributes => { :project => "home:coolo:test" }
+    assert_xml_tag :tag => 'person', :attributes => { :name => "tom", :role => "maintainer" }
+
+    # search again, but ignore devel package
+    get "/search/owner?binary=package&devel=false"
+    assert_response :success
+    assert_xml_tag :tag => 'owner', :attributes => { :project => "home:Iggy", :package => "TestPack" }
+    assert_xml_tag :tag => 'person', :attributes => { :name => "fred", :role => "maintainer" }
+    assert_xml_tag :tag => 'person', :attributes => { :name => "Iggy", :role => "maintainer" }
+    assert_xml_tag :tag => 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
+
+    # find all instances
+    get "/search/owner?binary=package&limit=-1&expand=1&devel=false"
+    assert_response :success
+    assert_xml_tag :tag => 'owner', :attributes => { :project => "home:Iggy", :package => "TestPack" }
+    assert_no_xml_tag :tag => 'owner', :attributes => { :project => "home:coolo:test" }
+
+    # search via project link
+    put "/source/TEMPORARY/_meta", "<project name='TEMPORARY'><title/><description/><link project='home:Iggy'/>
+                                      <repository name='standard'>
+                                        <path project='home:Iggy' repository='10.2'/>
+                                        <arch>i586</arch>
+                                      </repository>
+                                    </project>"
+    assert_response :success
+
+    get "/search/owner?project=TEMPORARY&binary=package&limit=-1&expand=1"
+    assert_response :success
+    assert_xml_tag :tag => 'owner', :attributes => { :project => "home:coolo:test" }
+    assert_no_xml_tag :tag => 'owner', :attributes => { :project => "home:Iggy" }
+
+    get "/search/owner?project=TEMPORARY&binary=package&limit=-1&expand=1&devel=false"
+    assert_response :success
+    assert_xml_tag :tag => 'owner', :attributes => { :project => "home:Iggy" }
+    assert_no_xml_tag :tag => 'owner', :attributes => { :project => "home:coolo:test" }
+
+    # additional package
+    put "/source/TEMPORARY/pack/_meta", "<package name='pack' project='TEMPORARY'><title/><description/><group groupid='test_group' role='bugowner'/></package>"
+    assert_response :success
+    raw_put '/source/TEMPORARY/pack/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read()
+    assert_response :success
+    run_scheduler("i586")
+    inject_build_job( "TEMPORARY", "pack", "standard", "i586" )
+    run_scheduler("i586")
+    wait_for_publisher()
+
+    get "/search/owner?project=TEMPORARY&binary=package&limit=-1&devel=false"
+    assert_response :success
+    assert_xml_tag :tag => 'owner', :attributes => { :project => "home:Iggy", :package => "TestPack" }
+    assert_xml_tag :tag => 'owner', :attributes => { :project => "TEMPORARY", :package => "pack" }
+    assert_no_xml_tag :tag => 'owner', :attributes => { :project => "home:coolo:test" }
+    assert_xml_tag :tag => 'group', :attributes => { :name => "test_group", :role => "bugowner" }
+
+    get "/search/owner?project=TEMPORARY&binary=package&devel=false"
+    assert_response :success
+    assert_no_xml_tag :tag => 'owner', :attributes => { :project => "home:Iggy", :package => "TestPack" }
+    assert_xml_tag :tag => 'owner', :attributes => { :project => "TEMPORARY", :package => "pack" }
+    assert_no_xml_tag :tag => 'owner', :attributes => { :project => "home:coolo:test" }
+    assert_xml_tag :tag => 'group', :attributes => { :name => "test_group", :role => "bugowner" }
+
+    get "/search/owner?project=TEMPORARY&binary=package"
+    assert_response :success
+    assert_no_xml_tag :tag => 'owner', :attributes => { :project => "home:Iggy", :package => "TestPack" }
+    assert_xml_tag :tag => 'owner', :attributes => { :project => "TEMPORARY", :package => "pack" }
+    assert_no_xml_tag :tag => 'owner', :attributes => { :project => "home:coolo:test" }
+    assert_xml_tag :tag => 'group', :attributes => { :name => "test_group", :role => "bugowner" }
+
+    # test fall through when higher project has the package, but no bugowner
+    put "/source/TEMPORARY/pack/_meta", "<package name='pack' project='TEMPORARY'><title/><description/></package>"
+    assert_response :success
+    get "/search/owner?project=TEMPORARY&binary=package&filter=bugowner"
+    assert_response :success
+    assert_xml_tag :tag => 'owner', :attributes => { :project => "home:Iggy", :package => "TestPack" }
+    assert_xml_tag :tag => 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
+    assert_no_xml_tag :tag => 'owner', :attributes => { :project => "TEMPORARY", :package => "pack" }
+    assert_no_xml_tag :tag => 'owner', :attributes => { :project => "home:coolo:test" }
+    assert_no_xml_tag :tag => 'group', :attributes => { :name => "test_group", :role => "bugowner" }
+
+    # reset devel package setting again
+    pkg.develpackage = nil
+    pkg.save
+    # cleanup
+    delete "/source/TEMPORARY"
+    assert_response :success
+    delete "/source/home:Iggy/_attribute/OBS:OwnerRootProject"
+    assert_response :success
   end
 
 end
