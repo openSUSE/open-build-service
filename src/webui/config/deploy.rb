@@ -1,4 +1,5 @@
 require 'net/smtp'
+require 'hoptoad_notifier/capistrano'
 
 depend :local, :gem, 'capistrano', '>=2.11.2'
 
@@ -161,5 +162,6 @@ Git log:
   end
 
 end
+
 
 
