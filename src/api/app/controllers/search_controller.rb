@@ -79,21 +79,21 @@ class SearchController < ApplicationController
     @assignees = []
     projects.each do |project|
 
-      attrib = project.attribs.find_by_attrib_type_id(at.id)
+      attrib = project.attribs.where(attrib_type_id: at.id).first
       limit  = params[:limit] || 1
       filter = ["maintainer","bugowner"]
       devel  = true
       if params[:filter]
         filter=params[:filter].split(",")
       else
-        if attrib and v=attrib.values.find_by_value("BugownerOnly")
+        if attrib and v=attrib.values.where(value: "BugownerOnly").first
           filter=["bugowner"]
         end
       end
       if params[:devel]
         devel=false if [ "0", "false" ].include? params[:devel]
       else
-        if attrib and v=attrib.values.find_by_value("DisableDevel")
+        if attrib and v=attrib.values.where(value: "DisableDevel").first
           devel=false
         end
       end

@@ -382,7 +382,7 @@ class SearchControllerTest < ActionController::IntegrationTest
     get "/search/owner?project=TEMPORARY&binary=package&filter=bugowner"
     assert_response :success
     assert_xml_tag :tag => 'owner', :attributes => { :project => "home:Iggy", :package => "TestPack" }
-    assert_xml_tag :tag => 'user', :attributes => { :name => "Iggy", :role => "bugowner" }
+    assert_xml_tag :tag => 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
     assert_no_xml_tag :tag => 'owner', :attributes => { :project => "TEMPORARY", :package => "pack" }
     assert_no_xml_tag :tag => 'owner', :attributes => { :project => "home:coolo:test" }
     assert_no_xml_tag :tag => 'group', :attributes => { :name => "test_group", :role => "bugowner" }

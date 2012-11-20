@@ -1199,7 +1199,7 @@ class Project < ActiveRecord::Base
     p_map = Hash.new
     projects.each { |i| p_map[i] = 1 } # existing projects map
     # add all linked and indirect linked projects
-    self.linkedprojects.all.each do |lp|
+    self.linkedprojects.each do |lp|
       if lp.linked_db_project.nil?
         # FIXME: this is a remote project
       else
@@ -1220,7 +1220,7 @@ class Project < ActiveRecord::Base
     p_map = Hash.new
     packages.each { |i| p_map[i.name] = 1 } # existing packages map
     # second path, all packages from indirect linked projects
-    self.linkedprojects.all.each do |lp|
+    self.linkedprojects.each do |lp|
       if lp.linked_db_project.nil?
         # FIXME: this is a remote project
       else
