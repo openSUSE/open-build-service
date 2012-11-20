@@ -688,8 +688,13 @@ class RequestController < ApplicationController
             return
           end
           if action.action_type == :maintenance_release
-            # use orignal/stripped name and also GA projects for maintenance packages
-            tpkg = tprj.find_package action.target_package.gsub(/\.[^\.]*$/, '')
+            # use orignal/stripped name and also GA projects for maintenance packages.
+            # But do not follow project links, if we have a branch target project, like in Evergreen case
+            if tprj.find_attribute("OBS", "BranchTarget")
+              tpkg = tprj.packages.find_by_name action.target_package.gsub(/\.[^\.]*$/, '')
+            else
+              tpkg = tprj.find_package action.target_package.gsub(/\.[^\.]*$/, '')
+            end
           else
             # just the direct affected target
             tpkg = tprj.packages.find_by_name action.target_package
