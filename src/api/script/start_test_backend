@@ -33,6 +33,7 @@ srcsrv_out = nil
 reposrv_out = nil
 servicesrv_out = nil
 publishsrv_out = nil
+dienow = false
 logger = Rails.logger
 FileUtils.rm_rf("#{Rails.root}/tmp/backend_data")
 FileUtils.rm_rf("#{Rails.root}/tmp/backend_config")
@@ -82,10 +83,11 @@ srcsrv = Thread.new do
     puts "Could not set backend srcserver group to root"
     # what to do?
   end
-  while srcsrv_out
+  while srcsrv_out && !dienow
     begin
       line = srcsrv_out.gets
-      logger.debug line.strip unless line.blank?
+      break if line.nil?
+      logger.debug line.strip unless line.empty?
     rescue IOError
       break
     end
@@ -102,10 +104,11 @@ reposrv = Thread.new do
     # what to do?
     puts "Could not set backend repserver group to root"
   end
-  while reposrv_out
+  while reposrv_out && !dienow
     begin
       line = reposrv_out.gets
-      logger.debug line.strip unless line.blank?
+      break if line.nil?
+      logger.debug line.strip unless line.empty?
     rescue IOError
       break
     end
@@ -122,10 +125,11 @@ servicesrv = Thread.new do
     # what to do?
     puts "Could not set backend serviceserver group to root"
   end
-  while servicesrv_out
+  while servicesrv_out && !dienow
     begin
       line = servicesrv_out.gets
-      logger.debug line.strip unless line.blank?
+      break if line.nil?
+      logger.debug line.strip unless line.empty?
     rescue IOError
       break
     end
@@ -142,7 +146,7 @@ publishsrv = Thread.new do
     # what to do?
     puts "Could not set backend publish server group to root"
   end
-  while publishsrv_out
+  while publishsrv_out && !dienow
     begin
       line = publishsrv_out.gets
       logger.debug line.strip unless line.blank?
@@ -153,7 +157,7 @@ publishsrv = Thread.new do
   end
 end
 
-while true
+while !dienow
   puts "Connecting to srcserver..."
   begin
     Net::HTTP.start(CONFIG['source_host'], CONFIG['source_port']) {|http| http.get('/') }
@@ -164,7 +168,7 @@ while true
   break
 end
 
-while true
+while !dienow
   puts "Connecting to repserver..."
   begin
     Net::HTTP.start(CONFIG['source_host'], 3201) {|http| http.get('/') }
@@ -175,7 +179,7 @@ while true
   break
 end
 
-while true
+while !dienow
   puts "Connecting to serviceserver..."
   begin
     Net::HTTP.start(CONFIG['source_host'], 3202) {|http| http.get('/') }
@@ -294,6 +298,33 @@ FileUtils.cp("#{Rails.root}/test/fixtures/backend/source/_pubkey", "#{Rails.root
 @http_user = nil
 User.current = nil
 
+at_exit do
+  puts "kill #{srcsrv_out.pid}"
+  Process.kill "TERM", -srcsrv_out.pid
+  puts "kill #{reposrv_out.pid}"
+  Process.kill "TERM", -reposrv_out.pid
+  puts "kill #{servicesrv_out.pid}"
+  Process.kill "TERM", -servicesrv_out.pid
+  puts "kill #{publishsrv_out.pid}"
+  Process.kill "TERM", -publishsrv_out.pid
+
+  scheduler_thread.join
+  srcsrv_out.close
+  srcsrv_out = nil
+  srcsrv.join
+  reposrv_out.close
+  reposrv_out = nil
+  reposrv.join
+  servicesrv_out.close
+  servicesrv_out = nil
+  servicesrv.join
+  publishsrv_out.close
+  publishsrv_out = nil
+  publishsrv.join
+  FileUtils.rm_rf("#{Rails.root}/tmp/backend_data")
+  FileUtils.rm_rf("#{Rails.root}/tmp/backend_config")
+end
+
 scheduler_thread = Thread.new do
   #
   # Prepare backend meta and binary data
@@ -337,35 +368,9 @@ end
 puts "DONE NOW"
 $stdout.flush
 
-dienow = false
 trap("INT") { dienow = true }
 
 while !dienow do
   sleep 1
 end
-
-puts "kill #{srcsrv_out.pid}"
-Process.kill "TERM", -srcsrv_out.pid
-puts "kill #{reposrv_out.pid}"
-Process.kill "TERM", -reposrv_out.pid
-puts "kill #{servicesrv_out.pid}"
-Process.kill "TERM", -servicesrv_out.pid
-puts "kill #{publishsrv_out.pid}"
-Process.kill "TERM", -publishsrv_out.pid
-
-scheduler_thread.join
-srcsrv_out.close
-srcsrv_out = nil
-srcsrv.join
-reposrv_out.close
-reposrv_out = nil
-reposrv.join
-servicesrv_out.close
-servicesrv_out = nil
-servicesrv.join
-publishsrv_out.close
-publishsrv_out = nil
-publishsrv.join
-FileUtils.rm_rf("#{Rails.root}/tmp/backend_data")
-FileUtils.rm_rf("#{Rails.root}/tmp/backend_config")
 
