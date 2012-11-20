@@ -47,7 +47,7 @@ class RequestController < ApplicationController
     begin
       BsRequest.modifyReview(opts[:id], opts[:new_review_state], opts)
     rescue BsRequest::ModifyError => e
-      flash[:error] = e.summary
+      flash[:error] = e.message
     end
     redirect_to :action => 'show', :id => opts[:id]
   end
