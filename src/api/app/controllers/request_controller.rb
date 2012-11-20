@@ -1080,6 +1080,18 @@ class RequestController < ApplicationController
               end
             end
           end
+          # validate that specified sources do not have conflicts on accepting request
+          if [ :submit, :maintenance_incident ].include? action.action_type and params[:cmd] == "changestate" and params[:newstate] == "accepted"
+            url = "/source/#{CGI.escape(action.source_project)}/#{CGI.escape(action.source_package)}?expand=1"
+            url << "&rev=#{CGI.escape(action.source_rev)}" if action.source_rev
+            begin
+              c = backend_get(url)
+            rescue ActiveXML::Transport::Error
+              render_error :status => 400, :errorcode => "expand_error",
+                :message => "The source of package #{action.source_project}/#{action.source_package}#{action.source_rev ? " for revision #{action.source_rev}":''} is broken"
+              return false
+            end
+          end
           # maintenance_release accept check
           if [ :maintenance_release ].include? action.action_type and params[:cmd] == "changestate" and params[:newstate] == "accepted"
             # compare with current sources
