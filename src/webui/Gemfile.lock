@@ -51,7 +51,6 @@ GEM
     compass-rails (1.0.3)
       compass (>= 0.12.2, < 0.14)
     cssmin (1.0.2)
-    database_cleaner (0.9.1)
     delayed_job (3.0.4)
       activesupport (~> 3.0)
     delayed_job_active_record (0.3.3)
@@ -194,7 +193,6 @@ DEPENDENCIES
   ci_reporter
   compass-rails
   cssmin (>= 1.0.2)
-  database_cleaner
   delayed_job (> 3.0)
   delayed_job_active_record
   exception_notification
