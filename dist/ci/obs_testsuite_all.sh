@@ -58,6 +58,7 @@ cd ../..
 
 cd src/webui-testsuite
 export OBS_REPORT_DIR=results/
+export HEADLESS=forsure
 bundle exec ruby ./run_acceptance_tests.rb || ret=1
 cd ../..
 
