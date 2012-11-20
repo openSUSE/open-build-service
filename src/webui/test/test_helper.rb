@@ -3,6 +3,10 @@ require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 require 'test/unit/assertions'
 
+require 'simplecov'
+require 'simplecov-rcov'
+SimpleCov.start 'rails' if ENV["DO_COVERAGE"]
+
 require 'headless'
 
 require 'capybara/rails'
@@ -74,8 +78,9 @@ class ActionDispatch::IntegrationTest
 
   teardown do
     if !passed?
-      Dir.mkdir(Rails.root.join("tmp", "capybara"))
-      save_page(Rails.root.join("tmp", "capybara", self.__name__ + ".html"))
+      dirpath = Rails.root.join("tmp", "capybara")
+      Dir.mkdir(dirpath) unless Dir.exists? dirpath
+      save_page(dirpath.join(self.__name__ + ".html"))
     end
     logout
     Capybara.reset_sessions!
