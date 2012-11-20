@@ -127,22 +127,31 @@ module ActiveXML
       end
 
       def find_priv(cache_time, *args )
+        args = prepare_args(args)
         cache_key = calc_key( args )
         if cache_time
           obj = @@object_cache[cache_key]
-          return obj if obj
+          if obj
+            logger.debug "returning #{args.inspect} from object_cache"
+            return obj
+	  end
         end
 
         objhash = nil
         begin
           if cache_time
+            fromcache = true
             objdata, params, objhash = Rails.cache.fetch(cache_key, :expires_in => cache_time) do
-              objdata, params = ActiveXML::transport.find( self, *(prepare_args(args)) )
+              fromcache = false
+              objdata, params = ActiveXML::transport.find( self, *args)
               obj = self.new( objdata )
               [objdata, params, obj.to_hash]
             end
+	    if fromcache
+	      logger.debug "returning #{args.inspect} from rails cache #{cache_key}"  
+	    end
           else
-            objdata, params = ActiveXML::transport.find( self, *(prepare_args(args)) )
+            objdata, params = ActiveXML::transport.find( self, *args)
           end
           obj = self.new( objdata ) unless obj
           obj.instance_variable_set( '@cache_key', cache_key ) if cache_key
@@ -183,7 +192,9 @@ module ActiveXML
           free_args[free_args.length-1] = free_args.last.dup
           free_args.last.delete :expires_in
         end
+	free_args = prepare_args( free_args )
         key = calc_key( free_args )
+	logger.debug "free_cache #{free_args.inspect} #{key}"
         @@object_cache.delete key
         Rails.cache.delete( key )
       end
