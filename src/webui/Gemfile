@@ -25,6 +25,7 @@ end
 
 group :test do
   gem 'ci_reporter'
+  gem 'database_cleaner'
   gem 'simplecov-rcov', :require => false, :group => :test
   # See test/test_helper.rb for details:
   gem 'capybara', '>=2.0'
