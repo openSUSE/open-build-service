@@ -7,10 +7,13 @@ class BsRequest < ActiveXML::Node
 
   class << self
     def make_stub(opt)
-      target_package = ""
+      target_package, target_repository = "", ""
       opt[:description] = "" if !opt.has_key? :description or opt[:description].nil?
       if opt[:targetpackage] and not opt[:targetpackage].empty?
         target_package = "package=\"#{opt[:targetpackage].to_xs}\""
+      end
+      if opt[:targetrepository] and not opt[:targetrepository].empty?
+        target_repository = "repository=\"#{opt[:targetrepository].to_xs}\""
       end
 
       # set request-specific options
@@ -40,7 +43,7 @@ class BsRequest < ActiveXML::Node
           action = "<source project=\"#{opt[:project]}\" />"
           action += "<target project=\"#{opt[:targetproject].to_xs}\" />" unless opt[:targetproject].blank?
         when "delete" then
-          action = "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package}/>"
+          action = "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package} #{target_repository}/>"
       end
       # build the request XML
       reply = <<-EOF

@@ -37,10 +37,13 @@
               });
             <% end %>
             <%= image_tag('drive_delete.png') %>
-            <%= link_to('Remove repository', {:action => :remove_target, :project => @project, :target => repository.name},
+            <%= link_to('Delete repository', {:action => :remove_target, :project => @project, :target => repository.name},
               {:confirm => "Really remove repository '#{repository.name}'?", :class => 'x', :method => :post}) %>
-            <%= render :partial => 'shared/download_repository_link', :locals => {:project => @project, :repository => repository} %>
+          <% else %>
+            <%= image_tag('drive_delete.png') %>
+            <%= link_to('Request repository deletion', {:action => :remove_target_request_dialog, :project => @project, :repository => repository.name}, :remote => true) %>
           <% end %>
+          <%= render :partial => 'shared/download_repository_link', :locals => {:project => @project, :repository => repository} %>
         </div>
       </div>
     </div>
