@@ -18,7 +18,8 @@ class PrivacyController < ApplicationController
         logger.debug "Header value: #{name} = #{val}"
       end
 
-      render_error :code => 401, :message => "iChain configuration error. Sorry."
+      flash[:error] = "iChain configuration error. Sorry."
+      redirect_back_or_to :controller => 'main', :action => 'index'
     end
   end
 end
