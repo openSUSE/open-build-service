@@ -25,12 +25,6 @@ outputlines = true
 frontend = Thread.new do
   cmdline = "ruby ./script/rails"
   frontend_out = IO.popen("cd #{Rails.root.join('..', 'api').to_s}; unset BUNDLE_GEMFILE; exec bundle exec #{cmdline} server -e test -p #{CONFIG['frontend_port']} 2>&1")
-  begin
-    Process.setpgid frontend_out.pid, 0
-  rescue Errno::EACCES
-    # what to do?
-    puts "Could not set API group to root"
-  end
   while frontend_out
     begin
       line = frontend_out.gets
