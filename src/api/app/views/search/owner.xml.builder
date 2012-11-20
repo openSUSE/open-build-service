@@ -2,6 +2,7 @@ xml.collection do
   @assignees.each do |a|
 
     attribs={}
+    attribs[:rootproject] = a[:rootproject]
     attribs[:project] = a[:project]
     attribs[:package] = a[:package] if a[:package]
     xml.owner(attribs) do
@@ -12,17 +13,13 @@ xml.collection do
 
       roles.each do |role|
         if a[:users]
-          xml.send(role) do
-            a[:users][role].each do |user|
-              xml.user user
-            end
+          a[:users][role].each do |user|
+            xml.person( :name => user, :role => role )
           end
         end
         if a[:groups]
-          xml.send(role) do
-            a[:groups][role].each do |group|
-              xml.group group
-            end
+          a[:groups][role].each do |group|
+          xml.group( :name => group, :role => role )
           end
         end
       end

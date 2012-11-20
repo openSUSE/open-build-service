@@ -1236,11 +1236,12 @@ class Project < ActiveRecord::Base
     return packages
   end
 
-  def extract_maintainer(pkg, filter)
+  def extract_maintainer(rootproject, pkg, filter)
     return nil unless pkg
     return nil unless Package.check_access?(pkg)
     m = {}
 
+    m[:rootproject] = rootproject.name
     m[:project] = pkg.project.name
     m[:package] = pkg.name
 
@@ -1309,8 +1310,8 @@ class Project < ActiveRecord::Base
 
         # optional check for devel package instance first
         m = nil
-        m = extract_maintainer(pkg.resolve_devel_package, filter) if devel == true
-        m = extract_maintainer(pkg, filter) unless m
+        m = extract_maintainer(self, pkg.resolve_devel_package, filter) if devel == true
+        m = extract_maintainer(self, pkg, filter) unless m
         next unless m
 
         # avoid double entries

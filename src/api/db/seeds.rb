@@ -78,7 +78,7 @@ at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
 at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "ScreenShots")
 at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
 
-at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "BugownerRootProject")
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "OwnerRootProject")
 at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
 at.allowed_values << AttribAllowedValue.new( :value => "DisableDevel" )
 at.allowed_values << AttribAllowedValue.new( :value => "BugownerOnly" )

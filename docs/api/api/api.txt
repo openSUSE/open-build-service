@@ -1262,9 +1262,9 @@ Parameters:
 
   binary: required parameter: specify the binary package to search for
   devel: true/false: include devel package definitions?
-  limit: limit the number of results. Default is "1" single result. Use -1 for all hits.
+  limit: limit the number of results. Default is "1" single result. Use 0 for all hits.
   project: specify project to search in
-  attribute: specify attribute which is marking the default project(s). Default is OBS:BugownerRootProject
+  attribute: specify attribute which is marking the default project(s). Default is OBS:OwnerRootProject
 
 XmlResult: collection
 
