@@ -47,7 +47,7 @@ class ActionDispatch::IntegrationTest
   end
 
   def login_king
-     login_user("king", "sunflower", false)
+    login_user("king", "sunflower", false)
   end
 
   def logout
@@ -77,12 +77,16 @@ class ActionDispatch::IntegrationTest
   end
 
   teardown do
+    dirpath = Rails.root.join("tmp", "capybara")
+    htmlpath = dirpath.join(self.__name__ + ".html")
     if !passed?
-      dirpath = Rails.root.join("tmp", "capybara")
       Dir.mkdir(dirpath) unless Dir.exists? dirpath
-      save_page(dirpath.join(self.__name__ + ".html"))
+      save_page(htmlpath)
+    elsif File.exists?(htmlpath)
+      File.unlink(htmlpath)
     end
     logout
+    
     Capybara.reset_sessions!
     ActiveXML::transport.direct_http(URI("/test/test_end"))
     Capybara.use_default_driver
