@@ -325,6 +325,7 @@ at_exit do
   publishsrv.join
   FileUtils.rm_rf("#{Rails.root}/tmp/backend_data")
   FileUtils.rm_rf("#{Rails.root}/tmp/backend_config")
+  File.delete(schedulerdone_file) if File.exists?(schedulerdone_file)
 end
 
 scheduler_thread = Thread.new do
