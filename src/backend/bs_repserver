@@ -955,13 +955,35 @@ sub getbinary_info {
   $res->{'filename'} = $path;
   $res->{'filename'} =~ s/.*\///;
   if ($cgi->{'view'} && $cgi->{'view'} eq 'fileinfo_ext') {
-    my $bconf = getconfig($projid, $repoid, $arch);
-    my $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', "project=$projid", "repository=$repoid", "arch=$arch", "nopackages");
+    my $projpack;
+    my $config;
+    if (BSServer::have_content()) {
+      my $projpackxml = BSServer::read_data(10000000);
+      $projpack = BSUtil::fromxml($projpackxml, $BSXML::projpack, 1);
+      $config = '';
+    }
+    if (!$projpack) {
+      $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', "project=$projid", "repository=$repoid", "arch=$arch", "nopackages");
+    }
     die("404 no such project/repository\n") unless $projpack->{'project'};
     my $proj = $projpack->{'project'}->[0];
     die("404 no such project\n") unless $proj && $proj->{'name'} eq $projid;
     my $repo = $proj->{'repository'}->[0];
     die("404 no such repository\n") unless $repo && $repo->{'name'} eq $repoid;
+    my $bconf;
+    $config = $proj->{'config'} if defined $config;	# sent with the content
+    if ($config) {
+      $bconf = Build::read_config($arch, [split("\n", $config)]);
+      if (!$bconf->{'binarytype'}) {
+	$bconf->{'binarytype'} = 'rpm' if $bconf->{'type'} eq 'spec' || $bconf->{'type'} eq 'kiwi';
+	$bconf->{'binarytype'} = 'deb' if $bconf->{'type'} eq 'dsc';
+	$bconf->{'binarytype'} = 'arch' if $bconf->{'type'} eq 'arch';
+	$bconf->{'binarytype'} ||= 'UNKNWON';
+      }
+    } else {
+      $bconf = getconfig($projid, $repoid, $arch);
+    }
+
     my %remotemap = map {$_->{'project'} => $_} @{$projpack->{'remotemap'} || []};
     my @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
     my $pool = BSSolv::pool->new();
@@ -3118,7 +3140,12 @@ sub publisheddir {
 	last if $binary;
       }
       $binary ||= "$extrep/$binaryname";
-      return makeymp($projid, $repoid, $binary);
+      my $projpack;
+      if (BSServer::have_content()) {
+	my $projpackxml = BSServer::read_data(10000000);
+	$projpack = BSUtil::fromxml($projpackxml, $BSXML::projpack, 1);
+      }
+      return makeymp($projid, $repoid, $binary, $projpack);
     }
     @res = ls("$extrep/$arch");
   }
@@ -3128,7 +3155,7 @@ sub publisheddir {
 }
 
 sub makeymp {
-  my ($projid, $repoid, $binary) = @_;
+  my ($projid, $repoid, $binary, $projpackin) = @_;
 
   my $binaryname;
   my $data;
@@ -3145,17 +3172,26 @@ sub makeymp {
   }
   $data = Build::query($binary, 'description' => 1);
   #die("no such binary\n") unless $data;
-  my $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'nopackages', "project=$projid", "repository=$repoid");
+  my $projpack;
+  if ($projpackin && $projpackin->{'project'}->[0]->{'name'} eq $projid) {
+    $projpack = $projpackin;
+  } else {
+    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'nopackages', "project=$projid", "repository=$repoid");
+  }
   my $proj = $projpack->{'project'}->[0];
   die("no such project\n") unless $proj && $proj->{'name'} eq $projid;
   my $repo = $proj->{'repository'}->[0];
   die("no such repository\n") unless $repo && $repo->{'name'} eq $repoid;
   my @nprojids = grep {$_ ne $projid} map {$_->{'project'}} @{$repo->{'path'} || []};
   my %nprojpack;
+  if ($projpackin) {
+    $nprojpack{$_->{'name'}} ||= $_ for @{$projpackin->{'project'} || []};
+  }
+  @nprojids = grep {!$nprojpack{$_}} @nprojids;
   if (@nprojids) {
     my @args = map {"project=$_"} @nprojids;
     my $nprojpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'nopackages', @args);
-    %nprojpack = map {$_->{'name'} => $_} @{$nprojpack->{'project'} || []};
+    $nprojpack{$_->{'name'}} ||= $_ for @{$nprojpack->{'project'} || []};
   }
   my $ymp = {};
   $ymp->{'xmlns:os'} = 'http://opensuse.org/Standards/One_Click_Install';
@@ -3254,7 +3290,12 @@ sub publishedfile {
     return publisheddir($cgi, $projid, $repoid, "$arch/$filename");
   }
   if ($cgi->{'view'} && $cgi->{'view'} eq 'ymp') {
-    return makeymp($projid, $repoid, "$extrep/$filename");
+    my $projpack;
+    if (BSServer::have_content()) {
+      my $projpackxml = BSServer::read_data(10000000);
+      $projpack = BSUtil::fromxml($projpackxml, $BSXML::projpack, 1);
+    }
+    return makeymp($projid, $repoid, "$extrep/$filename", $projpack);
   }
   die("no such file\n") unless -f "$extrep/$filename";
   if ($cgi->{'view'} && $cgi->{'view'} eq 'fileinfo') {

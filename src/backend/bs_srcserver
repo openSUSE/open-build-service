@@ -5386,6 +5386,18 @@ sub getbinary {
     'ignorestatus' => 1,
     'receiver' => \&BSServer::reply_receiver,
   };
+  if ($view && $view eq 'fileinfo_ext') {
+    my $projpack = (getprojpack({'nopackages' => 1, 'withrepos' => 1, 'expandedrepos' => 1, 'withremotemap' => 1, 'withconfig' => 1}, [ $projid ], [ $repoid ], undef, $arch))[0];
+    if ($projpack) {
+      if ($projpack->{'project'} && $projpack->{'project'}->[0]->{'name'} eq $projid) {
+        my $config = (getbuildconfig({}, $projid, $repoid))[0];
+	$projpack->{'project'}->[0]->{'config'} = $config if $config;
+      }
+      $param->{'request'} = 'POST';
+      $param->{'data'} = BSUtil::toxml($projpack, $BSXML::projpack);
+      $param->{'headers'} = [ 'Content-Type: application/octet-stream' ];
+    }
+  }
   if ($proj->{'remoteurl'}) {
     $param->{'uri'} = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/$packid/$filename";
     $param->{'proxy'} = $proxy;
@@ -5965,7 +5977,28 @@ sub listservices {
 sub published {
   my ($cgi, $projid, $repoid, $arch, $filename, $subfilename) = @_;
   my @args;
+  my $projpack;
   die("unknown view '$cgi->{'view'}'\n") if $cgi->{'view'} && $cgi->{'view'} ne 'ymp' && $cgi->{'view'} ne 'fileinfo';
+  if (defined($projid) && defined($repoid) && $cgi->{'view'} && $cgi->{'view'} eq 'ymp') {
+    # attach projpack data so that the repo server does not need to
+    # reconnect us
+    $projpack = (getprojpack({'nopackages' => 1, 'withrepos' => 1, 'expandedrepos' => 1}, [ $projid ], [ $repoid ], undef, 'noarch'))[0];
+    my $proj = $projpack->{'project'}->[0];
+    die("no such project\n") unless $proj && $proj->{'name'} eq $projid;
+    my $repo = $proj->{'repository'}->[0];
+    die("no such repository\n") unless $repo && $repo->{'name'} eq $repoid;
+    $projpack->{'project'} = [ $proj ];
+    my @nprojids = grep {$_ ne $projid} map {$_->{'project'}} @{$repo->{'path'} || []};
+    @nprojids = unify(@nprojids);
+    for my $nprojid (@nprojids) {
+      my $nproj = (getproject({}, $nprojid))[0];
+      push @{$projpack->{'project'}}, {
+	'name' => $nprojid,
+	'title' => $nproj->{'title'} || '',
+	'description' => $nproj->{'description'} || '',
+      };
+    }
+  }
   push @args, "view=$cgi->{'view'}" if $cgi->{'view'};
   my $p = "/published";
   $p .= "/$projid" if defined $projid;
@@ -5978,6 +6011,11 @@ sub published {
     'ignorestatus' => 1,
     'receiver' => \&BSServer::reply_receiver,
   };
+  if ($projpack) {
+    $param->{'request'} = 'POST';
+    $param->{'data'} = BSUtil::toxml($projpack, $BSXML::projpack);
+    $param->{'headers'} = [ 'Content-Type: application/octet-stream' ];
+  }
   BSWatcher::rpc($param, undef, @args);
   return undef;
 }
