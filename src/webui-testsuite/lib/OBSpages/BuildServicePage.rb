@@ -11,7 +11,7 @@ class BuildServicePage < WebPage
   ATTRIBUTES = [ "NSTEST:status",
                  "OBS:VeryImportantProject",
                  "OBS:UpdateProject",
-                 "OBS:BugownerRootProject",
+                 "OBS:OwnerRootProject",
                  "OBS:Maintained",
                  "OBS:RequestCloned",
                  "OBS:InitializeDevelPackage",

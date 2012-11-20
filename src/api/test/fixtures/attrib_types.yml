@@ -22,9 +22,9 @@ OBS_Maintained:
   name: Maintained
   value_count: 0
   attrib_namespace_id: 9
-OBS_BugownerRootProject:
+OBS_OwnerRootProject:
   id: 77
-  name: BugownerRootProject
+  name: OwnerRootProject
   attrib_namespace_id: 9
 OBS_MaintenanceIdTemplate:
   id: 63

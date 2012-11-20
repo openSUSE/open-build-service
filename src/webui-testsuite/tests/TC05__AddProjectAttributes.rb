@@ -104,7 +104,7 @@ class TC05__AddProjectAttributes < TestCase
     add_new_attribute(
       :name  => "OBS:VeryImportantProject")
     add_new_attribute(
-      :name  => "OBS:BugownerRootProject",
+      :name  => "OBS:OwnerRootProject",
       :value => "BugownerOnly")
     add_new_attribute(
       :name  => "OBS:UpdateProject",

@@ -44,7 +44,7 @@ class SearchController < ApplicationController
   end
 
   def owner
-    params[:attribute] ||= "OBS:BugownerRootProject"
+    params[:attribute] ||= "OBS:OwnerRootProject"
 
     Suse::Backend.start_test_backend if Rails.env.test?
 
