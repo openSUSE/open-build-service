@@ -115,4 +115,44 @@ class ProjectControllerTest < ActionDispatch::IntegrationTest
     fill_in 'name', with: 'LocalProject'
     find_button('Create Project').click
   end
+
+  test "request project repository target removal" do
+    # Let user1 create a project with a repo that others can request to delete
+    login_adrian
+    visit project_show_path(project: "home:adrian")
+    find(:link, "Subprojects").click
+    find(:link, "Create subproject").click
+    fill_in "name", with: "hasrepotoremove"
+    find_button("Create Project").click
+    find(:link, "Repositories").click
+    find(:link, "Add repositories").click
+    find(:id, "repo_images").click # aka "KIWI image build" checkbox
+    find_button("Add selected repositories").click
+    logout
+
+    # Now let tom create the repository delete request:
+    login_tom
+    visit project_show_path(project: "home:adrian:hasrepotoremove")
+    find(:link, "Repositories").click
+    find(:link, "Request repository deletion").click
+    # Wait for the dialog to appear
+    assert find(:css, ".dialog h2").has_content? "Create Repository Delete Request"
+    fill_in "description", with: "I don't like the repo"
+    find_button("Ok").click
+    assert find(:css, "span.ui-icon.ui-icon-info").has_text? "Created repository delete request"
+    logout
+
+    # Finally, user1 should accept the request and make sure the repo is gone
+    login_adrian
+    visit project_show_path(project: "home:adrian:hasrepotoremove")
+    find("#tab-requests a").click # The project tab "Requests"
+    find(".request_link").click # Should be the first and only request for this project
+    assert_equal "I don't like the repo", find(:id, "description_text").text
+    fill_in "reason", with: "really? ok"
+    find(:id, "accept_request_button").click
+    visit project_show_path(project: "home:adrian:hasrepotoremove")
+    find(:link, "Repositories").click
+    assert first(:id, "images").nil?  # The repo "images" should be gone by now
+  end
+
 end

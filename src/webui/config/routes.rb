@@ -182,6 +182,8 @@ OBSWebUI::Application.routes.draw do
     match 'project/save_new' => :save_new
     match 'project/save' => :save
     match 'project/save_targets' => :save_targets
+    match 'project/remove_target_request_dialog' => :remove_target_request_dialog
+    match 'project/remove_target_request' => :remove_target_request
     match 'project/remove_target' => :remove_target
     match 'project/remove_path_from_target' => :remove_path_from_target
     match 'project/move_path_up' => :move_path_up
