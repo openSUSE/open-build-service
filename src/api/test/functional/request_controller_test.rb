@@ -114,11 +114,34 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     post "/source/home:Iggy/TestPack.DELETE?target_project=home:Iggy&target_package=TestPack.DELETE2", :cmd => :branch
     assert_response :success
+
+    # create working requests
+    post "/request?cmd=create", '<request>
+                                   <action type="submit">
+                                     <source project="home:Iggy" package="TestPack.DELETE2"/>
+                                     <target project="home:Iggy" package="DUMMY"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:id)
+    id1 = node.value('id')
+
+    # create conflicts
     put "/source/home:Iggy/TestPack.DELETE/conflictingfile", "ASD"
     assert_response :success
     put "/source/home:Iggy/TestPack.DELETE2/conflictingfile", "123"
     assert_response :success
 
+    # accepting request fails in a valid way
+    prepare_request_with_user "king", "sunflower"
+    post "/request/#{id1}?cmd=changestate&newstate=accepted&comment=review1&force=1"
+    assert_response 400
+    assert_xml_tag( :tag => "status", :attributes => {:code => 'expand_error'} )
+
+    # new requests are not possible anymore
+    prepare_request_with_user "Iggy", "asdfasdf"
     post "/request?cmd=create", '<request>
                                    <action type="submit">
                                      <source project="home:Iggy" package="TestPack.DELETE2"/>
