@@ -1,4 +1,4 @@
-= openSUSE API
+= Open Build Service API
 
 Version: 2.4
 
