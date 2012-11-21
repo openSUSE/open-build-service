@@ -26,3 +26,6 @@ group :test do
   gem 'minitest'
 end
 
+group :development do
+  gem 'pry', '>= 0.9.8.4'
+end
