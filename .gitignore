@@ -48,6 +48,7 @@
 /src/webui/config/environments/development.*.rb
 /src/webui/config/options.yml
 /src/webui/config/repositories.rb
+/src/webui/config/initializers/hoptoad.rb
 /src/webui/config/secret.key
 /src/webui/coverage
 /src/webui/coverage.data

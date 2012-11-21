@@ -88,8 +88,6 @@ module OBSWebUI
     
     config.action_controller.perform_caching = true
 
-    config.exceptions_app = self.routes
-
     config.after_initialize do
       # See Rails::Configuration for more options
     end unless Rails.env.test?
