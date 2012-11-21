@@ -245,19 +245,19 @@ class PersonController < ApplicationController
     end
 
     user.watched_projects.each do |wp|
-      old_watchlist << wp.name
+      old_watchlist << wp.project.name
     end
     add_to_watchlist = new_watchlist.collect {|i| old_watchlist.include?(i) ? nil : i}.compact
     remove_from_watchlist = old_watchlist.collect {|i| new_watchlist.include?(i) ? nil : i}.compact
 
     remove_from_watchlist.each do |name|
-      user.watched_projects.find_by_name(name).destroy
+      user.watched_projects.where(project_id: Project.find_by_name(name).id).delete_all
     end
 
     add_to_watchlist.each do |name|
-      user.watched_projects.new(:name => name)
+      user.watched_projects.new(project_id: Project.find_by_name(name).id)
     end
-    true
+    return true
   end
   private :update_watchlist
 
