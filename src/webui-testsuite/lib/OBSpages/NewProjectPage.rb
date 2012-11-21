@@ -101,8 +101,8 @@ class NewProjectPage < BuildServicePage
     @driver[css: "div#content input[name='commit']"].click
     
     if new_project[:expect] == :success
-      validate { flash_message == message_prefix + "was created successfully" }
-      validate { flash_message_type == :info }
+      assert_equal flash_message, message_prefix + "was created successfully"
+      assert_equal flash_message_type, :info 
       $page = ProjectOverviewPage.new_ready @driver
       new_project[:description] = "No description set" if new_project[:description].empty?
       assert_equal CGI::escapeHTML(new_project[:description]), $page.project_description

@@ -31,7 +31,7 @@
           <% if @project.can_edit?( @user ) %>
             <%= image_tag('drive_edit.png') %>
             <%= link_to('Edit repository', {:action => :edit_repository, :project => @project, :repository => repository.name}, :id => "edit_repository_link_#{repository_id}", :remote => true) %>
-            <%= javascript_tag do %>
+            <% content_for :ready_function do %>
               $('#edit_repository_link_<%= repository_id %>').bind('ajax:success', function (event, data, status, xhr) {
                 $("#<%= repository_id %>").html(data);
               });

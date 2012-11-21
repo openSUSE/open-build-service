@@ -1,16 +1,6 @@
 class TC04__EditProject < TestCase
 
   
-  test :switch_home_project_tabs do
-  depend_on :create_home_project_for_user
-
-    navigate_to ProjectOverviewPage, 
-      :user    => $data[:user1],
-      :project => "home:user1"
-    switch_tabs
-  end
-
-  
   test :change_home_project_title do
   depend_on :create_home_project_for_user
 
@@ -45,16 +35,6 @@ class TC04__EditProject < TestCase
   end
 
     
-  test :switch_subproject_tabs do
-  depend_on :create_subproject_for_user
-  
-    navigate_to ProjectOverviewPage, 
-      :user    => $data[:user1],
-      :project => "home:user1:SubProject1"
-    switch_tabs
-  end
-
-  
   test :change_subproject_title do
   depend_on :create_subproject_for_user
   
@@ -88,16 +68,6 @@ class TC04__EditProject < TestCase
   end
 
   
-  test :switch_global_project_tabs do
-  depend_on :create_global_project
-  
-    navigate_to ProjectOverviewPage, 
-      :user    => $data[:admin],
-      :project => "PublicProject1"
-    switch_tabs
-  end
-  
-
   test :change_global_project_title do
   depend_on :create_global_project
   
@@ -131,18 +101,5 @@ class TC04__EditProject < TestCase
       :description => "New description. Not kidding.. Brand new! " + Time.now.to_i.to_s)
   end
 
-  
-  def switch_tabs
-    open_tab "attributes" 
-    open_tab "projectconfig"
-    open_tab "status"
-    open_tab "overview"
-    open_tab "repositories" 
-    open_tab "requests" 
-    open_tab "meta"
-    open_tab "subprojects"
-    open_tab "users"
-  end
-  
   
 end
