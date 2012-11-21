@@ -1527,6 +1527,11 @@ sub getpreinstallimage {
       next if grep {!$neededhdrmd5s{$_}} @{$img->{'hdrmd5s'} || []};
       # ignore our own image
       next if $img->{'prpa'} eq "$projid/$repoid/$buildinfo->{'arch'}" && $img->{'package'} eq $buildinfo->{'package'};
+      if ($buildinfo->{'file'} eq '_preinstallimage') {
+	# for building preinstall images we want at least one new package to avoid cycles
+	my %havehdrmd5 = map {$_ => 1} @{$img->{'hdrmd5s'} || []};
+	next unless grep {!$havehdrmd5{$_}} values %hdrmd5s;
+      }
       $bestimg = $img;
       $bestimgn = @{$img->{'hdrmd5s'} || []};
     }
