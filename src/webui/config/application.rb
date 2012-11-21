@@ -88,6 +88,10 @@ module OBSWebUI
     
     config.action_controller.perform_caching = true
 
+    config.action_dispatch.rescue_responses.merge!('ActiveXML::Transport::UnauthorizedError' => 401)
+    config.action_dispatch.rescue_responses.merge!('ActiveXML::Transport::ConnectionError' => 503)
+    config.action_dispatch.rescue_responses.merge!('ActiveXML::Transport::Error' => 500)
+
     config.after_initialize do
       # See Rails::Configuration for more options
     end unless Rails.env.test?

@@ -11,10 +11,7 @@ class ApidocsControllerTest < ActionDispatch::IntegrationTest
 
   def test_subpage
     visit "/apidocs/whatisthis"
-    assert page.has_text? "A non existing page was requested"
-
-    visit "/apidocs/whatisthis.xml"
-    assert page.has_text? "A non existing page was requested"    
+    assert find('#flash-messages').has_text? "File not found"
 
     visit "/apidocs/project.xml"
     assert page.html =~ %r{project name="superkde"}
