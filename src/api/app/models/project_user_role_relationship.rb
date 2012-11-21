@@ -5,7 +5,7 @@ class ProjectUserRoleRelationship < ActiveRecord::Base
 
   attr_accessible :project, :user, :role
 
-  @@project_user_cache = nil
+  FORBIDDEN_PROJECT_IDS_CACHE_KEY="forbidden_project_ids"
 
   validate :check_duplicates, :on => :create
   def check_duplicates
@@ -20,14 +20,14 @@ class ProjectUserRoleRelationship < ActiveRecord::Base
 
   # this is to speed up secure Project.find
   def self.forbidden_project_ids
-    unless @@project_user_cache
-      @@project_user_cache = Hash.new
+    project_user_cache = Rails.cache.fetch(FORBIDDEN_PROJECT_IDS_CACHE_KEY) do
+      puc = Hash.new
       ProjectUserRoleRelationship.find_by_sql("SELECT ur.db_project_id, ur.bs_user_id from flags f, 
                 project_user_role_relationships ur where f.flag = 'access' and ur.db_project_id = f.db_project_id").each do |r|
-        @@project_user_cache[r.db_project_id.to_i] ||= Hash.new
-        @@project_user_cache[r.db_project_id][r.bs_user_id] = 1
+        puc[r.db_project_id.to_i] ||= Hash.new
+        puc[r.db_project_id][r.bs_user_id] = 1
       end
-      @@project_user_cache
+      puc
     end
     ret = []
     userid = User.nobodyID
@@ -35,7 +35,7 @@ class ProjectUserRoleRelationship < ActiveRecord::Base
       return [0] if User.current.is_admin?
       userid = User.current.id
     end
-    @@project_user_cache.each do |project_id, users|
+    project_user_cache.each do |project_id, users|
       ret << project_id unless users[userid]
     end
     # we always put a 0 in there to avoid having to check for NULL
@@ -44,7 +44,7 @@ class ProjectUserRoleRelationship < ActiveRecord::Base
   end
   
   def self.discard_cache
-    @@project_user_cache = nil
+    Rails.cache.delete(FORBIDDEN_PROJECT_IDS_CACHE_KEY)
   end
 
   after_create 'ProjectUserRoleRelationship.discard_cache'

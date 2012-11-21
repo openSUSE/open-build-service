@@ -6,6 +6,11 @@ class ReadPermissionTest < ActionController::IntegrationTest
 
   fixtures :all
   
+  def setup
+    super
+    wait_for_scheduler_start
+  end
+
   def test_basic_read_tests_public
     # anonymous access only, it is anyway mapped to nobody in public controller
     reset_auth 
@@ -888,6 +893,33 @@ class ReadPermissionTest < ActionController::IntegrationTest
     delete "/source/CopyOfProject"
     assert_response :success
     delete "/source/home:tom/ProtectedPackage"
+    assert_response :success
+  end
+
+  def test_package_branch_with_noaccess
+    prepare_request_with_user "king", "sunflower"
+    get "/source/BaseDistro/_meta"
+    assert_response :success
+    assert_no_xml_tag( :tag => "disable", :parent => { :tag => "access" } )
+
+    # as admin
+    post "/source/home:Iggy/TestPack", :cmd => "branch", :noaccess => "1"
+    assert_response :success
+    assert_no_xml_tag( :tag => "disable", :parent => { :tag => "access" } )
+    get "/source/home:king:branches:home:Iggy/_meta"
+    assert_response :success
+    assert_xml_tag( :tag => "disable", :parent => { :tag => "access" } )
+    delete "/source/home:king:branches:home:Iggy"
+    assert_response :success
+
+    # as user
+    prepare_request_with_user "tom", "thunder"
+    post "/source/home:Iggy/TestPack", :cmd => "branch", :noaccess => "1"
+    assert_response :success
+    get "/source/home:tom:branches:home:Iggy/_meta"
+    assert_response :success
+    assert_xml_tag( :tag => "disable", :parent => { :tag => "access" } )
+    delete "/source/home:tom:branches:home:Iggy"
     assert_response :success
   end
 
