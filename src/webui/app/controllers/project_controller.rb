@@ -632,14 +632,12 @@ class ProjectController < ApplicationController
   end
 
   def save_targets
-    if (not params.has_key?(:target_project) or params[:target_project].empty?) and
-       (not params.has_key?(:torepository) or params[:torepository].empty?) and
-       (not params.has_key?(:repo) or params[:repo].empty?) and
-       (not params.has_key?(:target_repo) and not params.has_key?(:target_repo_txt) or params[:target_repo_txt].empty?)
+    if params[:target_project].blank? and params[:torepository].blank? and
+        params[:repo].blank? and params[:target_repo].blank?
       flash[:error] = "Missing arguments for target project or repository"
       redirect_to :action => "add_repository_from_default_list", :project => @project and return
     end
-    target_repo = params[:target_repo].blank? ? params[:target_repo_txt] : params[:target_repo]
+    target_repo = params[:target_repo]
 
     # extend an existing repository with a path
     if params.has_key?(:torepository)
@@ -654,7 +652,12 @@ class ProjectController < ApplicationController
       end
     elsif params.has_key?(:repo)
       # add new repositories
-      params[:repo].each do |repo|
+      repos = params[:repo]
+      # this interface is a mess
+      if repos.kind_of? String
+	repos=[repos]
+      end
+      repos.each do |repo|
         if !valid_target_name? repo
           flash[:error] = "Illegal target name #{repo}."
           redirect_to :action => :add_repository_from_default_list, :project => @project and return

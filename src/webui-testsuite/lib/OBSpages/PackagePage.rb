@@ -50,8 +50,7 @@ class PackagePage < ProjectPage
                        "requests"     => PackageRequestsPage,
                        "meta"         => PackageRawConfigPage,
                        "revisions"    => PackageRevisionsPage,
-                       "attributes"   => PackageAttributesPage,
-                       "repositories" => PackageRepositoriesPage }
+                       "attributes"   => PackageAttributesPage }
               
   ADVANCED_PACKAGE_TABS = [ "meta", "attributes" ]
   

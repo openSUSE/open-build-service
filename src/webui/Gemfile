@@ -32,6 +32,8 @@ group :test do
   # for save_and_open_page to debug
   gem 'launchy'
   gem 'headless'
+  # random hex strings are just so boring
+  #gem 'faker'
 end
 
 gem 'mysql2'
