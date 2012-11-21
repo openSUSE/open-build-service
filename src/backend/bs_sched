@@ -5324,9 +5324,15 @@ sub event_check {
   my $changed_high = $ectx->{'changed_high'};
   my $changed_dirty = $ectx->{'changed_dirty'};
   my $projid = $ev->{'project'};
-  my $packid = $ev->{'package'};
   my $repoid = $ev->{'repository'};
   my %admincheck;
+  if (!defined($projid)) {
+    my $changed_low = $ectx->{'changed_low'};
+    for my $prp (@prps) {
+      $changed_low->{$prp} ||= 1;
+    }
+    return;
+  }
   if (defined($repoid)) {
     my $prp = "$projid/$repoid";
     $changed_high->{$prp} ||= 1;
