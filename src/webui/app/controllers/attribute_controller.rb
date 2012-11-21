@@ -30,7 +30,6 @@ class AttributeController < ApplicationController
   end
 
   def save
-    valid_http_methods(:post)
     values = params[:values].split(',')
     namespace, name = params[:attribute].split(/:/)
     @attributes.set(namespace, name, values)
@@ -47,7 +46,6 @@ class AttributeController < ApplicationController
   end
 
   def delete
-    valid_http_methods(:post, :delete)
     result = @attributes.delete(params[:namespace], params[:name])
     flash[result[:type]] = result[:msg]
     Attribute.free_cache( @attribute_opts )

@@ -44,7 +44,6 @@ class ConfigurationController < ApplicationController
   end
 
   def update_configuration
-    valid_http_methods :post
     if ! (params[:title] || params[:target_project])
       flash[:error] = "Missing arguments (title or description)"
       redirect_back_or_to :action => 'index' and return
@@ -63,8 +62,6 @@ class ConfigurationController < ApplicationController
   end
 
   def update_architectures
-    valid_http_methods :post
-
     @available_architectures.each do |arch_elem|
       arch = Architecture.find_cached(arch_elem.name) # fetch a real 'Architecture' from 'directory' entry
       if params[:arch_recommended] and params[:arch_recommended].include?(arch.name) and arch.recommended.text == 'false'

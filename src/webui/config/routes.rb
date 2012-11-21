@@ -21,22 +21,22 @@ OBSWebUI::Application.routes.draw do
 
   controller :attribute do
     match 'attribute/edit' => :edit
-    match 'attribute/save' => :save
-    match 'attribute/delete' => :delete
+    match 'attribute/save' => :save, via: :post
+    match 'attribute/delete' => :delete, via: [:post, :delete]
   end
 
   controller :configuration do
     match 'configuration/' => :index
     match 'configuration/connect_instance' => :connect_instance
     match 'configuration/save_instance' => :save_instance
-    match 'configuration/update_configuration' => :update_configuration
-    match 'configuration/update_architectures' => :update_architectures
+    match 'configuration/update_configuration' => :update_configuration, via: :post
+    match 'configuration/update_architectures' => :update_architectures, via: :post
   end
 
   controller :driver_update do
     match 'driver_update/create' => :create
     match 'driver_update/edit' => :edit
-    match 'driver_update/save' => :save
+    match 'driver_update/save' => :save, via: :post
     match 'driver_update/binaries' => :binaries
   end
 
@@ -80,36 +80,36 @@ OBSWebUI::Application.routes.draw do
     match 'package/rdiff' => :rdiff
     match 'package/wizard_new' => :wizard_new
     match 'package/wizard' => :wizard
-    match 'package/save_new' => :save_new
+    match 'package/save_new' => :save_new, via: :post
     match 'package/branch_dialog' => :branch_dialog
-    match 'package/branch' => :branch
-    match 'package/save_new_link' => :save_new_link
-    match 'package/save' => :save
+    match 'package/branch' => :branch, via: :post
+    match 'package/save_new_link' => :save_new_link, via: :post
+    match 'package/save' => :save, via: :post
     match 'package/delete_dialog' => :delete_dialog
-    match 'package/remove' => :remove
+    match 'package/remove' => :remove, via: :post
     match 'package/add_file' => :add_file
-    match 'package/save_file' => :save_file
-    match 'package/remove_file' => :remove_file
-    match 'package/save_person' => :save_person
-    match 'package/save_group' => :save_group
-    match 'package/remove_person' => :remove_person
-    match 'package/remove_group' => :remove_group
+    match 'package/save_file' => :save_file, via: :post
+    match 'package/remove_file' => :remove_file, via: :post
+    match 'package/save_person' => :save_person, via: :post
+    match 'package/save_group' => :save_group, via: :post
+    match 'package/remove_person' => :remove_person, via: :post
+    match 'package/remove_group' => :remove_group, via: :post
     match 'package/view_file' => :view_file
-    match 'package/save_modified_file' => :save_modified_file
-    match 'package/rawsourcefile' => :rawsourcefile
-    match 'package/rawlog' => :rawlog
+    match 'package/save_modified_file' => :save_modified_file, via: :post
+    match 'package/rawsourcefile' => :rawsourcefile, via: :get
+    match 'package/rawlog' => :rawlog, via: :get
     match 'package/live_build_log' => :live_build_log
     match 'package/update_build_log' => :update_build_log
     match 'package/abort_build' => :abort_build
-    match 'package/trigger_rebuild' => :trigger_rebuild
-    match 'package/wipe_binaries' => :wipe_binaries
+    match 'package/trigger_rebuild' => :trigger_rebuild, via: :delete
+    match 'package/wipe_binaries' => :wipe_binaries, via: :delete
     match 'package/devel_project' => :devel_project
     match 'package/buildresult' => :buildresult
     match 'package/rpmlint_result' => :rpmlint_result
     match 'package/rpmlint_log' => :rpmlint_log
     match 'package/set_url_form' => :set_url_form
     match 'package/meta' => :meta
-    match 'package/save_meta' => :save_meta
+    match 'package/save_meta' => :save_meta, via: :post
     match 'package/attributes' => :attributes
     match 'package/edit' => :edit
     match 'package/set_url' => :set_url
@@ -125,10 +125,8 @@ OBSWebUI::Application.routes.draw do
     match 'patchinfo/edit_patchinfo' => :edit_patchinfo
     match 'patchinfo/show' => :show
     match 'patchinfo/read_patchinfo' => :read_patchinfo
-    match 'patchinfo/save' => :save
-    match 'patchinfo/remove' => :remove
-    match 'patchinfo/valid_summary?' => :valid_summary?
-    match 'patchinfo/valid_description?' => :valid_description?
+    match 'patchinfo/save' => :save, via: :post
+    match 'patchinfo/remove' => :remove, via: :post
     match 'patchinfo/new_tracker' => :new_tracker
     match 'patchinfo/get_issue_sum' => :get_issue_sum
     match 'patchinfo/delete_dialog' => :delete_dialog
@@ -169,10 +167,10 @@ OBSWebUI::Application.routes.draw do
     match 'project/add_group' => :add_group
     match 'project/buildresult' => :buildresult
     match 'project/delete_dialog' => :delete_dialog
-    match 'project/delete' => :delete
+    match 'project/delete' => :delete, via: :post
     match 'project/repository_arch_list' => :repository_arch_list
     match 'project/edit_repository' => :edit_repository
-    match 'project/update_target' => :update_target
+    match 'project/update_target' => :update_target, via: :post
     match 'project/repositories' => :repositories
     match 'project/repository_state' => :repository_state
     match 'project/rebuild_time' => :rebuild_time
@@ -181,25 +179,25 @@ OBSWebUI::Application.routes.draw do
     match 'project/requests' => :requests
     match 'project/save_new' => :save_new
     match 'project/save' => :save
-    match 'project/save_targets' => :save_targets
+    match 'project/save_targets' => :save_targets, via: :post
     match 'project/remove_target_request_dialog' => :remove_target_request_dialog
     match 'project/remove_target_request' => :remove_target_request
-    match 'project/remove_target' => :remove_target
+    match 'project/remove_target' => :remove_target, via: :post
     match 'project/remove_path_from_target' => :remove_path_from_target
     match 'project/move_path_up' => :move_path_up
     match 'project/move_path_down' => :move_path_down
-    match 'project/save_person' => :save_person
-    match 'project/save_group' => :save_group
-    match 'project/remove_person' => :remove_person
-    match 'project/remove_group' => :remove_group
+    match 'project/save_person' => :save_person, via: :post
+    match 'project/save_group' => :save_group, via: :post
+    match 'project/remove_person' => :remove_person, via: :post
+    match 'project/remove_group' => :remove_group, via: :post
     match 'project/monitor' => :monitor
     match 'project/filter_matches?' => :filter_matches?
     match 'project/package_buildresult' => :package_buildresult
     match 'project/toggle_watch' => :toggle_watch
     match 'project/meta' => :meta
-    match 'project/save_meta' => :save_meta
+    match 'project/save_meta' => :save_meta, via: :post
     match 'project/prjconf' => :prjconf
-    match 'project/save_prjconf' => :save_prjconf
+    match 'project/save_prjconf' => :save_prjconf, via: :post
     match 'project/change_flag' => :change_flag
     match 'project/clear_failed_comment' => :clear_failed_comment
     match 'project/edit' => :edit
@@ -213,13 +211,13 @@ OBSWebUI::Application.routes.draw do
     match 'project/maintenance_incidents' => :maintenance_incidents
     match 'project/list_incidents' => :list_incidents
     match 'project/unlock_dialog' => :unlock_dialog
-    match 'project/unlock' => :unlock
+    match 'project/unlock' => :unlock, via: :post
   end
 
   controller :request do
     match 'request/add_reviewer_dialog' => :add_reviewer_dialog
     match 'request/add_reviewer' => :add_reviewer
-    match 'request/modify_review' => :modify_review
+    match 'request/modify_review' => :modify_review, via: :post
     match 'request/show/:id' => :show
     match 'request/sourcediff' => :sourcediff
     match 'request/changerequest' => :changerequest
@@ -245,12 +243,12 @@ OBSWebUI::Application.routes.draw do
   controller :user do
     match 'user/do_login' => :do_login
     match 'user/edit' => :edit
-    match 'user/register' => :register
+    match 'user/register' => :register, via: :post
     match 'user/register_user' => :register_user
     match 'user/login' => :login
     match 'user/logout' => :logout
     match 'user/save' => :save
-    match 'user/change_password' => :change_password
+    match 'user/change_password' => :change_password, via: :post
     match 'user/autocomplete' => :autocomplete
   end
 

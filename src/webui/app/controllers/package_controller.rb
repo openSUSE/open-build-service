@@ -366,7 +366,6 @@ class PackageController < ApplicationController
 
 
   def save_new
-    valid_http_methods(:post)
     @package_name = params[:name]
     @package_title = params[:title]
     @package_description = params[:description]
@@ -410,7 +409,6 @@ class PackageController < ApplicationController
   end
 
   def branch
-    valid_http_methods(:post)
     begin
       path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=branch"
       result = ActiveXML::Node.new(frontend.transport.direct_http( URI(path), :method => "POST", :data => "" ))
@@ -434,7 +432,6 @@ class PackageController < ApplicationController
 
 
   def save_new_link
-    valid_http_methods(:post)
     @linked_project = params[:linked_project].strip
     @linked_package = params[:linked_package].strip
     @target_package = params[:target_package].strip
@@ -528,7 +525,6 @@ class PackageController < ApplicationController
   end
 
   def save
-    valid_http_methods(:post)
     @package.title.text = params[:title]
     @package.description.text = params[:description]
     if @package.save
@@ -543,7 +539,6 @@ class PackageController < ApplicationController
   end
 
   def remove
-    valid_http_methods(:post)
     begin
       FrontendCompat.new.delete_package :project => @project, :package => @package
       flash[:note] = "Package '#{@package}' was removed successfully from project '#{@project}'"
@@ -565,7 +560,6 @@ class PackageController < ApplicationController
   end
 
   def save_file
-    valid_http_methods :post
     file = params[:file]
     file_url = params[:file_url]
     filename = params[:filename]
@@ -621,7 +615,6 @@ class PackageController < ApplicationController
   end
 
   def remove_file
-    valid_http_methods :post
     required_parameters :filename
     filename = params[:filename]
     # extra escaping of filename (workaround for rails bug)
@@ -637,7 +630,6 @@ class PackageController < ApplicationController
   end
 
   def save_person
-    valid_http_methods :post
     if not valid_role_name? params[:userid]
       flash[:error] = "Invalid username: #{params[:userid]}"
       redirect_to :action => :add_person, :project => @project, :package => @package, :role => params[:role]
@@ -659,7 +651,6 @@ class PackageController < ApplicationController
   end
 
   def save_group
-    valid_http_methods :post
     #FIXME: API Group controller routes don't support this currently.
     #group = find_cached(Group, params[:groupid])
     group = Group.list(params[:groupid])
@@ -679,7 +670,6 @@ class PackageController < ApplicationController
   end
 
   def remove_person
-    valid_http_methods(:post)
     @package.remove_persons(:userid => params[:userid], :role => params[:role])
     if @package.save
       flash[:note] = "Removed user #{params[:userid]}"
@@ -690,7 +680,6 @@ class PackageController < ApplicationController
   end
 
   def remove_group
-    valid_http_methods :post
     if params[:groupid].blank?
       flash[:note] = "Group removal aborted, no group id given!"
       redirect_to :action => :show, :project => params[:project] and return
@@ -741,7 +730,6 @@ class PackageController < ApplicationController
   end
 
   def save_modified_file
-    valid_http_methods :post
     required_parameters :project, :package, :filename, :file
     project = params[:project]
     package = params[:package]
@@ -784,8 +772,6 @@ class PackageController < ApplicationController
   end
 
   def rawsourcefile
-    valid_http_methods :get
-
     path = "/source/#{params[:project]}/#{params[:package]}/#{params[:file]}"
     path += "?rev=#{params[:srcmd5]}" unless params[:srcmd5].blank?
 
@@ -809,8 +795,6 @@ class PackageController < ApplicationController
   end
 
   def rawlog
-    valid_http_methods :get
-
     path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_log"
 
     # apache & mod_xforward case
@@ -887,12 +871,10 @@ class PackageController < ApplicationController
 
 
   def trigger_rebuild
-    valid_http_methods :delete
     api_cmd('rebuild', params)
   end
 
   def wipe_binaries
-    valid_http_methods :delete
     api_cmd('wipe', params)
   end
 
@@ -1023,7 +1005,6 @@ class PackageController < ApplicationController
   end
 
   def save_meta
-    valid_http_methods :post
     begin
       frontend.put_file(params[:meta], :project => @project, :package => @package, :filename => '_meta')
     rescue ActiveXML::Transport::Error => e

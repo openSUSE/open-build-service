@@ -126,7 +126,6 @@ class PatchinfoController < ApplicationController
   end
 
   def save
-    valid_http_methods :post
     filename = "_patchinfo"
     valid_params = true
     required_parameters :project, :package
@@ -234,7 +233,6 @@ class PatchinfoController < ApplicationController
   end
 
   def remove
-    valid_http_methods(:post)
     begin
       FrontendCompat.new.delete_package :project => @project, :package => @package
       flash[:note] = "'#{@package}' was removed successfully from project '#{@project}'"

@@ -345,7 +345,6 @@ class ProjectController < ApplicationController
   end
 
   def delete
-    valid_http_methods :post
     begin
       if params[:force] == '1'
         @project.delete :force => 1
@@ -396,7 +395,6 @@ class ProjectController < ApplicationController
   end
 
   def update_target
-    valid_http_methods :post
     repo = @project.repository[params[:repo]]
     repo.archs = params[:arch].to_a
     # Merge project repo's arch list with currently available arches from API. This needed as you want
@@ -634,7 +632,6 @@ class ProjectController < ApplicationController
   end
 
   def save_targets
-    valid_http_methods :post
     if (not params.has_key?(:target_project) or params[:target_project].empty?) and
        (not params.has_key?(:torepository) or params[:torepository].empty?) and
        (not params.has_key?(:repo) or params[:repo].empty?) and
@@ -706,7 +703,6 @@ class ProjectController < ApplicationController
   end
 
   def remove_target
-    valid_http_methods :post
     if not params[:target]
       flash[:error] = "Target removal failed, no target selected!"
       redirect_to :action => :show, :project => params[:project]
@@ -747,7 +743,6 @@ class ProjectController < ApplicationController
   end
 
   def save_person
-    valid_http_methods :post
     unless valid_user_name? params[:userid]
       flash[:error] = "No valid user id given!"
       redirect_to :action => :users, :project => params[:project] and return
@@ -770,7 +765,6 @@ class ProjectController < ApplicationController
   end
 
   def save_group
-    valid_http_methods :post
     unless valid_group_name? params[:groupid]
       flash[:error] = "No valid group id given!"
       redirect_to :action => :users, :project => params[:project] and return
@@ -794,7 +788,6 @@ class ProjectController < ApplicationController
   end
 
   def remove_person
-    valid_http_methods :post
     unless valid_user_name? params[:userid]
       flash[:error] = "User removal aborted, no valid user id given!"
       redirect_to :action => :users, :project => params[:project] and return
@@ -809,7 +802,6 @@ class ProjectController < ApplicationController
   end
 
   def remove_group
-    valid_http_methods :post
     unless valid_group_name? params[:groupid]
       flash[:error] = "Group removal aborted, no valid group id given!"
       redirect_to :action => :users, :project => params[:project] and return
@@ -1031,7 +1023,6 @@ class ProjectController < ApplicationController
   end
 
   def save_meta
-    valid_http_methods :post
     begin
       frontend.put_file(params[:meta], :project => params[:project], :filename => '_meta')
     rescue ActiveXML::Transport::Error => e
@@ -1053,7 +1044,6 @@ class ProjectController < ApplicationController
   end
 
   def save_prjconf
-    valid_http_methods :post
     frontend.put_file(params[:config], :project => params[:project], :filename => '_config')
     flash[:note] = "Project Config successfully saved"
     redirect_to :action => :prjconf, :project => params[:project]
@@ -1451,7 +1441,6 @@ class ProjectController < ApplicationController
   def unlock_dialog
   end
   def unlock
-    valid_http_methods :post
     begin
       path = "/source/#{CGI.escape(params[:project])}/?cmd=unlock&comment=#{CGI.escape(params[:comment])}"
       frontend.transport.direct_http(URI(path), :method => "POST", :data => '')
