@@ -18,6 +18,26 @@ class ApplicationController < ActionController::Base
      prepend_before_filter :start_test_api
   end
 
+  # FIXME: This belongs into the user controller my dear.
+  # Also it would be better, but also more complicated, to just raise
+  # HTTPPaymentRequired, UnauthorizedError or Forbidden
+  # here so the exception handler catches it but what the heck...
+  rescue_from ActiveXML::Transport::ForbiddenError do |exception|
+    if exception.code == "unregistered_ichain_user"
+      render :template => "user/request_ichain" and return
+    elsif exception.code == "unregistered_user"
+      render :file => "#{Rails.root}/public/403.html", :status => 402, :layout => false and return
+    elsif exception.code == "unconfirmed_user"
+      render :file => "#{Rails.root}/public/402.html", :status => 402, :layout => false
+    else
+      if @user
+        render :file => "#{Rails.root}/public/403.html", :status => :forbidden, :layout => false 
+      else
+        render :file => "#{Rails.root}/public/401.html", :status => :unauthorized, :layout => false
+      end
+   end
+  end
+  
   class InvalidHttpMethodError < Exception; end
   class MissingParameterError < Exception; end
   class ValidationError < Exception
@@ -288,7 +308,7 @@ class ApplicationController < ActionController::Base
 
     unless document
       self.instance_variable_set(:@_response_body, nil)
-      raise ValidationError.new xmlbody, errors
+      render :template => "xml_errors", :locals => { :oldbody => xmlbody, :errors => errors }, :status => 400
     end
   end
 
