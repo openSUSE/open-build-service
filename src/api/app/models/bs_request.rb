@@ -691,7 +691,8 @@ class BsRequest < ActiveRecord::Base
       end
       if xml.target_project
         action[:tprj] = xml.target_project
-        action[:tpkg] = xml.target_package
+        action[:tpkg] = xml.target_package if xml.target_package
+        action[:trepo] = xml.target_repository if xml.target_repository
       end
 
       case xml.action_type # All further stuff depends on action type...
@@ -729,6 +730,8 @@ class BsRequest < ActiveRecord::Base
       when :delete then
         if action[:tpkg]
           action[:name] = "Delete #{action[:tpkg]}"
+        elsif action[:trepo]
+          action[:name] = "Delete #{action[:trepo]}"
         else
           action[:name] = "Delete #{action[:tprj]}"
         end

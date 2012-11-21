@@ -686,6 +686,24 @@ class ProjectController < ApplicationController
     redirect_back_or_to :action => 'repositories', :project => @project and return
   end
 
+  def remove_target_request_dialog
+    @project = params[:project]
+    @repository = params[:repository]
+  end
+  def remove_target_request
+    begin
+      req = BsRequest.new(:type => "delete", :targetproject => params[:project], :targetrepository => params[:repository], :description => params[:description])
+      req.save(create: true)
+      flash[:success] = "Created <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value("id"))}'>repository delete request #{req.value("id")}</a>"
+    rescue ActiveXML::Transport::NotFoundError => e
+      flash[:error] = e.summary
+      redirect_to :action => :repositories, :project => @project and return
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = e.summary
+      redirect_back_or_to :action => :repositories, :project => @project and return
+    end
+    redirect_to :controller => :request, :action => :show, :id => req.value("id")
+  end
 
   def remove_target
     valid_http_methods :post
