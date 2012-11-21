@@ -53,6 +53,13 @@ Changes on purpose:
 
  * Upload of binaries via api is allowed to administrators now.
 
+ * Package conflicts and obsoletes are taken into account when resolving 
+   dependencies for build jobs. This improves build consistency but may also lead
+   to new "unresolvable" errors, since they were ignored so far. The old behaviour
+   can be restored by adding the following line into the project configuration:
+
+   ExpandFlags: ignoreconflicts
+
 Features
 ========
 
