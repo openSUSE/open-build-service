@@ -80,8 +80,8 @@
           <td>
             <%= link_to(image_tag('req-showdiff.png', :size => '16x16', 
 	    alt: "Show #{reqtype(req)} request ##{req['id']}", 
-	    title: "Show #{reqtype(req)} request ##{req['id']}"), 
-	    controller: :request, :action => :show, :id => req['id']) 
+	    title: "Show #{reqtype(req)} request ##{req['id']}"),
+            {:controller => :request, :action => :show, :id => req['id']}, {:class => "request_link", :id => "request_link_#{req['id']}"})
 	    -%>
             <% if ae['source'] && ae['spkg'] %>
             <%= link_to(image_tag('information.png', :size => '16x16', alt:
