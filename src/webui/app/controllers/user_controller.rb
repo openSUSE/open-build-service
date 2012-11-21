@@ -66,7 +66,6 @@ class UserController < ApplicationController
   end
 
   def register
-    valid_http_methods(:post)
     unless CONFIG['frontend_ldap_mode'] == :off
       flash[:error] = 'Registering currently not possible with LDAP mode'
       redirect_back_or_to :controller => 'main', :action => 'index' and return
@@ -126,7 +125,6 @@ class UserController < ApplicationController
   end
 
   def change_password
-    valid_http_methods(:post)
     # check the valid of the params  
     if not params[:current_password] == session[:password]
       errmsg = "The value of current password does not match your current password. Please enter the password and try again."

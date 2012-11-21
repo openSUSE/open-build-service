@@ -56,8 +56,6 @@ class DriverUpdateController < PackageController
 
 
   def save
-    valid_http_methods :post
-
     @name = params[:name]
     @repositories = params[:projects] || []
     @packages = params[:packages] || []

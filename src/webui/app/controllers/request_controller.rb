@@ -27,8 +27,6 @@ class RequestController < ApplicationController
   end
 
   def modify_review
-    valid_http_methods :post
-
     opts = {}
     params.each do |key, value|
       opts[:new_review_state] = 'accepted' if key == 'accepted'

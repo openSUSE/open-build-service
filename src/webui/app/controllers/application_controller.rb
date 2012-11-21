@@ -38,7 +38,6 @@ class ApplicationController < ActionController::Base
     end
   end
   
-  class InvalidHttpMethodError < Exception; end
   class MissingParameterError < Exception; end
   class ValidationError < Exception
     attr_reader :xml, :errors
@@ -173,13 +172,6 @@ class ApplicationController < ActionController::Base
     transport.delete_additional_header "X-Username"
     transport.delete_additional_header "X-Email"
     transport.delete_additional_header 'Authorization'
-  end
-
-  def valid_http_methods(*methods)
-    methods.map! {|x| x.to_s.upcase}
-    unless methods.include? request.request_method.to_s.upcase
-      raise InvalidHttpMethodError, "Invalid HTTP Method: #{request.method}"
-    end
   end
 
   def required_parameters(*parameters)
