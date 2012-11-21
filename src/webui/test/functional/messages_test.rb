@@ -22,6 +22,13 @@ class MessagesTest < ActionDispatch::IntegrationTest
 
     # check that it's gone
     find(:id, 'messages').has_no_text? message
+    
+    # and now to something completely different - we need to erase home:king
+    # again so that you still get the same interconnect s*** workflow (TODO!!!)
+    visit project_show_path(project: 'home:king')
+    find(:id, 'delete-project').click
+    find_button('Ok').click
+
   end
 
 end

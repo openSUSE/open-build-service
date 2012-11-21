@@ -3,14 +3,12 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 class SignupTest < ActionDispatch::IntegrationTest
 
     def test_login
-      logout
       login_user("tom", "thunderz", false)
 
       assert page.has_text?("Please Login")
       assert page.has_text?("Authentication failed")
  
       login_user("tom", "thunder")
-      logout
     end
 
     def test_setup_opensuse_org
@@ -18,7 +16,6 @@ class SignupTest < ActionDispatch::IntegrationTest
       login_user("king", "sunflower", false)
 
       assert page.has_text?("Connect a remote Open Build Service instance")
-      logout
     end
 
 end

@@ -11,6 +11,8 @@ require 'headless'
 
 require 'capybara/rails'
 Capybara.default_driver = :selenium
+# this is the build service! 2 seconds - HAHAHA
+Capybara.default_wait_time = 10
 
 class ActionDispatch::IntegrationTest
 
