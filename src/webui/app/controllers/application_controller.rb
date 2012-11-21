@@ -35,7 +35,7 @@ class ApplicationController < ActionController::Base
       else
         render :file => "#{Rails.root}/public/401.html", :status => :unauthorized, :layout => false
       end
-   end
+    end
   end
   
   class InvalidHttpMethodError < Exception; end
