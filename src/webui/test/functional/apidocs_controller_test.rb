@@ -11,7 +11,7 @@ class ApidocsControllerTest < ActionDispatch::IntegrationTest
 
   def test_subpage
     visit "/apidocs/whatisthis"
-    assert page.has_text? "File not found"
+    page.has_text? "File not found"
 
     visit "/apidocs/project.xml"
     assert page.html =~ %r{project name="superkde"}

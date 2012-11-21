@@ -24,7 +24,8 @@ class ApidocsController < ApplicationController
     if File.exist?( file )
       send_file( file, :type => "text/xml", :disposition => "inline" )
     else
-      raise ActionController::RoutingError.new("File not found: " + params[:filename])
+      flash[:error] = "File not found: #{params[:filename]}"
+      redirect_back_or_to :controller => 'apidocs', :action => 'index'
     end
     return
   end
