@@ -81,6 +81,7 @@ Job Controlling
 
  --check-project <project> <architecture>
  --check-project <project> <repository> <architecture>
+ --check-all-projects <architecture>
    Check status of a project and its repositories again
 
  --deep-check-project <project> <architecture>
@@ -469,7 +470,8 @@ sub check_meta_xml {
 
 sub write_event {
   my ($project, $repo, $arch, $event, $package) = @_;
-  my $evname = "${event}::$project";
+  my $evname = "${event}";
+  $evname .= "::$project" if defined $project;
   $evname .= "::$package" if defined $package;
   $evname .= "::$repo" if defined $repo;
   my $ev = { 'type' => $event };
@@ -662,6 +664,10 @@ while (@ARGV) {
     $repo = shift @ARGV if @ARGV == 2;
     my $arch = shift @ARGV;
     check_project($project, $repo, $arch);
+  } elsif ( $arg eq "--check-all-projects" ) {
+    die("ERROR: need architecture as argument!\n") if @ARGV < 1;
+    my $arch = shift @ARGV;
+    check_project(undef, undef, $arch);
   } elsif ( $arg eq "--check-package" ) {
     die("ERROR: need project, package and architecture as argument!\n") if @ARGV < 3;
     my $project = shift @ARGV;
