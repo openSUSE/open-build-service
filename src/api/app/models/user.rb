@@ -4,7 +4,7 @@ class User < ActiveRecord::Base
   has_many :taggings, :dependent => :destroy
   has_many :tags, :through => :taggings
 
-  has_many :watched_projects, :foreign_key => 'bs_user_id'
+  has_many :watched_projects, :foreign_key => 'bs_user_id', :dependent => :destroy
   has_many :groups_users, :foreign_key => 'user_id'
   has_many :roles_users, :foreign_key => 'user_id'
   has_many :project_user_role_relationships, :foreign_key => 'bs_user_id'
@@ -839,8 +839,8 @@ class User < ActiveRecord::Base
       # Show the watchlist only to the user for privacy reasons
       if watchlist
         person.watchlist() do |wl|
-          self.watched_projects.each do |project|
-            wl.project( :name => project.name )
+          self.watched_projects.each do |wp|
+            wl.project( :name => wp.project.name )
           end
         end
       end

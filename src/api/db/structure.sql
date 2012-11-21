@@ -682,7 +682,7 @@ CREATE TABLE `users` (
 CREATE TABLE `watched_projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `bs_user_id` int(11) NOT NULL DEFAULT '0',
-  `name` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `project_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `watched_projects_users_fk_1` (`bs_user_id`),
   CONSTRAINT `watched_projects_ibfk_1` FOREIGN KEY (`bs_user_id`) REFERENCES `users` (`id`)
@@ -997,6 +997,8 @@ INSERT INTO schema_migrations (version) VALUES ('20121114093616');
 INSERT INTO schema_migrations (version) VALUES ('20121120110642');
 
 INSERT INTO schema_migrations (version) VALUES ('20121120124300');
+
+INSERT INTO schema_migrations (version) VALUES ('20121121142111');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
