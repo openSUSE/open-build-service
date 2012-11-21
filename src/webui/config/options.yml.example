@@ -78,3 +78,7 @@ proxy_auth_mode: :off
 #proxy_auth_test_email: coolguy@example.com
 #proxy_auth_test_user: coolguy
 
+# see http://colszowka.heroku.com/2011/02/22/setting-up-your-custom-hoptoad-notifier-endpoint-for-free-using-errbit-on-heroku
+#errbit_api_key: api_key_of_your_app
+#errbit_host: installation.of.errbit.com
+
