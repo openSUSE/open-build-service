@@ -39,7 +39,7 @@
             <%= image_tag('drive_delete.png') %>
             <%= link_to('Delete repository', {:action => :remove_target, :project => @project, :target => repository.name},
               {:confirm => "Really remove repository '#{repository.name}'?", :class => 'x', :method => :post}) %>
-          <% else %>
+          <% elsif @user %>
             <%= image_tag('drive_delete.png') %>
             <%= link_to('Request repository deletion', {:action => :remove_target_request_dialog, :project => @project, :repository => repository.name}, :remote => true) %>
           <% end %>

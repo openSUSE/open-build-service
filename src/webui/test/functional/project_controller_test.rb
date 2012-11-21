@@ -130,6 +130,11 @@ class ProjectControllerTest < ActionDispatch::IntegrationTest
     find_button("Add selected repositories").click
     logout
 
+    # check that anonymous has no links
+    visit project_show_path(project: "home:adrian:hasrepotoremove")
+    assert page.has_no_link?("Request repository deletion")
+    assert page.has_no_link?("Remove repository")
+
     # Now let tom create the repository delete request:
     login_tom
     visit project_show_path(project: "home:adrian:hasrepotoremove")
