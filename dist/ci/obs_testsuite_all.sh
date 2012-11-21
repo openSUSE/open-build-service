@@ -52,13 +52,13 @@ echo "Enter WebUI rails root and running rcov"
 setup_api
 setup_webui
 
+export HEADLESS=forsure
 cd src/webui
 bundle exec rake ci:setup:minitest test CI_REPORTS=results --trace || ret=1
 cd ../..
 
 cd src/webui-testsuite
 export OBS_REPORT_DIR=results/
-export HEADLESS=forsure
 bundle exec ruby ./run_acceptance_tests.rb || ret=1
 cd ../..
 
