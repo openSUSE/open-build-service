@@ -275,9 +275,6 @@ class Project < ActiveXML::Node
       to_hash.elements("person") do |p|
         return true if p["role"] == role && p["userid"] == login
       end
-      to_hash.elements("group") do |g|
-        return true if g["role"] == role && user.is_in_group?(g["groupid"])
-      end
     end
     return false
   end

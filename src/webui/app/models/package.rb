@@ -146,9 +146,6 @@ class Package < ActiveXML::Node
       each_person do |p|
         return true if p.role == role and p.userid == user.to_s
       end
-      each_group do |g|
-        return true if g.role == role and user.is_in_group?(g.groupid)
-      end
     end
     return false
   end
