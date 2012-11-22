@@ -572,7 +572,10 @@ class PackageController < ApplicationController
         redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
       end
 
-      @package.save_file :file => file, :filename => filename
+      if !@package.save_file :file => file, :filename => filename
+        flash[:error] = @package.last_error.summary
+        redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
+      end
     elsif not file_url.blank?
       # we have a remote file uri
       @services = find_cached(Service, :project => @project, :package => @package )
@@ -599,10 +602,8 @@ class PackageController < ApplicationController
           flash[:error] = "'#{filename}' is not a valid filename."
           redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
         end
-        begin
-          @package.save_file :filename => filename
-        rescue ActiveXML::Transport::Error => e
-          flash[:error] = e.summary
+        if !@package.save_file :filename => filename
+          flash[:error] = @package.last_error.summary
           redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
         end
       end
