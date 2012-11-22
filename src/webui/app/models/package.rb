@@ -26,6 +26,10 @@ class Package < ActiveXML::Node
     name.to_s
   end
 
+  def last_save_error
+    @last_error
+  end
+
   def save_file(opt = {})
     content = "" # touch an empty file first
     content = opt[:file].read if opt[:file]
@@ -39,7 +43,13 @@ class Package < ActiveXML::Node
     put_opt[:keeplink] = opt[:expand] if opt[:expand]
 
     fc = FrontendCompat.new
-    fc.put_file(content, put_opt)
+    begin
+      fc.put_file(content, put_opt)
+      @last_error = nil
+    rescue ActiveXML::Transport::Error => e
+      @last_error = e
+      return false
+    end
     return true
   end
 

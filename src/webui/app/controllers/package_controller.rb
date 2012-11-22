@@ -98,8 +98,7 @@ class PackageController < ApplicationController
       @fileinfo = find_cached(Fileinfo, :project => @project, :package => @package, :repository => @repository, :arch => @arch,
         :filename => @filename, :view => 'fileinfo_ext')
     rescue ActiveXML::Transport::ForbiddenError => e
-      message = ActiveXML::Transport.extract_error_message(e)[0]
-      flash[:error] = "File #{@filename} can not be downloaded from #{@project}: #{message}"
+      flash[:error] = "File #{@filename} can not be downloaded from #{@project}: #{e.summary}"
     end 
     unless @fileinfo
       flash[:error] = "File \"#{@filename}\" could not be found in #{@repository}/#{@arch}"
@@ -162,8 +161,7 @@ class PackageController < ApplicationController
     begin
       @max_revision = Package.current_rev(@project, @package.name).to_i
     rescue ActiveXML::Transport::ForbiddenError => e
-      message, _, _ = ActiveXML::Transport.extract_error_message e
-      flash[:error] = "Could not access revisions: #{message}"
+      flash[:error] = "Could not access revisions: #{e.summary}"
       redirect_to :action => :show, :project => @project.name, :package => @package.name and return
     end
     @upper_bound = @max_revision
@@ -304,16 +302,15 @@ class PackageController < ApplicationController
     begin
       rdiff = frontend.transport.direct_http URI(path + "&expand=1"), :method => "POST", :data => ""
     rescue ActiveXML::Transport::NotFoundError => e
-      flash.now[:error], _, _ = ActiveXML::Transport.extract_error_message(e)
+      flash.now[:error] = e.summary
       return
     rescue ActiveXML::Transport::Error => e
-      flash.now[:warn], _, _ = ActiveXML::Transport.extract_error_message(e)
+      flash.now[:warn] = e.summary
       begin
         rdiff = frontend.transport.direct_http URI(path + "&expand=0"), :method => "POST", :data => ""
       rescue ActiveXML::Transport::Error => e
-        message, _, _ = ActiveXML::Transport.extract_error_message e
         flash.now[:warn] = nil
-        flash.now[:error] = "Error getting diff: " + message
+        flash.now[:error] = "Error getting diff: " + e.summary
         return
       end
     end
@@ -420,8 +417,8 @@ class PackageController < ApplicationController
       result_project = result.find_first( "/status/data[@name='targetproject']" ).text
       result_package = result.find_first( "/status/data[@name='targetpackage']" ).text
     rescue ActiveXML::Transport::Error => e
-      message, code, _ = ActiveXML::Transport.extract_error_message e
-      if code == "double_branch_package"
+      message = e.summary
+      if e.code == "double_branch_package"
         flash[:note] = "You already branched the package and got redirected to it instead"
         bprj, bpkg = message.split("exists: ")[1].split('/', 2) # Hack to find out branch project / package
         redirect_to :controller => 'package', :action => 'show', :project => bprj, :package => bpkg and return
@@ -487,8 +484,7 @@ class PackageController < ApplicationController
         frontend.transport.direct_http( URI(path), :method => "POST", :data => "" )
         flash[:success] = "Branched package #{@project.name} / #{@target_package}"
       rescue ActiveXML::Transport::Error => e
-        message, code, api_exception = ActiveXML::Transport.extract_error_message e
-        flash[:error] = message
+        flash[:error] = e.summary
       end
     else
       # construct container for link
@@ -505,8 +501,7 @@ class PackageController < ApplicationController
         saved = package.save
       rescue ActiveXML::Transport::ForbiddenError => e
         saved = false
-        message, code, api_exception = ActiveXML::Transport.extract_error_message e
-        flash[:error] = message
+        flash[:error] = e.summary
         redirect_to :controller => 'project', :action => 'new_package_branch', :project => @project and return
       end
 
@@ -554,8 +549,7 @@ class PackageController < ApplicationController
       # Invalidate flag details (for repositories view):
       Package.free_cache( @package.name, :project => @project.name, :view => :flagdetails )
     rescue ActiveXML::Transport::Error => e
-      message = ActiveXML::Transport.extract_error_message(e)[0]
-      flash[:error] = message
+      flash[:error] = e.summary
     end
     redirect_to :controller => 'project', :action => 'show', :project => @project
   end
@@ -578,7 +572,10 @@ class PackageController < ApplicationController
         redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
       end
 
-      @package.save_file :file => file, :filename => filename
+      if !@package.save_file :file => file, :filename => filename
+        flash[:error] = @package.last_error.summary
+        redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
+      end
     elsif not file_url.blank?
       # we have a remote file uri
       @services = find_cached(Service, :project => @project, :package => @package )
@@ -605,10 +602,8 @@ class PackageController < ApplicationController
           flash[:error] = "'#{filename}' is not a valid filename."
           redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
         end
-        begin
-          @package.save_file :filename => filename
-        rescue ActiveXML::Transport::Error => e
-          flash[:error], _, _ = ActiveXML::Transport.extract_error_message e
+        if !@package.save_file :filename => filename
+          flash[:error] = @package.last_error.summary
           redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
         end
       end
@@ -746,7 +741,7 @@ class PackageController < ApplicationController
     rescue Timeout::Error => e
       flash[:error] = "Timeout when saving file. Please try again."
     rescue ActiveXML::Transport::Error => e
-      flash[:error], _, _ = ActiveXML::Transport.extract_error_message e
+      flash[:error] = e.summary
     end
     redirect_to :action => 'view_file', :package => package, :project => project, :filename => filename
   end
@@ -902,8 +897,7 @@ class PackageController < ApplicationController
     begin
       frontend.cmd cmd, options
     rescue ActiveXML::Transport::Error => e
-      message = ActiveXML::Transport.extract_error_message(e)[0]
-      flash[:error] = message
+      flash[:error] = e.summary
       redirect_to :action => :show, :project => @project, :package => @package and return
     end
 
@@ -1013,7 +1007,7 @@ class PackageController < ApplicationController
     begin
       frontend.put_file(params[:meta], :project => @project, :package => @package, :filename => '_meta')
     rescue ActiveXML::Transport::Error => e
-      message = ActiveXML::Transport.extract_error_message(e)[0]
+      message = e.summary
       flash[:error] = message
       @meta = params[:meta]
       render :text => message, :status => 400, :content_type => "text/plain"
