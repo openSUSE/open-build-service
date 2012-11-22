@@ -328,6 +328,7 @@ class SearchControllerTest < ActionController::IntegrationTest
 
     # search via project link
     put "/source/TEMPORARY/_meta", "<project name='TEMPORARY'><title/><description/><link project='home:Iggy'/>
+                                      <group groupid='test_group' role='maintainer' />
                                       <repository name='standard'>
                                         <path project='home:Iggy' repository='10.2'/>
                                         <arch>i586</arch>
@@ -386,6 +387,13 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert_no_xml_tag :tag => 'owner', :attributes => { :project => "TEMPORARY", :package => "pack" }
     assert_no_xml_tag :tag => 'owner', :attributes => { :project => "home:coolo:test" }
     assert_no_xml_tag :tag => 'group', :attributes => { :name => "test_group", :role => "bugowner" }
+
+    # group in project meta
+    get "/search/owner?project=TEMPORARY&binary=package&filter=maintainer"
+    assert_response :success
+    assert_xml_tag :tag => 'owner', :attributes => { :project => "TEMPORARY" }
+    assert_xml_tag :tag => 'person', :attributes => { :name => "king", :role => "maintainer" }
+    assert_xml_tag :tag => 'group', :attributes => { :name => "test_group", :role => "maintainer" }
 
     # reset devel package setting again
     pkg.develpackage = nil
