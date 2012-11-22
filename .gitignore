@@ -32,6 +32,7 @@
 /src/api/files/distributions.xml
 /src/api/log
 /src/api/mkmf.log
+/src/api/tmp
 /src/backend/blib
 /src/backend/BSConfig.pm
 /src/backend/BSSolv.bs
