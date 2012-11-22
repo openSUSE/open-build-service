@@ -53,8 +53,7 @@ class ProjectPage < BuildServicePage
                        "requests"       => ProjectRequestsPage,
                        "meta"           => ProjectRawConfigPage,
                        "attributes"     => ProjectAttributesPage,
-                       "subprojects"    => ProjectSubprojectsPage,
-                       "repositories"   => ProjectRepositoriesPage }
+                       "subprojects"    => ProjectSubprojectsPage }
                      
   ADVANCED_PROJECT_TABS = [ "projectconfig", "status",
                             "meta", "attributes" ]  

@@ -1,4 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"        
+
 class ProjectControllerTest < ActionDispatch::IntegrationTest
   
   test "public projects" do
@@ -39,7 +40,6 @@ class ProjectControllerTest < ActionDispatch::IntegrationTest
   def create_subproject
     login_tom
     visit project_subprojects_path(project: "home:tom")
-    #find(:link, "Subprojects").click
     find(:id, "link-create-subproject").click
   end
 
@@ -128,6 +128,7 @@ class ProjectControllerTest < ActionDispatch::IntegrationTest
     find(:link, "Add repositories").click
     find(:id, "repo_images").click # aka "KIWI image build" checkbox
     find_button("Add selected repositories").click
+    assert page.has_link?("Delete repository")
     logout
 
     # check that anonymous has no links
@@ -158,6 +159,41 @@ class ProjectControllerTest < ActionDispatch::IntegrationTest
     visit project_show_path(project: "home:adrian:hasrepotoremove")
     find(:link, "Repositories").click
     assert first(:id, "images").nil?  # The repo "images" should be gone by now
+  end
+
+  test "add repo" do
+    visit project_repositories_path(project: "home:Iggy")
+    # just check anonymous has no links
+    assert page.has_no_link? "Edit Repository"
+    assert page.has_no_link? "Delete Repository"
+
+    create_subproject
+    fill_in "name", with: "addrepo"
+    find_button("Create Project").click
+    find('#tab-repositories a').click
+    find(:link, 'Add repositories').click
+    find(:id, "repo_images").click # aka "KIWI image build" checkbox
+    find_button("Add selected repositories").click
+    assert first(:id, 'images')
+     
+    find(:link, 'Add repositories').click
+    find(:link, 'advanced interface').click
+    fill_in "target_project", with: "Local"
+    assert page.has_selector? "ul.ui-autocomplete a:contains('LocalProject')"
+    page.execute_script "$('ul.ui-autocomplete a:contains(\"LocalProject\")').mouseenter().click();"
+
+    # wait for the ajax loader to disappear
+    assert page.has_no_selector? 'input[disabled]'
+
+    # wait for autoload of repos
+    assert find('#target_repo')['disabled'].nil?
+    find('#target_repo').select('pop')
+
+    assert_equal find_field('repo_name').value, 'LocalProject_pop'
+    assert find(:id, 'add_repository_button')['disabled'].nil?
+    # somehow the autocomplete logic creates a problem - and click_button refuses to click
+    page.execute_script "$('#add_repository_button').click();"
+    assert find(:id, 'flash-messages').has_text? 'Build targets were added successfully'
   end
 
 end
