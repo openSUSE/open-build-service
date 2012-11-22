@@ -745,79 +745,71 @@ class ProjectController < ApplicationController
     return
   end
 
-  def save_person
-    unless valid_user_name? params[:userid]
-      flash[:error] = "No valid user id given!"
-      redirect_to :action => :users, :project => params[:project] and return
-    end
-    user = find_cached(Person, params[:userid])
-    # FIXME/PITA: For invalid input, the lovely API person controller does a 'LIKE' SQL search to still return data.
-    # This leads to a valid Person model instance with no 'login' set. Instead, it contains a list of _all_ users.
-    # TODO: Add a new API 'show' route that only returns a valid user or nothing.
-    if not user or user.login.nil?
-      flash[:error] = "Unknown user '#{params[:userid]}'"
-      redirect_back_or_to :action => :add_person, :project => @project, :role => params[:role] and return
-    end
-    @project.add_person( :userid => user.login.to_s, :role => params[:role] )
-    if @project.save
-      flash[:note] = "Added user #{user.login} with role #{params[:role]} to project #{@project}"
+  def change_role_options(params, action)
+    ret = { project: @project.name, todo: action }
+    ret[:role] = params[:role] if params.has_key? :role
+    if params.has_key? :userid
+      return ret.merge( { userid: params[:userid] })
     else
-      flash[:error] = "Failed to add user '#{params[:userid]}'"
+      return ret.merge( { groupid: params[:groupid] })
     end
-    redirect_to :action => :users, :project => @project
+  end
+
+  def save_person
+    begin
+      ApiDetails.command(:change_role, change_role_options(params, 'add'))
+      @project.free_cache
+    rescue ApiDetails::CommandFailed => e
+      flash[:error] = e.to_s
+      redirect_to action: :add_person, project: @project, role: params[:role], userid: params[:userid]
+      return
+    end
+    respond_to do |format|
+      format.js { render json: 'ok' }
+      format.html do
+        flash[:note] = "Added user #{params[:userid]} with role #{params[:role]}"
+        redirect_to action: :users, project: @project
+      end
+    end
   end
 
   def save_group
-    unless valid_group_name? params[:groupid]
-      flash[:error] = "No valid group id given!"
-      redirect_to :action => :users, :project => params[:project] and return
-    end
-    #FIXME: API Group controller routes don't support this currently.
-    #group = find_cached(Group, params[:groupid])
-    group = Group.list(params[:groupid])
-    unless group
-      flash[:error] = "Unknown group with id '#{params[:groupid]}'"
-      redirect_to :action => :add_group, :project => @project, :role => params[:role] and return
-    end
     begin
-      @project.add_group(:groupid => params[:groupid], :role => params[:role])
-      @project.save
-      flash[:note] = "Added group #{params[:groupid]} with role #{params[:role]} to project #{@project}"
-    rescue
-      flash[:error] = "Unable to add unknown group '#{params[:groupid]}'"
-      redirect_back_or_to :action => :users, :project => @project, :package => @package and return
+      ApiDetails.command(:change_role, change_role_options(params, 'add'))
+      @project.free_cache
+    rescue ApiDetails::CommandFailed => e
+      flash[:error] = e.to_s
+      redirect_to action: :add_group, project: @project, role: params[:role], groupid: params[:groupid]
+      return
     end
-    redirect_to :action => :users, :project => @project
+    respond_to do |format|
+      format.js { render json: 'ok' }
+      format.html do
+        flash[:note] = "Added group #{params[:groupid]} with role #{params[:role]} to project #{@project}"
+        redirect_to action: :users, project: @project
+      end
+    end
   end
 
-  def remove_person
-    unless valid_user_name? params[:userid]
-      flash[:error] = "User removal aborted, no valid user id given!"
-      redirect_to :action => :users, :project => params[:project] and return
+  def remove_role
+    begin
+      ApiDetails.command(:change_role, change_role_options(params, 'remove'))
+      @project.free_cache
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = e.summary
     end
-    @project.remove_persons(:userid => params[:userid], :role => params[:role])
-    if @project.save
-      flash[:note] = "Removed user '#{params[:userid]}'"
-    else
-      flash[:error] = "Failed to remove user '#{params[:userid]}'"
+    respond_to do |format|
+      format.js { render json: 'ok' }
+      format.html do
+        if params[:userid]
+          flash[:note] = "Removed user #{params[:userid]}"
+        else
+          flash[:note] = "Removed group '#{params[:groupid]}'"
+        end
+        redirect_to action: :users, project: @project
+      end
     end
-    redirect_to :action => :users, :project => params[:project]
   end
-
-  def remove_group
-    unless valid_group_name? params[:groupid]
-      flash[:error] = "Group removal aborted, no valid group id given!"
-      redirect_to :action => :users, :project => params[:project] and return
-    end
-    @project.remove_group(:groupid => params[:groupid], :role => params[:role])
-    if @project.save
-      flash[:note] = "Removed group '#{params[:groupid]}'"
-    else
-      flash[:note] = "Failed to remove group '#{params[:groupid]}'"
-    end
-    redirect_to :action => :users, :project => params[:project]
-  end
-
 
   def monitor
     @name_filter = params[:pkgname]

@@ -268,12 +268,10 @@ class PackageController < ApplicationController
 
   def add_person
     @roles = Role.local_roles
-    Package.free_cache :project => @project, :package => @package
   end
 
   def add_group
     @roles = Role.local_roles
-    Package.free_cache :project => @project, :package => @package
   end
 
   def rdiff
@@ -629,68 +627,70 @@ class PackageController < ApplicationController
     redirect_to :action => :show, :project => @project, :package => @package
   end
 
-  def save_person
-    if not valid_role_name? params[:userid]
-      flash[:error] = "Invalid username: #{params[:userid]}"
-      redirect_to :action => :add_person, :project => @project, :package => @package, :role => params[:role]
-      return
-    end
-    user = find_cached(Person, params[:userid] )
-    unless user
-      flash[:error] = "Unknown user '#{params[:userid]}'"
-      redirect_to :action => :add_person, :project => @project, :package => params[:package], :role => params[:role]
-      return
-    end
-    @package.add_person( :userid => params[:userid], :role => params[:role] )
-    if @package.save
-      flash[:note] = "Added user #{params[:userid]} with role #{params[:role]}"
+  def change_role_options(params, action)
+    ret = { project: @project.name, package: params[:package], todo: action }
+    ret[:role] = params[:role] if params.has_key? :role
+    if params.has_key? :userid
+      return ret.merge( { userid: params[:userid] })
     else
-      flash[:note] = "Failed to add user '#{params[:userid]}'"
+      return ret.merge( { groupid: params[:groupid] })
     end
-    redirect_to :action => :users, :package => @package, :project => @project
+  end
+
+  def save_person
+    begin
+      ApiDetails.command(:change_role, change_role_options(params, 'add'))
+      @package.free_cache
+    rescue ApiDetails::CommandFailed => e
+      flash[:error] = e.to_s
+      redirect_to action: :add_person, project: @project, package: @package, role: params[:role], userid: params[:userid]
+      return
+    end
+    respond_to do |format|
+      format.js { render json: 'ok' }
+      format.html do
+        flash[:note] = "Added user #{params[:userid]} with role #{params[:role]}"
+        redirect_to action: :users, package: @package, project: @project
+      end
+    end
   end
 
   def save_group
-    #FIXME: API Group controller routes don't support this currently.
-    #group = find_cached(Group, params[:groupid])
-    group = Group.list(params[:groupid])
-    unless group
-      flash[:error] = "Unknown group with id '#{params[:groupid]}'"
-      redirect_to :action => :add_group, :project => @project, :package => @package, :role => params[:role] and return
-    end
     begin
-      @package.add_group(:groupid => params[:groupid], :role => params[:role])
-      @package.save
-      flash[:note] = "Added group #{params[:groupid]} with role #{params[:role]} to package #{@package}"
-    rescue
-      flash[:error] = "Unable to add unknown group '#{params[:groupid]}'"
-      redirect_back_or_to :action => :users, :project => @project, :package => @package and return
+      ApiDetails.command(:change_role, change_role_options(params, 'add'))
+      @package.free_cache
+    rescue ApiDetails::CommandFailed => e
+      flash[:error] = e.to_s
+      redirect_to action: :add_group, project: @project, package: @package, role: params[:role], groupid: params[:groupid]
+      return
     end
-    redirect_to :action => :users, :project => @project, :package => @package
+    respond_to do |format|
+      format.js { render json: 'ok' }
+      format.html do
+        flash[:note] = "Added group #{params[:groupid]} with role #{params[:role]} to package #{@package}"
+        redirect_to action: :users, package: @package, project: @project
+      end
+    end
   end
 
-  def remove_person
-    @package.remove_persons(:userid => params[:userid], :role => params[:role])
-    if @package.save
-      flash[:note] = "Removed user #{params[:userid]}"
-    else
-      flash[:note] = "Failed to remove user '#{params[:userid]}'"
+  def remove_role
+    begin
+      ApiDetails.command(:change_role, change_role_options(params, 'remove'))
+      @package.free_cache
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = e.summary
     end
-    redirect_to :action => :users, :project => @project, :package => @package
-  end
-
-  def remove_group
-    if params[:groupid].blank?
-      flash[:note] = "Group removal aborted, no group id given!"
-      redirect_to :action => :show, :project => params[:project] and return
+    respond_to do |format|
+      format.js { render json: 'ok' }
+      format.html do
+        if params[:userid]
+          flash[:note] = "Removed user #{params[:userid]}"
+        else
+          flash[:note] = "Removed group '#{params[:groupid]}'"
+        end
+        redirect_to action: :users, package: @package, project: @project
+      end
     end
-    @project.remove_group(:groupid => params[:groupid], :role => params[:role])
-    if @project.save
-      flash[:note] = "Removed group '#{params[:groupid]}'"
-    else
-      flash[:note] = "Failed to remove group '#{params[:groupid]}'"
-    end
-    redirect_to :action => :users, :project => @project, :package => @package
   end
 
   def view_file
@@ -1015,7 +1015,7 @@ class PackageController < ApplicationController
     end
     
     flash[:note] = "Config successfully saved"
-    Package.free_cache @package, :project => @project
+    @package.free_cache
     render :text => "Config successfully saved", :content_type => "text/plain"
   end
 

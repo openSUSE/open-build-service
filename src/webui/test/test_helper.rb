@@ -74,7 +74,7 @@ class ActionDispatch::IntegrationTest
       rescue Timeout::Error
       end
     end unless ENV['API_STARTED']
-    ActiveXML::transport.direct_http(URI("/test/test_start"))
+    ActiveXML::transport.http_do :post, "/test/test_start"
     Capybara.current_driver = olddriver
   end
 
@@ -90,7 +90,54 @@ class ActionDispatch::IntegrationTest
     logout
     
     Capybara.reset_sessions!
-    ActiveXML::transport.direct_http(URI("/test/test_end"))
+    ActiveXML::transport.http_do(:post, "/test/test_end", timeout: 100)
     Capybara.use_default_driver
   end
+
+  # ============================================================================
+  # Checks if a flash message is displayed on screen
+  #
+  def flash_message_appeared?
+    flash_message_type != nil
+  end
+
+  # ============================================================================
+  # Returns the text of the flash message currenlty on screen
+  # @note Doesn't fail if no message is on screen. Returns empty string instead.
+  # @return [String]
+  #
+  def flash_message
+    results = all(:css, "div#flash-messages p")
+    if results.empty?
+      return "none"
+    end
+    raise "One flash expected, but we had more." if results.count != 1
+    return results.first.text
+  end
+
+  # ============================================================================
+  # Returns the text of the flash messages currenlty on screen
+  # @note Doesn't fail if no message is on screen. Returns empty list instead.
+  # @return [array]
+  #
+  def flash_messages
+    results = all(:css, "div#flash-messages p")
+    ret = []
+    results.each { |r| ret << r.text }
+    return ret
+  end
+
+  # ============================================================================
+  # Returns the type of the flash message currenlty on screen
+  # @note Does not fail if no message is on screen! Returns nil instead!
+  # @return [:info, :alert]
+  #
+  def flash_message_type
+    result = first(:css, "div#flash-messages span")
+    return nil unless result
+    return :info  if result["class"].include? "info"
+    return :alert if result["class"].include? "alert"
+  end
+
+
 end

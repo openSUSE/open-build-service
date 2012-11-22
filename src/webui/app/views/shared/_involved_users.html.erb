@@ -1,51 +1,12 @@
-<% if @user and @user.is_maintainer?(@project, @package) %>
-  <%= content_for :head_javascript do %>
-    function change_role() {
-      str = $(this).attr('id');
+<% user_is_maintainer = (@user and @user.is_maintainer?(@project, @package)) 
+   data = { 'save-user' => url_for(:action => "save_person"),
+            'remove' => url_for(:action => "remove_role"),
+            'save-group' => url_for(:action => "save_group"),
+             project: @project.name }
+   data[:package] = @package.name if @package
+-%>
 
-      // The user/group name as found in the element id can contain underscores, therefore we have
-      // to split off substrings, because the JavaScript split() function is useless. Motivation:
-      // "A_B_C_D".split('_', 2); returns ['A','B'], and not ['A','B','C_D'] as sane languages do.
-      type = str.slice(0, str.indexOf('_')); str = str.slice(str.indexOf('_') + 1);
-      role = str.slice(0, str.indexOf('_')); str = str.slice(str.indexOf('_') + 1);
-
-      data = {project: '<%= @project %>', package: '<%= @package %>', role: role};
-      data[type + 'id'] = str;
-      if (type == 'user') {
-        if ($(this).attr('checked')) {
-          url = '<%= url_for(:action => "save_person") %>';
-        } else {
-          url = '<%= url_for(:action => "remove_person") %>';
-        }
-      } else if (type == 'group') {
-        if ($(this).attr('checked')) {
-          url = '<%= url_for(:action => "save_group") %>';
-        } else {
-          url = '<%= url_for(:action => "remove_group") %>';
-        }
-      }
-
-      $('#' + type + '_spinner').show();
-      $('#' + type + '_table input').animate({opacity: 0.2}, 500);
-      $('#' + type + '_table input').attr("disabled", "true");
-
-      $.ajax({
-        url: url,
-        type: 'POST',
-        data: data,
-        complete: function() {
-          $('#' + type + '_spinner').hide();
-          $('#' + type + '_table input').animate({opacity: 1}, 200);
-          $('#' + type + '_table input').removeAttr('disabled');
-        }
-      });
-    }
-  <% end -%>
-<% end %>
-
-<% user_is_maintainer = (@user and @user.is_maintainer?(@project, @package)) %>
-
-<div id="involved_users">
+<%= content_tag(:div, id: "involved_users", data: data) do %>
   <% if @users and @users.length > 0 %>
     <h3>User Roles <%= image_tag 'ajax-loader.gif', :id => 'user_spinner', :class => 'hidden' %></h3>
     <table id="user_table">
@@ -63,21 +24,18 @@
   	<tr id='user-<%= valid_xml_id(user) %>'>
             <td><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => user}%></td>
             <% @roles.each do |role| %>
-              <td>
+              <%= content_tag(:td, data: { user: user, role: role, type: 'user' }) do %>
                 <% if defined? @package %>
-                  <%= check_box_tag("user_" + role + "_" + user, '', @package.user_has_role?(user, role), :disabled => !user_is_maintainer, :class => "trigger") %>
+                  <%= check_box_tag("user_" + role + "_" + user, '',
+                      @package.user_has_role?(user, role), 
+		      disabled: !user_is_maintainer, class: "trigger") %>
                   <% if @project.user_has_role?(user, role) %>
                     <%= link_to(image_tag('project.png', :alt => "Inherited from project", :title => "Inherited from project"), :controller => "project", :action => "users", :project => @project) %>
                   <% end %>
                 <% else %>
                   <%= check_box_tag("user_" + role + "_" + user, '', @project.user_has_role?(user, role), :disabled => !user_is_maintainer, :class => "trigger") %>
                 <% end %>
-                <% if user_is_maintainer %>
-                  <%= javascript_tag do %>
-                    $('#user_<%= role %>_<%= user %>').change(change_role);
-                  <% end %>
-                <% end %>
-              </td>
+              <% end %>
             <% end %>
             <td class="nowrap">
               <% if @user -%>
@@ -85,7 +43,7 @@
                 <% mail_to += '/' + @package.name if defined? @package %>
                 <%= link_to(image_tag('email.png', :alt => "Send mail", :title => "Send mail to user"), mail_to) %>
                 <% if user_is_maintainer %>
-                  <%= link_to image_tag('user_delete.png', :alt => "Remove", :title => "Remove user"), {:action => "remove_person", :project => @project, :package => @package, :userid => user}, {:confirm => "Really remove '#{user}'?", :method => :post, class: 'remove-user'}%>
+                  <%= link_to image_tag('user_delete.png', :alt => "Remove", :title => "Remove user"), {:action => "remove_role", :project => @project, :package => @package, :userid => user}, {:confirm => "Really remove '#{user}'?", :method => :post, class: 'remove-user'}%>
                 <% end %>
               <% end %>
             </td>
@@ -119,7 +77,7 @@
           <tr>
             <td><%= link_to(group, group_path(group)) %></td>
             <% @roles.each do |role| %>
-              <td>
+	      <%= content_tag(:td, data: { group: group, role: role, type: 'group' }) do %>
                 <% if defined? @package %>
                   <%= check_box_tag("group_" + role + "_" + group, '', @package.group_has_role?(group, role), disabled: !user_is_maintainer, :class => :trigger) %>
                   <% if @project.group_has_role?(group, role) %>
@@ -128,16 +86,11 @@
                 <% else %>
                   <%= check_box_tag("group_" + role + "_" + group, '', @project.group_has_role?(group, role), disabled: !user_is_maintainer, :class => :trigger) %>
                 <% end %>
-                <% if user_is_maintainer %>
-                  <%= javascript_tag do %>
-                    $('#group_<%= role %>_<%= group %>').change(change_role);
-                  <% end %>
-                <% end %>
-              </td>
+	      <% end %>
             <% end %>
             <% if user_is_maintainer %>
               <td>
-                <%= link_to image_tag('group_delete.png', :alt => "Remove", :title => "Remove group"), {:action => "remove_group", :project => @project, :package => @package, :groupid => group}, {:confirm => "Really remove '#{group}'?", :method => :post}%>
+                <%= link_to image_tag('group_delete.png', :alt => "Remove", :title => "Remove group"), {:action => "remove_role", :project => @project, :package => @package, :groupid => group}, {:confirm => "Really remove '#{group}'?", :method => :post}%>
               </td>
             <% end %>
           </tr>
@@ -150,7 +103,7 @@
       <%= link_to sprite_tag('group_add') + 'Add group', :action => :add_group, :package => @package, :project => @project %>
     </p>
   <% end %>
-</div>
+<% end %>
 
 <%= content_for :ready_function do %>
     <% if @users and @users.length > 0 %>
@@ -177,5 +130,8 @@
         'bInfo': false,
         'bPaginate': false,
       });
+    <% end %>
+    <% if user_is_maintainer %>
+      $(".trigger").click(function() { change_role($(this)) } );
     <% end %>
 <% end %>

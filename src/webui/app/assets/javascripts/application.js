@@ -265,3 +265,33 @@ $(document).ready(function() {
     'iDisplayLength': 25,
   });
 });
+
+function change_role(obj) {
+    var td = obj.parent("td");
+    var type = td.data("type");
+    var role = td.data("role");
+    
+    var url;
+    data = {project: $('#involved_users').data("project"), package: $('#involved_users').data("package"), role: role};
+    data[type + 'id'] = td.data(type);
+    if (obj.attr('checked')) {
+        url = $('#involved_users').data("save-" + type);
+    } else {
+        url = $('#involved_users').data("remove")
+    }
+
+    $('#' + type + '_spinner').show();
+    $('#' + type + '_table input').animate({opacity: 0.2}, 500);
+    $('#' + type + '_table input').attr("disabled", "true");
+    
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: data,
+        complete: function() {
+            $('#' + type + '_spinner').hide();
+            $('#' + type + '_table input').animate({opacity: 1}, 200);
+            $('#' + type + '_table input').removeAttr('disabled');
+        }
+    });
+}

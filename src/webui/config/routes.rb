@@ -92,8 +92,7 @@ OBSWebUI::Application.routes.draw do
     match 'package/remove_file' => :remove_file, via: :post
     match 'package/save_person' => :save_person, via: :post
     match 'package/save_group' => :save_group, via: :post
-    match 'package/remove_person' => :remove_person, via: :post
-    match 'package/remove_group' => :remove_group, via: :post
+    match 'package/remove_role' => :remove_role, via: :post
     match 'package/view_file' => :view_file
     match 'package/save_modified_file' => :save_modified_file, via: :post
     match 'package/rawsourcefile' => :rawsourcefile, via: :get
@@ -189,6 +188,7 @@ OBSWebUI::Application.routes.draw do
     match 'project/move_path_down' => :move_path_down
     match 'project/save_person' => :save_person, via: :post
     match 'project/save_group' => :save_group, via: :post
+    match 'project/remove_role' => :remove_role, via: :post
     match 'project/remove_person' => :remove_person, via: :post
     match 'project/remove_group' => :remove_group, via: :post
     match 'project/monitor' => :monitor

@@ -16,9 +16,6 @@ class WebPage;   end
         class RequestDetailsPage < BuildServicePage; end
 	class InterconnectPage   < BuildServicePage; end
         class ProjectPage        < BuildServicePage; end 
-            class ProjectUsersPage        < ProjectPage; end
-            class ProjectAddUserPage      < ProjectPage; end
-            class ProjectAddGroupPage     < ProjectPage; end
             class ProjectConfigPage       < ProjectPage; end
             class ProjectStatusPage       < ProjectPage; end
             class ProjectOverviewPage     < ProjectPage; end
@@ -29,9 +26,6 @@ class WebPage;   end
             class NewPackagePage          < ProjectPage; end
             class NewPackageBranchPage    < ProjectPage; end
             class PackagePage             < ProjectPage; end
-                class PackageUsersPage        < PackagePage; end
-                class PackageAddUserPage      < PackagePage; end
-                class PackageAddGroupPage     < PackagePage; end
                 class PackageOverviewPage     < PackagePage; end
                 class PackageRequestsPage     < PackagePage; end
                 class PackageRawConfigPage    < PackagePage; end

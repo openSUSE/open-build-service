@@ -23,7 +23,7 @@
 
           <%
           body = flash[flash_type].gsub(/\n/, '<br/>')
-          body = sanitize body, :tags => %w(a b p ul li br u), :attributes => %w(href title)
+          body = sanitize body, :tags => %w(a b ul li br u), :attributes => %w(href title)
           %>
 
           <div class="<%= flash_header %> ui-corner-all ui-widget-shadow">

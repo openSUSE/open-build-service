@@ -1,5 +1,7 @@
 class ApiDetails
 
+  class CommandFailed < Exception ; end
+
   def self.logger
     Rails.logger
   end
@@ -20,10 +22,24 @@ class ApiDetails
     transport = ActiveXML::transport
     uri = transport.substitute_uri(uri, opts)
     #transport.replace_server_if_needed(uri)
-    data = transport.direct_http(uri)
+    data = transport.http_do 'get', uri
     data = ActiveSupport::JSON.decode(data)
     logger.debug "data #{JSON.pretty_generate(data)}"
     data
   end
+
+  def self.command(info, opts)
+    raise "no valid info #{info}" unless [:change_role].include? info
+    uri = URI("/webui/#{info.to_s}")
+    begin
+      data = ActiveXML::transport.http_do 'post', uri, data: opts.to_json, content_type: "application/json"
+    rescue ActiveXML::Transport::Error => e
+      raise CommandFailed, e.summary
+    end
+    #data = ActiveSupport::JSON.decode(data)
+    logger.debug "command #{data}"
+    data
+  end
+
 end
 

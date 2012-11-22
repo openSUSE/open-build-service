@@ -217,7 +217,7 @@ class WebuiController < ApplicationController
     required_parameters :project
     
     if params[:package].blank?
-      target = Project.find_by_name!(name: params[:project])
+      target = Project.find_by_name!(params[:project])
     else
       target = Package.find_by_project_and_name(params[:project], params[:package])
     end

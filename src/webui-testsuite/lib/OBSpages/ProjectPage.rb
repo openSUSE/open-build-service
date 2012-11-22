@@ -46,8 +46,7 @@ class ProjectPage < BuildServicePage
     @tabs_id = 'project_tabs'
   end
   
-  ALL_PROJECT_TABS = { "users"          => ProjectUsersPage,
-                       "projectconfig"  => ProjectConfigPage,
+  ALL_PROJECT_TABS = { "projectconfig"  => ProjectConfigPage,
                        "status"         => ProjectStatusPage,
                        "overview"       => ProjectOverviewPage,
                        "requests"       => ProjectRequestsPage,
