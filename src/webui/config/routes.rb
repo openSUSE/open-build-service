@@ -117,6 +117,7 @@ OBSWebUI::Application.routes.draw do
     match 'package/repositories' => :repositories
     match 'package/change_flag' => :change_flag
     match 'package/import_spec' => :import_spec
+    match "package/files" => :files
   end
 
   controller :patchinfo do

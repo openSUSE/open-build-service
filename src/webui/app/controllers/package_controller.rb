@@ -54,6 +54,11 @@ class PackageController < ApplicationController
     #BsRequest.list({:states => 'new', :roles => "target", :project => @project.name, :package => @package.name})
   end
 
+  def files
+    # we need to keep this as long as it's in google's index
+    redirect_to url_for(action: :show, package: params[:package], project: params[:project]), :status => :moved_permanently
+  end
+
   def set_linking_packages
     if @spider_bot
       @linking_packages = [] and return
