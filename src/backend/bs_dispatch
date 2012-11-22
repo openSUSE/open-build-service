@@ -549,7 +549,8 @@ while (1) {
     my $arch = shift @archs;
     next if $archdone{$arch};
     $archdone{$arch} = 1;
-    my $ic = $infocache{$arch} || {};
+    my $ic = $infocache{$arch};
+    $infocache{$arch} = $ic = {} unless $ic;
     my @b = grep {!/^\./} ls("$jobsdir/$arch");
     my @crossb = grep {/:cross$/} @b;
     if (@crossb) {
@@ -573,7 +574,7 @@ while (1) {
     }
     my %locked = map {$_ => 1} grep {/:status$/} @b;
     my %notlocked = map {$_ => 1} grep {!$locked{$_}} @b;
-    for (grep {!$notlocked{$_}} keys (%{$infocache{$arch} || {}})) {
+    for (grep {!$notlocked{$_} && !$locked{$_}} keys (%{$infocache{$arch} || {}})) {
       delete $infocache{$arch}->{$_};
     }
     # adapt load
@@ -583,7 +584,13 @@ while (1) {
       next unless $notlocked{$jn};
       $jn =~ s/-[0-9a-f]{32}$//s;
       my ($projid, $repoid, $packid) = split('::', $jn);
-      next unless defined $packid;
+      if (!defined($packid)) {
+	my $info = $ic->{$job} || readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
+	next unless $info;
+	$ic->{$job} = $info;
+	($projid, $repoid, $packid) = ($info->{'project'}, $info->{'repository'}, $info->{'package'});
+	next unless defined $packid;
+      }
       my $prpa = "$projid/$repoid/$arch";
       $load->{$prpa} ||= 0;
       $load->{$prpa} += 1;
@@ -592,14 +599,18 @@ while (1) {
     @b = grep {!/:(?:dir|status|new)$/} @b;
     @b = grep {!$locked{"$_:status"}} @b;
     for my $job (@b) {
-      my $info;
-      if (0) {
-        $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
-      } else {
+      my $info = $ic->{$job};
+      if (!$info) {
 	my $jn = $job;
 	$jn =~ s/-[0-9a-f]{32}$//s;
 	my ($projid, $repoid, $packid) = split('::', $jn);
-	$info = {'project' => $projid, 'repository' => $repoid, 'package' => $packid, 'arch' => $arch};
+	if (defined($packid)) {
+	  $info = {'project' => $projid, 'repository' => $repoid, 'package' => $packid, 'arch' => $arch};
+	} else {
+          $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
+	  next unless $info;
+	  $ic->{$job} = $info;
+	}
       }
       my $prpa = "$info->{'project'}/$info->{'repository'}/$info->{'arch'}";
       push @{$jobs{$prpa}}, $job;
