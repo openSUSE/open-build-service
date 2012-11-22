@@ -29,6 +29,7 @@ sub verify_projid {
   die("projid is empty\n") unless defined($projid) && $projid ne '';
   die("projid '$projid' is illegal\n") if $projid =~ /[\/\000-\037]/;
   die("projid '$projid' is illegal\n") if ":$projid:" =~ /:[_\.:]/;
+  die("projid '$projid' is too long\n") if length($projid) > 200;
 }
 
 sub verify_projkind {
@@ -43,6 +44,7 @@ sub verify_packid {
   $packid =~ s/^_patchinfo://s;
   die("packid '$packid' is illegal\n") if $packid =~ /[\/:\000-\037]/;
   die("packid '$packid' is illegal\n") if $packid =~ /^[_\.]/ && $packid ne '_product' && $packid ne '_pattern' && $packid ne '_project' && $packid ne '_patchinfo';
+  die("packid '$packid' is too long\n") if length($packid) > 200;
 }
 
 sub verify_repoid {
@@ -50,6 +52,7 @@ sub verify_repoid {
   die("repoid is empty\n") unless defined($repoid) && $repoid ne '';
   die("repoid '$repoid' is illegal\n") if $repoid =~ /[\/:\000-\037]/;
   die("repoid '$repoid' is illegal\n") if $repoid =~ /^[_\.]/;
+  die("repoid '$repoid' is too long\n") if length($repoid) > 200;
 }
 
 sub verify_jobid {
@@ -63,6 +66,7 @@ sub verify_arch {
   my $arch = $_[0];
   die("arch is empty\n") unless defined($arch) && $arch ne '';
   die("arch '$arch' is illegal\n") if $arch =~ /[\/:\.\000-\037]/;
+  die("arch '$arch' is too long\n") if length($arch) > 200;
   verify_simple($arch);
 }
 
