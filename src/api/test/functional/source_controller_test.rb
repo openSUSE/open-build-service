@@ -1846,6 +1846,23 @@ end
     orig = orig.gsub(/.*<person.*\n/, '') # remove all person lines, they have to differ
     copy = copy.gsub(/.*<person.*\n/, '')
     assert_equal copy, orig
+
+    # permissions
+    # create new project is not allowed
+    post "/source/TEMPCOPY", :cmd => :copy, :oproject => "home:Iggy", :nodelay => "1"
+    assert_response 403
+    assert_xml_tag( :tag => "status", :attributes => { :code => "cmd_execution_no_permission"} )
+    prepare_request_with_user "king", "sunflower"
+    put "/source/TEMPCOPY/_meta", '<project name="TEMPCOPY"> <title/> <description/> <person role="maintainer" userid="fred"/> </project>'
+    assert_response :success
+    # copy into existing project is allowed
+    prepare_request_with_user "fred", "geröllheimer"
+    post "/source/TEMPCOPY", :cmd => :copy, :oproject => "home:Iggy"
+    assert_response :success
+
+    # cleanup
+    delete "/source/TEMPCOPY"
+    assert_response :success
   end
 
   def test_source_commits
