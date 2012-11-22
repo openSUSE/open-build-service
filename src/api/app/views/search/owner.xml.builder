@@ -12,12 +12,12 @@ xml.collection do
       roles += a[:groups].keys if a[:groups]
 
       roles.each do |role|
-        if a[:users]
+        if a[:users] and a[:users][role]
           a[:users][role].each do |user|
             xml.person( :name => user, :role => role )
           end
         end
-        if a[:groups]
+        if a[:groups] and a[:groups][role]
           a[:groups][role].each do |group|
           xml.group( :name => group, :role => role )
           end
