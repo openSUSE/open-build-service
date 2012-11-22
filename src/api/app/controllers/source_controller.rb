@@ -219,7 +219,8 @@ class SourceController < ApplicationController
       end
 
       if 'copy' == command
-        unless @http_user.can_create_project?(project_name)
+        prj = Project.find_by_name(project_name)
+        unless (prj and @http_user.can_modify_project?(prj)) or @http_user.can_create_project?(project_name)
           render_error :status => 403, :errorcode => "cmd_execution_no_permission",
             :message => "no permission to execute command '#{command}'"
           return
