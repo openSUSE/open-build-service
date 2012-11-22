@@ -315,6 +315,9 @@ class Project < ActiveXML::Node
   end
 
   def is_maintainer?(user)
+    groups("maintainer").each do |group|
+      return true if user.is_in_group?(group)
+    end
     return user_has_role?(user, 'maintainer')
   end
 
