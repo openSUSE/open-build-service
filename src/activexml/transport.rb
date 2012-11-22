@@ -396,9 +396,5 @@ module ActiveXML
       raise Error, message.force_encoding("UTF-8")
     end
     
-    def self.extract_error_message exception
-      return exception.summary, exception.code, exception.api_exception
-    end
-    
   end
 end
