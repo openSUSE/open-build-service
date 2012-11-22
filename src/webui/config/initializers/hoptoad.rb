@@ -5,10 +5,21 @@ HoptoadNotifier.configure do |config|
   if CONFIG['errbit_api_key'].blank? || CONFIG['errbit_host'].blank?
     config.development_environments = "production development test"
   else
-    config.development_environments = "development test"  
+    config.development_environments = "development test"
   end
-  # We don't want to know about timeout errors, the api will tell us the real reason 
-  config.ignore << Timeout::Error
-  # The api sometimes sends responses without a proper "Status:..." line (when it restarts?)
-  config.ignore << Net::HTTPBadResponse 
+
+  config.ignore_only = %w{ 
+  ActiveRecord::RecordNotFound
+  ActionController::InvalidAuthenticityToken
+  CGI::Session::CookieStore::TamperedWithCookie
+  ActionController::UnknownAction
+  AbstractController::ActionNotFound
+  Timeout::Error
+  Net::HTTPBadResponse
+  }
+ 
+  config.ignore_by_filter do |exception_data|
+    true if exception_data[:class] == "ActionController::RoutingError" && exception_data[:message].includes("[GET]")
+  end
+
 end
