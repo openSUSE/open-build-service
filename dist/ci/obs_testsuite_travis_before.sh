@@ -28,7 +28,8 @@ sudo apt-get install liblzma-dev librpm-dev libxml-parser-perl libfile-sync-perl
 
 case "$SUBTEST" in
  webui*)
-  sudo apt-get install firefox
+  sudo apt-cache show firefox 
+  sudo apt-get install --force-yes firefox=11.0+build1-0ubuntu4
   pushd src/webui-testsuite
   if test "$REMOVEGEMLOCK" = true; then
     rm Gemfile.lock
