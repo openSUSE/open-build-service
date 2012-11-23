@@ -174,15 +174,6 @@ class ProjectTest < ActiveSupport::TestCase
     
   end
     
-  def test_benchmark_all
-    prjs = Project.find :all
-    #PerfTools::CpuProfiler.start("/tmp/profile") do
-      x = Benchmark.realtime { prjs.each { |p| p.expand_flags.to_json } }
-      y = Benchmark.realtime { prjs.each { |p| p.to_axml('flagdetails') } }
-    #end
-    puts "#{x} #{y}"
-  end
-
   def test_create_maintenance_project_and_maintained_project
     maintenance_project = Project.new(:name => 'Maintenance:Project')
     assert_equal true, maintenance_project.set_project_type('maintenance')
