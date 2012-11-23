@@ -380,13 +380,14 @@ sub list2struct {
 # normalizes an xml size element to mega bytes
 sub getmbsize {
   my ($se) = @_;
-  my $size = $se->{'size'};
-  $size /= (1024*1024) if $se->{'unit'} eq undef || $se->{'unit'} eq 'B';
-  $size /= 1024 if $se->{'unit'} eq 'K';
+  my $size = $se->{'size'}->{'_content'};
+  my $unit = $se->{'size'}->{'unit'} || 'B';
+  $size /= (1024*1024) if $unit eq 'B';
+  $size /= 1024 if $unit eq 'K';
   # already MegaBytes
-  $size *= 1024 if $se->{'unit'} eq 'G';
-  $size *= 1024 * 1024 if $se->{'unit'} eq 'T';
-  $size *= 1024 * 1024 * 1024 if $se->{'unit'} eq 'P';
+  $size *= 1024 if $unit eq 'G';
+  $size *= 1024 * 1024 if $unit eq 'T';
+  $size *= 1024 * 1024 * 1024 if $unit eq 'P';
   return $size;
 }
 
