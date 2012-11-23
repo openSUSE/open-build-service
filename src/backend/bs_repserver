@@ -102,7 +102,7 @@ sub jobname {
   my ($prp, $packid) = @_;
   my $job = "$prp/$packid";
   $job =~ s/\//::/g;
-  $job = ':'.Digest::MD5::md5_hex($prp).'::'.$packid if length($job) > 200;
+  $job = ':'.Digest::MD5::md5_hex($prp).'::'.(length($packid) > 160 ? ':'.Digest::MD5::md5_hex($packid) : $packid) if length($job) > 200;
   return $job;
 }
 
