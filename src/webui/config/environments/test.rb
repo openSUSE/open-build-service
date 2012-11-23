@@ -47,3 +47,4 @@ CONFIG['proxy_auth_mode'] = :off
 # some defaults enforced
 CONFIG['theme'] = 'neutral'
 CONFIG['use_static'] = nil
+CONFIG['use_gravatar'] = :off
