@@ -545,23 +545,27 @@ my $workerenvstate = {};
   # memory, undefined in non vm mode since no guarantees are exist
   if (open(FILE, "<", "/proc/cpuinfo")) {
     while(<FILE>) {
-      if ($_ =~ /^processor/s) {
+      chomp;
+      if (/^processor/s) {
         $hw->{'processors'} = $hw->{'processors'} + 1;
       }
-      elsif ($_ =~ /^flags[\s]*:\s(.*)$/s) {
-        my @cpuflags = split(' ', $_);
+      elsif (/^flags[\s]*:\s(.*)$/) {
+        my @cpuflags = split(' ', $1);
         $hw->{'cpu'}->{'flag'} = \@cpuflags;
       }
     }
+    close FILE;
   }
   $hw->{'memory'} = $vm_memory if $vm_memory;
   $hw->{'swap'} = $vmdisk_swapsize if $vmdisk_swapsize;
   $hw->{'disk'} = $vmdisk_rootsize if $vmdisk_rootsize;
   if ($vm_root) {
     if (-b $vm_root) {
-      if (open(SIZE, "/sbin/blockdev --getsize64 $vm_root|")){
+      if (open(SIZE, '-|', '/sbin/blockdev', '--getsize64', $vm_root)) {
         my $size = <SIZE>;
+        chomp $size;
         $hw->{'disk'} = $size / ( 1024 * 1024 );
+        close SIZE;
       }
     } else {
       # implement me for loop device files
