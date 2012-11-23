@@ -36,7 +36,7 @@
   <h4>Groups Memberships</h4>
   <ul>
   <% @displayed_user.groups.each do |group| %>
-    <li><%= group %> </li>
+    <li><%= link_to group, group_path(group) %></li>
   <% end %>
   </ul>
 <% end %>
