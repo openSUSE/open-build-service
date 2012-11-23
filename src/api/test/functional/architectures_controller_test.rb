@@ -1,6 +1,12 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class ArchitecturesControllerTest < ActionController::IntegrationTest
+
+  def setup
+    super
+    wait_for_scheduler_start
+  end
+
   def test_index
     reset_auth
     # Get all issue trackers
