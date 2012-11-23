@@ -54,6 +54,7 @@ class RequestControllerTest < ActionController::IntegrationTest
                                    <action type="submit">
                                      <source project="home:Iggy:branches:home:Iggy" package="NEW_PACKAGE"/>
                                    </action>
+                                   <description>DESCRIPTION IS HERE</description>
                                  </request>'
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
@@ -77,6 +78,13 @@ class RequestControllerTest < ActionController::IntegrationTest
     # package got created
     get "/source/home:Iggy/NEW_PACKAGE/new_file"
     assert_response :success
+
+    # validate history of new package
+    get "/source/home:Iggy/NEW_PACKAGE/_history"
+    assert_response :success
+    assert_xml_tag :tag => "requestid", :content => id
+    assert_xml_tag :tag => "comment", :content => "DESCRIPTION IS HERE"
+    assert_xml_tag :tag => "user", :content => "Iggy"
 
     # validate request
     get "/request/#{id}"
