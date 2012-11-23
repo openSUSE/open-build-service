@@ -11,20 +11,21 @@ class Architecture < ActiveRecord::Base
   attr_accessible :available, :recommended, :name
 
   def self.discard_cache
-    @cache = nil
+    Rails.cache.delete("archcache")
   end
 
   def self.archcache
-    return @cache if @cache
-    @cache = Hash.new
-    Architecture.all.each do |arch|
-      @cache[arch.name] = arch
+    return Rails.cache.fetch("archcache") do
+      ret = Hash.new
+      Architecture.all.each do |arch|
+        ret[arch.name] = arch
+      end
+      ret
     end
-    return @cache
   end
 
   def archcache
-    self.class.archcache
+    Architecture.archcache
   end
 
   after_save 'Architecture.discard_cache'
