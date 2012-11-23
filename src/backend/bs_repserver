@@ -1169,6 +1169,7 @@ sub putbinary {
   if (-d "$eventdir/$arch") {
     my $ev = { type => 'scanrepo', 'project' => $projid, 'repository' => $repoid };
     my $evname = "scanrepo:${projid}::$repoid";
+    $evname = "scanrepo:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
     writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
     ping($arch);
   }
@@ -1187,6 +1188,7 @@ sub delbinary {
   if (-d "$eventdir/$arch") {
     my $ev = { type => 'scanrepo', 'project' => $projid, 'repository' => $repoid };
     my $evname = "scanrepo:${projid}::$repoid";
+    $evname = "scanrepo:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
     writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
     ping($arch);
   }
@@ -1474,6 +1476,7 @@ sub sendbadhostevent {
     'job' => $idlename,
   };
   my $evname = "badhost::$info->{'project'}::$info->{'package'}::$info->{'arch'}::$idlename";
+  $evname = "badhost:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
   mkdir_p("$eventdir/dispatch");
   writexml("$eventdir/dispatch/.$evname", "$eventdir/dispatch/$evname", $ev, $BSXML::event);
 }
@@ -1893,6 +1896,7 @@ sub forwardevent {
   $evname .= "::$packid" if defined $packid;
   $ev->{'repository'} = $repoid if defined $repoid;
   $evname .= "::$repoid" if defined $repoid;
+  $evname = "${type}:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
   mkdir_p("$eventdir/$arch") if $arch;
   # XXX: there should be a better way than to just write in all
   # directories... maybe a architecture list in BSConfig?
@@ -2088,6 +2092,7 @@ sub docommand {
 	unlink("$reporoot/$projid/$repoid/$arch/:meta/$packid");
 	my $ev = { type => 'rebuild', 'project' => $projid, 'package' => $packid };
 	my $evname = "rebuild:${projid}::$packid";
+        $evname = "rebuild:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
 	if (-d "$eventdir/$arch") {
 	  writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
 	}

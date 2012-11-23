@@ -32,6 +32,7 @@ use POSIX;
 use Data::Dumper;
 use Getopt::Long;
 use Storable ();
+use Digest::MD5 ();
 use XML::Structured ':bytes';
 
 use Build;
@@ -474,6 +475,7 @@ sub write_event {
   $evname .= "::$project" if defined $project;
   $evname .= "::$package" if defined $package;
   $evname .= "::$repo" if defined $repo;
+  $evname = "${event}:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
   my $ev = { 'type' => $event };
   $ev->{'project'} = $project if defined $project;
   $ev->{'package'} = $package if defined $package;
