@@ -13,7 +13,9 @@ require 'minitest/unit'
 
     def inject_build_job( project, package, repo, arch )
       job=IO.popen("find #{Rails.root}/tmp/backend_data/jobs/#{arch}/ -name #{project}::#{repo}::#{package}-*")
-      jobfile=job.readlines.first.chomp
+      jobfile=job.readlines.first
+      return unless jobfile
+      jobfile.chomp!
       jobid=""
       IO.popen("md5sum #{jobfile}|cut -d' ' -f 1") do |io|
          jobid = io.readlines.first.chomp
@@ -71,6 +73,10 @@ module ActionController
 
   class IntegrationTest
 
+    def teardown
+      #Rails.cache.clear
+    end
+    
     @@auth = nil
 
     def reset_auth
@@ -163,24 +169,25 @@ module ActionController
   end 
 end
 
-module ActiveSupport
-  class TestCase
-    def assert_xml_tag(data, conds)
-      node = ActiveXML::Node.new(data)
-      ret = node.find_matching(NodeMatcher::Conditions.new(conds))
-      assert ret, "expected tag, but no tag found matching #{conds.inspect} in:\n#{node.dump_xml}" unless ret
-    end
+class ActiveSupport::TestCase
+  def assert_xml_tag(data, conds)
+    node = ActiveXML::Node.new(data)
+    ret = node.find_matching(NodeMatcher::Conditions.new(conds))
+    assert ret, "expected tag, but no tag found matching #{conds.inspect} in:\n#{node.dump_xml}" unless ret
+  end
 
-    def assert_no_xml_tag(data, conds)
-      node = ActiveXML::Node.new(data)
-      ret = node.find_matching(NodeMatcher::Conditions.new(conds))
-      assert !ret, "expected no tag, but found tag matching #{conds.inspect} in:\n#{node.dump_xml}" if ret
-    end
+  def assert_no_xml_tag(data, conds)
+    node = ActiveXML::Node.new(data)
+    ret = node.find_matching(NodeMatcher::Conditions.new(conds))
+    assert !ret, "expected no tag, but found tag matching #{conds.inspect} in:\n#{node.dump_xml}" if ret
+  end
 
-    def load_backend_file(path)
-      File.open(ActionController::TestCase.fixture_path + "/backend/#{path}").read()
-    end
+  def load_backend_file(path)
+    File.open(ActionController::TestCase.fixture_path + "/backend/#{path}").read()
+  end
 
+  def teardown
+    #Rails.cache.clear
   end
 end
 

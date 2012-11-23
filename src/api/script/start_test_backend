@@ -301,6 +301,8 @@ User.current = nil
 scheduler_thread = nil
 
 at_exit do
+  scheduler_thread.join if scheduler_thread
+
   puts "kill #{srcsrv_out.pid}"
   Process.kill "TERM", -srcsrv_out.pid
   puts "kill #{reposrv_out.pid}"
@@ -310,7 +312,6 @@ at_exit do
   puts "kill #{publishsrv_out.pid}"
   Process.kill "TERM", -publishsrv_out.pid
 
-  scheduler_thread.join if scheduler_thread
   srcsrv_out.close
   srcsrv_out = nil
   srcsrv.join

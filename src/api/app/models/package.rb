@@ -448,6 +448,7 @@ class Package < ActiveRecord::Base
       if not Role.rolecache.has_key? person['role']
         raise SaveError, "illegal role name '#{person['role']}'"
       end
+      user = User.get_by_login(person['userid'])
       if usercache.has_key? person['userid']
         #user has already a role in this package
         pcache = usercache[person['userid']]
@@ -456,31 +457,20 @@ class Package < ActiveRecord::Base
           pcache[person['role']] = :keep
         else
           #new role
-          PackageUserRoleRelationship.create!(
-                                              user: User.get_by_login(person['userid']),
-                                              role: Role.rolecache[person['role']],
-                                              package: self
-                                              )
+          self.package_user_role_relationships.new(user: user, role: Role.rolecache[person['role']])
+          pcache[person['role']] = :new
         end
       else
-        user = User.get_by_login(person['userid'])
-        pu = PackageUserRoleRelationship.create(
-                                                user: user,
-                                                role: Role.rolecache[person['role']],
-                                                package: self)
-        if pu.valid?
-          pu.save!
-        else
-          logger.debug "user '#{person['userid']}' (role '#{person['role']}') in package '#{self.name}': #{pu.errors.to_a.join(',')}"
-        end
+        self.package_user_role_relationships.new(user: user, role: Role.rolecache[person['role']])
+        usercache[person['userid']] = { person['role'] => :new }
       end
     end
     
     #delete all roles that weren't found in uploaded xml
     usercache.each do |user, roles|
       roles.each do |role, object|
-        next if object == :keep
-        object.destroy
+        next if [:keep, :new].include?(object)
+        object.delete
       end
     end
     
@@ -494,9 +484,11 @@ class Package < ActiveRecord::Base
     end
     
     xmlhash.elements('group') do |ge|
+      group = Group.find_by_title(ge['groupid'])
       if groupcache.has_key? ge['groupid']
         #group has already a role in this package
         pcache = groupcache[ge['groupid']]
+
         if pcache.has_key? ge['role']
           #role already defined, only remove from cache
           pcache[ge['role']] = :keep
@@ -505,14 +497,10 @@ class Package < ActiveRecord::Base
           if not Role.rolecache.has_key? ge['role']
             raise SaveError, "illegal role name '#{ge['role']}'"
           end
-          PackageGroupRoleRelationship.create(
-                                              :group => Group.find_by_title(ge['groupid']),
-                                              :role => Role.rolecache[ge['role']],
-                                              :package => self
-                                              )
+          self.package_group_role_relationships.new(group: group, role: Role.rolecache[ge['role']])
+          pcache[ge['role']] = :new
         end
       else
-        group = Group.find_by_title(ge['groupid'])
         unless group
           # check with LDAP
           if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
@@ -535,22 +523,15 @@ class Package < ActiveRecord::Base
           end
         end
 
-        begin
-          PackageGroupRoleRelationship.create(
-                                              :group => group,
-                                              :role => Role.rolecache[ge['role']],
-                                              :package => self
-                                              )
-        rescue ActiveRecord::RecordNotUnique
-          logger.debug "group '#{ge['groupid']}' already has the role '#{ge['role']}' in package '#{self.name}'"
-        end
+        self.package_group_role_relationships.new(group: group, role: Role.rolecache[ge['role']])
+        groupcache[ge['groupid']] = { ge['role'] => :new }
       end
     end
 
     #delete all roles that weren't found in uploaded xml
     groupcache.each do |group, roles|
       roles.each do |role, object|
-        next if object == :keep
+        next if [:keep, :new].include? object
         object.destroy
       end
     end

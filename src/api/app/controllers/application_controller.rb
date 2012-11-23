@@ -434,8 +434,6 @@ class ApplicationController < ActionController::API
                    :message => message
     when ActionController::RoutingError, ActiveRecord::RecordNotFound
       render_error :message => exception.message, :status => 404, :errorcode => "not_found"
-    when ActiveRecord::RecordInvalid
-      render_error :message => "Record not valid: #{exception.record.inspect} - #{exception.record.errors.inspect} - #{exception.record.errors.full_messages}", :status => 400, :errorcode => "record_invalid"
     when AbstractController::ActionNotFound
       render_error :message => exception.message, :status => 403, :errorcode => "unknown_action"
     when ActionView::MissingTemplate

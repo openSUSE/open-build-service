@@ -370,6 +370,11 @@ class Project < ActiveRecord::Base
     end
 
     xmlhash.elements('person') do |person|
+      user=User.find_by_login!(person['userid'])
+      if not Role.rolecache.has_key? person['role']
+        raise SaveError, "illegal role name '#{person.role}'"
+      end
+      
       if usercache.has_key? person['userid']
         # user has already a role in this project
         pcache = usercache[person['userid']]
@@ -378,37 +383,20 @@ class Project < ActiveRecord::Base
           pcache[person['role']] = :keep
         else
           #new role
-          if not Role.rolecache.has_key? person['role']
-            raise SaveError, "illegal role name '#{person['role']}'"
-          end
-          
-          ProjectUserRoleRelationship.create(user: User.get_by_login(person['userid']),
-                                             role: Role.rolecache[person['role']],
-                                             project: self)
+          self.project_user_role_relationships.new(user: user, role: Role.rolecache[person['role']])
+          pcache[person['role']] = :new
         end
       else
-        if not Role.rolecache.has_key? person['role']
-          raise SaveError, "illegal role name '#{person.role}'"
-        end
-        
-        user=User.find_by_login!(person['userid'])
-
-        pr = ProjectUserRoleRelationship.new(user: user,
-                                             role: Role.rolecache[person['role']],
-                                             project: self )
-        if pr.valid?
-          pr.save
-        else
-          logger.debug "user '#{person['userid']}' already has the role '#{person['role']}' in project '#{self.name}': #{pr.errors}"
-        end
+        self.project_user_role_relationships.new(user: user, role: Role.rolecache[person['role']])
+        usercache[person['userid']] = { person['role'] => :new }
       end
     end
       
     #delete all roles that weren't found in the uploaded xml
     usercache.each do |user, roles|
       roles.each do |role, object|
-        next if object == :keep
-        object.destroy
+        next if [:keep, :new].include? object
+        object.delete
       end
     end
     
@@ -422,6 +410,11 @@ class Project < ActiveRecord::Base
     end
 
     xmlhash.elements('group') do |ge|
+      group=Group.find_by_title(ge['groupid'])
+      if not Role.rolecache.has_key? ge['role']
+        raise SaveError, "illegal role name '#{ge['role']}'"
+      end
+      
       if groupcache.has_key? ge['groupid']
         # group has already a role in this project
         pcache = groupcache[ge['groupid']]
@@ -430,22 +423,11 @@ class Project < ActiveRecord::Base
           pcache[ge['role']] = :keep
         else
           #new role
-          if not Role.rolecache.has_key? ge['role']
-            raise SaveError, "illegal role name '#{ge['role']}'"
-          end
-          
-          ProjectGroupRoleRelationship.create(
-                                              group: Group.get_by_title(ge['groupid']),
-                                              role: Role.rolecache[ge['role']],
-                                              project: self
-                                              )
+          self.project_group_role_relationships.new(group: group, role: Role.rolecache[ge['role']])
+          pcache[ge['role']] = :new
         end
       else
-        if not Role.rolecache.has_key? ge['role']
-          raise SaveError, "illegal role name '#{ge['role']}'"
-        end
-        
-        if !(group=Group.find_by_title(ge['groupid']))
+        if !group
           # check with LDAP
           if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
             if defined?( CONFIG['ldap_group_support'] ) && CONFIG['ldap_group_support'] == :on
@@ -467,22 +449,14 @@ class Project < ActiveRecord::Base
           end
         end
         
-        begin
-          ProjectGroupRoleRelationship.create(
-                                              :group => group,
-                                              :role => Role.rolecache[ge['role']],
-                                              :project => self
-                                              )
-        rescue ActiveRecord::RecordNotUnique
-          logger.debug "group '#{ge['groupid']}' already has the role '#{ge['role']}' in project '#{self.name}'"
-        end
+        self.project_group_role_relationships.new(group: group, role: Role.rolecache[ge['role']])
       end
     end
     
     #delete all roles that weren't found in the uploaded xml
     groupcache.each do |group, roles|
       roles.each do |role, object|
-        next if object == :keep
+        next if [:keep, :new].include? object
         object.destroy
       end
     end

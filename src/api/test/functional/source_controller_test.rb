@@ -2553,4 +2553,91 @@ end
     assert_response :success
   end
 
+  def draft_xml_for_duplicate_test(package_or_project)
+    # first we add a bugowner
+    if package_or_project == 'package'
+      xml = "<package project='home:Iggy' name='TestPack'>"
+    else
+      xml = "<project name='home:Iggy'>"
+    end
+    xml += "<title>Strange XML</title><description></description>"
+    # make sure never to erase ourselves
+    xml += "<person userid='Iggy' role='maintainer'/>"
+    xml += yield
+    xml += "</#{package_or_project}>"
+  end
+
+  def duplicated_user_test(package_or_project, user_or_group, url)
+    prepare_request_with_user "Iggy", "asdfasdf"
+    
+    xml = draft_xml_for_duplicate_test(package_or_project) do
+      if user_or_group == 'user'
+        "<person userid='tom' role='bugowner'/>"
+      else
+        "<group groupid='test_group' role='bugowner'/>"
+      end
+    end
+    
+    put url, xml
+    assert_response :success
+    
+    # then we add two times the maintainer
+    xml = draft_xml_for_duplicate_test(package_or_project) do
+      if user_or_group == 'user'
+        "<person userid='tom' role='bugowner'/>
+         <person userid='tom' role='maintainer'/>
+         <person userid='tom' role='maintainer'/>"
+      else
+        "<group groupid='test_group' role='bugowner'/>
+         <group groupid='test_group' role='maintainer'/>
+         <group groupid='test_group' role='maintainer'/>"
+      end
+    end
+
+    put url, xml
+    assert_response :success
+
+    get url
+    return Xmlhash.parse(@response.body)
+  end
+
+  test "have the same user role twice in package meta" do
+    ret = duplicated_user_test("package", "user", "/source/home:Iggy/TestPack/_meta")
+    assert_equal({"name"=>"TestPack",
+                   "project"=>"home:Iggy",
+                   "title"=>"Strange XML",
+                   "description"=>{},
+                   "person"=>
+                   [{"userid"=>"tom", "role"=>"maintainer"},
+                    {"userid"=>"tom", "role"=>"bugowner"},
+                    {"userid"=>"Iggy", "role"=>"maintainer"}]}, ret)
+
+    ret = duplicated_user_test("package", "group", "/source/home:Iggy/TestPack/_meta")
+    assert_equal({"name"=>"TestPack",
+                   "project"=>"home:Iggy",
+                   "title"=>"Strange XML",
+                   "description"=>{},
+                   "person"=>{"userid"=>"Iggy", "role"=>"maintainer"},
+                   "group"=>
+                   [{"groupid"=>"test_group", "role"=>"maintainer"},
+                    {"groupid"=>"test_group", "role"=>"bugowner"}]}, ret)
+
+    ret = duplicated_user_test("project", "user", "/source/home:Iggy/_meta")
+    assert_equal({"name"=>"home:Iggy",
+                   "title"=>"Strange XML",
+                   "description"=>{},
+                   "person"=>
+                   [{"userid"=>"tom", "role"=>"maintainer"},
+                    {"userid"=>"tom", "role"=>"bugowner"},
+                    {"userid"=>"Iggy", "role"=>"maintainer"}]}, ret)
+                 
+    ret = duplicated_user_test("project", "group", "/source/home:Iggy/_meta")
+    assert_equal({"name"=>"home:Iggy",
+                   "title"=>"Strange XML",
+                   "description"=>{},
+                   "person"=>{"userid"=>"Iggy", "role"=>"maintainer"},
+                   "group"=>
+                   [{"groupid"=>"test_group", "role"=>"maintainer"},
+                    {"groupid"=>"test_group", "role"=>"bugowner"}]}, ret)
+  end
 end
