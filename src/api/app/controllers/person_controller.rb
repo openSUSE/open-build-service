@@ -262,6 +262,7 @@ class PersonController < ApplicationController
   private :update_watchlist
 
   def change_my_password
+    #FIXME3.0: remove this function
     valid_http_methods :post, :put
     
     xml = REXML::Document.new( request.raw_post )

@@ -172,11 +172,10 @@ class PersonControllerTest < ActionController::IntegrationTest
 
     post "/person/adrianSuSE?cmd=change_password", data
     assert_response :success
-
-    u = User.find_by_login "adrianSuSE"
-    assert_not_nil u
-    assert_equal u.login, "adrianSuSE"
-    assert_equal u.password, data
+    # test login with new password
+    prepare_request_with_user "adrianSuSE", data
+    get "/person/adrianSuSE"
+    assert_response :success
 
     #cleanup
     u.destroy

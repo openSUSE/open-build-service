@@ -100,8 +100,9 @@ class User < ActiveRecord::Base
   #   user.save
   #
   def update_password(pass)
-    self.password_confirmation = pass
-    self.password = pass
+    self.password_crypted = hash_string(pass).crypt("os")
+    self.password_confirmation = hash_string(pass)
+    self.password = hash_string(pass)
   end
 
   # After saving the object into the database, the password is not new any more.
@@ -710,10 +711,10 @@ class User < ActiveRecord::Base
   # Model Validation
 
   validates_presence_of   :login, :email, :password, :password_hash_type, :state,
-  :message => 'must be given'
+                          :message => 'must be given'
 
   validates_uniqueness_of :login, 
-  :message => 'is the name of an already existing user.'
+                          :message => 'is the name of an already existing user.'
 
   # Overriding this method to do some more validation: Password equals 
   # password_confirmation, state an password hash type being in the range
@@ -760,9 +761,9 @@ class User < ActiveRecord::Base
   # include this condition in your :if parameter to validates_format_of when
   # overriding the password format validation.
   validates_format_of :password,
-  :with => %r{\A[\w\.\- !?(){}|~*]+\z},
-  :message => 'must not contain invalid characters.',
-  :if => Proc.new { |user| user.new_password? and not user.password.nil? }
+                      :with => %r{\A[\w\.\- !?(){}|~*]+\z},
+                      :message => 'must not contain invalid characters.',
+                      :if => Proc.new { |user| user.new_password? and not user.password.nil? }
 
   # We want the password to have between 6 and 64 characters.
   # The length must only be checked if the password has been set and the record
@@ -770,10 +771,10 @@ class User < ActiveRecord::Base
   # include this condition in your :if parameter to validates_length_of when
   # overriding the length format validation.
   validates_length_of :password,
-  :within => 6..64,
-  :too_long => 'must have between 6 and 64 characters.',
-  :too_short => 'must have between 6 and 64 characters.',
-  :if => Proc.new { |user| user.new_password? and not user.password.nil? }
+                      :within => 6..64,
+                      :too_long => 'must have between 6 and 64 characters.',
+                      :too_short => 'must have between 6 and 64 characters.',
+                     :if => Proc.new { |user| user.new_password? and not user.password.nil? }
 
   class << self
     def current
