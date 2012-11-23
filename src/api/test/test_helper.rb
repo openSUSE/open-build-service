@@ -74,7 +74,7 @@ module ActionController
   class IntegrationTest
 
     def teardown
-      #Rails.cache.clear
+      Rails.cache.clear
     end
     
     @@auth = nil
@@ -187,7 +187,7 @@ class ActiveSupport::TestCase
   end
 
   def teardown
-    #Rails.cache.clear
+    Rails.cache.clear
   end
 end
 
