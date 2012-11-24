@@ -1000,6 +1000,8 @@ INSERT INTO schema_migrations (version) VALUES ('20121120124300');
 
 INSERT INTO schema_migrations (version) VALUES ('20121121142111');
 
+INSERT INTO schema_migrations (version) VALUES ('20121124032111');
+
 INSERT INTO schema_migrations (version) VALUES ('21');
 
 INSERT INTO schema_migrations (version) VALUES ('22');
