@@ -327,21 +327,27 @@ class ApplicationController < ActionController::API
     backend_http = Net::HTTP.new(CONFIG['source_host'], CONFIG['source_port'])
     backend_http.read_timeout = 1000
 
-    file = Tempfile.new 'volley', :encoding => 'ascii-8bit'
+    # we have to be careful with object life cycle. the actual data is
+    # deleted once the tempfile is garbage collected, but isn't kept alive 
+    # as the send_file function only references the path to it. So we keep it
+    # for ourselves. And once the controller is garbage collected, it should
+    # be fine to unlink the data
+    @volleyfile = Tempfile.new 'volley', :encoding => 'ascii-8bit'
     opts = { :url_based_filename => true }
     
     backend_http.request_get(path) do |res|
       opts[:status] = res.code
       opts[:type] = res['Content-Type']
       res.read_body do |segment|
-        file.write(segment)
+        @volleyfile.write(segment)
       end
     end
-    opts[:length] = file.length
+    opts[:length] = @volleyfile.length
     # streaming makes it very hard for test cases to verify output
     opts[:stream] = false if Rails.env.test?
-    send_file(file.path, opts)
-    file.close
+    send_file(@volleyfile.path, opts)
+    # close the file so it's not staying in the file system
+    @volleyfile.close
   end
 
   hide_action :download_request
