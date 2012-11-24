@@ -585,17 +585,21 @@ module ActiveXML
       else
         ActiveXML::transport.save self, opt
       end
-      Rails.cache.delete @cache_key if @cache_key
+      free_cache
       return true
     end
 
     def delete(opt={})
       #Rails.logger.debug "Delete #{self.class}, opt: #{opt.inspect}"
       ActiveXML::transport.delete self, opt
-      Rails.cache.delete @cache_key if @cache_key
+      free_cache
       return true
     end
 
+    def free_cache
+      Rails.logger.debug "Free_cache -#{@cache_key}-"
+      Rails.cache.delete @cache_key if @cache_key
+    end
   end
 
 end

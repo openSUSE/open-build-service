@@ -102,6 +102,7 @@ module ActiveXML
       # key: symbolified model name
       # value: hash with keys :target_uri and :opt (arguments to connect method)
       @mapping = Hash.new
+      @mutex = Mutex.new
     end
 
     def target_uri=(uri)
@@ -208,14 +209,10 @@ module ActiveXML
       end
     end
 
+    # TODO: get rid of this very thin wrapper
     def direct_http( url, opt={} )
       defaults = {:method => "GET"}
       opt = defaults.merge opt
-
-      #set default host if not set in uri
-      if not url.host
-        url.scheme, url.host, url.port = @schema, @host, @port
-      end
 
       logger.debug "--> direct_http url: #{url.inspect}"
 
@@ -283,27 +280,38 @@ module ActiveXML
       substitute_uri( uri, object.instance_variable_get("@init_options").merge(opt) )
     end
 
-    private
-
     def http_do( method, url, opt={} )
+      # protect two http transactions happening at the same time - we're not thread safe here
+      @mutex.lock
       defaults = {:timeout => 60}
       opt = defaults.merge opt
       max_retries = 1
 
+      if url.kind_of? String
+        url = URI(url)
+      end
+
+      #set default host if not set in uri
+      if not url.host
+        url.scheme, url.host, url.port = @schema, @host, @port
+      end
+
+      method = method.downcase.to_sym
       start = Time.now
 
       case method
-      when /put/i, /post/i, /delete/i
-        @http.finish if @http
+      when :put, :post, :delete
+        @http.finish if @http && @http.started?
         @http = nil
-      when /get/i
-        # if the http is existed before, we shall retry
+	keepalive = false
+      when :get
+        # if the http existed before, we shall retry
         max_retries = 2 if @http
+	keepalive = true
       end
       retries = 0
       begin
         retries += 1
-        keepalive = true
         if not @http
           @http = Net::HTTP.new(url.host, url.port)
           @http.use_ssl = true if url.scheme == "https"
@@ -311,6 +319,7 @@ module ActiveXML
         end
         @http.read_timeout = opt[:timeout]
 
+	raise "url.path.nil" if url.path.nil?
         path = url.path
         path += "?" + url.query if url.query
         logger.debug "http_do ##{retries}: method: #{method} url: " +
@@ -321,37 +330,30 @@ module ActiveXML
         clength["Content-Type"] = opt[:content_type] unless opt[:content_type].nil?
 
         case method
-        when /get/i
+        when :get
           http_response = @http.get path, @http_header
-        when /put/i
+        when :put
           http_response = @http.put path, opt[:data], @http_header.merge(clength)
-        when /post/i
+        when :post
           http_response = @http.post path, opt[:data], @http_header.merge(clength)
-        when /delete/i
+        when :delete
           http_response = @http.delete path, @http_header
         else
           raise "unknown HTTP method: #{method.inspect}"
         end
       rescue Timeout::Error => err
         logger.error "--> caught timeout, closing HTTP"
-        @http.finish
-        @http = nil
+        keepalive = false
         raise err
       rescue SocketError, Errno::EINTR, Errno::EPIPE, EOFError, Net::HTTPBadResponse, IOError => err
-        @http.finish if @http.started?
-        @http = nil
+        keepalive = false
         if retries < max_retries
           logger.error "--> caught #{err.class}: #{err.message}, retrying with new HTTP connection"
           retry
         end
-        raise Error, "Connection failed #{err.class}: #{err.message} for #{url}"
+        raise IOError, "Connection failed #{err.class}: #{err.message} for #{url}"
       rescue SystemCallError => err
-        begin
-          @http.finish
-        rescue => e
-          logger.error "Couldn't finish http connection: #{e.message}"
-        end
-        @http = nil
+        keepalive = false
         raise ConnectionError, "Failed to establish connection for #{url}: " + err.message
       ensure
         if self.details && self.details.respond_to?('add') && http_response
@@ -366,11 +368,11 @@ module ActiveXML
           self.details.add(payload)
           logger.debug "RT #{url} #{payload.inspect}"
         end
-      end
-
-      unless keepalive
-        @http.finish
-        @http = nil
+        unless keepalive
+          @http.finish if @http.started?
+          @http = nil
+        end
+        @mutex.unlock
       end
 
       return handle_response( http_response )
