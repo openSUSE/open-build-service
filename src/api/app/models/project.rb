@@ -22,6 +22,7 @@ class Project < ActiveRecord::Base
 
   has_many :project_user_role_relationships, :dependent => :delete_all, foreign_key: :db_project_id
   has_many :project_group_role_relationships, :dependent => :delete_all, foreign_key: :db_project_id
+
   has_many :packages, :dependent => :destroy, foreign_key: :db_project_id
   has_many :attribs, :dependent => :destroy, foreign_key: :db_project_id
   has_many :repositories, :dependent => :destroy, foreign_key: :db_project_id
@@ -1419,6 +1420,26 @@ class Project < ActiveRecord::Base
   def user_has_role?(user, role)
     return true if self.project_user_role_relationships.where(role_id: role.id, bs_user_id: user.id).first
     return !self.project_group_role_relationships.where(role_id: role).joins(:groups_users).where(groups_users: { user_id: user.id }).first.nil?
+  end
+
+  def remove_role(what, role)
+    if what.kind_of? Group
+      rel = self.project_group_role_relationships.where(bs_group_id: what.id)
+    else
+      rel = self.project_user_role_relationships.where(bs_user_id: what.id)
+    end
+    rel = rel.where(role_id: role.id) if role
+    rel.delete_all
+    write_to_backend
+  end
+ 
+  def add_role(what, role)
+    if what.kind_of? Group
+      self.project_group_role_relationships.create!(role: role, group: what)
+    else
+      self.project_user_role_relationships.create!(role: role, user: what)
+    end
+    write_to_backend
   end
 
 end

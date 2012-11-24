@@ -211,5 +211,40 @@ class WebuiController < ApplicationController
     
     render json: ids.uniq.sort
   end
+  
+  def change_role
+    valid_http_methods :post
+    required_parameters :project
+    
+    if params[:package].blank?
+      target = Project.find_by_name!(name: params[:project])
+    else
+      target = Package.find_by_project_and_name(params[:project], params[:package])
+    end
 
+    if params.has_key? :userid
+      object = User.find_by_login!(params[:userid])
+    elsif params.has_key? :groupid
+      object = Group.find_by_title!(params[:groupid])
+    else
+      raise MissingParameterError, "Neither userid nor groupid given"
+    end
+    
+    begin
+      if params[:todo].to_s == 'remove'
+        role = nil
+        role = Role.find_by_title(params[:role]) if params[:role]
+        target.remove_role(object, role)
+      elsif params[:todo].to_s == 'add'
+        role = Role.find_by_title!(params[:role])
+        target.add_role(object, role)
+      else
+        raise MissingParameterError, "Paramter todo is not 'add' or 'remove'"
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      render_error status: 400, errorcode: 'change_role_failed', message: e.record.errors.full_messages.join('\n')
+      return
+    end
+    render json: 'ok'
+  end
 end

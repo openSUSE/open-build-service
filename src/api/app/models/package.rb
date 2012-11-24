@@ -892,6 +892,26 @@ class Package < ActiveRecord::Base
     self.package_group_role_relationships.delete_all
   end
 
+  def remove_role(what, role)
+    if what.kind_of? Group
+      rel = self.package_group_role_relationships.where(bs_group_id: what.id)
+    else
+      rel = self.package_user_role_relationships.where(bs_user_id: what.id)
+    end
+    rel = rel.where(role_id: role.id) if role
+    rel.delete_all
+    write_to_backend
+  end
+
+  def add_role(what, role)
+    if what.kind_of? Group
+      self.package_group_role_relationships.create!(role: role, group: what)
+    else
+      self.package_user_role_relationships.create!(role: role, user: what)
+    end
+    write_to_backend
+  end
+
   def open_requests_with_package_as_source_or_target
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
     rel = rel.where("(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?) or (bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)", self.project.name, self.name, self.project.name, self.name)
