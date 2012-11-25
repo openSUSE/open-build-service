@@ -75,6 +75,9 @@ class SpiderTest < ActionDispatch::IntegrationTest
         page.first(:id, 'header-logo')
       rescue Timeout::Error
         next
+      rescue ActionController::RoutingError
+        raiseit("routing error", theone)
+        return
       end
       body = nil
       begin
@@ -84,7 +87,7 @@ class SpiderTest < ActionDispatch::IntegrationTest
       end
       next unless body
       if !body.css("div#flash-messages div.ui-state-error").empty?
-        raiseit("flash alert", theone) 
+        raiseit("flash alert", theone)
       end
       body.css('h1').each do |h|
         if h.content == 'Internal Server Error'

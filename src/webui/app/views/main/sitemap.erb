@@ -6,10 +6,7 @@
    <sitemap>
       <loc><%= url_for :controller => :main, :action => :sitemap_projects_packages, :only_path => false %></loc>
    </sitemap>
-   <sitemap>
-      <loc><%= url_for :controller => :main, :action => :sitemap_projects_prjconf, :only_path => false %></loc>
-   </sitemap>
-   <% %w{ show files }.each do |act| %>
+   <% %w{ show }.each do |act| %>
      <sitemap>
         <loc><%= url_for :controller => :main, :action => :sitemap_packages, :category => 'main', 
                  :listaction => act, :only_path => false %></loc>

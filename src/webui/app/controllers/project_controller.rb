@@ -163,6 +163,7 @@ class ProjectController < ApplicationController
   end
 
   def new_incident
+    required_parameters :ns
     target_project = ''
     begin
       path = "/source/#{CGI.escape(params[:ns])}/?cmd=createmaintenanceincident"
@@ -335,7 +336,7 @@ class ProjectController < ApplicationController
   protected :load_buildresult
 
   def buildresult
-    render :text => 'no ajax', :status => 400 and return unless request.xhr?
+    check_ajax
     load_buildresult false
     render :partial => 'buildstatus'
   end
@@ -546,6 +547,7 @@ class ProjectController < ApplicationController
   end
 
   def rebuild_time_png
+    required_parameters :key
     key = params[:key]
     png = Rails.cache.read("rebuild-%s.png" % key)
     headers['Content-Type'] = 'image/png'
@@ -959,10 +961,7 @@ class ProjectController < ApplicationController
 
   # should be in the package controller, but all the helper functions to render the result of a build are in the project
   def package_buildresult
-    unless request.xhr?
-      render :text => 'no ajax', :status => 400 and return
-    end
-
+    check_ajax
     @project = params[:project]
     @package = params[:package]
     begin
@@ -1085,6 +1084,7 @@ class ProjectController < ApplicationController
   end
 
   def edit_comment_form
+    check_ajax
     @comment = params[:comment]
     @project = params[:project]
     @package = params[:package]
@@ -1422,9 +1422,8 @@ class ProjectController < ApplicationController
   end
 
   def list_incidents
-    if @spider_bot || !request.xhr?
-      render :text => 'no ajax', :status => 400 and return
-    end
+    check_ajax
+    lockout_spiders
     incidents = @project.maintenance_incidents(params[:type] || 'open', params.slice(:limit, :offset))
     if params[:append]
       render :partial => 'shared/incident_table_entries', :locals => { :incidents => incidents }
@@ -1434,6 +1433,7 @@ class ProjectController < ApplicationController
   end
 
   def unlock_dialog
+    check_ajax
   end
   def unlock
     begin
@@ -1462,6 +1462,7 @@ class ProjectController < ApplicationController
   end
 
   def check_valid_project_name
+    required_parameters :project
     if !valid_project_name? params[:project]
       unless request.xhr?
         flash[:error] = "#{params[:project]} is not a valid project name"

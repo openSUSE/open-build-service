@@ -4,10 +4,12 @@ class RequestController < ApplicationController
   include ApplicationHelper
 
   def add_reviewer_dialog
+    check_ajax
     @request_id = params[:id]
   end
 
   def add_reviewer
+    required_parameters :review_type
     begin
       opts = {}
       case params[:review_type]
@@ -87,15 +89,16 @@ class RequestController < ApplicationController
   end
 
   def sourcediff
-    render :text => 'no ajax', :status => 400 and return unless request.xhr?
+    check_ajax
     render :partial => "shared/editor", :locals => {:text => params[:text], :mode => 'diff', :read_only => true, :height => 'auto', :width => '750px', :no_border => true}
   end
 
   def changerequest
-    @req = find_cached(BsRequest, params[:id] ) if params[:id]
+    required_parameters :id
+    @req = find_cached(BsRequest, params[:id] )
     unless @req
       flash[:error] = "Can't find request #{params[:id]}"
-      redirect_to :action => :index and return
+      redirect_back_or_to :controller => 'home', :action => 'requests' and return
     end
 
     changestate = nil
@@ -181,11 +184,13 @@ class RequestController < ApplicationController
   end
 
   def delete_request_dialog
+    check_ajax
     @project = params[:project]
     @package = params[:package] if params[:package]
   end
 
   def delete_request
+    required_parameters :project, :package
     begin
       req = BsRequest.new(:type => "delete", :targetproject => params[:project], :targetpackage => params[:package], :description => params[:description])
       req.save(:create => true)
@@ -199,11 +204,13 @@ class RequestController < ApplicationController
   end
 
   def add_role_request_dialog
+    check_ajax
     @project = params[:project]
     @package = params[:package] if params[:package]
   end
 
   def add_role_request
+    required_parameters :project, :package, :role, :user
     begin
       req = BsRequest.new(:type => "add_role", :targetproject => params[:project], :targetpackage => params[:package], :role => params[:role], :person => params[:user], :description => params[:description])
       req.save(:create => true)
@@ -217,6 +224,8 @@ class RequestController < ApplicationController
   end
 
   def change_devel_request_dialog
+    check_ajax
+    required_parameters :package, :project
     @project = find_cached(Project, params[:project])
     @package = find_cached(Package, params[:package], :project => params[:project]) 
     if @package.has_element?(:devel)
@@ -226,6 +235,7 @@ class RequestController < ApplicationController
   end
 
   def change_devel_request
+    required_parameters :devel_project, :package, :project
     begin
       req = BsRequest.new(:type => 'change_devel', :project => params[:devel_project], :package => params[:package], :targetproject => params[:project], :targetpackage => params[:package], :description => params[:description])
       req.save(:create => true)
@@ -238,8 +248,10 @@ class RequestController < ApplicationController
   end
 
   def set_incident_dialog
+    check_ajax
   end
   def set_incident
+    check_ajax
     begin
       BsRequest.set_incident(params[:id], params[:incident_project])
       flash[:note] = "Set target of request #{id} to incident #{params[:incident_project]}"

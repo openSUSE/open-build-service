@@ -8,7 +8,7 @@
 
 <% @packages.each do |prj,pack| %>
 <url>
-  <loc><%= url_for :controller => :package, :action => action, :project => prj, :package => pack, :only_path => false %></loc>
+  <loc><%= url_for controller: :package, action: action, project: prj, package: pack, only_path: false %></loc>
   <priority>0.6</priority>
 </url>
 <% end %>

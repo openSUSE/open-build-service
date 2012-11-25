@@ -1,5 +1,7 @@
 class MainController < ApplicationController
 
+  before_filter :require_admin, only: [:delete_message]
+
   def index
     @news = find_cached(Statusmessage, :conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 5, :expires_in => 15.minutes)
     unless @spider_bot
@@ -19,7 +21,7 @@ class MainController < ApplicationController
 
   # This action does the heavy lifting for the index method and is only invoked by an AJAX request
   def systemstatus
-    render :text => 'no ajax', :status => 400 and return unless request.xhr? # Only serve AJAX-requests
+    check_ajax
     if @spider_bot
       @workerstatus = Xmlhash::XMLHash.new
     else
@@ -52,16 +54,14 @@ class MainController < ApplicationController
 
   def news
     @news = find_cached(Statusmessage, :conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 5, :expires_in => 15.minutes)
-    respond_to do |format|
-      format.rss { render :layout => false }
-    end
+    raise ActionController::RoutingError.new('expected application/rss') unless request.format == Mime::RSS
+    render layout: false
   end
 
   def latest_updates
+    raise ActionController::RoutingError.new('expected application/rss') unless request.format == Mime::RSS
     @latest_updates = find_cached(LatestUpdated, :limit => 6, :expires_in => 5.minutes, :shared => true)
-    respond_to do |format|
-      format.rss { render :layout => false }
-    end
+    render layout: false
   end
 
   def sitemap
@@ -77,12 +77,12 @@ class MainController < ApplicationController
 
   def sitemap_projects
     require_projects
-    render :layout => false
+    render :layout => false, :content_type => "application/xml"
   end
  
   def sitemap_projects_subpage(action, changefreq, priority)
     require_projects
-    render :template => "main/sitemap_projects_subpage", :layout => false, :locals => { :action => action, :changefreq => changefreq, :priority => priority }
+    render :template => "main/sitemap_projects_subpage", :layout => false, :locals => { :action => action, :changefreq => changefreq, :priority => priority }, :content_type => "application/xml"
   end
 
   def sitemap_projects_packages
@@ -107,10 +107,11 @@ class MainController < ApplicationController
     find_cached(Collection, :id, :what => 'package', :predicate => predicate).each_package do |p|
       @packages << [p.value(:project), p.value(:name)]
     end
-    render :template => 'main/sitemap_packages', :layout => false, :locals => {:action => params[:listaction]}
+    render :template => 'main/sitemap_packages', :layout => false, :locals => {:action => params[:listaction]}, :content_type => "application/xml"
   end
 
   def add_news_dialog
+    check_ajax
   end
 
   def add_news
@@ -130,14 +131,14 @@ class MainController < ApplicationController
   end
 
   def delete_message_dialog
+    check_ajax
   end
 
   def delete_message
+    required_parameters :message_id
     message = Statusmessage.find(:id => params[:message_id])
     message.delete
     redirect_to(:action => 'index')
-  rescue ActiveXML::Transport::ForbiddenError
-    flash[:error] = 'Only admin users may delete status messages'
   end
 
   def require_available_architectures

@@ -1,5 +1,9 @@
 OBSWebUI::Application.routes.draw do
 
+  cons = { :project => %r{[^\/]*}, :package => %r{[^\/]*}, :binary => %r{[^\/]*}, 
+    :user => %r{[^\/]*}, :login => %r{[^\/]*}, :title => %r{[^\/]*}, :service => %r{\w[^\/]*},
+    :repository => %r{[^\/]*}, :filename => %r{[^\/]*}, :arch => %r{[^\/]*}, :id => %r{\d*} }
+
   controller :main do 
     match '/' => :index
     match 'main/systemstatus' => :systemstatus
@@ -7,16 +11,13 @@ OBSWebUI::Application.routes.draw do
     match 'main/latest_updates' => :latest_updates
     match 'main/sitemap' => :sitemap
     match 'main/sitemap_projects' => :sitemap_projects
-    match 'main/sitemap_projects_subpage' => :sitemap_projects_subpage
     match 'main/sitemap_projects_packages' => :sitemap_projects_packages
     match 'main/sitemap_projects_prjconf' => :sitemap_projects_prjconf
-    match 'main/sitemap_packages' => :sitemap_packages
+    match 'main/sitemap_packages/:listaction' => :sitemap_packages
     match 'main/add_news_dialog' => :add_news_dialog
     match 'main/add_news' => :add_news
     match 'main/delete_message_dialog' => :delete_message_dialog
-    match 'main/delete_message' => :delete_message
-    # TODO: Only show this in 'test' environment (for webui-testsuite), can this be done here?
-    match 'main/startme' => :startme
+    match 'main/delete_message' => :delete_message, via: :post
   end
 
   controller :attribute do
@@ -40,14 +41,15 @@ OBSWebUI::Application.routes.draw do
     match 'driver_update/binaries' => :binaries
   end
 
-  controller :group do
-    match 'groups/autocomplete' => :autocomplete
+  resources :groups, :controller => 'group', :only => [:index, :show] do
+    collection do
+      get 'autocomplete'
+    end
   end
-  resources :groups, :controller => 'group', :only => [:index, :show]
 
   controller :home do
     match 'home/' => :index
-    match 'home/icon' => :icon
+    match 'home/:user/icon' => :icon, constraints: cons
     match 'home/my_work' => :my_work
     match 'home/requests' => :requests
     match 'home/home_project' => :home_project
@@ -58,7 +60,6 @@ OBSWebUI::Application.routes.draw do
   controller :monitor do
     match 'monitor/' => :index
     match 'monitor/old' => :old
-    match 'monitor/filtered_list' => :filtered_list
     match 'monitor/update_building' => :update_building
     match 'monitor/events' => :events
   end
@@ -71,7 +72,7 @@ OBSWebUI::Application.routes.draw do
     match 'package/binaries' => :binaries
     match 'package/users' => :users
     match 'package/requests' => :requests
-    match 'package/commits' => :commits
+    match 'package/commit' => :commit
     match 'package/revisions' => :revisions
     match 'package/submit_request_dialog' => :submit_request_dialog
     match 'package/submit_request' => :submit_request
@@ -106,13 +107,10 @@ OBSWebUI::Application.routes.draw do
     match 'package/buildresult' => :buildresult
     match 'package/rpmlint_result' => :rpmlint_result
     match 'package/rpmlint_log' => :rpmlint_log
-    match 'package/set_url_form' => :set_url_form
     match 'package/meta' => :meta
     match 'package/save_meta' => :save_meta, via: :post
     match 'package/attributes' => :attributes
     match 'package/edit' => :edit
-    match 'package/set_url' => :set_url
-    match 'package/remove_url' => :remove_url
     match 'package/repositories' => :repositories
     match 'package/change_flag' => :change_flag
     match 'package/import_spec' => :import_spec
@@ -132,10 +130,6 @@ OBSWebUI::Application.routes.draw do
     match 'patchinfo/delete_dialog' => :delete_dialog
   end
 
-  controller :privacy do
-    match 'privacy/ichain_login' => :ichain_login
-  end
-
   controller :project do
     match 'project/' => :index
     match 'project/list_public' => :list_public
@@ -145,8 +139,6 @@ OBSWebUI::Application.routes.draw do
     match 'project/autocomplete_incidents' => :autocomplete_incidents
     match 'project/autocomplete_packages' => :autocomplete_packages
     match 'project/autocomplete_repositories' => :autocomplete_repositories
-    match 'project/get_filtered_projectlist' => :get_filtered_projectlist
-    match 'project/get_filtered_packagelist' => :get_filtered_packagelist
     match 'project/users' => :users
     match 'project/subprojects' => :subprojects
     match 'project/attributes' => :attributes
@@ -168,7 +160,6 @@ OBSWebUI::Application.routes.draw do
     match 'project/buildresult' => :buildresult
     match 'project/delete_dialog' => :delete_dialog
     match 'project/delete' => :delete, via: :post
-    match 'project/repository_arch_list' => :repository_arch_list
     match 'project/edit_repository' => :edit_repository
     match 'project/update_target' => :update_target, via: :post
     match 'project/repositories' => :repositories
@@ -203,7 +194,7 @@ OBSWebUI::Application.routes.draw do
     match 'project/clear_failed_comment' => :clear_failed_comment
     match 'project/edit' => :edit
     match 'project/edit_comment_form' => :edit_comment_form
-    match 'project/edit_comment' => :edit_comment
+    match 'project/edit_comment' => :edit_comment, via: :post
     match 'project/status' => :status
     match 'project/maintained_projects' => :maintained_projects
     match 'project/add_maintained_project_dialog' => :add_maintained_project_dialog
@@ -217,11 +208,11 @@ OBSWebUI::Application.routes.draw do
 
   controller :request do
     match 'request/add_reviewer_dialog' => :add_reviewer_dialog
-    match 'request/add_reviewer' => :add_reviewer
+    match 'request/add_reviewer' => :add_reviewer, via: :post
     match 'request/modify_review' => :modify_review, via: :post
     match 'request/show/:id' => :show
     match 'request/sourcediff' => :sourcediff
-    match 'request/changerequest' => :changerequest
+    match 'request/changerequest' => :changerequest, via: :post
     match 'request/diff/:id' => :diff
     match 'request/list' => :list
     match 'request/list_small' => :list_small
@@ -238,7 +229,6 @@ OBSWebUI::Application.routes.draw do
   controller :search do
     match 'search/' => :index
     match 'search/search' => :search
-    match 'search/log_weight' => :log_weight
   end
 
   controller :user do

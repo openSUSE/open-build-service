@@ -15,7 +15,7 @@ class MonitorController < ApplicationController
 
   def index
     if request.post? && ! params[:project].nil? && valid_project_name?( params[:project] )
-      redirect_to :project => params[:project]
+      redirect_to project: params[:project]
     else
       begin
          fetch_workerstatus
@@ -44,11 +44,8 @@ class MonitorController < ApplicationController
     end
   end
 
-  def filtered_list
-    render :partial => 'building_table'
-  end
-
   def update_building
+    check_ajax
     workers = Hash.new
     max_time = 4 * 3600
     @workerstatus.elements("idle") do |b|
@@ -77,6 +74,7 @@ class MonitorController < ApplicationController
   end
 
   def events
+    check_ajax
     data = Hash.new
     required_parameters :arch, :range
 
@@ -104,7 +102,7 @@ class MonitorController < ApplicationController
     render :json => data
   end
 
-private
+  private
   
   def maximumvalue(arr)
     arr.map { |time,value| value }.max || 0

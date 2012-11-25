@@ -38,7 +38,6 @@ class ApplicationController < ActionController::Base
     end
   end
   
-  class MissingParameterError < Exception; end
   class ValidationError < Exception
     attr_reader :xml, :errors
 
@@ -177,7 +176,7 @@ class ApplicationController < ActionController::Base
   def required_parameters(*parameters)
     parameters.each do |parameter|
       unless params.include? parameter.to_s
-        raise MissingParameterError, "Required Parameter #{parameter} missing"
+        raise ActionController::RoutingError.new "Required Parameter #{parameter} missing"
       end
     end
   end
@@ -348,7 +347,7 @@ class ApplicationController < ActionController::Base
 
   # Before filter to check if current user is administrator
   def require_admin
-    if @user and not @user.is_admin?
+    if !@user || !@user.is_admin?
       flash[:error] = "Requires admin privileges"
       redirect_back_or_to :controller => 'main', :action => 'index' and return
     end
@@ -400,5 +399,9 @@ class ApplicationController < ActionController::Base
 
   def check_mobile_views
     #prepend_view_path(Rails.root.join('app', 'mobile_views')) if mobile_request?
+  end
+
+  def check_ajax
+    raise ActionController::RoutingError.new('Expected AJAX call') unless request.xhr?
   end
 end

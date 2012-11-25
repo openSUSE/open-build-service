@@ -10,7 +10,8 @@ class HomeController < ApplicationController
   end
 
   def icon
-    user = params[:id]
+    required_parameters :user
+    user = params[:user]
     size = params[:size] || '20'
     key = "home_face_#{user}_#{size}"
     Rails.cache.delete(key) if discard_cache?

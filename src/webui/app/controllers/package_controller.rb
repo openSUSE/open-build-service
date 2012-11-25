@@ -771,48 +771,41 @@ class PackageController < ApplicationController
     end
   end
 
+  def try_volley(path)
+    # apache & mod_xforward case
+    if CONFIG['use_xforward'] and CONFIG['use_xforward'] != "false"
+      logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
+      headers['X-Forward'] = "#{CONFIG['frontend_protocol']}://#{CONFIG['frontend_host']}:#{CONFIG['frontend_port']}#{path}"
+      head(200)
+      return true
+    end
+
+    # lighttpd 1.5 case
+    if CONFIG['use_lighttpd_x_rewrite']
+      headers['X-Rewrite-URI'] = path
+      headers['X-Rewrite-Host'] = CONFIG['frontend_host']
+      head(200)
+      return true
+    end
+
+    headers['Content-Type'] = 'text/plain'    
+    return false
+  end
+
   def rawsourcefile
+    required_parameters :project, :file, :package
     path = "/source/#{params[:project]}/#{params[:package]}/#{params[:file]}"
     path += "?rev=#{params[:srcmd5]}" unless params[:srcmd5].blank?
 
-    # apache & mod_xforward case
-    if CONFIG['use_xforward'] and CONFIG['use_xforward'] != "false"
-      logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
-      headers['X-Forward'] = "#{CONFIG['frontend_protocol']}://#{CONFIG['frontend_host']}:#{CONFIG['frontend_port']}#{path}"
-      head(200)
-      return
-    end
-
-    # lighttpd 1.5 case
-    if CONFIG['use_lighttpd_x_rewrite']
-      headers['X-Rewrite-URI'] = path
-      headers['X-Rewrite-Host'] = CONFIG['frontend_host']
-      head(200) and return
-    end
-
-    headers['Content-Type'] = 'text/plain'
-    self.response_body = frontend.transport.direct_http URI(path), :timeout => 500
+    return if try_volley(path)
+    self.response_body = frontend.transport.direct_http URI(path), timeout: 500
   end
 
   def rawlog
+    required_parameters :project, :repository, :arch, :package
     path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_log"
 
-    # apache & mod_xforward case
-    if CONFIG['use_xforward'] and CONFIG['use_xforward'] != "false"
-      logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
-      headers['X-Forward'] = "#{CONFIG['frontend_protocol']}://#{CONFIG['frontend_host']}:#{CONFIG['frontend_port']}#{path}"
-      head(200)
-      return
-    end
-
-    # lighttpd 1.5 case
-    if CONFIG['use_lighttpd_x_rewrite']
-      headers['X-Rewrite-URI'] = path
-      headers['X-Rewrite-Host'] = CONFIG['frontend_host']
-      head(200) and return
-    end
-
-    headers['Content-Type'] = 'text/plain'
+    return if try_volley(path)
     self.response_body = RawOutPutStreamer.new(frontend, params[:project], params[:package], params[:repository], params[:arch])
   end
 
@@ -879,7 +872,9 @@ class PackageController < ApplicationController
   end
 
   def devel_project
-    tgt_pkg = find_cached(Package, params[:package], :project => params[:project])
+    check_ajax
+    required_parameters :package, :project
+    tgt_pkg = find_cached(Package, params[:package], project: params[:project])
     if tgt_pkg and tgt_pkg.has_element?(:devel)
       render :text => tgt_pkg.devel.project
     else
@@ -944,7 +939,7 @@ class PackageController < ApplicationController
   end
 
   def buildresult
-    render :text => 'no ajax', :status => 400 and return if not request.xhr?
+    check_ajax
     # discard cache
     Buildresult.free_cache( :project => @project, :package => @package, :view => 'status' )
     @buildresult = find_hashed(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
@@ -953,7 +948,7 @@ class PackageController < ApplicationController
   end
 
   def rpmlint_result
-    render :text => 'no ajax', :status => 400 and return unless request.xhr?
+    check_ajax
     @repo_list, @repo_arch_hash = [], {}
     @buildresult = find_hashed(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
     repos = [] # Temp var
@@ -1068,6 +1063,7 @@ class PackageController < ApplicationController
   end
 
   def require_project
+    required_parameters :project
     if !valid_project_name? params[:project]
       unless request.xhr?
         flash[:error] = "#{params[:project]} is not a valid project name"
@@ -1088,6 +1084,7 @@ class PackageController < ApplicationController
   end
 
   def require_package
+    required_parameters :package
     params[:rev], params[:package] = params[:pkgrev].split('-', 2) if params[:pkgrev]
     unless valid_package_name_read? params[:package]
       logger.error "Package #{@project}/#{params[:package]} not valid"

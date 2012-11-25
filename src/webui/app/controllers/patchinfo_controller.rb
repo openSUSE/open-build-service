@@ -248,8 +248,8 @@ class PatchinfoController < ApplicationController
   end
 
   def delete_dialog
+    check_ajax
   end
-
 
   def valid_summary? name
     name != nil and name =~ /^.{10,}$/m
@@ -345,6 +345,7 @@ class PatchinfoController < ApplicationController
   end
 
   def require_all
+    required_parameters :project
     @project = Project.find( params[:project] )
     unless @project
       flash[:error] = "Project not found: #{params[:project]}"

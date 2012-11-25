@@ -118,8 +118,8 @@ module ApplicationHelper
   end
 
   def user_icon(login, size=20)
-    return image_tag(url_for(:controller => :home, :action => :icon, :id => login.to_s, :size => size), 
-                     :width => size, :height => size)
+    return image_tag(url_for(controller: :home, action: :icon, user: login.to_s, size: size), 
+                     width: size, height: size)
   end
 
   def fuzzy_time_string(time)

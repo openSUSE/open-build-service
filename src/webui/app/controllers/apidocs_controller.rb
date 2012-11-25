@@ -15,7 +15,7 @@ class ApidocsController < ApplicationController
       flash[:error] = "Unable to load API documentation source file: #{CONFIG['apidocs_location']}"
       redirect_back_or_to :controller => 'main', :action => 'index'
     else
-      render :file => filename
+      render :file => filename, format: :html
     end
   end
 

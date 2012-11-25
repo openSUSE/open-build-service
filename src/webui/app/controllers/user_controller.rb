@@ -165,7 +165,7 @@ class UserController < ApplicationController
 
   def autocomplete
     required_parameters :term
-    render :json => Person.list(params[:term])
+    render json: Person.list(params[:term])
   end
 
 end

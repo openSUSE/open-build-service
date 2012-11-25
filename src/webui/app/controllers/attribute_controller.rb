@@ -46,6 +46,7 @@ class AttributeController < ApplicationController
   end
 
   def delete
+    required_parameters :namespace, :name
     result = @attributes.delete(params[:namespace], params[:name])
     flash[result[:type]] = result[:msg]
     Attribute.free_cache( @attribute_opts )
@@ -61,6 +62,7 @@ class AttributeController < ApplicationController
 private
 
   def requires
+    required_parameters :project
     @project = find_cached(Project, params[:project], :expires_in => 5.minutes )
     unless @project
       flash[:error] = "Project not found: #{params[:project]}"
