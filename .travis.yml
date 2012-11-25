@@ -24,12 +24,4 @@ notifications:
   email:
     on_success: change
     on_failure: change
-  irc:
-    channels:
-      - "irc.freenode.org#opensuse-buildservice"
-    template:
-      - "%{repository} (%{commit}) : %{message} %{foo} "
-      - "Build details: %{build_url}"
-    on_failure: change
-    on_success: change
 
