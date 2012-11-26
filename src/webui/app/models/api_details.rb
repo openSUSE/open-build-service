@@ -6,7 +6,7 @@ class ApiDetails
     Rails.logger
   end
 
-  def self.find(info, opts)
+  def self.find(info, opts = {})
     uri = "/webui/"
     uri += 
       case info 
@@ -16,6 +16,7 @@ class ApiDetails
       when :request_show then "request_show?id=:id"
       when :person_involved_requests then "person_involved_requests?login=:login"
       when :request_ids then "request_ids?ids=:ids"
+      when :all_projects then "all_projects"
       else raise "no valid info #{info}"
       end
     uri = URI(uri)
