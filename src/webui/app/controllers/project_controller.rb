@@ -36,13 +36,27 @@ class ProjectController < ApplicationController
   end
 
   def list
-    @important_projects = get_important_projects
-    @filterstring = params[:searchtext] || ''
-    @excludefilter = params['excludefilter'] if params['excludefilter'] and params['excludefilter'] != 'undefined'
-    get_filtered_projectlist @filterstring, @excludefilter, :prefix_search => false
-    if request.xhr? && !mobile_request?
-      render :partial => 'search_project' and return
+    all_projects = ApiDetails.find(:all_projects)
+    @important_projects = []
+    @main_projects = []
+    @excl_projects = []
+    if params['excludefilter'] and params['excludefilter'] != 'undefined'
+      @excludefilter = params['excludefilter']
+    else
+      @excludefilter = nil
     end
+    all_projects.each do |name, infos|
+      if infos['important']
+        @important_projects << [name, infos['title']]
+      end
+      if @excludefilter && name.start_with?(@excludefilter)
+        @excl_projects << [name, infos['title']]
+      else
+        @main_projects << [name, infos['title']]
+      end
+    end
+    # excl and main are sorted by datatable, but important need to be in order
+    @important_projects.sort! {|a,b| a[0] <=> b[0] }
     render :list, :status => params[:nextstatus]
   end
 
@@ -82,16 +96,12 @@ class ProjectController < ApplicationController
   private :project_key
 
   def get_filtered_projectlist(filterstring, excludefilter='', opts={})
-    opts = {:only_incidents => false, :prefix_search => true}.merge(opts)
+    opts = {:only_incidents => false}.merge(opts)
     # remove illegal xpath characters
     filterstring.gsub!(/[\[\]\n]/, '')
     filterstring.gsub!(/[']/, '&apos;')
     filterstring.gsub!(/["]/, '&quot;')
-    if opts[:prefix_search]
-      predicate = filterstring.empty? ? '' : "starts-with(@name, '#{filterstring}')"
-    else
-      predicate = filterstring.empty? ? '' : "contains(@name, '#{filterstring}')"
-    end
+    predicate = filterstring.empty? ? '' : "starts-with(@name, '#{filterstring}')"
     predicate += " and " if !predicate.empty? and !excludefilter.blank?
     predicate += "not(starts-with(@name,'#{excludefilter}'))" if !excludefilter.blank?
     predicate += " and " if !predicate.empty?
@@ -1448,12 +1458,6 @@ class ProjectController < ApplicationController
   end
 
   private
-
-  def get_important_projects
-    predicate = "[attribute/@name='OBS:VeryImportantProject']"
-    return find_cached Collection, :what => "project", :predicate => predicate
-  end
-
 
   def filter_packages( project, filterstring )
     result = Collection.find :id, :what => "package",

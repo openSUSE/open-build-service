@@ -15,6 +15,26 @@ function renderPackagesTable(packages)
 				    });
 }
 
+function renderProjectsTable()
+{
+    var projects = main_projects;
+    if ($('#excludefilter').attr('checked') != 'checked')
+	projects = projects.concat(excl_projects);
+    var projecturl = $("#projects_table_wrapper").data("url");
+    $("#projects_table_wrapper").html( '<table cellpadding="0" cellspacing="0" border="0" class="display" id="projects_table"></table>' );
+    $("#projects_table").dataTable( {"aaData": projects, 
+				     "bPaginate": (main_projects.length + excl_projects.length) > 20,
+				     "aoColumns": [
+					 {
+					     "sTitle": "Name",
+					     "fnRender": function ( obj ) {
+						 var url = projecturl.replace(/REPLACEIT/, encodeURIComponent(obj.aData[0]));
+						 return '<a href="' + url +'">' + obj.aData[0] + '</a>';
+					     }
+					 }, { "sTitle": "Title" } ]
+				    });
+}
+
 function autocomplete_repositories(project_name) 
 {
     $('#loader-repo').show();
@@ -62,3 +82,4 @@ function repositories_setup_autocomplete()
 	$('#repo_name').attr('value', $("#target_project").attr('value').replace(/:/g,'_') + '_' + $(this).val());
     });
 }
+

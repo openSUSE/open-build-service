@@ -2,11 +2,6 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class ProjectControllerTest < ActionDispatch::IntegrationTest
   
-  test "public projects" do
-    visit "/project"
-    assert find('#project_list h3').text =~ %r{All Public Projects}
-  end
- 
   test "project show" do
     visit project_show_path(project: "Apache")
     assert find('#project_title')
@@ -196,4 +191,24 @@ class ProjectControllerTest < ActionDispatch::IntegrationTest
     assert find(:id, 'flash-messages').has_text? 'Build targets were added successfully'
   end
 
+  test "list all" do
+    visit project_list_public_path
+    first(:css, "p.main-project a").click
+    # verify it's a project
+    assert page.current_url.end_with? project_show_path(project: 'BaseDistro')
+ 
+    visit project_list_public_path
+    # avoid random results once projects moves to page 2
+    find(:id, 'projects_table_length').select('100')
+    assert find(:id, 'project_list').has_link? 'BaseDistro'
+    assert find(:id, 'project_list').has_no_link? 'HiddenProject'
+    assert find(:id, 'project_list').has_no_link? 'home:adrian'
+    uncheck('excludefilter')
+    assert find(:id, 'project_list').has_link? 'home:adrian'
+
+    login_king
+    visit project_list_public_path
+    find(:id, 'projects_table_length').select('100')
+    assert find(:id, 'project_list').has_link? 'HiddenProject'
+  end
 end
