@@ -247,4 +247,19 @@ class WebuiController < ApplicationController
     end
     render json: 'ok'
   end
+
+  def all_projects
+    # return all projects and their title
+    ret = {}
+    atype = AttribType.find_by_namespace_and_name('OBS', 'VeryImportantProject')
+    important = {}
+    Project.find_by_attribute_type(atype).select("projects.id").each do |p|
+      important[p.id] = 1
+    end
+    Project.select([:id, :name, :title]).order(:name).each do |p|
+      next if p.name == 'deleted'
+      ret[p.name] = {title: p.title, important: important[p.id] ? true : false}
+    end
+    render json: ret
+  end
 end

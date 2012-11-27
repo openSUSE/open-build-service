@@ -299,6 +299,7 @@ OBSApi::Application.routes.draw do
       match 'webui/request_ids' => :request_ids
       match 'webui/request_list' => :request_list
       match 'webui/change_role' => :change_role, via: :post
+      match 'webui/all_projects' => :all_projects
     end
 
     match "/404" => "main#notfound"
