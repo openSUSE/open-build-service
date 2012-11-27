@@ -8,22 +8,6 @@ require 'erb'
 
 class BuildServicePage < WebPage  
 
-  ATTRIBUTES = [ "NSTEST:status",
-                 "OBS:VeryImportantProject",
-                 "OBS:UpdateProject",
-                 "OBS:OwnerRootProject",
-                 "OBS:Maintained",
-                 "OBS:RequestCloned",
-                 "OBS:InitializeDevelPackage",
-                 "OBS:MaintenanceProject",
-                 "OBS:MaintenanceIdTemplate",
-                 "OBS:RejectRequests",
-                 "OBS:ApprovedRequestSource",
-                 "OBS:BranchTarget",
-                 "OBS:ScreenShots",
-                 "OBS:ProjectStatusPackageFailComment",
-                 "OBS:QualityCategory" ].sort
-
   # ============================================================================
   # (see WebPage#validate_page)
   #

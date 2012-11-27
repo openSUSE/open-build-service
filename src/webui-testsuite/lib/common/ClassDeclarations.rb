@@ -21,7 +21,6 @@ class WebPage;   end
             class ProjectOverviewPage     < ProjectPage; end
             class ProjectRequestsPage     < ProjectPage; end
             class ProjectRawConfigPage    < ProjectPage; end
-            class ProjectAttributesPage   < ProjectPage; end   
             class ProjectSubprojectsPage  < ProjectPage; end
             class NewPackagePage          < ProjectPage; end
             class NewPackageBranchPage    < ProjectPage; end
@@ -30,7 +29,6 @@ class WebPage;   end
                 class PackageRequestsPage     < PackagePage; end
                 class PackageRawConfigPage    < PackagePage; end
                 class PackageRevisionsPage    < PackagePage; end
-                class PackageAttributesPage   < PackagePage; end
                 class PackageAddFilePage      < PackagePage; end
                 class PackageEditFilePage     < PackagePage; end
         class GroupIndexPage < BuildServicePage; end

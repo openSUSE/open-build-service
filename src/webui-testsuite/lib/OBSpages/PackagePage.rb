@@ -48,10 +48,9 @@ class PackagePage < ProjectPage
   ALL_PACKAGE_TABS = { "overview"     => PackageOverviewPage,
                        "requests"     => PackageRequestsPage,
                        "meta"         => PackageRawConfigPage,
-                       "revisions"    => PackageRevisionsPage,
-                       "attributes"   => PackageAttributesPage }
+                       "revisions"    => PackageRevisionsPage }
               
-  ADVANCED_PACKAGE_TABS = [ "meta", "attributes" ]
+  ADVANCED_PACKAGE_TABS = [ "meta" ]
   
   
   # ============================================================================
