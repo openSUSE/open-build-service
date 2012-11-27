@@ -30,6 +30,7 @@ namespace :db do
       i = "000"
       begin
         oldhash = YAML.load_file( "#{Rails.root}/test/fixtures/#{table_name}.yml" )
+        oldhash = {} unless oldhash
       rescue Errno::ENOENT, TypeError
 	oldhash = {}
       rescue => e

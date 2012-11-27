@@ -22,10 +22,6 @@ OBS_Maintained:
   name: Maintained
   value_count: 0
   attrib_namespace_id: 9
-OBS_OwnerRootProject:
-  id: 77
-  name: OwnerRootProject
-  attrib_namespace_id: 9
 OBS_MaintenanceIdTemplate:
   id: 63
   name: MaintenanceIdTemplate
@@ -35,6 +31,10 @@ OBS_MaintenanceProject:
   id: 62
   name: MaintenanceProject
   value_count: 0
+  attrib_namespace_id: 9
+OBS_OwnerRootProject:
+  id: 77
+  name: OwnerRootProject
   attrib_namespace_id: 9
 OBS_ProjectStatusPackageFailComment:
   id: 74

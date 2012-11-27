@@ -2,6 +2,10 @@ attribs_1040753498:
   id: 1040753498
   attrib_type_id: 62
   db_project_id: 2048
+basedistro_important:
+  id: 1040753741
+  attrib_type_id: 56
+  db_project_id: 2042
 attribs_995394145:
   id: 995394145
   attrib_type_id: 61

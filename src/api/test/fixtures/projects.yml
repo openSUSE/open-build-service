@@ -18,6 +18,29 @@ cplusplus:
   name: c++
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+home_Iggy:
+  id: 502
+  name: home:Iggy
+  title: Iggy Home Project
+  description: ''
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
+home_adrian:
+  id: 5007
+  name: home:adrian
+  title: adrian's Home Project
+  description: Please add a suitable description and don't forget to add some repositories
+    you want to build your packages against (just click on 'Repositories' above).
+    Have fun!
+  created_at: 2011-09-19 11:19:37.000000000 Z
+  updated_at: 2011-09-19 11:19:37.000000000 Z
+kde4:
+  id: 2
+  name: kde4
+  title: blub
+  description: bla
+  created_at: 2008-04-28 07:05:05.000000000 Z
+  updated_at: 2008-04-28 08:06:06.000000000 Z
 projects_1:
   id: 1
   name: kde
@@ -203,26 +226,3 @@ projects_601:
   title: only a test
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
-home_Iggy:
-  id: 502
-  name: home:Iggy
-  title: Iggy Home Project
-  description: ''
-  created_at: 2005-01-01 01:00:01.000000000 Z
-  updated_at: 2005-01-01 01:00:01.000000000 Z
-home_adrian:
-  id: 5007
-  name: home:adrian
-  title: adrian's Home Project
-  description: Please add a suitable description and don't forget to add some repositories
-    you want to build your packages against (just click on 'Repositories' above).
-    Have fun!
-  created_at: 2011-09-19 11:19:37.000000000 Z
-  updated_at: 2011-09-19 11:19:37.000000000 Z
-kde4:
-  id: 2
-  name: kde4
-  title: blub
-  description: bla
-  created_at: 2008-04-28 07:05:05.000000000 Z
-  updated_at: 2008-04-28 08:06:06.000000000 Z
