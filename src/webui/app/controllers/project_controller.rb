@@ -492,7 +492,6 @@ class ProjectController < ApplicationController
 
   def rebuild_time
     required_parameters :repository, :arch
-    load_packages_mainpage 
     @repository = params[:repository]
     @arch = params[:arch]
     @hosts = begin Integer(params[:hosts] || '40') rescue 40 end
