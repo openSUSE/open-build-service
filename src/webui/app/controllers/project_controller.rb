@@ -699,6 +699,7 @@ class ProjectController < ApplicationController
   end
 
   def remove_target_request_dialog
+    check_ajax
     @project = params[:project]
     @repository = params[:repository]
   end

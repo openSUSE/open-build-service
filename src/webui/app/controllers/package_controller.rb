@@ -177,6 +177,7 @@ class PackageController < ApplicationController
   end
 
   def submit_request_dialog
+    check_ajax
     if params[:revision]
       @revision = params[:revision]
     else
@@ -535,6 +536,7 @@ class PackageController < ApplicationController
   end
 
   def delete_dialog
+    check_ajax
   end
 
   def remove
