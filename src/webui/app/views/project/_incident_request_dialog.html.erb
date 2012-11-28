@@ -7,7 +7,7 @@
         <%= hidden_field_tag(:project, @project) %>
         <p>
           <%= label_tag(:sourceproject, "Project submitted as Update:") %><br/>
-          <%= text_field_tag(:sourceproject, format_projectname(@project.name, @user), :size => 40, :disabled => true) %><br/>
+          <%= text_field_tag(:sourceproject, format_projectname(@project.name, @user.login), :size => 40, :disabled => true) %><br/>
 
           <%= label_tag(:sourceproject, "Release Targets:") %><br/>
           <% @releasetargets.each do |rt| %>

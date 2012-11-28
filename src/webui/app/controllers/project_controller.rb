@@ -256,7 +256,7 @@ class ProjectController < ApplicationController
     required_parameters :project
     @bugowners_mail = []
     @project.bugowners.each do |bugowner|
-      mail = find_cached(Person, bugowner).email
+      mail = bugowner.email
       @bugowners_mail.push(mail.to_s) if mail
     end unless @spider_bot
 
@@ -1123,7 +1123,7 @@ class ProjectController < ApplicationController
        founduser = nil
        #logger.debug "filter #{package.inspect}"
        package['persons'].elements("person") do |u|
-         if u['userid'] == filter_for_user and u['role'] == 'maintainer'
+         if u['userid'] == filter_for_user.login and u['role'] == 'maintainer'
            founduser = true
          end
        end
@@ -1151,7 +1151,7 @@ class ProjectController < ApplicationController
     @limit_to_fails = !(!params[:limit_to_fails].nil? && params[:limit_to_fails] == 'false')
     @limit_to_old = !(params[:limit_to_old].nil? || params[:limit_to_old] == 'false')
     @include_versions = !(!params[:include_versions].nil? && params[:include_versions] == 'false')
-    filter_for_user = params[:filter_for_user]
+    filter_for_user = find_cached(User, params[:filter_for_user])
     
     attributes = find_hashed(PackageAttribute, :namespace => 'OBS', 
       :name => 'ProjectStatusPackageFailComment', :project => @project, :expires_in => 2.minutes) 

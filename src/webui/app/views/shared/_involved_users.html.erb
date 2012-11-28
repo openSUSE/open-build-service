@@ -22,7 +22,7 @@
       <tbody>
         <% @users.each do |user| %>
   	<tr id='user-<%= valid_xml_id(user) %>'>
-            <td><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => user}%></td>
+            <td><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => user.login }%></td>
             <% @roles.each do |role| %>
               <%= content_tag(:td, data: { user: user, role: role, type: 'user' }) do %>
                 <% if defined? @package %>
@@ -39,11 +39,11 @@
             <% end %>
             <td class="nowrap">
               <% if @user -%>
-                <% mail_to = 'mailto:' + Person.email_for_login(user) + '?subject=openSUSE%20Build%20Service%20-%20' + @project.name %>
+                <% mail_to = 'mailto:' + user.email + '?subject=openSUSE%20Build%20Service%20-%20' + @project.name %>
                 <% mail_to += '/' + @package.name if defined? @package %>
                 <%= link_to(image_tag('email.png', :alt => "Send mail", :title => "Send mail to user"), mail_to) %>
                 <% if user_is_maintainer %>
-                  <%= link_to image_tag('user_delete.png', :alt => "Remove", :title => "Remove user"), {:action => "remove_role", :project => @project, :package => @package, :userid => user}, {:confirm => "Really remove '#{user}'?", :method => :post, class: 'remove-user'}%>
+                  <%= link_to image_tag('user_delete.png', :alt => "Remove", :title => "Remove user"), {:action => "remove_role", :project => @project, :package => @package, :userid => user.login }, {:confirm => "Really remove '#{user.login}'?", :method => :post, class: 'remove-user'}%>
                 <% end %>
               <% end %>
             </td>

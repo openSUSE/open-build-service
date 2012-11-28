@@ -140,10 +140,10 @@ module ApplicationHelper
     @statushash[repo][arch][package] || { "package" => package } 
   end
 
-  def format_projectname(prjname, homename)
+  def format_projectname(prjname, login)
     splitted = prjname.split(':', 4)
     if splitted[0] == "home"
-      if homename and splitted[1] == homename
+      if login and splitted[1] == login
         if splitted.length == 2
           prjname = "~"
         else

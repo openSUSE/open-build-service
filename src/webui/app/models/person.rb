@@ -7,11 +7,11 @@ class Person < ActiveXML::Node
   handles_xml_element 'person'
   
   def self.find_cached(login, opts = {})
-     if opts.has_key?(:is_current)
-       # skip memcache
-       Person.free_cache(login, opts)
-     end
-     super
+    if opts.has_key?(:is_current)
+      # skip memcache
+      Person.free_cache(login, opts)
+    end
+    super
   end
 
   def self.email_for_login(person)
@@ -31,12 +31,20 @@ class Person < ActiveXML::Node
     @watched_projects = nil
   end
 
+  def email
+    self.to_hash["email"]
+  end
+
   def login
-    @login
+    @login || self.to_hash["login"]
+  end
+
+  def to_str
+    login
   end
 
   def to_s
-    @login
+    login
   end
 
   def add_watched_project(name)
@@ -169,13 +177,13 @@ class Person < ActiveXML::Node
   def has_role?(role, project, package = nil)
     if package
       package = Package.find_cached(:project => project, :package => package) if package.class == String
-      if package && package.user_has_role?(login, role)
+      if package && package.user_has_role?(self, role)
         return true
       end
     end
     project = Project.find_cached(project) if project.class == String
     if project
-      return project.user_has_role?(login, role)
+      return project.user_has_role?(self, role)
     else
       return false
     end

@@ -268,8 +268,8 @@ class Project < ActiveXML::Node
   end
 
   def user_has_role?(user, role)
-    user = Person.find_cached(user.to_s) if user.class == String
     return false unless user
+    raise "user needs to be a Person" unless user.kind_of? Person
     login = user.to_hash["login"]
     if user && login
       to_hash.elements("person") do |p|
@@ -301,7 +301,7 @@ class Project < ActiveXML::Node
         end
       end
     end
-    return users.uniq.sort
+    return users.uniq.sort.map { |u| Person.find_cached(u) }
   end
 
   def groups(role = nil)
@@ -315,6 +315,7 @@ class Project < ActiveXML::Node
   end
 
   def is_maintainer?(user)
+    raise "user needs to be a Person" unless user.kind_of? Person
     groups("maintainer").each do |group|
       return true if user.is_in_group?(group)
     end

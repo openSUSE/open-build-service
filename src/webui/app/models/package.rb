@@ -151,8 +151,8 @@ class Package < ActiveXML::Node
   end
 
   def user_has_role?(user, role)
-    user = Person.find_cached(user.to_s) if user.class == String or user.class == ActiveXML::Node
     if user
+      raise "user needs to be a Person" unless user.kind_of? Person
       each_person do |p|
         return true if p.role == role and p.userid == user.to_s
       end
@@ -182,7 +182,7 @@ class Package < ActiveXML::Node
         end
       end
     end
-    return users.sort.uniq
+    return users.uniq.sort.map { |u| Person.find_cached(u) }
   end
 
   def groups(role = nil)
@@ -196,6 +196,7 @@ class Package < ActiveXML::Node
   end
 
   def is_maintainer?(user)
+    raise "user needs to be a Person" unless user.kind_of? Person
     groups("maintainer").each do |group|
       return true if user.is_in_group?(group)
     end
