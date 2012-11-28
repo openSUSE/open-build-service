@@ -310,7 +310,7 @@ expander_dbg(Expander *xp, const char *format, ...)
   printf("%s", buf);
   fflush(stdout);
   l = strlen(buf);
-  if (l > xp->debugstrf)
+  if (l >= xp->debugstrf)	/* >= because of trailing \0 */
     {
       xp->debugstr = solv_realloc(xp->debugstr, xp->debugstrl + l + 1024);
       xp->debugstrf = l + 1024;
