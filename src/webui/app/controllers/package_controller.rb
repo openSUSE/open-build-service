@@ -601,7 +601,7 @@ class PackageController < ApplicationController
           redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
         end
         if !@package.save_file :filename => filename
-          flash[:error] = @package.last_error.summary
+          flash[:error] = @package.last_save_error.summary
           redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
         end
       end
@@ -702,7 +702,7 @@ class PackageController < ApplicationController
     @rev = params[:rev]
     @expand = params[:expand]
     @addeditlink = false
-    if @package.can_edit?( session[:login] )
+    if @package.can_edit?( @user )
       begin
         files = @package.files(@rev, @expand)
       rescue ActiveXML::Transport::Error => e

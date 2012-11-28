@@ -16,14 +16,14 @@ module ProjectHelper
       # TODO: Port _to_remote helpers to jQuery
       status_comment_html = ERB::Util::h(comment)
       if !firstfail
-        if @project.can_edit?( session[:login] )
+        if @project.can_edit?( @user )
           status_comment_html += " ".html_safe + link_to( image_tag('comment_delete.png', :size => "16x16", :alt => 'Clear'), 
                                                           { action: :clear_failed_comment, project: @project, 
                                                             package: package, update: valid_xml_id("comment_#{package}") }, 
                                                           remote: true )
           comments_to_clear << package
         end
-      elsif @project.can_edit?( session[:login] )
+      elsif @project.can_edit?( @user )
         status_comment_html += " ".html_safe
         status_comment_html += link_to(image_tag('comment_edit.png', :alt => "Edit"), 
                                        { action: "edit_comment_form", comment: comment, 
@@ -32,7 +32,7 @@ module ProjectHelper
                                        remote: true)
       end 
     elsif firstfail
-      if @project.can_edit?( session[:login] )
+      if @project.can_edit?( @user )
         status_comment_html += " <span class='unknown_failure'>Unknown build failure ".html_safe + 
           link_to( image_tag('comment_edit.png', size: "16x16", alt: "Edit"),
                    { action: "edit_comment_form", comment: "", package: package, 

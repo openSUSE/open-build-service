@@ -110,7 +110,15 @@ class SpiderTest < ActionDispatch::IntegrationTest
 
   test "spider anonymously" do
     visit "/"
-    puts page.current_url
+    @pages_to_visit = { page.current_url => [nil, nil] }
+    @pages_visited = Hash.new
+    
+    crawl
+  end
+
+  test "spider as admin" do
+    login_king
+    visit "/"
     @pages_to_visit = { page.current_url => [nil, nil] }
     @pages_visited = Hash.new
     

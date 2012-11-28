@@ -323,10 +323,7 @@ class Project < ActiveXML::Node
 
   def can_edit?(user)
     return false if not user
-    if user.class == String or user.class == ActiveXML::Node
-      user = Person.find_cached(user.to_s)
-      return false if not user
-    end
+    raise "user needs to be a User" unless user.kind_of? User
     return true if user.is_admin?
     return is_maintainer?(user)
   end
