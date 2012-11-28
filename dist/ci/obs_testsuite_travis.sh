@@ -14,6 +14,7 @@ set -xe
 
 . `dirname $0`/obs_testsuite_common.sh
 
+ret=0
 export OBS_REPORT_DIR=results/
 export HEADLESS=forsure
 
