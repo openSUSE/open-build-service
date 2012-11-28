@@ -44,7 +44,7 @@ class PackageController < ApplicationController
       end
     elsif @revision_parameter
       flash[:error] = "No such revision: #{@revision_parameter}"
-      redirect_to :back
+      redirect_back_or_to :controller => "package", :action => "show", :project => @project, :package => @package and return
     end
 
 
