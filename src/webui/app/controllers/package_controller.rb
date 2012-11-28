@@ -139,7 +139,7 @@ class PackageController < ApplicationController
       redirect_to :controller => "package", :action => :show, :project => @project, :package => @package, :nextstatus => 404 and return
     end
     # load the flag details to disable links for forbidden binary downloads
-    @package = find_cached(Package, @package.name, :project => @project, :view => :flagdetails )
+    @package = Package.find( @package.name, :project => @project, :view => :flagdetails )
   end
 
   def users
@@ -166,7 +166,7 @@ class PackageController < ApplicationController
     end
     @upper_bound = @max_revision
     if params[:showall]
-      p = find_cached(Package, @package.name, :project => @project)
+      p = Package.find( @package.name, :project => @project)
       p.cacheAllCommits # we need to fetch commits alltogether for the cache and not each single one
       @visible_commits = @max_revision
     else
@@ -874,7 +874,7 @@ class PackageController < ApplicationController
   def devel_project
     check_ajax
     required_parameters :package, :project
-    tgt_pkg = find_cached(Package, params[:package], project: params[:project])
+    tgt_pkg = Package.find( params[:package], project: params[:project] )
     if tgt_pkg and tgt_pkg.has_element?(:devel)
       render :text => tgt_pkg.devel.project
     else
@@ -1026,7 +1026,7 @@ class PackageController < ApplicationController
   end
 
   def repositories
-    @package = find_cached(Package, params[:package], :project => params[:project], :view => :flagdetails )
+    @package = Package.find( params[:package], :project => params[:project], :view => :flagdetails )
   end
 
   def change_flag
@@ -1035,7 +1035,7 @@ class PackageController < ApplicationController
     end
     Package.free_cache( params[:package], :project => @project.name, :view => :flagdetails )
     if request.xhr?
-      @package = find_cached(Package, params[:package], :project => @project.name, :view => :flagdetails )
+      @package = Package.find( params[:package], :project => @project.name, :view => :flagdetails )
       render :partial => 'shared/repositories_flag_table', :locals => { :flags => @package.send(params[:flag]), :obj => @package }
     else
       redirect_to :action => :repositories, :project => @project, :package => @package
@@ -1072,7 +1072,7 @@ class PackageController < ApplicationController
         render :text => "#{params[:project]} is not a valid project name", :status => 404 and return
       end
     end
-    @project = find_cached(Project, params[:project], :expires_in => 5.minutes )
+    @project = Project.find( params[:project] )
     unless @project
       unless request.xhr?
         flash[:error] = "Project not found: #{params[:project]}"
@@ -1098,7 +1098,7 @@ class PackageController < ApplicationController
     @project ||= params[:project]
     unless params[:package].blank?
       begin
-        @package = find_cached(Package, params[:package], :project => @project )
+        @package = Package.find( params[:package], :project => @project )
       rescue ActiveXML::Transport::Error => e
         flash[:error] = e.message
         unless request.xhr?
