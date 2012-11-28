@@ -146,8 +146,8 @@
 
               <% if action['sourcediff'].length != 1 %>
                 <h4>
-                  <%= sourcediff['new'].project %> / <%= sourcediff['new'].package %> (rev <%= sourcediff['new'].rev %>) -
-                  <%= sourcediff['old'].project %> / <%= sourcediff['old'].package %> (rev <%= sourcediff['old'].rev %>)
+                  <%= sourcediff['new']['project'] %> / <%= sourcediff['new']['package'] %> (rev <%= sourcediff['new']['rev'] %>) -
+                  <%= sourcediff['old']['project'] %> / <%= sourcediff['old']['package'] %> (rev <%= sourcediff['old']['rev'] %>)
                 </h4>
               <% end %>
               <%#TODO: Redo source/target link display %>
