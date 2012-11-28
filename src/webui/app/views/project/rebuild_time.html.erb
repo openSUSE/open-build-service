@@ -19,20 +19,19 @@ case). To see what happens with less or more build hosts, play with these number
 
 <h3>Longest Paths</h3>
 
-<table>
+<table class='grid_16 alpha omega'>
 <% p1 = @longestpaths[0].reverse
    p2 = @longestpaths[1].reverse
    p3 = @longestpaths[2].reverse 
-   p4 = @longestpaths[3].reverse
 %>
  
-<% while p1.size + p2.size + p3.size + p4.size > 0 do %>
+<tbody>
+<% while p1.size + p2.size + p3.size > 0 do %>
 <tr>
 <td><%= rebuild_time_col(p1.shift) %></td>
 <td><%= rebuild_time_col(p2.shift) %></td>
 <td><%= rebuild_time_col(p3.shift) %></td>
-<td><%= rebuild_time_col(p4.shift) %></td>
 </tr>
 <% end %>
-
+</tbody>
 </table>
