@@ -19,7 +19,14 @@ HoptoadNotifier.configure do |config|
   }
  
   config.ignore_by_filter do |exception_data|
-    true if exception_data[:class] == "ActionController::RoutingError" && exception_data[:message].includes("[GET]")
+    ret=false
+    if exception_data[:class] == "ActionController::RoutingError" 
+      message = exception_data[:message]
+      ret=true if message.includes("[GET]")
+      ret=true if message.includes("Required Parameter")
+      ret=true if message.includes("Expected AJAX call") 
+    end
+    ret
   end
 
 end
