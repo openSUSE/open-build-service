@@ -73,7 +73,12 @@ class PatchinfoController < ApplicationController
     if @file.has_element?("issue")
       @file.each_issue do |a|
         if a.text == ""
-          get_issue_sum(a.tracker, a.value(:id))
+          begin
+            get_issue_sum(a.tracker, a.value(:id))
+            a.text = @issuesum
+          rescue
+            a.text = "PLEASE CHECK THE FORMAT OF THE ISSUE"
+          end
         end
         issue = Array.new
         issueid = a.value(:id)
@@ -298,7 +303,9 @@ class PatchinfoController < ApplicationController
       bug = issueid
     end
     path = "/issue_trackers/#{CGI.escape(tracker)}"
-    tracker_result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => "GET"))
+    begin
+      tracker_result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => "GET"))
+    end
     regexp = "^"
     regexp += tracker_result.regex.text
     regexp += "$"
