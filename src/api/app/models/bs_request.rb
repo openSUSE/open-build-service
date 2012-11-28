@@ -229,13 +229,13 @@ class BsRequest < ActiveRecord::Base
       state = state.to_sym
 
       unless self.state == :review || (self.state == :new && state == :new)
-        raise ArgumentError.new "request is not in review state"
+        raise RequestInvalidState.new "request is not in review state"
       end
       if !opts[:by_user] && !opts[:by_group] && !opts[:by_project]
         raise ArgumentError.new "request review item is not specified via by_user, by_group or by_project"
       end
       unless [:new, :accepted, :declined, :superseded].include? state
-        raise ArgumentError.new "review state must be new, accepted, declined or superseded, was #{state}"
+        raise RequestInvalidState.new "review state must be new, accepted, declined or superseded, was #{state}"
       end
       go_new_state = :review
       go_new_state = state if [:declined, :superseded].include? state

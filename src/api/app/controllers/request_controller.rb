@@ -960,12 +960,14 @@ class RequestController < ApplicationController
                 :message => "The request is neither in state review nor new"
         return
       end
+      found=nil
       if params[:by_user]
         unless @http_user.login == params[:by_user]
           render_error :status => 403, :errorcode => "review_change_state_no_permission",
                 :message => "review state change is not permitted for #{@http_user.login}"
           return
         end
+        found=true
       end
       if params[:by_group]
         unless @http_user.is_in_group?(params[:by_group])
@@ -973,6 +975,7 @@ class RequestController < ApplicationController
                 :message => "review state change for group #{params[:by_group]} is not permitted for #{@http_user.login}"
           return
         end
+        found=true
       end
       if params[:by_project] 
         if params[:by_package]
@@ -988,6 +991,12 @@ class RequestController < ApplicationController
             return
           end
         end
+        found=true
+      end
+      unless found
+        render_error :status => 400, :errorcode => "review_not_specified",
+              :message => "The review must specified via by_user, by_group or by_project(by_package) argument."
+        return
       end
       # 
       permission_granted = true

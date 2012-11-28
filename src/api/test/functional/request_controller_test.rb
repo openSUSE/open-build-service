@@ -404,8 +404,14 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_xml_tag( :tag => "review", :attributes => { :by_user => "tom" } )
 
     prepare_request_with_user 'tom', 'thunder'
+    post "/request/#{id}?cmd=changereviewstate&newstate=declined"
+    assert_response 400
+    assert_xml_tag( :tag => "status", :attributes => { :code => "review_not_specified" } )
     post "/request/#{id}?cmd=changereviewstate&newstate=declined&by_user=tom"
     assert_response :success
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=tom"
+    assert_response 403
+    assert_xml_tag( :tag => "status", :attributes => { :code => "review_change_state_no_permission" } )
 
     get "/request/#{id}"
     assert_response :success
