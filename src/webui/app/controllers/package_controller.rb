@@ -406,6 +406,7 @@ class PackageController < ApplicationController
   end
 
   def branch_dialog
+    check_ajax
   end
 
   def branch
