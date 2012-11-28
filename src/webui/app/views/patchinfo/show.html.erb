@@ -39,11 +39,14 @@
     <%= description_wrapper(@description) %>
   </div>
     <div class="box show_left show_right">
-      <b>Fixed bugs:</b><br/>
-      <% @issues.each do |issue| %>
-        <%= link_to("#{issue[0].to_s}##{issue[1].to_s}", issue[2].to_s)%>: <%= issue[3].to_s %>
-        <br/>
-      <%end%>
+      <b>Fixed bugs:</b>
+      <% unless @issues.blank? %>
+        <ul>
+          <% @issues.each do |issue| %>
+            <%= issue_link(issue) %>
+          <% end %>
+        </ul>
+      <% end %>
     </div>
     <div class="box show_left show_right">
       <b>Required actions:</b><br/>

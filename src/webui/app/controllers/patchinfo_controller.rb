@@ -73,7 +73,13 @@ class PatchinfoController < ApplicationController
     if @file.has_element?("issue")
       @file.each_issue do |a|
         if a.text == ""
-          get_issue_sum(a.tracker, a.value(:id))
+          # old uploaded patchinfos could have broken tracker-names like "bnc " instead of "bnc". Catch these.
+          begin
+            get_issue_sum(a.tracker, a.value(:id))
+            a.text = @issuesum
+          rescue ActiveXML::Transport::NotFoundError
+            a.text = "PLEASE CHECK THE FORMAT OF THE ISSUE"
+          end
         end
         issue = Array.new
         issueid = a.value(:id)
