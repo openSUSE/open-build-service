@@ -323,7 +323,7 @@ class Project < ActiveXML::Node
 
   def can_edit?(user)
     return false if not user
-    raise "user needs to be a User" unless user.kind_of? User
+    raise "user needs to be a Person" unless user.kind_of? Person
     return true if user.is_admin?
     return is_maintainer?(user)
   end

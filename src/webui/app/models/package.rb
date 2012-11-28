@@ -204,7 +204,7 @@ class Package < ActiveXML::Node
 
   def can_edit?(user)
     return false unless user
-    raise "user needs to be a User" unless user.kind_of? User
+    raise "user needs to be a Person" unless user.kind_of? Person
     return true if is_maintainer?(user)
     return true if p=Project.find_cached(project) and p.can_edit?(user)
   end
