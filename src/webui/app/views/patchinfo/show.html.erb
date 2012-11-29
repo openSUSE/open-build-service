@@ -40,14 +40,7 @@
   </div>
     <div class="box show_left show_right">
       <b>Fixed bugs:</b><br/>
-      <% @issues.each do |issue| %>
-        <% if issue[0].to_s == "CVE" %>
-          <%= link_to("#{issue[1].to_s}", issue[2].to_s)%>: <%= issue[3].to_s %>
-        <% else %>
-          <%= link_to("#{issue[0].to_s}##{issue[1].to_s}", issue[2].to_s)%>: <%= issue[3].to_s %>
-        <% end %>
-        <br/>
-      <% end %>
+      <%= create_issue_list(@issues) %> 
     </div>
     <div class="box show_left show_right">
       <b>Required actions:</b><br/>

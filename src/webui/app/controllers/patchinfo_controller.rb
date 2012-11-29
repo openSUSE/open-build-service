@@ -76,7 +76,7 @@ class PatchinfoController < ApplicationController
           begin
             get_issue_sum(a.tracker, a.value(:id))
             a.text = @issuesum
-          rescue
+          rescue ActiveXML::Transport::NotFoundError
             a.text = "PLEASE CHECK THE FORMAT OF THE ISSUE"
           end
         end
@@ -303,9 +303,7 @@ class PatchinfoController < ApplicationController
       bug = issueid
     end
     path = "/issue_trackers/#{CGI.escape(tracker)}"
-    begin
-      tracker_result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => "GET"))
-    end
+    tracker_result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => "GET"))
     regexp = "^"
     regexp += tracker_result.regex.text
     regexp += "$"
