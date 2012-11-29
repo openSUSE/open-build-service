@@ -174,16 +174,16 @@ module ApplicationHelper
 
     out = "<td class='#{theclass} buildstatus'>"
     if ["unresolvable", "blocked"].include? code 
-      out += link_to code, "#", :title => link_title, :id => status_id
+      out += link_to code, "#", title: link_title, id: status_id
       content_for :ready_function do
         "$('a##{status_id}').click(function() { alert('#{link_title.gsub(/'/, '\\\\\'')}'); return false; });\n".html_safe
       end
     elsif ["-","excluded"].include? code
       out += code
     else
-      out += link_to code.gsub(/\s/, "&nbsp;"), {:action => :live_build_log,
-        :package => packname, :project => @project.to_s, :arch => arch,
-        :controller => "package", :repository => repo}, {:title => link_title, :rel => 'nofollow'}
+      out += link_to code.gsub(/\s/, "&nbsp;"), {action: :live_build_log,
+        package: packname, project: @project.to_s, arch: arch,
+        controller: "package", repository: repo}, {title: link_title, rel: 'nofollow'}
     end 
     out += "</td>"
     return out.html_safe
@@ -231,7 +231,7 @@ module ApplicationHelper
     description = REPO_STATUS_DESCRIPTIONS[status] || "Unknown state of repository"
     description = "State needs recalculations, former state was: " + description if outdated
 
-    sprite_tag icon, :title => description
+    sprite_tag icon, title: description
   end
 
 
@@ -272,29 +272,41 @@ module ApplicationHelper
       end
 
       if @user && @user.is_maintainer?(@project, @package)
-        opts = { :project => @project, :repository => repository, :arch => arch, :package => @package, :flag => flags.element_name, :action => :change_flag }
-        out = "<div class='flagimage'>" + "<div class='icons-#{image} icon_24'/>" + "<div class='hidden flagtoggle'>"
-        unless flag.has_attribute? :explicit and flag.element_name == 'disable'
-          out += 
-            "<div class='iconwrapper'><div class='icons-#{flags.element_name}_disabled_blue icon_24'></div>" +
-            link_to("Explicitly disable", opts.merge({ :cmd => :set_flag, :status => :disable }), {:class => "nowrap flag_trigger"}) + "</div>"
+        opts = { project: @project, package: @package, action: :repositories }
+        data = { flag: flags.element_name }
+        data[:repository] = repository if repository
+        data[:arch] = arch if arch
+        content_tag(:div, class: 'flagimage', data: data) do
+          content_tag(:div, class: "icons-#{image} icon_24") do
+            content_tag(:div, class: 'hidden flagtoggle') do
+              out = ''.html_safe
+              unless flag.has_attribute? :explicit and flag.element_name == 'disable'
+                out += content_tag(:div, class: 'iconwrapper') do
+                  content_tag(:div, '', class: "icons-#{flags.element_name}_disabled_blue icon_24")
+                end
+                out += link_to("Explicitly disable", opts, class: "nowrap flag_trigger", data: { cmd: :set_flag, status: :disable} )
+              end
+              if flag.element_name == 'disable'
+                out += content_tag(:div, class: 'iconwrapper') do
+                  content_tag(:div, '', class: "icons-#{flags.element_name}_enabled_grey icon_24")
+                end
+                out += link_to("Take default", opts, class: "nowrap flag_trigger", data: {cmd: :remove_flag } )
+              else
+                out += content_tag(:div, class: 'iconwrapper') do
+                  content_tag(:div, '', class: "icons-#{flags.element_name}_disabled_grey icon_24")
+                end
+                out += link_to("Take default", opts, class: "nowrap flag_trigger", data: { cmd: :remove_flag })
+              end if flag.has_attribute? :explicit
+              unless flag.has_attribute? :explicit and flag.element_name != 'disable'
+                out += content_tag(:div, class: 'iconwrapper') do
+                  content_tag(:div, '', class: "icons-#{flags.element_name}_enabled_blue icon_24")
+                end
+                out += link_to("Explicitly enable", opts, class: "nowrap flag_trigger", data: { cmd: :set_flag, status: :enable })
+              end
+              out
+            end
+          end
         end
-        if flag.element_name == 'disable'
-          out += 
-            "<div class='iconwrapper'><div class='icons-#{flags.element_name}_enabled_grey icon_24'></div>" +
-            link_to("Take default", opts.merge({ :cmd => :remove_flag }),:class => "nowrap flag_trigger") + "</div>"
-        else
-          out += 
-	    "<div class='iconwrapper'><div class='icons-#{flags.element_name}_disabled_grey icon_24'></div>" +
-            link_to("Take default", opts.merge({ :cmd => :remove_flag }), :class => "nowrap flag_trigger") + "</div>"
-        end if flag.has_attribute? :explicit
-        unless flag.has_attribute? :explicit and flag.element_name != 'disable'
-          out += 
-	    "<div class='iconwrapper'><div class='icons-#{flags.element_name}_enabled_blue icon_24'></div>" + 
-            link_to("Explicitly enable", opts.merge({ :cmd => :set_flag, :status => :enable }), :class => "nowrap flag_trigger") + "</div>"
-        end
-        out += "</div></div>"
-        out.html_safe
       else
         sprite_tag(image)
       end
@@ -379,9 +391,9 @@ module ApplicationHelper
 
   def description_wrapper(description)
     unless description.blank?
-      content_tag(:pre, description, :id => "description_text", :class => "plain")
+      content_tag(:pre, description, id: "description_text", class: "plain")
     else
-      content_tag(:p, :id => "description_text") do
+      content_tag(:p, id: "description_text") do
         content_tag(:i, "No description set")
       end
     end

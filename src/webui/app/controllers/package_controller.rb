@@ -547,8 +547,6 @@ class PackageController < ApplicationController
       Rails.cache.delete("%s_problem_packages" % @project)
       Package.free_cache( :all, :project => @project.name )
       Package.free_cache( @package.name, :project => @project.name )
-      # Invalidate flag details (for repositories view):
-      Package.free_cache( @package.name, :project => @project.name, :view => :flagdetails )
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
     end
@@ -1033,16 +1031,10 @@ class PackageController < ApplicationController
   end
 
   def change_flag
-    if request.post? and params[:cmd] and params[:flag]
-      frontend.source_cmd params[:cmd], :project => @project, :package => @package, :repository => params[:repository], :arch => params[:arch], :flag => params[:flag], :status => params[:status]
-    end
-    Package.free_cache( params[:package], :project => @project.name, :view => :flagdetails )
-    if request.xhr?
-      @package = Package.find( params[:package], :project => @project.name, :view => :flagdetails )
-      render :partial => 'shared/repositories_flag_table', :locals => { :flags => @package.send(params[:flag]), :obj => @package }
-    else
-      redirect_to :action => :repositories, :project => @project, :package => @package
-    end
+    check_ajax
+    required_parameters :cmd, :flag
+    frontend.source_cmd params[:cmd], project: @project, package: @package, repository: params[:repository], arch: params[:arch], flag: params[:flag], status: params[:status]
+    @package = Package.find( params[:package], project: @project.name, view: :flagdetails )
   end
 
   private

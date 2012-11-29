@@ -1,4 +1,5 @@
-<table class="flag_table" id="flag_table_<%= flags.element_name %>">
+<% flags = obj.send(flag) %>
+<table class="flag_table" id="flag_table_<%= flag %>" data-flag="<%= flag %>">
   <tr>
     <th></th>
     <th style="width: 6ex">All</th>

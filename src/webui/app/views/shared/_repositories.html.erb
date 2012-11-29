@@ -1,14 +1,14 @@
 <div class="clearfix">
   <% if obj.has_element? 'build' %>
     <div style="min-width: 50%; float: left">
-      <h3>Build Flag <%= image_tag 'ajax-loader.gif', :id => 'spinner_flag_table_build', :class => 'spinner hidden' %><span id='error_flag_table_build' class='flagerror'></span></h3>
-      <%= render :partial => 'shared/repositories_flag_table', :locals => { :flags => obj.build, :obj => obj } %>
+      <h3>Build Flag <%= image_tag 'ajax-loader.gif', id: 'spinner_flag_table_build', class: 'spinner hidden' %><span id='error_flag_table_build' class='flagerror'></span></h3>
+      <%= render partial: 'shared/repositories_flag_table', locals: { flag: :build, obj: obj } %>
     </div>
   <% end %>
   <% if obj.has_element? 'publish' %>
     <div style="min-width: 50%; float: left">
-      <h3>Publish Flag <%= image_tag 'ajax-loader.gif', :id => 'spinner_flag_table_publish', :class => 'spinner hidden' %><span id='error_flag_table_publish' class='flagerror'></span></h3>
-      <%= render :partial => 'shared/repositories_flag_table', :locals => { :flags => obj.publish, :obj => obj } %>
+      <h3>Publish Flag <%= image_tag 'ajax-loader.gif', id: 'spinner_flag_table_publish', class: 'spinner hidden' %><span id='error_flag_table_publish' class='flagerror'></span></h3>
+      <%= render partial: 'shared/repositories_flag_table', locals: { flag: :publish, obj: obj } %>
     </div>
   <% end %>
 </div>
@@ -16,45 +16,22 @@
 <div class="clearfix">
   <% if obj.has_element? 'debuginfo' %>
     <div style="min-width: 50%; float: left;">
-      <h3>Debuginfo Flag <%= image_tag 'ajax-loader.gif', :id => 'spinner_flag_table_debuginfo', :class => 'spinner hidden' %><span id='error_flag_table_debuginfo' class='flagerror'></span></h3>
-      <%= render :partial => 'shared/repositories_flag_table', :locals => { :flags => obj.debuginfo, :obj => obj } %>
+      <h3>Debuginfo Flag <%= image_tag 'ajax-loader.gif', id: 'spinner_flag_table_debuginfo', class: 'spinner hidden' %><span id='error_flag_table_debuginfo' class='flagerror'></span></h3>
+      <%= render partial: 'shared/repositories_flag_table', locals: { flag: :debuginfo, obj: obj } %>
     </div>
   <% end %>
   <% if obj.has_element? 'useforbuild' %>
     <div style="min-width: 50%; float: left">
-      <h3>Use for Build Flag <%= image_tag 'ajax-loader.gif', :id => 'spinner_flag_table_useforbuild', :class => 'spinner hidden' %><span id='error_flag_table_useforbuild' class='flagerror'></span></h3>
-      <%= render :partial => 'shared/repositories_flag_table', :locals => { :flags => obj.useforbuild, :obj => obj } %>
+      <h3>Use for Build Flag <%= image_tag 'ajax-loader.gif', id: 'spinner_flag_table_useforbuild', class: 'spinner hidden' %><span id='error_flag_table_useforbuild' class='flagerror'></span></h3>
+      <%= render partial: 'shared/repositories_flag_table', locals: { flag: :useforbuild, obj: obj } %>
     </div>
   <% end %>
 </div>
 
-<%= javascript_tag do %>
-  function trigger() {
-    var last_triggered_flag = $(this).parents('.flag_table').attr('id');
-
-    $(this).parents('.flag_toggle').hide();
-    $('.flagimage').animate({opacity: 0.2}, 500);
-    $('#spinner_' + last_triggered_flag).show();
-
-    $.ajax({
-      url: $(this).attr('href'),
-      type: 'POST',
-      data: {dummy: ''}, /* Need at least some POST form data, otherwise .ajaxSend won't add the 'authenticity_token' */
-      success: function (data) {
-        $('#' + last_triggered_flag).replaceWith(data);
-        $('.flag_trigger').click(trigger); /* Re-bind event handler to new '.flag_trigger' elements */
-        $('#error_' + last_triggered_flag).text('');
-      },
-      error: function(data) {
-        $('#error_' + last_triggered_flag).text(data);
-      },
-      complete: function(data) {
-        $('.flagimage').animate({opacity: 1}, 200);
-        $('.spinner').hide();
-      }
-    })
-    return false;
-  }
-
-  $('.flag_trigger').click(trigger);
+<% content_for :head_javascript do %>
+  var last_triggered_flag = null;
+  var change_flag_url = '<%= url_for(project: @project, package: @package, action: :change_flag) %>';
+<% end %>
+<% content_for :ready_function do %>
+  $('.flag_trigger').click(flag_trigger);
 <% end %>

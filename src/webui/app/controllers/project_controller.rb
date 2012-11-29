@@ -1055,16 +1055,10 @@ class ProjectController < ApplicationController
   end
 
   def change_flag
-    if request.post? and params[:cmd] and params[:flag]
-      frontend.source_cmd params[:cmd], :project => @project, :repository => params[:repository], :arch => params[:arch], :flag => params[:flag], :status => params[:status]
-    end
-    Project.free_cache( :name => params[:project], :view => :flagdetails )
-    if request.xhr?
-      @project = find_cached(Project, :name => params[:project], :view => :flagdetails )
-      render :partial => 'shared/repositories_flag_table', :locals => { :flags => @project.send(params[:flag]), :obj => @project }
-    else
-      redirect_to :action => :repositories, :project => @project
-    end
+    check_ajax
+    required_parameters :cmd, :flag
+    frontend.source_cmd params[:cmd], :project => @project, :repository => params[:repository], :arch => params[:arch], :flag => params[:flag], :status => params[:status]
+    @project = Project.find( :name => params[:project], :view => :flagdetails )
   end
 
   def clear_failed_comment
