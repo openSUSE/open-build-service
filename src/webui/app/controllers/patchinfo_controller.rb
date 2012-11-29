@@ -12,7 +12,7 @@ class PatchinfoController < ApplicationController
         frontend.transport.direct_http( URI(path), :method => "POST" )
       rescue ActiveXML::Transport::Error => e
         flash[:error] = e.summary
-        redirect_to :controller => 'project', :action => 'show'
+        redirect_to :controller => 'project', :action => 'show' and return
       end
     end
     @package = find_cached(Package, "patchinfo", :project => @project )
