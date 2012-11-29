@@ -112,7 +112,7 @@ OBSWebUI::Application.routes.draw do
     match 'package/attributes' => :attributes
     match 'package/edit' => :edit
     match 'package/repositories' => :repositories
-    match 'package/change_flag' => :change_flag
+    match 'package/change_flag' => :change_flag, via: :post
     match 'package/import_spec' => :import_spec
     match "package/files" => :files
   end
@@ -190,7 +190,7 @@ OBSWebUI::Application.routes.draw do
     match 'project/save_meta' => :save_meta, via: :post
     match 'project/prjconf' => :prjconf
     match 'project/save_prjconf' => :save_prjconf, via: :post
-    match 'project/change_flag' => :change_flag
+    match 'project/change_flag' => :change_flag, via: :post
     match 'project/clear_failed_comment' => :clear_failed_comment
     match 'project/edit' => :edit
     match 'project/edit_comment_form' => :edit_comment_form

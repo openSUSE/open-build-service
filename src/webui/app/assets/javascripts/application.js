@@ -295,3 +295,33 @@ function change_role(obj) {
         }
     });
 }
+
+function flag_trigger() {
+    if (last_triggered_flag)
+	return false;
+    last_triggered_flag = $(this).parents('.flag_table').attr('id');
+    
+    $(this).parents('.flag_toggle').hide();
+    $('.flagimage').animate({opacity: 0.2}, 500);
+    $('#spinner_' + last_triggered_flag).show();
+    
+    $.ajax({
+	url: change_flag_url,
+	type: 'POST',
+	data: $.extend({}, $(this).data(), $(this).parents(".flagimage").data()),
+	success: function (data) {
+            $('.flag_trigger').click(flag_trigger); /* Re-bind event handler to new '.flag_trigger' elements */
+            $('#error_' + last_triggered_flag).text('');
+	},
+	error: function(data) {
+            $('#error_' + last_triggered_flag).text(data);
+	},
+	complete: function(data) {
+            $('.flagimage').animate({opacity: 1}, 200);
+            $('.spinner').hide();
+            last_triggered_flag = null;
+	}
+    });
+    return false;
+}
+
