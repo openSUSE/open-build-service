@@ -286,6 +286,10 @@ class SearchControllerTest < ActionController::IntegrationTest
     post "/source/home:Iggy/_attribute", "<attributes><attribute namespace='OBS' name='OwnerRootProject' /></attributes>"
     assert_response :success
 
+    get "/search/owner?binary=DOES_NOT_EXIST"
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :children => { :count => 0 }
+
     get "/search/owner?binary=package"
     assert_response :success
     assert_xml_tag :tag => 'owner', :attributes => { :rootproject => "home:Iggy", :project => "home:Iggy", :package => "TestPack" }
