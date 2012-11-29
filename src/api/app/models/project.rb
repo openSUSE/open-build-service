@@ -1279,7 +1279,7 @@ class Project < ActiveRecord::Base
 
     deepest_match = nil
     projects.each do |prj|
-      data["binary"].each do |b|
+      data.elements("binary").each do |b|
         next unless b["project"] == prj
 
         pkg = Package.find_by_project_and_name( prj, b["package"] )
