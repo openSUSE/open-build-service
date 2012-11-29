@@ -326,14 +326,26 @@ module ActiveXML
         "http#{"s" if @http.use_ssl?}://#{url.host}:#{url.port}#{path}"
 
         clength = { "Content-Length" => "0" }
-        clength["Content-Length"] = opt[:data].length().to_s() unless opt[:data].nil?
+        if opt[:data].respond_to?(:read)
+          # TODO: streaming doesn't work - move to rest-client and be done
+          opt[:data] = opt[:data].read
+        end
+        if opt[:data].respond_to?(:length)
+          clength["Content-Length"] = opt[:data].length().to_s()
+        end
         clength["Content-Type"] = opt[:content_type] unless opt[:content_type].nil?
 
         case method
         when :get
           http_response = @http.get path, @http_header
         when :put
-          http_response = @http.put path, opt[:data], @http_header.merge(clength)
+          req = Net::HTTP::Put.new(path, @http_header.merge(clength))
+          if opt[:data].respond_to?(:read)
+            req.body_stream = opt[:data]
+          else
+            req.body = opt[:data]
+          end
+          http_response = @http.request(req)
         when :post
           http_response = @http.post path, opt[:data], @http_header.merge(clength)
         when :delete

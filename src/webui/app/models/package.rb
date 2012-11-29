@@ -32,8 +32,8 @@ class Package < ActiveXML::Node
 
   def save_file(opt = {})
     content = "" # touch an empty file first
-    content = opt[:file].read if opt[:file]
-    logger.debug "storing file: #{content}, filename: #{opt[:filename]}, comment: #{opt[:comment]}"
+    content = opt[:file] if opt[:file]
+    logger.debug "storing file: filename: #{opt[:filename]}, comment: #{opt[:comment]}"
 
     put_opt = Hash.new
     put_opt[:package] = self.name
