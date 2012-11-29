@@ -52,7 +52,9 @@ case $SUBTEST in
    SUBTEST=${SUBTEST/webui:/}
    thetest=${SUBTEST/:*/}
    thename=${SUBTEST/*:/}
-   bundle exec ruby test/$thetest --name=$thename || ret=1
+   if ! bundle exec ruby test/$thetest --name=$thename ; then
+     cat log/test.log
+   fi
    ;;
   api:*)
    cd src/api
