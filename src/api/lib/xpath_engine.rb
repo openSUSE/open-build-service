@@ -466,7 +466,7 @@ class XpathEngine
     if hs.nil? or ne.nil?
       condition = '0'
     else
-      condition = "LOWER(CONVERT(#{hs} USING latin1)) LIKE LOWER(CONCAT('%',#{ne},'%'))"
+      condition = "LOWER(#{hs}) LIKE LOWER(CONCAT('%',#{ne},'%'))"
     end
     #logger.debug "-- condition : [#{condition}]"
 
