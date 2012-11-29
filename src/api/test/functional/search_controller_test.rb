@@ -39,6 +39,13 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => 'collection', :children => { :count => 1 }
     assert_xml_tag :child => { :tag => 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
+
+    get "/search/package/id", :match => '[contains(@name,"Test")]'
+    assert_response :success
+    assert_xml_tag :child => { :tag => 'package', :attributes => { :name => 'TestPack', :project => "home:Iggy"} }
+    assert_xml_tag :child => { :tag => 'package', :attributes => { :name => 'ToBeDeletedTestPack', :project => "home:Iggy"} }
+    assert_xml_tag :child => { :tag => 'package', :attributes => { :name => 'test', :project => "CopyTest"} }
+    assert_xml_tag :tag => 'collection', :children => { :count => 3 }
   end
 
   def test_xpath_2
