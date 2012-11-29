@@ -62,7 +62,7 @@ class FrontendCompat
     path += "?#{extra.join('&')}" if extra.length
     logger.debug "--> get_source path: #{path}"
     
-    transport.direct_http URI("#{path}")
+    transport.http_do :get, URI("#{path}")
   end
 
   def put_file( data, opt={} )
@@ -71,8 +71,7 @@ class FrontendCompat
     path += "/#{pesc opt[:package]}" if opt[:project] && opt[:package]
     path += "/#{pesc opt[:filename]}" if opt[:filename]
     path += "?comment=#{esc opt[:comment]}" unless opt[:comment].blank?
-    transport.direct_http URI("#{path}"),
-      :method => "PUT", :data => data, :timeout => 500
+    transport.http_do :put, URI("#{path}"), data: data, timeout: 500
   end
 
   def do_post( data, opt={} )
@@ -83,8 +82,7 @@ class FrontendCompat
     path += "?"
     path += "cmd=#{esc opt[:cmd]}" unless opt[:cmd].blank?
     path += "&comment=#{esc opt[:comment]}" unless opt[:comment].blank?
-    transport.direct_http URI("#{path}"),
-      :method => "POST", :data => data, :timeout => 500
+    transport.http_do :post, URI("#{path}"), data: data, timeout: 500
   end
 
   def delete_package( opt={} )
