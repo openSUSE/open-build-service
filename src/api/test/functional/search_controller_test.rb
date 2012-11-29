@@ -377,6 +377,12 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert_no_xml_tag :tag => 'owner', :attributes => { :project => "home:coolo:test" }
     assert_xml_tag :tag => 'group', :attributes => { :name => "test_group", :role => "bugowner" }
 
+    get "/search/owner?project=TEMPORARY&binary=package&deepest=1"
+    assert_response :success
+    assert_xml_tag :tag => 'owner', :attributes => { :project => "home:coolo:test" }
+    assert_no_xml_tag :tag => 'owner', :attributes => { :project => "home:Iggy", :package => "TestPack" }
+    assert_no_xml_tag :tag => 'owner', :attributes => { :project => "TEMPORARY", :package => "pack" }
+
     # test fall through when higher project has the package, but no bugowner
     put "/source/TEMPORARY/pack/_meta", "<package name='pack' project='TEMPORARY'><title/><description/></package>"
     assert_response :success

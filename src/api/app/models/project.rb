@@ -1260,7 +1260,7 @@ class Project < ActiveRecord::Base
   end
   private :extract_maintainer
 
-  def find_assignees(binary_name, limit=1, devel=true, filter=["maintainer","bugowner"])
+  def find_assignees(binary_name, limit=1, devel=true, filter=["maintainer","bugowner"], deepest=false)
     maintainers=[]
     pkg=nil
     projects=self.expand_all_projects
@@ -1277,6 +1277,7 @@ class Project < ActiveRecord::Base
     # found binary package?
     return [] if data["matches"].to_i == 0
 
+    deepest_match = nil
     projects.each do |prj|
       data["binary"].each do |b|
         next unless b["project"] == prj
@@ -1298,11 +1299,18 @@ class Project < ActiveRecord::Base
         next if found==true
 
         # add entry
-        maintainers << m
+        if deepest == true
+          deepest_match = m
+          next
+        else
+          maintainers << m
+        end
         limit = limit - 1
         return maintainers if limit == 0
       end
     end
+
+    maintainers << deepest_match if deepest_match
 
     return maintainers
   end

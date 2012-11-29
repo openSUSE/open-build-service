@@ -76,6 +76,8 @@ class SearchController < ApplicationController
     end
 
     # search in each marked project
+    deepest = false
+    deepest = true if params[:deepest]
     @assignees = []
     projects.each do |project|
 
@@ -98,7 +100,7 @@ class SearchController < ApplicationController
         end
       end
 
-      @assignees = project.find_assignees(params[:binary], limit.to_i, devel, filter)
+      @assignees = project.find_assignees(params[:binary], limit.to_i, devel, filter, deepest)
 
     end
 
