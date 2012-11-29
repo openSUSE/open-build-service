@@ -21,12 +21,12 @@
       </thead>
       <tbody>
         <% @users.each do |user| %>
-  	<tr id='user-<%= valid_xml_id(user) %>'>
+  	<tr id='user-<%= valid_xml_id(user.login) %>'>
             <td><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => user.login }%></td>
             <% @roles.each do |role| %>
-              <%= content_tag(:td, data: { user: user, role: role, type: 'user' }) do %>
+              <%= content_tag(:td, data: { user: user.login, role: role, type: 'user' }) do %>
                 <% if defined? @package %>
-                  <%= check_box_tag("user_" + role + "_" + user, '',
+                  <%= check_box_tag("user_" + role + "_" + user.login, '',
                       @package.user_has_role?(user, role), 
 		      disabled: !user_is_maintainer, class: "trigger") %>
                   <% if @project.user_has_role?(user, role) %>

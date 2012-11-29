@@ -5,10 +5,10 @@ before_script: bash -x dist/ci/obs_testsuite_travis_before.sh
 script: bash -x dist/ci/obs_testsuite_travis.sh
 env:
   # just one special test
-  - SUBTEST=webui:functional/users_test.rb:test_add_and_edit_package_people
+  #- SUBTEST=webui:functional/users_test.rb:test_add_and_edit_package_people
   #- SUBTEST=api:functional/source_controller_test.rb:test_read_file REMOVEGEMLOCK=true
   # full api test suite
-  #- SUBTEST=api
+  - SUBTEST=api
   # full webrat test suite
   - SUBTEST=webui
   # selenium without spider
