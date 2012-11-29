@@ -39,8 +39,14 @@
     <%= description_wrapper(@description) %>
   </div>
     <div class="box show_left show_right">
-      <b>Fixed bugs:</b><br/>
-      <%= create_issue_list(@issues) %> 
+      <b>Fixed bugs:</b>
+      <% unless @issues.blank? %>
+        <ul>
+          <% @issues.each do |issue| %>
+            <%= issue_link(issue) %>
+          <% end %>
+        </ul>
+      <% end %>
     </div>
     <div class="box show_left show_right">
       <b>Required actions:</b><br/>
