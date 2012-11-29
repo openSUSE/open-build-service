@@ -14,19 +14,19 @@
   <%= form_tag({:controller => 'search', :action => 'search'}, {:method => :get}) do -%>
     <p>
 
-      Search term: <%= text_field_tag 'search_text', params[:search_text], :size => 35 -%>
-      <%= submit_tag 'Search' -%>
+      <label for="search_text">Search term:</label> <%= text_field_tag 'search_text', params[:search_text], :size => 35 -%>
+      <%= submit_tag 'Search', id: 'search-term' -%>
     </p>
 
     <p>
-      Search for: <%= check_box_tag('project', 1, @search_what.include?('project')) -%><label for="project">projects</label>
+      <label for="project">Search for:</label> <%= check_box_tag('project', 1, @search_what.include?('project')) -%><label for="project">projects</label>
       <%= check_box_tag 'package', 1, @search_what.include?('package') -%><label for="package">packages</label>
       <br/>
-      Search in: <%= check_box_tag 'name', 1, true -%><label for="name">name</label>
+      <label for="name">Search in:</label> <%= check_box_tag 'name', 1, true -%><label for="name">name</label>
       <%= check_box_tag 'title', 1, params[:title] -%><label for="title">title</label>
       <%= check_box_tag 'description', 1, params[:description] -%><label for="description">description</label>
       <br/>
-      Require attribute: <%= select_tag :attribute, options_for_select(@attribute_list, params[:attribute]) %>
+      <label for="attribute">Require attribute:</label> <%= select_tag :attribute, options_for_select(@attribute_list, params[:attribute]) %>
       <%= hidden_field_tag 'advanced', 'on' -%>
     </p>
 
@@ -39,7 +39,7 @@
       <% params[:issue_tracker] = "bnc (Novell Bugzilla)" if params[:issue_tracker].nil? %> <!-- FIXME: default should become configurable on api server -->
       <%= select_tag :issue_tracker, options_for_select(@issue_tracker_list, params[:issue_tracker]) %>
       <%= text_field_tag 'issue_name', params[:issue_name], :size => 10 -%>
-      <%= submit_tag 'Search' -%>
+      <%= submit_tag 'Search', id: 'search-tracker' -%>
     </p>
   <% end -%>
 

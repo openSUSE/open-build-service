@@ -35,11 +35,6 @@ class MainPage < BuildServicePage
     $page=StatusMonitorPage.new_ready @driver
   end
   
-  def open_search
-    @driver[css: "div#content a[href='/search']"].click
-    $page=SearchPage.new_ready @driver
-  end
-  
   def open_all_projects
     @driver[css: "div#content a[href='/project/list_public']"].click
     $page=AllProjectsPage.new_ready @driver

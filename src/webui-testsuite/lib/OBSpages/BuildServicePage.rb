@@ -279,15 +279,6 @@ class BuildServicePage < WebPage
   
   
   # ============================================================================
-  # Opens the Search page from the link in the footer.
-  #
-  def open_search
-    @driver[css: "div#footer a[href='/search']"].click
-    $page=SearchPage.new_ready @driver
-  end
-  
-  
-  # ============================================================================
   # Opens All Projects page from the link in the footer.
   #
   def open_all_projects

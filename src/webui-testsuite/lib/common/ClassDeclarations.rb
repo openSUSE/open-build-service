@@ -7,7 +7,6 @@ class WebPage;   end
         class MyProjectsPage     < BuildServicePage; end
         class AllProjectsPage    < BuildServicePage; end
         class NewProjectPage     < BuildServicePage; end
-        class SearchPage         < BuildServicePage; end
         class SearchResultsPage  < BuildServicePage; end
         class StatusMonitorPage  < BuildServicePage; end
         class UserHomePage       < BuildServicePage; end

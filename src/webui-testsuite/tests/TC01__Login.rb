@@ -46,15 +46,6 @@ class TC01__Login < TestCase
   end
 
   
-  test :login_from_search do
-  
-    navigate_to MainPage, :user => :none
-    open_search
-    login_as $data[:user1]
-    logout
-  end
-
-  
   test :login_from_all_projects do
   
     navigate_to MainPage, :user => :none

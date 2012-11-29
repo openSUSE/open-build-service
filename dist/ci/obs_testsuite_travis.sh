@@ -52,7 +52,10 @@ case $SUBTEST in
    SUBTEST=${SUBTEST/webui:/}
    thetest=${SUBTEST/:*/}
    thename=${SUBTEST/*:/}
-   if ! bundle exec ruby test/$thetest --name=$thename ; then
+   if test -n "$thename"; then
+     thename="--name=$thename"
+   fi
+   if ! bundle exec ruby test/$thetest $thename ; then
      ret=1
      cat log/test.log
    fi
