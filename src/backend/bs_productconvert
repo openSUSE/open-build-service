@@ -1273,7 +1273,7 @@ foreach my $medium ( @$media ){
     next if( $opt_m && $name ne $opt_m );
 
     # create one kiwi file each for every of the archsets
-    if (@{$medium->{archsets}}) {
+    if (defined($medium->{archsets})) {
       my @archSets = @{$medium->{archsets}};
       foreach my $arch ( @archSets ) {
           my @archs;
