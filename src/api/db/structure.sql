@@ -501,13 +501,14 @@ CREATE TABLE `release_targets` (
 CREATE TABLE `repositories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_project_id` int(11) NOT NULL,
-  `name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8_bin NOT NULL,
   `remote_project_name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `rebuild` enum('transitive','direct','local') CHARACTER SET utf8 DEFAULT NULL,
   `block` enum('all','local','never') CHARACTER SET utf8 DEFAULT NULL,
   `linkedbuild` enum('off','localdep','all') CHARACTER SET utf8 DEFAULT NULL,
   `hostsystem_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `db_project_id` (`db_project_id`,`name`),
   UNIQUE KEY `projects_name_index` (`db_project_id`,`name`,`remote_project_name`),
   KEY `remote_project_name_index` (`remote_project_name`),
   KEY `hostsystem_id` (`hostsystem_id`),
@@ -1003,6 +1004,8 @@ INSERT INTO schema_migrations (version) VALUES ('20121121142111');
 INSERT INTO schema_migrations (version) VALUES ('20121124032111');
 
 INSERT INTO schema_migrations (version) VALUES ('20121130103300');
+
+INSERT INTO schema_migrations (version) VALUES ('20121130143300');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

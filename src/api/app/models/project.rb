@@ -255,7 +255,7 @@ class Project < ActiveRecord::Base
     
   end
 
-  def update_from_xml(xmlhash)
+  def update_from_xml(xmlhash, force=nil)
     # check for raising read access permissions, which can't get ensured atm
     unless self.new_record? || self.disabled_for?('access', nil, nil)
       if FlagHelper.xml_disabled_for?(xmlhash, 'access')
