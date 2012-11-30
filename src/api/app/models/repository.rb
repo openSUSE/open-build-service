@@ -17,6 +17,13 @@ class Repository < ActiveRecord::Base
 
   scope :not_remote, where(:remote_project_name => nil)
 
+  validate :validate_duplicates, :on => :create
+  def validate_duplicates
+    if Repository.where("db_project_id = ? AND name = ?", self.db_project_id, self.name).first
+      errors.add(:name, "Project already has project with name #{self.name}")
+    end
+  end
+
   def cleanup_before_destroy
     # change all linking repository pathes
     del_repo = nil

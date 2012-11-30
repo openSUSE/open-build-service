@@ -174,6 +174,30 @@ class ProjectTest < ActiveSupport::TestCase
     
   end
     
+  test "duplicated repos" do
+     orig = @project.render_axml
+
+     axml = Xmlhash.parse(
+      "<project name='home:Iggy'>
+        <title>Iggy's Home Project</title>
+        <description></description>
+        <repository name='10.2'>
+          <arch>x86_64</arch>
+        </repository>
+        <repository name='10.2'>
+          <arch>i586</arch>
+        </repository>
+      </project>"
+      )
+     assert_raise(ActiveRecord::RecordInvalid) do
+       Project.transaction do
+         @project.update_from_xml(axml)
+       end
+     end
+     @project.reload
+     assert_equal orig, @project.render_axml
+  end
+
   def test_create_maintenance_project_and_maintained_project
     maintenance_project = Project.new(:name => 'Maintenance:Project')
     assert_equal true, maintenance_project.set_project_type('maintenance')
