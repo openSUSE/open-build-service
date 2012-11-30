@@ -98,19 +98,19 @@ class BsRequest < ActiveXML::Node
 
     def modify(id, changestate, opts)
       opts = {:superseded_by => nil, :force => false, :reason => ''}.merge opts
-      if ["accepted", "declined", "revoked", "superseded", "new"].include?(changestate)
-        path = "/request/#{id}?newstate=#{changestate}&cmd=changestate"
-        path += "&superseded_by=#{opts[:superseded_by]}" unless opts[:superseded_by].blank?
-        path += "&force=1" if opts[:force]
-        begin
-          ActiveXML::transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:reason].to_s
-          BsRequest.free_cache(id)
-          return true
-        rescue ActiveXML::Transport::ForbiddenError, ActiveXML::Transport::NotFoundError => e
-          raise ModifyError, e.summary
-        end
+      unless ["accepted", "declined", "revoked", "superseded", "new"].include?(changestate)
+        raise ModifyError, "unknown changestate #{changestate}"
       end
-      raise ModifyError, "unknown changestate #{changestate}"
+      path = "/request/#{id}?newstate=#{changestate}&cmd=changestate"
+      path += "&superseded_by=#{opts[:superseded_by]}" unless opts[:superseded_by].blank?
+      path += "&force=1" if opts[:force]
+      begin
+        ActiveXML::transport.direct_http URI("#{path}"), :method => "POST", :data => opts[:reason].to_s
+        BsRequest.free_cache(id)
+        return true
+      rescue ActiveXML::Transport::Error => e
+        raise ModifyError, e.summary
+      end
     end
 
     def set_incident(id, incident_project)
