@@ -371,7 +371,7 @@ module ApplicationHelper
       text = 'The file you look at is not valid UTF-8 text. Please convert the file.'
     end
     # Ged rid of stuff that shouldn't be part of PCDATA:
-    return text.gsub(/([^a-zA-Z0-9&;<>\/\n \t()])/n) do
+    return text.gsub(/([^a-zA-Z0-9&;<>\/\n \t()])/u) do
       if $1[0].getbyte(0) < 32
         ''
       else
