@@ -1278,8 +1278,8 @@ class Project < ActiveRecord::Base
     return [] if data["matches"].to_i == 0
 
     deepest_match = nil
-    projects.each do |prj|
-      data.elements("binary").each do |b|
+    projects.each do |prj| # project link order
+      data.elements("binary").each do |b| # no order
         next unless b["project"] == prj
 
         pkg = Package.find_by_project_and_name( prj, b["package"] )
@@ -1289,6 +1289,26 @@ class Project < ActiveRecord::Base
         m = nil
         m = extract_maintainer(self, pkg.resolve_devel_package, filter) if devel == true
         m = extract_maintainer(self, pkg, filter) unless m
+        # no match, loop about projects below with this package container name
+        unless m
+          found=false
+          projects.each do |belowprj|
+            if belowprj == prj
+              found=true
+              next
+            end
+            if found == true
+              pkg = Package.find_by_project_and_name( belowprj, b["package"] )
+              next if pkg.nil?
+
+              m = extract_maintainer(self, pkg.resolve_devel_package, filter) if devel == true
+              m = extract_maintainer(self, pkg, filter) unless m
+              break if m
+            end
+          end
+        end
+
+        # giving up here
         next unless m
 
         # avoid double entries

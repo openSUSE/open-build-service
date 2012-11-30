@@ -415,5 +415,60 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_find_owner_when_binary_exist_in_Update_but_definition_is_in_GA_project
+    prepare_request_with_user "king", "sunflower"
+
+    # must be after first search controller call or backend might not be started on single test case runs
+    wait_for_publisher()
+
+    # setup projects and packages
+    put "/source/TEMPORARY:GA/_meta", "<project name='TEMPORARY:GA'><title/><description/>
+                                      <repository name='standard'>
+                                        <path project='home:Iggy' repository='10.2'/>
+                                        <arch>i586</arch>
+                                      </repository>
+                                    </project>"
+    assert_response :success
+    put "/source/TEMPORARY:Update/_meta", "<project name='TEMPORARY:Update'><title/><description/><link project='TEMPORARY:GA'/>
+                                      <repository name='standard'>
+                                        <path project='home:Iggy' repository='10.2'/>
+                                        <arch>i586</arch>
+                                      </repository>
+                                    </project>"
+    assert_response :success
+    put "/source/TEMPORARY:Update/package/_meta", "<package name='package' project='TEMPORARY:Update'><title/><description/> </package>"
+    assert_response :success
+    put "/source/TEMPORARY:GA/package/_meta", "<package name='package' project='TEMPORARY:GA'><title/><description/>
+                                                 <person userid='fred' role='bugowner' />
+                                               </package>"
+    assert_response :success
+    raw_put '/source/TEMPORARY:GA/package/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read()
+    assert_response :success
+    raw_put '/source/TEMPORARY:Update/package/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read()
+    assert_response :success
+
+    # package exists only in Update
+    run_scheduler("i586")
+    inject_build_job( "TEMPORARY:Update", "package", "standard", "i586" )
+    run_scheduler("i586")
+    wait_for_publisher()
+
+    # search: upper hit
+    get "/search/owner?binary=package&project=TEMPORARY:Update"
+    assert_response :success
+    assert_xml_tag :parent => { :tag => 'owner', :attributes => { :rootproject => "TEMPORARY:Update", :project => "TEMPORARY:Update" } },
+                   :tag => "person", :attributes => { :name => "king", :role => "maintainer" }
+    # search: find definition in package below without this binary
+    get "/search/owner?binary=package&project=TEMPORARY:Update&filter=bugowner"
+    assert_response :success
+    assert_xml_tag :parent => { :tag => 'owner', :attributes => { :rootproject => "TEMPORARY:Update", :project => "TEMPORARY:GA", :package => "package" } },
+                   :tag => "person", :attributes => { :name => "fred", :role => "bugowner" }
+
+    # cleanup
+    delete "/source/TEMPORARY:Update"
+    assert_response :success
+    delete "/source/TEMPORARY:GA"
+    assert_response :success
+  end
 end
 
