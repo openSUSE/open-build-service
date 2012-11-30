@@ -103,7 +103,7 @@ class SpiderTest < ActionDispatch::IntegrationTest
   end
 
   def setup
-    # rack_test: 79s, selenium: 402s, webkit: TODO
+    # rack_test: 79s, selenium: 402s, webkit: 224s
     Capybara.current_driver = :rack_test
     super
   end
