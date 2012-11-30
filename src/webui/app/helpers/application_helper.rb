@@ -438,5 +438,23 @@ module ApplicationHelper
 
   end
 
+  def link_to_project(prj, linktext=nil)
+    linktext = prj if linktext.blank?
+    if Project.exists?(prj)
+      link_to(linktext, {:controller => :project, :action => :show, :project => prj}, title: prj )
+    else
+      linktext
+    end
+  end
+
+  def link_to_package(prj, pkg, linktext=nil)
+    linktext = pkg if linktext.blank?
+    if Package.exists?(prj, pkg)
+      link_to(linktext, { controller: :package, action: :show, project: prj, package: pkg}, title: pkg)
+    else
+      linktext
+    end
+  end
+
 end
 

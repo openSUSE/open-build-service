@@ -119,7 +119,7 @@ class BsRequest < ActiveXML::Node
         ActiveXML::transport.direct_http URI(path), :method => "POST", :data => ''
         BsRequest.free_cache(id)
         return true
-      rescue ActiveXML::Transport::ForbiddenError, ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => e
+      rescue ActiveXML::Transport::Error => e
         raise ModifyError, e.summary
       end
       raise ModifyError, "Unable to merge with incident #{incident_project}"

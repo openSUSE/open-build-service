@@ -38,17 +38,12 @@
           <% end %>
           <td class="request_source">
             <% if ae['spkg'] %> 
-                <% src_proj = format_projectname(ae['sprj'], req['creator']) 
-                src_pack = elide(ae['spkg'], elide_len >> 1) %>
-                 <%= link_to(src_proj, {:controller => :project, :action => :show, :project => ae['sprj']}, { :title => ae['sprj']} ) %> /  
-                 <% if Package.exists?(ae['sprj'], ae['spkg']) %>
-                  <%= link_to(src_pack, :controller => :package, :action => :show, :project => ae['sprj'], :package => ae['spkg']) %>
-                <% else %>
-                  <%= src_pack %>
-                <% end %>
+               <% src_proj = format_projectname(ae['sprj'], req['creator']) 
+                  src_pack = elide(ae['spkg'], elide_len >> 1) %>
+                 <%= link_to_project(ae['sprj'], src_proj) %> / <%= link_to_package(ae['sprj'], ae['spkg'], src_pack) %>
               <% elsif ae['sprj'] %>
                 <%# Happens for maintenance requests, no source package there %>
-                <%= link_to(elide(ae['sprj'], elide_len), :controller => :project, :action => :show, :project => ae['sprj']) %>
+		<%= link_to_project(ae['sprj'], elide(ae['sprj'], elide_len)) %>
             <% end %>
           </td>
           <% if !no_target%>
@@ -57,14 +52,13 @@
                 <% if not @project or @project.name != ae['tprj'] %><!-- <%= ae['tprj'] %>  -->
                   <% if ae['tpkg'] and not (ae.has_key?('source') and Package.exists?(ae['sprj'], ae['spkg']) and ae['spkg'] == ae['tpkg']) %> <!-- /<%= ae['tpkg'] %> -->
                     <% tgt_proj, tgt_pack = elide_two(ae['tprj'], ae['tpkg'], elide_len) %>
-                    <%= link_to(tgt_proj, :controller => :project, :action => :show, :project => ae['tprj']) %> /
-                    <%= link_to(tgt_pack, :controller => :package, :action => :show, :project => ae['tprj'], :package => ae['tpkg']) %>
+		    <%= link_to_project(ae['tprj'], tgt_proj) %> / <%= link_to_package(ae['tprj'], ae['tpkg'], tgt_pack) %>
                   <% else %>
-                    <%= link_to(elide(ae['tprj'], elide_len), :controller => :project, :action => :show, :project => ae['tprj']) %>
+		     <%= link_to_project(ae['tprj'], elide(ae['tprj'], elide_len)) %>
                   <% end %>
                 <% else %>
                   <% if ae['tpkg'] and Package.exists?(@project.name, ae['tpkg']) %> <!-- <%= ae['tpkg'] %> -->
-                    <%= link_to(elide(ae['tpkg'], elide_len), :controller => :package, :action => :show, :project => ae['tprj'], :package => ae['tpkg']) %>
+		  <%= link_to_package(ae['tprj'], ae['tpkg'], elide(ae['tpkg'], elide_len)) %>
                   <% elsif ae['type'] == "delete" %>
                     This project
                   <% end %>

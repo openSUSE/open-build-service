@@ -43,11 +43,8 @@ class SpiderTest < ActionDispatch::IntegrationTest
     return if url.end_with? "/package/view_file?file=myfile&package=pack2_linked&project=BaseDistro2.0%3ALinkedUpdateProject&rev=1"
     return if url.end_with? "/package/view_file?file=package.spec&package=pack2_linked&project=BaseDistro2.0%3ALinkedUpdateProject&rev=1"
     return if url =~ %r{/package/binary\?.*project=BinaryprotectedProject}
-    return if url.end_with? "/package/show?package=notthere&project=NotExisiting"
     return if url.end_with? "/package/view_file?file=my_file&package=remotepackage&project=LocalProject&rev=1"
     return if url.end_with? "/project/show?project=HiddenRemoteInstance"
-    return if url.end_with? "/project/show?project=HiddenProject"
-    return if url.end_with? "/project/show?project=NotExisiting"
     return if url.end_with? "/package/files?package=target&project=SourceprotectedProject"
     return if url =~ %r{/package/binary\?.*project=BinaryprotectedProject}
     return if url.end_with? "/package/revisions?package=pack&project=SourceprotectedProject"
@@ -88,6 +85,7 @@ class SpiderTest < ActionDispatch::IntegrationTest
       next unless body
       if !body.css("div#flash-messages div.ui-state-error").empty?
         raiseit("flash alert", theone)
+        raise "Flash"
       end
       body.css('h1').each do |h|
         if h.content == 'Internal Server Error'
