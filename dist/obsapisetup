@@ -64,16 +64,16 @@ fi
 rc_reset
 case "$1" in
 	start)
-                if [ ! -d /obs/MySQL ]; then
-			mkdir -p /obs/MySQL
+                if [ ! -d /srv/obs/MySQL ]; then
+			mkdir -p /srv/obs/MySQL
 		fi
 
 		# If we've proper hostname resolution all is fine. But if
 		# there's no proper hostname resolution, adapt BSConfig.pm et al.
 		### In case of the appliance, we never know where we boot up !
 		OLDFQHOSTNAME="NOTHING"
-		if [ -e /obs/.oldfqhostname ]; then
-			OLDFQHOSTNAME=`cat /obs/.oldfqhostname`
+		if [ -e /srv/obs/.oldfqhostname ]; then
+			OLDFQHOSTNAME=`cat /srv/obs/.oldfqhostname`
 		fi
 		if [ "$FQHOSTNAME" != "$OLDFQHOSTNAME" ]; then
 			echo "Appliance hostname changed from $OLDFQHOSTNAME to $FQHOSTNAME !"
@@ -93,7 +93,7 @@ case "$1" in
 			mkdir -p /$backenddir/repos
 			chown obsrun.obsrun /$backenddir/repos
 		fi
-		echo "$FQHOSTNAME" > /obs/.oldfqhostname
+		echo "$FQHOSTNAME" > /srv/obs/.oldfqhostname
 
 		if grep -q ^FRONTEND_HOST /srv/www/obs/webui/config/environments/production.rb; then
 		    echo -n "Switching from Rails 2.x style configuration to Rails 3.x"
@@ -120,10 +120,9 @@ case "$1" in
 		OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
 		OS=`head -n 1 /etc/SuSE-release`
                 RUN_INITIAL_SETUP=""
-                if [ ! -e /obs/MySQL/api_production ]; then
+                if [ ! -e /srv/obs/MySQL/api_production ]; then
 			echo -n "Initialize MySQL databases (first time only)"
 			mysqladmin -u root create api_production
-			mysqladmin -u root create webui_production
 			mysqladmin -u root password "opensuse"
                         RUN_INITIAL_SETUP="true"
 		fi
@@ -164,7 +163,7 @@ case "$1" in
 
                 if [ ! -e /srv/obs/certs/server.${FQHOSTNAME}.created ]; then
                        # setup ssl certificates (NOT protected with a passphrase)
-                       echo "Creating a default SSL certificate for the server, please replace it with your version in /obs/certs directory..."
+                       echo "Creating a default SSL certificate for the server, please replace it with your version in /srv/obs/certs directory..."
                        # hostname specific certs - survive intermediate hostname changes
                        if [ ! -e /srv/obs/certs/server.${FQHOSTNAME}.pem ] ; then
                            # This is just a dummy SSL certificate, but it has a valid hostname. Admin can replace it with his version.
