@@ -401,7 +401,7 @@ CREATE TABLE `package_user_role_relationships` (
 CREATE TABLE `packages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_project_id` int(11) NOT NULL,
-  `name` tinyblob NOT NULL,
+  `name` text COLLATE utf8_bin,
   `title` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `description` text CHARACTER SET utf8,
   `created_at` datetime DEFAULT '0000-00-00 00:00:00',
@@ -458,7 +458,7 @@ CREATE TABLE `project_user_role_relationships` (
 
 CREATE TABLE `projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` tinyblob NOT NULL,
+  `name` text COLLATE utf8_bin,
   `title` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `description` text CHARACTER SET utf8,
   `created_at` datetime DEFAULT '0000-00-00 00:00:00',
@@ -665,7 +665,7 @@ CREATE TABLE `users` (
   `updated_at` datetime DEFAULT NULL,
   `last_logged_in_at` datetime DEFAULT NULL,
   `login_failure_count` int(11) NOT NULL DEFAULT '0',
-  `login` tinyblob NOT NULL,
+  `login` text COLLATE utf8_bin,
   `email` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '',
   `realname` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '',
   `password` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
@@ -1001,6 +1001,8 @@ INSERT INTO schema_migrations (version) VALUES ('20121120124300');
 INSERT INTO schema_migrations (version) VALUES ('20121121142111');
 
 INSERT INTO schema_migrations (version) VALUES ('20121124032111');
+
+INSERT INTO schema_migrations (version) VALUES ('20121130103300');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

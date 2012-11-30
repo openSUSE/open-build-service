@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+#
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"        
 
 class SearchControllerTest < ActionDispatch::IntegrationTest
@@ -85,6 +87,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     visit '/search/search?search_text=Base'
     assert page.has_text?(/Base.* distro without update project/)
+    assert page.has_link? 'kdebase'
   end
 
   test "search by baseurl" do
@@ -229,7 +232,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert search_results.empty?
   end
 
-
   test "search_for_nothing" do
     visit search_path
 
@@ -241,7 +243,18 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert search_results.empty?
   end
   
-  
+  test "search russian" do
+    visit search_path
+    
+    search(text: "вокябюч", :for  => [:projects, :packages], :in   => [:name, :title, :description])
+    
+    results = search_results
+    assert page.has_text? "Этёам вокябюч еюж эи"
+    assert page.has_text? "窞綆腤 埱娵徖 渮湸湤 殠 唲堔"
+    results.include?(:type => :project, :project_name => "home:tom")
+    assert_equal 1, results.count
+  end
+
   test "search_in_nothing" do
     visit search_path  
 
