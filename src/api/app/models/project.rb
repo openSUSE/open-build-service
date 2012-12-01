@@ -54,7 +54,10 @@ class Project < ActiveRecord::Base
 
   default_scope { where("projects.id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
 
+  validates :name, presence: true, length: { maximum: 200 }
+  validate :valid_name
 
+ 
   def download_name
     self.name.gsub(/:/, ':/')
   end
@@ -679,8 +682,10 @@ class Project < ActiveRecord::Base
 
   def store(opts = {})
     @commit_opts = opts
-    save!
-    write_to_backend
+    self.transaction do
+      save!
+      write_to_backend
+    end
   end
 
   def store_attribute_axml( attrib, binary=nil )
@@ -1457,17 +1462,34 @@ class Project < ActiveRecord::Base
       rel = self.project_user_role_relationships.where(bs_user_id: what.id)
     end
     rel = rel.where(role_id: role.id) if role
-    rel.delete_all
-    write_to_backend
+    self.transaction do
+      rel.delete_all
+      write_to_backend
+    end
   end
  
   def add_role(what, role)
-    if what.kind_of? Group
-      self.project_group_role_relationships.create!(role: role, group: what)
-    else
-      self.project_user_role_relationships.create!(role: role, user: what)
+    self.transaction do
+      if what.kind_of? Group
+        self.project_group_role_relationships.create!(role: role, group: what)
+      else
+        self.project_user_role_relationships.create!(role: role, user: what)
+      end
+      write_to_backend
     end
-    write_to_backend
+  end
+
+  def self.valid_name?(name)
+    return false unless name.kind_of? String
+    # this length check is duplicated but useful for other uses for this function
+    return false if name.length > 200 || name.blank?
+    return false if name =~ %r{[\/\000-\037]}
+    return false if name =~ %r{^[_\.]} 
+    return true
+  end
+
+  def valid_name
+    errors.add(:name, "is illegal") unless Project.valid_name?(self.name)
   end
 
 end

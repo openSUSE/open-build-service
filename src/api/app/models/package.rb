@@ -36,6 +36,9 @@ class Package < ActiveRecord::Base
 
   default_scope { where("packages.db_project_id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
 
+  validates :name, presence: true, length: { maximum: 200 }
+  validate :valid_name
+
 #  def after_create
 #    raise ReadAccessError.new "Unknown package" unless Package.check_access?(self)
 #  end
@@ -899,17 +902,21 @@ class Package < ActiveRecord::Base
       rel = self.package_user_role_relationships.where(bs_user_id: what.id)
     end
     rel = rel.where(role_id: role.id) if role
-    rel.delete_all
-    write_to_backend
+    self.transaction do
+      rel.delete_all
+      write_to_backend
+    end
   end
 
   def add_role(what, role)
-    if what.kind_of? Group
-      self.package_group_role_relationships.create!(role: role, group: what)
-    else
-      self.package_user_role_relationships.create!(role: role, user: what)
+    self.transaction do
+      if what.kind_of? Group
+        self.package_group_role_relationships.create!(role: role, group: what)
+      else
+        self.package_user_role_relationships.create!(role: role, user: what)
+      end
+      write_to_backend
     end
-    write_to_backend
   end
 
   def open_requests_with_package_as_source_or_target
@@ -943,5 +950,22 @@ class Package < ActiveRecord::Base
       packages << candidate unless candidate.linkinfo
     end
     return packages
+  end
+
+  def self.valid_name?(name)
+    return false unless name.kind_of? String
+    # this length check is duplicated but useful for other uses for this function
+    return false if name.length > 200 || name.blank?
+    name = name.gsub %r{^_product:}, ''
+    name.gsub! %r{^_patchinfo:}, ''
+    return false if name =~ %r{[\/:\000-\037]}
+    if name =~ %r{^[_\.]} && !['_product', '_pattern', '_project', '_patchinfo'].include?(name)
+      return false
+    end
+    return true
+  end
+
+  def valid_name
+    errors.add(:name, "is illegal") unless Package.valid_name?(self.name)
   end
 end
