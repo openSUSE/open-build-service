@@ -222,10 +222,11 @@ class BsRequestAction < ActiveRecord::Base
             spkgs << sp.name
           end
         else
-          Project.find_by_name( self.source_project ).packages.each do |p|
+          prj = Project.find_by_name( self.source_project )
+          prj.packages.each do |p|
             p.check_source_access!
             spkgs << p.name
-          end
+          end if prj
         end
       end
 
