@@ -902,17 +902,21 @@ class Package < ActiveRecord::Base
       rel = self.package_user_role_relationships.where(bs_user_id: what.id)
     end
     rel = rel.where(role_id: role.id) if role
-    rel.delete_all
-    write_to_backend
+    self.transaction do
+      rel.delete_all
+      write_to_backend
+    end
   end
 
   def add_role(what, role)
-    if what.kind_of? Group
-      self.package_group_role_relationships.create!(role: role, group: what)
-    else
-      self.package_user_role_relationships.create!(role: role, user: what)
+    self.transaction do
+      if what.kind_of? Group
+        self.package_group_role_relationships.create!(role: role, group: what)
+      else
+        self.package_user_role_relationships.create!(role: role, user: what)
+      end
+      write_to_backend
     end
-    write_to_backend
   end
 
   def open_requests_with_package_as_source_or_target
@@ -950,6 +954,8 @@ class Package < ActiveRecord::Base
 
   def self.valid_name?(name)
     return false unless name.kind_of? String
+    # this length check is duplicated but useful for other uses for this function
+    return false if name.length > 200 || name.blank?
     name = name.gsub %r{^_product:}, ''
     name.gsub! %r{^_patchinfo:}, ''
     return false if name =~ %r{[\/:\000-\037]}

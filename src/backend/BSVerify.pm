@@ -24,6 +24,7 @@ package BSVerify;
 
 use strict;
 
+# keep in sync with src/api/app/model/project.rb
 sub verify_projid {
   my $projid = $_[0];
   die("projid is empty\n") unless defined($projid) && $projid ne '';

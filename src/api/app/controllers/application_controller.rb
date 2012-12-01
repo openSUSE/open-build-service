@@ -739,4 +739,8 @@ class ApplicationController < ActionController::API
      messages
   end
 
+  # FIXME2.4 this does not work as long as we have this old style rescue_from_handler
+  rescue_from ActiveRecord::RecordInvalid do |exception|
+    render_error status: 400, errorcode: "invalid_record", message: exception.record.errors.full_messages.join('\n')
+  end
 end

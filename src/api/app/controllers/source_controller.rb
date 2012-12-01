@@ -821,19 +821,17 @@ class SourceController < ApplicationController
         private_remove_repositories( removedRepositories, (params[:remove_linking_repositories] and not params[:remove_linking_repositories].empty?) )
       end
 
-      # exec
-      unless prj
-        prj = Project.new(name: project_name)
-        Project.transaction do
+      Project.transaction do
+        # exec
+        unless prj
+          prj = Project.new(name: project_name)
           prj.update_from_xml(rdata)
           prj.add_user(@http_user.login, 'maintainer')
-        end
-      else
-        Project.transaction do
+        else
           prj.update_from_xml(rdata)
         end
+        prj.store
       end
-      prj.store
       render_ok
 
     # bad request
@@ -1000,8 +998,10 @@ class SourceController < ApplicationController
       end
         
       begin
-        pkg.update_from_xml(rdata)
-        pkg.store
+        Package.transaction do
+          pkg.update_from_xml(rdata)
+          pkg.store
+        end
       rescue Package::CycleError => e
         render_error :status => 400, :errorcode => 'devel_cycle', :message => e.message
         return
@@ -1342,22 +1342,25 @@ class SourceController < ApplicationController
         :message => "project '#{pro.name}' is not locked"
       return
     end
-    pro.flags.delete(f)
-    pro.store(p)
-
-    # maintenance incidents need special treatment
-    if pro.project_type == "maintenance_incident"
-      # reopen all release targets
-      pro.repositories.each do |repo|
-        repo.release_targets.each do |releasetarget|
-          releasetarget.trigger = "maintenance"
-          releasetarget.save!
-        end
-      end
+   
+    Project.transaction do 
+      pro.flags.delete(f)
       pro.store(p)
 
-      # ensure higher build numbers for re-release
-      Suse::Backend.post "/build/#{URI.escape(pro.name)}?cmd=wipe", nil
+      # maintenance incidents need special treatment
+      if pro.project_type == "maintenance_incident"
+        # reopen all release targets
+        pro.repositories.each do |repo|
+          repo.release_targets.each do |releasetarget|
+            releasetarget.trigger = "maintenance"
+            releasetarget.save!
+          end
+        end
+        pro.store(p)
+
+        # ensure higher build numbers for re-release
+        Suse::Backend.post "/build/#{URI.escape(pro.name)}?cmd=wipe", nil
+      end
     end
 
     render_ok
@@ -1425,17 +1428,21 @@ class SourceController < ApplicationController
     # read meta data from backend to restore database object
     path = request.path + "/_meta"
     prj = Project.new(name: params[:project])
-    prj.update_from_xml(Xmlhash.parse(backend_get(path)))
-    prj.store
+    Project.transaction do
+      prj.update_from_xml(Xmlhash.parse(backend_get(path)))
+      prj.store
+    end
 
     # restore all package meta data objects in DB
     backend_pkgs = Collection.find :package, :match => "@project='#{project_name}'"
     backend_pkgs.each_package do |package|
-      path = request.path + "/" + package.name + "/_meta"
-      p = Xmlhash.parse(backend_get(path))
-      pkg = prj.packages.new(name: p['name'])
-      pkg.update_from_xml(p)
-      pkg.store
+      Package.transaction do
+        path = request.path + "/" + package.name + "/_meta"
+        p = Xmlhash.parse(backend_get(path))
+        pkg = prj.packages.new(name: p['name'])
+        pkg.update_from_xml(p)
+        pkg.store
+      end
     end
   end
 
@@ -1465,7 +1472,8 @@ class SourceController < ApplicationController
     end
 
     # create new project object based on oproject
-    unless p = Project.find_by_name(project_name)
+    p = Project.find_by_name(project_name)
+    Project.transaction do
       p = Project.new :name => project_name, :title => oprj.title, :description => oprj.description
       p.add_user @http_user, "maintainer"
       oprj.flags.each do |f|
@@ -1483,7 +1491,7 @@ class SourceController < ApplicationController
         end
       end
       p.store
-    end
+    end unless p
 
     if params.has_key? :nodelay
       p.do_project_copy(params)
@@ -1883,7 +1891,9 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"&update_project_attribute="alternative_attribute"&comment="message"
   def index_package_branch
-    ret = do_branch params
+    ret = Package.transaction do
+      do_branch params
+    end
     if ret[:status] == 200
       if ret[:text]
         render ret
@@ -1906,15 +1916,17 @@ class SourceController < ApplicationController
 
     pkg = Package.get_by_project_and_name prj_name, pkg_name, use_source: true, follow_project_links: false
 
-    # first remove former flags of the same class
-    begin
-      pkg.remove_flag(params[:flag], params[:repository], params[:arch])
-      pkg.add_flag(params[:flag], params[:status], params[:repository], params[:arch])
-    rescue ArgumentError => e
-      render_error :status => 400, :errorcode => 'invalid_flag', :message => e.message
-      return
+    pkg.transaction do
+      # first remove former flags of the same class
+      begin
+        pkg.remove_flag(params[:flag], params[:repository], params[:arch])
+        pkg.add_flag(params[:flag], params[:status], params[:repository], params[:arch])
+      rescue ArgumentError => e
+        render_error :status => 400, :errorcode => 'invalid_flag', :message => e.message
+        return
+      end
+      pkg.store
     end
-    pkg.store
     render_ok
   end
 
@@ -1926,29 +1938,31 @@ class SourceController < ApplicationController
     prj_name = params[:project]
     prj = Project.get_by_name prj_name
 
-    begin
-      # first remove former flags of the same class
-      prj.remove_flag(params[:flag], params[:repository], params[:arch])
-      prj.add_flag(params[:flag], params[:status], params[:repository], params[:arch])
-    rescue ArgumentError => e
-      render_error :status => 400, :errorcode => 'invalid_flag', :message => e.message
-      return
-    end
-      
     # Raising permissions afterwards is not secure. Do not allow this by default.
     unless @http_user.is_admin?
       if params[:flag] == "access" and params[:status] == "enable" and not prj.enabled_for?('access', params[:repository], params[:arch])
         raise Project::ForbiddenError.new("change_project_protection_level",
                                             "admin rights are required to raise the protection level of a project")
       end
-      if params[:flag] == "sourceaccess" and params[:status] == "enable" and 
+      if params[:flag] == "sourceaccess" and params[:status] == "enable" and
           !prj.enabled_for?('sourceaccess', params[:repository], params[:arch])
         raise Project::ForbiddenError.new("change_project_protection_level",
                                             "admin rights are required to raise the protection level of a project")
       end
     end
-    
-    prj.store
+
+    prj.transaction do
+      begin
+        # first remove former flags of the same class
+        prj.remove_flag(params[:flag], params[:repository], params[:arch])
+        prj.add_flag(params[:flag], params[:status], params[:repository], params[:arch])
+      rescue ArgumentError => e
+        render_error :status => 400, :errorcode => 'invalid_flag', :message => e.message
+        return
+      end
+      
+      prj.store
+    end
     render_ok
   end
 
@@ -1960,8 +1974,10 @@ class SourceController < ApplicationController
     
     pkg = Package.get_by_project_and_name( params[:project], params[:package] )
     
-    pkg.remove_flag(params[:flag], params[:repository], params[:arch])
-    pkg.store
+    pkg.transaction do
+      pkg.remove_flag(params[:flag], params[:repository], params[:arch])
+      pkg.store
+    end
     render_ok
   end
 
@@ -1974,8 +1990,10 @@ class SourceController < ApplicationController
 
     prj = Project.get_by_name prj_name
 
-    prj.remove_flag(params[:flag], params[:repository], params[:arch])
-    prj.store
+    prj.transaction do
+      prj.remove_flag(params[:flag], params[:repository], params[:arch])
+      prj.store
+    end
     render_ok
   end
 
