@@ -24,6 +24,7 @@ group :test do
   gem 'ci_reporter'
   gem 'simplecov-rcov', :require => false
   gem 'minitest'
+  gem 'faker'
 end
 
 group :development do

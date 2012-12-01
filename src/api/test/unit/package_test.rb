@@ -1,4 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require 'faker'
 
 class PackageTest < ActiveSupport::TestCase
   fixtures :all
@@ -188,11 +189,31 @@ class PackageTest < ActiveSupport::TestCase
   end
 
   test "names are case sensitive" do
-    np = @package.project.packages.new
-    np.update_from_xml(Xmlhash.parse(@package.to_axml))
-    np.name = 'testpack'
-    np.save!
+    np = @package.project.packages.new(name: 'testpack')
+    xh = Xmlhash.parse(@package.to_axml)
+    np.update_from_xml(xh)
+    assert_equal np.name, 'testpack'
+    assert np.id > 0
     assert np.id != @package.id
+  end
+
+  test "invalid names are catched" do
+    @package.name = '_coolproject'
+    assert !@package.save
+    assert_raise(ActiveRecord::RecordInvalid) do
+      @package.save!
+    end
+    @package.name = Faker::Lorem.characters(255)
+    e = assert_raise(ActiveRecord::RecordInvalid) do
+      @package.save!
+    end
+    assert_match %r{Name is too long}, e.message
+    @package.name = '_product'
+    assert @package.valid?
+    @package.name = '.product'
+    assert !@package.valid?
+    @package.name = 'product.i586'
+    assert @package.valid?
   end
 
 end

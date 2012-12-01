@@ -36,6 +36,9 @@ class Package < ActiveRecord::Base
 
   default_scope { where("packages.db_project_id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
 
+  validates :name, presence: true, length: { maximum: 200 }
+  validate :valid_name
+
 #  def after_create
 #    raise ReadAccessError.new "Unknown package" unless Package.check_access?(self)
 #  end
@@ -943,5 +946,20 @@ class Package < ActiveRecord::Base
       packages << candidate unless candidate.linkinfo
     end
     return packages
+  end
+
+  def self.valid_name?(name)
+    return false unless name.kind_of? String
+    name = name.gsub %r{^_product:}, ''
+    name.gsub! %r{^_patchinfo:}, ''
+    return false if name =~ %r{[\/:\000-\037]}
+    if name =~ %r{^[_\.]} && !['_product', '_pattern', '_project', '_patchinfo'].include?(name)
+      return false
+    end
+    return true
+  end
+
+  def valid_name
+    errors.add(:name, "is illegal") unless Package.valid_name?(self.name)
   end
 end
