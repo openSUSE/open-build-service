@@ -4,10 +4,12 @@
 
 <h3><%= @pagetitle %></h3>
 
-<h4>Watched Projects</h4>
-<div style="width: 50%;">
-  <%= render :partial => 'watch_list' %>
-</div>
+<% if @user.to_s == @displayed_user.to_s %>
+  <h4>Watched Projects</h4>
+  <div style="width: 50%;">
+    <%= render :partial => 'watch_list' %>
+  </div>
+<% end %>
 
 <div style="width: 50%; float: left">
   <h4>Involved Projects</h4>
