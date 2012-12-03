@@ -25,7 +25,7 @@ class PackageEditTest < ActionDispatch::IntegrationTest
   # ============================================================================
   #
   def change_package_info new_info
-    assert (new_info[:title] or new_info[:description]) != nil
+    assert !new_info[:title].blank? || !new_info[:description].blank?
     
     click_link('edit-description')
     

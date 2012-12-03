@@ -58,7 +58,7 @@ class SpiderTest < ActionDispatch::IntegrationTest
       $stderr.puts "#{indent}#{url} ('#{text}')"
       indent += '  '
     end
-    #raise "Found #{message}"
+    raise "Found #{message}"
   end
 
   def crawl
@@ -85,7 +85,6 @@ class SpiderTest < ActionDispatch::IntegrationTest
       next unless body
       if !body.css("div#flash-messages div.ui-state-error").empty?
         raiseit("flash alert", theone)
-        raise "Flash"
       end
       body.css('h1').each do |h|
         if h.content == 'Internal Server Error'
@@ -94,7 +93,6 @@ class SpiderTest < ActionDispatch::IntegrationTest
       end
       body.css("#exception-error").each do |e|
         raiseit("error '#{e.content}'", theone)
-        raise "Found error"
       end
       getlinks(theone, body)
     end
