@@ -491,7 +491,9 @@ sub useToPackages( $$$ )
 					              $useRecommended,
 					              $useSuggested );
 	    push @packages, @{$packs} if $packs;
-	    %supportstates = %$supports if $supports && keys $supports > 0;
+            if ($supports && keys $supports > 0) {
+              %supportstates = (%supportstates, %$supports);
+            };
 
 	    # there might be additional packages listed in the group.
 	    if( $useState->{package} ) {
@@ -1322,7 +1324,7 @@ foreach my $medium ( @$media ){
           my $supportstates;
           ($kiwi->{instsource}, $supportstates) = createInstsource ( $prodRef, $medium, $arch->{archset} );
           if (keys %$supportstates > 0){
-            %supportstates = %{$supportstates} if keys %$supportstates > 0;
+            %supportstates = %{$supportstates};
             foreach my $key( sort keys %supportstates ) {
               die("Illegal support key $supportstates{$key} for $key\n") unless grep { /^$supportstates{$key}$/ } ( "l3", "l2", "acc", "unsupported" );
             }
