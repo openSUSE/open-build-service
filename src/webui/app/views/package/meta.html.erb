@@ -4,10 +4,8 @@
 <%= render :partial => "tabs" %>
 
 <h3><%= @pagetitle %></h3>
-<p>
-  <% if @project.can_edit?(@user) %>
-    <%= render :partial => "shared/editor", :locals => {:text => @meta, :mode => 'xml', :save => {:url => {:controller => 'package', :action => 'save_meta'}, :method => 'POST', :data => {:project => @project, :package => @package, :meta => '@@@'}}} %>
-  <% else %>
-    <%= render :partial => "shared/editor", :locals => {:text => @meta, :mode => 'xml', :read_only => true} %>
-  <% end %>
-</p>
+<% if @project.can_edit?(@user) %>
+  <%= render :partial => "shared/editor", :locals => {:text => @meta, :mode => 'xml', :save => {:url => {:controller => 'package', :action => 'save_meta'}, :method => 'POST', :data => {:project => @project, :package => @package, submit: 'meta'}}} %>
+<% else %>
+  <%= render :partial => "shared/editor", :locals => {:text => @meta, :mode => 'xml', :read_only => true} %>
+<% end %>

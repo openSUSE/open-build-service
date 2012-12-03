@@ -1,54 +1,112 @@
-<% save ||= false %>
+<% save ||= {} %>
 <% read_only ||= false %>
 
-<% setup_codemirror_editor(read_only: read_only) %>
+<% uid = setup_codemirror_editor(read_only: read_only) %>
 
-<% uid = rand().to_s()[2..-1] # unique id to allow including multiple editors %>
-<textarea id="editor_<%= uid %>" name="editor_<%= uid %>" style="display: none;" rows="0" cols="0"><%= force_utf8_and_transform_nonprintables(text) %></textarea>
-<%= javascript_tag do %>
-  var codeMirrorOptions = {
-    mode: '<%= mode %>',
-    lineNumbers: true,
-    matchBrackets: true,
-    onCursorActivity: function(editor) {
-      editor.setLineClass(editor.hlLine, null);
-      editor.hlLine = editor.setLineClass(editor.getCursor().line, "activeline");
-    },
-  }
-  <% if read_only %>
-    codeMirrorOptions['readOnly'] = true;
-    var editor = CodeMirror.fromTextArea(document.getElementById('editor_<%= uid %>'), codeMirrorOptions);
-  <% else %>
-    var editors = new Array();
-    var uiOptions = {
-      imagePath: '/assets/icons',
-      searchMode: 'inline',
-      <% if save %>
-        buttons: ['save', 'undo', 'redo', 'jump', 'reindentSelection', 'reindent'],
-        saveCallback: function() {
-          $.ajax({
-            url: '<%= url_for(save[:url]) %>',
-            <% if save[:method] %>
-              type: '<%= save[:method] %>',
-            <% end %>
-            data: {
-              <% save[:data].each do |param, value| %>
-                <% if value.to_s == '@@@' %>
-                  <%= param %>: editors['<%= uid %>'].mirror.getValue(),
-                <% else %>
-                  <%= param %>: '<%= value %>',
-                <% end %>
-              <% end %>
-            },
-            success: function(data, textStatus, xhdr) { if (false) { alert(xhdr.responseText); } },
-            error: function(xhdr) { $(".save").removeClass("inactive"); alert(xhdr.responseText); },
-          })
-        },
-      <% else %>
-        buttons: ['undo', 'redo', 'jump', 'reindentSelection', 'reindent'],
-      <% end %>
-    };
-    editors['<%= uid %>'] = new CodeMirrorUI(document.getElementById('editor_<%= uid %>'), uiOptions, codeMirrorOptions);
-    editors['<%= uid %>'].mirror.hlLine = editors['<%= uid %>'].mirror.setLineClass(0, 'activeline');
-  <% end %>
+<% unless read_only %>
+<div id="top_<%= uid %>">
+  <div class="toolbar">
+    <span style="float:left;">
+      <input type="button" class="tools buttons small save inactive" value="Save" id="save_<%= uid %>"/>
+      <span class="text">search:</span>
+      <input type="button" class="tools buttons small" value="off" id="search_disable_<%= uid %>"  />
+      <input disabled="disabled" type="text"  class="tools inputs"
+      style="background:transparent" id="search_<%= uid %>"  autocomplete="off" placeholder="type or select" onkeydown="this.style.background = '';" />
+      <span id="prenex_<%= uid %>" style="display:none;">
+        <input type="button" class="tools buttons prev" value="&#9668;"
+        id="prev_<%= uid %>" onclick="editors[<%= uid %>].Prev(this)" />
+        <input type="button" class="tools buttons next" value="&#9658;"
+        id="next_<%= uid %>" onclick="editors[<%= uid %>].Next(this)" />
+      </span>
+      <input type="button" class="tools buttons" style="width:36px;" value="find" id="find_<%= uid %>" />
+      &nbsp;
+      <span class="text">replace:</span>
+      <input disabled="disabled" type="text" class="tools inputs" style="background:transparent" id="replace_<%= uid %>"  autocomplete="off" />
+      <input type="button" class="tools buttons medium" value="replace" onclick="editors[<%= uid %>].Replace(this);" />
+      <input type="button" class="tools buttons medium" value="replace all" onclick="editors[<%= uid %>].ReplaceAll(this);" />
+      &nbsp;&nbsp;
+    </span>
+ 
+    <span style="float:right;">
+      <input type="button" id="undo_<%= uid %>" value="undo" class="tools buttons undo" style="background:transparent;" onclick="editors[<%= uid %>].Undo(this);" />
+      <input type="button" id="redo_<%= uid %>" value="redo" class="tools buttons redo" style="background:transparent;" onclick="editors[<%= uid %>].Redo(this);" />
+      <select class="tools select" id="fontsize_<%= uid %>" onchange="editors[<%= uid %>].updateFontsize(this)">
+        <option value="8pt" >   8pt </option>
+        <option value="9pt" >   9pt </option>
+        <option value="10pt" >  10pt</option>
+        <option value="11pt" >  11pt</option>
+        <option value="12pt" >  12pt</option>
+        <option value="14pt" >  14pt</option>
+      </select>
+      <select class="tools select" id="mode_<%= uid %>"
+	      onchange="editors[<%= uid %>].updateMode(this)">
+	<option id="changes_<%= uid %>" value="changes">changes</option>
+	<option id="spec_<%= uid %>" value="spec">spec</option>
+	<option id="diff_<%= uid %>" value="diff">diff</option>
+	<option id="shell_<%= uid %>" value="text/x-sh">shell</option>
+	<option id="baselibs_<%= uid %>" value="baselibsconf">baselibs</option>
+	<option id="perl_<%= uid %>"  value="perl">perl</option>                                
+        <option id="css_<%= uid %>"  value="css" >                          css </option>
+        <option id="html_<%= uid %>" value="htmlmixed">                     html</option>
+        <option id="js_<%= uid %>"   value="javascript">                    js  </option>
+        <option id="php_<%= uid %>"  value="application/x-httpd-php-open">  php </option>
+        <option id="xml_<%= uid %>"  value="xml" >                          xml </option>
+        <option id="x_<%= uid %>" selected="selected"   value="" >                             --- </option>
+      </select>
+    </span>
+  </div>
+</div>
+<% end %>
+
+<%=
+   data = {}
+   data['save-url'] = save[:url] if save[:url]
+   data['save-method'] = save[:method] if save[:method]
+   data['data'] = save[:data] if save[:data]
+   content_tag(:textarea, force_utf8_and_transform_nonprintables(text), id: "editor_#{uid}", style: "display:
+	  inline-block", class: "editor", cols: "0", rows: "0", data: data) %>
+
+<% unless read_only %>
+<div id="bottom_<%= uid %>">
+  <div class="toolbar">
+    <span style="float:left;">
+      <span class="text">position</span>
+      &nbsp;&nbsp;
+      <span class="text">line:</span>
+      <span id="ln_<%= uid %>" class="text" style="display:inline-block;width:40px;">0</span>
+      <span class="text">char:</span>
+      <span id="ch_<%= uid %>" class="text" style="display:inline-block;width:40px;">0</span>
+      &nbsp;&nbsp;
+      <span class="text">tab size:</span>
+      <select class="tools select" style="min-width:30px;" id="tabsize_<%= uid %>" onchange="editors[<%= uid %>].updateTabsize(this)">
+        <option value="2"> 2 </option>
+        <option value="3"> 3 </option>
+        <option value="4"> 4 </option>
+        <option value="5"> 5 </option>
+        <option value="6"> 6 </option>
+        <option value="7"> 7 </option>
+        <option value="8"> 8 </option>
+      </select>
+    </span>
+    <span style="float:left;">
+      <span class="text">matching:</span>
+      <input type="button" class="tools buttons small" id="match_<%= uid %>" value="off" onclick="editors[<%= uid %>].Match(this);" />
+    </span>
+    <span style="float:right;">
+      <span class="text">line:</span>
+      <input type="text" id="line_<%= uid %>" class="tools inputs"
+      autocomplete="off" style="width:30px;"  />
+      <input type="button" class="tools buttons small" value="go"
+      onclick="editors[<%= uid %>].gotoLine(this);" />
+      &nbsp;&nbsp;
+      <span class="text">line wrapping:</span>
+      <input type="button" class="tools buttons small" value="off"
+      onclick="editors[<%= uid %>].Wrap(this)" />
+    </span>
+  </div>
+</div>
+<% end %>
+
+<% content_for :ready_function do %>
+  use_codemirror(<%= uid %>, <%= read_only %>, '<%= mode %>');
 <% end %>

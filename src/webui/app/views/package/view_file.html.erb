@@ -1,5 +1,5 @@
 <% @pagetitle = "File #{@filename} of Package #{@package}" %>
-<% package_bread_crumb(link_to('Files', :action => :show, :project => @project, :package => @package, :rev => @rev), @filename) %>
+<% package_bread_crumb(@filename) %>
 
 <%= render :partial => "tabs" %>
 
@@ -8,46 +8,21 @@
   <p>Currently displaying revision <i><%= @rev %></i>, <%= link_to('show latest', :project => @project, :package => @package, :file => @filename, :expand => @expand ) %></p>
 <% end %>
 
-<p>
-  <% if @addeditlink %>
+<% if @addeditlink %>
     <% if @filename.ends_with?('.changes') %>
+  <p>
       <%# Rather hacky attempt to provide 'osc vc'-like functionality, would benefit of proper 'snippet' support for editor: %>
-      <%= link_to_function('Insert changes entry template', 'addChangesEntryTemplate()') %><br/><br/>
-      <%= javascript_tag do %>
-        var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-        function addChangesEntryTemplate() {
-          date = new Date();
-          day = date.getUTCDate().toString();
-          if (day.length == 1) { day = " " + day; } // Pad single character day value
-          hours = date.getUTCHours();
-          if (hours < 10) { hours = '0' + hours; }
-          minutes = date.getUTCMinutes();
-          if (minutes < 10) { minutes = '0' + minutes; }
-          seconds = date.getUTCSeconds();
-          if (seconds < 10) { seconds = '0' + seconds; }
-
-          templ = "-------------------------------------------------------------------\n" +
-                  DAYS[date.getUTCDay()] + " " + MONTHS[date.getUTCMonth()] + " " + day + " " +
-                  hours + ":" + minutes + ":" + seconds + " UTC " + date.getUTCFullYear() +
-                  " - <%= @user.value('email') %>\n" +
-                  "\n" + "- \n" + "\n";
-
-          // Trick to get the only item in the associative array. If you don't know the key, there's no other way.
-          // Note that this is actually broken, i.e. it only works after the editor completed loading. Should be a callback instead.
-          for (var i in editors) { editor = editors[i].mirror; }
-          editor.setValue(templ + editor.getValue());
-        }
-      <% end %>
+      <%= link_to_function('Insert changes entry template',
+	  'addChangesEntryTemplate()', data: { 'email' => @user.email },
+      class: "changes-link") %>
+  </p>
     <% end %>
 
     <%= render :partial => "shared/editor", :locals => {text: @file, mode: guess_code_class(@filename), 
-			save: {url: {controller: 'package', action: 'save_modified_file'}, 
+			save: {url: url_for(controller: 'package', action: 'save_modified_file'), 
 			method: 'POST', 
-			data: {project: @project, package: @package, file: '@@@', comment: '', filename: @filename, rev: @rev}}} %>
+			data: {project: @project.name, package: @package.name, submit: 'file', comment: '', filename: @filename, rev: @rev}}} %>
     <%# TODO: Provide a comments field thru a callback!! %>
-  <% else %>
+<% else %>
     <%= render :partial => "shared/editor", :locals => {:text => @file, :mode => guess_code_class(@filename), :read_only => true} %>
-  <% end %>
-</p>
+<% end %>

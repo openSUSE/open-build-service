@@ -1,0 +1,25 @@
+.CodeMirror pre {
+  /* We inherit 'overflow: auto;' from the Bento CSS theme. Both v8 and webkit engines thus
+   * render garbage scrollbars. Setting to hidden is ok here, the '.CodeMirror pre' elements
+   * aren't supposed to be scrollable... */
+    overflow: hidden;
+    line-height: 1.1;
+}
+
+.toolbar {
+    .inputs {
+	/* toolbars default is 130, but we need a little more space */
+	width: 120px;
+    }
+
+    .tools {margin:2px 1px;}
+    .prev {margin-right:-1px;}
+    .next {margin-left:-1px;}
+    .undo {margin-right:-1px;}
+    .redo {margin-left:-1px;}
+
+    .save { background-color: red; }
+    .save.inactive { background-color: transparent; color: #555;  }
+    .save.working { display: none; }
+}
+

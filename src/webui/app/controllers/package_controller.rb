@@ -38,8 +38,11 @@ class PackageController < ApplicationController
     @expand = 1
     @expand = begin Integer(params[:expand]) rescue 1 end if params[:expand]
     @expand = 0 if @spider_bot
+    @is_current_rev = false
     if set_file_details
-      unless @forced_unexpand.blank?
+      if @forced_unexpand.blank?
+        @is_current_rev = !@revision || (@revision == @current_rev)
+      else
         flash[:error] = "Files could not be expanded: #{@forced_unexpand}"
       end
     elsif @revision_parameter
@@ -263,6 +266,7 @@ class PackageController < ApplicationController
     # check source service state
     serviceerror = nil
     serviceerror = @package.serviceinfo.value(:error) if @package.serviceinfo
+
     return true
   end
   private :set_file_details
@@ -648,7 +652,7 @@ class PackageController < ApplicationController
       return
     end
     respond_to do |format|
-      format.js { render json: 'ok' }
+      format.js { render json: { status: 'ok' } }
       format.html do
         flash[:note] = "Added user #{params[:userid]} with role #{params[:role]}"
         redirect_to action: :users, package: @package, project: @project
@@ -666,7 +670,7 @@ class PackageController < ApplicationController
       return
     end
     respond_to do |format|
-      format.js { render json: 'ok' }
+      format.js { render json: { status: 'ok' } }
       format.html do
         flash[:note] = "Added group #{params[:groupid]} with role #{params[:role]} to package #{@package}"
         redirect_to action: :users, package: @package, project: @project
@@ -682,7 +686,7 @@ class PackageController < ApplicationController
       flash[:error] = e.summary
     end
     respond_to do |format|
-      format.js { render json: 'ok' }
+      format.js { render json: { status: 'ok' } }
       format.html do
         if params[:userid]
           flash[:note] = "Removed user #{params[:userid]}"
@@ -703,7 +707,7 @@ class PackageController < ApplicationController
     @rev = params[:rev]
     @expand = params[:expand]
     @addeditlink = false
-    if @package.can_edit?( @user )
+    if @package.can_edit?( @user ) && @rev.blank?
       begin
         files = @package.files(@rev, @expand)
       rescue ActiveXML::Transport::Error => e
@@ -731,6 +735,7 @@ class PackageController < ApplicationController
   end
 
   def save_modified_file
+    check_ajax
     required_parameters :project, :package, :filename, :file
     project = params[:project]
     package = params[:package]
@@ -740,11 +745,11 @@ class PackageController < ApplicationController
       frontend.put_file(params[:file], :project => project, :package => package, :filename => filename, :comment => params[:comment])
       Directory.free_cache(:project => project, :package => package)
     rescue Timeout::Error => e
-      flash[:error] = "Timeout when saving file. Please try again."
+      render json: { error: "Timeout when saving file. Please try again."}, status: 400
     rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
+      render json: { error: e.summary }, status: 400
     end
-    redirect_to :action => 'view_file', :package => package, :project => project, :filename => filename
+    render json: { status: 'ok' }
   end
 
   class RawOutPutStreamer

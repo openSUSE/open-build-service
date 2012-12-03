@@ -11,7 +11,11 @@
     <tbody>
       <% @files.each do |file| %>
          <tr id="file-<%= valid_xml_id(file[:name]) %>"><td>
-            <%= link_to_if(file[:viewable], nbsp(file[:name]), :action => :view_file, :project => @project, :package => @package, :file => file[:name], :rev => file[:srcmd5], :expand => @expand ) %>
+	     <% link_opts = { action: :view_file, project: @project, package: @package, file: file[:name], expand: @expand }
+	     unless @is_current_rev
+	       link_opts[:rev] = file[:srcmd5]
+	     end %>
+            <%= link_to_if(file[:viewable], nbsp(file[:name]), link_opts ) %>
             <% if @link && @link.has_add_patch?( file[:name] ) %>
               (Added Patch)
             <% elsif @link && @link.has_patch?( file[:name] ) %>
@@ -57,7 +61,7 @@
 
 <% unless @files.blank? or @spider_bot %>
   <%= render :partial => 'links' if (@linkinfo && !@linkinfo.has_attribute?('error')) %>
-  <% if @revision && !(@revision == @current_rev)%>
+  <% if @is_current_rev %>
     <h3>Revision <%= @revision %> (latest revision is <%=  @current_rev %>)</h3>
   <% else %>
     <h3>Latest Revision</h3>

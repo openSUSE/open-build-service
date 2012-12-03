@@ -417,12 +417,14 @@ module ApplicationHelper
   end
 
   def setup_codemirror_editor(opts = {})
-    return if @codemirror_editor_setup
-    @codemirror_editor_setup = true
+    if @codemirror_editor_setup
+      @codemirror_editor_setup = @codemirror_editor_setup + 1
+      return @codemirror_editor_setup
+    end
+    @codemirror_editor_setup = 0
     opts.reverse_merge!({ read_only: false, no_border: false, width: 'auto', height: '660px' })
 
     content_for(:content_for_head, javascript_include_tag('cm2'))
-
     style = ''
     if opts[:no_border] || opts[:read_only]
       style += ".CodeMirror { border-width: 0 0 0 0; }\n"
@@ -435,7 +437,7 @@ module ApplicationHelper
     end
     style += "width: #{opts[:width]}; \n}\n"
     content_for(:head_style, style)
-
+    return @codemirror_editor_setup
   end
 
   def link_to_project(prj, linktext=nil)

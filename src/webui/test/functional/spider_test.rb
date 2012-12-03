@@ -34,21 +34,20 @@ class SpiderTest < ActionDispatch::IntegrationTest
 
   def raiseit(message, url)
     # known issues
+    return if url =~ %r{/package/binary\?.*project=BinaryprotectedProject}
+    return if url.end_with? "/package/files?package=target&project=SourceprotectedProject"
+    return if url.end_with? "/package/rdiff"
+    return if url.end_with? "/package/revisions?package=pack&project=SourceprotectedProject"
+    return if url.end_with? "/package/users?package=pack&project=SourceprotectedProject"
     return if url.end_with? "/package/view_file?file=my_file&package=pack2&project=BaseDistro%3AUpdate&rev=1"
     return if url.end_with? "/package/view_file?file=my_file&package=pack2&project=Devel%3ABaseDistro%3AUpdate&rev=1"
     return if url.end_with? "/package/view_file?file=my_file&package=pack3&project=Devel%3ABaseDistro%3AUpdate&rev=1"
-    return if url.end_with? "/package/rdiff"
-    return if url.end_with? "/package/view_file?file=myfile&package=pack2_linked&project=BaseDistro2.0&rev=1"
-    return if url.end_with? "/package/view_file?file=package.spec&package=pack2_linked&project=BaseDistro2.0&rev=1"
-    return if url.end_with? "/package/view_file?file=myfile&package=pack2_linked&project=BaseDistro2.0%3ALinkedUpdateProject&rev=1"
-    return if url.end_with? "/package/view_file?file=package.spec&package=pack2_linked&project=BaseDistro2.0%3ALinkedUpdateProject&rev=1"
-    return if url =~ %r{/package/binary\?.*project=BinaryprotectedProject}
     return if url.end_with? "/package/view_file?file=my_file&package=remotepackage&project=LocalProject&rev=1"
+    return if url.end_with? "/package/view_file?file=myfile&package=pack2_linked&project=BaseDistro2.0%3ALinkedUpdateProject&rev=1"
+    return if url.end_with? "/package/view_file?file=myfile&package=pack2_linked&project=BaseDistro2.0&rev=1"
+    return if url.end_with? "/package/view_file?file=package.spec&package=pack2_linked&project=BaseDistro2.0%3ALinkedUpdateProject&rev=1"
+    return if url.end_with? "/package/view_file?file=package.spec&package=pack2_linked&project=BaseDistro2.0&rev=1"
     return if url.end_with? "/project/show?project=HiddenRemoteInstance"
-    return if url.end_with? "/package/files?package=target&project=SourceprotectedProject"
-    return if url =~ %r{/package/binary\?.*project=BinaryprotectedProject}
-    return if url.end_with? "/package/revisions?package=pack&project=SourceprotectedProject"
-    return if url.end_with? "/package/users?package=pack&project=SourceprotectedProject"
 
     $stderr.puts "Found #{message} on #{url}, crawling path"
     indent = ' '
@@ -83,13 +82,19 @@ class SpiderTest < ActionDispatch::IntegrationTest
         #puts "HARDCORE!! #{theone}"
       end
       next unless body
-      if !body.css("div#flash-messages div.ui-state-error").empty?
-        raiseit("flash alert", theone)
+      flashes = body.css("div#flash-messages div.ui-state-error")
+      if !flashes.empty?
+        raiseit("flash alert #{flashes.first.content}", theone)
       end
       body.css('h1').each do |h|
         if h.content == 'Internal Server Error'
           raiseit("Internal Server Error", theone)
         end
+      end
+      body.css('h2').each do |h|
+	if h.content == 'XML errors'
+          raiseit("XML errors", theone)
+	end
       end
       body.css("#exception-error").each do |e|
         raiseit("error '#{e.content}'", theone)
