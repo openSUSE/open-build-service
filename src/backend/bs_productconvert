@@ -450,6 +450,7 @@ sub useToPackages( $$$ )
     return unless $medium;
 
     my @packages;
+    my %supportstates;
 
     if (defined($medium->{use_undecided}) && $medium->{use_undecided} eq "true" ) {
        # Simply take all packages ?
@@ -484,11 +485,14 @@ sub useToPackages( $$$ )
     
 	if( $useState->{group} ) {
 #	    print "Handling use of group $useState->{group}\n";
-	    push @packages, groupToPackages( $prodRef, $archSetList,
-					     $useState->{group}, 
-					     $useRequired, 
-					     $useRecommended,
-					     $useSuggested );
+	    my ($packs, $supports) = groupToPackages( $prodRef, $archSetList,
+					              $useState->{group},
+					              $useRequired,
+					              $useRecommended,
+					              $useSuggested );
+	    push @packages, @{$packs} if $packs;
+	    %supportstates = %$supports if $supports && keys $supports > 0;
+
 	    # there might be additional packages listed in the group.
 	    if( $useState->{package} ) {
 		foreach my $addPack ( @{$useState->{package} } ) {
@@ -507,6 +511,13 @@ sub useToPackages( $$$ )
                           $tmp{removearch} = $addPack->{removearch};
                         }
 			push @packages, \%tmp;
+
+                        # seperate list of supportstatus values if defined
+                        if (defined($addPack->{supportstatus})) {
+			   my %stmp;
+                           $stmp{$addPack->{name}} = $addPack->{supportstatus};
+			   %supportstates = %stmp;
+		        }
 		    }
 		}
 	    }
@@ -514,7 +525,7 @@ sub useToPackages( $$$ )
 	    die( "ERROR: Patterns are not supported for repopackages!\n" );
 	}
     }
-    return \@packages;
+    return (\@packages, \%supportstates);
 }
 
 sub groupToPackages( $$$$$ ) 
@@ -593,6 +604,7 @@ sub groupToPackages( $$$$$ )
     my $useFlags = { requires => $useReq || 0, recommends => $useRec || 0, suggests => $useSug || 0 };
 
     my @resultList;
+    my %supportStates;
 
     foreach my $packList ( @packagelists ) {
 	my $relation = $packList->{relationship} || 'requires';
@@ -627,12 +639,16 @@ sub groupToPackages( $$$$$ )
 		}
 		$h{name} = $pack->{name};
 		push @resultList, \%h;
+
+		if( $pack->{supportstatus} || $packList->{supportstatus} ) {
+		  $supportStates{$pack->{name}} = ($pack->{supportstatus}||$packList->{supportstatus});
+		}
 	    }
 	}
 
     }
 
-    return @resultList;
+    return (\@resultList, \%supportStates);
 }
 
 #
@@ -732,15 +748,13 @@ sub createInstsource( $$$ )
 
     # repopackages
     my @packages;
-    my $useToPacks = useToPackages( $prodRef, $medium, $archSetList );
-
+    my ($useToPacks, $supportStates) = useToPackages( $prodRef, $medium, $archSetList );
     if( $useToPacks ) {
 	push @packages, { repopackage => $useToPacks };
     }
     # print "Packlist: " . Dumper \@packages;
     $re->{repopackages} = \@packages;
-
-    return $re;
+    return ($re, \%$supportStates);
 }
 
 sub createRepository
@@ -1070,6 +1084,19 @@ install -m 644 -D /CD1/EULA.txt %{buildroot}/%{_docdir}/%{name}/%{product}-EULA.
         return $content;
 }
 
+sub writekwd ( $$$ ) {
+     my ($file, $kwdhash, $prefix) = @_;
+
+     my %kh = %{$kwdhash};
+     my $str = "";
+
+     foreach my $key( sort keys %kh ) {
+        $str .= $key.": +Kwd:\\n".$prefix.$kh{$key}."\\n-Kwd:\n";
+     }
+
+     writestr($file, undef, $str);
+}
+
 sub createProductFile ( $$ ) {
     my ($prodRef, $product) = @_;
     my $zypp_product_file = "";
@@ -1274,9 +1301,11 @@ foreach my $medium ( @$media ){
 
     # create one kiwi file each for every of the archsets
     if (defined($medium->{archsets})) {
+      my %supportstates;
       my @archSets = @{$medium->{archsets}};
       foreach my $arch ( @archSets ) {
           my @archs;
+          my $supportstates;
       
           my $kiwi = Storable::dclone(\%generalImage);
 	  if (defined($medium->{'mediastyle'}) && $medium->{'mediastyle'} ne "suse-11.1" && $medium->{'mediastyle'} ne "suse-11.2") {
@@ -1290,7 +1319,14 @@ foreach my $medium ( @$media ){
           $kiwi->{preferences}->{version} = "1.0.0"; # hardcoded to fullfill kiwi scheme, real version is defined elsewhere
           $kiwi->{preferences}->{packagemanager} = "zypper" ; # hardcoded since no other support exist yet.
       
-          $kiwi->{instsource} = createInstsource ( $prodRef, $medium, $arch->{archset} );
+          my $supportstates;
+          ($kiwi->{instsource}, $supportstates) = createInstsource ( $prodRef, $medium, $arch->{archset} );
+          if (keys %$supportstates > 0){
+            %supportstates = %{$supportstates} if keys %$supportstates > 0;
+            foreach my $key( sort keys %supportstates ) {
+              die("Illegal support key $supportstates{$key} for $key\n") unless grep { /^$supportstates{$key}$/ } ( "l3", "l2", "acc", "unsupported" );
+            }
+          }
           $kiwi->{repository} = createRepository ( $prodRef );
       
           my $archStr;
@@ -1336,9 +1372,11 @@ foreach my $medium ( @$media ){
           my $kiwiDir = "$outdir/$pkgName/";
           my $outFile = "$kiwiDir/$file.kiwi";
           my $metaFile= "$kiwiDir/_meta";
+          my $supportFile= "$kiwiDir/$file.kwd";
       
           mkdir_p( $kiwiDir ) || die ("Unable to create $kiwiDir\n");
           writexml( "$outFile$$", $outFile, $kiwi, $BSKiwiXML::kiwidesc );
+          writekwd( $supportFile, \%supportstates, "support_" ) if keys %supportstates > 0;
 
           # Create meta file to have a default bcntsynctag
           if ( $project ) {
@@ -1349,11 +1387,8 @@ foreach my $medium ( @$media ){
             $pkgmeta->{'description'} = "Automatically generate from _product" ;
             $pkgmeta->{'bcntsynctag'} = "_product:".$product ;
             writexml( "$metaFile$$", $metaFile, $pkgmeta, $BSXML::pack );
-          } else {
-            print "metafile SKIPPED ! (need project name argument for it)\n";
           }
 
-          print "$outFile written.\n";
       }
     }
 }
