@@ -244,6 +244,18 @@ class SourceControllerTest < ActionController::IntegrationTest
     end
   end
 
+  test "can branch package under two names" do
+    prepare_request_with_user "king", "sunflower" 
+    post "/source/home:Iggy/TestPack", :cmd => "branch", :target_package => "TestPack2"
+    assert_response :success
+    # this is behaving strange as it's creating a TestPack3 pack, but returns a 400 
+    # as it tries to branch TestPack2 -> TestPack too and fails 
+if $ENABLE_BROKEN_TEST
+    post "/source/home:Iggy/TestPack", :cmd => "branch", :target_package => "TestPack3"
+    assert_response :success
+end
+  end
+
   # project_meta does not require auth
   def test_invalid_user
     prepare_request_with_user "king123", "sunflower"
