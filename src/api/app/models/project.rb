@@ -19,6 +19,8 @@ class Project < ActiveRecord::Base
 
   before_destroy :cleanup_before_destroy
   after_save 'ProjectUserRoleRelationship.discard_cache'
+  after_rollback :reset_cache
+  after_rollback 'ProjectUserRoleRelationship.discard_cache'
 
   has_many :project_user_role_relationships, :dependent => :delete_all, foreign_key: :db_project_id
   has_many :project_group_role_relationships, :dependent => :delete_all, foreign_key: :db_project_id
@@ -667,7 +669,7 @@ class Project < ActiveRecord::Base
   def write_to_backend
     logger.debug "write_to_backend"
     # expire cache
-    Rails.cache.delete('meta_project_%d' % id)
+    reset_cache
     @commit_opts ||= {}
     
     if CONFIG['global_write_through']
@@ -686,6 +688,10 @@ class Project < ActiveRecord::Base
       save!
       write_to_backend
     end
+  end
+
+  def reset_cache
+    Rails.cache.delete('meta_project_%d' % id)
   end
 
   def store_attribute_axml( attrib, binary=nil )

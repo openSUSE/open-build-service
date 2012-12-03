@@ -33,6 +33,7 @@ class Package < ActiveRecord::Base
   attr_accessible :name, :title, :description
   after_save :write_to_backend
   after_save :update_activity
+  after_rollback :reset_cache
 
   default_scope { where("packages.db_project_id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
 
@@ -612,9 +613,12 @@ class Package < ActiveRecord::Base
     save!
   end
 
-  def write_to_backend
-    # expire cache
+  def reset_cache
     Rails.cache.delete('meta_package_%d' % id)
+  end
+
+  def write_to_backend
+    reset_cache
     @commit_opts ||= {}
     #--- write through to backend ---#
     if CONFIG['global_write_through']
