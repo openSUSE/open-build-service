@@ -491,7 +491,7 @@ sub useToPackages( $$$ )
 					              $useRecommended,
 					              $useSuggested );
 	    push @packages, @{$packs} if $packs;
-            if ($supports && keys $supports > 0) {
+            if ($supports && keys %$supports > 0) {
               %supportstates = (%supportstates, %$supports);
             };
 
