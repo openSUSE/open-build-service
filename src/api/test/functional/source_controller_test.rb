@@ -878,6 +878,12 @@ end
     assert_response :success
     put "/source/home:tom:projectC/_meta", "<project name='home:tom:projectC'> <title/> <description/> <repository name='repoC'> <path project='home:tom:projectB' repository='repoB' /> </repository> </project>"
     assert_response :success
+    put "/source/home:tom:projectD/_meta", "<project name='home:tom:projectD'> <title/> <description/> <repository name='repoD'> " \
+                                           " <path project='home:tom:projectA' repository='repoA' />" \
+                                           " <path project='home:tom:projectB' repository='repoB' />" \
+                                           " <path project='home:tom:projectC' repository='repoC' />" \
+                                           "</repository> </project>"
+    assert_response :success
     # delete a repo
     put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> </project>"
     assert_response 400
@@ -893,14 +899,24 @@ end
     assert_response :success
     assert_xml_tag :tag => 'path', :attributes => { :project => "home:tom:projectB", :repository => "repoB" } # unmodified
 
+    # delete another repo
+    put "/source/home:tom:projectB/_meta?force=1", "<project name='home:tom:projectB'> <title/> <description/> </project>"
+    assert_response :success
+    get "/source/home:tom:projectD/_meta"
+    assert_response :success
+    assert_xml_tag :tag => 'path', :attributes => { :project => "deleted", :repository => "deleted" }
+    assert_xml_tag :tag => 'path', :attributes => { :project => "home:tom:projectC", :repository => "repoC" } # unmodified
+
     # cleanup
     delete "/source/home:tom:projectA"
     assert_response :success
     delete "/source/home:tom:projectB"
-    assert_response 403 # projectC still linking
-    delete "/source/home:tom:projectC"
     assert_response :success
-    delete "/source/home:tom:projectB"
+    delete "/source/home:tom:projectC"
+    assert_response 403 # projectD is still using it
+    delete "/source/home:tom:projectD"
+    assert_response :success
+    delete "/source/home:tom:projectC"
     assert_response :success
   end
 

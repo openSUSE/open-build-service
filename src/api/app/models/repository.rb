@@ -27,15 +27,19 @@ class Repository < ActiveRecord::Base
   def cleanup_before_destroy
     # change all linking repository pathes
     del_repo = nil
-
     self.linking_repositories.each do |lrep|
-      lrep.path_elements.includes(:link).each do |pe|
-#        next unless Repository.find(pe.repository_id).db_project_id == self.db_project_id
+      lrep.path_elements.includes(:link, :repository).each do |pe|
+        next unless pe.link == self # this is not pointing to our repo
         del_repo ||= Project.find_by_name("deleted").repositories[0]
-        pe.link = del_repo
-        pe.save
-        lrep.project.store
+        if lrep.path_elements.where(repository_id: del_repo).size > 0
+          # repo has already a path element pointing to del_repo
+          pe.destroy 
+        else
+          pe.link = del_repo
+          pe.save
+        end
       end
+      lrep.project.store({:lowprio => true})
     end
 
   end

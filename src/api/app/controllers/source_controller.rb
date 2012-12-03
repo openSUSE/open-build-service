@@ -1237,7 +1237,7 @@ class SourceController < ApplicationController
       linking_repos = repo.linking_repositories
       prj = repo.project
 
-
+      # full remove, otherwise the model will take care of the cleanup
       if full_remove == true
         # recursive for INDIRECT linked repositories
         unless linking_repos.length < 1
@@ -1245,7 +1245,7 @@ class SourceController < ApplicationController
         end
 
         # try to remove the repository 
-        # but never remove the deleted one
+        # but never remove the special repository named "deleted"
         unless repo == del_repo
           # permission check
           unless @http_user.can_modify_project?(prj)
@@ -1253,17 +1253,6 @@ class SourceController < ApplicationController
               :message => "No permission to remove a repository in project '#{prj.name}'"
             return
           end
-        end
-      else
-        # just modify foreign linking repositories. Always allowed
-        linking_repos.each do |lrepo|
-          lrepo.path_elements.each do |pe|
-            if pe.link == repo
-              pe.link = del_repo
-              pe.save
-            end
-          end
-          lrepo.project.store({:lowprio => true}) # low prio storage
         end
       end
 
