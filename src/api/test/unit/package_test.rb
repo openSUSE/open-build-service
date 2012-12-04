@@ -216,4 +216,16 @@ class PackageTest < ActiveSupport::TestCase
     assert @package.valid?
   end
 
+  test "utf8 input" do
+    xml = '<package name="libconfig" project="home:coolo">
+  <title>libconfig &#8211; C/C++ Configuration File Library</title>
+  <description>Libconfig is a simple library for processing structured configuration files, like this one: test.cfg. This file format is more compact and more readable than XML. And unlike XML, it is type-aware, so it is not necessary to do string parsing in application code.
+
+Libconfig is very compact &#8212; just 38K for the stripped C shared library (less than one-fourth the size of the expat XML parser library) and 66K for the stripped C++ shared library. This makes it well-suited for memory-constrained systems like handheld devices.
+
+The library includes bindings for both the C and C++ languages. It works on POSIX-compliant UNIX systems (GNU/Linux, Mac OS X, Solaris, FreeBSD) and Windows (2000, XP and later).</description>
+  </package>'
+    xh = Xmlhash.parse(xml)
+    @package.update_from_xml(xh)
+  end
 end
