@@ -572,7 +572,7 @@ class PackageController < ApplicationController
       end
 
       if !@package.save_file :file => file, :filename => filename
-        flash[:error] = @package.last_error.summary
+        flash[:error] = @package.last_save_error.summary
         redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package] and return
       end
     elsif not file_url.blank?

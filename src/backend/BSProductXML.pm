@@ -69,9 +69,12 @@ our $group = [
           ],
           [[ 'packagelist' =>
              'relationship',
+             'supportstatus',
              'id',
              [],
-             [[ 'package' => 'name',
+             [[ 'package' =>
+                'name',
+                'supportstatus',
                 [[ 'conditional' => 'name' ]],
              ]],
           ]],

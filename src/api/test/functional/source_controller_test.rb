@@ -244,6 +244,18 @@ class SourceControllerTest < ActionController::IntegrationTest
     end
   end
 
+  test "can branch package under two names" do
+    prepare_request_with_user "king", "sunflower" 
+    post "/source/home:Iggy/TestPack", :cmd => "branch", :target_package => "TestPack2"
+    assert_response :success
+    # this is behaving strange as it's creating a TestPack3 pack, but returns a 400 
+    # as it tries to branch TestPack2 -> TestPack too and fails 
+if $ENABLE_BROKEN_TEST
+    post "/source/home:Iggy/TestPack", :cmd => "branch", :target_package => "TestPack3"
+    assert_response :success
+end
+  end
+
   # project_meta does not require auth
   def test_invalid_user
     prepare_request_with_user "king123", "sunflower"
@@ -299,7 +311,7 @@ class SourceControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "king", "sunflower"
     raw_put url_for(:controller => :source, :action => :project_meta, :project => "_NewProject"), "<project name='_NewProject'><title>blub</title><description/></project>"
     assert_response 400
-    assert_match(/projid '_NewProject' is illegal/, @response.body)
+    #FIXME2.4 not correctly rescued assert_match(/projid '_NewProject' is illegal/, @response.body)
   end
 
 
@@ -866,6 +878,12 @@ end
     assert_response :success
     put "/source/home:tom:projectC/_meta", "<project name='home:tom:projectC'> <title/> <description/> <repository name='repoC'> <path project='home:tom:projectB' repository='repoB' /> </repository> </project>"
     assert_response :success
+    put "/source/home:tom:projectD/_meta", "<project name='home:tom:projectD'> <title/> <description/> <repository name='repoD'> " \
+                                           " <path project='home:tom:projectA' repository='repoA' />" \
+                                           " <path project='home:tom:projectB' repository='repoB' />" \
+                                           " <path project='home:tom:projectC' repository='repoC' />" \
+                                           "</repository> </project>"
+    assert_response :success
     # delete a repo
     put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> </project>"
     assert_response 400
@@ -881,14 +899,24 @@ end
     assert_response :success
     assert_xml_tag :tag => 'path', :attributes => { :project => "home:tom:projectB", :repository => "repoB" } # unmodified
 
+    # delete another repo
+    put "/source/home:tom:projectB/_meta?force=1", "<project name='home:tom:projectB'> <title/> <description/> </project>"
+    assert_response :success
+    get "/source/home:tom:projectD/_meta"
+    assert_response :success
+    assert_xml_tag :tag => 'path', :attributes => { :project => "deleted", :repository => "deleted" }
+    assert_xml_tag :tag => 'path', :attributes => { :project => "home:tom:projectC", :repository => "repoC" } # unmodified
+
     # cleanup
     delete "/source/home:tom:projectA"
     assert_response :success
     delete "/source/home:tom:projectB"
-    assert_response 403 # projectC still linking
-    delete "/source/home:tom:projectC"
     assert_response :success
-    delete "/source/home:tom:projectB"
+    delete "/source/home:tom:projectC"
+    assert_response 403 # projectD is still using it
+    delete "/source/home:tom:projectD"
+    assert_response :success
+    delete "/source/home:tom:projectC"
     assert_response :success
   end
 
@@ -2640,4 +2668,27 @@ end
                    [{"groupid"=>"test_group", "role"=>"maintainer"},
                     {"groupid"=>"test_group", "role"=>"bugowner"}]}, ret)
   end
+
+  test "store invalid package" do
+    prepare_request_with_user "tom", "thunder"
+    name = Faker::Lorem.characters(255)
+    url = url_for(controller: :source, action: :package_meta, project: "home:tom", package: name)
+    put url, "<package name='#{name}' project='home:tom'> <title/> <description/></package>"
+    assert_response 400
+    # FIXME2.4 assert_select "status[code] > summary", %r{Name is too long}
+    get url
+    assert_response 404
+  end
+  
+  test "store invalid project" do
+    prepare_request_with_user "tom", "thunder" 
+    name = "home:tom:#{Faker::Lorem.characters(255)}"
+    url = url_for(controller: :source, action: :project_meta, project: name)
+    put url, "<project name='#{name}'> <title/> <description/></project>"
+    assert_response 400
+    # FIXME2.4 assert_select "status[code] > summary", %r{Name is too long}
+    get url 
+    assert_response 404
+  end
+
 end

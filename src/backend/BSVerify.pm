@@ -24,6 +24,7 @@ package BSVerify;
 
 use strict;
 
+# keep in sync with src/api/app/model/project.rb
 sub verify_projid {
   my $projid = $_[0];
   die("projid is empty\n") unless defined($projid) && $projid ne '';
@@ -37,6 +38,7 @@ sub verify_projkind {
   die("projkind '$projkind' is illegal\n") if $projkind ne 'standard' && $projkind ne 'maintenance' && $projkind ne 'maintenance_incident' && $projkind ne 'maintenance_release'
 }
 
+# keep in sync with src/api/app/model/package.rb
 sub verify_packid {
   my $packid = $_[0];
   die("packid is empty\n") unless defined($packid) && $packid ne '';
