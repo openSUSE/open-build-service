@@ -38,6 +38,9 @@ class ProductTests < ActionController::IntegrationTest
                    :parent => { :tag => "metadata" }
     assert_xml_tag :tag => "repopackage", :attributes => { :name => "patterns-obs", :medium => "0", :removearch => "src,nosrc", :onlyarch => "i586,x86_64" },
                    :parent => { :tag => "metadata" }
+    get "/source/home:tom:temporary/_product:sle-obs-cd-cd-i586_x86_64/sle-obs-cd-cd-i586_x86_64.kwd"
+    assert_response :success
+    assert_match /^obs-server: \+Kwd:\\nsupport_l3\\n-Kwd:/, @response.body
 
     delete "/source/home:tom:temporary"
     assert_response :success

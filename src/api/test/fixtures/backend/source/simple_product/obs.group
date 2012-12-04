@@ -12,6 +12,6 @@ Blub</summary>
         </relationships>
     </pattern>
     <packagelist>
-	<package name="obs-server" />
+	<package name="obs-server" supportstatus="l3" />
     </packagelist>
 </group>
