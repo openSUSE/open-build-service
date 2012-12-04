@@ -40,25 +40,10 @@ class ProductTests < ActionController::IntegrationTest
                    :parent => { :tag => "metadata" }
     get "/source/home:tom:temporary/_product:sle-obs-cd-cd-i586_x86_64/sle-obs-cd-cd-i586_x86_64.kwd"
     assert_response :success
-    assert_match /^obs-server: \+Kwd:\\nsupport_l3\\n-Kwd:/, @response.body
+    assert_match(/^obs-server: \+Kwd:\\nsupport_l3\\n-Kwd:/, @response.body)
 
     delete "/source/home:tom:temporary"
     assert_response :success
   end
-
-#  def test_simple_kiwi_product_file
-#    prepare_request_with_user "king", "sunflower"
-#
-#    put '/source/kde4/product/product.kiwi', File.open("#{Rails.root}/test/fixtures/backend/source/kde4/product/product.kiwi").read()
-#    assert_response :success
-#
-#    run_scheduler("x86_64")
-#    run_scheduler("i586")
-#
-#    # check build state
-#    get "/build/kde4/_result"
-#    assert_response :success
-#print @response.body
-#  end
 
 end
