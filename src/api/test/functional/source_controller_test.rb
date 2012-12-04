@@ -1396,6 +1396,26 @@ end
     assert_xml_tag( :tag => "revisionlist" )
   end
 
+  def test_invalid_package_command
+    prepare_request_with_user "fredlibs", "geröllheimer"
+    post "/source/kde4/kdelibs"
+    assert_response 400
+    assert_xml_tag(:tag => "status", :attributes => { :code => "missing_parameter" })
+    post "/source/kde4/kdelibs", :cmd => :invalid
+    assert_response 404
+    assert_xml_tag :tag => 'status', :attributes => { :code => "illegal_request"}
+    assert_xml_tag :tag => 'summary', :content => "invalid_command"
+
+    prepare_request_with_user "adrian_nobody", "so_alone"
+    post "/source/kde4/kdelibs"
+    assert_response 400
+    assert_xml_tag(:tag => "status", :attributes => { :code => "missing_parameter" })
+    post "/source/kde4/kdelibs", :cmd => :invalid
+    assert_response 404
+    assert_xml_tag :tag => 'status', :attributes => { :code => "illegal_request"}
+    assert_xml_tag :tag => 'summary', :content => "invalid_command"
+  end
+
   def test_remove_and_undelete_operations
     reset_auth 
     delete "/source/kde4/kdelibs"

@@ -676,7 +676,7 @@ class ApplicationController < ActionController::API
     }
     opt = defaults.merge opt
     unless params.has_key? opt[:cmd_param]
-      render_error :status => 400, :errorcode => "missing_parameter'",
+      render_error :status => 400, :errorcode => "missing_parameter",
         :message => "Missing parameter '#{opt[:cmd_param]}'"
       return
     end

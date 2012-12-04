@@ -283,6 +283,8 @@ class SourceController < ApplicationController
       raise IllegalRequestError.new "invalid_command" unless valid_commands.include?(params[:cmd])
       raise IllegalRequestError.new "invalid_command_not_post" unless request.post?
       command = params[:cmd]
+    elsif request.post?
+      raise MissingParameterError.new "POST request without given cmd parameter"
     end
     # find out about source and target dependening on command   - FIXME: ugly! sync calls
     if command == 'branch'
