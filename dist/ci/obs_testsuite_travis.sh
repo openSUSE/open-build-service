@@ -22,12 +22,17 @@ case $SUBTEST in
   api)
    echo "Enter API rails root and running rcov"
    cd src/api
-   bundle exec rake ci:setup:minitest test CI_REPORTS=results --trace || ret=1
+   bundle exec rake test --trace || ret=1
    ;;
-  webui)
+  webui1|webui2)
    echo "Enter WebUI rails root and running rcov"
    cd src/webui
-   bundle exec rake ci:setup:minitest test CI_REPORTS=results --trace || ret=1
+   if test "$SUBTEST" = "webui1"; then
+     rm -v test/functional/[a-m]*_test.rb
+   else
+     rm -v test/functional/[n-z]*_test.rb
+   fi
+   bundle exec rake test --trace || ret=1
    ;;
   webui-testsuite)
    cd src/webui-testsuite

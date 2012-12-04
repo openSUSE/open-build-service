@@ -76,6 +76,7 @@ class ActionDispatch::IntegrationTest
     end unless ENV['API_STARTED']
     ActiveXML::transport.http_do :post, "/test/test_start"
     Capybara.current_driver = olddriver
+    @starttime = Time.now
   end
 
   teardown do
@@ -92,6 +93,7 @@ class ActionDispatch::IntegrationTest
     Capybara.reset_sessions!
     ActiveXML::transport.http_do(:post, "/test/test_end", timeout: 100)
     Capybara.use_default_driver
+    #puts "#{self.__name__} took #{Time.now - @starttime}"
   end
 
   # ============================================================================
