@@ -5325,12 +5325,13 @@ sub getpackagelist_build {
 sub getbinarylist {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
-  my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
   my $view = $cgi->{'view'};
   my @args;
   push @args, "view=$view" if $view;
   push @args, map {"binary=$_"} @{$cgi->{'binary'} || []};
   if ($view && ($view eq 'cache' || $view eq 'cpio' || $view eq 'solv' || $view eq 'solvstate')) {
+    # do not check arch in interconnect mode
+    my $proj = checkprojrepoarch($projid, $repoid, undef, 1);
     if (!$BSStdServer::isajax) {
       BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch/$packid", undef, @args);
       exit(0);
@@ -5347,6 +5348,7 @@ sub getbinarylist {
     BSWatcher::rpc($param, undef, @args);
     return undef;
   }
+  my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
   my $param = {
     'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid",
   };
