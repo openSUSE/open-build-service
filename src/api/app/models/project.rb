@@ -956,7 +956,7 @@ class Project < ActiveRecord::Base
           :mtype => dl.mtype, :arch => dl.architecture.name )
       end
 
-      repos = repositories.not_remote.all
+      repos = repositories.not_remote.sort{ |a,b| b.name <=> a.name }
       if view == 'flagdetails'
         flags_to_xml(builder, expand_flags)
       else
