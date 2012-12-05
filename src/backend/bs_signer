@@ -103,14 +103,14 @@ sub signfilter {
     close WH;
     open(STDIN, "<&RH");
     eval {
-      exec($BSConfig::sign, @signargs, '-d');
+      exec($BSConfig::sign, @signargs);
       die("$BSConfig::sign: $!\n");
     };
     warn($@) if $@;
     exit 1;
   }
   close RH;
-  print WH $content;
+  print WH $content if defined $content;
   close WH;
   my $ret = '';
   $ret .= $_ while <P>;
@@ -180,7 +180,7 @@ sub readisodir {
 }
 
 sub signisofiles {
-  my ($fd, @signargs) = @_;
+  my ($fd, $pubkey, @signargs) = @_;
 
   my $signed = 0;
   my $vol = readblk($fd, 16);
@@ -194,7 +194,7 @@ sub signisofiles {
     my @c = readisodir($fd, $dirpos);
     for my $e (@c) {
       #print "$e->[0] $e->[1] $e->[2] $e->[3] $e->[4]\n";
-      if ($e->[0] =~ /^(.*).asc$/i && $e->[2] == 2048) {
+      if ($e->[0] =~ /^(.*)\.asc$/i && $e->[2] == 2048) {
 	my $n = $1;
 	my $signfile = readblk($fd, $e->[1]);
 	next if substr($signfile, 0, 8) ne "sIGnMe!\n";
@@ -205,7 +205,7 @@ sub signisofiles {
 	my $sf = readblk($fd, $se[0]->[1], ($len + 0x7ff) >> 11);
 	$sf = substr($sf, 0, $len);
         die("selected wrong file\n") if $sum != unpack("%32C*", $sf);
-	my $sig = signfilter($sf, @signargs);
+	my $sig = signfilter($sf, @signargs, '-d');
 	die("returned signature is empty\n") unless $sig;
 	die("returned signature is too big\n") if length($sig) > 2048;
 	# replace old content
@@ -213,6 +213,20 @@ sub signisofiles {
 	my $dirblk = readblk($fd, $e->[3]);
 	# patch in new content len
 	substr($dirblk, $e->[4] + 10, 4) = pack('V', length($sig));
+	writeblk($fd, $e->[3], $dirblk);
+	$signed++;
+      }
+      if ($e->[0] =~ /\.key$/i && $e->[2] == 8192) {
+	my $signfile = readblk($fd, $e->[1]);
+	next if substr($signfile, 0, 8) ne "sIGnMeP\n";
+	$pubkey = signfilter(undef, @signargs, '-p') unless $pubkey;
+	die("pubkey is not available\n") unless $pubkey;
+	die("pubkey is too big\n") if length($pubkey) > 8192;
+	# replace old content
+	writeblk($fd, $e->[1], $pubkey . ("\0" x (8192 - length($pubkey))));
+	my $dirblk = readblk($fd, $e->[3]);
+	# patch in new content len
+	substr($dirblk, $e->[4] + 10, 4) = pack('V', length($pubkey));
 	writeblk($fd, $e->[3], $dirblk);
 	$signed++;
       }
@@ -247,10 +261,10 @@ sub retagmd5iso {
 }
 
 sub signiso {
-  my ($file, @signargs) = @_;
+  my ($file, $pubkey, @signargs) = @_;
   local *ISO;
   open(ISO, '+<', $file) || die("$file: $!\n");
-  my $signed = signisofiles(\*ISO, @signargs);
+  my $signed = signisofiles(\*ISO, $pubkey, @signargs);
   retagmd5iso(\*ISO) if $signed;
   close(ISO) || die("close $file: $!\n");
 }
@@ -292,13 +306,21 @@ sub signjob {
   }
   if (@signfiles) {
     my @signargs;
+    my $needpubkey = grep {/\.iso$/} @signfiles;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     my $param = {
       'uri' => "$BSConfig::srcserver/getsignkey",
       'timeout' => 60,
     };
+    my @args;
+    push @args, "project=$projid";
+    push @args, "withpubkey=1" if $needpubkey;
+    push @args, "autoextend=1" if $needpubkey;
     my $signkey = BSRPC::rpc($param, undef, "project=$projid");
+    my $pubkey;
     if ($signkey) {
+      ($signkey, $pubkey) = split("\n", $signkey, 2) if $needpubkey;
+      die("returned pubkey is empty\n") if $needpubkey && !$pubkey;
       mkdir_p($uploaddir);
       writestr("$uploaddir/signer.$$", undef, $signkey);
       push @signargs, '-P', "$uploaddir/signer.$$";
@@ -311,7 +333,7 @@ sub signjob {
         system('rpm', '--delsign', "$jobdir/$signfile") && warn("delsign $jobdir/$signfile failed: $?\n");
       }
       if ($signfile =~ /\.iso$/) {
-	signiso("$jobdir/$signfile", @signargs);
+	signiso("$jobdir/$signfile", $pubkey, @signargs);
 	next;
       }
       my @signmode;
