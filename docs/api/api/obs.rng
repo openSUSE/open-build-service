@@ -9,7 +9,9 @@
   <define ns="" name="build-arch">
     <choice>
       <value>noarch</value>
-      <value>athlon</value>
+
+      <value>aarch64</value>
+
       <value>armv4l</value>
       <value>armv5l</value>
       <value>armv6l</value>
@@ -20,29 +22,40 @@
       <value>armv7el</value>
       <value>armv7hl</value>
       <value>armv8el</value>
+
       <value>hppa</value>
+
       <value>i386</value>
       <value>i486</value>
       <value>i586</value>
       <value>i686</value>
+      <value>athlon</value>
+
       <value>ia64</value>
+
       <value>mips</value>
       <value>mipsel</value>
       <value>mips32</value>
       <value>mips64</value>
       <value>mips64el</value>
+
       <value>ppc</value>
       <value>ppc64</value>
+
       <value>s390</value>
       <value>s390x</value>
+
       <value>sh4</value>
+
       <value>sparc</value>
       <value>sparc64</value>
       <value>sparc64v</value>
       <value>sparcv8</value>
       <value>sparcv9</value>
       <value>sparcv9v</value>
+
       <value>x86_64</value>
+
       <value>local</value>
     </choice>
   </define>
