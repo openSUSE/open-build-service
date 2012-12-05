@@ -1556,7 +1556,7 @@ sub receivekiwitree {
 	    $found = 1;
 	  }
 	}
-      } elsif ($file =~ /\.asc$/s) {
+      } elsif ($file =~ /\.(?:asc|key)$/s) {
 	push @tosign, $file;
       }
       $todo{$file} = 1 unless $found;
