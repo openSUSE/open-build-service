@@ -492,7 +492,7 @@ class ApplicationController < ActionController::API
         render_error :status => 404, :errorcode => 'tag_not_found',
           :message => exception.message
       end
-    when RequestInvalidStateError
+    when BsRequest::InvalidStateError
       logger.error "RequestInvalidStateError: #{exception.message}"
       if exception.message == ""
         render_error :status => 404, :errorcode => 'request_not_modifiable',
