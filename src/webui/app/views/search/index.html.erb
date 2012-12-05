@@ -3,44 +3,73 @@
 
 <%= content_for :ready_function do %>
   $('#search_text').focus();
+  $('#advanced_link' ).click(function() {
+    $('#advanced').toggle( "blind");
+  });
 <% end %>
 
-<h3>Search for Buildservice Projects or Packages</h3>
-
-<p>To search for rpm packages to install on your system, please use the enduser search interface at
-<%= link_to 'software.opensuse.org', 'http://software.opensuse.org/search' %>.</p>
+<h3><%= @pagetitle %>
+  <% unless @search_text.blank? %> for &quot;<%= @search_text -%>&quot; <% end %>
+  <% unless @attribute.blank? %> with attribute &quot;<%= @attribute -%>&quot; <% end %>
+  <% unless @results.nil? %>
+    <% if @results.length > 1%> &nbsp;(
+      <%= @results.length -%>
+      <%= "+" if @results.length == 200 %>
+    )
+    <% else %>
+      failed
+    <% end %>
+  <% end %>
+</h3>
 
 <div id="search_form">
-  <%= form_tag({:controller => 'search', :action => 'search'}, {:method => :get}) do -%>
+  <%= form_tag({:controller => 'search', :action => 'index'}, {:method => :get}) do -%>
     <p>
-
-      <label for="search_text">Search term:</label> <%= text_field_tag 'search_text', params[:search_text], :size => 35 -%>
-      <%= submit_tag 'Search', id: 'search-term' -%>
+      <%= text_field_tag 'search_text', params[:search_text], :placeholder => 'Search', :id => 'search_input' -%>
+      <%= submit_tag(nil, :id => 'search_button', :title => 'Search') %>
+      <a href="#" id="advanced_link">Advanced</a>
     </p>
-
-    <p>
-      <label for="project">Search for:</label> <%= check_box_tag('project', 1, @search_what.include?('project')) -%><label for="project">projects</label>
-      <%= check_box_tag 'package', 1, @search_what.include?('package') -%><label for="package">packages</label>
-      <br/>
-      <label for="name">Search in:</label> <%= check_box_tag 'name', 1, true -%><label for="name">name</label>
-      <%= check_box_tag 'title', 1, params[:title] -%><label for="title">title</label>
-      <%= check_box_tag 'description', 1, params[:description] -%><label for="description">description</label>
-      <br/>
-      <label for="attribute">Require attribute:</label> <%= select_tag :attribute, options_for_select(@attribute_list, params[:attribute]) %>
-      <%= hidden_field_tag 'advanced', 'on' -%>
+    <p id="advanced" style="display: none; width: 100px; height: 100px; background: #ccc; border: 1px solid #000;">
+    Advanced
     </p>
+  <% end %>
+</div>
 
-  <hr/>
-
-    <p>
-      Search for packages with tracker issues:
-    </p>
-    <p>
-      <% params[:issue_tracker] = "bnc (Novell Bugzilla)" if params[:issue_tracker].nil? %> <!-- FIXME: default should become configurable on api server -->
-      <%= select_tag :issue_tracker, options_for_select(@issue_tracker_list, params[:issue_tracker]) %>
-      <%= text_field_tag 'issue_name', params[:issue_name], :size => 10 -%>
-      <%= submit_tag 'Search', id: 'search-tracker' -%>
-    </p>
-  <% end -%>
-
+<div id="search_results">
+<% unless @results.nil? || @results.length < 1 %>
+  <table>
+    <% @results.each do |result| %>
+    <tr class="<%= cycle('even', 'odd') -%>" valign="top">
+      <td><p>
+      <% if result[:type] == 'project' %>
+        <%= image_tag('project.png', class: 'project') %>
+        <strong>
+        <%= link_to "#{result[:data].name}", { :controller => 'project', :action => :show, :project => result[:data] } -%>
+        </strong>
+      <% elsif result[:type] == 'package' %>
+        <%= image_tag('package.png', class: 'package') %>
+        <strong>
+        <%= link_to "#{result[:data].name}", { :controller => 'package', :action => :show, :package => result[:data], :project => result[:data].project } -%>
+        </strong>
+        in project 
+        <%= link_to result[:data].project, { :controller => 'project', :action => :show, :project => result[:data].project } -%>
+      <% end %>
+      </p>
+      <% if result[:data].has_element?( 'description' ) && !result[:data].description.to_s.empty? %>
+        <% descr = result[:data].description.to_s.dup[0,150] + '...' %>
+      <% else %>
+        <% descr = excerpt(result[:data].description.to_s.dup, @search_text, 150 ) %>
+      <% end %>
+      <% if descr %>
+      <p>
+        <% descr.split(/\n/).each do |line| -%>
+          <%= highlight(line, @search_text) -%><br/>
+        <% end %>
+      </p>
+      <% end %>
+      </td>
+    </tr>
+    <% end %>
+  </table>
+<% end %>
 </div>

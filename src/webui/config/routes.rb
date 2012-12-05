@@ -228,7 +228,6 @@ OBSWebUI::Application.routes.draw do
 
   controller :search do
     match 'search/' => :index
-    match 'search/search' => :search
   end
 
   controller :user do
