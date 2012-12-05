@@ -20,7 +20,7 @@ class Repository < ActiveRecord::Base
   validate :validate_duplicates, :on => :create
   def validate_duplicates
     if Repository.where("db_project_id = ? AND name = ?", self.db_project_id, self.name).first
-      errors.add(:name, "Project already has project with name #{self.name}")
+      errors.add(:name, "Project already has repository with name #{self.name}")
     end
   end
 
