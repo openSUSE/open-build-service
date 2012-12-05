@@ -1,69 +1,70 @@
-class TC09__EditPackageSources < TestCase
+# -*- coding: utf-8 -*-
+require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"        
 
-  
-  test :erase_file_content do
-  depend_on :add_source_file_from_big_local_file
+class PackageEditSourcesTest < ActionDispatch::IntegrationTest
+  include ApplicationHelper
+  include ActionView::Helpers::JavaScriptHelper
+
+  def setup
+    @package = "TestPack"
+    @project = "home:Iggy"
+    super
+
+    login_Iggy
+    visit package_show_path(:project => @project, :package => @package)
+  end
+
+  def open_file file
+    find(:css, "tr##{valid_xml_id('file-' + file)} td:first-child a").click
+    assert page.has_text? "File #{file} of Package #{@package}"
+  end
+
+  # ============================================================================
+  #
+  def edit_file new_content
+    # new edit page does not allow comments
+ #   validate { @driver.page_source.include? "Comment your changes (optional):" }
     
-    navigate_to PackageOverviewPage,
-      :project => "home:user1",
-      :package => "HomePackage1",
-      :user => $data[:user1]
-    open_file "BigSourceFile.c"
-    edit_file "", "Erasing all content of BigSourceFile.c"
+    textarea = nil
+    # we need to click into the code block before we can send keys - tricky!
+    codelines = find(:css, ".CodeMirror-lines")
+    codelines.click if codelines
+    textarea = page.find(".CodeMirror textarea")
+
+    savebutton = find(:css, "a.save")
+    assert savebutton["class"].split(" ").include? "inactive"
+    
+    # capybara won't accept codemirror as textarea
+    # find(:fillable_field, ".CodeMirror textarea").set(new_content)
+    #textarea.native.send_keys([:control, 'a'])
+    #textarea.native.send_keys([:control, 'x'])
+    #textarea.native.send_keys new_content
+    
+    textarea = page.first(:xpath, "//textarea[@class='editor']")
+    id = textarea["id"]
+    
+    textarea.set new_content
+    #page.execute_script("$('#{id}').html('#{escape_javascript(new_content)}');")
+    page.execute_script("CodeMirror.fromTextArea('#{id}')");
+
+    assert !savebutton["class"].split(" ").include?("inactive")
+    find(:css, "a.save").click
+    assert savebutton["class"].split(" ").include? "inactive"
+
+    #assert_equal "Successfully saved file #{@file}", flash_message
+    #assert_equal :info, flash_message_type
+
   end
   
-  
-  test :edit_empty_file do
-  depend_on :add_new_source_file_to_home_project_package
-    
-    navigate_to PackageOverviewPage,
-      :project => "home:user1",
-      :package => "HomePackage1",
-      :user => $data[:user1]
-    open_file "HomeSourceFile1"
-    edit_file NORMAL_SOURCE, "Entering some source code in HomeSourceFile1."
+  test "erase_file_content" do
+    open_file "myfile"
+    edit_file ""
   end
   
-  
-  test :change_file_with_comment do
-  depend_on :add_source_file_from_local_file
-    
-    navigate_to PackageOverviewPage,
-      :project => "home:user1",
-      :package => "HomePackage1",
-      :user => $data[:user1]
-    open_file "HomeSourceFile2.cc"
-    edit_file NORMAL_SOURCE[0..1000], "Entering some source code in HomeSourceFile2.cc"
+  test "edit_empty_file" do
+    open_file "TestPack.spec"
+    edit_file NORMAL_SOURCE
   end
-  
-  
-  
-  test :change_file_without_comment do
-  depend_on :add_source_file_from_local_file
-    
-    navigate_to PackageOverviewPage,
-      :project => "home:user1",
-      :package => "HomePackage1",
-      :user => $data[:user1]
-    open_file "HomeSourceFile2.cc"
-    edit_file NORMAL_SOURCE[0..2000], ""
-  end
-  
-  
-  test :change_file_with_long_comment do
-  depend_on :add_source_file_from_local_file
-    
-    navigate_to PackageOverviewPage,
-      :project => "home:user1",
-      :package => "HomePackage1",
-      :user => $data[:user1]
-    open_file "HomeSourceFile2.cc"
-    edit_file NORMAL_SOURCE, 
-      "This is one pointless commit that shows how I can write long meaningless\
-      sentences that give zero information but somehow convince people to continue\
-      reading them, some devs even got here.."
-  end
-  
   
   # RUBY CODE ENDS HERE.
   # BELOW ARE APPENDED ALL DATA STRUCTURES USED BY THE TESTS.

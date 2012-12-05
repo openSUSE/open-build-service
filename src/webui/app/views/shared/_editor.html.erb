@@ -4,7 +4,7 @@
 <% setup_codemirror_editor(read_only: read_only) %>
 
 <% uid = rand().to_s()[2..-1] # unique id to allow including multiple editors %>
-<textarea id="editor_<%= uid %>" name="editor_<%= uid %>" style="display: none;" rows="0" cols="0"><%= force_utf8_and_transform_nonprintables(text) %></textarea>
+<textarea id="editor_<%= uid %>" name="editor_<%= uid %>" style="display: none;" rows="0" cols="0" class="editor"><%= force_utf8_and_transform_nonprintables(text) %></textarea>
 <%= javascript_tag do %>
   var codeMirrorOptions = {
     mode: '<%= mode %>',
