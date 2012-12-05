@@ -16,7 +16,6 @@ class RoleNotFoundError < Exception; end
 class TagNotFoundError < Exception; end
 class IssueTrackerNotFoundError < Exception; end
 class IssueNotFoundError < Exception; end
-class RequestInvalidStateError < Exception; end
 
 class ApplicationController < ActionController::API
 
@@ -496,10 +495,10 @@ class ApplicationController < ActionController::API
     when RequestInvalidStateError
       logger.error "RequestInvalidStateError: #{exception.message}"
       if exception.message == ""
-        render_error :status => 404, :errorcode => 'request_no_modifiable',
+        render_error :status => 404, :errorcode => 'request_not_modifiable',
           :message => "Issue not found"
       else
-        render_error :status => 404, :errorcode => 'request_no_modifiable',
+        render_error :status => 404, :errorcode => 'request_not_modifiable',
           :message => exception.message
       end
     when IssueNotFoundError

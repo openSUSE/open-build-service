@@ -330,9 +330,20 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_xml_tag( :parent => {:tag => "review", :attributes => { :by_user => "tom" }}, :tag => "comment", :content => 'blahfasel' )
 
+    # invalid state
+    post "/request/#{id}?cmd=changereviewstate&newstate=INVALID&by_user=tom&comment=blahfasel"
+    assert_response 404
+    assert_xml_tag( :tag => "status", :attributes => { :code => "request_not_modifiable" } )
+
     # superseded review
     post "/request/#{id}?cmd=changereviewstate&newstate=superseded&by_user=tom&superseded_by=1"
     assert_response :success
+
+    # another final state is not allowed
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=tom&comment=blahfasel"
+    assert_response 403
+    assert_xml_tag( :tag => "status", :attributes => { :code => "post_request_no_permission" } )
+    assert_xml_tag( :tag => "summary", :content => "set state to accepted from a final state is not allowed." )
 
     get "/request/#{id}"
     assert_response :success
