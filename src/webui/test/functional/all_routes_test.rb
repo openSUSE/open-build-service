@@ -189,7 +189,6 @@ class AllRoutesTest < ActionController::IntegrationTest
     urls << request_set_incident_dialog_path
     urls << request_set_incident_path
     urls << search_path
-    urls << search_search_path
     urls << user_do_login_path
     urls << user_edit_path
     urls << user_register_path

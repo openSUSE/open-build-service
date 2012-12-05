@@ -87,7 +87,7 @@ class SearchController < ApplicationController
   #   - 
   #
   def handle_disturl(disturl)
-    disturl_project, disturl_repo, disturl_pkgrev = disturl.split('/')[3..5]
+    disturl_project, _, disturl_pkgrev = disturl.split('/')[3..5]
       unless disturl_pkgrev.nil? 
         disturl_rev, disturl_package = disturl_pkgrev.split('-', 2)
       end

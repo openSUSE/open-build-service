@@ -6,9 +6,8 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
   def validate_search_page
     assert page.find(:id, 'header-logo')
-    assert page.has_text? "Search for Buildservice Projects or Packages"
-    assert page.has_text? "Search term:"
-    assert page.has_text? "Require attribute:"
+    assert page.has_text? "Search"
+    assert page.has_text? "Advanced"
   end
 
   def search options
@@ -82,20 +81,20 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
   
   test "basic search functionality" do
-    visit '/search/search'
+    visit '/search'
     validate_search_page
 
-    visit '/search/search?search_text=Base'
+    visit '/search?search_text=Base'
     assert page.has_text?(/Base.* distro without update project/)
     assert page.has_link? 'kdebase'
   end
 
   test "search by baseurl" do
-    visit '/search/search?search_text=obs://build.opensuse.org/openSUSE:Factory/standard/fd6e76cd402226c76e65438a5e3df693-bash'
+    visit '/search?search_text=obs://build.opensuse.org/openSUSE:Factory/standard/fd6e76cd402226c76e65438a5e3df693-bash'
     assert find('#flash-messages').has_text? "Project not found: openSUSE:Factory"
 
-    visit '/search/search?search_text=obs://foo'
-    assert find('#flash-messages').has_text?(%{obs:// searches are not random})
+    visit '/search?search_text=obs://foo'
+    assert find('#flash-messages').has_text?(%{This obs:// disturl doesn't compute!})
   end
 
   test "search for home projects" do
