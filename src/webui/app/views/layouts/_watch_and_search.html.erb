@@ -33,7 +33,7 @@
 <%- end -%>
   
   
-<%= form_tag({controller: 'search', action: 'search'}, {:method => :post, :id => "global-search-form", :class => "label-overlay"}) do -%>
+<%= form_tag({controller: 'search', action: 'index'}, {:method => :post, :id => "global-search-form", :class => "label-overlay"}) do -%>
   <div style="display: inline">
     <label for="search" class="hidden">Search</label>
     <%= text_field_tag 'search_text', '', id: 'search'-%>
