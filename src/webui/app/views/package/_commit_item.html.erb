@@ -8,9 +8,9 @@
       <% realname = user["realname"] %>
       <%= user_icon(user["login"]) %>
       <% if not realname.empty? %>
-        <%= link_to(realname + " (" + user["login"] + ")", :controller => :home, :user => user["login"]) %>
+        <%= link_to_if(@user, realname + " (" + user["login"] + ")", :controller => :home, :user => user["login"]) %>
       <% else %>
-        <%= link_to(user["login"], :controller => :home, :user => user["login"]) %>
+        <%= link_to_if(@user, user["login"], :controller => :home, :user => user["login"]) %>
       <% end %>
     <% else %>
        -

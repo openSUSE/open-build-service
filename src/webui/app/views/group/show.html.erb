@@ -12,7 +12,7 @@
   <tbody>
     <% @group.person.each do |member| %>
       <tr>
-        <td><%= link_to(member.userid, :controller => 'home', :action => 'index', :user => member.userid) %></td>
+        <td><%= link_to_if(@user, member.userid, :controller => 'home', :action => 'index', :user => member.userid) %></td>
       </tr>
     <% end %>
   </tbody>
@@ -23,8 +23,6 @@
 
 <p><%= link_to('Show all groups', groups_path) %></p>
 
-<%= javascript_tag do %>
-  $(document).ready(function() {
-    $('#group_members_table').dataTable();
-  });
+<% content_for :ready_function do %>
+  $('#group_members_table').dataTable();
 <% end %>

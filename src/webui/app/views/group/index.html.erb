@@ -18,7 +18,7 @@
           <td><%= link_to(group.title, :action => 'show', :id => group.value('title')) %></td>
           <td>
           <% group.person.each do |member| %>
-            <%= link_to(member.userid, :controller => 'home', :action => 'index', :user => member.userid) %>, 
+            <%= link_to_if(@user, member.userid, :controller => 'home', :action => 'index', :user => member.userid) %>, 
           <% end %>
           </td>
         </tr>
