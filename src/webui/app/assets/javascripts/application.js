@@ -325,3 +325,32 @@ function flag_trigger() {
     return false;
 }
 
+
+function collapse_expand(file_id) {
+    placeholder = $('#diff_view_' + file_id + '_placeholder');
+    if (placeholder) {
+	$.ajax({
+            url: placeholder.parents('.table_wrapper').data("url"),
+            type: 'POST',
+            data: { text: placeholder.text(), uid: placeholder.data('uid') },
+            success: function (data) {
+		$('#diff_view_' + file_id).show();
+		$('#diff_view_' + file_id + '_placeholder').html(data);
+		$('#diff_view_' + file_id + '_placeholder').attr('id', '');
+		use_codemirror(placeholder.data('uid'), true, placeholder.data("mode"));
+		$('#collapse_' + file_id).show();
+		$('#expand_' + file_id).hide();
+            },
+            error: function (data) {
+		$('#diff_view_' + file_id).hide();
+		$('#collapse_' + file_id).hide();
+		$('#expand_' + file_id).show();
+            },
+	});
+    } else {
+	$('#diff_view_' + file_id).toggle();
+	$('#collapse_' + file_id).toggle();
+	$('#expand_' + file_id).toggle();
+    }
+}
+

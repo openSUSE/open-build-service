@@ -30,7 +30,7 @@
       <% if @other_open_reviews.length > 0 %>
         <% @other_open_reviews.each do |review| %>
           <li>
-            <%= image_tag('exclamation.png') %> Open review for
+            <%= sprite_tag('exclamation') %> Open review for
             <%= render :partial => 'reviewer', :locals => {:review => review} %>
           </li>
         <% end %>

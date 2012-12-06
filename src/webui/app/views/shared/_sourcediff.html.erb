@@ -1,38 +1,12 @@
-<%= content_for :head_javascript do %>
-  function collapse_expand(file_id) {
-    if ($('#diff_view_' + file_id + '_placeholder').length == 1) {
-      $.ajax({
-        url: '<%= url_for(:controller => 'request', :action => 'sourcediff') %>',
-        type: 'POST',
-        data: { text: $('#diff_view_' + file_id + '_placeholder').text() },
-        success: function (data) {
-          $('#diff_view_' + file_id).show();
-          $('#diff_view_' + file_id + '_placeholder').html(data);
-          $('#diff_view_' + file_id + '_placeholder').attr('id', '');
-          $('#collapse_' + file_id).show();
-          $('#expand_' + file_id).hide();
-        },
-        error: function (data) {
-          $('#diff_view_' + file_id).hide();
-          $('#collapse_' + file_id).hide();
-          $('#expand_' + file_id).show();
-        },
-      });
-    } else {
-      $('#diff_view_' + file_id).toggle();
-      $('#collapse_' + file_id).toggle();
-      $('#expand_' + file_id).toggle();
-    }
-  }
-<% end %>
-
 <% editor_width ||= 'auto' %>
-<% css_class ||= nil %>
-<% css_id ||= nil %>
+<% css_class ||= '' %>
+<% div_opts = { data: { url: url_for(:controller => 'request', :action => 'sourcediff') } }
+   div_opts[:id] = css_id if css_id 
+   div_opts[:class] = "table_wrapper #{css_class}" %>
 
 <% setup_codemirror_editor(height: 'auto', width: editor_width, no_border: true) # we need to have this here for ajax only diffs %>
 
-<div <%= "class=\"#{css_class}\"".html_safe if css_class %> <%= "id=\"#{css_id}\"".html_safe if css_id %> >
+<%= content_tag(:div, div_opts) do %>
 <% if filenames && filenames.length > 0 %>
   <table>
     <tbody>
@@ -88,7 +62,7 @@
             </tr>
           <% else %>
             <tr id="diff_view_<%= file_id %>" class="hidden">
-              <td colspan="3" id="diff_view_<%= file_id %>_placeholder"><%= file_diff_text %></td>
+              <td colspan="3" id="diff_view_<%= file_id %>_placeholder" data-uid="<%= next_codemirror_uid %>" data-mode="diff"><%= file_diff_text %></td>
             </tr>
           <% end %>
         <% end %>
@@ -99,4 +73,4 @@
 <% else %>
   <p>No source changes!</p>
 <% end %>
-</div>
+<% end %>

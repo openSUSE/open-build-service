@@ -113,7 +113,8 @@ function use_codemirror(id, read_only, mode)
     var editor = CodeMirror.fromTextArea(document.getElementById("editor_" + id), codeMirrorOptions);
     editor.id = id;
     editor.setSize(null, height - 52);
-    editor.setSelections(editor)
+    if (!read_only)
+      editor.setSelections(editor)
 
     if (textarea.data('save-url')) {
 	$('#save_' + id).click(function() {

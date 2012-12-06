@@ -416,10 +416,14 @@ module ApplicationHelper
     content_tag(:span, '', opts)
   end
 
+  def next_codemirror_uid
+    @codemirror_editor_setup = @codemirror_editor_setup + 1
+    return @codemirror_editor_setup
+  end
+
   def setup_codemirror_editor(opts = {})
     if @codemirror_editor_setup
-      @codemirror_editor_setup = @codemirror_editor_setup + 1
-      return @codemirror_editor_setup
+      return next_codemirror_uid
     end
     @codemirror_editor_setup = 0
     opts.reverse_merge!({ read_only: false, no_border: false, width: 'auto', height: '660px' })

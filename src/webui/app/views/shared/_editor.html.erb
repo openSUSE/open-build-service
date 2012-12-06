@@ -1,7 +1,7 @@
 <% save ||= {} %>
 <% read_only ||= false %>
 
-<% uid = setup_codemirror_editor(read_only: read_only) %>
+<% uid ||= setup_codemirror_editor(read_only: read_only) %>
 
 <% unless read_only %>
 <div id="top_<%= uid %>">
