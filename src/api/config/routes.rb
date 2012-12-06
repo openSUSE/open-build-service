@@ -273,6 +273,7 @@ OBSApi::Application.routes.draw do
       match 'public' => :index
       match 'public/build/:project' => :build, :constraints => cons
       match 'public/build/:project/:repository' => :build, :constraints => cons
+      match 'public/build/:project/:repository/:arch' => :build, :constraints => cons
       match 'public/build/:project/:repository/:arch/:package' => :build, :constraints => cons
       match 'public/source/:project' => :project_index, :constraints => cons
       match 'public/source/:project/_meta' => :project_meta, :constraints => cons

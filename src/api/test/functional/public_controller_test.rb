@@ -4,6 +4,11 @@ require 'public_controller'
 class PublicControllerTest < ActionController::IntegrationTest 
   fixtures :all
   
+  def setup
+    super
+    wait_for_scheduler_start
+  end
+
   def test_index
     get "/public"
     assert_response 302
@@ -29,6 +34,10 @@ class PublicControllerTest < ActionController::IntegrationTest
     assert_response 404
 
     get "/public/build/home:Iggy/10.2/i586/TestPack"
+    assert_response :success
+
+    # remote interconnect from scheduler for product building
+    get "/public/build/home:Iggy/10.2/i586"
     assert_response :success
 
     # hidden project access
