@@ -1,6 +1,6 @@
 <% @pagetitle = "Request #{@id}" %>
 <% @layouttype = 'custom' %>
-<% @crumb_list = [link_to('Requests', :controller => :home, :action => :requests), @id] %>
+<% @crumb_list = ["Request #{@id}"] %>
 
 <%= content_for :ready_function do %>
   $('#description').expander({slicePoint: 300, expandText: '[+]', expandPrefix: ' ', userCollapseText: '[-]',});

@@ -12,6 +12,7 @@ env:
   # full webrat test suite
   - SUBTEST=webui1
   - SUBTEST=webui2
+  - SUBTEST=webui:functional/spider_test.rb
   # selenium without spider
   - SUBTEST=webui-testsuite
   # api and webui webrat with latest gems

@@ -27,6 +27,7 @@ case $SUBTEST in
   webui1|webui2)
    echo "Enter WebUI rails root and running rcov"
    cd src/webui
+   rm test/functional/spider_test.rb
    if test "$SUBTEST" = "webui2"; then
      rm -v test/functional/[a-m]*_test.rb
    else
