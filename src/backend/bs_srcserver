@@ -7122,7 +7122,7 @@ my $dispatches = [
   'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool? makeolder:bool? resign:bool?' => \&copyproject,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
   '/source/$project view=info parse:bool? repository? arch? package*' => \&getprojectsourceinfo,
-  '/source/$project deleted:bool? expand:bool? noorigins:bool?' => \&getpackagelist_build,
+  '/source/$project deleted:bool? expand:bool? noorigins:bool?' => \&getpackagelist,
 
   'DELETE:/source/$project user:? comment:? requestid:num?' => \&delproject,
   '/source/$project/_meta rev?' => \&getproject,
