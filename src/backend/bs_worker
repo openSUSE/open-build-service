@@ -2092,6 +2092,7 @@ sub dobuild {
       my $iorequests = 0;
       open(FILE, "<", "$buildroot/.build.packages/_statistics") || die;
       while(<FILE>) {
+        chomp;
         my ($key, $value) = split( ": ", $_ );
         if ($key eq "MAX_mb_used_on_disk" ){
           $stats->{'disk'}->{'max_usage'} = $value;
