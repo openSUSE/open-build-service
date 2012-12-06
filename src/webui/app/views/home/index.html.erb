@@ -43,7 +43,9 @@
 
 <h4>Related Links</h4>
 <ul>
-  <li><%= link_to('Home project', :controller => 'project', :action => 'show', :project => "home:#{@displayed_user.to_s}") %></li>
+  <% if Project.exists? "home:#{@displayed_user.to_s}" %>
+    <li><%= link_to('Home project', :controller => 'project', :action => 'show', :project => "home:#{@displayed_user.to_s}") %></li>
+  <% end -%>
   <li><%= link_to('Involved projects', :action => 'list_my', :user => @displayed_user.to_s) %></li>
   <li><%= link_to('Involved requests', :action => 'requests', :user => @displayed_user.to_s) %></li>
 </ul>

@@ -48,3 +48,7 @@ CONFIG['proxy_auth_mode'] = :off
 CONFIG['theme'] = 'neutral'
 CONFIG['use_static'] = nil
 CONFIG['use_gravatar'] = :off
+
+# make sure we have invalid setup for errbit
+CONFIG['errbit_api_key'] = 'INVALID'
+CONFIG['errbit_host'] = '192.0.2.0'

@@ -6,6 +6,11 @@ require 'nokogiri'
 class SpiderTest < ActionDispatch::IntegrationTest
 
   def getlinks(baseuri, body)
+    # skip some uninteresting projects
+    return if baseuri =~ %r{project=home%3Afred}
+    return if baseuri =~ %r{project=home%3Acoolo}
+    return if baseuri =~ %r{project=deleted}
+
     baseuri = URI.parse(baseuri)
 
     body.traverse do |tag|
@@ -26,6 +31,8 @@ class SpiderTest < ActionDispatch::IntegrationTest
       next unless link.port == baseuri.port
       link = link.to_s
       next if link =~ %r{/mini-profiler-resources}
+      # that link is just a top ref
+      next if link.end_with? "/package/rdiff"
       unless @pages_visited.has_key? link
         @pages_to_visit[link] ||= [baseuri.to_s, tag.content]
       end
@@ -36,7 +43,6 @@ class SpiderTest < ActionDispatch::IntegrationTest
     # known issues
     return if url =~ %r{/package/binary\?.*project=BinaryprotectedProject}
     return if url.end_with? "/package/files?package=target&project=SourceprotectedProject"
-    return if url.end_with? "/package/rdiff"
     return if url.end_with? "/package/revisions?package=pack&project=SourceprotectedProject"
     return if url.end_with? "/package/users?package=pack&project=SourceprotectedProject"
     return if url.end_with? "/package/view_file?file=my_file&package=pack2&project=BaseDistro%3AUpdate&rev=1"
@@ -48,6 +54,10 @@ class SpiderTest < ActionDispatch::IntegrationTest
     return if url.end_with? "/package/view_file?file=package.spec&package=pack2_linked&project=BaseDistro2.0%3ALinkedUpdateProject&rev=1"
     return if url.end_with? "/package/view_file?file=package.spec&package=pack2_linked&project=BaseDistro2.0&rev=1"
     return if url.end_with? "/project/show?project=HiddenRemoteInstance"
+    return if url.end_with? "/package/binary?arch=i586&filename=package-1.0-1.src.rpm&package=pack&project=SourceprotectedProject&repository=repo"
+    return if url.end_with? "/project/meta?project=HiddenRemoteInstance"
+    return if url.end_with? "/package/revisions?package=target&project=SourceprotectedProject"
+    return if url.end_with? "/project/edit?project=RemoteInstance"
 
     $stderr.puts "Found #{message} on #{url}, crawling path"
     indent = ' '
@@ -67,6 +77,7 @@ class SpiderTest < ActionDispatch::IntegrationTest
       @pages_to_visit.delete theone
 
       begin
+	puts "V #{theone} #{@pages_to_visit.length}/#{@pages_visited.keys.length+@pages_to_visit.length}"
         page.visit(theone)
         page.first(:id, 'header-logo')
       rescue Timeout::Error
@@ -103,13 +114,8 @@ class SpiderTest < ActionDispatch::IntegrationTest
     end
   end
 
-  def setup
-    # rack_test: 79s, selenium: 402s, webkit: 224s
-    Capybara.current_driver = :rack_test
-    super
-  end
-
   test "spider anonymously" do
+    return unless ENV['RUN_SPIDER']
     visit "/"
     @pages_to_visit = { page.current_url => [nil, nil] }
     @pages_visited = Hash.new
@@ -118,6 +124,7 @@ class SpiderTest < ActionDispatch::IntegrationTest
   end
 
   test "spider as admin" do
+    return unless ENV['RUN_SPIDER']
     login_king
     visit "/"
     @pages_to_visit = { page.current_url => [nil, nil] }
