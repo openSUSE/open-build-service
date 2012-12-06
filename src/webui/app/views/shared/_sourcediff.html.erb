@@ -1,7 +1,8 @@
 <% editor_width ||= 'auto' %>
 <% css_class ||= '' %>
+<% css_id ||= nil %>
 <% div_opts = { data: { url: url_for(:controller => 'request', :action => 'sourcediff') } }
-   div_opts[:id] = css_id if css_id 
+   div_opts[:id] = css_id
    div_opts[:class] = "table_wrapper #{css_class}" %>
 
 <% setup_codemirror_editor(height: 'auto', width: editor_width, no_border: true) # we need to have this here for ajax only diffs %>
