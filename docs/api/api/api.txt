@@ -1271,6 +1271,24 @@ Parameters:
   limit: limit the number of results. Default is "1" single result. Use 0 for all hits.
   deepest: find the deepest source package entry
   project: specify project to search in
+  filter: Comma seperated list of role names to be taken into account
+  attribute: specify attribute which is marking the default project(s). Default is OBS:OwnerRootProject
+
+XmlResult: collection
+
+
+GET /search/missing_owner
+
+  Search for missing definitions of specific role. 
+  No parameter is required by default
+
+Parameters:
+
+  devel: true/false: include devel package definitions?
+  limit: limit the number of results. Default is "1" single result. Use 0 for all hits.
+  deepest: find the deepest source package entry
+  project: specify project to search in
+  filter: Comma seperated list of role names to be taken into account
   attribute: specify attribute which is marking the default project(s). Default is OBS:OwnerRootProject
 
 XmlResult: collection

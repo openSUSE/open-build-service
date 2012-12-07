@@ -433,6 +433,23 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert_xml_tag :tag => 'person', :attributes => { :name => "king", :role => "maintainer" }
     assert_xml_tag :tag => 'group', :attributes => { :name => "test_group", :role => "maintainer" }
 
+    # search for not mantainer packages
+    get "/search/missing_owner"
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :children => { :count => 0 } # all defined
+
+    get "/search/missing_owner?project=TEMPORARY"
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :children => { :count => 0 } # all defined
+
+    get "/search/missing_owner?project=TEMPORARY&filter=bugowner"
+    assert_response :success
+    assert_xml_tag :tag => 'missing_owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" }
+
+    get "/search/missing_owner?project=TEMPORARY&filter=reviewer"
+    assert_response :success
+    assert_xml_tag :tag => 'missing_owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" }
+
     # reset devel package setting again
     pkg.develpackage = nil
     pkg.save
@@ -441,6 +458,23 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert_response :success
     delete "/source/home:Iggy/_attribute/OBS:OwnerRootProject"
     assert_response :success
+  end
+
+  def test_search_for_missing_bugowner_defines
+    prepare_request_with_user "Iggy", "asdfasdf"
+
+    # search for not mantainer packages
+    get "/search/missing_owner?project=BaseDistro&filter=bugowner"
+    assert_response :success
+    assert_xml_tag :tag => 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack1" }
+    assert_xml_tag :tag => 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack2" }
+    assert_xml_tag :tag => 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack3" }
+
+    get "/search/missing_owner?project=BaseDistro&filter=reviewer"
+    assert_response :success
+    assert_xml_tag :tag => 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack1" }
+    assert_xml_tag :tag => 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack2" }
+    assert_xml_tag :tag => 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack3" }
   end
 
   def test_find_owner_when_binary_exist_in_Update_but_definition_is_in_GA_project

@@ -1284,7 +1284,7 @@ class Project < ActiveRecord::Base
   end
   private :extract_maintainer
 
-  def find_containers(obj, limit=1, devel=true, filter=["maintainer","bugowner"], deepest=false)
+  def find_containers(obj=nil, limit=1, devel=true, filter=["maintainer","bugowner"], deepest=false)
     maintainers=[]
     projects=self.expand_all_projects
 
@@ -1299,6 +1299,47 @@ class Project < ActiveRecord::Base
         m = nil
         m = extract_maintainer(self, pkg.resolve_devel_package, filter, obj) if devel == true
         m = extract_maintainer(self, pkg, filter, obj) unless m
+
+        # no match, loop about projects below with this package container name
+        pkg_match = pkg
+        unless m
+          found=false
+          projects.each do |belowprj|
+            if belowprj == prj
+              found=true
+              next
+            end
+            if found == true
+              p = Package.find_by_project_and_name( belowprj, pkg.name )
+              next if p.nil?
+
+              m = extract_maintainer(self, p.resolve_devel_package, filter) if devel == true
+              m = extract_maintainer(self, p, filter) unless m
+              if m
+                pkg_match = p
+                break
+              end
+            end
+          end
+        end
+
+        if obj.nil?
+          # special search for NOT maintained packages with given filter
+          # skip if maintainer is defined
+          next if m
+
+          m = {}
+          m[:rootproject] = self.name
+          m[:project] = pkg_match.project.name
+          m[:package] = pkg_match.name
+
+          maintainers << m
+          limit = limit - 1
+          return maintainers if limit == 0
+
+          next
+        end
+
         next unless m
 
         # add entry

@@ -43,8 +43,14 @@ class SearchController < ApplicationController
     find_attribute(params[:namespace], params[:name])
   end
 
+  def missing_owner
+    params[:limit] ||= "0" #unlimited by default
+
+    @owners = _owner(params, nil)
+
+  end
+
   def owner
-    params[:attribute] ||= "OBS:OwnerRootProject"
 
     Suse::Backend.start_test_backend if Rails.env.test?
 
@@ -59,12 +65,22 @@ class SearchController < ApplicationController
       return
     end
 
+
+    @owners = _owner(params, obj)
+  end
+
+  private
+
+  def _owner(params, obj)
+    params[:attribute] ||= "OBS:OwnerRootProject"
     at = AttribType.find_by_name(params[:attribute])
     unless at
       render_error :status => 404, :errorcode => "unknown_attribute_type",
                    :message => "Attribute Type #{params[:attribute]} does not exist"
       return
     end
+
+    limit  = params[:limit] || 1
 
     projects = []
     if params[:project]
@@ -83,11 +99,10 @@ class SearchController < ApplicationController
     # search in each marked project
     deepest = false
     deepest = true if params[:deepest]
-    @assignees = []
+    owners = []
     projects.each do |project|
 
       attrib = project.attribs.where(attrib_type_id: at.id).first
-      limit  = params[:limit] || 1
       filter = ["maintainer","bugowner"]
       devel  = true
       if params[:filter]
@@ -105,14 +120,13 @@ class SearchController < ApplicationController
         end
       end
 
-      @assignees = project.find_assignees(obj, limit.to_i, devel, filter, deepest)  if obj.class == String
-      @assignees = project.find_containers(obj, limit.to_i, devel, filter, deepest) unless obj.class == String
+      owners = project.find_assignees(obj, limit.to_i, devel, filter, deepest)  if obj and obj.class == String
+      owners = project.find_containers(obj, limit.to_i, devel, filter, deepest) if obj.nil? or obj.class != String
 
     end
 
+    return owners
   end
-
-  private
 
   def predicate_from_match_parameter(p)
     if p=~ /^\(\[(.*)\]\)$/

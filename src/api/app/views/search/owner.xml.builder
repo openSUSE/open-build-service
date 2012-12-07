@@ -1,24 +1,24 @@
 xml.collection do
-  @assignees.each do |a|
+  @owners.each do |o|
 
     attribs={}
-    attribs[:rootproject] = a[:rootproject]
-    attribs[:project] = a[:project]
-    attribs[:package] = a[:package] if a[:package]
+    attribs[:rootproject] = o[:rootproject]
+    attribs[:project] = o[:project]
+    attribs[:package] = o[:package] if o[:package]
     xml.owner(attribs) do
 
       roles = []
-      roles += a[:users].keys  if a[:users]
-      roles += a[:groups].keys if a[:groups]
+      roles += o[:users].keys  if o[:users]
+      roles += o[:groups].keys if o[:groups]
 
       roles.each do |role|
-        if a[:users] and a[:users][role]
-          a[:users][role].each do |user|
+        if o[:users] and o[:users][role]
+          o[:users][role].each do |user|
             xml.person( :name => user, :role => role )
           end
         end
-        if a[:groups] and a[:groups][role]
-          a[:groups][role].each do |group|
+        if o[:groups] and o[:groups][role]
+          o[:groups][role].each do |group|
           xml.group( :name => group, :role => role )
           end
         end
