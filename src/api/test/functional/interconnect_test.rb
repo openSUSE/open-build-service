@@ -155,8 +155,8 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_xml_tag( :tag => "directory", :children => { :count => 0 } ) # backend does not provide a counter
     get "/source/RemoteInstance:BaseDistro2.0:LinkedUpdateProject?expand=1"
     assert_response :success
-    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2", :originproject => "BaseDistro2.0" } )
-    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2_linked", :originproject => "BaseDistro2.0" } )
+    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2", :originproject => "RemoteInstance:BaseDistro2.0" } )
+    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2_linked", :originproject => "RemoteInstance:BaseDistro2.0" } )
     # test binary operations
     prepare_request_with_user "king", "sunflower"
     post "/build/RemoteInstance:BaseDistro", :cmd => "wipe", :package => "pack1"

@@ -1973,7 +1973,7 @@ sub findpackages {
     push @args, 'deleted=1' if $deleted;
     push @args, 'expand=1' unless $noexpand || $deleted;
     eval {
-      $r = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::dir);
+      $r = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::dir, @args);
     };
     if ($@ && $@ !~ /^404/) {
       die($@) unless $nonfatal;
