@@ -311,6 +311,27 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert_no_xml_tag :tag => 'person', :attributes => { :name => "Iggy", :role => "maintainer" }
     assert_xml_tag :tag => 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
 
+    # search by user
+    get "/search/owner?user=fred"
+    assert_response :success
+    assert_xml_tag :tag => 'owner', :attributes => { :rootproject => "home:Iggy", :project => "home:Iggy", :package => "TestPack" }
+
+    get "/search/owner?user=fred&filter=maintainer"
+    assert_response :success
+    assert_xml_tag :tag => 'owner', :attributes => { :rootproject => "home:Iggy", :project => "home:Iggy", :package => "TestPack" }
+
+    get "/search/owner?user=fred&filter=bugowner"
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :children => { :count => 0 }
+
+    # some illegal searches
+    get "/search/owner?user=INVALID&filter=bugowner"
+    assert_response 404
+    assert_xml_tag :tag => 'status', :attributes => { :code => "not_found" }
+    get "/search/owner?user=fred&filter=INVALID"
+    assert_response 404
+    assert_xml_tag :tag => 'status', :attributes => { :code => "not_found" }
+
     # set devel package (this one has another devel package in home:coolo:test)
     pkg = Package.find_by_project_and_name "home:Iggy", "TestPack"
     pkg.develpackage = Package.find_by_project_and_name "kde4", "kdelibs"

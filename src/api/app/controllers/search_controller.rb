@@ -48,9 +48,14 @@ class SearchController < ApplicationController
 
     Suse::Backend.start_test_backend if Rails.env.test?
 
-    unless params[:binary]
+    obj = nil
+    obj = params[:binary] unless params[:binary].blank?
+    obj = User.find_by_login!(params[:user]) unless params[:user].blank?
+    obj = Group.find_by_title!(params[:group]) unless params[:group].blank?
+
+    if obj.blank?
       render_error :status => 400, :errorcode => "no_binary",
-                   :message => "The search needs at least a 'binary' parameter"
+                   :message => "The search needs at least a 'binary' or 'user' parameter"
       return
     end
 
@@ -100,7 +105,8 @@ class SearchController < ApplicationController
         end
       end
 
-      @assignees = project.find_assignees(params[:binary], limit.to_i, devel, filter, deepest)
+      @assignees = project.find_assignees(obj, limit.to_i, devel, filter, deepest)  if obj.class == String
+      @assignees = project.find_containers(obj, limit.to_i, devel, filter, deepest) unless obj.class == String
 
     end
 

@@ -1223,7 +1223,7 @@ class Project < ActiveRecord::Base
     return packages
   end
 
-  def extract_maintainer(rootproject, pkg, filter)
+  def extract_maintainer(rootproject, pkg, rolefilter, objfilter=nil)
     return nil unless pkg
     return nil unless Package.check_access?(pkg)
     m = {}
@@ -1232,37 +1232,50 @@ class Project < ActiveRecord::Base
     m[:project] = pkg.project.name
     m[:package] = pkg.name
 
-    pkg.package_user_role_relationships.each do |p|
-      if filter.include? p.role.title
-        m[:users] ||= {}
-        m[:users][p.role.title] ||= []
-        m[:users][p.role.title] << p.user.login
-      end
+    # construct where condition
+    sql = nil
+    role_ids=[]
+    rolefilter.each do |rf|
+     if sql.nil?
+       sql = "( "
+     else
+       sql << " OR "
+     end
+     role = Role.find_by_title!(rf)
+     sql << "role_id = " << role.id.to_s
     end
-    pkg.package_group_role_relationships.each do |p|
-      if filter.include? p.role.title
-        m[:groups] ||= {}
-        m[:groups][p.role.title] ||= []
-        m[:groups][p.role.title] << p.group.title
-      end
-    end
+    sql << " )"
+    usersql = groupsql = sql
+    usersql  = sql << " AND bs_user_id = " << objfilter.id.to_s  if objfilter.class == User
+    groupsql = sql << " AND bs_group_id = " << objfilter.id.to_s if objfilter.class == Group
+
+    # lookup
+    pkg.package_user_role_relationships.where(usersql).each do |p|
+      m[:users] ||= {}
+      m[:users][p.role.title] ||= []
+      m[:users][p.role.title] << p.user.login
+    end unless objfilter.class == Group
+
+    pkg.package_group_role_relationships.where(groupsql).each do |p|
+      m[:groups] ||= {}
+      m[:groups][p.role.title] ||= []
+      m[:groups][p.role.title] << p.group.title
+    end unless objfilter.class == User
+
     # did it it match? if not fallback to project level
     unless m[:users] or m[:groups]
       m[:package] = nil
-      pkg.project.project_user_role_relationships.each do |p|
-        if filter.include? p.role.title
-          m[:users] ||= {}
-          m[:users][p.role.title] ||= []
-          m[:users][p.role.title] << p.user.login
-        end
-      end
-      pkg.project.project_group_role_relationships.each do |p|
-        if filter.include? p.role.title
-          m[:groups] ||= {}
-          m[:groups][p.role.title] ||= []
-          m[:groups][p.role.title] << p.group.title
-        end
-      end
+      pkg.project.project_user_role_relationships.where(usersql).each do |p|
+        m[:users] ||= {}
+        m[:users][p.role.title] ||= []
+        m[:users][p.role.title] << p.user.login
+      end unless objfilter.class == Group
+
+      pkg.project.project_group_role_relationships.where(groupsql).each do |p|
+        m[:groups] ||= {}
+        m[:groups][p.role.title] ||= []
+        m[:groups][p.role.title] << p.group.title
+      end unless objfilter.class == User
     end
     # still not matched? Ignore it
     return nil unless  m[:users] or m[:groups]
@@ -1270,6 +1283,40 @@ class Project < ActiveRecord::Base
     return m
   end
   private :extract_maintainer
+
+  def find_containers(obj, limit=1, devel=true, filter=["maintainer","bugowner"], deepest=false)
+    maintainers=[]
+    projects=self.expand_all_projects
+
+    deepest_match = nil
+    projects.each do |prj| # project link order
+      project = Project.get_by_name(prj)
+      next unless project.class == Project
+ 
+      project.packages.each do |pkg| # no order
+
+        # optional check for devel package instance first
+        m = nil
+        m = extract_maintainer(self, pkg.resolve_devel_package, filter, obj) if devel == true
+        m = extract_maintainer(self, pkg, filter, obj) unless m
+        next unless m
+
+        # add entry
+        if deepest == true
+          deepest_match = m
+          next
+        else
+          maintainers << m
+        end
+        limit = limit - 1
+        return maintainers if limit == 0
+      end
+    end
+
+    maintainers << deepest_match if deepest_match
+
+    return maintainers
+  end
 
   def find_assignees(binary_name, limit=1, devel=true, filter=["maintainer","bugowner"], deepest=false)
     maintainers=[]

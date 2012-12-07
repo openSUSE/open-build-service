@@ -1257,10 +1257,16 @@ XmlResult: collection
 GET /search/owner
 
   Search for default responsible person or group.
+  Using the binary parameter the lookup happens via a build binary name
+  Using user or group all sources where they are responsible are for are listed.
+  Either binary, user or group parameter is required.
 
 Parameters:
 
-  binary: required parameter: specify the binary package to search for
+  binary: specify the binary package to search for
+  user: specify a user login name to list his packages
+  group: specify a group title name to list their packages
+
   devel: true/false: include devel package definitions?
   limit: limit the number of results. Default is "1" single result. Use 0 for all hits.
   deepest: find the deepest source package entry
