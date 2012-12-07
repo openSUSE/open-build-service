@@ -19,6 +19,66 @@ class PackageEditSourcesTest < ActionDispatch::IntegrationTest
     assert page.has_text? "File #{file} of Package #{@package}"
   end
 
+  def open_add_file
+    click_link('Add file')
+    assert page.has_text? "Add File to"
+  end
+
+  def add_file file
+    file[:expect]      ||= :success
+    file[:name]        ||= ""
+    file[:upload_from] ||= :local_file
+    file[:upload_path] ||= ""
+
+    assert [:local_file, :remote_url].include? file[:upload_from]
+
+    fill_in "filename", with: file[:name]
+
+    if file[:upload_from] == :local_file then
+      find(:id, "file_type").select("local file")
+      begin
+        page.attach_file("file", file[:upload_path]) unless file[:upload_path].blank?
+      rescue Capybara::FileNotFound
+        if file[:expect] != :invalid_upload_path
+          raise "file was not found, but expect was #{file[:expect]}"
+        else
+          return
+        end
+      end
+    else
+      find(:id, "file_type").select("remote URL")
+      fill_in("file_url", with: file[:upload_path]) if file[:upload_path]
+    end
+    click_button("Save changes")
+
+    # get file's name from upload path in case it wasn't specified caller
+    file[:name] = File.basename(file[:upload_path]) if file[:name] == ""
+
+    if file[:expect] == :success
+      assert_equal "The file #{file[:name]} has been added.", flash_message
+      assert_equal :info, flash_message_type
+      assert find(:css, "#files_table tr#file-#{valid_xml_id(file[:name])}")
+      # TODO: Check that new file is in the list
+    elsif file[:expect] == :no_path_given
+      assert_equal :alert, flash_message_type
+      assert_equal flash_message, "No file or URI given."
+    elsif file[:expect] == :invalid_upload_path
+      assert_equal :alert, flash_message_type
+      assert page.has_text? "Add File to"
+    elsif file[:expect] == :no_permission
+      assert_equal :alert, flash_message_type
+      assert page.has_text? "Add File to"
+    elsif file[:expect] == :download_failed
+      # the _service file is added, but the download fails
+      fm = flash_messages
+      assert_equal 2, fm.count
+      assert_equal "The file #{file[:name]} has been added.", fm[0]
+      assert fm[1].include?("service download_url failed"), "expected '#{fm[1]}' to include 'Download failed'"
+    else
+      raise "Invalid value for argument expect."
+    end
+  end
+
   # ============================================================================
   #
   def edit_file new_content
@@ -56,14 +116,78 @@ class PackageEditSourcesTest < ActionDispatch::IntegrationTest
     open_file "TestPack.spec"
     edit_file NORMAL_SOURCE
   end
+
   
+  test "add_new_source_file_to_home_project_package" do
+    
+    open_add_file
+    add_file :name => "HomeSourceFile1"
+  end
+
+
+  test "add_source_file_from_local_file" do
+    
+    source_file = File.new "HomeSourceFile2.cc", "w"
+    source_file.write NORMAL_SOURCE
+    source_file.close
+    
+    open_add_file
+    add_file(
+      :upload_from => :local_file,
+      :upload_path => File.expand_path(source_file.path) )
+  end
+  
+    
+  test "add_source_file_from_local_file_override_name" do
+    
+    source_file = File.new "MySourceFile.cc", "w"
+    source_file.write NORMAL_SOURCE
+    source_file.close
+    
+    open_add_file
+    add_file(
+      :name => "HomeSourceFile3",
+      :upload_from => :local_file,
+      :upload_path => File.expand_path(source_file.path) )
+  end
+  
+  
+  test "add_source_file_from_empty_local_file" do
+    
+    source_file = File.new "EmptySource1.c", "w"
+    source_file.close
+    
+    open_add_file
+    add_file(
+      :upload_from => :local_file,
+      :upload_path => File.expand_path(source_file.path) )
+  end
+  
+  test "add_source_file_with_invalid_name" do
+  
+    open_add_file
+    add_file(
+      :name => "\/\/ invalid name",
+      :upload_from => :local_file,
+      :expect => :invalid_upload_path)
+  end
+
+
+  test "add_source_file_all_fields_empty" do
+  
+    open_add_file
+    add_file(
+      :name => "",
+      :upload_path => "",
+      :expect => :invalid_upload_path)
+  end
+
   # RUBY CODE ENDS HERE.
   # BELOW ARE APPENDED ALL DATA STRUCTURES USED BY THE TESTS.
   
 
 
 # -------------------------------------------------------------------------------------- #
-NORMAL_SOURCE = <<CODE_END
 NORMAL_SOURCE = <<CODE_END
 #include <QApplication>
 #include <QDir>

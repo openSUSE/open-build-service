@@ -20,6 +20,13 @@ echo 'deb http://download.opensuse.org/repositories/openSUSE:/Tools:/Unstable/xU
 #sudo apt-get update
 sudo apt-get update -o Dir::Etc::sourcelist="sources.list.d/opensuse.list" -o Dir::Etc::sourceparts="-" -o APT::Get::List-Cleanup="0"
 
+cat > /etc/apt/sources.list.d/security.list << EOF
+deb http://security.ubuntu.com/ubuntu precise-security main restricted
+deb http://security.ubuntu.com/ubuntu precise-security universe
+deb http://security.ubuntu.com/ubuntu precise-security multiverse
+EOF
+sudo apt-get update -o Dir::Etc::sourcelist="sources.list.d/security.list" -o Dir::Etc::sourceparts="-" -o APT::Get::List-Cleanup="0"
+
 # dependencies of backend
 sudo apt-get install --force-yes travis-deps libxml-parser-perl libfile-sync-perl python-rpm python-urlgrabber python-sqlitecachec python-libxml2
 
