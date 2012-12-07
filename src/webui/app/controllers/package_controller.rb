@@ -745,9 +745,11 @@ class PackageController < ApplicationController
       frontend.put_file(params[:file], :project => project, :package => package, :filename => filename, :comment => params[:comment])
       Directory.free_cache(:project => project, :package => package)
     rescue Timeout::Error => e
-      render json: { error: "Timeout when saving file. Please try again."}, status: 400
+      render json: { error: "Timeout when saving file. Please try again."}, status: 400 
+      return
     rescue ActiveXML::Transport::Error => e
       render json: { error: e.summary }, status: 400
+      return
     end
     render json: { status: 'ok' }
   end
