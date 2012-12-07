@@ -4,18 +4,16 @@
 <%= content_for :ready_function do %>
   $('#search_text').focus();
   $('#advanced_link' ).click(function() {
-    $('#advanced').toggle( "blind");
+    $('#advanced_container').toggle("drop");
+    return false;
   });
 <% end %>
 
 <h3><%= @pagetitle %>
-  <% unless @search_text.blank? %> for &quot;<%= @search_text -%>&quot; <% end %>
+  <% unless @search_text.blank? %> results for &quot;<%= @search_text -%>&quot; <% end %>
   <% unless @attribute.blank? %> with attribute &quot;<%= @attribute -%>&quot; <% end %>
   <% unless @results.nil? %>
-    <% if @results.length > 1%> &nbsp;(
-      <%= @results.length -%>
-      <%= "+" if @results.length == 200 %>
-    )
+    <% if @results.length > 1%>&nbsp;(<%= @results.length -%><%= "+" if @results.length == 200 %>)
     <% end %>
   <% end %>
 </h3>
@@ -25,11 +23,65 @@
     <p>
       <%= text_field_tag 'search_text', params[:search_text], :placeholder => 'Search', :id => 'search_input' -%>
       <%= submit_tag(nil, :id => 'search_button', :title => 'Search') %>
-      <a href="#" id="advanced_link">Advanced</a>
+      <button type="button" id="advanced_link">Advanced</button>
     </p>
-    <p id="advanced" style="display: none; width: 100px; height: 100px; background: #ccc; border: 1px solid #000;">
-    Advanced
+    <div id="advanced_container" style="display: none;">
+    <h4>Search for:</h4>
+    <p>
+    <% if params[:project].nil? or params[:project] == "1" %>
+      <input type="hidden" name="project" value="0" />
+      <input checked="checked" id="project" name="project" type="checkbox" value="1" />
+    <% elsif params[:project] == "0" %>
+      <input type="hidden" name="project" value="0" />
+      <input id="project" name="project" type="checkbox" value="1" />
+    <% end %>
+    <label for="project">projects</label>
+
+    <% if params[:package].nil? or params[:package] == "1" %>
+      <input type="hidden" name="package" value="0" />
+      <input checked="checked" id="package" name="package" type="checkbox" value="1" />
+    <% elsif params[:package] == "0" %>
+      <input type="hidden" name="package" value="0" />
+      <input id="package" name="package" type="checkbox" value="1" />
+    <% end %>
+    <label for="package">packages</label>
+
     </p>
+    <h4>Search in:</h4>
+    <p>
+    <% if params[:name].nil? or params[:name] == "1"%>
+      <input type="hidden" name="name" value="0" />
+      <input checked="checked" id="name" name="name" type="checkbox" value="1" />
+    <% elsif params[:name] == "0" %>
+      <input type="hidden" name="name" value="0" />
+      <input id="name" name="name" type="checkbox" value="1" />
+    <% end %>
+    <label for="name">name</label>
+
+    <% if params[:title].nil? or params[:title] == "0"%>
+      <input type="hidden" name="title" value="0" />
+      <input id="title" name="title" type="checkbox" value="1" />
+    <% elsif params[:title] == "1" %>
+      <input type="hidden" name="title" value="0" />
+      <input checked="checked" id="title" name="title" type="checkbox" value="1" />
+    <% end %>
+    <label for="title">title</label>
+    
+    <% if params[:description].nil? or params[:description] == "0"%>
+      <input type="hidden" name="description" value="0" />
+      <input id="description" name="description" type="checkbox" value="1" />
+    <% elsif params[:description] == "1" %>
+      <input type="hidden" name="description" value="0" />
+      <input checked="checked" id="description" name="description" type="checkbox" value="1" />
+    <% end %>
+    <label for="description">description</label>
+
+    </p>
+    <h4>Require attribute:</h4>
+    <p>
+      <%= select_tag :attribute, options_for_select(@attribute_list, params[:attribute]), :id => 'attribute_list' %>
+    </p>
+    </div>
   <% end %>
 </div>
 
@@ -42,17 +94,23 @@
       <% if result[:type] == 'project' %>
         <%= image_tag('project.png', class: 'project') %>
         <strong>
-        <%= link_to "#{result[:data].name}", { :controller => 'project', :action => :show, :project => result[:data] } -%>
+        <%= link_to "#{result[:data].name}", { :controller => 'project', :action => :show, :project => result[:data] }, class: "project-link"-%>
         </strong>
+        <% if result[:data].has_element?( 'title' ) && !result[:data].title.to_s.empty? %>
+            - <%= highlight( result[:data].title.to_s.dup, @search_text ) -%>
+          <% end %>
       <% elsif result[:type] == 'package' %>
         <%= image_tag('package.png', class: 'package') %>
         <strong>
-        <%= link_to "#{result[:data].name}", { :controller => 'package', :action => :show, :package => result[:data], :project => result[:data].project } -%>
+        <%= link_to "#{result[:data].name}", { :controller => 'package', :action => :show, :package => result[:data], :project => result[:data].project }, class: 'package-link'-%>
         </strong>
         in project 
-        <%= link_to result[:data].project, { :controller => 'project', :action => :show, :project => result[:data].project } -%>
+        <%= link_to result[:data].project, { :controller => 'project', :action => :show, :project => result[:data].project}, class: 'project-link' -%>
       <% end %>
       </p>
+      <% if result[:data].has_element?( 'title' ) %>
+      <h6><%= result[:data].title -%></h6>
+      <% end %>
       <% if result[:data].has_element?( 'description' ) && !result[:data].description.to_s.empty? %>
         <% descr = result[:data].description.to_s.dup[0,150] + '...' %>
       <% else %>

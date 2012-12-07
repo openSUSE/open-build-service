@@ -9,7 +9,7 @@ class SearchController < ApplicationController
   #  * *Args* :
   #   - +@search_text+ -> The string to search for
   #   - +@search_issue+ -> The issue number to search for
-  #   - +@attribute+ -> The attribute to search for
+  #   - +@search_attribute+ -> The attribute to search for
   #   - +:package+ -> Search for packages (default)
   #   - +:project+ -> Search for projects (default)
   #   - +:owner+ -> Search for owners
@@ -18,58 +18,61 @@ class SearchController < ApplicationController
   def index
     # If there is nothing to search for, just return
     return unless params[:search_text]
-    # Set the needed instance variables from the paraemters
-
     # If the search is too short, return too
-    if (!@search_text or @search_text.length < 2) && !@attribute && !@search_issue
-      flash[:error] = "Search string must contain at least two characters"
+    if (!@search_text or @search_text.length < 2) && !@search_attribute && !@search_issue
+      flash[:error] = "Search string must contain at least two characters."
       return
     end
     
     if @search_text.starts_with?("obs://")
     # The user entered an OBS-specific RPM disturl, redirect to package source files with respective revision
-      handle_disturl(@search_text)
+      unless handle_disturl(@search_text)
+        flash[:error] = "This disturl does not compute!"
+        return
+      end
     end
 
-    if params[:advanced]
-      @search_what = []
-      @search_what << 'package' if params[:package]
-      @search_what << 'project' if params[:project] and !@search_issue
-      @search_what << 'project' if params[:owner] and !@search_issue    
+    logger.debug "Searching for the string #{@search_text} in the #{@search_where}'s of #{@search_what}'s"
+    if @search_where.length < 1 and !@search_attribute and !@search_issue
+      flash[:error] = "You have to search for #{@search_text} in something. Click the advanced button..."
+      return
     end
 
     @search_what.each do |s_what|
     # build xpath predicate
-      if params[:advanced]
-        pand = []
-        if @search_text
-          p = []
-          p << "contains(@name,'#{@search_text}')" if params[:name]
-          p << "contains(title,'#{@search_text}')" if params[:title]
-          p << "contains(description,'#{@search_text}')" if params[:description]
-          pand << p.join(' or ')
-        end
-        if @search_issue
-          tracker_name = params[:issue_tracker].gsub(/ .*/,'')
-          # could become configurable in webui, further options would be "changed" or "deleted".
-          # best would be to prefer links with "added" on top of results
-          changes="@change='added' or @change='kept'" 
-          pand << "issue/[@name=\"#{@search_issue}\" and @tracker=\"#{tracker_name}\" and (#{changes})]"
-        end
-        if @attribute
-          pand << "contains(attribute/@name,'#{@attribute}')"
-        end
-        predicate = pand.join(' and ')
-        if predicate.empty?
-          flash[:error] = "You need to search for name, title, description or attributes."
-          return
-        end
-      else
-        predicate = "contains(@name,'#{@search_text}')"
+      pand = []
+      if @search_text
+        p = []
+        p << "contains(@name,'#{@search_text}')" if @search_where.include?('name')
+        p << "contains(title,'#{@search_text}')" if @search_where.include?('title')
+        p << "contains(description,'#{@search_text}')" if @search_where.include?('description')
+        pand << p.join(' or ')
+      end
+      if @search_issue
+        tracker_name = params[:issue_tracker].gsub(/ .*/,'')
+        # could become configurable in webui, further options would be "changed" or "deleted".
+        # best would be to prefer links with "added" on top of results
+        changes="@change='added' or @change='kept'" 
+        pand << "issue/[@name=\"#{@search_issue}\" and @tracker=\"#{tracker_name}\" and (#{changes})]"
+      end
+      if @search_attribute
+        pand << "contains(attribute/@name,'#{@search_attribute}')"
+      end
+      predicate = pand.join(' and ')
+      if predicate.empty?
+        flash[:error] = "You need to search for name, title, description or attributes."
+        return
       end
       collection = find_cached(Collection, :what => s_what, :predicate => "[#{predicate}]", :expires_in => 5.minutes)
       reweigh(collection, s_what)
       logger.debug "@results in index: #{@results.length}"
+      if @results.length < 1
+        flash[:note] = "Your search did not return any results."
+      end
+      if @results.length > 200
+        @results = @results[0..199]
+        flash[:note] = "Your search returned more than 200 results. Please be more precise."
+      end
     end
   end
 
@@ -94,8 +97,8 @@ class SearchController < ApplicationController
       unless disturl_package.nil? || disturl_rev.nil?
         redirect_to :controller => 'package', :action => 'show', :project => disturl_project, :package => disturl_package, :rev => disturl_rev and return
       end
-      flash[:error] = "This obs:// disturl doesn't compute!"
-      return
+      logger.debug "Computing disturl #{disturl} failed"
+      return false
   end
 
   # This method collects all results and gives them some weight
@@ -180,13 +183,6 @@ class SearchController < ApplicationController
     # return results reordered by weight
     r.sort! {|a,b| b[:weight] <=> a[:weight]}    
     @results.concat(r)
-    if @results.length < 1
-      flash.now[:error] = "Your search didn't return any results"
-    end
-    if @results.length > 200
-      @results = @results[0..199]
-      flash.now[:note] = "Your search returned more than 200 results. Please be more precise."
-    end
   end
 
   # This method logs the weight something is given to
@@ -202,25 +198,38 @@ class SearchController < ApplicationController
 
 private
 
-  # This sets the needed instance variables from the parameters
-  # we've got from the user input.
+  # This sets the needed defaults and input we've got for instance variables
   #
   # * *Returns* :
   #   - @search_text -> The search string we search for
   #   - @search_issue -> The issue number we search for
-  #   - @attribute -> The attribute we search for
+  #   - @search_owner -> The owner we search for
+  #   - @search_attribute -> The attribute we search for
+  #   - @results -> An empty array for the results
+  #   - @search_what -> An array of things we search for
   #
   def set_parameters
-    # default: searching for package and project
-    @search_what = %w{package project}
     @results = []
+    
     @search_text = ""
     @search_text = params[:search_text].strip unless params[:search_text].blank?
     @search_text = @search_text.gsub("'", "").gsub("[", "").gsub("]", "").gsub("\n", "")
+    
     @search_issue = nil
     @search_issue = params[:issue_name].strip unless params[:issue_name].blank?
-    @attribute = nil
-    @attribute = params[:attribute].strip unless params[:attribute].blank?
+    
+    @search_attribute = nil
+    @search_attribute = params[:attribute].strip unless params[:attribute].blank?
+    
+    @search_what = []
+    @search_what << 'package' if params[:package] == "1" or params[:package].nil?
+    @search_what << 'project' if params[:project] == "1" or params[:project].nil? and !@search_issue
+    @search_what << 'owner' if params[:owner] == "1" and !@search_issue
+    
+    @search_where = []
+    @search_where << 'name' if params[:name] == "1" or params[:name].nil?
+    @search_where << 'title' if params[:title] == "1"
+    @search_where << 'description' if params[:description] == "1"
   end
 
   def set_attribute_list
