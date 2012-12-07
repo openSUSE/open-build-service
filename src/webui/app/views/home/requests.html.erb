@@ -2,13 +2,6 @@
 <% @pagetitle = 'My Requests' if @displayed_user.to_s == @user.login %>
 <% @crumb_list = [@pagetitle] %>
 
-<h3><%= @pagetitle %></h3>
-
-<% if @displayed_user.to_s != @user.login %>
-  <ul>
-    <li><%= link_to('User profile', :controller => 'home', :user => @displayed_user.to_s) %></li>
-    <li><%= link_to('Home project', :controller => 'project', :action => 'show', :project => 'home:' + @displayed_user.to_s) %></li>
-  </ul>
-<% end %>
+<h3>Requests for <%= link_to(@displayed_user.to_s, :controller => 'home', :user => @displayed_user.to_s) %></h3>
 
 <%= render(:partial => 'shared/select_requests', :locals => {:requests => @requests, :userid => @displayed_user.to_s}) %>
