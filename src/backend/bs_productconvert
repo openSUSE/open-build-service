@@ -1016,7 +1016,9 @@ sub createSPECfileFlavors ( $$ ) {
         $product_flavors.="Provides:       product_flavor($product->{name}) = %version-%release\n";
       } else {
         # this is the product version and release, not a package release.
-        $product_flavors.="Provides:       product_flavor($product->{name}) = $product->{version}-$product->{release}\n";
+        my $release = $product->{release};
+        $release ||= "0";
+        $product_flavors.="Provides:       product_flavor($product->{name}) = $product->{version}-$release\n";
       }
       if (defined($flavor->{'productdependency'})){
 	foreach my $dependency (@{$flavor->{'productdependency'}}){
@@ -1321,7 +1323,6 @@ foreach my $medium ( @$media ){
           $kiwi->{preferences}->{version} = "1.0.0"; # hardcoded to fullfill kiwi scheme, real version is defined elsewhere
           $kiwi->{preferences}->{packagemanager} = "zypper" ; # hardcoded since no other support exist yet.
       
-          my $supportstates;
           ($kiwi->{instsource}, $supportstates) = createInstsource ( $prodRef, $medium, $arch->{archset} );
           if (keys %$supportstates > 0){
             %supportstates = %{$supportstates};
