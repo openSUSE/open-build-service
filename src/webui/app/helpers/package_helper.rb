@@ -46,7 +46,7 @@ module PackageHelper
       when ".sh" then return "shell"
     end
     ext = ext[1..-1]
-    return ext if ['diff', 'php', 'html', 'xml', 'css', 'perl'].include? ext
+    return ext if ['changes', 'spec', 'diff', 'php', 'html', 'xml', 'css', 'perl'].include? ext
     return ''
   end
 

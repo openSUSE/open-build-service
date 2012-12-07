@@ -1,3 +1,7 @@
+.CodeMirror {
+  font-size: 9pt;
+}
+
 .CodeMirror pre {
   /* We inherit 'overflow: auto;' from the Bento CSS theme. Both v8 and webkit engines thus
    * render garbage scrollbars. Setting to hidden is ok here, the '.CodeMirror pre' elements

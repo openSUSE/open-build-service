@@ -4,7 +4,7 @@ var cm_instance;
 	CodeMirror.defaults.supportedTypes 	= [];
 	CodeMirror.defaults.fileType 		= null;
 	CodeMirror.defaults.allowedFontSizes 	= [];
-	CodeMirror.defaults.fontSize 		= '10pt';
+	CodeMirror.defaults.fontSize 		= '9pt';
 	CodeMirror.defineInitHook(function(cm) {
 		this.cm = cm;
 		var bartype = this.cm.getOption("addToolBars");
