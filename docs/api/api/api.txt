@@ -1268,8 +1268,7 @@ Parameters:
   group: specify a group title name to list their packages
 
   devel: true/false: include devel package definitions?
-  limit: limit the number of results. Default is "1" single result. Use 0 for all hits.
-  deepest: find the deepest source package entry
+  limit: limit the number of results. Default is "1" single result. Use 0 for all hits, -1 for deepest match.
   project: specify project to search in
   filter: Comma seperated list of role names to be taken into account
   attribute: specify attribute which is marking the default project(s). Default is OBS:OwnerRootProject
@@ -1285,8 +1284,7 @@ GET /search/missing_owner
 Parameters:
 
   devel: true/false: include devel package definitions?
-  limit: limit the number of results. Default is "1" single result. Use 0 for all hits.
-  deepest: find the deepest source package entry
+  limit: limit the number of results.
   project: specify project to search in
   filter: Comma seperated list of role names to be taken into account
   attribute: specify attribute which is marking the default project(s). Default is OBS:OwnerRootProject

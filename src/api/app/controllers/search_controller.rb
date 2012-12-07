@@ -97,8 +97,6 @@ class SearchController < ApplicationController
     end
 
     # search in each marked project
-    deepest = false
-    deepest = true if params[:deepest]
     owners = []
     projects.each do |project|
 
@@ -120,8 +118,8 @@ class SearchController < ApplicationController
         end
       end
 
-      owners = project.find_assignees(obj, limit.to_i, devel, filter, deepest)  if obj and obj.class == String
-      owners = project.find_containers(obj, limit.to_i, devel, filter, deepest) if obj.nil? or obj.class != String
+      owners = project.find_assignees(obj, limit.to_i, devel, filter)  if obj and obj.class == String
+      owners = project.find_containers(obj, limit.to_i, devel, filter) if obj.nil? or obj.class != String
 
     end
 

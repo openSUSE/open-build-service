@@ -1234,7 +1234,6 @@ class Project < ActiveRecord::Base
 
     # construct where condition
     sql = nil
-    role_ids=[]
     rolefilter.each do |rf|
      if sql.nil?
        sql = "( "
@@ -1284,10 +1283,54 @@ class Project < ActiveRecord::Base
   end
   private :extract_maintainer
 
-  def find_containers(obj=nil, limit=1, devel=true, filter=["maintainer","bugowner"], deepest=false)
+  def lookup_package_owner(pkg, owner, limit, devel, filter, deepest)
+    # optional check for devel package instance first
+    m = nil
+    m = extract_maintainer(self, pkg.resolve_devel_package, filter, owner) if devel == true
+    m = extract_maintainer(self, pkg, filter, owner) unless m
+
+    # no match, loop about projects below with this package container name
+    pkg_match = pkg
+    unless m
+      pkg.project.expand_all_projects.each do |prj|
+        p = Package.find_by_project_and_name( prj, pkg.name )
+        next if p.nil?
+
+        m = extract_maintainer(self, p.resolve_devel_package, filter) if devel == true
+        m = extract_maintainer(self, p, filter) unless m
+        if m
+          pkg_match = p
+          break unless deepest
+        end
+      end
+    end
+
+    if owner.nil?
+      # special search for NOT maintained packages with given filter
+      # skip if maintainer is defined
+      return nil, limit if m
+
+      m = {}
+      m[:rootproject] = self.name
+      m[:project] = pkg_match.project.name
+      m[:package] = pkg_match.name
+
+      limit = limit - 1
+      return m, limit
+    end
+
+    # found entry
+    return m, (limit-1)
+  end
+  private :lookup_package_owner
+
+  def find_containers(owner=nil, limit=1, devel=true, filter=["maintainer","bugowner"] )
     maintainers=[]
     projects=self.expand_all_projects
 
+    match_all = (limit == 0)
+
+    matched_packages = {}
     deepest_match = nil
     projects.each do |prj| # project link order
       project = Project.get_by_name(prj)
@@ -1295,62 +1338,17 @@ class Project < ActiveRecord::Base
  
       project.packages.each do |pkg| # no order
 
-        # optional check for devel package instance first
-        m = nil
-        m = extract_maintainer(self, pkg.resolve_devel_package, filter, obj) if devel == true
-        m = extract_maintainer(self, pkg, filter, obj) unless m
+        next if matched_packages[pkg.name] # already found in upper project
 
-        # no match, loop about projects below with this package container name
-        pkg_match = pkg
-        unless m
-          found=false
-          projects.each do |belowprj|
-            if belowprj == prj
-              found=true
-              next
-            end
-            if found == true
-              p = Package.find_by_project_and_name( belowprj, pkg.name )
-              next if p.nil?
-
-              m = extract_maintainer(self, p.resolve_devel_package, filter) if devel == true
-              m = extract_maintainer(self, p, filter) unless m
-              if m
-                pkg_match = p
-                break
-              end
-            end
-          end
-        end
-
-        if obj.nil?
-          # special search for NOT maintained packages with given filter
-          # skip if maintainer is defined
-          next if m
-
-          m = {}
-          m[:rootproject] = self.name
-          m[:project] = pkg_match.project.name
-          m[:package] = pkg_match.name
-
-          maintainers << m
-          limit = limit - 1
-          return maintainers if limit == 0
-
-          next
-        end
+        m, limit = lookup_package_owner(pkg, owner, limit, devel, filter, false)
 
         next unless m
 
         # add entry
-        if deepest == true
-          deepest_match = m
-          next
-        else
-          maintainers << m
-        end
+        matched_packages[pkg.name] = 1
+        maintainers << m
         limit = limit - 1
-        return maintainers if limit == 0
+        return maintainers if limit < 1 and not match_all
       end
     end
 
@@ -1359,10 +1357,13 @@ class Project < ActiveRecord::Base
     return maintainers
   end
 
-  def find_assignees(binary_name, limit=1, devel=true, filter=["maintainer","bugowner"], deepest=false)
+  def find_assignees(binary_name, limit=1, devel=true, filter=["maintainer","bugowner"])
     maintainers=[]
     pkg=nil
     projects=self.expand_all_projects
+
+    match_all = (limit == 0)
+    deepest = (limit < 0)
 
     # binary search via all projects
     prjlist = projects.map { |p| "@project='#{CGI.escape(p)}'" }
@@ -1384,48 +1385,21 @@ class Project < ActiveRecord::Base
         pkg = Package.find_by_project_and_name( prj, b["package"] )
         next if pkg.nil?
 
-        # optional check for devel package instance first
-        m = nil
-        m = extract_maintainer(self, pkg.resolve_devel_package, filter) if devel == true
-        m = extract_maintainer(self, pkg, filter) unless m
-        # no match, loop about projects below with this package container name
-        unless m
-          found=false
-          projects.each do |belowprj|
-            if belowprj == prj
-              found=true
-              next
-            end
-            if found == true
-              pkg = Package.find_by_project_and_name( belowprj, b["package"] )
-              next if pkg.nil?
+        # the "" means any matching relationships will get taken
+        m, limit = lookup_package_owner(pkg, "", limit, devel, filter, deepest)
 
-              m = extract_maintainer(self, pkg.resolve_devel_package, filter) if devel == true
-              m = extract_maintainer(self, pkg, filter) unless m
-              break if m
-            end
-          end
-        end
-
-        # giving up here
         next unless m
 
-        # avoid double entries
-        found=false
-        maintainers.each do |ma|
-          found=true if ma[:project] == m[:project] and ma[:package] ==  m[:package]
-        end
-        next if found==true
-
-        # add entry
+        # remember as deepest candidate
         if deepest == true
           deepest_match = m
           next
-        else
-          maintainers << m
         end
+
+        # add entry
+        maintainers << m
         limit = limit - 1
-        return maintainers if limit == 0
+        return maintainers if limit < 1 and not match_all
       end
     end
 
