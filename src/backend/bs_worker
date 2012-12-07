@@ -1623,8 +1623,40 @@ sub getpreinstallimage {
   return $imagefile, \%imagebins, $imagesource, \%metas;
 }
 
+sub do_kiwimode {
+  my ($buildinfo) = @_;
+  my $kiwimode = 0;
+  $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
+  return $kiwimode;
+}
+
+sub do_deltamode {
+  my ($buildinfo) = @_;
+  my $deltamode = 0;
+  $deltamode = 1 if $buildinfo->{'file'} eq '_delta';
+
+  return $deltamode;
+}
+
+
+sub do_crossbuild {
+  my ($buildinfo) = @_;
+  my $rc = 0;
+  if (@{$buildinfo->{'sysroot'} || [] }) {
+    $rc=1;
+  }
+  return $rc;
+}
+
 sub getbinaries {
-  my ($buildinfo, $dir, $srcdir, $preinstallimagedata) = @_;
+  my ($buildinfo, $dir, $srcdir, $preinstallimagedata, $sysrootlabel) = @_;
+
+  my $sysroot;
+  my $crossbuild = do_crossbuild($buildinfo);
+  if ($crossbuild) {
+    my @sysroots = @{$buildinfo->{'sysroot'}};
+    $sysroot = (grep {$_->{'label'} eq $sysrootlabel } @sysroots)[0];
+  }
 
   mkdir_p($dir);
   my $kiwimode;
@@ -1638,13 +1670,21 @@ sub getbinaries {
   importbuild() unless defined &Build::queryhdrmd5;
 
   my @bdep = @{$buildinfo->{'bdep'} || []};
+  @bdep = grep {$_->{'sysroot'} eq $sysrootlabel } @bdep if $crossbuild;
+  my @orig_bdep = @bdep;
+
   my %bdep_noinstall = map {$_->{'name'} => 1} grep {$_->{'noinstall'} && ($_->{'repoarch'} || '') ne 'src'} @bdep;
   my %bdep_notmeta = map {$_->{'name'} => 1} grep {$_->{'notmeta'} && ($_->{'repoarch'} || '') ne 'src'} @bdep;
   @bdep = map {$_->{'name'}} grep {($_->{'repoarch'} || '') ne 'src'} @bdep;
 
   my %done;
   my @todo = @bdep;
-  die("no binaries needed for this package?\n") unless @todo;
+  if ( !$crossbuild  || ( $sysrootlabel || '' ) eq ($buildinfo->{'hostsysroot'}|| '') )
+  {
+    die("no binaries needed for this package?\n") unless @todo;
+  } else {
+    print "no binaries needed in sysroot $sysrootlabel, that's ok..\n" unless @todo;
+  }
   my @meta;
   my %meta;
   my $projid = $buildinfo->{'project'};
@@ -1680,7 +1720,16 @@ sub getbinaries {
   }
   $imagebins ||= {};
 
-  for my $repo (@{$buildinfo->{'path'} || []}) {
+  my (@package_paths, $package_arch);
+  if ($crossbuild) {
+    @package_paths = (@{$sysroot->{'paths'} || [] });
+    unshift @package_paths, @{$buildinfo->{'path'} || [] } if ($sysroot->{'label'} eq $buildinfo->{'targetsysroot'});
+    $package_arch = $sysroot->{'arch'};
+  } else {
+    @package_paths = (@{$buildinfo->{'path'} || [] });
+    $package_arch = $buildinfo->{'arch'};
+  }
+  for my $repo (@package_paths) {
     last if !@todo && !$kiwimode;
     my @args;
     my $ddir = $dir;
@@ -1699,7 +1748,7 @@ sub getbinaries {
     $nometa = 1 if $kiwimode || $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid;
     $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
-    my $got = getbinaries_cache($ddir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, $nometa, $dlbins, $bvls{"$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}"});
+    my $got = getbinaries_cache($ddir, $server, $repo->{'project'}, $repo->{'repository'}, $package_arch, $nometa, $dlbins, $bvls{"$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}"});
     for (keys %$got) {
       $done{$_} = $got->{$_}->{'name'};
       $meta{$_} = 1 if !$nometa && $got->{$_}->{'meta'};
@@ -1741,7 +1790,7 @@ sub getbinaries {
       $subpackre = substr($subpackre, 1);
       $subpackre = qr/$subpackre/;
     }
-    for my $dep (sort {"$a/" cmp "$b/"} map {$_->{'name'}} grep {!$_->{'notmeta'}} @{$buildinfo->{'bdep'} || []}) {
+    for my $dep (sort {"$a/" cmp "$b/"} map {$_->{'name'}} grep {!$_->{'notmeta'}} @orig_bdep) {
       my $m;
       $m = readstr("$dir/$dep.meta", 1) if $meta{$dep};
       if (!$m) {
@@ -1858,6 +1907,76 @@ sub patchkiwi {
   writexml($kiwifile, undef, $kiwi, $BSKiwiXML::kiwidesc);
 }
 
+sub fetch_and_prepare_rpmlist {
+  my ($buildinfo, $srcdir, $darch, $preinstallimagedata, $sysrootlabel) = @_; 
+
+  my $pkgdir = "$buildroot/.pkgs";
+
+  my $deltamode = do_deltamode($buildinfo);
+  my $crossbuild = do_crossbuild($buildinfo);
+  my $sysroot;
+
+  if ($crossbuild)
+  {
+    my @sysroots = @{$buildinfo->{'sysroot'}};
+    $sysroot = (grep {$_->{'label'} eq $sysrootlabel } @sysroots)[0];
+    my $hostsysroot = (grep {$_->{'path'} eq '/' } @sysroots)[0];
+
+    if ($sysrootlabel ne $hostsysroot->{'label'}) {
+      $pkgdir = "$buildroot/.pkgs.$sysrootlabel";
+    }
+  }
+  # changed to cleandir so that pkgdir can be a symlink
+  BSUtil::cleandir($pkgdir) if -d $pkgdir;
+
+  my @meta;
+
+   if ($deltamode) {
+     print "packages, ";
+     getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata, $sysrootlabel);
+     my $spec = readstr("$statedir/worker/worker-deltagen.spec", 1) || readstr("worker-deltagen.spec");
+     writestr("$srcdir/worker-deltagen.spec", undef, $spec);
+     $buildinfo->{'file'} = 'worker-deltagen.spec';
+  } else {
+     print "packages, ";
+     push @meta, getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata, $sysrootlabel);
+  }
+
+  # build rpmlist for build script
+  my @rpmlist;
+  my @bdep = @{$buildinfo->{'bdep'} || []};
+  @bdep = grep {$_->{'sysroot'} eq $sysrootlabel } @bdep if $crossbuild;
+  for my $bdep (@bdep) {
+    next if $bdep->{'package'} || $bdep->{'noinstall'} || ($bdep->{'repoarch'} && $bdep->{'repoarch'} eq 'src' );
+    my $bin = $bdep->{'name'};
+    if (-e "$pkgdir/$bin.rpm") {
+      push @rpmlist, "$bin $pkgdir/$bin.rpm";
+    } elsif (-e "$pkgdir/$bin.deb") {
+      push @rpmlist, "$bin $pkgdir/$bin.deb";
+    } else {
+      die("missing package: $bin\n");
+    }
+  }
+  push @rpmlist, "localkiwi $localkiwi/localkiwi.rpm" if $localkiwi && -e "$localkiwi/localkiwi.rpm";
+  push @rpmlist, "preinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'preinstall'} } @bdep);
+  push @rpmlist, "vminstall: ".join(' ', map {$_->{'name'}} grep {$_->{'vminstall'} } @bdep);
+  push @rpmlist, "runscripts: ".join(' ', map {$_->{'name'}} grep {$_->{'runscripts'} } @bdep);
+  if (grep {$_->{'cbpreinstall'}} @bdep) {
+    push @rpmlist, "cbpreinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'cbpreinstall'} } @bdep);
+  }
+  if (grep {$_->{'cbinstall'}} @bdep) {
+    push @rpmlist, "cbinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'cbinstall'} } @bdep);
+  }
+
+####
+  if ($crossbuild) {
+    @meta = grep{ $_ !~ /\//} @meta;
+  }
+
+  return { rpmlist => \@rpmlist, meta => \@meta };
+}
+
+
 sub dobuild {
   my ($buildinfo) = @_;
 
@@ -1866,10 +1985,19 @@ sub dobuild {
   my $repoid = $buildinfo->{'repository'};
   my $arch = $buildinfo->{'arch'};
   my $helperarch = $buildinfo->{'hostarch'} || $arch;
-  my $kiwimode;
-  $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
-  my $deltamode;
-  $deltamode = 1 if $buildinfo->{'file'} eq '_delta';
+  my @sysroots = @{$buildinfo->{'sysroot'} || [] };
+  my $crossbuild = do_crossbuild($buildinfo);
+  my $deltamode = do_deltamode($buildinfo);
+  my $kiwimode = do_kiwimode($buildinfo);
+
+  my ($hostsysroot, $targetsysroot);
+
+  if ($crossbuild) {
+    $hostsysroot = (grep {$_->{'path'} eq '/'}  @sysroots)[0];# if $do_crossbuild;
+    $targetsysroot = (grep {$_->{'label'} eq $buildinfo->{'targetsysroot'} } @sysroots)[0];
+  }
+
+
 
   my $helper = '';
   /^\Q$helperarch\E:(.*)$/ && ($helper = $1) for @{$BSCando::cando{$hostarch}};
@@ -1882,7 +2010,6 @@ sub dobuild {
   print "\n";
 
   my $srcdir    = "$buildroot/.build-srcdir";
-  my $pkgdir    = "$buildroot/.pkgs";
   my $oldpkgdir = "$buildroot/.build.oldpackages";
 
   if ($vm_tmpfs_mode) {
@@ -1895,22 +2022,17 @@ sub dobuild {
   unlink("$buildroot/.build.meta");
   rm_rf("$buildroot/.build.packages") if -d "$buildroot/.build.packages";
   rm_rf($srcdir) if -d $srcdir;
-  # changed to cleandir so that pkgdir can be a symlink
-  BSUtil::cleandir($pkgdir) if -d $pkgdir;
   rm_rf($oldpkgdir) if -d $oldpkgdir;
 
   my @meta;
   my $preinstallimagedata = {};
   print "fetching sources, ";
   mkdir($srcdir) || die("mkdir $srcdir: $!\n");
+
+  # fetch sources
   if ($deltamode) {
     push @meta, getdeltasources($buildinfo, $srcdir);
-    print "packages, ";
-    getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
     undef $oldpkgdir;
-    my $spec = readstr("$statedir/worker/worker-deltagen.spec", 1) || readstr("worker-deltagen.spec");
-    writestr("$srcdir/worker-deltagen.spec", undef, $spec);
-    $buildinfo->{'file'} = 'worker-deltagen.spec';
   } else {
     push @meta, getsources($buildinfo, $srcdir);
     importbuild() unless defined &Build::queryhdrmd5;
@@ -1928,9 +2050,32 @@ sub dobuild {
 	close F;
       }
     }
-    print "packages, ";
-    push @meta, getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
   }
+######################################## 
+  if ($crossbuild)
+  {
+    foreach my $sr (@sysroots)
+    {
+      my $dlresult = fetch_and_prepare_rpmlist($buildinfo, $srcdir, $sr->{'arch'}, $preinstallimagedata, $sr->{'label'});
+      my $rpmlist;
+      if ( $sr->{'label'} eq $hostsysroot->{'label'} )
+      {
+        $rpmlist = ".build.rpmlist";
+        my @hostsysmeta = map {$_ = "$_"."::$hostsysroot->{'project'}::$hostsysroot->{'repository'}::$hostsysroot->{'arch'}"} @{$dlresult->{'meta'}};
+        push @meta, @hostsysmeta;
+      } else {
+        $rpmlist = ".build.$sr->{'label'}.rpmlist";
+        push @meta, @{$dlresult->{'meta'}} if ($sr->{'label'} eq $buildinfo->{'targetsysroot'});
+      }
+      writestr("$buildroot/$rpmlist", undef, join("\n", @{$dlresult->{'rpmlist'}})."\n");
+    }
+  } else {
+    my $rpmlist = ".build.rpmlist";
+    my $dlresult = fetch_and_prepare_rpmlist($buildinfo, $srcdir, $arch, $preinstallimagedata, undef);
+    push @meta, @{$dlresult->{'meta'}};
+    writestr("$buildroot/$rpmlist", undef, join("\n", @{$dlresult->{'rpmlist'}})."\n");
+  }
+######################################## 
   $preinstallimagedata ||= {};
 
   writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
@@ -1952,38 +2097,6 @@ sub dobuild {
 
   my @args;
   push @args, $helper if $helper;
-
-  # build rpmlist for build script
-  my @rpmlist;
-  my @bdep = @{$buildinfo->{'bdep'} || []};
-  my $imagebins = $preinstallimagedata->{'imagebins'} || {};
-  for my $bdep (@bdep) {
-    next if $bdep->{'package'} || $bdep->{'noinstall'} || ($bdep->{'repoarch'} && $bdep->{'repoarch'} eq 'src');
-    my $bin = $bdep->{'name'};
-    if ($imagebins->{$bin}) {
-	push @rpmlist, "$bin preinstallimage";
-	next;
-    }
-    for my $osuf (@binsufs, '__notfound') {
-      die("missing package: $bin\n") if $osuf eq '__notfound';
-      next unless -e "$pkgdir/$bin.$osuf";
-      push @rpmlist, "$bin $pkgdir/$bin.$osuf";
-      last;
-    }
-  }
-  push @rpmlist, "preinstallimage: $pkgdir/$preinstallimagedata->{'imagename'}" if $preinstallimagedata->{'imagename'};
-  push @rpmlist, "preinstallimagesource: $preinstallimagedata->{'imagesource'}" if $preinstallimagedata->{'imagesource'};
-  push @rpmlist, "localkiwi $localkiwi/localkiwi.rpm" if $localkiwi && -e "$localkiwi/localkiwi.rpm";
-  push @rpmlist, "preinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'preinstall'}} @bdep);
-  push @rpmlist, "vminstall: ".join(' ', map {$_->{'name'}} grep {$_->{'vminstall'}} @bdep);
-  push @rpmlist, "runscripts: ".join(' ', map {$_->{'name'}} grep {$_->{'runscripts'}} @bdep);
-  if (grep {$_->{'cbpreinstall'}} @bdep) {
-    push @rpmlist, "cbpreinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'cbpreinstall'}} @bdep);
-  }
-  if (grep {$_->{'cbinstall'}} @bdep) {
-    push @rpmlist, "cbinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'cbinstall'}} @bdep);
-  }
-  writestr("$buildroot/.build.rpmlist", undef, join("\n", @rpmlist)."\n");
 
   print "building...\n";
 
@@ -2023,6 +2136,14 @@ sub dobuild {
   push @args, '--lint';
   push @args, '--dist', "$buildroot/.build.config";
   push @args, '--rpmlist', "$buildroot/.build.rpmlist";
+  if ($crossbuild)
+  {
+    foreach my $sysroot (@sysroots)
+    {
+      push @args, '--sysroot', "$sysroot->{'path'}:$buildroot/.build.$sysroot->{'label'}.rpmlist" if $sysroot->{'label'} ne $hostsysroot->{'label'};
+    }
+    push @args, '--sysroot-target', $targetsysroot->{'path'} ;#FIXME how to define the sysroot which is the targets one?!
+  }
   push @args, '--logfile', "$buildroot/.build.log";
   push @args, '--release', "$release" if defined $release;
   push @args, '--debug' if $buildinfo->{'debuginfo'};
@@ -2032,6 +2153,7 @@ sub dobuild {
   push @args, '--disturl', $disturl;
   push @args, '--linksources' if $localkiwi;
   push @args, '--signdummy' if $kiwimode && (!$localkiwi || ! -e "$localkiwi/localkiwi.rpm") && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product' && -e "$statedir/build/signdummy";
+  push @args, '--crossbuild' if $crossbuild;
   push @args, "$srcdir/$buildinfo->{'file'}";
   qsystem(@args);
 
