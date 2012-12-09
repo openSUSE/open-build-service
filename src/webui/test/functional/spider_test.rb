@@ -42,8 +42,11 @@ class SpiderTest < ActionDispatch::IntegrationTest
   def raiseit(message, url)
     # known issues
     return if url =~ %r{/package/binary\?.*project=BinaryprotectedProject}
-    return if url.end_with? "/package/files?package=target&project=SourceprotectedProject"
+    return if url.end_with? "/package/binary?arch=i586&filename=package-1.0-1.src.rpm&package=pack&project=SourceprotectedProject&repository=repo"
     return if url.end_with? "/package/revisions?package=pack&project=SourceprotectedProject"
+    return if url.end_with? "/package/revisions?package=target&project=SourceprotectedProject"
+    return if url.end_with? "/package/show?package=kdelibs&project=kde4&rev=1"
+    return if url.end_with? "/package/show?package=target&project=SourceprotectedProject"
     return if url.end_with? "/package/users?package=pack&project=SourceprotectedProject"
     return if url.end_with? "/package/view_file?file=my_file&package=pack2&project=BaseDistro%3AUpdate&rev=1"
     return if url.end_with? "/package/view_file?file=my_file&package=pack2&project=Devel%3ABaseDistro%3AUpdate&rev=1"
@@ -53,11 +56,9 @@ class SpiderTest < ActionDispatch::IntegrationTest
     return if url.end_with? "/package/view_file?file=myfile&package=pack2_linked&project=BaseDistro2.0&rev=1"
     return if url.end_with? "/package/view_file?file=package.spec&package=pack2_linked&project=BaseDistro2.0%3ALinkedUpdateProject&rev=1"
     return if url.end_with? "/package/view_file?file=package.spec&package=pack2_linked&project=BaseDistro2.0&rev=1"
-    return if url.end_with? "/project/show?project=HiddenRemoteInstance"
-    return if url.end_with? "/package/binary?arch=i586&filename=package-1.0-1.src.rpm&package=pack&project=SourceprotectedProject&repository=repo"
-    return if url.end_with? "/project/meta?project=HiddenRemoteInstance"
-    return if url.end_with? "/package/revisions?package=target&project=SourceprotectedProject"
     return if url.end_with? "/project/edit?project=RemoteInstance"
+    return if url.end_with? "/project/meta?project=HiddenRemoteInstance"
+    return if url.end_with? "/project/show?project=HiddenRemoteInstance"
 
     $stderr.puts "Found #{message} on #{url}, crawling path"
     indent = ' '

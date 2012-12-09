@@ -93,6 +93,7 @@ class ActionDispatch::IntegrationTest
     Capybara.reset_sessions!
     ActiveXML::transport.http_do(:post, "/test/test_end", timeout: 100)
     Capybara.use_default_driver
+    Rails.cache.clear
     #puts "#{self.__name__} took #{Time.now - @starttime}"
   end
 
