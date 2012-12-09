@@ -176,7 +176,7 @@ class ApplicationController < ActionController::Base
   def required_parameters(*parameters)
     parameters.each do |parameter|
       unless params.include? parameter.to_s
-        raise ActionController::RoutingError.new "Required Parameter #{parameter} missing"
+        raise ActionController::RoutingError.new "Required Parameter #{parameter} missing in #{request.url}"
       end
     end
   end

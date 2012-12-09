@@ -1,72 +1,94 @@
 # -*- coding: utf-8 -*-
-# encoding: utf-8
+require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"        
 
-class TC07__CreatePackage < TestCase
+class PackageCreateTest < ActionDispatch::IntegrationTest
 
+  setup do
+    @project = 'home:Iggy' 
+  end
 
-  test :create_home_project_package_for_user do
-  depend_on :create_home_project_for_user
+  def open_new_package
+    click_link("Create package")
+    assert page.has_text? "Create New Package for "
+  end
+
+  def create_package new_package
+    new_package[:expect]      ||= :success
+    new_package[:name]        ||= ""
+    new_package[:title]       ||= ""
+    new_package[:description] ||= ""
+
+    new_package[:description].squeeze!(" ")
+    new_package[:description].gsub!(/ *\n +/ , "\n")
+    new_package[:description].strip!
+    message_prefix = "Package '#{new_package[:name]}' "
+
+    fill_in "name", with: new_package[:name]
+    fill_in "title", with: new_package[:title]
+    fill_in "description", with: new_package[:description]
+    
+    click_button("Save changes")
+
+    if new_package[:expect] == :success
+      assert_equal message_prefix + "was created successfully", flash_message
+      assert_equal :info, flash_message_type
+      new_package[:description] = "No description set" if new_package[:description].empty?
+      assert_equal new_package[:description].gsub(%r{\s+}, ' '), find(:id, "description_text").text
+    elsif new_package[:expect] == :invalid_name
+      assert_equal "Invalid package name: '#{new_package[:name]}'", flash_message
+      assert_equal :alert, flash_message_type
+      assert page.has_text? "Create New Package for "
+    elsif new_package[:expect] == :already_exists
+      assert_equal message_prefix + "already exists in project '#{@project}'", flash_message
+      assert_equal :alert, flash_message_type
+      assert page.has_text? "Create New Package for "
+    else
+      throw "Invalid value for argument expect(must be :success, :invalid_name, :already_exists)"
+    end
+  end
   
-    navigate_to ProjectOverviewPage,
-      :user => $data[:user1],
-      :project => "home:user1"
+  test "create_home_project_package_for_user" do
+
+    login_Iggy
+    visit project_show_path(project: "home:Iggy")
     open_new_package
     create_package(
       :name => "HomePackage1",
       :title => "Title for HomePackage1", 
-      :description => "Empty home project package created by #{current_user[:login]}.")
-  end
+      :description => "Empty home project package created")
 
-
-  test :create_home_project_package_for_second_user do
-  depend_on :create_home_project_for_second_user
-  
-    navigate_to ProjectOverviewPage,
-      :user => $data[:user2],
-      :project => "home:user2"
+    # now check duplicated name
+    visit project_show_path(project: "home:Iggy")
     open_new_package
     create_package(
-      :name => "Home2Package1",
-      :title => "Title for Home2Package1", 
-      :description => "Empty home project package created by #{current_user[:login]}.")
+      :name => "HomePackage1",
+      :title => "Title for HomePackage1", 
+      :description => "Empty home project package created",
+      :expect => :already_exists)
+
+    # tear down
+    delete_package('home:Iggy', 'HomePackage1')
   end
 
+  test "create_global_project_package" do
 
+    login_king
+    visit project_show_path(project: "LocalProject")
 
-  test :create_subproject_package_for_user do
-  depend_on :create_subproject_for_user
-
-    navigate_to ProjectOverviewPage,
-      :user => $data[:user1],
-      :project => "home:user1:SubProject1"
-    open_new_package
-    create_package(
-      :name => "SubPackage1",
-      :title => "Title for SubPackage1", 
-      :description => "Empty subproject package created by #{current_user[:login]}.")
-  end
-
-
-  test :create_global_project_package do
-  depend_on :create_global_project
-
-    navigate_to ProjectOverviewPage,
-      :user => $data[:admin],
-      :project => "PublicProject1"
     open_new_package
     create_package(
       :name => "PublicPackage1",
       :title => "Title for PublicPackage1", 
-      :description => "Empty public project package created by #{current_user[:login]}.")
+      :description => "Empty public project package created")
+    # tear down
+    delete_package('LocalProject', 'PublicPackage1')
   end
 
+  test "create_package_without_name" do
 
-  test :create_package_without_name do
-  depend_on :create_home_project_for_user
-    
-    navigate_to ProjectOverviewPage,
-      :user => $data[:user1],
-      :project => "home:user1"
+    login_Iggy
+    visit project_show_path(project: "home:Iggy")
+
     open_new_package
     create_package(
       :name => "",
@@ -76,12 +98,11 @@ class TC07__CreatePackage < TestCase
   end
   
   
-  test :create_package_name_with_spaces do
-  depend_on :create_home_project_for_user
+  test "create_package_name_with_spaces" do
   
-      navigate_to ProjectOverviewPage,
-      :user => $data[:user1],
-      :project => "home:user1"
+    login_Iggy
+    visit project_show_path(project: "home:Iggy")
+
     open_new_package
     create_package(
       :name => "invalid package name",
@@ -90,67 +111,60 @@ class TC07__CreatePackage < TestCase
   end
 
   
-  test :create_package_with_only_name do
-  depend_on :create_home_project_for_user
-  
-      navigate_to ProjectOverviewPage,
-      :user => $data[:user1],
-      :project => "home:user1"
+  test "create_package_with_only_name" do
+
+    login_Iggy
+    visit project_show_path(project: "home:Iggy")
+
     open_new_package
     create_package(
       :name => "HomePackage-OnlyName",
       :description => "")
+    # tear down
+    delete_package('home:Iggy', 'HomePackage-OnlyName')
   end
 
   
-  test :create_package_with_long_description do
-  depend_on :create_home_project_for_user
-    
-    navigate_to ProjectOverviewPage,
-      :user => $data[:user1],
-      :project => "home:user1"
+  test "create_package_with_long_description" do
+
+    login_Iggy
+    visit project_show_path(project: "home:Iggy")
+
     open_new_package
     create_package(
       :name => "HomePackage-LongDesc",
       :title => "Title for HomePackage-LongDesc", 
       :description => LONG_DESCRIPTION)
+
+    # tear down
+    delete_package('home:Iggy', 'HomePackage-LongDesc')
+
   end
 
   
-  test :create_package_duplicate_name do
-  depend_on :create_home_project_package_for_user
-  
-    navigate_to ProjectOverviewPage,
-      :user => $data[:user1],
-      :project => "home:user1"
-    open_new_package
-    create_package(
-      :name => "HomePackage1",
-      :title => "Title for HomePackage1", 
-      :description => "Empty home project package created by #{current_user[:login]}.",
-      :expect => :already_exists)
-  end
-  
-  test :create_package_strange_name do
-    depend_on :create_home_project_package_for_user
-    navigate_to ProjectOverviewPage,
-       user: $data[:user1],
-       project: "home:user1"
+  test "create_package_strange_name" do
+
+    login_Iggy
+    visit project_show_path(project: "home:Iggy")
+
     open_new_package
     create_package name: "Testing包صفقة", expect: :invalid_name
 
     create_package name: "Cplus+"
-    packageurl = $page.current_url
-    navigate_to ProjectOverviewPage,  project: "home:user1"
-    wait_for_javascript
+    packageurl = page.current_url
+    visit project_show_path( project: "home:Iggy")
+
     foundcplus=nil
-    $page.driver.find_elements(css: "#packages_table a").each do |link|
-       next unless link.text == 'Cplus+'
-       foundcplus=link.attribute('href')	
-       break
+    page.all("#packages_table a").each do |link|
+      next unless link.text == 'Cplus+'
+      foundcplus=link['href']
+      break
     end
     assert !foundcplus.nil?
     assert_equal packageurl, foundcplus
+
+    # tear down
+    delete_package('home:Iggy', 'Cplus+')
   end
 
   # RUBY CODE ENDS HERE.

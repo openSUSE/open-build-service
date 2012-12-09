@@ -33,6 +33,8 @@ class SpiderTest < ActionDispatch::IntegrationTest
       next if link =~ %r{/mini-profiler-resources}
       # that link is just a top ref
       next if link.end_with? "/package/rdiff"
+      # no idea where this link comes from
+      next if link.end_with? "/package/show?project=HiddenRemoteInstance"
       unless @pages_visited.has_key? link
         @pages_to_visit[link] ||= [baseuri.to_s, tag.content]
       end
@@ -78,7 +80,7 @@ class SpiderTest < ActionDispatch::IntegrationTest
       @pages_to_visit.delete theone
 
       begin
-	puts "V #{theone} #{@pages_to_visit.length}/#{@pages_visited.keys.length+@pages_to_visit.length}"
+	#puts "V #{theone} #{@pages_to_visit.length}/#{@pages_visited.keys.length+@pages_to_visit.length}"
         page.visit(theone)
         page.first(:id, 'header-logo')
       rescue Timeout::Error

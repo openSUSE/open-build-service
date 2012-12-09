@@ -4,11 +4,7 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 class PackageControllerTest < ActionDispatch::IntegrationTest
 
   def delete_and_recreate_kdelibs
-    visit(package_show_path(package: 'kdelibs', project: 'kde4'))
-    find(:id, 'delete-package').click
-    assert find(:id, 'del_dialog').has_text? 'Delete Confirmation'
-    find_button("Ok").click
-    assert find('#flash-messages').has_text? "Package 'kdelibs' was removed successfully"
+    delete_package 'kde4', 'kdelibs'
 
     # now we need to recreate it again to avoid teardown to leave a mess in backend/API
     find(:link, "Create package").click

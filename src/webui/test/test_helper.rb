@@ -142,5 +142,13 @@ class ActionDispatch::IntegrationTest
     return :alert if result["class"].include? "alert"
   end
 
+  # helper function for teardown
+  def delete_package project, package
+    visit package_show_path(package: package, project: project)
+    find(:id, 'delete-package').click
+    assert find(:id, 'del_dialog').has_text? 'Delete Confirmation'
+    find_button("Ok").click
+    assert find('#flash-messages').has_text? "Package '#{package}' was removed successfully"
+  end
 
 end
