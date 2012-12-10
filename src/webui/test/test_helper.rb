@@ -30,6 +30,7 @@ class ActionDispatch::IntegrationTest
       fill_in 'Password', with: password
       click_button 'Login'
     end
+    @current_user = user
     if do_assert
       assert find('#flash-messages').has_content?("You are logged in now")
     end
@@ -53,8 +54,13 @@ class ActionDispatch::IntegrationTest
   end
 
   def logout
+    @current_user = nil
     ll = page.first('#logout-link')
     ll.click if ll
+  end
+
+  def current_user
+    @current_user
   end
   
   @@display = nil
