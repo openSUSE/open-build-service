@@ -24,7 +24,7 @@ class ProjectEditTest < ActionDispatch::IntegrationTest
   # Expects arguments grouped into a hash.
   #
   def change_project_info new_info
-    assert !new_info[:title].blank? or !new_info[:description].blank?
+    assert !new_info[:title].blank? || !new_info[:description].blank?
 
     click_link 'Edit description'
     assert page.has_text? "Edit Project Information of "
