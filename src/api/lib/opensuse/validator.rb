@@ -72,7 +72,9 @@ module ActionController
 end
 
 module Suse
-  class ValidationError < Exception; end
+  class ValidationError < APIException
+    setup 'validation_failed'
+  end
   
   class Validator
     @schema_location = CONFIG['schema_location']

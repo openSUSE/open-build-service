@@ -1,8 +1,13 @@
 require 'net/http'
 require 'benchmark'
+require 'api_exception'
 
 module Suse
   class Backend
+
+    class IllegalEncodingError < APIException
+      setup 'invalid_text_encoding'
+    end
 
     class HTTPError < Exception
       def initialize(resp)

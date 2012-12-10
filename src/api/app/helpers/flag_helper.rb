@@ -1,7 +1,8 @@
 module FlagHelper
 
-  class SaveError < Exception; end
-  class InvalidFlag < Exception; end
+  class InvalidFlag < APIException
+    setup 'invalid_flag'
+  end
 
   def type_flags(type)
     ret = []

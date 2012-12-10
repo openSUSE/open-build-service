@@ -10,7 +10,9 @@ class BuildControllerTest < ActionController::IntegrationTest
   fixtures :all
 
   def setup
+    super
     prepare_request_valid_user
+    wait_for_scheduler_start
   end
 
   def test_index

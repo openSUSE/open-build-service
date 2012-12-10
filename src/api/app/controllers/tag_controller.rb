@@ -3,6 +3,10 @@ class TagController < ApplicationController
   validate_action :tags_by_user_and_object => {:method => :get, :response => :tags}
   validate_action :project_tags => {:method => :get, :response => :tags}
   validate_action :package_tags => {:method => :get, :response => :tags}
+
+  class TagNotFoundError < APIException
+    setup 'tag_not_found', 404, "Tag not found"
+  end
   
   #list all available tags as xml list
   def list_xml
@@ -53,7 +57,6 @@ class TagController < ApplicationController
     @tags = @user.tags.group(:name).all
     @tags
   end
-  
   
   def get_projects_by_tag ( do_render=true )
     @tag = params[:tag]      

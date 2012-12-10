@@ -1,13 +1,25 @@
+require 'api_exception'
+
 class Package < ActiveRecord::Base
   include FlagHelper
 
   class CycleError < Exception; end
-  class DeleteError < Exception
+  class DeleteError < APIException
     attr_accessor :packages
+    setup "delete_error"
   end
-  class ReadAccessError < Exception; end
-  class UnknownObjectError < Exception; end
-  class ReadSourceAccessError < Exception; end
+  class SaveError < APIException
+    setup "package_save_error"
+  end
+  class ReadAccessError < APIException
+    setup 'unknown_package', 404, "Unknown package"
+  end
+  class UnknownObjectError < APIException
+    setup 'unknown_package', 404, "Unknown package"
+  end
+  class ReadSourceAccessError < APIException
+    setup 'source_access_no_permission', 403, "Source Access not allowed"
+  end
   belongs_to :project, foreign_key: :db_project_id
 
   has_many :package_user_role_relationships, :dependent => :destroy, foreign_key: :db_package_id

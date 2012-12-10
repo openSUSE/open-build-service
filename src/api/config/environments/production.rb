@@ -16,12 +16,6 @@ OBSApi::Application.configure do
   # Disable delivery errors if you bad email addresses should just be ignored
   # config.action_mailer.raise_delivery_errors = false
 
-  # Exception notifications via ExceptionNotifier
-  # config.middleware.use ExceptionNotifier, 
-  # :email_prefix => "[OBS API Error] ", 
-  # :sender_address => %{"OBS API" <admin@opensuse.org>}, 
-  # :exception_recipients => %w{obs-errors@opensuse.org}
-
 end
 
 # LDAP port defaults to 636 for ldaps and 389 for ldap and ldap with StartTLS

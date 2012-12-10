@@ -4,6 +4,10 @@ include ValidationHelper
 
 class SourceController < ApplicationController
 
+  class IllegalRequestError < APIException
+    setup 'illegal_request', 404, "Illegal request"
+  end
+
   validate_action :index => {:method => :get, :response => :directory}
   validate_action :projectlist => {:method => :get, :response => :directory}
   validate_action :packagelist => {:method => :get, :response => :directory}
@@ -1932,13 +1936,11 @@ class SourceController < ApplicationController
     # Raising permissions afterwards is not secure. Do not allow this by default.
     unless @http_user.is_admin?
       if params[:flag] == "access" and params[:status] == "enable" and not prj.enabled_for?('access', params[:repository], params[:arch])
-        raise Project::ForbiddenError.new("change_project_protection_level",
-                                            "admin rights are required to raise the protection level of a project")
+        raise Project::ForbiddenError.new
       end
       if params[:flag] == "sourceaccess" and params[:status] == "enable" and
           !prj.enabled_for?('sourceaccess', params[:repository], params[:arch])
-        raise Project::ForbiddenError.new("change_project_protection_level",
-                                            "admin rights are required to raise the protection level of a project")
+        raise Project::ForbiddenError.new
       end
     end
 

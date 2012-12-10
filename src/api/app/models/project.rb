@@ -3,18 +3,25 @@ require 'opensuse/backend'
 class Project < ActiveRecord::Base
   include FlagHelper
 
-  class CycleError < Exception; end
-  class DeleteError < Exception; end
-  class ReadAccessError < Exception; end
-  class UnknownObjectError < Exception; end
-  class ForbiddenError < Exception
-    def initialize(errorcode, message)
-      @errorcode = errorcode
-      super(message)
-    end
-    def errorcode
-      @errorcode
-    end
+  class CycleError < APIException
+    setup "project_cycle"
+  end
+  class DeleteError < APIException
+    setup "delete_error"
+  end
+  # unknown objects and no read access permission are handled in the same way by default
+  class ReadAccessError < APIException
+    setup 'unknown_project', 404, "Unknown project"
+  end
+  class UnknownObjectError < APIException
+    setup 'unknown_project', 404, "Unknown project"
+  end
+  class SaveError < APIException
+    setup "project_save_error"
+  end
+  class ForbiddenError < APIException
+    setup("change_project_protection_level", 403,
+          "admin rights are required to raise the protection level of a project (it won't be safe anyway)")
   end
 
   before_destroy :cleanup_before_destroy
@@ -264,14 +271,12 @@ class Project < ActiveRecord::Base
     # check for raising read access permissions, which can't get ensured atm
     unless self.new_record? || self.disabled_for?('access', nil, nil)
       if FlagHelper.xml_disabled_for?(xmlhash, 'access')
-        raise ForbiddenError.new("change_project_protection_level",
-                                 "admin rights are required to raise the protection level of a project (it won't be safe anyway)")
+        raise ForbiddenError.new
       end
     end
     unless self.new_record? || self.disabled_for?('sourceaccess', nil, nil)
       if FlagHelper.xml_disabled_for?(xmlhash, 'sourceaccess')
-        raise ForbiddenError.new("change_project_protection_level",
-                                 "admin rights are required to raise the protection level of a project (it won't be safe anyway)")
+        raise ForbiddenError.new
       end
     end
 

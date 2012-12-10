@@ -1,3 +1,5 @@
+require 'api_exception'
+
 # The Role class represents a role in the database. Roles can have permissions
 # associated with themselves. Roles can assigned be to roles and groups.
 #
@@ -6,6 +8,10 @@
 # you can easily provide your own model files without having to all lines
 # from the engine's directory
 class Role < ActiveRecord::Base
+
+  class NotFoundError < APIException
+    setup 'role_not_found', 404, "Role not found"
+  end
 
   validates_format_of :title,
                       :with => %r{\A\w*\z},
@@ -56,7 +62,7 @@ class Role < ActiveRecord::Base
 
     def get_by_title(title)
       r = where(title: title).first
-      raise RoleNotFoundError.new( "Error: Role '#{title}' not found." ) unless r
+      raise Role::NotFoundError.new( "Error: Role '#{title}' not found." ) unless r
       return r
     end
   end

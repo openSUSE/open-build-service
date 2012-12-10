@@ -4,7 +4,9 @@ require 'opensuse/backend'
 class IssueTracker < ActiveRecord::Base
   has_many :issues, :dependent => :destroy
 
-  class UnknownObjectError < Exception; end
+  class NotFoundError < APIException
+    setup 'issue_tracker_not_found', 404, "Issue Tracker not found"
+  end
 
   validates_presence_of :name, :regex, :url, :kind
   validates_uniqueness_of :name, :regex

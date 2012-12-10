@@ -1,4 +1,9 @@
 class Review < ActiveRecord::Base
+
+  class NotFoundError < APIException
+    setup 'review_not_found', 404, "Review not found"
+  end
+
   attr_accessible :by_group, :by_package, :by_project, :by_user, :creator, 
                   :reason, :reviewer, :state, :bs_request_id
 
