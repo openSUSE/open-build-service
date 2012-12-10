@@ -1,4 +1,9 @@
 class Issue < ActiveRecord::Base
+
+  class NotFoundError < APIException
+    setup "issue_not_found", 404, "Issue not found"
+  end
+  
   has_many :package_issues, :foreign_key => 'issue_id', :dependent => :destroy
   belongs_to :issue_tracker
   belongs_to :owner, :class_name => "User"
@@ -9,10 +14,10 @@ class Issue < ActiveRecord::Base
 
   def self.get_by_name_and_tracker( name, issue_tracker_name, force_update=nil )
     issue_tracker = IssueTracker.find_by_name( issue_tracker_name )
-    raise IssueTrackerNotFoundError.new( "Error: Issue Tracker '#{issue_tracker_name}' not found." ) unless issue_tracker
+    raise IssueTracker::NotFoundError.new( "Error: Issue Tracker '#{issue_tracker_name}' not found." ) unless issue_tracker
 
     issue = issue_tracker.issues.find_by_name name
-    raise IssueNotFoundError.new( "Error: Issue '#{name}' not found." ) unless issue
+    raise NotFoundError.new( "Error: Issue '#{name}' not found." ) unless issue
     
     if force_update
       issue.fetch_updates
@@ -28,7 +33,7 @@ class Issue < ActiveRecord::Base
 
   def self.find_by_name_and_tracker( name, issue_tracker_name, force_update=nil, create_missing=nil )
     issue_tracker = IssueTracker.find_by_name( issue_tracker_name )
-    raise IssueTrackerNotFoundError.new( "Error: Issue Tracker '#{issue_tracker_name}' not found." ) unless issue_tracker
+    raise IssueTracker::NotFoundError.new( "Error: Issue Tracker '#{issue_tracker_name}' not found." ) unless issue_tracker
 
     # find existing
     issue = issue_tracker.issues.find_by_name name

@@ -311,7 +311,7 @@ end
     prepare_request_with_user "king", "sunflower"
     raw_put url_for(:controller => :source, :action => :project_meta, :project => "_NewProject"), "<project name='_NewProject'><title>blub</title><description/></project>"
     assert_response 400
-    #FIXME2.4 not correctly rescued assert_match(/projid '_NewProject' is illegal/, @response.body)
+    assert_match(/Name is illegal/, @response.body)
   end
 
 
@@ -2160,7 +2160,7 @@ end
            </repository>
          </project>'
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "package_save_error" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "project_save_error" }
     assert_match(/Using same repository as path element is not allowed/, @response.body)
     put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temporary"), 
         '<project name="home:tom:temporary"> <title/> <description/> 
@@ -2169,7 +2169,7 @@ end
            </repository>
          </project>'
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "package_save_error" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "project_save_error" }
     assert_match(/Using same repository as hostsystem element is not allowed/, @response.body)
     # not existing repo
     put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temporary"), 
@@ -2179,7 +2179,7 @@ end
            </repository>
          </project>'
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "package_save_error" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "project_save_error" }
     assert_match(/unable to walk on path/, @response.body)
     put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temporary"), 
         '<project name="home:tom:temporary"> <title/> <description/> 
@@ -2188,7 +2188,7 @@ end
            </repository>
          </project>'
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "package_save_error" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "project_save_error" }
     assert_match(/Unknown target repository/, @response.body)
 
     delete "/source/home:tom:temporary"

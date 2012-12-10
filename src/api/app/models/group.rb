@@ -4,6 +4,11 @@
 # Groups have an arbitrary number of roles and users assigned to them.
 #
 class Group < ActiveRecord::Base
+
+  class NotFoundError < APIException
+    setup 'group_not_found', 404, "Group not found"
+  end
+
   has_many :groups_users, :foreign_key => 'group_id'
   has_many :project_group_role_relationships, :foreign_key => 'bs_group_id'
   has_many :package_group_role_relationships, :foreign_key => 'bs_group_id'
@@ -68,7 +73,7 @@ class Group < ActiveRecord::Base
 
     def get_by_title(title)
       g = where(title: title).first
-      raise GroupNotFoundError.new( "Error: Group '#{title}' not found." ) unless g
+      raise NotFoundError.new( "Error: Group '#{title}' not found." ) unless g
       return g
     end
   end

@@ -3,7 +3,13 @@ require 'opensuse/backend'
 
 class BsRequest < ActiveRecord::Base
 
-  class InvalidStateError < Exception; end
+  class InvalidStateError < APIException
+    setup 'request_not_modifiable', 404
+  end
+
+  class InvalidReview < APIException
+    setup 'invalid_review', 400, "request review item is not specified via by_user, by_group or by_project"
+  end
 
   attr_accessible :comment, :creator, :description, :state, :superseded_by
 
@@ -234,7 +240,7 @@ class BsRequest < ActiveRecord::Base
         raise InvalidStateError.new "request is not in review state"
       end
       if !opts[:by_user] && !opts[:by_group] && !opts[:by_project]
-        raise ArgumentError.new "request review item is not specified via by_user, by_group or by_project"
+        raise InvalidReview.new
       end
       unless [:new, :accepted, :declined, :superseded].include? state
         raise InvalidStateError.new "review state must be new, accepted, declined or superseded, was #{state}"
@@ -277,7 +283,7 @@ class BsRequest < ActiveRecord::Base
         end
       end
           
-      raise ArgumentError, "review item not found" unless found
+      raise Review::NotFound.new unless found
       if go_new_state || state == :superseded
         bs_request_histories.create comment: self.comment, commenter: self.commenter, state: self.state, superseded_by: self.superseded_by        
         
@@ -312,7 +318,7 @@ class BsRequest < ActiveRecord::Base
   def addreview(opts)
     BsRequest.transaction do
       if !opts[:by_user] && !opts[:by_group] && !opts[:by_project]
-        raise ArgumentError.new "request review item is not specified via by_user, by_group or by_project"
+        raise InvalidReview.new
       end
       bs_request_histories.create comment: self.comment, commenter: self.commenter, state: self.state, superseded_by: self.superseded_by        
 

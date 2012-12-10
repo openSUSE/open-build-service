@@ -5,13 +5,14 @@ source 'http://rubygems.org'
 # do not use rails but only a subset for API, we don't render any kind of HTML
 gem 'rails-api'
 gem 'activerecord', '~>3.2.9'
+gem 'actionmailer'
 
 gem 'mysql2'
 gem 'daemons'
 gem 'nokogiri', '~>1.5.0'
 gem 'delayed_job', '>3.0'
 gem 'delayed_job_active_record'
-gem 'exception_notification', '>=2.3'
+gem 'hoptoad_notifier', "~> 2.3"
 gem 'yajl-ruby'
 gem 'rdoc'
 gem 'xmlhash', '>=1.3.4'

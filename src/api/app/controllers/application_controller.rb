@@ -5,19 +5,19 @@ require 'opensuse/permission'
 require 'opensuse/backend'
 require 'opensuse/validator'
 require 'rexml/document'
-
-class InvalidHttpMethodError < Exception; end
-class MissingParameterError < Exception; end
-class InvalidParameterError < Exception; end
-class IllegalRequestError < Exception; end
-class IllegalEncodingError < Exception; end
-class GroupNotFoundError < Exception; end
-class RoleNotFoundError < Exception; end
-class TagNotFoundError < Exception; end
-class IssueTrackerNotFoundError < Exception; end
-class IssueNotFoundError < Exception; end
+require 'api_exception'
 
 class ApplicationController < ActionController::API
+
+  class InvalidHttpMethodError < APIException
+    setup 'invalid_http_method'
+  end
+  class MissingParameterError < APIException
+    setup 'missing_parameter'
+  end
+  class InvalidParameterError < APIException
+    setup "invalid_parameter"
+  end
 
   include ActionController::MimeResponds
 
@@ -397,154 +397,32 @@ class ApplicationController < ActionController::API
   end
   public :pass_to_backend
 
-  def rescue_with_handler(exception)
+  rescue_from ActiveRecord::RecordInvalid do |exception|
+    render_error status: 400, errorcode: "invalid_record", message: exception.record.errors.full_messages.join('\n')
+  end
 
-    bt = "\n" + exception.backtrace.find_all {|line| line.start_with? Rails.root.to_s }.join("\n")
-
-    logger.debug "#{exception.class}: errorcode #{exception.message}#{bt}"
-
-    case exception
-    when Suse::Backend::NotFoundError
-      render_error :message => exception.message, :status => 404
-    when Suse::Backend::HTTPError
-      xml = REXML::Document.new( exception.message )
-      http_status = xml.root.attributes['code']
-      unless xml.root.attributes.include? 'origin'
-        xml.root.add_attribute "origin", "backend"
-      end
-      xml_text = String.new
-      xml.write xml_text
-      render :text => xml_text, :status => http_status
-    when ActiveXML::Transport::NotFoundError
-      render_error :message => exception.message, :status => 404
-    when Suse::ValidationError
-      render_error :message => exception.message, :status => 400, :errorcode => 'validation_failed'
-    when InvalidHttpMethodError
-      render_error :message => exception.message, :errorcode => "invalid_http_method", :status => 400
-    when IllegalEncodingError
-      render_error :message => exception.message, :errorcode => "invalid_text_encoding", :status => 400
-    when Timeout::Error
-      render_error :message => "Timeout during progress", :status => 504, :errorcode => "timeout"
-    when Package::SaveError
-      render_error :message => "Error saving package: #{exception.message}", :errorcode => "package_save_error", :status => 400
-    when Project::SaveError
-      render_error :message => "Error saving project: #{exception.message}", :errorcode => "project_save_error", :status => 400
-    when Project::ForbiddenError
-        render_error :status => 403, errorcode: exception.errorcode, message: exception.message
-    when Package::DeleteError
-      render_error :status => 400, :message => exception.message, :errorcode => "delete_error"
-    when IllegalRequestError
-      message = "Illegal request"
-      message = exception.message unless exception.message.nil?
-      render_error :status => 404, :errorcode => 'illegal_request',
-                   :message => message
-    when ActionController::RoutingError, ActiveRecord::RecordNotFound
-      render_error :message => exception.message, :status => 404, :errorcode => "not_found"
-    when AbstractController::ActionNotFound
-      render_error :message => exception.message, :status => 403, :errorcode => "unknown_action"
-    when ActionView::MissingTemplate
-      render_error :message => exception.message, :status => 404, :errorcode => "not_found"
-    when MissingParameterError
-      render_error :status => 400, :message => exception.message, :errorcode => "missing_parameter"
-    when InvalidParameterError
-      render_error :status => 400, :message => exception.message, :errorcode => "invalid_parameter"
-    when Project::CycleError
-      render_error :status => 400, :message => exception.message, :errorcode => "project_cycle"
-    when Project::DeleteError
-      render_error :status => 400, :message => exception.message, :errorcode => "delete_error"
-    when IssueTracker::UnknownObjectError
-      render_error :status => 400, :message => exception.message, :errorcode => "unknown_issue_tracker"
-
-    # unknown objects and no read access permission are handled in the same way by default
-    when Project::ReadAccessError, Project::UnknownObjectError
-      logger.error "ReadAccessError: #{exception.message}"
-      if exception.message == ""
-        render_error :status => 404, :errorcode => 'unknown_project',
-          :message => "Unknown project"
-      else
-        render_error :status => 404, :errorcode => 'unknown_project',
-          :message => exception.message
-      end
-    when Package::ReadAccessError, Package::UnknownObjectError
-      logger.error "ReadAccessError: #{exception.message}"
-      if exception.message == ""
-        render_error :status => 404, :errorcode => 'unknown_package',
-          :message => "Unknown package"
-      else
-        render_error :status => 404, :errorcode => 'unknown_package',
-          :message => exception.message
-      end
-    when Package::ReadSourceAccessError
-      logger.error "ReadSourceAccessError: #{exception.message}"
-      if exception.message == ""
-        render_error :status => 403, :errorcode => 'source_access_no_permission',
-          :message => "Source Access not alllowed"
-      else
-        render_error :status => 403, :errorcode => 'source_access_no_permission',
-          :message => exception.message
-      end
-    when TagNotFoundError
-      logger.error "TagNotFoundError: #{exception.message}"
-      if exception.message == ""
-        render_error :status => 404, :errorcode => 'tag_not_found',
-          :message => "Tag not found"
-      else
-        render_error :status => 404, :errorcode => 'tag_not_found',
-          :message => exception.message
-      end
-    when BsRequest::InvalidStateError
-      logger.error "RequestInvalidStateError: #{exception.message}"
-      if exception.message == ""
-        render_error :status => 404, :errorcode => 'request_not_modifiable',
-          :message => "Issue not found"
-      else
-        render_error :status => 404, :errorcode => 'request_not_modifiable',
-          :message => exception.message
-      end
-    when IssueNotFoundError
-      logger.error "IssueTrackerNotFoundError: #{exception.message}"
-      if exception.message == ""
-        render_error :status => 404, :errorcode => 'issue_not_found',
-          :message => "Issue not found"
-      else
-        render_error :status => 404, :errorcode => 'issue_not_found',
-          :message => exception.message
-      end
-    when IssueTrackerNotFoundError
-      logger.error "IssueTrackerNotFoundError: #{exception.message}"
-      if exception.message == ""
-        render_error :status => 404, :errorcode => 'issue_tracker_not_found',
-          :message => "Issue Tracker not found"
-      else
-        render_error :status => 404, :errorcode => 'issue_tracker_not_found',
-          :message => exception.message
-      end
-    when GroupNotFoundError
-      logger.error "GroupNotFoundError: #{exception.message}"
-      if exception.message == ""
-        render_error :status => 404, :errorcode => 'group_not_found',
-          :message => "Group not found"
-      else
-        render_error :status => 404, :errorcode => 'group_not_found',
-          :message => exception.message
-      end
-    when RoleNotFoundError
-      logger.error "RoleNotFoundError: #{exception.message}"
-      if exception.message == ""
-        render_error :status => 404, :errorcode => 'role_not_found',
-          :message => "Role not found"
-      else
-        render_error :status => 404, :errorcode => 'role_not_found',
-          :message => exception.message
-      end
-    when FlagHelper::InvalidFlag
-      render_error message: exception.message, errorcode: 'invalid_flag'
-    else
-      if Rails.application.config.middleware.include?("ExceptionNotifier")
-        ExceptionNotifier::Notifier.exception_notification(request.env, exception).deliver        
-      end
-      render_error status: 400
+  rescue_from APIException do |exception|
+    logger.debug "#{exception.class.name} #{exception.message}"
+    message = exception.message
+    if message.blank?
+      message = exception.default_message
     end
+    render_error message: message, status: exception.status, errorcode: exception.errorcode
+  end
+
+  rescue_from Suse::Backend::HTTPError do |exception|
+    xml = REXML::Document.new( exception.message )
+    http_status = xml.root.attributes['code']
+    unless xml.root.attributes.include? 'origin'
+      xml.root.add_attribute "origin", "backend"
+    end
+    xml_text = String.new
+    xml.write xml_text
+    render :text => xml_text, :status => http_status
+  end
+
+  rescue_from Suse::Backend::NotFoundError, ActiveRecord::RecordNotFound do |exception|
+    render_error message: exception.message, status: 404, errorcode: 'not_found'
   end
 
   def permissions
@@ -604,17 +482,6 @@ class ApplicationController < ActionController::API
     end
 
     @errorcode ||= 'unknown'
-
-    # if the exception was raised inside a template (-> @template.first_render != nil),
-    # the instance variables created in here will not be injected into the template
-    # object, so we have to do it manually
-    # This is commented out, since it does not work with Rails 2.3 anymore and is also not needed there
-    #    if @template.first_render
-    #      logger.debug "injecting error instance variables into template object"
-    #      %w{@summary @errorcode @exception}.each do |var|
-    #        @template.instance_variable_set var, eval(var) if @template.instance_variable_get(var).nil?
-    #      end
-    #    end
 
     response.headers['X-Opensuse-Errorcode'] = @errorcode
     render :template => 'status', :status => opt[:status]
@@ -738,8 +605,4 @@ class ApplicationController < ActionController::API
      messages
   end
 
-  # FIXME2.4 this does not work as long as we have this old style rescue_from_handler
-  rescue_from ActiveRecord::RecordInvalid do |exception|
-    render_error status: 400, errorcode: "invalid_record", message: exception.record.errors.full_messages.join('\n')
-  end
 end

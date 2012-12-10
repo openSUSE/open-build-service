@@ -39,3 +39,7 @@ CONFIG['response_schema_validation'] = true
 # the default is not to write through, only once the backend started
 # we set this to true
 CONFIG['global_write_through'] = false
+
+# make sure we have invalid setup for errbit
+CONFIG['errbit_api_key'] = 'INVALID'
+CONFIG['errbit_host'] = '192.0.2.0'
