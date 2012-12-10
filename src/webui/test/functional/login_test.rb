@@ -8,6 +8,7 @@ class LoginTest < ActionDispatch::IntegrationTest
   #
   def open_home
     find(:css, "div#subheader a[href='/home']").click
+    assert page.has_text? "Profile picture:"
   end
 
   def user_real_name
@@ -22,7 +23,6 @@ class LoginTest < ActionDispatch::IntegrationTest
 
   #
   def change_user_real_name new_name
-    assert page.has_text? "Profile picture:"
     find(:css, "div#content a[href='/user/edit']").click
 
     fill_in "realname", with: new_name
@@ -89,7 +89,6 @@ class LoginTest < ActionDispatch::IntegrationTest
     open_home
     change_user_real_name ""
   end
-
   
   test "real_name_stays_changed" do
     login_Iggy
