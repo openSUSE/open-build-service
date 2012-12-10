@@ -61,6 +61,8 @@ GEM
     erubis (2.7.0)
     execjs (1.4.0)
       multi_json (~> 1.0)
+    faker (1.1.2)
+      i18n (~> 0.5)
     fast_xs (0.8.0)
     ffi (1.2.0)
     fssm (0.2.9)
@@ -177,6 +179,7 @@ DEPENDENCIES
   cssmin (>= 1.0.2)
   delayed_job (> 3.0)
   delayed_job_active_record
+  faker
   fast_xs
   headless
   hoptoad_notifier (~> 2.3)

@@ -34,7 +34,7 @@ group :test do
   gem 'launchy'
   gem 'headless'
   # random hex strings are just so boring
-  #gem 'faker'
+  gem 'faker'
 end
 
 gem 'mysql2'

@@ -12,8 +12,6 @@ env:
   # full webrat test suite
   - SUBTEST=webui1
   - SUBTEST=webui2
-  # selenium without spider
-  - SUBTEST=webui-testsuite
   # api and webui webrat with latest gems
 #  - SUBTEST=api REMOVEGEMLOCK=true
 #  - SUBTEST=webui REMOVEGEMLOCK=true

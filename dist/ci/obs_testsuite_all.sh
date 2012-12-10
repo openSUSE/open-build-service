@@ -57,13 +57,8 @@ cd src/webui
 bundle exec rake ci:setup:minitest test CI_REPORTS=results --trace || ret=1
 cd ../..
 
-cd src/webui-testsuite
-export OBS_REPORT_DIR=results/
-bundle exec ruby ./run_acceptance_tests.rb || ret=1
-cd ../..
-
 mkdir results
-for i in src/api/results/*.xml src/webui/results/*.xml src/webui-testsuite/results/*.xml; do
+for i in src/api/results/*.xml src/webui/results/*.xml; do
  cp -v $i results/`echo $i | sed -e 's,/,-,g'`
 done
 
