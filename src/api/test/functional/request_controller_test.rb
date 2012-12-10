@@ -529,8 +529,9 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_xml_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
 
     prepare_request_with_user 'adrian', 'so_alone'
-    post "/request/#{id}?newstate=new&by_group=test_group&cmd=changereviewstate", "adrian checked but did not accept"
-    
+    post "/request/#{id}?newstate=new&by_group=test_group&cmd=changereviewstate", "adrian is looking"
+    post "/request/#{id}?newstate=new&by_group=test_group&cmd=changereviewstate", "adrian does not care"
+
     prepare_request_with_user 'tom', 'thunder'
     post "/request/#{id}?cmd=changereviewstate&newstate=declined&by_user=tom"
     assert_response :success
@@ -540,7 +541,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_xml_tag( :tag => "state", :attributes => { :name => "declined" } )
     assert_xml_tag( :tag => "review", :attributes => { :state => "declined", :by_user => "tom" } )
     assert_xml_tag( :tag => "review", :attributes => { :state => "new", :by_group => "test_group" },
-                    child: { tag: 'comment', content: "adrian checked but did not accept" })
+                    child: { tag: 'comment', content: "adrian does not care" })
 
     # change review not permitted anymore
     prepare_request_with_user 'tom', 'thunder'

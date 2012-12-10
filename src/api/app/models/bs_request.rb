@@ -258,8 +258,9 @@ class BsRequest < ActiveRecord::Base
         if matching && !(reviews_seen.has_key?(rkey) && review.state == :accepted)
           reviews_seen[rkey] = 1
           found = true
-          review.reason = opts[:comment] if opts[:comment]
-          if review.state != state || review.reviewer != User.current.login
+          comment = opts[:comment] || ''
+          if review.state != state || review.reviewer != User.current.login || review.reason != comment
+            review.reason = comment
             review.state = state
             review.reviewer = User.current.login
             review.save!
