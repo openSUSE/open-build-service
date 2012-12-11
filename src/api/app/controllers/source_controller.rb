@@ -922,6 +922,7 @@ class SourceController < ApplicationController
     end
   end
 
+
   # /source/:project/:package/_meta
   def package_meta
     valid_http_methods :put, :get
@@ -930,11 +931,7 @@ class SourceController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
 
-    unless valid_package_name? package_name
-      render_error :status => 400, :errorcode => "invalid_package_name",
-        :message => "invalid package name '#{package_name}'"
-      return
-    end
+    valid_package_name! package_name
 
     if request.get?
       # GET /source/:project/:package/_meta
@@ -1510,11 +1507,7 @@ class SourceController < ApplicationController
       pkg_name = params[:name]
     end
 
-    unless valid_package_name? pkg_name
-      render_error :status => 400, :errorcode => "invalid_package_name",
-        :message => "invalid package name '#{pkg_name}'"
-      return
-    end
+    valid_package_name! pkg_name
 
     # create patchinfo package
     pkg = nil

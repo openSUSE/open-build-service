@@ -445,7 +445,7 @@ class PackageController < ApplicationController
     @revision       = nil
     @current_revision = true if params[:current_revision]
 
-    if !valid_package_name_read? @linked_package
+    if !valid_package_name_write? @linked_package
       flash[:error] = "Invalid package name: '#{@linked_package}'"
       redirect_to :controller => :project, :action => 'new_package_branch', :project => params[:project] and return
     end

@@ -126,11 +126,7 @@ class WebuiController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
 
-    unless valid_package_name? package_name
-      render_error :status => 400, :errorcode => "invalid_package_name",
-        :message => "invalid package name '#{package_name}'"
-      return
-    end
+    valid_package_name! package_name
 
     pack = Package.get_by_project_and_name( project_name, package_name, use_source: false )
     render json: pack.expand_flags

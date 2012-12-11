@@ -1,6 +1,10 @@
 
 module ValidationHelper
 
+  class InvalidPackageName < APIException
+    setup "invalid_package_name", 404
+  end
+
   def valid_project_name? name
     return true if name =~ /\A\w[-+\w\.:]*\z/
     return false
@@ -15,6 +19,12 @@ module ValidationHelper
     # obsolete, just for backward compatibility
     return true if name =~ /\A_patchinfo:\w[-+\w\.]*\z/
     name =~ /\A\w[-+\w\.]*\z/
+  end
+
+  def valid_package_name! package_name
+    unless valid_package_name? package_name
+      raise InvalidPackageName, "invalid package name '#{package_name}'"
+    end
   end
 
   # load last package meta file and just check if sourceaccess flag was used at all, no per user checking atm

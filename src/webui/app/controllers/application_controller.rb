@@ -51,6 +51,11 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  class MissingParameterError < Exception; end
+  rescue_from MissingParameterError do 
+    render :file => "#{Rails.root}/public/404.html", :status => 404, :layout => false
+  end
+
   protected
 
   def set_return_to
@@ -176,7 +181,7 @@ class ApplicationController < ActionController::Base
   def required_parameters(*parameters)
     parameters.each do |parameter|
       unless params.include? parameter.to_s
-        raise ActionController::RoutingError.new "Required Parameter #{parameter} missing in #{request.url}"
+        raise MissingParameterError.new "Required Parameter #{parameter} missing in #{request.url}"
       end
     end
   end
