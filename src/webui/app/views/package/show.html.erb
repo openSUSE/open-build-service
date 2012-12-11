@@ -9,7 +9,7 @@
     <%= description_wrapper(@package.description.text) %>
   </div>
   <div class="grid_6 omega">
-    <% if @failures && @failures > 0 || @package.has_element?(:devel) || !@package.developed_packages.blank? || @package.name =~ %r{^_patchinfo} || @linking_packages && @linking_packages.size > 0 || @linkinfo %>
+    <% if @failures && @failures > 0 || @package.has_element?(:devel) || !@package.developed_packages.blank? || @package.name =~ %r{^_patchinfo} || @linking_packages && @linking_packages.size > 0 || @linkinfo || CONFIG['theme'] == 'bento' %>
       <ul class="clean_list">
         <% if @failures && @failures > 0 %>
           <li>
@@ -68,6 +68,7 @@
             </li>
           <% end%>
         <% end %>
+	<%= render partial: "extra_actions" %>
       </ul>
     <% end %>
   </div>
