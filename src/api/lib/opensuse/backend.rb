@@ -108,7 +108,7 @@ module Suse
           end
           begin
             http.request backend_request
-          rescue Errno::EPIPE, Errno::ECONNRESET
+          rescue Errno::EPIPE, Errno::ECONNRESET, SocketError, Errno::EINTR, EOFError, IOError 
             raise Timeout::Error
           end
         end
