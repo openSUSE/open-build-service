@@ -271,6 +271,7 @@ OBSApi::Application.routes.draw do
     ### /public
     
     controller :public do
+      match 'public' => :index
       match 'public/build/:project' => :build, :constraints => cons
       match 'public/build/:project/:repository' => :build, :constraints => cons
       match 'public/build/:project/:repository/:arch' => :build, :constraints => cons
