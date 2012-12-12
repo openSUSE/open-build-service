@@ -213,6 +213,8 @@ class AllRoutesTest < ActionController::IntegrationTest
         raise e
       end
       next if @response.response_code == 302
+      # missing parameters are mapped to 404
+      next if @response.response_code == 404
       if @response.response_code == 200
         next if @response.content_type == "application/xml"
         source = @response.body
