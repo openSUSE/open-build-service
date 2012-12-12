@@ -8,7 +8,7 @@
     <p>
       <b>Architectures:</b>
       <% @repository_arch_hash.each do |arch, value| %>
-        <%= check_box_tag "arch[#{arch}]", "", value, :class => 'arch_check_box' %><%= arch %>
+        <%= check_box_tag "arch[#{arch}]", "", value, class: 'arch_check_box' %><%= arch %>
       <% end %>
       <%= hidden_field_tag :project, @project %> <%= hidden_field_tag :repo, repository.name %>
     </p>
@@ -43,14 +43,14 @@
       </p>
     </div>
 
-    <p><%= submit_tag "Update #{repository.name}", :id => "save_button", :disabled => true %></p>
+    <p><%= submit_tag "Update #{repository.name}", id: "save_button", disabled: true %></p>
   <% end %>
 
 </div>
 
 <%= javascript_tag do %>
-  $('#arch_check_box').change(function () {
-    $('#save_button').enable();
+  $('.arch_check_box').change(function () {
+    $('#save_button').removeAttr('disabled');
   });
 
   $(document).ready(function() {
