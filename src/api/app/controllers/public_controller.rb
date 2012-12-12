@@ -5,10 +5,6 @@ class PublicController < ApplicationController
   before_filter :extract_user_public
   skip_before_filter :extract_user
 
-  def index
-    redirect_to :controller => 'main'
-  end
-
   def check_package_access(project, package, use_source=true)
 
     # don't use the cache for use_source
