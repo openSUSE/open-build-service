@@ -697,7 +697,7 @@ class Package < ActiveRecord::Base
     users = package_user_role_relationships.joins(:role, :user).select("users.login as login, roles.title AS role_name")
     if( block )
       users.each do |u|
-        block.call u
+        block.call u.login, u.role_name
       end
     end
     return users
@@ -707,7 +707,7 @@ class Package < ActiveRecord::Base
     groups = package_group_role_relationships.joins(:role, :group).select("groups.title as title, roles.title as role_name")
     if( block )
       groups.each do |g|
-        block.call g
+        block.call g.title, g.role_name
       end
     end
     return groups
@@ -828,12 +828,12 @@ class Package < ActiveRecord::Base
         package.devel( :project => develpackage.project.name, :package => develpackage.name )
       end
 
-      each_user do |u|
-        package.person( :userid => u.login, :role => u.role_name )
+      each_user do |user,role|
+        package.person( :userid => user, :role => role )
       end
 
-      each_group do |g|
-        package.group( :groupid => g.title, :role => g.role_name )
+      each_group do |group,role|
+        package.group( :groupid => group, :role => role )
       end
 
       if view == 'flagdetails'
