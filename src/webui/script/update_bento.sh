@@ -120,3 +120,5 @@ copy $themedir/bento/images/distributions/redhat.png ./app/assets/icons/distribu
 copy $themedir/bento/images/distributions/suse.png ./app/assets/icons/distributions-suse.png
 copy $themedir/bento/images/distributions/ubuntu.png ./app/assets/icons/distributions-ubuntu.png
 
+copy $themedir/bento/images/globalnav/globalnav-im.png ./app/assets/images/globalnav-im.png
+

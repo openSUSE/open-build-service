@@ -397,3 +397,21 @@ $icons-sprite-dimensions:true;
 }
 
 .dataTable th.sorting_disabled { display: none; }
+
+.global-navigation-menu li span.global-navigation-icon {
+    background-image:url('globalnav-im.png'); 
+}
+
+.global-navigation-menu.global-navigation-menu-favorites li span.icons-project {
+  padding-top: 0px;
+  display: inline-block;
+  margin-left: 3px;
+  margin-right: 3px;
+}
+
+.global-navigation-menu.global-navigation-menu-favorites li a.project-link {
+  padding-top: 0px;
+  display: inline;
+  margin-left: 0px;
+  margin-right: 0px;
+}
