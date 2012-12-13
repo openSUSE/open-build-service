@@ -572,29 +572,29 @@ class BsRequest < ActiveRecord::Base
     self.bs_request_histories.each do |item|
       what, color = "", nil
       case item.state
-        when "new" then
-          if last_history_item && last_history_item.state == "review"
+        when :new then
+          if last_history_item && last_history_item.state == :review
             what, color = "accepted review", "green" # Moving back to state 'new'
-          elsif last_history_item && last_history_item.state == "declined"
+          elsif last_history_item && last_history_item.state == :declined
             what, color = "reopened", "maroon"
           else
             what = "created request" # First history item, regardless of 'state' (may be 'review')
           end
-        when "review" then
+        when :review then
           if !last_history_item # First history item
             what = "created request"
-          elsif last_history_item && last_history_item.state == "declined"
+          elsif last_history_item && last_history_item.state == :declined
             what, color = "reopened review", 'maroon'
           else # Other items...
             what = "added review"
           end
-        when "accepted" then what, color = "accepted request", "green"
-        when "declined" then
+        when :accepted then what, color = "accepted request", "green"
+        when :declined then
           color = "red"
           if last_history_item
             case last_history_item.state
-              when "review" then what = "declined review"
-              when "new" then what = "declined request"
+              when :review then what = "declined review"
+              when :new then what = "declined request"
             end
           end
         when "superseded" then what = "superseded request"
@@ -606,10 +606,10 @@ class BsRequest < ActiveRecord::Base
     end
     last_review_item = nil
     self.reviews.each do |item|
-      if ['accepted', 'declined'].include?(item.state)
-        events[item.created_at] = {:who => item.commenter, :what => "#{item.state} review", :when => item.created_at, :comment => item.comment}
-        events[item.created_at][:color] = "green" if item.state == "accepted"
-        events[item.created_at][:color] = "red" if item.state == "declined"
+      if [:accepted, :declined].include?(item.state)
+        events[item.created_at] = {:who => item.reviewer, :what => "#{item.state} review", :when => item.created_at, :comment => item.reason}
+        events[item.created_at][:color] = "green" if item.state == :accepted
+        events[item.created_at][:color] = "red" if item.state == :declined
       end
       last_review_item = item
     end
@@ -617,12 +617,12 @@ class BsRequest < ActiveRecord::Base
     state, what, color = self.state, "", ""
     comment = self.comment
     case state
-      when "accepted" then what, color = "accepted request", "green"
-      when "declined" then what, color = "declined request", "red"
-      when "new", "review"
+      when :accepted then what, color = "accepted request", "green"
+      when :declined then what, color = "declined request", "red"
+      when :new, :review
         if last_history_item # Last history entry
-          case last_history_item.name
-            when 'review' then
+          case last_history_item.state
+            when :review then
               # TODO: There is still a case left, see sr #106286, factory-auto added a review for autobuild-team, the
               # request # remained in state 'review', but another review was accepted in between. That is kind of hard
               # to grasp from the pack of <history/>, <review/> and <state/> items without breaking # the other cases ;-)
