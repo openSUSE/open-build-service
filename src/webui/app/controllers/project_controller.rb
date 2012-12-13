@@ -408,7 +408,11 @@ class ProjectController < ApplicationController
 
   def update_target
     repo = @project.repository[params[:repo]]
-    repo.archs = params[:arch].keys
+    if params[:arch]
+      repo.archs = params[:arch].keys
+    else
+      repo.archs = []
+    end
     # Merge project repo's arch list with currently available arches from API. This needed as you want
     # to keep currently non-working arches in the project meta.
     @repository_arch_hash = Hash.new
