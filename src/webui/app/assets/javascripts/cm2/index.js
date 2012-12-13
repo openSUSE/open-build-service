@@ -80,7 +80,7 @@ function use_codemirror(id, read_only, mode)
     var codeMirrorOptions = {
 	lineNumbers: true,
 	matchBrackets: true,
-        fontSize: '9pt',
+	fontSize: '9pt',
 	/* onCursorActivity: function(editor) {
 	    editor.setLineClass(editor.hlLine, null);
 	    editor.hlLine = editor.setLineClass(editor.getCursor().line, "activeline");

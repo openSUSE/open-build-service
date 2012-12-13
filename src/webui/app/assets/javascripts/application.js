@@ -328,7 +328,7 @@ function flag_trigger() {
 
 function collapse_expand(file_id) {
     placeholder = $('#diff_view_' + file_id + '_placeholder');
-    if (placeholder) {
+    if (placeholder.attr('id')) {
 	$.ajax({
             url: placeholder.parents('.table_wrapper').data("url"),
             type: 'POST',
