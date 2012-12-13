@@ -1,0 +1,69 @@
+<% unless @results.nil? || @results.length < 1 %>
+  <h3><%= @pagetitle %>
+  <% unless @search_text.blank? %> results for &quot;<%= @search_text -%>&quot; <% end %>
+  <% unless @attribute.blank? %> with attribute &quot;<%= @attribute -%>&quot; <% end %>
+  <% unless @results.nil? %>
+    in <%= @search_what.join(", ").pluralize %>
+    <% if @results.length > 1%>
+      (<%= @results.length -%><%= "+" if @results.length == 200 %>)
+    <% end %>
+  <% end %>
+  </h3>
+  <div id="search_results">
+  <% @results.each do |result| %>
+    <% if result[:type] == 'project' %>        
+      <% if result[:data].has_element?( 'title' ) %>
+        <% linkname = result[:data].to_hash['title'] -%>
+        <% if linkname.empty? %>
+          <% linkname = result[:data].name.to_str %>
+        <% end %>
+      <% else %>
+        <% linkname = "#{result[:data].name}" %>
+      <% end %>
+      <h6>
+      <%= image_tag('project.png', class: 'project') %>
+      <%= link_to linkname, { :controller => 'project', :action => :show, :project => result[:data] }, class: "project-link"-%>
+      </h6>
+    <% elsif result[:type] == 'package' %>
+      <% if result[:data].has_element?( 'title' )%>
+        <% linkname = result[:data].to_hash['title'] -%>
+        <% if linkname.empty? %>
+          <% linkname = result[:data].name %>
+        <% else %>
+          <% linkname = linkname + " (#{result[:data].name})"%>
+        <% end %>
+      <% else %>
+        <% linkname = "#{result[:data].name}"%>
+      <% end %>
+      <h6>
+      <%= image_tag('package.png', class: 'package') %>
+      <%= link_to linkname, { :controller => 'package', :action => :show, :package => result[:data].name, :project => result[:data].project }, class: 'package-link'-%>
+      </h6>
+      <p class="data-project">
+      in project <%= result[:data].project %>
+      </p>
+    <% elsif result[:type] == 'owner' %>
+        <p>
+        <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => result[:data].to_hash['person']['name'] }%>
+        maintains
+        <%= link_to "#{result[:data].package}", { :controller => 'package', :action => :show, :package => result[:data].package, :project => result[:data].project }, class: 'package-link'-%>
+        for <%= result[:data].rootproject %>
+        in
+        <%= link_to "#{result[:data].project}", { :controller => 'project', :action => :show, :project => result[:data].project}, class: 'project-link' -%>
+        </p>
+      <% end %>
+      <% if result[:data].has_element?( 'description' ) && !result[:data].description.to_s.empty? %>
+        <% descr = h result[:data].description.to_s.dup[0,80] + "..." %>
+      <% else %>
+        <% descr = h excerpt(result[:data].description.to_s.dup, @search_text, 150 ) %>
+      <% end %>
+      <% if descr %>
+        <p class="data-description">
+        <% descr.split(/\n/).each do |line| -%>
+          <%= highlight(line, @search_text) -%>
+        <% end %>
+        </p>
+      <% end %>
+  <% end %>
+  </div>
+<% end %>

@@ -1,5 +1,7 @@
+<% require 'active_support/inflector' %>
 <% @pagetitle = "Search" %>
 <% @crumb_list = [@pagetitle] -%>
+<% @layouttype = 'custom' %>
 
 <%= content_for :ready_function do %>
   $('#search_text').focus();
@@ -9,22 +11,15 @@
   });
 <% end %>
 
-<h3><%= @pagetitle %>
-  <% unless @search_text.blank? %> results for &quot;<%= @search_text -%>&quot; <% end %>
-  <% unless @attribute.blank? %> with attribute &quot;<%= @attribute -%>&quot; <% end %>
-  <% unless @results.nil? %>
-    <% if @results.length > 1%>&nbsp;(<%= @results.length -%><%= "+" if @results.length == 200 %>)
-    <% end %>
-  <% end %>
-</h3>
-
-<div id="search_form">
+<div class="grid_16 alpha omega box box-shadow">
+<%= render :partial => 'tabs' %>
+  <div id="search_form">
   <%= form_tag({:controller => 'search', :action => 'index'}, {:method => :get}) do -%>
-    <p>
-      <%= text_field_tag 'search_text', params[:search_text], :placeholder => 'Search', :id => 'search_input' -%>
-      <%= submit_tag(nil, :id => 'search_button', :title => 'Search') %>
-      <button type="button" id="advanced_link">Advanced</button>
-    </p>
+  <p>
+  <%= text_field_tag 'search_text', params[:search_text], :placeholder => 'Search', :id => 'search_input' -%>
+  <%= submit_tag(nil, :id => 'search_button', :title => 'Search') %>
+  <button type="button" id="advanced_link">Advanced</button>
+  </p>
     <div id="advanced_container" style="display: none;">
     <h4>Search for:</h4>
     <p>
@@ -35,7 +30,7 @@
       <input type="hidden" name="project" value="0" />
       <input id="project" name="project" type="checkbox" value="1" />
     <% end %>
-    <label for="project">projects</label>
+    <label for="project">Projects</label>
 
     <% if params[:package].nil? or params[:package] == "1" %>
       <input type="hidden" name="package" value="0" />
@@ -44,7 +39,7 @@
       <input type="hidden" name="package" value="0" />
       <input id="package" name="package" type="checkbox" value="1" />
     <% end %>
-    <label for="package">packages</label>
+    <label for="package">Packages</label>
 
     </p>
     <h4>Search in:</h4>
@@ -56,7 +51,7 @@
       <input type="hidden" name="name" value="0" />
       <input id="name" name="name" type="checkbox" value="1" />
     <% end %>
-    <label for="name">name</label>
+    <label for="name">Name</label>
 
     <% if params[:title].nil? or params[:title] == "0"%>
       <input type="hidden" name="title" value="0" />
@@ -65,8 +60,8 @@
       <input type="hidden" name="title" value="0" />
       <input checked="checked" id="title" name="title" type="checkbox" value="1" />
     <% end %>
-    <label for="title">title</label>
-    
+    <label for="title">Title</label>
+
     <% if params[:description].nil? or params[:description] == "0"%>
       <input type="hidden" name="description" value="0" />
       <input id="description" name="description" type="checkbox" value="1" />
@@ -74,58 +69,23 @@
       <input type="hidden" name="description" value="0" />
       <input checked="checked" id="description" name="description" type="checkbox" value="1" />
     <% end %>
-    <label for="description">description</label>
+    <label for="description">Description</label>
 
     </p>
     <h4>Require attribute:</h4>
     <p>
       <%= select_tag :attribute, options_for_select(@attribute_list, params[:attribute]), :id => 'attribute_list' %>
     </p>
-    </div>
+    <h4>Require issue:</h4>
+    <p>
+      <!-- FIXME: default should become configurable on api server -->
+      <% params[:issue_tracker] = "bnc (Novell Bugzilla)" if params[:issue_tracker].nil? %>
+      <%= select_tag :issue_tracker, options_for_select(@issue_tracker_list, params[:issue_tracker]) %>
+      <%= text_field_tag 'issue', params[:issue], :size => 10 -%>
+    </p>
+    </div> <!-- end advanced_container -->
   <% end %>
+  </div> <!-- end search_form -->
+<%= render :partial => 'results' %>
 </div>
 
-<div id="search_results">
-<% unless @results.nil? || @results.length < 1 %>
-  <table>
-    <% @results.each do |result| %>
-    <tr class="<%= cycle('even', 'odd') -%>" valign="top">
-      <td><p>
-      <% if result[:type] == 'project' %>
-        <%= image_tag('project.png', class: 'project') %>
-        <strong>
-        <%= link_to "#{result[:data].name}", { :controller => 'project', :action => :show, :project => result[:data] }, class: "project-link"-%>
-        </strong>
-        <% if result[:data].has_element?( 'title' ) && !result[:data].title.to_s.empty? %>
-            - <%= highlight( result[:data].title.to_s.dup, @search_text ) -%>
-          <% end %>
-      <% elsif result[:type] == 'package' %>
-        <%= image_tag('package.png', class: 'package') %>
-        <strong>
-        <%= link_to "#{result[:data].name}", { :controller => 'package', :action => :show, :package => result[:data], :project => result[:data].project }, class: 'package-link'-%>
-        </strong>
-        in project 
-        <%= link_to result[:data].project, { :controller => 'project', :action => :show, :project => result[:data].project}, class: 'project-link' -%>
-      <% end %>
-      </p>
-      <% if result[:data].has_element?( 'title' ) %>
-      <h6><%= result[:data].title -%></h6>
-      <% end %>
-      <% if result[:data].has_element?( 'description' ) && !result[:data].description.to_s.empty? %>
-        <% descr = result[:data].description.to_s.dup[0,150] + '...' %>
-      <% else %>
-        <% descr = excerpt(result[:data].description.to_s.dup, @search_text, 150 ) %>
-      <% end %>
-      <% if descr %>
-      <p>
-        <% descr.split(/\n/).each do |line| -%>
-          <%= highlight(line, @search_text) -%><br/>
-        <% end %>
-      </p>
-      <% end %>
-      </td>
-    </tr>
-    <% end %>
-  </table>
-<% end %>
-</div>

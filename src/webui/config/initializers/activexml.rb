@@ -47,6 +47,7 @@ map = ActiveXML::setup_transport(CONFIG['frontend_protocol'], CONFIG['frontend_h
     map.connect :group, "rest:///group/:title",
       :all => "rest:///group/"
     map.connect :persongroup, "rest:///person/:login/group"
+    map.connect :owner, "rest:///search/owner?:binary&:devel&:limit&:project&:attribute"
 
     map.connect :unregisteredperson, "rest:///person/register"
     map.connect :userchangepasswd, "rest:///person/changepasswd"
