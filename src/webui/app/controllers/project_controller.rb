@@ -1054,9 +1054,10 @@ class ProjectController < ApplicationController
   end
 
   def save_prjconf
+    check_ajax
     frontend.put_file(params[:config], :project => params[:project], :filename => '_config')
     flash[:note] = "Project Config successfully saved"
-    redirect_to :action => :prjconf, :project => params[:project]
+    render text: "Config successfully saved", content_type: "text/plain"
   end
 
   def change_flag

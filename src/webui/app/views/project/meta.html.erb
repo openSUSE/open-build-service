@@ -6,7 +6,7 @@
 
 <h3><%= @pagetitle %></h3>
 <% if @project.can_edit?(@user) %>
-  <%= render :partial => "shared/editor", :locals => {:text => @meta, :mode => 'xml', :save => {:url => {:controller => 'project', :action => 'save_meta'}, :method => 'POST', :data => {:project => @project, submit: 'meta'}}} %>
+  <%= render partial: "shared/editor", locals: {text: @meta, mode: 'xml', save: {url: url_for(controller: 'project', action: 'save_meta'), method: 'POST', data: {project: @project.name, submit: 'meta'}}} %>
 <% else %>
-  <%= render :partial => "shared/editor", :locals => {:text => @meta, :mode => 'xml'} %>
+  <%= render partial: "shared/editor", locals: {text: @meta, mode: 'xml'} %>
 <% end %>
