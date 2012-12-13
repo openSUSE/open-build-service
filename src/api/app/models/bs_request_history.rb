@@ -5,6 +5,10 @@ class BsRequestHistory < ActiveRecord::Base
   validates_inclusion_of :state, :in => VALID_REQUEST_STATES
   validates :commenter, :presence => true
 
+  def state
+    read_attribute(:state).to_sym
+  end
+
   def self.new_from_xml_hash(hash)
     h = BsRequestHistory.new
     h.comment = hash.delete("comment")
