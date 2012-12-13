@@ -628,7 +628,7 @@ class BsRequest < ActiveRecord::Base
               # to grasp from the pack of <history/>, <review/> and <state/> items without breaking # the other cases ;-)
               #what, color = "accepted review for #{last_history_item.value('who')}", 'green'
               what, color = "accepted review", 'green'
-              comment = last_review_item.comment # Yes, the comment for the last history item is in the last review ;-)
+              comment = last_review_item.reason # Yes, the comment for the last history item is in the last review ;-)
             when 'declined' then what, color = 'reopened request', 'maroon'
           end
         else
