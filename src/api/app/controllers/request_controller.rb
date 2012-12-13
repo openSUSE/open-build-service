@@ -1345,17 +1345,17 @@ class RequestController < ApplicationController
       sourceupdate = action.sourceupdate
 
       if action.action_type == :set_bugowner
-          object = Project.find_by_name(action.target_project)
+          object = Project.find_by_name!(action.target_project)
           bugowner = Role.get_by_title("bugowner")
           if action.target_package
-             object = object.packages.find_by_name(action.target_package)
-              PackageUserRoleRelationship.where("db_package_id = ? AND role_id = ?", object, bugowner).each do |r|
+            object = object.packages.find_by_name!(action.target_package)
+            PackageUserRoleRelationship.where("db_package_id = ? AND role_id = ?", object, bugowner).each do |r|
               r.destroy
             end
           else
-              ProjectUserRoleRelationship.where("db_project_id = ? AND role_id = ?", object, bugowner).each do |r|
-                r.destroy
-             end
+            ProjectUserRoleRelationship.where("db_project_id = ? AND role_id = ?", object, bugowner).each do |r|
+              r.destroy
+            end
           end
           object.add_user( action.person_name, bugowner )
           object.store
