@@ -1,3 +1,4 @@
+require 'api_exception'
 
 module ValidationHelper
 

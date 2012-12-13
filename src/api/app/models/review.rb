@@ -1,3 +1,5 @@
+require 'api_exception'
+
 class Review < ActiveRecord::Base
 
   class NotFoundError < APIException
