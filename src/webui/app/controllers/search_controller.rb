@@ -3,19 +3,29 @@ class SearchController < ApplicationController
   before_filter :set_attribute_list
   before_filter :set_tracker_list
   before_filter :set_parameters
-  # The index method does the search and renders the results if there is something to search for.
-  # If not then it just renders a search bar.
+  
+  def index
+    search
+  end
+  
+  def owner
+    search
+  end
+  # The search method does the search and renders the results
+  # if there is something to search for. If not then it just
+  # renders a search bar.
   #
   #  * *Args* :
-  #   - +@search_text+ -> The string to search for
-  #   - +@search_issue+ -> The issue number to search for
-  #   - +@search_attribute+ -> The attribute to search for
-  #   - +:package+ -> Search for packages (default)
-  #   - +:project+ -> Search for projects (default)
-  #   - +:owner+ -> Search for owners
+  #   - @search_text -> The search string we search for
+  #   - @search_what -> Array of result limits
+  #   - @search_where -> Array of where we search
+  #   - @search_attribute -> Limit results to this attribute string
+  #   - @search_issue -> Limit results to packages with this issue in the changelog
+  #   - @owner_limit -> Limit the amount of owners
+  #   - @owner_devel -> Follow devel links for owner search
   # * *Returns* :
   #   - +@results+ -> An array of results
-  def index
+  def search
     # If there is nothing to search for, just return
     return unless params[:search_text]
     # If the search is too short, return too
@@ -38,34 +48,38 @@ class SearchController < ApplicationController
       return
     end
 
-    @search_what.each do |s_what|
-    # build xpath predicate
+    @search_what.each do |what|
       pand = []
-      if @search_text
+
+      if what == 'owner'
+        collection = find_cached(Owner, :binary => "#{@search_text}", :limit => "#{@owner_limit}", :devel => "#{@owner_devel}", :expires_in => 5.minutes)
+        reweigh(collection, what)
+      end
+      if what == 'package' or what == 'project'
         p = []
         p << "contains(@name,'#{@search_text}')" if @search_where.include?('name')
         p << "contains(title,'#{@search_text}')" if @search_where.include?('title')
         p << "contains(description,'#{@search_text}')" if @search_where.include?('description')
         pand << p.join(' or ')
+        if @search_attribute
+          pand << "contains(attribute/@name,'#{@search_attribute}')"
+        end
+        if @search_issue
+          tracker_name = params[:issue_tracker].gsub(/ .*/,'')
+          # could become configurable in webui, further options would be "changed" or "deleted".
+          # best would be to prefer links with "added" on top of results
+          pand << "issue/[@name=\"#{@search_issue}\" and @tracker=\"#{tracker_name}\" and (@change='added' or @change='kept')]"
+        end
+        predicate = pand.join(' and ')
+        if predicate.empty?
+          flash[:error] = "You need to search for name, title, description or attributes."
+          return
+        else
+          collection = find_cached(Collection, :what => what, :predicate => "[#{predicate}]", :expires_in => 5.minutes)
+          reweigh(collection, what)
+        end
       end
-      if @search_issue
-        tracker_name = params[:issue_tracker].gsub(/ .*/,'')
-        # could become configurable in webui, further options would be "changed" or "deleted".
-        # best would be to prefer links with "added" on top of results
-        changes="@change='added' or @change='kept'" 
-        pand << "issue/[@name=\"#{@search_issue}\" and @tracker=\"#{tracker_name}\" and (#{changes})]"
-      end
-      if @search_attribute
-        pand << "contains(attribute/@name,'#{@search_attribute}')"
-      end
-      predicate = pand.join(' and ')
-      if predicate.empty?
-        flash[:error] = "You need to search for name, title, description or attributes."
-        return
-      end
-      collection = find_cached(Collection, :what => s_what, :predicate => "[#{predicate}]", :expires_in => 5.minutes)
-      reweigh(collection, s_what)
-      logger.debug "@results in index: #{@results.length}"
+
       if @results.length < 1
         flash[:note] = "Your search did not return any results."
       end
@@ -75,6 +89,8 @@ class SearchController < ApplicationController
       end
     end
   end
+
+
 
   # This method handles obs:// disturls
   #
@@ -105,7 +121,7 @@ class SearchController < ApplicationController
   #
   # * *Args* :
   #   - +collection+ -> A collection
-  #   - +what+ ->  String og the type of search. Like package, project, owner...
+  #   - +what+ ->  String of the type of search. Like package, project, owner...
   # * *Returns* :
   #   - +@results+ -> A collection ordered by weight
   # * *Raises* :
@@ -202,25 +218,27 @@ private
   #
   # * *Returns* :
   #   - @search_text -> The search string we search for
-  #   - @search_issue -> The issue number we search for
-  #   - @search_owner -> The owner we search for
-  #   - @search_attribute -> The attribute we search for
+  #   - @search_what -> Array of result limits
+  #   - @search_where -> Array of where we search
+  #   - @search_attribute -> Limit results to this attribute string
+  #   - @search_issue -> Limit results to packages with this issue in the changelog
+  #   - @owner_limit -> Limit the amount of owners
+  #   - @owner_devel -> Follow devel links for owner search
   #   - @results -> An empty array for the results
-  #   - @search_what -> An array of things we search for
   #
   def set_parameters
     @results = []
-    
+
+    @search_attribute = nil
+    @search_attribute = params[:attribute].strip unless params[:attribute].blank?
+
+    @search_issue = nil
+    @search_issue = params[:issue].strip unless params[:issue].blank?
+
     @search_text = ""
     @search_text = params[:search_text].strip unless params[:search_text].blank?
     @search_text = @search_text.gsub("'", "").gsub("[", "").gsub("]", "").gsub("\n", "")
-    
-    @search_issue = nil
-    @search_issue = params[:issue_name].strip unless params[:issue_name].blank?
-    
-    @search_attribute = nil
-    @search_attribute = params[:attribute].strip unless params[:attribute].blank?
-    
+   
     @search_what = []
     @search_what << 'package' if params[:package] == "1" or params[:package].nil?
     @search_what << 'project' if params[:project] == "1" or params[:project].nil? and !@search_issue
@@ -230,6 +248,14 @@ private
     @search_where << 'name' if params[:name] == "1" or params[:name].nil?
     @search_where << 'title' if params[:title] == "1"
     @search_where << 'description' if params[:description] == "1"
+    
+    @owner_limit = nil
+    @owner_limit = "1" if params[:limit].nil?
+    @owner_limit = params[:limit] if !params[:limit].nil?
+    
+    @owner_devel = nil
+    @owner_devel = "0" if params[:devel].nil?
+    @owner_devel = params[:devel] if !params[:devel].nil?
   end
 
   def set_attribute_list

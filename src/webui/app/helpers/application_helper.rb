@@ -326,7 +326,7 @@ module ApplicationHelper
 
   def tab(id, text, opts)
     opts[:package] = @package.to_s if @package
-    opts[:project] = @project.to_s
+    opts[:project] = @project.to_s if @project
     link_opts = {id: "tab-#{id}"}
     if @current_action.to_s == opts[:action].to_s and @current_controller.to_s == opts[:controller].to_s
       link_opts[:class] = "selected"

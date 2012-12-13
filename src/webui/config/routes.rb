@@ -227,7 +227,8 @@ OBSWebUI::Application.routes.draw do
   end
 
   controller :search do
-    match 'search/' => :index
+    match 'search' => :index
+    match 'search/owner' => :owner
   end
 
   controller :user do
