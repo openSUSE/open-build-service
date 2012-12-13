@@ -327,7 +327,7 @@ sub signjob {
     my $pubkey;
     if ($signkey) {
       ($signkey, $pubkey) = split("\n", $signkey, 2) if $needpubkey;
-      die("returned pubkey is empty\n") if $needpubkey && !$pubkey;
+      die("returned pubkey is empty\n") if $needpubkey && !$pubkey && length($signkey) > 2;
       mkdir_p($uploaddir);
       writestr("$uploaddir/signer.$$", undef, $signkey);
       push @signargs, '-P', "$uploaddir/signer.$$";
