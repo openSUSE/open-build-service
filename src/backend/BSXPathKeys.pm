@@ -188,10 +188,24 @@ sub boolop {
     if ($v1->{'keys'} && !@{$v1->{'keys'}}) {
       @k = ();
     } elsif ($op == \&BSXPath::boolop_eq) {
-      @k = $db->keys($v1->{'path'}, $v2, $v1->{'keys'});
-      @k = grep {$k{$_}} @k if $v1->{'keys'};
-      #die("413 search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
-      $negpol = 0;
+      if ($v1->{'keys'} && $v1->{'path'} && $db->{"fetch_$v1->{'path'}"}) {
+	# have super-fast select_path_from_key function
+	for my $k (@{$v1->{'keys'}}) {
+	  my @d = $db->{"fetch_$v1->{'path'}"}->($db, $k);
+	  next unless @d; 
+	  if (!$negpol) {
+	    next unless grep {$_ eq $v2} @d; 
+	  } else {
+	    next if grep {$_ eq $v2} @d; 
+	  }
+	  push @k, $k; 
+	}
+      } else {
+        @k = $db->keys($v1->{'path'}, $v2, $v1->{'keys'});
+        @k = grep {$k{$_}} @k if $v1->{'keys'};
+        #die("413 search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
+        $negpol = 0;
+     }
     } elsif ($op == \&BSXPath::boolop_not && $v1->{'keys'} && !exists($v1->{'value'})) {
       for my $k (@{$v1->{'keys'}}) {
 	my $vv = $db->fetch($k);

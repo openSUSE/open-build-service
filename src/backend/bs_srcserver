@@ -5826,6 +5826,15 @@ sub binary_key_to_data {
   return $res;
 }
 
+sub binary_key_to_project {
+  my ($db, $key) = @_;  
+  my @p = split('/', $key);
+  while (@p > 1 && $p[0] =~ /:$/) {
+    splice(@p, 0, 2, "$p[0]$p[1]");
+  }
+  return shift @p;
+}
+
 sub pattern_key_to_data {
   my ($db, $key) = @_; 
   my @p = split('/', $key);
@@ -5876,6 +5885,7 @@ sub search_published_binary_id {
   $binarydb->{'noindex'} = {'version' => 1, 'release' => 1, 'versrel' => 1, 'arch' => 1, 'project' => 1, 'repository' => 1, 'package' => 1, 'type' => 1, 'path/project' => 1, 'path/repository' => 1, 'baseproject' => 1};
   $binarydb->{'indexfunc'} = {'project' => \&published_projectindexfunc };
   $binarydb->{'fetch'} = \&binary_key_to_data;
+  $binarydb->{'fetch_project'} = \&binary_key_to_project;
   $binarydb->{'cheapfetch'} = 1;
   my $limit = defined($cgi->{'limit'}) ? $cgi->{'limit'} : 1000;
   my $rootnode = BSXPathKeys::node($binarydb, '', $limit < 10 ? 1000 : $limit * 100);
