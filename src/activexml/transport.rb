@@ -399,7 +399,7 @@ module ActiveXML
         raise UnauthorizedError, http_response.read_body.force_encoding("UTF-8")
       when Net::HTTPForbidden
         raise ForbiddenError, http_response.read_body.force_encoding("UTF-8")
-      when Net::HTTPGatewayTimeOut
+      when Net::HTTPGatewayTimeOut, Net::HTTPRequestTimeOut
         raise Timeout::Error
       when Net::HTTPBadGateway
         raise Timeout::Error
