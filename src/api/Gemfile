@@ -26,6 +26,7 @@ group :test do
   gem 'simplecov-rcov', :require => false
   gem 'minitest'
   gem 'faker'
+  gem 'timecop'
 end
 
 group :development do

@@ -174,7 +174,7 @@ PLATFORMS
 DEPENDENCIES
   capybara (>= 2.0)
   ci_reporter
-  codemirror-rails
+  codemirror-rails (~> 2.35)
   compass-rails
   cssmin (>= 1.0.2)
   delayed_job (> 3.0)
