@@ -62,4 +62,13 @@ class StatusControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_history
+    get "/status/history"
+    assert_response 400
+   
+    get "/status/history?hours=24&key=idle_i586"
+    assert_response :success
+    # there is no history in fixtures so the result doesn't matter
+  end
 end
+
