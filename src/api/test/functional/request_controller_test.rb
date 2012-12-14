@@ -6,8 +6,8 @@ class RequestControllerTest < ActionController::IntegrationTest
  
   fixtures :all
 
-  def teardown
-    BsRequest.where("id not in (997, 998, 999, 1000)").each { |r| r.destroy }
+  teardown do
+    Timecop.return
   end
 
   def test_set_and_get_1
@@ -49,6 +49,8 @@ class RequestControllerTest < ActionController::IntegrationTest
     put "/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/new_file", "my content"
     assert_response :success
 
+    # the birthday of J.K.
+    Timecop.freeze(2010, 7, 12)
     # submit request
     post "/request?cmd=create", '<request>
                                    <action type="submit">
@@ -57,21 +59,22 @@ class RequestControllerTest < ActionController::IntegrationTest
                                    <description>DESCRIPTION IS HERE</description>
                                  </request>'
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    id = node.value('id')
-    create_time = node.state.value('when')
+    node = Xmlhash.parse(@response.body)
+    id = node['id']
+    assert !id.blank?
+    create_time = node['state']['when']
+    assert_equal '2010-07-12T00:00:00', create_time
 
-    # sleep to ensure that timestamps get handled correctly
-    sleep(1)
+    # aka sleep 1
+    Timecop.freeze(1)
 
     # create more history entries decline, reopen and finally accept it
-    post "/request/#{id}?cmd=changestate&newstate=declined"
+    post "/request/#{id}?cmd=changestate&newstate=declined&comment=notgood"
     assert_response :success
-    sleep(1)
-    post "/request/#{id}?cmd=changestate&newstate=new"
+    Timecop.freeze(1) 
+    post "/request/#{id}?cmd=changestate&newstate=new&comment=oops"
     assert_response :success
-    sleep(1)
+    Timecop.freeze(1)
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response :success
 
@@ -89,9 +92,27 @@ class RequestControllerTest < ActionController::IntegrationTest
     # validate request
     get "/request/#{id}"
     assert_response :success
+    node = Xmlhash.parse(@response.body)
     assert_xml_tag(:tag => "acceptinfo", :attributes => { :rev => '1', :srcmd5 => '1ded65e42c0f04bd08075dfd1fd08105', :osrcmd5 => 'd41d8cd98f00b204e9800998ecf8427e' })
     assert_xml_tag(:tag => "state", :attributes => { :name => "accepted", :who => 'Iggy' })
     assert_xml_tag(:tag => "history", :attributes => { :name => "new", :who => 'Iggy' })
+    assert_equal({
+        "id"=>id, 
+        "action"=>{
+          "type"=>"submit", 
+          "source"=>{"project"=>"home:Iggy:branches:home:Iggy", "package"=>"NEW_PACKAGE"}, 
+          "target"=>{"project"=>"home:Iggy", "package"=>"NEW_PACKAGE"}, 
+          "options"=>{"sourceupdate"=>"cleanup"}, 
+          "acceptinfo"=>{"rev"=>"1", "srcmd5"=>"1ded65e42c0f04bd08075dfd1fd08105", "osrcmd5"=>"d41d8cd98f00b204e9800998ecf8427e"}
+        }, 
+        "state"=>{"name"=>"accepted", "who"=>"Iggy", "when"=>"2010-07-12T00:00:03", "comment"=>"DESCRIPTION IS HERE"}, 
+        "history"=>[
+                    {"name"=>"new", "who"=>"Iggy", "when"=>"2010-07-12T00:00:00"}, 
+                    {"name"=>"declined", "who"=>"Iggy", "when"=>"2010-07-12T00:00:01", "comment"=>'notgood'}, 
+                    {"name"=>"new", "who"=>"Iggy", "when"=>"2010-07-12T00:00:02", "comment"=>'oops'}
+                   ], 
+        "description"=>"DESCRIPTION IS HERE"}, node)
+
     # compare times
     node = ActiveXML::Node.new(@response.body)
     assert((node.state.value('when') > node.each_history.last.value('when')), "Current state is not newer than the former state")
@@ -114,6 +135,8 @@ class RequestControllerTest < ActionController::IntegrationTest
     # cleanup
     delete "/source/home:Iggy:branches:home:Iggy"
     assert_response :success
+    
+    Timecop.return
   end
 
   def test_submit_request_with_broken_source
@@ -437,19 +460,29 @@ class RequestControllerTest < ActionController::IntegrationTest
   # MeeGo BOSS: is using multiple reviews by same user for each step
   def test_create_request_and_multiple_reviews
     reset_auth
-    req = load_backend_file('request/works')
+
+    # the birthday of J.K.
+    Timecop.freeze(2010, 7, 12)
 
     prepare_request_with_user "Iggy", "asdfasdf"
-    req = load_backend_file('request/works')
-    post "/request?cmd=create", req
+    post("/request?cmd=create", "<request>
+                                   <action type='add_role'>
+                                     <target project='home:Iggy' package='TestPack' />
+                                     <person name='Iggy' role='reviewer' />
+                                    </action>
+                                  </request>")
+
     assert_response :success
+
     assert_xml_tag( :tag => "request" )
     node = ActiveXML::Node.new(@response.body)
+    assert_xml_tag( :tag => "state", :attributes => { :name => "new" } )
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
     # add reviewer
     prepare_request_with_user "Iggy", "asdfasdf"
+    Timecop.freeze(1) # 0:0:1 review added
     post "/request/#{id}?cmd=addreview&by_user=tom"
     assert_response :success
     get "/request/#{id}"
@@ -458,11 +491,16 @@ class RequestControllerTest < ActionController::IntegrationTest
 
     # accept review
     prepare_request_with_user 'tom', 'thunder'
+    Timecop.freeze(1) # 0:0:2 tom accepts review
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=tom&comment=review1"
     assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag( :tag => "state", :attributes => { :name => "new" } )
 
-    # add reviewer
+    # readd reviewer
     prepare_request_with_user "Iggy", "asdfasdf"
+    Timecop.freeze(1) # 0:0:3 yet another review for tom
     post "/request/#{id}?cmd=addreview&by_user=tom"
     assert_response :success
     get "/request/#{id}"
@@ -471,8 +509,10 @@ class RequestControllerTest < ActionController::IntegrationTest
 
     # accept review
     prepare_request_with_user 'tom', 'thunder'
+    Timecop.freeze(1) # 0:0:4 yet another review accept by tom
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=tom&comment=review2"
     assert_response :success
+
 
     # check review comments are the same
     get "/request/#{id}"
@@ -482,24 +522,109 @@ class RequestControllerTest < ActionController::IntegrationTest
 
     # reopen a review
     prepare_request_with_user "tom", "thunder"
+    Timecop.freeze(1) # 0:0:5 reopened from tom
     post "/request/#{id}?cmd=changereviewstate&newstate=new&by_user=tom&comment=reopen2", nil
     assert_response :success
     get "/request/#{id}"
     assert_response :success
+
     assert_xml_tag( :tag => "state", :attributes => { :name => "review" } )
     assert_xml_tag( :parent => {:tag => "review", :attributes => { :state => "accepted", :by_user => "tom" }}, :tag => "comment", :content => 'review1' )
     assert_xml_tag( :parent => {:tag => "review", :attributes => { :state => "new", :by_user => "tom" }}, :tag => "comment", :content => 'reopen2' )
+    node = Xmlhash.parse(@response.body)
+    assert_equal({ "id" => "#{id}",
+                   "action"=>
+                   {"type"=>"add_role",
+                     "target"=>{"project"=>"home:Iggy", "package"=>"TestPack"},
+                     "person"=>{"name"=>"Iggy", "role"=>"reviewer"}},
+                   "state"=>
+                   {"name"=>"review",
+                     "who"=>"tom",
+                     "when"=>"2010-07-12T00:00:05",
+                     "comment"=>"reopen2"},
+                   "review"=>
+                   [{"state"=>"accepted",
+                      "when"=>"2010-07-12T00:00:01",
+                      "who"=>"tom",
+                      "by_user"=>"tom",
+                      "comment"=>"review1"},
+                    {"state"=>"new",
+                      "when"=>"2010-07-12T00:00:03",
+                      "who"=>"tom",
+                      "by_user"=>"tom",
+                      "comment"=>"reopen2"}],
+                   "history"=>
+                   [{"name"=>"new", "who"=>"Iggy", "when"=>"2010-07-12T00:00:00"},
+                    {"name"=>"review",
+                      "who"=>"Iggy",
+                      "when"=>"2010-07-12T00:00:01",
+                      "comment"=>{}},
+                    {"name"=>"new",
+                      "who"=>"tom",
+                      "when"=>"2010-07-12T00:00:02",
+                      "comment"=>"review1"},
+                    {"name"=>"review",
+                      "who"=>"Iggy",
+                      "when"=>"2010-07-12T00:00:03",
+                      "comment"=>{}},
+                    {"name"=>"new",
+                      "who"=>"tom",
+                      "when"=>"2010-07-12T00:00:04",
+                      "comment"=>"review2"}]}, node)
 
-    # search this request and verify that all reviews got rendered.
-    get "/search/request", :match => "[@id=#{id}]"
-    assert_response :success
-    get "/search/request", :match => "[review/@by_user='adrian']"
-    assert_response :success
-    assert_xml_tag( :tag => "review", :attributes => { :by_user => "adrian" } )
-    assert_xml_tag( :tag => "review", :attributes => { :by_user => "tom" } )
-    assert_xml_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
+    infos = JSON.parse(BsRequest.find(id).webui_infos.to_json)
+    # FIXME: this contains several problems, but at least we can catch regressions this way
+    # - 0:0:1 tom did not accept a review but Iggy created one
+    assert_equal({"id" => id.to_i,
+                   "description"=>nil,
+                   "state"=>"review",
+                   "creator"=>"Iggy",
+                   "created_at"=>"2010-07-12T00:00:00Z",
+                   "is_target_maintainer"=>false,
+                   "my_open_reviews"=>
+                   [{ "by_user"=>"tom",
+                      "when"=>"2010-07-12T00:00:03Z",
+                      "who"=>"tom",
+                      "state"=>"new"}],
+                   "other_open_reviews"=>[],
+                   "events"=>
+                   [{"who"=>"Iggy",
+                      "what"=>"created request",
+                      "when"=>"2010-07-12T00:00:00Z",
+                      "comment"=>nil},
+                    {"who"=>"tom",
+                      "what"=>"accepted review",
+                      "when"=>"2010-07-12T00:00:01Z",
+                      "comment"=>"review1",
+                      "color"=>"green"},
+                    {"who"=>"tom",
+                      "what"=>"accepted review",
+                      "when"=>"2010-07-12T00:00:02Z",
+                      "comment"=>"review1",
+                      "color"=>"green"},
+                    {"who"=>"Iggy",
+                      "what"=>"added review",
+                      "when"=>"2010-07-12T00:00:03Z",
+                      "comment"=>""},
+                    {"who"=>"tom",
+                      "what"=>"accepted review",
+                      "when"=>"2010-07-12T00:00:04Z",
+                      "comment"=>"review2",
+                      "color"=>"green"},
+                    {"who"=>"tom",
+                      "what"=>"",
+                      "when"=>"2010-07-12T00:00:05Z",
+                      "comment"=>"reopen2",
+                      "color"=>""}],
+                   "actions"=>
+                   [{"type"=>"add_role",
+                      "tprj"=>"home:Iggy",
+                      "tpkg"=>"TestPack",
+                      "name"=>"Add Role",
+                      "role"=>"reviewer",
+                      "user"=>"Iggy"}]}, infos)
   end
-
+  
   def test_change_review_state_after_leaving_review_phase
     reset_auth
     req = load_backend_file('request/works')
@@ -548,6 +673,16 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request/#{id}?cmd=changereviewstate&newstate=declined&by_group=test_group"
     assert_response 403
     assert_xml_tag :tag => "status", :attributes => { :code => "review_change_state_no_permission" }
+
+    # search this request and verify that all reviews got rendered.
+    get "/search/request", :match => "[@id=#{id}]"
+    assert_response :success
+    get "/search/request", :match => "[review/@by_user='adrian']"
+    assert_response :success
+    assert_xml_tag( :tag => "review", :attributes => { :by_user => "adrian" } )
+    assert_xml_tag( :tag => "review", :attributes => { :by_user => "tom" } )
+    assert_xml_tag( :tag => "review", :attributes => { :by_group => "test_group" } )
+
   end
 
   def test_search_and_involved_requests

@@ -285,7 +285,7 @@ class BsRequest < ActiveRecord::Base
           
       raise Review::NotFound.new unless found
       if go_new_state || state == :superseded
-        bs_request_histories.create comment: self.comment, commenter: self.commenter, state: self.state, superseded_by: self.superseded_by        
+        bs_request_histories.create comment: self.comment, commenter: self.commenter, state: self.state, superseded_by: self.superseded_by, created_at: self.updated_at
         
         if state == :superseded
           self.state = :superseded
@@ -320,7 +320,7 @@ class BsRequest < ActiveRecord::Base
       if !opts[:by_user] && !opts[:by_group] && !opts[:by_project]
         raise InvalidReview.new
       end
-      bs_request_histories.create comment: self.comment, commenter: self.commenter, state: self.state, superseded_by: self.superseded_by        
+      bs_request_histories.create comment: self.comment, commenter: self.commenter, state: self.state, superseded_by: self.superseded_by, created_at: self.updated_at
 
       self.state = 'review'
       self.commenter = User.current.login
@@ -557,9 +557,9 @@ class BsRequest < ActiveRecord::Base
     user_reviews, other_open_reviews = [], []
     self.reviews.where(state: 'new').each do |review|
       if review_matches_user?(review, user)
-        user_reviews << review
+        user_reviews << review.webui_infos
       else
-        other_open_reviews << review
+        other_open_reviews << review.webui_infos
       end
     end
     return user_reviews, other_open_reviews

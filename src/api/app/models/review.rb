@@ -45,7 +45,7 @@ class Review < ActiveRecord::Base
     r
   end
 
-  def render_xml(builder)
+  def _get_attributes
     attributes = { :state => self.state.to_s  }
     # old requests didn't have who and when
     attributes[:when] = self.created_at.strftime("%Y-%m-%dT%H:%M:%S") if self.reviewer
@@ -54,12 +54,23 @@ class Review < ActiveRecord::Base
     attributes[:by_user] = self.by_user if self.by_user
     attributes[:by_package] = self.by_package if self.by_package
     attributes[:by_project] = self.by_project if self.by_project
-    
-    builder.review(attributes) do
+
+    attributes
+  end
+
+  def render_xml(builder)
+    builder.review(_get_attributes) do
       builder.comment! self.reason if self.reason
     end
   end
-  
+
+  def webui_infos
+    ret = _get_attributes
+    # XML has this perl format, don't use that here
+    ret[:when] = self.created_at
+    ret
+  end
+
   def notify_parameters(params = {})
     hermes_type = nil
     if self.by_package

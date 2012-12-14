@@ -11,7 +11,7 @@ group :assets do
   gem 'sass-rails'
   gem 'compass-rails'
   gem 'jquery-datatables-rails'
-  gem 'codemirror-rails'
+  gem 'codemirror-rails', '~> 2.35'
 end
 
 group :development do
