@@ -1187,7 +1187,7 @@ class Project < ActiveRecord::Base
   end
 
   def expand_all_projects
-    projects = [self.name]
+    projects = [self]
     p_map = Hash.new
     projects.each { |i| p_map[i] = 1 } # existing projects map
     # add all linked and indirect linked projects
@@ -1298,7 +1298,7 @@ class Project < ActiveRecord::Base
     pkg_match = pkg
     unless m
       pkg.project.expand_all_projects.each do |prj|
-        p = Package.find_by_project_and_name( prj, pkg.name )
+        p = prj.packages.find_by_name(pkg.name )
         next if p.nil?
 
         m = extract_maintainer(self, p.resolve_devel_package, filter) if devel == true
@@ -1310,26 +1310,59 @@ class Project < ActiveRecord::Base
       end
     end
 
-    if owner.nil?
-      # special search for NOT maintained packages with given filter
-      # skip if maintainer is defined
-      return nil, limit if m
-
-      m = {}
-      m[:rootproject] = self.name
-      m[:project] = pkg_match.project.name
-      m[:package] = pkg_match.name
-
-      limit = limit - 1
-      return m, limit
-    end
-
     # found entry
     return m, (limit-1)
   end
   private :lookup_package_owner
 
-  def find_containers(owner=nil, limit=1, devel=true, filter=["maintainer","bugowner"] )
+  def find_containers_without_definition(devel=true, filter=["maintainer","bugowner"] )
+    projects=self.expand_all_projects
+
+    roles=[]
+    filter.each do |f|
+      roles << Role.find_by_title!(f)
+    end
+
+    # fast find packages with defintions
+    # user in package object
+    defined_packages = Package.joins(:package_user_role_relationships).where("db_project_id in (?) AND package_user_role_relationships.role_id in (?)", projects, roles).select(:name).map{ |p| p.name}
+    # group in package object
+    defined_packages += Package.joins(:package_group_role_relationships).where("db_project_id in (?) AND package_group_role_relationships.role_id in (?)", projects, roles).select(:name).map{ |p| p.name}
+    # user in project object
+    Project.joins(:project_user_role_relationships).where("projects.id in (?) AND project_user_role_relationships.role_id in (?)", projects, roles).each do |prj|
+      defined_packages += prj.packages.map{ |p| p.name }
+    end
+    # group in project object
+    Project.joins(:project_group_role_relationships).where("projects.id in (?) AND project_group_role_relationships.role_id in (?)", projects, roles).each do |prj|
+      defined_packages += prj.packages.map{ |p| p.name }
+    end
+    if devel == true
+      #FIXME add devel packages, but how do recursive lookup fast in SQL?
+    end
+    defined_packages.uniq!
+
+    all_packages = Package.where("db_project_id in (?)", projects).select(:name).map{ |p| p.name}
+  
+    undefined_packages = all_packages - defined_packages 
+    maintainers=[]
+
+    undefined_packages.each do |p|
+      next if p =~ /\A_product:\w[-+\w\.]*\z/
+
+      pkg = self.find_package(p)
+      
+      m = {}
+      m[:rootproject] = self.name
+      m[:project] = pkg.project.name
+      m[:package] = pkg.name
+
+      maintainers << m
+    end
+
+    return maintainers
+  end
+
+  def find_containers(owner, limit=1, devel=true, filter=["maintainer","bugowner"] )
     maintainers=[]
     projects=self.expand_all_projects
 
@@ -1337,8 +1370,7 @@ class Project < ActiveRecord::Base
 
     matched_packages = {}
     deepest_match = nil
-    projects.each do |prj| # project link order
-      project = Project.get_by_name(prj)
+    projects.each do |project| # project link order
       next unless project.class == Project
  
       project.packages.each do |pkg| # no order
@@ -1371,7 +1403,7 @@ class Project < ActiveRecord::Base
     deepest = (limit < 0)
 
     # binary search via all projects
-    prjlist = projects.map { |p| "@project='#{CGI.escape(p)}'" }
+    prjlist = projects.map { |p| "@project='#{CGI.escape(p.name)}'" }
     path = "/search/published/binary/id?match=(@name='"+CGI.escape(binary_name)+"'"
     path += "+and+("
     path += prjlist.join("+or+")
@@ -1385,9 +1417,9 @@ class Project < ActiveRecord::Base
     deepest_match = nil
     projects.each do |prj| # project link order
       data.elements("binary").each do |b| # no order
-        next unless b["project"] == prj
+        next unless b["project"] == prj.name
 
-        pkg = Package.find_by_project_and_name( prj, b["package"] )
+        pkg = prj.packages.find_by_name( b["package"] )
         next if pkg.nil?
 
         # the "" means any matching relationships will get taken

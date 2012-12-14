@@ -118,8 +118,13 @@ class SearchController < ApplicationController
         end
       end
 
-      owners = project.find_assignees(obj, limit.to_i, devel, filter)  if obj and obj.class == String
-      owners = project.find_containers(obj, limit.to_i, devel, filter) if obj.nil? or obj.class != String
+      if obj.nil?
+        owners = project.find_containers_without_definition(devel, filter)
+      elsif obj.class == String
+        owners = project.find_assignees(obj, limit.to_i, devel, filter)
+      else
+        owners = project.find_containers(obj, limit.to_i, devel, filter)
+      end
 
     end
 
