@@ -352,10 +352,10 @@ module ActiveXML
         else
           raise "unknown HTTP method: #{method.inspect}"
         end
-      rescue Timeout::Error => err
+      rescue Timeout::Error, Errno::ETIMEDOUT
         logger.error "--> caught timeout, closing HTTP"
         keepalive = false
-        raise err
+        raise Timeout::Error
       rescue SocketError, Errno::EINTR, Errno::EPIPE, EOFError, Net::HTTPBadResponse, IOError => err
         keepalive = false
         if retries < max_retries
