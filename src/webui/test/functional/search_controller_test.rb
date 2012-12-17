@@ -66,23 +66,26 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   def search_results
-    raw_results = page.all("div#search_results table tr")
+    raw_results = page.all("div.search_result")
     raw_results.collect do |row|
       theclass = row.first("img")["class"]
       case theclass
       when "project"
-        { :type         => :project, 
-          :project_name => row.find("a.project-link").text }
+        { :type         => :project,
+          :project_name => row.find("a.data-title")[:title],
+          :project_title => row.find("a.data-title").text
+        }
       when "package"
         { :type         => :package, 
-          :package_name => row.find("a.package-link").text,
-          :project_name => row.find("a.project-link").text }
+          :package_name => row.find("a.data-title")[:title],
+          :project_name => row.find("span.data-project").text
+        }
       else
         fail "Unrecognized result icon. #{alt}"
       end
     end
   end
-  
+
   test "find_search_link_in_footer" do
     visit "/"
     find(:css, "div#footer a.search-link").click
@@ -117,12 +120,12 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     results = search_results
     # tom set no description
-    assert !results.include?(:type => :project, :project_name => "home:tom")
-    assert results.include? :type => :project, :project_name => "home:Iggy"
-    assert results.include? :type => :project, :project_name => "home:adrian"
+    assert !results.include?(:type => :project, :project_name => "home:tom", :project_title => "Этёам вокябюч еюж эи")
+    assert results.include? :type => :project, :project_name => "home:Iggy", :project_title => "Iggy Home Project"
+    assert results.include? :type => :project, :project_name => "home:adrian", :project_title => "adrian's Home Project"
     # important match as it's having "home" and not "Home"
-    assert results.include? :type => :project, :project_name => "home:dmayr" 
-    assert results.include? :type => :project, :project_name => "home:Iggy:branches:kde4" 
+    assert results.include? :type => :project, :project_name => "home:dmayr", :project_title => "my home project"
+    assert results.include? :type => :project, :project_name => "home:Iggy:branches:kde4", :project_title => "Iggy Home Project"
     # the api fixtures add home dirs too
     assert results.count >= 4
   end
@@ -138,7 +141,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
       :in   => [:name])
 
     results = search_results
-    assert results.include? :type => :project, :project_name => "home:Iggy:branches:kde4"
+    assert results.include? :type => :project, :project_name => "home:Iggy:branches:kde4", :project_title => "Iggy Home Project"
     assert_equal 1, results.count
   end
 
@@ -153,7 +156,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
       :in   => [:name])
 
     results = search_results
-    assert results.include? :type => :project, :project_name => "LocalProject"
+    assert results.include? :type => :project, :project_name => "LocalProject", :project_title => "This project is a local project"
     assert_equal 1, results.count
   end
 
@@ -168,9 +171,9 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
       :in   => [:name])
     
     results = search_results
-    assert results.include? :type => :package, :project_name => "CopyTest",  :package_name => "test"
+    assert results.include? :type => :package, :project_name => "CopyTest", :package_name => "test"
+    assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "TestPack"
     assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "ToBeDeletedTestPack"
-    assert results.include? :type => :package, :package_name => "TestPack",  :project_name => "home:Iggy"
     assert_equal 3, results.count
   end
   
@@ -247,7 +250,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
       :expect => :no_results)
   end
   
-  test "search russian" do
+  test "search_russian" do
     visit search_path
     
     search(

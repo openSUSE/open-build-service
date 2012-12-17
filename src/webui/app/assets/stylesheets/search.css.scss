@@ -39,14 +39,23 @@
   background-color: transparent;
 }
 
-#search_results h6 {
+.search_result {
+  margin-bottom: 30px;
+}
+
+.search_result h6 {
+  color: #690;
   text-decoration: underline;
   margin-bottom: -10px;
 }
 
-.data-project {
+.data-title {
   color: #690;
   margin-bottom: -10px;
+}
+
+.data-name {
+  display: none;
 }
 
 .data-description {

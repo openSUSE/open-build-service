@@ -42,42 +42,54 @@ class SearchController < ApplicationController
       end
     end
 
-    logger.debug "Searching for the string #{@search_text} in the #{@search_where}'s of #{@search_what}'s"
+    logger.debug "Searching for the string \"#{@search_text}\" in the #{@search_where}'s of #{@search_what}'s"
     if @search_where.length < 1 and !@search_attribute and !@search_issue
       flash[:error] = "You have to search for #{@search_text} in something. Click the advanced button..."
       return
     end
 
     @search_what.each do |what|
-      pand = []
+      fact = nil
+      limit = nil
 
       if what == 'owner'
         collection = find_cached(Owner, :binary => "#{@search_text}", :limit => "#{@owner_limit}", :devel => "#{@owner_devel}", :expires_in => 5.minutes)
         reweigh(collection, what)
       end
       if what == 'package' or what == 'project'
-        p = []
-        p << "contains(@name,'#{@search_text}')" if @search_where.include?('name')
-        p << "contains(title,'#{@search_text}')" if @search_where.include?('title')
-        p << "contains(description,'#{@search_text}')" if @search_where.include?('description')
-        pand << p.join(' or ')
+        f = []
+        f << "contains(@name,'#{@search_text}')" if @search_where.include?('name')
+        f << "contains(title,'#{@search_text}')" if @search_where.include?('title')
+        f << "contains(description,'#{@search_text}')" if @search_where.include?('description')
+        fact = f.join(' or ')
+        l = []
         if @search_attribute
-          pand << "contains(attribute/@name,'#{@search_attribute}')"
+          if fact.empty?
+            # This means everything
+            fact = "contains(@name,'')"
+          end
+          l << "contains(attribute/@name, '#{@search_attribute}')"
         end
         if @search_issue
+          if fact.empty?
+            # This means everything
+            fact = "contains(@name,'')"
+          end
           tracker_name = params[:issue_tracker].gsub(/ .*/,'')
           # could become configurable in webui, further options would be "changed" or "deleted".
           # best would be to prefer links with "added" on top of results
-          pand << "issue/[@name=\"#{@search_issue}\" and @tracker=\"#{tracker_name}\" and (@change='added' or @change='kept')]"
-        end
-        predicate = pand.join(' and ')
+          l << "issue/[@name='#{@search_issue}' and @tracker='#{tracker_name}' and (@change='added' or @change='kept')]"
+        end        
+        limit = l.join(' and ')
+        logger.debug("fact: #{fact} and limit: #{limit}")
+        predicate = fact + " and " + limit
         if predicate.empty?
           flash[:error] = "You need to search for name, title, description or attributes."
           return
-        else
-          collection = find_cached(Collection, :what => what, :predicate => "[#{predicate}]", :expires_in => 5.minutes)
-          reweigh(collection, what)
         end
+        logger.debug "predicate: #{predicate.inspect}"
+        collection = find_cached(Collection, :what => what, :predicate => "[#{predicate}]", :expires_in => 5.minutes)
+        reweigh(collection, what)
       end
 
       if @results.length < 1
