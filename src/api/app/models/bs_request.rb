@@ -607,9 +607,11 @@ class BsRequest < ActiveRecord::Base
     last_review_item = nil
     self.reviews.each do |item|
       if [:accepted, :declined].include?(item.state)
-        ct = events[item.created_at] || { who: item.creator, what: "added review", when: item.created_at }
-        ct[:comment] ||= item.reason
-        events[item.created_at] = ct
+        if item.creator # default reviews in a project are not "added"
+          ct = events[item.created_at] || { who: item.creator, what: "added review", when: item.created_at }
+          ct[:comment] ||= item.reason
+          events[item.created_at] = ct
+        end
 
         events[item.updated_at] = {:who => item.reviewer, :what => "#{item.state} review", :when => item.updated_at, :comment => item.reason}
         events[item.updated_at][:color] = "green" if item.state == :accepted
