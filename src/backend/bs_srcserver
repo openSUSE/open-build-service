@@ -1978,6 +1978,8 @@ sub findpackages {
     if ($@ && $@ !~ /^404/) {
       die($@) unless $nonfatal;
       warn($@);
+      push @packids, ':missing_packages' if $nonfatal == 2;
+      return @packids;
     }
     @packids = map {$_->{'name'}} @{($r || {})->{'entry'} || []};
     if ($origins) {
@@ -2499,7 +2501,12 @@ sub getprojpack {
       };
     }
     my @packages;
-    @packages = findpackages($projid, $proj, 1) unless $cgi->{'nopackages'} || $proj->{'remoteurl'};
+    @packages = findpackages($projid, $proj, 2) unless $cgi->{'nopackages'} || $proj->{'remoteurl'};
+    my $missing_packages = grep {$_ eq ':missing_packages'} @packages;
+    if ($missing_packages) {
+      @packages = grep {$_ ne ':missing_packages'} @packages;
+      $jinfo->{'missingpackages'} = 1;
+    }
     next if $repoids && !grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []};
     next if $packids && !grep {$packids->{$_}} @packages;
     for (qw{title description build publish debuginfo useforbuild remoteurl remoteproject download link sourceaccess privacy access lock}) {

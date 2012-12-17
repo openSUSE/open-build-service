@@ -296,6 +296,7 @@ our $projpack = [
 		@flags,
 		'bcntsynctag',
 	 ]],
+	    'missingpackages',
      ]],
      [[ 'remotemap' =>
 	    'project',
