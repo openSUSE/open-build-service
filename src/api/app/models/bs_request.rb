@@ -569,7 +569,7 @@ class BsRequest < ActiveRecord::Base
     # Try to find out what happened over time...
     events = {}
     last_history_item = nil
-    self.bs_request_histories.each do |item|
+    self.bs_request_histories.order(:created_at).each do |item|
       what, color = "", nil
       case item.state
         when :new then
@@ -607,9 +607,13 @@ class BsRequest < ActiveRecord::Base
     last_review_item = nil
     self.reviews.each do |item|
       if [:accepted, :declined].include?(item.state)
-        events[item.created_at] = {:who => item.reviewer, :what => "#{item.state} review", :when => item.created_at, :comment => item.reason}
-        events[item.created_at][:color] = "green" if item.state == :accepted
-        events[item.created_at][:color] = "red" if item.state == :declined
+        ct = events[item.created_at] || { who: item.creator, what: "added review", when: item.created_at }
+        ct[:comment] ||= item.reason
+        events[item.created_at] = ct
+
+        events[item.updated_at] = {:who => item.reviewer, :what => "#{item.state} review", :when => item.updated_at, :comment => item.reason}
+        events[item.updated_at][:color] = "green" if item.state == :accepted
+        events[item.updated_at][:color] = "red" if item.state == :declined
       end
       last_review_item = item
     end
@@ -617,27 +621,30 @@ class BsRequest < ActiveRecord::Base
     state, what, color = self.state, "", ""
     comment = self.comment
     case state
-      when :accepted then what, color = "accepted request", "green"
-      when :declined then what, color = "declined request", "red"
-      when :new, :review
-        if last_history_item # Last history entry
-          case last_history_item.state
-            when :review then
-              # TODO: There is still a case left, see sr #106286, factory-auto added a review for autobuild-team, the
-              # request # remained in state 'review', but another review was accepted in between. That is kind of hard
-              # to grasp from the pack of <history/>, <review/> and <state/> items without breaking # the other cases ;-)
-              #what, color = "accepted review for #{last_history_item.value('who')}", 'green'
-              what, color = "accepted review", 'green'
-              comment = last_review_item.reason # Yes, the comment for the last history item is in the last review ;-)
-            when 'declined' then what, color = 'reopened request', 'maroon'
-          end
+    when :accepted then what, color = "accepted request", "green"
+    when :declined then what, color = "declined request", "red"
+    when :new, :review
+      if last_history_item # Last history entry
+        case last_history_item.state
+        when :review then
+          # TODO: There is still a case left, see sr #106286, factory-auto added a review for autobuild-team, the
+          # request # remained in state 'review', but another review was accepted in between. That is kind of hard
+          # to grasp from the pack of <history/>, <review/> and <state/> items without breaking # the other cases ;-)
+          #what, color = "accepted review for #{last_history_item.value('who')}", 'green'
+          what, color = "accepted review", 'green'
+          comment = last_review_item.reason # Yes, the comment for the last history item is in the last review ;-)
+        when :new then what, color = 'reopened review', 'maroon'
+        when :declined then what, color = 'reopened request', 'maroon'
         else
-          what = "created request"
+          what = "played with his balls - #{last_history_item.state}"
         end
-      when "superseded" then what, color = 'superseded request', 'green'
-      when "revoked" then what, color = 'revoked request', 'green'
+      else
+        what = "created request"
+      end
+    when :superseded then what, color = 'superseded request', 'green'
+    when :revoked then what, color = 'revoked request', 'green'
+    else raise "unknown state '#{state.inspect}'"
     end
-
     events[self.updated_at] = {:who => self.commenter, :what => what, :when => self.updated_at, :comment => comment}
     events[self.updated_at][:color] = color if color
     events[self.updated_at][:superseded_by] = self.superseded_by if self.superseded_by

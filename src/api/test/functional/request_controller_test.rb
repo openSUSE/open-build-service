@@ -483,7 +483,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     # add reviewer
     prepare_request_with_user "Iggy", "asdfasdf"
     Timecop.freeze(1) # 0:0:1 review added
-    post "/request/#{id}?cmd=addreview&by_user=tom"
+    post "/request/#{id}?cmd=addreview&by_user=tom&comment=couldyou"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
@@ -501,7 +501,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     # readd reviewer
     prepare_request_with_user "Iggy", "asdfasdf"
     Timecop.freeze(1) # 0:0:3 yet another review for tom
-    post "/request/#{id}?cmd=addreview&by_user=tom"
+    post "/request/#{id}?cmd=addreview&by_user=tom&comment=overlooked"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
@@ -558,7 +558,7 @@ class RequestControllerTest < ActionController::IntegrationTest
                     {"name"=>"review",
                       "who"=>"Iggy",
                       "when"=>"2010-07-12T00:00:01",
-                      "comment"=>{}},
+                      "comment"=>"couldyou"},
                     {"name"=>"new",
                       "who"=>"tom",
                       "when"=>"2010-07-12T00:00:02",
@@ -566,15 +566,14 @@ class RequestControllerTest < ActionController::IntegrationTest
                     {"name"=>"review",
                       "who"=>"Iggy",
                       "when"=>"2010-07-12T00:00:03",
-                      "comment"=>{}},
+                      "comment"=>'overlooked'},
                     {"name"=>"new",
                       "who"=>"tom",
                       "when"=>"2010-07-12T00:00:04",
                       "comment"=>"review2"}]}, node)
 
     infos = JSON.parse(BsRequest.find(id).webui_infos.to_json)
-    # FIXME: this contains several problems, but at least we can catch regressions this way
-    # - 0:0:1 tom did not accept a review but Iggy created one
+
     assert_equal({"id" => id.to_i,
                    "description"=>nil,
                    "state"=>"review",
@@ -592,11 +591,10 @@ class RequestControllerTest < ActionController::IntegrationTest
                       "what"=>"created request",
                       "when"=>"2010-07-12T00:00:00Z",
                       "comment"=>nil},
-                    {"who"=>"tom",
-                      "what"=>"accepted review",
+                    {"who"=>"Iggy",
+                      "what"=>"added review",
                       "when"=>"2010-07-12T00:00:01Z",
-                      "comment"=>"review1",
-                      "color"=>"green"},
+                      "comment"=>"couldyou"},
                     {"who"=>"tom",
                       "what"=>"accepted review",
                       "when"=>"2010-07-12T00:00:02Z",
@@ -605,17 +603,17 @@ class RequestControllerTest < ActionController::IntegrationTest
                     {"who"=>"Iggy",
                       "what"=>"added review",
                       "when"=>"2010-07-12T00:00:03Z",
-                      "comment"=>""},
+                      "comment"=>"overlooked"},
                     {"who"=>"tom",
                       "what"=>"accepted review",
                       "when"=>"2010-07-12T00:00:04Z",
                       "comment"=>"review2",
                       "color"=>"green"},
                     {"who"=>"tom",
-                      "what"=>"",
+                      "what"=>"reopened review",
                       "when"=>"2010-07-12T00:00:05Z",
                       "comment"=>"reopen2",
-                      "color"=>""}],
+                      "color"=>"maroon"}],
                    "actions"=>
                    [{"type"=>"add_role",
                       "tprj"=>"home:Iggy",
