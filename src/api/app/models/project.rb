@@ -1288,30 +1288,34 @@ class Project < ActiveRecord::Base
   end
   private :extract_maintainer
 
-  def lookup_package_owner(pkg, owner, limit, devel, filter, deepest)
+  def lookup_package_owner(pkg, owner, limit, devel, filter, deepest, already_checked={})
+    return nil, limit, already_checked if already_checked[pkg.id]
+
     # optional check for devel package instance first
     m = nil
     m = extract_maintainer(self, pkg.resolve_devel_package, filter, owner) if devel == true
     m = extract_maintainer(self, pkg, filter, owner) unless m
 
+    already_checked[pkg.id] = 1
+
     # no match, loop about projects below with this package container name
-    pkg_match = pkg
     unless m
       pkg.project.expand_all_projects.each do |prj|
         p = prj.packages.find_by_name(pkg.name )
-        next if p.nil?
+        next if p.nil? or already_checked[p.id]
+       
+        already_checked[p.id] = 1
 
         m = extract_maintainer(self, p.resolve_devel_package, filter) if devel == true
         m = extract_maintainer(self, p, filter) unless m
         if m
-          pkg_match = p
           break unless deepest
         end
       end
     end
 
     # found entry
-    return m, (limit-1)
+    return m, (limit-1), already_checked
   end
   private :lookup_package_owner
 
@@ -1368,6 +1372,7 @@ class Project < ActiveRecord::Base
 
     match_all = (limit == 0)
 
+    already_checked = {}
     matched_packages = {}
     deepest_match = nil
     projects.each do |project| # project link order
@@ -1377,7 +1382,7 @@ class Project < ActiveRecord::Base
 
         next if matched_packages[pkg.name] # already found in upper project
 
-        m, limit = lookup_package_owner(pkg, owner, limit, devel, filter, false)
+        m, limit, already_checked = lookup_package_owner(pkg, owner, limit, devel, filter, false, already_checked)
 
         next unless m
 
@@ -1414,6 +1419,7 @@ class Project < ActiveRecord::Base
     # found binary package?
     return [] if data["matches"].to_i == 0
 
+    already_checked = {}
     deepest_match = nil
     projects.each do |prj| # project link order
       data.elements("binary").each do |b| # no order
@@ -1423,7 +1429,7 @@ class Project < ActiveRecord::Base
         next if pkg.nil?
 
         # the "" means any matching relationships will get taken
-        m, limit = lookup_package_owner(pkg, "", limit, devel, filter, deepest)
+        m, limit, already_checked = lookup_package_owner(pkg, "", limit, devel, filter, deepest, already_checked)
 
         next unless m
 
