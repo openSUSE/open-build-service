@@ -4050,6 +4050,23 @@ sub putfile {
   return ($rev, $BSXML::revision);
 }
 
+sub getsourcediffcache {
+  my ($cgi, $cacheid) = @_;
+
+  my $view = $cgi->{'view'} || '';
+  my $cn = "$diffcache/".substr($cacheid, 0, 2)."/$cacheid";
+  BSWatcher::addfilewatcher($cn) if $BSStdServer::isajax;
+  my $lockc = BSUtil::lockcheck('>>', "$cn.run");
+  my $fd = gensym;
+  if (open($fd, '<', $cn)) {
+    utime(time, time, $cn);
+    BSWatcher::reply_file($fd, $view eq 'xml' ? 'Content-Type: text/xml' : 'Content-Type: text/plain');
+    return undef;
+  }
+  return undef if $BSStdServer::isajax && !$lockc;
+  die("cache entry '$cacheid' does not exist\n");
+}
+
 sub sourcediff {
   my ($cgi, $projid, $packid) = @_;
 
@@ -4177,6 +4194,12 @@ sub sourcediff {
   }
   local *LF;
   mkdir_p("$diffcache/".substr($cacheid, 0, 2));
+  if (!BSUtil::lockcheck('>>', "$cn.run")) {
+    my @args;
+    push @args, "view=$view" if $view;
+    BSHandoff::handoff($ajaxsocket, "/sourcediffcache/$cacheid", undef, @args);
+    exit(0);
+  }
   BSUtil::lockopen(\*LF, '>>', "$cn.run");
   # retry open, maybe somebody else has created the diff meanwhile
   if (open(F, '<', $cn)) {
@@ -7274,6 +7297,7 @@ my $dispatches_ajax = [
   '/source/$project/$package rev' => \&getfilelist_ajax,
   '/source/$project/$package:package/$filename rev?' => \&getfile,
   '/request/$id:num withkey:bool? oldkey:md5?' => \&getrequest,
+  '/sourcediffcache/$cacheid:md5 view:?' => \&getsourcediffcache,
 ];
 
 ####################################################################
