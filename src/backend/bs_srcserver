@@ -4066,6 +4066,7 @@ sub getsourcediffcache {
   my $lockc = BSUtil::lockcheck('>>', "$cn.run");
   my $fd = gensym;
   if (open($fd, '<', $cn)) {
+    unlink("$cn.run");
     utime(time, time, $cn);
     BSWatcher::reply_file($fd, $view eq 'xml' ? 'Content-Type: text/xml' : 'Content-Type: text/plain');
     return undef;
