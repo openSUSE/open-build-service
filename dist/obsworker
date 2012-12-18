@@ -20,6 +20,12 @@
 
 . /etc/rc.status
 
+# Fedora >16 doesn't have '/bin' in $PATH,
+# Export for other distros in chroot.
+if [[ "$PATH" != "*\:\/bin\:*" ]]; then 
+	export PATH=$PATH:/bin
+fi
+
 if test -e /etc/sysconfig/proxy; then
   . /etc/sysconfig/proxy
 fi
