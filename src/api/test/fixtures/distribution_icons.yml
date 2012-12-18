@@ -1,0 +1,33 @@
+distribution_icons_1:
+  id: 1
+  url: https://static.opensuse.org/distributions/logos/opensuse.png
+distribution_icons_10:
+  id: 10
+  url: https://static.opensuse.org/distributions/logos/ubuntu.png
+distribution_icons_11:
+  id: 11
+  url: https://static.opensuse.org/distributions/logos/arch.png
+distribution_icons_2:
+  id: 2
+  url: https://static.opensuse.org/distributions/logos/suse.png
+distribution_icons_3:
+  id: 3
+  url: https://static.opensuse.org/distributions/logos/meego.png
+distribution_icons_4:
+  id: 4
+  url: https://static.opensuse.org/distributions/logos/debian.png
+distribution_icons_5:
+  id: 5
+  url: https://static.opensuse.org/distributions/logos/fedora.png
+distribution_icons_6:
+  id: 6
+  url: https://static.opensuse.org/distributions/logos/scientificlinux.png
+distribution_icons_7:
+  id: 7
+  url: https://static.opensuse.org/distributions/logos/redhat.png
+distribution_icons_8:
+  id: 8
+  url: https://static.opensuse.org/distributions/logos/centos.png
+distribution_icons_9:
+  id: 9
+  url: https://static.opensuse.org/distributions/logos/mandriva.png

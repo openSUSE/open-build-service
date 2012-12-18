@@ -213,6 +213,33 @@ CREATE TABLE `delayed_jobs` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `distribution_icons` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `width` int(11) DEFAULT NULL,
+  `height` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `distribution_icons_distributions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `distribution_id` int(11) DEFAULT NULL,
+  `distribution_icon_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `distributions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `vendor` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `version` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `project` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `reponame` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `repository` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `link` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `downloads` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `baseurl` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
@@ -1010,6 +1037,8 @@ INSERT INTO schema_migrations (version) VALUES ('20121130143300');
 INSERT INTO schema_migrations (version) VALUES ('20121213140751');
 
 INSERT INTO schema_migrations (version) VALUES ('20121213144129');
+
+INSERT INTO schema_migrations (version) VALUES ('20121216151549');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

@@ -1,5 +1,7 @@
 class MainController < ApplicationController
 
+  skip_before_filter :extract_user, :only => [:notfound]
+
   def index
     redirect_to controller: "about", action: "index"
   end

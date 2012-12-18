@@ -266,7 +266,9 @@ OBSApi::Application.routes.draw do
 
     ### /distributions
 
-    match 'distributions' => 'distribution#index'
+    match '/distributions' => 'distributions#upload', via: :put
+    # update is missing here
+    resources :distributions, only: [:index, :show, :create, :destroy]
 
     ### /public
     
