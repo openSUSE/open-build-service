@@ -156,7 +156,7 @@ class InterConnectTests < ActionController::IntegrationTest
     get "/source/RemoteInstance:BaseDistro2.0:LinkedUpdateProject?expand=1"
     assert_response :success
     assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2", :originproject => "RemoteInstance:BaseDistro2.0" } )
-    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2_linked", :originproject => "RemoteInstance:BaseDistro2.0" } )
+    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2.linked", :originproject => "RemoteInstance:BaseDistro2.0" } )
     # test binary operations
     prepare_request_with_user "king", "sunflower"
     post "/build/RemoteInstance:BaseDistro", :cmd => "wipe", :package => "pack1"

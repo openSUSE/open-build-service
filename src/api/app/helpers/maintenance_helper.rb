@@ -674,7 +674,7 @@ module MaintenanceHelper
             found = true if ep[:package] == ap
           end
           unless found
-            logger.info "found local linked package in project #{p[:package].project.name}, adding it as well #{ap.name}"
+            logger.info "found local linked package in project #{p[:package].project.name}/#{ap.name}, adding it as well, pointing it to #{p[:package].name} for #{target_package}"
             @packages.push({ :base_project => p[:base_project], :link_target_project => p[:link_target_project], :link_target_package => p[:package].name, :package => ap, :target_package => target_package, :local_link => 1 })
           end
         end
@@ -852,7 +852,7 @@ module MaintenanceHelper
         ret.delete_attribute('project') # its a local link, project name not needed
         linked_package = p[:link_target_package]
         linked_package = params[:target_package] if params[:target_package] and params[:package] == ret.package  # user enforce a rename of base package
-        linked_package += "." + tpkg.name.gsub(/^[^\.]*\./,'') if extend_names
+        linked_package += "." + p[:link_target_project].name.gsub(':', '_') if extend_names
         ret.set_attribute('package', linked_package)
         answer = Suse::Backend.put "/source/#{tpkg.project.name}/#{tpkg.name}/_link?user=#{CGI.escape(@http_user.login)}", ret.dump_xml
         tpkg.sources_changed

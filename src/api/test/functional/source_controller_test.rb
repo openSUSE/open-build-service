@@ -1754,7 +1754,7 @@ end
     assert_response :success
     assert_xml_tag( :tag => "directory", :attributes => { :count => "2" } )
     assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2", :originproject => "BaseDistro2.0" } )
-    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2_linked", :originproject => "BaseDistro2.0" } )
+    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2.linked", :originproject => "BaseDistro2.0" } )
 
     # pack2 exists only via linked project
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2"
@@ -1787,7 +1787,7 @@ end
     assert_response :success
     post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "branch"
     assert_response :success
-    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2_linked", :cmd => "linkdiff"
+    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2.linked", :cmd => "linkdiff"
     assert_response :success
 
     # read-write user, binary operations must be allowed

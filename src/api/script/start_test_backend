@@ -207,7 +207,7 @@ Suse::Backend.put( '/source/BaseDistro2.0/_config', "Type: spec" )
 Suse::Backend.post( '/source/BaseDistro2.0/pack2?cmd=commitfilelist&vrev=2.3&version=1.0', '<directory/>') # set vrev like it get created with makeolder=1
 Suse::Backend.put( '/source/BaseDistro2.0/pack2/myfile', "DummyContent of BaseDistro2.0/pack2")
 Suse::Backend.put( '/source/BaseDistro2.0/pack2/package.spec',File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
-Suse::Backend.put( '/source/BaseDistro2.0/pack2_linked/_link', "<link package=\"pack2\" cicount='copy' />")
+Suse::Backend.put( '/source/BaseDistro2.0/pack2.linked/_link', "<link package=\"pack2\" cicount='copy' />")
 Suse::Backend.put( '/source/BaseDistro3/_config', "Type: spec" )
 Suse::Backend.put( '/source/BaseDistro3/pack2/package.spec',File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
 Suse::Backend.put( '/source/BaseDistro:Update/pack2/_link', "<link project=\"BaseDistro\" package=\"pack2\" />")

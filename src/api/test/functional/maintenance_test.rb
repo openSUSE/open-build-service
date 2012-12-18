@@ -359,7 +359,7 @@ class MaintenanceTests < ActionController::IntegrationTest
                                      </options>
                                    </action>
                                    <action type="maintenance_incident">
-                                     <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2_linked.BaseDistro2.0_LinkedUpdateProject" />
+                                     <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.linked.BaseDistro2.0_LinkedUpdateProject" />
                                      <options>
                                        <sourceupdate>cleanup</sourceupdate>
                                      </options>
@@ -496,7 +496,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro3/_link"
     assert_response :success
     assert_xml_tag :tag => "link", :attributes => { :project => "BaseDistro3", :package => "pack2" }
-    get "/source/home:tom:branches:OBS_Maintained:pack2/pack2_linked.BaseDistro2.0_LinkedUpdateProject/_link"
+    get "/source/home:tom:branches:OBS_Maintained:pack2/pack2.linked.BaseDistro2.0_LinkedUpdateProject/_link"
     assert_response :success
     assert_no_xml_tag :tag => "link", :attributes => { :project => "BaseDistro2.0" }
     assert_xml_tag :tag => "link", :attributes => { :package => "pack2.BaseDistro2.0_LinkedUpdateProject" }
@@ -756,7 +756,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject"
     assert_response :success
     assert_xml_tag( :tag => "entry", :attributes => { :name => "DUMMY_package.BaseDistro2.0_LinkedUpdateProject" })
-    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2_linked.BaseDistro2.0_LinkedUpdateProject" })
+    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2.linked.BaseDistro2.0_LinkedUpdateProject" })
 
     # check link of branched package
     get "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/DUMMY_package.BaseDistro2.0_LinkedUpdateProject/_link"
@@ -764,7 +764,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag( :tag => "link", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2" })
 
     # check link of local linked package
-    get "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2_linked.BaseDistro2.0_LinkedUpdateProject/_link"
+    get "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2.linked.BaseDistro2.0_LinkedUpdateProject/_link"
     assert_response :success
     assert_xml_tag( :tag => "link", :attributes => { :project => nil })
     assert_xml_tag( :tag => "link", :attributes => { :package => "DUMMY_package.BaseDistro2.0_LinkedUpdateProject" })
@@ -828,7 +828,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     assert_xml_tag( :tag => "directory", :attributes => { :count => "3" } )
     assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2.BaseDistro2.0_LinkedUpdateProject" } )
-    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2_linked.BaseDistro2.0_LinkedUpdateProject" } )
+    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2.linked.BaseDistro2.0_LinkedUpdateProject" } )
     assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2.BaseDistro3" } )
     get "/source/"+incidentProject+"/_meta"
     assert_response :success
@@ -843,7 +843,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/_meta"
     assert_response :success
     assert_xml_tag( :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro2.0_LinkedUpdateProject"} )
-    get "/source/"+incidentProject+"/pack2_linked.BaseDistro2.0_LinkedUpdateProject/_meta"
+    get "/source/"+incidentProject+"/pack2.linked.BaseDistro2.0_LinkedUpdateProject/_meta"
     assert_response :success
     assert_xml_tag( :parent => { :tag => "build" }, :tag => "enable", :attributes => { :repository => "BaseDistro2.0_LinkedUpdateProject"} )
     get "/source/"+incidentProject+"/pack2.BaseDistro3/_meta"
@@ -966,7 +966,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586"} },
                :tag => "status", :attributes => { :package=>"pack2.BaseDistro3", :code=>"disabled" }
     assert_xml_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586"} },
-               :tag => "status", :attributes => { :package=>"pack2_linked.BaseDistro2.0_LinkedUpdateProject", :code=>"scheduled" }
+               :tag => "status", :attributes => { :package=>"pack2.linked.BaseDistro2.0_LinkedUpdateProject", :code=>"scheduled" }
     assert_xml_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586"} },
                :tag => "status", :attributes => { :package=>"packNew.BaseDistro2.0_LinkedUpdateProject", :code=>"scheduled" }
     assert_xml_tag :parent => { :tag => "result", :attributes => { :repository=>"BaseDistro2.0_LinkedUpdateProject", :arch=>"i586"} },
@@ -992,8 +992,8 @@ class MaintenanceTests < ActionController::IntegrationTest
     # upload build result as a worker would do
     inject_build_job( incidentProject, "pack2.BaseDistro2.0_LinkedUpdateProject", "BaseDistro2.0_LinkedUpdateProject", "x86_64" )
     inject_build_job( incidentProject, "pack2.BaseDistro2.0_LinkedUpdateProject", "BaseDistro2.0_LinkedUpdateProject", "i586" )
-    inject_build_job( incidentProject, "pack2_linked.BaseDistro2.0_LinkedUpdateProject", "BaseDistro2.0_LinkedUpdateProject", "x86_64" )
-    inject_build_job( incidentProject, "pack2_linked.BaseDistro2.0_LinkedUpdateProject", "BaseDistro2.0_LinkedUpdateProject", "i586" )
+    inject_build_job( incidentProject, "pack2.linked.BaseDistro2.0_LinkedUpdateProject", "BaseDistro2.0_LinkedUpdateProject", "x86_64" )
+    inject_build_job( incidentProject, "pack2.linked.BaseDistro2.0_LinkedUpdateProject", "BaseDistro2.0_LinkedUpdateProject", "i586" )
     inject_build_job( incidentProject, "packNew.BaseDistro2.0_LinkedUpdateProject", "BaseDistro2.0_LinkedUpdateProject", "x86_64" )
     inject_build_job( incidentProject, "packNew.BaseDistro2.0_LinkedUpdateProject", "BaseDistro2.0_LinkedUpdateProject", "i586" )
     inject_build_job( incidentProject, "pack2.BaseDistro3", "BaseDistro3", "i586" )
@@ -1065,7 +1065,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_no_xml_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2" } )
     assert_no_xml_tag( :tag => "target", :attributes => { :project => incidentProject } )
     assert_xml_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2." + incidentID } )
-    assert_xml_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2_linked." + incidentID } )
+    assert_xml_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2.linked." + incidentID } )
     assert_xml_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "packNew." + incidentID } )
     assert_xml_tag( :tag => "target", :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => "patchinfo." + incidentID } )
     assert_xml_tag( :tag => "target", :attributes => { :project => "BaseDistro3", :package => "pack2." + incidentID } )
@@ -1160,7 +1160,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag( :tag => "directory", :attributes => { :vrev => "2.10" } )
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2.#{incidentID}/_link"
     assert_response 404
-    get "/source/BaseDistro2.0:LinkedUpdateProject/pack2_linked.#{incidentID}/_link"
+    get "/source/BaseDistro2.0:LinkedUpdateProject/pack2.linked.#{incidentID}/_link"
     assert_response :success
     assert_xml_tag :tag => "link", :attributes => { :project => nil, :package => "pack2.#{incidentID}", :cicount => "copy" }
     get "/source/BaseDistro2.0:LinkedUpdateProject/patchinfo"
@@ -1245,7 +1245,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     get "/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_link"
     assert_response :success
     assert_xml_tag :tag => 'link', :attributes => { :project => "BaseDistro2.0:LinkedUpdateProject", :package => nil } 
-    get "/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject/pack2_linked/_link"
+    get "/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject/pack2.linked/_link"
     assert_response :success
     assert_xml_tag :tag => 'link', :attributes => { :project => nil, :package => "pack2" } 
     delete "/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject"
@@ -1254,7 +1254,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     # revoke a release update
     delete "/source/BaseDistro2.0:LinkedUpdateProject/pack2"
     assert_response :success
-    delete "/source/BaseDistro2.0:LinkedUpdateProject/pack2_linked"
+    delete "/source/BaseDistro2.0:LinkedUpdateProject/pack2.linked"
     assert_response :success
     delete "/source/BaseDistro2.0:LinkedUpdateProject/packNew"
     assert_response :success
@@ -1262,7 +1262,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     delete "/source/BaseDistro2.0:LinkedUpdateProject/pack2.0"
     assert_response :success
-    delete "/source/BaseDistro2.0:LinkedUpdateProject/pack2_linked.0"
+    delete "/source/BaseDistro2.0:LinkedUpdateProject/pack2.linked.0"
     assert_response :success
     delete "/source/BaseDistro2.0:LinkedUpdateProject/patchinfo.0"
     assert_response :success
