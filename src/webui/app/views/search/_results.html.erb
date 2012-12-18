@@ -38,21 +38,46 @@
       in project <span class="data-project"><%= result[:data].project %></span>
       </p>
     <% elsif result[:type] == 'owner' %>
+      <% person = result[:data].to_hash['person'] %>
+      <% group = result[:data].to_hash['group'] %>
+      <% if person and person.class != Array %>
+        <% blah = [] %>
+        <% blah << person %>
+        <% person = blah %>
+      <% end %>
+      <% if group and group.class != Array %>
+        <% blah = [] %>
+        <% blah << group %>
+        <% group = blah %>
+      <% end %>
+      <% people = [] %>
+      <% people.concat(person) if person %>
+      <% people.concat(group) if group %>
+
       <div class="search_result">
-        <p>
-        <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => result[:data].to_hash['person']['name'] }%>
-        maintains
-        <%= link_to "#{result[:data].package}", { :controller => 'package', :action => :show, :package => result[:data].package, :project => result[:data].project }, class: 'package-link'-%>
-        for <%= result[:data].rootproject %>
-        in
+        <h6>
+        Maintainer for
+        <%= link_to "#{params[:search_text]}", { :controller => 'package', :action => :show, :package => params[:search_text], :project => result[:data].project }, class: 'package-link'-%>
+        for <%= result[:data].rootproject %> in
         <%= link_to "#{result[:data].project}", { :controller => 'project', :action => :show, :project => result[:data].project}, class: 'project-link' -%>
+        </h6>
+        <p>
+        <% if people %>
+          <% people.each do |p| %>
+            <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => p['name'] }%>
+            <% if people.length > 1 %>
+              <br />
+            <% end %>
+          <% end %>
+        <% end %>
+
         </p>
-      <% end %>
-      <% if result[:data].has_element?( 'description' ) && !result[:data].description.to_s.empty? %>
-        <% descr = h result[:data].description.to_s.dup[0,80] + "..." %>
-      <% else %>
-        <% descr = h excerpt(result[:data].description.to_s.dup, @search_text, 150 ) %>
-      <% end %>
+        <% end %>
+        <% if result[:data].has_element?( 'description' ) && !result[:data].description.to_s.empty? %>
+          <% descr = h result[:data].description.to_s.dup[0,80] + "..." %>
+         <% else %>
+          <% descr = h excerpt(result[:data].description.to_s.dup, @search_text, 150 ) %>
+        <% end %>
       <% if descr %>
         <p class="data-description">
         <% descr.split(/\n/).each do |line| -%>
