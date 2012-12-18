@@ -1,20 +1,30 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
-require 'distribution_controller'
 
-class DistributionControllerTest < ActionController::IntegrationTest 
+class DistributionsControllerTest < ActionController::IntegrationTest
   fixtures :all
- 
-  def setup
-  end
-  def teardown
-# do not mess with production data, the controller must be fixed
-#    FileUtils.unlink("#{Rails.root}/files/distributions.xml")
+
+  test "should show distribution" do
+    get distribution_path(id: distributions(:one).to_param)
+    assert_response :success
+    assert_equal({"id"=>{"type"=>"integer", "_content"=>"1"},
+		  "link"=>"http://www.opensuse.org/",
+		  "name"=>"openSUSE Factory",
+		  "project"=>"openSUSE.org:openSUSE:Factory",
+		  "reponame"=>"openSUSE_Factory",
+		  "repository"=>"snapshot",
+		  "vendor"=>"openSUSE",
+		  "version"=>"Factory"}, Xmlhash.parse(@response.body))
   end
 
-  def test_put_and_get_list
-    # FIXME: this is messing with production data, the controller must be fixed!
-    if false
+  test "should destroy distribution" do
+    prepare_request_with_user "king", "sunflower"
+    assert_difference('Distribution.count', -1) do
+      delete distribution_path(id: distributions(:one).to_param)
+      assert_response :success
+    end
+  end
 
+  test "the old interface works" do
     data = '<distributions>
                <distribution vendor="openSUSE" version="Factory" id="opensuse-Factory">
                  <name>openSUSE Factory</name>
@@ -42,15 +52,10 @@ class DistributionControllerTest < ActionController::IntegrationTest
 
     reset_auth
     get "/distributions"
-    assert_response 401
+    assert_response :success
 
     prepare_request_with_user "tom", "thunder"
     get "/distributions"
     assert_response :success
-  
-    end
   end
-  
-  # FIXME: write distribution schema and add a check with broken XML
-
 end

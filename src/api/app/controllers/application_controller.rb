@@ -54,8 +54,9 @@ class ApplicationController < ActionController::API
     logger.debug "Checking for  Admin role for user #{@http_user.login}"
     unless @http_user.is_admin?
       logger.debug "not granted!"
-      render_error :status => 403, :errorcode => "put_request_no_permission", :message => "Requires admin privileges" and return
+      render_error :status => 403, :errorcode => "put_request_no_permission", :message => "Requires admin privileges" and return false
     end
+    return true
   end
 
   def http_anonymous_user 
@@ -406,7 +407,7 @@ class ApplicationController < ActionController::API
   end
 
   rescue_from Timeout::Error do |exception|
-     render_error status: 408, errorcode: "timeout_error", message: exception.message
+    render_error status: 408, errorcode: "timeout_error", message: exception.message
   end
 
   rescue_from APIException do |exception|
