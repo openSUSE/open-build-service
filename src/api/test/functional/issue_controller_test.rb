@@ -4,7 +4,6 @@ class IssueControllerTest < ActionController::IntegrationTest
   fixtures :all
 
   def test_get_issues
-    reset_auth
     # bugs are public atm. Secret stuff should not get imported.
     get '/issue_trackers'
     assert_response :success
@@ -43,7 +42,6 @@ class IssueControllerTest < ActionController::IntegrationTest
   end
 
   def test_get_issue_for_patchinfo_and_project
-    reset_auth
     get '/source/Devel:BaseDistro:Update?view=issues'
     assert_response 401
     get '/source/Devel:BaseDistro:Update/pack3?view=issues'
@@ -62,7 +60,6 @@ class IssueControllerTest < ActionController::IntegrationTest
   end
 
   def test_search_issues
-    reset_auth
     get "/search/package/id", :match => 'issue/@name="123456"'
     assert_response 401
     get "/search/package/id", :match => 'issue/@tracker="bnc"'

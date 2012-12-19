@@ -72,9 +72,10 @@ module ActionController
   end
 
   class IntegrationTest
-
+ 
     def teardown
       Rails.cache.clear
+      reset_auth
     end
     
     @@auth = nil

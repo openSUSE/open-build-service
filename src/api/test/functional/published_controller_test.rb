@@ -8,7 +8,6 @@ class PublishedControllerTest < ActionController::IntegrationTest
   end
 
   def test_index
-    reset_auth
     get "/published"
     assert_response 401
 
@@ -54,7 +53,6 @@ class PublishedControllerTest < ActionController::IntegrationTest
   end
 
   def test_binary_view
-    reset_auth
     get "/published/kde4/openSUSE_11.3/i586/kdelibs-3.2.1-1.5.i586.rpm"
     assert_response 401
 

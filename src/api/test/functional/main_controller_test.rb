@@ -3,7 +3,6 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 class MainTests < ActionController::IntegrationTest 
   
   def test_index
-    reset_auth
     get "/"
     assert_response 401
 

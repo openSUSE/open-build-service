@@ -38,7 +38,6 @@ class DistributionsControllerTest < ActionController::IntegrationTest
              </distributions>
              ' 
 
-    reset_auth
     put "/distributions", data
     assert_response 401
 

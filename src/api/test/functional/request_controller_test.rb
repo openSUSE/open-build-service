@@ -266,7 +266,6 @@ class RequestControllerTest < ActionController::IntegrationTest
 
   # FIXME: we need a way to test this with api anonymous config and without
   def test_create_request_anonymous
-    reset_auth
     post "/request?cmd=create", load_backend_file('request/add_role')
     assert_response 401
   end
@@ -374,7 +373,6 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_create_request_and_supersede
-    reset_auth
     req = load_backend_file('request/works')
 
     prepare_request_with_user "Iggy", "asdfasdf"
@@ -459,8 +457,6 @@ class RequestControllerTest < ActionController::IntegrationTest
 
   # MeeGo BOSS: is using multiple reviews by same user for each step
   def test_create_request_and_multiple_reviews
-    reset_auth
-
     # the birthday of J.K.
     Timecop.freeze(2010, 7, 12)
 
@@ -624,7 +620,6 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
   
   def test_change_review_state_after_leaving_review_phase
-    reset_auth
     req = load_backend_file('request/works')
 
     prepare_request_with_user "Iggy", "asdfasdf"
@@ -1063,7 +1058,6 @@ end
   end
 
   def test_create_and_revoke_submit_request_permissions
-    reset_auth
     req = "<request>
              <action type='submit'>
                <source project='home:Iggy' package='TestPack' rev='1' />

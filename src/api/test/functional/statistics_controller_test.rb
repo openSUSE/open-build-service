@@ -212,7 +212,6 @@ class StatisticsControllerTest < ActionController::IntegrationTest
 
 
   def test_active_request_creators
-    reset_auth
     get url_for(action: :active_request_creators, controller: :statistics, project: 'kde4')
     assert_response 401
     

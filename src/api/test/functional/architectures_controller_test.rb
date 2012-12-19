@@ -8,7 +8,6 @@ class ArchitecturesControllerTest < ActionController::IntegrationTest
   end
 
   def test_index
-    reset_auth
     # Get all issue trackers
     get '/architectures'
     assert_response 401

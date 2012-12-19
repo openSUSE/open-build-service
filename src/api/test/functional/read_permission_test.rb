@@ -13,7 +13,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
 
   def test_basic_read_tests_public
     # anonymous access only, it is anyway mapped to nobody in public controller
-    reset_auth 
     get "/public/source/SourceprotectedProject/pack"
     assert_response 403
     get "/public/source/SourceprotectedProject/pack/my_file"
@@ -22,7 +21,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
 
   def test_basic_repository_tests_public
     # anonymous access only, it is anyway mapped to nobody in public controller
-    reset_auth 
     get "/public/build/SourceprotectedProject/repo/i586/pack"
     assert_response 200
 
@@ -44,7 +42,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
 
   def test_basic_read_tests
     # anonymous access
-    reset_auth 
     get "/source/SourceprotectedProject"
     assert_response 401
     get "/source/SourceprotectedProject/_meta"
@@ -73,7 +70,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
 
   def test_basic_repository_tests
     # anonymous access
-    reset_auth 
     get "/build/SourceprotectedProject/repo/i586/pack"
     assert_response 401
 
@@ -113,7 +109,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
   end 
 
   def do_read_access_all_pathes(user, response, debug=false)
-    reset_auth 
     prepare_request_with_user user, "so_alone" #adrian users have all the same password
     get "/source/HiddenProject/_meta"
     assert_response response
@@ -147,7 +142,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
 
   def test_branch_package_hidden_project_new
     # unauthorized
-    reset_auth 
     sprj="HiddenProject"  # source project
     spkg="pack"           # source package
     tprj="home:tom"       # target project
@@ -217,7 +211,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
   def test_branch_package_sourceaccess_protected_project_new
     # viewprotected -> open
     # unauthorized
-    reset_auth 
     sprj="SourceprotectedProject" # source project
     spkg="pack"                   # source package
     tprj="home:tom"               # target project
@@ -263,7 +256,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
   end
 
   def do_read_access_project(user, pass, targetproject, response)
-    reset_auth 
     prepare_request_with_user user, pass
     get "/source/#{targetproject}/_meta"
     assert_response response
@@ -303,7 +295,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
 
   def test_copy_hidden_project
     # invalid
-    reset_auth 
     srcprj="HiddenProject"
     srcpkg="pack"
     destprj="CopyTest"
@@ -360,7 +351,6 @@ class ReadPermissionTest < ActionController::IntegrationTest
 
   def test_copy_sourceaccess_protected_project
     # invalid
-    reset_auth 
     srcprj="SourceprotectedProject"
     srcpkg="pack"
     destprj="CopyTest"

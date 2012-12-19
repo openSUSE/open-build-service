@@ -7,7 +7,6 @@ class AttributeControllerTest < ActionController::IntegrationTest
   fixtures :all
 
   def test_index
-    reset_auth
     get "/attribute/"
     assert_response 401
 
@@ -273,7 +272,6 @@ class AttributeControllerTest < ActionController::IntegrationTest
   end
 
   def test_create_attributes_package
-    reset_auth
     prepare_request_with_user "fred", "geröllheimer"
 
     data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"

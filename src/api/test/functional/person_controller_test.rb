@@ -6,7 +6,6 @@ class PersonControllerTest < ActionController::IntegrationTest
   fixtures :all
 
   def test_index
-    reset_auth
     get "/person/"
     assert_response 401
 
@@ -47,7 +46,6 @@ class PersonControllerTest < ActionController::IntegrationTest
   end
 
   def test_userinfo_with_empty_auth_header
-    reset_auth
     get "/person/tom"
     assert_response 401
   end
@@ -133,7 +131,6 @@ class PersonControllerTest < ActionController::IntegrationTest
   end
 
   def test_register_and_change_password_new_way
-    reset_auth
     data = '<unregisteredperson>
               <login>adrianSuSE</login>
               <email>adrian@suse.de</email>
@@ -182,7 +179,6 @@ class PersonControllerTest < ActionController::IntegrationTest
   end
 
   def test_register_old_way
-    reset_auth
     data = '<unregisteredperson>
               <login>adrianSuSE</login>
               <email>adrian@suse.de</email>

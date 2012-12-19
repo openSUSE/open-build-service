@@ -5,7 +5,6 @@ class ReleaseManagementTests < ActionController::IntegrationTest
   fixtures :all
   
   def test_release_project
-    reset_auth 
     prepare_request_with_user "tom", "thunder"
 
     # inject a job for copy any entire project ... gets not executed in test suite

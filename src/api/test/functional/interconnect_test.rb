@@ -6,7 +6,6 @@ class InterConnectTests < ActionController::IntegrationTest
   fixtures :all
    
   def test_anonymous_access
-    reset_auth 
     get "/public/lastevents" # OBS 2.1
     assert_response :success
     assert_xml_tag :tag => "events", :attributes => {:sync => "lost"}

@@ -10,7 +10,6 @@ class MaintenanceTests < ActionController::IntegrationTest
   end
 
   def test_create_maintenance_project
-    reset_auth 
     prepare_request_with_user "tom", "thunder"
     
     put "/source/home:tom:maintenance/_meta", '<project name="home:tom:maintenance" > <title/> <description/> </project>'
@@ -39,7 +38,6 @@ class MaintenanceTests < ActionController::IntegrationTest
   end
 
   def test_branch_package
-    reset_auth 
     prepare_request_with_user "tom", "thunder"
 
     # branch a package which does not exist in update project via project link
