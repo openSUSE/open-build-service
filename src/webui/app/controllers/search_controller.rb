@@ -266,8 +266,8 @@ private
     @owner_limit = params[:limit] if !params[:limit].nil?
     
     @owner_devel = nil
-    @owner_devel = "0" if params[:devel].nil?
-    @owner_devel = params[:devel] if !params[:devel].nil?
+    @owner_devel = "0" if params[:devel] == "off"
+    @owner_devel = "1" if params[:devel] == "on"
   end
 
   def set_attribute_list

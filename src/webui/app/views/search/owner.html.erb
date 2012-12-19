@@ -1,4 +1,4 @@
-<% @pagetitle = "Search Maintainer/Bugowner" %>
+<% @pagetitle = "Search Owner" %>
 <% @crumb_list = [@pagetitle] -%>
 <% @layouttype = 'custom' %>
 
@@ -25,12 +25,18 @@
     <div id="advanced_container" style="display: none;">
     <h4>Advanced:</h4>
     <p>
-    <% if params[:devel].nil? or params[:devel] == "0" %>
-      <input type="hidden" name="devel" value="0" />
-      <input id="devel" name="devel" type="checkbox" value="1" />
-    <% elsif params[:devel] == "1" %>
-      <input type="hidden" name="devel" value="0" />
-      <input checked="checked" id="devel" name="devel" type="checkbox" value="1" />
+    <% if params[:devel] == "off" %>
+      <input checked="checked" id="nodevel" name="devel" type="radio" value="off" />
+      <label for="nodevel">Ignore Devel Projects</label>
+      <input id="devel" name="devel" type="radio" value="on" />
+    <% elsif params[:devel] == "on" %>
+      <input id="nodevel" name="devel" type="radio" value="off" />
+      <label for="nodevel">Ignore Devel Projects</label>
+      <input checked="checked" id="devel" name="devel" type="radio" value="on" />
+    <% else %>
+      <input id="nodevel" name="devel" type="radio" />
+      <label for="nodevel">Ignore Devel Projects</label>
+      <input id="devel" name="devel" type="radio" />
     <% end %>
     <label for="devel">Follow Devel Projects</label>
     </p>
