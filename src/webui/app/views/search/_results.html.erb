@@ -56,19 +56,28 @@
 
       <div class="search_result">
         <h6>
-        Maintainer for
+        Owner for
         <%= link_to "#{params[:search_text]}", { :controller => 'package', :action => :show, :package => params[:search_text], :project => result[:data].project }, class: 'package-link'-%>
         for <%= result[:data].rootproject %> in
         <%= link_to "#{result[:data].project}", { :controller => 'project', :action => :show, :project => result[:data].project}, class: 'project-link' -%>
         </h6>
         <p>
         <% if people %>
+          <% found_bugowner = false %>
           <% people.each do |p| %>
+            <% next unless p['role'] == "bugowner" %>
+            <% found_bugowner = true %>
             <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => p['name'] }%>
             <% if people.length > 1 %>
               <br />
             <% end %>
           <% end %>
+          <% people.each do |p| %>
+            <%= render :partial => 'shared/user_and_role_with_realname_and_icon', :locals => {:user => p['name'], :role => p['role'] }%>
+            <% if people.length > 1 %>
+              <br />
+            <% end %>
+          <% end if found_bugowner != true %>
         <% end %>
 
         </p>
