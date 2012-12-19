@@ -55,8 +55,6 @@ class PatchinfoController < ApplicationController
       @pkg_names << pkg.value(:name)
     end
     @pkg_names.delete("patchinfo")
-    @description = @description.gsub(/\n/, "<br/>").html_safe
-    @summary = @summary.gsub(/\n/, "<br/>").html_safe
     @packager = Person.find(:login => @packager)
   end
 
