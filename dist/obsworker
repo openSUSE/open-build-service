@@ -20,6 +20,13 @@
 
 . /etc/rc.status
 
+# Is the worker running on Fedora >= 17 ?
+# It lacks the complete path to build other distros then
+bash_bin=`which bash`
+if [ "$bash_bin" != "${bash_bin#/usr}" ]; then
+  export PATH="/bin:$PATH"
+fi
+
 if test -e /etc/sysconfig/proxy; then
   . /etc/sysconfig/proxy
 fi
