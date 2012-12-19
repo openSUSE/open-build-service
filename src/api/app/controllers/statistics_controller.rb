@@ -208,18 +208,37 @@ class StatisticsController < ApplicationController
     @packages = Package.count
   end
 
-
-  def latest_built
-    # set automatic action_cache expiry time limit
-    #    response.time_to_live = 10.minutes
-
-    # TODO: implement or decide to abolish this functionality
-  end
-
-
   def get_limit
     return @limit = nil if not params[:limit].nil? and params[:limit].to_i == 0
     @limit = 10 if (@limit = params[:limit].to_i) == 0
   end
 
+  def active_request_creators
+    required_parameters :project
+
+    # get the devel projects
+    @project = Project.find_by_name!(params[:project])
+    
+    # get devel projects
+    ids = Package.joins("left outer join packages d on d.develpackage_id = packages.id").
+      where("d.db_project_id = ?", @project.id).select("packages.db_project_id").map { |p| p.db_project_id }.sort.uniq
+    ids << @project.id
+    projects = Project.where("id in (?)", ids).select(:name).map {|p| p.name }
+
+    # get all requests to it
+    reqs = BsRequestAction.where(target_project: projects).select(:bs_request_id).map {|a| a.bs_request_id}.uniq.sort
+    reqs = BsRequest.where("id in (?)", reqs).select([:id, :created_at, :creator]).all.group_by { |r| r.created_at.strftime("%Y-%m") }
+    @stats = []
+    reqs.sort.each do |month, requests|
+      monstats = []
+      requests.group_by(&:creator).sort.each do |creator, list|
+        monstats << [creator, User.find_by_login(creator).email, list.length]
+      end
+      @stats << [month, monstats]
+    end
+    respond_to do |format|
+      format.xml
+      format.json { render json: @stats }
+    end
+  end
 end

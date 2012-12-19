@@ -165,8 +165,8 @@ OBSApi::Application.routes.draw do
       match 'statistics/latest_updated' => :latest_updated
       match 'statistics/global_counters' => :global_counters
       match 'statistics/latest_built' => :latest_built
-      match 'statistics/get_limit' => :get_limit
 
+      match 'statistics/active_request_creators/:project' => :active_request_creators
     end
 
     ### /status_message

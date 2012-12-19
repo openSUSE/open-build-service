@@ -211,4 +211,17 @@ class StatisticsControllerTest < ActionController::IntegrationTest
   end
 
 
+  def test_active_request_creators
+    get url_for(action: :active_request_creators, controller: :statistics, project: 'kde4')
+    assert_response 401
+    
+    prepare_request_with_user 'tom', 'thunder'
+    get url_for(action: :active_request_creators, controller: :statistics, project: 'kde4')
+    assert_response :success
+    assert_xml_tag tag: 'creator', attributes: { login: 'tom', email: 'tschmidt@suse.de', count: '1' }
+
+    get url_for(action: :active_request_creators, controller: :statistics, project: 'HiddenProject')
+    assert_response 404
+
+  end
 end
