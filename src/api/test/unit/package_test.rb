@@ -7,7 +7,11 @@ class PackageTest < ActiveSupport::TestCase
   def setup
     @package = Package.find( 10095 )
   end
-  
+
+  def teardown
+    Timecop.return
+  end
+
   def test_flags_to_axml
     #check precondition
     assert_equal 1, @package.type_flags('build').size
@@ -228,4 +232,73 @@ The library includes bindings for both the C and C++ languages. It works on POSI
     xh = Xmlhash.parse(xml)
     @package.update_from_xml(xh)
   end
+
+  def test_activity
+    Timecop.freeze(2010, 1, 1)
+    project = projects(:home_Iggy)
+    newyear = project.packages.create!(name: 'newyear')
+    # freshly created it should have 20
+    assert_equal 20, newyear.activity_index
+    assert_in_delta(19.9, newyear.activity, 0.1)
+
+    # a month later now
+    Timecop.freeze(2010, 2, 1)
+    assert_in_delta(15.9, newyear.activity, 0.1)
+
+    # a month later now
+    Timecop.freeze(2010, 3, 1)
+    assert_in_delta(12.9, newyear.activity, 0.1)
+
+    newyear.title = "Just a silly update"
+    newyear.save
+    assert_in_delta(22.9, newyear.activity, 0.1)
+
+    Timecop.freeze(2010, 4, 1)
+    assert_in_delta(18.3, newyear.activity, 0.1)
+
+    Timecop.freeze(2010, 5, 1)
+    assert_in_delta(14.7, newyear.activity, 0.1)
+
+    newyear.title = "Just a silly update 2"
+    newyear.save
+    assert_in_delta(24.7, newyear.activity, 0.1)
+    newyear.title = "Just a silly update 3"
+    newyear.save
+    # activity stays the same  now
+    assert_in_delta(24.7, newyear.activity, 0.1)
+
+    # an hour later perhaps?
+    Timecop.freeze(3600)
+    newyear.title = "Just a silly update 4"
+    newyear.save
+    assert_in_delta(25.1, newyear.activity, 0.1)
+
+    # and commit every day?
+    Timecop.freeze(90000)
+    newyear.title = "Just a silly update 5"
+    newyear.save
+    assert_in_delta(34.9, newyear.activity, 0.1)
+
+    Timecop.freeze(90000)
+    newyear.title = "Just a silly update 6"
+    newyear.save
+    assert_in_delta(44.6, newyear.activity, 0.1)
+
+    Timecop.freeze(90000)
+    newyear.title = "Just a silly update 7"
+    newyear.save
+    assert_in_delta(54.2, newyear.activity, 0.1)
+    
+    Timecop.freeze(90000)
+    newyear.title = "Just a silly update 8"
+    newyear.save
+    assert_in_delta(63.8, newyear.activity, 0.1)
+
+    Timecop.freeze(90000)
+    newyear.title = "Just a silly update 8"
+    newyear.save
+    assert_in_delta(73.2, newyear.activity, 0.1)
+    
+  end
+
 end

@@ -91,21 +91,18 @@ class StatisticsController < ApplicationController
 
   def most_active_projects
     # get all packages including activity values
-    @packages = Package.select("packages.*, ( #{Package.activity_algorithm} ) AS act_tmp," + 'IF( @activity<0, 0, @activity ) AS activity_value').
+    @packages = Package.select("packages.*, ( #{Package.activity_algorithm} ) AS activity_value").
 	    limit(@limit).order('activity_value DESC').all
     # count packages per project and sum up activity values
     projects = {}
     @packages.each do |package|
       pro = package.project.name
-      projects[pro] ||= { :count => 0, :sum => 0 }
+      projects[pro] ||= { :count => 0, :activity => 0 }
       projects[pro][:count] += 1
-      projects[pro][:sum] += package.activity_value.to_f
+      av = package.activity_value.to_f 
+      projects[pro][:activity] = av if av > projects[pro][:activity]
     end
 
-    # calculate average activity of packages per project
-    projects.each_key do |pro|
-      projects[pro][:activity] = projects[pro][:sum] / projects[pro][:count]
-    end
     # sort by activity
     @projects = projects.sort do |a,b|
       b[1][:activity] <=> a[1][:activity]
@@ -116,7 +113,7 @@ class StatisticsController < ApplicationController
 
   def most_active_packages
     # get all packages including activity values
-    @packages = Package.select("packages.*, ( #{Package.activity_algorithm} ) AS act_tmp," + 'IF( @activity<0, 0, @activity ) AS activity_value').
+    @packages = Package.select("packages.*, ( #{Package.activity_algorithm} ) as activity_value").
       limit(@limit).order('activity_value DESC').all
     return @packages
   end

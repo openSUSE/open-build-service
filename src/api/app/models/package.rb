@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 require 'api_exception'
 
 class Package < ActiveRecord::Base
@@ -44,17 +45,13 @@ class Package < ActiveRecord::Base
 
   attr_accessible :name, :title, :description
   after_save :write_to_backend
-  after_save :update_activity
+  before_update :update_activity
   after_rollback :reset_cache
 
   default_scope { where("packages.db_project_id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
 
   validates :name, presence: true, length: { maximum: 200 }
   validate :valid_name
-
-#  def after_create
-#    raise ReadAccessError.new "Unknown package" unless Package.check_access?(self)
-#  end
 
   class << self
 
@@ -216,14 +213,6 @@ class Package < ActiveRecord::Base
         ret.delete(dbpkg) unless Package.check_access?(dbpkg)
       end
       return ret
-    end
-
-    def activity_algorithm
-      # this is the algorithm (sql) we use for calculating activity of packages
-      '@activity:=( ' +
-        'packages.activity_index - ' +
-        'POWER( TIME_TO_SEC( TIMEDIFF( NOW(), packages.updated_at ))/86400, 1.55 ) /10 ' +
-        ')'
     end
 
   end # self
@@ -882,20 +871,35 @@ class Package < ActiveRecord::Base
     return { :score => score, :count => count, :user_score => user_score }
   end
 
+  def self.activity_algorithm
+    # this is the algorithm (sql) we use for calculating activity of packages
+    # we use Time.now.to_i instead of UNIX_TIMESTAMP() so we can test with frozen ruby time
+    "@activity:=( packages.activity_index * " +
+      "POWER( 2.3276, (UNIX_TIMESTAMP(packages.updated_at) - #{Time.now.to_i})/10000000 ) " +
+      ")"
+  end
+
+  before_validation(on: :create) do
+    # it lives but is new
+    self.activity_index = 20
+  end
+
   def activity
-    package = Package.find_by_sql("SELECT packages.*, ( #{Package.activity_algorithm} ) AS act_tmp,
-	                             IF( @activity<0, 0, @activity ) AS activity_value FROM `packages` WHERE id = #{self.id} LIMIT 1")
+    package = Package.find_by_sql("SELECT packages.*, ( #{Package.activity_algorithm} ) AS act_tmp, " +
+                                  "@activity AS activity_value FROM `packages` WHERE id = #{self.id} LIMIT 1")
     return package.shift.activity_value.to_f
   end
 
+  # is called before_update
   def update_activity
     # the value we add to the activity, when the object gets updated
-    activity_addon = 10
-    activity_addon += Math.log( self.update_counter ) if update_counter > 0
-    new_activity = activity + activity_addon
+    addon = 10 * (Time.now.to_f - self.updated_at.to_f) / 86400
+    addon = 10 if addon > 10
+    new_activity = activity + addon
     new_activity = 100 if new_activity > 100
 
     self.activity_index = new_activity
+    # just for Schönheit
     self.update_counter += 1
   end
 
