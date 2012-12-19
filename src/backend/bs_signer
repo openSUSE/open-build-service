@@ -323,7 +323,7 @@ sub signjob {
     push @args, "project=$projid";
     push @args, "withpubkey=1" if $needpubkey;
     push @args, "autoextend=1" if $needpubkey;
-    my $signkey = BSRPC::rpc($param, undef, "project=$projid");
+    my $signkey = BSRPC::rpc($param, undef, @args);
     my $pubkey;
     if ($signkey) {
       ($signkey, $pubkey) = split("\n", $signkey, 2) if $needpubkey;
