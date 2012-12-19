@@ -72,16 +72,16 @@ export $(grep '^datadir=' /etc/my.cnf)
 rc_reset
 case "$1" in
 	start)
-                if [ ! -d /obs/MySQL ]; then
-			mkdir -p /obs/MySQL
+                if [ ! -d $backenddir/MySQL ]; then
+			mkdir -p $backenddir/MySQL
 		fi
 
 		# If we've proper hostname resolution all is fine. But if
 		# there's no proper hostname resolution, adapt BSConfig.pm et al.
 		### In case of the appliance, we never know where we boot up !
 		OLDFQHOSTNAME="NOTHING"
-		if [ -e /obs/.oldfqhostname ]; then
-			OLDFQHOSTNAME=`cat /obs/.oldfqhostname`
+		if [ -e $backenddir/.oldfqhostname ]; then
+			OLDFQHOSTNAME=`cat $backenddir/.oldfqhostname`
 		fi
 		if [ "$FQHOSTNAME" != "$OLDFQHOSTNAME" ]; then
 			echo "Appliance hostname changed from $OLDFQHOSTNAME to $FQHOSTNAME !"
@@ -101,7 +101,7 @@ case "$1" in
 			mkdir -p /$backenddir/repos
 			chown obsrun.obsrun /$backenddir/repos
 		fi
-		echo "$FQHOSTNAME" > /obs/.oldfqhostname
+		echo "$FQHOSTNAME" > $backenddir/.oldfqhostname
 
 		if grep -q ^FRONTEND_HOST /srv/www/obs/webui/config/environments/production.rb; then
 		    echo -n "Switching from Rails 2.x style configuration to Rails 3.x"
@@ -164,16 +164,16 @@ case "$1" in
 		fi
 
                 # reuse signing key even if hostname changed
-                if [ ! -e /srv/obs/certs/server.key ]; then
-                    install -d -m 0700 /srv/obs/certs
-                    openssl genrsa -out /srv/obs/certs/server.key 1024
+                if [ ! -e $backenddir/obs/certs/server.key ]; then
+                    install -d -m 0700 $backenddir/obs/certs
+                    openssl genrsa -out $backenddir/obs/certs/server.key 1024
                 fi
 
-                if [ ! -e /srv/obs/certs/server.${FQHOSTNAME}.created ]; then
+                if [ ! -e $backenddir/certs/server.${FQHOSTNAME}.created ]; then
                        # setup ssl certificates (NOT protected with a passphrase)
-                       echo "Creating a default SSL certificate for the server, please replace it with your version in /obs/certs directory..."
+                       echo "Creating a default SSL certificate for the server, please replace it with your version in $backenddir/certs directory..."
                        # hostname specific certs - survive intermediate hostname changes
-                       if [ ! -e /srv/obs/certs/server.${FQHOSTNAME}.pem ] ; then
+                       if [ ! -e $backenddir/certs/server.${FQHOSTNAME}.pem ] ; then
                            # This is just a dummy SSL certificate, but it has a valid hostname. Admin can replace it with his version.
 		           echo "CC
 Test State or Province
@@ -184,26 +184,26 @@ $FQHOSTNAME
 test@email.address
 
 
-"                        | openssl req -new -key /srv/obs/certs/server.key -out /srv/obs/certs/server.${FQHOSTNAME}.csr >& /dev/null
-                           openssl x509 -req -days 365 -in /srv/obs/certs/server.${FQHOSTNAME}.csr -signkey /srv/obs/certs/server.key -out /srv/obs/certs/server.${FQHOSTNAME}.crt
-                           cat /srv/obs/certs/server.key /srv/obs/certs/server.${FQHOSTNAME}.crt > /srv/obs/certs/server.${FQHOSTNAME}.pem
-                           echo "Do not remove this file or new SSL CAs will get created." > /srv/obs/certs/server.${FQHOSTNAME}.created
+"                        | openssl req -new -key $backenddir/certs/server.key -out $backenddir/certs/server.${FQHOSTNAME}.csr >& /dev/null
+                           openssl x509 -req -days 365 -in $backenddir/certs/server.${FQHOSTNAME}.csr -signkey $backenddir/certs/server.key -out $backenddir/certs/server.${FQHOSTNAME}.crt
+                           cat $backenddir/certs/server.key $backenddir/certs/server.${FQHOSTNAME}.crt > $backenddir/certs/server.${FQHOSTNAME}.pem
+                           echo "Do not remove this file or new SSL CAs will get created." > $backenddir/certs/server.${FQHOSTNAME}.created
                        else
-                         echo "ERROR: SSL CAs in /srv/obs/certs exists, but were not created for your hostname"
+                         echo "ERROR: SSL CAs in $backenddir/certs exists, but were not created for your hostname"
                          exit 1
                        fi
                 fi
 
                 # webui has to trust the api ssl certificate
                 if [ ! -e /etc/ssl/certs/server.${FQHOSTNAME}.pem ]; then
-                       cp /srv/obs/certs/server.${FQHOSTNAME}.pem /etc/ssl/certs/
+                       cp $backenddir/certs/server.${FQHOSTNAME}.pem /etc/ssl/certs/
                        c_rehash /etc/ssl/certs/ > /dev/null || true
                 fi
 
 		# change links for certs according to hostnames
-		rm /srv/obs/certs/server.crt /srv/obs/certs/server.pem
-		ln -sf /srv/obs/certs/server.${FQHOSTNAME}.crt /srv/obs/certs/server.crt
-		ln -sf /srv/obs/certs/server.${FQHOSTNAME}.pem /srv/obs/certs/server.pem
+		rm $backenddir/certs/server.crt $backenddir/certs/server.pem
+		ln -sf $backenddir/certs/server.${FQHOSTNAME}.crt $backenddir/certs/server.crt
+		ln -sf $backenddir/certs/server.${FQHOSTNAME}.pem $backenddir/certs/server.pem
 
                 cd $webuidir
 		chown -R wwwrun.www $webuidir/log
