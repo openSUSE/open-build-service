@@ -133,8 +133,9 @@ class PublicController < ApplicationController
   # GET /public/distributions
   def distributions
     valid_http_methods :get
-
-    render :text => DistributionController.read_distfile, :content_type => "text/xml"
+    @distributions = Distribution.all
+    
+    render "distributions/index"
   end
 
   # GET /public/binary_packages/:project/:package
@@ -143,7 +144,6 @@ class PublicController < ApplicationController
     check_package_access(params[:project], params[:package], false)
     @pkg = Package.find_by_project_and_name(params[:project], params[:package])
 
-    distfile = ActiveXML::Node.new(DistributionController.read_distfile)
     begin
        binaries = Collection.find :id, :what => 'published/binary', :match => "@project='#{params[:project]}' and @package='#{params[:package]}'"
     rescue
@@ -159,25 +159,14 @@ class PublicController < ApplicationController
       binary_map[repo_string] << bin
     end
 
-    def scan_distfile(distfile)
-      h = HashWithIndifferentAccess.new
-      distfile.each_distribution do |dist|
-        h["#{dist.project.text()}/#{dist.repository.text()}"] = dist
-        h["#{dist.project.text()}"] = dist
-        h["#{dist.reponame.text()}"] = dist
-      end
-      return h
-    end
-    d = scan_distfile(distfile)
-
     @binary_links = {}
     @pkg.project.repositories.includes({:path_elements => {:link => :project}}).each do |repo|
       # TODO: this code doesnt handle path elements and layering
       # TODO: walk the path and find the base repos? is that desired?
-      dist = d[repo.name]
+      dist = Distribution.find_by_repository(repo.name)
       if dist
         unless binary_map[repo.name].blank?
-          dist_id = dist.method_missing(:id)
+          dist_id = dist.id
           @binary_links[dist_id] ||= {}
           binary = binary_map[repo.name].select {|bin| bin.name == @pkg.name}.first
           if binary and dist.vendor == "openSUSE"

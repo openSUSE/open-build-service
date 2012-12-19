@@ -1,0 +1,261 @@
+one:
+  id: 1
+  vendor: openSUSE
+  version: Factory
+  name: openSUSE Factory
+  project: openSUSE.org:openSUSE:Factory
+  reponame: openSUSE_Factory
+  repository: snapshot
+  link: http://www.opensuse.org/
+distributions_10:
+  id: 10
+  vendor: SUSE
+  version: SLE-10
+  name: SUSE SLE-10
+  project: openSUSE.org:SUSE:SLE-10:SDK
+  reponame: SLE_10_SDK
+  repository: standard
+  link: http://www.suse.com/
+distributions_11:
+  id: 11
+  vendor: MeeGo
+  version: 1.2 oss
+  name: MeeGo 1.2 oss
+  project: MeeGo.com:MeeGo:1.2:oss
+  reponame: MeeGo_1.2
+  repository: standard
+  link: http://www.meego.com/
+distributions_12:
+  id: 12
+  vendor: Debian
+  version: '6.0'
+  name: Debian 6.0
+  project: openSUSE.org:Debian:6.0
+  reponame: Debian_6.0
+  repository: standard
+  link: http://www.debian.org/
+distributions_13:
+  id: 13
+  vendor: Fedora
+  version: '17'
+  name: Fedora 17
+  project: openSUSE.org:Fedora:17
+  reponame: Fedora_17
+  repository: standard
+  link: http://fedoraproject.org/
+distributions_14:
+  id: 14
+  vendor: Fedora
+  version: '16'
+  name: Fedora 16
+  project: openSUSE.org:Fedora:16
+  reponame: Fedora_16
+  repository: standard
+  link: http://fedoraproject.org/
+distributions_15:
+  id: 15
+  vendor: ScientificLinux
+  version: ScientificLinux-6
+  name: ScientificLinux 6
+  project: openSUSE.org:ScientificLinux:6
+  reponame: ScientificLinux_6
+  repository: standard
+  link: http://www.scientificlinux.org/
+distributions_16:
+  id: 16
+  vendor: RedHat
+  version: RHEL-6
+  name: RedHat RHEL-6
+  project: openSUSE.org:RedHat:RHEL-6
+  reponame: RHEL_6
+  repository: standard
+  link: http://www.redhat.com/
+distributions_17:
+  id: 17
+  vendor: RedHat
+  version: RHEL-5
+  name: RedHat RHEL-5
+  project: openSUSE.org:RedHat:RHEL-5
+  reponame: RHEL_5
+  repository: standard
+  link: http://www.redhat.com/
+distributions_18:
+  id: 18
+  vendor: RedHat
+  version: RHEL-4
+  name: RedHat RHEL-4
+  project: openSUSE.org:RedHat:RHEL-4
+  reponame: RHEL_4
+  repository: standard
+  link: http://www.redhat.com/
+distributions_19:
+  id: 19
+  vendor: CentOS
+  version: CentOS-6
+  name: CentOS CentOS-6
+  project: openSUSE.org:CentOS:CentOS-6
+  reponame: CentOS_6
+  repository: standard
+  link: http://www.centos.org/
+distributions_2:
+  id: 2
+  vendor: openSUSE
+  version: '12.2'
+  name: openSUSE 12.2
+  project: openSUSE.org:openSUSE:12.2
+  reponame: openSUSE_12.2
+  repository: standard
+  link: http://www.opensuse.org/
+distributions_20:
+  id: 20
+  vendor: CentOS
+  version: CentOS-5
+  name: CentOS CentOS-5
+  project: openSUSE.org:CentOS:CentOS-5
+  reponame: CentOS_5
+  repository: standard
+  link: http://www.centos.org/
+distributions_21:
+  id: 21
+  vendor: Mandriva
+  version: '2011'
+  name: Mandriva 2011
+  project: openSUSE.org:Mandriva:2011
+  reponame: Mandriva_2011
+  repository: standard
+  link: http://www.mandriva.com/
+distributions_22:
+  id: 22
+  vendor: Mandriva
+  version: '2010.1'
+  name: Mandriva 2010.1
+  project: openSUSE.org:Mandriva:2010.1
+  reponame: Mandriva_2010.1
+  repository: standard
+  link: http://www.mandriva.com/
+distributions_23:
+  id: 23
+  vendor: Mandriva
+  version: '2010'
+  name: Mandriva 2010
+  project: openSUSE.org:Mandriva:2010
+  reponame: Mandriva_2010
+  repository: standard
+  link: http://www.mandriva.com/
+distributions_24:
+  id: 24
+  vendor: Mandriva
+  version: '2009.1'
+  name: Mandriva 2009.1
+  project: openSUSE.org:Mandriva:2009.1
+  reponame: Mandriva_2009.1
+  repository: standard
+  link: http://www.mandriva.com/
+distributions_25:
+  id: 25
+  vendor: Ubuntu
+  version: '12.10'
+  name: Ubuntu 12.10
+  project: openSUSE.org:Ubuntu:12.10
+  reponame: xUbuntu_12.10
+  repository: standard
+  link: http://www.ubuntu.com/
+distributions_26:
+  id: 26
+  vendor: Ubuntu
+  version: '12.04'
+  name: Ubuntu 12.04
+  project: openSUSE.org:Ubuntu:12.04
+  reponame: xUbuntu_12.04
+  repository: standard
+  link: http://www.ubuntu.com/
+distributions_27:
+  id: 27
+  vendor: Ubuntu
+  version: '11.10'
+  name: Ubuntu 11.10
+  project: openSUSE.org:Ubuntu:11.10
+  reponame: xUbuntu_11.10
+  repository: standard
+  link: http://www.ubuntu.com/
+distributions_28:
+  id: 28
+  vendor: Ubuntu
+  version: '10.04'
+  name: Ubuntu 10.04
+  project: openSUSE.org:Ubuntu:10.04
+  reponame: xUbuntu_10.04
+  repository: standard
+  link: http://www.ubuntu.com/
+distributions_29:
+  id: 29
+  vendor: Arch
+  version: Extra
+  name: Arch Extra
+  project: openSUSE.org:Arch:Extra
+  reponame: Arch_Extra
+  repository: standard
+  link: http://www.archlinux.org/
+distributions_3:
+  id: 3
+  vendor: openSUSE
+  version: '12.1'
+  name: openSUSE 12.1
+  project: openSUSE.org:openSUSE:12.1
+  reponame: openSUSE_12.1
+  repository: standard
+  link: http://www.opensuse.org/
+distributions_4:
+  id: 4
+  vendor: openSUSE
+  version: Tumbleweed
+  name: openSUSE Tumbleweed
+  project: openSUSE.org:openSUSE:Tumbleweed
+  reponame: openSUSE_Tumbleweed
+  repository: standard
+  link: http://www.opensuse.org/
+distributions_5:
+  id: 5
+  vendor: openSUSE
+  version: FactoryARM
+  name: openSUSE Factory ARM
+  project: openSUSE.org:openSUSE:Factory:ARM
+  reponame: openSUSE_Factory_ARM
+  repository: standard
+  link: http://www.opensuse.org/
+distributions_6:
+  id: 6
+  vendor: openSUSE
+  version: 12.2ARM
+  name: openSUSE 12.2 ARM
+  project: openSUSE.org:openSUSE:12.2:ARM
+  reponame: openSUSE_12.2_ARM
+  repository: standard
+  link: http://www.opensuse.org/
+distributions_7:
+  id: 7
+  vendor: SUSE
+  version: SLE-11
+  name: SUSE SLE-11 SP2
+  project: openSUSE.org:SUSE:SLE-11:SP2
+  reponame: SLE_11_SP2
+  repository: standard
+  link: http://www.suse.com/
+distributions_8:
+  id: 8
+  vendor: SUSE
+  version: SLE-11
+  name: SUSE SLE-11 SP1
+  project: openSUSE.org:SUSE:SLE-11:SP1
+  reponame: SLE_11_SP1
+  repository: standard
+  link: http://www.suse.com/
+distributions_9:
+  id: 9
+  vendor: SUSE
+  version: SLE-11
+  name: SUSE SLE-11
+  project: openSUSE.org:SUSE:SLE-11
+  reponame: SLE_11
+  repository: standard
+  link: http://www.suse.com/
