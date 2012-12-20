@@ -388,6 +388,35 @@ module ActiveXML
 
       return handle_response( http_response )
     end
+    
+    def load_external_url(uri)
+      uri = URI.parse(uri)
+      http = nil
+      content = nil
+      proxyuri = ENV['http_proxy']
+      proxyuri = CONFIG['http_proxy'] unless CONFIG['http_proxy'].blank?
+      if proxyuri
+        proxy = URI.parse(proxyuri)
+        proxy_user, proxy_pass = proxy.userinfo.split(/:/) if proxy.userinfo
+        http = Net::HTTP::Proxy(proxy.host, proxy.port, proxy_user, proxy_pass).new(uri.host, uri.port)
+      else
+        http = Net::HTTP.new(uri.host, uri.port)
+      end
+      http.use_ssl = (uri.scheme == 'https')
+      begin
+        http.start
+        response = http.get uri.request_uri
+        if response.is_a?(Net::HTTPSuccess)
+          content = response.body
+        end
+      rescue SocketError, Errno::EINTR, Errno::EPIPE, EOFError, Net::HTTPBadResponse, IOError, 
+        Errno::ETIMEDOUT, Errno::ECONNREFUSED, Timeout::Error => err
+        logger.debug "#{err} when fetching #{uri.to_s}"
+        http = nil
+      end
+      http.finish if http
+      return content
+    end
 
     def handle_response( http_response )
       case http_response
