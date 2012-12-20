@@ -901,6 +901,8 @@ class Package < ActiveRecord::Base
 
     # rails 3 only - rails 4 is reported to name it update_columns
     self.update_column(:activity_index, new_activity)
+    # we need to update the timestamp manually to avoid the activity_algorithm to run away
+    self.update_column(:updated_at, Time.now)
     # just for Schönheit - and only saved if we save it for other reasons
     self.update_counter += 1
   end
