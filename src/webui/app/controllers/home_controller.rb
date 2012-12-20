@@ -20,27 +20,7 @@ class HomeController < ApplicationController
       unless CONFIG['use_gravatar'] == :off
         email = Person.email_for_login(user)
         hash = Digest::MD5.hexdigest(email.downcase)
-        http = nil
-        proxyuri = ENV['http_proxy']
-        proxyuri = CONFIG['http_proxy'] unless CONFIG['http_proxy'].blank?
-        if proxyuri
-          proxy = URI.parse(proxyuri)
-          proxy_user, proxy_pass = proxy.userinfo.split(/:/) if proxy.userinfo
-          http = Net::HTTP::Proxy(proxy.host, proxy.port, proxy_user, proxy_pass).new("www.gravatar.com")
-        else
-          http = Net::HTTP.new("www.gravatar.com")
-        end
-        begin
-          http.start
-          response = http.get "/avatar/#{hash}?s=#{size}&d=wavatar" unless Rails.env.test?
-          if response.is_a?(Net::HTTPSuccess)
-            content = response.body
-          end
-        rescue SocketError, Errno::EINTR, Errno::EPIPE, EOFError, Net::HTTPBadResponse, IOError, Errno::ETIMEDOUT, Errno::ECONNREFUSED => err
-          logger.debug "#{err} when fetching http://www.gravatar.com/avatar/#{hash}?s=#{size}"
-          http = nil
-        end
-        http.finish if http
+        content = ActiveXML.transport.load_external_url("http://www.gravatar.com/avatar/#{hash}?s=#{size}&d=wavatar")
       end
 
       unless content
