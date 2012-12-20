@@ -19,16 +19,6 @@ class Distribution < ActiveRecord::Base
     end
   end
 
-  def self.load_distributions_from_remote(prj)
-    # TODO: add proxy handling
-    url = URI.parse( prj.remoteurl + "/distributions.xml" )
-    http = Net::HTTP.new(url.host, url.port)
-    http.use_ssl = (url.scheme == 'https')
-    response = http.get(url.path)
-    # TODO: fix response != 200
-    return response.body
-  end
-
   def to_hash
     res = self.attributes
     res["icons"] = []
@@ -40,7 +30,7 @@ class Distribution < ActiveRecord::Base
   
   def self.all_as_hash
     res = []
-    Distribution.all.each { |d| res << d.to_hash }
+    Distribution.includes(:icons).each { |d| res << d.to_hash }
     return res
   end
 
@@ -51,8 +41,9 @@ class Distribution < ActiveRecord::Base
       list = []
       remote_projects = Project.where("NOT ISNULL(projects.remoteurl)")
       remote_projects.each do |prj|
-        xmlhash = Xmlhash.parse(self.load_distributions_from_remote(prj))
-        logger.debug "AIR #{prj} #{xmlhash}"
+        body = ActiveXML.transport.load_external_url(prj.remoteurl + "/distributions.xml")
+        next if body.blank? # don't let broken remote instances break us
+        xmlhash = Xmlhash.parse(body)
         xmlhash.elements('distribution') do |d|
           iconlist = []
           d.elements('icon') do |i|

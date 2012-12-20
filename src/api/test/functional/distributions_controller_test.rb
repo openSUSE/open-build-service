@@ -2,6 +2,10 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class DistributionsControllerTest < ActionController::IntegrationTest
   fixtures :all
+  
+  teardown do
+    WebMock.reset!
+  end
 
   test "should show distribution" do
     get distribution_path(id: distributions(:one).to_param)
@@ -69,6 +73,7 @@ class DistributionsControllerTest < ActionController::IntegrationTest
 
     get "/distributions/include_remotes"
     assert_response :success
+
     # validate rendering and modifications of a remote repo
     assert_xml_tag :tag => "name", :content => "openSUSE 12.2"
     assert_xml_tag :tag => "project", :content => "RemoteInstance:openSUSE:12.2"
@@ -76,5 +81,13 @@ class DistributionsControllerTest < ActionController::IntegrationTest
     assert_xml_tag :tag => "repository", :content => "standard"
     assert_xml_tag :tag => "link", :content => "http://www.opensuse.org/"
     assert_xml_tag :tag => "icon", :attributes => { :url => "https://static.opensuse.org/distributions/logos/opensuse-12.2-8.png", :width => "8", :height => "8" }
+
+  end
+
+  test "we survive remote instances timeouts" do
+    stub_request(:get, "http://localhost:3200/distributions.xml").to_timeout
+    get "/distributions/include_remotes"
+    assert_response :success
+    puts @response.body
   end
 end
