@@ -133,7 +133,7 @@ class PublicController < ApplicationController
   # GET /public/distributions
   def distributions
     valid_http_methods :get
-    @distributions = Distribution.all
+    @distributions = Distribution.all_as_hash
     
     render "distributions/index"
   end

@@ -247,6 +247,7 @@ module Suse
           logger.debug line.strip
         end
         CONFIG['global_write_through'] = true
+        WebMock.disable_net_connect!(allow: CONFIG['source_host'])
         at_exit do
           logger.debug "kill #{@@backend.pid}"
           Process.kill "INT", @@backend.pid

@@ -17,7 +17,7 @@ end
 # check for still running daemons from former run
 [ '3200', '3201', '3202' ].each do |port|
   begin
-    Net::HTTP.start(CONFIG['source_host'], 3201) {|http| http.get('/') }
+    Net::HTTP.start(CONFIG['source_host'], port) {|http| http.get('/') }
     puts "ERROR Port #{port} is already in use, maybe from former unclean shutdown, aborting ..."
     exit 1
   rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
