@@ -45,6 +45,7 @@ if ($frontend) {
 }
 
 our $obsname = $hostname; # unique identifier for this Build Service instance
+# our $vendorname = "Open Build Service";
 # Change also the SLP reg files in /etc/slp.reg.d/ when you touch hostname or port
 our $srcserver = "http://$hostname:5352";
 our $reposerver = "http://$hostname:5252";

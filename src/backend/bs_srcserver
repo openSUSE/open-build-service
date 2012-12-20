@@ -3597,7 +3597,8 @@ sub concatconfigs {
   }
   $vprojid = $projid if $vprojid eq '';
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
-  $macros .= "%vendor obs://$obsname/$vprojid\n";
+  my $vendorname = $BSConfig::vendorname || "obs://$obsname/$vprojid";
+  $macros .= "%vendor $vendorname\n";
 
   $macros .= "%_project $projid\n";
   my $lastr = '';
