@@ -7,6 +7,8 @@ require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 require 'minitest/unit'
 
+require 'webmock/minitest'
+
 # uncomment to enable tests which currently are known to fail, but where either the test
 # or the code has to be fixed
 #$ENABLE_BROKEN_TEST=true

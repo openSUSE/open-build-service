@@ -25,11 +25,13 @@ GEM
     activesupport (3.2.9)
       i18n (~> 0.6)
       multi_json (~> 1.0)
+    addressable (2.3.2)
     arel (3.0.2)
     builder (3.0.4)
     ci_reporter (1.8.0)
       builder (>= 2.1.2)
     coderay (1.0.8)
+    crack (0.3.1)
     daemons (1.1.9)
     database_cleaner (0.9.1)
     delayed_job (3.0.4)
@@ -105,6 +107,9 @@ GEM
       polyglot
       polyglot (>= 0.3.1)
     tzinfo (0.3.35)
+    webmock (1.9.0)
+      addressable (>= 2.2.7)
+      crack (>= 0.1.7)
     xmlhash (1.3.4)
       pkg-config
     yajl-ruby (1.1.0)
@@ -133,5 +138,6 @@ DEPENDENCIES
   rdoc
   simplecov-rcov
   timecop
+  webmock (>= 1.9.0)
   xmlhash (>= 1.3.4)
   yajl-ruby

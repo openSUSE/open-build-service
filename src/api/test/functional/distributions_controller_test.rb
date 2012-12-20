@@ -58,6 +58,15 @@ class DistributionsControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_no_xml_tag :tag => "project", :content => "RemoteInstance:openSUSE:12.2"
 
+    fake_distribution_body = File.open(Rails.root.join("test/fixtures/backend/distributions.xml")).read
+
+    # using mocha has the disadvantage of not testing the complete function
+    #Distribution.stubs(:load_distributions_from_remote).returns(fake_distribution_body)
+
+    stub_request(:get, "http://localhost:3200/distributions.xml").
+      with(:headers => {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent'=>'Ruby'}).
+      to_return(status: 200, body: fake_distribution_body, headers: {})
+
     get "/distributions/include_remotes"
     assert_response :success
     # validate rendering and modifications of a remote repo
