@@ -10,11 +10,7 @@ class DistributionsController < ApplicationController
   # GET /distributions
   # GET /distributions.xml
   def index
-    if request.env['REQUEST_URI'].gsub(/\.xml$/, "") == "/distributions/include_remotes"
-      @distributions = Distribution.all_including_remotes
-    else
-      @distributions = Distribution.all
-    end
+    @distributions = Distribution.all
 
     respond_to do |format|
       format.xml

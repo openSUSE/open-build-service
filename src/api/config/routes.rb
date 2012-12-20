@@ -267,7 +267,6 @@ OBSApi::Application.routes.draw do
     ### /distributions
 
     match '/distributions' => 'distributions#upload', via: :put
-    match '/distributions/include_remotes' => 'distributions#index'
     # update is missing here
     resources :distributions, only: [:index, :show, :create, :destroy]
 
