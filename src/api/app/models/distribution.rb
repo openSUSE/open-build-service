@@ -19,24 +19,40 @@ class Distribution < ActiveRecord::Base
     end
   end
 
-  def self.all_including_remotes
-    local = self.all
+  def self.load_distributions_from_remote(prj)
+    # TODO: add proxy handling
+    url = URI.parse( prj.remoteurl + "/distributions.xml" )
+    http = Net::HTTP.new(url.host, url.port)
+    http.use_ssl = (url.scheme == 'https')
+    response = http.get(url.path)
+    # TODO: fix response != 200
+    return response.body
+  end
 
-    remote = Rails.cache.fetch("remote_distribution_list") do
+  def to_hash
+    res = self.attributes
+    res["icons"] = []
+    self.icons.each do |i|
+      res["icons"] << i.attributes
+    end
+    return res
+  end
+  
+  def self.all_as_hash
+    res = []
+    Distribution.all.each { |d| res << d.to_hash }
+    return res
+  end
+
+  def self.all_including_remotes
+    local = Distribution.all_as_hash
+
+    remote = Rails.cache.fetch("remote_distribution_list", expires_in: 1.day) do
       list = []
       remote_projects = Project.where("NOT ISNULL(projects.remoteurl)")
       remote_projects.each do |prj|
-        url = URI.parse( prj.remoteurl + "/distributions.xml" )
-        http = Net::HTTP.new(url.host, url.port)
-        http.use_ssl = (url.scheme == 'https')
-        body = nil
-        if Rails.env.test?
-          body = File.open("#{Rails.root}/test/fixtures/backend/distributions.xml").read()
-        else
-          response = http.get(url.path)
-          body = response.body
-        end
-        xmlhash = Xmlhash.parse(body)
+        xmlhash = Xmlhash.parse(self.load_distributions_from_remote(prj))
+        logger.debug "AIR #{prj} #{xmlhash}"
         xmlhash.elements('distribution') do |d|
           iconlist = []
           d.elements('icon') do |i|

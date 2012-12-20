@@ -116,8 +116,8 @@ map = ActiveXML::setup_transport(CONFIG['frontend_protocol'], CONFIG['frontend_h
     # Status Messages
     map.connect :statusmessage, 'rest:///status/messages/:id/?:limit'
 
-    map.connect :distribution, "rest:///public/distributions",
-      :all    => "rest:///public/distributions"
+    map.connect :distribution, "rest:///distributions/",
+      :all    => "rest:///distributions/including_remotes"
 
     map.connect :projectstatus, 'rest:///status/project/:project'
 

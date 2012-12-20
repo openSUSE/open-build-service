@@ -1,7 +1,7 @@
 class DistributionsController < ApplicationController
   # Distribution list is insensitive information, no login needed therefore
-  skip_before_filter :extract_user, :only => [:index, :show]
-  before_filter :require_admin, :except => [:index, :show]
+  skip_before_filter :extract_user, :only => [:index, :show, :include_remotes]
+  before_filter :require_admin, :except => [:index, :show, :include_remotes]
 
   validate_action :index => {:method => :get, :response => :distributions}
   validate_action :upload => {:method => :put, :request => :distributions, :response => :status}
@@ -10,16 +10,23 @@ class DistributionsController < ApplicationController
   # GET /distributions
   # GET /distributions.xml
   def index
-    if request.env['REQUEST_URI'].gsub(/\.xml$/, "") == "/distributions/include_remotes"
-      @distributions = Distribution.all_including_remotes
-    else
-      @distributions = Distribution.all
-    end
+    @distributions = Distribution.all_as_hash
 
     respond_to do |format|
       format.xml
       format.json { render :json => @distributions }
     end
+  end
+
+  # GET /distributions/include_remotes
+  # GET /distributions/include_remotes.xml
+  def include_remotes
+    @distributions = Distribution.all_including_remotes 
+ 
+    respond_to do |format|
+      format.xml { render "index" }
+      format.json { render :json => @distributions }
+     end
   end
 
   # GET /distributions/opensuse-11.4
