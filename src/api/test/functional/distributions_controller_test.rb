@@ -11,13 +11,14 @@ class DistributionsControllerTest < ActionController::IntegrationTest
     get distribution_path(id: distributions(:one).to_param)
     assert_response :success
     assert_equal({"id"=>{"type"=>"integer", "_content"=>"1"},
-		  "link"=>"http://www.opensuse.org/",
-		  "name"=>"openSUSE Factory",
-		  "project"=>"openSUSE.org:openSUSE:Factory",
-		  "reponame"=>"openSUSE_Factory",
-		  "repository"=>"snapshot",
-		  "vendor"=>"openSUSE",
-		  "version"=>"Factory"}, Xmlhash.parse(@response.body))
+                   "id"=>{"type"=>"integer", "_content"=>"1"},
+                   "link"=>"http://www.opensuse.org/",
+                   "name"=>"OBS Base",
+                   "project"=>"BaseDistro2.0",
+                   "reponame"=>"Base_repo",
+                   "repository"=>"BaseDistro2_repo",
+                   "vendor"=>"OBS",
+                   "version"=>"Base"}, Xmlhash.parse(@response.body))
   end
 
   test "should destroy distribution" do
@@ -75,7 +76,9 @@ class DistributionsControllerTest < ActionController::IntegrationTest
     assert_response :success
 
     # validate rendering and modifications of a remote repo
-    assert_xml_tag :tag => "name", :content => "openSUSE 12.2"
+    assert_xml_tag :tag => "name", :content => "openSUSE 12.2" # remote 1
+    assert_xml_tag :tag => "name", :content => "openSUSE Factory" # remote 2
+    assert_xml_tag :tag => "name", :content => "OBS Base" # local only
     assert_xml_tag :tag => "project", :content => "RemoteInstance:openSUSE:12.2"
     assert_xml_tag :tag => "reponame", :content => "openSUSE_12.2"
     assert_xml_tag :tag => "repository", :content => "standard"
@@ -88,6 +91,7 @@ class DistributionsControllerTest < ActionController::IntegrationTest
     stub_request(:get, "http://localhost:3200/distributions.xml").to_timeout
     get "/distributions/include_remotes"
     assert_response :success
-    puts @response.body
+    # only the one local is included
+    assert_xml_tag tag: "distributions", children: { count: 1}
   end
 end
