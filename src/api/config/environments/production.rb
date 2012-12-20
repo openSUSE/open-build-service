@@ -16,6 +16,13 @@ OBSApi::Application.configure do
   # Disable delivery errors if you bad email addresses should just be ignored
   # config.action_mailer.raise_delivery_errors = false
 
+  config.active_support.deprecation = :log
+ 
+   # Enable serving of images, stylesheets, and javascripts from an asset server
+   # config.action_controller.asset_host                  = "http://assets.example.com"
+ 
+  config.cache_store = :mem_cache_store, 'localhost:11211', {:namespace => 'obs-api', :compress => true }
+
 end
 
 # LDAP port defaults to 636 for ldaps and 389 for ldap and ldap with StartTLS
