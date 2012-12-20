@@ -112,7 +112,7 @@ GET /distributions
 XmlResult: distributions
 
 
-POST /distributions
+PUT /distributions
 
   Write the list of base distributions hosted on this OBS instance
 
@@ -133,7 +133,7 @@ POST /distributions/<distribution_id>
 XmlResult: status
 
 
-GET /distributions/include_remotes.xml
+GET /distributions/include_remotes
 
   Get the list of base distributions hosted on this OBS instance and on all used remote instances
 
