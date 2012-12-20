@@ -107,9 +107,38 @@ Parameters:
 
 GET /distributions
 
-  Get the list of base distributions
+  Get the list of base distributions hosted on this OBS instance
 
 XmlResult: distributions
+
+
+POST /distributions
+
+  Write the list of base distributions hosted on this OBS instance
+
+XmlResult: distributions
+
+
+GET /distributions/<distribution_id>
+
+  Get data of one base distributions hosted on this OBS instance
+
+XmlResult: status
+
+
+POST /distributions/<distribution_id>
+
+  Modifies one base distribution entry. Distro must be hosted on the OBS instance
+
+XmlResult: status
+
+
+GET /distributions/include_remotes.xml
+
+  Get the list of base distributions hosted on this OBS instance and on all used remote instances
+
+XmlResult: distributions
+
 
 == User data
 
