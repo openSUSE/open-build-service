@@ -146,7 +146,8 @@ sub rpc_error {
   delete $rpcs{$uri};
   close $ev->{'fd'} if $ev->{'fd'};
   delete $ev->{'fd'};
-  for my $jev (@{$ev->{'joblist'} || []}) {
+  my @jobs = @{$ev->{'joblist'} || []};
+  for my $jev (@jobs) {
     $jev->{'rpcdone'} = $jev->{'rpcoriguri'} || $uri;
     $jev->{'rpcerror'} = $err;
     redo_request($jev);
@@ -164,7 +165,8 @@ sub rpc_result {
   delete $rpcs{$uri};
   close $ev->{'fd'} if $ev->{'fd'};
   delete $ev->{'fd'};
-  for my $jev (@{$ev->{'joblist'} || []}) {
+  my @jobs = @{$ev->{'joblist'} || []};
+  for my $jev (@jobs) {
     $jev->{'rpcdone'} = $jev->{'rpcoriguri'} || $uri;
     $jev->{'rpcresult'} = $res;
     redo_request($jev);
@@ -193,7 +195,8 @@ sub rpc_redirect {
   close $ev->{'fd'} if $ev->{'fd'};
   delete $ev->{'fd'};
   #print "redirecting to: $location\n";
-  for my $jev (@{$ev->{'joblist'} || []}) {
+  my @jobs = @{$ev->{'joblist'} || []};
+  for my $jev (@jobs) {
     $jev->{'rpcoriguri'} ||= $ev->{'rpcuri'};
     local $BSServerEvents::gev = $jev;
     rpc({%$param, 'uri' => $location, 'maxredirects' => $param->{'maxredirects'} - 1});
@@ -215,7 +218,8 @@ sub filewatcher_handler {
     next if ($s eq $filewatchers_s{$file});
     print "file $file changed!\n";
     $filewatchers_s{$file} = $s;
-    for my $jev (@{$filewatchers{$file}}) {
+    my @jobs = @{$filewatchers{$file}};
+    for my $jev (@jobs) {
       redo_request($jev);
     }
   }
@@ -415,8 +419,8 @@ sub rpc_recv_forward_close_handler {
   my ($ev) = @_;
   #print "rpc_recv_forward_close_handler\n";
   my $rev = $ev->{'readev'};
-  my @jobs = @{$rev->{'joblist'} || []};
   my $trailer = $ev->{'chunktrailer'} || '';
+  my @jobs = @{$rev->{'joblist'} || []};
   for my $jev (@jobs) {
     $jev->{'replbuf'} .= "0\r\n$trailer\r\n";
     if ($jev->{'paused'}) {
@@ -433,10 +437,10 @@ sub rpc_recv_forward_close_handler {
 sub rpc_recv_forward_data_handler {
   my ($ev, $rev, $data) = @_;
 
-  my @jobs = @{$rev->{'joblist'} || []};
   my @stay;
   my @leave;
 
+  my @jobs = @{$rev->{'joblist'} || []};
   for my $jev (@jobs) {
     if (length($jev->{'replbuf'}) >= 16384) {
       push @stay, $jev;
@@ -582,7 +586,8 @@ sub rpc_recv_forward {
   #
   # setup output streams for all jobs
   #
-  for my $jev (@{$ev->{'joblist'} || []}) {
+  my @jobs = @{$ev->{'joblist'} || []};
+  for my $jev (@jobs) {
     rpc_recv_forward_setup($jev, $ev, @args);
   }
 
