@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- encoding: utf-8 i*-
 require 'api_exception'
 
 class Package < ActiveRecord::Base
@@ -280,7 +280,6 @@ class Package < ActiveRecord::Base
   def sources_changed
     self.set_package_kind
     self.update_activity
-    self.save
   end
 
   def add_package_kind( kinds )
@@ -876,9 +875,9 @@ class Package < ActiveRecord::Base
   def self.activity_algorithm
     # this is the algorithm (sql) we use for calculating activity of packages
     # we use Time.now.to_i instead of UNIX_TIMESTAMP() so we can test with frozen ruby time
-    "@activity:=( packages.activity_index * " +
+    "( packages.activity_index * " +
       "POWER( 2.3276, (UNIX_TIMESTAMP(packages.updated_at) - #{Time.now.to_i})/10000000 ) " +
-      ")"
+      ") as activity_value"
   end
 
   before_validation(on: :create) do
@@ -887,8 +886,8 @@ class Package < ActiveRecord::Base
   end
 
   def activity
-    package = Package.find_by_sql("SELECT packages.*, ( #{Package.activity_algorithm} ) AS act_tmp, " +
-                                  "@activity AS activity_value FROM `packages` WHERE id = #{self.id} LIMIT 1")
+    package = Package.find_by_sql("SELECT packages.*, #{Package.activity_algorithm} " +
+                                  "FROM `packages` WHERE id = #{self.id} LIMIT 1")
     return package.shift.activity_value.to_f
   end
 
@@ -900,8 +899,9 @@ class Package < ActiveRecord::Base
     new_activity = activity + addon
     new_activity = 100 if new_activity > 100
 
-    self.activity_index = new_activity
-    # just for Schönheit
+    # rails 3 only - rails 4 is reported to name it update_columns
+    self.update_column(:activity_index, new_activity)
+    # just for Schönheit - and only saved if we save it for other reasons
     self.update_counter += 1
   end
 

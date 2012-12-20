@@ -91,7 +91,7 @@ class StatisticsController < ApplicationController
 
   def most_active_projects
     # get all packages including activity values
-    @packages = Package.select("packages.*, ( #{Package.activity_algorithm} ) AS activity_value").
+    @packages = Package.select("packages.*, #{Package.activity_algorithm}").
 	    limit(@limit).order('activity_value DESC').all
     # count packages per project and sum up activity values
     projects = {}
@@ -113,7 +113,7 @@ class StatisticsController < ApplicationController
 
   def most_active_packages
     # get all packages including activity values
-    @packages = Package.select("packages.*, ( #{Package.activity_algorithm} ) as activity_value").
+    @packages = Package.select("packages.*, #{Package.activity_algorithm}").
       limit(@limit).order('activity_value DESC').all
     return @packages
   end
