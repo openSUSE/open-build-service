@@ -35,29 +35,26 @@ class Distribution < ActiveRecord::Base
   end
 
   def self.all_including_remotes
-    local = Distribution.all_as_hash
-
-    remote = Rails.cache.fetch("remote_distribution_list", expires_in: 1.day) do
-      list = []
-      remote_projects = Project.where("NOT ISNULL(projects.remoteurl)")
-      remote_projects.each do |prj|
-        body = ActiveXML.transport.load_external_url(prj.remoteurl + "/distributions.xml")
-        next if body.blank? # don't let broken remote instances break us
-        xmlhash = Xmlhash.parse(body)
-        xmlhash.elements('distribution') do |d|
-          iconlist = []
-          d.elements('icon') do |i|
-            iconlist << { "width" => i['width'], "height" => i['height'], "url" => i['url'] }
-          end
-          list << {"vendor" => d['vendor'], "version" => d['version'], "name" => d['name'],
-                   "project" => prj.name + ":" + d['project'], "icons" => iconlist,
-                   "reponame" => d['reponame'], "repository" => d['repository'], "link" => d['link']}
-        end
+    list = Distribution.all_as_hash
+    
+    remote_projects = Project.where("NOT ISNULL(projects.remoteurl)")
+    remote_projects.each do |prj|
+      body = Rails.cache.fetch("remote_distribution_#{prj.id}", expires_in: 1.hour) do
+        ActiveXML.transport.load_external_url(prj.remoteurl + "/distributions.xml")
       end
-      list
+      next if body.blank? # don't let broken remote instances break us
+      xmlhash = Xmlhash.parse(body)
+      xmlhash.elements('distribution') do |d|
+        iconlist = []
+        d.elements('icon') do |i|
+          iconlist << { "width" => i['width'], "height" => i['height'], "url" => i['url'] }
+        end
+        list << {"vendor" => d['vendor'], "version" => d['version'], "name" => d['name'],
+          "project" => prj.name + ":" + d['project'], "icons" => iconlist,
+          "reponame" => d['reponame'], "repository" => d['repository'], "link" => d['link']}
+      end
     end
-
-    return local + remote
+    return list
   end
 
 end
