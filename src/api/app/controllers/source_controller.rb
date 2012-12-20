@@ -1748,7 +1748,7 @@ class SourceController < ApplicationController
     pack = Package.find_by_project_and_name( params[:project], params[:package] )
     if pack # in case of _project package
       pack.set_package_kind_from_commit(answer)
-      pack.update_activity
+      pack.sources_changed
     end
 
     if params[:package] == "_product"

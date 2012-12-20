@@ -297,7 +297,7 @@ The library includes bindings for both the C and C++ languages. It works on POSI
     Timecop.freeze(90000)
     newyear.title = "Just a silly update 8"
     newyear.save
-    assert_in_delta(73.2, newyear.activity, 0.2)
+    assert_in_delta(73.4, newyear.activity, 0.2)
     
   end
 

@@ -279,6 +279,8 @@ class Package < ActiveRecord::Base
 
   def sources_changed
     self.set_package_kind
+    self.update_activity
+    self.save
   end
 
   def add_package_kind( kinds )
