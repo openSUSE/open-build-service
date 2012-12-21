@@ -33,7 +33,7 @@ class ApiDetails
     raise "no valid info #{info}" unless [:change_role].include? info
     uri = URI("/webui/#{info.to_s}")
     begin
-      data = ActiveXML::transport.http_do 'post', uri, data: opts.to_json, content_type: "application/json"
+      data = ActiveXML::transport.http_json :post, uri, opts
     rescue ActiveXML::Transport::Error => e
       raise CommandFailed, e.summary
     end
