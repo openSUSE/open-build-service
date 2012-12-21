@@ -32,7 +32,7 @@ class DistributionsController < ApplicationController
   # GET /distributions/opensuse-11.4
   # GET /distributions/opensuse-11.4.xml
   def show
-    @distribution = Distribution.find(params[:id])
+    @distribution = Distribution.find(params[:id]).to_hash
 
     respond_to do |format|
       format.xml  { render :xml => @distribution }

@@ -10,6 +10,7 @@ class DistributionsControllerTest < ActionController::IntegrationTest
   test "should show distribution" do
     get distribution_path(id: distributions(:one).to_param)
     assert_response :success
+    # the default XML renderer just s***s
     assert_equal({"id"=>{"type"=>"integer", "_content"=>"1"},
                    "id"=>{"type"=>"integer", "_content"=>"1"},
                    "link"=>"http://www.opensuse.org/",
@@ -18,7 +19,21 @@ class DistributionsControllerTest < ActionController::IntegrationTest
                    "reponame"=>"Base_repo",
                    "repository"=>"BaseDistro2_repo",
                    "vendor"=>"OBS",
-                   "version"=>"Base"}, Xmlhash.parse(@response.body))
+                   "version"=>"Base",
+                   "icons"=>
+                   {"type"=>"array",
+                     "icon"=>
+                     [{"id"=>{"type"=>"integer", "_content"=>"72"},
+                        "url"=>
+                        "https://static.opensuse.org/distributions/logos/opensuse-Factory-8.png",
+                        "width"=>{"type"=>"integer", "_content"=>"8"},
+                        "height"=>{"type"=>"integer", "_content"=>"8"}},
+                      {"id"=>{"type"=>"integer", "_content"=>"73"},
+                        "url"=>
+                        "https://static.opensuse.org/distributions/logos/opensuse-Factory-16.png",
+                        "width"=>{"type"=>"integer", "_content"=>"16"},
+                        "height"=>{"type"=>"integer", "_content"=>"16"}}]}
+               }, Xmlhash.parse(@response.body))
   end
 
   test "should destroy distribution" do
