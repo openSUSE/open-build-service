@@ -418,6 +418,11 @@ module ActiveXML
       return content
     end
 
+    # small helper function to avoid having to hardcode the content_type all around
+    def http_json(method, uri, data)
+      http_do method, uri, data: data.to_json, content_type: "application/json"
+    end
+
     def handle_response( http_response )
       case http_response
       when Net::HTTPSuccess, Net::HTTPRedirection

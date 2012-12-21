@@ -28,7 +28,7 @@ class ConfigurationsController < ApplicationController
     @configuration = ::Configuration.first
 
     respond_to do |format|
-      xml = Xmlhash.parse(request.raw_post).get("configuration")
+      xml = params["xmlhash"] || {}
       attribs = {}
       attribs[:title] = xml["title"] || params["title"]
       attribs[:description] = xml["description"] || params["description"]
