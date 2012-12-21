@@ -62,7 +62,11 @@ class DistributionsControllerTest < ActionController::IntegrationTest
     get "/distributions"
     assert_response :success
     assert_no_xml_tag :tag => "project", :content => "RemoteInstance:openSUSE:12.2"
+  end
 
+  test "remotes work" do
+    prepare_request_with_user "tom", "thunder"
+    
     fake_distribution_body = File.open(Rails.root.join("test/fixtures/backend/distributions.xml")).read
 
     # using mocha has the disadvantage of not testing the complete function
@@ -86,6 +90,7 @@ class DistributionsControllerTest < ActionController::IntegrationTest
     assert_xml_tag :tag => "icon", :attributes => { :url => "https://static.opensuse.org/distributions/logos/opensuse-12.2-8.png", :width => "8", :height => "8" }
 
   end
+
 
   test "we survive remote instances timeouts" do
     stub_request(:get, "http://localhost:3200/distributions.xml").to_timeout
