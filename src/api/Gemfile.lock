@@ -107,11 +107,11 @@ GEM
       polyglot
       polyglot (>= 0.3.1)
     tzinfo (0.3.35)
+    xmlhash (1.3.5)
+      pkg-config
     webmock (1.9.0)
       addressable (>= 2.2.7)
       crack (>= 0.1.7)
-    xmlhash (1.3.4)
-      pkg-config
     yajl-ruby (1.1.0)
 
 PLATFORMS
@@ -138,6 +138,6 @@ DEPENDENCIES
   rdoc
   simplecov-rcov
   timecop
+  xmlhash (>= 1.3.5)
   webmock (>= 1.9.0)
-  xmlhash (>= 1.3.4)
   yajl-ruby
