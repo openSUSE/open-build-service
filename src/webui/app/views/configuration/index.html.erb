@@ -15,7 +15,7 @@ as well as managing users and groups.
       <li><%= link_to('Connect to a remote OBS instance', :action => 'connect_instance') %></li>
     </ul>
   </div>
-  <% if @available_architectures %>
+  <% if @available_architectures && @available_architectures.has_elements?  %>
     <div class="show_left box">
       <h3>Available Scheduler Architectures</h3>
       <p>You can recommended architectures to be selected by default when a new project or package is created. The new project or package will then build against this architecture (for it's configured repositories).</p>

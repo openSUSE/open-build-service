@@ -344,7 +344,7 @@ class ApplicationController < ActionController::Base
   def require_configuration
     @configuration = {}
     begin
-      @configuration = Rails.cache.fetch('configuration', :expires_in => 30.minutes) do
+      @configuration = Rails.cache.fetch('configuration', :expires_in => 3.seconds) do
         response = ActiveXML::transport.direct_http(URI('/configuration.json'))
         ActiveSupport::JSON.decode(response)
       end

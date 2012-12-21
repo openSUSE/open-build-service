@@ -6,6 +6,8 @@ class ConfigurationController < ApplicationController
   before_filter :require_available_architectures, :only => [:index, :update_architectures]
 
   def index
+    @configuration['title'] ||= ''
+    @configuration['description'] ||= ''    
   end
 
   def connect_instance
@@ -52,8 +54,7 @@ class ConfigurationController < ApplicationController
     end
 
     begin
-      data = "<configuration><description>#{CGI.escapeHTML(params[:description])}</description><title><#{CGI.escapeHTML(params[:title])}/title></configuration>"
-      ActiveXML::transport.direct_http(URI('/configuration'), :method => 'PUT', :data => data)
+      ActiveXML::transport.http_json :put, '/configuration', { description: params[:description], title: params[:title] }
       flash[:note] = "Updated configuration"
       Rails.cache.delete('configuration')
     rescue ActiveXML::Transport::Error 
