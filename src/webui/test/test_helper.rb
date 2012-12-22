@@ -32,7 +32,7 @@ class ActionDispatch::IntegrationTest
     end
     @current_user = user
     if do_assert
-      assert find('#flash-messages').has_content?("You are logged in now")
+      find('#flash-messages').must_have_content("You are logged in now")
     end
   end
 

@@ -40,12 +40,11 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
     @driver[css: "div#content input[name='commit']"].click
 
     if attribute[:expect] == :success
-      validate { flash_message == "Attribute sucessfully added!" }
-      validate { flash_message_type == :info }
+      assert_equal "Attribute sucessfully added!", flash_message
+      assert_equal :info, flash_message_type
     elsif attribute[:expect] == :no_permission
-      validate { flash_message ==
-        "Saving attribute failed: user #{@user[:login]} has no permission to change attribute" }
-      validate { flash_message_type == :alert }
+      assert_equal "Saving attribute failed: user #{@user[:login]} has no permission to change attribute", flash_message
+      assert_equal :alert, flash_message_type
     elsif attribute[:expect] == :value_not_allowed
       validate { flash_message.include?(
                                         "Saving attribute failed: attribute value #{attribute[:new_value]} for") }
@@ -53,7 +52,7 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
     elsif attribute[:expect] == :wrong_number_of_values
       assert flash_message.include? "Saving attribute failed: attribute" 
       assert flash_message.include? "values, but" 
-      assert_equal flash_message_type, :alert 
+      assert_equal :alert, flash_message_type
     end
     validate_page
   end
@@ -78,12 +77,12 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
       assert_equal "Attribute sucessfully added!", flash_message
       assert_equal :info, flash_message_type
     elsif attribute[:expect] == :no_permission
-      assert_match flash_message, %r{Saving attribute failed: user .* has no permission to change attribute}
+      assert_match %r{Saving attribute failed: user .* has no permission to change attribute}, flash_message
       assert_equal :alert, flash_message_type
     elsif attribute[:expect] == :value_not_allowed
-      assert_match flash_message, %r{Saving attribute failed: attribute value #{attribute[:value]} for}
+      assert_match %r{Saving attribute failed: attribute value #{attribute[:value]} for}, flash_message
     elsif attribute[:expect] == :wrong_number_of_values
-      assert_match flash_message, %r{Saving attribute failed: attribute.*values, but}
+      assert_match %r{Saving attribute failed: attribute.*values, but}, flash_message
     end
   end
 
@@ -106,7 +105,7 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
       assert_equal "Attribute sucessfully deleted!", flash_message
       assert_equal :info, flash_message_type
     elsif attribute[:expect] == :no_permission
-      assert_match flash_message, %r{Deleting attribute failed: user .* has no permission to change attribute}
+      assert_match %r{Deleting attribute failed: user .* has no permission to change attribute}, flash_message
       assert_equal :alert, flash_message_type
     end
   end

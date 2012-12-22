@@ -9,7 +9,7 @@ require 'active_support/core_ext/hash/indifferent_access'
 # Disable all default rails parameter parsing
 
 ActiveSupport.on_load(:action_controller) do
-  wrap_parameters false
+  wrap_parameters false if respond_to?(:wrap_parameters)
 end
 
 # Disable root element in JSON by default.

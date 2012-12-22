@@ -20,16 +20,16 @@ class MaintenanceWorkflowTest < ActionDispatch::IntegrationTest
     visit(project_show_path(project: "My:Maintenance"))
     assert_equal "official maintenance space", find(:id, "project_title").text
     
-    assert find(:id, "infos_list").has_text? %r{3 maintained projects}
+    find(:id, "infos_list").must_have_text %r{3 maintained projects}
 
     find(:link, "maintained projects").click
     find(:link, "BaseDistro2.0:LinkedUpdateProject").click
     
-    assert find(:css, "#infos_list").has_text? %r{Maintained by My:Maintenance}
+    find(:css, "#infos_list").must_have_text %r{Maintained by My:Maintenance}
     first(:link, "pack2").click
     find(:link, "Branch package").click
     
-    assert find(:css, "#branch_dialog").has_text? %r{Do you really want to branch package}
+    find(:css, "#branch_dialog").must_have_text %r{Do you really want to branch package}
     find_button("Ok").click
 
     assert find(:css, "#flash-messages").has_text? %r{Branched package BaseDistro2\.0:LinkedUpdateProject.*pack2}
@@ -41,7 +41,7 @@ class MaintenanceWorkflowTest < ActionDispatch::IntegrationTest
     find(:link, "Submit as update").click
     
     # wait for the dialog to appear
-    assert find(:css, ".dialog h2").has_content? "Submit as Update"
+    find(:css, ".dialog h2").must_have_content "Submit as Update"
     fill_in "description", with: "I want the update"
     find_button("Ok").click
 

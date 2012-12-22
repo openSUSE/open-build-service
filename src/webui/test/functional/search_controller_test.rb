@@ -46,7 +46,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
         search_details = "with attribute \"#{options[:attribute]}\""
       end
       found_text = find("div#content h3").text
-      assert_match found_text, %r{^Search results #{search_details}}, 
+      assert_match %r{^Search results #{search_details}}, found_text
       "'#{found_text}' did not match /^Search results #{search_details}/"
     elsif options[:expect] == :invalid_search_text
       assert_equal "Search string must contain at least two characters.", flash_message

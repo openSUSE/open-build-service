@@ -28,7 +28,7 @@ GEM
     addressable (2.3.2)
     arel (3.0.2)
     builder (3.0.4)
-    ci_reporter (1.8.0)
+    ci_reporter (1.8.3)
       builder (>= 2.1.2)
     coderay (1.0.8)
     crack (0.3.1)
@@ -57,10 +57,10 @@ GEM
     memcache-client (1.8.5)
     method_source (0.8.1)
     mime-types (1.19)
-    minitest (4.3.2)
-    multi_json (1.4.0)
+    minitest (4.3.3)
+    multi_json (1.5.0)
     mysql2 (0.3.11)
-    nokogiri (1.5.5)
+    nokogiri (1.5.6)
     pkg-config (1.1.4)
     polyglot (0.3.3)
     pry (0.9.10)
@@ -74,9 +74,9 @@ GEM
       rack
     rack-test (0.6.2)
       rack (>= 1.0)
-    rails-api (0.0.2)
-      actionpack (>= 3.2.0)
-      railties (>= 3.2.0)
+    rails-api (0.0.3)
+      actionpack (>= 3.2.6)
+      railties (>= 3.2.6)
       tzinfo (~> 0.3.31)
     railties (3.2.9)
       actionpack (= 3.2.9)
@@ -95,23 +95,23 @@ GEM
     simplecov-rcov (0.2.3)
       simplecov (>= 0.4.1)
     slop (3.3.3)
-    sprockets (2.2.1)
+    sprockets (2.2.2)
       hike (~> 1.2)
       multi_json (~> 1.0)
       rack (~> 1.0)
       tilt (~> 1.1, != 1.3.0)
     thor (0.16.0)
     tilt (1.3.3)
-    timecop (0.5.4)
+    timecop (0.5.5)
     treetop (1.4.12)
       polyglot
       polyglot (>= 0.3.1)
     tzinfo (0.3.35)
-    xmlhash (1.3.5)
-      pkg-config
     webmock (1.9.0)
       addressable (>= 2.2.7)
       crack (>= 0.1.7)
+    xmlhash (1.3.5)
+      pkg-config
     yajl-ruby (1.1.0)
 
 PLATFORMS
@@ -138,6 +138,6 @@ DEPENDENCIES
   rdoc
   simplecov-rcov
   timecop
-  xmlhash (>= 1.3.5)
   webmock (>= 1.9.0)
+  xmlhash (>= 1.3.5)
   yajl-ruby
