@@ -7,7 +7,7 @@ class AddRepoTest < ActionDispatch::IntegrationTest
     visit '/'
     login_Iggy
     
-    assert find('.mainhead').has_text?("Welcome to Open Build Service")
+    find('.mainhead').must_have_text("Welcome to Open Build Service")
   end
 
    def test_add_default
@@ -16,15 +16,15 @@ class AddRepoTest < ActionDispatch::IntegrationTest
      end
 
      click_link 'Repositories'
-     assert page.has_text?("Repositories of home:Iggy")
-     assert page.has_text?(/i586, x86_64/)
+     page.must_have_text("Repositories of home:Iggy")
+     page.must_have_text(/i586, x86_64/)
 
      click_link 'Add repositories'
-     page.has_text?("Add Repositories to Project home:Iggy")
+     page.must_have_text("Add Repositories to Project home:Iggy")
 
-     assert page.has_text?("KIWI image build")
+     page.must_have_text("KIWI image build")
 
-     assert_equal 'true', find('#submitrepos')['disabled']
+     find('#submitrepos')['disabled'].to_s.must_equal 'true'
      
      check 'repo_images'
      click_button "Add selected repositories"

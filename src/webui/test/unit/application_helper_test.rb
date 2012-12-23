@@ -7,19 +7,19 @@ class ApplicationHelperTest < ActiveSupport::TestCase
   def test_repo_status_icon
     # Regular
     status = ApplicationHelper::repo_status_icon("blocked")
-    assert status.match(/icons-time/)
-    assert status.match(/No build possible atm/)
+    status.must_match(/icons-time/)
+    status.must_match(/No build possible atm/)
 
     # Outdated
     status = ApplicationHelper::repo_status_icon("outdated_scheduling")
-    assert status.match(/icons-cog_error/)
-    assert status.match(/state is being calculated/)
-    assert status.match(/needs recalculations/)
+    status.must_match(/icons-cog_error/)
+    status.must_match(/state is being calculated/)
+    status.must_match(/needs recalculations/)
 
     # Fallback
     status = ApplicationHelper::repo_status_icon("undefined")
-    assert status.match(/icons-eye/)
-    assert status.match(/Unknown state/)
+    status.must_match(/icons-eye/)
+    status.must_match(/Unknown state/)
   end
 
   def test_sponsors

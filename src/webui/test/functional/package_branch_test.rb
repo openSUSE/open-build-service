@@ -6,9 +6,9 @@ class PackageBranchTest < ActionDispatch::IntegrationTest
   def create_package_branch new_branch
     click_link 'Branch existing package'
 
-    assert page.has_text? "Add New Package Branch to #{@project}"
-    assert page.has_text? "Name of original project:"
-    assert page.has_text? "Name of package in original project:"
+    page.must_have_text "Add New Package Branch to #{@project}"
+    page.must_have_text "Name of original project:"
+    page.must_have_text "Name of package in original project:"
     assert page.current_url =~ %r{/project/new_package_branch}
 
     new_branch[:expect]           ||= :success
@@ -23,18 +23,18 @@ class PackageBranchTest < ActionDispatch::IntegrationTest
     click_button "Create Branch"
 
     if new_branch[:expect] == :success
-      assert_equal "Branched package #{@project} / #{new_branch[:name]}", flash_message
-      assert_equal :info, flash_message_type
+      flash_message.must_equal "Branched package #{@project} / #{new_branch[:name]}"
+      flash_message_type.must_equal :info
       assert page.current_url.end_with? package_show_path(project: @project, package: new_branch[:name])
     elsif new_branch[:expect] == :invalid_package_name
-      assert_equal "Invalid package name: '#{new_branch[:original_name]}'", flash_message
-      assert_equal :alert, flash_message_type
+      flash_message.must_equal "Invalid package name: '#{new_branch[:original_name]}'"
+      flash_message_type.must_equal :alert
     elsif new_branch[:expect] == :invalid_project_name
-      assert_equal "Invalid project name: '#{new_branch[:original_project]}'", flash_message
-      assert_equal :alert, flash_message_type
+      flash_message.must_equal "Invalid project name: '#{new_branch[:original_project]}'"
+      flash_message_type.must_equal :alert
     elsif new_branch[:expect] == :already_exists
-      assert_equal "Package '#{new_branch[:name]}' already exists in project '#{@project}'", flash_message
-      assert_equal :alert, flash_message_type
+      flash_message.must_equal "Package '#{new_branch[:name]}' already exists in project '#{@project}'"
+      flash_message_type.must_equal :alert
     else
       throw "Invalid value for argument <expect>."
     end

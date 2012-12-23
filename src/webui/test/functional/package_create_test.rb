@@ -9,7 +9,7 @@ class PackageCreateTest < ActionDispatch::IntegrationTest
 
   def open_new_package
     click_link("Create package")
-    assert page.has_text? "Create New Package for "
+    page.must_have_text "Create New Package for "
   end
 
   def create_package new_package
@@ -30,18 +30,18 @@ class PackageCreateTest < ActionDispatch::IntegrationTest
     click_button("Save changes")
 
     if new_package[:expect] == :success
-      assert_equal message_prefix + "was created successfully", flash_message
-      assert_equal :info, flash_message_type
+      flash_message.must_equal message_prefix + "was created successfully"
+      flash_message_type.must_equal :info
       new_package[:description] = "No description set" if new_package[:description].empty?
       assert_equal new_package[:description].gsub(%r{\s+}, ' '), find(:id, "description_text").text
     elsif new_package[:expect] == :invalid_name
-      assert_equal "Invalid package name: '#{new_package[:name]}'", flash_message
-      assert_equal :alert, flash_message_type
-      assert page.has_text? "Create New Package for "
+      flash_message.must_equal "Invalid package name: '#{new_package[:name]}'"
+      flash_message_type.must_equal :alert
+      page.must_have_text "Create New Package for "
     elsif new_package[:expect] == :already_exists
-      assert_equal message_prefix + "already exists in project '#{@project}'", flash_message
-      assert_equal :alert, flash_message_type
-      assert page.has_text? "Create New Package for "
+      flash_message.must_equal message_prefix + "already exists in project '#{@project}'"
+      flash_message_type.must_equal :alert
+      page.must_have_text "Create New Package for "
     else
       throw "Invalid value for argument expect(must be :success, :invalid_name, :already_exists)"
     end
@@ -154,14 +154,15 @@ class PackageCreateTest < ActionDispatch::IntegrationTest
     packageurl = page.current_url
     visit project_show_path( project: "home:Iggy")
 
+    baseuri = URI.parse(page.current_url)
     foundcplus=nil
     page.all("#packages_table a").each do |link|
       next unless link.text == 'Cplus+'
-      foundcplus=link['href']
+      foundcplus=baseuri.merge(link['href']).to_s
       break
     end
     assert !foundcplus.nil?
-    assert_equal packageurl, foundcplus
+    foundcplus.must_equal packageurl
 
     # tear down
     delete_package('home:Iggy', 'Cplus+')

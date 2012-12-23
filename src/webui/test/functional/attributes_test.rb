@@ -28,7 +28,7 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
     results = rows.select do |row|
       row.find_element(xpath: ".//td[1]").text == attribute[:name]
     end
-    assert results.count == 1
+    results.count.must_equal 1
     
     results.first.find_element(xpath: ".//a[1]").click
 
@@ -40,11 +40,11 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
     @driver[css: "div#content input[name='commit']"].click
 
     if attribute[:expect] == :success
-      assert_equal "Attribute sucessfully added!", flash_message
-      assert_equal :info, flash_message_type
+      flash_message.must_equal "Attribute sucessfully added!"
+      flash_message_type.must_equal :info
     elsif attribute[:expect] == :no_permission
-      assert_equal "Saving attribute failed: user #{@user[:login]} has no permission to change attribute", flash_message
-      assert_equal :alert, flash_message_type
+      flash_message.must_equal "Saving attribute failed: user #{@user[:login]} has no permission to change attribute"
+      flash_message_type.must_equal :alert
     elsif attribute[:expect] == :value_not_allowed
       validate { flash_message.include?(
                                         "Saving attribute failed: attribute value #{attribute[:new_value]} for") }
@@ -52,7 +52,7 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
     elsif attribute[:expect] == :wrong_number_of_values
       assert flash_message.include? "Saving attribute failed: attribute" 
       assert flash_message.include? "values, but" 
-      assert_equal :alert, flash_message_type
+      flash_message_type.must_equal :alert
     end
     validate_page
   end
@@ -65,24 +65,24 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
 
     click_link('Add a new attribute')
 
-    assert page.has_text? 'Add New Attribute'
-    assert page.has_text? 'Attribute name:'
-    assert page.has_text? 'Values (e.g. "bar,foo,..."):'
+    page.must_have_text 'Add New Attribute'
+    page.must_have_text 'Attribute name:'
+    page.must_have_text 'Values (e.g. "bar,foo,..."):'
     
     find('select#attribute').select(attribute[:name])
     fill_in 'values', with: attribute[:value]
     click_button 'Save attribute'
 
     if attribute[:expect] == :success
-      assert_equal "Attribute sucessfully added!", flash_message
-      assert_equal :info, flash_message_type
+      flash_message.must_equal "Attribute sucessfully added!"
+      flash_message_type.must_equal :info
     elsif attribute[:expect] == :no_permission
-      assert_match %r{Saving attribute failed: user .* has no permission to change attribute}, flash_message
-      assert_equal :alert, flash_message_type
+      flash_message.must_match %r{Saving attribute failed: user .* has no permission to change attribute}
+      flash_message_type.must_equal :alert
     elsif attribute[:expect] == :value_not_allowed
-      assert_match %r{Saving attribute failed: attribute value #{attribute[:value]} for}, flash_message
+      flash_message.must_match %r{Saving attribute failed: attribute value #{attribute[:value]} for}
     elsif attribute[:expect] == :wrong_number_of_values
-      assert_match %r{Saving attribute failed: attribute.*values, but}, flash_message
+      flash_message.must_match %r{Saving attribute failed: attribute.*values, but}
     end
   end
 
@@ -102,11 +102,11 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
     results.first.find(:css, "input.delete-attribute").click
 
     if attribute[:expect] == :success
-      assert_equal "Attribute sucessfully deleted!", flash_message
-      assert_equal :info, flash_message_type
+      flash_message.must_equal "Attribute sucessfully deleted!"
+      flash_message_type.must_equal :info
     elsif attribute[:expect] == :no_permission
-      assert_match %r{Deleting attribute failed: user .* has no permission to change attribute}, flash_message
-      assert_equal :alert, flash_message_type
+      flash_message.must_match %r{Deleting attribute failed: user .* has no permission to change attribute}
+      flash_message_type.must_equal :alert
     end
   end
 

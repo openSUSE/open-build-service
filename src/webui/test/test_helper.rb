@@ -72,7 +72,7 @@ class ActionDispatch::IntegrationTest
     end
     olddriver = Capybara.current_driver
     Capybara.current_driver = :rack_test
-    5.times do
+    10.times do
       begin
         visit '/'
         ENV['API_STARTED'] = '1'
@@ -80,6 +80,7 @@ class ActionDispatch::IntegrationTest
       rescue Timeout::Error
       end
     end unless ENV['API_STARTED']
+    raise "No api" unless ENV['API_STARTED']
     ActiveXML::transport.http_do :post, "/test/test_start"
     Capybara.current_driver = olddriver
     @starttime = Time.now
@@ -152,9 +153,9 @@ class ActionDispatch::IntegrationTest
   def delete_package project, package
     visit package_show_path(package: package, project: project)
     find(:id, 'delete-package').click
-    assert find(:id, 'del_dialog').has_text? 'Delete Confirmation'
+    find(:id, 'del_dialog').must_have_text 'Delete Confirmation'
     find_button("Ok").click
-    assert find('#flash-messages').has_text? "Package '#{package}' was removed successfully"
+    find('#flash-messages').must_have_text "Package '#{package}' was removed successfully"
   end
 
 end

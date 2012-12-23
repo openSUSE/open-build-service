@@ -16,12 +16,12 @@ class PackageEditSourcesTest < ActionDispatch::IntegrationTest
 
   def open_file file
     find(:css, "tr##{valid_xml_id('file-' + file)} td:first-child a").click
-    assert page.has_text? "File #{file} of Package #{@package}"
+    page.must_have_text "File #{file} of Package #{@package}"
   end
 
   def open_add_file
     click_link('Add file')
-    assert page.has_text? "Add File to"
+    page.must_have_text "Add File to"
   end
 
   def add_file file
@@ -55,24 +55,24 @@ class PackageEditSourcesTest < ActionDispatch::IntegrationTest
     file[:name] = File.basename(file[:upload_path]) if file[:name] == ""
 
     if file[:expect] == :success
-      assert_equal "The file #{file[:name]} has been added.", flash_message
-      assert_equal :info, flash_message_type
+      flash_message.must_equal "The file #{file[:name]} has been added."
+      flash_message_type.must_equal :info
       assert find(:css, "#files_table tr#file-#{valid_xml_id(file[:name])}")
       # TODO: Check that new file is in the list
     elsif file[:expect] == :no_path_given
       assert_equal :alert, flash_message_type
       assert_equal flash_message, "No file or URI given."
     elsif file[:expect] == :invalid_upload_path
-      assert_equal :alert, flash_message_type
-      assert page.has_text? "Add File to"
+      flash_message_type.must_equal :alert
+      page.must_have_text "Add File to"
     elsif file[:expect] == :no_permission
-      assert_equal :alert, flash_message_type
-      assert page.has_text? "Add File to"
+      flash_message_type.must_equal :alert
+      page.must_have_text "Add File to"
     elsif file[:expect] == :download_failed
       # the _service file is added, but the download fails
       fm = flash_messages
-      assert_equal 2, fm.count
-      assert_equal "The file #{file[:name]} has been added.", fm[0]
+      fm.count.must_equal 2
+      fm[0].must_equal "The file #{file[:name]} has been added."
       assert fm[1].include?("service download_url failed"), "expected '#{fm[1]}' to include 'Download failed'"
     else
       raise "Invalid value for argument expect."
@@ -83,27 +83,26 @@ class PackageEditSourcesTest < ActionDispatch::IntegrationTest
   #
   def edit_file new_content
     # new edit page does not allow comments
- #   validate { @driver.page_source.include? "Comment your changes (optional):" }
     
     savebutton = find(:css, ".buttons.save")
-    assert page.has_selector?(".buttons.save.inactive")
+    page.must_have_selector(".buttons.save.inactive")
     
     # is it all rendered?
-    assert page.has_selector?(".CodeMirror-lines")
+    page.must_have_selector(".CodeMirror-lines")
 
     # codemirror is not really test friendly, so just brute force it - we basically
     # want to test the load and save work flow not the codemirror library
     page.execute_script("editors[0].setValue('#{escape_javascript(new_content)}');")
     
     # wait for it to be active
-    assert !page.has_selector?(".buttons.save.inactive")
+    page.wont_have_selector(".buttons.save.inactive")
     assert !savebutton["class"].split(" ").include?("inactive")
     savebutton.click
-    assert page.has_selector?(".buttons.save.inactive")
+    page.must_have_selector(".buttons.save.inactive")
     assert savebutton["class"].split(" ").include? "inactive"
 
-    #assert_equal "Successfully saved file #{@file}", flash_message
-    #assert_equal :info, flash_message_type
+    #flash_message.must_equal "Successfully saved file #{@file}"
+    #flash_message_type.must_equal :info
 
   end
   
