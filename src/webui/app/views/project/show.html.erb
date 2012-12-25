@@ -147,10 +147,10 @@
             <% end %>
           <% else %>
             <li>
-            <%= link_to(sprite_tag('user_add') + "Request role addition", {:controller => 'request', :action => 'add_role_request_dialog', :project => @project}, :remote => true) %>
+            <%= link_to(sprite_tag('user_add') + "Request role addition", {controller: 'request', action: 'add_role_request_dialog', project: @project}, remote: true) %>
             </li>
             <li>
-            <%= link_to(sprite_tag('package_delete') + 'Request deletion', {:controller => 'request', :action => 'delete_request_dialog', :project => @project}, :remote => true, id: 'request-deletion') %>
+            <%= link_to(sprite_tag('package_delete') + 'Request deletion', {controller: 'request', action: 'delete_request_dialog', project: @project}, remote: true, id: 'request-deletion') %>
             </li>
         <% end %>
       </ul>

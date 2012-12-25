@@ -210,7 +210,7 @@ class RequestController < ApplicationController
   end
 
   def add_role_request
-    required_parameters :project, :package, :role, :user
+    required_parameters :project, :role, :user
     begin
       req = BsRequest.new(:type => "add_role", :targetproject => params[:project], :targetpackage => params[:package], :role => params[:role], :person => params[:user], :description => params[:description])
       req.save(:create => true)

@@ -1,3 +1,5 @@
+# encoding: utf-8
+#
 ENV["RAILS_ENV"] = "test"
 require 'simplecov'
 require 'simplecov-rcov'
@@ -51,6 +53,10 @@ class ActionDispatch::IntegrationTest
 
   def login_king
     login_user("king", "sunflower", false)
+  end
+
+  def login_fred
+    login_user("fred", "geröllheimer")
   end
 
   def logout
