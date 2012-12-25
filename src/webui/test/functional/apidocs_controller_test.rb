@@ -17,4 +17,9 @@ class ApidocsControllerTest < ActionDispatch::IntegrationTest
     assert page.html =~ %r{project name="superkde"}
   end
 
+  def test_broken_apidocs_setup
+    ApidocsController.any_instance.stubs(:indexpath).returns(nil)
+    visit "/apidocs"
+    page.wont_have_link 'Example'
+  end
 end

@@ -8,10 +8,18 @@ class ApidocsController < ApplicationController
     redirect_to action: :index
   end
 
+  # the main purpose of this subfunction is easier stubing
+  def indexpath
+    filename = File.expand_path(CONFIG['apidocs_location']) + "/index"
+    if !File.exist?( filename + ".html" )
+      return nil
+    else
+      return filename
+    end
+  end
+
   def index
-    logger.debug "PATH: #{request.path}"
-    filename = File.expand_path(CONFIG['apidocs_location']) + "/index.html"
-    if ( !File.exist?( filename ) )
+    unless filename = indexpath
       flash[:error] = "Unable to load API documentation source file: #{CONFIG['apidocs_location']}"
       redirect_back_or_to :controller => 'main', :action => 'index'
     else

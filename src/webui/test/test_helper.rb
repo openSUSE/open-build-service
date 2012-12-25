@@ -8,6 +8,7 @@ SimpleCov.start 'rails' if ENV["DO_COVERAGE"]
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 require 'test/unit/assertions'
+require "mocha/setup"
 
 require 'headless'
 

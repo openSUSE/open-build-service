@@ -38,6 +38,7 @@ group :test do
   gem 'headless'
   # random hex strings are just so boring
   gem 'faker'
+  gem 'mocha', '> 0.13.0', require: false
 end
 
 gem 'mysql2'
