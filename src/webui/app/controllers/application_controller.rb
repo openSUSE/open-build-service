@@ -24,16 +24,16 @@ class ApplicationController < ActionController::Base
   # here so the exception handler catches it but what the heck...
   rescue_from ActiveXML::Transport::ForbiddenError do |exception|
     if exception.code == "unregistered_ichain_user"
-      render :template => "user/request_ichain" and return
+      render template: "user/request_ichain" and return
     elsif exception.code == "unregistered_user"
-      render :file => "#{Rails.root}/public/403.html", :status => 402, :layout => false and return
+      render file: Rails.root.join("public/403"), formats: [:html], status: 402, layout: false and return
     elsif exception.code == "unconfirmed_user"
-      render :file => "#{Rails.root}/public/402.html", :status => 402, :layout => false
+      render file: Rails.root.join("public/402"), formats: [:html], status: 402, layout: false
     else
       if @user
-        render :file => "#{Rails.root}/public/403.html", :status => :forbidden, :layout => false 
+        render file: Rails.root.join("public/403"), formats: [:html], status: :forbidden, layout: false 
       else
-        render :file => "#{Rails.root}/public/401.html", :status => :unauthorized, :layout => false
+        render file: Rails.root.join("public/401"), formats: [:html], status: :unauthorized, layout: false
       end
     end
   end
@@ -52,8 +52,9 @@ class ApplicationController < ActionController::Base
   end
 
   class MissingParameterError < Exception; end
-  rescue_from MissingParameterError do 
-    render :file => "#{Rails.root}/public/404.html", :status => 404, :layout => false
+  rescue_from MissingParameterError do |exception|
+    logger.debug "#{exception.class.name} #{exception.message} #{exception.backtrace.join('\n')}"
+    render file: Rails.root.join("public/404"), status: 404, layout: false, formats: [:html]
   end
 
   protected
