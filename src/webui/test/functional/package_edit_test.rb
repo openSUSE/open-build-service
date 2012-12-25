@@ -29,9 +29,9 @@ class PackageEditTest < ActionDispatch::IntegrationTest
     
     click_link('edit-description')
     
-    assert page.has_text? "Edit Package Information of #{@package} (Project #{@project})"
-    assert page.has_text? "Title:"
-    assert page.has_text? "Description:"
+    page.must_have_text "Edit Package Information of #{@package} (Project #{@project})"
+    page.must_have_text "Title:"
+    page.must_have_text "Description:"
 
     unless new_info[:title].nil?
       fill_in "title", with: new_info[:title]
@@ -46,8 +46,8 @@ class PackageEditTest < ActionDispatch::IntegrationTest
     
     click_button "Save changes"
 
-    assert page.has_text? "Source Files"
-    assert page.has_text? "Build Results"
+    page.must_have_text "Source Files"
+    page.must_have_text "Build Results"
 
     unless new_info[:title].nil?
       assert_equal package_title, new_info[:title]

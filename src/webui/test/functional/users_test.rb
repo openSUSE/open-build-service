@@ -30,9 +30,9 @@ class EditPackageUsersTest < ActionDispatch::IntegrationTest
   def add_user user, role, options = {}
     find(:id, 'add-user').click
     
-    assert page.has_text? %r{Add New User to}
-    assert page.has_field? "userid"
-    assert page.has_selector? "select#role"
+    page.must_have_text %r{Add New User to}
+    page.must_have_field "userid"
+    page.must_have_selector "select#role"
 
     curl = page.current_url
     options[:expect] ||= :success
@@ -42,12 +42,12 @@ class EditPackageUsersTest < ActionDispatch::IntegrationTest
     click_button('Add user')
     
     if options[:expect] == :success
-      assert_equal :info, flash_message_type
-      assert_equal "Added user #{user} with role #{role}", flash_message
+      flash_message_type.must_equal :info
+      flash_message.must_equal "Added user #{user} with role #{role}"
       assert page.current_url.end_with? @userspath
     elsif options[:expect] == :unknown_user
-      assert_equal :alert, flash_message_type
-      assert_equal "Couldn't find User with login = #{user}".strip, flash_message
+      flash_message_type.must_equal :alert
+      flash_message.must_equal "Couldn't find User with login = #{user}".strip
       assert curl, page.current_url
       # go back manually
       visit @userspath

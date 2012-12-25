@@ -138,6 +138,7 @@ class MainController < ApplicationController
     required_parameters :message_id
     message = Statusmessage.find(:id => params[:message_id])
     message.delete
+    Statusmessage.free_cache(:conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 5)
     redirect_to(:action => 'index')
   end
 

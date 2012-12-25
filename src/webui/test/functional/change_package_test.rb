@@ -9,8 +9,8 @@ class ChangePackageTest < ActionDispatch::IntegrationTest
 
    def test_search_package
      fill_in 'search', with: 'kdelibs'
-     find('#search').native.send_keys :enter
-     assert page.has_text?("project home:coolo:test")
+     page.evaluate_script("$('#global-search-form').get(0).submit()")
+     page.must_have_text("project home:coolo:test")
      
      click_link 'kdelibs_DEVEL_package'
    end

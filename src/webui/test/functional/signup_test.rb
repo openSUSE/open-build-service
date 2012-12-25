@@ -5,8 +5,8 @@ class SignupTest < ActionDispatch::IntegrationTest
     def test_login
       login_user("tom", "thunderz", false)
 
-      assert page.has_text?("Please Login")
-      assert page.has_text?("Authentication failed")
+      page.must_have_text("Please Login")
+      page.must_have_text("Authentication failed")
  
       login_user("tom", "thunder")
     end
@@ -15,7 +15,7 @@ class SignupTest < ActionDispatch::IntegrationTest
       # first login as admin is redirected twice and does not get the flash
       login_user("king", "sunflower", false)
 
-      assert page.has_text?("Connect a remote Open Build Service instance")
+      page.must_have_text("Connect a remote Open Build Service instance")
     end
 
 end

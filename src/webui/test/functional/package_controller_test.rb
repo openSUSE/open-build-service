@@ -11,7 +11,7 @@ class PackageControllerTest < ActionDispatch::IntegrationTest
     fill_in "name", with: 'kdelibs'
     fill_in "title", with: "blub" # see the fixtures!!
     find_button("Save changes").click
-    assert find(:id, 'delete-package')
+    page.must_have_selector '#delete-package'
   end
 
   test "delete package as user" do

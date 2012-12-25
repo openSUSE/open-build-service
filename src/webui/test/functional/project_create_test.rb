@@ -15,11 +15,11 @@ class ProjectCreateTest < ActionDispatch::IntegrationTest
 
   def open_new_project_from_main
     find(:css, "#proceed-document-new .proceed_text a").click
-    assert page.has_text? "Project Name:"
+    page.must_have_text "Project Name:"
   end
 
   def creating_home_project?
-    page.has_text? "Your home project doesn't exist yet. You can create it now"
+    return page.has_text? "Your home project doesn't exist yet. You can create it now"
   end
 
   def project_namespace
@@ -38,7 +38,7 @@ class ProjectCreateTest < ActionDispatch::IntegrationTest
 
     if creating_home_project? then
       new_project[:name] ||= current_user
-      assert_equal new_project[:name], current_user
+      current_user.must_equal new_project[:name]
     else
       new_project[:name] ||= ""
       fill_in "name", with: new_project[:name]
@@ -56,23 +56,23 @@ class ProjectCreateTest < ActionDispatch::IntegrationTest
     click_button("Create Project")
 
     if new_project[:expect] == :success
-      assert_equal message_prefix + "was created successfully", flash_message
-      assert_equal :info, flash_message_type
+      flash_message.must_equal message_prefix + "was created successfully"
+      flash_message_type.must_equal :info
       
       new_project[:description] = "No description set" if new_project[:description].empty?
       assert_equal new_project[:description].gsub(%r{\s+}, ' '), project_description
     elsif new_project[:expect] == :invalid_name
-      assert_equal "Invalid project name '#{new_project[:name]}'.", flash_message
-      assert_equal :alert, flash_message_type
+      flash_message.must_equal "Invalid project name '#{new_project[:name]}'."
+      flash_message_type.must_equal :alert
     elsif new_project[:expect] == :no_permission
       permission_error  = "You lack the permission to create "
       permission_error += "the project '#{new_project[:namespace] + new_project[:name]}'. "
       permission_error += "Please create it in your home:#{current_user} namespace"
-      assert_equal permission_error, flash_message
-      assert_equal :alert, flash_message_type
+      flash_message.must_equal permission_error
+      flash_message_type.must_equal :alert
     elsif new_project[:expect] == :already_exists
-      assert_equal message_prefix + "already exists.", flash_message
-      assert_equal :alert, flash_message_type
+      flash_message.must_equal message_prefix + "already exists."
+      flash_message_type.must_equal :alert
     else
       throw "Invalid value for argument <expect>."
     end
@@ -82,7 +82,7 @@ class ProjectCreateTest < ActionDispatch::IntegrationTest
   def open_create_subproject(opts)
     visit project_subprojects_path(project: opts[:project])
     click_link('link-create-subproject')
-    assert page.has_text? "Create New Subproject"
+    page.must_have_text "Create New Subproject"
   end
 
 
@@ -214,13 +214,13 @@ class ProjectCreateTest < ActionDispatch::IntegrationTest
     find(:css, "input[value='build.openSUSE.org']").click
     
     name = find(:css, "input[name='name']")
-    assert_equal "openSUSE.org", name["value"]
+    name["value"].must_equal "openSUSE.org"
     
     click_button "Save changes"
-    assert_equal "Project 'openSUSE.org' was created successfully. Next step is create your home project", flash_message
-    assert_equal :info, flash_message_type
+    flash_message.must_equal "Project 'openSUSE.org' was created successfully. Next step is create your home project"
+    flash_message_type.must_equal :info
 
-    assert page.has_text?("Your home project doesn't exist yet. You can create it now")
+    page.must_have_text("Your home project doesn't exist yet. You can create it now")
     
     create_project(:title => "HomeProject Title",
                    :description => "Test generated empty home project for admin.")

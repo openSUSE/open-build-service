@@ -5,8 +5,8 @@ class ConfigurationTest < ActionDispatch::IntegrationTest
 
   test "change config" do
     visit configuration_path
-    assert_equal :alert, flash_message_type
-    assert_equal "Requires admin privileges", flash_message
+    flash_message_type.must_equal :alert
+    flash_message.must_equal "Requires admin privileges"
 
     login_king
     visit configuration_path
@@ -16,12 +16,12 @@ class ConfigurationTest < ActionDispatch::IntegrationTest
     fill_in "description", with: descr
     click_button "Update"
 
-    assert_equal "Updated configuration", flash_message
+    flash_message.must_equal "Updated configuration"
 
-    assert_equal title, find("#title").value
-    assert_equal descr, find("#description").value
+    find("#title").value.must_equal title
+    find("#description").value.must_equal descr
 
-    assert_equal title, first("#breadcrump a").text
+    first("#breadcrump a").text.must_equal title
   end
 
 end

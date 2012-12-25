@@ -27,7 +27,7 @@ class ProjectEditTest < ActionDispatch::IntegrationTest
     assert !new_info[:title].blank? || !new_info[:description].blank?
 
     click_link 'Edit description'
-    assert page.has_text? "Edit Project Information of "
+    page.must_have_text "Edit Project Information of "
 
     unless new_info[:title].nil?
       fill_in "title", with: new_info[:title]
@@ -43,10 +43,10 @@ class ProjectEditTest < ActionDispatch::IntegrationTest
     click_button "Save changes"
 
     unless new_info[:title].nil?
-      assert_equal new_info[:title], project_title
+      project_title.must_equal new_info[:title]
     end
     unless new_info[:description].nil?
-      assert_equal new_info[:description], project_description
+      project_description.must_equal new_info[:description]
     end
 
   end

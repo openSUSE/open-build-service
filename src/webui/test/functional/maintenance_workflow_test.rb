@@ -18,21 +18,21 @@ class MaintenanceWorkflowTest < ActionDispatch::IntegrationTest
     login_tom
 
     visit(project_show_path(project: "My:Maintenance"))
-    assert_equal "official maintenance space", find(:id, "project_title").text
+    find(:id, "project_title").text.must_equal "official maintenance space"
     
-    assert find(:id, "infos_list").has_text? %r{3 maintained projects}
+    find(:id, "infos_list").must_have_text %r{3 maintained projects}
 
     find(:link, "maintained projects").click
     find(:link, "BaseDistro2.0:LinkedUpdateProject").click
     
-    assert find(:css, "#infos_list").has_text? %r{Maintained by My:Maintenance}
+    find(:css, "#infos_list").must_have_text %r{Maintained by My:Maintenance}
     first(:link, "pack2").click
     find(:link, "Branch package").click
     
-    assert find(:css, "#branch_dialog").has_text? %r{Do you really want to branch package}
+    find(:css, "#branch_dialog").must_have_text %r{Do you really want to branch package}
     find_button("Ok").click
 
-    assert find(:css, "#flash-messages").has_text? %r{Branched package BaseDistro2\.0:LinkedUpdateProject.*pack2}
+    find(:css, "#flash-messages").must_have_text %r{Branched package BaseDistro2\.0:LinkedUpdateProject.*pack2}
 
     visit(project_show_path(project: "home:tom"))
 
@@ -41,13 +41,13 @@ class MaintenanceWorkflowTest < ActionDispatch::IntegrationTest
     find(:link, "Submit as update").click
     
     # wait for the dialog to appear
-    assert find(:css, ".dialog h2").has_content? "Submit as Update"
+    find(:css, ".dialog h2").must_have_text "Submit as Update"
     fill_in "description", with: "I want the update"
     find_button("Ok").click
 
-    assert_equal "Created maintenance release request", find(:css, "span.ui-icon.ui-icon-info").text
-    assert_equal "open request", find(:link, "open request").text
-    assert_equal "1 Release Target", find(:link, "1 Release Target").text
+    find(:css, "span.ui-icon.ui-icon-info").text.must_equal "Created maintenance release request"
+    find(:link, "open request").text.must_equal "open request"
+    find(:link, "1 Release Target").text.must_equal "1 Release Target"
 
     find(:link, "Create patchinfo").click
     fill_in "summary", with: "Nada"
@@ -60,21 +60,21 @@ class MaintenanceWorkflowTest < ActionDispatch::IntegrationTest
     fill_in "block_reason", with: "locked!"
     find_button("Save Patchinfo").click
 
-    assert find(:css, "span.ui-icon.ui-icon-alert").has_text? %r{Summary is too short}
+    find(:css, "span.ui-icon.ui-icon-alert").must_have_text %r{Summary is too short}
     fill_in "summary", with: "pack2 is much better than the old one"
     find_button("Save Patchinfo").click
     
-    assert find(:css, "span.ui-icon.ui-icon-alert").has_text? %r{Description is too short}
+    find(:css, "span.ui-icon.ui-icon-alert").must_have_text %r{Description is too short}
     fill_in "description", with: "Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing"
     fill_in "issue", with: "bnc#27272"
     find(:css, "img[alt=\"Add Bug\"]").click
     find_button("Save Patchinfo").click
     
     # summary and description are ok now
-    assert first(:css, "span.ui-icon.ui-icon-alert").nil?
+    page.wont_have_selector "span.ui-icon.ui-icon-alert"
 
-    assert_equal "Successfully edited patchinfo", find(:css, "span.ui-icon.ui-icon-info").text
-    assert_equal "This update is currently blocked:", find(:css, ".ui-state-error b").text
+    find(:css, "span.ui-icon.ui-icon-info").text.must_equal "Successfully edited patchinfo"
+    find(:css, ".ui-state-error b").text.must_equal "This update is currently blocked:"
 
     logout
 
@@ -83,10 +83,10 @@ class MaintenanceWorkflowTest < ActionDispatch::IntegrationTest
     visit(project_show_path(project: "My:Maintenance"))    
     
     find(:link, "open request").click
-    assert_equal "I want the update", find(:id, "description_text").text
+    find(:id, "description_text").text.must_equal "I want the update"
     fill_in "reason", with: "really? ok"
     find(:id, "accept_request_button").click
-    assert find(:css, "#action_display_0").has_text? %r{Submit update from package home:tom:branches:BaseDistro2.0:LinkedUpdateProject / pack2 to project My:Maintenance:0}
+    find(:css, "#action_display_0").must_have_text %r{Submit update from package home:tom:branches:BaseDistro2.0:LinkedUpdateProject / pack2 to project My:Maintenance:0}
 
     visit(project_show_path(project: "My:Maintenance:0"))
     find(:link, "Patchinfo present").click
@@ -94,7 +94,7 @@ class MaintenanceWorkflowTest < ActionDispatch::IntegrationTest
     # TODO: need to find out if this is correct or buggy
     if false
 
-    assert_equal "Fixes nothing", find(:id, "summary").text
+    find(:id, "summary").text.must_equal "Fixes nothing"
     find(:id, "summary").clear
     find(:id, "summary").send_keys "pack2: Fixes nothing"
     find(:name, "commit").click
