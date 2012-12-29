@@ -269,8 +269,9 @@ OBSApi::Application.routes.draw do
     match '/distributions' => 'distributions#upload', via: :put
     # as long as the distribution IDs are integers, there is no clash
     match '/distributions/include_remotes' => 'distributions#include_remotes', via: :get
+    match '/distributions' => 'distributions#include_remotes', via: :get
     # update is missing here
-    resources :distributions, only: [:index, :show, :create, :destroy]
+    resources :distributions, only: [:show, :create, :destroy]
 
     ### /public
     
