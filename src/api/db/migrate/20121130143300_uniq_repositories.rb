@@ -23,8 +23,7 @@ class UniqRepositories < ActiveRecord::Migration
         prj.save
       end
 
-# This fails unfortunatly with repositories in remote projects
-#      execute("alter table repositories ADD UNIQUE(db_project_id,name);");
+      execute("alter table repositories ADD UNIQUE(db_project_id,name,remote_project_name);");
     end
 
     CONFIG['global_write_through'] = old

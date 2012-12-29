@@ -535,7 +535,7 @@ CREATE TABLE `repositories` (
   `linkedbuild` enum('off','localdep','all') CHARACTER SET utf8 DEFAULT NULL,
   `hostsystem_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `db_project_id` (`db_project_id`,`name`),
+  UNIQUE KEY `db_project_id` (`db_project_id`,`name`, `remote_project_name`),
   UNIQUE KEY `projects_name_index` (`db_project_id`,`name`,`remote_project_name`),
   KEY `remote_project_name_index` (`remote_project_name`),
   KEY `hostsystem_id` (`hostsystem_id`),
