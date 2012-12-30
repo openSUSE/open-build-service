@@ -1443,7 +1443,6 @@ class SourceController < ApplicationController
     valid_http_methods :post
     project_name = params[:project]
     oproject = params[:oproject]
-    repository = params[:repository]
 
     oprj = Project.get_by_name( oproject )
 
