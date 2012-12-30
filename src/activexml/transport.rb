@@ -415,7 +415,7 @@ module ActiveXML
         logger.debug "#{err} when fetching #{uri.to_s}"
         http = nil
       end
-      http.finish if http
+      http.finish if http && http.started?
       return content
     end
 
