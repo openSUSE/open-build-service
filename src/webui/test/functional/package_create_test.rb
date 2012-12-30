@@ -148,7 +148,7 @@ class PackageCreateTest < ActionDispatch::IntegrationTest
     visit project_show_path(project: "home:Iggy")
 
     open_new_package
-    create_package name: "Testing包صفقة", expect: :invalid_name
+    create_package name: "Testingäöü", expect: :invalid_name
 
     create_package name: "Cplus+"
     packageurl = page.current_url

@@ -30,9 +30,7 @@ group :test do
   gem 'simplecov-rcov', :require => false, :group => :test
   # See test/test_helper.rb for details:
   gem 'capybara', '>=2.0'
-  # 2.27 is buggy 
-  gem 'selenium-webdriver', '< 2.27'
-  #gem 'capybara-webkit', '>0.13'
+  gem 'capybara-webkit'
   # for save_and_open_page to debug
   gem 'launchy'
   gem 'headless'

@@ -13,7 +13,8 @@ require "mocha/setup"
 require 'headless'
 
 require 'capybara/rails'
-Capybara.default_driver = :selenium
+Capybara.default_driver = :webkit
+#Capybara.default_driver = :selenium
 # this is the build service! 2 seconds - HAHAHA
 Capybara.default_wait_time = 10
 
@@ -73,7 +74,7 @@ class ActionDispatch::IntegrationTest
   @@display = nil
 
   setup do
-    if !@@display && ENV['HEADLESS']
+    if !@@display
       @@display = Headless.new
       @@display.start
     end
