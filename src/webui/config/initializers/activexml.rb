@@ -116,14 +116,11 @@ map = ActiveXML::setup_transport(CONFIG['frontend_protocol'], CONFIG['frontend_h
     # Status Messages
     map.connect :statusmessage, 'rest:///status/messages/:id/?:limit'
 
-    map.connect :distribution, "rest:///distributions/",
-      :all    => "rest:///distributions/including_remotes"
+    map.connect :distribution, "rest:///distributions/", all: "rest:///distributions/include_remotes"
 
     map.connect :projectstatus, 'rest:///status/project/:project'
 
     map.connect :builddepinfo, 'rest:///build/:project/:repository/:arch/_builddepinfo?:package&:limit&:code'
-
-    map.connect :distribution, 'rest:///distributions', :all => 'rest:///distributions'
 
   map.set_additional_header( "User-Agent", "obs-webui/#{CONFIG['version']}" )
   map.details = DetailsLogger.new

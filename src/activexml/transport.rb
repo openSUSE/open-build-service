@@ -71,6 +71,7 @@ module ActiveXML
       uri = URI( target )
       replace_server_if_needed( uri )
       #logger.debug "setting up transport for model #{model}: #{uri} opts: #{opt}"
+      raise "overwriting #{model}" if @mapping.has_key? model
       @mapping[model] = {:target_uri => uri, :opt => opt}
     end
 
