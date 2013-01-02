@@ -28,7 +28,7 @@ class CreateDistributions < ActiveRecord::Migration
       if req
         Distribution.parse(req)
       end
-    rescue IOError
+    rescue IOError, Errno::ENOENT
     end
   end
 
