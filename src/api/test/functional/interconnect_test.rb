@@ -232,13 +232,16 @@ class InterConnectTests < ActionController::IntegrationTest
     get "/source/UseRemoteInstance"
     assert_response :success
     assert_xml_tag( :tag => "directory", :attributes => { :count => "0" } )
-if $ENABLE_BROKEN_TEST
-#FIXME2.4: backend does not support expand=1 yet
     get "/source/UseRemoteInstance?expand=1"
     assert_response :success
+if $ENABLE_BROKEN_TEST
+#FIXME2.4: remote packages get not added yet.
     assert_xml_tag( :tag => "directory", :attributes => { :count => "1" } )
     assert_xml_tag( :tag => "entry", :attributes => { :name => "pack1", :originproject => "BaseDistro2.0" } )
 end
+    get "/build/UseRemoteInstance/pop/i586/pack1/_log"
+    assert_response 400
+    assert_match(/remote error: pack1  no logfile/, @response.body) # we had no build, but request reached backend
     # test source modifications
     post "/build/UseRemoteInstance/pack1", :cmd => "set_flag"
     assert_response 403

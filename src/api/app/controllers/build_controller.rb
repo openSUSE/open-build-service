@@ -236,7 +236,7 @@ class BuildController < ApplicationController
     valid_http_methods :get
 
     # for permission check
-    pkg = Package.get_by_project_and_name params[:project], params[:package]
+    pkg = Package.get_by_project_and_name params[:project], params[:package], use_source: true, follow_project_links: true
 
     if pkg.class == Package and pkg.project.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg.project)
       render_error :status => 403, :errorcode => "download_binary_no_permission",
