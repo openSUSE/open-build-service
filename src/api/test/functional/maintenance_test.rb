@@ -1131,11 +1131,16 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     post "/request/#{reqid}?cmd=changereviewstate&newstate=accepted&by_user=fred&comment=blahfasel" # default package reviewer
     assert_response :success
+    get "/request/#{reqid}"
+    assert_response :success
+    assert_xml_tag( :parent => { :tag => "state" }, :tag => "comment", :content => "blahfasel" )
 
     # release packages
-    get "/request/#{reqid}"
-    post "/request/#{reqid}?cmd=changestate&newstate=accepted"
+    post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response :success
+    get "/request/#{reqid}"
+    assert_response :success
+    assert_xml_tag( :parent => { :tag => "state" }, :tag => "comment", :content => "releasing" )
     run_scheduler( "i586" )
 
     # validate result

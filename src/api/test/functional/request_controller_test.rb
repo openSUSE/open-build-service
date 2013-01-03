@@ -75,7 +75,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     post "/request/#{id}?cmd=changestate&newstate=new&comment=oops"
     assert_response :success
     Timecop.freeze(1)
-    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    post "/request/#{id}?cmd=changestate&newstate=accepted&comment=approved"
     assert_response :success
 
     # package got created
@@ -105,7 +105,7 @@ class RequestControllerTest < ActionController::IntegrationTest
           "options"=>{"sourceupdate"=>"cleanup"}, 
           "acceptinfo"=>{"rev"=>"1", "srcmd5"=>"1ded65e42c0f04bd08075dfd1fd08105", "osrcmd5"=>"d41d8cd98f00b204e9800998ecf8427e"}
         }, 
-        "state"=>{"name"=>"accepted", "who"=>"Iggy", "when"=>"2010-07-12T00:00:03", "comment"=>"DESCRIPTION IS HERE"}, 
+        "state"=>{"name"=>"accepted", "who"=>"Iggy", "when"=>"2010-07-12T00:00:03", "comment"=>"approved"}, 
         "history"=>[
                     {"name"=>"new", "who"=>"Iggy", "when"=>"2010-07-12T00:00:00"}, 
                     {"name"=>"declined", "who"=>"Iggy", "when"=>"2010-07-12T00:00:01", "comment"=>'notgood'}, 

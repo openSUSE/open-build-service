@@ -1337,7 +1337,7 @@ class RequestController < ApplicationController
     projectCommit = {}
 
     # use the request description as comments for history
-    params[:comment] = req.description
+    source_history_comment = req.description
 
     # We have permission to change all requests inside, now execute
     req.bs_request_actions.each do |action|
@@ -1393,7 +1393,7 @@ class RequestController < ApplicationController
             :opackage => action.source_package,
             :noservice => 1,
             :requestid => params[:id],
-            :comment => params[:comment],
+            :comment => source_history_comment,
 	    :withacceptinfo => 1
           }
           cp_params[:orev] = action.source_rev if action.source_rev
@@ -1501,7 +1501,7 @@ class RequestController < ApplicationController
               project.destroy
               delete_path = "/source/#{action.target_project}"
             end
-            h = { :user => @http_user.login, :comment => params[:comment], :requestid => params[:id] }
+            h = { :user => @http_user.login, :comment => source_history_comment, :requestid => params[:id] }
             delete_path << build_query_from_hash(h, [:user, :comment, :requestid])
             Suse::Backend.delete delete_path
           end
@@ -1549,7 +1549,7 @@ class RequestController < ApplicationController
         del_params = {
           :user => @http_user.login,
           :requestid => params[:id],
-          :comment => params[:comment]
+          :comment => source_history_comment
         }
         delete_path << build_query_from_hash(del_params, [:user, :comment, :requestid])
         Suse::Backend.delete delete_path
@@ -1609,7 +1609,7 @@ class RequestController < ApplicationController
     end
 
     # maintenance_incident request are modifying the request during accept
-    req.change_state(params[:newstate], :comment => params[:comment], :superseded_by => params[:superseded_by])
+    req.change_state(params[:newstate], params)
     render_ok
   end
 
