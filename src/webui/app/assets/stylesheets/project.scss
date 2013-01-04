@@ -1,36 +1,29 @@
 /* Project Monitor Filter */
 
-#filter_settings #pkgname,
-#filter_settings #repo,
-#filter_settings #arch {
-  width: 8em;
-  margin-right: 0.5em;
-  border: 1px solid #CCC;
-}
-
 #filter_settings {
+  #pkgname, #repo, #arch {
+    width: 8em;
+    margin-right: 0.5em;
+    border: 1px solid #cccccc;
+  }
   margin-bottom: 2em;
-  border-bottom: 1px solid #CCC;
+  border-bottom: 1px solid #cccccc;
   padding: 0.5em 0 0.5em 1em;
   overflow: hidden;
   height: 2em;
+  .strong {
+    margin-left: 0.8em;
+    vertical-align: top;
+  }
+  > div {
+    float: left;
+  }
 }
 
-#filter_settings .strong {
-  margin-left: 0.8em;
-  vertical-align: top;
-}
-
-#filter_settings > div {
-  float: left;
-}
-
-#statusbox #li_blocked { 
-  margin-top: 1em;
-}
-
-#statusbox #li_disabled { 
-  margin-top: 1em;
+#statusbox {
+  #li_blocked, #li_disabled {
+    margin-top: 1em;
+  }
 }
 
 .filter_settings input {
@@ -39,26 +32,25 @@
   margin-right: 0.5em;
 }
 
-.filterbox li {
-  list-style: none;
-  margin: 0;
-  display: block;
-}
-
-.filterbox { 
-  position: absolute; 
-  background: #eee; 
-  border: 1px solid black; 
+.filterbox {
+  li {
+    list-style: none;
+    margin: 0;
+    display: block;
+  }
+  position: absolute;
+  background: #eee;
+  border: 1px solid black;
   margin-top: 0.5em;
 }
 
-.filterbox_close { 
+.filterbox_close {
   margin: 0.8em;
   float: right;
 }
 
 .filterbox ul {
-   margin: 0.5em;
+  margin: 0.5em;
 }
 
 .filter_settings .filterlink {
@@ -66,7 +58,7 @@
   margin-right: 0.5em;
 }
 
-.filterbox_all { 
+.filterbox_all {
   margin-left: 0.5em;
   margin-right: 1.5em;
 }
@@ -86,16 +78,24 @@
   z-index: 1;
 }
 
-.unknown_failure {  color: red; }
+.unknown_failure {
+  color: red;
+}
 
 /* build status and repo status are for project/monitor */
-td.buildstatus { 
-  min-width: 11ex; /* unresolvable */
+
+td.buildstatus {
+  min-width: 11ex;
+  /* unresolvable */
   text-align: center;
 }
-table.buildstatus { width: 1%; }
+
+table.buildstatus {
+  width: 1%;
+}
 
 /* move the image back into the line */
+
 th.buildstatus img {
   margin-bottom: -3px;
 }

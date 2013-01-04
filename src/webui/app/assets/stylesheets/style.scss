@@ -5,165 +5,198 @@
 **  License:   see copyright/COPYRIGHT
 */
 
-@import "dialog"; /* style for dialog boxes */
+@import "dialog";
+
+/* style for dialog boxes */
 
 .nowrap {
-    white-space: nowrap;
+  white-space: nowrap;
 }
 
 textarea {
-    width: 95%;
+  width: 95%;
 }
 
 .build_result_trigger {
-    position: relative;
+  position: relative;
 }
 
-.ajax_large_loader { 
-    width: 32px;
-    height: 32px;
-    background-image: url(large-loader.gif);
+.ajax_large_loader {
+  width: 32px;
+  height: 32px;
+  background-image: url(large-loader.gif);
 }
 
-#build_result_popup { 
-    position: absolute;
-    background: white;
-    border: 1px solid black;
-    margin: 5px;
-    display: none;
-    z-index: 50;
+#build_result_popup {
+  position: absolute;
+  background: white;
+  border: 1px solid black;
+  margin: 5px;
+  display: none;
+  z-index: 50;
 }
 
-span.build_result_title { 
-    font-size: 110%;
+span.build_result_title {
+  font-size: 110%;
 }
-
 
 /* build status monitor for projects */
+
 .buildstatus tr:hover {
-    background:#e4f4dc;
-    border: 0;
+  background: #e4f4dc;
+  border: 0;
 }
 
 .grey-medium {
-    color: #666;
+  color: #666;
 }
 
 /* used in package and project build status */
-.status_blocked a,
-.status_blocked a:visited,
-.status_blocked a:hover
-{
+
+.status_blocked a {
+  color: #fff;
+  background-color: #bbb;
+  &:visited, &:hover {
     color: #fff;
     background-color: #bbb;
+  }
 }
-.status_scheduled a,
-.status_scheduled a:visited,
-.status_scheduled a:hover
-{
+
+.status_scheduled a {
+  color: #11d;
+  background-color: #bbb;
+  &:visited, &:hover {
     color: #11d;
     background-color: #bbb;
+  }
 }
-.status_building a,
-.status_building a:visited,
-.status_building a:hover
-{
+
+.status_building a {
+  color: #00f;
+  background-color: #bbb;
+  &:visited, &:hover {
     color: #00f;
     background-color: #bbb;
+  }
 }
-.status_signing a,
-.status_signing a:visited,
-.status_signing a:hover
-{
+
+.status_signing a {
+  color: #666;
+  background-color: #bbb;
+  &:visited, &:hover {
     color: #666;
     background-color: #bbb;
+  }
 }
-.status_finished a,
-.status_finished a:visited,
-.status_finished a:hover
-{
+
+.status_finished a {
+  color: #222;
+  background-color: #bbb;
+  &:visited, &:hover {
     color: #222;
     background-color: #bbb;
+  }
 }
-.status_disabled a,
-.status_disabled a:hover,
-.status_disabled a:visited {
+
+.status_disabled a {
+  color: #bbb;
+  &:hover, &:visited {
     color: #bbb;
+  }
 }
-.status_succeeded a,
-.status_succeeded a:hover,
-.status_succeeded a:visited {
+
+.status_succeeded a {
+  color: #6EB927;
+  &:hover, &:visited {
     color: #6EB927;
+  }
 }
-.status_broken a,
-.status_broken a:hover,
-.status_broken a:visited {
+
+.status_broken a {
+  color: #e00;
+  &:hover, &:visited {
     color: #e00;
+  }
 }
-.status_failed a,
-.status_failed a:hover,
-.status_failed a:visited {
+
+.status_failed a {
+  color: #f00;
+  &:hover, &:visited {
     color: #f00;
+  }
 }
-.status_unresolvable a,
-.status_unresolvable a:hover,
-.status_unresolvable a:visited {
+
+.status_unresolvable a {
+  color: #c00;
+  &:hover, &:visited {
     color: #c00;
+  }
 }
-.status_unknown a,
-.status_unknown a:hover,
-.status_unknown a:visited {
+
+.status_unknown a {
+  color: #e55;
+  &:hover, &:visited {
     color: #e55;
+  }
 }
 
 .centered {
-    text-align: center;
+  text-align: center;
 }
 
 /* live build log */
-div#log_space_wrapper p {
-    background-color: #eee;
-}
 
-div#log_space_wrapper pre {
+div#log_space_wrapper {
+  p {
+    background-color: #eee;
+  }
+  pre {
     line-height: 150%;
+  }
 }
 
 /* main page (/) */
-#proceed_list { height: 2em; margin-bottom: 40px;  }
-#proceed_list li {
+
+#proceed_list {
+  height: 2em;
+  margin-bottom: 40px;
+  li {
     float: left;
     text-align: center;
     list-style: none;
     margin: 0;
     width: 115px;
-}
-#proceed_list li a:hover img {
-    text-decoration: none;
-}
-#proceed_list li img {
-    margin-bottom: 0.5em;
-}
-
-.feedbox li {
-    list-style: none;
+    a:hover img {
+      text-decoration: none;
+    }
+    img {
+      margin-bottom: 0.5em;
+    }
+  }
 }
 
-#involved_users li {
-    list-style: none;
+.feedbox li, #involved_users li {
+  list-style: none;
 }
 
 /* repositories */
-.flag_table tr { text-align: center; }
-.flag_table td.reponame { text-align: left; width: 21ex; }
 
-.flag_table .allcow { background-color: #cfc; }
-.flag_table .allrow { background-color: #cfc; }
-
-.flagimage {
-    position:relative;
+.flag_table {
+  tr {
+    text-align: center;
+  }
+  td.reponame {
+    text-align: left;
+    width: 21ex;
+  }
+  .allcow, .allrow {
+    background-color: #cfc;
+  }
 }
 
+.flagimage {
+  position: relative;
+}
 .flagimage:hover {
   z-index:25; 
 
