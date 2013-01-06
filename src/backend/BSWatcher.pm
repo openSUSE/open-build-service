@@ -25,7 +25,7 @@ package BSWatcher;
 
 use BSServer;
 use BSServerEvents;
-use BSRPC;
+use BSRPC ':https';
 use BSEvents;
 use BSHTTP;
 use POSIX;
