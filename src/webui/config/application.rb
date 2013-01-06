@@ -74,11 +74,7 @@ module OBSWebUI
     # (by default production uses :info, the others :debug)
     # config.log_level = :debug
     
-    # put the rubygem requirements here for a clean handling
-    # rake gems:install (installs the needed gems)
-    # rake gems:unpack (this unpacks the gems to vendor/gems)
-    
-    #config.cache_store = :mem_cache_store, 'localhost:11211', {:namespace => 'obs-webui', :compress => true }
+    #config.cache_store = :dalli_store, 'localhost:11211', {:namespace => 'obs-webui', :compress => true }
     
     # Activate observers that should always be running
     # config.active_record.observers = :cacher, :garbage_collector

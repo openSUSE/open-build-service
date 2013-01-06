@@ -1,4 +1,2 @@
-# Use the database for sessions instead of the cookie-based default,
-# which shouldn't be used to store highly confidential information
-# (create the session table with "rails generate session_migration")
-OBSWebUI::Application.config.session_store :active_record_store
+# cookies are too small and active record sessions cause too much load
+Rails.application.config.session_store ActionDispatch::Session::CacheStore, :expire_after => 1.day
