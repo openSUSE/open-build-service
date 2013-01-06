@@ -323,7 +323,14 @@ sub addrepo_scan {
     my @doddata = grep {$_->{'arch'} && $_->{'arch'} eq $myarch} @{$projpacks->{$projid}->{'download'} || []};
     if (@doddata) {
       my $doddata = $doddata[0];
-      eval {$cache = Meta::parse("$dir/$doddata->{'metafile'}", $doddata->{'mtype'}, { 'arch' => [ $myarch ] })};
+      # due to legacy reasons armv7hl rpms are handled by an armv8el scheduler and armv7l rpms by armv7el scheduler
+      my $dod_arch = $myarch;
+      if ( $myarch eq "armv8el") {
+        $dod_arch = "armv7hl";
+      } elsif ( $myarch eq "armv7el" ) {
+        $dod_arch = "armv7l";
+      }
+      eval {$cache = Meta::parse("$dir/$doddata->{'metafile'}", $doddata->{'mtype'}, { 'arch' => [ $dod_arch ] })};
       if ($@) {
 	print "    download on demand: cannot read metadata: $@\n";
 	return undef;
