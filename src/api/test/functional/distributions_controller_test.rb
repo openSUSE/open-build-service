@@ -8,13 +8,13 @@ class DistributionsControllerTest < ActionController::IntegrationTest
   end
 
   test "should show distribution" do
-    get distribution_path(id: distributions(:one).to_param)
+    get distribution_path(id: distributions(:two).to_param)
     assert_response :success
     # the default XML renderer just s***s
-    assert_equal({"id"=>{"type"=>"integer", "_content"=>"1"},
-                   "id"=>{"type"=>"integer", "_content"=>"1"},
-                   "link"=>"http://www.opensuse.org/",
-                   "name"=>"OBS Base",
+    assert_equal({"id"=>{"type"=>"integer", "_content"=>"2"},
+                   "id"=>{"type"=>"integer", "_content"=>"2"},
+                   "link"=>"http://www.openbuildservice.org/",
+                   "name"=>"OBS Base 2.0",
                    "project"=>"BaseDistro2.0",
                    "reponame"=>"Base_repo",
                    "repository"=>"BaseDistro2_repo",
@@ -97,7 +97,7 @@ class DistributionsControllerTest < ActionController::IntegrationTest
     # validate rendering and modifications of a remote repo
     assert_xml_tag :tag => "name", :content => "openSUSE 12.2" # remote 1
     assert_xml_tag :tag => "name", :content => "openSUSE Factory" # remote 2
-    assert_xml_tag :tag => "name", :content => "OBS Base" # local only
+    assert_xml_tag :tag => "name", :content => "OBS Base 2.0" # local only
     assert_xml_tag :tag => "project", :content => "RemoteInstance:openSUSE:12.2"
     assert_xml_tag :tag => "reponame", :content => "openSUSE_12.2"
     assert_xml_tag :tag => "repository", :content => "standard"
@@ -112,6 +112,6 @@ class DistributionsControllerTest < ActionController::IntegrationTest
     get "/distributions/include_remotes"
     assert_response :success
     # only the one local is included
-    assert_xml_tag tag: "distributions", children: { count: 1}
+    assert_xml_tag tag: "distributions", children: { count: 2}
   end
 end

@@ -161,10 +161,11 @@ class PublicController < ApplicationController
 
     @binary_links = {}
     @pkg.project.repositories.includes({:path_elements => {:link => :project}}).each do |repo|
-      # TODO: this code doesnt handle path elements and layering
-      # TODO: walk the path and find the base repos? is that desired?
-      dist = Distribution.find_by_repository(repo.name)
-      if dist
+      repo.path_elements.each do |pe|
+        # NOTE: we do not follow indirect path elements here, since most installation handlers
+        #       do not support it (exception zypp via ymp files)
+        dist = Distribution.find_by_project_and_repository(pe.link.project.name, pe.link.name)
+        next unless dist
         unless binary_map[repo.name].blank?
           dist_id = dist.id
           @binary_links[dist_id] ||= {}

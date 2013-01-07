@@ -88,9 +88,15 @@ class PublicControllerTest < ActionController::IntegrationTest
   end
 
   def test_binaries
+    wait_for_publisher()
+
+    # This URL is used by Frank Karlitschek's kde/gnome/qt-apps.org sites
     get "/public/binary_packages/home:Iggy/TestPack"
     assert_response :success
     assert_xml_tag :tag => 'package'
+    assert_xml_tag :tag => 'list', :attributes => { :distribution => "1" }
+    assert_xml_tag :tag => 'repository', :attributes => { :url => "http://example.com/download/home:/Iggy/10.2/home:Iggy.repo" }
+    assert_xml_tag :tag => 'rpm', :attributes => { :arch => "i586", :url => "http://example.com/download/home:/Iggy/10.2/i586/package-1.0-1.i586.rpm" }
 
     # we can list the binaries, but not download to avoid direct links
     get "/public/build/home:Iggy/10.2/i586/TestPack"
