@@ -689,15 +689,25 @@ POST /source/<project>/<package>
   Multiple commands on processing sources in package. Possible commands are
   diff: for server side diff
   linkdiff: for server side diff of a linked or branched package
+  servicediff: shows the changes of the service run
   commit: commit files in upload revision
   commitfilelist: commit defined files in upload revision
+  deleteuploadrev: delete all uploaded sources which are not committed yet
   copy: copy package sources from another package
+  undelete: undelete the package
+  unlock: unlock a package with lock enabled. A comment is required.
   branch: branch a package into another one
   linktobranch: convert a plain source link into a full branch
+  updatepatchinfo: update _patchinfo file, esp. the issues list
+  remove_flag: remove a specific flag from meta (flag must be defined, optionally arch and repository)
+  set_flag: remove a specific flag from meta (flag must be defined, optionally arch and repository)
+  showlinked: show all source packages linking to this one
   deleteuploadrev: delete all uploaded, but not yet commited files.
-  undelete: undelete the package
-  
-  
+  rebuild: rebuild all builds
+  getprojectservices: list all service defined in project spaces defined for this package.
+  runservice: trigger run of defined services in _service file
+  wipe: wipe all build results of this package
+
 Parameters: 
   
   rev: package source revision, optional
@@ -713,6 +723,8 @@ Parameters:
   dontupdatesource: Do not update origin package, optional (copy only)
   comment: comment for history, optional
   meta: switch to meta files
+  arch: architecture when using flag modifing command
+  repository: repository when using flag modifing command
   view: may be "xml" for structured answered (for diff commands)
   withissues: set to get issues parsed from changelogs (for diff commands)
   onlyissues: used to limit to issues (for diff commands)
