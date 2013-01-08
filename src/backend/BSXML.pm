@@ -445,20 +445,6 @@ our $sourceinfolist = [
       [ $sourceinfo ],
 ];
 
-our $buildstatistics = [
-    'buildstatistics' =>
-	[ 'disk' =>
-              [],
-              'max_usage',
-              'io_requests',
-              'io_sectors',
-        ],
-	[ 'memory' =>
-              'max_usage',
-        ],
-#	'cpu' =>
-];
-
 our $buildinfo = [
     'buildinfo' =>
 	'project',
@@ -1505,6 +1491,13 @@ our $attributes = [
       [ $attribute ],
 ];
 
+our $size = [
+     'size' => 
+         'unit',
+         [],
+         '_content',
+];
+
 # define constraints for build jobs in packages or projects.
 our $constraints = [
   'constraints' => 
@@ -1524,19 +1517,28 @@ our $constraints = [
 	 [ 'flag' ],
       ],
 	'processors',
-      [ 'disk' =>
-	  [ 'size' => 
-		'unit',
-		'_content'
-	  ],
-      ],
-      [ 'memory' =>
-	  [ 'size' => 
-		'unit',
-		'_content'
-          ],
-      ],
+      [ 'disk' => $size ],
+      [ 'memory' => $size ],
   ],
+];
+
+our $buildstatistics = [
+    'buildstatistics' =>
+	[ 'disk' =>
+              [ 'usage' => 
+                 [ 'size' =>
+                     'unit',
+                     [],
+                     '_content',
+                 ],
+                 'io_requests',
+                 'io_sectors',
+              ],
+        ],
+	[ 'memory' =>
+              [ 'usage' => $size ],
+        ],
+#	'cpu' =>
 ];
 
 
