@@ -1,7 +1,7 @@
 class PatchinfoController < ApplicationController
   include ApplicationHelper
   before_filter :require_all
-  before_filter :get_tracker, :get_binaries, :except => [:show, :delete]
+  before_filter :get_binaries, :except => [:show, :delete]
   before_filter :require_exists, :except => [:new_patchinfo]
   helper :package
 
@@ -323,15 +323,6 @@ class PatchinfoController < ApplicationController
   end
 
   private
-
-  def get_tracker
-    issue_tracker = IssueTracker.find(:all)
-    @trackerlist = []
-    issue_tracker.each do |a| @trackerlist << a.name.to_s end
-    @trackerlist.sort!
-    @trackerlist.unshift(@trackerlist.delete_at(@trackerlist.index("cve")))
-    @trackerlist.unshift(@trackerlist.delete_at(@trackerlist.index("bnc")))
-  end
 
   def get_binaries
     @binarylist = Array.new
