@@ -1,3 +1,5 @@
+require 'yajl'
+
 class WebuiController < ApplicationController
 
   # return all data related that the webui wants to show on /project/show
@@ -252,10 +254,11 @@ class WebuiController < ApplicationController
     Project.find_by_attribute_type(atype).select("projects.id").each do |p|
       important[p.id] = 1
     end
-    Project.select([:id, :name, :title]).order(:name).each do |p|
-      next if p.name == 'deleted'
-      ret[p.name] = {title: p.title, important: important[p.id] ? true : false}
+    deleted=Project.find_by_name("deleted")
+    projects = Project.select([:id, :name, :title]).where("id != ?", deleted.id)
+    Project.connection.execute(projects.to_sql).each do |id, name, title|
+      ret[name] = {title: title, important: important[id] ? true : false}
     end
-    render json: ret
+    render text: Yajl::Encoder.encode(ret), content_type: "application/json"
   end
 end
