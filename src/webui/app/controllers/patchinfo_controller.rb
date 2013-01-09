@@ -287,7 +287,7 @@ class PatchinfoController < ApplicationController
         get_issue_sum(issue[0], issue[1])
         issue << @issuesum
         issue_collection << issue
-      rescue
+      rescue ActiveXML::Transport::NotFoundError
         error += "#{issue[0]} "
       end
     end
@@ -308,15 +308,20 @@ class PatchinfoController < ApplicationController
     regexp += "$"
     regexp = Regexp.new(regexp)
     if bug =~ regexp
-      path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}"
-      result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => "GET"))
-      if result.summary.nil?
-        path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}?force_update=1"
+      begin
+        path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}"
         result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => "GET"))
+        if result.summary.nil?
+          path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}?force_update=1"
+          result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => "GET"))
+        end
+        @issuesum = result.summary.text if result.summary
+        @issuesum = "" if !result.summary
+        @issuesum.gsub!(/\\|'/) { |c| "" }
+      # Add no summary if a connection to bugzilla doesn't work e.g. in the testsuite
+      rescue ActiveXML::Transport::Error
+        @issuesum = ""
       end
-      @issuesum = result.summary.text if result.summary
-      @issuesum = "" if !result.summary
-      @issuesum.gsub!(/\\|'/) { |c| "" }
     else
       @error = "#{bug} has no valid format"
     end
