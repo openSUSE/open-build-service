@@ -206,6 +206,7 @@ var cm_instance;
 		document.getElementById('prenex_'+this.cm.id).style.display = 'inline';
 		query = S.value;
 		cursor = this.cm.getSearchCursor(query, begin);
+		alert(cursor);
 		found = cursor.findNext();
 		var firstFound = cursor;
 		begin = null;
@@ -424,9 +425,9 @@ var cm_instance;
 	function gotoLine(cm, elt) {
 		this.cm = cm;
 		this.ln = document.getElementById('line_'+this.cm.id).value - this.cm.getOption('firstLineNumber');
-		this.coords = this.cm.charCoords({line: this.ln, ch: 0}, 'local');
-		this.cm.scrollTo(0, this.coords.y + 3);
-		//this.cm.scrollIntoView({line:this.ln, ch:0})
+		this.cm.focus();
+		this.cm.setCursor(this.ln, 0);
+		this.cm.scrollIntoView(null);
 		document.getElementById('line_'+this.cm.id).blur();
 	}
 	

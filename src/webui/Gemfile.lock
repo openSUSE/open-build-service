@@ -49,7 +49,7 @@ GEM
     chunky_png (1.2.6)
     ci_reporter (1.8.3)
       builder (>= 2.1.2)
-    codemirror-rails (2.36)
+    codemirror-rails (3.00)
       railties (~> 3.0)
     coderay (1.0.8)
     compass (0.12.2)
@@ -186,7 +186,7 @@ DEPENDENCIES
   capybara-webkit
   capybara_minitest_spec
   ci_reporter
-  codemirror-rails (~> 2.35)
+  codemirror-rails (>= 3.0)
   compass-rails
   cssmin (>= 1.0.2)
   delayed_job (> 3.0)

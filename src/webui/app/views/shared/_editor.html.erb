@@ -7,8 +7,15 @@
 <div id="top_<%= uid %>">
   <div class="toolbar">
     <span style="float:left;">
-      <input type="button" class="tools buttons small save inactive" value="Save" id="save_<%= uid %>"/>
-      <span class="text">search:</span>
+      <input type="button" class="tools buttons small save inactive"
+      value="Save" id="save_<%= uid %>"/>
+      <input type="button" id="undo_<%= uid %>" value="undo" class="tools
+      buttons undo" style="background:transparent;" onclick="editors[<%= uid %>].Undo(this);" />
+      
+      <input type="button" id="redo_<%= uid %>" value="redo" class="tools
+      buttons redo" style="background:transparent;" onclick="editors[<%= uid %>].Redo(this);" />
+
+      <!-- span class="text">search:</span>
       <input type="button" class="tools buttons small" value="off" id="search_disable_<%= uid %>"  />
       <input disabled="disabled" type="text"  class="tools inputs"
       style="background:transparent" id="search_<%= uid %>"  autocomplete="off" placeholder="type or select" onkeydown="this.style.background = '';" />
@@ -25,11 +32,11 @@
       <input type="button" class="tools buttons medium" value="replace" onclick="editors[<%= uid %>].Replace(this);" />
       <input type="button" class="tools buttons medium" value="replace all" onclick="editors[<%= uid %>].ReplaceAll(this);" />
       &nbsp;&nbsp;
+-->
     </span>
  
     <span style="float:right;">
-      <input type="button" id="undo_<%= uid %>" value="undo" class="tools buttons undo" style="background:transparent;" onclick="editors[<%= uid %>].Undo(this);" />
-      <input type="button" id="redo_<%= uid %>" value="redo" class="tools buttons redo" style="background:transparent;" onclick="editors[<%= uid %>].Redo(this);" />
+
       <select class="tools select" id="fontsize_<%= uid %>" onchange="editors[<%= uid %>].updateFontsize(this)">
         <option value="8pt" >   8pt </option>
         <option value="9pt" >   9pt </option>

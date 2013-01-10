@@ -79,43 +79,40 @@ function use_codemirror(id, read_only, mode)
 {
     var codeMirrorOptions = {
 	lineNumbers: true,
-	matchBrackets: true,
+	matchBrackets: false,
 	fontSize: '9pt',
-	/* onCursorActivity: function(editor) {
-	    editor.setLineClass(editor.hlLine, null);
-	    editor.hlLine = editor.setLineClass(editor.getCursor().line, "activeline");
-	}, */
+	mode: mode
     }
     if (read_only) {
 	codeMirrorOptions['readOnly'] = true;
-	codeMirrorOptions['mode'] = mode;
     }
     else {
-	codeMirrorOptions['mode'] = mode;
 	codeMirrorOptions['addToolBars'] = 0;
 	if (mode.length)
 	    codeMirrorOptions['fileType'] = mode;
         codeMirrorOptions['extraKeys'] = {"Tab": "defaultTab", "Shift-Tab": "indentLess"};
-        codeMirrorOptions['onUpdate'] = function(cm) {if(typeof(cm) != 'undefined') cm.setWidth(cm)};
-        codeMirrorOptions['onChange'] = function(cm) {
+    }
+
+    var textarea = $('#editor_' + id);
+    var editor = CodeMirror.fromTextArea(document.getElementById("editor_" + id), codeMirrorOptions);
+    editor.id = id;
+    if (!read_only) {
+	editor.setSelections(editor)
+	CodeMirror.on(editor, 'cursorActivity', function(cm) {cm.getPosition(cm)});
+	
+	CodeMirror.on(editor, 'update', function(cm) {
+	    //if(typeof(cm) != 'undefined') cm.setWidth(cm);
+	});
+        CodeMirror.on(editor, 'change', function(cm) {
 	    changed=true; 
 	    cm.updateHistory(cm); 
 	    if (cm.historySize().undo>0)
 		$("#save_" + id).removeClass('inactive');
 	    else
 		$("#save_" + id).addClass('inactive');
-	};
-        codeMirrorOptions['onCursorActivity'] = function(cm) {cm.getPosition(cm)};
-    }
+	});
 
-    var textarea = $('#editor_' + id);
-    var height = document.getElementById("editor_" + id).offsetHeight;
-    
-    var editor = CodeMirror.fromTextArea(document.getElementById("editor_" + id), codeMirrorOptions);
-    editor.id = id;
-    editor.setSize(null, height - 52);
-    if (!read_only)
-      editor.setSelections(editor)
+    }
 
     if (textarea.data('save-url')) {
 	$('#save_' + id).click(function() {
@@ -138,7 +135,8 @@ function use_codemirror(id, read_only, mode)
     }
     editors[id] = editor;
 
-    $('#find_' + id).click(function() { editors[id].Find(this); });
+    // $('#find_' + id).click(function() { editors[id].Find(this); });
     $('#line_' + id).keydown(function(event) { if(event.keyCode==13) { editors[id].gotoLine(this) }});
-    $('#search_disable_' + id).click( function() { editors[id].Search(this) } );
+    // $('#search_disable_' + id).click( function() { editors[id].Search(this) } );
+
 }

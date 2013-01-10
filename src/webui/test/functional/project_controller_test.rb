@@ -58,7 +58,8 @@ class ProjectControllerTest < ActionDispatch::IntegrationTest
     find(:id, "advanced_tabs_trigger").click
     find(:link, "Meta").click
     
-    find(:css, "div.CodeMirror-lines").must_have_text %r{<access> <disable/> </access>}
+    # TODO: find a more reliable way to retrieve the text - having the line numbers in here sounds dangerous
+    find(:css, "div.CodeMirror-lines").must_have_text %r{<access> 7 <disable/> 8 </access>}
 
     # now check that adrian can't see it
     logout

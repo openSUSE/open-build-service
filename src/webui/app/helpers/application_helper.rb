@@ -434,7 +434,7 @@ module ApplicationHelper
       style += ".CodeMirror { border-width: 0 0 0 0; }\n"
     end
 
-    style += ".CodeMirror-scroll {\n"
+    style += ".CodeMirror {\n"
     style += "height: #{opts[:height]};\n"
     if opts[:height] == 'auto'
       style += "overflow: auto;\n"
