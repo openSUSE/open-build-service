@@ -166,4 +166,12 @@ class ActionDispatch::IntegrationTest
     find('#flash-messages').must_have_text "Package '#{package}' was removed successfully"
   end
 
+  def delete_patchinfo project
+    visit patchinfo_show_path(package: 'patchinfo', project: project)
+    find(:id, 'delete-patchinfo').click
+    find(:id, 'del_dialog').must_have_text 'Delete Confirmation'
+    find_button("Ok").click
+    find('#flash-messages').must_have_text "'patchinfo' was removed successfully from project"
+  end
+ 
 end

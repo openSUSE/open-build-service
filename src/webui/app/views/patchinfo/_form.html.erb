@@ -62,7 +62,7 @@
               <label for='issue'>Add an additional bug (single or a comma-separated list e.g.: "bnc#123456, bgo#654321,CVE-2012-1234)"</label>
               <input type="text" id="issue" name="issuelist" value="<%=@issueid%>"/>
 
-              <%= link_to image_tag('bug_add.png', :alt => "Add Bug", :title => "Add an additional bug here (must have 6 numbers) single or a comma-separated list e.g.: \"123456, 654321\""), '#', :onclick => 'append_bug($("#issue").val()); return false;' %>
+              <%= link_to image_tag('bug_add.png', :alt => "Add Bug", :title => "Add an additional bug here (must have 6 numbers) single or a comma-separated list e.g.: \"123456, 654321\""), '#', :onclick => 'append_bug($("#issue").val()); return false;', :id => 'add_bug' %>
               <%= image_tag('ajax-loader.gif', :id => "issue_spinner", :class => "hidden") %>
             </p>
           </div>
