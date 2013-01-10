@@ -53,25 +53,25 @@
       <ul><li>
           Relogin suggested:
           <% if @relogin==true %>
-            <%= image_tag "ok.png" %>
+            <%= image_tag "ok.png", :id => "relogin_true" %>
           <% else %>
-            <%= image_tag "req-decline.png" %>
+            <%= image_tag "req-decline.png", :id => "relogin_false" %>
           <%end%>
         </li>
         <li>
           Reboot suggested:
           <% if @reboot == true %>
-            <%= image_tag "ok.png" %>
+            <%= image_tag "ok.png", :id => "reboot_true" %>
           <% else %>
-            <%= image_tag "req-decline.png" %>
+            <%= image_tag "req-decline.png", :id => "reboot_false" %>
           <%end%>
         </li>
         <li>
           Package-manager restart:
           <% if @zypp_restart_needed == true %>
-            <%= image_tag "ok.png" %>
+            <%= image_tag "ok.png", :id => "zypp_true" %>
           <% else %>
-            <%= image_tag "req-decline.png" %>
+            <%= image_tag "req-decline.png", :id => "zypp_false" %>
           <%end%>
         </li></ul>
     </div>
