@@ -66,8 +66,10 @@ class MaintenanceWorkflowTest < ActionDispatch::IntegrationTest
     
     find(:css, "span.ui-icon.ui-icon-alert").must_have_text %r{Description is too short}
     fill_in "description", with: "Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing"
-    fill_in "issue", with: "bnc#27272"
+    fill_in "issue", with: "bnc#272722"
     find(:css, "img[alt=\"Add Bug\"]").click
+    # wait till issue is added
+    find_link("bnc#272722")
     find_button("Save Patchinfo").click
     
     # summary and description are ok now
