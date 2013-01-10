@@ -103,6 +103,14 @@ class PatchinfoCreateTest < ActionDispatch::IntegrationTest
     end
 
   end
+
+  def delete_patchinfo project
+    visit patchinfo_show_path(package: 'patchinfo', project: project)
+    find(:id, 'delete-patchinfo').click
+    find(:id, 'del_dialog').must_have_text 'Delete Confirmation'
+    find_button("Ok").click
+    find('#flash-messages').must_have_text "'patchinfo' was removed successfully from project"
+  end
   
   test "create_patchinfo_with_desc_and_sum" do
     login_Iggy
@@ -117,8 +125,8 @@ class PatchinfoCreateTest < ActionDispatch::IntegrationTest
     # check that the patchinfo is not editable for unauthorized users per buttons
     logout
     visit patchinfo_show_path(project: "home:Iggy", package: "patchinfo")
-    page.has_content?("Edit patchinfo") == false
-    page.has_content?("Delete patchinfo") == false
+    page.wont_have_content("Edit patchinfo")
+    page.wont_have_content("Delete patchinfo")
     
     # check that the patchinfo is not editable per direct url for unauthorized users
     visit patchinfo_edit_patchinfo_path(project: "home:Iggy", package: "patchinfo")
