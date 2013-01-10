@@ -424,10 +424,17 @@ module ActiveXML
       http_do method, uri, data: data.to_json, content_type: "application/json"
     end
 
+    # needed for streaming data - to avoid the conversion to UTF-8 and similiar to change what "length" is
+    def last_body_length
+      return @last_body_length || 0
+    end
+
     def handle_response( http_response )
       case http_response
       when Net::HTTPSuccess, Net::HTTPRedirection
-        return http_response.read_body.force_encoding("UTF-8")
+        body = http_response.read_body
+	@last_body_length = body.length
+        return body.force_encoding("UTF-8")
       when Net::HTTPNotFound
         raise NotFoundError, http_response.read_body.force_encoding("UTF-8")
       when Net::HTTPUnauthorized

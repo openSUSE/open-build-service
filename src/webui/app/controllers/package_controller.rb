@@ -774,7 +774,7 @@ class PackageController < ApplicationController
       if chunk.length == 0
         return  
       end
-      @offset += chunk.length
+      @offset += ActiveXML::transport.last_body_length
       yield chunk
     end
   end
@@ -830,7 +830,7 @@ class PackageController < ApplicationController
       logger.error "Got #{e.class}: #{e.message}; returning empty log."
       @initiallog = ''
     end
-    @offset = (@offset || 0) + @initiallog.length
+    @offset = (@offset || 0) + ActiveXML::transport.last_body_length
   end
 
 
@@ -850,15 +850,19 @@ class PackageController < ApplicationController
       if( @log_chunk.length == 0 )
         @finished = true
       else
-        @offset += @log_chunk.length
+        @offset += ActiveXML::transport.last_body_length
       end
 
     rescue Timeout::Error
       @log_chunk = ""
 
-    rescue
-      @log_chunk = "No live log available"
-      @finished = true
+    rescue ActiveXML::Transport::Error => e
+      if e.summary =~ %r{Logfile is not that big}
+        @log_chunk = ""
+      else
+        @log_chunk = "No live log available: #{e.summary}\n"
+	@finished = true
+      end
     end
 
     logger.debug 'finished ' + @finished.to_s

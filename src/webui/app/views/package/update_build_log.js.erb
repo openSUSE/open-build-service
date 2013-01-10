@@ -1,4 +1,5 @@
 <% if @finished %>
+  $('#log_space').append('<%= j @log_chunk %>');
   build_finished();
   hide_abort();
 <% else %>

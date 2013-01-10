@@ -1,91 +1,29 @@
 <% @pagetitle = "Live Build Log"
-@metarobots = "noindex,nofollow"
-package_bread_crumb 'Build Log' 
+   @metarobots = "noindex,nofollow"
+   package_bread_crumb 'Build Log' 
 -%>
 
 <%= render :partial => "tabs" %>
 
-<%= content_for :head_javascript do %>
-
-  var scrollmode=0;
-  var offset=<%= @offset %>;
-  var autorefresh=1;
-  var lastScroll=0;
-
-  function autoscroll() {
-  if (!autorefresh) { return; }
-  // just return in case the user scrolled up
-  if (lastScroll > window.pageYOffset) { return; }
-  // stop refresh if the user scrolled down
-  if (lastScroll < window.pageYOffset && lastScroll) { stop_refresh(); return; }
-  var targetOffset = $('#footer').offset().top - window.innerHeight;
-  window.scrollTo( 0, targetOffset );
-  lastScroll = window.pageYOffset;
-  }
-
-  function build_finished()
-  {
-  stop_refresh();
-  $('#status').html('Build finished');
-  }
-
-  function start_refresh() {
-  autorefresh=1;
-  lastScroll=0;
-  refresh(offset, 0);
-  $('.start_refresh').hide();
-  $('.stop_refresh').show();
-  return false;
-  }
-
-  function stop_refresh() {
-  autorefresh=0;
-  $('.stop_refresh').hide();
-  $('.start_refresh').show();
-  return false;
-  }
-
-  function refresh(newoffset, initial) {
-    autoscroll();
-    offset = newoffset;
-    if (autorefresh) {
-    var options = { type: 'GET', data: null, error: 'stop_refresh()', cache: false };
-   
-    <%= "baseurl = '".html_safe + CGI.unescapeHTML(url_for(action: :update_build_log, package: @package, project: @project, arch: @arch, repository: @repo)) + "';".html_safe %>
-    options['url'] = baseurl + '&offset=' + offset + ';&' + 'initial=' + initial;
-    $.ajax(options);
-    }
-  }
-  function show_abort() {
-    $(".link_abort_build").show();
-    $(".link_trigger_rebuild").hide();
-  }
-     
-  function hide_abort() {
-    $(".link_abort_build").hide();
-    $(".link_trigger_rebuild").show();
-  }
-<% end -%>
-
 <%= content_for :ready_function do %>
-  refresh(<%= @offset %>, 1);
-  $('.start_refresh').click(start_refresh);
-  $('.stop_refresh').click(stop_refresh);
+  live_build_log_ready();
 <% end -%>
 
 <h2>Build Log for Package <%= @package %> (Project <%= @project %>)</h2>
 <p><strong>Repository:</strong> <%= @repo %> <strong>Architecture:</strong> <%= @arch %></p>
 <p><strong>Status:</strong> <span id="status">Updating...</span></p>
 
-
 <%= render :partial => "live_log_controls" %>
 
-<div id="log_space_wrapper">
+<div id="log_space_wrapper" 
+     data-offset="<%= @offset %>"
+     data-url="<%= url_for(action: :update_build_log,
+		   package: @package, project: @project,
+		   arch: @arch, repository: @repo) %>">
   <pre id="log_space"><%= raw @initiallog %></pre>
 </div>
 
 <% if not @initiallog.empty? %>
   <%= render :partial => "live_log_controls" %>
 <% end %>
-
 
