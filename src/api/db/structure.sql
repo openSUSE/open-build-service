@@ -536,7 +536,6 @@ CREATE TABLE `repositories` (
   `hostsystem_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`db_project_id`,`name`,`remote_project_name`),
-  UNIQUE KEY `db_project_id` (`db_project_id`,`name`,`remote_project_name`),
   KEY `remote_project_name_index` (`remote_project_name`),
   KEY `hostsystem_id` (`hostsystem_id`),
   CONSTRAINT `repositories_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `projects` (`id`),
