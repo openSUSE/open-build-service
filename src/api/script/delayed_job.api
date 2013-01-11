@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# wrapper script just to switch working directory
+
+cd ${0%/*}/..
+bundle exec /usr/bin/ruby1.9 script/delayed_job.api.rb $@
+
+
