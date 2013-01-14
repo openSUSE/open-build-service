@@ -48,8 +48,7 @@ class MyParamsParser
       request.body.rewind if request.body.respond_to?(:rewind)
       data = {:_json => data} unless data.is_a?(Hash)
       data.with_indifferent_access
-    when Mime::XML, "application/octet-stream"
-      # osc loves to send XML as "application/octet-stream"
+    when Mime::XML
       data = Xmlhash.parse(request.body.read)
       request.body.rewind if request.body.respond_to?(:rewind)
       if data
