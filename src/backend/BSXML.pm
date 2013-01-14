@@ -1498,6 +1498,13 @@ our $size = [
          '_content',
 ];
 
+our $time = [
+     'time' => 
+         'unit',
+         [],
+         '_content',
+];
+
 # define constraints for build jobs in packages or projects.
 our $constraints = [
   'constraints' => 
@@ -1537,6 +1544,12 @@ our $buildstatistics = [
         ],
 	[ 'memory' =>
               [ 'usage' => $size ],
+        ],
+	[ 'time' =>
+              [ 'total' => $time ],
+              [ 'preinstall' => $time ],
+              [ 'install' => $time ],
+              [ 'main' => $time ],
         ],
 #	'cpu' =>
 ];

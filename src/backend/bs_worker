@@ -2061,37 +2061,21 @@ sub dobuild {
 
   if ($vm =~ /(xen|kvm)/) {
     rm_rf("$buildroot/.build.packages");
-    if (! -d "$buildroot/.mount/.build.packages") {
-      # old style, call extractbuild
-      print "extracting built packages...\n";
-      @args = ();
-      push @args, "$statedir/build/extractbuild";
-      push @args, '--root', "$vm_root";
-      push @args, '--swap', "$vm_swap";
-      if (system(@args)) {
-        die("extractbuild failed\n");
-      }
-      mkdir_p("$buildroot/.build.packages");
-      if (system("cd $buildroot/.build.packages && cpio --extract --no-absolute-filenames -v < $vm_swap")) {
-	die("cpio extract failed\n");
-      }
-    } else {
-      # new style, build already did extractbuild for us
-      if(!rename("$buildroot/.mount/.build.packages", "$buildroot/.build.packages")) {
-        print "final rename failed: $!";
-        return 1;
-      }
+    # move directory with extracted build results
+    if(!rename("$buildroot/.mount/.build.packages", "$buildroot/.build.packages")) {
+      print "final rename failed: $!";
+      return 1;
     }
     # XXX: extracted cpio is flat but code below expects those directories...
     symlink('.', "$buildroot/.build.packages/SRPMS");
     symlink('.', "$buildroot/.build.packages/DEBS");
     symlink('.', "$buildroot/.build.packages/KIWI");
     # convert build statistics into xml
-    if( -e "$buildroot/.build.packages/_statistics") {
+    if( -e "$buildroot/.build.packages/OTHER/_statistics") {
       my $stats = {};
       my $iosectors = 0;
       my $iorequests = 0;
-      open(FILE, "<", "$buildroot/.build.packages/_statistics") || die;
+      open(FILE, "<", "$buildroot/.build.packages/OTHER/_statistics") || die;
       while(<FILE>) {
         chomp;
         my ($key, $value) = split( ": ", $_ );
@@ -2107,10 +2091,22 @@ sub dobuild {
         } elsif ($key eq "IO_sectors_read" || $key eq "IO_sectors_write" ){
           $iosectors += $value;
           $stats->{'disk'}->{'usage'}->{'io_sectors'} = $iosectors;
+        } elsif ($key eq "TIME_total" ){
+          $stats->{'time'}->{'total'}->{'time'}->{'unit'} = "s";
+          $stats->{'time'}->{'total'}->{'time'}->{'_content'} = $value;
+        } elsif ($key eq "TIME_preinstall" ){
+          $stats->{'time'}->{'preinstall'}->{'time'}->{'unit'} = "s";
+          $stats->{'time'}->{'preinstall'}->{'time'}->{'_content'} = $value;
+        } elsif ($key eq "TIME_install" ){
+          $stats->{'time'}->{'install'}->{'time'}->{'unit'} = "s";
+          $stats->{'time'}->{'install'}->{'time'}->{'_content'} = $value;
+        } elsif ($key eq "TIME_main_build" ){
+          $stats->{'time'}->{'main'}->{'time'}->{'unit'} = "s";
+          $stats->{'time'}->{'main'}->{'time'}->{'_content'} = $value;
         }
       }
       close FILE;
-      writexml("$buildroot/.build.packages/_statistics.new", "$buildroot/.build.packages/_statistics", $stats, $BSXML::buildstatistics);
+      writexml("$buildroot/.build.packages/OTHER/_statistics.new", "$buildroot/.build.packages/OTHER/_statistics", $stats, $BSXML::buildstatistics);
     }
   }
 
