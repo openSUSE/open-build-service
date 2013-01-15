@@ -294,6 +294,10 @@ OBSApi::Application.routes.draw do
 
     match 'public/status/:action' => 'status#index'
 
+    #
+    # NOTE: webui routes are NOT stable and change together with the webui.
+    #       DO NOT USE THEM IN YOUR TOOLS!
+    #
     controller :webui do
       match 'webui/project_infos' => :project_infos
       match 'webui/project_requests' => :project_requests
@@ -306,6 +310,7 @@ OBSApi::Application.routes.draw do
       match 'webui/request_list' => :request_list
       match 'webui/change_role' => :change_role, via: :post
       match 'webui/all_projects' => :all_projects
+      match 'webui/owner' => :owner
     end
 
     match "/404" => "main#notfound"

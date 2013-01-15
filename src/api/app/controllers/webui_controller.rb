@@ -1,5 +1,7 @@
 require 'yajl'
 
+include SearchHelper
+
 class WebuiController < ApplicationController
 
   # return all data related that the webui wants to show on /project/show
@@ -260,5 +262,14 @@ class WebuiController < ApplicationController
       ret[name] = {title: title, important: important[id] ? true : false}
     end
     render text: Yajl::Encoder.encode(ret), content_type: "application/json"
+  end
+
+  def owner
+    valid_http_methods :get
+    required_parameters :binary
+
+    Suse::Backend.start_test_backend if Rails.env.test?
+
+    @owners = search_owner(params, params[:binary])
   end
 end
