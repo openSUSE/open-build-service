@@ -430,16 +430,13 @@ module ApplicationHelper
 
     content_for(:content_for_head, javascript_include_tag('cm2'))
     style = ''
-    if opts[:no_border] || opts[:read_only]
-      style += ".CodeMirror { border-width: 0 0 0 0; }\n"
-    end
-
     style += ".CodeMirror {\n"
-    style += "height: #{opts[:height]};\n"
-    if opts[:height] == 'auto'
-      style += "overflow: auto;\n"
+    if opts[:no_border] || opts[:read_only]
+      style += "border-width: 0 0 0 0;\n"
     end
-    style += "width: #{opts[:width]}; \n}\n"
+    style += "height: #{opts[:height]};\n" unless opts[:height] == 'auto'
+    style += "width: #{opts[:width]}; \n" unless opts[:width] == 'auto'
+    style += "}\n"
     content_for(:head_style, style)
     return @codemirror_editor_setup
   end
