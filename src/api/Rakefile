@@ -18,9 +18,10 @@ require 'workers/import_requests.rb'
 #task(:importrequests => :environment) { Delayed::Job.enqueue ImportRequestsDelayedJob.new }
 task(:importrequests => :environment) { i=ImportRequestsDelayedJob.new; i.perform }
 
-
-begin
-  require 'ci/reporter/rake/minitest'
-rescue LoadError
-  puts "Please run 'rake gems:install' to install the 'ci_reporter' gem."
+unless ENV['RAILS_ENV'] == 'production'
+  begin
+    require 'ci/reporter/rake/minitest'
+  rescue LoadError
+    puts "Please run 'rake gems:install' to install the 'ci_reporter' gem."
+  end
 end
