@@ -853,7 +853,7 @@ class PackageController < ApplicationController
         @offset += ActiveXML::transport.last_body_length
       end
 
-    rescue Timeout::Error
+    rescue Timeout::Error, IOError
       @log_chunk = ""
 
     rescue ActiveXML::Transport::Error => e
