@@ -28,6 +28,8 @@ OBSWebUI::Application.routes.draw do
 
   controller :configuration do
     match 'configuration/' => :index
+    match 'configuration/users' => :users
+    match 'configuration/groups' => :groups
     match 'configuration/connect_instance' => :connect_instance
     match 'configuration/save_instance' => :save_instance
     match 'configuration/update_configuration' => :update_configuration, via: :post

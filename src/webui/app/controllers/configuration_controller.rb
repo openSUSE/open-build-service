@@ -11,6 +11,22 @@ class ConfigurationController < ApplicationController
   def connect_instance
   end
 
+  def users
+    @users = []
+    Person.find_cached(:all).each do |u|
+      person = Person.find_cached(u.value('name'))
+      @users << person if person
+    end
+  end
+  
+  def groups
+    @groups = []
+    Group.find_cached(:all).each do |g|
+      group = Group.find_cached(g.value('name'))
+      @groups << group if group
+    end
+  end
+
   def save_instance
     #store project
     required_parameters :name, :title, :description, :remoteurl

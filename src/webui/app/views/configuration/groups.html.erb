@@ -1,0 +1,48 @@
+<% @pagetitle = "Group Management" %>
+<% @crumb_list = [@pagetitle] -%>
+<% @layouttype = 'custom' %>
+
+<div class="grid_16 alpha omega box box-shadow">
+  <%= render :partial => 'tabs' %>
+  <p>
+  Manage groups.
+  </p>
+
+<% if @groups.length > 0 %>
+  <table id="group_table">
+    <thead>
+      <tr>
+        <th>Group name</th>
+        <th>Members</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @groups.each do |group| %>
+        <tr>
+          <td><%= link_to(group.title, :controller => 'group', :action => 'show', :id => group.value('title')) %></td>
+          <td>
+          <% group.person.each do |member| %>
+            <%= link_to_if(@user, member.userid, :controller => 'home', :action => 'index', :user => member.userid) %>, 
+          <% end %>
+          </td>
+          <td>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>
+  <i>There are no groups configured</i>
+  </p>
+<% end %>
+</div>
+
+<%= javascript_tag do %>
+  $(document).ready(function() {
+    <% if @groups.length > 0 %>
+      $('#group_table').dataTable();
+    <% end %>    
+  });
+<% end %>
