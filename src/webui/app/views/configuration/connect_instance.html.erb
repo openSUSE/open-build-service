@@ -13,30 +13,27 @@ function useMeeGo(){
 }
 <% end %>
 
-
-
-<% @pagetitle = "Connect Remote OBS Instance" %>
-
 <% name = nil -%>
 <% remoteurl = nil -%>
 
-<h2>Connect a remote Open Build Service instance</h2>
+<% @pagetitle = "Interconnect" %>
+<% @crumb_list = [@pagetitle] -%>
+<% @layouttype = 'custom' %>
 
-<div>
-<h3>Use a public OBS for default base distributions</h3>
+<div class="grid_16 alpha omega box box-shadow">
+  <%= render :partial => 'tabs' %>
+  <p>Connect a remote Open Build Service instance</p>
+  
+  <h3>Use a public OBS for default base distributions</h3>
+  <%# unless Project.exists?("openSUSE.org") -%>
+    <% name = "openSUSE.org" -%>
+    <% remoteurl = "https://api.opensuse.org/public" -%>
+  <%# end -%>
+  <%= button_to_function "build.openSUSE.org", "useOpenSUSE()" %>
+  <input type='button' onclick='javascript:useMeeGo()' value='build.MeeGo.com'/>
 
-<%# unless Project.exists?("openSUSE.org") -%>
-  <% name = "openSUSE.org" -%>
-  <% remoteurl = "https://api.opensuse.org/public" -%>
-<%# end -%>
-
-<%= button_to_function "build.openSUSE.org", "useOpenSUSE()" %>
-<input type='button' onclick='javascript:useMeeGo()' value='build.MeeGo.com'/>
-
-</div>
-
-<h3>Add custom OBS instance</h3>
-<%= form_tag  :action => :save_instance do -%>
+  <h3>Add custom OBS instance</h3>
+  <%= form_tag  :action => :save_instance do -%>
   <table id="instance">
     <tr>
       <td><strong>Local Project Name:</strong></td>
@@ -53,8 +50,8 @@ function useMeeGo(){
       <td><strong>Description:</strong></td>
       <td><%= text_field_tag( "description", "This project is representing a remote build service instance.", :size => 80 ) %></td>
     </tr>
-
   </table>
   <p><%= submit_tag %></p>
-<% end -%>
+  <% end -%>
+</div>
 

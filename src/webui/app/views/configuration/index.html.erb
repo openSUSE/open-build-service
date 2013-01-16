@@ -1,62 +1,57 @@
 <% @pagetitle = "Configuration" %>
+<% @crumb_list = [@pagetitle] -%>
+<% @layouttype = 'custom' %>
 
-<h2><%= @pagetitle %></h2>
-<p>
-Here you can setup OBS instance-specific configuration. This includes connecting this OBS instance to another instance
-as well as managing users and groups.
-</p>
+<div class="grid_16 alpha omega box box-shadow">
+<%= render :partial => 'tabs' %>
+  <div class="grid_16 alpha">
+    <p>
+      Configure your Open Build Service instance.
+    </p>
 
-
-<div class="grid_8 alpha">
-  <div class="show_left box">
-    <h3>Actions</h3>
-    <ul>
-      <li><%= link_to('Manage users and groups', get_frontend_url_for(:controller => "active_rbac/user/list")) %></li>
-      <li><%= link_to('Connect to a remote OBS instance', :action => 'connect_instance') %></li>
-    </ul>
-  </div>
   <% if @available_architectures && @available_architectures.has_elements?  %>
-    <div class="show_left box">
-      <h3>Available Scheduler Architectures</h3>
-      <p>You can recommended architectures to be selected by default when a new project or package is created. The new project or package will then build against this architecture (for it's configured repositories).</p>
-      <%= form_tag(:action => 'update_architectures') do %>
-        <table>
-          <thead>
-            <tr>
-              <th>Architecture</th>
-              <th>Available</th>
-              <th>Recommended</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @available_architectures.each do |arch| %>
-              <tr>
-                <td><%= arch.name %></td>
-                <td><%= check_box_tag("arch_available_#{arch.name}", '', arch.available == 'true', :disabled => true) %></td>
-                <td><%= check_box_tag("arch_recommended[#{arch.name}]", '', arch.recommended == 'true') %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-        <p><%= submit_tag('Update') %></p>
+  <h3>Available Scheduler Architectures</h3>
+    <p>
+      You can recommended architectures to be selected by default when a new project or package is created.
+      The new project or package will then build against this architecture for it's configured repositories.
+    </p>
+    <%= form_tag(:action => 'update_architectures') do %>
+    <table>
+      <thead>
+        <tr>
+          <th>Architecture</th>
+          <th>Available</th>
+          <th>Recommended</th>
+        </tr>
+      </thead>
+      <tbody>
+      <% @available_architectures.each do |arch| %>
+        <tr>
+          <td><%= arch.name %></td>
+          <td><%= check_box_tag("arch_available_#{arch.name}", '', arch.available == 'true', :disabled => true) %></td>
+          <td><%= check_box_tag("arch_recommended[#{arch.name}]", '', arch.recommended == 'true') %></td>
+        </tr>
       <% end %>
-    </div>
-  <% end %>
-</div>
-
-<div class="grid_8 omega">
-  <div class="show_right box">
-    <h3>User Interface</h3>
-    <%= form_tag(:action => 'update_configuration') do %>
-      <p>
-        <%= label_tag :title, 'Title:' %><br/>
-        <%= text_field_tag :title, @configuration['title'].gsub(" Open Build Service", "") %> Open Build Service
-      </p>
-      <p>
-        <%= label_tag :description, 'Description:' %><br/>
-        <%= text_area_tag :description, @configuration['description'], :cols => 80, :rows => 20 %>
-      </p>
-      <p><%= submit_tag 'Update' %></p>
+      </tbody>
+    </table>
+    <p><%= submit_tag('Update') %></p>
     <% end %>
+  <% end %>
+
+  <h3>Frontpage Greeting</h3>
+  <p>
+    Change the text that is displayed as greeting on the frontpage
+  </p>
+  <%= form_tag(:action => 'update_configuration') do %>
+    <p>
+     <%= label_tag :title, 'Title:' %><br/>
+     <%= text_field_tag :title, @configuration['title'].gsub(" Open Build Service", "") %> Open Build Service
+    </p>
+    <p>
+      <%= label_tag :description, 'Description:' %><br/>
+      <%= text_area_tag :description, @configuration['description'], :cols => 80, :rows => 20 %>
+    </p>
+    <p><%= submit_tag 'Update' %></p>
+  <% end %>
   </div>
 </div>

@@ -1,0 +1,46 @@
+<% @pagetitle = "User Management" %>
+<% @crumb_list = [@pagetitle] -%>
+<% @layouttype = 'custom' %>
+
+<div class="grid_16 alpha omega box box-shadow">
+  <%= render :partial => 'tabs' %>
+  <p>
+    Manage users.
+  </p>
+
+<% if @users.length > 0 %>
+  <table id="user_table">
+    <thead>
+      <tr>
+        <td>User</td>
+        <td>Actions</td>
+      </tr>
+    </thead>
+    <tbody>
+    <% @users.each do |user| %>
+      <tr id='user-<%= valid_xml_id(user.login) %>'>
+        <td><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => user.login }%></td>
+        <td class="nowrap">
+        <% if @user -%>
+          <% mail_to = 'mailto:' + user.email %>
+          <%= link_to(image_tag('email.png', :alt => "Send mail", :title => "Send mail to user"), mail_to) %>
+        <% end %>
+        </td>
+     </tr>
+   <% end %>
+   </tbody>
+  </table>
+<% else %>
+  <p>
+  <i>There are no users configured</i>
+  </p>
+<% end %>
+</div>
+
+<%= javascript_tag do %>
+  $(document).ready(function() {
+    <% if @users.length > 0 %>
+      $('#user_table').dataTable();
+    <% end %>
+  });
+<% end %>
