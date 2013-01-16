@@ -164,9 +164,9 @@ case "$1" in
 		fi
 
                 # reuse signing key even if hostname changed
-                if [ ! -e $backenddir/obs/certs/server.key ]; then
-                    install -d -m 0700 $backenddir/obs/certs
-                    openssl genrsa -out $backenddir/obs/certs/server.key 1024
+                if [ ! -e $backenddir/certs/server.key ]; then
+                    install -d -m 0700 $backenddir/certs
+                    openssl genrsa -out $backenddir/certs/server.key 1024
                 fi
 
                 if [ ! -e $backenddir/certs/server.${FQHOSTNAME}.created ]; then
