@@ -49,11 +49,11 @@ module SearchHelper
       end
   
       if obj.nil?
-        owners = project.find_containers_without_definition(devel, filter)
+        owners += project.find_containers_without_definition(devel, filter)
       elsif obj.class == String
-        owners = project.find_assignees(obj, limit.to_i, devel, filter)
+        owners += project.find_assignees(obj, limit.to_i, devel, filter)
       else
-        owners = project.find_containers(obj, limit.to_i, devel, filter)
+        owners += project.find_containers(obj, limit.to_i, devel, filter)
       end
   
     end
