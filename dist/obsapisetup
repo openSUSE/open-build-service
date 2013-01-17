@@ -33,7 +33,10 @@ webuidir=/srv/www/obs/webui
 # make parsed output predictable 
 export LC_ALL=C
 
-. /etc/sysconfig/obs-server
+# package or appliance defaults
+if [ -e /etc/sysconfig/obs-server ]; then
+  source /etc/sysconfig/obs-server
+fi
 
 if [ "$OBS_API_AUTOSETUP" != "yes" ]; then
    echo "OBS API Autosetup is not enabled in sysconfig, skipping!"
@@ -201,7 +204,7 @@ test@email.address
                 fi
 
 		# change links for certs according to hostnames
-		rm $backenddir/certs/server.crt $backenddir/certs/server.pem
+		rm -f $backenddir/certs/server.crt $backenddir/certs/server.pem
 		ln -sf $backenddir/certs/server.${FQHOSTNAME}.crt $backenddir/certs/server.crt
 		ln -sf $backenddir/certs/server.${FQHOSTNAME}.pem $backenddir/certs/server.pem
 
