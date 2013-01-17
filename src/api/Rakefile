@@ -18,7 +18,7 @@ require 'workers/import_requests.rb'
 #task(:importrequests => :environment) { Delayed::Job.enqueue ImportRequestsDelayedJob.new }
 task(:importrequests => :environment) { i=ImportRequestsDelayedJob.new; i.perform }
 
-unless ENV['RAILS_ENV'] == 'production'
+if Rails.env.test?
   begin
     require 'ci/reporter/rake/minitest'
   rescue LoadError
