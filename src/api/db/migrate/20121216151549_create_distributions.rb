@@ -23,6 +23,7 @@ class CreateDistributions < ActiveRecord::Migration
     end
 
     path = Rails.root.join("files", "distributions.xml")
+    path = Rails.root.join("files", "distributions.xml.rpmsave") unless File.exists? path
     begin
       req = Xmlhash.parse(File.read(path))
       if req
