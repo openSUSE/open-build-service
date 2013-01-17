@@ -1236,6 +1236,7 @@ class Project < ActiveRecord::Base
     m[:rootproject] = rootproject.name
     m[:project] = pkg.project.name
     m[:package] = pkg.name
+    m[:filter] = rolefilter
 
     # construct where condition
     sql = nil
