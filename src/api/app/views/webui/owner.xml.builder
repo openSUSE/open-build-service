@@ -24,8 +24,9 @@ xml.collection do
         end
         if o[:groups] and o[:groups][role]
           o[:groups][role].each do |group|
-          xml.group
-            xml.name group
+            xml.group do
+              xml.name group
+            end
           end
         end
       end

@@ -77,10 +77,49 @@ class WebuiControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => 'login', :content => "tom"
 
+    # search via project link
+    put "/source/TEMPORARY/_meta", "<project name='TEMPORARY'><title/><description/><link project='home:Iggy'/>
+                                      <group groupid='test_group' role='maintainer' />
+                                      <repository name='standard'>
+                                        <path project='home:Iggy' repository='10.2'/>
+                                        <arch>i586</arch>
+                                      </repository>
+                                    </project>"
+    assert_response :success
+
+    get "/webui/owner?project=TEMPORARY&binary=package&limit=-1&expand=1"
+    assert_response :success
+    assert_xml_tag :tag => 'owner', :attributes => { :project => "home:coolo:test" }
+    assert_no_xml_tag :tag => 'owner', :attributes => { :project => "home:Iggy" }
+
+    get "/webui/owner?project=TEMPORARY&binary=package&limit=-1&expand=1&devel=false"
+    assert_response :success
+    assert_xml_tag :tag => 'owner', :attributes => { :project => "home:Iggy" }
+    assert_no_xml_tag :tag => 'owner', :attributes => { :project => "home:coolo:test" }
+
+    # additional package
+    put "/source/TEMPORARY/pack/_meta", "<package name='pack' project='TEMPORARY'><title/><description/><group groupid='test_group' role='bugowner'/></package>"
+    assert_response :success
+    raw_put '/source/TEMPORARY/pack/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read()
+    assert_response :success
+    run_scheduler("i586")
+    inject_build_job( "TEMPORARY", "pack", "standard", "i586" )
+    run_scheduler("i586")
+    wait_for_publisher()
+
+    get "/webui/owner?project=TEMPORARY&binary=package&limit=0&devel=false"
+    assert_response :success
+    assert_xml_tag :tag => 'owner', :attributes => { :project => "home:Iggy", :package => "TestPack" }
+    assert_xml_tag :tag => 'owner', :attributes => { :project => "TEMPORARY", :package => "pack" }
+    assert_no_xml_tag :tag => 'owner', :attributes => { :project => "home:coolo:test" }
+    assert_xml_tag :tag => 'name', :content => "test_group", :parent => { :tag => "group" }
+
     # reset devel package setting again
     pkg.develpackage = nil
     pkg.save
     # cleanup
+    delete "/source/TEMPORARY"
+    assert_response :success
     delete "/source/home:Iggy/_attribute/OBS:OwnerRootProject"
     assert_response :success
   end
