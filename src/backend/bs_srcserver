@@ -2933,7 +2933,14 @@ sub extendkey {
   close(F) || die("$BSConfig::sign: $?\n");
   mkdir_p($uploaddir);
   writestr("$uploaddir/pubkey.$$", undef, $pubkey);
-  addrev_meta($cgi, $projid, undef, "$uploaddir/pubkey.$$", "$projectsdir/$projid.pkg/_pubkey", '_pubkey');
+  my $rev = addrev_meta($cgi, $projid, undef, "$uploaddir/pubkey.$$", "$projectsdir/$projid.pkg/_pubkey", '_pubkey');
+  my $files = lsrev($rev);
+  if ($files->{'_sslcert'}) {
+    my $cert = pubkey2sslcert($projid, $pubkey);
+    mkdir_p($uploaddir);
+    writestr("$uploaddir/sslcert.$$", undef, $cert);
+    addrev_meta({'comment' => 'automatic cert extension'}, $projid, undef, "$uploaddir/sslcert.$$", undef, '_sslcert');
+  }
   return $BSStdServer::return_ok;
 }
 
@@ -2949,7 +2956,10 @@ sub deletekey {
   }
   # XXX: these are two commits...
   addrev_meta($cgi, $projid, undef, undef, "$projectsdir/$projid.pkg/_pubkey", '_pubkey');
-  addrev_meta($cgi, $projid, undef, undef, "$projectsdir/$projid.pkg/_signkey", '_signkey');
+  my $rev = addrev_meta($cgi, $projid, undef, undef, "$projectsdir/$projid.pkg/_signkey", '_signkey');
+  # also delete ssl cert
+  my $files = lsrev($rev);
+  addrev_meta($cgi, $projid, undef, undef, undef, '_sslcert') if $files->{'_sslcert'};
   rmdir("$projectsdir/$projid.pkg");
   return $BSStdServer::return_ok;
 }
@@ -6164,6 +6174,51 @@ sub getsignkey {
   return ('', 'Content-Type: text/plain');
 }
 
+sub pubkey2sslcert {
+  my ($projid, $pk) = @_;
+  my $cert = '';
+  my @signargs;
+  push @signargs, '--project', $projid if $BSConfig::sign_project;
+  open(F, '-|', $BSConfig::sign, @signargs, '-P', "$projectsdir/$projid.pkg/_signkey", '-C', "$projectsdir/$projid.pkg/_pubkey") || die("$BSConfig::sign: $!\n");
+  1 while sysread(F, $cert, 4096, length($cert));
+  close(F) || die("$BSConfig::sign: $?\n");
+  return $cert;
+}
+
+sub getsslcert {
+  my ($cgi, $projid) = @_;
+
+  while ($projid ne '') {
+    my $sk = readstr("$projectsdir/$projid.pkg/_signkey", 1);
+    if (!$sk) {
+      $projid =~ s/[^:]*$//;
+      $projid =~ s/:$//;
+      next;
+    }
+    my $pk = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
+    if ($pk && $cgi->{'autoextend'}) {
+      my $expiredate = pk2expire($pk);
+      if ($expiredate && $expiredate < time() + 24 * 3600) {
+        extendkey({'comment' => 'auto-extend public key expiry date'}, $projid);
+        $pk = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
+      }
+    }
+    my $rev = getrev_meta($projid, undef);
+    my $files = lsrev($rev);
+    my $cert;
+    if (!$files->{'_sslcert'}) {
+      my $cert = pubkey2sslcert($projid, $pk);
+      mkdir_p($uploaddir);
+      writestr("$uploaddir/sslcert.$$", undef, $cert);
+      addrev_meta({'comment' => 'automatic cert creation'}, $projid, undef, "$uploaddir/sslcert.$$", undef, '_sslcert');
+    } else {
+      $cert = repreadstr($rev, '_sslcert', $files->{'_sslcert'});
+    }
+    return ($cert, 'Content-Type: text/plain');
+  }
+  return ('', 'Content-Type: text/plain');
+}
+
 ####################################################################
 
 sub getlastidrequest {
@@ -7222,6 +7277,7 @@ my $dispatches = [
   '/getconfig $project $repository path:prp*' => \&getbuildconfig,
 
   '/getsignkey $project withpubkey:bool? autoextend:bool?' => \&getsignkey,
+  '/getsslcert $project autoextend:bool?' => \&getsslcert,
   '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaryversions,
   '!- /lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,
