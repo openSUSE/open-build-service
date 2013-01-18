@@ -51,9 +51,9 @@ class WebuiControllerTest < ActionController::IntegrationTest
     get "/webui/owner?binary=package"
     assert_response :success
     assert_xml_tag :parent => { :tag => 'owner', :attributes => { :rootproject => "home:Iggy", :project => "home:Iggy", :package => "TestPack" } },
-                   :tag => "filter", :content => "bugowner"
+                   :tag => "filter", :content => "bugowners"
     assert_xml_tag :parent => { :tag => 'owner', :attributes => { :rootproject => "home:Iggy", :project => "home:Iggy", :package => "TestPack" } },
-                   :tag => "filter", :content => "maintainer"
+                   :tag => "filter", :content => "maintainers"
 
     # set devel package (this one has another devel package in home:coolo:test)
     pkg = Package.find_by_project_and_name "home:Iggy", "TestPack"

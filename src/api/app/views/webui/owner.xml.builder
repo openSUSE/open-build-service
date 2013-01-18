@@ -8,7 +8,7 @@ xml.collection do
     xml.owner(attribs) do
 
       o[:filter].each do |f|
-        xml.filter f
+        xml.filter f.pluralize
       end
 
     end
