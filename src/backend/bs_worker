@@ -804,6 +804,29 @@ sub getdeltasources {
   return @meta;
 }
 
+sub getfollowupsources {
+  my ($buildinfo, $dir) = @_;
+  my $server = $buildinfo->{'reposerver'};
+  my $res = BSRPC::rpc({
+    'uri' => "$server/getjobdata",
+    'directory' => $dir,
+    'timeout' => $gettimeout,
+    'receiver' => \&BSHTTP::cpio_receiver,
+  }, undef, "job=$buildinfo->{'job'}", "arch=$buildinfo->{'arch'}", "jobid=$buildinfo->{'jobid'}");
+  die("Error\n") unless ref($res) eq 'ARRAY';
+  die("no old sources in followup job\n") unless @$res;
+}
+
+sub getsslcert {
+  my ($buildinfo, $dir) = @_;
+  my $server = $buildinfo->{'srcserver'} || $srcserver;
+  my $res = BSRPC::rpc({
+    'uri' => "$server/getsslcert",
+    'timeout' => $gettimeout,
+  }, undef, "project=$buildinfo->{'project'}", "autoextend=1");
+  writestr("$dir/_projectcert.crt", undef, $res) if $res;
+}
+
 sub qsystem {
   my (@args) = @_;
 
@@ -1870,6 +1893,7 @@ sub dobuild {
   $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
   my $deltamode;
   $deltamode = 1 if $buildinfo->{'file'} eq '_delta';
+  my $followupmode = $buildinfo->{'followupfile'};
 
   my $helper = '';
   /^\Q$helperarch\E:(.*)$/ && ($helper = $1) for @{$BSCando::cando{$hostarch}};
@@ -1911,23 +1935,34 @@ sub dobuild {
     my $spec = readstr("$statedir/worker/worker-deltagen.spec", 1) || readstr("worker-deltagen.spec");
     writestr("$srcdir/worker-deltagen.spec", undef, $spec);
     $buildinfo->{'file'} = 'worker-deltagen.spec';
+  } elsif ($followupmode) {
+    getfollowupsources($buildinfo, $srcdir);
+    print "packages, ";
+    getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
+    undef $oldpkgdir;
+    $buildinfo->{'file'} = $followupmode;
+    @meta = split("\n", readstr("$srcdir/meta"));
   } else {
+    my $needsslcert;
     push @meta, getsources($buildinfo, $srcdir);
     importbuild() unless defined &Build::queryhdrmd5;
-    if (!$kiwimode && $Build::Features::preinstallimage && -s "$srcdir/$buildinfo->{'file'}") {
-      # check if we may use a preinstallimage
+    if (!$kiwimode && -s "$srcdir/$buildinfo->{'file'}") {
+      # check for build markers
       local *F;
-      my $needbins;
       if (open(F, '<', "$srcdir/$buildinfo->{'file'}")) {
 	while(<F>) {
 	  chomp;
-	  next unless /^#\s*needsbinariesforbuild\s*$/s;
-	  undef $preinstallimagedata;	# can't use an image, sorry
-	  last;
+	  if (/^#\s*needsbinariesforbuild\s*$/s && $Build::Features::preinstallimage) {
+	    undef $preinstallimagedata;	# can't use an image, sorry
+	  }
+	  if (/^#\s*needssslcertforbuild\s*$/s) {
+	    $needsslcert = 1;
+	  }
 	}
 	close F;
       }
     }
+    getsslcert($buildinfo, $srcdir) if $needsslcert;
     print "packages, ";
     push @meta, getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
   }
@@ -2496,6 +2531,34 @@ if ($@) {
   }
   print "$@";
   $ex = 1;
+}
+if ($buildinfo->{'followupfile'}) {
+  my $buildsrcdir = "$buildroot/.build.packages/SOURCES";
+  $buildsrcdir = "$buildroot/.build-srcdir" if $vm =~ /(xen|kvm)/;
+  # if it was a follow up build, prepend old logfile
+  if (-s "$buildsrcdir/logfile") {
+    local *F;
+    local *T;
+    if (open(F, '<', "$buildroot/.build.log")) {
+      if (open(T, '>>', "$buildsrcdir/logfile")) {
+	my $buf;
+	syswrite(T, $buf) while sysread(F, $buf, 8192);
+	close T;
+	rename("$buildsrcdir/logfile", "$buildroot/.build.log");
+      }
+      close F;
+    }
+  }
+  if (-d "$buildroot/.build.packages/OTHER") {
+    for my $f ('rpmlint.log', '_statistics') {
+      next unless -s "$buildsrcdir/$f";
+      BSUtil::cp("$buildsrcdir/$f", "$buildroot/.build.packages/OTHER/$f");
+    }
+  }
+  # delete follow-up srcrpm
+  for my $srcrpm (ls("$buildroot/.build.packages/SRPMS")) {
+    unlink("$buildroot/.build.packages/SRPMS/$srcrpm") unless -e "$buildsrcdir/$srcrpm";
+  }
 }
 
 # build is done, send back result

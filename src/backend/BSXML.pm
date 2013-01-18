@@ -509,6 +509,7 @@ our $buildinfo = [
 	    'server',
      ]],
 	'expanddebug',
+	'followupfile',	# for two-stage builds
 ];
 
 our $jobstatus = [

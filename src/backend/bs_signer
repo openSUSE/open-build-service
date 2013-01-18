@@ -40,6 +40,7 @@ use BSConfig;
 use BSRPC;
 use BSUtil;
 use BSXML;
+use BSHTTP;
 use BSVerify;
 
 use strict;
@@ -294,7 +295,7 @@ sub signjob {
   my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo);
   my $projid = $info->{'project'};
   my @files = sort(ls($jobdir));
-  my @signfiles = grep {/\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz)$/} @files;
+  my @signfiles = grep {/\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|rsasign)$/} @files;
   my $needpubkey;
   if (grep {$_ eq '.kiwitree_tosign'} @files) {
     for my $f (split("\n", readstr("$jobdir/.kiwitree_tosign"))) {
@@ -333,6 +334,52 @@ sub signjob {
       push @signargs, '-P', "$uploaddir/signer.$$";
     }
     unlink("$jobdir/.checksums");
+    if (!$info->{'followupfile'} && grep {/\.rsasign$/} @signfiles) {
+      my $followupspec = (grep {/\.spec$/} @files)[0];
+      if ($followupspec) {
+	# special rsasign job with followup specfile to inject the sigs
+	@signfiles = grep {/\.rsasign$/} @signfiles;
+	for my $signfile (@signfiles) {
+	  eval {
+	    if ($signfile =~ /\.cpio\.rsasign$/) {
+	      # cpio is tricky, sign every file in the archive
+	      local *CPIOFILE;
+	      my @res;
+	      open(CPIOFILE, '<', "$jobdir/$signfile") || die("open $jobdir/$signfile: $!\n");
+	      my $param = {
+		'acceptsubdirs' => 1,
+		'cpiopostfile' => sub {
+		  my ($par, $ent) = @_;
+		  next unless ($ent->{'mode'} & 0xf000) == 0x8000;	# files only
+		  my $sig = signfilter($ent->{'data'}, @signargs, '-O');
+		  $ent->{'data'} = '';	# free mem
+		  push @res, { 'name' => "$ent->{'name'}.sig", 'data' => $sig };
+		},
+	      };
+	      BSHTTP::cpio_receiver(BSHTTP::fd2hdr(\*CPIOFILE), $param);
+	      close CPIOFILE;
+	      open(CPIOFILE, '>', "$jobdir/$signfile.sig") || die("open $jobdir/$signfile.sig: $!\n");
+	      BSHTTP::cpio_sender({ 'cpiofiles' => \@res }, \*CPIOFILE);
+	      close(CPIOFILE) || die("close $jobdir/$signfile.sig: $!\n");
+	    } else {
+	      system($BSConfig::sign, @signargs, '-O', "$jobdir/$signfile") && die("openssl sign $jobdir/$signfile failed\n");
+	    }
+	  };
+	  if ($@) {
+	    unlink("$uploaddir/signer.$$") if $signkey;
+	    close F;
+	    die("$@");
+	  }
+	}
+	# all files signed, now create folloup job
+	unlink("$uploaddir/signer.$$") if $signkey;
+	$info->{'followupfile'} = $followupspec;
+	writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
+	unlink("$jobsdir/$arch/$job:status");
+	close F;
+	return undef;
+      }
+    }
     push @signargs, '-S', "$jobdir/.checksums" if $sign_supports_S;
     for my $signfile (@signfiles) {
       if ($info->{'file'} eq '_aggregate' && ($signfile =~ /\.d?rpm$/)) {
