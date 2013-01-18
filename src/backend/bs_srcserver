@@ -2914,7 +2914,14 @@ sub createkey {
   writestr("$uploaddir/pubkey.$$", undef, $pubkey);
   # XXX: these are two commits...
   addrev_meta($cgi, $projid, undef, "$uploaddir/pubkey.$$", "$projectsdir/$projid.pkg/_pubkey", '_pubkey');
-  addrev_meta($cgi, $projid, undef, "$uploaddir/signkey.$$", "$projectsdir/$projid.pkg/_signkey", '_signkey');
+  my $rev = addrev_meta($cgi, $projid, undef, "$uploaddir/signkey.$$", "$projectsdir/$projid.pkg/_signkey", '_signkey');
+  my $files = lsrev($rev);
+  if ($files->{'_sslcert'}) {
+    my $cert = pubkey2sslcert($projid, $pubkey);
+    mkdir_p($uploaddir);
+    writestr("$uploaddir/sslcert.$$", undef, $cert);
+    addrev_meta($cgi, $projid, undef, "$uploaddir/sslcert.$$", undef, '_sslcert');
+  }
   return $BSStdServer::return_ok;
 }
 
@@ -2959,7 +2966,9 @@ sub deletekey {
   my $rev = addrev_meta($cgi, $projid, undef, undef, "$projectsdir/$projid.pkg/_signkey", '_signkey');
   # also delete ssl cert
   my $files = lsrev($rev);
-  addrev_meta($cgi, $projid, undef, undef, undef, '_sslcert') if $files->{'_sslcert'};
+  if ($files->{'_sslcert'}) {
+    addrev_meta($cgi, $projid, undef, undef, undef, '_sslcert');
+  }
   rmdir("$projectsdir/$projid.pkg");
   return $BSStdServer::return_ok;
 }
