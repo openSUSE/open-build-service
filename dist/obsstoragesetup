@@ -152,10 +152,10 @@ case "$1" in
 		# Only used if there is a local BSConfig
 		if [ -e /usr/lib/obs/server/BSConfig.pm ]; then
 			# create default gpg key if not existing
-			if [ ! -e /srv/obs/obs-default-gpg.asc ] && grep -q "^our \$keyfile.*/obs/obs-default-gpg.asc.;$" /usr/lib/obs/server/BSConfig.pm; then
+			if [ ! -e "$backenddir"/obs-default-gpg.asc ] && grep -q "^our \$keyfile.*/obs-default-gpg.asc.;$" /usr/lib/obs/server/BSConfig.pm; then
 				echo -n Generating OBS default GPG key ....
-				mkdir -p /srv/obs/gnupg/phrases
-				chmod -R 0700 /srv/obs/gnupg
+				mkdir -p "$backenddir"/gnupg/phrases
+				chmod -R 0700 "$backenddir"/gnupg
 				cat >/tmp/obs-gpg.$$ <<EOF
 				     %echo Generating a default OBS instance key
 				     Key-Type: DSA
@@ -166,36 +166,36 @@ case "$1" in
 				     Name-Comment: key without passphrase
 				     Name-Email: defaultkey@localobs
 				     Expire-Date: 0
-				     %pubring /srv/obs/gnupg/pubring.gpg
-				     %secring /srv/obs/gnupg/secring.gpg
+				     %pubring $backenddir/gnupg/pubring.gpg
+				     %secring $backenddir/gnupg/secring.gpg
 				     %commit
 				     %echo done
 EOF
-				gpg2 --homedir /srv/obs/gnupg --batch --gen-key /tmp/obs-gpg.$$
-				gpg2 --homedir /srv/obs/gnupg --export -a > /srv/obs/obs-default-gpg.asc
+				gpg2 --homedir $backenddir/gnupg --batch --gen-key /tmp/obs-gpg.$$
+				gpg2 --homedir $backenddir/gnupg --export -a > "$backenddir"/obs-default-gpg.asc
 				# empty file just for accepting the key
-				touch "/srv/obs/gnupg/phrases/defaultkey@localobs"
+				touch "$backenddir/gnupg/phrases/defaultkey@localobs"
 			fi
 			# to update sign.conf also after an appliance update
-			if [ -e /srv/obs/obs-default-gpg.asc ] && ! grep -q "^user" /etc/sign.conf; then
+			if [ -e "$backenddir"/obs-default-gpg.asc ] && ! grep -q "^user" /etc/sign.conf; then
 				# extend signd config
 				echo "user: defaultkey@localobs"   >> /etc/sign.conf
 				echo "server: 127.0.0.1"           >> /etc/sign.conf
 				echo "allowuser: obsrun"           >> /etc/sign.conf
 				echo "allow: 127.0.0.1"            >> /etc/sign.conf
-				echo "phrases: /srv/obs/gnupg/phrases" >> /etc/sign.conf
+				echo "phrases: $backenddir/gnupg/phrases" >> /etc/sign.conf
 				echo done
 				rm /tmp/obs-gpg.$$
 				sed -i 's,^# \(our $sign =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
 				sed -i 's,^# \(our $forceprojectkeys =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
 			fi
-			if [ ! -e /srv/obs/obs-default-gpg.asc ] ; then
+			if [ ! -e "$backenddir"/obs-default-gpg.asc ] ; then
 			    sed -i 's,^\(our $sign =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
 			    sed -i 's,^\(our $forceprojectkeys =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
 			fi
 
                         # Force mysql to update database. FIXME: only on version update
-                        touch /srv/obs/MySQL/.run-mysql_upgrade
+                        touch "$backenddir"/MySQL/.run-mysql_upgrade
 		fi
 
 		if [ "$OBS_SETUP_WORKER_PARTITIONS" = "take_all" -o "$OBS_SETUP_WORKER_PARTITIONS" = "use_obs_vg" ]; then
