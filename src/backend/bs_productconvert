@@ -573,6 +573,8 @@ sub groupToPackages( $$$$$ )
 #	print "Handling group conditional $condList->{name}\n";
 	my $cond = $conditionals{ $condList->{name} };
 
+        die( "ERROR: Unknown condition is used: $condList->{name}\n" ) unless $cond;
+
 	if( $cond->{platform} ) {
 	    my @platforms = @{$cond->{platform}};
 
