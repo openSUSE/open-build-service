@@ -12,6 +12,7 @@
 
 <div class="grid_16 alpha omega box box-shadow">
 <%= render :partial => 'tabs' %>
+  <h3>Search for people responsible for package:</h3>
   <div id="search_form">
   <%= form_tag({:controller => 'search', :action => 'owner'}, {:method => :get}) do -%>
   <p>

@@ -1,14 +1,4 @@
 <% unless @results.nil? || @results.length < 1 %>
-  <h3><%= @pagetitle %>
-  <% unless @search_text.blank? %> results for &quot;<%= @search_text -%>&quot; <% end %>
-  <% unless @attribute.blank? %> with attribute &quot;<%= @attribute -%>&quot; <% end %>
-  <% unless @results.nil? %>
-    in <%= @search_what.join(", ").pluralize %>
-    <% if @results.length > 1%>
-      (<%= @results.length -%><%= "+" if @results.length == 200 %>)
-    <% end %>
-  <% end %>
-  </h3>
   <div id="search_results">
   <% @results.each do |result| %>
     <% if result[:type] == 'project' %>
@@ -56,9 +46,9 @@
 
       <div class="search_result">
         <h6>
-        Owner for
+        Responsible for package
         <%= link_to "#{params[:search_text]}", { :controller => 'package', :action => :show, :package => params[:search_text], :project => result[:data].project }, class: 'package-link'-%>
-        for <%= result[:data].rootproject %> in
+        for <%= result[:data].rootproject %> in project
         <%= link_to "#{result[:data].project}", { :controller => 'project', :action => :show, :project => result[:data].project}, class: 'project-link' -%>
         </h6>
         <p>
@@ -94,6 +84,10 @@
         <% end %>
         </p>
       <% end %>
+     <p>
+      <%= link_to(image_tag('user_add.png', :title => "Request to be the bugowner addition"), {:controller => :request, :action => :set_bugowner_request_dialog, :project => @project, :package => @package}, :remote => true) %>
+      <%= link_to("Request role addition", {:controller => :request, :action => :set_bugowner_request_dialog, :project => @project, :package => @package}, :remote => true) %>
+     </p>
     </div>
   <% end %>
   </div>
