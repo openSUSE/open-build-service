@@ -223,6 +223,26 @@ class RequestController < ApplicationController
     redirect_to :controller => :request, :action => :show, :id => req.value("id")
   end
 
+  def set_bugowner_request_dialog
+    check_ajax
+    @project = params[:project]
+    @package = params[:package] if params[:package]
+  end
+
+  def set_bugowner_request
+    required_parameters :project, :role, :user
+    begin
+      req = BsRequest.new(:type => "set_bugowner", :targetproject => params[:project], :targetpackage => params[:package], :role => params[:role], :person => params[:user], :description => params[:description])
+      req.save(:create => true)
+      Rails.cache.delete "requests_new"
+    rescue ActiveXML::Transport::NotFoundError => e
+      flash[:error] = e.summary
+      redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
+      redirect_to :controller => :project, :action => :show, :project => params[:project] and return
+    end
+    redirect_to :controller => :request, :action => :show, :id => req.value("id")
+  end
+
   def change_devel_request_dialog
     check_ajax
     required_parameters :package, :project

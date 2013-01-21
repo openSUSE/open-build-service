@@ -222,6 +222,8 @@ OBSWebUI::Application.routes.draw do
     match 'request/delete_request' => :delete_request, via: :post
     match 'request/add_role_request_dialog' => :add_role_request_dialog
     match 'request/add_role_request' => :add_role_request, via: :post
+    match 'request/set_bugowner_request_dialog' => :set_bugowner_request_dialog
+    match 'request/set_bugowner_request' => :set_bugowner_request, via: :post
     match 'request/change_devel_request_dialog' => :change_devel_request_dialog
     match 'request/change_devel_request' => :change_devel_request
     match 'request/set_incident_dialog' => :set_incident_dialog
