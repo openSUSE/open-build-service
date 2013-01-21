@@ -10,6 +10,7 @@ xml.collection do
       roles = []
       roles += o[:users].keys  if o[:users]
       roles += o[:groups].keys if o[:groups]
+      roles.uniq!
 
       roles.each do |role|
         if o[:users] and o[:users][role]
