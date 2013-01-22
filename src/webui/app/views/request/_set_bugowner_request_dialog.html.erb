@@ -8,15 +8,16 @@
           <%= label_tag(:user, "Set Bugowner:") %><br/>
           <%= text_field_tag(:user, @user, :size => 40) %><br/>
           for<br>
-          <% if params['projects'].length > 1 %>
-            <% params['projects'].each do |project| %>
-              <% tag = "#{project['project']}/#{project['package']}" %>
+          <% params['projects'].each do |project| %>
+            <% tag = "#{project['project']}/#{project['package']}" %>
+            <% if params['projects'].length > 1 %>
               <input id="<%= project['project'] %>" name="project[]" type="checkbox" value="<%= tag %>" />
-              <% tag = "#{project['project']} / #{project['package']}" %>
+              <%= label_tag("#{project['project']}", tag )%><br />
+            <% else %>
+              <input id="<%= project['project'] %>" name="project" type="checkbox" value="<%= project['project'] %>" checked />
+              <input id="<%= project['package'] %>" name="package" type="hidden" value="<%= project['package'] %>" />
               <%= label_tag("#{project['project']}", tag )%><br />
             <% end %>
-          <% else %>
-          
           <% end %>
           <%= label_tag(:description, "Description:") %><br/>
           <%= text_area_tag(:description, "", :size => "40x3") %>

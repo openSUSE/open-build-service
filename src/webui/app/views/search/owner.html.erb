@@ -80,6 +80,8 @@
   <% end %>
   </div> <!-- end search_form -->
 <%= render :partial => 'results' %>
+
+<% unless @results.nil? || @results.length < 1 %>
   <div>
   <% projects = [] %>
   <% @results.each do |result| %>
@@ -91,4 +93,5 @@
       <%= link_to("Request bugowner change", {:controller => :request, :action => :set_bugowner_request_dialog, :projects => projects}, :remote => true) %>
     </p>
   </div>
+<% end %>
 </div>
