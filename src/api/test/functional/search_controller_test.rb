@@ -407,6 +407,13 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert_no_xml_tag :tag => 'owner', :attributes => { :project => "home:coolo:test" }
     assert_xml_tag :tag => 'group', :attributes => { :name => "test_group", :role => "bugowner" }
 
+    get "/search/owner?project=TEMPORARY&binary=package&filter=reviewer&webui_mode=true"
+    assert_response :success
+    assert_xml_tag :tag => 'owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" },
+                   :children => { :count => 0 }
+    assert_xml_tag :tag => 'owner', :attributes => { :rootproject => "TEMPORARY", :project => "home:Iggy", :package => "TestPack" },
+                   :children => { :count => 0 }
+
     # deepest package definition
     get "/search/owner?project=TEMPORARY&binary=package&limit=-1"
     assert_response :success
