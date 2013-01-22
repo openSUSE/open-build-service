@@ -424,7 +424,7 @@ sub oracle {
     return 0 unless $worker->{'hardware'};
     return 0 if $constraints->{'hardware'}->{'processors'} && $constraints->{'hardware'}->{'processors'} > ($worker->{'hardware'}->{'processors'} || 0);
     return 0 if $constraints->{'hardware'}->{'disk'} && getmbsize($constraints->{'hardware'}->{'disk'}) > ($worker->{'hardware'}->{'disk'} || 0);
-    return 0 if $constraints->{'hardware'}->{'memory'} && getmbsize($constraints->{'hardware'}->{'memory'}) > ($worker->{'hardware'}->{'memory'} || 0);
+    return 0 if $constraints->{'hardware'}->{'memory'} && getmbsize($constraints->{'hardware'}->{'memory'}) > ( ($worker->{'hardware'}->{'memory'}+$worker->{'hardware'}->{'swap'}) || 0);
     if ($constraints->{'hardware'}->{'cpu'}) {
       return 0 unless $worker->{'hardware'}->{'cpu'};
       my %workerflags = map {$_ => 1} @{$worker->{'hardware'}->{'cpu'}->{'flag'} || []};
