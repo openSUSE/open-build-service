@@ -23,34 +23,58 @@ class BsRequest < ActiveXML::Node
           target_package = "package=\"#{opt[:package].to_xs}\"" if target_package.empty?
           # set target package is the same as the source package if no target package is specified
           revision_option = "rev=\"#{opt[:rev].to_xs}\"" unless opt[:rev].blank?
-          action = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\" #{revision_option}/>"
+          action = "<action type=\"#{opt[:type]}\">"
+          action += "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\" #{revision_option}/>"
           action += "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package}/>"
           action += "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" unless opt[:sourceupdate].blank?
+          action +="</action>"
         when "add_role" then
-          action = "<group name=\"#{opt[:group]}\" role=\"#{opt[:role]}\"/>" unless opt[:group].blank?
-          action = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>" unless opt[:person].blank?
+          action = "<action type=\"#{opt[:type]}\">"
+          action += "<group name=\"#{opt[:group]}\" role=\"#{opt[:role]}\"/>" unless opt[:group].blank?
+          action += "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>" unless opt[:person].blank?
           action += "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package}/>"
+          action +="</action>"
         when "set_bugowner" then
-          action = "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>"
-          action += "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package}/>"
+          if opt[:targetproject].class == Array
+            action = ""
+            opt[:targetproject].each do |p|
+              project, package = p.split("/")
+              logger.debug "project: #{project.to_xs} and package #{package.to_xs}"
+              action += "<action type=\"#{opt[:type]}\">"
+              action +="<person name=\"#{opt[:person]}\" role=\"bugowner\"/>"
+              action +="<target project=\"#{project.to_xs}\" package=\"#{package.to_xs}\"/>"
+              action +="</action>"
+            end
+          else
+            action = "<action type=\"#{opt[:type]}\">"
+            action += "<person name=\"#{opt[:person]}\" role=\"bugowner\"/>"
+            action += "<target project=\"#{opt[:targetproject].to_xs}\" package=\"#{target_package}\" />"
+            action +="</action>"
+          end
         when "change_devel" then
-          action = "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\"/>"
+          action = "<action type=\"#{opt[:type]}\">"
+          action += "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\"/>"
           action += "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package}/>"
+          action +="</action>"
         when "maintenance_incident" then
-          action = "<source project=\"#{opt[:project]}\" />"
+          action = "<action type=\"#{opt[:type]}\">"
+          action += "<source project=\"#{opt[:project]}\" />"
           action += "<target project=\"#{opt[:targetproject].to_xs}\" />" unless opt[:targetproject].blank?
+          action +="</action>"
         when "maintenance_release" then
-          action = "<source project=\"#{opt[:project]}\" />"
+          action = "<action type=\"#{opt[:type]}\">"
+          action += "<source project=\"#{opt[:project]}\" />"
           action += "<target project=\"#{opt[:targetproject].to_xs}\" />" unless opt[:targetproject].blank?
+          action +="</action>"
         when "delete" then
-          action = "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package} #{target_repository}/>"
+          action = "<action type=\"#{opt[:type]}\">"
+          action += "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package} #{target_repository}/>"
+          action +="</action>"
       end
       # build the request XML
       reply = <<-EOF
         <request>
-          <action type="#{opt[:type]}">
-            #{action}
-          </action>
+          #{action}
           <state name="new"/>
           <description>#{opt[:description].to_xs}</description>
         </request>

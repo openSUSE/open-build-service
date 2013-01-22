@@ -53,8 +53,41 @@ class SearchController < ApplicationController
       limit = nil
 
       if what == 'owner'
+        r = []
         collection = find_cached(Owner, :binary => "#{@search_text}", :limit => "#{@owner_limit}", :devel => "#{@owner_devel}", :expires_in => 5.minutes)
-        reweigh(collection, what)
+        collection.send("each_owner") do |result|
+          users = []
+          groups = []
+          if result.to_hash['person']
+            if result.to_hash['person'].class != Array
+              blah = []
+              blah << result.to_hash['person']
+              users = blah
+            else
+              result.to_hash['person'].each do |p|
+                users << p
+              end
+            end
+          end
+          if result.to_hash['group']
+            if result.to_hash['group'].class != Array
+              blah = []
+              blah << result.to_hash['group']
+              groups = blah
+            else
+              result.to_hash['group'].each do |g|
+                groups << g
+              end
+            end
+          end
+          project = find_cached(Project, result.project)
+          package = find_cached(Package, result.package, :project => project)
+          r << {:type => "owner", :data => result,
+                :users => users, :groups => groups,
+                :project => project, :package => package,
+                :weight => 0}
+        end
+        @results.concat(r)
       end
       if what == 'package' or what == 'project'
         f = []
