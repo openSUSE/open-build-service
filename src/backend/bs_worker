@@ -145,7 +145,7 @@ sub tail_logfile {
 
 sub cleanup_job {
   if ($vm_tmpfs_mode) {
-    qsystem("umount", $buildroot) && die("umount tmpfs failed: $!\n");
+    qsystem("umount", "-l", $buildroot) && die("umount tmpfs failed: $!\n");
   }
 }
 
