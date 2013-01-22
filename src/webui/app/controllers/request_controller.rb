@@ -225,14 +225,12 @@ class RequestController < ApplicationController
 
   def set_bugowner_request_dialog
     check_ajax
-    @project = params[:project]
-    @package = params[:package] if params[:package]
   end
 
   def set_bugowner_request
-    required_parameters :project, :role, :user
+    required_parameters :project, :user
     begin
-      req = BsRequest.new(:type => "set_bugowner", :targetproject => params[:project], :targetpackage => params[:package], :role => params[:role], :person => params[:user], :description => params[:description])
+      req = BsRequest.new(:type => "set_bugowner", :targetproject => params[:project], :targetpackage => params[:package], :person => params[:user], :description => params[:description])
       req.save(:create => true)
       Rails.cache.delete "requests_new"
     rescue ActiveXML::Transport::NotFoundError => e

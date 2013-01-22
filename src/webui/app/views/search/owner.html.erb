@@ -80,4 +80,15 @@
   <% end %>
   </div> <!-- end search_form -->
 <%= render :partial => 'results' %>
+  <div>
+  <% projects = [] %>
+  <% @results.each do |result| %>
+    <% link = Hash["project", result[:data].project, "package", result[:data].package ] %>
+    <% projects << link %>
+  <% end %>
+    <p>
+      <%= link_to(image_tag('user_add.png', :title => "Request bugowner change"), {:controller => :request, :action => :set_bugowner_request_dialog, :projects => projects}, :remote => true) %>
+      <%= link_to("Request bugowner change", {:controller => :request, :action => :set_bugowner_request_dialog, :projects => projects}, :remote => true) %>
+    </p>
+  </div>
 </div>
