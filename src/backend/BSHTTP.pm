@@ -200,7 +200,7 @@ sub cpio_receiver {
   while(1) {
     my $cpiohead = read_data($hdr, 110, 1);
     die("cpio: not a 'SVR4 no CRC ascii' cpio\n") unless substr($cpiohead, 0, 6) eq '070701';
-    my $mode = hex(substr($cpiohead, 6, 8));
+    my $mode = hex(substr($cpiohead, 14, 8));
     my $mtime = hex(substr($cpiohead, 46, 8));
     my $size  = hex(substr($cpiohead, 54, 8));
     if ($size == 0xffffffff) {
@@ -254,7 +254,7 @@ sub cpio_receiver {
     my $ctx;
     $ctx = Digest::MD5->new if $withmd5;
     if (defined($dn)) {
-      die("can only unpack plain files from cpio archive\n") unless ($mode & 0xf000) == 0x8000;
+      die("can only unpack plain files from cpio archive $name, mode was $mode\n") unless ($mode & 0xf000) == 0x8000;
       unlink("$dn/$name") unless $param->{'no_unlink'};
       open(F, '>', "$dn/$name") || die("$dn/$name: $!\n");
     } else {
