@@ -785,7 +785,7 @@ sub createFlavorReadme( $$ ){
       my $readmedir = "\$RPM_BUILD_ROOT/%{_defaultdocdir}/$product->{name}-release-$flavor->{flavor}";
       $reame_file .= "mkdir -p $readmedir\n";
       $reame_file .= "cat >$readmedir/README << EOF\n";
-      $reame_file .= "This package just exist just for providing the product flavor \'$flavor->{flavor}\'.\n";
+      $reame_file .= "This package only exists for providing the product flavor \'$flavor->{flavor}\'.\n";
       $reame_file .= "\nEOF\n\n";
     }
     return $reame_file;
