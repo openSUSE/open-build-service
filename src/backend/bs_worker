@@ -518,6 +518,24 @@ if ($justbuild) {
 }
 
 # collect environment information for the dispatcher. To be checked with job constraints
+sub device_size($) {
+  my ($device) = @_;
+  if ($device) {
+    if (-b $device) {
+      if (open(SIZE, '-|', '/sbin/blockdev', '--getsize64', $device)) {
+        my $line = <SIZE>;
+        chomp $line;
+        my $size = $line / ( 1024 * 1024 );
+        close SIZE;
+        return $size;
+      }
+    } else {
+      # implement me for loop device files
+    }
+  }
+  return undef;
+}
+
 my $workerenvstate = {};
 {
   # host labels
@@ -560,16 +578,12 @@ my $workerenvstate = {};
   $hw->{'swap'} = $vmdisk_swapsize if $vmdisk_swapsize;
   $hw->{'disk'} = $vmdisk_rootsize if $vmdisk_rootsize;
   if ($vm_root) {
-    if (-b $vm_root) {
-      if (open(SIZE, '-|', '/sbin/blockdev', '--getsize64', $vm_root)) {
-        my $size = <SIZE>;
-        chomp $size;
-        $hw->{'disk'} = $size / ( 1024 * 1024 );
-        close SIZE;
-      }
-    } else {
-      # implement me for loop device files
-    }
+    my $size = device_size($vm_root);
+    $hw->{'disk'} = $size if $size;
+  }
+  if ($vm_swap) {
+    my $size = device_size($vm_swap);
+    $hw->{'swap'} = $size if $size;
   }
   $workerenvstate->{'hardware'} = $hw;
 };
