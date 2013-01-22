@@ -340,6 +340,7 @@ sub signjob {
 	# special rsasign job with followup specfile to inject the sigs
 	@signfiles = grep {/\.rsasign$/} @signfiles;
 	for my $signfile (@signfiles) {
+	  my @opensslsignargs = ('-h', 'sha256');
 	  eval {
 	    if ($signfile =~ /\.cpio\.rsasign$/) {
 	      # cpio is tricky, sign every file in the archive
@@ -351,7 +352,7 @@ sub signjob {
 		'cpiopostfile' => sub {
 		  my ($par, $ent) = @_;
 		  next unless ($ent->{'mode'} & 0xf000) == 0x8000;	# files only
-		  my $sig = signfilter($ent->{'data'}, @signargs, '-O');
+		  my $sig = signfilter($ent->{'data'}, @signargs, '-O', @opensslsignargs);
 		  $ent->{'data'} = '';	# free mem
 		  push @res, { 'name' => "$ent->{'name'}.sig", 'data' => $sig };
 		},
@@ -362,7 +363,7 @@ sub signjob {
 	      BSHTTP::cpio_sender({ 'cpiofiles' => \@res }, \*CPIOFILE);
 	      close(CPIOFILE) || die("close $jobdir/$signfile.sig: $!\n");
 	    } else {
-	      system($BSConfig::sign, @signargs, '-O', "$jobdir/$signfile") && die("openssl sign $jobdir/$signfile failed\n");
+	      system($BSConfig::sign, @signargs, '-O', @opensslsignargs, "$jobdir/$signfile") && die("openssl sign $jobdir/$signfile failed\n");
 	    }
 	  };
 	  if ($@) {
