@@ -6,9 +6,11 @@ class BsRequest < ActiveRecord::Base
   class InvalidStateError < APIException
     setup 'request_not_modifiable', 404
   end
-
   class InvalidReview < APIException
     setup 'invalid_review', 400, "request review item is not specified via by_user, by_group or by_project"
+  end
+  class SaveError < APIException
+    setup "request_save_error"
   end
 
   attr_accessible :comment, :creator, :description, :state, :superseded_by
@@ -39,6 +41,8 @@ class BsRequest < ActiveRecord::Base
 
   def self.new_from_xml(xml)
     hashed = Xmlhash.parse(xml)
+
+    raise SaveError, "Failed parsing the request xml" unless hashed
 
     if hashed["id"]
       theid = hashed.delete("id") { raise "not found" }
