@@ -348,6 +348,11 @@ class StatusController < ApplicationController
               buildcode='failed' 
             end
 
+            # get subpackages
+            buildinfo.each_subpack do |s|
+              packages[s.text] = 1
+            end
+
             buildinfo.each_bdep do |b|
               unless b.value(:preinstall)
                 unless packages.has_key? b.value(:name)
