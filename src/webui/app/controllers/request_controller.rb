@@ -228,9 +228,16 @@ class RequestController < ApplicationController
   end
 
   def set_bugowner_request
-    required_parameters :project, :user
+    required_parameters :project, :user, :group
     begin
-      req = BsRequest.new(:type => "set_bugowner", :targetproject => params[:project], :targetpackage => params[:package], :person => params[:user], :description => params[:description])
+      if params[:group] == "False"
+        req = BsRequest.new(:type => "set_bugowner", :targetproject => params[:project], :targetpackage => params[:package],
+                            :person => params[:user], :description => params[:description])
+      end
+      if params[:user] == "False"
+        req = BsRequest.new(:type => "set_bugowner", :targetproject => params[:project], :targetpackage => params[:package],
+                            :group => params[:group], :description => params[:description])
+      end
       req.save(:create => true)
       Rails.cache.delete "requests_new"
     rescue ActiveXML::Transport::NotFoundError => e
