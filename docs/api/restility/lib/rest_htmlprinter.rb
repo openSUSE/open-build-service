@@ -115,7 +115,8 @@ class HtmlPrinter < Printer
   def print_xml_links title, xmlname, schema
     example = xmlname + ".xml"
     if ( !schema || schema.empty? )
-      schema = xmlname + ".xsd"
+      schema = xmlname + ".rng"
+      schema = xmlname + ".xsd" unless XmlFile.exist? schema
     end
     @xml_examples[ example ] = true
     @xml_schemas[ schema ] = true
