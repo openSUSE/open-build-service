@@ -48,7 +48,7 @@ class BsRequest < ActiveXML::Node
           else
             action = "<action type=\"#{opt[:type]}\">"
             action += "<person name=\"#{opt[:person]}\" role=\"bugowner\"/>"
-            action += "<target project=\"#{opt[:targetproject].to_xs}\" package=\"#{target_package}\" />"
+            action += "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package} />"
             action +="</action>"
           end
         when "change_devel" then
