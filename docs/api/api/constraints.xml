@@ -21,5 +21,8 @@
     <memory>
       <size unit="G">1.5</size>
     </memory>
+    <physicalmemory>
+      <size unit="M">512</size>
+    </physicalmemory>
   </hardware>
 </constraints>

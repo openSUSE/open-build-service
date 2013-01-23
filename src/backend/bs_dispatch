@@ -424,7 +424,10 @@ sub oracle {
     return 0 unless $worker->{'hardware'};
     return 0 if $constraints->{'hardware'}->{'processors'} && $constraints->{'hardware'}->{'processors'} > ($worker->{'hardware'}->{'processors'} || 0);
     return 0 if $constraints->{'hardware'}->{'disk'} && getmbsize($constraints->{'hardware'}->{'disk'}) > ($worker->{'hardware'}->{'disk'} || 0);
-    return 0 if $constraints->{'hardware'}->{'memory'} && getmbsize($constraints->{'hardware'}->{'memory'}) > ( ($worker->{'hardware'}->{'memory'}+$worker->{'hardware'}->{'swap'}) || 0);
+    my $memory = ($worker->{'hardware'}->{'memory'} || 0);
+    my $swap = ($worker->{'hardware'}->{'swap'} || 0);
+    return 0 if $constraints->{'hardware'}->{'memory'} && getmbsize($constraints->{'hardware'}->{'memory'}) > ( $memory + $swap );
+    return 0 if $constraints->{'hardware'}->{'physicalmemory'} && getmbsize($constraints->{'hardware'}->{'physicalmemory'}) > $memory;
     if ($constraints->{'hardware'}->{'cpu'}) {
       return 0 unless $worker->{'hardware'}->{'cpu'};
       my %workerflags = map {$_ => 1} @{$worker->{'hardware'}->{'cpu'}->{'flag'} || []};

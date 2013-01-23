@@ -1527,6 +1527,7 @@ our $constraints = [
 	'processors',
       [ 'disk' => $size ],
       [ 'memory' => $size ],
+      [ 'physicalmemory' => $size ],
   ],
 ];
 

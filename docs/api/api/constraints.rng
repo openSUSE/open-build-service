@@ -77,6 +77,11 @@
                <ref name="size-unit"/>
              </element>
             </optional>
+            <optional>
+             <element name="physicalmemory">
+               <ref name="size-unit"/>
+             </element>
+            </optional>
           </interleave>
         </element>
       </optional>
