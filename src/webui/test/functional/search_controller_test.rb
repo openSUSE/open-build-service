@@ -32,15 +32,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     click_button "search_button"
 
     if options[:expect] == :success
-      if !options[:text].blank?
-        search_details = "for \"#{options[:text]}\""
-        if options[:attribute]
-          search_details += " with \"#{options[:attribute]}\""
-        end
-      else
-        search_details = "with attribute \"#{options[:attribute]}\""
-      end
-      find("div#content h3").must_have_text %r{^Search results #{search_details}}
+      first('.search_result h6').has_text? "Responsible for package"
     elsif options[:expect] == :invalid_search_text
       flash_message.must_equal "Search string must contain at least two characters."
       flash_message_type.must_equal :alert
