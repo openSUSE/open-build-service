@@ -39,15 +39,24 @@ class BsRequest < ActiveXML::Node
             action = ""
             opt[:targetproject].each do |p|
               project, package = p.split("/")
-              logger.debug "project: #{project.to_xs} and package #{package.to_xs}"
-              action += "<action type=\"#{opt[:type]}\">"
-              action +="<person name=\"#{opt[:person]}\" role=\"bugowner\"/>"
+              action += "<action type=\"#{opt[:type]}\">"              
+              if opt[:person]
+                action +="<person name=\"#{opt[:person]}\" role=\"bugowner\"/>"
+              end
+              if opt[:group]
+                action +="<group name=\"#{opt[:group]}\" role=\"bugowner\"/>"
+              end
               action +="<target project=\"#{project.to_xs}\" package=\"#{package.to_xs}\"/>"
               action +="</action>"
             end
           else
             action = "<action type=\"#{opt[:type]}\">"
-            action += "<person name=\"#{opt[:person]}\" role=\"bugowner\"/>"
+            if opt[:person]
+              action += "<person name=\"#{opt[:person]}\" role=\"bugowner\"/>"
+            end
+            if opt[:group]
+              action += "<group name=\"#{opt[:group]}\" role=\"bugowner\"/>"
+            end
             action += "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package} />"
             action +="</action>"
           end
