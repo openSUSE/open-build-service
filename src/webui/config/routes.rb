@@ -74,6 +74,7 @@ OBSWebUI::Application.routes.draw do
     match 'package/binaries' => :binaries
     match 'package/users' => :users
     match 'package/requests' => :requests
+    match 'package/statistics' => :statistics
     match 'package/commit' => :commit
     match 'package/revisions' => :revisions
     match 'package/submit_request_dialog' => :submit_request_dialog

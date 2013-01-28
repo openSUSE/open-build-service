@@ -70,6 +70,7 @@ map = ActiveXML::setup_transport(CONFIG['frontend_protocol'], CONFIG['frontend_h
 
     map.connect :buildresult, "rest:///build/:project/_result?:view&:package&:code&:lastbuild&:arch&:repository"
     map.connect :fileinfo, "rest:///build/:project/:repository/:arch/:package/:filename?:view"
+    map.connect :statistic, "rest:///build/:project/:repository/:arch/:package/_statistics"
 
     map.connect :result, "rest:///result/:project/:platform/:package/:arch/result"
     map.connect :packstatus, "rest:///result/:project/packstatus?:command"
