@@ -1,0 +1,42 @@
+<% @pagetitle = "Resource Information"
+  @metarobots = "noindex" # files change too often
+  package_bread_crumb(
+  link_to( "Binaries", :controller => 'package', :action => :binaries, 
+           :project => @project, :package => @package, :repository => @repository, :arch => @arch ))
+-%>
+
+<%= render :partial => "tabs" %>
+
+
+<div>
+  <% if @statistics %>
+    <% if @statistics.disk and @statistics.disk.usage %>
+      <h1>Disk Statistics</h1>
+      <p><strong>Maximal used disk space:</strong> <%= @statistics.disk.usage.size %> <%= @statistics.disk.usage.size.unit %>byte</p>
+      <p><strong>Number of IO requests:</strong> <%= @statistics.disk.usage.io_requests %> </p>
+      <p><strong>Sectors read or written:</strong> <%= @statistics.disk.usage.io_sectors %> </p>
+    <% end %>
+    <% if @statistics.memory and @statistics.memory.usage %>
+      <h1>Memory Statistics</h1>
+      <p><strong>Maximal used memory:</strong> <%= @statistics.memory.usage.size %> <%= @statistics.memory.usage.size.unit %>byte</p>
+    <% end %>
+    <% if @statistics.time %>
+      <h1>Times</h1>
+      <% if @statistics.time.preinstall %>
+        <p>Package Preinstall: <%= @statistics.time.preinstall.time %> <%= @statistics.time.preinstall.time.unit %></p>
+      <% end %>
+      <% if @statistics.time.install %>
+        <p>Package Install: <%= @statistics.time.install.time %> <%= @statistics.time.install.time.unit %></p>
+      <% end %>
+      <% if @statistics.time.main %>
+        <p>Main build task: <%= @statistics.time.main.time %> <%= @statistics.time.main.time.unit %></p>
+      <% end %>
+      <% if @statistics.time.total %>
+        <p>Total build: <%= @statistics.time.total.time %> <%= @statistics.time.total.time.unit %></p>
+      <% end %>
+    <% end %>
+  <% else %>
+    <strong>No statistics exist for this build</strong>
+  <% end %>
+</div>
+

@@ -21,6 +21,8 @@ class AllRoutesTest < ActionController::IntegrationTest
     urls << attribute_save_path
     urls << attribute_delete_path
     urls << configuration_path
+    urls << configuration_users_path
+    urls << configuration_groups_path
     urls << configuration_connect_instance_path
     urls << configuration_save_instance_path
     urls << configuration_update_configuration_path
@@ -48,6 +50,7 @@ class AllRoutesTest < ActionController::IntegrationTest
     urls << package_binaries_path
     urls << package_users_path
     urls << package_requests_path
+    urls << package_statistics_path
     urls << package_commit_path
     urls << package_revisions_path
     urls << package_submit_request_dialog_path
@@ -184,11 +187,14 @@ class AllRoutesTest < ActionController::IntegrationTest
     urls << request_delete_request_path
     urls << request_add_role_request_dialog_path
     urls << request_add_role_request_path
+    urls << request_set_bugowner_request_dialog_path
+    urls << request_set_bugowner_request_path
     urls << request_change_devel_request_dialog_path
     urls << request_change_devel_request_path
     urls << request_set_incident_dialog_path
     urls << request_set_incident_path
     urls << search_path
+    urls << search_owner_path
     urls << user_do_login_path
     urls << user_edit_path
     urls << user_register_path

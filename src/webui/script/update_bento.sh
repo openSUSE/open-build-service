@@ -80,6 +80,7 @@ copy $themedir/bento/images/icons/plugin_add.png ./app/assets/icons/plugin_add.p
 copy $themedir/bento/images/icons/script.png ./app/assets/icons/script.png
 copy $themedir/bento/images/icons/script_lightning.png ./app/assets/icons/script_lightning.png
 copy $themedir/bento/images/icons/script_link.png ./app/assets/icons/script_link.png
+copy $themedir/bento/images/icons/server_chart.png ./app/assets/icons/server_chart.png
 copy $themedir/bento/images/icons/text_indent.png ./app/assets/icons/text_indent.png
 copy $themedir/bento/images/icons/tick.png ./app/assets/icons/tick.png
 copy $themedir/bento/images/icons/time.png ./app/assets/icons/time.png
