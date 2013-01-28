@@ -60,6 +60,7 @@ Recommends:     deb >= 1.5
 Recommends:     lvm2
 Recommends:     openslp-server
 Recommends:     obs-signd
+Conflicts:      obs-signd < 2.1.5.1
 Recommends:     inst-source-utils
 %else
 Requires:       createrepo >= 0.4.10

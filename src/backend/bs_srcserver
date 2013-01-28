@@ -2902,7 +2902,7 @@ sub createkey {
   mkdir_p($uploaddir);
   local *F;
   my $pubkey = '';
-  my @keyargs = ('dsa@1024', '800');
+  my @keyargs = ('rsa@2048', '800');
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
