@@ -183,7 +183,7 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --lxc       : enable lxc
 
-       --tmpfs     : uses tmpfs (memory) for for the build root
+       --tmpfs     : uses tmpfs (memory) for the build root
 
        --device    : set kvm or xen root device (default is <root>/root file)
 
