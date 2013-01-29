@@ -17,12 +17,16 @@
 
   <h3><%= repo_status_icon repocode %> Architecture: <%= result['arch'] %></h3>
 
+  <% found_statistics = false %>
+
   <% unless result.get( 'binarylist')['binary'] %>
     <p><i>No built binaries</i></p>
   <% else %>
     <ul>
       <% result.get('binarylist').elements('binary') do |binary| %>
-        <% if binary['filename'] == 'rpmlint.log' %>
+        <% if binary['filename'] == '_statistics' %>
+          <% found_statistics = true %>
+        <% elsif binary['filename'] == 'rpmlint.log' %>
           <li><%= binary['filename'] %></li>
         <% else %>
           <li><%= link_to binary.value('filename'), :action => 'binary', :project => @project, :package => @package,
@@ -38,6 +42,9 @@
       <% if result.get( 'binarylist')['binary'] %>
         <%= link_to sprite_tag('drive_burn') + 'Delete', { :controller => :package, :action => :wipe_binaries, :arch => result['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => :delete} %> built binaries
       <% end %>
+    <% end %>
+    <% if found_statistics %>
+      <%= link_to sprite_tag('server_chart') + "Show", { :action => 'statistics', :project => @project, :package => @package, :repository => @repository, :arch => result['arch'] } %> used resources
     <% end %>
   </p>
 <% end %>
