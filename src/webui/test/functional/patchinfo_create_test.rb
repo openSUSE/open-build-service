@@ -192,6 +192,23 @@ class PatchinfoCreateTest < ActionDispatch::IntegrationTest
       :category => "optional",
       :rating => "critical",
       :issue => "bnc#770555,bnc#700500")
+
+    # now add issues with wrong formats
+    click_link("Edit patchinfo")
+    # no issue should be added
+    fill_in "issue", with: "bgo#123456.bnc#700501"
+    find(:css, "img[alt=\"Add Bug\"]").click
+    page.evaluate_script('window.confirm = function() { return true; }')
+    # the last issue should be added
+    fill_in "issue", with: "121212,bnc#700501"
+    find(:css, "img[alt=\"Add Bug\"]").click
+    page.evaluate_script('window.confirm = function() { return true; }')
+    page.wont_have_content("121212")
+    find_link("bnc#700501")
+    issues = "123456,bnc#700501".gsub(/\s+/,"").split(",")
+    find_link(issues.last)
+    click_button("Save Patchinfo")
+
     delete_patchinfo('home:Iggy')
   end
 
