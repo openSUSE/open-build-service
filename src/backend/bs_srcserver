@@ -6187,7 +6187,9 @@ sub pubkey2sslcert {
   my ($projid, $pk) = @_;
   my $cert = '';
   my @signargs;
+  die("don't know how to generate a ssl cert\n") unless $BSConfig::sign;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
+  local *F;
   open(F, '-|', $BSConfig::sign, @signargs, '-P', "$projectsdir/$projid.pkg/_signkey", '-C', "$projectsdir/$projid.pkg/_pubkey") || die("$BSConfig::sign: $!\n");
   1 while sysread(F, $cert, 4096, length($cert));
   close(F) || die("$BSConfig::sign: $?\n");
@@ -6197,16 +6199,13 @@ sub pubkey2sslcert {
 sub getsslcert {
   my ($cgi, $projid) = @_;
 
+  my $origprojid = $projid;
   while ($projid ne '') {
     my $sk = readstr("$projectsdir/$projid.pkg/_signkey", 1);
     if (!$sk) {
       $projid =~ s/[^:]*$//;
       $projid =~ s/:$//;
       next;
-    }
-    if (-e "$projectsdir/$projid.pkg/_sslcert") {
-      my $cert = readstr("$projectsdir/$projid.pkg/_sslcert");
-      return ($cert, 'Content-Type: text/plain');
     }
     my $pk = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
     if ($pk && $cgi->{'autoextend'}) {
@@ -6220,15 +6219,27 @@ sub getsslcert {
     my $files = lsrev($rev);
     my $cert;
     if (!$files->{'_sslcert'}) {
-      $cert = pubkey2sslcert($projid, $pk);
       # length(signkey) <= 2 means special handling, don't commit it
-      return ($cert, 'Content-Type: text/plain') if length($sk) <= 2;
+      if (length($sk) <= 2) {
+        $cert = pubkey2sslcert($origprojid, $pk);
+        return ($cert, 'Content-Type: text/plain');
+      }
+      $cert = pubkey2sslcert($projid, $pk);
       mkdir_p($uploaddir);
       writestr("$uploaddir/sslcert.$$", undef, $cert);
       addrev_meta({'comment' => 'automatic cert creation'}, $projid, undef, "$uploaddir/sslcert.$$", undef, '_sslcert');
     } else {
       $cert = repreadstr($rev, '_sslcert', $files->{'_sslcert'});
     }
+    return ($cert, 'Content-Type: text/plain');
+  }
+  if ($BSConfig::sign_project && $BSConfig::sign) {
+    # request default cert
+    my $cert = '';
+    local *F;
+    open(F, '-|', $BSConfig::sign, '--project', $origprojid, '-C') || die("$BSConfig::sign: $!\n");
+    1 while sysread(F, $cert, 4096, length($cert));
+    close(F) || die("$BSConfig::sign: $?\n");
     return ($cert, 'Content-Type: text/plain');
   }
   return ('', 'Content-Type: text/plain');
