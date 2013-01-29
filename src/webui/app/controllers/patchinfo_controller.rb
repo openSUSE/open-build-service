@@ -284,19 +284,27 @@ class PatchinfoController < ApplicationController
       elsif
         issue = new_issue.split("#")
       end
-      begin
-        issueurl = IssueTracker.find(:name => issue[0])
-        issueurl = issueurl.each("/issue-tracker/show-url").first.text
-        issueurl = issueurl.sub(/@@@/, issue[1])
-        issue << issueurl
-        get_issue_sum(issue[0], issue[1])
-        issue << @issuesum
-        issue_collection << issue
-      rescue ActiveXML::Transport::NotFoundError
+      if issue.length > 1
+        begin
+          issueurl = IssueTracker.find(:name => issue[0])
+          issueurl = issueurl.each("/issue-tracker/show-url").first.text
+          issueurl = issueurl.sub(/@@@/, issue[1])
+          issue << issueurl
+          get_issue_sum(issue[0], issue[1])
+          if !@error.nil?
+            error += "#{issue[0]} "
+            next
+          end
+          issue << @issuesum
+          issue_collection << issue
+        rescue ActiveXML::Transport::NotFoundError
+          error += "#{issue[0]} "
+        end
+      else
         error += "#{issue[0]} "
       end
     end
-    error += "has no valid format" if error != ""
+    error += "has no valid format. (Correct formats are e.g. bnc#123456, CVE-1234-5678 and the string has to be a comma-separated list)" if error != ""
     render :nothing => true, :json => { :error => error, :issues => issue_collection}
   end
 
@@ -312,7 +320,7 @@ class PatchinfoController < ApplicationController
     regexp += tracker_result.regex.text
     regexp += "$"
     regexp = Regexp.new(regexp)
-    if bug =~ regexp
+    if bug.match(regexp)
       begin
         path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}"
         result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => "GET"))
