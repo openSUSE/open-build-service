@@ -351,7 +351,7 @@ sub signjob {
 		'acceptsubdirs' => 1,
 		'cpiopostfile' => sub {
 		  my ($par, $ent) = @_;
-		  next unless ($ent->{'mode'} & 0xf000) == 0x8000;	# files only
+		  return unless ($ent->{'mode'} & 0xf000) == 0x8000;	# files only
 		  my $sig = signfilter($ent->{'data'}, @signargs, '-O', @opensslsignargs);
 		  $ent->{'data'} = '';	# free mem
 		  push @res, { 'name' => "$ent->{'name'}.sig", 'data' => $sig };
