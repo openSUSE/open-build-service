@@ -205,7 +205,7 @@ sub createArchitectures( $ )
 
     foreach my $requiredArch( @{$archSetList} ) {
 	my $ref = $requiredArch->{ref};
-	die ( "ERROR: No such archset $requiredArch\n" ) unless $archSets{$ref} ;
+	die ( "ERROR: No such archset $ref\n" ) unless $archSets{$ref} ;
 	my @archis = @{ $archSets{$ref}->{archList} };
 	my $border = @archis; # the amount of entries
 	
@@ -400,7 +400,7 @@ sub createMetadata( $$$ )
       } else {
         foreach my $requiredArch( @{$archSetList} ) {
           my $ref = $requiredArch->{ref};
-          die( "ERROR: No such archset $requiredArch\n" ) unless $archSets{$ref};
+          die( "ERROR: No such archset $ref\n" ) unless $archSets{$ref};
           push @onlyarch, $archSets{$ref}->{productarch} unless grep { $_ eq $archSets{$ref}->{productarch} } @onlyarch;
         }
         # In 11.4 and later noarch metapackages need explicit a onlyarch="noarch" in config because we do now fail on missing packages
@@ -436,7 +436,7 @@ sub containsMyArch( $$$ )
     foreach my $s( split( /\s*,\s*/, $archList ) ){
       foreach my $requiredArch( @{$archSetList} ) {
 	my $ref = $requiredArch->{ref};
-	die( "ERROR: No such archset $requiredArch\n" ) unless $archSets{$ref};
+	die( "ERROR: No such archset $ref\n" ) unless $archSets{$ref};
         return 1 if ( $s eq $archSets{$ref}->{productarch} );
       }
     }
