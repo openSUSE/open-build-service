@@ -341,6 +341,7 @@ sub signjob {
 	@signfiles = grep {/\.rsasign$/} @signfiles;
 	for my $signfile (@signfiles) {
 	  my @opensslsignargs = ('-h', 'sha256');
+	  my $retrysign;
 	  eval {
 	    if ($signfile =~ /\.cpio\.rsasign$/) {
 	      # cpio is tricky, sign every file in the archive
@@ -352,13 +353,16 @@ sub signjob {
 		'cpiopostfile' => sub {
 		  my ($par, $ent) = @_;
 		  return unless ($ent->{'mode'} & 0xf000) == 0x8000;	# files only
+		  $retrysign = 1;
 		  my $sig = signfilter($ent->{'data'}, @signargs, '-O', @opensslsignargs);
+		  undef $retrysign;
 		  $ent->{'data'} = '';	# free mem
 		  push @res, { 'name' => "$ent->{'name'}.sig", 'data' => $sig };
 		},
 	      };
 	      BSHTTP::cpio_receiver(BSHTTP::fd2hdr(\*CPIOFILE), $param);
 	      close CPIOFILE;
+	      $retrysign = 1;
 	      open(CPIOFILE, '>', "$jobdir/$signfile.sig") || die("open $jobdir/$signfile.sig: $!\n");
 	      BSHTTP::cpio_sender({ 'cpiofiles' => \@res }, \*CPIOFILE);
 	      close(CPIOFILE) || die("close $jobdir/$signfile.sig: $!\n");
@@ -368,8 +372,16 @@ sub signjob {
 	  };
 	  if ($@) {
 	    unlink("$uploaddir/signer.$$") if $signkey;
+	    if ($retrysign) {
+	      close F;
+	      die("$@");
+	    }
+	    # fail the job
+	    BSUtil::appendstr("$jobdir/logfile", "\n\nssl sign failed: $@");
+	    $jobstatus->{'result'} = 'failed';
+	    writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
 	    close F;
-	    die("$@");
+	    return 1;
 	  }
 	}
 	# all files signed, now create folloup job
