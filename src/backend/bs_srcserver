@@ -2148,19 +2148,25 @@ sub extract_old_meta {
   }
 }
 
-sub addrev_meta {
-  my ($cgi, $projid, $packid, $tmpfile, $file, $rfile, $suf) = @_;
+sub addrev_meta_multiple {
+  my ($cgi, $projid, $packid, $suf, @todo) = @_;
 
   $suf ||= 'mrev';
-  my $md5;
   undef $packid if $packid && $packid eq '_project';
   my $rpackid = defined($packid) ? $packid : '_project';
-  if (defined($rfile) && defined($tmpfile)) {
+
+  # first commit content into internal repository
+  my %rfilemd5;
+  for my $todo (@todo) {
+    my ($tmpfile, $file, $rfile) = @$todo;
+    next unless defined($tmpfile);
     mkdir_p($uploaddir);
+    unlink("$uploaddir/addrev_meta$$");
     BSUtil::cp($tmpfile, "$uploaddir/addrev_meta$$");
     chmod(0600, "$uploaddir/addrev_meta$$") if !defined($packid) && $suf eq 'mrev' && $rfile eq '_signkey';
-    $md5 = addfile($projid, $rpackid, "$uploaddir/addrev_meta$$", $rfile);
+    $rfilemd5{$rfile} = addfile($projid, $rpackid, "$uploaddir/addrev_meta$$", $rfile);
   }
+
   mkdir_p("$projectsdir/$projid.pkg");
   my $revfile = "$projectsdir/$projid.pkg/$rpackid.$suf";
   local *FF;
@@ -2183,35 +2189,52 @@ sub addrev_meta {
       }
     }
   }
-  if ($md5) {
-    $files->{$rfile} = $md5;
-  } else {
-    # if rfile is not defined this is a delete project/package operation.
-    # leave files untouched
-    delete $files->{$rfile} if defined $rfile;
+
+  for my $todo (@todo) {
+    my ($tmpfile, $file, $rfile) = @$todo;
+    if (defined($tmpfile)) {
+      $files->{$rfile} = $rfilemd5{$rfile};
+    } else {
+      delete $files->{$rfile};
+    }
   }
+
   my $srcmd5 = addmeta($projid, $rpackid, $files);
   my $user = defined($cgi->{'user'}) ? str2utf8xml($cgi->{'user'}) : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? str2utf8xml($cgi->{'comment'}) : '';
   my $nrev = { 'srcmd5' => $srcmd5, 'time' => time(), 'user' => $user, 'comment' => $comment, 'requestid' => $cgi->{'requestid'} };
-  if (!defined($rfile) && defined($packid) && $suf ne 'mrev') {
-    $nrev->{'version'} = $rev->{'version'} if $rev && defined $rev->{'version'};
-    $nrev->{'vrev'} = $rev->{'vrev'} if $rev && defined $rev->{'vrev'};
+  # copy version/vref in initial commit case
+  if (!@todo && defined($packid) && $suf ne 'mrev' && $rev) {
+    $nrev->{'version'} = $rev->{'version'} if defined $rev->{'version'};
+    $nrev->{'vrev'} = $rev->{'vrev'} if defined $rev->{'vrev'};
   }
-  BSFileDB::fdb_add_i(\*FF,  $srcrevlay, $nrev);
-  if (defined($file)) {
-    if (defined($tmpfile)) {
-      rename($tmpfile, $file) || die("rename $tmpfile $file: $!\n");
-    } else {
-      unlink($file);
+  BSFileDB::fdb_add_i(\*FF, $srcrevlay, $nrev);
+
+  for my $todo (@todo) {
+    my ($tmpfile, $file, $rfile) = @$todo;
+    if (defined($file)) {
+      if (defined($tmpfile)) {
+        rename($tmpfile, $file) || die("rename $tmpfile $file: $!\n");
+      } else {
+        unlink($file);
+      }
+    } elsif (defined($tmpfile)) {
+      unlink($tmpfile);
     }
-  } elsif (defined($tmpfile)) {
-    unlink($tmpfile);
   }
   close FF;	# free lock
   $nrev->{'project'} = $projid;
   $nrev->{'package'} = $rpackid;
   return $nrev;
+}
+
+sub addrev_meta {
+  my ($cgi, $projid, $packid, $tmpfile, $file, $rfile, $suf) = @_;
+  if (defined($rfile)) {
+    return addrev_meta_multiple($cgi, $projid, $packid, $suf,  [ $tmpfile, $file, $rfile ]);
+  } else {
+    return addrev_meta_multiple($cgi, $projid, $packid, $suf,  []);
+  }
 }
 
 sub readproj {
@@ -2894,34 +2917,54 @@ sub getproject {
 
 #########################################################################
 
+sub pubkey2sslcert {
+  my ($projid, $pk) = @_;
+  die("don't know how to generate a ssl cert\n") unless $BSConfig::sign;
+  my $cert = '';
+  my @signargs;
+  push @signargs, '--project', $projid if $BSConfig::sign_project;
+  local *F;
+  open(F, '-|', $BSConfig::sign, @signargs, '-P', "$projectsdir/$projid.pkg/_signkey", '-C', "$projectsdir/$projid.pkg/_pubkey") || die("$BSConfig::sign: $!\n");
+  1 while sysread(F, $cert, 4096, length($cert));
+  close(F) || die("$BSConfig::sign: $?\n");
+  return $cert;
+}
+
+sub updatesslcert {
+  my ($projid, $pubkey) = @_;
+  my $rev = getrev_meta($projid, undef);
+  return undef unless $rev;
+  my $files = lsrev($rev);
+  return undef unless $files->{'_sslcert'};
+  my $cert = pubkey2sslcert($projid, $pubkey);
+  mkdir_p($uploaddir);
+  writestr("$uploaddir/sslcert.$$", undef, $cert);
+  return "$uploaddir/sslcert.$$";
+}
+
 sub createkey {
   my ($cgi, $projid) = @_;
   $cgi->{'comment'} ||= 'create sign key';
   die("don't know how to create a key\n") unless $BSConfig::sign;
   die("404 project $projid does not exist\n") unless -s "$projectsdir/$projid.xml";
   mkdir_p($uploaddir);
-  local *F;
   my $pubkey = '';
   my @keyargs = ('rsa@2048', '800');
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
+  local *F;
   open(F, '-|', $BSConfig::sign, @signargs, '-P', "$uploaddir/signkey.$$", '-g', @keyargs, "$projid OBS Project", "$projid\@$obsname") || die("$BSConfig::sign: $!\n");
   1 while sysread(F, $pubkey, 4096, length($pubkey));
   close(F) || die("$BSConfig::sign: $?\n");
   die("sign did not create signkey\n") unless -s "$uploaddir/signkey.$$";
   mkdir_p("$projectsdir/$projid.pkg");
   writestr("$uploaddir/pubkey.$$", undef, $pubkey);
-  # XXX: these are two commits...
-  addrev_meta($cgi, $projid, undef, "$uploaddir/pubkey.$$", "$projectsdir/$projid.pkg/_pubkey", '_pubkey');
-  my $rev = addrev_meta($cgi, $projid, undef, "$uploaddir/signkey.$$", "$projectsdir/$projid.pkg/_signkey", '_signkey');
-  my $files = lsrev($rev);
-  if ($files->{'_sslcert'}) {
-    my $cert = pubkey2sslcert($projid, $pubkey);
-    mkdir_p($uploaddir);
-    writestr("$uploaddir/sslcert.$$", undef, $cert);
-    addrev_meta($cgi, $projid, undef, "$uploaddir/sslcert.$$", undef, '_sslcert');
-  }
+  my $certfile = updatesslcert($projid, $pubkey);
+  addrev_meta_multiple($cgi, $projid, undef, 'mrev',
+	[ "$uploaddir/pubkey.$$",  "$projectsdir/$projid.pkg/_pubkey",  '_pubkey' ],
+	[ "$uploaddir/signkey.$$", "$projectsdir/$projid.pkg/_signkey", '_signkey' ],
+	[ $certfile, undef, '_sslcert' ]);
   return $BSStdServer::return_ok;
 }
 
@@ -2935,19 +2978,16 @@ sub extendkey {
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   my $pubkey = '';
+  local *F;
   open(F, '-|', $BSConfig::sign, @signargs, '-P', "$projectsdir/$projid.pkg/_signkey", '-x', @keyargs, "$projectsdir/$projid.pkg/_pubkey") || die("$BSConfig::sign: $!\n");
   1 while sysread(F, $pubkey, 4096, length($pubkey));
   close(F) || die("$BSConfig::sign: $?\n");
   mkdir_p($uploaddir);
   writestr("$uploaddir/pubkey.$$", undef, $pubkey);
-  my $rev = addrev_meta($cgi, $projid, undef, "$uploaddir/pubkey.$$", "$projectsdir/$projid.pkg/_pubkey", '_pubkey');
-  my $files = lsrev($rev);
-  if ($files->{'_sslcert'}) {
-    my $cert = pubkey2sslcert($projid, $pubkey);
-    mkdir_p($uploaddir);
-    writestr("$uploaddir/sslcert.$$", undef, $cert);
-    addrev_meta({'comment' => 'automatic cert extension'}, $projid, undef, "$uploaddir/sslcert.$$", undef, '_sslcert');
-  }
+  my $certfile = updatesslcert($projid, $pubkey);
+  addrev_meta_multiple($cgi, $projid, undef, 'mrev',
+	[ "$uploaddir/pubkey.$$",  "$projectsdir/$projid.pkg/_pubkey",  '_pubkey' ],
+	[ $certfile, undef, '_sslcert' ]);
   return $BSStdServer::return_ok;
 }
 
@@ -2961,14 +3001,10 @@ sub deletekey {
     ($sk) = getsignkey({}, $pprojid) if $projid ne $pprojid;
     die("must have a key for signing\n") unless $sk;
   }
-  # XXX: these are two commits...
-  addrev_meta($cgi, $projid, undef, undef, "$projectsdir/$projid.pkg/_pubkey", '_pubkey');
-  my $rev = addrev_meta($cgi, $projid, undef, undef, "$projectsdir/$projid.pkg/_signkey", '_signkey');
-  # also delete ssl cert
-  my $files = lsrev($rev);
-  if ($files->{'_sslcert'}) {
-    addrev_meta($cgi, $projid, undef, undef, undef, '_sslcert');
-  }
+  addrev_meta_multiple($cgi, $projid, undef, 'mrev',
+	[ undef, "$projectsdir/$projid.pkg/_pubkey",  '_pubkey' ],
+	[ undef, "$projectsdir/$projid.pkg/_signkey", '_signkey' ],
+	[ undef, undef,                               '_sslcert' ]);
   rmdir("$projectsdir/$projid.pkg");
   return $BSStdServer::return_ok;
 }
@@ -6181,19 +6217,6 @@ sub getsignkey {
     $projid =~ s/:$//;
   }
   return ('', 'Content-Type: text/plain');
-}
-
-sub pubkey2sslcert {
-  my ($projid, $pk) = @_;
-  my $cert = '';
-  my @signargs;
-  die("don't know how to generate a ssl cert\n") unless $BSConfig::sign;
-  push @signargs, '--project', $projid if $BSConfig::sign_project;
-  local *F;
-  open(F, '-|', $BSConfig::sign, @signargs, '-P', "$projectsdir/$projid.pkg/_signkey", '-C', "$projectsdir/$projid.pkg/_pubkey") || die("$BSConfig::sign: $!\n");
-  1 while sysread(F, $cert, 4096, length($cert));
-  close(F) || die("$BSConfig::sign: $?\n");
-  return $cert;
 }
 
 sub getsslcert {
