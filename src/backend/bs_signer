@@ -270,6 +270,45 @@ sub signiso {
   close(ISO) || die("close $file: $!\n");
 }
 
+sub rsasign {
+  my ($signfile, $jobstatus, @signargs) = @_;
+  my @opensslsignargs = ('-h', 'sha256');
+  if ($signfile !~ /\.cpio\.rsasign$/) {
+    system($BSConfig::sign, @signargs, '-O', @opensslsignargs, $signfile) && die("openssl sign $signfile failed\n");
+    return;
+  }
+  # cpio case, sign every plain file in the archive
+  my $retrysign;
+  eval {
+    local *CPIOFILE;
+    my @res;
+    open(CPIOFILE, '<', $signfile) || die("open $signfile: $!\n");
+    my $param = {
+      'acceptsubdirs' => 1,
+      'cpiopostfile' => sub {
+	my ($par, $ent) = @_;
+	return unless ($ent->{'mode'} & 0xf000) == 0x8000;	# files only
+	$retrysign = 1;
+	my $sig = signfilter($ent->{'data'}, @signargs, '-O', @opensslsignargs);
+	undef $retrysign;
+	$ent->{'data'} = '';	# free mem
+	push @res, { 'name' => "$ent->{'name'}.sig", 'data' => $sig };
+      },
+    };
+    BSHTTP::cpio_receiver(BSHTTP::fd2hdr(\*CPIOFILE), $param);
+    close CPIOFILE;
+    $retrysign = 1;
+    open(CPIOFILE, '>', "$signfile.sig") || die("open $signfile.sig: $!\n");
+    BSHTTP::cpio_sender({ 'cpiofiles' => \@res }, \*CPIOFILE);
+    close(CPIOFILE) || die("close $signfile.sig: $!\n");
+  };
+  if ($@) {
+    $jobstatus->{'result'} = 'failed' unless $retrysign;
+    die("openssl sign: $@");
+  }
+}
+
+
 sub signjob {
   my ($job, $arch) = @_;
 
@@ -313,8 +352,8 @@ sub signjob {
     }
   }
   if (@signfiles) {
-    my @signargs;
     $needpubkey ||= grep {/\.iso$/} @signfiles;
+    my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     my $param = {
       'uri' => "$BSConfig::srcserver/getsignkey",
@@ -334,112 +373,97 @@ sub signjob {
       push @signargs, '-P', "$uploaddir/signer.$$";
     }
     unlink("$jobdir/.checksums");
+
+    my $followupspec;
     if (!$info->{'followupfile'} && grep {/\.rsasign$/} @signfiles) {
-      my $followupspec = (grep {/\.spec$/} @files)[0];
-      if ($followupspec) {
-	# special rsasign job with followup specfile to inject the sigs
-	@signfiles = grep {/\.rsasign$/} @signfiles;
-	for my $signfile (@signfiles) {
-	  my @opensslsignargs = ('-h', 'sha256');
-	  my $retrysign;
-	  eval {
-	    if ($signfile =~ /\.cpio\.rsasign$/) {
-	      # cpio is tricky, sign every file in the archive
-	      local *CPIOFILE;
-	      my @res;
-	      open(CPIOFILE, '<', "$jobdir/$signfile") || die("open $jobdir/$signfile: $!\n");
-	      my $param = {
-		'acceptsubdirs' => 1,
-		'cpiopostfile' => sub {
-		  my ($par, $ent) = @_;
-		  return unless ($ent->{'mode'} & 0xf000) == 0x8000;	# files only
-		  $retrysign = 1;
-		  my $sig = signfilter($ent->{'data'}, @signargs, '-O', @opensslsignargs);
-		  undef $retrysign;
-		  $ent->{'data'} = '';	# free mem
-		  push @res, { 'name' => "$ent->{'name'}.sig", 'data' => $sig };
-		},
-	      };
-	      BSHTTP::cpio_receiver(BSHTTP::fd2hdr(\*CPIOFILE), $param);
-	      close CPIOFILE;
-	      $retrysign = 1;
-	      open(CPIOFILE, '>', "$jobdir/$signfile.sig") || die("open $jobdir/$signfile.sig: $!\n");
-	      BSHTTP::cpio_sender({ 'cpiofiles' => \@res }, \*CPIOFILE);
-	      close(CPIOFILE) || die("close $jobdir/$signfile.sig: $!\n");
-	    } else {
-	      system($BSConfig::sign, @signargs, '-O', @opensslsignargs, "$jobdir/$signfile") && die("openssl sign $jobdir/$signfile failed\n");
-	    }
-	  };
-	  if ($@) {
-	    unlink("$uploaddir/signer.$$") if $signkey;
-	    if ($retrysign) {
-	      close F;
-	      die("$@");
-	    }
-	    # fail the job
-	    BSUtil::appendstr("$jobdir/logfile", "\n\nssl sign failed: $@");
-	    $jobstatus->{'result'} = 'failed';
-	    writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
-	    close F;
-	    return 1;
-	  }
+      $followupspec = (grep {/\.spec$/} @files)[0];
+      @signfiles = grep {/\.rsasign$/} @signfiles if $followupspec;
+    }
+
+    push @signargs, '-S', "$jobdir/.checksums" if !$followupspec && $sign_supports_S;
+
+    eval {
+      for my $signfile (@signfiles) {
+	if ($signfile =~ /\.iso$/) {
+	  signiso("$jobdir/$signfile", $pubkey, @signargs);
+	  next;
 	}
-	# all files signed, now create folloup job
-	unlink("$uploaddir/signer.$$") if $signkey;
-	$info->{'followupfile'} = $followupspec;
-	writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
+	if ($signfile =~ /\.rsasign$/) {
+	  rsasign("$jobdir/$signfile", $jobstatus, @signargs) if $followupspec;
+	  next;
+	}
+	if ($info->{'file'} eq '_aggregate' && ($signfile =~ /\.d?rpm$/)) {
+	  # special aggregate handling: remove old sigs
+	  system('rpm', '--delsign', "$jobdir/$signfile") && warn("delsign $jobdir/$signfile failed: $?\n");
+	}
+	my @signmode;
+	@signmode = ('-r') if $signfile =~ /\.drpm$/;
+	@signmode = ('-D') if $signfile =~ /\.pkg\.tar\.(?:gz|xz)$/;
+	if ($signfile =~ /\.key$/s) {
+	  next unless (-s "$jobdir/$signfile") == 8192;
+	  my $signfilec = readstr("$jobdir/$signfile");
+	  next if substr($signfilec, 0, 8) ne "sIGnMeP\n";
+	  $pubkey ||= signfilter(undef, @signargs, '-p');
+	  die("pubkey is not available\n") unless $pubkey;
+	  writestr("$jobdir/$signfile.tmp$$", "$jobdir/$signfile", $pubkey);
+	  next;
+	}
+	if ($signfile =~ /\.asc$/s) {
+	  next unless (-s "$jobdir/$signfile") == 2048;
+	  my $signfilec = readstr("$jobdir/$signfile");
+	  next if substr($signfilec, 0, 8) ne "sIGnMe!\n";
+	  @signmode = ('-d');
+	  $signfile =~ s/\.asc$//s;
+	  # fallthrough...
+	}
+	if (system($BSConfig::sign, @signargs, @signmode, "$jobdir/$signfile")) {
+	  if ($signfile =~ /\.rpm$/) {
+	    print("sign failed: $? - checking digest\n");
+	    if (system('rpm', '--checksig', '--nosignature', "$jobdir/$signfile")) {
+	      print("rpm checksig failed: $? - restarting job\n");
+	      $jobstatus->{'result'} = 'rebuild';
+	    }
+	  }
+	  die("sign $jobdir/$signfile failed\n");
+	}
+      }
+    };
+    if ($@) {
+      # signing failed, either retry, rebuild or fail
+      unlink("$uploaddir/signer.$$") if $signkey;
+      if ($jobstatus->{'result'} && $jobstatus->{'result'} eq 'rebuild') {
+	if ($info->{'followupfile'}) {
+	  delete $info->{'followupfile'};
+          writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
+	}
+	BSUtil::cleandir($jobdir);
+	rmdir($jobdir);
 	unlink("$jobsdir/$arch/$job:status");
 	close F;
 	return undef;
       }
-    }
-    push @signargs, '-S', "$jobdir/.checksums" if $sign_supports_S;
-    for my $signfile (@signfiles) {
-      if ($info->{'file'} eq '_aggregate' && ($signfile =~ /\.d?rpm$/)) {
-	# special aggregate handling: remove old sigs
-        system('rpm', '--delsign', "$jobdir/$signfile") && warn("delsign $jobdir/$signfile failed: $?\n");
-      }
-      if ($signfile =~ /\.iso$/) {
-	signiso("$jobdir/$signfile", $pubkey, @signargs);
-	next;
-      }
-      my @signmode;
-      @signmode = ('-r') if $signfile =~ /\.drpm$/;
-      @signmode = ('-D') if $signfile =~ /\.pkg\.tar\.(?:gz|xz)$/;
-      if ($signfile =~ /\.asc$/s) {
-	next unless (-s "$jobdir/$signfile") == 2048;
-	my $signfilec = readstr("$jobdir/$signfile");
-	next if substr($signfilec, 0, 8) ne "sIGnMe!\n";
-	@signmode = ('-d');
-	$signfile =~ s/\.asc$//s;
-      }
-      if ($signfile =~ /\.key$/s) {
-	next unless (-s "$jobdir/$signfile") == 8192;
-	my $signfilec = readstr("$jobdir/$signfile");
-	next if substr($signfilec, 0, 8) ne "sIGnMeP\n";
-	$pubkey ||= signfilter(undef, @signargs, '-p');
-	die("pubkey is not available\n") unless $pubkey;
-	writestr("$jobdir/$signfile.tmp$$", "$jobdir/$signfile", $pubkey);
-	next;
-      }
-      if (system($BSConfig::sign, @signargs, @signmode, "$jobdir/$signfile")) {
-        unlink("$uploaddir/signer.$$") if $signkey;
+      if ($jobstatus->{'result'} && $jobstatus->{'result'} eq 'failed') {
+	BSUtil::appendstr("$jobdir/logfile", "\n\n$@");
+	$jobstatus->{'code'} = 'finished';
+	writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
 	close F;
-	if ($signfile =~ /\.rpm$/) {
-	  print("sign failed: $? - checking digest\n");
-	  if (system('rpm', '--checksig', '--nosignature', "$jobdir/$signfile")) {
-	    print("rpm checksig failed: $? - restarting job\n");
-	    BSUtil::cleandir($jobdir);
-	    rmdir($jobdir);
-	    unlink("$jobsdir/$arch/$job:status");
-	    close F;
-	    return undef;
-	  }
-	}
-	die("sign $jobdir/$signfile failed\n");
+	return 1;
       }
+      close(F);
+      die($@);
     }
+
+    # all files signed now
     unlink("$uploaddir/signer.$$") if $signkey;
+
+    if ($followupspec) {
+      # we need to create a followup job to integrate the signatures
+      $info->{'followupfile'} = $followupspec;
+      writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
+      unlink("$jobsdir/$arch/$job:status");
+      close F;
+      return undef;
+    }
 
     # we have changed the file ids, thus we need to re-create
     # the .bininfo file
