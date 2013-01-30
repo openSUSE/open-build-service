@@ -852,6 +852,9 @@ while (1) {
 	  $workerinfo{$idle} = $worker;
 	  $workerinfo_mtime{$idle} = $s[7];
 	}
+	if ($BSConfig::dispatch_constraint) {
+	  next if !$BSConfig::dispatch_constraint->($ic->{$job}, $workerinfo{$idle});
+	}
 	if ($constraints) {
 	  my $ora = oracle($ic->{$job}, $workerinfo{$idle}, $constraints);
 	  next unless defined($ora) && $ora > 0;
