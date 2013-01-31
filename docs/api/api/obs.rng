@@ -314,6 +314,7 @@
   <define ns="" name="build-sandbox">
     <choice>
       <value>chroot</value>
+      <value>lxc</value>
       <value>kvm</value>
       <value>xen</value>
       <value>secure</value> <!-- xen or kvm -->

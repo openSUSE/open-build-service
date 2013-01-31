@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <constraints>
   <hostlabel>reference_benchmark_host</hostlabel>
-  <sandbox>secure</sandbox>
+  <sandbox exclude="true">chroot</sandbox>
   <linux>
     <version>
       <max>3.42</max>

@@ -1510,8 +1510,16 @@ our $time = [
 our $constraints = [
   'constraints' => 
     [],
-    'hostlabel', # workers might get labels defined by admin, for example for benchmarking.
-    'sandbox',   # xen/kvm/chroot/secure
+  [ 'hostlabel' =>
+       'exclude',   # true or false. default is false.
+       [],
+       '_content' # workers might get labels defined by admin, for example for benchmarking.
+  ],
+  [ 'sandbox' =>
+       'exclude',   # true or false. default is false.
+       [],
+       '_content' # xen/kvm/chroot/secure
+  ],
   [ 'linux' =>
       [ 'version' =>
         [],
