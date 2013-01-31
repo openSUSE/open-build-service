@@ -6,8 +6,14 @@ class ConfigurationsControllerTest < ActionController::IntegrationTest
   end
 
   def test_show_and_update_configuration
+    reset_auth
+    get '/public/configuration' # required for anonymous remote webui access
+    assert_response :success
+
     prepare_request_with_user "tom", "thunder"
-    get '/configuration'
+    get '/public/configuration'
+    assert_response :success
+    get '/configuration' # default
     assert_response :success
     config = @response.body
     put '/configuration', config

@@ -292,6 +292,9 @@ OBSApi::Application.routes.draw do
       match 'public/binary_packages/:project/:package' => :binary_packages, :constraints => cons
     end
 
+    match 'public/configuration' => 'configurations#show'
+    match 'public/configuration.json' => 'configurations#show'
+    match 'public/configuration.xml' => 'configurations#show'
     match 'public/status/:action' => 'status#index'
 
     #

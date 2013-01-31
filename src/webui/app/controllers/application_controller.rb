@@ -346,7 +346,8 @@ class ApplicationController < ActionController::Base
     @configuration = {}
     begin
       @configuration = Rails.cache.fetch('configuration', :expires_in => 30.minutes) do
-        response = ActiveXML::transport.direct_http(URI('/configuration.json'))
+        # we need to use the public route here or speaking to remote apis behind a proxy will fail.
+        response = ActiveXML::transport.direct_http(URI('public/configuration.json'))
         ActiveSupport::JSON.decode(response)
       end
     rescue ActiveXML::Transport::NotFoundError
