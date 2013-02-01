@@ -23,7 +23,7 @@
     <% if @statistics.times %>
       <h1>Times</h1>
       <% if @statistics.times.preinstall %>
-        <p>Package Preinstall: <%= @statistics.time.preinstall.time %> <%= @statistics.times.preinstall.time.unit %></p>
+        <p>Package Preinstall: <%= @statistics.times.preinstall.time %> <%= @statistics.times.preinstall.time.unit %></p>
       <% end %>
       <% if @statistics.times.install %>
         <p>Package Install: <%= @statistics.times.install.time %> <%= @statistics.times.install.time.unit %></p>
