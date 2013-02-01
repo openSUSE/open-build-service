@@ -2141,17 +2141,17 @@ sub dobuild {
           $iosectors += $value;
           $stats->{'disk'}->{'usage'}->{'io_sectors'} = $iosectors;
         } elsif ($key eq "TIME_total" ){
-          $stats->{'time'}->{'total'}->{'time'}->{'unit'} = "s";
-          $stats->{'time'}->{'total'}->{'time'}->{'_content'} = $value;
+          $stats->{'times'}->{'total'}->{'time'}->{'unit'} = "s";
+          $stats->{'times'}->{'total'}->{'time'}->{'_content'} = $value;
         } elsif ($key eq "TIME_preinstall" ){
-          $stats->{'time'}->{'preinstall'}->{'time'}->{'unit'} = "s";
-          $stats->{'time'}->{'preinstall'}->{'time'}->{'_content'} = $value;
+          $stats->{'times'}->{'preinstall'}->{'time'}->{'unit'} = "s";
+          $stats->{'times'}->{'preinstall'}->{'time'}->{'_content'} = $value;
         } elsif ($key eq "TIME_install" ){
-          $stats->{'time'}->{'install'}->{'time'}->{'unit'} = "s";
-          $stats->{'time'}->{'install'}->{'time'}->{'_content'} = $value;
+          $stats->{'times'}->{'install'}->{'time'}->{'unit'} = "s";
+          $stats->{'times'}->{'install'}->{'time'}->{'_content'} = $value;
         } elsif ($key eq "TIME_main_build" ){
-          $stats->{'time'}->{'main'}->{'time'}->{'unit'} = "s";
-          $stats->{'time'}->{'main'}->{'time'}->{'_content'} = $value;
+          $stats->{'times'}->{'main'}->{'time'}->{'unit'} = "s";
+          $stats->{'times'}->{'main'}->{'time'}->{'_content'} = $value;
         }
       }
       close FILE;

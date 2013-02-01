@@ -20,19 +20,19 @@
       <h1>Memory Statistics</h1>
       <p><strong>Maximal used memory:</strong> <%= @statistics.memory.usage.size %> <%= @statistics.memory.usage.size.unit %>byte</p>
     <% end %>
-    <% if @statistics.time %>
+    <% if @statistics.times %>
       <h1>Times</h1>
-      <% if @statistics.time.preinstall %>
-        <p>Package Preinstall: <%= @statistics.time.preinstall.time %> <%= @statistics.time.preinstall.time.unit %></p>
+      <% if @statistics.times.preinstall %>
+        <p>Package Preinstall: <%= @statistics.time.preinstall.time %> <%= @statistics.times.preinstall.time.unit %></p>
       <% end %>
-      <% if @statistics.time.install %>
-        <p>Package Install: <%= @statistics.time.install.time %> <%= @statistics.time.install.time.unit %></p>
+      <% if @statistics.times.install %>
+        <p>Package Install: <%= @statistics.times.install.time %> <%= @statistics.times.install.time.unit %></p>
       <% end %>
-      <% if @statistics.time.main %>
-        <p>Main build task: <%= @statistics.time.main.time %> <%= @statistics.time.main.time.unit %></p>
+      <% if @statistics.times.main %>
+        <p>Main build task: <%= @statistics.times.main.time %> <%= @statistics.times.main.time.unit %></p>
       <% end %>
-      <% if @statistics.time.total %>
-        <p>Total build: <%= @statistics.time.total.time %> <%= @statistics.time.total.time.unit %></p>
+      <% if @statistics.times.total %>
+        <p>Total build: <%= @statistics.times.total.time %> <%= @statistics.times.total.time.unit %></p>
       <% end %>
     <% end %>
   <% else %>

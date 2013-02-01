@@ -1555,7 +1555,7 @@ our $buildstatistics = [
 	[ 'memory' =>
               [ 'usage' => $size ],
         ],
-	[ 'time' =>
+	[ 'times' =>
               [ 'total' => $time ],
               [ 'preinstall' => $time ],
               [ 'install' => $time ],
