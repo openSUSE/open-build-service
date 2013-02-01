@@ -2058,6 +2058,7 @@ sub dobuild {
     push @args, '--vmdisk-mount-options', "\"$vmdisk_mount_options\"" if $vmdisk_mount_options;
     push @args, '--vmdisk-clean'if $vmdisk_clean;
     push @args, '--hugetlbfs', $hugetlbfs if $hugetlbfs;
+    push @args, '--statistics';
   } elsif ($vm =~ /lxc/) {
     push @args, '--root', $buildroot;
     push @args, '--vm-type', $vm;
@@ -2070,7 +2071,6 @@ sub dobuild {
   push @args, '--norootforbuild' unless $BSConfig::norootexceptions && grep {"$projid/$packid" =~ /^$_$/} keys %$BSConfig::norootexceptions;
   push @args, '--baselibs-internal';
   push @args, '--lint';
-  push @args, '--statistics';
   push @args, '--dist', "$buildroot/.build.config";
   push @args, '--rpmlist', "$buildroot/.build.rpmlist";
   push @args, '--logfile', "$buildroot/.build.log";
