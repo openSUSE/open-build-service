@@ -199,7 +199,7 @@ OBS_WORKER_NICE_LEVEL=18
 
 ## Path:        Applications/OBS
 ## Description: Set used VM type by worker
-## Type:        ("auto" | "xen" | "kvm" | "lxc" | "none")
+## Type:        ("auto" | "xen" | "kvm" | "lxc" | "emulator:$arch" | "none")
 ## Default:     "auto"
 ## Config:      OBS
 #

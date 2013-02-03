@@ -2059,6 +2059,10 @@ sub dobuild {
     push @args, '--vmdisk-clean'if $vmdisk_clean;
     push @args, '--hugetlbfs', $hugetlbfs if $hugetlbfs;
     push @args, '--statistics';
+  } elsif ($vm =~ /emulator/) {
+    push @args, '--root', "$buildroot/.mount";
+    push @args, '--vm-type', $vm;
+    push @args, '--statistics';
   } elsif ($vm =~ /lxc/) {
     push @args, '--root', $buildroot;
     push @args, '--vm-type', $vm;
