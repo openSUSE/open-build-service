@@ -7,6 +7,7 @@
         <xs:element ref="login"/>
         <xs:element ref="email"/>
         <xs:element ref="realname"/>
+        <xs:element ref="state"/>
         <xs:element ref="globalrole" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="watchlist" minOccurs="0"/>
       </xs:sequence>
@@ -18,6 +19,8 @@
   <xs:element name="email" type="xs:string"/>
 
   <xs:element name="realname" type="xs:string"/>
+
+  <xs:element name="state" type="xs:string"/>
 
   <xs:element name="globalrole" type="xs:string"/>
 

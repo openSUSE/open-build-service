@@ -832,6 +832,8 @@ class User < ActiveRecord::Base
       realname = self.realname
       realname.toutf8
       person.realname( realname )
+      # FIXME 2.5: turn the state into an enum
+      person.state( User.states.keys[self.state-1] )
 
       self.roles.global.each do |role|
         person.globalrole( role.title )

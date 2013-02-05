@@ -97,12 +97,13 @@ class PersonController < ApplicationController
         return
       end
     elsif request.put?
-      if user and user.login != @http_user.login and !@http_user.is_admin?
-        logger.debug "User has no permission to change userinfo"
-        render_error :status => 403, :errorcode => 'change_userinfo_no_permission',
-          :message => "no permission to change userinfo for user #{user.login}" and return
-      end
-      if !user
+      if user 
+        unless user.login == @http_user.login or @http_user.is_admin?
+          logger.debug "User has no permission to change userinfo"
+          render_error :status => 403, :errorcode => 'change_userinfo_no_permission',
+            :message => "no permission to change userinfo for user #{user.login}" and return
+        end
+      else
         if @http_user.is_admin?
           user = User.create(:login => login, :password => "notset", :password_confirmation => "notset", :email => "TEMP")
           user.state = User.states["locked"]
@@ -118,6 +119,11 @@ class PersonController < ApplicationController
       logger.debug("XML: #{request.raw_post}")
       user.email = xml.value('email') || ''
       user.realname = xml.value('realname') || ''
+      if @http_user.is_admin?
+        # only admin is allowed to change these, ignore for others
+        user.state = User.states[xml.value('state')]
+        update_globalroles(user, xml)
+      end
       update_watchlist(user, xml)
       user.save!
       render_ok
@@ -257,9 +263,35 @@ class PersonController < ApplicationController
     add_to_watchlist.each do |name|
       user.watched_projects.new(project_id: Project.find_by_name(name).id)
     end
+
     return true
   end
   private :update_watchlist
+
+  def update_globalroles( user, xml )
+    new_globalroles = []
+    old_globalroles = []
+
+    xml.elements("globalrole") do |e|
+      new_globalroles << e.to_s
+    end
+
+    user.roles.where(global: true).each do |ugr|
+      old_globalroles << ugr.title
+    end
+    add_to_globalroles = new_globalroles.collect {|i| old_globalroles.include?(i) ? nil : i}.compact
+    remove_from_globalroles = old_globalroles.collect {|i| new_globalroles.include?(i) ? nil : i}.compact
+
+    remove_from_globalroles.each do |title|
+      user.roles_users.where(role_id: Role.find_by_title!(title).id).delete_all
+    end
+
+    add_to_globalroles.each do |title|
+      user.roles_users.new(role: Role.find_by_title!(title))
+    end
+    return true
+  end
+  private :update_globalroles
 
   def change_my_password
     #FIXME3.0: remove this function
