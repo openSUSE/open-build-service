@@ -265,6 +265,8 @@ provided scripts (see 4.2 below).
 4.1 Reuse projects hosted on openSUSE.org build service
 =======================================================
 
+Note: the appliance is doing this automatically!
+
 Create the reference project pointing to the openSUSE.org build service.
 This will allow you to reuse the base distributions from there and avoids
 further manual setup.
