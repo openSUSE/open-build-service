@@ -69,6 +69,7 @@ my $vmdisk_swapsize;
 my $vmdisk_filesystem;
 my $vmdisk_mount_options;
 my $vmdisk_clean;
+my $emulator_script;
 my $hugetlbfs;
 my $workerid;
 my $srcserver;
@@ -183,6 +184,8 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --lxc       : enable lxc
 
+       --emulator  : enable emulator (requires prepared emulator.sh script)
+       
        --tmpfs     : uses tmpfs (memory) for the build root
 
        --device    : set kvm or xen root device (default is <root>/root file)
@@ -205,6 +208,9 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --vmdisk-filesystem <none|ext3|ext4>
                    : filesystem to use for autosetup root disk image
+
+       --emulator-script <script>
+                   : Define the emulator script 
 
        --hugetlbfs HUGETLBFSPATH
                    : Use hugetlb for memory management, path to mounted hugetlbfs.
@@ -328,6 +334,11 @@ while (@ARGV) {
     shift @ARGV;
     next;
   }
+  if ($ARGV[0] eq '--emulator') {
+    $vm = ' --emulator';
+    shift @ARGV;
+    next;
+  }
   if ($ARGV[0] eq '--tmpfs') {
     shift @ARGV;
     $vm_tmpfs_mode = 1;
@@ -381,6 +392,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--vmdisk-clean') {
     shift @ARGV;
     $vmdisk_clean = 1;
+    next;
+  }
+  if ($ARGV[0] eq '--emulator-script') {
+    shift @ARGV;
+    $emulator_script = shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--hugetlbfs') {
@@ -546,6 +562,7 @@ my $workerenvstate = {};
   $workerenvstate->{'sandbox'} = 'chroot';
   $workerenvstate->{'sandbox'} = 'xen' if $vm eq ' --xen';
   $workerenvstate->{'sandbox'} = 'kvm' if $vm eq ' --kvm';
+  $workerenvstate->{'sandbox'} = 'emulator' if $vm eq ' --emulator';
   $workerenvstate->{'sandbox'} = 'lxc' if $vm eq 'lxc';
   # build host owner
   $workerenvstate->{'owner'} = $owner if $owner;
@@ -2063,6 +2080,7 @@ sub dobuild {
     push @args, '--root', "$buildroot/.mount";
     push @args, '--vm-type', $vm;
     push @args, '--statistics';
+    push @args, '----emulator-script', $emulator_script if $emulator_script;
   } elsif ($vm =~ /lxc/) {
     push @args, '--root', $buildroot;
     push @args, '--vm-type', $vm;
