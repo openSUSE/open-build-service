@@ -2137,6 +2137,11 @@ end
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     iddelete = node.value('id')
+    post "/request?cmd=create", rq
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:id)
+    iddelete2 = node.value('id')
     
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/request/#{iddelete}?cmd=changestate&newstate=accepted"
@@ -2150,6 +2155,12 @@ end
     assert_response :success
     assert_xml_tag :parent => { :tag => 'repository', :attributes => { :name => "base" } },
                    :tag => 'path', :attributes => { :project => "deleted", :repository => "deleted" }
+
+    # try again and fail
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/request/#{iddelete2}?cmd=changestate&newstate=accepted"
+    assert_response 400
+    assert_xml_tag( :tag => "status", :attributes => { :code => 'repository_missing' } )
 
     # cleanup
     delete "/source/home:Iggy:todo"

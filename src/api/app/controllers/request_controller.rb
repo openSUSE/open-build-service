@@ -1156,6 +1156,7 @@ class RequestController < ApplicationController
                 r=Repository.find_by_project_and_repo_name(target_project.name, action.target_repository)
                 unless r
                   render_error :status => 400, :errorcode => "repository_missing", :message => "The repository #{target_project} / #{action.target_repository} does not exist"
+                  return
                 end
               else
                 # remove entire project
