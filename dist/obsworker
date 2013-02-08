@@ -193,6 +193,9 @@ case "$1" in
         chmod 755 bs_worker
         popd > /dev/null
 
+        for i in $OBS_WORKER_HOSTLABELS; do
+           HOSTLABELS="$HOSTLABELS --hostlabel $i"
+        done
         OBS_WORKER_OPT1="$OBS_WORKER_OPT"
         I=0
         while test "$NUM" -gt "$I"; do
@@ -205,9 +208,6 @@ case "$1" in
             WORKERID="${HOSTNAME}:$I"
             R=$OBS_WORKER_DIRECTORY/root_$I
             # prepare obsworker startup in screen...
-            for i in $OBS_WORKER_HOSTLABELS; do
-               HOSTLABELS="$HOSTLABELS --hostlabel $i"
-            done
             TMPFS=
             if [ -n "$vmopt" -a "$OBS_VM_TYPE" = "xen" -o "$OBS_VM_TYPE" = "kvm" ]; then
                 mkdir -p $R
