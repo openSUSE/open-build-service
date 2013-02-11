@@ -851,11 +851,15 @@ sub getfollowupsources {
 sub getsslcert {
   my ($buildinfo, $dir) = @_;
   my $server = $buildinfo->{'srcserver'} || $srcserver;
-  my $res = BSRPC::rpc({
-    'uri' => "$server/getsslcert",
-    'timeout' => $gettimeout,
-  }, undef, "project=$buildinfo->{'project'}", "autoextend=1");
-  writestr("$dir/_projectcert.crt", undef, $res) if $res;
+  my $cert;
+  eval {
+    $cert = BSRPC::rpc({
+      'uri' => "$server/getsslcert",
+      'timeout' => $gettimeout,
+    }, undef, "project=$buildinfo->{'project'}", "autoextend=1");
+  };
+  die("could not retrieve ssl certificate: $@\n") if $@;
+  writestr("$dir/_projectcert.crt", undef, $cert) if $cert;
 }
 
 sub qsystem {
