@@ -1,3 +1,8 @@
+* Mon Feb 11 2013 David Greaves <david@dgreaves.com> - 2.3.1-mer5
+ - [webui] fix javascript quoting with rails 3.2.8
+ - Enable HTTPS support for the benifit of https dod repos
+ - Fix live build log javascript quoting with rails 3
+
 * Tue Aug 21 2012 David Greaves <david@dgreaves.com> - 2.3.1-mer4
  - migration fix
  - Patches fdrom Islam Amer:

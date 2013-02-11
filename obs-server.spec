@@ -21,7 +21,7 @@ Summary:        The Open Build Service -- Server Component
 License:        GPL-2.0 ; GPL-3.0
 Group:          Productivity/Networking/Web/Utilities
 Version:        2.3.1
-Release:        4
+Release:        5
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 # git clone git://gitorious.org/opensuse/build-service.git build-service-1.7.54; tar cfvj obs-server-1.7.54.tar.bz2 --exclude=.git\* build-service-1.7.54/
@@ -49,6 +49,10 @@ Patch18: 0018-Allow-package-build-flags-in-prjmeta-to-override-arc.patch
 Patch19: 0019-Try-harder-to-preserve-flags.-Also-preserve-package-.patch
 Patch20: 0020-Correct-the-api-db-migration.patch
 Patch21: 0021-Remove-validation-from-Configuration-screen.patch
+Patch22: 0022-webui-fix-javascript-quoting-with-rails-3.2.8.patch
+Patch23: 0023-Worakaround-arch-mismatch-in-dod-armv7hl-metafile-vs.patch
+Patch24: 0024-Enable-HTTPS-support-for-the-benifit-of-https-dod-re.patch
+Patch25: 0025-Fix-live-build-log-javascript-quoting-with-rails-3.patch
 
 BuildRequires:  python-devel
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
