@@ -689,6 +689,7 @@ sub deleterepo_staticlinks {
     next unless -d "$extrep/$arch";
     for (ls("$extrep/$arch")) {
       next unless -l "$extrep/$arch/$_";
+      next if /\.(?:db|files)(?:\.sig)?$/;
       unlink("$extrep/$arch/$_");
     }
   }
