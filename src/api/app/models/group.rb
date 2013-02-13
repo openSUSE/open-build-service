@@ -14,7 +14,7 @@ class Group < ActiveRecord::Base
   has_many :package_group_role_relationships, :foreign_key => 'bs_group_id'
 
   validates_format_of  :title,
-                       :with => %r{\A[\w\-]*\z},
+                       :with => %r{\A[\w\.\-]*\z},
                        :message => 'must not contain invalid characters.'
   validates_length_of  :title,
                        :in => 2..100, :allow_nil => true,
