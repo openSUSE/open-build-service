@@ -111,11 +111,10 @@
         <strong class="grey-medium spacer1">Help</strong>
         <ul>
           <% @helplinks = [
-            { 'Open Build Service Portal'  => 'http://en.opensuse.org/Portal:Build_Service' },
-            { 'Building Packages'  => 'http://en.opensuse.org/openSUSE:Build_Service_Tutorial' },
-            { 'Writing spec Files' => 'http://en.opensuse.org/openSUSE:Specfile_guidelines' },
-            { 'Reporting a Bug'   => 'http://en.opensuse.org/openSUSE:Submitting_bug_reports' },
-            { 'Forums'             => 'http://forums.opensuse.org/english/other-forums/development/open-build-service-obs/' } ]
+            { 'Open Build Service'  => 'http://openbuildservice.org/' },
+            { 'OBS Manuals'  => 'http://openbuildservice.org/help/manuals/' },
+            { 'openSUSEs OBS Portal' => 'http://en.opensuse.org/Portal:Build_service' },
+            { 'Reporting a Bug'   => 'http://openbuildservice.org/support/' } ]
 
           @helplinks.each do |helplink|
             for k in helplink.keys %>
