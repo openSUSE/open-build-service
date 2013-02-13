@@ -56,7 +56,7 @@ GEM
       treetop (~> 1.4.8)
     memcache-client (1.8.5)
     method_source (0.8.1)
-    mime-types (1.20.1)
+    mime-types (1.21)
     minitest (4.6.0)
     multi_json (1.5.1)
     mysql2 (0.3.11)
