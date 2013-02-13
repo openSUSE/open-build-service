@@ -2134,7 +2134,7 @@ sub dobuild {
     return 1;
   }
 
-  if ($vm =~ /(xen|kvm)/) {
+  if ($vm =~ /(xen|kvm|emulator)/) {
     rm_rf("$buildroot/.build.packages");
     # move directory with extracted build results
     if(!rename("$buildroot/.mount/.build.packages", "$buildroot/.build.packages")) {
