@@ -184,7 +184,7 @@ class ProjectControllerTest < ActionDispatch::IntegrationTest
     # wait for autoload of repos
     find('#target_repo').select('pop')
 
-    assert_equal find_field('repo_name').value, 'LocalProject_pop'
+    find_field('repo_name').value.must_equal 'LocalProject_pop'
     page.wont_have_selector '#add_repository_button[disabled]'
     # somehow the autocomplete logic creates a problem - and click_button refuses to click
     page.execute_script "$('#add_repository_button').click();"

@@ -17,7 +17,6 @@
 //= require jquery.expander.js
 //= require jquery.flot.js
 //= require jquery.flot.stack.js
-//= require jquery.tooltip.js
 //= require dataTables/jquery.dataTables
 //= require bento/script.js
 //= require bento/global-navigation.js

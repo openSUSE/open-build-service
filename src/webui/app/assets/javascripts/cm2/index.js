@@ -68,7 +68,6 @@
 //= require codemirror/modes/velocity.js
 //= require codemirror/modes/verilog.js
 //= require codemirror/modes/xml.js
-//= require codemirror/modes/xmlpure.js
 //= require codemirror/modes/xquery.js
 //= require codemirror/modes/yaml.js
 

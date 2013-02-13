@@ -18,7 +18,7 @@ function renderPackagesTable(packages)
 function renderProjectsTable()
 {
     var projects = main_projects;
-    if ($('#excludefilter').attr('checked') != 'checked')
+    if (!$('#excludefilter').is(":checked"))
 	projects = projects.concat(excl_projects);
     var projecturl = $("#projects_table_wrapper").data("url");
     $("#projects_table_wrapper").html( '<table cellpadding="0" cellspacing="0" border="0" class="display" id="projects_table"></table>' );
