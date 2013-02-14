@@ -38,7 +38,7 @@ class ProjectTest < ActiveSupport::TestCase
     axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
-        <description></description> 
+        <description/>
         <build> 
           <disable repository='10.2' arch='i586'/>
         </build>
@@ -113,7 +113,7 @@ class ProjectTest < ActiveSupport::TestCase
     axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
-        <description></description>
+        <description/>
         <debuginfo>
           <disable repository='10.0' arch='i586'/>
         </debuginfo>    
@@ -135,7 +135,7 @@ class ProjectTest < ActiveSupport::TestCase
     axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
-        <description></description>
+        <description/>
         <repository name='images'>
           <arch>local</arch>
           <arch>i586</arch>
@@ -156,7 +156,7 @@ class ProjectTest < ActiveSupport::TestCase
     axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
-        <description></description>
+        <description/>
         <repository name='images'>
           <arch>i586</arch>
           <arch>x86_64</arch>
@@ -180,7 +180,7 @@ class ProjectTest < ActiveSupport::TestCase
      axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
-        <description></description>
+        <description/>
         <repository name='10.2'>
           <arch>x86_64</arch>
         </repository>
@@ -204,7 +204,7 @@ class ProjectTest < ActiveSupport::TestCase
      xml = <<END
 <project name="home:Iggy">
   <title>Iggy"s Home Project</title>
-  <description></description>
+  <description/>
   <repository name="remote_1">
     <path project="RemoteInstance:remote_project_1" repository="standard"/>
     <arch>i586</arch>
@@ -228,7 +228,7 @@ END
      xml = <<END
 <project name="home:Iggy">
   <title>Iggy"s Home Project</title>
-  <description></description>
+  <description/>
   <repository name="remote_2">
     <path project="RemoteInstance:remote_project_2" repository="standard"/>
     <arch>x86_64</arch>
