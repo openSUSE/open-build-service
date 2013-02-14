@@ -78,7 +78,7 @@ function repositories_setup_autocomplete()
 	autocomplete_repositories($('#target_project').attr('value'));
     });
   
-    $('#target_repo').change(function() {
+    $('#target_repo').select(function() {
 	$('#repo_name').attr('value', $("#target_project").attr('value').replace(/:/g,'_') + '_' + $(this).val());
     });
 }
