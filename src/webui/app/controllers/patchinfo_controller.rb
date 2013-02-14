@@ -82,8 +82,12 @@ class PatchinfoController < ApplicationController
         issue = Array.new
         issueid = a.value(:id)
         issueurl = IssueTracker.find(:name => a.tracker)
-        issueurl = issueurl.each("/issue-tracker/show-url").first.text
-        issueurl = issueurl.sub(/@@@/, issueid)
+        if !issueurl.nil?
+          issueurl = issueurl.each("/issue-tracker/show-url").first.text
+          issueurl = issueurl.sub(/@@@/, issueid)
+        else
+          issueurl = ""
+        end
         issue << a.tracker
         issue << issueid
         issue << issueurl
@@ -274,7 +278,9 @@ class PatchinfoController < ApplicationController
     new_issues = params[:issues]
     #collection with all informations of the new issues
     issue_collection = Array.new
-    error = ""
+    error = String.new
+    invalid_format = String.new
+    invalid_tracker = String.new
     new_issues.each do |new_issue|
       #issue = collecting all informations of an new issue
       issue = Array.new
@@ -286,25 +292,31 @@ class PatchinfoController < ApplicationController
       end
       if issue.length > 1
         begin
+          
           issueurl = IssueTracker.find(:name => issue[0])
-          issueurl = issueurl.each("/issue-tracker/show-url").first.text
-          issueurl = issueurl.sub(/@@@/, issue[1])
-          issue << issueurl
-          get_issue_sum(issue[0], issue[1])
-          if !@error.nil?
-            error += "#{issue[0]} "
-            next
+          if !issueurl.nil?
+            issueurl = issueurl.each("/issue-tracker/show-url").first.text
+            issueurl = issueurl.sub(/@@@/, issue[1])
+            issue << issueurl
+            get_issue_sum(issue[0], issue[1])
+            if !@error.nil?
+              invalid_format += "#{issue[0]} "
+              next
+            end
+            issue << @issuesum
+            issue_collection << issue
+          else
+            invalid_tracker += "#{issue[0]} is not a valid tracker.\n"
           end
-          issue << @issuesum
-          issue_collection << issue
         rescue ActiveXML::Transport::NotFoundError
-          error += "#{issue[0]} "
+          invalid_format += "#{issue[0]} "
         end
       else
-        error += "#{issue[0]} "
+        invalid_format += "#{issue[0]} "
       end
     end
-    error += "has no valid format. (Correct formats are e.g. bnc#123456, CVE-1234-5678 and the string has to be a comma-separated list)" if error != ""
+    error += "#{invalid_tracker}" 
+    error += "#{invalid_format}has no valid format. (Correct formats are e.g. bnc#123456, CVE-1234-5678 and the string has to be a comma-separated list)" if !invalid_format.empty?
     render :nothing => true, :json => { :error => error, :issues => issue_collection}
   end
 
