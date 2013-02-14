@@ -81,7 +81,9 @@ class SearchController < ApplicationController
             end
           end
           project = find_cached(Project, result.project)
-          package = find_cached(Package, result.package, :project => project)
+          if result.package
+            package = find_cached(Package, result.package, :project => project)
+          end
           r << {:type => "owner", :data => result,
                 :users => users, :groups => groups,
                 :project => project, :package => package,
