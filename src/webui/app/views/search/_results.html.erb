@@ -4,25 +4,25 @@
     <% if result[:type] == 'project' %>
       <div class="search_result">
       <% if result[:data].has_element?( 'title' ) and !result[:data].to_hash['title'].empty? %>
-        <% linkname = result[:data].to_hash['title'] %>
+        <% title = result[:data].to_hash['title'] %>
       <% else %>
-        <% linkname = result[:data].to_hash['name'] %>
+        <% title = "" %>
       <% end %>
       <h6>
       <%= image_tag('project.png', class: 'project') %>
-      <%= link_to linkname, { :controller => 'project', :action => :show, :project => result[:data],}, :title => result[:data].to_hash['name'], class: "data-title"-%>
+      <%= link_to result[:data].to_hash['name'], { :controller => 'project', :action => :show, :project => result[:data],}, :title => title, class: "data-title"-%>
       <span class="data-name"><%= result[:data].to_hash['name'] %></span>
       </h6>
     <% elsif result[:type] == 'package' %>
       <div class="search_result">
       <% if result[:data].has_element?( 'title' ) and !result[:data].to_hash['title'].empty? %>
-        <% linkname = result[:data].to_hash['title'] -%>
+        <% title = result[:data].to_hash['title'] -%>
       <% else %>
-        <% linkname = result[:data].to_hash['name'] -%>
+        <% title = "" -%>
       <% end %>
       <h6>
       <%= image_tag('package.png', class: 'package') %>
-      <%= link_to linkname, { :controller => 'package', :action => :show, :package => result[:data].name, :project => result[:data].project }, :title => result[:data].to_hash['name'], class: 'data-title'-%>
+      <%= link_to result[:data].to_hash['name'], { :controller => 'package', :action => :show, :package => result[:data].name, :project => result[:data].project }, :title => title, class: 'data-title'-%>
       </h6>
       <p>
       in project <span class="data-project"><%= result[:data].project %></span>
