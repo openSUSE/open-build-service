@@ -1345,6 +1345,16 @@ sub getbinaries_kiwiproduct {
 	  unlink("$ddir/$_.new.rpm");
 	  delete $cachenew{"$ddir/$_"};
 	}
+	if ($bvl && $server ne $buildinfo->{'srcserver'}) {
+	  # the bvl entry seems to be wrong. tell our server about that.
+	  eval {
+	    BSRPC::rpc({
+	      'uri' => "$server/badpackagebinaryversionlist",
+	      'timeout' => $gettimeout,
+	    }, undef, "project=$projid", "repository=$repoid", "arch=$arch", "package=$packid");
+	  };
+	  warn($@) if $@;
+	}
 	$res = BSRPC::rpc({
 	  'uri' => "$server/build/$projid/$repoid/$arch/$packid",
 	  'directory' => $ddir,

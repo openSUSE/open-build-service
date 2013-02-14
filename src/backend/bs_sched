@@ -5391,6 +5391,32 @@ sub event_scanrepo {
   }
 }
 
+sub event_scanprjbinaries {
+  my ($ectx, $ev) = @_;
+  my $changed_high = $ectx->{'changed_high'};
+  my $projid = $ev->{'project'};
+  my $repoid = $ev->{'repository'};
+  my $packid = $ev->{'package'};
+  if (defined($projid) && defined($repoid)) {
+    my $prp = "$projid/$repoid";
+    delete $remotegbininfos{"$prp/$myarch"};
+    return if $remoteprojs{$projid};
+    if (defined($packid)) {
+      unlink("$prp/$myarch/$packid/.bininfo");
+    } else {
+      for my $packid (grep {!/^[:\.]/} ls("$prp/$myarch")) {
+        next if $packid eq '_deltas';
+        next unless -d "$prp/$myarch/$packid";
+        unlink("$prp/$myarch/$packid/.bininfo");
+      }
+    }
+    unlink("$reporoot/$prp/$myarch/:bininfo");
+    unlink("$reporoot/$prp/$myarch/:bininfo.merge");
+    print "reading project binary state of repository $projid/$repoid\n";
+    read_gbininfo("$reporoot/$prp/$myarch");
+  }
+}
+
 sub event_dumprepo {
   my ($ectx, $ev) = @_;
 
@@ -5556,6 +5582,7 @@ my %event_handlers = (
   'unblocked' => \&event_check_med,
   'relsync' => \&event_check_med,
   'scanrepo' => \&event_scanrepo,
+  'scanprjbinaries' => \&event_scanprjbinaries,
   'dumprepo' => \&event_dumprepo,
   'wipenotyet' => \&event_wipenotyet,
   'wipe' => \&event_wipe,

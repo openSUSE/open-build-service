@@ -368,6 +368,23 @@ sub getpackagebinaryversionlist {
   return ({ 'binaryversionlist' => \@res }, $BSXML::packagebinaryversionlist);
 }
 
+# the worker thinks that out packagebinaryversionlist contains bogus entries
+sub badpackagebinaryversionlist {
+  my ($cgi, $projid, $repoid, $arch, $packids) = @_;
+  my $dir = "$reporoot/$projid/$repoid/$arch";
+  my $gbininfo = read_gbininfo($dir);
+  if ($gbininfo) {
+    $packids = [ sort keys %$gbininfo ] unless $packids;
+    for my $packid (@$packids) {
+      unlink("$dir/$packid/.bininfo");
+    }
+    unlink("$dir/:bininfo");
+    unlink("$dir/:bininfo.merge");
+    forwardevent($cgi, 'scanprjbinaries', $projid, $packids->[0], $repoid, $arch);
+  }
+  return $BSStdServer::return_ok;
+}
+
 sub getbinaries {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $prp = "$projid/$repoid";
@@ -3440,6 +3457,7 @@ my $dispatches = [
   '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
   '!worker /getjobdata $arch $job $jobid:md5' => \&getjobdata,
   '!worker /getpackagebinaryversionlist $project $repository $arch $package* withcode:bool?' => \&getpackagebinaryversionlist,
+  '!worker /badpackagebinaryversionlist $project $repository $arch $package*' => \&badpackagebinaryversionlist,
   '!worker /getpreinstallimageinfos $prpa+ match:?' => \&getpreinstallimageinfos,
 
   # published files
