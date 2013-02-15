@@ -2888,6 +2888,8 @@ sub abortbuild {
 }
 
 #
+# OBSOLETE: qemu shall be installed into the target system
+#           FIXME3.0: remove this
 # if there is a qemu dir in OBS backend install dir workers load qemu from OBS backend server
 # this is similiar to the rest of build script code
 # if that does also not exist, workers copy qemu from worker local installed qemu
@@ -2911,7 +2913,12 @@ sub getcode {
   for my $file (grep {!/^\./} ls($dir)) {
     if ($file eq 'Build' && -d "$dir/$file") {
       for my $file2 (grep {!/^\./} ls("$dir/Build")) {
-	push @send, {'name' => "$file2", 'filename' => "$dir/Build/$file2"};
+	push @send, {'name' => "Build::$file2", 'filename' => "$dir/Build/$file2"};
+      }
+    }
+    if ($file eq 'emulator' && -d "$dir/$file") {
+      for my $file2 (grep {!/^\./} ls("$dir/emulator")) {
+	push @send, {'name' => "emulator::$file2", 'filename' => "$dir/emulator/$file2"};
       }
     }
     next unless -f "$dir/$file";

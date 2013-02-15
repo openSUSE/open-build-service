@@ -196,6 +196,7 @@ sub cpio_receiver {
   my @res;
   my $dn = $param->{'directory'};
   my $withmd5 = $param->{'withmd5'};
+  my $createdirectories = $param->{'createdirectories'};
   local *F;
   while(1) {
     my $cpiohead = read_data($hdr, 110, 1);
@@ -256,7 +257,24 @@ sub cpio_receiver {
     if (defined($dn)) {
       die("can only unpack plain files from cpio archive $name, mode was $mode\n") unless ($mode & 0xf000) == 0x8000;
       unlink("$dn/$name") unless $param->{'no_unlink'};
-      open(F, '>', "$dn/$name") || die("$dn/$name: $!\n");
+      my $filename = "$dn/$name";
+      if (defined($createdirectories)) {
+        my @a = split(/::/, $name);
+	my $f;
+	my $dir;
+	my $subdir ="/";
+	for (@a) {
+	  $dir = $f;
+          if ($dir) {
+            $subdir = "$subdir$dir";
+            mkdir("$dn$subdir");
+            $subdir = "$subdir/";
+          };
+	  $f = $_;
+	}
+        $filename = "$dn$subdir$f";
+      }
+      open(F, '>', "$filename") || die("$filename: $!\n");
     } else {
       $ent->{'data'} = '';
     }
