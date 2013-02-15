@@ -68,6 +68,7 @@ our $kiwidesc = [
               'compressed',
               'flags',
               'filesystem',
+              'firmware',
               'fsnocheck',
               'fsreadonly',
               'fsreadwrite',
