@@ -8,10 +8,9 @@
       <% else %>
         <% title = "" %>
       <% end %>
-      <h6>
+      <h6 class="data-title">
       <%= image_tag('project.png', class: 'project') %>
-      <%= link_to result[:data].to_hash['name'], { :controller => 'project', :action => :show, :project => result[:data],}, :title => title, class: "data-title"-%>
-      <span class="data-name"><%= result[:data].to_hash['name'] %></span>
+      <%= link_to result[:data].to_hash['name'], { :controller => 'project', :action => :show, :project => result[:data],}, :title => title, class: "project"-%>
       </h6>
     <% elsif result[:type] == 'package' %>
       <div class="search_result">
@@ -20,13 +19,11 @@
       <% else %>
         <% title = "" -%>
       <% end %>
-      <h6>
+      <h6 class="data-title">
       <%= image_tag('package.png', class: 'package') %>
-      <%= link_to result[:data].to_hash['name'], { :controller => 'package', :action => :show, :package => result[:data].name, :project => result[:data].project }, :title => title, class: 'data-title'-%>
+      <%= link_to result[:data].to_hash['name'], { :controller => 'package', :action => :show, :package => result[:data].name, :project => result[:data].project }, :title => title, class: 'package'-%>
       </h6>
-      <p>
-      in project <span class="data-project"><%= result[:data].project %></span>
-      </p>
+      <% descr = "in project <span class=\"project\">#{result[:data].project}</span>" %>
     <% elsif result[:type] == 'owner' %>
       <div class="search_result">
       <h6>
@@ -54,18 +51,22 @@
       <% end %>
       </p>
     <% end %>
+
     <% if result[:data].has_element?( 'description' ) && !result[:data].description.to_s.empty? %>
       <% descr = h result[:data].description.to_s.dup[0,80] + "..." %>
-    <% else %>
-      <% descr = h excerpt(result[:data].description.to_s.dup, @search_text, 150 ) %>
     <% end %>
     <% if descr %>
       <p class="data-description">
       <% descr.split(/\n/).each do |line| -%>
-      <%= highlight(line, @search_text) -%>
-    <% end %>
+        <%= highlight(line, @search_text) -%>
+      <% end %>
+      </p>
+    <% else %>
+      <p class="data-description">
+      ...
       </p>
     <% end %>
+
     </div>
   <% end %>
   </div>

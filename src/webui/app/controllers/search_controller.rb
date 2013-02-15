@@ -126,14 +126,14 @@ class SearchController < ApplicationController
         collection = find_cached(Collection, :what => what, :predicate => "[#{predicate}]", :expires_in => 5.minutes)
         reweigh(collection, what)
       end
-
-      if @results.length < 1
-        flash[:note] = "Your search did not return any results."
-      end
-      if @results.length > 200
-        @results = @results[0..199]
-        flash[:note] = "Your search returned more than 200 results. Please be more precise."
-      end
+    end
+    logger.debug "Found #{@results.length} search results: #{@results.inspect}"
+    if @results.length < 1
+      flash[:note] = "Your search did not return any results."
+    end
+    if @results.length > 200
+      @results = @results[0..199]
+      flash[:note] = "Your search returned more than 200 results. Please be more precise."
     end
   end
 
