@@ -669,11 +669,24 @@ sub send_state {
 
 sub codemd5 {
   my ($dir) = @_;
-  my @files = ls($dir);
+  my @files = grep {!/^\./} ls($dir);
+  my @bfiles = grep {!/^\./} ls("$dir/Build");
+  my @efiles = grep {!/^\./} ls("$dir/emulator");
+  my %bfiles = map {$_ => 1} @bfiles;
+  my %efiles = map {$_ => 1} @efiles;
+  @files = sort(@files, @bfiles, @efiles);
   my $md5 = '';
-  for my $file (sort @files) {
-    next if -l "$dir/$file" || -d "$dir/$file";
-    $md5 .= Digest::MD5::md5_hex(readstr("$dir/$file"))."  $file\n";
+  for my $file (@files) {
+    my $f;
+    if ($bfiles{$file}) {
+      $f = "Build/$file";
+    } elsif ($efiles{$file}) {
+      $f = "emulator/$file";
+    } else {
+      $f = "$file";
+    }
+    next if -l "$dir/$f" || -d "$dir/$f";
+    $md5 .= Digest::MD5::md5_hex(readstr("$dir/$f"))."  $f\n";
   }
   $md5 = Digest::MD5::md5_hex($md5);
   return $md5;
@@ -699,14 +712,8 @@ sub getcode {
   my $odir = "$dir.old";
 
   # clean up stale runs
-  if (-e $ndir) {
-    unlink("$ndir/$_") for ls($ndir);
-    rmdir($ndir) || die("rmdir $ndir: $!\n");
-  }
-  if (-e $odir) {
-    unlink("$odir/$_") for ls($odir);
-    rmdir($odir) || die("rmdir $odir: $!\n");
-  }
+  rm_rf($ndir) if -e $ndir;
+  rm_rf($odir) if -e $odir;
 
   mkdir($ndir) || die("mkdir $ndir: $!\n");
   my $res = BSRPC::rpc({
@@ -714,6 +721,7 @@ sub getcode {
     'directory' => $ndir,
     'timeout' => $gettimeout,
     'withmd5' => 1,
+    'createdirectories' => 1,
     'receiver' => \&BSHTTP::cpio_receiver,
   });
   die("getcode error\n") unless $res;
@@ -724,7 +732,6 @@ sub getcode {
     chmod(0755, "$ndir/bs_worker");
     die("bs_worker selftest failed\n") if system("cd $ndir && ./bs_worker --selftest");
   } elsif ($dir eq 'build') {
-    symlink('.', "$ndir/Build") || die("symlink: $!\n");
     symlink('.', "$ndir/Date") || die("symlink: $!\n");
     symlink('.', "$ndir/Time") || die("symlink: $!\n");
     # we just change everyfile to be on the safe side

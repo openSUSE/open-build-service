@@ -97,21 +97,30 @@ sub getcodemd5 {
   my $doclean;
   my @files = grep {!/^\./} ls($dir);
   my @bfiles = grep {!/^\./} ls("$dir/Build");
+  my @efiles = grep {!/^\./} ls("$dir/emulator");
   my %bfiles = map {$_ => 1} @bfiles;
-  @files = sort(@files, @bfiles);
+  my %efiles = map {$_ => 1} @efiles;
+  @files = sort(@files, @bfiles, @efiles);
   $cache ||= {};
   for my $file (@files) {
-    my $f = $bfiles{$file} ? "$dir/Build/$file" : "$dir/$file";
-    next unless -f $f;
+    my $f;
+    if ($bfiles{$file}) {
+      $f = "Build/$file";
+    } elsif ($efiles{$file}) {
+      $f = "emulator/$file";
+    } else {
+      $f = "$file";
+    }
+    next unless -f "$dir/$f";
     my @s = stat _;
     my $id = "$s[9]/$s[7]/$s[1]";
     $new{$id} = 1; 
     if ($cache->{$id}) {
-      $md5 .= "$cache->{$id}  $file\n";
+      $md5 .= "$cache->{$id}  $f\n";
       next;
     }    
-    $cache->{$id} = Digest::MD5::md5_hex(readstr($f));
-    $md5 .= "$cache->{$id}  $file\n";
+    $cache->{$id} = Digest::MD5::md5_hex(readstr("$dir/$f"));
+    $md5 .= "$cache->{$id}  $f\n";
     $doclean = 1; 
   }
   if ($doclean) {
