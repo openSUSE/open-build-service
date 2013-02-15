@@ -96,31 +96,20 @@ sub getcodemd5 {
   my %new;
   my $doclean;
   my @files = grep {!/^\./} ls($dir);
-  my @bfiles = grep {!/^\./} ls("$dir/Build");
-  my @efiles = grep {!/^\./} ls("$dir/emulator");
-  my %bfiles = map {$_ => 1} @bfiles;
-  my %efiles = map {$_ => 1} @efiles;
-  @files = sort(@files, @bfiles, @efiles);
+  push @files, map {"Build/$_"} grep {!/^\./} ls("$dir/Build");
+  push @files, map {"emulator/$_"} grep {!/^\./} ls("$dir/emulator");
   $cache ||= {};
-  for my $file (@files) {
-    my $f;
-    if ($bfiles{$file}) {
-      $f = "Build/$file";
-    } elsif ($efiles{$file}) {
-      $f = "emulator/$file";
-    } else {
-      $f = "$file";
-    }
-    next unless -f "$dir/$f";
+  for my $file (sort @files) {
+    next unless -f "$dir/$file";
     my @s = stat _;
     my $id = "$s[9]/$s[7]/$s[1]";
     $new{$id} = 1; 
     if ($cache->{$id}) {
-      $md5 .= "$cache->{$id}  $f\n";
+      $md5 .= "$cache->{$id}  $file\n";
       next;
     }    
-    $cache->{$id} = Digest::MD5::md5_hex(readstr("$dir/$f"));
-    $md5 .= "$cache->{$id}  $f\n";
+    $cache->{$id} = Digest::MD5::md5_hex(readstr("$dir/$file"));
+    $md5 .= "$cache->{$id}  $file\n";
     $doclean = 1; 
   }
   if ($doclean) {

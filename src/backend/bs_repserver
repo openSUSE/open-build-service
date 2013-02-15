@@ -2911,14 +2911,10 @@ sub getcode {
   my @send;
   push @send, getqemuinterpreters() if $dir eq 'build';
   for my $file (grep {!/^\./} ls($dir)) {
-    if ($file eq 'Build' && -d "$dir/$file") {
-      for my $file2 (grep {!/^\./} ls("$dir/Build")) {
-	push @send, {'name' => "Build::$file2", 'filename' => "$dir/Build/$file2"};
-      }
-    }
-    if ($file eq 'emulator' && -d "$dir/$file") {
-      for my $file2 (grep {!/^\./} ls("$dir/emulator")) {
-	push @send, {'name' => "emulator::$file2", 'filename' => "$dir/emulator/$file2"};
+    if (($file eq 'Build' || $file eq 'emulator') && -d "$dir/$file") {
+      push @send, {'name' => $file, 'mode' => 0x41ed, 'data' => ''};
+      for my $file2 (grep {!/^\./} ls("$dir/$file")) {
+	push @send, {'name' => "$file/$file2", 'filename' => "$dir/$file/$file2"};
       }
     }
     next unless -f "$dir/$file";
