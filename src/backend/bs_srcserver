@@ -2062,6 +2062,7 @@ sub getrev_meta {
   my $rev;
   if (!defined($revid) || $revid eq 'latest') {
     $rev = BSFileDB::fdb_getlast($revfile, $srcrevlay);
+    $rev = { 'srcmd5' => $emptysrcmd5 } unless $rev;
   } elsif ($revid =~ /^[0-9a-f]{32}$/) {
     $rev = { 'srcmd5' => $revid };
   } else {
