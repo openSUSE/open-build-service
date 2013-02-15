@@ -670,23 +670,13 @@ sub send_state {
 sub codemd5 {
   my ($dir) = @_;
   my @files = grep {!/^\./} ls($dir);
-  my @bfiles = grep {!/^\./} ls("$dir/Build");
-  my @efiles = grep {!/^\./} ls("$dir/emulator");
-  my %bfiles = map {$_ => 1} @bfiles;
-  my %efiles = map {$_ => 1} @efiles;
+  my @bfiles = map {"Build/$_"} grep {!/^\./} ls("$dir/Build");
+  my @efiles = map {"emulator/$_"} grep {!/^\./} ls("$dir/emulator");
   @files = sort(@files, @bfiles, @efiles);
   my $md5 = '';
   for my $file (@files) {
-    my $f;
-    if ($bfiles{$file}) {
-      $f = "Build/$file";
-    } elsif ($efiles{$file}) {
-      $f = "emulator/$file";
-    } else {
-      $f = "$file";
-    }
-    next if -l "$dir/$f" || -d "$dir/$f";
-    $md5 .= Digest::MD5::md5_hex(readstr("$dir/$f"))."  $f\n";
+    next if -l "$dir/$file" || -d _;
+    $md5 .= Digest::MD5::md5_hex(readstr("$dir/$file"))."  $file\n";
   }
   $md5 = Digest::MD5::md5_hex($md5);
   return $md5;
@@ -721,7 +711,7 @@ sub getcode {
     'directory' => $ndir,
     'timeout' => $gettimeout,
     'withmd5' => 1,
-    'createdirectories' => 1,
+    'createsubdirs' => 1,
     'receiver' => \&BSHTTP::cpio_receiver,
   });
   die("getcode error\n") unless $res;
@@ -734,7 +724,7 @@ sub getcode {
   } elsif ($dir eq 'build') {
     symlink('.', "$ndir/Date") || die("symlink: $!\n");
     symlink('.', "$ndir/Time") || die("symlink: $!\n");
-    # we just change everyfile to be on the safe side
+    # we just change every file to be on the safe side
     chmod(0755, "$ndir/$_->{'name'}") for @$res;
   }
 
@@ -749,7 +739,7 @@ sub getcode {
   }
   my $md5 = '';
   for my $file (sort {$a->{'name'} cmp $b->{'name'}} @$res) {
-    $md5 .= "$file->{'md5'}  $file->{'name'}\n";
+    $md5 .= "$file->{'md5'}  $file->{'name'}\n" if $file->{'md5'};
   }
   $md5 = Digest::MD5::md5_hex($md5);
   return $md5;

@@ -196,7 +196,6 @@ sub cpio_receiver {
   my @res;
   my $dn = $param->{'directory'};
   my $withmd5 = $param->{'withmd5'};
-  my $createdirectories = $param->{'createdirectories'};
   local *F;
   while(1) {
     my $cpiohead = read_data($hdr, 110, 1);
@@ -220,7 +219,7 @@ sub cpio_receiver {
     my $sizepad = $size;
     $sizepad += 4 - ($size % 4) if $size % 4;
     last if !$size && $name eq 'TRAILER!!!';
-    if ($param->{'acceptsubdirs'}) {
+    if ($param->{'acceptsubdirs'} || $param->{'createsubdirs'}) {
       die("cpio filename is illegal: $name\n") if "/$name/" =~ /\/\.{0,2}\//s;
     } else {
       die("cpio filename contains a '/': $name\n") if $name =~ /\//s;
@@ -255,26 +254,18 @@ sub cpio_receiver {
     my $ctx;
     $ctx = Digest::MD5->new if $withmd5;
     if (defined($dn)) {
-      die("can only unpack plain files from cpio archive $name, mode was $mode\n") unless ($mode & 0xf000) == 0x8000;
-      unlink("$dn/$name") unless $param->{'no_unlink'};
       my $filename = "$dn/$name";
-      if (defined($createdirectories)) {
-        my @a = split(/::/, $name);
-	my $f;
-	my $dir;
-	my $subdir ="/";
-	for (@a) {
-	  $dir = $f;
-          if ($dir) {
-            $subdir = "$subdir$dir";
-            mkdir("$dn$subdir");
-            $subdir = "$subdir/";
-          };
-	  $f = $_;
+      if (($mode & 0xf000) == 0x4000 && $param->{'createsubdirs'}) {
+	die("directory has non-zero size\n") if $sizepad;
+	if (! -d $filename) {
+	  unlink($filename) unless $param->{'no_unlink'};
+	  mkdir($filename) || die("mkdir $filename: $!\n");
 	}
-        $filename = "$dn$subdir$f";
+      } else {
+	die("can only unpack plain files from cpio archive, file $name, mode was $mode\n") unless ($mode & 0xf000) == 0x8000;
+	unlink($filename) unless $param->{'no_unlink'};
+	open(F, '>', $filename) || die("$filename: $!\n");
       }
-      open(F, '>', "$filename") || die("$filename: $!\n");
     } else {
       $ent->{'data'} = '';
     }
@@ -291,11 +282,11 @@ sub cpio_receiver {
       }
       $ctx->add($size >= 0 ? $data : substr($data, 0, $m)) if $ctx;
     }
-    if (defined($dn)) {
+    if (defined($dn) && ($mode & 0xf000) != 0x4000) {
       close(F) || die("close: $!\n");
       utime($mtime, $mtime, "$dn/$name");
     }
-    $ent->{'md5'} = $ctx->hexdigest if $ctx;
+    $ent->{'md5'} = $ctx->hexdigest if $ctx && ($mode & 0xf000) != 0x4000;
     $param->{'cpiopostfile'}->($param, $ent) if $param->{'cpiopostfile'};
   }
   return \@res;
