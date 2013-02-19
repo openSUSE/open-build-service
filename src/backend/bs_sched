@@ -54,6 +54,9 @@ use strict;
 
 my $testprojid;
 my $testmode;
+my $asyncmode;
+
+$asyncmode = $BSConfig::sched_asyncmode if $BSConfig::sched_asyncmode;
 
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
 
@@ -247,10 +250,12 @@ my %repodatas;		# our repository knowledge
 my %repodatas_alien;	# repositories from other archs
 
 my %remotegbininfos;
+my %remotepackstatus;
+my %remotepackstatus_cleanup;
 
 # add :full repo to pool
 sub addrepo {
-  my ($pool, $prp) = @_;
+  my ($ctx, $pool, $prp) = @_;
 
   my $now = time();
   if ($repodatas{$prp} && $repodatas{$prp}->{'lastscan'} && $repodatas{$prp}->{'lastscan'} > $now - 8*3600) {
@@ -280,7 +285,7 @@ sub addrepo {
   delete $repodatas{$prp}->{'error'};
   my ($projid, $repoid) = split('/', $prp, 2);
   if ($remoteprojs{$projid}) {
-    return addrepo_remote($pool, $prp, $myarch, $remoteprojs{$projid});
+    return addrepo_remote($ctx, $pool, $prp, $myarch, $remoteprojs{$projid});
   }
   return addrepo_scan($pool, $prp);
 }
@@ -2114,7 +2119,157 @@ my %prpnotready;	# maps prp => { packid => 1, ... }
 my %watchremoteprojs;	# tmp, only set in addwatchremote
 
 my @retryevents;
+my %iswaiting;		# waiting for some RPC to return
+my %iswaiting_server;
 
+my $maxserverload = 1;
+$maxserverload = $BSConfig::sched_maxserverload if $BSConfig::sched_maxserverload;
+my %iswaiting_serverload;
+
+sub xrpc {
+  my ($ctx, $resource, $param, @args) = @_;
+
+  return BSRPC::rpc($param, @args) unless $param->{'async'};
+
+  if (!$iswaiting{$resource}) {
+    my $server = $param->{'uri'};
+    $server =~ s/.*?\/\///;
+    $server =~ s/\/.*//;
+    my $serverload = scalar(keys %{$iswaiting_server{$server} || {}});
+    if ($serverload >= $maxserverload) {
+      print "DELAY $resource due to load\n";
+      my $handle = { '_xrpc_data' => [$ctx, $resource, $param, @args] };
+      push @{$iswaiting_serverload{$server}}, $handle;
+      $handle->{'_iswaiting'} = $resource;
+      $handle->{'_server'} = $server;
+      $iswaiting{$resource} = $handle;
+      return $handle;
+    }
+    print "OK $resource, load was $serverload\n";
+    my $handle = BSRPC::rpc($param, @args);
+    $handle->{'_iswaiting'} = $resource;
+    $handle->{'_changetype'} = $ctx->{'changetype'} if $ctx->{'changetype'};
+    $handle->{'_server'} = $server;
+    $handle->{'_ctx'} = $ctx;
+    $handle->{$_} = $param->{'async'}->{$_} for keys %{$param->{'async'}};
+    $iswaiting{$resource} = $handle;
+    $iswaiting_server{$server}->{$resource} = 1;
+    return $handle;
+  }
+  my $rhandle = $iswaiting{$resource};
+  if ($ctx->{'prp'}) {
+    my $handle = { '_changetype' => $ctx->{'changetype'} };
+    $handle->{$_} = $param->{'async'}->{$_} for keys %{$param->{'async'}};
+    push @{$rhandle->{'_wakeup'}}, [ $ctx->{'prp'}, $handle ];
+    return $handle;
+  }
+  # project rpcs, we need to run them in order
+  my $handle = { '_xrpc_data' => [$ctx, $resource, $param, @args] };
+  push @{$rhandle->{'_nextxrpc'}}, $handle;
+  return $handle;
+}
+
+sub xrpc_resume {
+  my ($handle) = @_;
+
+  # iswaiting rpc, finish...
+  my $iw = $handle->{'_iswaiting'};
+  my $server = $handle->{'_server'};
+  print "response from RPC $iw ($handle->{'uri'})\n";
+  delete $iswaiting{$iw};
+  delete $iswaiting_server{$server}->{$iw};
+
+  # fire up rpcs delayed because of server load
+  if ($iswaiting_serverload{$server}) {
+    my @loadrpcs = @{delete $iswaiting_serverload{$server}};
+    while (@loadrpcs) {
+      my $nextrpc = shift @loadrpcs;
+      my $resource = $nextrpc->{'_iswaiting'};
+      delete $iswaiting{$resource};
+      print "RETRY $resource due to load\n";
+      my $nhandle = xrpc(@{$nextrpc->{'_xrpc_data'}});
+      for (keys %$nextrpc) {
+        $nhandle->{$_} = $nextrpc->{$_} if $_ ne '_xrpc_data';
+      }
+      last if $iswaiting_serverload{$server};
+    }
+    push @{$iswaiting_serverload{$server}}, @loadrpcs;
+  }
+
+  my $ret;
+  eval { $ret = BSRPC::rpc($handle) };
+  my $error;
+  if ($@) {
+    warn $@;
+    $error = $@;
+    chomp $error;
+  }
+  # run result handler
+  die("no _resume set in handler $handle\n") unless $handle->{'_resume'};
+  $handle->{'_resume'}->($handle, $error, $ret);
+
+  # fire up waiting rpcs
+  for my $nextrpc (@{$handle->{'_nextxrpc'} || []}) {
+    my $nhandle = xrpc(@{$nextrpc->{'_xrpc_data'}});
+    for (keys %$nextrpc) {
+      $nhandle->{$_} = $nextrpc->{$_} if $_ ne '_xrpc_data';
+    }
+  }
+  if (@{$handle->{'_wakeup'} || []}) {
+    my %did;
+    for my $wakeup (unify(@{$handle->{'_wakeup'} || []})) {
+      my $changetype = $wakeup->[1]->{'_changetype'} || 'high';
+      my $changelevel = $wakeup->[1]->{'_changelevel'} || 1;
+      next if $did{"$wakeup->[0]/$changetype/$changelevel"};
+      $did{"$wakeup->[0]/$changetype/$changelevel"} = 1;
+      xrpc_setchanged($handle, $wakeup->[0], $changetype, $changelevel);
+    }
+  }
+}
+
+sub xrpc_setchanged {
+  my ($handle, $what, $changetype, $changelevel) = @_;
+
+  my $ctx = $handle->{'_ctx'};
+  die("no context in handle\n") unless $ctx;
+  $what ||= $ctx->{'prp'};
+  $changetype ||= $handle->{'_changetype'} || 'high';
+  $changelevel ||= $handle->{'_changelevel'} || 1;
+  print "SETCHANGED $what $changetype $changelevel\n";
+  my $gctx = $ctx->{'gctx'};
+  die("no gctx in handle context\n") unless $gctx;
+  my $changed = $gctx->{"changed_$changetype"};
+  my $changed_dirty = $gctx->{'changed_dirty'};
+  my ($projid, $repoid) = split('/', $what, 2);
+  if (defined($repoid)) {
+    my $prp = $what;
+    if ($changelevel == 2) {
+      $changed->{$prp} = 2;
+      $changed_dirty->{$prp} = 1;
+    } else {
+      $changed->{$prp} ||= 1;
+      $changed_dirty->{$prp} = 1;
+    }
+    return;
+  }
+  if ($changelevel == 2) {
+    for my $prp (@prps) {
+      if ((split('/', $prp, 2))[0] eq $projid) {
+        $changed->{$prp} = 2;
+        $changed_dirty->{$prp} = 1;
+      }
+    }
+    $changed->{$projid} = 2;
+  } else {
+    for my $prp (@prps) {
+      if ((split('/', $prp, 2))[0] eq $projid) {
+	$changed->{$prp} ||= 1;
+	$changed_dirty->{$prp} = 1;
+      }
+    }
+    $changed->{$projid} ||= 1;
+  }
+}
 
 sub checkbuildrepoid {
   my ($projpacksin) = @_;
@@ -2130,6 +2285,42 @@ sub checkbuildrepoid {
   die("ERROR: source server repository id($projpacksin->{'repoid'}) does not match my repository id($buildrepoid)") unless $buildrepoid eq $projpacksin->{'repoid'};
 }
 
+
+# async RPC bottom part of get_projpacks
+sub get_projpacks_resume {
+  my ($handle, $error, $projpacksin) = @_;
+
+  # what we asked about
+  my $projid = $handle->{'_projid'};
+  if ($error) {
+    chomp $error;
+    warn("$error\n");
+    addretryevent({'type' => 'project', 'project' => $projid});
+    return;
+  }
+  my $packids = $handle->{'_packids'};	# we only requested those
+  my $oldprojdata = $packids ? clone_projpacks_part($projid, $packids) : undef;
+  update_projpacks($projpacksin, $projid, $packids);
+  get_projpacks_postprocess() if !$packids || postprocess_needed_check($projid, $oldprojdata);
+
+  # do some upgrades if the project is gone and we fetched all packages (i.e. project event case)
+  if (!$packids && !$projpacks->{$projid}) {
+    $handle->{'_dolink'} = 1;
+    $handle->{'_changetype'} = 'high';
+  }
+
+  # fetch linked packages with lower prio
+  if ($handle->{'_dolink'}) {
+    my $linked = find_linked_sources($projid, $packids);
+    for my $lprojid (sort keys %$linked) {
+      my %lpackids = map {$_ => 1} @{$linked->{$lprojid}};
+      my $async = {'_changetype' => $packids ? 'med' : 'low'};
+      get_projpacks($handle->{'_ctx'}, $async, $lprojid, sort keys %lpackids);
+    }
+  }
+  xrpc_setchanged($handle, $projid);
+}
+
 #
 # get_projpacks:  get/update project/package information
 #
@@ -2139,7 +2330,7 @@ sub checkbuildrepoid {
 #
 
 sub get_projpacks {
-  my ($projid, @packids) = @_;
+  my ($ctx, $doasync, $projid, @packids) = @_;
 
   undef $projid unless $projpacks;
   @packids = () unless defined $projid;
@@ -2175,9 +2366,17 @@ sub get_projpacks {
   while (1) {
     push @args, 'nopackages' if $testprojid && $projid ne $testprojid;
     for my $tries (4, 3, 2, 1, 0) {
-      eval {
-        $projpacksin = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', "arch=$myarch", @args);
+      my $param = {
+	'uri' => "$BSConfig::srcserver/getprojpack",
       };
+      if ($doasync) {
+	$param->{'async'} = { %$doasync, '_resume' => \&get_projpacks_resume, '_projid' => $projid };
+	$param->{'async'}->{'_packids'} = [ @packids ] if @packids;
+      }
+      eval {
+        $projpacksin = xrpc($ctx, $projid, $param, $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch", @args);
+      };
+      return 0 if !$@ && $projpacksin && $param->{'async'};
       last unless $@ || !$projpacksin;
       last unless $tries && defined($projid);
       print $@ if $@;
@@ -2188,7 +2387,7 @@ sub get_projpacks {
       print $@ if $@;
       if (@args) {
         print "retrying...\n";
-        get_projpacks();
+        get_projpacks(undef, undef);
         get_projpacks_postprocess();	# just in case...
         return;
       }
@@ -2209,7 +2408,7 @@ sub get_projpacks {
       for my $path (@{$repo->{'path'} || []}) {
         next if $path->{'project'} eq $testprojid;
 	next if $projid ne $testprojid && $projpacks->{$path->{'project'}};
-        get_projpacks($path->{'project'});
+	get_projpacks(undef, undef, $path->{'project'});
       }
     }
   }
@@ -2227,9 +2426,9 @@ sub update_projpacks {
 	# use all packages/configs from old projpacks
 	my $opackage = $projpacks->{$projid}->{'package'} || {};
 	for (keys %$opackage) {
-	      $opackage->{$_}->{'name'} = $_;
-	      push @{$proj->{'package'}}, $opackage->{$_};
-	    }
+	  $opackage->{$_}->{'name'} = $_;
+	  push @{$proj->{'package'}}, $opackage->{$_};
+	}
 	if (!$proj->{'patternmd5'} && $projpacks->{$projid}->{'patternmd5'}) {
 	  $proj->{'patternmd5'} = $projpacks->{$projid}->{'patternmd5'} unless grep {$_ eq '_pattern'} @$packids;
 	}
@@ -2303,21 +2502,58 @@ sub identical {
   return 1;
 }
 
+# RPC bottom half of update_project_meta
+sub update_project_meta_resume {
+  my ($handle, $error, $projpacksin) = @_;
+
+  my $projid = $handle->{'_projid'};
+  if ($error || !update_project_meta_check($projid, $projpacksin)) {
+    if ($error) {
+      chomp $error;
+      warn("$error\n");
+    }
+    # update meta failed, do it the hard way...
+    my $async = {'_dolink' => $handle->{'_dolink'}, '_changetype' => $handle->{'_changetype'}, '_changelevel' => $handle->{'_changelevel'}};
+    get_projpacks($handle->{'_ctx'}, $async, $projid);
+  } else {
+    # update meta worked! Now get those packages as well
+    my $packids = $handle->{'_packids'};
+    if ($packids && @$packids) {
+      # fetch those as well
+      my $async = {'_dolink' => 1, '_changetype' => 'high', '_changelevel' => 1};
+      get_projpacks($handle->{'_ctx'}, $async, $projid, @$packids);
+    }
+  }
+}
+
 # just update the meta information, do not touch package data unless
 # the project was deleted
 sub update_project_meta {
-  my ($projid) = @_;
+  my ($ctx, $doasync, $projid) = @_;
   print "updating meta for project '$projid' from $BSConfig::srcserver\n";
 
   my $projpacksin;
+  my $param = {
+    'uri' => "$BSConfig::srcserver/getprojpack",
+  };
+  if ($doasync) {
+    $param->{'async'} = { %$doasync, '_resume' => \&update_project_meta_resume, '_projid' => $projid };
+  }
   eval {
     # withsrcmd5 is needed for the patterns md5sum
-    $projpacksin = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, "project=$projid", 'nopackages', 'withrepos', 'withconfig', 'withsrcmd5', "arch=$myarch");
+    $projpacksin = xrpc($ctx, $projid, "$BSConfig::srcserver/getprojpack", $BSXML::projpack, "project=$projid", 'nopackages', 'withrepos', 'withconfig', 'withsrcmd5', "arch=$myarch");
   };
   if ($@ || !$projpacksin) {
     print $@ if $@;
     return undef;
   }
+  return $projpacksin if $projpacksin && $param->{'async'};
+  return update_project_meta_check($projid, $projpacksin);
+}
+
+sub update_project_meta_check {
+  my ($projid, $projpacksin) = @_;
+  return 0 unless $projpacksin;
   my $proj = $projpacksin->{'project'}->[0];
   if (!$proj) {
     # project is gone!
@@ -2421,7 +2657,7 @@ sub addretryevent {
   my ($ev) = @_;
   for my $oev (@retryevents) {
     next if $ev->{'type'} ne $oev->{'type'} || $ev->{'project'} ne $oev->{'project'};
-    if ($ev->{'type'} eq 'repository') {
+    if ($ev->{'type'} eq 'repository' || $ev->{'type'} eq 'recheck') {
       next if $ev->{'repository'} ne $oev->{'repository'};
     } elsif ($ev->{'type'} eq 'package') {
       next if $ev->{'package'} ne $oev->{'package'};
@@ -2765,57 +3001,50 @@ sub fetchremoteconfig {
   return $c;
 }
 
-sub addrepo_remote {
-  my ($pool, $prp, $arch, $remoteproj) = @_;
+### remote repository handling
 
-  my ($projid, $repoid) = split('/', $prp, 2);
-  return undef if !$remoteproj || $remoteproj->{'error'};
+sub addrepo_remote_unpackcpio {
+  my ($pool, $prp, $arch, $cpio, $error) = @_;
 
+  my $repodata;
+  if ($arch eq $myarch) {
+    $repodatas{$prp} ||= {};
+    $repodata = $repodatas{$prp};
+  } else {
+    $repodatas_alien{"$prp/$arch"} ||= {};
+    $repodata = $repodatas_alien{"$prp/$arch"};
+  }
   my $cachemd5 = Digest::MD5::md5_hex("$prp/$arch");
   substr($cachemd5, 2, 0, '/');
 
-  print "    fetching remote repository state for $prp\n";
-  my $param = {
-    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch/_repository",
-    'timeout' => 200,
-    'receiver' => \&BSHTTP::cpio_receiver,
-    'proxy' => $proxy,
-  };
-  my $cpio;
-  eval {
-    die('unsupported view\n') unless $BSConfig::usesolvstate;
-    $cpio = BSRPC::rpc($param, undef, 'view=solvstate');
-  };
-  if ($@ && $@ =~ /unsupported view/) {
-    eval {
-      $cpio = BSRPC::rpc($param, undef, 'view=cache');
-    };
-  }
-  if ($@) {
-    warn($@);
-    my $error = $@;
-    $error =~ s/\n$//s;
+  if ($error) {
+    chomp $error;
+    warn("$error\n");
     if ($error !~ /remote error:/) {
+      my ($projid, $repoid) = split('/', $prp, 2);
       addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch});
       if (-s "$remotecache/$cachemd5.solv") {
 	# try last solv file
 	my $r;
-        eval {$r = $pool->repofromfile($prp, "$remotecache/$cachemd5.solv");};
-        if ($r) {
-	  $repodatas{$prp}->{'lastscan'} = time();
-	  $repodatas{$prp}->{'solvfile'} = "$remotecache/$cachemd5.solv";
+	eval {$r = $pool->repofromfile($prp, "$remotecache/$cachemd5.solv");};
+	if ($r) {
+	  $repodata->{'lastscan'} = time();
+	  $repodata->{'solvfile'} = "$remotecache/$cachemd5.solv";
 	  return $r;
 	}
       }
     }
     return undef;
   }
+
   my %cpio = map {$_->{'name'} => $_->{'data'}} @{$cpio || []};
   my $repostate = $cpio{'repositorystate'};
   $repostate = XMLin($BSXML::repositorystate, $repostate) if $repostate;
-  delete $prpnotready{$prp};
-  if ($repostate && $repostate->{'blocked'}) {
-    $prpnotready{$prp} = { map {$_ => 1} @{$repostate->{'blocked'}} };
+  if ($arch eq $myarch) {
+    delete $prpnotready{$prp};
+    if ($repostate && $repostate->{'blocked'}) {
+      $prpnotready{$prp} = { map {$_ => 1} @{$repostate->{'blocked'}} };
+    }
   }
   my $r;
   my $solv;
@@ -2837,20 +3066,64 @@ sub addrepo_remote {
   } else {
     # return empty repo
     $r = $pool->repofrombins($prp, '');
-    $repodatas{$prp}->{'solv'} = $r->tostr();	# small enough to keep it incore
+    $repodata->{'solv'} = $r->tostr();	# small enough to keep it incore
   }
   return undef unless $r;
   # write solv file
   mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
   writesolv("$remotecache/$cachemd5.solv.new$$", "$remotecache/$cachemd5.solv", $r);
-  $repodatas{$prp}->{'lastscan'} = time();
-  $repodatas{$prp}->{'solvfile'} = "$remotecache/$cachemd5.solv";
+  $repodata->{'lastscan'} = time();
+  $repodata->{'solvfile'} = "$remotecache/$cachemd5.solv";
   return $r;
 }
 
+sub addrepo_remote_resume {
+  my ($handle, $error, $cpio) = @_;
+  my $pool = BSSolv::pool->new();
+  my $r = addrepo_remote_unpackcpio($pool, $handle->{'_prp'}, $handle->{'_arch'}, $cpio, $error);
+  xrpc_setchanged($handle) unless !$r && $error && $error =~ /remote error:/;
+}
+
+sub addrepo_remote {
+  my ($ctx, $pool, $prp, $arch, $remoteproj) = @_;
+
+  my ($projid, $repoid) = split('/', $prp, 2);
+  return undef if !$remoteproj || $remoteproj->{'error'};
+
+  my $cachemd5 = Digest::MD5::md5_hex("$prp/$arch");
+  substr($cachemd5, 2, 0, '/');
+
+  print "    fetching remote repository state for $prp\n";
+  my $param = {
+    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch/_repository",
+    'timeout' => 200,
+    'receiver' => \&BSHTTP::cpio_receiver,
+    'proxy' => $proxy,
+  };
+  if ($asyncmode) {
+    $param->{'async'} = { '_resume' => \&addrepo_remote_resume, '_prp' => $prp, '_arch' => $arch };
+  }
+  my $cpio;
+  eval {
+    die('unsupported view\n') unless $BSConfig::usesolvstate;
+    $cpio = xrpc($ctx, "repository/$prp/$arch", $param, undef, 'view=solvstate');
+  };
+  if ($@ && $@ =~ /unsupported view/) {
+    eval {
+      $cpio = xrpc($ctx, "repository/$prp/$arch", $param, undef, 'view=cache');
+    };
+  }
+  if ($@) {
+    return addrepo_remote_unpackcpio($pool, $prp, $arch, $cpio, $@);
+  }
+  return 0 if $param->{'async'} && $cpio;	# hack: false but not undef
+  return addrepo_remote_unpackcpio($pool, $prp, $arch, $cpio);
+}
+
+
 # add repo belonging to a different architecture
 sub addrepo_alien {
-  my ($pool, $prp, $arch) = @_;
+  my ($ctx, $pool, $prp, $arch) = @_;
 
   $repodatas_alien{"$prp/$arch"}->{'dontwrite'} = 1;
   my $oldrepodata = $repodatas{$prp};
@@ -2859,7 +3132,7 @@ sub addrepo_alien {
   $repodatas{$prp} = $repodatas_alien{"$prp/$arch"};
   my $savemyarch = $myarch;
   $myarch = $arch;
-  my $r = addrepo($pool, $prp);
+  my $r = addrepo($ctx, $pool, $prp);
   $myarch = $savemyarch;
   $repodatas_alien{"$prp/$arch"} = $repodatas{$prp};
   delete $repodatas{$prp};
@@ -2869,44 +3142,20 @@ sub addrepo_alien {
   return $r;
 }
 
-sub read_gbininfo_remote {
-  my ($prpa, $remoteproj, $retryprpa, $packstatus) = @_;
+### remote project binary state handling 
 
-  return undef unless $remoteproj;
-  return undef if $remoteproj->{'error'};
+sub convertpackagebinarylist {
+  my ($prpa, $packagebinarylist, $error, $packstatususer) = @_;
 
-  my $cachemd5 = Digest::MD5::md5_hex($prpa);
-  substr($cachemd5, 2, 0, '/');
-
-  my $now = time();
-  if (!$packstatus && $remotegbininfos{$prpa} && ($remotegbininfos{$prpa}->{'lastfetch'} || 0) > $now - 3600) {
-    if (-s "$remotecache/$cachemd5.bininfo") {
-      my $gbininfo = BSUtil::fetch("$remotecache/$cachemd5.bininfo", 1);
-      return $gbininfo if $gbininfo;
-    }
-  }
-
-  print "    fetching remote project binary state for $prpa\n";
-  my ($projid, $repoid, $arch) = split('/', $prpa, 3);
-  my $param = {
-    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch",
-    'timeout' => 200,
-    'proxy' => $proxy,
-  };
-  my $packagebinarylist;
-  eval {
-    $packagebinarylist = BSRPC::rpc($param, $BSXML::packagebinaryversionlist, "view=binaryversionscode");
-  };
-  if ($@) {
-    warn($@);
-    my $error = $@;
-    $error =~ s/\n$//s;
-    $retryprpa ||= $prpa;
-    ($projid, $repoid, $arch) = split('/', $retryprpa, 3);
-    addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch}) if $error !~ /remote error:/;
-    return undef;
+  if ($error) {
+    chomp $error;
+    warn("$error\n");
+    $error ||= 'internal error';
+    $remotegbininfos{$prpa} = { 'lastfetch' => time(), 'error' => $error };
+    return (undef, undef);
   }
   my $gbininfo = {};
+  my $rpackstatus = {};
   for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
     my %bins;
     for my $binary (@{$binaryversionlist->{'binary'} || []}) {
@@ -2924,14 +3173,116 @@ sub read_gbininfo_remote {
       $bins{$filename}->{'hdrmd5'} = $binary->{'hdrmd5'} if $binary->{'hdrmd5'};
       $bins{$filename}->{'leadsigmd5'} = $binary->{'leadsigmd5'} if $binary->{'leadsigmd5'};
     }
-    $gbininfo->{$binaryversionlist->{'package'}} = \%bins;
-    $packstatus->{$binaryversionlist->{'package'}} = $binaryversionlist->{'code'} if $packstatus && $binaryversionlist->{'code'};
+    my $pkg = $binaryversionlist->{'package'};
+    $gbininfo->{$pkg} = \%bins;
+    $rpackstatus->{$pkg} = $binaryversionlist->{'code'} if $binaryversionlist->{'code'};
   }
+  my $cachemd5 = Digest::MD5::md5_hex($prpa);
   mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
   BSUtil::store("$remotecache/$cachemd5.bininfo.new$$", "$remotecache/$cachemd5.bininfo", $gbininfo);
-  $remotegbininfos{$prpa} = { 'lastfetch' => $now };
+
+  $remotegbininfos{$prpa} = { 'lastfetch' => time() };
+
+  if ($packstatususer) {
+    $rpackstatus->{'/users'} = [];
+    $rpackstatus->{'/users'} = [ @{$remotepackstatus{$prpa}->{'/users'} || []} ] if $remotepackstatus{$prpa};
+    push $rpackstatus->{'/users'}, $packstatususer unless grep {$_ eq $packstatususer} @{$rpackstatus->{'/users'}};
+    push @{$remotepackstatus_cleanup{$packstatususer}}, $prpa;
+    $remotepackstatus{$prpa} = $rpackstatus;
+  }
+
+  return ($gbininfo, $rpackstatus);
+}
+
+sub cleanup_remotepackstatus {
+  my ($prp) = @_;
+
+  return unless $remotepackstatus_cleanup{$prp};
+  print "    cleaning up remote packstatus\n";
+  for my $prpa (@{$remotepackstatus_cleanup{$prp}}) {
+    my $rpackstatus = $remotepackstatus{$prpa};
+    my @users = grep {$_ ne $prp} @{$rpackstatus->{'/users'} || []};
+    $rpackstatus->{'/users'} = \@users;
+    print "      - $prpa: ".@users." users\n";
+    delete $remotepackstatus{$prpa} unless @users;
+  }
+  delete $remotepackstatus_cleanup{$prp};
+}
+
+sub read_gbininfo_remote_resume {
+  my ($handle, $error, $packagebinarylist) = @_;
+  convertpackagebinarylist($handle->{'_prpa'}, $packagebinarylist, $error, $handle->{'_ctx'}->{'prp'});
+  xrpc_setchanged($handle);
+}
+
+sub read_gbininfo_remote {
+  my ($ctx, $prpa, $remoteproj, $packstatus) = @_;
+
+  return undef unless $remoteproj;
+  return undef if $remoteproj->{'error'};
+
+  my $cachemd5 = Digest::MD5::md5_hex($prpa);
+  substr($cachemd5, 2, 0, '/');
+
+  my $now = time();
+
+  # first check error case
+  if ($remotegbininfos{$prpa} && $remotegbininfos{$prpa}->{'error'} && ($remotegbininfos{$prpa}->{'lastfetch'} || 0) > $now - 3600) {
+    return undef;
+  }
+
+  # check if we can use the cache
+  my $rpackstatus;
+  if ($packstatus && $remotepackstatus{$prpa} && $asyncmode) {
+    my $prp = $ctx->{'prp'};
+    $rpackstatus = $remotepackstatus{$prpa} if grep {$_ eq $prp} @{$remotepackstatus{$prpa}->{'/users'} || []};
+  }
+  if ((!$packstatus || $rpackstatus) && $remotegbininfos{$prpa} && ($remotegbininfos{$prpa}->{'lastfetch'} || 0) > $now - 3600) {
+    if (-s "$remotecache/$cachemd5.bininfo") {
+      my $gbininfo = BSUtil::retrieve("$remotecache/$cachemd5.bininfo", 1);
+      if ($gbininfo) {
+	if ($packstatus) {
+	  for my $pkg (keys %$gbininfo) {
+	    $packstatus->{$pkg} = $rpackstatus->{$pkg} if $rpackstatus->{$pkg};
+	  }
+	}
+        return $gbininfo;
+      }
+    }
+  }
+
+  print "    fetching remote project binary state for $prpa\n";
+  my ($projid, $repoid, $arch) = split('/', $prpa, 3);
+  my $param = {
+    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch",
+    'timeout' => 200,
+    'proxy' => $proxy,
+  };
+  if ($asyncmode) {
+    $param->{'async'} = { '_resume' => \&read_gbininfo_remote_resume, '_prpa' => $prpa };
+  }
+  my $packagebinarylist;
+  eval {
+    $packagebinarylist = xrpc($ctx, "bininfo/$prpa", $param, $BSXML::packagebinaryversionlist, "view=binaryversionscode");
+  };
+  if ($@) {
+    warn($@);
+    my $error = $@;
+    $error =~ s/\n$//s;
+    ($projid, $repoid) = split('/', $ctx->{'prp'}, 2);
+    addretryevent({'type' => 'recheck', 'project' => $projid, 'repository' => $repoid}) if $error !~ /remote error:/;
+    return undef;
+  }
+  return 0 if $packagebinarylist && $param->{'async'};
+  my $gbininfo;
+  ($gbininfo, $rpackstatus) = convertpackagebinarylist($prpa, $packagebinarylist);
+  if ($packstatus && $rpackstatus) {
+    $packstatus->{$_} = $rpackstatus->{$_} for keys %$rpackstatus;
+    delete $packstatus->{'/users'};
+  }
   return $gbininfo;
 }
+
 
 #
 # patch the packstatus entry of package $packid so that it reflects the finished state
@@ -3386,11 +3737,14 @@ sub checkkiwiimage {
       print "        repository $aprp is unavailable";
       return ('broken', "repository $aprp is unavailable");
     }
-    my $r = addrepo($pool, $aprp);
+    my $r = addrepo($ctx, $pool, $aprp);
     if (!$r) {
+      my $error = "repository '$aprp' is unavailable";
+      $error .= " (delayed)" if defined $r;
       print "      - $packid (kiwi-image)\n";
-      print "        repository $aprp is unavailable";
-      return ('broken', "repository $aprp is unavailable");
+      print "        $error\n";
+      return ('delayed', $error) if defined $r;
+      return ('broken', $error);
     }
   }
   $pool->createwhatprovides();
@@ -3476,11 +3830,14 @@ sub rebuildkiwiimage {
 	print "        repository $aprp is unavailable";
 	return ('broken', "repository $aprp is unavailable");
       }
-      my $r = addrepo($pool, $aprp);
+      my $r = addrepo($ctx, $pool, $aprp);
       if (!$r) {
+	my $error = "repository '$aprp' is unavailable";
+	$error .= " (delayed)" if defined $r;
         print "      - $packid (kiwi-image)\n";
-        print "        repository $aprp is unavailable";
-        return ('broken', "repository $aprp is unavailable");
+        print "        $error\n";
+        return ('delayed', $error) if defined $r;
+        return ('broken', $error);
       }
     }
     $pool->createwhatprovides();
@@ -3619,11 +3976,14 @@ sub checkkiwiproduct {
 	return ('broken', "repository $aprp is unavailable");
       }
       my $arch = $myarch eq 'local' && $BSConfig::localarch ? $BSConfig::localarch : $myarch;
-      my $r = $arch eq $myarch ? addrepo($pool, $aprp) : addrepo_alien($pool, $aprp, $arch);
+      my $r = $arch eq $myarch ? addrepo($ctx, $pool, $aprp) : addrepo_alien($ctx, $pool, $aprp, $arch);
       if (!$r) {
+	my $error = "repository '$aprp' is unavailable";
+	$error .= " (delayed)" if defined $r;
 	print "      - $packid (kiwi-product)\n";
-	print "        repository $aprp is unavailable";
-	return ('broken', "repository $aprp is unavailable");
+	print "        $error\n";
+	return ('delayed', $error) if defined $r;
+	return ('broken', $error);
       }
     }
     $pool->createwhatprovides();
@@ -3730,12 +4090,15 @@ sub checkkiwiproduct {
 	if ($arch eq 'local' && $BSConfig::localarch) {
 	  $gbininfo = {};
 	} else {
-	  $gbininfo = read_gbininfo_remote("$aprp/$arch", $remoteprojs{$aprojid}, "$prp/$myarch", $ps);
+	  $gbininfo = read_gbininfo_remote($ctx, "$aprp/$arch", $remoteprojs{$aprojid}, $ps);
 	}
 	if (!$gbininfo) {
+	  my $error = "project binary state of $aprp is unavailable";
+	  $error .= " (delayed)" if defined $gbininfo;
 	  print "      - $packid (kiwi-product)\n";
-	  print "        project binary state of $aprp is unavailable\n";
-	  return ('broken', "project binary state of $aprp is unavailable");
+	  print "        $error\n";
+	  return ('delayed', $error) if defined $gbininfo;
+	  return ('broken', $error);
 	}
 	@apackids = unify(@apackids, sort keys %$gbininfo);
       } else {
@@ -4464,10 +4827,18 @@ sub checkaggregate {
   my @broken;
   my @blocked;
   my $prpfinished = $ctx->{'prpfinished'};
+  my $delayed;
   for my $aggregate (@$aggregates) {
     my $aprojid = $aggregate->{'project'};
     my $proj = $remoteprojs{$aprojid} || $projpacks->{$aprojid};
     if (!$proj) {
+      push @broken, $aprojid;
+      next;
+    }
+    if ($proj->{'error'}) {
+      # XXX: hmm, there's already a project retryevent on $aprojid
+      addretryevent({'type' => 'package', 'project' => $projid, 'package' => $packid}) if $proj->{'error'} !~ /remote error:/;
+      $delayed = 1 if $proj->{'error'} !~ /remote error:/;
       push @broken, $aprojid;
       next;
     }
@@ -4504,11 +4875,12 @@ sub checkaggregate {
         # calculate apackids using the gbininfo file
         my $gbininfo;
         if ($remoteprojs{$aprojid}) {
-          $gbininfo = read_gbininfo_remote("$aprp/$myarch", $remoteprojs{$aprojid}, "$projid/$repoid/$myarch", $ps);
+          $gbininfo = read_gbininfo_remote($ctx, "$aprp/$myarch", $remoteprojs{$aprojid}, $ps);
         } else {
           $gbininfo = read_gbininfo("$reporoot/$aprp/$myarch");
         }
 	if (!$gbininfo) {
+	  $delayed = 1 if defined $gbininfo;
 	  push @broken, $aprp;
 	  next;
 	}
@@ -4535,6 +4907,7 @@ sub checkaggregate {
   if (@broken) {
     print "      - $packid (aggregate)\n";
     print "        broken (@broken)\n";
+    print "        (delayed)\n" if $delayed;
     return ('broken', 'missing repositories: '.join(', ', @broken));
   }
   if (@blocked) {
@@ -4773,6 +5146,7 @@ sub rebuildaggregate {
   $ourjobs{$job} = 1;
   return ('scheduled', $job);
 }
+
 
 ##########################################################################
 ##########################################################################
@@ -5080,6 +5454,7 @@ sub select_read {
     return @retrywatchers if @retrywatchers;
     @watchers = grep {!$_->{'retry'}} @watchers;
   }
+  @watchers = grep {exists $_->{'socket'}} @watchers;
   while(1) {
     my $rin = '';
     for (@watchers) {
@@ -5481,7 +5856,7 @@ sub event_scanrepo {
     print "reading packages of repository $projid/$repoid\n";
     delete $repodatas{$prp};
     my $pool = BSSolv::pool->new();
-    addrepo($pool, $prp);
+    addrepo({'gctx' => $ectx, 'prp' => $prp}, $pool, $prp);
     undef $pool;
     $changed_high->{$prp} = 2;
     delete $repounchanged{$prp};
@@ -5696,7 +6071,7 @@ my %event_handlers = (
 #
 
 sub do_fetchprojpacks {
-  my ($ectx) = @_;
+  my ($ectx, $doasync) = @_;
 
   my $fetchprojpacks = $ectx->{'fetchprojpacks'};
   my $fetchprojpacks_nodelay = $ectx->{'fetchprojpacks_nodelay'};
@@ -5743,6 +6118,9 @@ sub do_fetchprojpacks {
   }
   return unless %$fetchprojpacks;
 
+  # create context
+  my $ctx = {'gctx' => $ectx};
+
   # pass1: fetch all projpacks
   for my $projid (sort keys %$fetchprojpacks) {
     my $fetchedall;
@@ -5752,30 +6130,53 @@ sub do_fetchprojpacks {
       # a change in _config
       # a change in _pattern
       # deletion of a project
+      if ($doasync) {
+        my %packids = map {$_ => 1} grep {defined($_)} @{$fetchprojpacks->{$projid}};
+        my $async = { %$doasync, '_changetype' => 'high', '_changelevel' => 2 };
+	$async->{'_dolink'} = 1 if %packids || $deepcheck->{$projid};
+        $async->{'_changetype'} = 'low' if $lowprioproject->{$projid} && !$deepcheck->{$projid};
+	if ($projpacks->{$projid} && !$deepcheck->{$projid}) {
+	  $async->{'_packids'} = [ sort keys %packids ];
+	  update_project_meta($ctx, $async, $projid);
+	} else {
+	  get_projpacks($ctx, $async, $projid);
+	}
+	delete $fetchprojpacks->{$projid};	# backgrounded
+	next;
+      }
       if ($projpacks->{$projid} && !$deepcheck->{$projid}) {
-	if (!update_project_meta($projid)) {
+	if (!update_project_meta($ctx, 0, $projid)) {
 	  # update meta failed, do it the hard way...
-	  get_projpacks($projid);
+	  get_projpacks($ctx, undef, $projid);
 	  $fetchedall = 1;
 	}
       } else {
-	get_projpacks($projid);
+	get_projpacks($ctx, undef, $projid);
 	$fetchedall = 1;
       }
     }
     if (!$fetchedall) {
       # single package (source) changes
       my %packids = map {$_ => 1} grep {defined($_)} @{$fetchprojpacks->{$projid}};
-      get_projpacks($projid, sort keys %packids) if %packids;
       # remove em from the delay queue
-      if ($delayedfetchprojpacks->{$projid}) {
+      if ($delayedfetchprojpacks->{$projid} && %packids) {
 	$delayedfetchprojpacks->{$projid} = [ grep {!$packids{$_}} @{$delayedfetchprojpacks->{$projid} || []} ];
 	delete $delayedfetchprojpacks->{$projid} unless @{$delayedfetchprojpacks->{$projid}};
       }
+      if ($doasync && %packids) {
+        my $async = { %$doasync, '_dolink' => 1, '_changetype' => 'high', '_changelevel' => 1 };
+	get_projpacks($ctx, $async, $projid, sort keys %packids);
+	delete $fetchprojpacks->{$projid};	# backgrounded
+	next;
+      }
+      get_projpacks($ctx, undef, $projid, sort keys %packids) if %packids;
     } else {
       delete $delayedfetchprojpacks->{$projid};
     }
   }
+
+  return unless %$fetchprojpacks;	# still something on the list?
+
   get_projpacks_postprocess();
 
   # pass2: postprocess, set changed_high, calculate link info
@@ -5816,9 +6217,17 @@ sub do_fetchprojpacks {
 
   # pass3: update link information
   if (%fetchlinkedprojpacks) {
+    my $projpackchanged;
     for my $projid (sort keys %fetchlinkedprojpacks) {
       my %packids = map {$_ => 1} @{$fetchlinkedprojpacks{$projid}};
-      get_projpacks($projid, sort keys %packids);
+      if ($doasync) {
+	my $async = { %$doasync, '_changelevel' => 1, '_changetype' => 'low' };
+	$async->{'_changetype'} = 'med' if $fetchlinkedprojpacks_srcchange{$projid};
+	get_projpacks($ctx, $async, $projid, sort keys %packids);
+	next;
+      }
+      get_projpacks($ctx, undef, $projid, sort keys %packids);
+      $projpackchanged = 1;
       # we assign source changed through links med prio,
       # everything else is low prio
       if ($fetchlinkedprojpacks_srcchange{$projid}) {
@@ -5839,7 +6248,7 @@ sub do_fetchprojpacks {
 	$changed_low->{$projid} ||= 1;
       }
     }
-    get_projpacks_postprocess();	# just in case...
+    get_projpacks_postprocess() if $projpackchanged;	# just in case...
   }
 
   %$fetchprojpacks = ();
@@ -5931,7 +6340,7 @@ if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
       $projpacks = $schedstate->{'projpacks'};
     } else {
       # get project and package information from src server
-      get_projpacks();
+      get_projpacks(undef, undef);
     }
     get_projpacks_postprocess();
 
@@ -6005,16 +6414,33 @@ if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
         'changed_high' => \%changed_high,
         'changed_dirty' => \%changed_dirty,
       };
-      do_fetchprojpacks($ectx) if %{$ectx->{'fetchprojpacks'}};
+      do_fetchprojpacks($ectx, $asyncmode) if %{$ectx->{'fetchprojpacks'}};
     }
   }
+}
+
+# XXX: may want to do this always
+if (!$projpacks && $asyncmode) {
+  print "cold start, initializing all projects\n";
+  my $param = {
+    'uri' => "$BSConfig::srcserver/getprojpack",
+  };
+  my $projpacksin = BSRPC::rpc($param, $BSXML::projpack,  'withrepos', 'withconfig', "arch=$myarch", 'withremotemap=1', 'noremote=1');
+  update_projpacks($projpacksin);
+  get_projpacks_postprocess();
+  for my $projid (sort keys %$projpacks) {
+    next unless %{$projpacks->{$projid}->{'package'} || {}};
+    $delayedfetchprojpacks{$projid} = [ '/all' ];	# hack
+  }
+  @lookat_low = sort keys %$projpacks;
+  push @lookat_low, @prps;
 }
 
 if (!$projpacks) {
   # get project and package information from src server
   print "cold start, scanning all projects\n";
-  get_projpacks();
-  get_projpacks('opensuse_org') if $testprojid;
+  get_projpacks(undef, undef);
+  get_projpacks(undef, undef, 'opensuse_org') if $testprojid;
   get_projpacks_postprocess();
   # look at everything
   @lookat_low = sort keys %$projpacks;
@@ -6063,6 +6489,7 @@ my $gctx = {
   'delayedfetchprojpacks' => \%delayedfetchprojpacks,
 
   'nextmed' => \%nextmed,
+  'iswaiting' => \%iswaiting,
 };
 
 ##
@@ -6072,6 +6499,7 @@ my $gctx = {
 eval {
 
   while(1) {
+NEXTPRP:
     if (%changed_low || %changed_med || %changed_high) {
       changed2lookat(\%changed_low, \%changed_med, \%changed_high, \@lookat_high, \@lookat_med, \%lookat_next);
       next;
@@ -6114,12 +6542,16 @@ eval {
     }
     if ($testprojid) {
       print "ignoring events due to test mode\n";
-    } elsif (%remotewatchers) {
-      my @readok = select_read(0, $pingsock, values %remotewatchers);
+    } elsif (%remotewatchers || %iswaiting) {
+      my @readok = select_read(0, $pingsock, values %remotewatchers, values %iswaiting);
       $gotevent = 1 if @readok;
       for my $watcher (@readok) {
 	my $remoteurl = $watcher->{'remoteurl'};
-	next if $watcher->{'remoteurl'} eq 'ping';
+        if (!defined($remoteurl)) {
+	  xrpc_resume($watcher);
+	  next;
+	}
+	next if $remoteurl eq 'ping';
 	if ($watcher->{'retry'}) {
 	  print "retrying watcher for $remoteurl\n";
 	  delete $remotewatchers{$remoteurl};
@@ -6134,34 +6566,6 @@ eval {
 	$gotevent = 1;
       }
       fcntl(PING,F_SETFL,0);
-    }
-
-    # if lookat_low array is empty, start new series with lookat_next
-    if (!@lookat_low && %lookat_next) {
-      @lookat_low = grep {$lookat_next{$_}} @prps;
-      %lookat_next = ();
-    }
-
-    if (!$gotevent && !@lookat_low && !@lookat_med && !@lookat_high) {
-      if ($testmode) {
-	print "Test mode, all sources and events processed, exiting...\n";
-	exit(0);
-      }
-      my @ltim = localtime(time);
-      my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
-      print "$msgtm waiting for an event...\n";
-      exit 0 if $testprojid;
-      my $timeout;
-      my $sleepstart = time();
-      if (%remotewatchers) {
-	select_read($timeout, $pingsock, @retryevents, values %remotewatchers);
-	$slept += time() - $sleepstart;
-	next;
-      } else {
-	sysread(PING, $dummy, 1, 0);
-	$gotevent = 1;
-      }
-      $slept += time() - $sleepstart;
     }
 
     if ($gotevent) {
@@ -6249,7 +6653,7 @@ eval {
 
 	sync_fullcache($ectx->{'fullcache'}) if $ectx->{'fullcache'} && $ectx->{'fullcache'}->{'prp'};
 
-	do_fetchprojpacks($ectx) if %{$ectx->{'fetchprojpacks'}};
+	do_fetchprojpacks($ectx, $asyncmode) if %{$ectx->{'fetchprojpacks'}};
       };
       if ($@) {
         warn($@);
@@ -6276,59 +6680,92 @@ eval {
     my @ltim = localtime(time);
     my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
 
+    sub check_queue {
+      my ($lookat, $nextmed) = @_;
+      my $prp = shift @$lookat;
+
+      if ($nextmed && $nextmed->{$prp}) {
+	my $now = time();
+	my @notyet;
+	while ($nextmed->{$prp} && $now < $nextmed->{$prp}) {
+	  print "  not yet $prp\n";
+	  push @notyet, $prp;
+	  $prp = shift @$lookat;
+	  last unless defined $prp;
+	}
+	unshift @$lookat, @notyet;
+      }
+      return $prp;
+    }
+
+    # if lookat_low array is empty, start new series with lookat_next
+    if (!@lookat_low && %lookat_next) {
+      @lookat_low = grep {$lookat_next{$_}} @prps;
+      %lookat_next = ();
+    }
+
     my $prp;
-    if (@lookat_low && $notlow > 10) {
-      $prp = shift @lookat_low;
-      print "$msgtm looking at low prio $prp";
+    my $lookattype;
+    while (1) {
+      $lookattype = 'low',  last if @lookat_low && $notlow > 10 && defined($prp = check_queue(\@lookat_low));
+      $notlow = 0 if $notlow > 10;	# don't try so often
+      $lookattype = 'med',  last if @lookat_med && $notmed > 2  && defined($prp = check_queue(\@lookat_med,  \%nextmed));
+      $notmed = 0 if $notmed > 2;	# don't try so often
+      $lookattype = 'high', last if @lookat_high                && defined($prp = check_queue(\@lookat_high, \%nextmed));
+      $lookattype = 'med',  last if @lookat_med                 && defined($prp = check_queue(\@lookat_med,  \%nextmed));
+      $lookattype = 'low',  last if @lookat_low                 && defined($prp = check_queue(\@lookat_low));
+      $lookattype = 'high', last if @lookat_high                && defined($prp = check_queue(\@lookat_high));
+      $lookattype = 'med',  last if @lookat_med                 && defined($prp = check_queue(\@lookat_med));
+      last;
+    }
+
+    if (!defined($prp)) {
+      if ($testmode) {
+	print "Test mode, all sources and events processed, exiting...\n";
+	exit(0);
+      }
+      my @ltim = localtime(time);
+      my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
+      print "$msgtm waiting for an event...\n";
+      exit 0 if $testprojid;
+      my $timeout;
+      my $sleepstart = time();
+      if (%remotewatchers || %iswaiting) {
+	select_read($timeout, $pingsock, @retryevents, values %remotewatchers, values %iswaiting);
+	$slept += time() - $sleepstart;
+	next;
+      } else {
+	sysread(PING, $dummy, 1, 0);
+	$gotevent = 1;
+      }
+      $slept += time() - $sleepstart;
+      next;
+    }
+
+    my ($projid, $repoid) = split('/', $prp, 2);
+
+    # postpone if we got source change RPCs running
+    if ($iswaiting{$projid}) {
+      my $rhandle = $iswaiting{$projid};
+      push @{$rhandle->{'_wakeup'}}, [ $prp, {'changetype' => $lookattype} ];
+      next;
+    }
+
+    $notmed++;
+    $notlow++;
+    if ($lookattype eq 'low') {
       @lookat_high = grep {$_ ne $prp} @lookat_high;
       @lookat_med = grep {$_ ne $prp} @lookat_med;
       $notlow = 0;
-    }
-    if (!defined($prp) && @lookat_high && (!@lookat_med || $notmed < 3)) {
-      $prp = shift @lookat_high;
-      if ($nextmed{$prp}) {
-	my $now = time();
-	my @notyet;
-	while ($nextmed{$prp} && $now < $nextmed{$prp}) {
-	  print "  not yet $prp\n";
-	  push @notyet, $prp;
-	  $prp = shift @lookat_high;
-	  last unless defined $prp;
-	}
-	unshift @lookat_high, @notyet;
-	$prp = shift @lookat_high if !defined($prp) && !@lookat_med && !@lookat_low;
-      }
-      print "$msgtm looking at high prio $prp" if defined $prp;
-      $notlow++ if defined $prp;
-      $notmed++ if defined $prp;
-    }
-    if (!defined($prp) && @lookat_med) {
+    } elsif ($lookattype eq 'med') {
+      @lookat_high = grep {$_ ne $prp} @lookat_high;
       $notmed = 0;
-      $prp = shift @lookat_med;
-      if ($nextmed{$prp}) {
-	my $now = time();
-	my @notyet;
-	while ($nextmed{$prp} && $now < $nextmed{$prp}) {
-	  print "  not yet $prp\n";
-	  push @notyet, $prp;
-	  $prp = shift @lookat_med;
-	  last unless defined $prp;
-	}
-	unshift @lookat_med, @notyet;
-	$prp = shift @lookat_med if !defined($prp) && !@lookat_low;
-      }
-      print "$msgtm looking at med prio $prp" if defined $prp;
-      $notlow++ if defined $prp;
+    } else {
+      @lookat_med = grep {$_ ne $prp} @lookat_med;
     }
-    if (!defined($prp)) {
-      $prp = shift @lookat_low;
-      print "$msgtm looking at low prio $prp";
-      $notlow = 0;
-    }
+    print "$msgtm looking at $lookattype prio $prp";
     print " (".@lookat_high."/".@lookat_med."/".@lookat_low."/".(keys %lookat_next)."/".@prps.")\n";
     delete $nextmed{$prp};
-
-    my ($projid, $repoid) = split('/', $prp, 2);
 
     next if $testprojid && $projid ne $testprojid;
 
@@ -6396,10 +6833,24 @@ eval {
     while ($delayedfetchprojpacks{$projid}) {
       my %packids = map {$_ => 1} @{$delayedfetchprojpacks{$projid}};
       delete $delayedfetchprojpacks{$projid};
+      my $ctx = { 'prp' => $prp, 'gctx' => $gctx, 'changetype' => $lookattype };
+      if ($packids{'/all'}) {
+	if ($asyncmode) {
+	  get_projpacks($ctx, {}, $projid);
+          goto NEXTPRP;
+	}
+	get_projpacks($ctx, undef, $projid);
+	get_projpacks_postprocess();
+	%packids = ();
+      }
       if (%packids) {
-	my @packids = sort keys %packids;
+	if ($asyncmode) {
+	  get_projpacks($ctx, {}, $projid, sort keys %packids);
+          goto NEXTPRP;
+	}
+        my @packids = sort keys %packids;
 	my $oldprojdata = clone_projpacks_part($projid, \@packids);
-	get_projpacks($projid, @packids);
+	get_projpacks($ctx, undef, $projid, @packids);
 	get_projpacks_postprocess() if postprocess_needed_check($projid, $oldprojdata);
       }
     }
@@ -6437,6 +6888,9 @@ eval {
 	my ($pprojid, $prepoid) = split('/', $pprp, 2);
 	$error = $remoteprojs{$pprojid}->{'error'} if $remoteprojs{$pprojid} && $remoteprojs{$pprojid}->{'error'};
 	if ($error) {
+	  if ($error =~ /interconnect error:/) {
+	    addretryevent({'type' => 'project', 'project' => $pprojid});
+	  }
 	  print "  - $prp: $pprojid: $error\n";
 	  last;
 	}
@@ -6483,7 +6937,7 @@ eval {
       $lastcheck{$prp} = $oldlastcheck;
     }
     my $ctx = { 'project' => $projid, 'repository' => $repoid, 'prp' => $prp,
-		'repo' => $repo,
+		'repo' => $repo, 'gctx' => $gctx, 'changetype' => $lookattype,
 		'prpsearchpath' => $prpsearchpath{$prp} || [], 'conf' => $bconf,
 		'prpfinished' => \%prpfinished, 'prpnotready' => \%prpnotready,
 		'lastcheck' => $lastcheck{$prp} };
@@ -6507,6 +6961,7 @@ eval {
     for my $packid (grep {!/^[:\.]/} ls("$reporoot/$prp/$myarch")) {
       if (!$packs->{$packid}) {
 	next if $packid eq '_deltas';
+	next if $projpacks->{$projid}->{'missingpackages'};
 	print "      - $packid: is obsolete\n";
       } else {
 	my $pdata = $packs->{$packid};
@@ -6553,20 +7008,23 @@ eval {
     my %unfinished;	# is blocked or needs rebuild
     my %notready;		# unfinished and will modify :full
 
+    my $delayed;
     for my $rprp (@{$prpsearchpath{$prp}}) {
       if (!checkprpaccess($rprp, $prp)) {
 	$error = "repository '$rprp' is unavailable";
 	last;
       }
-      my $r = addrepo($pool, $rprp);
+      my $r = addrepo($ctx, $pool, $rprp);
       if (!$r) {
+	$delayed = 1 if defined $r;
 	$error = "repository '$rprp' is unavailable";
 	last;
       }
     }
     if ($error) {
       print "    $error\n";
-      set_repo_state($prp, 'broken', $error);
+      $ctx->{'havedelayed'} = 1 if $delayed;
+      set_repo_state($prp, 'broken', $error) unless $delayed;
       next;
     }
     
@@ -6771,6 +7229,7 @@ eval {
 
     # Step 2d: check status of all packages
     my %packstatus;
+    my $oldpackstatus;
     my %packerror;
     my @cpacks = @packs;
     my %cycpass;
@@ -6782,6 +7241,18 @@ eval {
 
     my $prjuseforbuildenabled = 1;
     $prjuseforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $prjuseforbuildenabled);
+
+    # copy old data over if we have missing packages
+    if ($projpacks->{$projid}->{'missingpackages'}) {
+      $oldpackstatus = BSUtil::retrieve("$reporoot/$prp/$myarch/:packstatus", 1) || {};
+      $oldpackstatus->{'packstatus'} ||= {};
+      $oldpackstatus->{'packerror'} ||= {};
+      for my $packid (keys %{$oldpackstatus->{'packstatus'}}) {
+	next if $packs->{$packid};
+	$packstatus{$packid} = $oldpackstatus->{'packstatus'}->{$packid};
+	$packerror{$packid} = $oldpackstatus->{'packerror'}->{$packid} if $oldpackstatus->{'packerror'}->{$packid}; 
+      }
+    }
 
     while (@cpacks) {
       my $packid = shift @cpacks;
@@ -6832,6 +7303,13 @@ eval {
 	  next;
 	}
 	if ($pdata->{'error'} =~ /source update running/ || $pdata->{'error'} =~ /service in progress/) {
+	  $packstatus{$packid} = 'blocked';
+	  $packerror{$packid} = $pdata->{'error'};
+	  next;
+	}
+	if ($pdata->{'error'} =~ /interconnect error:/) {
+	  addretryevent({'type' => 'package', 'project' => $projid, 'package' => $packid});
+          $ctx->{'havedelayed'} = 1;
 	  $packstatus{$packid} = 'blocked';
 	  $packerror{$packid} = $pdata->{'error'};
 	  next;
@@ -6944,8 +7422,22 @@ eval {
 	  undef $aerror;
 	} elsif ($astatus eq 'broken' && $aerror =~ /^unresolvable: (.*)/) {
 	  ($astatus, $aerror) = ('unresolvable', $1);
+	} elsif ($astatus eq 'delayed') {
+          $ctx->{'havedelayed'} = 1;
+	  ($astatus, $aerror) = ('blocked', defined($aerror) ? "delayed: $aerror" : 'delayed');
 	}
 	unlink("$reporoot/$prp/$myarch/:repodone");
+      } elsif ($astatus eq 'delayed') {
+        $ctx->{'havedelayed'} = 1;
+	if (!$oldpackstatus) {
+	  $oldpackstatus = BSUtil::retrieve("$reporoot/$prp/$myarch/:packstatus", 1) || {};
+	  $oldpackstatus->{'packstatus'} ||= {};
+	  $oldpackstatus->{'packerror'} ||= {};
+	}
+	$astatus = $oldpackstatus->{'packstatus'}->{$packid};
+	$aerror = $oldpackstatus->{'packerror'}->{$packid};
+	($astatus, $aerror) = ('blocked', 'delayed') unless $astatus;
+	$unfinished{$pname} = 1;
       }
       $packstatus{$packid} = $astatus;
       $packerror{$packid} = $aerror if defined $aerror;
@@ -7033,14 +7525,14 @@ eval {
     my $schedulerdetails;
     if (keys %building) {
       $schedulerstate = 'building';
-    } elsif (keys %unfinished) {
+    } elsif ($ctx->{'havedelayed'} || keys %unfinished) {
       $schedulerstate = 'blocked';
     } else {
       $schedulerstate = 'finished';
     }
 
     # we always publish kiwi...
-    if (!%unfinished || $prptype eq 'kiwi') {
+    if ((!%unfinished && !$ctx->{'havedelayed'}) || $prptype eq 'kiwi') {
       my $pubenabled = enabled($repoid, $projpacks->{$projid}->{'publish'}, 1);
       my %pubenabled;
       for my $packid (@packs) {
@@ -7142,6 +7634,8 @@ eval {
 	warn($@);
       }
     }
+
+    cleanup_remotepackstatus($prp) if $remotepackstatus_cleanup{$prp} && !$ctx->{'havedelayed'};
 
     my $now = time();
     if ($prpchecktime) {
