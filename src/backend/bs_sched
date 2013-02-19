@@ -285,23 +285,6 @@ sub addrepo {
   return addrepo_scan($pool, $prp);
 }
 
-# add repo belonging to a different architecture
-sub addrepo_alien {
-  my ($pool, $prp, $arch) = @_;
-
-  $repodatas_alien{"$prp/$arch"}->{'dontwrite'} = 1;
-  my $oldrepodata = $repodatas{$prp};
-  $repodatas{$prp} = $repodatas_alien{"$prp/$arch"};
-  my $savemyarch = $myarch;
-  $myarch = $arch;
-  my $r = addrepo($pool, $prp);
-  $myarch = $savemyarch;
-  $repodatas_alien{"$prp/$arch"} = $repodatas{$prp};
-  delete $repodatas{$prp};
-  $repodatas{$prp} = $oldrepodata if $oldrepodata;
-  return $r;
-}
-
 # add :full repo to pool, make sure repo is up-to-data by
 # scanning the directory
 sub addrepo_scan {
@@ -2773,6 +2756,27 @@ sub addrepo_remote {
   writesolv("$remotecache/$cachemd5.solv.new$$", "$remotecache/$cachemd5.solv", $r);
   $repodatas{$prp}->{'lastscan'} = time();
   $repodatas{$prp}->{'solvfile'} = "$remotecache/$cachemd5.solv";
+  return $r;
+}
+
+# add repo belonging to a different architecture
+sub addrepo_alien {
+  my ($pool, $prp, $arch) = @_;
+
+  $repodatas_alien{"$prp/$arch"}->{'dontwrite'} = 1;
+  my $oldrepodata = $repodatas{$prp};
+  my $oldprpnotready = $prpnotready{$prp};
+  delete $prpnotready{$prp};
+  $repodatas{$prp} = $repodatas_alien{"$prp/$arch"};
+  my $savemyarch = $myarch;
+  $myarch = $arch;
+  my $r = addrepo($pool, $prp);
+  $myarch = $savemyarch;
+  $repodatas_alien{"$prp/$arch"} = $repodatas{$prp};
+  delete $repodatas{$prp};
+  $repodatas{$prp} = $oldrepodata if $oldrepodata;
+  delete $prpnotready{$prp};
+  $prpnotready{$prp} = $oldprpnotready if $oldprpnotready;
   return $r;
 }
 
