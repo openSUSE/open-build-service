@@ -2201,22 +2201,38 @@ sub get_projpacks {
     last;
   }
 
-  # Be sure that this is the right source server for my binary packages
-  checkbuildrepoid($projpacksin);
+  update_projpacks($projpacksin, $projid, \@packids);
 
+  if ($testprojid) {
+    my $proj = $projpacks->{$projid};
+    for my $repo (@{$proj->{'repository'} || []}) {
+      for my $path (@{$repo->{'path'} || []}) {
+        next if $path->{'project'} eq $testprojid;
+	next if $projid ne $testprojid && $projpacks->{$path->{'project'}};
+        get_projpacks($path->{'project'});
+      }
+    }
+  }
+}
+
+# incorporate all the new data from projpacksin into our projpacks data
+sub update_projpacks {
+  my ($projpacksin, $projid, $packids) = @_;
+
+  checkbuildrepoid($projpacksin);
   for my $proj (@{$projpacksin->{'project'} || []}) {
-    if (@packids) {
+    if ($packids && @$packids) {
       die("bad projpack answer\n") unless $proj->{'name'} eq $projid;
       if ($projpacks->{$projid}) {
-        # use all packages/configs from old projpacks
-        my $opackage = $projpacks->{$projid}->{'package'} || {};
-        for (keys %$opackage) {
-	  $opackage->{$_}->{'name'} = $_;
-	  push @{$proj->{'package'}}, $opackage->{$_};
-        }
+	# use all packages/configs from old projpacks
+	my $opackage = $projpacks->{$projid}->{'package'} || {};
+	for (keys %$opackage) {
+	      $opackage->{$_}->{'name'} = $_;
+	      push @{$proj->{'package'}}, $opackage->{$_};
+	    }
 	if (!$proj->{'patternmd5'} && $projpacks->{$projid}->{'patternmd5'}) {
-	  $proj->{'patternmd5'} = $projpacks->{$projid}->{'patternmd5'} unless grep {$_ eq '_pattern'} @packids;
-        }
+	  $proj->{'patternmd5'} = $projpacks->{$projid}->{'patternmd5'} unless grep {$_ eq '_pattern'} @$packids;
+	}
       }
     }
     $projpacks->{$proj->{'name'}} = $proj;
@@ -2230,16 +2246,6 @@ sub get_projpacks {
       $proj->{'package'} = $packages;
     } else {
       delete $proj->{'package'};
-    }
-  }
-  if ($testprojid) {
-    my $proj = $projpacks->{$projid};
-    for my $repo (@{$proj->{'repository'} || []}) {
-      for my $path (@{$repo->{'path'} || []}) {
-        next if $path->{'project'} eq $testprojid;
-	next if $projid ne $testprojid && $projpacks->{$path->{'project'}};
-        get_projpacks($path->{'project'});
-      }
     }
   }
 }
