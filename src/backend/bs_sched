@@ -2344,6 +2344,42 @@ sub update_project_meta {
   return 1;
 }
 
+# used to remember old data before calling update_projpacks so that
+# postprocess_needed_check has something to compare against.
+sub clone_projpacks_part {
+  my ($projid, $packids) = @_;
+  
+  my $oldprojdata = { %{$projpacks->{$projid} || {}} };
+  delete $oldprojdata->{'package'};
+  $oldprojdata = Storable::dclone($oldprojdata);
+  my $oldpackdata = {};
+  my $packs = ($projpacks->{$projid} || {})->{'package'} || {};
+  for my $packid (@$packids) {
+    $oldpackdata->{$packid} = $packs->{$packid} ? Storable::dclone($packs->{$packid}) : undef;
+  }
+  $oldprojdata->{'package'} = $oldpackdata;
+  return $oldprojdata;
+}
+
+sub postprocess_needed_check {
+  my ($projid, $oldprojdata) = @_;
+
+  return 1 unless $oldprojdata && $oldprojdata->{'package'};		# sanity
+  # if we just had a srcmd5 change in some packages there's no need to postprocess
+  if (!identical($projpacks->{$projid}, $oldprojdata, {'package' => 1})) {
+    return 1;
+  }
+  my $packs = ($projpacks->{$projid} || {})->{'package'} || {};
+  my %except = map {$_ => 1} qw{rev srcmd5 versrel verifymd5 revtime dep prereq file name error build publish useforbuild};
+  my $oldpackdata = $oldprojdata->{'package'};
+  for my $packid (keys %$oldpackdata) {
+    if (!identical($oldpackdata->{$packid}, $packs->{$packid}, \%except)) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
 
 #
 # post-process projpack information
@@ -6348,30 +6384,10 @@ eval {
       my %packids = map {$_ => 1} @{$delayedfetchprojpacks{$projid}};
       delete $delayedfetchprojpacks{$projid};
       if (%packids) {
-	# remember old values
-	my $packs = ($projpacks->{$projid} || {})->{'package'} || {};
-	for my $packid (keys %packids) {
-	  $packids{$packid} = $packs->{$packid} ? Storable::dclone($packs->{$packid}) : undef;
-	}
-	my $oldprojdata = { %{$projpacks->{$projid} || {}} };
-	delete $oldprojdata->{'package'};
-	$oldprojdata = Storable::dclone($oldprojdata);
-	get_projpacks($projid, sort keys %packids);
-	# if we just had a srcmd5 change, no need to postprocess
-	my $need_postprocess;
-	if (!identical($projpacks->{$projid}, $oldprojdata, {'package' => 1})) {
-	  $need_postprocess = 1;
-	} else {
-	  $packs = ($projpacks->{$projid} || {})->{'package'} || {};
-	  my %except = map {$_ => 1} qw{rev srcmd5 versrel verifymd5 revtime dep prereq file name error build publish useforbuild};
-	  for my $packid (keys %packids) {
-	    if (!identical($packids{$packid}, $packs->{$packid}, \%except)) {
-	      $need_postprocess = 1;
-	      last;
-	    }
-	  }
-	}
-	get_projpacks_postprocess() if $need_postprocess;
+	my @packids = sort keys %packids;
+	my $oldprojdata = clone_projpacks_part($projid, \@packids);
+	get_projpacks($projid, @packids);
+	get_projpacks_postprocess() if postprocess_needed_check($projid, $oldprojdata);
       }
     }
 
