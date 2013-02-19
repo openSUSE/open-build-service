@@ -59,7 +59,9 @@
           </div>
           <div class="box show_right show_left" style="margin-top:5px;">
             <p>
-              <label for='issue'>Add an additional bug (single or a comma-separated list e.g.: "bnc#123456, bgo#654321,CVE-2012-1234)"</label>
+              <label for='issue'>Add an additional bug (single or a comma-separated list e.g.: "bnc#123456, bgo#654321,CVE-2012-1234)"<br/>
+                A list of all supported tracker you can find here: 
+                <%= link_to "Tracker List", "https://en.opensuse.org/openSUSE:Packaging_Patches_guidelines#Current_set_of_abbreviations"%></label>
               <input type="text" id="issue" name="issuelist" value="<%=@issueid%>"/>
 
               <%= link_to image_tag('bug_add.png', :alt => "Add Bug", :title => "Add additional issues e.g.: \"bnc#123456, bgo#654321\""), '#', :onclick => 'append_bug($("#issue").val()); return false;', :id => 'add_bug' %>
