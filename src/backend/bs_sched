@@ -270,10 +270,14 @@ sub addrepo {
       eval {$r = $pool->repofromfile($prp, $solvfile);};
       return $r if $r;
     }
+    if ($repodatas{$prp}->{'error'}) {
+      return undef;
+    }
   }
   delete $repodatas{$prp}->{'solv'};
   delete $repodatas{$prp}->{'lastscan'};
   delete $repodatas{$prp}->{'solvfile'};
+  delete $repodatas{$prp}->{'error'};
   my ($projid, $repoid) = split('/', $prp, 2);
   if ($remoteprojs{$projid}) {
     return addrepo_remote($pool, $prp, $remoteprojs{$projid});
