@@ -2134,7 +2134,7 @@ sub checkbuildrepoid {
 # get_projpacks:  get/update project/package information
 #
 # input:  $projid: update just this project
-#         $packid: update just this package
+#         @packids: update just these packages
 # output: $projpacks (global)
 #
 
