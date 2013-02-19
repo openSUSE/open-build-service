@@ -2467,6 +2467,29 @@ sub calc_projpacks_linked {
 }
 
 #
+# find_linked_sources - find which projects/packages link to the specified project/packages
+#
+# output: hash ref project -> package list
+#
+sub find_linked_sources {
+  my ($projid, $packids) = @_;
+  my %linked;
+  if ($packids) {
+    for my $packid (unify(@$packids)) {
+      for my $linfo (grep {$_->{'project'} eq $projid && ($_->{'package'} eq $packid || $_->{'package'} eq ':*')} @projpacks_linked) {
+          push @{$linked{$linfo->{'myproject'}}}, defined($linfo->{'mypackage'}) ? $linfo->{'mypackage'} : $packid;
+        }
+      }
+    } else {
+      for my $linfo (grep {$_->{'project'} eq $projid} @projpacks_linked) {
+        next unless exists $linfo->{'mypackage'};
+        push @{$linked{$linfo->{'myproject'}}}, $linfo->{'mypackage'};
+      }
+    }
+  return \%linked;
+}
+
+#
 # expandsearchpath  - recursively expand the last component
 #                     of a repository's path
 #
@@ -5704,23 +5727,17 @@ sub do_fetchprojpacks {
     }
     next unless $foundit;	# can't delay it, we never look at the project
     push @{$delayedfetchprojpacks->{$projid}}, @{$fetchprojpacks->{$projid}};
-    my %packids = map {$_ => 1} @{$fetchprojpacks->{$projid}};
-    my %changedproj;
-    for my $packid (sort keys %packids) {
-	for my $linfo (grep {$_->{'project'} eq $projid && ($_->{'package'} eq $packid || $_->{'package'} eq ':*')} @projpacks_linked) {
-	    my $lprojid = $linfo->{'myproject'};
-	    my $lpackid = defined($linfo->{'mypackage'}) ? $linfo->{'mypackage'} : $packid;
-	    push @{$delayedfetchprojpacks->{$lprojid}}, $lpackid;
-	    $changedproj{$lprojid} = 1;
+    my $linked = find_linked_sources($projid, $fetchprojpacks->{$projid});
+    if (%$linked) {
+      for my $lprojid (keys %$linked) {
+	push @{$delayedfetchprojpacks->{$lprojid}}, @{$linked->{$lprojid}};
+      }
+      for my $lprp (@prps) {
+	if ($linked->{(split('/', $lprp, 2))[0]}) {
+	  $changed_med->{$lprp} ||= 1;
+	  $changed_dirty->{$lprp} = 1; 
 	}
-    }
-    if (%changedproj) {
-	for my $lprp (@prps) {
-	    if ($changedproj{(split('/', $lprp, 2))[0]}) {
-		$changed_med->{$lprp} ||= 1;
-		$changed_dirty->{$lprp} = 1; 
-	    }
-	}
+      }
     }
     delete $fetchprojpacks->{$projid};
   }
@@ -5777,10 +5794,8 @@ sub do_fetchprojpacks {
       # more work if the project was deleted
       # (if it's just a config change we really do not care about source links)
       if (!$projpacks->{$projid} || $deepcheck->{$projid}) {
-	for my $linfo (grep {$_->{'project'} eq $projid} @projpacks_linked) {
-	  next unless exists $linfo->{'mypackage'};
-	  push @{$fetchlinkedprojpacks{$linfo->{'myproject'}}}, $linfo->{'mypackage'};
-	}
+	my $linked = find_linked_sources($projid, undef);
+	push @{$fetchlinkedprojpacks{$_}}, @{$linked->{$_}} for keys %$linked;
       }
     } else {
       for my $prp (@prps) {
@@ -5791,13 +5806,11 @@ sub do_fetchprojpacks {
       }
       $changed_high->{$projid} ||= 1;
     }
-
-    my %packids = map {$_ => 1} grep {defined($_)} @{$fetchprojpacks->{$projid}};
-    for my $packid (sort keys %packids) {
-      for my $linfo (grep {$_->{'project'} eq $projid && ($_->{'package'} eq $packid || $_->{'package'} eq ':*')} @projpacks_linked) {
-	push @{$fetchlinkedprojpacks{$linfo->{'myproject'}}}, defined($linfo->{'mypackage'}) ? $linfo->{'mypackage'} : $packid;
-	$fetchlinkedprojpacks_srcchange{$linfo->{'myproject'}} = 1;	# mark as source changes
-      }
+    my @packids = grep {defined($_)} @{$fetchprojpacks->{$projid}};
+    my $linked = find_linked_sources($projid, \@packids);
+    for my $lprojid (keys %$linked) {
+      push @{$fetchlinkedprojpacks{$lprojid}}, @{$linked->{$lprojid}};
+      $fetchlinkedprojpacks_srcchange{$lprojid} = 1;	# mark as source changes
     }
   }
 
@@ -5810,7 +5823,7 @@ sub do_fetchprojpacks {
       # everything else is low prio
       if ($fetchlinkedprojpacks_srcchange{$projid}) {
 	for my $prp (@prps) {
-	  if ((split('/', $prp, 2))[0] eq $projid){
+	  if ((split('/', $prp, 2))[0] eq $projid) {
 	    $changed_med->{$prp} ||= 1;
 	    $changed_dirty->{$prp} = 1;
 	  }
@@ -5818,7 +5831,7 @@ sub do_fetchprojpacks {
 	$changed_med->{$projid} ||= 1;
       } else {
 	for my $prp (@prps) {
-	  if ((split('/', $prp, 2))[0] eq $projid){
+	  if ((split('/', $prp, 2))[0] eq $projid) {
 	    $changed_low->{$prp} ||= 1;
 	    $changed_dirty->{$prp} = 1;
 	  }
