@@ -57,13 +57,13 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
       case theclass
       when "project"
         { :type         => :project,
-          :project_name => row.find("a.data-title")[:title],
-          :project_title => row.find("a.data-title").text
+          :project_name => row.find("a.project").text,
+          :project_title => row.find("a.project")[:title]
         }
       when "package"
         { :type         => :package, 
-          :package_name => row.find("a.data-title")[:title],
-          :project_name => row.find("span.data-project").text
+          :package_name => row.find("a.package").text,
+          :project_name => row.find("span.project").text
         }
       else
         fail "Unrecognized result icon. #{alt}"
@@ -239,14 +239,13 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     visit search_path
     
     search(
-      text: "вокябюч",
+      :text => "вокябюч",
       :for  => [:projects, :packages],
       :in   => [:name, :title, :description])
     
     results = search_results
-    page.must_have_text "Этёам вокябюч еюж эи"
     page.must_have_text "窞綆腤 埱娵徖 渮湸湤 殠 唲堔"
-    results.include?(:type => :project, :project_name => "home:tom")
+    results.include?(:type => :project, :project_name => "home:tom", :project_title => "Этёам вокябюч еюж эи")
     results.count.must_equal 1
   end
 
