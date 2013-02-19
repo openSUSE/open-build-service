@@ -2430,7 +2430,14 @@ sub getprojpack {
   if ($cgi->{'noremote'}) {
     *BSRPC::rpc = sub {die("500 remote error: noremote option\n");};
   } else {
-    *BSRPC::rpc = *oldbsrpc;
+    *BSRPC::rpc = sub {
+      my $r = eval { oldbsrpc(@_) };
+      if ($@) {
+	$@ = "interconnect error: $@" unless $@ =~ /(?:remote|interconnect) error:/;
+	die($@);
+      }
+      return $r;
+    };
   }
   $arch ||= 'noarch';
   $projids = [ findprojects() ] unless $projids;
