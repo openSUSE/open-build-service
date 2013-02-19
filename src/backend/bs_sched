@@ -280,7 +280,7 @@ sub addrepo {
   delete $repodatas{$prp}->{'error'};
   my ($projid, $repoid) = split('/', $prp, 2);
   if ($remoteprojs{$projid}) {
-    return addrepo_remote($pool, $prp, $remoteprojs{$projid});
+    return addrepo_remote($pool, $prp, $myarch, $remoteprojs{$projid});
   }
   return addrepo_scan($pool, $prp);
 }
@@ -2694,17 +2694,17 @@ sub fetchremoteconfig {
 }
 
 sub addrepo_remote {
-  my ($pool, $prp, $remoteproj) = @_;
+  my ($pool, $prp, $arch, $remoteproj) = @_;
 
   my ($projid, $repoid) = split('/', $prp, 2);
   return undef if !$remoteproj || $remoteproj->{'error'};
 
-  my $cachemd5 = Digest::MD5::md5_hex("$prp/$myarch");
+  my $cachemd5 = Digest::MD5::md5_hex("$prp/$arch");
   substr($cachemd5, 2, 0, '/');
 
   print "    fetching remote repository state for $prp\n";
   my $param = {
-    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$myarch/_repository",
+    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch/_repository",
     'timeout' => 200,
     'receiver' => \&BSHTTP::cpio_receiver,
     'proxy' => $proxy,
@@ -2724,7 +2724,7 @@ sub addrepo_remote {
     my $error = $@;
     $error =~ s/\n$//s;
     if ($error !~ /remote error:/) {
-      addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $myarch});
+      addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch});
       if (-s "$remotecache/$cachemd5.solv") {
 	# try last solv file
 	my $r;
