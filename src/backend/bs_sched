@@ -2248,6 +2248,30 @@ sub update_projpacks {
       delete $proj->{'package'};
     }
   }
+  remotemap2remoteprojs($projpacksin->{'remotemap'});
+}
+
+# update remoteprojs with the remotemap data
+sub remotemap2remoteprojs {
+  my ($remotemap) = @_;
+
+  for my $proj (@{$remotemap || []}) {
+    my $projid = delete $proj->{'project'};
+    my $oproj = $remoteprojs{$projid};
+    undef $oproj if $oproj && ($oproj->{'remoteurl'} ne $proj->{'remoteurl'} || $oproj->{'remoteproject'} ne $proj->{'remoteproject'});
+    my $c = $proj->{'config'};
+    $c = $oproj->{'config'} if !defined($c) && $oproj;
+    my $error = $proj->{'error'};
+    delete $proj->{'error'};
+    $proj = $oproj if $proj->{'proto'} && $oproj && !$oproj->{'proto'};
+    delete $proj->{'config'};
+    $proj->{'config'} = $c if defined $c;
+    if ($error) {
+      $proj->{'error'} = $error;
+      addretryevent({'type' => 'project', 'project' => $projid}) if $error =~ /interconnect error:/;
+    }
+    $remoteprojs{$projid} = $proj;
+  }
 }
 
 # -> BSUtil
