@@ -870,25 +870,51 @@ end
     assert_match(/Go Away/, @response.body)
     assert_xml_tag :tag => "status", :attributes => { :code => "request_rejected" }
 
+    # just for submit actions
+    post "/source/home:Iggy/_attribute", "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>No Submits</value> <value>submit</value> </attribute> </attributes>"
+    assert_response :success
+    post "/request?cmd=create", rq
+    assert_response 403
+    assert_match(/No Submits/, @response.body)
+    assert_xml_tag :tag => "status", :attributes => { :code => "request_rejected" }
+    # but it works when blocking only for others
+    post "/source/home:Iggy/_attribute", "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Submits welcome</value> <value>delete</value> <value>set_bugowner</value> </attribute> </attributes>"
+    assert_response :success
+    post "/request?cmd=create", rq
+    assert_response :success
+
+
     # block request creation in package
     post "/source/home:Iggy/TestPack/_attribute", "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Package blocked</value> </attribute> </attributes>"
     assert_response :success
 
     post "/request?cmd=create", rq
     assert_response 403
-    assert_match(/Go Away/, @response.body)
+    assert_match(/Package blocked/, @response.body)
     assert_xml_tag :tag => "status", :attributes => { :code => "request_rejected" }
-
-#FIXME: test with request without target
-
     # remove project attribute lock
     delete "/source/home:Iggy/_attribute/OBS:RejectRequests"
     assert_response :success
-
+    # still not working
     post "/request?cmd=create", rq
     assert_response 403
     assert_match(/Package blocked/, @response.body)
     assert_xml_tag :tag => "status", :attributes => { :code => "request_rejected" }
+
+    # just for submit actions
+    post "/source/home:Iggy/TestPack/_attribute", "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>No Submits</value> <value>submit</value> </attribute> </attributes>"
+    assert_response :success
+    post "/request?cmd=create", rq
+    assert_response 403
+    assert_match(/No Submits/, @response.body)
+    assert_xml_tag :tag => "status", :attributes => { :code => "request_rejected" }
+    # but it works when blocking only for others
+    post "/source/home:Iggy/TestPack/_attribute", "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Submits welcome</value> <value>delete</value> <value>set_bugowner</value> </attribute> </attributes>"
+    assert_response :success
+    post "/request?cmd=create", rq
+    assert_response :success
+
+#FIXME: test with request without target
 
     #cleanup
     delete "/source/home:Iggy/TestPack/_attribute/OBS:RejectRequests"

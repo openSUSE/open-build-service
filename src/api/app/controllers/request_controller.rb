@@ -485,9 +485,11 @@ class RequestController < ApplicationController
         return false
       end
       if tprj.class == Project and (a = tprj.find_attribute("OBS", "RejectRequests") and a.values.first)
-        render_error :status => 403, :errorcode => 'request_rejected',
-        :message => "The target project #{action.target_project} is not accepting requests because: #{a.values.first.value.to_s}"
-        return false
+        if a.values.length < 2 or a.values.find_by_value(action.action_type)
+          render_error :status => 403, :errorcode => 'request_rejected',
+            :message => "The target project #{action.target_project} is not accepting requests because: #{a.values.first.value.to_s}"
+          return false
+        end
       end
       if action.target_package
         if Package.exists_by_project_and_name(action.target_project, action.target_package) or [:delete, :change_devel, :add_role, :set_bugowner].include? action.action_type
@@ -495,9 +497,11 @@ class RequestController < ApplicationController
         end
         
         if tpkg && (a = tpkg.find_attribute("OBS", "RejectRequests") and a.values.first)
-          render_error :status => 403, :errorcode => 'request_rejected',
-          :message => "The target package #{action.target_project} / #{action.target_package} is not accepting requests because: #{a.values.first.value.to_s}"
-          return false
+          if a.values.length < 2 or a.values.find_by_value(action.action_type)
+            render_error :status => 403, :errorcode => 'request_rejected',
+              :message => "The target package #{action.target_project} / #{action.target_package} is not accepting requests because: #{a.values.first.value.to_s}"
+            return false
+          end
         end
       end
     end
