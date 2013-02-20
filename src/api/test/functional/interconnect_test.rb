@@ -214,31 +214,35 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response 404
     assert_match(/no pubkey available/, @response.body)
 
-    # access to local project with project link to remote
-    get "/source/UseRemoteInstance"
-    assert_response :success
-    get "/source/UseRemoteInstance/_meta"
-    assert_response :success
-    get "/source/UseRemoteInstance/pack1"
-    assert_response :success
-    get "/source/UseRemoteInstance/pack1/_meta"
-    assert_response :success
-    get "/source/UseRemoteInstance/pack1/my_file"
-    assert_response :success
-    post "/source/UseRemoteInstance/pack1", :cmd => "showlinked"
-    assert_response :success
-    post "/source/UseRemoteInstance/pack1", :cmd => "branch"
-    assert_response :success
-    get "/source/UseRemoteInstance"
-    assert_response :success
-    assert_xml_tag( :tag => "directory", :attributes => { :count => "0" } )
-    get "/source/UseRemoteInstance?expand=1"
-    assert_response :success
+    # access to local project with project link to remote, and via a local indirection
+    [ "UseRemoteInstance", "UseRemoteInstanceIndirect" ].each do |project|
+      get "/source/#{project}"
+      assert_response :success
+      get "/source/#{project}/_meta"
+      assert_response :success
+      get "/source/#{project}/pack1"
+      assert_response :success
+      get "/source/#{project}/pack1/_meta"
+      assert_response :success
+      get "/source/#{project}/pack1/my_file"
+      assert_response :success
+      post "/source/#{project}/pack1", :cmd => "showlinked"
+      assert_response :success
+      post "/source/#{project}/pack1", :cmd => "branch"
+      assert_response :success
+      get "/source/#{project}"
+      assert_response :success
+      assert_xml_tag( :tag => "directory", :attributes => { :count => "0" } )
+      get "/source/#{project}?expand=1"
+      assert_response :success
 if $ENABLE_BROKEN_TEST
 #FIXME2.4: remote packages get not added yet.
-    assert_xml_tag( :tag => "directory", :attributes => { :count => "1" } )
-    assert_xml_tag( :tag => "entry", :attributes => { :name => "pack1", :originproject => "BaseDistro2.0" } )
+      assert_xml_tag( :tag => "directory", :attributes => { :count => "1" } )
+      assert_xml_tag( :tag => "entry", :attributes => { :name => "pack1", :originproject => "BaseDistro2.0" } )
 end
+    end
+
+    # check access to binaries of remote instance
     get "/build/UseRemoteInstance/pop/i586/pack1/_log"
     assert_response 400
     assert_match(/remote error: pack1  no logfile/, @response.body) # we had no build, but request reached backend

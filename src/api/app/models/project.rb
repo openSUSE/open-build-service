@@ -1193,7 +1193,7 @@ class Project < ActiveRecord::Base
     # add all linked and indirect linked projects
     self.linkedprojects.each do |lp|
       if lp.linked_db_project.nil?
-        # FIXME: this is a remote project
+        projects << lp.linked_remote_project_name
       else
         lp.linked_db_project.expand_all_projects.each do |p|
           unless p_map[p]

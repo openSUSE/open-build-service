@@ -4,7 +4,7 @@ linked_projects_42:
   linked_db_project_id: 2045
   position: 1
   linked_remote_project_name: nil
-linked_projects_43:
+UseRemoteInstance:
   id: 43
   db_project_id: 5001
   linked_db_project_id: 0
@@ -14,5 +14,11 @@ linked_projects_44:
   id: 44
   db_project_id: 2043
   linked_db_project_id: 2042
+  position: 1
+  linked_remote_project_name: nil
+UseRemoteInstanceIndirect_to_UseRemoteInstance:
+  id: 45
+  db_project_id: 5005
+  linked_db_project_id: 5001
   position: 1
   linked_remote_project_name: nil
