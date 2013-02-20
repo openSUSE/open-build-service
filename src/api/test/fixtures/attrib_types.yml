@@ -49,7 +49,6 @@ OBS_QualityCategory:
 OBS_RejectRequests:
   id: 64
   name: RejectRequests
-  value_count: 1
   attrib_namespace_id: 9
 OBS_RequestCloned:
   id: 60

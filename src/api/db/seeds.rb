@@ -65,7 +65,7 @@ at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "VeryImpo
 at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
 at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "UpdateProject", :value_count => 1)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
-at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "RejectRequests", :value_count => 1)
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "RejectRequests")
 at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
 at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "ApprovedRequestSource", :value_count => 0)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_user_id(admin.id)
