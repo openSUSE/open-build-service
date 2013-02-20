@@ -93,8 +93,8 @@ class Package < ActiveRecord::Base
       if pkg.nil? and follow_project_links
         # in case we link to a remote project we need to assume that the
         # backend may be able to find it even when we don't have the package local
-        prj.linkedprojects.each do |l|
-          return nil if l.linked_remote_project_name
+        prj.expand_all_projects.each do |p|
+          return nil unless p.class == Project
         end
       end
 

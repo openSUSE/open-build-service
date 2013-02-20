@@ -194,6 +194,13 @@ projects_5002:
   description: for testing remoteurl support
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+projects_5003:
+  id: 5005
+  name: UseRemoteInstanceIndirect
+  title: This project is project linking to a local project which links to a remote one
+  description: for testing remoteurl support
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
 projects_503:
   id: 503
   name: home:fred:DeleteProject
