@@ -1310,6 +1310,7 @@ Parameters:
 
   devel: true/false: include devel package definitions?
   limit: limit the number of results. Default is "1" single result. Use 0 for all hits, -1 for deepest match.
+         This works only when used together with binary search otherwise always all items get returned.
   project: specify project to search in
   filter: Comma seperated list of role names to be taken into account
   attribute: specify attribute which is marking the default project(s). Default is OBS:OwnerRootProject

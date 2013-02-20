@@ -1307,8 +1307,8 @@ class Project < ActiveRecord::Base
        
         already_checked[p.id] = 1
 
-        m = extract_maintainer(self, p.resolve_devel_package, filter) if devel == true
-        m = extract_maintainer(self, p, filter) unless m
+        m = extract_maintainer(self, p.resolve_devel_package, filter, owner) if devel == true
+        m = extract_maintainer(self, p, filter, owner) unless m
         if m
           break unless deepest
         end
@@ -1367,35 +1367,49 @@ class Project < ActiveRecord::Base
     return maintainers
   end
 
-  def find_containers(owner, limit=1, devel=true, filter=["maintainer","bugowner"] )
-    maintainers=[]
+  def find_containers(owner, devel=true, filter=["maintainer","bugowner"] )
     projects=self.expand_all_projects
 
-    match_all = (limit == 0)
-
-    already_checked = {}
-    matched_packages = {}
-    deepest_match = nil
-    projects.each do |project| # project link order
-      next unless project.class == Project
- 
-      project.packages.each do |pkg| # no order
-
-        next if matched_packages[pkg.name] # already found in upper project
-
-        m, limit, already_checked = lookup_package_owner(pkg, owner, limit, devel, filter, false, already_checked)
-
-        next unless m
-
-        # add entry
-        matched_packages[pkg.name] = 1
-        maintainers << m
-        limit = limit - 1
-        return maintainers if limit < 1 and not match_all
-      end
+    roles=[]
+    filter.each do |f|
+      roles << Role.find_by_title!(f)
     end
 
-    maintainers << deepest_match if deepest_match
+    found_packages = []
+    found_projects = []
+    # fast find packages with defintions
+    if owner.class == User
+      # user in package object
+      found_packages = PackageUserRoleRelationship.where(:role_id => roles, :bs_user_id => owner, :db_package_id => Package.where(:db_project_id => projects)).select(:db_package_id).map{ |p| p.db_package_id}
+      # user in project object
+      ProjectUserRoleRelationship.where(:role_id => roles, :bs_user_id => owner, :db_project_id => Project.where(:id => projects)).each do |prjrel|
+        found_projects << prjrel.db_project_id
+      end
+    elsif owner.class == Group
+      # group in package object
+      found_packages = PackageGroupRoleRelationship.where(:role_id => roles, :bs_group_id => owner, :db_package_id => Package.where(:db_project_id => projects)).select(:db_package_id).map{ |p| p.db_package_id}
+      # group in project object
+      ProjectGroupRoleRelationship.where(:role_id => roles, :bs_group_id => owner, :db_project_id => Project.where(:id => projects)).each do |prjrel|
+        found_projects << prjrel.db_project_id
+      end
+    else
+      raise "illegal object handed to find_containers"
+    end
+    if devel == true
+      #FIXME add devel packages, but how do recursive lookup fast in SQL?
+    end
+    found_packages.uniq!
+
+    maintainers=[]
+
+    found_projects.each do |id|
+      prj = Project.find_by_id(id)
+      maintainers << { :rootproject => self.name, :project => prj.name }
+    end
+    found_packages.each do |id|
+      pkg = Package.find_by_id(id)
+      maintainers << { :rootproject => self.name, :project => pkg.project.name, :package => pkg.name }
+    end
 
     return maintainers
   end

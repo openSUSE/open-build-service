@@ -53,7 +53,7 @@ module SearchHelper
       elsif obj.class == String
         owners += project.find_assignees(obj, limit.to_i, devel, filter, (true unless params[:webui_mode].blank?))
       else
-        owners += project.find_containers(obj, limit.to_i, devel, filter)
+        owners += project.find_containers(obj, devel, filter)
       end
   
     end
