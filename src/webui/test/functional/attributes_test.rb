@@ -265,9 +265,6 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
     add_new_attribute(name:  "OBS:UpdateProject",
                       value:  "",
                       expect:  :no_permission)  
-    add_new_attribute(name:  "OBS:RejectRequests",
-                      value:  "",
-                      expect:  :wrong_number_of_values)   
     add_new_attribute(name:  "OBS:ApprovedRequestSource",
                       value:  "",
                       expect:  :success)
