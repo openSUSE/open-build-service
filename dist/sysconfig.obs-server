@@ -106,6 +106,20 @@ OBS_REPO_SERVERS=""
 OBS_WORKER_INSTANCES="0"
 
 ## Path:        Applications/OBS
+## Description: define names of build instances for z/VM
+## Type:        string
+## Default:     ""
+## Config:      OBS
+#
+# The names of the workers as defined in z/VM. These must have two minidisks
+# assigned, and have a secondary console configured to the local machine: 
+# 0150 is the root device
+# 0250 is the swap device
+#
+#OBS_WORKER_INSTANCE_NAMES="LINUX075 LINUX076 LINUX077"
+OBS_WORKER_INSTANCE_NAMES="LINUX075"
+
+## Path:        Applications/OBS
 ## Description: The base directory, where sub directories for each worker will get created
 ## Type:        string
 ## Default:     ""
@@ -199,7 +213,7 @@ OBS_WORKER_NICE_LEVEL=18
 
 ## Path:        Applications/OBS
 ## Description: Set used VM type by worker
-## Type:        ("auto" | "xen" | "kvm" | "lxc" | "emulator:$arch" | "emulator:$arch:$script" | "none")
+## Type:        ("auto" | "xen" | "kvm" | "lxc" | "zvm" | "emulator:$arch" | "emulator:$arch:$script" | "none")
 ## Default:     "auto"
 ## Config:      OBS
 #
@@ -212,6 +226,7 @@ OBS_VM_TYPE="auto"
 ## Default:     "none"
 ## Config:      OBS
 #
+# For z/VM this is normally /boot/image
 #
 OBS_VM_KERNEL="none"
 
@@ -228,6 +243,9 @@ OBS_VM_KERNEL="none"
 #
 # a working initrd file which includes virtio and binfmt_misc for OBS in order to work fine
 #
+# for z/VM, the build script will create a initrd at the given location if
+# it does not yet exist.
+# 
 OBS_VM_INITRD="none"
 
 ## Path:        Applications/OBS
@@ -249,7 +267,7 @@ OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE="4096"
 OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE="1024"
 
 ## Path:        Applications/OBS
-## Description: Filesystem to use for autosetup {none,ext3}=ext3, ext4=ext4
+## Description: Filesystem to use for autosetup {none,ext4}=ext4, ext3=ext3
 ## Type:        string
 ## Default:     "ext3"
 ## Config:      OBS
