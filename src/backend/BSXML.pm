@@ -1518,7 +1518,7 @@ our $constraints = [
   [ 'sandbox' =>
        'exclude',   # true or false. default is false.
        [],
-       '_content' # xen/kvm/chroot/secure
+       '_content' # xen/kvm/zvm/lxc/emulator/chroot/secure
   ],
   [ 'linux' =>
       [ 'version' =>
