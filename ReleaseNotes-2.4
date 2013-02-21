@@ -28,6 +28,13 @@ Temporary Problems:
    routes have to be enhanced and webui needs to get support 
    for using it.
 
+Regressions:
+============
+
+ * LDAP support is not tested and in unknown state (not part of test suite)
+
+ * source service editor in webui is not available
+
 Changes on purpose:
 ===================
 
@@ -44,14 +51,6 @@ Changes on purpose:
  * Requests do require a description now in any case
 
  * webui configurations got moved from environments/*.rb to config/options.yml.
-   TODO: import config settings on update
-
- * Build Prerequires can be used also with the FileProvides feature in the
-   build configuration now.
-
- * Regular users can copy entire projects (without binary results) now.
-
- * Upload of binaries via api is allowed to administrators now.
 
  * Package conflicts and obsoletes are taken into account when resolving 
    dependencies for build jobs. This improves build consistency but may also lead
@@ -59,6 +58,11 @@ Changes on purpose:
    can be restored by adding the following line into the project configuration:
 
    ExpandFlags: ignoreconflicts
+
+ * cross architecture build directives in project configuration
+   CBInstall and CBPreinstall are not supported anymore. Use standard "Install" and
+   "Preinstall" directives instead.
+   => all architectures can be used as host for cross build now.
 
  * The api file/distribution.xml is obsolete, the config gets stored in the SQL database
    now. Existing file gets imported during migration.
@@ -85,6 +89,13 @@ Features
    in the published repositories can be configured now. This can be done via
    the "staticlinks" keyword in Repotype: definition.
 
+ * Build Prerequires can be used also with the FileProvides feature in the
+   build configuration now.
+
+ * Regular users can copy entire projects (without binary results) now.
+
+ * Upload of binaries via api is allowed to administrators now.
+
  * Data about used resources of build jobs get collected. However it
    gets not yet used for build job assignment
 
@@ -107,13 +118,19 @@ Features
 
  * aarch64 architecture added (aka armv8 or arm64)
 
+ * New generic "emulator" virtualization support. Can be used to build inside
+   of system emulators (for foreign hardware for example)
+
 Deprecated:
 ===========
 
 The following calls have been marked as deprecated, they will get removed in OBS 3.0
 
-* api
-  - /person/$LOGIN/group   -> use /group?login=$LOGIN   instead
-  - /search/project_id     -> use /search/project/id    instead
-  - /search/package_id     -> use /search/package/id    instead
+ * api
+   - /person/$LOGIN/group   -> use /group?login=$LOGIN   instead
+   - /search/project_id     -> use /search/project/id    instead
+   - /search/package_id     -> use /search/package/id    instead
+
+ * The deprecated support to copy qemu binaries from external build host into
+   build environment has been removed. 
 
