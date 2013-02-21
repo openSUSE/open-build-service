@@ -126,6 +126,19 @@ elif [ -e /sys/hypervisor/type ] && grep -q xen /sys/hypervisor/type; then
     OBS_VM_TYPE="xen"
 fi
 
+if [ "$OBS_VM_TYPE" = "zvm" ]; then
+    # for z/VM, the disks are already setup with the workers.
+    if [ -n "$OBS_VM_DISK_AUTOSETUP_FILESYSTEM" ]; then
+            VMDISK_FILESYSTEM="--vmdisk-filesystem ${OBS_VM_DISK_AUTOSETUP_FILESYSTEM}"
+    fi
+    if [ -n "$OBS_VM_DISK_AUTOSETUP_MOUNT_OPTIONS" ]; then
+            VMDISK_MOUNT_OPTIONS="--vmdisk-mount-options ${OBS_VM_DISK_AUTOSETUP_MOUNT_OPTIONS}"
+    fi
+    if [ -n "$OBS_VM_DISK_CLEAN" ];then
+            VMDISK_CLEAN="--vmdisk-clean"
+    fi
+fi
+
 if [ "$OBS_VM_TYPE" = "xen" -o "$OBS_VM_TYPE" = "kvm" -o "${OBS_VM_TYPE#emulator:}" != "$OBS_VM_TYPE" ] ; then
     # we start up in VM mode, check for the worker disk options
     if [ -n "$OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE" ]; then
@@ -145,6 +158,54 @@ if [ "$OBS_VM_TYPE" = "xen" -o "$OBS_VM_TYPE" = "kvm" -o "${OBS_VM_TYPE#emulator
     fi
 fi
 
+check_vmcp()
+{
+	# try to load the kernel module
+	modprobe vmcp 2> /dev/null || :
+	# run a vmcp command that always works from within z/VM
+	vmcp q privclass
+}
+
+create_initrd()
+{
+        # $1 name of kernel
+        # $2 name of initrd
+        # 0150 is already included from the local guest
+        if test -z "$2" ; then
+                echo "Please define a name for the new initrd in /etc/sysconfig/obs-server"
+                return 1
+        else
+		# create initrd with system scripts
+                mkinitrd -k $1 -i $2 -m "xfs reiserfs ext3 ext4" -B -S
+                TEMPDIR=$(mktemp -d /tmp/initrd.XXX)
+                pushd $TEMPDIR
+		# unpack initrd to add some extra files 
+                zcat $2 | cpio -i
+                cat - > etc/udev/rules.d/51-dasd-0.0.0250.rules <<EOF
+ACTION=="add", SUBSYSTEM=="ccw", KERNEL=="0.0.0250",
+IMPORT{program}="collect 0.0.0250 %k 0.0.0250 dasd-eckd"
+ACTION=="add", SUBSYSTEM=="drivers", KERNEL=="dasd-eckd",
+IMPORT{program}="collect 0.0.0250 %k 0.0.0250 dasd-eckd"
+ACTION=="add", ENV{COLLECT_0.0.0250}=="0", ATTR{[ccw/0.0.0250]online}="1"
+EOF
+                # lets activate the alias devices too
+                for device in {1..2}E{C..F}; do
+                cat - > etc/udev/rules.d/51-dasd-0.0.0${device}.rules <<EOF
+ACTION=="add", SUBSYSTEM=="ccw", KERNEL=="0.0.0${device}",
+IMPORT{program}="collect 0.0.0${device} %k 0.0.0${device} dasd-eckd"
+ACTION=="add", SUBSYSTEM=="drivers", KERNEL=="dasd-eckd",
+IMPORT{program}="collect 0.0.0${device} %k 0.0.0${device} dasd-eckd"
+ACTION=="add", ENV{COLLECT_0.0.0${device}}=="0", ATTR{[ccw/0.0.0${device}]online}="1"
+EOF
+                done
+                cp -a /usr/sbin/xfs_check /sbin/fsck.xfs /usr/sbin/xfs_db sbin/
+		# create new initrd:
+                find . | cpio -H newc -o | gzip -9 -c > $2
+                popd
+                rm -rf $TEMPDIR
+        fi
+}
+
 rc_reset
 case "$1" in
     start)
@@ -162,6 +223,14 @@ case "$1" in
             # start one build backend per CPU
             NUM=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`
         fi
+	if [ "--zvm" == "$vmopt" ]; then
+	    check_vmcp || rc_status -v
+	    create_initrd $OBS_VM_KERNEL $OBS_VM_INITRD || rc_status -v
+	fi
+	if [ -n "$OBS_WORKER_INSTANCE_NAMES" ]; then
+	    WORKERS=($OBS_WORKER_INSTANCE_NAMES)
+	    NUM=${#WORKERS[*]}
+        fi
 
         if [ -n "$OBS_WORKER_OWNER" ]; then
             HOSTOWNER="--owner $OBS_WORKER_OWNER"
@@ -172,6 +241,7 @@ case "$1" in
         echo -n "Type of obsworker is "
 	if [ "--kvm" == "$vmopt" ]; then echo "KVM virtual machine"
 	elif [ "--xen" == "$vmopt" ]; then echo "XEN virtual machine"
+	elif [ "--zvm" == "$vmopt" ]; then echo "z/VM virtual machine"
 	else  echo "chroot"
 	fi
 
@@ -206,8 +276,13 @@ case "$1" in
             else
                 port=""
             fi
+	    I_INDEX=$I
             I=$(( $I + 1 ))
-            WORKERID="${HOSTNAME}:$I"
+	    if [ "$OBS_VM_TYPE" = 'zvm' ]; then
+		WORKERID="${HOSTNAME}:${WORKERS[$I_INDEX]}"
+	    else
+                WORKERID="${HOSTNAME}:$I"
+	    fi
             R=$OBS_WORKER_DIRECTORY/root_$I
             # prepare obsworker startup in screen...
             TMPFS=
@@ -230,6 +305,12 @@ case "$1" in
                 if [ -n "$OBS_VM_USE_HUGETLBFS" ]; then
                     HUGETLBFS="--hugetlbfs $OBS_VM_USE_HUGETLBFS"
                 fi
+	    elif [ -n "$vmopt" -a "$OBS_VM_TYPE" = 'zvm' ]; then
+		mkdir -p $R
+		# Without a worker being defined, we would not be in this loop.
+		WORKER="--vm-worker ${WORKERS[$I_INDEX]}"
+		WORKER_NR="--vm-worker-nr $I"
+		OBS_WORKER_OPT="$OBS_WORKER_OPT1 $WORKER $WORKER_NR $VMDISK_FILESYSTEM $VMDISK_MOUNT_OPTIONS $VMDISK_CLEAN"
             else
                 mkdir -p $R
                 DEVICE=
