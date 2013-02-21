@@ -684,7 +684,7 @@ class RequestController < ApplicationController
       tpkg = nil
 
       if action.target_project
-        tprj = Project.find_by_name action.target_project
+        tprj = Project.get_by_name action.target_project
         if action.target_package
           if action.target_repository and action.action_type == :delete
             render_error :status => 400, :errorcode => "invalid_request",
@@ -699,6 +699,9 @@ class RequestController < ApplicationController
             else
               tpkg = tprj.find_package action.target_package.gsub(/\.[^\.]*$/, '')
             end
+          elsif [ :set_bugowner, :add_role, :change_devel, :delete ].include? action.action_type 
+            # target must exists
+            tpkg = tprj.packages.find_by_name! action.target_package
           else
             # just the direct affected target
             tpkg = tprj.packages.find_by_name action.target_package
