@@ -242,6 +242,7 @@ case "$1" in
 	if [ "--kvm" == "$vmopt" ]; then echo "KVM virtual machine"
 	elif [ "--xen" == "$vmopt" ]; then echo "XEN virtual machine"
 	elif [ "--zvm" == "$vmopt" ]; then echo "z/VM virtual machine"
+	elif [ "--emulator" == "$vmopt" ]; then echo "System emulated virtual machine"
 	else  echo "chroot"
 	fi
 
