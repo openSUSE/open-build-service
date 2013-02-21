@@ -393,7 +393,9 @@ my %secure_sandboxes;
 if ($BSConfig::secure_sandboxes) {
   %secure_sandboxes = map {$_ => 1} @$BSConfig::secure_sandboxes;
 } else {
-  $secure_sandboxes{$_} = 1 for qw{xen kvm};
+  # we just define xen, kvm and zvm as entirely secure sandboxes atm
+  # chroot, emulator, lxc are currently considered as not safe
+  $secure_sandboxes{$_} = 1 for qw{xen kvm zvm};
 }
 
 sub oracle {
@@ -413,7 +415,6 @@ sub oracle {
       return 0 if $constraints->{'sandbox'}->{'content'} eq ($worker->{'sandbox'} || '');
     } else {
       if ($constraints->{'sandbox'}->{'content'} eq 'secure') {
-        # we just define xen and kvm as entirely secure sandboxes atm
         return 0 unless $secure_sandboxes{$worker->{'sandbox'} || ''};
       } else {
         return 0 unless $constraints->{'sandbox'}->{'content'} eq ($worker->{'sandbox'} || '');
