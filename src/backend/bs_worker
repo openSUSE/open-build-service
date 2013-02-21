@@ -64,6 +64,8 @@ my $vm_swap = '';
 my $vm_kernel;
 my $vm_initrd;
 my $vm_memory;
+my $vm_worker_name;
+my $vm_worker_instance;
 my $vmdisk_rootsize;
 my $vmdisk_swapsize;
 my $vmdisk_filesystem;
@@ -151,7 +153,12 @@ sub cleanup_job {
 }
 
 sub kill_job {
-  if (system("$statedir/build/build", "--root", $buildroot, ($vm ? ($vm, "$vm_root") : ()), "--kill")) {
+  # In z/VM, just kill the worker with name $vm_worker_name
+  if ($vm == "zvm") {
+    if (system("$statedir/build/build", "--vm-worker", $vm_worker_name, "--kill")) {
+      return 0;
+    }
+  } elsif (system("$statedir/build/build", "--root", $buildroot, ($vm ? ($vm, "$vm_root") : ()), "--kill")) {
     return 0;
   }
   cleanup_job();
@@ -186,6 +193,8 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --emulator  : enable emulator (requires prepared emulator.sh script)
        
+       --zvm       : enable z/VM
+
        --tmpfs     : uses tmpfs (memory) for the build root
 
        --device    : set kvm or xen root device (default is <root>/root file)
@@ -199,6 +208,12 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
        --vm-initrd : set initrd to use (xen/kvm)
 
        --vm-memory : set amount of memory to use (xen/kvm)
+
+       --vm-worker NAME
+                   : (z/VM) set name of the actual worker
+
+       --vm-worker-nr NUMBER
+                   : (z/VM) set instance number of the actual worker
 
        --vmdisk-rootsize <size>
                    : size of the root disk image (default 4096M)
@@ -339,6 +354,11 @@ while (@ARGV) {
     shift @ARGV;
     next;
   }
+  if ($ARGV[0] eq '--zvm') {
+    $vm = ' --zvm';
+    shift @ARGV;
+    next;
+  }
   if ($ARGV[0] eq '--tmpfs') {
     shift @ARGV;
     $vm_tmpfs_mode = 1;
@@ -367,6 +387,16 @@ while (@ARGV) {
   if ($ARGV[0] eq '--vm-memory') {
     shift @ARGV;
     $vm_memory = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--vm-worker') {
+    shift @ARGV;
+    $vm_worker_name = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--vm-worker-nr') {
+    shift @ARGV;
+    $vm_worker_instance = shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--vmdisk-rootsize') {
@@ -564,6 +594,7 @@ my $workerenvstate = {};
   $workerenvstate->{'sandbox'} = 'kvm' if $vm eq ' --kvm';
   $workerenvstate->{'sandbox'} = 'emulator' if $vm eq ' --emulator';
   $workerenvstate->{'sandbox'} = 'lxc' if $vm eq 'lxc';
+  $workerenvstate->{'sandbox'} = 'zvm' if $vm eq ' --zvm';
   # build host owner
   $workerenvstate->{'owner'} = $owner if $owner;
   # linux kernel
@@ -2069,7 +2100,7 @@ sub dobuild {
   }
 
   push @args, "$statedir/build/build";
-  if ($vm =~ /(xen|kvm)/) {
+  if ($vm =~ /(xen|kvm|zvm)/) {
     mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
     push @args, '--root', "$buildroot/.mount";
     push @args, $vm, "$vm_root";
@@ -2086,6 +2117,8 @@ sub dobuild {
     push @args, '--vmdisk-mount-options', "\"$vmdisk_mount_options\"" if $vmdisk_mount_options;
     push @args, '--vmdisk-clean'if $vmdisk_clean;
     push @args, '--hugetlbfs', $hugetlbfs if $hugetlbfs;
+    push @args, '--vm-worker', $vm_worker_name if $vm_worker_name;
+    push @args, '--vm-worker-nr', $vm_worker_instance if $vm_worker_instance;
     push @args, '--statistics';
   } elsif ($vm =~ /emulator/) {
     push @args, '--root', "$buildroot/.mount";
@@ -2141,7 +2174,7 @@ sub dobuild {
     return 1;
   }
 
-  if ($vm =~ /(xen|kvm|emulator)/) {
+  if ($vm =~ /(xen|kvm|zvm|emulator)/) {
     rm_rf("$buildroot/.build.packages");
     # move directory with extracted build results
     if(!rename("$buildroot/.mount/.build.packages", "$buildroot/.build.packages")) {
