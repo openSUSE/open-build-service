@@ -3186,7 +3186,7 @@ sub convertpackagebinarylist {
   if ($packstatususer) {
     $rpackstatus->{'/users'} = [];
     $rpackstatus->{'/users'} = [ @{$remotepackstatus{$prpa}->{'/users'} || []} ] if $remotepackstatus{$prpa};
-    push $rpackstatus->{'/users'}, $packstatususer unless grep {$_ eq $packstatususer} @{$rpackstatus->{'/users'}};
+    push @{$rpackstatus->{'/users'}}, $packstatususer unless grep {$_ eq $packstatususer} @{$rpackstatus->{'/users'}};
     push @{$remotepackstatus_cleanup{$packstatususer}}, $prpa;
     $remotepackstatus{$prpa} = $rpackstatus;
   }
