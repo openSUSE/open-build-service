@@ -843,7 +843,7 @@ class User < ActiveRecord::Base
       if watchlist
         person.watchlist() do |wl|
           self.watched_projects.each do |wp|
-            wl.project( :name => wp.project.name )
+            wl.project( :name => wp.project.name ) if Project.valid_name?(wp.project.name)
           end
         end
       end
