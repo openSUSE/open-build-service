@@ -1206,6 +1206,7 @@ our $person = [
 	'login',
 	'email',
 	'realname',
+	'state',
 	[ 'globalrole' ],
 	[ 'watchlist' =>
 		[[ 'project' =>
