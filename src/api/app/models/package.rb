@@ -982,7 +982,7 @@ class Package < ActiveRecord::Base
     return false if name.length > 200 || name.blank?
     name = name.gsub %r{^_product:}, ''
     name.gsub! %r{^_patchinfo:}, ''
-    return false if name =~ %r{[\/:\000-\037]}
+    return false if name =~ %r{[ \/:\000-\037]}
     if name =~ %r{^[_\.]} && !['_product', '_pattern', '_project', '_patchinfo'].include?(name)
       return false
     end
