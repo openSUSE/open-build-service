@@ -35,6 +35,7 @@ class PatchinfoCreateTest < ActionDispatch::IntegrationTest
     assert RATINGS.include? new_patchinfo[:rating]
     find('select#rating').select(new_patchinfo[:rating])
     new_patchinfo[:issue] ||= ""
+    
     new_patchinfo[:zypp_restart_needed] ||= false
     new_patchinfo[:relogin] ||= false
     new_patchinfo[:reboot] ||= false
@@ -50,6 +51,13 @@ class PatchinfoCreateTest < ActionDispatch::IntegrationTest
       find_link(issues.last)
     end
 
+    if !new_patchinfo[:select_binaries].blank?
+      for bin in new_patchinfo[:select_binaries]
+        find('select#available_binaries').select(bin)
+        click_button("add")
+      end
+    end
+    
     find(:id, "zypp_restart_needed").click if new_patchinfo[:zypp_restart_needed]
     find(:id, "relogin").click if new_patchinfo[:relogin]
     find(:id, "reboot").click if new_patchinfo[:reboot]
@@ -73,6 +81,12 @@ class PatchinfoCreateTest < ActionDispatch::IntegrationTest
         end
       end
       assert_equal new_patchinfo[:description].gsub(%r{\s+}, ' '), find(:id, "description_text").text
+      if !new_patchinfo[:select_binaries].blank?
+        page.must_have_text "Selected binaries:"
+        for bin in new_patchinfo[:select_binaries]
+          page.must_have_text bin
+        end
+      end
       if new_patchinfo[:zypp_restart_needed]
         page.must_have_selector("#zypp_true")
       else
@@ -228,6 +242,28 @@ class PatchinfoCreateTest < ActionDispatch::IntegrationTest
     delete_patchinfo('home:Iggy')
   end
 
+  test "create_patchinfo_with_binaries" do
+    login_Iggy
+    visit project_show_path(project: "home:Iggy")
+    open_new_patchinfo
+    create_patchinfo(
+      :summary => "This is a test for the patchinfo-editor",
+      :description => LONG_DESCRIPTION,
+      :category => "recommended",
+      :rating => "low",
+      :select_binaries => ["package", "delete_me"],
+      :expect => :success)
+    click_link("Edit patchinfo")
+    
+    #remove 'delete_me' from selected binaries
+    find('select#selected_binaries').select('delete_me')
+    click_button("remove")
+    click_button("Save Patchinfo")
+    page.wont_have_text('delete_me')
+ 
+    delete_patchinfo('home:Iggy')
+  end
+
   test "create_patchinfo_with_too_short_summary" do
     login_Iggy
     visit project_show_path(project: "home:Iggy")
@@ -252,7 +288,7 @@ class PatchinfoCreateTest < ActionDispatch::IntegrationTest
       :expect => :short_desc)
   end
 
-  test "create_patchinfo with_too_short_sum_and_desc" do
+  test "create_patchinfo_with_too_short_sum_and_desc" do
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
@@ -264,7 +300,6 @@ class PatchinfoCreateTest < ActionDispatch::IntegrationTest
       :expect => :short_desc_and_sum)
   end
 
-  
   # RUBY CODE ENDS HERE.
   # BELOW ARE APPENDED ALL DATA STRUCTURES USED BY THE TESTS.
   
