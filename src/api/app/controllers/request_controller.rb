@@ -79,13 +79,13 @@ class RequestController < ApplicationController
       oldrequest = BsRequest.find params[:id]
       oldrequest.destroy
 
-      notify = oldrequest.notify_parameters
-      Suse::Backend.send_notification("SRCSRV_REQUEST_CHANGE", notify)
-
       req = BsRequest.new_from_xml(request.body.read)
       req.id = params[:id]
       req.save!
       
+      notify = oldrequest.notify_parameters
+      Suse::Backend.send_notification("SRCSRV_REQUEST_CHANGE", notify)
+
       send_data(req.render_xml, :type => "text/xml")
     end
   end
