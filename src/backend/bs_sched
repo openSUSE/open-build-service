@@ -6132,7 +6132,7 @@ sub do_fetchprojpacks {
       # deletion of a project
       if ($doasync) {
         my %packids = map {$_ => 1} grep {defined($_)} @{$fetchprojpacks->{$projid}};
-        my $async = { %$doasync, '_changetype' => 'high', '_changelevel' => 2 };
+        my $async = { '_changetype' => 'high', '_changelevel' => 2 };
 	$async->{'_dolink'} = 1 if %packids || $deepcheck->{$projid};
         $async->{'_changetype'} = 'low' if $lowprioproject->{$projid} && !$deepcheck->{$projid};
 	if ($projpacks->{$projid} && !$deepcheck->{$projid}) {
@@ -6164,7 +6164,7 @@ sub do_fetchprojpacks {
 	delete $delayedfetchprojpacks->{$projid} unless @{$delayedfetchprojpacks->{$projid}};
       }
       if ($doasync && %packids) {
-        my $async = { %$doasync, '_dolink' => 1, '_changetype' => 'high', '_changelevel' => 1 };
+        my $async = { '_dolink' => 1, '_changetype' => 'high', '_changelevel' => 1 };
 	get_projpacks($ctx, $async, $projid, sort keys %packids);
 	delete $fetchprojpacks->{$projid};	# backgrounded
 	next;
@@ -6221,7 +6221,7 @@ sub do_fetchprojpacks {
     for my $projid (sort keys %fetchlinkedprojpacks) {
       my %packids = map {$_ => 1} @{$fetchlinkedprojpacks{$projid}};
       if ($doasync) {
-	my $async = { %$doasync, '_changelevel' => 1, '_changetype' => 'low' };
+	my $async = { '_changelevel' => 1, '_changetype' => 'low' };
 	$async->{'_changetype'} = 'med' if $fetchlinkedprojpacks_srcchange{$projid};
 	get_projpacks($ctx, $async, $projid, sort keys %packids);
 	next;
