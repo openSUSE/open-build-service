@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package name="kdelibs" project="KDE" created="2005-01-01T00:00:02+01:00" updated="2007-01-19T10:44:45+01:00">
+<package name="kdelibs" project="KDE">
   <title>KDE libraries</title>
   <description>Base libraries of the KDE framework</description>
   <devel project="KDE:UNSTABLE"/>
