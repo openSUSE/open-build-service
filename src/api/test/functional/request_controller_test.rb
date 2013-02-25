@@ -2037,6 +2037,34 @@ end
     assert_response :success
   end
 
+  def test_invalid_names
+    prepare_request_with_user "Iggy", "asdfasdf"
+
+    req = "<request>
+            <action type='submit'>
+              <source project='kde4' package='kdelibs' />
+              <target project='c++ ' package='TestPack'/>
+            </action>
+            <description/>
+            <state who='Iggy' name='new'/>
+          </request>"
+    post "/request?cmd=create", req
+    assert_response 400
+    assert_xml_tag( :tag => "status", :attributes => { :code => "invalid_record"} )
+
+    req = "<request>
+            <action type='submit'>
+              <source project='kde4' package='kdelibs' />
+              <target project='c++' package='TestPack '/>
+            </action>
+            <description/>
+            <state who='Iggy' name='new'/>
+          </request>"
+    post "/request?cmd=create", req
+    assert_response 400
+    assert_xml_tag( :tag => "status", :attributes => { :code => "invalid_record"} )
+  end
+
   def test_special_chars
     prepare_request_with_user "Iggy", "asdfasdf"
     # create request
