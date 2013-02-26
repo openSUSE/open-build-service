@@ -8,6 +8,14 @@
   <icon url="https://static.opensuse.org/distributions/logos/opensuse.png"/>
   <link>http://www.opensuse.org/</link>
  </distribution>
+ <distribution vendor="openSUSE" version="12.3" id="opensuse-12.3">
+  <name>openSUSE 12.3</name>
+  <project>openSUSE.org:openSUSE:12.3</project>
+  <reponame>openSUSE_12.3</reponame>
+  <repository>standard</repository>
+  <icon url="https://static.opensuse.org/distributions/logos/opensuse.png"/>
+  <link>http://www.opensuse.org/</link>
+ </distribution>
  <distribution vendor="openSUSE" version="12.2" id="opensuse-12.2">
   <name>openSUSE 12.2</name>
   <project>openSUSE.org:openSUSE:12.2</project>
@@ -37,6 +45,14 @@
   <project>openSUSE.org:openSUSE:Factory:ARM</project>
   <reponame>openSUSE_Factory_ARM</reponame>
   <repository>standard</repository>
+  <icon url="https://static.opensuse.org/distributions/logos/opensuse.png"/>
+  <link>http://www.opensuse.org/</link>
+ </distribution>
+ <distribution vendor="openSUSE" version="12.3ARM" id="opensuse-12.3-ARM">
+  <name>openSUSE 12.3 ARM</name>
+  <project>openSUSE.org:openSUSE:12.3</project>
+  <reponame>openSUSE_12.3_ARM</reponame>
+  <repository>ports</repository>
   <icon url="https://static.opensuse.org/distributions/logos/opensuse.png"/>
   <link>http://www.opensuse.org/</link>
  </distribution>
@@ -95,6 +111,14 @@
   <repository>standard</repository>
   <icon url="https://static.opensuse.org/distributions/logos/debian.png"/>
   <link>http://www.debian.org/</link>
+ </distribution>
+ <distribution vendor="Fedora" version="18" id="fedora-15">
+  <name>Fedora 18</name>
+  <project>openSUSE.org:Fedora:18</project>
+  <reponame>Fedora_18</reponame>
+  <repository>standard</repository>
+  <icon url="https://static.opensuse.org/distributions/logos/fedora.png"/>
+  <link>http://fedoraproject.org/</link>
  </distribution>
  <distribution vendor="Fedora" version="17" id="fedora-15">
   <name>Fedora 17</name>
