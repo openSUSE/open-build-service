@@ -13,11 +13,11 @@
       data: {
         'states': $('#request_state_select')[0].value,
         'types': $('#request_type_select')[0].value,
-        <%= "'user': '" + userid.to_s + "'," unless not defined?(userid)  %>
-        <%= "'project': '" + project.to_s + "'," unless not defined?(project) %>
-        <%= "'package': '" + package.to_s + "'," unless not defined?(package) %>
-        <%= "'subprojects': 'true'," if defined?(subprojects) && subprojects %>
-        <%= "'no_target': 'true'," if no_target %>
+        <%= "'user': '".html_safe + userid.to_s + "',".html_safe unless not defined?(userid)  %>
+        <%= "'project': '".html_safe + project.to_s + "',".html_safe unless not defined?(project) %>
+        <%= "'package': '".html_safe + package.to_s + "',".html_safe unless not defined?(package) %>
+        <%= "'subprojects': 'true',".html_safe if defined?(subprojects) && subprojects %>
+        <%= "'no_target': 'true',".html_safe if no_target %>
       },
       success: function(data) {
         $('#request_display').html(data);
