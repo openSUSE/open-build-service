@@ -140,7 +140,7 @@ case "$1" in
                 if [ -n "$RUN_INITIAL_SETUP" ]; then
 			echo -n "Initialize OBS api database (first time only)"
         		cd $apidir
-			RAILS_ENV=production rake db:setup >> $apidir/log/db_migrate.log
+			RAILS_ENV=production bundle exec rake db:setup >> $apidir/log/db_migrate.log
                         ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key )
 			chmod 0640 config/secret.key
 			chown root.www config/secret.key
@@ -148,13 +148,13 @@ case "$1" in
 			echo
 			echo -n "Migrate OBS api database"
 			cd $apidir
-			RAILS_ENV=production rake db:migrate >> $apidir/log/db_migrate.log
+			RAILS_ENV=production bundle exec rake db:migrate >> $apidir/log/db_migrate.log
 			echo
 		fi
                 if [ -n "$RUN_INITIAL_SETUP" ]; then
 			echo -n "Initialize OBS webui database (first time only)"
         		cd $webuidir
-			RAILS_ENV=production rake db:setup >> $webuidir/log/db_migrate.log
+			RAILS_ENV=production bundle exec rake db:setup >> $webuidir/log/db_migrate.log
                         ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key)
 			chmod 0640 config/secret.key
 			chown root.www config/secret.key
@@ -162,7 +162,7 @@ case "$1" in
 			echo
 			echo -n "Migrate OBS webui database"
 			cd $webuidir
-			RAILS_ENV=production rake db:migrate >> $webuidir/log/db_migrate.log
+			RAILS_ENV=production bundle exec rake db:migrate >> $webuidir/log/db_migrate.log
 			echo
 		fi
 
