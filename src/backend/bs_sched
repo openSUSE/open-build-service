@@ -2541,7 +2541,7 @@ sub update_project_meta {
   }
   eval {
     # withsrcmd5 is needed for the patterns md5sum
-    $projpacksin = xrpc($ctx, $projid, "$BSConfig::srcserver/getprojpack", $BSXML::projpack, "project=$projid", 'nopackages', 'withrepos', 'withconfig', 'withsrcmd5', "arch=$myarch");
+    $projpacksin = xrpc($ctx, $projid, $param, $BSXML::projpack, "project=$projid", 'nopackages', 'withrepos', 'withconfig', 'withsrcmd5', "arch=$myarch");
   };
   if ($@ || !$projpacksin) {
     print $@ if $@;
