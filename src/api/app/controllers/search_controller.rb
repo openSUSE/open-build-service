@@ -29,6 +29,10 @@ class SearchController < ApplicationController
     search(:issue, true)
   end
 
+  def person
+    search(:person, true)
+  end
+
   def bs_request
     search(:request, true)
   end
@@ -100,6 +104,8 @@ class SearchController < ApplicationController
         elsif item.kind_of? Repository
           # This returns nil if access is not allowed
           next if ProjectUserRoleRelationship.forbidden_project_ids.include? item.db_project_id
+        elsif item.kind_of? User
+          # Person data is public
         elsif item.kind_of? Issue
           # all our hosted issues are public atm
         elsif item.kind_of? BsRequest
