@@ -119,6 +119,12 @@ class XpathEngine
            'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
            'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id']},
       },
+      'users' => {
+        '@login' => {:cpart => 'users.login'},
+        '@email' => {:cpart => 'users.email'},
+        '@realname' => {:cpart => 'users.realname'},
+        '@state' => {:cpart => 'users.state'},
+       },
       'issues' => {
         '@name' => {:cpart => 'issues.name'},
         '@state' => {:cpart => 'issues.state'},
@@ -254,6 +260,9 @@ class XpathEngine
       model = BsRequest
       includes = [:bs_request_actions, :bs_request_histories, :reviews]
       select = "distinct(bs_requests.id),bs_requests.*"
+    when 'users'
+      model = User
+      includes = []
     when 'issues'
       model = Issue
       includes = [:issue_tracker]
@@ -379,7 +388,7 @@ class XpathEngine
     # this is a wild hack - we need to save the key, so we can possibly split the next
     # literal. The real fix is to translate the xpath into SQL directly
     @last_key = key
-    raise IllegalXpathError, "unable to evaluate '#{key}' for '#{table}'" unless @attribs[table].has_key? key
+    raise IllegalXpathError, "unable to evaluate '#{key}' for '#{table}'" unless @attribs[table] and @attribs[table].has_key? key
     #logger.debug "-- found key: #{key} --"
     if @attribs[table][key][:empty]
       return nil

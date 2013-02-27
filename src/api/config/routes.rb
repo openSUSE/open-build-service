@@ -208,6 +208,7 @@ OBSApi::Application.routes.draw do
       match 'search/package_id' => :package_id #FIXME3.0: to be removed
       match 'search/project' => :project
       match 'search/package' => :package
+      match 'search/person' => :person
       match 'search/attribute' => :attribute
       match 'search/owner' => :owner
       match 'search/missing_owner' => :missing_owner

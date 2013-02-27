@@ -96,6 +96,36 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
+  def test_person_searches
+    # used by maintenance people
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/search/person", :match => "(@login='Iggy')"
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :attributes => { :matches => "1" }
+    assert_xml_tag :parent => { :tag => 'person' }, :tag => 'login', :content => "Iggy"
+    assert_xml_tag :parent => { :tag => 'person' }, :tag => 'email', :content => "Iggy@pop.org"
+    assert_xml_tag :parent => { :tag => 'person' }, :tag => 'realname', :content => "Iggy Pop"
+    assert_xml_tag :parent => { :tag => 'person' }, :tag => 'state', :content => "confirmed"
+
+    get "/search/person", :match => "(@login='Iggy' or @login='tom')"
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :attributes => { :matches => "2" }
+
+    get "/search/person", :match => "(@email='Iggy@pop.org')"
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :attributes => { :matches => "1" }
+
+    get "/search/person", :match => "(@realname='Iggy Pop')"
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :attributes => { :matches => "1" }
+
+# FIXME2.5: this will work when we turn to enums for the user state
+#    get "/search/person", :match => "(@state='confirmed')"
+#    assert_response :success
+#    assert_xml_tag :tag => 'collection', :attributes => { :matches => "1" }
+
+  end
+
   def test_xpath_old_osc
     # old osc < 0.137 did use the search interface wrong, but that worked ... :/
     # FIXME3.0: to be removed!

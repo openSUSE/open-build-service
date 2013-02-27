@@ -822,6 +822,12 @@ class User < ActiveRecord::Base
     end
   end
 
+  def to_axml
+    Rails.cache.fetch('meta_user_%d' % id) do
+      render_axml
+    end
+  end
+
   def render_axml( watchlist = false )
     builder = Nokogiri::XML::Builder.new
  
