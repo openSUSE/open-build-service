@@ -16,7 +16,7 @@ mysql -e 'create database ci_api_test;'
 sed -e 's,password:.*,password:,' -i src/api/config/database.yml.example
 
 sudo chmod a+w /etc/apt/sources.list.d
-echo 'deb http://download.opensuse.org/repositories/openSUSE:/Tools:/Unstable/xUbuntu_12.04 /' >> /etc/apt/sources.list.d/opensuse.list
+echo 'deb http://download.opensuse.org/repositories/OBS:/Server:/Unstable/xUbuntu_12.04 /' >> /etc/apt/sources.list.d/opensuse.list
 #sudo apt-get update
 sudo apt-get update -o Dir::Etc::sourcelist="sources.list.d/opensuse.list" -o Dir::Etc::sourceparts="-" -o APT::Get::List-Cleanup="0"
 
