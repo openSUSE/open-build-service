@@ -79,9 +79,9 @@
     $.ajax({
       url: '<%= url_for(:controller => controller, :action => 'buildresult') %>',
       data: {
-        <%= "'project': '" + project + "'," unless not defined?(project) %>
-        <%= "'package': '" + package + "'," unless not defined?(package) %>
-        <%= "'index': '" + index.to_s + "'," unless not defined?(index) %>
+        <%= "'project': '".html_safe + project + "',".html_safe unless not defined?(project) %>
+        <%= "'package': '".html_safe + package + "',".html_safe unless not defined?(package) %>
+        <%= "'index': '".html_safe + index.to_s + "',".html_safe unless not defined?(index) %>
       },
       success: function(data) {
         $('#result_display_<%= index %>_0').html(data);
