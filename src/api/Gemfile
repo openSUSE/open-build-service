@@ -31,5 +31,5 @@ group :test do
 end
 
 group :development do
-  gem 'pry', '>= 0.9.8.4'
+  gem 'pry', '>= 0.9.12'
 end

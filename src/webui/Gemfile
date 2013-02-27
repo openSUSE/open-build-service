@@ -15,7 +15,7 @@ group :assets do
 end
 
 group :development do
-  gem 'pry', '>= 0.9.8.4'
+  gem 'pry', '>= 0.9.12'
   #gem 'pry-doc', '>= 0.4.1'
   gem 'sqlite3'
   
