@@ -87,6 +87,15 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert_select "status[code] > summary", /illegal xpath attribute/
   end
 
+  def test_xpath_search_for_person_or_group
+    # used by maintenance people
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/search/project", :match => "(group/@role='bugowner' or person/@role='bugowner') and starts-with(@name,\"Base\"))"
+    assert_response :success
+    get "/search/package", :match => "(group/@role='bugowner' or person/@role='bugowner') and starts-with(@project,\"Base\"))"
+    assert_response :success
+  end
+
   def test_xpath_old_osc
     # old osc < 0.137 did use the search interface wrong, but that worked ... :/
     # FIXME3.0: to be removed!

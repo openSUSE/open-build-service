@@ -61,15 +61,15 @@ class XpathEngine
         'person/@userid' => {:cpart => 'users.login', :joins => 
           ['LEFT JOIN package_user_role_relationships ON packages.id = package_user_role_relationships.db_package_id',
            'LEFT JOIN users ON users.id = package_user_role_relationships.bs_user_id']},
-        'person/@role' => {:cpart => 'roles.title', :joins =>
+        'person/@role' => {:cpart => 'ppr.title', :joins =>
           ['LEFT JOIN package_user_role_relationships ON packages.id = package_user_role_relationships.db_package_id',
-           'LEFT JOIN roles ON package_user_role_relationships.role_id = roles.id']},
+           'LEFT JOIN roles AS ppr ON package_user_role_relationships.role_id = ppr.id']},
         'group/@groupid' => {:cpart => 'groups.title', :joins =>
           ['LEFT JOIN package_group_role_relationships ON packages.id = package_group_role_relationships.db_package_id',
            'LEFT JOIN groups ON groups.id = package_group_role_relationships.bs_group_id']},
-        'group/@role' => {:cpart => 'roles.title', :joins =>
+        'group/@role' => {:cpart => 'gpr.title', :joins =>
           ['LEFT JOIN package_group_role_relationships ON packages.id = package_group_role_relationships.db_package_id',
-           'LEFT JOIN roles ON package_group_role_relationships.role_id = roles.id']},
+           'LEFT JOIN roles AS gpr ON package_group_role_relationships.role_id = gpr.id']},
         'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name',
           :split => ':', :joins => 
           ['LEFT JOIN attribs ON attribs.db_package_id = packages.id',
@@ -94,15 +94,15 @@ class XpathEngine
         'person/@userid' => {:cpart => 'users.login', :joins => [
           'LEFT JOIN project_user_role_relationships ON projects.id = project_user_role_relationships.db_project_id',
           'LEFT JOIN users ON users.id = project_user_role_relationships.bs_user_id']},
-        'person/@role' => {:cpart => 'roles.title', :joins => [
+        'person/@role' => {:cpart => 'ppr.title', :joins => [
           'LEFT JOIN project_user_role_relationships ON projects.id = project_user_role_relationships.db_project_id',
-          'LEFT JOIN roles ON project_user_role_relationships.role_id = roles.id']},
+          'LEFT JOIN roles AS ppr ON project_user_role_relationships.role_id = ppr.id']},
         'group/@groupid' => {:cpart => 'groups.title', :joins =>
           ['LEFT JOIN project_group_role_relationships ON projects.id = project_group_role_relationships.db_project_id',
            'LEFT JOIN groups ON groups.id = project_group_role_relationships.bs_group_id']},
-        'group/@role' => {:cpart => 'roles.title', :joins =>
+        'group/@role' => {:cpart => 'gpr.title', :joins =>
           ['LEFT JOIN project_group_role_relationships ON projects.id = project_group_role_relationships.db_project_id',
-           'LEFT JOIN roles ON project_group_role_relationships.role_id = roles.id']},
+           'LEFT JOIN roles AS gpr ON project_group_role_relationships.role_id = gpr.id']},
         'repository/@name' => {:cpart => 'repositories.name'},
         'repository/path/@project' => {:cpart => 'childs.name', :joins => [
           'join repositories r on r.db_project_id=projects.id',
