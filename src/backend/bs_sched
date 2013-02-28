@@ -2357,10 +2357,10 @@ sub get_projpacks {
   } elsif (defined($projid)) {
     print "getting data for project '$projid' from $BSConfig::srcserver\n";
     push @args, "project=$projid";
-    delete $projpacks->{$projid};
+    delete $projpacks->{$projid} unless $doasync;
   } else {
     print "getting data for all projects from $BSConfig::srcserver\n";
-    $projpacks = {};
+    $projpacks = {} unless $doasync;
   }
   my $projpacksin;
   while (1) {
@@ -2419,6 +2419,12 @@ sub update_projpacks {
   my ($projpacksin, $projid, $packids) = @_;
 
   checkbuildrepoid($projpacksin);
+  # free old data
+  if (!defined($projid)) {
+    $projpacks = {};
+  } elsif (!($packids && @$packids)) {
+    delete $projpacks->{$projid};
+  }
   for my $proj (@{$projpacksin->{'project'} || []}) {
     if ($packids && @$packids) {
       die("bad projpack answer\n") unless $proj->{'name'} eq $projid;
