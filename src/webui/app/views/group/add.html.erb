@@ -1,0 +1,26 @@
+<% @pagetitle = "Add Group" %>
+
+<h2>Add group <%= params['group'] %></h2>
+
+<%= javascript_tag do %>
+var count = 0;
+$(function(){
+	$('p#add_field').click(function(){
+		count += 1;
+		$('#group-container').append('<input id="user_' + count + '" name="users[]' + '" type="text" /><br />' );
+	});
+});
+<% end %>
+
+  <%= form_tag({:action => 'save'}, {:id => 'group_add_form'}) do %>
+  <p>
+  <input id="group" name="group" type="hidden" value="<%= params['group'] %>" />     
+  <%= label_tag :title, 'Title:' %><br/>
+  <%= text_field_tag :title, nil, :placeholder => 'Name/Title' %><br/>
+  </p>
+  <div id="group-container">
+     <p id="add_field"><a href="#"><span>Add user</span></a></p>
+  </div>
+  <p><%= submit_tag 'Save' %></p>
+  <% end %>
+

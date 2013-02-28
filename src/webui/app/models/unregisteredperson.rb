@@ -9,27 +9,18 @@ class Unregisteredperson < ActiveXML::Node
       email = opt[:email] if opt.has_key? :email
       password = "opensuse"
       password = opt[:password] if opt.has_key? :password
+      state = ""
+      state = opt[:state] if opt.has_key? :state
 
-      # This is the place where we decide in which state users are created.
-      # Change the following line to 
-      #  state = 5
-      # to set the initial state of the user to unconfirmned. That means that
-      # the user can not work yet but has to wait until somebody from the admin
-      # team has acknowledged the user.
-      state = 2
-      
-      note = opt[:explanation]
-      
-      reply = <<-ENDE
+      reply = <<-END
         <unregisteredperson>
            <login>#{opt[:login]}</login>
            <realname>#{realname}</realname>
            <email>#{email}</email>
            <state>#{state}</state>
            <password>#{password}</password>
-           <note>#{note}</note>
         </unregisteredperson>
-      ENDE
+      END
 
       return reply
     end

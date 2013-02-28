@@ -12,7 +12,7 @@
   <tbody>
     <% @group.person.each do |member| %>
       <tr>
-        <td><%= link_to_if(@user, member.userid, :controller => 'home', :action => 'index', :user => member.userid) %></td>
+        <td><%= link_to_if(@user, member.userid, { :controller => 'home', :action => 'index', :user => member.userid}, {:id => member.userid}) %></td>
       </tr>
     <% end %>
   </tbody>
@@ -20,8 +20,6 @@
 <% else %>
   <p><i>This group does not contain users</i></p>
 <% end %>
-
-<p><%= link_to('Show all groups', groups_path) %></p>
 
 <% content_for :ready_function do %>
   $('#group_members_table').dataTable();

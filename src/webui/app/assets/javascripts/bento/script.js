@@ -126,11 +126,11 @@ $(document).ready(function() {
   $('.dropdown-menu-content').hide(); // hide dropdown-menu
   
   $('.dropdown-menu').click(function() {
-    if ($(".dropdown-menu-content").is(":hidden")) {
+    if ($(this).next(".dropdown-menu-content").is(":hidden")) {
+      // console.log('SLIDE DOWN');
       if (this.id) { // if ID is set use this ID
         var objectID = this.id;
-        // console.log('true');
-        // console.log(objectID);
+        // console.log('objectID: ' + objectID);
       } else { // if no ID is set create one
         var date = new Date();
         var objectID = $(this).attr('class') + '-' + date.getTime(); // make unique id
@@ -138,6 +138,7 @@ $(document).ready(function() {
       }
       dropDownMenu(objectID);
     } else {
+        // console.log('SLIDE UP');
         slideupFast('.dropdown-menu-content');
     }
     return false;
@@ -164,10 +165,10 @@ $(document).ready(function() {
       $("#"+trigger_id).next('ul').attr('id', dropDownMenuID);
     };
     
-    $("#"+dropDownMenuID).insertAfter('#footer');
+    $("#"+dropDownMenuID).insertAfter('#trigger_id');
     $("#"+dropDownMenuID).css({
-        top: menuPosY,
-        left: menuPosX
+        // top: menuPosY,
+        // left: menuPosX
         }).slideDown('fast');
 
     return true;
@@ -181,6 +182,7 @@ $(document).ready(function() {
   
   function slideupFast (e) {
     $(e).slideUp('fast');
+    $(e).hide();
     return true;
   }
   
