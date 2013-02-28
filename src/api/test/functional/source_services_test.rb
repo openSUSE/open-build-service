@@ -97,7 +97,7 @@ class SourceServicesTest < ActionController::IntegrationTest
     assert_xml_tag :tag => "serviceinfo", :attributes => { :code => 'failed' }
     get "/source/home:tom/service?expand=1"
     assert_response 400
-    assert_match /not_existing/, @response.body # multiple line error shows up
+    assert_match(/not_existing/, @response.body) # multiple line error shows up
 
     raw_put "/source/home:tom/service/_service", '<services> <service name="set_version" > <param name="version">0816</param> <param name="file">pack.spec</param> </service> </services>'
     assert_response :success
