@@ -1446,6 +1446,12 @@ class SourceController < ApplicationController
 
     oprj = Project.get_by_name( oproject )
 
+    if oprj.class == String # remote project
+      render_error :status => 404, :errorcode => "remote_project",
+        :message => "The copy from remote projects is currently not supported"
+      return
+    end
+
     unless @http_user.is_admin?
       if params[:withbinaries]
         render_error :status => 403, :errorcode => "project_copy_no_permission",
@@ -1453,11 +1459,13 @@ class SourceController < ApplicationController
         return
       end
 
-      oprj.packages.each do |pkg|
-        if pkg.disabled_for?('sourceaccess', nil, nil)
-          render_error :status => 403, :errorcode => "project_copy_no_permission",
-            :message => "no permission to copy project due to source protected package #{pkg.name}"
-          return
+      unless oprj.class == String
+        oprj.packages.each do |pkg|
+          if pkg.disabled_for?('sourceaccess', nil, nil)
+            render_error :status => 403, :errorcode => "project_copy_no_permission",
+              :message => "no permission to copy project due to source protected package #{pkg.name}"
+            return
+          end
         end
       end
     end
@@ -1465,22 +1473,27 @@ class SourceController < ApplicationController
     # create new project object based on oproject
     p = Project.find_by_name(project_name)
     Project.transaction do
-      p = Project.new :name => project_name, :title => oprj.title, :description => oprj.description
+      if oprj.class == String # remote project
+        rdata = Xmlhash.parse(backend_get("/source/#{URI.escape(oprj)}/_meta"))
+        p = Project.new :name => project_name, :title => rdata["title"], :description => rdata["description"]
+      else # local project
+        p = Project.new :name => project_name, :title => oprj.title, :description => oprj.description
+        oprj.flags.each do |f|
+          p.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == 'lock'
+        end
+        oprj.repositories.each do |repo|
+          r = p.repositories.create :name => repo.name
+          repo.repository_architectures.each do |ra|
+            r.repository_architectures.create! :architecture => ra.architecture, :position => ra.position
+          end
+          position = 0
+          repo.path_elements.each do |pe|
+            position += 1
+            r.path_elements << PathElement.new(:link => pe.link, :position => position)
+          end
+        end
+      end
       p.add_user @http_user, "maintainer"
-      oprj.flags.each do |f|
-        p.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == 'lock'
-      end
-      oprj.repositories.each do |repo|
-        r = p.repositories.create :name => repo.name
-        repo.repository_architectures.each do |ra|
-          r.repository_architectures.create! :architecture => ra.architecture, :position => ra.position
-        end
-        position = 0
-        repo.path_elements.each do |pe|
-          position += 1
-          r.path_elements << PathElement.new(:link => pe.link, :position => position)
-        end
-      end
       p.store
     end unless p
 
