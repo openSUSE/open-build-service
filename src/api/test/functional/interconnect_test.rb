@@ -373,6 +373,19 @@ end
     assert_response :success
   end
 
+# FIXME: backend does not support project copy from remote
+# def test_copy_project
+#   prepare_request_with_user "tom", "thunder"
+#   get "/source/RemoteInstance:BaseDistro"
+#   assert_response :success
+#   post "/source/home:tom:TEMPORARY?cmd=copy&oproject=RemoteInstance:BaseDistro&nodelay=1"
+#   assert_response :success
+#   get "/source/home:tom:TEMPORARY"
+#   assert_response :success
+#   delete "/source/home:tom:TEMPORARY"
+#   assert_response :success
+# end
+
   def test_get_packagelist_with_hidden_remoteurlproject
     prepare_request_with_user "tom", "thunder"
     get "/source/HiddenRemoteInstance"
