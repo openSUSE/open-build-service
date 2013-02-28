@@ -1478,6 +1478,7 @@ class SourceController < ApplicationController
         p = Project.new :name => project_name, :title => rdata["title"], :description => rdata["description"]
       else # local project
         p = Project.new :name => project_name, :title => oprj.title, :description => oprj.description
+        p.save
         oprj.flags.each do |f|
           p.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == 'lock'
         end
