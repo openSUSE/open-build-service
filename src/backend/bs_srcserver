@@ -382,7 +382,7 @@ sub runservice {
     $error = $@ if $@;
   } else {
     $error ||= 'error';
-    $error = "service daemon error: $error";
+    $error = "service daemon error:\n $error";
   }
   if ($linkfiles) {
     # argh, a link! put service run result in old filelist

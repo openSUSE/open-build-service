@@ -262,6 +262,7 @@ class PackageController < ApplicationController
     rescue ActiveXML::Transport::Error => e
       if @expand == 1
         @forced_unexpand = e.summary
+        @forced_unexpand = e.details if e.details
         @expand = 0
         return set_file_details
       end
