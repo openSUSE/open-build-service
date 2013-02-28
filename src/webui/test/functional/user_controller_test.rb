@@ -7,7 +7,7 @@ class UserControllerTest < ActionDispatch::IntegrationTest
     visit '/user/edit'
 
     fill_in "realname", with: "Tom Thunder"
-    click_button "Save changes"
+    click_button "Update"
     
     find('#flash-messages').must_have_text("User data for user 'tom' successfully updated.")
   end

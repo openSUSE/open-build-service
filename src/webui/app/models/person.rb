@@ -6,6 +6,31 @@ class Person < ActiveXML::Node
 
   handles_xml_element 'person'
   
+  class << self
+    def make_stub( opt )
+      logger.debug "make stub params: #{opt.inspect}"
+      realname = ""
+      realname = opt[:realname] if opt.has_key? :realname
+      email = ""
+      email = opt[:email] if opt.has_key? :email
+      state = ""
+      state = opt[:state] if opt.has_key? :state
+      globalrole = ""
+      globalrole = opt[:globalrole] if opt.has_key? :globalrole
+      
+      reply = <<-EOF
+        <person>
+           <login>#{opt[:login]}</login>
+           <email>#{email}</email>
+           <realname>#{realname}</realname>
+           <state>#{state}</state>
+           <globalrole>#{globalrole}</globalrole>
+        </person>
+      EOF
+      return reply
+    end
+  end
+  
   def self.find_cached(login, opts = {})
     if opts.has_key?(:is_current)
       # skip memcache
@@ -33,6 +58,10 @@ class Person < ActiveXML::Node
 
   def email
     self.to_hash["email"]
+  end
+
+  def state
+    self.to_hash["state"]
   end
 
   def login
@@ -89,7 +118,7 @@ class Person < ActiveXML::Node
   def involved_projects
     predicate = "person/@userid='#{login}'"
     groups.each {|group| predicate += " or group/@groupid='#{group}'"}
-    Collection.find_cached(:id, :what => 'project', :predicate => predicate)
+    Collection.find_cached(:what => 'project', :predicate => predicate)
   end
 
   def involved_packages

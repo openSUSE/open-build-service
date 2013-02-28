@@ -7,6 +7,8 @@ class HomeController < ApplicationController
   before_filter :overwrite_user, :only => [:index, :my_work, :requests, :list_my]
 
   def index
+    list_my
+    my_work
   end
 
   def icon
@@ -71,13 +73,16 @@ class HomeController < ApplicationController
 
   def list_my
     @displayed_user.free_cache if discard_cache?
-    @iprojects = @displayed_user.involved_projects.each.map {|x| x.name}.uniq.sort
-    @ipackages = Hash.new
-    pkglist = @displayed_user.involved_packages.each.reject {|x| @iprojects.include?(x.project)}
-    pkglist.sort(&@displayed_user.method('packagesorter')).each do |pack|
-      @ipackages[pack.project] ||= Array.new
-      @ipackages[pack.project] << pack.name if !@ipackages[pack.project].include? pack.name
+    @iprojects = @displayed_user.involved_projects.each.collect! do |x|
+      ret =[]
+      ret << x.name
+      if x.to_hash['title'].class == Xmlhash::XMLHash
+        ret << "No title set"
+      else
+        ret << x.to_hash['title']
+      end
     end
+    @ipackages = @displayed_user.involved_packages.each.map {|x| [x.name, x.project]}
   end
 
   def remove_watched_project

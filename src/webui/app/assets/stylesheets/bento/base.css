@@ -219,6 +219,9 @@ h2.box-header, h2.box-subheader{text-indent:10px;font-size:1em;}
 .header-tabs a{display:inline-block;min-height:23px;margin:0px 0.5em -0.3em;padding-top:0.3em;}
 .header-tabs li.selected{background:#f6f6f6 url('images/gradient-dark.png') repeat-x scroll 0 -10px;background:#333 url('images/gradient-dark.png') repeat-x scroll 0 -10px;background:white url('images/gradient-dark-nav.png') repeat-x scroll bottom left;border-color:#ccc;}
 .header-tabs li.selected a{color:#fff;text-shadow:none;}
+.header-tabs li.ui-state-active{background:#f6f6f6 url('images/gradient-dark.png') repeat-x scroll 0 -10px;background:#333 url('images/gradient-dark.png') repeat-x scroll 0 -10px;background:white url('images/gradient-dark-nav.png') repeat-x scroll bottom left;border-color:#ccc;}
+.header-tabs li.ui-state-active a{color:#fff;text-shadow:none;}
+
 .aside ul{list-style:none inside;}
 .aside ul li{margin-left:0; line-height:100%;}
 #display #lp-pr-image{margin-top:42px;margin-left:150px;}
