@@ -33,7 +33,6 @@ class CodeQualityTest < ActiveSupport::TestCase
     line = tmpfile.read
     tmpfile.close
     return if line.empty?
-    puts "testing syntax of each ruby file..."
     @ruby_files.each do |ruby_file|
       IO.popen("ruby -cv #{ruby_file} 2>&1 > /dev/null | grep #{Rails.root}") do |io|
         line = io.read
