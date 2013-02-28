@@ -1,28 +1,4 @@
-<% @pagetitle = "Welcome" %>
+<% @pagetitle = "Sign Up" %>
 
-<h2>Welcome to <%= @configuration['title'] %></h2>
-
-  <p>Have fun building software.</p>
-  <p>Your <%= @configuration['title'] %> team</p>
- 
-  <p>You need to register an account to work with OBS first, please fill the following data:</p>
- 
-  <%= form_tag :controller => 'user', :action => 'register', :method => :post do %>
-    <p>
-      <strong>Login:</strong><br/>
-      <%= text_field_tag 'login'  %><br/>
-      <strong>Email:</strong><br/>
-      <%= text_field_tag 'email'  %><br/>
-      <strong>Real Name:</strong><br/>
-      <%= text_field_tag 'realname' %><br/>
-      <strong>About yourself:</strong><br/>
-      <%= text_area_tag 'description', nil, :rows => 3, :cols => 20 %><br/>
-      <strong>Password:</strong><br/>
-      <%= password_field_tag 'password_first', :min => 6 %><br/>
-      <strong>Password Confirmation:</strong><br/>
-      <%= password_field_tag 'password_second', :min => 6 %>
-      <%= hidden_field_tag 'register', 'true' %>
-    </p>
-    <p><%= submit_tag "Register this new user" %></p>
-  <% end %>
-
+<h2><%= @pagetitle %> for an <%= @configuration['title'] %> account</h2>
+  <%= render :partial => 'shared/sign_up' %>

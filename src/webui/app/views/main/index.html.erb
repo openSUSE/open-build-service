@@ -15,7 +15,7 @@
           <%= proceed_link 'list', 'All Projects', :controller => 'project', :action => 'list_public' %>
           <%= proceed_link 'system-search', 'Search', :controller => 'search', :action => 'index' %>
         <% else %>
-          <%= proceed_link 'start-here', 'My Projects', :controller => 'home', :action => 'list_my' if @user %>
+          <%= proceed_link 'start-here', 'Your Home', :controller => 'home', :action => 'index' if @user %>
           <%= proceed_link 'list', 'All Projects', :controller => 'project', :action => 'list_public' %>
           <%= proceed_link 'system-search', 'Search', :controller => 'search', :action => 'index' %>
           <%= proceed_link "document-new", 'New Project', :controller => 'project', :action => 'new', :ns => "home:#{@user}" if @user %>
@@ -27,8 +27,6 @@
     <% end %>
   </div>
 
-  <%= render :partial => 'news' %>
-
   <div id="workerstatus_placeholder"></div>
   <% content_for :ready_function do %>
     $.ajax({
@@ -39,7 +37,13 @@
 </div>
 
 <div class="grid_5 omega">
-  <%= render :partial => 'contact' %>
+<% unless @user %>
+  <div class="box box-shadow">
+    <h2 class="box-header">New here? Sign up!</h2>
+    <%= render :partial => 'shared/sign_up' %>
+  </div>
+<% end %>
+  <%= render :partial => 'news' %>
   <%= render :partial => 'latest_updates' if (@latest_updates and @anonymous_forbidden.nil?) %>
 <!--
   <%= render :partial => 'countdown' %>

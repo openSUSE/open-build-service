@@ -117,9 +117,9 @@ module ApplicationHelper
     abs_path
   end
 
-  def user_icon(login, size=20)
+  def user_icon(login, size=20, css_class=nil)
     return image_tag(url_for(controller: :home, action: :icon, user: login.to_s, size: size), 
-                     width: size, height: size)
+                     width: size, height: size, class: css_class)
   end
 
   def fuzzy_time_string(time)

@@ -1,0 +1,22 @@
+  <div class="dialog" id="disable_mask"></div>
+  <div class="dialog darkgrey_box">
+    <div class="box box-shadow">
+      <h2 class="box-header">Edit your account</h2>
+
+  <%= form_tag(:action => 'save') do %>
+    <p>
+     <%= label_tag :realname, 'Name:' %><br/>
+     <%= text_field_tag :realname, user.realname %>     
+    </p>
+    <p>
+     <%= label_tag :email, 'e-Mail:' %><br/>
+     <%= text_field_tag :email, user.email %>
+    </p>
+    <input id="user" name="user" type="hidden" value="<%= user.login %>" />
+        <div class="buttons">
+          <%= submit_tag("Ok") %>
+          <%= link_to_function("Cancel", 'remove_dialog()') %>
+        </div>
+      <% end %>
+    </div>
+  </div>

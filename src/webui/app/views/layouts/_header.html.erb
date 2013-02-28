@@ -9,7 +9,7 @@
         <ul id="global-navigation">
   	  <li id="item-download"><a href="http://www.buildservice.org/">Download</a></li>
 	    <% if user -%>
-              <li id="item-favorites" style="float: right;"><a href="<%= url_for :controller => "home", :action => :list_my %>">Watchlist</a></li>
+              <li id="item-favorites" style="float: right;"><a href="<%= url_for :controller => "home", :action => :index %>">Home</a></li>
             <% end -%>
         </ul>
 

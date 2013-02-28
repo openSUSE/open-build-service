@@ -8,11 +8,11 @@ class LoginTest < ActionDispatch::IntegrationTest
   #
   def open_home
     find(:css, "div#subheader a[href='/home']").click
-    page.must_have_text "Profile picture:"
+    page.must_have_text "Edit your account"
   end
 
   def user_real_name
-    t = first(:css, "div#content span#real-name")
+    t = find(:id, "home-realname")
     if t
       return t.text
     else
@@ -23,7 +23,7 @@ class LoginTest < ActionDispatch::IntegrationTest
 
   #
   def change_user_real_name new_name
-    find(:css, "div#content a[href='/user/edit']").click
+    find(:id, 'save_dialog').click
 
     fill_in "realname", with: new_name
     find(:css, "form[action='/user/save'] input[name='commit']").click
@@ -54,7 +54,7 @@ class LoginTest < ActionDispatch::IntegrationTest
     within('#login-form') do
       fill_in 'Username', with: 'dasdasd'
       fill_in 'Password', with: 'dasdasd'
-      click_button 'Login'
+      click_button 'Log In'
     end
     flash_message.must_equal "Authentication failed"
     flash_message_type.must_equal :alert
@@ -71,7 +71,7 @@ class LoginTest < ActionDispatch::IntegrationTest
     within('#login-form') do
       fill_in 'Username', with: ''
       fill_in 'Password', with: ''
-      click_button 'Login'
+      click_button 'Log In'
     end
     flash_message.must_equal "Authentication failed"
     flash_message_type.must_equal :alert

@@ -73,6 +73,7 @@ proxy_auth_mode: :off
 #proxy_auth_login_page: https://build.opensuse.org/ICSLogin
 #proxy_auth_logout_page: /cmd/ICSLogout
 #proxy_auth_register_page: https://en.opensuse.org/ICSLogin
+#proxy_auth_account_page: https://en.opensuse.org/ICSAccount 
 
 # use those to fake ichain against the API 
 #proxy_auth_test_email: coolguy@example.com
