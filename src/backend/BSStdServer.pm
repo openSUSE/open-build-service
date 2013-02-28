@@ -56,6 +56,7 @@ sub stdreply {
 sub errreply {
   my ($err, $code, $tag, @hdrs) = @_;
   my $opresult = {'code' => $code, 'summary' => $tag};
+  $opresult->{'details'} = $err if $err && $err ne $tag && $err ne "$tag\n";
   my $opresultxml;
   eval {
     $opresultxml = XMLout($BSXML::opstatus, $opresult);

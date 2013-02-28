@@ -304,9 +304,9 @@ class SourceController < ApplicationController
     end
     #
     if origin_package_name and not origin_project_name
-        render_error :status => 404, :errorcode => "missing_argument",
-        :message => "origin package name is specified, but no origin project"
-        return
+      render_error :status => 404, :errorcode => "missing_argument",
+                   :message => "origin package name is specified, but no origin project"
+      return
     end
 
     # Check for existens/access of origin package when specified

@@ -28,6 +28,14 @@ module ActiveXML
         return @xml['exception']
       end
 
+      def details
+        parse!
+        if @xml.has_key? 'details'
+	  return @xml['details']
+        end
+        return nil
+      end
+
       def summary
         parse!
         if @xml.has_key? 'summary'
