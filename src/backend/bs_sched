@@ -6725,6 +6725,24 @@ NEXTPRP:
       last;
     }
 
+    # postpone if we got source change RPCs running
+    if (defined($prp)) {
+      my ($projid) = split('/', $prp, 2);
+      if ($iswaiting{$projid}) {
+	my $rhandle = $iswaiting{$projid};
+	push @{$rhandle->{'_wakeup'}}, [ $prp, {'changetype' => $lookattype} ];
+	next;
+      }
+    }
+
+    if (%iswaiting) {
+      print "running async RPC requests:\n";
+      for my $server (sort keys %iswaiting_server) {
+	next unless %{$iswaiting_server{$server} || {}};
+	print "  - $server: ".scalar(keys %{$iswaiting_server{$server}})." running, ".@{$iswaiting_serverload{$server} || []}." waiting\n";
+      }
+    }
+
     if (!defined($prp)) {
       if ($testmode) {
 	print "Test mode, all sources and events processed, exiting...\n";
@@ -6748,15 +6766,6 @@ NEXTPRP:
       next;
     }
 
-    my ($projid, $repoid) = split('/', $prp, 2);
-
-    # postpone if we got source change RPCs running
-    if ($iswaiting{$projid}) {
-      my $rhandle = $iswaiting{$projid};
-      push @{$rhandle->{'_wakeup'}}, [ $prp, {'changetype' => $lookattype} ];
-      next;
-    }
-
     $notmed++;
     $notlow++;
     if ($lookattype eq 'low') {
@@ -6773,6 +6782,7 @@ NEXTPRP:
     print " (".@lookat_high."/".@lookat_med."/".@lookat_low."/".(keys %lookat_next)."/".@prps.")\n";
     delete $nextmed{$prp};
 
+    my ($projid, $repoid) = split('/', $prp, 2);
     next if $testprojid && $projid ne $testprojid;
 
     if (!defined($repoid)) {
