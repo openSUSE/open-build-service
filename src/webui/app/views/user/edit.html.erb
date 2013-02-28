@@ -1,11 +1,34 @@
 <% @pagetitle = "Edit User Data" %>
 
-<h2>Editing User Data for User <%= @user.login %></h2>
+<h2>Editing User Data for User <%= @displayed_user.login %></h2>
 
-<%= form_tag :action => :save do -%>
-<div>
-  <p><strong>Real Name:</strong></p>
-  <p><%= text_field_tag( "realname", @user.realname, :size => 80 ) %></p>
-  <p><%= submit_tag %></p>
-</div>
-<% end -%>
+  <%= form_tag(:action => 'save') do %>
+    <p>
+     <input id="user" name="user" type="hidden" value="<%= @displayed_user.login %>" />     
+     <%= label_tag :realname, 'Name:' %><br/>
+     <%= text_field_tag :realname, @displayed_user.realname %>     
+    </p>
+    <p>
+     <%= label_tag :email, 'e-Mail:' %><br/>
+     <%= text_field_tag :email, @displayed_user.email %>
+    </p>
+    <p>
+    <% @roles.each do |r| %>
+      <%= label_tag "globalrole_#{r}", "#{r}" %>
+      <% if r.to_s == @displayed_user.globalrole.to_s %>
+        <% select = true %>
+      <% end %>
+      <%= radio_button_tag :globalrole, r, select %>
+    <% end %>
+    </p>
+    <p>
+    <% @states.each do |s| %>
+      <%= label_tag "state_#{s}", "#{s}" %>
+      <% if s.to_s == @displayed_user.state.to_s %>
+        <% select = true %>
+      <% end %>
+      <%= radio_button_tag :state, s, select %>
+    <% end %>
+    </p>
+    <p><%= submit_tag 'Update' %></p>
+  <% end %>

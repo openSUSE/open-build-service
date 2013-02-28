@@ -32,7 +32,7 @@ class ActionDispatch::IntegrationTest
     within('#login-form') do
       fill_in 'Username', with: user
       fill_in 'Password', with: password
-      click_button 'Login'
+      click_button 'Log In'
     end
     @current_user = user
     if do_assert

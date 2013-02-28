@@ -170,7 +170,6 @@ class PersonController < ApplicationController
     logger.debug( "register XML: #{request.raw_post}" )
 
     login = xml.elements["/unregisteredperson/login"].text
-    logger.debug("Found login #{login}")
     realname = xml.elements["/unregisteredperson/realname"].text
     email = xml.elements["/unregisteredperson/email"].text
     password = xml.elements["/unregisteredperson/password"].text

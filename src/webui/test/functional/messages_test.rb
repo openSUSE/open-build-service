@@ -11,7 +11,7 @@ class MessagesTest < ActionDispatch::IntegrationTest
 
     message = "This is just a test"
     visit "/"
-    page.wont_have_selector('#messages')
+    page.wont_have_selector('#news-message')
 
     find(:id, 'add-new-message').click
     fill_in "message", with: message
@@ -23,7 +23,7 @@ class MessagesTest < ActionDispatch::IntegrationTest
     find_button("Ok").click
 
     # check that it's gone
-    page.wont_have_selector('#messages')
+    page.wont_have_selector('#news-message')
     
     # and now to something completely different - we need to erase home:king
     # again so that you still get the same interconnect s*** workflow (TODO!!!)

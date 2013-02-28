@@ -45,7 +45,7 @@
   <%= form_tag(:action => 'update_configuration') do %>
     <p>
      <%= label_tag :title, 'Title:' %><br/>
-     <%= text_field_tag :title, @configuration['title'].gsub(" Open Build Service", "") %> Open Build Service
+     <%= text_field_tag :title, @configuration['title'] %>
     </p>
     <p>
       <%= label_tag :description, 'Description:' %><br/>

@@ -13,9 +13,18 @@ class ConfigurationController < ApplicationController
 
   def users
     @users = []
-    Person.find_cached(:all).each do |u|
-      person = Person.find_cached(u.value('name'))
-      @users << person if person
+    @deleted_users = []
+    @unconfirmed_users = []
+    @locked_users = []
+    Person.find(:all).each do |u|
+      person = Person.find(u.value('name'))
+      case person.state
+        when "deleted" then @deleted_users << person if person
+        when "unconfirmed" then @unconfirmed_users << person if person
+        when "locked" then @locked_users << person if person
+      else
+        @users << person if person
+      end
     end
   end
   
@@ -62,7 +71,7 @@ class ConfigurationController < ApplicationController
   end
 
   def update_configuration
-    if ! (params[:title] || params[:target_project])
+    if ! (params[:title] || params[:description])
       flash[:error] = "Missing arguments (title or description)"
       redirect_back_or_to :action => 'index' and return
     end

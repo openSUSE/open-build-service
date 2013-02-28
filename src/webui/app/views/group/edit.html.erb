@@ -1,0 +1,12 @@
+<% @pagetitle = "Edit User Data" %>
+
+<h2>Edit <%= @displayed_group.title %></h2>
+
+  <%= form_tag(:action => 'save') do %>
+    <p>
+     <input id="group" name="group" type="hidden" value="<%= @displayed_group.title %>" />     
+     <%= label_tag :title, 'Name:' %><br/>
+     <%= text_field_tag :realname, @displayed_user.realname %>     
+    </p>
+    <p><%= submit_tag 'Update' %></p>
+  <% end %>
