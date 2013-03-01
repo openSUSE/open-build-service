@@ -10,7 +10,8 @@
       <% end %>
       <h6 class="data-title">
       <%= image_tag('project.png', class: 'project') %>
-      <%= link_to result[:data].to_hash['name'], { :controller => 'project', :action => :show, :project => result[:data],}, :title => title, class: "project"-%>
+      <%= render :partial => 'shared/project_or_package_link', :locals => {:project => result[:data].name,
+                                                                           :short => false} %>
       </h6>
     <% elsif result[:type] == 'package' %>
       <div class="search_result">
@@ -21,9 +22,10 @@
       <% end %>
       <h6 class="data-title">
       <%= image_tag('package.png', class: 'package') %>
-      <%= link_to result[:data].to_hash['name'], { :controller => 'package', :action => :show, :package => result[:data].name, :project => result[:data].project }, :title => title, class: 'package'-%>
+      <%= render :partial => 'shared/project_or_package_link', :locals => {:project => result[:data].project,
+                                                                           :package => result[:data].name,
+                                                                           :short => false} %>
       </h6>
-      <% descr = "in project <span class=\"project\">#{result[:data].project}</span>" %>
     <% elsif result[:type] == 'owner' %>
       <div class="search_result">
       <h6>
