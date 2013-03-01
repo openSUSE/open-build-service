@@ -2351,16 +2351,13 @@ sub get_projpacks {
     print "getting data for project '$projid' package '".join("', '", @packids)."' from $BSConfig::srcserver\n";
     push @args, "project=$projid";
     for my $packid (@packids) {
-      delete $projpacks->{$projid}->{'package'}->{$packid} if $projpacks->{$projid} && $projpacks->{$projid}->{'package'};
       push @args, "package=$packid";
     }
   } elsif (defined($projid)) {
     print "getting data for project '$projid' from $BSConfig::srcserver\n";
     push @args, "project=$projid";
-    delete $projpacks->{$projid} unless $doasync;
   } else {
     print "getting data for all projects from $BSConfig::srcserver\n";
-    $projpacks = {} unless $doasync;
   }
   my $projpacksin;
   while (1) {
@@ -2424,6 +2421,10 @@ sub update_projpacks {
     $projpacks = {};
   } elsif (!($packids && @$packids)) {
     delete $projpacks->{$projid};
+  } elsif ($projpacks->{$projid} && $projpacks->{$projid}->{'package'}) {
+    for my $packid (@$packids) {
+      delete $projpacks->{$projid}->{'package'}->{$packid};
+    }
   }
   for my $proj (@{$projpacksin->{'project'} || []}) {
     if ($packids && @$packids) {
@@ -6346,7 +6347,7 @@ if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
       $projpacks = $schedstate->{'projpacks'};
     } else {
       # get project and package information from src server
-      get_projpacks(undef, undef);
+      get_projpacks(undef, undef);	# XXX: async
     }
     get_projpacks_postprocess();
 
@@ -6410,6 +6411,14 @@ if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
       %watchremote_start = %{$schedstate->{'watchremote_start'}};
     }
 
+    # start project data fetch for delayed startup projects
+    for my $projid (sort keys %$projpacks) {
+      my $packs = $projpacks->{$projid}->{'package'} || {};
+      for my $packid (sort keys %$packs) {
+        $delayedfetchprojpacks{$projid} = [ '/all' ] if ($packs->{$packid}->{'error'} || '') eq 'delayed startup';
+      }
+    }
+
     if ($schedstate->{'fetchprojpacks'} && $schedstate->{'projpacks'}) {
       my $ectx = {
 	'fetchprojpacks' => $schedstate->{'fetchprojpacks'},
@@ -6435,8 +6444,12 @@ if (!$projpacks && $asyncmode) {
   update_projpacks($projpacksin);
   get_projpacks_postprocess();
   for my $projid (sort keys %$projpacks) {
-    next unless %{$projpacks->{$projid}->{'package'} || {}};
+    my $packs = $projpacks->{$projid}->{'package'} || {};
+    next unless %$packs;
     $delayedfetchprojpacks{$projid} = [ '/all' ];	# hack
+    for my $packid (sort keys %$packs) {
+      $packs->{$packid}->{'error'} = 'delayed startup';
+    }
   }
   @lookat_low = sort keys %$projpacks;
   push @lookat_low, @prps;
@@ -7323,9 +7336,9 @@ NEXTPRP:
 	  $packerror{$packid} = $pdata->{'error'};
 	  next;
 	}
-	if ($pdata->{'error'} =~ /interconnect error:/) {
+	if ($pdata->{'error'} eq 'delayed startup' || $pdata->{'error'} =~ /interconnect error:/) {
 	  addretryevent({'type' => 'package', 'project' => $projid, 'package' => $packid});
-          $ctx->{'havedelayed'} = 1;
+	  $ctx->{'havedelayed'} = 1;
 	  $packstatus{$packid} = 'blocked';
 	  $packerror{$packid} = $pdata->{'error'};
 	  next;
