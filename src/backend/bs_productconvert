@@ -1322,7 +1322,8 @@ foreach my $medium ( @$media ){
 	  if (defined($medium->{'mediastyle'}) && $medium->{'mediastyle'} ne "suse-11.1" && $medium->{'mediastyle'} ne "suse-11.2") {
 	      $kiwi->{schemaversion} = "4.1"; # new kiwi requires exact this version
 	      my $attrs = {image => "product"};
-              $attrs->{'firmware'} = $medium->{'firmware'} if $medium->{'firmware'};
+	      $attrs->{'firmware'} = $medium->{'firmware'} if $medium->{'firmware'};
+	      $attrs->{'hybrid'} = 'true' if (defined($medium->{'run_hybridiso'})) && $medium->{'run_hybridiso'} eq "true";
 	      $kiwi->{preferences}->{type} = [$attrs];
 	  }else{
 	      # the schemE vs. schemA is intended by kiwi!
