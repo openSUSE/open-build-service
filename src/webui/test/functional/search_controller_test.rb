@@ -58,12 +58,11 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
       when "project"
         { :type         => :project,
           :project_name => row.find("a.project").text,
-          :project_title => row.find("a.project")[:title]
         }
       when "package"
         { :type         => :package, 
+          :project_name => row.find("a.project").text,
           :package_name => row.find("a.package").text,
-          :project_name => row.find("span.project").text
         }
       else
         fail "Unrecognized result icon. #{alt}"
@@ -82,6 +81,15 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     validate_search_page
 
     visit '/search?search_text=Base'
+    page.must_have_text(/Base.* distro without update project/)
+    page.must_have_link 'kdebase'
+  end
+  
+  test "header_search_functionality" do
+    visit "/"
+    fill_in 'search', with: 'Base'
+    page.evaluate_script("$('#global-search-form').get(0).submit()")
+    validate_search_page
     page.must_have_text(/Base.* distro without update project/)
     page.must_have_link 'kdebase'
   end
@@ -105,12 +113,12 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     results = search_results
     # tom set no description
-    assert !results.include?(:type => :project, :project_name => "home:tom", :project_title => "Этёам вокябюч еюж эи")
-    assert results.include? :type => :project, :project_name => "home:Iggy", :project_title => "Iggy Home Project"
-    assert results.include? :type => :project, :project_name => "home:adrian", :project_title => "adrian's Home Project"
+    assert !results.include?(:type => :project, :project_name => "home:tom")
+    assert results.include? :type => :project, :project_name => "home:Iggy"
+    assert results.include? :type => :project, :project_name => "home:adrian"
     # important match as it's having "home" and not "Home"
-    assert results.include? :type => :project, :project_name => "home:dmayr", :project_title => "my home project"
-    assert results.include? :type => :project, :project_name => "home:Iggy:branches:kde4", :project_title => "Iggy Home Project"
+    assert results.include? :type => :project, :project_name => "home:dmayr"
+    assert results.include? :type => :project, :project_name => "home:Iggy:branches:kde4"
     # the api fixtures add home dirs too
     assert results.count >= 4
   end
@@ -126,12 +134,12 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
       :in   => [:name])
 
     results = search_results
-    assert results.include? :type => :project, :project_name => "home:Iggy:branches:kde4", :project_title => "Iggy Home Project"
+    assert results.include? :type => :project, :project_name => "home:Iggy:branches:kde4"
     results.count.must_equal 1
   end
 
 
-  test "search_for_public_projects" do
+  test "search_for_projects" do
 
     visit search_path
 
@@ -141,7 +149,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
       :in   => [:name])
 
     results = search_results
-    assert results.include? :type => :project, :project_name => "LocalProject", :project_title => "This project is a local project"
+    assert results.include? :type => :project, :project_name => "LocalProject"
     results.count.must_equal 1
   end
 
@@ -245,7 +253,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     
     results = search_results
     page.must_have_text "窞綆腤 埱娵徖 渮湸湤 殠 唲堔"
-    results.include?(:type => :project, :project_name => "home:tom", :project_title => "Этёам вокябюч еюж эи")
+    results.include?(:type => :project, :project_name => "home:tom")
     results.count.must_equal 1
   end
 
