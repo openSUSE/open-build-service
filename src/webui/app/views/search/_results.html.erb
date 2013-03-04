@@ -3,11 +3,6 @@
   <% @results.each do |result| %>
     <% if result[:type] == 'project' %>
       <div class="search_result">
-      <% if result[:data].has_element?( 'title' ) and !result[:data].to_hash['title'].empty? %>
-        <% title = result[:data].to_hash['title'] %>
-      <% else %>
-        <% title = "" %>
-      <% end %>
       <h6 class="data-title">
       <%= image_tag('project.png', class: 'project') %>
       <%= render :partial => 'shared/project_or_package_link', :locals => {:project => result[:data].name,
@@ -15,11 +10,6 @@
       </h6>
     <% elsif result[:type] == 'package' %>
       <div class="search_result">
-      <% if result[:data].has_element?( 'title' ) and !result[:data].to_hash['title'].empty? %>
-        <% title = result[:data].to_hash['title'] -%>
-      <% else %>
-        <% title = "" -%>
-      <% end %>
       <h6 class="data-title">
       <%= image_tag('package.png', class: 'package') %>
       <%= render :partial => 'shared/project_or_package_link', :locals => {:project => result[:data].project,
