@@ -522,7 +522,9 @@ CREATE TABLE `release_targets` (
   `trigger` enum('finished','allsucceeded','maintenance') DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `repository_id_index` (`repository_id`),
-  KEY `index_release_targets_on_target_repository_id` (`target_repository_id`)
+  KEY `index_release_targets_on_target_repository_id` (`target_repository_id`),
+  CONSTRAINT `release_targets_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
+  CONSTRAINT `release_targets_ibfk_2` FOREIGN KEY (`target_repository_id`) REFERENCES `repositories` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `repositories` (
@@ -1044,6 +1046,8 @@ INSERT INTO schema_migrations (version) VALUES ('20121220151549');
 INSERT INTO schema_migrations (version) VALUES ('20130111085930');
 
 INSERT INTO schema_migrations (version) VALUES ('20130220160000');
+
+INSERT INTO schema_migrations (version) VALUES ('20130301100000');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
