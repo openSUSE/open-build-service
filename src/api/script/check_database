@@ -77,6 +77,9 @@ check_foreign_key("role_id", "project_user_role_relationships", "roles", 1);
 check_foreign_key("parent_id", "path_elements", "repositories", 1);
 check_foreign_key("repository_id", "path_elements", "repositories", 1);
 
+check_foreign_key("repository_id", "release_targets", "repositories", 1);
+check_foreign_key("target_repository_id", "release_targets", "repositories", 1);
+
 check_foreign_key("user_id", "ratings", "users", 1);
 
 check_foreign_key("db_project_id", "repositories", "projects", 1);

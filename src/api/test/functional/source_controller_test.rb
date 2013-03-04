@@ -421,6 +421,87 @@ end
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
   end
 
+  def test_create_and_remove_release_targets
+    rel_target_meta="<project name='TEMPORARY:rel_target'><title></title><description/>
+                      <repository name='rel_target1'>
+                        <path project='BaseDistro' repository='BaseDistro_repo'/>
+                        <arch>x86_64</arch>
+                      </repository>
+                      <repository name='rel_target2'>
+                        <path project='BaseDistro' repository='BaseDistro_repo'/>
+                        <arch>x86_64</arch>
+                      </repository>
+                   </project>"
+    build_meta="<project name='TEMPORARY:build'><title></title><description/>
+                      <repository name='repo1'>
+                        <releasetarget project='TEMPORARY:rel_target' repository='rel_target1'/>
+                        <path project='BaseDistro' repository='BaseDistro_repo'/>
+                        <arch>x86_64</arch>
+                      </repository>
+                      <repository name='repo2'>
+                        <releasetarget project='TEMPORARY:rel_target' repository='rel_target2'/>
+                        <path project='BaseDistro' repository='BaseDistro_repo'/>
+                        <arch>x86_64</arch>
+                      </repository>
+                   </project>"
+
+    # create them
+    prepare_request_with_user "king", "sunflower"
+    put url_for(:controller => :source, :action => :project_meta, :project => "TEMPORARY:rel_target"), rel_target_meta
+    assert_response :success
+    get "/source/TEMPORARY:rel_target/_meta"
+    assert_response :success
+    put url_for(:controller => :source, :action => :project_meta, :project => "TEMPORARY:build"), build_meta
+    assert_response :success
+    get "/source/TEMPORARY:build/_meta"
+    assert_response :success
+    assert_xml_tag :parent => {:tag => "repository", :attributes => {:name => "repo1"}},
+                   :tag => 'releasetarget', :attributes => {:project => 'TEMPORARY:rel_target', :repository => 'rel_target1'}
+    assert_xml_tag :parent => {:tag => "repository", :attributes => {:name => "repo2"}},
+                   :tag => 'releasetarget', :attributes => {:project => 'TEMPORARY:rel_target', :repository => 'rel_target2'}
+
+    # delete one repository where a release target defintion points to
+    rel_target_meta="<project name='TEMPORARY:rel_target'><title></title><description/>
+                      <repository name='rel_target2'>
+                        <path project='BaseDistro' repository='BaseDistro_repo'/>
+                        <arch>x86_64</arch>
+                      </repository>
+                   </project>"
+    put "/source/TEMPORARY:rel_target/_meta", rel_target_meta
+    assert_response 400
+    assert_xml_tag( :tag => "status", :attributes => { :code => "repo_dependency" })
+    assert_match(/following target repositories depend on this project:/, @response.body)
+    put "/source/TEMPORARY:rel_target/_meta?force=1", rel_target_meta
+    assert_response :success
+    get "/source/TEMPORARY:rel_target/_meta"
+    assert_response :success
+    get "/source/TEMPORARY:build/_meta"
+    assert_response :success
+    assert_xml_tag :parent => {:tag => "repository", :attributes => {:name => "repo1"}},
+                   :tag => 'releasetarget', :attributes => {:project => 'deleted', :repository => 'deleted'}
+    assert_xml_tag :parent => {:tag => "repository", :attributes => {:name => "repo2"}},
+                   :tag => 'releasetarget', :attributes => {:project => 'TEMPORARY:rel_target', :repository => 'rel_target2'}
+
+    # delete entire project including release target
+    delete "/source/TEMPORARY:rel_target"
+    assert_response 400
+    assert_xml_tag( :tag => "status", :attributes => { :code => "repo_dependency" })
+    delete "/source/TEMPORARY:rel_target?force=1"
+    assert_response :success
+    get "/source/TEMPORARY:rel_target/_meta"
+    assert_response 404
+    get "/source/TEMPORARY:build/_meta"
+    assert_response :success
+    assert_xml_tag :parent => {:tag => "repository", :attributes => {:name => "repo1"}},
+                   :tag => 'releasetarget', :attributes => {:project => 'deleted', :repository => 'deleted'}
+    assert_xml_tag :parent => {:tag => "repository", :attributes => {:name => "repo2"}},
+                   :tag => 'releasetarget', :attributes => {:project => 'deleted', :repository => 'deleted'}
+
+    # cleanup
+    delete "/source/TEMPORARY:build"
+    assert_response :success
+  end
+
   def do_change_project_meta_test (project, response1, response2, tag2, doesmatch)
    # Get meta file  
     get url_for(:controller => :source, :action => :project_meta, :project => project)
@@ -888,7 +969,7 @@ end
     assert_response 400
     assert_xml_tag( :tag => "status", :attributes => { :code => "repo_dependency"} )
     delete "/source/home:tom:projectA"
-    assert_response 403
+    assert_response 400
     put "/source/home:tom:projectA/_meta?force=1", "<project name='home:tom:projectA'> <title/> <description/> </project>"
     assert_response :success
     get "/source/home:tom:projectB/_meta"
@@ -912,7 +993,7 @@ end
     delete "/source/home:tom:projectB"
     assert_response :success
     delete "/source/home:tom:projectC"
-    assert_response 403 # projectD is still using it
+    assert_response 400 # projectD is still using it
     delete "/source/home:tom:projectD"
     assert_response :success
     delete "/source/home:tom:projectC"
@@ -932,7 +1013,7 @@ end
     assert_response 400
     assert_xml_tag( :tag => "status", :attributes => { :code => "repo_dependency"} )
     delete "/source/home:tom:projectA"
-    assert_response 403
+    assert_response 400
     put "/source/home:tom:projectA/_meta?force=1&remove_linking_repositories=1", "<project name='home:tom:projectA'> <title/> <description/> </project>"
     assert_response :success
     get "/source/home:tom:projectB/_meta"
@@ -959,7 +1040,7 @@ end
     assert_response :success
     # delete the project including the repository
     delete "/source/home:tom:projectA"
-    assert_response 403
+    assert_response 400
     assert_xml_tag( :tag => "status", :attributes => { :code => "repo_dependency"} )
     delete "/source/home:tom:projectA?force=1"
     assert_response :success
@@ -1542,8 +1623,8 @@ end
   def test_remove_project_and_verify_repositories
     prepare_request_with_user "tom", "thunder" 
     delete "/source/home:coolo"
-    assert_response 403
-    assert_select "status[code] > summary", /Unable to delete project home:coolo; following repositories depend on this project:/
+    assert_response 400
+    assert_select "status[code] > summary", /following repositories depend on this project:/
 
     delete "/source/home:coolo", :force => 1
     assert_response :success

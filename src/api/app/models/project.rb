@@ -72,6 +72,7 @@ class Project < ActiveRecord::Base
   end
   
   def cleanup_before_destroy
+    del_repo = Project.find_by_name("deleted").repositories[0]
     # find linking repositories
     lreps = Array.new
     self.repositories.each do |repo|
@@ -81,16 +82,32 @@ class Project < ActiveRecord::Base
     end
     if lreps.length > 0
       #replace links to this projects with links to the "deleted" project
-      del_repo = Project.find_by_name("deleted").repositories[0]
       lreps.each do |link_rep|
         link_rep.path_elements.includes(:link).each do |pe|
           next unless Repository.find(pe.repository_id).db_project_id == self.id
           pe.link = del_repo
           pe.save
           #update backend
-          link_prj = link_rep.project
-          logger.info "updating project '#{link_prj.name}'"
-          Suse::Backend.put_source "/source/#{link_prj.name}/_meta", link_prj.to_axml
+          link_rep.project.write_to_backend
+        end
+      end
+    end
+    # find linking target repositories
+    lreps = Array.new
+    self.repositories.each do |repo|
+      repo.linking_target_repositories.each do |lrep|
+        lreps << lrep
+      end
+    end
+    if lreps.length > 0
+      #replace links to this projects with links to the "deleted" project
+      lreps.each do |link_rep|
+        link_rep.release_targets.includes(:target_repository).each do |rt|
+          next unless Repository.find(rt.repository_id).db_project_id == self.id
+          rt.target_repository = del_repo
+          rt.save
+          #update backend
+          link_rep.project.write_to_backend
         end
       end
     end
@@ -650,16 +667,21 @@ class Project < ActiveRecord::Base
 
     # delete remaining repositories in repocache
     repocache.each do |name, object|
-      #find repositories that link against this one and issue warning if found
-      list = PathElement.where(repository_id: object.id).all
-      unless list.empty?
-        logger.debug "offending repo: #{object.inspect}"
-        if force
-          object.destroy!
-        else
+      logger.debug "offending repo: #{object.inspect}"
+      unless force
+        #find repositories that link against this one and issue warning if found
+        list = PathElement.where(repository_id: object.id).all
+        error = ""
+        unless list.empty?
           linking_repos = list.map {|x| x.repository.project.name+"/"+x.repository.name}.join "\n"
-          raise SaveError, "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:\n"+linking_repos
+          error << "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:\n"+linking_repos
         end
+        list = ReleaseTarget.where(target_repository_id: object.id).all
+        unless list.empty?
+          linking_repos = list.map {|x| x.repository.project.name+"/"+x.repository.name}.join "\n"
+          error << "Repository #{self.name}/#{name} cannot be deleted because following repos define it as release target:/\n"+linking_repos
+        end
+        raise SaveError, error unless error.blank?
       end
       logger.debug "deleting repository '#{name}'"
       self.repositories.destroy object
