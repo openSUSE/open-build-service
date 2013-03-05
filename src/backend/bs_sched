@@ -7275,6 +7275,7 @@ NEXTPRP:
 
     # copy old data over if we have missing packages
     if ($projpacks->{$projid}->{'missingpackages'}) {
+      addretryevent({'type' => 'package', 'project' => $projid});
       $oldpackstatus = BSUtil::retrieve("$reporoot/$prp/$myarch/:packstatus", 1) || {};
       $oldpackstatus->{'packstatus'} ||= {};
       $oldpackstatus->{'packerror'} ||= {};
