@@ -21,15 +21,16 @@ Regressions:
 ============
 
  * LDAP support is not tested and in unknown state (not part of test suite)
+   (A rewrite of it is WIP)
 
- * source service editor in webui is not available
+ * source service editor in webui is not available anymore
 
 Changes on purpose:
 ===================
 
  * Migration to Ruby 1.9 and Rails 3.2
 
- * request database got move from backend to the api. Directly
+ * request database got moved from backend to the api. Directly
    after update all requests seem to have vanished, but a delayed
    job is importing them again. This can take some hours dependening
    on the amount of requests.
@@ -55,6 +56,7 @@ Changes on purpose:
 
  * The api file/distribution.xml is obsolete, the config gets stored in the SQL database
    now. Existing file gets imported during migration.
+   The list from remote instances can displayed and updated automatically now.
 
 Features
 ========
@@ -110,6 +112,8 @@ Features
  * New generic "emulator" virtualization support. Can be used to build inside
    of system emulators (for foreign hardware for example)
 
+ * New s390 z/VM virtualization support.
+
 Deprecated:
 ===========
 
@@ -121,7 +125,8 @@ The following calls have been marked as deprecated, they will get removed in OBS
    - /search/package_id     -> use /search/package/id    instead
 
  * The deprecated support to copy qemu binaries from external build host into
-   build environment has been removed. 
+   build environment has been removed. This includes also the CBInstall and CBPreinstall
+   project configuration directives. 
 
 Notes for systems using systemd:
 ================================
@@ -134,8 +139,14 @@ in general. Not working are usages like
 
  # rcobssrcserver status
 
-You will only get the systemd status here. To see what the daemon is doing you need to
+You will only get the systemd status here.
+
+Also stopping services may not kill all processes, which leads to abstract errors
+when trying to restart them. We heard also about trashed MySQL databases when using
+systemd.
+
+To avoid these problems you need switch directory to avoid the systemd mapper:
 
  # cd /etc/init.d
- # ./obssrcserver status
+ # ./obssrcserver status|stop|start
 
