@@ -154,7 +154,7 @@ sub cleanup_job {
 
 sub kill_job {
   # In z/VM, just kill the worker with name $vm_worker_name
-  if ($vm == "zvm") {
+  if ($vm eq "zvm") {
     if (system("$statedir/build/build", "--vm-worker", $vm_worker_name, "--kill")) {
       return 0;
     }
