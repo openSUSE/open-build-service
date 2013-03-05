@@ -2430,6 +2430,8 @@ sub update_projpacks {
     if ($packids && @$packids) {
       die("bad projpack answer\n") unless $proj->{'name'} eq $projid;
       if ($projpacks->{$projid}) {
+	# do not delete the missingpackages flag if we just update single packages
+	$proj->{'missingpackages'} = 1 if $projpacks->{$projid}->{'missingpackages'};
 	# use all packages/configs from old projpacks
 	my $opackage = $projpacks->{$projid}->{'package'} || {};
 	for (keys %$opackage) {
