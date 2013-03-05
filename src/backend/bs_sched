@@ -2722,15 +2722,15 @@ sub find_linked_sources {
   if ($packids) {
     for my $packid (unify(@$packids)) {
       for my $linfo (grep {$_->{'project'} eq $projid && ($_->{'package'} eq $packid || $_->{'package'} eq ':*')} @projpacks_linked) {
-          push @{$linked{$linfo->{'myproject'}}}, defined($linfo->{'mypackage'}) ? $linfo->{'mypackage'} : $packid;
-        }
-      }
-    } else {
-      for my $linfo (grep {$_->{'project'} eq $projid} @projpacks_linked) {
-        next unless exists $linfo->{'mypackage'};
-        push @{$linked{$linfo->{'myproject'}}}, $linfo->{'mypackage'};
+	push @{$linked{$linfo->{'myproject'}}}, defined($linfo->{'mypackage'}) ? $linfo->{'mypackage'} : $packid;
       }
     }
+  } else {
+    for my $linfo (grep {$_->{'project'} eq $projid} @projpacks_linked) {
+      next unless exists $linfo->{'mypackage'};
+      push @{$linked{$linfo->{'myproject'}}}, $linfo->{'mypackage'};
+    }
+  }
   return \%linked;
 }
 
