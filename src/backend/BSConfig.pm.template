@@ -86,6 +86,10 @@ our $bsuser = 'obsrun';
 our $bsgroup = 'obsrun';
 #our $bsquotafile = '/srv/obs/quota.xml';
 
+# Use asynchronus scheduler. This avoids hanging schedulers on remote projects,
+# when the network is slow or broken. This will become the default in future
+# our sched_asyncmode = 1;
+
 # To enable package downloading from backend on demand
 our $enable_download_on_demand = 1;
 
