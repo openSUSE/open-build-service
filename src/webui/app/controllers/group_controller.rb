@@ -9,6 +9,11 @@ class GroupController < ApplicationController
     render :json => Group.list(params[:term])
   end
 
+  def tokens
+    required_parameters :q
+    render :json => Group.list(params[:q], hash=true)
+  end
+
   def show
     required_parameters :group
     @group = Group.find_cached(params[:group])
@@ -23,9 +28,31 @@ class GroupController < ApplicationController
 
   def edit
     @roles = Role.global_roles
+    @members = []
+    @displayed_group.person.each do |person |
+      user = { 'name' => person.userid }
+      @members << user
+    end
   end
 
   def save
+    group_opts = { :name => params[:name],
+                   :title => params[:name],
+                   :members => params[:members]
+                 }
+    begin
+      group = Group.new(group_opts)
+      group.save
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = e.message
+    end
+    flash[:success] = "Group '#{group.title}' successfully updated."
+    Rails.cache.delete("group_#{group.title}")
+    if @user and @user.is_admin?
+      redirect_to :controller => :configuration, :action => :groups
+    else
+      redirect_to :controller => "group", :action => 'show', :group => params[:group]
+    end
   end
   
   def overwrite_group

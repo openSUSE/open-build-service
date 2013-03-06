@@ -8,13 +8,7 @@
     Manage users.
   </p>
 
-<% @people = [] %>
-<% @people.concat(@users) %>
-<% @people.concat(@deleted_users) %>
-<% @people.concat(@unconfirmed_users) %>
-<% @people.concat(@locked_users) %>
-
-<% if @people.length > 0 %>
+<% if @users.length > 0 %>
   <table id="user_table">
     <thead>
       <tr>
@@ -24,7 +18,7 @@
       </tr>
     </thead>
     <tbody>
-    <% @people.each do |user| %>
+    <% @users.each do |user| %>
       <tr id='user-<%= valid_xml_id(user.login) %>'>
         <td><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => user.login, :no_icon => true }%></td>
         <td><%= user.state %></td>
@@ -82,7 +76,7 @@
 
 <%= javascript_tag do %>
   $(document).ready(function() {
-    <% if @people.length > 0 %>
+    <% if @users.length > 0 %>
       $('#user_table').dataTable();
     <% end %>
   });
