@@ -9,6 +9,8 @@
  * compiled file, but it's generally better to create a new file per style scope.
  *
  *= require dataTables/jquery.dataTables
+ *= require token-input
+ *= require token-input-facebook
 */
 @import "compass";
 @import "bento/reset";

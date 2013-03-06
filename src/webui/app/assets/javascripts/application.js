@@ -19,6 +19,7 @@
 //= require jquery.flot.stack.js
 //= require jquery.tooltip.js
 //= require dataTables/jquery.dataTables
+//= require jquery.tokeninput
 //= require bento/script.js
 //= require bento/global-navigation.js
 //= require bento/l10n/global-navigation-data-en_US.js

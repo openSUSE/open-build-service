@@ -12,6 +12,7 @@ group :assets do
   gem 'compass-rails'
   gem 'jquery-datatables-rails'
   gem 'codemirror-rails', '>= 3.0'
+  gem 'rails_tokeninput'
 end
 
 group :development do

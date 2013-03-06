@@ -2,25 +2,23 @@
 
 <h2>Add group <%= params['group'] %></h2>
 
-<%= javascript_tag do %>
-var count = 0;
-$(function(){
-	$('p#add_field').click(function(){
-		count += 1;
-		$('#group-container').append('<input id="user_' + count + '" name="users[]' + '" type="text" /><br />' );
-	});
-});
-<% end %>
-
   <%= form_tag({:action => 'save'}, {:id => 'group_add_form'}) do %>
   <p>
-  <input id="group" name="group" type="hidden" value="<%= params['group'] %>" />     
-  <%= label_tag :title, 'Title:' %><br/>
-  <%= text_field_tag :title, nil, :placeholder => 'Name/Title' %><br/>
+  <%= label_tag :name, 'Name:' %><br/>
+  <%= text_field_tag :name, nil, :placeholder => 'Name' %><br/>
   </p>
-  <div id="group-container">
-     <p id="add_field"><a href="#"><span>Add user</span></a></p>
-  </div>
-  <p><%= submit_tag 'Save' %></p>
+  <p>
+  <%= label_tag :members, 'Members:' %><br/>
+  <input type="text" id="members" name="members" style="display: none;" />
+  <%= submit_tag 'Save' %>
+  </p>
   <% end %>
 
+<%= javascript_tag do %>
+  $(document).ready(function() {
+    $("#members").tokenInput("<%= url_for :controller => 'user', :action => 'tokens' %>" ,{
+                theme: "facebook",
+                tokenValue: "name"
+     });
+  });
+<% end %>

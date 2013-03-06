@@ -199,4 +199,9 @@ class UserController < ApplicationController
     render json: Person.list(params[:term])
   end
 
+  def tokens
+    required_parameters :q
+    render json: Person.list(params[:q], hash=true)
+  end
+
 end

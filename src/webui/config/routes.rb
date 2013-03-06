@@ -233,6 +233,7 @@ OBSWebUI::Application.routes.draw do
     match 'user/delete' => :delete, via: :delete
     match 'user/change_password' => :change_password, via: :post
     match 'user/autocomplete' => :autocomplete
+    match 'user/tokens' => :tokens
   
     match 'user/do_login' => :do_login
     match 'user/edit' => :edit
@@ -248,10 +249,11 @@ OBSWebUI::Application.routes.draw do
   end
 
   controller :group do
-    match 'group/:group'  => :show
+    match 'group/show'  => :show
     match 'group/add'  => :add
     match 'group/save' => :save, via: :post
     match 'group/autocomplete' => :autocomplete
+    match 'group/tokens' => :tokens
     match 'group/edit' => :edit
   end
       
