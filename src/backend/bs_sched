@@ -2669,7 +2669,7 @@ sub addretryevent {
     if ($ev->{'type'} eq 'repository' || $ev->{'type'} eq 'recheck') {
       next if $ev->{'repository'} ne $oev->{'repository'};
     } elsif ($ev->{'type'} eq 'package') {
-      next if $ev->{'package'} ne $oev->{'package'};
+      next if ($ev->{'package'} || '') ne ($oev->{'package'} || '');
     }
     return;
   }
