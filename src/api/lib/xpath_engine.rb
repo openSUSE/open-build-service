@@ -139,21 +139,21 @@ class XpathEngine
         'state/@name' => { :cpart => 'bs_requests.state' },
         'state/@who' => { :cpart => 'bs_requests.commenter' },
         'action/@type' => { :cpart => 'bs_request_actions.action_type' },
-        'action/target/@project' => { :cpart => 'a.target_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
-        'action/target/@package' => { :cpart => 'a.target_package', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
-        'action/source/@project' => { :cpart => 'a.source_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
-        'action/source/@package' => { :cpart => 'a.source_package', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
+        'action/target/@project' => { :cpart => 'bs_request_actions.target_project' },
+        'action/target/@package' => { :cpart => 'bs_request_actions.target_package' },
+        'action/source/@project' => { :cpart => 'bs_request_actions.source_project' },
+        'action/source/@package' => { :cpart => 'bs_request_actions.source_package' },
         # osc is doing these 4 kinds of searches during submit
-        'target/@project' => { :cpart => 'a.target_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
-        'target/@package' => { :cpart => 'a.target_package', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
-        'source/@project' => { :cpart => 'a.source_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
-        'source/@package' => { :cpart => 'a.source_package', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
-        'review/@by_user' => { :cpart => 'r.by_user', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
-        'review/@by_group' => { :cpart => 'r.by_group', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
-        'review/@by_project' => { :cpart => 'r.by_project', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
-        'review/@by_package' => { :cpart => 'r.by_package', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
-        'review/@state' => { :cpart => 'r.state', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
-        'history/@who' => { :cpart => 'b.commenter', joins: "LEFT JOIN bs_request_histories b on b.bs_request_id = bs_requests.id" },
+        'target/@project' => { :cpart => 'bs_request_actions.target_project' },
+        'target/@package' => { :cpart => 'bs_request_actions.target_package' },
+        'source/@project' => { :cpart => 'bs_request_actions.source_project' },
+        'source/@package' => { :cpart => 'bs_request_actions.source_package' },
+        'review/@by_user' => { :cpart => 'reviews.by_user' },
+        'review/@by_group' => { :cpart => 'reviews.by_group' },
+        'review/@by_project' => { :cpart => 'reviews.by_project' },
+        'review/@by_package' => { :cpart => 'reviews.by_package' },
+        'review/@state' => { :cpart => 'reviews.state' },
+        'history/@who' => { :cpart => 'bs_request_histories.commenter' },
         'submit/target/@project' => { empty: true },
         'submit/target/@package' => { empty: true },
         'submit/source/@project' => { empty: true },
@@ -258,8 +258,12 @@ class XpathEngine
       select = "distinct(repositories.id),repositories.*"
     when 'requests'
       model = BsRequest
-      includes = [:bs_request_actions, :bs_request_histories, :reviews]
       select = "distinct(bs_requests.id),bs_requests.*"
+      # we can not use includes here, since all actions/reviews needs to be joined even when only one matches the search
+#      includes = [:bs_request_actions, :bs_request_histories, :reviews]
+      @joins = [ "LEFT JOIN bs_request_actions ON bs_request_actions.bs_request_id = bs_requests.id",
+                 "LEFT JOIN reviews ON reviews.bs_request_id = bs_requests.id",
+                 "LEFT JOIN bs_request_histories ON bs_request_histories.bs_request_id = bs_requests.id" ]
     when 'users'
       model = User
       includes = []
@@ -280,10 +284,11 @@ class XpathEngine
     @limit = opt['limit'].to_i if opt['limit']
     @offset = opt['offset'].to_i if opt['offset']
 
+    # Do not use :group => model.table_name + ".id"  or stuff like multiple reviews in one request vanishes
     logger.debug("#{model.class}.find_each #{ { :select => select, :include => includes, :joins => @joins.flatten.uniq.join(' '),
-                    :conditions => cond_ary, :order => @sort_order, :group => model.table_name + ".id" }.inspect }")
-    model.find_each(:select => select, :include => includes, :joins => @joins.flatten.uniq.join(" "),
-                    :conditions => cond_ary, :order => @sort_order) do |item|
+                    :conditions => cond_ary, :order => @sort_order}.inspect }")
+    # beware, .to_sql may tell you an SQL line, which includes a distinct select, but it gets not used on execution
+    model.includes(includes).joins(@joins.flatten.uniq.join(" ")).where(cond_ary).order(@sort_order).select(select).each do |item|
       # Add some pagination. Standard :offset & :limit aren't available for ActiveModel#find_each,
       # and the :start param only works on primary keys, but we're in a block so we can control
       # what we 'yield' after we constructed our (presumably) huge table with find_each...
