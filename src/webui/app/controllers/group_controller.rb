@@ -11,7 +11,7 @@ class GroupController < ApplicationController
 
   def tokens
     required_parameters :q
-    render :json => Group.list(params[:q], hash=true)
+    render json: Group.list(params[:q], hash=true)
   end
 
   def show
