@@ -8,36 +8,11 @@
     Manage users.
   </p>
 
-<%= form_tag({:action => :users}, :method => :get) do %>
-  <p>
-    <% normal = true if params[:normal] %>
-    <%= check_box_tag(:normal, 1, normal ) %>
-    <%= label_tag(:normal, "Exclude active users") %><br/>
-
-    <% deleted = true if params[:deleted] %>
-    <%= check_box_tag(:deleted, 1, deleted ) %>
-    <%= label_tag(:deleted, "Include deleted users") %><br/>
-
-    <% unconfirmed = true if params[:unconfirmed] %>
-    <%= check_box_tag(:unconfirmed, 1, unconfirmed ) %>
-    <%= label_tag(:unconfirmed, 'Include unconfirmed users') %><br/>
-    
-    <% locked = true if params[:locked] %>
-    <%= check_box_tag(:locked, 1, locked) %>
-    <%= label_tag(:locked, 'Include locked users') %>
-  </p>
-  <p><%= submit_tag('Filter users') %></p>
-  <p><br /></p>
 <% @people = [] %>
-<% @people.concat(@users) unless normal %>
-<% @people.concat(@deleted_users) if deleted %>
-<% @people.concat(@unconfirmed_users) if unconfirmed %>
-<% @people.concat(@locked_users) if locked %>
-
-<% end %>
-
-
-
+<% @people.concat(@users) %>
+<% @people.concat(@deleted_users) %>
+<% @people.concat(@unconfirmed_users) %>
+<% @people.concat(@locked_users) %>
 
 <% if @people.length > 0 %>
   <table id="user_table">
@@ -55,34 +30,39 @@
         <td><%= user.state %></td>
         <td class="nowrap">
           <a href="#" class="dropdown-menu" id="actions-trigger-<%= user.login %>"><strong>Actions</strong></a>
-          <ul class="dropdown-menu-content" id="actions-trigger-<%= user.login %>-content">
-            <li>
-              <%= sprite_tag('accessories-text-editor') + link_to('Edit user', :controller => "user", :action => "edit", :user => user.login) %>
-            </li>
-            <li>
-              <%= sprite_tag('accept') + link_to('Confirm user', {:controller => "user", :action => "confirm", :user => user.login },
+          <ul class="dropdown-menu-content" style="z-index:1;" id="actions-trigger-<%= user.login %>-content">
+              <li>
+                <%= sprite_tag('accessories-text-editor') %>
+                <%= link_to('Edit user', :controller => "user", :action => "edit", :user => user.login) %>
+              </li>
+              <li>
+                <%= sprite_tag('accept') %>
+                <%= link_to('Confirm user', {:controller => "user", :action => "confirm", :user => user.login },
+                          :method => :post, :confirm => "Are you sure?")
+                          %>
+              </li>
+              <li>
+                <%= sprite_tag('lock') %>
+                <%= link_to('Lock user', {:controller => "user", :action => "lock", :user => user.login },
+                          :method => :post, :confirm => "Are you sure?")
+                          %>
+              </li>
+              <li>
+                <%= sprite_tag('cancel') %>
+                <%= link_to('Delete user', {:controller => "user", :action => "delete", :user => user.login },
+                          :method => :delete, :confirm => "Are you sure?")
+                          %>
+              </li>
+              <li>
+                <%= sprite_tag('cog_add') %>
+                <%= link_to('Make user admin', {:controller => "user", :action => "admin", :user => user.login },
                         :method => :post, :confirm => "Are you sure?")
                         %>
-            </li>
-            <li>
-              <%= sprite_tag('lock') + link_to('Lock user', {:controller => "user", :action => "lock", :user => user.login },
-                        :method => :post, :confirm => "Are you sure?")
-                        %>
-            </li>
-            <li>
-              <%= sprite_tag('cancel') + link_to('Delete user', {:controller => "user", :action => "delete", :user => user.login },
-                        :method => :delete, :confirm => "Are you sure?")
-                        %>
-            </li>
-            <li>
-              <%= sprite_tag('cog_add') + link_to('Make user admin', {:controller => "user", :action => "admin", :user => user.login },
-                        :method => :post, :confirm => "Are you sure?")
-                        %>
-            </li>
-            <li>            
-              <% mail_to = 'mailto:' + user.email %>
-              <%= sprite_tag('email') + mail_to(user.email, 'Contact user') %>
-            </li>
+              </li>
+              <li>
+                <%= sprite_tag('email') %>
+                <%= mail_to(user.email, 'Contact user') %>
+              </li>
           </ul>
         </td>
      </tr>
