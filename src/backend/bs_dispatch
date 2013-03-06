@@ -411,13 +411,15 @@ sub oracle {
     return 0 unless grep {$_ eq $constraints->{'hostlabel'}} @{$worker->{'hostlabel'} || []};
   }
   if ($constraints->{'sandbox'}) {
-    if ($constraints->{'sandbox'}->{'exclude'} eq 'true') {
+    if ($constraints->{'sandbox'}->{'exclude'} && $constraints->{'sandbox'}->{'exclude'} eq 'true') {
       return 0 if $constraints->{'sandbox'}->{'content'} eq ($worker->{'sandbox'} || '');
     } else {
-      if ($constraints->{'sandbox'}->{'content'} eq 'secure') {
-        return 0 unless $secure_sandboxes{$worker->{'sandbox'} || ''};
-      } else {
-        return 0 unless $constraints->{'sandbox'}->{'content'} eq ($worker->{'sandbox'} || '');
+      if ($constraints->{'sandbox'}->{'content'}) {
+        if ($constraints->{'sandbox'}->{'content'} eq 'secure') {
+          return 0 unless $secure_sandboxes{$worker->{'sandbox'} || ''};
+        } else {
+          return 0 unless $constraints->{'sandbox'}->{'content'} eq ($worker->{'sandbox'} || '');
+        }
       }
     }
   }
