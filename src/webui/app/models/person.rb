@@ -218,7 +218,7 @@ class Person < ActiveXML::Node
     end
   end
 
-  def self.list(prefix=nil)
+  def self.list(prefix=nil, hash=nil)
     prefix = URI.encode(prefix)
     user_list = Rails.cache.fetch("user_list_#{prefix.to_s}", :expires_in => 10.minutes) do
       transport ||= ActiveXML::transport
@@ -227,7 +227,14 @@ class Person < ActiveXML::Node
         logger.debug "Fetching user list from API"
         response = transport.direct_http URI("#{path}"), :method => "GET"
         names = []
-        Collection.new(response).each {|user| names << user.name}
+        if hash
+          Collection.new(response).each do |user|
+            user = { 'name' => user.name }
+            names << user
+          end
+        else
+          Collection.new(response).each {|user| names << user.name}
+        end
         names
       rescue ActiveXML::Transport::Error => e
         raise ListError, e.summary

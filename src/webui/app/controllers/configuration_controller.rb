@@ -13,25 +13,16 @@ class ConfigurationController < ApplicationController
 
   def users
     @users = []
-    @deleted_users = []
-    @unconfirmed_users = []
-    @locked_users = []
     Person.find(:all).each do |u|
       person = Person.find(u.value('name'))
-      case person.state
-        when "deleted" then @deleted_users << person if person
-        when "unconfirmed" then @unconfirmed_users << person if person
-        when "locked" then @locked_users << person if person
-      else
-        @users << person if person
-      end
+      @users << person if person
     end
   end
   
   def groups
     @groups = []
-    Group.find_cached(:all).each do |g|
-      group = Group.find_cached(g.value('name'))
+    Group.find(:all).each do |g|
+      group = Group.find(g.value('name'))
       @groups << group if group
     end
   end

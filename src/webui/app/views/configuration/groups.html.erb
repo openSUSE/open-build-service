@@ -7,7 +7,7 @@
   <p>
   Manage groups.
   </p>
-
+    
 <% if @groups.length > 0 %>
   <table id="group_table">
     <thead>
@@ -26,7 +26,9 @@
             <%= link_to_if(@user, member.userid, :controller => 'home', :action => 'index', :user => member.userid) %>, 
           <% end %>
           </td>
-          <td>
+          <td class="nowrap">
+            <% sprite_tag('accessories-text-editor') %>
+            <%= link_to("Edit Group", :controller => 'group', :action => 'edit', :group => group.value('title')) %>
           </td>
         </tr>
       <% end %>
@@ -40,10 +42,11 @@
   <p><%= link_to sprite_tag('group_add') + 'Add group', :controller => 'group', :action => :add %></p>
 </div>
 
+
 <%= javascript_tag do %>
   $(document).ready(function() {
     <% if @groups.length > 0 %>
       $('#group_table').dataTable();
-    <% end %>    
+    <% end %>
   });
 <% end %>
