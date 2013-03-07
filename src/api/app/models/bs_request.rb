@@ -15,7 +15,7 @@ class BsRequest < ActiveRecord::Base
 
   attr_accessible :comment, :creator, :description, :state, :superseded_by
 
-  has_many :bs_request_actions, :dependent => :destroy
+  has_many :bs_request_actions, :dependent => :destroy, :include => [:bs_request_action_accept_info]
   has_many :bs_request_histories, :dependent => :delete_all
   has_many :reviews, :dependent => :delete_all
   validates_inclusion_of :state, :in => VALID_REQUEST_STATES
