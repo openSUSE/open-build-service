@@ -11,7 +11,7 @@ class GroupController < ApplicationController
 
   def tokens
     required_parameters :q
-    render json: Group.list(params[:q], hash=true)
+    render json: Group.list(params[:q], true)
   end
 
   def show
@@ -27,6 +27,7 @@ class GroupController < ApplicationController
   end
 
   def edit
+    required_parameters :group
     @roles = Role.global_roles
     @members = []
     @displayed_group.person.each do |person |

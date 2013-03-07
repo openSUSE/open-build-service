@@ -29,7 +29,7 @@ class PackageController < ApplicationController
     end
     @bugowners_mail = []
     (@package.bugowners + @project.bugowners).uniq.each do |bugowner|
-        mail = bugowner.email
+        mail = bugowner.email if bugowner
         @bugowners_mail.push(mail.to_s) if mail
     end unless @spider_bot
     @revision = params[:rev]
