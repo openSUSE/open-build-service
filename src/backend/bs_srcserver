@@ -3195,6 +3195,8 @@ sub getpackage {
     if ($pack->{'devel'} && exists($pack->{'devel'}->{'project'})) {
       $pack->{'devel'}->{'project'} = maptoremote($proj, $pack->{'devel'}->{'project'});
     }
+    delete $pack->{'person'};
+    delete $pack->{'group'};
     return ($pack, $BSXML::pack);
   }
   if ($cgi->{'rev'} || $cgi->{'deleted'}) {
