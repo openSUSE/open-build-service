@@ -201,7 +201,7 @@ class UserController < ApplicationController
 
   def tokens
     required_parameters :q
-    render json: Person.list(params[:q], hash=true)
+    render json: Person.list(params[:q], true)
   end
 
 end
