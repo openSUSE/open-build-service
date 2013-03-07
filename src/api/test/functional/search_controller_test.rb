@@ -94,6 +94,13 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/search/package", :match => "(group/@role='bugowner' or person/@role='bugowner') and starts-with(@project,\"Base\"))"
     assert_response :success
+    get "/search/request?match=(action/@type='set_bugowner'+and+state/@name='accepted')"
+    assert_response :success
+
+    # small typo, no equal ...
+    get "/search/request?match(mistake)"
+    assert_response 400
+    assert_xml_tag :tag => 'status', :attributes => { :code => "empty_match" }
   end
 
   def test_person_searches
@@ -293,17 +300,17 @@ class SearchControllerTest < ActionController::IntegrationTest
 
   def test_pagination
     prepare_request_with_user "Iggy", "asdfasdf"
-    get "/search/package"
+    get "/search/package?match=*"
     assert_response :success
     assert_xml_tag :tag => 'collection'
     all_packages_count = get_package_count
 
-    get "/search/package", :limit => 3
+    get "/search/package?match=*", :limit => 3
     assert_response :success
     assert_xml_tag :tag => 'collection'
     assert get_package_count == 3
 
-    get "/search/package", :offset => 3
+    get "/search/package?match=*", :offset => 3
     assert_response :success
     assert_xml_tag :tag => 'collection'
     assert get_package_count == (all_packages_count - 3)

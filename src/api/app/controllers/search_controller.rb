@@ -87,8 +87,14 @@ class SearchController < ApplicationController
   end
 
   def search(what, render_all)
+    if render_all and params[:match].blank?
+      render_error :status => 400, :errorcode => "empty_match",
+                   :message => "No predicate fround in match argument"
+      return
+    end
+
     predicate = predicate_from_match_parameter(params[:match])
-    
+
     logger.debug "searching in #{what}s, predicate: '#{predicate}'"
 
     xe = XpathEngine.new
