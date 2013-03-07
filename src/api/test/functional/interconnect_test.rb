@@ -451,6 +451,16 @@ end
     assert_response :success
   end
 
+  def test_check_package_meta_stripping
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/source/home:Iggy/TestPack/_meta"
+    assert_response :success
+    assert_xml_tag :tag => 'person'
+    get "/source/RemoteInstance:home:Iggy/TestPack/_meta"
+    assert_response :success
+    assert_no_xml_tag :tag => 'person'
+  end
+
   def test_remove_broken_link
     prepare_request_with_user "Iggy", "asdfasdf"
     put "/source/home:Iggy/TestLinkPack/_meta", "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
