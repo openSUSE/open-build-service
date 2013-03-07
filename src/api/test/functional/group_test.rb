@@ -62,6 +62,10 @@ class GroupControllerTest < ActionController::IntegrationTest
     xml2 = "<group><title>new_group</title> <person><person userid='fred' /></person> </group>"
     put "/group/new_group", xml2
     assert_response :success
+    # double save is done by webui, we need to support it
+    xml2 = "<group><title>new_group</title> <person><person userid='fred' /><person userid='fred' /></person> </group>"
+    put "/group/new_group", xml2
+    assert_response :success
     get "/group/new_group"
     assert_response :success
     assert_xml_tag :tag => 'person', :attributes => {:userid => 'fred'}
@@ -92,6 +96,9 @@ class GroupControllerTest < ActionController::IntegrationTest
 
     # as admin
     prepare_request_with_user "king", "sunflower"
+    post "/group/test_group", :cmd => "add_user", :userid => "Iggy"
+    assert_response :success
+    # double add is a dummy operation, but needs to work for webui
     post "/group/test_group", :cmd => "add_user", :userid => "Iggy"
     assert_response :success
     get "/group/test_group"
