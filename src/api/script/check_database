@@ -19,13 +19,13 @@ end
 
 User.current = User.find_by_login('_nobody_')
 
-packs = DbPackage.find :all, :conditions => "(develpackage_id is not null) or (develproject_id is not null)"
+packs = Package.find :all, :conditions => "(develpackage_id is not null) or (develproject_id is not null)"
 projects = Hash.new
 
 packs.each do |p|
   begin
     p.resolve_devel_package
-  rescue DbPackage::CycleError => e
+  rescue Package::CycleError => e
     projects[p.project.name] ||= Array.new
     projects[p.project.name] << e.message
   end
