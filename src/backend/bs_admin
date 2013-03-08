@@ -346,6 +346,8 @@ sub clone_repository {
   # remove jobhistory files
   for my $a (ls($tmpdir)) {
     unlink("$tmpdir/$a/:jobhistory");
+   # the new repo might get published
+    system('rm', '-rf', "$tmpdir/$a/:repo", "$tmpdir/$a/:repodone");
   }
 
   print "exchanging with $destproject / $destrepo\n";
