@@ -7,9 +7,8 @@
               :action => :index }, { :id => "header-logo"} -%>
 
         <ul id="global-navigation">
-  	  <li id="item-download"><a href="http://www.buildservice.org/">Download</a></li>
 	    <% if user -%>
-              <li id="item-favorites" style="float: right;"><a href="<%= url_for :controller => "home", :action => :index %>">Home</a></li>
+              <li id="item-favorites" style="float: right;"><a href="<%= url_for :controller => "home", :action => :index %>">Watchlist</a></li>
             <% end -%>
         </ul>
 
