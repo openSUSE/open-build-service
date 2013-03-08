@@ -12,7 +12,8 @@ function renderPackagesTable(packages, length)
 						 var url = packageurl.replace(/REPLACEIT/, encodeURIComponent(obj.aData));
 						 return '<a href="' + url +'">' + obj.aData + '</a>';
 					     }
-					 } ]
+					 } ],
+					 "bStateSave": true
 				    });
 }
 
@@ -34,7 +35,8 @@ function renderProjectsTable(length)
 						 return '<a href="' + url +'">' + obj.aData[0] + '</a>';
 					     }
 					 }, { "sTitle": "Title" } ],
-					 "iDisplayLength": length
+					 "iDisplayLength": length,
+					 "bStateSave": true
 				    });
 }
 
@@ -59,7 +61,8 @@ function renderPackagesProjectsTable(packages, length)
             {
             "sTitle": "Project"
             }],
-          "iDisplayLength": length
+          "iDisplayLength": length,
+          "bStateSave": true
         });
 }
 
