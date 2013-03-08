@@ -451,12 +451,21 @@ end
     assert_response :success
   end
 
-  def test_check_package_meta_stripping
+  def test_check_meta_stripping
     prepare_request_with_user "Iggy", "asdfasdf"
+    # package meta
     get "/source/home:Iggy/TestPack/_meta"
     assert_response :success
     assert_xml_tag :tag => 'person'
     get "/source/RemoteInstance:home:Iggy/TestPack/_meta"
+    assert_response :success
+    assert_no_xml_tag :tag => 'person'
+
+    # project meta
+    get "/source/home:Iggy/_meta"
+    assert_response :success
+    assert_xml_tag :tag => 'person'
+    get "/source/RemoteInstance:home:Iggy/_meta"
     assert_response :success
     assert_no_xml_tag :tag => 'person'
   end

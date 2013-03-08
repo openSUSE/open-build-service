@@ -2917,6 +2917,8 @@ sub getproject {
     for my $pp (@{$p->{'link'} || []}) {
       $pp->{'project'} = maptoremote($proj, $pp->{'project'});
     }
+    delete $p->{'person'};
+    delete $p->{'group'};
     $p->{'mountproject'} = $proj->{'root'} if defined $proj->{'root'};
     $proj = $p;
   }
