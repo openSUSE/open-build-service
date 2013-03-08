@@ -136,7 +136,7 @@ case "$1" in
 			fi
 		elif [ "$OBS_SETUP_WORKER_PARTITIONS" = "use_obs_vg" ]; then
 			echo "Remove all LVM partitions in VG OBS for the worker"
-			if [ -d /dev/OBS]; then
+			if [ -d /dev/OBS ]; then
 			        lvremove -f OBS
                         else
 				echo "WARNING: The LVM volume group 'OBS' can not be used."
