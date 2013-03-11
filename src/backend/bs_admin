@@ -98,6 +98,11 @@ Job Controlling
    The publisher may skip the event, if nothing has changed. So you might need to remove
    the directory in your /repos/ directory first.
 
+ --unpublish-repository <project> <repository>
+   Removes the prepared :repo collection and let the publisher remove the result. This 
+   is also updating the search database.
+   WARNING: this works also for locked projects!
+
  --clone-repository <source project> <source repository> <destination repository>
  --clone-repository <source project> <source repository> <destination project> <destination repository>
    Clone an existing repo into another existing repository.
@@ -490,6 +495,20 @@ sub write_event {
   }
 }
 
+sub write_publish_event {
+  my ($project, $repo) = @_;
+  my $evname = "${project}::${repo}";
+  my $ev = { 'type' => "publish" };
+  $ev->{'project'} = $project;
+  $ev->{'repository'} = $repo;
+  writexml("$eventroot/publish/.$evname$$", "$eventroot/publish/$evname", $ev, $BSXML::event);
+  local *F;
+  if (sysopen(F, "$eventroot/publish/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
+    syswrite(F, 'x');
+    close(F);
+  }
+}
+
 sub scan_repo {
   my ($project, $repo, $arch) = @_;
   write_event( $project, $repo, $arch, 'scanrepo' );
@@ -685,20 +704,19 @@ while (@ARGV) {
     $repo = shift @ARGV if @ARGV == 2;
     my $arch = shift @ARGV;
     check_project($project, $repo, $arch, 1);
-  } elsif ( $arg eq "--publish-repository" ) {
-    die("ERROR: need project, repository and architecture as argument!\n") if @ARGV != 2;
+  } elsif ( $arg eq "--publish-repository" || $arg eq "--unpublish-repository" ) {
+    die("ERROR: need project and repository as argument!\n") if @ARGV != 2;
     my $project = shift @ARGV;
     my $repo = shift @ARGV;
-    my $evname = "${project}::${repo}";
-    my $ev = { 'type' => "publish" };
-    $ev->{'project'} = $project;
-    $ev->{'repository'} = $repo;
-    writexml("$eventroot/publish/.$evname$$", "$eventroot/publish/$evname", $ev, $BSXML::event);
-    local *F;
-    if (sysopen(F, "$eventroot/publish/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
-      syswrite(F, 'x');
-      close(F);
+    if ( $arg eq "--unpublish-repository" ) {
+      # remove :repo
+      my $repo = "$reporoot/$project/$repo/";
+      for my $a (ls($repo)) {
+        next unless -e "$repo/$a/:repodone";
+        system('rm', '-rf', "$repo/$a/:repo", "$repo/$a/:repodone");
+      }
     }
+    write_publish_event($project, $repo);
   } elsif ( $arg eq "--clone-repository" ) {
     die("ERROR: need source project & repository and destination project & repository as argument!\n") if @ARGV < 3;
     my $srcproject = shift @ARGV;
