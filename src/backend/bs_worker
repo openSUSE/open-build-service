@@ -2123,6 +2123,7 @@ sub dobuild {
   } elsif ($vm =~ /emulator/) {
     push @args, '--root', "$buildroot/.mount";
     push @args, '--vm-type', 'emulator';
+    push @args, '--vm-disk', $vm_root;
     push @args, '--statistics';
     push @args, '--emulator-script', $emulator_script if $emulator_script;
   } elsif ($vm =~ /lxc/) {
