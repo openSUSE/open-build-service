@@ -533,8 +533,10 @@ if ($exitrestart) {
 usage(1) unless $buildroot && $statedir;
 usage(1) if ($cachedir && !$cachesize) || ($cachesize && !$cachedir);
 
-$vm_root = "$buildroot/root" unless $vm_root;
-$vm_swap = "$buildroot/swap" unless $vm_swap;
+# default needs to be in sync with build(1)
+# otherwise job killing does not work in a default setup
+$vm_root = "${buildroot}.img" unless $vm_root;
+$vm_swap = "${buildroot}.swap" unless $vm_swap;
 
 # here's the build code we want to use
 $::ENV{'BUILD_DIR'} = "$statedir/build";
