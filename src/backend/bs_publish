@@ -1096,6 +1096,18 @@ sub publish {
     @archs = ((grep {!$archorder{$_}} @archs), (grep {$archs{$_}} reverse(@$archorder)));
   }
 
+  # drop entire repo it source :repo's have disappeared altogether. We need to find a way
+  # to specify this explicit instead checking all :repo's.
+  my $found_repo;
+  for my $arch (@archs) {
+    my $r = "$reporoot/$prp/$arch/:repo";
+    $found_repo = 1 if -e $r;
+  }
+  if (!defined($found_repo)) {
+    deleterepo($projid, "$repoid");
+    return;
+  }
+
   for my $arch (@archs) {
     my $r = "$reporoot/$prp/$arch/:repo";
     my $repoinfo = {};
