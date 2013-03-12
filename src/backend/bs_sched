@@ -7565,10 +7565,14 @@ NEXTPRP:
 
     # we always publish kiwi...
     if ((!%unfinished && !$ctx->{'havedelayed'}) || $prptype eq 'kiwi') {
+      my $locked = 0;
+      $locked = enabled($repoid, $projpacks->{$projid}->{'lock'}, $locked) if $projpacks->{$projid}->{'lock'};
       my $pubenabled = enabled($repoid, $projpacks->{$projid}->{'publish'}, 1);
       my %pubenabled;
       for my $packid (@packs) {
 	my $pdata = $packs->{$packid};
+        next if defined($pdata->{'lock'}) && enabled($repoid, $pdata->{'lock'}, $locked);
+        next if !defined($pdata->{'lock'}) && $locked;
 	if ($pdata->{'publish'}) {
 	  $pubenabled{$packid} = enabled($repoid, $pdata->{'publish'}, $pubenabled);
 	} else {
@@ -7590,7 +7594,9 @@ NEXTPRP:
 	unlink("$reporoot/$prp/$myarch/:repodone") if $oldrepodone ne $repodonestate;
       }
       my $publisherror;
-      if (! -e "$reporoot/$prp/$myarch/:repodone") {
+      if ($locked) {
+	print "    publishing is locked\n";
+      } elsif (! -e "$reporoot/$prp/$myarch/:repodone") {
 	if (($repodonestate !~ /^disabled/) || -d "$reporoot/$prp/$myarch/:repo") {
 	  mkdir_p("$reporoot/$prp/$myarch");
 	  $publisherror = prpfinished($prp, \@packs, \%pubenabled, $bconf, $prpsearchpath{$prp});
