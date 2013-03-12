@@ -1,7 +1,7 @@
 #
 # spec file for package obs-server
 #
-# Copyright (c) 2012 SUSE LINUX Products GmbH, Nuernberg, Germany.
+# Copyright (c) 2013 SUSE LINUX Products GmbH, Nuernberg, Germany.
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -18,32 +18,35 @@
 
 Name:           obs-server
 Summary:        The Open Build Service -- Server Component
-License:        GPL-2.0 ; GPL-3.0
+License:        GPL-2.0 and GPL-3.0
 Group:          Productivity/Networking/Web/Utilities
-Version:        2.3.1
+Version:        2.3.95_27_gc802e5a
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-# git clone git://gitorious.org/opensuse/build-service.git build-service-1.7.54; tar cfvj obs-server-1.7.54.tar.bz2 --exclude=.git\* build-service-1.7.54/
 Source:         obs-server-%version.tar.bz2
-# git clone git://gitorious.org/opensuse/themes.git opensuse-themes-0.9; tar cfvj opensuse-themes-0.9.tar.bz2 --exclude=.git\* opensuse-themes-0.9
-Source1:        opensuse-themes-2.3.0.tar.bz2
+Source2:        update-sources.sh
 BuildRequires:  python-devel
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
 # atm the obs rails version patch above unifies that setting among the applications
 # also see requires in the obs-server-api sub package
-BuildRequires:  build >= 2012.05.31
+BuildRequires:  build >= 20130109
 BuildRequires:  perl-BSSolv
-BuildRequires:  rubygem-rails-2_3 >= 2.3.14
-BuildRequires:  rubygem-rmagick
+BuildRequires:  perl-Compress-Zlib
+BuildRequires:  perl-File-Sync >= 0.10
+BuildRequires:  perl-Net-SSLeay
+BuildRequires:  perl-Socket-MsgHdr
+BuildRequires:  perl-TimeDate
+BuildRequires:  perl-XML-Parser
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
-Conflicts:      obs-productconverter < %version-%release
-Requires:       build >= 2012.05.31
+Requires:       build >= 20130114
+Requires:       obs-productconverter >= %version
 Requires:       obs-worker
 Requires:       perl-BSSolv >= 0.18.0
 # Required by source server
 Requires:       diffutils
+PreReq:         git-core
 Requires:       patch
 PreReq:         sysvinit
 
@@ -60,7 +63,6 @@ Recommends:     deb >= 1.5
 Recommends:     lvm2
 Recommends:     openslp-server
 Recommends:     obs-signd
-Conflicts:      obs-signd < 2.1.5.1
 Recommends:     inst-source-utils
 %else
 Requires:       createrepo >= 0.4.10
@@ -77,10 +79,6 @@ Requires:       perl-XML-Parser
 %description
 The Open Build Service (OBS) backend is used to store all sources and binaries. It also
 calculates the need for new build jobs and distributes it.
-
-Authors:
---------
-    The Open Build Service Team <opensuse-buildservice@opensuse.org>
 
 %package -n obs-worker
 Requires:       cpio
@@ -134,41 +132,91 @@ PreReq:         %fillup_prereq %insserv_prereq
 #Recommends:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql
 #For apache
 Recommends:     apache2 apache2-mod_xforward rubygem-passenger-apache2
+# For local runs
+BuildRequires:  rubygem-sqlite3
 
 Requires:       mysql
-Requires:       ruby-mysql
-# make sure this is in sync with the RAILS_GEM_VERSION specified in the
-# config/environment.rb of the various applications.
-Requires:       rubygem-ci_reporter
-Requires:       rubygem-daemons
-Requires:       rubygem-delayed_job < 2.0.0
-Requires:       rubygem-json
-Requires:       rubygem-libxml-ruby
-Requires:       rubygem-rack >= 1.1.0
-Requires:       rubygem-rails-2_3 >= 2.3.14
-%if 0%{?suse_version} >= 1210
-Requires:       rubygem-erubis-2_6
-%else
-Requires:       rubygem-erubis
-%endif
-Requires:       rubygem-nokogiri
-Requires:       rubygem-rails_xss
+
+Requires:       memcached
+Requires:       ruby >= 1.9
 %if 0%{?suse_version} >= 1020
 Supplements:    ruby-ldap
 %endif
+BuildRequires:  obs-api-testsuite-deps
+# for test suite:
+BuildRequires:  createrepo
+BuildRequires:  curl
+BuildRequires:  mysql
+BuildRequires:  netcfg
+BuildRequires:  rubygem-ci_reporter
+BuildRequires:  xorg-x11-Xvnc
+BuildRequires:  xorg-x11-server
+BuildRequires:  xorg-x11-server-extra
+# OBS_SERVER_BEGIN
+Requires:       rubygem(1.9.1:actionmailer) = 3.2.12
+Requires:       rubygem(1.9.1:actionpack) = 3.2.12
+Requires:       rubygem(1.9.1:activemodel) = 3.2.12
+Requires:       rubygem(1.9.1:activerecord) = 3.2.12
+Requires:       rubygem(1.9.1:activeresource) = 3.2.12
+Requires:       rubygem(1.9.1:activesupport) = 3.2.12
+Requires:       rubygem(1.9.1:arel) = 3.0.2
+Requires:       rubygem(1.9.1:builder) = 3.0.4
+Requires:       rubygem(1.9.1:bundler) = 1.2.3
+Requires:       rubygem(1.9.1:daemons) = 1.1.9
+Requires:       rubygem(1.9.1:delayed_job) = 3.0.5
+Requires:       rubygem(1.9.1:delayed_job_active_record) = 0.3.3
+Requires:       rubygem(1.9.1:erubis) = 2.7.0
+Requires:       rubygem(1.9.1:fast_xs) = 0.8.0
+Requires:       rubygem(1.9.1:hike) = 1.2.1
+Requires:       rubygem(1.9.1:hoptoad_notifier) = 2.4.11
+Requires:       rubygem(1.9.1:i18n) = 0.6.1
+Requires:       rubygem(1.9.1:journey) = 1.0.4
+Requires:       rubygem(1.9.1:jquery-rails) = 2.1.4
+Requires:       rubygem(1.9.1:json) = 1.7.7
+Requires:       rubygem(1.9.1:mail) = 2.4.4
+Requires:       rubygem(1.9.1:memcache-client) = 1.8.5
+Requires:       rubygem(1.9.1:mime-types) = 1.19
+Requires:       rubygem(1.9.1:mobileesp_converted) = 0.2.1
+Requires:       rubygem(1.9.1:multi_json) = 1.5.0
+Requires:       rubygem(1.9.1:mysql2) = 0.3.11
+Requires:       rubygem(1.9.1:nokogiri) = 1.5.6
+Requires:       rubygem(1.9.1:pkg-config) = 1.1.4
+Requires:       rubygem(1.9.1:polyglot) = 0.3.3
+Requires:       rubygem(1.9.1:rack) = 1.4.5
+Requires:       rubygem(1.9.1:rack-cache) = 1.2
+Requires:       rubygem(1.9.1:rack-ssl) = 1.3.3
+Requires:       rubygem(1.9.1:rack-test) = 0.6.2
+Requires:       rubygem(1.9.1:rails) = 3.2.12
+Requires:       rubygem(1.9.1:rails-api) = 0.0.3
+Requires:       rubygem(1.9.1:railties) = 3.2.12
+Requires:       rubygem(1.9.1:rake) = 0.9.2.2
+Requires:       rubygem(1.9.1:rdoc) = 3.12
+Requires:       rubygem(1.9.1:sprockets) = 2.2.2
+Requires:       rubygem(1.9.1:thor) = 0.17.0
+Requires:       rubygem(1.9.1:tilt) = 1.3.3
+Requires:       rubygem(1.9.1:treetop) = 1.4.12
+Requires:       rubygem(1.9.1:tzinfo) = 0.3.35
+Requires:       rubygem(1.9.1:xmlhash) = 1.3.5
+Requires:       rubygem(1.9.1:yajl-ruby) = 1.1.0
+# OBS_SERVER_END
 # requires for webui:
 Requires:       ghostscript-fonts-std
-Requires:       rubygem-exception_notification < 2.0
-Requires:       rubygem-gruff
-Requires:       rubygem-rmagick
-Requires:       rubygem-sqlite3
-Recommends:     memcached
 Summary:        The Open Build Service -- The API and WEBUI
 Group:          Productivity/Networking/Web/Utilities
 
 %description -n obs-api
 This is the API server instance, and the web client for the 
 OBS.
+
+%package -n obs-devel
+Summary:        The Open Build Service -- The API and WEBUI Testsuite
+Group:          Productivity/Networking/Web/Utilities
+Obsoletes:      obs-webui-testsuite
+Requires:       obs-api = %{version}-%{release}
+%requires_eq obs-api-testsuite-deps
+
+%description -n obs-devel
+Install to track dependencies for git
 
 %package -n obs-source_service
 Summary:        The Open Build Service -- source service daemon
@@ -206,11 +254,9 @@ Requires:       ruby
 obs_mirror_project is a tool to copy the binary data of a project from one obs to another
 obs_project_update is a tool to copy a packages of a project from one obs to another
 
-Authors:       Susanne Oberhauser, Martin Mohring
-
 #--------------------------------------------------------------------------------
 %prep
-%setup -q -n build-service-%version -b 1
+%setup -q
 # drop build script, we require the installed one from own package
 rm -rf src/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
@@ -219,9 +265,9 @@ find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
 #
 # generate apidocs
 #
-cd docs/api/api
+pushd docs/api/api
 make apidocs
-cd -
+popd
 
 %install
 #
@@ -305,14 +351,13 @@ mkdir -p $RPM_BUILD_ROOT/srv/www/obs/webui/log
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/webui/tmp
 touch $RPM_BUILD_ROOT/srv/www/obs/{webui,api}/log/production.log
 # the git webinterface tries to connect to api.opensuse.org by default
-install -m 0644 ../dist/webui-production.rb $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/production.rb
+#install -m 0644 ../dist/webui-production.rb $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/production.rb
 # needed for correct permissions in case sqlite3 is used
 touch $RPM_BUILD_ROOT/srv/www/obs/webui/db/database.db
 
 #
 #set default api on localhost for the webui
 # 
-mv $RPM_BUILD_ROOT/srv/www/obs/api/files/distributions.xml.template $RPM_BUILD_ROOT/srv/www/obs/api/files/distributions.xml
 sed -i 's,FRONTEND_HOST.*,FRONTEND_HOST = "127.0.42.2",' \
   $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb
 sed -i 's,FRONTEND_PORT.*,FRONTEND_PORT = 80,' \
@@ -321,32 +366,17 @@ sed -i 's,api.opensuse.org,127.0.42.2,' \
   $RPM_BUILD_ROOT/srv/www/obs/webui/app/helpers/package_helper.rb
 
 #
-# Install webui theme
-#
-mkdir -p "$RPM_BUILD_ROOT/srv/www/obs/webui/public/themes/"
-cp -av "$RPM_BUILD_DIR"/opensuse-themes-*/* "$RPM_BUILD_ROOT/srv/www/obs/webui/public/themes/"
-
-#
 # install apidocs
 # 
-mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/public/apidocs/html/
-cp -a ../docs/api/html           $RPM_BUILD_ROOT/srv/www/obs/api/public/apidocs
-mkdir -p $RPM_BUILD_ROOT/srv/www/obs/docs/api
-cp -a ../docs/api/api/*.{rng,xsd}    $RPM_BUILD_ROOT/srv/www/obs/docs/api
-#
-# Fix symlinks to common, could be much cleaner ...
-#
-#rm -f $RPM_BUILD_ROOT/srv/www/obs/api/lib/common $RPM_BUILD_ROOT/srv/www/obs/webui/lib/common
-#ln -sf /srv/www/obs/common/lib $RPM_BUILD_ROOT/srv/www/obs/api/lib/common
-#ln -sf /srv/www/obs/common/lib $RPM_BUILD_ROOT/srv/www/obs/webui/lib/common
-#ln -sf /srv/www/obs/common/images $RPM_BUILD_ROOT/srv/www/obs/api/public/images/common
-#ln -sf /srv/www/obs/common/images $RPM_BUILD_ROOT/srv/www/obs/webui/public/images/common
+mkdir -p $RPM_BUILD_ROOT/srv/www/obs/docs
+cp -a ../docs/api/api    $RPM_BUILD_ROOT/srv/www/obs/docs/
+cp -a ../docs/api/html   $RPM_BUILD_ROOT/srv/www/obs/docs/api/
 ln -sf /srv/www/obs/docs/api $RPM_BUILD_ROOT/srv/www/obs/api/public/schema
-#
-# change script names to allow to start them with startproc
-#
-mv $RPM_BUILD_ROOT/srv/www/obs/api/script/delayed_job{,.api}
-mv $RPM_BUILD_ROOT/srv/www/obs/webui/script/delayed_job{,.web}
+sed -i -e '/^CONFIG..apidocs_location.*/d' \
+       -e '/^CONFIG..schema_location.*/d' \
+    $RPM_BUILD_ROOT/srv/www/obs/webui/config/environment.rb
+echo 'CONFIG["apidocs_location"] ||= File.expand_path("../docs/api/html/")' >> $RPM_BUILD_ROOT/srv/www/obs/webui/config/environment.rb
+echo 'CONFIG["schema_location"] ||= File.expand_path("../docs/api/")' >> $RPM_BUILD_ROOT/srv/www/obs/webui/config/environment.rb
 
 #
 # Install all backend parts.
@@ -357,7 +387,7 @@ rm -rf build
 cp BSConfig.pm.template BSConfig.pm
 
 install -d -m 755 $RPM_BUILD_ROOT/usr/lib/obs/server/
-install -d -m 755 $RPM_BUILD_ROOT/usr/lib/obs/server/build # dummy, it is a %ghost
+ln -sf /usr/lib/build $RPM_BUILD_ROOT/usr/lib/obs/server/build # just for %check, it is a %ghost
 #for i in build events info jobs log projects repos run sources trees workers; do
 #  install -d -m 755 $RPM_BUILD_ROOT/srv/obs/$i
 #done
@@ -383,29 +413,124 @@ install api/config/options.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/op
 install webui/config/database.yml.example $RPM_BUILD_ROOT/srv/www/obs/webui/config/database.yml
 install webui/config/options.yml.example $RPM_BUILD_ROOT/srv/www/obs/webui/config/options.yml
 
+for file in api/log/access.log api/log/backend_access.log api/log/delayed_job.log api/log/error.log api/log/lastevents.access.log webui/log/access.log webui/log/error.log; do
+  touch $RPM_BUILD_ROOT/srv/www/obs/$file
+done
+
+pushd $RPM_BUILD_ROOT/srv/www/obs/webui
+cat > config/database.yml <<EOF
+production:
+  adapter: sqlite3
+  database: db/database.db
+EOF
+bundle exec rake --trace db:create db:setup RAILS_ENV=production
+bundle exec rake --trace assets:precompile:all RAILS_ENV=production RAILS_GROUPS=assets
+rm -rf tmp/cache/sass tmp/cache/assets
+export BUNDLE_WITHOUT=test:assets:development
+export BUNDLE_FROZEN=1
+bundle config --local frozen 1
+bundle config --local without test:assets:development 
+# reinstall
+install config/database.yml.example config/database.yml
+: > log/production.log
+popd
+# set api runtime dependencies
+pushd $RPM_BUILD_ROOT/srv/www/obs/api
+bundle config --local frozen 1
+bundle config --local without test:assets:development 
+popd
+
+mkdir -p %{buildroot}%{_docdir}
+cat > %{buildroot}%{_docdir}/README.devel <<EOF
+This package does not contain any development files. But it helps you start with 
+git development - look at http://github.com/opensuse/open-build-service
+EOF
+
+%check
+# check installed backend
+pushd $RPM_BUILD_ROOT/usr/lib/obs/server/
+file build
+rm build
+ln -sf /usr/lib/build build # just for %check, it is a %ghost
+for i in bs_*; do
+  perl -wc "$i"
+done
+popd
+
+# run in build environment
+pushd src/backend/
+rm -rf build
+ln -sf /usr/lib/build build
+popd
+pushd src/api/
+# setup mysqld
+rm -rf /tmp/obs.mysql.db /tmp/obs.test.mysql.socket
+mysql_install_db --user="abuild" --datadir="/tmp/obs.mysql.db"
+/usr/sbin/mysqld --datadir=/tmp/obs.mysql.db -P 54321 --socket=/tmp/obs.test.mysql.socket &
+sleep 2
+# setup files
+cp config/options.yml{.example,}
+cat > config/database.yml <<EOF
+test:
+  adapter: mysql2
+  host:    localhost
+  database: api_test
+  username: root
+  encoding: utf8
+  socket:   /tmp/obs.test.mysql.socket
+EOF
+export RAILS_ENV=test
+bundle exec rake --trace db:create db:setup || exit 1
+mv log/test.log{,.old}
+if ! bundle exec rake --trace test; then
+  cat log/test.log
+  exit 1
+fi
+popd
+# webui
+pushd src/webui/
+# setup files
+cp config/options.yml{.example,}
+cat > config/database.yml <<EOF
+test:
+  adapter: mysql2
+  host:    localhost
+  database: webui_test
+  username: root
+  encoding: utf8
+  socket:   /tmp/obs.test.mysql.socket
+EOF
+export RAILS_ENV=test
+bundle exec rake --trace db:create db:setup || exit 1
+mv log/test.log{,.old}
+if ! bundle exec rake --trace test; then
+  cat log/test.log
+  exit 1
+fi
+popd
+
+#cleanup
+/usr/bin/mysqladmin -u root --socket=/tmp/obs.test.mysql.socket shutdown || true
+rm -rf /tmp/obs.mysql.db /tmp/obs.test.mysql.socket
+
 %pre
 /usr/sbin/groupadd -r obsrun 2> /dev/null || :
-/usr/sbin/useradd -r -o -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
+/usr/sbin/useradd -r -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
 
 %pre -n obs-worker
 /usr/sbin/groupadd -r obsrun 2> /dev/null || :
-/usr/sbin/useradd -r -o -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
+/usr/sbin/useradd -r -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
 
 %preun
-for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner ; do
-%stop_on_removal $service
-done
+%stop_on_removal obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner
 
 %preun -n obs-worker
 %stop_on_removal obsworker
 
 %post
 [ -d /srv/obs ] || install -d -o obsrun -g obsrun /srv/obs
-%run_permissions
 %{fillup_and_insserv -n obs-server}
-for service in obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner ; do
-%restart_on_update $service
-done
+%restart_on_update obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner
 
 %preun -n obs-source_service
 %stop_on_removal obsservice
@@ -453,23 +578,28 @@ for i in production_slave.rb production.rb development_base.rb; do
   fi
 done
 # for update from 2.1(lighttpd), do a chown
-if [ `stat -c %U /srv/www/obs/api/config/secret.key` == lighttpd ]; then
+userid=`stat -c %U /srv/www/obs/api/config/secret.key 2> /dev/null` || :
+if [ "$userid" = lighttpd ]; then
   chown wwwrun.www /srv/www/obs/api/config/secret.key
 fi
-if [ `stat -c %U /srv/www/obs/webui/config/secret.key` == lighttpd ]; then
+userid=`stat -c %U /srv/www/obs/webui/config/secret.key 2> /dev/null` || :
+if [ "$userid" = lighttpd ]; then
   chown wwwrun.www /srv/www/obs/webui/config/secret.key
 fi
-echo '**** Keep in mind to run rake db:migrate after updating this package and restart apache (read README.UPDATERS) ****'
+# update config
+sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/api/config/database.yml
+sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/database.yml
+
+%restart_on_update apache2
+%restart_on_update obsapisetup
+%restart_on_update obsapidelayed
 
 %postun -n obs-api
 %insserv_cleanup
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %files
 %defattr(-,root,root)
-%doc dist/{README.UPDATERS,README.SETUP} docs/openSUSE.org.xml ReleaseNotes-* README COPYING AUTHORS
+%doc dist/{README.UPDATERS,README.SETUP} docs/openSUSE.org.xml ReleaseNotes-* README.md COPYING AUTHORS
 %dir /etc/slp.reg.d
 %dir /usr/lib/obs
 %dir /usr/lib/obs/server
@@ -528,16 +658,16 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/obs/server/bs_admin
 /usr/lib/obs/server/bs_archivereq
 /usr/lib/obs/server/bs_check_consistency
-/usr/lib/obs/server/bs_dispatch
 /usr/lib/obs/server/bs_mkarchrepo
+/usr/lib/obs/server/bs_dispatch
 /usr/lib/obs/server/bs_publish
 /usr/lib/obs/server/bs_repserver
 /usr/lib/obs/server/bs_sched
 /usr/lib/obs/server/bs_serverstatus
-/usr/lib/obs/server/bs_signer
 /usr/lib/obs/server/bs_srcserver
-/usr/lib/obs/server/bs_sshgit
 /usr/lib/obs/server/bs_worker
+/usr/lib/obs/server/bs_signer
+/usr/lib/obs/server/bs_sshgit
 /usr/lib/obs/server/bs_warden
 /usr/lib/obs/server/worker
 /usr/lib/obs/server/BSSolv.pm
@@ -567,15 +697,20 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n obs-api
 %defattr(-,root,root)
-%doc dist/{README.UPDATERS,README.SETUP} docs/openSUSE.org.xml ReleaseNotes-* README COPYING AUTHORS
+%doc dist/{README.UPDATERS,README.SETUP} docs/openSUSE.org.xml ReleaseNotes-* README.md COPYING AUTHORS
 /srv/www/obs/overview
 
 %dir /srv/www/obs
 %dir /srv/www/obs/api
 %dir /srv/www/obs/api/config
-%dir /srv/www/obs/api/config/initializers
+/srv/www/obs/api/config/initializers
 %dir /srv/www/obs/api/config/environments
 %dir /srv/www/obs/api/files
+/srv/www/obs/api/.simplecov
+/srv/www/obs/api/Gemfile
+/srv/www/obs/api/Gemfile.lock
+/srv/www/obs/api/config.ru
+/srv/www/obs/api/config/application.rb
 /etc/logrotate.d/obs-build
 /etc/logrotate.d/obs-api
 /etc/init.d/obsapidelayed
@@ -590,7 +725,6 @@ rm -rf $RPM_BUILD_ROOT
 /srv/www/obs/api/Rakefile
 /srv/www/obs/api/script
 /srv/www/obs/api/test
-/srv/www/obs/api/vendor
 /srv/www/obs/docs
 
 #
@@ -604,18 +738,14 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0640,root,www) %config(noreplace) /srv/www/obs/api/config/database.yml*
 %attr(0644,root,root) %config(noreplace) /srv/www/obs/api/config/options.yml*
 /srv/www/obs/api/config/environments/production_test.rb
-/srv/www/obs/api/config/initializers/options.rb
-/srv/www/obs/api/config/initializers/logging.rb
-/srv/www/obs/api/config/initializers/create_runtime_directories.rb
+/srv/www/obs/api/.bundle
 
 %config /srv/www/obs/api/config/environment.rb
 %config(noreplace) /srv/www/obs/api/config/lighttpd.conf
 %config(noreplace) /srv/www/obs/api/config/environments/production.rb
 %config(noreplace) /srv/www/obs/api/config/environments/test.rb
 %config(noreplace) /srv/www/obs/api/config/environments/stage.rb
-%config(noreplace) /srv/www/obs/api/config/environments/development_base.rb
 %config(noreplace) /srv/www/obs/api/config/active_rbac_config.rb
-%config(noreplace) /srv/www/obs/api/files/distributions.xml
 %config(noreplace) /etc/cron.d/obs-api
 
 %dir %attr(-,wwwrun,www) /srv/www/obs/api/log
@@ -635,6 +765,9 @@ rm -rf $RPM_BUILD_ROOT
 /srv/www/obs/webui/script
 /srv/www/obs/webui/test
 /srv/www/obs/webui/vendor
+/srv/www/obs/webui/.simplecov
+/srv/www/obs/webui/config.ru
+/srv/www/obs/webui/.bundle
 
 %dir /srv/www/obs/webui/config
 %dir /srv/www/obs/webui/config/environments
@@ -642,18 +775,17 @@ rm -rf $RPM_BUILD_ROOT
 /srv/www/obs/webui/config/routes.rb
 /srv/www/obs/webui/config/environments/development.rb
 /srv/www/obs/webui/README.theme
-/srv/www/obs/webui/config/initializers/options.rb
-/srv/www/obs/webui/config/initializers/logging.rb
-/srv/www/obs/webui/config/initializers/create_runtime_directories.rb
-/srv/www/obs/webui/config/initializers/xhtml_init.rb
+/srv/www/obs/webui/Gemfile
+/srv/www/obs/webui/Gemfile.lock
+/srv/www/obs/webui/config/initializers
 
+%config /srv/www/obs/webui/config/application.rb
 %config /srv/www/obs/webui/config/boot.rb
 %config /srv/www/obs/webui/config/environment.rb
+%config /srv/www/obs/webui/config/compass.rb
 %config(noreplace) /srv/www/obs/webui/config/environments/production.rb
 %config(noreplace) /srv/www/obs/webui/config/environments/test.rb
 %config(noreplace) /srv/www/obs/webui/config/environments/stage.rb
-%config(noreplace) /srv/www/obs/webui/config/environments/development_base.rb
-%config(noreplace) /srv/www/obs/webui/config/initializers/theme_support.rb
 %attr(0640,root,www) %config(noreplace) /srv/www/obs/webui/config/database.yml*
 %attr(0644,root,root) %config(noreplace) /srv/www/obs/webui/config/options.yml*
 
@@ -674,6 +806,14 @@ rm -rf $RPM_BUILD_ROOT
 %config /etc/lighttpd/cleanurl-v5.lua
 %config /etc/lighttpd/vhosts.d/rails.inc
 
+%ghost /srv/www/obs/api/log/access.log
+%ghost /srv/www/obs/api/log/backend_access.log
+%ghost /srv/www/obs/api/log/delayed_job.log
+%ghost /srv/www/obs/api/log/error.log
+%ghost /srv/www/obs/api/log/lastevents.access.log
+%ghost /srv/www/obs/webui/log/access.log
+%ghost /srv/www/obs/webui/log/error.log
+
 %files -n obs-utils
 %defattr(-,root,root)
 /usr/sbin/obs_mirror_project
@@ -683,5 +823,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 /usr/bin/obs_productconvert
 /usr/lib/obs/server/bs_productconvert
+
+%files -n obs-devel
+%defattr(-,root,root)
+%_docdir/README.devel
 
 %changelog
