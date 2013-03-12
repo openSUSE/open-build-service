@@ -2,15 +2,45 @@ require 'net/http'
 
 class HomeController < ApplicationController
 
-  before_filter :require_login, :except => [:my_work, :icon]
+  before_filter :require_login, :except => [:icon, :index]
   before_filter :check_user, :except => [:icon]
-  before_filter :overwrite_user, :only => [:index, :my_work, :requests, :list_my]
+  before_filter :overwrite_user, :only => [:index, :requests, :list_my]
 
   def index
-    list_my
-    my_work
-  end
+    @displayed_user.free_cache if discard_cache?
+    @iprojects = @displayed_user.involved_projects.each.collect! do |x|
+      ret =[]
+      ret << x.name
+      if x.to_hash['title'].class == Xmlhash::XMLHash
+        ret << "No title set"
+      else
+        ret << x.to_hash['title']
+      end
+    end
+    @ipackages = @displayed_user.involved_packages.each.map {|x| [x.name, x.project]}
 
+    if @user == @displayed_user
+      @requests = @displayed_user.requests_that_need_work
+      @declined_requests = BsRequest.ids(@requests['declined'])
+      @open_reviews = BsRequest.ids(@requests['reviews'])
+      @new_requests = BsRequest.ids(@requests['new'])
+      @open_patchinfos = @displayed_user.running_patchinfos
+  
+      session[:requests] = (@requests['declined'] + @requests['reviews'] + @requests['new'])
+      respond_to do |format|
+        format.html
+        format.json do
+          rawdata = Hash.new
+          rawdata["declined"] = @declined_requests
+          rawdata["review"] = @open_reviews
+          rawdata["new"] = @new_requests
+          rawdata["patchinfos"] = @open_patchinfos
+          render :text => JSON.pretty_generate(rawdata)
+        end
+      end
+    end
+  end
+  
   def icon
     required_parameters :user
     user = params[:user]
@@ -37,30 +67,7 @@ class HomeController < ApplicationController
     render :text => content, :layout => false, :content_type => "image/png"
   end
 
-  def my_work
-    unless @displayed_user
-      require_login 
-      return
-    end
-    @requests = @displayed_user.requests_that_need_work
-    @declined_requests = BsRequest.ids(@requests['declined'])
-    @open_reviews = BsRequest.ids(@requests['reviews'])
-    @new_requests = BsRequest.ids(@requests['new'])
-    @open_patchinfos = @displayed_user.running_patchinfos
-    
-    session[:requests] = (@requests['declined'] + @requests['reviews'] + @requests['new'])
-    respond_to do |format|
-      format.html
-      format.json do
-        rawdata = Hash.new
-        rawdata["declined"] = @declined_requests
-        rawdata["review"] = @open_reviews
-        rawdata["new"] = @new_requests
-        rawdata["patchinfos"] = @open_patchinfos
-        render :text => JSON.pretty_generate(rawdata)
-      end
-    end
-  end
+
 
   def requests
     session[:requests] = ApiDetails.find(:person_involved_requests, login: @displayed_user.login)
@@ -69,20 +76,6 @@ class HomeController < ApplicationController
 
   def home_project
     redirect_to :controller => :project, :action => :show, :project => "home:#{@user}"
-  end
-
-  def list_my
-    @displayed_user.free_cache if discard_cache?
-    @iprojects = @displayed_user.involved_projects.each.collect! do |x|
-      ret =[]
-      ret << x.name
-      if x.to_hash['title'].class == Xmlhash::XMLHash
-        ret << "No title set"
-      else
-        ret << x.to_hash['title']
-      end
-    end
-    @ipackages = @displayed_user.involved_packages.each.map {|x| [x.name, x.project]}
   end
 
   def remove_watched_project
@@ -96,6 +89,7 @@ class HomeController < ApplicationController
     @displayed_user = @user
     user = find_cached(Person, params['user'] ) if params['user'] && !params['user'].empty?
     @displayed_user = user if user
+    logger.debug "Displayed user is #{@displayed_user}"
   end
   private :overwrite_user
 end
