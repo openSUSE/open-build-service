@@ -35,7 +35,7 @@
        <p><%= @displayed_user.globalrole %></p>
     <% end %>
   <!-- roles -->
-    <% if @displayed_user.to_s == @user.login %>
+    <% if @user and @displayed_user.to_s == @user.login %>
       <p>
       <% if CONFIG['proxy_auth_mode'] == :on %>
         <% unless CONFIG['proxy_auth_account_page'].blank? %>
@@ -103,7 +103,7 @@
 
 <div class="clear"></div>  
 
- <% if @user == @displayed_user %>
+ <% if @requests %>
   <div class="grid_16 alpha omega box box-shadow">
     <div id="tabs2">
       <div class="box-header header-tabs">
