@@ -58,6 +58,8 @@ my $uploaddir = "$BSConfig::bsdir/upload";
 
 my $maxchild = 4;
 
+$maxchild = $BSConfig::signer_maxchild if defined $BSConfig::signer_maxchild;
+
 my $sign_supports_S;
 
 sub check_sign_S {
@@ -603,18 +605,22 @@ while (1) {
     }
   }
 
-  if (%chld) {
-    while (($pid = waitpid(-1, 0)) > 0) {
-      delete $chld{$pid};
-    }   
-  }
-
   if (-e "$rundir/bs_signer.exit") {
+    if (%chld) {
+      while (($pid = waitpid(-1, 0)) > 0) {
+	delete $chld{$pid};
+      }   
+    }
     unlink("$rundir/bs_signer.exit");
     print "exiting...\n";
     exit(0);
   }
   if (-e "$rundir/bs_signer.restart") {
+    if (%chld) {
+      while (($pid = waitpid(-1, 0)) > 0) {
+	delete $chld{$pid};
+      }   
+    }
     unlink("$rundir/bs_signer.restart");
     print "restarting...\n";
     exec($0);
