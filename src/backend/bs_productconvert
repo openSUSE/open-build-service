@@ -832,7 +832,7 @@ sub writeMigrationSPECfile( $$$$$ )
 
     $content.="Version:        ".$product->{version}."\n";
     $content.="Release:        0\n";
-    $content.="License:        BSD 3-Clause\n";
+    $content.="License:        BSD-3-Clause\n";
     $content.="Group:          System/Fhs\n";
     $content.="Provides:       product()\n";
     $content.="Provides:       product(".$mproduct->{name}.") = %{version}-%{release}\n";
@@ -930,7 +930,7 @@ sub writeProductSPECfile( $$$$ )
      }
      $content.="Version:        ".$product->{version}."\n";
      $content.="Release:        0\n"; # FIXME: check if this is this really handled via BS
-     $content.="License:        BSD 3-Clause\n";
+     $content.="License:        BSD-3-Clause\n";
      $content.="Group:          System/Fhs\n";
      $content.=$obsoletepackage;
      $content.=$productprovides;
@@ -1008,7 +1008,7 @@ sub createSPECfileFlavors ( $$ ) {
     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
       next if ((!defined ($flavor->{'flavor'}) || ("$flavor->{'flavor'}" eq "")));
       $product_flavors.="%package $flavor->{flavor}\n";
-      $product_flavors.="License:        BSD 3-Clause\n";
+      $product_flavors.="License:        BSD-3-Clause\n";
       $product_flavors.="Group:          System/Fhs\n";
       if ((defined($prodRef->{'project'}->{'name'})) && ("$prodRef->{'project'}->{'name'}" ne "")){
           # TODO: - split between ":" -> Provides: SUSE \n Provides: SUSE:Factory ...
