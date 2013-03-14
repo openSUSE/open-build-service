@@ -173,12 +173,7 @@ class PersonController < ApplicationController
     realname = xml.elements["/unregisteredperson/realname"].text
     email = xml.elements["/unregisteredperson/email"].text
     password = xml.elements["/unregisteredperson/password"].text
-    note = xml.elements["/unregisteredperson/note"].text
     status = "confirmed"
-
-    unless @http_user and @http_user.is_admin?
-      note = ""
-    end
 
     if CONFIG['new_user_registration'] == "deny"
       unless @http_user and @http_user.is_admin?
@@ -213,8 +208,7 @@ class PersonController < ApplicationController
 
     newuser.realname = realname
     newuser.state = User.states[status]
-    newuser.adminnote = note
-    logger.debug("Saving...")
+    logger.debug("Saving user #{login}")
     newuser.save
     
     if !newuser.errors.empty?
