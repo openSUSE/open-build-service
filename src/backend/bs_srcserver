@@ -1975,8 +1975,13 @@ sub findpackages {
     eval {
       $r = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::dir, @args);
     };
-    if ($@ && $@ !~ /^404/) {
+    if ($@ && $@ =~ /^404/) {
+      # remote project does not exist
       die($@) unless $nonfatal;
+      return @packids;
+    }
+    if ($@) {
+      die($@) unless $nonfatal && $nonfatal > 0;	# -1: internal projectlink recursion, errors are still fatal
       warn($@);
       push @packids, ':missing_packages' if $nonfatal == 2;
       return @packids;
@@ -2033,7 +2038,7 @@ sub findpackages {
         $lproj = remoteprojid($lprojid);
 	next unless $lproj;	# linked project does not exist
       }
-      @lpackids = findpackages($lprojid, $lproj, $nonfatal, $seen, $lorigins);
+      @lpackids = findpackages($lprojid, $lproj, $nonfatal || -1, $seen, $lorigins);
       if (grep {$_ eq '_product'} @packids) {
 	@lpackids = grep {$_ ne '_product' && !/^_product:/} @lpackids;
       }
@@ -3199,6 +3204,7 @@ sub getpackage {
     }
     delete $pack->{'person'};
     delete $pack->{'group'};
+    delete $pack->{$_} for map {$_->[0]} @BSXML::flags;
     return ($pack, $BSXML::pack);
   }
   if ($cgi->{'rev'} || $cgi->{'deleted'}) {
