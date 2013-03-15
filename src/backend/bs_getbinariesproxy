@@ -69,11 +69,11 @@ sub set_maxopen() {
     my $fd = POSIX::dup($fd[0]);
     last unless defined $fd;
     push @fd, $fd;
-    last if @fd > 1048576;
+    last if @fd >= 65536;
   }
   POSIX::close($_) for @fd;
   $maxopen = @fd;
-  print "Could open $maxopen file descriptors\n";
+  print "could open $maxopen file descriptors\n";
 }
 
 sub manage_cache {
@@ -151,6 +151,7 @@ sub getbinaries {
 
   mkdir_p($cachedir);
   mkdir_p($cachetmpdir);
+  set_maxopen() unless defined $maxopen;
 
   my @binaries = split(',', $cgi->{'binaries'});
   my %bv;
@@ -180,9 +181,9 @@ sub getbinaries {
     my $bvl;
     eval {
       $bvl = BSRPC::rpc({
-        'uri' => "$server/getbinaryversions",
-        'timeout' => $gettimeout,
-        }, $BSXML::binaryversionlist, @args);
+	'uri' => "$server/getbinaryversions",
+	'timeout' => $gettimeout,
+	}, $BSXML::binaryversionlist, @args);
     };
     warn($@) if $@;
     for (@{$bvl->{'binary'} || []}) {
@@ -258,8 +259,8 @@ sub getbinaries {
 	  $metafd = $fd;
 	}
       } else {
-        close $binfd unless $metaonly;
-        $usecache = undef;
+	close $binfd unless $metaonly;
+	$usecache = undef;
       }
     }
     @s = stat($cachefile) if !@s && $usecache;
@@ -278,7 +279,7 @@ sub getbinaries {
 
   # get files not in cache
   if (@downloadbins) {
-    print "Downloading @downloadbins\n";
+    print "downloading: @downloadbins\n";
     my $toomany;
     my %downloadbins = map {$_ => 1} @downloadbins;
     if ($downloadsizek * 1024 * 100 > $cachesize) {
@@ -309,17 +310,18 @@ sub getbinaries {
 	  my $fd = gensym;
 	  open($fd, '<', "$cachetmpdir/$r->{'name'}") || die;
 	  push @cpio, {'name' => "$n.$suf", 'filename' => $fd};
-          $openfds++;
+	  $openfds++;
 	}
 	my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$id");
 	push @cachenew, [$cacheid, $s[7], "$cachetmpdir/$r->{'name'}"];
       } elsif ($r->{'name'} =~ /^\Q$tmpprefix\E(.*)\.meta$/) {
 	my $n = $1;
 	next unless $downloadbins{$n};
-	if (!$nometa) {
+	if (!$nometa && !$toomany) {
 	  my $fd = gensym;
 	  open($fd, '<', "$cachetmpdir/$r->{'name'}") || die;
 	  push @cpio, {'name' => "$n.meta", 'filename' => $fd};
+	  $openfds++;
 	}
       }
       $toomany = 1 if $openfds + 16 > $maxopen;		# sorry
@@ -352,6 +354,7 @@ my $conf = {
   'maxchild' => 40,
 };
 
-set_maxopen();
+set_maxopen() unless @ARGV && ($ARGV[0] eq '--test' || $ARGV[0] eq '--stop' || $ARGV[0] eq '--exit' || $ARGV[0] eq '--restart');
+
 BSStdServer::server('bs_getbinariesproxy', \@ARGV, $conf);
 
