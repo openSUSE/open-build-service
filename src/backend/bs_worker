@@ -1011,7 +1011,7 @@ sub trygetbinariesproxy {
     if (!$bv || !$bv->{'name'} || $bv->{'name'} !~ /\.($binsufsre)$/) {
       push @proxybins, '@'.$bin;
     } else {
-      push @proxybins, $bv->{'hdrmd5'}.($bv->{'metamd5'} || '').':'.($bv->{'sizek'} || 0).":$1:\@".$bin;
+      push @proxybins, $bv->{'hdrmd5'}.($bv->{'metamd5'} || '').':'.($bv->{'sizek'} || 0).":$1\@".$bin;
     }
   }
   my $res;
