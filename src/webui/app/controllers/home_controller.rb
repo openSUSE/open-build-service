@@ -86,7 +86,12 @@ class HomeController < ApplicationController
   end
 
   def overwrite_user
-    @displayed_user = @user
+    if @user
+      @displayed_user = @user
+    else
+      flash[:error] = "Please log in"
+      redirect_to :controller => :user, :action => :login
+    end
     user = find_cached(Person, params['user'] ) if params['user'] && !params['user'].empty?
     @displayed_user = user if user
     logger.debug "Displayed user is #{@displayed_user}"
