@@ -85,6 +85,7 @@ my $hostcheck;
 my $localkiwi;
 my $owner;
 my @hostlabel;
+my $getbinariesproxy;
 
 my $jobs;
 my $cachedir;
@@ -316,6 +317,11 @@ while (@ARGV) {
     shift @ARGV;
     my $server = shift @ARGV;
     push @reposervers, $server unless grep {$_ eq $server} @reposervers;
+    next;
+  }
+  if ($ARGV[0] eq '--getbinariesproxy') {
+    shift @ARGV;
+    $getbinariesproxy = shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--hostlabel') {
@@ -992,6 +998,35 @@ sub manage_cache {
   close F;
 }
 
+sub trygetbinariesproxy {
+  my ($server, $dir, $bins, $bvs,  @args) = @_;
+
+  return undef unless $getbinariesproxy;
+  my @proxybins;
+  for my $bin (@$bins) {
+    my $bv = $bvs->{$bin};
+    if (!$bv || !$bv->{'name'} || $bv->{'name'} !~ /\.($binsufsre)$/) {
+      push @proxybins, '@'.$bin;
+    } else {
+      push @proxybins, $bv->{'hdrmd5'}.($bv->{'metamd5'} || '').':'.($bv->{'sizek'} || 0)."$1:\@".$bin;
+    }
+  }
+  my $res;
+  eval {
+    $res = BSRPC::rpc({
+      'uri' => "$getbinariesproxy/getbinaries",
+      'directory' => $dir,
+      'timeout' => $gettimeout,
+      'receiver' => \&BSHTTP::cpio_receiver,
+    }, undef, "server=$server", @args, 'binaries='.join(',', @proxybins));
+  };
+  if ($@) {
+    warn($@);
+    undef $res;
+  }
+  return $res;
+}
+
 sub getbinaries_cache {
   my ($dir, $server, $projid, $repoid, $arch, $nometa, $bins, $bvl) = @_;
 
@@ -1105,13 +1140,14 @@ sub getbinaries_cache {
     push @args, "project=$projid";
     push @args, "repository=$repoid";
     push @args, "arch=$arch";
-    push @args, "binaries=".join(',', @downloadbins);
-    my $res = BSRPC::rpc({
+    my $res;
+    $res = trygetbinariesproxy($server, $dir, \@downloadbins, \%bv, @args) if $getbinariesproxy;
+    $res ||= BSRPC::rpc({
       'uri' => "$server/getbinaries",
       'directory' => $dir,
       'timeout' => $gettimeout,
       'receiver' => \&BSHTTP::cpio_receiver,
-    }, undef, @args);
+    }, undef, @args, 'binaries='.join(',', @downloadbins));
     die("Error\n") unless ref($res) eq 'ARRAY';
     my %havemeta;
     for my $r (@$res) {
@@ -1484,18 +1520,18 @@ sub getpreinstallimage_metas {
   push @args, "project=$buildinfo->{'project'}";
   push @args, "repository=$buildinfo->{'repository'}";
   push @args, "arch=$buildinfo->{'arch'}";
-  push @args, "binaries=".join(',', @todo);
   push @args, "metaonly=1";
   my $repo = (grep {$_->{'project'} eq $buildinfo->{'project'} && $_->{'repository'} eq $buildinfo->{'repository'}} @{$buildinfo->{'path'} || []})[0] || {};
   my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
   my $res;
+  $res = trygetbinariesproxy($server, $dir, \@todo, $metas, @args) if $getbinariesproxy;
   eval {
-    $res = BSRPC::rpc({
+    $res ||= BSRPC::rpc({
       'uri' => "$server/getbinaries",
       'directory' => $dir,
       'timeout' => $gettimeout,
       'receiver' => \&BSHTTP::cpio_receiver,
-    }, undef, @args);
+    }, undef, @args, "binaries=".join(',', @todo));
     die("Error\n") unless ref($res);
   };
   warn($@) if $@;
