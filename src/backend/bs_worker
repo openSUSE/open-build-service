@@ -261,6 +261,9 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
        --cachesize <size_in_mb>
                    : use cachedir to cache fetched binaries
 
+       --getbinariesproxy <proxyserver>
+                   : define a proxy server for getbinaries requests
+
        --help      : this message
 
 EOF
@@ -1008,7 +1011,7 @@ sub trygetbinariesproxy {
     if (!$bv || !$bv->{'name'} || $bv->{'name'} !~ /\.($binsufsre)$/) {
       push @proxybins, '@'.$bin;
     } else {
-      push @proxybins, $bv->{'hdrmd5'}.($bv->{'metamd5'} || '').':'.($bv->{'sizek'} || 0)."$1:\@".$bin;
+      push @proxybins, $bv->{'hdrmd5'}.($bv->{'metamd5'} || '').':'.($bv->{'sizek'} || 0).":$1:\@".$bin;
     }
   }
   my $res;
@@ -1090,7 +1093,7 @@ sub getbinaries_cache {
     if (link_or_copy($cachefile, "$dir/$bv->{'name'}")) {
       my @s = stat("$dir/$bv->{'name'}");
       die unless @s;
-      if (!$nometa) {
+      if (!$nometa && $bv->{'hdrmd5'}) {
 	my $mn = $bv->{'name'};
         $mn =~ s/\.(?:$binsufsre)/.meta/;
         if (link_or_copy("$cachefile.meta", "$dir/$mn")) {
