@@ -158,7 +158,17 @@ sub tail_logfile {
 
 sub cleanup_job {
   if ($vm_tmpfs_mode) {
-    qsystem("umount", "-l", $buildroot) && die("umount tmpfs failed: $!\n");
+    if ((stat "$buildroot/")[0] == (stat "$buildroot/../")[0]) {
+      warn("Buildroot $buildroot isn't mounted\n");
+      return;
+    }
+    my $res = 1;
+    my $retry = 5;
+    while ($retry-- && $res) {
+	$res = qsystem("umount", "-l", $buildroot) && sleep 2;
+	warn("umount tmpfs $buildroot failed: $!\nRetrying\n") if $res;
+    }
+    die("umount tmpfs failed after 5 attempts: $!\n") if $res;
   }
 }
 
