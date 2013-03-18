@@ -1136,7 +1136,7 @@ sub createProductFile ( $$ ) {
     my $mediaStyle = "suse-11.1"; # fallback value
     my $medium = $prodRef->{mediasets}->{media}[0];
     $mediaStyle = $medium->{'mediastyle'} if (defined($medium->{'mediastyle'}));
-    if ($mediaStyle =~ /^suse-11.[123]$/) {
+    if ($mediaStyle =~ /^suse-11.[123]$/ || $mediaStyle eq "suse-sle11-sp2") {
       $zypp_product->{'release'} = "%{release}";
     }
 
