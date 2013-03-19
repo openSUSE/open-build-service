@@ -18,26 +18,8 @@ class HomeController < ApplicationController
       end
     end
     @ipackages = @displayed_user.involved_packages.each.map {|x| [x.name, x.project]}
-
     if @user == @displayed_user
-      @requests = @displayed_user.requests_that_need_work
-      @declined_requests = BsRequest.ids(@requests['declined'])
-      @open_reviews = BsRequest.ids(@requests['reviews'])
-      @new_requests = BsRequest.ids(@requests['new'])
-      @open_patchinfos = @displayed_user.running_patchinfos
-  
-      session[:requests] = (@requests['declined'] + @requests['reviews'] + @requests['new'])
-      respond_to do |format|
-        format.html
-        format.json do
-          rawdata = Hash.new
-          rawdata["declined"] = @declined_requests
-          rawdata["review"] = @open_reviews
-          rawdata["new"] = @new_requests
-          rawdata["patchinfos"] = @open_patchinfos
-          render :text => JSON.pretty_generate(rawdata)
-        end
-      end
+      requests
     end
   end
   
@@ -67,11 +49,25 @@ class HomeController < ApplicationController
     render :text => content, :layout => false, :content_type => "image/png"
   end
 
-
-
   def requests
-    session[:requests] = ApiDetails.find(:person_involved_requests, login: @displayed_user.login)
-    @requests =  BsRequest.ids(session[:requests])
+    requests = @displayed_user.requests_that_need_work
+    @declined_requests = BsRequest.ids(requests['declined'])
+    @open_reviews = BsRequest.ids(requests['reviews'])
+    @new_requests = BsRequest.ids(requests['new'])
+    @open_patchinfos = @displayed_user.running_patchinfos
+    session[:requests] = (requests['declined'] + requests['reviews'] + requests['new'])
+    @requests = BsRequest.ids(session[:requests])
+    respond_to do |format|
+      format.html
+      format.json do
+        rawdata = Hash.new
+        rawdata["declined"] = @declined_requests
+        rawdata["review"] = @open_reviews
+        rawdata["new"] = @new_requests
+        rawdata["patchinfos"] = @open_patchinfos
+        render :text => JSON.pretty_generate(rawdata)
+      end
+    end
   end
 
   def home_project
@@ -86,14 +82,13 @@ class HomeController < ApplicationController
   end
 
   def overwrite_user
-    if @user
-      @displayed_user = @user
-    else
+    @displayed_user = @user
+    user = find_cached(Person, params['user'] ) if params['user'] && !params['user'].empty?
+    @displayed_user = user if user
+    unless @displayed_user
       flash[:error] = "Please log in"
       redirect_to :controller => :user, :action => :login
     end
-    user = find_cached(Person, params['user'] ) if params['user'] && !params['user'].empty?
-    @displayed_user = user if user
     logger.debug "Displayed user is #{@displayed_user}"
   end
   private :overwrite_user
