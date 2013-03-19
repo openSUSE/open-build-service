@@ -5057,9 +5057,16 @@ sub rebuildaggregate {
 	    'timeout' => 300,
 	    'proxy' => $proxy,
 	  };
+	  my $done;
+	  if ($nosource) {
+	    eval {
+	      $cpio = BSRPC::rpc($param, undef, "view=cpio", "nosource=1");
+	    };
+	    $done = 1 if !$@ || $@ !~ /nosource/;
+	  }
 	  eval {
 	    $cpio = BSRPC::rpc($param, undef, "view=cpio");
-	  };
+	  } unless $done;
 	  if ($@) {
 	    warn($@);
 	    $error = $@;
