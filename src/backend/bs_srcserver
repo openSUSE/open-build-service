@@ -5430,8 +5430,10 @@ sub getbinarylist {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
   my $view = $cgi->{'view'};
+  my $nosource = $cgi->{'nosource'};
   my @args;
   push @args, "view=$view" if $view;
+  push @args, "nosource=1" if $nosource;
   push @args, map {"binary=$_"} @{$cgi->{'binary'} || []};
   if ($view && ($view eq 'cache' || $view eq 'cpio' || $view eq 'solv' || $view eq 'solvstate')) {
     # do not check arch in interconnect mode
@@ -7387,7 +7389,7 @@ my $dispatches = [
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
-  '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool?' => \&getbinarylist,
+  '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* debug:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? view:?' => \&getlogfile,
@@ -7422,7 +7424,7 @@ my $dispatches_ajax = [
   '/build/$project/_result oldstate:md5? view:resultview* repository* arch* package* code:*' => \&getresult,
   '/build/$project/$repository/$arch package* view:?' => \&getpackagelist_build,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num?' => \&getlogfile,
-  '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool?' => \&getbinarylist,
+  '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource=bool?' => \&getbinarylist,
   '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool?' => \&worker_getbinaries,
   '/lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,
   '/source/$project/$package rev' => \&getfilelist_ajax,
