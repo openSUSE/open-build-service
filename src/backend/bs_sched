@@ -1900,14 +1900,17 @@ sub update_dst_full {
   my $pool;
   my $satrepo;
   my %old;
+  my $metacache;
   if ($fullcache && $fullcache->{'old'}) {
     $pool = $fullcache->{'pool'};
     $satrepo = $fullcache->{'satrepo'};
     %old = %{$fullcache->{'old'}};
+    $metacache = $fullcache->{'metacache'} || {};
   } else {
     $pool = BSSolv::pool->new();
     eval { $satrepo = $pool->repofromfile($prp, "$gdst/:full.solv"); };
     %old = $satrepo->getpathid() if $satrepo;
+    $metacache = BSUtil::retrieve("$gdst/:full.metacache", 1) || {};
   }
 
   # move em over into :full
@@ -1916,6 +1919,8 @@ sub update_dst_full {
   my $dep2meta;
   $dep2meta = $repodatas{$prp}->{'meta'} if $repodatas{$prp} && $repodatas{$prp}->{'meta'};
   my $linkedmeta = 0;
+  my $metamd5;
+  my $metaid;
   for my $rp (@movetofull) {
     my $r = $new{$rp};
     my $suf;
@@ -1940,16 +1945,33 @@ sub update_dst_full {
       delete $old{"$n.$osuf"};
     }
     if ($meta) {
+      if (!$metamd5) {
+	local *F;
+        $metamd5 = '0' x 32;
+	$metaid = '0/0/0';
+	if (open(F, '<', $meta)) {
+	  my @s = stat(F);
+	  $metaid = "$s[9]/$s[7]/$s[1]" if @s;
+	  my $ctx = Digest::MD5->new;
+	  $ctx->addfile(*F);
+	  close F;
+	  $metamd5 = $ctx->hexdigest();
+	}
+      }
       if ($BSConfig::maxmetahardlink && ++$linkedmeta >= $BSConfig::maxmetahardlink) {
 	# workaround for btrfs hardlink limitation. sigh.
 	writestr("$meta.dup", $meta, readstr($meta));
+	my @s = stat($meta);
+	$metaid = "$s[9]/$s[7]/$s[1]" if @s;
 	$linkedmeta = 0;
       }
       link($meta, "$meta.dup");
       rename("$meta.dup", "$gdst/:full/$n.meta") || die("rename $meta.dup $gdst/:full/$n.meta: $!\n");
       unlink("$meta.dup");
+      $metacache->{$n} = [$metaid, $metamd5];
     } else {
       unlink("$gdst/:full/$n.meta");
+      delete $metacache->{$n};
     }
     delete $dep2meta->{$n} if $dep2meta;
 
@@ -1979,6 +2001,7 @@ sub update_dst_full {
     unlink("$gdst/:full/$n.meta");
     unlink("$gdst/:full/$n-MD5SUMS.meta");
     delete $dep2meta->{$n} if $dep2meta;
+    delete $metacache->{$n};
   }
   
   mkdir_p($gdst) unless -d $gdst;
@@ -1988,6 +2011,7 @@ sub update_dst_full {
     $fullcache->{'pool'} = $pool;
     $fullcache->{'satrepo'} = $satrepo if $satrepo;
     $fullcache->{'old'} = \%old;
+    $fullcache->{'metacache'} = $metacache;
   } else {
     if ($satrepo) {
       $satrepo->updatefrombins("$gdst/:full", %old);
@@ -1995,6 +2019,7 @@ sub update_dst_full {
       $satrepo = $pool->repofrombins($prp, "$gdst/:full", %old);
     }
     writesolv("$gdst/:full.solv.new", "$gdst/:full.solv", $satrepo);
+    BSUtil::store("$gdst/.:full.metacache", "$gdst/:full.metacache", $metacache);
   }
   delete $repodatas{$prp}->{'solv'};
 }
@@ -2078,6 +2103,9 @@ sub sync_fullcache {
   }
   writesolv("$gdst/:full.solv.new", "$gdst/:full.solv", $satrepo);
   delete $repodatas{$prp}->{'solv'};
+  if ($fullcache->{'metacache'}) {
+    BSUtil::store("$gdst/.:full.metacache", "$gdst/:full.metacache", $fullcache->{'metacache'});
+  }
   %$fullcache = ();
 }
 

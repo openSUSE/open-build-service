@@ -237,28 +237,40 @@ sub readpackstatus {
 sub getbinaryversions {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $prp = "$projid/$repoid";
-  my @qbins = split(',', $cgi->{'binaries'} || '');
-
+  my @bins;
+  if (defined $cgi->{'binaries'}) {
+    @bins = split(',', $cgi->{'binaries'});
+  } else {
+    die unless $cgi->{'view'} && $cgi->{'view'} eq 'binaryversions';
+    @bins = @{$cgi->{'binary'} || []};
+  }
   my $serial;
   $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
   return if $BSStdServer::isajax && !defined $serial;
   my $pool = BSSolv::pool->new();
   my $repo = addrepo_scan($pool, $prp, $arch);
-  my %rnames = $repo ? $repo->pkgnames() : ();
+  my %names = $repo ? $repo->pkgnames() : ();
+  @bins = sort keys %names if !@bins && !defined $cgi->{'binaries'};
   my @res;
   my $needscan;
   my $dodurl = $repo->dodurl();
-  for my $n (@qbins) {
-    my $p = $rnames{$n};
+  my $metacache;
+  for my $bin (@bins) {
+    my $p = $names{$bin};
     if (!$p) {
-      push @res, {'name' => $n, 'error' => 'not available'};
+      push @res, {'name' => $bin, 'error' => 'not available'};
       next;
     }
     my $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
     my $sizek = $pool->pkg2sizek($p);
     my $hdrmd5 = $pool->pkg2pkgid($p);
     if ($dodurl && $hdrmd5 eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0') {
-      my @handoff = ('/getbinaryversions', undef, "project=$projid", "repository=$repoid", "arch=$arch", "binaries=$cgi->{'binaries'}");
+      my @handoff;
+      if (defined $cgi->{'binaries'}) {
+	@handoff = ('/getbinaryversions', undef, "project=$projid", "repository=$repoid", "arch=$arch", "binaries=$cgi->{'binaries'}");
+      } else {
+	@handoff = ("/build/$projid/$repoid/$arch/_repository", undef, 'view=binaryversions', map {"binary=$_"} @{$cgi->{'binary'} || []});
+      }
       $path = fetchdodbinary($pool, $repo, $p, $arch, 3, \@handoff);
       return unless defined $path;
       # TODO: move it out of the loop otherwise the same files might be queried multiple times
@@ -267,17 +279,27 @@ sub getbinaryversions {
       $hdrmd5 = Build::queryhdrmd5($path);
       $needscan = 1;
     }
-    my $r;
     if ($path !~ /\.($binsufsre)$/) {
-      push @res, {'name' => $n, 'error' => 'unknown suffix'};
+      push @res, {'name' => $bin, 'error' => 'unknown suffix'};
       next;
     }
-    $r = {'name' => "$n.$1"};
+    my $r = {'name' => "$bin.$1"};
     $r->{'hdrmd5'} = $hdrmd5;
     $r->{'sizek'} = $sizek;
     push @res, $r;
     next if $cgi->{'nometa'};
     next unless $path =~ s/\.(?:$binsufsre)$//;
+    if (!$metacache) {
+      $metacache = BSUtil::retrieve("$reporoot/$projid/$repoid/$arch/:full.metacache", 1) || {};
+    }
+    my @s = stat("$path.meta");
+    if (@s && $path =~ /([^\/]*$)/) {
+	my $mc = $metacache->{$1};
+	if ($mc && $mc->[0] eq "$s[9]/$s[7]/$s[1]") {
+	    $r->{'metamd5'} = $mc->[1];
+	    next;
+	}
+    }
     local *F;
     if (!open(F, '<', "$path.meta")) {
       next unless open(F, '<', "$path-MD5SUMS.meta");
@@ -388,21 +410,21 @@ sub badpackagebinaryversionlist {
 sub getbinaries {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $prp = "$projid/$repoid";
-  my @qbins = split(',', $cgi->{'binaries'} || '');
+  my @bins = split(',', $cgi->{'binaries'} || '');
 
   my $serial;
   $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
   return if $BSStdServer::isajax && !defined $serial;
   my $pool = BSSolv::pool->new();
   my $repo = addrepo_scan($pool, $prp, $arch);
-  my %rnames = $repo ? $repo->pkgnames() : ();
+  my %names = $repo ? $repo->pkgnames() : ();
   my @send;
   my $needscan;
   my $dodurl = $repo->dodurl();
-  for my $n (@qbins) {
-    my $p = $rnames{$n};
+  for my $bin (@bins) {
+    my $p = $names{$bin};
     if (!$p) {
-      push @send, {'name' => $n, 'error' => 'not available'};
+      push @send, {'name' => $bin, 'error' => 'not available'};
       next;
     }
     my $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
@@ -413,16 +435,16 @@ sub getbinaries {
       $needscan = 1;
     }
     if ($path !~ /\.($binsufsre)$/) {
-      push @send, {'name' => $n, 'error' => 'unknown suffix'};
+      push @send, {'name' => $bin, 'error' => 'unknown suffix'};
       next;
     }
-    push @send, {'name' => "$n.$1", 'filename' => $path} unless $cgi->{'metaonly'};
+    push @send, {'name' => "$bin.$1", 'filename' => $path} unless $cgi->{'metaonly'};
     next if $cgi->{'nometa'};
     next unless $path =~ s/\.(?:$binsufsre)$//;
     if (-e "$path.meta" || ! -e "$path-MD5SUMS.meta") {
-      push @send, {'name' => "$n.meta", 'filename' => "$path.meta"};
+      push @send, {'name' => "$bin.meta", 'filename' => "$path.meta"};
     } else {
-      push @send, {'name' => "$n.meta", 'filename' => "$path-MD5SUMS.meta"};
+      push @send, {'name' => "$bin.meta", 'filename' => "$path-MD5SUMS.meta"};
     }
   }
   undef $repo;
@@ -573,62 +595,8 @@ sub getbinarylist_repository {
     return undef;
   }
 
-  # FIXME: nearly a duplicate of getbinaryversions()
   if ($view eq 'binaryversions') {
-    my $serial;
-    $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
-    return if $BSStdServer::isajax && !defined($serial);
-    my $pool = BSSolv::pool->new();
-    my $repo = addrepo_scan($pool, $prp, $arch);
-    my %names = $repo ? $repo->pkgnames() : ();
-    my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %names;
-    my @res;
-    my $needscan;
-    my $dodurl = $repo->dodurl();
-    for my $bin (@bins) {
-      my $p = $names{$bin};
-      if (!$p) {
-	push @res, {'name' => $bin, 'error' => 'not available'};
-	next;
-      }
-      my $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
-      my $sizek = $pool->pkg2sizek($p);
-      my $hdrmd5 = $pool->pkg2pkgid($p);
-      if ($dodurl && $hdrmd5 eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0') {
-	my @handoff = ("/build/$projid/$repoid/$arch/_repository", undef, "view=$view", map {"binary=$_"} @{$cgi->{'binary'} || []});
-	$path = fetchdodbinary($pool, $repo, $p, $arch, 3, \@handoff);
-	return unless defined $path;
-	# TODO: move it out of the loop otherwise the same files might be queried multiple times
-	my @s = stat($path);
-	$sizek = ($s[7] + 1023) >> 10;
-	$hdrmd5 = Build::queryhdrmd5($path);
-	$needscan = 1;
-      }
-      my $r;
-      if ($path !~ /\.($binsufsre)$/) {
-	push @res, {'name' => $bin, 'error' => 'unknown suffix'};
-	next;
-      }
-      $r = {'name' => "$bin.$1"};
-      $r->{'hdrmd5'} = $hdrmd5;
-      $r->{'sizek'} = $sizek;
-      push @res, $r;
-      next if $cgi->{'nometa'};
-      next unless $path =~ s/\.(?:$binsufsre)$//;
-      local *F;
-      if (!open(F, '<', "$path.meta")) {
-	next unless open(F, '<', "$path-MD5SUMS.meta");
-      }    
-      my $ctx = Digest::MD5->new;
-      $ctx->addfile(*F);
-      $r->{'metamd5'} = $ctx->hexdigest();
-      close F;
-    }
-    undef $repo;
-    undef $pool;
-    BSWatcher::serialize_end($serial) if defined $serial;
-    forwardevent($cgi, 'scanrepo', $projid, undef, $repoid, $arch) if $needscan;
-    return ({ 'binary' => \@res }, $BSXML::binaryversionlist);
+    return getbinaryversions($cgi, $projid, $repoid, $arch);
   }
 
   die("unsupported view '$view'\n") if $view && $view ne 'names';
