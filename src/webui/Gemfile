@@ -3,6 +3,7 @@
 source 'http://rubygems.org'
 
 gem 'rails', '~>3.2.9'
+gem 'i18n', '0.6.1'
 
 # Gems used only for assets and not required in production environments by default.
 group :assets do
@@ -52,4 +53,4 @@ gem 'fast_xs'
 gem 'memcache-client', :require => false
 gem 'jquery-rails'
 gem 'mobileesp_converted'
-gem 'rake'
+gem 'rake', '~>0.9.2'
