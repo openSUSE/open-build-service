@@ -57,8 +57,10 @@ my $myeventdir = "$eventdir/signer";
 my $uploaddir = "$BSConfig::bsdir/upload";
 
 my $maxchild = 4;
+my $maxchild_flavor;
 
 $maxchild = $BSConfig::signer_maxchild if defined $BSConfig::signer_maxchild;
+$maxchild_flavor = $BSConfig::signer_maxchild_flavor if defined $BSConfig::signer_maxchild_flavor;
 
 my $sign_supports_S;
 
@@ -537,6 +539,19 @@ sub signevent {
   unlink("$myeventdir/${event}::inprogress");
 }
 
+# we currently support two flavors, rsasign and iso
+sub getflavor {
+  my ($ev) = @_;
+  
+  my $job = $ev->{'job'};
+  my $arch = $ev->{'arch'};
+  my @dir = ls("$jobsdir/$arch/$job:dir");
+  return undef unless @dir;
+  return 'iso' if grep {/\.iso$/} @dir;
+  return 'rassign' if grep {/\.rsasign$/} @dir;
+  return undef;
+}
+
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
 BSUtil::restartexit($ARGV[0], 'signer', "$rundir/bs_signer", "$myeventdir/.ping");
@@ -565,6 +580,7 @@ check_sign_S();
 print "warning: sign does not seem to support checksum files, please update\n" unless $sign_supports_S;
 
 my %chld;
+my %chld_flavor;
 my $pid;
 
 while (1) {
@@ -575,7 +591,8 @@ while (1) {
   fcntl(PING,F_SETFL,0);
 
   my @events = ls($myeventdir);
-  @events = grep {!/^\./} @events;
+  @events = grep {!/^\./ && !/::inprogress$/} @events;
+  my $havedelayed;
 
   for my $event (@events) {
     last if -e "$rundir/bs_signer.exit";
@@ -591,6 +608,16 @@ while (1) {
       unlink("$myeventdir/$event");
       next;
     }
+    my $flavor;
+    if ($maxchild_flavor) {
+	$flavor = getflavor($ev);
+	if (defined($flavor) && $maxchild_flavor->{$flavor}) {
+	  if (keys(%{$chld_flavor{$flavor} || {}}) > $maxchild_flavor->{$flavor}) {
+	    $havedelayed = 1;
+	    next;
+	  }
+	}
+    }
     if (!$maxchild || $maxchild == 1) {
       signevent($event, $ev);
       next;
@@ -599,9 +626,11 @@ while (1) {
       signevent($event, $ev);
       exit(0);
     }
-    $chld{$pid} = 1;
+    $chld{$pid} = $flavor;
+    $chld_flavor{$flavor}->{$pid} = undef if defined $flavor;
     while (($pid = waitpid(-1, defined($maxchild) && keys(%chld) > $maxchild ? 0 : POSIX::WNOHANG)) > 0) {
-      delete $chld{$pid};
+      my $cflavor = delete $chld{$pid};
+      delete $chld_flavor{$cflavor}->{$pid} if defined $cflavor && $chld_flavor{$cflavor};
     }
   }
 
@@ -625,6 +654,15 @@ while (1) {
     print "restarting...\n";
     exec($0);
     die("$0: $!\n");
+  }
+  if ($havedelayed) {
+    fcntl(PING,F_SETFL,POSIX::O_NONBLOCK);
+    for my $i (0, 1, 2, 3, 4, 5, 6, 7, 8, 9) {
+      last if (sysread(PING, $dummy, 1024, 0) || 0) > 0;
+      sleep(1);
+    }
+    fcntl(PING,F_SETFL,0);
+    next;
   }
   print "waiting for an event...\n";
   sysread(PING, $dummy, 1, 0);
