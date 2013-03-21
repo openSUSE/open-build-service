@@ -1901,16 +1901,23 @@ sub update_dst_full {
   my $satrepo;
   my %old;
   my $metacache;
+  my $metacache_ismerge;
   if ($fullcache && $fullcache->{'old'}) {
     $pool = $fullcache->{'pool'};
     $satrepo = $fullcache->{'satrepo'};
     %old = %{$fullcache->{'old'}};
     $metacache = $fullcache->{'metacache'} || {};
+    $metacache_ismerge = $fullcache->{'metacache_ismerge'};
   } else {
     $pool = BSSolv::pool->new();
     eval { $satrepo = $pool->repofromfile($prp, "$gdst/:full.solv"); };
     %old = $satrepo->getpathid() if $satrepo;
-    $metacache = BSUtil::retrieve("$gdst/:full.metacache", 1) || {};
+    if (((-s "$gdst/:full.metacache") || 0) < 8192 && ! -e "$gdst/:full.metacache.merge") {
+      $metacache = BSUtil::retrieve("$gdst/:full.metacache", 1) || {};
+    } else {
+      $metacache = BSUtil::retrieve("$gdst/:full.metacache.merge", 1) || {};
+      $metacache_ismerge = 1;
+    }
   }
 
   # move em over into :full
@@ -1972,6 +1979,7 @@ sub update_dst_full {
     } else {
       unlink("$gdst/:full/$n.meta");
       delete $metacache->{$n};
+      $metacache->{$n} = undef if $metacache_ismerge;
     }
     delete $dep2meta->{$n} if $dep2meta;
 
@@ -2002,6 +2010,7 @@ sub update_dst_full {
     unlink("$gdst/:full/$n-MD5SUMS.meta");
     delete $dep2meta->{$n} if $dep2meta;
     delete $metacache->{$n};
+    $metacache->{$n} = undef if $metacache_ismerge;
   }
   
   mkdir_p($gdst) unless -d $gdst;
@@ -2012,6 +2021,7 @@ sub update_dst_full {
     $fullcache->{'satrepo'} = $satrepo if $satrepo;
     $fullcache->{'old'} = \%old;
     $fullcache->{'metacache'} = $metacache;
+    $fullcache->{'metacache_ismerge'} = $metacache_ismerge;
   } else {
     if ($satrepo) {
       $satrepo->updatefrombins("$gdst/:full", %old);
@@ -2019,7 +2029,11 @@ sub update_dst_full {
       $satrepo = $pool->repofrombins($prp, "$gdst/:full", %old);
     }
     writesolv("$gdst/:full.solv.new", "$gdst/:full.solv", $satrepo);
-    BSUtil::store("$gdst/.:full.metacache", "$gdst/:full.metacache", $metacache);
+    if ($metacache_ismerge) {
+      BSUtil::store("$gdst/.:full.metacache.merge", "$gdst/:full.metacache.merge", $metacache);
+    } else {
+      BSUtil::store("$gdst/.:full.metacache", "$gdst/:full.metacache", $metacache);
+    }
   }
   delete $repodatas{$prp}->{'solv'};
 }
@@ -2104,7 +2118,11 @@ sub sync_fullcache {
   writesolv("$gdst/:full.solv.new", "$gdst/:full.solv", $satrepo);
   delete $repodatas{$prp}->{'solv'};
   if ($fullcache->{'metacache'}) {
-    BSUtil::store("$gdst/.:full.metacache", "$gdst/:full.metacache", $fullcache->{'metacache'});
+    if ($fullcache->{'metacache_ismerge'}) {
+      BSUtil::store("$gdst/.:full.metacache.merge", "$gdst/:full.metacache.merge", $fullcache->{'metacache'});
+    } else {
+      BSUtil::store("$gdst/.:full.metacache", "$gdst/:full.metacache", $fullcache->{'metacache'});
+    }
   }
   %$fullcache = ();
 }
@@ -3499,7 +3517,7 @@ sub jobfinished {
   BSFileDB::fdb_add("$reporoot/$prp/$myarch/$packid/history", $historylay, $h);
 
   # update relsync file (use relsync.merge if relsync is too big)
-  if (((-s "$reporoot/$prp/$myarch/:relsync") || 0) < 8192) {
+  if (((-s "$reporoot/$prp/$myarch/:relsync") || 0) < 8192 && ! -e "$reporoot/$prp/$myarch/:relsync.merge") {
     my $relsync = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync", 1) || {};
     $relsync->{$packid} = "$info->{'versrel'}.$info->{'bcnt'}";
     BSUtil::store("$reporoot/$prp/$myarch/.:relsync", "$reporoot/$prp/$myarch/:relsync", $relsync);
@@ -6944,6 +6962,24 @@ NEXTPRP:
 	BSUtil::store("$reporoot/$prp/$myarch/.:relsync", "$reporoot/$prp/$myarch/:relsync", $relsync);
       }
       unlink("$reporoot/$prp/$myarch/:relsync.merge");
+    }
+
+    # merge metacache
+    if (-e "$reporoot/$prp/$myarch/:full.metacache.merge") {
+      print "    merging metacache data\n";
+      my $metacache_merge = BSUtil::retrieve("$reporoot/$prp/$myarch/:full.metacache.merge", 2);
+      if ($metacache_merge) {
+	my $metacache;
+	$metacache = BSUtil::retrieve("$reporoot/$prp/$myarch/:full.metacache", 2) if -e "$reporoot/$prp/$myarch/:full.metacache";
+	$metacache = { %{$metacache || {}}, %$metacache_merge };
+	delete $metacache->{$_} for grep {!defined($metacache_merge->{$_})} keys %$metacache_merge;
+	if (%$metacache) {
+	  BSUtil::store("$reporoot/$prp/$myarch/.:full.metacache", "$reporoot/$prp/$myarch/:full.metacache", $metacache);
+	} else {
+	  unlink("$reporoot/$prp/$myarch/:full.metacache");
+	}
+      }
+      unlink("$reporoot/$prp/$myarch/:full.metacache.merge");
     }
 
     my $bconf = getconfig($myarch, $prpsearchpath{$prp});
