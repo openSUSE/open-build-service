@@ -291,6 +291,8 @@ sub getbinaryversions {
     next unless $path =~ s/\.(?:$binsufsre)$//;
     if (!$metacache) {
       $metacache = BSUtil::retrieve("$reporoot/$projid/$repoid/$arch/:full.metacache", 1) || {};
+      # we currently don't bother with :full.metacache.merge. this is not a problem, as the
+      # cache is not authoritative
     }
     my @s = stat("$path.meta");
     if (@s && $path =~ /([^\/]*$)/) {
