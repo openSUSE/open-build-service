@@ -7418,7 +7418,7 @@ my $dispatches_ajax = [
   '/build/$project/_result oldstate:md5? view:resultview* repository* arch* package* code:*' => \&getresult,
   '/build/$project/$repository/$arch package* view:?' => \&getpackagelist_build,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num?' => \&getlogfile,
-  '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource=bool?' => \&getbinarylist,
+  '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool?' => \&getbinarylist,
   '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool?' => \&worker_getbinaries,
   '/lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,
   '/source/$project/$package rev' => \&getfilelist_ajax,
