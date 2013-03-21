@@ -91,7 +91,7 @@ class SpiderTest < ActionDispatch::IntegrationTest
       end
       body = nil
       begin
-        body = Nokogiri::XML::Document.parse(page.source, nil, nil, Nokogiri::XML::ParseOptions::STRICT).root
+        body = Nokogiri::HTML::Document.parse(page.source).root
       rescue Nokogiri::XML::SyntaxError
         #puts "HARDCORE!! #{theone}"
       end
