@@ -734,7 +734,7 @@ sub getbinarylist {
   }
   if ($view eq 'binaryversions') {
     my $bininfo = read_bininfo("$reporoot/$prp/$arch/$packid");
-    filtersources_bininfo($bininfo) if $bininfo->{'.nosourceaccess'};
+    filtersources_bininfo($bininfo) if $cgi->{'nosource'} || $bininfo->{'.nosourceaccess'};
     my @res;
     for (sort keys %$bininfo) {
       my $bin = $bininfo->{$_};
@@ -751,7 +751,7 @@ sub getbinarylist {
   die("unsupported view '$view'\n") if $view;
   my @res;
   my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
-  @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
+  @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
   for (sort @bins) {
     next if %binaries && !$binaries{$_};
     my @s = stat("$reporoot/$prp/$arch/$packid/$_");
