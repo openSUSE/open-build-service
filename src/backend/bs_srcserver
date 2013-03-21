@@ -2234,7 +2234,7 @@ sub addrev_meta {
   if (defined($rfile)) {
     return addrev_meta_multiple($cgi, $projid, $packid, $suf,  [ $tmpfile, $file, $rfile ]);
   } else {
-    return addrev_meta_multiple($cgi, $projid, $packid, $suf,  []);
+    return addrev_meta_multiple($cgi, $projid, $packid, $suf);
   }
 }
 
