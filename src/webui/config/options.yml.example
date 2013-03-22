@@ -83,3 +83,19 @@ proxy_auth_mode: :off
 #errbit_api_key: api_key_of_your_app
 #errbit_host: installation.of.errbit.com
 
+# Your sponsors
+sponsors:
+  - name: "SUSE"
+    description: "Enterprise Linux you can rely on."
+    icon: "sponsor_suse"
+    url: "http://www.suse.com"
+  - name: "Open Build Service"
+    description: "A generic system to build and distribute software"
+    icon: "sponsor_obs"
+    url: "http://openbuildservice.org"
+
+# If you have any extra feeds you want to link to in the news section
+# add them there.
+#feeds:
+#  - name: 'Commits in openSUSE:Factory'
+#    url: 'https://hermes.opensuse.org/feeds/25549.rdf'
