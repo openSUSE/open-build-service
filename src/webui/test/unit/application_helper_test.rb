@@ -21,8 +21,4 @@ class ApplicationHelperTest < ActiveSupport::TestCase
     status.must_match(/icons-eye/)
     status.must_match(/Unknown state/)
   end
-
-  def test_sponsors
-    assert_not_nil get_random_sponsor_image
-  end
 end
