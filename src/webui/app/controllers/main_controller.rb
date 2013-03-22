@@ -3,7 +3,7 @@ class MainController < ApplicationController
   before_filter :require_admin, only: [:delete_message]
 
   def index
-    @news = find_cached(Statusmessage, :conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 5, :expires_in => 15.minutes)
+    @news = find_cached(Statusmessage, :conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 4, :expires_in => 15.minutes)
     unless @spider_bot
       @latest_updates = find_cached(LatestUpdated, :limit => 6, :expires_in => 5.minutes, :shared => true)
     end

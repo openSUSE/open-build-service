@@ -1,45 +1,40 @@
-<%= content_for :content_for_head do %>
-  <%= auto_discovery_link_tag(:rss, {:controller => 'main', :action => 'news', :format => 'rss'}, {:title => 'News'}) %>
-<% end %>
-
 <% if (@news and @news.count.to_i > 0) or (@user and @user.is_admin?) %>
   <div class="box box-shadow" id="messages">
     <h2 class="box-header">
-      News
+      System Status
       <%= link_to('', { :action => 'news', :format => 'rss'}, { class: 'alignright icons-feeds', title: "RSS Feed" }) %>
     </h2>
     <% if @news.count.to_i > 0 %>
       <% @news.each_message do |msg| %>
-      <div class="grid_4 news-sender">
-        <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => msg.value(:user), :short => true }%> wrote <%= fuzzy_time_string(msg.created_at) %>
-      </div>
-     
-      <div class="clear"></div>
-      
-      <div class="grid_4 box news-message">
-      <% if @user and @user.is_admin? %>
-          <%= link_to(sprite_tag('comment_delete', :title => 'Remove message'), {:controller => 'main', :action => 'delete_message_dialog', :message_id => msg.msg_id}, :remote => true, class: 'delete-message') %>
-      <% end %>
-      <% case msg.severity.to_i %>
-        <% when 3 %>
-          <%= sprite_tag('exclamation') %>
-        <% when 2 %>
-          <%= sprite_tag('error') %>
-        <% when 1 %>
-          <%= sprite_tag('accept') %>
-        <% else %>
-          <%= sprite_tag('information') %>
-      <% end %>
-        <%= raw msg.to_s %>
-     </div>
-      
-      <div class="clear"></div>
-    <% end %><!-- end each..do -->
-  <% end %><!-- end if @news -->
-  <% if @user and @user.is_admin? %>
-    <p>
-      <%= link_to(sprite_tag('comment_add') + content_tag(:span, 'Add new message', id: "add-new-message"), {controller: 'main', action: 'add_news_dialog'}, { remote: true } ) %>
-    </p>
-  <% end %>
-  </div><!-- end box -->
+        <div class="grid_4 news-sender">
+          <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => msg.value(:user), :short => true }%> wrote <%= fuzzy_time_string(msg.created_at) %>
+        </div>
+
+        <div class="clear"></div>
+
+        <div class="grid_4 box news-message">
+        <% if @user and @user.is_admin? %>
+            <%= link_to(sprite_tag('comment_delete', :title => 'Remove message'), {:controller => 'main', :action => 'delete_message_dialog', :message_id => msg.msg_id}, :remote => true, class: 'delete-message') %>
+        <% end %>
+        <% case msg.severity.to_i %>
+          <% when 3 %>
+            <%= sprite_tag('exclamation') %>
+          <% when 2 %>
+            <%= sprite_tag('error') %>
+          <% when 1 %>
+            <%= sprite_tag('accept') %>
+          <% else %>
+            <%= sprite_tag('information') %>
+        <% end %>
+          <%= raw msg.to_s %>
+        </div>
+        <div class="clear"></div>
+      <% end %> 
+    <% end %>
+    <% if @user and @user.is_admin? %>
+      <p>
+        <%= link_to(sprite_tag('comment_add') + content_tag(:span, 'Add new status', id: "add-new-message"), {controller: 'main', action: 'add_news_dialog'}, { remote: true } ) %>
+      </p>
+    <% end %>
+  </div>
 <% end %>

@@ -43,11 +43,8 @@
     <%= render :partial => 'shared/sign_up' %>
   </div>
 <% end %>
+  <%= render :partial => 'sponsors' %>
   <%= render :partial => 'news' %>
   <%= render :partial => 'latest_updates' if (@latest_updates and @anonymous_forbidden.nil?) %>
-<!--
-  <%= render :partial => 'countdown' %>
--->
-  <%= render :partial => 'sponsors' %>
-  <%= render :partial => 'feeds' %>
 </div>
+

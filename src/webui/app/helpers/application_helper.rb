@@ -98,17 +98,6 @@ module ApplicationHelper
     URI.escape("#{CONFIG['bugzilla_host']}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd party software&assigned_to=#{assignee}#{cc}&short_desc=#{desc}")
   end
 
-  SPONSORS = [
-      "sponsor_suse",
-      "sponsor_amd",
-      "sponsor_b1-systems",
-      "sponsor_ip-exchange2",
-      "sponsor_heinlein"]
-
-  def get_random_sponsor_image
-    return SPONSORS.sample
-  end
-
   def image_url(source)
     abs_path = image_path(source)
     unless abs_path =~ /^http/
