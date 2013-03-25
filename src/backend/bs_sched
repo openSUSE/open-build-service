@@ -1912,7 +1912,7 @@ sub update_dst_full {
     $pool = BSSolv::pool->new();
     eval { $satrepo = $pool->repofromfile($prp, "$gdst/:full.solv"); };
     %old = $satrepo->getpathid() if $satrepo;
-    if (((-s "$gdst/:full.metacache") || 0) < 8192 && ! -e "$gdst/:full.metacache.merge") {
+    if (((-s "$gdst/:full.metacache") || 0) < 16384 && ! -e "$gdst/:full.metacache.merge") {
       $metacache = BSUtil::retrieve("$gdst/:full.metacache", 1) || {};
     } else {
       $metacache = BSUtil::retrieve("$gdst/:full.metacache.merge", 1) || {};
