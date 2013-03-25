@@ -243,7 +243,6 @@ class StatusController < ApplicationController
         csrcmd5 = nil
       end
       
-      re_filename = Regexp.new('^(.*)-([^-]*)-([^-]*)\.([^-.]*).rpm')
       tocheck_repos.each do |srep|
         outputxml << " <repository name='#{srep.name}'>\n"
         trepo = []
