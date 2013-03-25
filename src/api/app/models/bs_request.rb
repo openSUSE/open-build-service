@@ -287,7 +287,7 @@ class BsRequest < ActiveRecord::Base
         end
       end
           
-      raise Review::NotFound.new unless found
+      raise Review::NotFoundError.new unless found
       if go_new_state || state == :superseded
         bs_request_histories.create comment: self.comment, commenter: self.commenter, state: self.state, superseded_by: self.superseded_by, created_at: self.updated_at
         
