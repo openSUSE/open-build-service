@@ -47,7 +47,7 @@
             <% end %>
           </td>
           <% if !no_target%>
-            <td>
+            <td class="request_target">
               <% if ae.has_key? 'tprj' %>
                 <% if not @project or @project.name != ae['tprj'] %><!-- <%= ae['tprj'] %>  -->
                   <% if ae['tpkg'] and not (ae.has_key?('source') and Package.exists?(ae['sprj'], ae['spkg']) and ae['spkg'] == ae['tpkg']) %> <!-- /<%= ae['tpkg'] %> -->

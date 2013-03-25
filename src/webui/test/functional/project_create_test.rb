@@ -204,30 +204,6 @@ class ProjectCreateTest < ActionDispatch::IntegrationTest
   end
   
    
-  test "login_as_admin" do
-  
-    login_king
-    
-    assert page.has_text?("Connect a remote Open Build Service instance") or  
-      page.has_text?("Add custom OBS instance")
-    
-    find(:css, "input[value='build.openSUSE.org']").click
-    
-    name = find(:css, "input[name='name']")
-    name["value"].must_equal "openSUSE.org"
-    
-    click_button "Save changes"
-    flash_message.must_equal "Project 'openSUSE.org' was created successfully. Next step is create your home project"
-    flash_message_type.must_equal :info
-
-    page.must_have_text("Your home project doesn't exist yet. You can create it now")
-    
-    create_project(:title => "HomeProject Title",
-                   :description => "Test generated empty home project for admin.")
-    
-    logout
-  end
-
   # RUBY CODE ENDS HERE.
   # BELOW ARE APPENDED ALL DATA STRUCTURES USED BY THE TESTS.
   

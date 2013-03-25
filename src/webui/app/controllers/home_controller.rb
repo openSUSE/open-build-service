@@ -2,7 +2,7 @@ require 'net/http'
 
 class HomeController < ApplicationController
 
-  before_filter :require_login, :except => [:icon, :index]
+  before_filter :require_login, :except => [:icon, :index, :requests]
   before_filter :check_user, :except => [:icon]
   before_filter :overwrite_user, :only => [:index, :requests, :list_my]
 
@@ -55,8 +55,11 @@ class HomeController < ApplicationController
     @open_reviews = BsRequest.ids(requests['reviews'])
     @new_requests = BsRequest.ids(requests['new'])
     @open_patchinfos = @displayed_user.running_patchinfos
-    session[:requests] = (requests['declined'] + requests['reviews'] + requests['new'])
+    session[:requests] = (requests['declined'] + requests['reviews'] + requests['new'])    
     @requests = BsRequest.ids(session[:requests])
+    @default_request_type = params[:type] if params[:type]
+    @default_request_state = params[:state] if params[:state]
+
     respond_to do |format|
       format.html
       format.json do
