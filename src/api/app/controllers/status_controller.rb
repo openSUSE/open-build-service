@@ -196,49 +196,6 @@ class StatusController < ApplicationController
     render :text => xml
   end
 
-  def bsrequest_repo_list(project, repo, arch)
-    ret = Hash.new
-    data = Rails.cache.fetch(CGI.escape("vers_repo_list_%s_%s_%s" % [project, repo, arch]), :expires_in => 5.minutes) do
-      uri = URI( "/build/#{CGI.escape(project)}/#{CGI.escape(repo)}/#{CGI.escape(arch)}/_repository?view=binaryversions&nometa")
-      backend.direct_http( uri )
-    end
-
-    repo = ActiveXML::Node.new( data )
-    repo.each_binary do |b|
-      name=b.value(:name).sub('.rpm', '')
-      ret[name] = 1
-    end
-    return ret
-  end
-  private :bsrequest_repo_list
-
-  def bsrequest_repo_file(project, repo, arch, file, version, release)
-    uri = "/build/#{CGI.escape(project)}/#{CGI.escape(repo)}/#{arch}/_repository/#{CGI.escape(file)}.rpm?view=fileinfo_ext"
-    ret = []
-    key = params[:id] + "-" + Digest::MD5.hexdigest(uri)
-    fileinfo = ActiveXML::Node.new( Rails.cache.fetch(key, :expires_in => 15.minutes) { backend.direct_http( URI( uri ) ) } )
-    if fileinfo.version.to_s != version
-      raise NotInRepo, "version #{fileinfo.version}-#{fileinfo.release} (wanted #{version}-#{release})"
-    end
-    if fileinfo.release.to_s != release
-      raise NotInRepo, "version #{fileinfo.version}-#{fileinfo.release} (wanted #{version}-#{release})"
-    end
-    fileinfo.each_requires_ext do |r|
-      if r.has_element? :providedby
-        provided = []
-        r.each_providedby { |p| provided << p.name }
-        if provided.size == 1
-          ret << provided[0] # simplify
-        else
-          ret << provided
-        end
-      else
-        ret << "#{file}:#{r.dep}"
-      end
-    end
-    return ret
-  end
-
   def bsrequest
     required_parameters :id
     Suse::Backend.start_test_backend if Rails.env.test?
@@ -286,7 +243,6 @@ class StatusController < ApplicationController
         csrcmd5 = nil
       end
       
-      re_filename = Regexp.new('^(.*)-([^-]*)-([^-]*)\.([^-.]*).rpm')
       tocheck_repos.each do |srep|
         outputxml << " <repository name='#{srep.name}'>\n"
         trepo = []
@@ -303,6 +259,15 @@ class StatusController < ApplicationController
           render :text => "<status id='#{params[:id]}' code='warning'>Can not find repository building against target</status>\n" and return
         end
         logger.debug "trepo #{trepo.inspect}"
+
+        tpackages = Hash.new
+        vprojects = Hash.new
+        trepo.each do |p, r|
+          next if vprojects.has_key? p
+          Project.find_by_name(p).packages.select(:name).each { |n| tpackages[n.name] = p }
+          vprojects[p] = 1
+        end
+        
         archs.each do |arch|
           everbuilt = 0
           eversucceeded = 0
@@ -324,91 +289,21 @@ class StatusController < ApplicationController
           logger.debug "arch:#{arch} md5:#{srcmd5} successed:#{eversucceeded} built:#{everbuilt}"
           missingdeps=[]
           if eversucceeded == 1
-            uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/#{CGI.escape(action.source_package.to_s)}/_buildinfo")
+            uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/_builddepinfo?package=#{CGI.escape(action.source_package.to_s)}&view=pkgnames")
             begin
-              buildinfo = ActiveXML::Node.new( backend.direct_http( uri ) )
+              buildinfo = Xmlhash.parse( backend.direct_http( uri ) )
             rescue ActiveXML::Transport::Error => e
               # if there is an error, we ignore
               render :text => "<status id='#{params[:id]}' code='error'>Can't get buildinfo: #{e.summary}</status>\n"
               return
             end
-            packages = Hash.new
-            trepo.each do |p, r|
-              begin
-                packages.merge!(bsrequest_repo_list(p, r, arch.to_s))
-              rescue ActiveXML::Transport::Error => e
-                render :text => "<status id='#{params[:id]}' code='error'>Can't list #{p}/#{r}/#{arch.to_s}: #{e.summary}</status>\n"
-                return
-              end
-            end
 
-            # expansion error
-            if buildinfo.has_element? :error
-              missingdeps << buildinfo.value(:error)
-              buildcode='failed' 
-            end
-
-            # get subpackages
-            buildinfo.each_subpack do |s|
-              packages[s.text] = 1
-            end
-
-            buildinfo.each_bdep do |b|
-              unless b.value(:preinstall)
-                unless packages.has_key? b.value(:name)
-                  missingdeps << b.name
-                end
+            buildinfo["package"].elements("pkgdep") do |b|
+              unless tpackages.has_key? b
+                missingdeps << b
               end
             end
             
-            # we track the binaries we built and what they depend on - to then filter out
-            # the own binaries from that list
-            tmp_md = Array.new
-            ownbinaries = Hash.new
-            uri = URI( "/build/#{CGI.escape(sproj.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/#{CGI.escape(action.source_package.to_s)}")
-            binaries = ActiveXML::Node.new( backend.direct_http( uri ) ) 
-            binaries.each_binary do |f|
-              # match to the repository filename
-              m = re_filename.match(f.value(:filename))
-              next unless m
-              filename_file = m[1]
-              filename_version = m[2]
-              filename_release = m[3]
-              filename_arch = m[4]
-              # work around as long as we build ia64 baselibs (soon to be gone)
-              next if filename_arch == "ia64"
-              ownbinaries[filename_file] = 1
-              md = nil
-              begin
-                md = bsrequest_repo_file(sproj.name, srep.name, filename_arch, filename_file, filename_version, filename_release)
-              rescue ActiveXML::Transport::NotFoundError
-                if filename_arch != arch && filename_arch != 'src'
-                  filename_arch = arch.to_s
-                  retry
-                end
-              rescue NotInRepo => e
-                render :text => "<status id='#{params[:id]}' code='building'>Not in repo #{f.value(:filename)} - #{e}</status>"
-                return
-              end
-              if md && md.size > 0 && filename_arch == arch
-                md.each do |pl|
-                  if pl.kind_of?(String)
-                    tmp_md << pl unless packages.has_key?(pl)
-                  else
-                    found = nil
-                    pl.each do |p|
-                      found = 1 if packages.has_key?(p)
-                    end
-                    if found.nil?
-                      tmp_md << pl.join('|')
-                    end
-                  end
-                end
-              end
-            end
-            tmp_md.each do |p|
-              missingdeps << p unless ownbinaries.has_key?(p)
-            end
           end
 
           # if the package does not appear in build history, check flags

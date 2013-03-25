@@ -74,6 +74,17 @@ class RequestControllerTest < ActionController::IntegrationTest
     # aka sleep 1
     Timecop.freeze(1)
 
+    # sneak in a test case for the status controller
+    get "/status/bsrequest?id=#{id}"
+    node = Xmlhash.parse(@response.body)
+    assert_equal({
+     "id"=>id,
+     "repository"=>
+       {"name"=>"10.2",
+        "arch"=>
+        [{"arch"=>"i586", "result"=>"unknown"},
+         {"arch"=>"x86_64", "result"=>"unknown"}]}}, node)
+
     # create more history entries decline, reopen and finally accept it
     post "/request/#{id}?cmd=changestate&newstate=declined&comment=notgood"
     assert_response :success
