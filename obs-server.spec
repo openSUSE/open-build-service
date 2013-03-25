@@ -20,39 +20,42 @@ Name:           obs-server
 Summary:        The Open Build Service -- Server Component
 License:        GPL-2.0 ; GPL-3.0
 Group:          Productivity/Networking/Web/Utilities
-Version:        2.3.1
-Release:        5
+Version: 2.3.1
+Release: 6
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 # git clone git://gitorious.org/opensuse/build-service.git build-service-1.7.54; tar cfvj obs-server-1.7.54.tar.bz2 --exclude=.git\* build-service-1.7.54/
 Source:         obs-server-%version.tar.bz2
+Patch1:	0001-webui-Only-finish-the-http-connection-in-the-error-h.patch
+Patch2:	0002-webui-Node-can-have-no-_data-resulting-in-such-messa.patch
+Patch3:	0003-webui-buildresult-check-seems-to-need-to-be-explicit.patch
+Patch4:	0004-webui-when-_data-is-empty-return-a-suitable-printabl.patch
+Patch5:	0005-backend-Add-sb2install-dependancy-handling.patch
+Patch6:	0006-build-Update-build-to-Mer-2012.02.28.patch
+Patch7:	0007-dist-Use-.log-instead-of-_log-for-apache-logs-so-the.patch
+Patch8:	0008-backend-Force-curl-to-use-no-proxy-to-get-the-bs_wor.patch
+Patch9:	0009-backend-Move-project-trees-to-_deleted-when-project-.patch
+Patch10:	0010-api-Allow-delayedjob-logging-to-work.patch
+Patch11:	0011-backend-Modify-copybuild-so-as-to-shortcircuit-unnec.patch
+Patch12:	0012-repserver-Make-prjlinks-a-bit-more-transparent.patch
+Patch13:	0013-backend-refactor-prjcopy-code-to-be-faster-and-less-.patch
+Patch14:	0014-Revert-changes-to-upstream-copybuild-leave-that-unto.patch
+Patch15:	0015-Use-the-copybinary-repo-server-API-Clarify-a-little-.patch
+Patch16:	0016-backend-Provide-OBS_WORKER_DISCRETE_IDS-to-permit-wo.patch
+Patch17:	0017-api-backend-Allow-per-package-build-flag-in-project-.patch
+Patch18:	0018-Allow-package-build-flags-in-prjmeta-to-override-arc.patch
+Patch19:	0019-Try-harder-to-preserve-flags.-Also-preserve-package-.patch
+Patch20:	0020-Correct-the-api-db-migration.patch
+Patch21:	0021-Remove-validation-from-Configuration-screen.patch
+Patch22:	0022-webui-fix-javascript-quoting-with-rails-3.2.8.patch
+Patch23:	0023-Worakaround-arch-mismatch-in-dod-armv7hl-metafile-vs.patch
+Patch24:	0024-Enable-HTTPS-support-for-the-benifit-of-https-dod-re.patch
+Patch25:	0025-Fix-live-build-log-javascript-quoting-with-rails-3.patch
+Patch26:	0026-Fix-tmpfs-umount-issues.patch
+Patch27:	0027-fix-64bit-debian-dod.patch
 # git clone git://gitorious.org/opensuse/themes.git opensuse-themes-0.9; tar cfvj opensuse-themes-0.9.tar.bz2 --exclude=.git\* opensuse-themes-0.9
 Source1:        opensuse-themes-%version.tar.bz2
-Patch1: 0001-webui-Only-finish-the-http-connection-in-the-error-h.patch
-Patch2: 0002-webui-Node-can-have-no-_data-resulting-in-such-messa.patch
-Patch3: 0003-webui-buildresult-check-seems-to-need-to-be-explicit.patch
-Patch4: 0004-webui-when-_data-is-empty-return-a-suitable-printabl.patch
-Patch5: 0005-backend-Add-sb2install-dependancy-handling.patch
 #Patch6: 0006-build-Update-build-to-Mer-2012.02.28.patch
-Patch7: 0007-dist-Use-.log-instead-of-_log-for-apache-logs-so-the.patch
-Patch8: 0008-backend-Force-curl-to-use-no-proxy-to-get-the-bs_wor.patch
-Patch9: 0009-backend-Move-project-trees-to-_deleted-when-project-.patch
-Patch10: 0010-api-Allow-delayedjob-logging-to-work.patch
-Patch11: 0011-backend-Modify-copybuild-so-as-to-shortcircuit-unnec.patch
-Patch12: 0012-repserver-Make-prjlinks-a-bit-more-transparent.patch
-Patch13: 0013-backend-refactor-prjcopy-code-to-be-faster-and-less-.patch
-Patch14: 0014-Revert-changes-to-upstream-copybuild-leave-that-unto.patch
-Patch15: 0015-Use-the-copybinary-repo-server-API-Clarify-a-little-.patch
-Patch16: 0016-backend-Provide-OBS_WORKER_DISCRETE_IDS-to-permit-wo.patch
-Patch17: 0017-api-backend-Allow-per-package-build-flag-in-project-.patch
-Patch18: 0018-Allow-package-build-flags-in-prjmeta-to-override-arc.patch
-Patch19: 0019-Try-harder-to-preserve-flags.-Also-preserve-package-.patch
-Patch20: 0020-Correct-the-api-db-migration.patch
-Patch21: 0021-Remove-validation-from-Configuration-screen.patch
-Patch22: 0022-webui-fix-javascript-quoting-with-rails-3.2.8.patch
-Patch23: 0023-Worakaround-arch-mismatch-in-dod-armv7hl-metafile-vs.patch
-Patch24: 0024-Enable-HTTPS-support-for-the-benifit-of-https-dod-re.patch
-Patch25: 0025-Fix-live-build-log-javascript-quoting-with-rails-3.patch
 
 BuildRequires:  python-devel
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
@@ -234,8 +237,8 @@ obs_project_update is a tool to copy a packages of a project from one obs to ano
 Authors:       Susanne Oberhauser, Martin Mohring
 
 #--------------------------------------------------------------------------------
-%prep
 # http://www.rpm.org/max-rpm/s1-rpm-inside-macros.html#S3-RPM-INSIDE-SETUP-MULTI-SOURCE
+%prep
 %setup -T -q -c -n opensuse-themes -a 1
 %setup -D -q -n src
 %patch1 -p1
@@ -243,7 +246,7 @@ Authors:       Susanne Oberhauser, Martin Mohring
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-#%patch6 -p1
+%patch6 -p1
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
@@ -259,6 +262,13 @@ Authors:       Susanne Oberhauser, Martin Mohring
 %patch19 -p1
 %patch20 -p1
 %patch21 -p1
+%patch22 -p1
+%patch23 -p1
+%patch24 -p1
+%patch25 -p1
+%patch26 -p1
+%patch27 -p1
+
 # drop build script, we require the installed one from own package
 rm -rf src/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
