@@ -995,4 +995,19 @@ while (1) {
     exec($0);
     die("$0: $!\n");
   }
+  if (-e "$rundir/bs_dispatch.dumpstate") {
+    my $state = {
+      'infocache' => \%infocache,
+      'badhost' => \%badhost,
+      'newestsrcchange' => \%newestsrcchange,
+    };
+    BSUtil::store("$rundir/bs_dispatch.state.new", "$rundir/bs_dispatch.state", $state);
+    unlink("$rundir/bs_dispatch.dumpstate");
+    print "dumped state to $rundir/bs_dispatch.state ...\n";
+  }
+  if (-e "$rundir/bs_dispatch.dropbadhosts") {
+    unlink("$rundir/bs_dispatch.dropbadhosts");
+    print "removing all badhost entries...\n";
+    %badhost = ();
+  }
 }
