@@ -324,11 +324,14 @@ sub addrepo_scan {
     if (@doddata) {
       my $doddata = $doddata[0];
       # due to legacy reasons armv7hl rpms are handled by an armv8el scheduler and armv7l rpms by armv7el scheduler
+      # also debian repos have arch amd64 for x86_64 rpms
       my $dod_arch = $myarch;
       if ( $myarch eq "armv8el") {
         $dod_arch = "armv7hl";
       } elsif ( $myarch eq "armv7el" ) {
         $dod_arch = "armv7l";
+      } elsif ( $myarch eq "x86_64" && $doddata->{'mtype'} eq "debmd" ) {
+        $dod_arch = "amd64";
       }
       eval {$cache = Meta::parse("$dir/$doddata->{'metafile'}", $doddata->{'mtype'}, { 'arch' => [ $dod_arch ] })};
       if ($@) {
