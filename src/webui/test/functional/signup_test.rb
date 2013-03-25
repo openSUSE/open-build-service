@@ -11,12 +11,5 @@ class SignupTest < ActionDispatch::IntegrationTest
       login_user("tom", "thunder")
     end
 
-    def test_setup_opensuse_org
-      # first login as admin is redirected twice and does not get the flash
-      login_user("king", "sunflower", false)
-
-      page.must_have_text("Connect a remote Open Build Service instance")
-    end
-
 end
 
