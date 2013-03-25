@@ -122,6 +122,9 @@ sub getcodemd5 {
 
 my $workerdircache = {};
 my $builddircache = {};
+my $workercode;
+my $buildcode;
+my $lastcodechecktime;
 
 my %badhost;
 my %newestsrcchange;
@@ -156,8 +159,12 @@ sub assignjob {
   my $jobid = Digest::MD5::md5_hex($infoxml);
   my $info = XMLin($BSXML::buildinfo, $infoxml);
 
-  my $workercode = getcodemd5('worker', $workerdircache);
-  my $buildcode = getcodemd5('build', $builddircache);
+  my $now = time();
+  if (!$lastcodechecktime || $now - $lastcodechecktime > 20 || $now - $lastcodechecktime < 0) {
+    $workercode = getcodemd5('worker', $workerdircache);
+    $buildcode = getcodemd5('build', $builddircache);
+    $lastcodechecktime = $now;
+  }
 
   # get the worker data
   my $worker = readxml("$workersdir/idle/$idlename", $BSXML::worker, 1);
