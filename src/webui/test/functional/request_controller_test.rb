@@ -8,13 +8,14 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_my_involved_requests
-    visit "/home/requests?user=Iggy"
+    visit "/home/requests?user=king"
 
     page.must_have_selector "table#request_table tr"
 
     # walk over the table
-    rs = find('tr#tr_request_1000_1').find('.request_source')
-    rs.find(:xpath, '//a[@title="home:Iggy:branches:kde4"]').must_have_text "~:kde4"
+    rs = find('tr#tr_request_997_1').find('.request_target')
+    rs.find(:xpath, '//a[@title="kde4"]').must_have_text "kde4"
+    rs.find(:xpath, '//a[@title="kdelibs"]').must_have_text "kdelibs"
   end
 
   test "can request role addition for projects" do
