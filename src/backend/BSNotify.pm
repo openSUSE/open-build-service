@@ -32,8 +32,12 @@ sub notify($$) {
 
   return unless $BSConfig::notification_plugin;
 
-  my $notifier = &loadPackage($BSConfig::notification_plugin);
-  $notifier->notify($type, $paramRef );
+  my @hostnames = split(/\s+/, $BSConfig::notification_plugin);
+
+  for my $i (0..@hostnames -1){
+      my $notifier = &loadPackage($hostnames[$i]);
+      $notifier->notify($type, $paramRef );
+  }
 
 }
 
