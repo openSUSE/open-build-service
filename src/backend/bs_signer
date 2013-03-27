@@ -548,7 +548,7 @@ sub getflavor {
   my @dir = ls("$jobsdir/$arch/$job:dir");
   return undef unless @dir;
   return 'iso' if grep {/\.iso$/} @dir;
-  return 'rassign' if grep {/\.rsasign$/} @dir;
+  return 'rsasign' if grep {/\.rsasign$/} @dir;
   return undef;
 }
 
