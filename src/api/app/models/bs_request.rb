@@ -213,7 +213,7 @@ class BsRequest < ActiveRecord::Base
       if state == :new || state == :review
         self.reviews.each do |review|
           if review.state != :accepted
-            # FIXME2.4 review history?
+            # FIXME3.0 review history?
             review.state = :new
             review.save!
             self.state = :review
@@ -377,6 +377,7 @@ class BsRequest < ActiveRecord::Base
     review_states = opts[:review_states] || [ "new" ]
 
     rel = BsRequest.joins(:bs_request_actions)
+    c = ActiveRecord::Base.connection
     
     # filter for request state(s)
     unless states.blank?
@@ -388,24 +389,22 @@ class BsRequest < ActiveRecord::Base
       rel = rel.where("bs_request_actions.action_type in (?)", types)
     end
 
-    # FIXME2.4 this needs to be protected from SQL injection before 2.4
-
     unless opts[:project].blank?
       inner_or = []
 
       if opts[:package].blank?
         if roles.count == 0 or roles.include? "source"
           if opts[:subprojects].blank?
-            inner_or << "bs_request_actions.source_project='#{opts[:project]}'"
+            inner_or << "bs_request_actions.source_project=#{c.quote(opts[:project])}"
           else
-            inner_or << "(bs_request_actions.source_project like '#{opts[:project]}:%')"
+            inner_or << "(bs_request_actions.source_project like #{c.quote(opts[:project]+':%')})"
           end
         end
         if roles.count == 0 or roles.include? "target"
           if opts[:subprojects].blank?
-            inner_or << "bs_request_actions.target_project='#{opts[:project]}'"
+            inner_or << "bs_request_actions.target_project=#{c.quote(opts[:project])}"
           else
-            inner_or << "(bs_request_actions.target_project like '#{opts[:project]}:%')"
+            inner_or << "(bs_request_actions.target_project like #{c.quote(opts[:project]+':%')})"
           end
         end
 
@@ -413,22 +412,22 @@ class BsRequest < ActiveRecord::Base
           if states.count == 0 or states.include? "review"
             review_states.each do |r|
               rel = rel.includes(:reviews)
-              inner_or << "(reviews.state='#{r}' and reviews.by_project='#{opts[:project]}')"
+              inner_or << "(reviews.state=#{c.quote(r)} and reviews.by_project=#{c.quote(opts[:project])})"
             end
           end
         end
       else
         if roles.count == 0 or roles.include? "source"
-          inner_or << "(bs_request_actions.source_project='#{opts[:project]}' and bs_request_actions.source_package='#{opts[:package]}')" 
+          inner_or << "(bs_request_actions.source_project=#{c.quote(opts[:project])} and bs_request_actions.source_package=#{c.quote(opts[:package])})"
         end
         if roles.count == 0 or roles.include? "target"
-          inner_or << "(bs_request_actions.target_project='#{opts[:project]}' and bs_request_actions.target_package='#{opts[:package]}')" 
+          inner_or << "(bs_request_actions.target_project=#{c.quote(opts[:project])} and bs_request_actions.target_package=#{c.quote(opts[:package])})"
         end
         if roles.count == 0 or roles.include? "reviewer"
           if states.count == 0 or states.include? "review"
             review_states.each do |r|
               rel = rel.includes(:reviews)
-              inner_or << "(reviews.state='#{r}' and reviews.by_project='#{opts[:project]}' and reviews.by_package='#{opts[:package]}')"
+              inner_or << "(reviews.state=#{c.quote(r)} and reviews.by_project=#{c.quote(opts[:project])} and reviews.by_package=#{c.quote(opts[:package])})"
             end
           end
         end
@@ -444,7 +443,7 @@ class BsRequest < ActiveRecord::Base
       user = User.get_by_login(opts[:user])
       # user's own submitted requests
       if roles.count == 0 or roles.include? "creator"
-        inner_or << "bs_requests.creator = '#{user.login}'"
+        inner_or << "bs_requests.creator = #{c.quote(user.login)}"
       end
 
       # find requests where user is maintainer in target project
@@ -463,7 +462,7 @@ class BsRequest < ActiveRecord::Base
         review_states.each do |r|
           
           # requests where the user is reviewer or own requests that are in review by someone else
-          or_in_and = [ "reviews.by_user='#{user.login}'" ]
+          or_in_and = [ "reviews.by_user=#{c.quote(user.login)}" ]
           # include all groups of user
           usergroups = user.groups.map { |g| "'#{g.title}'" }
           or_in_and << "reviews.by_group in (#{usergroups.join(',')})" unless usergroups.blank?
@@ -477,7 +476,7 @@ class BsRequest < ActiveRecord::Base
             or_in_and << "(reviews.by_project='#{ip.project.name}' and reviews.by_package='#{ip.name}')"
           end
 
-          inner_or << "(reviews.state='#{r}' and (#{or_in_and.join(" or ")}))"
+          inner_or << "(reviews.state=#{c.quote(r)} and (#{or_in_and.join(" or ")}))"
         end
       end
 
