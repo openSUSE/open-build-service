@@ -603,7 +603,7 @@ class RequestController < ApplicationController
           rel = rel.where(bs_request_actions: { target_package: action.target_package } )
         else
           tpkgprefix = action.target_package.gsub(/\.[^\.]*$/, '')
-          rel = rel.where("bs_request_actions.target_package = ? or bs_request_actions.target_package like '#{tpkgprefix}%'", action.target_package)
+          rel = rel.where("bs_request_actions.target_package = ? or bs_request_actions.target_package like '#{tpkgprefix}.%'", action.target_package)
         end
 
         # run search
