@@ -2789,7 +2789,8 @@ if (!$ex) {
     sysseek(LL, -10240, 2);
     sysread(LL, $data, 10240);
     close LL;
-    if ($data =~ /^mount: error while loading shared libraries:/m) {
+    if ($data =~ /^mount: error while loading shared libraries:/m
+        || $data =~ /^execve: Exec format error/m) {
       print "Wait ... spotted failed build. Host is good.\n";
       $code = 'failed';
     }
