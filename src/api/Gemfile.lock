@@ -88,6 +88,7 @@ GEM
     rake (0.9.2.2)
     rdoc (3.12)
       json (~> 1.4)
+    ruby-ldap (0.9.12)
     simplecov (0.7.1)
       multi_json (~> 1.0)
       simplecov-html (~> 0.7.1)
@@ -136,6 +137,7 @@ DEPENDENCIES
   rails-api
   rake (~> 0.9.2)
   rdoc
+  ruby-ldap
   simplecov-rcov
   timecop
   webmock (>= 1.9.0)
