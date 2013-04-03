@@ -38,7 +38,7 @@ GEM
       rack-test (>= 0.5.4)
       selenium-webdriver (~> 2.0)
       xpath (~> 1.0.0)
-    capybara-webkit (0.14.1)
+    capybara-webkit (0.14.2)
       capybara (~> 2.0, >= 2.0.2)
       json
     capybara_minitest_spec (1.0.0)
