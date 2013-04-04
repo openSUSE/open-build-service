@@ -7,6 +7,7 @@ class UserController < ApplicationController
   before_filter :require_login, :only => [:edit, :save]
   before_filter :check_user, :only => [:edit, :save, :change_password, :register, :delete, :confirm, :lock, :admin]
   before_filter :overwrite_user, :only => [:edit]
+  before_filter :require_admin, :only => [:edit]
   
   def logout
     logger.info "Logging out: #{session[:login]}"
@@ -66,11 +67,7 @@ class UserController < ApplicationController
     end
     flash[:success] = "User data for user '#{person.login}' successfully updated."
     Rails.cache.delete("person_#{person.login}")
-    if @user and @user.is_admin?
-      redirect_to :controller => :configuration, :action => :users
-    else
-      redirect_to :controller => "home", :user => params[:user]
-    end
+    redirect_back_or_to :controller => "home", :action => :index
   end
 
   def edit
@@ -155,29 +152,28 @@ class UserController < ApplicationController
   def register_user
   end
 
+  def password_dialog
+    check_ajax
+  end
+
   def change_password
     # check the valid of the params  
-    if not params[:current_password] == session[:password]
+    if not params[:password] == session[:password]
       errmsg = "The value of current password does not match your current password. Please enter the password and try again."
     end
-    if not params[:new_password] == params[:password_confirmation]
-      errmsg = "The new passwords do not match. Please enter the password and try again."
+    if not params[:new_password] == params[:repeat_password]
+      errmsg = "The passwords do not match, please try again."
     end    
-    if params[:current_password] == params[:new_password]
-      errmsg = "The new password is the same as your current password. Please enter the new password again."
+    if params[:password] == params[:new_password]
+      errmsg = "The new password is the same as your current password. Please enter a new password."
     end
     if errmsg
       flash[:error] = errmsg
-      redirect_to :controller => :user, :action => :change_my_password
+      redirect_to :controller => :home, :action => :index
       return
     end
 
-    # Replace all '\n' characters (not just the last one) that Ruby thinks belong into
-    # Base64 encoded strings. Happens when people enter lengthy passwords with more than
-    # 60 characters (the Base64 module's magically hardcoded linebreak default).
-    new_password = Base64.encode64(params[:new_password]).gsub("\n", "")
-    changepwd = Userchangepasswd.new(:login => session[:login], :password => new_password)
-
+    changepwd = Userchangepasswd.new(:login => session[:login], :password => params[:new_password])
     begin
       if changepwd.save(:create => true)
         session[:password] = params[:new_password]
@@ -190,8 +186,7 @@ class UserController < ApplicationController
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
     end
-
-    redirect_to :controller => :user, :action => :change_my_password
+    redirect_to :controller => :home, :action => :index
   end 
 
   def autocomplete
