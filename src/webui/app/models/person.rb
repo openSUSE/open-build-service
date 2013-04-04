@@ -17,7 +17,7 @@ class Person < ActiveXML::Node
       state = opt[:state] if opt.has_key? :state
       globalrole = ""
       globalrole = opt[:globalrole] if opt.has_key? :globalrole
-      
+
       reply = <<-EOF
         <person>
            <login>#{opt[:login]}</login>
@@ -66,6 +66,10 @@ class Person < ActiveXML::Node
 
   def login
     @login || self.to_hash["login"]
+  end
+  
+  def globalrole
+    self.to_hash["globalrole"]
   end
 
   def to_str
