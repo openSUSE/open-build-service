@@ -222,30 +222,29 @@ OBSWebUI::Application.routes.draw do
 
   controller :user do
   
-    match 'user/:user/edit' => :edit
-    match 'user/:user/login' => :login
-    match 'user/:user/logout' => :logout
-    match 'user/save_dialog' => :save_dialog
+    match 'user/register' => :register, via: :post
+    match 'user/register_user' => :register_user
+
+    match 'user/login' => :login
+    match 'user/logout' => :logout
+
     match 'user/save' => :save, via: :post
+    match 'user/save_dialog' => :save_dialog
+
+    match 'user/change_password' => :change_password, via: :post
+    match 'user/password_dialog' => :password_dialog
+
     match 'user/confirm' => :confirm, via: :post
     match 'user/lock' => :lock, via: :post
     match 'user/admin' => :admin, via: :post
     match 'user/delete' => :delete, via: :delete
-    match 'user/change_password' => :change_password, via: :post
+
     match 'user/autocomplete' => :autocomplete
     match 'user/tokens' => :tokens
   
     match 'user/do_login' => :do_login
-    match 'user/edit' => :edit
-    match 'user/:user/edit' => :edit
-    match 'user/register' => :register, via: :post
-    match 'user/register_user' => :register_user
-    match 'user/login' => :login
-    match 'user/logout' => :logout
-    match 'user/save_dialog' => :save_dialog
-    match 'user/save' => :save, via: :post
-    match 'user/change_password' => :change_password, via: :post
-    match 'user/autocomplete' => :autocomplete
+    match 'configuration/users/:user' => :edit
+
   end
 
   controller :group do
