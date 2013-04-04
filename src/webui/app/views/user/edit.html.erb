@@ -1,10 +1,14 @@
 <% @pagetitle = "Edit User Data" %>
+<% @crumb_list = [] %>
+<% @crumb_list << link_to('Configuration', :controller => 'configuration', :action => :index) -%>
+<% @crumb_list << link_to('User Management', :controller => 'configuration', :action => :users) -%>
+<% @crumb_list << @pagetitle -%>
 
 <h2>Editing User Data for User <%= @displayed_user.login %></h2>
 
   <%= form_tag(:action => 'save') do %>
     <p>
-     <input id="user" name="user" type="hidden" value="<%= @displayed_user.login %>" />     
+     <input id="user" name="user" type="hidden" value="<%= @displayed_user.login %>" />
      <%= label_tag :realname, 'Name:' %><br/>
      <%= text_field_tag :realname, @displayed_user.realname %>     
     </p>
