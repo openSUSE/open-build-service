@@ -7,8 +7,6 @@ require_gem 'active_support'
 require 'erb'
 include ERB::Util
 
-require "ftools"
-
 $LOAD_PATH << File.dirname( $0 )
 
 require "rest.rb"
