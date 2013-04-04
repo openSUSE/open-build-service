@@ -1,3 +1,6 @@
+* Thu Apr 2013 David Greaves <david@dgreaves.com> - 2.3.1-mer7
+- Don't use ftools
+
 * Mon Mar 2013 David Greaves <david@dgreaves.com> - 2.3.1-mer6
  - fix 64bit debian dod
  - Fix tmpfs umount issues

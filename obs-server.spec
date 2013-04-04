@@ -21,7 +21,7 @@ Summary:        The Open Build Service -- Server Component
 License:        GPL-2.0 ; GPL-3.0
 Group:          Productivity/Networking/Web/Utilities
 Version: 2.3.1
-Release: 6
+Release: mer7
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 # git clone git://gitorious.org/opensuse/build-service.git build-service-1.7.54; tar cfvj obs-server-1.7.54.tar.bz2 --exclude=.git\* build-service-1.7.54/
@@ -53,6 +53,7 @@ Patch24:	0024-Enable-HTTPS-support-for-the-benifit-of-https-dod-re.patch
 Patch25:	0025-Fix-live-build-log-javascript-quoting-with-rails-3.patch
 Patch26:	0026-Fix-tmpfs-umount-issues.patch
 Patch27:	0027-fix-64bit-debian-dod.patch
+Patch28:	0028-Don-t-use-ftools.patch
 # git clone git://gitorious.org/opensuse/themes.git opensuse-themes-0.9; tar cfvj opensuse-themes-0.9.tar.bz2 --exclude=.git\* opensuse-themes-0.9
 Source1:        opensuse-themes-%version.tar.bz2
 #Patch6: 0006-build-Update-build-to-Mer-2012.02.28.patch
@@ -239,6 +240,8 @@ Authors:       Susanne Oberhauser, Martin Mohring
 #--------------------------------------------------------------------------------
 # http://www.rpm.org/max-rpm/s1-rpm-inside-macros.html#S3-RPM-INSIDE-SETUP-MULTI-SOURCE
 %prep
+# Adjusting %%setup since git-pkg unpacks to src/
+# %%setup -T -q -c -n opensuse-themes -a 1
 %setup -T -q -c -n opensuse-themes -a 1
 %setup -D -q -n src
 %patch1 -p1
@@ -246,7 +249,7 @@ Authors:       Susanne Oberhauser, Martin Mohring
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-%patch6 -p1
+#%patch6 -p1
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
@@ -268,6 +271,7 @@ Authors:       Susanne Oberhauser, Martin Mohring
 %patch25 -p1
 %patch26 -p1
 %patch27 -p1
+%patch28 -p1
 
 # drop build script, we require the installed one from own package
 rm -rf src/build
