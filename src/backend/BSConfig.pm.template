@@ -60,8 +60,8 @@ our $repodownload = "http://$hostname/repositories";
 #our $hermesserver = "http://$hostname/hermes";
 #our $hermesnamespace = "OBS";
 #
-# Notification Plugin
-#our $notification_plugin = "notify_hermes";
+# Notification Plugin, multiple plugins supported, separated by space
+#our $notification_plugin = "notify_hermes notify_rabbitmq";
 #
 #FIXME2.4 belongs in API
 # Does the notify plugin supports multiple actions?
