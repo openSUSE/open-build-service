@@ -38,6 +38,7 @@ class BsRequestAction < ActiveRecord::Base
     errors.add(:source_package, "is invalid package name") if source_package && !Package.valid_name?(source_package)
     errors.add(:target_project, "is invalid project name") if target_project && !Project.valid_name?(target_project)
     errors.add(:source_project, "is invalid project name") if source_project && !Project.valid_name?(source_project)
+
     # TODO to be continued
   end
 
@@ -404,6 +405,118 @@ class BsRequestAction < ActiveRecord::Base
       }
     end
     return parsed_sourcediff
+  end
+  
+  class LackingMaintainership < APIException
+    setup "lacking_maintainership", 403, "Creating a submit request action with options requires maintainership in source package"
+  end
+
+  def default_reviewers
+    reviews = []
+    return reviews unless self.target_project
+
+    tprj = Project.get_by_name self.target_project
+    tpkg = nil
+    if self.target_package
+      if self.action_type == :maintenance_release
+        # use orignal/stripped name and also GA projects for maintenance packages.
+        # But do not follow project links, if we have a branch target project, like in Evergreen case
+        if tprj.find_attribute("OBS", "BranchTarget")
+          tpkg = tprj.packages.find_by_name self.target_package.gsub(/\.[^\.]*$/, '')
+        else
+          tpkg = tprj.find_package self.target_package.gsub(/\.[^\.]*$/, '')
+        end
+      elsif [ :set_bugowner, :add_role, :change_devel, :delete ].include? self.action_type 
+        # target must exists
+        tpkg = tprj.packages.find_by_name! self.target_package
+      else
+        # just the direct affected target
+        tpkg = tprj.packages.find_by_name self.target_package
+      end
+    else
+      if self.source_package
+        tpkg = tprj.packages.find_by_name self.source_package
+      end
+    end
+    
+    if self.source_project
+      # if the user is not a maintainer if current devel package, the current maintainer gets added as reviewer of this request
+      if self.action_type == :change_devel and tpkg.develpackage and not User.current.can_modify_package?(tpkg.develpackage, 1)
+        reviews.push( tpkg.develpackage )
+      end
+
+      if self.action_type != :maintenance_release
+        # Creating requests from packages where no maintainer right exists will enforce a maintainer review
+        # to avoid that random people can submit versions without talking to the maintainers 
+        # projects may skip this by setting OBS:ApprovedRequestSource attributes
+        if self.source_package
+          spkg = Package.find_by_project_and_name self.source_project, self.source_package
+          if spkg and not User.current.can_modify_package? spkg
+            if self.action_type == :submit
+              if self.sourceupdate or self.updatelink
+                # FIXME: completely misplaced in this function
+                raise LackingMaintainership.new
+              end
+            end
+            if  not spkg.project.find_attribute("OBS", "ApprovedRequestSource") and 
+                not spkg.find_attribute("OBS", "ApprovedRequestSource")
+              reviews.push( spkg )
+            end
+          end
+        else
+          sprj = Project.find_by_name self.source_project
+          if sprj and not User.current.can_modify_project? sprj and not sprj.find_attribute("OBS", "ApprovedRequestSource")
+            if self.action_type == :submit
+              if self.sourceupdate or self.updatelink
+                raise LackingMaintainership.new
+              end
+            end
+            if  not sprj.find_attribute("OBS", "ApprovedRequestSource")
+              reviews.push( sprj )
+            end
+          end
+        end
+      end
+    end
+    
+    # find reviewers in target package
+    if tpkg
+      reviews += find_reviewers(tpkg)
+    end
+    # project reviewers get added additionaly - might be dups
+    if tprj
+      reviews += find_reviewers(tprj)
+    end
+    
+    return reviews.uniq
+  end
+
+  #
+  # find default reviewers of a project/package via role
+  # 
+  def find_reviewers(obj)
+    # obj can be a project or package object
+    reviewers = []
+    
+    # check for reviewers in a package first
+    if obj.class == Project
+      obj.project_user_role_relationships.where(role_id: Role.get_by_title("reviewer").id ).each do |r|
+        reviewers << User.find(r.bs_user_id)
+      end
+      obj.project_group_role_relationships.where(role_id: Role.get_by_title("reviewer").id ).each do |r|
+        reviewers << Group.find(r.bs_group_id)
+      end
+    elsif obj.class == Package
+      obj.package_user_role_relationships.joins(:role).where("roles.title = 'reviewer'").select("bs_user_id").each do |r|
+        reviewers << User.find(r.bs_user_id)
+      end
+      obj.package_group_role_relationships.where(role_id: Role.get_by_title("reviewer").id ).each do |r|
+        reviewers << Group.find(r.bs_group_id)
+      end
+      reviewers += find_reviewers(obj.project)
+    end
+    
+    return reviewers
   end
 
 end
