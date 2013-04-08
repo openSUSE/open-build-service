@@ -439,14 +439,16 @@ sub killjob {
     my $js = {'code' => 'deleting'};
     if (BSUtil::lockcreatexml(\*F, "$myjobsdir/.sched.$$", "$myjobsdir/$job:status", $js, $BSXML::jobstatus)) {
       print "        (job was not building)\n";
+      if (-d "$myjobsdir/$job:dir") {
+	unlink("$myjobsdir/$job:dir/$_") for ls("$myjobsdir/$job:dir");
+	rmdir("$myjobsdir/$job:dir");
+      }
       unlink("$myjobsdir/$job");
       unlink("$myjobsdir/$job:status");
       close F;
       delete $ourjobs{$job};
       return;
     }
-    # lock failed, dispatcher was faster!
-    die("$myjobsdir/$job:status: $!\n") unless -e "$myjobsdir/$job:status";
   }
   my $js = BSUtil::lockopenxml(\*F, '<', "$myjobsdir/$job:status", $BSXML::jobstatus, 1);
   if (!$js) {
@@ -489,6 +491,10 @@ sub killscheduled {
   local *F;
   my $js = {'code' => 'deleting'};
   if (BSUtil::lockcreatexml(\*F, "$myjobsdir/.sched.$$", "$myjobsdir/$job:status", $js, $BSXML::jobstatus)) {
+    if (-d "$myjobsdir/$job:dir") {
+      unlink("$myjobsdir/$job:dir/$_") for ls("$myjobsdir/$job:dir");
+      rmdir("$myjobsdir/$job:dir");
+    }
     unlink("$myjobsdir/$job");
     unlink("$myjobsdir/$job:status");
     close F;
