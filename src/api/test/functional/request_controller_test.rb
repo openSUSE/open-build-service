@@ -40,6 +40,8 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_submit_request_of_new_package
+    wait_for_scheduler_start
+
     prepare_request_with_user "Iggy", "asdfasdf"
     post "/source/home:Iggy/NEW_PACKAGE", :cmd => :branch
     assert_response 404

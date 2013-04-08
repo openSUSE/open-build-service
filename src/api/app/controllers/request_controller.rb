@@ -1,3 +1,4 @@
+
 require 'base64'
 
 include MaintenanceHelper
@@ -100,62 +101,6 @@ class RequestController < ApplicationController
   end
 
   private
-
-  #
-  # find default reviewers of a project/package via role
-  # 
-  def find_reviewers(obj)
-    # obj can be a project or package object
-    reviewers = Array.new(0)
-    prj = nil
-
-    # check for reviewers in a package first
-    if obj.class == Project
-      prj = obj
-    elsif obj.class == Package
-      if defined? obj.package_user_role_relationships
-        obj.package_user_role_relationships.joins(:role).where("roles.title = 'reviewer'").select("bs_user_id").each do |r|
-          reviewers << User.find(r.bs_user_id)
-        end
-      end
-      prj = obj.project
-    else
-    end
-
-    # add reviewers of project in any case
-    if defined? prj.project_user_role_relationships
-      prj.project_user_role_relationships.where(role_id: Role.get_by_title("reviewer").id ).each do |r|
-        reviewers << User.find(r.bs_user_id)
-      end
-    end
-    return reviewers
-  end
-
-  def find_review_groups(obj)
-    # obj can be a project or package object
-    review_groups = Array.new(0)
-    prj = nil
-    # check for reviewers in a package first
-    if obj.class == Project
-      prj = obj
-    elsif obj.class == Package
-      if defined? obj.package_group_role_relationships
-        obj.package_group_role_relationships.where(role_id: Role.get_by_title("reviewer").id ).each do |r|
-          review_groups << Group.find(r.bs_group_id)
-        end
-      end
-      prj = obj.project
-    else
-    end
-
-    # add reviewers of project in any case
-    if defined? prj.project_group_role_relationships
-      prj.project_group_role_relationships.where(role_id: Role.get_by_title("reviewer").id ).each do |r|
-        review_groups << Group.find(r.bs_group_id)
-      end
-    end
-    return review_groups
-  end
 
   def create_expand_package(action, packages)
 
@@ -379,7 +324,7 @@ class RequestController < ApplicationController
 
 
   def create_expand_targets(req)
-    per_package_locking = nil
+    per_package_locking = false
 
     newactions = []
     oldactions = []
@@ -420,7 +365,7 @@ class RequestController < ApplicationController
         packages = Array.new
         if action.source_package
           packages << Package.get_by_project_and_name( action.source_project, action.source_package )
-          per_package_locking = 1
+          per_package_locking = true
         else
           packages = Project.get_by_name(action.source_project).packages
         end
@@ -647,10 +592,14 @@ class RequestController < ApplicationController
     return true
   end
 
+  class LackingReleaseMaintainership < APIException
+    setup "lacking_maintainership", 403
+  end
+
   # POST /request?cmd=create
   def create_create
     # refuse request creation for anonymous users
-    if @http_user == http_anonymous_user
+    if User.current == http_anonymous_user
       render_error :status => 401, :errorcode => 'anonymous_user',
         :message => "Anonymous user is not allowed to create requests"
       return
@@ -676,128 +625,44 @@ class RequestController < ApplicationController
     #
     # check targets for defined default reviewers
     reviewers = []
-    review_groups = []
-    review_packages = []
 
     req.bs_request_actions.each do |action|
-      tprj = nil
-      tpkg = nil
+      reviewers += action.default_reviewers
 
-      if action.target_project
-        tprj = Project.get_by_name action.target_project
-        if action.target_package
-          if action.target_repository and action.action_type == :delete
-            render_error :status => 400, :errorcode => "invalid_request",
-              :message => "It is not possible to remove a package and a repository in the same action"
-            return
-          end
-          if action.action_type == :maintenance_release
-            # use orignal/stripped name and also GA projects for maintenance packages.
-            # But do not follow project links, if we have a branch target project, like in Evergreen case
-            if tprj.find_attribute("OBS", "BranchTarget")
-              tpkg = tprj.packages.find_by_name action.target_package.gsub(/\.[^\.]*$/, '')
-            else
-              tpkg = tprj.find_package action.target_package.gsub(/\.[^\.]*$/, '')
-            end
-          elsif [ :set_bugowner, :add_role, :change_devel, :delete ].include? action.action_type 
-            # target must exists
-            tpkg = tprj.packages.find_by_name! action.target_package
-          else
-            # just the direct affected target
-            tpkg = tprj.packages.find_by_name action.target_package
-          end
+      if action.action_type == :maintenance_release
+        # creating release requests is also locking the source package, therefore we require write access there.
+        spkg = Package.find_by_project_and_name action.source_project, action.source_package
+        unless spkg or not User.current.can_modify_package? spkg
+          raise LackingReleaseMaintainership.new "Creating a release request action requires maintainership in source package"
+        end
+        object = nil
+        if per_package_locking
+          object = spkg
         else
-          if action.source_package
-            tpkg = tprj.packages.find_by_name action.source_package
-          end
+          object = spkg.project
         end
-      end
-      if action.source_project
-        # if the user is not a maintainer if current devel package, the current maintainer gets added as reviewer of this request
-        if action.action_type == :change_devel and tpkg.develpackage and not @http_user.can_modify_package?(tpkg.develpackage, 1)
-          review_packages.push({ :by_project => tpkg.develpackage.project.name, :by_package => tpkg.develpackage.name })
+        unless object.enabled_for?('lock', nil, nil)
+          f = object.flags.find_by_flag_and_status("lock", "disable")
+          object.flags.delete(f) if f # remove possible existing disable lock flag
+          object.flags.create(:status => "enable", :flag => "lock")
+          object.store
         end
-
-        if action.action_type == :maintenance_release
-          # creating release requests is also locking the source package, therefore we require write access there.
-          spkg = Package.find_by_project_and_name action.source_project, action.source_package
-          unless spkg or not @http_user.can_modify_package? spkg
-            render_error :status => 403, :errorcode => "lacking_maintainership",
-              :message => "Creating a release request action requires maintainership in source package"
-            return
-          end
-          object = nil
-          if per_package_locking
-            object = spkg
-          else
-            object = spkg.project
-          end
-          unless object.enabled_for?('lock', nil, nil)
-            f = object.flags.find_by_flag_and_status("lock", "disable")
-            object.flags.delete(f) if f # remove possible existing disable lock flag
-            object.flags.create(:status => "enable", :flag => "lock")
-            object.store
-          end
-        else
-          # Creating requests from packages where no maintainer right exists will enforce a maintainer review
-          # to avoid that random people can submit versions without talking to the maintainers 
-          # projects may skip this by setting OBS:ApprovedRequestSource attributes
-          if action.source_package
-            spkg = Package.find_by_project_and_name action.source_project, action.source_package
-            if spkg and not @http_user.can_modify_package? spkg
-              if action.action_type == :submit
-                if action.sourceupdate or action.updatelink
-                  render_error :status => 403, :errorcode => "lacking_maintainership",
-                    :message => "Creating a submit request action with options requires maintainership in source package"
-                  return
-                end
-              end
-              if  not spkg.project.find_attribute("OBS", "ApprovedRequestSource") and not spkg.find_attribute("OBS", "ApprovedRequestSource")
-                review_packages.push({ :by_project => action.source_project, :by_package => action.source_package })
-              end
-            end
-          else
-            sprj = Project.find_by_name action.source_project
-            if sprj and not @http_user.can_modify_project? sprj and not sprj.find_attribute("OBS", "ApprovedRequestSource")
-              if action.action_type == :submit
-                if action.sourceupdate or action.updatelink
-                  render_error :status => 403, :errorcode => "lacking_maintainership",
-                    :message => "Creating a submit request action with options requires maintainership in source package"
-                  return
-                end
-              end
-              if  not sprj.find_attribute("OBS", "ApprovedRequestSource")
-                review_packages.push({ :by_project => action.source_project })
-              end
-            end
-          end
-        end
-      end
-
-      # find reviewers in target package
-      if tpkg
-        reviewers += find_reviewers(tpkg)
-        review_groups += find_review_groups(tpkg)
-      end
-      # project reviewers get added additionaly
-      if tprj
-        reviewers += find_reviewers(tprj)
-        review_groups += find_review_groups(tprj)
       end
     end
     
     # apply reviewers
-    reviewers.uniq.each do |r| 
-      req.reviews.new :by_user => r.login 
-      req.state = :review
-    end
-    review_groups.uniq.each do |g| 
-      req.reviews.new :by_group => g.title
-      req.state = :review
-    end
-    review_packages.uniq.each do |p|
-      r = req.reviews.new :by_project => p[:by_project]
-      r.by_package = p[:by_package] if p[:by_package]
+    reviewers.uniq.each do |r|
+      if r.class == User
+        req.reviews.new :by_user => r.login 
+      elsif r.class == Group
+        req.reviews.new :by_group => r.title
+      elsif r.class == Project
+        req.reviews.new :by_project => r.name
+      else 
+        raise "Unknown review type" unless r.class == Package
+        rev = req.reviews.new :by_project => r.project.name
+        rev.by_package = r.name
+      end
       req.state = :review
     end
 
