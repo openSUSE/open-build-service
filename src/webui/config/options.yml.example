@@ -31,6 +31,10 @@ theme: neutral
 # note that you need to enable the proxy-core option to allow this
 #use_lighttpd_x_rewrite: true
 
+# Make use of X-Accel-Redirect for Nginx.
+# http://kovyrin.net/2010/07/24/nginx-fu-x-accel-redirect-remote
+#use_nginx_redirect: /internal_redirect 
+
 # Show option to change password (not possible if passwords are controlled by proxy)
 #change_passwd: on
 
