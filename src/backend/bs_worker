@@ -2716,6 +2716,8 @@ if ($@) {
   }
   print "$@";
   $ex = 1;
+  # mark as bad build host if Build.pm could not be imported
+  $ex = 3 unless defined &Build::queryhdrmd5;
 }
 if ($buildinfo->{'followupfile'}) {
   my $buildsrcdir = "$buildroot/.build.packages/SOURCES";
