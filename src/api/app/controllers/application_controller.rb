@@ -325,6 +325,15 @@ class ApplicationController < ActionController::API
       return
     end
 
+    # nginx case
+    if CONFIG['use_nginx_redirect']
+      logger.debug "[backend] VOLLEY(nginx): #{path}"
+      headers['X-Accel-Redirect'] = "#{CONFIG['use_nginx_redirect']}/http/#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
+      head(200)
+      @skip_validation = true
+      return
+    end
+
     logger.debug "[backend] VOLLEY: #{path}"
     Suse::Backend.start_test_backend 
     backend_http = Net::HTTP.new(CONFIG['source_host'], CONFIG['source_port'])

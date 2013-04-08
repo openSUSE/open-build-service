@@ -815,6 +815,13 @@ class PackageController < ApplicationController
       return true
     end
 
+    # nginx case
+    if CONFIG['use_nginx_redirect']
+      headers['X-Accel-Redirect'] = "#{CONFIG['use_nginx_redirect']}/#{CONFIG['frontend_protocol']}/#{CONFIG['frontend_host']}:#{CONFIG['frontend_port']}#{path}"
+      head(200)
+      return true
+    end
+
     headers['Content-Type'] = 'text/plain'    
     return false
   end

@@ -13,6 +13,10 @@
 # Note that you need to enable the proxy-core option to allow this.
 #x_rewrite_host: localhost
 
+# Make use of X-Accel-Redirect for Nginx.
+# http://kovyrin.net/2010/07/24/nginx-fu-x-accel-redirect-remote
+#use_nginx_redirect: /internal_redirect 
+
 # How to register new users, valid options are:
 #   allow:        Everybody who can connect to api or webui can create an
 #                 account and use the service.
