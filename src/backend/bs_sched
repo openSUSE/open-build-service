@@ -5409,8 +5409,7 @@ sub checkpackage {
       my $pkg = $dep2pkg->{$bpack};
       my $path = $pool->pkg2fullpath($pkg, $myarch);
       if ($depislocal->{$bpack} && $path) {
-	my $meta = $dep2meta->{$bpack};
-	if (!$meta) {
+	if (!exists $dep2meta->{$bpack}) {
 	  my @m;
 	  # the next line works for deb and rpm
 	  my $mf = substr("$reporoot/$path", 0, -4);
@@ -5428,10 +5427,11 @@ sub checkpackage {
 	    $m[0] =~ s/  .*/  $bpack/ if @m;
 	  }
 	  @m = ($pool->pkg2pkgid($pkg)."  $bpack") unless @m;
-	  $meta = \@m;
-	  $dep2meta->{$bpack} = $meta;
+	  $dep2meta->{$bpack} = join("\n", @m);
+	  push @new_meta, @m;
+	} else {
+	  push @new_meta, split("\n", $dep2meta->{$bpack});
 	}
-	push @new_meta, @$meta;
       } else {
 	my $pkgid = $pool->pkg2pkgid($pkg);
 	push @new_meta, "$pkgid  $bpack";
