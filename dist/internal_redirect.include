@@ -1,0 +1,19 @@
+location ~* ^/internal_redirect/(.*?)/(.*?)/(.*) {
+	# Do not allow people to mess with this location directly
+	# Only internal redirects are allowed
+	internal;
+
+	resolver 8.8.8.8;
+
+	# Extract download url from the request
+	set $download_uri $3;
+	set $download_host $2;
+	set $download_proto $1;
+
+	# Compose download url
+	set $download_url $download_proto://$download_host/$download_uri?$args;
+
+	# Download the file and send it to client
+	proxy_pass $download_url;
+}
+
