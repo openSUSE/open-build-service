@@ -617,7 +617,7 @@ class RequestController < ApplicationController
 
     # permission checks
     req.bs_request_actions.each do |action|
-      check_action_permission(action)  || return
+      check_action_permission(action) || return
     end
 
     #
@@ -746,7 +746,7 @@ class RequestController < ApplicationController
   def command_changestate
     params[:user] = @http_user.login
     required_parameters :id
-
+    
     req = BsRequest.find params[:id]
     if not @http_user or not @http_user.login
       render_error :status => 403, :errorcode => "post_request_no_permission",
@@ -762,45 +762,45 @@ class RequestController < ApplicationController
 
     # We do not support to revert changes from accepted requests (yet)
     if req.state == :accepted
-       render_error :status => 403, :errorcode => "post_request_no_permission",
-         :message => "change state from an accepted state is not allowed."
-       return
+      render_error status: 403, errorcode: "post_request_no_permission", message: 
+        "change state from an accepted state is not allowed."
+      return
     end
 
     # do not allow direct switches from a final state to another one to avoid races and double actions.
     # request needs to get reopened first.
     if [ :accepted, :superseded, :revoked ].include? req.state
-       if [ "accepted", "declined", "superseded", "revoked" ].include? params[:newstate]
-          render_error :status => 403, :errorcode => "post_request_no_permission",
+      if [ "accepted", "declined", "superseded", "revoked" ].include? params[:newstate]
+        render_error :status => 403, :errorcode => "post_request_no_permission",
             :message => "set state to #{params[:newstate]} from a final state is not allowed."
-          return
-       end
+        return
+      end
     end
 
     # enforce state to "review" if going to "new", when review tasks are open
     if params[:cmd] == "changestate"
-       if params[:newstate] == "new" and req.reviews
-          req.reviews.each do |r|
-            params[:newstate] = "review" if r.state == :new
-          end
-       end
+      if params[:newstate] == "new" and req.reviews
+        req.reviews.each do |r|
+          params[:newstate] = "review" if r.state == :new
+        end
+      end
     end
-
+    
     # Do not accept to skip the review, except force argument is given
     if params[:newstate] == "accepted"
-       if params[:cmd] == "changestate" and req.state == :review and not params[:force]
-          render_error :status => 403, :errorcode => "post_request_no_permission",
-            :message => "Request is in review state. You may use the force parameter to ignore this."
-          return
-       end
+      if params[:cmd] == "changestate" and req.state == :review and not params[:force]
+        render_error :status => 403, :errorcode => "post_request_no_permission",
+        :message => "Request is in review state. You may use the force parameter to ignore this."
+        return
+      end
     end
 
     # valid users and groups ?
     if params[:by_user] 
-       User.get_by_login(params[:by_user])
+      User.get_by_login(params[:by_user])
     end
     if params[:by_group] 
-       Group.get_by_title(params[:by_group])
+      Group.get_by_title(params[:by_group])
     end
 
     # valid project or package ?
@@ -872,7 +872,8 @@ class RequestController < ApplicationController
       end
       # 
       permission_granted = true
-    elsif req.state != "accepted" and ["new","review","revoked","superseded"].include?(params[:newstate]) and req.creator == @http_user.login
+    elsif req.state != "accepted" and ["new","review","revoked","superseded"].include?(params[:newstate]) and 
+        req.creator == @http_user.login
       # request creator can reopen, revoke or supersede a request which was declined
       permission_granted = true
     elsif req.state == "declined" and (params[:newstate] == "new" or params[:newstate] == "review") and req.state.who == @http_user.login
@@ -891,7 +892,6 @@ class RequestController < ApplicationController
     write_permission_in_some_target = false
 
     req.bs_request_actions.each do |action|
-
       # all action types need a target project in any case for accept
       target_project = Project.find_by_name(action.target_project)
       target_package = source_package = nil
@@ -1216,7 +1216,7 @@ class RequestController < ApplicationController
     req.bs_request_actions.each do |action|
       # general source update options exists ?
       sourceupdate = action.sourceupdate
-
+  
       if action.action_type == :set_bugowner
           object = Project.find_by_name!(action.target_project)
           bugowner = Role.get_by_title("bugowner")
@@ -1427,7 +1427,7 @@ class RequestController < ApplicationController
         delete_path << build_query_from_hash(del_params, [:user, :comment, :requestid])
         Suse::Backend.delete delete_path
       end
-
+  
       if action.target_package == "_product"
         update_product_autopackages action.target_project
       end
@@ -1448,38 +1448,9 @@ class RequestController < ApplicationController
     end
 
     # create a patchinfo if missing and incident has just been created
-    if check_for_patchinfo
-      unless Package.find_by_project_and_kind incident_project.name, "patchinfo"
-        patchinfo = Package.new(:name => "patchinfo", :title => "Patchinfo", :description => "Collected packages for update")
-        incident_project.packages << patchinfo
-        patchinfo.add_flag("build", "enable", nil, nil)
-        patchinfo.add_flag("useforbuild", "disable", nil, nil)
-        patchinfo.add_flag("publish", "enable", nil, nil) unless incident_project.flags.find_by_flag_and_status("access", "disable")
-        patchinfo.store
-
-        # create patchinfo XML file
-        node = Builder::XmlMarkup.new(:indent=>2)
-        attrs = { }
-        if patchinfo.project.project_type.to_s == "maintenance_incident"
-          # this is a maintenance incident project, the sub project name is the maintenance ID
-          attrs[:incident] = patchinfo.project.name.gsub(/.*:/, '')
-        end
-        xml = node.patchinfo(attrs) do |n|
-          node.packager    req.creator
-          node.category    "recommended" # update_patchinfo may switch to security
-          node.rating      "low"
-          node.summary     req.description.split(/\n|\r\n/)[0] # first line only
-          node.description req.description
-        end
-        data =ActiveXML::Node.new(node.target!)
-        xml = update_patchinfo( data, patchinfo, true ) # update issues
-        p={ :user => @http_user.login, :comment => "generated by request id #{req.id} accept call" }
-        patchinfo_path = "/source/#{CGI.escape(patchinfo.project.name)}/patchinfo/_patchinfo"
-        patchinfo_path << build_query_from_hash(p, [:user, :comment])
-        backend_put( patchinfo_path, data.dump_xml )
-        patchinfo.sources_changed
-      end
-    end
+    if check_for_patchinfo and !incident_project.packages.where(name: "patchinfo").first
+      incident_project.create_patchinfo_from_request(req)
+    end 
 
     # maintenance_incident request are modifying the request during accept
     req.change_state(params[:newstate], params)

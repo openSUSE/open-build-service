@@ -527,10 +527,6 @@ class ApplicationController < ActionController::API
     backend.direct_http( URI(path) )
   end
 
-  def backend_put( path, data )
-    backend.direct_http( URI(path), :method => "PUT", :data => data )
-  end
-
   def backend_post( path, data )
     backend.set_additional_header("Content-Length", data.size.to_s())
     response = backend.direct_http( URI(path), :method => "POST", :data => data )

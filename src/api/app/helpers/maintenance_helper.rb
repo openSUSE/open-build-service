@@ -2,43 +2,6 @@ include ValidationHelper
 
 module MaintenanceHelper
 
-  def update_patchinfo(patchinfo, pkg, enfore_issue_update=false)
-    # collect bugnumbers from diff
-    pkg.project.packages.each do |p|
-      # create diff per package
-      next if p.package_kinds.find_by_kind 'patchinfo'
-
-      p.package_issues.each do |i|
-        if i.change == "added"
-          unless patchinfo.has_element?("issue[(@id='#{i.issue.name}' and @tracker='#{i.issue.issue_tracker.name}')]")
-            e = patchinfo.add_element "issue"
-            e.set_attribute "tracker", i.issue.issue_tracker.name
-            e.set_attribute "id"     , i.issue.name
-            patchinfo.category.text = "security" if i.issue.issue_tracker.kind == "cve"
-          end
-        end
-      end
-
-    end
-
-    # update informations of empty issues
-    patchinfo.each_issue do |i|
-      if i.text.blank? and not i.name.blank?
-        issue = Issue.find_or_create_by_name_and_tracker(i.name, i.tracker)
-        if issue
-          if enfore_issue_update
-            # enforce update from issue server
-            issue.fetch_updates()
-          end
-          i.text = issue.summary
-        end
-      end
-    end
-
-    return patchinfo
-  end
-  private :update_patchinfo
-
   # updates packages automatically generated in the backend after submitting a product file
   def create_new_maintenance_incident( maintenanceProject, baseProject = nil, request = nil, noaccess = false )
     mi = nil

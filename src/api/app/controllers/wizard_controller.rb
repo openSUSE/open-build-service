@@ -78,8 +78,8 @@ class WizardController < ApplicationController
 
     logger.debug("package_wizard, #{xml.inspect}")
     logger.debug("package_wizard, #{xml}")
-    backend_put("/source/#{params[:project]}/#{params[:package]}/_service?rev=upload", xml)
-    backend_post("/source/#{params[:project]}/#{params[:package]}?cmd=commit&rev=upload&user=#{@http_user.login}", "")
+    Suse::Backend.put("/source/#{params[:project]}/#{params[:package]}/_service?rev=upload", xml)
+    Suse::Backend.post("/source/#{params[:project]}/#{params[:package]}?cmd=commit&rev=upload&user=#{@http_user.login}", "")
 
     @wizard_form.last = true
     render_wizard
@@ -88,7 +88,7 @@ class WizardController < ApplicationController
   private
   def render_wizard
     if @wizard.dirty
-      backend_put(@wizard_xml, @wizard.serialize)
+      Suse::Backend.put(@wizard_xml, @wizard.serialize)
     end
     render :template => "wizard", :status => 200
   end
