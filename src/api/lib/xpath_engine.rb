@@ -138,7 +138,7 @@ class XpathEngine
         '@id' => { :cpart => 'bs_requests.id' },
         'state/@name' => { :cpart => 'bs_requests.state' },
         'state/@who' => { :cpart => 'bs_requests.commenter' },
-        'action/@type' => { :cpart => 'bs_request_actions.action_type' },
+        'action/@type' => { :cpart => 'bs_request_actions.type' },
         'action/target/@project' => { :cpart => 'a.target_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
         'action/target/@package' => { :cpart => 'a.target_package', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
         'action/source/@project' => { :cpart => 'a.source_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },

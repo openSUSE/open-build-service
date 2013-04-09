@@ -243,8 +243,7 @@ class RequestController < ApplicationController
       end
 
       newTargets << tprj
-      newAction = BsRequestAction.new
-      newAction.initialize_dup(action)
+      newAction = action.dup
       newAction.source_package = pkg.name
       if action.action_type == :maintenance_incident
         newAction.target_releaseproject = releaseproject.name if releaseproject
@@ -308,8 +307,7 @@ class RequestController < ApplicationController
           end
           next unless found
         end
-        newAction = BsRequestAction.new
-        newAction.initialize_dup(action)
+        newAction = action.dup
         newAction.source_package = pkg.name
         unless action.action_type == :maintenance_incident
           newAction.target_project = p
