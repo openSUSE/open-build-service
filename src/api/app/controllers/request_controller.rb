@@ -565,7 +565,7 @@ class RequestController < ApplicationController
       if [:submit, :maintenance_incident].include?(action.action_type)
         # cleanup implicit home branches. FIXME3.0: remove this, the clients should do this automatically meanwhile
         if action.sourceupdate.nil? and action.target_project
-          if "home:#{@http_user.login}:branches:#{action.target_project}" == action.source_project
+          if "home:#{User.current.login}:branches:#{action.target_project}" == action.source_project
             action.sourceupdate = 'cleanup'
           end
         end
@@ -728,6 +728,129 @@ class RequestController < ApplicationController
     end
   end
 
+  class PostRequestNoPermission < APIException
+    setup "post_request_no_permission", 403
+  end
+
+  class ReviewNotSpecified < APIException
+    setup "review_not_specified", 400
+  end
+  
+  class PostRequestMissingParamater < APIException
+    setup "post_request_missing_parameter", 403
+  end
+
+  class ReviewChangeStateNoPermission < APIException
+    setup "review_change_state_no_permission", 403
+  end
+
+  def check_request_change(req, params)
+    
+    # We do not support to revert changes from accepted requests (yet)
+    if req.state == :accepted
+      raise PostRequestNoPermission.new "change state from an accepted state is not allowed."
+    end
+
+    # do not allow direct switches from a final state to another one to avoid races and double actions.
+    # request needs to get reopened first.
+    if [ :accepted, :superseded, :revoked ].include? req.state
+      if [ "accepted", "declined", "superseded", "revoked" ].include? params[:newstate]
+        raise PostRequestNoPermission.new "set state to #{params[:newstate]} from a final state is not allowed."
+      end
+    end
+
+    # enforce state to "review" if going to "new", when review tasks are open
+    if params[:cmd] == "changestate"
+      if params[:newstate] == "new" and req.reviews
+        req.reviews.each do |r|
+          params[:newstate] = "review" if r.state == :new
+        end
+      end
+    end
+    
+    # Do not accept to skip the review, except force argument is given
+    if params[:newstate] == "accepted"
+      if params[:cmd] == "changestate" and req.state == :review and not params[:force]
+        raise PostRequestNoPermission.new "Request is in review state. You may use the force parameter to ignore this."
+      end
+    end
+
+    # valid users and groups ?
+    if params[:by_user] 
+      User.find_by_login!(params[:by_user])
+    end
+    if params[:by_group] 
+      Group.find_by_title!(params[:by_group])
+    end
+
+    # valid project or package ?
+    if params[:by_project] and params[:by_package]
+      pkg = Package.get_by_project_and_name(params[:by_project], params[:by_package])
+    elsif params[:by_project]
+      prj = Project.get_by_name(params[:by_project])
+    end
+
+    # generic permission checks
+    permission_granted = false
+    if User.current.is_admin?
+      permission_granted = true
+    elsif params[:newstate] == "deleted"
+      raise PostRequestNoPermission.new "Deletion of a request is only permitted for administrators. Please revoke the request instead."
+    elsif params[:cmd] == "addreview" or params[:cmd] == "setincident"
+      unless [ :review, :new ].include? req.state
+        raise ReviewChangeStateNoPermission.new "The request is not in state new or review"
+      end
+      # allow request creator to add further reviewers
+      permission_granted = true if (req.creator == User.current.login or req.is_reviewer? User.current)
+    elsif params[:cmd] == "changereviewstate"
+      unless req.state == :review or req.state == :new
+        raise ReviewChangeStateNoPermission.new "The request is neither in state review nor new"
+      end
+      found=nil
+      if params[:by_user]
+        unless User.current.login == params[:by_user]
+          raise ReviewChangeStateNoPermission.new "review state change is not permitted for #{User.current.login}"
+        end
+        found=true
+      end
+      if params[:by_group]
+        unless User.current.is_in_group?(params[:by_group])
+          raise ReviewChangeStateNoPermission.new "review state change for group #{params[:by_group]} is not permitted for #{User.current.login}"
+        end
+        found=true
+      end
+      if params[:by_project] 
+        if params[:by_package]
+          unless User.current.can_modify_package? pkg
+            raise ReviewChangeStateNoPermission.new "review state change for package #{params[:by_project]}/#{params[:by_package]} is not permitted for #{User.current.login}"
+          end
+        elsif !User.current.can_modify_project? prj
+          raise ReviewChangeStateNoPermission.new "review state change for project #{params[:by_project]} is not permitted for #{User.current.login}"
+        end
+        found=true
+      end
+      unless found
+        raise ReviewNotSpecified.new "The review must specified via by_user, by_group or by_project(by_package) argument."
+      end
+      # 
+      permission_granted = true
+    elsif req.state != "accepted" and ["new","review","revoked","superseded"].include?(params[:newstate]) and 
+        req.creator == User.current.login
+      # request creator can reopen, revoke or supersede a request which was declined
+      permission_granted = true
+    elsif req.state == "declined" and (params[:newstate] == "new" or params[:newstate] == "review") and req.state.who == User.current.login
+      # people who declined a request shall also be able to reopen it
+      permission_granted = true
+    end
+
+    if params[:newstate] == "superseded" and not params[:superseded_by]
+      raise PostRequestMissingParamater.new "Supersed a request requires a 'superseded_by' parameter with the request id."
+    end
+
+    req.check_newstate! params.merge({extra_permission_checks: !permission_granted})
+    return true
+  end
+
   def command_setincident
      command_changestate# :cmd => "setincident",
                        # :incident
@@ -744,11 +867,11 @@ class RequestController < ApplicationController
   end
 
   def command_changestate
-    params[:user] = @http_user.login
+    params[:user] = User.current.login
     required_parameters :id
     
     req = BsRequest.find params[:id]
-    if not @http_user or not @http_user.login
+    if not User.current or not User.current.login
       render_error :status => 403, :errorcode => "post_request_no_permission",
                :message => "Action requires authentifacted user."
       return
@@ -760,379 +883,7 @@ class RequestController < ApplicationController
       params[:comment] = request.body.read
     end
 
-    # We do not support to revert changes from accepted requests (yet)
-    if req.state == :accepted
-      render_error status: 403, errorcode: "post_request_no_permission", message: 
-        "change state from an accepted state is not allowed."
-      return
-    end
-
-    # do not allow direct switches from a final state to another one to avoid races and double actions.
-    # request needs to get reopened first.
-    if [ :accepted, :superseded, :revoked ].include? req.state
-      if [ "accepted", "declined", "superseded", "revoked" ].include? params[:newstate]
-        render_error :status => 403, :errorcode => "post_request_no_permission",
-            :message => "set state to #{params[:newstate]} from a final state is not allowed."
-        return
-      end
-    end
-
-    # enforce state to "review" if going to "new", when review tasks are open
-    if params[:cmd] == "changestate"
-      if params[:newstate] == "new" and req.reviews
-        req.reviews.each do |r|
-          params[:newstate] = "review" if r.state == :new
-        end
-      end
-    end
-    
-    # Do not accept to skip the review, except force argument is given
-    if params[:newstate] == "accepted"
-      if params[:cmd] == "changestate" and req.state == :review and not params[:force]
-        render_error :status => 403, :errorcode => "post_request_no_permission",
-        :message => "Request is in review state. You may use the force parameter to ignore this."
-        return
-      end
-    end
-
-    # valid users and groups ?
-    if params[:by_user] 
-      User.get_by_login(params[:by_user])
-    end
-    if params[:by_group] 
-      Group.get_by_title(params[:by_group])
-    end
-
-    # valid project or package ?
-    if params[:by_project] and params[:by_package]
-      pkg = Package.get_by_project_and_name(params[:by_project], params[:by_package])
-    elsif params[:by_project]
-      prj = Project.get_by_name(params[:by_project])
-    end
-
-    # generic permission checks
-    permission_granted = false
-    if @http_user.is_admin?
-      permission_granted = true
-    elsif params[:newstate] == "deleted"
-      render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "Deletion of a request is only permitted for administrators. Please revoke the request instead."
-      return
-    elsif params[:cmd] == "addreview" or params[:cmd] == "setincident"
-      unless [ :review, :new ].include? req.state
-        render_error :status => 403, :errorcode => "add_review_no_permission",
-              :message => "The request is not in state new or review"
-        return
-      end
-      # allow request creator to add further reviewers
-      permission_granted = true if (req.creator == @http_user.login or req.is_reviewer? @http_user)
-    elsif params[:cmd] == "changereviewstate"
-      unless req.state == :review or req.state == :new
-        render_error :status => 403, :errorcode => "review_change_state_no_permission",
-                :message => "The request is neither in state review nor new"
-        return
-      end
-      found=nil
-      if params[:by_user]
-        unless @http_user.login == params[:by_user]
-          render_error :status => 403, :errorcode => "review_change_state_no_permission",
-                :message => "review state change is not permitted for #{@http_user.login}"
-          return
-        end
-        found=true
-      end
-      if params[:by_group]
-        unless @http_user.is_in_group?(params[:by_group])
-          render_error :status => 403, :errorcode => "review_change_state_no_permission",
-                :message => "review state change for group #{params[:by_group]} is not permitted for #{@http_user.login}"
-          return
-        end
-        found=true
-      end
-      if params[:by_project] 
-        if params[:by_package]
-          unless @http_user.can_modify_package? pkg
-            render_error :status => 403, :errorcode => "review_change_state_no_permission",
-                  :message => "review state change for package #{params[:by_project]}/#{params[:by_package]} is not permitted for #{@http_user.login}"
-            return
-          end
-        else
-          unless @http_user.can_modify_project? prj
-            render_error :status => 403, :errorcode => "review_change_state_no_permission",
-                  :message => "review state change for project #{params[:by_project]} is not permitted for #{@http_user.login}"
-            return
-          end
-        end
-        found=true
-      end
-      unless found
-        render_error :status => 400, :errorcode => "review_not_specified",
-              :message => "The review must specified via by_user, by_group or by_project(by_package) argument."
-        return
-      end
-      # 
-      permission_granted = true
-    elsif req.state != "accepted" and ["new","review","revoked","superseded"].include?(params[:newstate]) and 
-        req.creator == @http_user.login
-      # request creator can reopen, revoke or supersede a request which was declined
-      permission_granted = true
-    elsif req.state == "declined" and (params[:newstate] == "new" or params[:newstate] == "review") and req.state.who == @http_user.login
-      # people who declined a request shall also be able to reopen it
-      permission_granted = true
-    end
-
-    if params[:newstate] == "superseded" and not params[:superseded_by]
-      render_error :status => 403, :errorcode => "post_request_missing_parameter",
-               :message => "Supersed a request requires a 'superseded_by' parameter with the request id."
-      return
-    end
-
-    # permission and validation check for each action inside
-    write_permission_in_some_source = false
-    write_permission_in_some_target = false
-
-    req.bs_request_actions.each do |action|
-      # all action types need a target project in any case for accept
-      target_project = Project.find_by_name(action.target_project)
-      target_package = source_package = nil
-      if not target_project and params[:newstate] == "accepted"
-        render_error :status => 400, :errorcode => 'not_existing_target',
-          :message => "Unable to process project #{action.target_project}; it does not exist."
-        return
-      end
-
-      if [ :submit, :change_devel, :maintenance_release, :maintenance_incident ].include? action.action_type
-        source_package = nil
-        if [ "declined", "revoked", "superseded" ].include? params[:newstate]
-          # relaxed access checks for getting rid of request
-          source_project = Project.find_by_name(action.source_project)
-        else
-          # full read access checks
-          source_project = Project.get_by_name(action.source_project)
-          target_project = Project.get_by_name(action.target_project)
-          if action.action_type == :change_devel and action.target_package.nil?
-            render_error :status => 403, :errorcode => "post_request_no_permission",
-              :message => "Target package is missing in request #{req.id} (type #{action.action_type})"
-            return
-          end
-          if action.source_package or action.action_type == :change_devel
-            source_package = Package.get_by_project_and_name action.source_project, action.source_package
-          end
-          # require a local source package
-          if [ :change_devel ].include? action.action_type
-            unless source_package
-              render_error :status => 404, :errorcode => "unknown_package",
-                :message => "Local source package is missing for request #{req.id} (type #{action.action_type})"
-              return
-            end
-          end
-          # accept also a remote source package
-          if source_package.nil? and [ :submit ].include? action.action_type
-            unless Package.exists_by_project_and_name( source_project.name, action.source_package, follow_project_links: true, allow_remote_packages: true)
-              render_error :status => 404, :errorcode => "unknown_package",
-                :message => "Source package is missing for request #{req.id} (type #{action.action_type})"
-              return
-            end
-          end
-          # maintenance incident target permission checks
-          if [ :maintenance_incident ].include? action.action_type
-            if params[:cmd] == "setincident"
-              if target_project.project_type == "maintenance_incident"
-                render_error :status => 404, :errorcode => "target_not_maintenance",
-                  :message => "The target project is already an incident, changing is not possible via set_incident"
-                return
-              end
-              unless target_project.project_type.to_s == "maintenance"
-                render_error :status => 404, :errorcode => "target_not_maintenance",
-                  :message => "The target project is not of type maintenance but #{target_project.project_type}"
-                return
-              end
-              tip = Project.get_by_name(action.target_project + ":" + params[:incident])
-              if tip.is_locked?
-                render_error :status => 403, :errorcode => "project_locked",
-                  :message => "The target project is locked"
-                return
-              end
-            else
-              unless [ "maintenance", "maintenance_incident" ].include? target_project.project_type.to_s
-                render_error :status => 404, :errorcode => "target_not_maintenance_or_incident",
-                  :message => "The target project is not of type maintenance or incident but #{target_project.project_type}"
-                return
-              end
-            end
-          end
-          # validate that specified sources do not have conflicts on accepting request
-          if [ :submit, :maintenance_incident ].include? action.action_type and params[:cmd] == "changestate" and params[:newstate] == "accepted"
-            url = "/source/#{CGI.escape(action.source_project)}/#{CGI.escape(action.source_package)}?expand=1"
-            url << "&rev=#{CGI.escape(action.source_rev)}" if action.source_rev
-            begin
-              c = backend_get(url)
-            rescue ActiveXML::Transport::Error
-              render_error :status => 400, :errorcode => "expand_error",
-                :message => "The source of package #{action.source_project}/#{action.source_package}#{action.source_rev ? " for revision #{action.source_rev}":''} is broken"
-              return false
-            end
-          end
-          # maintenance_release accept check
-          if [ :maintenance_release ].include? action.action_type and params[:cmd] == "changestate" and params[:newstate] == "accepted"
-            # compare with current sources
-            if action.source_rev
-              # FIXME2.4 we have a directory model
-              url = "/source/#{CGI.escape(action.source_project)}/#{CGI.escape(action.source_package)}?expand=1"
-              c = backend_get(url)
-              data = REXML::Document.new( c )
-              unless action.source_rev == data.elements["directory"].attributes["srcmd5"]
-                render_error :status => 400, :errorcode => "source_changed",
-                  :message => "The current source revision in #{action.source_project}/#{action.source_package} are not on revision #{action.source_rev} anymore."
-                return
-              end
-            end
-
-            # write access check in release targets
-            source_project.repositories.each do |repo|
-              repo.release_targets.each do |releasetarget|
-                unless @http_user.can_modify_project? releasetarget.target_repository.project
-                  render_error :status => 403, :errorcode => "release_target_no_permission",
-                    :message => "Release target project #{releasetarget.target_repository.project.name} is not writable by you"
-                  return
-                end
-              end
-            end
-          end
-        end
-        if target_project
-          if action.target_package
-            target_package = target_project.packages.find_by_name(action.target_package)
-          elsif [ :submit, :change_devel ].include? action.action_type
-            # fallback for old requests, new created ones get this one added in any case.
-            target_package = target_project.packages.find_by_name(action.source_package)
-          end
-        end
-
-      elsif [ :delete, :add_role, :set_bugowner ].include? action.action_type
-        # target must exist
-        if params[:newstate] == "accepted"
-          if action.target_package
-            target_package = target_project.packages.find_by_name(action.target_package)
-            unless target_package
-              render_error :status => 400, :errorcode => 'not_existing_target',
-                :message => "Unable to process package #{action.target_project}/#{action.target_package}; it does not exist."
-              return
-            end
-            if action.action_type == :delete
-              target_package.can_be_deleted?
-            end
-          else
-            if action.action_type == :delete
-              if action.target_repository
-                r=Repository.find_by_project_and_repo_name(target_project.name, action.target_repository)
-                unless r
-                  render_error :status => 400, :errorcode => "repository_missing", :message => "The repository #{target_project} / #{action.target_repository} does not exist"
-                  return
-                end
-              else
-                # remove entire project
-                target_project.can_be_deleted?
-              end
-            end
-          end
-        end
-      else
-        render_error :status => 400, :errorcode => "post_request_no_permission",
-          :message => "Unknown request type #{params[:newstate]} of request #{req.id} (type #{action.action_type})"
-        return
-      end
-
-      # general source write permission check (for revoke)
-      if ( source_package and @http_user.can_modify_package?(source_package,true) ) or
-         ( not source_package and source_project and @http_user.can_modify_project?(source_project,true) )
-           write_permission_in_some_source = true
-      end
-    
-      # general write permission check on the target on accept
-      write_permission_in_this_action = false
-      if target_package 
-        if @http_user.can_modify_package? target_package
-          write_permission_in_some_target = true
-          write_permission_in_this_action = true
-        end
-      else
-        if target_project and @http_user.can_create_package_in?(target_project,true)
-          write_permission_in_some_target = true
-        end
-        if target_project and @http_user.can_create_package_in?(target_project)
-          write_permission_in_this_action = true
-        end
-      end
-
-      # abort immediatly if we want to write and can't.
-      if params[:cmd] == "changestate" and [ "accepted" ].include? params[:newstate] and not write_permission_in_this_action
-        msg = "No permission to modify target of request #{req.id} (type #{action.action_type}): project #{action.target_project}"
-        msg += ", package #{action.target_package}" if action.target_package
-        render_error :status => 403, :errorcode => "post_request_no_permission",
-          :message => msg
-        return
-      end
-    end # end of each action check
-
-    # General permission checks if a write access in any location is enough
-    unless permission_granted
-      if ["addreview", "setincident"].include? params[:cmd]
-        # Is the user involved in any project or package ?
-        unless write_permission_in_some_target or write_permission_in_some_source
-          render_error :status => 403, :errorcode => "addreview_not_permitted",
-            :message => "You have no role in request #{req.id}"
-          return
-        end
-      elsif params[:cmd] == "changestate" 
-        if [ "superseded" ].include? params[:newstate]
-          # Is the user involved in any project or package ?
-          unless write_permission_in_some_target or write_permission_in_some_source
-            render_error :status => 403, :errorcode => "post_request_no_permission",
-              :message => "You have no role in request #{req.id}"
-            return
-          end
-        elsif [ "accepted" ].include? params[:newstate] 
-          # requires write permissions in all targets, this is already handled in each action check
-        elsif [ "revoked" ].include? params[:newstate] 
-          # general revoke permission check based on source maintainership. We don't get here if the user is the creator of request
-          unless write_permission_in_some_source
-            render_error :status => 403, :errorcode => "post_request_no_permission",
-              :message => "No permission to revoke request #{req.id}"
-            return
-          end
-        elsif req.state == :revoked and [ "new" ].include? params[:newstate] 
-          unless write_permission_in_some_source
-            # at least on one target the permission must be granted on decline
-            render_error :status => 403, :errorcode => "post_request_no_permission",
-              :message => "No permission to reopen request #{req.id}"
-            return
-          end
-        elsif req.state == :declined and [ "new" ].include? params[:newstate] 
-          unless write_permission_in_some_target
-            # at least on one target the permission must be granted on decline
-            render_error :status => 403, :errorcode => "post_request_no_permission",
-              :message => "No permission to reopen request #{req.id}"
-            return
-          end
-        elsif [ "declined" ].include? params[:newstate] 
-          unless write_permission_in_some_target
-            # at least on one target the permission must be granted on decline
-            render_error :status => 403, :errorcode => "post_request_no_permission",
-              :message => "No permission to change decline request #{req.id}"
-            return
-          end
-        else
-          render_error :status => 403, :errorcode => "post_request_no_permission",
-            :message => "No permission to change request #{req.id} state"
-          return
-        end
-      else
-        render_error :status => 400, :errorcode => "code_error",
-          :message => "PLEASE_REPORT: we lacked to handle this situation in our code !"
-        return
-      end
-    end
+    check_request_change(req, params) || return
 
     # permission granted for the request at this point
 
@@ -1261,7 +1012,7 @@ class RequestController < ApplicationController
       elsif action.action_type == :submit
           cp_params = {
             :cmd => "copy",
-            :user => @http_user.login,
+            :user => User.current.login,
             :oproject => action.source_project,
             :opackage => action.source_package,
             :noservice => 1,
@@ -1315,7 +1066,7 @@ class RequestController < ApplicationController
             if linked_package
               h = {}
               h[:cmd] = "branch"
-              h[:user] = @http_user.login
+              h[:user] = User.current.login
               h[:comment] = "empty branch to project linked package"
               h[:requestid] = params[:id]
               h[:noservice] = "1"
@@ -1342,7 +1093,7 @@ class RequestController < ApplicationController
             # re-create it via branch , but keep current content...
             h = {}
             h[:cmd] = "branch"
-            h[:user] = @http_user.login
+            h[:user] = User.current.login
             h[:comment] = "initialized devel package after accepting #{params[:id]}"
             h[:requestid] = params[:id]
             h[:keepcontent] = "1"
@@ -1374,7 +1125,7 @@ class RequestController < ApplicationController
               project.destroy
               delete_path = "/source/#{action.target_project}"
             end
-            h = { :user => @http_user.login, :comment => source_history_comment, :requestid => params[:id] }
+            h = { :user => User.current.login, :comment => source_history_comment, :requestid => params[:id] }
             delete_path << build_query_from_hash(h, [:user, :comment, :requestid])
             Suse::Backend.delete delete_path
           end
@@ -1420,7 +1171,7 @@ class RequestController < ApplicationController
           delete_path = "/source/#{action.source_project}/#{action.source_package}"
         end
         del_params = {
-          :user => @http_user.login,
+          :user => User.current.login,
           :requestid => params[:id],
           :comment => source_history_comment
         }
@@ -1437,7 +1188,7 @@ class RequestController < ApplicationController
     projectCommit.each do |tprj, sprj|
       commit_params = {
         :cmd => "commit",
-        :user => @http_user.login,
+        :user => User.current.login,
         :requestid => params[:id],
         :rev => "latest",
         :comment => "Release from project: " + sprj
