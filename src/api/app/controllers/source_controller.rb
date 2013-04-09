@@ -1309,7 +1309,7 @@ class SourceController < ApplicationController
     pro = Project.get_by_name(project_name)
     if pro.project_type == "maintenance_incident"
       rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
-      rel = rel.where(bs_request_actions: { action_type: 'maintenance_release', source_project: pro.name})
+      rel = rel.where(bs_request_actions: { type: 'maintenance_release', source_project: pro.name})
       if rel.first
         render_error :status => 403, :errorcode => "open_release_request",
           :message => "Unlock of maintenance incident #{} is not possible, because there is a running release request: #{rel.first.id}"

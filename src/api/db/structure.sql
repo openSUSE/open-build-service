@@ -123,7 +123,7 @@ CREATE TABLE `bs_request_action_accept_infos` (
 CREATE TABLE `bs_request_actions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `bs_request_id` int(11) DEFAULT NULL,
-  `action_type` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `type` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `target_project` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `target_package` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `target_releaseproject` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -1048,6 +1048,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130111085930');
 INSERT INTO schema_migrations (version) VALUES ('20130220160000');
 
 INSERT INTO schema_migrations (version) VALUES ('20130301100000');
+
+INSERT INTO schema_migrations (version) VALUES ('20130409123324');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

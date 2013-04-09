@@ -386,7 +386,7 @@ class BsRequest < ActiveRecord::Base
     
     # Filter by request type (submit, delete, ...)
     unless types.blank?
-      rel = rel.where("bs_request_actions.action_type in (?)", types)
+      rel = rel.where("bs_request_actions.type in (?)", types)
     end
 
     unless opts[:project].blank?

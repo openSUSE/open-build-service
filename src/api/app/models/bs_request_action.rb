@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
+require 'api_exception'
+
 class BsRequestAction < ActiveRecord::Base
+
+  # we want the XML attribute in the database
+#  self.store_full_sti_class = false
 
   class DiffError < Exception; end
 
   belongs_to :bs_request
   has_one :bs_request_action_accept_info, :dependent => :delete
 
-  validates_inclusion_of :action_type, :in => [:submit, :delete, :change_devel, :add_role, :set_bugowner, 
-                                               :maintenance_incident, :maintenance_release]
   VALID_SOURCEUPDATE_OPTIONS = ["update", "noupdate", "cleanup"]
   validates_inclusion_of :sourceupdate, :in => VALID_SOURCEUPDATE_OPTIONS, :allow_nil => true
 
@@ -43,12 +46,36 @@ class BsRequestAction < ActiveRecord::Base
   end
 
   def action_type
-    read_attribute(:action_type).to_sym
+    self.class.sti_name
+  end
+
+  def self.find_sti_class(type_name)
+    return super if type_name.nil?
+    return case type_name.to_sym
+      when :submit then BsRequestActionSubmit
+      when :delete then BsRequestActionDelete
+      when :change_devel then BsRequestActionChangeDevel
+      when :add_role then BsRequestActionAddRole
+      when :set_bugowner then BsRequestActionSetBugowner
+      when :maintenance_incident then BsRequestActionMaintenanceIncident
+      when :maintenance_release then BsRequestActionMaintenanceRelease
+      else super
+    end
   end
 
   def self.new_from_xml_hash(hash)
-    a = BsRequestAction.new
-    a.action_type = hash.delete("type").to_sym
+    a = case hash.delete("type").to_sym
+        when :submit then BsRequestActionSubmit.new
+        when :delete then BsRequestActionDelete.new
+        when :change_devel then BsRequestActionChangeDevel.new
+        when :add_role then BsRequestActionAddRole.new
+        when :set_bugowner then BsRequestActionSetBugowner.new
+        when :maintenance_incident then BsRequestActionMaintenanceIncident.new
+        when :maintenance_release then BsRequestActionMaintenanceRelease.new
+        else nil
+        end
+    
+    raise ArgumentError, "unknown type" unless a
 
     source = hash.delete("source")
     if source

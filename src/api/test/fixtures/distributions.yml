@@ -1,7 +1,7 @@
 one:
   id: 1
   vendor: openSUSE
-  version: 1.0
+  version: '1.0'
   name: openSUSE Factory
   project: BaseDistro
   reponame: standard
