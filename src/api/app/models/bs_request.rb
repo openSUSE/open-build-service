@@ -781,5 +781,68 @@ class BsRequest < ActiveRecord::Base
     actions
   end
 
+  class AddReviewNotPermitted < APIException
+    setup "addreview_not_permitted", 403
+  end
+  
+  class PostRequestNoPermission < APIException
+    setup "post_request_no_permission", 403
+  end
+
+  # check if the request can change state - or throw an APIException if not
+  def check_newstate!(opts)
+    # permission and validation check for each action inside
+    write_permission_in_some_source = false
+    write_permission_in_some_target = false
+    
+    self.bs_request_actions.each do |action|
+      wins, wint = action.check_newstate! opts
+      write_permission_in_some_source ||= wins
+      write_permission_in_some_target ||= wint
+    end
+
+    # General permission checks if a write access in any location is enough
+    return unless opts[:extra_permission_checks]
+
+    if ["addreview", "setincident"].include? opts[:cmd]
+      # Is the user involved in any project or package ?
+      unless write_permission_in_some_target or write_permission_in_some_source
+        raise AddReviewNotPermitted.new "You have no role in request #{self.id}"
+      end
+    elsif opts[:cmd] == "changestate" 
+      if [ "superseded" ].include? opts[:newstate]
+        # Is the user involved in any project or package ?
+        unless write_permission_in_some_target or write_permission_in_some_source
+          raise PostRequestNoPermission.new "You have no role in request #{self.id}"
+        end
+      elsif [ "accepted" ].include? opts[:newstate] 
+        # requires write permissions in all targets, this is already handled in each action check
+      elsif [ "revoked" ].include? opts[:newstate] 
+        # general revoke permission check based on source maintainership. We don't get here if the user is the creator of request
+        unless write_permission_in_some_source
+          raise PostRequestNoPermission.new "No permission to revoke request #{self.id}"
+        end
+      elsif self.state == :revoked and [ "new" ].include? opts[:newstate] 
+        unless write_permission_in_some_source
+          # at least on one target the permission must be granted on decline
+          raise PostRequestNoPermission.new "No permission to reopen request #{self.id}"
+        end
+      elsif self.state == :declined and [ "new" ].include? opts[:newstate] 
+        unless write_permission_in_some_target
+          # at least on one target the permission must be granted on decline
+          raise PostRequestNoPermission.new "No permission to reopen request #{self.id}"
+        end
+      elsif [ "declined" ].include? opts[:newstate] 
+        unless write_permission_in_some_target
+          # at least on one target the permission must be granted on decline
+          raise PostRequestNoPermission.new "No permission to change decline request #{self.id}"
+        end
+      else
+        raise PostRequestNoPermission.new "No permission to change request #{self.id} state"
+      end
+    else
+      raise "PLEASE_REPORT: we lacked to handle this situation in our code !"
+    end
+  end
 end
 

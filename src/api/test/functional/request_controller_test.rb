@@ -479,7 +479,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     # add review not permitted anymore
     post "/request/#{id}?cmd=addreview&by_user=king"
     assert_response 403
-    assert_xml_tag( :tag => "status", :attributes => { :code => "add_review_no_permission" } )
+    assert_xml_tag( :tag => "status", :attributes => { :code => "review_change_state_no_permission" } )
   end
 
   # MeeGo BOSS: is using multiple reviews by same user for each step
