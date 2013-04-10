@@ -759,6 +759,12 @@ class BsRequestAction < ActiveRecord::Base
     # does nothing by default
   end
 
+  # this is called per action once it's verified that all actions in a request are
+  # permitted.
+  def create_post_permissions_hook(opts)
+    # does nothing by default
+  end
+
   # general source cleanup, used in submit and maintenance_incident actions
   def source_cleanup
     # cleanup source project

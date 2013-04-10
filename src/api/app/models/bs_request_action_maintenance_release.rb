@@ -183,4 +183,87 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     opts[:projectCommit] = {}
   end
 
+  class LackingReleaseMaintainership < APIException
+    setup "lacking_maintainership", 403
+  end
+
+  class RepositoryWithoutReleaseTarget < APIException
+    setup "repository_without_releasetarget"
+  end
+  
+  class RepositoryWithoutArchitecture < APIException
+    setup "repository_without_architecture"
+  end
+
+  class ArchitectureOrderMissmatch < APIException
+    setup "architecture_order_missmatch"
+  end
+  
+  class OpenReleaseRequests < APIException
+    setup "open_release_requests"
+  end
+
+  def check_permssions!
+    # get sure that the releasetarget definition exists or we release without binaries
+    prj = Project.get_by_name(self.source_project)
+    prj.repositories.includes(:release_targets).each do |repo|
+      unless repo.release_targets.size > 0
+        raise RepositoryWithoutReleaseTarget.new "Release target definition is missing in #{prj.name} / #{repo.name}"
+      end
+      unless repo.architectures.size > 0
+        raise RepositoryWithoutArchitecture.new "Repository has no architecture #{prj.name} / #{repo.name}"
+      end
+      repo.release_targets.each do |rt|
+        unless repo.architectures.first == rt.target_repository.architectures.first
+          raise ArchitectureOrderMissmatch.new "Repository and releasetarget have not the same architecture on first position: #{prj.name} / #{repo.name}"
+        end
+      end
+    end
+    
+    # check for open release requests with same target, the binaries can't get merged automatically
+    # either exact target package match or with same prefix (when using the incident extension)
+    
+    # patchinfos don't get a link, all others should not conflict with any other
+    # FIXME2.4 we have a directory model
+    answer = Suse::Backend.get "/source/#{CGI.escape(self.source_project)}/#{CGI.escape(self.source_package)}"
+    xml = REXML::Document.new(answer.body.to_s)
+    rel = BsRequest.where(state: [:new, :review]).joins(:bs_request_actions)
+    rel = rel.where(bs_request_actions: { target_project: self.target_project })
+    if xml.elements["/directory/entry/@name='_patchinfo'"]
+      rel = rel.where(bs_request_actions: { target_package: self.target_package } )
+    else
+      tpkgprefix = self.target_package.gsub(/\.[^\.]*$/, '')
+      rel = rel.where("bs_request_actions.target_package = ? or bs_request_actions.target_package like '#{tpkgprefix}.%'", self.target_package)
+    end
+    
+    # run search
+    open_ids = rel.select("bs_requests.id").all.map { |r| r.id }
+    
+    unless open_ids.blank?
+      msg = "The following open requests have the same target #{self.target_project} / #{tpkgprefix}: " + open_ids.join(', ')
+      raise OpenReleaseRequests.new msg
+    end
+
+    # creating release requests is also locking the source package, therefore we require write access there.
+    spkg = Package.find_by_project_and_name self.source_project, self.source_package
+    unless spkg or not User.current.can_modify_package? spkg
+      raise LackingReleaseMaintainership.new "Creating a release request action requires maintainership in source package"
+    end
+    
+  end
+
+  def create_post_permissions_hook(opts)
+    object = nil
+    if opts[:per_package_locking]
+      object = spkg
+    else
+      object = spkg.project
+    end
+    unless object.enabled_for?('lock', nil, nil)
+      f = object.flags.find_by_flag_and_status("lock", "disable")
+      object.flags.delete(f) if f # remove possible existing disable lock flag
+      object.flags.create(:status => "enable", :flag => "lock")
+      object.store
+    end
+  end
 end
