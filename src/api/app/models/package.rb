@@ -4,7 +4,9 @@ require 'api_exception'
 class Package < ActiveRecord::Base
   include FlagHelper
 
-  class CycleError < Exception; end
+  class CycleError < APIException
+   setup "cycle_error"
+  end
   class DeleteError < APIException
     attr_accessor :packages
     setup "delete_error"

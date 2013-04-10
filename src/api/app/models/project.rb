@@ -1701,11 +1701,12 @@ class Project < ActiveRecord::Base
       attrs[:incident] = self.name.gsub(/.*:/, '')
     end
     
+    description = req.description || ''
     node.patchinfo(attrs) do |n|
       node.packager    req.creator
       node.category    "recommended" # update_patchinfo may switch to security
       node.rating      "low"
-      node.summary     req.description.split(/\n|\r\n/)[0] # first line only
+      node.summary     description.split(/\n|\r\n/)[0] # first line only
       node.description req.description
     end
     data = ActiveXML::Node.new( node.doc )
@@ -1715,6 +1716,29 @@ class Project < ActiveRecord::Base
     patchinfo_path << Suse::Backend.build_query_from_hash(p, [:user, :comment])
     Suse::Backend.put( patchinfo_path, data.dump_xml )
     patchinfo.sources_changed
+  end
+
+  # updates packages automatically generated in the backend after submitting a product file
+  def update_product_autopackages
+
+    backend_pkgs = Collection.find :id, :what => 'package', :match => "@project='#{self.name}' and starts-with(@name,'_product:')"
+    b_pkg_index = backend_pkgs.each_package.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
+    frontend_pkgs = self.packages.where("`packages`.name LIKE '_product:%'").all
+    f_pkg_index = frontend_pkgs.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
+
+    all_pkgs = [b_pkg_index.keys, f_pkg_index.keys].flatten.uniq
+
+    all_pkgs.each do |pkg|
+      if b_pkg_index.has_key?(pkg) and not f_pkg_index.has_key?(pkg)
+        # new autopackage, import in database
+	p = self.packages.new(name: pkg)
+	p.update_from_xml(Xmlhash.parse(b_pkg_index[pkg].dump_xml))
+	p.store
+      elsif f_pkg_index.has_key?(pkg) and not b_pkg_index.has_key?(pkg)
+        # autopackage was removed, remove from database
+        f_pkg_index[pkg].destroy
+      end
+    end
   end
 
 end

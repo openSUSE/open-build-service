@@ -1,4 +1,3 @@
-include ProductHelper
 include MaintenanceHelper
 include ValidationHelper
 
@@ -447,7 +446,7 @@ class SourceController < ApplicationController
         Suse::Backend.delete path
     
         if target_package_name == "_product"
-          update_product_autopackages params[:project]
+          Project.find_by_name!(params[:project]).update_product_autopackages
         end
       end
       render_ok
@@ -1134,7 +1133,9 @@ class SourceController < ApplicationController
       # update package timestamp, kind and issues
       pack.sources_changed unless params[:rev] == 'repository' or [ "_project", "_pattern" ].include? package_name
 
-      update_product_autopackages params[:project] if package_name == "_product"
+      if package_name == "_product"
+        Project.find_by_name!(params[:project]).update_product_autopackages
+      end
 
     # DELETE /source/:project/:package/:filename
     elsif request.delete?
@@ -1152,7 +1153,7 @@ class SourceController < ApplicationController
         pack.sources_changed
       end
       if package_name == "_product"
-        update_product_autopackages params[:project]
+        Project.find_by_name!(params[:project]).update_product_autopackages
       end
       render_ok
     end
@@ -1734,7 +1735,7 @@ class SourceController < ApplicationController
     pack.sources_changed if pack # in case of _project package
 
     if params[:package] == "_product"
-      update_product_autopackages params[:project]
+      Project.find_by_name!(params[:project]).update_product_autopackages
     end
   end
 
@@ -1756,7 +1757,7 @@ class SourceController < ApplicationController
     end
 
     if params[:package] == "_product"
-      update_product_autopackages params[:project]
+      Project.find_by_name!(params[:project]).update_product_autopackages
     end
   end
 

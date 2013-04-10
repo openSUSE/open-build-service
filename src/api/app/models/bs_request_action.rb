@@ -748,4 +748,45 @@ class BsRequestAction < ActiveRecord::Base
     
     return [write_permission_in_source, write_permission_in_target]
   end
+  
+  def get_releaseproject(pkg, tprj)
+    # only needed for maintenance incidents
+    nil
+  end
+
+  def execute_changestate(opts)
+    raise "Needs to be reimplemented in subclass"
+  end
+
+  # after all actions are executed, the controller calls into every action a cleanup
+  # the actions can "cache" in the opts their state to avoid duplicated work
+  def per_request_cleanup(opts)
+    # does nothing by default
+  end
+
+  # general source cleanup, used in submit and maintenance_incident actions
+  def source_cleanup
+    # cleanup source project
+    source_project = Project.find_by_name(self.source_project)
+    delete_path = nil
+    if source_project.packages.count == 1 or self.source_package.nil?
+      # remove source project, if this is the only package and not the user's home project
+      if source_project.name != "home:" + User.current.login
+        source_project.destroy
+        delete_path = "/source/#{self.source_project}"
+      end
+    else
+      # just remove one package
+      source_package = source_project.packages.find_by_name(self.source_package)
+      source_package.destroy
+      delete_path = "/source/#{self.source_project}/#{self.source_package}"
+    end
+    del_params = {
+      :user => User.current.login,
+      :requestid => self.bs_request.id,
+      :comment => self.bs_request.description
+    }
+    delete_path << Suse::Backend.build_query_from_hash(del_params, [:user, :comment, :requestid])
+    Suse::Backend.delete delete_path
+  end
 end
