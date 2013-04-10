@@ -20,5 +20,10 @@ class BsRequestActionSetBugowner < BsRequestAction
     object.add_user( self.person_name, bugowner )
     object.store
   end
+  
+  def render_xml_attributes(node)
+    render_xml_target(node)
+    node.person :name => self.person_name
+  end
 
 end
