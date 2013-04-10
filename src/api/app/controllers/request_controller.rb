@@ -526,69 +526,71 @@ class RequestController < ApplicationController
       return
     end
 
-    req = BsRequest.new_from_xml(request.body.read)
-    # overwrite stuff
-    req.commenter = User.current.login
-    req.creator = User.current.login
-    req.state = :new
-    
-    # expand release and submit request targets if not specified
-    results = create_expand_targets(req) || return
-    params[:per_package_locking] = results[:per_package_locking]
-
-    # permission checks
-    req.bs_request_actions.each do |action|
-      check_action_permission(action) || return
-    end
-
-    #
-    # Find out about defined reviewers in target
-    #
-    # check targets for defined default reviewers
-    reviewers = []
-
-    req.bs_request_actions.each do |action|
-      reviewers += action.default_reviewers
-
-      action.create_post_permissions_hook(params)
-    end
-    
-    # apply reviewers
-    reviewers.uniq.each do |r|
-      if r.class == User
-        req.reviews.new :by_user => r.login 
-      elsif r.class == Group
-        req.reviews.new :by_group => r.title
-      elsif r.class == Project
-        req.reviews.new :by_project => r.name
-      else 
-        raise "Unknown review type" unless r.class == Package
-        rev = req.reviews.new :by_project => r.project.name
-        rev.by_package = r.name
+    BsRequest.transaction do 
+      req = BsRequest.new_from_xml(request.body.read)
+      # overwrite stuff
+      req.commenter = User.current.login
+      req.creator = User.current.login
+      req.state = :new
+      
+      # expand release and submit request targets if not specified
+      results = create_expand_targets(req) || return
+      params[:per_package_locking] = results[:per_package_locking]
+      
+      # permission checks
+      req.bs_request_actions.each do |action|
+        check_action_permission(action) || return
       end
-      req.state = :review
+      
+      #
+      # Find out about defined reviewers in target
+      #
+      # check targets for defined default reviewers
+      reviewers = []
+      
+      req.bs_request_actions.each do |action|
+        reviewers += action.default_reviewers
+        
+        action.create_post_permissions_hook(params)
+      end
+      
+      # apply reviewers
+      reviewers.uniq.each do |r|
+        if r.class == User
+          req.reviews.new :by_user => r.login 
+        elsif r.class == Group
+          req.reviews.new :by_group => r.title
+        elsif r.class == Project
+          req.reviews.new :by_project => r.name
+        else 
+          raise "Unknown review type" unless r.class == Package
+          rev = req.reviews.new :by_project => r.project.name
+          rev.by_package = r.name
+        end
+        req.state = :review
+      end
+      
+      #
+      # create the actual request
+      #
+      req.save!
+      notify = req.notify_parameters
+      Suse::Backend.send_notification('SRCSRV_REQUEST_CREATE', notify)
+      
+      req.reviews.each do |review|
+        hermes_type, review_notify = review.notify_parameters(notify.dup)
+        Suse::Backend.send_notification(hermes_type, review_notify) if hermes_type
+      end
+      
+      # cache the diff (in the backend)
+      req.bs_request_actions.each do |a|
+        a.delay.webui_infos
+      end
+      
+      render :text => req.render_xml, :content_type => 'text/xml'
     end
-
-    #
-    # create the actual request
-    #
-    req.save!
-    notify = req.notify_parameters
-    Suse::Backend.send_notification('SRCSRV_REQUEST_CREATE', notify)
-
-    req.reviews.each do |review|
-      hermes_type, review_notify = review.notify_parameters(notify.dup)
-      Suse::Backend.send_notification(hermes_type, review_notify) if hermes_type
-    end
-
-    # cache the diff (in the backend)
-    req.bs_request_actions.each do |a|
-      a.delay.webui_infos
-    end
-
-    render :text => req.render_xml, :content_type => 'text/xml'
   end
-
+    
   def command_diff
     valid_http_methods :post
 
@@ -635,9 +637,7 @@ class RequestController < ApplicationController
     setup "post_request_no_permission", 403
   end
 
-  class ReviewNotSpecified < APIException
-    setup "review_not_specified", 400
-  end
+  class ReviewNotSpecified < APIException; end
   
   class PostRequestMissingParamater < APIException
     setup "post_request_missing_parameter", 403
@@ -645,6 +645,10 @@ class RequestController < ApplicationController
 
   class ReviewChangeStateNoPermission < APIException
     setup "review_change_state_no_permission", 403
+  end
+
+  class GroupRequestSpecial < APIException
+    setup "command_only_valid_for_group"
   end
 
   def check_request_change(req, params)
@@ -671,6 +675,13 @@ class RequestController < ApplicationController
       end
     end
     
+    # adding and removing of requests is only allowed for groups
+    if ["addrequest", "removerequest"].include? params[:cmd]
+      if req.bs_request_actions.first.action_type != :group
+        raise GroupRequestSpecial.new "Command #{params[:cmd]} is only valid for group requests"
+      end
+    end
+
     # Do not accept to skip the review, except force argument is given
     if params[:newstate] == "accepted"
       if params[:cmd] == "changestate" and req.state == :review and not params[:force]
@@ -738,7 +749,7 @@ class RequestController < ApplicationController
       # 
       permission_granted = true
     elsif req.state != "accepted" and ["new","review","revoked","superseded"].include?(params[:newstate]) and 
-        req.creator == User.current.login
+      req.creator == User.current.login
       # request creator can reopen, revoke or supersede a request which was declined
       permission_granted = true
     elsif req.state == "declined" and (params[:newstate] == "new" or params[:newstate] == "review") and req.state.who == User.current.login
@@ -752,6 +763,14 @@ class RequestController < ApplicationController
 
     req.check_newstate! params.merge({extra_permission_checks: !permission_granted})
     return true
+  end
+
+  def command_addrequest
+    command_changestate 
+  end
+
+  def command_removerequest
+    command_changestate 
   end
 
   def command_setincident
@@ -776,18 +795,18 @@ class RequestController < ApplicationController
     req = BsRequest.find params[:id]
     if not User.current or not User.current.login
       render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "Action requires authentifacted user."
+                   :message => "Action requires authentifacted user."
       return
     end
-
+    
     # transform request body into query parameter 'comment'
     # the query parameter is preferred if both are set
     if params[:comment].blank? and request.body
       params[:comment] = request.body.read
     end
-
+    
     check_request_change(req, params) || return
-
+    
     # permission granted for the request at this point
 
     # special command defining an incident to be merged
@@ -797,7 +816,7 @@ class RequestController < ApplicationController
     req.bs_request_actions.each do |action|
       if action.action_type == :maintenance_incident
         tprj = Project.get_by_name action.target_project
-
+        
         if params[:cmd] == "setincident"
           # use an existing incident
           if tprj.project_type.to_s == "maintenance"
@@ -815,7 +834,7 @@ class RequestController < ApplicationController
             end
             unless incident_project.name.start_with?(tprj.name)
               render_error :status => 404, :errorcode => "multiple_maintenance_incidents",
-                :message => "This request handles different maintenance incidents, this is not allowed !"
+              :message => "This request handles different maintenance incidents, this is not allowed !"
               return
             end
             action.target_project = incident_project.name
@@ -835,32 +854,35 @@ class RequestController < ApplicationController
       end
     end
 
-    # job done by changing target
-    if params[:cmd] == "setincident"
-      req.save!
-      render_ok
-      return
-    end
-
-    unless params[:cmd] == "changestate" and params[:newstate] == "accepted"
-      case params[:cmd]
+    case params[:cmd]
+      when "setincident"
+        # job done by changing target
+        req.save!
+        render_ok and return
       when "changestate"
-        req.change_state(params[:newstate], params)
-        render_ok
+        if params[:newstate] != "accepted"
+          req.change_state(params[:newstate], params)
+          render_ok and return
+        end
       when "changereviewstate"
         req.change_review_state(params[:newstate], params)
-        render_ok
+        render_ok and return
       when "addreview"
         req.addreview(params)
-        render_ok
+        render_ok and return
+      when "addrequest"
+        req.bs_request_actions.first.addrequest(params)
+        render_ok and return
+      when "removerequest"
+        req.bs_request_actions.first.removerequest(params)
+        render_ok and return
       else
         raise "Unknown params #{params.inspect}"
-      end
-      return
     end
 
     # We have permission to change all requests inside, now execute
     req.bs_request_actions.each do |action|
+      # TODO execute_changeset is misnamed - it should be execute_accept
       action.execute_changestate(params)
     end
 
@@ -875,4 +897,3 @@ class RequestController < ApplicationController
   end
 
 end
-

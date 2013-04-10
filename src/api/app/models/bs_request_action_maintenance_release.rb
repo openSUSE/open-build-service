@@ -203,7 +203,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     setup "open_release_requests"
   end
 
-  def check_permssions!
+  def check_permissions!
     # get sure that the releasetarget definition exists or we release without binaries
     prj = Project.get_by_name(self.source_project)
     prj.repositories.includes(:release_targets).each do |repo|
@@ -254,6 +254,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
   def create_post_permissions_hook(opts)
     object = nil
+    spkg = Package.find_by_project_and_name self.source_project, self.source_package
     if opts[:per_package_locking]
       object = spkg
     else

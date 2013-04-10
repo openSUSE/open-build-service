@@ -554,44 +554,38 @@ class BsRequestAction < ActiveRecord::Base
   end
 
   class TargetNotMaintenance < APIException
-    setup "target_not_maintenance", 404
+    setup 404
   end
 
   class ProjectLocked < APIException
-    setup "project_locked", 403, "The target project is locked"
+    setup 403, "The target project is locked"
   end
 
-  class ExpandError < APIException
-    setup "expand_error", 400
-  end
-
-  class SourceChanged < APIException
-    setup "source_changed", 400
-  end
+  class ExpandError < APIException; end
+  class SourceChanged < APIException; end
 
   class ReleaseTargetNoPermission < APIException
-    setup "release_target_no_permission", 403
+    setup 403
   end
 
-  class NotExistantTarget < APIException
-    setup 'not_existing_target', 400
-  end
-
-  class RepositoryMissing < APIException
-    setup "repository_missing", 400
-  end
+  class NotExistingTarget < APIException; end
+  class RepositoryMissing < APIException; end
 
   class RequestNoPermission < APIException
     setup "post_request_no_permission", 403
   end
 
+  def request_changes_state(state, opts)
+    # only groups care for now
+  end
+  
   # check if the action can change state - or throw an APIException if not
   def check_newstate!(opts)
     # all action types need a target project in any case for accept
     target_project = Project.find_by_name(self.target_project)
     target_package = source_package = nil
     if not target_project and opts[:newstate] == "accepted"
-      raise NotExistantTarget.new "Unable to process project #{self.target_project}; it does not exist."
+      raise NotExistingTarget.new "Unable to process project #{self.target_project}; it does not exist."
     end
 
     if [ :submit, :change_devel, :maintenance_release, :maintenance_incident ].include? self.action_type
@@ -709,7 +703,7 @@ class BsRequestAction < ActiveRecord::Base
         end
       end
     else
-      raise RequestNoPermission.new "Unknown request type #{opts[:newstate]} of request #{req.id} (type #{self.action_type})"
+      raise RequestNoPermission.new "Unknown request type #{opts[:newstate]} of request #{self.bs_request.id} (type #{self.action_type})"
     end
     
     # general source write permission check (for revoke)
