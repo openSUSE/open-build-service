@@ -20,4 +20,13 @@ class BsRequestActionAddRole < BsRequestAction
     object.store
   end
 
+  def render_xml_attributes(node)
+    render_xml_target(node)
+    if self.person_name
+      node.person name: self.person_name, role: self.role
+    end
+    if self.group_name
+      node.group :name => self.group_name, :role => self.role
+    end
+  end
 end

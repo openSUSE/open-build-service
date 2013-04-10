@@ -18,6 +18,14 @@ class BsRequestActionDelete < BsRequestAction
     prj.store(login: opts[:login], lowprio: opts[:lowprio], comment: opts[:comment])
   end
 
+  def render_xml_attributes(node)
+    attributes = {}
+    attributes[:project] = self.target_project unless self.target_project.blank?
+    attributes[:package] = self.target_package unless self.target_package.blank?
+    attributes[:repository] = self.target_repository unless self.target_repository.blank?
+    node.target attributes
+  end
+
   def execute_changestate(opts)
     if self.target_repository
       remove_repository(opts)

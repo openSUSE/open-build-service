@@ -554,11 +554,8 @@ class RequestController < ApplicationController
           return false
         end
       end
-
     else
-      render_error :status => 403, :errorcode => "create_unknown_request",
-      :message => "Request type is unknown '#{action.action_type}'"
-      return false
+      action.check_permissions!
     end
 
     return true
