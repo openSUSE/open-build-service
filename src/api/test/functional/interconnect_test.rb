@@ -5,6 +5,10 @@ class InterConnectTests < ActionController::IntegrationTest
 
   fixtures :all
    
+  def setup
+    wait_for_scheduler_start
+  end
+
   def test_anonymous_access
     get "/public/lastevents" # OBS 2.1
     assert_response :success

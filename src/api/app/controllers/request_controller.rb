@@ -1,8 +1,6 @@
-
 require 'base64'
 
 include MaintenanceHelper
-include ProductHelper
 
 class RequestController < ApplicationController
   #TODO: request schema validation
@@ -142,31 +140,7 @@ class RequestController < ApplicationController
       tpkg = tpkg.gsub(/#{suffix}$/, '') # strip distro specific extension
       
       # maintenance incidents need a releasetarget
-      releaseproject = nil
-      if action.action_type == :maintenance_incident
-        
-        unless pkg.package_kinds.find_by_kind 'patchinfo'
-          if action.target_releaseproject
-            releaseproject = Project.get_by_name action.target_releaseproject
-          else
-            unless tprj
-              render_error :status => 400, :errorcode => 'no_maintenance_release_target',
-              :message => "Maintenance incident request contains no defined release target project for package #{pkg.name}"
-              return
-            end
-            releaseproject = Project.get_by_name tprj
-          end
-          # Automatically switch to update project
-          if a = releaseproject.find_attribute("OBS", "UpdateProject") and a.values[0]
-            releaseproject = Project.get_by_name a.values[0].value
-          end
-          unless releaseproject.project_type.to_sym == :maintenance_release
-            render_error :status => 400, :errorcode => 'no_maintenance_release_target',
-            :message => "Maintenance incident request contains release target project #{releaseproject.name} with invalid type #{releaseproject.project_type} for package #{pkg.name}"
-            return
-          end
-        end
-      end
+      releaseproject = action.get_releaseproject(pkg, tprj)
 
       # do not allow release requests without binaries
       if action.action_type == :maintenance_release and data and params["ignore_build_state"].nil?
@@ -886,7 +860,7 @@ class RequestController < ApplicationController
     # permission granted for the request at this point
 
     # special command defining an incident to be merged
-    check_for_patchinfo = false
+    params[:check_for_patchinfo] = false
     # all maintenance_incident actions go into the same incident project
     incident_project = nil
     req.bs_request_actions.each do |action|
@@ -906,7 +880,7 @@ class RequestController < ApplicationController
             # create incident if it is a maintenance project
             unless incident_project
               incident_project = create_new_maintenance_incident(tprj, nil, req ).project
-              check_for_patchinfo = true
+              params[:check_for_patchinfo] = true
             end
             unless incident_project.name.start_with?(tprj.name)
               render_error :status => 404, :errorcode => "multiple_maintenance_incidents",
@@ -951,255 +925,18 @@ class RequestController < ApplicationController
       else
         raise "Unknown params #{params.inspect}"
       end
-    return
+      return
     end
-
-    # have a unique time stamp for release
-    acceptTimeStamp = Time.now
-    projectCommit = {}
-
-    # use the request description as comments for history
-    source_history_comment = req.description
 
     # We have permission to change all requests inside, now execute
     req.bs_request_actions.each do |action|
-      # general source update options exists ?
-      sourceupdate = action.sourceupdate
-  
-      if action.action_type == :set_bugowner
-          object = Project.find_by_name!(action.target_project)
-          bugowner = Role.get_by_title("bugowner")
-          if action.target_package
-            object = object.packages.find_by_name!(action.target_package)
-            PackageUserRoleRelationship.where("db_package_id = ? AND role_id = ?", object, bugowner).each do |r|
-              r.destroy
-            end
-          else
-            ProjectUserRoleRelationship.where("db_project_id = ? AND role_id = ?", object, bugowner).each do |r|
-              r.destroy
-            end
-          end
-          object.add_user( action.person_name, bugowner )
-          object.store
-      elsif action.action_type == :add_role
-          object = Project.find_by_name(action.target_project)
-          if action.target_package
-             object = object.packages.find_by_name(action.target_package)
-          end
-          if action.person_name
-             role = Role.find_by_title!(action.role)
-             object.add_user( action.person_name, role )
-          end
-          if action.group_name
-             role = Role.find_by_title!(action.role)
-             object.add_group( action.group_name, role )
-          end
-          object.store
-      elsif action.action_type == :change_devel
-          target_project = Project.get_by_name(action.target_project)
-          target_package = target_project.packages.find_by_name(action.target_package)
-          target_package.develpackage = Package.get_by_project_and_name(action.source_project, action.source_package)
-          begin
-            target_package.resolve_devel_package
-            target_package.store
-          rescue Package::CycleError => e
-            # FIXME: this needs to be checked before, or we have a half submitted request
-            render_error :status => 403, :errorcode => "devel_cycle", :message => e.message
-            return
-          end
-      elsif action.action_type == :submit
-          cp_params = {
-            :cmd => "copy",
-            :user => User.current.login,
-            :oproject => action.source_project,
-            :opackage => action.source_package,
-            :noservice => 1,
-            :requestid => params[:id],
-            :comment => source_history_comment,
-	    :withacceptinfo => 1
-          }
-          cp_params[:orev] = action.source_rev if action.source_rev
-          cp_params[:dontupdatesource] = 1 if sourceupdate == "noupdate"
-          unless action.updatelink
-            cp_params[:expand] = 1
-            cp_params[:keeplink] = 1
-          end
-
-          #create package unless it exists already
-          target_project = Project.get_by_name(action.target_project)
-          if action.target_package
-            target_package = target_project.packages.find_by_name(action.target_package)
-          else
-            target_package = target_project.packages.find_by_name(action.source_package)
-          end
-
-          relinkSource=false
-          unless target_package
-            # check for target project attributes
-            initialize_devel_package = target_project.find_attribute( "OBS", "InitializeDevelPackage" )
-            # create package in database
-            linked_package = target_project.find_package(action.target_package)
-            if linked_package
-              newxml = Xmlhash.parse(linked_package.to_axml)
-            else
-              answer = Suse::Backend.get("/source/#{URI.escape(action.source_project)}/#{URI.escape(action.source_package)}/_meta")
-              newxml = Xmlhash.parse(answer.body)
-            end
-            newxml['name'] = action.target_package
-            target_package = target_project.packages.new(name: newxml['name'])
-            target_package.update_from_xml(newxml)
-            if !linked_package
-              target_package.flags.destroy_all
-              target_package.develpackage = nil
-              if initialize_devel_package
-                target_package.develpackage = Package.find_by_project_and_name( action.source_project, action.source_package )
-                relinkSource=true
-              end
-            end
-            target_package.remove_all_persons
-            target_package.remove_all_groups
-            target_package.store
-
-            # check if package was available via project link and create a branch from it in that case
-            if linked_package
-              h = {}
-              h[:cmd] = "branch"
-              h[:user] = User.current.login
-              h[:comment] = "empty branch to project linked package"
-              h[:requestid] = params[:id]
-              h[:noservice] = "1"
-              h[:oproject] = linked_package.project.name
-              h[:opackage] = linked_package.name
-              cp_path = "/source/#{CGI.escape(action.target_project)}/#{CGI.escape(action.target_package)}"
-              cp_path << build_query_from_hash(h, [:user, :comment, :cmd, :oproject, :opackage, :requestid, :orev, :noservice])
-              Suse::Backend.post cp_path, nil
-            end
-          end
-
-          cp_path = "/source/#{action.target_project}/#{action.target_package}"
-          cp_path << build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :orev, :expand, :keeplink, :comment, :requestid, :dontupdatesource, :noservice, :withacceptinfo])
-          result = Suse::Backend.post cp_path, nil
-	  result = Xmlhash.parse(result.body)
-	  action.set_acceptinfo(result["acceptinfo"])
-
-          target_package.sources_changed
-
-          # cleanup source project
-          if relinkSource and not sourceupdate == "noupdate"
-            sourceupdate = nil
-            # source package got used as devel package, link it to the target
-            # re-create it via branch , but keep current content...
-            h = {}
-            h[:cmd] = "branch"
-            h[:user] = User.current.login
-            h[:comment] = "initialized devel package after accepting #{params[:id]}"
-            h[:requestid] = params[:id]
-            h[:keepcontent] = "1"
-            h[:noservice] = "1"
-            h[:oproject] = action.target_project
-            h[:opackage] = action.target_package
-            cp_path = "/source/#{CGI.escape(action.source_project)}/#{CGI.escape(action.source_package)}"
-            cp_path << build_query_from_hash(h, [:user, :comment, :cmd, :oproject, :opackage, :requestid, :keepcontent])
-            Suse::Backend.post cp_path, nil
-          end
-
-      elsif action.action_type == :delete
-          if action.target_repository
-            prj = Project.get_by_name(action.target_project)
-            r=Repository.find_by_project_and_repo_name(action.target_project, action.target_repository)
-            unless r
-              render_error :status => 404, :errorcode => "repository_missing", :message => "The repository #{action.target_project} / #{action.target_repository} does not exist"
-	      return
-            end
-            r.destroy
-            prj.store(params)
-          else
-            if action.target_package
-              package = Package.get_by_project_and_name(action.target_project, action.target_package, use_source: true, follow_project_links: false)
-              package.destroy
-              delete_path = "/source/#{action.target_project}/#{action.target_package}"
-            else
-              project = Project.get_by_name(action.target_project)
-              project.destroy
-              delete_path = "/source/#{action.target_project}"
-            end
-            h = { :user => User.current.login, :comment => source_history_comment, :requestid => params[:id] }
-            delete_path << build_query_from_hash(h, [:user, :comment, :requestid])
-            Suse::Backend.delete delete_path
-          end
-      elsif action.action_type == :maintenance_incident
-        # create or merge into incident project
-        source = nil
-        if action.source_package
-          source = Package.get_by_project_and_name(action.source_project, action.source_package)
-        else
-          source = Project.get_by_name(action.source_project)
-        end
-
-        incident_project = Project.get_by_name(action.target_project)
-
-        # the incident got created before
-        merge_into_maintenance_incident(incident_project, source, action.target_releaseproject, req)
-
-        # update action with real target project
-        action.target_project = incident_project.name
-
-      elsif action.action_type == :maintenance_release
-        pkg = Package.get_by_project_and_name(action.source_project, action.source_package)
-#FIXME2.5: support limiters to specified repositories
-        release_package(pkg, action.target_project, action.target_package, action.source_rev, nil, nil, acceptTimeStamp, req)
-        projectCommit[action.target_project] = action.source_project
-      end
-
-      # general source cleanup, used in submit and maintenance_incident actions
-      if sourceupdate == "cleanup"
-        # cleanup source project
-        source_project = Project.find_by_name(action.source_project)
-        delete_path = nil
-        if source_project.packages.count == 1 or action.source_package.nil?
-          # remove source project, if this is the only package and not the user's home project
-          if source_project.name != "home:" + user.login
-            source_project.destroy
-            delete_path = "/source/#{action.source_project}"
-          end
-        else
-          # just remove one package
-          source_package = source_project.packages.find_by_name(action.source_package)
-          source_package.destroy
-          delete_path = "/source/#{action.source_project}/#{action.source_package}"
-        end
-        del_params = {
-          :user => User.current.login,
-          :requestid => params[:id],
-          :comment => source_history_comment
-        }
-        delete_path << build_query_from_hash(del_params, [:user, :comment, :requestid])
-        Suse::Backend.delete delete_path
-      end
-  
-      if action.target_package == "_product"
-        update_product_autopackages action.target_project
-      end
+      action.execute_changestate(params)
     end
 
-    # log release events once in target project
-    projectCommit.each do |tprj, sprj|
-      commit_params = {
-        :cmd => "commit",
-        :user => User.current.login,
-        :requestid => params[:id],
-        :rev => "latest",
-        :comment => "Release from project: " + sprj
-      }
-      commit_path = "/source/#{URI.escape(tprj)}/_project"
-      commit_path << build_query_from_hash(commit_params, [:cmd, :user, :comment, :requestid, :rev])
-      Suse::Backend.post commit_path, nil
+    # now do per request cleanup
+    req.bs_request_actions.each do |action|
+      action.per_request_cleanup(params)
     end
-
-    # create a patchinfo if missing and incident has just been created
-    if check_for_patchinfo and !incident_project.packages.where(name: "patchinfo").first
-      incident_project.create_patchinfo_from_request(req)
-    end 
 
     # maintenance_incident request are modifying the request during accept
     req.change_state(params[:newstate], params)
