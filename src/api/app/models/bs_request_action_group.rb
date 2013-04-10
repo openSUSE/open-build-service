@@ -28,4 +28,8 @@ class BsRequestActionGroup < BsRequestAction
   def execute_changestate(opts)
     # TODO
   end
+
+  def create_post_permissions_hook(opts)
+    # does nothing by default
+  end
 end

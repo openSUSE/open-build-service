@@ -446,7 +446,7 @@ class RequestController < ApplicationController
         :message => "No source project specified"
         return false
       end
-
+      
       if [ :submit, :maintenance_incident, :maintenance_release ].include? action.action_type
         # validate that the sources are not broken
         begin
@@ -484,53 +484,9 @@ class RequestController < ApplicationController
         end
       end
 
+      # TODO continue refactoring
       if action.action_type == :maintenance_release
-        # get sure that the releasetarget definition exists or we release without binaries
-        prj = Project.get_by_name(action.source_project)
-        prj.repositories.includes(:release_targets).each do |repo|
-          unless repo.release_targets.size > 0
-            render_error :status => 400, :errorcode => "repository_without_releasetarget",
-            :message => "Release target definition is missing in #{prj.name} / #{repo.name}"
-            return false
-          end
-          unless repo.architectures.size > 0
-            render_error :status => 400, :errorcode => "repository_without_architecture",
-            :message => "Repository has no architecture #{prj.name} / #{repo.name}"
-            return false
-          end
-          repo.release_targets.each do |rt|
-            unless repo.architectures.first == rt.target_repository.architectures.first
-              render_error :status => 400, :errorcode => "architecture_order_missmatch",
-              :message => "Repository and releasetarget have not the same architecture on first position: #{prj.name} / #{repo.name}"
-              return false
-            end
-          end
-        end
-
-        # check for open release requests with same target, the binaries can't get merged automatically
-        # either exact target package match or with same prefix (when using the incident extension)
-
-        # patchinfos don't get a link, all others should not conflict with any other
-        # FIXME2.4 we have a directory model
-        answer = Suse::Backend.get "/source/#{CGI.escape(action.source_project)}/#{CGI.escape(action.source_package)}"
-        xml = REXML::Document.new(answer.body.to_s)
-        rel = BsRequest.where(state: [:new, :review]).joins(:bs_request_actions)
-        rel = rel.where(bs_request_actions: { target_project: action.target_project })
-        if xml.elements["/directory/entry/@name='_patchinfo'"]
-          rel = rel.where(bs_request_actions: { target_package: action.target_package } )
-        else
-          tpkgprefix = action.target_package.gsub(/\.[^\.]*$/, '')
-          rel = rel.where("bs_request_actions.target_package = ? or bs_request_actions.target_package like '#{tpkgprefix}.%'", action.target_package)
-        end
-
-        # run search
-        open_ids = rel.select("bs_requests.id").all.map { |r| r.id }
-
-        unless open_ids.blank?
-          render_error :status => 400, :errorcode => "open_release_requests",
-          :message => "The following open requests have the same target #{action.target_project} / #{tpkgprefix}: " + open_ids.join(', ')
-          return false
-        end
+        action.check_permissions!
       end
 
       # source update checks
@@ -561,10 +517,6 @@ class RequestController < ApplicationController
     return true
   end
 
-  class LackingReleaseMaintainership < APIException
-    setup "lacking_maintainership", 403
-  end
-
   # POST /request?cmd=create
   def create_create
     # refuse request creation for anonymous users
@@ -582,7 +534,7 @@ class RequestController < ApplicationController
     
     # expand release and submit request targets if not specified
     results = create_expand_targets(req) || return
-    per_package_locking = results[:per_package_locking]
+    params[:per_package_locking] = results[:per_package_locking]
 
     # permission checks
     req.bs_request_actions.each do |action|
@@ -598,25 +550,7 @@ class RequestController < ApplicationController
     req.bs_request_actions.each do |action|
       reviewers += action.default_reviewers
 
-      if action.action_type == :maintenance_release
-        # creating release requests is also locking the source package, therefore we require write access there.
-        spkg = Package.find_by_project_and_name action.source_project, action.source_package
-        unless spkg or not User.current.can_modify_package? spkg
-          raise LackingReleaseMaintainership.new "Creating a release request action requires maintainership in source package"
-        end
-        object = nil
-        if per_package_locking
-          object = spkg
-        else
-          object = spkg.project
-        end
-        unless object.enabled_for?('lock', nil, nil)
-          f = object.flags.find_by_flag_and_status("lock", "disable")
-          object.flags.delete(f) if f # remove possible existing disable lock flag
-          object.flags.create(:status => "enable", :flag => "lock")
-          object.store
-        end
-      end
+      action.create_post_permissions_hook(params)
     end
     
     # apply reviewers
