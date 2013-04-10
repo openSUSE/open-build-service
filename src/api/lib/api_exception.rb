@@ -5,19 +5,25 @@ class APIException < Exception
   end
   
   class << self
-    @errorcode = 'internal_server_error'
+    @errorcode = nil
     @status = 400
     @default_message = nil
 
-    def setup(setvalue, status = 400, message = nil)
-      @errorcode = setvalue
-      @status = status
-      @default_message = message
+    def setup(setvalue, status = nil, message = nil)
+      if setvalue.is_a? String
+        @errorcode = setvalue
+        @status = status || 400
+        @default_message = message
+      else # support having the status first
+        @status = setvalue
+        @default_message = status
+      end
     end
   end
 
   def errorcode
-    self.class.instance_variable_get "@errorcode"
+    err = self.class.instance_variable_get "@errorcode"
+    err || self.class.name.split('::').last.underscore
   end
   
   def status
