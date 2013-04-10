@@ -49,8 +49,10 @@ else
 backenddir="$OBS_BASE_DIR"
 fi
 
-
 FQHOSTNAME=`hostname -f `
+if type ec2-public-hostname; then
+  FQHOSTNAME=`ec2-public-hostname`
+fi
 
 if [ "$?" != "0" ]; then
   # Fallback to IP of the VM/host
