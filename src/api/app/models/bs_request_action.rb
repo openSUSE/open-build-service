@@ -27,17 +27,6 @@ class BsRequestAction < ActiveRecord::Base
       end
       errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
     end
-    if action_type == :add_role
-      errors.add(:role, "should not be empty for add_role") if role.blank?
-      if person_name.blank? && group_name.blank?
-        errors.add(:person_name, "Either person or group needs to be set")
-      end
-    end
-    if action_type == :delete
-      errors.add(:source_project, "source can not be used in delete action") if source_project
-      errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
-      errors.add(:target_project, "must not target package and target repository") if target_repository and target_package
-    end
     errors.add(:target_package, "is invalid package name") if target_package && !Package.valid_name?(target_package)
     errors.add(:source_package, "is invalid package name") if source_package && !Package.valid_name?(source_package)
     errors.add(:target_project, "is invalid project name") if target_project && !Project.valid_name?(target_project)

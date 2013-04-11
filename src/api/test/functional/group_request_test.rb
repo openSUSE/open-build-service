@@ -6,6 +6,10 @@ class GroupRequestTest < ActionController::IntegrationTest
 
   fixtures :all
 
+  setup do
+    Timecop.freeze(2010, 7, 12)
+  end
+
   teardown do
     Timecop.return
   end
@@ -19,7 +23,6 @@ class GroupRequestTest < ActionController::IntegrationTest
   end
 
   def test_set_and_get
-    Timecop.freeze(2010, 7, 12)
     prepare_request_with_user "king", "sunflower"
     # make sure there is at least one
     id = upload_request("group")
@@ -115,7 +118,6 @@ class GroupRequestTest < ActionController::IntegrationTest
   end
 
   test "remove request" do
-    Timecop.freeze(2010, 7, 12)
     prepare_request_with_user "king", "sunflower"
     id = upload_request("group")
 
@@ -133,6 +135,73 @@ class GroupRequestTest < ActionController::IntegrationTest
 
     get "/request/#{id}"
     assert_response :success
+    assert_xml_tag(:tag => "state", :attributes => {:name => "new"})
+
+  end
+
+  test "accept reviews in group" do
+    prepare_request_with_user "king", "sunflower"
+    id = upload_request("group")
+
+    # now one in review
+    withr = upload_request("submit_with_review")
+    post "/request/#{id}?cmd=addrequest&newid=#{withr}&comment=review+too"
+    assert_response :success
+
+    withr2 = upload_request("submit_with_review")
+    post "/request/#{id}?cmd=addrequest&newid=#{withr2}&comment=review2"
+    assert_response :success
+
+    post "/request/#{withr2}?cmd=changereviewstate&by_user=adrian&newstate=accepted"
+    assert_response :success
+    post "/request/#{withr2}?cmd=changereviewstate&by_group=test_group&newstate=accepted"
+    assert_response :success
+    get "/request/#{withr2}"
+    # now it would be new - but as #{withhr} is still in review, the group blocks it
+    assert_xml_tag(:tag => "state", :attributes => {:name => "review"})
+
+    # now accept the same for withr
+    post "/request/#{withr}?cmd=changereviewstate&by_user=adrian&newstate=accepted"
+    assert_response :success
+    post "/request/#{withr}?cmd=changereviewstate&by_group=test_group&newstate=accepted"
+    assert_response :success
+    get "/request/#{withr}"
+    # should be new as no other review in the group blocked it
+    assert_xml_tag(:tag => "state", :attributes => {:name => "new"})
+
+    # withhr2 should be magically be new now too
+    get "/request/#{withr2}"
+    assert_xml_tag(:tag => "state", :attributes => {:name => "new"})
+
+    # now comes the ugly part - reopening review in withhr should put withhr2 back in review
+    post "/request/#{withr}?cmd=changereviewstate&by_user=adrian&newstate=new"
+    # withhr should be in review of course
+    get "/request/#{withr}"
+    assert_xml_tag(:tag => "state", :attributes => {:name => "review"})
+    # but also withhr2
+    get "/request/#{withr2}"
+    assert_xml_tag(:tag => "state", :attributes => {:name => "review"})
+  end
+
+  test "accept sub request" do
+    prepare_request_with_user "king", "sunflower"
+    id = upload_request("group")
+
+    # now one in review
+    withr = upload_request("add_role_with_review")
+    post "/request/#{id}?cmd=addrequest&newid=#{withr}&comment=review+too"
+    assert_response :success
+
+    # it should be in review now
+    get "/request/#{id}"
+    assert_xml_tag(:tag => "state", :attributes => {:name => "review"})
+    
+    # now accept a subrequest - it's automatically removed
+    post "/request/#{withr}?cmd=changestate&newstate=accepted&force=1"
+    assert_response :success
+
+    # and with that the group is in new again
+    get "/request/#{id}"
     assert_xml_tag(:tag => "state", :attributes => {:name => "new"})
 
   end

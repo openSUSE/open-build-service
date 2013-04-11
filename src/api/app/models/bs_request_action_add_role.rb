@@ -4,6 +4,14 @@ class BsRequestActionAddRole < BsRequestAction
     return :add_role
   end
 
+  def check_sanity
+    super
+    errors.add(:role, "should not be empty for add_role") if role.blank?
+    if person_name.blank? && group_name.blank?
+      errors.add(:person_name, "Either person or group needs to be set")
+    end
+  end
+
   def execute_changestate(opts)
     object = Project.find_by_name(self.target_project)
     if self.target_package
