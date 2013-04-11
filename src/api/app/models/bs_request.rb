@@ -1,7 +1,6 @@
 require 'xmlhash'
 require 'opensuse/backend'
 
-#noinspection ALL
 class BsRequest < ActiveRecord::Base
 
   class InvalidStateError < APIException
@@ -19,7 +18,6 @@ class BsRequest < ActiveRecord::Base
   has_many :bs_request_actions, :dependent => :destroy, :include => [:bs_request_action_accept_info]
   has_many :bs_request_histories, :dependent => :delete_all
   has_many :reviews, :dependent => :delete_all
-  #noinspection RailsParamDefResolve,RailsParamDefResolve
   has_and_belongs_to_many :bs_request_action_groups, join_table: :group_request_requests
   validates_inclusion_of :state, :in => VALID_REQUEST_STATES
   validates :creator, :presence => true
@@ -71,11 +69,6 @@ class BsRequest < ActiveRecord::Base
       if actions.kind_of? Hash
         actions = [actions]
       end
-      actions.each do |ac|
-        a = BsRequestAction.new_from_xml_hash(ac)
-        request.bs_request_actions << a
-        a.bs_request = request
-      end if actions
 
       state = hashed.delete('state') || Xmlhash::XMLHash.new({'name' => 'new'})
       request.state = state.delete('name') { raise ArgumentError, 'state without name' }
@@ -93,6 +86,12 @@ class BsRequest < ActiveRecord::Base
       end
       # to be overwritten if we find history
       request.creator = request.commenter
+
+      actions.each do |ac|
+        a = BsRequestAction.new_from_xml_hash(ac)
+        request.bs_request_actions << a
+        a.bs_request = request
+      end if actions
 
       str = state.delete('when')
       request.updated_at = Time.zone.parse(str) if str
@@ -205,6 +204,9 @@ class BsRequest < ActiveRecord::Base
 
   def remove_from_group(group)
     self.bs_request_action_groups.delete(group)
+    # this request could be the last one in review
+    group.check_for_group_in_new
+
     # and now check the reviews
     if self.bs_request_action_groups.empty? and self.state == :review
       self.reviews.each do |r|
@@ -228,6 +230,9 @@ class BsRequest < ActiveRecord::Base
       bs_request_actions.each do |a|
         # "inform" the actions
         a.request_changes_state(state, opts)
+      end
+      self.bs_request_action_groups.each do |g|
+        g.remove_request(self.id)
       end
       oldstate = self.state
       self.state = state
@@ -323,7 +328,25 @@ class BsRequest < ActiveRecord::Base
         if state == :superseded
           self.state = :superseded
           self.superseded_by = opts[:superseded_by]
-        else # either no open reviews anymore or going back to review
+        elsif go_new_state # either no open reviews anymore or going back to review
+          if go_new_state == :new
+            # if it would go to new, we need to check if all groups agree
+            self.bs_request_action_groups.each do |g|
+              if g.find_review_state_of_group == :review
+                go_new_state = nil
+              end
+            end
+            # if all groups agreed, we can set all now to new
+            if go_new_state
+              self.bs_request_action_groups.each do |g|
+                g.set_group_to_new
+              end
+            end
+          elsif go_new_state == :review
+            self.bs_request_action_groups.each do |g|
+              g.set_group_to_review
+            end
+          end
           self.state = go_new_state if go_new_state
         end
 

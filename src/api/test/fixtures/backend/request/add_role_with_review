@@ -1,0 +1,11 @@
+<request>
+  <action type='add_role'>
+    <target project='kde4' package='kdelibs' />
+    <person name='Iggy' role='reviewer' />
+  </action>
+  <description/>
+  <review state="new" by_user="adrian" />
+  <review state="new" by_group="test_group" />
+</request>
+
+

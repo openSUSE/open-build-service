@@ -6,9 +6,31 @@ class BsRequestActionGroup < BsRequestAction
     return :group
   end
 
-  class AlreadyGrouped < APIException;
+  class AlreadyGrouped < APIException
   end
-  class CantGroupInGroups < APIException;
+  class CantGroupInGroups < APIException
+  end
+  class CantGroupRequest < APIException
+    403
+  end
+
+  def check_permissions_on(req)
+    # root is always right
+    return if User.current.is_admin?
+
+    # Creators can group their own creations
+    creator = User.current
+    if self.bs_request # bootstrap?
+      creator = self.bs_request.creator
+    end 
+    return if creator == req.creator
+
+    # a single request is always fine
+    return if self.bs_requests.size == 1
+
+    return if req.is_target_maintainer?(User.current)
+
+    raise CantGroupRequest.new "Request #{req.id} does not match in the group"
   end
 
   def check_and_add_request(newid)
@@ -19,7 +41,7 @@ class BsRequestActionGroup < BsRequestAction
     if req.bs_request_actions.first.action_type == :group
       raise CantGroupInGroups.new "Groups are not supported in groups"
     end
-    # TODO check if we can change the new request
+    check_permissions_on(req)
     self.bs_requests << req
   end
 
@@ -31,10 +53,18 @@ class BsRequestActionGroup < BsRequestAction
     hash.delete("grouped")
   end
 
+  class GroupActionMustBeSingle < APIException;
+  end
+
   def check_permissions!
-    # TODO a group means we change request states to review and back.
     # so we need an involvement in all requests
-    # TODO it should be forbidden to have more than one action in a group request
+    self.bs_requests.each do |r|
+      check_permissions_on(r)
+    end
+
+    if self.bs_request.bs_request_actions.size > 1
+      raise GroupActionMustBeSingle.new "You can't mix group actions with other actions"
+    end
   end
 
   def render_xml_attributes(node)
@@ -70,13 +100,17 @@ class BsRequestActionGroup < BsRequestAction
     end
   end
 
-  def create_post_permissions_hook(opts)
+  def check_for_group_in_review
     group_state = find_review_state_of_group
     # only if there are open reviews, there is any need to change something
     if group_state == :review
       self.bs_request.state = :review
       set_group_to_review
     end
+  end
+
+  def create_post_permissions_hook(opts)
+    check_for_group_in_review
   end
 
   class RequireId < APIException;
@@ -119,6 +153,13 @@ class BsRequestActionGroup < BsRequestAction
     end
   end
 
+  def check_for_group_in_new
+    group_state = find_review_state_of_group
+    if group_state == :new && self.bs_request.state == :review
+      set_group_to_new
+    end
+  end
+
   def removerequest(opts)
     logger.debug "removerequest #{opts}"
     old_id = nil
@@ -128,11 +169,7 @@ class BsRequestActionGroup < BsRequestAction
       raise RequireId.new("Need the old id in the oldid parameter")
     end
     remove_request(old_id)
-    group_state = find_review_state_of_group
-    if group_state == :new && self.bs_request.state == :review
-      set_group_to_new
-    end
-
+    check_for_group_in_new
   end
 
   def find_review_state_of_group

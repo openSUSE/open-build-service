@@ -7,4 +7,7 @@ class Tagging < ActiveRecord::Base
                             :foreign_key => "taggable_id"
   belongs_to :packages,  :class_name => "Package",
                             :foreign_key => "taggable_id"
+
+  attr_accessible nil
+
 end
