@@ -44,6 +44,7 @@ class SpiderTest < ActionDispatch::IntegrationTest
   def raiseit(message, url)
     # known issues
     return if url =~ %r{/package/binary\?.*project=BinaryprotectedProject}
+    return if url =~ %r{/package/statistics\?.*project=BinaryprotectedProject}
     return if url.end_with? "/package/binary?arch=i586&filename=package-1.0-1.src.rpm&package=pack&project=SourceprotectedProject&repository=repo"
     return if url.end_with? "/package/revisions?package=pack&project=SourceprotectedProject"
     return if url.end_with? "/package/revisions?package=target&project=SourceprotectedProject"
