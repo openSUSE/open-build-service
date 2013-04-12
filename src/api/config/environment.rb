@@ -7,7 +7,7 @@ path = Rails.root.join("config", "options.yml")
 
 begin
   CONFIG = YAML.load_file(path)
-rescue Exception => e
+rescue Exception
   puts "Error while parsing config file #{path}"
   CONFIG = Hash.new
 end

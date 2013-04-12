@@ -139,21 +139,6 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_match(/Delete operation of build results is not allowed/, @response.body)
   end
 
-  def test_read_access_hidden_project_index
-    # Test if hidden projects appear for the right users
-    # testing build_controller project_index 
-    # currently this test shows that there's an information leak.
-    get "/build"
-    assert_response :success
-    assert_no_match(/entry name="HiddenProject"/, @response.body)
-    # retry with maintainer
-    prepare_request_with_user "adrian", "so_alone"
-    get "/build"
-    assert_response :success
-    assert_match(/entry name="HiddenProject"/, @response.body)
-    prepare_request_valid_user
-  end
-
   def test_buildinfo
     # just testing routing
     get "/build/buildinfo"
@@ -444,6 +429,19 @@ class BuildControllerTest < ActionController::IntegrationTest
   end
 
   def test_read_access_hidden_project_index
+    # Test if hidden projects appear for the right users
+    # testing build_controller project_index 
+    # currently this test shows that there's an information leak.
+    get "/build"
+    assert_response :success
+    assert_no_match(/entry name="HiddenProject"/, @response.body)
+    # retry with maintainer
+    prepare_request_with_user "adrian", "so_alone"
+    get "/build"
+    assert_response :success
+    assert_match(/entry name="HiddenProject"/, @response.body)
+    prepare_request_valid_user
+
     #invalid
     get "/build/HiddenProject"
     assert_response 404
