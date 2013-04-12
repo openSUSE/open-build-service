@@ -12,13 +12,18 @@ env:
   # full webrat test suite
   - SUBTEST=webui1
   - SUBTEST=webui2
+  - SUBTEST=webui:functional/spider_test.rb:test_spider_as_admin RUN_SPIDER=1
+  - SUBTEST=webui:functional/spider_test.rb:test_spider_anonymously RUN_SPIDER=1
   # api and webui webrat with latest gems
-#  - SUBTEST=api REMOVEGEMLOCK=true
-#  - SUBTEST=webui REMOVEGEMLOCK=true
+  #- SUBTEST=api REMOVEGEMLOCK=true
+  #- SUBTEST=webui1 REMOVEGEMLOCK=true
+  #- SUBTEST=webui2 REMOVEGEMLOCK=true
 matrix:
   allow_failures:
     - env: SUBTEST=api REMOVEGEMLOCK=true
-    - env: SUBTEST=webui REMOVEGEMLOCK=true
+    - env: SUBTEST=webui1 REMOVEGEMLOCK=true
+    - env: SUBTEST=webui2 REMOVEGEMLOCK=true
+    - rvm: 2.0.0
 notifications:
   email:
     on_success: change
