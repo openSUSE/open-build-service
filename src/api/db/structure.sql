@@ -273,7 +273,9 @@ CREATE TABLE `flags` (
 
 CREATE TABLE `group_request_requests` (
   `bs_request_action_group_id` int(11) DEFAULT NULL,
-  `bs_request_id` int(11) DEFAULT NULL
+  `bs_request_id` int(11) DEFAULT NULL,
+  KEY `index_group_request_requests_on_bs_request_id` (`bs_request_id`),
+  KEY `index_group_request_requests_on_bs_request_action_group_id` (`bs_request_action_group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `groups` (
@@ -1057,6 +1059,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130301100000');
 INSERT INTO schema_migrations (version) VALUES ('20130409123324');
 
 INSERT INTO schema_migrations (version) VALUES ('20130410124738');
+
+INSERT INTO schema_migrations (version) VALUES ('20130414061002');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

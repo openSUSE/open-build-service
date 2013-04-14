@@ -181,6 +181,7 @@ class GroupRequestTest < ActionController::IntegrationTest
     # but also withhr2
     get "/request/#{withr2}"
     assert_xml_tag(:tag => "state", :attributes => {:name => "review"})
+
   end
 
   test "accept sub request" do
@@ -204,5 +205,18 @@ class GroupRequestTest < ActionController::IntegrationTest
     get "/request/#{id}"
     assert_xml_tag(:tag => "state", :attributes => {:name => "new"})
 
+  end
+
+  test "search groups" do
+    prepare_request_with_user "king", "sunflower"
+    upload_request("group")
+     
+    get "/search/request?match=action/grouped/@id=997"
+    assert_response :success
+    assert_xml_tag(:tag => "collection", :attributes => {:matches => "0"})
+   
+    get "/search/request?match=action/grouped/@id=998"
+    assert_response :success
+    assert_xml_tag(:tag => "collection", :attributes => {:matches => "1"})
   end
 end
