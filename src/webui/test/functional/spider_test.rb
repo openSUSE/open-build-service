@@ -81,7 +81,7 @@ class SpiderTest < ActionDispatch::IntegrationTest
       @pages_to_visit.delete theone
 
       begin
-	#puts "V #{theone} #{@pages_to_visit.length}/#{@pages_visited.keys.length+@pages_to_visit.length}"
+	puts "V #{theone} #{@pages_to_visit.length}/#{@pages_visited.keys.length+@pages_to_visit.length}"
         page.visit(theone)
         page.first(:id, 'header-logo')
       rescue Timeout::Error

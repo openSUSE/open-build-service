@@ -8,6 +8,8 @@ class Tag < ActiveRecord::Base
   
   has_many :users, :through => :taggings
 
+  attr_accessible nil
+
   attr_accessor :cached_count
   
   def count(opt={})
@@ -34,7 +36,7 @@ class Tag < ActiveRecord::Base
     @cached_count                                                                     
   end
   
-  validates :name, :format => { :with => /^[^:?]*$/, :message => "no ? and : allowed!" } 
+  validates :name, :format => { :with => /\A[^:?]*\z/, :message => "no ? and : allowed!" } 
   validate :not_blacklisted
 
   protected

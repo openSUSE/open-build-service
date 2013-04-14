@@ -19,9 +19,9 @@ class RequestController < ApplicationController
 
       # Do not allow a full collection to avoid server load
       if params[:project].blank? and params[:user].blank? and params[:states].blank? and params[:types].blank? and params[:reviewstates].blank? and params[:ids].blank?
-       render_error :status => 404, :errorcode => 'require_filter',
-         :message => "This call requires at least one filter, either by user, project or package or states or types or reviewstates"
-       return
+        render_error :status => 404, :errorcode => 'require_filter',
+                     :message => "This call requires at least one filter, either by user, project or package or states or types or reviewstates"
+        return
       end
 
       # convert comma seperated values into arrays
@@ -29,12 +29,12 @@ class RequestController < ApplicationController
       types = params[:types].split(',') if params[:types]
       states = params[:states].split(',') if params[:states]
       review_states = params[:reviewstates].split(',') if params[:reviewstates]
-      ids = params[:ids].split(',').map {|i| i.to_i } if params[:ids]
+      ids = params[:ids].split(',').map { |i| i.to_i } if params[:ids]
 
-      params.merge!({ states: states, types: types, review_states: review_states, roles: roles, ids: ids })
-      rel = BsRequest.collection( params )
+      params.merge!({states: states, types: types, review_states: review_states, roles: roles, ids: ids})
+      rel = BsRequest.collection(params)
       rel = rel.includes([:reviews, :bs_request_histories])
-      rel = rel.includes({ bs_request_actions: :bs_request_action_accept_info })
+      rel = rel.includes({bs_request_actions: :bs_request_action_accept_info})
       rel = rel.order('bs_requests.id')
 
       xml = ActiveXML::Node.new "<collection/>"
@@ -48,7 +48,7 @@ class RequestController < ApplicationController
     else
       # directory list of all requests. not very useful but for backward compatibility...
       # OBS3: make this more useful
-      builder = Nokogiri::XML::Builder.new 
+      builder = Nokogiri::XML::Builder.new
       builder.directory do
         BsRequest.select(:id).order(:id).each do |r|
           builder.entry name: r.id
@@ -81,7 +81,7 @@ class RequestController < ApplicationController
       req = BsRequest.new_from_xml(request.body.read)
       req.id = params[:id]
       req.save!
-      
+
       notify = oldrequest.notify_parameters
       Suse::Backend.send_notification("SRCSRV_REQUEST_CHANGE", notify)
 
@@ -108,7 +108,7 @@ class RequestController < ApplicationController
       # The maintenance ID is always the sub project name of the maintenance project
       incident_suffix = "." + action.source_project.gsub(/.*:/, "")
     end
-    
+
     found_patchinfo = nil
     newPackages = Array.new
     newTargets = Array.new
@@ -126,10 +126,10 @@ class RequestController < ApplicationController
       suffix = ""
       while tprj == pkg.project.name
         # FIXME2.4 we have a Directory model!
-        data = REXML::Document.new( backend_get("/source/#{URI.escape(tprj)}/#{URI.escape(ltpkg)}") )
+        data = REXML::Document.new(backend_get("/source/#{URI.escape(tprj)}/#{URI.escape(ltpkg)}"))
         e = data.elements["directory/linkinfo"]
         if e
-          suffix = ltpkg.gsub( /^#{e.attributes["package"]}/, '' )
+          suffix = ltpkg.gsub(/^#{e.attributes["package"]}/, '')
           ltpkg = e.attributes["package"]
           tprj = e.attributes["project"]
           missing_ok_link=true if e.attributes["missingok"]
@@ -138,7 +138,7 @@ class RequestController < ApplicationController
         end
       end
       tpkg = tpkg.gsub(/#{suffix}$/, '') # strip distro specific extension
-      
+
       # maintenance incidents need a releasetarget
       releaseproject = action.get_releaseproject(pkg, tprj)
 
@@ -148,17 +148,17 @@ class RequestController < ApplicationController
         entries.each do |entry|
           next unless entry.attributes["name"] == "_patchinfo"
           # check for build state and binaries
-          state = REXML::Document.new( backend_get("/build/#{URI.escape(pkg.project.name)}/_result") )
+          state = REXML::Document.new(backend_get("/build/#{URI.escape(pkg.project.name)}/_result"))
           repos = state.get_elements("/resultlist/result[@project='#{pkg.project.name}'')]")
           unless repos
             render_error :status => 400, :errorcode => 'build_not_finished',
-            :message => "The project'#{pkg.project.name}' has no building repositories"
+                         :message => "The project'#{pkg.project.name}' has no building repositories"
             return
           end
           repos.each do |repo|
             unless ["finished", "publishing", "published", "unpublished"].include? repo.attributes['state']
               render_error :status => 400, :errorcode => 'build_not_finished',
-              :message => "The repository '#{pkg.project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']}"
+                           :message => "The repository '#{pkg.project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']}"
               return
             end
           end
@@ -167,14 +167,14 @@ class RequestController < ApplicationController
               # skip excluded patchinfos
               status = state.get_elements("/resultlist/result[@repository='#{repo.name}' and @arch='#{repo.architectures.first.name}']").first
               unless status and s=status.get_elements("status[@package='#{pkg.name}']").first and s.attributes['code'] == "excluded"
-                binaries = REXML::Document.new( backend_get("/build/#{URI.escape(pkg.project.name)}/#{URI.escape(repo.name)}/#{URI.escape(repo.architectures.first.name)}/#{URI.escape(pkg.name)}") )
+                binaries = REXML::Document.new(backend_get("/build/#{URI.escape(pkg.project.name)}/#{URI.escape(repo.name)}/#{URI.escape(repo.architectures.first.name)}/#{URI.escape(pkg.name)}"))
                 l = binaries.get_elements("binarylist/binary")
                 if l and l.count > 0
                   found_patchinfo = 1
                 else
                   render_error :status => 400, :errorcode => 'build_not_finished',
-                  :message => "patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'"
-                  return 
+                               :message => "patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'"
+                  return
                 end
               end
             end
@@ -183,7 +183,7 @@ class RequestController < ApplicationController
       end
       # Will this be a new package ?
       unless missing_ok_link
-        unless e and Package.exists_by_project_and_name( tprj, tpkg, follow_project_links: true, allow_remote_packages: false)
+        unless e and Package.exists_by_project_and_name(tprj, tpkg, follow_project_links: true, allow_remote_packages: false)
           if action.action_type == :maintenance_release
             newPackages << pkg
             pkg.project.repositories.includes(:release_targets).each do |repo|
@@ -194,8 +194,8 @@ class RequestController < ApplicationController
             next
           elsif action.action_type != :maintenance_incident
             render_error :status => 400, :errorcode => 'unknown_target_package',
-            :message => "target package does not exist"
-            return 
+                         :message => "target package does not exist"
+            return
           end
         end
       end
@@ -211,7 +211,7 @@ class RequestController < ApplicationController
         end
         unless found
           render_error :status => 400, :errorcode => 'wrong_linked_package_source',
-          :message => "According to the source link of package #{pkg.project.name}/#{pkg.name} it would go to project #{tprj} which is not specified as release target."
+                       :message => "According to the source link of package #{pkg.project.name}/#{pkg.name} it would go to project #{tprj} which is not specified as release target."
           return
         end
       end
@@ -230,7 +230,7 @@ class RequestController < ApplicationController
     end
     if action.action_type == :maintenance_release and found_patchinfo.nil? and params["ignore_build_state"].nil?
       render_error :status => 400, :errorcode => 'missing_patchinfo',
-      :message => "maintenance release request without patchinfo would release no binaries"
+                   :message => "maintenance release request without patchinfo would release no binaries"
       return
     end
 
@@ -244,22 +244,22 @@ class RequestController < ApplicationController
         # validate _patchinfo for completeness
         unless data
           render_error :status => 400, :errorcode => 'incomplete_patchinfo',
-          :message => "The _patchinfo file is not parseble"
+                       :message => "The _patchinfo file is not parseble"
           return
         end
         if data.rating.nil? or data.rating.text.blank?
           render_error :status => 400, :errorcode => 'incomplete_patchinfo',
-          :message => "The _patchinfo has no rating set"
+                       :message => "The _patchinfo has no rating set"
           return
         end
         if data.category.nil? or data.category.text.blank?
           render_error :status => 400, :errorcode => 'incomplete_patchinfo',
-          :message => "The _patchinfo has no category set"
+                       :message => "The _patchinfo has no category set"
           return
         end
         if data.summary.nil? or data.summary.text.blank?
           render_error :status => 400, :errorcode => 'incomplete_patchinfo',
-          :message => "The _patchinfo has no summary set"
+                       :message => "The _patchinfo has no summary set"
           return
         end
         # a patchinfo may limit the targets
@@ -303,40 +303,40 @@ class RequestController < ApplicationController
 
     # FIXME2.4 move this into action model
     req.bs_request_actions.each do |action|
-      if [ :maintenance_incident ].include?(action.action_type)
+      if [:maintenance_incident].include?(action.action_type)
         # find maintenance project
         maintenanceProject = nil
         if action.target_project
-          maintenanceProject = Project.get_by_name action.target_project 
+          maintenanceProject = Project.get_by_name action.target_project
         else
           # hardcoded default. frontends can lookup themselfs a different target via attribute search
           at = AttribType.find_by_name("OBS:MaintenanceProject")
           unless at
             render_error :status => 404, :errorcode => 'not_found',
-              :message => "Required OBS:Maintenance attribute not found, system not correctly deployed."
+                         :message => "Required OBS:Maintenance attribute not found, system not correctly deployed."
             return
           end
-          maintenanceProject = Project.find_by_attribute_type( at ).first
+          maintenanceProject = Project.find_by_attribute_type(at).first
           unless maintenanceProject
             render_error :status => 400, :errorcode => 'project_not_found',
-              :message => "There is no project flagged as maintenance project on server and no target in request defined."
+                         :message => "There is no project flagged as maintenance project on server and no target in request defined."
             return
           end
           action.target_project = maintenanceProject.name
         end
         unless maintenanceProject.project_type.to_s == "maintenance" or maintenanceProject.project_type.to_s == "maintenance_incident"
           render_error :status => 400, :errorcode => 'no_maintenance_project',
-            :message => "Maintenance incident requests have to go to projects of type maintenance or maintenance_incident"
+                       :message => "Maintenance incident requests have to go to projects of type maintenance or maintenance_incident"
           return
         end
       end
 
       # expand target_package
-      if [ :submit, :maintenance_release, :maintenance_incident ].include?(action.action_type)
+      if [:submit, :maintenance_release, :maintenance_incident].include?(action.action_type)
         next if action.target_package
         packages = Array.new
         if action.source_package
-          packages << Package.get_by_project_and_name( action.source_project, action.source_package )
+          packages << Package.get_by_project_and_name(action.source_project, action.source_package)
           per_package_locking = true
         else
           packages = Project.get_by_name(action.source_project).packages
@@ -353,7 +353,7 @@ class RequestController < ApplicationController
     oldactions.each { |a| req.bs_request_actions.destroy a }
     newactions.each { |a| req.bs_request_actions << a }
 
-    return { per_package_locking: per_package_locking }
+    return {per_package_locking: per_package_locking}
 
   end
 
@@ -381,12 +381,12 @@ class RequestController < ApplicationController
       sprj = Project.get_by_name action.source_project
       unless sprj
         render_error :status => 404, :errorcode => 'unknown_project',
-        :message => "Unknown source project #{action.source_project}"
+                     :message => "Unknown source project #{action.source_project}"
         return false
       end
       unless sprj.class == Project
         render_error :status => 400, :errorcode => 'not_supported',
-        :message => "Source project #{action.source_project} is not a local project. This is not supported yet."
+                     :message => "Source project #{action.source_project} is not a local project. This is not supported yet."
         return false
       end
       if action.source_package
@@ -398,13 +398,13 @@ class RequestController < ApplicationController
       tprj = Project.get_by_name action.target_project
       if tprj.class == Project and tprj.project_type.to_sym == :maintenance_release and action.action_type == :submit
         render_error :status => 400, :errorcode => 'submit_request_rejected',
-        :message => "The target project #{action.target_project} is a maintenance release project, a submit action is not possible, please use the maintenance workflow instead."
+                     :message => "The target project #{action.target_project} is a maintenance release project, a submit action is not possible, please use the maintenance workflow instead."
         return false
       end
       if tprj.class == Project and (a = tprj.find_attribute("OBS", "RejectRequests") and a.values.first)
         if a.values.length < 2 or a.values.find_by_value(action.action_type)
           render_error :status => 403, :errorcode => 'request_rejected',
-            :message => "The target project #{action.target_project} is not accepting requests because: #{a.values.first.value.to_s}"
+                       :message => "The target project #{action.target_project} is not accepting requests because: #{a.values.first.value.to_s}"
           return false
         end
       end
@@ -412,11 +412,11 @@ class RequestController < ApplicationController
         if Package.exists_by_project_and_name(action.target_project, action.target_package) or [:delete, :change_devel, :add_role, :set_bugowner].include? action.action_type
           tpkg = Package.get_by_project_and_name action.target_project, action.target_package
         end
-        
+
         if tpkg && (a = tpkg.find_attribute("OBS", "RejectRequests") and a.values.first)
           if a.values.length < 2 or a.values.find_by_value(action.action_type)
             render_error :status => 403, :errorcode => 'request_rejected',
-              :message => "The target package #{action.target_project} / #{action.target_package} is not accepting requests because: #{a.values.first.value.to_s}"
+                         :message => "The target package #{action.target_project} / #{action.target_package} is not accepting requests because: #{a.values.first.value.to_s}"
             return false
           end
         end
@@ -428,26 +428,26 @@ class RequestController < ApplicationController
       #check existence of target
       unless tprj
         render_error :status => 404, :errorcode => 'unknown_project',
-        :message => "No target project specified"
+                     :message => "No target project specified"
         return false
       end
       if action.action_type == :add_role
         unless role
           render_error :status => 404, :errorcode => 'unknown_role',
-          :message => "No role specified"
+                       :message => "No role specified"
           return false
         end
       end
-    elsif [ :submit, :change_devel, :maintenance_release, :maintenance_incident ].include?(action.action_type)
+    elsif [:submit, :change_devel, :maintenance_release, :maintenance_incident].include?(action.action_type)
       #check existence of source
       unless sprj
         # no support for remote projects yet, it needs special support during accept as well
         render_error :status => 404, :errorcode => 'unknown_project',
-        :message => "No source project specified"
+                     :message => "No source project specified"
         return false
       end
 
-      if [ :submit, :maintenance_incident, :maintenance_release ].include? action.action_type
+      if [:submit, :maintenance_incident, :maintenance_release].include? action.action_type
         # validate that the sources are not broken
         begin
           pr = ""
@@ -458,12 +458,12 @@ class RequestController < ApplicationController
           url = "/source/#{CGI.escape(action.source_project)}/#{CGI.escape(action.source_package)}?expand=1" + pr
           c = backend_get(url)
           unless action.source_rev or params[:addrevision].blank?
-            data = REXML::Document.new( c )
+            data = REXML::Document.new(c)
             action.source_rev = data.elements["directory"].attributes["srcmd5"]
           end
         rescue ActiveXML::Transport::Error
           render_error :status => 400, :errorcode => "expand_error",
-            :message => "The source of package #{action.source_project}/#{action.source_package}#{action.source_rev ? " for revision #{action.source_rev}":''} is broken"
+                       :message => "The source of package #{action.source_project}/#{action.source_package}#{action.source_rev ? " for revision #{action.source_rev}" : ''} is broken"
           return false
         end
       end
@@ -471,66 +471,22 @@ class RequestController < ApplicationController
       if action.action_type == :maintenance_incident
         if action.target_package
           render_error :status => 400, :errorcode => 'illegal_request',
-          :message => "Maintenance requests accept only projects as target"
+                       :message => "Maintenance requests accept only projects as target"
           return false
         end
         raise "We should have expanded a target_project" unless action.target_project
         # validate project type
         prj = Project.get_by_name(action.target_project)
-        unless [ "maintenance", "maintenance_incident" ].include? prj.project_type.to_s
+        unless ["maintenance", "maintenance_incident"].include? prj.project_type.to_s
           render_error :status => 400, :errorcode => "incident_has_no_maintenance_project",
-          :message => "incident projects shall only create below maintenance projects"
+                       :message => "incident projects shall only create below maintenance projects"
           return false
         end
       end
 
+      # TODO continue refactoring
       if action.action_type == :maintenance_release
-        # get sure that the releasetarget definition exists or we release without binaries
-        prj = Project.get_by_name(action.source_project)
-        prj.repositories.includes(:release_targets).each do |repo|
-          unless repo.release_targets.size > 0
-            render_error :status => 400, :errorcode => "repository_without_releasetarget",
-            :message => "Release target definition is missing in #{prj.name} / #{repo.name}"
-            return false
-          end
-          unless repo.architectures.size > 0
-            render_error :status => 400, :errorcode => "repository_without_architecture",
-            :message => "Repository has no architecture #{prj.name} / #{repo.name}"
-            return false
-          end
-          repo.release_targets.each do |rt|
-            unless repo.architectures.first == rt.target_repository.architectures.first
-              render_error :status => 400, :errorcode => "architecture_order_missmatch",
-              :message => "Repository and releasetarget have not the same architecture on first position: #{prj.name} / #{repo.name}"
-              return false
-            end
-          end
-        end
-
-        # check for open release requests with same target, the binaries can't get merged automatically
-        # either exact target package match or with same prefix (when using the incident extension)
-
-        # patchinfos don't get a link, all others should not conflict with any other
-        # FIXME2.4 we have a directory model
-        answer = Suse::Backend.get "/source/#{CGI.escape(action.source_project)}/#{CGI.escape(action.source_package)}"
-        xml = REXML::Document.new(answer.body.to_s)
-        rel = BsRequest.where(state: [:new, :review]).joins(:bs_request_actions)
-        rel = rel.where(bs_request_actions: { target_project: action.target_project })
-        if xml.elements["/directory/entry/@name='_patchinfo'"]
-          rel = rel.where(bs_request_actions: { target_package: action.target_package } )
-        else
-          tpkgprefix = action.target_package.gsub(/\.[^\.]*$/, '')
-          rel = rel.where("bs_request_actions.target_package = ? or bs_request_actions.target_package like '#{tpkgprefix}.%'", action.target_package)
-        end
-
-        # run search
-        open_ids = rel.select("bs_requests.id").all.map { |r| r.id }
-
-        unless open_ids.blank?
-          render_error :status => 400, :errorcode => "open_release_requests",
-          :message => "The following open requests have the same target #{action.target_project} / #{tpkgprefix}: " + open_ids.join(', ')
-          return false
-        end
+        action.check_permissions!
       end
 
       # source update checks
@@ -550,22 +506,15 @@ class RequestController < ApplicationController
       if action.action_type == :change_devel
         unless tpkg
           render_error :status => 404, :errorcode => 'unknown_package',
-          :message => "No target package specified"
+                       :message => "No target package specified"
           return false
         end
       end
-
     else
-      render_error :status => 403, :errorcode => "create_unknown_request",
-      :message => "Request type is unknown '#{action.action_type}'"
-      return false
+      action.check_permissions!
     end
 
     return true
-  end
-
-  class LackingReleaseMaintainership < APIException
-    setup "lacking_maintainership", 403
   end
 
   # POST /request?cmd=create
@@ -573,89 +522,73 @@ class RequestController < ApplicationController
     # refuse request creation for anonymous users
     if User.current == http_anonymous_user
       render_error :status => 401, :errorcode => 'anonymous_user',
-        :message => "Anonymous user is not allowed to create requests"
+                   :message => "Anonymous user is not allowed to create requests"
       return
     end
 
-    req = BsRequest.new_from_xml(request.body.read)
-    # overwrite stuff
-    req.commenter = User.current.login
-    req.creator = User.current.login
-    req.state = :new
-    
-    # expand release and submit request targets if not specified
-    results = create_expand_targets(req) || return
-    per_package_locking = results[:per_package_locking]
+    BsRequest.transaction do
+      req = BsRequest.new_from_xml(request.body.read)
+      # overwrite stuff
+      req.commenter = User.current.login
+      req.creator = User.current.login
+      req.state = :new
 
-    # permission checks
-    req.bs_request_actions.each do |action|
-      check_action_permission(action) || return
-    end
+      # expand release and submit request targets if not specified
+      results = create_expand_targets(req) || return
+      params[:per_package_locking] = results[:per_package_locking]
 
-    #
-    # Find out about defined reviewers in target
-    #
-    # check targets for defined default reviewers
-    reviewers = []
+      # permission checks
+      req.bs_request_actions.each do |action|
+        check_action_permission(action) || return
+      end
 
-    req.bs_request_actions.each do |action|
-      reviewers += action.default_reviewers
+      #
+      # Find out about defined reviewers in target
+      #
+      # check targets for defined default reviewers
+      reviewers = []
 
-      if action.action_type == :maintenance_release
-        # creating release requests is also locking the source package, therefore we require write access there.
-        spkg = Package.find_by_project_and_name action.source_project, action.source_package
-        unless spkg or not User.current.can_modify_package? spkg
-          raise LackingReleaseMaintainership.new "Creating a release request action requires maintainership in source package"
-        end
-        object = nil
-        if per_package_locking
-          object = spkg
+      req.bs_request_actions.each do |action|
+        reviewers += action.default_reviewers
+
+        action.create_post_permissions_hook(params)
+      end
+
+      # apply reviewers
+      reviewers.uniq.each do |r|
+        if r.class == User
+          req.reviews.new :by_user => r.login
+        elsif r.class == Group
+          req.reviews.new :by_group => r.title
+        elsif r.class == Project
+          req.reviews.new :by_project => r.name
         else
-          object = spkg.project
+          raise "Unknown review type" unless r.class == Package
+          rev = req.reviews.new :by_project => r.project.name
+          rev.by_package = r.name
         end
-        unless object.enabled_for?('lock', nil, nil)
-          f = object.flags.find_by_flag_and_status("lock", "disable")
-          object.flags.delete(f) if f # remove possible existing disable lock flag
-          object.flags.create(:status => "enable", :flag => "lock")
-          object.store
-        end
+        req.state = :review
       end
-    end
-    
-    # apply reviewers
-    reviewers.uniq.each do |r|
-      if r.class == User
-        req.reviews.new :by_user => r.login 
-      elsif r.class == Group
-        req.reviews.new :by_group => r.title
-      elsif r.class == Project
-        req.reviews.new :by_project => r.name
-      else 
-        raise "Unknown review type" unless r.class == Package
-        rev = req.reviews.new :by_project => r.project.name
-        rev.by_package = r.name
+
+      #
+      # create the actual request
+      #
+      req.save!
+      notify = req.notify_parameters
+      Suse::Backend.send_notification('SRCSRV_REQUEST_CREATE', notify)
+
+      req.reviews.each do |review|
+        hermes_type, review_notify = review.notify_parameters(notify.dup)
+        Suse::Backend.send_notification(hermes_type, review_notify) if hermes_type
       end
-      req.state = :review
+
+      # cache the diff (in the backend)
+      req.bs_request_actions.each do |a|
+        a.delay.webui_infos
+      end
+
+      render :text => req.render_xml, :content_type => 'text/xml'
     end
-
-    #
-    # create the actual request
-    #
-    req.save!
-    notify = req.notify_parameters
-    Suse::Backend.send_notification('SRCSRV_REQUEST_CREATE', notify)
-
-    req.reviews.each do |review|
-      hermes_type, review_notify = review.notify_parameters(notify.dup)
-      Suse::Backend.send_notification(hermes_type, review_notify) if hermes_type
-    end
-
-    # cache the diff (in the backend)
-    req.bs_request_actions.each do |a|
-      a.delay.webui_infos
-    end
-
-    render :text => req.render_xml, :content_type => 'text/xml'
   end
 
   def command_diff
@@ -680,10 +613,10 @@ class RequestController < ApplicationController
       rescue BsRequestAction::DiffError => e
         render_error :status => 404, :errorcode => 'diff_failure', :message => e.message and return
       end
-      
+
       if xml_request
         # Inject backend-provided XML diff into action XML:
-        builder = Nokogiri::XML::Builder.new 
+        builder = Nokogiri::XML::Builder.new
         action.render_xml(builder)
         a = xml_request.add_node(builder.to_xml)
         a.add_node(action_diff)
@@ -704,20 +637,23 @@ class RequestController < ApplicationController
     setup "post_request_no_permission", 403
   end
 
-  class ReviewNotSpecified < APIException
-    setup "review_not_specified", 400
-  end
-  
   class PostRequestMissingParamater < APIException
     setup "post_request_missing_parameter", 403
+  end
+
+  class ReviewNotSpecified < APIException;
   end
 
   class ReviewChangeStateNoPermission < APIException
     setup "review_change_state_no_permission", 403
   end
 
+  class GroupRequestSpecial < APIException
+    setup "command_only_valid_for_group"
+  end
+
   def check_request_change(req, params)
-    
+
     # We do not support to revert changes from accepted requests (yet)
     if req.state == :accepted
       raise PostRequestNoPermission.new "change state from an accepted state is not allowed."
@@ -725,8 +661,8 @@ class RequestController < ApplicationController
 
     # do not allow direct switches from a final state to another one to avoid races and double actions.
     # request needs to get reopened first.
-    if [ :accepted, :superseded, :revoked ].include? req.state
-      if [ "accepted", "declined", "superseded", "revoked" ].include? params[:newstate]
+    if [:accepted, :superseded, :revoked].include? req.state
+      if ["accepted", "declined", "superseded", "revoked"].include? params[:newstate]
         raise PostRequestNoPermission.new "set state to #{params[:newstate]} from a final state is not allowed."
       end
     end
@@ -739,7 +675,14 @@ class RequestController < ApplicationController
         end
       end
     end
-    
+
+    # adding and removing of requests is only allowed for groups
+    if ["addrequest", "removerequest"].include? params[:cmd]
+      if req.bs_request_actions.first.action_type != :group
+        raise GroupRequestSpecial.new "Command #{params[:cmd]} is only valid for group requests"
+      end
+    end
+
     # Do not accept to skip the review, except force argument is given
     if params[:newstate] == "accepted"
       if params[:cmd] == "changestate" and req.state == :review and not params[:force]
@@ -748,10 +691,10 @@ class RequestController < ApplicationController
     end
 
     # valid users and groups ?
-    if params[:by_user] 
+    if params[:by_user]
       User.find_by_login!(params[:by_user])
     end
-    if params[:by_group] 
+    if params[:by_group]
       Group.find_by_title!(params[:by_group])
     end
 
@@ -769,7 +712,7 @@ class RequestController < ApplicationController
     elsif params[:newstate] == "deleted"
       raise PostRequestNoPermission.new "Deletion of a request is only permitted for administrators. Please revoke the request instead."
     elsif params[:cmd] == "addreview" or params[:cmd] == "setincident"
-      unless [ :review, :new ].include? req.state
+      unless [:review, :new].include? req.state
         raise ReviewChangeStateNoPermission.new "The request is not in state new or review"
       end
       # allow request creator to add further reviewers
@@ -791,7 +734,7 @@ class RequestController < ApplicationController
         end
         found=true
       end
-      if params[:by_project] 
+      if params[:by_project]
         if params[:by_package]
           unless User.current.can_modify_package? pkg
             raise ReviewChangeStateNoPermission.new "review state change for package #{params[:by_project]}/#{params[:by_package]} is not permitted for #{User.current.login}"
@@ -804,13 +747,12 @@ class RequestController < ApplicationController
       unless found
         raise ReviewNotSpecified.new "The review must specified via by_user, by_group or by_project(by_package) argument."
       end
-      # 
+      #
       permission_granted = true
-    elsif req.state != "accepted" and ["new","review","revoked","superseded"].include?(params[:newstate]) and 
-        req.creator == User.current.login
+    elsif req.state != :accepted and ["new", "review", "revoked", "superseded"].include?(params[:newstate]) and req.creator == User.current.login
       # request creator can reopen, revoke or supersede a request which was declined
       permission_granted = true
-    elsif req.state == "declined" and (params[:newstate] == "new" or params[:newstate] == "review") and req.state.who == User.current.login
+    elsif req.state == :declined and (params[:newstate] == "new" or params[:newstate] == "review") and req.commenter == User.current.login
       # people who declined a request shall also be able to reopen it
       permission_granted = true
     end
@@ -823,29 +765,37 @@ class RequestController < ApplicationController
     return true
   end
 
+  def command_addrequest
+    command_changestate
+  end
+
+  def command_removerequest
+    command_changestate
+  end
+
   def command_setincident
-     command_changestate# :cmd => "setincident",
-                       # :incident
+    command_changestate # :cmd => "setincident",
+                        # :incident
   end
 
   def command_addreview
-     command_changestate# :cmd => "addreview",
-                       # :by_user => params[:by_user], :by_group => params[:by_group], :by_project => params[:by_project], :by_package => params[:by_package]
+    command_changestate # :cmd => "addreview",
+                        # :by_user => params[:by_user], :by_group => params[:by_group], :by_project => params[:by_project], :by_package => params[:by_package]
   end
 
   def command_changereviewstate
-     command_changestate # :cmd => "changereviewstate", :newstate => params[:newstate], :comment => params[:comment],
+    command_changestate # :cmd => "changereviewstate", :newstate => params[:newstate], :comment => params[:comment],
                         #:by_user => params[:by_user], :by_group => params[:by_group], :by_project => params[:by_project], :by_package => params[:by_package]
   end
 
   def command_changestate
     params[:user] = User.current.login
     required_parameters :id
-    
+
     req = BsRequest.find params[:id]
     if not User.current or not User.current.login
       render_error :status => 403, :errorcode => "post_request_no_permission",
-               :message => "Action requires authentifacted user."
+                   :message => "Action requires authentifacted user."
       return
     end
 
@@ -879,12 +829,12 @@ class RequestController < ApplicationController
           if tprj.project_type.to_s == "maintenance"
             # create incident if it is a maintenance project
             unless incident_project
-              incident_project = create_new_maintenance_incident(tprj, nil, req ).project
+              incident_project = create_new_maintenance_incident(tprj, nil, req).project
               params[:check_for_patchinfo] = true
             end
             unless incident_project.name.start_with?(tprj.name)
               render_error :status => 404, :errorcode => "multiple_maintenance_incidents",
-                :message => "This request handles different maintenance incidents, this is not allowed !"
+                           :message => "This request handles different maintenance incidents, this is not allowed !"
               return
             end
             action.target_project = incident_project.name
@@ -904,32 +854,35 @@ class RequestController < ApplicationController
       end
     end
 
-    # job done by changing target
-    if params[:cmd] == "setincident"
-      req.save!
-      render_ok
-      return
-    end
-
-    unless params[:cmd] == "changestate" and params[:newstate] == "accepted"
-      case params[:cmd]
+    case params[:cmd]
+      when "setincident"
+        # job done by changing target
+        req.save!
+        render_ok and return
       when "changestate"
-        req.change_state(params[:newstate], params)
-        render_ok
+        if params[:newstate] != "accepted"
+          req.change_state(params[:newstate], params)
+          render_ok and return
+        end
       when "changereviewstate"
         req.change_review_state(params[:newstate], params)
-        render_ok
+        render_ok and return
       when "addreview"
         req.addreview(params)
-        render_ok
+        render_ok and return
+      when "addrequest"
+        req.bs_request_actions.first.addrequest(params)
+        render_ok and return
+      when "removerequest"
+        req.bs_request_actions.first.removerequest(params)
+        render_ok and return
       else
         raise "Unknown params #{params.inspect}"
-      end
-      return
     end
 
     # We have permission to change all requests inside, now execute
     req.bs_request_actions.each do |action|
+      # TODO execute_changeset is misnamed - it should be execute_accept
       action.execute_changestate(params)
     end
 
@@ -944,4 +897,3 @@ class RequestController < ApplicationController
   end
 
 end
-

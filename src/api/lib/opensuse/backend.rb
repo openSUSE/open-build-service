@@ -173,16 +173,17 @@ module Suse
       end
 
       def send_notification(type, params)
-        params[:who] ||= User.current.login
+	return if CONFIG['global_write_through'] == false
+	params[:who] ||= User.current.login
 	params[:sender] ||= User.current.login
 	logger.debug "send_notification #{type} #{params}"
-        data = []
-        params.each do |key, value|
-          next if value.nil?
-          data << "#{key}=#{CGI.escape(value.to_s)}"
-        end
+	data = []
+	params.each do |key, value|
+	  next if value.nil?
+	  data << "#{key}=#{CGI.escape(value.to_s)}"
+	end
 
-        post("/notify/#{type}?#{data.join('&')}", '')
+	post("/notify/#{type}?#{data.join('&')}", '')
       end
 
       private

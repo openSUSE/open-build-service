@@ -18,6 +18,7 @@ class BsRequestAction < ActiveRecord::Base
                   :target_project, :action_type, :bs_request_id, :sourceupdate, :updatelink, :person_name, :group_name, :role
 
   validate :check_sanity
+
   def check_sanity
     if [:submit, :maintenance_incident, :maintenance_release, :change_devel].include? action_type
       errors.add(:source_project, "should not be empty for #{action_type} requests") if source_project.blank?
@@ -25,17 +26,6 @@ class BsRequestAction < ActiveRecord::Base
         errors.add(:source_package, "should not be empty for #{action_type} requests") if source_package.blank?
       end
       errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
-    end
-    if action_type == :add_role
-      errors.add(:role, "should not be empty for add_role") if role.blank?
-      if person_name.blank? && group_name.blank?
-        errors.add(:person_name, "Either person or group needs to be set")
-      end
-    end
-    if action_type == :delete
-      errors.add(:source_project, "source can not be used in delete action") if source_project
-      errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
-      errors.add(:target_project, "must not target package and target repository") if target_repository and target_package
     end
     errors.add(:target_package, "is invalid package name") if target_package && !Package.valid_name?(target_package)
     errors.add(:source_package, "is invalid package name") if source_package && !Package.valid_name?(source_package)
@@ -52,15 +42,16 @@ class BsRequestAction < ActiveRecord::Base
   def self.find_sti_class(type_name)
     return super if type_name.nil?
     return case type_name.to_sym
-      when :submit then BsRequestActionSubmit
-      when :delete then BsRequestActionDelete
-      when :change_devel then BsRequestActionChangeDevel
-      when :add_role then BsRequestActionAddRole
-      when :set_bugowner then BsRequestActionSetBugowner
-      when :maintenance_incident then BsRequestActionMaintenanceIncident
-      when :maintenance_release then BsRequestActionMaintenanceRelease
-      else super
-    end
+           when :submit then BsRequestActionSubmit
+           when :delete then BsRequestActionDelete
+           when :change_devel then BsRequestActionChangeDevel
+           when :add_role then BsRequestActionAddRole
+           when :set_bugowner then BsRequestActionSetBugowner
+           when :maintenance_incident then BsRequestActionMaintenanceIncident
+           when :maintenance_release then BsRequestActionMaintenanceRelease
+           when :group then BsRequestActionGroup
+           else super
+           end
   end
 
   def self.new_from_xml_hash(hash)
@@ -72,110 +63,103 @@ class BsRequestAction < ActiveRecord::Base
         when :set_bugowner then BsRequestActionSetBugowner.new
         when :maintenance_incident then BsRequestActionMaintenanceIncident.new
         when :maintenance_release then BsRequestActionMaintenanceRelease.new
+        when :group then BsRequestActionGroup.new
         else nil
         end
     
     raise ArgumentError, "unknown type" unless a
 
-    source = hash.delete("source")
-    if source
-      a.source_package = source.delete("package")
-      a.source_project = source.delete("project")
-      a.source_rev     = source.delete("rev")
-
-      raise ArgumentError, "too much information #{source.inspect}" unless source.blank?
-    end
-
-    target = hash.delete("target")
-    if target
-      a.target_package = target.delete("package")
-      a.target_project = target.delete("project")
-      a.target_releaseproject = target.delete("releaseproject")
-      a.target_repository = target.delete("repository")
-
-      raise ArgumentError, "too much information #{target.inspect}" unless target.blank?
-    end
-
-    ai = hash.delete("acceptinfo")
-    if ai
-      a.bs_request_action_accept_info = BsRequestActionAcceptInfo.new
-      a.bs_request_action_accept_info.rev = ai.delete("rev")
-      a.bs_request_action_accept_info.srcmd5 = ai.delete("srcmd5")
-      a.bs_request_action_accept_info.osrcmd5 = ai.delete("osrcmd5")
-      a.bs_request_action_accept_info.xsrcmd5 = ai.delete("xsrcmd5")
-      a.bs_request_action_accept_info.oxsrcmd5 = ai.delete("oxsrcmd5")
-
-      raise ArgumentError, "too much information #{ai.inspect}" unless ai.blank?
-    end
-
-    o = hash.delete("options")
-    if o
-      a.sourceupdate = o.delete("sourceupdate")
-      # old form
-      a.sourceupdate = "update" if a.sourceupdate == "1"
-      # there is mess in old data ;(
-      a.sourceupdate = nil unless VALID_SOURCEUPDATE_OPTIONS.include? a.sourceupdate
-
-      a.updatelink = true if o.delete("updatelink") == "true"
-      raise ArgumentError, "too much information #{s.inspect}" unless o.blank?
-    end
-
-    p = hash.delete("person")
-    if p
-      a.person_name = p.delete("name") { raise ArgumentError, "a person without name" }
-      a.role = p.delete("role")
-      raise ArgumentError, "too much information #{p.inspect}" unless p.blank?
-    end
-
-    g = hash.delete("group")
-    if g 
-      a.group_name = g.delete("name") { raise ArgumentError, "a group without name" }
-      raise ArgumentError, "role already taken" if a.role
-      a.role = g.delete("role")
-      raise ArgumentError, "too much information #{g.inspect}" unless g.blank?
-    end
+    # now remove things from hash
+    a.store_from_xml(hash)
 
     raise ArgumentError, "too much information #{hash.inspect}" unless hash.blank?
     
     a
   end
 
+  def store_from_xml(hash)
+    source = hash.delete("source")
+    if source
+      self.source_package = source.delete("package")
+      self.source_project = source.delete("project")
+      self.source_rev     = source.delete("rev")
+
+      raise ArgumentError, "too much information #{source.inspect}" unless source.blank?
+    end
+
+    target = hash.delete("target")
+    if target
+      self.target_package = target.delete("package")
+      self.target_project = target.delete("project")
+      self.target_releaseproject = target.delete("releaseproject")
+      self.target_repository = target.delete("repository")
+
+      raise ArgumentError, "too much information #{target.inspect}" unless target.blank?
+    end
+
+    ai = hash.delete("acceptinfo")
+    if ai
+      self.bs_request_action_accept_info = BsRequestActionAcceptInfo.new
+      self.bs_request_action_accept_info.rev = ai.delete("rev")
+      self.bs_request_action_accept_info.srcmd5 = ai.delete("srcmd5")
+      self.bs_request_action_accept_info.osrcmd5 = ai.delete("osrcmd5")
+      self.bs_request_action_accept_info.xsrcmd5 = ai.delete("xsrcmd5")
+      self.bs_request_action_accept_info.oxsrcmd5 = ai.delete("oxsrcmd5")
+
+      raise ArgumentError, "too much information #{ai.inspect}" unless ai.blank?
+    end
+
+    o = hash.delete("options")
+    if o
+      self.sourceupdate = o.delete("sourceupdate")
+      # old form
+      self.sourceupdate = "update" if self.sourceupdate == "1"
+      # there is mess in old data ;(
+      self.sourceupdate = nil unless VALID_SOURCEUPDATE_OPTIONS.include? self.sourceupdate
+
+      self.updatelink = true if o.delete("updatelink") == "true"
+      raise ArgumentError, "too much information #{s.inspect}" unless o.blank?
+    end
+
+    p = hash.delete("person")
+    if p
+      self.person_name = p.delete("name") { raise ArgumentError, "a person without name" }
+      self.role = p.delete("role")
+      raise ArgumentError, "too much information #{p.inspect}" unless p.blank?
+    end
+
+    g = hash.delete("group")
+    if g 
+      self.group_name = g.delete("name") { raise ArgumentError, "a group without name" }
+      raise ArgumentError, "role already taken" if self.role
+      self.role = g.delete("role")
+      raise ArgumentError, "too much information #{g.inspect}" unless g.blank?
+    end
+  end
+
+  def render_xml_source(node)
+    attributes = {}
+    attributes[:project] = self.source_project unless self.source_project.blank?
+    attributes[:package] = self.source_package unless self.source_package.blank?
+    attributes[:rev] = self.source_rev unless self.source_rev.blank?
+    node.source attributes
+  end
+
+  def render_xml_target(node)
+    attributes = {}
+    attributes[:project] = self.target_project unless self.target_project.blank?
+    attributes[:package] = self.target_package unless self.target_package.blank?
+    attributes[:releaseproject] = self.target_releaseproject unless self.target_releaseproject.blank?
+    node.target attributes
+  end
+  
   def render_xml(builder)
     builder.action :type => self.action_type do |action|
       if [:submit, :maintenance_incident, :maintenance_release, :change_devel].include? self.action_type
-        attributes = {}
-        attributes[:project] = self.source_project unless self.source_project.blank?
-        attributes[:package] = self.source_package unless self.source_package.blank?
-        attributes[:rev] = self.source_rev unless self.source_rev.blank?
-        action.source attributes
-        attributes = {}
-        attributes[:project] = self.target_project unless self.target_project.blank?
-        attributes[:package] = self.target_package unless self.target_package.blank?
-        attributes[:releaseproject] = self.target_releaseproject unless self.target_releaseproject.blank?
-        action.target attributes
-      elsif self.action_type == :add_role || self.action_type == :set_bugowner
-        attributes = {}
-        attributes[:project] = self.target_project unless self.target_project.blank?
-        attributes[:package] = self.target_package unless self.target_package.blank?
-        action.target attributes
-        if self.person_name
-          if self.action_type == :add_role
-            action.person :name => self.person_name, :role => self.role
-          else
-            action.person :name => self.person_name
-          end
-        end
-        if self.group_name
-          action.group :name => self.group_name, :role => self.role
-        end
-      elsif self.action_type == :delete
-        attributes = {}
-        attributes[:project] = self.target_project unless self.target_project.blank?
-        attributes[:package] = self.target_package unless self.target_package.blank?
-        attributes[:repository] = self.target_repository unless self.target_repository.blank?
-        action.target attributes
+        render_xml_source(action)
+        render_xml_target(action)
       else
-        raise "Not supported action type #{self.action_type}"
+        render_xml_attributes(action)
       end
       if self.sourceupdate || self.updatelink
         action.options do
@@ -559,44 +543,38 @@ class BsRequestAction < ActiveRecord::Base
   end
 
   class TargetNotMaintenance < APIException
-    setup "target_not_maintenance", 404
+    setup 404
   end
 
   class ProjectLocked < APIException
-    setup "project_locked", 403, "The target project is locked"
+    setup 403, "The target project is locked"
   end
 
-  class ExpandError < APIException
-    setup "expand_error", 400
-  end
-
-  class SourceChanged < APIException
-    setup "source_changed", 400
-  end
+  class ExpandError < APIException; end
+  class SourceChanged < APIException; end
 
   class ReleaseTargetNoPermission < APIException
-    setup "release_target_no_permission", 403
+    setup 403
   end
 
-  class NotExistantTarget < APIException
-    setup 'not_existing_target', 400
-  end
-
-  class RepositoryMissing < APIException
-    setup "repository_missing", 400
-  end
+  class NotExistingTarget < APIException; end
+  class RepositoryMissing < APIException; end
 
   class RequestNoPermission < APIException
     setup "post_request_no_permission", 403
   end
 
+  def request_changes_state(state, opts)
+    # only groups care for now
+  end
+  
   # check if the action can change state - or throw an APIException if not
   def check_newstate!(opts)
     # all action types need a target project in any case for accept
     target_project = Project.find_by_name(self.target_project)
     target_package = source_package = nil
     if not target_project and opts[:newstate] == "accepted"
-      raise NotExistantTarget.new "Unable to process project #{self.target_project}; it does not exist."
+      raise NotExistingTarget.new "Unable to process project #{self.target_project}; it does not exist."
     end
 
     if [ :submit, :change_devel, :maintenance_release, :maintenance_incident ].include? self.action_type
@@ -714,7 +692,7 @@ class BsRequestAction < ActiveRecord::Base
         end
       end
     else
-      raise RequestNoPermission.new "Unknown request type #{opts[:newstate]} of request #{req.id} (type #{self.action_type})"
+      raise RequestNoPermission.new "Unknown request type #{opts[:newstate]} of request #{self.bs_request.id} (type #{self.action_type})"
     end
     
     # general source write permission check (for revoke)
@@ -761,6 +739,12 @@ class BsRequestAction < ActiveRecord::Base
   # after all actions are executed, the controller calls into every action a cleanup
   # the actions can "cache" in the opts their state to avoid duplicated work
   def per_request_cleanup(opts)
+    # does nothing by default
+  end
+
+  # this is called per action once it's verified that all actions in a request are
+  # permitted.
+  def create_post_permissions_hook(opts)
     # does nothing by default
   end
 

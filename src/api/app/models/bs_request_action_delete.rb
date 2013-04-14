@@ -4,6 +4,13 @@ class BsRequestActionDelete < BsRequestAction
     return :delete
   end
 
+  def check_sanity
+    super
+    errors.add(:source_project, "source can not be used in delete action") if source_project
+    errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
+    errors.add(:target_project, "must not target package and target repository") if target_repository and target_package
+  end
+
   class RepositoryMissing < APIException
     setup "repository_missing", 404
   end
@@ -16,6 +23,14 @@ class BsRequestActionDelete < BsRequestAction
     end
     r.destroy
     prj.store(login: opts[:login], lowprio: opts[:lowprio], comment: opts[:comment])
+  end
+
+  def render_xml_attributes(node)
+    attributes = {}
+    attributes[:project] = self.target_project unless self.target_project.blank?
+    attributes[:package] = self.target_package unless self.target_package.blank?
+    attributes[:repository] = self.target_repository unless self.target_repository.blank?
+    node.target attributes
   end
 
   def execute_changestate(opts)

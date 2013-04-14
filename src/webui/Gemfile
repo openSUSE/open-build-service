@@ -31,7 +31,7 @@ group :test do
   gem 'ci_reporter'
   gem 'simplecov-rcov', :require => false, :group => :test
   # See test/test_helper.rb for details:
-  gem 'capybara', '>=2.0'
+  gem 'capybara', '~>2.0.1'
   gem 'capybara-webkit'
   # for save_and_open_page to debug
   gem 'launchy'
