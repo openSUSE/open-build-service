@@ -96,18 +96,18 @@ class PackageController < ApplicationController
     required_parameters :arch, :repository
     @arch = params[:arch]
     @repository = params[:repository]
+    @statistics = nil
     begin
-      @statistics = Statistic.find( :project => @project, :package => @package, :repository => @repository, :arch => @arch )
+      @statistics = Statistic.find( project: @project, package: @package, repository: @repository, arch: @arch ).to_hash
     rescue ActiveXML::Transport::ForbiddenError => e
-      flash[:error] = "Statistics can not be downloaded from #{@project} #{@package} #{@repository} #{@arch}: #{e.summary}"
-    end 
+    end
+    logger.debug "Statis #{@statistics.inspect}"
     unless @statistics
       flash[:error] = "No statistics of a successful build could be found in #{@repository}/#{@arch}"
-      redirect_to :controller => "package", :action => :binaries, :project => @project, 
-        :package => @package, :repository => @repository, :nextstatus => 404
+      redirect_to controller: "package", action: :binaries, project: @project,
+        package: @package, repository: @repository, nextstatus: 404
       return
     end
-    logger.debug "accepting #{request.accepts.join(',')} format:#{request.format}"
   end
 
   def binary
