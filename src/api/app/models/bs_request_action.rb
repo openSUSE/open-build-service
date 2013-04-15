@@ -153,14 +153,16 @@ class BsRequestAction < ActiveRecord::Base
     node.target attributes
   end
   
+  def render_xml_attributes(node)
+   if [:submit, :maintenance_incident, :maintenance_release, :change_devel].include? self.action_type
+     render_xml_source(node)
+     render_xml_target(node)
+   end
+  end
+
   def render_xml(builder)
     builder.action :type => self.action_type do |action|
-      if [:submit, :maintenance_incident, :maintenance_release, :change_devel].include? self.action_type
-        render_xml_source(action)
-        render_xml_target(action)
-      else
-        render_xml_attributes(action)
-      end
+      render_xml_attributes(action)
       if self.sourceupdate || self.updatelink
         action.options do
           action.sourceupdate self.sourceupdate if self.sourceupdate
