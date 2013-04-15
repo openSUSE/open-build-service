@@ -99,7 +99,7 @@ class PackageController < ApplicationController
     @statistics = nil
     begin
       @statistics = Statistic.find( project: @project, package: @package, repository: @repository, arch: @arch ).to_hash
-    rescue ActiveXML::Transport::ForbiddenError => e
+    rescue ActiveXML::Transport::ForbiddenError
     end
     logger.debug "Statis #{@statistics.inspect}"
     unless @statistics
