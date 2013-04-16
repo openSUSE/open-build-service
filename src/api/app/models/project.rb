@@ -1673,7 +1673,7 @@ class Project < ActiveRecord::Base
       if i.text.blank? and not i.name.blank?
         issue = Issue.find_or_create_by_name_and_tracker(i.name, i.tracker)
         if issue
-          if enfore_issue_update
+          if opts[:enfore_issue_update]
             # enforce update from issue server
             issue.fetch_updates()
           end
