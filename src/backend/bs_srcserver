@@ -99,6 +99,11 @@ my %packagequota;
 # This is the md5sum of an empty file
 my $emptysrcmd5 = 'd41d8cd98f00b204e9800998ecf8427e';
 
+# remote getrev cache
+my $collect_remote_getrev;
+my $remote_getrev_todo;
+my $remote_getrev_cache;
+
 sub notify_repservers {
   my ($type, $projid, $packid) = @_;
 
@@ -2593,7 +2598,17 @@ sub getprojpack {
       }
     }
 
-    for my $packid (@packages) {
+    my @packages_delayed;
+    my $packages_pass = 0;
+    while (1) {
+      if (!@packages) {
+	last if !@packages_delayed || $packages_pass;
+	$packages_pass = 1;
+	fill_remote_getrev_cache();
+	@packages = @packages_delayed;
+	next;
+      }
+      my $packid = shift(@packages);
 
       next if $packids && !$packids->{$packid};
       my $pinfo = {'name' => $packid};
@@ -2644,14 +2659,20 @@ sub getprojpack {
       if ($cgi->{'withsrcmd5'} || $cgi->{'withdeps'}) {
         my $rev;
 	my $linked = [];
+	$collect_remote_getrev = 1 unless $packages_pass;
 	eval {
 	  $rev = getrev($projid, $packid, 'build', $linked);
 	};
+	$collect_remote_getrev = 0;
         $pinfo->{'originproject'} = $rev->{'originproject'} if $rev && $rev->{'originproject'};
         $pinfo->{'linked'} = $linked if @$linked;
 	if ($@) {
 	  $pinfo->{'error'} = $@;
 	  $pinfo->{'error'} =~ s/\n$//s;
+	  if (!$packages_pass && $pinfo->{'error'} =~ /collect_remote_getrev$/) {
+	    pop @pinfo;
+	    push @packages_delayed, $packid;
+	  }
  	  next;
 	}
 	if (!$rev || $rev->{'srcmd5'} eq 'empty' || $rev->{'srcmd5'} eq $emptysrcmd5) {
@@ -2687,9 +2708,11 @@ sub getprojpack {
  	  next;
         }
 	if ($files->{'_link'}) {
+	  $collect_remote_getrev = 1 unless $packages_pass;
 	  eval {
 	    $files = handlelinks($rev, $files, {'linked' => $linked});
 	  };
+	  $collect_remote_getrev = 0;
 	  if ($@) {
 	    $files = "$@";
 	    $files =~ s/\n$//;
@@ -2697,6 +2720,10 @@ sub getprojpack {
           $pinfo->{'linked'} = $linked if @$linked;
 	  if (!ref $files) {
 	    $pinfo->{'error'} = defined($files) ? $files : "could not get file list";
+	    if (!$packages_pass && $pinfo->{'error'} =~ /collect_remote_getrev$/) {
+	      pop @pinfo;
+	      push @packages_delayed, $packid;
+	    }
 	    next;
 	  }
 	  $pinfo->{'srcmd5'} = $rev->{'srcmd5'};
@@ -3518,6 +3545,60 @@ sub fetchremoteconfig {
   return $c;
 }
 
+sub fill_remote_getrev_cache_projid {
+  my ($projid, $packids) = @_;
+
+  return unless $packids && @$packids;
+  print "filling remote_getrev cache for $projid @$packids\n";
+  my $proj = remoteprojid($projid);
+  return unless $proj;
+  my $silist;
+  my @args;
+  push @args, 'view=info';
+  push @args, map {"package=$_"} @$packids;
+  eval {
+    $silist = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::sourceinfolist, @args);
+  };
+  return unless $silist;
+  for my $si (@{$silist->{'sourceinfo'} || []}) {
+    my $packid = $si->{'package'};
+    my $rev = {};
+    $rev->{'linked'} = $si->{'linked'} if $si->{'linked'};
+    $rev->{'srcmd5'} = $si->{'verifymd5'} || $si->{'srcmd5'};
+    delete $rev->{'srcmd5'} unless defined $rev->{'srcmd5'};
+    if ($si->{'error'}) {
+      if ($si->{'error'} =~ /^(\d+) +(.*?)$/) {
+        $si->{'error'} = "$1 remote error: $2";
+      } else {
+        $si->{'error'} = "remote error: $si->{'error'}";
+      }
+      if ($si->{'error'} eq 'no source uploaded') {
+	delete $si->{'error'};
+	$rev->{'srcmd5'} = $emptysrcmd5;
+      } elsif ($si->{'verifymd5'} || $si->{'error'} =~ /^404[^\d]/) {
+	$rev->{'error'} = $si->{'error'};
+	$remote_getrev_cache->{"$projid/$packid"} = $rev;
+      } else {
+	next;
+      }
+    }
+    next unless $rev->{'srcmd5'};
+    my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+    next unless "$treedir/$rev->{'srcmd5'}-MD5SUMS";
+    $rev->{'vrev'} = $si->{'vrev'} || '0';
+    $rev->{'rev'} = $si->{'rev'} || $rev->{'srcmd5'};
+    $remote_getrev_cache->{"$projid/$packid"} = $rev;
+  }
+}
+
+sub fill_remote_getrev_cache {
+  for my $projid (sort keys %{$remote_getrev_todo || {}}) {
+    my @packids = sort keys %{$remote_getrev_todo->{$projid} || {}};
+    fill_remote_getrev_cache_projid($projid, \@packids);
+  }
+  $remote_getrev_todo = {};
+}
+
 sub remote_getrev {
   my ($projid, $packid, $rev, $linked, $missingok) = @_;
   my $proj = remoteprojid($projid);
@@ -3531,13 +3612,36 @@ sub remote_getrev {
   # the remote server
   if ($rev && $rev =~ /^[0-9a-f]{32}$/) {
     my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
-    if ( -e "$treedir/$rev-MD5SUMS") {
+    if (-e "$treedir/$rev-MD5SUMS") {
       return {'project' => $projid, 'package' => $packid, 'rev' => $rev, 'srcmd5' => $rev};
     }        
   }
   my @args;
   push @args, 'expand=1';
   push @args, "rev=$rev" if defined $rev;
+  if (!defined($rev)) {
+    if ($remote_getrev_cache && $remote_getrev_cache->{"$projid/$packid"}) {
+      $rev = { %{$remote_getrev_cache->{"$projid/$packid"}} };
+      if ($rev->{'error'}) {
+        return {'project' => $projid, 'package' => $packid, 'srcmd5' => $emptysrcmd5} if $missingok && $rev->{'error'} =~ /^404[^\d]/;
+        die("$rev->{'error'}\n");
+      }
+      if ($linked) {
+	for my $l (map { { %$_ } } @{$rev->{'linked'}}) {
+	  $l->{'project'} = maptoremote($proj, $l->{'project'});
+	  push @$linked, $l if defined($l->{'project'}) && $l->{'project'} ne '_unavailable';
+	}
+      }
+      delete $rev->{'linked'};
+      $rev->{'project'} = $projid;
+      $rev->{'package'} = $packid;
+      return $rev;
+    }
+    if ($collect_remote_getrev) {
+      $remote_getrev_todo->{$projid}->{$packid} = 1;
+      die("collect_remote_getrev\n");
+    }
+  }
   my $dir;
   eval {
     $dir = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", 'proxy' => $proxy}, $BSXML::dir, @args, 'withlinked') if $linked;
