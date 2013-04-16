@@ -59,9 +59,8 @@ class StatusControllerTest < ActionController::IntegrationTest
 
   def test_bsrequest
     get "/status/bsrequest?id=997"
-    assert_match(%r{<status id='997' code='error'>Can't find project NotExisitingk</status>}, @response.body)
-    assert_response :success
-    
+    assert_xml_tag(:tag => "status", :attributes => {:code => 'not_found'})
+    assert_response 404
   end
 
   def test_history

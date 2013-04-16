@@ -996,7 +996,7 @@ class Package < ActiveRecord::Base
   end
 
   class NoRepositoriesFound < APIException
-    setup "No repositories build against target", 404
+    setup 404, "No repositories build against target"
   end
 
   class FailedToRetrieveBuildInfo < APIException
@@ -1018,7 +1018,12 @@ class Package < ActiveRecord::Base
       csrcmd5 = nil
     end
 
-    tocheck_repos = self.project.repositories_linking_project(tproj, ActiveXML.transport)
+    if tproj
+      tocheck_repos = self.project.repositories_linking_project(tproj, ActiveXML.transport)
+    else
+      tocheck_repos = self.project.repositories
+    end
+
     raise NoRepositoriesFound.new if tocheck_repos.empty?
 
     output = {}

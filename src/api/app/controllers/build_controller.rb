@@ -238,19 +238,47 @@ class BuildController < ApplicationController
     # for permission check
     pkg = Package.get_by_project_and_name params[:project], params[:package], use_source: true, follow_project_links: true
 
-    if pkg.class == Package and pkg.project.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(pkg.project)
-      render_error :status => 403, :errorcode => "download_binary_no_permission",
-      :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
+    if pkg.class == Package and pkg.project.disabled_for?('binarydownload', params[:repository], params[:arch]) and
+        not @http_user.can_download_binaries?(pkg.project)
+      render_error status: 403, errorcode: "download_binary_no_permission",
+                   message: "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
       return
     end
 
     pass_to_backend
   end
 
+
   def result
     valid_http_methods :get
+    required_parameters :project
     # for permission check
     Project.get_by_name params[:project]
+
+    if params.has_key? :lastsuccess
+      required_parameters :package
+
+      outputxml = "<status>\n"
+      pkg = Package.get_by_project_and_name params[:project], params[:package],
+                                            use_source: false, follow_project_links: false
+
+      # might be nil
+      tprj = Project.find_by_name params[:pathproject]
+      result = pkg.buildstatus(target_project: tprj, srcmd5: params[:srcmd5])
+      result.each do |repo, status|
+        outputxml << " <repository name='#{repo}'>\n"
+        status.each do |arch, archstat|
+          outputxml << "  <arch arch='#{arch}' result='#{archstat[:result]}'"
+          outputxml << " missing='#{archstat[:missing]}'" if archstat[:missing]
+          outputxml << "/> \n"
+        end
+        outputxml << " </repository>\n"
+
+      end
+      outputxml << "</status>\n"
+      render text: outputxml
+      return
+    end
 
     pass_to_backend
   end

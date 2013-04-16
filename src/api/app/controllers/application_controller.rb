@@ -424,7 +424,7 @@ class ApplicationController < ActionController::API
   rescue_from APIException do |exception|
     logger.debug "#{exception.class.name} #{exception.message}"
     message = exception.message
-    if message.blank?
+    if message.blank? || message == exception.class.name
       message = exception.default_message
     end
     render_error message: message, status: exception.status, errorcode: exception.errorcode

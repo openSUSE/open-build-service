@@ -3,20 +3,20 @@ class APIException < Exception
   def self.abstract_class?
     true
   end
-  
+
   class << self
     @errorcode = nil
     @status = 400
     @default_message = nil
 
-    def setup(setvalue, status = nil, message = nil)
+    def setup(setvalue, _status = nil, message = nil)
       if setvalue.is_a? String
         @errorcode = setvalue
-        @status = status || 400
+        @status = _status || 400
         @default_message = message
       else # support having the status first
         @status = setvalue
-        @default_message = status
+        @default_message = _status
       end
     end
   end
