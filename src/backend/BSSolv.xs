@@ -1045,9 +1045,8 @@ depsort(HV *deps, SV *mapp, SV *cycp, ...)
 	    Id id, *e;
 	    Id *mark;
 	    char **names;
-	    Hashmask hm;
 	    Hashtable ht;
-	    Hashval h, hh;
+	    Hashval h, hh,hm;
 	    HV *mhv = 0;
 
 	    Queue edata;
@@ -1273,9 +1272,8 @@ void
 gen_meta(AV *subp, ...)
     PPCODE:
 	{
-	    Hashmask hm;
 	    Hashtable ht;
-	    Hashval h, hh;
+	    Hashval h, hh, hm;
 	    char **subpacks;
 	    struct metaline *lines, *lp;
 	    int nlines;
@@ -2027,9 +2025,8 @@ updatefrombins(BSSolv::repo repo, char *dir, ...)
 	    Pool *pool = repo->pool;
 	    int i;
 	    Repodata *data = 0;
-	    Hashmask hm;
 	    Hashtable ht;
-	    Hashval h, hh;
+	    Hashval h, hh, hm;
 	    int dirty = 0;
 	    Map reused;
 	    int oldend = 0;
