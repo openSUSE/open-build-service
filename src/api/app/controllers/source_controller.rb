@@ -363,8 +363,13 @@ class SourceController < ApplicationController
               return
             end
           elsif not @http_user.can_modify_package?(tpkg)
-            render_error :status => 403, :errorcode => "delete_package_no_permission",
-              :message => "no permission to delete package #{tpkg.name} in project #{tpkg.project.name}"
+            if request.delete? or (request.post? and not read_commands.include? command)
+              render_error :status => 403, :errorcode => "delete_package_no_permission",
+                :message => "no permission to delete package #{tpkg.name} in project #{tpkg.project.name}"
+              return
+            end
+            render_error :status => 403, :errorcode => "cmd_execution_no_permission",
+              :message => "no permission to modify package #{tpkg.name} in project #{tpkg.project.name}"
             return
           end
         end
