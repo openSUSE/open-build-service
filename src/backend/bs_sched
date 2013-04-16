@@ -55,8 +55,10 @@ use strict;
 my $testprojid;
 my $testmode;
 my $asyncmode;
+my $startupmode;
 
 $asyncmode = $BSConfig::sched_asyncmode if $BSConfig::sched_asyncmode;
+$startupmode = $BSConfig::sched_startupmode if $BSConfig::sched_startupmode;
 
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
 
@@ -2177,6 +2179,7 @@ my %iswaiting_server;
 my $maxserverload = 1;
 $maxserverload = $BSConfig::sched_maxserverload if $BSConfig::sched_maxserverload;
 my %iswaiting_serverload;
+my %iswaiting_serverload_low;
 
 sub xrpc {
   my ($ctx, $resource, $param, @args) = @_;
@@ -2189,15 +2192,17 @@ sub xrpc {
     $server =~ s/\/.*//;
     my $serverload = scalar(keys %{$iswaiting_server{$server} || {}});
     if ($serverload >= $maxserverload) {
-      print "DELAY $resource due to load\n";
       my $handle = { '_xrpc_data' => [$ctx, $resource, $param, @args] };
-      push @{$iswaiting_serverload{$server}}, $handle;
+      if (($ctx->{'changetype'} || '') ne 'low') {
+        push @{$iswaiting_serverload{$server}}, $handle;
+      } else {
+        push @{$iswaiting_serverload_low{$server}}, $handle;
+      }
       $handle->{'_iswaiting'} = $resource;
       $handle->{'_server'} = $server;
       $iswaiting{$resource} = $handle;
       return $handle;
     }
-    print "OK $resource, load was $serverload\n";
     my $handle = BSRPC::rpc($param, @args);
     $handle->{'_iswaiting'} = $resource;
     $handle->{'_changetype'} = $ctx->{'changetype'} if $ctx->{'changetype'};
@@ -2221,6 +2226,8 @@ sub xrpc {
   return $handle;
 }
 
+my $resumed_highload = 0;
+
 sub xrpc_resume {
   my ($handle) = @_;
 
@@ -2232,20 +2239,29 @@ sub xrpc_resume {
   delete $iswaiting_server{$server}->{$iw};
 
   # fire up rpcs delayed because of server load
-  if ($iswaiting_serverload{$server}) {
-    my @loadrpcs = @{delete $iswaiting_serverload{$server}};
-    while (@loadrpcs) {
-      my $nextrpc = shift @loadrpcs;
+  if ($iswaiting_serverload{$server} || $iswaiting_serverload_low{$server}) {
+    my @loadrpcs;
+    my @loadrpcs_low;
+    @loadrpcs = @{delete $iswaiting_serverload{$server}} if $iswaiting_serverload{$server};
+    @loadrpcs_low = @{delete $iswaiting_serverload_low{$server}} if $iswaiting_serverload_low{$server};
+    while (@loadrpcs || @loadrpcs_low) {
+      my $nextrpc;
+      if ((@loadrpcs && $resumed_highload++ < 2) || !@loadrpcs_low) {
+	$nextrpc = shift @loadrpcs;
+      } else {
+	$resumed_highload = 0;
+	$nextrpc = shift @loadrpcs_low;
+      }
       my $resource = $nextrpc->{'_iswaiting'};
       delete $iswaiting{$resource};
-      print "RETRY $resource due to load\n";
       my $nhandle = xrpc(@{$nextrpc->{'_xrpc_data'}});
       for (keys %$nextrpc) {
         $nhandle->{$_} = $nextrpc->{$_} if $_ ne '_xrpc_data';
       }
-      last if $iswaiting_serverload{$server};
+      last if $iswaiting_serverload{$server} || $iswaiting_serverload_low{$server};
     }
     push @{$iswaiting_serverload{$server}}, @loadrpcs;
+    push @{$iswaiting_serverload_low{$server}}, @loadrpcs_low;
   }
 
   my $ret;
@@ -2287,7 +2303,6 @@ sub xrpc_setchanged {
   $what ||= $ctx->{'prp'};
   $changetype ||= $handle->{'_changetype'} || 'high';
   $changelevel ||= $handle->{'_changelevel'} || 1;
-  print "SETCHANGED $what $changetype $changelevel\n";
   my $gctx = $ctx->{'gctx'};
   die("no gctx in handle context\n") unless $gctx;
   my $changed = $gctx->{"changed_$changetype"};
@@ -2295,29 +2310,41 @@ sub xrpc_setchanged {
   my ($projid, $repoid) = split('/', $what, 2);
   if (defined($repoid)) {
     my $prp = $what;
-    if ($changelevel == 2) {
-      $changed->{$prp} = 2;
-      $changed_dirty->{$prp} = 1;
+    @{$gctx->{"lookat_$changetype"}} = grep {$_ ne $prp} @{$gctx->{"lookat_$changetype"}};
+    unshift(@{$gctx->{"lookat_$changetype"}}, $prp);
+    if ($changetype eq 'low') {
+      # we don't use changed2lookat to prevent infinte looping
+      for my $dprp (@prps) {
+	$changed->{$dprp} = 1 if grep {$_ eq $prp} @{$prpdeps{$dprp}};
+      }
     } else {
-      $changed->{$prp} ||= 1;
-      $changed_dirty->{$prp} = 1;
+      if ($changelevel == 2) {
+        $changed->{$prp} = 2;
+      } else {
+        $changed->{$prp} ||= 1;
+      }
     }
+    $changed_dirty->{$prp} = 1;
     return;
   }
+  my @cprps;
+  for my $prp (@prps) {
+    push @cprps, $prp if (split('/', $prp, 2))[0] eq $projid;
+  }
+  my %cprps = map {$_ => 1} @cprps;
+  @{$gctx->{"lookat_$changetype"}} = grep {!$cprps{$_}} @{$gctx->{"lookat_$changetype"}};
   if ($changelevel == 2) {
-    for my $prp (@prps) {
-      if ((split('/', $prp, 2))[0] eq $projid) {
-        $changed->{$prp} = 2;
-        $changed_dirty->{$prp} = 1;
-      }
+    for my $prp (@cprps) {
+      unshift(@{$gctx->{"lookat_$changetype"}}, $prp);
+      $changed->{$prp} = 2;
+      $changed_dirty->{$prp} = 1;
     }
     $changed->{$projid} = 2;
   } else {
     for my $prp (@prps) {
-      if ((split('/', $prp, 2))[0] eq $projid) {
-	$changed->{$prp} ||= 1;
-	$changed_dirty->{$prp} = 1;
-      }
+      unshift(@{$gctx->{"lookat_$changetype"}}, $prp);
+      $changed->{$prp} ||= 1;
+      $changed_dirty->{$prp} = 1;
     }
     $changed->{$projid} ||= 1;
   }
@@ -6495,21 +6522,63 @@ if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
   }
 }
 
-# XXX: may want to do this always
-if (!$projpacks && $asyncmode) {
-  print "cold start, initializing all projects\n";
+if (!$projpacks && $startupmode) {
+  if ($startupmode == 1) {
+    print "cold start, scanning all non-remote projects\n";
+  } else {
+    print "cold start, initializing all projects\n";
+  }
   my $param = {
     'uri' => "$BSConfig::srcserver/getprojpack",
   };
-  my $projpacksin = BSRPC::rpc($param, $BSXML::projpack,  'withrepos', 'withconfig', "arch=$myarch", 'withremotemap=1', 'noremote=1');
+  my @args = ('withrepos', 'withconfig', "arch=$myarch", 'withremotemap=1', 'noremote=1');
+  push @args, 'withsrcmd5', 'withdeps' if $startupmode == 1;
+  my $projpacksin;
+  while (1) {
+    eval {
+      $projpacksin = BSRPC::rpc($param, $BSXML::projpack, @args);
+    };
+    last unless $@ || !$projpacksin;
+    print $@ if $@;
+    print "retrying in 60 seconds...\n";
+    sleep(60);
+  }
   update_projpacks($projpacksin);
   get_projpacks_postprocess();
   for my $projid (sort keys %$projpacks) {
     my $packs = $projpacks->{$projid}->{'package'} || {};
     next unless %$packs;
-    $delayedfetchprojpacks{$projid} = [ '/all' ];	# hack
-    for my $packid (sort keys %$packs) {
-      $packs->{$packid}->{'error'} = 'delayed startup';
+    if ($startupmode == 1) {
+      my @delayed;
+      my $ok;
+      for my $packid (sort keys %$packs) {
+	my $pdata = $packs->{$packid};
+	if ($pdata->{'error'}) {
+	  if ($pdata->{'error'} =~ /noremote option/) {
+	    $pdata->{'error'} = 'delayed startup';
+	    push @delayed, $packid;
+	  } else {
+	    $ok++;
+	  }
+	} else {
+	  if (grep {$_->{'error'} && $_->{'error'} =~ /noremote option/} @{$pdata->{'info'} || []}) {
+	    $pdata->{'error'} = 'delayed startup';
+	    push @delayed, $packid;
+	  } else {
+	    $ok++;
+	  }
+	}
+      }
+      if (!$ok) {
+        $delayedfetchprojpacks{$projid} = [ '/all' ];	# hack
+      } else {
+        $delayedfetchprojpacks{$projid} = [ @delayed ];
+      }
+    } else {
+      $delayedfetchprojpacks{$projid} = [ '/all' ];	# hack
+      for my $packid (sort keys %$packs) {
+        $packs->{$packid}->{'error'} = 'delayed startup';
+      }
     }
   }
   @lookat_low = sort keys %$projpacks;
@@ -6813,7 +6882,7 @@ NEXTPRP:
       print "running async RPC requests:\n";
       for my $server (sort keys %iswaiting_server) {
 	next unless %{$iswaiting_server{$server} || {}};
-	print "  - $server: ".scalar(keys %{$iswaiting_server{$server}})." running, ".@{$iswaiting_serverload{$server} || []}." waiting\n";
+	print "  - $server: ".scalar(keys %{$iswaiting_server{$server}})." running, ".@{$iswaiting_serverload{$server} || []}."/".@{$iswaiting_serverload_low{$server} || []}." waiting\n";
       }
     }
 
