@@ -2,8 +2,9 @@ class XpathEngine
 
   require 'rexml/parsers/xpathparser'
 
-  class Error < Exception; end
-  class IllegalXpathError < Error; end
+  class IllegalXpathError < APIException
+    setup 400
+  end
 
   def initialize
     @lexer = REXML::Parsers::XPathParser.new

@@ -84,8 +84,30 @@ class SearchControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "Iggy", "asdfasdf"
     get "/search/package", :match => '[attribute/@name="Maintained"]'
     assert_response 400
-    assert_select "status[code] > summary", /illegal xpath attribute/
+    assert_xml_tag content: "attributes must be $NAMESPACE:$NAME"
   end
+
+  def test_xpath_7
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/search/package", :match => '[attribute/@name="OBS:Maintained"]'
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :children => { :count => 1 }
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/search/package", :match => 'attribute/@name="[OBS:Maintained]"'
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :children => { :count => 0 }
+  end
+
+  def test_xpath_8
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/search/package", :match => 'attribute/@name="[OBS:Maintained"'
+    assert_response 400
+    assert_xml_tag :tag => 'status', :attributes => { :code => "illegal_xpath_error" }
+    # fun part
+    assert_xml_tag content: "#&lt;NoMethodError: undefined method `[]' for nil:NilClass&gt;"
+  end
+
 
   def test_xpath_search_for_person_or_group
     # used by maintenance people
