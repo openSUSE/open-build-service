@@ -14,9 +14,11 @@
       <% if disk %>
           <h1>Disk Statistics</h1>
 
-          <p><strong>Maximal used disk space:</strong>
-            <%= disk['size']['_content'] %> <%= disk['size']['unit'] %>byte
-          </p>
+          <% if disk['size'] %>
+            <p><strong>Maximal used disk space:</strong>
+              <%= disk['size']['_content'] %> <%= disk['size']['unit'] %>byte
+            </p>
+          <% end %>
 
           <% if disk['io_requests'] %>
               <p><strong>Number of IO requests:</strong> <%= disk['io_requests'] %> </p>
