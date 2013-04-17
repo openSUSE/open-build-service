@@ -269,7 +269,10 @@ class BuildController < ApplicationController
         outputxml << " <repository name='#{repo}'>\n"
         status.each do |arch, archstat|
           outputxml << "  <arch arch='#{arch}' result='#{archstat[:result]}'"
-          outputxml << " missing='#{archstat[:missing]}'" if archstat[:missing]
+          if archstat[:missing]
+            missing = archstat[:missing].join(",")
+            outputxml << " missing='#{missing}'"
+          end
           outputxml << "/> \n"
         end
         outputxml << " </repository>\n"
