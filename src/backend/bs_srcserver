@@ -3583,7 +3583,7 @@ sub fill_remote_getrev_cache_projid {
 	$rev->{'srcmd5'} = $emptysrcmd5;
       } elsif ($si->{'verifymd5'} || $si->{'error'} =~ /^404[^\d]/) {
 	$rev->{'error'} = $si->{'error'};
-	$remote_getrev_cache->{"$projid/$packid"} = $rev;
+	$remote_getrev_cache->{"$projid/$packid/"} = $rev;
       } else {
 	next;
       }
@@ -3593,14 +3593,24 @@ sub fill_remote_getrev_cache_projid {
     next unless "$treedir/$rev->{'srcmd5'}-MD5SUMS";
     $rev->{'vrev'} = $si->{'vrev'} || '0';
     $rev->{'rev'} = $si->{'rev'} || $rev->{'srcmd5'};
-    $remote_getrev_cache->{"$projid/$packid"} = $rev;
+    $remote_getrev_cache->{"$projid/$packid/"} = $rev;
   }
 }
 
 sub fill_remote_getrev_cache {
   for my $projid (sort keys %{$remote_getrev_todo || {}}) {
     my @packids = sort keys %{$remote_getrev_todo->{$projid} || {}};
-    fill_remote_getrev_cache_projid($projid, \@packids);
+    while (@packids) {
+      my @chunk;
+      my $len = 20;
+      while (@packids) {
+	my $packid = shift @packids;
+	push @chunk, $packid;
+	$len += 9 + length($packid);
+	last if $len > 1900;
+      }
+      fill_remote_getrev_cache_projid($projid, \@chunk);
+    }
   }
   $remote_getrev_todo = {};
 }
@@ -3618,16 +3628,19 @@ sub remote_getrev {
   # the remote server
   if ($rev && $rev =~ /^[0-9a-f]{32}$/) {
     my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
-    if (-e "$treedir/$rev-MD5SUMS") {
+    if ($rev eq $emptysrcmd5 || -e "$treedir/$rev-MD5SUMS") {
       return {'project' => $projid, 'package' => $packid, 'rev' => $rev, 'srcmd5' => $rev};
     }        
+  }
+  if (defined($rev) && $rev eq '0') {
+    return {'srcmd5' => $emptysrcmd5, 'project' => $projid, 'package' => $packid};
   }
   my @args;
   push @args, 'expand=1';
   push @args, "rev=$rev" if defined $rev;
-  if (!defined($rev)) {
-    if ($remote_getrev_cache && $remote_getrev_cache->{"$projid/$packid"}) {
-      $rev = { %{$remote_getrev_cache->{"$projid/$packid"}} };
+  if (!defined($rev) || $rev eq 'build') {
+    if ($remote_getrev_cache && $remote_getrev_cache->{"$projid/$packid/"}) {
+      $rev = { %{$remote_getrev_cache->{"$projid/$packid/"}} };
       if ($rev->{'error'}) {
         return {'project' => $projid, 'package' => $packid, 'srcmd5' => $emptysrcmd5} if $missingok && $rev->{'error'} =~ /^404[^\d]/;
         die("$rev->{'error'}\n");
@@ -7212,7 +7225,10 @@ sub sourceinfo {
     $r->{'srcmd5'} = $rev->{'srcmd5'} if $rev->{'srcmd5'} ne 'empty';
     $r->{'rev'} = $rev->{'rev'} if $rev->{'rev'};
     $r->{'vrev'} = $rev->{'vrev'} if $rev->{'vrev'};
-    die("no source uploaded\n") if !$rev || $rev->{'srcmd5'} eq 'empty' || $rev->{'srcmd5'} eq $emptysrcmd5;
+    if (!$rev || $rev->{'srcmd5'} eq 'empty' || $rev->{'srcmd5'} eq $emptysrcmd5) {
+      die("no source uploaded\n") unless $cgi->{'nofilename'};
+      $rev = {'srcmd5' => $emptysrcmd5, 'project' => $projid, 'package' => $packid };
+    }
     my $linkinfo = {};
     $files = lsrev($rev, $linkinfo);
     if ($linkinfo->{'xservicemd5'}) {
@@ -7253,6 +7269,7 @@ sub sourceinfo {
     $meta .= "$files->{$_}  $_\n" for sort keys %$files;
     $r->{'verifymd5'} = Digest::MD5::md5_hex($meta);
   }
+  return $r if $cgi->{'nofilename'};
   return $r if $packid eq '_pattern';
   if ($files->{'_aggregate'}) {
     $r->{'filename'} = '_aggregate';
@@ -7301,14 +7318,16 @@ sub getprojectsourceinfo {
   my @packages = @{$cgi->{'package'} || []};
   @packages = findpackages($projid) unless @packages;
   my $bconf;
-  if (!$cgi->{'repository'}) {
-    my $cfile;
-    $cfile = "$projectsdir/$projid.conf" if -e "$projectsdir/$projid.conf";
-    $bconf = Build::read_config($cgi->{'arch'} || 'noarch', $cfile);
-  } else {
-    my @path = expandsearchpath($projid, $cgi->{'repository'});
-    my $c = concatconfigs($projid, $cgi->{'repository'}, undef, @path);
-    $bconf = Build::read_config($cgi->{'arch'} || 'noarch', [ split("\n", $c) ]);
+  if (!$cgi->{'nofilename'}) {
+    if (!$cgi->{'repository'}) {
+      my $cfile;
+      $cfile = "$projectsdir/$projid.conf" if -e "$projectsdir/$projid.conf";
+      $bconf = Build::read_config($cgi->{'arch'} || 'noarch', $cfile);
+    } else {
+      my @path = expandsearchpath($projid, $cgi->{'repository'});
+      my $c = concatconfigs($projid, $cgi->{'repository'}, undef, @path);
+      $bconf = Build::read_config($cgi->{'arch'} || 'noarch', [ split("\n", $c) ]);
+    }
   }
   my @res;
   for my $packid (@packages) {
@@ -7390,7 +7409,7 @@ my $dispatches = [
   'POST:/source/$project cmd=undelete user:? comment:?' => \&undeleteproject,
   'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool? makeolder:bool? resign:bool?' => \&copyproject,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
-  '/source/$project view=info parse:bool? repository? arch? package*' => \&getprojectsourceinfo,
+  '/source/$project view=info parse:bool? nofilename:bool? repository? arch? package*' => \&getprojectsourceinfo,
   '/source/$project deleted:bool? expand:bool? noorigins:bool?' => \&getpackagelist,
 
   'DELETE:/source/$project user:? comment:? requestid:num?' => \&delproject,
@@ -7422,7 +7441,7 @@ my $dispatches = [
 
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,	# obsolete
 
-  '/source/$project/$package view=info rev? linkrev? parse:bool? repository? arch?' => \&getpackagesourceinfo,
+  '/source/$project/$package view=info rev? linkrev? parse:bool? nofilename:bool? repository? arch?' => \&getpackagesourceinfo,
   '/source/$project/$package rev? linkrev? emptylink:bool? deleted:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool? meta:bool?' => \&getfilelist,
   '/source/$project/$package/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
   '/source/$project/$package/_meta rev? expand:bool? meta:bool? deleted:bool?' => \&getpackage,
