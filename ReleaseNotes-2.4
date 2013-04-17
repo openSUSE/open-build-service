@@ -119,7 +119,12 @@ Features
 
  * Asynchronus mode for handling interconnects is available. This will avoid
    scheduler hangups with slow or broken network to a remote instance.
-   Enable this via
+   Enable this via 
+
+       our $sched_asyncmode = 1;
+
+   in BSConfig.pm file.
+      
 
 Deprecated:
 ===========
