@@ -2341,7 +2341,7 @@ sub xrpc_setchanged {
     }
     $changed->{$projid} = 2;
   } else {
-    for my $prp (@prps) {
+    for my $prp (@cprps) {
       unshift(@{$gctx->{"lookat_$changetype"}}, $prp);
       $changed->{$prp} ||= 1;
       $changed_dirty->{$prp} = 1;
