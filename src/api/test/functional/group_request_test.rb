@@ -184,6 +184,46 @@ class GroupRequestTest < ActionController::IntegrationTest
 
   end
 
+  test "supersede replaces request" do
+    prepare_request_with_user "king", "sunflower"
+    id = upload_request("group")
+
+    withr = upload_request("submit_with_review")
+    post "/request/#{id}?cmd=addrequest&newid=#{withr}&comment=review+too"
+    assert_response :success
+
+    get "/request/#{id}"
+    assert_response :success
+    assert_equal({"id" => id,
+                  "action"=>{"type"=>"group", "grouped"=>[{"id"=>"998"}, {"id"=>withr}]},
+                  "state"=>
+                      {"name"=>"review",
+                       "who"=>"king",
+                       "when"=>"2010-07-12T00:00:00",
+                       "comment"=>{}},
+                  "description"=>{} }, Xmlhash.parse(@response.body))
+
+
+    withr2 = upload_request("submit_with_review")
+    assert_response :success
+
+    post "/request/#{withr}?cmd=changestate&newstate=superseded&superseded_by=#{withr2}"
+    assert_response :success
+
+    # withr2 is in, withr out
+    get "/request/#{id}"
+    assert_response :success
+    assert_equal({"id" => id,
+                  "action"=>{"type"=>"group", "grouped"=>[{"id"=>"998"}, {"id"=>withr2}]},
+                  "state"=>
+                      {"name"=>"review",
+                       "who"=>"king",
+                       "when"=>"2010-07-12T00:00:00",
+                       "comment"=>{}},
+                  "description"=>{} }, Xmlhash.parse(@response.body))
+
+  end
+
   test "accept sub request" do
     prepare_request_with_user "king", "sunflower"
     id = upload_request("group")
@@ -196,7 +236,7 @@ class GroupRequestTest < ActionController::IntegrationTest
     # it should be in review now
     get "/request/#{id}"
     assert_xml_tag(:tag => "state", :attributes => {:name => "review"})
-    
+
     # now accept a subrequest - it's automatically removed
     post "/request/#{withr}?cmd=changestate&newstate=accepted&force=1"
     assert_response :success
@@ -204,17 +244,16 @@ class GroupRequestTest < ActionController::IntegrationTest
     # and with that the group is in new again
     get "/request/#{id}"
     assert_xml_tag(:tag => "state", :attributes => {:name => "new"})
-
   end
 
   test "search groups" do
     prepare_request_with_user "king", "sunflower"
     upload_request("group")
-     
+
     get "/search/request?match=action/grouped/@id=997"
     assert_response :success
     assert_xml_tag(:tag => "collection", :attributes => {:matches => "0"})
-   
+
     get "/search/request?match=action/grouped/@id=998"
     assert_response :success
     assert_xml_tag(:tag => "collection", :attributes => {:matches => "1"})

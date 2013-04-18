@@ -233,6 +233,9 @@ class BsRequest < ActiveRecord::Base
       end
       self.bs_request_action_groups.each do |g|
         g.remove_request(self.id)
+        if opts[:superseded_by] && state == :superseded
+          g.addrequest("newid" => opts[:superseded_by])
+        end
       end
       oldstate = self.state
       self.state = state
