@@ -60,8 +60,6 @@ case "$1" in
 		rc_status -v
 	;;
 	restart)
-		## If first returns OK call the second, if first or
-		## second command fails, set echo return value.
 		"$obsdir"/bs_signer --restart
 		rc_status
 	;;
