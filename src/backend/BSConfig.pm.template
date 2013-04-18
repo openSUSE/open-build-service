@@ -88,7 +88,7 @@ our $bsgroup = 'obsrun';
 
 # Use asynchronus scheduler. This avoids hanging schedulers on remote projects,
 # when the network is slow or broken. This will become the default in future
-# our $sched_asyncmode = 1;
+our $sched_asyncmode = 1;
 
 # Define how the scheduler does a cold start. The default (0) is to request the
 # data for all packages, (1) means that only the non-remote packages are fetched,
