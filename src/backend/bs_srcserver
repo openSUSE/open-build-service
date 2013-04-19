@@ -102,7 +102,7 @@ my $emptysrcmd5 = 'd41d8cd98f00b204e9800998ecf8427e';
 # remote getrev cache
 my $collect_remote_getrev;
 my $remote_getrev_todo;
-my $remote_getrev_cache;
+my %remote_getrev_cache;
 
 sub notify_repservers {
   my ($type, $projid, $packid) = @_;
@@ -3589,7 +3589,7 @@ sub fill_remote_getrev_cache_projid {
 	$rev->{'srcmd5'} = $emptysrcmd5;
       } elsif ($si->{'verifymd5'} || $si->{'error'} =~ /^404[^\d]/) {
 	$rev->{'error'} = $si->{'error'};
-	$remote_getrev_cache->{"$projid/$packid/"} = $rev;
+	$remote_getrev_cache{"$projid/$packid/"} = $rev;
       } else {
 	next;
       }
@@ -3599,7 +3599,7 @@ sub fill_remote_getrev_cache_projid {
     next unless "$treedir/$rev->{'srcmd5'}-MD5SUMS";
     $rev->{'vrev'} = $si->{'vrev'} || '0';
     $rev->{'rev'} = $si->{'rev'} || $rev->{'srcmd5'};
-    $remote_getrev_cache->{"$projid/$packid/"} = $rev;
+    $remote_getrev_cache{"$projid/$packid/"} = $rev;
   }
 }
 
@@ -3645,23 +3645,22 @@ sub remote_getrev {
   my @args;
   push @args, 'expand=1';
   push @args, "rev=$rev" if defined $rev;
-  if (!defined($rev) || $rev eq 'build') {
-    if ($remote_getrev_cache && $remote_getrev_cache->{"$projid/$packid/"}) {
-      $rev = { %{$remote_getrev_cache->{"$projid/$packid/"}} };
-      if ($rev->{'error'}) {
-        return {'project' => $projid, 'package' => $packid, 'srcmd5' => $emptysrcmd5} if $missingok && $rev->{'error'} =~ /^404[^\d]/;
-        die("$rev->{'error'}\n");
-      }
-      push @$linked, map { { %$_ } } @{$rev->{'linked'}} if $linked && $rev->{'linked'};
-      delete $rev->{'linked'};
-      $rev->{'project'} = $projid;
-      $rev->{'package'} = $packid;
-      return $rev;
+  my $cacherev = !defined($rev) || $rev eq 'build' ? '' : $rev;
+  if ($remote_getrev_cache{"$projid/$packid/$cacherev"}) {
+    $rev = { %{$remote_getrev_cache{"$projid/$packid/$cacherev"}} };
+    if ($rev->{'error'}) {
+      return {'project' => $projid, 'package' => $packid, 'srcmd5' => $emptysrcmd5} if $missingok && $rev->{'error'} =~ /^404[^\d]/;
+      die("$rev->{'error'}\n");
     }
-    if ($collect_remote_getrev) {
-      $remote_getrev_todo->{$projid}->{$packid} = 1;
-      die("collect_remote_getrev\n");
-    }
+    push @$linked, map { { %$_ } } @{$rev->{'linked'}} if $linked && $rev->{'linked'};
+    delete $rev->{'linked'};
+    $rev->{'project'} = $projid;
+    $rev->{'package'} = $packid;
+    return $rev;
+  }
+  if ($collect_remote_getrev && $cacherev eq '') {
+    $remote_getrev_todo->{$projid}->{$packid} = 1;
+    die("collect_remote_getrev\n");
   }
   my $dir;
   eval {
@@ -3744,7 +3743,7 @@ sub remote_getrev {
   if (!$dir->{'linkinfo'} || $linked) {
     my %revcopy = %$rev;
     $revcopy{'linked'} = [ map { { %$_ } } @linked ] if $dir->{'linkinfo'};
-    $remote_getrev_cache->{"$projid/$packid/"} = \%revcopy;
+    $remote_getrev_cache{"$projid/$packid/$cacherev"} = \%revcopy;
   }
   $rev->{'project'} = $projid;
   $rev->{'package'} = $packid;
