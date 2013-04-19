@@ -3569,7 +3569,13 @@ sub fill_remote_getrev_cache_projid {
   for my $si (@{$silist->{'sourceinfo'} || []}) {
     my $packid = $si->{'package'};
     my $rev = {};
-    $rev->{'linked'} = $si->{'linked'} if $si->{'linked'};
+    if ($si->{'linked'}) {
+      $rev->{'linked'} = [];
+      for my $l (@{$si->{'linked'}}) {
+        $l->{'project'} = maptoremote($proj, $l->{'project'});
+        push @{$rev->{'linked'}}, $l if defined($l->{'project'}) && $l->{'project'} ne '_unavailable';
+      }
+    }
     $rev->{'srcmd5'} = $si->{'verifymd5'} || $si->{'srcmd5'};
     delete $rev->{'srcmd5'} unless defined $rev->{'srcmd5'};
     if ($si->{'error'}) {
@@ -3600,6 +3606,7 @@ sub fill_remote_getrev_cache_projid {
 sub fill_remote_getrev_cache {
   for my $projid (sort keys %{$remote_getrev_todo || {}}) {
     my @packids = sort keys %{$remote_getrev_todo->{$projid} || {}};
+    next if @packids <= 1;
     while (@packids) {
       my @chunk;
       my $len = 20;
@@ -3645,12 +3652,7 @@ sub remote_getrev {
         return {'project' => $projid, 'package' => $packid, 'srcmd5' => $emptysrcmd5} if $missingok && $rev->{'error'} =~ /^404[^\d]/;
         die("$rev->{'error'}\n");
       }
-      if ($linked) {
-	for my $l (map { { %$_ } } @{$rev->{'linked'}}) {
-	  $l->{'project'} = maptoremote($proj, $l->{'project'});
-	  push @$linked, $l if defined($l->{'project'}) && $l->{'project'} ne '_unavailable';
-	}
-      }
+      push @$linked, map { { %$_ } } @{$rev->{'linked'}} if $linked && $rev->{'linked'};
       delete $rev->{'linked'};
       $rev->{'project'} = $projid;
       $rev->{'package'} = $packid;
@@ -3706,6 +3708,7 @@ sub remote_getrev {
   if ($dir->{'serviceinfo'}) {
     $dir->{'srcmd5'} = $rev->{'srcmd5'} = $srcmd5;
   }
+  my @linked;
   if ($dir->{'linkinfo'}) {
     $dir->{'srcmd5'} = $rev->{'srcmd5'} = $srcmd5;
     $rev->{'rev'} = $rev->{'srcmd5'} unless $dir->{'rev'};
@@ -3715,7 +3718,7 @@ sub remote_getrev {
       if ($li->{'linked'}) {
 	for my $l (@{$li->{'linked'}}) {
 	  $l->{'project'} = maptoremote($proj, $l->{'project'});
-	  push @$linked, $l if defined($l->{'project'}) && $l->{'project'} ne '_unavailable';
+	  push @linked, $l if defined($l->{'project'}) && $l->{'project'} ne '_unavailable';
 	}
 	undef $li;
       }
@@ -3725,7 +3728,7 @@ sub remote_getrev {
         last unless defined($lprojid) && defined($lpackid);
         my $mlprojid = maptoremote($proj, $lprojid);
         last unless defined($mlprojid) && $mlprojid ne '_unavailable';
-        push @$linked, {'project' => $mlprojid, 'package' => $lpackid};
+        push @linked, {'project' => $mlprojid, 'package' => $lpackid};
 	last unless $li->{'srcmd5'} && !$li->{'error'};
 	my $ldir;
 	eval {
@@ -3734,9 +3737,15 @@ sub remote_getrev {
 	last if $@ || !$ldir;
 	$li = $ldir->{'linkinfo'};
       }
+      push @$linked, @linked;
     }
   }
   die("srcmd5 mismatch\n") if $dir->{'srcmd5'} ne $srcmd5;
+  if (!$dir->{'linkinfo'} || $linked) {
+    my %revcopy = %$rev;
+    $revcopy{'linked'} = [ map { { %$_ } } @linked ] if $dir->{'linkinfo'};
+    $remote_getrev_cache->{"$projid/$packid/"} = \%revcopy;
+  }
   $rev->{'project'} = $projid;
   $rev->{'package'} = $packid;
   return $rev;
@@ -7330,6 +7339,19 @@ sub getprojectsourceinfo {
     }
   }
   my @res;
+  if (@packages > 1) {
+    $collect_remote_getrev = 1;
+    for my $packid (splice @packages) {
+      my $r = sourceinfo($cgi, $projid, $packid, $bconf);
+      if ($r->{'error'} && $r->{'error'} =~ /collect_remote_getrev$/) {
+	push @packages, $packid;
+	next;
+      }
+      push @res, $r;
+    }
+    $collect_remote_getrev = 0;
+    fill_remote_getrev_cache();
+  }
   for my $packid (@packages) {
     push @res, sourceinfo($cgi, $projid, $packid, $bconf);
   }
