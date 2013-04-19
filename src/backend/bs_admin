@@ -131,8 +131,8 @@ Note: the --update-*-db calls are usually only needed when corrupt data has been
  --update-request-db
    Updates the index for all requests.
 
- --remove-old-sources <days>
-   remove sources older than <x> days
+ --remove-old-sources <days> <y>
+   remove sources older than <x> days, but keep <y> number of revisions
 
 Debug Options
 =============
