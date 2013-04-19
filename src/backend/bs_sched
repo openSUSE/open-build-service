@@ -260,7 +260,7 @@ sub addrepo {
   my ($ctx, $pool, $prp) = @_;
 
   my $now = time();
-  if ($repodatas{$prp} && $repodatas{$prp}->{'lastscan'} && $repodatas{$prp}->{'lastscan'} > $now - 8*3600) {
+  if ($repodatas{$prp} && $repodatas{$prp}->{'lastscan'} && $repodatas{$prp}->{'lastscan'} > $now - 24*3600) {
     if (exists $repodatas{$prp}->{'solv'}) {
       my $r;
       eval {$r = $pool->repofromstr($prp, $repodatas{$prp}->{'solv'});};
