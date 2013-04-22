@@ -903,7 +903,6 @@ while (@ARGV) {
         }
       close(F);
     }
-print "dump: ", Dumper(%deletehashes);
     if (keys(%deletehashes) == 0) {
       print "nothing to delete\n";
     } else {
