@@ -98,7 +98,8 @@ class PackageController < ApplicationController
     @repository = params[:repository]
     @statistics = nil
     begin
-      @statistics = Statistic.find( project: @project, package: @package, repository: @repository, arch: @arch ).to_hash
+      @statistics = Statistic.find( project: @project, package: @package, repository: @repository, arch: @arch )
+      @statistics = @statistics.to_hash if @statistics
     rescue ActiveXML::Transport::ForbiddenError
     end
     logger.debug "Statis #{@statistics.inspect}"
