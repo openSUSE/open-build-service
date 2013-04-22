@@ -3122,6 +3122,8 @@ sub addrepo_remote_unpackcpio {
 	}
       }
     }
+    $repodata->{'lastscan'} = time();
+    $repodata->{'error'} = $error;
     return undef;
   }
 
@@ -3169,7 +3171,7 @@ sub addrepo_remote_resume {
   my ($handle, $error, $cpio) = @_;
   my $pool = BSSolv::pool->new();
   my $r = addrepo_remote_unpackcpio($pool, $handle->{'_prp'}, $handle->{'_arch'}, $cpio, $error);
-  xrpc_setchanged($handle) unless !$r && $error && $error =~ /remote error:/;
+  xrpc_setchanged($handle) unless !$r && $error && $error !~ /remote error:/;
 }
 
 sub addrepo_remote {
