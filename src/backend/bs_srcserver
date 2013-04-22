@@ -3565,6 +3565,7 @@ sub fill_remote_getrev_cache_projid {
   eval {
     $silist = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::sourceinfolist, @args);
   };
+  warn($@) if $@;
   return unless $silist;
   for my $si (@{$silist->{'sourceinfo'} || []}) {
     my $packid = $si->{'package'};
