@@ -815,9 +815,10 @@ class RequestController < ApplicationController
     incident_project = nil
     req.bs_request_actions.each do |action|
       if action.action_type == :maintenance_incident
-        tprj = Project.get_by_name action.target_project
 
         if params[:cmd] == "setincident"
+          tprj = Project.get_by_name action.target_project
+
           # use an existing incident
           if tprj.project_type.to_s == "maintenance"
             tprj = Project.get_by_name(action.target_project + ":" + params[:incident])
@@ -825,6 +826,8 @@ class RequestController < ApplicationController
             action.save!
           end
         elsif params[:cmd] == "changestate" and params[:newstate] == "accepted"
+          tprj = Project.get_by_name action.target_project
+
           # the accept case, create a new incident if needed
           if tprj.project_type.to_s == "maintenance"
             # create incident if it is a maintenance project
