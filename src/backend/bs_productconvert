@@ -312,6 +312,7 @@ sub createProductOptions($$$)
     $options{'PLUGIN_DIR'} = "/usr/share/kiwi/modules/plugins/$mediaStyle";
     $options{'INI_DIR'} = "/usr/share/kiwi/modules/plugins/$mediaStyle";
     $options{'BETA_VERSION'} = $product->{'buildconfig'}->{'betaversion'} if (defined($product->{'buildconfig'}->{'betaversion'}));
+    $options{'MAIN_PRODUCT'} = $product->{'buildconfig'}->{'mainproduct'} if (defined($product->{'buildconfig'}->{'mainproduct'}));
 
     my %info;
     $info{'VENDOR'}       = $product->{'vendor'};
