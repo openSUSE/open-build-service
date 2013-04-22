@@ -813,9 +813,9 @@ while (@ARGV) {
                 close(F);
 
                 my @keeplines;
-                if (scalar(@lines) <= $min_revs) {
+                if (scalar(@lines) < $min_revs+1) {
                   @keeplines = splice(@lines, -scalar(@lines));
-                } else {
+                } elsif ( $min_revs != 0 ) {
                   @keeplines = splice(@lines, -$min_revs);
                 }
                 # remove lines to keep from normal timestamp checking and put them directly into hash with 
@@ -839,12 +839,6 @@ while (@ARGV) {
         }
     }
     closedir(D);
-
-    #FIXME find a better position for this?
-    if (keys(%deletehashes) == 0) {
-      print "nothing to delete\n";
-      exit 0;
-    }
 
     # get all files from treesdir
     opendir(D, $treesdir) || die($!);
@@ -909,38 +903,42 @@ while (@ARGV) {
         }
       close(F);
     }
+    if (keys(%deletehashes) == 0) {
+      print "nothing to delete\n";
+    } else {
 
-    # parse tree for files to delete..
-    foreach my $file (keys %deletehashes) {
-      open(F, '<', $treesfiles{$file}) || die($!);
-        while (<F>) {
-          my ($hash, $desc) = split(/\s+/, $_);
-          push @files2delete, $sourcefiles{$hash} if $sourcefiles{$hash};
-          }
-    }
-
-    # delete files!
-    foreach my $f (@files2delete) {
-#      print "$f\n";
-      if ( -e $f ) {
-        unlink $f;
+      # parse tree for files to delete..
+      foreach my $file (keys %deletehashes) {
+        open(F, '<', $treesfiles{$file}) || die($!);
+          while (<F>) {
+            my ($hash, $desc) = split(/\s+/, $_);
+            push @files2delete, $sourcefiles{$hash} if $sourcefiles{$hash};
+            }
       }
-    }
-    # also delete files from treesdir?
 
-    # write new rev files
-    my @hashes = keys %deletehashes;
-    foreach my $revfile (@revfiles) {
-      my @revfile;
-      open(F, '<', $revfile) or die($!);
-      foreach my $line (<F>) {
-        my ($hash) = ( split(/\|/, $line) )[2];
-        push @revfile, $line if !grep {/$hash/} @hashes;
+      # delete files!
+      foreach my $f (@files2delete) {
+#        print "$f\n";
+        if ( -e $f ) {
+          unlink $f;
+        }
       }
-      close(F);
-      open(F, '>', $revfile) or die($!);
-      print F @revfile;
-      close(F);
+      # also delete files from treesdir?
+
+      # write new rev files
+      my @hashes = keys %deletehashes;
+      foreach my $revfile (@revfiles) {
+        my @revfile;
+        open(F, '<', $revfile) or die($!);
+        foreach my $line (<F>) {
+          my ($hash) = ( split(/\|/, $line) )[2];
+          push @revfile, $line if !grep {/$hash/} @hashes;
+        }
+        close(F);
+        open(F, '>', $revfile) or die($!);
+        print F @revfile;
+        close(F);
+      }
     }
 
   } else {
