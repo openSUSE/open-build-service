@@ -375,6 +375,13 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert node.has_attribute?(:id)
     id2 = node.value(:id)
 
+    # validate that request is diffable and that the linked package is not double diffed
+    post "/request/#{id2}?cmd=diff&view=xml", nil
+    assert_response :success
+    assert_match(/new_content_0815/, @response.body) # check if our changes are part of the diff
+    assert_xml_tag :parent=>{:tag => "file", :attributes => { :state => "added" }}, :tag => "new", :attributes=>{:name=>"new_file"}
+    assert_xml_tag :parent=>{:tag => "file", :attributes => { :state => "added" }}, :tag => "new", :attributes=>{:name=>"_link"} # local link is unexpanded
+
     # set incident to merge into existing one
     prepare_request_with_user "maintenance_coord", "power"
     post "/request/#{id2}?cmd=setincident&incident=#{incidentProject.gsub(/.*:/,'')}"
