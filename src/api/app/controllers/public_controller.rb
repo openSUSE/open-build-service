@@ -62,9 +62,19 @@ class PublicController < ApplicationController
 
     # project visible/known ? 
     Project.get_by_name(params[:project])
-    
     path = unshift_public(request.path)
-    path += "?expand=1&noorigins=1" # to stay compatible to OBS <2.4
+    if params[:view] == "info"
+      # nofilename since a package may have no source access
+      if params[:nofilename] and params[:nofilename] != "1"
+        render_error :status => 400, :errorcode => 'parameter_error', :message => "nofilename is not allowed as parameter"
+        return
+      end
+      # path has multiple package= parameters
+      path += "?" + request.query_string 
+      path += "&nofilename=1" unless params[:nofilename]
+    else
+      path += "?expand=1&noorigins=1" # to stay compatible to OBS <2.4
+    end
     pass_to_backend path
   end
 
