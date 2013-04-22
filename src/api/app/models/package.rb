@@ -1010,7 +1010,7 @@ class Package < ActiveRecord::Base
 
     # check current srcmd5
     begin
-      cdir = Directory.find(:project => self.project,
+      cdir = Directory.find(:project => self.project.name,
                             :package => self.name,
                             :expand  => 1)
       csrcmd5 = cdir.value('srcmd5') if cdir
