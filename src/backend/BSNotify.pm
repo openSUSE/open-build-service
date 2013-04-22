@@ -34,8 +34,8 @@ sub notify($$) {
 
   my @hostnames = split(/\s+/, $BSConfig::notification_plugin);
 
-  for my $i (0..@hostnames -1){
-      my $notifier = &loadPackage($hostnames[$i]);
+  for my $hostname (@hostnames) {
+      my $notifier = &loadPackage($hostname);
       $notifier->notify($type, $paramRef );
   }
 
@@ -43,7 +43,7 @@ sub notify($$) {
 
 sub loadPackage {
   my ($componentname) = @_;
-  my $file = "plugins/".$componentname.".pm";
+  my $file = "plugins/$componentname.pm";
 
   my $componentfile = $file;
   eval{
