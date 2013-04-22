@@ -1,5 +1,5 @@
 # encoding: UTF-8
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'request_controller'
 
 class RequestControllerTest < ActionController::IntegrationTest
@@ -11,10 +11,10 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_set_and_get_1
-    prepare_request_with_user "king", "sunflower"
+    prepare_request_with_user 'king', 'sunflower'
     # make sure there is at least one
     req = load_backend_file('request/1')
-    post "/request?cmd=create", req
+    post '/request?cmd=create', req
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     id = node.value :id
@@ -23,44 +23,44 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => "request", :attributes => {:id => id})
-    assert_xml_tag(:tag => "state", :attributes => {:name => 'new'})
+    assert_xml_tag(:tag => 'request', :attributes => {:id => id})
+    assert_xml_tag(:tag => 'state', :attributes => {:name => 'new'})
   end
 
   def test_get_invalid_1
-    prepare_request_with_user "Iggy", "xxx"
-    get "/request/0815"
+    prepare_request_with_user 'Iggy', 'xxx'
+    get '/request/0815'
     assert_response 401
   end
 
   def test_create_invalid
-    prepare_request_with_user "king", "sunflower"
-    post "/request?cmd=create", "GRFZL"
+    prepare_request_with_user 'king', 'sunflower'
+    post '/request?cmd=create', 'GRFZL'
     assert_response 400
   end
 
-  def test_submit_request_of_new_package
+  test "submit_request_of_new_package" do
     wait_for_scheduler_start
 
-    prepare_request_with_user "Iggy", "asdfasdf"
-    post "/source/home:Iggy/NEW_PACKAGE", :cmd => :branch
+    prepare_request_with_user 'Iggy', 'asdfasdf'
+    post '/source/home:Iggy/NEW_PACKAGE', :cmd => :branch
     assert_response 404
-    assert_xml_tag(:tag => "status", :attributes => {:code => 'unknown_package'})
-    post "/source/home:Iggy/TestPack", :cmd => :branch, :missingok => "true"
+    assert_xml_tag(:tag => 'status', :attributes => {:code => 'unknown_package'})
+    post '/source/home:Iggy/TestPack', :cmd => :branch, :missingok => 'true'
     assert_response 400
-    assert_xml_tag(:tag => "status", :attributes => {:code => 'not_missing'})
-    post "/source/home:Iggy/NEW_PACKAGE", :cmd => :branch, :missingok => "true"
+    assert_xml_tag(:tag => 'status', :attributes => {:code => 'not_missing'})
+    post '/source/home:Iggy/NEW_PACKAGE', :cmd => :branch, :missingok => 'true'
     assert_response :success
-    get "/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/_link"
+    get '/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/_link'
     assert_response :success
-    assert_xml_tag(:tag => "link", :attributes => {:missingok => 'true', :project => 'home:Iggy', :package => nil})
-    put "/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/new_file", "my content"
+    assert_xml_tag(:tag => 'link', :attributes => {:missingok => 'true', :project => 'home:Iggy', :package => nil})
+    put '/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/new_file', 'my content'
     assert_response :success
 
     # the birthday of J.K.
     Timecop.freeze(2010, 7, 12)
     # submit request
-    post "/request?cmd=create", '<request>
+    post '/request?cmd=create', '<request>
                                    <action type="submit">
                                      <source project="home:Iggy:branches:home:Iggy" package="NEW_PACKAGE"/>
                                    </action>
@@ -80,12 +80,12 @@ class RequestControllerTest < ActionController::IntegrationTest
     get "/status/bsrequest?id=#{id}"
     node = Xmlhash.parse(@response.body)
     assert_equal({
-                     "id" => id,
-                     "repository" =>
-                         {"name" => "10.2",
-                          "arch" =>
-                              [{"arch" => "i586", "result" => "unknown"},
-                               {"arch" => "x86_64", "result" => "unknown"}]}}, node)
+                     'id' => id,
+                     'repository' =>
+                         {'name' => '10.2',
+                          'arch' =>
+                              [{'arch' => 'i586', 'result' => 'unknown'},
+                               {'arch' => 'x86_64', 'result' => 'unknown'}]}}, node)
 
     # create more history entries decline, reopen and finally accept it
     post "/request/#{id}?cmd=changestate&newstate=declined&comment=notgood"
@@ -98,31 +98,31 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
 
     # package got created
-    get "/source/home:Iggy/NEW_PACKAGE/new_file"
+    get '/source/home:Iggy/NEW_PACKAGE/new_file'
     assert_response :success
 
     # validate history of new package
-    get "/source/home:Iggy/NEW_PACKAGE/_history"
+    get '/source/home:Iggy/NEW_PACKAGE/_history'
     assert_response :success
-    assert_xml_tag :tag => "requestid", :content => id
-    assert_xml_tag :tag => "comment", :content => "DESCRIPTION IS HERE"
-    assert_xml_tag :tag => "user", :content => "Iggy"
+    assert_xml_tag :tag => 'requestid', :content => id
+    assert_xml_tag :tag => 'comment', :content => 'DESCRIPTION IS HERE'
+    assert_xml_tag :tag => 'user', :content => 'Iggy'
 
     # validate request
     get "/request/#{id}"
     assert_response :success
     node = Xmlhash.parse(@response.body)
-    assert_xml_tag(:tag => "acceptinfo", :attributes => {:rev => '1', :srcmd5 => '1ded65e42c0f04bd08075dfd1fd08105', :osrcmd5 => 'd41d8cd98f00b204e9800998ecf8427e'})
-    assert_xml_tag(:tag => "state", :attributes => {:name => "accepted", :who => 'Iggy'})
-    assert_xml_tag(:tag => "history", :attributes => {:name => "new", :who => 'Iggy'})
+    assert_xml_tag(:tag => 'acceptinfo', :attributes => {:rev => '1', :srcmd5 => '1ded65e42c0f04bd08075dfd1fd08105', :osrcmd5 => 'd41d8cd98f00b204e9800998ecf8427e'})
+    assert_xml_tag(:tag => 'state', :attributes => {:name => 'accepted', :who => 'Iggy'})
+    assert_xml_tag(:tag => 'history', :attributes => {:name => 'new', :who => 'Iggy'})
     assert_equal({
-                     "id" => id,
-                     "action" => {
-                         "type" => "submit",
-                         "source" => {"project" => "home:Iggy:branches:home:Iggy", "package" => "NEW_PACKAGE"},
-                         "target" => {"project" => "home:Iggy", "package" => "NEW_PACKAGE"},
-                         "options" => {"sourceupdate" => "cleanup"},
-                         "acceptinfo" => {"rev" => "1", "srcmd5" => "1ded65e42c0f04bd08075dfd1fd08105", "osrcmd5" => "d41d8cd98f00b204e9800998ecf8427e"}
+                     'id' => id,
+                     'action' => {
+                         'type' => 'submit',
+                         'source' => {'project' => 'home:Iggy:branches:home:Iggy', 'package' => 'NEW_PACKAGE'},
+                         'target' => {'project' => 'home:Iggy', 'package' => 'NEW_PACKAGE'},
+                         'options' => {'sourceupdate' => 'cleanup'},
+                         'acceptinfo' => {'rev' => '1', "srcmd5" => "1ded65e42c0f04bd08075dfd1fd08105", "osrcmd5" => "d41d8cd98f00b204e9800998ecf8427e"}
                      },
                      "state" => {"name" => "accepted", "who" => "Iggy", "when" => "2010-07-12T00:00:03", "comment" => "approved"},
                      "history" => [
@@ -317,8 +317,6 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_create_request_clone_and_superseed_it
-    req = load_backend_file('request/works')
-
     prepare_request_with_user "Iggy", "asdfasdf"
     req = load_backend_file('request/works')
     post "/request?cmd=create", req
@@ -349,8 +347,6 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_create_request_review_and_supersede
-    req = load_backend_file('request/works')
-
     prepare_request_with_user "Iggy", "asdfasdf"
     req = load_backend_file('request/works')
     post "/request?cmd=create", req
@@ -400,8 +396,6 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_create_request_and_supersede
-    req = load_backend_file('request/works')
-
     prepare_request_with_user "Iggy", "asdfasdf"
     req = load_backend_file('request/works')
     post "/request?cmd=create", req
@@ -427,7 +421,6 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_create_request_and_supersede_as_creator
-    req = load_backend_file('request/works')
 
     prepare_request_with_user "Iggy", "asdfasdf"
     req = load_backend_file('request/works')
@@ -443,7 +436,6 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_create_request_and_decline_review
-    req = load_backend_file('request/works')
 
     prepare_request_with_user "Iggy", "asdfasdf"
     req = load_backend_file('request/works')
@@ -646,8 +638,7 @@ class RequestControllerTest < ActionController::IntegrationTest
                         "user" => "Iggy"}]}, infos)
   end
 
-  def test_change_review_state_after_leaving_review_phase
-    req = load_backend_file('request/works')
+  test "change_review_state_after_leaving_review_phase" do
 
     prepare_request_with_user "Iggy", "asdfasdf"
     req = load_backend_file('request/works')
@@ -1258,7 +1249,7 @@ class RequestControllerTest < ActionController::IntegrationTest
 
   def test_submit_cleanup_in_not_writable_source
     prepare_request_with_user "Iggy", "asdfasdf"
-    ['cleanup', 'update'].each do |modify|
+    %w(cleanup update).each do |modify|
       req = "<request>
               <action type='submit'>
                 <source project='Apache' package='apache2' rev='1' />
@@ -1290,7 +1281,7 @@ class RequestControllerTest < ActionController::IntegrationTest
   end
 
   def test_reopen_a_review_declined_request
-    ['new', 'review'].each do |newstate|
+    %w(new review).each do |newstate|
       prepare_request_with_user "Iggy", "asdfasdf"
       post "/source/Apache/apache2", :cmd => :branch
       assert_response :success
@@ -2093,7 +2084,7 @@ class RequestControllerTest < ActionController::IntegrationTest
             <description/>
             <state who='Iggy' name='new'/>
           </request>"
-    post "/request?cmd=create", req
+    post '/request?cmd=create', req
     assert_response :success
 
     node = ActiveXML::Node.new(@response.body)
@@ -2179,7 +2170,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_xml_tag(:tag => "package", :attributes => {:project => "BaseDistro"}) # it appears via project link
 
     # and create a request to wrong target
-    ["delete", "set_bugowner", "add_role", "change_devel"].each do |at|
+    %w(delete set_bugowner add_role change_devel).each do |at|
       rq = '<request>
              <action type="'+at+'">'
       rq += "  <source project='BaseDistro' package='pack1'/>" if at == "change_devel"
@@ -2265,7 +2256,7 @@ class RequestControllerTest < ActionController::IntegrationTest
     assert_response :success
   end
 
-  def test_delete_request_id
+ test "delete_request_id" do
 
     prepare_request_with_user "Iggy", "asdfasdf"
     req = load_backend_file('request/1')
@@ -2311,8 +2302,60 @@ class RequestControllerTest < ActionController::IntegrationTest
     # fred should be able to reopen
     post "/request/#{id}?cmd=changestate&newstate=new&comment=oh"
     get "/request/#{id}"
-    assert_xml_tag(:tag => "state", :attributes => {:name => 'review'})
+    assert_xml_tag(tag: 'state', attributes: {name: 'review'})
 
   end
-end
 
+  # it was reported that requests can't be revoked - test cases verifie sthat
+  test "revoke autodeclined submit requests" do
+    prepare_request_with_user "Iggy", "asdfasdf"
+
+    Timecop.freeze(2010, 12, 07)
+    raw_put "/source/home:Iggy:fordecline/_meta", "<project name='home:Iggy:fordecline'><title></title><description></description></project>"
+    assert_response :success
+
+    raw_post "/request?cmd=create", "<request><action type='add_role'><target project='home:Iggy:fordecline'/><person name='Iggy' role='reviewer'/></action></request>"
+    assert_response :success
+    id = Xmlhash.parse(@response.body)['id']
+
+    delete "/source/home:Iggy:fordecline"
+    assert_response :success
+
+    get "/request/#{id}"
+    node = Xmlhash.parse(@response.body)
+    assert_equal({"id"=>id,
+                  "action"=>
+                      {"type"=>"add_role",
+                       "target"=>{"project"=>"home:Iggy:fordecline"},
+                       "person"=>{"name"=>"Iggy", "role"=>"reviewer"}},
+                  "state"=>
+                      {"name"=>"declined",
+                       "who"=>"Iggy",
+                       "when"=>"2010-12-07T00:00:00",
+                       "comment"=>"The target project 'home:Iggy:fordecline' was removed"},
+                  "history"=>{"name"=>"new", "who"=>"Iggy", "when"=>"2010-12-07T00:00:00"}}, node)
+
+    post "/request/#{id}?cmd=changestate&newstate=revoked"
+    assert_response :success
+
+    get "/request/#{id}"
+    node = Xmlhash.parse(@response.body)
+    assert_equal({"id"=>id,
+                  "action"=>
+                      {"type"=>"add_role",
+                       "target"=>{"project"=>"home:Iggy:fordecline"},
+                       "person"=>{"name"=>"Iggy", "role"=>"reviewer"}},
+                  "state"=>{"name"=>"revoked",
+                            "who"=>"Iggy",
+                            "when"=>"2010-12-07T00:00:00",
+                            "comment"=>{}},
+                  "history"=>
+                      [{"name"=>"new", "who"=>"Iggy", "when"=>"2010-12-07T00:00:00"},
+                       {"name"=>"declined",
+                        "who"=>"Iggy",
+                        "when"=>"2010-12-07T00:00:00",
+                        "comment"=>"The target project 'home:Iggy:fordecline' was removed"}]}, node)
+
+  end
+
+end
