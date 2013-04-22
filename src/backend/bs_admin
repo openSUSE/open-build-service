@@ -867,72 +867,85 @@ while (@ARGV) {
     closedir(D);
 
     # get all dir names in srcrepdir
-    # fetch all filenames in subdirectories:
+    # fetch all filenames in subdirectories
     my %sourcefiles;
-
     opendir(D, $srcrepdir) || die($!);
     foreach my $dir (readdir(D)) {
       next if $dir =~ /^\.{1,2}$/;
       if ( -d $srcrepdir.'/'.$dir ) {
         opendir(E, $srcrepdir.'/'.$dir) || die($!);
         foreach my $file (readdir(E)) {
-          if ($file =~ /^([\d\w]+)-.+$/ ) {
-            my $hash = $1;
-            $sourcefiles{$hash} = "$srcrepdir/$dir/$file";
-          }
+          next if $file =~ /^\.{1,2}$/;
+          $sourcefiles{$file} = "$srcrepdir/$dir/$file";
         }
         closedir(E);
       }
     }
     closedir(D);
 
-
-    # look if filesnot2delete contains links to revision that would get deleted
+    my @keepfiles;
+    # look if keephashes contains links to revision that would get deleted
     foreach my $file (keys %keephashes) {
       open(F, '<', $treesfiles{$file}) || die($!);
         while (<F>) {
+# not only for links..
+          my ($hash, $desc) = split(/\s+/, $_);
           if ( /_link/ ) {
-            # open link file to look if it links to a file that should be deleted
             my ($hash, $desc) = split(/\s+/, $_);
-            my $link = readxml($sourcefiles{$hash}, $BSXML::link);
+            # open link file to look if it links to a file that will be deleted
+            my $link = readxml($sourcefiles{$hash.'-'.$desc}, $BSXML::link);
             my $revision = getrev($link->{"project"}, $link->{"package"}, $link->{"rev"});
+            next if !defined($revision->{"time"});
             if ($revision->{"time"} < $mastertimestamp) {
+              # delete the hash with the link to be able to rewrite .rev files
               delete ($deletehashes{$revision->{"srcmd5"}});
+              open(F, '<', $treesfiles{$revision->{"srcmd5"}}) or die($!);
+                foreach my $line (<F>) {
+                  push @keepfiles, $hash."-".$desc;
+                }
+              close(F);
             }
+          } else {
+            push @keepfiles, $hash."-".$desc;
           }
         }
       close(F);
     }
+
     if (keys(%deletehashes) == 0) {
       print "nothing to delete\n";
     } else {
-
       # parse tree for files to delete..
       foreach my $file (keys %deletehashes) {
         open(F, '<', $treesfiles{$file}) || die($!);
           while (<F>) {
             my ($hash, $desc) = split(/\s+/, $_);
-            push @files2delete, $sourcefiles{$hash} if $sourcefiles{$hash};
+            push @files2delete, $sourcefiles{$hash.'-'.$desc} if $sourcefiles{$hash.'-'.$desc};
             }
       }
 
       # delete files!
-      foreach my $f (@files2delete) {
-#        print "$f\n";
-        if ( -e $f ) {
-          unlink $f;
+      foreach my $f (keys %sourcefiles) {
+        next if scalar(grep(/$f/, @keepfiles));
+        if ( -e $sourcefiles{$f} ) {
+          unlink $sourcefiles{$f};
         }
       }
-      # also delete files from treesdir?
 
-      # write new rev files
-      my @hashes = keys %deletehashes;
+      # also delete files from treesdir
+      foreach my $tfile (keys %deletehashes) {
+        if (-e $treesfiles{$tfile}) {
+          unlink $treesfiles{$tfile};
+        }
+      }
+
+      ## write new rev files
       foreach my $revfile (@revfiles) {
         my @revfile;
         open(F, '<', $revfile) or die($!);
         foreach my $line (<F>) {
           my ($hash) = ( split(/\|/, $line) )[2];
-          push @revfile, $line if !grep {/$hash/} @hashes;
+          push @revfile, $line if !grep {/$hash/} keys %deletehashes;
         }
         close(F);
         open(F, '>', $revfile) or die($!);
@@ -940,6 +953,7 @@ while (@ARGV) {
         close(F);
       }
     }
+    # some checking needed to reread everything?
 
   } else {
     echo_help();
