@@ -980,20 +980,22 @@ sub manage_cache {
     }
   }
   # prune cache
+  my @pruneids;
   for my $c (@$content) {
     if (!defined delete $content{$c->[0]}) {
-      $c = undef;
+      $c = undef;	# already pruned
       next;
     }
     $prunesize -= $c->[1];
     if ($prunesize < 0) {
-      my $cacheid = $c->[0];
-      my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
-      unlink($cachefile);
-      unlink("$cachefile.meta");
+      push @pruneids, $c->[0];
       $c = undef;
-      next;
     }
+  }
+  for my $cacheid (sort @pruneids) {
+    my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+    unlink($cachefile);
+    unlink("$cachefile.meta");
   }
   @$content = grep {defined $_} @$content;
   Storable::nstore($content, "$cachedir/content.new");
