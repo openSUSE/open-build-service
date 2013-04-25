@@ -3561,6 +3561,7 @@ sub fill_remote_getrev_cache_projid {
   my $silist;
   my @args;
   push @args, 'view=info';
+  push @args, 'nofilename=1';
   push @args, map {"package=$_"} @$packids;
   eval {
     $silist = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::sourceinfolist, @args);
