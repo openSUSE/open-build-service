@@ -1561,8 +1561,15 @@ our $buildstatistics = [
               [ 'preinstall' => $time ],
               [ 'install' => $time ],
               [ 'main' => $time ],
+              [ 'download' => $time ],
         ],
-#	'cpu' =>
+	[ 'download' =>
+              [],
+              $size,
+              'binaries',
+              'cachehits',
+              'preinstallimage',
+        ]
 ];
 
 

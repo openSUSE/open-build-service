@@ -96,6 +96,11 @@ my $buildlog_maxidle = 8 * 3600;
 my $xenstore_maxsize = 20 * 1000000;
 my $gettimeout = 3600; # 1 hour timeout to avoid forever hanging workers
 
+# for collecting statistics
+my $binariesdownload;
+my $binariescachehits;
+my $binariesdownloadsize;
+
 $hostcheck = $BSConfig::workerhostcheck if defined($BSConfig::workerhostcheck);
 
 sub lockstate {
@@ -1135,8 +1140,10 @@ sub getbinaries_cache {
       }
     }
   }
-  #print "(cache: ".@cacheold." hits, ".@downloadbins." misses)";
+  $binariescachehits += @cacheold;
   if (@downloadbins) {
+    $binariesdownload += @downloadbins;
+    $binariesdownloadsize += $downloadsizek;
     if ($cachedir && $downloadsizek * 1024 * 100 > $cachesize) {
       # reserve space
       manage_cache($cachesize - $downloadsizek * 1024);
@@ -1334,6 +1341,9 @@ sub getbinaries_kiwiproduct {
 	}
       }
       #print "(cache: ".@good." hits, ".@bad." misses)";
+      $binariesdownload += @bad;
+      $binariescachehits += @good;
+      $binariesdownloadsize += $downloadsizek;
       if ($bvl && @bad) {
 	if ($cachedir && $downloadsizek * 1024 * 100 > $cachesize) {
 	  # reserve space
@@ -1923,6 +1933,10 @@ sub getoldpackages {
     'receiver' => \&BSHTTP::cpio_receiver,
   }, undef, 'view=cpio', 'noajax=1');
   rmdir($odir);	# if not needed
+  for my $file (@$res) {
+    $binariesdownload += 1;
+    $binariesdownloadsize += ($file->{'size'}/1024);
+  }
 }
 
 
@@ -2006,6 +2020,7 @@ sub dobuild {
   my $arch = $buildinfo->{'arch'};
   my $helperarch = $buildinfo->{'hostarch'} || $arch;
   my $kiwimode;
+  my $stats = {};
   $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
   my $deltamode;
   $deltamode = 1 if $buildinfo->{'file'} eq '_delta';
@@ -2014,7 +2029,8 @@ sub dobuild {
   my $helper = '';
   /^\Q$helperarch\E:(.*)$/ && ($helper = $1) for @{$BSCando::cando{$hostarch}};
 
-  my @lt = localtime(time());
+  my $starttime = time();
+  my @lt = localtime($starttime);
   my $timestring = sprintf "%04d-%02d-%02d %02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
   
   print "$timestring: building '$packid' for project '$projid' repository '$repoid' arch '$arch'";
@@ -2039,6 +2055,11 @@ sub dobuild {
   BSUtil::cleandir($pkgdir) if -d $pkgdir;
   rm_rf($oldpkgdir) if -d $oldpkgdir;
 
+  ####### download phase
+  $binariesdownload = 0;
+  $binariescachehits = 0;
+  $binariesdownloadsize = 0;
+  my $downloadstarttime = time();
   my @meta;
   my $preinstallimagedata = {};
   print "fetching sources, ";
@@ -2087,6 +2108,17 @@ sub dobuild {
   writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
 
   getoldpackages($buildinfo, $oldpkgdir) if $oldpkgdir && !$kiwimode && $buildinfo->{'file'} ne 'preinstallimage';
+
+  $stats->{'times'}->{'download'}->{'time'}->{'unit'} = "s";
+  $stats->{'times'}->{'download'}->{'time'}->{'_content'} = (time() - $downloadstarttime);
+  $stats->{'download'}->{'cachehits'}          = $binariescachehits;
+  if ($binariesdownload) {
+    $stats->{'download'}->{'size'}->{'unit'} = 'k';
+    $stats->{'download'}->{'size'}->{'_content'} = $binariesdownloadsize;
+    $stats->{'download'}->{'binaries'}           = $binariesdownload;
+  }
+  $stats->{'download'}->{'preinstallimage'} = $preinstallimagedata->{'imagename'} if $preinstallimagedata->{'imagename'};
+  ####### end of download phase
 
   my @configpath;
   if ($kiwimode) {
@@ -2230,11 +2262,10 @@ sub dobuild {
     symlink('.', "$buildroot/.build.packages/DEBS");
     symlink('.', "$buildroot/.build.packages/KIWI");
     # convert build statistics into xml
+    open(FILE, "<", "$buildroot/.build.packages/OTHER/_statistics") || die;
     if( -e "$buildroot/.build.packages/OTHER/_statistics") {
-      my $stats = {};
       my $iosectors = 0;
       my $iorequests = 0;
-      open(FILE, "<", "$buildroot/.build.packages/OTHER/_statistics") || die;
       while(<FILE>) {
         chomp;
         my ($key, $value) = split( ": ", $_ );
@@ -2250,9 +2281,6 @@ sub dobuild {
         } elsif ($key eq "IO_sectors_read" || $key eq "IO_sectors_write" ){
           $iosectors += $value;
           $stats->{'disk'}->{'usage'}->{'io_sectors'} = $iosectors;
-        } elsif ($key eq "TIME_total" ){
-          $stats->{'times'}->{'total'}->{'time'}->{'unit'} = "s";
-          $stats->{'times'}->{'total'}->{'time'}->{'_content'} = $value;
         } elsif ($key eq "TIME_preinstall" ){
           $stats->{'times'}->{'preinstall'}->{'time'}->{'unit'} = "s";
           $stats->{'times'}->{'preinstall'}->{'time'}->{'_content'} = $value;
@@ -2265,9 +2293,11 @@ sub dobuild {
         }
       }
       close FILE;
-      writexml("$buildroot/.build.packages/OTHER/_statistics.new", "$buildroot/.build.packages/OTHER/_statistics", $stats, $BSXML::buildstatistics);
     }
   }
+  $stats->{'times'}->{'total'}->{'time'}->{'unit'} = "s";
+  $stats->{'times'}->{'total'}->{'time'}->{'_content'} = (time() - $starttime);
+  writexml("$buildroot/.build.packages/OTHER/_statistics.new", "$buildroot/.build.packages/OTHER/_statistics", $stats, $BSXML::buildstatistics);
 
   return 0;
 }
