@@ -1340,13 +1340,13 @@ sub getbinaries_kiwiproduct {
       #print "(cache: ".@good." hits, ".@bad." misses)";
       $binariesdownload += @bad;
       $binariescachehits += @good;
-      $binariesdownloadsize += $downloadsizek;
       if ($bvl && @bad) {
 	if ($cachedir && $downloadsizek * 1024 * 100 > $cachesize) {
 	  # reserve space
 	  manage_cache($cachesize - $downloadsizek * 1024, \@cacheold, [ values %cachenew ]);
 	  @cacheold = ();
 	  %cachenew = ();
+	  $binariesdownloadsize += $downloadsizek;
 	  $downloadsizek = 0;
 	}
 	eval {
@@ -1481,6 +1481,7 @@ sub getbinaries_kiwiproduct {
       $meta{"$prpap/$n.$rarch"} = $id;
     }
   }
+  $binariesdownloadsize += $downloadsizek;
 
   manage_cache($cachesize, \@cacheold, [ values %cachenew ]) if $cachedir;
 
@@ -1932,7 +1933,7 @@ sub getoldpackages {
   rmdir($odir);	# if not needed
   for my $file (@$res) {
     $binariesdownload += 1;
-    $binariesdownloadsize += ($file->{'size'}/1024);
+    $binariesdownloadsize += $file->{'size'} / 1024;
   }
 }
 
@@ -2259,10 +2260,10 @@ sub dobuild {
     symlink('.', "$buildroot/.build.packages/DEBS");
     symlink('.', "$buildroot/.build.packages/KIWI");
     # convert build statistics into xml
-    open(FILE, "<", "$buildroot/.build.packages/OTHER/_statistics") || die;
     if( -e "$buildroot/.build.packages/OTHER/_statistics") {
       my $iosectors = 0;
       my $iorequests = 0;
+      open(FILE, "<", "$buildroot/.build.packages/OTHER/_statistics") || die;
       while(<FILE>) {
         chomp;
         my ($key, $value) = split( ": ", $_ );
