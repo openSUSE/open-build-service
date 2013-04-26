@@ -673,7 +673,7 @@ sub createrepo_staticlinks {
       } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+([-\.].*\.(gz|bz2|xz))$/s) {
         $link = "$1$3";
         $link = "$1-$2$3" if $versioned;
-      } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+(\.(raw|iso|qcow2))$/s) {
+      } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+(\.(raw.xz|iso|qcow2))$/s) {
         $link = "$1$3";
         $link = "$1-$2$3" if $versioned;
       }
