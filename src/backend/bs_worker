@@ -780,10 +780,7 @@ sub getcode {
     rename($dir, $odir) || die("rename $dir $odir: $!\n");
   }
   rename($ndir, $dir) || die("rename $ndir $dir: $!\n");
-  if (-e $odir) {
-    unlink("$odir/$_") for ls($odir);
-    rmdir($odir);
-  }
+  rm_rf($odir) if -e $odir;
   my $md5 = '';
   for my $file (sort {$a->{'name'} cmp $b->{'name'}} @$res) {
     $md5 .= "$file->{'md5'}  $file->{'name'}\n" if $file->{'md5'};
