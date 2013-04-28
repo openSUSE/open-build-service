@@ -3,8 +3,6 @@ class PackageUserRoleRelationship < ActiveRecord::Base
   belongs_to :user, :foreign_key => :bs_user_id
   belongs_to :role
 
-  attr_accessible :package, :user, :role
-
   validates :role, :package, :user, presence: true
 
   validate :check_duplicates, :on => :create

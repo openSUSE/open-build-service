@@ -17,7 +17,7 @@ class TagController < ApplicationController
   def get_tagged_projects_by_user
     @user = User.get_by_login(params[:user])
       
-    @taggings = Tagging.where("taggable_type = ? AND user_id = ?","Project",@user.id).all
+    @taggings = Tagging.where("taggable_type = ? AND user_id = ?","Project",@user.id)
     @projects_tags = {}
     @taggings.each do |tagging|
       project = Project.find(tagging.taggable_id)
@@ -35,7 +35,7 @@ class TagController < ApplicationController
   
   def get_tagged_packages_by_user
     @user = User.get_by_login(params[:user])
-    @taggings = Tagging.where("taggable_type = ? AND user_id = ?","Package",@user.id).all
+    @taggings = Tagging.where("taggable_type = ? AND user_id = ?","Package",@user.id)
     @packages_tags = {}
     @taggings.each do |tagging|
       package = Package.find(tagging.taggable_id)
@@ -54,7 +54,7 @@ class TagController < ApplicationController
   
   def get_tags_by_user
     @user = @http_user
-    @tags = @user.tags.group(:name).all
+    @tags = @user.tags.group(:name)
     @tags
   end
   
@@ -69,9 +69,9 @@ class TagController < ApplicationController
       raise TagNotFoundError.new("Tag #{t} not found") unless tag
 
       unless first_run         
-        @projects = @projects & tag.projects.group(:name).order(:name).all
+        @projects = @projects & tag.projects.group(:name).order(:name)
       else
-        @projects = tag.projects.group(:name).order(:name).all
+        @projects = tag.projects.group(:name).order(:name)
         first_run = false 
       end
     end
@@ -95,9 +95,9 @@ class TagController < ApplicationController
       raise TagNotFoundError.new("Tag #{t} not found") unless tag
       
       unless first_run
-        @packages = @packages & tag.packages.group(:name).order(:name).all
+        @packages = @packages & tag.packages.group(:name).order(:name)
       else
-        @packages = tag.packages.group(:name).order(:name).all
+        @packages = tag.packages.group(:name).order(:name)
         first_run = false
       end
     end
@@ -137,7 +137,7 @@ class TagController < ApplicationController
     @name = params[:project]
     @project = Project.get_by_name(params[:project])
     
-    @tags = @project.tags.where("taggings.user_id = ?", user.id).order(:name).all
+    @tags = @project.tags.where("taggings.user_id = ?", user.id).order(:name)
     if do_render
       render :partial => "tags"
     else
@@ -154,7 +154,7 @@ class TagController < ApplicationController
     @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: false)
     @project = @package.project
     
-    @tags = @package.tags.where("taggings.user_id = ?",user.id).order(:name).all
+    @tags = @package.tags.where("taggings.user_id = ?",user.id).order(:name)
     if do_render
       render :partial => "tags"
     else
@@ -244,7 +244,7 @@ class TagController < ApplicationController
   
   #TODO helper function, delete me
   def get_taglist
-    tags = Tag.order(:name).all
+    tags = Tag.order(:name)
     return tags
   end
   
@@ -256,7 +256,7 @@ class TagController < ApplicationController
       logger.debug "GET REQUEST for project_tags. User: #{@user}"
       @type = "project" 
       @name = params[:project]
-      @tags = @project.tags.group(:name).order(:name).all
+      @tags = @project.tags.group(:name).order(:name)
       render :partial => "tags"
       
     elsif request.put?
@@ -301,7 +301,7 @@ class TagController < ApplicationController
       logger.debug "[TAG:] GET REQUEST for package_tags. User: #{@user}"
       
       @type = "package" 
-      @tags = @package.tags.group(:name).all
+      @tags = @package.tags.group(:name)
       render :partial => "tags"
       
     elsif request.put?

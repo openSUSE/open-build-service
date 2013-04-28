@@ -27,14 +27,14 @@ class Tagcloud
 
     elsif opt[:scope] == "user"
       user = opt[:user]
-      @tags = user.tags.group(:name).all
+      @tags = user.tags.group(:name)
       #initialize the tag count in the user context
       @tags.each do |tag|
         tag.count(:scope => "user", :user => user)
       end
 
     else
-      @tags = Tag.includes(:taggings).all
+      @tags = Tag.includes(:taggings)
       @tags.each do |tag|
         tag.cached_count = tag.taggings.count
       end

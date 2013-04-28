@@ -5,10 +5,9 @@ class Attrib < ActiveRecord::Base
   belongs_to :package
   belongs_to :project, foreign_key: :db_project_id
   belongs_to :attrib_type
-  has_many :values, :class_name => 'AttribValue', :order => :position, :dependent => :destroy
+  has_many :values, -> { order("position") }, :class_name => 'AttribValue', :dependent => :destroy
 
-  attr_accessible :attrib_type, :binary, :project 
-  scope :nobinary, where(:binary => nil)
+  scope :nobinary, -> { where(:binary => nil) }
 
   def cachekey
     if binary

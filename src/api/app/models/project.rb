@@ -38,7 +38,7 @@ class Project < ActiveRecord::Base
   has_many :messages, :as => :db_object, :dependent => :delete_all
   has_many :watched_projects, :dependent => :destroy
 
-  has_many :linkedprojects, :order => :position, :class_name => "LinkedProject", foreign_key: :db_project_id
+  has_many :linkedprojects, -> { order(:position) }, :class_name => "LinkedProject", foreign_key: :db_project_id
 
   has_many :taggings, :as => :taggable, :dependent => :delete_all
   has_many :tags, :through => :taggings
@@ -58,8 +58,6 @@ class Project < ActiveRecord::Base
 
   has_many  :develprojects, :class_name => "Project", :foreign_key => 'develproject_id'
   belongs_to :develproject, :class_name => "Project"
-
-  attr_accessible :name, :title, :description
 
   default_scope { where("projects.id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
 
@@ -679,13 +677,13 @@ class Project < ActiveRecord::Base
       logger.debug "offending repo: #{object.inspect}"
       unless force
         #find repositories that link against this one and issue warning if found
-        list = PathElement.where(repository_id: object.id).all
+        list = PathElement.where(repository_id: object.id)
         error = ""
         unless list.empty?
           linking_repos = list.map {|x| x.repository.project.name+"/"+x.repository.name}.join "\n"
           error << "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:\n"+linking_repos
         end
-        list = ReleaseTarget.where(target_repository_id: object.id).all
+        list = ReleaseTarget.where(target_repository_id: object.id)
         unless list.empty?
           linking_repos = list.map {|x| x.repository.project.name+"/"+x.repository.name}.join "\n"
           error << "Repository #{self.name}/#{name} cannot be deleted because following repos define it as release target:/\n"+linking_repos
@@ -1143,7 +1141,7 @@ class Project < ActiveRecord::Base
   def expand_flags(pkg = nil)
     ret = Hash.new
    
-    repos = repositories.not_remote.all 
+    repos = repositories.not_remote
 
     FlagHelper.flag_types.each do |flag_name|
       pkg_flags = nil
@@ -1548,14 +1546,14 @@ class Project < ActiveRecord::Base
     # Includes also requests for packages contained in this project
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
     rel = rel.where("bs_request_actions.source_project = ? or bs_request_actions.target_project = ?", self.name, self.name)
-    return BsRequest.where(id: rel.select("bs_requests.id").all.map { |r| r.id})
+    return BsRequest.where(id: rel.select("bs_requests.id").map { |r| r.id})
   end
 
   def open_requests_with_by_project_review
     # Includes also by_package reviews for packages contained in this project
     rel = BsRequest.where(state: [:new, :review])
     rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? ", self.name)
-    return BsRequest.where(id: rel.select("bs_requests.id").all.map { |r| r.id})
+    return BsRequest.where(id: rel.select("bs_requests.id").map { |r| r.id})
   end
 
   # list only the repositories that have a target project in the build path
@@ -1752,7 +1750,7 @@ class Project < ActiveRecord::Base
 
     backend_pkgs = Collection.find :id, :what => 'package', :match => "@project='#{self.name}' and starts-with(@name,'_product:')"
     b_pkg_index = backend_pkgs.each_package.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
-    frontend_pkgs = self.packages.where("`packages`.name LIKE '_product:%'").all
+    frontend_pkgs = self.packages.where("`packages`.name LIKE '_product:%'")
     f_pkg_index = frontend_pkgs.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
 
     all_pkgs = [b_pkg_index.keys, f_pkg_index.keys].flatten.uniq

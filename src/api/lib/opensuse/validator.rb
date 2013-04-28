@@ -6,7 +6,7 @@ require 'stringio'
 # on the request type (GET, PUT, POST, etc.) and direction (in, out). Supported schema
 # types are RelaxNG and XML Schema (xsd).
 module ActionController
-  class API
+  class Base
 
     class << self
       # Method for mapping actions in a controller to (XML) schemas based on request
@@ -60,7 +60,7 @@ module ActionController
           response.body.call(nil, sio) # send_file can return a block that takes |response, output|
           str = sio.string
          else
-          str = response.body.to_s
+          str = response.body
          end
          Suse::Validator.validate(opt, str)
 	end

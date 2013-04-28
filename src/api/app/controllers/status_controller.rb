@@ -10,7 +10,7 @@ class StatusController < ApplicationController
         @messages = [StatusMessage.find(params[:id])]
         @count    = 1
       else
-        @messages = StatusMessage.alive.limit(params[:limit]).order("created_at DESC").includes(:user).all
+        @messages = StatusMessage.alive.limit(params[:limit]).order("created_at DESC").includes(:user)
         @count    = @messages.size
       end
 
@@ -113,7 +113,7 @@ class StatusController < ApplicationController
     end
     logger.debug "#{Time.now.to_i} to #{hours.to_i}"
     starttime = Time.now.to_i - hours.to_i * 3600
-    values    = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, params[:key]).select([:time, :value]).all.collect { |line| [line.time.to_i, line.value.to_f] }
+    values    = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, params[:key]).select([:time, :value]).collect { |line| [line.time.to_i, line.value.to_f] }
     builder   = Builder::XmlMarkup.new(:indent => 2)
     xml       = builder.history do
       StatusHelper.resample(values, samples).each do |time, val|

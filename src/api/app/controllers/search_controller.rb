@@ -161,17 +161,17 @@ class SearchController < ApplicationController
     end
 
     if packages
-      attribs = Attrib.where("attrib_type_id = ? AND db_package_id in (?)", attrib.id, packages.collect { |p| p.id }).all
+      attribs = Attrib.where("attrib_type_id = ? AND db_package_id in (?)", attrib.id, packages.collect { |p| p.id })
     else
       attribs = attrib.attribs
     end
-    values = AttribValue.where("attrib_id IN (?)", attribs.collect { |a| a.id } ).all
+    values = AttribValue.where("attrib_id IN (?)", attribs.collect { |a| a.id } )
     attribValues = Hash.new
     values.each do |v|
       attribValues[v.attrib_id] ||= Array.new
       attribValues[v.attrib_id] << v
     end
-    packages = Package.where("packages.id IN (?)", attribs.collect { |a| a.db_package_id }).includes(:project).all
+    packages = Package.where("packages.id IN (?)", attribs.collect { |a| a.db_package_id }).includes(:project)
     pack2attrib = Hash.new
     attribs.each do |a|
       if a.db_package_id

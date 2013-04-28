@@ -1,6 +1,5 @@
 class Distribution < ActiveRecord::Base
   validates_presence_of :vendor, :version, :name, :reponame, :repository, :project
-  attr_accessible :vendor, :version, :name, :project, :reponame, :repository, :link
 
   has_and_belongs_to_many :icons, :class_name => 'DistributionIcon', :uniq => true
   has_and_belongs_to_many :architectures, :class_name => 'Architecture', :uniq => true
@@ -17,7 +16,7 @@ class Distribution < ActiveRecord::Base
 	  db.architectures << dba
 	end
 	d.elements('icon') do |i|
-          dbi = DistributionIcon.find_or_create_by_url(width: i['width'], height: i['height'], url: i['url'])
+          dbi = DistributionIcon.find_or_create_by(width: i['width'], height: i['height'], url: i['url'])
 	  db.icons << dbi
 	end
       end

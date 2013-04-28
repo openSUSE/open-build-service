@@ -1,14 +1,10 @@
 class Tag < ActiveRecord::Base
   
   has_many :taggings, :dependent => :destroy
-  has_many :projects, :through => :taggings,
-           conditions: "taggings.taggable_type = 'Project'"
-  has_many :packages, :through => :taggings,
-           conditions: "taggings.taggable_type = 'Package'"
+  has_many :projects, -> { where("taggings.taggable_type = 'Project'") }, through: :taggings
+  has_many :packages, -> { where("taggings.taggable_type = 'Package'") }, through: :taggings
   
   has_many :users, :through => :taggings
-
-  attr_accessible :name
 
   attr_accessor :cached_count
   

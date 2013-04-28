@@ -7,7 +7,7 @@ class StaticPermission < ActiveRecord::Base
 
   has_many :roles_static_permissions
 
-  has_and_belongs_to_many :roles, :uniq => true
+  has_and_belongs_to_many :roles, -> { uniq() }
 
   # We want to validate a static permission's title pretty thoroughly.
   validates_uniqueness_of :title, 
@@ -16,7 +16,5 @@ class StaticPermission < ActiveRecord::Base
     
   validates_format_of     :title, :with => %r{\A[\w\-]*\z}, 
                           :message => 'must not contain invalid characters.'
-
-  attr_accessible :title
 
 end

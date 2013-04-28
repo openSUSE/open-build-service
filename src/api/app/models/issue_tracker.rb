@@ -12,8 +12,6 @@ class IssueTracker < ActiveRecord::Base
   validates_uniqueness_of :name, :regex
   validates_inclusion_of :kind, :in => ['other', 'bugzilla', 'cve', 'fate', 'trac', 'launchpad', 'sourceforge']
 
-  attr_accessible :name, :kind, :description, :regex, :label, :url, :enable_fetch, :issues_updated, :show_url
-
   # FIXME: issues_updated should not be hidden, but it should also not break our api
   DEFAULT_RENDER_PARAMS = {:except => [:id, :password, :user, :issues_updated], :dasherize => true, :skip_types => true, :skip_instruct => true }
 

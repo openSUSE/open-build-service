@@ -87,7 +87,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     end
     
     # run search
-    open_ids = rel.select("bs_requests.id").all.map { |r| r.id }
+    open_ids = rel.select("bs_requests.id").map { |r| r.id }
     
     unless open_ids.blank?
       msg = "The following open requests have the same target #{self.target_project} / #{tpkgprefix}: " + open_ids.join(', ')
