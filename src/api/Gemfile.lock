@@ -25,7 +25,7 @@ GEM
     activesupport (3.2.13)
       i18n (>= 0.6.1)
       multi_json (~> 1.0)
-    addressable (2.3.3)
+    addressable (2.3.4)
     arel (3.0.2)
     builder (3.0.4)
     ci_reporter (1.8.4)
@@ -55,14 +55,16 @@ GEM
       treetop (~> 1.4.8)
     memcache-client (1.8.5)
     method_source (0.8.1)
-    mime-types (1.22)
-    minitest (4.7.1)
+    mime-types (1.23)
+    minitest (4.7.3)
+    minitest-colorize (0.0.5)
+      minitest (>= 2.0)
     multi_json (1.7.2)
     mysql2 (0.3.11)
     nokogiri (1.5.9)
     pkg-config (1.1.4)
     polyglot (0.3.3)
-    pry (0.9.12)
+    pry (0.9.12.1)
       coderay (~> 1.0.5)
       method_source (~> 0.8)
       slop (~> 3.4)
@@ -130,6 +132,7 @@ DEPENDENCIES
   i18n (= 0.6.1)
   memcache-client
   minitest
+  minitest-colorize
   mysql2
   nokogiri (~> 1.5.0)
   pry (>= 0.9.12)

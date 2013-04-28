@@ -65,11 +65,9 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response 404
     assert_xml_tag :tag => "status", :attributes => { :code => "unknown_package" }
     put "/build/home:Iggy/10.2/i586/TestPack", nil
-    assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "invalid_http_method" }
+    assert_response 404
     delete "/build/home:Iggy/10.2/i586/TestPack"
-    assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "invalid_http_method" }
+    assert_response 404
   end
 
   def test_dispatchprios

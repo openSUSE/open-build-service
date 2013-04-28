@@ -96,7 +96,6 @@ class WebuiController < ApplicationController
   end
 
   def person_requests_that_need_work
-    valid_http_methods :get
     required_parameters :login
     login = params[:login]
     result = {}
@@ -114,7 +113,6 @@ class WebuiController < ApplicationController
   end
 
   def person_involved_requests
-    valid_http_methods :get
     required_parameters :login
     rel = BsRequest.collection(user: params[:login], states: ['new', 'review'])
     result = rel.select("bs_requests.id").all.map { |r| r.id }
@@ -124,7 +122,6 @@ class WebuiController < ApplicationController
 
   # TODO - put in use
   def package_flags
-    valid_http_methods :get
     required_parameters :project, :package
 
     project_name = params[:project]
@@ -138,7 +135,6 @@ class WebuiController < ApplicationController
 
   # TODO - put in use
   def project_flags
-    valid_http_methods :get
     required_parameters :project
 
     project_name = params[:project]
@@ -148,7 +144,6 @@ class WebuiController < ApplicationController
   end
 
   def request_show
-    valid_http_methods :get
     required_parameters :id
 
     req = BsRequest.find(params[:id])
@@ -156,7 +151,6 @@ class WebuiController < ApplicationController
   end
 
   def request_ids
-    valid_http_methods :get
     required_parameters :ids
     
     rel = BsRequest.where( id: params[:ids].split(',') )
@@ -213,7 +207,6 @@ class WebuiController < ApplicationController
   end
   
   def change_role
-    valid_http_methods :post
     required_parameters :project
     
     if params[:package].blank?
@@ -265,7 +258,6 @@ class WebuiController < ApplicationController
   end
 
   def owner
-    valid_http_methods :get
     required_parameters :binary
 
     Suse::Backend.start_test_backend if Rails.env.test?

@@ -68,12 +68,6 @@ class StatusController < ApplicationController
                      :message => "error deleting message - id not found or not given"
       end
 
-    else
-
-      render_error :status  => 400, :errorcode => "only_put_or_get_method_allowed",
-                   :message => "only PUT or GET method allowed for this action"
-      return
-
     end
   end
 

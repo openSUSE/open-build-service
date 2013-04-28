@@ -13,8 +13,6 @@ class RequestController < ApplicationController
 
   # GET /request
   def index
-    valid_http_methods :get
-
     if params[:view] == "collection"
 
       # Do not allow a full collection to avoid server load
@@ -62,7 +60,6 @@ class RequestController < ApplicationController
 
   # GET /request/:id
   def show
-    valid_http_methods :get
     required_parameters :id
 
     req = BsRequest.find(params[:id])

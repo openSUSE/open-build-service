@@ -244,8 +244,10 @@ class ReadPermissionTest < ActionController::IntegrationTest
     puts @response.body if debug
     assert_response resp if resp
     assert_match(match, @response.body) if match
-    get "/source/#{tprj}" if debug
-    puts @response.body if debug
+    if debug
+      get "/source/#{tprj}"
+      puts @response.body
+    end
     get "/source/#{tprj}/_meta"
     puts @response.body if debug
     # FIXME: implementation is not done, change to assert_xml_tag or assert_select

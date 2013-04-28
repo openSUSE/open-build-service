@@ -24,7 +24,6 @@ class SourceController < ApplicationController
     #--------------------
     deleted = params.has_key? :deleted
     admin_user = @http_user.is_admin?
-    valid_http_methods :get, :post
 
     # access checks
     #--------------
@@ -51,10 +50,6 @@ class SourceController < ApplicationController
     elsif request.post?
       dispatch_command
 
-    # bad request
-    #------------
-    else
-      raise IllegalRequestError.new
     end
   end
 
@@ -75,7 +70,6 @@ class SourceController < ApplicationController
 
     # init and validation
     #--------------------
-    valid_http_methods :get, :post, :delete
     valid_commands=["undelete", "showlinked", "remove_flag", "set_flag", "createpatchinfo", "createkey", "extendkey", "copy", "createmaintenanceincident", "unlock"]
     raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
     if params[:cmd]
@@ -228,12 +222,7 @@ class SourceController < ApplicationController
           :message => "no permission to execute command '#{command}'"
         return
       end
-    # /if request.post?
 
-    # bad request
-    #------------
-    else
-      raise IllegalRequestError.new
     end
   end
 
@@ -243,7 +232,6 @@ class SourceController < ApplicationController
   def index_package
     # init and validation
     #--------------------
-    valid_http_methods :get, :delete, :post
     #admin_user = @http_user.is_admin?
     deleted_package = params.has_key? :deleted
     # valid post commands
@@ -464,8 +452,6 @@ class SourceController < ApplicationController
 
       dispatch_command
 
-    else
-      raise IllegalRequestError.new
     end
   end
 
@@ -476,7 +462,6 @@ class SourceController < ApplicationController
   def attribute_meta
     # init and validation
     #--------------------
-    valid_http_methods :get, :post, :delete
     required_parameters :project
     params[:user] = @http_user.login if @http_user
     binary=nil
@@ -653,7 +638,6 @@ class SourceController < ApplicationController
   def project_meta
     # init and validation
     #--------------------
-    valid_http_methods :get, :put
     required_parameters :project
     unless valid_project_name?(params[:project])
       render_error :status => 400, :errorcode => "invalid_project_name",
@@ -815,8 +799,6 @@ class SourceController < ApplicationController
 
   # /source/:project/_config
   def project_config
-    valid_http_methods :get, :put
-
     # check for project
     prj = Project.get_by_name(params[:project])
 
@@ -852,8 +834,6 @@ class SourceController < ApplicationController
 
   # /source/:project/_pubkey
   def project_pubkey
-    valid_http_methods :get, :delete
-
     # check for project
     prj = Project.get_by_name(params[:project])
 
@@ -891,7 +871,6 @@ class SourceController < ApplicationController
 
   # /source/:project/:package/_meta
   def package_meta
-    valid_http_methods :put, :get
     required_parameters :project, :package
    
     project_name = params[:project]
@@ -982,7 +961,6 @@ class SourceController < ApplicationController
 
   # /source/:project/:package/:filename
   def file
-    valid_http_methods :get, :delete, :put
     project_name = params[:project]
     package_name = params[:package]
     file = params[:filename]

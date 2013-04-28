@@ -1,5 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
+require 'opensuse/validator'
+
 class ValidatorTest < ActiveSupport::TestCase
 
   def test_validator

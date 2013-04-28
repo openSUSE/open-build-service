@@ -1,13 +1,16 @@
 ENV["RAILS_ENV"] = "test"
+require 'minitest/unit'
+
 require 'simplecov'
 require 'simplecov-rcov'
 SimpleCov.start 'rails' if ENV["DO_COVERAGE"]
 
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
-require 'minitest/unit'
 
 require 'webmock/minitest'
+
+require 'opensuse/backend'
 
 WebMock.disable_net_connect!(allow: CONFIG['source_host'])
 

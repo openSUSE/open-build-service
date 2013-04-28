@@ -13,12 +13,10 @@ class ConfigurationsController < ApplicationController
   # GET /configuration.json
   # GET /configuration.xml
   def show
-    valid_http_methods :get
-
     @configuration = ::Configuration.select("title, description").first
 
     respond_to do |format|
-      format.xml  { render :xml => @configuration }
+      format.xml  
       format.json { render :json => @configuration }
     end
   end
@@ -27,8 +25,6 @@ class ConfigurationsController < ApplicationController
   # PUT /configuration.json
   # PUT /configuration.xml
   def update
-    valid_http_methods :put
-
     @configuration = ::Configuration.first
 
     respond_to do |format|

@@ -214,8 +214,7 @@ class User < ActiveRecord::Base
   # in the database. Returns the user or nil if he could not be found
   def self.find_with_credentials(login, password)
     # Find user
-    user = User.find :first,
-    :conditions => [ 'login = ?', login ]
+    user = User.where(login: login).first
 
     # If the user could be found and the passwords equal then return the user
     if not user.nil? and user.password_equals? password
@@ -928,7 +927,7 @@ class User < ActiveRecord::Base
 
   def is_admin?
     if @is_admin.nil?
-      @is_admin = !roles.find_by_title("Admin", :select => "roles.id").nil?
+      @is_admin = !roles.select("roles.id").find_by_title("Admin").nil?
     end
     @is_admin
   end

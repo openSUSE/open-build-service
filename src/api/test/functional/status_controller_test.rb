@@ -31,14 +31,14 @@ class StatusControllerTest < ActionController::IntegrationTest
     messages = ActiveXML::Node.new @response.body
 
     prepare_request_valid_user
-    delete "/status/messages", :id => messages.message.value('msg_id')
+    delete "/status/messages/#{messages.message.value('msg_id')}"
     assert_response 403
    
     prepare_request_with_user "king", "sunflower"    
-    delete "/status/messages", :id => messages.message.value('msg_id')
+    delete "/status/messages/#{messages.message.value('msg_id')}"
     assert_response :success
 
-    delete "/status/messages", :id => 17
+    delete "/status/messages/17"
     assert_response 400
    
     get "/status/messages" 

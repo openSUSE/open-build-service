@@ -1,8 +1,6 @@
 class BuildController < ApplicationController
 
   def index
-    valid_http_methods :get, :post
-
     # for read access and visibility permission check
     if params[:package] and not ["_repository", "_jobhistory"].include?(params[:package])
       Package.get_by_project_and_name( params[:project], params[:package], use_source: false )
@@ -26,8 +24,6 @@ class BuildController < ApplicationController
   end
 
   def project_index
-    valid_http_methods :get, :post, :put
-
     prj = nil
     unless params[:project] == "_dispatchprios"
       prj = Project.get_by_name params[:project]
@@ -112,7 +108,6 @@ class BuildController < ApplicationController
   end
 
   def buildinfo
-    valid_http_methods :get, :post
     required_parameters :project, :repository, :arch, :package
     # just for permission checking
     if request.post? and params[:package] == "_repository"
@@ -131,7 +126,6 @@ class BuildController < ApplicationController
   end
 
   def builddepinfo
-    valid_http_methods :get
     required_parameters :project, :repository, :arch
 
     # just for permission checking
@@ -142,7 +136,6 @@ class BuildController < ApplicationController
 
   # /build/:project/:repository/:arch/:package/:filename
   def file
-    valid_http_methods :get, :put, :delete
     required_parameters :project, :repository, :arch, :package, :filename
 
     # read access permission check
@@ -233,8 +226,6 @@ class BuildController < ApplicationController
   end
 
   def logfile
-    valid_http_methods :get
-
     # for permission check
     pkg = Package.get_by_project_and_name params[:project], params[:package], use_source: true, follow_project_links: true
 
@@ -250,7 +241,6 @@ class BuildController < ApplicationController
 
 
   def result
-    valid_http_methods :get
     required_parameters :project
     # for permission check
     Project.get_by_name params[:project]

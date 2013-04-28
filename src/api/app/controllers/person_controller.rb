@@ -12,8 +12,6 @@ class PersonController < ApplicationController
 
   # Returns a list of all users (that optionally start with a prefix)
   def index
-    valid_http_methods :get, :post
-
     unless request.post? and params[:cmd] == "register"
       
       if !extract_user
@@ -48,8 +46,6 @@ class PersonController < ApplicationController
   end
 
   def userinfo
-    valid_http_methods :get, :put, :post
-
     if !@http_user
       logger.debug "No user logged in, permission to userinfo denied"
       @errorcode = 401
@@ -131,8 +127,6 @@ class PersonController < ApplicationController
   end
 
   def grouplist
-    valid_http_methods :get
-
     if !@http_user
       logger.debug "No user logged in, permission to grouplist denied"
       @summary = "No user logged in, permission to grouplist denied"
@@ -151,7 +145,6 @@ class PersonController < ApplicationController
 
   def register
     # FIXME 3.0, to be removed
-    valid_http_methods :post, :put
     internal_register
   end
 
@@ -294,8 +287,6 @@ class PersonController < ApplicationController
 
   def change_my_password
     #FIXME3.0: remove this function
-    valid_http_methods :post, :put
-    
     xml = REXML::Document.new( request.raw_post )
 
     logger.debug( "changepasswd XML: #{request.raw_post}" )

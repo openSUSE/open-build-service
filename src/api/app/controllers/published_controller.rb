@@ -1,8 +1,6 @@
 class PublishedController < ApplicationController
 
   def index
-    valid_http_methods :get, :post
-
     prj = Project.get_by_name(params[:project]) if params[:project]
 
     if prj 

@@ -540,9 +540,7 @@ module MaintenanceHelper
           # take over flags, but explicit disable publishing by default and enable building. Ommiting also lock or we can not create packages
           p[:link_target_project].flags.each do |f|
             unless [ "build", "publish", "lock" ].include?(f.flag)
-              unless tprj.flags.find_by_flag_and_status( f.flag, f.status, f.repo, f.architecture )
-                tprj.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo)
-              end
+              tprj.flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo)
             end
           end
           tprj.flags.create(:status => "disable", :flag => 'publish') unless tprj.flags.find_by_flag_and_status( 'publish', 'disable' )

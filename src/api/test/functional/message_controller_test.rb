@@ -23,8 +23,7 @@ class MessageControllerTest < ActionController::IntegrationTest
     assert_xml_tag( :tag => "messages" ) 
   
     post "/message/1", "<hallo/>"
-    assert_response 400
-    assert_match(/forbidden method/, @response.body)
+    assert_response 404
 
     put "/message/1", "<hallo/>"
     assert_response 400

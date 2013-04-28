@@ -28,6 +28,7 @@ end
 
 group :test do
   gem 'capybara_minitest_spec'
+  gem 'minitest-colorize'
   gem 'ci_reporter'
   gem 'simplecov-rcov', :require => false, :group => :test
   # See test/test_helper.rb for details:

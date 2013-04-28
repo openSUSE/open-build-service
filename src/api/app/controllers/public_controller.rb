@@ -34,7 +34,6 @@ class PublicController < ApplicationController
 
   # GET /public/build/:project/:repository/:arch/:package
   def build
-    valid_http_methods :get
     required_parameters :project
 
     # project visible/known ? 
@@ -48,8 +47,6 @@ class PublicController < ApplicationController
 
   # GET /public/source/:project/_meta
   def project_meta
-    valid_http_methods :get
-
     # project visible/known ? 
     Project.get_by_name(params[:project])
 
@@ -58,8 +55,6 @@ class PublicController < ApplicationController
 
   # GET /public/source/:project
   def project_index
-    valid_http_methods :get
-
     # project visible/known ? 
     Project.get_by_name(params[:project])
     path = unshift_public(request.path)
@@ -81,8 +76,6 @@ class PublicController < ApplicationController
   # GET /public/source/:project/_config
   # GET /public/source/:project/_pubkey
   def project_file
-    valid_http_methods :get
-
     # project visible/known ? 
     Project.get_by_name(params[:project])
 
@@ -93,8 +86,6 @@ class PublicController < ApplicationController
 
   # GET /public/source/:project/:package
   def package_index
-    valid_http_methods :get
-
     check_package_access(params[:project], params[:package])
 
     path = unshift_public(request.path)
@@ -104,8 +95,6 @@ class PublicController < ApplicationController
 
   # GET /public/source/:project/:package/_meta
   def package_meta
-    valid_http_methods :get
-
     check_package_access(params[:project], params[:package], false)
 
     pass_to_backend unshift_public(request.path)
@@ -113,7 +102,6 @@ class PublicController < ApplicationController
 
   # GET /public/source/:project/:package/:filename
   def source_file
-    valid_http_methods :get
     file = params[:filename]
 
     check_package_access(params[:project], params[:package])
@@ -129,8 +117,6 @@ class PublicController < ApplicationController
 
   # GET /public/lastevents
   def lastevents
-    valid_http_methods :get, :post   # OBS 2.3 switched to POST
-    
     path = unshift_public(request.path)
     if not request.query_string.blank?
       path += "?#{request.query_string}" 
@@ -142,7 +128,6 @@ class PublicController < ApplicationController
 
   # GET /public/distributions
   def distributions
-    valid_http_methods :get
     @distributions = Distribution.all_as_hash
     
     render "distributions/index"

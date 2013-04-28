@@ -47,7 +47,6 @@ class ArchitecturesControllerTest < ActionController::IntegrationTest
     # temporary disabled to create
     post "/architectures/futurearch", "<architecture><available>true</available></architecture>"
     assert_response 404 
-    assert_xml_tag tag: "status", attributes: { code: "not_found" }
 
   end
 

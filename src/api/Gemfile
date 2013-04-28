@@ -27,6 +27,7 @@ group :test do
   gem 'ci_reporter'
   gem 'simplecov-rcov', :require => false
   gem 'minitest'
+  gem 'minitest-colorize'
   gem 'faker'
   gem 'timecop'
   gem 'webmock', '>= 1.9.0'

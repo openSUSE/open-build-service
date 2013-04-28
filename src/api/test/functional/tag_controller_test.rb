@@ -80,7 +80,7 @@ class TagControllerTest < ActionController::IntegrationTest
     u = User.find_by_login("Iggy")
     assert_kind_of User, u
     
-    initial_user_tags = u.tags.clone
+    initial_user_tags = u.tags.all.clone
     assert_kind_of Array, initial_user_tags
     
     p = Project.find_by_name("home:Iggy")
