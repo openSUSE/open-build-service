@@ -586,9 +586,9 @@ class User < ActiveRecord::Base
       end
 
       if defined?( CONFIG['ldap_user_filter'] )
-        user_filter = "(&(#{CONFIG['dap_search_attr']}=#{login})#{CONFIG['ldap_user_filter']})"
+        user_filter = "(&(#{CONFIG['ldap_search_attr']}=#{login})#{CONFIG['ldap_user_filter']})"
       else
-        user_filter = "(#{CONFIG['dap_search_attr']}=#{login})"
+        user_filter = "(#{CONFIG['ldap_search_attr']}=#{login})"
       end
       logger.debug( "Search for #{user_filter}" )
       begin
