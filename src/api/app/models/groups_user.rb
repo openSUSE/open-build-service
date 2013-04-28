@@ -6,8 +6,6 @@ class GroupsUser < ActiveRecord::Base
   validates :group, :presence => true
   validate :validate_duplicates
 
-  attr_accessible :group, :user
-
   protected
   validate :validate_duplicates, :on => :create
   def validate_duplicates

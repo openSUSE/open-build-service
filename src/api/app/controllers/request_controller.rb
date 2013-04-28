@@ -33,7 +33,7 @@ class RequestController < ApplicationController
       rel = BsRequest.collection(params)
       rel = rel.includes([:reviews, :bs_request_histories])
       rel = rel.includes({bs_request_actions: :bs_request_action_accept_info})
-      rel = rel.order('bs_requests.id')
+      rel = rel.order('bs_requests.id').references(:bs_requests)
 
       xml = ActiveXML::Node.new "<collection/>"
       matches=0

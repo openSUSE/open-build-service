@@ -80,8 +80,7 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     u = User.find_by_login("Iggy")
     assert_kind_of User, u
     
-    initial_user_tags = u.tags.all.clone
-    assert_kind_of Array, initial_user_tags
+    initial_user_tags = u.tags.to_a.clone
     
     p = Project.find_by_name("home:Iggy")
     assert_kind_of Project, p
@@ -110,7 +109,7 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_kind_of User, u
     
     #testing the relationship.
-    assert_equal "TagX", (u.tags - initial_user_tags)[0].name  
+    assert_equal "TagX", (u.tags.to_a - initial_user_tags)[0].name  
   end
   
   

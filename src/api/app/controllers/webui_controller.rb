@@ -61,7 +61,7 @@ class WebuiController < ApplicationController
 
     if pro.project_type == 'maintenance_incident'
       rel = BsRequest.collection(project: params[:project], states: ['new','review'], types: ['maintenance_release'], roles: ['source'])
-      infos[:open_release_requests] = rel.select("bs_requests.id").all.map { |r| r.id }
+      infos[:open_release_requests] = rel.select("bs_requests.id").map { |r| r.id }
     end
   
     render json: infos
@@ -71,17 +71,17 @@ class WebuiController < ApplicationController
     prj = Project.find_by_name! prj
     
     rel = BsRequest.collection(project: params[:project], states: ['review'], roles: ['reviewer'])
-    reviews = rel.select("bs_requests.id").all.map { |r| r.id }
+    reviews = rel.select("bs_requests.id").map { |r| r.id }
 
     rel = BsRequest.collection(project: params[:project], states: ['new'], roles: ['target'])
-    targets = rel.select("bs_requests.id").all.map { |r| r.id }
+    targets = rel.select("bs_requests.id").map { |r| r.id }
 
     rel = BsRequest.collection(project: params[:project], states: ['new'], roles: ['source'], types: ['maintenance_incident'])
-    incidents = rel.select("bs_requests.id").all.map { |r| r.id }
+    incidents = rel.select("bs_requests.id").map { |r| r.id }
     
     if prj.project_type == "maintenance"
       rel = BsRequest.collection(project: params[:project], states: ['new'], roles: ['source'], types: ['maintenance_release'], subprojects: true)
-      maintenance_release = rel.select("bs_requests.id").all.map { |r| r.id }
+      maintenance_release = rel.select("bs_requests.id").map { |r| r.id }
     else
       maintenance_release = []
     end
@@ -101,13 +101,13 @@ class WebuiController < ApplicationController
     result = {}
 
     rel = BsRequest.collection(user: login, states: ['declined'], roles: ['creator'])
-    result[:declined] = rel.select("bs_requests.id").all.map { |r| r.id }
+    result[:declined] = rel.select("bs_requests.id").map { |r| r.id }
 
     rel = BsRequest.collection(user: login, states: ['new'], roles: ['maintainer'])
-    result[:new] = rel.select("bs_requests.id").all.map { |r| r.id }
+    result[:new] = rel.select("bs_requests.id").map { |r| r.id }
 
     rel = BsRequest.collection(user: login, roles: ['reviewer'], reviewstates: ['new'], states: ['review'])
-    result[:reviews] = rel.select("bs_requests.id").all.map { |r| r.id }
+    result[:reviews] = rel.select("bs_requests.id").map { |r| r.id }
 
     render json: result
   end
@@ -115,7 +115,7 @@ class WebuiController < ApplicationController
   def person_involved_requests
     required_parameters :login
     rel = BsRequest.collection(user: params[:login], states: ['new', 'review'])
-    result = rel.select("bs_requests.id").all.map { |r| r.id }
+    result = rel.select("bs_requests.id").map { |r| r.id }
 
     render json: result
   end

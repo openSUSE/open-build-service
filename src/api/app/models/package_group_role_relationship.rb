@@ -9,8 +9,6 @@ class PackageGroupRoleRelationship < ActiveRecord::Base
   validates :package, presence: true
   validates :role, presence: true
 
-  attr_accessible :package, :group, :role
-
   validate :check_uniqueness
   protected
   def check_uniqueness

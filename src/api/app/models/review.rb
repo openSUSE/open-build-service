@@ -6,9 +6,6 @@ class Review < ActiveRecord::Base
     setup 'review_not_found', 404, "Review not found"
   end
 
-  attr_accessible :by_group, :by_package, :by_project, :by_user, :creator, 
-                  :reason, :reviewer, :state, :bs_request_id
-
   belongs_to :bs_request
   validates_inclusion_of :state, :in => VALID_REQUEST_STATES
   

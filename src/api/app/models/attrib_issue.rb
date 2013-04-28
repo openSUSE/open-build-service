@@ -3,6 +3,4 @@
 class AttribIssue < ActiveRecord::Base
   belongs_to :attrib
   belongs_to :issue
-
-  attr_accessible :issue_id, :attrib_id
 end

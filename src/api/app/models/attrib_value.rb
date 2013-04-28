@@ -2,6 +2,4 @@
 
 class AttribValue < ActiveRecord::Base
   belongs_to :attrib
-
-  attr_accessible :value, :position 
 end

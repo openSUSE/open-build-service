@@ -10,6 +10,8 @@ OBSApi::Application.configure do
   # config.logger        = SyslogLogger.new
   config.log_level = :info
 
+  config.eager_load = true
+
   # Enable serving of images, stylesheets, and javascripts from an asset server
   # config.action_controller.asset_host                  = "http://assets.example.com"
 

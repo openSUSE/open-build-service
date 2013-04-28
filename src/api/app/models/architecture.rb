@@ -14,8 +14,6 @@ class Architecture < ActiveRecord::Base
 
   has_many :flags
 
-  attr_accessible :available, :recommended, :name
-
   def self.discard_cache
     Rails.cache.delete("archcache")
   end

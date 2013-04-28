@@ -36,7 +36,7 @@ class Package < ActiveRecord::Base
   has_many :download_stats
   has_many :ratings, :as => :db_object, :dependent => :destroy
 
-  has_many :flags, :order => :position, :dependent => :destroy, foreign_key: :db_package_id
+  has_many :flags, -> { order(:position) }, :dependent => :destroy, foreign_key: :db_package_id
 
   belongs_to :develpackage, :class_name => "Package", :foreign_key => 'develpackage_id'
   has_many  :develpackages, :class_name => "Package", :foreign_key => 'develpackage_id'
@@ -46,7 +46,6 @@ class Package < ActiveRecord::Base
   has_many :package_kinds, :dependent => :destroy, foreign_key: :db_package_id
   has_many :package_issues, :dependent => :destroy, foreign_key: :db_package_id # defined in sources
 
-  attr_accessible :name, :title, :description
   after_save :write_to_backend
   before_update :update_activity
   after_rollback :reset_cache
@@ -917,6 +916,7 @@ class Package < ActiveRecord::Base
     # the value we add to the activity, when the object gets updated
     addon = 10 * (Time.now.to_f - self.updated_at_was.to_f) / 86400
     addon = 10 if addon > 10
+    logger.debug "update_activity #{activity} #{addon} #{Time.now} #{self.updated_at} #{self.updated_at_was}"
     new_activity = activity + addon
     new_activity = 100 if new_activity > 100
 
@@ -967,13 +967,13 @@ class Package < ActiveRecord::Base
   def open_requests_with_package_as_source_or_target
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
     rel = rel.where("(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?) or (bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)", self.project.name, self.name, self.project.name, self.name)
-    return BsRequest.where(id: rel.select("bs_requests.id").all.map { |r| r.id})
+    return BsRequest.where(id: rel.select("bs_requests.id").map { |r| r.id})
   end
 
   def open_requests_with_by_package_review
     rel = BsRequest.where(state: [:new, :review])
     rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? and reviews.by_package = ? ", self.project.name, self.name)
-    return BsRequest.where(id: rel.select("bs_requests.id").all.map { |r| r.id})
+    return BsRequest.where(id: rel.select("bs_requests.id").map { |r| r.id})
   end
 
   def user_has_role?(user, role)

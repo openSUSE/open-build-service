@@ -2,17 +2,15 @@
 # This preamble is the current preamble for Rails 3 apps; edit as needed.
 source 'https://rubygems.org'
 
-# do not use rails but only a subset for API, we don't render any kind of HTML
 gem 'rails-api'
-gem 'activerecord', '~>3.2.9'
-gem 'i18n', '= 0.6.1'
+gem 'activerecord', '~> 4.0'
 gem 'actionmailer'
 
 gem 'mysql2'
 gem 'daemons'
 gem 'nokogiri', '~>1.6.0'
-gem 'delayed_job', '>3.0'
-gem 'delayed_job_active_record'
+gem 'delayed_job', '~> 4.0.0.beta1'
+gem 'delayed_job_active_record', '~> 4.0.0.beta2'
 gem 'hoptoad_notifier', "~> 2.3"
 gem 'rdoc'
 gem 'xmlhash', '>=1.3.5'

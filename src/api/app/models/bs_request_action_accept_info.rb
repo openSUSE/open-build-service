@@ -1,6 +1,4 @@
 class BsRequestActionAcceptInfo < ActiveRecord::Base
-  attr_accessible :bs_request_action_id, :osrcmd5, :rev, :srcmd5, :xsrcmd5, :oxsrcmd5
-
   belongs_to :bs_request_action
 
   def render_xml(builder)

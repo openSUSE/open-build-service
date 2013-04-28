@@ -60,7 +60,7 @@ module ActionController
           response.body.call(nil, sio) # send_file can return a block that takes |response, output|
           str = sio.string
          else
-          str = response.body.to_s
+          str = response.body
          end
          Suse::Validator.validate(opt, str)
 	end

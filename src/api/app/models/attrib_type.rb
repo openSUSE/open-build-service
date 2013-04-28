@@ -9,14 +9,12 @@ class AttribType < ActiveRecord::Base
   has_many :allowed_values, :class_name => 'AttribAllowedValue', :dependent => :destroy
   has_many :attrib_type_modifiable_bies, :class_name => 'AttribTypeModifiableBy', :dependent => :destroy
 
-  attr_accessible :name, :attrib_namespace, :value_count, :issue_list
-
   class << self
     def list_all(namespace=nil)
       if namespace
-        joins(:attrib_namespace).where("attrib_namespaces.name = ?", namespace).select("attrib_types.id,attrib_types.name").all
+        joins(:attrib_namespace).where("attrib_namespaces.name = ?", namespace).select("attrib_types.id,attrib_types.name")
       else
-        select("id,name").all
+        select("id,name")
       end
     end
 
@@ -75,7 +73,7 @@ class AttribType < ActiveRecord::Base
          attr.issue_list
        end
 
-       abies = attrib_type_modifiable_bies.includes(:user, :group, :role).all
+       abies = attrib_type_modifiable_bies.includes(:user, :group, :role)
        if abies.length > 0
          abies.each do |mod_rule|
            p={}

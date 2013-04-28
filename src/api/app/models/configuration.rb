@@ -1,8 +1,6 @@
 require 'opensuse/backend'
 
 class Configuration < ActiveRecord::Base
-  attr_accessible :title, :description, :name
-
   after_save :write_to_backend
 
   def write_to_backend()

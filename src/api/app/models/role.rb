@@ -36,15 +36,13 @@ class Role < ActiveRecord::Base
   belongs_to :roles_users
 
   # roles have n:m relations for users
-  has_and_belongs_to_many :users, :uniq => true
+  has_and_belongs_to_many :users, -> { uniq() }
   # roles have n:m relations to groups
-  has_and_belongs_to_many :groups, :uniq => true
+  has_and_belongs_to_many :groups, -> { uniq() }
   # roles have n:m relations to permissions
-  has_and_belongs_to_many :static_permissions, :uniq => true
+  has_and_belongs_to_many :static_permissions, -> { uniq() }
 
-  attr_accessible :title, :global
-
-  scope :global, where(:global => true)
+  scope :global, -> { where(global: true) }
 
   class << self
     def discard_cache

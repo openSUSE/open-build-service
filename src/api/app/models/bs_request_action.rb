@@ -14,9 +14,6 @@ class BsRequestAction < ActiveRecord::Base
   VALID_SOURCEUPDATE_OPTIONS = ["update", "noupdate", "cleanup"]
   validates_inclusion_of :sourceupdate, :in => VALID_SOURCEUPDATE_OPTIONS, :allow_nil => true
 
-  attr_accessible :source_package, :source_project, :source_rev, :target_package, :target_releaseproject, :target_repository,
-                  :target_project, :action_type, :bs_request_id, :sourceupdate, :updatelink, :person_name, :group_name, :role
-
   validate :check_sanity
 
   def check_sanity
