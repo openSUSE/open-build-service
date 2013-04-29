@@ -195,7 +195,7 @@ EOF
 			fi
 
                         # Force mysql to update database. FIXME: only on version update
-                        touch "$backenddir"/MySQL/.run-mysql_upgrade
+                        [ -d "$backenddir"/MySQL/ ] && touch "$backenddir"/MySQL/.run-mysql_upgrade
 		fi
 
 		if [ "$OBS_SETUP_WORKER_PARTITIONS" = "take_all" -o "$OBS_SETUP_WORKER_PARTITIONS" = "use_obs_vg" ]; then
