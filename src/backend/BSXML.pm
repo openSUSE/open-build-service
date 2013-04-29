@@ -274,6 +274,7 @@ our $projpack = [
 	    'remoteurl',
 	    'remoteproject',
 	    @flags,
+	    @roles,
 	  [ $repo ],
           [ $download ],
 	 [[ 'package' =>
