@@ -1,8 +1,4 @@
 
-### WARNING:
-### WARNING: This version is currently NOT for production use!
-### WARNING:
-
 #
 # Open Build Service 2.4
 #
@@ -21,13 +17,6 @@ their appliance image without data loss. The migration will
 happen automatically.
 
 
-Temporary Problems:
-===================
-
- * No gui interface for managing users and groups. api
-   routes have to be enhanced and webui needs to get support 
-   for using it.
-
 Regressions:
 ============
 
@@ -40,6 +29,15 @@ Changes on purpose:
 ===================
 
  * Migration to Ruby 1.9 and Rails 3.2
+
+ * More database constraints have been introduced to avoid inconsistent databases.
+   As a result this may cause problems during update if the database is already
+   inconsistent. Please use the script check_database script to fix these
+   kind of issues:
+      # cd /srv/www/obs/api
+      # RAILS_ENV=production ./script/check_database
+
+   It may return a number of SQL commands to make the database consistend again.
 
  * request database got moved from backend to the api. Directly
    after update all requests seem to have vanished, but a delayed
@@ -121,6 +119,8 @@ Features
 
  * Efficient transport of product build results from worker to backend.
 
+ * Secure Boot signing support
+
  * aarch64 architecture added (aka armv8 or arm64)
 
  * New generic "emulator" virtualization support. Can be used to build inside
@@ -130,7 +130,12 @@ Features
 
  * Asynchronus mode for handling interconnects is available. This will avoid
    scheduler hangups with slow or broken network to a remote instance.
-   Enable this via
+   Enable this via 
+
+       our $sched_asyncmode = 1;
+
+   in BSConfig.pm file. It is the default for new OBS installations.
+      
 
 Deprecated:
 ===========
