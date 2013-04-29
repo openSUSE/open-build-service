@@ -2888,7 +2888,7 @@ sub getprojpack {
 	      }
 	      if ($remotemap && $rinfo->{'path'} && !$repo->{'path'}) {
 		eval {
-		  concatconfigs($projid, $repoid, $remotemap, @{$rinfo->{'path'}});
+		  concatconfigs($projid, $repoid, $remotemap, map {"$_->{'project'}/$_->{'repository'}"} @{$rinfo->{'path'}});
 		};
 	      }
 	    } else {
