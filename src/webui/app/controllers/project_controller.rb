@@ -293,6 +293,13 @@ class ProjectController < ApplicationController
   # TODO we need the architectures in api/distributions
   def add_repository_from_default_list
     @distributions = find_cached(Distribution, :all)
+    if @distributions.all_vendors.length < 1
+      if @user and @user.is_admin?      
+        flash.now[:note] = "There are no distributions configured! Check out <a href=\"/configuration/connect_instance\">Configuration > Interconnect</a>"
+      else
+        redirect_to :controller => 'project', :action => 'add_repository', :project => @project
+      end
+    end
   end
 
   def add_repository
