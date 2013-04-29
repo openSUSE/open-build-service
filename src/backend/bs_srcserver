@@ -2548,6 +2548,11 @@ sub getprojpack {
     for (qw{title description build publish debuginfo useforbuild remoteurl remoteproject download link sourceaccess privacy access lock}) {
       $jinfo->{$_} = $proj->{$_} if exists $proj->{$_};
     }
+    if ($proj->{'access'}) {
+      # we need the roles if the project is protected, see checkroles() in the scheduler
+      $jinfo->{'person'} = $proj->{'person'} if exists $proj->{'person'};
+      $jinfo->{'group'} = $proj->{'group'} if exists $proj->{'group'};
+    }
     # Check build flags in project meta data
     # packages inherit the project wide settings and may override them
     my $pdisabled;

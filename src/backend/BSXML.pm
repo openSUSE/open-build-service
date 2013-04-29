@@ -88,6 +88,17 @@ our @flags = (
       [ 'access' => @disableenable ],
 );
 
+our @roles = (
+     [[ 'person' =>
+            'role',
+            'userid',
+     ]],
+     [[ 'group' =>
+            'role',
+            'groupid',
+     ]],
+);
+
 our $download = [
     'download' =>
     'baseurl',
@@ -119,14 +130,7 @@ our $proj = [
       [ 'devel', =>
 	    'project',
       ],
-     [[ 'person' =>
-            'role',
-            'userid',
-     ]],
-     [[ 'group' =>
-            'role',
-            'groupid',
-     ]],
+	@roles,
       [ $download ],
 	$maintenance,
       [ 'attributes' => 
@@ -171,14 +175,7 @@ our $pack = [
 	    'project',
 	    'package',
       ],
-     [[ 'person' =>
-            'role',
-            'userid',
-     ]],
-     [[ 'group' =>
-            'role',
-            'groupid',
-     ]],
+	@roles,
 	@disableenable,
 	@flags,
 	'url',

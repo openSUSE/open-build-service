@@ -812,13 +812,13 @@ sub checkroles {
   my @oroles;
   if (defined($opackid)) {
     my $pdata = ($oproj->{'package'} || {})->{$opackid} || {};
-    push @roles, @{$pdata->{'person'} || []}, @{$pdata->{'group'} || []};
+    push @oroles, @{$pdata->{'person'} || []}, @{$pdata->{'group'} || []};
   }
-  push @roles, @{$oproj->{'person'} || []}, @{$oproj->{'group'} || []};
+  push @oroles, @{$oproj->{'person'} || []}, @{$oproj->{'group'} || []};
   while ($oprojid =~ /^(.+):/) {
     $oprojid = $1;
     $oproj = $projpacks->{$oprojid} || {};
-    push @roles, @{$oproj->{'person'} || []}, @{$oproj->{'group'} || []};
+    push @oroles, @{$oproj->{'person'} || []}, @{$oproj->{'group'} || []};
   }
   # make sure every user from oprojid can also access projid
   # XXX: check type and roles
@@ -827,11 +827,10 @@ sub checkroles {
     my @rx; 
     if (exists $r->{'userid'}) {
       push @rx, grep {exists($_->{'userid'}) && $_->{'userid'} eq $r->{'userid'}} @roles;
-    }    
-    if (exists $r->{'groupid'}) {
+    } elsif (exists $r->{'groupid'}) {
       push @rx, grep {exists($_->{'groupid'}) && $_->{'groupid'} eq $r->{'groupid'}} @roles;
-    }    
-    return 0  unless grep {$_->{'role'} eq $r->{'role'} || $_->{'role'} eq 'maintainer'} @rx;
+    }
+    return 0 unless grep {$_->{'role'} eq $r->{'role'} || $_->{'role'} eq 'maintainer'} @rx;
   }
   return 1;
 }
