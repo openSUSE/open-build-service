@@ -89,9 +89,6 @@ my $remotecache = "$BSConfig::bsdir/remotecache";
 
 if (@ARGV && $ARGV[0] eq '--testmode') {
   $testmode = 1;
-  # for now
-  $asyncmode = 0;
-  $startupmode = 0;
   shift @ARGV;
 }
 if (@ARGV && ($ARGV[0] eq '--exit' || $ARGV[0] eq '--stop')) {
@@ -6892,7 +6889,7 @@ NEXTPRP:
     }
 
     if (!defined($prp)) {
-      if ($testmode) {
+      if ($testmode && !%iswaiting) {
 	print "Test mode, all sources and events processed, exiting...\n";
 	exit(0);
       }
