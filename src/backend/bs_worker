@@ -2845,14 +2845,23 @@ if (!$ex) {
 } elsif ($ex == 3) {
   print "build failed, marked as bad build host...\n";
   $code = 'badhost';
-  # try to be clever and avoid endless builds of people who broken their build enviroment
+  # Check if buildconfig is just broken and won't ever succeed
   if (open(LL, '<', "$buildroot/.build.log")) {
     my $data = '';
     sysseek(LL, -10240, 2);
     sysread(LL, $data, 10240);
     close LL;
-    if ($data =~ /^(?:\[\d+s\] )?(\S+): error while loading shared libraries:/m
-        || $data =~ /^(?:\[\d+s\] )?execve: Exec format error/m) {
+    # Remove timing prefix, e.g.
+    # [   41s]
+    $data =~ s/^(?:\[[\d\s]+s\]\s*)?//gm;
+
+    # Match any of those:
+    # run-init: /.build/build: Exec format error
+    # /bin/rpm: Exec format error
+    # /bin/sh: error while loading shared libraries: libgcc_s.so.1: cannot open shared object file
+    if ($data =~ /^(\S{1,30}): error while loading shared libraries: lib/m
+        || $data =~ /^(?:run-init: )?\S{1,3330}: Exec format error/m
+       ) {
       print "Wait ... spotted failed build. Host is good.\n";
       $code = 'failed';
     }
