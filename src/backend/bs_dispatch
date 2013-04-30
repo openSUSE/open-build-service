@@ -206,7 +206,9 @@ sub assignjob {
 
   # put worker into building list
   $worker->{'job'} = $job;
+  $worker->{'jobid'} = $jobid;
   $worker->{'arch'} = $arch;
+  $worker->{'reposerver'} = $info->{'reposerver'} if $info->{'masterdispatched'};
   mkdir_p("$workersdir/building");
   writexml("$workersdir/building/.$idlename", "$workersdir/building/$idlename", $worker, $BSXML::worker);
 
@@ -223,14 +225,14 @@ sub assignjob {
   return 'assigned';
 }
 
-sub sendeventtosrcserver {
-  my ($ev) = @_;
+sub sendeventtoserver {
+  my ($server, $ev) = @_;
   my @args;
   for ('type', 'project', 'package', 'repository', 'arch', 'job') {
     push @args, "$_=$ev->{$_}" if defined $ev->{$_};
   }
   my $param = {
-    'uri' => "$BSConfig::srcserver/event",
+    'uri' => "$server/event",
     'request' => 'POST',
     'timeout' => 10,
   };
@@ -576,6 +578,48 @@ sub dispatchslave {
   return $synced;
 }
 
+sub forwardevents {
+  for my $evname (ls("$eventdir/repository")) {
+    next if $evname =~ /^\./;
+    my $ev = readxml("$eventdir/repository/$evname", $BSXML::event, 1);
+    next unless $ev;
+    eval {
+      sendeventtoserver($BSConfig::srcserver, $ev);
+    };
+    if ($@) {
+      warn($@);
+    } else {
+      unlink("$eventdir/repository/$evname");
+    }
+  }
+  for my $evname (ls("$eventdir/dispatch")) {
+    next if $evname =~ /^\./;
+    my $ev = readxml("$eventdir/dispatch/$evname", $BSXML::event, 1);
+    next unless $ev;
+    next if $ev->{'due'} && time() < $ev->{'due'};
+    delete $ev->{'due'};
+    eval {
+      if ($ev->{'type'} eq 'built') {
+        # resend to rep server
+      } elsif ($ev->{'type'} eq 'badhost') {
+        print "badhost event: $ev->{'project'}/$ev->{'package'}/$ev->{'arch'}/$ev->{'job'}\n";
+	if ($BSConfig::masterdispatcher && $BSConfig::masterdispatcher ne $BSConfig::reposerver) {
+          sendeventtoserver($BSConfig::masterdispatcher, $ev);
+	} else {
+	  $badhost{"$ev->{'project'}/$ev->{'package'}/$ev->{'arch'}/$ev->{'job'}"} = time();
+	}
+      } else {
+        sendeventtoserver($BSConfig::srcserver, $ev);
+      }
+    };
+    if ($@) {
+      warn($@);
+    } else {
+      unlink("$eventdir/dispatch/$evname");
+    }
+  }
+}
+
 sub filechecks {
   if (-e "$rundir/bs_dispatch.exit") {
     my $state = {
@@ -680,6 +724,7 @@ while (1) {
 
   if ($BSConfig::masterdispatcher && $BSConfig::masterdispatcher ne $BSConfig::reposerver) {
     my $synced = dispatchslave();
+    forwardevents();
     sleep(1) unless $synced;
     filechecks();
     next;
@@ -1106,41 +1151,9 @@ while (1) {
     }
     last if $assigned >= 50;
   }
-  for my $evname (ls("$eventdir/repository")) {
-    next if $evname =~ /^\./;
-    my $ev = readxml("$eventdir/repository/$evname", $BSXML::event, 1);
-    next unless $ev;
-    eval {
-      sendeventtosrcserver($ev);
-    };
-    if ($@) {
-      warn($@);
-    } else {
-      unlink("$eventdir/repository/$evname");
-    }
-  }
-  for my $evname (ls("$eventdir/dispatch")) {
-    next if $evname =~ /^\./;
-    my $ev = readxml("$eventdir/dispatch/$evname", $BSXML::event, 1);
-    next unless $ev;
-    next if $ev->{'due'} && time() < $ev->{'due'};
-    delete $ev->{'due'};
-    eval {
-      if ($ev->{'type'} eq 'built') {
-        # resend to rep server
-      } elsif ($ev->{'type'} eq 'badhost') {
-        print "badhost event: $ev->{'project'}/$ev->{'package'}/$ev->{'arch'}/$ev->{'job'}\n";
-	$badhost{"$ev->{'project'}/$ev->{'package'}/$ev->{'arch'}/$ev->{'job'}"} = time();
-      } else {
-        sendeventtosrcserver($ev);
-      }
-    };
-    if ($@) {
-      warn($@);
-    } else {
-      unlink("$eventdir/dispatch/$evname");
-    }
-  }
+
+  forwardevents();
+
   sleep(1) unless $assigned;
   printf("assigned $assigned jobs\n") if $assigned;
   if (%badhost) {

@@ -1204,7 +1204,17 @@ sub workerstate {
     if (-e "$workersdir/building/$idlename") {
       # worker must have crashed, discard old job...
       my $worker = readxml("$workersdir/building/$idlename", $BSXML::worker, 1);
-      if ($worker && $worker->{'arch'} && $worker->{'job'}) {
+      if ($worker && $worker->{'arch'} && $worker->{'job'} && $worker->{'reposerver'}) {
+	# masterdispatched, forward to correct repo server
+	eval {
+	  BSRPC::rpc({
+	    'uri' => "$worker->{'reposerver'}/jobs/$worker->{'arch'}/$worker->{'job'}",
+	    'request' => 'POST',
+	    'timeout' => 10,
+	  }, undef, "cmd=idleworker", "workerid=$workerid");
+	};
+	warn($@) if $@;
+      } elsif ($worker && $worker->{'arch'} && $worker->{'job'}) {
 	local *F;
         my $js = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$worker->{'arch'}/$worker->{'job'}:status", $BSXML::jobstatus, 1);
 	if ($js) {
@@ -1481,7 +1491,7 @@ sub workerstatus {
 }
 
 sub sendbadhostevent {
-  my ($info, $idlename) = @_;
+  my ($info, $idlename, $isputbuild) = @_;
   my $ev = {
     'type' => 'badhost',
     'project' => $info->{'project'},
@@ -1625,8 +1635,10 @@ sub putjob {
 
   my $idlename = "$oldjobstatus->{'hostarch'}:$oldjobstatus->{'workerid'}";
   $idlename =~ s/\//_/g;
-  print "oops, we are not building ($idlename)?\n" unless -e "$workersdir/building/$idlename";
-  unlink("$workersdir/building/$idlename");
+  if (!($BSConfig::masterdispatcher && $BSConfig::masterdispatcher ne $BSConfig::reposerver)) {
+    print "oops, we are not building ($idlename)?\n" unless -e "$workersdir/building/$idlename";
+    unlink("$workersdir/building/$idlename");
+  }
 
   if ($cgi->{'code'} && $cgi->{'code'} eq 'badhost') {
     # turned out that this host couldn't build the job
@@ -1906,23 +1918,39 @@ sub uploadbuild {
 sub forwardevent {
   my ($cgi, $type, $projid, $packid, $repoid, $arch) = @_;
   my $ev = { type => $type, 'project' => $projid };
+  my $job;
+  if ($type eq 'badhost') {
+    $repoid = $cgi->{'repository'} if exists $cgi->{'repository'};
+    $arch = $cgi->{'arch'} if exists $cgi->{'arch'};
+    $job = $cgi->{'job'} if exists $cgi->{'job'};
+  }
   my $evname = "$type:$projid";
   $ev->{'package'} = $packid if defined $packid;
   $evname .= "::$packid" if defined $packid;
   $ev->{'repository'} = $repoid if defined $repoid;
   $evname .= "::$repoid" if defined $repoid;
+  $ev->{'arch'} = $arch if defined $arch;
+  $evname .= "::$arch" if defined $arch;
+  $ev->{'job'} = $job if defined $job;
+  $evname .= "::$job" if defined $job;
   $evname = "${type}:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
+  $arch = 'dispatch' if $type eq 'badhost';
   mkdir_p("$eventdir/$arch") if $arch;
-  # XXX: there should be a better way than to just write in all
-  # directories... maybe a architecture list in BSConfig?
-  my @archs = $arch ? ($arch) : ls($eventdir);
-  for my $a (@archs) {
-    next if $a =~ /^\./;
-    next unless -d "$eventdir/$a";
-    next if $a eq 'publish' || $a eq 'repository' || $a eq 'watch' || $a eq 'signer';
-    dirty($projid, $repoid, $a);
-    writexml("$eventdir/$a/.$evname", "$eventdir/$a/$evname", $ev, $BSXML::event);
+  if ($arch) {
+    dirty($projid, $repoid, $arch) unless $arch eq 'dispatch';
+    writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
     ping($a);
+  } else {
+    # XXX: there should be a better way than to just write in all
+    # directories... maybe a architecture list in BSConfig?
+    for my $a (ls($eventdir)) {
+      next if $a =~ /^\./;
+      next unless -d "$eventdir/$a";
+      next if $a eq 'publish' || $a eq 'repository' || $a eq 'watch' || $a eq 'signer' || $a eq 'dispatch';
+      dirty($projid, $repoid, $a);
+      writexml("$eventdir/$a/.$evname", "$eventdir/$a/$evname", $ev, $BSXML::event);
+      ping($a);
+    }
   }
   return $BSStdServer::return_ok;
 }
@@ -3479,6 +3507,21 @@ sub deljob {
   return $BSStdServer::return_ok;
 }
 
+sub idleworkerjob {
+  my ($cgi, $arch, $job) = @_;
+  local *F;
+  my $js = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
+  if ($js) {
+    # be extra careful here not to terminate jobs that run on different workers
+    if ($js->{'code'} eq 'building' && (!defined($js->{'workerid'}) || $js->{'workerid'} eq $cgi->{'workerid'})) {
+      print "restarting build of job $arch/$job\n";
+      unlink("$jobsdir/$arch/$job");
+    }
+    close F;
+  }
+  return $BSStdServer::return_ok;
+}
+
 sub getajaxstatus {
   my ($cgi) = @_;
   if (!$BSStdServer::isajax) {
@@ -3525,7 +3568,7 @@ my $dispatches = [
   '/build/_dispatchprios' => \&getdispatchprios,
 
   # src server calls
-  'POST:/event $type: $project $package?' => \&forwardevent,
+  'POST:/event $type: $project $package? repository? arch? job?' => \&forwardevent,
 
   # worker calls
   '!worker /worker $arch $port $state: workerid:? working:bool? memory:num? disk:num? buildarch:arch* tellnojob:bool?' => \&workerstate,
@@ -3552,6 +3595,7 @@ my $dispatches = [
   '/jobs' => \&listjobarchs,
   '/jobs/$arch' => \&listjobs,
   'PUT:/jobs/$arch/$job' => \&addjob,
+  'POST:/jobs/$arch/$job cmd=idleworker workerid:' => \&idleworkerjob,
   'DELETE:/jobs/$arch/$job' => \&deljob,
   '/jobs/$arch/$job' => \&getjob,
 

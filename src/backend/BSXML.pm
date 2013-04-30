@@ -694,6 +694,8 @@ our $worker = [
 
 	'job',		# set when worker is busy
 	'arch',		# set when worker is busy
+	'jobid',	# set when worker is busy
+	'reposerver',	# set when worker is busy and job was masterdispatched
 ];
 
 our $packstatuslist = [
