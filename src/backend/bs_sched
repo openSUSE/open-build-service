@@ -5838,6 +5838,7 @@ sub event_uploadbuild_delay {
   my $projid = $info->{'project'};
   my $packid = $info->{'package'};
   return 0 unless defined($projid) && defined($packid);
+  return 1 if $iswaiting{$projid};	# delay if getprojpack in progress
   if (grep {!defined($_) || $_ eq $packid} (@{$fetchprojpacks->{$projid} || []}, @{$delayedfetchprojpacks->{$projid} || []})) {
     push @{$fetchprojpacks->{$projid}}, $packid;
     # remove package from delayedfetchprojpacks to prevent looping
