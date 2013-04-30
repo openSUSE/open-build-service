@@ -19,31 +19,36 @@ end
 
 User.current = User.find_by_login('_nobody_')
 
-packs=nil
 old_mode=nil
 begin
-  # 2.3 database
-  packs = Package.find :all, :conditions => "(develpackage_id is not null) or (develproject_id is not null)"
-  old_mode=true
-rescue
-  # 2.4 database
-  packs = Package.find :all, :conditions => "(develpackage_id is not null)"
-end
-projects = Hash.new
-
-packs.each do |p|
+  packs=nil
   begin
-    p.resolve_devel_package
-  rescue Package::CycleError => e
-    projects[p.project.name] ||= Array.new
-    projects[p.project.name] << e.message
+    # 2.3 database
+    packs = Package.find :all, :conditions => "(develpackage_id is not null) or (develproject_id is not null)"
+    old_mode=true
+  rescue
+    # 2.4 database
+    packs = Package.find :all, :conditions => "(develpackage_id is not null)"
   end
-end
-
-projects.keys.sort.each do |p|
-  projects[p].each do |m|
-    puts " " + m
+  projects = Hash.new
+  
+  packs.each do |p|
+    begin
+      p.resolve_devel_package
+    rescue Package::CycleError => e
+      projects[p.project.name] ||= Array.new
+      projects[p.project.name] << e.message
+    end
   end
+  
+  projects.keys.sort.each do |p|
+    projects[p].each do |m|
+      puts " " + m
+    end
+  end
+rescue
+  # the models failed to work, asume 2.3 database layout
+  old_mode=true
 end
 
 packages_tbl="packages"
