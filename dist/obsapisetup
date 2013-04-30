@@ -109,7 +109,7 @@ case "$1" in
 		echo "$FQHOSTNAME" > $backenddir/.oldfqhostname
 
 		if grep -q ^FRONTEND_HOST /srv/www/obs/webui/config/environments/production.rb; then
-		    echo -n "Switching from Rails 2.x style configuration to Rails 3.x"
+		    echo "Switching from Rails 2.x style configuration to Rails 3.x"
                     for file in /srv/www/obs/api/config/environments/production.rb \
                                 /srv/www/obs/api/config/options.yml \
                                 /srv/www/obs/webui/config/environments/production.rb \
@@ -119,7 +119,7 @@ case "$1" in
                     sed -i 's,adapter:[ \t]*mysql.*,adapter: mysql2,' /srv/www/obs/api/config/database.yml
                 fi
 
-		echo -n "Adjust webui configuration for api"
+		echo "Adjust webui configuration for api"
                 sed -i 's,^frontend_host: .*,frontend_host: "'"$FQHOSTNAME"'",' \
 		    /srv/www/obs/webui/config/options.yml
                 sed -i 's,^frontend_port: .*,frontend_port: 444,' \
@@ -136,13 +136,13 @@ case "$1" in
 		OS=`head -n 1 /etc/SuSE-release`
                 RUN_INITIAL_SETUP=""
                 if [ ! -e "$datadir"/api_production ]; then
-			echo -n "Initialize MySQL databases (first time only)"
+			echo "Initialize MySQL databases (first time only)"
 			mysqladmin -u root create api_production
 			mysqladmin -u root password "opensuse"
                         RUN_INITIAL_SETUP="true"
 		fi
                 if [ -n "$RUN_INITIAL_SETUP" ]; then
-			echo -n "Initialize OBS api database (first time only)"
+			echo "Initialize OBS api database (first time only)"
         		cd $apidir
 			RAILS_ENV=production bundle exec rake db:setup >> $apidir/log/db_migrate.log
                         ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key )
@@ -150,13 +150,13 @@ case "$1" in
 			chown root.www config/secret.key
 		else
 			echo
-			echo -n "Migrate OBS api database"
+			echo "Migrate OBS api database"
 			cd $apidir
 			RAILS_ENV=production bundle exec rake db:migrate >> $apidir/log/db_migrate.log
 			echo
 		fi
                 if [ -n "$RUN_INITIAL_SETUP" ]; then
-			echo -n "Initialize OBS webui database (first time only)"
+			echo "Initialize OBS webui database (first time only)"
         		cd $webuidir
 			RAILS_ENV=production bundle exec rake db:setup >> $webuidir/log/db_migrate.log
                         ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key)
@@ -164,7 +164,7 @@ case "$1" in
 			chown root.www config/secret.key
 		else
 			echo
-			echo -n "Migrate OBS webui database"
+			echo "Migrate OBS webui database"
 			cd $webuidir
 			RAILS_ENV=production bundle exec rake db:migrate >> $webuidir/log/db_migrate.log
 			echo
