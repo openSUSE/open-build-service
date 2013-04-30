@@ -4987,7 +4987,7 @@ sub copyproject {
   my $oproj = readproj($oprojid);
 
   my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
-  my $oreposerver = $BSConfig::partition ? projid2reposerver($oprojid) : $BSConfig::oreposerver;
+  my $oreposerver = $BSConfig::partition ? projid2reposerver($oprojid) : $BSConfig::reposerver;
   if ($cgi->{'withbinaries'} && $reposerver ne $oreposerver) {
     die("cannot copy binaries between different reposiory servers yet\n");
   }
