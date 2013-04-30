@@ -1261,6 +1261,33 @@ sub workerstate {
   return $BSStdServer::return_ok;
 }
 
+sub workerdispatched {
+  my ($cgi, $arch, $job, $jobid) = @_;
+  
+  my $peerip = BSServer::getpeerdata();
+  my $peerport = $cgi->{'port'};
+  my $jobstatus = {
+    'code' => 'building',
+    'uri' => "http://$peerip:$peerport",
+    'starttime' => time(),
+    'hostarch' => $cgi->{'hostarch'},
+    'jobid' => $jobid,
+  };
+  $jobstatus->{'workerid'} = $cgi->{'workerid'} if defined $cgi->{'workerid'};
+  die("404 no such job\n") unless -e "$jobsdir/$arch/$job";
+  if (!BSUtil::lockcreatexml(\*F, "$jobsdir/$arch/.reposerver.$$", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus)) {
+    die("job lock failed\n");
+  }
+  # make sure this is the correct job
+  my $infoxml = readstr("$jobsdir/$arch/$job", 1);
+  if (!$infoxml || Digest::MD5::md5_hex($infoxml) ne $jobid) {
+    unlink("$jobsdir/$arch/$job:status");
+    die("wrong job\n");
+  }
+  close F;
+  return $BSStdServer::return_ok;
+}
+
 sub getpreinstallimageinfos {
   my ($cgi, $prpas) = @_;
   my @infos;
@@ -3374,6 +3401,84 @@ sub getdispatchprios {
   return ($prios, $BSXML::dispatchprios);
 }
 
+sub listjobarchs {
+  my ($cgi) = @_;
+  my @res = grep {-d "$jobsdir/$_"} ls ($jobsdir);
+  @res = sort @res;
+  @res = map {{'name' => $_}} @res;
+  return ({'entry' => \@res}, $BSXML::dir);
+}
+
+sub listjobs {
+  my ($cgi, $arch) = @_;
+  my @b = grep {!/^\./} ls("$jobsdir/$arch");
+  @b = grep {!/:cross$/} @b;
+  my %locked = map {$_ => 1} grep {/:status$/} @b;
+  @b = grep {!/:(?:dir|status|new)$/} @b;
+  my @res = map {{'name' => $_}} @b;
+  return ({'entry' => \@res}, $BSXML::dir);
+}
+
+sub addjob {
+  my ($cgi, $arch, $job) = @_;
+  my $infoxml = BSServer::read_data(10000000);
+  # just check xml structure
+  die("job '$job' already exists\n") if -e "$jobsdir/$arch/$job";
+  my $info = XMLin($BSXML::buildinfo, $infoxml);
+  mkdir_p("$jobsdir/$arch");
+  writestr("$jobsdir/$arch/.$job.$$", "$jobsdir/$arch/$job", $infoxml);
+  if ($info->{'hostarch'} && $arch ne $info->{'hostarch'}) {
+    mkdir_p("$jobsdir/$info->{'hostarch'}");
+    BSUtil::touch("$jobsdir/$info->{'hostarch'}/$job:$arch:cross");
+  }
+  return $BSStdServer::return_ok;
+}
+
+sub getjob {
+  my ($cgi, $arch, $job) = @_;
+  die("404 no such job\n") unless -e "$jobsdir/$arch/$job";
+  my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo);
+  return ($info, $BSXML::buildinfo);
+}
+
+sub deljob {
+  my ($cgi, $arch, $job) = @_;
+  return $BSStdServer::return_ok unless -e "$jobsdir/$arch/$job";
+  local *F;
+  if (! -e "$jobsdir/$arch/$job:status") {
+    my $js = {'code' => 'deleting'};
+    if (BSUtil::lockcreatexml(\*F, "$jobsdir/$arch/.repo.$$", "$jobsdir/$arch/$job:status", $js, $BSXML::jobstatus)) {
+      if (-d "$jobsdir/$arch/$job:dir") {
+        BSUtil::cleandir("$jobsdir/$arch/$job:dir");
+        rmdir("$jobsdir/$arch/$job:dir");
+      }
+      unlink("$jobsdir/$arch/$job");
+      unlink("$jobsdir/$arch/$job:status");
+      close F;
+      return $BSStdServer::return_ok;
+    }
+  }
+  my $js = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
+  if ($js && $js->{'code'} eq 'building') {
+    my $req = {
+      'uri' => "$js->{'uri'}/discard",
+      'timeout' => 60,
+    };   
+    eval {
+      BSRPC::rpc($req, undef, "jobid=$js->{'jobid'}");
+    };   
+    warn("kill $job: $@") if $@;
+  }
+  if (-d "$jobsdir/$arch/$job:dir") {
+    BSUtil::cleandir("$jobsdir/$arch/$job:dir");
+    rmdir("$jobsdir/$arch/$job:dir");
+  }
+  unlink("$jobsdir/$arch/$job");
+  unlink("$jobsdir/$arch/$job:status");
+  close F;
+  return $BSStdServer::return_ok;
+}
+
 sub getajaxstatus {
   my ($cgi) = @_;
   if (!$BSStdServer::isajax) {
@@ -3427,6 +3532,7 @@ my $dispatches = [
   '!worker /getbuildcode' => \&getbuildcode,
   '!worker /getworkercode' => \&getworkercode,
   '!worker POST:/putjob $arch $job $jobid:md5 $code:? now:num? kiwitree:bool? workerid:?' => \&putjob,
+  '!worker POST:/workerdispatched $arch $job $jobid:md5 hostarch:arch port workerid:?' => \&workerdispatched,
   '!worker /getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool?' => \&getbinaries,
   '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
   '!worker /getjobdata $arch $job $jobid:md5' => \&getjobdata,
@@ -3441,6 +3547,13 @@ my $dispatches = [
   '/published/$project/$repository/$arch:filename view:?' => \&publisheddir,
   '/published/$project/$repository/$arch:filename/$filename view:?' => \&publishedfile,
   '/published/$project/$repository/$arch:filename/$filename/$subfilename:filename view:?' => \&publishedfile,
+
+  # jobs
+  '/jobs' => \&listjobarchs,
+  '/jobs/$arch' => \&listjobs,
+  'PUT:/jobs/$arch/$job' => \&addjob,
+  'DELETE:/jobs/$arch/$job' => \&deljob,
+  '/jobs/$arch/$job' => \&getjob,
 
   # info
   '/workerstatus scheduleronly:bool? arch*' => \&workerstatus,

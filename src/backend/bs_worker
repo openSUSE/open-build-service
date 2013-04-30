@@ -714,6 +714,21 @@ sub send_state {
   }
 }
 
+sub send_dispatched {
+  my ($server, $p, $ba, $buildinfo) = @_;
+  my @args = ("hostarch=$ba", "port=$p");
+  push @args, "workerid=$workerid" if defined $workerid;
+  push @args, "job=$buildinfo->{'job'}";
+  push @args, "arch=$buildinfo->{'arch'}";
+  push @args, "jobid=$buildinfo->{'jobid'}";
+  my $param = {
+    'uri' => "$server/workerdispatched",
+    'request' => 'POST',
+    'timeout' => 300,
+  };
+  BSRPC::rpc($param, undef, @args);
+}
+
 sub codemd5 {
   my ($dir) = @_;
   my @files = grep {!/^\./} ls($dir);
@@ -2650,6 +2665,23 @@ if ($hostcheck) {
   if (system($hostcheck, '--srcserver', $server, "$statedir/job", 'precheck', $buildroot)) {
     unlink('job');
     die("400 cannot build this package\n");
+  }
+}
+
+if (!$testmode && $buildinfo->{'masterdispatched'}) {
+  $buildinfo->{'jobid'} = $jobid = $buildinfo->{'masterdispatched'};
+  eval {
+    send_dispatched($buildinfo->{'reposerver'}, $port, $hostarch, $buildinfo);
+  };
+  if ($@) {
+    unlink('job');
+    if ($@ =~ /no such job/ || $@ =~ /wrong job/) {
+      # not an error for the master dispatcher
+      
+      BSServer::reply("<status code=\"ok\">\n  <details>better luck next time...</details>\n</status>\n", 'Content-Type: text/xml');
+      delete $SIG{'__DIE__'};
+    }
+    die($@);
   }
 }
 

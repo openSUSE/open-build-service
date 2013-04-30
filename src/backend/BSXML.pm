@@ -88,6 +88,17 @@ our @flags = (
       [ 'access' => @disableenable ],
 );
 
+our @roles = (
+     [[ 'person' =>
+            'role',
+            'userid',
+     ]],
+     [[ 'group' =>
+            'role',
+            'groupid',
+     ]],
+);
+
 our $download = [
     'download' =>
     'baseurl',
@@ -119,14 +130,7 @@ our $proj = [
       [ 'devel', =>
 	    'project',
       ],
-     [[ 'person' =>
-            'role',
-            'userid',
-     ]],
-     [[ 'group' =>
-            'role',
-            'groupid',
-     ]],
+	@roles,
       [ $download ],
 	$maintenance,
       [ 'attributes' => 
@@ -171,14 +175,7 @@ our $pack = [
 	    'project',
 	    'package',
       ],
-     [[ 'person' =>
-            'role',
-            'userid',
-     ]],
-     [[ 'group' =>
-            'role',
-            'groupid',
-     ]],
+	@roles,
 	@disableenable,
 	@flags,
 	'url',
@@ -277,6 +274,7 @@ our $projpack = [
 	    'remoteurl',
 	    'remoteproject',
 	    @flags,
+	    @roles,
 	  [ $repo ],
           [ $download ],
 	 [[ 'package' =>
@@ -304,9 +302,12 @@ our $projpack = [
 	    'remoteurl', 
 	    'remoteproject', 
 	    'remoteroot', 
+	    'sibling',
 	    'proto',	# project data not included
 	     [],
 	    'config',
+	    @flags,
+	    @roles,
 	  [ $repo ],
 	    'error',
      ]],
@@ -510,6 +511,7 @@ our $buildinfo = [
      ]],
 	'expanddebug',
 	'followupfile',	# for two-stage builds
+	'masterdispatched',	# dispatched through a master dispatcher
 ];
 
 our $jobstatus = [

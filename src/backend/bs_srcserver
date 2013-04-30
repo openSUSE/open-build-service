@@ -113,17 +113,16 @@ sub notify_repservers {
 
   my @args = ("type=$type", "project=$projid");
   push @args, "package=$packid" if defined $packid;
-  for my $rrserver ($BSConfig::reposerver) {
-    my $param = {
-      'uri' => "$rrserver/event",
-      'request'   => 'POST',
-      'background' => 1,
-    };
-    eval {
-      BSWatcher::rpc($param, undef, @args);
-    };
-    print "warning: $rrserver: $@" if $@;
-  }
+  my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $param = {
+    'uri' => "$reposerver/event",
+    'request'   => 'POST',
+    'background' => 1,
+  };
+  eval {
+    BSWatcher::rpc($param, undef, @args);
+  };
+  print "warning: $reposerver: $@" if $@;
 }
 
 # check if a service run is needed for the upcoming commit
@@ -2417,6 +2416,51 @@ $Build::Kiwi::bootcallback = \&kiwibootcallback;
 
 #########################################################################
 
+sub projid2reposerver {
+  my ($projid) = @_;
+  my @p = @{$BSConfig::partition || []};
+  my $sib;
+  while (@p) {
+    if ($projid =~ /^$p[0]/) {
+      $sib = $p[1];
+      last;
+    }
+    splice(@p, 0, 2);
+  }
+  $sib = $BSConfig::sibling unless defined $sib;
+  die("cannot determine sibling for $projid\n") unless defined $sib;
+  die("sibling '$sib' from partition does not exist\n") unless $BSConfig::siblings->{$sib};
+  return $BSConfig::siblings->{$sib};
+}
+
+sub checksibling {
+  my ($remotemap, $projid, $proj) = @_;
+  $remotemap->{':siblings'}->{$projid} = 1;
+  return if $remotemap->{$projid};
+  my @p = @{$BSConfig::partition || []};
+  my $sib;
+  while (@p) {
+    if ($projid =~ /^$p[0]/) {
+      $sib = $p[1];
+      last;
+    }
+    splice(@p, 0, 2);
+  }
+  $sib = $BSConfig::sibling unless defined $sib;
+  die("cannot determine sibling for $projid\n") unless defined $sib;
+  return if $sib eq $remotemap->{':sibling'};
+  die("sibling '$sib' from partition does not exist\n") unless $BSConfig::siblings->{$sib};
+  $remotemap->{$projid} = {
+    'name' => $projid, 'remoteurl' => $BSConfig::siblings->{$sib}, 'remoteproject' => $projid, 'sibling' => $sib,
+  };
+  $proj ||= readproj($projid, 1);
+  if ($proj->{'access'}) {
+    for ('access', 'publish', 'person', 'group') {
+      $remotemap->{$projid}->{$_} = $proj->{$_} if exists $proj->{$_};
+    }
+  }
+}
+
 sub getprojquotapackage {
   my ($projid) = @_;
   if (!exists($packagequota{':packages'})) {
@@ -2431,6 +2475,23 @@ sub getprojquotapackage {
     last unless $projid =~ s/:[^:]*$//;
   }
   return $packagequota{':packages'};
+}
+
+# this is kind of a snapshot in time, but good enough for now 
+sub mergeroles {
+  my ($projid, $proj) = @_; 
+  my @person;
+  my @group;
+  while ($projid ne '') {
+    $proj ||= readproj($projid, 1); 
+    if ($proj) {
+      push @person, @{$proj->{'person'} || []};
+      push @group , @{$proj->{'group'} || []};
+    }   
+    last unless $projid =~ s/:[^:]*$//;
+    undef $proj;
+  }
+  return (\@person, \@group);
 }
 
 sub getprojpack {
@@ -2450,9 +2511,27 @@ sub getprojpack {
     };
   }
   $arch ||= 'noarch';
+  my $sibling = $cgi->{'sibling'};
+  die("No such sibling '$sibling'\n") if $sibling && !$BSConfig::siblings->{$sibling};
   $projids = [ findprojects() ] unless $projids;
+  if ($sibling) {
+    for my $projid (splice @$projids) {
+      my $sib;
+      my @p = @{$BSConfig::partition || []};
+      while (@p) {
+        if ($projid =~ /^$p[0]/) {
+	  $sib = $p[1];
+	  last;
+	}
+	splice(@p, 0, 2);
+      }
+      $sib = $BSConfig::sibling unless defined $sib;
+      die("cannot determine sibling for $projid\n") unless defined $sib;
+      die("sibling '$sib' from partition does not exist\n") unless $BSConfig::siblings->{$sib};
+      push @$projids, $projid if $sib eq $sibling;
+    }
+  }
   if ($BSConfig::limit_projects && $BSConfig::limit_projects->{$arch}) {
-    $projids ||= $BSConfig::limit_projects->{$arch};
     my %limit_projids = map {$_ => 1} @{$BSConfig::limit_projects->{$arch}};
     $projids = [ grep {$limit_projids{$_}} @$projids ];
   }
@@ -2461,6 +2540,10 @@ sub getprojpack {
   my $bconf = Build::read_config($arch);
 
   my $remotemap = $cgi->{'withremotemap'} ? {} : undef;
+  if ($remotemap && $sibling) {
+    $remotemap->{':sibling'} = $sibling;
+    $remotemap->{':siblings'} = {};
+  }
   my @res;
   for my $projid (@$projids) {
     my $jinfo = { 'name' => $projid };
@@ -2510,6 +2593,7 @@ sub getprojpack {
 	eval {
 	  fetchremoteproj($lproj, $lprojid, $remotemap) if $lproj;
 	};
+        checksibling($remotemap, $lprojid) if $remotemap->{':siblings'} && !$remotemap->{':siblings'}->{$lprojid};
       }
     }
 
@@ -2552,6 +2636,12 @@ sub getprojpack {
     next if $packids && !grep {$packids->{$_}} @packages;
     for (qw{title description build publish debuginfo useforbuild remoteurl remoteproject download link sourceaccess privacy access lock}) {
       $jinfo->{$_} = $proj->{$_} if exists $proj->{$_};
+    }
+    if ($proj->{'access'}) {
+      # we need the roles if the project is protected, see checkroles() in the scheduler
+      my ($person, $group) = mergeroles($projid, $proj);
+      $jinfo->{'person'} = $person if $person && @$person;
+      $jinfo->{'group'} = $group if $group && @$group;
     }
     # Check build flags in project meta data
     # packages inherit the project wide settings and may override them
@@ -2892,8 +2982,9 @@ sub getprojpack {
 	        $rinfo->{$_} = $d->{$_} if exists $d->{$_};
 	      }
 	      if ($remotemap && $rinfo->{'path'} && !$repo->{'path'}) {
+		# simple way to fill the remote map
 		eval {
-		  concatconfigs($projid, $repoid, $remotemap, @{$rinfo->{'path'}});
+		  concatconfigs($projid, $repoid, $remotemap, map {"$_->{'project'}/$_->{'repository'}"} @{$rinfo->{'path'}});
 		};
 	      }
 	    } else {
@@ -2909,12 +3000,16 @@ sub getprojpack {
     push @res, $jinfo;
   }
   my $ret = {'repoid' => $repoid, 'project' => \@res};
+  if ($remotemap) {
+    delete $remotemap->{':sibling'};
+    delete $remotemap->{':siblings'};
+  }
   #print Dumper($remotemap);
   if ($remotemap && %$remotemap) {
     for my $p (sort keys %$remotemap) {
       next unless $remotemap->{$p};
       my $r = {'project' => $p};
-      for (qw{remoteurl remoteproject remoteroot root config repository error proto}) {
+      for (qw{remoteurl remoteproject remoteroot root config repository error proto sibling}) {
         $r->{$_} = $remotemap->{$p}->{$_} if defined($remotemap->{$p}->{$_});
       }
       $r->{'error'} =~ s/\n$// if $r->{'error'};
@@ -3775,6 +3870,7 @@ sub expandsearchpath {
           die("404 project '$pid' does not exist\n") unless $proj;
         }
       }
+      checksibling($remotemap, $pid, $proj) if $remotemap && $remotemap->{':siblings'} && !$remotemap->{':siblings'}->{$pid};
       $done{"/$prp"} = 1;       # mark expanded
       my @repo = grep {$_->{'name'} eq $tid} @{$proj->{'repository'} || []};
       push @path, @{$repo[0]->{'path'}} if @repo && $repo[0]->{'path'};
@@ -3828,6 +3924,10 @@ sub concatconfigs {
     } elsif (!-e "$projectsdir/$p.xml") {
       my $proj = remoteprojid($p);
       $c = fetchremoteconfig($proj, $p, $remotemap);
+    }
+    if ($remotemap && $remotemap->{':siblings'}) {
+      checksibling($remotemap, $p) if !$remotemap->{':siblings'}->{$p};
+      $remotemap->{$p}->{'config'} = defined($c) ? $c : '' if ($remotemap->{$p} || {})->{'sibling'};
     }
     next unless defined $c;
     $config .= "\n### from $p\n";
@@ -4886,6 +4986,12 @@ sub copyproject {
   my $proj = readproj($projid);
   my $oproj = readproj($oprojid);
 
+  my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $oreposerver = $BSConfig::partition ? projid2reposerver($oprojid) : $BSConfig::oreposerver;
+  if ($cgi->{'withbinaries'} && $reposerver ne $oreposerver) {
+    die("cannot copy binaries between different reposiory servers yet\n");
+  }
+
   my $user = defined($cgi->{'user'}) && $cgi->{'user'} ne '' ? $cgi->{'user'} : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? $cgi->{'comment'} : '';
   $user = str2utf8xml($user);
@@ -4999,7 +5105,7 @@ sub copyproject {
 	  push @args, "orepository=$repo->{'name'}"; # same repo name
 	  push @args, 'resign=1' if $cgi->{'resign'};
 	  my $param = {
-	    'uri' => "$BSConfig::reposerver/build/$projid/$repo->{'name'}/$arch/$packid",
+	    'uri' => "$reposerver/build/$projid/$repo->{'name'}/$arch/$packid",
 	    'request' => 'POST',
 	  };
 	  eval {
@@ -5400,24 +5506,22 @@ sub getresult {
   }
 
   my $ps = {};
-  # XXX FIXME multiple repo handling
-  for my $rrserver ($BSConfig::reposerver) {
-    my @args;
-    push @args, 'lastbuild' if $cgi->{'lastbuild'};
-    push @args, "oldstate=$cgi->{'oldstate'}" if $cgi->{'oldstate'};
-    push @args, map {"prpa=$_"} @prpas;
-    push @args, map {"package=$_"} @{$cgi->{'package'} || []};
-    push @args, map {"code=$_"} @{$cgi->{'code'} || []};
-    push @args, 'withbinarylist' if $view{'binarylist'};
-    push @args, 'withstats' if $view{'stats'};
-    push @args, 'summary' if $view{'summary'} && !$view{'status'};
-    eval {
-      $ps = BSWatcher::rpc("$rrserver/_result", $BSXML::resultlist, @args);
-    };
-    if ($@) {
-      print "warning: $rrserver: $@";
-      $ps = {};
-    }
+  my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my @args;
+  push @args, 'lastbuild' if $cgi->{'lastbuild'};
+  push @args, "oldstate=$cgi->{'oldstate'}" if $cgi->{'oldstate'};
+  push @args, map {"prpa=$_"} @prpas;
+  push @args, map {"package=$_"} @{$cgi->{'package'} || []};
+  push @args, map {"code=$_"} @{$cgi->{'code'} || []};
+  push @args, 'withbinarylist' if $view{'binarylist'};
+  push @args, 'withstats' if $view{'stats'};
+  push @args, 'summary' if $view{'summary'} && !$view{'status'};
+  eval {
+    $ps = BSWatcher::rpc("$reposerver/_result", $BSXML::resultlist, @args);
+  };
+  if ($@) {
+    print "warning: $reposerver: $@";
+    $ps = {};
   }
   return if $BSStdServer::isajax && !defined($ps);
   if ($view{'summary'} && $view{'status'}) {
@@ -5466,20 +5570,18 @@ sub docommand {
   }
   die("no packages defined\n") unless @packids;
   
-  # XXX FIXME multiple repo handling
+  my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
   my $res;
-  for my $rrserver ($BSConfig::reposerver) {
-    my @args;
-    push @args, map {"prpa=$_"} @prpas;
-    push @args, map {"package=$_"} @packids;
-    push @args, map {"code=$_"} @{$cgi->{'code'} || []};
-    push @args, "cmd=$cgi->{'cmd'}";
-    my $param = {
-      'uri' => "$rrserver/_command",
-      'request' => 'POST',
-    };
-    $res = BSWatcher::rpc($param, undef, @args);
-  }
+  my @args;
+  push @args, map {"prpa=$_"} @prpas;
+  push @args, map {"package=$_"} @packids;
+  push @args, map {"code=$_"} @{$cgi->{'code'} || []};
+  push @args, "cmd=$cgi->{'cmd'}";
+  my $param = {
+    'uri' => "$reposerver/_command",
+    'request' => 'POST',
+  };
+  $res = BSWatcher::rpc($param, undef, @args);
   return $res;
 }
 
@@ -5502,10 +5604,11 @@ sub getbuilddepinfo {
   my ($cgi, $projid, $repoid, $arch) = @_;
 
   checkprojrepoarch($projid, $repoid, $arch);
+  my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
   my @args;
   push @args, map {"package=$_"} @{$cgi->{'package'} || []};
   push @args, "view=$cgi->{'view'}" if $cgi->{'view'};
-  my $res = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/_builddepinfo", $BSXML::builddepinfo, @args);
+  my $res = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/_builddepinfo", $BSXML::builddepinfo, @args);
   return ($res, $BSXML::builddepinfo);
 }
 
@@ -5513,11 +5616,12 @@ sub getjobhistory {
   my ($cgi, $projid, $repoid, $arch) = @_;
 
   checkprojrepoarch($projid, $repoid, $arch);
+  my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
   my @args;
   push @args, "limit=$cgi->{'limit'}" if $cgi->{'limit'};
   push @args, map {"package=$_"} @{$cgi->{'package'} || []};
   push @args, map {"code=$_"} @{$cgi->{'code'} || []};
-  my $res = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/_jobhistory", $BSXML::jobhistlist, @args);
+  my $res = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/_jobhistory", $BSXML::jobhistlist, @args);
   return ($res, $BSXML::jobhistlist);
 }
 
@@ -5526,8 +5630,9 @@ sub getpackagelist_build {
   if ($cgi->{'view'}) {
     die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'binaryversions' || $cgi->{'view'} eq 'binaryversionscode';
     my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
+    my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
     my $param = {
-      'uri' => "$BSConfig::reposerver/getpackagebinaryversionlist",
+      'uri' => "$reposerver/getpackagebinaryversionlist",
       'ignorestatus' => 1,
       'receiver' => \&BSServer::reply_receiver,
     };
@@ -5558,6 +5663,7 @@ sub getbinarylist {
 
   my $view = $cgi->{'view'};
   my $nosource = $cgi->{'nosource'};
+  my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
   my @args;
   push @args, "view=$view" if $view;
   push @args, "nosource=1" if $nosource;
@@ -5570,7 +5676,7 @@ sub getbinarylist {
       exit(0);
     }
     my $param = {
-      'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid",
+      'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid",
       'ignorestatus' => 1,
       'receiver' => \&BSServer::reply_receiver,
     };
@@ -5583,7 +5689,7 @@ sub getbinarylist {
   }
   my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
   my $param = {
-    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid",
+    'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid",
   };
   if ($proj->{'remoteurl'}) {
     $param->{'uri'} = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/$packid";
@@ -5614,10 +5720,11 @@ sub getbinary {
     BSHandoff::handoff($ajaxsocket, '/getbinaries', undef, @args);
     exit(0);
   }
+  my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
   my @args;
   push @args, "view=$view" if $view;
   my $param = {
-    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/$filename",
+    'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid/$filename",
     'ignorestatus' => 1,
     'receiver' => \&BSServer::reply_receiver,
   };
@@ -5644,11 +5751,12 @@ sub getbinary {
 sub putbinary {
   my ($cgi, $projid, $repoid, $arch, $filename) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
+  my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
   my @args;
   push @args, 'ignoreolder=1' if $cgi->{'ignoreolder'};
   push @args, 'wipe=1' if $cgi->{'wipe'};
   my $param = {
-    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/_repository/$filename",
+    'uri' => "$reposerver/build/$projid/$repoid/$arch/_repository/$filename",
     'request' => 'PUT',
     'data' => \&BSServer::forward_sender,
     'chunked' => 1,
@@ -5660,8 +5768,9 @@ sub putbinary {
 sub delbinary {
   my ($cgi, $projid, $repoid, $arch, $filename) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
+  my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {
-    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/_repository/$filename",
+    'uri' => "$reposerver/build/$projid/$repoid/$arch/_repository/$filename",
     'request' => 'DELETE',
   };
   return BSWatcher::rpc($param, undef);
@@ -5679,6 +5788,11 @@ sub copybuild {
   # make sure the packages exist. not cheap, but does everything we need
   getrev($projid, $packid);
   getrev($oprojid, $opackid);
+  my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $oreposerver = $BSConfig::partition ? projid2reposerver($oprojid) : $BSConfig::reposerver;
+  if ($reposerver ne $oreposerver) {
+    die("cannot copy binaries between different reposiory servers yet\n");
+  }
   my @args;
   push @args, "cmd=copy";
   push @args, "oproject=$oprojid";
@@ -5687,7 +5801,7 @@ sub copybuild {
   push @args, "setupdateinfoid=$cgi->{'setupdateinfoid'}" if $cgi->{'setupdateinfoid'};
   push @args, 'resign=1' if $cgi->{'resign'};
   my $param = {
-    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid",
+    'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid",
     'request' => 'POST',
   };
   # XXX add return type checking
@@ -5698,8 +5812,9 @@ sub uploadbuild {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   die("illageal package '$packid'\n") if $packid =~ /^_/;
   checkprojrepoarch($projid, $repoid, $arch);
+  my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {
-    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid",
+    'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid",
     'request' => 'POST',
     'data' => \&BSServer::forward_sender,
     'chunked' => 1,
@@ -5746,8 +5861,9 @@ sub getlogfile {
     BSHandoff::handoff($ajaxsocket, $url, undef, @args);
     exit(0);
   }
+  my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {
-    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_log",
+    'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid/_log",
     'ignorestatus' => 1,
     'receiver' => \&BSServer::reply_receiver,
     'joinable' => 1,
@@ -5759,31 +5875,34 @@ sub getlogfile {
 sub getbuildhistory {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
+  my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
   my @args;
   push @args, "limit=$cgi->{'limit'}" if $cgi->{'limit'};
-  my $buildhist = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_history", $BSXML::buildhist, @args);
+  my $buildhist = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/$packid/_history", $BSXML::buildhist, @args);
   return ($buildhist, $BSXML::buildhist);
 }
 
 sub getbuildinfo {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
+  my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
   my @args;
   push @args, 'internal=1' if $cgi->{'internal'};
   push @args, 'debug=1' if $cgi->{'debug'};
   push @args, map {"add=$_"} @{$cgi->{'add'} || []};
-  my $buildinfo = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo", $BSXML::buildinfo, @args);
+  my $buildinfo = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo", $BSXML::buildinfo, @args);
   return ($buildinfo, $BSXML::buildinfo);
 }
 
 sub getbuildinfo_post {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
+  my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
   my @args;
   push @args, 'debug=1' if $cgi->{'debug'};
   push @args, map {"add=$_"} @{$cgi->{'add'} || []};
   my $param = {
-    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo",
+    'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo",
     'request' => 'POST',
     'data' => \&BSServer::forward_sender,
     'chunked' => 1,
@@ -5795,14 +5914,16 @@ sub getbuildinfo_post {
 sub getbuildreason {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
-  my $reason = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_reason", $BSXML::buildreason);
+  my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reason = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/$packid/_reason", $BSXML::buildreason);
   return ($reason, $BSXML::buildreason);
 }
 
 sub getbuildstatus {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
-  my $status = BSWatcher::rpc("$BSConfig::reposerver/build/$projid/$repoid/$arch/$packid/_status", $BSXML::buildstatus);
+  my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $status = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/$packid/_status", $BSXML::buildstatus);
   return ($status, $BSXML::buildstatus);
 }
 
@@ -5811,7 +5932,11 @@ sub getworkerstatus {
   my @args;
   push @args, 'scheduleronly' if $cgi->{'scheduleronly'};
   push @args, map {"arch=$_"} @{$cgi->{'arch'} || []};
-  my $ws = BSWatcher::rpc("$BSConfig::reposerver/workerstatus", $BSXML::workerstatus, @args);
+  # XXX FIXME multiple repo handling
+  my $ws;
+  for my $reposerver ($BSConfig::reposerver) {
+    $ws = BSWatcher::rpc("$reposerver/workerstatus", $BSXML::workerstatus, @args);
+  }
   delete $_->{'uri'} for @{$ws->{'idle'}};
   delete $_->{'uri'} for @{$ws->{'building'}};
   return ($ws, $BSXML::workerstatus);
@@ -7483,7 +7608,7 @@ my $dispatches = [
   '/published/$project/$repository/$arch:filename/$filename/$subfilename:filename view:?' => \&published,
 
   # scheduler calls
-  '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool? nopackages:bool? withremotemap:bool? noremote:bool?' => \&getprojpack,
+  '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool? nopackages:bool? withremotemap:bool? noremote:bool? sibling:?' => \&getprojpack,
   'POST:/relsync $project $repository $arch' => \&postrelsync,
   '/relsync $project $repository $arch' => \&getrelsync,
 

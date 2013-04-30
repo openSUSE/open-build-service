@@ -611,7 +611,11 @@ sub set_building {
       for (@$prpsearchpath) {
 	my @pr = split('/', $_, 2);
 	if ($remoteprojs{$pr[0]}) {
-	  push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
+	  if ($remoteprojs{$pr[0]}->{'sibling'}) {
+	    push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $remoteprojs{$pr[0]}->{'remoteurl'}};
+	  } else {
+	    push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
+	  }
 	} else {
 	  push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::reposerver};
 	}
@@ -622,7 +626,11 @@ sub set_building {
   for (@$prpsearchpath) {
     my @pr = split('/', $_, 2);
     if ($remoteprojs{$pr[0]}) {
-      push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
+      if ($remoteprojs{$pr[0]}->{'sibling'}) {
+	push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $remoteprojs{$pr[0]}->{'remoteurl'}};
+      } else {
+        push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
+      }
     } else {
       push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::reposerver};
     }
@@ -773,14 +781,16 @@ sub set_building {
 sub checkaccess {
   my ($type, $projid, $packid, $repoid) = @_;
   my $access = 1;
-  if ($projpacks->{$projid}) {
+  my $proj = $projpacks->{$projid};
+  $proj = $remoteprojs{$projid} if !$proj && ($remoteprojs{$projid} || {})->{'sibling'};
+  if ($proj) {
     my $pdata;
-    $pdata = ($projpacks->{$projid}->{'package'} || {})->{$packid} if defined $packid;
-    $access = enabled($repoid, $projpacks->{$projid}->{$type}, $access);
+    $pdata = ($proj->{'package'} || {})->{$packid} if defined $packid;
+    $access = enabled($repoid, $proj->{$type}, $access);
     $access = enabled($repoid, $pdata->{$type}, $access) if $pdata;
   } else {
     # remote project access checks are handled by the remote server
-    $access = 0 unless $remoteprojs{$projid};
+    $access = 0 unless $remoteprojs{$projid} && !$remoteprojs{$projid}->{'sibling'};
   }
   return $access;
 }
@@ -790,6 +800,8 @@ sub checkroles {
   my ($type, $projid, $packid, $oprojid, $opackid) = @_;
   my $proj = $projpacks->{$projid};
   my $oproj = $projpacks->{$oprojid};
+  $proj = $remoteprojs{$projid} if !$proj && ($remoteprojs{$projid} || {})->{'sibling'};
+  $oproj = $remoteprojs{$oprojid} if !$oproj && ($remoteprojs{$oprojid} || {})->{'sibling'};
   return 0 unless $proj && $oproj;
   if ($projid eq $oprojid) {
     return 1 if !defined $opackid;
@@ -809,13 +821,13 @@ sub checkroles {
   my @oroles;
   if (defined($opackid)) {
     my $pdata = ($oproj->{'package'} || {})->{$opackid} || {};
-    push @roles, @{$pdata->{'person'} || []}, @{$pdata->{'group'} || []};
+    push @oroles, @{$pdata->{'person'} || []}, @{$pdata->{'group'} || []};
   }
-  push @roles, @{$oproj->{'person'} || []}, @{$oproj->{'group'} || []};
+  push @oroles, @{$oproj->{'person'} || []}, @{$oproj->{'group'} || []};
   while ($oprojid =~ /^(.+):/) {
     $oprojid = $1;
     $oproj = $projpacks->{$oprojid} || {};
-    push @roles, @{$oproj->{'person'} || []}, @{$oproj->{'group'} || []};
+    push @oroles, @{$oproj->{'person'} || []}, @{$oproj->{'group'} || []};
   }
   # make sure every user from oprojid can also access projid
   # XXX: check type and roles
@@ -824,11 +836,10 @@ sub checkroles {
     my @rx; 
     if (exists $r->{'userid'}) {
       push @rx, grep {exists($_->{'userid'}) && $_->{'userid'} eq $r->{'userid'}} @roles;
-    }    
-    if (exists $r->{'groupid'}) {
+    } elsif (exists $r->{'groupid'}) {
       push @rx, grep {exists($_->{'groupid'}) && $_->{'groupid'} eq $r->{'groupid'}} @roles;
-    }    
-    return 0  unless grep {$_->{'role'} eq $r->{'role'} || $_->{'role'} eq 'maintainer'} @rx;
+    }
+    return 0 unless grep {$_->{'role'} eq $r->{'role'} || $_->{'role'} eq 'maintainer'} @rx;
   }
   return 1;
 }
@@ -846,7 +857,7 @@ sub checkprpaccess {
   # both prp and aprp are proteced.
   return 1 if $aprojid eq $projid;	# they hopefully know what they are doing
   # check if publishing flags match unless aprojid is remote
-  if (!$remoteprojs{$aprojid} && !checkaccess('publish', $aprojid, undef, $arepoid)) {
+  if ((!$remoteprojs{$aprojid} || $remoteprojs{$aprojid}->{'sibling'}) && !checkaccess('publish', $aprojid, undef, $arepoid)) {
     return 0 if checkaccess('publish', $projid, undef, $repoid);
   }
   # check if the roles match
@@ -955,7 +966,11 @@ sub createdeltajob {
   for (@$prpsearchpath) {
     my @pr = split('/', $_, 2);
     if ($remoteprojs{$pr[0]}) {
-      push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
+      if ($remoteprojs{$pr[0]}->{'sibling'}) {
+        push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $remoteprojs{$pr[0]}->{'remoteurl'}};
+      } else {
+        push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
+      }
     } else {
       push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::reposerver};
     }
@@ -2426,6 +2441,7 @@ sub get_projpacks {
   $projid ||= $testprojid;
 
   my @args;
+  push @args, "sibling=$BSConfig::sibling" if $BSConfig::sibling;
   if (@packids) {
     print "getting data for project '$projid' package '".join("', '", @packids)."' from $BSConfig::srcserver\n";
     push @args, "project=$projid";
@@ -2627,9 +2643,12 @@ sub update_project_meta {
   if ($doasync) {
     $param->{'async'} = { %$doasync, '_resume' => \&update_project_meta_resume, '_projid' => $projid };
   }
+  my @args;
+  push @args, "sibling=$BSConfig::sibling" if $BSConfig::sibling;
+  push @args, "project=$projid";
   eval {
     # withsrcmd5 is needed for the patterns md5sum
-    $projpacksin = xrpc($ctx, $projid, $param, $BSXML::projpack, "project=$projid", 'nopackages', 'withrepos', 'withconfig', 'withsrcmd5', "arch=$myarch");
+    $projpacksin = xrpc($ctx, $projid, $param, $BSXML::projpack, 'nopackages', 'withrepos', 'withconfig', 'withsrcmd5', "arch=$myarch", @args);
   };
   if ($@ || !$projpacksin) {
     print $@ if $@;
@@ -2737,7 +2756,11 @@ sub addwatchremote {
   my $proj = remoteprojid($projid);
   $watchremoteprojs{$projid} = $proj;
   return undef unless $proj;
-  $watchremote{$proj->{'remoteurl'}}->{"$type/$proj->{'remoteproject'}$watch"} = $projid;
+  if ($proj->{'sibling'}) {
+    $watchremote{$BSConfig::srcserver}->{"$type/$proj->{'remoteproject'}$watch"} = $projid;
+  } else {
+    $watchremote{$proj->{'remoteurl'}}->{"$type/$proj->{'remoteproject'}$watch"} = $projid;
+  }
   return $proj;
 }
 
@@ -2967,6 +2990,7 @@ sub updateremoteprojs {
       next;
     }
     my $or = $remoteprojs{$projid};
+    next if $or && $or->{'sibling'};	# XXX how do we update them?
     next if $or && $or->{'remoteurl'} eq $r->{'remoteurl'} && $or->{'remoteproject'} eq $r->{'remoteproject'};
     delete $remoteprojs{$projid};
   }
@@ -2980,6 +3004,7 @@ sub remoteprojid {
   my $rsuf = '';
   my $origprojid = $projid;
 
+  return $remoteprojs{$projid} if $remoteprojs{$projid} && $remoteprojs{$projid}->{'sibling'};
   my $proj = $projpacks->{$projid};
   if ($proj) {
     return undef unless $proj->{'remoteurl'};
@@ -3017,6 +3042,7 @@ sub remoteprojid {
 
 sub maptoremote {
   my ($proj, $projid) = @_;
+  return $projid if $proj->{'sibling'};
   return "$proj->{'root'}:$projid" unless $proj->{'remoteroot'};
   return $proj->{'root'} if $projid eq $proj->{'remoteroot'};
   return '_unavailable' if $projid !~ /^\Q$proj->{'remoteroot'}\E:(.*)$/;
@@ -3068,6 +3094,7 @@ sub fetchremoteconfig {
   my $proj = $remoteprojs{$projid};
   return undef if !$proj || $proj->{'error'};
   return $proj->{'config'} if exists $proj->{'config'};
+  return '' if $proj->{'sibling'};
   print "    fetching remote project config for $projid\n";
   my $c;
   my $param = {
@@ -6536,6 +6563,7 @@ if (!$projpacks && $startupmode) {
   };
   my @args = ('withrepos', 'withconfig', "arch=$myarch", 'withremotemap=1', 'noremote=1');
   push @args, 'withsrcmd5', 'withdeps' if $startupmode == 1;
+  push @args, "sibling=$BSConfig::sibling" if $BSConfig::sibling;
   my $projpacksin;
   while (1) {
     eval {

@@ -210,6 +210,13 @@ sub assignjob {
   mkdir_p("$workersdir/building");
   writexml("$workersdir/building/.$idlename", "$workersdir/building/$idlename", $worker, $BSXML::worker);
 
+  if ($info->{'masterdispatched'}) {
+    # we did out job. delete job
+    unlink("$jobsdir/$arch/$job");
+    unlink("$jobsdir/$arch/$job:status");
+    close F;
+    return 'assigned';
+  }
   # write new status and release lock
   writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
   close F;
@@ -454,6 +461,162 @@ sub oracle {
   return 1;
 }
 
+my %syncedjobs;
+my %lastmastersync;
+
+sub projid2reposerver {
+  my ($projid) = @_;
+  my @p = @{$BSConfig::partition || []}; 
+  my $sib;
+  while (@p) {
+    if ($projid =~ /^$p[0]/) {
+      $sib = $p[1];
+      last;
+    }    
+    splice(@p, 0, 2);
+  }
+  $sib = $BSConfig::sibling unless defined $sib;
+  die("cannot determine sibling for $projid\n") unless defined $sib;
+  die("sibling '$sib' from partition does not exist\n") unless $BSConfig::siblings->{$sib};
+  return $BSConfig::siblings->{$sib};
+}
+
+sub dispatchslave {
+  my $synced = 0;
+  my @archs = grep {!/^\./} sort(ls($jobsdir));
+  my %projid2repocache;
+  for my $arch (@archs) {
+    next unless -d "$jobsdir/$arch";
+    my $now = time();
+    my $added = 0;
+    my $deleted = 0;
+    # if we know how to do project partitioning, we get the job list from
+    # the master dispatcher and reduce it to the jobs in our partition
+    if ($BSConfig::partition && ($lastmastersync{$arch} || 0) + 600 < $now) {
+      my $res;
+      eval {
+        $res = BSRPC::rpc({
+          'uri'     => "$BSConfig::masterdispatcher/jobs/$arch",
+	  'timeout' => 60,
+        }, $BSXML::dir);
+      };
+      if ($@) {
+	warn($@);
+	next;
+      }
+      $lastmastersync{$arch} = $now;
+      $syncedjobs{$arch} = {};
+      $res ||= {};
+      for my $job (sort(map {$_->{'name'}} @{$res->{'entry'} || []})) {
+	my $jn = $job;
+	$jn =~ s/-[0-9a-f]{32}$//s;
+	my ($projid, $repoid, $packid) = split('::', $jn);
+	next unless defined $packid;
+	my $reposerver = $projid2repocache{$projid};
+	$reposerver = $projid2repocache{$projid} = projid2reposerver($projid) unless $reposerver;
+	next if $reposerver ne $BSConfig::reposerver;
+        $syncedjobs{$arch}->{$job} = 1;
+      }
+    }
+    my @jobs = sort(ls($jobsdir));
+    my @b = grep {!/^\./} ls("$jobsdir/$arch");
+    my %locked = map {$_ => 1} grep {/:status$/} @b;
+    my %seen;
+    for my $job (grep {!/:(?:dir|status|new)$/} @b) {
+      next if $locked{"$job:status"};
+      $seen{$job} = 1;
+      next if $syncedjobs{$arch}->{$job};
+      my $infoxml = readstr("$jobsdir/$arch/$job", 1);
+      next unless $infoxml;
+      my $info = BSUtil::fromxml($infoxml, $BSXML::buildinfo, 1);
+      next unless $info;
+      $info->{'masterdispatched'} = Digest::MD5::md5_hex($infoxml);
+      $infoxml = XMLout($BSXML::buildinfo, $info);
+      undef $info;
+      eval {
+	BSRPC::rpc({
+	  'uri'     => "$BSConfig::masterdispatcher/jobs/$arch/$job",
+	  'request' => 'PUT',
+	  'timeout' => 10 + int(length($infoxml) / 100000),
+	  'headers' => [ "Content-Type: text/xml" ],
+	  'data'    => $infoxml,
+	}, undef);
+      };
+      if ($@) {
+	if ($@ =~ /already exists/) {
+	  $syncedjobs{$arch}->{$job} = 1;
+	}
+	warn($@);
+	next;
+      }
+      $added++;
+      $synced++;
+      $syncedjobs{$arch}->{$job} = 1;
+    }
+    for my $job (sort(keys %{$syncedjobs{$arch} || {}})) {
+      next if $seen{$job};
+      $synced++;
+      eval {
+	BSRPC::rpc({
+	  'uri'     => "$BSConfig::masterdispatcher/jobs/$arch/$job",
+	  'request' => 'DELETE',
+	  'timeout' => 60,
+	}, undef);
+      };
+      if ($@) {
+	warn($@);
+	next;
+      }
+      $deleted++;
+      $synced++;
+      delete $syncedjobs{$arch}->{$job};
+    }
+    print "$arch: added $added, deleted $deleted\n" if $added || $deleted;
+  }
+  return $synced;
+}
+
+sub filechecks {
+  if (-e "$rundir/bs_dispatch.exit") {
+    my $state = {
+      'infocache' => \%infocache,
+      'badhost' => \%badhost,
+      'newestsrcchange' => \%newestsrcchange,
+    };
+    BSUtil::store("$rundir/bs_dispatch.state.new", "$rundir/bs_dispatch.state", $state);
+    unlink("$rundir/bs_dispatch.exit");
+    print "exiting...\n";
+    exit(0);
+  }
+  if (-e "$rundir/bs_dispatch.restart") {
+    my $state = {
+      'infocache' => \%infocache,
+      'badhost' => \%badhost,
+      'newestsrcchange' => \%newestsrcchange,
+    };
+    BSUtil::store("$rundir/bs_dispatch.state.new", "$rundir/bs_dispatch.state", $state);
+    unlink("$rundir/bs_dispatch.restart");
+    print "restarting...\n";
+    exec($0);
+    die("$0: $!\n");
+  }
+  if (-e "$rundir/bs_dispatch.dumpstate") {
+    my $state = {
+      'infocache' => \%infocache,
+      'badhost' => \%badhost,
+      'newestsrcchange' => \%newestsrcchange,
+    };
+    BSUtil::store("$rundir/bs_dispatch.state.new", "$rundir/bs_dispatch.state", $state);
+    unlink("$rundir/bs_dispatch.dumpstate");
+    print "dumped state to $rundir/bs_dispatch.state ...\n";
+  }
+  if (-e "$rundir/bs_dispatch.dropbadhosts") {
+    unlink("$rundir/bs_dispatch.dropbadhosts");
+    print "removing all badhost entries...\n";
+    %badhost = ();
+  }
+}
+
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
 BSUtil::restartexit($ARGV[0], 'dispatcher', "$rundir/bs_dispatch");
@@ -476,6 +639,10 @@ if (-s "$rundir/bs_dispatch.state") {
   %infocache = %{$state->{'infocache'}} if $state && $state->{'infocache'};
   %badhost = %{$state->{'badhost'}} if $state && $state->{'badhost'};
   %newestsrcchange = %{$state->{'newestsrcchange'}} if $state && $state->{'newestsrcchange'};
+}
+
+if ($BSConfig::masterdispatcher && $BSConfig::masterdispatcher ne $BSConfig::reposerver) {
+  print "running is dispatch slave mode\n";
 }
 
 while (1) {
@@ -509,6 +676,13 @@ while (1) {
       close F;
       BSUtil::store("$jobsdir/load.new", "$jobsdir/load", $load);
     }
+  }
+
+  if ($BSConfig::masterdispatcher && $BSConfig::masterdispatcher ne $BSConfig::reposerver) {
+    my $synced = dispatchslave();
+    sleep(1) unless $synced;
+    filechecks();
+    next;
   }
 
   my @dispatchprios_s = stat("$jobsdir/dispatchprios");
@@ -978,43 +1152,5 @@ while (1) {
       }
     }
   }
-
-  if (-e "$rundir/bs_dispatch.exit") {
-    my $state = {
-      'infocache' => \%infocache,
-      'badhost' => \%badhost,
-      'newestsrcchange' => \%newestsrcchange,
-    };
-    BSUtil::store("$rundir/bs_dispatch.state.new", "$rundir/bs_dispatch.state", $state);
-    unlink("$rundir/bs_dispatch.exit");
-    print "exiting...\n";
-    exit(0);
-  }
-  if (-e "$rundir/bs_dispatch.restart") {
-    my $state = {
-      'infocache' => \%infocache,
-      'badhost' => \%badhost,
-      'newestsrcchange' => \%newestsrcchange,
-    };
-    BSUtil::store("$rundir/bs_dispatch.state.new", "$rundir/bs_dispatch.state", $state);
-    unlink("$rundir/bs_dispatch.restart");
-    print "restarting...\n";
-    exec($0);
-    die("$0: $!\n");
-  }
-  if (-e "$rundir/bs_dispatch.dumpstate") {
-    my $state = {
-      'infocache' => \%infocache,
-      'badhost' => \%badhost,
-      'newestsrcchange' => \%newestsrcchange,
-    };
-    BSUtil::store("$rundir/bs_dispatch.state.new", "$rundir/bs_dispatch.state", $state);
-    unlink("$rundir/bs_dispatch.dumpstate");
-    print "dumped state to $rundir/bs_dispatch.state ...\n";
-  }
-  if (-e "$rundir/bs_dispatch.dropbadhosts") {
-    unlink("$rundir/bs_dispatch.dropbadhosts");
-    print "removing all badhost entries...\n";
-    %badhost = ();
-  }
+  filechecks();
 }
