@@ -678,7 +678,9 @@ sub createrepo_staticlinks {
         $link = "$1-$2$3" if $versioned;
       }
       next unless $link;
-      symlink($_, "$extrep/$arch/$link");
+      unlink("$extrep/$arch/.$link"); # drop left over
+      symlink($_, "$extrep/$arch/.$link");
+      rename("$extrep/$arch/.$link", "$extrep/$arch/$link"); # atomar update
     }
   }
 }
