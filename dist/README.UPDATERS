@@ -17,8 +17,9 @@ Please check the following files:
     This is usally done automatically by the package.
 
  2) There is currently a known bug in the ruby packaging on some plattforms.
-    Try to run /usr/bin/ruby, if it fails you need to remove the file
-    and create a symlink pointing to ruby1.9
+    Try to run /usr/bin/ruby, if it fails you need to run the following line manually:
+
+    # update-alternatives --force --all --skip-auto
 
  3) all config options with capital letters have been moved from 
       /srv/www/obs/.../config/environments/production.rb
