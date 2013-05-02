@@ -355,6 +355,11 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert_no_xml_tag :tag => 'person', :attributes => { :name => "Iggy", :role => "maintainer" }
     assert_xml_tag :tag => 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
 
+    # disable filter
+    get "/search/owner?binary=package&limit=0&filter="
+    assert_response :success
+    assert_xml_tag :tag => 'owner', :attributes => { :rootproject => "home:Iggy", :project => "home:Iggy", :package => "TestPack" }
+
     # search by user
     get "/search/owner?user=fred"
     assert_response :success
