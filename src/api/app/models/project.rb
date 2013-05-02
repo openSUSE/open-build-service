@@ -1262,14 +1262,19 @@ class Project < ActiveRecord::Base
 
     # construct where condition
     sql = nil
-    rolefilter.each do |rf|
-     if sql.nil?
-       sql = "( "
-     else
-       sql << " OR "
-     end
-     role = Role.find_by_title!(rf)
-     sql << "role_id = " << role.id.to_s
+    if rolefilter.length > 0
+      rolefilter.each do |rf|
+       if sql.nil?
+         sql = "( "
+       else
+         sql << " OR "
+       end
+       role = Role.find_by_title!(rf)
+       sql << "role_id = " << role.id.to_s
+      end
+    else
+      # match all roles
+      sql = "( 1 "
     end
     sql << " )"
     usersql = groupsql = sql
