@@ -6624,6 +6624,7 @@ my $gotevent = 1;
 $gotevent = 0 if $testprojid;
 
 my $lastschedinfo = 0;
+my $initialstartup = 1;
 
 # create global context
 my $gctx = {
@@ -6793,6 +6794,12 @@ NEXTPRP:
 	    $ectx->{'fullcache'} = {} if $events[0] && $events[0]->{'type'} eq 'built';
 	  }
 
+          # ignore exit events on initial startup, they are most likely left overs...
+          if ($initialstartup && ($ev->{'type'} eq 'exit' || $ev->{'type'} eq 'exitcomplete')) {
+	    print "WARNING: there was an exit event, but we ignore it directly after starting the scheduler.";
+            next;
+          }
+
 	  my $evhandler = $event_handlers{$ev->{'type'}};
 	  if ($evhandler) {
 	    $evhandler->($ectx, $ev);
@@ -6819,6 +6826,8 @@ NEXTPRP:
       }
       next;
     }
+    # done with first time event processing
+    $initialstartup = undef;
 
     # mark all indirect affected repos dirty
     for my $prp (keys %changed_dirty) {
