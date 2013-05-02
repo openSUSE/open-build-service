@@ -1,0 +1,35 @@
+#
+# openSUSE Build Service 2.4.1
+#
+
+Updaters from any OBS 2.4 release can just ugrade the packages
+and restart all services. Updaters from former releases should
+read the README.UPDATERS file.
+
+Note: we fixed also an update problem of the ruby package
+
+Feature backports:
+==================
+
+* none
+
+Changes:
+========
+
+* backend: the scheduler ignores a left over exit event during 
+           intial startup now
+* backend: support static links for kiwi installation medias
+* backend: use async mode during test suite run
+* runlevel scripts have nicer output now
+
+Bugfixes:
+=========
+
+* api: check_database script works now also before calling db:migrate
+* api: support packager owner search with explicit no filters
+* backend: fixed source caching from remote instance source packages
+* backend: fixed role analyses for read protected projects and packages
+* backend: fixed update of static links during publishing
+* backend: fixed ordering of binary upload events
+* general: documentation updates
+
