@@ -3614,7 +3614,7 @@ sub fill_remote_getrev_cache_projid {
     }
     next unless $rev->{'srcmd5'};
     my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
-    next unless "$treedir/$rev->{'srcmd5'}-MD5SUMS";
+    next unless -e "$treedir/$rev->{'srcmd5'}-MD5SUMS";
     $rev->{'vrev'} = $si->{'vrev'} || '0';
     $rev->{'rev'} = $si->{'rev'} || $rev->{'srcmd5'};
     $remote_getrev_cache{"$projid/$packid/"} = $rev;
