@@ -468,6 +468,7 @@ my %lastmastersync;
 
 sub projid2reposerver {
   my ($projid) = @_;
+  return $BSConfig::reposerver unless $BSConfig::siblings;
   my @p = @{$BSConfig::partition || []}; 
   my $sib;
   while (@p) {

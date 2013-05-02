@@ -2418,6 +2418,7 @@ $Build::Kiwi::bootcallback = \&kiwibootcallback;
 
 sub projid2reposerver {
   my ($projid) = @_;
+  return $BSConfig::reposerver unless $BSConfig::siblings;
   my @p = @{$BSConfig::partition || []};
   my $sib;
   while (@p) {
@@ -2449,9 +2450,13 @@ sub checksibling {
   $sib = $BSConfig::sibling unless defined $sib;
   die("cannot determine sibling for $projid\n") unless defined $sib;
   return if $sib eq $remotemap->{':sibling'};
-  die("sibling '$sib' from partition does not exist\n") unless $BSConfig::siblings->{$sib};
+  my $reposerver = $BSConfig::reposerver;
+  if ($BSConfig::siblings) {
+    $reposerver = $BSConfig::siblings->{$sib};
+    die("sibling '$sib' from partition does not exist\n") unless $reposerver;
+  }
   $remotemap->{$projid} = {
-    'name' => $projid, 'remoteurl' => $BSConfig::siblings->{$sib}, 'remoteproject' => $projid, 'sibling' => $sib,
+    'name' => $projid, 'remoteurl' => $reposerver, 'remoteproject' => $projid, 'sibling' => $sib,
   };
   $proj ||= readproj($projid, 1);
   if ($proj->{'access'}) {
@@ -2512,7 +2517,7 @@ sub getprojpack {
   }
   $arch ||= 'noarch';
   my $sibling = $cgi->{'sibling'};
-  die("No such sibling '$sibling'\n") if $sibling && !$BSConfig::siblings->{$sibling};
+  die("No such sibling '$sibling'\n") if $sibling && $BSConfig::siblings && !$BSConfig::siblings->{$sibling};
   $projids = [ findprojects() ] unless $projids;
   if ($sibling) {
     for my $projid (splice @$projids) {
@@ -2527,7 +2532,7 @@ sub getprojpack {
       }
       $sib = $BSConfig::sibling unless defined $sib;
       die("cannot determine sibling for $projid\n") unless defined $sib;
-      die("sibling '$sib' from partition does not exist\n") unless $BSConfig::siblings->{$sib};
+      die("sibling '$sib' from partition does not exist\n") if $BSConfig::siblings && !$BSConfig::siblings->{$sib};
       push @$projids, $projid if $sib eq $sibling;
     }
   }
@@ -6324,8 +6329,9 @@ sub search {
 
 sub postrepo {
   my ($cgi, $projid, $repoid, $arch) = @_;
+  my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {
-    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/_repository",
+    'uri' => "$reposerver/build/$projid/$repoid/$arch/_repository",
     'request' => 'POST',
   };
   my $res = BSWatcher::rpc($param, $BSXML::collection, "match=$cgi->{'match'}");
@@ -6376,18 +6382,35 @@ sub published {
   $p .= "/$arch" if defined $arch;
   $p .= "/$filename" if defined $filename;
   $p .= "/$subfilename" if defined $subfilename;
-  my $param = {
-    'uri' => "$BSConfig::reposerver$p",
-    'ignorestatus' => 1,
-    'receiver' => \&BSServer::reply_receiver,
-  };
-  if ($projpack) {
-    $param->{'request'} = 'POST';
-    $param->{'data'} = BSUtil::toxml($projpack, $BSXML::projpack);
-    $param->{'headers'} = [ 'Content-Type: application/octet-stream' ];
+  if (defined($projid) || !$BSConfig::partition || !$BSConfig::siblings) {
+    my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
+    my $param = {
+      'uri' => "$BSConfig::reposerver$p",
+      'ignorestatus' => 1,
+      'receiver' => \&BSServer::reply_receiver,
+    };
+    if ($projpack) {
+      $param->{'request'} = 'POST';
+      $param->{'data'} = BSUtil::toxml($projpack, $BSXML::projpack);
+      $param->{'headers'} = [ 'Content-Type: application/octet-stream' ];
+    }
+    BSWatcher::rpc($param, undef, @args);
+    return undef;
   }
-  BSWatcher::rpc($param, undef, @args);
-  return undef;
+  my %reposervers = map {$_ => 1} values(%$BSConfig::siblings);
+  my %pubprojids;
+  for my $reposerver (sort keys %reposervers) {
+    my $res;
+    eval {
+      $res = BSWatcher::rpc("$reposerver/published", $BSXML::dir, @args);
+    };
+    warn($@) if $@;
+    next unless $res;
+    $pubprojids{$_->{'name'}} = 1 for @{$res->{'entry'} || []};
+  }
+  my @res = sort(keys %pubprojids);
+  @res = map {{'name' => $_}} @res;
+  return ({'entry' => \@res}, $BSXML::dir);
 }
 
 sub pkdecodetaglenoff {
