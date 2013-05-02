@@ -2459,6 +2459,7 @@ sub checksibling {
     'name' => $projid, 'remoteurl' => $reposerver, 'remoteproject' => $projid, 'sibling' => $sib,
   };
   $proj ||= readproj($projid, 1);
+  $remotemap->{$projid}->{'repository'} = $proj->{'repository'} if $proj->{'repository'};
   if ($proj->{'access'}) {
     for ('access', 'publish', 'person', 'group') {
       $remotemap->{$projid}->{$_} = $proj->{$_} if exists $proj->{$_};
