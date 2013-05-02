@@ -14,13 +14,22 @@ rubygems according to Gemfile need to get installed.
 Please check the following files:
 
  1) database driver needs to be changed to "mysql2" in /srv/www/obs/api/config/database.yml
+    This is usally done automatically by the package.
 
- 2) all config options with capital letters have been moved from 
-      /srv/www/obs/webui/config/environments/production.rb
+ 2) There is currently a known bug in the ruby packaging on some plattforms.
+    Try to run /usr/bin/ruby, if it fails you need to remove the file
+    and create a symlink pointing to ruby1.9
+
+ 3) all config options with capital letters have been moved from 
+      /srv/www/obs/.../config/environments/production.rb
     to small letter variables in
-      /srv/www/obs/webui/config/options.yml
+      /srv/www/obs/.../config/options.yml
 
- 3) Database migration
+    The old production.rb files will not work anymore, please transfer your
+    configuration in the new file (available as production.rb.rpmnew) and
+    the options.yml. Do not forget to rename production.rb.rpmnew to production.rb.
+
+ 4) Database migration
 
     # cd /srv/www/obs/api/
     # RAILS_ENV="production" rake db:migrate
@@ -30,7 +39,7 @@ Please check the following files:
     # RAILS_ENV="production" rake db:migrate
     # chown -R wwwrun.www log tmp
 
- 4) Restart memcached after database migration to wipe possible broken
+ 5) Restart memcached after database migration to wipe possible broken
     cache data.
 
 For Updaters to OBS 2.3 from OBS 2.1
