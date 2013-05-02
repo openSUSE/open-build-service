@@ -18,6 +18,8 @@ class SourceController < ApplicationController
   validate_action :project_meta => {:method => :put, :request => :project, :response => :status}
   validate_action :package_meta => {:method => :put, :request => :package, :response => :status}
 
+  skip_before_filter :validate_xml_request, :only => [:file]
+
   # /source
   #########
   def index
