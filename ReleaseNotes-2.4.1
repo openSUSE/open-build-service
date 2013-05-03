@@ -20,6 +20,7 @@ Changes:
            intial startup now
 * backend: support static links for kiwi installation medias
 * backend: use async mode during test suite run
+* backend: catch cases where broken repositories cause endless builds
 * runlevel scripts have nicer output now
 
 Bugfixes:
@@ -27,6 +28,7 @@ Bugfixes:
 
 * api: check_database script works now also before calling db:migrate
 * api: support packager owner search with explicit no filters
+* api: stream file uploads directly to backend, fixes OOM kills with large files
 * backend: fixed source caching from remote instance source packages
 * backend: fixed role analyses for read protected projects and packages
 * backend: fixed update of static links during publishing
