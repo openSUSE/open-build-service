@@ -1396,6 +1396,7 @@ sub workerstatus {
       push @idle, {'hostarch' => $worker->{'hostarch'}, 'uri' => "http://$worker->{'ip'}:$worker->{'port'}", 'workerid' => $worker->{'workerid'}};
     }
   }
+  my $suf = $BSConfig::sibling ? "_$BSConfig::sibling" : "";
   my @building;
   my @waiting;
   my @blocked;
@@ -1432,7 +1433,9 @@ sub workerstatus {
       push @building, {'workerid' => $s->{'workerid'}, 'uri' => $s->{'uri'}, 'hostarch' => $s->{'hostarch'}, 'project' => $i->{'project'}, 'repository' => $i->{'repository'}, 'package' => $i->{'package'}, 'arch' => $i->{'arch'}, 'starttime' => $s->{'starttime'}};
       delete $d{$d};
     }
-    push @waiting, {'arch' => $a, 'jobs' => scalar(keys %d)};
+    if (!$BSConfig::masterdispatcher || $BSConfig::masterdispatcher eq $BSConfig::reposerver) {
+      push @waiting, {'arch' => $a, 'jobs' => scalar(keys %d)};
+    }
     my $si = readxml("$infodir/schedulerinfo.$a", $BSXML::schedulerinfo, 1);
     if ($si && defined($si->{'notready'})) {
       push @blocked, {'arch' => $a, 'jobs' => $si->{'notready'}};
@@ -1456,7 +1459,7 @@ sub workerstatus {
   @schedarchs = (@{$cgi->{'arch'}}) if $cgi->{'arch'};
   for my $schedarch (@schedarchs) {
     local *F;
-    my $scheddata = {'arch' => $schedarch, 'state' => 'dead'};
+    my $scheddata = {'arch' => "$schedarch$suf", 'state' => 'dead'};
     my $lock = "bs_sched.$schedarch.lock";
     $lock = 'bs_dispatch.lock' if $schedarch eq 'dispatcher';
     $lock = 'bs_publish.lock' if $schedarch eq 'publisher';
@@ -1471,9 +1474,7 @@ sub workerstatus {
       close F;
     }
     my $si = readxml("$infodir/schedulerinfo.$schedarch", $BSXML::schedulerinfo, 1);
-    if ($si) {
-      $scheddata->{'queue'} = $si->{'queue'} if $si->{'queue'};
-    }
+    $scheddata->{'queue'} = $si->{'queue'} if $si && $si->{'queue'};
     push @scheddata, $scheddata;
   }
 

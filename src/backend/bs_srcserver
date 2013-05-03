@@ -5938,14 +5938,65 @@ sub getworkerstatus {
   my @args;
   push @args, 'scheduleronly' if $cgi->{'scheduleronly'};
   push @args, map {"arch=$_"} @{$cgi->{'arch'} || []};
-  # XXX FIXME multiple repo handling
-  my $ws;
-  for my $reposerver ($BSConfig::reposerver) {
-    $ws = BSWatcher::rpc("$reposerver/workerstatus", $BSXML::workerstatus, @args);
+
+  if (!$BSConfig::partition || !$BSConfig::siblings) {
+    my $reposerver = $BSConfig::reposerver;
+    my $ws = BSWatcher::rpc("$reposerver/workerstatus", $BSXML::workerstatus, @args);
+    delete $_->{'uri'} for @{$ws->{'idle'} || []};
+    delete $_->{'uri'} for @{$ws->{'building'} || []};
+    return ($ws, $BSXML::workerstatus);
   }
-  delete $_->{'uri'} for @{$ws->{'idle'}};
-  delete $_->{'uri'} for @{$ws->{'building'}};
-  return ($ws, $BSXML::workerstatus);
+  my %reposervers = map {$_ => 1} values(%$BSConfig::siblings);
+  my $cws;
+  if (!$cgi->{'scheduleronly'}) {
+    $cws->{'clients'} = 0;
+    $cws->{'building'} = [];
+    $cws->{'waiting'} = [];
+    $cws->{'blocked'} = [];
+    $cws->{'buildavg'} = [];
+    $cws->{'idle'} = [];
+  }
+  $cws->{'scheduler'} = [];
+  for my $reposerver (sort keys %reposervers) {
+    my $ws = BSWatcher::rpc("$reposerver/workerstatus", $BSXML::workerstatus, @args);
+    push @{$cws->{'scheduler'}}, @{$ws->{'scheduler'}};
+    next if $cgi->{'scheduleronly'};
+    delete $_->{'uri'} for @{$ws->{'idle'} || []};
+    delete $_->{'uri'} for @{$ws->{'building'} || []};
+    push @{$cws->{'idle'}}, @{$ws->{'idle'} || []};
+    push @{$cws->{'building'}}, @{$ws->{'building'} || []};
+    for my $b (@{$ws->{'blocked'} || []}) {
+      my $ob = (grep {$_->{'arch'} eq $b->{'arch'}} @{$cws->{'blocked'} || []})[0];
+      if (!$ob) {
+        $ob = {'arch' => $b->{'arch'}, 'jobs' => 0};
+        push @{$cws->{'blocked'}}, $ob;
+      }
+      $ob->{'jobs'} += $b->{'jobs'};
+    }
+    for my $b (@{$ws->{'buildavg'} || []}) {
+      my $ob = (grep {$_->{'arch'} eq $b->{'arch'}} @{$cws->{'buildavg'} || []})[0];
+      if (!$ob) {
+        $ob = {'arch' => $b->{'arch'}, 'buildavg' => 0, 'count' => 0};
+        push @{$cws->{'buildavg'}}, $ob;
+      }
+      $ob->{'buildavg'} += $b->{'buildavg'};
+      $ob->{'count'} += 1;
+    }
+  }
+  for my $b (@{$cws->{'buildavg'} || []}) {
+    $b->{'buildavg'} /= delete $b->{'count'};
+  }
+
+  # sort
+  if (!$cgi->{'scheduleronly'}) {
+    $cws->{'idle'} = [ sort {$a->{'workerid'} cmp $b->{'workerid'} || $a->{'uri'} cmp $b->{'uri'} || $a cmp $b} @{$cws->{'idle'}} ];
+    $cws->{'building'} = [ sort {$a->{'workerid'} cmp $b->{'workerid'} || $a->{'uri'} cmp $b->{'uri'} || $a cmp $b} @{$cws->{'building'}} ];
+    $cws->{'waiting'} = [ sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b}  @{$cws->{'waiting'}} ];
+    $cws->{'blocked'} = [ sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b}  @{$cws->{'blocked'}} ];
+    $cws->{'buildavg'} = [ sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b}  @{$cws->{'buildavg'}} ];
+  }
+  
+  return ($cws, $BSXML::workerstatus);
 }
 
 sub getajaxstatus {
