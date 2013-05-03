@@ -160,7 +160,7 @@ sub cleanup_job {
 
 sub kill_job {
   # In z/VM, just kill the worker with name $vm_worker_name
-  if ($vm eq '--zvm') {
+  if ($vm =~ /zvm/) {
     if (system("$statedir/build/build", "--vm-worker", $vm_worker_name, "--kill")) {
       return 0;
     }
@@ -348,28 +348,8 @@ while (@ARGV) {
     $testmode = 1;
     next;
   }
-  if ($ARGV[0] eq '--kvm') {
-    $vm = ' --kvm';
-    shift @ARGV;
-    next;
-  }
-  if ($ARGV[0] eq '--xen') {
-    $vm = ' --xen';
-    shift @ARGV;
-    next;
-  }
-  if ($ARGV[0] eq '--lxc') {
-    $vm = 'lxc';
-    shift @ARGV;
-    next;
-  }
-  if ($ARGV[0] eq '--emulator') {
-    $vm = ' --emulator';
-    shift @ARGV;
-    next;
-  }
-  if ($ARGV[0] eq '--zvm') {
-    $vm = ' --zvm';
+  if ($ARGV[0] =~ /^--(kvm|xen|lxc|emulator|zvm)$/) {
+    $vm = "--$1";
     shift @ARGV;
     next;
   }
@@ -606,11 +586,11 @@ my $workerenvstate = {};
   }
   # sandbox
   $workerenvstate->{'sandbox'} = 'chroot';
-  $workerenvstate->{'sandbox'} = 'xen' if $vm eq ' --xen';
-  $workerenvstate->{'sandbox'} = 'kvm' if $vm eq ' --kvm';
-  $workerenvstate->{'sandbox'} = 'emulator' if $vm eq ' --emulator';
-  $workerenvstate->{'sandbox'} = 'lxc' if $vm eq 'lxc';
-  $workerenvstate->{'sandbox'} = 'zvm' if $vm eq ' --zvm';
+  $workerenvstate->{'sandbox'} = 'xen' if $vm =~ /xen/;
+  $workerenvstate->{'sandbox'} = 'kvm' if $vm =~ /kvm/;
+  $workerenvstate->{'sandbox'} = 'emulator' if $vm =~ /emulator/;
+  $workerenvstate->{'sandbox'} = 'lxc' if $vm =~ /lxc/;
+  $workerenvstate->{'sandbox'} = 'zvm' if $vm =~ /zvm/;
   # build host owner
   $workerenvstate->{'owner'} = $owner if $owner;
   # linux kernel
@@ -2611,7 +2591,7 @@ if ($path eq '/info') {
 }
 
 # Check for XEN daemon database leak
-if ($vm eq "--xen" && $xenstore_maxsize && 0 + (-s '/var/lib/xenstored/tdb') > $xenstore_maxsize) {
+if ($vm =~ /xen/ && $xenstore_maxsize && 0 + (-s '/var/lib/xenstored/tdb') > $xenstore_maxsize) {
   die("xenstore too big:".(-s '/var/lib/xenstored/tdb')."\n");
 }
 
