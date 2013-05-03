@@ -7824,7 +7824,7 @@ if (! -e "$projectsdir/_repoid") {
 }
 $repoid = readstr("$projectsdir/_repoid");
 
-BSNotify::notify("SRCSRV_START", $conf) unless @ARGV && ($ARGV[0] eq '--test' || $ARGV[0] eq '--stop' || $ARGV[0] eq '--exit' || $ARGV[0] eq '--restart');
+BSNotify::notify("SRCSRV_START", $conf) unless @ARGV && ($ARGV[0] eq '--test' || $ARGV[0] eq '--stop' || $ARGV[0] eq '--exit');
 
 BSStdServer::server('bs_srcserver', \@ARGV, $conf, $aconf);
 

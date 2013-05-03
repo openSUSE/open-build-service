@@ -354,7 +354,7 @@ my $conf = {
   'maxchild' => 40,
 };
 
-set_maxopen() unless @ARGV && ($ARGV[0] eq '--test' || $ARGV[0] eq '--stop' || $ARGV[0] eq '--exit' || $ARGV[0] eq '--restart');
+set_maxopen() unless @ARGV && ($ARGV[0] eq '--test' || $ARGV[0] eq '--stop' || $ARGV[0] eq '--exit');
 
 BSStdServer::server('bs_getbinariesproxy', \@ARGV, $conf);
 
