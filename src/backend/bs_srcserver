@@ -2434,6 +2434,22 @@ sub projid2reposerver {
   return $BSConfig::siblings->{$sib};
 }
 
+sub projid2sibling {
+  my ($projid) = @_;
+  return undef unless $BSConfig::partition;
+  my @p = @{$BSConfig::partition || []};
+  my $sib;
+  while (@p) {
+    if ($projid =~ /^$p[0]/) {
+      $sib = $p[1];
+      last;
+    }
+    splice(@p, 0, 2);
+  }
+  $sib = $BSConfig::sibling unless defined $sib;
+  return $sib;
+}
+
 sub checksibling {
   my ($remotemap, $projid, $proj) = @_;
   $remotemap->{':siblings'}->{$projid} = 1;
@@ -3881,11 +3897,13 @@ sub expandsearchpath {
       my @repo = grep {$_->{'name'} eq $tid} @{$proj->{'repository'} || []};
       push @path, @{$repo[0]->{'path'}} if @repo && $repo[0]->{'path'};
     } elsif ($remotemap) {
-      my $proj = readproj($t->{'project'}, 1);
-      if ((!$proj || $proj->{'remoteurl'}) && !$remotemap->{$t->{'project'}}) {
-        my $r = remoteprojid($t->{'project'});
-        $remotemap->{$t->{'project'}} = {%$r, 'proto' => 1} if $r;
+      my $pid = $t->{'project'};
+      my $proj = readproj($pid, 1);
+      if ((!$proj || $proj->{'remoteurl'}) && !$remotemap->{$pid}) {
+        my $r = remoteprojid($pid);
+        $remotemap->{$pid} = {%$r, 'proto' => 1} if $r;
       }
+      checksibling($remotemap, $pid, $proj) if $remotemap && $remotemap->{':siblings'} && !$remotemap->{':siblings'}->{$pid};
     }
   }
   return @ret;
@@ -5735,7 +5753,8 @@ sub getbinary {
     'receiver' => \&BSServer::reply_receiver,
   };
   if ($view && $view eq 'fileinfo_ext') {
-    my $projpack = (getprojpack({'nopackages' => 1, 'withrepos' => 1, 'expandedrepos' => 1, 'withremotemap' => 1, 'withconfig' => 1}, [ $projid ], [ $repoid ], undef, $arch))[0];
+    my $sibling = projid2sibling($projid);
+    my $projpack = (getprojpack({'nopackages' => 1, 'withrepos' => 1, 'expandedrepos' => 1, 'withremotemap' => 1, 'withconfig' => 1, 'sibling' => $sibling}, [ $projid ], [ $repoid ], undef, $arch))[0];
     if ($projpack) {
       if ($projpack->{'project'} && $projpack->{'project'}->[0]->{'name'} eq $projid) {
         my $config = (getbuildconfig({}, $projid, $repoid))[0];

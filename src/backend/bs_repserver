@@ -952,7 +952,9 @@ sub getbinary_info {
       $config = '';
     }
     if (!$projpack) {
-      $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', "project=$projid", "repository=$repoid", "arch=$arch", "nopackages");
+      my @args = ("project=$projid", "repository=$repoid", "arch=$arch");
+      push @args, "sibling=$BSConfig::sibling" if $BSConfig::sibling;
+      $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', 'nopackages', @args);
     }
     die("404 no such project/repository\n") unless $projpack->{'project'};
     my $proj = $projpack->{'project'}->[0];
@@ -2304,11 +2306,14 @@ sub getbuildinfo {
   my ($cgi, $projid, $repoid, $arch, $packid, $pdata) = @_;
   my $projpack;
   my $uploaded;
+  my @args = ("project=$projid", "repository=$repoid", "arch=$arch");
+  push @args, "package=$packid" if defined($packid);
+  push @args, "sibling=$BSConfig::sibling" if $BSConfig::sibling;
   if (!$pdata) {
-    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'expandedrepos', 'withremotemap', 'ignoredisable', "project=$projid", "repository=$repoid", "arch=$arch", "package=$packid");
+    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'expandedrepos', 'withremotemap', 'ignoredisable', @args);
     die("404 no such project/package/repository\n") unless $projpack->{'project'};
   } else {
-    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', "project=$projid", "repository=$repoid", "arch=$arch", defined($packid) ? "package=$packid" : ());
+    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', @args);
     die("404 no such project/repository\n") unless $projpack->{'project'};
     $uploaded = 1;
   }
@@ -2333,7 +2338,9 @@ sub getbuildinfo {
   my $kiwitype;
   if ($packtype eq 'kiwi') {
     if (@{$info->{'path'} || []}) {
-      my $pp = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withremotemap', 'nopackages', map {"project=$_->{'project'}"} @{$info->{'path'}});
+      @args = map {"project=$_->{'project'}"} @{$info->{'path'}};
+      push @args, "sibling=$BSConfig::sibling" if $BSConfig::sibling;
+      my $pp = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withremotemap', 'nopackages', @args);
       %remotemap = (%remotemap, map {$_->{'project'} => $_} @{$pp->{'remotemap'} || []});
     }
     if ($info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product') {
@@ -2965,7 +2972,10 @@ sub getworkercode {
 sub postrepo {
   my ($cgi, $projid, $repoid, $arch) = @_;
 
-  my $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', "project=$projid", "repository=$repoid", "arch=$arch");
+  my @args = ("project=$projid", "repository=$repoid", "arch=$arch");
+  push @args, "sibling=$BSConfig::sibling" if $BSConfig::sibling;
+  # FIXME: add remote support
+  my $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', @args);
   my $proj = $projpack->{'project'}->[0];
   die("no such project\n") unless $proj && $proj->{'name'} eq $projid;
   my $repo = $proj->{'repository'}->[0];
@@ -3229,7 +3239,8 @@ sub makeymp {
   if ($projpackin && $projpackin->{'project'}->[0]->{'name'} eq $projid) {
     $projpack = $projpackin;
   } else {
-    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'nopackages', "project=$projid", "repository=$repoid");
+    my @args = ("project=$projid", "repository=$repoid");
+    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'nopackages', @args);
   }
   my $proj = $projpack->{'project'}->[0];
   die("no such project\n") unless $proj && $proj->{'name'} eq $projid;
