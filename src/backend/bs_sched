@@ -3119,7 +3119,7 @@ sub fetchremoteconfig {
 ### remote repository handling
 
 sub addrepo_remote_unpackcpio {
-  my ($pool, $prp, $arch, $cpio, $error) = @_;
+  my ($pool, $prp, $arch, $cpio, $solvok, $error) = @_;
 
   my $repodata;
   if ($arch eq $myarch) {
@@ -3165,7 +3165,7 @@ sub addrepo_remote_unpackcpio {
   }
   my $r;
   my $solv;
-  if (exists $cpio{'repositorysolv'} && $BSConfig::usesolvstate) {
+  if (exists $cpio{'repositorysolv'} && $solvok) {
     eval {$r = $pool->repofromstr($prp, $cpio{'repositorysolv'}); };
     warn($@) if $@;
   } elsif (exists $cpio{'repositorycache'}) {
@@ -3197,7 +3197,7 @@ sub addrepo_remote_unpackcpio {
 sub addrepo_remote_resume {
   my ($handle, $error, $cpio) = @_;
   my $pool = BSSolv::pool->new();
-  my $r = addrepo_remote_unpackcpio($pool, $handle->{'_prp'}, $handle->{'_arch'}, $cpio, $error);
+  my $r = addrepo_remote_unpackcpio($pool, $handle->{'_prp'}, $handle->{'_arch'}, $cpio, $handle->{'_solvok'}, $error);
   xrpc_setchanged($handle) unless !$r && $error && $error !~ /remote error:/;
 }
 
@@ -3221,20 +3221,25 @@ sub addrepo_remote {
     $param->{'async'} = { '_resume' => \&addrepo_remote_resume, '_prp' => $prp, '_arch' => $arch };
   }
   my $cpio;
+  my $solvok;
   eval {
-    die('unsupported view\n') unless $BSConfig::usesolvstate;
+    die('unsupported view\n') unless $remoteproj->{'sibling'} || defined($BSConfig::usesolvstate) && $BSConfig::usesolvstate;
+    $param->{'async'}->{'_solvok'} = 1 if $param->{'async'};
     $cpio = xrpc($ctx, "repository/$prp/$arch", $param, undef, 'view=solvstate');
+    $solvok = 1 if $cpio;
   };
   if ($@ && $@ =~ /unsupported view/) {
+    $solvok = undef;
+    delete $param->{'async'}->{'_solvok'} if $param->{'async'};
     eval {
       $cpio = xrpc($ctx, "repository/$prp/$arch", $param, undef, 'view=cache');
     };
   }
   if ($@) {
-    return addrepo_remote_unpackcpio($pool, $prp, $arch, $cpio, $@);
+    return addrepo_remote_unpackcpio($pool, $prp, $arch, $cpio, undef, $@);
   }
   return 0 if $param->{'async'} && $cpio;	# hack: false but not undef
-  return addrepo_remote_unpackcpio($pool, $prp, $arch, $cpio);
+  return addrepo_remote_unpackcpio($pool, $prp, $arch, $cpio, $solvok);
 }
 
 
@@ -7240,6 +7245,7 @@ NEXTPRP:
     }
     if ($error) {
       print "    $error\n";
+      print "    (delayed)\n" if $delayed;
       $ctx->{'havedelayed'} = 1 if $delayed;
       set_repo_state($prp, 'broken', $error) unless $delayed;
       next;
