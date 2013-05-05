@@ -13,7 +13,7 @@ class Attribute < ActiveXML::Node
     begin
       frontend = ActiveXML::transport 
       frontend.direct_http URI("#{path}"), :method => "POST", :data => self.dump_xml
-      result = {:type => :note, :msg => "Attribute sucessfully added!"}
+      result = {:type => :notice, :msg => "Attribute sucessfully added!"}
     rescue ActiveXML::Transport::Error => e
       result = {:type => :error, :msg => "Saving attribute failed: #{e.summary}"}
     end
@@ -32,7 +32,7 @@ class Attribute < ActiveXML::Node
     begin
       frontend = ActiveXML::transport
       frontend.direct_http URI("#{path}"), :method => "DELETE", :data => ""
-      result = {:type => :note, :msg => "Attribute sucessfully deleted!"}
+      result = {:type => :notice, :msg => "Attribute sucessfully deleted!"}
     rescue ActiveXML::Transport::Error => e
       result = {:type => :error, :msg => "Deleting attribute failed: " + e.summary }
     end

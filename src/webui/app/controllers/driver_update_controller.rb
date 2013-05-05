@@ -9,7 +9,7 @@ class DriverUpdateController < PackageController
     services = Service.find :project => @project, :package => @package
     services = Service.new( :project => @project, :package => @package ) unless services
     if services.find_first( "service[@name='generator_driver_update_disk']" )
-      flash[:warn] = "Existing Driver update disk section found in _services, editing that one"
+      flash[:alert] = "Existing Driver update disk section found in _services, editing that one"
       redirect_to :action => :edit, :project => @project, :package => @package and return
     end
     @repositories = []
@@ -26,7 +26,7 @@ class DriverUpdateController < PackageController
     service = services.find_first( "service[@name='generator_driver_update_disk']" )
 
     if service.blank?
-      flash[:warn] = "No Driver update disk section found in _services, creating new"
+      flash[:alert] = "No Driver update disk section found in _services, creating new"
       redirect_to :action => :create, :project => @project, :package => @package and return
     end
 
@@ -151,7 +151,7 @@ class DriverUpdateController < PackageController
 
   def check_images_repo
     unless @project.repositories.include? "images"
-      flash.now[:warn] = "You need to add an 'images' repository to your project " +
+      flash.now[:alert] = "You need to add an 'images' repository to your project " +
         "to be able to build a driver update disk image!" 
     end
   end

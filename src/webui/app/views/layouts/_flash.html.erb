@@ -4,19 +4,19 @@
   <div id="flash-messages" class="container_16" >
     <div class="ui-widget grid_16 alpha omega">
 
-      <% [:success, :error, :warn, :note].each do |flash_type|
+      <% [:success, :error, :alert, :notice].each do |flash_type|
         if (flash[flash_type] && !flash[flash_type].empty?)
           case flash_type
           when :error
             flash_icon = "ui-icon-alert"
             flash_header = 'ui-state-error'
-          when :warn
+          when :alert
             flash_icon = "ui-icon-alert"
             flash_header = 'ui-state-error'
           when :success
             flash_icon = "ui-icon-info"
             flash_header = 'ui-state-highlight'
-          when :note
+          when :notice
             flash_icon = "ui-icon-info"
             flash_header = 'ui-state-highlight'
           end %>
