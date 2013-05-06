@@ -6138,8 +6138,9 @@ sub event_exit {
   push @new_lookat, grep {$lookat_next->{$_}} @prps;
   # here comes our scheduler state
   my $schedstate = {};
-  if ($ev->{'type'} eq 'exitcomplete' || $ev->{'type'} eq 'restart' || $ev->{'type'} eq 'emergencydump') {
+  if ($ev->{'type'} eq 'exitcomplete' || $ev->{'type'} eq 'restart' || $ev->{'type'} eq 'emergencydump' || $ev->{'type'} eq 'dumpstate') {
     $schedstate->{'projpacks'} = $projpacks;
+    $schedstate->{'remoteprojs'} = \%remoteprojs;
   }
   $schedstate->{'prps'} = \@prps;
   $schedstate->{'changed_low'} = $ectx->{'changed_low'};
@@ -6468,6 +6469,9 @@ if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
     print "  - $_\n" for sort keys %$schedstate;
     if ($schedstate->{'projpacks'}) {
       $projpacks = $schedstate->{'projpacks'};
+      if ($schedstate->{'remoteprojs'}) {
+	%remoteprojs = %{$schedstate->{'remoteprojs'}};
+      }
     } else {
       # get project and package information from src server
       get_projpacks(undef, undef);	# XXX: async
