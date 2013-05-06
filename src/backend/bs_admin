@@ -302,8 +302,9 @@ sub find_latest_file {
 }
 
 sub dump_nStore {
-  my ($file) = @_;
+  my ($file, $sel) = @_;
   my $cache = Storable::retrieve($file) || {};
+  $cache = $cache->{$sel} if defined $sel;
   print Dumper($cache);
   return $cache
 }
@@ -660,18 +661,23 @@ while (@ARGV) {
       my $arch = shift @ARGV;
       dump_cache($project, $repo, $arch);
     }
-  } elsif ($arg eq "--dump-relsync" || $arg eq "--set-relsync") {
+  } elsif ($arg eq "--dump-relsync") {
+    die("ERROR: need file as argument!\n") if @ARGV < 1;
+    my $file = shift @ARGV;
+    my $sel = shift @ARGV;
+    dump_nStore($file, $sel);
+  } elsif ($arg eq "--set-relsync") {
     die("ERROR: need file as argument!\n") if @ARGV < 1;
     my $file = shift @ARGV;
     my $s = dump_nStore($file);
     my $key = shift @ARGV;
     my $value = shift @ARGV;
-    if ( defined($key) && defined($value) ){
+    if (defined($key) && defined($value)){
       $s->{$key} = $value;
       print "\nChanged to:\n";
       print Dumper($s);
       Storable::nstore($s, $file);
-    };
+    }
   } elsif ($arg eq "--dump-state") {
     die("ERROR: need architecture as argument!\n") if @ARGV < 1;
     my $arch = shift @ARGV;
