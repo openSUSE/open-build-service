@@ -57,6 +57,7 @@ my $projectsdir = "$BSConfig::bsdir/projects";
 my $srcrepdir = "$BSConfig::bsdir/sources";
 my $treesdir = $nosharedtrees ? "$BSConfig::bsdir/trees" : $srcrepdir;
 my $sourcedb = "$BSConfig::bsdir/db/source";
+my $logdir = "$BSConfig::logdir";
 
 
 sub echo_help {
@@ -793,7 +794,6 @@ while (@ARGV) {
     my $mastertimestamp = time - $days*60*60*24;
     my %deletehashes; #key: hash value: @files
     my %keephashes;
-    my @files2delete;
     my @revfiles;
     my %treesfiles;
 
@@ -915,14 +915,6 @@ while (@ARGV) {
     if (keys(%deletehashes) == 0) {
       print "nothing to delete\n";
     } else {
-      # parse tree for files to delete..
-      foreach my $file (keys %deletehashes) {
-        open(F, '<', $treesfiles{$file}) || die($!);
-          while (<F>) {
-            my ($hash, $desc) = split(/\s+/, $_);
-            push @files2delete, $sourcefiles{$hash.'-'.$desc} if $sourcefiles{$hash.'-'.$desc};
-            }
-      }
 
       # delete files!
       foreach my $f (keys %sourcefiles) {
@@ -932,10 +924,12 @@ while (@ARGV) {
         }
       }
 
+      my $deleted = 0;
       # also delete files from treesdir
       foreach my $tfile (keys %deletehashes) {
         if (-e $treesfiles{$tfile}) {
           unlink $treesfiles{$tfile};
+          $deleted++;
         }
       }
 
@@ -945,6 +939,7 @@ while (@ARGV) {
         open(F, '<', $revfile) or die($!);
         foreach my $line (<F>) {
           my ($hash) = ( split(/\|/, $line) )[2];
+          # do not rewrite hashes from %deletehashes, to not overwrite files uploaded as the deletion runs
           push @revfile, $line if !grep {/$hash/} keys %deletehashes;
         }
         close(F);
@@ -952,6 +947,7 @@ while (@ARGV) {
         print F @revfile;
         close(F);
       }
+      print "Deleted ", $deleted, ".\n";
     }
     # some checking needed to reread everything?
 
