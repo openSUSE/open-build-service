@@ -2521,7 +2521,7 @@ sub getprojpack {
   local *oldbsrpc = *BSRPC::rpc;
   local *BSRPC::rpc;
   if ($cgi->{'noremote'}) {
-    *BSRPC::rpc = sub {die("500 remote error: noremote option\n");};
+    *BSRPC::rpc = sub {die("500 interconnect error: noremote option\n");};
   } else {
     *BSRPC::rpc = sub {
       my $r = eval { oldbsrpc(@_) };
@@ -2550,7 +2550,12 @@ sub getprojpack {
       $sib = $BSConfig::sibling unless defined $sib;
       die("cannot determine sibling for $projid\n") unless defined $sib;
       die("sibling '$sib' from partition does not exist\n") if $BSConfig::siblings && !$BSConfig::siblings->{$sib};
-      push @$projids, $projid if $sib eq $sibling;
+      if ($sib ne $sibling) {
+	# check if it is remote, if not then it belongs to another sibling
+	my $r = remoteprojid($projid);
+	next unless defined $r;
+      }
+      push @$projids, $projid;
     }
   }
   if ($BSConfig::limit_projects && $BSConfig::limit_projects->{$arch}) {
