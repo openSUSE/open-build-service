@@ -2869,6 +2869,19 @@ sub getprojpack {
 	    next;
 	  }
 	  $pinfo->{'aggregatelist'} = $aggregatelist;
+	  if ($remotemap && $aggregatelist) {
+	    for my $aggregate (@{$aggregatelist->{'aggregate'} || []}) {
+	      my $aprojid = $aggregate->{'project'};
+	      next if $remotemap->{$aprojid};
+	      my $aproj = readproj($aprojid, 1);
+	      if (!$aproj || $aproj->{'remoteurl'}) {
+		$aproj = remoteprojid($aprojid);
+		$remotemap->{$aprojid} = {%$aproj, 'proto' => 1} if $aproj;
+	      } else {
+		checksibling($remotemap, $aprojid, $aproj) if $remotemap->{':siblings'} && !$remotemap->{':siblings'}->{$aprojid};
+	      }
+	    }
+	  }
 	  if (($enable && %$enable) || ($disable && %$disable)) {
 	    my @dinfo = ();
 	    for my $repo (@{$proj->{'repository'} || []}) {
