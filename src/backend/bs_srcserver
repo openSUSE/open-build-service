@@ -2552,8 +2552,9 @@ sub getprojpack {
       die("sibling '$sib' from partition does not exist\n") if $BSConfig::siblings && !$BSConfig::siblings->{$sib};
       if ($sib ne $sibling) {
 	# check if it is remote, if not then it belongs to another sibling
-	my $r = remoteprojid($projid);
-	next unless defined $r;
+	my $r = readproj($projid, 1);
+	$r = remoteprojid($projid) unless defined $r;
+	next unless $r && $r->{'remoteurl'};
       }
       push @$projids, $projid;
     }
