@@ -392,6 +392,14 @@ sub getpackagebinaryversionlist {
   return ({ 'binaryversionlist' => \@res }, $BSXML::packagebinaryversionlist);
 }
 
+sub getpackagelist_build {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+  die "must specify view\n" unless $cgi->{'view'};
+  die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'binaryversions' || $cgi->{'view'} eq 'binaryversionscode';
+  $cgi->{'withcode'} = 1 if $cgi->{'view'}  eq 'binaryversionscode';
+  return getpackagebinaryversionlist($cgi, $projid, $repoid, $arch, $cgi->{'package'});
+}
+
 # the worker thinks that out packagebinaryversionlist contains bogus entries
 sub badpackagebinaryversionlist {
   my ($cgi, $projid, $repoid, $arch, $packids) = @_;
@@ -3558,6 +3566,7 @@ my $dispatches = [
   '!- HEAD:' => undef,
 
   'POST:/build/$project/$repository/$arch/_repository match:' => \&postrepo,
+  '/build/$project/$repository/$arch package* view:?' => \&getpackagelist_build,
   '/build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_relsync' => \&postrelsync,
