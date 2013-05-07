@@ -1406,7 +1406,7 @@ sub workerstatus {
       push @idle, {'hostarch' => $worker->{'hostarch'}, 'uri' => "http://$worker->{'ip'}:$worker->{'port'}", 'workerid' => $worker->{'workerid'}};
     }
   }
-  my $suf = $BSConfig::sibling ? "_$BSConfig::sibling" : "";
+  my $pre = $BSConfig::sibling ? "${BSConfig::sibling}:" : "";
   my @building;
   my @waiting;
   my @blocked;
@@ -1469,7 +1469,7 @@ sub workerstatus {
   @schedarchs = (@{$cgi->{'arch'}}) if $cgi->{'arch'};
   for my $schedarch (@schedarchs) {
     local *F;
-    my $scheddata = {'arch' => "$schedarch$suf", 'state' => 'dead'};
+    my $scheddata = {'arch' => "$pre$schedarch", 'state' => 'dead'};
     my $lock = "bs_sched.$schedarch.lock";
     $lock = 'bs_dispatch.lock' if $schedarch eq 'dispatcher';
     $lock = 'bs_publish.lock' if $schedarch eq 'publisher';
