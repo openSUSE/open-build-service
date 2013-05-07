@@ -1448,7 +1448,10 @@ sub createexportjob {
   my ($prp, $arch, $jobrepo, $dst, $oldrepo, $meta, @exports) = @_;
 
   # create unique id
-  my $job = "import-".Digest::MD5::md5_hex("$exportcnt.$$.$myarch.".time());
+  my $now = time();
+  # create prefix so that sorting by jobname creates the correct ordering
+  my $prefix = sprintf("%08x-%08x-", $now, $exportcnt);
+  my $job = "import-$prefix".Digest::MD5::md5_hex("$exportcnt.$$.$myarch.$now");
   $exportcnt++;
 
   local *F;
