@@ -2535,6 +2535,11 @@ sub getprojpack {
   $arch ||= 'noarch';
   my $sibling = $cgi->{'sibling'};
   die("No such sibling '$sibling'\n") if $sibling && $BSConfig::siblings && !$BSConfig::siblings->{$sibling};
+  my $remotemap = $cgi->{'withremotemap'} ? {} : undef;
+  if ($remotemap && $sibling) {
+    $remotemap->{':sibling'} = $sibling;
+    $remotemap->{':siblings'} = {};
+  }
   $projids = [ findprojects() ] unless $projids;
   if ($sibling) {
     for my $projid (splice @$projids) {
@@ -2554,7 +2559,12 @@ sub getprojpack {
 	# check if it is remote, if not then it belongs to another sibling
 	my $r = readproj($projid, 1);
 	$r = remoteprojid($projid) unless defined $r;
-	next unless $r && $r->{'remoteurl'};
+	if (!($r && $r->{'remoteurl'})) {
+	  # not remote and wrong sibling
+	  # if asked for a specific project, put it in remotemap
+          checksibling($remotemap, $projid) if $remotemap && $cgi->{'project'} && $remotemap->{':siblings'} && !$remotemap->{':siblings'}->{$projid};
+	  next;
+	}
       }
       push @$projids, $projid;
     }
@@ -2567,11 +2577,6 @@ sub getprojpack {
   $packids = { map {$_ => 1} @$packids } if $packids;
   my $bconf = Build::read_config($arch);
 
-  my $remotemap = $cgi->{'withremotemap'} ? {} : undef;
-  if ($remotemap && $sibling) {
-    $remotemap->{':sibling'} = $sibling;
-    $remotemap->{':siblings'} = {};
-  }
   my @res;
   for my $projid (@$projids) {
     my $jinfo = { 'name' => $projid };
