@@ -1,0 +1,27 @@
+#
+# openSUSE Build Service 2.4.2
+#
+
+Updaters from any OBS 2.4 release can just ugrade the packages
+and restart all services. Updaters from former releases should
+read the README.UPDATERS file.
+
+Note: we fixed also an update problem of the ruby package
+
+Feature backports:
+==================
+
+* none
+
+Changes:
+========
+
+* build: vminit can now be installed for multiple architectures in parallel on
+         OBS server.
+
+Bugfixes:
+=========
+
+* build: fixed regression using build host rpm instead of the version from chroot
+* backend: fixed binary rpm cache handling for image building via interconnect
+
