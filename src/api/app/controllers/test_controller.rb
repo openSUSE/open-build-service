@@ -27,6 +27,7 @@ class TestController < ApplicationController
        return
      end
      @@started = true
+     @@test_running = false
      system("cd #{Rails.root.to_s}; unset BUNDLE_GEMFILE; RAILS_ENV=test exec bundle exec rake db:fixtures:load")
      # for requests the ID is user visible, so reset it to get reproducible results
      max=BsRequest.maximum(:id)
@@ -36,17 +37,21 @@ class TestController < ApplicationController
   end
   
   def test_start
+    if @@test_running == true
+      test_end
+    end
+    @@test_running = true
     DatabaseCleaner.start
     render_ok
   end
 
 
   def test_end
+    @@test_running = false
     DatabaseCleaner.clean
     Rails.cache.clear
     # for requests the ID is user visible, so reset it to get reproducible results
     max=BsRequest.maximum(:id)
     BsRequest.connection.execute("alter table bs_requests AUTO_INCREMENT = #{max+1}")
-    render_ok
   end
 end

@@ -39,7 +39,6 @@ OBSApi::Application.routes.draw do
       post 'test/killme' => :killme
       post 'test/startme' => :startme
       post 'test/test_start' => :test_start
-      post 'test/test_end' => :test_end
     end
     
     controller :source do
