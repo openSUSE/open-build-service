@@ -440,7 +440,9 @@ class TagController < ApplicationController
   
   #get the tag as object
   def s_to_tag(tagname)
-    tag = Tag.find_or_create_by_name(tagname)
+    unless tag = Tag.find_by_name(tagname) 
+      tag = Tag.create(name: tagname)
+    end
     raise RuntimeError.new( "Tag #{tagname} could not be saved. ERROR: #{tag.errors[:name]}" ) if not tag.valid?
     return tag
   end

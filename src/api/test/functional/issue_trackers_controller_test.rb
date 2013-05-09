@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class IssueTrackersControllerTest < ActionController::IntegrationTest
+class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
   def test_should_get_index
     # Get all issue trackers
     get '/issue_trackers'

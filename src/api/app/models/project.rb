@@ -1045,7 +1045,7 @@ class Project < ActiveRecord::Base
   end
 
   def to_axml_id
-    return "<project name='#{name.fast_xs}'/>"
+    return "<project name='#{::Builder::XChar.encode(name)}'/>"
   end
 
 

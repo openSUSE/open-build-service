@@ -364,15 +364,15 @@ class RequestController < ApplicationController
     tpkg=nil
     if action.person_name
       # validate user object
-      User.find_by_login!(action.person_name)
+      User.get_by_login(action.person_name)
     end
     if action.group_name
       # validate group object
-      Group.find_by_title!(action.group_name)
+      Group.get_by_title(action.group_name)
     end
     if action.role
       # validate role object
-      role = Role.find_by_title!(action.role)
+      role = Role.get_by_title(action.role)
     end
     if action.source_project
       sprj = Project.get_by_name action.source_project

@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class StatusControllerTest < ActionController::IntegrationTest 
+class StatusControllerTest < ActionDispatch::IntegrationTest 
 
   fixtures :all
 
@@ -28,6 +28,7 @@ class StatusControllerTest < ActionController::IntegrationTest
   
     # delete it again
     get "/status/messages"
+    assert_response :success
     messages = ActiveXML::Node.new @response.body
 
     prepare_request_valid_user

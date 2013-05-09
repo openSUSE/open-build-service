@@ -1,6 +1,8 @@
 include MaintenanceHelper
 include ValidationHelper
 
+require 'builder/xchar'
+
 class SourceController < ApplicationController
 
   class IllegalRequestError < APIException
@@ -61,7 +63,7 @@ class SourceController < ApplicationController
     output = String.new
     output << "<?xml version='1.0' encoding='UTF-8'?>\n"
     output << "<directory>\n"
-    output << dir.map { |item| "  <entry name=\"#{item.fast_xs}\"/>\n" }.join
+    output << dir.map { |item| "  <entry name=\"#{::Builder::XChar.encode(item)}\"/>\n" }.join
     output << "</directory>\n"
     render :text => output, :content_type => "text/xml"
   end

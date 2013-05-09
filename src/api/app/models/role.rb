@@ -9,8 +9,8 @@ require 'api_exception'
 # from the engine's directory
 class Role < ActiveRecord::Base
 
-  class NotFoundError < APIException
-    setup 'role_not_found', 404, "Role not found"
+  class NotFound < APIException
+    setup 404
   end
 
   validates_format_of :title,
@@ -61,9 +61,7 @@ class Role < ActiveRecord::Base
     end
 
     def get_by_title(title)
-      r = where(title: title).first
-      raise Role::NotFoundError.new( "Error: Role '#{title}' not found." ) unless r
-      return r
+      find_by_title(title) or raise NotFound.new("Couldn't find Role '#{title}'")
     end
   end
 

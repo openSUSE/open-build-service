@@ -1,7 +1,7 @@
 # encoding: UTF-8
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class WizardControllerTest < ActionController::IntegrationTest 
+class WizardControllerTest < ActionDispatch::IntegrationTest 
 
   fixtures :all
 

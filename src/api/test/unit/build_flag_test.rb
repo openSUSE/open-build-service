@@ -94,20 +94,20 @@ class BuildFlagTest < ActiveSupport::TestCase
     #checking precondition
     assert_equal 2, @project.type_flags('build').size
     #checking total number of flags stored in the database
-    count = Flag.find(:all).size
+    count = Flag.all.size
     
     #destroy flags
     @project.type_flags('build')[1].destroy    
     #reload required!
     @project.reload
     assert_equal 1, @project.type_flags('build').size
-    assert_equal 1, count - Flag.find(:all).size
+    assert_equal 1, count - Flag.all.size
     
     @project.type_flags('build')[0].destroy
     #reload required
     @project.reload    
     assert_equal 0, @project.type_flags('build').size    
-    assert_equal 2, count - Flag.find(:all).size
+    assert_equal 2, count - Flag.all.size
   end
   
   
@@ -116,14 +116,14 @@ class BuildFlagTest < ActiveSupport::TestCase
     #checking precondition
     assert_equal 1, @package.type_flags('build').size
     #checking total number of flags stored in the database
-    count = Flag.find(:all).size    
+    count = Flag.all.size    
     
     #destroy flags
     @package.type_flags('build')[0].destroy    
     #reload required!
     @package.reload
     assert_equal 0, @package.type_flags('build').size
-    assert_equal 1, count - Flag.find(:all).size
+    assert_equal 1, count - Flag.all.size
         
   end
   
@@ -139,7 +139,7 @@ class BuildFlagTest < ActiveSupport::TestCase
     #checking precondition
     assert_equal 2, @project.type_flags('build').size
     #checking total number of flags stored in the database
-    count = Flag.find(:all).size    
+    count = Flag.all.size    
     
     #create new flag and save it.
     f = Flag.new(:repo => "10.3", :status => "enable", :flag => 'build')    
@@ -148,7 +148,7 @@ class BuildFlagTest < ActiveSupport::TestCase
     
     @project.reload
     assert_equal 3, @project.type_flags('build').size
-    assert_equal 1, Flag.find(:all).size - count
+    assert_equal 1, Flag.all.size - count
     
     f.reload
     assert_equal 3, f.position
@@ -168,7 +168,7 @@ class BuildFlagTest < ActiveSupport::TestCase
 
     @project.reload
     assert_equal 4, @project.type_flags('build').size
-    assert_equal 2, Flag.find(:all).size - count
+    assert_equal 2, Flag.all.size - count
     
     f.reload
     assert_equal 4, f.position

@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class DistributionsControllerTest < ActionController::IntegrationTest
+class DistributionsControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
   
   teardown do

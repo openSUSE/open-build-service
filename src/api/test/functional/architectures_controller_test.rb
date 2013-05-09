@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class ArchitecturesControllerTest < ActionController::IntegrationTest
+class ArchitecturesControllerTest < ActionDispatch::IntegrationTest
 
   def setup
     super

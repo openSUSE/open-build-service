@@ -216,9 +216,9 @@ class WebuiController < ApplicationController
     end
 
     if params.has_key? :userid
-      object = User.find_by_login!(params[:userid])
+      object = User.get_by_login(params[:userid])
     elsif params.has_key? :groupid
-      object = Group.find_by_title!(params[:groupid])
+      object = Group.get_by_title(params[:groupid])
     else
       raise MissingParameterError, "Neither userid nor groupid given"
     end
