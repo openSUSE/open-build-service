@@ -127,7 +127,7 @@ GEM
       activesupport (= 3.2.13)
       bundler (~> 1.0)
       railties (= 3.2.13)
-    rails_tokeninput (1.6.0)
+    rails_tokeninput (1.6.1.rc1)
       railties (>= 3.1.0)
     railties (3.2.13)
       actionpack (= 3.2.13)
@@ -208,7 +208,7 @@ DEPENDENCIES
   pry (>= 0.9.12)
   rack-mini-profiler
   rails (~> 3.2.9)
-  rails_tokeninput
+  rails_tokeninput (>= 1.6.1.rc1)
   rake (~> 0.9.2)
   rdoc
   sass-rails
