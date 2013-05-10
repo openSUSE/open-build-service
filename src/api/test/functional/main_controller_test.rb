@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class MainTests < ActionController::IntegrationTest 
+class MainTests < ActionDispatch::IntegrationTest 
   
   def test_index
     get "/"

@@ -2,7 +2,7 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'time'
 
-class StatisticsControllerTest < ActionController::IntegrationTest
+class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
   fixtures :all
 

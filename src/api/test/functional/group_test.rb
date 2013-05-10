@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class GroupControllerTest < ActionController::IntegrationTest
+class GroupControllerTest < ActionDispatch::IntegrationTest
 
   fixtures :all
 

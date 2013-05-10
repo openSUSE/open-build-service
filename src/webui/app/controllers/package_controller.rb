@@ -240,7 +240,7 @@ class PackageController < ApplicationController
     end
 
     Rails.cache.delete "requests_new"
-    flash[:note] = "Created <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value('id'))}'>submit request #{req.value('id')}</a> to <a href='#{url_for(:controller => 'project', :action => 'show', :project => params[:targetproject])}'>#{params[:targetproject]}</a>"
+    flash[:notice] = "Created <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value('id'))}'>submit request #{req.value('id')}</a> to <a href='#{url_for(:controller => 'project', :action => 'show', :project => params[:targetproject])}'>#{params[:targetproject]}</a>"
     redirect_to(:action => 'show', :project => params[:project], :package => params[:package])
   end
 
@@ -328,11 +328,11 @@ class PackageController < ApplicationController
       flash.now[:error] = e.summary
       return
     rescue ActiveXML::Transport::Error => e
-      flash.now[:warn] = e.summary
+      flash.now[:alert] = e.summary
       begin
         rdiff = frontend.transport.direct_http URI(path + "&expand=0"), :method => "POST", :data => ""
       rescue ActiveXML::Transport::Error => e
-        flash.now[:warn] = nil
+        flash.now[:alert] = nil
         flash.now[:error] = "Error getting diff: " + e.summary
         return
       end
@@ -354,7 +354,7 @@ class PackageController < ApplicationController
         if @package.save
           redirect_to :action => 'wizard', :project => params[:project], :package => params[:name]
         else
-          flash[:note] = "Failed to save package '#{@package}'"
+          flash[:notice] = "Failed to save package '#{@package}'"
           redirect_to :controller => 'project', :action => 'show', :project => params[:project]
         end
       end
@@ -418,14 +418,14 @@ class PackageController < ApplicationController
       @package.publish.add_element "disable"
     end
     if @package.save
-      flash[:note] = "Package '#{@package}' was created successfully"
+      flash[:notice] = "Package '#{@package}' was created successfully"
       Rails.cache.delete("%s_packages_mainpage" % @project)
       Rails.cache.delete("%s_problem_packages" % @project)
       Package.free_cache( :all, :project => @project.name )
       Package.free_cache( @package.name, :project => @project )
       redirect_to :action => 'show', :project => params[:project], :package => params[:name]
     else
-      flash[:note] = "Failed to create package '#{@package}'"
+      flash[:notice] = "Failed to create package '#{@package}'"
       redirect_to :controller => 'project', :action => 'show', :project => params[:project]
     end
   end
@@ -443,7 +443,7 @@ class PackageController < ApplicationController
     rescue ActiveXML::Transport::Error => e
       message = e.summary
       if e.code == "double_branch_package"
-        flash[:note] = "You already branched the package and got redirected to it instead"
+        flash[:notice] = "You already branched the package and got redirected to it instead"
         bprj, bpkg = message.split("exists: ")[1].split('/', 2) # Hack to find out branch project / package
         redirect_to :controller => 'package', :action => 'show', :project => bprj, :package => bpkg and return
       else
@@ -530,7 +530,7 @@ class PackageController < ApplicationController
       end
 
       unless saved
-        flash[:note] = "Failed to save package '#{package}'"
+        flash[:notice] = "Failed to save package '#{package}'"
         redirect_to :controller => 'project', :action => 'new_package_branch', :project => @project and return
         logger.debug "link params: #{@linked_project}, #{@linked_package}"
         link = Link.new( :project => @project,
@@ -552,9 +552,9 @@ class PackageController < ApplicationController
     @package.title.text = params[:title]
     @package.description.text = params[:description]
     if @package.save
-      flash[:note] = "Package data for '#{@package.name}' was saved successfully"
+      flash[:notice] = "Package data for '#{@package.name}' was saved successfully"
     else
-      flash[:note] = "Failed to save package '#{@package.name}'"
+      flash[:notice] = "Failed to save package '#{@package.name}'"
     end
     redirect_to :action => 'show', :project => params[:project], :package => params[:package]
   end
@@ -566,7 +566,7 @@ class PackageController < ApplicationController
   def remove
     begin
       FrontendCompat.new.delete_package :project => @project, :package => @package
-      flash[:note] = "Package '#{@package}' was removed successfully from project '#{@project}'"
+      flash[:notice] = "Package '#{@package}' was removed successfully from project '#{@project}'"
       Rails.cache.delete("%s_packages_mainpage" % @project)
       Rails.cache.delete("%s_problem_packages" % @project)
       Package.free_cache( :all, :project => @project.name )
@@ -643,11 +643,11 @@ class PackageController < ApplicationController
     # extra escaping of filename (workaround for rails bug)
     escaped_filename = URI.escape filename, "+"
     if @package.remove_file escaped_filename
-      flash[:note] = "File '#{filename}' removed successfully"
+      flash[:notice] = "File '#{filename}' removed successfully"
       @package.free_directory
       # TODO: remove patches from _link
     else
-      flash[:note] = "Failed to remove file '#{filename}'"
+      flash[:notice] = "Failed to remove file '#{filename}'"
     end
     redirect_to :action => :show, :project => @project, :package => @package
   end
@@ -674,7 +674,7 @@ class PackageController < ApplicationController
     respond_to do |format|
       format.js { render json: { status: 'ok' } }
       format.html do
-        flash[:note] = "Added user #{params[:userid]} with role #{params[:role]}"
+        flash[:notice] = "Added user #{params[:userid]} with role #{params[:role]}"
         redirect_to action: :users, package: @package, project: @project
       end
     end
@@ -692,7 +692,7 @@ class PackageController < ApplicationController
     respond_to do |format|
       format.js { render json: { status: 'ok' } }
       format.html do
-        flash[:note] = "Added group #{params[:groupid]} with role #{params[:role]} to package #{@package}"
+        flash[:notice] = "Added group #{params[:groupid]} with role #{params[:role]} to package #{@package}"
         redirect_to action: :users, package: @package, project: @project
       end
     end
@@ -709,9 +709,9 @@ class PackageController < ApplicationController
       format.js { render json: { status: 'ok' } }
       format.html do
         if params[:userid]
-          flash[:note] = "Removed user #{params[:userid]}"
+          flash[:notice] = "Removed user #{params[:userid]}"
         else
-          flash[:note] = "Removed group '#{params[:groupid]}'"
+          flash[:notice] = "Removed group '#{params[:groupid]}'"
         end
         redirect_to action: :users, package: @package, project: @project
       end
@@ -946,7 +946,7 @@ class PackageController < ApplicationController
 
     unless request.xhr?
       # non ajax request:
-      flash[:note] = @message
+      flash[:notice] = @message
       redirect_to :controller => controller, :action => action,
         :project => @project, :package => @package
     else
@@ -1048,7 +1048,7 @@ class PackageController < ApplicationController
       return
     end
     
-    flash[:note] = "Config successfully saved"
+    flash[:notice] = "Config successfully saved"
     @package.free_cache
     render :text => "Config successfully saved", :content_type => "text/plain"
   end

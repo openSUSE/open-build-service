@@ -2,7 +2,7 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
-class CrossBuildTest < ActionController::IntegrationTest 
+class CrossBuildTest < ActionDispatch::IntegrationTest 
   fixtures :all
   
   def test_setup_project

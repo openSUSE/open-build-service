@@ -5,8 +5,8 @@
 #
 class Group < ActiveRecord::Base
 
-  class NotFoundError < APIException
-    setup 'group_not_found', 404, "Group not found"
+  class NotFound < APIException
+    setup 404
   end
 
   has_many :groups_users, :foreign_key => 'group_id'
@@ -72,9 +72,7 @@ class Group < ActiveRecord::Base
     end
 
     def get_by_title(title)
-      g = where(title: title).first
-      raise NotFoundError.new( "Error: Group '#{title}' not found." ) unless g
-      return g
+      find_by_title(title) or raise NotFound.new("Couldn't find Group '#{title}'")
     end
   end
 

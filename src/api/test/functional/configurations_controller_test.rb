@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class ConfigurationsControllerTest < ActionController::IntegrationTest
+class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
   def setup
     prepare_request_valid_user
   end

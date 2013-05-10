@@ -775,6 +775,10 @@ class User < ActiveRecord::Base
                       :too_short => 'must have between 6 and 64 characters.',
                      :if => Proc.new { |user| user.new_password? and not user.password.nil? }
 
+   class NotFound < APIException
+     setup 404
+   end
+
   class << self
     def current
       Thread.current[:user]
@@ -789,7 +793,7 @@ class User < ActiveRecord::Base
     end
 
     def get_by_login(login)
-      find_by_login!(login)
+      find_by_login(login) or raise NotFound.new("Couldn't find User with login = #{login}")
     end
 
     def find_by_email(email)

@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 i*-
 require 'api_exception'
+require 'builder/xchar'
 
 class Package < ActiveRecord::Base
   include FlagHelper
@@ -853,7 +854,7 @@ class Package < ActiveRecord::Base
   end
 
   def to_axml_id
-    return "<package project='#{project.name.to_xs}' name='#{name.to_xs}'/>"
+    return "<package project='#{::Builder::XChar.encode(project.name)}' name='#{::Builder::XChar.encode(name)}'/>"
   end
 
   def rating( user_id=nil )
@@ -896,7 +897,7 @@ class Package < ActiveRecord::Base
   # is called before_update
   def update_activity
     # the value we add to the activity, when the object gets updated
-    addon = 10 * (Time.now.to_f - self.updated_at.to_f) / 86400
+    addon = 10 * (Time.now.to_f - self.updated_at_was.to_f) / 86400
     addon = 10 if addon > 10
     new_activity = activity + addon
     new_activity = 100 if new_activity > 100

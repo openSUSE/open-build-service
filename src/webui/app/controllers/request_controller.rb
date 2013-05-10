@@ -127,7 +127,7 @@ class RequestController < ApplicationController
       end
     end
     if changestate == 'accepted'
-      flash[:note] = "Request #{params[:id]} accepted"
+      flash[:notice] = "Request #{params[:id]} accepted"
 
       # Check if we have to forward this request to other projects / packages
       params.keys.grep(/^forward_.*/).each do |fwd|
@@ -145,7 +145,7 @@ class RequestController < ApplicationController
         req.save(:create => true)
         Rails.cache.delete('requests_new')
         # link_to isn't available here, so we have to write some HTML. Uses url_for to not hardcode URLs.
-        flash[:note] += " and forwarded to <a href='#{url_for(:controller => 'package', :action => 'show', :project => tgt_prj, :package => tgt_pkg)}'>#{tgt_prj} / #{tgt_pkg}</a> (request <a href='#{url_for(:action => 'show', :id => req.value('id'))}'>#{req.value('id')}</a>)"
+        flash[:notice] += " and forwarded to <a href='#{url_for(:controller => 'package', :action => 'show', :project => tgt_prj, :package => tgt_pkg)}'>#{tgt_prj} / #{tgt_pkg}</a> (request <a href='#{url_for(:action => 'show', :id => req.value('id'))}'>#{req.value('id')}</a>)"
       end
 
       # Cleanup prj/pkg cache after auto-removal of source projects / packages (mostly from branches).
@@ -279,7 +279,7 @@ class RequestController < ApplicationController
     check_ajax
     begin
       BsRequest.set_incident(params[:id], params[:incident_project])
-      flash[:note] = "Set target of request #{id} to incident #{params[:incident_project]}"
+      flash[:notice] = "Set target of request #{id} to incident #{params[:incident_project]}"
     rescue BsRequest::ModifyError => e
       flash[:error] = e.message
     end
@@ -290,7 +290,7 @@ private
   def change_request(changestate, params)
     begin
       if BsRequest.modify( params[:id], changestate, :reason => params[:reason], :force => true )
-        flash[:note] = "Request #{changestate}!" and return true
+        flash[:notice] = "Request #{changestate}!" and return true
       else
         flash[:error] = "Can't change request to #{changestate}!"
       end

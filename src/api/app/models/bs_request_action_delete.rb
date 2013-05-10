@@ -17,7 +17,7 @@ class BsRequestActionDelete < BsRequestAction
 
   def remove_repository(opts)
     prj = Project.get_by_name(self.target_project)
-    r=Repository.find_by_project_and_repo_name(self.target_project, self.target_repository)
+    r=prj.repositories.find_by_name(self.target_repository)
     unless r
       raise RepositoryMissing.new "The repository #{self.target_project} / #{self.target_repository} does not exist"
     end

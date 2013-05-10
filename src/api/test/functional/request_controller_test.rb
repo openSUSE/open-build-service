@@ -2,7 +2,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'request_controller'
 
-class RequestControllerTest < ActionController::IntegrationTest
+class RequestControllerTest < ActionDispatch::IntegrationTest
 
   fixtures :all
 

@@ -2,7 +2,7 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
-class SourceControllerTest < ActionController::IntegrationTest 
+class SourceControllerTest < ActionDispatch::IntegrationTest 
   fixtures :all
   
   def test_get_projectlist

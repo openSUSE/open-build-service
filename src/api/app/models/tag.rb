@@ -8,7 +8,7 @@ class Tag < ActiveRecord::Base
   
   has_many :users, :through => :taggings
 
-  attr_accessible nil
+  attr_accessible :name
 
   attr_accessor :cached_count
   

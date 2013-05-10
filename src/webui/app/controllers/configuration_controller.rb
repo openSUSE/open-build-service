@@ -50,10 +50,10 @@ class ConfigurationController < ApplicationController
 
     if @project.save
       if Project.exists? "home:#{@user.login.to_s}"
-        flash[:note] = "Project '#{project_name}' was created successfully"
+        flash[:notice] = "Project '#{project_name}' was created successfully"
         redirect_to :action => 'show', :project => project_name and return
       else
-        flash[:note] = "Project '#{project_name}' was created successfully. Next step is create your home project"
+        flash[:notice] = "Project '#{project_name}' was created successfully. Next step is create your home project"
         redirect_to :controller => :project, :action => :new, :ns => "home:#{@user.login.to_s}"
       end
     else
@@ -69,7 +69,7 @@ class ConfigurationController < ApplicationController
 
     begin
       ActiveXML::transport.http_json :put, '/configuration', { description: params[:description], title: params[:title] }
-      flash[:note] = "Updated configuration"
+      flash[:notice] = "Updated configuration"
       Rails.cache.delete('configuration')
     rescue ActiveXML::Transport::Error 
       logger.debug "Failed to update configuration"

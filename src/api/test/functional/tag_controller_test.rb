@@ -2,7 +2,7 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'tag_controller'
 
-class TagControllerTest < ActionController::IntegrationTest 
+class TagControllerTest < ActionDispatch::IntegrationTest 
   
   fixtures :all
   
@@ -307,7 +307,6 @@ class TagControllerTest < ActionController::IntegrationTest
     end
     
     tags = @controller.get_tags_by_user_and_project( false )
-    assert_kind_of Array, tags
     assert_equal 4, tags.size
     assert_equal 'TagA', tags[0].name
     assert_equal 'TagB', tags[1].name
@@ -325,7 +324,6 @@ class TagControllerTest < ActionController::IntegrationTest
     end
     
     tags = @controller.get_tags_by_user_and_package( false )
-    assert_kind_of Array, tags
     assert_equal 4, tags.size
     assert_equal 'TagB', tags[0].name
     assert_equal 'TagC', tags[1].name

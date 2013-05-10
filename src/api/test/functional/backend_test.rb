@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class BackendTests < ActionController::IntegrationTest 
+class BackendTests < ActionDispatch::IntegrationTest 
   
   def test_validate_bsxml
 
