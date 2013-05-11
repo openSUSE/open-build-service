@@ -11,9 +11,9 @@
           <%= label_tag(:description, 'Description:') %><br/>
           <%= text_area_tag(:description, '', :size => '40x3') %>
         </p>
-        <div class="buttons">
-          <%= submit_tag('Ok') %>
-          <%= link_to_function('Cancel', 'remove_dialog()') %>
+        <div class="submit_package_buttons">
+          <%= submit_tag("Ok") %>
+          <%= link_to_function("Cancel", 'remove_dialog()', :class =>"extra_white_bg")%> 
         </div>
       <% end %>
     </div>

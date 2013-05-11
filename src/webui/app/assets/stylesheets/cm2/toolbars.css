@@ -102,3 +102,20 @@ span.CodeMirror-matchhighlight {
 	background:#f0f0ee;
 	border:1px solid #b0b0b0;
 }
+
+
+/*Button styling for submit package */
+.submit_package_buttons {
+	height:24px;
+	padding-top:3px;
+	padding-bottom: 23px;
+	text-align:center;
+	background-color:#ddd7c5;
+}
+.extra_white_bg {
+	background-color:#fff;
+	border-radius: 5px 5px 5px 5px ;
+	padding: 8px 1ex;
+  	font-size: 1.2em;
+}
+
