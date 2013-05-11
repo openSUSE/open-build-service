@@ -17,9 +17,9 @@
             <%= check_box_tag(:supersede) %> Supersede pending requests<br/>
           </span>
         </p>
-        <div class="buttons">
+         <div class="submit_package_buttons">
           <%= submit_tag("Ok") %>
-          <%= link_to_function("Cancel", 'remove_dialog()') %>
+          <%= link_to_function("Cancel", 'remove_dialog()', :class =>"extra_white_bg")%> 
         </div>
       <% end %>
     </div>

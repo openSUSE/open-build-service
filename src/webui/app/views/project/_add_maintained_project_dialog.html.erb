@@ -15,9 +15,9 @@
           <%= label_tag(:maintained_project, 'Project to maintain:') %><br/>
           <%= text_field_tag(:maintained_project, '', :size => 40) %>
         </p>
-        <div class="buttons">
-          <%= submit_tag('Ok') %>
-          <%= link_to_function("Cancel", 'remove_dialog()') %>
+        <div class="submit_package_buttons">
+          <%= submit_tag("Ok") %>
+          <%= link_to_function("Cancel", 'remove_dialog()', :class =>"extra_white_bg")%> 
         </div>
       <% end %>
     </div>

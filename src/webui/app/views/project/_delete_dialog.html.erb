@@ -16,10 +16,9 @@
           <%= check_box_tag(:ignore_linking_projects)%> Ignore project source links
         <% end %>
 
-        <div class="buttons">
-          <%= submit_tag('Ok') %>
-          <%= link_to_function('Cancel', 'remove_dialog()') %>
+        <div class="submit_package_buttons">
+          <%= submit_tag("Ok") %>
+          <%= link_to_function("Cancel", 'remove_dialog()', :class =>"extra_white_bg")%> 
         </div>
-      <% end %>
     </div>
   </div>

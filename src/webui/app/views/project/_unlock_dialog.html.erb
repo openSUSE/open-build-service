@@ -10,9 +10,9 @@
           <%= label_tag(:comment, 'Comment:') %><br/>
           <%= text_area_tag(:comment, '', :size => '40x3') %><br/>
         </p>
-        <div class="buttons">
-          <%= submit_tag('Ok') %>
-          <%= link_to_function('Cancel', 'remove_dialog()') %>
+       <div class="submit_package_buttons">
+          <%= submit_tag("Ok") %>
+          <%= link_to_function("Cancel", 'remove_dialog()', :class =>"extra_white_bg")%> 
         </div>
       <% end %>
     </div>
