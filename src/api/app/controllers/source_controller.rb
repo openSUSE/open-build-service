@@ -1148,6 +1148,7 @@ class SourceController < ApplicationController
 
   # GET /lastevents
   def lastevents
+    path = request.path
     if not request.query_string.blank?
       path += "?#{request.query_string}"
     elsif not request.env["rack.request.form_vars"].blank?
