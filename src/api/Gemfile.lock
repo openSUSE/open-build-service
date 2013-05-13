@@ -64,7 +64,7 @@ GEM
     nokogiri (1.5.9)
     pkg-config (1.1.4)
     polyglot (0.3.3)
-    pry (0.9.12.1)
+    pry (0.9.12.2)
       coderay (~> 1.0.5)
       method_source (~> 0.8)
       slop (~> 3.4)
@@ -113,7 +113,6 @@ GEM
       crack (>= 0.3.2)
     xmlhash (1.3.5)
       pkg-config
-    yajl-ruby (1.1.0)
 
 PLATFORMS
   ruby
@@ -131,7 +130,7 @@ DEPENDENCIES
   fast_xs
   hoptoad_notifier (~> 2.3)
   i18n (= 0.6.1)
-  minitest
+  minitest (< 5.0)
   minitest-colorize
   mysql2
   nokogiri (~> 1.5.0)
@@ -144,4 +143,3 @@ DEPENDENCIES
   timecop
   webmock (>= 1.9.0)
   xmlhash (>= 1.3.5)
-  yajl-ruby
