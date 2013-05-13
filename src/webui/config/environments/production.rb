@@ -63,7 +63,3 @@ OBSWebUI::Application.configure do
   # config.active_record.auto_explain_threshold_in_seconds = 0.5
 
 end
-
-# Enable the interface to change user's password, it can be one of 'on', 'off'
-# CONFIG['change_passwd'] = "on"
-
