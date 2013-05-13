@@ -59,7 +59,7 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
   def test_lastevents
     # very old route
     get "/lastevents"
-    assert_response 401
+    assert_response :success
     # old method
     get "/public/lastevents"
     assert_response :success
