@@ -24,7 +24,7 @@ class ApiDetails
     uri = transport.substitute_uri(uri, opts)
     #transport.replace_server_if_needed(uri)
     data = transport.http_do 'get', uri
-    data = ActiveSupport::JSON.decode(data)
+    data = JSON.parse(data)
     logger.debug "data #{JSON.pretty_generate(data)}"
     data
   end
@@ -37,7 +37,7 @@ class ApiDetails
     rescue ActiveXML::Transport::Error => e
       raise CommandFailed, e.summary
     end
-    #data = ActiveSupport::JSON.decode(data)
+    #data = JSON.parse(data)
     logger.debug "command #{data}"
     data
   end

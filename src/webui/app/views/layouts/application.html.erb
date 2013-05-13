@@ -85,7 +85,7 @@
         <ul>
           <li><%= link_to "Your Home", :controller => :home, :action => :index %></li>
           <li><%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{@user}" %></li>
-          <li><%= link_to 'Logout', { :controller => 'user', :action => 'logout'} %></li>
+          <li><%= link_to 'Logout', { :controller => 'user', :action => 'logout'}, method: :post %></li>
         </ul>
       </div>
     <% end -%>

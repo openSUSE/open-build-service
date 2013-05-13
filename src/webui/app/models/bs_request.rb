@@ -203,7 +203,7 @@ class BsRequest < ActiveXML::Node
     def list_ids(opts)
       path = prepare_list_path("/webui/request_list", opts)
       data = ActiveXML::transport.direct_http(URI(path))
-      return ActiveSupport::JSON.decode(data)
+      return JSON.parse(data)
     end
 
     def list(opts)

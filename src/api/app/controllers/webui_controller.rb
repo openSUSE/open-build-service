@@ -1,4 +1,4 @@
-require 'yajl'
+require 'json/ext'
 
 include SearchHelper
 
@@ -254,7 +254,7 @@ class WebuiController < ApplicationController
     Project.connection.execute(projects.to_sql).each do |id, name, title|
       ret[name] = {title: title, important: important[id] ? true : false}
     end
-    render text: Yajl::Encoder.encode(ret), content_type: "application/json"
+    render text: JSON.fast_generate(ret), content_type: "application/json"
   end
 
   def owner
