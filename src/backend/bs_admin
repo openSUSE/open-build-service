@@ -57,6 +57,7 @@ my $projectsdir = "$BSConfig::bsdir/projects";
 my $srcrepdir = "$BSConfig::bsdir/sources";
 my $treesdir = $nosharedtrees ? "$BSConfig::bsdir/trees" : $srcrepdir;
 my $sourcedb = "$BSConfig::bsdir/db/source";
+my $logdir = "$BSConfig::logdir";
 
 
 sub echo_help {
@@ -130,6 +131,9 @@ Note: the --update-*-db calls are usually only needed when corrupt data has been
 
  --update-request-db
    Updates the index for all requests.
+
+ --remove-old-sources <days> <y>
+   remove sources older than <x> days, but keep <y> number of revisions
 
 Debug Options
 =============
@@ -788,6 +792,171 @@ while (@ARGV) {
     $ufc->{'update'} = [];
     push @{$ufc->{"update"}}, $updateinfo;
     writexml("$id/.updateinfo.xml", "$id/updateinfo.xml", $ufc, $BSXML::updateinfo);
+  } elsif ($arg eq "--remove-old-sources" ) {
+    die("ERROR: need age (in days) and count of revisions to keep as argument!\n") if @ARGV < 2;
+    my $days = shift @ARGV;
+    my $min_revs = shift @ARGV;
+
+    my $mastertimestamp = time - $days*60*60*24;
+    my %deletehashes; #key: hash value: @files
+    my %keephashes;
+    my @revfiles;
+    my %treesfiles;
+
+    # get all .rev files and fill hashes with files to delete or not do delete
+    my @projectdirs;
+    opendir(D, $projectsdir) || die ($!);
+      foreach my $prjdir (readdir(D)) {
+        next if $prjdir =~ /^\.{1,2}$/;
+        if ( -d $projectsdir.'/'.$prjdir ) {
+          opendir(E, $projectsdir.'/'.$prjdir) || die($!);
+            foreach my $file (readdir(E)) {
+              next if $file =~ /_project\.rev/;
+              if ( $file =~ /\.rev$/ ) {
+                push @revfiles, "$projectsdir/$prjdir/$file";
+                open(F, '<', $projectsdir.'/'.$prjdir.'/'.$file) || die($!);
+                  my @lines = <F>;
+                close(F);
+
+                my @keeplines;
+                if (scalar(@lines) < $min_revs+1) {
+                  @keeplines = splice(@lines, -scalar(@lines));
+                } elsif ( $min_revs != 0 ) {
+                  @keeplines = splice(@lines, -$min_revs);
+                }
+                # remove lines to keep from normal timestamp checking and put them directly into hash with 
+
+                foreach my $line (@keeplines) {
+                  my ($hash, $time) = ( split(/\|/, $line))[2,4];
+                  push @{$keephashes{$hash}}, { project => $prjdir, file => $projectsdir.'/'.$prjdir.'/'.$file };
+                }
+
+                foreach my $line (@lines) {
+                  my ($hash, $time) = ( split(/\|/, $line) )[2,4];
+                  if ( $time < $mastertimestamp ) {
+                    push @{$deletehashes{$hash}},  { project => $prjdir, file => $projectsdir.'/'.$prjdir.'/'.$file };
+                  } else {
+                    push @{$keephashes{$hash}}, { project => $prjdir, file => $projectsdir.'/'.$prjdir.'/'.$file };
+                  }
+                }
+              }
+            }
+          closedir(E);
+        }
+    }
+    closedir(D);
+
+    # get all files from treesdir
+    opendir(D, $treesdir) || die($!);
+    foreach my $prjdir (readdir(D)) {
+      next if $prjdir =~ /^\.{1,2}$/;
+      if ( -d $treesdir.'/'.$prjdir ) {
+        opendir(E, $treesdir.'/'.$prjdir) || die($!);
+        foreach my $package (readdir(E)) {
+          next if $package =~ /^\.{1,2}$/;
+          next if $package =~ /_project/;
+
+          if ( -d $treesdir.'/'.$prjdir.'/'.$package ) {
+            opendir(F,$treesdir.'/'.$prjdir.'/'.$package) || die($!);
+            foreach my $file (readdir(F)) {
+              if ( $file =~ /(.+)-MD5SUMS$/ ) {
+                my $MD5SUM = $1;
+                $treesfiles{$MD5SUM} = $treesdir.'/'.$prjdir.'/'.$package.'/'.$file if $file =~ /-MD5SUMS$/;
+              }
+            }
+            closedir(F);
+          }
+        }
+        closedir(E);
+      }
+    }
+    closedir(D);
+
+    # get all dir names in srcrepdir
+    # fetch all filenames in subdirectories
+    my %sourcefiles;
+    opendir(D, $srcrepdir) || die($!);
+    foreach my $dir (readdir(D)) {
+      next if $dir =~ /^\.{1,2}$/;
+      if ( -d $srcrepdir.'/'.$dir ) {
+        opendir(E, $srcrepdir.'/'.$dir) || die($!);
+        foreach my $file (readdir(E)) {
+          next if $file =~ /^\.{1,2}$/;
+          $sourcefiles{$file} = "$srcrepdir/$dir/$file";
+        }
+        closedir(E);
+      }
+    }
+    closedir(D);
+
+    my @keepfiles;
+    # look if keephashes contains links to revision that would get deleted
+    foreach my $file (keys %keephashes) {
+      open(F, '<', $treesfiles{$file}) || die($!);
+        while (<F>) {
+# not only for links..
+          my ($hash, $desc) = split(/\s+/, $_);
+          if ( /_link/ ) {
+            my ($hash, $desc) = split(/\s+/, $_);
+            # open link file to look if it links to a file that will be deleted
+            my $link = readxml($sourcefiles{$hash.'-'.$desc}, $BSXML::link);
+            my $revision = getrev($link->{"project"}, $link->{"package"}, $link->{"rev"});
+            next if !defined($revision->{"time"});
+            if ($revision->{"time"} < $mastertimestamp) {
+              # delete the hash with the link to be able to rewrite .rev files
+              delete ($deletehashes{$revision->{"srcmd5"}});
+              open(F, '<', $treesfiles{$revision->{"srcmd5"}}) or die($!);
+                foreach my $line (<F>) {
+                  push @keepfiles, $hash."-".$desc;
+                }
+              close(F);
+            }
+          } else {
+            push @keepfiles, $hash."-".$desc;
+          }
+        }
+      close(F);
+    }
+
+    if (keys(%deletehashes) == 0) {
+      print "nothing to delete\n";
+    } else {
+
+      # delete files!
+      foreach my $f (keys %sourcefiles) {
+        next if scalar(grep(/$f/, @keepfiles));
+        if ( -e $sourcefiles{$f} ) {
+          unlink $sourcefiles{$f};
+        }
+      }
+
+      my $deleted = 0;
+      # also delete files from treesdir
+      foreach my $tfile (keys %deletehashes) {
+        if (-e $treesfiles{$tfile}) {
+          unlink $treesfiles{$tfile};
+          $deleted++;
+        }
+      }
+
+      ## write new rev files
+      foreach my $revfile (@revfiles) {
+        my @revfile;
+        open(F, '<', $revfile) or die($!);
+        foreach my $line (<F>) {
+          my ($hash) = ( split(/\|/, $line) )[2];
+          # do not rewrite hashes from %deletehashes, to not overwrite files uploaded as the deletion runs
+          push @revfile, $line if !grep {/$hash/} keys %deletehashes;
+        }
+        close(F);
+        open(F, '>', $revfile) or die($!);
+        print F @revfile;
+        close(F);
+      }
+      print "Deleted ", $deleted, ".\n";
+    }
+    # some checking needed to reread everything?
+
   } else {
     echo_help();
     exit(1)
