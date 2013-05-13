@@ -263,7 +263,8 @@ OBSApi::Application.routes.draw do
 
     ### /lastevents
 
-    match '/lastevents' => 'public#lastevents'
+    match '/lastevents' => 'public#lastevents', via: :get
+    match '/lastevents' => 'source#lastevents', via: :post
 
     ### /distributions
 
