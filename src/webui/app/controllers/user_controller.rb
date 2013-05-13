@@ -112,8 +112,8 @@ class UserController < ApplicationController
   end
 
   def save_dialog
-    check_ajax
     @roles = Role.global_roles
+    render_dialog
   end
 
   def overwrite_user
@@ -153,7 +153,7 @@ class UserController < ApplicationController
   end
 
   def password_dialog
-    check_ajax
+    render_dialog
   end
 
   def change_password

@@ -261,7 +261,7 @@ class PatchinfoController < ApplicationController
   end
 
   def delete_dialog
-    check_ajax
+    render_dialog
   end
 
   def valid_summary? name

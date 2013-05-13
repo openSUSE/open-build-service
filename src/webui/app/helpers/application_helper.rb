@@ -53,6 +53,8 @@ end
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
   
+  include ActionView::Helpers::JavaScriptHelper
+
   def logged_in?
     !session[:login].nil?
   end
@@ -446,6 +448,16 @@ module ApplicationHelper
     else
       linktext
     end
+  end
+
+  def remove_dialog_tag(text)
+    link_to(text, "#", title: 'Remove Dialog', id: 'remove_dialog')
+  end
+   
+  def render_dialog
+    check_ajax 
+    @dialog_html = escape_javascript( render_to_string(partial: @current_action.to_s) )
+    render partial: 'dialog', content_type: 'application/javascript'
   end
 
 end

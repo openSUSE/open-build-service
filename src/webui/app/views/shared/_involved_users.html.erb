@@ -43,7 +43,7 @@
                 <% mail_to += '/' + @package.name if defined? @package %>
                 <%= link_to(image_tag('email.png', :alt => "Send mail", :title => "Send mail to user"), mail_to) %>
                 <% if user_is_maintainer %>
-                  <%= link_to image_tag('user_delete.png', :alt => "Remove", :title => "Remove user"), {:action => "remove_role", :project => @project, :package => @package, :userid => user.login }, {:confirm => "Really remove '#{user.login}'?", :method => :post, class: 'remove-user'}%>
+			<%= link_to image_tag('user_delete.png', :alt => "Remove", :title => "Remove user"), {:action => "remove_role", :project => @project, :package => @package, :userid => user.login }, { data: {confirm: "Really remove '#{user.login}'?"}, :method => :post, class: 'remove-user'}%>
                 <% end %>
               <% end %>
             </td>
@@ -90,7 +90,7 @@
             <% end %>
             <% if user_is_maintainer %>
               <td>
-                <%= link_to image_tag('group_delete.png', :alt => "Remove", :title => "Remove group"), {:action => "remove_role", :project => @project, :package => @package, :groupid => group}, {:confirm => "Really remove '#{group}'?", :method => :post}%>
+		      <%= link_to image_tag('group_delete.png', :alt => "Remove", :title => "Remove group"), {:action => "remove_role", :project => @project, :package => @package, :groupid => group}, { data: {confirm: "Really remove '#{group}'?"}, :method => :post}%>
               </td>
             <% end %>
           </tr>

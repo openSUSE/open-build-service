@@ -196,7 +196,9 @@ class ProjectController < ApplicationController
   def incident_request_dialog
     #TODO: Currently no way to find out where to send until the project 'maintained' relationship
     #      is really used. The API will find out magically here though.
+    render_dialog
   end
+
   def new_incident_request
     begin
       req = BsRequest.new(:project => params[:project], :type => "maintenance_incident", :description => params[:description])
@@ -210,7 +212,9 @@ class ProjectController < ApplicationController
   end
 
   def release_request_dialog
+    render_dialog
   end
+
   def new_release_request
     if params[:skiprequest]
       # FIXME2.3: do it directly here, api function missing
@@ -283,11 +287,11 @@ class ProjectController < ApplicationController
 
   def linking_projects
     # TODO: remove this ajax call and replace it with a jquery dialog
-    render :text => '<no_ajax/>', :status => 400 and return if not request.xhr?
     Rails.cache.delete("%s_linking_projects" % @project.name) if discard_cache?
     @linking_projects = Rails.cache.fetch("%s_linking_projects" % @project.name, :expires_in => 30.minutes) do
        @project.linking_projects
     end
+    render_dialog
   end
 
   # TODO we need the architectures in api/distributions
@@ -360,6 +364,7 @@ class ProjectController < ApplicationController
 
   def delete_dialog
     @linking_projects = @project.linking_projects
+    render_dialog
   end
 
   def delete
@@ -711,10 +716,11 @@ class ProjectController < ApplicationController
   end
 
   def remove_target_request_dialog
-    check_ajax
     @project = params[:project]
     @repository = params[:repository]
+    render_dialog
   end
+
   def remove_target_request
     begin
       req = BsRequest.new(:type => "delete", :targetproject => params[:project], :targetrepository => params[:repository], :description => params[:description])
@@ -1396,6 +1402,7 @@ class ProjectController < ApplicationController
 
   def add_maintained_project_dialog
     redirect_back_or_to :action => 'show', :project => @project and return unless @is_maintenance_project
+    render_dialog
   end
 
   def add_maintained_project
@@ -1451,8 +1458,9 @@ class ProjectController < ApplicationController
   end
 
   def unlock_dialog
-    check_ajax
+    render_dialog
   end
+
   def unlock
     begin
       path = "/source/#{CGI.escape(params[:project])}/?cmd=unlock&comment=#{CGI.escape(params[:comment])}"

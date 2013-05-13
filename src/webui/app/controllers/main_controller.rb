@@ -104,7 +104,7 @@ class MainController < ApplicationController
   end
 
   def add_news_dialog
-    check_ajax
+    render_dialog
   end
 
   def add_news
@@ -124,7 +124,7 @@ class MainController < ApplicationController
   end
 
   def delete_message_dialog
-    check_ajax
+    render_dialog
   end
 
   def delete_message

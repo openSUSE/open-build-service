@@ -34,7 +34,7 @@
               <% if @package.can_edit?( @user ) %>
                 <%= link_to image_tag('page_white_delete.png', :alt => "Remove", :title => "Remove File"), {:action => :remove_file, :project => @project,
                   :package => @package, :filename => file[:name]},
-                  {:confirm => "Really remove file '#{file[:name]}'?", :method => :post }%>
+		  {data: { confirm: "Really remove file '#{file[:name]}'?"}, :method => :post }%>
               <% end %>
             <% end %>
           </td>

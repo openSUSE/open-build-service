@@ -74,8 +74,8 @@ class PackageController < ApplicationController
   end
 
   def linking_packages
-    render :text => '<no_ajax/>', :status => 400 and return if not request.xhr?
     set_linking_packages
+    render_dialog
   end
 
   def dependency
@@ -199,14 +199,15 @@ class PackageController < ApplicationController
   end
 
   def submit_request_dialog
-    check_ajax
     if params[:revision]
       @revision = params[:revision]
     else
       @revision = Package.current_rev(@project, @package)
     end
     @cleanup_source = @project.value('name').include?(':branches:') # Rather ugly decision finding...
+    render_dialog
   end
+
   def submit_request
     if params[:targetproject].nil? or params[:targetproject].empty?
       flash[:error] = "Please provide a target for the submit request"
@@ -431,7 +432,7 @@ class PackageController < ApplicationController
   end
 
   def branch_dialog
-    check_ajax
+    render_dialog
   end
 
   def branch
@@ -560,7 +561,7 @@ class PackageController < ApplicationController
   end
 
   def delete_dialog
-    check_ajax
+    render_dialog
   end
 
   def remove

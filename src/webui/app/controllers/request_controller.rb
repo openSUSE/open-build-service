@@ -4,8 +4,8 @@ class RequestController < ApplicationController
   include ApplicationHelper
 
   def add_reviewer_dialog
-    check_ajax
     @request_id = params[:id]
+    render_dialog
   end
 
   def add_reviewer
@@ -184,9 +184,9 @@ class RequestController < ApplicationController
   end
 
   def delete_request_dialog
-    check_ajax
     @project = params[:project]
     @package = params[:package] if params[:package]
+    render_dialog
   end
 
   def delete_request
@@ -204,9 +204,9 @@ class RequestController < ApplicationController
   end
 
   def add_role_request_dialog
-    check_ajax
     @project = params[:project]
     @package = params[:package] if params[:package]
+    render_dialog
   end
 
   def add_role_request
@@ -224,7 +224,7 @@ class RequestController < ApplicationController
   end
 
   def set_bugowner_request_dialog
-    check_ajax
+    render_dialog
   end
 
   def set_bugowner_request
@@ -249,7 +249,6 @@ class RequestController < ApplicationController
   end
 
   def change_devel_request_dialog
-    check_ajax
     required_parameters :package, :project
     @project = find_cached(Project, params[:project])
     @package = find_cached(Package, params[:package], :project => params[:project]) 
@@ -257,6 +256,7 @@ class RequestController < ApplicationController
       @current_devel_package = @package.devel.value('package') || @package.value('name')
       @current_devel_project = @package.devel.value('project')
     end
+    render_dialog
   end
 
   def change_devel_request
@@ -273,8 +273,9 @@ class RequestController < ApplicationController
   end
 
   def set_incident_dialog
-    check_ajax
+    render_dialog
   end
+
   def set_incident
     check_ajax
     begin
