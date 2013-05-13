@@ -4954,6 +4954,7 @@ sub checkaggregate {
   my @blocked;
   my $prpfinished = $ctx->{'prpfinished'};
   my $delayed;
+  my %gbininfos;
   for my $aggregate (@$aggregates) {
     my $aprojid = $aggregate->{'project'};
     my $proj = $remoteprojs{$aprojid} || $projpacks->{$aprojid};
@@ -4997,16 +4998,26 @@ sub checkaggregate {
       }
       $ps = ($ps || {})->{'packstatus'} || {};
 
+      # for remote projects we always need the gbininfo
+      if ($remoteprojs{$aprojid}) {
+	my $gbininfo = read_gbininfo_remote($ctx, "$aprp/$myarch", $remoteprojs{$aprojid}, $ps);
+	$gbininfos{"$aprp/$myarch"} = $gbininfo;
+	if (!$gbininfo) {
+	  $delayed = 1 if defined $gbininfo;
+	  push @broken, $aprp;
+	  next;
+	}
+      }
+
       if (!$aggregate->{'package'}) {
         # calculate apackids using the gbininfo file
         my $gbininfo;
         if ($remoteprojs{$aprojid}) {
-          $gbininfo = read_gbininfo_remote($ctx, "$aprp/$myarch", $remoteprojs{$aprojid}, $ps);
+          $gbininfo = $gbininfos{"$aprp/$myarch"};
         } else {
           $gbininfo = read_gbininfo("$reporoot/$aprp/$myarch");
         }
 	if (!$gbininfo) {
-	  $delayed = 1 if defined $gbininfo;
 	  push @broken, $aprp;
 	  next;
 	}
@@ -5019,6 +5030,7 @@ sub checkaggregate {
 	}
 	@apackids = unify(sort(@apackids));
       }
+
       for my $apackid (@apackids) {
 	my $code = $ps->{$apackid} || 'unknown';
 	if ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished') {
@@ -5042,7 +5054,6 @@ sub checkaggregate {
     return ('blocked', join(', ', @blocked));
   }
   my @new_meta;
-  my $error;
   for my $aggregate (@$aggregates) {
     my $aprojid = $aggregate->{'project'};
     my @apackids = @{$aggregate->{'package'} || []};
@@ -5056,25 +5067,10 @@ sub checkaggregate {
       for my $apackid (@apackids) {
 	my $m = '';
         if ($remoteprojs{$aprojid}) {
-	  print "    fetching remote binary data for $aprojid/$arepoid/$myarch/$apackid\n";
-	  my $param = {
-	    'uri' => "$remoteprojs{$aprojid}->{'remoteurl'}/build/$remoteprojs{$aprojid}->{'remoteproject'}/$arepoid/$myarch/$apackid",
-	    'timeout' => 20,
-	    'proxy' => $proxy,
-	  };
-	  my $binarylist;
-	  eval {
-	    $binarylist = BSRPC::rpc($param, $BSXML::binarylist);
-	  };
-	  if ($@) {
-	    warn($@);
-	    $error = $@;
-	    $error =~ s/\n$//s;
-	    addretryevent({'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if $error !~ /remote error:/;
-	    last;
-	  }
-	  for my $binary (@{$binarylist->{'binary'} || []}) {
-	    $m .= "$binary->{'filename'}\0$binary->{'mtime'}/$binary->{'size'}/0\0";
+	  my $bininfo = ($gbininfos{"$aprojid/$arepoid/$myarch"} || {})->{$apackid} || {};
+	  for my $b (values %$bininfo) {
+	    next unless $b->{'filename'} && ($b->{'filename'} eq 'updateinfo.xml' || $b->{'filename'} =~ /\.(?:$binsufsre)$/);
+	    $m .= $b->{'hdrmd5'} || $b->{'md5sum'} || '';
 	  }
 	} else {
 	  next if $aprojid eq $projid && $arepoid eq $repoid && $apackid eq $packid;
@@ -5089,15 +5085,7 @@ sub checkaggregate {
 	$m = Digest::MD5::md5_hex($m)."  $aprojid/$arepoid/$myarch/$apackid";
 	push @new_meta, $m;
       }
-      last if $error;
     }
-    last if $error;
-  }
-  if ($error) {
-    # leave old rpms
-    print "      - $packid (aggregate)\n";
-    print "        $error\n";
-    return ('done');
   }
   my @meta;
   if (open(F, '<', "$reporoot/$projid/$repoid/$myarch/:meta/$packid")) {
