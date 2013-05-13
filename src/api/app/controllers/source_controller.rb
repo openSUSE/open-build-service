@@ -1146,6 +1146,16 @@ class SourceController < ApplicationController
     end
   end
 
+  # GET /lastevents
+  def lastevents
+    if not request.query_string.blank?
+      path += "?#{request.query_string}"
+    elsif not request.env["rack.request.form_vars"].blank?
+      path += "?#{request.env["rack.request.form_vars"]}"
+    end
+    pass_to_backend path
+  end
+
   private
 
   # POST /source?cmd=createmaintenanceincident

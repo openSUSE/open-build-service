@@ -59,12 +59,16 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
   def test_lastevents
     # very old route
     get "/lastevents"
-    assert_response :success
+    assert_response 401
     # old method
     get "/public/lastevents"
     assert_response :success
     # new method (OBS 2.3)
     post "/public/lastevents", nil
+    assert_response :success
+    # new method (OBS 2.3) using credentials
+    prepare_request_with_user "tom", "thunder"
+    post "/lastevents", nil
     assert_response :success
   end
 
