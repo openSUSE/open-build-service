@@ -26,7 +26,7 @@ group :test do
   gem 'database_cleaner'
   gem 'ci_reporter'
   gem 'simplecov-rcov', :require => false
-  gem 'minitest'
+  gem 'minitest', '< 5.0'
   gem 'minitest-colorize'
   gem 'faker'
   gem 'timecop'

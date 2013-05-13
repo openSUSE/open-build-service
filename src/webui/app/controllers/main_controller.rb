@@ -1,5 +1,7 @@
 class MainController < ApplicationController
 
+  include ApplicationHelper
+
   before_filter :require_admin, only: [:delete_message]
 
   def index
