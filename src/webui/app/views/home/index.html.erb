@@ -22,17 +22,20 @@
     </p>
     <% if not @displayed_user.groups.empty? %>
     <h6>Member of</h6>
-      <p>
+      <ul>
       <% @displayed_user.groups.each do |group| %>
-        <%= link_to(group, :controller => 'group', :action => 'show', :group => group) %>
+        <li><%= link_to(group, :controller => 'group', :action => 'show', :group => group) %></li>
       <% end %>
-     </p>
     <% end %>
     <% if @displayed_user.globalrole && !@displayed_user.globalrole.to_s.empty? %>
       <% if @displayed_user.groups.empty? %>
       <h6>Member of</h6>
+      <ul>
       <% end %>
-       <p><%= @displayed_user.globalrole %></p>
+        <% @displayed_user.globalrole.each do |role| %>
+          <li><%= role %></li>
+        <% end %>
+      </ul>
     <% end %>
   <!-- roles -->
     <% if @user and @displayed_user.to_s == @user.login %>
@@ -44,7 +47,7 @@
       <% else %>
         <%= link_to(sprite_tag('user_edit') + " Edit your account", { :controller => "user", :action => "save_dialog", :user => @user }, {:id => 'save_dialog', :remote => true}) %><br />
       <% end %>
-      <% if CONFIG['change_passwd'].to_s == 'on' %>
+      <% if CONFIG['change_passwd'] == :on and CONFIG['proxy_auth_mode'] != :on %>
         <%= link_to(sprite_tag('key') + " Change your password", { :controller => "user", :action => "password_dialog", :user => @user }, {:id => 'password_dialog', :remote => true}) %><br />
       <% end %>
       </p>
