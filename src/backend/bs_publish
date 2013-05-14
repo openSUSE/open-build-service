@@ -30,6 +30,7 @@ BEGIN {
 
 use Digest;
 use Digest::MD5 ();
+use Digest::SHA ();
 use XML::Structured ':bytes';
 use POSIX;
 use Fcntl qw(:DEFAULT :flock);
@@ -559,6 +560,8 @@ sub createrepo_debian {
   my $str = <<"EOL";
 Origin: Open Build Service $projid $repoid
 Label: $repoinfo->{'title'}
+Suite: $projid
+Codename: $projid
 Version: 0.00
 Date: $date
 Description: Open Build Service $projid $repoid
@@ -569,17 +572,27 @@ EOL
   print OUT $str;
   close(OUT) || die("close: $!\n");
 
+  my $sha1sums = "SHA1:\n";
+  my $sha256sums = "SHA256:\n";
+
   open(OUT,">>$extrep/Release") || die("$extrep/Release: $!\n");
-  foreach my $f ( "Release", "Packages", "Packages.gz", "Sources", "Sources.gz" ) {
+  foreach my $f ( "Packages", "Packages.gz", "Sources", "Sources.gz" ) {
   
     open(FILE,"<$extrep/$f") || die;
     my @all = <FILE>;
     close(FILE);
-    my $md5  = Digest::MD5::md5_hex(join("",@all));
+    my $data = join("",@all);
+    my $md5  = Digest::MD5::md5_hex($data);
     my $size = (stat("$extrep/$f"))[7];
     print OUT " $md5 $size $f\n";
-  
+    my $sha1  = Digest::SHA::sha1_hex($data);
+    $sha1sums .= " $sha1 $size $f\n";
+    my $sha256  = Digest::SHA::sha256_hex($data);
+    $sha256sums .= " $sha256 $size $f\n";
   }
+  print OUT $sha1sums;
+  print OUT $sha256sums;
+
   close(OUT) || die("close: $!\n");
 
   # re-sign changed Release file
