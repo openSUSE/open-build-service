@@ -6008,6 +6008,7 @@ sub event_scanprjbinaries {
     unlink("$reporoot/$prp/$myarch/:bininfo.merge");
     print "reading project binary state of repository $projid/$repoid\n";
     read_gbininfo("$reporoot/$prp/$myarch");
+    $changed_high->{$prp} = 1;
   }
 }
 
