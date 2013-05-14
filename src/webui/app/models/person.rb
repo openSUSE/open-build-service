@@ -69,7 +69,11 @@ class Person < ActiveXML::Node
   end
   
   def globalrole
-    self.to_hash["globalrole"]
+    roles = Array.new
+    to_hash.elements("globalrole").each do |role|
+      roles << role
+    end
+    roles if roles.length > 0
   end
 
   def to_str

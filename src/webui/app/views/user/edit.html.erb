@@ -18,11 +18,13 @@
     </p>
     <p>
     <% @roles.each do |r| %>
-      <%= label_tag "globalrole_#{r}", "#{r}" %>
-      <% if r.to_s == @displayed_user.globalrole.to_s %>
-        <% select = true %>
+      <% if @displayed_user.globalrole %>
+        <%= label_tag "globalrole_#{r}", "#{r}" %>
+        <% if @displayed_user.globalrole.include?(r) %>
+          <% select = true %>
+        <% end %>
+        <%= radio_button_tag :globalrole, r, select %>
       <% end %>
-      <%= radio_button_tag :globalrole, r, select %>
     <% end %>
     </p>
     <p>
