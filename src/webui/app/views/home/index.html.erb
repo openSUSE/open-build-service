@@ -4,9 +4,9 @@
 
 <!-- user -->
 <div class="grid_4 alpha box box-shadow" id="userinfo">
-  <!-- avatar -->
+<!-- avatar -->
   <%= user_icon(@displayed_user.login, 200, 'home-avatar') if @displayed_user.email %>
-  <!-- info -->
+<!-- info -->
     <h1>
     <span id="home-realname">
     <% if @displayed_user.realname && !@displayed_user.realname.to_s.empty? %>
@@ -15,29 +15,31 @@
     </span>
     <span id="home-username"><%= @displayed_user.login if @displayed_user.login %></span>
     </h1>
+<!-- mail -->
     <p>
     <% mail_to = 'mailto:' + @displayed_user.email %>
     <%= link_to(image_tag('email.png', :alt => "Send mail", :title => "Send mail to user"), mail_to) %>
     <%= mail_to(@displayed_user.email, nil, :title => "Send mail to user") %>
     </p>
+<!--  groups -->
     <% if not @displayed_user.groups.empty? %>
-    <h6>Member of</h6>
-      <ul>
+    <p>Member of the group</p>
+    <ul>
       <% @displayed_user.groups.each do |group| %>
         <li><%= link_to(group, :controller => 'group', :action => 'show', :group => group) %></li>
       <% end %>
+    </ul>
     <% end %>
-    <% if @displayed_user.globalrole && !@displayed_user.globalrole.to_s.empty? %>
-      <% if @displayed_user.groups.empty? %>
-      <h6>Member of</h6>
+<!-- roles -->
+    <% if @displayed_user.globalrole %>
+      <p>Has the role</p>
       <ul>
-      <% end %>
-        <% @displayed_user.globalrole.each do |role| %>
+      <% @displayed_user.globalrole.each do |role| %>
           <li><%= role %></li>
         <% end %>
       </ul>
     <% end %>
-  <!-- roles -->
+<!-- edit -->
     <% if @user and @displayed_user.to_s == @user.login %>
       <p>
       <% if CONFIG['proxy_auth_mode'] == :on %>
