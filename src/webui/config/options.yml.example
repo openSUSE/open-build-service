@@ -32,7 +32,7 @@ theme: neutral
 #use_lighttpd_x_rewrite: true
 
 # Show option to change password (not possible if passwords are controlled by proxy)
-#change_passwd: on
+change_passwd: :on
 
 # if your users access the hosts through a proxy (or just a different name, use this to
 # overwrite the settings for users)
