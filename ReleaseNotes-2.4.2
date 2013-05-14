@@ -18,12 +18,22 @@ Changes:
 
 * build: vminit can now be installed for multiple architectures in parallel on
          OBS server.
+* build: debian builds call linitian now if installed
+* build: Arch Linux: support new pacman tool syntax
+* build: support kiwi installation medias with new kiwi versions
 * api: Interconnect supports to use credentials as part of the remoteurl.
        Note: the url must not use /public suffix in that case
+* webui: change password is allowed by default in config file now
+* webui: Disable browser autocomplete on sign up form
 
 Bugfixes:
 =========
 
 * build: fixed regression using build host rpm instead of the version from chroot
+* build: fixed repository priority ordering, when only some repos have a priority
+         and kiwi appliances get build
+* build: support kiwi appliances using multiple <packages> sections in config file
+* build: rpm packages get installed again without fsync which speeds up the installation
 * backend: fixed binary rpm cache handling for image building via interconnect
+* webui: fixed change password dialog
 
