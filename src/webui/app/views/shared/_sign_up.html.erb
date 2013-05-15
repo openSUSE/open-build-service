@@ -5,7 +5,7 @@
     <p><%= link_to "Sign Up", "#{CONFIG['proxy_auth_register_page']}" %></p>
   <% end %>
 <% else %>
-  <%= form_tag({:controller => 'user', :action => 'register', :method => :post}, { :class => 'sign-up' }) do %>
+  <%= form_tag({:controller => 'user', :action => 'register', :method => :post}, { :class => 'sign-up', :autocomplete => 'off' }) do %>
     <p>
       <%= text_field_tag 'login', nil, :placeholder => 'Username', :autocomplete => 'off' %><br/>
       <%= text_field_tag 'email', nil, :placeholder => 'Email address', :autocomplete => 'off' %><br/>
