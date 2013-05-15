@@ -48,6 +48,8 @@ rc_reset
 case "$1" in
 	start)
 		echo -n "Initializing obssigner"
+		mkdir -p "$rundir" "$logdir"
+		chown obsrun:obsrun "$logdir" "$rundir"
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
 		startproc -l "$logdir"/signer.log \
