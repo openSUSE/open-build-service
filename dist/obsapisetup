@@ -50,7 +50,7 @@ backenddir="$OBS_BASE_DIR"
 fi
 
 FQHOSTNAME=`hostname -f `
-if type ec2-public-hostname; then
+if type -p ec2-public-hostname; then
   FQHOSTNAME=`ec2-public-hostname`
 fi
 
