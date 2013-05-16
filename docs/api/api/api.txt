@@ -30,7 +30,7 @@ XmlResult: about
 
 Host api.opensuse.org
 
-GET /architecture
+GET /architectures
 
   Get the list of available architectures
 
@@ -38,25 +38,25 @@ XmlResult: directory
 
 <name>: Architecture name
 
-GET /architecture/<name>
+GET /architectures/<name>
 
   Read architecture data.
 
 XmlResult: architecture
 
-PUT /architecture/<name>
+PUT /architectures/<name>
 
   Update architecture data.
 
 XmlResult: status
 
-POST /architecture/<name>
+POST /architectures/<name>
 
   Create new architecture.
 
 XmlResult: status
 
-DELETE /architecture/<name>
+DELETE /architectures/<name>
 
   Delete architecture.
 
