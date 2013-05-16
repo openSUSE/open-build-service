@@ -33,7 +33,8 @@ module ActionView
       @@icon_cache[_source] = source
     end
 
-    def compute_asset_host(source)
+    # TODO try to port this
+    def compute_asset_host_TODO(source)
       if CONFIG['use_static'] 
         if ActionController::Base.relative_url_root
           source = source.slice(ActionController::Base.relative_url_root.length..-1)
