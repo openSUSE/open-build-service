@@ -2,6 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 require 'benchmark'
 require 'nokogiri'
+require 'home_controller'
 
 class SpiderTest < ActionDispatch::IntegrationTest
 
@@ -62,6 +63,7 @@ class SpiderTest < ActionDispatch::IntegrationTest
     return if url.end_with? "/project/edit?project=RemoteInstance"
     return if url.end_with? "/project/meta?project=HiddenRemoteInstance"
     return if url.end_with? "/project/show?project=HiddenRemoteInstance"
+    return if url.end_with? "/project/edit?project=HiddenRemoteInstance"
 
     $stderr.puts "Found #{message} on #{url}, crawling path"
     indent = ' '

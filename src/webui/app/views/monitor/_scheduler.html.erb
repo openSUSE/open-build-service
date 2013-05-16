@@ -7,7 +7,7 @@
           <strong><%= sched["arch"] %></strong>: <%= sched["state"] %>
           <% if sched.has_key? "starttime" -%>
             <% start_time = Time.at(sched["starttime"].to_i) -%>
-            for <%= distance_of_time_in_words(@time_now, start_time, true) %> (last restart: <%= start_time.iso8601 %>)
+            for <%= distance_of_time_in_words(@time_now, start_time, include_seconds: true) %> (last restart: <%= start_time.iso8601 %>)
           <% end -%>
         </li>
       <% end -%>

@@ -43,8 +43,7 @@ class AttributeController < ApplicationController
       @attributes.save
       redirect_to opt, notice: "Attribute sucessfully added!"
     rescue ActiveXML::Transport::Error => e
-      flash[:error] = "Saving attribute failed: #{e.summary}"
-      redirect_to opt
+      redirect_to opt, error: "Saving attribute failed: #{e.summary}"
     end
   end
 

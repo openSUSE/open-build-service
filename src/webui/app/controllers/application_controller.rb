@@ -17,6 +17,8 @@ class ApplicationController < ActionController::Base
   if Rails.env.test?
      prepend_before_filter :start_test_api
   end
+  # :notice and :alert are default, we add :success and :error
+  add_flash_types :success, :error
 
   # FIXME: This belongs into the user controller my dear.
   # Also it would be better, but also more complicated, to just raise

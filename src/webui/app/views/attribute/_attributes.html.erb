@@ -23,7 +23,7 @@
             <%= link_to(image_tag('note_edit.png', :alt => 'Edit values', :title => 'Edit values'), { :controller => 'attribute', :action => 'edit', :project => @project.name, :package => @package, :namespace => attribute.namespace, :name => attribute.name }, class: 'edit-values') %>
             <%= button_to('Delete attribute',
               {:controller => 'attribute', :action => 'delete', :project => @project.name, :package => @package, :namespace => attribute.namespace, :name => attribute.name},
-              {confirm: "Really remove attribute '#{attribute.namespace}:#{attribute.name}'?", method: :delete, class: 'delete-attribute'}) %>
+	      {data: { confirm: "Really remove attribute '#{attribute.namespace}:#{attribute.name}'?"}, method: :delete, class: 'delete-attribute'}) %>
           </td>
        <% end %>
         </tr>
