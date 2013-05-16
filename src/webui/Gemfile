@@ -10,10 +10,11 @@ group :assets do
   gem 'cssmin', '>= 1.0.2'
   gem 'uglifier', '>= 1.2.2'
   gem 'sass-rails'
-  gem 'compass-rails'
   gem 'jquery-datatables-rails'
   gem 'codemirror-rails', '>= 3.0'
   gem 'rails_tokeninput', '>= 1.6.1.rc1'
+  gem 'sprite-factory', '>= 1.5.2'
+  gem 'chunky_png'
 end
 
 group :development do

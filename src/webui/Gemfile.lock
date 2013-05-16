@@ -52,12 +52,6 @@ GEM
     codemirror-rails (3.12)
       railties (~> 3.0)
     coderay (1.0.9)
-    compass (0.12.2)
-      chunky_png (~> 1.2)
-      fssm (>= 0.2.7)
-      sass (~> 3.1)
-    compass-rails (1.0.3)
-      compass (>= 0.12.2, < 0.14)
     cssmin (1.0.3)
     dalli (2.6.3)
     delayed_job (3.0.5)
@@ -72,7 +66,6 @@ GEM
       i18n (~> 0.5)
     fast_xs (0.8.0)
     ffi (1.8.1)
-    fssm (0.2.10)
     headless (1.0.1)
     hike (1.2.2)
     hoptoad_notifier (2.4.11)
@@ -156,6 +149,7 @@ GEM
     simplecov-rcov (0.2.3)
       simplecov (>= 0.4.1)
     slop (3.4.4)
+    sprite-factory (1.5.3)
     sprockets (2.2.2)
       hike (~> 1.2)
       multi_json (~> 1.0)
@@ -184,9 +178,9 @@ DEPENDENCIES
   capybara (~> 2.0.1)
   capybara-webkit
   capybara_minitest_spec
+  chunky_png
   ci_reporter
   codemirror-rails (>= 3.0)
-  compass-rails
   cssmin (>= 1.0.2)
   dalli
   delayed_job (> 3.0)
@@ -214,6 +208,7 @@ DEPENDENCIES
   rdoc
   sass-rails
   simplecov-rcov
+  sprite-factory (>= 1.5.2)
   sqlite3
   uglifier (>= 1.2.2)
   xmlhash (>= 1.3.2)

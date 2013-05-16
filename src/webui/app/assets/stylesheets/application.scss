@@ -12,11 +12,11 @@
  *= require token-input
  *= require token-input-facebook
 */
-@import "compass";
 @import "bento/reset";
 @import "bento/960";
 @import "bento/base";
 
+@import "icons";
 @import "style";
 @import "monitor";
 @import "package";
