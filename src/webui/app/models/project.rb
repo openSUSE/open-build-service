@@ -66,7 +66,7 @@ class Project < ActiveXML::Node
     def remove_path(path)
       return nil unless paths.include? path
       project, repository = path.split("/")
-      delete_element "//path[@project='#{project.to_xs}' and @repository='#{repository.to_xs}']"
+      delete_element "//path[@project='#{::Builder::XChar.encode(project)}' and @repository='#{::Builder::XChar.encode(repository)}']"
       @paths.delete path
     end
 

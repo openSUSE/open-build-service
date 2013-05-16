@@ -19,7 +19,7 @@ class UserController < ApplicationController
     else
       redirect_to '/'
     end
-    Person.free_cache session
+    Person.free_cache session[:login]
   end
 
   def login

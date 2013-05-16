@@ -64,7 +64,6 @@ GEM
       multi_json (~> 1.0)
     faker (1.1.2)
       i18n (~> 0.5)
-    fast_xs (0.8.0)
     ffi (1.8.1)
     headless (1.0.1)
     hike (1.2.2)
@@ -186,7 +185,6 @@ DEPENDENCIES
   delayed_job (> 3.0)
   delayed_job_active_record
   faker
-  fast_xs
   headless
   hoptoad_notifier (~> 2.3)
   i18n (= 0.6.1)

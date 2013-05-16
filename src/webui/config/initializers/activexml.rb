@@ -18,8 +18,11 @@ class DetailsLogger
     d.each do |key,value|
       key = "api-#{key}"
       if value
-        @summary[key] ||= 0
-	@summary[key] += value
+	if @summary[key].nil?
+          @summary[key] = value
+	else
+	  @summary[key] += value
+	end
       end
     end
   end

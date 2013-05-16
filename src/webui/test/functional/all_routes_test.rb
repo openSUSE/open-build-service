@@ -1,7 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'nokogiri'
 
-class AllRoutesTest < ActionController::IntegrationTest
+class AllRoutesTest < ActionDispatch::IntegrationTest
 
   test "visit all routes" do
     # rake routes | cut -b-40 | sed -e 's,  *,,g' | grep -v '^$' | sed -e 's,^\(.*\),    urls << \1_path,' 

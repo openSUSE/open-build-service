@@ -52,7 +52,6 @@ gem 'hoptoad_notifier', "~> 2.3"
 gem 'json'
 gem 'rdoc'
 gem 'xmlhash', '>=1.3.2'
-gem 'fast_xs'
 gem 'dalli', :require => false
 gem 'jquery-rails'
 gem 'mobileesp_converted'

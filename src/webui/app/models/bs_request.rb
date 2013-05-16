@@ -10,29 +10,29 @@ class BsRequest < ActiveXML::Node
       target_package, target_repository = "", ""
       opt[:description] = "" if !opt.has_key? :description or opt[:description].nil?
       if opt[:targetpackage] and not opt[:targetpackage].empty?
-        target_package = "package=\"#{opt[:targetpackage].to_xs}\""
+        target_package = "package=\"#{::Builder::XChar.encode(opt[:targetpackage])}\""
       end
       if opt[:targetrepository] and not opt[:targetrepository].empty?
-        target_repository = "repository=\"#{opt[:targetrepository].to_xs}\""
+        target_repository = "repository=\"#{::Builder::XChar.encode(opt[:targetrepository])}\""
       end
 
       # set request-specific options
       case opt[:type]
         when "submit" then
           # use source package name if no target package name is given for a submit request
-          target_package = "package=\"#{opt[:package].to_xs}\"" if target_package.empty?
+          target_package = "package=\"#{::Builder::XChar.encode(opt[:package])}\"" if target_package.empty?
           # set target package is the same as the source package if no target package is specified
-          revision_option = "rev=\"#{opt[:rev].to_xs}\"" unless opt[:rev].blank?
+          revision_option = "rev=\"#{::Builder::XChar.encode(opt[:rev])}\"" unless opt[:rev].blank?
           action = "<action type=\"#{opt[:type]}\">"
           action += "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\" #{revision_option}/>"
-          action += "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package}/>"
+          action += "<target project=\"#{::Builder::XChar.encode(opt[:targetproject])}\" #{target_package}/>"
           action += "<options><sourceupdate>#{opt[:sourceupdate]}</sourceupdate></options>" unless opt[:sourceupdate].blank?
           action +="</action>"
         when "add_role" then
           action = "<action type=\"#{opt[:type]}\">"
           action += "<group name=\"#{opt[:group]}\" role=\"#{opt[:role]}\"/>" unless opt[:group].blank?
           action += "<person name=\"#{opt[:person]}\" role=\"#{opt[:role]}\"/>" unless opt[:person].blank?
-          action += "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package}/>"
+          action += "<target project=\"#{::Builder::XChar.encode(opt[:targetproject])}\" #{target_package}/>"
           action +="</action>"
         when "set_bugowner" then
           if opt[:targetproject].class == Array
@@ -46,7 +46,7 @@ class BsRequest < ActiveXML::Node
               if opt[:group]
                 action +="<group name=\"#{opt[:group]}\" role=\"bugowner\"/>"
               end
-              action +="<target project=\"#{project.to_xs}\" package=\"#{package.to_xs}\"/>"
+              action +="<target project=\"#{::Builder::XChar.encode(project)}\" package=\"#{::Builder::XChar.encode(package)}\"/>"
               action +="</action>"
             end
           else
@@ -57,27 +57,27 @@ class BsRequest < ActiveXML::Node
             if opt[:group]
               action += "<group name=\"#{opt[:group]}\" role=\"bugowner\"/>"
             end
-            action += "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package} />"
+            action += "<target project=\"#{::Builder::XChar.encode(opt[:targetproject])}\" #{target_package} />"
             action +="</action>"
           end
         when "change_devel" then
           action = "<action type=\"#{opt[:type]}\">"
           action += "<source project=\"#{opt[:project]}\" package=\"#{opt[:package]}\"/>"
-          action += "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package}/>"
+          action += "<target project=\"#{::Builder::XChar.encode(opt[:targetproject])}\" #{target_package}/>"
           action +="</action>"
         when "maintenance_incident" then
           action = "<action type=\"#{opt[:type]}\">"
           action += "<source project=\"#{opt[:project]}\" />"
-          action += "<target project=\"#{opt[:targetproject].to_xs}\" />" unless opt[:targetproject].blank?
+          action += "<target project=\"#{::Builder::XChar.encode(opt[:targetproject])}\" />" unless opt[:targetproject].blank?
           action +="</action>"
         when "maintenance_release" then
           action = "<action type=\"#{opt[:type]}\">"
           action += "<source project=\"#{opt[:project]}\" />"
-          action += "<target project=\"#{opt[:targetproject].to_xs}\" />" unless opt[:targetproject].blank?
+          action += "<target project=\"#{::Builder::XChar.encode(opt[:targetproject])}\" />" unless opt[:targetproject].blank?
           action +="</action>"
         when "delete" then
           action = "<action type=\"#{opt[:type]}\">"
-          action += "<target project=\"#{opt[:targetproject].to_xs}\" #{target_package} #{target_repository}/>"
+          action += "<target project=\"#{::Builder::XChar.encode(opt[:targetproject])}\" #{target_package} #{target_repository}/>"
           action +="</action>"
       end
       # build the request XML
@@ -85,7 +85,7 @@ class BsRequest < ActiveXML::Node
         <request>
           #{action}
           <state name="new"/>
-          <description>#{opt[:description].to_xs}</description>
+          <description>#{::Builder::XChar.encode(opt[:description])}</description>
         </request>
       EOF
       return reply
