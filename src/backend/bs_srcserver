@@ -746,6 +746,7 @@ sub getrev {
   if ($packid ne '_project' && ! -e "$projectsdir/$projid.pkg/$packid.xml") {
     my $proj = readproj($projid, 1);
     if ($proj && $proj->{'link'}) {
+      my $collect_error;
       $linked ||= [];
       for my $lprojid (map {$_->{'project'}} @{$proj->{'link'}}) {
 	next if $lprojid eq $projid;
@@ -755,7 +756,16 @@ sub getrev {
 	eval {
 	  $lrev = getrev($lprojid, $packid, $rev, $linked, $missingok);
 	};
-	die($@) if $@ && $@ !~ /^404/;
+	next if $collect_error;
+	if ($@ && $@ !~ /^404/) {
+	  if ($collect_remote_getrev && $@ =~ /collect_remote_getrev$/) {
+	    # special case for project links, we don't know if the package exists yet,
+	    # so collect from all link elements
+	    $collect_error = $@;
+	    next;
+	  }
+	  die($@);
+	}
 	if ($lrev) {
 	  # make sure that we may access the sources of this package
 	  checksourceaccess($lprojid, $packid);
@@ -782,6 +792,7 @@ sub getrev {
 	  return $lrev;
 	}
       }
+      die($collect_error) if $collect_error;
     }
     if (defined($rev) && $rev =~ /^[0-9a-f]{32}$/) {
       # getrev by srcmd5. we allow access to packages that were deleted.
