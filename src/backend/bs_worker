@@ -1145,12 +1145,17 @@ sub getbinaries_cache {
     push @args, "arch=$arch";
     my $res;
     $res = trygetbinariesproxy($server, $dir, \@downloadbins, \%bv, @args) if $getbinariesproxy;
-    $res ||= BSRPC::rpc({
-      'uri' => "$server/getbinaries",
-      'directory' => $dir,
-      'timeout' => $gettimeout,
-      'receiver' => \&BSHTTP::cpio_receiver,
-    }, undef, @args, 'binaries='.join(',', @downloadbins));
+    eval {
+      $res ||= BSRPC::rpc({
+	'uri' => "$server/getbinaries",
+	'directory' => $dir,
+	'timeout' => $gettimeout,
+	'receiver' => \&BSHTTP::cpio_receiver,
+      }, undef, @args, 'binaries='.join(',', @downloadbins));
+    };
+    # do not die if a (remote) project does not exist
+    return {} if !@cacheold && $@ && $@ =~ /^404 /;
+    die($@) if $@;
     die("Error\n") unless ref($res) eq 'ARRAY';
     my %havemeta;
     for my $r (@$res) {
