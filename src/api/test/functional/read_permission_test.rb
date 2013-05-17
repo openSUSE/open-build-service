@@ -915,4 +915,42 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_setup_default_project
+    # Create public project
+    prepare_request_with_user "adrian", "so_alone"
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+        '<project name="home:adrian:Project"> <title/> <description/> </project>'
+    assert_response :success
+    get "/source/home:adrian:Project/_meta"
+    assert_response :success
+    assert_no_xml_tag( :tag => "disable", :parent => { :tag => "access" } )
+    delete "/source/home:adrian:Project"
+    assert_response :success
+
+    # Create public project, but api config is changed to make it closed
+    CONFIG['default_access_disabled'] = true
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+        '<project name="home:adrian:Project"> <title/> <description/> </project>'
+    assert_response :success
+    get "/source/home:adrian:Project/_meta"
+    assert_response :success
+    assert_xml_tag( :tag => "disable", :parent => { :tag => "access" } )
+    # enabling access is not allowed in this mode
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+        '<project name="home:adrian:Project"> <title/> <description/> </project>'
+    assert_response 403
+    assert_xml_tag :tag => "status", :attributes => { :code => "change_project_protection_level" }
+
+    # enabling access is allowed
+    CONFIG['default_access_disabled'] = nil
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+        '<project name="home:adrian:Project"> <title/> <description/> </project>'
+    assert_response :success
+
+    # cleanup
+    delete "/source/home:adrian:Project"
+    assert_response :success
+  end
+
+
 end

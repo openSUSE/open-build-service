@@ -296,6 +296,12 @@ class Project < ActiveRecord::Base
         raise ForbiddenError.new
       end
     end
+    new_record = self.new_record?
+    if CONFIG['default_access_disabled'] == true and not new_record
+      if self.disabled_for?('access', nil, nil) and not FlagHelper.xml_disabled_for?(xmlhash, 'access')
+        raise ForbiddenError.new
+      end
+    end
 
     logger.debug "### name comparison: self.name -> #{self.name}, project_name -> #{xmlhash['name']}"
     if self.name != xmlhash['name']
@@ -492,6 +498,12 @@ class Project < ActiveRecord::Base
     
     #--- update flag group ---#
     update_all_flags( xmlhash )
+    if CONFIG['default_access_disabled'] == true and new_record
+      # write a default access disable flag by default in this mode for projects if not defined
+      unless xmlhash.elements('access').length > 0
+        self.flags.new(:status => 'disable', :flag => 'access')
+      end
+    end
     
     #--- update repository download settings ---#
     dlcache = Hash.new
