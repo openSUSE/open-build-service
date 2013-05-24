@@ -7,11 +7,12 @@ Version: 2.4
 
   Do NOT simply add api calls here without discussion before.
   
-<project>: Project name
-<package>: Package name
-<platform>: Platform name
+  The main base routes are:
+  /source    : To handle all source submissions and project setups
+  /build     : To access build results and their states
+  /published : Read access to published repositories
+  /search    : Access to search interface
 
-  All names aren't allowed to contain spaces, slashes or colons.
 
 == Table of Contents
 

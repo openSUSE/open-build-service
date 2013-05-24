@@ -1,23 +1,15 @@
 class PublishedController < ApplicationController
 
   def index
-    prj = Project.get_by_name(params[:project]) if params[:project]
+    prj = Project.find_by_name! params[:project]
 
-    if prj 
-      # This is no security feature as documented
-      if prj.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(prj)
-        render_error :status => 403, :errorcode => "download_binary_no_permission",
-        :message => "No permission for binaries from project #{params[:project]}"
-        return
-      end
-      pass_to_backend
+    # binarydownload is no security feature (read the docu :)
+    if prj.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(prj)
+      render_error :status => 403, :errorcode => "download_binary_no_permission",
+                   :message => "No permission for binaries from project #{params[:project]}"
       return
     end
-
-    answer = Suse::Backend.get(request.path)
-    data=REXML::Document.new(answer.body.to_s)
-    if answer
-      render :text => data.to_s, :content_type => "text/xml"
-    end
+    pass_to_backend
   end
+
 end

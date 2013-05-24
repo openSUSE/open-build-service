@@ -246,7 +246,7 @@ OBSApi::Application.routes.draw do
     get 'published/:project/:repository/:arch' => 'published#index', :constraints => cons
     get 'published/:project/:repository/' => 'published#index', :constraints => cons
     get 'published/:project' => 'published#index', :constraints => cons
-    get 'published/' => 'published#index', via: [:get, :post]
+    get 'published/' => 'source#index', via: :get
 
     ### /request
     
