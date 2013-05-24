@@ -1,8 +1,12 @@
 require File.join File.dirname(__FILE__), '..', 'test_helper'
 
 include ApplicationHelper
-include ActionView::Helpers::TagHelper
 
+module ApplicationHelper
+  def image_tag(filename, opts = {})
+    "<img class='#{opts.inspect}'/>"
+  end
+end
 class ApplicationHelperTest < ActiveSupport::TestCase
   def test_repo_status_icon
     # Regular

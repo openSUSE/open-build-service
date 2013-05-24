@@ -400,11 +400,20 @@ module ApplicationHelper
 
   def sprite_tag(icon, opts = {})
     if opts.has_key? :class
-	    opts[:class] += " icons-#{icon} inlineblock"
+	    opts[:class] += " icons-#{icon}"
     else
-	    opts[:class] = "icons-#{icon} inlineblock"
+	    opts[:class] = "icons-#{icon}"
     end
-    content_tag(:span, '', opts)
+    unless opts.has_key? :alt
+      alt = icon
+      if opts[:title]
+        alt = opts[:title]
+      else
+        Rails.logger.warn "No alt/title text for sprite_tag"
+      end
+      opts[:alt] = alt
+    end
+    image_tag('s.gif', opts)
   end
 
   def next_codemirror_uid
