@@ -29,7 +29,7 @@ class HomeController < ApplicationController
     size = params[:size] || '20'
     key = "home_face_#{user}_#{size}"
     Rails.cache.delete(key) if discard_cache?
-    content = Rails.cache.fetch(key, :expires_in => 5.hour) do
+    content = Rails.cache.fetch(key, :expires_in => 5.hours) do
 
       unless CONFIG['use_gravatar'] == :off
         email = Person.email_for_login(user)
@@ -46,7 +46,10 @@ class HomeController < ApplicationController
       content.force_encoding("ASCII-8BIT")
     end
 
-    render :text => content, :layout => false, :content_type => "image/png"
+    expires_in 5.hours, public: true
+    if stale?(etag: Digest::MD5.hexdigest(content))
+      render text: content, layout: false, content_type: "image/png"
+    end
   end
 
   def requests
