@@ -130,7 +130,7 @@ map = ActiveXML::setup_transport(CONFIG['frontend_protocol'], CONFIG['frontend_h
   map.set_additional_header( "User-Agent", "obs-webui/#{CONFIG['version']}" )
   map.details = DetailsLogger.new
 
-if Rails.env.development?
+if defined?(Rack::MiniProfiler)
   ::Rack::MiniProfiler.profile_method(ActiveXML::Transport, :http_do) do |method,url| 
     if url.kind_of? String
       "#{method.to_s.upcase} #{url}"

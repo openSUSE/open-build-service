@@ -23,7 +23,7 @@ group :development do
   gem 'sqlite3'
   
   # See http://railscasts.com/episodes/368-miniprofiler
-  gem 'rack-mini-profiler'
+  #gem 'rack-mini-profiler'
   #gem 'stacktrace' 
 end
 
