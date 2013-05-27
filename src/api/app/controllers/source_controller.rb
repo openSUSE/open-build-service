@@ -777,11 +777,11 @@ class SourceController < ApplicationController
         # permissions check
         tproject_name = e.value("project")
         tprj = DbProject.get_by_name(tproject_name)
-        if tprj.class == DbProject and tprj.disabled_for?('access', nil, nil) # user can access tprj, but backend would refuse to take binaries from there
-          render_error :status => 404, :errorcode => "repository_access_failure" ,
-                       :message => "The current backend implementation is not using binaries from read access protected projects #{tproject_name}"
-          return
-        end
+#        if tprj.class == DbProject and tprj.disabled_for?('access', nil, nil) # user can access tprj, but backend would refuse to take binaries from there
+#          render_error :status => 404, :errorcode => "repository_access_failure" ,
+#                       :message => "The current backend implementation is not using binaries from read access protected projects #{tproject_name}"
+#          return
+#        end
 
         logger.debug "project #{project_name} repository path checked against #{tproject_name} projects permission"
       end
