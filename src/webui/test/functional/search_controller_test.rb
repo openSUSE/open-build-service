@@ -53,19 +53,21 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   def search_results
     raw_results = page.all("div.search_result")
     raw_results.collect do |row|
-      theclass = row.first("img")["class"]
+      theclass = row.first("img")["class"].split(' ')[0]
       case theclass
+      when "icons-project"
       when "project"
         { :type         => :project,
           :project_name => row.find("a.project").text,
         }
+      when "icons-package"
       when "package"
         { :type         => :package, 
           :project_name => row.find("a.project").text,
           :package_name => row.find("a.package").text,
         }
       else
-        fail "Unrecognized result icon. #{alt}"
+        fail "Unrecognized result icon. #{theclass}"
       end
     end
   end

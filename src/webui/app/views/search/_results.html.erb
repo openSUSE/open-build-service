@@ -4,14 +4,14 @@
     <% if result[:type] == 'project' %>
       <div class="search_result">
       <h6 class="data-title">
-      <%= image_tag('project.png', class: 'project') %>
+      <%= sprite_tag('project', class: 'project', title: 'Project') %>
       <%= render :partial => 'shared/project_or_package_link', :locals => {:project => result[:data].name,
                                                                            :short => false} %>
       </h6>
     <% elsif result[:type] == 'package' %>
       <div class="search_result">
       <h6 class="data-title">
-      <%= image_tag('package.png', class: 'package') %>
+      <%= sprite_tag('package', class: 'package', title: 'Package') %>
       <%= render :partial => 'shared/project_or_package_link', :locals => {:project => result[:data].project,
                                                                            :package => result[:data].name,
                                                                            :short => false} %>
