@@ -2894,11 +2894,13 @@ sub getprojpack {
 	  if ($remotemap && $aggregatelist) {
 	    for my $aggregate (@{$aggregatelist->{'aggregate'} || []}) {
 	      my $aprojid = $aggregate->{'project'};
-	      next if $remotemap->{$aprojid};
+	      next if $remotemap->{$aprojid} && !$remotemap->{$aprojid}->{'proto'};
 	      my $aproj = readproj($aprojid, 1);
 	      if (!$aproj || $aproj->{'remoteurl'}) {
 		$aproj = remoteprojid($aprojid);
-		$remotemap->{$aprojid} = {%$aproj, 'proto' => 1} if $aproj;
+		eval {
+		  fetchremoteproj($aproj, $aprojid, $remotemap) if $aproj;
+		};
 	      } else {
 		checksibling($remotemap, $aprojid, $aproj) if $remotemap->{':siblings'} && !$remotemap->{':siblings'}->{$aprojid};
 	      }
