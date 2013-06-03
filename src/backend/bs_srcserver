@@ -2644,17 +2644,10 @@ sub getprojpack {
     if ($cgi->{'withconfig'}) {
       my $config = readstr("$projectsdir/$projid.conf", 1);
       if ($config) {
-	# strip away macro blocks
-	while ($config =~ /^(.*?\n)?\s*(macros:[^\n]*\n.*)/si) {
-	  my ($c1, $c2) = ($1, $2);
-	  $c1 = '' unless defined $c1;
-	  if ($c2 =~ /^(?:.*?\n)?\s*:macros\s*\n(.*)$/si) {
-	    $config = "$c1$1";
-	  } else {
-	    $config = $c1;
-	    last;
-	  }
-	}
+	my $s1 = '^\s*macros:\s*$.*?^\s*:macros\s*$';
+	my $s2 = '^\s*macros:\s*$.*\Z';
+	$config =~ s/$s1//gmsi;
+	$config =~ s/$s2//gmsi;
 	$jinfo->{'config'} = $config unless $config =~ /^\s*$/s;
       }
     }
@@ -3993,7 +3986,17 @@ sub concatconfigs {
     next unless defined $c;
     $config .= "\n### from $p\n";
     $config .= "%define _repository $r\n";
-    if ($c =~ /^(.*\n)?\s*macros:[^\n]*\n(.*)/si) {
+
+    if ($c =~ /^\s*:macros\s*$/im) {
+      # probably some multiple macro sections with %if statements
+      # flush out macros
+      $macros .= "\n### from $p\n";
+      $macros .= "\n%_repository $r\n";
+      $config .= "\nMacros:\n$macros:Macros\n\n";
+      $macros = '';
+      $lastr = $r;
+    } elsif ($c =~ /^(.*\n)?\s*macros:[^\n]*\n(.*)/si) {
+      # single macro section. cumulate
       $c = defined($1) ? $1 : '';
       $macros .= "\n### from $p\n";
       $macros .= "%_repository $r\n";

@@ -398,7 +398,11 @@ sub getconfig {
     next unless defined $c;
     $config .= "\n### from $p\n";
     $config .= "%define _repository $r\n";
-    $c = defined($1) ? $1 : '' if $c =~ /^(.*\n)?\s*macros:[^\n]*\n/si;
+    # get rid of the Macros sections
+    my $s1 = '^\s*macros:\s*$.*?^\s*:macros\s*$';
+    my $s2 = '^\s*macros:\s*$.*\Z';
+    $c =~ s/$s1//gmsi;
+    $c =~ s/$s2//gmsi;
     $config .= $c;
   }
   # it's an error if we have no config at all
