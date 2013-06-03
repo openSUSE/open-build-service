@@ -49,6 +49,7 @@ our %cando = (
 
   'ppc'     => [ 'ppc' ],
   'ppc64'   => [ 'ppc64', 'ppc:powerpc32' ],
+  'ppc64p7' => [ 'ppc64p7', 'ppc:powerpc32' ],
 
   'ia64'    => [ 'ia64' ],
 
