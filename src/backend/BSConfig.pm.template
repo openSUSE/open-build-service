@@ -131,6 +131,7 @@ our $relsync_pool = {
  "x86_64" => "i586",
  "ppc" => "ppc",
  "ppc64" => "ppc",
+ "ppc64p7" => "ppc",
  "mips" => "mips",
  "mips64" => "mips",
  "mipsel" => "mipsel",
