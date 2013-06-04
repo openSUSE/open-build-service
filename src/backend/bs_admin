@@ -131,8 +131,9 @@ Note: the --update-*-db calls are usually only needed when corrupt data has been
  --update-request-db
    Updates the index for all requests.
 
- --remove-old-sources <days> <y>
+ --remove-old-sources <days> <y> (--debug)
    remove sources older than <x> days, but keep <y> number of revisions
+   --debug for debug output
 
 Debug Options
 =============
@@ -791,7 +792,14 @@ while (@ARGV) {
     my $min_revs = shift @ARGV;
     die("ERROR: second argument must be >=1!\n") if $min_revs <1;
 
-    my $debug = 1; # FIXME output to log and optional to STDOUT
+    my $debug = 0;
+    if ( @ARGV == 1 ) {
+      if ( shift @ARGV eq "--debug") {
+      $debug = 1;
+      }
+    } elsif ( @ARGV > 1 ) {
+      die("ERROR: too much parameters!\n");
+    }
 
     my $mastertimestamp = time - $days*60*60*24;
     my %deletehashes; #key: hash value: @files
@@ -843,15 +851,13 @@ while (@ARGV) {
     closedir(D);
 
     if ($debug) {
-      print "\n###\n";
       print "all hashes to keep (must be at least one per project):\n";
       foreach my $hash (keys %keephashes) {
         foreach my $entry (@{$keephashes{$hash}}) {
           print "project: ", $entry->{project}, ", file: ", $entry->{file}, " hash: ", $hash, "\n";
         }
-        print "##\n";
       }
-      print "\n###\n";
+      print "\n";
     }
 
 
@@ -863,15 +869,14 @@ while (@ARGV) {
     opendir(D, $srcrepdir) || die($!);
       push @treesdirs,  map { $srcrepdir."/".$_ } readdir(D);
     closedir(D);
+    @treesdirs = grep { $_ !~ /\.{1,2}$/  } @treesdirs;
 
     if ($debug) {
-      print "\n###\n";
-      print "all treesdirs: ", join("\n", @treesdirs);
-      print "\n###\n";
+      print "all treesdirs:\n", join("\n", @treesdirs);
+      print "\n\n";
     }
 
     foreach my $dir (@treesdirs) {
-      next if $dir =~ /\.{1,2}$/;
       if ( -d $dir ) {
         if ( $dir =~ /$srcrepdir/ ) {
           opendir(F, $dir) || die($!);
@@ -885,7 +890,6 @@ while (@ARGV) {
         } else {
           opendir(E, $dir) || die($!);
           foreach my $package (readdir(E)) {
-            next if $package =~ /^\.{1,2}$/;
             if ( -d $dir.'/'.$package ) {
               opendir(F, $dir.'/'.$package) || die($!);
               foreach my $file (readdir(F)) {
@@ -903,12 +907,11 @@ while (@ARGV) {
     } #foreach
 
     if ($debug) {
-      print "\n###\n";
       print "all treesfiles:\n";
       foreach my $key (keys %treesfiles) {
         print $treesfiles{$key}, "\n";
       }
-      print "\n###\n";
+      print "\n";
     }
 
 
@@ -930,12 +933,11 @@ while (@ARGV) {
     closedir(D);
 
     if ($debug) {
-      print "\n###\n";
       print "all sourcefiles:\n";
       foreach my $key (keys %sourcefiles) {
         print $sourcefiles{$key}, "\n";
       }
-      print "\n###\n";
+      print "\n";
     }
 
     my %deletefiles;
@@ -951,11 +953,11 @@ while (@ARGV) {
     }
 
     if ($debug) {
-      print "###\nfiles to delete: ";
+      print "files to delete:\n";
       foreach my $key (keys %deletefiles) {
         print $deletefiles{$key}, "\n";
       }
-      print "###\n";
+      print "\n";
     }
 
     my %keepfiles;
@@ -987,12 +989,11 @@ while (@ARGV) {
     }
 
     if ($debug) {
-      print "\n###\n";
       print "files to keep:\n";
       foreach my $key (keys %keepfiles) {
         print $keepfiles{$key}, "\n";
       }
-      print "\n###\n";
+      print "\n";
     }
 
     my @deletefiles;
@@ -1003,10 +1004,9 @@ while (@ARGV) {
 
 
     if ($debug) {
-      print "###\n";
       print "files to delete without kept ones:\n";
       print join("\n", @deletefiles);
-      print "\n###\n";
+      print "\n";
     }
 
     if (scalar(@deletefiles) == 0) {
