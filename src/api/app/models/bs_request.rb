@@ -28,7 +28,7 @@ class BsRequest < ActiveRecord::Base
   after_update :send_state_change
 
   def check_supersede_state
-    if self.state == :superseded && self.superseded_by.nil?
+    if self.state == :superseded && ( not self.superseded_by.is_a? Numeric || not self.superseded_by > 0 )
       errors.add(:superseded_by, 'Superseded_by should be set')
     end
     if self.superseded_by && self.state != :superseded
