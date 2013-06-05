@@ -421,6 +421,57 @@ end
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
   end
 
+  def test_create_and_remove_download_on_demand_definitions
+    build_meta="<project name='TEMPORARY:build'><title></title><description/>
+                      <download arch='x86_64' baseurl='http://somewhere' mtype='rpm-md' metafile='somefile'/>
+                      <repository name='repo1'>
+                        <path project='BaseDistro' repository='BaseDistro_repo'/>
+                        <arch>x86_64</arch>
+                      </repository>
+                   </project>"
+
+    # create them
+    prepare_request_with_user "king", "sunflower"
+    put url_for(:controller => :source, :action => :project_meta, :project => "TEMPORARY:build"), build_meta
+    assert_response :success
+    get "/source/TEMPORARY:build/_meta"
+    assert_response :success
+    assert_xml_tag :parent => {:tag => "project"},
+                   :tag => 'download', :attributes => {:arch => 'x86_64', :baseurl => 'http://somewhere', :mtype => "rpm-md", :metafile => "somefile"}
+
+    # change download definition
+    build_meta="<project name='TEMPORARY:build'><title></title><description/>
+                      <download arch='x86_64' baseurl='http://somewhereelse' mtype='yast' metafile='someotherfile'/>
+                      <repository name='repo1'>
+                        <path project='BaseDistro' repository='BaseDistro_repo'/>
+                        <arch>x86_64</arch>
+                      </repository>
+                   </project>"
+    put url_for(:controller => :source, :action => :project_meta, :project => "TEMPORARY:build"), build_meta
+    assert_response :success
+    get "/source/TEMPORARY:build/_meta"
+    assert_response :success
+    assert_xml_tag :parent => {:tag => "project"},
+                   :tag => 'download', :attributes => {:arch => 'x86_64', :baseurl => 'http://somewhereelse', :mtype => "yast", :metafile => "someotherfile"}
+
+    # delete download definition
+    build_meta="<project name='TEMPORARY:build'><title></title><description/>
+                      <repository name='repo1'>
+                        <path project='BaseDistro' repository='BaseDistro_repo'/>
+                        <arch>x86_64</arch>
+                      </repository>
+                   </project>"
+    put url_for(:controller => :source, :action => :project_meta, :project => "TEMPORARY:build"), build_meta
+    assert_response :success
+    get "/source/TEMPORARY:build/_meta"
+    assert_response :success
+    assert_no_xml_tag :tag => "download"
+
+    # cleanup
+    delete "/source/TEMPORARY:build"
+    assert_response :success
+  end
+
   def test_create_and_remove_release_targets
     rel_target_meta="<project name='TEMPORARY:rel_target'><title></title><description/>
                       <repository name='rel_target1'>
