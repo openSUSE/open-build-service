@@ -512,21 +512,21 @@ class Project < ActiveRecord::Base
     end
     
     xmlhash.elements('download') do |dl|
-      if dlcache.has_key? dl.arch.to_s
-        logger.debug "modifying download element, arch: #{dl.arch.to_s}"
-        cur = dlcache[dl.arch.to_s]
+      if dlcache.has_key? dl['arch']
+        logger.debug "modifying download element, arch: #{dl['arch']}"
+        cur = dlcache[dl['arch']]
       else
-        logger.debug "adding new download entry, arch #{dl.arch.to_s}"
+        logger.debug "adding new download entry, arch #{dl['arch']}"
         cur = self.downloads.create
         self.updated_at = Time.now
       end
-      cur.metafile = dl.metafile.to_s
-      cur.mtype = dl.mtype.to_s
-      cur.baseurl = dl.baseurl.to_s
-      raise SaveError, "unknown architecture" unless Architecture.archcache.has_key? dl.arch.to_s
-      cur.architecture = Architecture.archcache[dl.arch.to_s]
+      cur.metafile = dl['metafile']
+      cur.mtype = dl['mtype']
+      cur.baseurl = dl['baseurl']
+      raise SaveError, "unknown architecture" unless Architecture.archcache.has_key? dl['arch']
+      cur.architecture = Architecture.archcache[dl['arch']]
       cur.save!
-      dlcache.delete dl.arch.to_s
+      dlcache.delete dl['arch']
     end
     
     dlcache.each do |arch, object|
