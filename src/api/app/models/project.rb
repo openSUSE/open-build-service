@@ -516,10 +516,11 @@ class Project < ActiveRecord::Base
       cur.save!
       dlcache.delete dl['arch']
     end
-    
+
     dlcache.each do |arch, object|
       logger.debug "remove download entry #{arch}"
-      object.destroy
+      self.downloads.destroy object
+      self.updated_at = Time.now
     end
     
     #--- update repositories ---#
