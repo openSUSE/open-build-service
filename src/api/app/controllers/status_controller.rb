@@ -90,9 +90,12 @@ class StatusController < ApplicationController
     end
     # FIXME2.5: The current architecture model is a gross hack, not connected at all 
     #           to the backend config.
-    data.each_scheduler do |s|
-      if a=Architecture.find_by_name(s.arch)
-        a.available=true
+    data.each_partition do |partition|
+      partition.each_daemon do |daemon|
+        next unless daemon.type == "scheduler"
+        if a=Architecture.find_by_name(daemon.arch)
+          a.available=true
+        end
       end
     end
     send_data data.dump_xml
@@ -142,10 +145,10 @@ class StatusController < ApplicationController
       line.value = e.attributes['jobs']
       line.save
     end
-    data.root.each_element('scheduler') do |s|
-      queue = s.elements['queue']
+    data.root.each_element('partition') do |d|
+      queue = d.elements['queue']
       next unless queue
-      arch = s.attributes['arch']
+      arch = d.attributes['arch']
       StatusHistory.create :time => mytime, :key => "squeue_high_#{arch}", :value => queue.attributes['high']
       StatusHistory.create :time => mytime, :key => "squeue_next_#{arch}", :value => queue.attributes['next']
       StatusHistory.create :time => mytime, :key => "squeue_med_#{arch}", :value => queue.attributes['med']

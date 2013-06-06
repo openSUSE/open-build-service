@@ -12,17 +12,19 @@
   <buildavg arch='i586' buildavg='7853.49900157855'/>
   <buildavg arch='local' buildavg='6706.03274513389'/>
   <buildavg arch='x86_64' buildavg='6313.8886610886'/>
-  <scheduler arch='i586' starttime='1288252359' state='running'>
-    <queue med='68' high='4' next='9730' low='760'/>
-  </scheduler>
-  <scheduler arch='local' starttime='1288252359' state='running'>
-    <queue med='0' high='0' next='0' low='0'/>
-  </scheduler>
-  <scheduler arch='x86_64' starttime='1288252359' state='running'>
-    <queue med='69' high='0' next='7409' low='4690'/>
-  </scheduler>
-  <scheduler arch='dispatcher' starttime='1289593678' state='running'/>
-  <scheduler arch='publisher' starttime='1287910270' state='running'/>
-  <scheduler arch='signer' starttime='1289913427' state='running'/>
-  <scheduler arch='warden' starttime='1287910269' state='running'/>
+  <partition>
+    <daemon type='scheduler' arch='i586' starttime='1288252359' state='running'>
+      <queue med='68' high='4' next='9730' low='760'/>
+    </daemon>
+    <daemon type='scheduler' arch='local' starttime='1288252359' state='running'>
+      <queue med='0' high='0' next='0' low='0'/>
+    </daemon>
+    <daemon type='scheduler' arch='x86_64' starttime='1288252359' state='running'>
+      <queue med='69' high='0' next='7409' low='4690'/>
+    </daemon>
+    <daemon type='dispatcher' starttime='1289593678' state='running'/>
+    <daemon type='publisher' starttime='1287910270' state='running'/>
+    <daemon type='signer' starttime='1289913427' state='running'/>
+    <daemon type='warden' starttime='1287910269' state='running'/>
+  </partition>
 </workerstatus>

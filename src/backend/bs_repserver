@@ -1419,7 +1419,7 @@ sub workerstatus {
   my ($cgi) = @_;
   local *D;
   my @idle;
-  if (!$cgi->{'scheduleronly'}) {
+  if (!$cgi->{'daemonsonly'}) {
     for my $w (ls("$workersdir/idle")) {
       my $worker = readxml("$workersdir/idle/$w", $BSXML::worker, 1);
       next unless $worker;
@@ -1432,7 +1432,7 @@ sub workerstatus {
   my @blocked;
   my @buildaverage;
   my @a;
-  @a = ls($jobsdir) unless $cgi->{'scheduleronly'};
+  @a = ls($jobsdir) unless $cgi->{'daemonsonly'};
   for my $a (@a) {
     next unless -d "$jobsdir/$a";
     my @d = grep {!/^\./ && !/:(?:dir|new|cross)$/} ls("$jobsdir/$a");
@@ -1480,36 +1480,50 @@ sub workerstatus {
   @blocked = sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b} @blocked;
   @buildaverage = sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b} @buildaverage; 
 
-  my @scheddata;
-  my @schedarchs = grep {s/^bs_sched\.(.*)\.lock$/$1/} sort(ls($rundir));
-  push @schedarchs, 'dispatcher' if -e "$rundir/bs_dispatch.lock";
-  push @schedarchs, 'publisher' if -e "$rundir/bs_publish.lock";
-  push @schedarchs, 'signer' if -e "$rundir/bs_signer.lock";
-  push @schedarchs, 'warden' if -e "$rundir/bs_warden.lock";
-  @schedarchs = (@{$cgi->{'arch'}}) if $cgi->{'arch'};
-  for my $schedarch (@schedarchs) {
+  my @daemondata;
+  my @daemonarchs = grep {s/^bs_sched\.(.*)\.lock$/$1/} sort(ls($rundir));
+  push @daemonarchs, 'dispatcher' if -e "$rundir/bs_dispatch.lock";
+  push @daemonarchs, 'publisher' if -e "$rundir/bs_publish.lock";
+  push @daemonarchs, 'signer' if -e "$rundir/bs_signer.lock";
+  push @daemonarchs, 'warden' if -e "$rundir/bs_warden.lock";
+  @daemonarchs = (@{$cgi->{'arch'}}) if $cgi->{'arch'};
+  for my $daemonarch (@daemonarchs) {
     local *F;
-    my $scheddata = {'arch' => "$pre$schedarch", 'state' => 'dead'};
-    my $lock = "bs_sched.$schedarch.lock";
-    $lock = 'bs_dispatch.lock' if $schedarch eq 'dispatcher';
-    $lock = 'bs_publish.lock' if $schedarch eq 'publisher';
-    $lock = 'bs_signer.lock' if $schedarch eq 'signer';
-    $lock = 'bs_warden.lock' if $schedarch eq 'warden';
+    my $daemondata = {'state' => 'dead'};
+    my $lock;
+    if ($daemonarch eq 'dispatcher') {
+      $lock = 'bs_dispatch.lock';
+      $daemondata->{'type'} = 'dispatcher';
+    } elsif ($daemonarch eq 'publisher') {
+      $lock = 'bs_publish.lock';
+      $daemondata->{'type'} = 'publisher';
+    } elsif ($daemonarch eq 'signer') {
+      $lock = 'bs_signer.lock';
+      $daemondata->{'type'} = 'signer';
+    } elsif ($daemonarch eq 'warden') {
+      $lock = 'bs_warden.lock';
+      $daemondata->{'type'} = 'warden';
+    } else {
+      # scheduler
+      $lock = "bs_sched.$daemonarch.lock";
+      $daemondata->{'type'} = 'scheduler';
+      $daemondata->{'arch'} = $daemonarch;
+    }
     if (open(F, '<', "$rundir/$lock")) {
       if (!flock(F, LOCK_EX | LOCK_NB)) {
         my @s = stat(F);
-        $scheddata->{'state'} = 'running';
-        $scheddata->{'starttime'} = $s[9] if @s;
+        $daemondata->{'state'} = 'running';
+        $daemondata->{'starttime'} = $s[9] if @s;
       }
       close F;
     }
-    my $si = readxml("$infodir/schedulerinfo.$schedarch", $BSXML::schedulerinfo, 1);
-    $scheddata->{'queue'} = $si->{'queue'} if $si && $si->{'queue'};
-    push @scheddata, $scheddata;
+    my $si = readxml("$infodir/schedulerinfo.$daemonarch", $BSXML::schedulerinfo, 1);
+    $daemondata->{'queue'} = $si->{'queue'} if $si && $si->{'queue'};
+    push @daemondata, $daemondata;
   }
 
   my $ret = {};
-  if (!$cgi->{'scheduleronly'}) {
+  if (!$cgi->{'daemonsonly'}) {
     $ret->{'clients'} = @building + @idle;
     $ret->{'building'} = \@building;
     $ret->{'waiting'} = \@waiting;
@@ -1517,7 +1531,10 @@ sub workerstatus {
     $ret->{'buildavg'} = \@buildaverage;
     $ret->{'idle'} = \@idle;
   }
-  $ret->{'scheduler'} = \@scheddata;
+  my $daemon = {};
+  $daemon->{'name'} = $pre if $pre;
+  $daemon->{'daemon'} = \@daemondata;
+  $ret->{'partition'} = [ $daemon ];;
   return ($ret, $BSXML::workerstatus);
 }
 
@@ -3641,7 +3658,7 @@ my $dispatches = [
   '/jobs/$arch/$job' => \&getjob,
 
   # info
-  '/workerstatus scheduleronly:bool? arch*' => \&workerstatus,
+  '/workerstatus daemonsonly:bool? arch*' => \&workerstatus,
 
   '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? withstats:bool? summary:bool?' => \&getresult,
   'POST:/_command $cmd: $prpa+ package* code:*' => \&docommand,
