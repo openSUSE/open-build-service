@@ -777,16 +777,20 @@ our $workerstatus = [
             'arch',
 	    'buildavg',
      ]],
-     [[ 'scheduler' =>
-	    'arch',
-	    'state',
-	    'starttime',
-	  [ 'queue' =>
-		'high',
-		'med',
-		'low',
-		'next',
-	  ],
+     [[ 'partition' =>
+	    'name',
+           [[ 'daemon' =>
+                  'type',        # scheduler/dispatcher/signer/publisher/warden
+                  'arch',        # scheduler only
+                  'state',
+                  'starttime',
+                [ 'queue' =>     # scheduler only 
+                      'high',
+                      'med',
+                      'low',
+                      'next',
+                ],
+           ]],
      ]],
 ];
 

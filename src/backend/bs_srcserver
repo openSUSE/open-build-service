@@ -5997,7 +5997,7 @@ sub getbuildstatus {
 sub getworkerstatus {
   my ($cgi) = @_;
   my @args;
-  push @args, 'scheduleronly' if $cgi->{'scheduleronly'};
+  push @args, 'daemonsonly' if $cgi->{'scheduleronly'} || $cgi->{'daemonsonly'};
   push @args, map {"arch=$_"} @{$cgi->{'arch'} || []};
 
   if (!$BSConfig::partition || !$BSConfig::siblings) {
@@ -6009,7 +6009,7 @@ sub getworkerstatus {
   }
   my %reposervers = map {$_ => 1} values(%$BSConfig::siblings);
   my $cws;
-  if (!$cgi->{'scheduleronly'}) {
+  if (!$cgi->{'scheduleronly'} && !$cgi->{'daemonsonly'}) {
     $cws->{'clients'} = 0;
     $cws->{'building'} = [];
     $cws->{'waiting'} = [];
@@ -6017,11 +6017,11 @@ sub getworkerstatus {
     $cws->{'buildavg'} = [];
     $cws->{'idle'} = [];
   }
-  $cws->{'scheduler'} = [];
+  $cws->{'partition'} = [];
   for my $reposerver (sort keys %reposervers) {
     my $ws = BSWatcher::rpc("$reposerver/workerstatus", $BSXML::workerstatus, @args);
-    push @{$cws->{'scheduler'}}, @{$ws->{'scheduler'}};
-    next if $cgi->{'scheduleronly'};
+    push @{$cws->{'partition'}}, @{$ws->{'partition'}};
+    next if $cgi->{'scheduleronly'} || $cgi->{'daemonsonly'};
     delete $_->{'uri'} for @{$ws->{'idle'} || []};
     delete $_->{'uri'} for @{$ws->{'building'} || []};
     push @{$cws->{'idle'}}, @{$ws->{'idle'} || []};
@@ -6049,7 +6049,7 @@ sub getworkerstatus {
   }
 
   # sort
-  if (!$cgi->{'scheduleronly'}) {
+  if (!$cgi->{'scheduleronly'} && !$cgi->{'daemonsonly'}) {
     $cws->{'idle'} = [ sort {$a->{'workerid'} cmp $b->{'workerid'} || $a->{'uri'} cmp $b->{'uri'} || $a cmp $b} @{$cws->{'idle'}} ];
     $cws->{'building'} = [ sort {$a->{'workerid'} cmp $b->{'workerid'} || $a->{'uri'} cmp $b->{'uri'} || $a cmp $b} @{$cws->{'building'}} ];
     $cws->{'waiting'} = [ sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b}  @{$cws->{'waiting'}} ];
@@ -7782,7 +7782,7 @@ my $dispatches = [
 
   # build calls for binary files
   '/build' => \&getprojectlist,
-  '/build/_workerstatus scheduleronly:bool? arch*' => \&getworkerstatus,
+  '/build/_workerstatus scheduleronly:bool? daemonsonly:bool? arch*' => \&getworkerstatus,
   'PUT:/build/_dispatchprios' => \&putdispatchprios,
   '/build/_dispatchprios' => \&getdispatchprios,
   'POST:/build/$project cmd: repository* arch* package* code:*' => \&docommand,
