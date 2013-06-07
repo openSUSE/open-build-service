@@ -2142,7 +2142,9 @@ sub extract_old_prjsource {
 
 sub extract_old_meta {
   my ($projid, $packid, $rev) = @_;
+  $rev->{'keepsignkey'} = 1;
   my $files = lsrev($rev);
+  delete $rev->{'keepsignkey'};
   if (!defined($packid) || $packid eq '_project') {
     $packid = '_project';
     my $pubkey;
