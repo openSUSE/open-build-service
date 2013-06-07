@@ -1409,10 +1409,10 @@ end
                                assertresp3, asserteq3, assertresp4)
     # maintainer
     prepare_request_with_user "hidden_homer", "homer"
-    asserttag1={:tag => 'directory', :attributes => { :srcmd5 => "47a5fb1c73c75bb252283e2ad1110182" }}
+    asserttag1={:tag => 'directory', :attributes => { :srcmd5 => "ee3a023192742ef3c4b2e3ea1cabec4f" }}
     assertresp2=:success
     assertselect2="revision > srcmd5"
-    assertselect2rev='16bbde7f26e318a5c893c182f7a3d433'
+    assertselect2rev='c123834bc133a23e3cfee9fb299ae6c5'
     assertresp3=:success
     asserteq3=true
     assertresp4=:success
@@ -1447,10 +1447,10 @@ end
                                assertresp3, asserteq3, assertresp4)
     # maintainer
     prepare_request_with_user "sourceaccess_homer", "homer"
-    asserttag1={:tag => 'directory', :attributes => { :srcmd5 => "47a5fb1c73c75bb252283e2ad1110182" }}
+    asserttag1={:tag => 'directory', :attributes => { :srcmd5 => "ee3a023192742ef3c4b2e3ea1cabec4f" }}
     assertresp2=:success
     assertselect2="revision > srcmd5"
-    assertselect2rev='16bbde7f26e318a5c893c182f7a3d433'
+    assertselect2rev='c123834bc133a23e3cfee9fb299ae6c5'
     assertresp3=:success
     asserteq3=true
     assertresp4=:success

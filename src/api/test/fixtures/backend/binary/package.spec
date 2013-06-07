@@ -11,7 +11,12 @@ Version:        1.0
 Release:        1
 Requires:       bash
 Conflicts:      something
+Obsoletes:      old_crap
 Provides:       myself
+Recommends:     would_be_nice
+Suggests:       pure_optional
+Enhances:       other_package
+Supplements:    other_package_likes_it
 
 %description
 
