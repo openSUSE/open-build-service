@@ -601,17 +601,7 @@ class Project < ActiveRecord::Base
         unless target_repo.remote_project_name.nil?
           raise SaveError.new("Can not use remote repository as release target '#{rt['project']}/#{rt['repository']}'")
         end
-        trigger = nil
-        if rt.has_key? 'trigger' and rt['trigger'] != "manual"
-          if rt['trigger'] != "maintenance"
-            # automatic triggers are only allowed inside the same project
-            unless rt['project'] == project.name
-              raise SaveError.new("Automatic release updates are only allowed into a project to the same project")
-            end
-          end
-          trigger = rt['trigger']
-        end
-        current_repo.release_targets.new :target_repository => target_repo, :trigger => trigger
+        current_repo.release_targets.new :target_repository => target_repo, :trigger => rt['trigger']
         was_updated = true
       end
 
