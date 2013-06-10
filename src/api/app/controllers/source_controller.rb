@@ -74,7 +74,7 @@ class SourceController < ApplicationController
 
     # init and validation
     #--------------------
-    valid_commands=["undelete", "showlinked", "remove_flag", "set_flag", "createpatchinfo", "createkey", "extendkey", "copy", "createmaintenanceincident", "unlock"]
+    valid_commands=["undelete", "showlinked", "remove_flag", "set_flag", "createpatchinfo", "createkey", "extendkey", "copy", "createmaintenanceincident", "unlock", "release"]
     raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
     if params[:cmd]
       raise IllegalRequestError.new "invalid_command" unless valid_commands.include?(params[:cmd])
@@ -193,17 +193,43 @@ class SourceController < ApplicationController
         end
         dispatch_command
         return
-      end
-
-      if 'copy' == command
+      elsif 'release' == command
+        pro = Project.get_by_name project_name, {:includeallpackages => 1}
+        repo_matches=nil
+        pro.repositories.each do |repo|
+          next if params[:repository] and params[:repository] != repo.name
+          repo.release_targets.each do |releasetarget|
+            unless @http_user.can_modify_project?(releasetarget.target_repository.project)
+              render_error :status => 403, :errorcode => "cmd_execution_no_permission",
+                :message => "no permission to write in project #{releasetarget.target_repository.project.name}"
+              return
+            end
+            unless releasetarget.trigger == "manual"
+              render_error :status => 400, :errorcode => "cmd_execution_no_permission",
+                :message => "Trigger is not set to manual in repository #{releasetarget.repository.project.name}/#{releasetarget.repository.name}"
+              return
+            end
+            repo_matches=true
+          end
+        end
+        unless repo_matches
+          render_error :status => 404, :errorcode => "no_matching_release_target",
+            :message => "No defined or matching release target"
+          return
+        end
+        # any package read protected?
+       
+        dispatch_command
+        return
+      elsif 'copy' == command
         prj = Project.find_by_name(project_name)
         unless (prj and @http_user.can_modify_project?(prj)) or @http_user.can_create_project?(project_name)
           render_error :status => 403, :errorcode => "cmd_execution_no_permission",
             :message => "no permission to execute command '#{command}'"
           return
         end
+        oproject = Project.get_by_name(params[:oproject], {:includeallpackages => 1})
         if params.has_key?(:makeolder)
-          oproject = Project.get_by_name(params[:oproject])
           unless @http_user.can_modify_project?(oproject)
             render_error :status => 403, :errorcode => "cmd_execution_no_permission",
               :message => "no permission to execute command '#{command}', requires modification permission in oproject"
@@ -1451,6 +1477,28 @@ class SourceController < ApplicationController
         pkg.update_from_xml(p)
         pkg.store
       end
+    end
+  end
+
+  # POST /source/<project>?cmd=release
+  def index_project_release
+    valid_http_methods :post
+    params[:user] = @http_user.login
+
+    p = Project.get_by_name(params[:project])
+    if p.class == String # remote project
+      render_error :status => 404, :errorcode => "remote_project",
+        :message => "The release from remote projects is currently not supported"
+      return
+    end
+
+    if params.has_key? :nodelay
+      p.do_project_release(params)
+      render_ok
+    else
+      # inject as job
+      p.delay.do_project_release(params)
+      render_invoked
     end
   end
 

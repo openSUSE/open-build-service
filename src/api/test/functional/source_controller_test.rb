@@ -4,6 +4,11 @@ require 'source_controller'
 
 class SourceControllerTest < ActionDispatch::IntegrationTest 
   fixtures :all
+
+  def setup
+    super
+    wait_for_scheduler_start
+  end
   
   def test_get_projectlist
     prepare_request_with_user "tom", "thunder"
@@ -1962,6 +1967,90 @@ end
     assert_xml_tag( :parent => { :tag => "patches", :content => nil }, :tag => "branch", :content => nil )
 
     delete "/source/home:Iggy/TestLinkPack"
+    assert_response :success
+  end
+
+  def test_release_project
+    # define release target
+    prepare_request_with_user "Iggy", "asdfasdf"
+    # create and define manual release target
+    put "/source/home:Iggy:RT/_meta", "<project name='home:Iggy:RT'> <title/> <description/> 
+          <repository name='rt'>
+            <arch>i586</arch>
+            <arch>x86_64</arch>
+          </repository>
+        </project>"
+    assert_response :success
+
+    # workaround of testsuite breakage, database object gets restored during
+    # request controller run, but backend part not
+    get "/source/home:Iggy/ToBeDeletedTestPack/_meta"
+    assert_response :success
+    put "/source/home:Iggy/ToBeDeletedTestPack/_meta", @response.body
+    assert_response :success
+
+    run_scheduler("i586")
+    run_scheduler("x86_64")
+
+    get "/source/home:Iggy/_meta"
+    assert_response :success
+    orig_project_meta = @response.body
+    doc = REXML::Document.new( @response.body )
+    rt = doc.elements["/project/repository'"].add_element "releasetarget"
+    rt.add_attribute REXML::Attribute.new('project', 'home:Iggy:RT')
+    rt.add_attribute REXML::Attribute.new('repository', 'rt')
+    put "/source/home:Iggy/_meta", doc.to_s
+    assert_response :success
+
+    # try to release with incorrect trigger
+    post "/source/home:Iggy?cmd=release", nil
+    assert_response 400
+    assert_match(/Trigger is not set to manual in repository home:Iggy\/10.2/, @response.body)
+
+    # add correct trigger
+    rt.add_attribute REXML::Attribute.new('trigger', 'manual')
+    put "/source/home:Iggy/_meta", doc.to_s
+    assert_response :success
+
+    # this user is not allowed
+    prepare_request_with_user "adrian", "so_alone"
+    post "/source/home:Iggy?cmd=release", nil
+    assert_response 403
+    assert_xml_tag :tag => "status", :attributes => { :code => "cmd_execution_no_permission" }
+
+    # release for real
+    prepare_request_with_user "Iggy", "asdfasdf"
+    post "/source/home:Iggy?cmd=release", nil
+    assert_response :success
+    assert_xml_tag :tag => "status", :attributes => { :code => "invoked" }
+    # just invoked, it will not get executed in test suite
+    # so try it again without delay
+    post "/source/home:Iggy?cmd=release&nodelay=1", nil
+    assert_response :success
+    assert_xml_tag :tag => "status", :attributes => { :code => "ok" }
+
+    # process events
+    run_scheduler("i586")
+
+    # verify result
+    get "/source/home:Iggy:RT"
+    assert_response :success
+    assert_xml_tag :tag => "entry", :attributes => { :name => "TestPack" }
+
+    # compare source with target repo
+    get "/build/home:Iggy/10.2/i586/TestPack/"
+    assert_response :success
+    assert_xml_tag :tag => "binarylist", :children => { :count => 4 }
+
+    get "/build/home:Iggy:RT/rt/i586/TestPack/"
+    assert_response :success
+    assert_xml_tag :tag => "binarylist", :children => { :count => 4 }
+
+    # cleanup
+    prepare_request_with_user "Iggy", "asdfasdf"
+    put "/source/home:Iggy/_meta", orig_project_meta
+    assert_response :success
+    delete "/source/home:Iggy:RT"
     assert_response :success
   end
 

@@ -405,10 +405,11 @@ POST /source/<project>
   set_flag: change a defined flag, requires at least flag and status parameters
   remove_flag: remove a defined flag, requires at least flag and status parameters
   unlock: unlock a locked project
+  release: release sources and binaries according to release target specification
 
 Parameters:
   noaccess: the new created project will be read protected
-  repository: set_flag for given repository (optional)
+  repository: set_flag for given repository or release just this repository (optional)
   arch: set_flag for given arch (optional)
   flag: modify this flag (build/publish/..) for set_flag command
   status: enable or disable for set_flag command

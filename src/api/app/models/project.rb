@@ -175,13 +175,19 @@ class Project < ActiveRecord::Base
          arel = arel.select(opts[:select])
 	 opts.delete :select
       end
-      raise "unsupport options #{opts.inspect}" if opts.size > 0
       dbp = arel.first
       if dbp.nil?
         dbp, remote_name = find_remote_project(name)
         return dbp.name + ":" + remote_name if dbp
         raise UnknownObjectError, name
       end
+      if opts[:includeallpackages]
+         Package.joins(:flags).where(db_project_id: dbp.id).where("flags.flag='sourceaccess'").each do |pkg|
+           raise ReadAccessError, name unless Package.check_access? pkg
+         end
+	 opts.delete :includeallpackages
+      end
+      raise "unsupport options #{opts.inspect}" if opts.size > 0
       unless check_access?(dbp)
         raise ReadAccessError, name
       end
@@ -1593,6 +1599,21 @@ class Project < ActiveRecord::Base
       p.save! # do not store
     end
     packages.each { |p| p.sources_changed }
+  end
+
+  # called either directly or from delayed job
+  def do_project_release( params )
+    User.current ||= User.find_by_login(params[:user])
+
+    packages.each do |pkg|
+      pkg.project.repositories.each do |repo|
+        next if params[:repository] and params[:repository] != repo.name
+        repo.release_targets.each do |releasetarget|
+          # release source and binaries
+          release_package(pkg, releasetarget.target_repository.project.name, pkg.name, repo)
+        end
+      end
+    end
   end
 
   def bsrequest_repos_map(project, backend)
