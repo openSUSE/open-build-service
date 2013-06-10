@@ -526,7 +526,7 @@ module MaintenanceHelper
                 trepo.repository_architectures.create :architecture => ra.architecture, :position => ra.position
               end
               trepo.path_elements.create(:link => repo, :position => 1)
-              trigger = nil # manual
+              trigger = nil # no trigger is set by default
               trigger = "maintenance" if MaintenanceIncident.find_by_db_project_id( tprj.id ) # is target an incident project ?
               trepo.release_targets.create(:target_repository => repo, :trigger => trigger) if p[:link_target_project].project_type == "maintenance_release"
             end
@@ -604,8 +604,8 @@ module MaintenanceHelper
     return { :status => 200, :data => response }
   end
 
-  def release_package(sourcePackage, targetProjectName, targetPackageName, revision, 
-                      sourceRepository, releasetargetRepository, timestamp, request = nil)
+  def release_package(sourcePackage, targetProjectName, targetPackageName,
+                      filterSourceRepository = nil, request = nil)
     
     targetProject = Project.get_by_name targetProjectName
 
@@ -682,6 +682,7 @@ module MaintenanceHelper
 
     # copy binaries
     sourcePackage.project.repositories.each do |sourceRepo|
+      next if filterSourceRepository and filterSourceRepository != sourceRepo
       sourceRepo.release_targets.each do |releasetarget|
         #FIXME2.5: filter given release and/or target repos here
         sourceRepo.architectures.each do |arch|

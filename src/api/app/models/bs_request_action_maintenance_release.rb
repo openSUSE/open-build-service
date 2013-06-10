@@ -11,8 +11,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     # have a unique time stamp for release
     opts[:acceptTimeStamp] ||= Time.now
 
-    release_package(pkg, self.target_project, self.target_package, 
-                    self.source_rev, nil, nil, opts[:acceptTimeStamp], self.bs_request)
+    release_package(pkg, self.target_project, self.target_package, nil, self.bs_request)
     opts[:projectCommit] ||= {}
     opts[:projectCommit][self.target_project] = self.source_project
   end

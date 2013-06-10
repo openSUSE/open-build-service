@@ -526,7 +526,7 @@ CREATE TABLE `release_targets` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `repository_id` int(11) NOT NULL,
   `target_repository_id` int(11) NOT NULL,
-  `trigger` enum('finished','allsucceeded','maintenance') DEFAULT NULL,
+  `trigger` enum('manual','allsucceeded','maintenance') DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `repository_id_index` (`repository_id`),
   KEY `index_release_targets_on_target_repository_id` (`target_repository_id`),
@@ -1063,6 +1063,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130410124738');
 INSERT INTO schema_migrations (version) VALUES ('20130414061002');
 
 INSERT INTO schema_migrations (version) VALUES ('20130603100244');
+
+INSERT INTO schema_migrations (version) VALUES ('20130610100244');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

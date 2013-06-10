@@ -553,6 +553,19 @@ Parameters:
 Result: diff as text/plain
 
 
+POST /source/<project>/<package>?cmd=release
+
+  Releases sources and binaries of that package. This requires a set
+  release target in the repository definitions of <project>. Also the
+  trigger must be set to "manual"
+
+Parameters:
+  comment: description for the history
+  repository: limit the release to the specified repository
+
+XmlResult: status
+
+
 POST /source/<project>/<package>?cmd=unlock
 
   Unlocks a locked package
@@ -697,6 +710,7 @@ POST /source/<project>/<package>
   copy: copy package sources from another package
   undelete: undelete the package
   unlock: unlock a package with lock enabled. A comment is required.
+  release: release sources and binaries according to release target specification
   branch: branch a package into another one
   linktobranch: convert a plain source link into a full branch
   updatepatchinfo: update _patchinfo file, esp. the issues list

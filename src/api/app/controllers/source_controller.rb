@@ -242,7 +242,7 @@ class SourceController < ApplicationController
     valid_commands=['diff', 'branch', 'servicediff', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag', 
                     'rebuild', 'undelete', 'wipe', 'runservice', 'commit', 'commitfilelist', 
                     'createSpecFileTemplate', 'deleteuploadrev', 'linktobranch', 'updatepatchinfo',
-                    'getprojectservices', 'unlock']
+                    'getprojectservices', 'unlock', 'release']
     # list of commands which are allowed even when the project has the package only via a project link
     read_commands = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'getprojectservices']
     source_untouched_commands = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'rebuild', 'wipe', 'remove_flag', 'set_flag', 'getprojectservices']
@@ -258,7 +258,10 @@ class SourceController < ApplicationController
       raise MissingParameterError.new "POST request without given cmd parameter"
     end
     # find out about source and target dependening on command   - FIXME: ugly! sync calls
-    if command == 'branch'
+    if command == 'release'
+      origin_project_name = params[:project]
+      origin_package_name = params[:package]
+    elsif command == 'branch'
       origin_project_name = params[:project]
       target_package_name = origin_package_name = params[:package]
       target_project_name = params[:target_project] if params[:target_project]
@@ -291,7 +294,30 @@ class SourceController < ApplicationController
     tprj = nil
     tpkg = nil
     # The target must exist, except for following cases
-    if (request.post? and command == 'undelete') or (request.get? and deleted_package)
+    if (request.post? and command == 'release')
+      repo_matches=nil
+      spkg.project.repositories.each do |repo|
+        next if params[:repository] and params[:repository] != repo.name
+        repo.release_targets.each do |releasetarget|
+          unless @http_user.can_modify_project?(releasetarget.target_repository.project)
+            render_error :status => 403, :errorcode => "cmd_execution_no_permission",
+              :message => "no permission to write in project #{releasetarget.target_repository.project.name}"
+            return
+          end
+          unless releasetarget.trigger == "manual"
+            render_error :status => 400, :errorcode => "cmd_execution_no_permission",
+              :message => "Trigger is not set to manual in repository #{releasetarget.repository.project.name}/#{releasetarget.repository.name}"
+            return
+          end
+          repo_matches=true
+        end
+      end
+      unless repo_matches
+        render_error :status => 404, :errorcode => "no_matching_release_target",
+          :message => "No defined or matching release target"
+        return
+      end
+    elsif (request.post? and command == 'undelete') or (request.get? and deleted_package)
       tprj = Project.get_by_name(target_project_name)
       if Package.exists_by_project_and_name(target_project_name, target_package_name, follow_project_links: false)
         render_error :status => 404, :errorcode => "package_exists",
@@ -1828,6 +1854,23 @@ class SourceController < ApplicationController
     pass_to_backend path
 
     tpkg.sources_changed
+  end
+
+  # POST /source/<project>/<package>?cmd=release
+  def index_package_release
+    valid_http_methods :post
+    params[:user] = @http_user.login
+
+    pkg = Package.get_by_project_and_name params[:project], params[:package], use_source: true, follow_project_links: false
+    pkg.project.repositories.each do |repo|
+      next if params[:repository] and params[:repository] != repo.name
+      repo.release_targets.each do |releasetarget|
+        # find md5sum and release source and binaries
+        release_package(pkg, releasetarget.target_repository.project.name, pkg.name, repo)
+      end
+    end
+
+    render_ok
   end
 
   # POST /source/<project>/<package>?cmd=runservice
