@@ -537,6 +537,17 @@ sub getbinarylist_repository {
     };
     my $fd = gensym;
     if (-s "$reporoot/$prp/$arch/:full.solv") {
+      my @s = stat(_);
+      my $id64 = pack("a64", "$s[9]/$s[7]/$s[1]");
+      if (open($fd, '<', "$reporoot/$prp/$arch/:full.xcache")) {
+	my $id;
+	if (sysread($fd, $id, 64) == 64 && $id eq $id64) {
+          push @files, { 'name' => 'repositorycache', 'filename' => $fd };
+	  BSWatcher::reply_cpio(\@files);
+	  return undef;
+	}
+	unlink("$reporoot/$prp/$arch/:full.xcache");
+      }
       my $pool = BSSolv::pool->new();
       my $repo = addrepo_scan($pool, $prp, $arch);
       if ($repo) {
@@ -544,13 +555,22 @@ sub getbinarylist_repository {
         for my $p (values %data) {
 	  $p = $pool->pkg2data($p);
         }
-	# the streaming code can't handle big chunks of data, so we write
-        # the result to a tmp file and stream from it
-	BSUtil::store("$reporoot/$prp/$arch/:full.cache.$$", undef, \%data);
-	if (open($fd, '<', "$reporoot/$prp/$arch/:full.cache.$$")) {
+	if (keys(%data) < 100 && $s[7] < 10000) {
+	  # small repo, feed from memory
+	  push @files, { 'name' => 'repositorycache', 'data' => "pst0".Storable::nfreeze(\%data) };
+	} else {
+	  # cache result
+	  my $tmpname = "$reporoot/$prp/$arch/:full.xcache.$$";
+	  open($fd, '+>', $tmpname) || die("$tmpname: $!\n");
+	  # Storable uses PerlIO_write, so we have to use print instead of syswrite here
+	  print $fd $id64;
+	  Storable::nstore_fd(\%data, $fd) || die("nstore_fd $tmpname: $!\n");
+	  $fd->flush();
+	  BSUtil::do_fdatasync(fileno($fd)) if $BSUtil::fdatasync_before_rename;
+	  rename($tmpname, "$reporoot/$prp/$arch/:full.xcache");
+	  sysseek($fd, 64, Fcntl::SEEK_SET);
           push @files, { 'name' => 'repositorycache', 'filename' => $fd };
 	}
-	unlink("$reporoot/$prp/$arch/:full.cache.$$");
       }
       undef $repo;
       undef $pool;
