@@ -17,14 +17,10 @@
      <%= text_field_tag :email, @displayed_user.email %>
     </p>
     <p>
-    <% @roles.each do |r| %>
-      <% if @displayed_user.globalrole %>
-        <%= label_tag "globalrole_#{r}", "#{r}" %>
-        <% if @displayed_user.globalrole.include?(r) %>
-          <% select = true %>
-        <% end %>
-        <%= radio_button_tag :globalrole, r, select %>
-      <% end %>
+    <% if @displayed_user.globalrole and @displayed_user.globalrole.include?('Admin') %>
+      <input type="checkbox" name="globalrole" value="Admin" checked />
+    <% else %>
+      <input type="checkbox" name="globalrole" value="Admin" />
     <% end %>
     </p>
     <p>

@@ -26,7 +26,6 @@ User.find_or_create_by_login :login => "_nobody_", :email => "nobody@localhost",
 
 puts "Seeding roles_users table..."
 RolesUser.find_or_create_by_user_id_and_role_id(admin.id, admin_role.id)
-RolesUser.find_or_create_by_user_id_and_role_id(admin.id, user_role.id)
 
 puts "Seeding static_permissions table..."
 ["status_message_create", "set_download_counters", "download_binaries", "source_access", "access", "global_change_project", "global_create_project", "global_change_package", "global_create_package", "change_project", "create_project", "change_package", "create_package"].each do |sp_title|
