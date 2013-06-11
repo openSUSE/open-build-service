@@ -5,11 +5,13 @@
     <h2 class="box-header">Edit your account</h2>
     <%= form_tag(:action => 'save') do %>
       <input id="user" name="user" type="hidden" value="<%= user.login %>" />
-      <input id="globalrole" name="globalrole" type="hidden" value="<%= user.globalrole %>" />
+      <% if user.globalrole and user.globalrole.include?('Admin') %>
+        <input id="globalrole" name="globalrole" type="hidden" value="Admin" />
+      <% end %>
       <input id="state" name="state" type="hidden" value="<%= user.state %>" />
       <p>
          <%= label_tag :realname, 'Name:' %><br/>
-         <%= text_field_tag :realname, user.realname %>     
+         <%= text_field_tag :realname, user.realname %>
       </p>
       <p>
         <%= label_tag :email, 'e-Mail:' %><br/>
