@@ -4,6 +4,10 @@
     <project>openSUSE:11.0</project>
     <repository>standard</repository>
     <reponame>openSUSE_11.0</reponame>
+    <architecture>i586</architecture>
+    <architecture>x86_64</architecture>
+    <architecture>ppc</architecture>
+    <architecture>ppc64</architecture>
     <icon width="8" url="http://opensuse.org/static/os11logo8.png"/>
     <icon width="16" height="16" url="http://opensuse.org/static/os11logo16.png"/>
     <link>http://www.opensuse.org</link>
@@ -22,6 +26,8 @@
     <project>Fedora:9</project>
     <reponame>Fedora_9</reponame>
     <repository>standard</repository>
+    <architecture>i586</architecture>
+    <architecture>x86_64</architecture>
     <icon height="8" url="http://opensuse.org/static/fed9logo8.png"/>
     <icon width="16" height="16" url="http://opensuse.org/static/fed9logo16.png"/>
     <link>http://www.fedoraproject.org</link>

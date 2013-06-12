@@ -36,12 +36,20 @@
           <text/>
         </element>
         <zeroOrMore>
+          <ref name="architecture-element"/>
+        </zeroOrMore>
+        <zeroOrMore>
           <ref name="icon-element"/>
         </zeroOrMore>
         <element name="link">
           <text/>
         </element>
       </interleave>
+    </element>
+  </define>
+  <define ns="" name="architecture-element">
+    <element name="architecture">
+      <ref name="build-arch" />
     </element>
   </define>
   <define ns="" name="icon-element">
