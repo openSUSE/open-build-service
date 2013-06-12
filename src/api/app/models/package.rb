@@ -1048,7 +1048,9 @@ class Package < ActiveRecord::Base
       vprojects = Hash.new
       trepo.each do |p, r|
         next if vprojects.has_key? p
-        Project.find_by_name(p).packages.select(:name).each { |n| tpackages[n.name] = p }
+        prj = Project.find_by_name(p)
+        next unless prj # in case of remote projects
+        prj.packages.select(:name).each { |n| tpackages[n.name] = p }
         vprojects[p] = 1
       end
 
