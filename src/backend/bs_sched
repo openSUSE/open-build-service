@@ -86,6 +86,8 @@ my $uploaddir = "$bsdir/upload";
 my $rundir = $BSConfig::rundir || "$bsdir/run";
 my $infodir = "$bsdir/info";
 my $remotecache = "$BSConfig::bsdir/remotecache";
+my $workersrcserver = $BSConfig::workersrcserver ? $BSConfig::workersrcserver : $BSConfig::srcserver;
+my $workerreposerver = $BSConfig::workerreposerver ? $BSConfig::workerreposerver : $BSConfig::reposerver;
 
 if (@ARGV && $ARGV[0] eq '--testmode') {
   $testmode = 1;
@@ -618,10 +620,10 @@ sub set_building {
 	  if ($remoteprojs{$pr[0]}->{'sibling'}) {
 	    push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $remoteprojs{$pr[0]}->{'remoteurl'}};
 	  } else {
-	    push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
+	    push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workersrcserver};
 	  }
 	} else {
-	  push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::reposerver};
+	  push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workerreposerver};
 	}
       }
     }
@@ -633,10 +635,10 @@ sub set_building {
       if ($remoteprojs{$pr[0]}->{'sibling'}) {
 	push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $remoteprojs{$pr[0]}->{'remoteurl'}};
       } else {
-        push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
+        push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workersrcserver};
       }
     } else {
-      push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::reposerver};
+      push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workerreposerver};
     }
   }
 
@@ -722,8 +724,8 @@ sub set_building {
     'project' => $projid,
     'repository' => $repoid,
     'package' => $packid,
-    'srcserver' => $BSConfig::srcserver,
-    'reposerver' => $BSConfig::reposerver,
+    'srcserver' => $workersrcserver,
+    'reposerver' => $workerreposerver,
     'job' => $job,
     'arch' => $myarch,
     'reason' => $reason->{'explain'},
@@ -973,10 +975,10 @@ sub createdeltajob {
       if ($remoteprojs{$pr[0]}->{'sibling'}) {
         push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $remoteprojs{$pr[0]}->{'remoteurl'}};
       } else {
-        push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
+        push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workersrcserver};
       }
     } else {
-      push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::reposerver};
+      push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workerreposerver};
     }
   }
 
@@ -987,8 +989,8 @@ sub createdeltajob {
     'file' => '_delta',
     'srcmd5' => $srcmd5,
     'reason' => 'source change',
-    'srcserver' => $BSConfig::srcserver,
-    'reposerver' => $BSConfig::reposerver,
+    'srcserver' => $workersrcserver,
+    'reposerver' => $workerreposerver,
     'job' => $job,
     'arch' => $myarch,
     'readytime' => $now,
@@ -4369,9 +4371,9 @@ sub rebuildkiwiproduct {
     for (@{$prpsearchpath{$prp}}) {
       my @pr = split('/', $_, 2);
       if ($remoteprojs{$pr[0]}) {
-        push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
+        push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workersrcserver};
       } else {
-        push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::reposerver};
+        push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workerreposerver};
       }
     }
   }
@@ -4380,9 +4382,9 @@ sub rebuildkiwiproduct {
   for (@aprps) {
     my @pr = split('/', $_, 2);
     if ($remoteprojs{$pr[0]}) {
-      push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::srcserver};
+      push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workersrcserver};
     } else {
-      push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $BSConfig::reposerver};
+      push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workerreposerver};
     }
   }
 
@@ -4438,8 +4440,8 @@ sub rebuildkiwiproduct {
     'project' => $projid,
     'repository' => $repoid,
     'package' => $packid,
-    'srcserver' => $BSConfig::srcserver,
-    'reposerver' => $BSConfig::reposerver,
+    'srcserver' => $workersrcserver,
+    'reposerver' => $workerreposerver,
     'job' => $job,
     'arch' => $myarch,
     'srcmd5' => $srcmd5,

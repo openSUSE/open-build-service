@@ -7847,6 +7847,7 @@ my $conf = {
   'dispatches' => $dispatches,
   'setkeepalive' => 1,
   'maxchild' => 20,
+  'maxchild2' => 20,
 };
 
 my $aconf = {
@@ -7857,6 +7858,12 @@ my $aconf = {
   'getrequest_recvfd' => \&BSHandoff::receive,
   'setkeepalive' => 1,
 };
+
+if ($BSConfig::workersrcserver) {
+  my $wport = $port;
+  $wport = $1 if $BSConfig::workersrcserver =~ /:(\d+)$/;
+  $conf->{'port2'} = $wport if $wport != $port;
+}
 
 # set a repoid for identification of this data repository
 BSUtil::mkdir_p_chown("$projectsdir", $BSConfig::bsuser, $BSConfig::bsgroup) unless -d "$projectsdir";

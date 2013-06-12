@@ -3666,6 +3666,7 @@ my $conf = {
   'dispatches' => $dispatches,
   'setkeepalive' => 1, 
   'maxchild' => 20,
+  'maxchild2' => 20,
 };
 
 my $aconf = {
@@ -3676,5 +3677,11 @@ my $aconf = {
   'getrequest_recvfd' => \&BSHandoff::receive,
   'setkeepalive' => 1,
 };
+
+if ($BSConfig::workerreposerver) {
+  my $wport = $port;
+  $wport = $1 if $BSConfig::workerreposerver =~ /:(\d+)$/;
+  $conf->{'port2'} = $wport if $wport != $port;
+}
 
 BSStdServer::server('bs_repserver', \@ARGV, $conf, $aconf);

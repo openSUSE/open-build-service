@@ -44,6 +44,8 @@ use BSUtil;
 
 use strict;
 
+my $MS2;	# secondary server port
+
 # FIXME: store in request and make request available
 our $request;
 our $peer;
@@ -76,18 +78,29 @@ sub serveropen {
   my ($port, $user, $group) = @_;
   # check if $user and $group exist on this system
   my $tcpproto = getprotobyname('tcp');
-  if (!ref($port) && $port =~ /^&/) {
-    open(MS, "<$port") || die("socket open: $!\n");
+  my @ports;
+  if (ref($port)) {
+    @ports = ( $port );
   } else {
-    socket(MS , PF_INET, SOCK_STREAM, $tcpproto) || die "socket: $!\n";
-    setsockopt(MS, SOL_SOCKET, SO_REUSEADDR, pack("l",1));
-    if (ref($port)) {
-      bind(MS, sockaddr_in(0, INADDR_ANY)) || die "bind: $!\n";
-      ($$port) = sockaddr_in(getsockname(MS));
+    @ports = split(',', $port, 2);
+  }
+  my $s = \*MS;
+  for $port (@ports) {
+    if (!ref($port) && $port =~ /^&/) {
+      open($s, "<$port") || die("socket open: $!\n");
     } else {
-      bind(MS, sockaddr_in($port, INADDR_ANY)) || die "bind: $!\n";
+      socket($s , PF_INET, SOCK_STREAM, $tcpproto) || die "socket: $!\n";
+      setsockopt($s, SOL_SOCKET, SO_REUSEADDR, pack("l",1));
+      if (ref($port)) {
+        bind($s, sockaddr_in(0, INADDR_ANY)) || die "bind: $!\n";
+        ($$port) = sockaddr_in(getsockname($s));
+      } else {
+        bind($s, sockaddr_in($port, INADDR_ANY)) || die "bind: $!\n";
+      }
     }
-    listen(MS , 512) || die "listen: $!\n";
+    listen($s , 512) || die "listen: $!\n";
+    $s = \*MS2 if @ports > 1;
+    $MS2 = \*MS2 if @ports > 1;
   }
   BSUtil::drop_privs_to($user, $group);
 }
@@ -120,6 +133,10 @@ sub getserversocket {
   return *MS;
 }
 
+sub getserversocket2 {
+  return $MS2;
+}
+
 sub setserversocket {
   if (defined($_[0])) {
     (*MS) = @_;
@@ -130,6 +147,8 @@ sub setserversocket {
 
 sub serverclose {
   close MS;
+  close $MS2 if $MS2;
+  undef $MS2;
 }
 
 sub getsocket {
@@ -185,8 +204,10 @@ sub server {
 
   $conf ||= {};
   my $maxchild = $conf->{'maxchild'};
+  my $maxchild2 = $conf->{'maxchild2'};
   my $timeout = $conf->{'timeout'};
   my %chld;
+  my %chld2;
   my $peeraddr;
   my $periodic_next = 0;
   my @idle;
@@ -210,7 +231,12 @@ sub server {
     }
     # listen on MS until there is an incoming connection
     my $rin = '';
-    vec($rin, fileno(MS), 1) = 1;
+    if ($MS2) {
+      vec($rin, fileno(MS), 1) = 1 if !defined($maxchild) || keys(%chld) < $maxchild;
+      vec($rin, fileno($MS2), 1) = 1 if !defined($maxchild2) || keys(%chld2) < $maxchild;
+    } else {
+      vec($rin, fileno(MS), 1) = 1;
+    }
     my $r = select($rin, undef, undef, $tout);
     if (!defined($r) || $r == -1) {
       next if $! == POSIX::EINTR;
@@ -219,7 +245,13 @@ sub server {
     # now we know there is a connection on MS waiting to be accepted
     my $pid;
     if ($r) {
-      $peeraddr = accept(CLNT, MS);
+      my $chldp = \%chld;
+      if ($MS2 && !vec($rin, fileno(MS), 1)) {
+        $chldp = \%chld2;
+        $peeraddr = accept(CLNT, $MS2);
+      } else {
+        $peeraddr = accept(CLNT, MS);
+      }
       next unless $peeraddr;
       my $slot = @idle ? shift(@idle) : $idle_next++;
       $pid = fork();
@@ -229,14 +261,20 @@ sub server {
 	  $BSServer::slot = $slot if $conf->{'serverstatus'};
 	  last;
 	}
-        $chld{$pid} = $slot;
+        $chldp->{$pid} = $slot;
       }
       close CLNT;
     }
     # if there are already $maxchild connected, make blocking waitpid
     # otherwise make non-blocking waitpid
-    while (($pid = waitpid(-1, defined($maxchild) && keys(%chld) > $maxchild ? 0 : POSIX::WNOHANG)) > 0) {
-      my $slot = $chld{$pid};
+    while (1) {
+      my $hang = 0;
+      $hang = POSIX::WNOHANG if !defined($maxchild) || keys(%chld) < $maxchild;
+      $hang = POSIX::WNOHANG if $MS2 && (!defined($maxchild2) || keys(%chld) < $maxchild2);
+      $pid = waitpid(-1, $hang);
+      last unless $pid > 0;
+      my $slot = delete $chld{$pid};
+      $slot = delete $chld2{$pid} unless defined $slot;
       if (defined($slot)) {
         if ($conf->{'serverstatus'} && defined(sysseek(STA, $slot * 256, Fcntl::SEEK_SET))) {
 	  syswrite(STA, "\0" x 256, 256);
@@ -247,13 +285,16 @@ sub server {
 	  push @idle, $slot;
 	}
       }
-      delete $chld{$pid};
     }
     # timeout was set in the $conf and select timeouted on this value. There was no new connection -> exit.
     return 0 if !$r && defined $timeout;
   }
   # from now on, this is only the child process
   close MS;
+  if ($MS2) {
+    close $MS2;
+    undef $MS2;
+  }
   if ($conf->{'serverstatus'}) {
     close(STA);
     if (open(STA, '+<', $conf->{'serverstatus'})) {
