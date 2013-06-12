@@ -1426,7 +1426,6 @@ sub workerstatus {
       push @idle, {'hostarch' => $worker->{'hostarch'}, 'uri' => "http://$worker->{'ip'}:$worker->{'port'}", 'workerid' => $worker->{'workerid'}};
     }
   }
-  my $pre = $BSConfig::sibling ? "${BSConfig::sibling}:" : "";
   my @building;
   my @waiting;
   my @blocked;
@@ -1480,35 +1479,41 @@ sub workerstatus {
   @blocked = sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b} @blocked;
   @buildaverage = sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b} @buildaverage; 
 
-  my @daemondata;
+  my %types = map {$_ => 1} @{$cgi->{'type'} || []};
+  # FIXME: must be able to return multiple partitions
+  my @partitions;
+  my @daemons;
   my @daemonarchs = grep {s/^bs_sched\.(.*)\.lock$/$1/} sort(ls($rundir));
   push @daemonarchs, 'dispatcher' if -e "$rundir/bs_dispatch.lock";
   push @daemonarchs, 'publisher' if -e "$rundir/bs_publish.lock";
   push @daemonarchs, 'signer' if -e "$rundir/bs_signer.lock";
   push @daemonarchs, 'warden' if -e "$rundir/bs_warden.lock";
   @daemonarchs = (@{$cgi->{'arch'}}) if $cgi->{'arch'};
-  for my $daemonarch (@daemonarchs) {
+  for my $arch (@daemonarchs) {
     local *F;
     my $daemondata = {'state' => 'dead'};
     my $lock;
-    if ($daemonarch eq 'dispatcher') {
+    if ($arch eq 'dispatcher') {
       $lock = 'bs_dispatch.lock';
       $daemondata->{'type'} = 'dispatcher';
-    } elsif ($daemonarch eq 'publisher') {
+    } elsif ($arch eq 'publisher') {
       $lock = 'bs_publish.lock';
       $daemondata->{'type'} = 'publisher';
-    } elsif ($daemonarch eq 'signer') {
+    } elsif ($arch eq 'signer') {
       $lock = 'bs_signer.lock';
       $daemondata->{'type'} = 'signer';
-    } elsif ($daemonarch eq 'warden') {
+    } elsif ($arch eq 'warden') {
       $lock = 'bs_warden.lock';
       $daemondata->{'type'} = 'warden';
     } else {
       # scheduler
-      $lock = "bs_sched.$daemonarch.lock";
+      $lock = "bs_sched.$arch.lock";
       $daemondata->{'type'} = 'scheduler';
-      $daemondata->{'arch'} = $daemonarch;
+      $daemondata->{'arch'} = $arch;
+      my $si = readxml("$infodir/schedulerinfo.$arch", $BSXML::schedulerinfo, 1);
+      $daemondata->{'queue'} = $si->{'queue'} if $si && $si->{'queue'};
     }
+    next if %types && !$types{$daemondata->{'type'}};
     if (open(F, '<', "$rundir/$lock")) {
       if (!flock(F, LOCK_EX | LOCK_NB)) {
         my @s = stat(F);
@@ -1517,12 +1522,15 @@ sub workerstatus {
       }
       close F;
     }
-    my $si = readxml("$infodir/schedulerinfo.$daemonarch", $BSXML::schedulerinfo, 1);
-    $daemondata->{'queue'} = $si->{'queue'} if $si && $si->{'queue'};
-    push @daemondata, $daemondata;
+    push @daemons, $daemondata;
   }
 
-  my $ret = {};
+  my $partition = {};
+  $partition->{'name'} = $BSConfig::sibling if $BSConfig::sibling;
+  $partition->{'daemon'} = \@daemons if @daemons;
+  push @partitions, $partition;
+
+  my $ret = {'partition' => \@partitions};
   if (!$cgi->{'daemonsonly'}) {
     $ret->{'clients'} = @building + @idle;
     $ret->{'building'} = \@building;
@@ -1531,10 +1539,6 @@ sub workerstatus {
     $ret->{'buildavg'} = \@buildaverage;
     $ret->{'idle'} = \@idle;
   }
-  my $daemon = {};
-  $daemon->{'name'} = $pre if $pre;
-  $daemon->{'daemon'} = \@daemondata;
-  $ret->{'partition'} = [ $daemon ];;
   return ($ret, $BSXML::workerstatus);
 }
 
@@ -3658,7 +3662,7 @@ my $dispatches = [
   '/jobs/$arch/$job' => \&getjob,
 
   # info
-  '/workerstatus daemonsonly:bool? arch*' => \&workerstatus,
+  '/workerstatus daemonsonly:bool? arch* type:*' => \&workerstatus,
 
   '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? withstats:bool? summary:bool?' => \&getresult,
   'POST:/_command $cmd: $prpa+ package* code:*' => \&docommand,

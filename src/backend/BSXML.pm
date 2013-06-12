@@ -779,18 +779,18 @@ our $workerstatus = [
      ]],
      [[ 'partition' =>
 	    'name',
-           [[ 'daemon' =>
-                  'type',        # scheduler/dispatcher/signer/publisher/warden
-                  'arch',        # scheduler only
-                  'state',
-                  'starttime',
-                [ 'queue' =>     # scheduler only 
-                      'high',
-                      'med',
-                      'low',
-                      'next',
-                ],
-           ]],
+         [[ 'daemon' =>
+		'type',        # scheduler/dispatcher/signer/publisher/warden
+                'arch',        # scheduler only
+                'state',
+                'starttime',
+              [ 'queue' =>     # scheduler only 
+                    'high',
+                    'med',
+                    'low',
+                    'next',
+              ],
+         ]],
      ]],
 ];
 

@@ -5996,8 +5996,12 @@ sub getbuildstatus {
 
 sub getworkerstatus {
   my ($cgi) = @_;
+  # compat
+  if ($cgi->{'scheduleronly'} && !$cgi->{'daemonsonly'}) {
+    $cgi->{'daemonsonly'} = delete $cgi->{'scheduleronly'};
+  }
   my @args;
-  push @args, 'daemonsonly' if $cgi->{'scheduleronly'} || $cgi->{'daemonsonly'};
+  push @args, 'daemonsonly' if $cgi->{'daemonsonly'};
   push @args, map {"arch=$_"} @{$cgi->{'arch'} || []};
 
   if (!$BSConfig::partition || !$BSConfig::siblings) {
@@ -6007,9 +6011,10 @@ sub getworkerstatus {
     delete $_->{'uri'} for @{$ws->{'building'} || []};
     return ($ws, $BSXML::workerstatus);
   }
-  my %reposervers = map {$_ => 1} values(%$BSConfig::siblings);
+
+  # cummulated worker status
   my $cws;
-  if (!$cgi->{'scheduleronly'} && !$cgi->{'daemonsonly'}) {
+  if (!$cgi->{'daemonsonly'}) {
     $cws->{'clients'} = 0;
     $cws->{'building'} = [];
     $cws->{'waiting'} = [];
@@ -6018,10 +6023,14 @@ sub getworkerstatus {
     $cws->{'idle'} = [];
   }
   $cws->{'partition'} = [];
+
+  my %reposervers = map {$_ => 1} values(%$BSConfig::siblings);
   for my $reposerver (sort keys %reposervers) {
     my $ws = BSWatcher::rpc("$reposerver/workerstatus", $BSXML::workerstatus, @args);
+
     push @{$cws->{'partition'}}, @{$ws->{'partition'}};
-    next if $cgi->{'scheduleronly'} || $cgi->{'daemonsonly'};
+    next if $cgi->{'daemonsonly'};
+
     delete $_->{'uri'} for @{$ws->{'idle'} || []};
     delete $_->{'uri'} for @{$ws->{'building'} || []};
     push @{$cws->{'idle'}}, @{$ws->{'idle'} || []};
@@ -6049,7 +6058,7 @@ sub getworkerstatus {
   }
 
   # sort
-  if (!$cgi->{'scheduleronly'} && !$cgi->{'daemonsonly'}) {
+  if (!$cgi->{'daemonsonly'}) {
     $cws->{'idle'} = [ sort {$a->{'workerid'} cmp $b->{'workerid'} || $a->{'uri'} cmp $b->{'uri'} || $a cmp $b} @{$cws->{'idle'}} ];
     $cws->{'building'} = [ sort {$a->{'workerid'} cmp $b->{'workerid'} || $a->{'uri'} cmp $b->{'uri'} || $a cmp $b} @{$cws->{'building'}} ];
     $cws->{'waiting'} = [ sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b}  @{$cws->{'waiting'}} ];
