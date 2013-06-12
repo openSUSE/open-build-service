@@ -7,6 +7,13 @@ CREATE TABLE `architectures` (
   UNIQUE KEY `arch_name_index` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `architectures_distributions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `distribution_id` int(11) DEFAULT NULL,
+  `architecture_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `attrib_allowed_values` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `attrib_type_id` int(11) NOT NULL,
@@ -1065,6 +1072,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130414061002');
 INSERT INTO schema_migrations (version) VALUES ('20130603100244');
 
 INSERT INTO schema_migrations (version) VALUES ('20130610100244');
+
+INSERT INTO schema_migrations (version) VALUES ('20130612151549');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

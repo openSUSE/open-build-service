@@ -20,6 +20,9 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
                    "repository"=>"BaseDistro2_repo",
                    "vendor"=>"OBS",
                    "version"=>"Base",
+                   "architectures"=>
+                   {"type"=>"array",
+                     "architecture"=>["i586", "x86_64"]},
                    "icons"=>
                    {"type"=>"array",
                      "icon"=>
@@ -103,7 +106,6 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "repository", :content => "standard"
     assert_xml_tag :tag => "link", :content => "http://www.opensuse.org/"
     assert_xml_tag :tag => "icon", :attributes => { :url => "https://static.opensuse.org/distributions/logos/opensuse-12.2-8.png", :width => "8", :height => "8" }
-
   end
 
 

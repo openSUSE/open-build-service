@@ -2,7 +2,8 @@ class Distribution < ActiveRecord::Base
   validates_presence_of :vendor, :version, :name, :reponame, :repository, :project
   attr_accessible :vendor, :version, :name, :project, :reponame, :repository, :link
 
-  has_and_belongs_to_many :icons, :class_name => 'DistributionIcon'
+  has_and_belongs_to_many :icons, :class_name => 'DistributionIcon', :uniq => true
+  has_and_belongs_to_many :architectures, :class_name => 'Architecture', :uniq => true
   
   def self.parse(xmlhash)
     Distribution.transaction do
@@ -11,6 +12,10 @@ class Distribution < ActiveRecord::Base
       xmlhash.elements('distribution') do |d|
 	db = Distribution.create(vendor: d['vendor'], version: d['version'], name: d['name'], project: d['project'], 
 				 reponame: d['reponame'], repository: d['repository'], link: d['link']) 
+	d.elements('architecture') do |a|
+          dba = DistributionArchitecture.find_by_architecture(name: a.to_s)
+	  db.architectures << dba
+	end
 	d.elements('icon') do |i|
           dbi = DistributionIcon.find_or_create_by_url(width: i['width'], height: i['height'], url: i['url'])
 	  db.icons << dbi
@@ -21,7 +26,11 @@ class Distribution < ActiveRecord::Base
 
   def to_hash
     res = self.attributes
+    res["architectures"] = []
     res["icons"] = []
+    self.architectures.each do |a|
+      res["architectures"] << a.name
+    end
     self.icons.each do |i|
       res["icons"] << i.attributes
     end
@@ -30,7 +39,7 @@ class Distribution < ActiveRecord::Base
   
   def self.all_as_hash
     res = []
-    Distribution.includes(:icons).each { |d| res << d.to_hash }
+    Distribution.includes(:icons).includes(:architectures).each { |d| res << d.to_hash }
     return res
   end
 
@@ -45,12 +54,15 @@ class Distribution < ActiveRecord::Base
       next if body.blank? # don't let broken remote instances break us
       xmlhash = Xmlhash.parse(body)
       xmlhash.elements('distribution') do |d|
-        iconlist = []
+        iconlist = architecturelist = []
+        d.elements('architecture') do |a|
+          architecturelist << { "_content" => a.to_s }
+        end
         d.elements('icon') do |i|
           iconlist << { "width" => i['width'], "height" => i['height'], "url" => i['url'] }
         end
         list << {"vendor" => d['vendor'], "version" => d['version'], "name" => d['name'],
-          "project" => prj.name + ":" + d['project'], "icons" => iconlist,
+          "project" => prj.name + ":" + d['project'], "architectures" => architecturelist, "icons" => iconlist,
           "reponame" => d['reponame'], "repository" => d['repository'], "link" => d['link']}
       end
     end
