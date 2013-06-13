@@ -13,7 +13,7 @@ end
 
 puts "Seeding roles table..."
 admin_role      = Role.find_or_create_by_title :title => "Admin", :global => true
-user_role       = Role.find_or_create_by_title :title => "User", :global => true
+#user_role       = Role.find_or_create_by_title :title => "User", :global => true
 maintainer_role = Role.find_or_create_by_title :title => "maintainer"
 downloader_role = Role.find_or_create_by_title :title => 'downloader'
 reader_role     = Role.find_or_create_by_title :title => 'reader'

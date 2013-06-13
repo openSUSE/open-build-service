@@ -1281,25 +1281,26 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_not_nil pac
     assert_equal "GPLv2+", pac["format"]["rpm:license"]
     assert_equal "Development/Tools/Building", pac["format"]["rpm:group"]
-    assert_equal "package-1.0-1.src.rpm", pac["format"]["rpm:sourcerpm"].to_s
-    assert_equal "2060", pac["format"]["rpm:header-range"]['end'].to_s
-    assert_equal "280", pac["format"]["rpm:header-range"]['start'].to_s
-    assert_equal "bash", pac["format"]["rpm:requires"]['rpm:entry']['name'].to_s
-    assert_equal "myself", pac["format"]["rpm:provides"]['rpm:entry'][0]['name'].to_s
-    assert_equal "package", pac["format"]["rpm:provides"]['rpm:entry'][1]['name'].to_s
-    assert_equal "package(x86-64)", pac["format"]["rpm:provides"]['rpm:entry'][2]['name'].to_s
-    assert_equal "something", pac["format"]["rpm:conflicts"]['rpm:entry']['name'].to_s
-    assert_equal "old_crap", pac["format"]["rpm:obsoletes"]['rpm:entry']['name'].to_s
+    assert_equal "package-1.0-1.src.rpm", pac["format"]["rpm:sourcerpm"]
+    assert_equal "2060", pac["format"]["rpm:header-range"]['end']
+    assert_equal "280", pac["format"]["rpm:header-range"]['start']
+    assert_equal "bash", pac["format"]["rpm:requires"]['rpm:entry']['name']
+    assert_equal "myself", pac["format"]["rpm:provides"]['rpm:entry'][0]['name']
+    assert_equal "package", pac["format"]["rpm:provides"]['rpm:entry'][1]['name']
+    assert_equal "package(x86-64)", pac["format"]["rpm:provides"]['rpm:entry'][2]['name']
+    assert_equal "something", pac["format"]["rpm:conflicts"]['rpm:entry']['name']
+    assert_equal "old_crap", pac["format"]["rpm:obsoletes"]['rpm:entry']['name']
     if File.exist? "/etc/SuSE-release"
-      assert_equal "pure_optional", pac["format"]["rpm:suggests"]['rpm:entry']['name'].to_s
-      assert_equal "would_be_nice", pac["format"]["rpm:recommends"]['rpm:entry']['name'].to_s
-      assert_equal "other_package_likes_it", pac["format"]["rpm:supplements"]['rpm:entry']['name'].to_s
-      assert_equal "other_package", pac["format"]["rpm:enhances"]['rpm:entry']['name'].to_s
+      assert_equal "pure_optional", pac["format"]["rpm:suggests"]['rpm:entry']['name']
+      assert_equal "would_be_nice", pac["format"]["rpm:recommends"]['rpm:entry']['name']
+      assert_equal "other_package_likes_it", pac["format"]["rpm:supplements"]['rpm:entry']['name']
+      assert_equal "other_package", pac["format"]["rpm:enhances"]['rpm:entry']['name']
     end
     # file lists
     IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-filelists.xml.gz") do |io|
        hashed = Xmlhash.parse(io.read)
     end
+    #STDERR.puts JSON.pretty_generate(hashed)
     assert_equal "/my_packaged_file", hashed["package"][0]["file"]
 
     # verify that local linked packages still get branched correctly
