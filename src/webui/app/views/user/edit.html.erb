@@ -17,11 +17,13 @@
      <%= text_field_tag :email, @displayed_user.email %>
     </p>
     <p>
+    <%= label_tag :globalrole, 'Admin:' %>
     <% if @displayed_user.globalrole and @displayed_user.globalrole.include?('Admin') %>
-      <input type="checkbox" name="globalrole" value="Admin" checked />
+      <% checked = 'checked="checked"' %>
     <% else %>
-      <input type="checkbox" name="globalrole" value="Admin" />
+      <% checked = "" %>
     <% end %>
+      <input type="checkbox" name="globalrole" value="Admin" <%= checked.html_safe if checked %> />
     </p>
     <p>
     <% @states.each do |s| %>
