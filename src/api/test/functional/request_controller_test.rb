@@ -1890,8 +1890,18 @@ end
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
-    # accept the request
+    # decline it and try to accept it
+    # must not work to avoid races between multiple users
     prepare_request_with_user "king", "sunflower"
+    post "/request/#{id}?cmd=changestate&newstate=declined"
+    assert_response :success
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response 403
+    assert_xml_tag(:tag => "status", :attributes => {:code => 'post_request_no_permission'})
+    assert_xml_tag(:tag => "summary", :content => "Request is not in new state. You may reopen it by setting it to new.")
+    # reopen and accept the request
+    post "/request/#{id}?cmd=changestate&newstate=new"
+    assert_response :success
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response :success
 

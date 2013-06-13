@@ -922,12 +922,18 @@ class RequestController < ApplicationController
     end
 
     # Do not accept to skip the review, except force argument is given
-    if params[:newstate] == "accepted"
-       if params[:cmd] == "changestate" and req.state == :review and not params[:force]
+    if params[:cmd] == "changestate"  and params[:newstate] == "accepted"
+      if req.state == :review 
+        unless params[:force]
           render_error :status => 403, :errorcode => "post_request_no_permission",
             :message => "Request is in review state. You may use the force parameter to ignore this."
           return
-       end
+        end
+      elsif req.state != :new
+        render_error :status => 403, :errorcode => "post_request_no_permission",
+            :message => "Request is not in new state. You may reopen it by setting it to new."
+        return
+      end
     end
 
     # valid users and groups ?
