@@ -681,9 +681,13 @@ class RequestController < ApplicationController
     end
 
     # Do not accept to skip the review, except force argument is given
-    if params[:newstate] == "accepted"
-      if params[:cmd] == "changestate" and req.state == :review and not params[:force]
-        raise PostRequestNoPermission.new "Request is in review state. You may use the force parameter to ignore this."
+    if params[:cmd] == "changestate"  and params[:newstate] == "accepted"
+      if req.state == :review 
+        unless params[:force]
+i          raise PostRequestNoPermission.new "Request is in review state. You may use the force parameter to ignore this."
+        end
+      elsif req.state != :new
+        raise PostRequestNoPermission.new "Request is not in new state. You may reopen it by setting it to new."
       end
     end
 
