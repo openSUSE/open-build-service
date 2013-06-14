@@ -2606,14 +2606,20 @@ sub update_project_meta_resume {
     # update meta failed, do it the hard way...
     my $async = {'_dolink' => $handle->{'_dolink'}, '_changetype' => $handle->{'_changetype'}, '_changelevel' => $handle->{'_changelevel'}};
     get_projpacks($handle->{'_ctx'}, $async, $projid);
-  } else {
+  } elsif ($projpacks->{$projid}) {
     # update meta worked! Now get those packages as well
     my $packids = $handle->{'_packids'};
     if ($packids && @$packids) {
       # fetch those as well
       my $async = {'_dolink' => 1, '_changetype' => 'high', '_changelevel' => 1};
       get_projpacks($handle->{'_ctx'}, $async, $projid, @$packids);
+    } else {
+      xrpc_setchanged($handle);
     }
+  } else {
+    # project is gone!
+    delete $handle->{'_packids'};
+    get_projpacks_resume($handle, $error, $projpacksin);
   }
 }
 
