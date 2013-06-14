@@ -5373,17 +5373,21 @@ sub checkpackage {
   if ($ctx->{'cychash'}->{$packid}) {
     # package belongs to a cycle, prune blocked list
     my $cycpass = $ctx->{'cycpass'}->{$packid} || 0;
-    if (@blocked && $cycpass == 2) {
+    if (@blocked && $cycpass == 3) {
       # cycpass == 2 means that packages of this cycle are building
       # because of source changes
       print "      - $packid ($packtype)\n";
-      print "        blocked by cycle builds\n";
+      print "        blocked by cycle builds ($blocked[0]...)\n";
       return ('blocked', join(', ', @blocked));
     }
     my %cycs = map {$_ => 1} @{$ctx->{'cychash'}->{$packid}};
     # prune building cycle packages from blocked
     my $building = $ctx->{'building'};
-    @blocked = grep {!$cycs{$_} || !$building->{$_}} @blocked;
+    @blocked = grep {!$cycs{$dep2src->{$_}} || !$building->{$dep2src->{$_}}} @blocked;
+    if (@blocked) {
+      print "      - $packid ($packtype)\n";
+      print "        blocked ($blocked[0]...)\n";
+    }
   }
   if (@blocked) {
     # print "      - $packid ($packtype)\n";
@@ -7258,12 +7262,13 @@ NEXTPRP:
     for my $p ($pool->consideredpackages()) {
       my $rprp = $pool->pkg2reponame($p);
       my $n = $pool->pkg2name($p);
+      my $sn = $pool->pkg2srcname($p) || $n;
       $dep2pkg{$n} = $p;
-      $dep2src{$n} = $pool->pkg2srcname($p) || $n;
+      $dep2src{$n} = $sn;
       if ($rprp eq $prp) {
 	$depislocal{$n} = 1;
       } else {
-	$notready{$n} = 2 if $prpnotready{$rprp} && $prpnotready{$rprp}->{$n};
+	$notready{$sn} = 2 if $prpnotready{$rprp} && $prpnotready{$rprp}->{$sn};
       }
     }
     $ctx->{'building'} = \%building;
@@ -7499,14 +7504,14 @@ NEXTPRP:
 	  $packid = shift @cnext;
 	  $cycpass{$packid} = 1;	# now doinig phase 1
 	  $incycle = 1;
-	  if (@cnext == 1) {
-	    # just one package left in cycle, enter phase 2
-	    if (grep {$building{$_}} @{$cychash{$packid}}) {
-	      # we are building packages because of source changes,
-	      # set cycpass to 2 so that we don't start other builds
-	      $cycpass{$_} = 2 for @{$cychash{$packid}};
-	    }
-	  }
+	} elsif (($cycpass{$packid} || 0) < 2) {
+	  # enter phase 2
+	  $cycpass{$packid} = 2;	# just in case...
+	  my $pass = 2;
+	  # we are building packages because of source changes,
+	  # set cycpass to 3 so that we don't start other builds
+	  $pass = 3 if grep {$building{$_}} @{$cychash{$packid}};
+	  $cycpass{$_} = $pass for @{$cychash{$packid}};
 	}
       }
       $ctx->{'incycle'} = $incycle;
