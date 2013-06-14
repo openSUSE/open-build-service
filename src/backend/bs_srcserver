@@ -6507,7 +6507,7 @@ sub published {
   if (defined($projid) || !$BSConfig::partition || !$BSConfig::siblings) {
     my $reposerver = $BSConfig::partition ? projid2reposerver($projid) : $BSConfig::reposerver;
     my $param = {
-      'uri' => "$BSConfig::reposerver$p",
+      'uri' => "$reposerver$p",
       'ignorestatus' => 1,
       'receiver' => \&BSServer::reply_receiver,
     };
