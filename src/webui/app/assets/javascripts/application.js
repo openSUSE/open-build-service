@@ -11,7 +11,8 @@
 // GO AFTER THE REQUIRES BELOW.
 //
 //= require jquery
-//= require jquery-ui
+//= require jquery.ui.menu
+//= require jquery.ui.autocomplete
 //= require jquery_ujs
 //
 //= require jquery.expander.js

@@ -49,11 +49,11 @@ GEM
     chunky_png (1.2.8)
     ci_reporter (1.8.4)
       builder (>= 2.1.2)
-    codemirror-rails (3.12)
-      railties (~> 3.0)
+    codemirror-rails (3.13)
+      railties (>= 3.0, < 5)
     coderay (1.0.9)
     cssmin (1.0.3)
-    dalli (2.6.3)
+    dalli (2.6.4)
     delayed_job (3.0.5)
       activesupport (~> 3.0)
     delayed_job_active_record (0.4.4)
@@ -64,9 +64,9 @@ GEM
       multi_json (~> 1.0)
     faker (1.1.2)
       i18n (~> 0.5)
-    ffi (1.8.1)
+    ffi (1.9.0)
     headless (1.0.1)
-    hike (1.2.2)
+    hike (1.2.3)
     hoptoad_notifier (2.4.11)
       activesupport
       builder
@@ -74,9 +74,12 @@ GEM
     journey (1.0.4)
     jquery-datatables-rails (1.11.2)
       jquery-rails
-    jquery-rails (2.2.1)
+    jquery-rails (3.0.1)
       railties (>= 3.0, < 5.0)
       thor (>= 0.14, < 2.0)
+    jquery-ui-rails (4.0.3)
+      jquery-rails
+      railties (>= 3.1.0)
     json (1.8.0)
     launchy (2.3.0)
       addressable (~> 2.3)
@@ -86,15 +89,17 @@ GEM
     metaclass (0.0.1)
     method_source (0.8.1)
     mime-types (1.23)
+    mini_portile (0.5.0)
     minitest (4.7.4)
     minitest-colorize (0.0.5)
       minitest (>= 2.0)
     mobileesp_converted (0.2.1)
     mocha (0.14.0)
       metaclass (~> 0.0.1)
-    multi_json (1.7.3)
+    multi_json (1.7.7)
     mysql2 (0.3.11)
-    nokogiri (1.5.9)
+    nokogiri (1.6.0)
+      mini_portile (~> 0.5.0)
     pkg-config (1.1.4)
     polyglot (0.3.3)
     pry (0.9.12.2)
@@ -125,7 +130,7 @@ GEM
       rake (>= 0.8.7)
       rdoc (~> 3.4)
       thor (>= 0.14.6, < 2.0)
-    rake (10.0.4)
+    rake (10.1.0)
     rdoc (3.12.2)
       json (~> 1.4)
     rubyzip (0.9.9)
@@ -134,7 +139,7 @@ GEM
       railties (~> 3.2.0)
       sass (>= 3.1.10)
       tilt (~> 1.3)
-    selenium-webdriver (2.32.1)
+    selenium-webdriver (2.33.0)
       childprocess (>= 0.2.5)
       multi_json (~> 1.0)
       rubyzip
@@ -155,7 +160,7 @@ GEM
     sqlite3 (1.3.7)
     thor (0.18.1)
     tilt (1.4.1)
-    treetop (1.4.12)
+    treetop (1.4.14)
       polyglot
       polyglot (>= 0.3.1)
     tzinfo (0.3.37)
@@ -188,6 +193,7 @@ DEPENDENCIES
   i18n (= 0.6.1)
   jquery-datatables-rails
   jquery-rails
+  jquery-ui-rails
   json
   launchy
   minitest (< 5.0)
@@ -195,7 +201,7 @@ DEPENDENCIES
   mobileesp_converted
   mocha (> 0.13.0)
   mysql2
-  nokogiri (~> 1.5.0)
+  nokogiri (~> 1.6.0)
   pry (>= 0.9.12)
   rails (~> 3.2.9)
   rails_tokeninput (>= 1.6.1.rc1)

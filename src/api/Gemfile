@@ -10,7 +10,7 @@ gem 'actionmailer'
 
 gem 'mysql2'
 gem 'daemons'
-gem 'nokogiri', '~>1.5.0'
+gem 'nokogiri', '~>1.6.0'
 gem 'delayed_job', '>3.0'
 gem 'delayed_job_active_record'
 gem 'hoptoad_notifier', "~> 2.3"
@@ -20,7 +20,7 @@ gem 'ruby-ldap', :require => false
 gem 'dalli', :require => false
 
 group :test do
-  gem 'database_cleaner'
+  gem 'database_cleaner', '>= 1.0.1'
   gem 'ci_reporter'
   gem 'simplecov-rcov', :require => false
   gem 'minitest', '< 5.0'
