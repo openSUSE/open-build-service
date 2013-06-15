@@ -1273,14 +1273,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
        hashed = Xmlhash.parse(io.read)
     end
     pac = nil
-    hashed["package"].each do |p|
-      next unless p["name"].to_s == "package"
-      next unless p["arch"].to_s == "x86_64"
+    hashed.elements("package") do |p|
+      next unless p["name"] == "package"
+      next unless p["arch"] == "x86_64"
       pac = p
     end
     assert_not_nil pac
-    assert_equal "GPLv2+", pac["format"]["rpm:license"].to_s
-    assert_equal "Development/Tools/Building", pac["format"]["rpm:group"].to_s
+    assert_equal "GPLv2+", pac["format"]["rpm:license"]
+    assert_equal "Development/Tools/Building", pac["format"]["rpm:group"]
     assert_equal "package-1.0-1.src.rpm", pac["format"]["rpm:sourcerpm"].to_s
     assert_equal "2060", pac["format"]["rpm:header-range"]['end'].to_s
     assert_equal "280", pac["format"]["rpm:header-range"]['start'].to_s
@@ -1290,15 +1290,17 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_equal "package(x86-64)", pac["format"]["rpm:provides"]['rpm:entry'][2]['name'].to_s
     assert_equal "something", pac["format"]["rpm:conflicts"]['rpm:entry']['name'].to_s
     assert_equal "old_crap", pac["format"]["rpm:obsoletes"]['rpm:entry']['name'].to_s
-    assert_equal "pure_optional", pac["format"]["rpm:suggests"]['rpm:entry']['name'].to_s
-    assert_equal "would_be_nice", pac["format"]["rpm:recommends"]['rpm:entry']['name'].to_s
-    assert_equal "other_package_likes_it", pac["format"]["rpm:supplements"]['rpm:entry']['name'].to_s
-    assert_equal "other_package", pac["format"]["rpm:enhances"]['rpm:entry']['name'].to_s
+    if File.exist? "/etc/SuSE-release"
+      assert_equal "pure_optional", pac["format"]["rpm:suggests"]['rpm:entry']['name'].to_s
+      assert_equal "would_be_nice", pac["format"]["rpm:recommends"]['rpm:entry']['name'].to_s
+      assert_equal "other_package_likes_it", pac["format"]["rpm:supplements"]['rpm:entry']['name'].to_s
+      assert_equal "other_package", pac["format"]["rpm:enhances"]['rpm:entry']['name'].to_s
+    end
     # file lists
     IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-filelists.xml.gz") do |io|
        hashed = Xmlhash.parse(io.read)
     end
-    assert_equal "/my_packaged_file", hashed["package"][0]["file"].to_s
+    assert_equal "/my_packaged_file", hashed["package"][0]["file"]
 
     # verify that local linked packages still get branched correctly
     post "/source/BaseDistro2.0/pack2", :cmd => "branch"
