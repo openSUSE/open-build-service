@@ -1663,15 +1663,15 @@ publishprog_done:
   # support for regex usage in $BSConfig::publishedhook
   my $publish_prp = $prp;
   if ($BSConfig::publishedhook_use_regex) {
-    for my $key (keys %{$BSConfig::publishedhook}) {
-      if ($prp =~ /$key/) {
+    for my $key (sort {$b cmp $a}} keys %{$BSConfig::publishedhook}) {
+      if ($prp =~ /^$key/) {
         $publish_prp = $key;
         last;
       }
     }
   }
 
-  if ($BSConfig::publishedhook && $BSConfig::publishedhook->{$prp}) {
+  if ($BSConfig::publishedhook && $BSConfig::publishedhook->{$publish_prp}) {
     qsystem($BSConfig::publishedhook->{$publish_prp}, $prp, $extrep, @changed) && warn("    $BSConfig::publishedhook->{$publish_prp} failed: $?");
   }
 
