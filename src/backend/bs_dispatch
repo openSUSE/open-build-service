@@ -466,22 +466,24 @@ sub oracle {
 my %syncedjobs;
 my %lastmastersync;
 
+#
+# XXX: should not be here! Use src server instead!
 sub projid2reposerver {
   my ($projid) = @_;
-  return $BSConfig::reposerver unless $BSConfig::siblings;
-  my @p = @{$BSConfig::partition || []}; 
-  my $sib;
+  return $BSConfig::reposerver unless $BSConfig::partitionservers;
+  my @p = @{$BSConfig::partitioning || []}; 
+  my $par;
   while (@p) {
     if ($projid =~ /^$p[0]/) {
-      $sib = $p[1];
+      $par = $p[1];
       last;
     }    
     splice(@p, 0, 2);
   }
-  $sib = $BSConfig::sibling unless defined $sib;
-  die("cannot determine sibling for $projid\n") unless defined $sib;
-  die("sibling '$sib' from partition does not exist\n") unless $BSConfig::siblings->{$sib};
-  return $BSConfig::siblings->{$sib};
+  $par = $BSConfig::partition unless defined $par;
+  die("cannot determine partition for $projid\n") unless defined $par;
+  die("partition '$par' from partitioning does not exist\n") unless $BSConfig::partitionservers->{$par};
+  return $BSConfig::partitionservers->{$par};
 }
 
 sub dispatchslave {
@@ -495,7 +497,7 @@ sub dispatchslave {
     my $deleted = 0;
     # if we know how to do project partitioning, we get the job list from
     # the master dispatcher and reduce it to the jobs in our partition
-    if ($BSConfig::partition && ($lastmastersync{$arch} || 0) + 600 < $now) {
+    if ($BSConfig::partitioning && ($lastmastersync{$arch} || 0) + 600 < $now) {
       my $res;
       eval {
         $res = BSRPC::rpc({

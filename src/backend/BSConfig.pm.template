@@ -201,17 +201,17 @@ our $relsync_pool = {
 #
 # This repo service is the 'home' server for all home:* projects. This and the
 # $reposerver setting must be different on the binary backend servers.
-# our $sibling = 'home';
+# our $partition = 'home';
 #
 # this defines how the projects are split. All home: projects are hosted
-# on an own server in this example
-# our $partition = [ 'home:' => 'home',
-#                    '.*' => 'main',
-#                 ];
+# on an own server in this example. Order is important.
+# our $partitioning = [ 'home:' => 'home',
+#                       '.*'    => 'main',
+#                     ];
 #
-# our $siblings = { 'home' => 'http://home-backend-server:5252',
-#                   'main' => 'http://main-backend-server:5252',
-#                  };
+# our $partitionservers = { 'home' => 'http://home-backend-server:5252',
+#                           'main' => 'http://main-backend-server:5252',
+#                         };
 
 
 # host specific configs

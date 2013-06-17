@@ -981,7 +981,7 @@ sub getbinary_info {
     }
     if (!$projpack) {
       my @args = ("project=$projid", "repository=$repoid", "arch=$arch");
-      push @args, "sibling=$BSConfig::sibling" if $BSConfig::sibling;
+      push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
       $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', 'nopackages', @args);
     }
     die("404 no such project/repository\n") unless $projpack->{'project'};
@@ -1526,7 +1526,7 @@ sub workerstatus {
   }
 
   my $partition = {};
-  $partition->{'name'} = $BSConfig::sibling if $BSConfig::sibling;
+  $partition->{'name'} = $BSConfig::partition if $BSConfig::partition;
   $partition->{'daemon'} = \@daemons if @daemons;
   push @partitions, $partition;
 
@@ -2357,7 +2357,7 @@ sub getbuildinfo {
   my $uploaded;
   my @args = ("project=$projid", "repository=$repoid", "arch=$arch");
   push @args, "package=$packid" if defined($packid);
-  push @args, "sibling=$BSConfig::sibling" if $BSConfig::sibling;
+  push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
   if (!$pdata) {
     $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'expandedrepos', 'withremotemap', 'ignoredisable', @args);
     die("404 no such project/package/repository\n") unless $projpack->{'project'};
@@ -2388,7 +2388,7 @@ sub getbuildinfo {
   if ($packtype eq 'kiwi') {
     if (@{$info->{'path'} || []}) {
       @args = map {"project=$_->{'project'}"} @{$info->{'path'}};
-      push @args, "sibling=$BSConfig::sibling" if $BSConfig::sibling;
+      push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
       my $pp = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withremotemap', 'nopackages', @args);
       %remotemap = (%remotemap, map {$_->{'project'} => $_} @{$pp->{'remotemap'} || []});
     }
@@ -3022,7 +3022,7 @@ sub postrepo {
   my ($cgi, $projid, $repoid, $arch) = @_;
 
   my @args = ("project=$projid", "repository=$repoid", "arch=$arch");
-  push @args, "sibling=$BSConfig::sibling" if $BSConfig::sibling;
+  push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
   # FIXME: add remote support
   my $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', @args);
   my $proj = $projpack->{'project'}->[0];

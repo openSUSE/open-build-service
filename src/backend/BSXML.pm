@@ -302,7 +302,7 @@ our $projpack = [
 	    'remoteurl', 
 	    'remoteproject', 
 	    'remoteroot', 
-	    'sibling',
+	    'partition',
 	    'proto',	# project data not included
 	     [],
 	    'config',
