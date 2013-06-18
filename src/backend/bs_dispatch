@@ -193,7 +193,10 @@ sub assignjob {
       $badhost{"$info->{'project'}/$info->{'package'}/$info->{'arch'}/@{[(split(':', $idlename, 2))[1]]}"} = time();
       return 'badhost';
     }
-    unlink("$workersdir/idle/$idlename");	# broken client
+    if ($err =~ /bad job/) {
+      return 'badjob';
+    }
+    unlink("$workersdir/idle/$idlename");	# broken client or rebooting
     return undef;
   }
   unlink("$workersdir/idle/$idlename");	# no longer idle
@@ -1123,7 +1126,8 @@ while (1) {
 	  }
 	  next;
 	}
-	next if $res eq 'badhost';
+	last if $res eq 'badjob';
+	next if $res ne 'assigned';
 	my $harch = (split(':', $idle, 2))[0];
 	for (@{$cando{$harch} || []}) {
 	  $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
