@@ -117,7 +117,7 @@ OBS_WORKER_INSTANCES="0"
 # 0250 is the swap device
 #
 #OBS_WORKER_INSTANCE_NAMES="LINUX075 LINUX076 LINUX077"
-OBS_WORKER_INSTANCE_NAMES="LINUX075"
+OBS_WORKER_INSTANCE_NAMES=""
 
 ## Path:        Applications/OBS
 ## Description: The base directory, where sub directories for each worker will get created
