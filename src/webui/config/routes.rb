@@ -185,7 +185,7 @@ OBSWebUI::Application.routes.draw do
     get 'project/status' => :status
     get 'project/maintained_projects' => :maintained_projects
     get 'project/add_maintained_project_dialog' => :add_maintained_project_dialog
-    get 'project/add_maintained_project' => :add_maintained_project
+    post 'project/add_maintained_project' => :add_maintained_project
     get 'project/remove_maintained_project' => :remove_maintained_project
     get 'project/maintenance_incidents' => :maintenance_incidents
     get 'project/list_incidents' => :list_incidents
