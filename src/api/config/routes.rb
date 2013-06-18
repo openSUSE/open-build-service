@@ -4,7 +4,7 @@ OBSApi::Application.routes.draw do
 
     get '/' => 'main#index'
 
-    resource :configuration, :only => [:show, :update]
+    resource :configuration, :only => [:show, :update, :schedulers]
 
     cons = { :project => %r{[^\/]*}, :package => %r{[^\/]*}, :binary => %r{[^\/]*}, :user => %r{[^\/]*}, :login => %r{[^\/]*}, :title => %r{[^\/]*}, :service => %r{\w[^\/]*},
              :repository => %r{[^\/]*}, :filename => %r{[^\/]*}, :arch => %r{[^\/]*}, :id => %r{\d*} }

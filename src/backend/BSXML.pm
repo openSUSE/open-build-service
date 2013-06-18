@@ -1431,6 +1431,17 @@ our $sourcediff = [
       ],
 ];
 
+our $configuration = [
+    'configuration' =>
+	    [],
+            'title',        #webui only
+            'description',  #webui only
+            'name',         #obsname
+          [ 'schedulers' =>
+             [[ 'arch' => '_content' ]],
+          ],
+];
+
 our $issue_trackers = [
     'issue-trackers' =>
      [[ 'issue-tracker' =>

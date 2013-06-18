@@ -1,5 +1,11 @@
 class Architecture < ActiveRecord::Base
 
+#
+# FIXME3.0: This controller is obsolete and will be removed
+#           Do not add new stuff here!
+#
+
+
   has_many :repository_architectures
   has_many :repositories, :through => :repository_architectures
   

@@ -7640,6 +7640,24 @@ sub getpackagesourceinfo {
 
 ####################################################################
 
+sub putconfiguration {
+  my ($cgi) = @_;
+  mkdir_p($uploaddir);
+  my $uploaded = BSServer::read_file("$uploaddir/$$");
+  die("upload failed\n") unless $uploaded;
+  my $configuration = readxml("$uploaddir/$$", $BSXML::configuration);
+  unlink("$uploaddir/$$");
+  writexml("$BSConfig::bsdir/.configuration.xml", "$BSConfig::bsdir/configuration.xml", $configuration, $BSXML::configuration);
+  return $BSStdServer::return_ok;
+}
+
+sub getconfiguration {
+  my $configuration = readxml("$BSConfig::bsdir/configuration.xml", $BSXML::configuration, 1) || {};
+  return ($configuration, $BSXML::configuration);
+}
+
+####################################################################
+
 sub putissuetrackers {
   my ($cgi) = @_;
   mkdir_p($uploaddir);
@@ -7775,6 +7793,10 @@ my $dispatches = [
   # service interface, just for listing for now
   '/service' => \&listservices,
 #  '/service/$service' => \&service,
+
+  # configuration
+  'PUT:/configuration' => \&putconfiguration,
+  '/configuration' => \&getconfiguration,
 
   # issue trackers
   'PUT:/issue_trackers' => \&putissuetrackers,

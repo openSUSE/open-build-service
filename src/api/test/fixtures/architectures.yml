@@ -47,7 +47,7 @@ i586:
   id: 1
   name: i586
   recommended: 1
-  available: 0
+  available: 1
 i686:
   id: 37
   name: i686
@@ -132,4 +132,4 @@ x86_64:
   id: 2
   name: x86_64
   recommended: 1
-  available: 0
+  available: 1

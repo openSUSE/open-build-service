@@ -27,42 +27,6 @@ GET /about
 XmlResult: about
 
 
-== Architectures
-
-Host api.opensuse.org
-
-GET /architectures
-
-  Get the list of available architectures
-
-XmlResult: directory
-
-<name>: Architecture name
-
-GET /architectures/<name>
-
-  Read architecture data.
-
-XmlResult: architecture
-
-PUT /architectures/<name>
-
-  Update architecture data.
-
-XmlResult: status
-
-POST /architectures/<name>
-
-  Create new architecture.
-
-XmlResult: status
-
-DELETE /architectures/<name>
-
-  Delete architecture.
-
-XmlResult: status
-
 == Issue Trackers
 
 GET /issue_trackers

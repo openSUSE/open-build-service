@@ -29,12 +29,6 @@ Regressions:
 
  * 
 
-Changes on purpose:
-===================
-
- * The scheduler states in /build/_workerstates got moved into a 
-   partition structure to support multiple backends running in one instance.
-
 Features
 ========
 
@@ -43,11 +37,26 @@ Features
 
  * The api can be configured to access protect all new created projects by default
 
+ * configuration data which is used by multiple obs parts is stored in /configuration
+   path. This is the configuration.xml file in the backend. It contains 
+    - enabled scheduler architectures
+    - OBS instance name and description
+
+Changes on purpose:
+===================
+
+ * The scheduler states in /build/_workerstates got moved into a 
+   partition structure to support multiple backends running in one instance.
+
 Deprecated:
 ===========
 
 The following calls have been marked as deprecated, they will get removed in OBS 3.0
 
+ * The /architectures path got obsoleted by the following:
+   => Use /configuration to configure the available architectures. This is also
+      used by the backend now.
+   => Define the used architectures for default targets directly in /distribution
 
 Notes for systems using systemd:
 ================================

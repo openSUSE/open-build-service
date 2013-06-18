@@ -13,7 +13,8 @@ class ConfigurationsController < ApplicationController
   # GET /configuration.json
   # GET /configuration.xml
   def show
-    @configuration = ::Configuration.select("title, description").first
+    @configuration = ::Configuration.select("title, description, name").first
+    @architectures = Architecture.where(:available => 1)
 
     respond_to do |format|
       format.xml  
@@ -30,10 +31,12 @@ class ConfigurationsController < ApplicationController
     respond_to do |format|
       xml = params["xmlhash"] || {}
       attribs = {}
-      attribs[:title] = xml["title"] || params["title"]
-      attribs[:description] = xml["description"] || params["description"]
+      attribs[:title] = xml["title"] || params["title"] || ""
+      attribs[:description] = xml["description"] || params["description"] || ""
+      attribs[:name] = xml["name"] || params["name"] || ""
       ret = @configuration.update_attributes(attribs)
       if ret
+        @configuration.save!
         format.xml  { head :ok }
         format.json { head :ok }
       else
