@@ -34,6 +34,7 @@ pushd src/api
 if test "$REMOVEGEMLOCK" = true; then
   rm Gemfile.lock
 fi
+gem install bundler
 bundle install
 popd
 
