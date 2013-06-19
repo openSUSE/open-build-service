@@ -3988,8 +3988,17 @@ sub concatconfigs {
       $config .= "\nMacros:\n$macros:Macros\n\n";
       $macros = '';
       $lastr = $r;
-    } elsif ($c =~ /^(.*\n)?\s*macros:[^\n]*\n(.*)/si) {
-      # single macro section. cumulate
+      my $s1 = '\A(.*^\s*:macros\s*$)(.*?)\Z';	# should always match
+      if ($c =~ /$s1/msi) {
+        $config .= $1;
+	$c = $2;
+      } else {
+        $config .= $c;
+	$c = '';
+      }
+    }
+    if ($c =~ /^(.*\n)?\s*macros:[^\n]*\n(.*)/si) {
+      # has single macro section at end. cumulate
       $c = defined($1) ? $1 : '';
       $macros .= "\n### from $p\n";
       $macros .= "%_repository $r\n";
