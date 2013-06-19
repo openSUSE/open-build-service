@@ -27,7 +27,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       releaseproject = Project.get_by_name a.values[0].value
     end
     if releaseproject.project_type.to_sym != :maintenance_release
-      raise NoMaintenanceReleaseTarget.new "Maintenance incident request contains release target project #{releaseproject.name} with invalid type #{releaseproject.project_type} for package #{pkg.name}"
+      raise NoMaintenanceReleaseTarget.new "Maintenance incident request contains release target project #{releaseproject.name} with invalid project kind \"#{releaseproject.project_type}\" for package #{pkg.name}"
     end
     return releaseproject
   end
