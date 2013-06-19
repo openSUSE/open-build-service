@@ -42,6 +42,8 @@ fi
 rundir="$OBS_RUN_DIR"
 logdir="$OBS_LOG_DIR"
 
+OBS_SCHEDULER_ARCHITECTURES=`$obsdir/bs_admin --show-scheduler-architectures`
+
 rc_reset
 case "$1" in
 	start)

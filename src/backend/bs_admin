@@ -55,6 +55,7 @@ my $reporoot  = "$BSConfig::bsdir/build";
 my $eventroot = "$BSConfig::bsdir/events";
 my $projectsdir = "$BSConfig::bsdir/projects";
 my $srcrepdir = "$BSConfig::bsdir/sources";
+my $configfile = "$BSConfig::bsdir/configuration.xml";
 my $treesdir = $nosharedtrees ? "$BSConfig::bsdir/trees" : $srcrepdir;
 my $sourcedb = "$BSConfig::bsdir/db/source";
 
@@ -174,6 +175,9 @@ Debug Options
 
  --parse-build-desc <file> [<arch>]
    Parse a spec, dsc or kiwi file with the Build script parser.
+
+ --show-scheduler-architectures
+   Show all architectures which are configured in configuration.xml to be supported by this instance.
 ";
 }
 
@@ -630,6 +634,11 @@ while (@ARGV) {
       my $project = shift @ARGV;
       my $package = shift @ARGV;
       check_constraints_xml($project, $package);
+    }
+  } elsif ($arg eq "--show-scheduler-architectures") {
+    my $c = readxml($configfile, $BSXML::configuration, 0);
+    if (defined($c)) {
+      print join(' ', map {$_->{_content}} @{$c->{'schedulers'}->{'arch'}})."\n";
     }
   } elsif ($arg eq "--parse-build-desc") {
     die("ERROR: need a file name as argument (spec, dsc or kiwi)!\n") if @ARGV < 1;

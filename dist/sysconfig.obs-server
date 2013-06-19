@@ -3,26 +3,6 @@
 #
 
 ## Path:        Applications/OBS
-## Description: define for which architectures the packages should get build
-## Type:        regexp((i586|x86_64|ppc|ppc64|s390|s390x|ia64|sparc|sparcv8|sparcv9|sparcv9v|sparc64|sparc64v|mips|mips64|mipsel|mips64el|armv4l|armv5el|armv6el|armv7el|armv7hl|armv8el|sh4)+)
-## Default:     "i586 x86_64"
-## Config:      OBS
-#
-# This is the space separated list of all target architectures for
-# this obs backend
-#
-# Each of them can be put inside in any combination
-#
-# Every scheduler needs memory, so many schedulers can eat the memory
-# of your obs server, e.g. a system with 4 schedulers and
-# appropriately loaded sources/binaries can eat 1-2 GB RAM
-#
-# If you also have workers on this host, each worker can also need 1
-# GB RAM in some known cases (e.g. compiling gcc)
-#
-OBS_SCHEDULER_ARCHITECTURES="i586 x86_64 armv7l"
-
-## Path:        Applications/OBS
 ## Description: The OBS backend code directory
 ## Type:        string
 ## Default:     ""
