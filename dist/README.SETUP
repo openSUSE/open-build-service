@@ -164,7 +164,9 @@ available after adding the SDK to the available installation repositories.
 
     cd /srv/www/obs/api/
     sudo RAILS_ENV="production" rake db:setup
+    sudo RAILS_ENV="production" ruby writeconfiguration
     sudo chown -R wwwrun.www log tmp
+
 
     cd /srv/www/obs/webui/
     sudo RAILS_ENV="production" rake db:setup
@@ -271,7 +273,8 @@ Create the reference project pointing to the openSUSE.org build service.
 This will allow you to reuse the base distributions from there and avoids
 further manual setup.
 
-You can do this via clicking on the "Setup OBS" link in your web interface.
+You can do this via clicking on the "Configuration" link in your web interface
+on the main page. Only Admin users do see that link.
 
 The alternative manual way is to call the following command:
 
