@@ -636,9 +636,9 @@ while (@ARGV) {
       check_constraints_xml($project, $package);
     }
   } elsif ($arg eq "--show-scheduler-architectures") {
-    my $c = readxml($configfile, $BSXML::configuration, 0);
-    if (defined($c)) {
-      print join(' ', map {$_->{_content}} @{$c->{'schedulers'}->{'arch'}})."\n";
+    my $c = readxml($configfile, $BSXML::configuration);
+    if ($c->{'schedulers'} && @{$c->{'schedulers'}->{'arch'} || []}) {
+      print join(' ', @{$c->{'schedulers'}->{'arch'}})."\n";
     }
   } elsif ($arg eq "--parse-build-desc") {
     die("ERROR: need a file name as argument (spec, dsc or kiwi)!\n") if @ARGV < 1;
