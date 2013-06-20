@@ -1004,8 +1004,8 @@ class User < ActiveRecord::Base
   # project_name is name of the project
   def can_create_project?(project_name)
     ## special handling for home projects
-    return true if project_name == "home:#{self.login}" and CONFIG['allow_user_to_create_home_project'] != "false"
-    return true if /^home:#{self.login}:/.match( project_name ) and CONFIG['allow_user_to_create_home_project'] != "false"
+    return true if project_name == "home:#{self.login}" and CONFIG['allow_user_to_create_home_project'] != false and CONFIG['allow_user_to_create_home_project'] != "false"
+    return true if /^home:#{self.login}:/.match( project_name ) and CONFIG['allow_user_to_create_home_project'] != false and CONFIG['allow_user_to_create_home_project'] != "false"
 
     return true if has_global_permission? "create_project"
     p = Project.find_parent_for(project_name)
