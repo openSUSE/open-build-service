@@ -110,7 +110,8 @@ d = Project.find_or_create_by_name("deleted")
 d.repositories.create name: "deleted"
 
 # set default configuration settings
-Configuration.find_or_create_by_title_and_description("Open Build Service", <<-EOT
+unless Rails.env.test?
+Configuration.find_or_create_by_name_and_title_and_description("private", "Open Build Service", <<-EOT
   <p class="description">
     The <a href="http://openbuildservice.org">Open Build Service (OBS)</a>
     is an open and complete distribution development platform that provides a transparent infrastructure for development of Linux distributions, used by openSUSE, MeeGo and other distributions.
@@ -125,6 +126,7 @@ Configuration.find_or_create_by_title_and_description("Open Build Service", <<-E
   </p>
 EOT
 )
+end
 
 puts "Seeding issue trackers ..."
 IssueTracker.find_or_create_by_name('boost', :description => 'Boost Trac', :kind => 'trac', :regex => 'boost#(\d+)', :url => 'https://svn.boost.org/trac/boost/', :label => 'boost#@@@', :show_url => 'https://svn.boost.org/trac/boost/ticket/@@@')
