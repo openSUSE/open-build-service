@@ -1438,7 +1438,7 @@ our $configuration = [
             'description',  #webui only
             'name',         #obsname
           [ 'schedulers' =>
-             [[ 'arch' ]],
+             [ 'arch' ],
           ],
 ];
 
