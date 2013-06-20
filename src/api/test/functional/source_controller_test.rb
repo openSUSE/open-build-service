@@ -2559,6 +2559,42 @@ end
     assert_response :success
   end
 
+  def test_branch_creating_project
+    prepare_request_with_user "fredlibs", "geröllheimer"
+    # ensure he has no home project
+    get "/source/home:fredlibs"
+    assert_response 404
+
+    # Create public project, but api config is changed to make it closed
+    CONFIG['allow_user_to_create_home_project'] = false
+    post "/source/home:Iggy/TestPack", :cmd => :branch, :dryrun => "1" 
+    assert_response :success
+    post "/source/home:Iggy/TestPack", :cmd => :branch
+    assert_response 403
+
+    # create home and try again
+    prepare_request_with_user "king", "sunflower"
+    put "/source/home:fredlibs/_meta", "<project name='home:fredlibs'><title/><description/> <person role='maintainer' userid='fredlibs'/> </project>"
+    assert_response :success
+
+    prepare_request_with_user "fredlibs", "geröllheimer"
+    post "/source/home:Iggy/TestPack", :cmd => :branch
+    assert_response :success
+
+    # cleanup and try again with defaults
+    CONFIG['allow_user_to_create_home_project'] = true
+    delete "/source/home:fredlibs:branches:home:Iggy"
+    assert_response :success
+    delete "/source/home:fredlibs"
+    assert_response :success
+    post "/source/home:Iggy/TestPack", :cmd => :branch
+    assert_response :success
+
+    # final cleanup
+    delete "/source/home:fredlibs:branches:home:Iggy"
+    assert_response :success
+  end
+
   def test_branch_package_delete_and_undelete
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
     assert_response 401
