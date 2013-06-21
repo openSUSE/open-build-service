@@ -133,33 +133,6 @@ our $proj = [
 	@roles,
       [ $download ],
 	$maintenance,
-      [ 'attributes' => 
-         [[ 'namespace' => 
-		'name', 
-	     [[ 'modifiable_by' =>
-		    'user',
-		    'group',
-		    'role',
-             ]],
-         ]],
-         [[ 'definition' => 
-		'name', 
-		'namespace', 
-		[],
-		'count',
-              [ 'default' =>
-		  [ 'value' ],
-              ],
-              [ 'allowed' =>
-		  [ 'value' ],
-              ],
-             [[ 'modifiable_by' =>
-		    'user',
-		    'group',
-		    'role',
-             ]],
-         ]],
-      ],
 	@flags,
       [ $repo ],
 ];
@@ -1505,6 +1478,10 @@ our $attribute = [
         'name', 
         'binary', 
       [ 'value' ],
+      [[ 'issue' =>
+          'name',
+          'tracker'
+      ]],
 ];
 
 our $attributes = [

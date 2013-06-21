@@ -33,6 +33,17 @@ CREATE TABLE `attrib_default_values` (
   CONSTRAINT `attrib_default_values_ibfk_1` FOREIGN KEY (`attrib_type_id`) REFERENCES `attrib_types` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `attrib_issues` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `attrib_id` int(11) NOT NULL,
+  `issue_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_attrib_issues_on_attrib_id_and_issue_id` (`attrib_id`,`issue_id`),
+  KEY `issue_id` (`issue_id`),
+  CONSTRAINT `attrib_issues_ibfk_1` FOREIGN KEY (`attrib_id`) REFERENCES `attribs` (`id`),
+  CONSTRAINT `attrib_issues_ibfk_2` FOREIGN KEY (`issue_id`) REFERENCES `issues` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `attrib_namespace_modifiable_bies` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `attrib_namespace_id` int(11) NOT NULL,
@@ -72,6 +83,7 @@ CREATE TABLE `attrib_types` (
   `type` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `value_count` int(11) DEFAULT NULL,
   `attrib_namespace_id` int(11) NOT NULL,
+  `issue_list` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_attrib_types_on_attrib_namespace_id_and_name` (`attrib_namespace_id`,`name`),
   KEY `index_attrib_types_on_name` (`name`),
@@ -1079,6 +1091,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130612151549');
 INSERT INTO schema_migrations (version) VALUES ('20130618083665');
 
 INSERT INTO schema_migrations (version) VALUES ('20130619083665');
+
+INSERT INTO schema_migrations (version) VALUES ('20130621083665');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

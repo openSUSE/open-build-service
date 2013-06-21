@@ -58,6 +58,7 @@
         <xs:element minOccurs="0" maxOccurs="1" ref="default" />
         <xs:element minOccurs="0" maxOccurs="1" ref="allowed" />
         <xs:element minOccurs="0" maxOccurs="1" name="count" />
+        <xs:element minOccurs="0" maxOccurs="1" name="issue_list" />
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="modifiable_by" />
       </xs:sequence>
       <xs:attribute name="name" type="xs:string" />
