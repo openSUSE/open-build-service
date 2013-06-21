@@ -746,6 +746,9 @@ class Project < ActiveRecord::Base
     if atype.value_count and atype.value_count > 0 and not attrib.has_element? :value
       raise SaveError, "attribute '#{attrib.namespace}:#{attrib.name}' requires #{atype.value_count} values, but none given"
     end
+    if attrib.has_element? :issue and not atype.issue_list
+      raise SaveError, "attribute '#{attrib.namespace}:#{attrib.name}' has issue elements which are not allowed in this attribute"
+    end
 
     # verify with allowed values for this attribute definition
     if atype.allowed_values.length > 0
@@ -844,6 +847,11 @@ class Project < ActiveRecord::Base
         type_name = attr.attrib_type.attrib_namespace.name+":"+attr.attrib_type.name
         a.attribute(:name => attr.attrib_type.name, :namespace => attr.attrib_type.attrib_namespace.name) do |y|
           done[type_name]=1
+          if attr.issues.length>0
+            attr.issues.each do |ai|
+              y.issue(:name => ai.issue.name, :tracker => ai.issue.issue_tracker.name)
+            end
+          end
           if attr.values.length>0
             attr.values.each do |val|
               y.value(val.value)

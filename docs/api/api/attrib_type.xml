@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definition name="attr_name" namespace="OBS">
   <count>2</count>
+  <issue_list/>
   <default>
     <value>A</value>
     <value>B</value>
