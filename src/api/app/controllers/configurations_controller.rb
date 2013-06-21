@@ -4,6 +4,7 @@ class ConfigurationsController < ApplicationController
   # Site-specific configuration is insensitive information, no login needed therefore
   skip_before_filter :extract_user, :only => [:show]
   before_filter :require_admin, :only => [:update]
+  skip_filter :validate_params, :only => [:update] # we use an array for archs here
 
   validate_action :show => {:method => :get, :response => :configuration}
 # webui is using this route with parameters instead of content
@@ -29,11 +30,32 @@ class ConfigurationsController < ApplicationController
     @configuration = ::Configuration.first
 
     respond_to do |format|
-      xml = params["xmlhash"] || {}
+      xml = Xmlhash.parse(request.raw_post) || {}
       attribs = {}
-      attribs[:title] = xml["title"] || params["title"] || ""
-      attribs[:description] = xml["description"] || params["description"] || ""
-      attribs[:name] = xml["name"] || params["name"] || ""
+      # scheduler architecture list
+      archs=nil
+      if xml["schedulers"] and xml["schedulers"]["arch"].class == Array
+        archs=Hash[xml["schedulers"]["arch"].map{|a| [a, 1]}]
+      end
+      if params["arch"].class == Array
+        archs=Hash[params["arch"].map{|a| [a, 1]}]
+      end
+      if archs
+        Architecture.all().each do |arch|
+          if arch.available != (archs[arch.name] == 1)
+            arch.available = (archs[arch.name] == 1)
+            arch.save!
+          end
+        end
+      end
+
+      # standard values
+      attribs[:title] = xml["title"] || params["title"].to_s
+      attribs[:description] = xml["description"] || params["description"].to_s
+      attribs[:name] = xml["name"] || params["name"].to_s
+      attribs.keys.each do |k|
+        attribs.delete(k) if attribs[k].blank?
+      end
       ret = @configuration.update_attributes(attribs)
       if ret
         @configuration.save!
