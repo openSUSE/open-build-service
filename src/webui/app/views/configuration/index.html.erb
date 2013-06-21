@@ -9,40 +9,11 @@
       Configure your Open Build Service instance.
     </p>
 
-  <% if @available_architectures && @available_architectures.has_elements?  %>
-  <h3>Available Scheduler Architectures</h3>
-    <p>
-      You can recommended architectures to be selected by default when a new project or package is created.
-      The new project or package will then build against this architecture for it's configured repositories.
-    </p>
-    <%= form_tag(:action => 'update_architectures') do %>
-    <table>
-      <thead>
-        <tr>
-          <th>Architecture</th>
-          <th>Available</th>
-          <th>Recommended</th>
-        </tr>
-      </thead>
-      <tbody>
-      <% @available_architectures.each do |arch| %>
-        <tr>
-          <td><%= arch.name %></td>
-          <td><%= check_box_tag("arch_available_#{arch.name}", '', arch.available == 'true', :disabled => true) %></td>
-          <td><%= check_box_tag("arch_recommended[#{arch.name}]", '', arch.recommended == 'true') %></td>
-        </tr>
-      <% end %>
-      </tbody>
-    </table>
-    <p><%= submit_tag('Update') %></p>
-    <% end %>
-  <% end %>
-
-  <h3>Frontpage Greeting</h3>
-  <p>
-    Change the text that is displayed as greeting on the frontpage
-  </p>
   <%= form_tag(:action => 'update_configuration') do %>
+    <h3>Frontpage Greeting</h3>
+    <p>
+      Change the text that is displayed as greeting on the frontpage
+    </p>
     <p>
      <%= label_tag :title, 'Title:' %><br/>
      <%= text_field_tag :title, @configuration['title'] %>
@@ -50,6 +21,24 @@
     <p>
       <%= label_tag :description, 'Description:' %><br/>
       <%= text_area_tag :description, @configuration['description'], :cols => 80, :rows => 20 %>
+    </p>
+    <h3>Base Configuration</h3>
+    <p>
+      Note: a backend restart is needed after a change here.
+    </p>
+    <p>
+     <%= label_tag :name, 'Name:' %><br/>
+     <%= text_field_tag :name, @configuration['name'] %>
+     The instance name which gets generated into each package. Short string only, no white spaces recommended.
+    </p>
+    <p>
+      <%= fields_for :archs do |arch_fields| %>
+        Available architectures:
+        <% @available_architectures.each do |arch| %>
+            <%= arch_fields.check_box(arch.name, {checked: arch.available == 'true'}) %>
+              <%= arch.name %>
+        <% end %>
+      <% end %>
     </p>
     <p><%= submit_tag 'Update' %></p>
   <% end %>

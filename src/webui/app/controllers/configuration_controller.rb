@@ -62,13 +62,17 @@ class ConfigurationController < ApplicationController
   end
 
   def update_configuration
-    if ! (params[:title] || params[:description])
-      flash[:error] = "Missing arguments (title or description)"
+    if ! (params[:name]  || params[:title] || params[:description])
+      flash[:error] = "Missing arguments (name, title or description)"
       redirect_back_or_to :action => 'index' and return
     end
 
     begin
-      ActiveXML::transport.http_json :put, '/configuration', { description: params[:description], title: params[:title] }
+      archs=[]
+      params[:archs].each do |a|
+         archs << a[0] if a[1] == "1"
+      end
+      ActiveXML::transport.http_json :put, '/configuration', { description: params[:description], title: params[:title], name: params[:name], arch: archs }
       flash[:notice] = "Updated configuration"
       Rails.cache.delete('configuration')
     rescue ActiveXML::Transport::Error 
