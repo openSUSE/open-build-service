@@ -816,7 +816,7 @@ module MaintenanceHelper
           end
           if add_repositories
             unless tprj.repositories.find_by_name(repoName)
-              trepo = tprj.repositories.create :name => repoName
+              trepo = tprj.repositories.create( :name => repoName, :rebuild => repo.rebuild, :linkedbuild => repo.linkedbuild, :block => repo.block)
               trepo.architectures = repo.architectures
               trepo.path_elements.create(:link => repo, :position => 1)
               trigger = "manual"
