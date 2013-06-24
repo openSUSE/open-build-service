@@ -1461,6 +1461,12 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     # reopen the review
     prepare_request_with_user "tom", "thunder"
+    post "/request/#{id}?cmd=changereviewstate&newstate=new&by_group=INEXISTENT"
+    assert_response 404
+    assert_xml_tag(:tag => "status", :attributes => {:code => 'not_found'})
+    post "/request/#{id}?cmd=changereviewstate&newstate=new&by_user=INEXISTENT"
+    assert_response 404
+    assert_xml_tag(:tag => "status", :attributes => {:code => 'not_found'})
     post "/request/#{id}?cmd=changereviewstate&newstate=new&by_project=home:coolo:test&by_package=kdelibs_DEVEL_package", nil
     assert_response :success
     get "/request/#{id}"
