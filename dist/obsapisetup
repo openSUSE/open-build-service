@@ -49,8 +49,10 @@ else
 backenddir="$OBS_BASE_DIR"
 fi
 
-
 FQHOSTNAME=`hostname -f `
+if type -p ec2-public-hostname; then
+  FQHOSTNAME=`ec2-public-hostname`
+fi
 
 if [ "$?" != "0" ]; then
   # Fallback to IP of the VM/host
@@ -64,13 +66,9 @@ if [ "$?" != "0" ]; then
   USEIP=$FQHOSTNAME
 fi
 
-#export datadir to check that needed db's exist
-grep '^datadir' /etc/my.cnf > /dev/null 2>&1
-if [ $? -gt 0 ]; then
-   echo "Can't export datadir variable from /etc/my.cnf"
-   exit 1
-fi
-export $(grep '^datadir=' /etc/my.cnf)
+#Is there a non default configured datadir?
+MYSQL_DATA_DIR=`sed -n 's,^datadir[ \t]*=[\t ]*\(.*\),\1,p' /etc/my.cnf`
+[ -z "$MYSQL_DATA_DIR" ] && MYSQL_DATA_DIR="/obs/MySQL"
 
 rc_reset
 case "$1" in
@@ -107,7 +105,7 @@ case "$1" in
 		echo "$FQHOSTNAME" > $backenddir/.oldfqhostname
 
 		if grep -q ^FRONTEND_HOST /srv/www/obs/webui/config/environments/production.rb; then
-		    echo -n "Switching from Rails 2.x style configuration to Rails 3.x"
+		    echo "Switching from Rails 2.x style configuration to Rails 3.x"
                     for file in /srv/www/obs/api/config/environments/production.rb \
                                 /srv/www/obs/api/config/options.yml \
                                 /srv/www/obs/webui/config/environments/production.rb \
@@ -117,7 +115,7 @@ case "$1" in
                     sed -i 's,adapter:[ \t]*mysql.*,adapter: mysql2,' /srv/www/obs/api/config/database.yml
                 fi
 
-		echo -n "Adjust webui configuration for api"
+		echo "Adjust webui configuration for api"
                 sed -i 's,^frontend_host: .*,frontend_host: "'"$FQHOSTNAME"'",' \
 		    /srv/www/obs/webui/config/options.yml
                 sed -i 's,^frontend_port: .*,frontend_port: 444,' \
@@ -126,19 +124,21 @@ case "$1" in
 		    /srv/www/obs/webui/config/options.yml
                 sed -i 's,^download_url: .*,download_url: \"http://'"$FQHOSTNAME:82"'\",' \
 		    /srv/www/obs/webui/config/options.yml
-                sed -i -e /webui_url:/d -e /webui_host:/d -e /allow_anonymous:/d \
+                sed -i 's,^read_only_hosts: .*,read_only_hosts: [ "'"$FQHOSTNAME"'" ],' \
+		    /srv/www/obs/api/config/options.yml
+                sed -i -e /webui_url:/d -e /webui_host:/d -e /read_only_hosts:/d -e /allow_anonymous:/d \
 		    /srv/www/obs/api/config/options.yml
 		OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
 		OS=`head -n 1 /etc/SuSE-release`
                 RUN_INITIAL_SETUP=""
-                if [ ! -e "$datadir"/api_production ]; then
-			echo -n "Initialize MySQL databases (first time only)"
+                if [ ! -e "$MYSQL_DATA_DIR"/api_production ]; then
+			echo "Initialize MySQL databases (first time only)"
 			mysqladmin -u root create api_production
 			mysqladmin -u root password "opensuse"
                         RUN_INITIAL_SETUP="true"
 		fi
                 if [ -n "$RUN_INITIAL_SETUP" ]; then
-			echo -n "Initialize OBS api database (first time only)"
+			echo "Initialize OBS api database (first time only)"
         		cd $apidir
 			RAILS_ENV=production bundle exec rake db:setup >> $apidir/log/db_migrate.log
                         ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key )
@@ -146,13 +146,13 @@ case "$1" in
 			chown root.www config/secret.key
 		else
 			echo
-			echo -n "Migrate OBS api database"
+			echo "Migrate OBS api database"
 			cd $apidir
 			RAILS_ENV=production bundle exec rake db:migrate >> $apidir/log/db_migrate.log
 			echo
 		fi
                 if [ -n "$RUN_INITIAL_SETUP" ]; then
-			echo -n "Initialize OBS webui database (first time only)"
+			echo "Initialize OBS webui database (first time only)"
         		cd $webuidir
 			RAILS_ENV=production bundle exec rake db:setup >> $webuidir/log/db_migrate.log
                         ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key)
@@ -160,7 +160,7 @@ case "$1" in
 			chown root.www config/secret.key
 		else
 			echo
-			echo -n "Migrate OBS webui database"
+			echo "Migrate OBS webui database"
 			cd $webuidir
 			RAILS_ENV=production bundle exec rake db:migrate >> $webuidir/log/db_migrate.log
 			echo

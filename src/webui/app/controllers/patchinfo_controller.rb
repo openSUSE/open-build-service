@@ -202,7 +202,7 @@ class PatchinfoController < ApplicationController
         begin
           frontend.put_file( xml, :project => @project,
             :package => @package, :filename => filename)
-          flash[:note] = "Successfully edited #{@package}"
+          flash[:notice] = "Successfully edited #{@package}"
         rescue Timeout::Error 
           flash[:error] = "Timeout when saving file. Please try again."
         end
@@ -248,7 +248,7 @@ class PatchinfoController < ApplicationController
   def remove
     begin
       FrontendCompat.new.delete_package :project => @project, :package => @package
-      flash[:note] = "'#{@package}' was removed successfully from project '#{@project}'"
+      flash[:notice] = "'#{@package}' was removed successfully from project '#{@project}'"
       Rails.cache.delete("%s_packages_mainpage" % @project)
       Rails.cache.delete("%s_problem_packages" % @project)
       Package.free_cache( :all, :project => @project.name )
@@ -261,7 +261,7 @@ class PatchinfoController < ApplicationController
   end
 
   def delete_dialog
-    check_ajax
+    render_dialog
   end
 
   def valid_summary? name

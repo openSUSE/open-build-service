@@ -312,6 +312,7 @@ sub createProductOptions($$$)
     $options{'PLUGIN_DIR'} = "/usr/share/kiwi/modules/plugins/$mediaStyle";
     $options{'INI_DIR'} = "/usr/share/kiwi/modules/plugins/$mediaStyle";
     $options{'BETA_VERSION'} = $product->{'buildconfig'}->{'betaversion'} if (defined($product->{'buildconfig'}->{'betaversion'}));
+    $options{'MAIN_PRODUCT'} = $product->{'buildconfig'}->{'mainproduct'} if (defined($product->{'buildconfig'}->{'mainproduct'}));
 
     my %info;
     $info{'VENDOR'}       = $product->{'vendor'};
@@ -832,7 +833,7 @@ sub writeMigrationSPECfile( $$$$$ )
 
     $content.="Version:        ".$product->{version}."\n";
     $content.="Release:        0\n";
-    $content.="License:        BSD 3-Clause\n";
+    $content.="License:        BSD-3-Clause\n";
     $content.="Group:          System/Fhs\n";
     $content.="Provides:       product()\n";
     $content.="Provides:       product(".$mproduct->{name}.") = %{version}-%{release}\n";
@@ -930,7 +931,7 @@ sub writeProductSPECfile( $$$$ )
      }
      $content.="Version:        ".$product->{version}."\n";
      $content.="Release:        0\n"; # FIXME: check if this is this really handled via BS
-     $content.="License:        BSD 3-Clause\n";
+     $content.="License:        BSD-3-Clause\n";
      $content.="Group:          System/Fhs\n";
      $content.=$obsoletepackage;
      $content.=$productprovides;
@@ -1008,7 +1009,7 @@ sub createSPECfileFlavors ( $$ ) {
     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
       next if ((!defined ($flavor->{'flavor'}) || ("$flavor->{'flavor'}" eq "")));
       $product_flavors.="%package $flavor->{flavor}\n";
-      $product_flavors.="License:        BSD 3-Clause\n";
+      $product_flavors.="License:        BSD-3-Clause\n";
       $product_flavors.="Group:          System/Fhs\n";
       if ((defined($prodRef->{'project'}->{'name'})) && ("$prodRef->{'project'}->{'name'}" ne "")){
           # TODO: - split between ":" -> Provides: SUSE \n Provides: SUSE:Factory ...
@@ -1136,7 +1137,7 @@ sub createProductFile ( $$ ) {
     my $mediaStyle = "suse-11.1"; # fallback value
     my $medium = $prodRef->{mediasets}->{media}[0];
     $mediaStyle = $medium->{'mediastyle'} if (defined($medium->{'mediastyle'}));
-    if ($mediaStyle =~ /^suse-11.[123]$/) {
+    if ($mediaStyle =~ /^suse-11.[123]$/ || $mediaStyle eq "suse-sle11-sp2") {
       $zypp_product->{'release'} = "%{release}";
     }
 
@@ -1322,7 +1323,8 @@ foreach my $medium ( @$media ){
 	  if (defined($medium->{'mediastyle'}) && $medium->{'mediastyle'} ne "suse-11.1" && $medium->{'mediastyle'} ne "suse-11.2") {
 	      $kiwi->{schemaversion} = "4.1"; # new kiwi requires exact this version
 	      my $attrs = {image => "product"};
-              $attrs->{'firmware'} = $medium->{'firmware'} if $medium->{'firmware'};
+	      $attrs->{'firmware'} = $medium->{'firmware'} if $medium->{'firmware'};
+	      $attrs->{'hybrid'} = 'true' if (defined($medium->{'run_hybridiso'})) && $medium->{'run_hybridiso'} eq "true";
 	      $kiwi->{preferences}->{type} = [$attrs];
 	  }else{
 	      # the schemE vs. schemA is intended by kiwi!

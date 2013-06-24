@@ -6,8 +6,6 @@ class GroupController < ApplicationController
   validate_action :groupinfo => {:method => :delete, :response => :status}
 
   def index
-    valid_http_methods :get
-
     if params[:login]
       user = User.find_by_login!(params[:login])
       list = user.groups
@@ -31,7 +29,6 @@ class GroupController < ApplicationController
   # PUT for rewriting it completely including defined user list.
   # POST for editing it, adding or remove users
   def group
-    valid_http_methods :get, :put, :delete, :post
     required_parameters :title
 
     if !@http_user

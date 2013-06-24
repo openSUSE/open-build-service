@@ -41,7 +41,7 @@ module FlagHelper
       self.flags.delete_all
       position = 1
       FlagHelper.flag_types.each do |flagtype|
-        position = update_flags( xmlhash, flagtype , position )
+        position = update_flags( xmlhash, flagtype, position )
       end
     end
   end

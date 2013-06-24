@@ -1,5 +1,4 @@
 
-
 xml.status_messages( :count => @count ) do
   @messages.each do |msg|
     xml.message(

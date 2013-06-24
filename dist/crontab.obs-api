@@ -1,5 +1,5 @@
-*  * * * *       wwwrun    cd /srv/www/obs/api/ && RAILS_ENV=production rake -s jobs:workerstatus
-1  * * * *       wwwrun    cd /srv/www/obs/api/ && RAILS_ENV=production rake -s jobs:updateissues
-45 * * * *       wwwrun    cd /srv/www/obs/api/ && RAILS_ENV=production rake -s db:history:rescale
+*  * * * *       obsapidelayed    cd /srv/www/obs/api/ && RAILS_ENV=production rake -s jobs:workerstatus
+1  * * * *       obsapidelayed    cd /srv/www/obs/api/ && RAILS_ENV=production rake -s jobs:updateissues
+45 * * * *       obsapidelayed    cd /srv/www/obs/api/ && RAILS_ENV=production rake -s db:history:rescale
 
 

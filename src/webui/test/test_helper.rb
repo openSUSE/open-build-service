@@ -32,7 +32,7 @@ class ActionDispatch::IntegrationTest
     within('#login-form') do
       fill_in 'Username', with: user
       fill_in 'Password', with: password
-      click_button 'Login'
+      click_button 'Log In'
     end
     @current_user = user
     if do_assert
@@ -106,7 +106,6 @@ class ActionDispatch::IntegrationTest
     logout
     
     Capybara.reset_sessions!
-    ActiveXML::transport.http_do(:post, "/test/test_end", timeout: 100)
     Capybara.use_default_driver
     Rails.cache.clear
     #puts "#{self.__name__} took #{Time.now - @starttime}"

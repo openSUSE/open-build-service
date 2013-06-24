@@ -2,10 +2,7 @@
  <% if user -%>
   <ul class="global-navigation-menu global-navigation-menu-favorites" id="menu-favorites">
     <li>
-      <a href="<%= url_for controller: "home", action: :list_my %>">
-	<span>Watchlist ...</span>
-	<span class="desc">Your watched and involved projects</span>
-      </a>
+      <span class="desc">Your watched and involved projects</span>
     </li>
     <% if params[:project] -%>
     <li>

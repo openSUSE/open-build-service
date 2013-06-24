@@ -25,6 +25,7 @@ class CodeQualityTest < ActiveSupport::TestCase
         lines = File.open(ruby_file).read 
         begin
           io.write(lines)
+          io.write("\n")
         rescue Errno::EPIPE
         end
       end
@@ -33,11 +34,14 @@ class CodeQualityTest < ActiveSupport::TestCase
     line = tmpfile.read
     tmpfile.close
     return if line.empty?
-    puts "testing syntax of each ruby file..."
+    puts "ruby -cv gave output: testing syntax of each ruby file... #{line}"
     @ruby_files.each do |ruby_file|
       IO.popen("ruby -cv #{ruby_file} 2>&1 > /dev/null | grep #{Rails.root}") do |io|
         line = io.read
-        assert(false, "ruby -cv #{ruby_file} gave output\n#{line}") unless line.empty?
+        unless line.empty?
+          puts line
+          assert(false, "ruby -cv #{ruby_file} gave output\n#{line}")
+        end
       end
     end
     puts "done"

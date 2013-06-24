@@ -214,8 +214,7 @@ class User < ActiveRecord::Base
   # in the database. Returns the user or nil if he could not be found
   def self.find_with_credentials(login, password)
     # Find user
-    user = User.find :first,
-    :conditions => [ 'login = ?', login ]
+    user = User.where(login: login).first
 
     # If the user could be found and the passwords equal then return the user
     if not user.nil? and user.password_equals? password
@@ -586,9 +585,9 @@ class User < ActiveRecord::Base
       end
 
       if defined?( CONFIG['ldap_user_filter'] )
-        user_filter = "(&(#{CONFIG['dap_search_attr']}=#{login})#{CONFIG['ldap_user_filter']})"
+        user_filter = "(&(#{CONFIG['ldap_search_attr']}=#{login})#{CONFIG['ldap_user_filter']})"
       else
-        user_filter = "(#{CONFIG['dap_search_attr']}=#{login})"
+        user_filter = "(#{CONFIG['ldap_search_attr']}=#{login})"
       end
       logger.debug( "Search for #{user_filter}" )
       begin
@@ -776,6 +775,10 @@ class User < ActiveRecord::Base
                       :too_short => 'must have between 6 and 64 characters.',
                      :if => Proc.new { |user| user.new_password? and not user.password.nil? }
 
+   class NotFound < APIException
+     setup 404
+   end
+
   class << self
     def current
       Thread.current[:user]
@@ -790,7 +793,7 @@ class User < ActiveRecord::Base
     end
 
     def get_by_login(login)
-      find_by_login!(login)
+      find_by_login(login) or raise NotFound.new("Couldn't find User with login = #{login}")
     end
 
     def find_by_email(email)
@@ -819,6 +822,12 @@ class User < ActiveRecord::Base
       @new_hash_type = false
     else 
       logger.debug "Error - skipping to create user #{errors.empty?} #{@new_password.inspect} #{password.inspect}"
+    end
+  end
+
+  def to_axml
+    Rails.cache.fetch('meta_user_%d' % id) do
+      render_axml
     end
   end
 
@@ -922,7 +931,7 @@ class User < ActiveRecord::Base
 
   def is_admin?
     if @is_admin.nil?
-      @is_admin = !roles.find_by_title("Admin", :select => "roles.id").nil?
+      @is_admin = !roles.select("roles.id").find_by_title("Admin").nil?
     end
     @is_admin
   end
@@ -998,8 +1007,8 @@ class User < ActiveRecord::Base
   # project_name is name of the project
   def can_create_project?(project_name)
     ## special handling for home projects
-    return true if project_name == "home:#{self.login}" and CONFIG['allow_user_to_create_home_project'] != "false"
-    return true if /^home:#{self.login}:/.match( project_name ) and CONFIG['allow_user_to_create_home_project'] != "false"
+    return true if project_name == "home:#{self.login}" and CONFIG['allow_user_to_create_home_project'] != false and CONFIG['allow_user_to_create_home_project'] != "false"
+    return true if /^home:#{self.login}:/.match( project_name ) and CONFIG['allow_user_to_create_home_project'] != false and CONFIG['allow_user_to_create_home_project'] != "false"
 
     return true if has_global_permission? "create_project"
     p = Project.find_parent_for(project_name)

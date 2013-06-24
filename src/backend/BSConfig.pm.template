@@ -49,6 +49,11 @@ our $obsname = $hostname; # unique identifier for this Build Service instance
 our $srcserver = "http://$hostname:5352";
 our $reposerver = "http://$hostname:5252";
 our $serviceserver = "http://$hostname:5152";
+
+# you can use different ports for worker connections
+#our $workersrcserver = "http://$hostname:5353";
+#our $workerreposerver = "http://$hostname:5253";
+
 our $servicedir = "/usr/lib/obs/service/";
 #our $servicetempdir = "/var/temp/";
 #our $serviceroot = "/opt/obs/MyServiceSystem";
@@ -60,8 +65,8 @@ our $repodownload = "http://$hostname/repositories";
 #our $hermesserver = "http://$hostname/hermes";
 #our $hermesnamespace = "OBS";
 #
-# Notification Plugin
-#our $notification_plugin = "notify_hermes";
+# Notification Plugin, multiple plugins supported, separated by space
+#our $notification_plugin = "notify_hermes notify_rabbitmq";
 #
 #FIXME2.4 belongs in API
 # Does the notify plugin supports multiple actions?
@@ -85,6 +90,15 @@ our $bsdir = '/srv/obs';
 our $bsuser = 'obsrun';
 our $bsgroup = 'obsrun';
 #our $bsquotafile = '/srv/obs/quota.xml';
+
+# Use asynchronus scheduler. This avoids hanging schedulers on remote projects,
+# when the network is slow or broken. This will become the default in future
+# our $sched_asyncmode = 1;
+
+# Define how the scheduler does a cold start. The default (0) is to request the
+# data for all packages, (1) means that only the non-remote packages are fetched,
+# (2) means that all of the package data fetches get delayed.
+# our $sched_startupmode = 0;
 
 # To enable package downloading from backend on demand
 our $enable_download_on_demand = 1;
@@ -122,6 +136,7 @@ our $relsync_pool = {
  "x86_64" => "i586",
  "ppc" => "ppc",
  "ppc64" => "ppc",
+ "ppc64p7" => "ppc",
  "mips" => "mips",
  "mips64" => "mips",
  "mipsel" => "mipsel",
@@ -177,6 +192,27 @@ our $relsync_pool = {
 
 # Use old style source service handling
 # our $old_style_services = 1;
+
+###
+# Optional support to split the binary backend. This can be used on large servers
+# to seperate projects for better scalability.
+# There is still just one source server, but there can be multiple servers which
+# run each repserver, schedulers, dispatcher, warden and publisher
+#
+# This repo service is the 'home' server for all home:* projects. This and the
+# $reposerver setting must be different on the binary backend servers.
+# our $partition = 'home';
+#
+# this defines how the projects are split. All home: projects are hosted
+# on an own server in this example. Order is important.
+# our $partitioning = [ 'home:' => 'home',
+#                       '.*'    => 'main',
+#                     ];
+#
+# our $partitionservers = { 'home' => 'http://home-backend-server:5252',
+#                           'main' => 'http://main-backend-server:5252',
+#                         };
+
 
 # host specific configs
 my $hostconfig = "bsconfig." . Net::Domain::hostname();

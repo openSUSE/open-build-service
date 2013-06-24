@@ -196,7 +196,9 @@ class ProjectController < ApplicationController
   def incident_request_dialog
     #TODO: Currently no way to find out where to send until the project 'maintained' relationship
     #      is really used. The API will find out magically here though.
+    render_dialog
   end
+
   def new_incident_request
     begin
       req = BsRequest.new(:project => params[:project], :type => "maintenance_incident", :description => params[:description])
@@ -210,7 +212,9 @@ class ProjectController < ApplicationController
   end
 
   def release_request_dialog
+    render_dialog
   end
+
   def new_release_request
     if params[:skiprequest]
       # FIXME2.3: do it directly here, api function missing
@@ -283,16 +287,23 @@ class ProjectController < ApplicationController
 
   def linking_projects
     # TODO: remove this ajax call and replace it with a jquery dialog
-    render :text => '<no_ajax/>', :status => 400 and return if not request.xhr?
     Rails.cache.delete("%s_linking_projects" % @project.name) if discard_cache?
     @linking_projects = Rails.cache.fetch("%s_linking_projects" % @project.name, :expires_in => 30.minutes) do
        @project.linking_projects
     end
+    render_dialog
   end
 
   # TODO we need the architectures in api/distributions
   def add_repository_from_default_list
     @distributions = find_cached(Distribution, :all)
+    if @distributions.all_vendors.length < 1
+      if @user and @user.is_admin?      
+        flash.now[:notice] = "There are no distributions configured! Check out <a href=\"/configuration/connect_instance\">Configuration > Interconnect</a>"
+      else
+        redirect_to :controller => 'project', :action => 'add_repository', :project => @project
+      end
+    end
   end
 
   def add_repository
@@ -353,6 +364,7 @@ class ProjectController < ApplicationController
 
   def delete_dialog
     @linking_projects = @project.linking_projects
+    render_dialog
   end
 
   def delete
@@ -364,7 +376,7 @@ class ProjectController < ApplicationController
       end
       Rails.cache.delete("%s_packages_mainpage" % @project)
       Rails.cache.delete("%s_problem_packages" % @project)
-      flash[:note] = "Project '#{@project}' was removed successfully"
+      flash[:notice] = "Project '#{@project}' was removed successfully"
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
     end
@@ -616,7 +628,7 @@ class ProjectController < ApplicationController
     end
     begin
       if @project.save
-        flash[:note] = "Project '#{@project}' was created successfully"
+        flash[:notice] = "Project '#{@project}' was created successfully"
         redirect_to :action => 'show', :project => project_name and return
       else
         flash[:error] = "Failed to save project '#{@project}'"
@@ -640,7 +652,7 @@ class ProjectController < ApplicationController
     @project.description.text = params[:description]
 
     if @project.save
-      flash[:note] = "Project '#{@project}' was saved successfully"
+      flash[:notice] = "Project '#{@project}' was saved successfully"
     else
       flash[:error] = "Failed to save project '#{@project}'"
     end
@@ -704,10 +716,11 @@ class ProjectController < ApplicationController
   end
 
   def remove_target_request_dialog
-    check_ajax
     @project = params[:project]
     @repository = params[:repository]
+    render_dialog
   end
+
   def remove_target_request
     begin
       req = BsRequest.new(:type => "delete", :targetproject => params[:project], :targetrepository => params[:repository], :description => params[:description])
@@ -731,7 +744,7 @@ class ProjectController < ApplicationController
     @project.remove_repository params[:target]
     begin
       if @project.save
-        flash[:note] = "Target '#{params[:target]}' was removed"
+        flash[:notice] = "Target '#{params[:target]}' was removed"
       else
         flash[:error] = "Failed to remove target '#{params[:target]}'"
       end
@@ -785,7 +798,7 @@ class ProjectController < ApplicationController
     respond_to do |format|
       format.js { render json: 'ok' }
       format.html do
-        flash[:note] = "Added user #{params[:userid]} with role #{params[:role]}"
+        flash[:notice] = "Added user #{params[:userid]} with role #{params[:role]}"
         redirect_to action: :users, project: @project
       end
     end
@@ -803,7 +816,7 @@ class ProjectController < ApplicationController
     respond_to do |format|
       format.js { render json: 'ok' }
       format.html do
-        flash[:note] = "Added group #{params[:groupid]} with role #{params[:role]} to project #{@project}"
+        flash[:notice] = "Added group #{params[:groupid]} with role #{params[:role]} to project #{@project}"
         redirect_to action: :users, project: @project
       end
     end
@@ -820,9 +833,9 @@ class ProjectController < ApplicationController
       format.js { render json: 'ok' }
       format.html do
         if params[:userid]
-          flash[:note] = "Removed user #{params[:userid]}"
+          flash[:notice] = "Removed user #{params[:userid]}"
         else
-          flash[:note] = "Removed group '#{params[:groupid]}'"
+          flash[:notice] = "Removed group '#{params[:groupid]}'"
         end
         redirect_to action: :users, project: @project
       end
@@ -1056,7 +1069,7 @@ class ProjectController < ApplicationController
   def save_prjconf
     check_ajax
     frontend.put_file(params[:config], :project => params[:project], :filename => '_config')
-    flash[:note] = "Project Config successfully saved"
+    flash[:notice] = "Project Config successfully saved"
     render text: "Config successfully saved", content_type: "text/plain"
   end
 
@@ -1084,9 +1097,9 @@ class ProjectController < ApplicationController
       return
     end
     if params["package"].to_a.length > 1
-      flash[:note] = "Cleared comment for packages %s" % params[:package].to_a.join(',')
+      flash[:notice] = "Cleared comment for packages %s" % params[:package].to_a.join(',')
     else
-      flash[:note] = "Cleared comment for package #{params[:package]}"
+      flash[:notice] = "Cleared comment for package #{params[:package]}"
     end
     redirect_to :action => :status, :project => params[:project]
   end
@@ -1389,6 +1402,7 @@ class ProjectController < ApplicationController
 
   def add_maintained_project_dialog
     redirect_back_or_to :action => 'show', :project => @project and return unless @is_maintenance_project
+    render_dialog
   end
 
   def add_maintained_project
@@ -1401,7 +1415,7 @@ class ProjectController < ApplicationController
     begin
       @project.add_maintained_project(params[:maintained_project])
       @project.save
-      flash[:note] = "Added project '#{params[:maintained_project]}' to maintenance"
+      flash[:notice] = "Added project '#{params[:maintained_project]}' to maintenance"
     rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "Failed to add project '#{params[:maintained_project]}' to maintenance"
     end
@@ -1417,7 +1431,7 @@ class ProjectController < ApplicationController
 
     @project.remove_maintained_project(params[:maintained_project])
     if @project.save
-      flash[:note] = "Removed project '#{params[:maintained_project]}' from maintenance"
+      flash[:notice] = "Removed project '#{params[:maintained_project]}' from maintenance"
     else
       flash[:error] = "Failed to remove project '#{params[:maintained_project]}' from maintenance"
     end
@@ -1444,8 +1458,9 @@ class ProjectController < ApplicationController
   end
 
   def unlock_dialog
-    check_ajax
+    render_dialog
   end
+
   def unlock
     begin
       path = "/source/#{CGI.escape(params[:project])}/?cmd=unlock&comment=#{CGI.escape(params[:comment])}"
@@ -1482,7 +1497,7 @@ class ProjectController < ApplicationController
   def render_project_missing
     if @user and params[:project] == "home:#{@user}"
       # checks if the user is registered yet
-      flash[:note] = "Your home project doesn't exist yet. You can create it now by entering some" +
+      flash[:notice] = "Your home project doesn't exist yet. You can create it now by entering some" +
         " descriptive data and press the 'Create Project' button."
       redirect_to :action => :new, :ns => "home:" + session[:login] and return
     end

@@ -6,8 +6,9 @@ class MessageController < ApplicationController
   def index
 
     # get project and package if params are set
-    @project = Project.find_by_name params[:project]
-    @package = Package.where('name=? AND db_project_id=?', params[:package], @project.id).first if @project
+    if (params[:project] && (@project = Project.find_by_name!(params[:project])) && params[:package])
+      @package = @project.packages.find_by_name!((params[:package]))
+    end
 
     if request.get?
 
@@ -56,11 +57,6 @@ class MessageController < ApplicationController
         render_error :status => 400, :errorcode => "error deleting message",
           :message => "error deleting message - id not found or not given"
       end
-
-    else
-
-      render_error :status => 400, :errorcode => "forbidden method",
-        :message => "only PUT, GET or DELETE method allowed for this action"
 
     end
   end

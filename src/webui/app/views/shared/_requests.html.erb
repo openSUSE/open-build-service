@@ -47,7 +47,7 @@
             <% end %>
           </td>
           <% if !no_target%>
-            <td>
+            <td class="request_target">
               <% if ae.has_key? 'tprj' %>
                 <% if not @project or @project.name != ae['tprj'] %><!-- <%= ae['tprj'] %>  -->
                   <% if ae['tpkg'] and not (ae.has_key?('source') and Package.exists?(ae['sprj'], ae['spkg']) and ae['spkg'] == ae['tpkg']) %> <!-- /<%= ae['tpkg'] %> -->
@@ -72,14 +72,12 @@
             <td class="nowrap"><%= req['state'] %></td>
           <% end %>
           <td>
-            <%= link_to(image_tag('req-showdiff.png', :size => '16x16', 
-	    alt: "Show #{reqtype(req)} request ##{req['id']}", 
-	    title: "Show #{reqtype(req)} request ##{req['id']}"),
-            {:controller => :request, :action => :show, :id => req['id']}, {:class => "request_link"})
+            <%= link_to(sprite_tag('req-showdiff', 
+	                title: "Show #{reqtype(req)} request ##{req['id']}"),
+                         {:controller => :request, :action => :show, :id => req['id']}, {:class => "request_link"})
 	    -%>
             <% if ae['source'] && ae['spkg'] %>
-            <%= link_to(image_tag('information.png', :size => '16x16', alt:
-	    'Build results', :title => 'Build results', 
+            <%= link_to(sprite_tag('information', title: 'Build results', 
 	    id: "req_#{req['id']}_#{index}"), :controller => :package, 
 	    :action => :show, :project => ae['sprj'], :package => ae['spkg']) %>
               <%= javascript_tag do %>

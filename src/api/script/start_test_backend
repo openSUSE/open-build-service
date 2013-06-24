@@ -3,6 +3,8 @@ ENV['RAILS_ENV'] = 'test'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 require File.expand_path(File.dirname(__FILE__)) + "/../test/test_helper"
 
+require 'opensuse/backend'
+
 Suse::Backend.do_not_start_test_backend
 
 perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"

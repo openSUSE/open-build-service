@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class SearchControllerTest < ActionController::IntegrationTest 
+class SearchControllerTest < ActionDispatch::IntegrationTest 
   
   fixtures :all
 
@@ -84,7 +84,75 @@ class SearchControllerTest < ActionController::IntegrationTest
     prepare_request_with_user "Iggy", "asdfasdf"
     get "/search/package", :match => '[attribute/@name="Maintained"]'
     assert_response 400
-    assert_select "status[code] > summary", /illegal xpath attribute/
+    assert_xml_tag content: "attributes must be $NAMESPACE:$NAME"
+  end
+
+  def test_xpath_7
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/search/package", :match => '[attribute/@name="OBS:Maintained"]'
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :children => { :count => 1 }
+
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/search/package", :match => 'attribute/@name="[OBS:Maintained]"'
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :children => { :count => 0 }
+  end
+
+  def test_xpath_8
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/search/package", :match => 'attribute/@name="[OBS:Maintained"'
+    assert_response 400
+    assert_xml_tag :tag => 'status', :attributes => { :code => "illegal_xpath_error" }
+    # fun part
+    assert_xml_tag content: "#&lt;NoMethodError: undefined method `[]' for nil:NilClass&gt;"
+  end
+
+
+  def test_xpath_search_for_person_or_group
+    # used by maintenance people
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/search/project", :match => "(group/@role='bugowner' or person/@role='bugowner') and starts-with(@name,\"Base\"))"
+    assert_response :success
+    get "/search/package", :match => "(group/@role='bugowner' or person/@role='bugowner') and starts-with(@project,\"Base\"))"
+    assert_response :success
+    get "/search/request?match=(action/@type='set_bugowner'+and+state/@name='accepted')"
+    assert_response :success
+
+    # small typo, no equal ...
+    get "/search/request?match(mistake)"
+    assert_response 400
+    assert_xml_tag :tag => 'status', :attributes => { :code => "empty_match" }
+  end
+
+  def test_person_searches
+    # used by maintenance people
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/search/person", :match => "(@login='Iggy')"
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :attributes => { :matches => "1" }
+    assert_xml_tag :parent => { :tag => 'person' }, :tag => 'login', :content => "Iggy"
+    assert_xml_tag :parent => { :tag => 'person' }, :tag => 'email', :content => "Iggy@pop.org"
+    assert_xml_tag :parent => { :tag => 'person' }, :tag => 'realname', :content => "Iggy Pop"
+    assert_xml_tag :parent => { :tag => 'person' }, :tag => 'state', :content => "confirmed"
+
+    get "/search/person", :match => "(@login='Iggy' or @login='tom')"
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :attributes => { :matches => "2" }
+
+    get "/search/person", :match => "(@email='Iggy@pop.org')"
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :attributes => { :matches => "1" }
+
+    get "/search/person", :match => "(@realname='Iggy Pop')"
+    assert_response :success
+    assert_xml_tag :tag => 'collection', :attributes => { :matches => "1" }
+
+# FIXME2.5: this will work when we turn to enums for the user state
+#    get "/search/person", :match => "(@state='confirmed')"
+#    assert_response :success
+#    assert_xml_tag :tag => 'collection', :attributes => { :matches => "1" }
+
   end
 
   def test_xpath_old_osc
@@ -254,17 +322,17 @@ class SearchControllerTest < ActionController::IntegrationTest
 
   def test_pagination
     prepare_request_with_user "Iggy", "asdfasdf"
-    get "/search/package"
+    get "/search/package?match=*"
     assert_response :success
     assert_xml_tag :tag => 'collection'
     all_packages_count = get_package_count
 
-    get "/search/package", :limit => 3
+    get "/search/package?match=*", :limit => 3
     assert_response :success
     assert_xml_tag :tag => 'collection'
     assert get_package_count == 3
 
-    get "/search/package", :offset => 3
+    get "/search/package?match=*", :offset => 3
     assert_response :success
     assert_xml_tag :tag => 'collection'
     assert get_package_count == (all_packages_count - 3)
@@ -308,6 +376,11 @@ class SearchControllerTest < ActionController::IntegrationTest
     assert_no_xml_tag :tag => 'person', :attributes => { :name => "fred", :role => "maintainer" }
     assert_no_xml_tag :tag => 'person', :attributes => { :name => "Iggy", :role => "maintainer" }
     assert_xml_tag :tag => 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
+
+    # disable filter
+    get "/search/owner?binary=package&limit=0&filter="
+    assert_response :success
+    assert_xml_tag :tag => 'owner', :attributes => { :rootproject => "home:Iggy", :project => "home:Iggy", :package => "TestPack" }
 
     # search by user
     get "/search/owner?user=fred"

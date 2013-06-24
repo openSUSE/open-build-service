@@ -40,8 +40,7 @@ OBSWebUI::Application.configure do
   # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
 
   # Use a different cache store in production
-  # config.cache_store = :mem_cache_store
-  config.cache_store = :mem_cache_store, 'localhost:11211', {namespace: 'obs-webclient', compress: true}
+  config.cache_store = :dalli_store, 'localhost:11211', {namespace: 'obs-webclient', compress: true}
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server
   # config.action_controller.asset_host = "http://assets.example.com"
@@ -64,7 +63,3 @@ OBSWebUI::Application.configure do
   # config.active_record.auto_explain_threshold_in_seconds = 0.5
 
 end
-
-# Enable the interface to change user's password, it can be one of 'on', 'off'
-# CONFIG['change_passwd'] = "on"
-

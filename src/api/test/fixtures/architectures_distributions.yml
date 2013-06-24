@@ -1,0 +1,8 @@
+distributions_architectures_123:
+  id: 123
+  distribution_id: 2
+  architecture_id: 1
+distributions_architectures_321:
+  id: 321
+  distribution_id: 2
+  architecture_id: 2

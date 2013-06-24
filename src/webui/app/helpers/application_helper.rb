@@ -53,6 +53,8 @@ end
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
   
+  include ActionView::Helpers::JavaScriptHelper
+
   def logged_in?
     !session[:login].nil?
   end
@@ -98,17 +100,6 @@ module ApplicationHelper
     URI.escape("#{CONFIG['bugzilla_host']}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd party software&assigned_to=#{assignee}#{cc}&short_desc=#{desc}")
   end
 
-  SPONSORS = [
-      "sponsor_suse",
-      "sponsor_amd",
-      "sponsor_b1-systems",
-      "sponsor_ip-exchange2",
-      "sponsor_heinlein"]
-
-  def get_random_sponsor_image
-    return SPONSORS.sample
-  end
-
   def image_url(source)
     abs_path = image_path(source)
     unless abs_path =~ /^http/
@@ -117,9 +108,9 @@ module ApplicationHelper
     abs_path
   end
 
-  def user_icon(login, size=20)
+  def user_icon(login, size=20, css_class=nil)
     return image_tag(url_for(controller: :home, action: :icon, user: login.to_s, size: size), 
-                     width: size, height: size)
+                     width: size, height: size, class: css_class)
   end
 
   def fuzzy_time_string(time)
@@ -409,11 +400,20 @@ module ApplicationHelper
 
   def sprite_tag(icon, opts = {})
     if opts.has_key? :class
-	    opts[:class] += " icons-#{icon} inlineblock"
+	    opts[:class] += " icons-#{icon}"
     else
-	    opts[:class] = "icons-#{icon} inlineblock"
+	    opts[:class] = "icons-#{icon}"
     end
-    content_tag(:span, '', opts)
+    unless opts.has_key? :alt
+      alt = icon
+      if opts[:title]
+        alt = opts[:title]
+      else
+        Rails.logger.warn "No alt/title text for sprite_tag"
+      end
+      opts[:alt] = alt
+    end
+    image_tag('s.gif', opts)
   end
 
   def next_codemirror_uid
@@ -457,6 +457,16 @@ module ApplicationHelper
     else
       linktext
     end
+  end
+
+  def remove_dialog_tag(text)
+    link_to(text, "#", title: 'Remove Dialog', id: 'remove_dialog')
+  end
+   
+  def render_dialog
+    check_ajax 
+    @dialog_html = escape_javascript( render_to_string(partial: @current_action.to_s) )
+    render partial: 'dialog', content_type: 'application/javascript'
   end
 
 end

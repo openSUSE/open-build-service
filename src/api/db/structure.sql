@@ -7,6 +7,13 @@ CREATE TABLE `architectures` (
   UNIQUE KEY `arch_name_index` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `architectures_distributions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `distribution_id` int(11) DEFAULT NULL,
+  `architecture_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `attrib_allowed_values` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `attrib_type_id` int(11) NOT NULL,
@@ -123,7 +130,7 @@ CREATE TABLE `bs_request_action_accept_infos` (
 CREATE TABLE `bs_request_actions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `bs_request_id` int(11) DEFAULT NULL,
-  `action_type` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `type` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `target_project` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `target_package` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `target_releaseproject` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -177,10 +184,11 @@ CREATE TABLE `bs_requests` (
 
 CREATE TABLE `configurations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `description` text CHARACTER SET utf8,
+  `title` varchar(255) COLLATE utf8_bin DEFAULT '',
+  `description` text COLLATE utf8_bin,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8_bin DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -270,6 +278,13 @@ CREATE TABLE `flags` (
   CONSTRAINT `flags_ibfk_2` FOREIGN KEY (`db_package_id`) REFERENCES `packages` (`id`),
   CONSTRAINT `flags_ibfk_3` FOREIGN KEY (`architecture_id`) REFERENCES `architectures` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `group_request_requests` (
+  `bs_request_action_group_id` int(11) DEFAULT NULL,
+  `bs_request_id` int(11) DEFAULT NULL,
+  KEY `index_group_request_requests_on_bs_request_id` (`bs_request_id`),
+  KEY `index_group_request_requests_on_bs_request_action_group_id` (`bs_request_action_group_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `groups` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -519,10 +534,12 @@ CREATE TABLE `release_targets` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `repository_id` int(11) NOT NULL,
   `target_repository_id` int(11) NOT NULL,
-  `trigger` enum('finished','allsucceeded','maintenance') DEFAULT NULL,
+  `trigger` enum('manual','allsucceeded','maintenance') DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `repository_id_index` (`repository_id`),
-  KEY `index_release_targets_on_target_repository_id` (`target_repository_id`)
+  KEY `index_release_targets_on_target_repository_id` (`target_repository_id`),
+  CONSTRAINT `release_targets_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
+  CONSTRAINT `release_targets_ibfk_2` FOREIGN KEY (`target_repository_id`) REFERENCES `repositories` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `repositories` (
@@ -1044,6 +1061,24 @@ INSERT INTO schema_migrations (version) VALUES ('20121220151549');
 INSERT INTO schema_migrations (version) VALUES ('20130111085930');
 
 INSERT INTO schema_migrations (version) VALUES ('20130220160000');
+
+INSERT INTO schema_migrations (version) VALUES ('20130301100000');
+
+INSERT INTO schema_migrations (version) VALUES ('20130409123324');
+
+INSERT INTO schema_migrations (version) VALUES ('20130410124738');
+
+INSERT INTO schema_migrations (version) VALUES ('20130414061002');
+
+INSERT INTO schema_migrations (version) VALUES ('20130603100244');
+
+INSERT INTO schema_migrations (version) VALUES ('20130610100244');
+
+INSERT INTO schema_migrations (version) VALUES ('20130612151549');
+
+INSERT INTO schema_migrations (version) VALUES ('20130618083665');
+
+INSERT INTO schema_migrations (version) VALUES ('20130619083665');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

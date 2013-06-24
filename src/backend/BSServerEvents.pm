@@ -246,9 +246,13 @@ sub cpio_nextfile {
 	  $ev->{'cpioerrors'} .= "$file->{'name'}: $!\n";
 	  next;
 	}
+	@s = stat($fd);
+      } else {
+	@s = stat($fd);
+	my $off = sysseek($fd, 0, Fcntl::SEEK_CUR) || 0;
+	$s[7] -= $off if $off > 0;
       }
       $ev->{'fd'} = $fd;
-      @s = stat($ev->{'fd'});
     } else {
       $s[7] = length($file->{'data'});
       $s[9] = time();

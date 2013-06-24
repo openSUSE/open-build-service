@@ -9,17 +9,22 @@
  * compiled file, but it's generally better to create a new file per style scope.
  *
  *= require dataTables/jquery.dataTables
+ *= require token-input
+ *= require token-input-facebook
+ *= require jquery.ui.menu
+ *= require jquery.ui.autocomplete
 */
-@import "compass";
 @import "bento/reset";
 @import "bento/960";
 @import "bento/base";
 
+@import "icons";
 @import "style";
 @import "monitor";
 @import "package";
 @import "project";
 @import "search";
+@import "home";
 @import "codemirror";
 @import "codemirror/modes/rpm-spec";
 @import "cm2/toolbars";

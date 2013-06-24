@@ -6,6 +6,31 @@ class Person < ActiveXML::Node
 
   handles_xml_element 'person'
   
+  class << self
+    def make_stub( opt )
+      logger.debug "make stub params: #{opt.inspect}"
+      realname = ""
+      realname = opt[:realname] if opt.has_key? :realname
+      email = ""
+      email = opt[:email] if opt.has_key? :email
+      state = ""
+      state = opt[:state] if opt.has_key? :state
+      globalrole = ""
+      globalrole = opt[:globalrole] if opt.has_key? :globalrole
+
+      reply = <<-EOF
+        <person>
+           <login>#{opt[:login]}</login>
+           <email>#{email}</email>
+           <realname>#{realname}</realname>
+           <state>#{state}</state>
+           <globalrole>#{globalrole}</globalrole>
+        </person>
+      EOF
+      return reply
+    end
+  end
+  
   def self.find_cached(login, opts = {})
     if opts.has_key?(:is_current)
       # skip memcache
@@ -35,8 +60,20 @@ class Person < ActiveXML::Node
     self.to_hash["email"]
   end
 
+  def state
+    self.to_hash["state"]
+  end
+
   def login
     @login || self.to_hash["login"]
+  end
+  
+  def globalrole
+    roles = Array.new
+    to_hash.elements("globalrole").each do |role|
+      roles << role
+    end
+    roles if roles.length > 0
   end
 
   def to_str
@@ -89,7 +126,7 @@ class Person < ActiveXML::Node
   def involved_projects
     predicate = "person/@userid='#{login}'"
     groups.each {|group| predicate += " or group/@groupid='#{group}'"}
-    Collection.find_cached(:id, :what => 'project', :predicate => predicate)
+    Collection.find_cached(:what => 'project', :predicate => predicate)
   end
 
   def involved_packages
@@ -189,7 +226,7 @@ class Person < ActiveXML::Node
     end
   end
 
-  def self.list(prefix=nil)
+  def self.list(prefix=nil, hash=nil)
     prefix = URI.encode(prefix)
     user_list = Rails.cache.fetch("user_list_#{prefix.to_s}", :expires_in => 10.minutes) do
       transport ||= ActiveXML::transport
@@ -198,7 +235,14 @@ class Person < ActiveXML::Node
         logger.debug "Fetching user list from API"
         response = transport.direct_http URI("#{path}"), :method => "GET"
         names = []
-        Collection.new(response).each {|user| names << user.name}
+        if hash
+          Collection.new(response).each do |user|
+            user = { 'name' => user.name }
+            names << user
+          end
+        else
+          Collection.new(response).each {|user| names << user.name}
+        end
         names
       rescue ActiveXML::Transport::Error => e
         raise ListError, e.summary

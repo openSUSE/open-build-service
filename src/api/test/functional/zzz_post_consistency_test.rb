@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_consistency_helper"
 
-class ZZZPostConsistency < ActionController::IntegrationTest 
+class ZZZPostConsistency < ActionDispatch::IntegrationTest 
   fixtures :all
   
   def test_resubmit_fixtures

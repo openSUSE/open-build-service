@@ -2,8 +2,9 @@ class XpathEngine
 
   require 'rexml/parsers/xpathparser'
 
-  class Error < Exception; end
-  class IllegalXpathError < Error; end
+  class IllegalXpathError < APIException
+    setup 400
+  end
 
   def initialize
     @lexer = REXML::Parsers::XPathParser.new
@@ -61,15 +62,15 @@ class XpathEngine
         'person/@userid' => {:cpart => 'users.login', :joins => 
           ['LEFT JOIN package_user_role_relationships ON packages.id = package_user_role_relationships.db_package_id',
            'LEFT JOIN users ON users.id = package_user_role_relationships.bs_user_id']},
-        'person/@role' => {:cpart => 'roles.title', :joins =>
+        'person/@role' => {:cpart => 'ppr.title', :joins =>
           ['LEFT JOIN package_user_role_relationships ON packages.id = package_user_role_relationships.db_package_id',
-           'LEFT JOIN roles ON package_user_role_relationships.role_id = roles.id']},
+           'LEFT JOIN roles AS ppr ON package_user_role_relationships.role_id = ppr.id']},
         'group/@groupid' => {:cpart => 'groups.title', :joins =>
           ['LEFT JOIN package_group_role_relationships ON packages.id = package_group_role_relationships.db_package_id',
            'LEFT JOIN groups ON groups.id = package_group_role_relationships.bs_group_id']},
-        'group/@role' => {:cpart => 'roles.title', :joins =>
+        'group/@role' => {:cpart => 'gpr.title', :joins =>
           ['LEFT JOIN package_group_role_relationships ON packages.id = package_group_role_relationships.db_package_id',
-           'LEFT JOIN roles ON package_group_role_relationships.role_id = roles.id']},
+           'LEFT JOIN roles AS gpr ON package_group_role_relationships.role_id = gpr.id']},
         'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name',
           :split => ':', :joins => 
           ['LEFT JOIN attribs ON attribs.db_package_id = packages.id',
@@ -94,15 +95,15 @@ class XpathEngine
         'person/@userid' => {:cpart => 'users.login', :joins => [
           'LEFT JOIN project_user_role_relationships ON projects.id = project_user_role_relationships.db_project_id',
           'LEFT JOIN users ON users.id = project_user_role_relationships.bs_user_id']},
-        'person/@role' => {:cpart => 'roles.title', :joins => [
+        'person/@role' => {:cpart => 'ppr.title', :joins => [
           'LEFT JOIN project_user_role_relationships ON projects.id = project_user_role_relationships.db_project_id',
-          'LEFT JOIN roles ON project_user_role_relationships.role_id = roles.id']},
+          'LEFT JOIN roles AS ppr ON project_user_role_relationships.role_id = ppr.id']},
         'group/@groupid' => {:cpart => 'groups.title', :joins =>
           ['LEFT JOIN project_group_role_relationships ON projects.id = project_group_role_relationships.db_project_id',
            'LEFT JOIN groups ON groups.id = project_group_role_relationships.bs_group_id']},
-        'group/@role' => {:cpart => 'roles.title', :joins =>
+        'group/@role' => {:cpart => 'gpr.title', :joins =>
           ['LEFT JOIN project_group_role_relationships ON projects.id = project_group_role_relationships.db_project_id',
-           'LEFT JOIN roles ON project_group_role_relationships.role_id = roles.id']},
+           'LEFT JOIN roles AS gpr ON project_group_role_relationships.role_id = gpr.id']},
         'repository/@name' => {:cpart => 'repositories.name'},
         'repository/path/@project' => {:cpart => 'childs.name', :joins => [
           'join repositories r on r.db_project_id=projects.id',
@@ -119,6 +120,12 @@ class XpathEngine
            'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
            'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id']},
       },
+      'users' => {
+        '@login' => {:cpart => 'users.login'},
+        '@email' => {:cpart => 'users.email'},
+        '@realname' => {:cpart => 'users.realname'},
+        '@state' => {:cpart => 'users.state'},
+       },
       'issues' => {
         '@name' => {:cpart => 'issues.name'},
         '@state' => {:cpart => 'issues.state'},
@@ -132,7 +139,8 @@ class XpathEngine
         '@id' => { :cpart => 'bs_requests.id' },
         'state/@name' => { :cpart => 'bs_requests.state' },
         'state/@who' => { :cpart => 'bs_requests.commenter' },
-        'action/@type' => { :cpart => 'bs_request_actions.action_type' },
+        'action/@type' => { :cpart => 'bs_request_actions.type' },
+        'action/grouped/@id' => { cpart: 'g.bs_request_id', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id LEFT JOIN group_request_requests g on g.bs_request_action_group_id = a.id" },
         'action/target/@project' => { :cpart => 'a.target_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
         'action/target/@package' => { :cpart => 'a.target_package', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
         'action/source/@project' => { :cpart => 'a.source_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
@@ -254,13 +262,15 @@ class XpathEngine
       model = BsRequest
       includes = [:bs_request_actions, :bs_request_histories, :reviews]
       select = "distinct(bs_requests.id),bs_requests.*"
+    when 'users'
+      model = User
+      includes = []
     when 'issues'
       model = Issue
       includes = [:issue_tracker]
     else
       logger.debug "strange base table: #{@base_table}"
     end
-
     cond_ary = [@conditions.flatten.uniq.join(" AND "), @condition_values].flatten
 
     if opt[:sort_by] and @attribs[@base_table].has_key?(opt[:sort_by])
@@ -273,15 +283,16 @@ class XpathEngine
 
     logger.debug("#{model.class}.find_each #{ { :select => select, :include => includes, :joins => @joins.flatten.uniq.join(' '),
                     :conditions => cond_ary, :order => @sort_order, :group => model.table_name + ".id" }.inspect }")
-    model.find_each(:select => select, :include => includes, :joins => @joins.flatten.uniq.join(" "),
-                    :conditions => cond_ary, :order => @sort_order) do |item|
+    model.includes(includes).joins(@joins.flatten.uniq.join(" ")).where(cond_ary).order(@sort_order).select(select).each do |item|
       # Add some pagination. Standard :offset & :limit aren't available for ActiveModel#find_each,
       # and the :start param only works on primary keys, but we're in a block so we can control
       # what we 'yield' after we constructed our (presumably) huge table with find_each...
       if @offset && @offset > 0
         @offset -= 1
       else
+        logger.debug "--- render item #{item.inspect}"
         yield(item)
+        logger.debug "--- finished render item"
         if @limit
           @limit -= 1
           break if @limit == 0
@@ -379,7 +390,7 @@ class XpathEngine
     # this is a wild hack - we need to save the key, so we can possibly split the next
     # literal. The real fix is to translate the xpath into SQL directly
     @last_key = key
-    raise IllegalXpathError, "unable to evaluate '#{key}' for '#{table}'" unless @attribs[table].has_key? key
+    raise IllegalXpathError, "unable to evaluate '#{key}' for '#{table}'" unless @attribs[table] and @attribs[table].has_key? key
     #logger.debug "-- found key: #{key} --"
     if @attribs[table][key][:empty]
       return nil

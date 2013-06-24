@@ -1,7 +1,7 @@
 # encoding: UTF-8
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class PersonControllerTest < ActionController::IntegrationTest 
+class PersonControllerTest < ActionDispatch::IntegrationTest 
 
   fixtures :all
 
@@ -173,7 +173,6 @@ class PersonControllerTest < ActionController::IntegrationTest
               <realname>Adrian Schroeter</realname>
               <state>locked</state>
               <password>so_alone</password>
-              <note>I do not trust this guy, this note is only allowed to be stored by admin</note>
             </unregisteredperson>"
            '
     post "/person?cmd=register", data

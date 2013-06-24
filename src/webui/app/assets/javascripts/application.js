@@ -11,13 +11,15 @@
 // GO AFTER THE REQUIRES BELOW.
 //
 //= require jquery
-//= require jquery-ui
+//= require jquery.ui.menu
+//= require jquery.ui.autocomplete
 //= require jquery_ujs
 //
 //= require jquery.expander.js
 //= require jquery.flot.js
 //= require jquery.flot.stack.js
 //= require dataTables/jquery.dataTables
+//= require jquery.tokeninput
 //= require bento/script.js
 //= require bento/global-navigation.js
 //= require bento/l10n/global-navigation-data-en_US.js

@@ -2,12 +2,8 @@ require File.expand_path('../boot', __FILE__)
 
 require 'rails/all'
 
-if defined?(Bundler)
-  # If you precompile assets before deploying to production, use this line
-  Bundler.require(*Rails.groups(:assets => %w(development test)))
-  # If you want your assets lazily compiled in production, use this line
-  # Bundler.require(:default, :assets, Rails.env)
-end
+# Assets should be precompiled for production (so we don't need the gems loaded then)
+Bundler.require(*Rails.groups(assets: %w(development test)))
 
 module OBSApi
   class Application < Rails::Application
@@ -78,7 +74,7 @@ module OBSApi
     # rake gems:install (installs the needed gems)
     # rake gems:unpack (this unpacks the gems to vendor/gems)
     
-    #config.cache_store = :mem_cache_store, 'localhost:11211', {:namespace => 'obs-api', :compress => true }
+    config.cache_store = :dalli_store, 'localhost:11211', {:namespace => 'obs-api', :compress => true }
     
     # Activate observers that should always be running
     # config.active_record.observers = :cacher, :garbage_collector

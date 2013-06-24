@@ -1,13 +1,16 @@
 ENV["RAILS_ENV"] = "test"
+require 'minitest/unit'
+
 require 'simplecov'
 require 'simplecov-rcov'
 SimpleCov.start 'rails' if ENV["DO_COVERAGE"]
 
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
-require 'minitest/unit'
 
 require 'webmock/minitest'
+
+require 'opensuse/backend'
 
 WebMock.disable_net_connect!(allow: CONFIG['source_host'])
 
@@ -33,8 +36,8 @@ WebMock.disable_net_connect!(allow: CONFIG['source_host'])
       system("echo \"#{verifymd5}  #{package}\" > #{jobfile}:dir/meta")
     end
 
-module ActionController
-  module Integration #:nodoc:
+module ActionDispatch
+  module Integration
     class Session
       def add_auth(headers)
         headers = Hash.new if headers.nil?
@@ -49,11 +52,6 @@ module ActionController
         CONFIG['global_write_through'] = true
         self.accept = "text/xml,application/xml"
         real_process(method, path, parameters, add_auth(rack_env))
-      end
-
-      def get_html(path, parameters = nil, rack_env = nil)
-        self.accept = "text/html";
-        real_process(:get, path, parameters, add_auth(rack_env))
       end
 
       def raw_post(path, data, parameters = nil, rack_env = nil)
@@ -74,7 +72,9 @@ module ActionController
 
     end
   end
+end
 
+module ActionDispatch
   class IntegrationTest
  
     def teardown

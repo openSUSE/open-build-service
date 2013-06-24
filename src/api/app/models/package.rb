@@ -1,10 +1,13 @@
 # -*- encoding: utf-8 i*-
 require 'api_exception'
+require 'builder/xchar'
 
 class Package < ActiveRecord::Base
   include FlagHelper
 
-  class CycleError < Exception; end
+  class CycleError < APIException
+   setup "cycle_error"
+  end
   class DeleteError < APIException
     attr_accessor :packages
     setup "delete_error"
@@ -851,7 +854,7 @@ class Package < ActiveRecord::Base
   end
 
   def to_axml_id
-    return "<package project='#{project.name.to_xs}' name='#{name.to_xs}'/>"
+    return "<package project='#{::Builder::XChar.encode(project.name)}' name='#{::Builder::XChar.encode(name)}'/>"
   end
 
   def rating( user_id=nil )
@@ -894,7 +897,7 @@ class Package < ActiveRecord::Base
   # is called before_update
   def update_activity
     # the value we add to the activity, when the object gets updated
-    addon = 10 * (Time.now.to_f - self.updated_at.to_f) / 86400
+    addon = 10 * (Time.now.to_f - self.updated_at_was.to_f) / 86400
     addon = 10 if addon > 10
     new_activity = activity + addon
     new_activity = 100 if new_activity > 100
@@ -992,4 +995,152 @@ class Package < ActiveRecord::Base
   def valid_name
     errors.add(:name, "is illegal") unless Package.valid_name?(self.name)
   end
+
+  class NoRepositoriesFound < APIException
+    setup 404, "No repositories build against target"
+  end
+
+  class FailedToRetrieveBuildInfo < APIException
+    setup 404
+  end
+
+  def buildstatus(opts)
+
+    tproj  = opts[:target_project]
+    srcmd5 = opts[:srcmd5]
+
+    # check current srcmd5
+    begin
+      cdir = Directory.find(:project => self.project.name,
+                            :package => self.name,
+                            :expand  => 1)
+      csrcmd5 = cdir.value('srcmd5') if cdir
+    rescue ActiveXML::Transport::Error => e
+      csrcmd5 = nil
+    end
+
+    if tproj
+      tocheck_repos = self.project.repositories_linking_project(tproj, ActiveXML.transport)
+    else
+      tocheck_repos = self.project.repositories
+    end
+
+    raise NoRepositoriesFound.new if tocheck_repos.empty?
+
+    output = {}
+    tocheck_repos.each do |srep|
+      output[srep.name] ||= {}
+      trepo             = []
+      archs             = []
+      srep.each_path do |p|
+        if p.project != self.project.name
+          r = Repository.find_by_project_and_repo_name(p.project, p.value(:repository))
+          r.architectures.each { |a| archs << a.name }
+          trepo << [p.project, p.value(:repository)]
+        end
+      end
+      archs.uniq!
+      if !trepo or trepo.nil?
+        raise NoRepositoriesFound.new "Can not find repository building against target"
+      end
+
+      tpackages = Hash.new
+      vprojects = Hash.new
+      trepo.each do |p, r|
+        next if vprojects.has_key? p
+        prj = Project.find_by_name(p)
+        next unless prj # in case of remote projects
+        prj.packages.select(:name).each { |n| tpackages[n.name] = p }
+        vprojects[p] = 1
+      end
+
+      archs.each do |arch|
+        everbuilt     = 0
+        eversucceeded = 0
+        buildcode     =nil
+        hist          = Jobhistory.find(:project    => self.project.name,
+                                        :repository => srep.name,
+                                        :package    => self.name,
+                                        :arch       => arch.to_s, :limit => 20)
+        next unless hist
+        hist.each_jobhist do |jh|
+          next if jh.srcmd5 != srcmd5
+          everbuilt = 1
+          if jh.code == 'succeeded' || jh.code == 'unchanged'
+            buildcode     ='succeeded'
+            eversucceeded = 1
+            break
+          end
+        end
+        logger.debug "arch:#{arch} md5:#{srcmd5} successed:#{eversucceeded} built:#{everbuilt}"
+        missingdeps=[]
+        if eversucceeded == 1
+          uri = URI("/build/#{CGI.escape(self.project.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/_builddepinfo?package=#{CGI.escape(self.name)}&view=pkgnames")
+          begin
+            buildinfo = Xmlhash.parse(ActiveXML.transport.direct_http(uri))
+          rescue ActiveXML::Transport::Error => e
+            # if there is an error, we ignore
+            raise FailedToRetrieveBuildInfo.new "Can't get buildinfo: #{e.summary}"
+          end
+
+          buildinfo["package"].elements("pkgdep") do |b|
+            unless tpackages.has_key? b
+              missingdeps << b
+            end
+          end
+
+        end
+
+        # if the package does not appear in build history, check flags
+        if everbuilt == 0
+          buildflag=self.find_flag_state("build", srep.name, arch.to_s)
+          logger.debug "find_flag_state #{srep.name} #{arch.to_s} #{buildflag}"
+          if buildflag == 'disable'
+            buildcode='disabled'
+          end
+        end
+
+        if !buildcode && srcmd5 != csrcmd5 && everbuilt == 1
+          buildcode='failed' # has to be
+        end
+
+        unless buildcode
+          buildcode="unknown"
+          begin
+            uri         = URI("/build/#{CGI.escape(self.project.name)}/_result?package=#{CGI.escape(self.name)}&repository=#{CGI.escape(srep.name)}&arch=#{CGI.escape(arch.to_s)}")
+            resultlist  = ActiveXML::Node.new(ActiveXML.transport.direct_http(uri))
+            currentcode = nil
+            resultlist.each_result do |r|
+              r.each_status { |s| currentcode = s.value(:code) }
+            end
+          rescue ActiveXML::Transport::Error
+            currentcode = nil
+          end
+          if ['unresolvable', 'failed', 'broken'].include?(currentcode)
+            buildcode='failed'
+          end
+          if ['building', 'scheduled', 'finished', 'signing', 'blocked'].include?(currentcode)
+            buildcode='building'
+          end
+          if currentcode == 'excluded'
+            buildcode='excluded'
+          end
+          # if it's currently succeeded but !everbuilt, it's different sources
+          if currentcode == 'succeeded'
+            if srcmd5 == csrcmd5
+              buildcode='building' # guesssing
+            else
+              buildcode='outdated'
+            end
+          end
+        end
+
+        output[srep.name][arch.to_s] = { result: buildcode }
+        output[srep.name][arch.to_s][:missing] = missingdeps.uniq if (missingdeps.size > 0 && buildcode == 'succeeded')
+      end
+    end
+
+    output
+  end
+
 end

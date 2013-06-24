@@ -5,8 +5,10 @@ class UserController < ApplicationController
   include ApplicationHelper
 
   before_filter :require_login, :only => [:edit, :save]
-  before_filter :check_user, :only => [:edit, :save, :change_password]
-
+  before_filter :check_user, :only => [:edit, :save, :change_password, :register, :delete, :confirm, :lock, :admin]
+  before_filter :overwrite_user, :only => [:edit]
+  before_filter :require_admin, :only => [:edit]
+  
   def logout
     logger.info "Logging out: #{session[:login]}"
     reset_session
@@ -17,16 +19,13 @@ class UserController < ApplicationController
     else
       redirect_to '/'
     end
-    Person.free_cache session
+    Person.free_cache session[:login]
   end
 
   def login
     @return_to_path = params['return_to_path'] || "/"
   end
   
-  def edit
-  end
-
   def do_login
     @return_to_path = params['return_to_path'] || "/"
     if !params[:username].blank? and params[:password]
@@ -55,98 +54,126 @@ class UserController < ApplicationController
   end
 
   def save
-    @user.realname.text = params[:realname]
-    if @user.save
-      flash[:note] = "User data for user '#{@user.login}' successfully updated."
-    else
-      flash[:note] = "Failed to save user data for user '#{user.login}'."
+    person_opts = { :login => params[:user],
+                    :realname => params[:realname],
+                    :email => params[:email],
+                    :globalrole => params[:globalrole],
+                    :state => params[:state]}
+    begin
+      person = Person.new(person_opts)
+      person.save
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = e.message
     end
-    session[:user] = nil
-    redirect_to :controller => "home"
+    flash[:success] = "User data for user '#{person.login}' successfully updated."
+    Rails.cache.delete("person_#{person.login}")
+    redirect_back_or_to :controller => "home", :action => :index
   end
 
+  def edit
+    @roles = Role.global_roles
+    @states = State.states
+  end
+
+  def delete
+    user = Person.find( params[:user] )
+    params[:realname] = user.realname
+    params[:email] = user.email
+    params[:globalrole] = user.globalrole
+    params[:state] = 'deleted'
+    save
+  end
+
+  def confirm
+    user = Person.find( params[:user] )
+    params[:realname] = user.realname
+    params[:email] = user.email
+    params[:globalrole] = user.globalrole
+    params[:state] = 'confirmed'
+    save
+  end
+  
+  def lock
+    user = Person.find( params[:user] )
+    params[:realname] = user.realname
+    params[:email] = user.email
+    params[:globalrole] = user.globalrole
+    params[:state] = 'locked'
+    save
+  end
+
+  def admin
+    user = Person.find( params[:user] )
+    params[:realname] = user.realname
+    params[:email] = user.email
+    params[:globalrole] = 'Admin'
+    params[:state] = user.state
+    save
+  end
+
+  def save_dialog
+    @roles = Role.global_roles
+    render_dialog
+  end
+
+  def overwrite_user
+    @displayed_user = @user
+    user = find_cached(Person, params['user'] ) if params['user'] && !params['user'].empty?
+    @displayed_user = user if user
+  end
+  private :overwrite_user
+
+
   def register
-    unless CONFIG['frontend_ldap_mode'] == :off
-      flash[:error] = 'Registering currently not possible with LDAP mode'
-      redirect_back_or_to :controller => 'main', :action => 'index' and return
-    end
-    begin
-      find_cached(Person, session[:login] )
-      logger.info "User #{session[:login]} already exists..."
-      redirect_to :controller => :project, :action => :show, :project => "home:#{session[:login]}" and return
-    rescue
-    end
-
-    #FIXME: Reading form data and overriding it with session data seems broken.
-    #       Saving it back into the session seems even more so, re-evaluate this.
-    login = session[:login] || params[:login] || ''
-    email = session[:email] || params[:email] || 'nomail@nomail.com'
-
-    #FIXME redirecting destroys form content, either send it or use AJAX form validation
-    if login.blank? or login.include?(" ")
-      flash[:error] = "Illegal login name"
-      redirect_back_or_to :controller => "main", :action => "index" and return
-    end
-    simplified_rfc2822_regexp = Regexp.new '\A[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\Z'
-    if email !~ simplified_rfc2822_regexp
-      flash[:error] = "Illegal email address: #{email}"
-      redirect_back_or_to :controller => "main", :action => "index" and return
-    end
-    if params[:password_first] != params[:password_second]
-      flash[:error] = "Given passwords are not the same"
-      redirect_back_or_to :controller => "main", :action => "index" and return
-    end
-    if params[:password_first] and (params[:password_first].length < 6 or params[:password_first].length > 64)
-      flash[:error] = "Password is to short, it should have minimum 6 characters"
-      redirect_back_or_to :controller => "main", :action => "index" and return
-    end
-
-    logger.debug "Creating new person #{login}"
-    unreg_person_opts = { :login => login, :email => email, :realname => params[:realname], :explanation => params[:description] }
-    unreg_person_opts[:password] = params[:password_first] if params[:password_first]
-
+    unreg_person_opts = { :login => params[:login],
+                          :email => params[:email],
+                          :realname => params[:realname],
+                          :password => params[:password],
+                          :state => params[:state]}
     begin
       person = Unregisteredperson.new(unreg_person_opts)
+      logger.debug "Registering user #{params[:login]}"
       person.save({:create => true})
     rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
+      flash[:error] = e.message
       redirect_back_or_to :controller => "main", :action => "index" and return
     end
-
-    session[:login] = login
-    session[:password] = unreg_person_opts[:password]
-    authenticate_form_auth
-
-    flash[:success] = "Your buildservice account is now active."
-    redirect_to :controller => :project, :action => :new, :ns => "home:#{login}"
+    flash[:success] = "The account \"#{params[:login]}\" is now active."
+    if @user and @user.is_admin?
+      redirect_to :controller => :configuration, :action => :users
+    else
+     session[:login] = unreg_person_opts[:login]
+     session[:password] = unreg_person_opts[:password]
+     authenticate_form_auth
+     redirect_back_or_to :controller => :main, :action => :index
+    end
   end
 
   def register_user
   end
 
+  def password_dialog
+    render_dialog
+  end
+
   def change_password
     # check the valid of the params  
-    if not params[:current_password] == session[:password]
+    if not params[:password] == session[:password]
       errmsg = "The value of current password does not match your current password. Please enter the password and try again."
     end
-    if not params[:new_password] == params[:password_confirmation]
-      errmsg = "The new passwords do not match. Please enter the password and try again."
+    if not params[:new_password] == params[:repeat_password]
+      errmsg = "The passwords do not match, please try again."
     end    
-    if params[:current_password] == params[:new_password]
-      errmsg = "The new password is the same as your current password. Please enter the new password again."
+    if params[:password] == params[:new_password]
+      errmsg = "The new password is the same as your current password. Please enter a new password."
     end
     if errmsg
       flash[:error] = errmsg
-      redirect_to :controller => :user, :action => :change_my_password
+      redirect_to :controller => :home, :action => :index
       return
     end
 
-    # Replace all '\n' characters (not just the last one) that Ruby thinks belong into
-    # Base64 encoded strings. Happens when people enter lengthy passwords with more than
-    # 60 characters (the Base64 module's magically hardcoded linebreak default).
-    new_password = Base64.encode64(params[:new_password]).gsub("\n", "")
-    changepwd = Userchangepasswd.new(:login => session[:login], :password => new_password)
-
+    changepwd = Userchangepasswd.new(:login => session[:login], :password => params[:new_password])
     begin
       if changepwd.save(:create => true)
         session[:password] = params[:new_password]
@@ -159,13 +186,17 @@ class UserController < ApplicationController
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
     end
-
-    redirect_to :controller => :user, :action => :change_my_password
+    redirect_to :controller => :home, :action => :index
   end 
 
   def autocomplete
     required_parameters :term
     render json: Person.list(params[:term])
+  end
+
+  def tokens
+    required_parameters :q
+    render json: Person.list(params[:q], true)
   end
 
 end

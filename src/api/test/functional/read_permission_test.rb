@@ -2,7 +2,7 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
-class ReadPermissionTest < ActionController::IntegrationTest 
+class ReadPermissionTest < ActionDispatch::IntegrationTest 
 
   fixtures :all
   
@@ -244,8 +244,10 @@ class ReadPermissionTest < ActionController::IntegrationTest
     puts @response.body if debug
     assert_response resp if resp
     assert_match(match, @response.body) if match
-    get "/source/#{tprj}" if debug
-    puts @response.body if debug
+    if debug
+      get "/source/#{tprj}"
+      puts @response.body
+    end
     get "/source/#{tprj}/_meta"
     puts @response.body if debug
     # FIXME: implementation is not done, change to assert_xml_tag or assert_select
@@ -912,5 +914,43 @@ class ReadPermissionTest < ActionController::IntegrationTest
     delete "/source/home:tom:branches:home:Iggy"
     assert_response :success
   end
+
+  def test_setup_default_project
+    # Create public project
+    prepare_request_with_user "adrian", "so_alone"
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+        '<project name="home:adrian:Project"> <title/> <description/> </project>'
+    assert_response :success
+    get "/source/home:adrian:Project/_meta"
+    assert_response :success
+    assert_no_xml_tag( :tag => "disable", :parent => { :tag => "access" } )
+    delete "/source/home:adrian:Project"
+    assert_response :success
+
+    # Create public project, but api config is changed to make it closed
+    CONFIG['default_access_disabled'] = true
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+        '<project name="home:adrian:Project"> <title/> <description/> </project>'
+    assert_response :success
+    get "/source/home:adrian:Project/_meta"
+    assert_response :success
+    assert_xml_tag( :tag => "disable", :parent => { :tag => "access" } )
+    # enabling access is not allowed in this mode
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+        '<project name="home:adrian:Project"> <title/> <description/> </project>'
+    assert_response 403
+    assert_xml_tag :tag => "status", :attributes => { :code => "change_project_protection_level" }
+
+    # enabling access is allowed
+    CONFIG['default_access_disabled'] = nil
+    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+        '<project name="home:adrian:Project"> <title/> <description/> </project>'
+    assert_response :success
+
+    # cleanup
+    delete "/source/home:adrian:Project"
+    assert_response :success
+  end
+
 
 end

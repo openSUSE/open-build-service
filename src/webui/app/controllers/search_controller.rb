@@ -129,11 +129,11 @@ class SearchController < ApplicationController
     end
     logger.debug "Found #{@results.length} search results: #{@results.inspect}"
     if @results.length < 1
-      flash[:note] = "Your search did not return any results."
+      flash[:notice] = "Your search did not return any results."
     end
     if @results.length > 200
       @results = @results[0..199]
-      flash[:note] = "Your search returned more than 200 results. Please be more precise."
+      flash[:notice] = "Your search returned more than 200 results. Please be more precise."
     end
   end
 

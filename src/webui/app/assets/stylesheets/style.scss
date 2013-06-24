@@ -391,11 +391,6 @@ div.dataTables_wrapper:after {
   height: 0;
 }
 
-$icons-spacing:2px;
-$icons-sprite-dimensions:true;
-@import "icons/*.png"; 
-@include all-icons-sprites;
-
 .icon_24 {
   width: 24px;
   height: 24px;
@@ -420,8 +415,6 @@ $icons-sprite-dimensions:true;
  cursor:pointer;
  border: none;
  text-indent: -1000em;
- background: sprite($icons-sprites, note_delete) no-repeat !important;
- @include sprite-dimensions($icons-sprites, note_delete);
 }
 
 #breadcrump .icons-home_grey {
@@ -447,4 +440,23 @@ $icons-sprite-dimensions:true;
   display: inline;
   margin-left: 0px;
   margin-right: 0px;
+}
+
+.sign-up input {
+  padding: 8px 8px;
+}
+
+.news-sender {
+  margin-left: 5px;
+}
+
+.news-message {
+ margin-top: 4px;
+ margin-bottom: 20px;
+ margin-left: 22px;
+ padding: 5px;
+}
+
+.news-message img {
+  float: right;
 }

@@ -28,6 +28,14 @@ module ActiveXML
         return @xml['exception']
       end
 
+      def details
+        parse!
+        if @xml.has_key? 'details'
+	  return @xml['details']
+        end
+        return nil
+      end
+
       def summary
         parse!
         if @xml.has_key? 'summary'
@@ -365,7 +373,7 @@ module ActiveXML
           logger.error "--> caught #{err.class}: #{err.message}, retrying with new HTTP connection"
           retry
         end
-        raise IOError, "Connection failed #{err.class}: #{err.message} for #{url}"
+        raise ConnectionError, "Connection failed #{err.class}: #{err.message} for #{url}"
       rescue SystemCallError => err
         keepalive = false
         raise ConnectionError, "Failed to establish connection for #{url}: " + err.message

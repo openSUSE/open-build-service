@@ -1,10 +1,14 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
-class InterConnectTests < ActionController::IntegrationTest 
+class InterConnectTests < ActionDispatch::IntegrationTest 
 
   fixtures :all
    
+  def setup
+    wait_for_scheduler_start
+  end
+
   def test_anonymous_access
     get "/public/lastevents" # OBS 2.1
     assert_response :success
@@ -99,6 +103,22 @@ class InterConnectTests < ActionController::IntegrationTest
     assert_response 404
     get "/public/source/UseRemoteInstance/NotExisting/my_file"
     assert_response 404
+  end
+
+  def test_backend_support
+    get "/public/source/UseRemoteInstance?package=pack1&package=pack2&view=info"
+    assert_response :success
+    assert_xml_tag( :tag => "sourceinfo", :attributes => { :package => "pack1" } )
+    assert_xml_tag( :tag => "sourceinfo", :attributes => { :package => "pack2" } )
+    assert_no_xml_tag( :tag => "sourceinfo", :attributes => { :package => "pack3" } )
+
+    # with credentials
+    prepare_request_with_user "tom", "thunder"
+    get "/source/UseRemoteInstance?package=pack1&package=pack2&view=info"
+    assert_response :success
+    assert_xml_tag( :tag => "sourceinfo", :attributes => { :package => "pack1" } )
+    assert_xml_tag( :tag => "sourceinfo", :attributes => { :package => "pack2" } )
+    assert_no_xml_tag( :tag => "sourceinfo", :attributes => { :package => "pack3" } )
   end
 
   def test_use_remote_repositories
@@ -373,6 +393,19 @@ end
     assert_response :success
   end
 
+# FIXME: backend does not support project copy from remote
+# def test_copy_project
+#   prepare_request_with_user "tom", "thunder"
+#   get "/source/RemoteInstance:BaseDistro"
+#   assert_response :success
+#   post "/source/home:tom:TEMPORARY?cmd=copy&oproject=RemoteInstance:BaseDistro&nodelay=1"
+#   assert_response :success
+#   get "/source/home:tom:TEMPORARY"
+#   assert_response :success
+#   delete "/source/home:tom:TEMPORARY"
+#   assert_response :success
+# end
+
   def test_get_packagelist_with_hidden_remoteurlproject
     prepare_request_with_user "tom", "thunder"
     get "/source/HiddenRemoteInstance"
@@ -436,6 +469,25 @@ end
     #cleanup
     delete "/source/home:tom:remote"
     assert_response :success
+  end
+
+  def test_check_meta_stripping
+    prepare_request_with_user "Iggy", "asdfasdf"
+    # package meta
+    get "/source/home:Iggy/TestPack/_meta"
+    assert_response :success
+    assert_xml_tag :tag => 'person'
+    get "/source/RemoteInstance:home:Iggy/TestPack/_meta"
+    assert_response :success
+    assert_no_xml_tag :tag => 'person'
+
+    # project meta
+    get "/source/home:Iggy/_meta"
+    assert_response :success
+    assert_xml_tag :tag => 'person'
+    get "/source/RemoteInstance:home:Iggy/_meta"
+    assert_response :success
+    assert_no_xml_tag :tag => 'person'
   end
 
   def test_remove_broken_link

@@ -13,7 +13,7 @@
 # Provides:          obssigner
 # Required-Start:    $time $syslog
 # Required-Stop:     $null
-# Should-Start:      obsstoragesetup
+# Should-Start:      obsstoragesetup obsapisetup
 # Should-Stop:       $none
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
@@ -48,6 +48,8 @@ rc_reset
 case "$1" in
 	start)
 		echo -n "Initializing obssigner"
+		mkdir -p "$rundir" "$logdir"
+		chown obsrun:obsrun "$logdir" "$rundir"
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
 		startproc -l "$logdir"/signer.log \
@@ -60,8 +62,6 @@ case "$1" in
 		rc_status -v
 	;;
 	restart)
-		## If first returns OK call the second, if first or
-		## second command fails, set echo return value.
 		"$obsdir"/bs_signer --restart
 		rc_status
 	;;

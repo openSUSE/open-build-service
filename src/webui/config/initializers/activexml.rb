@@ -18,8 +18,11 @@ class DetailsLogger
     d.each do |key,value|
       key = "api-#{key}"
       if value
-        @summary[key] ||= 0
-	@summary[key] += value
+	if @summary[key].nil?
+          @summary[key] = value
+	else
+	  @summary[key] += value
+	end
       end
     end
   end
@@ -127,7 +130,7 @@ map = ActiveXML::setup_transport(CONFIG['frontend_protocol'], CONFIG['frontend_h
   map.set_additional_header( "User-Agent", "obs-webui/#{CONFIG['version']}" )
   map.details = DetailsLogger.new
 
-if Rails.env.development?
+if defined?(Rack::MiniProfiler)
   ::Rack::MiniProfiler.profile_method(ActiveXML::Transport, :http_do) do |method,url| 
     if url.kind_of? String
       "#{method.to_s.upcase} #{url}"

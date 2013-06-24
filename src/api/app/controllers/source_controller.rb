@@ -1,6 +1,7 @@
-include ProductHelper
 include MaintenanceHelper
 include ValidationHelper
+
+require 'builder/xchar'
 
 class SourceController < ApplicationController
 
@@ -18,6 +19,8 @@ class SourceController < ApplicationController
   validate_action :project_meta => {:method => :put, :request => :project, :response => :status}
   validate_action :package_meta => {:method => :put, :request => :package, :response => :status}
 
+  skip_before_filter :validate_xml_request, :only => [:file]
+
   # /source
   #########
   def index
@@ -25,7 +28,6 @@ class SourceController < ApplicationController
     #--------------------
     deleted = params.has_key? :deleted
     admin_user = @http_user.is_admin?
-    valid_http_methods :get, :post
 
     # access checks
     #--------------
@@ -52,10 +54,6 @@ class SourceController < ApplicationController
     elsif request.post?
       dispatch_command
 
-    # bad request
-    #------------
-    else
-      raise IllegalRequestError.new
     end
   end
 
@@ -65,7 +63,7 @@ class SourceController < ApplicationController
     output = String.new
     output << "<?xml version='1.0' encoding='UTF-8'?>\n"
     output << "<directory>\n"
-    output << dir.map { |item| "  <entry name=\"#{item.fast_xs}\"/>\n" }.join
+    output << dir.map { |item| "  <entry name=\"#{::Builder::XChar.encode(item)}\"/>\n" }.join
     output << "</directory>\n"
     render :text => output, :content_type => "text/xml"
   end
@@ -76,8 +74,7 @@ class SourceController < ApplicationController
 
     # init and validation
     #--------------------
-    valid_http_methods :get, :post, :delete
-    valid_commands=["undelete", "showlinked", "remove_flag", "set_flag", "createpatchinfo", "createkey", "extendkey", "copy", "createmaintenanceincident", "unlock"]
+    valid_commands=["undelete", "showlinked", "remove_flag", "set_flag", "createpatchinfo", "createkey", "extendkey", "copy", "createmaintenanceincident", "unlock", "release"]
     raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
     if params[:cmd]
       raise IllegalRequestError.new "invalid_command" unless valid_commands.include?(params[:cmd])
@@ -142,31 +139,7 @@ class SourceController < ApplicationController
       pro.can_be_deleted?
 
       # find linking repos
-      lreps = Array.new
-      pro.repositories.each do |repo|
-        repo.linking_repositories.each do |lrep|
-          lreps << lrep
-        end
-      end
-
-      if lreps.length > 0
-        if params[:force] and not params[:force].empty?
-          # replace links to this projects with links to the "deleted" project
-          del_repo = Project.find_by_name("deleted").repositories[0]
-          lreps.each do |link_rep|
-            link_rep.path_elements.each { |pe| pe.destroy }
-            link_rep.path_elements.create(:link => del_repo, :position => 1)
-            link_rep.save
-            # update backend
-            link_rep.project.store
-          end
-        else
-          lrepstr = lreps.map{|l| l.project.name+'/'+l.name}.join "\n"
-          render_error :status => 403, :errorcode => "repo_dependency",
-            :message => "Unable to delete project #{project_name}; following repositories depend on this project:\n#{lrepstr}\n"
-          return
-        end
-      end
+      private_check_and_remove_repositories(params, pro.repositories) or return
 
       # Find open requests with 'pro' as source or target and decline/revoke them.
       # Revoke if source or decline if target went away, pick the first action that matches to decide...
@@ -220,17 +193,43 @@ class SourceController < ApplicationController
         end
         dispatch_command
         return
-      end
-
-      if 'copy' == command
+      elsif 'release' == command
+        pro = Project.get_by_name project_name, {:includeallpackages => 1}
+        repo_matches=nil
+        pro.repositories.each do |repo|
+          next if params[:repository] and params[:repository] != repo.name
+          repo.release_targets.each do |releasetarget|
+            unless @http_user.can_modify_project?(releasetarget.target_repository.project)
+              render_error :status => 403, :errorcode => "cmd_execution_no_permission",
+                :message => "no permission to write in project #{releasetarget.target_repository.project.name}"
+              return
+            end
+            unless releasetarget.trigger == "manual"
+              render_error :status => 400, :errorcode => "cmd_execution_no_permission",
+                :message => "Trigger is not set to manual in repository #{releasetarget.repository.project.name}/#{releasetarget.repository.name}"
+              return
+            end
+            repo_matches=true
+          end
+        end
+        unless repo_matches
+          render_error :status => 404, :errorcode => "no_matching_release_target",
+            :message => "No defined or matching release target"
+          return
+        end
+        # any package read protected?
+       
+        dispatch_command
+        return
+      elsif 'copy' == command
         prj = Project.find_by_name(project_name)
         unless (prj and @http_user.can_modify_project?(prj)) or @http_user.can_create_project?(project_name)
           render_error :status => 403, :errorcode => "cmd_execution_no_permission",
             :message => "no permission to execute command '#{command}'"
           return
         end
+        oproject = Project.get_by_name(params[:oproject], {:includeallpackages => 1})
         if params.has_key?(:makeolder)
-          oproject = Project.get_by_name(params[:oproject])
           unless @http_user.can_modify_project?(oproject)
             render_error :status => 403, :errorcode => "cmd_execution_no_permission",
               :message => "no permission to execute command '#{command}', requires modification permission in oproject"
@@ -253,12 +252,7 @@ class SourceController < ApplicationController
           :message => "no permission to execute command '#{command}'"
         return
       end
-    # /if request.post?
 
-    # bad request
-    #------------
-    else
-      raise IllegalRequestError.new
     end
   end
 
@@ -268,14 +262,13 @@ class SourceController < ApplicationController
   def index_package
     # init and validation
     #--------------------
-    valid_http_methods :get, :delete, :post
     #admin_user = @http_user.is_admin?
     deleted_package = params.has_key? :deleted
     # valid post commands
     valid_commands=['diff', 'branch', 'servicediff', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag', 
                     'rebuild', 'undelete', 'wipe', 'runservice', 'commit', 'commitfilelist', 
                     'createSpecFileTemplate', 'deleteuploadrev', 'linktobranch', 'updatepatchinfo',
-                    'getprojectservices', 'unlock']
+                    'getprojectservices', 'unlock', 'release']
     # list of commands which are allowed even when the project has the package only via a project link
     read_commands = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'getprojectservices']
     source_untouched_commands = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'rebuild', 'wipe', 'remove_flag', 'set_flag', 'getprojectservices']
@@ -291,7 +284,10 @@ class SourceController < ApplicationController
       raise MissingParameterError.new "POST request without given cmd parameter"
     end
     # find out about source and target dependening on command   - FIXME: ugly! sync calls
-    if command == 'branch'
+    if command == 'release'
+      origin_project_name = params[:project]
+      origin_package_name = params[:package]
+    elsif command == 'branch'
       origin_project_name = params[:project]
       target_package_name = origin_package_name = params[:package]
       target_project_name = params[:target_project] if params[:target_project]
@@ -304,9 +300,9 @@ class SourceController < ApplicationController
     end
     #
     if origin_package_name and not origin_project_name
-        render_error :status => 404, :errorcode => "missing_argument",
-        :message => "origin package name is specified, but no origin project"
-        return
+      render_error :status => 404, :errorcode => "missing_argument",
+                   :message => "origin package name is specified, but no origin project"
+      return
     end
 
     # Check for existens/access of origin package when specified
@@ -324,7 +320,30 @@ class SourceController < ApplicationController
     tprj = nil
     tpkg = nil
     # The target must exist, except for following cases
-    if (request.post? and command == 'undelete') or (request.get? and deleted_package)
+    if (request.post? and command == 'release')
+      repo_matches=nil
+      spkg.project.repositories.each do |repo|
+        next if params[:repository] and params[:repository] != repo.name
+        repo.release_targets.each do |releasetarget|
+          unless @http_user.can_modify_project?(releasetarget.target_repository.project)
+            render_error :status => 403, :errorcode => "cmd_execution_no_permission",
+              :message => "no permission to write in project #{releasetarget.target_repository.project.name}"
+            return
+          end
+          unless releasetarget.trigger == "manual"
+            render_error :status => 400, :errorcode => "cmd_execution_no_permission",
+              :message => "Trigger is not set to manual in repository #{releasetarget.repository.project.name}/#{releasetarget.repository.name}"
+            return
+          end
+          repo_matches=true
+        end
+      end
+      unless repo_matches
+        render_error :status => 404, :errorcode => "no_matching_release_target",
+          :message => "No defined or matching release target"
+        return
+      end
+    elsif (request.post? and command == 'undelete') or (request.get? and deleted_package)
       tprj = Project.get_by_name(target_project_name)
       if Package.exists_by_project_and_name(target_project_name, target_package_name, follow_project_links: false)
         render_error :status => 404, :errorcode => "package_exists",
@@ -388,8 +407,13 @@ class SourceController < ApplicationController
               return
             end
           elsif not @http_user.can_modify_package?(tpkg)
-            render_error :status => 403, :errorcode => "delete_package_no_permission",
-              :message => "no permission to delete package #{tpkg.name} in project #{tpkg.project.name}"
+            if request.delete? or (request.post? and not read_commands.include? command)
+              render_error :status => 403, :errorcode => "delete_package_no_permission",
+                :message => "no permission to delete package #{tpkg.name} in project #{tpkg.project.name}"
+              return
+            end
+            render_error :status => 403, :errorcode => "cmd_execution_no_permission",
+              :message => "no permission to modify package #{tpkg.name} in project #{tpkg.project.name}"
             return
           end
         end
@@ -471,7 +495,7 @@ class SourceController < ApplicationController
         Suse::Backend.delete path
     
         if target_package_name == "_product"
-          update_product_autopackages params[:project]
+          Project.find_by_name!(params[:project]).update_product_autopackages
         end
       end
       render_ok
@@ -484,8 +508,6 @@ class SourceController < ApplicationController
 
       dispatch_command
 
-    else
-      raise IllegalRequestError.new
     end
   end
 
@@ -496,7 +518,6 @@ class SourceController < ApplicationController
   def attribute_meta
     # init and validation
     #--------------------
-    valid_http_methods :get, :post, :delete
     required_parameters :project
     params[:user] = @http_user.login if @http_user
     binary=nil
@@ -673,7 +694,6 @@ class SourceController < ApplicationController
   def project_meta
     # init and validation
     #--------------------
-    valid_http_methods :get, :put
     required_parameters :project
     unless valid_project_name?(params[:project])
       render_error :status => 400, :errorcode => "invalid_project_name",
@@ -802,29 +822,15 @@ class SourceController < ApplicationController
         end
       end
 
-      # find linking repos which get deleted
-      removedRepositories = Array.new
-      linkingRepositories = Array.new
       if prj
+        removedRepositories = Array.new
         prj.repositories.each do |repo|
           if !new_repo_names[repo.name] and not repo.remote_project_name
             # collect repositories to remove
             removedRepositories << repo
-            linkingRepositories += repo.linking_repositories
           end
         end
-      end
-      if linkingRepositories.length > 0
-        unless params[:force] and not params[:force].empty?
-          lrepstr = linkingRepositories.map{|l| l.project.name+'/'+l.name}.join "\n"
-          render_error :status => 400, :errorcode => "repo_dependency",
-            :message => "Unable to delete repository; following repositories depend on this project:\n#{lrepstr}\n"
-          return
-        end
-      end
-      if removedRepositories.length > 0
-        # do remove
-        private_remove_repositories( removedRepositories, (params[:remove_linking_repositories] and not params[:remove_linking_repositories].empty?) )
+        private_check_and_remove_repositories(params, removedRepositories) or return
       end
 
       Project.transaction do
@@ -849,8 +855,6 @@ class SourceController < ApplicationController
 
   # /source/:project/_config
   def project_config
-    valid_http_methods :get, :put
-
     # check for project
     prj = Project.get_by_name(params[:project])
 
@@ -886,8 +890,6 @@ class SourceController < ApplicationController
 
   # /source/:project/_pubkey
   def project_pubkey
-    valid_http_methods :get, :delete
-
     # check for project
     prj = Project.get_by_name(params[:project])
 
@@ -925,7 +927,6 @@ class SourceController < ApplicationController
 
   # /source/:project/:package/_meta
   def package_meta
-    valid_http_methods :put, :get
     required_parameters :project, :package
    
     project_name = params[:project]
@@ -1016,7 +1017,6 @@ class SourceController < ApplicationController
 
   # /source/:project/:package/:filename
   def file
-    valid_http_methods :get, :delete, :put
     project_name = params[:project]
     package_name = params[:package]
     file = params[:filename]
@@ -1172,7 +1172,9 @@ class SourceController < ApplicationController
       # update package timestamp, kind and issues
       pack.sources_changed unless params[:rev] == 'repository' or [ "_project", "_pattern" ].include? package_name
 
-      update_product_autopackages params[:project] if package_name == "_product"
+      if package_name == "_product"
+        Project.find_by_name!(params[:project]).update_product_autopackages
+      end
 
     # DELETE /source/:project/:package/:filename
     elsif request.delete?
@@ -1190,10 +1192,21 @@ class SourceController < ApplicationController
         pack.sources_changed
       end
       if package_name == "_product"
-        update_product_autopackages params[:project]
+        Project.find_by_name!(params[:project]).update_product_autopackages
       end
       render_ok
     end
+  end
+
+  # GET /lastevents
+  def lastevents
+    path = request.path
+    if not request.query_string.blank?
+      path += "?#{request.query_string}"
+    elsif not request.env["rack.request.form_vars"].blank?
+      path += "?#{request.env["rack.request.form_vars"]}"
+    end
+    pass_to_backend path
   end
 
   private
@@ -1233,6 +1246,35 @@ class SourceController < ApplicationController
     render_ok :data => {:targetproject => incident.project.name}
   end
 
+  def private_check_and_remove_repositories( params, removeRepositories )
+    # find linking repos which get deleted
+    linkingRepositories = Array.new
+    linkingTargetRepositories = Array.new
+    removeRepositories.each do |repo|
+      linkingRepositories += repo.linking_repositories
+      linkingTargetRepositories += repo.linking_target_repositories
+    end
+    unless params[:force] and not params[:force].empty?
+      if linkingRepositories.length > 0
+        lrepstr = linkingRepositories.map{|l| l.project.name+'/'+l.name}.join "\n"
+        render_error :status => 400, :errorcode => "repo_dependency",
+          :message => "Unable to delete repository; following repositories depend on this project:\n#{lrepstr}\n"
+        return false
+      end
+      if linkingTargetRepositories.length > 0
+        lrepstr = linkingTargetRepositories.map{|l| l.project.name+'/'+l.name}.join "\n"
+        render_error :status => 400, :errorcode => "repo_dependency",
+          :message => "Unable to delete repository; following target repositories depend on this project:\n#{lrepstr}\n"
+        return false
+      end
+    end
+    if removeRepositories.length > 0
+      # do remove
+      private_remove_repositories( removeRepositories, (params[:remove_linking_repositories] and not params[:remove_linking_repositories].empty?) )
+    end
+    return true
+  end
+
   def private_remove_repositories( repositories, full_remove = false )
     del_repo = Project.find_by_name("deleted").repositories[0]
 
@@ -1261,7 +1303,7 @@ class SourceController < ApplicationController
 
       # remove this repository, but be careful, because we may have done it already.
       if Repository.exists?(repo) and r=prj.repositories.find(repo)
-        logger.info "updating project '#{prj.name}'"
+        logger.info "destroy repo #{r.name} in '#{prj.name}'"
         r.destroy
         prj.store({:lowprio => true}) # low prio storage
       end
@@ -1318,7 +1360,7 @@ class SourceController < ApplicationController
     pro = Project.get_by_name(project_name)
     if pro.project_type == "maintenance_incident"
       rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
-      rel = rel.where(bs_request_actions: { action_type: 'maintenance_release', source_project: pro.name})
+      rel = rel.where(bs_request_actions: { type: 'maintenance_release', source_project: pro.name})
       if rel.first
         render_error :status => 403, :errorcode => "open_release_request",
           :message => "Unlock of maintenance incident #{} is not possible, because there is a running release request: #{rel.first.id}"
@@ -1438,6 +1480,28 @@ class SourceController < ApplicationController
     end
   end
 
+  # POST /source/<project>?cmd=release
+  def index_project_release
+    valid_http_methods :post
+    params[:user] = @http_user.login
+
+    p = Project.get_by_name(params[:project])
+    if p.class == String # remote project
+      render_error :status => 404, :errorcode => "remote_project",
+        :message => "The release from remote projects is currently not supported"
+      return
+    end
+
+    if params.has_key? :nodelay
+      p.do_project_release(params)
+      render_ok
+    else
+      # inject as job
+      p.delay.do_project_release(params)
+      render_invoked
+    end
+  end
+
   # POST /source/<project>?cmd=copy
   def index_project_copy
     valid_http_methods :post
@@ -1446,6 +1510,12 @@ class SourceController < ApplicationController
 
     oprj = Project.get_by_name( oproject )
 
+    if oprj.class == String # remote project
+      render_error :status => 404, :errorcode => "remote_project",
+        :message => "The copy from remote projects is currently not supported"
+      return
+    end
+
     unless @http_user.is_admin?
       if params[:withbinaries]
         render_error :status => 403, :errorcode => "project_copy_no_permission",
@@ -1453,11 +1523,13 @@ class SourceController < ApplicationController
         return
       end
 
-      oprj.packages.each do |pkg|
-        if pkg.disabled_for?('sourceaccess', nil, nil)
-          render_error :status => 403, :errorcode => "project_copy_no_permission",
-            :message => "no permission to copy project due to source protected package #{pkg.name}"
-          return
+      unless oprj.class == String
+        oprj.packages.each do |pkg|
+          if pkg.disabled_for?('sourceaccess', nil, nil)
+            render_error :status => 403, :errorcode => "project_copy_no_permission",
+              :message => "no permission to copy project due to source protected package #{pkg.name}"
+            return
+          end
         end
       end
     end
@@ -1465,22 +1537,28 @@ class SourceController < ApplicationController
     # create new project object based on oproject
     p = Project.find_by_name(project_name)
     Project.transaction do
-      p = Project.new :name => project_name, :title => oprj.title, :description => oprj.description
+      if oprj.class == String # remote project
+        rdata = Xmlhash.parse(backend_get("/source/#{URI.escape(oprj)}/_meta"))
+        p = Project.new :name => project_name, :title => rdata["title"], :description => rdata["description"]
+      else # local project
+        p = Project.new :name => project_name, :title => oprj.title, :description => oprj.description
+        p.save
+        oprj.flags.each do |f|
+          p.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == 'lock'
+        end
+        oprj.repositories.each do |repo|
+          r = p.repositories.create :name => repo.name
+          repo.repository_architectures.each do |ra|
+            r.repository_architectures.create! :architecture => ra.architecture, :position => ra.position
+          end
+          position = 0
+          repo.path_elements.each do |pe|
+            position += 1
+            r.path_elements << PathElement.new(:link => pe.link, :position => position)
+          end
+        end
+      end
       p.add_user @http_user, "maintainer"
-      oprj.flags.each do |f|
-        p.flags.create(:status => f.status, :flag => f.flag, :architecture => f.architecture, :repo => f.repo) unless f.flag == 'lock'
-      end
-      oprj.repositories.each do |repo|
-        r = p.repositories.create :name => repo.name
-        repo.repository_architectures.each do |ra|
-          r.repository_architectures.create! :architecture => ra.architecture, :position => ra.position
-        end
-        position = 0
-        repo.path_elements.each do |pe|
-          position += 1
-          r.path_elements << PathElement.new(:link => pe.link, :position => position)
-        end
-      end
       p.store
     end unless p
 
@@ -1540,18 +1618,18 @@ class SourceController < ApplicationController
       attrs[:incident] = pkg.project.name.gsub(/.*:/, '')
     end
     xml = node.patchinfo(attrs) do |n|
-      node.packager    @http_user.login
+      node.packager    User.current.login
       node.category    "recommended"
       node.rating      "low"
       node.summary     params[:comment]
       node.description ""
     end
-    data = ActiveXML::Node.new(node.target!)
-    xml = update_patchinfo( data, pkg )
-    p={ :user => @http_user.login, :comment => "generated by createpatchinfo call" }
+    xml = ActiveXML::Node.new( node.target! )
+    xml = pkg.project.update_patchinfo( xml )
+    p={ :user => User.current.login, :comment => "generated by createpatchinfo call" }
     patchinfo_path = "/source/#{CGI.escape(pkg.project.name)}/#{CGI.escape(pkg.name)}/_patchinfo"
     patchinfo_path << build_query_from_hash(p, [:user, :comment])
-    backend_put( patchinfo_path, xml.dump_xml )
+    Suse::Backend.put( patchinfo_path, xml.dump_xml )
     pkg.sources_changed
     render_ok :data => {:targetproject => pkg.project.name, :targetpackage => pkg_name}
   end
@@ -1563,13 +1641,13 @@ class SourceController < ApplicationController
 
     # get existing file
     patchinfo_path = "/source/#{URI.escape(pkg.project.name)}/#{URI.escape(pkg.name)}/_patchinfo"
-    data = ActiveXML::Node.new(backend_get(patchinfo_path))
-    xml = update_patchinfo( data, pkg )
+    xml = ActiveXML::Node.new(backend_get(patchinfo_path))
+    xml = pkg.project.update_patchinfo( xml )
 
     p={ :user => @http_user.login, :comment => "updated via updatepatchinfo call" }
     patchinfo_path = "/source/#{URI.escape(pkg.project.name)}/#{URI.escape(pkg.name)}/_patchinfo"
     patchinfo_path << build_query_from_hash(p, [:user, :comment])
-    backend_put( patchinfo_path, xml.dump_xml )
+    Suse::Backend.put( patchinfo_path, xml.dump_xml )
     pkg.sources_changed
 
     render_ok
@@ -1673,7 +1751,7 @@ class SourceController < ApplicationController
       return
     rescue ActiveXML::Transport::NotFoundError
       specfile = File.read "#{Rails.root}/files/specfiletemplate"
-      backend_put( specfile_path, specfile )
+      Suse::Backend.put( specfile_path, specfile )
     end
     render_ok
   end
@@ -1729,7 +1807,7 @@ class SourceController < ApplicationController
     pack.sources_changed if pack # in case of _project package
 
     if params[:package] == "_product"
-      update_product_autopackages params[:project]
+      Project.find_by_name!(params[:project]).update_product_autopackages
     end
   end
 
@@ -1751,7 +1829,7 @@ class SourceController < ApplicationController
     end
 
     if params[:package] == "_product"
-      update_product_autopackages params[:project]
+      Project.find_by_name!(params[:project]).update_product_autopackages
     end
   end
 
@@ -1824,6 +1902,23 @@ class SourceController < ApplicationController
     pass_to_backend path
 
     tpkg.sources_changed
+  end
+
+  # POST /source/<project>/<package>?cmd=release
+  def index_package_release
+    valid_http_methods :post
+    params[:user] = @http_user.login
+
+    pkg = Package.get_by_project_and_name params[:project], params[:package], use_source: true, follow_project_links: false
+    pkg.project.repositories.each do |repo|
+      next if params[:repository] and params[:repository] != repo.name
+      repo.release_targets.each do |releasetarget|
+        # find md5sum and release source and binaries
+        release_package(pkg, releasetarget.target_repository.project.name, pkg.name, repo)
+      end
+    end
+
+    render_ok
   end
 
   # POST /source/<project>/<package>?cmd=runservice

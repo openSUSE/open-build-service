@@ -32,14 +32,18 @@ sub notify($$) {
 
   return unless $BSConfig::notification_plugin;
 
-  my $notifier = &loadPackage($BSConfig::notification_plugin);
-  $notifier->notify($type, $paramRef );
+  my @hostnames = split(/\s+/, $BSConfig::notification_plugin);
+
+  for my $hostname (@hostnames) {
+      my $notifier = &loadPackage($hostname);
+      $notifier->notify($type, $paramRef );
+  }
 
 }
 
 sub loadPackage {
   my ($componentname) = @_;
-  my $file = "plugins/".$componentname.".pm";
+  my $file = "plugins/$componentname.pm";
 
   my $componentfile = $file;
   eval{

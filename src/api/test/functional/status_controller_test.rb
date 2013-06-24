@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class StatusControllerTest < ActionController::IntegrationTest 
+class StatusControllerTest < ActionDispatch::IntegrationTest 
 
   fixtures :all
 
@@ -28,17 +28,18 @@ class StatusControllerTest < ActionController::IntegrationTest
   
     # delete it again
     get "/status/messages"
+    assert_response :success
     messages = ActiveXML::Node.new @response.body
 
     prepare_request_valid_user
-    delete "/status/messages", :id => messages.message.value('msg_id')
+    delete "/status/messages/#{messages.message.value('msg_id')}"
     assert_response 403
    
     prepare_request_with_user "king", "sunflower"    
-    delete "/status/messages", :id => messages.message.value('msg_id')
+    delete "/status/messages/#{messages.message.value('msg_id')}"
     assert_response :success
 
-    delete "/status/messages", :id => 17
+    delete "/status/messages/17"
     assert_response 400
    
     get "/status/messages" 
@@ -49,6 +50,8 @@ class StatusControllerTest < ActionController::IntegrationTest
   def test_workerstatus
     get "/status/workerstatus"
     assert_response :success
+    # just the publisher is running in the background during test suite run
+    assert_xml_tag(:tag => "daemon", :attributes => {:type => 'publisher', :state => 'running'})
   end
 
   def test_project_status
@@ -59,7 +62,8 @@ class StatusControllerTest < ActionController::IntegrationTest
 
   def test_bsrequest
     get "/status/bsrequest?id=997"
-    assert_response :success
+    assert_xml_tag(:tag => "status", :attributes => {:code => 'not_found'})
+    assert_response 404
   end
 
   def test_history

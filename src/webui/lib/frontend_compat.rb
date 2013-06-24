@@ -107,10 +107,14 @@ class FrontendCompat
        # encode is documented not to throw it if undef: is :replace, but at least we tried - and ruby 1.9.3 is buggy
     end
     return log.gsub(/([^a-zA-Z0-9&;<>\/\n\r \t()])/n) do |c|
-      if c.ord < 32
+      begin
+        if c.ord < 32
+          ''
+        else
+          c
+        end
+      rescue ArgumentError
         ''
-      else
-        c
       end
     end
   end

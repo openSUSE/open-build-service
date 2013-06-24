@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
+require 'api_exception'
+
 class BsRequestAction < ActiveRecord::Base
+
+  # we want the XML attribute in the database
+#  self.store_full_sti_class = false
 
   class DiffError < Exception; end
 
   belongs_to :bs_request
   has_one :bs_request_action_accept_info, :dependent => :delete
 
-  validates_inclusion_of :action_type, :in => [:submit, :delete, :change_devel, :add_role, :set_bugowner, 
-                                               :maintenance_incident, :maintenance_release]
   VALID_SOURCEUPDATE_OPTIONS = ["update", "noupdate", "cleanup"]
   validates_inclusion_of :sourceupdate, :in => VALID_SOURCEUPDATE_OPTIONS, :allow_nil => true
 
@@ -15,6 +18,7 @@ class BsRequestAction < ActiveRecord::Base
                   :target_project, :action_type, :bs_request_id, :sourceupdate, :updatelink, :person_name, :group_name, :role
 
   validate :check_sanity
+
   def check_sanity
     if [:submit, :maintenance_incident, :maintenance_release, :change_devel].include? action_type
       errors.add(:source_project, "should not be empty for #{action_type} requests") if source_project.blank?
@@ -23,132 +27,142 @@ class BsRequestAction < ActiveRecord::Base
       end
       errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
     end
-    if action_type == :add_role
-      errors.add(:role, "should not be empty for add_role") if role.blank?
-      if person_name.blank? && group_name.blank?
-        errors.add(:person_name, "Either person or group needs to be set")
-      end
-    end
-    if action_type == :delete
-      errors.add(:source_project, "source can not be used in delete action") if source_project
-      errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
-      errors.add(:target_project, "must not target package and target repository") if target_repository and target_package
-    end
     errors.add(:target_package, "is invalid package name") if target_package && !Package.valid_name?(target_package)
     errors.add(:source_package, "is invalid package name") if source_package && !Package.valid_name?(source_package)
     errors.add(:target_project, "is invalid project name") if target_project && !Project.valid_name?(target_project)
     errors.add(:source_project, "is invalid project name") if source_project && !Project.valid_name?(source_project)
+
     # TODO to be continued
   end
 
   def action_type
-    read_attribute(:action_type).to_sym
+    self.class.sti_name
+  end
+
+  def self.find_sti_class(type_name)
+    return super if type_name.nil?
+    return case type_name.to_sym
+           when :submit then BsRequestActionSubmit
+           when :delete then BsRequestActionDelete
+           when :change_devel then BsRequestActionChangeDevel
+           when :add_role then BsRequestActionAddRole
+           when :set_bugowner then BsRequestActionSetBugowner
+           when :maintenance_incident then BsRequestActionMaintenanceIncident
+           when :maintenance_release then BsRequestActionMaintenanceRelease
+           when :group then BsRequestActionGroup
+           else super
+           end
   end
 
   def self.new_from_xml_hash(hash)
-    a = BsRequestAction.new
-    a.action_type = hash.delete("type").to_sym
+    a = case hash.delete("type").to_sym
+        when :submit then BsRequestActionSubmit.new
+        when :delete then BsRequestActionDelete.new
+        when :change_devel then BsRequestActionChangeDevel.new
+        when :add_role then BsRequestActionAddRole.new
+        when :set_bugowner then BsRequestActionSetBugowner.new
+        when :maintenance_incident then BsRequestActionMaintenanceIncident.new
+        when :maintenance_release then BsRequestActionMaintenanceRelease.new
+        when :group then BsRequestActionGroup.new
+        else nil
+        end
+    
+    raise ArgumentError, "unknown type" unless a
 
-    source = hash.delete("source")
-    if source
-      a.source_package = source.delete("package")
-      a.source_project = source.delete("project")
-      a.source_rev     = source.delete("rev")
-
-      raise ArgumentError, "too much information #{source.inspect}" unless source.blank?
-    end
-
-    target = hash.delete("target")
-    if target
-      a.target_package = target.delete("package")
-      a.target_project = target.delete("project")
-      a.target_releaseproject = target.delete("releaseproject")
-      a.target_repository = target.delete("repository")
-
-      raise ArgumentError, "too much information #{target.inspect}" unless target.blank?
-    end
-
-    ai = hash.delete("acceptinfo")
-    if ai
-      a.bs_request_action_accept_info = BsRequestActionAcceptInfo.new
-      a.bs_request_action_accept_info.rev = ai.delete("rev")
-      a.bs_request_action_accept_info.srcmd5 = ai.delete("srcmd5")
-      a.bs_request_action_accept_info.osrcmd5 = ai.delete("osrcmd5")
-      a.bs_request_action_accept_info.xsrcmd5 = ai.delete("xsrcmd5")
-      a.bs_request_action_accept_info.oxsrcmd5 = ai.delete("oxsrcmd5")
-
-      raise ArgumentError, "too much information #{ai.inspect}" unless ai.blank?
-    end
-
-    o = hash.delete("options")
-    if o
-      a.sourceupdate = o.delete("sourceupdate")
-      # old form
-      a.sourceupdate = "update" if a.sourceupdate == "1"
-      # there is mess in old data ;(
-      a.sourceupdate = nil unless VALID_SOURCEUPDATE_OPTIONS.include? a.sourceupdate
-
-      a.updatelink = true if o.delete("updatelink") == "true"
-      raise ArgumentError, "too much information #{s.inspect}" unless o.blank?
-    end
-
-    p = hash.delete("person")
-    if p
-      a.person_name = p.delete("name") { raise ArgumentError, "a person without name" }
-      a.role = p.delete("role")
-      raise ArgumentError, "too much information #{p.inspect}" unless p.blank?
-    end
-
-    g = hash.delete("group")
-    if g 
-      a.group_name = g.delete("name") { raise ArgumentError, "a group without name" }
-      raise ArgumentError, "role already taken" if a.role
-      a.role = g.delete("role")
-      raise ArgumentError, "too much information #{g.inspect}" unless g.blank?
-    end
+    # now remove things from hash
+    a.store_from_xml(hash)
 
     raise ArgumentError, "too much information #{hash.inspect}" unless hash.blank?
     
     a
   end
 
+  def store_from_xml(hash)
+    source = hash.delete("source")
+    if source
+      self.source_package = source.delete("package")
+      self.source_project = source.delete("project")
+      self.source_rev     = source.delete("rev")
+
+      raise ArgumentError, "too much information #{source.inspect}" unless source.blank?
+    end
+
+    target = hash.delete("target")
+    if target
+      self.target_package = target.delete("package")
+      self.target_project = target.delete("project")
+      self.target_releaseproject = target.delete("releaseproject")
+      self.target_repository = target.delete("repository")
+
+      raise ArgumentError, "too much information #{target.inspect}" unless target.blank?
+    end
+
+    ai = hash.delete("acceptinfo")
+    if ai
+      self.bs_request_action_accept_info = BsRequestActionAcceptInfo.new
+      self.bs_request_action_accept_info.rev = ai.delete("rev")
+      self.bs_request_action_accept_info.srcmd5 = ai.delete("srcmd5")
+      self.bs_request_action_accept_info.osrcmd5 = ai.delete("osrcmd5")
+      self.bs_request_action_accept_info.xsrcmd5 = ai.delete("xsrcmd5")
+      self.bs_request_action_accept_info.oxsrcmd5 = ai.delete("oxsrcmd5")
+
+      raise ArgumentError, "too much information #{ai.inspect}" unless ai.blank?
+    end
+
+    o = hash.delete("options")
+    if o
+      self.sourceupdate = o.delete("sourceupdate")
+      # old form
+      self.sourceupdate = "update" if self.sourceupdate == "1"
+      # there is mess in old data ;(
+      self.sourceupdate = nil unless VALID_SOURCEUPDATE_OPTIONS.include? self.sourceupdate
+
+      self.updatelink = true if o.delete("updatelink") == "true"
+      raise ArgumentError, "too much information #{s.inspect}" unless o.blank?
+    end
+
+    p = hash.delete("person")
+    if p
+      self.person_name = p.delete("name") { raise ArgumentError, "a person without name" }
+      self.role = p.delete("role")
+      raise ArgumentError, "too much information #{p.inspect}" unless p.blank?
+    end
+
+    g = hash.delete("group")
+    if g 
+      self.group_name = g.delete("name") { raise ArgumentError, "a group without name" }
+      raise ArgumentError, "role already taken" if self.role
+      self.role = g.delete("role")
+      raise ArgumentError, "too much information #{g.inspect}" unless g.blank?
+    end
+  end
+
+  def render_xml_source(node)
+    attributes = {}
+    attributes[:project] = self.source_project unless self.source_project.blank?
+    attributes[:package] = self.source_package unless self.source_package.blank?
+    attributes[:rev] = self.source_rev unless self.source_rev.blank?
+    node.source attributes
+  end
+
+  def render_xml_target(node)
+    attributes = {}
+    attributes[:project] = self.target_project unless self.target_project.blank?
+    attributes[:package] = self.target_package unless self.target_package.blank?
+    attributes[:releaseproject] = self.target_releaseproject unless self.target_releaseproject.blank?
+    node.target attributes
+  end
+  
+  def render_xml_attributes(node)
+   if [:submit, :maintenance_incident, :maintenance_release, :change_devel].include? self.action_type
+     render_xml_source(node)
+     render_xml_target(node)
+   end
+  end
+
   def render_xml(builder)
     builder.action :type => self.action_type do |action|
-      if [:submit, :maintenance_incident, :maintenance_release, :change_devel].include? self.action_type
-        attributes = {}
-        attributes[:project] = self.source_project unless self.source_project.blank?
-        attributes[:package] = self.source_package unless self.source_package.blank?
-        attributes[:rev] = self.source_rev unless self.source_rev.blank?
-        action.source attributes
-        attributes = {}
-        attributes[:project] = self.target_project unless self.target_project.blank?
-        attributes[:package] = self.target_package unless self.target_package.blank?
-        attributes[:releaseproject] = self.target_releaseproject unless self.target_releaseproject.blank?
-        action.target attributes
-      elsif self.action_type == :add_role || self.action_type == :set_bugowner
-        attributes = {}
-        attributes[:project] = self.target_project unless self.target_project.blank?
-        attributes[:package] = self.target_package unless self.target_package.blank?
-        action.target attributes
-        if self.person_name
-          if self.action_type == :add_role
-            action.person :name => self.person_name, :role => self.role
-          else
-            action.person :name => self.person_name
-          end
-        end
-        if self.group_name
-          action.group :name => self.group_name, :role => self.role
-        end
-      elsif self.action_type == :delete
-        attributes = {}
-        attributes[:project] = self.target_project unless self.target_project.blank?
-        attributes[:package] = self.target_package unless self.target_package.blank?
-        attributes[:repository] = self.target_repository unless self.target_repository.blank?
-        action.target attributes
-      else
-        raise "Not supported action type #{self.action_type}"
-      end
+      render_xml_attributes(action)
       if self.sourceupdate || self.updatelink
         action.options do
           action.sourceupdate self.sourceupdate if self.sourceupdate
@@ -405,5 +419,360 @@ class BsRequestAction < ActiveRecord::Base
     end
     return parsed_sourcediff
   end
+  
+  class LackingMaintainership < APIException
+    setup "lacking_maintainership", 403, "Creating a submit request action with options requires maintainership in source package"
+  end
 
+  def default_reviewers
+    reviews = []
+    return reviews unless self.target_project
+
+    tprj = Project.get_by_name self.target_project
+    tpkg = nil
+    if self.target_package
+      if self.action_type == :maintenance_release
+        # use orignal/stripped name and also GA projects for maintenance packages.
+        # But do not follow project links, if we have a branch target project, like in Evergreen case
+        if tprj.find_attribute("OBS", "BranchTarget")
+          tpkg = tprj.packages.find_by_name self.target_package.gsub(/\.[^\.]*$/, '')
+        else
+          tpkg = tprj.find_package self.target_package.gsub(/\.[^\.]*$/, '')
+        end
+      elsif [ :set_bugowner, :add_role, :change_devel, :delete ].include? self.action_type 
+        # target must exists
+        tpkg = tprj.packages.find_by_name! self.target_package
+      else
+        # just the direct affected target
+        tpkg = tprj.packages.find_by_name self.target_package
+      end
+    else
+      if self.source_package
+        tpkg = tprj.packages.find_by_name self.source_package
+      end
+    end
+    
+    if self.source_project
+      # if the user is not a maintainer if current devel package, the current maintainer gets added as reviewer of this request
+      if self.action_type == :change_devel and tpkg.develpackage and not User.current.can_modify_package?(tpkg.develpackage, 1)
+        reviews.push( tpkg.develpackage )
+      end
+
+      if self.action_type != :maintenance_release
+        # Creating requests from packages where no maintainer right exists will enforce a maintainer review
+        # to avoid that random people can submit versions without talking to the maintainers 
+        # projects may skip this by setting OBS:ApprovedRequestSource attributes
+        if self.source_package
+          spkg = Package.find_by_project_and_name self.source_project, self.source_package
+          if spkg and not User.current.can_modify_package? spkg
+            if self.action_type == :submit
+              if self.sourceupdate or self.updatelink
+                # FIXME: completely misplaced in this function
+                raise LackingMaintainership.new
+              end
+            end
+            if  not spkg.project.find_attribute("OBS", "ApprovedRequestSource") and 
+                not spkg.find_attribute("OBS", "ApprovedRequestSource")
+              reviews.push( spkg )
+            end
+          end
+        else
+          sprj = Project.find_by_name self.source_project
+          if sprj and not User.current.can_modify_project? sprj and not sprj.find_attribute("OBS", "ApprovedRequestSource")
+            if self.action_type == :submit
+              if self.sourceupdate or self.updatelink
+                raise LackingMaintainership.new
+              end
+            end
+            if  not sprj.find_attribute("OBS", "ApprovedRequestSource")
+              reviews.push( sprj )
+            end
+          end
+        end
+      end
+    end
+    
+    # find reviewers in target package
+    if tpkg
+      reviews += find_reviewers(tpkg)
+    end
+    # project reviewers get added additionaly - might be dups
+    if tprj
+      reviews += find_reviewers(tprj)
+    end
+    
+    return reviews.uniq
+  end
+
+  #
+  # find default reviewers of a project/package via role
+  # 
+  def find_reviewers(obj)
+    # obj can be a project or package object
+    reviewers = []
+    
+    # check for reviewers in a package first
+    if obj.class == Project
+      obj.project_user_role_relationships.where(role_id: Role.get_by_title("reviewer").id ).each do |r|
+        reviewers << User.find(r.bs_user_id)
+      end
+      obj.project_group_role_relationships.where(role_id: Role.get_by_title("reviewer").id ).each do |r|
+        reviewers << Group.find(r.bs_group_id)
+      end
+    elsif obj.class == Package
+      obj.package_user_role_relationships.joins(:role).where("roles.title = 'reviewer'").select("bs_user_id").each do |r|
+        reviewers << User.find(r.bs_user_id)
+      end
+      obj.package_group_role_relationships.where(role_id: Role.get_by_title("reviewer").id ).each do |r|
+        reviewers << Group.find(r.bs_group_id)
+      end
+      reviewers += find_reviewers(obj.project)
+    end
+    
+    return reviewers
+  end
+
+  class NotExistantTarget < APIException
+    setup 'not_existing_target'
+  end
+
+  class TargetPackageMissing < APIException
+    setup "post_request_no_permission", 403
+  end
+
+  class SourceMissing < APIException
+    setup "unknown_package", 404
+  end
+
+  class TargetNotMaintenance < APIException
+    setup 404
+  end
+
+  class ProjectLocked < APIException
+    setup 403, "The target project is locked"
+  end
+
+  class ExpandError < APIException; end
+  class SourceChanged < APIException; end
+
+  class ReleaseTargetNoPermission < APIException
+    setup 403
+  end
+
+  class NotExistingTarget < APIException; end
+  class RepositoryMissing < APIException; end
+
+  class RequestNoPermission < APIException
+    setup "post_request_no_permission", 403
+  end
+
+  def request_changes_state(state, opts)
+    # only groups care for now
+  end
+  
+  # check if the action can change state - or throw an APIException if not
+  def check_newstate!(opts)
+    # all action types need a target project in any case for accept
+    target_project = Project.find_by_name(self.target_project)
+    target_package = source_package = nil
+    if not target_project and opts[:newstate] == "accepted"
+      raise NotExistingTarget.new "Unable to process project #{self.target_project}; it does not exist."
+    end
+
+    if [ :submit, :change_devel, :maintenance_release, :maintenance_incident ].include? self.action_type
+      source_package = nil
+      if [ "declined", "revoked", "superseded" ].include? opts[:newstate]
+        # relaxed access checks for getting rid of request
+        source_project = Project.find_by_name(self.source_project)
+      else
+        # full read access checks
+        source_project = Project.get_by_name(self.source_project)
+        target_project = Project.get_by_name(self.target_project)
+        if self.action_type == :change_devel and self.target_package.nil?
+          raise TargetPackageMissing.new "Target package is missing in request #{req.id} (type #{self.action_type})"
+        end
+        if self.source_package or self.action_type == :change_devel
+          source_package = Package.get_by_project_and_name self.source_project, self.source_package
+        end
+        # require a local source package
+        if [ :change_devel ].include? self.action_type
+          unless source_package
+            raise SourceMissing.new "Local source package is missing for request #{req.id} (type #{self.action_type})"
+          end
+        end
+        # accept also a remote source package
+        if source_package.nil? and [ :submit ].include? self.action_type
+          unless Package.exists_by_project_and_name( source_project.name, self.source_package, 
+                                                     follow_project_links: true, allow_remote_packages: true)
+            raise SourceMissing.new "Source package is missing for request #{req.id} (type #{self.action_type})"
+          end
+        end
+        # maintenance incident target permission checks
+        if [ :maintenance_incident ].include? self.action_type
+          if opts[:cmd] == "setincident"
+            if target_project.project_type == "maintenance_incident"
+              raise TargetNotMaintenance.new "The target project is already an incident, changing is not possible via set_incident"
+            end
+            unless target_project.project_type == "maintenance"
+              raise TargetNotMaintenance.new "The target project is not of type maintenance but #{target_project.project_type}"
+            end
+            tip = Project.get_by_name(self.target_project + ":" + opts[:incident])
+            if tip && tip.is_locked?
+              raise ProjectLocked.new
+            end
+          else
+            unless [ "maintenance", "maintenance_incident" ].include? target_project.project_type.to_s
+              raise TargetNotMaintenance.new "The target project is not of type maintenance or incident but #{target_project.project_type}"
+            end
+          end
+        end
+        # validate that specified sources do not have conflicts on accepting request
+        if [ :submit, :maintenance_incident ].include? self.action_type and opts[:cmd] == "changestate" and opts[:newstate] == "accepted"
+          url = "/source/#{CGI.escape(self.source_project)}/#{CGI.escape(self.source_package)}?expand=1"
+          url << "&rev=#{CGI.escape(self.source_rev)}" if self.source_rev
+          begin
+            c = ActiveXML.transport.direct_http(url)
+          rescue ActiveXML::Transport::Error
+            raise ExpandError.new "The source of package #{self.source_project}/#{self.source_package}#{self.source_rev ? " for revision #{self.source_rev}":''} is broken"
+          end
+        end
+        # maintenance_release accept check
+        if [ :maintenance_release ].include? self.action_type and opts[:cmd] == "changestate" and opts[:newstate] == "accepted"
+          # compare with current sources
+          if self.source_rev
+            # FIXME2.4 we have a directory model
+            url = "/source/#{CGI.escape(self.source_project)}/#{CGI.escape(self.source_package)}?expand=1"
+            c = ActiveXML.transport.direct_http(url)
+            data = REXML::Document.new( c )
+            unless self.source_rev == data.elements["directory"].attributes["srcmd5"]
+              raise SourceChanged.new "The current source revision in #{self.source_project}/#{self.source_package} are not on revision #{self.source_rev} anymore."
+            end
+          end
+          
+          # write access check in release targets
+          source_project.repositories.each do |repo|
+            repo.release_targets.each do |releasetarget|
+              unless User.current.can_modify_project? releasetarget.target_repository.project
+                raise ReleaseTargetNoPermission.new "Release target project #{releasetarget.target_repository.project.name} is not writable by you"
+              end
+            end
+          end
+        end
+      end
+      if target_project
+        if self.target_package
+          target_package = target_project.packages.find_by_name(self.target_package)
+        elsif [ :submit, :change_devel ].include? self.action_type
+          # fallback for old requests, new created ones get this one added in any case.
+          target_package = target_project.packages.find_by_name(self.source_package)
+        end
+      end
+      
+    elsif [ :delete, :add_role, :set_bugowner ].include? self.action_type
+      # target must exist
+      if opts[:newstate] == "accepted"
+        if self.target_package
+          target_package = target_project.packages.find_by_name(self.target_package)
+          unless target_package
+            raise NotExistantTarget.new "Unable to process package #{self.target_project}/#{self.target_package}; it does not exist."
+          end
+          if self.action_type == :delete
+            target_package.can_be_deleted?
+          end
+        else
+          if self.action_type == :delete
+            if self.target_repository
+              r=Repository.find_by_project_and_repo_name(target_project.name, self.target_repository)
+              unless r
+                raise RepositoryMissing.new "The repository #{target_project} / #{self.target_repository} does not exist"
+              end
+            else
+              # remove entire project
+              target_project.can_be_deleted?
+            end
+          end
+        end
+      end
+    else
+      raise RequestNoPermission.new "Unknown request type #{opts[:newstate]} of request #{self.bs_request.id} (type #{self.action_type})"
+    end
+    
+    # general source write permission check (for revoke)
+    if ( source_package and User.current.can_modify_package?(source_package,true) ) or
+        ( not source_package and source_project and User.current.can_modify_project?(source_project,true) )
+      write_permission_in_source = true
+    end
+    
+    # general write permission check on the target on accept
+    write_permission_in_this_action = false
+    if target_package 
+      if User.current.can_modify_package? target_package
+        write_permission_in_target = true
+        write_permission_in_this_action = true
+      end
+    else
+      if target_project and User.current.can_create_package_in?(target_project,true)
+        write_permission_in_target = true
+      end
+      if target_project and User.current.can_create_package_in?(target_project)
+        write_permission_in_this_action = true
+      end
+    end
+    
+    # abort immediatly if we want to write and can't
+    if opts[:cmd] == "changestate" and [ "accepted" ].include? opts[:newstate] and not write_permission_in_this_action
+      msg = "No permission to modify target of request #{self.bs_request.id} (type #{self.action_type}): project #{self.target_project}"
+      msg += ", package #{self.target_package}" if self.target_package
+      raise RequestNoPermission.new msg
+    end
+    
+    return [write_permission_in_source, write_permission_in_target]
+  end
+  
+  def get_releaseproject(pkg, tprj)
+    # only needed for maintenance incidents
+    nil
+  end
+
+  def execute_changestate(opts)
+    raise "Needs to be reimplemented in subclass"
+  end
+
+  # after all actions are executed, the controller calls into every action a cleanup
+  # the actions can "cache" in the opts their state to avoid duplicated work
+  def per_request_cleanup(opts)
+    # does nothing by default
+  end
+
+  # this is called per action once it's verified that all actions in a request are
+  # permitted.
+  def create_post_permissions_hook(opts)
+    # does nothing by default
+  end
+
+  # general source cleanup, used in submit and maintenance_incident actions
+  def source_cleanup
+    # cleanup source project
+    source_project = Project.find_by_name(self.source_project)
+    delete_path = nil
+    if source_project.packages.count == 1 or self.source_package.nil?
+      # remove source project, if this is the only package and not the user's home project
+      if source_project.name != "home:" + User.current.login
+        source_project.destroy
+        delete_path = "/source/#{self.source_project}"
+      end
+    else
+      # just remove one package
+      source_package = source_project.packages.find_by_name(self.source_package)
+      source_package.destroy
+      delete_path = "/source/#{self.source_project}/#{self.source_package}"
+    end
+    del_params = {
+      :user => User.current.login,
+      :requestid => self.bs_request.id,
+      :comment => self.bs_request.description
+    }
+    delete_path << Suse::Backend.build_query_from_hash(del_params, [:user, :comment, :requestid])
+    Suse::Backend.delete delete_path
+  end
 end

@@ -30,7 +30,7 @@
                       @package.user_has_role?(user, role), 
 		      disabled: !user_is_maintainer, class: "trigger") %>
                   <% if @project.user_has_role?(user, role) %>
-                    <%= link_to(image_tag('project.png', :alt => "Inherited from project", :title => "Inherited from project"), :controller => "project", :action => "users", :project => @project) %>
+                    <%= link_to(sprite_tag('project', title: "Inherited from project"), :controller => "project", :action => "users", :project => @project) %>
                   <% end %>
                 <% else %>
                   <%= check_box_tag("user_" + role + "_" + user, '', @project.user_has_role?(user, role), :disabled => !user_is_maintainer, :class => "trigger") %>
@@ -41,9 +41,9 @@
               <% if @user -%>
                 <% mail_to = 'mailto:' + user.email + '?subject=openSUSE%20Build%20Service%20-%20' + @project.name %>
                 <% mail_to += '/' + @package.name if defined? @package %>
-                <%= link_to(image_tag('email.png', :alt => "Send mail", :title => "Send mail to user"), mail_to) %>
+                <%= link_to(sprite_tag('email', title: "Send mail to user"), mail_to) %>
                 <% if user_is_maintainer %>
-                  <%= link_to image_tag('user_delete.png', :alt => "Remove", :title => "Remove user"), {:action => "remove_role", :project => @project, :package => @package, :userid => user.login }, {:confirm => "Really remove '#{user.login}'?", :method => :post, class: 'remove-user'}%>
+			<%= link_to sprite_tag('user_delete', title: "Remove user"), {:action => "remove_role", :project => @project, :package => @package, :userid => user.login }, { data: {confirm: "Really remove '#{user.login}'?"}, :method => :post, class: 'remove-user'}%>
                 <% end %>
               <% end %>
             </td>
@@ -54,7 +54,7 @@
   <% end %>
   <% if user_is_maintainer %>
     <p>
-      <%= link_to sprite_tag('user_add') + 'Add user', { :action => :add_person, :package => @package, :project => @project }, id: 'add-user' %>
+      <%= link_to(sprite_tag('user_add') + 'Add user', { :action => :add_person, :package => @package, :project => @project }, id: 'add-user') %>
     </p>
   <% end %>
 
@@ -75,13 +75,13 @@
       <tbody>
         <% @groups.each do |group| %>
           <tr>
-            <td><%= link_to(group, group_path(group)) %></td>
+	    <td><%= link_to(group, :controller => 'group', :action => 'show', :group => group) %></td>
             <% @roles.each do |role| %>
 	      <%= content_tag(:td, data: { group: group, role: role, type: 'group' }) do %>
                 <% if defined? @package %>
                   <%= check_box_tag("group_" + role + "_" + group, '', @package.group_has_role?(group, role), disabled: !user_is_maintainer, :class => :trigger) %>
                   <% if @project.group_has_role?(group, role) %>
-                    <%= link_to(image_tag('project.png', :alt => "Inherited from project", :title => "Inherited from project"), :controller => "project", :action => "users", :project => @project) %>
+                    <%= link_to(sprite_tag('project', title: "Inherited from project"), :controller => "project", :action => "users", :project => @project) %>
                   <% end %>
                 <% else %>
                   <%= check_box_tag("group_" + role + "_" + group, '', @project.group_has_role?(group, role), disabled: !user_is_maintainer, :class => :trigger) %>
@@ -90,7 +90,7 @@
             <% end %>
             <% if user_is_maintainer %>
               <td>
-                <%= link_to image_tag('group_delete.png', :alt => "Remove", :title => "Remove group"), {:action => "remove_role", :project => @project, :package => @package, :groupid => group}, {:confirm => "Really remove '#{group}'?", :method => :post}%>
+		      <%= link_to sprite_tag('group_delete', title: "Remove group"), {:action => "remove_role", :project => @project, :package => @package, :groupid => group}, { data: {confirm: "Really remove '#{group}'?"}, :method => :post}%>
               </td>
             <% end %>
           </tr>

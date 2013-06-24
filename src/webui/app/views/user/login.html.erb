@@ -1,4 +1,4 @@
-<% @pagetitle = "Please Login" %>
+<% @pagetitle = "Please Log In" %>
 
 <% if CONFIG['proxy_auth_mode'] == :on %>
   <form action="<%= CONFIG['proxy_auth_login_page'] %>"
@@ -23,7 +23,7 @@
       <input name="return_to_path" value="<%= "#{@return_to_path}" %>" type="hidden" />
     </p>
     <p>
-      <input type="submit" name="login" value="Login &#187;" class="primary" />
+      <input type="submit" name="login" value="Log In &#187;" class="primary" />
     </p>
   </div>
 
@@ -35,7 +35,7 @@
     <% else %>
       <% unless CONFIG['frontend_ldap_mode'] == :on %>
         Or
-        <%= link_to "register", :controller => :user, :action => :register_user %>
+        <%= link_to "sign up", :controller => :user, :action => :register_user %>
         as a new user.
       <% end %>
     <% end %>

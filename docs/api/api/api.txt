@@ -7,11 +7,12 @@ Version: 2.4
 
   Do NOT simply add api calls here without discussion before.
   
-<project>: Project name
-<package>: Package name
-<platform>: Platform name
+  The main base routes are:
+  /source    : To handle all source submissions and project setups
+  /build     : To access build results and their states
+  /published : Read access to published repositories
+  /search    : Access to search interface
 
-  All names aren't allowed to contain spaces, slashes or colons.
 
 == Table of Contents
 
@@ -25,42 +26,6 @@ GET /about
 
 XmlResult: about
 
-
-== Architectures
-
-Host api.opensuse.org
-
-GET /architecture
-
-  Get the list of available architectures
-
-XmlResult: directory
-
-<name>: Architecture name
-
-GET /architecture/<name>
-
-  Read architecture data.
-
-XmlResult: architecture
-
-PUT /architecture/<name>
-
-  Update architecture data.
-
-XmlResult: status
-
-POST /architecture/<name>
-
-  Create new architecture.
-
-XmlResult: status
-
-DELETE /architecture/<name>
-
-  Delete architecture.
-
-XmlResult: status
 
 == Issue Trackers
 
@@ -404,10 +369,11 @@ POST /source/<project>
   set_flag: change a defined flag, requires at least flag and status parameters
   remove_flag: remove a defined flag, requires at least flag and status parameters
   unlock: unlock a locked project
+  release: release sources and binaries according to release target specification
 
 Parameters:
   noaccess: the new created project will be read protected
-  repository: set_flag for given repository (optional)
+  repository: set_flag for given repository or release just this repository (optional)
   arch: set_flag for given arch (optional)
   flag: modify this flag (build/publish/..) for set_flag command
   status: enable or disable for set_flag command
@@ -550,6 +516,19 @@ Parameters:
   orev: old revision, optional
 
 Result: diff as text/plain
+
+
+POST /source/<project>/<package>?cmd=release
+
+  Releases sources and binaries of that package. This requires a set
+  release target in the repository definitions of <project>. Also the
+  trigger must be set to "manual"
+
+Parameters:
+  comment: description for the history
+  repository: limit the release to the specified repository
+
+XmlResult: status
 
 
 POST /source/<project>/<package>?cmd=unlock
@@ -696,6 +675,7 @@ POST /source/<project>/<package>
   copy: copy package sources from another package
   undelete: undelete the package
   unlock: unlock a package with lock enabled. A comment is required.
+  release: release sources and binaries according to release target specification
   branch: branch a package into another one
   linktobranch: convert a plain source link into a full branch
   updatepatchinfo: update _patchinfo file, esp. the issues list

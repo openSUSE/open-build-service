@@ -72,6 +72,7 @@ class Project < ActiveRecord::Base
   end
   
   def cleanup_before_destroy
+    del_repo = Project.find_by_name("deleted").repositories[0]
     # find linking repositories
     lreps = Array.new
     self.repositories.each do |repo|
@@ -81,16 +82,32 @@ class Project < ActiveRecord::Base
     end
     if lreps.length > 0
       #replace links to this projects with links to the "deleted" project
-      del_repo = Project.find_by_name("deleted").repositories[0]
       lreps.each do |link_rep|
         link_rep.path_elements.includes(:link).each do |pe|
           next unless Repository.find(pe.repository_id).db_project_id == self.id
           pe.link = del_repo
           pe.save
           #update backend
-          link_prj = link_rep.project
-          logger.info "updating project '#{link_prj.name}'"
-          Suse::Backend.put_source "/source/#{link_prj.name}/_meta", link_prj.to_axml
+          link_rep.project.write_to_backend
+        end
+      end
+    end
+    # find linking target repositories
+    lreps = Array.new
+    self.repositories.each do |repo|
+      repo.linking_target_repositories.each do |lrep|
+        lreps << lrep
+      end
+    end
+    if lreps.length > 0
+      #replace links to this projects with links to the "deleted" project
+      lreps.each do |link_rep|
+        link_rep.release_targets.includes(:target_repository).each do |rt|
+          next unless Repository.find(rt.repository_id).db_project_id == self.id
+          rt.target_repository = del_repo
+          rt.save
+          #update backend
+          link_rep.project.write_to_backend
         end
       end
     end
@@ -158,13 +175,19 @@ class Project < ActiveRecord::Base
          arel = arel.select(opts[:select])
 	 opts.delete :select
       end
-      raise "unsupport options #{opts.inspect}" if opts.size > 0
       dbp = arel.first
       if dbp.nil?
         dbp, remote_name = find_remote_project(name)
         return dbp.name + ":" + remote_name if dbp
         raise UnknownObjectError, name
       end
+      if opts[:includeallpackages]
+         Package.joins(:flags).where(db_project_id: dbp.id).where("flags.flag='sourceaccess'").each do |pkg|
+           raise ReadAccessError, name unless Package.check_access? pkg
+         end
+	 opts.delete :includeallpackages
+      end
+      raise "unsupport options #{opts.inspect}" if opts.size > 0
       unless check_access?(dbp)
         raise ReadAccessError, name
       end
@@ -276,6 +299,12 @@ class Project < ActiveRecord::Base
     end
     unless self.new_record? || self.disabled_for?('sourceaccess', nil, nil)
       if FlagHelper.xml_disabled_for?(xmlhash, 'sourceaccess')
+        raise ForbiddenError.new
+      end
+    end
+    new_record = self.new_record?
+    if CONFIG['default_access_disabled'] == true and not new_record
+      if self.disabled_for?('access', nil, nil) and not FlagHelper.xml_disabled_for?(xmlhash, 'access')
         raise ForbiddenError.new
       end
     end
@@ -475,6 +504,12 @@ class Project < ActiveRecord::Base
     
     #--- update flag group ---#
     update_all_flags( xmlhash )
+    if CONFIG['default_access_disabled'] == true and new_record
+      # write a default access disable flag by default in this mode for projects if not defined
+      unless xmlhash.elements('access').length > 0
+        self.flags.new(:status => 'disable', :flag => 'access')
+      end
+    end
     
     #--- update repository download settings ---#
     dlcache = Hash.new
@@ -483,26 +518,27 @@ class Project < ActiveRecord::Base
     end
     
     xmlhash.elements('download') do |dl|
-      if dlcache.has_key? dl.arch.to_s
-        logger.debug "modifying download element, arch: #{dl.arch.to_s}"
-        cur = dlcache[dl.arch.to_s]
+      if dlcache.has_key? dl['arch']
+        logger.debug "modifying download element, arch: #{dl['arch']}"
+        cur = dlcache[dl['arch']]
       else
-        logger.debug "adding new download entry, arch #{dl.arch.to_s}"
+        logger.debug "adding new download entry, arch #{dl['arch']}"
         cur = self.downloads.create
         self.updated_at = Time.now
       end
-      cur.metafile = dl.metafile.to_s
-      cur.mtype = dl.mtype.to_s
-      cur.baseurl = dl.baseurl.to_s
-      raise SaveError, "unknown architecture" unless Architecture.archcache.has_key? dl.arch.to_s
-      cur.architecture = Architecture.archcache[dl.arch.to_s]
+      cur.metafile = dl['metafile']
+      cur.mtype = dl['mtype']
+      cur.baseurl = dl['baseurl']
+      raise SaveError, "unknown architecture" unless Architecture.archcache.has_key? dl['arch']
+      cur.architecture = Architecture.archcache[dl['arch']]
       cur.save!
-      dlcache.delete dl.arch.to_s
+      dlcache.delete dl['arch']
     end
-    
+
     dlcache.each do |arch, object|
       logger.debug "remove download entry #{arch}"
-      object.destroy
+      self.downloads.destroy object
+      self.updated_at = Time.now
     end
     
     #--- update repositories ---#
@@ -571,17 +607,7 @@ class Project < ActiveRecord::Base
         unless target_repo.remote_project_name.nil?
           raise SaveError.new("Can not use remote repository as release target '#{rt['project']}/#{rt['repository']}'")
         end
-        trigger = nil
-        if rt.has_key? 'trigger' and rt['trigger'] != "manual"
-          if rt['trigger'] != "maintenance"
-            # automatic triggers are only allowed inside the same project
-            unless rt['project'] == project.name
-              raise SaveError.new("Automatic release updates are only allowed into a project to the same project")
-            end
-          end
-          trigger = rt['trigger']
-        end
-        current_repo.release_targets.new :target_repository => target_repo, :trigger => trigger
+        current_repo.release_targets.new :target_repository => target_repo, :trigger => rt['trigger']
         was_updated = true
       end
 
@@ -650,16 +676,21 @@ class Project < ActiveRecord::Base
 
     # delete remaining repositories in repocache
     repocache.each do |name, object|
-      #find repositories that link against this one and issue warning if found
-      list = PathElement.where(repository_id: object.id).all
-      unless list.empty?
-        logger.debug "offending repo: #{object.inspect}"
-        if force
-          object.destroy!
-        else
+      logger.debug "offending repo: #{object.inspect}"
+      unless force
+        #find repositories that link against this one and issue warning if found
+        list = PathElement.where(repository_id: object.id).all
+        error = ""
+        unless list.empty?
           linking_repos = list.map {|x| x.repository.project.name+"/"+x.repository.name}.join "\n"
-          raise SaveError, "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:\n"+linking_repos
+          error << "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:\n"+linking_repos
         end
+        list = ReleaseTarget.where(target_repository_id: object.id).all
+        unless list.empty?
+          linking_repos = list.map {|x| x.repository.project.name+"/"+x.repository.name}.join "\n"
+          error << "Repository #{self.name}/#{name} cannot be deleted because following repos define it as release target:/\n"+linking_repos
+        end
+        raise SaveError, error unless error.blank?
       end
       logger.debug "deleting repository '#{name}'"
       self.repositories.destroy object
@@ -1023,7 +1054,7 @@ class Project < ActiveRecord::Base
   end
 
   def to_axml_id
-    return "<project name='#{name.fast_xs}'/>"
+    return "<project name='#{::Builder::XChar.encode(name)}'/>"
   end
 
 
@@ -1240,14 +1271,19 @@ class Project < ActiveRecord::Base
 
     # construct where condition
     sql = nil
-    rolefilter.each do |rf|
-     if sql.nil?
-       sql = "( "
-     else
-       sql << " OR "
-     end
-     role = Role.find_by_title!(rf)
-     sql << "role_id = " << role.id.to_s
+    if rolefilter.length > 0
+      rolefilter.each do |rf|
+       if sql.nil?
+         sql = "( "
+       else
+         sql << " OR "
+       end
+       role = Role.find_by_title!(rf)
+       sql << "role_id = " << role.id.to_s
+      end
+    else
+      # match all roles
+      sql = "( 1 "
     end
     sql << " )"
     usersql = groupsql = sql
@@ -1565,6 +1601,21 @@ class Project < ActiveRecord::Base
     packages.each { |p| p.sources_changed }
   end
 
+  # called either directly or from delayed job
+  def do_project_release( params )
+    User.current ||= User.find_by_login(params[:user])
+
+    packages.each do |pkg|
+      pkg.project.repositories.each do |repo|
+        next if params[:repository] and params[:repository] != repo.name
+        repo.release_targets.each do |releasetarget|
+          # release source and binaries
+          release_package(pkg, releasetarget.target_repository.project.name, pkg.name, repo)
+        end
+      end
+    end
+  end
+
   def bsrequest_repos_map(project, backend)
     ret = Hash.new
     uri = URI( "/getprojpack?project=#{CGI.escape(project.to_s)}&nopackages&withrepos&expandedrepos" )
@@ -1624,6 +1675,99 @@ class Project < ActiveRecord::Base
 
   def valid_name
     errors.add(:name, "is illegal") unless Project.valid_name?(self.name)
+  end
+
+  def update_patchinfo(patchinfo, opts = {})
+    opts[:enfore_issue_update] ||= false
+
+    # collect bugnumbers from diff
+    self.packages.each do |p|
+      # create diff per package
+      next if p.package_kinds.find_by_kind 'patchinfo'
+
+      p.package_issues.each do |i|
+        if i.change == "added"
+          unless patchinfo.has_element?("issue[(@id='#{i.issue.name}' and @tracker='#{i.issue.issue_tracker.name}')]")
+            e = patchinfo.add_element "issue"
+            e.set_attribute "tracker", i.issue.issue_tracker.name
+            e.set_attribute "id"     , i.issue.name
+            patchinfo.category.text = "security" if i.issue.issue_tracker.kind == "cve"
+          end
+        end
+      end
+    end
+
+    # update informations of empty issues
+    patchinfo.each_issue do |i|
+      if i.text.blank? and not i.name.blank?
+        issue = Issue.find_or_create_by_name_and_tracker(i.name, i.tracker)
+        if issue
+          if opts[:enfore_issue_update]
+            # enforce update from issue server
+            issue.fetch_updates()
+          end
+          i.text = issue.summary
+        end
+      end
+    end
+
+    return patchinfo
+  end
+
+  def create_patchinfo_from_request(req)
+    patchinfo = Package.new(:name => "patchinfo", :title => "Patchinfo", :description => "Collected packages for update")
+    self.packages << patchinfo
+    patchinfo.add_flag("build", "enable", nil, nil)
+    patchinfo.add_flag("useforbuild", "disable", nil, nil)
+    patchinfo.add_flag("publish", "enable", nil, nil) unless self.flags.find_by_flag_and_status("access", "disable")
+    patchinfo.store
+    
+    # create patchinfo XML file
+    node = Nokogiri::XML::Builder.new
+    attrs = { }
+    if self.project_type.to_s == "maintenance_incident"
+      # this is a maintenance incident project, the sub project name is the maintenance ID
+      attrs[:incident] = self.name.gsub(/.*:/, '')
+    end
+    
+    description = req.description || ''
+    node.patchinfo(attrs) do |n|
+      n.packager    req.creator
+      n.category    "recommended" # update_patchinfo may switch to security
+      n.rating      "low"
+      n.summary     description.split(/\n|\r\n/)[0] # first line only
+      n.description req.description
+    end
+    data = ActiveXML::Node.new( node.doc.to_xml )
+    data = self.update_patchinfo( data, enfore_issue_update: true )
+    p = { :user => User.current.login, :comment => "generated by request id #{req.id} accept call" }
+    patchinfo_path = "/source/#{CGI.escape(patchinfo.project.name)}/patchinfo/_patchinfo"
+    patchinfo_path << Suse::Backend.build_query_from_hash(p, [:user, :comment])
+    Suse::Backend.put( patchinfo_path, data.dump_xml )
+    patchinfo.sources_changed
+  end
+
+  # updates packages automatically generated in the backend after submitting a product file
+  def update_product_autopackages
+
+    backend_pkgs = Collection.find :id, :what => 'package', :match => "@project='#{self.name}' and starts-with(@name,'_product:')"
+    b_pkg_index = backend_pkgs.each_package.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
+    frontend_pkgs = self.packages.where("`packages`.name LIKE '_product:%'").all
+    f_pkg_index = frontend_pkgs.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
+
+    all_pkgs = [b_pkg_index.keys, f_pkg_index.keys].flatten.uniq
+
+    all_pkgs.each do |pkg|
+      if b_pkg_index.has_key?(pkg) and not f_pkg_index.has_key?(pkg)
+        # new autopackage, import in database
+	p = self.packages.new(name: pkg)
+	p.update_from_xml(Xmlhash.parse(b_pkg_index[pkg].dump_xml))
+	p.store
+      elsif f_pkg_index.has_key?(pkg) and not b_pkg_index.has_key?(pkg)
+        # autopackage was removed, remove from database
+        f_pkg_index[pkg].destroy
+      end
+    end
   end
 
 end

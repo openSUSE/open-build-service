@@ -1,3 +1,5 @@
+require 'api_exception'
+
 class Issue < ActiveRecord::Base
 
   class NotFoundError < APIException

@@ -1,12 +1,16 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
-class MaintenanceTests < ActionController::IntegrationTest 
+class MaintenanceTests < ActionDispatch::IntegrationTest 
   fixtures :all
   
   def setup
     super
     wait_for_scheduler_start
+  end
+
+  teardown do
+    Timecop.return
   end
 
   def test_create_maintenance_project
@@ -275,15 +279,15 @@ class MaintenanceTests < ActionController::IntegrationTest
     post "/request/#{id1}?cmd=diff&view=xml", nil
     assert_response :success
     # the diffed packages
-    assert_xml_tag( :tag => "old", :attributes => { :project => "BaseDistro3", :package => "pack2", :srcmd5 => "c372a4bc923c1c400caa6b24a02aa969" } )
-    assert_xml_tag( :tag => "new", :attributes => { :project => "home:tom:branches:OBS_Maintained:pack2", :package => "pack2.BaseDistro3", :rev => "f21898281acc8d8d01f91b093005d9e2", :srcmd5 => "f21898281acc8d8d01f91b093005d9e2" })
+    assert_xml_tag( :tag => "old", :attributes => { :project => "BaseDistro3", :package => "pack2", :srcmd5 => "238c45491837d97fd24d8c2b240ff7a6" } )
+    assert_xml_tag( :tag => "new", :attributes => { :project => "home:tom:branches:OBS_Maintained:pack2", :package => "pack2.BaseDistro3", :rev => "a82b3ac59d7cac03b76cb76dc8f14661", :srcmd5 => "a82b3ac59d7cac03b76cb76dc8f14661" })
     # the diffed files
     assert_xml_tag( :tag => "old", :attributes => { :name => "file", :md5 => "722d122e81cbbe543bd5520bb8678c0e", :size => "4" },
                     :parent => { :tag => "file", :attributes => { :state => "changed" } } )
     assert_xml_tag( :tag => "new", :attributes => { :name => "file", :md5 => "6c7c49c0d7106a1198fb8f1b3523c971", :size => "16" },
                     :parent => { :tag => "file", :attributes => { :state => "changed" } } )
     # the expected file transfer
-    assert_xml_tag( :tag => "source", :attributes => { :project => "home:tom:branches:OBS_Maintained:pack2", :package => "pack2.BaseDistro3", :rev => "f21898281acc8d8d01f91b093005d9e2" } )
+    assert_xml_tag( :tag => "source", :attributes => { :project => "home:tom:branches:OBS_Maintained:pack2", :package => "pack2.BaseDistro3", :rev => "a82b3ac59d7cac03b76cb76dc8f14661" } )
     assert_xml_tag( :tag => "target", :attributes => { :project => "My:Maintenance", :releaseproject => "BaseDistro3" } )
     # diff contains the critical lines
     assert_match( /^\-NOOP/, @response.body )
@@ -370,6 +374,13 @@ class MaintenanceTests < ActionController::IntegrationTest
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id2 = node.value(:id)
+
+    # validate that request is diffable and that the linked package is not double diffed
+    post "/request/#{id2}?cmd=diff&view=xml", nil
+    assert_response :success
+    assert_match(/new_content_0815/, @response.body) # check if our changes are part of the diff
+    assert_xml_tag :parent=>{:tag => "file", :attributes => { :state => "added" }}, :tag => "new", :attributes=>{:name=>"new_file"}
+    assert_xml_tag :parent=>{:tag => "file", :attributes => { :state => "added" }}, :tag => "new", :attributes=>{:name=>"_link"} # local link is unexpanded
 
     # set incident to merge into existing one
     prepare_request_with_user "maintenance_coord", "power"
@@ -775,6 +786,9 @@ class MaintenanceTests < ActionController::IntegrationTest
   def test_create_maintenance_project_and_release_packages
     prepare_request_with_user "maintenance_coord", "power"
 
+    # the birthday of J.K.
+    Timecop.freeze(2010, 7, 12)
+
     # setup 'My:Maintenance' as a maintenance project by fetching it's meta and set a type
     get "/source/My:Maintenance/_meta"
     assert_response :success
@@ -786,11 +800,14 @@ class MaintenanceTests < ActionController::IntegrationTest
     raw_post "/source/My:Maintenance/_attribute", "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-%Y-%C</value></attribute></attributes>"
     assert_response :success
 
+    Timecop.freeze(1)
     # setup a maintained distro
     post "/source/BaseDistro2.0/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
+    Timecop.freeze(1)
     post "/source/BaseDistro2.0/_attribute", "<attributes><attribute namespace='OBS' name='UpdateProject' > <value>BaseDistro2.0:LinkedUpdateProject</value> </attribute> </attributes>"
     assert_response :success
+    Timecop.freeze(1)
     post "/source/BaseDistro3/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
 
@@ -801,6 +818,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag( :parent => { :tag => "publish" }, :tag => "disable", :attributes => { :repository => nil, :arch => nil} )
 
     # create a maintenance incident
+    Timecop.freeze(1)
     post "/source", :cmd => "createmaintenanceincident", :noaccess => 1
     assert_response :success
     assert_xml_tag( :tag => "data", :attributes => { :name => "targetproject" } )
@@ -815,6 +833,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag( :tag => "project", :attributes => { :name => incidentProject, :kind => "maintenance_incident" } )
 
     # submit packages via mbranch
+    Timecop.freeze(1)
     post "/source", :cmd => "branch", :package => "pack2", :target_project => incidentProject
     assert_response :success
 
@@ -852,15 +871,19 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
 
     # create some changes, including issue tracker references
+    Timecop.freeze(1)
     raw_put "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes", "DUMMY bnc#1042"
     assert_response :success
+    Timecop.freeze(1)
     post "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject?unified=1&cmd=diff&filelimit=0&expand=1"
     assert_response :success
     assert_match(/DUMMY bnc#1042/, @response.body)
 
     # add a new package with defined link target
+    Timecop.freeze(1)
     post "/source/BaseDistro2.0/packNew", :cmd => "branch", :target_project => incidentProject, :missingok => 1, :extend_package_names => 1, :add_repositories => 1
     assert_response :success
+    Timecop.freeze(1)
     raw_put "/source/#{incidentProject}/packNew.BaseDistro2.0_LinkedUpdateProject/packageNew.spec", File.open("#{Rails.root}/test/fixtures/backend/binary/packageNew.spec").read()
     assert_response :success
 
@@ -870,6 +893,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag :parent => { :tag => "collection" },  :tag => 'project', :attributes => { :name => incidentProject } 
 
     # Create patchinfo informations
+    Timecop.freeze(1)
     post "/source/#{incidentProject}?cmd=createpatchinfo&force=1"
     assert_response :success
     assert_xml_tag( :tag => "data", :attributes => { :name => "targetpackage"}, :content => "patchinfo" )
@@ -879,6 +903,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_response :success
     meta = ActiveXML::Node.new( @response.body )
     meta.add_element "person", { :userid => 'adrian', :role => 'reader' }
+    Timecop.freeze(1)
     put "/source/" + incidentProject + "/_meta", meta.dump_xml
     assert_response :success
     get "/source/#{incidentProject}/patchinfo/_patchinfo"
@@ -893,9 +918,11 @@ class MaintenanceTests < ActionController::IntegrationTest
     pi.add_element "issue", { "id" => "0815", "tracker" => "bnc" }
     pi.add_element "releasetarget", { :project => "BaseDistro2.0:LinkedUpdateProject" }
     pi.add_element "releasetarget", { :project => "BaseDistro3" }
+    Timecop.freeze(1)
     raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response :success
     pi.add_element "releasetarget", { :project => "home:tom" } # invalid target
+    Timecop.freeze(1)
     raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response 404
     assert_xml_tag :tag => "status", :attributes => { :code => "releasetarget_not_found" }
@@ -911,6 +938,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "bnc"
 
     # add another issue and update patchinfo
+    Timecop.freeze(1)
     raw_put "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes", "DUMMY bnc#1042 CVE-2009-0815 bnc#4201"
     assert_response :success
     get "/source/#{incidentProject}/pack2.BaseDistro2.0_LinkedUpdateProject?view=issues"
@@ -918,6 +946,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag :parent => { :tag => 'issue', :attributes => { :change => 'added' } }, :tag => 'name', :content => "1042"
     assert_xml_tag :parent => { :tag => 'issue', :attributes => { :change => 'added' } }, :tag => 'name', :content => "4201"
     assert_xml_tag :tag => 'kind', :content => "link"
+    Timecop.freeze(1)
     post "/source/#{incidentProject}/patchinfo?cmd=updatepatchinfo"
     assert_response :success
     get "/source/#{incidentProject}/patchinfo/_patchinfo"
@@ -1231,14 +1260,48 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_xml_tag :tag => "release", :content => "1"
     assert_xml_tag :tag => "arch", :content => "i586"
     assert_xml_tag :tag => "summary", :content => "Test Package"
-    assert_xml_tag :tag => "size", :content => "1831"
+    assert_xml_tag :tag => "size", :content => "2191"
     assert_xml_tag :tag => "description"
     assert_xml_tag :tag => "mtime"
-    node=nil
+    hashed=node=nil
     IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-updateinfo.xml.gz") do |io|
        node = REXML::Document.new( io.read )
     end
     assert_equal "My-#{Time.now.year}-1", node.elements["/updates/update/id"].first.to_s
+    # verify meta data created by createrepo
+    IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-primary.xml.gz") do |io|
+       hashed = Xmlhash.parse(io.read)
+    end
+    pac = nil
+    hashed.elements("package") do |p|
+      next unless p["name"] == "package"
+      next unless p["arch"] == "x86_64"
+      pac = p
+    end
+    assert_not_nil pac
+    assert_equal "GPLv2+", pac["format"]["rpm:license"]
+    assert_equal "Development/Tools/Building", pac["format"]["rpm:group"]
+    assert_equal "package-1.0-1.src.rpm", pac["format"]["rpm:sourcerpm"]
+    assert_equal "2060", pac["format"]["rpm:header-range"]['end']
+    assert_equal "280", pac["format"]["rpm:header-range"]['start']
+    assert_equal "bash", pac["format"]["rpm:requires"]['rpm:entry']['name']
+    assert_equal "myself", pac["format"]["rpm:provides"]['rpm:entry'][0]['name']
+    assert_equal "package", pac["format"]["rpm:provides"]['rpm:entry'][1]['name']
+    assert_equal "package(x86-64)", pac["format"]["rpm:provides"]['rpm:entry'][2]['name']
+    assert_equal "something", pac["format"]["rpm:conflicts"]['rpm:entry']['name']
+    assert_equal "old_crap", pac["format"]["rpm:obsoletes"]['rpm:entry']['name']
+    if File.exist? "/etc/SuSE-release"
+      assert_equal "pure_optional", pac["format"]["rpm:suggests"]['rpm:entry']['name']
+      assert_equal "would_be_nice", pac["format"]["rpm:recommends"]['rpm:entry']['name']
+      assert_equal "other_package_likes_it", pac["format"]["rpm:supplements"]['rpm:entry']['name']
+      assert_equal "other_package", pac["format"]["rpm:enhances"]['rpm:entry']['name']
+    end
+    # file lists
+    IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-filelists.xml.gz") do |io|
+       hashed = Xmlhash.parse(io.read)
+    end
+    #STDERR.puts JSON.pretty_generate(hashed)
+    assert_equal "/my_packaged_file", hashed["package"][0]["file"]
 
     # verify that local linked packages still get branched correctly
     post "/source/BaseDistro2.0/pack2", :cmd => "branch"

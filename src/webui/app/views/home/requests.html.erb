@@ -1,5 +1,4 @@
 <% @pagetitle = "Requests for #{@displayed_user}" %>
-<% @pagetitle = 'My Requests' if @displayed_user.to_s == @user.login %>
 <% @crumb_list = [@pagetitle] %>
 
 <h3>Requests for <%= link_to(@displayed_user.to_s, :controller => 'home', :user => @displayed_user.to_s) %></h3>

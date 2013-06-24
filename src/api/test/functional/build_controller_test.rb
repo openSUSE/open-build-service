@@ -5,7 +5,7 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'rexml/document'
 include REXML
 
-class BuildControllerTest < ActionController::IntegrationTest 
+class BuildControllerTest < ActionDispatch::IntegrationTest 
 
   fixtures :all
 
@@ -65,11 +65,9 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response 404
     assert_xml_tag :tag => "status", :attributes => { :code => "unknown_package" }
     put "/build/home:Iggy/10.2/i586/TestPack", nil
-    assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "invalid_http_method" }
+    assert_response 404
     delete "/build/home:Iggy/10.2/i586/TestPack"
-    assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "invalid_http_method" }
+    assert_response 404
   end
 
   def test_dispatchprios
@@ -137,21 +135,6 @@ class BuildControllerTest < ActionController::IntegrationTest
     assert_response 400
     assert_match(/invalid_operation/, @response.body)
     assert_match(/Delete operation of build results is not allowed/, @response.body)
-  end
-
-  def test_read_access_hidden_project_index
-    # Test if hidden projects appear for the right users
-    # testing build_controller project_index 
-    # currently this test shows that there's an information leak.
-    get "/build"
-    assert_response :success
-    assert_no_match(/entry name="HiddenProject"/, @response.body)
-    # retry with maintainer
-    prepare_request_with_user "adrian", "so_alone"
-    get "/build"
-    assert_response :success
-    assert_match(/entry name="HiddenProject"/, @response.body)
-    prepare_request_valid_user
   end
 
   def test_buildinfo
@@ -285,6 +268,10 @@ class BuildControllerTest < ActionController::IntegrationTest
     get "/build/home:Iggy/_result"
     assert_response :success
     assert_xml_tag :tag => "resultlist", :children =>  { :count => 2 }
+
+    get "/build/home:Iggy/_result?lastsuccess&pathproject=kde4&package=TestPack"
+    assert_response 404
+    assert_xml_tag(:tag => "status", :attributes => { :code => 'no_repositories_found' })
   end
 
   def test_read_access_hidden_result_prj
@@ -444,6 +431,19 @@ class BuildControllerTest < ActionController::IntegrationTest
   end
 
   def test_read_access_hidden_project_index
+    # Test if hidden projects appear for the right users
+    # testing build_controller project_index 
+    # currently this test shows that there's an information leak.
+    get "/build"
+    assert_response :success
+    assert_no_match(/entry name="HiddenProject"/, @response.body)
+    # retry with maintainer
+    prepare_request_with_user "adrian", "so_alone"
+    get "/build"
+    assert_response :success
+    assert_match(/entry name="HiddenProject"/, @response.body)
+    prepare_request_valid_user
+
     #invalid
     get "/build/HiddenProject"
     assert_response 404

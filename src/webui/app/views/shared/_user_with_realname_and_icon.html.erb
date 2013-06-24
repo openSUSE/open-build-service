@@ -12,8 +12,6 @@
 <% else %>
   <% printed_name = user %>
 <% end %>
-<% if @user %>
-  <%= link_to_if(!no_link, printed_name, :controller => 'home', :user => user) %>
-<% else %>
-  <%= printed_name %>
-<% end %>
+
+<%= link_to_if(!no_link, printed_name, :controller => 'home', :user => user) %>
+

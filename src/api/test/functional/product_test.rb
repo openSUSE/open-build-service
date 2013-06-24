@@ -1,7 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
-class ProductTests < ActionController::IntegrationTest 
+class ProductTests < ActionDispatch::IntegrationTest 
   fixtures :all
   
   def test_simple_product_file

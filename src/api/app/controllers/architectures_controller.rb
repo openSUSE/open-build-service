@@ -116,20 +116,21 @@ private
 
       raw = backend_get("/build/_workerstatus")
       data = REXML::Document.new(raw) # Parse backend XML
-      data.root.each_element("scheduler") do |scheduler|
-        arch_name = scheduler.attributes["arch"]
-        # We don't care for backend magic architecture values
-        next if ["local", "dispatcher", "publisher", "signer", "warden"].include? arch_name
+      data.root.each_element("partition") do |partition|
+        partition.each_element("daemon") do |daemon|
+          next unless daemon.attributes["type"] == "scheduler"
+          arch_name = daemon.attributes["arch"]
 
-        # Update availability based on scheduler state for given arch
-        @architecture = Architecture.find_by_name(arch_name)
-        if @architecture
-          @architecture.available = ["idle", "running"].include? scheduler.attributes["state"]
-          @architecture.save!
-        else
-          # The backend supports an architecture that the API table doesn't know about (i.e. not part of the default
-          # set of architectures). Add it as another available architecture but don't recommend it by default.
-          @architecture = Architecture.create(:name => arch_name, :recommended => false, :available => scheduler.attributes["state"])
+          # Update availability based on scheduler state for given arch
+          @architecture = Architecture.find_by_name(arch_name)
+          if @architecture
+            @architecture.available = ["idle", "running"].include? daemon.attributes["state"]
+            @architecture.save!
+          else
+            # The backend supports an architecture that the API table doesn't know about (i.e. not part of the default
+            # set of architectures). Add it as another available architecture but don't recommend it by default.
+            @architecture = Architecture.create(:name => arch_name, :recommended => false, :available => daemon.attributes["state"])
+          end
         end
       end
     end

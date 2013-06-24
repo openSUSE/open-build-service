@@ -41,6 +41,7 @@
 
       <value>ppc</value>
       <value>ppc64</value>
+      <value>ppc64p7</value>
 
       <value>s390</value>
       <value>s390x</value>
@@ -96,9 +97,9 @@
 
   <define ns="" name="release-triggers">
     <choice>
-      <value>manual</value>        <!-- DEFAULT: only on manual commands the release gets started -->
-      <value>finished</value>      <!-- Release when the repository has finished building -->
-      <value>allsucceeded</value>  <!-- Release when the repository has finished building and all jobs were successfull -->
+                                   <!-- DEFAULT: not set, no release action possible -->
+      <value>manual</value>        <!-- only on manual commands the release gets started -->
+ <!-- no yet supported <value>allsucceeded</value> -->  <!-- Release when the repository has finished building and all jobs were successfull -->
       <value>maintenance</value>   <!-- Release just once on maintenance release event. This attribute get removed at the same time -->
     </choice>
   </define>

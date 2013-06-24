@@ -1,7 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'public_controller'
 
-class PublicControllerTest < ActionController::IntegrationTest 
+class PublicControllerTest < ActionDispatch::IntegrationTest 
   fixtures :all
   
   def setup
@@ -65,6 +65,10 @@ class PublicControllerTest < ActionController::IntegrationTest
     assert_response :success
     # new method (OBS 2.3)
     post "/public/lastevents", nil
+    assert_response :success
+    # new method (OBS 2.3) using credentials
+    prepare_request_with_user "tom", "thunder"
+    post "/lastevents", nil
     assert_response :success
   end
 

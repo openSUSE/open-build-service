@@ -16,6 +16,16 @@
         <element name="description">
           <text/>
         </element>
+        <element name="name">
+          <text/>
+        </element>
+        <element name="schedulers">
+          <zeroOrMore>
+            <element name="arch">
+              <ref name="build-arch" />
+            </element>
+          </zeroOrMore>
+        </element>
       <empty/>
       </interleave>
     </element>

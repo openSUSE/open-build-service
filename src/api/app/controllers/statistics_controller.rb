@@ -224,7 +224,12 @@ class StatisticsController < ApplicationController
 
     # get all requests to it
     reqs = BsRequestAction.where(target_project: projects).select(:bs_request_id).map {|a| a.bs_request_id}.uniq.sort
-    reqs = BsRequest.where("id in (?)", reqs).select([:id, :created_at, :creator]).all.group_by { |r| r.created_at.strftime("%Y-%m") }
+    reqs = BsRequest.where("id in (?)", reqs).select([:id, :created_at, :creator]).all
+    if params[:raw] == '1'
+      render json: reqs
+      return
+    end
+    reqs = reqs.group_by { |r| r.created_at.strftime("%Y-%m") }
     @stats = []
     reqs.sort.each do |month, requests|
       monstats = []

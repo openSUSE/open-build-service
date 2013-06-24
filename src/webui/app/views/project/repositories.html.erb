@@ -20,7 +20,7 @@
         <% begin -%>
           <% repository.each_path do |path| %>
             <% if path.project == 'deleted' %>
-              <%= image_tag 'exclamation.png' %> Target repository has been removed
+              <%= sprite_tag 'exclamation' %> Target repository has been removed
             <% else %>
               <span><%= path.project + '/' + path.repository %></span><br/>
             <% end %>
@@ -29,18 +29,18 @@
 
         <div style="margin-top: 1em">
           <% if @project.can_edit?( @user ) %>
-            <%= image_tag('drive_edit.png') %>
+            <%= sprite_tag('drive_edit') %>
             <%= link_to('Edit repository', {:action => :edit_repository, :project => @project, :repository => repository.name}, :id => "edit_repository_link_#{repository_id}", :remote => true) %>
             <% content_for :ready_function do %>
               $('#edit_repository_link_<%= repository_id %>').bind('ajax:success', function (event, data, status, xhr) {
                 $("#<%= repository_id %>").html(data);
               });
             <% end %>
-            <%= image_tag('drive_delete.png') %>
+            <%= sprite_tag('drive_delete') %>
             <%= link_to('Delete repository', {:action => :remove_target, :project => @project, :target => repository.name},
               {:confirm => "Really remove repository '#{repository.name}'?", :class => 'x', :method => :post}) %>
           <% elsif @user %>
-            <%= image_tag('drive_delete.png') %>
+            <%= sprite_tag('drive_delete', title: 'Delete repository') %>
             <%= link_to('Request repository deletion', {:action => :remove_target_request_dialog, :project => @project, :repository => repository.name}, :remote => true) %>
           <% end %>
           <%= render :partial => 'shared/download_repository_link', :locals => {:project => @project, :repository => repository} %>
@@ -52,7 +52,7 @@
 
 <% if @project.can_edit?( @user ) %>
   <p>
-    <%= link_to(image_tag('drive_add.png', :title => 'Add repository'), :action => 'add_repository_from_default_list', :project => @project) %>
+    <%= link_to(sprite_tag('drive_add', title: 'Add repository'), :action => 'add_repository_from_default_list', :project => @project) %>
     <%= link_to('Add repositories', :action => 'add_repository_from_default_list', :project => @project) %>
   </p>
 <% end %>

@@ -30,6 +30,7 @@ BEGIN {
 
 use Digest;
 use Digest::MD5 ();
+use Digest::SHA ();
 use XML::Structured ':bytes';
 use POSIX;
 use Fcntl qw(:DEFAULT :flock);
@@ -491,6 +492,7 @@ VERSION 1.0-0
 LABEL $repoinfo->{'title'}
 VENDOR Open Build Service
 ARCH.x86_64 x86_64 i686 i586 i486 i386 noarch
+ARCH.ppc64p7 ppc64p7 noarch
 ARCH.ppc64 ppc64 ppc noarch
 ARCH.ppc ppc noarch
 ARCH.sh4 sh4 noarch
@@ -559,6 +561,8 @@ sub createrepo_debian {
   my $str = <<"EOL";
 Origin: Open Build Service $projid $repoid
 Label: $repoinfo->{'title'}
+Suite: $projid
+Codename: $projid
 Version: 0.00
 Date: $date
 Description: Open Build Service $projid $repoid
@@ -569,17 +573,27 @@ EOL
   print OUT $str;
   close(OUT) || die("close: $!\n");
 
+  my $sha1sums = "SHA1:\n";
+  my $sha256sums = "SHA256:\n";
+
   open(OUT,">>$extrep/Release") || die("$extrep/Release: $!\n");
-  foreach my $f ( "Release", "Packages", "Packages.gz", "Sources", "Sources.gz" ) {
+  foreach my $f ( "Packages", "Packages.gz", "Sources", "Sources.gz" ) {
   
     open(FILE,"<$extrep/$f") || die;
     my @all = <FILE>;
     close(FILE);
-    my $md5  = Digest::MD5::md5_hex(join("",@all));
+    my $data = join("",@all);
+    my $md5  = Digest::MD5::md5_hex($data);
     my $size = (stat("$extrep/$f"))[7];
     print OUT " $md5 $size $f\n";
-  
+    my $sha1  = Digest::SHA::sha1_hex($data);
+    $sha1sums .= " $sha1 $size $f\n";
+    my $sha256  = Digest::SHA::sha256_hex($data);
+    $sha256sums .= " $sha256 $size $f\n";
   }
+  print OUT $sha1sums;
+  print OUT $sha256sums;
+
   close(OUT) || die("close: $!\n");
 
   # re-sign changed Release file
@@ -673,12 +687,14 @@ sub createrepo_staticlinks {
       } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+([-\.].*\.(gz|bz2|xz))$/s) {
         $link = "$1$3";
         $link = "$1-$2$3" if $versioned;
-      } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+(\.(raw|iso|qcow2))$/s) {
+      } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+(\.(raw.install.raw.xz|raw.xz|install.iso|iso|qcow2))$/s) {
         $link = "$1$3";
         $link = "$1-$2$3" if $versioned;
       }
       next unless $link;
-      symlink($_, "$extrep/$arch/$link");
+      unlink("$extrep/$arch/.$link"); # drop left over
+      symlink($_, "$extrep/$arch/.$link");
+      rename("$extrep/$arch/.$link", "$extrep/$arch/$link"); # atomar update
     }
   }
 }
@@ -1096,6 +1112,18 @@ sub publish {
     @archs = ((grep {!$archorder{$_}} @archs), (grep {$archs{$_}} reverse(@$archorder)));
   }
 
+  # drop entire repo it source :repo's have disappeared altogether. We need to find a way
+  # to specify this explicit instead checking all :repo's.
+  my $found_repo;
+  for my $arch (@archs) {
+    my $r = "$reporoot/$prp/$arch/:repo";
+    $found_repo = 1 if -e $r;
+  }
+  if (!defined($found_repo)) {
+    deleterepo($projid, "$repoid");
+    return;
+  }
+
   for my $arch (@archs) {
     my $r = "$reporoot/$prp/$arch/:repo";
     my $repoinfo = {};
@@ -1178,6 +1206,8 @@ sub publish {
 	} elsif ($bin =~ /\.dsc(:?\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.ovf(:?\.sha256)?$/) {
+	  $p = "$bin";
+	} elsif ($bin =~ /\.qcow2(:?\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.vmdk(:?\.sha256)?$/) {
 	  $p = "$bin";

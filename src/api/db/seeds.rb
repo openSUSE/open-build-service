@@ -1,6 +1,6 @@
 puts "Seeding architectures table..."
 # NOTE: armvXel is actually obsolete (because it never exist as official platform), but kept for compatibility reasons
-["aarch64", "armv4l", "armv5l", "armv6l", "armv7l", "armv5el", "armv6el", "armv7el", "armv8el", "hppa", "i586", "i686", "ia64", "local", "mips", "mips32", "mips64", "ppc", "ppc64", "s390", "s390x", "sparc", "sparc64", "sparc64v", "sparcv8", "sparcv9", "sparcv9v", "x86_64"].each do |arch_name|
+["aarch64", "armv4l", "armv5l", "armv6l", "armv7l", "armv5el", "armv6el", "armv7el", "armv8el", "hppa", "i586", "i686", "ia64", "local", "mips", "mips32", "mips64", "ppc", "ppc64", "ppc64p7","s390", "s390x", "sparc", "sparc64", "sparc64v", "sparcv8", "sparcv9", "sparcv9v", "x86_64"].each do |arch_name|
   Architecture.find_or_create_by_name :name => arch_name
 end
 # following our default config
@@ -13,7 +13,7 @@ end
 
 puts "Seeding roles table..."
 admin_role      = Role.find_or_create_by_title :title => "Admin", :global => true
-user_role       = Role.find_or_create_by_title :title => "User", :global => true
+#user_role       = Role.find_or_create_by_title :title => "User", :global => true
 maintainer_role = Role.find_or_create_by_title :title => "maintainer"
 downloader_role = Role.find_or_create_by_title :title => 'downloader'
 reader_role     = Role.find_or_create_by_title :title => 'reader'
@@ -22,11 +22,10 @@ Role.find_or_create_by_title :title => 'reviewer'
 
 puts "Seeding users table..."
 admin  = User.find_or_create_by_login :login => 'Admin', :email => "root@localhost", :realname => "OBS Instance Superuser", :state => "2", :password => "opensuse", :password_confirmation => "opensuse"
-nobody = User.find_or_create_by_login :login => "_nobody_", :email => "nobody@localhost", :realname => "Anonymous User", :state => "3", :password => "123456", :password_confirmation => "123456"
+User.find_or_create_by_login :login => "_nobody_", :email => "nobody@localhost", :realname => "Anonymous User", :state => "3", :password => "123456", :password_confirmation => "123456"
 
 puts "Seeding roles_users table..."
 RolesUser.find_or_create_by_user_id_and_role_id(admin.id, admin_role.id)
-RolesUser.find_or_create_by_user_id_and_role_id(admin.id, user_role.id)
 
 puts "Seeding static_permissions table..."
 ["status_message_create", "set_download_counters", "download_binaries", "source_access", "access", "global_change_project", "global_create_project", "global_change_package", "global_create_package", "change_project", "create_project", "change_package", "create_package"].each do |sp_title|
@@ -111,7 +110,8 @@ d = Project.find_or_create_by_name("deleted")
 d.repositories.create name: "deleted"
 
 # set default configuration settings
-Configuration.find_or_create_by_title_and_description("Open Build Service", <<-EOT
+unless Rails.env.test?
+Configuration.find_or_create_by_name_and_title_and_description("private", "Open Build Service", <<-EOT
   <p class="description">
     The <a href="http://openbuildservice.org">Open Build Service (OBS)</a>
     is an open and complete distribution development platform that provides a transparent infrastructure for development of Linux distributions, used by openSUSE, MeeGo and other distributions.
@@ -126,6 +126,7 @@ Configuration.find_or_create_by_title_and_description("Open Build Service", <<-E
   </p>
 EOT
 )
+end
 
 puts "Seeding issue trackers ..."
 IssueTracker.find_or_create_by_name('boost', :description => 'Boost Trac', :kind => 'trac', :regex => 'boost#(\d+)', :url => 'https://svn.boost.org/trac/boost/', :label => 'boost#@@@', :show_url => 'https://svn.boost.org/trac/boost/ticket/@@@')

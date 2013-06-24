@@ -228,7 +228,7 @@ class ApplicationController < ActionController::API
             logger.debug( "Name : #{ldap_info[1]}" )
             # Generate and store a fake pw in the OBS DB that no-one knows
             chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
-            fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("C*")
+            fakepw = (1..24).collect { chars[rand(chars.size)] }.pack('a'*24)
             newuser = User.create(
               :login => login,
               :password => fakepw,
@@ -325,6 +325,15 @@ class ApplicationController < ActionController::API
       return
     end
 
+    # nginx case
+    if CONFIG['use_nginx_redirect']
+      logger.debug "[backend] VOLLEY(nginx): #{path}"
+      headers['X-Accel-Redirect'] = "#{CONFIG['use_nginx_redirect']}/http/#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
+      head(200)
+      @skip_validation = true
+      return
+    end
+
     logger.debug "[backend] VOLLEY: #{path}"
     Suse::Backend.start_test_backend 
     backend_http = Net::HTTP.new(CONFIG['source_host'], CONFIG['source_port'])
@@ -415,7 +424,7 @@ class ApplicationController < ActionController::API
   rescue_from APIException do |exception|
     logger.debug "#{exception.class.name} #{exception.message}"
     message = exception.message
-    if message.blank?
+    if message.blank? || message == exception.class.name
       message = exception.default_message
     end
     render_error message: message, status: exception.status, errorcode: exception.errorcode
@@ -525,10 +534,6 @@ class ApplicationController < ActionController::API
   def backend_get( path )
     # TODO: check why not using SUSE:Backend::get
     backend.direct_http( URI(path) )
-  end
-
-  def backend_put( path, data )
-    backend.direct_http( URI(path), :method => "PUT", :data => data )
   end
 
   def backend_post( path, data )

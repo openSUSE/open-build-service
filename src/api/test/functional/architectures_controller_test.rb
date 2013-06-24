@@ -1,6 +1,14 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class ArchitecturesControllerTest < ActionController::IntegrationTest
+
+#
+# FIXME3.0: The /architectures route will be removed
+#  => Use /configuration to configure the available architectures
+#  => Define the used architectures for default targets directly in /distribution
+# 
+
+
+class ArchitecturesControllerTest < ActionDispatch::IntegrationTest
 
   def setup
     super
@@ -16,7 +24,7 @@ class ArchitecturesControllerTest < ActionController::IntegrationTest
     get '/architectures'
     assert_response :success
    
-    assert_xml_tag tag: "entry", attributes: { recommended: "true", available: "false", name: "x86_64" }
+    assert_xml_tag tag: "entry", attributes: { recommended: "true", available: "true", name: "x86_64" }
     assert_xml_tag tag: "entry", attributes: { recommended: "false", available: "false", name: "ppc" }
  
   end
@@ -47,7 +55,6 @@ class ArchitecturesControllerTest < ActionController::IntegrationTest
     # temporary disabled to create
     post "/architectures/futurearch", "<architecture><available>true</available></architecture>"
     assert_response 404 
-    assert_xml_tag tag: "status", attributes: { code: "not_found" }
 
   end
 

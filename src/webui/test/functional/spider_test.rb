@@ -44,6 +44,7 @@ class SpiderTest < ActionDispatch::IntegrationTest
   def raiseit(message, url)
     # known issues
     return if url =~ %r{/package/binary\?.*project=BinaryprotectedProject}
+    return if url =~ %r{/package/statistics\?.*project=BinaryprotectedProject}
     return if url.end_with? "/package/binary?arch=i586&filename=package-1.0-1.src.rpm&package=pack&project=SourceprotectedProject&repository=repo"
     return if url.end_with? "/package/revisions?package=pack&project=SourceprotectedProject"
     return if url.end_with? "/package/revisions?package=target&project=SourceprotectedProject"
@@ -80,7 +81,7 @@ class SpiderTest < ActionDispatch::IntegrationTest
       @pages_to_visit.delete theone
 
       begin
-	#puts "V #{theone} #{@pages_to_visit.length}/#{@pages_visited.keys.length+@pages_to_visit.length}"
+	puts "V #{theone} #{@pages_to_visit.length}/#{@pages_visited.keys.length+@pages_to_visit.length}"
         page.visit(theone)
         page.first(:id, 'header-logo')
       rescue Timeout::Error
@@ -91,7 +92,7 @@ class SpiderTest < ActionDispatch::IntegrationTest
       end
       body = nil
       begin
-        body = Nokogiri::XML::Document.parse(page.source, nil, nil, Nokogiri::XML::ParseOptions::STRICT).root
+        body = Nokogiri::HTML::Document.parse(page.source).root
       rescue Nokogiri::XML::SyntaxError
         #puts "HARDCORE!! #{theone}"
       end

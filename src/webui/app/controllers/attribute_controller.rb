@@ -33,16 +33,19 @@ class AttributeController < ApplicationController
     values = params[:values].split(',')
     namespace, name = params[:attribute].split(/:/)
     @attributes.set(namespace, name, values)
-    result = @attributes.save
-    Attribute.free_cache( @attribute_opts )
     if params[:package]
-      opt = {:controller => :package, :action => :attributes, :project => @project.name }
+      opt = {:controller => :package, :action => :attributes, :project => @project.name, package: params[:package] }
     elsif params[:project]
       opt = {:controller => :project, :action => :attributes, :project => @project.name }
     end
-    opt.store( :package, params[:package] ) if params[:package]
-    flash[result[:type]] = result[:msg]
-    redirect_to opt
+
+    begin
+      @attributes.save
+      redirect_to opt, notice: "Attribute sucessfully added!"
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = "Saving attribute failed: #{e.summary}"
+      redirect_to opt
+    end
   end
 
   def delete
@@ -78,6 +81,6 @@ private
     @package = find_cached(Package, params[:package], :project => @project.name) if params[:package]
     @attribute_opts = {:project => @project.name}
     @attribute_opts.store(:package, @package.to_s) if @package
-    @attributes = find_cached(Attribute, @attribute_opts, :expires_in => 2.minutes)
+    @attributes = Attribute.find(@attribute_opts)
   end
 end

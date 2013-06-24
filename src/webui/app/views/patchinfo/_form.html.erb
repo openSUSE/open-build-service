@@ -69,7 +69,7 @@
             </p>
           </div>
           <div class="box show_left show_right">
-            <%= link_to "Update issues from sources", {:action => "updatepatchinfo", :project => @project, :package => @package}, {:confirm => "Attention! All unsaved data getting lost! Continue?", :method => :post } %>
+		  <%= link_to "Update issues from sources", {:action => "updatepatchinfo", :project => @project, :package => @package}, {data: { confirm: "Attention! All unsaved data getting lost! Continue?"}, :method => :post } %>
           </div>
         </div>
         <div class="box show_left show_right">

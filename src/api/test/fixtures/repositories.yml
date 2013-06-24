@@ -35,10 +35,6 @@ repositories_83:
   id: 83
   db_project_id: 601
   name: home_coolo
-repositories_home_Iggy:
-  id: 85
-  db_project_id: 502
-  name: '10.2'
 repositories_87:
   id: 87
   db_project_id: 5001
@@ -79,3 +75,7 @@ repositories_96:
   id: 96
   db_project_id: 3001
   name: repo
+repositories_home_Iggy:
+  id: 85
+  db_project_id: 502
+  name: '10.2'

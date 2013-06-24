@@ -1,8 +1,12 @@
 require File.join File.dirname(__FILE__), '..', 'test_helper'
 
 include ApplicationHelper
-include ActionView::Helpers::TagHelper
 
+module ApplicationHelper
+  def image_tag(filename, opts = {})
+    "<img class='#{opts.inspect}'/>"
+  end
+end
 class ApplicationHelperTest < ActiveSupport::TestCase
   def test_repo_status_icon
     # Regular
@@ -20,9 +24,5 @@ class ApplicationHelperTest < ActiveSupport::TestCase
     status = ApplicationHelper::repo_status_icon("undefined")
     status.must_match(/icons-eye/)
     status.must_match(/Unknown state/)
-  end
-
-  def test_sponsors
-    assert_not_nil get_random_sponsor_image
   end
 end

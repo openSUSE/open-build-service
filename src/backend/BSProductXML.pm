@@ -149,6 +149,7 @@ our $product = [
               [],
              'producttheme',
              'betaversion',
+             'mainproduct',
              [ 'linguas' =>
                [],
                [[ 'language' => '_content' ]],

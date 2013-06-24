@@ -1,10 +1,10 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'nokogiri'
 
-class AllRoutesTest < ActionController::IntegrationTest
+class AllRoutesTest < ActionDispatch::IntegrationTest
 
   test "visit all routes" do
-    # rake routes | cut -b-40 | sed -e 's,  *,,g' | grep -v '^$' | sed -e 's,^\(.*\),visit \1_path,' 
+    # rake routes | cut -b-40 | sed -e 's,  *,,g' | grep -v '^$' | sed -e 's,^\(.*\),    urls << \1_path,' 
     urls = Array.new
     urls << main_systemstatus_path
     urls << main_news_path
@@ -31,14 +31,6 @@ class AllRoutesTest < ActionController::IntegrationTest
     urls << driver_update_edit_path
     urls << driver_update_save_path
     urls << driver_update_binaries_path
-    urls << autocomplete_groups_path
-    urls << groups_path
-    urls << home_path
-    urls << home_my_work_path
-    urls << home_requests_path
-    urls << home_home_project_path
-    urls << home_list_my_path
-    urls << home_remove_watched_project_path
     urls << monitor_path
     urls << monitor_old_path
     urls << monitor_update_building_path
@@ -195,15 +187,33 @@ class AllRoutesTest < ActionController::IntegrationTest
     urls << request_set_incident_path
     urls << search_path
     urls << search_owner_path
-    urls << user_do_login_path
-    urls << user_edit_path
     urls << user_register_path
     urls << user_register_user_path
     urls << user_login_path
     urls << user_logout_path
     urls << user_save_path
+    urls << user_save_dialog_path
     urls << user_change_password_path
+    urls << user_password_dialog_path
+    urls << user_confirm_path
+    urls << user_lock_path
+    urls << user_admin_path
+    urls << user_delete_path
     urls << user_autocomplete_path
+    urls << user_tokens_path
+    urls << user_do_login_path
+    urls << group_show_path
+    urls << group_add_path
+    urls << group_save_path
+    urls << group_autocomplete_path
+    urls << group_tokens_path
+    urls << group_edit_path
+    urls << home_path
+    urls << home_my_work_path
+    urls << home_list_my_path
+    urls << home_requests_path
+    urls << home_home_project_path
+    urls << home_remove_watched_project_path
     urls << apidocs_path
     urls << apidocs_index_path
 

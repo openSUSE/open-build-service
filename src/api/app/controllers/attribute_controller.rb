@@ -14,7 +14,7 @@ class AttributeController < ApplicationController
     valid_http_methods :get
 
     if params[:namespace]
-      if not AttribNamespace.find_by_name( params[:namespace], :select => "id,name" )
+      if not AttribNamespace.select("id,name").find_by_name( params[:namespace] )
         render_error :status => 400, :errorcode => 'unknown_namespace',
           :message => "Attribute namespace does not exist: #{params[:namespace]}"
         return
@@ -36,7 +36,6 @@ class AttributeController < ApplicationController
 
   # /attribute/:namespace/_meta
   def namespace_definition
-    valid_http_methods :get, :delete, :post
 
     if params[:namespace].nil?
       render_error :status => 400, :errorcode => 'missing_parameter',
@@ -46,7 +45,7 @@ class AttributeController < ApplicationController
     namespace = params[:namespace]
 
     if request.get?
-      an = AttribNamespace.find_by_name( namespace, :select => "id,name" )
+      an = AttribNamespace.select("id,name").find_by_name(namespace)
       if an
         render :text => an.render_axml, :content_type => 'text/xml'
       else
@@ -99,8 +98,6 @@ class AttributeController < ApplicationController
 
   # /attribute/:namespace/:name/_meta
   def attribute_definition
-    valid_http_methods :get, :delete, :post
-
     if params[:namespace].nil?
       render_error :status => 400, :errorcode => 'missing_parameter',
         :message => "parameter 'namespace' is missing"

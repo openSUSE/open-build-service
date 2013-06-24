@@ -226,11 +226,11 @@ case "$1" in
 	if [ "--zvm" == "$vmopt" ]; then
 	    check_vmcp || rc_status -v
 	    create_initrd $OBS_VM_KERNEL $OBS_VM_INITRD || rc_status -v
+            if [ -n "$OBS_WORKER_INSTANCE_NAMES" ]; then
+                WORKERS=($OBS_WORKER_INSTANCE_NAMES)
+                NUM=${#WORKERS[*]}
+            fi
 	fi
-	if [ -n "$OBS_WORKER_INSTANCE_NAMES" ]; then
-	    WORKERS=($OBS_WORKER_INSTANCE_NAMES)
-	    NUM=${#WORKERS[*]}
-        fi
 
         if [ -n "$OBS_WORKER_OWNER" ]; then
             HOSTOWNER="--owner $OBS_WORKER_OWNER"

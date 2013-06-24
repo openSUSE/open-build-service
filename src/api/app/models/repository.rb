@@ -4,9 +4,10 @@ class Repository < ActiveRecord::Base
 
   before_destroy :cleanup_before_destroy
 
-  has_many :release_targets, :class_name => "ReleaseTarget", :foreign_key => 'repository_id'
+  has_many :release_targets, :class_name => "ReleaseTarget", :dependent => :delete_all, :foreign_key => 'repository_id'
   has_many :path_elements, :foreign_key => 'parent_id', :dependent => :delete_all, :order => "position"
   has_many :links, :class_name => "PathElement", :foreign_key => 'repository_id'
+  has_many :targetlinks, :class_name => "ReleaseTarget", :foreign_key => 'target_repository_id'
   has_many :download_stats
   has_one :hostsystem, :class_name => "Repository", :foreign_key => 'hostsystem_id'
 
@@ -41,7 +42,25 @@ class Repository < ActiveRecord::Base
       end
       lrep.project.store({:lowprio => true})
     end
-
+    # target repos
+    logger.debug "remove target repositories from repository #{self.project.name}/#{self.name}"
+    self.linking_target_repositories.each do |lrep|
+      lrep.targetlinks.includes(:target_repository, :repository).each do |rt|
+        next unless rt.target_repository == self # this is not pointing to our repo
+        del_repo ||= Project.find_by_name("deleted").repositories[0]
+        repo = rt.repository
+        if lrep.targetlinks.where(repository_id: del_repo).size > 0
+          # repo has already a path element pointing to del_repo
+          logger.debug "destroy release target #{rt.target_repository.project.name}/#{rt.target_repository.name}"
+          rt.destroy 
+        else
+          logger.debug "set deleted repo for releasetarget #{rt.target_repository.project.name}/#{rt.target_repository.name}"
+          rt.target_repository = del_repo
+          rt.save
+        end
+        repo.project.store({:lowprio => true})
+      end
+    end
   end
 
   class << self
@@ -67,8 +86,13 @@ class Repository < ActiveRecord::Base
     links.map {|l| l.repository}
   end
 
+  def linking_target_repositories
+    return [] if targetlinks.size == 0
+    targetlinks.map {|l| l.target_repository}
+  end
+
   def to_axml_id
-    return "<repository project='#{project.name.to_xs}' name='#{name.to_xs}'/>"
+    return "<repository project='#{::Builder::XChar.encode(project.name)}' name='#{::Builder::XChar.encode(name)}'/>"
   end
 
 end

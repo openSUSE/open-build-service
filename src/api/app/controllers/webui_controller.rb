@@ -1,4 +1,4 @@
-require 'yajl'
+require 'json/ext'
 
 include SearchHelper
 
@@ -96,7 +96,6 @@ class WebuiController < ApplicationController
   end
 
   def person_requests_that_need_work
-    valid_http_methods :get
     required_parameters :login
     login = params[:login]
     result = {}
@@ -114,7 +113,6 @@ class WebuiController < ApplicationController
   end
 
   def person_involved_requests
-    valid_http_methods :get
     required_parameters :login
     rel = BsRequest.collection(user: params[:login], states: ['new', 'review'])
     result = rel.select("bs_requests.id").all.map { |r| r.id }
@@ -124,7 +122,6 @@ class WebuiController < ApplicationController
 
   # TODO - put in use
   def package_flags
-    valid_http_methods :get
     required_parameters :project, :package
 
     project_name = params[:project]
@@ -138,7 +135,6 @@ class WebuiController < ApplicationController
 
   # TODO - put in use
   def project_flags
-    valid_http_methods :get
     required_parameters :project
 
     project_name = params[:project]
@@ -148,7 +144,6 @@ class WebuiController < ApplicationController
   end
 
   def request_show
-    valid_http_methods :get
     required_parameters :id
 
     req = BsRequest.find(params[:id])
@@ -156,7 +151,6 @@ class WebuiController < ApplicationController
   end
 
   def request_ids
-    valid_http_methods :get
     required_parameters :ids
     
     rel = BsRequest.where( id: params[:ids].split(',') )
@@ -213,7 +207,6 @@ class WebuiController < ApplicationController
   end
   
   def change_role
-    valid_http_methods :post
     required_parameters :project
     
     if params[:package].blank?
@@ -223,9 +216,9 @@ class WebuiController < ApplicationController
     end
 
     if params.has_key? :userid
-      object = User.find_by_login!(params[:userid])
+      object = User.get_by_login(params[:userid])
     elsif params.has_key? :groupid
-      object = Group.find_by_title!(params[:groupid])
+      object = Group.get_by_title(params[:groupid])
     else
       raise MissingParameterError, "Neither userid nor groupid given"
     end
@@ -261,11 +254,10 @@ class WebuiController < ApplicationController
     Project.connection.execute(projects.to_sql).each do |id, name, title|
       ret[name] = {title: title, important: important[id] ? true : false}
     end
-    render text: Yajl::Encoder.encode(ret), content_type: "application/json"
+    render text: JSON.fast_generate(ret), content_type: "application/json"
   end
 
   def owner
-    valid_http_methods :get
     required_parameters :binary
 
     Suse::Backend.start_test_backend if Rails.env.test?

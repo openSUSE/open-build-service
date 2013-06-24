@@ -56,6 +56,7 @@ sub stdreply {
 sub errreply {
   my ($err, $code, $tag, @hdrs) = @_;
   my $opresult = {'code' => $code, 'summary' => $tag};
+  $opresult->{'details'} = $err if $err && $err ne $tag && $err ne "$tag\n";
   my $opresultxml;
   eval {
     $opresultxml = XMLout($BSXML::opstatus, $opresult);
@@ -107,9 +108,17 @@ sub periodic {
       return;
     }
     unlink("$rundir/$conf->{'name'}.restart");
+    my $arg;
+    my $sock = BSServer::getserversocket();
     # clear close-on-exec bit
-    fcntl(BSServer::getserversocket(), F_SETFD, 0);
-    exec($0, '--restart', fileno(BSServer::getserversocket()));
+    fcntl($sock, F_SETFD, 0);
+    $arg = fileno($sock);
+    my $sock2 = BSServer::getserversocket2();
+    if ($sock2) {
+      fcntl($sock2, F_SETFD, 0);
+      $arg .= ','.fileno($sock2);
+    }
+    exec($0, '--restart', $arg);
     die("$0: $!\n");
   }
 }
@@ -204,17 +213,22 @@ sub server {
   }
   BSServer::deamonize(@{$args || []});
   if ($conf) {
+    my $port = $conf->{'port'};
+    my $port2 = $conf->{'port2'};
     if ($args && @$args && $args->[0] eq '--restart') {
-      BSServer::serveropen("&=$args->[1]", $BSConfig::bsuser, $BSConfig::bsgroup);
-    } else {
-      BSServer::serveropen($conf->{'port'}, $BSConfig::bsuser, $BSConfig::bsgroup);
+      my @ports = split(',', $args->[1]);
+      $port = "&=$ports[0]" if defined $ports[0];
+      $port2 = "&=$ports[1]" if $port2 && defined $ports[1];
+      POSIX::close($ports[1]) if !$port2 && defined $ports[1];
     }
+    BSServer::serveropen($port2 ? "$port,$port2" : $port, $BSConfig::bsuser, $BSConfig::bsgroup);
     $conf->{'ajaxsocketpath'} = $aconf->{'socketpath'} if $aconf;
     unlink("$aconf->{'socketpath'}.lock") if $aconf;
   }
   if ($aconf) {
     if (!$conf || xfork() == 0) {
       $isajax = 1;
+      BSServer::serverclose() if $conf;
       BSServer::serveropen_unix($aconf->{'socketpath'}, $BSConfig::bsuser, $BSConfig::bsgroup);
       my $sev = BSServerEvents::addserver(BSServer::getserversocket(), $aconf);
       $aconf->{'server_ev'} = $sev;	# for periodic_ajax
@@ -230,7 +244,11 @@ sub server {
   # intialize xml converter to speed things up
   XMLin(['startup' => '_content'], '<startup>x</startup>');
 
-  BSServer::msg("$name started on port $conf->{port}");
+  if ($conf->{'port2'}) {
+    BSServer::msg("$name started on ports $conf->{port} and $conf->{port2}");
+  } else {
+    BSServer::msg("$name started on port $conf->{port}");
+  }
   BSServer::server($conf);
   die("server returned\n");
 }

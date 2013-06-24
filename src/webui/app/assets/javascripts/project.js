@@ -1,5 +1,6 @@
-function renderPackagesTable(packages)
+function renderPackagesTable(packages, length)
 {
+    length = (typeof length === "undefined") ? 25 : length;
     var packageurl = $("#packages_table_wrapper").data("url");
     $("#packages_table_wrapper").html( '<table cellpadding="0" cellspacing="0" border="0" class="display" id="packages_table"></table>' );
     $("#packages_table").dataTable( {"aaData": packages, 
@@ -11,12 +12,14 @@ function renderPackagesTable(packages)
 						 var url = packageurl.replace(/REPLACEIT/, encodeURIComponent(obj.aData));
 						 return '<a href="' + url +'">' + obj.aData + '</a>';
 					     }
-					 } ]
+					 } ],
+					 "bStateSave": true
 				    });
 }
 
-function renderProjectsTable()
+function renderProjectsTable(length)
 {
+    length = (typeof length === "undefined") ? 25 : length;
     var projects = main_projects;
     if (!$('#excludefilter').is(":checked"))
 	projects = projects.concat(excl_projects);
@@ -31,9 +34,39 @@ function renderProjectsTable()
 						 var url = projecturl.replace(/REPLACEIT/, encodeURIComponent(obj.aData[0]));
 						 return '<a href="' + url +'">' + obj.aData[0] + '</a>';
 					     }
-					 }, { "sTitle": "Title" } ]
+					 }, { "sTitle": "Title" } ],
+					 "iDisplayLength": length,
+					 "bStateSave": true
 				    });
 }
+
+function renderPackagesProjectsTable(packages, length)
+{
+    length = (typeof length === "undefined") ? 25 : length;
+    var packageurl = $("#packages_projects_table_wrapper").data("url");
+    $("#packages_projects_table_wrapper").html( '<table cellpadding="0" cellspacing="0" border="0" class="display" id="packages_projects_table"></table>' );
+    $("#packages_projects_table").dataTable(
+          {
+          "aaData": packages, 
+          "bPaginate": packages.length > 12,
+          "aoColumns": [
+            {
+            "sTitle": "Package",
+            "fnRender": function ( obj ) {
+              var url1 = packageurl.replace(/REPLACEPKG/, encodeURIComponent(obj.aData[0]));
+              var url = url1.replace(/REPLACEPRJ/, encodeURIComponent(obj.aData[1]));
+              return '<a href="' + url +'">' + obj.aData[0] + '</a>';
+              }
+            },
+            {
+            "sTitle": "Project"
+            }],
+          "iDisplayLength": length,
+          "bStateSave": true
+        });
+}
+
+
 
 function autocomplete_repositories(project_name) 
 {

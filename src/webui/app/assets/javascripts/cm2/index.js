@@ -11,10 +11,6 @@
 // GO AFTER THE REQUIRES BELOW.
 //
 //= require codemirror
-//= require codemirror/utils/searchcursor
-//= require codemirror/utils/search
-//= require codemirror/utils/match-highlighter
-//= require codemirror/utils/formatting
 //= require cm2/toolbars
 //= require cm2/mode/baselibsconf
 //= require cm2/mode/prjconf
@@ -38,14 +34,12 @@
 //= require codemirror/modes/less.js
 //= require codemirror/modes/lua.js
 //= require codemirror/modes/markdown.js
-//= require codemirror/modes/mysql.js
 //= require codemirror/modes/ntriples.js
 //= require codemirror/modes/ocaml.js
 //= require codemirror/modes/pascal.js
 //= require codemirror/modes/perl.js
 //= require codemirror/modes/php.js
 //= require codemirror/modes/pig.js
-//= require codemirror/modes/plsql.js
 //= require codemirror/modes/properties.js
 //= require codemirror/modes/python.js
 //= require codemirror/modes/r.js

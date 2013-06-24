@@ -88,6 +88,17 @@ our @flags = (
       [ 'access' => @disableenable ],
 );
 
+our @roles = (
+     [[ 'person' =>
+            'role',
+            'userid',
+     ]],
+     [[ 'group' =>
+            'role',
+            'groupid',
+     ]],
+);
+
 our $download = [
     'download' =>
     'baseurl',
@@ -119,14 +130,7 @@ our $proj = [
       [ 'devel', =>
 	    'project',
       ],
-     [[ 'person' =>
-            'role',
-            'userid',
-     ]],
-     [[ 'group' =>
-            'role',
-            'groupid',
-     ]],
+	@roles,
       [ $download ],
 	$maintenance,
       [ 'attributes' => 
@@ -171,14 +175,7 @@ our $pack = [
 	    'project',
 	    'package',
       ],
-     [[ 'person' =>
-            'role',
-            'userid',
-     ]],
-     [[ 'group' =>
-            'role',
-            'groupid',
-     ]],
+	@roles,
 	@disableenable,
 	@flags,
 	'url',
@@ -277,6 +274,7 @@ our $projpack = [
 	    'remoteurl',
 	    'remoteproject',
 	    @flags,
+	    @roles,
 	  [ $repo ],
           [ $download ],
 	 [[ 'package' =>
@@ -304,9 +302,12 @@ our $projpack = [
 	    'remoteurl', 
 	    'remoteproject', 
 	    'remoteroot', 
+	    'partition',
 	    'proto',	# project data not included
 	     [],
 	    'config',
+	    @flags,
+	    @roles,
 	  [ $repo ],
 	    'error',
      ]],
@@ -510,6 +511,7 @@ our $buildinfo = [
      ]],
 	'expanddebug',
 	'followupfile',	# for two-stage builds
+	'masterdispatched',	# dispatched through a master dispatcher
 ];
 
 our $jobstatus = [
@@ -692,6 +694,8 @@ our $worker = [
 
 	'job',		# set when worker is busy
 	'arch',		# set when worker is busy
+	'jobid',	# set when worker is busy
+	'reposerver',	# set when worker is busy and job was masterdispatched
 ];
 
 our $packstatuslist = [
@@ -773,16 +777,20 @@ our $workerstatus = [
             'arch',
 	    'buildavg',
      ]],
-     [[ 'scheduler' =>
-	    'arch',
-	    'state',
-	    'starttime',
-	  [ 'queue' =>
-		'high',
-		'med',
-		'low',
-		'next',
-	  ],
+     [[ 'partition' =>
+	    'name',
+         [[ 'daemon' =>
+		'type',        # scheduler/dispatcher/signer/publisher/warden
+                'arch',        # scheduler only
+                'state',
+                'starttime',
+              [ 'queue' =>     # scheduler only 
+                    'high',
+                    'med',
+                    'low',
+                    'next',
+              ],
+         ]],
      ]],
 ];
 
@@ -1423,6 +1431,17 @@ our $sourcediff = [
       ],
 ];
 
+our $configuration = [
+    'configuration' =>
+	    [],
+            'title',        #webui only
+            'description',  #webui only
+            'name',         #obsname
+          [ 'schedulers' =>
+             [ 'arch' ],
+          ],
+];
+
 our $issue_trackers = [
     'issue-trackers' =>
      [[ 'issue-tracker' =>
@@ -1561,8 +1580,15 @@ our $buildstatistics = [
               [ 'preinstall' => $time ],
               [ 'install' => $time ],
               [ 'main' => $time ],
+              [ 'download' => $time ],
         ],
-#	'cpu' =>
+	[ 'download' =>
+              [],
+              $size,
+              'binaries',
+              'cachehits',
+              'preinstallimage',
+        ]
 ];
 
 

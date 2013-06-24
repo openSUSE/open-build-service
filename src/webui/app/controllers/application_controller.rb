@@ -284,9 +284,14 @@ class ApplicationController < ActionController::Base
     xmlbody.gsub!(%r{ data-\S+=\"[^\"]*\"}, ' ')
     xmlbody.gsub!(%r{ autocomplete=\"[^\"]*\"}, ' ')
     xmlbody.gsub!(%r{ placeholder=\"[^\"]*\"}, ' ')
+    xmlbody.gsub!(%r{ <tester .*}, ' ')
+    xmlbody.gsub!('</tester>', ' ')
     xmlbody.gsub!(%r{ type=\"range\"}, ' type="text"')
     xmlbody.gsub!(%r{ min=\"[^\"]*\"}, ' ')
     xmlbody.gsub!(%r{ max=\"[^\"]*\"}, ' ')
+    xmlbody.gsub!(%r{(<script src="[^\"]*\")>}, '\1 type="application/javascript">')
+    xmlbody.gsub!('<script>', '<script type="application/javascript">')
+    xmlbody.gsub!(%r{<mark>(.*)</mark>}, '<b>\1</b>')
     xmlbody.gsub!('<!DOCTYPE html>', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">')
     xmlbody.gsub!('<html>', '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">')
 
@@ -338,6 +343,7 @@ class ApplicationController < ActionController::Base
     at_exit do
        puts "Killing test API with pid: #{@@frontend.pid}"
        Process.kill "INT", @@frontend.pid
+       Process.wait
        @@frontend = nil
     end
   end
