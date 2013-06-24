@@ -124,8 +124,10 @@ class Person < ActiveXML::Node
   end
 
   def involved_projects
-    predicate = "person/@userid='#{login}'"
+    predicate = "(person/@userid='#{login}'"
     groups.each {|group| predicate += " or group/@groupid='#{group}'"}
+    predicate += ") and @kind!='maintenance_incident'"
+    logger.debug "Searching for involved projects of #{login} with #{predicate}"
     Collection.find_cached(:what => 'project', :predicate => predicate)
   end
 
