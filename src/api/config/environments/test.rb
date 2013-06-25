@@ -8,9 +8,6 @@ OBSApi::Application.configure do
   # and recreated between test runs.  Don't rely on the data there!
   config.cache_classes = true
 
-  # Log error messages when you accidentally call methods on nil.
-  config.whiny_nils    = true
-
   # Show full error reports and disable caching
   # local requests don't trigger the global exception handler -> set to false
   config.consider_all_requests_local = false
@@ -20,12 +17,12 @@ OBSApi::Application.configure do
   # The :test delivery method accumulates sent emails in the
   # ActionMailer::Base.deliveries array.
   config.action_mailer.delivery_method = :test
-  config.active_record.mass_assignment_sanitizer = :strict
 
   config.cache_store = :memory_store
 
   config.active_support.deprecation = :log
 
+  config.eager_load = false
 end
 
 CONFIG['source_host'] = "localhost"

@@ -5,18 +5,16 @@ class Repository < ActiveRecord::Base
   before_destroy :cleanup_before_destroy
 
   has_many :release_targets, :class_name => "ReleaseTarget", :dependent => :delete_all, :foreign_key => 'repository_id'
-  has_many :path_elements, :foreign_key => 'parent_id', :dependent => :delete_all, :order => "position"
+  has_many :path_elements, -> { order("position") }, foreign_key: 'parent_id', dependent: :delete_all
   has_many :links, :class_name => "PathElement", :foreign_key => 'repository_id'
   has_many :targetlinks, :class_name => "ReleaseTarget", :foreign_key => 'target_repository_id'
   has_many :download_stats
   has_one :hostsystem, :class_name => "Repository", :foreign_key => 'hostsystem_id'
 
-  has_many :repository_architectures, :order => "position", :dependent => :delete_all
-  has_many :architectures, :through => :repository_architectures, :order => "position"
+  has_many :repository_architectures, -> { order("position") }, :dependent => :delete_all
+  has_many :architectures, -> { order("position") }, :through => :repository_architectures
 
-  attr_accessible :name
-
-  scope :not_remote, where(:remote_project_name => nil)
+  scope :not_remote, -> { where(:remote_project_name => nil) }
 
   validate :validate_duplicates, :on => :create
   def validate_duplicates
@@ -72,7 +70,7 @@ class Repository < ActiveRecord::Base
 
       local_project, remote_project = Project.find_remote_project(project)
       if local_project
-        return find_or_create_by_db_project_id_and_name_and_remote_project_name(local_project.id, repo, remote_project)
+        return local_project.repositories.find_or_create_by(name: repo, remote_project_name: remote_project)
       end
 
       return nil

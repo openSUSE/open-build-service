@@ -18,6 +18,7 @@
 //= require jquery.expander.js
 //= require jquery.flot.js
 //= require jquery.flot.stack.js
+//= require jquery.ui.autocomplete
 //= require dataTables/jquery.dataTables
 //= require jquery.tokeninput
 //= require bento/script.js

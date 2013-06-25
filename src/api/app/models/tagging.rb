@@ -8,6 +8,4 @@ class Tagging < ActiveRecord::Base
   belongs_to :packages,  :class_name => "Package",
                             :foreign_key => "taggable_id"
 
-  attr_accessible nil
-
 end

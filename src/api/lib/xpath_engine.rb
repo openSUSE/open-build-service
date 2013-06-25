@@ -205,7 +205,6 @@ class XpathEngine
     @base_table = @tables[tablename]
     raise IllegalXpathError, "unknown table #{tablename}" unless @base_table
 
-
     while @stack.length > 0
       token = @stack.shift
       #logger.debug "next token: #{token.inspect}"
@@ -238,35 +237,31 @@ class XpathEngine
 
     #logger.debug "-------------------- end parsing xpath: #{xpath} ---------------------"
 
-    model = nil
-    select = nil
+    relation = nil
     case @base_table
     when 'packages'
-      model = Package
+      relation = Package.select("distinct(packages.id),packages.*")
       includes = [:project]
-      select = "distinct(packages.id),packages.*"
     when 'projects'
-      model = Project
+      relation = Project.all
       if opt["render_all"]
-        select = "distinct(projects.id),projects.*"
+        relation = relation.select("distinct(projects.id),projects.*")
         includes = [:repositories]
       else
         includes = []
-        select = "distinct(projects.id),projects.name"
+        relation = relation.select("distinct(projects.id),projects.name")
       end
     when 'repositories'
-      model = Repository
+      relation = Repository.select("distinct(repositories.id),repositories.*")
       includes = [:project]
-      select = "distinct(repositories.id),repositories.*"
     when 'requests'
-      model = BsRequest
+      relation = BsRequest.select("distinct(bs_requests.id),bs_requests.*")
       includes = [:bs_request_actions, :bs_request_histories, :reviews]
-      select = "distinct(bs_requests.id),bs_requests.*"
     when 'users'
-      model = User
+      relation = User.all
       includes = []
     when 'issues'
-      model = Issue
+      relation = Issue.all
       includes = [:issue_tracker]
     else
       logger.debug "strange base table: #{@base_table}"
@@ -281,9 +276,10 @@ class XpathEngine
     @limit = opt['limit'].to_i if opt['limit']
     @offset = opt['offset'].to_i if opt['offset']
 
-    logger.debug("#{model.class}.find_each #{ { :select => select, :include => includes, :joins => @joins.flatten.uniq.join(' '),
-                    :conditions => cond_ary, :order => @sort_order, :group => model.table_name + ".id" }.inspect }")
-    model.includes(includes).joins(@joins.flatten.uniq.join(" ")).where(cond_ary).order(@sort_order).select(select).each do |item|
+    logger.debug("#{relation.to_sql}.find_each #{ { :include => includes, :joins => @joins.flatten.uniq.join(' '),
+                    :conditions => cond_ary, :order => @sort_order, }.inspect }")
+    relation = relation.includes(includes).references(includes)
+    relation.joins(@joins.flatten.uniq.join(" ")).where(cond_ary).order(@sort_order).each do |item|
       # Add some pagination. Standard :offset & :limit aren't available for ActiveModel#find_each,
       # and the :start param only works on primary keys, but we're in a block so we can control
       # what we 'yield' after we constructed our (presumably) huge table with find_each...

@@ -26,12 +26,10 @@ class Group < ActiveRecord::Base
                           :message => 'is the name of an already existing group.'
 
   # groups have a n:m relation to user
-  has_and_belongs_to_many :users, :uniq => true
+  has_and_belongs_to_many :users, -> { uniq() }
   # groups have a n:m relation to groups
-  has_and_belongs_to_many :roles, :uniq => true
+  has_and_belongs_to_many :roles, -> { uniq() }
 
-  attr_accessible :title
-  
   class << self
     def render_group_list(user=nil)
 
@@ -142,7 +140,7 @@ class Group < ActiveRecord::Base
     role = Role.rolecache["maintainer"]
 
     ### all projects where user is maintainer
-    projects = ProjectGroupRoleRelationship.where(bs_group_id: id, role_id: role.id).select(:db_project_id).all.map {|ur| ur.db_project_id }
+    projects = ProjectGroupRoleRelationship.where(bs_group_id: id, role_id: role.id).select(:db_project_id).map {|ur| ur.db_project_id }
 
     projects.uniq
   end
@@ -162,7 +160,7 @@ class Group < ActiveRecord::Base
     projects << -1 if projects.empty?
 
     # all packages where group is maintainer
-    packages = PackageGroupRoleRelationship.where(bs_group_id: id, role_id: role.id).joins(:package).where("packages.db_project_id not in (?)", projects).select(:db_package_id).all.map {|ur| ur.db_package_id}
+    packages = PackageGroupRoleRelationship.where(bs_group_id: id, role_id: role.id).joins(:package).where("packages.db_project_id not in (?)", projects).select(:db_package_id).map {|ur| ur.db_package_id}
 
     return Package.where(id: packages).where("db_project_id not in (?)", projects)
   end

@@ -7,7 +7,7 @@ require 'opensuse/validator'
 require 'rexml/document'
 require 'api_exception'
 
-class ApplicationController < ActionController::API
+class ApplicationController < ActionController::Base
 
   class InvalidHttpMethodError < APIException
     setup 'invalid_http_method'
@@ -27,17 +27,17 @@ class ApplicationController < ActionController::API
   @http_user = nil
   @skip_validation = false
 
-  before_filter :validate_xml_request, :add_api_version
+  before_action :validate_xml_request, :add_api_version
   if CONFIG['response_schema_validation'] == true
-    after_filter :validate_xml_response
+    after_action :validate_xml_response
   end
 
   # skip the filter for the user stuff
-  before_filter :extract_user
-  before_filter :setup_backend
-  before_filter :shutup_rails
-  before_filter :set_current_user
-  before_filter :validate_params
+  before_action :extract_user
+  before_action :setup_backend
+  before_action :shutup_rails
+  before_action :set_current_user
+  before_action :validate_params
 
   #contains current authentification method, one of (:proxy, :basic)
   attr_accessor :auth_method

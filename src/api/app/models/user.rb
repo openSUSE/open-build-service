@@ -16,17 +16,11 @@ class User < ActiveRecord::Base
   @@ldap_search_con = nil
   
   # users have a n:m relation to group
-  has_and_belongs_to_many :groups, :uniq => true
+  has_and_belongs_to_many :groups, -> { uniq() }
   # users have a n:m relation to roles
-  has_and_belongs_to_many :roles, :uniq => true
+  has_and_belongs_to_many :roles, -> { uniq() }
   # users have 0..1 user_registration records assigned to them
   has_one :user_registration
-
-  # We don't want to assign things to roles and groups in bulk assigns.
-  #attr_protected :roles, :groups, :created_at, :updated_at, :last_logged_in_at, :login_failure_count, :password_hash_type
-  # NOTE: Can't mix attr_protected and attr_accessible, but we set the latter to nil by default since
-  # git commit 107d7a612. Thus we have to explicitly list the allowed attributes:
-  attr_accessible :login, :email, :realname, :password, :password_confirmation, :state
 
   # This method returns an array with the names of all available
   # password hash types supported by this User class.
@@ -1262,10 +1256,10 @@ class User < ActiveRecord::Base
     role = Role.rolecache["maintainer"]
 
     ### all projects where user is maintainer
-    projects = ProjectUserRoleRelationship.where(bs_user_id: id, role_id: role.id).select(:db_project_id).all.map {|ur| ur.db_project_id }
+    projects = ProjectUserRoleRelationship.where(bs_user_id: id, role_id: role.id).select(:db_project_id).map {|ur| ur.db_project_id }
 
     # all projects where user is maintainer via a group
-    projects += ProjectGroupRoleRelationship.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).select(:db_project_id).all.map {|ur| ur.db_project_id } 
+    projects += ProjectGroupRoleRelationship.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).select(:db_project_id).map {|ur| ur.db_project_id } 
 
     projects.uniq
   end
@@ -1285,10 +1279,10 @@ class User < ActiveRecord::Base
     projects << -1 if projects.empty?
 
     # all packages where user is maintainer
-    packages = PackageUserRoleRelationship.where(bs_user_id: id, role_id: role.id).joins(:package).where("packages.db_project_id not in (?)", projects).select(:db_package_id).all.map {|ur| ur.db_package_id}
+    packages = PackageUserRoleRelationship.where(bs_user_id: id, role_id: role.id).joins(:package).where("packages.db_project_id not in (?)", projects).select(:db_package_id).map {|ur| ur.db_package_id}
 
     # all packages where user is maintainer via a group
-    packages += PackageGroupRoleRelationship.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).select(:db_package_id).all.map {|ur| ur.db_package_id}
+    packages += PackageGroupRoleRelationship.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).select(:db_package_id).map {|ur| ur.db_package_id}
 
     return Package.where(id: packages).where("db_project_id not in (?)", projects)
   end

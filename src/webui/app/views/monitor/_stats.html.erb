@@ -30,7 +30,7 @@
         <td class="avgjobtime">
           <% @workerstatus.elements("buildavg") do |b|
             if b["arch"] == entrywaiting["arch"]
-              outbuildavg = distance_of_time_in_words(Time.at(b["buildavg"].to_i), Time.at(0), true)
+              outbuildavg = distance_of_time_in_words(Time.at(b["buildavg"].to_i), Time.at(0), include_seconds: true)
             end
           end %>
           <span class="aligncenter"><%= outbuildavg || " - " %> </span>

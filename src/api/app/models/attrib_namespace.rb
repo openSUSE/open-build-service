@@ -4,11 +4,9 @@ class AttribNamespace < ActiveRecord::Base
   has_many :attrib_types, :dependent => :destroy
   has_many :attrib_namespace_modifiable_bies, :class_name => 'AttribNamespaceModifiableBy', :dependent => :destroy
 
-  attr_accessible :name
-
   class << self
     def list_all
-      AttribNamespace.select("id,name").all
+      AttribNamespace.select("id,name")
     end
   end
 
@@ -35,7 +33,7 @@ class AttribNamespace < ActiveRecord::Base
 
   def render_axml
     builder = Nokogiri::XML::Builder.new
-    abies = attrib_namespace_modifiable_bies.includes([:user, :group]).all
+    abies = attrib_namespace_modifiable_bies.includes([:user, :group])
     if abies.length > 0
       builder.namespace(:name => self.name) do |an|
          abies.each do |mod_rule|

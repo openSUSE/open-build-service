@@ -22,7 +22,7 @@ class PersonController < ApplicationController
 
     if request.get?
       if params[:prefix]
-        list = User.where("login LIKE ?", params[:prefix] + '%').all
+        list = User.where("login LIKE ?", params[:prefix] + '%')
       else
         list = User.all
       end

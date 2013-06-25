@@ -5,6 +5,4 @@ class WatchedProject < ActiveRecord::Base
   validates :project_id, presence: true
   validates :bs_user_id, presence: true
  
-  attr_accessible :bs_user_id, :project_id
-
 end

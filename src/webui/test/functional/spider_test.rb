@@ -62,6 +62,7 @@ class SpiderTest < ActionDispatch::IntegrationTest
     return if url.end_with? "/project/edit?project=RemoteInstance"
     return if url.end_with? "/project/meta?project=HiddenRemoteInstance"
     return if url.end_with? "/project/show?project=HiddenRemoteInstance"
+    return if url.end_with? "/project/edit?project=HiddenRemoteInstance"
 
     $stderr.puts "Found #{message} on #{url}, crawling path"
     indent = ' '
