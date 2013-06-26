@@ -86,6 +86,7 @@ class MaintenanceWorkflowTest < ActionDispatch::IntegrationTest
     
     find(:link, "open request").click
     find(:id, "description_text").text.must_equal "I want the update"
+    page.must_have_text("Release in Base:Distro") 
     fill_in "reason", with: "really? ok"
     find(:id, "accept_request_button").click
     find(:css, "#action_display_0").must_have_text %r{Submit update from package home:tom:branches:BaseDistro2.0:LinkedUpdateProject / pack2 to project My:Maintenance:0}
