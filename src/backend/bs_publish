@@ -37,7 +37,7 @@ use Fcntl qw(:DEFAULT :flock);
 use Data::Dumper;
 use Storable ();
 
-use BSConfig;
+use BSConfiguration;
 use BSRPC;
 use BSUtil;
 use BSDBIndex;

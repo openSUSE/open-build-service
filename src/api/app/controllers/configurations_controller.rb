@@ -14,11 +14,11 @@ class ConfigurationsController < ApplicationController
   # GET /configuration.json
   # GET /configuration.xml
   def show
-    @configuration = ::Configuration.select("title, description, name").first
+    @configuration = ::Configuration.first
     @architectures = Architecture.where(:available => 1)
 
     respond_to do |format|
-      format.xml  
+      format.xml { render :xml => @configuration.render_axml }
       format.json { render :json => @configuration }
     end
   end
@@ -49,13 +49,25 @@ class ConfigurationsController < ApplicationController
         end
       end
 
-      # standard values
-      attribs[:title] = xml["title"] || params["title"].to_s
-      attribs[:description] = xml["description"] || params["description"].to_s
-      attribs[:name] = xml["name"] || params["name"].to_s
-      attribs.keys.each do |k|
-        attribs.delete(k) if attribs[k].blank?
+      # standard values as defined in model
+      keys = ::Configuration::OPTIONS_YML.keys
+      keys.each do |key|
+        # either from xml or via parameters
+        value = xml[key.to_s] || params[key.to_s]
+
+        # is it defined in options.yml
+        if value and not value.blank?
+          v = ::Configuration::map_value( key, value )
+          ov = ::Configuration::map_value( key, ::Configuration::OPTIONS_YML[key] )
+          if ov != v and not ov.blank?
+            render_error :status => 403, :errorcode => 'no_permission_to_change',
+                         :message => "The api has a different value for #{key.to_s} configured in options.yml file. Remove it there first."
+            return
+          end
+          attribs[key] = value
+        end
       end
+
       ret = @configuration.update_attributes(attribs)
       if ret
         @configuration.save!

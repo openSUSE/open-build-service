@@ -66,7 +66,7 @@ class ApplicationController < ActionController::API
 
   def extract_user_public
     # to become _public_ special user 
-    if CONFIG['allow_anonymous']
+    if ::Configuration.first.anonymous
       @http_user = User.find_by_login( "_nobody_" )
       @user_permissions = Suse::Permission.new( @http_user )
       return true
@@ -108,14 +108,14 @@ class ApplicationController < ActionController::API
         # If we do not find a User here, we need to create a user and wait for
         # the confirmation by the user and the BS Admin Team.
         unless @http_user
-          if CONFIG['new_user_registration'] == "deny"
+          if ::Configuration.first.registration == "deny"
             logger.debug( "No user found in database, creation disabled" )
             render_error( :message => "User '#{login}' does not exist<br>#{errstr}", :status => 401 )
             @http_user=nil
             return false
           end
           state = User.states['confirmed']
-          state = User.states['unconfirmed'] if CONFIG['new_user_registration'] == "confirmation"
+          state = User.states['unconfirmed'] if ::Configuration.first.registration == "confirmation"
           # Generate and store a fake pw in the OBS DB that no-one knows
           # FIXME: we should allow NULL passwords in DB, but that needs user management cleanup
           chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
@@ -130,7 +130,7 @@ class ApplicationController < ActionController::API
         # update user data from login proxy headers
         @http_user.update_user_info_from_proxy_env(request.env) unless @http_user.nil?
       else
-        if CONFIG['allow_anonymous']
+        if ::Configuration.first.anonymous
           @http_user = User.find_by_login( "_nobody_" )
           @user_permissions = Suse::Permission.new( @http_user )
           return true
@@ -161,7 +161,7 @@ class ApplicationController < ActionController::API
         #set password to the empty string in case no password is transmitted in the auth string
         passwd ||= ""
       else
-        if @http_user.nil? and CONFIG['allow_anonymous'] 
+        if @http_user.nil? and ::Configuration.first.anonymous
           read_only_hosts = []
           read_only_hosts = CONFIG['read_only_hosts'] if CONFIG['read_only_hosts']
           read_only_hosts << CONFIG['webui_host'] if CONFIG['webui_host'] # this was used in config files until OBS 2.1
@@ -218,7 +218,7 @@ class ApplicationController < ActionController::API
               @http_user.save
             end
           else
-            if CONFIG['new_user_registration'] == "deny"
+            if ::Configuration.first.registration == "deny"
               logger.debug( "No user found in database, creation disabled" )
               render_error( :message => "User '#{login}' does not exist<br>#{errstr}", :status => 401 )
               @http_user=nil
@@ -249,7 +249,7 @@ class ApplicationController < ActionController::API
             end
             newuser.realname = ldap_info[1]
             newuser.state = User.states['confirmed']
-            newuser.state = User.states['unconfirmed'] if CONFIG['new_user_registration'] == "confirmation"
+            newuser.state = User.states['unconfirmed'] if ::Configuration.first.registration == "confirmation"
             newuser.adminnote = "User created via LDAP"
             user_role = Role.find_by_title("User")
             newuser.roles << user_role

@@ -2566,7 +2566,9 @@ end
     assert_response 404
 
     # Create public project, but api config is changed to make it closed
-    CONFIG['allow_user_to_create_home_project'] = false
+    c = Configuration.first
+    c.allow_user_to_create_home_project = false
+    c.save!
     post "/source/home:Iggy/TestPack", :cmd => :branch, :dryrun => "1" 
     assert_response :success
     post "/source/home:Iggy/TestPack", :cmd => :branch
@@ -2582,7 +2584,8 @@ end
     assert_response :success
 
     # cleanup and try again with defaults
-    CONFIG['allow_user_to_create_home_project'] = true
+    c.allow_user_to_create_home_project = true
+    c.save!
     delete "/source/home:fredlibs:branches:home:Iggy"
     assert_response :success
     delete "/source/home:fredlibs"

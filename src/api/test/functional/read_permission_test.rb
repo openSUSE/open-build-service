@@ -928,7 +928,10 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # Create public project, but api config is changed to make it closed
-    CONFIG['default_access_disabled'] = true
+    c = ::Configuration.first
+    orig_value = c.default_access_disabled
+    c.default_access_disabled = true
+    c.save!
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
         '<project name="home:adrian:Project"> <title/> <description/> </project>'
     assert_response :success
@@ -942,7 +945,8 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "status", :attributes => { :code => "change_project_protection_level" }
 
     # enabling access is allowed
-    CONFIG['default_access_disabled'] = nil
+    c.default_access_disabled = orig_value
+    c.save!
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
         '<project name="home:adrian:Project"> <title/> <description/> </project>'
     assert_response :success

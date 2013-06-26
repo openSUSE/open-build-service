@@ -435,6 +435,7 @@ our $buildinfo = [
 	'srcmd5',
 	'verifymd5',
 	'rev',
+	'disturl',
 	'reason',       # just for the explain string of a build reason
 	'needed',       # number of blocked
 	'revtime',	# time of last commit
@@ -1407,13 +1408,31 @@ our $sourcediff = [
 
 our $configuration = [
     'configuration' =>
-	    [],
-            'title',        #webui only
-            'description',  #webui only
-            'name',         #obsname
-          [ 'schedulers' =>
-             [ 'arch' ],
-          ],
+	[],
+	'title',        #webui only
+	'description',  #webui only
+	'name',         #obsname
+	'anonymous',
+	'registration',
+	'default_access_disabled',
+	'allow_user_to_create_home_project',
+	'multiaction_notify_support',
+	'disallow_group_creation',
+	'change_password',
+	'hide_private_options',
+	'gravatar',
+	'enforce_project_keys',
+	'download_on_demand',
+	'download_url',
+	'ymp_url',
+	'errbit_url',
+	'bugzilla_url',
+	'http_proxy',
+	'no_proxy',
+	'theme',
+      [ 'schedulers' =>
+	  [ 'arch' ],
+      ],
 ];
 
 our $issue_trackers = [
