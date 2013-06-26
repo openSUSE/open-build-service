@@ -146,6 +146,45 @@
           <% end %>
         </p>
 
+          <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['tprj'], package: action['tpkg']} %>
+          </b>
+        <% elsif action['type'] == 'add_role' %>
+          <b>
+            <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => action['user']} %>
+            wants the role <b><%= action['role'] %></b> for
+            <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['tprj'], package: action['tpkg']} %>
+          </b>
+        <% elsif action['type'] == 'change_devel' %>
+          <b>
+            Set the devel project to
+            <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['sprj'], package: action['spkg']} %>
+            for
+            <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['tprj'], package: action['tpkg']} %>
+          </b>
+        <% elsif action['type'] == 'maintenance_incident' %>
+          <b>
+            Submit update from
+            <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['sprj'], package: action['spkg'], :homeproject => @req['creator']  } %>
+            to
+            <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['tprj'], package: action['tpkg']} %>
+          </b>
+          <% if action['releaseproject'] %>
+            <br/><i>
+              Release in 
+              <%= action['releaseproject'] %>
+            </i>
+          <% end %>
+        <% elsif action['type'] == 'maintenance_release' %>
+          <b>
+            Release
+            <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['sprj'], package: action['spkg']} %>
+            to
+            <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['tprj'], package: action['tpkg']} %>
+          </b>
+        <% end %>
+      </p>
+>>>>>>> [webui] Show releasetarget for maintenancerequests
+
         <% if action['sourcediff'] %>
             <% action['sourcediff'].each_with_index do |sourcediff, sourcediff_index| %>
                 <div class="grid_10 alpha">
