@@ -15,10 +15,10 @@ puts "Seeding roles table..."
 admin_role      = Role.find_or_create_by_title :title => "Admin", :global => true
 #user_role       = Role.find_or_create_by_title :title => "User", :global => true
 maintainer_role = Role.find_or_create_by_title :title => "maintainer"
+bugowner_role   = Role.find_or_create_by_title :title => "bugowner"
+reviewer_role   = Role.find_or_create_by_title :title => "reviewer"
 downloader_role = Role.find_or_create_by_title :title => 'downloader'
 reader_role     = Role.find_or_create_by_title :title => 'reader'
-Role.find_or_create_by_title :title => 'bugowner'
-Role.find_or_create_by_title :title => 'reviewer'
 
 puts "Seeding users table..."
 admin  = User.find_or_create_by_login :login => 'Admin', :email => "root@localhost", :realname => "OBS Instance Superuser", :state => "2", :password => "opensuse", :password_confirmation => "opensuse"
@@ -90,6 +90,11 @@ at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "Initiali
 at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)
 at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "BranchTarget", :value_count => 0)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)
+
+at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "Issues", :value_count => 0)
+at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)
+at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(bugowner_role.id)
+at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(reviewer_role.id)
 
 at = AttribType.find_or_create_by_attrib_namespace_id_and_name(ans.id, "QualityCategory", :value_count => 1)
 at.attrib_type_modifiable_bies.find_or_create_by_bs_role_id(maintainer_role.id)

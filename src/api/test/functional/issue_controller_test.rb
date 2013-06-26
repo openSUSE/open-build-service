@@ -127,6 +127,14 @@ Aha bnc#123456\n
     put "/source/home:Iggy:branches:BaseDistro/pack_new/file.changes", changes
     assert_response :success
 
+    # add some more via attribute
+    data = "<attributes><attribute namespace='OBS' name='Issues'>
+              <issue name='987' tracker='bnc'/> 
+              <issue name='654' tracker='bnc'/> 
+            </attribute></attributes>"
+    post "/source/home:Iggy:branches:BaseDistro/pack_new/_attribute", data
+    assert_response :success
+
     get "/source/home:Iggy:branches:BaseDistro/pack1?view=issues"
     assert_response :success
     get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues"
@@ -135,6 +143,8 @@ Aha bnc#123456\n
     assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'deleted'}}, :tag => 'name', :content => "14"
     assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
     assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
+    assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "987"
+    assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "654"
 
     get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues&changes=added"
     assert_response :success

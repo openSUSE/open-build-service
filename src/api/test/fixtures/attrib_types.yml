@@ -50,6 +50,12 @@ OBS_RejectRequests:
   id: 64
   name: RejectRequests
   attrib_namespace_id: 9
+OBS_Issues:
+  id: 67
+  name: Issues
+  value_count: 0
+  issue_list: true
+  attrib_namespace_id: 9
 OBS_RequestCloned:
   id: 60
   name: RequestCloned

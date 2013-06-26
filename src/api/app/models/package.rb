@@ -44,7 +44,7 @@ class Package < ActiveRecord::Base
   has_many :attribs, :dependent => :destroy, foreign_key: :db_package_id
 
   has_many :package_kinds, :dependent => :destroy, foreign_key: :db_package_id
-  has_many :package_issues, :dependent => :destroy, foreign_key: :db_package_id
+  has_many :package_issues, :dependent => :destroy, foreign_key: :db_package_id # defined in sources
 
   attr_accessible :name, :title, :description
   after_save :write_to_backend
@@ -731,8 +731,18 @@ class Package < ActiveRecord::Base
       self.package_kinds.each do |k|
         package.kind(k.kind)
       end
-      self.package_issues.each do |i|
-        next if filter_changes and not filter_changes.include? i.change
+      # issues defined in sources
+      issues = self.package_issues
+      # add issues defined in attributes
+      attribs.each do |attr|
+        next unless attr.attrib_type.issue_list
+        issues += attr.issues
+      end
+      # filter and render them
+      issues.each do |i|
+        change = nil
+        change = i.change if i.class == PackageIssue
+        next if filter_changes and (not change or not filter_changes.include? change)
         next if states and (not i.issue.state or not states.include? i.issue.state)
         o = nil
         if i.issue.owner_id
@@ -740,7 +750,7 @@ class Package < ActiveRecord::Base
           o = User.find i.issue.owner_id
         end
         next if login and (not o or not login == o.login)
-        i.issue.render_body(package, i.change)
+        i.issue.render_body(package, change)
       end
     end
 
