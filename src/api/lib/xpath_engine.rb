@@ -41,24 +41,41 @@ class XpathEngine
           ['LEFT JOIN packages develpackage ON develpackage.id = packages.develpackage_id']},
         'issue/@state' => {:cpart => 'issues.state', :joins => 
           ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
-           'LEFT JOIN issues ON issues.id = package_issues.issue_id']},
-        'issue/@name' => {:cpart => 'issues.name', :joins =>
+           'LEFT JOIN issues ON issues.id = package_issues.issue_id',
+           'LEFT JOIN attribs ON attribs.db_package_id = packages.id',
+           'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
+           'LEFT JOIN issues AS issues2 ON issues2.id = attrib_issues.issue_id',
+          ]},
+        'issue/@name' => {:cpart => 'issues.name = ? or issues2.name', :double => true, :joins =>
           ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
            'LEFT JOIN issues ON issues.id = package_issues.issue_id',
+           'LEFT JOIN attribs ON attribs.db_package_id = packages.id',
+           'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
+           'LEFT JOIN issues AS issues2 ON issues2.id = attrib_issues.issue_id',
           ]},
         'issue/@tracker' => {:cpart => 'issue_trackers.name', :joins =>
           ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
-           'LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id'
+           'LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id',
+           'LEFT JOIN attribs ON attribs.db_package_id = packages.id',
+           'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
+           'LEFT JOIN issue_trackers AS issue_trackers2 ON issues.issue_tracker_id = issue_trackers2.id'
           ]},
         'issue/@change' => {:cpart => 'package_issues.change'},
-        'issue/owner/@email' => {:cpart => 'users.email', :joins => 
+        'issue/owner/@email' => {:cpart => 'users2.email = ? or users.email', :double => 1, :joins => 
           ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
            'LEFT JOIN issues ON issues.id = package_issues.issue_id',
-           'LEFT JOIN users ON users.id = issues.owner_id']},
-        'issue/owner/@login' => {:cpart => 'users.login', :joins => 
+           'LEFT JOIN users ON users.id = issues.owner_id',
+           'LEFT JOIN attribs ON attribs.db_package_id = packages.id',
+           'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
+           'LEFT JOIN issues2 ON issues2.id = attrib_issues.issue_id',
+           'LEFT JOIN users AS users2 ON users.id = issues2.owner_id']},
+        'issue/owner/@login' => {:cpart => 'users2.login = ? or users.login', :double => 1, :joins => 
           ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
            'LEFT JOIN issues ON issues.id = package_issues.issue_id',
-           'LEFT JOIN users ON users.id = issues.owner_id']},
+           'LEFT JOIN users ON users.id = issues.owner_id',
+           'LEFT JOIN attribs ON attribs.db_package_id = packages.id',
+           'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
+           'LEFT JOIN users AS users2 ON users2.id = issues.owner_id']},
         'person/@userid' => {:cpart => 'users.login', :joins => 
           ['LEFT JOIN package_user_role_relationships ON packages.id = package_user_role_relationships.db_package_id',
            'LEFT JOIN users ON users.id = package_user_role_relationships.bs_user_id']},
@@ -377,6 +394,8 @@ class XpathEngine
             raise XpathEngine::IllegalXpathError, "attributes must be $NAMESPACE:$NAME"
           end
           @condition_values_needed.times { @condition_values << tvalues }
+        elsif @last_key and @attribs[table][@last_key][:double]
+          @condition_values_needed.times { @condition_values << [value, value] }
         else
           @condition_values_needed.times { @condition_values << value }
         end

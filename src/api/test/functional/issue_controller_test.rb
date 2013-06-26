@@ -152,6 +152,8 @@ Aha bnc#123456\n
     assert_no_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'deleted'}}, :tag => 'name', :content => "14"
     assert_no_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
     assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
+    assert_no_xml_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "987"
+    assert_no_xml_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "654"
 
     get "/source/home:Iggy:branches:BaseDistro/pack_new?view=issues&changes=kept,deleted"
     assert_response :success
@@ -159,6 +161,8 @@ Aha bnc#123456\n
     assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'deleted'}}, :tag => 'name', :content => "14"
     assert_no_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
     assert_no_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
+    assert_no_xml_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "987"
+    assert_no_xml_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "654"
 
     get "/source/home:Iggy:branches:BaseDistro?view=issues&changes=kept,deleted"
     assert_response :success
@@ -166,6 +170,8 @@ Aha bnc#123456\n
     assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'deleted'}}, :tag => 'name', :content => "14"
     assert_no_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
     assert_no_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
+    assert_no_xml_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "987"
+    assert_no_xml_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "654"
 
     get "/source/home:Iggy:branches:BaseDistro?view=issues&login=unknown"
     assert_response :success
@@ -206,6 +212,10 @@ Aha bnc#123456\n
     get "/search/package/id", :match => '[issue/[@name="123456" and @tracker="bnc" and @change="kept"]]'
     assert_response :success
     assert_no_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
+
+    get "/search/package/id", :match => '[issue/[@name="987" and @tracker="bnc"]]'
+    assert_response :success
+    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
 
     #cleanup
     delete "/source/home:Iggy:branches:BaseDistro"
