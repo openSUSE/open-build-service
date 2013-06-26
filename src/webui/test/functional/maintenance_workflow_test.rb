@@ -133,14 +133,14 @@ class MaintenanceWorkflowTest < ActionDispatch::IntegrationTest
     fill_in "incident_project", with: "2"
     find_button("Ok").click
     find(:css, "span.ui-icon.ui-icon-alert").must_have_text "does not exist"
-    
+ 
     find(:link, "Merge with existing incident").click
     fill_in "incident_project", with: "0"
     find_button("Ok").click
     find(:css, "span.ui-icon.ui-icon-info").must_have_text "Set target of request "
     find(:css, "span.ui-icon.ui-icon-info").must_have_text " to incident 0"
     find(:id, "accept_request_button").click
-    
+
     #TODO: make it unique find(:link, "0").click
     visit project_show_path "My:Maintenance:0"
     find(:link, "Request to release").click

@@ -1,11 +1,3 @@
-function enable_block_reason() {
-    if ($("#block").is(":checked")) {
-        $("#block_reason").attr("disabled", "true");
-    } else {
-        $("#block_reason").removeAttr("disabled");
-    }
-}
-
 function append_bug(issue) {
     if (issue.length > 0) {
         $("#issue_spinner").show();
@@ -112,8 +104,17 @@ function stopRKey(evt) {
     }
 }
 
+function toggle_blockreason(){
+    if (!$("#block").is(":checked")) {
+        $("#block_reason").prop('disabled', true);
+    } else {
+        $("#block_reason").prop('disabled', false);
+    }
+}
+
 function patchinfoReady() {
     document.onkeypress = stopRKey;
+    toggle_blockreason();
     $("form").submit(function () {
         $('#selected_binaries option').attr('selected', true);
         $('#available_binaries option').attr('selected', true);
@@ -141,6 +142,7 @@ function patchinfoReady() {
             event.preventDefault();
         }
     });
-    $('#block_checkbox').change(enable_block_reason());
-    enable_block_reason();
+    $('#block').change(function(){
+        toggle_blockreason();
+    });
 }
