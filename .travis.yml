@@ -1,6 +1,6 @@
 language: ruby
 rvm:
-  - 1.9.3
+  - 2.0.0
 before_script: bash -x dist/ci/obs_testsuite_travis_before.sh
 script: bash -x dist/ci/obs_testsuite_travis.sh
 env:
@@ -23,7 +23,6 @@ matrix:
     - env: SUBTEST=api REMOVEGEMLOCK=true
     - env: SUBTEST=webui1 REMOVEGEMLOCK=true
     - env: SUBTEST=webui2 REMOVEGEMLOCK=true
-    - rvm: 2.0.0
 notifications:
   email:
     on_success: change
