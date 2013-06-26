@@ -2,8 +2,6 @@
 # This file contains the default configuration of the Open Build Service API.
 #
 
-# Add also webui_host setting if you want allow anonymous read access via webui
-#allow_anonymous: true
 #read_only_hosts: [ "build.opensuse.org", "software.opensuse.org" ]
 
 # Make use of mod_xforward module in apache
@@ -16,18 +14,6 @@
 # Make use of X-Accel-Redirect for Nginx.
 # http://kovyrin.net/2010/07/24/nginx-fu-x-accel-redirect-remote
 #use_nginx_redirect: /internal_redirect 
-
-# How to register new users, valid options are:
-#   allow:        Everybody who can connect to api or webui can create an
-#                 account and use the service.
-#   confirmation: Everybody who can connect to api or webui can create an
-#                 account, but admin needs to approve the usage.
-#   deny:         Only admin user can create new users.
-new_user_registration: allow
-
-# Allow user to create home projects, which is the default. Disable it here
-# via setting it to "false"
-#allow_user_to_create_home_project: true
 
 # Minimum count of rating votes a project/package needs to # be taken in account
 # for global statistics:
@@ -42,17 +28,6 @@ source_port: 5352
 
 extended_backend_log: false
 
-# Do not allow creating group via API to avoid the conflicts when ldap_group_support is :on
-# If you do want to import the group data from LDAP to OBS DB manuallly, please set if to :off
-disallow_group_creation_with_api: :on
-
-download_url: http://localhost:82/
-
-#ichain_mode
-
-#multiaction_notify_support
-#new_user_registration
-
 # proxy_auth_mode can be :off, :on or :simulate
 proxy_auth_mode: :off
 
@@ -61,14 +36,19 @@ proxy_auth_mode: :off
 # valid user does no further authentication. So take care...
 proxy_auth_test_user: coolguy
 
-yml_url: http://software.opensuse.org/ymp
-
 #schema_location
 
 #version
-#webui_host
 
+# if set to false, the API will only fake writes to backend (useful in testing)
+# global_write_through: true
+
+# see http://colszowka.heroku.com/2011/02/22/setting-up-your-custom-hoptoad-notifier-endpoint-for-free-using-errbit-on-heroku
+#errbit_api_key: api_key_of_your_app
+
+##################
 # LDAP options
+##################
 
 ldap_mode: :off
 
@@ -167,12 +147,3 @@ ldap_group_title_attr: cn
 # The value of the group objectclass attribute, leave it as "" if objectclass attr doesn't exist
 ldap_group_objectclass_attr: groupOfNames
 
-# if set to false, the API will only fake writes to backend (useful in testing)
-# global_write_through: true
-
-# see http://colszowka.heroku.com/2011/02/22/setting-up-your-custom-hoptoad-notifier-endpoint-for-free-using-errbit-on-heroku
-#errbit_api_key: api_key_of_your_app
-#errbit_host: installation.of.errbit.com
-
-# default to access restricted projects
-# default_access_disabled: true

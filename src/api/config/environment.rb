@@ -13,8 +13,6 @@ rescue Exception
 end
 
 CONFIG['schema_location'] ||= File.expand_path("public/schema")+"/"
-CONFIG['download_url'] ||= 'http://download.opensuse.org/repositories'
-CONFIG['ymp_url'] ||= 'http://software.opensuse.org/ymp'
 CONFIG['global_write_through'] ||= true
 
 # Initialize the rails application

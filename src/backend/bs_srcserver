@@ -38,7 +38,7 @@ use Storable ();
 use Symbol;
 use MIME::Base64 ();
 
-use BSConfig;
+use BSConfiguration;
 use BSRPC ':https';
 use BSServer;
 use BSUtil;

@@ -15,12 +15,6 @@ theme: neutral
 # Use static.opensuse.org for static style content
 #use_static: build.o.o
 
-# Download base URL of published binaries
-#download_url: http://myhost:82/
-
-# Bugzilla link url for creating bugreports for projects or packages
-#bugzilla_host: http://bugzilla.myproject.org
-
 # Hide private options in webui, like source or binary protection 
 # hide_private_options: true
 
@@ -35,9 +29,6 @@ theme: neutral
 # http://kovyrin.net/2010/07/24/nginx-fu-x-accel-redirect-remote
 #use_nginx_redirect: /internal_redirect 
 
-# Show option to change password (not possible if passwords are controlled by proxy)
-change_passwd: :on
-
 # if your users access the hosts through a proxy (or just a different name, use this to
 # overwrite the settings for users)
 #external_frontend_host: api.opensuse.org
@@ -51,21 +42,11 @@ change_passwd: :on
 # if the api runs against ldap (:on && :off)
 #frontend_ldap_mode: :on
 
-# enable gravatar icons in webui. This contacts www.gravatar.com and may tell the email adresses
-# of your users if they are registered there.
-#use_gravatar: :off
-
-# Use this http_proxy (currently only used to download garavatar images)
-#http_proxy: 
-
 # hostname of API
 frontend_host: api.opensuse.org
 # port of API
 frontend_port: 443
 frontend_protocol: https
-
-# Do not show options to make projects private
-#hide_private_options: true
 
 # old name for proxy_auth_mode
 #ichain_mode: :off
@@ -85,7 +66,6 @@ proxy_auth_mode: :off
 
 # see http://colszowka.heroku.com/2011/02/22/setting-up-your-custom-hoptoad-notifier-endpoint-for-free-using-errbit-on-heroku
 #errbit_api_key: api_key_of_your_app
-#errbit_host: installation.of.errbit.com
 
 # Your sponsors
 sponsors:

@@ -45,7 +45,7 @@ use Digest::MD5 ();
 use List::Util;
 use Symbol;
 
-use BSConfig;
+use BSConfiguration;
 use BSRPC ':https';
 use BSServer;
 use BSUtil;

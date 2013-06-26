@@ -38,6 +38,16 @@ class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag :parent => { :tag => "schedulers" },
                    :tag => "arch", :content => "i586"
 
+    # overwriting options.yml is not allowed
+    ::Configuration::OPTIONS_YML[:registration] = "allow"
+    put '/configuration?registration=never'
+    assert_response 403
+    assert_xml_tag :tag => "status", :attributes => { :code => "no_permission_to_change" }
+    ::Configuration::OPTIONS_YML[:registration] = "never"
+    put '/configuration?registration=never'
+    assert_response :success
+    ::Configuration::OPTIONS_YML[:registration] = nil
+
     # reset
     put '/configuration', config
     assert_response :success

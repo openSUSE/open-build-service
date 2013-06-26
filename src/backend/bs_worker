@@ -2168,8 +2168,9 @@ sub dobuild {
   writestr("$buildroot/.build.config", undef, $config);
 
   my $release = $buildinfo->{'release'};
-  my $obsinstance = $BSConfig::obsname || '';
-  my $disturl = "obs://$obsinstance/$projid/$repoid/$buildinfo->{'srcmd5'}-$packid";
+  #FIXME2.6: drop the following line
+  my $disturl = "obs://$BSConfig::obsname/$projid/$repoid/$buildinfo->{'srcmd5'}-$packid";
+  my $disturl = $buildinfo->{'disturl'} if $buildinfo->{'disturl'};
 
   my @args;
   push @args, $helper if $helper;

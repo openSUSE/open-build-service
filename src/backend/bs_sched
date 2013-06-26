@@ -36,7 +36,7 @@ use XML::Structured ':bytes';
 use POSIX;
 use Fcntl qw(:DEFAULT :flock);
 
-use BSConfig;
+use BSConfiguration;
 use BSRPC ':https';
 use BSUtil;
 use BSFileDB;
@@ -754,6 +754,7 @@ sub set_building {
     'path' => $searchpath,
     'needed' => $needed,
   };
+  $binfo->{'disturl'} = "obs://$BSConfig::obsname/$projid/$repoid/$pdata->{'srcmd5'}-$packid";
   $binfo->{'syspath'} = $syspath if $syspath;
   $binfo->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
   $binfo->{'constraintsmd5'} = $pdata->{'constraintsmd5'} if $pdata->{'constraintsmd5'};
@@ -1011,6 +1012,7 @@ sub createdeltajob {
     'path' => $searchpath,
     'needed' => 0,
   };
+  $binfo->{'disturl'} = "obs://$BSConfig::obsname/$projid/$repoid/$srcmd5-$packid";
   $binfo->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
 
   writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
@@ -4474,6 +4476,7 @@ sub rebuildkiwiproduct {
     'reason' => $reason->{'explain'},
     'readytime' => $now,
   };
+  $binfo->{'disturl'} = "obs://$BSConfig::obsname/$projid/$repoid/$srcmd5-$packid";
   $binfo->{'syspath'} = $syspath if $syspath;
   $binfo->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
   $binfo->{'revtime'} = $pdata->{'revtime'} if $pdata->{'revtime'};
@@ -5707,7 +5710,8 @@ sub setupremotewatcher {
     'proxy' => $proxy,
   };
   my @args;
-  push @args, "obsname=$BSConfig::obsname/$myarch" if $BSConfig::obsname;
+  my $obsname=$BSConfig::obsname;
+  push @args, "obsname=$obsname/$myarch" if $obsname;
   push @args, map {"filter=$_"} @filter;
   push @args, "start=$start" if $start;
   my $ret;

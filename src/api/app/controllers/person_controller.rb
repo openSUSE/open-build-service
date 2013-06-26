@@ -173,16 +173,16 @@ class PersonController < ApplicationController
       note = ""
     end
 
-    if CONFIG['new_user_registration'] == "deny"
+    if ::Configuration.first.registration == "deny"
       unless @http_user and @http_user.is_admin?
         render_error :message => "User registration is disabled",
                      :errorcode => "err_register_save", :status => 400
         return
       end
-    elsif CONFIG['new_user_registration'] == "confirmation"
+    elsif ::Configuration.first.registration == "confirmation"
       status = "unconfirmed"
-    elsif CONFIG['new_user_registration'] and not CONFIG['new_user_registration'] == "allow"
-      render_error :message => "Admin configured an unknown config option for new_user_registration",
+    elsif ::Configuration.first.registration != "allow"
+      render_error :message => "Admin configured an unknown config option for registration",
                    :errorcode => "server_setup_error", :status => 500
       return
     end

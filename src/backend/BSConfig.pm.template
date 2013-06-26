@@ -44,7 +44,6 @@ if ($frontend) {
   $ipaccess->{$frontendip} = 'rw' ; # in dotted.quad format
 }
 
-our $obsname = $hostname; # unique identifier for this Build Service instance
 # Change also the SLP reg files in /etc/slp.reg.d/ when you touch hostname or port
 our $srcserver = "http://$hostname:5352";
 our $reposerver = "http://$hostname:5252";
@@ -68,17 +67,10 @@ our $repodownload = "http://$hostname/repositories";
 # Notification Plugin, multiple plugins supported, separated by space
 #our $notification_plugin = "notify_hermes notify_rabbitmq";
 #
-#FIXME2.4 belongs in API
-# Does the notify plugin supports multiple actions?
-# Hermes doesn't, BOSS does.
-#our $multiaction_notify_support = 0
 
 # For the workers only, it is possible to define multiple repository servers here.
 # But only one source server is possible yet.
 our @reposervers = ("http://$hostname:5252");
-
-# proxy support:
-#our $proxy = "http(s)://<user:pass>\@<host>:<port>";
 
 # Curl-like interpretation for noproxy, i.e. each name in $noproxy is either
 # a domain containing the hostname or the hostname itself.
@@ -99,9 +91,6 @@ our $bsgroup = 'obsrun';
 # data for all packages, (1) means that only the non-remote packages are fetched,
 # (2) means that all of the package data fetches get delayed.
 # our $sched_startupmode = 0;
-
-# To enable package downloading from backend on demand
-our $enable_download_on_demand = 1;
 
 # Disable fdatasync calls, increases the speed, but may lead to data 
 # corruption on system crash when the filesystem does not guarantees
@@ -155,13 +144,6 @@ our $relsync_pool = {
  "sparc64" => "sparcv9",
 };
 
-# List of power hosts that can handle power jobs for the sake of
-# building critical packages fast.
-#our $powerhosts  = ["build20"];
-
-# List of power packages that can be built on power hosts 
-#our $powerpkgs = [ "glibc", "qt" ]
-
 #No extra stage server sync
 #our $stageserver = 'rsync://127.0.0.1/put-repos-main';
 #our $stageserver_sync = 'rsync://127.0.0.1/trigger-repos-sync';
@@ -175,8 +157,6 @@ our $relsync_pool = {
 #our $sign_project = 1;
 #Global sign key 
 #our $keyfile = '/srv/obs/openSUSE-Build-Service.asc';
-#Create a key by default for new projects, if top level have not one
-#our $forceprojectkeys = 1;
 
 # Use a special local arch for product building
 # our $localarch = "x86_64";
