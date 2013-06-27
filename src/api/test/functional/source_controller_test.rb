@@ -2979,9 +2979,9 @@ end
                    "title"=>"Strange XML",
                    "description"=>{},
                    "person"=>
-                   [{"userid"=>"tom", "role"=>"maintainer"},
-                    {"userid"=>"tom", "role"=>"bugowner"},
-                    {"userid"=>"Iggy", "role"=>"maintainer"}]}, ret)
+                   [{"userid"=>"tom", "role"=>"bugowner"},
+                    {"userid"=>"Iggy", "role"=>"maintainer"},
+                    {"userid"=>"tom", "role"=>"maintainer"}]}, ret)
 
     ret = duplicated_user_test("package", "group", "/source/home:Iggy/TestPack/_meta")
     assert_equal({"name"=>"TestPack",
@@ -2990,17 +2990,17 @@ end
                    "description"=>{},
                    "person"=>{"userid"=>"Iggy", "role"=>"maintainer"},
                    "group"=>
-                   [{"groupid"=>"test_group", "role"=>"maintainer"},
-                    {"groupid"=>"test_group", "role"=>"bugowner"}]}, ret)
+                   [{"groupid"=>"test_group", "role"=>"bugowner"},
+                    {"groupid"=>"test_group", "role"=>"maintainer"}]}, ret)
 
     ret = duplicated_user_test("project", "user", "/source/home:Iggy/_meta")
     assert_equal({"name"=>"home:Iggy",
                    "title"=>"Strange XML",
                    "description"=>{},
                    "person"=>
-                   [{"userid"=>"tom", "role"=>"maintainer"},
-                    {"userid"=>"tom", "role"=>"bugowner"},
-                    {"userid"=>"Iggy", "role"=>"maintainer"}]}, ret)
+                   [{"userid"=>"tom", "role"=>"bugowner"},
+                    {"userid"=>"Iggy", "role"=>"maintainer"},
+                    {"userid"=>"tom", "role"=>"maintainer"}]}, ret)
                  
     ret = duplicated_user_test("project", "group", "/source/home:Iggy/_meta")
     assert_equal({"name"=>"home:Iggy",
@@ -3008,8 +3008,8 @@ end
                    "description"=>{},
                    "person"=>{"userid"=>"Iggy", "role"=>"maintainer"},
                    "group"=>
-                   [{"groupid"=>"test_group", "role"=>"maintainer"},
-                    {"groupid"=>"test_group", "role"=>"bugowner"}]}, ret)
+                   [{"groupid"=>"test_group", "role"=>"bugowner"},
+                    {"groupid"=>"test_group", "role"=>"maintainer"}]}, ret)
   end
 
   test "store invalid package" do

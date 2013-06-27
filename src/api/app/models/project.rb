@@ -932,7 +932,7 @@ class Project < ActiveRecord::Base
   end
 
   def each_user( opt={}, &block )
-    users = project_user_role_relationships.joins(:role, :user).select("users.login as login, roles.title as roletitle")
+    users = project_user_role_relationships.joins(:role, :user).select("users.login as login, roles.title as roletitle").order("roletitle, login")
     if( block )
       users.each do |u|
         block.call(u.login, u.roletitle)
@@ -942,7 +942,7 @@ class Project < ActiveRecord::Base
   end
 
   def each_group( opt={}, &block )
-    groups = project_group_role_relationships.joins(:role, :group).select("groups.title as grouptitle, roles.title as roletitle")
+    groups = project_group_role_relationships.joins(:role, :group).select("groups.title as grouptitle, roles.title as roletitle").order("roletitle, grouptitle")
     if( block )
       groups.each do |g|
         block.call(g.grouptitle, g.roletitle)

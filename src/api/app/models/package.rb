@@ -689,7 +689,7 @@ class Package < ActiveRecord::Base
   end
 
   def each_user( opt={}, &block )
-    users = package_user_role_relationships.joins(:role, :user).select("users.login as login, roles.title AS role_name")
+    users = package_user_role_relationships.joins(:role, :user).select("users.login as login, roles.title AS role_name").order("role_name, login")
     if( block )
       users.each do |u|
         block.call u.login, u.role_name
@@ -699,7 +699,7 @@ class Package < ActiveRecord::Base
   end
 
   def each_group( opt={}, &block )
-    groups = package_group_role_relationships.joins(:role, :group).select("groups.title as title, roles.title as role_name")
+    groups = package_group_role_relationships.joins(:role, :group).select("groups.title as title, roles.title as role_name").order("role_name, title")
     if( block )
       groups.each do |g|
         block.call g.title, g.role_name
