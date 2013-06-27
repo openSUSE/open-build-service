@@ -1301,7 +1301,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
        hashed = Xmlhash.parse(io.read)
     end
     #STDERR.puts JSON.pretty_generate(hashed)
-    assert_equal "/my_packaged_file", hashed["package"][0]["file"]
+    assert hashed["package"].map{|f| f["file"]}.include? "/my_packaged_file"
 
     # verify that local linked packages still get branched correctly
     post "/source/BaseDistro2.0/pack2", :cmd => "branch"
