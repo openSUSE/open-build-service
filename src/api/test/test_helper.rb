@@ -14,6 +14,15 @@ require 'opensuse/backend'
 
 WebMock.disable_net_connect!(allow: CONFIG['source_host'])
 
+unless File.exists? "/proc"
+  print "ERROR: proc file system not mounted, aborting"
+  exit 1
+end
+unless File.exists? "/dev/fd"
+  print "ERROR: /dev/fd does not exist, aborting"
+  exit 1
+end
+
 # uncomment to enable tests which currently are known to fail, but where either the test
 # or the code has to be fixed
 #$ENABLE_BROKEN_TEST=true
