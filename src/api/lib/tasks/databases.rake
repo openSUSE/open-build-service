@@ -36,7 +36,15 @@ namespace :db do
       case abcs[Rails.env]["adapter"]
       when "mysql2"
         ActiveRecord::Base.establish_connection(abcs[Rails.env])
-        structure = ActiveRecord::Base.connection.structure_dump
+        con = ActiveRecord::Base.connection
+
+        sql = "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'"
+ 
+        structure = con.select_all(sql, 'SCHEMA').map { |table|
+          table.delete('Table_type')
+          sql = "SHOW CREATE TABLE #{con.quote_table_name(table.to_a.first.last)}"
+          con.exec_query(sql, 'SCHEMA').first['Create Table'] + ";\n\n"
+        }.join
       else
         raise "Task not supported by '#{abcs[Rails.env]["adapter"]}'"
       end
