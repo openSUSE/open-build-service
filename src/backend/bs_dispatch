@@ -839,11 +839,11 @@ while (1) {
 	  next;
 	}
       }
-      if ($ic->{'job'}->{'prjconstraint'}) {
-	my @l = map { [ split(' ', $_) ] } @{$ic->{'job'}->{'prjconstraint'}};
-	my $prjconstraints = list2struct($BSXML::constraints, \@l);
-	if ($prjconstraints) {
-	  $constraints = $constraints ? mergeconstraints($prjconstraints, $constraints) : $prjconstraints;
+      if ($ic->{'job'}->{'prjconfconstraint'}) {
+	my @l = map { [ split(' ', $_) ] } @{$ic->{'job'}->{'prjconfconstraint'}};
+	my $prjconfconstraint = list2struct($BSXML::constraints, \@l);
+	if ($prjconfconstraint) {
+	  $constraints = $constraints ? mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
 	}
       }
       push @idle, '__lastoracle' if $constraints;
