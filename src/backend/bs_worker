@@ -1961,18 +1961,45 @@ sub patchkiwi {
   }
   $kiwi->{'instsource'}->{'productoptions'}->{'productvar'} = \@vars;
 
-  # expand obsrepositories:/
+  # expand obsrepositories directive:/
   my @rp;
-  for my $repository (@{$kiwi->{'repository'} || []}) {
-     if ($repository->{'source'}->{'path'} ne 'obsrepositories:/') {
-        push @rp, $repository->{'source'}->{'path'};
-     }
-     # fill in pathes from buildinfo instead
-     for my $path (@{$buildinfo->{'path'} || []}) {
-        push @rp, "obs://$path->{'project'}/$path->{'repository'}";
-     }
+  if ($buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product') {
+    # for products
+    my @rp;
+    for my $repository (@{$kiwi->{'instsource'}->{'instrepo'} || []}) {
+       if ($repository->{'source'}->{'path'} ne 'obsrepositories:/') {
+          push @rp, $repository;
+          next;
+       }
+       # fill in pathes from buildinfo instead
+       my $counter = 0;
+       for my $path (@{$buildinfo->{'path'} || []}) {
+          my $h = { 'source' => { 'path' => "obs://$path->{'project'}/$path->{'repository'}" } };
+          $h->{'priority'} = $repository->{'priority'} if $repository->{'priority'};
+          $h->{'local'} = $repository->{'local'} if $repository->{'local'};
+          if ($repository->{'name'}) {
+            $counter = $counter + 1;
+            $h->{'name'} = "$repository->{'name'}_$counter";
+          }
+          push @rp, $h;
+       }
+    }
+    $kiwi->{'instsource'}->{'instrepo'} = \@rp if @rp;
+  } else {
+    my @rp;
+    # for appliances
+    for my $repository (@{$kiwi->{'repository'} || []}) {
+       if ($repository->{'source'}->{'path'} ne 'obsrepositories:/') {
+          push @rp, $repository->{'source'}->{'path'};
+          next;
+       }
+       # fill in pathes from buildinfo instead
+       for my $path (@{$buildinfo->{'path'} || []}) {
+          push @rp, "obs://$path->{'project'}/$path->{'repository'}";
+       }
+    }
+    $kiwi->{'repository'} = \@rp if @rp;
   }
-  $kiwi->{'repository'} = \@rp;
 
   # expand a "take all packages" for products
   for my $repopackages (@{$kiwi->{'instsource'}->{'repopackages'} || []}) {
@@ -2182,9 +2209,7 @@ sub dobuild {
 
   print "building...\n";
 
-  if ($kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product') {
-    patchkiwi($buildinfo, "$srcdir/$buildinfo->{'file'}", \@meta);
-  }
+  patchkiwi($buildinfo, "$srcdir/$buildinfo->{'file'}", \@meta) if ($kiwimode);
 
   push @args, "$statedir/build/build";
   if ($vm =~ /(xen|kvm|zvm|emulator)/) {
