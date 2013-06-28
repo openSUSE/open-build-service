@@ -10,7 +10,7 @@ class ProjectControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "diff is empty" do
-    visit "/package/rdiff?opackage=pack2&oproject=BaseDistro2.0&package=pack2.linked&project=BaseDistro2.0"
+    visit "/package/rdiff/BaseDistro2.0/pack2.linked?opackage=pack2&oproject=BaseDistro2.0"
     find('#content').must_have_text "No source changes!"
   end
 

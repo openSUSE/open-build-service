@@ -209,6 +209,7 @@ class PackageController < ApplicationController
   end
 
   def submit_request
+    required_parameters :project, :package
     if params[:targetproject].nil? or params[:targetproject].empty?
       flash[:error] = "Please provide a target for the submit request"
       redirect_to :action => :show, :project => params[:project], :package => params[:package] and return
@@ -829,8 +830,7 @@ class PackageController < ApplicationController
   end
 
   def rawsourcefile
-    required_parameters :project, :file, :package
-    path = "/source/#{params[:project]}/#{params[:package]}/#{params[:file]}"
+    path = "/source/#{params[:project]}/#{params[:package]}/#{params[:filename]}"
     path += "?rev=#{params[:srcmd5]}" unless params[:srcmd5].blank?
 
     return if try_volley(path)
@@ -838,7 +838,6 @@ class PackageController < ApplicationController
   end
 
   def rawlog
-    required_parameters :project, :repository, :arch, :package
     path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_log"
 
     return if try_volley(path)

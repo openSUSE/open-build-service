@@ -7,13 +7,13 @@
 
 <!--
 <p>
-<%= link_to('Create package using spec file wizard', :controller => 'package', :action => 'wizard_new', :project => @project) %>
+<%= link_to('Create package using spec file wizard', :controller => 'package', :action => 'wizard_new', :project => @project.to_param) %>
 (experimental)
 </p>
 -->
 <h2><%= @pagetitle %> for <%= @project.name %></h2>
 
-<%= form_tag :controller => :package, :action => 'save_new', :method => 'post' do %>
+<%= form_tag controller: :package, action: 'save_new', method: 'post', project: @project.to_param do %>
 <p>
   <strong>Name:</strong><br/>
   <%= text_field_tag 'name', @package_name, :size => 80 %><br/>
@@ -25,7 +25,6 @@
     <%= check_box_tag :source_protection %>Deny access to sources of package.<br/>
   <% end %>
   <%= check_box_tag :disable_publishing %>Disable build results publishing.
-  <%= hidden_field_tag 'project', @project.name %>
 </p>
 <p><%= submit_tag %></p>
 <% end %>
