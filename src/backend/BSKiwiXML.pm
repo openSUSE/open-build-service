@@ -87,6 +87,15 @@ our $kiwidesc = [
               'ec2certfile',
               'vga',
               'volid',
+              'oemconfig',
+              [ 'machine' =>
+                   'memory',
+                   [ 'vmdisk' => 'id', 'controller' ],
+              ],
+              [ 'size' =>
+                  'unit',
+                  '_content',
+              ],
               '_content',
           ]],
           'version',
@@ -194,8 +203,9 @@ our $kiwidesc = [
         ],
         [[ 'users' =>
              'group',
+             'id',
              [],
-             [[ 'user' => 'name', 'pwd', 'home', 'realname', 'shell' ]],
+             [[ 'user' => 'name', 'id', 'pwd', 'home', 'pwdformat', 'realname', 'shell' ]],
         ]],
         [ 'split' =>
           [ 'temporary' => 
