@@ -1961,10 +1961,24 @@ sub patchkiwi {
   }
   $kiwi->{'instsource'}->{'productoptions'}->{'productvar'} = \@vars;
 
+  # expand obsrepositories:/
+  my @rp;
+  for my $repository (@{$kiwi->{'repository'} || []}) {
+     if ($repository->{'source'}->{'path'} ne 'obsrepositories:/') {
+        push @rp, $repository->{'source'}->{'path'};
+     }
+     # fill in pathes from buildinfo instead
+     for my $path (@{$buildinfo->{'path'} || []}) {
+        push @rp, "obs://$path->{'project'}/$path->{'repository'}";
+     }
+  }
+  $kiwi->{'repository'} = \@rp;
+
+  # expand a "take all packages" for products
   for my $repopackages (@{$kiwi->{'instsource'}->{'repopackages'} || []}) {
     next unless grep {$_->{'name'} eq '*'} @{$repopackages->{'repopackage'} || []};
     # hey, a substitute all modifier!
-    my @rp;
+    @rp = undef;
     my %allpkgs;
     for my $m (@$meta) {
       # md5  proj/rep/arch/pack/bin.arch

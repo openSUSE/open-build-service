@@ -3023,7 +3023,21 @@ sub getprojpack {
 	      my $myarch = $conf->{'target'} ? (split('-', $conf->{'target'}))[0] : $arch;
 	      $rinfo->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $myarch} @{$d->{'exclarch'}};
 	      $rinfo->{'error'} = 'excluded' if $d->{'badarch'} && grep {$_ eq $myarch} @{$d->{'badarch'}};
-	      for ('imagetype', 'path', 'extrasource') {
+	      for my $path (@{$d->{path}||[]}) {
+	        $rinfo->{'path'} ||= [];
+                if ($path->{'project'} eq '_obsrepositories') {
+                  # replace it with the expanded repository list from repository definition of the project
+                  my @a = expandsearchpath($projid, $repoid, $remotemap);
+                  for my $prp (@a) {
+                    my @s = split('/', $prp, 2);
+                    my $h = {'project' => $s[0], 'repository' => $s[1]};
+                    push @{$rinfo->{'path'}}, $h;
+                  }
+                  next;
+                }
+                push @{$rinfo->{'path'}}, $path;
+              }
+	      for ('imagetype', 'extrasource') {
 	        $rinfo->{$_} = $d->{$_} if exists $d->{$_};
 	      }
 	      if ($remotemap && $rinfo->{'path'} && !$repo->{'path'}) {
