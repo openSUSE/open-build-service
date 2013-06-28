@@ -5965,6 +5965,7 @@ sub getbuildhistory {
 
 sub getbuildinfo {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+  $arch = $BSConfig::localarch if $arch eq 'local' && defined($BSConfig::localarch);
   checkprojrepoarch($projid, $repoid, $arch);
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
   my @args;
@@ -5977,6 +5978,7 @@ sub getbuildinfo {
 
 sub getbuildinfo_post {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+  $arch = $BSConfig::localarch if $arch eq 'local' && defined($BSConfig::localarch);
   checkprojrepoarch($projid, $repoid, $arch);
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
   my @args;
