@@ -13,9 +13,9 @@ class Configuration < ActiveRecord::Base
     builder = Nokogiri::XML::Builder.new
 
     builder.configuration() do |configuration|
-      configuration.title( self.title )             unless self.title.blank?
-      configuration.description( self.description ) unless self.description.blank?
-      configuration.name( self.name )               unless self.name.blank?
+      configuration.title( self.title || "" )
+      configuration.description( self.description || "" )
+      configuration.name( self.name || "" )
 
       configuration.schedulers do |schedulers|
         Architecture.where(:available => 1).each do |arch|
