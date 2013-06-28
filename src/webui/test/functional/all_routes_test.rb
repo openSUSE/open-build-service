@@ -68,8 +68,6 @@ class AllRoutesTest < ActionDispatch::IntegrationTest
     urls << package_view_file_path
     urls << package_save_modified_file_path
     urls << package_rawsourcefile_path
-    urls << package_rawlog_path
-    urls << package_live_build_log_path
     urls << package_update_build_log_path
     urls << package_abort_build_path
     urls << package_trigger_rebuild_path

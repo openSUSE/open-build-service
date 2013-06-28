@@ -84,8 +84,8 @@ OBSWebUI::Application.routes.draw do
     get 'package/view_file' => :view_file
     post 'package/save_modified_file' => :save_modified_file
     get 'package/rawsourcefile' => :rawsourcefile
-    get 'package/rawlog' => :rawlog
-    get 'package/live_build_log' => :live_build_log
+    get 'package/rawlog/:project/:package/:repository/:arch' => :rawlog, constraints: cons
+    get 'package/live_build_log/:project/:package/:repository/:arch' => :live_build_log, constraints: cons
     get 'package/update_build_log' => :update_build_log
     get 'package/abort_build' => :abort_build
     delete 'package/trigger_rebuild' => :trigger_rebuild
