@@ -427,7 +427,7 @@ module ApplicationHelper
       return next_codemirror_uid
     end
     @codemirror_editor_setup = 0
-    opts.reverse_merge!({ read_only: false, no_border: false, width: 'auto', height: '660px' })
+    opts.reverse_merge!({ read_only: false, no_border: false, width: 'auto' })
 
     content_for(:content_for_head, javascript_include_tag('cm2'))
     style = ''
