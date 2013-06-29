@@ -1,5 +1,3 @@
-require 'sprite_factory'
-
 namespace :assets do
   desc 'recreate sprite images and css'
   task :resprite => :environment do 
