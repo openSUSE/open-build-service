@@ -179,9 +179,9 @@ sub setstatus {
   my ($state, $data) = @_;
   my $slot = $BSServer::slot;
   return unless defined $slot;
-  # +8 to skip time and pid
-  return unless defined(sysseek(STA, $slot * 256 + 8, Fcntl::SEEK_SET));
-  $data = pack("NZ244", $state, $data);
+  # +10 to skip time, pid, group, and extra
+  return unless defined(sysseek(STA, $slot * 256 + 10, Fcntl::SEEK_SET));
+  $data = pack("nZ244", $state, $data);
   syswrite(STA, $data, length($data));
 }
 
@@ -192,8 +192,9 @@ sub serverstatus {
   my $sta;
   my $slot = 0;
   while ((sysread(STA, $sta, 256) || 0) == 256) {
-    my ($ti, $pid, $state, $data) = unpack("NNNZ244", $sta);
+    my ($ti, $pid, $group, $extra, $state, $data) = unpack("NNCCnZ244", $sta);
     push @res, { 'slot' => $slot, 'starttime' => $ti, 'pid' => $pid, 'state' => $state, 'data' => $data };
+    $res[-1]->{'group'} = $group if $group;
     $slot++;
   }
   return @res;
@@ -209,6 +210,7 @@ sub server {
   my %chld;
   my %chld2;
   my $peeraddr;
+  my $group = 0;
   my $periodic_next = 0;
   my @idle;
   my $idle_next = 0;
@@ -249,8 +251,10 @@ sub server {
       if ($MS2 && !vec($rin, fileno(MS), 1)) {
         $chldp = \%chld2;
         $peeraddr = accept(CLNT, $MS2);
+	$group = 1;
       } else {
         $peeraddr = accept(CLNT, MS);
+	$group = 0;
       }
       next unless $peeraddr;
       my $slot = @idle ? shift(@idle) : $idle_next++;
@@ -300,7 +304,7 @@ sub server {
     if (open(STA, '+<', $conf->{'serverstatus'})) {
       fcntl(STA, F_SETFD, FD_CLOEXEC);
       if (defined(sysseek(STA, $BSServer::slot * 256, Fcntl::SEEK_SET))) {
-        syswrite(STA, pack("NNNZ244", time(), $$, 1, 'forked'), 256);
+        syswrite(STA, pack("NNCCnZ244", time(), $$, $group, 0, 1, 'forked'), 256);
       }
     } else {
       undef $BSServer::slot;

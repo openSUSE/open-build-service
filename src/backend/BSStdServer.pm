@@ -145,6 +145,7 @@ sub serverstatus {
       'pid' => $s->{'pid'},
       'request' => $s->{'data'},
     };
+    $res[-1]->{'group'} = $s->{'group'} if $s->{'group'};
   }
   return ({'job' => \@res}, $BSXML::serverstatus);
 }

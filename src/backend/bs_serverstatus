@@ -17,7 +17,7 @@ while(1) {
   my $sta;
   my $empty = '';
   while ((sysread(STA, $sta, 256) || 0) == 256) {
-    my ($ti, $pid, $state, $data) = unpack("NNNZ244", $sta);
+    my ($ti, $pid, $group, $extra, $state, $data) = unpack("NNCCnZ244", $sta);
     if ($state == 0) {
       $empty .= "-$nl";
       next;
@@ -30,6 +30,7 @@ while(1) {
     } else {
       $state = '?';
     }
+    $state .= $group ? $group : ' ';
     printf "%s%s %3d %5d %s$nl", $empty, $state, $d, $pid, $data;
     $empty = '';
   }

@@ -848,6 +848,7 @@ our $serverstatus = [
 	    'pid',
 	    'peer',
 	    'request',
+	    'group',
      ]],
 ];
 
