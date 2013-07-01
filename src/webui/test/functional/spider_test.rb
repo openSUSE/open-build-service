@@ -50,7 +50,7 @@ class SpiderTest < ActionDispatch::IntegrationTest
     return if url =~ %r{/package/statistics/BinaryprotectedProject/.*}
     return if url.end_with? "/package/binary/SourceprotectedProject/pack?arch=i586&filename=package-1.0-1.src.rpm&repository=repo"
     return if url =~ %r{/package/revisions/SourceprotectedProject.*}
-    return if url.end_with? "/package/show/kde4/kdelibs/?rev=1"
+    return if url.end_with? "/package/show/kde4/kdelibs?rev=1"
     return if url.end_with? "/package/show/SourceprotectedProject/target"
     return if url.end_with? "/package/users/SourceprotectedProject/pack"
     return if url.end_with? "/package/view_file/BaseDistro:Update/pack2?file=my_file&rev=1"
