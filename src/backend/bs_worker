@@ -1962,7 +1962,6 @@ sub patchkiwi {
   $kiwi->{'instsource'}->{'productoptions'}->{'productvar'} = \@vars;
 
   # expand obsrepositories directive:/
-  my @rp;
   if ($buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product') {
     # for products
     my @rp;
@@ -2005,7 +2004,7 @@ sub patchkiwi {
   for my $repopackages (@{$kiwi->{'instsource'}->{'repopackages'} || []}) {
     next unless grep {$_->{'name'} eq '*'} @{$repopackages->{'repopackage'} || []};
     # hey, a substitute all modifier!
-    @rp = undef;
+    my @rp;
     my %allpkgs;
     for my $m (@$meta) {
       # md5  proj/rep/arch/pack/bin.arch
