@@ -285,7 +285,7 @@ sub getconstraints {
 }
 
 # last one wins
-sub mergerconstraints {
+sub mergeconstraints {
   my ($con, @other) = @_;
   $con = Storable::dclone($con);
   for my $con2 (@other) {
@@ -420,14 +420,11 @@ if ($BSConfig::secure_sandboxes) {
 sub oracle {
   my ($job, $worker, $constraints) = @_;
   for my $l (@{$constraints->{'hostlabel'} || []}) {
-    if ($l->{'exclude'} eq 'true') {
+    if ($l->{'exclude'} && $l->{'exclude'} eq 'true') {
       return 0 if grep {$_ eq $l->{'_content'}} @{$worker->{'hostlabel'} || []};
     } else {
       return 0 unless grep {$_ eq $l->{'_content'}} @{$worker->{'hostlabel'} || []};
     }
-  }
-  if ($constraints->{'hostlabel'}) {
-    return 0 unless grep {$_ eq $constraints->{'hostlabel'}} @{$worker->{'hostlabel'} || []};
   }
   if ($constraints->{'sandbox'} && $constraints->{'sandbox'}->{'content'}) {
     if ($constraints->{'sandbox'}->{'exclude'} && $constraints->{'sandbox'}->{'exclude'} eq 'true') {
@@ -1064,8 +1061,8 @@ while (1) {
 	  next;
 	}
       }
-      if ($ic->{'job'}->{'prjconfconstraint'}) {
-	my @l = map { [ split(' ', $_) ] } @{$ic->{'job'}->{'prjconfconstraint'}};
+      if ($ic->{$job}->{'prjconfconstraint'}) {
+	my @l = map { [ split(' ', $_) ] } @{$ic->{$job}->{'prjconfconstraint'}};
 	my $prjconfconstraint = list2struct($BSXML::constraints, \@l);
 	if ($prjconfconstraint) {
 	  $constraints = $constraints ? mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;

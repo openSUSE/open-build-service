@@ -1508,11 +1508,11 @@ our $time = [
 our $constraints = [
   'constraints' => 
     [],
-  [ 'hostlabel' =>
+  [[ 'hostlabel' =>
        'exclude',   # true or false. default is false.
        [],
        '_content' # workers might get labels defined by admin, for example for benchmarking.
-  ],
+  ]],
   [ 'sandbox' =>
        'exclude',   # true or false. default is false.
        [],
