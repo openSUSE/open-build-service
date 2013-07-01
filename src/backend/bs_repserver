@@ -2265,6 +2265,15 @@ sub getjobhistory {
   return ($ret, $BSXML::jobhistlist);
 }
 
+sub expandkiwipath_hash {
+  my ($info, $repo) = @_;
+  return map {$_->{'project'} eq '_obsrepositories' ? @{$repo->{'path'} || []} : ($_)} @{$info->{'path'} || []};
+}
+
+sub expandkiwipath {
+  return map {"$_->{'project'}/$_->{'repository'}"} expandkiwipath_hash(@_);
+}
+
 sub getkiwiproductpackages {
   my ($proj, $repo, $pdata, $info, $deps, $remotemap) = @_;
 
@@ -2275,7 +2284,7 @@ sub getkiwiproductpackages {
   my @deps = @{$deps || []};
   my %deps = map {$_ => 1} @deps;
   delete $deps{''};
-  my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []}; 
+  my @aprps = expandkiwipath($info, $repo);
   my $allpacks = $deps{'*'} ? 1 : 0; 
   for my $aprp (@aprps) {
     my %known;
@@ -2387,7 +2396,7 @@ sub getbuildinfo {
   my $kiwitype;
   if ($packtype eq 'kiwi') {
     if (@{$info->{'path'} || []}) {
-      @args = map {"project=$_->{'project'}"} @{$info->{'path'}};
+      @args = map {"project=$_->{'project'}"} grep {$_->{'project'} ne '_obsrepositories'} @{$info->{'path'}};
       push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
       my $pp = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withremotemap', 'nopackages', @args);
       %remotemap = (%remotemap, map {$_->{'project'} => $_} @{$pp->{'remotemap'} || []});
@@ -2399,7 +2408,7 @@ sub getbuildinfo {
     }
     # a repo with no path will expand to just the prp as the only element
     if ($kiwitype eq 'image' || @{$repo->{'path'} || []} < 2) {
-      @configpath = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
+      @configpath = expandkiwipath($info, $repo);
       unshift @configpath, "$projid/$repoid" unless @configpath;
     }
   }
@@ -2416,13 +2425,13 @@ sub getbuildinfo {
   my @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
   if ($packtype eq 'kiwi') {
     $ret->{'imagetype'} = $info->{'imagetype'} || [];
-    if (@prp < 2) {
-      $ret->{'path'} = $info->{'path'} || [];
+    if (@prp < 2 || grep {$_->{'project'} eq '_obsrepositories'} @{$info->{'path'} || []}) {
+      $ret->{'path'} = [ expandkiwipath_hash($info, $repo) ];
     } else {
       push @{$ret->{'path'}}, @{$info->{'path'} || []};	# XXX: should unify
     }
     if ($kiwitype eq 'image' || @{$repo->{'path'} || []} < 2) {
-      @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
+      @prp = expandkiwipath($info, $repo);
     }
   }
   if ($cgi->{'internal'}) {

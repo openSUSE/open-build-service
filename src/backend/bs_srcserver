@@ -3023,27 +3023,13 @@ sub getprojpack {
 	      my $myarch = $conf->{'target'} ? (split('-', $conf->{'target'}))[0] : $arch;
 	      $rinfo->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $myarch} @{$d->{'exclarch'}};
 	      $rinfo->{'error'} = 'excluded' if $d->{'badarch'} && grep {$_ eq $myarch} @{$d->{'badarch'}};
-	      for my $path (@{$d->{path}||[]}) {
-	        $rinfo->{'path'} ||= [];
-                if ($path->{'project'} eq '_obsrepositories') {
-                  # replace it with the expanded repository list from repository definition of the project
-                  my @a = expandsearchpath($projid, $repoid, $remotemap);
-                  for my $prp (@a) {
-                    my @s = split('/', $prp, 2);
-                    my $h = {'project' => $s[0], 'repository' => $s[1]};
-                    push @{$rinfo->{'path'}}, $h;
-                  }
-                  next;
-                }
-                push @{$rinfo->{'path'}}, $path;
-              }
-	      for ('imagetype', 'extrasource') {
+	      for ('imagetype', 'path', 'extrasource') {
 	        $rinfo->{$_} = $d->{$_} if exists $d->{$_};
 	      }
 	      if ($remotemap && $rinfo->{'path'} && !$repo->{'path'}) {
 		# simple way to fill the remote map
 		eval {
-		  concatconfigs($projid, $repoid, $remotemap, map {"$_->{'project'}/$_->{'repository'}"} @{$rinfo->{'path'}});
+		  concatconfigs($projid, $repoid, $remotemap, map {"$_->{'project'}/$_->{'repository'}"} grep {$_->{'project'} ne '_obsrepositories'} @{$rinfo->{'path'}});
 		};
 	      }
 	    } else {
