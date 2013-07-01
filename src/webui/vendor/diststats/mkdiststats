@@ -201,7 +201,8 @@ sub handle_end_builddep($)
     push(@{$deps{$pack}}, $text);
   } elsif ($name eq 'subpkg') {
     push(@{$subpacks{$pack}}, $text);
-    $subpack2pack{$text} = $pack;
+    # ignore the subpackages produced by preinstall images. They are optional
+    $subpack2pack{$text} = $pack unless $pack =~ /^preinstallimage-/;
   }
   $text = '';
 }
@@ -373,7 +374,7 @@ my %cycles = $dfs->findcycles();
 # put all packages involved in a cycle in the hash,
 # calculate cycle build time
 for my $c (keys %cycles) {
-  my $cn = join(', ', sort(@{$cycles{$c}}));
+  my $cn = join(',', sort(@{$cycles{$c}}));
   print "CYCLE $cn\n";
 #  $cycles{$cn} = $cycles{$c};
   my $eti = 0;
