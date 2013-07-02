@@ -2170,7 +2170,7 @@ sub dobuild {
   my $release = $buildinfo->{'release'};
   #FIXME2.6: drop the following line
   my $disturl = "obs://$BSConfig::obsname/$projid/$repoid/$buildinfo->{'srcmd5'}-$packid";
-  my $disturl = $buildinfo->{'disturl'} if $buildinfo->{'disturl'};
+  $disturl = $buildinfo->{'disturl'} if $buildinfo->{'disturl'};
 
   my @args;
   push @args, $helper if $helper;
@@ -2524,6 +2524,7 @@ while (!BSServer::server($conf)) {
       my $kill_job;
       $kill_job = "kvm memory page bug" if $tail =~ /BUG: unable to handle kernel NULL pointer dereference at/;
       $kill_job = "kvm spinnlock bug" if $tail =~ /INFO: rcu_sched self-detected stall on CPU/;
+      $kill_job = "xen soft lockup" if $tail =~ /BUG: soft lockup - CPU#\d+ stuck for/;
       if ($kill_job) {
         next unless $locked;
 	print "detected $kill_job, discarding job\n";
