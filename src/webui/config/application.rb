@@ -67,6 +67,8 @@ module OBSWebUI
     # (by default production uses :info, the others :debug)
     # config.log_level = :debug
     
+    config.log_tags = [:uuid]
+
     #config.cache_store = :dalli_store, 'localhost:11211', {:namespace => 'obs-webui', :compress => true }
     
     # Activate observers that should always be running
