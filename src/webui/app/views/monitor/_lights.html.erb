@@ -2,29 +2,35 @@
   monitor_ready();
 <% end %>
 
-<div id="schedulerstatus" class="statuslights">
-  <h2>Scheduler Status</h2>
-  <% if @workerstatus.has_key? "scheduler" -%>
+<div id="serverstatus" class="statuslights">
+  <h2>Server Status</h2>
+  <% @workerstatus.elements("partition") do |part| -%>
+  <% unless part["name"].blank? -%>
+    <h3><%= part["name"] %></h3>
+  <% end -%>
+  <% if part.has_key? "daemon" -%>
     <ul>
-      <% @workerstatus.elements("scheduler") do |sched| -%>
-        <li class="scheduler_status">
+      <% part.elements("daemon") do |daemon| -%>
+        <li class="daemon_status">
           <div class="statuswrapper">
             <%
             state="green"
-            if sched["state"] == "dead"
+            if daemon["state"] == "dead"
               state="red"
             else
-              if !sched.has_key? "starttime"
+              if !daemon.has_key? "starttime"
                 state="yellow"
               end
             end
           %>
             <div class="statuslight <%= "status_" + state %>" style="margin: auto"></div>
-            <div class="statusarch">[<%= sched["arch"] %>]</div>
+            <div class="statusarch">[<%=daemon["type"] %>
+              <%= daemon["arch"]  unless daemon["arch"].blank? -%>]
+            </div>
             <span class="hidden statustext">
-              <%= sched["arch"] %>: <%= sched["state"] %>
-              <% if sched.has_key? "starttime" -%>
-                <% start_time = Time.at(sched["starttime"].to_i) -%>
+              <%= daemon["type"] %>:<%=daemon["arch"] %>: <%= daemon["state"] %>
+              <% if daemon.has_key? "starttime" -%>
+                <% start_time = Time.at(daemon["starttime"].to_i) -%>
                 for <%= distance_of_time_in_words(@time_now, start_time, include_seconds: true) %> (last restart: <%= start_time.iso8601 %>)
               <% end -%>
             </span>
@@ -33,7 +39,8 @@
       <% end -%>
     </ul>
   <% else -%>
-    <p><i>No schedulers configured!</i></p>
+    <p><i>No daemons running!</i></p>
+  <% end -%>
   <% end -%>
 </div>
 <div class="clear"></div>
