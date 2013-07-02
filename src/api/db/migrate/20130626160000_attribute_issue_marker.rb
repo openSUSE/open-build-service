@@ -17,7 +17,7 @@ class AttributeIssueMarker  < ActiveRecord::Migration
 
   def self.down
     a = AttribType.find_by_namespace_and_name("OBS", "Issues")
-    a.destroy() unless a.nil?
+    a.delete unless a.nil?
   end
 
 end
