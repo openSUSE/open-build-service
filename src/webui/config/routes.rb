@@ -198,7 +198,7 @@ OBSWebUI::Application.routes.draw do
     post 'request/add_reviewer' => :add_reviewer
     post 'request/modify_review' => :modify_review
     get 'request/show/:id' => :show
-    get 'request/sourcediff' => :sourcediff
+    post 'request/sourcediff' => :sourcediff
     post 'request/changerequest' => :changerequest
     get 'request/diff/:id' => :diff
     get 'request/list' => :list
