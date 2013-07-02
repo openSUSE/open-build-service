@@ -13,6 +13,7 @@
 //= require jquery
 //= require jquery.ui.menu
 //= require jquery.ui.autocomplete
+//= require jquery.ui.tabs
 //= require jquery_ujs
 //
 //= require jquery.expander.js
