@@ -1,8 +1,7 @@
-require 'sprite_factory'
-
 namespace :assets do
   desc 'recreate sprite images and css'
   task :resprite => :environment do 
+    require 'sprite_factory'
     SpriteFactory.library = 'chunkypng'
     SpriteFactory.layout = 'packed'
     SpriteFactory.cssurl = "image-url('$IMAGE')"    # use a sass-rails helper method to be evaluated by the rails asset pipeline
