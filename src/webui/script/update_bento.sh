@@ -106,7 +106,8 @@ copy $themedir/bento/js/global-navigation.js ./app/assets/javascripts/bento/glob
 copy $themedir/bento/js/l10n/global-navigation-data-en_US.js ./app/assets/javascripts/bento/l10n/global-navigation-data-en_US.js
 copy $themedir/bento/js/script.js ./app/assets/javascripts/bento/script.js
 copy $themedir/bento/css/960.css ./app/assets/stylesheets/bento/960.css
-copy $themedir/bento/css/base.css ./app/assets/stylesheets/bento/base.css
+copy $themedir/bento/css/base.css ./app/assets/stylesheets/bento/base.scss
+sed -i -e "s, url('images/, image-url('images/,g" ./app/assets/stylesheets/bento/base.scss
 copy $themedir/bento/css/grid.css ./app/assets/stylesheets/bento/grid.css
 copy $themedir/bento/css/reset.css ./app/assets/stylesheets/bento/reset.css
 
