@@ -318,7 +318,7 @@ sub mergeconstraints {
 
 # constructs a data object from a list and a XML::Structured dtd
 sub list2struct {
-  my ($dtd, $list) = @_;
+  my ($dtd, $list, $job) = @_;
   my $top = {};
   for my $l (@{$list || []}) {
     my @l = @$l;
@@ -389,7 +389,7 @@ sub list2struct {
 	}
       }
     };
-    warn("list2struct: $@") if $@;
+    warn("list2struct: $job: @$l: $@") if $@;
   }
   return $top;
 }
@@ -1063,11 +1063,12 @@ while (1) {
       }
       if ($ic->{$job}->{'prjconfconstraint'}) {
 	my @l = map { [ split(' ', $_) ] } @{$ic->{$job}->{'prjconfconstraint'}};
-	my $prjconfconstraint = list2struct($BSXML::constraints, \@l);
+	my $prjconfconstraint = list2struct($BSXML::constraints, \@l, "$arch/$job");
 	if ($prjconfconstraint) {
 	  $constraints = $constraints ? mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
 	}
       }
+      undef $constraints if $constraints && !%$constraints;
       push @idle, '__lastoracle' if $constraints;
       for my $idle (@idle) {
 	if ($idle eq '__lastoracle') {
@@ -1075,7 +1076,6 @@ while (1) {
 	  $idle = $lastoracleidle;
 	  $lastoracleidle = '__lastoracle';
 	}
-	last unless -e "$jobsdir/$arch/$job";
         next if $badhost{"$project/$ic->{$job}->{'package'}/$arch/@{[(split(':', $idle, 2))[1]]}"};
 	if (!$workerinfo{$idle}) {
 	  my @s = stat("$workersdir/idle/$idle");
@@ -1113,6 +1113,7 @@ while (1) {
 	    }
 	  }
 	}
+	last unless -e "$jobsdir/$arch/$job";
 	last if $assigned && $tries >= 5;
 	$tries++;
 	my $res = assignjob($job, $idle, $arch);
