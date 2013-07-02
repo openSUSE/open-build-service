@@ -201,6 +201,24 @@ CREATE TABLE `configurations` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `name` varchar(255) COLLATE utf8_bin DEFAULT '',
+  `registration` enum('allow','confirmation','never') COLLATE utf8_bin DEFAULT 'allow',
+  `anonymous` tinyint(1) DEFAULT '1',
+  `default_access_disabled` tinyint(1) DEFAULT '0',
+  `allow_user_to_create_home_project` tinyint(1) DEFAULT '1',
+  `disallow_group_creation` tinyint(1) DEFAULT '1',
+  `change_password` tinyint(1) DEFAULT '1',
+  `hide_private_options` tinyint(1) DEFAULT '0',
+  `gravatar` tinyint(1) DEFAULT '1',
+  `enforce_project_keys` tinyint(1) DEFAULT '1',
+  `download_on_demand` tinyint(1) DEFAULT '1',
+  `multiaction_notify_support` tinyint(1) DEFAULT '1',
+  `download_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `ymp_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `errbit_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `bugzilla_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `http_proxy` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `no_proxy` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `theme` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -1093,6 +1111,12 @@ INSERT INTO schema_migrations (version) VALUES ('20130618083665');
 INSERT INTO schema_migrations (version) VALUES ('20130619083665');
 
 INSERT INTO schema_migrations (version) VALUES ('20130621083665');
+
+INSERT INTO schema_migrations (version) VALUES ('20130626160000');
+
+INSERT INTO schema_migrations (version) VALUES ('20130702083665');
+
+INSERT INTO schema_migrations (version) VALUES ('20130702203665');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
