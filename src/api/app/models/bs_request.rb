@@ -222,6 +222,7 @@ class BsRequest < ActiveRecord::Base
   def change_state(state, opts = {})
     state = state.to_sym
     BsRequest.transaction do
+      self.lock!
       bs_request_histories.create comment: self.comment, commenter: self.commenter, state: self.state,
                                   superseded_by: self.superseded_by, created_at: self.updated_at
 
