@@ -154,12 +154,12 @@
     height: 20px;
   }
   .status_green {
-    background-image: url(status_green.png);
+    background-image: image-url("status_green.png");
   }
   .status_yellow {
-    background-image: url(status_yellow.png);
+    background-image: image-url("status_yellow.png");
   }
   .status_red {
-    background-image: url(status_red.png);
+    background-image: image-url("status_red.png");
   }
 }

@@ -24,7 +24,7 @@ textarea {
 .ajax_large_loader {
   width: 32px;
   height: 32px;
-  background-image: url(large-loader.gif);
+  background-image: image-url("large-loader.gif");
 }
 
 #build_result_popup {
@@ -354,7 +354,7 @@ div.dataTables_wrapper:after {
 .dataTable th.sorting_disabled { display: none; }
 
 .global-navigation-menu li span.global-navigation-icon {
-    background-image:url('globalnav-im.png'); 
+    background-image: image-url("globalnav-im.png"); 
 }
 
 .global-navigation-menu.global-navigation-menu-favorites li span.icons-project {
