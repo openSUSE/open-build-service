@@ -97,74 +97,66 @@ class AllRoutesTest < ActionDispatch::IntegrationTest
     urls << project_list_public_path
     urls << project_list_all_path
     urls << project_list_path
-    urls << project_autocomplete_projects_path
-    urls << project_autocomplete_incidents_path
-    urls << project_autocomplete_packages_path
-    urls << project_autocomplete_repositories_path
-    urls << project_users_path
-    urls << project_subprojects_path
-    urls << project_attributes_path
-    urls << project_new_path
-    urls << project_new_incident_path
-    urls << project_new_package_path
-    urls << project_new_package_branch_path
-    urls << project_incident_request_dialog_path
-    urls << project_new_incident_request_path
-    urls << project_release_request_dialog_path
-    urls << project_new_release_request_path
-    urls << project_show_path
-    urls << project_load_releasetargets_path
-    urls << project_linking_projects_path
-    urls << project_add_repository_from_default_list_path
-    urls << project_add_repository_path
-    urls << project_add_person_path
-    urls << project_add_group_path
-    urls << project_buildresult_path
-    urls << project_delete_dialog_path
-    urls << project_delete_path
-    urls << project_edit_repository_path
-    urls << project_update_target_path
-    urls << project_repositories_path
-    urls << project_repository_state_path
-    urls << project_rebuild_time_path
-    urls << project_rebuild_time_png_path
-    urls << project_packages_path
-    urls << project_requests_path
-    urls << project_save_new_path
-    urls << project_save_path
-    urls << project_save_targets_path
-    urls << project_remove_target_request_dialog_path
-    urls << project_remove_target_request_path
-    urls << project_remove_target_path
-    urls << project_remove_path_from_target_path
-    urls << project_move_path_up_path
-    urls << project_move_path_down_path
-    urls << project_save_person_path
-    urls << project_save_group_path
-    urls << project_remove_role_path
-    urls << project_remove_person_path
-    urls << project_remove_group_path
-    urls << project_monitor_path
-    urls << project_package_buildresult_path
-    urls << project_toggle_watch_path
-    urls << project_meta_path
-    urls << project_save_meta_path
-    urls << project_prjconf_path
-    urls << project_save_prjconf_path
-    urls << project_change_flag_path
-    urls << project_clear_failed_comment_path
-    urls << project_edit_path
-    urls << project_edit_comment_form_path
-    urls << project_edit_comment_path
-    urls << project_status_path
-    urls << project_maintained_projects_path
-    urls << project_add_maintained_project_dialog_path
-    urls << project_add_maintained_project_path
-    urls << project_remove_maintained_project_path
-    urls << project_maintenance_incidents_path
-    urls << project_list_incidents_path
-    urls << project_unlock_dialog_path
-    urls << project_unlock_path
+    urls << url_for(controller: :project, action: :users, project: 'kde4')
+    urls << url_for(controller: :project, action: :subprojects, project: 'kde4')
+    urls << url_for(controller: :project, action: :attributes, project: 'kde4')
+    urls << url_for(controller: :project, action: :new, project: 'kde4')
+    urls << url_for(controller: :project, action: :new_incident, project: 'kde4')
+    urls << url_for(controller: :project, action: :new_package, project: 'kde4')
+    urls << url_for(controller: :project, action: :new_package_branch, project: 'kde4')
+    urls << url_for(controller: :project, action: :incident_request_dialog, project: 'kde4')
+    urls << url_for(controller: :project, action: :new_incident_request, project: 'kde4')
+    urls << url_for(controller: :project, action: :release_request_dialog, project: 'kde4')
+    urls << url_for(controller: :project, action: :new_release_request, project: 'kde4')
+    urls << url_for(controller: :project, action: :show, project: 'kde4')
+    urls << url_for(controller: :project, action: :linking_projects, project: 'kde4')
+    urls << url_for(controller: :project, action: :add_repository_from_default_list, project: 'kde4')
+    urls << url_for(controller: :project, action: :add_repository, project: 'kde4')
+    urls << url_for(controller: :project, action: :add_person, project: 'kde4')
+    urls << url_for(controller: :project, action: :add_group, project: 'kde4')
+    urls << url_for(controller: :project, action: :buildresult, project: 'kde4')
+    urls << url_for(controller: :project, action: :delete_dialog, project: 'kde4')
+    urls << url_for(controller: :project, action: :delete, project: 'kde4')
+    urls << url_for(controller: :project, action: :edit_repository, project: 'kde4')
+    urls << url_for(controller: :project, action: :update_target, project: 'kde4')
+    urls << url_for(controller: :project, action: :repositories, project: 'kde4')
+    urls << url_for(controller: :project, action: :repository_state, project: 'kde4')
+    urls << url_for(controller: :project, action: :packages, project: 'kde4')
+    urls << url_for(controller: :project, action: :requests, project: 'kde4')
+    urls << url_for(controller: :project, action: :save_new, project: 'kde4')
+    urls << url_for(controller: :project, action: :save, project: 'kde4')
+    urls << url_for(controller: :project, action: :save_targets, project: 'kde4')
+    urls << url_for(controller: :project, action: :remove_target_request_dialog, project: 'kde4')
+    urls << url_for(controller: :project, action: :remove_target_request, project: 'kde4')
+    urls << url_for(controller: :project, action: :remove_target, project: 'kde4')
+    urls << url_for(controller: :project, action: :move_path_up, project: 'kde4')
+    urls << url_for(controller: :project, action: :move_path_down, project: 'kde4')
+    urls << url_for(controller: :project, action: :save_person, project: 'kde4')
+    urls << url_for(controller: :project, action: :save_group, project: 'kde4')
+    urls << url_for(controller: :project, action: :remove_role, project: 'kde4')
+    urls << url_for(controller: :project, action: :remove_person, project: 'kde4')
+    urls << url_for(controller: :project, action: :remove_group, project: 'kde4')
+    urls << url_for(controller: :project, action: :monitor, project: 'kde4')
+    urls << url_for(controller: :project, action: :package_buildresult, project: 'kde4')
+    urls << url_for(controller: :project, action: :toggle_watch, project: 'kde4')
+    urls << url_for(controller: :project, action: :meta, project: 'kde4')
+    urls << url_for(controller: :project, action: :save_meta, project: 'kde4')
+    urls << url_for(controller: :project, action: :prjconf, project: 'kde4')
+    urls << url_for(controller: :project, action: :save_prjconf, project: 'kde4')
+    urls << url_for(controller: :project, action: :change_flag, project: 'kde4')
+    urls << url_for(controller: :project, action: :clear_failed_comment, project: 'kde4')
+    urls << url_for(controller: :project, action: :edit, project: 'kde4')
+    urls << url_for(controller: :project, action: :edit_comment_form, project: 'kde4')
+    urls << url_for(controller: :project, action: :edit_comment, project: 'kde4')
+    urls << url_for(controller: :project, action: :status, project: 'kde4')
+    urls << url_for(controller: :project, action: :maintained_projects, project: 'kde4')
+    urls << url_for(controller: :project, action: :add_maintained_project_dialog, project: 'kde4')
+    urls << url_for(controller: :project, action: :add_maintained_project, project: 'kde4')
+    urls << url_for(controller: :project, action: :remove_maintained_project, project: 'kde4')
+    urls << url_for(controller: :project, action: :maintenance_incidents, project: 'kde4')
+    urls << url_for(controller: :project, action: :list_incidents, project: 'kde4')
+    urls << url_for(controller: :project, action: :unlock_dialog, project: 'kde4')
+    urls << url_for(controller: :project, action: :unlock, project: 'kde4')
     urls << request_add_reviewer_dialog_path
     urls << request_add_reviewer_path
     urls << request_modify_review_path
@@ -196,13 +188,11 @@ class AllRoutesTest < ActionDispatch::IntegrationTest
     urls << user_lock_path
     urls << user_admin_path
     urls << user_delete_path
-    urls << user_autocomplete_path
     urls << user_tokens_path
     urls << user_do_login_path
     urls << group_show_path
     urls << group_add_path
     urls << group_save_path
-    urls << group_autocomplete_path
     urls << group_tokens_path
     urls << group_edit_path
     urls << home_path

@@ -27,7 +27,7 @@ class CreateProjectTest < ActionDispatch::IntegrationTest
      fill_in 'name', :with => 'coolstuff'     
      click_button 'Create Project'
 
-     assert current_url.end_with? "/project/show?project=home%3Atom%3Acoolstuff"
+     assert current_url.end_with? project_show_path(project: "home:tom:coolstuff")
      find('#project_title').text.must_equal 'home:tom:coolstuff'
      find('#packages_info h2').text.must_equal 'Packages (0)'
    end

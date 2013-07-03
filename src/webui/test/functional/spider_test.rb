@@ -36,8 +36,8 @@ class SpiderTest < ActionDispatch::IntegrationTest
       next if link.end_with? "/package/rdiff"
       # admin can see even the hidden
       next if link.end_with? "/package/show/HiddenRemoteInstance"
-      next if link.end_with? "/project/show?project=HiddenRemoteInstance"
-      next if link.end_with? "/project/show?project=RemoteInstance"
+      next if link.end_with? "/project/show/HiddenRemoteInstance"
+      next if link.end_with? "/project/show/RemoteInstance"
       unless @pages_visited.has_key? link
         @pages_to_visit[link] ||= [baseuri.to_s, tag.content]
       end
@@ -61,10 +61,10 @@ class SpiderTest < ActionDispatch::IntegrationTest
     return if url.end_with? "/package/view_file/BaseDistro2.0/pack2.linked?file=myfile&rev=1"
     return if url.end_with? "/package/view_file/BaseDistro2.0:LinkedUpdateProject/pack2.linked?file=package.spec&rev=1"
     return if url.end_with? "/package/view_file/BaseDistro2.0/pack2.linked?file=package.spec&rev=1"
-    return if url.end_with? "/project/edit?project=RemoteInstance"
-    return if url.end_with? "/project/meta?project=HiddenRemoteInstance"
-    return if url.end_with? "/project/show?project=HiddenRemoteInstance"
-    return if url.end_with? "/project/edit?project=HiddenRemoteInstance"
+    return if url.end_with? "/project/edit/RemoteInstance"
+    return if url.end_with? "/project/meta/HiddenRemoteInstance"
+    return if url.end_with? "/project/show/HiddenRemoteInstance"
+    return if url.end_with? "/project/edit/HiddenRemoteInstance"
 
     $stderr.puts "Found #{message} on #{url}, crawling path"
     indent = ' '
