@@ -50,7 +50,7 @@ Please check the respective files for details.
 
 The Build Service project is hosted on [Github](http://github.com/opensuse/open-build-service)
 and you can discuss with the OBS Team via IRC on the channel
-[#openbuildservice](irc://freenode.net/openbuildservice). Or you can use our mailing list
+[#opensuse-buildservice](irc://freenode.net/opensuse-buildservice). Or you can use our mailing list
 [opensuse-buildservice@opensuse.org](mailto:opensuse-buildservice+subscribe@opensuse.org)
 
 > Your Open Build Service Team
