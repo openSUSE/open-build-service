@@ -29,10 +29,10 @@
         var el_track = container_width;
         ctrl.css("margin-left", (el_track * delta / 100) + "px");
         var url = "<%= url_for controller: :package, action: :live_build_log, project: 'PROJECT', package: 'PACKAGE', arch: 'ARCH', repository: 'REPOSITORY' %>";
-        url = url.replace('ARCH', encodeURIComponent(item["arch"]));
-        url = url.replace('PROJECT', encodeURIComponent(item["project"]));
-        url = url.replace('PACKAGE', encodeURIComponent(item["package"]));
-        url = url.replace('REPOSITORY', encodeURIComponent(item["repository"]));
+        url = url.replace('ARCH', item["arch"]);
+        url = url.replace('PROJECT', item["project"]);
+        url = url.replace('PACKAGE', item["package"]);
+        url = url.replace('REPOSITORY', item["repository"]);
 
 	el_text.attr("href", url);
 	container.css("background-color", "rgb(" + red + "," + green + ",0)");
