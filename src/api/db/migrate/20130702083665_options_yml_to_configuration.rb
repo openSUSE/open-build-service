@@ -5,7 +5,7 @@ class OptionsYmlToConfiguration < ActiveRecord::Migration
       add_column :configurations, :anonymous, :boolean, :default => true
       add_column :configurations, :default_access_disabled, :boolean, :default => false
       add_column :configurations, :allow_user_to_create_home_project, :boolean, :default => true
-      add_column :configurations, :disallow_group_creation, :boolean, :default => true
+      add_column :configurations, :disallow_group_creation, :boolean, :default => false
       add_column :configurations, :change_password, :boolean, :default => true
       add_column :configurations, :hide_private_options, :boolean, :default => false
       add_column :configurations, :gravatar, :boolean, :default => true

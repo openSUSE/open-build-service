@@ -205,7 +205,7 @@ CREATE TABLE `configurations` (
   `anonymous` tinyint(1) DEFAULT '1',
   `default_access_disabled` tinyint(1) DEFAULT '0',
   `allow_user_to_create_home_project` tinyint(1) DEFAULT '1',
-  `disallow_group_creation` tinyint(1) DEFAULT '1',
+  `disallow_group_creation` tinyint(1) DEFAULT '0',
   `change_password` tinyint(1) DEFAULT '1',
   `hide_private_options` tinyint(1) DEFAULT '0',
   `gravatar` tinyint(1) DEFAULT '1',
