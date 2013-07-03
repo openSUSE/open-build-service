@@ -36,7 +36,7 @@ sub initctx {
   Net::SSLeay::load_error_strings();
   Net::SSLeay::SSLeay_add_ssl_algorithms();
   Net::SSLeay::randomize();
-  $sslctx = Net::SSLeay::CTX_new () or die("CTX_new failed!\n");
+  $sslctx = Net::SSLeay::CTX_new() or die("CTX_new failed!\n");
   Net::SSLeay::CTX_set_options($sslctx, &Net::SSLeay::OP_ALL);
   if ($keyfile) {
     Net::SSLeay::CTX_use_RSAPrivateKey_file($sslctx, $keyfile, &Net::SSLeay::FILETYPE_PEM) || die("RSAPrivateKey $keyfile failed\n");
@@ -48,6 +48,7 @@ sub initctx {
 
 sub freectx {
   Net::SSLeay::CTX_free($sslctx);
+  undef $sslctx;
 }
 
 sub tossl {
