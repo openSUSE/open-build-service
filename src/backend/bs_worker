@@ -1938,7 +1938,7 @@ sub getoldpackages {
 }
 
 
-sub patchkiwi {
+sub patchproductkiwi {
   my ($buildinfo, $kiwifile, $meta) = @_;
 
   my $kiwi = readxml($kiwifile, $BSKiwiXML::kiwidesc);
@@ -1961,44 +1961,27 @@ sub patchkiwi {
   }
   $kiwi->{'instsource'}->{'productoptions'}->{'productvar'} = \@vars;
 
-  # expand obsrepositories directive:/
-  if ($buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product') {
-    # for products
-    my @rp;
-    for my $repository (@{$kiwi->{'instsource'}->{'instrepo'} || []}) {
-       if ($repository->{'source'}->{'path'} ne 'obsrepositories:/') {
-          push @rp, $repository;
-          next;
-       }
-       # fill in pathes from buildinfo instead
-       my $counter = 0;
-       for my $path (@{$buildinfo->{'path'} || []}) {
-          my $h = { 'source' => { 'path' => "obs://$path->{'project'}/$path->{'repository'}" } };
-          $h->{'priority'} = $repository->{'priority'} if $repository->{'priority'};
-          $h->{'local'} = $repository->{'local'} if $repository->{'local'};
-          if ($repository->{'name'}) {
-            $counter = $counter + 1;
-            $h->{'name'} = "$repository->{'name'}_$counter";
-          }
-          push @rp, $h;
-       }
-    }
-    $kiwi->{'instsource'}->{'instrepo'} = \@rp if @rp;
-  } else {
-    my @rp;
-    # for appliances
-    for my $repository (@{$kiwi->{'repository'} || []}) {
-       if ($repository->{'source'}->{'path'} ne 'obsrepositories:/') {
-          push @rp, $repository->{'source'}->{'path'};
-          next;
-       }
-       # fill in pathes from buildinfo instead
-       for my $path (@{$buildinfo->{'path'} || []}) {
-          push @rp, "obs://$path->{'project'}/$path->{'repository'}";
-       }
-    }
-    $kiwi->{'repository'} = \@rp if @rp;
+  # expand obsrepositories:/ directive
+  my @rp;
+  for my $repository (@{$kiwi->{'instsource'}->{'instrepo'} || []}) {
+     if ($repository->{'source'}->{'path'} ne 'obsrepositories:/') {
+        push @rp, $repository;
+        next;
+     }
+     # fill in pathes from buildinfo instead
+     my $counter = 0;
+     for my $path (@{$buildinfo->{'path'} || []}) {
+        my $h = { 'source' => { 'path' => "obs://$path->{'project'}/$path->{'repository'}" } };
+        $h->{'priority'} = $repository->{'priority'} if $repository->{'priority'};
+        $h->{'local'} = $repository->{'local'} if $repository->{'local'};
+        if ($repository->{'name'}) {
+          $counter = $counter + 1;
+          $h->{'name'} = "$repository->{'name'}_$counter";
+        }
+        push @rp, $h;
+     }
   }
+  $kiwi->{'instsource'}->{'instrepo'} = \@rp if @rp;
 
   # expand a "take all packages" for products
   for my $repopackages (@{$kiwi->{'instsource'}->{'repopackages'} || []}) {
@@ -2209,7 +2192,9 @@ sub dobuild {
 
   print "building...\n";
 
-  patchkiwi($buildinfo, "$srcdir/$buildinfo->{'file'}", \@meta) if ($kiwimode);
+  if ($buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product') {
+    patchproductkiwi($buildinfo, "$srcdir/$buildinfo->{'file'}", \@meta);
+  }
 
   push @args, "$statedir/build/build";
   if ($vm =~ /(xen|kvm|zvm|emulator)/) {
@@ -2263,6 +2248,27 @@ sub dobuild {
   push @args, '--linksources' if $localkiwi;
   push @args, '--signdummy' if $kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product' && -e "$statedir/build/signdummy";
   push @args, "$srcdir/$buildinfo->{'file'}";
+  if ($buildinfo->{'file'} =~ /\.kiwi$/ && $buildinfo->{'imagetype'}->[0] ne 'product') {
+    # expand obsrepositories:/ directive for appliances
+    my @rp=();
+    my $kiwi = readxml("$srcdir/$buildinfo->{'file'}",, $BSKiwiXML::kiwidesc);
+    push @args, '--kiwi-parameter', '--ignore-repos';
+    for my $repository (@{$kiwi->{'repository'} || []}) {
+       if ($repository->{'source'}->{'path'} ne 'obsrepositories:/') {
+          push @args, '--kiwi-parameter', '--add-repo', '--kiwi-parameter', "$repository->{'source'}->{'path'}";
+          push @args, '--kiwi-parameter', '--add-repotype', '--kiwi-parameter', "rpm-md";
+          push @args, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', $repository->{'priority'} || 0;
+       }
+       # fill in pathes from buildinfo instead
+       for my $path (@{$buildinfo->{'path'} || []}) {
+          my $repo ="repos/$path->{'project'}/$path->{'repository'}";
+          $repo =~ s/:/:\//g;
+          push @args, '--kiwi-parameter', '--add-repo', '--kiwi-parameter', $repo;
+          push @args, '--kiwi-parameter', '--add-repotype', '--kiwi-parameter', "rpm-md";
+          push @args, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', $repository->{'priority'} || 0;
+       }
+    }
+  }
   qsystem(@args);
 
   print "\n";
