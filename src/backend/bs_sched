@@ -2651,7 +2651,7 @@ sub update_project_meta_resume {
       my $async = {'_dolink' => 1, '_changetype' => 'high', '_changelevel' => 1};
       get_projpacks($handle->{'_ctx'}, $async, $projid, @$packids);
     } else {
-      xrpc_setchanged($handle);
+      xrpc_setchanged($handle, $projid);
     }
   } else {
     # project is gone!
@@ -2708,11 +2708,14 @@ sub update_project_meta_check {
   # XXX: could be more clever here
   return 0 unless identical($proj->{'repository'}, $oldproj->{'repository'});
 
-  # check macro definitions
-  my $cold = Build::read_config($myarch, split("\n", $oldproj->{'config'} || ''));
-  my $cnew = Build::read_config($myarch, split("\n", $proj->{'config'} || ''));
-  return 0 unless identical($cold->{'macros'}, $cnew->{'macros'});
-  return 0 unless identical($cold->{'type'}, $cnew->{'type'});
+  # check macro definitions and build type for all repositories
+  for my $repoid (map {$_->{'name'}} @{$proj->{'repository'} || []}) {
+    my @mprefix = ("%define _project $projid", "%define _repository $repoid");
+    my $cold = Build::read_config($myarch, @mprefix, split("\n", $oldproj->{'config'} || ''));
+    my $cnew = Build::read_config($myarch, @mprefix, split("\n", $proj->{'config'} || ''));
+    return 0 unless identical($cold->{'macros'}, $cnew->{'macros'});
+    return 0 unless identical($cold->{'type'}, $cnew->{'type'});
+  }
   $projpacks->{$projid} = $proj;
   return 1;
 }
