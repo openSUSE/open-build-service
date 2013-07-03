@@ -28,7 +28,6 @@ organized like this:
 	src/api       Api code (Ruby / Ruby on Rails)
 	src/backend   Backend code (Perl)
 	src/webui     Webui code (Ruby / Ruby on Rails)
-	shared        Stuff shared across the different parts
 
 Note that the three parts each also have their own documentation found in their
 respective subdirectories.
