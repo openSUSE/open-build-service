@@ -7,8 +7,8 @@ class Configuration < ActiveRecord::Base
   OPTIONS_YML =  { :title => nil,
                    :description => nil,
                    :name => nil,                     # from BSConfig.pm
-                   :download_on_demand => true,      # from BSConfig.pm
-                   :enforce_project_keys => true,  # from BSConfig.pm
+                   :download_on_demand => nil,       # from BSConfig.pm
+                   :enforce_project_keys => nil,     # from BSConfig.pm
                    :anonymous => CONFIG['allow_anonymous'],
                    :registration => CONFIG['new_user_registration'],
                    :default_access_disabled => CONFIG['default_access_disabled'],
@@ -23,7 +23,7 @@ class Configuration < ActiveRecord::Base
                    :errbit_url => CONFIG['errbit_host'],
                    :bugzilla_url => CONFIG['bugzilla_host'],
                    :http_proxy => CONFIG['http_proxy'],
-                   :no_proxy => "",
+                   :no_proxy => nil,
                    :theme => CONFIG['theme'],
                  }
   ON_OFF_OPTIONS = [ :anonymous, :default_access_disabled, :allow_user_to_create_home_project, :disallow_group_creation, :change_password, :hide_private_options, :gravatar, :download_on_demand, :enforce_project_keys, :multiaction_notify_support ]
