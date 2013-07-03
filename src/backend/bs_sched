@@ -567,7 +567,7 @@ sub add_crossmarker {
 sub expandkiwipath {
   my ($info, $prpsearchpath) = @_;
   my @path;
-  for ({$info->{'path'} || []}) {
+  for (@{$info->{'path'} || []}) {
     if ($_->{'project'} eq '_obsrepositories') {
       push @path, @{$prpsearchpath || []};
     } else {
