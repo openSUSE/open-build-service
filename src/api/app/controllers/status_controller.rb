@@ -146,13 +146,16 @@ class StatusController < ApplicationController
       line.save
     end
     data.root.each_element('partition') do |d|
-      queue = d.elements['queue']
-      next unless queue
-      arch = d.attributes['arch']
-      StatusHistory.create :time => mytime, :key => "squeue_high_#{arch}", :value => queue.attributes['high']
-      StatusHistory.create :time => mytime, :key => "squeue_next_#{arch}", :value => queue.attributes['next']
-      StatusHistory.create :time => mytime, :key => "squeue_med_#{arch}", :value => queue.attributes['med']
-      StatusHistory.create :time => mytime, :key => "squeue_low_#{arch}", :value => queue.attributes['low']
+      d.each_element('daemon') do |daemon|
+        next unless daemon.attributes['type'] == 'scheduler'
+        queue = daemon.elements['queue']
+        next unless queue
+        arch = daemon.attributes['arch']
+        StatusHistory.create :time => mytime, :key => "squeue_high_#{arch}", :value => queue.attributes['high']
+        StatusHistory.create :time => mytime, :key => "squeue_next_#{arch}", :value => queue.attributes['next']
+        StatusHistory.create :time => mytime, :key => "squeue_med_#{arch}", :value => queue.attributes['med']
+        StatusHistory.create :time => mytime, :key => "squeue_low_#{arch}", :value => queue.attributes['low']
+      end
     end
 
     allworkers = Hash.new
