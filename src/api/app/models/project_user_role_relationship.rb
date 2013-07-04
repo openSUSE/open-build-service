@@ -21,7 +21,7 @@ class ProjectUserRoleRelationship < ActiveRecord::Base
     project_user_cache = Rails.cache.fetch(FORBIDDEN_PROJECT_IDS_CACHE_KEY) do
       puc = Hash.new
       ProjectUserRoleRelationship.find_by_sql("SELECT ur.db_project_id, ur.bs_user_id from flags f, 
-                project_user_role_relationships ur where f.flag = 'access' and ur.db_project_id = f.db_project_id").each do |r|
+                project_user_role_relationships ur where f.flag = 'access' and f.status = 'disable' and ur.db_project_id = f.db_project_id").each do |r|
         puc[r.db_project_id.to_i] ||= Hash.new
         puc[r.db_project_id][r.bs_user_id] = 1
       end
