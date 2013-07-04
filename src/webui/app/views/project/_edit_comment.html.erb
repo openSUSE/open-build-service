@@ -1,10 +1,9 @@
 <div>
 
-<% if @result[:type] == :error %>
+<% if @error %>
   <%= image_tag 'dialog-warning.png' %>
+  <%= @error %>
 <% end %>
-
-<%= @result[:msg] %></div>
 
 <%= show_status_comment( @comment, @package, true, [] ) %>
 

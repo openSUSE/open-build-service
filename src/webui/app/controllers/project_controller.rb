@@ -1119,12 +1119,12 @@ class ProjectController < ApplicationController
     @package = params[:package]
     attr = Attribute.new(:project => params[:project], :package => params[:package])
     attr.set('OBS', 'ProjectStatusPackageFailComment', params[:text])
-    result = attr.save
-    @result = result
-    if result[:type] == :error
-      @comment = params[:last_comment]
-    else
+    begin
+      attr.save
       @comment = params[:text]
+    rescue ActiveXML::Transport::Error => e
+      @comment = params[:last_comment]
+      @error = e.message
     end
     @update = params[:update]
   end
