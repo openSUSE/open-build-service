@@ -134,6 +134,7 @@ our $relsync_pool = {
  "armv4l"  => "arm",
  "armv5l"  => "arm",
  "armv6l"  => "arm",
+ "armv6hl" => "arm",
  "armv7l"  => "arm",
  "armv7hl" => "arm",
  "armv5el" => "armv5el", # they do not exist
