@@ -15,6 +15,9 @@ class Package < ActiveRecord::Base
   class SaveError < APIException
     setup "package_save_error"
   end
+  class WritePermissionError < APIException
+    setup "package_write_permission_error"
+  end
   class ReadAccessError < APIException
     setup 'unknown_package', 404, "Unknown package"
   end
@@ -239,6 +242,14 @@ class Package < ActiveRecord::Base
     return self.project.is_locked?
   end
 
+  def check_write_access!
+    return if Rails.env.test? and User.current.nil? # for unit tests
+
+    unless User.current.can_modify_package? self
+      raise WritePermissionError, "No permission to modify package '#{self.name}' for user '#{User.current.login}'"
+    end
+  end
+
   # NOTE: this is no permission check, should it be added ?
   def can_be_deleted?
     # check if other packages have me as devel package
@@ -285,14 +296,17 @@ class Package < ActiveRecord::Base
   end
 
   def add_package_kind( kinds )
+    check_write_access!
     private_set_package_kind( kinds, nil, true )
   end
 
   def set_package_kind( kinds = nil )
+    check_write_access!
     private_set_package_kind( kinds )
   end
 
   def set_package_kind_from_commit( commit )
+    check_write_access!
     private_set_package_kind( nil, commit )
   end
 
@@ -419,6 +433,7 @@ class Package < ActiveRecord::Base
   end
 
   def update_from_xml( xmlhash )
+    check_write_access!
     self.title = xmlhash.value('title')
     self.description = xmlhash.value('description')
     self.bcntsynctag = nil
@@ -616,6 +631,7 @@ class Package < ActiveRecord::Base
   end
 
   def store(opts = {})
+    # no write access check here, since this operation may will disable this permission ...
     @commit_opts = opts
     save!
   end
@@ -649,6 +665,7 @@ class Package < ActiveRecord::Base
   end
 
   def add_user( user, role )
+    check_write_access!
     unless role.kind_of? Role
       role = Role.get_by_title(role)
     end
@@ -669,6 +686,7 @@ class Package < ActiveRecord::Base
   end
 
   def add_group( group, role )
+    check_write_access!
     unless role.kind_of? Role
       role = Role.get_by_title(role)
     end
@@ -933,14 +951,17 @@ class Package < ActiveRecord::Base
   end
 
   def remove_all_persons
+    check_write_access!
     self.package_user_role_relationships.delete_all
   end
 
   def remove_all_groups
+    check_write_access!
     self.package_group_role_relationships.delete_all
   end
 
   def remove_role(what, role)
+    check_write_access!
     if what.kind_of? Group
       rel = self.package_group_role_relationships.where(bs_group_id: what.id)
     else
@@ -954,6 +975,7 @@ class Package < ActiveRecord::Base
   end
 
   def add_role(what, role)
+    check_write_access!
     self.transaction do
       if what.kind_of? Group
         self.package_group_role_relationships.create!(role: role, group: what)

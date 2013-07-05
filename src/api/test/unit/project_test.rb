@@ -28,6 +28,7 @@ class ProjectTest < ActiveSupport::TestCase
   
   
   def test_add_new_flags_from_xml
+    User.current = users( :Iggy )
     
     #precondition check
     @project.flags.delete_all
@@ -88,6 +89,8 @@ class ProjectTest < ActiveSupport::TestCase
   
   
   def test_delete_flags_through_xml
+    User.current = users( :Iggy )
+
     #check precondition
     assert_equal 2, @project.type_flags('build').size
     assert_equal 2, @project.type_flags('publish').size
@@ -107,6 +110,8 @@ class ProjectTest < ActiveSupport::TestCase
 
     
   def test_store_axml
+    User.current = users( :Iggy )
+
     original = @project.to_axml
 
     #project is given as axml
@@ -131,6 +136,8 @@ class ProjectTest < ActiveSupport::TestCase
   end  
 
   def test_ordering
+    User.current = users( :Iggy )
+
     #project is given as axml
     axml = Xmlhash.parse(
       "<project name='home:Iggy'>
@@ -175,6 +182,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
     
   test "duplicated repos" do
+     User.current = users( :king )
      orig = @project.render_axml
 
      axml = Xmlhash.parse(
@@ -199,6 +207,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "duplicated repos with remote" do
+     User.current = users( :Iggy )
      orig = @project.render_axml
 
      xml = <<END
@@ -225,6 +234,7 @@ END
      assert_equal orig, @project.render_axml
   end
   test "not duplicated repos with remote" do
+     User.current = users( :Iggy )
      xml = <<END
 <project name="home:Iggy">
   <title>Iggy"s Home Project</title>
@@ -250,6 +260,7 @@ END
   end
 
   def test_create_maintenance_project_and_maintained_project
+    User.current = users( :king )
     maintenance_project = Project.new(:name => 'Maintenance:Project')
     assert_equal true, maintenance_project.set_project_type('maintenance')
     assert_equal 'maintenance', maintenance_project.project_type()

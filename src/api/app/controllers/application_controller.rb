@@ -442,6 +442,14 @@ class ApplicationController < ActionController::API
     render :text => xml_text, :status => http_status
   end
 
+  rescue_from Project::WritePermissionError do |exception|
+    render_error :status => 403, :errorcode => "modify_project_no_permission", :message => exception.message
+  end
+
+  rescue_from Package::WritePermissionError do |exception|
+    render_error :status => 403, :errorcode => "modify_package_no_permission", :message => exception.message
+  end
+
   rescue_from Suse::Backend::NotFoundError, ActiveRecord::RecordNotFound do |exception|
     render_error message: exception.message, status: 404, errorcode: 'not_found'
   end
