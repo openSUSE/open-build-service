@@ -218,8 +218,18 @@ class WebuiController < ApplicationController
     
     if params[:package].blank?
       target = Project.find_by_name!(params[:project])
+      unless @http_user.can_modify_project?(target)
+        render_error :status => 403, :errorcode => "modify_project_no_permission",
+          :message => "no permission to modify project '#{target.name}'"
+        return
+      end
     else
-      target = Package.find_by_project_and_name(params[:project], params[:package])
+      target = Package.find_by_project_and_name!(params[:project], params[:package])
+      unless @http_user.can_modify_package?(target)
+        render_error :status => 403, :errorcode => "modify_project_no_permission",
+          :message => "no permission to modify package '#{target.name}'"
+        return
+      end
     end
 
     if params.has_key? :userid
@@ -233,7 +243,7 @@ class WebuiController < ApplicationController
     begin
       if params[:todo].to_s == 'remove'
         role = nil
-        role = Role.find_by_title(params[:role]) if params[:role]
+        role = Role.find_by_title!(params[:role]) if params[:role]
         target.remove_role(object, role)
       elsif params[:todo].to_s == 'add'
         role = Role.find_by_title!(params[:role])
