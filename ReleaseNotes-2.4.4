@@ -1,0 +1,37 @@
+#
+# openSUSE Build Service 2.4.4
+#
+
+Updaters from any OBS 2.4 release can just ugrade the packages
+and restart all services. Updaters from former releases should
+read the README.UPDATERS file.
+
+This release fixes a serious security leak tracked as CVE-2013-3703:
+ Users can add or remove other users to projects or packages where
+they have no maintainership.
+
+All OBS 2.4 user a requested to updated immediatly to close this
+hole. Instances with OBS 2.3 and before are not affected.
+
+Feature backports:
+==================
+
+* none
+
+Changes:
+========
+
+* None
+
+Bugfixes:
+=========
+
+* api: Fix for CVE-2013-3703
+* api: Do not hide projects which have an explicit access enabled tag.
+* api: handle invalid strings in options.yml for allow_user_to_create_home_project setting
+* backend: repository type changes got not catched by the scheduler
+* backend: fix project deleting not cleaning up build area in async mode
+* backend: hostlabel build constraints had no effect
+* backend: constraints defined in project config had no effect
+* backend: start more then one worker by default if not using zVM
+
