@@ -81,6 +81,8 @@ class FrontendCompat
     path += "/#{pesc opt[:filename]}" if opt[:filename]
     path += "?"
     path += "cmd=#{esc opt[:cmd]}" unless opt[:cmd].blank?
+    path += "&targetproject=#{esc opt[:targetproject]}" unless opt[:targetproject].blank?
+    path += "&targetrepository=#{esc opt[:targetrepository]}" unless opt[:targetrepository].blank?
     path += "&comment=#{esc opt[:comment]}" unless opt[:comment].blank?
     transport.http_do :post, URI("#{path}"), data: data, timeout: 500
   end
