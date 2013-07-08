@@ -4,7 +4,7 @@
       <h2 class="box-header">Create Maintenance Release Request</h2>
       <p>Do you want to release <%= render :partial => 'shared/project_or_package_link', :locals => {:project => @project.value('name')} %> as a maintenance update?</p>
 
-      <%= form_tag({:controller => "project", :action => :new_release_request}, :method => "post") do %>
+      <%= form_tag({:controller => 'project', :action => 'new_release_request'}) do -%>
         <%= hidden_field_tag(:project, @project.value('name')) %>
         <p>
           <%= label_tag(:sourceproject, "From project:") %><br/>

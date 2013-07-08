@@ -62,7 +62,7 @@ OBSWebUI::Application.routes.draw do
     get 'package/commit/:project/:package' => :commit, as: 'package_commit', constraints: cons
     get 'package/revisions/:project/:package' => :revisions, constraints: cons
     get 'package/submit_request_dialog/:project/:package' => :submit_request_dialog, constraints: cons
-    get 'package/submit_request/:project/:package' => :submit_request, constraints: cons
+    post 'package/submit_request/:project/:package' => :submit_request, constraints: cons
     get 'package/add_person/:project/:package' => :add_person, constraints: cons
     get 'package/add_group/:project/:package' => :add_group, constraints: cons
     get 'package/rdiff/:project/:package' => :rdiff, constraints: cons
@@ -136,7 +136,7 @@ OBSWebUI::Application.routes.draw do
     get 'project/incident_request_dialog' => :incident_request_dialog
     post 'project/new_incident_request' => :new_incident_request
     get 'project/release_request_dialog' => :release_request_dialog
-    get 'project/new_release_request/:project' => :new_release_request
+    post 'project/new_release_request/(:project)' => :new_release_request
     get 'project/show/(:project)' => :show, constraints: cons, as: 'project_show'
     get 'project/linking_projects/:project' => :linking_projects, constraints: cons
     get 'project/add_repository_from_default_list/:project' => :add_repository_from_default_list, constraints: cons
@@ -225,6 +225,7 @@ OBSWebUI::Application.routes.draw do
 
     get 'user/login' => :login
     post 'user/logout' => :logout
+    get 'user/logout' => :logout
 
     post 'user/save' => :save
     get 'user/save_dialog' => :save_dialog
