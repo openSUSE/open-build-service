@@ -19,7 +19,7 @@ class ProjectController < ApplicationController
   before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list, 
                                                             :edit_repository, :update_target]
 
-  before_filter :load_releasetargets, :only => [ :show, :incident_request_dialog ]
+  before_filter :load_releasetargets, :only => [ :show, :incident_request_dialog, :release_repository_dialog ]
   prepend_before_filter :lockout_spiders, :only => [:requests, :rebuild_time]
 
   def index
@@ -715,6 +715,12 @@ class ProjectController < ApplicationController
     redirect_back_or_to :action => 'repositories', :project => @project and return
   end
 
+  def release_repository_dialog
+    @project = params[:project]
+    @repository = params[:repository]
+    render_dialog
+  end
+
   def remove_target_request_dialog
     @project = params[:project]
     @repository = params[:repository]
@@ -750,6 +756,16 @@ class ProjectController < ApplicationController
       end
     rescue ActiveXML::Transport::Error => e
       flash[:error] = "Failed to remove target '#{params[:target]}' " + e.summary
+    end
+    redirect_to :action => :repositories, :project => @project
+  end
+
+  def release_repository
+    begin
+      @project.release_repository(params[:repository], params[:release_target])
+      flash[:notice] = "Repository '#{params[:repository]}' gets released"
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = "Failed to release repository '#{params[:repository]}' " + e.summary
     end
     redirect_to :action => :repositories, :project => @project
   end

@@ -207,6 +207,27 @@ class Project < ActiveXML::Node
     delete_element repository if repository
   end
 
+  def release_repository( repository, target=nil )
+    # target is optional and may come as string "project/targetrepository"
+
+    arguments = {:project => self.name, :cmd => 'release'}
+    if target
+      a=target.split(/\//)
+      arguments[:targetproject] = a[0]
+      arguments[:targetrepository] = a[1]
+    end
+
+    begin
+      fc = FrontendCompat.new
+      answer = fc.do_post(nil, arguments)
+      doc = ActiveXML::Node.new(answer)
+      doc.each('/collection/project') {|e| result << e.value('name')}
+    rescue ActiveXML::Transport::NotFoundError
+      # No answer is ok, it only means no linking projects...
+    end
+    return result
+  end
+
 
   def add_maintained_project(maintained_project)
     return nil if not maintained_project
