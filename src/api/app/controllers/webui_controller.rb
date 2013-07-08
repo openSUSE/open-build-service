@@ -224,8 +224,8 @@ class WebuiController < ApplicationController
         return
       end
     else
-      target = Package.find_by_project_and_name!(params[:project], params[:package])
-      unless @http_user.can_modify_package?(target)
+      target = Package.find_by_project_and_name(params[:project], params[:package])
+      unless target and @http_user.can_modify_package?(target)
         render_error :status => 403, :errorcode => "modify_project_no_permission",
           :message => "no permission to modify package '#{target.name}'"
         return
