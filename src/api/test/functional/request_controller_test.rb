@@ -2089,6 +2089,24 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(:tag => "status", :attributes => {:code => "invalid_record"})
   end
 
+  def test_invalid_cleanup_use
+    prepare_request_with_user "Iggy", "asdfasdf"
+
+    req = "<request>
+            <action type='submit'>
+              <source project='home:Iggy' package='TestPack' />
+              <target project='home:Iggy' package='TestPack' />
+              <options>
+                <sourceupdate>cleanup</sourceupdate>
+              </options>
+            </action>
+            <description/>
+            <state who='Iggy' name='new'/>
+          </request>"
+    post "/request?cmd=create", req
+    assert_xml_tag(:tag => "status", :attributes => {:code => "invalid_record"})
+  end
+
   def test_special_chars
     prepare_request_with_user "Iggy", "asdfasdf"
     # create request

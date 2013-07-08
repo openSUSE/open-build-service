@@ -1640,6 +1640,8 @@ class Project < ActiveRecord::Base
     packages.each do |pkg|
       pkg.project.repositories.each do |repo|
         next if params[:repository] and params[:repository] != repo.name
+        next if params[:targetproject] and params[:targetproject] != repo.releasetarget.project
+        next if params[:targetreposiory] and params[:targetreposiory] != repo.releasetarget.repository
         repo.release_targets.each do |releasetarget|
           # release source and binaries
           release_package(pkg, releasetarget.target_repository.project.name, pkg.name, repo)

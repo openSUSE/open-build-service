@@ -23,6 +23,11 @@ class BsRequestAction < ActiveRecord::Base
         errors.add(:source_package, "should not be empty for #{action_type} requests") if source_package.blank?
       end
       errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
+      if source_package == target_package and source_project == target_project
+        if self.sourceupdate or self.updatelink
+          errors.add(:target_package, "No source changes are allowed, if source and target is identical")
+        end
+      end
     end
     errors.add(:target_package, "is invalid package name") if target_package && !Package.valid_name?(target_package)
     errors.add(:source_package, "is invalid package name") if source_package && !Package.valid_name?(source_package)
