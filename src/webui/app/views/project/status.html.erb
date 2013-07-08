@@ -112,7 +112,7 @@
           sortkey = "8-outdated-" + p['name']
         end
         if p['firstfail']
-          outs.unshift(link_to("Fails", :title => p['name'], :controller => :package,
+          outs.unshift(link_to("Fails", :controller => :package,
               :action => :live_build_log, :arch => p['failedarch'], :repository => p['failedrepo'], :project => @project.name, :package => p['name']) +
               " for #{Integer(Time.now.to_i - p['firstfail']) / 3600 / 24} days:" +
               (" <span id='".html_safe + valid_xml_id('comment_' + p['name']) + "'>".html_safe +
@@ -131,11 +131,11 @@
           <td class="nowrap">
             <span class="hidden"><%= p['name'] %></span>
             <% if icon == "error" -%>
-              <%= image_tag("exclamation.png", :size => "16x16", :title => "Error" ) %>
+              <%= sprite_tag("exclamation", title: "Error" ) %>
             <% elsif icon == "ok" -%>
-              <%= image_tag("accept.png", :size => "16x16", :title => "Ok" ) %>
+              <%= sprite_tag("accept", title: "Ok" ) %>
             <% else -%>
-              <%= image_tag("information.png", :size => "16x16", :title => "So-so" ) %>
+              <%= sprite_tag("information", title: "So-so" ) %>
             <% end -%>
             <%= link_to p['name'], :controller => :package, :action => :show, :project => @project.name, :package => p['name'] %>
           </td>
