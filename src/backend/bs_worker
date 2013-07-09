@@ -2251,21 +2251,22 @@ sub dobuild {
   if ($buildinfo->{'file'} =~ /\.kiwi$/ && $buildinfo->{'imagetype'}->[0] ne 'product') {
     # expand obsrepositories:/ directive for appliances
     my @rp=();
-    my $kiwi = readxml("$srcdir/$buildinfo->{'file'}",, $BSKiwiXML::kiwidesc);
+    my $kiwi = Build::parse(undef, "$srcdir/$buildinfo->{'file'}");
     push @args, '--kiwi-parameter', '--ignore-repos';
-    for my $repository (@{$kiwi->{'repository'} || []}) {
-       if ($repository->{'source'}->{'path'} ne 'obsrepositories:/') {
-          push @args, '--kiwi-parameter', '--add-repo', '--kiwi-parameter', "$repository->{'source'}->{'path'}";
+    for my $path (@{$kiwi->{'path'} || []}) {
+       if ($path->{'project'} ne '_obsrepositories') {
+          my $repo = "repos/$path->{'project'}/$path->{'repository'}";
+          push @args, '--kiwi-parameter', '--add-repo', '--kiwi-parameter', $repo;
           push @args, '--kiwi-parameter', '--add-repotype', '--kiwi-parameter', "rpm-md";
-          push @args, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', $repository->{'priority'} || 0;
+          push @args, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', $path->{'priority'} || 0;
        }
        # fill in pathes from buildinfo instead
-       for my $path (@{$buildinfo->{'path'} || []}) {
-          my $repo ="repos/$path->{'project'}/$path->{'repository'}";
+       for my $prjpath (@{$buildinfo->{'path'} || []}) {
+          my $repo ="repos/$prjpath->{'project'}/$prjpath->{'repository'}";
           $repo =~ s/:/:\//g;
           push @args, '--kiwi-parameter', '--add-repo', '--kiwi-parameter', $repo;
           push @args, '--kiwi-parameter', '--add-repotype', '--kiwi-parameter', "rpm-md";
-          push @args, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', $repository->{'priority'} || 0;
+          push @args, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', $path->{'priority'} || 0;
        }
     }
   }
