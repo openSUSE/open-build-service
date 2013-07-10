@@ -2,6 +2,7 @@ require 'base64'
 
 class RequestController < ApplicationController
   include ApplicationHelper
+  include CommentsHelper
 
   def add_reviewer_dialog
     @request_id = params[:id]
@@ -284,6 +285,13 @@ class RequestController < ApplicationController
       flash[:error] = "Incident #{e.message} does not exist"
     end
     redirect_to :controller => :request, :action => "show", :id => params[:id]
+  end
+
+  def comments
+    @request = BsRequest.find(params[:id])
+    @comment = Comment.find_by_request_id(:id => params[:id])
+    @comment = ActiveXML::Node.new(@comment)
+    @comments_as_thread = sort_comments(@comment)
   end
 
 private

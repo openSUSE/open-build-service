@@ -1,0 +1,35 @@
+	<% @comments_as_thread.each do |comment| %>
+	<div class="parent_comment">
+		<div class="grid_2 alpha box box-shadow">
+			<div class="comment_image">
+				<%= user_icon(comment[:user], 80)%>
+				By <%=comment[:user]%>
+			</div>
+		</div>
+		<div class="grid_12 alpha box box-shadow">
+			<h2 class="box-header"><%= comment[:title] %> <em><%=Date.parse(comment[:created_at]).strftime("%m/%d/%Y")%></em> </h2>
+			<p><%= comment[:body] %></p>
+			<p>
+				<%if params[:id]%>
+					<% unless comment[:children].size > 6 %>
+						<%= link_to('Reply', {:controller => 'comments', :action => 'add_new_reply', :id => params[:id], :parent_id => comment[:id] }, :remote => true, :class => "custom_button") %>
+					<% end %>
+				<%elsif params[:package]%>
+					<% unless comment[:children].size > 6 %>
+						<%= link_to('Reply', {:controller => 'comments', :action => 'add_new_reply', :project => params[:project], :package => params[:package], :parent_id => comment[:id] }, :remote => true, :class => "custom_button") %>
+					<% end %>
+				<%else%>
+					<% unless comment[:children].size > 6 %>
+						<%= link_to('Reply', {:controller => 'comments', :action => 'add_new_reply', :project => params[:project], :parent_id => comment[:id] }, :remote => true, :class => "custom_button") %>
+					<% end %>
+				<%end%>
+				
+				
+			</p>
+		</div>
+	</div>
+	<% unless comment[:children].empty? %>
+		<%= render partial: 'comments/child_comment', locals: {children: comment[:children] } %>
+	<% end %>
+	<br/>
+<% end %>

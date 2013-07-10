@@ -1,0 +1,10 @@
+<% @pagetitle = "Comments for #{@project}" %>
+<% @layouttype = 'custom' %>
+<% project_bread_crumb('Comments') %>
+
+<div class="grid_16 alpha omega box box-shadow">
+	<%= render :partial => "project/tabs" %>
+	<h3><%= @pagetitle %></h3>
+	<%=render :partial => "comments/sorted_comments"%>
+</div>
+<%=render :partial => "comments/new_comment"%>

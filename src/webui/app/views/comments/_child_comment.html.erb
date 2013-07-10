@@ -1,0 +1,47 @@
+<% level ||= 0 %>
+ 
+<% if children and !children.empty? %>
+	<% children.each do |comment| %>
+		<div class="child_comment level-<%=level%>">
+			<div class="grid_2 alpha box box-shadow">
+				<div class="comment_image">
+					<%= user_icon(comment[:user], 80)%>
+					By <%=comment[:user]%>
+				</div>
+			</div>
+			<div class="grid_10 alpha box box-shadow">
+				<p><%= comment[:body] %></p>
+				<p>
+					<%if params[:id]%>
+						<% unless level > 5 %>
+							<%= link_to('Reply', {:controller => 'comments', :action => 'add_new_reply', :parent_id => comment[:id], :id => params[:id] }, :remote => true, :class => "custom_button") %>
+						<% end %>
+					<%elsif params[:package] %>
+						<% unless level > 5 %>
+							<%= link_to('Reply', {:controller => 'comments', :action => 'add_new_reply', :parent_id => comment[:id], :package => params[:package], :project => params[:project] }, :remote => true, :class => "custom_button") %>
+						<% end %>
+					<%else%>
+						<% unless level > 5 %>
+							<%= link_to("Reply", {:controller => 'comments', :action => 'add_new_reply', :parent_id => comment[:id], :project => params[:project] }, :remote => true, :class => "custom_button") %>
+						<% end %>
+					<%end%>
+				</p>
+			</div>
+		</div>
+
+		<%if params[:id]%>
+			<% unless comment[:children].empty? %>
+				<%= render partial: 'comments/child_comment', locals: { id: params[:id], children: comment[:children], level: level+1 } %>
+			<% end %>
+		<%elsif params[:package] %>
+			<% unless comment[:children].empty? %>
+				<%= render partial: 'comments/child_comment', locals: { package: params[:package], project: params[:project], children: comment[:children], level: level+1 } %>
+			<% end %>
+		<%else%>
+			<% unless comment[:children].empty? %>
+				<%= render partial: 'comments/child_comment', locals: { project: params[:project], children: comment[:children], level: level+1 } %>
+			<% end %>
+		<%end %>
+			
+	<% end %>
+<% end %>

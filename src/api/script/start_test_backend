@@ -335,4 +335,3 @@ trap("INT") { dienow = true }
 while !dienow do
   sleep 1
 end
-

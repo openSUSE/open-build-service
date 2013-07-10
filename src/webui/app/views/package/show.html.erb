@@ -72,6 +72,7 @@
       </ul>
     <% end %>
   </div>
+
   <% if (not @bugowners_mail.empty? and !CONFIG['bugzilla_host'].nil?) or @user %>
     <div class="grid_16 alpha omega">
       <ul class="horizontal-list">
@@ -125,7 +126,7 @@
 </div>
 
 <div class="grid_10 alpha box box-shadow">
-<h3>Source Files <%= image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden') %>
+<h3>Source Files <%= image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden') %> <%="(#{@files.size})" if @files %>
 <% if @linkinfo && @revision_parameter.nil? %>
   <span style="font-size: small; font-weight: normal">
     <% if @expand && @expand.to_s == "1" or !@forced_unexpand.blank?  %>
