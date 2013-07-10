@@ -48,6 +48,8 @@ class Package < ActiveRecord::Base
   has_many :package_kinds, :dependent => :destroy, foreign_key: :db_package_id
   has_many :package_issues, :dependent => :destroy, foreign_key: :db_package_id # defined in sources
 
+  has_many :comments
+  
   after_save :write_to_backend
   before_update :update_activity
   after_rollback :reset_cache

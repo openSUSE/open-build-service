@@ -17,6 +17,7 @@
       <%= tab 'requests', "Requests", :controller => 'package', :action => 'requests' %>
       <%= tab 'users', 'Users', :controller => 'package', :action => 'users' %>
     <% end -%>
+    <%= tab 'comments', "Comments", :controller => :package, :action => :comments%>
     <% if is_advanced_tab? %>
       <%= content_for :ready_function do %>
         $("#advanced_tabs").show();

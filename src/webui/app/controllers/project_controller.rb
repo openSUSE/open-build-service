@@ -9,6 +9,7 @@ class ProjectController < ApplicationController
 
   include ApplicationHelper
   include RequestHelper
+  include CommentsHelper
 
   before_filter :load_project_info, :only => [:show]
   before_filter :require_project, :except => [:repository_arch_list,
@@ -1265,6 +1266,13 @@ class ProjectController < ApplicationController
       flash[:error] = e.summary
     end
     redirect_to :action => 'show', :project => params[:project] and return
+  end
+
+  def comments
+    @project = Project.find(params[:project])
+    @comment = Comment.find(:project => params[:project])
+    @comment = ActiveXML::Node.new(@comment)
+    @comments_as_thread = sort_comments(@comment)
   end
 
   private

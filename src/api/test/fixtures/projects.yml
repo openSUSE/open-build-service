@@ -1,3 +1,11 @@
+openSUSE_project:
+  id: 68576
+  name: openSUSE
+  title: openSUSE Project
+  description: a project created to test comments
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
+  type_id: 2
 BaseDistro:
   id: 2042
   name: BaseDistro
