@@ -1,0 +1,32 @@
+<% @comments_as_thread.each do |comment| %>
+<%= javascript_tag do %>
+	<%= render :partial => "shared/expand_collapse_comments.js.erb", :locals => {:comment_id => comment[:id]}%>
+<%end%>
+
+<div class="parent_comment">
+	<div class="grid_2 alpha box box-shadow">
+		<div class="comment_image">
+			<%= user_icon(comment[:user], 80)%>
+			By <%=comment[:user]%>
+		</div>
+	</div>
+	<div class="grid_12 alpha box box-shadow">
+		<h2 class="box-header">
+			<%= comment[:title] %>
+			<em><%=Date.parse(comment[:created_at]).strftime("%m/%d/%Y")%></em>
+			<% unless comment[:children].empty? %>
+				<a class="comment_replies" id="<%="toggle_replies_of_#{comment[:id]}"%>">Collapse</a>
+			<%end%>
+		</h2>
+		<p><%= comment[:body] %></p>
+		<p>
+			<%=render partial: 'shared/comment_reply_link', locals: { comment: comment} %>
+		</p>
+	</div>
+</div>
+<div id="<%="reply_of_comment_#{comment[:id]}"%>">
+	<% unless comment[:children].empty? %>
+		<%= render partial: 'shared/child_comment', locals: {children: comment[:children] } %>
+	<% end %>
+</div>
+<% end %>

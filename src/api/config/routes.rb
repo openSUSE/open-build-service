@@ -335,6 +335,16 @@ OBSApi::Application.routes.draw do
       resources :owners, :only => [:index]
       resources :searches, :only => [:new, :create]
       resources :attrib_types, :only => [:index]
+
+      # comments
+      get 'comments/request/:id/' => 'comments#requests', constraints: cons
+      get 'comments/package/:project/:package/' => 'comments#packages', constraints: cons
+      get 'comments/project/:project/' => 'comments#projects', constraints: cons
+      
+      post 'comments/project/:project/new' => 'comments#projects_new', constraints: cons
+      post 'comments/package/:project/:package/new' => 'comments#packages_new', constraints: cons
+      post 'comments/request/:id/new' => 'comments#requests_new', constraints: cons
+
     end
 
     get "/404" => "main#notfound"

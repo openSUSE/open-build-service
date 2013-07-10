@@ -1,0 +1,14 @@
+<div class="grid_16 alpha box box-shadow">
+	<h2 class="box-header">Add a comment</h2>
+	<%= form_tag :controller => params[:controller], :action => "save_comments" do %>
+		<p>
+  			<strong>Title:</strong><br/>
+  			<%= text_field_tag 'title', @title%><br/>
+ 			 <strong>Body:</strong><br/>
+  			<%= text_area_tag 'body', @body, :cols => 80, :rows => 10 %><br/>
+  			<%= hidden_field_tag 'user', session[:login] %>
+		</p>
+		<p><%= submit_tag "Add comment"%></p>
+	<%end%>
+	
+</div>

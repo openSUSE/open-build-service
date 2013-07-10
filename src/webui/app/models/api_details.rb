@@ -24,6 +24,19 @@ class ApiDetails
     http_do :delete, route_name, *args
   end
 
+  def self.save_comments(route_name, params)
+    uri = "/webui/" +
+    case route_name.to_sym
+      when :save_comments_for_projects then "comments/project/#{params[:project]}/new"
+      when :save_comments_for_packages then "comments/package/#{params[:project]}/#{params[:package]}/new"
+      when :save_comments_for_requests then "comments/request/#{params[:request_id]}/new"
+    end
+
+    uri = URI(uri)
+    data = ActiveXML::transport.http_json :post, uri, params
+    data
+  end
+
   # Trying to mimic the names and params of Rails' url helpers
   def self.http_do(verb, route_name, *args)
     # FIXME: we need a better (real) implementation of nested routes
@@ -63,6 +76,10 @@ class ApiDetails
       when :attrib_types then "attrib_types"
 
       when :searches then "searches"
+
+      when :comments_by_package then "comments/package/#{ids.first}/#{ids.last}"
+      when :comments_by_project then "comments/project/#{ids.first}"
+      when :comments_by_request then "comments/request/#{ids.first}"
 
       else raise "no valid route #{route_name}"
       end

@@ -52,7 +52,7 @@ GEM
       activesupport
       builder
     i18n (0.6.4)
-    innertube (1.0.2)
+    innertube (1.1.0)
     json (1.8.0)
     mail (2.5.4)
       mime-types (~> 1.16)
