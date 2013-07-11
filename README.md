@@ -9,7 +9,8 @@ to build and distribute binary packages from sources in an automatic, consistent
 reproducible way. You can release packages as well as updates, add-ons, appliances and
 entire distributions for a wide range of operating systems and hardware architectures.
 
-More information can be found on [openbuildservice.org](http://www.openbuildservice.org)
+More information can be found on [openbuildservice.org](http://www.openbuildservice.org),
+including the official books for OBS.
 
 Organization
 ------------
@@ -24,7 +25,7 @@ organized like this:
 ###Directory Description
 
 	dist          Files relevant for (distro) packaging
-	docs          Documentation, examples and the Build Service book
+	docs          Documentation, examples and schema files
 	src/api       Api code (Ruby / Ruby on Rails)
 	src/backend   Backend code (Perl)
 	src/webui     Webui code (Ruby / Ruby on Rails)
