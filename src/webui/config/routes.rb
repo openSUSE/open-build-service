@@ -168,7 +168,7 @@ OBSWebUI::Application.routes.draw do
     post 'project/remove_role/:project' => :remove_role, constraints: cons
     post 'project/remove_person/:project' => :remove_person, constraints: cons
     post 'project/remove_group/:project' => :remove_group, constraints: cons
-    get 'project/monitor/:project' => :monitor, constraints: cons
+    get 'project/monitor/(:project)' => :monitor, constraints: cons
     get 'project/package_buildresult/:project' => :package_buildresult, constraints: cons
     get 'project/toggle_watch/:project' => :toggle_watch, constraints: cons
     get 'project/meta/:project' => :meta, constraints: cons
