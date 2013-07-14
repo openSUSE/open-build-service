@@ -1,4 +1,7 @@
 	<% @comments_as_thread.each do |comment| %>
+	<%= javascript_tag do %>
+	<%= render :partial => "comments/expand_collapse.js.erb", :locals => {:comment_id => comment[:id]}%>
+	<%end%>
 	<div class="parent_comment">
 		<div class="grid_2 alpha box box-shadow">
 			<div class="comment_image">
@@ -7,7 +10,13 @@
 			</div>
 		</div>
 		<div class="grid_12 alpha box box-shadow">
-			<h2 class="box-header"><%= comment[:title] %> <em><%=Date.parse(comment[:created_at]).strftime("%m/%d/%Y")%></em> </h2>
+			<h2 class="box-header">
+				<%= comment[:title] %>
+				<em><%=Date.parse(comment[:created_at]).strftime("%m/%d/%Y")%></em>
+				<% unless comment[:children].empty? %>
+					<a class="comment_replies" id="<%="toggle_replies_of_#{comment[:id]}"%>">Collapse</a>
+				<%end%>
+			</h2>
 			<p><%= comment[:body] %></p>
 			<p>
 				<%if params[:id]%>
@@ -23,13 +32,14 @@
 						<%= link_to('Reply', {:controller => 'comments', :action => 'add_new_reply', :project => params[:project], :parent_id => comment[:id] }, :remote => true, :class => "custom_button") %>
 					<% end %>
 				<%end%>
-				
-				
 			</p>
 		</div>
 	</div>
-	<% unless comment[:children].empty? %>
-		<%= render partial: 'comments/child_comment', locals: {children: comment[:children] } %>
-	<% end %>
+	<div id="<%="reply_of_comment_#{comment[:id]}"%>">
+		<% unless comment[:children].empty? %>
+			<%= render partial: 'comments/child_comment', locals: {children: comment[:children] } %>
+		<% end %>
+	</div>
+
 	<br/>
 <% end %>
