@@ -172,12 +172,8 @@
     </div>
   </div>
  <% end %>
-<%= javascript_tag do %>
-  $(document).ready(function() {
-    $(function() {
+<% content_for :ready_function do %>
       $( "#tabs1" ).tabs();
       $( "#tabs2" ).tabs();
-    });
-  });
 <% end %>
 

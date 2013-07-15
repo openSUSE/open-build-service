@@ -5,7 +5,7 @@ class RequestController < ApplicationController
 
   def add_reviewer_dialog
     @request_id = params[:id]
-    render_dialog
+    render_dialog "requestAddReviewAutocomplete"
   end
 
   def add_reviewer
