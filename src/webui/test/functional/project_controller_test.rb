@@ -211,4 +211,14 @@ class ProjectControllerTest < ActionDispatch::IntegrationTest
     find(:id, 'projects_table_length').select('100')
     find(:id, 'project_list').must_have_link 'HiddenProject'
   end
+
+  test "Iggy adds himself as reviewer" do
+    login_Iggy
+    visit project_users_path(project: "home:Iggy")
+    first(:id, "user_reviewer_Iggy").click
+    find(:id, "advanced_tabs_trigger").click
+    click_link "Meta"
+    page.must_have_text '<person userid="Iggy" role="reviewer"/>'
+  end
+
 end

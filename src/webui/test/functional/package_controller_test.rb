@@ -34,4 +34,11 @@ class PackageControllerTest < ActionDispatch::IntegrationTest
     delete_and_recreate_kdelibs
   end
 
+  test "Iggy adds himself as reviewer" do
+    login_Iggy
+    visit package_users_path(package: "TestPack", project: "home:Iggy")
+    first(:id, 'user_reviewer_Iggy').click
+    click_link "Meta"
+    page.must_have_text '<person userid="Iggy" role="reviewer"/>'
+  end
 end

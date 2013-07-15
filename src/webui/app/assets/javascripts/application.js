@@ -115,7 +115,7 @@ function toggleBox(link, box) {
 }
 
 function toggleCheck(input) {
-    if (input.attr("checked")) {
+    if (input.is(":checked")) {
         input.removeAttr("checked");
     } else {
         input.attr("checked", "checked");
@@ -278,7 +278,7 @@ function change_role(obj) {
     var url;
     data = {project: $('#involved_users').data("project"), package: $('#involved_users').data("package"), role: role};
     data[type + 'id'] = td.data(type);
-    if (obj.attr('checked')) {
+    if (obj.is(':checked')) {
         url = $('#involved_users').data("save-" + type);
     } else {
         url = $('#involved_users').data("remove")
