@@ -210,7 +210,7 @@ OBSWebUI::Application.routes.draw do
     get 'request/change_devel_request_dialog' => :change_devel_request_dialog
     get 'request/change_devel_request' => :change_devel_request
     get 'request/set_incident_dialog' => :set_incident_dialog
-    get 'request/set_incident' => :set_incident
+    post 'request/set_incident' => :set_incident
   end
 
   controller :search do

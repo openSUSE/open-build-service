@@ -277,13 +277,13 @@ class RequestController < ApplicationController
   end
 
   def set_incident
-    check_ajax
     begin
       BsRequest.set_incident(params[:id], params[:incident_project])
-      flash[:notice] = "Set target of request #{id} to incident #{params[:incident_project]}"
+      flash[:notice] = "Set target of request #{params[:id]} to incident #{params[:incident_project]}"
     rescue BsRequest::ModifyError => e
-      flash[:error] = e.message
+      flash[:error] = "Incident #{e.message} does not exist"
     end
+    redirect_to :controller => :request, :action => "show", :id => params[:id]
   end
 
 private

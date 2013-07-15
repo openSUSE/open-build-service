@@ -86,6 +86,7 @@ class MaintenanceWorkflowTest < ActionDispatch::IntegrationTest
     
     find(:link, "open request").click
     find(:id, "description_text").text.must_equal "I want the update"
+    page.must_have_text("Release in BaseDistro") 
     fill_in "reason", with: "really? ok"
     find(:id, "accept_request_button").click
     find(:css, "#action_display_0").must_have_text %r{Submit update from package home:tom:branches:BaseDistro2.0:LinkedUpdateProject / pack2 to project My:Maintenance:0}
@@ -101,6 +102,37 @@ class MaintenanceWorkflowTest < ActionDispatch::IntegrationTest
     find(:id, "summary").send_keys "pack2: Fixes nothing"
     find(:name, "commit").click
     wait_for_page
+
+    logout
+
+    # add a additional fix to the incident
+    login_tom
+    visit(project_show_path(project: "home:tom"))
+
+    find(:link, "Subprojects").click
+    find(:link, "branches:BaseDistro2.0:LinkedUpdateProject").click
+    find(:link, "Submit as update").click
+
+    logout
+
+    login_user("maintenance_coord", "power")
+    visit(project_show_path(project: "My:Maintenance"))
+
+    find(:link, "open request").click
+    find(:link, "Merge with existing incident").click
+    #set to not existing incident
+    fill_in "incident_project", with: "2"
+    find_button("Ok").click
+    wait_for_page
+    page.must_have_text("does not exist")
+
+    find(:link, "Merge with existing incident").click
+    fill_in "incident_project", with: "0"
+    find_button("Ok").click
+    wait_for_page
+    find(:id, "accept_request_button").click
+
+    #continue with regular maintenancework    
     find(:link, "My:Maintenance").click
     find(:link, "open incident").click
     Selenium::WebDriver::Support::Select.new(find(:id, "incident_type_select")).select_by(:text, "closed")
