@@ -179,7 +179,7 @@ Debug Options
  --check-request-xml <file>
    Is parsing a request xml file and puts out error messages, in case of errors.
 
- --parse-build-desc <file> [<arch>]
+ --parse-build-desc <file> [<arch> [<buildconfigfile>]]
    Parse a spec, dsc or kiwi file with the Build script parser.
 
  --show-scheduler-architectures
