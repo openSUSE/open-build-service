@@ -463,10 +463,12 @@ module ApplicationHelper
   def remove_dialog_tag(text)
     link_to(text, "#", title: 'Remove Dialog', id: 'remove_dialog')
   end
-   
-  def render_dialog
-    check_ajax 
+
+  # dialog_init is a function name called before dialog is shown
+  def render_dialog(dialog_init = nil)
+    check_ajax
     @dialog_html = escape_javascript( render_to_string(partial: @current_action.to_s) )
+    @dialog_init = dialog_init
     render partial: 'dialog', content_type: 'application/javascript'
   end
 

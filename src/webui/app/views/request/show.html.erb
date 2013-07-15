@@ -187,14 +187,7 @@
             <% end %>
           </ul>
           <% content_for :ready_function do %>
-            $('.review_descision_link').click(function (event) {
-              $('#review_descision_select li.selected').attr('class', '');
-              $(event.target).parent().attr('class', 'selected')
-              $('.review_descision_display').hide();
-              index = event.target.id.split('review_descision_link_')[1]
-              $('#review_descision_display_' + index).show();
-              return false;
-            });
+              requestShowReview();
           <% end %>
         </div>
         <div class="review_descision_display" style="<%= 'display: none;' if @can_add_reviews && @my_open_reviews.length > 0 %>" id="review_descision_display_-1">
@@ -219,37 +212,17 @@
                 <% end %>
                 <span style="float: right;">
                   <% if @can_add_reviews %>
-                    <%= link_to(sprite_tag('user_add', title: 'Add a review'), {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}, :remote => true) %>
-                    <%= link_to('Add a review', {:controller => 'request', :action => 'add_reviewer_dialog', :id => @id}, :remote => true) %>
+                      <%= link_to(sprite_tag('user_add', title: 'Add a review') + 'Add a review', { controller: 'request', action: 'add_reviewer_dialog', id: @id }, remote: true) %>
                   <% end %>
                   <% if reqtype(@req) == 'incident' %>
-                    <%= link_to(sprite_tag('package_link', title: 'Merge with existing incident'), {:controller => 'request', :action => 'set_incident_dialog', :id => @id}, :remote => true) %>
-                    <%= link_to('Merge with existing incident', {:controller => 'request', :action => 'set_incident_dialog', :id => @id}, :remote => true) %>
+                      <%= link_to(sprite_tag('package_link', title: 'Merge with existing incident') + 'Merge with existing incident', {:controller => 'request', :action => 'set_incident_dialog', :id => @id}, :remote => true) %>
                   <% end %>
                 </span>
               </p>
             <% end %>
-            <% content_for :ready_function do %>
-              $('#accept_request_button').click(function (data) {
-                /* Add some hidden elements to carry HTML form data that is found at other DOM places for design reasons.  */
-                if ($('.submitter_is_maintainer_checkbox').size() != 0 &&
-                    $('.submitter_is_maintainer_checkbox').is(':checked')) {
-                  additional_element = '<input id="' + $('.submitter_is_maintainer_checkbox').attr('id') +
-                             '" name="' + $('.submitter_is_maintainer_checkbox').attr('name') +
-                             '" type="hidden" value="' + $('.submitter_is_maintainer_checkbox').attr('value') + '"/>'
-                  $('#request_handle_form p:last').append(additional_element);
-                }
-                if ($('.forward_checkbox').size() != 0 &&
-                    $('.forward_checkbox').is(':checked')) {
-                  $('.forward_checkbox').each(function (index) {
-                    additional_element = '<input id="' + $(this).attr('id') +
-                               '" name="' + $(this).attr('name') +
-                               '" type="hidden" value="' + $(this).attr('value') + '"/>'
-                    $('#request_handle_form p:last').append(additional_element);
-                  });
-                }
-              });
-            <% end %>
+              <% content_for :ready_function do %>
+                  requestAddAcceptRequestButton();
+              <% end %>
           <% end %>
         </div>
         <% if @can_add_reviews && @my_open_reviews.length > 0 %>

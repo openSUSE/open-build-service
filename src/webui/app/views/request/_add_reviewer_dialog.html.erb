@@ -1,82 +1,40 @@
-  <div class="dialog" id="disable_mask"></div>
-  <div class="dialog darkgrey_box">
-    <div class="box box-shadow">
-      <h2 class="box-header">Add Reviewer</h2>
+<div class="dialog" id="disable_mask"></div>
+<div class="dialog darkgrey_box">
+  <div class="box box-shadow">
+    <h2 class="box-header">Add Reviewer</h2>
 
-      <p>Add a reviewer to request <%= @request_id %></p>
+    <p>Add a reviewer to request <%= @request_id %></p>
 
-      <%= form_tag(:action => "add_reviewer") do %>
+    <%= form_tag(:action => "add_reviewer") do %>
         <%= hidden_field_tag(:id, @request_id) %>
         <p>
           <%= label_tag(:review_type, "Type:") %><br/>
-          <%= select_tag(:review_type, options_for_select([["User", "user"], ["Group", "group"], ["Project", "project"], ["Package", "package"]])) %><br/>
+          <%= select_tag(:review_type, options_for_select([["User", "user"], ["Group", "group"], ["Project", "project"], ["Package", "package"]])) %>
+          <br/>
           <span id="review_user_span">
             <%= label_tag(:review_user, "User:") %><br/>
             <%= text_field_tag(:review_user) %><br/>
-            <%= javascript_tag do %>
-              $("#review_user").autocomplete({source: '<%= url_for :controller => :user, :action => :autocomplete %>', minChars: 2, matchCase: true, max: 50});
-            <% end %>
           </span>
           <span id="review_group_span" class="hidden">
             <%= label_tag(:review_group, "Group:") %><br/>
             <%= text_field_tag(:review_group) %><br/>
-            <%= javascript_tag do %>
-              $("#review_group").autocomplete({source: '<%= url_for :controller => :group, :action => :autocomplete %>', minChars: 2, matchCase: true, max: 50});
-            <% end %>
           </span>
           <span id="review_project_span" class="hidden">
             <%= label_tag(:review_project, "Project:") %><br/>
             <%= text_field_tag(:review_project) %><br/>
-            <%= javascript_tag do %>
-              $("#review_project").autocomplete({source: '<%= url_for :controller => :project, :action => :autocomplete_projects %>', minChars: 2, matchCase: true, max: 50});
-            <% end %>
           </span>
           <span id="review_package_span" class="hidden">
             <%= label_tag(:review_package, "Package:") %><br/>
             <%= text_field_tag(:review_package) %><br/>
-            <%= javascript_tag do %>
-              $("#review_package").autocomplete({source: '<%= url_for :controller => :project, :action => :autocomplete_packages %>', 
-                minChars: 0, matchCase: true, max: 50, extraParams: {project: function() { return $("#review_project").val(); }}
-              );
-            <% end %>
           </span>
           <%= label_tag(:review_comment, "Comment for reviewer:") %><br/>
           <%= text_area_tag('review_comment', nil, :size => '80x3') %>
-          <%= javascript_tag do %>
-            $('#review_type').change(function() {
-              switch($('#review_type option:selected').attr('value')) {
-                case "user": {
-                  $('#review_user_span').show();
-                  $('#review_group_span').hide();
-                  $('#review_project_span').hide();
-                  $('#review_package_span').hide();
-                } break;
-                case "group": {
-                  $('#review_user_span').hide();
-                  $('#review_group_span').show();
-                  $('#review_project_span').hide();
-                  $('#review_package_span').hide();
-                } break;
-                case "project": {
-                  $('#review_user_span').hide();
-                  $('#review_group_span').hide();
-                  $('#review_project_span').show();
-                  $('#review_package_span').hide();
-                } break;
-                case "package": {
-                  $('#review_user_span').hide();
-                  $('#review_group_span').hide();
-                  $('#review_project_span').show();
-                  $('#review_package_span').show();
-                } break;
-              }
-            });
-          <% end %>
         </p>
+
         <div class="buttons">
           <%= submit_tag("Ok") %>
           <%= remove_dialog_tag('Cancel') %>
         </div>
-      <% end %>
-    </div>
+    <% end %>
   </div>
+</div>
