@@ -38,6 +38,8 @@ class PackageControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     visit package_users_path(package: "TestPack", project: "home:Iggy")
     check('user_reviewer_Iggy')
+    # wait for it to be clickable again before switching pages
+    page.wont_have_xpath('.//input[@id="user_reviewer_Iggy"][@disabled="disabled"]')
     click_link "Meta"
     page.must_have_text '<person userid="Iggy" role="reviewer"/>'
   end
@@ -50,6 +52,8 @@ class PackageControllerTest < ActionDispatch::IntegrationTest
      click_link("Users")
     end
     uncheck('user_bugowner_Iggy')
+    # wait for it to be clickable again before switching pages
+    page.wont_have_xpath './/input[@id="user_bugowner_Iggy"][@disabled="disabled"]'
     click_link "Meta"
     page.wont_have_text '<person userid="Iggy" role="bugowner"/>'
   end
