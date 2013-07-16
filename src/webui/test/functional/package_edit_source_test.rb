@@ -14,6 +14,10 @@ class PackageEditSourcesTest < ActionDispatch::IntegrationTest
     visit package_show_path(:project => @project, :package => @package)
   end
 
+  def text_path(name)
+    File.expand_path( Rails.root.join("test/texts/#{name}") )
+  end
+
   def open_file file
     find(:css, "tr##{valid_xml_id('file-' + file)} td:first-child a").click
     page.must_have_text "File #{file} of Package #{@package}"
@@ -113,7 +117,7 @@ class PackageEditSourcesTest < ActionDispatch::IntegrationTest
   
   test "edit_empty_file" do
     open_file "TestPack.spec"
-    edit_file NORMAL_SOURCE
+    edit_file File.read( text_path( "SourceFile.cc") )
   end
 
   
@@ -126,40 +130,28 @@ class PackageEditSourcesTest < ActionDispatch::IntegrationTest
 
   test "add_source_file_from_local_file" do
     
-    source_file = File.new "HomeSourceFile2.cc", "w"
-    source_file.write NORMAL_SOURCE
-    source_file.close
-    
     open_add_file
-    add_file(
-      :upload_from => :local_file,
-      :upload_path => File.expand_path(source_file.path) )
+    add_file(upload_from: :local_file,
+             upload_path: text_path("SourceFile.cc"))
   end
   
     
   test "add_source_file_from_local_file_override_name" do
     
-    source_file = File.new "MySourceFile.cc", "w"
-    source_file.write NORMAL_SOURCE
-    source_file.close
-    
     open_add_file
     add_file(
-      :name => "HomeSourceFile3",
-      :upload_from => :local_file,
-      :upload_path => File.expand_path(source_file.path) )
+      name: "HomeSourceFile3",
+      upload_from: :local_file,
+      upload_path: text_path( 'SourceFile.cc' ))
   end
   
   
   test "add_source_file_from_empty_local_file" do
     
-    source_file = File.new "EmptySource1.c", "w"
-    source_file.close
-    
     open_add_file
     add_file(
-      :upload_from => :local_file,
-      :upload_path => File.expand_path(source_file.path) )
+      upload_from: :local_file,
+      upload_path: text_path("EmptySource.c"))
   end
   
   test "add_source_file_with_invalid_name" do
@@ -181,67 +173,4 @@ class PackageEditSourcesTest < ActionDispatch::IntegrationTest
       :expect => :invalid_upload_path)
   end
 
-  # RUBY CODE ENDS HERE.
-  # BELOW ARE APPENDED ALL DATA STRUCTURES USED BY THE TESTS.
-  
-
-
-# -------------------------------------------------------------------------------------- #
-NORMAL_SOURCE = <<CODE_END
-#include <QApplication>
-#include <QDir>
-#include <QFileInfo>
-#include <QMessageBox>
-#include <QProcess>
-#include <QString>
-#include <QTextStream>
-#include <stdlib.h>
-#include "gamestoreform.h"
-
-QString detectDistro()
-{
-  QFileInfo fi("/etc/SuSE-release");
-  if (fi.exists()) return "openSUSE";
-  return "";
-}
-
-bool detect3D()
-{
-  QProcess glxinfo;
-  glxinfo.start("glxinfo");
-  if (!glxinfo.waitForStarted(1000)) return false;
-  if (!glxinfo.waitForFinished(1000)) return false;
-  QByteArray o = glxinfo.readAll();
-  return ( o.indexOf(QByteArray("direct rendering: Yes")) > -1 );
-}
-
-int main( int argc, char *argv[] )
-{
-  QApplication app( argc, argv );
-
-  GameStoreInfo::distro = detectDistro();
-  if (GameStoreInfo::distro.isEmpty()) {
-    QMessageBox::critical(0, "Error", "Game Store was unable to detect your distribution.");
-    return 1;
-  }
-
-  char *tmp = getenv("XDG_CACHE_HOME");
-  GameStoreInfo::cachedir = tmp ? tmp : QDir::homePath() + "/.cache";
-  GameStoreInfo::cachedir += + "/gamestore/";
-  QDir dir;
-  dir.mkpath(GameStoreInfo::cachedir + "icon");
-  dir.mkpath(GameStoreInfo::cachedir + "thumb");
-
-  GameStoreForm *window = new GameStoreForm();
-  window->show();
-
-  if (!detect3D()) {
-    QMessageBox::warning(0, "Warning", "Your system reports that it is not capable of hardware accelerated 3D graphics. You might expect difficulties running some of the games.\nUsually the cause of this error is that there are no drivers for your graphics card installed.");
-  }
-
-  return app.exec();
-}
-CODE_END
-# -------------------------------------------------------------------------------------- #
-  
 end
