@@ -65,7 +65,7 @@ OBSWebUI::Application.routes.draw do
     post 'package/submit_request/:project/:package' => :submit_request, constraints: cons
     get 'package/add_person/:project/:package' => :add_person, constraints: cons
     get 'package/add_group/:project/:package' => :add_group, constraints: cons
-    get 'package/rdiff/:project/:package' => :rdiff, constraints: cons
+    get 'package/rdiff/(:project/(:package))' => :rdiff, constraints: cons
     get 'package/wizard_new/:project' => :wizard_new, constraints: cons
     get 'package/wizard/:project/:package' => :wizard, constraints: cons
     post 'package/save_new/:project' => :save_new, constraints: cons
