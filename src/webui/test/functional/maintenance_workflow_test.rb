@@ -57,6 +57,7 @@ class MaintenanceWorkflowTest < ActionDispatch::IntegrationTest
 
     find(:link, "open request").click
     find(:id, "description_text").text.must_equal "I want the update"
+    find(:id, "action_display_0").must_have_text ("Release in BaseDistro2.0:LinkedUpdateProject")
     fill_in "reason", with: "really? ok"
     find(:id, "accept_request_button").click
     find(:css, "#action_display_0").must_have_text %r{Submit update from package home:tom:branches:BaseDistro2.0:LinkedUpdateProject / pack2 to project My:Maintenance:0}
@@ -108,8 +109,38 @@ class MaintenanceWorkflowTest < ActionDispatch::IntegrationTest
     find(:id, "block_reason")['disabled'].must_equal true
     click_button "Save Patchinfo"
 
-    find(:link, "My:Maintenance").click
-    find(:link, "Incidents").click
+    logout
+
+    # add a additional fix to the incident
+    login_tom
+    visit(project_show_path(project: "home:tom:branches:BaseDistro2.0:LinkedUpdateProject"))
+    find(:link, "Submit as update").click
+
+    find(:css, ".dialog h2").must_have_text "Submit as Update"
+    fill_in "description", with: "I have a additional fix"
+    find_button("Ok").click
+
+    logout
+
+    # let the maint-coordinator add the new submit to the running incident and cont
+    login_user("maintenance_coord", "power")
+    visit(project_show_path(project: "My:Maintenance"))
+
+    find(:link, "open request").click
+    find(:id, "description_text").text.must_equal "I have a additional fix"
+    find(:link, "Merge with existing incident").click
+    # set to not existing incident
+    fill_in "incident_project", with: "2"
+    find_button("Ok").click
+    find(:css, "span.ui-icon.ui-icon-alert").must_have_text "does not exist"
+    
+    find(:link, "Merge with existing incident").click
+    fill_in "incident_project", with: "0"
+    find_button("Ok").click
+    find(:css, "span.ui-icon.ui-icon-info").must_have_text "Set target of request "
+    find(:css, "span.ui-icon.ui-icon-info").must_have_text " to incident 0"
+    find(:id, "accept_request_button").click
+    
     #TODO: make it unique find(:link, "0").click
     visit project_show_path "My:Maintenance:0"
     find(:link, "Request to release").click
