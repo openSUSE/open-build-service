@@ -221,4 +221,12 @@ class ProjectControllerTest < ActionDispatch::IntegrationTest
     page.must_have_text '<person userid="Iggy" role="reviewer"/>'
   end
 
+  test "Iggy removes homer as maintainer" do
+    login_Iggy
+    visit project_users_path(project: "home:Iggy") 
+    first(:id, "user_maintainer_hidden_homer").click 
+    find(:id, "advanced_tabs_trigger").click
+    click_link "Meta"
+    page.wont_have_text '<person userid="homer" role="maintainer"/>'
+  end
 end

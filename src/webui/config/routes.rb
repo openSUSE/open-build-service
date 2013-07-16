@@ -94,7 +94,7 @@ OBSWebUI::Application.routes.draw do
     get 'package/buildresult' => :buildresult, constraints: cons
     get 'package/rpmlint_result' => :rpmlint_result, constraints: cons
     get 'package/rpmlint_log' => :rpmlint_log, constraints: cons
-    get 'package/meta/:project/:package' => :meta, constraints: cons
+    get 'package/meta/:project/:package' => :meta, constraints: cons, as: 'package_meta'
     post 'package/save_meta/:project/:package' => :save_meta, constraints: cons
     get 'package/attributes/:project/:package' => :attributes, constraints: cons, as: 'package_attributes'
     get 'package/edit/:project/:package' => :edit, constraints: cons

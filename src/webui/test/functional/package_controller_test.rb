@@ -37,8 +37,21 @@ class PackageControllerTest < ActionDispatch::IntegrationTest
   test "Iggy adds himself as reviewer" do
     login_Iggy
     visit package_users_path(package: "TestPack", project: "home:Iggy")
-    first(:id, 'user_reviewer_Iggy').click
+    check('user_reviewer_Iggy')
     click_link "Meta"
     page.must_have_text '<person userid="Iggy" role="reviewer"/>'
   end
+
+  test "Iggy removes himself as bugowner" do
+    login_Iggy
+    visit package_meta_path(package: "TestPack", project: "home:Iggy")
+    page.must_have_text '<person userid="Iggy" role="bugowner"/>'
+    within '#package_tabs' do
+     click_link("Users")
+    end
+    uncheck('user_bugowner_Iggy')
+    click_link "Meta"
+    page.wont_have_text '<person userid="Iggy" role="bugowner"/>'
+  end
+
 end
