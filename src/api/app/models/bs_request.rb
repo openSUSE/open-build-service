@@ -791,6 +791,9 @@ class BsRequest < ActiveRecord::Base
         action[:tpkg] = xml.target_package if xml.target_package
         action[:trepo] = xml.target_repository if xml.target_repository
       end
+      if xml.target_releaseproject
+        action[:releaseproject] = xml.target_releaseproject
+      end
 
       case xml.action_type # All further stuff depends on action type...
         when :submit then

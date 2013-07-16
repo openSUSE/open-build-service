@@ -121,6 +121,12 @@
             to
             <%= render :partial => 'shared/project_or_package_link', :locals => {project: action['tprj'], package: action['tpkg']} %>
           </b>
+          <% if action['releaseproject'] %>
+            <br/><i>
+              Release in 
+              <%= action['releaseproject'] %>
+            </i>
+          <% end %>
         <% elsif action['type'] == 'maintenance_release' %>
           <b>
             Release
@@ -214,8 +220,8 @@
                   <% if @can_add_reviews %>
                       <%= link_to(sprite_tag('user_add', title: 'Add a review') + 'Add a review', { controller: 'request', action: 'add_reviewer_dialog', id: @id }, remote: true) %>
                   <% end %>
-                  <% if reqtype(@req) == 'incident' %>
-                      <%= link_to(sprite_tag('package_link', title: 'Merge with existing incident') + 'Merge with existing incident', {:controller => 'request', :action => 'set_incident_dialog', :id => @id}, :remote => true) %>
+                  <% if reqtype(@req['actions'].first) == 'incident' %>
+                    <%= link_to(sprite_tag('package_link', title: 'Merge with existing incident') + 'Merge with existing incident', {:controller => 'request', :action => 'set_incident_dialog', :id => @id}, :remote => true) %>
                   <% end %>
                 </span>
               </p>
