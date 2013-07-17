@@ -309,6 +309,7 @@ OBSApi::Application.routes.draw do
       post 'webui/change_role' => :change_role
       get 'webui/all_projects' => :all_projects
       get 'webui/owner' => :owner
+      get 'webui/project_status/:project' => :project_status
     end
 
     get "/404" => "main#notfound"

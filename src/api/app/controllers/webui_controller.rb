@@ -1,5 +1,6 @@
 require 'json/ext'
 
+require_dependency 'status_helper'
 include SearchHelper
 
 class WebuiController < ApplicationController
@@ -263,5 +264,233 @@ class WebuiController < ApplicationController
     Suse::Backend.start_test_backend if Rails.env.test?
 
     @owners = search_owner(params, params[:binary])
+  end
+
+  def status_filter_user(project, package, filter_for_user, project_maintainer_cache)
+    return nil if filter_for_user.nil?
+    if package['persons']
+      # if the package has specific maintainer, we ignore project maintainers
+      founduser = nil
+      #logger.debug "filter #{package.inspect}"
+      package['persons'].elements("person") do |u|
+        if u['userid'] == filter_for_user.login and u['role'] == 'maintainer'
+          founduser = true
+        end
+      end
+      return true if founduser.nil?
+    else
+      unless project_maintainer_cache.has_key? project
+        devel_project                     = find_cached(Project, project)
+        project_maintainer_cache[project] = devel_project.is_maintainer? filter_for_user
+      end
+      return true unless project_maintainer_cache[project]
+    end
+    return nil
+  end
+
+  def project_status_attributes(project, namespace, name)
+    at=AttribType.find_by_namespace_and_name(namespace, name)
+    at.attribs.where(db_package_id: project.packages).joins(:values).includes(:values)
+  end
+
+  def project_status
+
+    project = Project.where(name: params[:project]).includes(:packages).first
+    status  = Hash.new
+
+    # needed to map requests to package id
+    name2id = Hash.new
+
+    prj_status = ProjectStatusHelper.calc_status(project, pure_project: true)
+    prj_status.each_value do |value|
+      status[value.db_package_id] = value
+      name2id[value.name]         = value.db_package_id
+    end
+
+    no_project            = "_none_"
+    all_projects          = "_all"
+    @current_develproject = params[:filter_devel] || all_projects
+    @ignore_pending       = params[:ignore_pending] || false
+    @limit_to_fails       = params[:limit_to_fails] || false
+    @limit_to_old         = params[:limit_to_old] || false
+    @include_versions     = params[:include_versions] || true
+    filter_for_user = User.find_by_login(params[:filter_for_user]) unless params[:filter_for_user].blank?
+
+    project_status_attributes(project, 'OBS', 'ProjectStatusPackageFailComment').each do |a|
+      next unless status.has_key? a.db_package_id
+      status[a.db_package_id].failed_comment = a.values.first.value
+    end
+
+    if @include_versions || @limit_to_old
+
+      project_status_attributes(project, 'openSUSE', 'UpstreamVersion').each do |a|
+        next unless status.has_key? a.db_package_id
+        status[a.db_package_id].upstream_version = a.values.first.value
+      end
+      project_status_attributes(project, 'openSUSE', 'UpstreamTarballURL').each do |a|
+        next unless status.has_key? a.db_package_id
+        status[a.db_package_id].upstream_url= a.values.first.value
+      end
+    end
+
+    # we do not filter requests for project because we need devel projects too later on and as long as the
+    # number of open requests is limited this is the easiest solution
+    raw_requests = BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
+        where(bs_request_actions: { type: 'submit' }).includes(:bs_request_actions)
+
+    submits = Hash.new
+    raw_requests.each do |r|
+      r.bs_request_actions.each do |action|
+        if r.state == :declined
+          next if action.target_project != project.name || !name2id.has_key?(action.target_package)
+          status[name2id[action.target_package]].declined_request = action
+        else
+          key          = "#{action.target_project}/#{action.target_package}"
+          submits[key] ||= Array.new
+          submits[key] << r
+        end
+      end
+    end
+
+    @develprojects           = Hash.new
+    project_maintainer_cache = Hash.new
+
+    @packages = Array.new
+    status.each_value do |p|
+      currentpack         = Hash.new
+      pname               = p.name
+      #next unless pname =~ %r{mkv.*}
+      currentpack['name'] = pname
+      currentpack['failedcomment'] = p.failed_comment
+
+      newest = 0
+      p.buildinfo.fails.each do |repo, tuple|
+        next if repo =~ /snapshot/
+        ftime = Integer(tuple[0]) rescue 0
+        next if newest > ftime
+        next if tuple[1] != p.srcmd5
+        currentpack['failedarch'] = repo.split('/')[1]
+        currentpack['failedrepo'] = repo.split('/')[0]
+        newest                    = ftime
+        currentpack['firstfail']  = newest
+      end if p.buildinfo
+
+      currentpack['problems']      = Array.new
+      currentpack['requests_from'] = Array.new
+      currentpack['requests_to']   = Array.new
+
+      key = project.name + "/" + pname
+      if submits.has_key? key
+        currentpack['requests_from'].concat(submits[key])
+      end
+
+      if p.buildinfo
+        currentpack['version'] = p.buildinfo.version
+        if p.upstream_version
+          begin
+            gup = Gem::Version.new(p.buildinfo.version)
+            guv = Gem::Version.new(p.upstream_version)
+          rescue ArgumentError
+            # if one of the versions can't be parsed we simply can't say
+          end
+
+          if gup && guv && gup < guv
+            currentpack['upstream_version'] = p.upstream_version
+            currentpack['upstream_url']     = p.upstream_url
+          end
+        end
+      end
+
+      currentpack['md5'] = p.verifymd5
+      currentpack['md5'] ||= p.srcmd5
+
+      currentpack['changesmd5'] = p.changesmd5
+
+      if p.develpack
+        dproject                    = p.devel_project
+        @develprojects[dproject]    = 1
+        currentpack['develproject'] = dproject
+        if (@current_develproject != dproject or @current_develproject == no_project) and @current_develproject != all_projects
+          next
+        end
+        currentpack['develpackage'] = p.devel_package
+        key                         = "%s/%s" % [dproject, p.devel_package]
+        if submits.has_key? key
+          currentpack['requests_to'].concat(submits[key])
+        end
+        dp = p.develpack
+        if dp
+          currentpack['develmd5']        = dp.verifymd5
+          currentpack['develmd5']        ||= dp.srcmd5
+          currentpack['develchangesmd5'] = dp.changesmd5
+          currentpack['develmtime']      = dp.maxmtime
+
+          if dp.error
+            currentpack['problems'] << 'error-' + dp.error
+          end
+
+          newest = 0
+          p.buildinfo.fails.each do |repo, tuple|
+            ftime = Integer(tuple[0]) rescue 0
+            next if newest > ftime
+            next if tuple[1] != dp.srcmd5
+            frepo                          = repo
+            currentpack['develfailedarch'] = frepo.split('/')[1]
+            currentpack['develfailedrepo'] = frepo.split('/')[0]
+            newest                         = ftime
+            currentpack['develfirstfail']  = newest
+          end if p.buildinfo
+
+          next if status_filter_user(dproject, dp, filter_for_user, project_maintainer_cache)
+        end
+
+        if currentpack['md5'] && currentpack['develmd5'] && currentpack['md5'] != currentpack['develmd5']
+          if p.declined_request &&
+              p.declined_request.source_project == dp.project &&
+              p.declined_request.source_package == dp.name
+
+            sourcerev = Directory.hashed(project: dp.project, package: dp.name)['rev']
+            if sourcerev == p.declined_request.source_rev
+              currentpack['currently_declined'] = p.declined_request.bs_request_id
+              currentpack['problems'] << 'currently_declined'
+            end
+          end
+          if currentpack['currently_declined'].nil?
+            if currentpack['changesmd5'] != currentpack['develchangesmd5']
+              currentpack['problems'] << 'different_changes'
+            else
+              currentpack['problems'] << 'different_sources'
+            end
+          end
+        end
+      elsif @current_develproject != no_project
+        next if status_filter_user(project.name, p, filter_for_user, project_maintainer_cache)
+        next if @current_develproject != all_projects
+      end
+
+      unless p.link.project.blank?
+        if currentpack['md5'] != p.link.targetmd5
+          currentpack['problems'] << 'diff_against_link'
+          currentpack['lproject'] = p.link.project
+          currentpack['lpackage'] = p.link.package
+        end
+      end
+
+      next if !currentpack['requests_from'].empty? && @ignore_pending
+      if @limit_to_fails
+        next if !currentpack['firstfail']
+      else
+        next unless (currentpack['firstfail'] or currentpack['failedcomment'] or currentpack['upstream_version'] or
+            !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
+        if @limit_to_old
+          next if (currentpack['firstfail'] or currentpack['failedcomment'] or
+              !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
+        end
+      end
+      #currentpack['thefullthing'] = p
+      @packages << currentpack
+    end
+
+    render json: @packages
   end
 end

@@ -1,4 +1,4 @@
-require "activexml/activexml"
+require_dependency "activexml/activexml"
 
 CONFIG['source_protocol'] ||= "http"
 

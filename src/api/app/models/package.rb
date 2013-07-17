@@ -27,7 +27,7 @@ class Package < ActiveRecord::Base
   class ReadSourceAccessError < APIException
     setup 'source_access_no_permission', 403, "Source Access not allowed"
   end
-  belongs_to :project, foreign_key: :db_project_id
+  belongs_to :project, foreign_key: :db_project_id, inverse_of: :packages
 
   has_many :package_user_role_relationships, :dependent => :destroy, foreign_key: :db_package_id
   has_many :package_group_role_relationships, :dependent => :destroy, foreign_key: :db_package_id
@@ -1050,33 +1050,29 @@ class Package < ActiveRecord::Base
     srcmd5 = opts[:srcmd5]
 
     # check current srcmd5
-    begin
-      cdir = Directory.find(:project => self.project.name,
+    cdir = Directory.hashed(:project => self.project.name,
                             :package => self.name,
                             :expand  => 1)
-      csrcmd5 = cdir.value('srcmd5') if cdir
-    rescue ActiveXML::Transport::Error => e
-      csrcmd5 = nil
-    end
+    csrcmd5 = cdir['srcmd5']
 
     if tproj
-      tocheck_repos = self.project.repositories_linking_project(tproj, ActiveXML.transport)
+      tocheck_repos = self.project.repositories_linking_project(tproj)
     else
-      tocheck_repos = self.project.repositories
+      tocheck_repos = []
     end
 
     raise NoRepositoriesFound.new if tocheck_repos.empty?
 
     output = {}
     tocheck_repos.each do |srep|
-      output[srep.name] ||= {}
+      output[srep['name']] ||= {}
       trepo             = []
       archs             = []
-      srep.each_path do |p|
-        if p.project != self.project.name
-          r = Repository.find_by_project_and_repo_name(p.project, p.value(:repository))
+      srep.elements('path') do |p|
+        if p['project'] != self.project.name
+          r = Repository.find_by_project_and_repo_name(p['project'], p['repository'])
           r.architectures.each { |a| archs << a.name }
-          trepo << [p.project, p.value(:repository)]
+          trepo << [p['project'], p['repository']]
         end
       end
       archs.uniq!
@@ -1099,7 +1095,7 @@ class Package < ActiveRecord::Base
         eversucceeded = 0
         buildcode     =nil
         hist          = Jobhistory.find(:project    => self.project.name,
-                                        :repository => srep.name,
+                                        :repository => srep['name'],
                                         :package    => self.name,
                                         :arch       => arch.to_s, :limit => 20)
         next unless hist
@@ -1115,7 +1111,7 @@ class Package < ActiveRecord::Base
         logger.debug "arch:#{arch} md5:#{srcmd5} successed:#{eversucceeded} built:#{everbuilt}"
         missingdeps=[]
         if eversucceeded == 1
-          uri = URI("/build/#{CGI.escape(self.project.name)}/#{CGI.escape(srep.name)}/#{CGI.escape(arch.to_s)}/_builddepinfo?package=#{CGI.escape(self.name)}&view=pkgnames")
+          uri = URI("/build/#{CGI.escape(self.project.name)}/#{CGI.escape(srep['name'])}/#{CGI.escape(arch.to_s)}/_builddepinfo?package=#{CGI.escape(self.name)}&view=pkgnames")
           begin
             buildinfo = Xmlhash.parse(ActiveXML.transport.direct_http(uri))
           rescue ActiveXML::Transport::Error => e
@@ -1133,8 +1129,8 @@ class Package < ActiveRecord::Base
 
         # if the package does not appear in build history, check flags
         if everbuilt == 0
-          buildflag=self.find_flag_state("build", srep.name, arch.to_s)
-          logger.debug "find_flag_state #{srep.name} #{arch.to_s} #{buildflag}"
+          buildflag=self.find_flag_state("build", srep['name'], arch.to_s)
+          logger.debug "find_flag_state #{srep['name']} #{arch.to_s} #{buildflag}"
           if buildflag == 'disable'
             buildcode='disabled'
           end
@@ -1147,7 +1143,7 @@ class Package < ActiveRecord::Base
         unless buildcode
           buildcode="unknown"
           begin
-            uri         = URI("/build/#{CGI.escape(self.project.name)}/_result?package=#{CGI.escape(self.name)}&repository=#{CGI.escape(srep.name)}&arch=#{CGI.escape(arch.to_s)}")
+            uri         = URI("/build/#{CGI.escape(self.project.name)}/_result?package=#{CGI.escape(self.name)}&repository=#{CGI.escape(srep['name'])}&arch=#{CGI.escape(arch.to_s)}")
             resultlist  = ActiveXML::Node.new(ActiveXML.transport.direct_http(uri))
             currentcode = nil
             resultlist.each_result do |r|
@@ -1175,8 +1171,8 @@ class Package < ActiveRecord::Base
           end
         end
 
-        output[srep.name][arch.to_s] = { result: buildcode }
-        output[srep.name][arch.to_s][:missing] = missingdeps.uniq if (missingdeps.size > 0 && buildcode == 'succeeded')
+        output[srep['name']][arch.to_s] = { result: buildcode }
+        output[srep['name']][arch.to_s][:missing] = missingdeps.uniq if (missingdeps.size > 0 && buildcode == 'succeeded')
       end
     end
 

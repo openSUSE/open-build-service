@@ -1,4 +1,4 @@
-require 'opensuse/backend'
+require_dependency 'opensuse/backend'
 
 class Project < ActiveRecord::Base
   include FlagHelper
@@ -35,7 +35,7 @@ class Project < ActiveRecord::Base
   has_many :project_user_role_relationships, :dependent => :delete_all, foreign_key: :db_project_id
   has_many :project_group_role_relationships, :dependent => :delete_all, foreign_key: :db_project_id
 
-  has_many :packages, :dependent => :destroy, foreign_key: :db_project_id
+  has_many :packages, :dependent => :destroy, foreign_key: :db_project_id, inverse_of: :project
   has_many :attribs, :dependent => :destroy, foreign_key: :db_project_id
   has_many :repositories, :dependent => :destroy, foreign_key: :db_project_id
   has_many :messages, :as => :db_object, :dependent => :delete_all
@@ -1195,7 +1195,7 @@ class Project < ActiveRecord::Base
   end
 
   def complex_status(backend)
-    ProjectStatusHelper.calc_status(self, backend)
+    ProjectStatusHelper.calc_status(self)
   end
 
   # find a package in a project and its linked projects
@@ -1347,6 +1347,7 @@ class Project < ActiveRecord::Base
 
     return m
   end
+
   private :extract_maintainer
 
   def lookup_package_owner(pkg, owner, limit, devel, filter, deepest, already_checked={})
@@ -1378,6 +1379,7 @@ class Project < ActiveRecord::Base
     # found entry
     return m, (limit-1), already_checked
   end
+
   private :lookup_package_owner
 
   def find_containers_without_definition(devel=true, filter=["maintainer","bugowner"] )
@@ -1588,11 +1590,11 @@ class Project < ActiveRecord::Base
 
   # list only the repositories that have a target project in the build path
   # the function uses the backend for informations (TODO)
-  def repositories_linking_project(tproj, backend)
+  def repositories_linking_project(tproj)
     tocheck_repos = Array.new
 
-    targets = bsrequest_repos_map(tproj.name, backend)
-    sources = bsrequest_repos_map(self.name, backend)
+    targets = bsrequest_repos_map(tproj.name)
+    sources = bsrequest_repos_map(self.name)
     sources.each do |key, value|
       if targets.has_key?(key)
         tocheck_repos << sources[key]
@@ -1650,23 +1652,25 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def bsrequest_repos_map(project, backend)
+  def bsrequest_repos_map(project)
     ret = Hash.new
-    uri = URI( "/getprojpack?project=#{CGI.escape(project.to_s)}&nopackages&withrepos&expandedrepos" )
+    uri = "/getprojpack?project=#{CGI.escape(project.to_s)}&nopackages&withrepos&expandedrepos"
     begin
-      xml = ActiveXML::Node.new( backend.direct_http( uri ) )
+      xml = Xmlhash.parse(Suse::Backend.get(uri).body)
     rescue ActiveXML::Transport::Error
       return ret
     end
-    xml.project.each_repository do |repo|
-      repo.each_path do |path|
-        ret[path.project.to_s] ||= Array.new
-        ret[path.project.to_s] << repo
+
+    xml['project'].elements('repository') do |repo|
+      repo.elements('path') do |path|
+        ret[path['project']] ||= Array.new
+        ret[path['project']] << repo
       end
-    end if xml.project
+    end
 
     return ret
   end
+
   private :bsrequest_repos_map
 
   def user_has_role?(user, role)

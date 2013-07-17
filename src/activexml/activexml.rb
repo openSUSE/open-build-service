@@ -5,6 +5,6 @@ rescue LoadError
   gem 'activesupport'
 end
 
-require File.join(File.dirname(__FILE__), 'node')
-require File.join(File.dirname(__FILE__), 'transport')
-require File.join(File.dirname(__FILE__), 'matcher')
+require_dependency File.join(File.dirname(__FILE__), 'node')
+require_dependency File.join(File.dirname(__FILE__), 'transport')
+require_dependency File.join(File.dirname(__FILE__), 'matcher')

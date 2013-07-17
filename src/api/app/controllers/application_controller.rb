@@ -1,11 +1,11 @@
 # Filters added to this controller will be run for all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
-require 'opensuse/permission'
-require 'opensuse/backend'
-require 'opensuse/validator'
+require_dependency 'opensuse/permission'
+require_dependency 'opensuse/backend'
+require_dependency 'opensuse/validator'
 require 'rexml/document'
-require 'api_exception'
+require_dependency 'api_exception'
 
 class ApplicationController < ActionController::API
 
