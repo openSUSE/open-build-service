@@ -215,8 +215,10 @@ class ProjectControllerTest < ActionDispatch::IntegrationTest
   test "Iggy adds himself as reviewer" do
     login_Iggy
     visit project_users_path(project: "home:Iggy")
-    first(:id, "user_reviewer_Iggy").click
-    find(:id, "advanced_tabs_trigger").click
+    check("user_reviewer_Iggy")
+    # wait for it to be clickable again before switching pages
+    page.wont_have_xpath('.//input[@id="user_reviewer_Iggy"][@disabled="disabled"]')
+    click_link("advanced_tabs_trigger")
     click_link "Meta"
     page.must_have_text '<person userid="Iggy" role="reviewer"/>'
   end
@@ -224,8 +226,10 @@ class ProjectControllerTest < ActionDispatch::IntegrationTest
   test "Iggy removes homer as maintainer" do
     login_Iggy
     visit project_users_path(project: "home:Iggy") 
-    first(:id, "user_maintainer_hidden_homer").click 
-    find(:id, "advanced_tabs_trigger").click
+    uncheck "user_maintainer_hidden_homer"
+    # wait for it to be clickable again before switching pages
+    page.wont_have_xpath('.//input[@id="user_maintainer_hidden_homer"][@disabled="disabled"]')
+    click_link "advanced_tabs_trigger"
     click_link "Meta"
     page.wont_have_text '<person userid="homer" role="maintainer"/>'
   end
