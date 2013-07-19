@@ -48,8 +48,8 @@ class RequestController < ApplicationController
       # OBS3: make this more useful
       builder = Nokogiri::XML::Builder.new
       builder.directory do
-        BsRequest.select(:id).order(:id).each do |r|
-          builder.entry name: r.id
+        BsRequest.order(:id).pluck(:id).each do |r|
+          builder.entry name: r
         end
       end
       render :text => builder.to_xml, :content_type => "text/xml"

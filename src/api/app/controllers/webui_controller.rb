@@ -30,7 +30,7 @@ class WebuiController < ApplicationController
       subprojects = Project.where("projects.name like ?", pro.name + ":%").
           where(type_id: mi.id).joins(:repositories => :release_targets).
           where("release_targets.trigger = 'maintenance'")
-      infos[:incidents] = subprojects.select("projects.name").map { |p| p.name }.sort.uniq
+      infos[:incidents] = subprojects.pluck("projects.name").sort.uniq
 
       maintained_projects = []
       pro.maintained_projects.each do |mp|
@@ -62,7 +62,7 @@ class WebuiController < ApplicationController
 
     if pro.project_type == 'maintenance_incident'
       rel = BsRequest.collection(project: params[:project], states: ['new', 'review'], types: ['maintenance_release'], roles: ['source'])
-      infos[:open_release_requests] = rel.select("bs_requests.id").map { |r| r.id }
+      infos[:open_release_requests] = rel.pluck("bs_requests.id")
     end
 
     render json: infos
@@ -72,17 +72,17 @@ class WebuiController < ApplicationController
     prj = Project.find_by_name! prj
 
     rel = BsRequest.collection(project: params[:project], states: ['review'], roles: ['reviewer'])
-    reviews = rel.select("bs_requests.id").map { |r| r.id }
+    reviews = rel.pluck("bs_requests.id")
 
     rel = BsRequest.collection(project: params[:project], states: ['new'], roles: ['target'])
-    targets = rel.select("bs_requests.id").map { |r| r.id }
+    targets = rel.pluck("bs_requests.id")
 
     rel = BsRequest.collection(project: params[:project], states: ['new'], roles: ['source'], types: ['maintenance_incident'])
-    incidents = rel.select("bs_requests.id").map { |r| r.id }
+    incidents = rel.pluck("bs_requests.id")
 
     if prj.project_type == "maintenance"
       rel = BsRequest.collection(project: params[:project], states: ['new'], roles: ['source'], types: ['maintenance_release'], subprojects: true)
-      maintenance_release = rel.select("bs_requests.id").map { |r| r.id }
+      maintenance_release = rel.pluck("bs_requests.id")
     else
       maintenance_release = []
     end
@@ -102,13 +102,13 @@ class WebuiController < ApplicationController
     result = {}
 
     rel = BsRequest.collection(user: login, states: ['declined'], roles: ['creator'])
-    result[:declined] = rel.select("bs_requests.id").map { |r| r.id }
+    result[:declined] = rel.pluck("bs_requests.id")
 
     rel = BsRequest.collection(user: login, states: ['new'], roles: ['maintainer'])
-    result[:new] = rel.select("bs_requests.id").map { |r| r.id }
+    result[:new] = rel.pluck("bs_requests.id")
 
     rel = BsRequest.collection(user: login, roles: ['reviewer'], reviewstates: ['new'], states: ['review'])
-    result[:reviews] = rel.select("bs_requests.id").map { |r| r.id }
+    result[:reviews] = rel.pluck("bs_requests.id")
 
     render json: result
   end
@@ -116,7 +116,7 @@ class WebuiController < ApplicationController
   def person_involved_requests
     required_parameters :login
     rel = BsRequest.collection(user: params[:login], states: ['new', 'review'])
-    result = rel.select("bs_requests.id").map { |r| r.id }
+    result = rel.pluck("bs_requests.id")
 
     render json: result
   end
@@ -195,14 +195,12 @@ class WebuiController < ApplicationController
     if params[:project]
       if roles.empty? && (states.empty? || states.include?('review')) # it's wiser to split the queries
         rel = BsRequest.collection(params.merge({ roles: ['reviewer'] }))
-        rel.select("bs_requests.id")
-        rel.each { |r| ids << r.id }
+        ids = rel.pluck("bs_requests.id")
         rel = BsRequest.collection(params.merge({ roles: ['target', 'source'] }))
       end
     end
     rel = BsRequest.collection(params) unless rel
-    rel.select("bs_requests.id")
-    rel.each { |r| ids << r.id }
+    ids.contact(rel.puck("bs_requests.id"))
 
     render json: ids.uniq.sort
   end
@@ -247,12 +245,12 @@ class WebuiController < ApplicationController
     ret = {}
     atype = AttribType.find_by_namespace_and_name('OBS', 'VeryImportantProject')
     important = {}
-    Project.find_by_attribute_type(atype).select("projects.id").each do |p|
-      important[p.id] = 1
+    Project.find_by_attribute_type(atype).pluck("projects.id").each do |p|
+      important[p] = 1
     end
     deleted =Project.find_by_name("deleted")
-    projects = Project.select([:id, :name, :title]).where("id != ?", deleted.id)
-    Project.connection.execute(projects.to_sql).each do |id, name, title|
+    projects = Project.where("id != ?", deleted.id).pluck(:id, :name, :title)
+    projects.each do |id, name, title|
       ret[name] = { title: title, important: important[id] ? true : false }
     end
     render text: JSON.fast_generate(ret), content_type: "application/json"
@@ -285,8 +283,8 @@ class WebuiController < ApplicationController
     ret = Hash.new
     at = AttribType.find_by_namespace_and_name(namespace, name)
     attribs = at.attribs.where(db_package_id: packages)
-    AttribValue.where(attrib_id: attribs).joins(:attrib).select("attribs.db_package_id, value").each do |v|
-      yield v.db_package_id, v.value
+    AttribValue.where(attrib_id: attribs).joins(:attrib).pluck("attribs.db_package_id, value").each do |id, value|
+      yield id, value
     end
     ret
   end
