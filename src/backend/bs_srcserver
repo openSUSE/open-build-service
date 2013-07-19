@@ -6037,6 +6037,14 @@ sub getworkerstatus {
     delete $_->{'uri'} for @{$ws->{'building'} || []};
     push @{$cws->{'idle'}}, @{$ws->{'idle'} || []};
     push @{$cws->{'building'}}, @{$ws->{'building'} || []};
+    for my $b (@{$ws->{'waiting'} || []}) {
+      my $ob = (grep {$_->{'arch'} eq $b->{'arch'}} @{$cws->{'waiting'} || []})[0];
+      if (!$ob) {
+        $ob = {'arch' => $b->{'arch'}, 'jobs' => 0};
+        push @{$cws->{'waiting'}}, $ob;
+      }
+      $ob->{'jobs'} += $b->{'jobs'};
+    }
     for my $b (@{$ws->{'blocked'} || []}) {
       my $ob = (grep {$_->{'arch'} eq $b->{'arch'}} @{$cws->{'blocked'} || []})[0];
       if (!$ob) {
