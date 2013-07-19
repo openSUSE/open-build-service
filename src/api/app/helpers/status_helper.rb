@@ -219,13 +219,13 @@ class ProjectStatusHelper
   def self.fetch_jobhistory(proj, repo, arch, mypackages)
 
     logger.debug "Started fetch_jobhistory #{proj}/#{repo}/#{arch}"
-    key  = [proj, repo, arch, mypackages]
 
     # we do some fancy caching in here as the function called is pretty expensive and often called
     # first we check the last line of the job history (limit 1) and then we check if it changed
     # against the url we expect to query. As the url is too long to be used as meaningful hash we
     # generate the md5
     path = '/build/%s/%s/%s/_jobhistory' % [CGI.escape(proj), CGI.escape(repo), arch]
+    key = Digest::MD5.hexdigest(path)
     begin
       currentlast=Suse::Backend.get(path + '?limit=1').body
     rescue ActiveXML::Transport::NotFoundError
@@ -233,7 +233,7 @@ class ProjectStatusHelper
       return nil
     end
 
-    lastlast = Rails.cache.read(key + ['_last'])
+    lastlast = Rails.cache.read(key + '_last')
     if currentlast != lastlast
       Rails.cache.delete key
     end
@@ -245,7 +245,7 @@ class ProjectStatusHelper
           uri += "&package=" + CGI.escape(package.name)
         end
       end
-      Rails.cache.write(key + ['_last'], currentlast)
+      Rails.cache.write(key + '_last', currentlast)
       d = Suse::Backend.get(uri).body
       return nil if d.blank?
       data = Xmlhash.parse(d)
@@ -274,7 +274,6 @@ class ProjectStatusHelper
 
   def self.update_jobhistory(targetproj, dbproj, mypackages)
     dbproj.repositories_linking_project(targetproj).each do |r|
-      logger.debug "R #{r.inspect}"
       r.elements('arch') do |arch|
         infos = fetch_jobhistory(dbproj.name, r['name'], arch, mypackages)
         next if infos.nil?
@@ -317,7 +316,7 @@ class ProjectStatusHelper
   end
 
   def self.filter_by_package_name(name)
-    #return (name =~ /sy/)
+    #return (name =~ /perl-C/)
     return true
   end
 

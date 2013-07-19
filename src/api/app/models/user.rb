@@ -1,4 +1,5 @@
 require 'kconv'
+require_dependency 'api_exception'
 
 class User < ActiveRecord::Base
   has_many :taggings, :dependent => :destroy
@@ -1263,7 +1264,6 @@ class User < ActiveRecord::Base
 
     projects.uniq
   end
-  protected :involved_projects_ids
   
   def involved_projects
     # now filter the projects that are not visible

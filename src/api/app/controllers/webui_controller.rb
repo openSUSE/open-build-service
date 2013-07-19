@@ -27,10 +27,10 @@ class WebuiController < ApplicationController
 
     if pro.project_type == "maintenance"
       mi = DbProjectType.find_by_name!('maintenance_incident')
-      subprojects = Project.where("projects.name like ?",  pro.name + ":%").
-        where(type_id: mi.id).joins(:repositories => :release_targets).
-        where("release_targets.trigger = 'maintenance'")
-      infos[:incidents] = subprojects.select("projects.name").map {|p| p.name }.sort.uniq
+      subprojects = Project.where("projects.name like ?", pro.name + ":%").
+          where(type_id: mi.id).joins(:repositories => :release_targets).
+          where("release_targets.trigger = 'maintenance'")
+      infos[:incidents] = subprojects.select("projects.name").map { |p| p.name }.sort.uniq
 
       maintained_projects = []
       pro.maintained_projects.each do |mp|
@@ -46,7 +46,7 @@ class WebuiController < ApplicationController
     infos[:requests] = (reqs['reviews'] + reqs['targets'] + reqs['incidents'] + reqs['maintenance_release']).sort.uniq
 
     infos[:nr_of_problem_packages] = 0
-    
+
     begin
       result = backend_get("/build/#{URI.escape(pro.name)}/_result?view=status&code=failed&code=broken&code=unresolvable")
     rescue ActiveXML::Transport::NotFoundError
@@ -61,16 +61,16 @@ class WebuiController < ApplicationController
     end
 
     if pro.project_type == 'maintenance_incident'
-      rel = BsRequest.collection(project: params[:project], states: ['new','review'], types: ['maintenance_release'], roles: ['source'])
+      rel = BsRequest.collection(project: params[:project], states: ['new', 'review'], types: ['maintenance_release'], roles: ['source'])
       infos[:open_release_requests] = rel.select("bs_requests.id").map { |r| r.id }
     end
-  
+
     render json: infos
   end
 
   def reviews_priv(prj)
     prj = Project.find_by_name! prj
-    
+
     rel = BsRequest.collection(project: params[:project], states: ['review'], roles: ['reviewer'])
     reviews = rel.select("bs_requests.id").map { |r| r.id }
 
@@ -79,7 +79,7 @@ class WebuiController < ApplicationController
 
     rel = BsRequest.collection(project: params[:project], states: ['new'], roles: ['source'], types: ['maintenance_incident'])
     incidents = rel.select("bs_requests.id").map { |r| r.id }
-    
+
     if prj.project_type == "maintenance"
       rel = BsRequest.collection(project: params[:project], states: ['new'], roles: ['source'], types: ['maintenance_release'], subprojects: true)
       maintenance_release = rel.select("bs_requests.id").map { |r| r.id }
@@ -92,7 +92,7 @@ class WebuiController < ApplicationController
 
   def project_requests
     required_parameters :project
-    
+
     render json: reviews_priv(params[:project])
   end
 
@@ -130,7 +130,7 @@ class WebuiController < ApplicationController
 
     valid_package_name! package_name
 
-    pack = Package.get_by_project_and_name( project_name, package_name, use_source: false )
+    pack = Package.get_by_project_and_name(project_name, package_name, use_source: false)
     render json: pack.expand_flags
   end
 
@@ -140,7 +140,7 @@ class WebuiController < ApplicationController
 
     project_name = params[:project]
 
-    prj = Project.get_by_name( project_name )
+    prj = Project.get_by_name(project_name)
     render json: prj.expand_flags
   end
 
@@ -153,8 +153,8 @@ class WebuiController < ApplicationController
 
   def request_ids
     required_parameters :ids
-    
-    rel = BsRequest.where( id: params[:ids].split(',') )
+
+    rel = BsRequest.where(id: params[:ids].split(','))
     rel = rel.includes({ bs_request_actions: :bs_request_action_accept_info }, :bs_request_histories)
     rel = rel.order('bs_requests.id')
 
@@ -169,24 +169,24 @@ class WebuiController < ApplicationController
     # Do not allow a full collection to avoid server load
     if params[:project].blank? && params[:user].blank? && params[:package].blank?
       render_error :status => 400, :errorcode => 'require_filter',
-      :message => "This call requires at least one filter, either by user, project or package"
+                   :message => "This call requires at least one filter, either by user, project or package"
       return
     end
-    
+
     # convert comma seperated values into arrays
     if params[:roles]
-      roles = params[:roles].split(',') 
+      roles = params[:roles].split(',')
     else
       roles = []
     end
     types = params[:types].split(',') if params[:types]
     if params[:states]
-      states = params[:states].split(',') 
+      states = params[:states].split(',')
     else
       states = []
     end
     review_states = params[:reviewstates].split(',') if params[:reviewstates]
-    
+
     params.merge!({ states: states, types: types, review_states: review_states, roles: roles })
     logger.debug "PARAMS #{params.inspect}"
     ids = []
@@ -194,22 +194,22 @@ class WebuiController < ApplicationController
 
     if params[:project]
       if roles.empty? && (states.empty? || states.include?('review')) # it's wiser to split the queries
-        rel = BsRequest.collection( params.merge({ roles: ['reviewer'] } ) )
+        rel = BsRequest.collection(params.merge({ roles: ['reviewer'] }))
         rel.select("bs_requests.id")
         rel.each { |r| ids << r.id }
-        rel = BsRequest.collection( params.merge({ roles: ['target', 'source'] } ) )
+        rel = BsRequest.collection(params.merge({ roles: ['target', 'source'] }))
       end
     end
-    rel = BsRequest.collection( params ) unless rel
+    rel = BsRequest.collection(params) unless rel
     rel.select("bs_requests.id")
     rel.each { |r| ids << r.id }
-    
+
     render json: ids.uniq.sort
   end
-  
+
   def change_role
     required_parameters :project
-    
+
     if params[:package].blank?
       target = Project.find_by_name!(params[:project])
     else
@@ -223,7 +223,7 @@ class WebuiController < ApplicationController
     else
       raise MissingParameterError, "Neither userid nor groupid given"
     end
-    
+
     begin
       if params[:todo].to_s == 'remove'
         role = nil
@@ -250,10 +250,10 @@ class WebuiController < ApplicationController
     Project.find_by_attribute_type(atype).select("projects.id").each do |p|
       important[p.id] = 1
     end
-    deleted=Project.find_by_name("deleted")
+    deleted =Project.find_by_name("deleted")
     projects = Project.select([:id, :name, :title]).where("id != ?", deleted.id)
     Project.connection.execute(projects.to_sql).each do |id, name, title|
-      ret[name] = {title: title, important: important[id] ? true : false}
+      ret[name] = { title: title, important: important[id] ? true : false }
     end
     render text: JSON.fast_generate(ret), content_type: "application/json"
   end
@@ -266,70 +266,78 @@ class WebuiController < ApplicationController
     @owners = search_owner(params, params[:binary])
   end
 
-  def status_filter_user(project, package, filter_for_user, project_maintainer_cache)
-    return nil if filter_for_user.nil?
-    if package['persons']
-      # if the package has specific maintainer, we ignore project maintainers
-      founduser = nil
-      #logger.debug "filter #{package.inspect}"
-      package['persons'].elements("person") do |u|
-        if u['userid'] == filter_for_user.login and u['role'] == 'maintainer'
-          founduser = true
-        end
-      end
-      return true if founduser.nil?
-    else
-      unless project_maintainer_cache.has_key? project
-        devel_project                     = find_cached(Project, project)
-        project_maintainer_cache[project] = devel_project.is_maintainer? filter_for_user
-      end
-      return true unless project_maintainer_cache[project]
-    end
-    return nil
+  def status_user_relevant_packages(user_to_filter)
+    purr = "package_user_role_relationships"
+    role_id = Role.rolecache['maintainer'].id
+    # First fetch the project ids
+    projects_ids = user_to_filter.involved_projects_ids
+    packages = Package.joins("LEFT OUTER JOIN #{purr} ON (#{purr}.db_package_id = packages.id AND #{purr}.role_id = #{role_id})")
+    # No maintainers
+    packages = packages.where([
+      "(#{purr}.bs_user_id = ?) "\
+      "OR "\
+      "(#{purr}.bs_user_id is null AND db_project_id in (?) )",
+      user_to_filter, projects_ids])
+    packages.pluck(:id)
   end
 
-  def project_status_attributes(project, namespace, name)
-    at=AttribType.find_by_namespace_and_name(namespace, name)
-    at.attribs.where(db_package_id: project.packages).joins(:values).includes(:values)
+  def project_status_attributes(packages, namespace, name)
+    ret = Hash.new
+    at = AttribType.find_by_namespace_and_name(namespace, name)
+    attribs = at.attribs.where(db_package_id: packages)
+    AttribValue.where(attrib_id: attribs).joins(:attrib).select("attribs.db_package_id, value").each do |v|
+      yield v.db_package_id, v.value
+    end
+    ret
   end
 
   def project_status
-
     project = Project.where(name: params[:project]).includes(:packages).first
-    status  = Hash.new
+    status = Hash.new
 
     # needed to map requests to package id
     name2id = Hash.new
 
-    prj_status = ProjectStatusHelper.calc_status(project, pure_project: true)
-    prj_status.each_value do |value|
-      status[value.db_package_id] = value
-      name2id[value.name]         = value.db_package_id
+    prj_status = Rails.cache.fetch("prj_status2_#{project.name}", expires_in: 2.days) do
+      ProjectStatusHelper.calc_status(project, pure_project: true)
     end
 
-    no_project            = "_none_"
-    all_projects          = "_all"
+    no_project = "_none_"
+    all_projects = "_all"
     @current_develproject = params[:filter_devel] || all_projects
-    @ignore_pending       = params[:ignore_pending] || false
-    @limit_to_fails       = params[:limit_to_fails] || false
-    @limit_to_old         = params[:limit_to_old] || false
-    @include_versions     = params[:include_versions] || true
+    @ignore_pending = params[:ignore_pending] || false
+    @limit_to_fails = params[:limit_to_fails] || false
+    @limit_to_old = params[:limit_to_old] || false
+    @include_versions = params[:include_versions] || true
     filter_for_user = User.find_by_login(params[:filter_for_user]) unless params[:filter_for_user].blank?
 
-    project_status_attributes(project, 'OBS', 'ProjectStatusPackageFailComment').each do |a|
-      next unless status.has_key? a.db_package_id
-      status[a.db_package_id].failed_comment = a.values.first.value
+    packages_to_filter_for = nil
+    if filter_for_user 
+      packages_to_filter_for = status_user_relevant_packages(filter_for_user)
+    end
+    prj_status.each_value do |value|
+      if filter_for_user
+        if value.develpack
+          next unless packages_to_filter_for.include? value.develpack.db_package_id
+        else
+          next unless packages_to_filter_for.include? value.db_package_id
+        end
+      end
+      status[value.db_package_id] = value
+      name2id[value.name] = value.db_package_id
+    end
+
+    project_status_attributes(status.keys, 'OBS', 'ProjectStatusPackageFailComment') do |package, value|
+      status[package].failed_comment = value
     end
 
     if @include_versions || @limit_to_old
 
-      project_status_attributes(project, 'openSUSE', 'UpstreamVersion').each do |a|
-        next unless status.has_key? a.db_package_id
-        status[a.db_package_id].upstream_version = a.values.first.value
+      project_status_attributes(status.keys, 'openSUSE', 'UpstreamVersion') do |package, value|
+        status[package].upstream_version = value
       end
-      project_status_attributes(project, 'openSUSE', 'UpstreamTarballURL').each do |a|
-        next unless status.has_key? a.db_package_id
-        status[a.db_package_id].upstream_url= a.values.first.value
+      project_status_attributes(status.keys, 'openSUSE', 'UpstreamTarballURL') do |package, value|
+        status[package].upstream_url= value
       end
     end
 
@@ -345,20 +353,19 @@ class WebuiController < ApplicationController
           next if action.target_project != project.name || !name2id.has_key?(action.target_package)
           status[name2id[action.target_package]].declined_request = action
         else
-          key          = "#{action.target_project}/#{action.target_package}"
+          key = "#{action.target_project}/#{action.target_package}"
           submits[key] ||= Array.new
           submits[key] << r
         end
       end
     end
 
-    @develprojects           = Hash.new
-    project_maintainer_cache = Hash.new
+    @develprojects = Hash.new
 
     @packages = Array.new
     status.each_value do |p|
-      currentpack         = Hash.new
-      pname               = p.name
+      currentpack = Hash.new
+      pname = p.name
       #next unless pname =~ %r{mkv.*}
       currentpack['name'] = pname
       currentpack['failedcomment'] = p.failed_comment
@@ -371,13 +378,13 @@ class WebuiController < ApplicationController
         next if tuple[1] != p.srcmd5
         currentpack['failedarch'] = repo.split('/')[1]
         currentpack['failedrepo'] = repo.split('/')[0]
-        newest                    = ftime
-        currentpack['firstfail']  = newest
+        newest = ftime
+        currentpack['firstfail'] = newest
       end if p.buildinfo
 
-      currentpack['problems']      = Array.new
+      currentpack['problems'] = Array.new
       currentpack['requests_from'] = Array.new
-      currentpack['requests_to']   = Array.new
+      currentpack['requests_to'] = Array.new
 
       key = project.name + "/" + pname
       if submits.has_key? key
@@ -396,7 +403,7 @@ class WebuiController < ApplicationController
 
           if gup && guv && gup < guv
             currentpack['upstream_version'] = p.upstream_version
-            currentpack['upstream_url']     = p.upstream_url
+            currentpack['upstream_url'] = p.upstream_url
           end
         end
       end
@@ -407,23 +414,23 @@ class WebuiController < ApplicationController
       currentpack['changesmd5'] = p.changesmd5
 
       if p.develpack
-        dproject                    = p.devel_project
-        @develprojects[dproject]    = 1
+        dproject = p.devel_project
+        @develprojects[dproject] = 1
         currentpack['develproject'] = dproject
         if (@current_develproject != dproject or @current_develproject == no_project) and @current_develproject != all_projects
           next
         end
         currentpack['develpackage'] = p.devel_package
-        key                         = "%s/%s" % [dproject, p.devel_package]
+        key = "%s/%s" % [dproject, p.devel_package]
         if submits.has_key? key
           currentpack['requests_to'].concat(submits[key])
         end
         dp = p.develpack
         if dp
-          currentpack['develmd5']        = dp.verifymd5
-          currentpack['develmd5']        ||= dp.srcmd5
+          currentpack['develmd5'] = dp.verifymd5
+          currentpack['develmd5'] ||= dp.srcmd5
           currentpack['develchangesmd5'] = dp.changesmd5
-          currentpack['develmtime']      = dp.maxmtime
+          currentpack['develmtime'] = dp.maxmtime
 
           if dp.error
             currentpack['problems'] << 'error-' + dp.error
@@ -434,14 +441,13 @@ class WebuiController < ApplicationController
             ftime = Integer(tuple[0]) rescue 0
             next if newest > ftime
             next if tuple[1] != dp.srcmd5
-            frepo                          = repo
+            frepo = repo
             currentpack['develfailedarch'] = frepo.split('/')[1]
             currentpack['develfailedrepo'] = frepo.split('/')[0]
-            newest                         = ftime
-            currentpack['develfirstfail']  = newest
+            newest = ftime
+            currentpack['develfirstfail'] = newest
           end if p.buildinfo
 
-          next if status_filter_user(dproject, dp, filter_for_user, project_maintainer_cache)
         end
 
         if currentpack['md5'] && currentpack['develmd5'] && currentpack['md5'] != currentpack['develmd5']
@@ -464,7 +470,6 @@ class WebuiController < ApplicationController
           end
         end
       elsif @current_develproject != no_project
-        next if status_filter_user(project.name, p, filter_for_user, project_maintainer_cache)
         next if @current_develproject != all_projects
       end
 
