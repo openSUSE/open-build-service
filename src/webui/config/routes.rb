@@ -180,7 +180,7 @@ OBSWebUI::Application.routes.draw do
     get 'project/edit/:project' => :edit, constraints: cons
     get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons
     post 'project/edit_comment/:project' => :edit_comment, constraints: cons
-    get 'project/status/(:project)' => :status, constraints: cons
+    get 'project/status/(:project)' => :status, constraints: cons, as: 'project_status'
     get 'project/maintained_projects/:project' => :maintained_projects, constraints: cons
     get 'project/add_maintained_project_dialog' => :add_maintained_project_dialog, constraints: cons
     post 'project/add_maintained_project' => :add_maintained_project, constraints: cons

@@ -165,7 +165,7 @@ class ProjectStatusHelper
     end
     data = get_xml(uri)
 
-    data['project'].elements('package') do |p|
+    data.get('project').elements('package') do |p|
 
       packname = p['name']
       key      = proj + "/" + packname

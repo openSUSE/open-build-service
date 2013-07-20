@@ -233,4 +233,9 @@ class ProjectControllerTest < ActionDispatch::IntegrationTest
     click_link "Meta"
     page.wont_have_text '<person userid="homer" role="maintainer"/>'
   end
+  
+  test "check status" do
+    visit project_status_path(project: "LocalProject")
+    page.must_have_text "Include version updates" # just don't crash
+  end
 end

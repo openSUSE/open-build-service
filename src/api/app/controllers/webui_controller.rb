@@ -200,7 +200,7 @@ class WebuiController < ApplicationController
       end
     end
     rel = BsRequest.collection(params) unless rel
-    ids.contact(rel.puck("bs_requests.id"))
+    ids.concat(rel.pluck("bs_requests.id"))
 
     render json: ids.uniq.sort
   end
