@@ -76,8 +76,10 @@
             <%= link_to(image_tag('req-showdiff.png', :size => '16x16', :alt => "Show #{reqtype(req)} request ##{req.value(:id)}", :title => "Show #{reqtype(req)} request ##{req.value(:id)}"), :controller => :request, :action => :show, :id => req.value(:id)) -%>
             <% if ae.has_element? :source and ae.source.has_attribute? :package %>
               <%= link_to(image_tag('icons/information.png', :size => '16x16', :alt => 'Build results', :title => 'Build results', :id => "req_#{req.value(:id)}"), :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package) %>
-              <% javascript_tag do %>
-                setup_buildresult_tooltip('<%= "req_#{req.value(:id)}" %>', '<%= url_for :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package %>');
+              <% if not mobile_device? %>
+                <% javascript_tag do %>
+                  setup_buildresult_tooltip('<%= "req_#{req.value(:id)}" %>', '<%= url_for :controller => :project, :action => :package_buildresult, :project => ae.source.project, :package => ae.source.package %>');
+                <% end %>
               <% end %>
             <% end %>
           </td>

@@ -53,7 +53,7 @@
   // initial render after page load
 $(document).ready(function(){
     render_list("date");
-    $('#request_list').listview('refresh');
+    $('#request_list:visible').listview('refresh');
   $("input[type='radio']").bind("change", function(){
     var selection=$(this).val();
     //alert("Criterion changed. Selected: "+selection);
