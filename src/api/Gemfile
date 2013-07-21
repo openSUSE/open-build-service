@@ -17,6 +17,12 @@ gem 'xmlhash', '>=1.3.5'
 gem 'ruby-ldap', :require => false
 gem 'dalli', :require => false
 
+group :production do
+  # if you have an account, it can be configured by
+  # placing a config/newrelic.yml
+  gem 'newrelic_rpm', require: false
+end
+
 group :test do
   gem 'database_cleaner', '>= 1.0.1'
   gem 'ci_reporter'
