@@ -78,24 +78,22 @@ class StatusController < ApplicationController
       data = nil
     end
     data=ActiveXML::Node.new(data || update_workerstatus_cache)
+    prjs=Hash.new
     data.each_building do |b|
-      prj = Project.find_by_name(b.project)
+      prjs[b.project] = 1 
+    end
+    names = Hash.new
+    # now try to find those we have a match for (the rest are hidden from you
+    Project.where(name: prjs.keys).pluck(:name).each do |n|
+      names[n] = 1
+    end
+    data.each_building do |b|
       # no prj -> we are not allowed
-      if prj.nil?
-        logger.debug "workerstatus2clean: hiding #{b.project} for user #{@http_user.login}"
+      unless names.has_key? b.project
+        logger.debug "workerstatus2clean: hiding #{b.project} for user #{User.current.login}"
         b.set_attribute('project', "---")
         b.set_attribute('repository', "---")
         b.set_attribute('package', "---")
-      end
-    end
-    # FIXME2.5: The current architecture model is a gross hack, not connected at all 
-    #           to the backend config.
-    data.each_partition do |partition|
-      partition.each_daemon do |daemon|
-        next unless daemon.type == "scheduler"
-        if a=Architecture.find_by_name(daemon.arch)
-          a.available=true
-        end
       end
     end
     send_data data.dump_xml
@@ -126,51 +124,59 @@ class StatusController < ApplicationController
 
   def update_workerstatus_cache
     # do not add hiding in here - this is purely for statistics
-    ret = backend_get('/build/_workerstatus')
-    data=REXML::Document.new(ret)
+    ret=backend_get('/build/_workerstatus')
+    data=Xmlhash.parse(ret)
 
     mytime = Time.now.to_i
-    Rails.cache.write('workerstatus', ret, :expires_in => 3.minutes)
-    data.root.each_element('blocked') do |e|
+    Rails.cache.write('workerstatus', ret, expires_in: 3.minutes)
+    Rails.cache.write('workerhash', data, expires_in: 3.minutes) 
+    StatusHistory.transaction do
+    data.elements('blocked') do |e|
       line       = StatusHistory.new
       line.time  = mytime
-      line.key   = 'blocked_%s' % [e.attributes['arch']]
-      line.value = e.attributes['jobs']
+      line.key   = 'blocked_%s' % [e['arch']]
+      line.value = e['jobs']
       line.save
     end
-    data.root.each_element('waiting') do |e|
+    data.elements('waiting') do |e|
       line       = StatusHistory.new
       line.time  = mytime
-      line.key   = "waiting_#{e.attributes['arch']}"
-      line.value = e.attributes['jobs']
+      line.key   = "waiting_#{e['arch']}"
+      line.value = e['jobs']
       line.save
     end
-    data.root.each_element('partition') do |d|
-      d.each_element('daemon') do |daemon|
-        next unless daemon.attributes['type'] == 'scheduler'
-        queue = daemon.elements['queue']
+    data.elements('partition') do |p|
+      p.elements('daemon') do |daemon|
+        next unless daemon['type'] == 'scheduler'
+        arch = daemon['arch']
+        # FIXME2.5: The current architecture model is a gross hack, not connected at all 
+        #           to the backend config.
+        if a=Architecture.find_by_name(arch)
+          a.available=true
+          a.save
+        end
+        queue = daemon.get('queue')
         next unless queue
-        arch = daemon.attributes['arch']
-        StatusHistory.create :time => mytime, :key => "squeue_high_#{arch}", :value => queue.attributes['high']
-        StatusHistory.create :time => mytime, :key => "squeue_next_#{arch}", :value => queue.attributes['next']
-        StatusHistory.create :time => mytime, :key => "squeue_med_#{arch}", :value => queue.attributes['med']
-        StatusHistory.create :time => mytime, :key => "squeue_low_#{arch}", :value => queue.attributes['low']
+        StatusHistory.create :time => mytime, :key => "squeue_high_#{arch}", :value => queue['high'].to_i
+        StatusHistory.create :time => mytime, :key => "squeue_next_#{arch}", :value => queue['next'].to_i
+        StatusHistory.create :time => mytime, :key => "squeue_med_#{arch}", :value => queue['med'].to_i
+        StatusHistory.create :time => mytime, :key => "squeue_low_#{arch}", :value => queue['low'].to_i
       end
     end
 
     allworkers = Hash.new
     workers    = Hash.new
     %w{building idle}.each do |state|
-      data.root.each_element(state) do |e|
-        id=e.attributes['workerid']
+      data.elements(state) do |e|
+        id=e['workerid']
         if workers.has_key? id
           logger.debug 'building+idle worker'
           next
         end
         workers[id]                                        = 1
-        key                                                = state + '_' + e.attributes['hostarch']
-        allworkers["building_#{e.attributes['hostarch']}"] ||= 0
-        allworkers["idle_#{e.attributes['hostarch']}"]     ||= 0
+        key                                                = state + '_' + e['hostarch']
+        allworkers["building_#{e['hostarch']}"] ||= 0
+        allworkers["idle_#{e['hostarch']}"]     ||= 0
         allworkers[key]                                    = allworkers[key] + 1
       end
     end
@@ -183,6 +189,7 @@ class StatusController < ApplicationController
       line.save
     end
 
+    end
     ret
   end
 
