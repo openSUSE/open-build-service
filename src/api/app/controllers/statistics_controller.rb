@@ -154,38 +154,19 @@ class StatisticsController < ApplicationController
 
   def latest_updated
     @limit = 10 unless @limit
-    # first we catch a list visible to anyone
-    # not just needs this to be fast, it also needs to catch errors in case projects or packages
-    # disappear after the cache hit. So we do not spend too much logic in access flags, but check
-    # the cached values afterwards if they are valid and accessible
-    packages = Package.select("id,updated_at").order("updated_at DESC").limit(@limit*2)
-    projects = Project.select("id,updated_at").order("updated_at DESC").limit(@limit*2)
 
-    list = projects
-    list.concat packages
-    ret = Array.new
-    list.sort { |a,b| b.updated_at <=> a.updated_at }.each do |item|
-      if item.instance_of? Package
-        ret << [:package, item.id]
-      else
-        ret << [:project, item.id]
-      end
-    end
-    list = ret
+    packages = Package.order("updated_at DESC").limit(@limit).pluck(:name, :db_project_id, :updated_at).map { |name, project, at| [at, name, project] }
+    projects = Project.order("updated_at DESC").limit(@limit).pluck(:name, :updated_at).map { |name, at| [at, name, :project] }
 
-    @list = Array.new
-    list.each do |type, id|
-      if type == :project
-        item = Project.find(id)
-        next unless Project.check_access?(item)
-      else
-        item = Package.find(id)
-        next unless item
-        next unless Package.check_access?(item)
-      end
-      @list << item
-      break if @list.size == @limit
+    packprojs = Hash.new
+    Project.where(id: packages.map { |x| x[2] }).pluck(:id, :name).each do |id, name|
+      packprojs[id] = name
     end
+    packages.map! { |at, name, project| [at, :package, name, packprojs[project] ] }
+
+    @list = packages + projects
+    @list.sort! { |a,b| b[0] <=> a[0] }
+    @list = @list.slice(0, @limit)
   end
 
 

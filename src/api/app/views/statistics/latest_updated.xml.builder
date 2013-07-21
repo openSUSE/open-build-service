@@ -3,19 +3,17 @@ xml.latest_updated do
   @list.each do |item|
 
     ### item is a package
-    if item.instance_of? Package
+    if item[1] == :package
       xml.package(
-        :name => item.name,
-        :project => item.project.name,
-        :updated => item.updated_at.xmlschema
+        :name => item[2],
+        :project => item[3],
+        :updated => item[0].xmlschema
       )
-    end
-
+    else
     ### item is a project
-    if item.instance_of? Project
       xml.project(
-        :name => item.name,
-        :updated => item.updated_at.xmlschema
+        :name => item[1],
+        :updated => item[0].xmlschema
       )
     end
 
