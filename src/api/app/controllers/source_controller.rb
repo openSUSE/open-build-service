@@ -59,7 +59,7 @@ class SourceController < ApplicationController
 
   def projectlist
     # list all projects (visible to user)
-    dir = Project.select(:name).map {|i| i.name }.sort
+    dir = Project.pluck(:name).sort
     output = String.new
     output << "<?xml version='1.0' encoding='UTF-8'?>\n"
     output << "<directory>\n"

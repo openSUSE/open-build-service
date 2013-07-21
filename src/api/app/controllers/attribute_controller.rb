@@ -14,20 +14,21 @@ class AttributeController < ApplicationController
     valid_http_methods :get
 
     if params[:namespace]
-      if not AttribNamespace.select("id,name").find_by_name( params[:namespace] )
+      an = AttribNamespace.where(name: params[:namespace] ).first
+      unless an
         render_error :status => 400, :errorcode => 'unknown_namespace',
           :message => "Attribute namespace does not exist: #{params[:namespace]}"
         return
       end
-      list = AttribType.list_all( params[:namespace] )
+      list = an.attrib_types.pluck(:name)
     else
-      list = AttribNamespace.list_all
+      list = AttribNamespace.pluck(:name)
     end
 
     builder = Builder::XmlMarkup.new( :indent => 2 )
     xml = builder.directory( :count => list.length ) do |dir|
       list.each do |a|
-        dir.entry( :name => a.name )
+        dir.entry( :name => a )
       end
     end
 
@@ -45,7 +46,7 @@ class AttributeController < ApplicationController
     namespace = params[:namespace]
 
     if request.get?
-      an = AttribNamespace.select("id,name").find_by_name(namespace)
+      an = AttribNamespace.where(name: namespace).select(:id, :name).first
       if an
         render :text => an.render_axml, :content_type => 'text/xml'
       else
@@ -75,7 +76,7 @@ class AttributeController < ApplicationController
         return
       end
 
-      db = AttribNamespace.find_by_name(namespace)
+      db = AttribNamespace.where(name: namespace).first
       if db
           logger.debug "* updating existing attribute namespace"
           db.update_from_xml(xml_element)
@@ -87,8 +88,7 @@ class AttributeController < ApplicationController
       logger.debug "--- finished updating attribute namespace definitions ---"
       render_ok
     elsif request.delete?
-      db = AttribNamespace.find_by_name(namespace)
-      db.destroy
+      AttribNamespace.where(name: namespace).destroy_all
       render_ok
     else
       render_error :status => 400, :errorcode => 'illegal_request',
@@ -110,7 +110,7 @@ class AttributeController < ApplicationController
     end
     namespace = params[:namespace]
     name = params[:name]
-    ans = AttribNamespace.find_by_name namespace
+    ans = AttribNamespace.where(name: namespace).first
     unless ans
        render_error :status => 400, :errorcode => 'unknown_attribute_namespace',
          :message => "Specified attribute namespace does not exist: '#{namespace}'"

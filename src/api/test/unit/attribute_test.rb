@@ -180,11 +180,4 @@ class AttributeTest < ActiveSupport::TestCase
     end
   end
 
-  def test_list
-    atypes = AttribType.list_all.map { |a| a.name }.sort
-    assert_equal atypes, ["ApprovedRequestSource", "BranchTarget", "InitializeDevelPackage", "Issues", "Maintained", "MaintenanceIdTemplate", "MaintenanceProject", "OwnerRootProject", "ProjectStatusPackageFailComment", "QualityCategory", "RejectRequests", "RequestCloned", "ScreenShots", "UpdateProject", "VeryImportantProject", "status"]
-
-    atypes = AttribType.list_all("NSTEST").map { |a| a.name }.sort
-    assert_equal atypes, ["status"]
-  end
 end

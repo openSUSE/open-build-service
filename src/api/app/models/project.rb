@@ -950,23 +950,19 @@ class Project < ActiveRecord::Base
   end
 
   def each_user( opt={}, &block )
-    users = project_user_role_relationships.joins(:role, :user).select("users.login as login, roles.title as roletitle").order("roletitle, login")
-    if( block )
-      users.each do |u|
-        block.call(u.login, u.roletitle)
-      end
+    raise "No block given" unless block
+    users = project_user_role_relationships.joins(:role, :user).order("roles.title, users.login").pluck("users.login, roles.title")
+    users.each do |login, title|
+      block.call(login, title)
     end
-    return users
   end
 
   def each_group( opt={}, &block )
-    groups = project_group_role_relationships.joins(:role, :group).select("groups.title as grouptitle, roles.title as roletitle").order("roletitle, grouptitle")
-    if( block )
-      groups.each do |g|
-        block.call(g.grouptitle, g.roletitle)
-      end
+    raise "No block given" unless block
+    groups = project_group_role_relationships.joins(:role, :group).order("groups.title, roles.title").pluck("groups.title as grouptitle, roles.title as roletitle")
+    groups.each do |group, role|
+      block.call(group, role)
     end
-    return groups
   end
 
   def to_axml(view = nil)
@@ -1055,8 +1051,8 @@ class Project < ActiveRecord::Base
             end
             r.path( :project => project_name, :repository => pe.link.name )
           end
-          repo.repository_architectures.joins(:architecture).select("architectures.name").each do |arch|
-            r.arch arch.name
+          repo.repository_architectures.joins(:architecture).pluck("architectures.name").each do |arch|
+            r.arch arch
           end
         end
       end
@@ -1392,9 +1388,9 @@ class Project < ActiveRecord::Base
 
     # fast find packages with defintions
     # user in package object
-    defined_packages = Package.joins(:package_user_role_relationships).where("db_project_id in (?) AND package_user_role_relationships.role_id in (?)", projects, roles).select(:name).map{ |p| p.name}
+    defined_packages = Package.joins(:package_user_role_relationships).where("db_project_id in (?) AND package_user_role_relationships.role_id in (?)", projects, roles).pluck(:name)
     # group in package object
-    defined_packages += Package.joins(:package_group_role_relationships).where("db_project_id in (?) AND package_group_role_relationships.role_id in (?)", projects, roles).select(:name).map{ |p| p.name}
+    defined_packages += Package.joins(:package_group_role_relationships).where("db_project_id in (?) AND package_group_role_relationships.role_id in (?)", projects, roles).pluck(:name)
     # user in project object
     Project.joins(:project_user_role_relationships).where("projects.id in (?) AND project_user_role_relationships.role_id in (?)", projects, roles).each do |prj|
       defined_packages += prj.packages.map{ |p| p.name }
@@ -1408,7 +1404,7 @@ class Project < ActiveRecord::Base
     end
     defined_packages.uniq!
 
-    all_packages = Package.where("db_project_id in (?)", projects).select(:name).map{ |p| p.name}
+    all_packages = Package.where("db_project_id in (?)", projects).pluck(:name)
   
     undefined_packages = all_packages - defined_packages 
     maintainers=[]
@@ -1442,14 +1438,14 @@ class Project < ActiveRecord::Base
     # fast find packages with defintions
     if owner.class == User
       # user in package object
-      found_packages = PackageUserRoleRelationship.where(:role_id => roles, :bs_user_id => owner, :db_package_id => Package.where(:db_project_id => projects)).select(:db_package_id).map{ |p| p.db_package_id}
+      found_packages = PackageUserRoleRelationship.where(:role_id => roles, :bs_user_id => owner, :db_package_id => Package.where(:db_project_id => projects)).pluck(:db_package_id)
       # user in project object
       ProjectUserRoleRelationship.where(:role_id => roles, :bs_user_id => owner, :db_project_id => Project.where(:id => projects)).each do |prjrel|
         found_projects << prjrel.db_project_id
       end
     elsif owner.class == Group
       # group in package object
-      found_packages = PackageGroupRoleRelationship.where(:role_id => roles, :bs_group_id => owner, :db_package_id => Package.where(:db_project_id => projects)).select(:db_package_id).map{ |p| p.db_package_id}
+      found_packages = PackageGroupRoleRelationship.where(:role_id => roles, :bs_group_id => owner, :db_package_id => Package.where(:db_project_id => projects)).pluck(:db_package_id)
       # group in project object
       ProjectGroupRoleRelationship.where(:role_id => roles, :bs_group_id => owner, :db_project_id => Project.where(:id => projects)).each do |prjrel|
         found_projects << prjrel.db_project_id
@@ -1578,14 +1574,14 @@ class Project < ActiveRecord::Base
     # Includes also requests for packages contained in this project
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
     rel = rel.where("bs_request_actions.source_project = ? or bs_request_actions.target_project = ?", self.name, self.name)
-    return BsRequest.where(id: rel.select("bs_requests.id").map { |r| r.id})
+    return BsRequest.where(id: rel.pluck("bs_requests.id"))
   end
 
   def open_requests_with_by_project_review
     # Includes also by_package reviews for packages contained in this project
     rel = BsRequest.where(state: [:new, :review])
     rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? ", self.name)
-    return BsRequest.where(id: rel.select("bs_requests.id").map { |r| r.id})
+    return BsRequest.where(id: rel.pluck("bs_requests.id"))
   end
 
   # list only the repositories that have a target project in the build path

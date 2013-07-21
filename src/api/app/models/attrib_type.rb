@@ -10,14 +10,6 @@ class AttribType < ActiveRecord::Base
   has_many :attrib_type_modifiable_bies, :class_name => 'AttribTypeModifiableBy', :dependent => :destroy
 
   class << self
-    def list_all(namespace=nil)
-      if namespace
-        joins(:attrib_namespace).where("attrib_namespaces.name = ?", namespace).select("attrib_types.id,attrib_types.name")
-      else
-        select("id,name")
-      end
-    end
-
     def find_by_name(name)
       name_parts = name.split(/:/)
       if name_parts.length != 2

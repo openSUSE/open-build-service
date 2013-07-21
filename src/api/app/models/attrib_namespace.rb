@@ -4,12 +4,6 @@ class AttribNamespace < ActiveRecord::Base
   has_many :attrib_types, :dependent => :destroy
   has_many :attrib_namespace_modifiable_bies, :class_name => 'AttribNamespaceModifiableBy', :dependent => :destroy
 
-  class << self
-    def list_all
-      AttribNamespace.select("id,name")
-    end
-  end
-
   def update_from_xml(node)
     self.transaction do
       self.attrib_namespace_modifiable_bies.delete_all

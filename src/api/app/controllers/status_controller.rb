@@ -113,7 +113,7 @@ class StatusController < ApplicationController
     end
     logger.debug "#{Time.now.to_i} to #{hours.to_i}"
     starttime = Time.now.to_i - hours.to_i * 3600
-    values    = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, params[:key]).select([:time, :value]).collect { |line| [line.time.to_i, line.value.to_f] }
+    values    = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, params[:key]).pluck(:time, :value).collect { |time,value| [time.to_i, value.to_f] }
     builder   = Builder::XmlMarkup.new(:indent => 2)
     xml       = builder.history do
       StatusHelper.resample(values, samples).each do |time, val|
