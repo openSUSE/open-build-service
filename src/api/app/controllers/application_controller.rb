@@ -51,6 +51,13 @@ class ApplicationController < ActionController::API
     User.current = @http_user
   end
 
+  def load_nobody
+    @http_user = User.find_by_login( "_nobody_" )
+    User.current = @http_user
+    User.current.is_admin = false
+    @user_permissions = Suse::Permission.new( User.current )
+  end
+
   def require_admin
     logger.debug "Checking for  Admin role for user #{@http_user.login}"
     unless @http_user.is_admin?
@@ -58,22 +65,6 @@ class ApplicationController < ActionController::API
       render_error :status => 403, :errorcode => "put_request_no_permission", :message => "Requires admin privileges" and return false
     end
     return true
-  end
-
-  def http_anonymous_user 
-    return User.find_by_login( "_nobody_" )
-  end
-
-  def extract_user_public
-    # to become _public_ special user 
-    if ::Configuration.first.anonymous
-      @http_user = User.find_by_login( "_nobody_" )
-      @user_permissions = Suse::Permission.new( @http_user )
-      return true
-    end
-    logger.error "No public access is configured"
-    render_error( :message => "No public access is configured", :status => 401 )
-    return false
   end
 
   def validate_params
@@ -108,14 +99,14 @@ class ApplicationController < ActionController::API
         # If we do not find a User here, we need to create a user and wait for
         # the confirmation by the user and the BS Admin Team.
         unless @http_user
-          if ::Configuration.first.registration == "deny"
+          if ::Configuration.registration == "deny"
             logger.debug( "No user found in database, creation disabled" )
             render_error( :message => "User '#{login}' does not exist<br>#{errstr}", :status => 401 )
             @http_user=nil
             return false
           end
           state = User.states['confirmed']
-          state = User.states['unconfirmed'] if ::Configuration.first.registration == "confirmation"
+          state = User.states['unconfirmed'] if ::Configuration.registration == "confirmation"
           # Generate and store a fake pw in the OBS DB that no-one knows
           # FIXME: we should allow NULL passwords in DB, but that needs user management cleanup
           chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
@@ -130,9 +121,8 @@ class ApplicationController < ActionController::API
         # update user data from login proxy headers
         @http_user.update_user_info_from_proxy_env(request.env) unless @http_user.nil?
       else
-        if ::Configuration.first.anonymous
-          @http_user = User.find_by_login( "_nobody_" )
-          @user_permissions = Suse::Permission.new( @http_user )
+        if ::Configuration.anonymous?
+          load_nobody
           return true
         end
         logger.error "No X-username header from login proxy! Are we really using an authentification proxy?"
@@ -161,7 +151,7 @@ class ApplicationController < ActionController::API
         #set password to the empty string in case no password is transmitted in the auth string
         passwd ||= ""
       else
-        if @http_user.nil? and ::Configuration.first.anonymous
+        if @http_user.nil? and ::Configuration.anonymous?
           read_only_hosts = []
           read_only_hosts = CONFIG['read_only_hosts'] if CONFIG['read_only_hosts']
           read_only_hosts << CONFIG['webui_host'] if CONFIG['webui_host'] # this was used in config files until OBS 2.1
@@ -169,13 +159,12 @@ class ApplicationController < ActionController::API
             # Fixed list of clients which do support the read only mode
             hua = request.env['HTTP_USER_AGENT']
             if hua && (hua.match(/^obs-webui/) || hua.match(/^obs-software/))
-              @http_user = User.find_by_login( "_nobody_" )
-              @user_permissions = Suse::Permission.new( @http_user )
+              load_nobody
               return true
             end
-	  else
-	    logger.info "anononymous configured, but #{read_only_hosts.inspect} does not include '#{request.env['REMOTE_HOST']}' '#{request.env['REMOTE_ADDR']}'"
-	  end
+          else
+            logger.info "anononymous configured, but #{read_only_hosts.inspect} does not include '#{request.env['REMOTE_HOST']}' '#{request.env['REMOTE_ADDR']}'"
+          end
 
           if login
             render_error :message => "User not yet registered", :status => 403,
@@ -218,7 +207,7 @@ class ApplicationController < ActionController::API
               @http_user.save
             end
           else
-            if ::Configuration.first.registration == "deny"
+            if ::Configuration.registration == "deny"
               logger.debug( "No user found in database, creation disabled" )
               render_error( :message => "User '#{login}' does not exist<br>#{errstr}", :status => 401 )
               @http_user=nil
@@ -249,7 +238,7 @@ class ApplicationController < ActionController::API
             end
             newuser.realname = ldap_info[1]
             newuser.state = User.states['confirmed']
-            newuser.state = User.states['unconfirmed'] if ::Configuration.first.registration == "confirmation"
+            newuser.state = User.states['unconfirmed'] if ::Configuration.registration == "confirmation"
             newuser.adminnote = "User created via LDAP"
             user_role = Role.find_by_title("User")
             newuser.roles << user_role
@@ -610,7 +599,7 @@ class ApplicationController < ActionController::API
 
   private
   def shutup_rails
-    Rails.cache.silence!
+    Rails.cache.silence! unless Rails.env.development?
   end
 
   def action_fragment_key( options )

@@ -5,6 +5,17 @@ class PublicController < ApplicationController
   before_filter :extract_user_public
   skip_before_filter :extract_user
 
+  def extract_user_public
+    # to become _public_ special user
+    if ::Configuration.anonymous?
+      load_nobody
+      return true
+    end
+    logger.error "No public access is configured"
+    render_error( :message => "No public access is configured", :status => 401 )
+    return false
+  end
+
   def index
     redirect_to controller: "about", action: "index"
   end
@@ -27,7 +38,6 @@ class PublicController < ApplicationController
         false
       end
     end
-
     raise Package::UnknownObjectError, "#{project} / #{package} " unless allowed
   end
   private :check_package_access

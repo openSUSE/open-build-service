@@ -925,10 +925,15 @@ class User < ActiveRecord::Base
   #####################
 
   def is_admin?
-    if @is_admin.nil?
-      @is_admin = !roles.select("roles.id").find_by_title("Admin").nil?
+    if @is_admin.nil? # false is fine
+      @is_admin = roles.where(title: "Admin").exists?
     end
     @is_admin
+  end
+
+  # used to avoid
+  def is_admin=(is_she)
+    @is_admin = is_she
   end
 
   def is_in_group?(group)
@@ -1155,7 +1160,6 @@ class User < ActiveRecord::Base
     return false
   end
 
-
   def local_role_check_with_ldap (role, object)
     logger.debug "Checking role with ldap: object #{object.name}, role #{role.title}"
     case object
@@ -1175,11 +1179,11 @@ class User < ActiveRecord::Base
 
   def has_local_role?( role, object )
     case object
-      when Package
+    when Package
         logger.debug "running local role package check: user #{self.login}, package #{object.name}, role '#{role.title}'"
         rels = object.package_user_role_relationships.where(:role_id => role.id, :bs_user_id => self.id).first
         return true if rels
-	rels = object.package_group_role_relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where(:role_id => role.id).first
+        rels = object.package_group_role_relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where(:role_id => role.id).first
         return true if rels
 
         # check with LDAP
@@ -1188,7 +1192,7 @@ class User < ActiveRecord::Base
         end
 
         return has_local_role?(role, object.project)
-      when Project
+    when Project
         logger.debug "running local role project check: user #{self.login}, project #{object.name}, role '#{role.title}'"
         rels = object.project_user_role_relationships.where(:role_id => role.id, :bs_user_id => self.id).first
         return true if rels
@@ -1285,6 +1289,10 @@ class User < ActiveRecord::Base
     packages += PackageGroupRoleRelationship.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).select(:db_package_id).map {|ur| ur.db_package_id}
 
     return Package.where(id: packages).where("db_project_id not in (?)", projects)
+  end
+
+  def forbidden_project_ids
+    @f_ids ||= ProjectUserRoleRelationship.forbidden_project_ids_for_user(self)
   end
 
   protected

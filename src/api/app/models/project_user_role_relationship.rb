@@ -18,6 +18,14 @@ class ProjectUserRoleRelationship < ActiveRecord::Base
 
   # this is to speed up secure Project.find
   def self.forbidden_project_ids
+    if User.current
+      return User.current.forbidden_project_ids
+    end
+    # mainly for scripts
+    forbidden_project_ids_for_user(nil)
+  end
+
+  def self.forbidden_project_ids_for_user(user)
     project_user_cache = Rails.cache.fetch(FORBIDDEN_PROJECT_IDS_CACHE_KEY) do
       puc = Hash.new
       ProjectUserRoleRelationship.find_by_sql("SELECT ur.db_project_id, ur.bs_user_id from flags f, 
@@ -27,11 +35,12 @@ class ProjectUserRoleRelationship < ActiveRecord::Base
       end
       puc
     end
-    ret = []
-    userid = User.nobodyID
-    if User.current
-      return [0] if User.current.is_admin?
-      userid = User.current.id
+    ret = [0]
+    if user
+      return ret if user.is_admin?
+      userid = user.id
+    else
+      userid = User.nobodyID
     end
     project_user_cache.each do |project_id, users|
       ret << project_id unless users[userid]

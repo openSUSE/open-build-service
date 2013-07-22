@@ -77,12 +77,25 @@ class Package < ActiveRecord::Base
     # use_source: false to skip check for sourceaccess permissions
     # function returns a nil object in case the package is on remote instance
     def get_by_project_and_name( project, package, opts = {} )
-      raise "get_by_project_and_name expects a hash as third arg" unless opts.kind_of? Hash
       opts = { use_source: true, follow_project_links: true }.merge(opts)
+      key = { "get_by_project_and_name" => 1, package: package, user: User.current.cache_key }.merge(opts)
+
+      # the cache is only valid if the user, prj and pkg didn't change
+      if project.class == Project
+        key[:project] = project.id
+      else
+        key[:project] = project
+      end
+      pid, old_pkg_time, old_prj_time = Rails.cache.read(key)
+      logger.debug "get_by_project_and_name #{key} #{pid}"
+      if pid
+        pkg=Package.where(id: pid).first
+        return pkg if pkg && pkg.updated_at == old_pkg_time && pkg.project.updated_at == old_prj_time
+        Rails.cache.delete(key) # outdated anyway
+      end
       use_source = opts.delete :use_source
       follow_project_links = opts.delete :follow_project_links
       raise "get_by_project_and_name passed unknown options #{opts.inspect}" unless opts.empty?
-      logger.debug "get_by_project_and_name #{opts.inspect}"
       if project.class == Project
         prj = project
       else
@@ -106,8 +119,9 @@ class Package < ActiveRecord::Base
       raise UnknownObjectError, "#{project}/#{package}" if pkg.nil?
       raise ReadAccessError, "#{project}/#{package}" unless check_access?(pkg)
 
-      pkg.check_source_access! if use_source 
+      pkg.check_source_access! if use_source
 
+      Rails.cache.write(key, [pkg.id, pkg.updated_at, prj.updated_at])
       return pkg
     end
 

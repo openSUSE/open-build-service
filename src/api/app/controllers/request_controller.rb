@@ -517,7 +517,7 @@ class RequestController < ApplicationController
   # POST /request?cmd=create
   def create_create
     # refuse request creation for anonymous users
-    if User.current == http_anonymous_user
+    if User.current.id == User.nobodyID
       render_error :status => 401, :errorcode => 'anonymous_user',
                    :message => "Anonymous user is not allowed to create requests"
       return

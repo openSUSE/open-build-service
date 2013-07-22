@@ -40,6 +40,14 @@ class Configuration < ActiveRecord::Base
       end
       return value
     end
+
+    def anonymous?
+      Configuration.limit(1).pluck(:anonymous).first
+    end
+   
+    def registration
+      Configuration.limit(1).pluck(:registration).first
+    end
   end
 
   def update_from_options_yml()
