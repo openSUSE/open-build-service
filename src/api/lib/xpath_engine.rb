@@ -183,7 +183,7 @@ class XpathEngine
     @operators = [:eq, :and, :or, :neq]
 
     @base_table = ""
-    @conditions = [1]
+    @conditions = []
     @condition_values = []
     @condition_values_needed = 1 # see xpath_func_not
     @joins = []
@@ -296,7 +296,9 @@ class XpathEngine
     logger.debug("#{relation.to_sql}.find_each #{ { :include => includes, :joins => @joins.flatten.uniq.join(' '),
                     :conditions => cond_ary, :order => @sort_order, }.inspect }")
     relation = relation.includes(includes).references(includes)
-    relation.joins(@joins.flatten.uniq.join(" ")).where(cond_ary).order(@sort_order).each do |item|
+    relation = relation.joins(@joins.flatten.uniq.join(" ")).where(cond_ary).order(@sort_order)
+    logger.debug relation.explain
+    relation.each do |item|
       # Add some pagination. Standard :offset & :limit aren't available for ActiveModel#find_each,
       # and the :start param only works on primary keys, but we're in a block so we can control
       # what we 'yield' after we constructed our (presumably) huge table with find_each...
@@ -317,6 +319,8 @@ class XpathEngine
   def parse_predicate(root, stack)
     #logger.debug "------------------ predicate ---------------"
     #logger.debug "-- pred_array: #{stack.inspect} --"
+
+    raise IllegalXpathError.new "invalid predicate" if stack.nil?
 
     while stack.length > 0
       token = stack.shift
@@ -477,7 +481,13 @@ class XpathEngine
     parse_predicate(root, rv)
     rv_cond = @conditions.pop
 
-    condition = "(#{lv_cond} OR #{rv_cond})"
+    if lv_cond == '0'
+      condition = rv_cond
+    elsif rv_cond == '0'
+      condition = lv_cond
+    else
+      condition = "(#{lv_cond} OR #{rv_cond})"
+    end
     #logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition
