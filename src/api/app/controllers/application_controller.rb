@@ -365,12 +365,21 @@ class ApplicationController < ActionController::API
     file
   end
 
+  def get_request_path
+    path = request.path
+    query_string = request.query_string
+    if request.form_data?
+      # it's uncommon, but possible that we have both
+      query_string += "&" unless query_string.blank?
+      query_string += request.raw_post
+    end
+    query_string = "?" + query_string unless query_string.blank?
+    path + query_string 
+  end
+
   def pass_to_backend( path = nil )
 
-    unless path
-      path = request.path
-      path += build_query_from_hash(request.request_parameters.merge(request.query_parameters))
-    end
+    path ||= get_request_path
 
     case request.method.to_s.downcase
     when "get"

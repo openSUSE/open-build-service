@@ -121,6 +121,11 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_no_xml_tag( :tag => "sourceinfo", :attributes => { :package => "pack3" } )
   end
 
+  def test_backend_post_with_forms
+    post "/public/lastevents", "filter=pack1&filter=pack2"
+    assert_response :success
+  end
+
   def test_use_remote_repositories
     prepare_request_with_user "tom", "thunder"
 

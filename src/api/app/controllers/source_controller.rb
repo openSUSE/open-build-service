@@ -1207,8 +1207,7 @@ class SourceController < ApplicationController
 
   # POST /lastevents
   def lastevents
-    path = request.path
-    path += build_query_from_hash(request.request_parameters.merge(request.query_parameters))
+    path = get_request_path
 
     # map to a GET, so we can X-forward it
     forward_from_backend path
