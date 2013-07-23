@@ -359,6 +359,9 @@ sub clone_repository {
   print "cloning $srcproject / $srcrepo\n";
   system('cp', '-al', $srcdir, $tmpdir) && die("cloning failed !");
 
+  # remove :repoinfo, as the new repo is not published yet
+  unlink("$tmpdir/:repoinfo");
+
   # remove jobhistory files
   for my $a (ls($tmpdir)) {
     unlink("$tmpdir/$a/:jobhistory");
