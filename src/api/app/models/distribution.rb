@@ -1,8 +1,8 @@
 class Distribution < ActiveRecord::Base
   validates_presence_of :vendor, :version, :name, :reponame, :repository, :project
 
-  has_and_belongs_to_many :icons, :class_name => 'DistributionIcon', :uniq => true
-  has_and_belongs_to_many :architectures, :class_name => 'Architecture', :uniq => true
+  has_and_belongs_to_many :icons, -> { uniq() }, class_name: 'DistributionIcon'
+  has_and_belongs_to_many :architectures, -> { uniq() }, class_name: 'Architecture'
   
   def self.parse(xmlhash)
     Distribution.transaction do
