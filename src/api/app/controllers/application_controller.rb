@@ -369,7 +369,7 @@ class ApplicationController < ActionController::API
 
     unless path
       path = request.path
-      patch += build_query_from_hash(request.request_parameters.merge(request.query_parameters))
+      path += build_query_from_hash(request.request_parameters.merge(request.query_parameters))
     end
 
     case request.method.to_s.downcase
