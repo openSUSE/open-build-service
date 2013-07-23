@@ -1,5 +1,5 @@
 [![Build Status](https://secure.travis-ci.org/openSUSE/open-build-service.png?branch=master)](https://travis-ci.org/openSUSE/open-build-service)
-[![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/openSUSE/open-build-service)
+[![Code Climate](https://codeclimate.com/github/openSUSE/open-build-service.png)](https://codeclimate.com/github/openSUSE/open-build-service)
 
 Open Build Service
 ==================
