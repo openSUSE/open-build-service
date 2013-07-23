@@ -2222,31 +2222,93 @@ sub docommand {
   return $BSStdServer::return_ok;
 }
 
+# special lastfailures mode: return the last success and the first failure
+# after the success if there was a failure. If the package never succeeded,
+# return the first failure.
+sub getlastfailures {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+
+  my $prpa = "$projid/$repoid/$arch";
+  # update our little database
+  my $db;
+  $db = BSUtil::retrieve("$reporoot/$prpa/:lastfailures", 1) || {};
+  my $changed;
+  local *F;
+  return ({jobhist => []}, $BSXML::jobhistlist) unless open(F, '<', "$reporoot/$prpa/:jobhistory");
+  if ($db->{'offset'} && $db->{'lastline'} && seek(F, $db->{'offset'}, 0)) {
+    if (Digest::MD5::md5_hex(<F> || '') ne $db->{'lastline'}) {
+      seek(F, 0, 0) || die("could not rewind\n");
+      $db = {};
+    }
+  } else {
+    $db = {};
+  }
+  $db->{'failure'} ||= {};
+  $db->{'success'} ||= {};
+  my $failure = $db->{'failure'};
+  my $success = $db->{'success'};
+  my $ll;
+  my $llo;
+  while (<F>) {
+    next if chop($_) ne "\n";
+    $ll = $_;
+    $llo = tell(F) - length($_) - 1;
+    my $r = BSFileDB::decode_line($_, $BSXML::jobhistlay);
+    my $n = $r->{'package'};
+    if ($r->{'code'} eq 'succeeded' || $r->{'code'} eq 'unchanged') {
+      $success->{$n} = $r;
+      delete $failure->{$n};
+    } elsif (!$failure->{$n}) {
+      $failure->{$n} = $r;
+    }
+  }
+  if (defined($ll)) {
+    $db->{'lastline'} = Digest::MD5::md5_hex("$ll\n");
+    $db->{'offset'} = $llo;
+    BSUtil::store("$reporoot/$prpa/.:lastfailures", "$reporoot/$prpa/:lastfailures", $db);
+  }
+  my %packid = map {$_ => 1} @{$cgi->{'package'}};
+  %packid = %{ { %$failure, %$success} } unless %packid;
+  my @hist;
+  for my $packid (sort keys %packid) {
+    push @hist, $success->{$packid} if $success->{$packid};
+    push @hist, $failure->{$packid} if $failure->{$packid};
+  }
+  my $ret = {jobhist => \@hist};
+  return ($ret, $BSXML::jobhistlist);
+}
+
+sub getlastfailures_old {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+  my $filter;
+ # report last success/unchanged and all fails for earch package
+  my %success;
+  if ($cgi->{'package'}) {
+    my %packid = map {$_ => 1} @{$cgi->{'package'}};
+    $filter = sub {
+      return 0 unless $packid{$_[0]->{'package'}};
+      return 1 unless $_[0]->{'code'} eq 'succeeded' || $_[0]->{'code'} eq 'unchanged';
+      delete $packid{$_[0]->{'package'}};
+      return %packid ? 1 : -1;
+    };
+  } else {
+    $filter = sub {
+      return 0 if $success{$_[0]->{'package'}};
+      $success{$_[0]->{'package'}} = 1 if $_[0]->{'code'} eq 'succeeded' || $_[0]->{'code'} eq 'unchanged';
+      return 1;
+    };
+  }
+  my @hist = BSFileDB::fdb_getall_reverse("$reporoot/$projid/$repoid/$arch/:jobhistory", $BSXML::jobhistlay, undef, $filter);
+  @hist = reverse @hist;
+  my $ret = {jobhist => \@hist};
+  return ($ret, $BSXML::jobhistlist);
+}
+
 sub getjobhistory {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $filter;
   if ($cgi->{'code'} && @{$cgi->{'code'}} == 1 && $cgi->{'code'}->[0] eq 'lastfailures') {
-    # report last success/unchanged and all fails for earch package
-    my %success;
-    if ($cgi->{'package'}) {
-      my %packid = map {$_ => 1} @{$cgi->{'package'}};
-      $filter = sub {
-        return 0 unless $packid{$_[0]->{'package'}};
-        return 1 unless $_[0]->{'code'} eq 'succeeded' || $_[0]->{'code'} eq 'unchanged';
-	delete $packid{$_[0]->{'package'}};
-	return %packid ? 1 : -1;
-      };
-    } else {
-      $filter = sub {
-        return 0 if $success{$_[0]->{'package'}};
-        $success{$_[0]->{'package'}} = 1 if $_[0]->{'code'} eq 'succeeded' || $_[0]->{'code'} eq 'unchanged';
-        return 1;
-      };
-    }
-    my @hist = BSFileDB::fdb_getall_reverse("$reporoot/$projid/$repoid/$arch/:jobhistory", $BSXML::jobhistlay, undef, $filter);
-    @hist = reverse @hist;
-    my $ret = {jobhist => \@hist};
-    return ($ret, $BSXML::jobhistlist);
+    return getlastfailures($cgi, $projid, $repoid, $arch);
   }
   if ($cgi->{'package'} && $cgi->{'code'}) {
     my %packid = map {$_ => 1} @{$cgi->{'package'}};
