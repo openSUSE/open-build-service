@@ -685,7 +685,8 @@ CREATE TABLE `status_messages` (
   `user_id` int(11) DEFAULT NULL,
   `severity` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `user` (`user_id`)
+  KEY `user` (`user_id`),
+  KEY `index_status_messages_on_deleted_at_and_created_at` (`deleted_at`,`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `taggings` (
@@ -1117,6 +1118,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130626160000');
 INSERT INTO schema_migrations (version) VALUES ('20130702083665');
 
 INSERT INTO schema_migrations (version) VALUES ('20130702203665');
+
+INSERT INTO schema_migrations (version) VALUES ('20130723055536');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
