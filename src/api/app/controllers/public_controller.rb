@@ -125,17 +125,6 @@ class PublicController < ApplicationController
     end
   end
 
-  # GET /public/lastevents
-  def lastevents
-    path = unshift_public(request.path)
-    if not request.query_string.blank?
-      path += "?#{request.query_string}" 
-    elsif not request.env["rack.request.form_vars"].blank?
-      path += "?#{request.env["rack.request.form_vars"]}" 
-    end
-    pass_to_backend path
-  end
-
   # GET /public/distributions
   def distributions
     @distributions = Distribution.all_as_hash

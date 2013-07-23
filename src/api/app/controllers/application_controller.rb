@@ -369,11 +369,7 @@ class ApplicationController < ActionController::API
 
     unless path
       path = request.path
-      if not request.query_string.blank?
-        path = path + '?'+request.query_string
-      elsif not request.env["rack.request.form_vars"].blank?
-        path = path + '?' + request.env["rack.request.form_vars"]
-      end
+      patch += build_query_from_hash(request.request_parameters.merge(request.query_parameters))
     end
 
     case request.method.to_s.downcase

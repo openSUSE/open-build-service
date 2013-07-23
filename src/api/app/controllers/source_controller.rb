@@ -20,6 +20,7 @@ class SourceController < ApplicationController
   validate_action :package_meta => {:method => :put, :request => :package, :response => :status}
 
   skip_before_filter :validate_xml_request, :only => [:file]
+  skip_before_filter :extract_user, only: [:lastevents_public]
 
   # /source
   #########
@@ -1198,15 +1199,19 @@ class SourceController < ApplicationController
     end
   end
 
+  # POST, GET /public/lastevents
   # GET /lastevents
+  def lastevents_public
+    lastevents
+  end
+
+  # POST /lastevents
   def lastevents
     path = request.path
-    if not request.query_string.blank?
-      path += "?#{request.query_string}"
-    elsif not request.env["rack.request.form_vars"].blank?
-      path += "?#{request.env["rack.request.form_vars"]}"
-    end
-    pass_to_backend path
+    path += build_query_from_hash(request.request_parameters.merge(request.query_parameters))
+
+    # map to a GET, so we can X-forward it
+    forward_from_backend path
   end
 
   private
