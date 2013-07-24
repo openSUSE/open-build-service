@@ -11,7 +11,7 @@
     <tbody>
       <% @files.each do |file| %>
          <tr id="file-<%= valid_xml_id(file[:name]) %>"><td>
-	     <% link_opts = { action: :view_file, project: @project, package: @package, file: file[:name], expand: @expand }
+	     <% link_opts = { action: :view_file, project: @project, package: @package, filename: file[:name], expand: @expand }
 	     unless @is_current_rev
 	       link_opts[:rev] = file[:srcmd5]
 	     end %>
