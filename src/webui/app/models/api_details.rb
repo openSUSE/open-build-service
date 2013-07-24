@@ -10,13 +10,14 @@ class ApiDetails
     uri = "/webui/"
     uri += 
       case info 
-      when :project_infos then "project_infos?project=:project"
-      when :project_requests then "project_requests?project=:project"
-      when :person_requests_that_need_work then "person_requests_that_need_work?login=:login"
-      when :request_show then "request_show?id=:id"
-      when :person_involved_requests then "person_involved_requests?login=:login"
-      when :request_ids then "request_ids?ids=:ids"
+      when :project_infos then "project_infos?:project"
+      when :project_requests then "project_requests?:project"
+      when :person_requests_that_need_work then "person_requests_that_need_work?:login"
+      when :request_show then "request_show?:id"
+      when :person_involved_requests then "person_involved_requests?:login"
+      when :request_ids then "request_ids?:ids"
       when :all_projects then "all_projects"
+      when :project_status then "project_status?:project&:limit_to_fails&:limit_to_old&:include_versions&:filter_for_user&:ignore_pending&:filter_devel"
       else raise "no valid info #{info}"
       end
     uri = URI(uri)

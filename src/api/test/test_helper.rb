@@ -180,6 +180,13 @@ module ActionDispatch
       end
     end
 
+    def login_king
+      prepare_request_with_user "king", "sunflower"
+    end
+
+    def login_Iggy
+      prepare_request_with_user "Iggy", "asdfasdf"
+    end
   end 
 end
 

@@ -220,56 +220,36 @@ class ProjectStatusHelper
 
     logger.debug "Started fetch_jobhistory #{proj}/#{repo}/#{arch}"
 
-    # we do some fancy caching in here as the function called is pretty expensive and often called
-    # first we check the last line of the job history (limit 1) and then we check if it changed
-    # against the url we expect to query. As the url is too long to be used as meaningful hash we
-    # generate the md5
-    path = '/build/%s/%s/%s/_jobhistory' % [CGI.escape(proj), CGI.escape(repo), arch]
-    key = Digest::MD5.hexdigest(path)
-    begin
-      currentlast=Suse::Backend.get(path + '?limit=1').body
-    rescue ActiveXML::Transport::NotFoundError
-      # now ths is an ugly project, no backend data -> e.g. no repos
-      return nil
-    end
-
-    lastlast = Rails.cache.read(key + '_last')
-    if currentlast != lastlast
-      Rails.cache.delete key
-    end
-
-    Rails.cache.fetch(key) do
-      uri = path + '?code=lastfailures'
-      mypackages.each do |dummy, package|
-        if package.project == proj
-          uri += "&package=" + CGI.escape(package.name)
-        end
+    uri = '/build/%s/%s/%s/_jobhistory?code=lastfailures' % [CGI.escape(proj), CGI.escape(repo), arch]
+    mypackages.each do |dummy, package|
+      if package.project == proj
+        uri += "&package=" + CGI.escape(package.name)
       end
-      Rails.cache.write(key + '_last', currentlast)
-      d = Suse::Backend.get(uri).body
-      return nil if d.blank?
-      data = Xmlhash.parse(d)
-
-      ret      = Hash.new
-      reponame = repo + "/" + arch
-      data.elements('jobhist') do |p|
-        packname      = p['package']
-        ret[packname] ||= BuildInfo.new
-        code          = p['code']
-        readytime     = begin
-          Integer(p['readytime'])
-        rescue 0
-        end
-        if code == "unchanged" || code == "succeeded"
-          ret[packname].success(reponame, readytime, p['srcmd5'])
-        else
-          ret[packname].failure(reponame, readytime, p['srcmd5'])
-        end
-        versrel = p['versrel'].split('-')
-        ret[packname].set_version(versrel[0..-2].join('-'), versrel[-1], readytime)
-      end
-      ret
     end
+    d = Suse::Backend.get(uri).body
+    return nil if d.blank?
+    data = Xmlhash.parse(d)
+
+    ret      = Hash.new
+    reponame = repo + "/" + arch
+    data.elements('jobhist') do |p|
+      packname      = p['package']
+      ret[packname] ||= BuildInfo.new
+      code          = p['code']
+      readytime     = 0
+      begin
+        readytime = Integer(p['readytime'])
+      rescue
+      end
+      if code == "unchanged" || code == "succeeded"
+        ret[packname].success(reponame, readytime, p['srcmd5'])
+      else
+        ret[packname].failure(reponame, readytime, p['srcmd5'])
+      end
+      versrel = p['versrel'].split('-')
+      ret[packname].set_version(versrel[0..-2].join('-'), versrel[-1], readytime)
+    end
+    ret
   end
 
   def self.update_jobhistory(targetproj, dbproj, mypackages)

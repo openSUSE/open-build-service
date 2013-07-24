@@ -1295,6 +1295,21 @@ class User < ActiveRecord::Base
     @f_ids ||= ProjectUserRoleRelationship.forbidden_project_ids_for_user(self)
   end
 
+  def user_relevant_packages_for_status
+    purr = "package_user_role_relationships"
+    role_id = Role.rolecache['maintainer'].id
+    # First fetch the project ids
+    projects_ids = self.involved_projects_ids
+    packages = Package.joins("LEFT OUTER JOIN #{purr} ON (#{purr}.db_package_id = packages.id AND #{purr}.role_id = #{role_id})")
+    # No maintainers
+    packages = packages.where([
+                                  "(#{purr}.bs_user_id = ?) "\
+      "OR "\
+      "(#{purr}.bs_user_id is null AND db_project_id in (?) )",
+                                  self.id, projects_ids])
+    packages.pluck(:id)
+  end
+
   protected
   # This method allows to execute a block while deactivating timestamp
   # updating.
