@@ -2961,21 +2961,22 @@ sub getprojpack {
 		$expandedrepos{"$projid/$repoid"} = $@ if $@;
 		$path = $expandedrepos{"$projid/$repoid"};
 	      }
-	      my $c;
 	      eval {
 		die($path) unless ref $path;
-		$c = concatconfigs($projid, $repoid, $remotemap, @$path);
+		my $c = concatconfigs($projid, $repoid, $remotemap, @$path);
+	        $bconfs{$repoid} = Build::read_config($arch, [ split("\n", $c) ]);
 	      };
 	      if ($@) {
 	        my $err = $@;
-	        $err =~ s/\n$//;
-	        $rinfo->{'error'} = $err;
-	        next;
+	        chomp $err;
+	        $bconfs{$repoid} = {'error' => $err};
 	      }
-	      $c = [ split("\n", $c) ];
-	      $bconfs{$repoid} = Build::read_config($arch, $c);
             }
 	    my $conf = $bconfs{$repoid};
+	    if ($conf->{'error'}) {
+	      $rinfo->{'error'} = $conf->{'error'};
+	      next;
+	    }
 	    my $type = $conf->{'type'};
 	    if (!$type || $type eq 'UNDEFINED') {
 	      $rinfo->{'error'} = 'bad build configuration, no build type defined or detected';
