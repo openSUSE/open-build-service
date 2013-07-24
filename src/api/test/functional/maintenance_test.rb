@@ -1373,12 +1373,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   def test_create_invalid_patchinfo
     prepare_request_with_user "tom", "thunder"
     # collons in patchinfo names are not allowed but common mistake
-    post "https://api.opensuse.org/source/home:tom?cmd=createpatchinfo&force=1&name=home:tom"
+    post "/source/home:tom?cmd=createpatchinfo&force=1&name=home:tom"
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "invalid_package_name" }
-
-    post "https://api.opensuse.org/source/home:tom?cmd=createpatchinfo&force=1&name=home:tom"
-    assert_response 404
     assert_xml_tag :tag => "status", :attributes => { :code => "invalid_package_name" }
   end
 
