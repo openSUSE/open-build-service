@@ -48,6 +48,15 @@ class Configuration < ActiveRecord::Base
     def registration
       Configuration.limit(1).pluck(:registration).first
     end
+
+    def download_url
+      Configuration.limit(1).pluck(:download_url).first
+    end
+
+    def ymp_url
+      Configuration.limit(1).pluck(:ymp_url).first
+    end
+
   end
 
   def update_from_options_yml()
