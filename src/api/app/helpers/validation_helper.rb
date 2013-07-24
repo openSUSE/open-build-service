@@ -3,23 +3,15 @@ require 'api_exception'
 module ValidationHelper
 
   class InvalidPackageName < APIException
-    setup "invalid_package_name", 404
+    setup "invalid_package_name", 400
   end
 
   def valid_project_name? name
-    return true if name =~ /\A\w[-+\w\.:]*\z/
-    return false
+    return Project.valid_name? name  
   end
 
   def valid_package_name? name
-    return true if name == "_patchinfo"
-    return true if name == "_pattern"
-    return true if name == "_project"
-    return true if name == "_product"
-    return true if name =~ /\A_product:\w[-+\w\.]*\z/
-    # obsolete, just for backward compatibility
-    return true if name =~ /\A_patchinfo:\w[-+\w\.]*\z/
-    name =~ /\A\w[-+\w\.]*\z/
+    return Package.valid_name? name 
   end
 
   def valid_package_name! package_name

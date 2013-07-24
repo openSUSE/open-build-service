@@ -316,7 +316,7 @@ end
     prepare_request_with_user "king", "sunflower"
     raw_put url_for(:controller => :source, :action => :project_meta, :project => "_NewProject"), "<project name='_NewProject'><title>blub</title><description/></project>"
     assert_response 400
-    assert_match(/Name is illegal/, @response.body)
+    assert_match(/invalid project name/, @response.body)
   end
 
 
@@ -3021,9 +3021,10 @@ end
     url = url_for(controller: :source, action: :package_meta, project: "home:tom", package: name)
     put url, "<package name='#{name}' project='home:tom'> <title/> <description/></package>"
     assert_response 400
-    # FIXME2.4 assert_select "status[code] > summary", %r{Name is too long}
+    assert_select "status[code] > summary", %r{invalid package name}
     get url
-    assert_response 404
+    assert_response 400
+    assert_select "status[code] > summary", %r{invalid package name}
   end
   
   test "store invalid project" do
@@ -3032,9 +3033,10 @@ end
     url = url_for(controller: :source, action: :project_meta, project: name)
     put url, "<project name='#{name}'> <title/> <description/></project>"
     assert_response 400
-    # FIXME2.4 assert_select "status[code] > summary", %r{Name is too long}
+    assert_select "status[code] > summary", %r{invalid project name}
     get url 
-    assert_response 404
+    assert_response 400
+    assert_select "status[code] > summary", %r{invalid project name}
   end
 
 end

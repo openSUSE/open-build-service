@@ -2,7 +2,6 @@ require_dependency 'opensuse/backend'
 
 class Project < ActiveRecord::Base
   include FlagHelper
-  include ValidationHelper
 
   class CycleError < APIException
     setup "project_cycle"
@@ -1708,7 +1707,8 @@ class Project < ActiveRecord::Base
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200 || name.blank?
     return false if name =~ %r{^[_\.]} 
-    return valid_project_name?(name)
+    return true if name =~ /\A\w[-+\w\.:]*\z/
+    return false
   end
 
   def valid_name

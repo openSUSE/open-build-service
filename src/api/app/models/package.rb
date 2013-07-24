@@ -1037,13 +1037,14 @@ class Package < ActiveRecord::Base
     return false unless name.kind_of? String
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200 || name.blank?
-    name = name.gsub %r{^_product:}, ''
-    name.gsub! %r{^_patchinfo:}, ''
+    return true if name =~ /\A_product:\w[-+\w\.]*\z/
+    # obsolete, just for backward compatibility
+    return true if name =~ /\A_patchinfo:\w[-+\w\.]*\z/
     return false if name =~ %r{[ \/:\000-\037]}
     if name =~ %r{^[_\.]} && !['_product', '_pattern', '_project', '_patchinfo'].include?(name)
       return false
     end
-    return true
+    return name =~ /\A\w[-+\w\.]*\z/
   end
 
   def valid_name
