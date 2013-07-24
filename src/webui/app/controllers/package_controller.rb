@@ -862,6 +862,8 @@ class PackageController < ApplicationController
 
 
   def update_build_log
+    check_ajax
+
     @project = params[:project]
     @package = params[:package]
     @arch = params[:arch]
