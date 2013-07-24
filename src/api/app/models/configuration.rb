@@ -60,7 +60,7 @@ class Configuration < ActiveRecord::Base
     def errbit_url
       begin
         Configuration.limit(1).pluck(:errbit_url).first
-      rescue Mysql2::Error
+      rescue ActiveRecord::ActiveRecordError
         # there is a boostrap issue here - you need to run db:setup to get the
         # table, but the initializer checks the configuration
       end
