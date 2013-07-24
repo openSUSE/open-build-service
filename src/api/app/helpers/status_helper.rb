@@ -256,9 +256,10 @@ class ProjectStatusHelper
         packname      = p['package']
         ret[packname] ||= BuildInfo.new
         code          = p['code']
-        readytime     = begin
-          Integer(p['readytime'])
-        rescue 0
+        readytime     = 0
+        begin
+          readytime = Integer(p['readytime'])
+        rescue
         end
         if code == "unchanged" || code == "succeeded"
           ret[packname].success(reponame, readytime, p['srcmd5'])

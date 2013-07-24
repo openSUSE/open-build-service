@@ -82,4 +82,11 @@ class WebuiControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "project status" do
+    login_Iggy
+
+    get "/webui/project_status?project=LocalProject&limit_to_fails=true&limit_to_old=false&include_versions=true&ignore_pending=false&filter_devel=_all_"
+    assert_response :success
+  end
+
 end

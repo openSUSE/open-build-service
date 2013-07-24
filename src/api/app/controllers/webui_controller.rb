@@ -264,24 +264,10 @@ class WebuiController < ApplicationController
     @owners = search_owner(params, params[:binary])
   end
 
-  def status_user_relevant_packages(user_to_filter)
-    purr = "package_user_role_relationships"
-    role_id = Role.rolecache['maintainer'].id
-    # First fetch the project ids
-    projects_ids = user_to_filter.involved_projects_ids
-    packages = Package.joins("LEFT OUTER JOIN #{purr} ON (#{purr}.db_package_id = packages.id AND #{purr}.role_id = #{role_id})")
-    # No maintainers
-    packages = packages.where([
-      "(#{purr}.bs_user_id = ?) "\
-      "OR "\
-      "(#{purr}.bs_user_id is null AND db_project_id in (?) )",
-      user_to_filter, projects_ids])
-    packages.pluck(:id)
-  end
-
   def project_status_attributes(packages, namespace, name)
     ret = Hash.new
     at = AttribType.find_by_namespace_and_name(namespace, name)
+    return unless at
     attribs = at.attribs.where(db_package_id: packages)
     AttribValue.where(attrib_id: attribs).joins(:attrib).pluck("attribs.db_package_id, value").each do |id, value|
       yield id, value
@@ -290,6 +276,7 @@ class WebuiController < ApplicationController
   end
 
   def project_status
+    required_parameters :project
     project = Project.where(name: params[:project]).includes(:packages).first
     status = Hash.new
 
@@ -301,19 +288,29 @@ class WebuiController < ApplicationController
     end
 
     no_project = "_none_"
-    all_projects = "_all"
-    @current_develproject = params[:filter_devel] || all_projects
-    @ignore_pending = params[:ignore_pending] || false
-    @limit_to_fails = params[:limit_to_fails] || false
-    @limit_to_old = params[:limit_to_old] || false
-    @include_versions = params[:include_versions] || true
-    filter_for_user = User.find_by_login(params[:filter_for_user]) unless params[:filter_for_user].blank?
+    all_projects = "_all_"
+    current_develproject = params[:filter_devel] || all_projects
+    @ignore_pending = params[:ignore_pending] == "true"
+    @limit_to_fails = params[:limit_to_fails] == "true" 
+    @limit_to_old = params[:limit_to_old] == "true"
+    @include_versions = params[:include_versions] == "true"
+    filter_for_user = User.get_by_login(params[:filter_for_user]) unless params[:filter_for_user].blank?
 
+    @develprojects = Hash.new
     packages_to_filter_for = nil
     if filter_for_user 
-      packages_to_filter_for = status_user_relevant_packages(filter_for_user)
+      packages_to_filter_for = filter_for_user.user_relevant_packages_for_status
     end
     prj_status.each_value do |value|
+      if value.develpack
+        dproject = value.devel_project
+        @develprojects[dproject] = 1
+        if (current_develproject != dproject or current_develproject == no_project) and current_develproject != all_projects
+          next
+        end
+      else
+        next if @current_develproject == no_project
+      end
       if filter_for_user
         if value.develpack
           next unless packages_to_filter_for.include? value.develpack.db_package_id
@@ -358,8 +355,6 @@ class WebuiController < ApplicationController
       end
     end
 
-    @develprojects = Hash.new
-
     @packages = Array.new
     status.each_value do |p|
       currentpack = Hash.new
@@ -386,43 +381,18 @@ class WebuiController < ApplicationController
 
       key = project.name + "/" + pname
       if submits.has_key? key
-        currentpack['requests_from'].concat(submits[key])
+        currentpack['requests_from'].concat(submits[key].map {|r| r.id })
       end
-
-      if p.buildinfo
-        currentpack['version'] = p.buildinfo.version
-        if p.upstream_version
-          begin
-            gup = Gem::Version.new(p.buildinfo.version)
-            guv = Gem::Version.new(p.upstream_version)
-          rescue ArgumentError
-            # if one of the versions can't be parsed we simply can't say
-          end
-
-          if gup && guv && gup < guv
-            currentpack['upstream_version'] = p.upstream_version
-            currentpack['upstream_url'] = p.upstream_url
-          end
-        end
-      end
-
-      currentpack['md5'] = p.verifymd5
-      currentpack['md5'] ||= p.srcmd5
-
-      currentpack['changesmd5'] = p.changesmd5
 
       if p.develpack
         dproject = p.devel_project
-        @develprojects[dproject] = 1
         currentpack['develproject'] = dproject
-        if (@current_develproject != dproject or @current_develproject == no_project) and @current_develproject != all_projects
-          next
-        end
         currentpack['develpackage'] = p.devel_package
         key = "%s/%s" % [dproject, p.devel_package]
         if submits.has_key? key
-          currentpack['requests_to'].concat(submits[key])
+          currentpack['requests_to'].concat(submits[key].map {|r| r.id })
         end
+        next if !currentpack['requests_from'].empty? && @ignore_pending
         dp = p.develpack
         if dp
           currentpack['develmd5'] = dp.verifymd5
@@ -448,12 +418,37 @@ class WebuiController < ApplicationController
 
         end
 
+        if p.buildinfo
+          currentpack['version'] = p.buildinfo.version
+          if p.upstream_version
+            begin
+              gup = Gem::Version.new(p.buildinfo.version)
+              guv = Gem::Version.new(p.upstream_version)
+            rescue ArgumentError
+              # if one of the versions can't be parsed we simply can't say
+            end
+
+            if gup && guv && gup < guv
+              currentpack['upstream_version'] = p.upstream_version
+              currentpack['upstream_url'] = p.upstream_url
+            end
+          end
+        end
+
+        currentpack['md5'] = p.verifymd5
+        currentpack['md5'] ||= p.srcmd5
+
+        currentpack['changesmd5'] = p.changesmd5
+
         if currentpack['md5'] && currentpack['develmd5'] && currentpack['md5'] != currentpack['develmd5']
           if p.declined_request &&
               p.declined_request.source_project == dp.project &&
               p.declined_request.source_package == dp.name
 
-            sourcerev = Directory.hashed(project: dp.project, package: dp.name)['rev']
+
+            sourcerev = Rails.cache.fetch("rev-#{dp.project}-#{dp.name}-#{currentpack['md5']}") do
+              Directory.hashed(project: dp.project, package: dp.name)['rev']
+            end
             if sourcerev == p.declined_request.source_rev
               currentpack['currently_declined'] = p.declined_request.bs_request_id
               currentpack['problems'] << 'currently_declined'
@@ -467,8 +462,6 @@ class WebuiController < ApplicationController
             end
           end
         end
-      elsif @current_develproject != no_project
-        next if @current_develproject != all_projects
       end
 
       unless p.link.project.blank?
@@ -479,7 +472,6 @@ class WebuiController < ApplicationController
         end
       end
 
-      next if !currentpack['requests_from'].empty? && @ignore_pending
       if @limit_to_fails
         next if !currentpack['firstfail']
       else
@@ -494,6 +486,6 @@ class WebuiController < ApplicationController
       @packages << currentpack
     end
 
-    render json: @packages
+    render json: {packages: @packages, projects: @develprojects.keys}
   end
 end
