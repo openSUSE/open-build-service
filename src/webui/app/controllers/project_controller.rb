@@ -12,11 +12,11 @@ class ProjectController < ApplicationController
 
   before_filter :load_project_info, :only => [:show]
   before_filter :require_project, :except => [:repository_arch_list,
-    :autocomplete_projects, :autocomplete_incidents, :clear_failed_comment, :edit_comment_form, :index, 
+    :autocomplete_projects, :autocomplete_incidents, :clear_failed_comment, :edit_comment_form, :index,
     :list, :list_all, :list_public, :new, :package_buildresult, :save_new, :save_prjconf,
     :rebuild_time_png, :new_incident, :show]
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete, :new]
-  before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list, 
+  before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list,
                                                             :edit_repository, :update_target]
 
   before_filter :load_releasetargets, :only => [ :show, :incident_request_dialog ]
@@ -298,7 +298,7 @@ class ProjectController < ApplicationController
   def add_repository_from_default_list
     @distributions = find_cached(Distribution, :all)
     if @distributions.all_vendors.length < 1
-      if @user and @user.is_admin?      
+      if @user and @user.is_admin?
         flash.now[:notice] = "There are no distributions configured! Check out <a href=\"/configuration/connect_instance\">Configuration > Interconnect</a>"
       else
         redirect_to :controller => 'project', :action => 'add_repository', :project => @project
@@ -407,7 +407,7 @@ class ProjectController < ApplicationController
     redirect_back_or_to(:controller => "project", :action => "repositories", :project => @project) and return if not repo
     # Merge project repo's arch list with currently available arches from API. This needed as you want
     # to keep currently non-working arches in the project meta.
-    
+
     # Prepare a list of recommended architectures
     @recommended_arch_list = @available_architectures.each.map{|arch| arch.name if arch.recommended == "true"}
 
@@ -461,7 +461,7 @@ class ProjectController < ApplicationController
       @project.each_repository { |repository| @repositories << repository.name }
     end
 
-    @project.each_repository do |repository| 
+    @project.each_repository do |repository|
       next unless @repositories.include? repository.name
       @repocycles[repository.name] = Hash.new
 
@@ -520,16 +520,16 @@ class ProjectController < ApplicationController
       return
     end
     bdep = find_cached(BuilddepInfo, :project => @project.name, :repository => @repository, :arch => @arch)
-    jobs = find_cached(Jobhislist , :project => @project.name, :repository => @repository, :arch => @arch, 
+    jobs = find_cached(Jobhislist , :project => @project.name, :repository => @repository, :arch => @arch,
             :limit => @packages.size * 3, :code => ['succeeded', 'unchanged'])
     unless bdep and jobs
       flash[:error] = "Could not collect infos about repository #{@repository}/#{@arch}"
       redirect_to :action => :show, :project => @project
       return
     end
-    indir = Dir.mktmpdir 
+    indir = Dir.mktmpdir
     f = File.open(indir + "/_builddepinfo.xml", 'w')
-    f.write(bdep.dump_xml) 
+    f.write(bdep.dump_xml)
     f.close
     f = File.open(indir + "/_jobhistory.xml", 'w')
     f.write(jobs.dump_xml)
@@ -540,14 +540,14 @@ class ProjectController < ApplicationController
              --buildhosts=#{@hosts} --scheduler=#{@scheduler}"
     fork do
       Dir.chdir(Rails.root.join('vendor', 'diststats'))
-      system("perl", "./mkdiststats", "--srcdir=#{indir}", "--destdir=#{outdir}", 
+      system("perl", "./mkdiststats", "--srcdir=#{indir}", "--destdir=#{outdir}",
              "--outfmt=xml", "#{@project.name}/#{@repository}/#{@arch}", "--width=910",
              "--buildhosts=#{@hosts}", "--scheduler=#{@scheduler}")
     end
     Process.wait
     f=File.open(outdir + "/rebuild.png")
     png=f.read
-    f.close 
+    f.close
     @pngkey = Digest::MD5.hexdigest( params.to_s )
     Rails.cache.write("rebuild-%s.png" % @pngkey, png)
     f=File.open(outdir + "/longest.xml")
@@ -1129,266 +1129,40 @@ class ProjectController < ApplicationController
     @update = params[:update]
   end
 
-  def status_filter_user(project, package, filter_for_user, project_maintainer_cache)
-     return nil if filter_for_user.nil?
-     if package['persons']
-       # if the package has specific maintainer, we ignore project maintainers
-       founduser = nil
-       #logger.debug "filter #{package.inspect}"
-       package['persons'].elements("person") do |u|
-         if u['userid'] == filter_for_user.login and u['role'] == 'maintainer'
-           founduser = true
-         end
-       end
-       return true if founduser.nil?
-     else
-       unless project_maintainer_cache.has_key? project
-         devel_project = find_cached(Project, project)
-         project_maintainer_cache[project] = devel_project.is_maintainer? filter_for_user
-       end
-       return true unless project_maintainer_cache[project]
-     end
-     return nil
-  end
-  private :status_filter_user
-
   def status
-    status = Rails.cache.fetch("status_%s" % @project, :expires_in => 10.minutes) do
-      ProjectStatus.find(:project => @project).to_hash
-    end
-
     all_packages = "All Packages"
     no_project = "No Project"
     @current_develproject = params[:filter_devel] || all_packages
+    filter = @current_develproject
+    if filter == all_packages
+      filter = "_all_"
+    elsif filter == no_project
+      filter = "_none_"
+    end
     @ignore_pending = params[:ignore_pending] || false
     @limit_to_fails = !(!params[:limit_to_fails].nil? && params[:limit_to_fails] == 'false')
     @limit_to_old = !(params[:limit_to_old].nil? || params[:limit_to_old] == 'false')
     @include_versions = !(!params[:include_versions].nil? && params[:include_versions] == 'false')
-    filter_for_user = Person.find(params[:filter_for_user]) unless params[:filter_for_user].blank?
-    
-    attributes = find_hashed(PackageAttribute, :namespace => 'OBS', 
-      :name => 'ProjectStatusPackageFailComment', :project => @project, :expires_in => 2.minutes) 
-    comments = Hash.new
-    attributes.get("project").elements("package") do |p|
-      p.elements("values") do |v|
-        comments[p["name"]] = v["value"]
-      end
-    end if attributes
-
-    upstream_versions = Hash.new
-    upstream_urls = Hash.new
-
-    if @include_versions || @limit_to_old
-      attributes = find_hashed(PackageAttribute, :namespace => 'openSUSE',
-        :name => 'UpstreamVersion', :project => @project, :expires_in => 20.minutes)
-      attributes.get("project").elements("package") do |p|
-        p.elements("values") {|v| upstream_versions[p["name"]] = v["value"] }
-      end if attributes
-
-      attributes = find_hashed(PackageAttribute, :namespace => 'openSUSE',
-        :name => 'UpstreamTarballURL', :project => @project, :expires_in => 20.minutes)
-      attributes.get("project").elements("package") do |p|
-        p.elements("values") {|v| upstream_urls[p["name"]] = v["value"] }
-      end if attributes
-    end
-
-    raw_requests = find_hashed(Collection,
-      :what => 'request', :predicate => "(state/@name='new' or state/@name='review')", :expires_in => 5.minutes)
-
-    @requests = Hash.new
-    submits = Hash.new
-    raw_requests.elements("request") do |r|
-      id = r['id'].to_i
-      @requests[id] = r
-      r.elements('action') do |action|
-        next unless action['type'] == "submit"
-        target = action['target']
-        key = target['project'] + "/" + target['package']
-        submits[key] ||= Array.new
-        submits[key] << id
-      end
-    end
-
-    declines = Hash.new
-    declined_requests = Rails.cache.fetch("declined_requests_#{@project.name}", :expires_in => 10.minutes) do
-      ret = []
-      BsRequest.list({:states => 'declined', :roles => "target", :project => @project.name}).each do |r|
-        ret << r.to_hash
-      end 
-      ret
-    end
-    declined_requests.each do |r|
-      id = r['id'].to_i
-      @requests[id] = r
-      r.elements('action') do |action|
-        next unless action['type'] == 'submit'
-        target = action['target']
-        source = action['source']
-        key = target['package']
-        unless declines[key] && declines[key][:id] > id
-          declines[key] = {
-            :id => id, 
-            :project => source['project'], 
-            :package => source['package'], 
-            :rev => source['rev'] }
-        end
-      end
-    end
-    
-    #logger.debug declines.inspect
+    @filter_for_user = params[:filter_for_user]
 
     @develprojects = Hash.new
-    project_maintainer_cache = Hash.new
-
-    @packages = Array.new
-    status.elements("package") do |p|
-      currentpack = Hash.new
-      pname = p["name"]
-      #next unless pname =~ %r{mkv.*}
-      currentpack['name'] = pname
-      currentpack['failedcomment'] = comments[pname] if comments.has_key? pname
-
-      newest = 0
-      p.elements("failure") do |f|
-        next if f['repo'] =~ /snapshot/
-        ftime = Integer(f['time']) rescue 0
-        next if newest > ftime
-        next if f['srcmd5'] != p['srcmd5']
-        currentpack['failedarch'] = f['repo'].split('/')[1]
-        currentpack['failedrepo'] = f['repo'].split('/')[0]
-        newest = ftime
-        currentpack['firstfail'] = newest
-      end
-
-      currentpack['problems'] = Array.new
-      currentpack['requests_from'] = Array.new
-      currentpack['requests_to'] = Array.new
-
-      key = @project.name + "/" + pname
-      if submits.has_key? key
-        currentpack['requests_from'].concat(submits[key])
-      end
-
-      currentpack['version'] = p["version"]
-      if upstream_versions.has_key? pname
-        upstream_version = upstream_versions[pname]
-        begin
-          gup = Gem::Version.new(p["version"])
-          guv = Gem::Version.new(upstream_version)
-        rescue ArgumentError
-          # if one of the versions can't be parsed we simply can't say
-        end
-
-        if gup && guv && gup < guv
-          currentpack['upstream_version'] = upstream_version
-          currentpack['upstream_url'] = upstream_urls[pname] if upstream_urls.has_key? pname
-        end
-      end
-
-      currentpack['md5'] = p['verifymd5']
-      currentpack['md5'] ||= p['srcmd5']
-
-      currentpack['changesmd5'] = p.value 'changesmd5'
-
-      if p['develpack']
-        dproject = p['develpack']['proj']
-        @develprojects[dproject] = 1
-        currentpack['develproject'] = dproject
-        if (@current_develproject != dproject or @current_develproject == no_project) and @current_develproject != all_packages
-          next
-        end
-        currentpack['develpackage'] = p['develpack']['pack']
-        key = "%s/%s" % [dproject, p['develpack']['pack']]
-        if submits.has_key? key
-          currentpack['requests_to'].concat(submits[key])
-        end
-        dp = p['develpack']['package']
-        if dp
-          currentpack['develmd5'] = dp['verifymd5']
-          currentpack['develmd5'] ||= dp["srcmd5"]
-          currentpack['develchangesmd5'] = dp['changesmd5']
-          currentpack['develmtime'] = dp['maxmtime']
-
-          if dp['error']
-             currentpack['problems'] << 'error-' + dp['error']
-          end
-
-          newest = 0
-          dp.elements("failure") do |f|
-            ftime = Integer(f['time']) rescue 0
-            next if newest > ftime
-            next if f['srcmd5'] != dp['srcmd5']
-            frepo = f['repo']
-            currentpack['develfailedarch'] = frepo.split('/')[1]
-            currentpack['develfailedrepo'] = frepo.split('/')[0]
-            newest = ftime
-            currentpack['develfirstfail'] = newest
-          end
-
-          next if status_filter_user(dproject, dp, filter_for_user, project_maintainer_cache)
-        end
-
-        if currentpack['md5'] && currentpack['develmd5'] && currentpack['md5'] != currentpack['develmd5']
-          if declines[pname] && 
-              declines[pname][:project] == dp.value(:project) &&
-              declines[pname][:package] == dp.value(:name)
-            
-            sourcerev = Package.current_rev(dp.value(:project), dp.value(:name))
-            if sourcerev == declines[pname][:rev]
-              currentpack['currently_declined'] = declines[pname][:id]
-              currentpack['problems'] << 'currently_declined'
-            else
-              currentpack['declined_request'] = declines[pname]
-            end
-          end
-          if currentpack['currently_declined'].nil?
-            if currentpack['changesmd5'] != currentpack['develchangesmd5']
-              currentpack['problems'] << 'different_changes'
-            else
-              currentpack['problems'] << 'different_sources'
-            end
-          end
-        end
-      elsif @current_develproject != no_project
-        next if status_filter_user(@project.name, p, filter_for_user, project_maintainer_cache)
-        next if @current_develproject != all_packages
-      end
-
-      if p.has_key? 'link'
-        plink = p['link']
-        if currentpack['md5'] != plink['targetmd5']
-          currentpack['problems'] << 'diff_against_link'
-          currentpack['lproject'] = plink['project']
-          currentpack['lpackage'] = plink['package']
-        end
-      end
-
-      next if !currentpack['requests_from'].empty? && @ignore_pending
-      if @limit_to_fails
-        next if !currentpack['firstfail']
-      else
-        next unless (currentpack['firstfail'] or currentpack['failedcomment'] or currentpack['upstream_version'] or
-            !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
-        if @limit_to_old
-          next if (currentpack['firstfail'] or currentpack['failedcomment'] or
-            !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
-        end
-      end
-      #currentpack['thefullthing'] = p
-      @packages << currentpack
-    end
-
-    @develprojects = @develprojects.keys.sort { |x,y| x.downcase <=> y.downcase }
+    ps = ApiDetails.find(:project_status, project: params[:project],
+        filter_devel: filter,
+        ignore_pending: @ignore_pending,
+        limit_to_fails: @limit_to_fails,
+        limit_to_old: @limit_to_old,
+        include_versions: @include_versions,
+        filter_for_user:   params[:filter_for_user])
+    @packages = ps['packages']
+    @develprojects = ps['projects'].sort { |x,y| x.downcase <=> y.downcase }
     @develprojects.insert(0, all_packages)
     @develprojects.insert(1, no_project)
-
-    @packages.sort! { |x,y| x['name'] <=> y['name'] }
 
     respond_to do |format|
       format.json {
         render :text => JSON.pretty_generate(@packages), :layout => false, :content_type => "text/plain"
-      } 
-      format.html 
+      }
+      format.html
     end
   end
 
