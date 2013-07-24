@@ -2265,7 +2265,7 @@ sub getlastfailures {
   if (defined($ll)) {
     $db->{'lastline'} = Digest::MD5::md5_hex("$ll\n");
     $db->{'offset'} = $llo;
-    BSUtil::store("$reporoot/$prpa/.:lastfailures", "$reporoot/$prpa/:lastfailures", $db);
+    BSUtil::store("$reporoot/$prpa/.:lastfailures$$", "$reporoot/$prpa/:lastfailures", $db);
   }
   my %packid = map {$_ => 1} @{$cgi->{'package'}};
   %packid = %{ { %$failure, %$success} } unless %packid;
