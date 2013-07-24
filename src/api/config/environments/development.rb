@@ -39,7 +39,6 @@ OBSApi::Application.configure do
 end
 
 CONFIG['extended_backend_log'] = true
-CONFIG['ymp_url']='http://software.opensuse.org/ymp'
 CONFIG['response_schema_validation'] = true
 
 require 'socket'

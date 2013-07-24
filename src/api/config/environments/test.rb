@@ -29,7 +29,6 @@ CONFIG['source_host'] = "localhost"
 CONFIG['source_port'] = 3200
 
 CONFIG['proxy_auth_mode']=:off
-CONFIG['download_url'] = 'http://example.com/download'
 
 CONFIG['response_schema_validation'] = true
 
@@ -39,5 +38,4 @@ CONFIG['global_write_through'] = false
 
 # make sure we have invalid setup for errbit
 CONFIG['errbit_api_key'] = 'INVALID'
-CONFIG['errbit_host'] = '192.0.2.0'
 

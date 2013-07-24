@@ -57,6 +57,9 @@ class Configuration < ActiveRecord::Base
       Configuration.limit(1).pluck(:ymp_url).first
     end
 
+    def errbit_url
+      Configuration.limit(1).pluck(:errbit_url).first
+    end
   end
 
   def update_from_options_yml()
