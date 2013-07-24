@@ -1,4 +1,5 @@
 require_dependency 'opensuse/backend'
+require_dependency 'validation_helper'
 
 class Project < ActiveRecord::Base
   include FlagHelper
