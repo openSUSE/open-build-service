@@ -721,7 +721,7 @@ class PackageController < ApplicationController
   end
 
   def view_file
-    @filename = params[:file] || ''
+    @filename = params[:filename] || params[:file] || ''
     if Package.is_binary_file?(@filename) # We don't want to display binary files
       flash[:error] = "Unable to display binary file #{@filename}"
       redirect_back_or_to :action => :show, :project => @project, :package => @package and return
