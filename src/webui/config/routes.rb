@@ -81,7 +81,7 @@ OBSWebUI::Application.routes.draw do
     post 'package/save_person/:project/:package' => :save_person, constraints: cons
     post 'package/save_group/:project/:package' => :save_group, constraints: cons
     post 'package/remove_role/:project/:package' => :remove_role, constraints: cons
-    get 'package/view_file/(:project/(:package/:(filename)))' => :view_file, constraints: cons
+    get 'package/view_file/(:project/(:package/(:filename)))' => :view_file, constraints: cons
     post 'package/save_modified_file/:project/:package' => :save_modified_file, constraints: cons
     get 'package/rawsourcefile/:project/:package/:filename' => :rawsourcefile, constraints: cons, as: 'package_rawsourcefile'
     get 'package/rawlog/:project/:package/:repository/:arch' => :rawlog, constraints: cons
