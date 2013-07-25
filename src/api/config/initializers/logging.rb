@@ -25,7 +25,16 @@ module APIInstrumentation
   end
 end
 
+module TimestampFormatter
+  def call(severity, timestamp, progname, msg)
+    Thread.current[:timestamp_formatter_timestamp] ||= Time.now
+    tdiff = sprintf("%02.2f", Time.now - Thread.current[:timestamp_formatter_timestamp])
+    super(severity, timestamp, progname, "[#{tdiff}] #{msg}")
+  end
+end
+
 ActiveSupport.on_load(:action_controller) do
   include APIInstrumentation::ControllerRuntime
+  Rails.logger.formatter.extend(TimestampFormatter)
 end
 
