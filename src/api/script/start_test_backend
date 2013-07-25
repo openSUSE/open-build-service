@@ -46,6 +46,7 @@ FileUtils.rm_rf("#{Rails.root}/tmp/backend_config")
 unless @http_user
   # we only need the fixtures if rake test didn't load it yet
   system("rake --trace db:fixtures:load")
+  @http_user = User.find_by_login( "king" )
 end
 User.current = @http_user
 

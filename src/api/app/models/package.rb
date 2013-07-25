@@ -58,6 +58,9 @@ class Package < ActiveRecord::Base
   validates :name, presence: true, length: { maximum: 200 }
   validate :valid_name
 
+  has_one :linked_package, foreign_key: :package_id, dependent: :destroy
+  delegate :links_to, to: :linked_package
+
   class << self
 
     def check_dbp_access?(dbp)
@@ -326,6 +329,15 @@ class Package < ActiveRecord::Base
     private_set_package_kind( nil, commit )
   end
 
+  def dir_hash
+    begin
+      directory = Suse::Backend.get("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}").body
+      Xmlhash.parse(directory)
+    rescue ActiveXML::Transport::Error => e
+      Xmlhash::XMLHash.new error: e.summary 
+    end
+  end
+
   def private_set_package_kind( kinds=nil, directory=nil, _noreset=nil )
     if kinds
       # set to given value
@@ -339,8 +351,11 @@ class Package < ActiveRecord::Base
       # none given, detect by existing UNEXPANDED sources
       Package.transaction do
         self.package_kinds.destroy_all unless _noreset
-        directory = Suse::Backend.get("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}").body unless directory
-        xml = Xmlhash.parse(directory)
+        if directory
+          xml = Xmlhash.parse(directory)
+        else
+          xml = self.dir_hash
+        end
         xml.elements("entry") do |e|
           if e["name"] == '_patchinfo'
             self.package_kinds.create :kind => 'patchinfo'
@@ -1211,4 +1226,25 @@ class Package < ActiveRecord::Base
     output
   end
 
+  def update_linkinfo
+     dir = self.dir_hash
+     # we will later delete all links not touched, so just go to return here
+     return if dir.blank?
+     li = dir['linkinfo']
+     if !li
+        self.linked_package.delete if self.linked_package
+        return
+     end
+     Rails.logger.debug "Syncing link #{self.project.name}/#{self.name} -> #{li['project']}/#{li['package']}"
+     # we have to be careful - the link target can be nowhere
+     link = Package.find_by_project_and_name(li['project'], li['package'])
+     unless link
+       self.linked_package.delete if self.linked_package
+       return
+     end
+
+     self.linked_package ||= LinkedPackage.new(links_to: link)
+     self.linked_package.save # update updated_at
+
+  end
 end

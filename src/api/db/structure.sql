@@ -396,6 +396,13 @@ CREATE TABLE `issues` (
   CONSTRAINT `issues_ibfk_2` FOREIGN KEY (`issue_tracker_id`) REFERENCES `issue_trackers` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `linked_packages` (
+  `links_to_id` int(11) NOT NULL,
+  `package_id` int(11) NOT NULL AUTO_INCREMENT,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`package_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `linked_projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_project_id` int(11) NOT NULL,
@@ -1129,6 +1136,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130702083665');
 INSERT INTO schema_migrations (version) VALUES ('20130702203665');
 
 INSERT INTO schema_migrations (version) VALUES ('20130723055536');
+
+INSERT INTO schema_migrations (version) VALUES ('20130725123636');
 
 INSERT INTO schema_migrations (version) VALUES ('20130726144516');
 
