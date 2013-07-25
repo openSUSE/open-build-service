@@ -285,6 +285,8 @@ class WebuiController < ApplicationController
 
     prj_status = ProjectStatusHelper.calc_status(project, pure_project: true)
 
+    logger.debug "prj_status"
+
     no_project = "_none_"
     all_projects = "_all_"
     current_develproject = params[:filter_devel] || all_projects
@@ -333,23 +335,24 @@ class WebuiController < ApplicationController
         status[package].upstream_url= value
       end
     end
+    logger.debug "attributes"
 
     # we do not filter requests for project because we need devel projects too later on and as long as the
     # number of open requests is limited this is the easiest solution
     raw_requests = BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
-        where(bs_request_actions: { type: 'submit' }).includes(:bs_request_actions)
+        where(bs_request_actions: { type: 'submit' }).pluck("bs_requests.id", "bs_requests.state",
+                                                            "bs_request_actions.target_project",
+                                                            "bs_request_actions.target_package" )
 
     submits = Hash.new
-    raw_requests.each do |r|
-      r.bs_request_actions.each do |action|
-        if r.state == :declined
-          next if action.target_project != project.name || !name2id.has_key?(action.target_package)
-          status[name2id[action.target_package]].declined_request = action
-        else
-          key = "#{action.target_project}/#{action.target_package}"
-          submits[key] ||= Array.new
-          submits[key] << r
-        end
+    raw_requests.each do |id, state, tproject, tpackage|
+      if state == "declined"
+        next if tproject != project.name || !name2id.has_key?(tpackage)
+        status[name2id[tpackage]].declined_request = BsRequest.find(id)
+      else
+        key = "#{tproject}/#{tpackage}"
+        submits[key] ||= Array.new
+        submits[key] << id
       end
     end
 
@@ -357,21 +360,21 @@ class WebuiController < ApplicationController
     status.each_value do |p|
       currentpack = Hash.new
       pname = p.name
-      #next unless pname =~ %r{mkv.*}
+
       currentpack['name'] = pname
-      currentpack['failedcomment'] = p.failed_comment
+      currentpack['failedcomment'] = p.failed_comment unless p.failed_comment.blank?
 
       newest = 0
-      p.buildinfo.fails.each do |repo, tuple|
-        next if repo =~ /snapshot/
-        ftime = Integer(tuple[0]) rescue 0
-        next if newest > ftime
-        next if tuple[1] != p.srcmd5
-        currentpack['failedarch'] = repo.split('/')[1]
-        currentpack['failedrepo'] = repo.split('/')[0]
-        newest = ftime
+
+      p.fails.each do |repo, arch, time, md5|
+        next if newest > time
+        next if md5 != p.srcmd5
+        currentpack['failedarch'] = arch
+        currentpack['failedrepo'] = repo
+        newest = time
         currentpack['firstfail'] = newest
-      end if p.buildinfo
+      end
+      next if !currentpack['firstfail'] && @limit_to_fails
 
       currentpack['problems'] = Array.new
       currentpack['requests_from'] = Array.new
@@ -379,7 +382,7 @@ class WebuiController < ApplicationController
 
       key = project.name + "/" + pname
       if submits.has_key? key
-        currentpack['requests_from'].concat(submits[key].map {|r| r.id })
+        currentpack['requests_from'].concat(submits[key])
       end
 
       if p.develpack
@@ -388,7 +391,7 @@ class WebuiController < ApplicationController
         currentpack['develpackage'] = p.devel_package
         key = "%s/%s" % [dproject, p.devel_package]
         if submits.has_key? key
-          currentpack['requests_to'].concat(submits[key].map {|r| r.id })
+          currentpack['requests_to'].concat(submits[key])
         end
         next if !currentpack['requests_from'].empty? && @ignore_pending
         dp = p.develpack
@@ -403,7 +406,7 @@ class WebuiController < ApplicationController
           end
 
           newest = 0
-          p.buildinfo.fails.each do |repo, tuple|
+          p.fails.each do |repo, tuple|
             ftime = Integer(tuple[0]) rescue 0
             next if newest > ftime
             next if tuple[1] != dp.srcmd5
@@ -412,24 +415,22 @@ class WebuiController < ApplicationController
             currentpack['develfailedrepo'] = frepo.split('/')[0]
             newest = ftime
             currentpack['develfirstfail'] = newest
-          end if p.buildinfo
+          end
 
         end
 
-        if p.buildinfo
-          currentpack['version'] = p.buildinfo.version
-          if p.upstream_version
-            begin
-              gup = Gem::Version.new(p.buildinfo.version)
-              guv = Gem::Version.new(p.upstream_version)
-            rescue ArgumentError
-              # if one of the versions can't be parsed we simply can't say
-            end
+        currentpack['version'] = p.version
+        if p.upstream_version
+          begin
+            gup = Gem::Version.new(p.version)
+            guv = Gem::Version.new(p.upstream_version)
+          rescue ArgumentError
+            # if one of the versions can't be parsed we simply can't say
+          end
 
-            if gup && guv && gup < guv
-              currentpack['upstream_version'] = p.upstream_version
-              currentpack['upstream_url'] = p.upstream_url
-            end
+          if gup && guv && gup < guv
+            currentpack['upstream_version'] = p.upstream_version
+            currentpack['upstream_url'] = p.upstream_url
           end
         end
 
@@ -439,17 +440,17 @@ class WebuiController < ApplicationController
         currentpack['changesmd5'] = p.changesmd5
 
         if currentpack['md5'] && currentpack['develmd5'] && currentpack['md5'] != currentpack['develmd5']
-          if p.declined_request &&
-              p.declined_request.source_project == dp.project &&
-              p.declined_request.source_package == dp.name
+          if p.declined_request
+            p.declined_request.bs_request_actions.each do |action|
+              next unless action.source_project == dp.project && action.source_package == dp.name
 
-
-            sourcerev = Rails.cache.fetch("rev-#{dp.project}-#{dp.name}-#{currentpack['md5']}") do
-              Directory.hashed(project: dp.project, package: dp.name)['rev']
-            end
-            if sourcerev == p.declined_request.source_rev
-              currentpack['currently_declined'] = p.declined_request.bs_request_id
-              currentpack['problems'] << 'currently_declined'
+              sourcerev = Rails.cache.fetch("rev-#{dp.project}-#{dp.name}-#{currentpack['md5']}") do
+                Directory.hashed(project: dp.project, package: dp.name)['rev']
+              end
+              if sourcerev == action.source_rev
+                currentpack['currently_declined'] = p.declined_request.id
+                currentpack['problems'] << 'currently_declined'
+              end
             end
           end
           if currentpack['currently_declined'].nil?
@@ -470,17 +471,13 @@ class WebuiController < ApplicationController
         end
       end
 
-      if @limit_to_fails
-        next if !currentpack['firstfail']
-      else
-        next unless (currentpack['firstfail'] or currentpack['failedcomment'] or currentpack['upstream_version'] or
+
+      next unless (currentpack['firstfail'] or currentpack['failedcomment'] or currentpack['upstream_version'] or
+          !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
+      if @limit_to_old
+        next if (currentpack['firstfail'] or currentpack['failedcomment'] or
             !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
-        if @limit_to_old
-          next if (currentpack['firstfail'] or currentpack['failedcomment'] or
-              !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
-        end
       end
-      #currentpack['thefullthing'] = p
       @packages << currentpack
     end
 

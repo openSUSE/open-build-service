@@ -10,109 +10,50 @@ class LinkInfo
   attr_accessor :targetmd5
 end
 
-class BuildInfo
-
-  attr_reader :version, :release, :versiontime
-  attr_reader :failed
-
-  def initialize
-    @failed       = Hash.new
-    @last_success = Hash.new
-    @version      = nil
-    @release      = nil
-    # we avoid going back in versions by avoiding going back in time
-    # the last built version wins (repos may have different versions)
-    @versiontime  = nil
-  end
-
-  def success(reponame, time, md5)
-    # try to remember last success
-    if @last_success.has_key? reponame
-      return if @last_success[reponame][0] > time
-    end
-    @last_success[reponame] = [time, md5]
-  end
-
-  def failure(reponame, time, md5)
-    # we only track the first failure time but latest md5 returned
-    if @failed.has_key? reponame
-      time = @failed[reponame][0]
-    end
-    @failed[reponame] = [time, md5]
-  end
-
-  def fails
-    ret = Hash.new
-    @failed.each do |repo, tuple|
-      ls = begin
-        @last_success[repo][0] rescue 0
-      end
-      if ls < tuple[0]
-        ret[repo] = tuple
-      end
-    end
-    return ret
-  end
-
-  def set_version(version, release, time)
-    return if @versiontime and @versiontime > time
-    @versiontime = time
-    @version     = version
-    @release     = release
-  end
-
-  def merge(bi)
-    set_version(bi.version, bi.release, bi.versiontime)
-    bi.failed.each do |rep, tuple|
-      failure(rep, tuple[0], tuple[1])
-    end
-  end
-end
-
 class PackInfo
   attr_accessor :devel_project, :devel_package
   attr_accessor :srcmd5, :verifymd5, :changesmd5, :maxmtime, :error, :link
   attr_reader :name, :project, :key, :db_package_id
   attr_accessor :develpack
-  attr_accessor :buildinfo
   attr_accessor :failed_comment, :upstream_version, :upstream_url, :declined_request
+  attr_reader :version, :release, :versiontime
+  attr_reader :failed
 
   def initialize(db_pack)
-    @project       = db_pack.project.name
-    @name          = db_pack.name
+    @project = db_pack.project.name
+    @name = db_pack.name
     # we don't store the full package object as it can become huge
     @db_package_id = db_pack.id
-    @key           = @project + "/" + name
+    @key = @project + "/" + name
     @devel_project = nil
     @devel_package = nil
-    @link          = LinkInfo.new
-    @buildinfo     = nil
+    @link = LinkInfo.new
+    @version = nil
+    @release = nil
+    # we avoid going back in versions by avoiding going back in time
+    # the last built version wins (repos may have different versions)
+    @versiontime = nil
+    @failed = Hash.new
   end
 
   def to_xml(options = {})
     # return packages not having sources
     return if srcmd5.blank?
-    xml     = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
-    version = nil
-    release = nil
-    if buildinfo
-      version = buildinfo.version
-      release = buildinfo.release
-    end
-    opts = { :project    => project,
-             :name       => name,
-             :version    => version,
-             :srcmd5     => srcmd5,
+    xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
+    opts = { :project => project,
+             :name => name,
+             :version => version,
+             :srcmd5 => srcmd5,
              :changesmd5 => changesmd5,
-             :maxmtime   => maxmtime,
-             :release    => release }
+             :maxmtime => maxmtime,
+             :release => release }
     unless verifymd5.blank? or verifymd5 == srcmd5
       opts[:verifymd5] = verifymd5
     end
     xml.package(opts) do
-      buildinfo.fails.each do |repo, tuple|
+      self.fails.each do |repo, tuple|
         xml.failure(:repo => repo, :time => tuple[0], :srcmd5 => tuple[1])
-      end if buildinfo
+      end
       if develpack
         xml.develpack(:proj => devel_project, :pack => devel_package) do
           develpack.to_xml(:builder => xml)
@@ -139,20 +80,39 @@ class PackInfo
     end
   end
 
-  def add_buildinfo(bi)
-    unless @buildinfo
-      @buildinfo = bi
-      return
-    end
-    @buildinfo.merge(bi)
+  def set_versrel(versrel, time)
+    return if @versiontime and @versiontime > time
+    versrel = versrel.split('-')
+    @versiontime = time
+    @version = versrel[0..-2].join('-')
+    @release = versrel[-1]
   end
+
+  def failure(repo, arch, time, md5)
+    Rails.logger.debug "failure #{repo} #{arch} #{time} #{md5}"
+    # we only track the first failure time but latest md5 returned
+    if @failed.has_key? repo
+      time = [@failed[repo][0], time].min
+    end
+    @failed[repo] = [time, arch, md5]
+  end
+
+  def fails
+    ret = Array.new
+    @failed.each do |repo, tuple|
+      # repo, arch, time, md5
+      ret << [repo, tuple[1], tuple[0], tuple[2]]
+    end
+    return ret
+  end
+
 end
 
 class ProjectStatusHelper
 
   def self.get_xml(uri)
     key = Digest::MD5.hexdigest(uri)
-    d   = Rails.cache.fetch(key, :expires_in => 2.hours) do
+    d = Rails.cache.fetch(key, :expires_in => 2.hours) do
       Suse::Backend.get(uri).body
     end
     Xmlhash.parse(d)
@@ -168,7 +128,7 @@ class ProjectStatusHelper
     data.get('project').elements('package') do |p|
 
       packname = p['name']
-      key      = proj + "/" + packname
+      key = proj + "/" + packname
       next unless mypackages.has_key?(key)
       mypackages[key].srcmd5 = p['srcmd5']
       if p['verifymd5']
@@ -185,18 +145,18 @@ class ProjectStatusHelper
       end
       cmd5, mtime = Rails.cache.fetch("change-data-%s" % p['srcmd5']) do
         begin
-          directory = Directory.find(:project => proj, :package => packname, :expand => 1)
+          directory = Directory.hashed(project: proj, package: packname, expand: 1)
         rescue ActiveXML::Transport::Error
           directory = nil
         end
         changesfile="%s.changes" % packname
-        md5        = ''
-        mtime      = 0
-        directory.each_entry do |e|
-          if e.value(:name) == changesfile
-            md5 = e.value(:md5)
+        md5 = ''
+        mtime = 0
+        directory.elements('entry') do |e|
+          if e['name'] == changesfile
+            md5 = e['md5']
           end
-          mtime = [mtime, Integer(e.value(:mtime))].max
+          mtime = [mtime, Integer(e['mtime'])].max
         end if directory
         [md5, mtime]
       end
@@ -216,51 +176,60 @@ class ProjectStatusHelper
     check_md5(proj, packages, mypackages)
   end
 
-  def self.fetch_jobhistory(proj, repo, arch, mypackages)
+  # parse the jobhistory and put the result in a format we can cache
+  def self.parse_jobhistory(dname, repo, arch, packagequery)
 
-    logger.debug "Started fetch_jobhistory #{proj}/#{repo}/#{arch}"
+    uri = '/build/%s/%s/%s/_jobhistory?code=lastfailures' % [CGI.escape(dname), CGI.escape(repo), arch]
+    uri += packagequery
 
-    uri = '/build/%s/%s/%s/_jobhistory?code=lastfailures' % [CGI.escape(proj), CGI.escape(repo), arch]
-    mypackages.each do |dummy, package|
-      if package.project == proj
-        uri += "&package=" + CGI.escape(package.name)
-      end
-    end
+    ret = []
     d = Suse::Backend.get(uri).body
-    return nil if d.blank?
-    data = Xmlhash.parse(d)
+    unless d.blank?
+      data = Xmlhash.parse(d)
 
-    ret      = Hash.new
-    reponame = repo + "/" + arch
-    data.elements('jobhist') do |p|
-      packname      = p['package']
-      ret[packname] ||= BuildInfo.new
-      code          = p['code']
-      readytime     = 0
-      begin
-        readytime = Integer(p['readytime'])
-      rescue
+      data.elements('jobhist') do |p|
+        line = {'name' => p['package'],
+                'code' => p['code'],
+                'versrel' => p['versrel'],
+                'srcmd5' => p['srcmd5']}
+
+        line['key'] = dname + "/" + p['package']
+        begin
+          line['readytime'] = Integer(p['readytime'])
+        rescue
+          line['readytime'] = 0
+        end
+        ret << line
       end
-      if code == "unchanged" || code == "succeeded"
-        ret[packname].success(reponame, readytime, p['srcmd5'])
-      else
-        ret[packname].failure(reponame, readytime, p['srcmd5'])
-      end
-      versrel = p['versrel'].split('-')
-      ret[packname].set_version(versrel[0..-2].join('-'), versrel[-1], readytime)
     end
     ret
   end
 
   def self.update_jobhistory(targetproj, dbproj, mypackages)
+    prjpacks = Hash.new
+    dname = dbproj.name
+    mypackages.each_value do |package|
+      if package.project == dname
+        prjpacks[package.name] = package
+      end
+    end
+
+    packagequery = prjpacks.keys.map { |name| "&package=" + CGI.escape(name) }.join
+
     dbproj.repositories_linking_project(targetproj).each do |r|
+      repo = r['name']
       r.elements('arch') do |arch|
-        infos = fetch_jobhistory(dbproj.name, r['name'], arch, mypackages)
-        next if infos.nil?
-        infos.each do |packname, bi|
-          key = dbproj.name + "/" + packname
-          next unless mypackages.has_key?(key)
-          mypackages[key].add_buildinfo(bi)
+
+        cachekey = "history#{dbproj.cache_key}#{repo}#{arch}"
+        jobhistory = Rails.cache.fetch(cachekey, expires_in: 30.minutes) do
+          parse_jobhistory(dname, repo, arch, packagequery)
+        end
+        jobhistory.each do |p|
+          pkg = mypackages[p['key']]
+          next unless pkg
+
+          pkg.set_versrel(p['versrel'], p['readytime'])
+          pkg.failure(repo, arch, p['readytime'], p['srcmd5']) if p['code'] == "failed"
         end
       end
     end
@@ -272,8 +241,8 @@ class ProjectStatusHelper
 
     if dbpack.develpackage
       pack.devel_package = dbpack.develpackage.name
-      pid                = dbpack.develpackage.db_project_id
-      projects[pid]      ||= dbpack.develpackage.project.name
+      pid = dbpack.develpackage.db_project_id
+      projects[pid] ||= dbpack.develpackage.project.name
       pack.devel_project = projects[pid]
       add_recursively(mypackages, projects, dbpack.develpackage)
     end
@@ -288,9 +257,9 @@ class ProjectStatusHelper
 
     newkey = pack.devel_project + "/" + pack.devel_package
     return unless mypackages.has_key? newkey
-    develpack      = mypackages[newkey]
+    develpack = mypackages[newkey]
     pack.develpack = develpack
-    key            = develpack.project + "/" + develpack.name
+    key = develpack.project + "/" + develpack.name
     # recursion for the devel packages
     move_devel_package(mypackages, key)
   end
@@ -307,58 +276,78 @@ class ProjectStatusHelper
       puts "invalid project " + proj
       return mypackages
     end
-    projects            = Hash.new
-    projects[dbproj.id] = dbproj.name
-    dbproj.packages.includes(:develpackage).load.each do |dbpack|
-      next unless filter_by_package_name(dbpack.name)
-      dbpack.resolve_devel_package
-      add_recursively(mypackages, projects, dbpack)
-    end
+    projects = Hash.new
 
-    projects.each do |id, name|
-      if !opts[:pure_project] || id == dbproj.id
-        update_jobhistory(dbproj, Project.find(id), mypackages)
+    x = Benchmark.ms do
+      projects[dbproj.id] = dbproj.name
+      dbproj.packages.includes(:develpackage).load.each do |dbpack|
+        next unless filter_by_package_name(dbpack.name)
+        dbpack.resolve_devel_package
+        add_recursively(mypackages, projects, dbpack)
       end
-      update_projpack(name, mypackages)
     end
+    logger.debug "TIMEX #{x}"
 
-    dbproj.packages.each do |dbpack|
-      next unless filter_by_package_name(dbpack.name)
-      key = dbproj.name + "/" + dbpack.name
-      move_devel_package(mypackages, key)
+    x = Benchmark.ms do
+      projects.each do |id, name|
+        if !opts[:pure_project] || id == dbproj.id
+          update_jobhistory(dbproj, Project.find(id), mypackages)
+        end
+        update_projpack(name, mypackages)
+      end
     end
+    logger.debug "TIMEY #{x}"
+
+    x = Benchmark.ms do
+      dbproj.packages.each do |dbpack|
+        next unless filter_by_package_name(dbpack.name)
+        key = dbproj.name + "/" + dbpack.name
+        move_devel_package(mypackages, key)
+      end
+    end
+    logger.debug "TIMEZ #{x}"
 
     links = Hash.new
-    # find links
-    mypackages.values.each do |package|
-      if package.project == dbproj.name and package.link.project
-        links[package.link.project] ||= Array.new
-        links[package.link.project] << package.link.package
+    x = Benchmark.ms do
+      # find links
+      mypackages.values.each do |package|
+        if package.project == dbproj.name and package.link.project
+          links[package.link.project] ||= Array.new
+          links[package.link.project] << package.link.package
+        end
+      end
+
+    end
+    logger.debug "TIME0 #{x}"
+
+    x = Benchmark.ms do
+      links.each do |proj, packages|
+        tocheck = Array.new
+        packages.each do |name|
+          pack = Package.find_by_project_and_name(proj, name)
+          next unless pack # broken link
+          pack = PackInfo.new(pack)
+          next if mypackages.has_key? pack.key
+          tocheck << pack
+          mypackages[pack.key] = pack
+        end
+        check_md5(proj, tocheck, mypackages) unless tocheck.empty?
+      end
+    end
+    logger.debug "TIME1 #{x}"
+    x = Benchmark.ms do
+      mypackages.each_value do |package|
+        if package.project == dbproj.name and package.link.project
+          newkey = package.link.project + "/" + package.link.package
+          # broken links
+          next unless mypackages.has_key? newkey
+          package.link.targetmd5 = mypackages[newkey].verifymd5
+          package.link.targetmd5 ||= mypackages[newkey].srcmd5
+        end
       end
     end
 
-    links.each do |proj, packages|
-      tocheck = Array.new
-      packages.each do |name|
-        pack = Package.find_by_project_and_name(proj, name)
-        next unless pack # broken link
-        pack = PackInfo.new(pack)
-        next if mypackages.has_key? pack.key
-        tocheck << pack
-        mypackages[pack.key] = pack
-      end
-      check_md5(proj, tocheck, mypackages) unless tocheck.empty?
-    end
-
-    mypackages.values.each do |package|
-      if package.project == dbproj.name and package.link.project
-        newkey = package.link.project + "/" + package.link.package
-        # broken links
-        next unless mypackages.has_key? newkey
-        package.link.targetmd5 = mypackages[newkey].verifymd5
-        package.link.targetmd5 ||= mypackages[newkey].srcmd5
-      end
-    end
+    logger.debug "TIME2 #{x}"
 
     # cleanup
     mypackages.keys.each do |key|
@@ -382,8 +371,8 @@ module StatusHelper
     result = Array.new
     return result unless values.length > 0
 
-    lastvalue  = 0
-    now        = values[0][0]
+    lastvalue = 0
+    now = values[0][0]
     samplerate = (values[-1][0] - now) / samples
 
     index = 0
@@ -402,7 +391,7 @@ module StatusHelper
         value = lastvalue
       end
       result << [now + samplerate / 2, value]
-      now       += samplerate
+      now += samplerate
       lastvalue = value
     end
 
