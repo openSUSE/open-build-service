@@ -12,8 +12,7 @@
               <strong>Packager:</strong><br/>
               <%= text_field_tag 'packager', @packager %>
               <%= javascript_tag do %>
-                  $("#packager").autocomplete({source: '<%= url_for :controller => 'user', :action => 'autocomplete' %>
-                  ', minLength: 2});
+                  $("#packager").autocomplete({source: '<%= url_for :controller => 'user', :action => 'autocomplete' %>', minLength: 2});
               <% end %>
             </p>
 
@@ -132,11 +131,11 @@
           </div>
           <div class="box ui-state-error ui-widget-shadow show_left show_right" style="padding-bottom:5px;">
             <p><strong>Block release?</strong>
-              <%= check_box_tag("block", true, @block) %>
+              <%= check_box_tag("block", "true", @block) %>
             </p>
 
             <p><strong>Reason:</strong>
-              <%= text_field_tag "block_reason", @block_reason, :style => "width: 99%" %>
+              <%= text_field_tag("block_reason", @block_reason, :style => "width: 99%", :disabled => true) %>
             </p>
           </div>
           <div style="margin-left:5px;">

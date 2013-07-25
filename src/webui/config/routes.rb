@@ -106,7 +106,7 @@ OBSWebUI::Application.routes.draw do
 
   controller :patchinfo do
     get 'patchinfo/new_patchinfo' => :new_patchinfo
-    get 'patchinfo/updatepatchinfo' => :updatepatchinfo
+    post 'patchinfo/updatepatchinfo' => :updatepatchinfo
     get 'patchinfo/edit_patchinfo' => :edit_patchinfo
     get 'patchinfo/show' => :show
     get 'patchinfo/read_patchinfo' => :read_patchinfo
