@@ -20,7 +20,7 @@ module ActiveXML
         rescue TypeError
           Rails.logger.error "Couldn't parse error xml: #{self.message[0..120]}"
         end
-	@xml ||= {'summary' => self.message[0..120], 'code' => '500'}
+        @xml ||= {'summary' => self.message[0..120], 'code' => '500'}
       end
 
       def api_exception
@@ -31,7 +31,7 @@ module ActiveXML
       def details
         parse!
         if @xml.has_key? 'details'
-	  return @xml['details']
+          return @xml['details']
         end
         return nil
       end
@@ -39,7 +39,7 @@ module ActiveXML
       def summary
         parse!
         if @xml.has_key? 'summary'
-	  return @xml['summary']
+          return @xml['summary']
         else
           return self.message
         end
@@ -311,11 +311,11 @@ module ActiveXML
       when :put, :post, :delete
         @http.finish if @http && @http.started?
         @http = nil
-	keepalive = false
+        keepalive = false
       when :get
         # if the http existed before, we shall retry
         max_retries = 2 if @http
-	keepalive = true
+        keepalive = true
       end
       retries = 0
       begin
@@ -329,7 +329,7 @@ module ActiveXML
         end
         @http.read_timeout = opt[:timeout]
 
-	raise "url.path.nil" if url.path.nil?
+        raise "url.path.nil" if url.path.nil?
         path = url.path
         path += "?" + url.query if url.query
         logger.debug "http_do ##{retries}: method: #{method} url: " +
@@ -443,7 +443,7 @@ module ActiveXML
       case http_response
       when Net::HTTPSuccess, Net::HTTPRedirection
         body = http_response.read_body
-	@last_body_length = body.length
+        @last_body_length = body.length
         return body.force_encoding("UTF-8")
       when Net::HTTPNotFound
         raise NotFoundError, http_response.read_body.force_encoding("UTF-8")

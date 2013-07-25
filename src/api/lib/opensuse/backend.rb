@@ -9,20 +9,6 @@ module Suse
       setup 'invalid_text_encoding'
     end
 
-    class HTTPError < Exception
-      def initialize(resp)
-        @resp = resp
-      end
-
-      def to_s
-        @resp.body
-      end
-
-    end
-
-    class NotFoundError < HTTPError
-    end
-      
     @source_host = CONFIG['source_host']
     @source_port = CONFIG['source_port']
 
@@ -177,17 +163,17 @@ module Suse
       end
 
       def send_notification(type, params)
-	return if CONFIG['global_write_through'] == false
-	params[:who] ||= User.current.login
-	params[:sender] ||= User.current.login
-	logger.debug "send_notification #{type} #{params}"
-	data = []
-	params.each do |key, value|
-	  next if value.nil?
-	  data << "#{key}=#{CGI.escape(value.to_s)}"
-	end
+        return if CONFIG['global_write_through'] == false
+        params[:who] ||= User.current.login
+        params[:sender] ||= User.current.login
+        logger.debug "send_notification #{type} #{params}"
+        data = []
+        params.each do |key, value|
+          next if value.nil?
+          data << "#{key}=#{CGI.escape(value.to_s)}"
+        end
 
-	post("/notify/#{type}?#{data.join('&')}", '')
+        post("/notify/#{type}?#{data.join('&')}", '')
       end
 
       private
@@ -221,9 +207,11 @@ module Suse
         when Net::HTTPSuccess, Net::HTTPRedirection, Net::HTTPOK
           return response
         when Net::HTTPNotFound
-          raise NotFoundError.new(response)
+          raise ActiveXML::Transport::NotFoundError, response.read_body.force_encoding("UTF-8")
         else
-          raise HTTPError.new(response)
+          message = response.read_body
+          message = response.to_s if message.blank?
+          raise ActiveXML::Transport::Error, message.force_encoding("UTF-8")
         end
       end
 

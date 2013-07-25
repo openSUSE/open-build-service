@@ -10,7 +10,7 @@ class ImportRequestsDelayedJob
     while lastrq > 0
       begin
         xml = Suse::Backend.get( "/request/#{lastrq}" ).body
-      rescue Suse::Backend::HTTPError
+      rescue ActiveXML::Transport::Error
         lastrq -= 1
         next
       end

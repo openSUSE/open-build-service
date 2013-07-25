@@ -10,7 +10,7 @@ class UpdatePackageMetaJob
         next unless Package.exists?(pkg)
         begin
           pkg.set_package_kind
-        rescue Suse::Backend::HTTPError
+        rescue ActiveXML::Transport::Error
         end
       end
     end

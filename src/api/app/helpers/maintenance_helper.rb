@@ -638,7 +638,7 @@ module MaintenanceHelper
     link = nil
     begin
       link = Suse::Backend.get "/source/#{URI.escape(sourcePackage.project.name)}/#{URI.escape(sourcePackage.name)}/_link"
-    rescue Suse::Backend::HTTPError
+    rescue ActiveXML::Transport::Error
     end
     if link and ret = ActiveXML::Node.new(link.body) and (ret.project.nil? or ret.project == sourcePackage.project.name)
       ret.delete_attribute('project') # its a local link, project name not needed

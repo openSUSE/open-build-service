@@ -1613,8 +1613,8 @@ class Project < ActiveRecord::Base
       path = "/source/#{URI.escape(self.name)}"
       path << Suse::Backend.build_query_from_hash(params, [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory, :makeolder])
       Suse::Backend.post path, nil
-    rescue Suse::Backend::HTTPError => e
-      logger.debug "copy failed: #{e.message}"
+    rescue ActiveXML::Transport::Error => e
+      logger.debug "copy failed: #{e.summary}"
       # we need to check results of backend in any case (also timeout error eg)
     end
 

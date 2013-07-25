@@ -425,7 +425,7 @@ class ApplicationController < ActionController::API
     render_error message: message, status: exception.status, errorcode: exception.errorcode
   end
 
-  rescue_from Suse::Backend::HTTPError do |exception|
+  rescue_from ActiveXML::Transport::Error do |exception|
     xml = REXML::Document.new( exception.message )
     http_status = xml.root.attributes['code']
     unless xml.root.attributes.include? 'origin'
@@ -444,7 +444,7 @@ class ApplicationController < ActionController::API
     render_error :status => 403, :errorcode => "modify_package_no_permission", :message => exception.message
   end
 
-  rescue_from Suse::Backend::NotFoundError, ActiveRecord::RecordNotFound do |exception|
+  rescue_from ActiveXML::Transport::NotFoundError, ActiveRecord::RecordNotFound do |exception|
     render_error message: exception.message, status: 404, errorcode: 'not_found'
   end
 

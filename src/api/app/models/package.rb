@@ -134,7 +134,7 @@ class Package < ActiveRecord::Base
           begin
             answer = Suse::Backend.get("/source/#{URI.escape(project)}/#{URI.escape(package)}")
             return true if answer
-          rescue Suse::Backend::HTTPError
+          rescue ActiveXML::Transport::Error
           end
         end
         return false
@@ -151,7 +151,7 @@ class Package < ActiveRecord::Base
           begin
             answer = Suse::Backend.get("/source/#{URI.escape(project)}/#{URI.escape(package)}")
             return true if answer
-          rescue Suse::Backend::HTTPError
+          rescue ActiveXML::Transport::Error
           end
         end
         return false
@@ -377,7 +377,7 @@ class Package < ActiveRecord::Base
           issue = Issue.find_or_create_by_name_and_tracker( i.attributes['name'], i.attributes['tracker'] )
           issue_change[issue] = 'kept' 
         }
-      rescue Suse::Backend::HTTPError
+      rescue ActiveXML::Transport::Error
       end
 
       # issues introduced by local changes
@@ -389,7 +389,7 @@ class Package < ActiveRecord::Base
             issue = Issue.find_or_create_by_name_and_tracker( i.attributes['name'], i.attributes['tracker'] )
             issue_change[issue] = i.attributes['state']
           }
-        rescue Suse::Backend::HTTPError
+        rescue ActiveXML::Transport::Error
         end
       end
 
