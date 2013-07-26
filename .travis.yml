@@ -1,7 +1,11 @@
 language: ruby
 rvm:
   - 2.0.0
-before_script: bash -x dist/ci/obs_testsuite_travis_before.sh
+before_script: 
+  - mysql -e 'create database ci_api_test;'
+  - sed -e 's,password:.*,password:,' -i src/api/config/database.yml.example
+  - travis_retry bash -x dist/ci/obs_testsuite_travis_before.sh
+  - bash -x dist/ci/obs_testsuite_travis_setup.sh
 script: bash -x dist/ci/obs_testsuite_travis.sh
 env:
   # just one special test
