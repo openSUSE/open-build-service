@@ -1,2 +1,25 @@
-# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+project_comment_parent:
+ id: 100
+ title: Hurray
+ body: I am making a comment
+ project_id: 68576
+ package_id:
+ bs_request_id:
+ parent_id:
+ object: project
+ user: Admin
+ created_at: 2013-07-25 14:00:21.000000000 Z
+ updated_at: 2013-07-25 14:00:21.000000000 Z
 
+project_comment_reply:
+ id: 101
+ title:
+ body: I am making a reply
+ project_id: 68576
+ package_id:
+ bs_request_id:
+ parent_id: 100
+ object: project
+ user: Admin
+ created_at: 2013-07-25 15:00:21.000000000 Z
+ updated_at: 2013-07-25 15:00:21.000000000 Z

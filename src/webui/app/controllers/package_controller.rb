@@ -1086,7 +1086,7 @@ class PackageController < ApplicationController
       @comments_as_thread = sort_comments(@comment)
     rescue ActiveXML::Transport::Error => e
       message = e.summary
-      render :text => message, :status => 400, :content_type => "text/plain"
+      render :text => message, :status => 403, :content_type => "text/plain"
       return
     end
   end

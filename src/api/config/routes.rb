@@ -343,8 +343,8 @@ OBSApi::Application.routes.draw do
     # /comments
     controller :comments do
       match 'comments/request/:id/' => :all_requests, :via => [:get, :put], constraints: cons
-      match 'comments/:project/' => :all_requests, :via => [:get, :put] , constraints: cons
-      match 'comments/:project/:package/' => :all_requests, :via => [:get, :put], constraints: cons
+      match 'comments/project/:project/' => :all_requests, :via => [:get, :put] , constraints: cons
+      match 'comments/package/:project/:package/' => :all_requests, :via => [:get, :put], constraints: cons
     end
 
   end
