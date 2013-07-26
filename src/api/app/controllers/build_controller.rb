@@ -245,31 +245,30 @@ class BuildController < ApplicationController
     # for permission check
     Project.get_by_name params[:project]
 
+    # this route is mainly for checking submissions to a target project
     if params.has_key? :lastsuccess
-      required_parameters :package
+      required_parameters :package, :pathproject
 
-      outputxml = "<status>\n"
       pkg = Package.get_by_project_and_name params[:project], params[:package],
                                             use_source: false, follow_project_links: false
 
-      # might be nil
-      tprj = Project.find_by_name params[:pathproject]
-      result = pkg.buildstatus(target_project: tprj, srcmd5: params[:srcmd5])
-      result.each do |repo, status|
-        outputxml << " <repository name='#{repo}'>\n"
+      tprj = Project.get_by_name params[:pathproject]
+      bs = pkg.buildstatus(target_project: tprj, srcmd5: params[:srcmd5])
+      @result = []
+      bs.each do |repo, status|
+        archs = []
         status.each do |arch, archstat|
-          outputxml << "  <arch arch='#{arch}' result='#{archstat[:result]}'"
+          oneline = [arch, archstat[:result]]
           if archstat[:missing]
-            missing = archstat[:missing].join(",")
-            outputxml << " missing='#{missing}'"
+            oneline << archstat[:missing].join(",")
+          else
+            oneline << nil
           end
-          outputxml << "/> \n"
+          archs << oneline
         end
-        outputxml << " </repository>\n"
-
+        @result << [repo, archs]
       end
-      outputxml << "</status>\n"
-      render text: outputxml
+      render text: render_to_string(partial: "lastsuccess")
       return
     end
 

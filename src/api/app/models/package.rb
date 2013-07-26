@@ -1065,16 +1065,11 @@ class Package < ActiveRecord::Base
     srcmd5 = opts[:srcmd5]
 
     # check current srcmd5
-    cdir = Directory.hashed(:project => self.project.name,
-                            :package => self.name,
-                            :expand  => 1)
+    cdir = Directory.hashed(project: self.project.name,
+                            package: self.name,
+                            expand: 1)
     csrcmd5 = cdir['srcmd5']
-
-    if tproj
-      tocheck_repos = self.project.repositories_linking_project(tproj)
-    else
-      tocheck_repos = []
-    end
+    tocheck_repos = self.project.repositories_linking_project(tproj)
 
     raise NoRepositoriesFound.new if tocheck_repos.empty?
 
@@ -1086,7 +1081,7 @@ class Package < ActiveRecord::Base
       srep.elements('path') do |p|
         if p['project'] != self.project.name
           r = Repository.find_by_project_and_repo_name(p['project'], p['repository'])
-          r.architectures.each { |a| archs << a.name }
+          r.architectures.each { |a| archs << a.name.to_s }
           trepo << [p['project'], p['repository']]
         end
       end
@@ -1101,32 +1096,52 @@ class Package < ActiveRecord::Base
         next if vprojects.has_key? p
         prj = Project.find_by_name(p)
         next unless prj # in case of remote projects
-        prj.packages.select(:name).each { |n| tpackages[n.name] = p }
+        prj.packages.pluck(:name).each { |n| tpackages[n] = p }
         vprojects[p] = 1
       end
 
       archs.each do |arch|
-        everbuilt     = 0
-        eversucceeded = 0
-        buildcode     =nil
-        hist          = Jobhistory.find(:project    => self.project.name,
-                                        :repository => srep['name'],
-                                        :package    => self.name,
-                                        :arch       => arch.to_s, :limit => 20)
-        next unless hist
-        hist.each_jobhist do |jh|
-          next if jh.srcmd5 != srcmd5
-          everbuilt = 1
-          if jh.code == 'succeeded' || jh.code == 'unchanged'
+        everbuilt     = false
+        eversucceeded = false
+        buildcode     = nil
+        # first we check the lastfailures. This route is fast but only has up to
+        # two results per package. If the md5sum does not match, we have to dig deeper
+        hist = Jobhistory.find_hashed(project: self.project.name,
+                                      repository: srep['name'],
+                                      package: self.name,
+                                      arch: arch,
+                                      code: 'lastfailures')
+        next if hist.blank?
+        hist.elements('jobhist') do |jh|
+          if jh['verifymd5'] == srcmd5
+            everbuilt = true
+          end
+        end
+
+        if !everbuilt
+          hist = Jobhistory.find_hashed(project: self.project.name,
+                                        repository: srep['name'],
+                                        package: self.name,
+                                        arch: arch,
+                                        limit: 20,
+                                        expires_in: 15.minutes)
+        end
+
+        # going through the job history to check if it built and if yes, succeeded
+        hist.elements('jobhist') do |jh|
+          next unless jh['verifymd5'] == srcmd5
+          everbuilt = true
+          if jh['code'] == 'succeeded' || jh['code'] == 'unchanged'
             buildcode     ='succeeded'
-            eversucceeded = 1
+            eversucceeded = true
             break
           end
         end
         logger.debug "arch:#{arch} md5:#{srcmd5} successed:#{eversucceeded} built:#{everbuilt}"
         missingdeps=[]
-        if eversucceeded == 1
-          uri = URI("/build/#{CGI.escape(self.project.name)}/#{CGI.escape(srep['name'])}/#{CGI.escape(arch.to_s)}/_builddepinfo?package=#{CGI.escape(self.name)}&view=pkgnames")
+        # if
+        if eversucceeded
+          uri = URI("/build/#{CGI.escape(self.project.name)}/#{CGI.escape(srep['name'])}/#{CGI.escape(arch)}/_builddepinfo?package=#{CGI.escape(self.name)}&view=pkgnames")
           begin
             buildinfo = Xmlhash.parse(ActiveXML.transport.direct_http(uri))
           rescue ActiveXML::Transport::Error => e
@@ -1143,22 +1158,22 @@ class Package < ActiveRecord::Base
         end
 
         # if the package does not appear in build history, check flags
-        if everbuilt == 0
-          buildflag=self.find_flag_state("build", srep['name'], arch.to_s)
-          logger.debug "find_flag_state #{srep['name']} #{arch.to_s} #{buildflag}"
+        if !everbuilt
+          buildflag=self.find_flag_state("build", srep['name'], arch)
+          logger.debug "find_flag_state #{srep['name']} #{arch} #{buildflag}"
           if buildflag == 'disable'
             buildcode='disabled'
           end
         end
 
-        if !buildcode && srcmd5 != csrcmd5 && everbuilt == 1
+        if !buildcode && srcmd5 != csrcmd5 && everbuilt
           buildcode='failed' # has to be
         end
 
         unless buildcode
           buildcode="unknown"
           begin
-            uri         = URI("/build/#{CGI.escape(self.project.name)}/_result?package=#{CGI.escape(self.name)}&repository=#{CGI.escape(srep['name'])}&arch=#{CGI.escape(arch.to_s)}")
+            uri         = URI("/build/#{CGI.escape(self.project.name)}/_result?package=#{CGI.escape(self.name)}&repository=#{CGI.escape(srep['name'])}&arch=#{CGI.escape(arch)}")
             resultlist  = ActiveXML::Node.new(ActiveXML.transport.direct_http(uri))
             currentcode = nil
             resultlist.each_result do |r|
@@ -1186,8 +1201,8 @@ class Package < ActiveRecord::Base
           end
         end
 
-        output[srep['name']][arch.to_s] = { result: buildcode }
-        output[srep['name']][arch.to_s][:missing] = missingdeps.uniq if (missingdeps.size > 0 && buildcode == 'succeeded')
+        output[srep['name']][arch] = { result: buildcode }
+        output[srep['name']][arch][:missing] = missingdeps.uniq
       end
     end
 
