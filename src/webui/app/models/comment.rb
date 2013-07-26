@@ -29,18 +29,18 @@ class Comment < ActiveXML::Node
     package = self.init_options[:package]
     request = self.init_options[:request_id]
     if package
-      path = "/comments/#{self.init_options[:project_with_package]}/#{self.init_options[:package]}"
+      path = "/comments/package/#{self.init_options[:project_with_package]}/#{self.init_options[:package]}"
     elsif request
       path = "/comments/request/#{self.init_options[:request_id]}"
     else
-      path = "/comments/#{self.init_options[:project]}"
+      path = "/comments/project/#{self.init_options[:project]}"
     end
     frontend = ActiveXML::transport 
     frontend.direct_http URI("#{path}"), :method => "PUT", :data => self.dump_xml
   end
 
   def self.find_by_package(args = {})
-    path = "/comments/#{args[:project]}/#{args[:package]}"
+    path = "/comments/package/#{args[:project]}/#{args[:package]}"
     path = URI(path)
     transport = ActiveXML::transport
     data = transport.http_do 'get', path

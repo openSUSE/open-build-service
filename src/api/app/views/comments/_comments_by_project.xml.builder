@@ -1,4 +1,4 @@
-xml.comments(:object => @project.name, :object_type => "project", :limit => params[:limit], :offset=> params[:offset]) do
+xml.comments(:project => @project.name, :object_type => "project", :limit => params[:limit], :offset=> params[:offset]) do
         @comments.each do |msg|
             attrs = {}
             attrs[:id] = msg.id
