@@ -118,6 +118,15 @@ CREATE TABLE `attribs` (
   CONSTRAINT `attribs_ibfk_3` FOREIGN KEY (`db_project_id`) REFERENCES `projects` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `backend_infos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `key` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `value` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `blacklist_tags` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
@@ -1120,6 +1129,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130702083665');
 INSERT INTO schema_migrations (version) VALUES ('20130702203665');
 
 INSERT INTO schema_migrations (version) VALUES ('20130723055536');
+
+INSERT INTO schema_migrations (version) VALUES ('20130726144516');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
