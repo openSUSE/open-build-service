@@ -78,8 +78,10 @@ class Package < ActiveRecord::Base
     # function returns a nil object in case the package is on remote instance
     def get_by_project_and_name( project, package, opts = {} )
       opts = { use_source: true, follow_project_links: true }.merge(opts)
-      key = { "get_by_project_and_name" => 1, package: package, user: User.current.cache_key }.merge(opts)
+      key = { "get_by_project_and_name" => 1, package: package }.merge(opts)
 
+      key[:user] = User.current.cache_key if User.current
+	 
       # the cache is only valid if the user, prj and pkg didn't change
       if project.class == Project
         key[:project] = project.id
