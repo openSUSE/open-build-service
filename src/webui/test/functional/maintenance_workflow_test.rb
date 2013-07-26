@@ -72,11 +72,11 @@ class MaintenanceWorkflowTest < ActionDispatch::IntegrationTest
     fill_in "summary", with: "Nada"
     fill_in "description", with: "Fixes nothing"
     find(:id, 'rating').select("critical")
-    find(:id, "relogin").click
-    find(:id, "reboot").click
+    check("relogin")
+    check("reboot")
     find(:id, "zypp_restart_needed").click
-    find(:id, "block_reason")['disabled'].must_equal false
-    find(:id, "block").click
+    find(:id, "block_reason")['disabled'].must_equal true
+    check("block")
     fill_in "block_reason", with: "locked!"
     find_button("Save Patchinfo").click
 
@@ -105,7 +105,7 @@ class MaintenanceWorkflowTest < ActionDispatch::IntegrationTest
 
     find(:link, "recommended").click
     find(:id, "edit-patchinfo").click
-    find(:id, "block").click
+    uncheck("block")
     find(:id, "block_reason")['disabled'].must_equal true
     click_button "Save Patchinfo"
 
