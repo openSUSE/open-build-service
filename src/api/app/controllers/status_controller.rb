@@ -241,7 +241,7 @@ class StatusController < ApplicationController
         outputxml << " <repository name='#{repo}'>\n"
         status.each do |arch, archstat|
           outputxml << "  <arch arch='#{arch}' result='#{archstat[:result]}'"
-          outputxml << " missing='#{archstat[:missing]}'" if archstat[:missing]
+          outputxml << " missing='#{archstat[:missing]}'" unless archstat[:missing].blank?
           outputxml << "/> \n"
         end
         outputxml << " </repository>\n"

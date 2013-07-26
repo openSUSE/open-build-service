@@ -259,7 +259,7 @@ class BuildController < ApplicationController
         archs = []
         status.each do |arch, archstat|
           oneline = [arch, archstat[:result]]
-          if archstat[:missing]
+          unless archstat[:missing].blank?
             oneline << archstat[:missing].join(",")
           else
             oneline << nil

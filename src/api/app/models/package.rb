@@ -1111,7 +1111,7 @@ class Package < ActiveRecord::Base
                                       package: self.name,
                                       arch: arch,
                                       code: 'lastfailures')
-        next if hist.blank?
+        next if hist.nil?
         hist.elements('jobhist') do |jh|
           if jh['verifymd5'] == srcmd5
             everbuilt = true
@@ -1174,10 +1174,10 @@ class Package < ActiveRecord::Base
           buildcode="unknown"
           begin
             uri         = URI("/build/#{CGI.escape(self.project.name)}/_result?package=#{CGI.escape(self.name)}&repository=#{CGI.escape(srep['name'])}&arch=#{CGI.escape(arch)}")
-            resultlist  = ActiveXML::Node.new(ActiveXML.transport.direct_http(uri))
+            resultlist  = Xmlhash.parse(ActiveXML.transport.direct_http(uri))
             currentcode = nil
-            resultlist.each_result do |r|
-              r.each_status { |s| currentcode = s.value(:code) }
+            resultlist.elements('result') do |r|
+              r.elements('status') { |s| currentcode = s['code'] }
             end
           rescue ActiveXML::Transport::Error
             currentcode = nil

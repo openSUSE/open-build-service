@@ -79,8 +79,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # sneak in a test case for the status controller
     get "/status/bsrequest?id=#{id}"
     node = Xmlhash.parse(@response.body)
-    assert_equal({
-                     'id' => id,
+    assert_equal({'id' => id,
                      'repository' =>
                          {'name' => '10.2',
                           'arch' =>
