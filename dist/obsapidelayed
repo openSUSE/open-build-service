@@ -37,7 +37,15 @@
 
 . /etc/rc.status
 
-DELAYED_BIN=/srv/www/obs/api/script/delayed_job.api
+API_ROOT=/srv/www/obs/api
+CLOCKWORKD=/usr/bin/clockworkd
+
+function run_in_api
+{
+  export RAILS_ENV="production"
+  # startproc only works for classical daemons
+  chroot --userspec=wwwrun:www / /bin/bash -c "cd $API_ROOT && /usr/bin/bundle exec $*"
+}
 
 # number of parallel jobs
 NUM=3
@@ -48,16 +56,14 @@ rc_reset
 case "$1" in
     start)
 	echo -n "Starting OBS api delayed job handler "
-        export RAILS_ENV="production"
-        startproc -w -u wwwrun -g www -- $DELAYED_BIN start -n $NUM
-        : # startproc does not find the renamed processes...
+        run_in_api script/delayed_job.api start -n $NUM
+        run_in_api $CLOCKWORKD -c config/clock.rb start
 	rc_status -v
 	;;
     stop)
 	echo -n "Stoping OBS api delayed job handler "
-        export RAILS_ENV="production"
-        startproc -w -u wwwrun -g www -- $DELAYED_BIN stop
-
+        run_in_api script/delayed_job.api stop
+        run_in_api $CLOCKWORKD -c config/clock.rb stop
 	rc_status -v
 	;;
     try-restart|condrestart)

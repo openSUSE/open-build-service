@@ -17,10 +17,13 @@ gem 'xmlhash', '>=1.3.5'
 gem 'ruby-ldap', :require => false
 gem 'dalli', :require => false
 
+# don't rely on cron+rake 
+gem 'clockwork'
+
 group :production do
   # if you have an account, it can be configured by
   # placing a config/newrelic.yml
-  gem 'newrelic_rpm', require: false
+  gem 'newrelic_rpm'
 end
 
 group :test do

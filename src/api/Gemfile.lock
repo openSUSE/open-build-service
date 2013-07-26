@@ -31,6 +31,9 @@ GEM
     builder (3.1.4)
     ci_reporter (1.9.0)
       builder (>= 2.1.2)
+    clockwork (0.5.4)
+      activesupport
+      tzinfo (~> 0.3.35)
     coderay (1.0.9)
     crack (0.4.1)
       safe_yaml (~> 0.9.0)
@@ -115,6 +118,7 @@ DEPENDENCIES
   actionmailer
   activerecord (~> 4.0)
   ci_reporter
+  clockwork
   daemons
   dalli
   database_cleaner (>= 1.0.1)
