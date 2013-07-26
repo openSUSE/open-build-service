@@ -180,7 +180,7 @@ module ActiveXML
 
       def find_hashed( *args )
         ret = find_cached( *args )
-        return {} unless ret
+        return Xmlhash::XMLHash.new({}) unless ret
         ret.to_hash
       end
 
