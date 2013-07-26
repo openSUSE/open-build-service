@@ -3101,25 +3101,27 @@ sub getproject {
 #########################################################################
 
 sub pubkey2sslcert {
-  my ($projid, $pk) = @_;
+  my ($projid, $pubkeyfile, $signkeyfile) = @_;
   die("don't know how to generate a ssl cert\n") unless $BSConfig::sign;
   my $cert = '';
+  $pubkeyfile ||= "$projectsdir/$projid.pkg/_pubkey";
+  $signkeyfile ||= "$projectsdir/$projid.pkg/_signkey";
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   local *F;
-  open(F, '-|', $BSConfig::sign, @signargs, '-P', "$projectsdir/$projid.pkg/_signkey", '-C', "$projectsdir/$projid.pkg/_pubkey") || die("$BSConfig::sign: $!\n");
+  open(F, '-|', $BSConfig::sign, @signargs, '-P', $signkeyfile, '-C', $pubkeyfile) || die("$BSConfig::sign: $!\n");
   1 while sysread(F, $cert, 4096, length($cert));
   close(F) || die("$BSConfig::sign: $?\n");
   return $cert;
 }
 
 sub updatesslcert {
-  my ($projid, $pubkey) = @_;
+  my ($projid, $pubkeyfile, $signkeyfile) = @_;
   my $rev = getrev_meta($projid, undef);
   return undef unless $rev;
   my $files = lsrev($rev);
   return undef unless $files->{'_sslcert'};
-  my $cert = pubkey2sslcert($projid, $pubkey);
+  my $cert = pubkey2sslcert($projid, $pubkeyfile, $signkeyfile);
   mkdir_p($uploaddir);
   writestr("$uploaddir/sslcert.$$", undef, $cert);
   return "$uploaddir/sslcert.$$";
@@ -3143,7 +3145,7 @@ sub createkey {
   die("sign did not create signkey\n") unless -s "$uploaddir/signkey.$$";
   mkdir_p("$projectsdir/$projid.pkg");
   writestr("$uploaddir/pubkey.$$", undef, $pubkey);
-  my $certfile = updatesslcert($projid, $pubkey);
+  my $certfile = updatesslcert($projid, "$uploaddir/pubkey.$$", "$uploaddir/signkey.$$");
   addrev_meta_multiple($cgi, $projid, undef, 'mrev',
 	[ "$uploaddir/pubkey.$$",  "$projectsdir/$projid.pkg/_pubkey",  '_pubkey' ],
 	[ "$uploaddir/signkey.$$", "$projectsdir/$projid.pkg/_signkey", '_signkey' ],
@@ -3167,7 +3169,7 @@ sub extendkey {
   close(F) || die("$BSConfig::sign: $?\n");
   mkdir_p($uploaddir);
   writestr("$uploaddir/pubkey.$$", undef, $pubkey);
-  my $certfile = updatesslcert($projid, $pubkey);
+  my $certfile = updatesslcert($projid, "$uploaddir/pubkey.$$");
   addrev_meta_multiple($cgi, $projid, undef, 'mrev',
 	[ "$uploaddir/pubkey.$$",  "$projectsdir/$projid.pkg/_pubkey",  '_pubkey' ],
 	[ $certfile, undef, '_sslcert' ]);
