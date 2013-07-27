@@ -1130,7 +1130,7 @@ class Package < ActiveRecord::Base
                                       code: 'lastfailures')
         next if hist.nil?
         hist.elements('jobhist') do |jh|
-          if jh['verifymd5'] == srcmd5
+          if jh['verifymd5'] == srcmd5 || jh['srcmd5'] == srcmd5
             everbuilt = true
           end
         end
@@ -1146,7 +1146,7 @@ class Package < ActiveRecord::Base
 
         # going through the job history to check if it built and if yes, succeeded
         hist.elements('jobhist') do |jh|
-          next unless jh['verifymd5'] == srcmd5
+          next unless jh['verifymd5'] == srcmd5 || jh['srcmd5'] == srcmd5
           everbuilt = true
           if jh['code'] == 'succeeded' || jh['code'] == 'unchanged'
             buildcode     ='succeeded'
