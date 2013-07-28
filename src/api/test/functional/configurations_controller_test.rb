@@ -19,6 +19,10 @@ class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
     put '/configuration', config
     assert_response 403 # Normal users can't change site-wide configuration
 
+    # the webui calls that
+    get '/configuration.json'
+    assert_response :success
+
     prepare_request_with_user 'king', 'sunflower' # User with admin rights
     # webui is using this way to store data
     put '/configuration?title=openSUSE&description=blah_fasel&name=obsname'

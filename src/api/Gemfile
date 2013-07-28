@@ -16,6 +16,7 @@ gem 'rdoc'
 gem 'xmlhash', '>=1.3.5'
 gem 'ruby-ldap', :require => false
 gem 'dalli', :require => false
+gem 'yajl-ruby'
 
 # don't rely on cron+rake 
 gem 'clockwork'

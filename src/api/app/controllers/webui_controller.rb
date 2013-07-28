@@ -1,5 +1,3 @@
-require 'json/ext'
-
 require_dependency 'status_helper'
 include SearchHelper
 
@@ -237,7 +235,7 @@ class WebuiController < ApplicationController
       render_error status: 400, errorcode: 'change_role_failed', message: e.record.errors.full_messages.join('\n')
       return
     end
-    render json: 'ok'
+    render json: {status: 'ok'}
   end
 
   def all_projects
@@ -253,7 +251,7 @@ class WebuiController < ApplicationController
     projects.each do |id, name, title|
       ret[name] = { title: title, important: important[id] ? true : false }
     end
-    render text: JSON.fast_generate(ret), content_type: "application/json"
+    render json: ret
   end
 
   def owner
