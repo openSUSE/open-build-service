@@ -223,7 +223,6 @@ class Project < ActiveRecord::Base
       return dbp
     end
 
-
     def find_by_attribute_type( attrib_type )
       return Project.joins(:attribs).where(:attribs => { :attrib_type_id => attrib_type.id })
     end
@@ -248,6 +247,7 @@ class Project < ActiveRecord::Base
       end
       return nil
     end
+
   end
 
   def check_write_access!
@@ -1258,19 +1258,20 @@ class Project < ActiveRecord::Base
     return projects
   end
 
+  # return array of [:name, :project_id] tuples
   def expand_all_packages
-    packages = self.packages.select([:name,:db_project_id])
+    packages = self.packages.pluck([:name,:db_project_id])
     p_map = Hash.new
-    packages.each { |i| p_map[i.name] = 1 } # existing packages map
+    packages.each { |name, prjid| p_map[name] = 1 } # existing packages map
     # second path, all packages from indirect linked projects
     self.linkedprojects.each do |lp|
       if lp.linked_db_project.nil?
         # FIXME: this is a remote project
       else
-        lp.linked_db_project.expand_all_packages.each do |p|
-          unless p_map[p.name]
-            packages << p
-            p_map[p.name] = 1
+        lp.linked_db_project.expand_all_packages.each do |name, prj_id|
+          unless p_map[name]
+            packages << [name, prj_id]
+            p_map[name] = 1
           end
         end
       end

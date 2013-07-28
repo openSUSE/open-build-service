@@ -10,11 +10,16 @@ class WebuiController < ApplicationController
     pro = Project.find_by_name!(params[:project])
     infos[:name] = pro.name
     infos[:packages] = Array.new
-    pro.expand_all_packages.each do |p|
-      if p.db_project_id==pro.id
-        infos[:packages] << [p.name, nil]
+    packages=pro.expand_all_packages
+    prj_names = Hash.new
+    Project.where(id: packages.map {|a| a[1]}.uniq).pluck(:id, :name).each do |id, name|
+      prj_names[id] = name
+    end
+    packages.each do |name, prj_id|
+      if prj_id==pro.id
+        infos[:packages] << [name, nil]
       else
-        infos[:packages] << [p.name, p.project.name]
+        infos[:packages] << [name, prj_names[prj_id]]
       end
     end
 
