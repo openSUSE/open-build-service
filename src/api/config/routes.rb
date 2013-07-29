@@ -321,6 +321,7 @@ OBSApi::Application.routes.draw do
           get :by_class
         end
       end
+      resources :owners, :only => [:index]
     end
 
     get "/404" => "main#notfound"
