@@ -1,13 +1,28 @@
 require_dependency 'status_helper'
-include SearchHelper
 
-class WebuiController < ApplicationController
+class Webui::ProjectsController < Webui::BaseController
+
+  def index
+    # return all projects and their title
+    ret = {}
+    atype = AttribType.find_by_namespace_and_name('OBS', 'VeryImportantProject')
+    important = {}
+    Project.find_by_attribute_type(atype).pluck("projects.id").each do |p|
+      important[p] = 1
+    end
+    projects = Project.where("name <> ?", "deleted").pluck(:id, :name, :title)
+    projects.each do |id, name, title|
+      ret[name] = { title: title, important: important[id] ? true : false }
+    end
+    render json: ret
+  end
 
   # return all data related that the webui wants to show on /project/show
-  def project_infos
-    required_parameters :project
+  def infos
+    required_parameters :id
+    project_name = params[:id]
     infos = Hash.new
-    pro = Project.find_by_name!(params[:project])
+    pro = Project.find_by_name!(project_name)
     infos[:name] = pro.name
     infos[:packages] = Array.new
     packages=pro.expand_all_packages
@@ -45,7 +60,7 @@ class WebuiController < ApplicationController
 
     infos[:linking_projects] = pro.find_linking_projects.map { |p| p.name }
 
-    reqs = reviews_priv(params[:project])
+    reqs = pro.request_ids_by_class
     infos[:requests] = (reqs['reviews'] + reqs['targets'] + reqs['incidents'] + reqs['maintenance_release']).sort.uniq
 
     infos[:nr_of_problem_packages] = 0
@@ -64,223 +79,16 @@ class WebuiController < ApplicationController
     end
 
     if pro.project_type == 'maintenance_incident'
-      rel = BsRequest.collection(project: params[:project], states: ['new', 'review'], types: ['maintenance_release'], roles: ['source'])
+      rel = BsRequest.collection(project: project_name, states: ['new', 'review'], types: ['maintenance_release'], roles: ['source'])
       infos[:open_release_requests] = rel.pluck("bs_requests.id")
     end
 
     render json: infos
   end
 
-  def reviews_priv(prj)
-    prj = Project.find_by_name! prj
-
-    rel = BsRequest.collection(project: params[:project], states: ['review'], roles: ['reviewer'])
-    reviews = rel.pluck("bs_requests.id")
-
-    rel = BsRequest.collection(project: params[:project], states: ['new'], roles: ['target'])
-    targets = rel.pluck("bs_requests.id")
-
-    rel = BsRequest.collection(project: params[:project], states: ['new'], roles: ['source'], types: ['maintenance_incident'])
-    incidents = rel.pluck("bs_requests.id")
-
-    if prj.project_type == "maintenance"
-      rel = BsRequest.collection(project: params[:project], states: ['new'], roles: ['source'], types: ['maintenance_release'], subprojects: true)
-      maintenance_release = rel.pluck("bs_requests.id")
-    else
-      maintenance_release = []
-    end
-
-    { 'reviews' => reviews, 'targets' => targets, 'incidents' => incidents, 'maintenance_release' => maintenance_release }
-  end
-
-  def project_requests
-    required_parameters :project
-
-    render json: reviews_priv(params[:project])
-  end
-
-  def person_requests_that_need_work
-    required_parameters :login
-    login = params[:login]
-    result = {}
-
-    rel = BsRequest.collection(user: login, states: ['declined'], roles: ['creator'])
-    result[:declined] = rel.pluck("bs_requests.id")
-
-    rel = BsRequest.collection(user: login, states: ['new'], roles: ['maintainer'])
-    result[:new] = rel.pluck("bs_requests.id")
-
-    rel = BsRequest.collection(user: login, roles: ['reviewer'], reviewstates: ['new'], states: ['review'])
-    result[:reviews] = rel.pluck("bs_requests.id")
-
-    render json: result
-  end
-
-  def person_involved_requests
-    required_parameters :login
-    rel = BsRequest.collection(user: params[:login], states: ['new', 'review'])
-    result = rel.pluck("bs_requests.id")
-
-    render json: result
-  end
-
-  # TODO - put in use
-  def package_flags
-    required_parameters :project, :package
-
-    project_name = params[:project]
-    package_name = params[:package]
-
-    valid_package_name! package_name
-
-    pack = Package.get_by_project_and_name(project_name, package_name, use_source: false)
-    render json: pack.expand_flags
-  end
-
-  # TODO - put in use
-  def project_flags
-    required_parameters :project
-
-    project_name = params[:project]
-
-    prj = Project.get_by_name(project_name)
-    render json: prj.expand_flags
-  end
-
-  def request_show
+  def status
     required_parameters :id
-
-    req = BsRequest.find(params[:id])
-    render json: req.webui_infos
-  end
-
-  def request_ids
-    required_parameters :ids
-
-    rel = BsRequest.where(id: params[:ids].split(','))
-    rel = rel.includes({ bs_request_actions: :bs_request_action_accept_info }, :bs_request_histories)
-    rel = rel.order('bs_requests.id')
-
-    result = []
-    rel.each do |r|
-      result << r.webui_infos(diffs: false)
-    end
-    render json: result
-  end
-
-  def request_list
-    # Do not allow a full collection to avoid server load
-    if params[:project].blank? && params[:user].blank? && params[:package].blank?
-      render_error :status => 400, :errorcode => 'require_filter',
-                   :message => "This call requires at least one filter, either by user, project or package"
-      return
-    end
-
-    # convert comma seperated values into arrays
-    if params[:roles]
-      roles = params[:roles].split(',')
-    else
-      roles = []
-    end
-    types = params[:types].split(',') if params[:types]
-    if params[:states]
-      states = params[:states].split(',')
-    else
-      states = []
-    end
-    review_states = params[:reviewstates].split(',') if params[:reviewstates]
-
-    params.merge!({ states: states, types: types, review_states: review_states, roles: roles })
-    logger.debug "PARAMS #{params.inspect}"
-    ids = []
-    rel = nil
-
-    if params[:project]
-      if roles.empty? && (states.empty? || states.include?('review')) # it's wiser to split the queries
-        rel = BsRequest.collection(params.merge({ roles: ['reviewer'] }))
-        ids = rel.pluck("bs_requests.id")
-        rel = BsRequest.collection(params.merge({ roles: ['target', 'source'] }))
-      end
-    end
-    rel = BsRequest.collection(params) unless rel
-    ids.concat(rel.pluck("bs_requests.id"))
-
-    render json: ids.uniq.sort
-  end
-
-  def change_role
-    required_parameters :project
-
-    if params[:package].blank?
-      target = Project.find_by_name!(params[:project])
-    else
-      target = Package.find_by_project_and_name(params[:project], params[:package])
-    end
-
-    if params.has_key? :userid
-      object = User.get_by_login(params[:userid])
-    elsif params.has_key? :groupid
-      object = Group.get_by_title(params[:groupid])
-    else
-      raise MissingParameterError, "Neither userid nor groupid given"
-    end
-
-    begin
-      if params[:todo].to_s == 'remove'
-        role = nil
-        role = Role.find_by_title(params[:role]) if params[:role]
-        target.remove_role(object, role)
-      elsif params[:todo].to_s == 'add'
-        role = Role.find_by_title!(params[:role])
-        target.add_role(object, role)
-      else
-        raise MissingParameterError, "Paramter todo is not 'add' or 'remove'"
-      end
-    rescue ActiveRecord::RecordInvalid => e
-      render_error status: 400, errorcode: 'change_role_failed', message: e.record.errors.full_messages.join('\n')
-      return
-    end
-    render json: {status: 'ok'}
-  end
-
-  def all_projects
-    # return all projects and their title
-    ret = {}
-    atype = AttribType.find_by_namespace_and_name('OBS', 'VeryImportantProject')
-    important = {}
-    Project.find_by_attribute_type(atype).pluck("projects.id").each do |p|
-      important[p] = 1
-    end
-    deleted =Project.find_by_name("deleted")
-    projects = Project.where("id != ?", deleted.id).pluck(:id, :name, :title)
-    projects.each do |id, name, title|
-      ret[name] = { title: title, important: important[id] ? true : false }
-    end
-    render json: ret
-  end
-
-  def owner
-    required_parameters :binary
-
-    Suse::Backend.start_test_backend if Rails.env.test?
-
-    @owners = search_owner(params, params[:binary])
-  end
-
-  def project_status_attributes(packages, namespace, name)
-    ret = Hash.new
-    at = AttribType.find_by_namespace_and_name(namespace, name)
-    return unless at
-    attribs = at.attribs.where(db_package_id: packages)
-    AttribValue.where(attrib_id: attribs).joins(:attrib).pluck("attribs.db_package_id, value").each do |id, value|
-      yield id, value
-    end
-    ret
-  end
-
-  def project_status
-    required_parameters :project
-    project = Project.where(name: params[:project]).includes(:packages).first
+    project = Project.where(name: params[:id]).includes(:packages).first
     status = Hash.new
 
     # needed to map requests to package id
@@ -485,5 +293,51 @@ class WebuiController < ApplicationController
     end
 
     render json: {packages: @packages, projects: @develprojects.keys}
+  end
+
+  def change_role
+    if params[:package].blank?
+      target = Project.find_by_name!(params[:id])
+    else
+      target = Package.find_by_project_and_name(params[:id], params[:package])
+    end
+
+    if login = params[:user]
+      object = User.get_by_login(login)
+    elsif title = params[:group]
+      object = Group.get_by_title(title)
+    else
+      raise MissingParameterError, "Neither user nor group given"
+    end
+
+    begin
+      if params[:todo].to_s == 'remove'
+        role = nil
+        role = Role.find_by_title(params[:role]) if params[:role]
+        target.remove_role(object, role)
+      elsif params[:todo].to_s == 'add'
+        role = Role.find_by_title!(params[:role])
+        target.add_role(object, role)
+      else
+        raise MissingParameterError, "Paramter todo is not 'add' or 'remove'"
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      render_error status: 400, errorcode: 'change_role_failed', message: e.record.errors.full_messages.join('\n')
+      return
+    end
+    render json: {status: 'ok'}
+  end
+
+  protected
+
+  def project_status_attributes(packages, namespace, name)
+    ret = Hash.new
+    at = AttribType.find_by_namespace_and_name(namespace, name)
+    return unless at
+    attribs = at.attribs.where(db_package_id: packages)
+    AttribValue.where(attrib_id: attribs).joins(:attrib).pluck("attribs.db_package_id, value").each do |id, value|
+      yield id, value
+    end
+    ret
   end
 end

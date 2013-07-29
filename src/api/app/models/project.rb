@@ -1814,4 +1814,23 @@ class Project < ActiveRecord::Base
     end
   end
 
+  def request_ids_by_class
+    rel = BsRequest.collection(project: name, states: ['review'], roles: ['reviewer'])
+    reviews = rel.pluck("bs_requests.id")
+
+    rel = BsRequest.collection(project: name, states: ['new'], roles: ['target'])
+    targets = rel.pluck("bs_requests.id")
+
+    rel = BsRequest.collection(project: name, states: ['new'], roles: ['source'], types: ['maintenance_incident'])
+    incidents = rel.pluck("bs_requests.id")
+
+    if project_type == "maintenance"
+      rel = BsRequest.collection(project: name, states: ['new'], roles: ['source'], types: ['maintenance_release'], subprojects: true)
+      maintenance_release = rel.pluck("bs_requests.id")
+    else
+      maintenance_release = []
+    end
+
+    { 'reviews' => reviews, 'targets' => targets, 'incidents' => incidents, 'maintenance_release' => maintenance_release }
+  end
 end

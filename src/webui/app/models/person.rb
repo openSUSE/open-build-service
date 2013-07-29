@@ -182,7 +182,7 @@ class Person < ActiveXML::Node
 
   # Returns a tuple (i.e., array) of open requests and open reviews.
   def requests_that_need_work
-    ApiDetails.find(:person_requests_that_need_work, login: login)
+    ApiDetails.read(:by_class_requests, user: login)
   end
 
   def groups

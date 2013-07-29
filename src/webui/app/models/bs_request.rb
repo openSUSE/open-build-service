@@ -171,12 +171,13 @@ class BsRequest < ActiveXML::Node
       return last
     end
 
+    # FIXME very bad method name
     def ids(ids)
       return [] if ids.blank?
       logger.debug "Fetching request list from api"
       ret = []
       ids.each_slice(50) do |a|
-        ret.concat(ApiDetails.find(:request_ids, ids: a.join(',')))
+        ret.concat(ApiDetails.read(:requests, ids: a))
       end
       return ret
     end
@@ -201,9 +202,11 @@ class BsRequest < ActiveXML::Node
     end
     
     def list_ids(opts)
-      path = prepare_list_path("/webui/request_list", opts)
-      data = ActiveXML::transport.direct_http(URI(path))
-      return JSON.parse(data)
+       # All types means don't pass 'type' to backend
+      if opts[:types] == 'all' || (opts[:types].respond_to?(:include?) && opts[:types].include?("all"))
+        opts.delete(:types)
+      end
+      ApiDetails.read(:ids_requests, opts)
     end
 
     def list(opts)
@@ -245,7 +248,7 @@ class BsRequest < ActiveXML::Node
 
   # return the login of the creator - to be obsoleted soon (FIXME2.4)
   def creator
-    details = ApiDetails.find(:request_show, id: self.id)
+    details = ApiDetails.read(:request, self.id)
     return details['creator']
   end
 end

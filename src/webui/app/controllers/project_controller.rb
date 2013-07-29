@@ -36,7 +36,7 @@ class ProjectController < ApplicationController
   end
 
   def list
-    all_projects = ApiDetails.find(:all_projects)
+    all_projects = ApiDetails.read(:projects)
     @important_projects = []
     @main_projects = []
     @excl_projects = []
@@ -237,7 +237,7 @@ class ProjectController < ApplicationController
   def load_project_info
     return unless check_valid_project_name
     begin
-      @project_info = ApiDetails.find(:project_infos, :project => params[:project])
+      @project_info = ApiDetails.read(:infos_project, params[:project])
     rescue ActiveXML::Transport::NotFoundError
       return render_project_missing
     end
@@ -587,7 +587,7 @@ class ProjectController < ApplicationController
   end
 
   def requests
-    @requests = ApiDetails.find(:project_requests, :project => @project.name)
+    @requests = ApiDetails.read(:by_class_requests, project: @project.name)
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
   end
@@ -777,18 +777,18 @@ class ProjectController < ApplicationController
   end
 
   def change_role_options(params, action)
-    ret = { project: @project.name, todo: action }
+    ret = { todo: action }
     ret[:role] = params[:role] if params.has_key? :role
     if params.has_key? :userid
-      return ret.merge( { userid: params[:userid] })
+      return ret.merge( { user: params[:userid] })
     else
-      return ret.merge( { groupid: params[:groupid] })
+      return ret.merge( { group: params[:groupid] })
     end
   end
 
   def save_person
     begin
-      ApiDetails.command(:change_role, change_role_options(params, 'add'))
+      ApiDetails.change_role @project.name, change_role_options(params, 'add')
       @project.free_cache
     rescue ApiDetails::CommandFailed => e
       flash[:error] = e.to_s
@@ -806,7 +806,7 @@ class ProjectController < ApplicationController
 
   def save_group
     begin
-      ApiDetails.command(:change_role, change_role_options(params, 'add'))
+      ApiDetails.change_role @project.name, change_role_options(params, 'add')
       @project.free_cache
     rescue ApiDetails::CommandFailed => e
       flash[:error] = e.to_s
@@ -824,7 +824,7 @@ class ProjectController < ApplicationController
 
   def remove_role
     begin
-      ApiDetails.command(:change_role, change_role_options(params, 'remove'))
+      ApiDetails.change_role @project.name, change_role_options(params, 'remove')
       @project.free_cache
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
@@ -1146,7 +1146,7 @@ class ProjectController < ApplicationController
     @filter_for_user = params[:filter_for_user]
 
     @develprojects = Hash.new
-    ps = ApiDetails.find(:project_status, project: params[:project],
+    ps = ApiDetails.read(:status_project, params[:project],
         filter_devel: filter,
         ignore_pending: @ignore_pending,
         limit_to_fails: @limit_to_fails,

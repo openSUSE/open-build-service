@@ -6,33 +6,9 @@ class ApiDetails
     Rails.logger
   end
 
-  def self.find(info, opts = {})
-    uri = "/webui/"
-    uri += 
-      case info 
-      when :project_infos then "project_infos?:project"
-      when :project_requests then "project_requests?:project"
-      when :person_requests_that_need_work then "person_requests_that_need_work?:login"
-      when :request_show then "request_show?:id"
-      when :person_involved_requests then "person_involved_requests?:login"
-      when :request_ids then "request_ids?:ids"
-      when :all_projects then "all_projects"
-      when :project_status then "project_status?:project&:limit_to_fails&:limit_to_old&:include_versions&:filter_for_user&:ignore_pending&:filter_devel"
-      else raise "no valid info #{info}"
-      end
-    uri = URI(uri)
-    transport = ActiveXML::transport
-    uri = transport.substitute_uri(uri, opts)
-    #transport.replace_server_if_needed(uri)
-    data = transport.http_do 'get', uri
-    data = JSON.parse(data)
-    logger.debug "data #{JSON.pretty_generate(data)}"
-    data
-  end
-
-  def self.command(info, opts)
-    raise "no valid info #{info}" unless [:change_role].include? info
-    uri = URI("/webui/#{info.to_s}")
+  # FIXME: legacy
+  def self.change_role(project_name, opts)
+    uri = URI("/webui/projects/#{project_name}/change_role")
     begin
       data = ActiveXML::transport.http_json :post, uri, opts
     rescue ActiveXML::Transport::Error => e
@@ -43,5 +19,55 @@ class ApiDetails
     data
   end
 
+  # Trying to mimic the names and params of Rails' url helpers
+  def self.read(route_name, *args)
+    # FIXME: we need a better (real) implementation of nested routes
+    # using rails facilities
+
+    ids = []
+    opts = {}
+    args.each do |i|
+      if i.kind_of? Fixnum
+        ids << i.to_s
+      elsif i.kind_of? String
+        ids << i
+      elsif i.kind_of? Hash
+        opts = i
+      elsif i.respond_to?(:id)
+        ids << i.id.to_s
+      else
+        ids << i.to_s
+      end
+    end
+
+    uri = "/webui/" +
+      case route_name.to_sym
+
+      when :projects then "projects"
+      when :infos_project then "projects/#{ids.first}/infos"
+      when :status_project then "projects/#{ids.first}/status"
+
+      when :requests then "requests"
+      when :request then "requests/#{ids.first}"
+      when :ids_requests then "requests/ids"
+      when :by_class_requests then "requests/by_class"
+
+      else raise "no valid route #{route_name}"
+      end
+    uri = url_for(uri, opts)
+    transport = ActiveXML::transport
+    data = transport.http_do 'get', uri
+    data = JSON.parse(data)
+    logger.debug "data #{JSON.pretty_generate(data)}"
+    data
+  end
+
+  def self.url_for(uri, opts = {})
+    if opts.empty?
+      uri
+    else
+      "#{uri}?#{opts.to_query}"
+    end
+  end
 end
 

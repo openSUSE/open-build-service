@@ -6,8 +6,8 @@
     $.ajax({
       url: '<%= url_for(:controller => :request, :action => :list) %>',
       data: {
-        'states': $('#request_state_select')[0].value,
-        'types': $('#request_type_select')[0].value,
+        'states': $('#request_state_select')[0].value.split(","),
+        'types': $('#request_type_select')[0].value.split(","),
 	<%= raw("'user': '#{userid}',") if defined?(userid)  %>
 	<%= raw("'project': '#{project}',") if defined?(project) %>
 	<%= raw("'package': '#{package}',") if defined?(package) %>
