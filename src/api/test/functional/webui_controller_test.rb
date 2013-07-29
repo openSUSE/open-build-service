@@ -10,11 +10,11 @@ class WebuiControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_project_infos
-    get "/webui/project_infos?project=home:Iggy"
+    get "/webui/projects/home:Iggy/infos"
     assert_response 401
 
     prepare_request_with_user "Iggy", "asdfasdf"
-    get "/webui/project_infos?project=home:Iggy"
+    get "/webui/projects/home:Iggy/infos"
     assert_response :success
 
   end
@@ -22,33 +22,33 @@ class WebuiControllerTest < ActionDispatch::IntegrationTest
   def test_search_owner
     prepare_request_with_user "king", "sunflower"
 
-    get "/webui/owner"
+    get "/webui/owners"
     assert_response 400
     assert_xml_tag :tag => 'status', :attributes => { :code => "missing_parameter" }
 
     # must be after first search controller call or backend might not be started on single test case runs
     wait_for_publisher()
 
-    get "/webui/owner?binary='package'"
+    get "/webui/owners?binary='package'"
     assert_response 400
     assert_xml_tag :tag => 'status', :attributes => { :code => "attribute_not_set" }
 
-    get "/webui/owner?binary='package'&attribute='OBS:does_not_exist'"
+    get "/webui/owners?binary='package'&attribute='OBS:does_not_exist'"
     assert_response 404
     assert_xml_tag :tag => 'status', :attributes => { :code => "unknown_attribute_type" }
 
     post "/source/home:Iggy/_attribute", "<attributes><attribute namespace='OBS' name='OwnerRootProject' /></attributes>"
     assert_response :success
 
-    get "/webui/owner?binary=DOES_NOT_EXIST"
+    get "/webui/owners?binary=DOES_NOT_EXIST"
     assert_response :success
     assert_xml_tag :tag => 'collection', :children => { :count => 0 }
 
-    get "/webui/owner?binary=package"
+    get "/webui/owners?binary=package"
     assert_response :success
     assert_xml_tag :tag => 'owner', :attributes => { :rootproject => "home:Iggy", :project => "home:Iggy", :package => "TestPack" }
 
-    get "/webui/owner?binary=package"
+    get "/webui/owners?binary=package"
     assert_response :success
     assert_xml_tag :parent => { :tag => 'owner', :attributes => { :rootproject => "home:Iggy", :project => "home:Iggy", :package => "TestPack" } },
                    :tag => "filter", :content => "bugowners"
@@ -61,16 +61,16 @@ class WebuiControllerTest < ActionDispatch::IntegrationTest
     pkg.save
 
     # include devel package
-    get "/webui/owner?binary=package"
+    get "/webui/owners?binary=package"
     assert_response :success
     assert_xml_tag :tag => 'owner', :attributes => { :project => "home:coolo:test" }
 
     # search again, but ignore devel package
-    get "/webui/owner?binary=package&devel=false"
+    get "/webui/owners?binary=package&devel=false"
     assert_response :success
     assert_xml_tag :tag => 'owner', :attributes => { :rootproject => "home:Iggy", :project => "home:Iggy", :package => "TestPack" }
 
-    get "/webui/owner?binary=package&limit=-1"
+    get "/webui/owners?binary=package&limit=-1"
     assert_response :success
     assert_xml_tag :tag => 'owner', :attributes => { :rootproject => "home:Iggy", :project => "home:coolo:test" }
 
@@ -85,7 +85,7 @@ class WebuiControllerTest < ActionDispatch::IntegrationTest
   test "project status" do
     login_Iggy
 
-    get "/webui/project_status?project=LocalProject&limit_to_fails=true&limit_to_old=false&include_versions=true&ignore_pending=false&filter_devel=_all_"
+    get "/webui/projects/LocalProject/status?limit_to_fails=true&limit_to_old=false&include_versions=true&ignore_pending=false&filter_devel=_all_"
     assert_response :success
   end
 
