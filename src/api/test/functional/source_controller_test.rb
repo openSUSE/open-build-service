@@ -2226,7 +2226,7 @@ end
     node = ActiveXML::Node.new(@response.body)
     revision = node.each_revision.last.value :rev
     revision = revision.to_i + 1
-    post "/source/home:Iggy/TestPack?cmd=commitfilelist", ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
+    raw_post "/source/home:Iggy/TestPack?cmd=commitfilelist", ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
     assert_response :success
     get "/source/home:Iggy/TestPack/filename"
     assert_response :success
@@ -2285,7 +2285,7 @@ end
     assert_response :success
     put "/source/home:Iggy/_product/filename?rev=repository", 'CONTENT'
     assert_response :success
-    post "/source/home:Iggy/_product?cmd=commitfilelist", ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
+    raw_post "/source/home:Iggy/_product?cmd=commitfilelist", ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
     assert_response :success
     get "/source/home:Iggy/_product/filename"
     assert_response :success
@@ -2299,7 +2299,7 @@ end
     assert_response 400 # illegal content
     put "/source/home:Iggy/_pattern/filename?rev=repository", load_backend_file("pattern/digiKam.xml")
     assert_response :success
-    post "/source/home:Iggy/_pattern?cmd=commitfilelist", ' <directory> <entry name="filename" md5="c5fadc30cd4c7d45bd3ce053b2751ec2" /> </directory> '
+    raw_post "/source/home:Iggy/_pattern?cmd=commitfilelist", ' <directory> <entry name="filename" md5="c5fadc30cd4c7d45bd3ce053b2751ec2" /> </directory> '
     assert_response :success
     get "/source/home:Iggy/_pattern/filename"
     assert_response :success
@@ -2311,7 +2311,7 @@ end
     # _project exists always
     put "/source/home:Iggy/_project/filename?rev=repository", 'CONTENT'
     assert_response :success
-    post "/source/home:Iggy/_project?cmd=commitfilelist", ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
+    raw_post "/source/home:Iggy/_project?cmd=commitfilelist", ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
     assert_response :success
     get "/source/home:Iggy/_project/filename"
     assert_response :success

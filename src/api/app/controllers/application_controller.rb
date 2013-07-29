@@ -352,7 +352,6 @@ class ApplicationController < ActionController::API
     @volleyfile.close
   end
 
-  hide_action :download_request
   def download_request
     file = Tempfile.new 'volley', :encoding => 'ascii-8bit'
     b = request.body
@@ -381,19 +380,25 @@ class ApplicationController < ActionController::API
 
     path ||= get_request_path
 
-    case request.method.to_s.downcase
-    when "get"
+    if request.get? || request.head?
       forward_from_backend( path )
       return
-    when "post"
-      file = download_request
-      response = Suse::Backend.post( path, file )
-      file.close!
-    when "put"
+    end
+    case request.method_symbol
+    when :post
+      # for form data we don't need to download anything
+      if request.form_data?
+        response = Suse::Backend.post( path, '', { 'Content-Type' => 'application/x-www-form-urlencoded' } )
+      else
+        file = download_request
+        response = Suse::Backend.post( path, file )
+        file.close!
+      end
+    when :put
       file = download_request
       response = Suse::Backend.put( path, file )
       file.close!
-    when "delete"
+    when :delete
       response = Suse::Backend.delete( path )
     end
 

@@ -245,7 +245,7 @@ Aha bnc#123456\n
     changes.gsub!(/bnc#14/, '') # leads to removed
     put "/source/home:Iggy:branches:BaseDistro/pack_new/file.changes?rev=repository", changes
     assert_response :success
-    post "/source/home:Iggy:branches:BaseDistro/pack_new?cmd=commitfilelist&keeplink=1", ' <directory> <entry name="file.changes" md5="'+ Digest::MD5.hexdigest(changes) + '" /> </directory> '
+    raw_post "/source/home:Iggy:branches:BaseDistro/pack_new?cmd=commitfilelist&keeplink=1", ' <directory> <entry name="file.changes" md5="'+ Digest::MD5.hexdigest(changes) + '" /> </directory> '
     assert_response :success
 
     get "/source/home:Iggy:branches:BaseDistro/pack1?view=issues"
@@ -278,7 +278,7 @@ Blubber bnc#15\n
     assert_response :success
     put "/source/home:Iggy:branches:BaseDistro/new_package/file.changes?rev=repository", changes
     assert_response :success
-    post "/source/home:Iggy:branches:BaseDistro/new_package?cmd=commitfilelist&keeplink=1", ' <directory> <entry name="file.changes" md5="'+ Digest::MD5.hexdigest(changes) + '" /> </directory> '
+    raw_post "/source/home:Iggy:branches:BaseDistro/new_package?cmd=commitfilelist&keeplink=1", ' <directory> <entry name="file.changes" md5="'+ Digest::MD5.hexdigest(changes) + '" /> </directory> '
     assert_response :success
 
     get "/source/home:Iggy:branches:BaseDistro/new_package?view=issues"

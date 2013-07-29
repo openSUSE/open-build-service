@@ -220,14 +220,14 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     put "/source/home:tom/service/filename?rev=repository", 'CONTENT'
     assert_response :success
     filelist = '<directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> <entry name="_service" md5="' + md5sum_service + '" /> <entry name="pack.spec" md5="' + md5sum_spec + '" /> </directory> '
-    post "/source/home:tom/service?cmd=commitfilelist", filelist
+    raw_post "/source/home:tom/service?cmd=commitfilelist", filelist
     assert_response :success
     wait_for_service( "home:tom", "service" )
 
     get "/source/home:tom/service/_history"
     # do another commit, check that the service files are kept
     filelist = '<directory> <entry name="_service" md5="' + md5sum_service + '" /> <entry name="pack.spec" md5="' + md5sum_spec + '" /> </directory> '
-    post "/source/home:tom/service?cmd=commitfilelist", filelist
+    raw_post "/source/home:tom/service?cmd=commitfilelist", filelist
     assert_response :success
     wait_for_service( "home:tom", "service" )
 

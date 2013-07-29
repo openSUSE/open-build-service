@@ -118,11 +118,8 @@ class PublicController < ApplicationController
 
     path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}/#{CGI.escape(file)}"
 
-    if request.get?
-      path += build_query_from_hash(params, [:rev])
-      pass_to_backend path
-      return
-    end
+    path += build_query_from_hash(params, [:rev])
+    forward_from_backend path
   end
 
   # GET /public/distributions

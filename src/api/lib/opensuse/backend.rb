@@ -69,7 +69,6 @@ module Suse
           http.request backend_request
         end
 
-        #FIXME: don't call body here, it reads big bodies (files) into memory
         write_backend_log "GET", host, port, path, response
         handle_response response
       end
