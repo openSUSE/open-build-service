@@ -203,7 +203,7 @@ class BsRequest < ActiveXML::Node
     
     def list_ids(opts)
        # All types means don't pass 'type' to backend
-      if opts[:types] == 'all' || opts[:types].include?("all")
+      if opts[:types] == 'all' || (opts[:types].respond_to?(:include?) && opts[:types].include?("all"))
         opts.delete(:types)
       end
       ApiDetails.read(:ids_requests, opts)
