@@ -739,7 +739,7 @@ class Project < ActiveRecord::Base
   end
 
   def reset_cache
-    Rails.cache.delete('meta_project_%d' % id)
+    Rails.cache.delete('xml_project_%d' % id)
   end
 
   def store_attribute_axml( attrib, binary=nil )
@@ -967,7 +967,7 @@ class Project < ActiveRecord::Base
 
   def to_axml(view = nil)
     unless view
-       Rails.cache.fetch('meta_project_%d' % id) do
+       Rails.cache.fetch('xml_project_%d' % id) do
          render_axml(view)
        end
     else 

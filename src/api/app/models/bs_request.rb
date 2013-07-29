@@ -38,6 +38,13 @@ class BsRequest < ActiveRecord::Base
     read_attribute(:state).to_sym
   end
 
+  after_rollback :reset_cache
+  after_save :reset_cache
+
+  def reset_cache
+    Rails.cache.delete('xml_bs_request_%d' % id)
+  end
+
   def self.new_from_xml(xml)
     hashed = Xmlhash.parse(xml)
 
@@ -132,7 +139,9 @@ class BsRequest < ActiveRecord::Base
 
   def to_axml
     # FIXME: naming it axml is nonsense if it's just a string
-    render_xml
+    Rails.cache.fetch('xml_bs_request_%d' % id) do
+      render_xml
+    end
   end
 
   def to_axml_id

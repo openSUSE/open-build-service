@@ -3,7 +3,7 @@ include SearchHelper
 
 class SearchController < ApplicationController
 
-  require 'xpath_engine'
+  require_dependency 'xpath_engine'
 
   def project
     search(:project, true)
@@ -86,6 +86,33 @@ class SearchController < ApplicationController
     return pred
   end
 
+  def filter_items(items, offset, limit)
+    begin
+      @offset = Integer(params[:offset])
+    rescue
+      @offset = 0
+    end
+    begin
+      @limit = Integer(params[:limit])
+    rescue
+      @limit = items.size
+    end
+    nitems = Array.new
+    items.each do |item|
+
+      if @offset > 0
+        @offset -= 1
+      else
+        nitems << item
+        if @limit
+          @limit -= 1
+          break if @limit == 0
+        end
+      end
+    end
+    nitems
+  end
+
   def search(what, render_all)
     if render_all and params[:match].blank?
       render_error :status => 400, :errorcode => "empty_match",
@@ -99,31 +126,79 @@ class SearchController < ApplicationController
 
     xe = XpathEngine.new
 
-    output = ActiveXML::Node.new '<collection/>'
-    matches = 0
+    items = xe.find("/#{what}[#{predicate}]")
 
-    xe.find("/#{what}[#{predicate}]", params.slice(:sort_by, :order, :limit, :offset).merge({"render_all" => render_all})) do |item|
-      matches = matches + 1
-      if item.kind_of? Package or item.kind_of? Project
-        # already checked in this case
-      elsif item.kind_of? Repository
-        # This returns nil if access is not allowed
-        next if ProjectUserRoleRelationship.forbidden_project_ids.include? item.db_project_id
-      elsif item.kind_of? User
-        # Person data is public
-      elsif item.kind_of? Issue
-        # all our hosted issues are public atm
-      elsif item.kind_of? BsRequest
-        # requests leak (FIXME)
-      else
-        render_error :status => 400, :message => "unknown object received from collection %s (#{item.inspect})" % predicate
-        return
-      end
-        
-      output.add_node(render_all ? item.to_axml : item.to_axml_id)
+    matches = items.size
+
+    if params[:offset] || params[:limit]
+      # Add some pagination. Limiting the ids we have
+      items = filter_items(items, params[:offset], params[:limit])
     end
 
+    includes = nil
+
+    output = ActiveXML::Node.new '<collection/>'
     output.set_attribute("matches", matches.to_s)
+
+    xml = Hash.new
+
+    # ignore everything that is already in the memcache
+    id2cache_key = Hash.new
+    if render_all
+      items.each { |i| id2cache_key[i] = "xml_#{what}_%d" % i }
+    else
+      items.each { |i| id2cache_key[i] = "xml_id_#{what}_%d" % i }
+    end
+    cached = Rails.cache.read_multi(*(id2cache_key.values))
+    search_items = Array.new
+    items.each do |i|
+      key = id2cache_key[i]
+      if cached.has_key? key
+        xml[i] = cached[key]
+      else
+        search_items << i
+      end
+    end
+
+    case what
+    when :package
+      relation = Package.where(id: search_items)
+      includes = [:project]
+    when :project
+      relation = Project.where(id: search_items)
+      if render_all
+        includes = [:repositories]
+      else
+        includes = []
+        relation = relation.select("projects.id,projects.name")
+      end
+    when :repository
+      relation = Repository.where(id: search_items)
+      includes = [:project]
+    when :request
+      relation = BsRequest.where(id: search_items)
+      includes = [:bs_request_actions, :bs_request_histories, :reviews]
+    when :person
+      relation = User.where(id: search_items)
+      includes = []
+    when :issue
+      relation = Issue.where(id: search_items)
+      includes = [:issue_tracker]
+    else
+      logger.fatal "strange model: #{what}"
+    end
+    relation = relation.includes(includes).references(includes)
+
+    # TODO support sort_by and order parameters?
+
+    relation.each do |item|
+      xml[item.id] = render_all ? item.to_axml : item.to_axml_id
+    end if items.size > 0
+
+    items.each do |i|
+      output.add_node(xml[i])
+    end
+
     render :text => output.dump_xml, :content_type => "text/xml"
   end
 

@@ -21,7 +21,8 @@ class XpathEngine
     
     @attribs = {
       'packages' => {
-        '@project' => {:cpart => 'projects.name'},
+        '@project' => {:cpart => 'projects.name',
+                       joins: 'LEFT JOIN projects ON packages.db_project_id=projects.id' },
         '@name' => {:cpart => 'packages.name'},
         '@state' => {:cpart => 'issues.state', :joins => 
           ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
@@ -60,7 +61,8 @@ class XpathEngine
            'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
            'LEFT JOIN issue_trackers AS issue_trackers2 ON issues.issue_tracker_id = issue_trackers2.id'
           ]},
-        'issue/@change' => {:cpart => 'package_issues.change'},
+        'issue/@change' => {:cpart => 'package_issues.change',
+                            joins: 'LEFT JOIN package_issues ON packages.id = package_issues.db_package_id'},
         'issue/owner/@email' => {:cpart => 'users2.email = ? or users.email', :double => 1, :joins => 
           ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
            'LEFT JOIN issues ON issues.id = package_issues.issue_id',
@@ -146,7 +148,9 @@ class XpathEngine
       'issues' => {
         '@name' => {:cpart => 'issues.name'},
         '@state' => {:cpart => 'issues.state'},
-        '@tracker' => {:cpart => 'issue_trackers.name'},
+        '@tracker' => {cpart: 'issue_trackers.name',
+                       joins: 'LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id'
+        },
         'owner/@email' => {:cpart => 'users.email', :joins => 
           ['LEFT JOIN users ON users.id = issues.owner_id']},
         'owner/@login' => {:cpart => 'users.login', :joins => 
@@ -156,8 +160,11 @@ class XpathEngine
         '@id' => { :cpart => 'bs_requests.id' },
         'state/@name' => { :cpart => 'bs_requests.state' },
         'state/@who' => { :cpart => 'bs_requests.commenter' },
-        'action/@type' => { :cpart => 'bs_request_actions.type' },
-        'action/grouped/@id' => { cpart: 'g.bs_request_id', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id LEFT JOIN group_request_requests g on g.bs_request_action_group_id = a.id" },
+        'action/@type' => { :cpart => 'a.type',
+                            joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id"
+        },
+        'action/grouped/@id' => { cpart: 'g.bs_request_id',
+                                  joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id LEFT JOIN group_request_requests g on g.bs_request_action_group_id = a.id" },
         'action/target/@project' => { :cpart => 'a.target_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
         'action/target/@package' => { :cpart => 'a.target_package', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
         'action/source/@project' => { :cpart => 'a.source_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
@@ -194,9 +201,7 @@ class XpathEngine
   end
 
   # Careful: there is no return value, the items found are passed to the calling block
-  def find(xpath, opt={})
-    defaults = {:order => :asc}
-    opt = defaults.merge opt
+  def find(xpath)
     #logger.debug "---------------------- parsing xpath: #{xpath} -----------------------"
 
     begin
@@ -257,63 +262,26 @@ class XpathEngine
     relation = nil
     case @base_table
     when 'packages'
-      relation = Package.select("distinct(packages.id),packages.*")
-      includes = [:project]
+      relation = Package.all
     when 'projects'
       relation = Project.all
-      if opt["render_all"]
-        relation = relation.select("distinct(projects.id),projects.*")
-        includes = [:repositories]
-      else
-        includes = []
-        relation = relation.select("distinct(projects.id),projects.name")
-      end
     when 'repositories'
-      relation = Repository.select("distinct(repositories.id),repositories.*")
-      includes = [:project]
+      relation = Repository.where("db_project_id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids)
     when 'requests'
-      relation = BsRequest.select("distinct(bs_requests.id),bs_requests.*")
-      includes = [:bs_request_actions, :bs_request_histories, :reviews]
+      relation = BsRequest.all
     when 'users'
       relation = User.all
-      includes = []
     when 'issues'
       relation = Issue.all
-      includes = [:issue_tracker]
     else
       logger.debug "strange base table: #{@base_table}"
     end
     cond_ary = [@conditions.flatten.uniq.join(" AND "), @condition_values].flatten
 
-    if opt[:sort_by] and @attribs[@base_table].has_key?(opt[:sort_by])
-      @sort_order = @attribs[@base_table][opt[:sort_by]][:cpart] + " " + opt[:order].to_s.upcase
-    end
-
-    # Pagination parameters:
-    @limit = opt['limit'].to_i if opt['limit']
-    @offset = opt['offset'].to_i if opt['offset']
-
-    logger.debug("#{relation.to_sql}.find_each #{ { :include => includes, :joins => @joins.flatten.uniq.join(' '),
-                    :conditions => cond_ary, :order => @sort_order, }.inspect }")
-    relation = relation.includes(includes).references(includes)
-    relation = relation.joins(@joins.flatten.uniq.join(" ")).where(cond_ary).order(@sort_order)
-    logger.debug relation.explain
-    relation.each do |item|
-      # Add some pagination. Standard :offset & :limit aren't available for ActiveModel#find_each,
-      # and the :start param only works on primary keys, but we're in a block so we can control
-      # what we 'yield' after we constructed our (presumably) huge table with find_each...
-      if @offset && @offset > 0
-        @offset -= 1
-      else
-        logger.debug "--- render item #{item.inspect}"
-        yield(item)
-        logger.debug "--- finished render item"
-        if @limit
-          @limit -= 1
-          break if @limit == 0
-        end
-      end
-    end
+    logger.debug("#{relation.to_sql}.find #{ { joins: @joins.flatten.uniq.join(' '),
+                                               conditions: cond_ary}.inspect }")
+    relation = relation.joins(@joins.flatten.uniq.join(" ")).where(cond_ary)
+    relation.pluck(:id).uniq
   end
 
   def parse_predicate(root, stack)

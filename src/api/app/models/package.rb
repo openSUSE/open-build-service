@@ -668,7 +668,7 @@ class Package < ActiveRecord::Base
   end
 
   def reset_cache
-    Rails.cache.delete('meta_package_%d' % id)
+    Rails.cache.delete('xml_package_%d' % id)
   end
 
   def write_to_backend
@@ -761,7 +761,7 @@ class Package < ActiveRecord::Base
     if view
       render_axml(view)
     else
-      Rails.cache.fetch('meta_package_%d' % self.id) do
+      Rails.cache.fetch('xml_package_%d' % self.id) do
         render_axml
       end
     end
