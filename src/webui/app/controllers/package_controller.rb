@@ -53,8 +53,8 @@ class PackageController < ApplicationController
 
     @requests = []
     # TODO!!!
-    #BsRequest.list({:states => 'review', :reviewstates => 'new', :roles => 'reviewer', :project => @project.name, :package => @package.name}) + 
-    #BsRequest.list({:states => 'new', :roles => "target", :project => @project.name, :package => @package.name})
+    #BsRequest.list({:states => %w(review), :reviewstates => %w(new), :roles => %w(reviewer), :project => @project.name, :package => @package.name}) +
+    #BsRequest.list({:states => %w(new), :roles => %w(target), :project => @project.name, :package => @package.name})
   end
 
   def files
@@ -229,7 +229,7 @@ class PackageController < ApplicationController
 
     # Supersede logic has to be below addition as we need the new request id
     if params[:supersede]
-      pending_requests = BsRequest.list(:project => params[:targetproject], :package => params[:package], :states => 'new,review,declined', :types => 'submit')
+      pending_requests = BsRequest.list(:project => params[:targetproject], :package => params[:package], :states => %w(new review declined), :types => %w(submit))
       pending_requests.each do |request|
         next if request.value(:id) == req.value(:id) # ignore newly created request
         begin
@@ -655,18 +655,18 @@ class PackageController < ApplicationController
   end
 
   def change_role_options(params, action)
-    ret = { project: @project.name, package: params[:package], todo: action }
+    ret = { package: params[:package], todo: action }
     ret[:role] = params[:role] if params.has_key? :role
     if params.has_key? :userid
-      return ret.merge( { userid: params[:userid] })
+      return ret.merge( { user: params[:userid] })
     else
-      return ret.merge( { groupid: params[:groupid] })
+      return ret.merge( { group: params[:groupid] })
     end
   end
 
   def save_person
     begin
-      ApiDetails.command(:change_role, change_role_options(params, 'add'))
+      ApiDetails.change_role @project.name, change_role_options(params, 'add')
       @package.free_cache
     rescue ApiDetails::CommandFailed => e
       flash[:error] = e.to_s
@@ -684,7 +684,7 @@ class PackageController < ApplicationController
 
   def save_group
     begin
-      ApiDetails.command(:change_role, change_role_options(params, 'add'))
+      ApiDetails.change_role @project.name, change_role_options(params, 'add')
       @package.free_cache
     rescue ApiDetails::CommandFailed => e
       flash[:error] = e.to_s
@@ -702,7 +702,7 @@ class PackageController < ApplicationController
 
   def remove_role
     begin
-      ApiDetails.command(:change_role, change_role_options(params, 'remove'))
+      ApiDetails.change_role @project.name, change_role_options(params, 'remove')
       @package.free_cache
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary

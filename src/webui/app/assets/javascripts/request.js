@@ -15,7 +15,7 @@ function updateSupersedeAndDevelPackageDisplay() {
                 project: $('#targetproject').attr('value'),
                 package: $('#package').attr('value'),
                 types: 'submit',
-                states: 'new,review,declined',
+                states: ['new','review','declined']
             },
             success: function (data) {
                 if (data.indexOf('No requests') == -1) {

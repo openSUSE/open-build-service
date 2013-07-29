@@ -15,7 +15,7 @@
           <% end %>
         </td>
         <td rowspan="<%= release_targets_ng.length %>" class="nowrap">
-          <% rqs_in = BsRequest.list_ids({roles: 'target', states: 'new,review', project: incident.name}) %>
+          <% rqs_in = BsRequest.list_ids({roles: %w(target), states: %w(new review), project: [incident.name]}) %>
           <% if rqs_in && rqs_in.length > 0 %>
             <% text = "#{rqs_in.length} open request#{rqs_in.length == 1 ? '' : 's'}" %>
             <% if rqs_in.length == 1 %>
@@ -24,7 +24,7 @@
               <%= link_to(sprite_tag('exclamation', title: text), action: 'requests', project: incident.name) %>
             <% end %>
           <% end %>
-          <% rqs_out = incident.requests({roles: 'source', states: 'new,review,declined', types: 'maintenance_release'}) %>
+          <% rqs_out = incident.requests({roles: %w(source), states: %w(new review declined), types: %w(maintenance_release)}) %>
           <% if rqs_out && rqs_out.length > 0 %>
             <% rqs_out.each do |rq_out| %>
               <% text = "Release request in state '#{rq_out['state']}'" %>
