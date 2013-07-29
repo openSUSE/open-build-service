@@ -6590,6 +6590,7 @@ sub pk2expire {
   my ($pk) = @_;
   # oh my! hard work!
   $pk =~ s/.*\n\n//s;
+  $pk =~ s/\n=.*/\n/s;
   $pk = MIME::Base64::decode($pk);
   return 0 unless $pk;
   my ($rex, $rct);
