@@ -297,7 +297,7 @@ OBSApi::Application.routes.draw do
     #       DO NOT USE THEM IN YOUR TOOLS!
     #
     namespace :webui do
-      resources :projects, :only => [:index] do
+      resources :projects, :only => [:index], :constraints => { :id => /.*/ } do
         member do
           get "infos"
           get "status"
@@ -307,12 +307,12 @@ OBSApi::Application.routes.draw do
         end
         #resources :relationships, :only => [:create, :destroy]
         resources :flags, :only => [:index]
-        resources :packages, :only => []  do
+        resources :packages, :only => [], :constraints => { :id => /.*/ } do
           #resources :relationships, :only => [:create, :destroy]
           resources :flags, :only => [:index]
         end
       end
-      resources :packages, :only => []  do
+      resources :packages, :only => [], :constraints => { :id => /.*/ } do
         get "flags", :on => :member
       end
       resources :requests, :only => [:index, :show] do
