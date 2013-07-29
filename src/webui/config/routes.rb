@@ -215,6 +215,7 @@ OBSWebUI::Application.routes.draw do
     get 'request/change_devel_request' => :change_devel_request
     get 'request/set_incident_dialog' => :set_incident_dialog
     post 'request/set_incident' => :set_incident
+    get 'request/comments' => :comments
 end
 
   controller :search do
