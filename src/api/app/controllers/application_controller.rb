@@ -72,7 +72,7 @@ class ApplicationController < ActionController::API
       next if value.nil?
       next if key == 'xmlhash' # perfectly fine
       if !value.kind_of? String
-        raise InvalidParameterError, "Parameter #{key} has non String class #{key.class}"
+        raise InvalidParameterError, "Parameter #{key} has non String class #{value.class}"
       end
     end
   end
