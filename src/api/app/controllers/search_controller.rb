@@ -224,45 +224,46 @@ class SearchController < ApplicationController
       render_error :status => 404, :message => "no such attribute"
       return
     end
-    project = Project.get_by_name(params[:project]) if params[:project]
+
+    # gather the relation for attributes depending on project/package combination
     if params[:package]
       if params[:project]
-         packages = Package.get_by_project_and_name(params[:project], params[:package])
+         attribs = Package.get_by_project_and_name(params[:project], params[:package]).attribs
       else
-         packages = Package.where(name: params[:package]).all
+         attribs = attrib.attribs.where(db_package_id: Package.where(name: params[:package]))
       end
-    elsif project
-      packages = project.packages
+    else
+      if params[:project]
+        attribs = attrib.attribs.where(db_package_id: Project.get_by_name(params[:project]).packages)
+      else
+        attribs = attrib.attribs
+      end
     end
 
-    if packages
-      attribs = Attrib.where("attrib_type_id = ? AND db_package_id in (?)", attrib.id, packages.collect { |p| p.id })
-    else
-      attribs = attrib.attribs
-    end
-    values = AttribValue.where("attrib_id IN (?)", attribs.collect { |a| a.id } )
+    # get the values associated with the attributes and store them
+    attribs = attribs.pluck(:id, :db_package_id)
+    values = AttribValue.where("attrib_id IN (?)", attribs.collect { |a| a[0] } )
     attribValues = Hash.new
     values.each do |v|
       attribValues[v.attrib_id] ||= Array.new
       attribValues[v.attrib_id] << v
     end
-    packages = Package.where("packages.id IN (?)", attribs.collect { |a| a.db_package_id }).includes(:project)
+    # retrieve the package name and project for the attributes
+    packages = Package.where("packages.id IN (?)", attribs.collect { |a| a[1] }).pluck(:id, :name, :db_project_id)
     pack2attrib = Hash.new
-    attribs.each do |a|
-      if a.db_package_id
-        pack2attrib[a.db_package_id] = a.id
-      end
+    attribs.each do |attrib_id, pkg|
+      pack2attrib[pkg] = attrib_id
     end
-    packages.sort! { |x,y| x.name <=> y.name }
-    projects = packages.collect { |p| p.project }.uniq
+    packages.sort! { |x,y| x[0] <=> y[0] }
+    projects = Project.where(id: packages.collect { |p| p[2] }.uniq).pluck(:id, :name)
     builder = Builder::XmlMarkup.new( :indent => 2 )
     xml = builder.attribute(:namespace => namespace, :name => name) do
-      projects.each do |proj|
-        builder.project(:name => proj.name) do
-          packages.each do |p|
-             next if p.db_project_id != proj.id
-             builder.package(:name => p.name) do
-               values = attribValues[pack2attrib[p.id]]
+      projects.each do |prj_id, prj_name|
+        builder.project(:name => prj_name) do
+          packages.each do |pkg_id, pkg_name, pkg_prj|
+             next if pkg_prj != prj_id
+             builder.package(:name => pkg_name) do
+               values = attribValues[pack2attrib[pkg_id]]
                unless values.nil?
                  builder.values do
                    values.each { |v| builder.value(v.value) }

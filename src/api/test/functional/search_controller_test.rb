@@ -31,6 +31,31 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :child => { :child => { tag: 'package', :attributes => { :name => "apache2" }, :children => { :count => 0 } } }
   end
 
+  # there are 4 different code paths
+  test "different parameters for search attribute" do
+    prepare_request_with_user "Iggy", "asdfasdf"
+    get "/search/attribute?namespace=OBS&name=Maintained&project=home:Iggy"
+    assert_response :success
+    assert_xml_tag tag: 'attribute', children: { count: 0 }
+
+    get "/search/attribute?namespace=OBS&name=Maintained&project=Apache&package=apache2"
+    assert_response :success
+    assert_xml_tag tag: 'attribute', children: { count: 1 }
+
+    get "/search/attribute?namespace=OBS&name=Maintained&package=pack2"
+    assert_response :success
+    assert_xml_tag tag: 'attribute', children: { count: 0 }
+    
+    get "/search/attribute?namespace=OBS&name=Maintained&package=apache2"
+    assert_response :success
+    assert_xml_tag tag: 'attribute', children: { count: 1 }
+
+
+    get "/search/attribute?namespace=OBS&name=Maintained"
+    assert_response :success
+    assert_xml_tag tag: 'attribute', children: { count: 1 }
+  end 
+
   def test_xpath_1
     prepare_request_with_user "Iggy", "asdfasdf"
     get "/search/package", match: '[@name="apache2"]'
