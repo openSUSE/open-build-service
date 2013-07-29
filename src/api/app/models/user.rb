@@ -1310,6 +1310,21 @@ class User < ActiveRecord::Base
     packages.pluck(:id)
   end
 
+  def request_ids_by_class
+    result = {}
+
+    rel = BsRequest.collection(user: login, states: ['declined'], roles: ['creator'])
+    result[:declined] = rel.pluck("bs_requests.id")
+
+    rel = BsRequest.collection(user: login, states: ['new'], roles: ['maintainer'])
+    result[:new] = rel.pluck("bs_requests.id")
+
+    rel = BsRequest.collection(user: login, roles: ['reviewer'], reviewstates: ['new'], states: ['review'])
+    result[:reviews] = rel.pluck("bs_requests.id")
+
+    result
+  end
+
   protected
   # This method allows to execute a block while deactivating timestamp
   # updating.

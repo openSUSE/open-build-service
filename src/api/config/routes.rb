@@ -296,20 +296,31 @@ OBSApi::Application.routes.draw do
     # NOTE: webui routes are NOT stable and change together with the webui.
     #       DO NOT USE THEM IN YOUR TOOLS!
     #
-    controller :webui do
-      get 'webui/project_infos' => :project_infos
-      get 'webui/project_requests' => :project_requests
-      get 'webui/project_flags' => :project_flags
-      get 'webui/package_flags' => :package_flags
-      get 'webui/person_requests_that_need_work' => :person_requests_that_need_work
-      get 'webui/request_show' => :request_show
-      get 'webui/person_involved_requests' => :person_involved_requests
-      get 'webui/request_ids' => :request_ids
-      get 'webui/request_list' => :request_list
-      post 'webui/change_role' => :change_role
-      get 'webui/all_projects' => :all_projects
-      get 'webui/owner' => :owner
-      get 'webui/project_status' => :project_status
+    namespace :webui do
+      resources :projects, :only => [:index] do
+        member do
+          get "infos"
+          get "status"
+          # For the shake of RESTfullness, this should be substituted by the
+          # (twice) commented relationships resource
+          post "change_role"
+        end
+        #resources :relationships, :only => [:create, :destroy]
+        resources :flags, :only => [:index]
+        resources :packages, :only => []  do
+          #resources :relationships, :only => [:create, :destroy]
+          resources :flags, :only => [:index]
+        end
+      end
+      resources :packages, :only => []  do
+        get "flags", :on => :member
+      end
+      resources :requests, :only => [:index, :show] do
+        collection do
+          get :ids
+          get :by_class
+        end
+      end
     end
 
     get "/404" => "main#notfound"
