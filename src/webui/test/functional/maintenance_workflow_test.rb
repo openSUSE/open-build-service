@@ -66,6 +66,10 @@ class MaintenanceWorkflowTest < ActionDispatch::IntegrationTest
     find(:link, "Patchinfo present").click
     find(:id, "edit-patchinfo").click
 
+    page.evaluate_script('window.confirm = function() { return true; }')                    
+    find(:link, "Update issues from sources").click                                         
+    page.must_have_text("Patchinfo-Editor for")
+
     find(:id, "summary").text.must_equal "I want the update"
     fill_in "summary", with: "pack2: Fixes nothing"
 
