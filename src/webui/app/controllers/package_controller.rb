@@ -845,6 +845,7 @@ class PackageController < ApplicationController
   end
 
   def live_build_log
+    required_parameters :arch, :repository
     @arch = params[:arch]
     @repo = params[:repository]
     begin
