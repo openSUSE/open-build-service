@@ -36,7 +36,7 @@ class Comment < ActiveXML::Node
       path = "/comments/project/#{self.init_options[:project]}"
     end
     frontend = ActiveXML::transport 
-    frontend.direct_http URI("#{path}"), :method => "PUT", :data => self.dump_xml
+    frontend.direct_http URI("#{path}"), :method => "POST", :data => self.dump_xml
   end
 
   def self.find_by_package(args = {})

@@ -8,17 +8,17 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
    prepare_request_with_user("Admin","opensuse")
   end
 
-  def test_show_and_put_comments_on_project
+  def test_show_and_post_comments_on_project
     # Testing new comment creation
-    put "/comments/project/openSUSE", "<comments project='openSUSE' object_type='project'><list user='Admin' title='Comment title'>Body</list></comments>"
+    post "/comments/project/openSUSE", "<comments project='openSUSE' object_type='project'><list user='Admin' title='Comment title'>Body</list></comments>"
     assert_response :success
 
     # Testing new comment without a body
-    put "/comments/project/openSUSE", "<comments project='openSUSE' object_type='project'><list user='Admin' title='Comment title'></list></comments>"
+    post "/comments/project/openSUSE", "<comments project='openSUSE' object_type='project'><list user='Admin' title='Comment title'></list></comments>"
     assert_response 403
 
     # Testing new comment without a title
-    put "/comments/project/openSUSE", "<comments project='openSUSE' object_type='project'><list user='Admin' title=''>Body</list></comments>"
+    post "/comments/project/openSUSE", "<comments project='openSUSE' object_type='project'><list user='Admin' title=''>Body</list></comments>"
     assert_response 403 
 
     # Testing get request and list of comments (parent and child)
@@ -32,7 +32,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
   def test_unidentified_project
     get "/comments/project/WhereDidThisComeFrom"
-    assert_response 403
+    assert_response 404
 
     # counter test
     get "/comments/project/openSUSE"
