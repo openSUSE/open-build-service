@@ -63,7 +63,11 @@ class IssueTracker < ActiveRecord::Base
     update_time_stamp = Time.at(Time.now.to_f - 5)
 
     if kind == "bugzilla"
-      result = bugzilla_server.search(:last_change_time => self.issues_updated)
+      begin
+        result = bugzilla_server.search(:last_change_time => self.issues_updated)
+      rescue Net::ReadTimeout
+        return false
+      end
       ids = result["bugs"].map{ |x| x["id"].to_i }
 
       if private_fetch_issues(ids)
