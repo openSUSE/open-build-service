@@ -1,0 +1,9 @@
+<!-- special view for bots -->
+<ul>
+<% @main_projects.each do |p| %>
+   <li><%=link_to(p[1] || p[0], :controller => 'project', :action => 'show', :project => p[0])%></li>
+<% end %>
+<% @excl_projects.each do |p| %>
+   <li><%=link_to(p[1] || p[0], :controller => 'project', :action => 'show', :project => p[0])%></li>
+<% end %>
+</ul>

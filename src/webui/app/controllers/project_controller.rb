@@ -57,7 +57,11 @@ class ProjectController < ApplicationController
     end
     # excl and main are sorted by datatable, but important need to be in order
     @important_projects.sort! {|a,b| a[0] <=> b[0] }
-    render :list, :status => params[:nextstatus]
+    if @spider_bot
+      render :list_simple, status: params[:nextstatus]
+    else
+      render :list, status: params[:nextstatus]
+    end
   end
 
   def autocomplete_projects

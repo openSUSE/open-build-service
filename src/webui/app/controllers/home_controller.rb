@@ -7,6 +7,7 @@ class HomeController < ApplicationController
   before_filter :overwrite_user, :only => [:index, :requests, :list_my]
 
   def index
+    lockout_spiders
     @displayed_user.free_cache if discard_cache?
     @iprojects = @displayed_user.involved_projects.each.collect! do |x|
       ret =[]
