@@ -102,7 +102,7 @@ OBSWebUI::Application.routes.draw do
     post 'package/change_flag/:project/:package' => :change_flag, constraints: cons
     get 'package/import_spec/:project/:package' => :import_spec, constraints: cons
     get "package/files/:project/:package" => :files, constraints: cons
-    get 'package/comments' => :comments, constraints: cons
+    get 'package/comments/:project/:package' => :comments, constraints: cons
   end
 
   controller :patchinfo do
@@ -192,7 +192,7 @@ OBSWebUI::Application.routes.draw do
     get 'project/list_incidents/:project' => :list_incidents, constraints: cons
     get 'project/unlock_dialog' => :unlock_dialog
     post 'project/unlock' => :unlock
-    get  '/project/comments' => :comments, constraints: cons
+    get  'project/comments/:project' => :comments, constraints: cons
   end
 
   controller :request do
