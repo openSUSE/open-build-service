@@ -2584,6 +2584,15 @@ sub getbuildinfo {
 
   # expand deps
   $ret->{'expanddebug'} = '' if $cgi->{'debug'};
+  if (grep {$_ eq '-simple_expansion_hack'} @deps) {
+    # special hack to expand dependencies without the build packages
+    delete $bconf->{'ignore'};
+    delete $bconf->{'ignoreh'};
+    $bconf->{'preinstall'} = [];
+    $bconf->{'vminstall'} = [];
+    $bconf->{'required'} = [];
+    $bconf->{'support'} = [];
+  }
   $Build::expand_dbg = 1 if $cgi->{'debug'};
   @subpacks = () if $packtype eq 'kiwi';
   my @edeps;
