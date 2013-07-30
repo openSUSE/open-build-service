@@ -19,8 +19,8 @@ class PackInfo
   attr_reader :version, :release, :versiontime
   attr_reader :failed
 
-  def initialize(db_pack)
-    @project = db_pack.project.name
+  def initialize(db_pack, project_name)
+    @project = project_name
     @name = db_pack.name
     # we don't store the full package object as it can become huge
     @db_package_id = db_pack.id
@@ -236,7 +236,8 @@ class ProjectStatusHelper
   end
 
   def self.add_recursively(mypackages, projects, dbpack)
-    pack = PackInfo.new(dbpack)
+    projects[dbpack.db_project_id] ||= Project.find(dbpack.db_project_id).name
+    pack = PackInfo.new(dbpack, projects[dbpack.db_project_id])
     return if mypackages.has_key? pack.key
 
     if dbpack.develpackage
@@ -280,9 +281,8 @@ class ProjectStatusHelper
 
     x = Benchmark.ms do
       projects[dbproj.id] = dbproj.name
-      dbproj.packages.includes(:develpackage).load.each do |dbpack|
+      dbproj.packages.select([:id, :name, :db_project_id, :develpackage_id]).includes(:develpackage).load.each do |dbpack|
         next unless filter_by_package_name(dbpack.name)
-        dbpack.resolve_devel_package
         add_recursively(mypackages, projects, dbpack)
       end
     end
@@ -326,7 +326,7 @@ class ProjectStatusHelper
         packages.each do |name|
           pack = Package.find_by_project_and_name(proj, name)
           next unless pack # broken link
-          pack = PackInfo.new(pack)
+          pack = PackInfo.new(pack, proj)
           next if mypackages.has_key? pack.key
           tocheck << pack
           mypackages[pack.key] = pack
