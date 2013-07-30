@@ -138,7 +138,6 @@ class Webui::ProjectsController < Webui::BaseController
     end
 
     if @include_versions || @limit_to_old
-
       project_status_attributes(status.keys, 'openSUSE', 'UpstreamVersion') do |package, value|
         status[package].upstream_version = value
       end
@@ -196,7 +195,11 @@ class Webui::ProjectsController < Webui::BaseController
         currentpack['requests_from'].concat(submits[key])
       end
 
-      if p.develpack
+      currentpack['md5'] = p.verifymd5
+      currentpack['md5'] ||= p.srcmd5
+
+      dp = p.develpack
+      if dp
         dproject = p.devel_project
         currentpack['develproject'] = dproject
         currentpack['develpackage'] = p.devel_package
@@ -205,50 +208,13 @@ class Webui::ProjectsController < Webui::BaseController
           currentpack['requests_to'].concat(submits[key])
         end
         next if !currentpack['requests_from'].empty? && @ignore_pending
-        dp = p.develpack
-        if dp
-          currentpack['develmd5'] = dp.verifymd5
-          currentpack['develmd5'] ||= dp.srcmd5
-          currentpack['develchangesmd5'] = dp.changesmd5
-          currentpack['develmtime'] = dp.maxmtime
-
-          if dp.error
-            currentpack['problems'] << 'error-' + dp.error
-          end
-
-          newest = 0
-          p.fails.each do |repo, tuple|
-            ftime = Integer(tuple[0]) rescue 0
-            next if newest > ftime
-            next if tuple[1] != dp.srcmd5
-            frepo = repo
-            currentpack['develfailedarch'] = frepo.split('/')[1]
-            currentpack['develfailedrepo'] = frepo.split('/')[0]
-            newest = ftime
-            currentpack['develfirstfail'] = newest
-          end
-
+        
+        currentpack['develmd5'] = dp.verifymd5
+        currentpack['develmd5'] ||= dp.srcmd5
+        
+        if dp.error
+          currentpack['problems'] << 'error-' + dp.error
         end
-
-        currentpack['version'] = p.version
-        if p.upstream_version
-          begin
-            gup = Gem::Version.new(p.version)
-            guv = Gem::Version.new(p.upstream_version)
-          rescue ArgumentError
-            # if one of the versions can't be parsed we simply can't say
-          end
-
-          if gup && guv && gup < guv
-            currentpack['upstream_version'] = p.upstream_version
-            currentpack['upstream_url'] = p.upstream_url
-          end
-        end
-
-        currentpack['md5'] = p.verifymd5
-        currentpack['md5'] ||= p.srcmd5
-
-        currentpack['changesmd5'] = p.changesmd5
 
         if currentpack['md5'] && currentpack['develmd5'] && currentpack['md5'] != currentpack['develmd5']
           if p.declined_request
@@ -265,7 +231,7 @@ class Webui::ProjectsController < Webui::BaseController
             end
           end
           if currentpack['currently_declined'].nil?
-            if currentpack['changesmd5'] != currentpack['develchangesmd5']
+            if p.changesmd5 != dp.changesmd5
               currentpack['problems'] << 'different_changes'
             else
               currentpack['problems'] << 'different_sources'
@@ -273,15 +239,15 @@ class Webui::ProjectsController < Webui::BaseController
           end
         end
       end
+      currentpack.merge!(project_status_set_version(p))
 
       unless p.link.project.blank?
         if currentpack['md5'] != p.link.targetmd5
-          currentpack['problems'] << 'diff_against_link'
+          currentpack['problems'] << "diff_against_link"
           currentpack['lproject'] = p.link.project
           currentpack['lpackage'] = p.link.package
         end
       end
-
 
       next unless (currentpack['firstfail'] or currentpack['failedcomment'] or currentpack['upstream_version'] or
           !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
@@ -294,6 +260,7 @@ class Webui::ProjectsController < Webui::BaseController
 
     render json: {packages: @packages, projects: @develprojects.keys}
   end
+
 
   def change_role
     if params[:package].blank?
@@ -340,4 +307,24 @@ class Webui::ProjectsController < Webui::BaseController
     end
     ret
   end
+
+  def project_status_set_version(p)
+    ret = {}
+    ret['version'] = p.version
+    if p.upstream_version
+      begin
+        gup = Gem::Version.new(p.version)
+        guv = Gem::Version.new(p.upstream_version)
+      rescue ArgumentError
+        # if one of the versions can't be parsed we simply can't say
+      end
+      
+      if gup && guv && gup < guv
+        ret['upstream_version'] = p.upstream_version
+        ret['upstream_url'] = p.upstream_url
+      end
+    end
+    ret
+  end
+
 end
