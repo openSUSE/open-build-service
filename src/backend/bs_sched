@@ -2712,8 +2712,8 @@ sub update_project_meta_check {
   # check macro definitions and build type for all repositories
   for my $repoid (map {$_->{'name'}} @{$proj->{'repository'} || []}) {
     my @mprefix = ("%define _project $projid", "%define _repository $repoid");
-    my $cold = Build::read_config($myarch, @mprefix, split("\n", $oldproj->{'config'} || ''));
-    my $cnew = Build::read_config($myarch, @mprefix, split("\n", $proj->{'config'} || ''));
+    my $cold = Build::read_config($myarch, [ @mprefix, split("\n", $oldproj->{'config'} || '') ]);
+    my $cnew = Build::read_config($myarch, [ @mprefix, split("\n", $proj->{'config'} || '') ]);
     return 0 unless identical($cold->{'macros'}, $cnew->{'macros'});
     return 0 unless identical($cold->{'type'}, $cnew->{'type'});
   }
