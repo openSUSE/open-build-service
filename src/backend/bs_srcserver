@@ -2637,10 +2637,10 @@ sub getprojpack {
     if ($cgi->{'withconfig'}) {
       my $config = readstr("$projectsdir/$projid.conf", 1);
       if ($config) {
-	my $s1 = '^\s*macros:\s*$.*?^\s*:macros\s*$';
-	my $s2 = '^\s*macros:\s*$.*\Z';
-	$config =~ s/$s1//gmsi;
-	$config =~ s/$s2//gmsi;
+	#my $s1 = '^\s*macros:\s*$.*?^\s*:macros\s*$';
+	#my $s2 = '^\s*macros:\s*$.*\Z';
+	#$config =~ s/$s1//gmsi;
+	#$config =~ s/$s2//gmsi;
 	$jinfo->{'config'} = $config unless $config =~ /^\s*$/s;
       }
     }
