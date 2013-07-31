@@ -20,17 +20,11 @@
 			<p><%= comment[:body] %></p>
 			<p>
 				<%if params[:id]%>
-					<% unless comment[:children].size > 6 %>
-						<%= link_to('Reply', {:controller => 'comments', :action => 'add_new_reply', :id => params[:id], :parent_id => comment[:id] }, :remote => true, :class => "custom_button") %>
-					<% end %>
+					<%= link_to('Reply', {:controller => 'comments', :action => 'add_new_reply', :id => params[:id], :parent_id => comment[:id] }, :remote => true, :class => "custom_button") %>
 				<%elsif params[:package]%>
-					<% unless comment[:children].size > 6 %>
-						<%= link_to('Reply', {:controller => 'comments', :action => 'add_new_reply', :project => params[:project], :package => params[:package], :parent_id => comment[:id] }, :remote => true, :class => "custom_button") %>
-					<% end %>
+					<%= link_to('Reply', {:controller => 'comments', :action => 'add_new_reply', :project => params[:project], :package => params[:package], :parent_id => comment[:id] }, :remote => true, :class => "custom_button") %>
 				<%else%>
-					<% unless comment[:children].size > 6 %>
-						<%= link_to('Reply', {:controller => 'comments', :action => 'add_new_reply', :project => params[:project], :parent_id => comment[:id] }, :remote => true, :class => "custom_button") %>
-					<% end %>
+					<%= link_to('Reply', {:controller => 'comments', :action => 'add_new_reply', :project => params[:project], :parent_id => comment[:id] }, :remote => true, :class => "custom_button") %>
 				<%end%>
 			</p>
 		</div>

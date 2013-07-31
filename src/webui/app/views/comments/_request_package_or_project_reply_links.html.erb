@@ -1,0 +1,9 @@
+<% unless level > 5 %>
+	<%if params[:id]%>
+		<%= link_to('Reply', {:controller => 'comments', :action => 'add_new_reply', :parent_id => comment[:id], :id => params[:id] }, :remote => true, :class => "custom_button") %>
+	<%elsif params[:package] %>
+		<%= link_to('Reply', {:controller => 'comments', :action => 'add_new_reply', :parent_id => comment[:id], :package => params[:package], :project => params[:project] }, :remote => true, :class => "custom_button") %>
+	<%else%>
+	<%= link_to("Reply", {:controller => 'comments', :action => 'add_new_reply', :parent_id => comment[:id], :project => params[:project] }, :remote => true, :class => "custom_button") %>
+	<%end%>
+<%end%>
