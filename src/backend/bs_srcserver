@@ -2915,11 +2915,39 @@ sub getprojpack {
           };
 	  if ($@) {
 	    my $err = $@;
-	    $err =~ s/\n$//s;
+	    chomp $err;
 	    $pinfo->{'error'} = "bad patchinfo: $err";
 	    next;
 	  }
 	  $pinfo->{'patchinfo'} = $patchinfo;
+	  if (($enable && %$enable) || ($disable && %$disable)) {
+	    my @dinfo = ();
+	    for my $repo (@{$proj->{'repository'} || []}) {
+	      my $repoid = $repo->{'name'};
+	      next if $repoids && !$repoids->{$repoid};
+	      if ((!$disable || $disable->{$repoid}) && !(!$enable || $enable->{$repoid})) {
+	        push @dinfo, {'repository' => $repoid, 'error' => 'disabled'};
+		next;
+	      }
+	    }
+	    $pinfo->{'info'} = \@dinfo if @dinfo;
+	  }
+	} elsif ($files->{'_channel'}) {
+	  my $channel = repreadxml($rev, '_channel', $files->{'_channel'}, $BSXML::channel, 1);
+          if (!$channel) {
+	    $pinfo->{'error'} = "bad channel data";
+	    next;
+	  }
+          eval {
+	    BSVerify::verify_channel($channel);
+          };
+	  if ($@) {
+	    my $err = $@;
+	    chomp $err;
+	    $pinfo->{'error'} = "bad channel: $err";
+	    next;
+	  }
+          $pinfo->{'channel'} = $channel;
 	  if (($enable && %$enable) || ($disable && %$disable)) {
 	    my @dinfo = ();
 	    for my $repo (@{$proj->{'repository'} || []}) {

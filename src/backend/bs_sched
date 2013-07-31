@@ -920,7 +920,8 @@ sub set_repo_state {
   unlink("$reporoot/$prp/$myarch/:schedulerstate.dirty") if $state eq "scheduling";
   
   $state .= " $details" if $details;
-  writestr("$reporoot/$prp/$myarch/.:schedulerstate", "$reporoot/$prp/$myarch/:schedulerstate", $state) if -d "$reporoot/$prp/$myarch";
+  mkdir_p("$reporoot/$prp/$myarch");
+  writestr("$reporoot/$prp/$myarch/.:schedulerstate", "$reporoot/$prp/$myarch/:schedulerstate", $state);
 }
 
 
@@ -1364,7 +1365,7 @@ sub prpfinished {
     my $nosourceaccess = grep {$_ eq '.nosourceaccess'} @all;
     @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'rpmlint.log' && $_ ne '_statistics' && $_ ne 'meta' && $_ ne 'status' && $_ ne '.bininfo' && $_ ne 'reason' && $_ ne '.nosourceaccess' && $_ ne '.checksums' && !/^\.waiting_for_/} @all;
     for my $bin (@all) {
-      next if $bin eq '.updateinfodata';
+      next if $bin eq '.updateinfodata' || $bin eq '.channelinfo';
       my $rbin = $bin;
       # XXX: should be source name instead?
       $rbin = "${packid}::$bin" if $debian || $bin eq 'updateinfo.xml';
@@ -2955,7 +2956,32 @@ sub calc_prps {
   for my $projid (sort keys %$projpacks) {
     my $repos = $projpacks->{$projid}->{'repository'} || [];
     my @aggs = grep {$_->{'aggregatelist'}} values(%{$projpacks->{$projid}->{'package'} || {}});
+    my @channels = grep {$_->{'channel'}} values(%{$projpacks->{$projid}->{'package'} || {}});
     my @kiwiinfos = grep {$_->{'path'}} map {@{$_->{'info'} || []}} values(%{$projpacks->{$projid}->{'package'} || {}});
+    my %channelrepos;
+    for my $channel (@channels) {
+      next unless $channel->{'target'};
+      # calculate list targeted tepos
+      my %targets;
+      for my $rt (@{$channel->{'target'}}) {
+	if ($rt->{'project'}) {
+	  if ($rt->{'repository'}) {
+	    $targets{"$rt->{'project'}/$rt->{'repository'}"} = 1;
+	  } else {
+	    $targets{$rt->{'project'}} = 1;
+	  }
+	} elsif ($rt->{'repository'}) {
+	  $targets{"$projid/$rt->{'repository'}"} = 1;
+	}
+      }
+      for my $repo (@$repos) {
+	next unless grep {$_ eq $myarch} @{$repo->{'arch'} || []};
+	for my $rt (@{$repo->{'releasetarget'} || []}) {
+	  $channelrepos{$repo->{'name'}} = 1 if $targets{$rt->{'project'}} || $targets{"$rt->{'project'}/$rt->{'repository'}"};
+	}
+	$channelrepos{$repo->{'name'}} = 1 if $targets{"$projid/$repo->{'name'}"};
+      }
+    }
     for my $repo (@$repos) {
       next unless grep {$_ eq $myarch} @{$repo->{'arch'} || []};
       my $repoid = $repo->{'name'};
@@ -2986,6 +3012,11 @@ sub calc_prps {
       if (@kiwiinfos) {
         # push repositories used in all kiwi files
 	push @xsp, map {"$_->{'project'}/$_->{'repository'}"} map {@{$_->{'path'}}} grep {$_->{'repository'} eq $repoid} @kiwiinfos;
+      }
+      if ($channelrepos{$repoid}) {
+        # let a channel repo target all non-channel repos
+	my @ncrepos = grep {!$channelrepos{$_}} map {$_->{'name'}} @$repos;
+	push @xsp, map {"$projid/$_"} @ncrepos;
       }
 
       if (@xsp) {
@@ -3807,6 +3838,86 @@ sub importevent {
   rmdir($jobdatadir);
 }
 
+sub fakejobfinished {
+  my ($ctx, $packid, $job, $code, $buildinfoskel, $needsign) = @_;
+
+  local *F;
+  my $jobstatus = {
+    'code' => 'finished',
+    'result' => $code,
+  };
+  if (!BSUtil::lockcreatexml(\*F, "$myjobsdir/.$job", "$myjobsdir/$job:status", $jobstatus, $BSXML::jobstatus)) {
+    die("job lock failed\n");
+  }
+  my $buildinfo = { 
+    'project' => $ctx->{'project'},
+    'repository' => $ctx->{'repository'},
+    'package' => $packid,
+    'arch' => $myarch,
+    'job' => $job,
+    %{$buildinfoskel || {}},
+  };
+  writexml("$myjobsdir/.$job", "$myjobsdir/$job", $buildinfo, $BSXML::buildinfo);
+  close(F);
+  my $ev = {'type' => 'built', 'arch' => $myarch, 'job' => $job};
+  if ($needsign) {
+    sendevent($ev, 'signer', "finished:$myarch:$job");
+  } else {
+    sendevent($ev, $myarch, "finished:$job");
+  }
+  $ourjobs{$job} = 1;
+}
+
+sub fakejobfinished_nouseforbuild {
+  my ($ctx, $packid, $job, $code, $bininfo) = @_;
+
+  my $projid = $ctx->{'project'};
+  my $repoid = $ctx->{'repository'};
+  my $prp = "$projid/$repoid";
+  my $gdst = "$reporoot/$prp/$myarch";
+  my $dst = "$gdst/$packid";
+  my $jobdatadir = "$myjobsdir/$job:dir";
+  mkdir_p($dst);
+  mkdir_p("$gdst/:meta");
+  mkdir_p("$gdst/:logfiles.fail");
+  mkdir_p("$gdst/:logfiles.success");
+  unlink("$reporoot/$prp/$myarch/:repodone");
+  if (-e "$jobdatadir/logfile") {
+    link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
+    if ($code eq 'failed') {
+      rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.fail/$packid");
+    } else {
+      rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.success/$packid");
+      unlink("$gdst/:logfiles.fail/$packid");
+    }
+  }
+  rename("$jobdatadir/meta", "$gdst/:meta/$packid");
+  if ($code eq 'succeeded') {
+    BSUtil::cleandir($dst);
+    for my $f (ls($jobdatadir)) {
+      rename("$jobdatadir/$f", "$dst/$f") || die("rename $jobdatadir/$f $dst/$f: $!\n");
+    }
+    if (!checkaccess('sourceaccess', $projid, $packid, $repoid)) {
+      BSUtil::touch("$dst/.nosourceaccess");
+      $bininfo->{'.nosourceaccess'} = {};
+    }
+    BSUtil::store("$dst/.bininfo.new", "$dst/.bininfo", $bininfo);
+    my @bininfo_s = stat("$dst/.bininfo");
+    $bininfo->{'.bininfo'} = {'id' => "$bininfo_s[9]/$bininfo_s[7]/$bininfo_s[1]"} if @bininfo_s;
+    my $gbininfo = {};
+    $gbininfo = BSUtil::retrieve("$gdst/:bininfo.merge", 1) if -e "$gdst/:bininfo.merge";
+    if ($gbininfo) {
+      $gbininfo->{$packid} = $bininfo;
+      BSUtil::store("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", $gbininfo);
+    } else {
+      writestr("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", '');    # corrupt file, mark
+    }
+    delete $bininfo->{'.bininfo'};
+  }
+  BSUtil::cleandir($jobdatadir);
+  rmdir($jobdatadir);
+}
+
 ##########################################################################
 ##########################################################################
 ##
@@ -4618,6 +4729,8 @@ sub checkpatchinfo {
   my @blocked;
   my @tocopy;
   my %metas;
+  my $empty_channel_seen;
+  my $rpms_seen;
   for my $arch (@archs) {
     if ($arch eq $myarch) {
       $apackstatus = $ctx->{'packstatus'};
@@ -4658,6 +4771,12 @@ sub checkpatchinfo {
 	  my @s = stat("$d/$b");
 	  $m .= "$b\0$s[9]/$s[7]/$s[1]\0" if @s;
 	}
+	if (!@d) {
+	  # is this a channel?
+	  $empty_channel_seen = 1 if -e "$d/.channelinfo";
+	} else {
+	  $rpms_seen = 1;
+	}
 	$metas{"$arch/$apackid"} = Digest::MD5::md5_hex($m);
       } elsif ($ptype eq 'direct' || $ptype eq 'transitive') {
 	my ($ameta) = split("\n", readstr("$reporoot/$projid/$repoid/$arch/:meta/$apackid", 1) || '', 2);
@@ -4687,6 +4806,10 @@ sub checkpatchinfo {
     print "      - $packid (patchinfo)\n";
     print "        blocked (@blocked)\n";
     return ('blocked', join(', ', @blocked));
+  }
+
+  if ($empty_channel_seen && !$rpms_seen) {
+    return ('excluded', 'no binary in channel');
   }
 
   return ('broken', 'no binaries found') unless @tocopy;
@@ -4926,34 +5049,192 @@ sub rebuildpatchinfo {
   }
   writestr("$jobdatadir/meta", undef, join("\n", @new_meta)."\n");
   # XXX write reason
+  fakejobfinished_nouseforbuild($ctx, $packid, $job, $broken ? 'failed' : 'succeeded', $bininfo);
+  return ('done');
+}
 
-  # now commit it...
-  my $gdst = "$reporoot/$prp/$myarch";
-  my $dst = "$gdst/$packid";
-  mkdir_p($dst);
-  mkdir_p("$gdst/:meta");
-  mkdir_p("$gdst/:logfiles.fail");
-  mkdir_p("$gdst/:logfiles.success");
-  unlink("$reporoot/$prp/$myarch/:repodone");
-  link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
-  if ($broken) {
-    rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.fail/$packid");
-  } else {
-    rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.success/$packid");
-    unlink("$gdst/:logfiles.fail/$packid");
+##########################################################################
+##########################################################################
+##
+##  channel package type handling
+##
+sub checkchannel {
+  my ($ctx, $packid, $pdata, $info) = @_;
+  my $projid = $ctx->{'project'};
+  my $repoid = $ctx->{'repository'};
+  my $channel = $pdata->{'channel'};
+  # do the channel filtering, same project but different repositories
+
+  # first build a releasetarget -> repo map
+  my %proj2repo;
+  for my $arepo (@{$projpacks->{$projid}->{'repository'} || []}) {
+    next unless grep {$_ eq $myarch} @{$arepo->{'arch'} || []};
+    $proj2repo{"$projid/$arepo->{'name'}"}->{$arepo->{'name'}} = 1;
+    for my $rt (@{$arepo->{'releasetarget'} || []}) {
+      my $rtprojid = $rt->{'project'};
+      my $rtrepoid = $rt->{'repository'};
+      $proj2repo{"$rtprojid/$rtrepoid"}->{$arepo->{'name'}} = 1;
+      $proj2repo{$rtprojid}->{$arepo->{'name'}} = 1;
+    }
   }
-  BSUtil::cleandir($dst);
-  rename("$jobdatadir/meta", "$gdst/:meta/$packid");
-  for my $f (ls($jobdatadir)) {
-    rename("$jobdatadir/$f", "$dst/$f") || die("rename $jobdatadir/$f $dst/$f: $!\n");
+  my $forme = 1;
+  if ($channel->{'target'}) {
+    $forme = 0;
+    for (@{$channel->{'target'}}) {
+      if (!$_->{'project'}) {
+	$forme = 1 if $_->{'repository'} && $repoid eq $_->{'repository'};
+      } else {
+	if ($_->{'repository'}) {
+	  $forme = 1 if $proj2repo{"$_->{'project'}/$_->{'repository'}"};
+	} else {
+	  $forme = 1 if $proj2repo{$_->{'project'}};
+	}
+      }
+    }
   }
-  if (!checkaccess('sourceaccess', $projid, $packid, $repoid)) {
-    BSUtil::touch("$dst/.nosourceaccess");
-    $bininfo->{'.nosourceaccess'} = {};
+  return ('excluded', 'not target of channel') if !$forme;
+  
+  # now create filter
+  my %arepos;
+  my %filter;
+  for my $binaries (@{$channel->{'binaries'} || []}) {
+    my $defprojid = $binaries->{'project'};
+    my $defrepoid = $binaries->{'repository'};
+    my $defarch = $binaries->{'arch'};
+    for my $binary (@{$binaries->{'binary'} || []}) {
+      next unless $binary->{'name'};
+      my $arch = $binary->{'arch'} || $defarch || '';
+      next unless !$arch || $arch eq $myarch;
+      my $aprojid = $binary->{'project'} || $defprojid || $projid;
+      next unless $aprojid;
+      my $arepoid = $binary->{'repository'} || $defrepoid || '';
+      my $rtkey = $arepoid ? "$aprojid/$arepoid" : $aprojid;
+      next unless $proj2repo{$rtkey};
+      for my $arepoid (keys %{$proj2repo{$rtkey}}) {
+        $arepos{$arepoid} = 1;
+        push @{$filter{"$arepoid/$binary->{'name'}"}}, $binary;
+      }
+    }
   }
-  BSUtil::cleandir($jobdatadir);
-  rmdir($jobdatadir);
-  BSUtil::store("$dst/.bininfo.new", "$dst/.bininfo", $bininfo);
+  #print Dumper(\%filter);
+
+  # find packages (same code as in checkpatchinfo)
+  my $pdatas = ($projpacks->{$projid} || {})->{'package'} || {};
+  my @apackids = grep {!$pdatas->{$_}->{'aggregatelist'} && !$pdatas->{$_}->{'patchinfo'}} sort keys %$pdatas;
+
+  # go through the repos and check the binaries
+  my @new_meta = ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
+  my @blocked;
+  my %collected;
+  my @channelbins;
+  for my $arepoid (sort keys %arepos) {
+    my $aprp = "$projid/$arepoid";
+    my $ps = BSUtil::retrieve("$reporoot/$aprp/$myarch/:packstatus", 1);
+    $ps = ($ps || {})->{'packstatus'} || {};
+    # find which projects go into this repo
+    my %aprojids;
+    for my $aprojid (keys %proj2repo) {
+      $aprojids{$aprojid} = 1 if $proj2repo{$aprojid}->{$arepoid};
+    }
+    my $gbininfo = read_gbininfo("$reporoot/$aprp/$myarch");
+    for my $apackid (@apackids) {
+      next if $arepoid eq $repoid && $apackid eq $packid;
+      my $code = $ps->{$apackid} || 'unknown';
+      if ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished' || $code eq 'unknown') {
+        push @blocked, "$arepoid/$apackid";
+        next;
+      }
+      my $bininfo = $gbininfo->{$apackid} || {};
+      my @sbins;
+      my %usedsrc;
+      for my $filename (sort keys %$bininfo) {
+	my $bi = $bininfo->{$filename};
+	my $n = $bi->{'name'};
+	next unless $n;
+	if ($bi->{'arch'} eq 'src' || $bi->{'arch'} eq 'nosrc') {
+	  push @sbins, $bi unless $bininfo->{'.nosourceaccess'};
+	  next;
+	}
+	next if $collected{$bi->{'filename'}};
+	next unless $filter{"$arepoid/$n"};
+	my $found;
+	for my $f (@{$filter{"$arepoid/$n"}}) {
+          next if $f->{'package'} && $apackid ne $f->{'package'};
+          next if $f->{'binaryarch'} && $bi->{'arch'} ne $f->{'binaryarch'};
+	  $found = 1;
+	  last;
+	}
+	next unless $found;
+	# oooh, this binary goes into the channel! check for blocked
+	$collected{$bi->{'filename'}} = 1;
+	$usedsrc{$bi->{'source'}} = 1;
+	my $m = Digest::MD5::md5_hex($bi->{'id'})."  $arepoid/$apackid/$n.$bi->{'arch'}";
+	push @new_meta, $m;
+	push @channelbins, [ $arepoid, $apackid, $bi ];
+      }
+      if (%usedsrc) {
+	for my $bi (@sbins) {
+	  next unless $usedsrc{$bi->{'name'}};
+	  my $m = Digest::MD5::md5_hex($bi->{'id'})."  $arepoid/$apackid/$bi->{'name'}.$bi->{'arch'}";
+	  push @new_meta, $m;
+	  push @channelbins, [ $arepoid, $apackid, $bi ];
+	}
+      }
+    }
+  }
+  if (@blocked) {
+    print "      - $packid (channel)\n";
+    print "        blocked (@blocked)\n";
+    return ('blocked', join(', ', @blocked));
+  }
+  my @meta;
+  if (open(F, '<', "$reporoot/$projid/$repoid/$myarch/:meta/$packid")) {
+    @meta = <F>;
+    close F;
+    chomp @meta;
+  }
+  if (join('\n', @meta) eq join('\n', @new_meta)) {
+    print "      - $packid (channel)\n";
+    print "        nothing changed\n";
+    return ('done');
+  }
+  my @diff = diffsortedmd5(\@meta, \@new_meta);
+  print "      - $packid (channel)\n";
+  print "        $_\n" for @diff;
+  my $new_meta = join('', map {"$_\n"} @new_meta);
+  return ('scheduled', [ $new_meta, \@channelbins ]);
+}
+
+sub rebuildchannel {
+  my ($ctx, $packid, $pdata, $info, $data) = @_;
+  my $new_meta = $data->[0];
+  my $channelbins = $data->[1];
+  my $projid = $ctx->{'project'};
+  my $repoid = $ctx->{'repository'};
+  my $prp = "$projid/$repoid";
+  my $job = jobname($prp, $packid);
+  return ('scheduled', $job) if -s "$myjobsdir/$job";
+  my $jobdatadir = "$myjobsdir/$job:dir";
+  unlink "$jobdatadir/$_" for ls($jobdatadir);
+  mkdir_p($jobdatadir);
+  my %channelinfo;
+  my $bininfo = {};
+  for my $cb (@$channelbins) {
+    my ($arepoid, $apackid, $bi) = @$cb;
+    my $file = "$reporoot/$projid/$arepoid/$myarch/$apackid/$bi->{'filename'}";
+    my @s = stat($file);
+    if (!@s || "$s[9]/$s[7]/$s[1]" ne $bi->{'id'}) {
+      BSUtil::cleandir($jobdatadir);
+      rmdir($jobdatadir);
+      return ('broken', "id mismatch in $arepoid/$apackid $s[9]/$s[7]/$s[1] $bi->{'id'}");
+    }
+    link($file, "$jobdatadir/$bi->{'filename'}") || die("link $file $jobdatadir/$bi->{'filename'}: $!\n");
+    $bininfo->{$bi->{'filename'}} = $bi;
+    $channelinfo{$bi->{'filename'}} = { 'repository' => $arepoid, 'package' => $apackid };
+  }
+  BSUtil::store("$jobdatadir/.channelinfo", undef, \%channelinfo);
+  writestr("$jobdatadir/meta", undef, $new_meta);
+  fakejobfinished_nouseforbuild($ctx, $packid, $job, 'succeeded', $bininfo);
   return ('done');
 }
 
@@ -5268,34 +5549,10 @@ sub rebuildaggregate {
     return ('failed', $error);
   }
   writestr("$jobdatadir/meta", undef, $new_meta);
-
-  local *F;
-  my $jobstatus = {
-    'code' => 'finished',
-    'result' => 'succeeded',
-  };
-  if (!BSUtil::lockcreatexml(\*F, "$myjobsdir/.$job", "$myjobsdir/$job:status", $jobstatus, $BSXML::jobstatus)) {
-    die("job lock failed\n");
-  }
-  my $buildinfo = {
-    'project' => $projid,
-    'repository' => $repoid,
-    'package' => $packid,
-    'arch' => $myarch,
-    'job' => $job,
-    'file' => '_aggregate',
-  };
-  writexml("$myjobsdir/.$job", "$myjobsdir/$job", $buildinfo, $BSXML::buildinfo);
-  close(F);
+  my $needsign;
+  $needsign = 1 if $sign && grep {/\.(?:rpm|pkg\.tar\.gz|pkg\.tar.xz)$/} keys %$jobrepo;
+  fakejobfinished($ctx, $packid, $job, 'succeeded', { 'file' => '_aggregate' }, $needsign);
   print "        scheduled\n";
-
-  my $ev = {'type' => 'built', 'arch' => $myarch, 'job' => $job};
-  if ($sign && grep {/\.(?:rpm|pkg\.tar\.gz|pkg\.tar.xz)$/} keys %$jobrepo) {
-    sendevent($ev, 'signer', "finished:$myarch:$job");
-  } else {
-    sendevent($ev, $myarch, "finished:$job");
-  }
-  $ourjobs{$job} = 1;
   return ('scheduled', $job);
 }
 
@@ -5834,6 +6091,11 @@ my %handlers = (
     'expand' => \&Build::get_deps,
     'check' => \&checkpreinstallimage,
     'rebuild' => \&rebuildpreinstallimage,
+  },
+  'channel' => {
+    'expand' => \&no_expander,
+    'check' => \&checkchannel,
+    'rebuild' => \&rebuildchannel,
   },
 );
 
@@ -7165,6 +7427,11 @@ NEXTPRP:
 
     my $prptype = $bconf->{'type'};
     if (!$prptype || $prptype eq 'UNDEFINED') {
+      # HACK force to channel if we have a channel package
+      $prptype = 'channel' if grep {$_->{'channel'}} values(%{$projpacks->{$projid}->{'package'} || {}});
+    }
+    if (!$prptype || $prptype eq 'UNDEFINED') {
+      # could still do channels/aggregates/patchinfos
       my $lastprojid = (split('/', $prpsearchpath{$prp}->[-1]))[0];
       print "  - $prp: bad config ($lastprojid)\n";
       set_repo_state($prp, 'broken', "bad config ($lastprojid)");
@@ -7353,6 +7620,8 @@ NEXTPRP:
 	$packtype = 'aggregate';
       } elsif ($pdata->{'patchinfo'}) {
 	$packtype = 'patchinfo';
+      } elsif ($pdata->{'channel'}) {
+	$packtype = 'channel';
       } elsif ($info && $info->{'file'}) {
 	if ($info->{'file'} eq 'PKGBUILD') {
 	  $packtype = 'arch';

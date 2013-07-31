@@ -230,6 +230,27 @@ our $patchinfo = [
             'relogin_needed',
 ];
 
+our $channel = [
+    'channel' =>
+     [[ 'target' =>
+	    'project',
+	    'repository',
+     ]],
+     [[ 'binaries' =>
+	    'project',
+	    'repository',
+	    'arch',
+	 [[ 'binary' =>
+		'name',
+		'binaryarch',
+		'project',
+		'repository',
+		'package',
+		'arch',
+	 ]],
+     ]],
+];
+
 our $projpack = [
     'projpack' =>
     'repoid',
@@ -264,6 +285,7 @@ our $projpack = [
 		[ $packinfo ],
 		$aggregatelist,
 		$patchinfo,
+		$channel,
 		@flags,
 		'bcntsynctag',
 	 ]],
@@ -1585,8 +1607,7 @@ our $buildstatistics = [
               'binaries',
               'cachehits',
               'preinstallimage',
-        ]
+        ],
 ];
-
 
 1;

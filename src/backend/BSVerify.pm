@@ -306,6 +306,26 @@ sub verify_aggregatelist {
   }
 }
 
+sub verify_channel {
+  my ($channel) = @_;
+  for my $binaries (@{$channel->{'binaries'} || []}) {
+    verify_projid($binaries->{'project'}) if defined $binaries->{'project'};
+    verify_arch($binaries->{'arch'}) if defined $binaries->{'arch'};
+    for my $binary (@{$binaries->{'binary'} || []}) {
+      verify_filename($binary->{'name'});
+      verify_arch($binaries->{'binaryarch'}) if defined $binary->{'binaryarch'};
+      verify_projid($binary->{'project'}) if defined $binary->{'project'};
+      verify_packid($binary->{'package'}) if defined $binary->{'package'};
+      verify_packid($binary->{'arch'}) if defined $binary->{'arch'};
+    }
+  }
+  for my $rt (@{$channel->{'target'} || []}) {
+    die("bad target specification\n") unless $rt->{'project'} || $rt->{'repository'};
+    verify_projid($rt->{'project'}) if $rt->{'project'};
+    verify_repoid($rt->{'repository'}) if $rt->{'repository'};
+  }
+}
+
 my %req_states = map {$_ => 1} qw {new revoked accepted superseded declined deleted review};
 
 sub verify_request {
