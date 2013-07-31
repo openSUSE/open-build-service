@@ -2959,7 +2959,7 @@ sub calc_prps {
     my @channels = grep {$_->{'channel'}} values(%{$projpacks->{$projid}->{'package'} || {}});
     my @kiwiinfos = grep {$_->{'path'}} map {@{$_->{'info'} || []}} values(%{$projpacks->{$projid}->{'package'} || {}});
     my %channelrepos;
-    for my $channel (@channels) {
+    for my $channel (map {$_->{'channel'}} @channels) {
       next unless $channel->{'target'};
       # calculate list targeted tepos
       my %targets;
