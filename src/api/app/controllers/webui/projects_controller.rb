@@ -211,6 +211,7 @@ class Webui::ProjectsController < Webui::BaseController
         
         currentpack['develmd5'] = dp.verifymd5
         currentpack['develmd5'] ||= dp.srcmd5
+        currentpack['develmtime'] = dp.maxmtime
         
         if dp.error
           currentpack['problems'] << 'error-' + dp.error
