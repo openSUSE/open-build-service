@@ -1805,7 +1805,9 @@ sub update_dst_full {
     my $replaced = (readxml("$jobdir/replaced.xml", $BSXML::dir, 1) || {})->{'entry'};
     $oldrepo = {};
     for (@{$replaced || []}) {
-      my $rp = $_->{'name'};
+      # changed from name to id/name to so that we can have multiple
+      # packages with the same name
+      my $rp = "$_->{'id'}/$_->{'name'}";
       $_->{'name'} =~ s/\.[^\.]*$//;
       $_->{'source'} = 1;
       $oldrepo->{$rp} = $_;
