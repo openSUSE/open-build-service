@@ -15,6 +15,11 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
+%if 0%{?fedora}
+%global sbin /usr/sbin
+%else
+%global sbin /sbin
+%endif
 
 %if 0%{?fedora} || 0%{?rhel}
 %global apache_user apache
@@ -529,12 +534,18 @@ popd
 rm -rf /tmp/obs.mysql.db /tmp/obs.test.mysql.socket
 
 %pre
-/usr/sbin/groupadd -r obsrun 2> /dev/null || :
-/usr/sbin/useradd -r -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
+getent group obsrun >/dev/null || groupadd -r obsrun
+getent passwd obsrun >/dev/null || \
+    /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
+    -c "User for build service backend" obsrun
+exit 0
 
 %pre -n obs-worker
-/usr/sbin/groupadd -r obsrun 2> /dev/null || :
-/usr/sbin/useradd -r -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
+getent group obsrun >/dev/null || groupadd -r obsrun
+getent passwd obsrun >/dev/null || \
+    /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
+    -c "User for build service backend" obsrun
+exit 0
 
 %preun
 %stop_on_removal obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner
@@ -580,7 +591,8 @@ rmdir /srv/obs 2> /dev/null || :
 if [ -d /srv/www/obs/webui/public/vendor/neutral/images -a ! -L /srv/www/obs/webui/public/vendor/neutral/images ]; then
   mv /srv/www/obs/webui/public/vendor/neutral/images /srv/www/obs/webui/public/vendor/neutral/images.rpmold
 fi
-/usr/sbin/useradd -r -s /bin/bash -c "User for build service api delayed jobs" -d /srv/www/obs/api -g www obsapidelayed 2> /dev/null || :
+getent passwd obsapidelayed >/dev/null || \
+  /usr/sbin/useradd -r -s /bin/bash -c "User for build service api delayed jobs" -d /srv/www/obs/api -g www obsapidelayed
 
 %post -n obs-api
 %{fillup_and_insserv -n obs-server}
