@@ -1080,15 +1080,8 @@ class PackageController < ApplicationController
   end
 
   def comments
-    begin
-      @comment = Comment.find_by_package(:package => @package.name, :project => @project.to_s)
-      @comment = ActiveXML::Node.new(@comment)
-      @comments_as_thread = sort_comments(@comment)
-    rescue ActiveXML::Transport::Error => e
-      message = e.summary
-      render :text => message, :status => 403, :content_type => "text/plain"
-      return
-    end
+    @comment = ApiDetails.read(:comments_by_package, @project, @package)
+    @comments_as_thread = sort_comments(@comment)
   end
 
   private

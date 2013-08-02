@@ -332,6 +332,14 @@ OBSApi::Application.routes.draw do
         end
       end
       resources :owners, :only => [:index]
+
+      # comments
+      get 'comments/request/:id/' => 'comments#requests', constraints: cons
+      get 'comments/package/:project/:package/' => 'comments#packages', constraints: cons
+      get 'comments/project/:project/' => 'comments#projects', constraints: cons
+      
+      post 'comments/project/:project/new' => 'comments#projects_new'
+
     end
 
     get "/404" => "main#notfound"
@@ -339,13 +347,6 @@ OBSApi::Application.routes.draw do
     # Do not install default routes for maximum security
     #get ':controller(/:action(/:id))'
     #get ':controller/:action'
-
-    # /comments
-    controller :comments do
-      match 'comments/request/:id/' => :all_requests, :via => [:get, :post], constraints: cons
-      match 'comments/project/:project/' => :all_requests, :via => [:get, :post] , constraints: cons
-      match 'comments/package/:project/:package/' => :all_requests, :via => [:get, :post], constraints: cons
-    end
 
   end
 end

@@ -7,7 +7,7 @@ class CreateComments < ActiveRecord::Migration
       t.string :title
       t.text :body
       t.integer :parent_id
-      t.string :object
+      t.string :type
       t.string :user
 
       t.timestamps

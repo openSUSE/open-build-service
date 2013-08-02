@@ -288,9 +288,7 @@ class RequestController < ApplicationController
   end
 
   def comments
-    @request = BsRequest.find(params[:id])
-    @comment = Comment.find_by_request_id(:id => params[:id])
-    @comment = ActiveXML::Node.new(@comment)
+    @comment = ApiDetails.read(:comments_by_request, params[:id])
     @comments_as_thread = sort_comments(@comment)
   end
 

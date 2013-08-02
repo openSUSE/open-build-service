@@ -12,7 +12,9 @@
 			<div class="grid_10 alpha box box-shadow">
 				<p><%= comment[:body] %></p>
 				<p>
-					<%=render partial: 'comments/request_package_or_project_reply_links', locals: {level: level, comment: comment} %>
+					<% unless level > 5 %>
+						<%=render partial: 'comments/request_package_or_project_reply_links', locals: {comment: comment} %>
+					<%end%>
 				</p>
 			</div>
 		</div>
