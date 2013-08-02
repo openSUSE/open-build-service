@@ -383,7 +383,7 @@ rm -rf build
 cp BSConfig.pm.template BSConfig.pm
 
 install -d -m 755 $RPM_BUILD_ROOT/usr/lib/obs/server/
-ln -sf /usr/lib/build $RPM_BUILD_ROOT/usr/lib/obs/server/build # just for check section, it is a %ghost
+ln -sf /usr/lib/build $RPM_BUILD_ROOT/usr/lib/obs/server/build # just for check section, it is a %%ghost
 #for i in build events info jobs log projects repos run sources trees workers; do
 #  install -d -m 755 $RPM_BUILD_ROOT/srv/obs/$i
 #done
@@ -450,7 +450,7 @@ EOF
 pushd $RPM_BUILD_ROOT/usr/lib/obs/server/
 file build
 rm build
-ln -sf /usr/lib/build build # just for %check, it is a %ghost
+ln -sf /usr/lib/build build # just for %%check, it is a %%ghost
 for i in bs_*; do
   perl -wc "$i"
 done
@@ -679,7 +679,7 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/d
 /usr/lib/obs/server/worker-deltagen.spec
 %config(noreplace) /usr/lib/obs/server/BSConfig.pm
 %config(noreplace) /etc/slp.reg.d/*
-# created via %post, since rpm fails otherwise while switching from 
+# created via %%post, since rpm fails otherwise while switching from 
 # directory to symlink
 %ghost /usr/lib/obs/server/build
 
