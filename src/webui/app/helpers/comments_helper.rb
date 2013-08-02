@@ -7,10 +7,10 @@ module CommentsHelper
 
 		# getting all comment data from xml and pushing into an array
 		comment.each do |com|
-			unless com.parent_id.present?
-				@all_comments[:parents] << [com.title, com.to_s, com.id, com.user, com.created_at] # n.to_s is the body of the comment
+			unless com['parent_id'].present?
+				@all_comments[:parents] << [com['title'], com['body'], com['id'], com['user'], com['created_at']] # n.to_s is the body of the comment
 			else
-				@all_comments[:children] << [com.to_s, com.user, com.parent_id, com.id, com.created_at]
+				@all_comments[:children] << [com['body'], com['user'], com['parent_id'], com['id'], com['created_at']]
 			end
 		end
 

@@ -1,6 +1,6 @@
  <div class="grid_16 alpha box box-shadow">
 	<h2 class="box-header">Add a comment</h2>
-	<%= form_tag :controller => "comments", :action => "add_new" do %>
+	<%= form_tag :controller => params[:controller], :action => "save_parent_comments" do %>
 		<p>
   			<strong>Title:</strong><br/>
   			<%= text_field_tag 'title', @title%><br/>
@@ -18,6 +18,7 @@
  		 		<%= hidden_field_tag 'object_type', "project"%>
  		 		<%= hidden_field_tag 'project', params[:project] %>
  		 	<%end%>
+ 		 	<%= hidden_field_tag 'user', session[:login] %>
 		</p>
 		<p><%= submit_tag "Add comment"%></p>
 	<% end %>

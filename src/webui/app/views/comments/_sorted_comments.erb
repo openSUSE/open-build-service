@@ -19,13 +19,7 @@
 			</h2>
 			<p><%= comment[:body] %></p>
 			<p>
-				<%if params[:id]%>
-					<%= link_to('Reply', {:controller => 'comments', :action => 'add_new_reply', :id => params[:id], :parent_id => comment[:id] }, :remote => true, :class => "custom_button") %>
-				<%elsif params[:package]%>
-					<%= link_to('Reply', {:controller => 'comments', :action => 'add_new_reply', :project => params[:project], :package => params[:package], :parent_id => comment[:id] }, :remote => true, :class => "custom_button") %>
-				<%else%>
-					<%= link_to('Reply', {:controller => 'comments', :action => 'add_new_reply', :project => params[:project], :parent_id => comment[:id] }, :remote => true, :class => "custom_button") %>
-				<%end%>
+				<%=render partial: 'comments/request_package_or_project_reply_links', locals: { comment: comment} %>
 			</p>
 		</div>
 	</div>

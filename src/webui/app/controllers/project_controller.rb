@@ -1269,10 +1269,24 @@ class ProjectController < ApplicationController
   end
 
   def comments
-    @project = Project.find(params[:project])
-    @comment = Comment.find(:project => params[:project])
-    @comment = ActiveXML::Node.new(@comment)
+    @comment = ApiDetails.read(:comments_by_project, @project)
     @comments_as_thread = sort_comments(@comment)
+  end
+
+  def save_parent_comments
+    ApiDetails.save_comments(:save_comments_for_projects, params)
+
+    respond_to do |format|
+      format.js { render json: 'ok' }
+      format.html do
+        flash[:notice] = "Comment added successfully"
+        redirect_to action: :comments
+      end
+    end
+  end
+
+  def save_child_comments
+    render_dialog
   end
 
   private

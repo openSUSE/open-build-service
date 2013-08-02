@@ -3,7 +3,7 @@
   <div class="dialog darkgrey_box">
     <div class="box box-shadow">
       <h2 class="box-header">Add new reply</h2>
-        <%= form_tag :controller => "comments", :action => "add_new" do %>
+        <%= form_tag :controller => params[:controller], :action => "save_parent_comments" do %>
         <p>
           <strong>Comment:</strong><br/>
           <%= text_area_tag 'body', @body, :cols => 80, :rows => 10 %><br/>
@@ -20,8 +20,9 @@
           <%else%>
             <%= hidden_field_tag 'object_type', "project"%>
             <%= hidden_field_tag 'parent_id', params[:parent_id] %>
-            <%= hidden_field_tag 'project', params[:project] %>
+              
           <%end%>
+            <%= hidden_field_tag 'user', session[:login] %>
         </p>
 
         <p>

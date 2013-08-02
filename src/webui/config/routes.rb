@@ -193,6 +193,8 @@ OBSWebUI::Application.routes.draw do
     get 'project/unlock_dialog' => :unlock_dialog
     post 'project/unlock' => :unlock
     get  'project/comments/:project' => :comments, constraints: cons
+    post 'project/comments/:project' => :save_parent_comments
+    get 'project/comments/reply/:project' => :save_child_comments
   end
 
   controller :request do
@@ -215,7 +217,7 @@ OBSWebUI::Application.routes.draw do
     get 'request/change_devel_request' => :change_devel_request
     get 'request/set_incident_dialog' => :set_incident_dialog
     post 'request/set_incident' => :set_incident
-    get 'request/comments' => :comments
+    get 'request/comments/:id' => :comments
 end
 
   controller :search do
@@ -278,9 +280,4 @@ end
 
   # Default route geter:
   #get ':controller(/:action(/:id))(.:format)'
-  
-  ### /comments
-  post    '/comments' => "comments#add_new"
-  get     '/comments/add_new_reply' => "comments#add_new_reply"
-
 end
