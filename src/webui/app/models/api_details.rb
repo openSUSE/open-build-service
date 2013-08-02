@@ -7,16 +7,37 @@ class ApiDetails
   end
 
   # FIXME: legacy
-  def self.change_role(project_name, opts)
-    uri = URI("/webui/projects/#{project_name}/change_role")
+  def self.create_role(project_name, opts)
+    opts.delete :todo
+    if opts[:package].blank?
+      uri = URI("/webui/projects/#{project_name}/relationships")
+    else
+      uri = URI("/webui/projects/#{project_name}/packages/#{opts[:package]}/relationships")
+      opts.delete :package
+    end
+    uri = self.url_for(uri, opts)
     begin
-      data = ActiveXML::transport.http_json :post, uri, opts
+      ActiveXML::transport.http_json :post, uri
     rescue ActiveXML::Transport::Error => e
       raise CommandFailed, e.summary
     end
-    #data = JSON.parse(data)
-    logger.debug "command #{data}"
-    data
+  end
+
+  # FIXME: legacy
+  def self.remove_role(project_name, opts)
+    opts.delete :todo
+    if opts[:package].blank?
+      uri = URI("/webui/projects/#{project_name}/relationships/remove_user")
+    else
+      uri = URI("/webui/projects/#{project_name}/packages/#{opts[:package]}/relationships/remove_user")
+      opts.delete :package
+    end
+    uri = self.url_for(uri, opts)
+    begin
+      ActiveXML::transport.http_json :delete, uri
+    rescue ActiveXML::Transport::Error => e
+      raise CommandFailed, e.summary
+    end
   end
 
   # Trying to mimic the names and params of Rails' url helpers
@@ -51,7 +72,7 @@ class ApiDetails
       when :request then "requests/#{ids.first}"
       when :ids_requests then "requests/ids"
       when :by_class_requests then "requests/by_class"
-
+  
       else raise "no valid route #{route_name}"
       end
     uri = url_for(uri, opts)

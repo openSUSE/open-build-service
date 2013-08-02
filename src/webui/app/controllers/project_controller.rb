@@ -780,8 +780,8 @@ class ProjectController < ApplicationController
     redirect_to :action => :repositories, :project => @project
   end
 
-  def change_role_options(params, action)
-    ret = { todo: action }
+  def change_role_options(params)
+    ret = Hash.new
     ret[:role] = params[:role] if params.has_key? :role
     if params.has_key? :userid
       return ret.merge( { user: params[:userid] })
@@ -792,7 +792,7 @@ class ProjectController < ApplicationController
 
   def save_person
     begin
-      ApiDetails.change_role @project.name, change_role_options(params, 'add')
+      ApiDetails.create_role @project.name, change_role_options(params)
       @project.free_cache
     rescue ApiDetails::CommandFailed => e
       flash[:error] = e.to_s
@@ -810,7 +810,7 @@ class ProjectController < ApplicationController
 
   def save_group
     begin
-      ApiDetails.change_role @project.name, change_role_options(params, 'add')
+      ApiDetails.create_role @project.name, change_role_options(params)
       @project.free_cache
     rescue ApiDetails::CommandFailed => e
       flash[:error] = e.to_s
@@ -828,7 +828,7 @@ class ProjectController < ApplicationController
 
   def remove_role
     begin
-      ApiDetails.change_role @project.name, change_role_options(params, 'remove')
+      ApiDetails.remove_role @project.name, change_role_options(params)
       @project.free_cache
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary

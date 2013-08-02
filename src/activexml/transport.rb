@@ -430,8 +430,12 @@ module ActiveXML
     end
 
     # small helper function to avoid having to hardcode the content_type all around
-    def http_json(method, uri, data)
-      http_do method, uri, data: data.to_json, content_type: "application/json"
+    def http_json(method, uri, data = nil)
+      opts = { :content_type => "application/json" }
+      if data
+        opts[:data] = data.to_json
+      end
+      http_do method, uri, opts
     end
 
     # needed for streaming data - to avoid the conversion to UTF-8 and similiar to change what "length" is

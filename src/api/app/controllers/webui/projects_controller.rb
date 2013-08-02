@@ -8,7 +8,7 @@ class Webui::ProjectsController < Webui::BaseController
     atype = AttribType.find_by_namespace_and_name('OBS', 'VeryImportantProject')
     important = {}
     Project.find_by_attribute_type(atype).pluck("projects.id").each do |p|
-      important[p] = 1
+      important[p] = true
     end
     projects = Project.where("name <> ?", "deleted").pluck(:id, :name, :title)
     projects.each do |id, name, title|
@@ -260,40 +260,6 @@ class Webui::ProjectsController < Webui::BaseController
     end
 
     render json: {packages: @packages, projects: @develprojects.keys}
-  end
-
-
-  def change_role
-    if params[:package].blank?
-      target = Project.find_by_name!(params[:id])
-    else
-      target = Package.find_by_project_and_name(params[:id], params[:package])
-    end
-
-    if login = params[:user]
-      object = User.get_by_login(login)
-    elsif title = params[:group]
-      object = Group.get_by_title(title)
-    else
-      raise MissingParameterError, "Neither user nor group given"
-    end
-
-    begin
-      if params[:todo].to_s == 'remove'
-        role = nil
-        role = Role.find_by_title(params[:role]) if params[:role]
-        target.remove_role(object, role)
-      elsif params[:todo].to_s == 'add'
-        role = Role.find_by_title!(params[:role])
-        target.add_role(object, role)
-      else
-        raise MissingParameterError, "Paramter todo is not 'add' or 'remove'"
-      end
-    rescue ActiveRecord::RecordInvalid => e
-      render_error status: 400, errorcode: 'change_role_failed', message: e.record.errors.full_messages.join('\n')
-      return
-    end
-    render json: {status: 'ok'}
   end
 
   protected

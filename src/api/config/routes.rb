@@ -297,22 +297,27 @@ OBSApi::Application.routes.draw do
     #       DO NOT USE THEM IN YOUR TOOLS!
     #
     namespace :webui do
-      resources :projects, :only => [:index], :constraints => { :id => /.*/ } do
+      resources :projects, :only => [:index], :constraints => { :id => %r{[^\/]*} } do
         member do
           get "infos"
           get "status"
-          # For the shake of RESTfullness, this should be substituted by the
-          # (twice) commented relationships resource
-          post "change_role"
         end
-        #resources :relationships, :only => [:create, :destroy]
+        resources :relationships, :only => [:create] do
+          collection do
+            delete :remove_user
+          end
+        end
         resources :flags, :only => [:index]
-        resources :packages, :only => [], :constraints => { :id => /.*/ } do
-          #resources :relationships, :only => [:create, :destroy]
+        resources :packages, :only => [], :constraints => { :id => %r{[^\/]*} } do
+          resources :relationships, :only => [:create] do
+            collection do
+              delete :remove_user
+            end
+          end
           resources :flags, :only => [:index]
         end
       end
-      resources :packages, :only => [], :constraints => { :id => /.*/ } do
+      resources :packages, :only => [], :constraints => { :id => %r{[^\/]*} } do
         get "flags", :on => :member
       end
       resources :requests, :only => [:index, :show] do
