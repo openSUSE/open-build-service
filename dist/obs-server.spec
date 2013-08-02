@@ -448,8 +448,6 @@ cd ..
 #
 # turn duplicates into hard links
 #
-#%fdupes $RPM_BUILD_ROOT/srv/www/obs/api
-#%fdupes $RPM_BUILD_ROOT/srv/www/obs/webui
 # There's dupes between webui and api:
 %if 0%{?suse_version} >= 1030
 %fdupes $RPM_BUILD_ROOT/srv/www/obs
