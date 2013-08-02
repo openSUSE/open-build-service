@@ -20,7 +20,7 @@ Name:           obs-server
 Summary:        The Open Build Service -- Server Component
 License:        GPL-2.0 and GPL-3.0
 Group:          Productivity/Networking/Web/Utilities
-Version:        2.3.95_27_gc802e5a
+Version:        2.4.50_382_g5ef3c6a
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -39,6 +39,7 @@ BuildRequires:  perl-Net-SSLeay
 BuildRequires:  perl-Socket-MsgHdr
 BuildRequires:  perl-TimeDate
 BuildRequires:  perl-XML-Parser
+BuildRequires:  xorg-x11-server
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 Requires:       build >= 20130114
 Requires:       obs-productconverter >= %version
@@ -48,7 +49,8 @@ Requires:       perl-BSSolv >= 0.18.0
 Requires:       diffutils
 PreReq:         git-core
 Requires:       patch
-PreReq:         sysvinit
+# require the createrepo version which got used in the testsuite
+Requires:       %(/bin/bash -c 'rpm -q --qf "%%{name} = %%{version}" createrepo')
 
 %if 0%{?suse_version:1}
 BuildRequires:  fdupes
@@ -57,15 +59,12 @@ PreReq:         %fillup_prereq %insserv_prereq permissions pwdutils
 
 %if 0%{?suse_version:1}
 Recommends:     yum yum-metadata-parser repoview dpkg
-Recommends:     createrepo
-Conflicts:      createrepo < 0.9.8
 Recommends:     deb >= 1.5
 Recommends:     lvm2
 Recommends:     openslp-server
 Recommends:     obs-signd
 Recommends:     inst-source-utils
 %else
-Requires:       createrepo >= 0.4.10
 Requires:       dpkg
 Requires:       yum
 Requires:       yum-metadata-parser
@@ -90,8 +89,6 @@ Requires:       screen
 # For runlevel script:
 Requires:       curl
 Recommends:     openslp lvm2
-#Conflicts:      systemd
-# requires from build script
 Requires:       bash
 Requires:       binutils
 Requires:       bsdtar
@@ -128,21 +125,22 @@ Obsoletes:      obs-common <= 2.2.90
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
 
-#For lighttpd
-#Recommends:       lighttpd ruby-fcgi lighttpd-mod_magnet mysql ruby-mysql
 #For apache
 Recommends:     apache2 apache2-mod_xforward rubygem-passenger-apache2
+
+# memcache is speeding us up a lot. 
+Recommends:     memcached
+Conflicts:      memcached < 1.4
+
 # For local runs
 BuildRequires:  rubygem-sqlite3
 
 Requires:       mysql
 
-Requires:       memcached
 Requires:       ruby >= 1.9
-%if 0%{?suse_version} >= 1020
-Supplements:    ruby-ldap
-%endif
+Supplements:    rubygem-ruby-ldap
 BuildRequires:  obs-api-testsuite-deps
+BuildRequires:  rubygem-ruby-ldap
 # for test suite:
 BuildRequires:  createrepo
 BuildRequires:  curl
@@ -153,51 +151,56 @@ BuildRequires:  xorg-x11-Xvnc
 BuildRequires:  xorg-x11-server
 BuildRequires:  xorg-x11-server-extra
 # OBS_SERVER_BEGIN
-Requires:       rubygem(1.9.1:actionmailer) = 3.2.12
-Requires:       rubygem(1.9.1:actionpack) = 3.2.12
-Requires:       rubygem(1.9.1:activemodel) = 3.2.12
-Requires:       rubygem(1.9.1:activerecord) = 3.2.12
-Requires:       rubygem(1.9.1:activeresource) = 3.2.12
-Requires:       rubygem(1.9.1:activesupport) = 3.2.12
-Requires:       rubygem(1.9.1:arel) = 3.0.2
-Requires:       rubygem(1.9.1:builder) = 3.0.4
-Requires:       rubygem(1.9.1:bundler) = 1.2.3
-Requires:       rubygem(1.9.1:daemons) = 1.1.9
-Requires:       rubygem(1.9.1:delayed_job) = 3.0.5
-Requires:       rubygem(1.9.1:delayed_job_active_record) = 0.3.3
-Requires:       rubygem(1.9.1:erubis) = 2.7.0
-Requires:       rubygem(1.9.1:fast_xs) = 0.8.0
-Requires:       rubygem(1.9.1:hike) = 1.2.1
-Requires:       rubygem(1.9.1:hoptoad_notifier) = 2.4.11
-Requires:       rubygem(1.9.1:i18n) = 0.6.1
-Requires:       rubygem(1.9.1:journey) = 1.0.4
-Requires:       rubygem(1.9.1:jquery-rails) = 2.1.4
-Requires:       rubygem(1.9.1:json) = 1.7.7
-Requires:       rubygem(1.9.1:mail) = 2.4.4
-Requires:       rubygem(1.9.1:memcache-client) = 1.8.5
-Requires:       rubygem(1.9.1:mime-types) = 1.19
-Requires:       rubygem(1.9.1:mobileesp_converted) = 0.2.1
-Requires:       rubygem(1.9.1:multi_json) = 1.5.0
-Requires:       rubygem(1.9.1:mysql2) = 0.3.11
-Requires:       rubygem(1.9.1:nokogiri) = 1.5.6
-Requires:       rubygem(1.9.1:pkg-config) = 1.1.4
-Requires:       rubygem(1.9.1:polyglot) = 0.3.3
-Requires:       rubygem(1.9.1:rack) = 1.4.5
-Requires:       rubygem(1.9.1:rack-cache) = 1.2
-Requires:       rubygem(1.9.1:rack-ssl) = 1.3.3
-Requires:       rubygem(1.9.1:rack-test) = 0.6.2
-Requires:       rubygem(1.9.1:rails) = 3.2.12
-Requires:       rubygem(1.9.1:rails-api) = 0.0.3
-Requires:       rubygem(1.9.1:railties) = 3.2.12
-Requires:       rubygem(1.9.1:rake) = 0.9.2.2
-Requires:       rubygem(1.9.1:rdoc) = 3.12
-Requires:       rubygem(1.9.1:sprockets) = 2.2.2
-Requires:       rubygem(1.9.1:thor) = 0.17.0
-Requires:       rubygem(1.9.1:tilt) = 1.3.3
-Requires:       rubygem(1.9.1:treetop) = 1.4.12
-Requires:       rubygem(1.9.1:tzinfo) = 0.3.35
-Requires:       rubygem(1.9.1:xmlhash) = 1.3.5
-Requires:       rubygem(1.9.1:yajl-ruby) = 1.1.0
+Requires:       rubygem(2.0.0:actionmailer) = 4.0.0
+Requires:       rubygem(2.0.0:actionpack) = 4.0.0
+Requires:       rubygem(2.0.0:activemodel) = 4.0.0
+Requires:       rubygem(2.0.0:activerecord) = 4.0.0
+Requires:       rubygem(2.0.0:activerecord-deprecated_finders) = 1.0.3
+Requires:       rubygem(2.0.0:activesupport) = 4.0.0
+Requires:       rubygem(2.0.0:arel) = 4.0.0
+Requires:       rubygem(2.0.0:atomic) = 1.1.10
+Requires:       rubygem(2.0.0:builder) = 3.1.4
+Requires:       rubygem(2.0.0:bundler) = 1.3.4
+Requires:       rubygem(2.0.0:clockwork) = 0.5.4
+Requires:       rubygem(2.0.0:daemons) = 1.1.9
+Requires:       rubygem(2.0.0:dalli) = 2.6.4
+Requires:       rubygem(2.0.0:delayed_job) = 4.0.0.beta2
+Requires:       rubygem(2.0.0:delayed_job_active_record) = 4.0.0.beta3
+Requires:       rubygem(2.0.0:erubis) = 2.7.0
+Requires:       rubygem(2.0.0:hike) = 1.2.3
+Requires:       rubygem(2.0.0:hoptoad_notifier) = 2.4.11
+Requires:       rubygem(2.0.0:i18n) = 0.6.4
+Requires:       rubygem(2.0.0:jquery-rails) = 3.0.4
+Requires:       rubygem(2.0.0:jquery-ui-rails) = 4.0.3
+Requires:       rubygem(2.0.0:json) = 1.8.0
+Requires:       rubygem(2.0.0:mail) = 2.5.4
+Requires:       rubygem(2.0.0:mime-types) = 1.23
+Requires:       rubygem(2.0.0:mini_portile) = 0.5.1
+Requires:       rubygem(2.0.0:minitest) = 4.7.4
+Requires:       rubygem(2.0.0:mobileesp_converted) = 0.2.1
+Requires:       rubygem(2.0.0:multi_json) = 1.7.7
+Requires:       rubygem(2.0.0:mysql2) = 0.3.13
+Requires:       rubygem(2.0.0:newrelic_rpm) = 3.6.5.130
+Requires:       rubygem(2.0.0:nokogiri) = 1.6.0
+Requires:       rubygem(2.0.0:pkg-config) = 1.1.4
+Requires:       rubygem(2.0.0:polyglot) = 0.3.3
+Requires:       rubygem(2.0.0:rack) = 1.5.2
+Requires:       rubygem(2.0.0:rack-test) = 0.6.2
+Requires:       rubygem(2.0.0:rails) = 4.0.0
+Requires:       rubygem(2.0.0:rails-api) = 0.1.0
+Requires:       rubygem(2.0.0:railties) = 4.0.0
+Requires:       rubygem(2.0.0:rake) = 10.1.0
+Requires:       rubygem(2.0.0:rdoc) = 4.0.1
+Requires:       rubygem(2.0.0:ruby-ldap) = 0.9.13
+Requires:       rubygem(2.0.0:sprockets) = 2.10.0
+Requires:       rubygem(2.0.0:sprockets-rails) = 2.0.0
+Requires:       rubygem(2.0.0:thor) = 0.18.1
+Requires:       rubygem(2.0.0:thread_safe) = 0.1.0
+Requires:       rubygem(2.0.0:tilt) = 1.4.1
+Requires:       rubygem(2.0.0:treetop) = 1.4.14
+Requires:       rubygem(2.0.0:tzinfo) = 0.3.37
+Requires:       rubygem(2.0.0:xmlhash) = 1.3.5
+Requires:       rubygem(2.0.0:yajl-ruby) = 1.1.0
 # OBS_SERVER_END
 # requires for webui:
 Requires:       ghostscript-fonts-std
@@ -262,6 +265,8 @@ rm -rf src/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
 
 %build
+# we need it for the test suite or it may silently succeed 
+test -x /usr/bin/Xvfb 
 #
 # generate apidocs
 #
@@ -274,14 +279,9 @@ popd
 # First install all dist files
 #
 cd dist
-# configure apache web service (new default since OBS 2.3)
+# configure apache web service
 mkdir -p $RPM_BUILD_ROOT/etc/apache2/vhosts.d/
 install -m 0644 obs-apache2.conf $RPM_BUILD_ROOT/etc/apache2/vhosts.d/obs.conf
-# configure lighttpd web service (default until OBS 2.1)
-mkdir -p $RPM_BUILD_ROOT/etc/lighttpd/vhosts.d/
-install -m 0644 obs-lighttpd.conf $RPM_BUILD_ROOT/etc/lighttpd/vhosts.d/obs.conf
-install -m 0644 rails.include $RPM_BUILD_ROOT/etc/lighttpd/vhosts.d/rails.inc
-install -m 0644 cleanurl-v5.lua $RPM_BUILD_ROOT/etc/lighttpd/
 # install overview page template
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/overview
 install -m 0644 overview.html.TEMPLATE $RPM_BUILD_ROOT/srv/www/obs/overview/
@@ -307,10 +307,6 @@ done
 FILLUP_DIR=$RPM_BUILD_ROOT/var/adm/fillup-templates
 install -d -m 755 $FILLUP_DIR
 install -m 0644 sysconfig.obs-server $FILLUP_DIR/
-# install cronjobs
-CRON_DIR=$RPM_BUILD_ROOT/etc/cron.d
-install -d -m 755 $CRON_DIR
-install -m 0644 crontab.obs-api   $CRON_DIR/obs-api
 # install SLP registration files
 SLP_DIR=$RPM_BUILD_ROOT/etc/slp.reg.d/
 install -d -m 755  $SLP_DIR
@@ -387,7 +383,7 @@ rm -rf build
 cp BSConfig.pm.template BSConfig.pm
 
 install -d -m 755 $RPM_BUILD_ROOT/usr/lib/obs/server/
-ln -sf /usr/lib/build $RPM_BUILD_ROOT/usr/lib/obs/server/build # just for %check, it is a %ghost
+ln -sf /usr/lib/build $RPM_BUILD_ROOT/usr/lib/obs/server/build # just for check section, it is a %ghost
 #for i in build events info jobs log projects repos run sources trees workers; do
 #  install -d -m 755 $RPM_BUILD_ROOT/srv/obs/$i
 #done
@@ -407,6 +403,9 @@ cd ..
 %fdupes $RPM_BUILD_ROOT/srv/www/obs
 %endif
 
+# no more lighttpd
+rm $RPM_BUILD_ROOT/srv/www/obs/api/config/lighttpd.conf
+
 # these config files must not be hard linked
 install api/config/database.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/database.yml
 install api/config/options.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/options.yml
@@ -418,13 +417,14 @@ for file in api/log/access.log api/log/backend_access.log api/log/delayed_job.lo
 done
 
 pushd $RPM_BUILD_ROOT/srv/www/obs/webui
+cp config/database.yml{.example,}
 cat > config/database.yml <<EOF
 production:
   adapter: sqlite3
   database: db/database.db
 EOF
 bundle exec rake --trace db:create db:setup RAILS_ENV=production
-bundle exec rake --trace assets:precompile:all RAILS_ENV=production RAILS_GROUPS=assets
+bundle exec rake --trace assets:precompile RAILS_ENV=production RAILS_GROUPS=assets
 rm -rf tmp/cache/sass tmp/cache/assets
 export BUNDLE_WITHOUT=test:assets:development
 export BUNDLE_FROZEN=1
@@ -438,6 +438,7 @@ popd
 pushd $RPM_BUILD_ROOT/srv/www/obs/api
 bundle config --local frozen 1
 bundle config --local without test:assets:development 
+sed -i -e 's,^api_version.*,api_version = "%version",' config/initializers/02_apiversion.rb
 popd
 
 mkdir -p %{buildroot}%{_docdir}
@@ -462,12 +463,13 @@ pushd src/backend/
 rm -rf build
 ln -sf /usr/lib/build build
 popd
-pushd src/api/
 # setup mysqld
 rm -rf /tmp/obs.mysql.db /tmp/obs.test.mysql.socket
-mysql_install_db --user="abuild" --datadir="/tmp/obs.mysql.db"
+mysql_install_db --user=`whoami` --datadir="/tmp/obs.mysql.db"
 /usr/sbin/mysqld --datadir=/tmp/obs.mysql.db -P 54321 --socket=/tmp/obs.test.mysql.socket &
 sleep 2
+##################### api
+pushd src/api/
 # setup files
 cp config/options.yml{.example,}
 cat > config/database.yml <<EOF
@@ -487,7 +489,7 @@ if ! bundle exec rake --trace test; then
   exit 1
 fi
 popd
-# webui
+##################### webui
 pushd src/webui/
 # setup files
 cp config/options.yml{.example,}
@@ -565,6 +567,7 @@ rmdir /srv/obs 2> /dev/null || :
 if [ -d /srv/www/obs/webui/public/vendor/neutral/images -a ! -L /srv/www/obs/webui/public/vendor/neutral/images ]; then
   mv /srv/www/obs/webui/public/vendor/neutral/images /srv/www/obs/webui/public/vendor/neutral/images.rpmold
 fi
+/usr/sbin/useradd -r -s /bin/bash -c "User for build service api delayed jobs" -d /srv/www/obs/api -g www obsapidelayed 2> /dev/null || :
 
 %post -n obs-api
 %{fillup_and_insserv -n obs-server}
@@ -624,6 +627,7 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/d
 /usr/lib/obs/server/BSAccess.pm
 /usr/lib/obs/server/BSBuild.pm
 /usr/lib/obs/server/BSCando.pm
+/usr/lib/obs/server/BSConfiguration.pm
 /usr/lib/obs/server/BSConfig.pm.template
 /usr/lib/obs/server/BSEvents.pm
 /usr/lib/obs/server/BSFileDB.pm
@@ -658,6 +662,7 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/d
 /usr/lib/obs/server/bs_admin
 /usr/lib/obs/server/bs_archivereq
 /usr/lib/obs/server/bs_check_consistency
+/usr/lib/obs/server/bs_getbinariesproxy
 /usr/lib/obs/server/bs_mkarchrepo
 /usr/lib/obs/server/bs_dispatch
 /usr/lib/obs/server/bs_publish
@@ -711,6 +716,7 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/d
 /srv/www/obs/api/Gemfile.lock
 /srv/www/obs/api/config.ru
 /srv/www/obs/api/config/application.rb
+/srv/www/obs/api/config/clock.rb
 /etc/logrotate.d/obs-build
 /etc/logrotate.d/obs-api
 /etc/init.d/obsapidelayed
@@ -741,12 +747,10 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/d
 /srv/www/obs/api/.bundle
 
 %config /srv/www/obs/api/config/environment.rb
-%config(noreplace) /srv/www/obs/api/config/lighttpd.conf
-%config(noreplace) /srv/www/obs/api/config/environments/production.rb
-%config(noreplace) /srv/www/obs/api/config/environments/test.rb
-%config(noreplace) /srv/www/obs/api/config/environments/stage.rb
+%config /srv/www/obs/api/config/environments/production.rb
+%config /srv/www/obs/api/config/environments/test.rb
+%config /srv/www/obs/api/config/environments/stage.rb
 %config(noreplace) /srv/www/obs/api/config/active_rbac_config.rb
-%config(noreplace) /etc/cron.d/obs-api
 
 %dir %attr(-,wwwrun,www) /srv/www/obs/api/log
 %verify(not size md5) %attr(-,wwwrun,www) /srv/www/obs/api/log/production.log
@@ -782,10 +786,9 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/d
 %config /srv/www/obs/webui/config/application.rb
 %config /srv/www/obs/webui/config/boot.rb
 %config /srv/www/obs/webui/config/environment.rb
-%config /srv/www/obs/webui/config/compass.rb
-%config(noreplace) /srv/www/obs/webui/config/environments/production.rb
-%config(noreplace) /srv/www/obs/webui/config/environments/test.rb
-%config(noreplace) /srv/www/obs/webui/config/environments/stage.rb
+%config /srv/www/obs/webui/config/environments/production.rb
+%config /srv/www/obs/webui/config/environments/test.rb
+%config /srv/www/obs/webui/config/environments/stage.rb
 %attr(0640,root,www) %config(noreplace) /srv/www/obs/webui/config/database.yml*
 %attr(0644,root,root) %config(noreplace) /srv/www/obs/webui/config/options.yml*
 
@@ -798,13 +801,6 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/d
 %dir /etc/apache2
 %dir /etc/apache2/vhosts.d
 %config(noreplace) /etc/apache2/vhosts.d/obs.conf
-
-# these dirs primarily belong to lighttpd:
-%config(noreplace) /etc/lighttpd/vhosts.d/obs.conf
-%dir /etc/lighttpd
-%dir /etc/lighttpd/vhosts.d
-%config /etc/lighttpd/cleanurl-v5.lua
-%config /etc/lighttpd/vhosts.d/rails.inc
 
 %ghost /srv/www/obs/api/log/access.log
 %ghost /srv/www/obs/api/log/backend_access.log
