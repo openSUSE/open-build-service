@@ -41,6 +41,7 @@ Version:        2.4.50_382_g5ef3c6a
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+# Sources are retrieved using script which is attached as Source2
 Source:         obs-server-%version.tar.bz2
 Source2:        update-sources.sh
 BuildRequires:  python-devel
