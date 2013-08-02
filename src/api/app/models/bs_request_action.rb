@@ -515,18 +515,18 @@ class BsRequestAction < ActiveRecord::Base
     
     # check for reviewers in a package first
     if obj.class == Project
-      obj.project_user_role_relationships.where(role_id: Role.get_by_title("reviewer").id ).each do |r|
-        reviewers << User.find(r.bs_user_id)
+      obj.project_user_role_relationships.where(role_id: Role.get_by_title("reviewer").id ).pluck(:user_id).each do |r|
+        reviewers << User.find(r)
       end
-      obj.project_group_role_relationships.where(role_id: Role.get_by_title("reviewer").id ).each do |r|
-        reviewers << Group.find(r.bs_group_id)
+      obj.project_group_role_relationships.where(role_id: Role.get_by_title("reviewer").id ).pluck(:group_id).each do |r|
+        reviewers << Group.find(r)
       end
     elsif obj.class == Package
-      obj.package_user_role_relationships.joins(:role).where("roles.title = 'reviewer'").select("bs_user_id").each do |r|
-        reviewers << User.find(r.bs_user_id)
+      obj.package_user_role_relationships.joins(:role).where("roles.title = 'reviewer'").pluck(:user_id).each do |r|
+        reviewers << User.find(r)
       end
-      obj.package_group_role_relationships.where(role_id: Role.get_by_title("reviewer").id ).each do |r|
-        reviewers << Group.find(r.bs_group_id)
+      obj.package_group_role_relationships.where(role_id: Role.get_by_title("reviewer").id ).pluck(:group_id).each do |r|
+        reviewers << Group.find(r)
       end
       reviewers += find_reviewers(obj.project)
     end

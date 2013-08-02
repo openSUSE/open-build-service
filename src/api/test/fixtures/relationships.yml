@@ -1,0 +1,200 @@
+Iggy_bugowner_TestPack:
+  id: 67
+  package_id: 10095
+  role_id: 4
+  user_id: 267
+Iggy_maintainer_TestPack:
+  id: 66
+  package_id: 10095
+  role_id: 3
+  user_id: 267
+QA_Team:
+  id: 71
+  package_id: 10099
+  role_id: 6
+  group_id: 99
+adrian_maintainer_2:
+  id: 69
+  package_id: 11006
+  role_id: 3
+  user_id: 42
+adrian_reviewer:
+  id: 63
+  package_id: 1
+  role_id: 6
+  user_id: 42
+fred_maintainer:
+  id: 62
+  package_id: 1
+  role_id: 3
+  user_id: 4
+fred_maintainer_package_1:
+  id: 65
+  package_id: 10095
+  role_id: 3
+  user_id: 1
+fred_maintainer_package_2:
+  id: 68
+  package_id: 10195
+  role_id: 3
+  user_id: 1
+project_kde4_maintainer_fred:
+  id: 72
+  project_id: 2
+  role_id: 3
+  user_id: 1
+relationships_100:
+  id: 100
+  project_id: 2
+  role_id: 6
+  group_id: 99
+relationships_70:
+  id: 70
+  package_id: 1
+  role_id: 3
+  group_id: 99
+relationships_73:
+  id: 73
+  project_id: 2
+  role_id: 3
+  user_id: 2
+relationships_74:
+  id: 74
+  project_id: 2
+  role_id: 3
+  user_id: 4
+relationships_75:
+  id: 75
+  project_id: 2
+  role_id: 6
+  user_id: 42
+relationships_76:
+  id: 76
+  project_id: 226
+  role_id: 3
+  user_id: 1
+relationships_77:
+  id: 77
+  project_id: 226
+  role_id: 3
+  user_id: 4
+relationships_78:
+  id: 78
+  project_id: 502
+  role_id: 3
+  user_id: 46
+relationships_79:
+  id: 79
+  project_id: 502
+  role_id: 3
+  user_id: 267
+relationships_80:
+  id: 80
+  project_id: 503
+  role_id: 3
+  user_id: 1
+relationships_81:
+  id: 81
+  project_id: 505
+  role_id: 3
+  user_id: 1
+relationships_82:
+  id: 82
+  project_id: 600
+  role_id: 3
+  user_id: 3
+relationships_83:
+  id: 83
+  project_id: 601
+  role_id: 3
+  user_id: 3
+relationships_84:
+  id: 84
+  project_id: 1001
+  role_id: 3
+  user_id: 3
+relationships_85:
+  id: 85
+  project_id: 2048
+  role_id: 3
+  user_id: 172
+relationships_86:
+  id: 86
+  project_id: 3000
+  role_id: 3
+  user_id: 42
+relationships_87:
+  id: 87
+  project_id: 3000
+  role_id: 7
+  user_id: 43
+relationships_88:
+  id: 88
+  project_id: 3000
+  role_id: 5
+  user_id: 44
+relationships_89:
+  id: 89
+  project_id: 3000
+  role_id: 3
+  user_id: 46
+relationships_90:
+  id: 90
+  project_id: 3001
+  role_id: 3
+  user_id: 49
+relationships_91:
+  id: 91
+  project_id: 3002
+  role_id: 7
+  user_id: 43
+relationships_92:
+  id: 92
+  project_id: 3002
+  role_id: 3
+  user_id: 47
+relationships_93:
+  id: 93
+  project_id: 3004
+  role_id: 3
+  user_id: 3
+relationships_94:
+  id: 94
+  project_id: 3004
+  role_id: 3
+  user_id: 46
+relationships_95:
+  id: 95
+  project_id: 3004
+  role_id: 3
+  user_id: 49
+relationships_96:
+  id: 96
+  project_id: 3006
+  role_id: 3
+  user_id: 46
+relationships_97:
+  id: 97
+  project_id: 5002
+  role_id: 3
+  user_id: 3
+relationships_98:
+  id: 98
+  project_id: 5007
+  role_id: 3
+  user_id: 42
+reviewer_for_Basedistro_pack2:
+  id: 64
+  package_id: 10094
+  role_id: 6
+  user_id: 1
+test_group_maintainer_HiddenProject:
+  id: 101
+  project_id: 3000
+  role_id: 3
+  group_id: 99
+test_group_maintainer_kde4:
+  id: 99
+  project_id: 2
+  role_id: 3
+  group_id: 99

@@ -8,8 +8,8 @@ class User < ActiveRecord::Base
   has_many :watched_projects, :foreign_key => 'bs_user_id', :dependent => :destroy
   has_many :groups_users, :foreign_key => 'user_id'
   has_many :roles_users, :foreign_key => 'user_id'
-  has_many :project_user_role_relationships, :foreign_key => 'bs_user_id'
-  has_many :package_user_role_relationships, :foreign_key => 'bs_user_id'
+  has_many :project_user_role_relationships
+  has_many :package_user_role_relationships
 
   has_many :status_messages
   has_many :messages
@@ -1181,7 +1181,7 @@ class User < ActiveRecord::Base
     case object
     when Package
         logger.debug "running local role package check: user #{self.login}, package #{object.name}, role '#{role.title}'"
-        rels = object.package_user_role_relationships.where(:role_id => role.id, :bs_user_id => self.id).first
+        rels = object.package_user_role_relationships.where(:role_id => role.id, :user_id => self.id).first
         return true if rels
         rels = object.package_group_role_relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where(:role_id => role.id).first
         return true if rels
@@ -1194,7 +1194,7 @@ class User < ActiveRecord::Base
         return has_local_role?(role, object.project)
     when Project
         logger.debug "running local role project check: user #{self.login}, project #{object.name}, role '#{role.title}'"
-        rels = object.project_user_role_relationships.where(:role_id => role.id, :bs_user_id => self.id).first
+        rels = object.project_user_role_relationships.where(:role_id => role.id, :user_id => self.id).first
         return true if rels
         rels = object.project_group_role_relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where(:role_id => role.id).first
         return true if rels
@@ -1237,7 +1237,7 @@ class User < ActiveRecord::Base
     else
       return false
     end
-    rel = users.where(:bs_user_id => self.id).where("role_id in (?)", roles).first
+    rel = users.where(:user_id => self.id).where("role_id in (?)", roles).first
     return true if rel
     rel = groups.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where("role_id in (?)", roles).first
     return true if rel
@@ -1261,10 +1261,10 @@ class User < ActiveRecord::Base
     role = Role.rolecache["maintainer"]
 
     ### all projects where user is maintainer
-    projects = ProjectUserRoleRelationship.where(bs_user_id: id, role_id: role.id).select(:db_project_id).map {|ur| ur.db_project_id }
+    projects = ProjectUserRoleRelationship.where(user_id: id, role_id: role.id).pluck(:project_id)
 
     # all projects where user is maintainer via a group
-    projects += ProjectGroupRoleRelationship.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).select(:db_project_id).map {|ur| ur.db_project_id } 
+    projects += ProjectGroupRoleRelationship.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).pluck(:project_id) 
 
     projects.uniq
   end
@@ -1283,10 +1283,10 @@ class User < ActiveRecord::Base
     projects << -1 if projects.empty?
 
     # all packages where user is maintainer
-    packages = PackageUserRoleRelationship.where(bs_user_id: id, role_id: role.id).joins(:package).where("packages.db_project_id not in (?)", projects).select(:db_package_id).map {|ur| ur.db_package_id}
+    packages = PackageUserRoleRelationship.where(user_id: id, role_id: role.id).joins(:package).where("packages.db_project_id not in (?)", projects).pluck(:package_id)
 
     # all packages where user is maintainer via a group
-    packages += PackageGroupRoleRelationship.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).select(:db_package_id).map {|ur| ur.db_package_id}
+    packages += PackageGroupRoleRelationship.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).pluck(:package_id)
 
     return Package.where(id: packages).where("db_project_id not in (?)", projects)
   end
@@ -1300,13 +1300,11 @@ class User < ActiveRecord::Base
     role_id = Role.rolecache['maintainer'].id
     # First fetch the project ids
     projects_ids = self.involved_projects_ids
-    packages = Package.joins("LEFT OUTER JOIN #{purr} ON (#{purr}.db_package_id = packages.id AND #{purr}.role_id = #{role_id})")
+    packages = Package.joins("LEFT OUTER JOIN #{purr} ON (#{purr}.package_id = packages.id AND #{purr}.role_id = #{role_id})")
     # No maintainers
     packages = packages.where([
-                                  "(#{purr}.bs_user_id = ?) "\
-      "OR "\
-      "(#{purr}.bs_user_id is null AND db_project_id in (?) )",
-                                  self.id, projects_ids])
+      "(#{purr}.user_id = ?) OR "\
+      "(#{purr}.user_id is null AND project_id in (?) )", self.id, projects_ids])
     packages.pluck(:id)
   end
 

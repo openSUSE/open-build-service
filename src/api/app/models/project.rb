@@ -32,8 +32,9 @@ class Project < ActiveRecord::Base
   after_rollback :reset_cache
   after_rollback 'ProjectUserRoleRelationship.discard_cache'
 
-  has_many :project_user_role_relationships, :dependent => :delete_all, foreign_key: :db_project_id
-  has_many :project_group_role_relationships, :dependent => :delete_all, foreign_key: :db_project_id
+  has_many :relationships, dependent: :destroy
+  has_many :project_user_role_relationships
+  has_many :project_group_role_relationships
 
   has_many :packages, :dependent => :destroy, foreign_key: :db_project_id, inverse_of: :project
   has_many :attribs, :dependent => :destroy, foreign_key: :db_project_id
@@ -1388,16 +1389,10 @@ class Project < ActiveRecord::Base
     end
 
     # fast find packages with defintions
-    # user in package object
-    defined_packages = Package.joins(:package_user_role_relationships).where("db_project_id in (?) AND package_user_role_relationships.role_id in (?)", projects, roles).pluck(:name)
-    # group in package object
-    defined_packages += Package.joins(:package_group_role_relationships).where("db_project_id in (?) AND package_group_role_relationships.role_id in (?)", projects, roles).pluck(:name)
-    # user in project object
-    Project.joins(:project_user_role_relationships).where("projects.id in (?) AND project_user_role_relationships.role_id in (?)", projects, roles).each do |prj|
-      defined_packages += prj.packages.map{ |p| p.name }
-    end
-    # group in project object
-    Project.joins(:project_group_role_relationships).where("projects.id in (?) AND project_group_role_relationships.role_id in (?)", projects, roles).each do |prj|
+    # relationship in package object
+    defined_packages = Package.joins(:relationships).where("db_project_id in (?) AND role_id in (?)", projects, roles).pluck(:name)
+    # relationship in project object
+    Project.joins(:relationships).where("projects.id in (?) AND role_id in (?)", projects, roles).each do |prj|
       defined_packages += prj.packages.map{ |p| p.name }
     end
     if devel == true
@@ -1434,39 +1429,34 @@ class Project < ActiveRecord::Base
       roles << Role.find_by_title!(f)
     end
 
-    found_packages = []
-    found_projects = []
+    found_packages = Relationship.where(role_id: roles, package_id: Package.where(:db_project_id => projects).pluck(:id))
+    found_projects = Relationship.where(role_id: roles, project_id: projects)
     # fast find packages with defintions
     if owner.class == User
       # user in package object
-      found_packages = PackageUserRoleRelationship.where(:role_id => roles, :bs_user_id => owner, :db_package_id => Package.where(:db_project_id => projects)).pluck(:db_package_id)
+      found_packages = found_packages.where(user_id: owner)
       # user in project object
-      ProjectUserRoleRelationship.where(:role_id => roles, :bs_user_id => owner, :db_project_id => Project.where(:id => projects)).each do |prjrel|
-        found_projects << prjrel.db_project_id
-      end
+      found_projects = found_projects.where(user_id: owner)
     elsif owner.class == Group
       # group in package object
-      found_packages = PackageGroupRoleRelationship.where(:role_id => roles, :bs_group_id => owner, :db_package_id => Package.where(:db_project_id => projects)).pluck(:db_package_id)
+      found_packages = found_packages.where(group_id: owner)
       # group in project object
-      ProjectGroupRoleRelationship.where(:role_id => roles, :bs_group_id => owner, :db_project_id => Project.where(:id => projects)).each do |prjrel|
-        found_projects << prjrel.db_project_id
-      end
+      found_projects = found_projects.where(group_id: owner)
     else
       raise "illegal object handed to find_containers"
     end
     if devel == true
       #FIXME add devel packages, but how do recursive lookup fast in SQL?
     end
-    found_packages.uniq!
+    found_packages = found_packages.pluck(:package_id).uniq
+    found_projects = found_projects.pluck(:project_id).uniq
 
     maintainers=[]
 
-    found_projects.each do |id|
-      prj = Project.find_by_id(id)
-      maintainers << { :rootproject => self.name, :project => prj.name }
+    Project.where(id: found_projects).pluck(:name).each do |prj|
+      maintainers << { :rootproject => self.name, :project => prj }
     end
-    found_packages.each do |id|
-      pkg = Package.find_by_id(id)
+    Package.where(id: found_packages).each do |pkg|
       maintainers << { :rootproject => self.name, :project => pkg.project.name, :package => pkg.name }
     end
 
