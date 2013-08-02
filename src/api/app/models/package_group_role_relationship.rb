@@ -1,6 +1,6 @@
-class PackageGroupRoleRelationship < ActiveRecord::Base
-  belongs_to :package, foreign_key: :db_package_id
-  belongs_to :group, foreign_key: "bs_group_id"
+class PackageGroupRoleRelationship < Relationship
+  belongs_to :package
+  belongs_to :group
   belongs_to :role
 
   has_many :groups_users, through: :group
@@ -10,9 +10,12 @@ class PackageGroupRoleRelationship < ActiveRecord::Base
   validates :role, presence: true
 
   validate :check_uniqueness
+
+  default_scope where("relationships.package_id is not null").where("relationships.group_id is not null")
+
   protected
   def check_uniqueness
-    if PackageGroupRoleRelationship.where("db_package_id = ? AND role_id = ? AND bs_group_id = ?", self.package, self.role, self.group).first
+    if PackageGroupRoleRelationship.where("package_id = ? AND role_id = ? AND group_id = ?", self.package, self.role, self.group).first
       errors.add(:role, "Group already has this role")
     end
   end

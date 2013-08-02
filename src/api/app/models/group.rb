@@ -10,8 +10,8 @@ class Group < ActiveRecord::Base
   end
 
   has_many :groups_users, :foreign_key => 'group_id'
-  has_many :project_group_role_relationships, :foreign_key => 'bs_group_id'
-  has_many :package_group_role_relationships, :foreign_key => 'bs_group_id'
+  has_many :project_group_role_relationships
+  has_many :package_group_role_relationships
 
   validates_format_of  :title,
                        :with => %r{\A[\w\.\-]*\z},
@@ -140,7 +140,7 @@ class Group < ActiveRecord::Base
     role = Role.rolecache["maintainer"]
 
     ### all projects where user is maintainer
-    projects = ProjectGroupRoleRelationship.where(bs_group_id: id, role_id: role.id).select(:db_project_id).map {|ur| ur.db_project_id }
+    projects = ProjectGroupRoleRelationship.where(group_id: id, role_id: role.id).pluck(:project_id)
 
     projects.uniq
   end
@@ -160,7 +160,7 @@ class Group < ActiveRecord::Base
     projects << -1 if projects.empty?
 
     # all packages where group is maintainer
-    packages = PackageGroupRoleRelationship.where(bs_group_id: id, role_id: role.id).joins(:package).where("packages.db_project_id not in (?)", projects).select(:db_package_id).map {|ur| ur.db_package_id}
+    packages = PackageGroupRoleRelationship.where(group_id: id, role_id: role.id).joins(:package).where("packages.db_project_id not in (?)", projects).pluck(:package_id)
 
     return Package.where(id: packages).where("db_project_id not in (?)", projects)
   end

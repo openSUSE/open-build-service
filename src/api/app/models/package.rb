@@ -29,8 +29,9 @@ class Package < ActiveRecord::Base
   end
   belongs_to :project, foreign_key: :db_project_id, inverse_of: :packages
 
-  has_many :package_user_role_relationships, :dependent => :destroy, foreign_key: :db_package_id
-  has_many :package_group_role_relationships, :dependent => :destroy, foreign_key: :db_package_id
+  has_many :relationships, dependent: :destroy
+  has_many :package_user_role_relationships
+  has_many :package_group_role_relationships
   has_many :messages, :as => :db_object, :dependent => :destroy
 
   has_many :taggings, :as => :taggable, :dependent => :destroy
@@ -994,9 +995,9 @@ class Package < ActiveRecord::Base
   def remove_role(what, role)
     check_write_access!
     if what.kind_of? Group
-      rel = self.package_group_role_relationships.where(bs_group_id: what.id)
+      rel = self.package_group_role_relationships.where(group_id: what.id)
     else
-      rel = self.package_user_role_relationships.where(bs_user_id: what.id)
+      rel = self.package_user_role_relationships.where(user_id: what.id)
     end
     rel = rel.where(role_id: role.id) if role
     self.transaction do
