@@ -26,25 +26,19 @@ class Webui::RelationshipsController < Webui::BaseController
     @role = Role.find_by_title!(params[:role]) if params[:role]
   end
 
+  rescue_from 'ActiveRecord::RecordInvalid' do |exception|
+    render_error status: 400, errorcode: 'change_role_failed', message: exception.record.errors.full_messages.join('\n')
+  end
+
   def create
     raise MissingParameterError, "No role is given" unless @role
-    begin
-      @target.add_role(@object, @role)
-    rescue ActiveRecord::RecordInvalid => e
-      render_error status: 400, errorcode: 'change_role_failed', message: e.record.errors.full_messages.join('\n')
-      return
-    end
+    @target.add_role(@object, @role)
     render json: { status: 'ok' }
   end
 
   def remove_user
     # @role can be nil to remove all roles
-    begin
-      @target.remove_role(@object, @role)
-    rescue ActiveRecord::RecordInvalid => e
-      render_error status: 400, errorcode: 'change_role_failed', message: e.record.errors.full_messages.join('\n')
-      return
-    end
+    @target.remove_role(@object, @role)
     render json: { status: 'ok' }
   end
 
