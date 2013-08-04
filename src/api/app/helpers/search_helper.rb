@@ -36,14 +36,14 @@ module SearchHelper
       if params[:filter]
         filter=params[:filter].split(",")
       else
-        if attrib and v=attrib.values.where(value: "BugownerOnly").first
+        if attrib and v=attrib.values.where(value: "BugownerOnly").exists?
   	filter=["bugowner"]
         end
       end
       if params[:devel]
         devel=false if [ "0", "false" ].include? params[:devel]
       else
-        if attrib and v=attrib.values.where(value: "DisableDevel").first
+        if attrib and v=attrib.values.where(value: "DisableDevel").exists?
   	devel=false
         end
       end

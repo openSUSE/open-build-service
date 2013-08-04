@@ -1,19 +1,14 @@
 class ProjectUserRoleRelationship < Relationship
   belongs_to :project
   belongs_to :user
-  belongs_to :role
 
-  default_scope where("relationships.project_id is not null").where("relationships.user_id is not null")
+  default_scope { where("relationships.project_id > 0").where("relationships.user_id > 0") }
 
   FORBIDDEN_PROJECT_IDS_CACHE_KEY="forbidden_project_ids"
 
   validate :check_duplicates, :on => :create
   def check_duplicates
-    unless self.user
-      errors.add(:user, "Can not assign role to nonexistent user")
-    end
-    
-    if ProjectUserRoleRelationship.where("project_id = ? AND role_id = ? AND user_id = ?", self.project, self.role, self.user).first
+    if Relationship.where("project_id = ? AND role_id = ? AND user_id = ?", self.project, self.role, self.user).exists?
       errors.add(:role, "User already has this role")
     end
   end
@@ -30,7 +25,7 @@ class ProjectUserRoleRelationship < Relationship
   def self.forbidden_project_ids_for_user(user)
     project_user_cache = Rails.cache.fetch(FORBIDDEN_PROJECT_IDS_CACHE_KEY) do
       puc = Hash.new
-      ProjectUserRoleRelationship.find_by_sql("SELECT ur.project_id, ur.user_id from flags f, 
+      Relationship.find_by_sql("SELECT ur.project_id, ur.user_id from flags f, 
                 relationships ur where f.flag = 'access' and f.status = 'disable' and ur.project_id = f.db_project_id").each do |r|
         puc[r.project_id] ||= Hash.new
         puc[r.project_id][r.user_id] = 1

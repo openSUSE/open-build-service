@@ -4,7 +4,7 @@ class PackageGroupRoleRelationshipTest < ActiveSupport::TestCase
 
   def test_validation
     # empty == invalid
-    pgr = PackageGroupRoleRelationship.new 
+    pgr = Relationship.new 
     assert_equal true, pgr.invalid?
     assert_equal false, pgr.save
     # only role
@@ -25,7 +25,7 @@ class PackageGroupRoleRelationshipTest < ActiveSupport::TestCase
     assert_equal false, pgr.invalid?
     assert_equal true, pgr.save
 
-    pgr = pgr.clone
+    pgr = pgr.dup
     # not another time
     assert_equal false, pgr.valid?
   end
