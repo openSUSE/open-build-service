@@ -35,7 +35,7 @@ class BsRequestActionGroup < BsRequestAction
 
   def check_and_add_request(newid)
     req = BsRequest.find(newid)
-    if self.bs_requests.where(id: req.id).first
+    if self.bs_requests.where(id: req.id).exists?
       raise AlreadyGrouped.new "#{req.id} is already part of the group request #{self.bs_request.id}"
     end
     if req.bs_request_actions.first.action_type == :group
