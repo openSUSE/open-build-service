@@ -193,14 +193,37 @@ class StatusController < ApplicationController
     ret
   end
 
-  # not an action, but called from delayed job
-  # private :update_workerstatus_cache
+  def find_relationships_for_packages(packages)
+    package_hash = Hash.new
+    packages.each_value do |p|
+      package_hash[p.package_id] = p
+      if p.develpack
+        package_hash[p.develpack.package_id] = p.develpack
+      end
+    end
+    rolecache = {}
+    usercache = {}
+    groupcache = {}
+    relationships = Relationship.where(package_id: package_hash.keys).pluck(:package_id, :user_id, :group_id, :role_id)
+    relationships.each do |package_id, user_id, group_id, role_id|
+      role = rolecache[role_id] || (rolecache[role_id] = Role.find(role_id).title)
+      unless user_id.nil?
+        user = usercache[user_id] || (usercache[user_id] = User.find(user_id).login)
+        package_hash[package_id].add_person(user, role)
+      end 
+      unless group_id.nil?
+        group = groupcache[group_id] || (groupcache[group_id] = Group.find(group_id).title)
+        package_hash[package_id].add_group(group, role)
+      end 
+    end 
+  end
 
   def project
     dbproj = Project.get_by_name(params[:project])
-    key    ='project_status_xml_%s' % dbproj.name
-    xml    = Rails.cache.fetch(key, :expires_in => 10.minutes) do
+    key    ='project_status_xml2_%s' % dbproj.name
+    xml    = Rails.cache.fetch(key, :expires_in => 10.seconds) do
       @packages = dbproj.complex_status(backend)
+      find_relationships_for_packages(@packages)
       render_to_string
     end
     render :text => xml
