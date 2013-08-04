@@ -124,13 +124,13 @@ class Webui::ProjectsController < Webui::BaseController
       end
       if filter_for_user
         if value.develpack
-          next unless packages_to_filter_for.include? value.develpack.db_package_id
+          next unless packages_to_filter_for.include? value.develpack.package_id
         else
-          next unless packages_to_filter_for.include? value.db_package_id
+          next unless packages_to_filter_for.include? value.package_id
         end
       end
-      status[value.db_package_id] = value
-      name2id[value.name] = value.db_package_id
+      status[value.package_id] = value
+      name2id[value.name] = value.package_id
     end
 
     project_status_attributes(status.keys, 'OBS', 'ProjectStatusPackageFailComment') do |package, value|
