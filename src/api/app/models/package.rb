@@ -29,8 +29,7 @@ class Package < ActiveRecord::Base
   end
   belongs_to :project, foreign_key: :db_project_id, inverse_of: :packages
 
-  has_many :package_user_role_relationships, :dependent => :destroy, foreign_key: :db_package_id
-  has_many :package_group_role_relationships, :dependent => :destroy, foreign_key: :db_package_id
+  has_many :relationships, dependent: :destroy
   has_many :messages, :as => :db_object, :dependent => :destroy
 
   has_many :taggings, :as => :taggable, :dependent => :destroy
@@ -53,7 +52,7 @@ class Package < ActiveRecord::Base
   before_update :update_activity
   after_rollback :reset_cache
 
-  default_scope { where("packages.db_project_id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
+  default_scope { where("packages.db_project_id not in (?)", Relationship.forbidden_project_ids ) }
 
   validates :name, presence: true, length: { maximum: 200 }
   validate :valid_name
@@ -490,7 +489,7 @@ class Package < ActiveRecord::Base
     
     #--- update users ---#
     usercache = Hash.new
-    self.package_user_role_relationships.each do |purr|
+    self.relationships.users.each do |purr|
       h = usercache[purr.user.login] ||= Hash.new
       h[purr.role.title] = purr
     end
@@ -511,11 +510,11 @@ class Package < ActiveRecord::Base
           pcache[person['role']] = :keep
         else
           #new role
-          self.package_user_role_relationships.new(user: user, role: Role.rolecache[person['role']])
+          self.relationships.new(user: user, role: Role.rolecache[person['role']])
           pcache[person['role']] = :new
         end
       else
-        self.package_user_role_relationships.new(user: user, role: Role.rolecache[person['role']])
+        self.relationships.new(user: user, role: Role.rolecache[person['role']])
         usercache[person['userid']] = { person['role'] => :new }
       end
     end
@@ -532,7 +531,7 @@ class Package < ActiveRecord::Base
     
     #--- update group ---#
     groupcache = Hash.new
-    self.package_group_role_relationships.each do |pgrr|
+    self.relationships.groups.each do |pgrr|
       h = groupcache[pgrr.group.title] ||= Hash.new
       h[pgrr.role.title] = pgrr
     end
@@ -551,7 +550,7 @@ class Package < ActiveRecord::Base
           if not Role.rolecache.has_key? ge['role']
             raise SaveError, "illegal role name '#{ge['role']}'"
           end
-          self.package_group_role_relationships.new(group: group, role: Role.rolecache[ge['role']])
+          self.relationships.new(group: group, role: Role.rolecache[ge['role']])
           pcache[ge['role']] = :new
         end
       else
@@ -577,7 +576,7 @@ class Package < ActiveRecord::Base
           end
         end
 
-        self.package_group_role_relationships.new(group: group, role: Role.rolecache[ge['role']])
+        self.relationships.new(group: group, role: Role.rolecache[ge['role']])
         groupcache[ge['groupid']] = { ge['role'] => :new }
       end
     end
@@ -696,49 +695,15 @@ class Package < ActiveRecord::Base
   end
 
   def add_user( user, role )
-    check_write_access!
-    unless role.kind_of? Role
-      role = Role.get_by_title(role)
-    end
-
-    if role.global
-      #only nonglobal roles may be set in a project
-      raise SaveError, "tried to set global role '#{role.title}' for user '#{user}' in package '#{self.name}'"
-    end
-
-    unless user.kind_of? User
-      user = User.get_by_login(user.to_s)
-    end
-
-    PackageUserRoleRelationship.create(
-                                       :package => self,
-                                       :user => user,
-                                       :role => role )
+    Relationship.add_user(self, user, role)
   end
 
   def add_group( group, role )
-    check_write_access!
-    unless role.kind_of? Role
-      role = Role.get_by_title(role)
-    end
-
-    if role.global
-      #only nonglobal roles may be set in a project
-      raise SaveError, "tried to set global role '#{role_title}' for group '#{group}' in package '#{self.name}'"
-    end
-
-    unless group.kind_of? Group
-      group = Group.find_by_title(group.to_s)
-    end
-
-    PackageGroupRoleRelationship.create(
-                                        :package => self,
-                                        :group => group,
-                                        :role => role )
+    Relationship.add_group(self, group, role)
   end
 
   def each_user( opt={}, &block )
-    users = package_user_role_relationships.joins(:role, :user).select("users.login as login, roles.title AS role_name").order("role_name, login")
+    users = relationships.joins(:role, :user).select("users.login as login, roles.title AS role_name").order("role_name, login")
     if( block )
       users.each do |u|
         block.call u.login, u.role_name
@@ -748,7 +713,7 @@ class Package < ActiveRecord::Base
   end
 
   def each_group( opt={}, &block )
-    groups = package_group_role_relationships.joins(:role, :group).select("groups.title as title, roles.title as role_name").order("role_name, title")
+    groups = relationships.joins(:role, :group).select("groups.title as title, roles.title as role_name").order("role_name, title")
     if( block )
       groups.each do |g|
         block.call g.title, g.role_name
@@ -983,20 +948,20 @@ class Package < ActiveRecord::Base
 
   def remove_all_persons
     check_write_access!
-    self.package_user_role_relationships.delete_all
+    self.relationships.users.delete_all
   end
 
   def remove_all_groups
     check_write_access!
-    self.package_group_role_relationships.delete_all
+    self.relationships.groups.delete_all
   end
 
   def remove_role(what, role)
     check_write_access!
     if what.kind_of? Group
-      rel = self.package_group_role_relationships.where(bs_group_id: what.id)
+      rel = self.relationships.where(group_id: what.id)
     else
-      rel = self.package_user_role_relationships.where(bs_user_id: what.id)
+      rel = self.relationships.where(user_id: what.id)
     end
     rel = rel.where(role_id: role.id) if role
     self.transaction do
@@ -1009,9 +974,9 @@ class Package < ActiveRecord::Base
     check_write_access!
     self.transaction do
       if what.kind_of? Group
-        self.package_group_role_relationships.create!(role: role, group: what)
+        self.relationships.create!(role: role, group: what)
       else
-        self.package_user_role_relationships.create!(role: role, user: what)
+        self.relationships.create!(role: role, user: what)
       end
       write_to_backend
     end
@@ -1030,8 +995,8 @@ class Package < ActiveRecord::Base
   end
 
   def user_has_role?(user, role)
-    return true if self.package_user_role_relationships.where(role_id: role.id, bs_user_id: user.id).first
-    return !self.package_group_role_relationships.where(role_id: role).joins(:groups_users).where(groups_users: { user_id: user.id }).first.nil?
+    return true if self.relationships.where(role_id: role.id, user_id: user.id).exists?
+    return self.relationships.where(role_id: role).joins(:groups_users).where(groups_users: { user_id: user.id }).exists?
   end
 
   def linkinfo

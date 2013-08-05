@@ -843,6 +843,7 @@ class SourceController < ApplicationController
         unless prj
           prj = Project.new(name: project_name)
           prj.update_from_xml(rdata)
+	  # failure is ok
           prj.add_user(@http_user.login, 'maintainer')
         else
           prj.update_from_xml(rdata)
@@ -1369,7 +1370,7 @@ class SourceController < ApplicationController
     if pro.project_type == "maintenance_incident"
       rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
       rel = rel.where(bs_request_actions: { type: 'maintenance_release', source_project: pro.name})
-      if rel.first
+      if rel.exists?
         render_error :status => 403, :errorcode => "open_release_request",
           :message => "Unlock of maintenance incident #{} is not possible, because there is a running release request: #{rel.first.id}"
         return

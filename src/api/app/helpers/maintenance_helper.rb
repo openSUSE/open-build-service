@@ -28,23 +28,12 @@ module MaintenanceHelper
         tprj.flags.create( :flag => 'access', :status => "disable" )
       end
       # take over roles from maintenance project
-      maintenanceProject.project_user_role_relationships.each do |r| 
-        ProjectUserRoleRelationship.create(
-              :user => r.user,
-              :role => r.role,
-              :project => tprj
-            )
-      end
-      maintenanceProject.project_group_role_relationships.each do |r| 
-        ProjectGroupRoleRelationship.create(
-              :group => r.group,
-              :role => r.role,
-              :project => tprj
-            )
+      maintenanceProject.relationships.each do |r| 
+        tprj.relationships.new(user: r.user, role: r.role, group: r.group)
       end
       # set default bugowner if missing
-      bugowner = Role.get_by_title("bugowner")
-      unless tprj.project_user_role_relationships.where("role_id = ?", bugowner.id).first
+      bugowner = Role.rolecache['bugowner']
+      unless tprj.relationships.users.where("role_id = ?", bugowner.id).exists?
         tprj.add_user( @http_user, bugowner )
       end
       # and write it
@@ -449,7 +438,7 @@ module MaintenanceHelper
       end
       add_repositories = true # new projects shall get repositories
       Project.transaction do
-        tprj = Project.new :name => target_project, :title => title, :description => description
+        tprj = Project.create :name => target_project, :title => title, :description => description
         tprj.add_user User.current, "maintainer"
         tprj.flags.create( :flag => 'build', :status => "disable" ) if extend_names
         tprj.flags.create( :flag => 'access', :status => "disable" ) if noaccess

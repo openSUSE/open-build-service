@@ -8,8 +8,7 @@ class User < ActiveRecord::Base
   has_many :watched_projects, :foreign_key => 'bs_user_id', :dependent => :destroy
   has_many :groups_users, :foreign_key => 'user_id'
   has_many :roles_users, :foreign_key => 'user_id'
-  has_many :project_user_role_relationships, :foreign_key => 'bs_user_id'
-  has_many :package_user_role_relationships, :foreign_key => 'bs_user_id'
+  has_many :relationships
 
   has_many :status_messages
   has_many :messages
@@ -1162,12 +1161,7 @@ class User < ActiveRecord::Base
 
   def local_role_check_with_ldap (role, object)
     logger.debug "Checking role with ldap: object #{object.name}, role #{role.title}"
-    case object
-      when Package
-        rels = object.package_group_role_relationships.where(:role_id => role.id).includes(:group)
-      when Project
-        rels = object.project_group_role_relationships.where(:role_id => role.id).includes(:group)
-    end
+    rels = object.relationships.groups.where(:role_id => role.id).includes(:group)
     for rel in rels
       return false if rel.group.nil?
       #check whether current user is in this group
@@ -1181,10 +1175,10 @@ class User < ActiveRecord::Base
     case object
     when Package
         logger.debug "running local role package check: user #{self.login}, package #{object.name}, role '#{role.title}'"
-        rels = object.package_user_role_relationships.where(:role_id => role.id, :bs_user_id => self.id).first
-        return true if rels
-        rels = object.package_group_role_relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where(:role_id => role.id).first
-        return true if rels
+        rels = object.relationships.where(:role_id => role.id, :user_id => self.id)
+        return true if rels.exists?
+        rels = object.relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where(:role_id => role.id)
+        return true if rels.exists?
 
         # check with LDAP
         if User.ldapgroup_enabled?
@@ -1194,10 +1188,10 @@ class User < ActiveRecord::Base
         return has_local_role?(role, object.project)
     when Project
         logger.debug "running local role project check: user #{self.login}, project #{object.name}, role '#{role.title}'"
-        rels = object.project_user_role_relationships.where(:role_id => role.id, :bs_user_id => self.id).first
-        return true if rels
-        rels = object.project_group_role_relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where(:role_id => role.id).first
-        return true if rels
+        rels = object.relationships.where(:role_id => role.id, :user_id => self.id)
+        return true if rels.exists?
+        rels = object.relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where(:role_id => role.id)
+        return true if rels.exists?
 
         # check with LDAP
         if User.ldapgroup_enabled?
@@ -1216,34 +1210,29 @@ class User < ActiveRecord::Base
   def has_local_permission?( perm_string, object )
     roles = Role.ids_with_permission(perm_string)
     return false unless roles
-    users = nil
-    groups = nil
     parent = nil
     case object
     when Package
       logger.debug "running local permission check: user #{self.login}, package #{object.name}, permission '#{perm_string}'"
       #check permission for given package
-      users = object.package_user_role_relationships
-      groups = object.package_group_role_relationships
       parent = object.project
     when Project
       logger.debug "running local permission check: user #{self.login}, project #{object.name}, permission '#{perm_string}'"
       #check permission for given project
-      users = object.project_user_role_relationships
-      groups = object.project_group_role_relationships
       parent = object.find_parent
     when nil
       return has_global_permission?(perm_string)
     else
       return false
     end
-    rel = users.where(:bs_user_id => self.id).where("role_id in (?)", roles).first
-    return true if rel
-    rel = groups.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where("role_id in (?)", roles).first
-    return true if rel
+    rel = object.relationships.where(:user_id => self.id).where("role_id in (?)", roles)
+    return true if rel.exists?
+    rel = object.relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where("role_id in (?)", roles)
+    return true if rel.exists?
 
     # check with LDAP
     if User.ldapgroup_enabled?
+      groups = object.relationships.groups
       return true if local_permission_check_with_ldap(groups.where("role_id in (?)", roles))
     end
     
@@ -1261,10 +1250,10 @@ class User < ActiveRecord::Base
     role = Role.rolecache["maintainer"]
 
     ### all projects where user is maintainer
-    projects = ProjectUserRoleRelationship.where(bs_user_id: id, role_id: role.id).select(:db_project_id).map {|ur| ur.db_project_id }
+    projects = self.relationships.projects.where(role_id: role.id).pluck(:project_id)
 
     # all projects where user is maintainer via a group
-    projects += ProjectGroupRoleRelationship.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).select(:db_project_id).map {|ur| ur.db_project_id } 
+    projects += Relationship.projects.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).pluck(:project_id) 
 
     projects.uniq
   end
@@ -1283,30 +1272,27 @@ class User < ActiveRecord::Base
     projects << -1 if projects.empty?
 
     # all packages where user is maintainer
-    packages = PackageUserRoleRelationship.where(bs_user_id: id, role_id: role.id).joins(:package).where("packages.db_project_id not in (?)", projects).select(:db_package_id).map {|ur| ur.db_package_id}
+    packages = self.relationships.where(role_id: role.id).joins(:package).where("packages.db_project_id not in (?)", projects).pluck(:package_id)
 
     # all packages where user is maintainer via a group
-    packages += PackageGroupRoleRelationship.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).select(:db_package_id).map {|ur| ur.db_package_id}
+    packages += Relationship.packages.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).pluck(:package_id)
 
     return Package.where(id: packages).where("db_project_id not in (?)", projects)
   end
 
   def forbidden_project_ids
-    @f_ids ||= ProjectUserRoleRelationship.forbidden_project_ids_for_user(self)
+    @f_ids ||= Relationship.forbidden_project_ids_for_user(self)
   end
 
   def user_relevant_packages_for_status
-    purr = "package_user_role_relationships"
     role_id = Role.rolecache['maintainer'].id
     # First fetch the project ids
     projects_ids = self.involved_projects_ids
-    packages = Package.joins("LEFT OUTER JOIN #{purr} ON (#{purr}.db_package_id = packages.id AND #{purr}.role_id = #{role_id})")
+    packages = Package.joins("LEFT OUTER JOIN relationships ON (relationships.package_id = packages.id AND relationships.role_id = #{role_id})")
     # No maintainers
     packages = packages.where([
-                                  "(#{purr}.bs_user_id = ?) "\
-      "OR "\
-      "(#{purr}.bs_user_id is null AND db_project_id in (?) )",
-                                  self.id, projects_ids])
+      "(relationships.user_id = ?) OR "\
+      "(relationships.user_id is null AND project_id in (?) )", self.id, projects_ids])
     packages.pluck(:id)
   end
 

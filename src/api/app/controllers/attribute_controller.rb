@@ -46,10 +46,8 @@ class AttributeController < ApplicationController
     namespace = params[:namespace]
 
     if request.get?
-      an = AttribNamespace.where(name: namespace).select(:id, :name).first
-      if an
-        render :text => an.render_axml, :content_type => 'text/xml'
-      else
+      @an = AttribNamespace.where(name: namespace).select(:id, :name).first
+      unless @an
         render_error :message => "Unknown attribute namespace '#{namespace}'",
           :status => 404, :errorcode => "unknown_attribute_namespace"
       end
@@ -68,7 +66,6 @@ class AttributeController < ApplicationController
       logger.debug "--- updating attribute namespace definitions ---"
 
       xml_element = Xmlhash.parse( request.raw_post )
-      logger.debug "XML #{xml_element.inspect}"
 
       unless xml_element['name'] == namespace
         render_error :status => 400, :errorcode => 'illegal_request',
@@ -118,10 +115,8 @@ class AttributeController < ApplicationController
     end
 
     if request.get?
-      at = ans.attrib_types.where(:name => name).first
-      if at
-        render :text => at.render_axml, :content_type => 'text/xml'
-      else
+      @at = ans.attrib_types.where(:name => name).first
+      unless @at
         render_error :message => "Unknown attribute '#{namespace}':'#{name}'",
           :status => 404, :errorcode => "unknown_attribute"
       end

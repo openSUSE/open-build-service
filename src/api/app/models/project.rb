@@ -28,12 +28,11 @@ class Project < ActiveRecord::Base
   end
 
   before_destroy :cleanup_before_destroy
-  after_save 'ProjectUserRoleRelationship.discard_cache'
+  after_save 'Relationship.discard_cache'
   after_rollback :reset_cache
-  after_rollback 'ProjectUserRoleRelationship.discard_cache'
+  after_rollback 'Relationship.discard_cache'
 
-  has_many :project_user_role_relationships, :dependent => :delete_all, foreign_key: :db_project_id
-  has_many :project_group_role_relationships, :dependent => :delete_all, foreign_key: :db_project_id
+  has_many :relationships, dependent: :destroy
 
   has_many :packages, :dependent => :destroy, foreign_key: :db_project_id, inverse_of: :project
   has_many :attribs, :dependent => :destroy, foreign_key: :db_project_id
@@ -62,7 +61,7 @@ class Project < ActiveRecord::Base
   has_many  :develprojects, :class_name => "Project", :foreign_key => 'develproject_id'
   belongs_to :develproject, :class_name => "Project"
 
-  default_scope { where("projects.id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
+  default_scope { where("projects.id not in (?)", Relationship.forbidden_project_ids ) }
 
   validates :name, presence: true, length: { maximum: 200 }
   validate :valid_name
@@ -133,11 +132,11 @@ class Project < ActiveRecord::Base
       return false if dbp.nil?
       # check for 'access' flag
 
-      return true unless ProjectUserRoleRelationship.forbidden_project_ids.include? dbp.id
+      return true unless Relationship.forbidden_project_ids.include? dbp.id
 
       # simple check for involvement --> involved users can access
       # dbp.id, User.current
-      grouprels = dbp.project_group_role_relationships.all
+      grouprels = dbp.relationships.groups.to_a
 
       if grouprels
         ret = 0
@@ -146,7 +145,7 @@ class Project < ActiveRecord::Base
           if grouprel and grouprel.bs_group_id
             # LOCAL
             # if user is in group -> return true
-            ret = ret + 1 if User.current.is_in_group?(grouprel.bs_group_id)
+            ret = ret + 1 if User.current.is_in_group?(grouprel.group_id)
             # LDAP
 # FIXME: please do not do special things here for ldap. please cover this in a generic group modell.
             if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
@@ -416,7 +415,7 @@ class Project < ActiveRecord::Base
 
     #--- update users ---#
     usercache = Hash.new
-    self.project_user_role_relationships.each do |purr|
+    self.relationships.users.each do |purr|
       h = usercache[purr.user.login] ||= Hash.new
       h[purr.role.title] = purr
     end
@@ -435,11 +434,11 @@ class Project < ActiveRecord::Base
           pcache[person['role']] = :keep
         else
           #new role
-          self.project_user_role_relationships.new(user: user, role: Role.rolecache[person['role']])
+          self.relationships.new(user: user, role: Role.rolecache[person['role']])
           pcache[person['role']] = :new
         end
       else
-        self.project_user_role_relationships.new(user: user, role: Role.rolecache[person['role']])
+        self.relationships.new(user: user, role: Role.rolecache[person['role']])
         usercache[person['userid']] = { person['role'] => :new }
       end
     end
@@ -456,7 +455,7 @@ class Project < ActiveRecord::Base
     
     #--- update groups ---#
     groupcache = Hash.new
-    self.project_group_role_relationships.each do |pgrr|
+    self.relationships.groups.each do |pgrr|
       h = groupcache[pgrr.group.title] ||= Hash.new
       h[pgrr.role.title] = pgrr
     end
@@ -475,7 +474,7 @@ class Project < ActiveRecord::Base
           pcache[ge['role']] = :keep
         else
           #new role
-          self.project_group_role_relationships.new(group: group, role: Role.rolecache[ge['role']])
+          self.relationships.new(group: group, role: Role.rolecache[ge['role']])
           pcache[ge['role']] = :new
         end
       else
@@ -501,7 +500,7 @@ class Project < ActiveRecord::Base
           end
         end
         
-        self.project_group_role_relationships.new(group: group, role: Role.rolecache[ge['role']])
+        self.relationships.new(group: group, role: Role.rolecache[ge['role']])
       end
     end
     
@@ -906,52 +905,16 @@ class Project < ActiveRecord::Base
   end
 
   def add_user( user, role )
-    check_write_access!
-
-    unless role.kind_of? Role
-      role = Role.get_by_title(role)
-    end
-    if role.global
-      #only nonglobal roles may be set in a project
-      raise SaveError, "tried to set global role '#{role_title}' for user '#{user}' in project '#{self.name}'"
-    end
-
-    unless user.kind_of? User
-      user = User.get_by_login(user)
-    end
-
-    logger.debug "adding user: #{user.login}, #{role.title}"
-    ProjectUserRoleRelationship.create(
-      :project => self,
-      :user => user,
-      :role => role )
+    Relationship.add_user(self, user, role)
   end
 
   def add_group( group, role )
-    check_write_access!
-
-    unless role.kind_of? Role
-      role = Role.get_by_title(role)
-    end
-    if role.global
-      #only nonglobal roles may be set in a project
-      raise SaveError, "tried to set global role '#{role_title}' for group '#{group}' in project '#{self.name}'"
-    end
-
-    unless group.kind_of? Group
-      group = Group.find_by_title(group)
-    end
-
-    logger.debug "adding group: #{group.title}, #{role.title}"
-    ProjectGroupRoleRelationship.create(
-      :project => self,
-      :group => group,
-      :role => role )
+    Relationship.add_group(self, group, role)
   end
 
   def each_user( opt={}, &block )
     raise "No block given" unless block
-    users = project_user_role_relationships.joins(:role, :user).order("roles.title, users.login").pluck("users.login, roles.title")
+    users = relationships.joins(:role, :user).order("roles.title, users.login").pluck("users.login, roles.title")
     users.each do |login, title|
       block.call(login, title)
     end
@@ -959,7 +922,7 @@ class Project < ActiveRecord::Base
 
   def each_group( opt={}, &block )
     raise "No block given" unless block
-    groups = project_group_role_relationships.joins(:role, :group).order("groups.title, roles.title").pluck("groups.title as grouptitle, roles.title as roletitle")
+    groups = relationships.joins(:role, :group).order("groups.title, roles.title").pluck("groups.title as grouptitle, roles.title as roletitle")
     groups.each do |group, role|
       block.call(group, role)
     end
@@ -1308,17 +1271,17 @@ class Project < ActiveRecord::Base
     end
     sql << " )"
     usersql = groupsql = sql
-    usersql  = sql << " AND bs_user_id = " << objfilter.id.to_s  if objfilter.class == User
-    groupsql = sql << " AND bs_group_id = " << objfilter.id.to_s if objfilter.class == Group
+    usersql  = sql << " AND user_id = " << objfilter.id.to_s  if objfilter.class == User
+    groupsql = sql << " AND group_id = " << objfilter.id.to_s if objfilter.class == Group
 
     # lookup
-    pkg.package_user_role_relationships.where(usersql).each do |p|
+    pkg.relationships.users.where(usersql).each do |p|
       m[:users] ||= {}
       m[:users][p.role.title] ||= []
       m[:users][p.role.title] << p.user.login
     end unless objfilter.class == Group
 
-    pkg.package_group_role_relationships.where(groupsql).each do |p|
+    pkg.relationships.groups.where(groupsql).each do |p|
       m[:groups] ||= {}
       m[:groups][p.role.title] ||= []
       m[:groups][p.role.title] << p.group.title
@@ -1327,13 +1290,13 @@ class Project < ActiveRecord::Base
     # did it it match? if not fallback to project level
     unless m[:users] or m[:groups]
       m[:package] = nil
-      pkg.project.project_user_role_relationships.where(usersql).each do |p|
+      pkg.project.relationships.users.where(usersql).each do |p|
         m[:users] ||= {}
         m[:users][p.role.title] ||= []
         m[:users][p.role.title] << p.user.login
       end unless objfilter.class == Group
 
-      pkg.project.project_group_role_relationships.where(groupsql).each do |p|
+      pkg.project.relationships.groups.where(groupsql).each do |p|
         m[:groups] ||= {}
         m[:groups][p.role.title] ||= []
         m[:groups][p.role.title] << p.group.title
@@ -1388,16 +1351,10 @@ class Project < ActiveRecord::Base
     end
 
     # fast find packages with defintions
-    # user in package object
-    defined_packages = Package.joins(:package_user_role_relationships).where("db_project_id in (?) AND package_user_role_relationships.role_id in (?)", projects, roles).pluck(:name)
-    # group in package object
-    defined_packages += Package.joins(:package_group_role_relationships).where("db_project_id in (?) AND package_group_role_relationships.role_id in (?)", projects, roles).pluck(:name)
-    # user in project object
-    Project.joins(:project_user_role_relationships).where("projects.id in (?) AND project_user_role_relationships.role_id in (?)", projects, roles).each do |prj|
-      defined_packages += prj.packages.map{ |p| p.name }
-    end
-    # group in project object
-    Project.joins(:project_group_role_relationships).where("projects.id in (?) AND project_group_role_relationships.role_id in (?)", projects, roles).each do |prj|
+    # relationship in package object
+    defined_packages = Package.joins(:relationships).where("db_project_id in (?) AND role_id in (?)", projects, roles).pluck(:name)
+    # relationship in project object
+    Project.joins(:relationships).where("projects.id in (?) AND role_id in (?)", projects, roles).each do |prj|
       defined_packages += prj.packages.map{ |p| p.name }
     end
     if devel == true
@@ -1434,39 +1391,34 @@ class Project < ActiveRecord::Base
       roles << Role.find_by_title!(f)
     end
 
-    found_packages = []
-    found_projects = []
+    found_packages = Relationship.where(role_id: roles, package_id: Package.where(:db_project_id => projects).pluck(:id))
+    found_projects = Relationship.where(role_id: roles, project_id: projects)
     # fast find packages with defintions
     if owner.class == User
       # user in package object
-      found_packages = PackageUserRoleRelationship.where(:role_id => roles, :bs_user_id => owner, :db_package_id => Package.where(:db_project_id => projects)).pluck(:db_package_id)
+      found_packages = found_packages.where(user_id: owner)
       # user in project object
-      ProjectUserRoleRelationship.where(:role_id => roles, :bs_user_id => owner, :db_project_id => Project.where(:id => projects)).each do |prjrel|
-        found_projects << prjrel.db_project_id
-      end
+      found_projects = found_projects.where(user_id: owner)
     elsif owner.class == Group
       # group in package object
-      found_packages = PackageGroupRoleRelationship.where(:role_id => roles, :bs_group_id => owner, :db_package_id => Package.where(:db_project_id => projects)).pluck(:db_package_id)
+      found_packages = found_packages.where(group_id: owner)
       # group in project object
-      ProjectGroupRoleRelationship.where(:role_id => roles, :bs_group_id => owner, :db_project_id => Project.where(:id => projects)).each do |prjrel|
-        found_projects << prjrel.db_project_id
-      end
+      found_projects = found_projects.where(group_id: owner)
     else
       raise "illegal object handed to find_containers"
     end
     if devel == true
       #FIXME add devel packages, but how do recursive lookup fast in SQL?
     end
-    found_packages.uniq!
+    found_packages = found_packages.pluck(:package_id).uniq
+    found_projects = found_projects.pluck(:project_id).uniq
 
     maintainers=[]
 
-    found_projects.each do |id|
-      prj = Project.find_by_id(id)
-      maintainers << { :rootproject => self.name, :project => prj.name }
+    Project.where(id: found_projects).pluck(:name).each do |prj|
+      maintainers << { :rootproject => self.name, :project => prj }
     end
-    found_packages.each do |id|
-      pkg = Package.find_by_id(id)
+    Package.where(id: found_packages).each do |pkg|
       maintainers << { :rootproject => self.name, :project => pkg.project.name, :package => pkg.name }
     end
 
@@ -1534,9 +1486,13 @@ class Project < ActiveRecord::Base
   end
 
   def project_type
+    return @project_type if @project_type
     mytype = DbProjectType.find(type_id) if type_id
-    return 'standard' unless mytype
-    return mytype.name
+    if mytype
+      return @project_type = mytype.name
+    else
+      return @project_type = 'standard'
+    end
   end
 
   def set_project_type(project_type_name)
@@ -1671,17 +1627,17 @@ class Project < ActiveRecord::Base
   private :bsrequest_repos_map
 
   def user_has_role?(user, role)
-    return true if self.project_user_role_relationships.where(role_id: role.id, bs_user_id: user.id).first
-    return !self.project_group_role_relationships.where(role_id: role).joins(:groups_users).where(groups_users: { user_id: user.id }).first.nil?
+    return true if self.relationships.where(role_id: role.id, user_id: user.id).exists?
+    return self.relationships.where(role_id: role).joins(:groups_users).where(groups_users: { user_id: user.id }).exists?
   end
 
   def remove_role(what, role)
     check_write_access!
 
     if what.kind_of? Group
-      rel = self.project_group_role_relationships.where(bs_group_id: what.id)
+      rel = self.relationships.where(group_id: what.id)
     else
-      rel = self.project_user_role_relationships.where(bs_user_id: what.id)
+      rel = self.relationships.where(user_id: what.id)
     end
     rel = rel.where(role_id: role.id) if role
     self.transaction do
@@ -1695,9 +1651,9 @@ class Project < ActiveRecord::Base
 
     self.transaction do
       if what.kind_of? Group
-        self.project_group_role_relationships.create!(role: role, group: what)
+        self.relationships.create!(role: role, group: what)
       else
-        self.project_user_role_relationships.create!(role: role, user: what)
+        self.relationships.create!(role: role, user: what)
       end
       write_to_backend
     end

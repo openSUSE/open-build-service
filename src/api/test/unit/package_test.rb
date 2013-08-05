@@ -186,7 +186,7 @@ class PackageTest < ActiveSupport::TestCase
     @package.add_user('tom', 'maintainer')
     @package.update_from_xml(Xmlhash.parse(orig))
 
-    assert_raise Package::SaveError do
+    assert_raise Relationship::SaveError do
       @package.add_user('tom', 'Admin')
     end
     assert_equal orig, @package.to_axml

@@ -28,10 +28,7 @@ class Role < ActiveRecord::Base
 
   belongs_to :groups_roles
   belongs_to :attrib_type_modifiable_bies
-  belongs_to :package_group_role_relationships
-  belongs_to :package_user_role_relationships
-  belongs_to :project_group_role_relationships
-  belongs_to :project_user_role_relationships
+  belongs_to :relationships
   belongs_to :roles_static_permissions
   belongs_to :roles_users
 

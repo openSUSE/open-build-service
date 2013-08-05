@@ -89,13 +89,10 @@ check_foreign_key("role_id", "groups_roles", "roles", 1);
 check_foreign_key("group_id", "groups_users", "groups", 1);
 check_foreign_key("user_id", "groups_users", "users", 1);
 
-check_foreign_key("db_package_id", "package_user_role_relationships", packages_tbl, 1);
-check_foreign_key("bs_user_id", "package_user_role_relationships", "users", 1);
-check_foreign_key("role_id", "package_user_role_relationships", "roles", 1);
-
-check_foreign_key("db_project_id", "project_user_role_relationships", projects_tbl, 1);
-check_foreign_key("bs_user_id", "project_user_role_relationships", "users", 1);
-check_foreign_key("role_id", "project_user_role_relationships", "roles", 1);
+check_foreign_key("db_package_id", "relationships", packages_tbl, 1);
+check_foreign_key("bs_user_id", "relationships", "users", 1);
+check_foreign_key("role_id", "relationships", "roles", 1);
+check_foreign_key("db_project_id", "relationships", projects_tbl, 1);
 
 check_foreign_key("parent_id", "path_elements", "repositories", 1);
 check_foreign_key("repository_id", "path_elements", "repositories", 1);
