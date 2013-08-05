@@ -4,10 +4,10 @@
 class AttribType < ActiveRecord::Base
   belongs_to :attrib_namespace
 
-  has_many :attribs, :dependent => :destroy
-  has_many :default_values, :class_name => 'AttribDefaultValue', :dependent => :destroy
-  has_many :allowed_values, :class_name => 'AttribAllowedValue', :dependent => :destroy
-  has_many :attrib_type_modifiable_bies, :class_name => 'AttribTypeModifiableBy', :dependent => :destroy
+  has_many :attribs, dependent: :destroy
+  has_many :default_values, :class_name => 'AttribDefaultValue', dependent: :delete_all
+  has_many :allowed_values, :class_name => 'AttribAllowedValue', dependent: :delete_all
+  has_many :attrib_type_modifiable_bies, :class_name => 'AttribTypeModifiableBy', dependent: :delete_all
 
   class << self
     def find_by_name(name)

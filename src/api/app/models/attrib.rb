@@ -6,7 +6,7 @@ class Attrib < ActiveRecord::Base
   belongs_to :project, foreign_key: :db_project_id
   belongs_to :attrib_type
   has_many :issues, class_name: 'AttribIssue', dependent: :destroy
-  has_many :values, -> { order("position") }, class_name: 'AttribValue', dependent: :destroy
+  has_many :values, -> { order("position") }, class_name: 'AttribValue', dependent: :delete_all
 
   scope :nobinary, -> { where(:binary => nil) }
 

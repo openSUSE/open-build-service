@@ -1,8 +1,8 @@
 # Specifies own namespaces of attributes
 
 class AttribNamespace < ActiveRecord::Base
-  has_many :attrib_types, :dependent => :destroy
-  has_many :attrib_namespace_modifiable_bies, :class_name => 'AttribNamespaceModifiableBy', :dependent => :destroy
+  has_many :attrib_types, dependent: :destroy
+  has_many :attrib_namespace_modifiable_bies, :class_name => 'AttribNamespaceModifiableBy', dependent: :delete_all
 
   def create_one_rule(m)
     if not m["user"] and not m["group"]

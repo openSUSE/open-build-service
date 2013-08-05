@@ -52,7 +52,7 @@ class Project < ActiveRecord::Base
   has_many :flags, dependent: :delete_all, foreign_key: :db_project_id
 
   # optional
-  has_one :maintenance_incident, :dependent => :destroy, foreign_key: :db_project_id
+  has_one :maintenance_incident, dependent: :delete, foreign_key: :db_project_id
 
   # self-reference between devel projects and maintenance projects
   has_many :maintained_projects, :class_name => "Project", :foreign_key => "maintenance_project_id"

@@ -30,15 +30,15 @@ class Package < ActiveRecord::Base
   belongs_to :project, foreign_key: :db_project_id, inverse_of: :packages
 
   has_many :relationships, dependent: :destroy
-  has_many :messages, :as => :db_object, :dependent => :destroy
+  has_many :messages, :as => :db_object, dependent: :delete_all
 
-  has_many :taggings, :as => :taggable, :dependent => :destroy
+  has_many :taggings, :as => :taggable, dependent: :delete_all
   has_many :tags, :through => :taggings
 
   has_many :download_stats
-  has_many :ratings, :as => :db_object, :dependent => :destroy
+  has_many :ratings, :as => :db_object, dependent: :delete_all
 
-  has_many :flags, -> { order(:position) }, :dependent => :destroy, foreign_key: :db_package_id
+  has_many :flags, -> { order(:position) }, dependent: :delete_all, foreign_key: :db_package_id
 
   belongs_to :develpackage, :class_name => "Package", :foreign_key => 'develpackage_id'
   has_many  :develpackages, :class_name => "Package", :foreign_key => 'develpackage_id'
