@@ -378,9 +378,9 @@ class Package < ActiveRecord::Base
       patchinfo = Suse::Backend.get("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}/_patchinfo")
       Project.transaction do
         self.package_issues.destroy_all
-        xml = REXML::Document.new(patchinfo.body.to_s)
-        xml.root.elements.each('issue') { |i|
-          issue = Issue.find_or_create_by_name_and_tracker( i.attributes['id'], i.attributes['tracker'] )
+        xml = Xmlhash.parse(patchinfo.body.to_s)
+        xml.elements('issue') { |i|
+          issue = Issue.find_or_create_by_name_and_tracker( i['id'], i['tracker'] )
           self.package_issues.create( :issue => issue, :change => "kept" )
         }
       end
