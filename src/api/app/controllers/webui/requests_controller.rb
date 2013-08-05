@@ -1,25 +1,28 @@
 class Webui::RequestsController < Webui::BaseController
-  def ids
+  class RequireFilter < APIException; end
+
+  def require_filter
     # Do not allow a full collection to avoid server load
     if params[:project].blank? && params[:user].blank? && params[:package].blank?
-      render_error :status => 400, :errorcode => 'require_filter',
-                   :message => "This call requires at least one filter, either by user, project or package"
-      return
+      raise RequireFilter.new "This call requires at least one filter, either by user, project or package"
     end
+  end
+
+  def ids
+    require_filter
 
     roles = params[:roles] || []
     states = params[:states] || []
-    ids = []
-    rel = nil
-
-    if params[:project]
-      if roles.empty? && (states.empty? || states.include?('review')) # it's wiser to split the queries
-        rel = BsRequest.collection(params.merge({ roles: ['reviewer'] }))
-        ids = rel.pluck("bs_requests.id")
-        rel = BsRequest.collection(params.merge({ roles: ['target', 'source'] }))
-      end
+ 
+    # it's wiser to split the queries
+    if params[:project] && roles.empty? && (states.empty? || states.include?('review'))
+      rel = BsRequest.collection(params.merge({ roles: ['reviewer'] }))
+      ids = rel.pluck("bs_requests.id")
+      rel = BsRequest.collection(params.merge({ roles: ['target', 'source'] }))
+    else
+      rel = BsRequest.collection(params)
+      ids = []
     end
-    rel = BsRequest.collection(params) unless rel
     ids.concat(rel.pluck("bs_requests.id"))
 
     render json: ids.uniq.sort
