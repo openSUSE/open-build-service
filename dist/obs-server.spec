@@ -15,15 +15,33 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
+%if 0%{?fedora}
+%global sbin /usr/sbin
+%else
+%global sbin /sbin
+%endif
+
+%if 0%{?fedora} || 0%{?rhel}
+%global apache_user apache
+%global apache_group apache
+%else
+%global apache_user wwwrun
+%global apache_group www
+%endif
 
 Name:           obs-server
 Summary:        The Open Build Service -- Server Component
 License:        GPL-2.0 and GPL-3.0
+%if 0%{?fedora} || 0%{?rhel}
+Group:          Applications/Productivity
+%else
 Group:          Productivity/Networking/Web/Utilities
+%endif
 Version:        2.4.50_382_g5ef3c6a
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+# Sources are retrieved using script which is attached as Source2
 Source:         obs-server-%version.tar.bz2
 Source2:        update-sources.sh
 BuildRequires:  python-devel
@@ -93,7 +111,6 @@ Requires:       bash
 Requires:       binutils
 Requires:       bsdtar
 Summary:        The Open Build Service -- Build Host Component
-Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
@@ -119,7 +136,6 @@ run a local playground test installation.
 
 %package -n obs-api
 Summary:        The Open Build Service -- The API and WEBUI
-Group:          Productivity/Networking/Web/Utilities
 Obsoletes:      obs-common <= 2.2.90
 %if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
@@ -205,7 +221,6 @@ Requires:       rubygem(2.0.0:yajl-ruby) = 1.1.0
 # requires for webui:
 Requires:       ghostscript-fonts-std
 Summary:        The Open Build Service -- The API and WEBUI
-Group:          Productivity/Networking/Web/Utilities
 
 %description -n obs-api
 This is the API server instance, and the web client for the 
@@ -213,7 +228,6 @@ OBS.
 
 %package -n obs-devel
 Summary:        The Open Build Service -- The API and WEBUI Testsuite
-Group:          Productivity/Networking/Web/Utilities
 Obsoletes:      obs-webui-testsuite
 Requires:       obs-api = %{version}-%{release}
 %requires_eq obs-api-testsuite-deps
@@ -223,7 +237,6 @@ Install to track dependencies for git
 
 %package -n obs-source_service
 Summary:        The Open Build Service -- source service daemon
-Group:          Productivity/Networking/Web/Utilities
 # Our default services, used in osc and webui
 Recommends:     obs-service-download_url
 Recommends:     obs-service-verify_file
@@ -238,7 +251,6 @@ This component is optional and not required to run the service.
 
 %package -n obs-productconverter
 Summary:        The Open Build Service -- product definition utility
-Group:          Productivity/Networking/Web/Utilities
 # For perl library files, TODO: split out obs-lib subpackage?
 Requires:       obs-server
 
@@ -248,7 +260,6 @@ product definition.
 
 %package -n obs-utils
 Summary:        The Open Build Service -- utilities
-Group:          Productivity/Networking/Web/Utilities
 Requires:       build
 Requires:       osc
 Requires:       ruby
@@ -279,6 +290,12 @@ popd
 # First install all dist files
 #
 cd dist
+%if 0%{?fedora} || 0%{?rhel}
+  # Fedora use different user:group for apache
+  find -type f | xargs sed -i '1,$s/wwwrun\(.*\)www/apache\1apache/g'
+  find -type f | xargs sed -i '1,$s/user wwwrun/user apache/g'
+  find -type f | xargs sed -i '1,$s/group www/group apache/g'
+%endif
 # configure apache web service
 mkdir -p $RPM_BUILD_ROOT/etc/apache2/vhosts.d/
 install -m 0644 obs-apache2.conf $RPM_BUILD_ROOT/etc/apache2/vhosts.d/obs.conf
@@ -383,7 +400,7 @@ rm -rf build
 cp BSConfig.pm.template BSConfig.pm
 
 install -d -m 755 $RPM_BUILD_ROOT/usr/lib/obs/server/
-ln -sf /usr/lib/build $RPM_BUILD_ROOT/usr/lib/obs/server/build # just for check section, it is a %ghost
+ln -sf /usr/lib/build $RPM_BUILD_ROOT/usr/lib/obs/server/build # just for check section, it is a %%ghost
 #for i in build events info jobs log projects repos run sources trees workers; do
 #  install -d -m 755 $RPM_BUILD_ROOT/srv/obs/$i
 #done
@@ -396,8 +413,6 @@ cd ..
 #
 # turn duplicates into hard links
 #
-#%fdupes $RPM_BUILD_ROOT/srv/www/obs/api
-#%fdupes $RPM_BUILD_ROOT/srv/www/obs/webui
 # There's dupes between webui and api:
 %if 0%{?suse_version} >= 1030
 %fdupes $RPM_BUILD_ROOT/srv/www/obs
@@ -452,7 +467,7 @@ EOF
 pushd $RPM_BUILD_ROOT/usr/lib/obs/server/
 file build
 rm build
-ln -sf /usr/lib/build build # just for %check, it is a %ghost
+ln -sf /usr/lib/build build # just for %%check, it is a %%ghost
 for i in bs_*; do
   perl -wc "$i"
 done
@@ -516,12 +531,18 @@ popd
 rm -rf /tmp/obs.mysql.db /tmp/obs.test.mysql.socket
 
 %pre
-/usr/sbin/groupadd -r obsrun 2> /dev/null || :
-/usr/sbin/useradd -r -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
+getent group obsrun >/dev/null || groupadd -r obsrun
+getent passwd obsrun >/dev/null || \
+    /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
+    -c "User for build service backend" obsrun
+exit 0
 
 %pre -n obs-worker
-/usr/sbin/groupadd -r obsrun 2> /dev/null || :
-/usr/sbin/useradd -r -s /bin/false -c "User for build service backend" -d /usr/lib/obs -g obsrun obsrun 2> /dev/null || :
+getent group obsrun >/dev/null || groupadd -r obsrun
+getent passwd obsrun >/dev/null || \
+    /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
+    -c "User for build service backend" obsrun
+exit 0
 
 %preun
 %stop_on_removal obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner
@@ -567,7 +588,8 @@ rmdir /srv/obs 2> /dev/null || :
 if [ -d /srv/www/obs/webui/public/vendor/neutral/images -a ! -L /srv/www/obs/webui/public/vendor/neutral/images ]; then
   mv /srv/www/obs/webui/public/vendor/neutral/images /srv/www/obs/webui/public/vendor/neutral/images.rpmold
 fi
-/usr/sbin/useradd -r -s /bin/bash -c "User for build service api delayed jobs" -d /srv/www/obs/api -g www obsapidelayed 2> /dev/null || :
+getent passwd obsapidelayed >/dev/null || \
+  /usr/sbin/useradd -r -s /bin/bash -c "User for build service api delayed jobs" -d /srv/www/obs/api -g www obsapidelayed
 
 %post -n obs-api
 %{fillup_and_insserv -n obs-server}
@@ -583,11 +605,11 @@ done
 # for update from 2.1(lighttpd), do a chown
 userid=`stat -c %U /srv/www/obs/api/config/secret.key 2> /dev/null` || :
 if [ "$userid" = lighttpd ]; then
-  chown wwwrun.www /srv/www/obs/api/config/secret.key
+  chown %{apache_user}.%{apache_group} /srv/www/obs/api/config/secret.key
 fi
 userid=`stat -c %U /srv/www/obs/webui/config/secret.key 2> /dev/null` || :
 if [ "$userid" = lighttpd ]; then
-  chown wwwrun.www /srv/www/obs/webui/config/secret.key
+  chown %{apache_user}.%{apache_group} /srv/www/obs/webui/config/secret.key
 fi
 # update config
 sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/api/config/database.yml
@@ -681,7 +703,7 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/d
 /usr/lib/obs/server/worker-deltagen.spec
 %config(noreplace) /usr/lib/obs/server/BSConfig.pm
 %config(noreplace) /etc/slp.reg.d/*
-# created via %post, since rpm fails otherwise while switching from 
+# created via %%post, since rpm fails otherwise while switching from 
 # directory to symlink
 %ghost /usr/lib/obs/server/build
 
@@ -752,14 +774,14 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/d
 %config /srv/www/obs/api/config/environments/stage.rb
 %config(noreplace) /srv/www/obs/api/config/active_rbac_config.rb
 
-%dir %attr(-,wwwrun,www) /srv/www/obs/api/log
-%verify(not size md5) %attr(-,wwwrun,www) /srv/www/obs/api/log/production.log
-%attr(-,wwwrun,www) /srv/www/obs/api/tmp
+%dir %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/api/log
+%verify(not size md5) %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/api/log/production.log
+%attr(-,%{apache_user},%{apache_group}) /srv/www/obs/api/tmp
 
 # starting the webui part
 %dir /srv/www/obs/webui
 # sqlite3 needs write permissions
-%dir %attr(-,wwwrun,www) /srv/www/obs/webui/db
+%dir %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/webui/db
 /srv/www/obs/webui/app
 /srv/www/obs/webui/db/migrate
 /srv/www/obs/webui/db/schema.rb
@@ -789,13 +811,13 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/d
 %config /srv/www/obs/webui/config/environments/production.rb
 %config /srv/www/obs/webui/config/environments/test.rb
 %config /srv/www/obs/webui/config/environments/stage.rb
-%attr(0640,root,www) %config(noreplace) /srv/www/obs/webui/config/database.yml*
+%attr(0640,root,%{apache_group}) %config(noreplace) /srv/www/obs/webui/config/database.yml*
 %attr(0644,root,root) %config(noreplace) /srv/www/obs/webui/config/options.yml*
 
-%dir %attr(-,wwwrun,www) /srv/www/obs/webui/log
-%config(noreplace) %verify(not size md5) %attr(-,wwwrun,www) /srv/www/obs/webui/db/database.db
-%config(noreplace) %verify(not size md5) %attr(-,wwwrun,www) /srv/www/obs/webui/log/production.log
-%attr(-,wwwrun,www) /srv/www/obs/webui/tmp
+%dir %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/webui/log
+%config(noreplace) %verify(not size md5) %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/webui/db/database.db
+%config(noreplace) %verify(not size md5) %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/webui/log/production.log
+%attr(-,%{apache_user},%{apache_group}) /srv/www/obs/webui/tmp
 
 # these dirs primarily belong to apache2:
 %dir /etc/apache2
