@@ -163,7 +163,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
     # create a patchinfo if missing and incident has just been created
     if opts[:check_for_patchinfo] and !incident_project.packages.where(name: "patchinfo").first
-      incident_project.create_patchinfo_from_request(self.bs_request)
+      Patchinfo.new.create_patchinfo_from_request(incident_project, self.bs_request)
     end 
     
   end

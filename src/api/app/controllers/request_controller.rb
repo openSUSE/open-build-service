@@ -237,36 +237,7 @@ class RequestController < ApplicationController
     newPackages.each do |pkg|
       releaseTargets=nil
       if pkg.package_kinds.find_by_kind 'patchinfo'
-        answer = Suse::Backend.get("/source/#{URI.escape(pkg.project.name)}/#{URI.escape(pkg.name)}/_patchinfo")
-        data = ActiveXML::Node.new(answer.body)
-        # validate _patchinfo for completeness
-        unless data
-          render_error :status => 400, :errorcode => 'incomplete_patchinfo',
-                       :message => "The _patchinfo file is not parseble"
-          return
-        end
-        if data.rating.nil? or data.rating.text.blank?
-          render_error :status => 400, :errorcode => 'incomplete_patchinfo',
-                       :message => "The _patchinfo has no rating set"
-          return
-        end
-        if data.category.nil? or data.category.text.blank?
-          render_error :status => 400, :errorcode => 'incomplete_patchinfo',
-                       :message => "The _patchinfo has no category set"
-          return
-        end
-        if data.summary.nil? or data.summary.text.blank?
-          render_error :status => 400, :errorcode => 'incomplete_patchinfo',
-                       :message => "The _patchinfo has no summary set"
-          return
-        end
-        # a patchinfo may limit the targets
-        if data.releasetarget
-          releaseTargets = Array.new unless releaseTargets
-          data.each_releasetarget do |rt|
-            releaseTargets << rt
-          end
-        end
+        releaseTargets = Patchinfo.new.fetch_release_targets(pkg)
       end
       newTargets.each do |p|
         if releaseTargets
