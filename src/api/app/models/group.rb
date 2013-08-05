@@ -106,24 +106,6 @@ class Group < ActiveRecord::Base
     end
   end
 
-  def render_axml()
-    builder = Nokogiri::XML::Builder.new
-
-    builder.group() do |group|
-      group.title( self.title )
-
-      group.person do |person|
-        self.groups_users.each do |gu|
-          person.person( :userid => gu.user.login )
-        end
-      end
-    end
-
-    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
-                              :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                            Nokogiri::XML::Node::SaveOptions::FORMAT
-  end
-
   def add_user(user)
     return if self.users.find_by_id user.id # avoid double creation
     gu = GroupsUser.create( user: user, group: self)

@@ -20,8 +20,13 @@ OBSApi::Application.routes.draw do
     match 'person/:login' => 'person#userinfo', :constraints => cons, via: [:get, :put, :post]
 
     ### /group
-    get 'group' => 'group#index'
-    match 'group/:title' => 'group#group', :constraints => cons, via: [:get, :put, :delete, :post]
+    controller :group do
+      get 'group' => :index
+      get 'group/:title' => :show
+      delete 'group/:title' => :delete
+      put 'group/:title' => :update
+      post 'group/:title' => :command
+    end
 
     ### /service
     get 'service' => 'service#index'

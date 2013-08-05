@@ -1,8 +1,8 @@
 class Webui::RelationshipsController < Webui::BaseController
 
-  before_filter :load_object
-  before_filter :load_target
-  before_filter :load_role
+  before_action :load_object
+  before_action :load_target
+  before_action :load_role
 
   def load_object
     if login = params[:user]
