@@ -1,32 +1,39 @@
 class Webui::CommentsController < Webui::BaseController
 
 	def packages
-		comments = CommentsByPackage.find(params[:project],params[:package])
-		render :json => comments
+		package = Package.get_by_project_and_name(params[:project] , params[:package])
+		unless package.nil?
+			comments = CommentPackage.where(package_id: package.id)
+			render :json => comments
+		else
+			render_error :status => 404, :errorcode => 'package_returned_nil',
+                       :message => "Package returned nil"
+		end
 	end
 
 	def projects
-		comments = CommentsByProject.find(params[:project])
+		project = Project.get_by_name(params[:project])
+		comments = CommentProject.where(project_id: project.id)
 		render :json => comments
 	end
 
 	def requests
-		comments = CommentsByRequest.find(params[:id])
+		comments = CommentRequest.where(bs_request_id: params[:project_id])
 		render :json => comments
 	end
 
 	def packages_new
-		CommentsByPackage.save(params)
+		CommentPackage.save(params)
 		render_ok
 	end
 
 	def projects_new
-		CommentsByProject.save(params)
+		CommentProject.save(params)
 		render_ok
 	end
 
 	def requests_new
-		CommentsByRequest.save(params)
+		CommentRequest.save(params)
 		render_ok
 	end
 end

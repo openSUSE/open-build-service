@@ -108,4 +108,3 @@ class ApiDetails
     end
   end
 end
-
