@@ -44,6 +44,8 @@ class ApiDetails
     uri = "/webui/" +
     case route_name.to_sym
       when :save_comments_for_projects then "comments/project/#{params[:project]}/new"
+      when :save_comments_for_packages then "comments/package/#{params[:project]}/#{params[:package]}/new"
+      when :save_comments_for_requests then "comments/request/#{params[:request_id]}/new"
     end
 
     uri = URI(uri)
@@ -83,14 +85,11 @@ class ApiDetails
       when :request then "requests/#{ids.first}"
       when :ids_requests then "requests/ids"
       when :by_class_requests then "requests/by_class"
-<<<<<<< HEAD
-  
-=======
 
       when :comments_by_package then "comments/package/#{ids.first}/#{ids.last}"
       when :comments_by_project then "comments/project/#{ids.first}"
       when :comments_by_request then "comments/request/#{ids.first}"
->>>>>>> [webui][api] refactoring to make the code more object oriented
+        
       else raise "no valid route #{route_name}"
       end
     uri = url_for(uri, opts)

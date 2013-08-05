@@ -287,9 +287,26 @@ class RequestController < ApplicationController
     redirect_to :controller => :request, :action => "show", :id => params[:id]
   end
 
+
   def comments
-    @comment = ApiDetails.read(:comments_by_request, params[:id])
-    @comments_as_thread = sort_comments(@comment)
+    unless params[:reply] == 'true'
+      @comment = ApiDetails.read(:comments_by_request, params[:id])
+      @comments_as_thread = sort_comments(@comment)
+    else
+      render_dialog
+    end
+  end
+
+  def save_comments
+    ApiDetails.save_comments(:save_comments_for_requests, params)
+
+    respond_to do |format|
+      format.js { render json: 'ok' }
+      format.html do
+        flash[:notice] = "Comment added successfully"
+        redirect_to action: :comments
+      end
+    end
   end
 
 private
