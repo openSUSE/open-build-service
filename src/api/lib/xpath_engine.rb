@@ -266,7 +266,7 @@ class XpathEngine
     when 'projects'
       relation = Project.all
     when 'repositories'
-      relation = Repository.where("db_project_id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids)
+      relation = Repository.where("db_project_id not in (?)", Relationship.forbidden_project_ids)
     when 'requests'
       relation = BsRequest.all
     when 'users'

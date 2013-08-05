@@ -5,7 +5,7 @@ class Relationship < ActiveRecord::Base
   belongs_to :user
   belongs_to :group
   has_many :groups_users, through: :group
-  
+
   belongs_to :project
   belongs_to :package
 
@@ -53,9 +53,10 @@ class Relationship < ActiveRecord::Base
     end
   end
 
-  class SaveError < APIException; end
+  class SaveError < APIException;
+  end
 
-  def self.add_user( obj, user, role )
+  def self.add_user(obj, user, role)
     obj.check_write_access!
 
     unless role.kind_of? Role
@@ -71,14 +72,14 @@ class Relationship < ActiveRecord::Base
     end
 
     logger.debug "adding user: #{user.login}, #{role.title}"
-    r = obj.relationships.create( user: user, role: role)
+    r = obj.relationships.create(user: user, role: role)
     if r.invalid?
       logger.debug "invalid: #{r.errors.inspect}"
       r.delete
     end
   end
 
-  def self.add_group( obj, group, role )
+  def self.add_group(obj, group, role)
     obj.check_write_access!
 
     unless role.kind_of? Role
@@ -97,5 +98,50 @@ class Relationship < ActiveRecord::Base
     r = obj.relationships.create(group: group, role: role)
     r.delete if r.invalid?
   end
+
+  FORBIDDEN_PROJECT_IDS_CACHE_KEY="forbidden_project_ids"
+
+  # this is to speed up secure Project.find
+  def self.forbidden_project_ids
+    if User.current
+      return User.current.forbidden_project_ids
+    end
+    # mainly for scripts
+    forbidden_project_ids_for_user(nil)
+  end
+
+  def self.forbidden_project_ids_for_user(user)
+    project_user_cache = Rails.cache.fetch(FORBIDDEN_PROJECT_IDS_CACHE_KEY) do
+      puc = Hash.new
+      Relationship.find_by_sql("SELECT ur.project_id, ur.user_id from flags f,
+                relationships ur where f.flag = 'access' and f.status = 'disable' and ur.project_id = f.db_project_id").each do |r|
+        puc[r.project_id] ||= Hash.new
+        puc[r.project_id][r.user_id] = 1
+      end
+      puc
+    end
+    ret = [0]
+    if user
+      return ret if user.is_admin?
+      userid = user.id
+    else
+      userid = User.nobodyID
+    end
+    project_user_cache.each do |project_id, users|
+      ret << project_id unless users[userid]
+    end
+    # we always put a 0 in there to avoid having to check for NULL
+    ret << 0 if ret.blank?
+    ret
+  end
+
+  def self.discard_cache
+    Rails.cache.delete(FORBIDDEN_PROJECT_IDS_CACHE_KEY)
+  end
+
+  # we only care for project<->user relationships, but the cache is not *that* expensive
+  # to recalculate
+  after_create 'Relationship.discard_cache'
+  after_rollback 'Relationship.discard_cache'
 
 end
