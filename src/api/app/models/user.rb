@@ -8,8 +8,7 @@ class User < ActiveRecord::Base
   has_many :watched_projects, :foreign_key => 'bs_user_id', :dependent => :destroy
   has_many :groups_users, :foreign_key => 'user_id'
   has_many :roles_users, :foreign_key => 'user_id'
-  has_many :project_user_role_relationships
-  has_many :package_user_role_relationships
+  has_many :relationships
 
   has_many :status_messages
   has_many :messages
@@ -1251,7 +1250,7 @@ class User < ActiveRecord::Base
     role = Role.rolecache["maintainer"]
 
     ### all projects where user is maintainer
-    projects = ProjectUserRoleRelationship.where(user_id: id, role_id: role.id).pluck(:project_id)
+    projects = self.relationships.projects.where(role_id: role.id).pluck(:project_id)
 
     # all projects where user is maintainer via a group
     projects += Relationship.projects.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).pluck(:project_id) 
@@ -1273,7 +1272,7 @@ class User < ActiveRecord::Base
     projects << -1 if projects.empty?
 
     # all packages where user is maintainer
-    packages = PackageUserRoleRelationship.where(user_id: id, role_id: role.id).joins(:package).where("packages.db_project_id not in (?)", projects).pluck(:package_id)
+    packages = self.relationships.where(role_id: role.id).joins(:package).where("packages.db_project_id not in (?)", projects).pluck(:package_id)
 
     # all packages where user is maintainer via a group
     packages += Relationship.packages.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).pluck(:package_id)
@@ -1286,15 +1285,14 @@ class User < ActiveRecord::Base
   end
 
   def user_relevant_packages_for_status
-    purr = "package_user_role_relationships"
     role_id = Role.rolecache['maintainer'].id
     # First fetch the project ids
     projects_ids = self.involved_projects_ids
-    packages = Package.joins("LEFT OUTER JOIN #{purr} ON (#{purr}.package_id = packages.id AND #{purr}.role_id = #{role_id})")
+    packages = Package.joins("LEFT OUTER JOIN relationships ON (relationships.package_id = packages.id AND relationships.role_id = #{role_id})")
     # No maintainers
     packages = packages.where([
-      "(#{purr}.user_id = ?) OR "\
-      "(#{purr}.user_id is null AND project_id in (?) )", self.id, projects_ids])
+      "(relationships.user_id = ?) OR "\
+      "(relationships.user_id is null AND project_id in (?) )", self.id, projects_ids])
     packages.pluck(:id)
   end
 

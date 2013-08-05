@@ -30,7 +30,6 @@ class Package < ActiveRecord::Base
   belongs_to :project, foreign_key: :db_project_id, inverse_of: :packages
 
   has_many :relationships, dependent: :destroy
-  has_many :package_user_role_relationships
   has_many :messages, :as => :db_object, :dependent => :destroy
 
   has_many :taggings, :as => :taggable, :dependent => :destroy
@@ -490,7 +489,7 @@ class Package < ActiveRecord::Base
     
     #--- update users ---#
     usercache = Hash.new
-    self.package_user_role_relationships.each do |purr|
+    self.relationships.users.each do |purr|
       h = usercache[purr.user.login] ||= Hash.new
       h[purr.role.title] = purr
     end
@@ -511,11 +510,11 @@ class Package < ActiveRecord::Base
           pcache[person['role']] = :keep
         else
           #new role
-          self.package_user_role_relationships.new(user: user, role: Role.rolecache[person['role']])
+          self.relationships.new(user: user, role: Role.rolecache[person['role']])
           pcache[person['role']] = :new
         end
       else
-        self.package_user_role_relationships.new(user: user, role: Role.rolecache[person['role']])
+        self.relationships.new(user: user, role: Role.rolecache[person['role']])
         usercache[person['userid']] = { person['role'] => :new }
       end
     end
@@ -704,7 +703,7 @@ class Package < ActiveRecord::Base
   end
 
   def each_user( opt={}, &block )
-    users = package_user_role_relationships.joins(:role, :user).select("users.login as login, roles.title AS role_name").order("role_name, login")
+    users = relationships.joins(:role, :user).select("users.login as login, roles.title AS role_name").order("role_name, login")
     if( block )
       users.each do |u|
         block.call u.login, u.role_name
