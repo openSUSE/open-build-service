@@ -426,14 +426,14 @@ sub oracle {
       return 0 unless grep {$_ eq $l->{'_content'}} @{$worker->{'hostlabel'} || []};
     }
   }
-  if ($constraints->{'sandbox'} && $constraints->{'sandbox'}->{'content'}) {
+  if ($constraints->{'sandbox'} && $constraints->{'sandbox'}->{'_content'}) {
     if ($constraints->{'sandbox'}->{'exclude'} && $constraints->{'sandbox'}->{'exclude'} eq 'true') {
-      return 0 if $constraints->{'sandbox'}->{'content'} eq ($worker->{'sandbox'} || '');
+      return 0 if $constraints->{'sandbox'}->{'_content'} eq ($worker->{'sandbox'} || '');
     } else {
-      if ($constraints->{'sandbox'}->{'content'} eq 'secure') {
+      if ($constraints->{'sandbox'}->{'_content'} eq 'secure') {
         return 0 unless $secure_sandboxes{$worker->{'sandbox'} || ''};
       } else {
-        return 0 unless $constraints->{'sandbox'}->{'content'} eq ($worker->{'sandbox'} || '');
+        return 0 unless $constraints->{'sandbox'}->{'_content'} eq ($worker->{'sandbox'} || '');
       }
     }
   }
