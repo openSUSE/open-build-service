@@ -32,8 +32,8 @@ module MaintenanceHelper
         tprj.relationships.new(user: r.user, role: r.role, group: r.group)
       end
       # set default bugowner if missing
-      bugowner = Role.get_by_title("bugowner")
-      unless tprj.project_user_role_relationships.where("role_id = ?", bugowner.id).exists?
+      bugowner = Role.rolecache['bugowner']
+      unless tprj.relationships.users.where("role_id = ?", bugowner.id).exists?
         tprj.add_user( @http_user, bugowner )
       end
       # and write it

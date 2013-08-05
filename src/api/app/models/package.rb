@@ -52,7 +52,7 @@ class Package < ActiveRecord::Base
   before_update :update_activity
   after_rollback :reset_cache
 
-  default_scope { where("packages.db_project_id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
+  default_scope { where("packages.db_project_id not in (?)", Relationship.forbidden_project_ids ) }
 
   validates :name, presence: true, length: { maximum: 200 }
   validate :valid_name

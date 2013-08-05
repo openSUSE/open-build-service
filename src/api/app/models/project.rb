@@ -28,12 +28,11 @@ class Project < ActiveRecord::Base
   end
 
   before_destroy :cleanup_before_destroy
-  after_save 'ProjectUserRoleRelationship.discard_cache'
+  after_save 'Relationship.discard_cache'
   after_rollback :reset_cache
-  after_rollback 'ProjectUserRoleRelationship.discard_cache'
+  after_rollback 'Relationship.discard_cache'
 
   has_many :relationships, dependent: :destroy
-  has_many :project_user_role_relationships
 
   has_many :packages, :dependent => :destroy, foreign_key: :db_project_id, inverse_of: :project
   has_many :attribs, :dependent => :destroy, foreign_key: :db_project_id
@@ -62,7 +61,7 @@ class Project < ActiveRecord::Base
   has_many  :develprojects, :class_name => "Project", :foreign_key => 'develproject_id'
   belongs_to :develproject, :class_name => "Project"
 
-  default_scope { where("projects.id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
+  default_scope { where("projects.id not in (?)", Relationship.forbidden_project_ids ) }
 
   validates :name, presence: true, length: { maximum: 200 }
   validate :valid_name
@@ -133,7 +132,7 @@ class Project < ActiveRecord::Base
       return false if dbp.nil?
       # check for 'access' flag
 
-      return true unless ProjectUserRoleRelationship.forbidden_project_ids.include? dbp.id
+      return true unless Relationship.forbidden_project_ids.include? dbp.id
 
       # simple check for involvement --> involved users can access
       # dbp.id, User.current
@@ -416,7 +415,7 @@ class Project < ActiveRecord::Base
 
     #--- update users ---#
     usercache = Hash.new
-    self.project_user_role_relationships.each do |purr|
+    self.relationships.users.each do |purr|
       h = usercache[purr.user.login] ||= Hash.new
       h[purr.role.title] = purr
     end
@@ -435,11 +434,11 @@ class Project < ActiveRecord::Base
           pcache[person['role']] = :keep
         else
           #new role
-          self.project_user_role_relationships.new(user: user, role: Role.rolecache[person['role']])
+          self.relationships.new(user: user, role: Role.rolecache[person['role']])
           pcache[person['role']] = :new
         end
       else
-        self.project_user_role_relationships.new(user: user, role: Role.rolecache[person['role']])
+        self.relationships.new(user: user, role: Role.rolecache[person['role']])
         usercache[person['userid']] = { person['role'] => :new }
       end
     end
