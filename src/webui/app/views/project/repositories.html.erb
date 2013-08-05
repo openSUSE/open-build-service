@@ -44,6 +44,10 @@
             <%= link_to('Request repository deletion', {:action => :remove_target_request_dialog, :project => @project, :repository => repository.name}, :remote => true) %>
           <% end %>
           <%= render :partial => 'shared/download_repository_link', :locals => {:project => @project, :repository => repository} %>
+          <% if repository.releasetarget and repository.releasetarget.trigger == "manual" %>
+            <%= sprite_tag('flag_green') %>
+            <%= link_to('Release repository', {:action => :release_repository_dialog, :project => @project, :repository => repository.name}, :remote => true) %>
+          <% end %>
         </div>
       </div>
     </div>
