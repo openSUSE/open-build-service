@@ -12,7 +12,10 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     # Testing new comment creation
     post "/webui/comments/project/openSUSE/new", "<comments project='openSUSE' object_type='project'><list user='Admin' title='Comment title'>Body</list></comments>"
     assert_response :success
-  end
 
+    # counter test
+    get "/webui/comments/project/openSUSE"
+    assert_response :success
+  end
 end
 

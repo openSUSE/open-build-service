@@ -61,17 +61,12 @@ class Project < ActiveRecord::Base
   has_many  :develprojects, :class_name => "Project", :foreign_key => 'develproject_id'
   belongs_to :develproject, :class_name => "Project"
 
-<<<<<<< HEAD
-  default_scope { where("projects.id not in (?)", Relationship.forbidden_project_ids ) }
-=======
   has_many :comments
 
-  default_scope { where("projects.id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
->>>>>>> [webui][api] Introduce comments for projects, package and requests in the API and display them in the UI
+  default_scope { where("projects.id not in (?)", Relationship.forbidden_project_ids ) }
 
   validates :name, presence: true, length: { maximum: 200 }
   validate :valid_name
-
  
   def download_name
     self.name.gsub(/:/, ':/')
