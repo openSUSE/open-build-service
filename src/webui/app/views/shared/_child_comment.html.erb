@@ -13,7 +13,7 @@
 				<p><%= comment[:body] %></p>
 				<p>
 					<% unless level > 5 %>
-						<%=render partial: 'comments/request_package_or_project_reply_links', locals: {comment: comment} %>
+						<%=render partial: 'shared/request_package_or_project_reply_links', locals: {comment: comment} %>
 					<%end%>
 				</p>
 			</div>
@@ -21,11 +21,11 @@
 
 		<% unless comment[:children].empty? %>
 			<%if params[:id]%>
-				<%= render partial: 'comments/child_comment', locals: { id: params[:id], children: comment[:children], level: level+1 } %>
+				<%= render partial: 'shared/child_comment', locals: { id: params[:id], children: comment[:children], level: level+1 } %>
 			<%elsif params[:package] %>
-				<%= render partial: 'comments/child_comment', locals: { package: params[:package], project: params[:project], children: comment[:children], level: level+1 } %>
+				<%= render partial: 'shared/child_comment', locals: { package: params[:package], project: params[:project], children: comment[:children], level: level+1 } %>
 			<%else%>
-				<%= render partial: 'comments/child_comment', locals: { project: params[:project], children: comment[:children], level: level+1 } %>
+				<%= render partial: 'shared/child_comment', locals: { project: params[:project], children: comment[:children], level: level+1 } %>
 			<%end %>
 		<% end %>
 			

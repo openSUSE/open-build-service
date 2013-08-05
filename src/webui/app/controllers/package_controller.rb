@@ -1080,8 +1080,24 @@ class PackageController < ApplicationController
   end
 
   def comments
-    @comment = ApiDetails.read(:comments_by_package, @project, @package)
-    @comments_as_thread = sort_comments(@comment)
+    unless params[:reply] == 'true'
+      @comment = ApiDetails.read(:comments_by_package, @project, @package)
+      @comments_as_thread = sort_comments(@comment)
+    else
+      render_dialog # a dialog box shows up for users to post a reply, as a GET request.
+    end
+  end
+
+  def save_comments
+    ApiDetails.save_comments(:save_comments_for_packages, params)
+
+    respond_to do |format|
+      format.js { render json: 'ok' }
+      format.html do
+        flash[:notice] = "Comment added successfully"
+        redirect_to action: :comments
+      end
+    end
   end
 
   private

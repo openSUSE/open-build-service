@@ -1,6 +1,6 @@
 	<% @comments_as_thread.each do |comment| %>
 	<%= javascript_tag do %>
-	<%= render :partial => "comments/expand_collapse.js.erb", :locals => {:comment_id => comment[:id]}%>
+	<%= render :partial => "shared/expand_collapse_comments.js.erb", :locals => {:comment_id => comment[:id]}%>
 	<%end%>
 	<div class="parent_comment">
 		<div class="grid_2 alpha box box-shadow">
@@ -19,13 +19,13 @@
 			</h2>
 			<p><%= comment[:body] %></p>
 			<p>
-				<%=render partial: 'comments/request_package_or_project_reply_links', locals: { comment: comment} %>
+				<%=render partial: 'shared/request_package_or_project_reply_links', locals: { comment: comment} %>
 			</p>
 		</div>
 	</div>
 	<div id="<%="reply_of_comment_#{comment[:id]}"%>">
 		<% unless comment[:children].empty? %>
-			<%= render partial: 'comments/child_comment', locals: {children: comment[:children] } %>
+			<%= render partial: 'shared/child_comment', locals: {children: comment[:children] } %>
 		<% end %>
 	</div>
 

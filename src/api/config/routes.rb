@@ -339,6 +339,8 @@ OBSApi::Application.routes.draw do
       get 'comments/project/:project/' => 'comments#projects', constraints: cons
       
       post 'comments/project/:project/new' => 'comments#projects_new'
+      post 'comments/package/:project/:package/new' => 'comments#packages_new'
+      post 'comments/request/:id/new' => 'comments#requests_new'
 
     end
 

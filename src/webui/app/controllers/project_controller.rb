@@ -1269,11 +1269,15 @@ class ProjectController < ApplicationController
   end
 
   def comments
-    @comment = ApiDetails.read(:comments_by_project, @project)
-    @comments_as_thread = sort_comments(@comment)
+    unless params[:reply] == 'true'
+      @comment = ApiDetails.read(:comments_by_project, @project)
+      @comments_as_thread = sort_comments(@comment)
+    else
+      render_dialog
+    end
   end
 
-  def save_parent_comments
+  def save_comments
     ApiDetails.save_comments(:save_comments_for_projects, params)
 
     respond_to do |format|
@@ -1284,11 +1288,7 @@ class ProjectController < ApplicationController
       end
     end
   end
-
-  def save_child_comments
-    render_dialog
-  end
-
+  
   private
 
   def filter_packages( project, filterstring )
