@@ -1,4 +1,3 @@
-
 include SearchHelper
 
 class SearchController < ApplicationController
@@ -113,6 +112,34 @@ class SearchController < ApplicationController
     nitems
   end
 
+  # unfortunately read_multi hangs with just too many items
+  # so maximize the keys to query
+  def read_multi_workaround(keys)
+    ret = Hash.new
+    while !keys.empty?
+      slice = keys.slice!(0, 300)
+      ret.merge!(Rails.cache.read_multi(*slice))
+    end
+    ret
+  end
+
+  def filter_items_from_cache(items, xml, key_template)
+    # ignore everything that is already in the memcache
+    id2cache_key = Hash.new
+    items.each { |i| id2cache_key[i] = key_template % i }
+    cached = read_multi_workaround(id2cache_key.values)
+    search_items = Array.new
+    items.each do |i|
+      key = id2cache_key[i]
+      if cached.has_key? key
+        xml[i] = cached[key]
+      else
+        search_items << i
+      end
+    end
+    search_items
+  end
+
   def search(what, render_all)
     if render_all and params[:match].blank?
       render_error :status => 400, :errorcode => "empty_match",
@@ -140,25 +167,13 @@ class SearchController < ApplicationController
     output = ActiveXML::Node.new '<collection/>'
     output.set_attribute("matches", matches.to_s)
 
-    xml = Hash.new
-
-    # ignore everything that is already in the memcache
-    id2cache_key = Hash.new
+    xml = Hash.new # filled by filter
     if render_all
-      items.each { |i| id2cache_key[i] = "xml_#{what}_%d" % i }
+      key_template = "xml_#{what}_%d"
     else
-      items.each { |i| id2cache_key[i] = "xml_id_#{what}_%d" % i }
+      key_template = "xml_id_#{what}_%d"
     end
-    cached = Rails.cache.read_multi(*(id2cache_key.values))
-    search_items = Array.new
-    items.each do |i|
-      key = id2cache_key[i]
-      if cached.has_key? key
-        xml[i] = cached[key]
-      else
-        search_items << i
-      end
-    end
+    search_items = filter_items_from_cache(items, xml, key_template)
 
     case what
     when :package
@@ -228,9 +243,9 @@ class SearchController < ApplicationController
     # gather the relation for attributes depending on project/package combination
     if params[:package]
       if params[:project]
-         attribs = Package.get_by_project_and_name(params[:project], params[:package]).attribs
+        attribs = Package.get_by_project_and_name(params[:project], params[:package]).attribs
       else
-         attribs = attrib.attribs.where(db_package_id: Package.where(name: params[:package]))
+        attribs = attrib.attribs.where(db_package_id: Package.where(name: params[:package]))
       end
     else
       if params[:project]
@@ -242,7 +257,7 @@ class SearchController < ApplicationController
 
     # get the values associated with the attributes and store them
     attribs = attribs.pluck(:id, :db_package_id)
-    values = AttribValue.where("attrib_id IN (?)", attribs.collect { |a| a[0] } )
+    values = AttribValue.where("attrib_id IN (?)", attribs.collect { |a| a[0] })
     attribValues = Hash.new
     values.each do |v|
       attribValues[v.attrib_id] ||= Array.new
@@ -254,22 +269,22 @@ class SearchController < ApplicationController
     attribs.each do |attrib_id, pkg|
       pack2attrib[pkg] = attrib_id
     end
-    packages.sort! { |x,y| x[0] <=> y[0] }
+    packages.sort! { |x, y| x[0] <=> y[0] }
     projects = Project.where(id: packages.collect { |p| p[2] }.uniq).pluck(:id, :name)
-    builder = Builder::XmlMarkup.new( :indent => 2 )
+    builder = Builder::XmlMarkup.new(:indent => 2)
     xml = builder.attribute(:namespace => namespace, :name => name) do
       projects.each do |prj_id, prj_name|
         builder.project(:name => prj_name) do
           packages.each do |pkg_id, pkg_name, pkg_prj|
-             next if pkg_prj != prj_id
-             builder.package(:name => pkg_name) do
-               values = attribValues[pack2attrib[pkg_id]]
-               unless values.nil?
-                 builder.values do
-                   values.each { |v| builder.value(v.value) }
-                 end
-               end
-             end
+            next if pkg_prj != prj_id
+            builder.package(:name => pkg_name) do
+              values = attribValues[pack2attrib[pkg_id]]
+              unless values.nil?
+                builder.values do
+                  values.each { |v| builder.value(v.value) }
+                end
+              end
+            end
           end
         end
       end
