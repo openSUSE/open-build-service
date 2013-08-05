@@ -67,10 +67,10 @@ class AttributeController < ApplicationController
     if request.post?
       logger.debug "--- updating attribute namespace definitions ---"
 
-      xml = REXML::Document.new( request.raw_post )
-      xml_element = xml.elements["/namespace"] if xml
+      xml_element = Xmlhash.parse( request.raw_post )
+      logger.debug "XML #{xml_element.inspect}"
 
-      unless xml and xml_element and xml_element.attributes['name'] == namespace
+      unless xml_element['name'] == namespace
         render_error :status => 400, :errorcode => 'illegal_request',
           :message => "Illegal request: POST #{request.path}: path does not match content"
         return

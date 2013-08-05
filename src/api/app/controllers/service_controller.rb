@@ -1,5 +1,3 @@
-require "rexml/document"
-
 class ServiceController < ApplicationController
 
   def index

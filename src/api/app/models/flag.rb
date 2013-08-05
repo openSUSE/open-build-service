@@ -1,5 +1,3 @@
-require 'rexml/document'
-
 class Flag < ActiveRecord::Base
   belongs_to :project, foreign_key: :db_project_id
   belongs_to :package, foreign_key: :db_package_id

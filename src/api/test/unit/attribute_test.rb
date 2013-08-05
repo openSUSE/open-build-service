@@ -17,8 +17,8 @@ class AttributeTest < ActiveSupport::TestCase
                <modifiable_by user='fred' group='test_group' />
             </namespace>"
 
-    xml = REXML::Document.new( axml )
-    assert_equal true, AttribNamespace.create(:name => "NewNamespace").update_from_xml(xml.root)
+    xml = Xmlhash.parse( axml )
+    assert_equal true, AttribNamespace.create(:name => "NewNamespace").update_from_xml(xml)
     @ans = AttribNamespace.find_by_name( "NewNamespace" )
 
     #check results
@@ -26,7 +26,7 @@ class AttributeTest < ActiveSupport::TestCase
     assert_equal "NewNamespace", @ans.name
 
     # Update a namespace with same content
-    assert_equal true, @ans.update_from_xml(xml.root)
+    assert_equal true, @ans.update_from_xml(xml)
     @newans = AttribNamespace.find_by_name( "NewNamespace" )
     assert_equal @newans, @ans
 
@@ -36,9 +36,9 @@ class AttributeTest < ActiveSupport::TestCase
                <modifiable_by user='fredlibs' group='test_group' />
             </namespace>"
 
-    xml = REXML::Document.new( axml )
+    xml = Xmlhash.parse( axml )
 
-    assert @ans.update_from_xml(xml.root)
+    assert @ans.update_from_xml(xml)
     @newans = AttribNamespace.find_by_name( "NewNamespace" )
     assert_equal "NewNamespace", @newans.name
   end
