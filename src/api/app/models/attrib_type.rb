@@ -34,52 +34,6 @@ class AttribType < ActiveRecord::Base
     write_attribute :attrib_namespace, val
   end
 
-  def render_axml
-     builder = Nokogiri::XML::Builder.new do |node|
-      p = {}
-      p[:name]      = self.name
-      p[:namespace] = attrib_namespace.name
-      node.definition(p) do |attr|
-
-       if default_values.length > 0
-         attr.default do |default|
-           default_values.each do |def_val|
-             default.value def_val.value
-           end
-         end
-       end
-
-       if allowed_values.length > 0
-         attr.allowed do |allowed|
-           allowed_values.each do |all_val|
-             allowed.value all_val.value
-           end
-         end
-       end
-
-       if self.value_count
-         attr.count self.value_count
-       end
-
-       if self.issue_list
-         attr.issue_list
-       end
-
-       abies = attrib_type_modifiable_bies.includes(:user, :group, :role)
-       if abies.length > 0
-         abies.each do |mod_rule|
-           p={}
-           p[:user] = mod_rule.user.login if mod_rule.user 
-           p[:group] = mod_rule.group.title if mod_rule.group 
-           p[:role] = mod_rule.role.title if mod_rule.role 
-           attr.modifiable_by(p)
-         end
-       end
-      end
-     end
-     builder.to_xml
-  end
-
   def update_from_xml(node)
     self.transaction do
       #
