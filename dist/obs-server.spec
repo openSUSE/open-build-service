@@ -111,11 +111,6 @@ Requires:       bash
 Requires:       binutils
 Requires:       bsdtar
 Summary:        The Open Build Service -- Build Host Component
-%if 0%{?fedora} || 0%{?rhel}
-Group:          Applications/Productivity
-%else
-Group:          Productivity/Networking/Web/Utilities
-%endif
 %if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
@@ -141,11 +136,6 @@ run a local playground test installation.
 
 %package -n obs-api
 Summary:        The Open Build Service -- The API and WEBUI
-%if 0%{?fedora} || 0%{?rhel}
-Group:          Applications/Productivity
-%else
-Group:          Productivity/Networking/Web/Utilities
-%endif
 Obsoletes:      obs-common <= 2.2.90
 %if 0%{?suse_version}
 PreReq:         %fillup_prereq %insserv_prereq
@@ -231,11 +221,6 @@ Requires:       rubygem(2.0.0:yajl-ruby) = 1.1.0
 # requires for webui:
 Requires:       ghostscript-fonts-std
 Summary:        The Open Build Service -- The API and WEBUI
-%if 0%{?fedora} || 0%{?rhel}
-Group:          Applications/Productivity
-%else
-Group:          Productivity/Networking/Web/Utilities
-%endif
 
 %description -n obs-api
 This is the API server instance, and the web client for the 
@@ -243,11 +228,6 @@ OBS.
 
 %package -n obs-devel
 Summary:        The Open Build Service -- The API and WEBUI Testsuite
-%if 0%{?fedora} || 0%{?rhel}
-Group:          Applications/Productivity
-%else
-Group:          Productivity/Networking/Web/Utilities
-%endif
 Obsoletes:      obs-webui-testsuite
 Requires:       obs-api = %{version}-%{release}
 %requires_eq obs-api-testsuite-deps
@@ -257,11 +237,6 @@ Install to track dependencies for git
 
 %package -n obs-source_service
 Summary:        The Open Build Service -- source service daemon
-%if 0%{?fedora} || 0%{?rhel}
-Group:          Applications/Productivity
-%else
-Group:          Productivity/Networking/Web/Utilities
-%endif
 # Our default services, used in osc and webui
 Recommends:     obs-service-download_url
 Recommends:     obs-service-verify_file
@@ -276,11 +251,6 @@ This component is optional and not required to run the service.
 
 %package -n obs-productconverter
 Summary:        The Open Build Service -- product definition utility
-%if 0%{?fedora} || 0%{?rhel}
-Group:          Applications/Productivity
-%else
-Group:          Productivity/Networking/Web/Utilities
-%endif
 # For perl library files, TODO: split out obs-lib subpackage?
 Requires:       obs-server
 
@@ -290,11 +260,6 @@ product definition.
 
 %package -n obs-utils
 Summary:        The Open Build Service -- utilities
-%if 0%{?fedora} || 0%{?rhel}
-Group:          Applications/Productivity
-%else
-Group:          Productivity/Networking/Web/Utilities
-%endif
 Requires:       build
 Requires:       osc
 Requires:       ruby
