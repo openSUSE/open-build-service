@@ -389,10 +389,10 @@ class TagController < ApplicationController
     
     taglist = []
     
-    xml = REXML::Document.new(taglistXML)
+    xml = Xmlhash.parse(taglistXML)
     
-    xml.root.get_elements("tag").each do  |tag| 
-      taglist << tag.attributes.get_attribute("name").value
+    xml.elements("tag") do  |tag|
+      taglist << tag["name"]
     end
     
     #make tag objects

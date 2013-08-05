@@ -34,57 +34,66 @@ class AttribType < ActiveRecord::Base
     write_attribute :attrib_namespace, val
   end
 
-  def update_from_xml(node)
+  def create_one_rule(m)
+    if m["user"].blank? and m["group"].blank? and m["role"].blank?
+      raise RuntimeError, "attribute type '#{node.name}' modifiable_by element has no valid rules set"
+    end
+    p={}
+    if m["user"]
+      p[:user] = User.get_by_login(m["user"])
+    end
+    if m["group"]
+      p[:group] = Group.get_by_title(m["group"])
+    end
+    if m["role"]
+      p[:role] = Role.get_by_title(m["role"])
+    end
+    self.attrib_type_modifiable_bies << AttribTypeModifiableBy.new(p)
+  end
+
+  def update_default_values(default_elements)
+    self.default_values.delete_all
+    position = 1
+    default_elements.each do |d|
+      d.elements("value") do |v|
+        self.default_values << AttribDefaultValue.new(value: v, position: position)
+        position += 1
+      end
+    end
+  end
+
+  def update_from_xml(xmlhash)
     self.transaction do
       #
       # defined permissions
       #
       self.attrib_type_modifiable_bies.delete_all
+
       # store permission setting
-      node.elements.each("modifiable_by") do |m|
-          if not m.attributes["user"] and not m.attributes["group"] and not m.attributes["role"]
-            raise RuntimeError, "attribute type '#{node.name}' modifiable_by element has no valid rules set"
-          end
-          p={}
-          if m.attributes["user"]
-            p[:user] = User.get_by_login(m.attributes["user"])
-          end
-          if m.attributes["group"]
-            p[:group] = Group.get_by_title(m.attributes["group"])
-          end
-          if m.attributes["role"]
-            p[:role] = Role.get_by_title(m.attributes["role"])
-          end
-          self.attrib_type_modifiable_bies << AttribTypeModifiableBy.new(p)
-      end
+      xmlhash.elements("modifiable_by") { |m| create_one_rule(m) }
 
       #
       # attribute type definition
       #
       # set value counter (this number of values must exist, not more, not less)
       self.value_count = nil
-      node.elements.each("count") do |c|
-        self.value_count = c.text
+      xmlhash.elements("count") do |c|
+        self.value_count = c
       end
 
       # allow issues?
-      self.issue_list = !node.elements.find("issue_list").nil?
+      logger.debug "XML #{xmlhash.inspect}"
+      self.issue_list = !xmlhash["issue_list"].nil?
+      logger.debug "IL #{self.issue_list}"
 
       # default values of a attribute stored
-      self.default_values.delete_all
-      position = 1
-      node.elements.each("default") do |d|
-        d.elements.each("value") do |v|
-          self.default_values << AttribDefaultValue.new(:value => v.text, :position => position)
-          position += 1
-        end
-      end
+      self.update_default_values(xmlhash.elements("default"))
 
       # list of allowed values
       self.allowed_values.delete_all
-      node.elements.each("allowed") do |a|
-        a.elements.each("value") do |v|
-          self.allowed_values << AttribAllowedValue.new(:value => v.text)
+      xmlhash.elements("allowed") do |a|
+        a.elements("value") do |v|
+          self.allowed_values << AttribAllowedValue.new(:value => v)
         end
       end
 

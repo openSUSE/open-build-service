@@ -1,5 +1,3 @@
-require "rexml/document"
-
 class AttributeController < ApplicationController
 
   validate_action :index => {:method => :get, :response => :directory}
@@ -134,9 +132,9 @@ class AttributeController < ApplicationController
     if request.post?
       logger.debug "--- updating attribute type definitions ---"
 
-      xml = REXML::Document.new( request.raw_post )
-      xml_element = xml.elements["/definition"] if xml
-      unless xml and xml_element and xml_element.attributes['name'] == name and xml_element.attributes['namespace'] == namespace
+      xml_element = Xmlhash.parse( request.raw_post )
+
+      unless xml_element and xml_element['name'] == name and xml_element['namespace'] == namespace
         render_error :status => 400, :errorcode => 'illegal_request',
           :message => "Illegal request: POST #{request.path}: path does not match content"
         return
