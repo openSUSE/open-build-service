@@ -100,8 +100,8 @@ class AttributeTest < ActiveSupport::TestCase
                </allowed>
             </attribute>"
 
-    xml = REXML::Document.new( axml )
-    assert @at.update_from_xml(xml.root)
+    xml = Xmlhash.parse( axml )
+    assert @at.update_from_xml(xml)
     assert_equal "NewAttribute", @at.name
     assert_equal "OBS", @at.attrib_namespace.name
     assert_nil @at.value_count
@@ -111,7 +111,7 @@ class AttributeTest < ActiveSupport::TestCase
     # with empty content
     axml = "<attribute namespace='OBS' name='NewAttribute' />"
     xml = Xmlhash.parse( axml )
-    assert @at.update_from_xml(xml.root)
+    assert @at.update_from_xml(xml)
     assert_equal "NewAttribute", @at.name
     assert_equal "OBS", @at.attrib_namespace.name
     assert_nil @at.value_count
