@@ -298,15 +298,20 @@ class RequestController < ApplicationController
   end
 
   def save_comments
-    params[:request_id] = params[:id]
-    ApiDetails.save_comments(:save_comments_for_requests, params)
+    begin
+      params[:request_id] = params[:id]
+      ApiDetails.save_comments(:save_comments_for_requests, params)
 
-    respond_to do |format|
-      format.js { render json: 'ok' }
-      format.html do
-        flash[:notice] = "Comment added successfully"
-        redirect_to action: :comments
+      respond_to do |format|
+        format.js { render json: 'ok' }
+        format.html do
+          flash[:notice] = "Comment added successfully"
+          redirect_to action: :comments
+        end
       end
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = e.summary
+      redirect_to(:action => "comments", :id => params[:id]) and return
     end
   end
 

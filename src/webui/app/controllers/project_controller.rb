@@ -1278,15 +1278,20 @@ class ProjectController < ApplicationController
   end
 
   def save_comments
-    params[:project] = @project.name
-    ApiDetails.save_comments(:save_comments_for_projects, params)
+    begin
+      params[:project] = @project.name
+      ApiDetails.save_comments(:save_comments_for_projects, params)
 
-    respond_to do |format|
-      format.js { render json: 'ok' }
-      format.html do
-        flash[:notice] = "Comment added successfully"
-        redirect_to action: :comments
+      respond_to do |format|
+        format.js { render json: 'ok' }
+        format.html do
+          flash[:notice] = "Comment added successfully"
+          redirect_to action: :comments
+        end
       end
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = e.summary
+      redirect_to(:action => "comments", :project => params[:project]) and return
     end
   end
   

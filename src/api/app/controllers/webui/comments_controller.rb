@@ -1,14 +1,14 @@
 class Webui::CommentsController < Webui::BaseController
-
+	class NotFoundObjectError < APIException
+	 setup 'not_found', 404, "Not found"
+	end 
 	def packages
 		package = Package.get_by_project_and_name(params[:project] , params[:package])
-		unless package.nil?
-			comments = CommentPackage.where(package_id: package.id)
-			render :json => comments
-		else
-			render_error :status => 404, :errorcode => 'package_returned_nil',
-                       :message => "Package returned nil"
+		if package.blank?
+			raise NotFoundObjectError.new "Package returned nil" 
 		end
+		comments = CommentPackage.where(package_id: package.id)
+		render :json => comments
 	end
 
 	def projects
