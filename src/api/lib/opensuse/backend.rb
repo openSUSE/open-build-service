@@ -43,21 +43,6 @@ module Suse
         Rails.logger
       end
 
-      def get_log( project, repository, package, arch )
-        path = "/build/#{project}/#{repository}/#{arch}/#{package}/_log"
-        get path
-      end
-
-      def get_log_chunk( project, repository, package, arch, start=0 )
-        path = "/build/#{project}/#{repository}/#{arch}/#{package}/_log?nostream=1&start=#{start}"
-        get path
-      end
-
-      def get_rpmlist( project, repository, package, arch )
-        path = "/build/#{project}/#{repository}/#{arch}/#{package}"
-        get path
-      end
-
       def get(path, in_headers={})
         start_test_backend
         @start_of_last = Time.now
@@ -141,7 +126,7 @@ module Suse
           if hash.has_key?(key)
             str = hash[key].to_s
             str.toutf8
-	    unless str.isutf8
+            unless str.isutf8
               raise IllegalEncodingError.new("Illegal encoded parameter")
             end
 

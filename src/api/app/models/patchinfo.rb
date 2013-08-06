@@ -4,113 +4,110 @@
 # if you wonder it's not a module, read http://blog.codeclimate.com/blog/2012/11/14/why-ruby-class-methods-resist-refactoring
 class Patchinfo
 
+  def logger
+    Rails.logger
+  end
+
   class ReleasetargetNotFound < APIException
     setup 404
   end
 
-  def verify_data(project, raw_post)
-    data = ActiveXML::Node.new(raw_post)
-    if data and data.packager
-      # bugzilla only knows email adresses, so we support automatic conversion
-      if data.packager.to_s.include? '@'
-        packager = User.find_by_login data.packager
-        #FIXME: update _patchinfo file
-      end
-      packager = User.get_by_login data.packager.to_s unless packager
+  def is_repository_matching?(repo, rt)
+    return false if repo.project.name != rt['project']
+    if rt['repository']
+      return false if repo.name != rt['repository']
     end
-    # are releasetargets specified ? validate that this project is actually defining them.
-    if data and data.releasetarget
-      data.each_releasetarget do |rt|
-        found = false
-        project.repositories.each do |r|
-          r.release_targets.each do |prt|
-            if rt.repository
-              found = true if prt.target_repository.project.name == rt.project and prt.target_repository.name == rt.repository
-            else
-              found = true if prt.target_repository.project.name == rt.project
-            end
-          end
-        end
+    return true
+  end
 
-        unless found
-          raise ReleasetargetNotFound.new "Release target '#{rt.project}/#{rt.repository}' is not defined in this project '#{project.name}'"
-        end
+  # check if we caa find the releasetarget (xmlhash) in the project
+  def check_releasetarget!(rt)
+    @project.repositories.each do |r|
+      r.release_targets.each do |prt|
+        return if is_repository_matching?(prt.target_repository, rt)
       end
+    end
+    raise ReleasetargetNotFound.new "Release target '#{rt['project']}/#{rt['repository']}' is not defined in this project '#{@project.name}'"
+  end
+
+  def verify_data(project, raw_post)
+    @project = project
+    data = Xmlhash.parse(raw_post)
+    # check the packager field
+    User.get_by_login data["packager"] if data["packager"]
+    # are releasetargets specified ? validate that this project is actually defining them.
+    data.elements("releasetarget") { |r| check_releasetarget!(r) }
+  end
+
+  def add_issue_to_patchinfo(issue)
+    tracker = issue.issue_tracker
+    return if @patchinfo.has_element?("issue[(@id='#{issue.name}' and @tracker='#{tracker.name}')]")
+    e = @patchinfo.add_element "issue"
+    e.set_attribute "tracker", tracker.name
+    e.set_attribute "id", issue.name
+    @patchinfo.category.text = "security" if tracker.kind == "cve"
+  end
+
+  def fetch_issue_for_package(package)
+    # create diff per package
+    return if package.package_kinds.find_by_kind 'patchinfo'
+
+    package.package_issues.each do |i|
+      add_issue_to_patchinfo(i.issue) if i.change == "added"
     end
   end
 
   def update_patchinfo(project, patchinfo, opts = {})
     project.check_write_access!
+    @patchinfo = patchinfo
 
     opts[:enfore_issue_update] ||= false
 
     # collect bugnumbers from diff
-    project.packages.each do |p|
-      # create diff per package
-      next if p.package_kinds.find_by_kind 'patchinfo'
-
-      p.package_issues.each do |i|
-        if i.change == "added"
-          unless patchinfo.has_element?("issue[(@id='#{i.issue.name}' and @tracker='#{i.issue.issue_tracker.name}')]")
-            e = patchinfo.add_element "issue"
-            e.set_attribute "tracker", i.issue.issue_tracker.name
-            e.set_attribute "id", i.issue.name
-            patchinfo.category.text = "security" if i.issue.issue_tracker.kind == "cve"
-          end
-        end
-      end
-    end
+    project.packages.each { |p| fetch_issue_for_package(p) }
 
     # update informations of empty issues
     patchinfo.each_issue do |i|
-      if i.text.blank? and not i.name.blank?
-        issue = Issue.find_or_create_by_name_and_tracker(i.name, i.tracker)
-        if issue
-          if opts[:enfore_issue_update]
-            # enforce update from issue server
-            issue.fetch_updates()
-          end
-          i.text = issue.summary
-        end
-      end
+      next if !i.text.blank? or i.name.blank?
+      issue = Issue.find_or_create_by_name_and_tracker(i.name, i.tracker)
+      next unless issue
+      # enforce update from issue server
+      issue.fetch_updates if opts[:enfore_issue_update]
+      i.text = issue.summary
     end
 
     return patchinfo
   end
 
+  def patchinfo_axml(project)
+    xml = ActiveXML::Node.new("<patchinfo/>")
+    if project.project_type == "maintenance_incident"
+      # this is a maintenance incident project, the sub project name is the maintenance ID
+      xml.set_attribute('incident', @pkg.project.name.gsub(/.*:/, ''))
+    end
+    xml.add_element("category").text = "recommended"
+    xml.add_element("rating").text ="low"
+    xml
+  end
+
   def create_patchinfo_from_request(project, req)
     project.check_write_access!
+    @prj = project
 
-    patchinfo = Package.new(:name => "patchinfo", :title => "Patchinfo", :description => "Collected packages for update")
-    project.packages << patchinfo
-    patchinfo.add_flag("build", "enable", nil, nil)
-    patchinfo.add_flag("useforbuild", "disable", nil, nil)
-    patchinfo.add_flag("publish", "enable", nil, nil) unless project.flags.find_by_flag_and_status("access", "disable")
-    patchinfo.store
+    # create patchinfo package
+    create_patchinfo_package("patchinfo")
 
     # create patchinfo XML file
-    node = Nokogiri::XML::Builder.new
-    attrs = {}
-    if project.project_type.to_s == "maintenance_incident"
-      # this is a maintenance incident project, the sub project name is the maintenance ID
-      attrs[:incident] = project.name.gsub(/.*:/, '')
-    end
+    xml = patchinfo_axml(project)
 
     description = req.description || ''
-    node.patchinfo(attrs) do |n|
-      n.packager req.creator
-      n.category "recommended" # update_patchinfo may switch to security
-      n.rating "low"
-      n.summary description.split(/\n|\r\n/)[0] # first line only
-      n.description req.description
-    end
-    data = ActiveXML::Node.new(node.doc.to_xml)
-    data = self.update_patchinfo(project, data, enfore_issue_update: true)
-    p = {:user => User.current.login, :comment => "generated by request id #{req.id} accept call"}
-    patchinfo_path = "/source/#{CGI.escape(patchinfo.project.name)}/patchinfo/_patchinfo"
-    patchinfo_path << Suse::Backend.build_query_from_hash(p, [:user, :comment])
-    Suse::Backend.put(patchinfo_path, data.dump_xml)
-    patchinfo.sources_changed
+    xml.add_element('packager').text = req.creator
+    xml.add_element("summary").text = description.split(/\n|\r\n/)[0] # first line only
+    xml.add_element("description").text = description
+
+    xml = self.update_patchinfo(project, xml, enfore_issue_update: true)
+    Suse::Backend.put(patchinfo_url(@pkg, "generated by request id #{req.id} accept call"), xml.dump_xml)
+    @pkg.sources_changed
   end
 
   class PatchinfoFileExists < APIException;
@@ -118,97 +115,94 @@ class Patchinfo
   class PackageAlreadyExists < APIException;
   end
 
-  def create_patchinfo(project, pkg_name, opts = {})
+  def create_patchinfo_package(pkg_name)
+    Package.transaction do
+      @pkg = @prj.packages.create(name: pkg_name, title: "Patchinfo", description: "Collected packages for update")
+      @pkg.add_flag("build", "enable", nil, nil)
+      @pkg.add_flag("publish", "enable", nil, nil) unless @prj.flags.find_by_flag_and_status("access", "disable")
+      @pkg.add_flag("useforbuild", "disable", nil, nil)
+      @pkg.store
+    end
+  end
+
+  def require_package_for_patchinfo(project, pkg_name, force)
     pkg_name ||= "patchinfo"
     valid_package_name! pkg_name
 
     # create patchinfo package
-    pkg = nil
-    if Package.exists_by_project_and_name(project, pkg_name)
-      pkg = Package.get_by_project_and_name project, pkg_name
-      unless opts[:force]
-        if pkg.package_kinds.find_by_kind 'patchinfo'
-          raise PatchinfoFileExists.new "createpatchinfo command: the patchinfo #{pkg_name} exists already. Either use force=1 re-create the _patchinfo or use updatepatchinfo for updating."
-        else
-          raise PackageAlreadyExists.new "createpatchinfo command: the package #{pkg_name} exists already, but is  no patchinfo. Please create a new package instead."
-        end
-        return
-      end
-    else
-      prj = Project.get_by_name(project)
-      pkg = Package.new(name: pkg_name, title: "Patchinfo", description: "Collected packages for update")
-      prj.packages << pkg
-      pkg.add_flag("build", "enable", nil, nil)
-      pkg.add_flag("publish", "enable", nil, nil) unless prj.flags.find_by_flag_and_status("access", "disable")
-      pkg.add_flag("useforbuild", "disable", nil, nil)
-      pkg.store
+    unless Package.exists_by_project_and_name(project, pkg_name)
+      @prj = Project.get_by_name(project)
+      create_patchinfo_package(pkg_name)
+      return
     end
 
+    @pkg = Package.get_by_project_and_name project, pkg_name
+    return if force
+    if @pkg.package_kinds.find_by_kind 'patchinfo'
+      raise PatchinfoFileExists.new "createpatchinfo command: the patchinfo #{pkg_name} exists already. " +
+                                        "Either use force=1 re-create the _patchinfo or use updatepatchinfo for updating."
+    else
+      raise PackageAlreadyExists.new "createpatchinfo command: the package #{pkg_name} exists already, " +
+                                         "but is  no patchinfo. Please create a new package instead."
+    end
+
+  end
+
+  def create_patchinfo(project, pkg_name, opts = {})
+    require_package_for_patchinfo(project, pkg_name, opts[:force])
+
     # create patchinfo XML file
-    node = Builder::XmlMarkup.new(:indent => 2)
-    attrs = {}
-    if pkg.project.project_type == "maintenance_incident"
-      # this is a maintenance incident project, the sub project name is the maintenance ID
-      attrs[:incident] = pkg.project.name.gsub(/.*:/, '')
-    end
-    xml = node.patchinfo(attrs) do |n|
-      node.packager User.current.login
-      node.category "recommended"
-      node.rating "low"
-      node.summary opts[:comment]
-      node.description ""
-    end
-    xml = ActiveXML::Node.new(node.target!)
-    xml = self.update_patchinfo(pkg.project, xml)
-    p={:user => User.current.login, :comment => "generated by createpatchinfo call"}
-    patchinfo_path = "/source/#{CGI.escape(pkg.project.name)}/#{CGI.escape(pkg.name)}/_patchinfo"
-    patchinfo_path << Suse::Backend.build_query_from_hash(p, [:user, :comment])
-    Suse::Backend.put(patchinfo_path, xml.dump_xml)
-    pkg.sources_changed
-    return {:targetproject => pkg.project.name, :targetpackage => pkg_name}
+    xml = patchinfo_axml(@pkg.project)
+    xml.add_element('packager').text = User.current.login
+    xml.add_element("summary").text = opts[:comment]
+    xml.add_element("description")
+    xml = self.update_patchinfo(@pkg.project, xml)
+    Suse::Backend.put(patchinfo_url(@pkg, "generated by createpatchinfo call"), xml.dump_xml)
+    @pkg.sources_changed
+    return { :targetproject => @pkg.project.name, :targetpackage => @pkg.name }
+  end
+
+  def patchinfo_url(pkg, comment)
+    p = { user: User.current.login, comment: comment }
+    path = pkg.source_path("_patchinfo")
+    path << Suse::Backend.build_query_from_hash(p, [:user, :comment])
   end
 
   def cmd_update_patchinfo(project, package)
     pkg = Package.get_by_project_and_name project, package
 
     # get existing file
-    patchinfo_path = "/source/#{URI.escape(pkg.project.name)}/#{URI.escape(pkg.name)}/_patchinfo"
-    xml = ActiveXML::Node.new(ActiveXML.transport.direct_http(patchinfo_path))
+    xml = read_patchinfo_axml(pkg)
     xml = self.update_patchinfo(pkg.project, xml)
 
-    p={:user => User.current.login, :comment => "updated via updatepatchinfo call"}
-    patchinfo_path = "/source/#{URI.escape(pkg.project.name)}/#{URI.escape(pkg.name)}/_patchinfo"
-    patchinfo_path << Suse::Backend.build_query_from_hash(p, [:user, :comment])
-    Suse::Backend.put(patchinfo_path, xml.dump_xml)
+    Suse::Backend.put(patchinfo_url(pkg, "updated via updatepatchinfo call"), xml.dump_xml)
     pkg.sources_changed
+  end
 
+  def read_patchinfo_axml(pkg)
+    ActiveXML::Node.new(pkg.source_file("_patchinfo"))
+  end
+
+  def read_patchinfo_xmlhash(pkg)
+    Xmlhash.parse(pkg.source_file("_patchinfo"))
   end
 
   class IncompletePatchinfo < APIException;
   end
 
   def fetch_release_targets(pkg)
-    answer = Suse::Backend.get("/source/#{URI.escape(pkg.project.name)}/#{URI.escape(pkg.name)}/_patchinfo")
-    data = ActiveXML::Node.new(answer.body)
+    data = read_patchinfo_xmlhash(pkg)
     # validate _patchinfo for completeness
-    unless data
+    if data.empty?
       raise IncompletePatchinfo.new "The _patchinfo file is not parseble"
     end
-    if data.rating.nil? or data.rating.text.blank?
-      raise IncompletePatchinfo.new "The _patchinfo has no rating set"
-    end
-    if data.category.nil? or data.category.text.blank?
-      raise IncompletePatchinfo.new "The _patchinfo has no category set"
-    end
-    if data.summary.nil? or data.summary.text.blank?
-      raise IncompletePatchinfo.new "The _patchinfo has no summary set"
-    end
-    # a patchinfo may limit the targets
-    if data.releasetarget
-      releaseTargets = Array.new unless releaseTargets
-      data.each_releasetarget do |rt|
-        releaseTargets << rt
+    %w(rating category summary).each do |field|
+      if data[field].blank?
+        raise IncompletePatchinfo.new "The _patchinfo has no #{field} set"
       end
     end
+    # a patchinfo may limit the targets
+    data.elements("releasetarget")
   end
+
 end

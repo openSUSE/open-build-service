@@ -243,7 +243,7 @@ class RequestController < ApplicationController
         if releaseTargets
           found=false
           releaseTargets.each do |rt|
-            if rt.project == p
+            if rt['project'] == p
               found=true
               break
             end
