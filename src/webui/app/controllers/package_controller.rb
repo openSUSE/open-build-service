@@ -1080,25 +1080,34 @@ class PackageController < ApplicationController
   end
 
   def comments
+    begin
       unless params[:reply] == 'true'
         @comment = ApiDetails.read(:comments_by_package, @project, @package)
         @comments_as_thread = sort_comments(@comment)
       else
         render_dialog # a dialog box shows up for users to post a reply, as a GET request.
       end
+    rescue ActiveXML::Transport::Error => e
+      render :text => e.summary, :status => 404, :content_type => "text/plain"
+    end
   end
 
   def save_comments
-    params[:project] = @project.name
-    params[:package] = @package.name
-    ApiDetails.save_comments(:save_comments_for_packages, params)
+    begin
+      params[:project] = @project.name
+      params[:package] = @package.name
+      ApiDetails.save_comments(:save_comments_for_packages, params)
 
-    respond_to do |format|
-      format.js { render json: 'ok' }
-      format.html do
-        flash[:notice] = "Comment added successfully"
-        redirect_to action: :comments
+      respond_to do |format|
+        format.js { render json: 'ok' }
+        format.html do
+          flash[:notice] = "Comment added successfully"
+          redirect_to action: :comments
+        end
       end
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = e.summary
+      redirect_to(:action => "comments", :project => params[:project], :package => params[:package]) and return
     end
   end
 
