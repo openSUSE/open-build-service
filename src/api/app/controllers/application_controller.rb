@@ -421,6 +421,10 @@ class ApplicationController < ActionController::API
     render_error status: 408, errorcode: "timeout_error", message: exception.message
   end
 
+  rescue_from ActiveXML::ParseError do |exception|
+    render_error status: 400, errorcode: 'invalid_xml', message: "Invalid XML"
+  end
+
   rescue_from APIException do |exception|
     logger.debug "#{exception.class.name} #{exception.message}"
     message = exception.message

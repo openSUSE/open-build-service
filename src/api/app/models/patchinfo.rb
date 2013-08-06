@@ -1,4 +1,7 @@
-# a Patchinfo lives in a Project, but is not a package - it represents a special package
+# a Patchinfo lives in a Project, but is not a package - it represents a special file
+# in a update package
+
+# if you wonder it's not a module, read http://blog.codeclimate.com/blog/2012/11/14/why-ruby-class-methods-resist-refactoring
 class Patchinfo
 
   class ReleasetargetNotFound < APIException

@@ -516,185 +516,6 @@ class SourceController < ApplicationController
     end
   end
 
-  # /source/:project/_attribute/:attribute
-  # /source/:project/:package/_attribute/:attribute
-  # /source/:project/:package/:binary/_attribute/:attribute
-  #--------------------------------------------------------
-  def attribute_meta
-    # init and validation
-    #--------------------
-    required_parameters :project
-    params[:user] = @http_user.login if @http_user
-    binary=nil
-    binary=params[:binary] if params[:binary]
-    # valid post commands
-    raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
-    if params[:package] and params[:package] != "_project"
-      @attribute_container = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
-    else
-      # project
-      if Project.is_remote_project?(params[:project])
-        render_error :status => 400, :errorcode => "remote_project",
-          :message => "Attribute access to remote project is not yet supported"
-        return
-      end
-      @attribute_container = Project.get_by_name(params[:project])
-    end
-
-    if @attribute_container.nil?
-      render_error :status => 404, :errorcode => "not_existing_attribute",
-                   :message => "Attribute is not defined in system"
-      return
-    end
-
-    # is the attribute type defined at all ?
-    if params[:attribute]
-      # Valid attribute
-      aname = params[:attribute]
-      name_parts = aname.split(/:/)
-      if name_parts.length != 2
-        render_error :status => 400, :errorcode => "invalid_attribute",
-          :message => "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
-        return
-      end
-      # existing ?
-      at = AttribType.find_by_name(params[:attribute])
-      unless at
-        render_error :status => 404, :errorcode => "not_existing_attribute",
-          :message => "Attribute is not defined in system"
-        return
-      end
-      # only needed for a get request
-      params[:namespace] = name_parts[0]
-      params[:name] = name_parts[1]
-    end
-
-
-    # GET
-    # /source/:project/_attribute/:attribute
-    # /source/:project/:package/_attribute/:attribute
-    # /source/:project/:package/:binary/_attribute/:attribute
-    #--------------------------------------------------------
-    if request.get?
-
-      # init
-      # checks
-      # exec
-      if params[:rev]
-        path = "/source/#{URI.escape(params[:project])}/#{URI.escape(params[:package]||'_project')}/_attribute?meta=1&rev=#{CGI.escape(params[:rev])}"
-        answer = Suse::Backend.get(path)
-        render :text => answer.body.to_s, :content_type => 'text/xml'
-      else
-        render :text => @attribute_container.render_attribute_axml(params), :content_type => 'text/xml'
-      end
-      return
-
-    # /request.get?
-
-    # DELETE
-    # /source/:project/_attribute/:attribute
-    # /source/:project/:package/_attribute/:attribute
-    # /source/:project/:package/:binary/_attribute/:attribute
-    #--------------------------------------------------------
-    elsif request.delete?
-      # init
-      if params[:namespace].blank? or params[:name].blank?
-        render_error :status => 400, :errorcode => "missing_attribute",
-          :message => "No attribute got specified for delete"
-        return
-      end
-      ac = @attribute_container.find_attribute(params[:namespace], params[:name], binary)
-
-      # checks
-      unless ac
-          render_error :status => 404, :errorcode => "not_found",
-            :message => "Attribute #{aname} does not exist" and return
-      end
-      if params[:attribute]
-        unless @http_user.can_create_attribute_in? @attribute_container, :namespace => name_parts[0], :name => name_parts[1]
-          render_error :status => 403, :errorcode => "change_attribute_no_permission",
-            :message => "user #{user.login} has no permission to change attribute"
-          return
-        end
-      end
-
-      # exec
-      ac.destroy
-      @attribute_container.write_attributes(params[:comment])
-      render_ok
-
-    # /request.delete?
-
-    # POST
-    # /source/:project/_attribute/:attribute
-    # /source/:project/:package/_attribute/:attribute
-    # /source/:project/:package/:binary/_attribute/:attribute
-    #--------------------------------------------------------
-    elsif request.post?
-
-      # init
-      begin
-        req = ActiveXML::Node.new(request.body.read)
-        req.element_name # trigger XML parsing
-      rescue ActiveXML::ParseError => e
-        render_error :message => "Invalid XML",
-          :status => 400, :errorcode => "invalid_xml"
-        return
-      end
-
-      # checks
-      if params[:attribute]
-        unless @http_user.can_create_attribute_in? @attribute_container, :namespace => name_parts[0], :name => name_parts[1]
-          render_error :status => 403, :errorcode => "change_attribute_no_permission",
-            :message => "user #{user.login} has no permission to change attribute"
-          return
-        end
-      else
-          req.each_attribute do |attr|
-            begin
-              can_create = @http_user.can_create_attribute_in? @attribute_container, :namespace => attr.namespace, :name => attr.name
-            rescue ActiveRecord::RecordNotFound => e
-              render_error :status => 404, :errorcode => "not_found",
-                :message => e.message
-              return
-            rescue ArgumentError => e
-              render_error :status => 400, :errorcode => "change_attribute_attribute_error",
-                :message => e.message
-              return
-            end
-            unless can_create
-              render_error :status => 403, :errorcode => "change_attribute_no_permission",
-                :message => "user #{user.login} has no permission to change attribute"
-              return
-            end
-          end
-      end
-
-      # exec
-      changed = false
-      req.each_attribute do |attr|
-        begin
-          changed = true if @attribute_container.store_attribute_axml(attr, binary)
-        rescue Project::SaveError => e
-          render_error :status => 403, :errorcode => "save_error", :message => e.message
-          return
-        rescue Package::SaveError => e
-          render_error :status => 403, :errorcode => "save_error", :message => e.message
-          return
-        end
-      end
-      @attribute_container.write_attributes(params[:comment]) if changed
-      render_ok
-
-    # /request.post?
-
-    # bad request
-    #------------
-    else
-      raise IllegalRequestError.new
-    end
-  end
-
   # /source/:project/_meta
   def project_meta
     # init and validation
@@ -714,10 +535,10 @@ class SourceController < ApplicationController
     if request.get?
       if Project.find_remote_project project_name
         # project from remote buildservice, get metadata from backend
-	if params[:view]
-	  render_error :status => 404, :errorcode => "invalid_project_parameters"
-	  return
-	end
+        if params[:view]
+          render_error :status => 404, :errorcode => "invalid_project_parameters"
+          return
+        end
         pass_to_backend
       else
         # access check
@@ -980,7 +801,7 @@ class SourceController < ApplicationController
       if Package.exists_by_project_and_name( project_name, package_name, follow_project_links: false )
         # is lock explicit set to disable ? allow the un-freeze of the project in that case ...
         ignoreLock = nil
-# unlock only via command for now
+ # unlock only via command for now
 #        ignoreLock = 1 if Xmlhash.parse(request.raw_post).get("lock")["disable"]
 
         pkg = Package.get_by_project_and_name( project_name, package_name, use_source: false )
@@ -1756,7 +1577,9 @@ class SourceController < ApplicationController
     #opackage_name = params[:opackage]
  
     path = request.path
-    path << build_query_from_hash(params, [:cmd, :rev, :orev, :oproject, :opackage, :expand ,:linkrev, :olinkrev, :unified ,:missingok, :meta, :file, :filelimit, :tarlimit, :view, :withissues, :onlyissues])
+    path << build_query_from_hash(params, [:cmd, :rev, :orev, :oproject, :opackage, :expand ,:linkrev, :olinkrev,
+                                           :unified ,:missingok, :meta, :file, :filelimit, :tarlimit,
+                                           :view, :withissues, :onlyissues])
     pass_to_backend path
   end
 
@@ -1765,7 +1588,8 @@ class SourceController < ApplicationController
     valid_http_methods :post
 
     path = request.path
-    path << build_query_from_hash(params, [:cmd, :rev, :unified, :linkrev, :file, :filelimit, :tarlimit, :view, :withissues, :onlyissues])
+    path << build_query_from_hash(params, [:cmd, :rev, :unified, :linkrev, :file, :filelimit, :tarlimit,
+                                           :view, :withissues, :onlyissues])
     pass_to_backend path
   end
 
