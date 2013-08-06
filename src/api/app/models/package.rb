@@ -331,6 +331,14 @@ class Package < ActiveRecord::Base
     private_set_package_kind( nil, commit )
   end
 
+  def source_path(file)
+    "/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}/#{URI.escape(file)}"
+  end
+
+  def source_file(file)
+    Suse::Backend.get(source_path(file)).body
+  end
+
   def dir_hash
     begin
       directory = Suse::Backend.get("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}").body
@@ -375,10 +383,9 @@ class Package < ActiveRecord::Base
 
     # update issue database based on file content
     if self.package_kinds.find_by_kind 'patchinfo'
-      patchinfo = Suse::Backend.get("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}/_patchinfo")
+      xml = Patchinfo.new.read_patchinfo_xmlhash(self)
       Project.transaction do
         self.package_issues.destroy_all
-        xml = Xmlhash.parse(patchinfo.body.to_s)
         xml.elements('issue') { |i|
           issue = Issue.find_or_create_by_name_and_tracker( i['id'], i['tracker'] )
           self.package_issues.create( :issue => issue, :change => "kept" )
