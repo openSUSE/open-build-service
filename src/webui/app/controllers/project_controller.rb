@@ -1278,6 +1278,7 @@ class ProjectController < ApplicationController
   end
 
   def save_comments
+    params[:project] = @project.name
     ApiDetails.save_comments(:save_comments_for_projects, params)
 
     respond_to do |format|

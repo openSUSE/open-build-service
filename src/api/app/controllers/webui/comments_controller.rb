@@ -18,7 +18,7 @@ class Webui::CommentsController < Webui::BaseController
 	end
 
 	def requests
-		comments = CommentRequest.where(bs_request_id: params[:project_id])
+		comments = CommentRequest.where(bs_request_id: params[:id])
 		render :json => comments
 	end
 
