@@ -15,11 +15,10 @@ class ConfigurationsController < ApplicationController
   # GET /configuration.xml
   def show
     @configuration = ::Configuration.first
-    @architectures = Architecture.where(:available => 1)
 
     respond_to do |format|
-      format.xml { render :xml => @configuration.render_axml }
-      format.json { render :json => @configuration }
+      format.xml { render xml: @configuration.render_xml }
+      format.json { render json: @configuration }
     end
   end
 
