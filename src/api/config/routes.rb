@@ -46,7 +46,19 @@ OBSApi::Application.routes.draw do
       post 'test/test_start' => :test_start
       post 'test/prepare_search' => :prepare_search
     end
-    
+
+    ### /attribute is before source as it needs more specific routes for projects
+    controller :attribute do
+      get 'attribute' => :index
+      get 'attribute/:namespace' => :index
+      match 'attribute/:namespace/_meta' =>  :namespace_definition, via: [:get, :delete, :post]
+      match 'attribute/:namespace/:name/_meta' => :attribute_definition, via: [:get, :delete, :post]
+
+      get 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :show_attribute, :constraints => cons
+      post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :cmd_attribute, :constraints => cons
+      delete 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :delete_attribute, :constraints => cons
+    end
+
     controller :source do
 
       match 'source' => :index, via: [:get, :post]
@@ -54,26 +66,17 @@ OBSApi::Application.routes.draw do
       # project level
       match 'source/:project' => :index_project, :constraints => cons, via: [:get, :post,  :delete]
       match 'source/:project/_meta' => :project_meta, :constraints => cons, via: [:get, :put]
-      match 'source/:project/_attribute' => :attribute_meta, :constraints => cons, via: [:get, :post, :delete]
-      match 'source/:project/_attribute/:attribute' => :attribute_meta, :constraints => cons, via: [:get, :post, :delete]
+
       match 'source/:project/_config' => :project_config, :constraints => cons, via: [:get, :put]
       match 'source/:project/_pubkey' => :project_pubkey, :constraints => cons, via: [:get, :delete]
 
       # package level 
       match '/source/:project/:package/_meta' => :package_meta, :constraints => cons, via: [:get, :put]
-      match 'source/:project/:package/_attribute' => :attribute_meta, :constraints => cons, via: [:get, :post, :delete]
-      match 'source/:project/:package/_attribute/:attribute' => :attribute_meta, :constraints => cons, via: [:get, :post, :delete]
-      match 'source/:project/:package/:binary/_attribute' => :attribute_meta, :constraints =>  cons, via: [:get, :post, :delete]
-      match 'source/:project/:package/:binary/_attribute/:attribute' => :attribute_meta,  :constraints =>  cons, via: [:get, :post, :delete]
+
       match 'source/:project/:package/:filename' => :file, :constraints =>  cons, via: [:get, :put, :delete]
       match 'source/:project/:package' => :index_package, :constraints => cons, via: [:get, :post, :delete]
-    end
 
-    ### /attribute
-    get 'attribute' => 'attribute#index'
-    get 'attribute/:namespace' => 'attribute#index'
-    match 'attribute/:namespace/_meta' => 'attribute#namespace_definition', via: [:get, :delete, :post]
-    match 'attribute/:namespace/:name/_meta' => 'attribute#attribute_definition', via: [:get, :delete, :post]
+    end
 
     ### /architecture
     resources :architectures, :only => [:index, :show, :update] # create,delete currently disabled
