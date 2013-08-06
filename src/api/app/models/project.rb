@@ -32,6 +32,7 @@ class Project < ActiveRecord::Base
   after_rollback :reset_cache
   after_rollback 'Relationship.discard_cache'
 
+  include HasRelationships
   has_many :relationships, dependent: :destroy
 
   has_many :packages, :dependent => :destroy, foreign_key: :db_project_id, inverse_of: :project
@@ -874,30 +875,6 @@ class Project < ActiveRecord::Base
     self.class.find_parent_for self.name
   end
 
-  def add_user( user, role )
-    Relationship.add_user(self, user, role)
-  end
-
-  def add_group( group, role )
-    Relationship.add_group(self, group, role)
-  end
-
-  def each_user( opt={}, &block )
-    raise "No block given" unless block
-    users = relationships.joins(:role, :user).order("roles.title, users.login").pluck("users.login, roles.title")
-    users.each do |login, title|
-      block.call(login, title)
-    end
-  end
-
-  def each_group( opt={}, &block )
-    raise "No block given" unless block
-    groups = relationships.joins(:role, :group).order("groups.title, roles.title").pluck("groups.title as grouptitle, roles.title as roletitle")
-    groups.each do |group, role|
-      block.call(group, role)
-    end
-  end
-
   def to_axml(view = nil)
     unless view
        Rails.cache.fetch('xml_project_%d' % id) do
@@ -1354,38 +1331,6 @@ class Project < ActiveRecord::Base
 
   private :bsrequest_repos_map
 
-  def user_has_role?(user, role)
-    return true if self.relationships.where(role_id: role.id, user_id: user.id).exists?
-    return self.relationships.where(role_id: role).joins(:groups_users).where(groups_users: { user_id: user.id }).exists?
-  end
-
-  def remove_role(what, role)
-    check_write_access!
-
-    if what.kind_of? Group
-      rel = self.relationships.where(group_id: what.id)
-    else
-      rel = self.relationships.where(user_id: what.id)
-    end
-    rel = rel.where(role_id: role.id) if role
-    self.transaction do
-      rel.delete_all
-      write_to_backend
-    end
-  end
- 
-  def add_role(what, role)
-    check_write_access!
-
-    self.transaction do
-      if what.kind_of? Group
-        self.relationships.create!(role: role, group: what)
-      else
-        self.relationships.create!(role: role, user: what)
-      end
-      write_to_backend
-    end
-  end
 
   def self.valid_name?(name)
     return false unless name.kind_of? String

@@ -30,7 +30,9 @@ class Package < ActiveRecord::Base
   belongs_to :project, foreign_key: :db_project_id, inverse_of: :packages
   delegate :name, to: :project, prefix: true
 
+  include HasRelationships
   has_many :relationships, dependent: :destroy
+
   has_many :messages, :as => :db_object, dependent: :delete_all
 
   has_many :taggings, :as => :taggable, dependent: :delete_all
@@ -704,34 +706,6 @@ class Package < ActiveRecord::Base
     return a
   end
 
-  def add_user( user, role )
-    Relationship.add_user(self, user, role)
-  end
-
-  def add_group( group, role )
-    Relationship.add_group(self, group, role)
-  end
-
-  def each_user( opt={}, &block )
-    users = relationships.joins(:role, :user).select("users.login as login, roles.title AS role_name").order("role_name, login")
-    if( block )
-      users.each do |u|
-        block.call u.login, u.role_name
-      end
-    end
-    return users
-  end
-
-  def each_group( opt={}, &block )
-    groups = relationships.joins(:role, :group).select("groups.title as title, roles.title as role_name").order("role_name, title")
-    if( block )
-      groups.each do |g|
-        block.call g.title, g.role_name
-      end
-    end
-    return groups
-  end
-
   def to_axml(view = nil)
     if view
       render_axml(view)
@@ -916,42 +890,6 @@ class Package < ActiveRecord::Base
     return project.expand_flags(self)
   end
 
-  def remove_all_persons
-    check_write_access!
-    self.relationships.users.delete_all
-  end
-
-  def remove_all_groups
-    check_write_access!
-    self.relationships.groups.delete_all
-  end
-
-  def remove_role(what, role)
-    check_write_access!
-    if what.kind_of? Group
-      rel = self.relationships.where(group_id: what.id)
-    else
-      rel = self.relationships.where(user_id: what.id)
-    end
-    rel = rel.where(role_id: role.id) if role
-    self.transaction do
-      rel.delete_all
-      write_to_backend
-    end
-  end
-
-  def add_role(what, role)
-    check_write_access!
-    self.transaction do
-      if what.kind_of? Group
-        self.relationships.create!(role: role, group: what)
-      else
-        self.relationships.create!(role: role, user: what)
-      end
-      write_to_backend
-    end
-  end
-
   def open_requests_with_package_as_source_or_target
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
     rel = rel.where("(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?) or (bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)", self.project.name, self.name, self.project.name, self.name)
@@ -962,11 +900,6 @@ class Package < ActiveRecord::Base
     rel = BsRequest.where(state: [:new, :review])
     rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? and reviews.by_package = ? ", self.project.name, self.name)
     return BsRequest.where(id: rel.select("bs_requests.id").map { |r| r.id})
-  end
-
-  def user_has_role?(user, role)
-    return true if self.relationships.where(role_id: role.id, user_id: user.id).exists?
-    return self.relationships.where(role_id: role).joins(:groups_users).where(groups_users: { user_id: user.id }).exists?
   end
 
   def linkinfo
