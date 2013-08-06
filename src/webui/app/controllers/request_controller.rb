@@ -298,6 +298,7 @@ class RequestController < ApplicationController
   end
 
   def save_comments
+    params[:request_id] = params[:id]
     ApiDetails.save_comments(:save_comments_for_requests, params)
 
     respond_to do |format|

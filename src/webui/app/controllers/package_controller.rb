@@ -1080,15 +1080,17 @@ class PackageController < ApplicationController
   end
 
   def comments
-    unless params[:reply] == 'true'
-      @comment = ApiDetails.read(:comments_by_package, @project, @package)
-      @comments_as_thread = sort_comments(@comment)
-    else
-      render_dialog # a dialog box shows up for users to post a reply, as a GET request.
-    end
+      unless params[:reply] == 'true'
+        @comment = ApiDetails.read(:comments_by_package, @project, @package)
+        @comments_as_thread = sort_comments(@comment)
+      else
+        render_dialog # a dialog box shows up for users to post a reply, as a GET request.
+      end
   end
 
   def save_comments
+    params[:project] = @project.name
+    params[:package] = @package.name
     ApiDetails.save_comments(:save_comments_for_packages, params)
 
     respond_to do |format|

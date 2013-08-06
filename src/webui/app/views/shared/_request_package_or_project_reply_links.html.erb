@@ -1,7 +1,0 @@
-<%if params[:id]%>
-	<%= link_to('Reply', {:controller => params[:controller], :action => 'save_comments', :parent_id => comment[:id], :id => params[:id], :reply => 'true'  }, :remote => true, :class => "custom_button") %>
-<%elsif params[:package] %>
-	<%= link_to('Reply', {:controller => params[:controller], :action => 'save_comments', :parent_id => comment[:id], :package => params[:package], :project => params[:project], :reply => 'true'  }, :remote => true, :class => "custom_button") %>
-<%else%>
-	<%= link_to("Reply", {:controller => params[:controller], :action => 'save_comments', :parent_id => comment[:id], :project => params[:project], :reply => 'true' }, :remote => true, :class => "custom_button") %>
-<%end%>

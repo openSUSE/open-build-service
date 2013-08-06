@@ -7,22 +7,8 @@
         <p>
           <strong>Comment:</strong><br/>
           <%= text_area_tag 'body', @body, :cols => 80, :rows => 10 %><br/>
-
-          <%if params[:package]%>
-            <%= hidden_field_tag 'project', params[:project] %>
-            <%= hidden_field_tag 'package', params[:package] %>
-            <%= hidden_field_tag 'parent_id', params[:parent_id] %>
-            <%= hidden_field_tag 'object_type', "package"%>
-          <%elsif params[:id]%>
-            <%= hidden_field_tag 'request_id', params[:id]%>
-            <%= hidden_field_tag 'parent_id', params[:parent_id] %>
-            <%= hidden_field_tag 'object_type', "request"%>
-          <%else%>
-            <%= hidden_field_tag 'object_type', "project"%>
-            <%= hidden_field_tag 'parent_id', params[:parent_id] %>
-              
-          <%end%>
-            <%= hidden_field_tag 'user', session[:login] %>
+          <%= hidden_field_tag 'parent_id', params[:parent_id] %>
+          <%= hidden_field_tag 'user', session[:login] %>
         </p>
 
         <p>
