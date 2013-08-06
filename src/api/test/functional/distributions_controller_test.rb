@@ -57,6 +57,7 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
                  <icon width="8" height="8" url="https://static.opensuse.org/distributions/logos/opensuse-Factory-8.png"/>
                  <icon width="16" height="16" url="https://static.opensuse.org/distributions/logos/opensuse-Factory-16.png"/>
                  <link>http://www.opensuse.org/</link>
+                 <architecture>i586</architecture>
                </distribution>
              </distributions>
              ' 
@@ -80,6 +81,12 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
     get "/distributions"
     assert_response :success
     assert_no_xml_tag :tag => "project", :content => "RemoteInstance:openSUSE:12.2"
+    assert_xml_tag :tag => "name", :content => "openSUSE Factory"
+    assert_xml_tag :tag => "project", :content => "openSUSE:Factory"
+    assert_xml_tag :tag => "reponame", :content => "openSUSE_Factory"
+    assert_xml_tag :tag => "repository", :content => "snapshot"
+    assert_xml_tag :tag => "link", :content => "http://www.opensuse.org/"
+    assert_xml_tag :tag => "architecture", :content => "i586"
   end
 
   test "remotes work" do

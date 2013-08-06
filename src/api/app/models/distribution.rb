@@ -12,7 +12,7 @@ class Distribution < ActiveRecord::Base
 	db = Distribution.create(vendor: d['vendor'], version: d['version'], name: d['name'], project: d['project'], 
 				 reponame: d['reponame'], repository: d['repository'], link: d['link']) 
 	d.elements('architecture') do |a|
-          dba = DistributionArchitecture.find_by_architecture(name: a.to_s)
+          dba = Architecture.find_by_name!(a.to_s)
 	  db.architectures << dba
 	end
 	d.elements('icon') do |i|

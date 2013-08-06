@@ -12,6 +12,9 @@ xml.distributions do
         attr[:height] = i["height"] unless i["height"].blank?
         xml.icon(attr)
       end
+      d["architectures"].each do |a|
+        xml.architecture(a.to_s)
+      end
     end
   end
 end
