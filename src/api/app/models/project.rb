@@ -817,37 +817,6 @@ class Project < ActiveRecord::Base
     return a
   end
 
-  def render_issues_axml(params={})
-    builder = Nokogiri::XML::Builder.new
-
-    filter_changes = states = nil
-    filter_changes = params[:changes].split(",") if params[:changes]
-    states = params[:states].split(",") if params[:states]
-    login = params[:login]
-
-    builder.project( :name => self.name ) do |project|
-      self.packages.each do |pkg|
-        project.package( :project => pkg.project.name, :name => pkg.name ) do |package|
-          pkg.package_issues.each do |i|
-            next if filter_changes and not filter_changes.include? i.change
-            next if states and (not i.issue.state or not states.include? i.issue.state)
-            o = nil
-            if i.issue.owner_id
-              # self.owner must not by used, since it is reserved by rails
-              o = User.find i.issue.owner_id
-            end
-            next if login and (not o or not login == o.login)
-            i.issue.render_body(package, i.change)
-          end
-        end
-      end
-    end
-
-    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
-                              :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                            Nokogiri::XML::Node::SaveOptions::FORMAT
-  end
-
   def render_attribute_axml(params={})
     builder = Nokogiri::XML::Builder.new
 

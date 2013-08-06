@@ -69,6 +69,24 @@ class SourceController < ApplicationController
     render :text => output, :content_type => "text/xml"
   end
 
+  def set_issues_default
+    @filter_changes = @states = nil
+    @filter_changes = params[:changes].split(",") if params[:changes]
+    @states = params[:states].split(",") if params[:states]
+    @login = params[:login]
+  end
+
+  def render_project_issues
+    set_issues_default
+    render partial: 'project_issues'
+  end
+
+  def render_package_issues(pkg)
+    set_issues_default
+    @package = pkg
+    render partial: 'package_issues'
+  end
+
   # /source/:project
   #-----------------
   def index_project
@@ -97,21 +115,20 @@ class SourceController < ApplicationController
         if Project.is_remote_project?(project_name)
           # not a local project, hand over to backend
           pass_to_backend
-	else
-          pro = Project.find_by_name!(project_name)
+        else
+          @project = Project.find_by_name!(project_name)
           # we let the backend list the packages after we verified the project is visible
           if params.has_key? :view
             if params["view"] == "issues"
-              render :text => pro.render_issues_axml(params), :content_type => 'text/xml'
-              return
+              render_project_issues and return
             end
             pass_to_backend
-	  else
+          else
             packages=nil
             if params.has_key? :expand
-              packages = pro.expand_all_packages
+              packages = @project.expand_all_packages
             else
-              packages = pro.packages.pluck(:name, :db_project_id)
+              packages = @project.packages.pluck(:name, :db_project_id)
             end
             packages = packages.sort{|a,b| a[0]<=>b[0] }
             prj_names = Hash.new
@@ -120,7 +137,7 @@ class SourceController < ApplicationController
             end 
             output = String.new
             output << "<directory count='#{packages.length}'>\n"
-            output << packages.map { |p| p[1]==pro.id ? "  <entry name=\"#{p[0]}\"/>\n" : "  <entry name=\"#{p[0]}\" originproject=\"#{prj_names[p[1]]}\"/>\n" }.join
+            output << packages.map { |p| p[1]==@project.id ? "  <entry name=\"#{p[0]}\"/>\n" : "  <entry name=\"#{p[0]}\" originproject=\"#{prj_names[p[1]]}\"/>\n" }.join
             output << "</directory>\n"
             render :text => output, :content_type => "text/xml"
           end
@@ -167,7 +184,6 @@ class SourceController < ApplicationController
       pro.open_requests_with_by_project_review.each do |request|
         request.remove_reviews(:by_project => pro.name)
       end
-
 
       Project.transaction do
         logger.info "destroying project object #{pro.name}"
@@ -260,6 +276,8 @@ class SourceController < ApplicationController
 
     end
   end
+
+  class NoLocalPackage < APIException; end
 
   # FIXME: for OBS 3, api of branch and copy calls have target and source in the opossite place
   # /source/:project/:package
@@ -436,12 +454,9 @@ class SourceController < ApplicationController
     if request.get?
       if params["view"] == "issues"
         unless tpkg
-          render_error :status => 400, :errorcode => "no_local_package",
-            :message => "Issues can only be shown for local packages"
-          return
+          raise NoLocalPackage.new "Issues can only be shown for local packages"
         end
-        render :text => tpkg.render_issues_axml(params), :content_type => 'text/xml'
-        return
+        render_package_issues(tpkg) and return
       end
 
       # exec
