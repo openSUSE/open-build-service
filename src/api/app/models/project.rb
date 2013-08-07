@@ -3,6 +3,7 @@ require_dependency 'opensuse/backend'
 class Project < ActiveRecord::Base
   include FlagHelper
   include CanRenderModel
+  include HasRelationships
 
   class CycleError < APIException
     setup "project_cycle"
@@ -32,9 +33,6 @@ class Project < ActiveRecord::Base
   after_save 'Relationship.discard_cache'
   after_rollback :reset_cache
   after_rollback 'Relationship.discard_cache'
-
-  include HasRelationships
-  has_many :relationships, dependent: :destroy
 
   has_many :packages, :dependent => :destroy, foreign_key: :db_project_id, inverse_of: :project
   has_many :attribs, :dependent => :destroy, foreign_key: :db_project_id
@@ -150,12 +148,10 @@ class Project < ActiveRecord::Base
             # if user is in group -> return true
             ret = ret + 1 if User.current.is_in_group?(grouprel.group_id)
             # LDAP
-# FIXME: please do not do special things here for ldap. please cover this in a generic group modell.
-            if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
-              if defined?( CONFIG['ldap_group_support'] ) && CONFIG['ldap_group_support'] == :on
-                if User.current.user_in_group_ldap?(group.bs_group_id)
-                  ret = ret + 1
-                end
+            # FIXME: please do not do special things here for ldap. please cover this in a generic group model.
+            if CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
+              if User.current.user_in_group_ldap?(group.bs_group_id)
+                ret = ret + 1
               end
             end
             #
@@ -416,106 +412,8 @@ class Project < ActiveRecord::Base
       maintained_project.save!
     end
 
-    #--- update users ---#
-    usercache = Hash.new
-    self.relationships.users.each do |purr|
-      h = usercache[purr.user.login] ||= Hash.new
-      h[purr.role.title] = purr
-    end
+    update_relationships_from_xml( xmlhash )
 
-    xmlhash.elements('person') do |person|
-      user=User.find_by_login!(person['userid'])
-      if not Role.rolecache.has_key? person['role']
-        raise SaveError, "illegal role name '#{person.role}'"
-      end
-      
-      if usercache.has_key? person['userid']
-        # user has already a role in this project
-        pcache = usercache[person['userid']]
-        if pcache.has_key? person['role']
-          #role already defined, only remove from cache
-          pcache[person['role']] = :keep
-        else
-          #new role
-          self.relationships.new(user: user, role: Role.rolecache[person['role']])
-          pcache[person['role']] = :new
-        end
-      else
-        self.relationships.new(user: user, role: Role.rolecache[person['role']])
-        usercache[person['userid']] = { person['role'] => :new }
-      end
-    end
-      
-    #delete all roles that weren't found in the uploaded xml
-    usercache.each do |user, roles|
-      roles.each do |role, object|
-        next if [:keep, :new].include? object
-        object.delete
-      end
-    end
-    
-    #--- end update users ---#
-    
-    #--- update groups ---#
-    groupcache = Hash.new
-    self.relationships.groups.each do |pgrr|
-      h = groupcache[pgrr.group.title] ||= Hash.new
-      h[pgrr.role.title] = pgrr
-    end
-
-    xmlhash.elements('group') do |ge|
-      group=Group.find_by_title(ge['groupid'])
-      if not Role.rolecache.has_key? ge['role']
-        raise SaveError, "illegal role name '#{ge['role']}'"
-      end
-      
-      if groupcache.has_key? ge['groupid']
-        # group has already a role in this project
-        pcache = groupcache[ge['groupid']]
-        if pcache.has_key? ge['role']
-          #role already defined, only remove from cache
-          pcache[ge['role']] = :keep
-        else
-          #new role
-          self.relationships.new(group: group, role: Role.rolecache[ge['role']])
-          pcache[ge['role']] = :new
-        end
-      else
-        if !group
-          # check with LDAP
-          if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
-            if defined?( CONFIG['ldap_group_support'] ) && CONFIG['ldap_group_support'] == :on
-              if User.find_group_with_ldap(ge['groupid'])
-                logger.debug "Find and Create group '#{ge['groupid']}' from LDAP"
-                newgroup = Group.create( :title => ge['groupid'] )
-                unless newgroup.errors.empty?
-                  raise SaveError, "unknown group '#{ge['groupid']}', failed to create the ldap groupid on OBS"
-                end
-                group=Group.find_by_title(ge['groupid'])
-              else
-                raise SaveError, "unknown group '#{ge['groupid']}' on LDAP server"
-              end
-            end
-          end
-          
-          unless group
-            raise SaveError, "unknown group '#{ge['groupid']}'"
-          end
-        end
-        
-        self.relationships.new(group: group, role: Role.rolecache[ge['role']])
-      end
-    end
-    
-    #delete all roles that weren't found in the uploaded xml
-    groupcache.each do |group, roles|
-      roles.each do |role, object|
-        next if [:keep, :new].include? object
-        object.destroy
-      end
-    end
-    #--- end update groups ---#
-    
     #--- update flag group ---#
     update_all_flags( xmlhash )
     if ::Configuration.first.default_access_disabled == true and new_record
