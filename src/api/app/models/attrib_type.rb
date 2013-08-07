@@ -3,6 +3,7 @@
 
 class AttribType < ActiveRecord::Base
   belongs_to :attrib_namespace
+  delegate :name, to: :attrib_namespace, prefix: true
 
   has_many :attribs, dependent: :destroy
   has_many :default_values, :class_name => 'AttribDefaultValue', dependent: :delete_all
@@ -98,6 +99,24 @@ class AttribType < ActiveRecord::Base
       end
 
       self.save
+    end
+  end
+
+  # FIXME: we REALLY should use active_model_serializers
+  def as_json(options = nil)
+    if options
+      if options.key?(:methods)
+        if options[:methods].kind_of? Array
+          options[:methods] << :attrib_namespace_name unless options[:methods].include?(:attrib_namespace_name)
+        elsif options[:methods] != :attrib_namespace_name
+          options[:methods] = [options[:methods]] + [:attrib_namespace_name]
+        end
+      else
+        options[:methods] = [:attrib_namespace_name]
+      end
+      super(options)
+    else
+      super(methods: [:attrib_namespace_name])
     end
   end
 end

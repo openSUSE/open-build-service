@@ -44,6 +44,7 @@ OBSApi::Application.routes.draw do
       post 'test/killme' => :killme
       post 'test/startme' => :startme
       post 'test/test_start' => :test_start
+      post 'test/prepare_search' => :prepare_search
     end
     
     controller :source do
@@ -332,6 +333,8 @@ OBSApi::Application.routes.draw do
         end
       end
       resources :owners, :only => [:index]
+      resources :searches, :only => [:new, :create]
+      resources :attrib_types, :only => [:index]
     end
 
     get "/404" => "main#notfound"
