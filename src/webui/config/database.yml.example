@@ -26,3 +26,6 @@ stage:
 test:
   adapter: sqlite3
   database: db/obs_webui_test.db
+  pool: 30
+  timeout: 10
+

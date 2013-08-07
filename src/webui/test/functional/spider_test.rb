@@ -128,6 +128,7 @@ class SpiderTest < ActionDispatch::IntegrationTest
     @pages_visited = Hash.new
     
     crawl
+    ActiveRecord::Base.clear_active_connections!
   end
 
   test "spider as admin" do
@@ -138,6 +139,7 @@ class SpiderTest < ActionDispatch::IntegrationTest
     @pages_visited = Hash.new
     
     crawl
+    ActiveRecord::Base.clear_active_connections!
   end
 
 end
