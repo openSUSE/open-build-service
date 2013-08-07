@@ -9,6 +9,7 @@ class ProjectController < ApplicationController
 
   include ApplicationHelper
   include RequestHelper
+  include CommentsHelper
 
   before_filter :load_project_info, :only => [:show]
   before_filter :require_project, :except => [:repository_arch_list,
@@ -1267,6 +1268,33 @@ class ProjectController < ApplicationController
     redirect_to :action => 'show', :project => params[:project] and return
   end
 
+  def comments
+    unless params[:reply] == 'true'
+      @comment = ApiDetails.read(:comments_by_project, @project)
+      @comments_as_thread = sort_comments(@comment)
+    else
+      render_dialog
+    end
+  end
+
+  def save_comments
+    begin
+      params[:project] = @project.name
+      ApiDetails.save_comments(:save_comments_for_projects, params)
+
+      respond_to do |format|
+        format.js { render json: 'ok' }
+        format.html do
+          flash[:notice] = "Comment added successfully"
+          redirect_to action: :comments
+        end
+      end
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = e.summary
+      redirect_to(:action => "comments", :project => params[:project]) and return
+    end
+  end
+  
   private
 
   def filter_packages( project, filterstring )
