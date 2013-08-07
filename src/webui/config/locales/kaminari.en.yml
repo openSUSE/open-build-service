@@ -1,0 +1,9 @@
+# "Needed" because nokogiri doesn't like &laquo, &rsaquo, etc.
+en:
+  views:
+    pagination:
+      first: "&lt;&lt;First"
+      last: "Last&gt;&gt;"
+      previous: "&lt;Prev"
+      next: "Next&gt;"
+      truncate: "..."

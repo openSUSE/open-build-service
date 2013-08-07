@@ -19,7 +19,7 @@ class SearchController < ApplicationController
   #   - @search_text -> The search string we search for
   #   - @search_what -> Array of result limits
   #   - @search_where -> Array of where we search
-  #   - @search_attribute -> Limit results to this attribute string
+  #   - @search_attrib_type_id -> Limit results to this attribute type
   #   - @search_issue -> Limit results to packages with this issue in the changelog
   #   - @owner_limit -> Limit the amount of owners
   #   - @owner_devel -> Follow devel links for owner search
@@ -29,7 +29,7 @@ class SearchController < ApplicationController
     # If there is nothing to search for, just return
     return unless params[:search_text]
     # If the search is too short, return too
-    if (!@search_text or @search_text.length < 2) && !@search_attribute && !@search_issue
+    if (!@search_text or @search_text.length < 2) && !@search_attrib_type_id && !@search_issue
       flash[:error] = "Search string must contain at least two characters."
       return
     end
@@ -43,90 +43,65 @@ class SearchController < ApplicationController
     end
 
     logger.debug "Searching for the string \"#{@search_text}\" in the #{@search_where}'s of #{@search_what}'s"
-    if @search_where.length < 1 and !@search_attribute and !@search_issue
+    if @search_where.length < 1 and !@search_attrib_type_id and !@search_issue
       flash[:error] = "You have to search for #{@search_text} in something. Click the advanced button..."
       return
     end
 
-    @search_what.each do |what|
-      fact = nil
-      limit = nil
-
-      if what == 'owner'
-        r = []
-        collection = find_cached(Owner, :binary => "#{@search_text}", :limit => "#{@owner_limit}", :devel => "#{@owner_devel}", :expires_in => 5.minutes)
-        collection.send("each_owner") do |result|
-          users = []
-          groups = []
-          if result.to_hash['person']
-            if result.to_hash['person'].class != Array
-              blah = []
-              blah << result.to_hash['person']
-              users = blah
-            else
-              result.to_hash['person'].each do |p|
-                users << p
-              end
+    # The owner form
+    if @search_what == ["owner"]
+      r = []
+      collection = find_cached(Owner, :binary => "#{@search_text}", :limit => "#{@owner_limit}", :devel => "#{@owner_devel}", :expires_in => 5.minutes)
+      collection.send("each_owner") do |result|
+        users = []
+        groups = []
+        if result.to_hash['person']
+          if result.to_hash['person'].class != Array
+            blah = []
+            blah << result.to_hash['person']
+            users = blah
+          else
+            result.to_hash['person'].each do |p|
+              users << p
             end
           end
-          if result.to_hash['group']
-            if result.to_hash['group'].class != Array
-              blah = []
-              blah << result.to_hash['group']
-              groups = blah
-            else
-              result.to_hash['group'].each do |g|
-                groups << g
-              end
+        end
+        if result.to_hash['group']
+          if result.to_hash['group'].class != Array
+            blah = []
+            blah << result.to_hash['group']
+            groups = blah
+          else
+            result.to_hash['group'].each do |g|
+              groups << g
             end
           end
-          project = find_cached(Project, result.project)
-          if result.package
-            package = find_cached(Package, result.package, :project => project)
-          end
-          r << {:type => "owner", :data => result,
-                :users => users, :groups => groups,
-                :project => project, :package => package,
-                :weight => 0}
         end
-        @results.concat(r)
+        project = find_cached(Project, result.project)
+        if result.package
+          package = find_cached(Package, result.package, :project => project)
+        end
+        r << {:type => "owner", :data => result,
+              :users => users, :groups => groups,
+              :project => project, :package => package}
       end
-      if what == 'package' or what == 'project'
-        f = []
-        f << "contains(@name,'#{@search_text}')" if @search_where.include?('name')
-        f << "contains(title,'#{@search_text}')" if @search_where.include?('title')
-        f << "contains(description,'#{@search_text}')" if @search_where.include?('description')
-        fact = f.join(' or ')
-        l = []
-        if @search_attribute
-          if fact.empty?
-            # This means everything
-            fact = "contains(@name,'')"
-          end
-          l << "contains(attribute/@name, '#{@search_attribute}')"
-        end
-        if @search_issue
-          if fact.empty?
-            # This means everything
-            fact = "contains(@name,'')"
-          end
-          tracker_name = params[:issue_tracker].gsub(/ .*/,'')
-          # could become configurable in webui, further options would be "changed" or "deleted".
-          # best would be to prefer links with "added" on top of results
-          l << "issue/[@name='#{@search_issue}' and @tracker='#{tracker_name}' and (@change='added' or @change='kept')]"
-        end        
-        limit = l.join(' and ')
-        logger.debug("fact: #{fact} and limit: #{limit}")
-        predicate = fact + " and " + limit
-        if predicate.empty?
-          flash[:error] = "You need to search for name, title, description or attributes."
-          return
-        end
-        logger.debug "predicate: #{predicate.inspect}"
-        collection = find_cached(Collection, :what => what, :predicate => "[#{predicate}]", :expires_in => 5.minutes)
-        reweigh(collection, what)
-      end
+      @results.concat(r)
+      @per_page = nil
+    # Full text search
+    else
+      @per_page = 50
+      search = ApiDetails.create(:searches, :page => params[:page], :per_page => @per_page, :search => {
+                      text: @search_text,
+                      classes: @search_what,
+                      attrib_type_id: @search_attrib_type_id,
+                      fields: @search_where,
+                      issue_name: @search_issue,
+                      issue_tracker_name: @search_tracker})
+      @results = search["result"].map {|i| i.symbolize_keys}
+      @results = Kaminari.paginate_array(@results, total_count: search["total_entries"])
+      @results = @results.page(params[:page]).per(@per_page)
     end
+
     logger.debug "Found #{@results.length} search results: #{@results.inspect}"
     if @results.length < 1
       flash[:notice] = "Your search did not return any results."
@@ -136,8 +111,6 @@ class SearchController < ApplicationController
       flash[:notice] = "Your search returned more than 200 results. Please be more precise."
     end
   end
-
-
 
   # This method handles obs:// disturls
   #
@@ -154,109 +127,14 @@ class SearchController < ApplicationController
   #
   def handle_disturl(disturl)
     disturl_project, _, disturl_pkgrev = disturl.split('/')[3..5]
-      unless disturl_pkgrev.nil? 
-        disturl_rev, disturl_package = disturl_pkgrev.split('-', 2)
-      end
-      unless disturl_package.nil? || disturl_rev.nil?
-        redirect_to :controller => 'package', :action => 'show', :project => disturl_project, :package => disturl_package, :rev => disturl_rev and return
-      end
-      logger.debug "Computing disturl #{disturl} failed"
-      return false
-  end
-
-  # This method collects all results and gives them some weight
-  #
-  # * *Args* :
-  #   - +collection+ -> A collection
-  #   - +what+ ->  String of the type of search. Like package, project, owner...
-  # * *Returns* :
-  #   - +@results+ -> A collection ordered by weight
-  # * *Raises* :
-  #   
-  #
-  def reweigh(collection, what)
-    weight_for = {
-      :is_a_project      => 10,
-      :name_exact_match  => 20,
-      :name_full_match   => 16,
-      :name_start_match  => 8,
-      :name_contained    => 4,
-      :title_full_match  => 8,
-      :title_start_match => 4,
-      :title_contained   => 2,
-      :description_full_match  => 4,
-      :description_start_match => 2,
-      :description_contained   => 1
-    }
-
-    r = []
-
-    collection.send("each_#{what}") do |result|
-      weight = 0
-      log_prefix = "weighting search result #{what} \"#{result.name}\" by"
-      # weight if result is a project
-      if what == 'project'
-        weight += weight_for[:is_a_project]
-        log_weight(log_prefix, 'is_a_project', weight)
-      end
-      # TODO: prefer links with added issues on issue search
-      if @search_text
-        # weight if name matches exact
-        if result.name.to_s.downcase == @search_text.downcase
-          weight += weight_for[:name_exact_match]
-          log_weight(log_prefix, 'name_exact_match', weight)
-        end
-        quoted_search_text = Regexp.quote(@search_text)
-        # weight the name
-        if (match = result.name.to_s.scan(/\b#{quoted_search_text}\b/i)) != []
-          weight += match.length * weight_for[:name_full_match]
-          log_weight(log_prefix, 'name_full_match', weight)
-        elsif (match = result.name.to_s.scan(/\b#{quoted_search_text}/i)) != []
-          weight += match.length * weight_for[:name_start_match]
-          log_weight(log_prefix, 'name_start_match', weight)
-        elsif (match = result.name.to_s.scan(/#{quoted_search_text}/i)) != []
-          weight += match.length * weight_for[:name_contained]
-          log_weight(log_prefix, 'name_contained', weight)
-        end
-        # weight the title
-        if (match = result.title.to_s.scan(/\b#{quoted_search_text}\b/i)) != []
-          weight += match.length * weight_for[:title_full_match]
-          log_weight(log_prefix, 'title_full_match', weight)
-        elsif (match = result.title.to_s.scan(/\b#{quoted_search_text}/i)) != []
-          weight += match.length * weight_for[:title_start_match]
-          log_weight(log_prefix, 'title_start_match', weight)
-        elsif (match = result.title.to_s.scan(/#{quoted_search_text}/i)) != []
-          weight += match.length * weight_for[:title_contained]
-          log_weight(log_prefix, 'title_contained', weight)
-        end
-        # weight the description
-        if (match = result.description.to_s.scan(/\b#{quoted_search_text}\b/i)) != []
-          weight += match.length * weight_for[:description_full_match]
-          log_weight(log_prefix, 'description_full_match', weight)
-        elsif (match = result.description.to_s.scan(/\b#{quoted_search_text}/i)) != []
-          weight += match.length * weight_for[:description_start_match]
-          log_weight(log_prefix, 'description_start_match', weight)
-        elsif (match = result.description.to_s.scan(/#{quoted_search_text}/i)) != []
-           weight += match.length * weight_for[:description_contained]
-          log_weight(log_prefix, 'description_contained', weight)
-        end
-      end
-      r << {:type => what, :data => result, :weight => weight}
+    unless disturl_pkgrev.nil?
+      disturl_rev, disturl_package = disturl_pkgrev.split('-', 2)
     end
-    # return results reordered by weight
-    r.sort! {|a,b| b[:weight] <=> a[:weight]}    
-    @results.concat(r)
-  end
-
-  # This method logs the weight something is given to
-  #
-  # * *Args* :
-  #   - +log_prefix+ -> A prefix string for the log message
-  #   - +reason+ -> A string of the reason for the weight
-  #   - +new_weight+ -> A fixnum of the weight given
-  #
-  def log_weight(log_prefix, reason, new_weight)
-    logger.debug "#{log_prefix} #{reason}, new weight=#{new_weight}"
+    unless disturl_package.nil? || disturl_rev.nil?
+      redirect_to :controller => 'package', :action => 'show', :project => disturl_project, :package => disturl_package, :rev => disturl_rev and return
+    end
+    logger.debug "Computing disturl #{disturl} failed"
+    return false
   end
 
 private
@@ -267,7 +145,7 @@ private
   #   - @search_text -> The search string we search for
   #   - @search_what -> Array of result limits
   #   - @search_where -> Array of where we search
-  #   - @search_attribute -> Limit results to this attribute string
+  #   - @search_attrib_type_id -> Limit results to this attribute type
   #   - @search_issue -> Limit results to packages with this issue in the changelog
   #   - @owner_limit -> Limit the amount of owners
   #   - @owner_devel -> Follow devel links for owner search
@@ -276,11 +154,14 @@ private
   def set_parameters
     @results = []
 
-    @search_attribute = nil
-    @search_attribute = params[:attribute].strip unless params[:attribute].blank?
+    @search_attrib_type_id = nil
+    @search_attrib_type_id = params[:attrib_type_id] unless params[:attrib_type_id].blank?
 
     @search_issue = nil
     @search_issue = params[:issue].strip unless params[:issue].blank?
+
+    @search_tracker = nil
+    @search_tracker = params[:issue_tracker] unless params[:issue_tracker].blank?
 
     @search_text = ""
     @search_text = params[:search_text].strip unless params[:search_text].blank?
@@ -306,26 +187,22 @@ private
   end
 
   def set_attribute_list
-    namespaces = find_cached(Attribute, :namespaces)
-    attributes = []
-    @attribute_list = ['']
-    namespaces.each do |d|
-      attributes << find_cached(Attribute, :attributes, :namespace => d.value(:name))
+    # FIXME: needs caching?
+    @attrib_type_list = ApiDetails.read(:attrib_types).map do |t|
+      ["#{t['attrib_namespace_name']}:#{t['name']}", t['id']]
     end
-    attributes.each do |d|
-      if d.has_element? :entry
-        d.each {|f| @attribute_list << "#{d.init_options[:namespace]}:#{f.value(:name)}"}
-      end
-    end
+    @attrib_type_list.sort_by! {|a| a.first }
+    @attrib_type_list.unshift(["", ""])
   end
 
   def set_tracker_list
     trackers = find_cached(IssueTracker, :all)
     @issue_tracker_list = []
+    @default_tracker = "bnc"
     trackers.each("/issue-trackers/issue-tracker") do |t|
-      @issue_tracker_list << "#{t.name.text} (#{t.description.text})"
+      @issue_tracker_list << ["#{t.name.text} (#{t.description.text})", t.name.text]
     end
-    @issue_tracker_list.sort!
+    @issue_tracker_list.sort_by! {|a| a.first.downcase }
   end
   
 end

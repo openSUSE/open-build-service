@@ -53,4 +53,4 @@ gem 'dalli', :require => false
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
 gem 'mobileesp_converted'
-
+gem 'kaminari'
