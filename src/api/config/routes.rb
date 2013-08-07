@@ -309,14 +309,14 @@ OBSApi::Application.routes.draw do
         end
         resources :relationships, :only => [:create] do
           collection do
-            delete :remove_user
+            delete :for_user, action: :remove_user
           end
         end
         resources :flags, :only => [:index]
         resources :packages, :only => [], :constraints => { :id => %r{[^\/]*} } do
           resources :relationships, :only => [:create] do
             collection do
-              delete :remove_user
+              delete :for_user, action: :remove_user
             end
           end
           resources :flags, :only => [:index]
