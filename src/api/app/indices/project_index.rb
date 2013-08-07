@@ -1,4 +1,4 @@
-ThinkingSphinx::Index.define :project, :with => :active_record do
+ThinkingSphinx::Index.define :project, :with => :active_record, :delta => true do
   indexes name, title, description
 
   has attribs.attrib_type_id, :as => :attrib_type_ids

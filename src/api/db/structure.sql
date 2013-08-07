@@ -495,6 +495,7 @@ CREATE TABLE `packages` (
   `activity_index` float DEFAULT '100',
   `bcntsynctag` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `develpackage_id` int(11) DEFAULT NULL,
+  `delta` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `packages_all_index` (`db_project_id`,`name`(255)),
   KEY `devel_package_id_index` (`develpackage_id`),
@@ -529,6 +530,7 @@ CREATE TABLE `projects` (
   `type_id` int(11) DEFAULT NULL,
   `maintenance_project_id` int(11) DEFAULT NULL,
   `develproject_id` int(11) DEFAULT NULL,
+  `delta` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`name`(255)),
   KEY `updated_at_index` (`updated_at`),
@@ -1145,6 +1147,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130802183717');
 INSERT INTO schema_migrations (version) VALUES ('20130802190951');
 
 INSERT INTO schema_migrations (version) VALUES ('20130805073101');
+
+INSERT INTO schema_migrations (version) VALUES ('20130807071147');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
