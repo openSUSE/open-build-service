@@ -35,3 +35,6 @@ every(5.minutes, 'check last events') do
   BackendInfo.first.delay.update_last_events 
 end
 
+every(1.hour, 'reindex sphinx') do
+  `rake ts:index`
+end
