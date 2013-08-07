@@ -1,50 +1,33 @@
 class ApiDetails
 
-  class CommandFailed < Exception ; end
+  class TransportError < Exception ; end
+  class NotFoundError < Exception ; end
 
   def self.logger
     Rails.logger
   end
 
-  # FIXME: legacy
-  def self.create_role(project_name, opts)
-    opts.delete :todo
-    if opts[:package].blank?
-      uri = URI("/webui/projects/#{project_name}/relationships")
-    else
-      uri = URI("/webui/projects/#{project_name}/packages/#{opts[:package]}/relationships")
-      opts.delete :package
-    end
-    uri = self.url_for(uri, opts)
-    begin
-      ActiveXML::transport.http_json :post, uri
-    rescue ActiveXML::Transport::Error => e
-      raise CommandFailed, e.summary
-    end
+  def self.prepare_search
+    transport = ActiveXML::transport
+    transport.http_do 'post', "/test/prepare_search"
   end
 
-  # FIXME: legacy
-  def self.remove_role(project_name, opts)
-    opts.delete :todo
-    if opts[:package].blank?
-      uri = URI("/webui/projects/#{project_name}/relationships/remove_user")
-    else
-      uri = URI("/webui/projects/#{project_name}/packages/#{opts[:package]}/relationships/remove_user")
-      opts.delete :package
-    end
-    uri = self.url_for(uri, opts)
-    begin
-      ActiveXML::transport.http_json :delete, uri
-    rescue ActiveXML::Transport::Error => e
-      raise CommandFailed, e.summary
-    end
+  def self.read(route_name, *args)
+    http_do :get, route_name, *args
+  end
+
+  def self.create(route_name, *args)
+    http_do :post, route_name, *args
+  end
+
+  def self.destroy(route_name, *args)
+    http_do :delete, route_name, *args
   end
 
   # Trying to mimic the names and params of Rails' url helpers
-  def self.read(route_name, *args)
+  def self.http_do(verb, route_name, *args)
     # FIXME: we need a better (real) implementation of nested routes
     # using rails facilities
-
     ids = []
     opts = {}
     args.each do |i|
@@ -67,28 +50,40 @@ class ApiDetails
       when :projects then "projects"
       when :infos_project then "projects/#{ids.first}/infos"
       when :status_project then "projects/#{ids.first}/status"
+      when :project_relationships then "projects/#{ids.first}/relationships"
+      when :project_package_relationships then "projects/#{ids.first}/packages/#{ids.last}/relationships"
+      when :for_user_project_relationships then "projects/#{ids.first}/relationships/for_user"
+      when :for_user_project_package_relationships then "projects/#{ids.first}/packages/#{ids.last}/relationships/for_user"
 
       when :requests then "requests"
       when :request then "requests/#{ids.first}"
       when :ids_requests then "requests/ids"
       when :by_class_requests then "requests/by_class"
-  
+
+      when :attrib_types then "attrib_types"
+
+      when :searches then "searches"
+
       else raise "no valid route #{route_name}"
       end
-    uri = url_for(uri, opts)
+
     transport = ActiveXML::transport
-    data = transport.http_do 'get', uri
+    begin
+      if [:get, :delete].include? verb.to_sym
+        uri = "#{uri}?#{opts.to_query}" unless opts.empty?
+        data = transport.http_do verb, uri
+      else
+        data = transport.http_json verb, URI(uri), opts
+      end
+    rescue ActiveXML::Transport::NotFoundError => e
+      raise NotFoundError, e.summary
+    rescue ActiveXML::Transport::Error => e
+      raise TransportError, e.summary
+    end
     data = JSON.parse(data)
     logger.debug "data #{JSON.pretty_generate(data)}"
     data
   end
 
-  def self.url_for(uri, opts = {})
-    if opts.empty?
-      uri
-    else
-      "#{uri}?#{opts.to_query}"
-    end
-  end
 end
 

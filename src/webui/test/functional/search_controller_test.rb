@@ -4,6 +4,10 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class SearchControllerTest < ActionDispatch::IntegrationTest
 
+  def setup
+    ApiDetails.prepare_search
+  end
+
   def validate_search_page
     page.must_have_selector '#header-logo'
     page.must_have_text "Search"
@@ -82,18 +86,27 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     visit '/search'
     validate_search_page
 
-    visit '/search?search_text=Base'
+    visit '/search?search_text=basedistro'
+    page.must_have_text(/Base.* contains official released updates/)
+
+    visit '/search?search_text=basedistro3'
     page.must_have_text(/Base.* distro without update project/)
+
+    visit '/search?search_text=kdebase'
     page.must_have_link 'kdebase'
   end
   
   test "header_search_functionality" do
     visit "/"
-    fill_in 'search', with: 'Base'
+    fill_in 'search', with: 'kdebase'
+    page.evaluate_script("$('#global-search-form').get(0).submit()")
+    validate_search_page
+    page.must_have_link 'kdebase'
+
+    fill_in 'search', with: 'basedistro3'
     page.evaluate_script("$('#global-search-form').get(0).submit()")
     validate_search_page
     page.must_have_text(/Base.* distro without update project/)
-    page.must_have_link 'kdebase'
   end
 
   test "search_by_baseurl" do
@@ -146,7 +159,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     visit search_path
 
     search(
-      :text => "Local", 
+      :text => "localproject",
       :for  => [:projects], 
       :in   => [:name])
 
@@ -167,9 +180,9 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     
     results = search_results
     assert results.include? :type => :package, :project_name => "CopyTest", :package_name => "test"
-    assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "TestPack"
-    assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "ToBeDeletedTestPack"
-    results.count.must_equal 3
+    #assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "TestPack"
+    #assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "ToBeDeletedTestPack"
+    results.count.must_equal 1
   end
   
 

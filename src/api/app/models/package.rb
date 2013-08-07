@@ -28,6 +28,7 @@ class Package < ActiveRecord::Base
     setup 'source_access_no_permission', 403, "Source Access not allowed"
   end
   belongs_to :project, foreign_key: :db_project_id, inverse_of: :packages
+  delegate :name, to: :project, prefix: true
 
   has_many :relationships, dependent: :destroy
   has_many :messages, :as => :db_object, dependent: :delete_all
@@ -1211,5 +1212,23 @@ class Package < ActiveRecord::Base
      self.linked_package ||= LinkedPackage.new(links_to: link)
      self.linked_package.save # update updated_at
 
+  end
+
+  # FIXME: we REALLY should use active_model_serializers
+  def as_json(options = nil)
+    if options
+      if options.key?(:methods)
+        if options[:methods].kind_of? Array
+          options[:methods] << :project_name unless options[:methods].include?(:project_name)
+        elsif options[:methods] != :project_name
+          options[:methods] = [options[:methods]] + [:project_name]
+        end
+      else
+        options[:methods] = [:project_name]
+      end
+      super(options)
+    else
+      super(methods: [:project_name])
+    end
   end
 end

@@ -655,7 +655,7 @@ class PackageController < ApplicationController
   end
 
   def change_role_options(params)
-    ret = { package: params[:package] }
+    ret = Hash.new
     ret[:role] = params[:role] if params.has_key? :role
     if params.has_key? :userid
       return ret.merge( { user: params[:userid] })
@@ -666,9 +666,9 @@ class PackageController < ApplicationController
 
   def save_person
     begin
-      ApiDetails.create_role @project.name, change_role_options(params)
+      ApiDetails.create :project_package_relationships, @project.name, @package.name, change_role_options(params)
       @package.free_cache
-    rescue ApiDetails::CommandFailed => e
+    rescue ApiDetails::TransportError, ApiDetails::NotFoundError => e
       flash[:error] = e.to_s
       redirect_to action: :add_person, project: @project, package: @package, role: params[:role], userid: params[:userid]
       return
@@ -684,9 +684,9 @@ class PackageController < ApplicationController
 
   def save_group
     begin
-      ApiDetails.create_role @project.name, change_role_options(params)
+      ApiDetails.create :project_package_relationships, @project.name, @package.name, change_role_options(params)
       @package.free_cache
-    rescue ApiDetails::CommandFailed => e
+    rescue ApiDetails::TransportError, ApiDetails::NotFoundError => e
       flash[:error] = e.to_s
       redirect_to action: :add_group, project: @project, package: @package, role: params[:role], groupid: params[:groupid]
       return
@@ -702,9 +702,9 @@ class PackageController < ApplicationController
 
   def remove_role
     begin
-      ApiDetails.remove_role @project.name, change_role_options(params)
+      ApiDetails.destroy :for_user_project_package_relationships, @project.name, @package.name, change_role_options(params)
       @package.free_cache
-    rescue ActiveXML::Transport::Error => e
+    rescue ApiDetails::TransportError, ApiDetails::NotFoundError => e
       flash[:error] = e.summary
     end
     respond_to do |format|

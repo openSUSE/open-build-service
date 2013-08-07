@@ -44,6 +44,7 @@ OBSApi::Application.routes.draw do
       post 'test/killme' => :killme
       post 'test/startme' => :startme
       post 'test/test_start' => :test_start
+      post 'test/prepare_search' => :prepare_search
     end
     
     controller :source do
@@ -309,14 +310,14 @@ OBSApi::Application.routes.draw do
         end
         resources :relationships, :only => [:create] do
           collection do
-            delete :remove_user
+            delete :for_user, action: :remove_user
           end
         end
         resources :flags, :only => [:index]
         resources :packages, :only => [], :constraints => { :id => %r{[^\/]*} } do
           resources :relationships, :only => [:create] do
             collection do
-              delete :remove_user
+              delete :for_user, action: :remove_user
             end
           end
           resources :flags, :only => [:index]
@@ -332,6 +333,8 @@ OBSApi::Application.routes.draw do
         end
       end
       resources :owners, :only => [:index]
+      resources :searches, :only => [:new, :create]
+      resources :attrib_types, :only => [:index]
     end
 
     get "/404" => "main#notfound"

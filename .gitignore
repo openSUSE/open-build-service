@@ -26,6 +26,9 @@
 /src/api/config/environments/development.*.rb
 /src/api/config/options.yml
 /src/api/config/secret.key
+/src/api/config/thinking_sphinx.yml
+/src/api/db/sphinx
+/src/api/config/*.sphinx.conf
 /src/api/coverage
 /src/api/coverage.data
 /src/api/db/schema.rb

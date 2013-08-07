@@ -73,6 +73,9 @@ GEM
       jquery-rails
       railties (>= 3.1.0)
     json (1.8.0)
+    kaminari (0.14.1)
+      actionpack (>= 3.0.0)
+      activesupport (>= 3.0.0)
     launchy (2.3.0)
       addressable (~> 2.3)
     mail (2.5.4)
@@ -184,6 +187,7 @@ DEPENDENCIES
   jquery-rails
   jquery-ui-rails
   json
+  kaminari
   launchy
   minitest (< 5.0)
   minitest-colorize

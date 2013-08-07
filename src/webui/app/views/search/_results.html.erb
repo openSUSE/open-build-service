@@ -1,20 +1,17 @@
 <% unless @results.nil? || @results.length < 1 %>
   <div id="search_results">
   <% @results.each do |result| %>
-    <% if result[:type] == 'project' %>
+    <% if %w(project package).include? result[:type] %>
+      <% rtype = result[:type] %>
+      <% project = rtype == "project" ? result[:data]["name"] : result[:data]["project_name"] %>
+      <% package = rtype == "project" ? nil : result[:data]["name"] %>
       <div class="search_result">
       <h6 class="data-title">
-      <%= sprite_tag('project', class: 'project', title: 'Project') %>
-      <%= render :partial => 'shared/project_or_package_link', :locals => {:project => result[:data].name,
+      <%= sprite_tag(rtype, class: rtype, title: rtype.humanize) %>
+      <%= render :partial => 'shared/project_or_package_link', :locals => {:project => project,
+                                                                          :package => package,
                                                                            :short => false} %>
-      </h6>
-    <% elsif result[:type] == 'package' %>
-      <div class="search_result">
-      <h6 class="data-title">
-      <%= sprite_tag('package', class: 'package', title: 'Package') %>
-      <%= render :partial => 'shared/project_or_package_link', :locals => {:project => result[:data].project,
-                                                                           :package => result[:data].name,
-                                                                           :short => false} %>
+      <%= content_tag :span, result[:search_attributes], style: "display:none" %>
       </h6>
     <% elsif result[:type] == 'owner' %>
       <div class="search_result">
@@ -44,13 +41,10 @@
       </p>
     <% end %>
 
-    <% if result[:data].has_element?( 'description' ) && !result[:data].description.to_s.empty? %>
-      <% descr = h result[:data].description.to_s.dup[0,80] + "..." %>
-    <% end %>
-    <% if descr %>
+    <% if descr = description_text(result[:data]) %>
       <p class="data-description">
       <% descr.split(/\n/).each do |line| -%>
-        <%= highlight(line, @search_text) -%>
+        <%= highlight(line, @search_text, highlighter: '<b>\1</b>') %>
       <% end %>
       </p>
     <% else %>
@@ -60,6 +54,10 @@
     <% end %>
 
     </div>
+  <% end %>
+
+  <% if @per_page %>
+    <%= paginate @results %>
   <% end %>
   </div>
 <% end %>

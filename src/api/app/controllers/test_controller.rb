@@ -1,3 +1,5 @@
+require 'obsapi/test_sphinx'
+
 if Rails.env.test? || Rails.env.development?
   require 'database_cleaner'
   DatabaseCleaner.strategy = :transaction
@@ -36,6 +38,12 @@ class TestController < ApplicationController
      render_ok
   end
   
+  def prepare_search
+    # Sphinx indexing
+    OBSApi::TestSphinx.ensure
+    render_ok
+  end
+
   def test_start
     if @@test_running == true
       test_end

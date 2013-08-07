@@ -75,13 +75,11 @@
     </p>
     <h4>Require attribute:</h4>
     <p>
-      <%= select_tag :attribute, options_for_select(@attribute_list, params[:attribute]), :id => 'attribute_list' %>
+      <%= select_tag :attrib_type_id, options_for_select(@attrib_type_list, params[:attrib_type_id]), :id => 'attribute_list' %>
     </p>
     <h4>Require issue:</h4>
     <p>
-      <!-- FIXME: default should become configurable on api server -->
-      <% params[:issue_tracker] = "bnc (Novell Bugzilla)" if params[:issue_tracker].nil? %>
-      <%= select_tag :issue_tracker, options_for_select(@issue_tracker_list, params[:issue_tracker]) %>
+      <%= select_tag :issue_tracker, options_for_select(@issue_tracker_list, params[:issue_tracker] || @default_tracker) %>
       <%= text_field_tag 'issue', params[:issue], :size => 10 -%>
     </p>
     </div> <!-- end advanced_container -->

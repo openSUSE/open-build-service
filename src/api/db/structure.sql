@@ -400,7 +400,8 @@ CREATE TABLE `linked_packages` (
   `links_to_id` int(11) NOT NULL,
   `package_id` int(11) NOT NULL AUTO_INCREMENT,
   `updated_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`package_id`)
+  PRIMARY KEY (`package_id`),
+  KEY `index_linked_packages_on_links_to_id` (`links_to_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `linked_projects` (
@@ -1122,6 +1123,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130802183104');
 INSERT INTO schema_migrations (version) VALUES ('20130802183717');
 
 INSERT INTO schema_migrations (version) VALUES ('20130802190951');
+
+INSERT INTO schema_migrations (version) VALUES ('20130805073101');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
