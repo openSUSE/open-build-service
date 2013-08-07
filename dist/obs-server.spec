@@ -15,6 +15,7 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
+
 %if 0%{?fedora}
 %global sbin /usr/sbin
 %else
@@ -32,10 +33,10 @@
 Name:           obs-server
 Summary:        The Open Build Service -- Server Component
 License:        GPL-2.0 and GPL-3.0
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities
+%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 %endif
-Version:        2.4.50_382_g5ef3c6a
+Version:        2.4.50_418_g074b783
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -109,9 +110,9 @@ Requires:       bash
 Requires:       binutils
 Requires:       bsdtar
 Summary:        The Open Build Service -- Build Host Component
+Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version}
 %if 0%{?suse_version} < 1210
-Group:          Productivity/Networking/Web/Utilities
 %endif
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
@@ -137,9 +138,9 @@ run a local playground test installation.
 
 %package -n obs-api
 Summary:        The Open Build Service -- The API and WEBUI
+Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version}
 %if 0%{?suse_version} < 1210
-Group:          Productivity/Networking/Web/Utilities
 %endif
 Obsoletes:      obs-common <= 2.2.90
 PreReq:         %fillup_prereq %insserv_prereq
@@ -184,23 +185,26 @@ Requires:       rubygem(2.0.0:bundler) = 1.3.4
 Requires:       rubygem(2.0.0:clockwork) = 0.5.4
 Requires:       rubygem(2.0.0:daemons) = 1.1.9
 Requires:       rubygem(2.0.0:dalli) = 2.6.4
-Requires:       rubygem(2.0.0:delayed_job) = 4.0.0.beta2
-Requires:       rubygem(2.0.0:delayed_job_active_record) = 4.0.0.beta3
+Requires:       rubygem(2.0.0:delayed_job) = 4.0.0
+Requires:       rubygem(2.0.0:delayed_job_active_record) = 4.0.0
 Requires:       rubygem(2.0.0:erubis) = 2.7.0
 Requires:       rubygem(2.0.0:hike) = 1.2.3
 Requires:       rubygem(2.0.0:hoptoad_notifier) = 2.4.11
 Requires:       rubygem(2.0.0:i18n) = 0.6.4
+Requires:       rubygem(2.0.0:innertube) = 1.1.0
 Requires:       rubygem(2.0.0:jquery-rails) = 3.0.4
-Requires:       rubygem(2.0.0:jquery-ui-rails) = 4.0.3
+Requires:       rubygem(2.0.0:jquery-ui-rails) = 4.0.4
 Requires:       rubygem(2.0.0:json) = 1.8.0
+Requires:       rubygem(2.0.0:kaminari) = 0.14.1
 Requires:       rubygem(2.0.0:mail) = 2.5.4
+Requires:       rubygem(2.0.0:middleware) = 0.1.0
 Requires:       rubygem(2.0.0:mime-types) = 1.23
 Requires:       rubygem(2.0.0:mini_portile) = 0.5.1
 Requires:       rubygem(2.0.0:minitest) = 4.7.4
 Requires:       rubygem(2.0.0:mobileesp_converted) = 0.2.1
 Requires:       rubygem(2.0.0:multi_json) = 1.7.7
 Requires:       rubygem(2.0.0:mysql2) = 0.3.13
-Requires:       rubygem(2.0.0:newrelic_rpm) = 3.6.5.130
+Requires:       rubygem(2.0.0:newrelic_rpm) = 3.6.6.147
 Requires:       rubygem(2.0.0:nokogiri) = 1.6.0
 Requires:       rubygem(2.0.0:pkg-config) = 1.1.4
 Requires:       rubygem(2.0.0:polyglot) = 0.3.3
@@ -211,11 +215,13 @@ Requires:       rubygem(2.0.0:rails-api) = 0.1.0
 Requires:       rubygem(2.0.0:railties) = 4.0.0
 Requires:       rubygem(2.0.0:rake) = 10.1.0
 Requires:       rubygem(2.0.0:rdoc) = 4.0.1
+Requires:       rubygem(2.0.0:riddle) = 1.5.7
 Requires:       rubygem(2.0.0:ruby-ldap) = 0.9.13
 Requires:       rubygem(2.0.0:sprockets) = 2.10.0
 Requires:       rubygem(2.0.0:sprockets-rails) = 2.0.0
+Requires:       rubygem(2.0.0:thinking-sphinx) = 3.0.4
 Requires:       rubygem(2.0.0:thor) = 0.18.1
-Requires:       rubygem(2.0.0:thread_safe) = 0.1.0
+Requires:       rubygem(2.0.0:thread_safe) = 0.1.2
 Requires:       rubygem(2.0.0:tilt) = 1.4.1
 Requires:       rubygem(2.0.0:treetop) = 1.4.14
 Requires:       rubygem(2.0.0:tzinfo) = 0.3.37
@@ -225,8 +231,8 @@ Requires:       rubygem(2.0.0:yajl-ruby) = 1.1.0
 # requires for webui:
 Requires:       ghostscript-fonts-std
 Summary:        The Open Build Service -- The API and WEBUI
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities
+%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 %endif
 
 %description -n obs-api
@@ -235,8 +241,8 @@ OBS.
 
 %package -n obs-devel
 Summary:        The Open Build Service -- The API and WEBUI Testsuite
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities
+%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 %endif
 Obsoletes:      obs-webui-testsuite
 Requires:       obs-api = %{version}-%{release}
@@ -247,8 +253,8 @@ Install to track dependencies for git
 
 %package -n obs-source_service
 Summary:        The Open Build Service -- source service daemon
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities
+%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 %endif
 # Our default services, used in osc and webui
 Recommends:     obs-service-download_url
@@ -264,8 +270,8 @@ This component is optional and not required to run the service.
 
 %package -n obs-productconverter
 Summary:        The Open Build Service -- product definition utility
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities
+%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 %endif
 # For perl library files, TODO: split out obs-lib subpackage?
 Requires:       obs-server
@@ -276,8 +282,8 @@ product definition.
 
 %package -n obs-utils
 Summary:        The Open Build Service -- utilities
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities
+%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 %endif
 Requires:       build
 Requires:       osc
@@ -443,6 +449,7 @@ rm $RPM_BUILD_ROOT/srv/www/obs/api/config/lighttpd.conf
 # these config files must not be hard linked
 install api/config/database.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/database.yml
 install api/config/options.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/options.yml
+install api/config/thinking_sphinx.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/thinking_sphinx.yml
 install webui/config/database.yml.example $RPM_BUILD_ROOT/srv/www/obs/webui/config/database.yml
 install webui/config/options.yml.example $RPM_BUILD_ROOT/srv/www/obs/webui/config/options.yml
 
@@ -745,6 +752,11 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/d
 %defattr(-,root,root)
 %doc dist/{README.UPDATERS,README.SETUP} docs/openSUSE.org.xml ReleaseNotes-* README.md COPYING AUTHORS
 /srv/www/obs/overview
+
+/srv/www/obs/api/config/thinking_sphinx.yml.example
+%config(noreplace) /srv/www/obs/api/config/thinking_sphinx.yml
+%dir /srv/www/obs/webui/config/locales
+%config /srv/www/obs/webui/config/locales/*
 
 %dir /srv/www/obs
 %dir /srv/www/obs/api
