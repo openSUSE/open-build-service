@@ -1,0 +1,11 @@
+<% @pagetitle = "Comments for request id #{params[:id]}" %> 
+<% @layouttype = 'custom' %>
+<% @crumb_list = ["Request #{params[:id]}", "Comments"] %> 
+
+<div class="grid_16 alpha omega box box-shadow">
+	<%= render :partial => "request/tabs" %>
+	<h3><%= @pagetitle %></h3>
+	<%= render :partial => "shared/parent_comments"%>
+</div>
+
+<%=render :partial => "shared/new_comment"%>

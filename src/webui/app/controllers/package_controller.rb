@@ -5,6 +5,7 @@ class PackageController < ApplicationController
 
   include ApplicationHelper
   include PackageHelper
+  include CommentsHelper
 
   before_filter :require_project, :except => [:rawlog, :rawsourcefile, :submit_request, :devel_project]
   before_filter :require_package, :except => [:rawlog, :rawsourcefile, :submit_request, :save_new_link, :save_new, :devel_project ]
@@ -1076,6 +1077,38 @@ class PackageController < ApplicationController
     required_parameters :cmd, :flag
     frontend.source_cmd params[:cmd], project: @project, package: @package, repository: params[:repository], arch: params[:arch], flag: params[:flag], status: params[:status]
     @package = Package.find( params[:package], project: @project.name, view: :flagdetails )
+  end
+
+  def comments
+    begin
+      unless params[:reply] == 'true'
+        @comment = ApiDetails.read(:comments_by_package, @project, @package)
+        @comments_as_thread = sort_comments(@comment)
+      else
+        render_dialog # a dialog box shows up for users to post a reply, as a GET request.
+      end
+    rescue ActiveXML::Transport::Error => e
+      render :text => e.summary, :status => 404, :content_type => "text/plain"
+    end
+  end
+
+  def save_comments
+    begin
+      params[:project] = @project.name
+      params[:package] = @package.name
+      ApiDetails.save_comments(:save_comments_for_packages, params)
+
+      respond_to do |format|
+        format.js { render json: 'ok' }
+        format.html do
+          flash[:notice] = "Comment added successfully"
+          redirect_to action: :comments
+        end
+      end
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = e.summary
+      redirect_to(:action => "comments", :project => params[:project], :package => params[:package]) and return
+    end
   end
 
   private

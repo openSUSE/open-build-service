@@ -203,6 +203,24 @@ CREATE TABLE `bs_requests` (
   KEY `index_bs_requests_on_state` (`state`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `comments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `project_id` int(11) DEFAULT NULL,
+  `package_id` int(11) DEFAULT NULL,
+  `bs_request_id` int(11) DEFAULT NULL,
+  `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `body` text COLLATE utf8_unicode_ci,
+  `parent_id` int(11) DEFAULT NULL,
+  `type` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `user` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_comments_on_project_id` (`project_id`),
+  KEY `index_comments_on_package_id` (`package_id`),
+  KEY `index_comments_on_bs_request_id` (`bs_request_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `configurations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) COLLATE utf8_bin DEFAULT '',
@@ -1105,7 +1123,13 @@ INSERT INTO schema_migrations (version) VALUES ('20130619083665');
 
 INSERT INTO schema_migrations (version) VALUES ('20130621083665');
 
+INSERT INTO schema_migrations (version) VALUES ('20130624095423');
+
+INSERT INTO schema_migrations (version) VALUES ('20130626133922');
+
 INSERT INTO schema_migrations (version) VALUES ('20130626160000');
+
+INSERT INTO schema_migrations (version) VALUES ('20130627193722');
 
 INSERT INTO schema_migrations (version) VALUES ('20130702083665');
 

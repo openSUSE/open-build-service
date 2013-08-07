@@ -2,6 +2,7 @@ require 'base64'
 
 class RequestController < ApplicationController
   include ApplicationHelper
+  include CommentsHelper
 
   def add_reviewer_dialog
     @request_id = params[:id]
@@ -284,6 +285,34 @@ class RequestController < ApplicationController
       flash[:error] = "Incident #{e.message} does not exist"
     end
     redirect_to :controller => :request, :action => "show", :id => params[:id]
+  end
+
+
+  def comments
+    unless params[:reply] == 'true'
+      @comment = ApiDetails.read(:comments_by_request, params[:id])
+      @comments_as_thread = sort_comments(@comment)
+    else
+      render_dialog
+    end
+  end
+
+  def save_comments
+    begin
+      params[:request_id] = params[:id]
+      ApiDetails.save_comments(:save_comments_for_requests, params)
+
+      respond_to do |format|
+        format.js { render json: 'ok' }
+        format.html do
+          flash[:notice] = "Comment added successfully"
+          redirect_to action: :comments
+        end
+      end
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = e.summary
+      redirect_to(:action => "comments", :id => params[:id]) and return
+    end
   end
 
 private

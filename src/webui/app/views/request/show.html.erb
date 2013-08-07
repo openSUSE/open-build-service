@@ -16,6 +16,7 @@
 </div>
 
 <div class="grid_16 alpha omega box box-shadow">
+  <%= render :partial => 'tabs' %>
   <div class="grid_10 alpha">
     <h3><%= @pagetitle %> (<%= @state %>)</h3>
     <%= description_wrapper(@req['description']) %>
