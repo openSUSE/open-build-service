@@ -1,11 +1,11 @@
 # a model that has relationships - e.g. a project and a package
 module HasRelationships
 
-  def add_user( user, role )
+  def add_user(user, role)
     Relationship.add_user(self, user, role)
   end
 
-  def add_group( group, role )
+  def add_group(group, role)
     Relationship.add_group(self, group, role)
   end
 
@@ -29,9 +29,19 @@ module HasRelationships
     end
   end
 
+  def render_relationships(xml)
+    each_user do |user, role|
+      xml.person(userid: user, role: role)
+    end
+
+    each_group do |group, role|
+      xml.group(groupid: group, role: role)
+    end
+  end
+
   def user_has_role?(user, role)
     return true if self.relationships.where(role_id: role.id, user_id: user.id).exists?
-    return self.relationships.where(role_id: role).joins(:groups_users).where(groups_users: { user_id: user.id }).exists?
+    return self.relationships.where(role_id: role).joins(:groups_users).where(groups_users: {user_id: user.id}).exists?
   end
 
   def remove_role(what, role)

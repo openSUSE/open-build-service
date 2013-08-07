@@ -1,0 +1,27 @@
+xml.package(name: my_model.name, project: my_model.project.name) do
+  xml.title(my_model.title)
+  xml.description(my_model.description)
+
+  if my_model.develpackage
+    xml.devel(project: my_model.develpackage.project.name, package: my_model.develpackage.name)
+  end
+
+  my_model.render_relationships(xml)
+
+  if view == 'flagdetails'
+    my_model.flags_to_xml(xml, my_model.expand_flags, 1)
+  else
+    FlagHelper.flag_types.each do |flag_name|
+      flaglist = my_model.type_flags(flag_name)
+      xml.send(flag_name) do
+        flaglist.each do |flag|
+          flag.to_xml(xml)
+        end
+      end unless flaglist.empty?
+    end
+  end
+
+  xml.url(my_model.url) unless my_model.url.blank?
+  xml.bcntsynctag(my_model.bcntsynctag) unless my_model.bcntsynctag.blank?
+
+end

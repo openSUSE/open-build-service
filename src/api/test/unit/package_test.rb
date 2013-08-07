@@ -122,7 +122,7 @@ class PackageTest < ActiveSupport::TestCase
   end
 
   def test_render
-     xml = packages(:kdelibs).render_axml
+     xml = packages(:kdelibs).render_xml
      assert_equal Xmlhash.parse(xml), {"name"=>"kdelibs", 
 	     "project"=>"kde4", "title"=>"blub", "description"=>"blub", 
 	     "devel"=>{"project"=>"home:coolo:test", "package"=>"kdelibs_DEVEL_package"}, 

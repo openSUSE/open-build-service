@@ -4,6 +4,7 @@ require 'builder/xchar'
 
 class Package < ActiveRecord::Base
   include FlagHelper
+  include CanRenderModel
 
   class CycleError < APIException
    setup "cycle_error"
@@ -706,12 +707,20 @@ class Package < ActiveRecord::Base
     return a
   end
 
+  def to_axml_id
+    return "<package project='#{::Builder::XChar.encode(project.name)}' name='#{::Builder::XChar.encode(name)}'/>"
+  end
+
+  def render_xml(view = nil)
+    super(view: view) # CanRenderModel
+  end
+
   def to_axml(view = nil)
     if view
-      render_axml(view)
+      render_xml(view)
     else
       Rails.cache.fetch('xml_package_%d' % self.id) do
-        render_axml
+        render_xml(view)
       end
     end
   end
@@ -783,53 +792,6 @@ class Package < ActiveRecord::Base
                                :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                              Nokogiri::XML::Node::SaveOptions::FORMAT
 
-  end
-
-  def render_axml(view = nil)
-    builder = Nokogiri::XML::Builder.new
-    logger.debug "----------------- rendering package #{name} ------------------------"
-    builder.package( :name => name, :project => project.name ) do |package|
-      package.title( title )
-      package.description( description )
-      
-      if develpackage
-        package.devel( :project => develpackage.project.name, :package => develpackage.name )
-      end
-
-      each_user do |user,role|
-        package.person( :userid => user, :role => role )
-      end
-
-      each_group do |group,role|
-        package.group( :groupid => group, :role => role )
-      end
-
-      if view == 'flagdetails'
-        flags_to_xml(builder, expand_flags, 1)
-      else
-        FlagHelper.flag_types.each do |flag_name|
-          flaglist = type_flags(flag_name)
-          package.send(flag_name) do
-            flaglist.each do |flag|
-              flag.to_xml(builder)
-            end
-          end unless flaglist.empty?
-        end 
-      end
-
-      package.url( url ) unless url.blank?
-      package.bcntsynctag( bcntsynctag ) unless bcntsynctag.blank?
-
-    end
-    logger.debug "----------------- end rendering package #{name} ------------------------"
-
-    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8', 
-                               :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                             Nokogiri::XML::Node::SaveOptions::FORMAT
-  end
-
-  def to_axml_id
-    return "<package project='#{::Builder::XChar.encode(project.name)}' name='#{::Builder::XChar.encode(name)}'/>"
   end
 
   def rating( user_id=nil )

@@ -2,6 +2,7 @@ require_dependency 'opensuse/backend'
 
 class Project < ActiveRecord::Base
   include FlagHelper
+  include CanRenderModel
 
   class CycleError < APIException
     setup "project_cycle"
@@ -175,7 +176,7 @@ class Project < ActiveRecord::Base
       arel = where(name: name)
       if opts[:select]
          arel = arel.select(opts[:select])
-	 opts.delete :select
+         opts.delete :select
       end
       dbp = arel.first
       if dbp.nil?
@@ -187,7 +188,7 @@ class Project < ActiveRecord::Base
          Package.joins(:flags).where(db_project_id: dbp.id).where("flags.flag='sourceaccess'").each do |pkg|
            raise ReadAccessError, name unless Package.check_access? pkg
          end
-	 opts.delete :includeallpackages
+         opts.delete :includeallpackages
       end
       raise "unsupport options #{opts.inspect}" if opts.size > 0
       unless check_access?(dbp)
@@ -286,8 +287,8 @@ class Project < ActiveRecord::Base
       rescue Package::DeleteError => e
         e.packages.each do |p|
           if p.project != self
-	    raise DeleteError.new "Package #{self.name}/{pkg.name} can not be deleted as it's devel package of #{p.project.name}/#{p.name}"
-	  end
+            raise DeleteError.new "Package #{self.name}/{pkg.name} can not be deleted as it's devel package of #{p.project.name}/#{p.name}"
+          end
         end
       end
     end
@@ -875,118 +876,24 @@ class Project < ActiveRecord::Base
     self.class.find_parent_for self.name
   end
 
+  def render_xml(view = nil)
+    # CanRenderModel
+    super(view: view)
+  end
+
   def to_axml(view = nil)
     unless view
        Rails.cache.fetch('xml_project_%d' % id) do
-         render_axml(view)
+         render_xml(view)
        end
-    else 
-      render_axml(view)
+    else
+      render_xml(view)
     end
-  end
-
-  def render_axml(view = nil)
-    builder = Nokogiri::XML::Builder.new
-    logger.debug "----------------- rendering project #{name} ------------------------"
-
-    project_attributes = {:name => name}
-    # Check if the project has a special type defined (like maintenance)
-    project_attributes[:kind] = project_type if project_type and project_type != "standard"
-
-    builder.project( project_attributes ) do |project|
-      project.title( title )
-      project.description( description )
-      
-      self.linkedprojects.each do |l|
-        if l.linked_db_project
-           project.link( :project => l.linked_db_project.name )
-        else
-           project.link( :project => l.linked_remote_project_name )
-        end
-      end
-
-      project.remoteurl(remoteurl) unless remoteurl.blank?
-      project.remoteproject(remoteproject) unless remoteproject.blank?
-      project.devel( :project => develproject.name ) unless develproject.nil?
-
-      each_user do |user, role|
-        project.person( :userid => user, :role => role )
-      end
-
-      each_group do |group, role|
-        project.group( :groupid => group, :role => role )
-      end
-
-      self.downloads.each do |dl|
-        project.download( :baseurl => dl.baseurl, :metafile => dl.metafile,
-          :mtype => dl.mtype, :arch => dl.architecture.name )
-      end
-
-      repos = repositories.not_remote.sort{ |a,b| b.name <=> a.name }
-      if view == 'flagdetails'
-        flags_to_xml(builder, expand_flags)
-      else
-        FlagHelper.flag_types.each do |flag_name|
-          flaglist = type_flags(flag_name)
-          project.send(flag_name) do
-            flaglist.each do |flag|
-              flag.to_xml(builder)
-            end
-          end unless flaglist.empty?
-        end
-      end
-
-      repos.each do |repo|
-        params = {}
-        params[:name]        = repo.name
-        params[:rebuild]     = repo.rebuild     if repo.rebuild
-        params[:block]       = repo.block       if repo.block
-        params[:linkedbuild] = repo.linkedbuild if repo.linkedbuild
-        project.repository( params ) do |r|
-          repo.release_targets.each do |rt|
-            params = {}
-            params[:project]    = rt.target_repository.project.name
-            params[:repository] = rt.target_repository.name
-            params[:trigger]    = rt.trigger    unless rt.trigger.blank?
-            r.releasetarget( params )
-          end
-          if repo.hostsystem
-            r.hostsystem( :project => repo.hostsystem.project.name, :repository => repo.hostsystem.name )
-          end
-          repo.path_elements.includes(:link).each do |pe|
-            if pe.link.remote_project_name
-              project_name = pe.link.project.name+":"+pe.link.remote_project_name
-            else
-              project_name = pe.link.project.name
-            end
-            r.path( :project => project_name, :repository => pe.link.name )
-          end
-          repo.repository_architectures.joins(:architecture).pluck("architectures.name").each do |arch|
-            r.arch arch
-          end
-        end
-      end
-
-      if self.maintained_projects.length > 0
-        project.maintenance do |maintenance|
-          self.maintained_projects.each do |mp|
-            maintenance.maintains(:project => mp.name)
-          end
-        end
-      end
-
-    end
-    logger.debug "----------------- end rendering project #{name} ------------------------"
-
-    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8', 
-                               :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                             Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
   def to_axml_id
     return "<project name='#{::Builder::XChar.encode(name)}'/>"
   end
-
 
   def rating( user_id=nil )
     score = 0
