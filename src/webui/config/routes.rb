@@ -219,7 +219,7 @@ OBSWebUI::Application.routes.draw do
     post 'request/set_incident' => :set_incident
     get 'request/comments/:id' => :comments
     post 'request/comments/:id' => :save_comments
-end
+  end
 
   controller :search do
     match 'search' => :index, via: [:get, :post]

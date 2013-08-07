@@ -19,6 +19,8 @@
   <p>
   <%= text_field_tag 'search_text', params[:search_text], :placeholder => 'Search', :id => 'search_input' -%>
   <%= submit_tag(nil, :id => 'search_button', :title => 'Search') %>
+      <%= select_tag :issue_tracker, options_for_select(@issue_tracker_list, params[:issue_tracker] || @default_tracker) %>
+      <%= text_field_tag 'issue', params[:issue], :size => 10 -%>
   <button type="button" id="advanced_link">Advanced</button>
   </p>
     <div id="advanced_container" style="display: none;">
@@ -76,11 +78,6 @@
     <h4>Require attribute:</h4>
     <p>
       <%= select_tag :attrib_type_id, options_for_select(@attrib_type_list, params[:attrib_type_id]), :id => 'attribute_list' %>
-    </p>
-    <h4>Require issue:</h4>
-    <p>
-      <%= select_tag :issue_tracker, options_for_select(@issue_tracker_list, params[:issue_tracker] || @default_tracker) %>
-      <%= text_field_tag 'issue', params[:issue], :size => 10 -%>
     </p>
     </div> <!-- end advanced_container -->
   <% end %>
