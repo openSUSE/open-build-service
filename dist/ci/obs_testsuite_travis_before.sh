@@ -25,7 +25,7 @@ EOF
 sudo apt-get update -o Dir::Etc::sourcelist="sources.list.d/security.list" -o Dir::Etc::sourceparts="-" -o APT::Get::List-Cleanup="0"
 
 # dependencies of backend
-sudo apt-get install --force-yes travis-deps libxml-parser-perl libfile-sync-perl python-rpm python-urlgrabber python-sqlitecachec python-libxml2 createrepo libbssolv-perl
+sudo apt-get install --force-yes travis-deps libxml-parser-perl libfile-sync-perl python-rpm python-urlgrabber python-sqlitecachec python-libxml2 createrepo libbssolv-perl sphinxsearch
 
 pushd src/api
 if test "$REMOVEGEMLOCK" = true; then

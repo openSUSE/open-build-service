@@ -22,9 +22,15 @@ end
 dienow = false
 lines = []
 outputlines = true
+apiroot=Rails.root.join('..', 'api').to_s
+unless File.exists? apiroot + "/config/thinking_sphinx.yml"
+  $stderr.puts "copying config/thinking_sphinx.yml.example in the API"
+  FileUtils.copy apiroot + "/config/thinking_sphinx.yml.example", apiroot + "/config/thinking_sphinx.yml"
+end
+
 frontend = Thread.new do
   cmdline = "ruby ./script/rails"
-  frontend_out = IO.popen("cd #{Rails.root.join('..', 'api').to_s}; unset BUNDLE_GEMFILE; exec bundle exec #{cmdline} server -e test -p #{CONFIG['frontend_port']} 2>&1")
+  frontend_out = IO.popen("cd #{apiroot}; unset BUNDLE_GEMFILE; exec bundle exec #{cmdline} server -e test -p #{CONFIG['frontend_port']} 2>&1")
   while frontend_out
     begin
       line = frontend_out.gets
