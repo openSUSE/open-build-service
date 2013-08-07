@@ -923,7 +923,7 @@ class BsRequest < ActiveRecord::Base
       elsif %w(declined).include? opts[:newstate]
         unless write_permission_in_some_target
           # at least on one target the permission must be granted on decline
-          raise PostRequestNoPermission.new "No permission to change decline request #{self.id}"
+          raise PostRequestNoPermission.new "No permission to decline request #{self.id}"
         end
       else
         raise PostRequestNoPermission.new "No permission to change request #{self.id} state"

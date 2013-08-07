@@ -673,10 +673,12 @@ class BsRequestAction < ActiveRecord::Base
       end
       
     elsif [ :delete, :add_role, :set_bugowner ].include? self.action_type
-      # target must exist
+      if self.target_package
+          target_package = target_project.packages.find_by_name(self.target_package) if target_project
+      end
       if opts[:newstate] == "accepted"
+      # target must exist
         if self.target_package
-          target_package = target_project.packages.find_by_name(self.target_package)
           unless target_package
             raise NotExistantTarget.new "Unable to process package #{self.target_project}/#{self.target_package}; it does not exist."
           end
