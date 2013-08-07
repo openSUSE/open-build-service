@@ -56,7 +56,7 @@ class RequestController < ApplicationController
     redirect_back_or_to :controller => 'home', :action => 'requests' and return if !params[:id]
     begin
       @req = ApiDetails.read(:request, params[:id])
-    rescue ActiveXML::Transport::Error 
+    rescue ApiDetails::NotFoundError
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_back_or_to :controller => "home", :action => "requests" and return
     end

@@ -242,7 +242,7 @@ class ProjectController < ApplicationController
     return unless check_valid_project_name
     begin
       @project_info = ApiDetails.read(:infos_project, params[:project])
-    rescue ActiveXML::Transport::NotFoundError
+    rescue ApiDetails::NotFoundError
       return render_project_missing
     end
     @project = Project.new(@project_info["xml"])
@@ -808,9 +808,9 @@ class ProjectController < ApplicationController
 
   def save_person
     begin
-      ApiDetails.create_role @project.name, change_role_options(params)
+      ApiDetails.create(:project_relationships, @project.name, change_role_options(params))
       @project.free_cache
-    rescue ApiDetails::CommandFailed => e
+    rescue ApiDetails::TransportError, ApiDetails::NotFoundError => e
       flash[:error] = e.to_s
       redirect_to action: :add_person, project: @project, role: params[:role], userid: params[:userid]
       return
@@ -826,9 +826,9 @@ class ProjectController < ApplicationController
 
   def save_group
     begin
-      ApiDetails.create_role @project.name, change_role_options(params)
+      ApiDetails.create :project_relationships, @project.name, change_role_options(params)
       @project.free_cache
-    rescue ApiDetails::CommandFailed => e
+    rescue ApiDetails::TransportError, ApiDetails::NotFoundError => e
       flash[:error] = e.to_s
       redirect_to action: :add_group, project: @project, role: params[:role], groupid: params[:groupid]
       return
@@ -844,9 +844,9 @@ class ProjectController < ApplicationController
 
   def remove_role
     begin
-      ApiDetails.remove_role @project.name, change_role_options(params)
+      ApiDetails.destroy :for_user_project_relationships, @project.name, change_role_options(params)
       @project.free_cache
-    rescue ActiveXML::Transport::Error => e
+    rescue ApiDetails::TransportError, ApiDetails::NotFoundError => e
       flash[:error] = e.summary
     end
     respond_to do |format|
