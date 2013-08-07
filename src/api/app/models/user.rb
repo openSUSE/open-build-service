@@ -1296,6 +1296,10 @@ class User < ActiveRecord::Base
     packages.pluck(:id)
   end
 
+  def to_s
+    self.login
+  end
+
   def request_ids_by_class
     result = {}
 

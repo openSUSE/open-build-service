@@ -116,6 +116,10 @@ class Group < ActiveRecord::Base
     GroupsUser.delete_all(["user_id = ? AND group_id = ?", user.id, self.id])
   end
 
+  def to_s
+    self.title
+  end
+
   def involved_projects_ids
     # just for maintainer for now.
     role = Role.rolecache["maintainer"]

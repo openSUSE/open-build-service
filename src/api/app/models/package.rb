@@ -5,6 +5,7 @@ require 'builder/xchar'
 class Package < ActiveRecord::Base
   include FlagHelper
   include CanRenderModel
+  include HasRelationships
 
   class CycleError < APIException
    setup "cycle_error"
@@ -30,9 +31,6 @@ class Package < ActiveRecord::Base
   end
   belongs_to :project, foreign_key: :db_project_id, inverse_of: :packages
   delegate :name, to: :project, prefix: true
-
-  include HasRelationships
-  has_many :relationships, dependent: :destroy
 
   has_many :messages, :as => :db_object, dependent: :delete_all
 
@@ -477,9 +475,9 @@ class Package < ActiveRecord::Base
 
   def update_from_xml( xmlhash )
     check_write_access!
+
     self.title = xmlhash.value('title')
     self.description = xmlhash.value('description')
-    self.bcntsynctag = nil
     self.bcntsynctag = xmlhash.value('bcntsynctag')
 
     #--- devel project ---#
@@ -499,109 +497,11 @@ class Package < ActiveRecord::Base
     
     # just for cycle detection
     self.resolve_devel_package
-    
-    #--- update users ---#
-    usercache = Hash.new
-    self.relationships.users.each do |purr|
-      h = usercache[purr.user.login] ||= Hash.new
-      h[purr.role.title] = purr
-    end
 
     # give ourselves an ID
     self.save!
 
-    xmlhash.elements('person') do |person|
-      if not Role.rolecache.has_key? person['role']
-        raise SaveError, "illegal role name '#{person['role']}'"
-      end
-      user = User.get_by_login(person['userid'])
-      if usercache.has_key? person['userid']
-        #user has already a role in this package
-        pcache = usercache[person['userid']]
-        if pcache.has_key? person['role']
-          #role already defined, only remove from cache
-          pcache[person['role']] = :keep
-        else
-          #new role
-          self.relationships.new(user: user, role: Role.rolecache[person['role']])
-          pcache[person['role']] = :new
-        end
-      else
-        self.relationships.new(user: user, role: Role.rolecache[person['role']])
-        usercache[person['userid']] = { person['role'] => :new }
-      end
-    end
-    
-    #delete all roles that weren't found in uploaded xml
-    usercache.each do |user, roles|
-      roles.each do |role, object|
-        next if [:keep, :new].include?(object)
-        object.delete
-      end
-    end
-    
-    #--- end update users ---#
-    
-    #--- update group ---#
-    groupcache = Hash.new
-    self.relationships.groups.each do |pgrr|
-      h = groupcache[pgrr.group.title] ||= Hash.new
-      h[pgrr.role.title] = pgrr
-    end
-    
-    xmlhash.elements('group') do |ge|
-      group = Group.find_by_title(ge['groupid'])
-      if groupcache.has_key? ge['groupid']
-        #group has already a role in this package
-        pcache = groupcache[ge['groupid']]
-
-        if pcache.has_key? ge['role']
-          #role already defined, only remove from cache
-          pcache[ge['role']] = :keep
-        else
-          #new role
-          if not Role.rolecache.has_key? ge['role']
-            raise SaveError, "illegal role name '#{ge['role']}'"
-          end
-          self.relationships.new(group: group, role: Role.rolecache[ge['role']])
-          pcache[ge['role']] = :new
-        end
-      else
-        unless group
-          # check with LDAP
-          if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
-            if defined?( CONFIG['ldap_group_support'] ) && CONFIG['ldap_group_support'] == :on
-              if User.find_group_with_ldap(ge['groupid'])
-                logger.debug "Find and Create group '#{ge['groupid']}' from LDAP"
-                newgroup = Group.create( :title => ge['groupid'] )
-                unless newgroup.errors.empty?
-                  raise SaveError, "unknown group '#{ge['groupid']}', failed to create the ldap groupid on OBS"
-                end
-                group=Group.find_by_title(ge['groupid'])
-              else
-                raise SaveError, "unknown group '#{ge['groupid']}' on LDAP server"
-              end
-            end
-          end
-
-          unless group
-            raise SaveError, "unknown group '#{ge['groupid']}'"
-          end
-        end
-
-        self.relationships.new(group: group, role: Role.rolecache[ge['role']])
-        groupcache[ge['groupid']] = { ge['role'] => :new }
-      end
-    end
-
-    #delete all roles that weren't found in uploaded xml
-    groupcache.each do |group, roles|
-      roles.each do |role, object|
-        next if [:keep, :new].include? object
-        object.destroy
-      end
-    end
-    #--- end update groups ---#
+    update_relationships_from_xml( xmlhash )
 
     #---begin enable / disable flags ---#
     update_all_flags(xmlhash)
