@@ -4,6 +4,8 @@ class Configuration < ActiveRecord::Base
 
   after_save :write_to_backend
 
+  include CanRenderModel
+
   OPTIONS_YML =  { :title => nil,
                    :description => nil,
                    :name => nil,                     # from BSConfig.pm
@@ -81,11 +83,6 @@ class Configuration < ActiveRecord::Base
 
     self.update_attributes(attribs)
     self.save!
-  end
-
-  def render_xml
-     action_view = ActionView::Base.new(Rails.configuration.paths["app/views"])
-     action_view.render partial: "models/configuration", formats: [:xml], locals: { my_model: self }
   end
 
   def write_to_backend()

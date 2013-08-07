@@ -152,7 +152,7 @@ class ProjectTest < ActiveSupport::TestCase
       )
     @project.update_from_xml(axml)
     
-    xml = @project.render_axml
+    xml = @project.render_xml
     
     # validate i586 is in the middle
     assert_xml_tag xml, :tag => :arch, :content => 'i586', :after => { :tag => :arch, :content => 'local' }
@@ -173,7 +173,7 @@ class ProjectTest < ActiveSupport::TestCase
       )
     @project.update_from_xml(axml)
 
-    xml = @project.render_axml
+    xml = @project.render_xml
     
     # validate x86_64 is in the middle
     assert_xml_tag xml, :tag => :arch, :content => 'x86_64', :after => { :tag => :arch, :content => 'i586' }
@@ -183,7 +183,7 @@ class ProjectTest < ActiveSupport::TestCase
     
   test "duplicated repos" do
      User.current = users( :king )
-     orig = @project.render_axml
+     orig = @project.render_xml
 
      axml = Xmlhash.parse(
       "<project name='home:Iggy'>
@@ -203,12 +203,12 @@ class ProjectTest < ActiveSupport::TestCase
        end
      end
      @project.reload
-     assert_equal orig, @project.render_axml
+     assert_equal orig, @project.render_xml
   end
 
   test "duplicated repos with remote" do
      User.current = users( :Iggy )
-     orig = @project.render_axml
+     orig = @project.render_xml
 
      xml = <<END
 <project name="home:Iggy">
@@ -231,7 +231,7 @@ END
        end
      end
      @project.reload
-     assert_equal orig, @project.render_axml
+     assert_equal orig, @project.render_xml
   end
   test "not duplicated repos with remote" do
      User.current = users( :Iggy )
@@ -256,7 +256,7 @@ END
        @project.update_from_xml(axml)
      end
      @project.reload
-     assert_equal xml, @project.render_axml
+     assert_equal xml, @project.render_xml
   end
 
   def test_create_maintenance_project_and_maintained_project
