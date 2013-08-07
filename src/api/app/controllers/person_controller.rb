@@ -94,13 +94,13 @@ class PersonController < ApplicationController
       end
     elsif request.put?
       if user 
-        unless user.login == @http_user.login or @http_user.is_admin?
+        unless user.login == User.current.login or User.current.is_admin?
           logger.debug "User has no permission to change userinfo"
           render_error :status => 403, :errorcode => 'change_userinfo_no_permission',
             :message => "no permission to change userinfo for user #{user.login}" and return
         end
       else
-        if @http_user.is_admin?
+        if User.current.is_admin?
           user = User.create(:login => login, :password => "notset", :password_confirmation => "notset", :email => "TEMP")
           user.state = User.states["locked"]
         else
@@ -115,7 +115,7 @@ class PersonController < ApplicationController
       logger.debug("XML: #{request.raw_post}")
       user.email = xml.value('email') || ''
       user.realname = xml.value('realname') || ''
-      if @http_user.is_admin?
+      if User.current.is_admin?
         # only admin is allowed to change these, ignore for others
         user.state = User.states[xml.value('state')]
         update_globalroles(user, xml)
@@ -126,21 +126,19 @@ class PersonController < ApplicationController
     end
   end
 
-  def grouplist
-    if !@http_user
-      logger.debug "No user logged in, permission to grouplist denied"
-      @summary = "No user logged in, permission to grouplist denied"
-      render :template => 'error', :status => 401
-      return
-    end
-    unless params[:login]
-      logger.debug "Missing account parameter for grouplist"
-      @summary = "Missing account parameter for grouplist"
-      render :template => 'error', :status => 404
-      return
-    end
+  class NoPermissionToGroupList < APIException
+    setup 401, "No user logged in, permission to grouplist denied"
+  end
 
-    render :text => Group.render_group_list(params[:login]), :content_type => "text/xml"
+  def grouplist
+    raise NoPermissionToGroupList.new unless User.current
+
+    @login = User.get_by_login params[:login]
+    if User.ldapgroup_enabled?
+      @list = User.render_grouplist_ldap(Group.all, @login.login)
+    else
+      @list = @login.groups
+    end
   end
 
   def register
@@ -169,12 +167,12 @@ class PersonController < ApplicationController
     note = xml.elements["/unregisteredperson/note"].text if xml.elements["/unregisteredperson/note"]
     status = "confirmed"
 
-    unless @http_user and @http_user.is_admin?
+    unless User.current and User.current.is_admin?
       note = ""
     end
 
     if ::Configuration.first.registration == "deny"
-      unless @http_user and @http_user.is_admin?
+      unless User.current and User.current.is_admin?
         render_error :message => "User registration is disabled",
                      :errorcode => "err_register_save", :status => 400
         return
@@ -186,7 +184,7 @@ class PersonController < ApplicationController
                    :errorcode => "server_setup_error", :status => 500
       return
     end
-    status = xml.elements["/unregisteredperson/state"].text if @http_user and @http_user.is_admin?
+    status = xml.elements["/unregisteredperson/state"].text if User.current and User.current.is_admin?
 
     if auth_method == :proxy
       if request.env['HTTP_X_USERNAME'].blank?
@@ -300,7 +298,7 @@ class PersonController < ApplicationController
   end
 
   def change_password(login, password)
-    if !@http_user
+    if !User.current
       logger.debug "No user logged in, permission to changing password denied"
       @errorcode = 401
       @summary = "No user logged in, permission to changing password denied"
@@ -312,7 +310,7 @@ class PersonController < ApplicationController
             :message => "Failed to change password: missing parameter"
       return
     end
-    unless @http_user.is_admin? or login == @http_user.login
+    unless User.current.is_admin? or login == User.current.login
       render_error :status => 403, :errorcode => 'failed to change password',
             :message => "No sufficiend permissions to change password for others"
       return

@@ -29,48 +29,8 @@ class Group < ActiveRecord::Base
   # groups have a n:m relation to groups
   has_and_belongs_to_many :roles, -> { uniq() }
 
-  class << self
-    def render_group_list(user=nil)
-
-       if user
-         user = User.find_by_login(user)
-         return nil if user.nil?
-         if User.ldapgroup_enabled?
-           begin
-             list = User.render_grouplist_ldap(Group.all, user.login)
-           rescue Exception
-             logger.debug "Error occurred in rendering grouplist in ldap."
-           end
-         else
-           list = user.groups
-         end
-       else
-         if User.ldapgroup_enabled?
-           begin
-             list = User.render_grouplist_ldap(Group.all)
-           rescue Exception
-             logger.debug "Error occurred in rendering grouplist in ldap."
-           end
-         else
-           list = Group.all
-         end
-       end
-
-      builder = Nokogiri::XML::Builder.new
-      builder.directory( :count => list.length ) do |dir|
-        list.each do |g|
-          dir.entry( :name => g.title )
-        end
-      end
-      
-      return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
-                                :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                 Nokogiri::XML::Node::SaveOptions::FORMAT
-    end
-
-    def get_by_title(title)
-      find_by_title(title) or raise NotFound.new("Couldn't find Group '#{title}'")
-    end
+  def self.get_by_title(title)
+    find_by_title(title) or raise NotFound.new("Couldn't find Group '#{title}'")
   end
 
   def update_from_xml( xmlhash )
