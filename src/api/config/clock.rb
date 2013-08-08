@@ -4,6 +4,13 @@ require File.dirname(__FILE__) + '/environment'
 require 'clockwork'
 include Clockwork
 
+# We want Sphinx to be started everytime clockworkd starts. Scheduling a restart
+# every week ensures that initial start and doesn't really hurt. Not the
+# cleanest solution, but avoids creating/modifying init.d scripts
+every(1.week, 're(start) sphinx') do
+  `rake ts:restart`
+end
+
 every(30.seconds, 'status.refresh') do
   Rails.logger.debug "Refresh worker status"
   c = StatusController.new
