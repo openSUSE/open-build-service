@@ -698,7 +698,7 @@ end
     # try to unlock without comment
     post "/source/home:Iggy", { :cmd => "unlock" }
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "no_comment" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "missing_parameter" }
 
     # unlock does not work via meta data anymore
     doc.elements["/project/lock"].delete_element "enable"
@@ -757,7 +757,7 @@ end
     # try to unlock without comment
     post "/source/home:Iggy/TestLinkPack", { :cmd => "unlock" }
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "no_comment" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "missing_parameter" }
     # without permissions
     prepare_request_with_user "adrian", "so_alone"
     post "/source/home:Iggy/TestLinkPack", { :cmd => "unlock", :comment => "BlahFasel" }
@@ -1948,7 +1948,7 @@ end
     post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "copy", :oproject => "BaseDistro:Update", :opackage => "pack2"
     assert_response :success
     post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "undelete"
-    assert_response 404
+    assert_response 400 # already exists
     assert_match(/package_exists/, @response.body)
     delete "/source/BaseDistro2.0:LinkedUpdateProject/pack2"
     assert_response :success
@@ -2013,7 +2013,7 @@ end
 
     # try to release with incorrect trigger
     post "/source/home:Iggy?cmd=release", nil
-    assert_response 400
+    assert_response 403 # cmd_no_permissions
     assert_match(/Trigger is not set to manual in repository home:Iggy\/10.2/, @response.body)
 
     # add correct trigger
@@ -2092,7 +2092,7 @@ end
 
     # try to release with incorrect trigger
     post "/source/home:Iggy/TestPack?cmd=release", nil
-    assert_response 400
+    assert_response 403
     assert_match(/Trigger is not set to manual in repository home:Iggy\/10.2/, @response.body)
 
     # add correct trigger
@@ -2710,7 +2710,7 @@ end
 
     # undelete package again
     post "/source/home:tom:branches:home:Iggy/TestPack", :cmd => :undelete
-    assert_response 404
+    assert_response 400 # already exists
 
   end
 
@@ -2748,7 +2748,7 @@ end
 
     post "/source/kde4/kdelibs?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
     assert_response 403
-    assert_xml_tag :tag => "status", :attributes => { :code => "delete_package_no_permission" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "cmd_execution_no_permission" }
 
     post "/source/home:Iggy/TestPack?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
     assert_response :success # actually I consider forbidding repositories not existant
@@ -2845,7 +2845,7 @@ end
 
     post "/source/kde4/kdelibs?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
     assert_response 403
-    assert_xml_tag :tag => "status", :attributes => { :code => "delete_package_no_permission" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "cmd_execution_no_permission" }
 
     post "/source/home:Iggy/TestPack?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
     assert_response :success
@@ -2892,7 +2892,7 @@ end
 
     post "/source/kde4/kdelibs?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
     assert_response 403
-    assert_xml_tag :tag => "status", :attributes => { :code => "delete_package_no_permission" }
+    assert_xml_tag :tag => "status", :attributes => { :code => "cmd_execution_no_permission" }
 
     post "/source/home:Iggy?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
     assert_response :success

@@ -55,4 +55,20 @@ class CodeQualityTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "code complexity" do
+    require "flog_cli"
+    flog = Flog.new :continue => true
+    dirs = %w(app/controllers app/views app/models app/mixins app/indices app/helpers)
+    files = FlogCLI.expand_dirs_to_files(*dirs)
+    flog.flog(*files)
+
+    score = flog.average
+    Current_Score = 26.56
+    assert_operator score, :<=, Current_Score + 0.005
+      
+    if score < Current_Score - 0.1
+      puts "Update Current_Score - we're at #{score}" 
+    end
+  end
 end
