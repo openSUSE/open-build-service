@@ -317,6 +317,28 @@ class RequestController < ApplicationController
     end
   end
 
+  def update_comments
+    begin
+      unless params[:update] == 'true'
+        params[:request_id] = params[:id]
+        ApiDetails.update_comments(:update_comments_for_requests, params)
+
+        respond_to do |format|
+          format.js { render json: 'ok' }
+          format.html do
+            flash[:notice] = "Comment updated successfully"
+            redirect_to action: :comments
+          end
+        end
+      else
+        render_dialog
+      end
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = e.summary
+      redirect_to(:action => "comments", :id => params[:request_id]) and return
+    end
+  end
+
 private
 
   def change_request(changestate, params)

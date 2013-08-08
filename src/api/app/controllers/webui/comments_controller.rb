@@ -36,4 +36,19 @@ class Webui::CommentsController < Webui::BaseController
 		CommentRequest.save(params)
 		render_ok
 	end
+
+	def projects_update
+		CommentProject.update_comment(params)
+		render_ok
+	end
+
+	def packages_update
+		CommentPackage.update_comment(params)
+		render_ok
+	end
+
+	def requests_update
+		CommentRequest.update_comment(params)
+		render_ok
+	end
 end

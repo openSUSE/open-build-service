@@ -2,7 +2,6 @@
 <%= javascript_tag do %>
   <%= render :partial => "shared/expand_collapse_comments.js.erb", :locals => {:comment_id => comment[:id]}%>
 <%end%>
-
 <div class="comment_thread grid_16 box box-shadow alpha">
   <h2 class="box-header">      
     <%= comment[:title] %>

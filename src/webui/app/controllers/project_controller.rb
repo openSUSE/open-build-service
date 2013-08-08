@@ -1294,6 +1294,28 @@ class ProjectController < ApplicationController
       redirect_to(:action => "comments", :project => params[:project]) and return
     end
   end
+
+  def update_comments
+    begin
+      unless params[:update] == 'true'
+        params[:project] = @project.name
+        ApiDetails.update_comments(:update_comments_for_projects, params)
+
+        respond_to do |format|
+          format.js { render json: 'ok' }
+          format.html do
+            flash[:notice] = "Comment updated successfully"
+            redirect_to action: :comments
+          end
+        end
+      else
+        render_dialog
+      end
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = e.summary
+      redirect_to(:action => "comments", :project => params[:project]) and return
+    end
+  end
   
   private
 

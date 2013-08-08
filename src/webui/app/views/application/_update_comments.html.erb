@@ -1,0 +1,24 @@
+<div class="dialog" id="disable_mask"></div>
+
+  <div class="dialog darkgrey_box">
+    <div class="box box-shadow">
+      <h2 class="box-header">Update comment</h2>
+        <%= form_tag  url_for(:controller => params[:controller], :action => "update_comments"), :method => :put do %>
+        <p>
+          <strong>Comment:</strong><br/>
+          <%= text_area_tag 'body', @body, :cols => 80, :rows => 10 %><br/>
+          <%= hidden_field_tag 'comment_id', params[:comment_id] %>
+          <%= hidden_field_tag 'user', session[:login] %>
+          <%=hidden_field_tag 'update_type', "edit"%>
+        </p>
+
+        <p>
+          <div class="buttons">
+            <%= submit_tag("Update comment") %>
+            <%= remove_dialog_tag('Cancel') %>
+          </div>
+        </p>
+        <% end %>
+      </div>
+    </div>
+  </div>
