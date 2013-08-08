@@ -81,10 +81,8 @@ class SearchController < ApplicationController
     
     if @search_text.starts_with?("obs://")
     # The user entered an OBS-specific RPM disturl, redirect to package source files with respective revision
-      unless handle_disturl(@search_text)
-        flash[:error] = "This disturl does not compute!"
-        return
-      end
+      flash[:error] = "This disturl does not compute!" unless handle_disturl(@search_text)
+      return
     end
 
     logger.debug "Searching for the string \"#{@search_text}\" in the #{@search_where}'s of #{@search_what}'s"
@@ -127,7 +125,7 @@ class SearchController < ApplicationController
       disturl_rev, disturl_package = disturl_pkgrev.split('-', 2)
     end
     unless disturl_package.nil? || disturl_rev.nil?
-      redirect_to :controller => 'package', :action => 'show', :project => disturl_project, :package => disturl_package, :rev => disturl_rev and return
+      redirect_to :controller => 'package', :action => 'show', :project => disturl_project, :package => disturl_package, :rev => disturl_rev and return true
     end
     logger.debug "Computing disturl #{disturl} failed"
     return false
