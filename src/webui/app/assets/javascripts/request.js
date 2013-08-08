@@ -46,43 +46,6 @@ function updateSupersedeAndDevelPackageDisplay() {
     }
 };
 
-$('#review_type').change(function () {
-    switch ($('#review_type option:selected').attr('value')) {
-        case "user":
-        {
-            $('#review_user_span').show();
-            $('#review_group_span').hide();
-            $('#review_project_span').hide();
-            $('#review_package_span').hide();
-        }
-            break;
-        case "group":
-        {
-            $('#review_user_span').hide();
-            $('#review_group_span').show();
-            $('#review_project_span').hide();
-            $('#review_package_span').hide();
-        }
-            break;
-        case "project":
-        {
-            $('#review_user_span').hide();
-            $('#review_group_span').hide();
-            $('#review_project_span').show();
-            $('#review_package_span').hide();
-        }
-            break;
-        case "package":
-        {
-            $('#review_user_span').hide();
-            $('#review_group_span').hide();
-            $('#review_project_span').show();
-            $('#review_package_span').show();
-        }
-            break;
-    }
-});
-
 $('#devel_project_name').click(function () {
     $('#targetproject').attr('value', $('#devel_project_name').html());
 });
@@ -134,17 +97,64 @@ function requestShowReview() {
 }
 
 function requestAddReviewAutocomplete() {
-    $("#review_group").autocomplete({source: '<%= url_for :controller => :group, :action => :autocomplete %>',
-        minChars: 2, matchCase: true, max: 50});
-    $("#review_user").autocomplete({source: '<%= url_for :controller => :user, :action => :autocomplete %>',
-        minChars: 2, matchCase: true, max: 50});
-    $("#review_project").autocomplete({source: '<%= url_for :controller => :project, :action => :autocomplete_projects %>',
-        minChars: 2, matchCase: true, max: 50});
-    $("#review_package").autocomplete({source: '<%= url_for :controller => :project, :action => :autocomplete_packages %>',
-        minChars: 0, matchCase: true, max: 50, extraParams: {
-            project: function () {
-                return $("#review_project").val();
+
+    $('#review_type').change(function () {
+        switch ($('#review_type option:selected').attr('value')) {
+            case "user":
+            {
+                $('#review_user_span').show();
+                $('#review_group_span').hide();
+                $('#review_project_span').hide();
+                $('#review_package_span').hide();
             }
+                break;
+            case "group":
+            {
+                $('#review_user_span').hide();
+                $('#review_group_span').show();
+                $('#review_project_span').hide();
+                $('#review_package_span').hide();
+            }
+                break;
+            case "project":
+            {
+                $('#review_user_span').hide();
+                $('#review_group_span').hide();
+                $('#review_project_span').show();
+                $('#review_package_span').hide();
+            }
+                break;
+            case "package":
+            {
+                $('#review_user_span').hide();
+                $('#review_group_span').hide();
+                $('#review_project_span').show();
+                $('#review_package_span').show();
+            }
+                break;
         }
+    });
+
+    $("#review_group").autocomplete({source: '/group/autocomplete', minChars: 2, matchCase: true, max: 50});
+    $("#review_user").autocomplete({source: '/user/autocomplete', minChars: 2, matchCase: true, max: 50});
+    $("#review_project").autocomplete({source: '/project/autocomplete_projects', minChars: 2, matchCase: true, max: 50});
+    $("#review_package").autocomplete({
+        source: function(request, response) {
+            $.ajax({
+                url: '/project/autocomplete_packages',
+                dataType: "json",
+                data: {
+                    term : request.term,
+                    project : $("#review_project").val()
+                },
+                success: function(data) {
+                    response(data);
+                }
+            });
+        },
+        min_length: 2,
+        minChars: 0,
+        matchCase: true,
+        max: 50
     });
 }
