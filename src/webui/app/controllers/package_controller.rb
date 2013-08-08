@@ -10,7 +10,7 @@ class PackageController < ApplicationController
   before_filter :require_project, :except => [:rawlog, :rawsourcefile, :submit_request, :devel_project]
   before_filter :require_package, :except => [:rawlog, :rawsourcefile, :submit_request, :save_new_link, :save_new, :devel_project ]
   # make sure it's after the require_, it requires both
-  before_filter :require_login, :only => [:branch]
+  before_filter :require_login, :only => [:branch, :save_comments]
   prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
   def show
