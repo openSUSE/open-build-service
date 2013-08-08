@@ -10,7 +10,8 @@ class SearchController < ApplicationController
   
   def owner
     # If the search is too short, return
-    if (!@search_text or @search_text.length < 2) && !@search_attrib_type_id && !@search_issue
+    return if @search_text.blank?
+    if @search_text and @search_text.length < 2
       flash[:error] = "Search string must contain at least two characters."
       return
     end
