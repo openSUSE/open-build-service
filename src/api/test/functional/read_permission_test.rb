@@ -190,7 +190,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     # tom/thunder
     prepare_request_with_user "tom", "thunder"
     resp=403
-    match=/cmd_execution_no_permission/
+    match=/create_project_no_permission/ # tom can't see it so it appears like a project creation
     delresp=404
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # maintainer

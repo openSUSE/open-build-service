@@ -278,6 +278,8 @@ class AttributeController < ApplicationController
 
   protected
 
+  before_action :require_valid_project_name, only: [:find_attribute_container]
+
   def find_attribute_container
     # init and validation
     #--------------------
@@ -285,7 +287,6 @@ class AttributeController < ApplicationController
     @binary=nil
     @binary=params[:binary] if params[:binary]
     # valid post commands
-    raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
     if params[:package] and params[:package] != "_project"
       @attribute_container = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
     else

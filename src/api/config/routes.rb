@@ -61,7 +61,8 @@ OBSApi::Application.routes.draw do
 
     controller :source do
 
-      match 'source' => :index, via: [:get, :post]
+      get 'source' => :index
+      post 'source' => :global_command
 
       # project level
       match 'source/:project' => :index_project, :constraints => cons, via: [:get, :post,  :delete]
@@ -74,8 +75,9 @@ OBSApi::Application.routes.draw do
       match '/source/:project/:package/_meta' => :package_meta, :constraints => cons, via: [:get, :put]
 
       match 'source/:project/:package/:filename' => :file, :constraints =>  cons, via: [:get, :put, :delete]
-      match 'source/:project/:package' => :index_package, :constraints => cons, via: [:get, :post, :delete]
-
+      get 'source/:project/:package' => :show_package, constraints: cons
+      post 'source/:project/:package' => :package_command, constraints: cons
+      delete 'source/:project/:package' => :delete_package, constraints: cons
     end
 
     ### /architecture

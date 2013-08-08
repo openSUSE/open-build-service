@@ -5,8 +5,8 @@ require 'builder/xchar'
 
 class SourceController < ApplicationController
 
-  class IllegalRequestError < APIException
-    setup 'illegal_request', 404, "Illegal request"
+  class IllegalRequest < APIException
+    setup 404, "Illegal request"
   end
 
   validate_action :index => {:method => :get, :response => :directory}
@@ -22,40 +22,33 @@ class SourceController < ApplicationController
   skip_before_filter :validate_xml_request, :only => [:file]
   skip_before_filter :extract_user, only: [:lastevents_public]
 
-  # /source
+  before_action :require_valid_project_name, except: [:index, :lastevents, :lastevents_public, :global_command]
+
+  class NoPermissionForDeleted < APIException
+    setup 403, "only admins can see deleted projects"
+  end
+
+  # GET /source
   #########
   def index
     # init and validation
     #--------------------
-    deleted = params.has_key? :deleted
-    admin_user = @http_user.is_admin?
+    admin_user = User.current.is_admin?
 
     # access checks
     #--------------
 
-    # GET /source
-    #------------
-    if request.get?
-      if deleted
-        if admin_user
-          pass_to_backend
-          return
-        else
-          render_error :status => 403, :errorcode => 'no_permission_for_deleted',
-                       :message => "only admins can see deleted projects"
-          return
-        end
-      else
-        projectlist
-      end
-    # /if request.get?
-
-    # POST /source
-    #-------------
-    elsif request.post?
-      dispatch_command
-
+    if params.has_key? :deleted
+      raise NoPermissionForDeleted.new unless admin_user
+      pass_to_backend
+    else
+      projectlist
     end
+  end
+
+  # POST /source
+  def global_command
+    dispatch_command
   end
 
   def projectlist
@@ -94,9 +87,8 @@ class SourceController < ApplicationController
     # init and validation
     #--------------------
     valid_commands=["undelete", "showlinked", "remove_flag", "set_flag", "createpatchinfo", "createkey", "extendkey", "copy", "createmaintenanceincident", "unlock", "release"]
-    raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
     if params[:cmd]
-      raise IllegalRequestError.new "invalid_command" unless valid_commands.include?(params[:cmd])
+      raise IllegalRequest.new "invalid_command" unless valid_commands.include?(params[:cmd])
       command = params[:cmd]
     end
     project_name = params[:project]
@@ -152,7 +144,7 @@ class SourceController < ApplicationController
       pro = Project.get_by_name project_name
 
       # checks
-      unless @http_user.can_modify_project?(pro)
+      unless User.current.can_modify_project?(pro)
         logger.debug "No permission to delete project #{project_name}"
         render_error :status => 403, :errorcode => 'delete_project_no_permission',
           :message => "Permission denied (delete project #{project_name})"
@@ -208,9 +200,7 @@ class SourceController < ApplicationController
       # command: undelete
       if 'undelete' == command
         unless @http_user.can_create_project?(project_name) and pro.nil?
-          render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-            :message => "no permission to execute command '#{command}'"
-          return
+          raise CmdExecutionNoPermission.new "no permission to execute command '#{command}'"
         end
         dispatch_command
         return
@@ -220,15 +210,11 @@ class SourceController < ApplicationController
         pro.repositories.each do |repo|
           next if params[:repository] and params[:repository] != repo.name
           repo.release_targets.each do |releasetarget|
-            unless @http_user.can_modify_project?(releasetarget.target_repository.project)
-              render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-                :message => "no permission to write in project #{releasetarget.target_repository.project.name}"
-              return
+            unless User.current.can_modify_project?(releasetarget.target_repository.project)
+              raise CmdExecutionNoPermission.new "no permission to write in project #{releasetarget.target_repository.project.name}"
             end
             unless releasetarget.trigger == "manual"
-              render_error :status => 400, :errorcode => "cmd_execution_no_permission",
-                :message => "Trigger is not set to manual in repository #{releasetarget.repository.project.name}/#{releasetarget.repository.name}"
-              return
+              raise CmdExecutionNoPermission.new "Trigger is not set to manual in repository #{releasetarget.repository.project.name}/#{releasetarget.repository.name}"
             end
             repo_matches=true
           end
@@ -245,16 +231,12 @@ class SourceController < ApplicationController
       elsif 'copy' == command
         prj = Project.find_by_name(project_name)
         unless (prj and @http_user.can_modify_project?(prj)) or @http_user.can_create_project?(project_name)
-          render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-            :message => "no permission to execute command '#{command}'"
-          return
+          raise CmdExecutionNoPermission.new "no permission to execute command '#{command}'"
         end
         oproject = Project.get_by_name(params[:oproject], {:includeallpackages => 1})
         if params.has_key?(:makeolder)
           unless @http_user.can_modify_project?(oproject)
-            render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-              :message => "no permission to execute command '#{command}', requires modification permission in oproject"
-            return
+            raise CmdExecutionNoPermission.new "no permission to execute command '#{command}', requires modification permission in oproject"
           end
         end
         dispatch_command
@@ -269,265 +251,214 @@ class SourceController < ApplicationController
         # command: showlinked, set_flag, remove_flag, ...?
         dispatch_command
       else
-        render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-          :message => "no permission to execute command '#{command}'"
-        return
+        raise CmdExecutionNoPermission.new "no permission to execute command '#{command}'"
       end
 
     end
   end
 
   class NoLocalPackage < APIException; end
+  class CmdExecutionNoPermission < APIException
+    setup 403
+  end
 
-  # FIXME: for OBS 3, api of branch and copy calls have target and source in the opossite place
-  # /source/:project/:package
-  #--------------------------
-  def index_package
+  def show_package_issues
+    unless @tpkg
+      raise NoLocalPackage.new "Issues can only be shown for local packages"
+    end
+    render_package_issues(@tpkg)
+  end
+
+  before_filter :require_package, only: [:show_package, :delete_package, :package_command]
+
+  # GET /source/:project/:package
+  def show_package
+    if @deleted_package 
+      tpkg = Package.find_by_project_and_name(@target_project_name, @target_package_name)
+      if tpkg
+        raise PackageExists.new "the package is not deleted"
+      else
+        validate_read_access_of_deleted_package(@target_project_name, @target_package_name)
+      end 
+    else
+      if ['_project', '_pattern'].include? @target_package_name
+        Project.get_by_name @target_project_name
+      else
+        @tpkg = Package.get_by_project_and_name(@target_project_name, @target_package_name, use_source: true, follow_project_links: true)
+      end
+    end
+
+    if params[:view] == "issues"
+       show_package_issues and return
+    end
+
+    # exec
+    path = request.path
+    path << build_query_from_hash(params, [:rev, :linkrev, :emptylink, :expand, :view, :extension, :lastworking, :withlinked, :meta, :deleted, :parse, :arch, :repository])
+    pass_to_backend path
+  end
+
+  class DeletePackageNoPermission < APIException
+    setup 403
+  end
+
+  class PackageExists < APIException
+    setup 400
+  end
+
+  def delete_package
+
+    # checks
+    if @target_package_name == "_project"
+      raise DeletePackageNoPermission.new "_project package can not be deleted."
+    end
+
+    tpkg = Package.get_by_project_and_name(@target_project_name, @target_package_name,
+                                           use_source: false, follow_project_links: false)
+
+    unless User.current.can_modify_package?(tpkg)
+      raise DeletePackageNoPermission.new "no permission to delete package #{tpkg.name} in project #{tpkg.project.name}"
+    end
+
+    # deny deleting if other packages use this as develpackage
+    # Shall we offer a --force option here as well ?
+    # Shall we ask the other package owner accepting to be a devel package ?
+    tpkg.can_be_deleted?
+
+    # Find open requests with 'tpkg' as source or target and decline/revoke them.
+    # Revoke if source or decline if target went away, pick the first action that matches to decide...
+    # Note: As requests are a backend matter, it's pointless to include them into the transaction below
+    tpkg.open_requests_with_package_as_source_or_target.each do |request|
+      request.bs_request_actions.each do |action|
+        if action.source_project == tpkg.project.name and action.source_package == tpkg.name
+          request.change_state('revoked', :comment => "The source package '#{tpkg.project.name} / #{tpkg.name}' was removed")
+          break
+        end
+        if action.target_project == tpkg.project.name and action.target_package == tpkg.name
+          request.change_state('declined', :comment => "The target package '#{tpkg.project.name} / #{tpkg.name}' was removed")
+          break
+        end
+      end
+    end
+
+    # Find open requests which have a review involving this package and remove those reviews
+    # but leave the requests otherwise untouched.
+    tpkg.open_requests_with_by_package_review.each do |request|
+      request.remove_reviews(:by_project => tpkg.project.name, :by_package => tpkg.name)
+    end
+
+    # exec
+    Package.transaction do
+      tpkg.destroy
+
+      params[:user] = User.current
+      path = "/source/#{@target_project_name}/#{@target_package_name}"
+      path << build_query_from_hash(params, [:user, :comment])
+      Suse::Backend.delete path
+
+      if @target_package_name == "_product"
+        Project.find_by_name!(params[:project]).update_product_autopackages
+      end
+    end
+    render_ok
+  end
+
+  # before_filter for show_package, delete_package and package_command
+  def require_package
     # init and validation
     #--------------------
     #admin_user = @http_user.is_admin?
-    deleted_package = params.has_key? :deleted
-    # valid post commands
-    valid_commands=['diff', 'branch', 'servicediff', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag', 
-                    'rebuild', 'undelete', 'wipe', 'runservice', 'commit', 'commitfilelist', 
-                    'createSpecFileTemplate', 'deleteuploadrev', 'linktobranch', 'updatepatchinfo',
-                    'getprojectservices', 'unlock', 'release']
-    # list of commands which are allowed even when the project has the package only via a project link
-    read_commands = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'getprojectservices']
-    source_untouched_commands = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'rebuild', 'wipe', 'remove_flag', 'set_flag', 'getprojectservices']
-    # list of cammands which create the target package
-    package_creating_commands = ['branch', 'copy', 'undelete']
+    @deleted_package = params.has_key? :deleted
 
-    raise IllegalRequestError.new "invalid_project_name" unless valid_project_name?(params[:project])
-    if params[:cmd]
-      raise IllegalRequestError.new "invalid_command" unless valid_commands.include?(params[:cmd])
-      raise IllegalRequestError.new "invalid_command_not_post" unless request.post?
-      command = params[:cmd]
-    elsif request.post?
+    @target_project_name = params[:project]
+    @target_package_name = params[:package]
+  end
+
+  class NoMatchingReleaseTarget < APIException
+    setup 404, "No defined or matching release target"
+  end
+
+  def verify_can_modify_target_package!
+    tpkg = Package.get_by_project_and_name(@target_project_name, @target_package_name, use_source: false, follow_project_links: false)
+    unless User.current.can_modify_package?(tpkg)
+      raise CmdExecutionNoPermission.new "no permission to execute command '#{params[:cmd]}' for package #{tpkg.name} in project #{tpkg.project.name}"
+    end
+  end
+
+  # POST /source/:project/:package
+  def package_command
+
+    unless params[:cmd]
       raise MissingParameterError.new "POST request without given cmd parameter"
     end
-    # find out about source and target dependening on command   - FIXME: ugly! sync calls
-    if command == 'release'
-      origin_project_name = params[:project]
-      origin_package_name = params[:package]
-    elsif command == 'branch'
-      origin_project_name = params[:project]
-      target_package_name = origin_package_name = params[:package]
-      target_project_name = params[:target_project] if params[:target_project]
-      target_package_name = params[:target_package] if params[:target_package]
-    else
-      target_project_name = params[:project]
-      target_package_name = params[:package]
-      origin_project_name = params[:oproject] if params[:oproject]
-      origin_package_name = params[:opackage] if params[:opackage]
-    end
-    #
-    if origin_package_name and not origin_project_name
-      render_error :status => 404, :errorcode => "missing_argument",
-                   :message => "origin package name is specified, but no origin project"
-      return
+
+    # valid post commands
+    valid_commands=['diff', 'branch', 'servicediff', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag',
+                    'rebuild', 'undelete', 'wipe', 'runservice', 'commit', 'commitfilelist',
+                    'createSpecFileTemplate', 'deleteuploadrev', 'linktobranch', 'updatepatchinfo',
+                    'getprojectservices', 'unlock', 'release']
+
+    @command = params[:cmd]
+    raise IllegalRequest.new "invalid_command" unless valid_commands.include?(@command)
+
+    origin_project_name = params[:oproject] if params[:oproject]
+    origin_package_name = params[:opackage] if params[:opackage]
+
+    if origin_package_name
+      required_parameters :oproject
     end
 
     # Check for existens/access of origin package when specified
-    spkg = nil
+    @spkg = nil
     Project.get_by_name origin_project_name if origin_project_name
-    if origin_package_name && ![ '_project', '_pattern' ].include?(origin_package_name) && !(params[:missingok] && command == 'branch')
-      spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name) if origin_package_name && ![ '_project', '_pattern' ].include?(origin_package_name)
+    if origin_package_name && !['_project', '_pattern'].include?(origin_package_name) && !(params[:missingok] && @command == 'branch')
+      @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name) if origin_package_name && !['_project', '_pattern'].include?(origin_package_name)
     end
-    if spkg
+    if @spkg
       # use real source in case we followed project link
-      params[:oproject] = origin_project_name = spkg.project.name
-      params[:opackage] = origin_package_name = spkg.name
+      params[:oproject] = origin_project_name = @spkg.project.name
+      params[:opackage] = origin_package_name = @spkg.name
     end
 
+    unless Package_creating_commands.include? @command
+      validate_target_for_package_command_exists!
+    end
+
+    dispatch_command
+  end
+
+
+  Source_untouched_commands = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'rebuild', 'wipe', 'remove_flag', 'set_flag', 'getprojectservices']
+  # list of cammands which create the target package
+  Package_creating_commands = ['branch', 'copy', 'undelete']
+  # list of commands which are allowed even when the project has the package only via a project link
+  Read_commands = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'getprojectservices']
+
+  def validate_target_for_package_command_exists!
     tprj = nil
     tpkg = nil
-    # The target must exist, except for following cases
-    if (request.post? and command == 'release')
-      repo_matches=nil
-      spkg.project.repositories.each do |repo|
-        next if params[:repository] and params[:repository] != repo.name
-        repo.release_targets.each do |releasetarget|
-          unless @http_user.can_modify_project?(releasetarget.target_repository.project)
-            render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-              :message => "no permission to write in project #{releasetarget.target_repository.project.name}"
-            return
-          end
-          unless releasetarget.trigger == "manual"
-            render_error :status => 400, :errorcode => "cmd_execution_no_permission",
-              :message => "Trigger is not set to manual in repository #{releasetarget.repository.project.name}/#{releasetarget.repository.name}"
-            return
-          end
-          repo_matches=true
-        end
-      end
-      unless repo_matches
-        render_error :status => 404, :errorcode => "no_matching_release_target",
-          :message => "No defined or matching release target"
-        return
-      end
-    elsif (request.post? and command == 'undelete') or (request.get? and deleted_package)
-      tprj = Project.get_by_name(target_project_name)
-      if Package.exists_by_project_and_name(target_project_name, target_package_name, follow_project_links: false)
-        render_error :status => 404, :errorcode => "package_exists",
-          :message => "the package exists already #{tprj.name} #{target_package_name}"
-        return
-      end
-      if command == 'undelete' and request.post?
-        tprj = Project.get_by_name(target_project_name)
-        unless @http_user.can_create_package_in?(tprj)
-          render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-            :message => "no permission to create package in project #{target_project_name}"
-          return
-        end
-      end
-    elsif request.post? and package_creating_commands.include?(command)  # branch/copy
-      # The branch command may be used just for simulation
-      unless params[:dryrun]
-        # we require a target, but are we allowed to modify the existing target ?
-        if Project.exists_by_name(target_project_name) and Package.exists_by_project_and_name(target_project_name, target_package_name, follow_project_links: false)
-          tpkg = Package.get_by_project_and_name(target_project_name, target_package_name, use_source: false, follow_project_links: false)
-          unless @http_user.can_modify_package?(tpkg)
-            render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-              :message => "no permission to execute command '#{command}' for package #{tpkg.name} in project #{tpkg.project.name}"
-            return
-          end
-        else
-          # branch command may find out target project itself later and checks permission
-          exists = Project.exists_by_name(target_project_name)
-          if command == 'branch' and not exists and target_project_name and not @http_user.can_create_project?(target_project_name)
-            render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-              :message => "no permission to create project #{target_project_name}"
-            return
-          end
-          if exists 
-            tprj = Project.get_by_name(target_project_name)
-            unless @http_user.can_create_package_in?(tprj)
-              render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-                :message => "no permission to create package in project #{target_project_name}"
-              return
-            end
-          end
-        end
-      end
+
+    follow_project_links = Source_untouched_commands.include?(@command)
+
+    if ['_project', '_pattern'].include? @target_package_name
+      tprj = Project.get_by_name @target_project_name
     else
-      follow_project_links = false
-      follow_project_links = true if request.get? or (source_untouched_commands.include? command)
-
-      if [ '_project', '_pattern' ].include? target_package_name and not request.delete?
-        tprj = Project.get_by_name target_project_name
-      else
-        use_source = true
-        use_source = false if command == "showlinked"
-        tpkg = Package.get_by_project_and_name(target_project_name, target_package_name, use_source: use_source, follow_project_links: follow_project_links)
-        tprj = tpkg.project unless tpkg.nil? # for remote package case
-        if request.delete? or (request.post? and not read_commands.include? command)
-          # unlock
-          if command == "unlock" 
-            unless @http_user.can_modify_package?(tpkg, true)
-              render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-                :message => "no permission to unlock package #{tpkg.name} in project #{tpkg.project.name}"
-              return
-            end
-          elsif not @http_user.can_modify_package?(tpkg)
-            if request.delete? or (request.post? and not read_commands.include? command)
-              render_error :status => 403, :errorcode => "delete_package_no_permission",
-                :message => "no permission to delete package #{tpkg.name} in project #{tpkg.project.name}"
-              return
-            end
-            render_error :status => 403, :errorcode => "cmd_execution_no_permission",
-              :message => "no permission to modify package #{tpkg.name} in project #{tpkg.project.name}"
-            return
-          end
+      use_source = true
+      use_source = false if @command == "showlinked"
+      tpkg = Package.get_by_project_and_name(@target_project_name, @target_package_name,
+                                             use_source: use_source, follow_project_links: follow_project_links)
+      if tpkg # for remote package case it's nil
+        tprj = tpkg.project
+        ignoreLock = @command == 'unlock'
+        unless Read_commands.include? @command or User.current.can_modify_package?(tpkg, ignoreLock)
+          raise CmdExecutionNoPermission.new "no permission to modify package #{tpkg.name} in project #{tprj.name}"
         end
       end
-
     end
 
     # check read access rights when the package does not exist anymore
-    if tpkg.nil? and deleted_package
-      validate_read_access_of_deleted_package(target_project_name, target_package_name)
-    end
-    
-    # GET /source/:project/:package
-    #------------------------------
-    if request.get?
-      if params["view"] == "issues"
-        unless tpkg
-          raise NoLocalPackage.new "Issues can only be shown for local packages"
-        end
-        render_package_issues(tpkg) and return
-      end
-
-      # exec
-      path = request.path
-      path << build_query_from_hash(params, [:rev, :linkrev, :emptylink, :expand, :view, :extension, :lastworking, :withlinked, :meta, :deleted, :parse, :arch, :repository])
-      pass_to_backend path
-      return
-
-    # /request.get?
-
-    # DELETE /source/:project/:package
-    #---------------------------------
-    elsif request.delete?
-
-      # checks
-      if target_package_name == "_project"
-        render_error :status => 403, :errorcode => "delete_package_no_permission",
-          :message => "_project package can not be deleted."
-        return
-      end
-
-      # deny deleting if other packages use this as develpackage
-      # Shall we offer a --force option here as well ?
-      # Shall we ask the other package owner accepting to be a devel package ?
-      tpkg.can_be_deleted?
-
-      # Find open requests with 'tpkg' as source or target and decline/revoke them.
-      # Revoke if source or decline if target went away, pick the first action that matches to decide...
-      # Note: As requests are a backend matter, it's pointless to include them into the transaction below
-      tpkg.open_requests_with_package_as_source_or_target.each do |request|
-        request.bs_request_actions.each do |action|
-          if action.source_project == tpkg.project.name and action.source_package == tpkg.name
-            request.change_state('revoked', :comment => "The source package '#{tpkg.project.name} / #{tpkg.name}' was removed")
-            break
-          end
-          if action.target_project == tpkg.project.name and action.target_package == tpkg.name
-            request.change_state('declined', :comment => "The target package '#{tpkg.project.name} / #{tpkg.name}' was removed")
-            break
-          end
-        end
-      end
-
-      # Find open requests which have a review involving this package and remove those reviews
-      # but leave the requests otherwise untouched.
-      tpkg.open_requests_with_by_package_review.each do |request|
-        request.remove_reviews(:by_project => tpkg.project.name, :by_package => tpkg.name)
-      end
-
-      # exec
-      Package.transaction do
-        tpkg.destroy
-
-        params[:user] = @http_user.login
-        path = "/source/#{target_project_name}/#{target_package_name}"
-        path << build_query_from_hash(params, [:user, :comment])
-        Suse::Backend.delete path
-    
-        if target_package_name == "_product"
-          Project.find_by_name!(params[:project]).update_product_autopackages
-        end
-      end
-      render_ok
-      return
-    # /request.delete?
-
-    # POST /source/:project/:package
-    #-------------------------------
-    elsif request.post?
-
-      dispatch_command
-
+    if tpkg.nil? and @deleted_package
+      validate_read_access_of_deleted_package(@target_project_name, @target_package_name)
     end
   end
 
@@ -536,11 +467,6 @@ class SourceController < ApplicationController
     # init and validation
     #--------------------
     required_parameters :project
-    unless valid_project_name?(params[:project])
-      render_error :status => 400, :errorcode => "invalid_project_name",
-        :message => "invalid project name '#{params[:project]}'"
-      return
-    end
 
     project_name = params[:project]
     params[:user] = @http_user.login
@@ -691,7 +617,7 @@ class SourceController < ApplicationController
     # bad request
     #------------
     else
-      raise IllegalRequestError.new
+      raise IllegalRequest.new
     end
   end
 
@@ -862,9 +788,6 @@ class SourceController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
     file = params[:filename]
-    if file.blank?
-	return index_package
-    end
     path = "/source/#{URI.escape(project_name)}/#{URI.escape(package_name)}/#{URI.escape(file)}"
 
     #authenticate
@@ -1028,7 +951,7 @@ class SourceController < ApplicationController
   private
 
   # POST /source?cmd=createmaintenanceincident
-  def index_createmaintenanceincident
+  def global_command_createmaintenanceincident
     # set defaults
     unless params[:attribute]
       params[:attribute] = "OBS:MaintenanceProject"
@@ -1127,7 +1050,7 @@ class SourceController < ApplicationController
   end
 
   # POST /source?cmd=branch (aka osc mbranch)
-  def index_branch
+  def global_command_branch
     ret = do_branch params
     if ret[:status] == 200
       if ret[:text]
@@ -1161,26 +1084,22 @@ class SourceController < ApplicationController
     render :text => xml, :content_type => "text/xml"
   end
 
+  class OpenReleaseRequest < APIException
+    setup 403
+  end
+
   # unlock a project
   # POST /source/<project>?cmd=unlock
   def index_project_unlock
-    valid_http_methods :post
+    required_parameters :comment
     project_name = params[:project]
-
-    if params[:comment].blank?
-      render_error :status => 400, :errorcode => "no_comment",
-        :message => "Unlock command requires a comment"
-      return
-    end
 
     pro = Project.get_by_name(project_name)
     if pro.project_type == "maintenance_incident"
       rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
       rel = rel.where(bs_request_actions: { type: 'maintenance_release', source_project: pro.name})
       if rel.exists?
-        render_error :status => 403, :errorcode => "open_release_request",
-          :message => "Unlock of maintenance incident #{} is not possible, because there is a running release request: #{rel.first.id}"
-        return
+        raise OpenReleaseRequest.new "Unlock of maintenance incident #{} is not possible, because there is a running release request: #{rel.first.id}"	
       end
     end
 
@@ -1298,7 +1217,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>?cmd=release
   def index_project_release
-    valid_http_methods :post
     params[:user] = @http_user.login
 
     p = Project.get_by_name(params[:project])
@@ -1320,7 +1238,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>?cmd=copy
   def index_project_copy
-    valid_http_methods :post
     project_name = params[:project]
     oproject = params[:oproject]
 
@@ -1399,32 +1316,25 @@ class SourceController < ApplicationController
   end
 
   # POST /source/<project>/<package>?cmd=updatepatchinfo
-  def index_package_updatepatchinfo
+  def package_command_updatepatchinfo
 
     Patchinfo.new.cmd_update_patchinfo(params[:project], params[:package])
     render_ok
   end
 
+  class NotLocked < APIException; end
+
   # unlock a package
   # POST /source/<project>/<package>?cmd=unlock
-  def index_package_unlock
-    valid_http_methods :post
-
-    if params[:comment].blank?
-      render_error :status => 400, :errorcode => "no_comment",
-        :message => "Unlock command requires a comment"
-      return
-    end
+  def package_command_unlock
+    required_parameters :comment
 
     p = { :comment => params[:comment] }
 
+logger.debug "unl"
     pkg = Package.get_by_project_and_name(params[:project], params[:package])
     f = pkg.flags.find_by_flag_and_status("lock", "enable")
-    unless f
-      render_error :status => 400, :errorcode => "not_locked",
-        :message => "package '#{pkg.project.name}/#{pkg.name}' is not locked"
-      return
-    end
+    raise NotLocked.new("package '#{pkg.project.name}/#{pkg.name}' is not locked") unless f
     pkg.flags.delete(f)
     pkg.store(p)
 
@@ -1433,9 +1343,7 @@ class SourceController < ApplicationController
 
   # Collect all project source services for a package
   # POST /source/<project>/<package>?cmd=getprojectservices
-  def index_package_getprojectservices
-    valid_http_methods :post
-
+  def package_command_getprojectservices
     path = request.path
     path << build_query_from_hash(params, [:cmd])
     pass_to_backend path
@@ -1443,8 +1351,7 @@ class SourceController < ApplicationController
 
   # create a id collection of all packages doing a package source link to this one
   # POST /source/<project>/<package>?cmd=showlinked
-  def index_package_showlinked
-    valid_http_methods :post
+  def package_command_showlinked
     project_name = params[:project]
     package_name = params[:package]
 
@@ -1476,9 +1383,16 @@ class SourceController < ApplicationController
   end
 
   # POST /source/<project>/<package>?cmd=undelete
-  def index_package_undelete
-    valid_http_methods :post
+  def package_command_undelete
     params[:user] = @http_user.login
+
+    if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
+      raise PackageExists.new "the package exists already #{@target_project_name} #{@target_package_name}"
+    end
+    tprj = Project.get_by_name(@target_project_name)
+    unless User.current.can_create_package_in?(tprj)
+      raise CmdExecutionNoPermission.new "no permission to create package in project #{@target_project_name}"
+    end
 
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment])
@@ -1494,7 +1408,7 @@ class SourceController < ApplicationController
 
   # FIXME: obsolete this for 3.0
   # POST /source/<project>/<package>?cmd=createSpecFileTemplate
-  def index_package_createSpecFileTemplate
+  def package_command_createSpecFileTemplate
     specfile_path = "#{request.path}/#{params[:package]}.spec"
     begin
       backend_get( specfile_path )
@@ -1510,7 +1424,7 @@ class SourceController < ApplicationController
 
   # OBS 3.0: this should be obsoleted, we have /build/ controller for this
   # POST /source/<project>/<package>?cmd=rebuild
-  def index_package_rebuild
+  def package_command_rebuild
     project_name = params[:project]
     package_name = params[:package]
     repo_name = params[:repo]
@@ -1547,7 +1461,7 @@ class SourceController < ApplicationController
   end
 
   # POST /source/<project>/<package>?cmd=commit
-  def index_package_commit
+  def package_command_commit
     valid_http_methods :post
     params[:user] = @http_user.login
 
@@ -1564,8 +1478,7 @@ class SourceController < ApplicationController
   end
 
   # POST /source/<project>/<package>?cmd=commitfilelist
-  def index_package_commitfilelist
-    valid_http_methods :post
+  def package_command_commitfilelist
     params[:user] = @http_user.login
     #project_name = params[:project]
     #package_name = params[:package]
@@ -1586,8 +1499,7 @@ class SourceController < ApplicationController
   end
 
   # POST /source/<project>/<package>?cmd=diff
-  def index_package_diff
-    valid_http_methods :post
+  def package_command_diff
     #oproject_name = params[:oproject]
     #opackage_name = params[:opackage]
  
@@ -1599,7 +1511,7 @@ class SourceController < ApplicationController
   end
 
   # POST /source/<project>/<package>?cmd=linkdiff
-  def index_package_linkdiff
+  def package_command_linkdiff
     valid_http_methods :post
 
     path = request.path
@@ -1609,7 +1521,7 @@ class SourceController < ApplicationController
   end
 
   # POST /source/<project>/<package>?cmd=servicediff
-  def index_package_servicediff
+  def package_command_servicediff
     valid_http_methods :post
 
     path = request.path
@@ -1618,10 +1530,13 @@ class SourceController < ApplicationController
   end
 
   # POST /source/<project>/<package>?cmd=copy
-  def index_package_copy
+  def package_command_copy
     valid_http_methods :post
-    params[:user] = @http_user.login
+    params[:user] = User.current.login
 
+    verify_can_modify_target!
+
+    # TODO: why not using the already set @target_package?
     sproject = params[:project]
     sproject = params[:oproject] if params[:oproject]
     spackage = params[:package]
@@ -1653,16 +1568,36 @@ class SourceController < ApplicationController
 
     # We need to use the project name of package object, since it might come via a project linked project
     path = "/source/#{CGI.escape(tpkg.project.name)}/#{CGI.escape(tpkg.name)}"
-    path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource, :withhistory])
+    path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, 
+                                           :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource, :withhistory])
     pass_to_backend path
 
     tpkg.sources_changed
   end
 
   # POST /source/<project>/<package>?cmd=release
-  def index_package_release
+  def package_command_release
     valid_http_methods :post
-    params[:user] = @http_user.login
+    params[:user] = User.current.login
+
+    spkg = Package.get_by_project_and_name(params[:project], params[:package])
+
+    repo_matches=nil
+    spkg.project.repositories.each do |repo|
+      next if params[:repository] and params[:repository] != repo.name
+      repo.release_targets.each do |releasetarget|
+        unless User.current.can_modify_project?(releasetarget.target_repository.project)
+          raise CmdExecutionNoPermission.new "no permission to write in project #{releasetarget.target_repository.project.name}"
+        end
+        unless releasetarget.trigger == "manual"
+          raise CmdExecutionNoPermission.new "Trigger is not set to manual in repository #{releasetarget.repository.project.name}/#{releasetarget.repository.name}"
+        end
+        repo_matches=true
+      end
+    end
+    unless repo_matches
+      raise NoMatchingReleaseTarget.new
+    end
 
     pkg = Package.get_by_project_and_name params[:project], params[:package], use_source: true, follow_project_links: false
     pkg.project.repositories.each do |repo|
@@ -1677,7 +1612,7 @@ class SourceController < ApplicationController
   end
 
   # POST /source/<project>/<package>?cmd=runservice
-  def index_package_runservice
+  def package_command_runservice
     valid_http_methods :post
     params[:user] = @http_user.login
 
@@ -1691,7 +1626,7 @@ class SourceController < ApplicationController
   end
 
   # POST /source/<project>/<package>?cmd=deleteuploadrev
-  def index_package_deleteuploadrev
+  def package_command_deleteuploadrev
     valid_http_methods :post
     params[:user] = @http_user.login
 
@@ -1701,7 +1636,7 @@ class SourceController < ApplicationController
   end
 
   # POST /source/<project>/<package>?cmd=linktobranch
-  def index_package_linktobranch
+  def package_command_linktobranch
     valid_http_methods :post
     params[:user] = @http_user.login
     prj_name = params[:project]
@@ -1726,8 +1661,35 @@ class SourceController < ApplicationController
     render_ok
   end
 
+  def verify_can_modify_target!
+    # we require a target, but are we allowed to modify the existing target ?
+    if Project.exists_by_name(@target_project_name) and Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
+      verify_can_modify_target_package!
+    elsif
+      if @tprj = Project.find_by_name(@target_project_name)
+        if !User.current.can_create_package_in?(@tprj)
+          raise CmdExecutionNoPermission.new "no permission to create package in project #{@target_project_name}"
+        end
+      end
+    end
+  end
+
   # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"&update_project_attribute="alternative_attribute"&comment="message"
-  def index_package_branch
+  def package_command_branch
+    # find out about source and target dependening on command   - FIXME: ugly! sync calls
+
+    # FIXME: for OBS 3, api of branch and copy calls have target and source in the opossite place
+    #origin_project_name = params[:project]
+    @target_package_name = params[:package]
+    @target_project_name = params[:target_project] # might be nil
+    @target_package_name = params[:target_package] if params[:target_package]
+
+    # The branch command may be used just for simulation
+    if !params[:dryrun] && @target_project_name
+      verify_can_modify_target! unless params[:dryrun]
+    end
+
+    logger.debug "BEFORE do_branch"
     ret = Package.transaction do
       do_branch params
     end
@@ -1739,11 +1701,12 @@ class SourceController < ApplicationController
       end
       return
     end
+    logger.debug ret.inspect
     render_error ret
   end
 
   # POST /source/<project>/<package>?cmd=set_flag&repository=:opt&arch=:opt&flag=flag&status=status
-  def index_package_set_flag
+  def package_command_set_flag
     valid_http_methods :post
 
     required_parameters :project, :package, :flag, :status
@@ -1769,8 +1732,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>?cmd=set_flag&repository=:opt&arch=:opt&flag=flag&status=status
   def index_project_set_flag
-    valid_http_methods :post
-
     required_parameters :project, :flag, :status
     prj_name = params[:project]
     prj = Project.get_by_name prj_name
@@ -1802,7 +1763,7 @@ class SourceController < ApplicationController
   end
 
   # POST /source/<project>/<package>?cmd=remove_flag&repository=:opt&arch=:opt&flag=flag
-  def index_package_remove_flag
+  def package_command_remove_flag
     valid_http_methods :post
 
     required_parameters :project, :package, :flag

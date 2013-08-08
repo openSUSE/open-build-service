@@ -19,6 +19,10 @@ class ApplicationController < ActionController::API
     setup "invalid_parameter"
   end
 
+  class InvalidProjectName < APIException
+    setup 400
+  end
+
   include ActionController::ImplicitRender
   include ActionController::MimeResponds
 
@@ -281,14 +285,18 @@ class ApplicationController < ActionController::API
     return false
   end
 
-  hide_action :setup_backend  
+  def require_valid_project_name
+    raise InvalidProjectName.new("invalid project name '#{params[:project]}'") unless valid_project_name?(params[:project])
+    # important because otherwise the filter chain is stopped
+    return true
+  end
+
   def setup_backend
     # initialize backend on every request
     Suse::Backend.source_host = CONFIG['source_host']
     Suse::Backend.source_port = CONFIG['source_port']
   end
 
-  hide_action :add_api_version
   def add_api_version
     response.headers["X-Opensuse-APIVersion"] = "#{CONFIG['version']}"
   end
@@ -426,7 +434,8 @@ class ApplicationController < ActionController::API
   end
 
   rescue_from APIException do |exception|
-    logger.debug "#{exception.class.name} #{exception.message}"
+    bt = exception.backtrace.join("\n")
+    logger.debug "#{exception.class.name} #{exception.message} #{bt}"
     message = exception.message
     if message.blank? || message == exception.class.name
       message = exception.default_message
@@ -570,9 +579,7 @@ class ApplicationController < ActionController::API
     }
     opt = defaults.merge opt
     unless params.has_key? opt[:cmd_param]
-      render_error :status => 400, :errorcode => "missing_parameter",
-        :message => "Missing parameter '#{opt[:cmd_param]}'"
-      return
+      raise MissingParameterError.new "Missing parameter '#{opt[:cmd_param]}'"
     end
 
     cmd_handler = "#{params[:action]}_#{params[opt[:cmd_param]]}"
