@@ -355,6 +355,11 @@ OBSApi::Application.routes.draw do
       post 'comments/package/:project/:package/new' => 'comments#packages_new', constraints: cons
       post 'comments/request/:id/new' => 'comments#requests_new', constraints: cons
 
+      put 'comments/project/:project/update' => 'comments#projects_update', constraints: cons
+      put 'comments/package/:project/:package/update' => 'comments#packages_update', constraints: cons
+      put 'comments/request/:id/update' => 'comments#requests_update', constraints: cons
+
+
     end
 
     get "/404" => "main#notfound"

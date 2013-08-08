@@ -1,0 +1,19 @@
+<%= link_to("Reply", {:controller => params[:controller], :action => 'save_comments', :parent_id => comment[:id], :reply => 'true' }, :remote => true, :class => "custom_button") %>
+
+<%if @user.login == comment[:user]%>
+<%= link_to("Edit", {:controller => params[:controller], :action => 'update_comments', :comment_id => comment[:id], :update => 'true'}, :remote => true, :class => "custom_button") %>
+<%end%>
+
+<%if params[:controller] == 'project'%>
+	<% if @project.can_edit?(@user) || @user.is_admin? || @user.login == comment[:user]%>
+		<%= link_to("Delete", {:controller => params[:controller], :action => 'update_comments', :comment_id => comment[:id], :update_type => 'delete', :user => comment[:user]}, :class => "custom_button") %>
+	<%end%>
+<%elsif params[:controller] == 'package'%>
+	<% if @package.can_edit?(@user) || @user.is_admin? || @user.login == comment[:user]%>
+		<%= link_to("Delete", {:controller => params[:controller], :action => 'update_comments', :comment_id => comment[:id], :update_type => 'delete', :user => comment[:user]}, :class => "custom_button") %>
+	<%end%>
+<%elsif params[:controller] == 'request'%>
+	<% if @can_add_reviews || @user.is_admin? || @user.login == comment[:user]%>
+		<%= link_to("Delete", {:controller => params[:controller], :action => 'update_comments', :comment_id => comment[:id],:update_type => 'delete', :user => comment[:user]}, :class => "custom_button") %>
+	<%end%>
+<%end%>

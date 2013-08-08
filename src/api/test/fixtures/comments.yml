@@ -2,11 +2,11 @@ project_comment_parent:
  id: 100
  title: Hurray
  body: I am making a comment
- project_id: 68576
+ project_id: 2042
  package_id:
  bs_request_id:
  parent_id:
- type: project
+ type: CommentProject
  user: Admin
  created_at: 2013-07-25 14:00:21.000000000 Z
  updated_at: 2013-07-25 14:00:21.000000000 Z
@@ -15,11 +15,37 @@ project_comment_reply:
  id: 101
  title:
  body: I am making a reply
- project_id: 68576
+ project_id: 2042
  package_id:
  bs_request_id:
  parent_id: 100
- type: project
+ type: CommentProject
  user: Admin
  created_at: 2013-07-25 15:00:21.000000000 Z
  updated_at: 2013-07-25 15:00:21.000000000 Z
+
+package_comment_parent:
+ id: 102
+ title: Hurray 2
+ body: I am making a comment 2
+ project_id:
+ package_id: 10094
+ bs_request_id:
+ parent_id:
+ type: CommentPackage
+ user: tom
+ created_at: 2013-07-25 14:00:21.000000000 Z
+ updated_at: 2013-07-25 14:00:21.000000000 Z
+
+request_comment_parent:
+ id: 103
+ title: Hurray 3
+ body: I am making a comment 3
+ project_id:
+ package_id:
+ bs_request_id: 1000
+ parent_id:
+ type: CommentRequest
+ user: tom
+ created_at: 2013-07-25 14:00:21.000000000 Z
+ updated_at: 2013-07-25 14:00:21.000000000 Z

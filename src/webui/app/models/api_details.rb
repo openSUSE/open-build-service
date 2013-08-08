@@ -37,6 +37,19 @@ class ApiDetails
     data
   end
 
+  def self.update_comments(route_name, params)
+    uri = "/webui/" +
+    case route_name.to_sym
+      when :update_comments_for_projects then "comments/project/#{params[:project]}/update"
+      when :update_comments_for_packages then "comments/package/#{params[:project]}/#{params[:package]}/update"
+      when :update_comments_for_requests then "comments/request/#{params[:request_id]}/update"
+    end
+
+    uri = URI(uri)
+    data = ActiveXML::transport.http_json :put, uri, params
+    data
+  end
+
   # Trying to mimic the names and params of Rails' url helpers
   def self.http_do(verb, route_name, *args)
     # FIXME: we need a better (real) implementation of nested routes

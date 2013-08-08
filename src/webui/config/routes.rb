@@ -104,6 +104,7 @@ OBSWebUI::Application.routes.draw do
     get "package/files/:project/:package" => :files, constraints: cons
     get 'package/comments/:project/:package' => :comments, constraints: cons
     post 'package/comments/:project/:package' => :save_comments, constraints: cons
+    match  'package/comments/:project/:package/update_comments' => :update_comments, :via => [:get, :put], constraints: cons
   end
 
   controller :patchinfo do
@@ -195,6 +196,7 @@ OBSWebUI::Application.routes.draw do
     post 'project/unlock' => :unlock
     get  'project/comments/:project' => :comments, constraints: cons
     post 'project/comments/:project' => :save_comments, constraints: cons
+    match  'project/comments/:project/update_comments' => :update_comments, :via => [:get, :put], constraints: cons
   end
 
   controller :request do
@@ -219,7 +221,8 @@ OBSWebUI::Application.routes.draw do
     post 'request/set_incident' => :set_incident
     get 'request/comments/:id' => :comments
     post 'request/comments/:id' => :save_comments
-  end
+    match 'request/comments/:id/update_comments' => :update_comments, :via => [:get, :put], constraints: cons
+end
 
   controller :search do
     match 'search' => :index, via: [:get, :post]
