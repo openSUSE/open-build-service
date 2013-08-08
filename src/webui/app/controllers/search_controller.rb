@@ -92,7 +92,7 @@ class SearchController < ApplicationController
       return
     end
 
-    @per_page = 50
+    @per_page = 20
     search = ApiDetails.create(:searches, :page => params[:page], :per_page => @per_page, :search => {
                     text: @search_text,
                     classes: @search_what,
