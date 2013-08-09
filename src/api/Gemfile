@@ -37,6 +37,7 @@ group :test do
   gem 'faker'
   gem 'timecop'
   gem 'webmock', '>= 1.9.0'
+  gem 'flog', '> 4.1.0'
 end
 
 group :development do

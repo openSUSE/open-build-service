@@ -15,7 +15,7 @@ class CodeQualityTest < ActiveSupport::TestCase
   end
 
   # Does a static syntax check, but doesn't interpret the code
-  def test_static_ruby_syntax
+  test "static ruby syntax" do
     # fast test first
     tmpfile = Tempfile.new('output')
     tmpfile.close
@@ -48,11 +48,27 @@ class CodeQualityTest < ActiveSupport::TestCase
   end
 
   # Checks that no 'debugger' statement is present in ruby code
-  def test_no_ruby_debugger_statement
+  test "no ruby debugger statement" do
     @ruby_files.each do |ruby_file|
       File.open(ruby_file).each_with_index do |line, number|
         assert(false, "#{ruby_file}:#{number + 1} 'debugger' statement found!") if line.match(/^\s*debugger/)
       end
+    end
+  end
+
+  test "code complexity" do
+    require "flog_cli"
+    flog = Flog.new :continue => true
+    dirs = %w(app/controllers app/views app/models app/mixins app/indices app/helpers)
+    files = FlogCLI.expand_dirs_to_files(*dirs)
+    flog.flog(*files)
+
+    score = flog.average
+    Current_Score = 27.235
+    assert_operator score, :<=, Current_Score + 0.005
+      
+    if score < Current_Score - 0.1
+      puts "Update Current_Score - we're at #{score}" 
     end
   end
 end
