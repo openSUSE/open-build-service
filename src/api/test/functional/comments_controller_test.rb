@@ -10,16 +10,19 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
   def test_show_and_post_comments_on_project
     # Testing new comment creation
-    post "/webui/comments/project/BaseDistro/new", {:project => "BaseDistro", :title => "This is a title", :body => "This is a body"}
+    post "/webui/comments/project/BaseDistro/new", {:project => "BaseDistro", :title => "This is a title", :body => "This is a body", :user => "Admin"}
     assert_response :success
 
     # testing empty comments
-    post "/webui/comments/project/BaseDistro/new", {:project => "BaseDistro", :title => "This is a title"}
+    post "/webui/comments/project/BaseDistro/new", {:project => "BaseDistro", :title => "This is a title", :user => "Admin"}
     assert_response 403
 
     # counter test
     get "/webui/comments/project/BaseDistro"
     assert_response :success
+
+    post "/webui/comments/project/BaseDistro/new", {:project => "BaseDistro", :title => "This is a title"}
+    assert_response 403
   end
 end
 

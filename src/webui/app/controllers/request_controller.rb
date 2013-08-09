@@ -3,6 +3,7 @@ require 'base64'
 class RequestController < ApplicationController
   include ApplicationHelper
   include CommentsHelper
+  before_filter :require_login, :only => [:save_comments]
 
   def add_reviewer_dialog
     @request_id = params[:id]

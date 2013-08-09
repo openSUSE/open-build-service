@@ -238,4 +238,12 @@ class ProjectControllerTest < ActionDispatch::IntegrationTest
     visit project_status_path(project: "LocalProject")
     page.must_have_text "Include version updates" # just don't crash
   end
+
+  test "comment creation without login" do
+    logout
+    visit "/project/comments/home:adrian"
+    find_button("Add comment").click
+    find('#flash-messages').must_have_text "Please login to access the requested page."
+  end
+
 end

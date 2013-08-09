@@ -16,7 +16,7 @@ class ProjectController < ApplicationController
     :autocomplete_projects, :autocomplete_incidents, :clear_failed_comment, :edit_comment_form, :index,
     :list, :list_all, :list_public, :new, :package_buildresult, :save_new, :save_prjconf,
     :rebuild_time_png, :new_incident, :show]
-  before_filter :require_login, :only => [:save_new, :toggle_watch, :delete, :new]
+  before_filter :require_login, :only => [:save_new, :toggle_watch, :delete, :new, :save_comments]
   before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list,
                                                             :edit_repository, :update_target]
 
