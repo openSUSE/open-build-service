@@ -515,6 +515,8 @@ sleep 2
 pushd src/api/
 # setup files
 cp config/options.yml{.example,}
+cp config/thinking_sphinx.yml{.example,}
+touch config/test.sphinx.conf
 cat > config/database.yml <<EOF
 test:
   adapter: mysql2
