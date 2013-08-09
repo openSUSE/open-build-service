@@ -240,7 +240,7 @@ class RequestController < ApplicationController
         releaseTargets = Patchinfo.new.fetch_release_targets(pkg)
       end
       newTargets.each do |p|
-        if releaseTargets
+        if releaseTargets and releaseTargets.length > 0
           found=false
           releaseTargets.each do |rt|
             if rt['project'] == p
