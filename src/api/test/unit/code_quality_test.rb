@@ -15,7 +15,7 @@ class CodeQualityTest < ActiveSupport::TestCase
   end
 
   # Does a static syntax check, but doesn't interpret the code
-  def test_static_ruby_syntax
+  test "static ruby syntax" do
     # fast test first
     tmpfile = Tempfile.new('output')
     tmpfile.close
@@ -48,7 +48,7 @@ class CodeQualityTest < ActiveSupport::TestCase
   end
 
   # Checks that no 'debugger' statement is present in ruby code
-  def test_no_ruby_debugger_statement
+  test "no ruby debugger statement" do
     @ruby_files.each do |ruby_file|
       File.open(ruby_file).each_with_index do |line, number|
         assert(false, "#{ruby_file}:#{number + 1} 'debugger' statement found!") if line.match(/^\s*debugger/)
