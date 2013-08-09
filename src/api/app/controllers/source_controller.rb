@@ -742,18 +742,15 @@ class SourceController < ApplicationController
     end
   end
 
-  # /source/:project/:package/:filename
-  def file
+  # GET /source/:project/:package/:filename
+  def get_file
+
     project_name = params[:project]
     package_name = params[:package]
     file = params[:filename]
     path = "/source/#{URI.escape(project_name)}/#{URI.escape(package_name)}/#{URI.escape(file)}"
 
-    #authenticate
-    return unless @http_user
-    params[:user] = User.current.login
-
-    if params.has_key?(:deleted) and request.get? 
+    if params.has_key?(:deleted)
       if Project.exists_by_name(project_name)
         validate_read_access_of_deleted_package(project_name, package_name)
         pass_to_backend
@@ -765,132 +762,148 @@ class SourceController < ApplicationController
       end
     end
 
-    prj = Project.get_by_name(project_name)
-    pack = nil
-    allowed = false
+    # a readable package, even on remote instance is enough here
+    begin
+      pack = Package.get_by_project_and_name(project_name, package_name)
+    rescue Package::UnknownObjectError
+    end
 
-    if package_name == "_project" or package_name == "_pattern"
-      allowed = permissions.project_change? prj
+    # TODO this code looks fishy - the code below would do the same
+    if pack.nil?
+      # Check if this is a package on a remote OBS instance
+      answer = Suse::Backend.get(request.path)
+      if answer
+        pass_to_backend
+        return
+      end
+    end
+
+    if pack # local package
+      path = "/source/#{URI.escape(pack.project.name)}/#{URI.escape(pack.name)}/#{URI.escape(file)}"
+    end
+    path += build_query_from_hash(params, [:rev, :meta, :deleted, :limit, :expand])
+    pass_to_backend path
+  end
+
+  class PutFileNoPermission < APIException
+    setup 403
+  end
+
+  def check_permissions_for_file
+    @project_name = params[:project]
+    @package_name = params[:package]
+    @file = params[:filename]
+    @path = Package.source_path @project_name, @package_name, @file
+
+    #authenticate
+    params[:user] = User.current.login
+
+    @prj = Project.get_by_name(@project_name)
+    @pack = nil
+    @allowed = false
+
+    if @package_name == "_project" or @package_name == "_pattern"
+      @allowed = permissions.project_change? @prj
     else
-      if request.get? 
-        # a readable package, even on remote instance is enough here
-        begin
-          pack = Package.get_by_project_and_name(project_name, package_name)
-        rescue Package::UnknownObjectError
-        end
-      else
-        # we need a local package here in any case for modifications
-        pack = Package.get_by_project_and_name(project_name, package_name)
-        allowed = permissions.package_change? pack
-      end
+      # we need a local package here in any case for modifications
+      @pack = Package.get_by_project_and_name(@project_name, @package_name)
+      @allowed = permissions.package_change? @pack
+    end
+  end
 
-      if pack.nil? and request.get?
-        # Check if this is a package on a remote OBS instance
-        answer = Suse::Backend.get(request.path)
-        if answer
-          pass_to_backend
-          return
-        end
-      end
+  class NotMissing < APIException; end
+
+  # PUT /source/:project/:package/:filename
+  def update_file
+    check_permissions_for_file
+
+    unless @allowed
+      raise PutFileNoPermission.new "Insufficient permissions to store file in package #{@package_name}, project #{@project_name}"
     end
 
-    # GET /source/:project/:package/:filename
-    if request.get?
-      if pack # local package
-        path = "/source/#{URI.escape(pack.project.name)}/#{URI.escape(pack.name)}/#{URI.escape(file)}"
-      end
-      path += build_query_from_hash(params, [:rev, :meta, :deleted, :limit, :expand])
-      pass_to_backend path
-      return
+    @path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink, :meta])
+
+    # file validation where possible
+    if params[:filename] == "_aggregate"
+      validator = Suse::Validator.validate( "aggregate", request.raw_post.to_s)
+    elsif params[:filename] == "_constraints"
+      validator = Suse::Validator.validate( "constraints", request.raw_post.to_s)
+    elsif params[:filename] == "_link"
+      validator = Suse::Validator.validate( "link", request.raw_post.to_s)
+    elsif params[:filename] == "_service"
+      validator = Suse::Validator.validate( "service", request.raw_post.to_s)
+    elsif params[:filename] == "_patchinfo"
+      validator = Suse::Validator.validate( "patchinfo", request.raw_post.to_s)
+    elsif params[:package] == "_pattern"
+      validator = Suse::Validator.validate( "pattern", request.raw_post.to_s)
     end
 
-    # PUT /source/:project/:package/:filename
-    if request.put?
-      unless allowed
-        render_error :status => 403, :errorcode => 'put_file_no_permission',
-          :message => "Insufficient permissions to store file in package #{package_name}, project #{project_name}"
-        return
-      end
 
-      path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink, :meta])
-
-      # file validation where possible
-      if params[:filename] == "_aggregate"
-         validator = Suse::Validator.validate( "aggregate", request.raw_post.to_s)
-      elsif params[:filename] == "_constraints"
-         validator = Suse::Validator.validate( "constraints", request.raw_post.to_s)
-      elsif params[:filename] == "_link"
-         validator = Suse::Validator.validate( "link", request.raw_post.to_s)
-      elsif params[:filename] == "_service"
-         validator = Suse::Validator.validate( "service", request.raw_post.to_s)
-      elsif params[:filename] == "_patchinfo"
-         validator = Suse::Validator.validate( "patchinfo", request.raw_post.to_s)
-      elsif params[:package] == "_pattern"
-         validator = Suse::Validator.validate( "pattern", request.raw_post.to_s)
-      end
-
-      # verify link
-      if params[:filename] == "_link"
-        data = ActiveXML::Node.new(request.raw_post.to_s)
-        if data
-          tproject_name = data.value("project") || project_name
-          tpackage_name = data.value("package") || package_name
-          if data.has_attribute? 'missingok'
-            Project.get_by_name(tproject_name) # permission check
-            if Package.exists_by_project_and_name(tproject_name, tpackage_name, follow_project_links: true, allow_remote_packages: true)
-              render_error :status => 400, :errorcode => 'not_missing',
-                :message => "Link contains a missingok statement but link target (#{tproject_name}/#{tpackage_name}) exists."
-              return
-            end
-          else
-            Package.get_by_project_and_name(tproject_name, tpackage_name)
+    # verify link
+    if params[:filename] == "_link"
+      data = ActiveXML::Node.new(request.raw_post.to_s)
+      if data
+        tproject_name = data.value("project") || @project_name
+        tpackage_name = data.value("package") || @package_name
+        if data.has_attribute? 'missingok'
+          Project.get_by_name(tproject_name) # permission check
+          if Package.exists_by_project_and_name(tproject_name, tpackage_name, follow_project_links: true, allow_remote_packages: true)
+            raise NotMissing.new "Link contains a missingok statement but link target (#{tproject_name}/#{tpackage_name}) exists."
           end
+        else
+          Package.get_by_project_and_name(tproject_name, tpackage_name)
         end
       end
-
-      # verify patchinfo data
-      if params[:filename] == "_patchinfo"
-        Patchinfo.new.verify_data(prj, request.raw_post.to_s)
-      end
-
-      # _pattern was not a real package in former OBS 2.0 and before, so we need to create the
-      # package here implicit to stay api compatible.
-      # FIXME3.0: to be revisited
-      if package_name == "_pattern" and not Package.exists_by_project_and_name( project_name, package_name, follow_project_links: false )
-        pack = Package.new(:name => "_pattern", :title => "Patterns", :description => "Package Patterns")
-        prj.packages << pack
-        pack.save
-      end
-
-      pass_to_backend path
-
-      # update package timestamp, kind and issues
-      pack.sources_changed unless params[:rev] == 'repository' or [ "_project", "_pattern" ].include? package_name
-
-      if package_name == "_product"
-        Project.find_by_name!(params[:project]).update_product_autopackages
-      end
-
-    # DELETE /source/:project/:package/:filename
-    elsif request.delete?
-      path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink])
-
-      unless allowed
-        render_error :status => 403, :errorcode => 'delete_file_no_permission',
-          :message => "Insufficient permissions to delete file"
-        return
-      end
-
-      Suse::Backend.delete path
-      unless package_name == "_pattern" or package_name == "_project"
-        # _pattern was not a real package in old times
-        pack.sources_changed
-      end
-      if package_name == "_product"
-        Project.find_by_name!(params[:project]).update_product_autopackages
-      end
-      render_ok
     end
+
+    # verify patchinfo data
+    if params[:filename] == "_patchinfo"
+      Patchinfo.new.verify_data(@prj, request.raw_post.to_s)
+    end
+
+    # _pattern was not a real package in former OBS 2.0 and before, so we need to create the
+    # package here implicit to stay api compatible.
+    # FIXME3.0: to be revisited
+    if @package_name == "_pattern" and not Package.exists_by_project_and_name( @project_name, @package_name, follow_project_links: false )
+      pack = Package.new(:name => "_pattern", :title => "Patterns", :description => "Package Patterns")
+      @prj.packages << pack
+      pack.save
+    end
+
+    pass_to_backend @path
+
+    # update package timestamp, kind and issues
+    @pack.sources_changed unless params[:rev] == 'repository' or [ "_project", "_pattern" ].include? @package_name
+
+    if @package_name == "_product"
+      Project.find_by_name!(params[:project]).update_product_autopackages
+    end
+
+  end
+
+  class DeleteFileNoPermission < APIException
+    setup 403
+  end
+
+  # DELETE /source/:project/:package/:filename
+  def delete_file
+    check_permissions_for_file
+
+    @path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink])
+
+    unless @allowed
+      raise DeleteFileNoPermission.new "Insufficient permissions to delete file"
+    end
+
+    Suse::Backend.delete @path
+    unless @package_name == "_pattern" or @package_name == "_project"
+      # _pattern was not a real package in old times
+      @pack.sources_changed
+    end
+    if @package_name == "_product"
+      Project.find_by_name!(params[:project]).update_product_autopackages
+    end
+    render_ok
   end
 
   # POST, GET /public/lastevents
@@ -1019,16 +1032,7 @@ class SourceController < ApplicationController
 
   # POST /source?cmd=branch (aka osc mbranch)
   def global_command_branch
-    ret = do_branch params
-    if ret[:status] == 200
-      if ret[:text]
-        render ret
-      else
-        render_ok ret
-      end
-      return
-    end
-    render_error ret
+    private_branch_command
   end
 
   # create a id collection of all projects doing a project link to this one
@@ -1102,32 +1106,29 @@ class SourceController < ApplicationController
     render_ok
   end
 
-  # POST /source/<project>?cmd=extendkey
-  def project_command_extendkey
-    project_name = params[:project]
-
-    Project.find_by_name project_name
+  def private_plain_backend_command
+    # is there any value in this call?
+    Project.find_by_name params[:project]
 
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment])
     pass_to_backend path
   end
 
+  # POST /source/<project>?cmd=extendkey
+  def project_command_extendkey
+    private_plain_backend_command
+  end
+
   # POST /source/<project>?cmd=createkey
   def project_command_createkey
-    project_name = params[:project]
-
-    Project.find_by_name project_name
-
-    path = request.path
-    path << build_query_from_hash(params, [:cmd, :user, :comment])
-    pass_to_backend path
+    private_plain_backend_command
   end
 
   # POST /source/<project>?cmd=createmaintenanceincident
   def project_command_createmaintenanceincident
     prj = Project.get_by_name( params[:project] )
-    actually_create_incident(noaccess, prj)
+    actually_create_incident(prj)
   end
 
   # POST /source/<project>?cmd=undelete
@@ -1626,6 +1627,21 @@ class SourceController < ApplicationController
     end
   end
 
+  def private_branch_command
+    ret = Package.transaction do
+      do_branch params
+    end
+    if ret[:status] == 200
+      if ret[:text]
+        render ret
+      else
+        render_ok ret
+      end
+      return
+    end
+    render_error ret
+  end
+
   # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"&update_project_attribute="alternative_attribute"&comment="message"
   def package_command_branch
     # find out about source and target dependening on command   - FIXME: ugly! sync calls
@@ -1641,18 +1657,7 @@ class SourceController < ApplicationController
       verify_can_modify_target! unless params[:dryrun]
     end
 
-    ret = Package.transaction do
-      do_branch params
-    end
-    if ret[:status] == 200
-      if ret[:text]
-        render ret
-      else
-        render_ok ret
-      end
-      return
-    end
-    render_error ret
+    private_branch_command
   end
 
   # POST /source/<project>/<package>?cmd=set_flag&repository=:opt&arch=:opt&flag=flag&status=status

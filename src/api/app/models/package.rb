@@ -332,8 +332,14 @@ class Package < ActiveRecord::Base
     private_set_package_kind( nil, commit )
   end
 
-  def source_path(file)
-    "/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}/#{URI.escape(file)}"
+  def self.source_path(project, package, file = nil)
+    path = "/source/#{URI.escape(project)}/#{URI.escape(package)}"
+    path += "/#{URI.escape(file)}" unless file.blank?
+    path
+  end
+
+  def source_path(file = nil)
+    Package.source_path(self.project.name, self.name, file)
   end
 
   def source_file(file)
@@ -342,7 +348,7 @@ class Package < ActiveRecord::Base
 
   def dir_hash
     begin
-      directory = Suse::Backend.get("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}").body
+      directory = Suse::Backend.get(self.source_path).body
       Xmlhash.parse(directory)
     rescue ActiveXML::Transport::Error => e
       Xmlhash::XMLHash.new error: e.summary 

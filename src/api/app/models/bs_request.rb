@@ -221,20 +221,23 @@ class BsRequest < ActiveRecord::Base
         # if the review is open, there is nothing we have to care about
         return if r.state == :new
       end
-      bs_request_histories.create comment: self.comment, commenter: self.commenter,
-                                  state: self.state, superseded_by: self.superseded_by, created_at: self.updated_at
+      create_history
       self.comment = "removed from group #{group.bs_request.id}"
       self.state = :new
       self.save
     end
   end
 
+  def create_history
+    bs_request_histories.create comment: self.comment, commenter: self.commenter,
+                                state: self.state, superseded_by: self.superseded_by, created_at: self.updated_at
+  end
+
   def change_state(state, opts = {})
     state = state.to_sym
     BsRequest.transaction do
       self.lock!
-      bs_request_histories.create comment: self.comment, commenter: self.commenter, state: self.state,
-                                  superseded_by: self.superseded_by, created_at: self.updated_at
+      create_history
 
       bs_request_actions.each do |a|
         # "inform" the actions
@@ -334,8 +337,7 @@ class BsRequest < ActiveRecord::Base
 
       raise Review::NotFoundError.new unless found
       if go_new_state || state == :superseded
-        bs_request_histories.create comment: self.comment, commenter: self.commenter, state: self.state,
-                                    superseded_by: self.superseded_by, created_at: self.updated_at
+        create_history
 
         if state == :superseded
           self.state = :superseded
@@ -388,8 +390,7 @@ class BsRequest < ActiveRecord::Base
       if !opts[:by_user] && !opts[:by_group] && !opts[:by_project]
         raise InvalidReview.new
       end
-      bs_request_histories.create comment: self.comment, commenter: self.commenter,
-                                  state: self.state, superseded_by: self.superseded_by, created_at: self.updated_at
+      create_history
 
       self.state = 'review'
       self.commenter = User.current.login
