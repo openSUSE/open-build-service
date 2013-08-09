@@ -1088,6 +1088,15 @@ end
     assert_response :success
   end
 
+  def test_fail_correctly_with_broken_repo_config
+    prepare_request_with_user "tom", "thunder"
+    # double definition of i586 architecture
+    put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'> <arch>i586</arch> <arch>i586</arch> </repository> </project>"
+    assert_response 400
+    assert_xml_tag( :tag => "status", :attributes => { :code => "project_save_error"} )
+    assert_match /double use of architecture: 'i586'/, @response.body
+  end
+
   def test_delete_project_with_repository_dependencies
     prepare_request_with_user "tom", "thunder"
     put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'> <arch>i586</arch> </repository> </project>"

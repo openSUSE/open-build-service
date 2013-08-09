@@ -576,6 +576,9 @@ class Project < ActiveRecord::Base
         unless Architecture.archcache.has_key? arch
           raise SaveError, "unknown architecture: '#{arch}'"
         end
+        if current_repo.repository_architectures.where( architecture: Architecture.archcache[arch] )
+          raise SaveError, "double use of architecture: '#{arch}'"
+        end
         a = current_repo.repository_architectures.new :architecture => Architecture.archcache[arch]
         a.position = position
         position += 1
