@@ -534,7 +534,7 @@ class Package < ActiveRecord::Base
     end
 
     # verify with allowed values for this attribute definition
-    if atype.allowed_values.length > 0
+    unless atype.allowed_values.empty?
       logger.debug( "Verify value with allowed" )
       attrib.each_value.each do |value|
         found = 0
@@ -642,12 +642,12 @@ class Package < ActiveRecord::Base
         p[:namespace] = attr.attrib_type.attrib_namespace.name
         p[:binary] = attr.binary if attr.binary
         a.attribute(p) do |y|
-          if attr.issues.length>0
+          unless attr.issues.empty?
             attr.issues.each do |ai|
               y.issue(:name => ai.issue.name, :tracker => ai.issue.issue_tracker.name)
             end
           end
-          if attr.values.length > 0
+          unless attr.values.empty?
             attr.values.each do |val|
               y.value(val.value)
             end
@@ -673,7 +673,7 @@ class Package < ActiveRecord::Base
           p[:namespace] = attr.attrib_type.attrib_namespace.name
           p[:binary] = attr.binary if attr.binary
           a.attribute(p) do |y|
-            if attr.values.length > 0
+            unless attr.values.empty?
               attr.values.each do |val|
                 y.value(val.value)
               end

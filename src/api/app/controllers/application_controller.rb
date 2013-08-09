@@ -607,7 +607,7 @@ class ApplicationController < ActionController::API
       missing << param unless params.has_key? param
     end
 
-    if missing.length > 0
+    unless missing.empty?
       render_error :status => 400, :errorcode => "missing_query_parameters",
         :message => "Missing query parameters: #{missing.join ', '}"
     end

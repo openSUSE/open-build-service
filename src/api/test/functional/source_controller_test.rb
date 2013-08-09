@@ -1094,7 +1094,7 @@ end
     put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'> <arch>i586</arch> <arch>i586</arch> </repository> </project>"
     assert_response 400
     assert_xml_tag( :tag => "status", :attributes => { :code => "project_save_error"} )
-    assert_match /double use of architecture: 'i586'/, @response.body
+    assert_match %r(double use of architecture: 'i586'), @response.body
   end
 
   def test_delete_project_with_repository_dependencies

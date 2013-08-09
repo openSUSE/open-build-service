@@ -381,7 +381,7 @@ module StatusHelper
     values.sort! { |a, b| a[0] <=> b[0] }
 
     result = Array.new
-    return result unless values.length > 0
+    return result if values.empty?
 
     lastvalue = 0
     now = values[0][0]

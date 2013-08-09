@@ -70,7 +70,7 @@ xml.project(project_attributes) do
     end
   end
 
-  if my_model.maintained_projects.length > 0
+  unless my_model.maintained_projects.empty?
     xml.maintenance do |maintenance|
       my_model.maintained_projects.each do |mp|
         maintenance.maintains(:project => mp.name)

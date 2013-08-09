@@ -21,7 +21,7 @@ module SearchHelper
     else
       # Find all marked projects
       projects = Project.find_by_attribute_type(at)
-      unless projects.length > 0
+      if projects.empty?
         render_error :status => 400, :errorcode => "attribute_not_set",
   		   :message => "The attribute type #{params[:attribute]} is not set on any projects. No default projects defined."
         return

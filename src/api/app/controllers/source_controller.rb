@@ -994,20 +994,20 @@ class SourceController < ApplicationController
       linkingTargetRepositories += repo.linking_target_repositories
     end
     unless params[:force] and not params[:force].empty?
-      if linkingRepositories.length > 0
+      unless linkingRepositories.empty?
         lrepstr = linkingRepositories.map{|l| l.project.name+'/'+l.name}.join "\n"
         render_error :status => 400, :errorcode => "repo_dependency",
           :message => "Unable to delete repository; following repositories depend on this project:\n#{lrepstr}\n"
         return false
       end
-      if linkingTargetRepositories.length > 0
+      unless linkingTargetRepositories.empty?
         lrepstr = linkingTargetRepositories.map{|l| l.project.name+'/'+l.name}.join "\n"
         render_error :status => 400, :errorcode => "repo_dependency",
           :message => "Unable to delete repository; following target repositories depend on this project:\n#{lrepstr}\n"
         return false
       end
     end
-    if removeRepositories.length > 0
+    unless removeRepositories.empty?
       # do remove
       private_remove_repositories( removeRepositories, (params[:remove_linking_repositories] and not params[:remove_linking_repositories].empty?) )
     end

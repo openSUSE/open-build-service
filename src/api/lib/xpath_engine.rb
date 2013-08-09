@@ -227,7 +227,7 @@ class XpathEngine
     @base_table = @tables[tablename]
     raise IllegalXpathError, "unknown table #{tablename}" unless @base_table
 
-    while @stack.length > 0
+    while !@stack.empty?
       token = @stack.shift
       #logger.debug "next token: #{token.inspect}"
       case token
@@ -290,7 +290,7 @@ class XpathEngine
 
     raise IllegalXpathError.new "invalid predicate" if stack.nil?
 
-    while stack.length > 0
+    while !stack.empty?
       token = stack.shift
       case token
       when :function
@@ -340,7 +340,7 @@ class XpathEngine
   def evaluate_expr(expr, root, escape=false)
     table = @base_table
     a = Array.new
-    while expr.length > 0
+    while !expr.empty?
       token = expr.shift
       case token
       when :child

@@ -1059,7 +1059,7 @@ class User < ActiveRecord::Base
 
     # check modifiable_by rules
     abies = atype.attrib_type_modifiable_bies.includes([:user, :group, :role])
-    if abies.length > 0
+    unless abies.empty?
       abies.each do |mod_rule|
         next if mod_rule.user and mod_rule.user != self
         next if mod_rule.group and not is_in_group? mod_rule.group
