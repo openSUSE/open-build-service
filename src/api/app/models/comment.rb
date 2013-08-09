@@ -5,6 +5,9 @@ class Comment < ActiveRecord::Base
   class NoDataEnteredError < APIException
     setup 'no_data_entered', 403, "No data Entered"
   end
+  class NoUserFound < APIException
+    setup 'no_user_found', 403, "No user found"
+  end
   def self.save(params)
     @comment = {}
   	@comment['title'] 	= params[:title]
@@ -16,6 +19,8 @@ class Comment < ActiveRecord::Base
       raise NoDataEnteredError.new "You didn't add a body to the comment." 
     elsif !@comment['parent_id'] && @comment['title'].blank?
       raise NoDataEnteredError.new "You didnt add a title to the comment"
+    elsif @comment['user'].blank?
+      raise NoUserFound.new "No user found. Sign in before continuing."
     end
   end
 end
