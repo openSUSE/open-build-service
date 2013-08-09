@@ -189,7 +189,7 @@ module MaintenanceHelper
       end
     end
 
-    unless @packages.length > 0
+    if @packages.empty?
       return { :status => 403, :errorcode => "not_found",
         :message => "no packages found by search criteria" }
     end

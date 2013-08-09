@@ -81,7 +81,7 @@ class Project < ActiveRecord::Base
         lreps << lrep
       end
     end
-    if lreps.length > 0
+    unless lreps.blank?
       #replace links to this projects with links to the "deleted" project
       lreps.each do |link_rep|
         link_rep.path_elements.includes(:link).each do |pe|
@@ -100,7 +100,7 @@ class Project < ActiveRecord::Base
         lreps << lrep
       end
     end
-    if lreps.length > 0
+    unless lreps.blank?
       #replace links to this projects with links to the "deleted" project
       lreps.each do |link_rep|
         link_rep.release_targets.includes(:target_repository).each do |rt|
@@ -418,7 +418,7 @@ class Project < ActiveRecord::Base
     update_all_flags( xmlhash )
     if ::Configuration.first.default_access_disabled == true and new_record
       # write a default access disable flag by default in this mode for projects if not defined
-      unless xmlhash.elements('access').length > 0
+      if xmlhash.elements('access').empty?
         self.flags.new(:status => 'disable', :flag => 'access')
       end
     end
@@ -576,7 +576,7 @@ class Project < ActiveRecord::Base
         unless Architecture.archcache.has_key? arch
           raise SaveError, "unknown architecture: '#{arch}'"
         end
-        if current_repo.repository_architectures.where( architecture: Architecture.archcache[arch] ).length > 0
+        if current_repo.repository_architectures.where( architecture: Architecture.archcache[arch] ).exists?
           raise SaveError, "double use of architecture: '#{arch}'"
         end
         a = current_repo.repository_architectures.new :architecture => Architecture.archcache[arch]
@@ -666,7 +666,7 @@ class Project < ActiveRecord::Base
     end
 
     # verify with allowed values for this attribute definition
-    if atype.allowed_values.length > 0
+    unless atype.allowed_values.blank?
       logger.debug( "Verify value with allowed" )
       attrib.each_value.each do |value|
         found = 0
@@ -731,12 +731,12 @@ class Project < ActiveRecord::Base
         type_name = attr.attrib_type.attrib_namespace.name+":"+attr.attrib_type.name
         a.attribute(:name => attr.attrib_type.name, :namespace => attr.attrib_type.attrib_namespace.name) do |y|
           done[type_name]=1
-          if attr.issues.length>0
+          unless attr.issues.blank?
             attr.issues.each do |ai|
               y.issue(:name => ai.issue.name, :tracker => ai.issue.issue_tracker.name)
             end
           end
-          if attr.values.length>0
+          unless attr.values.blank?
             attr.values.each do |val|
               y.value(val.value)
             end
