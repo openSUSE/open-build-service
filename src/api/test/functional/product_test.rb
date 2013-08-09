@@ -47,7 +47,7 @@ class ProductTests < ActionDispatch::IntegrationTest
       File.open("#{Rails.root}/test/fixtures/backend/source/simple_product/INVALID_obs.group").read()
     assert_response 400
     assert_xml_tag :tag => "status", :attributes => { :code => '400', :origin => 'backend' }
-    assert_xml_tag :tag => "summary", :content => "Illegal support key ILLEGAL for obs-server"
+    assert_match(/Illegal support key ILLEGAL for obs-server/, @response.body)
 
     delete "/source/home:tom:temporary"
     assert_response :success
