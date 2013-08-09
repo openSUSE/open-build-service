@@ -65,7 +65,9 @@ OBSApi::Application.routes.draw do
       post 'source' => :global_command
 
       # project level
-      match 'source/:project' => :index_project, :constraints => cons, via: [:get, :post,  :delete]
+      get 'source/:project' => :show_project, constraints: cons
+      delete 'source/:project' => :delete_project, constraints: cons
+      post 'source/:project' => :project_command, constraints: cons
       match 'source/:project/_meta' => :project_meta, :constraints => cons, via: [:get, :put]
 
       match 'source/:project/_config' => :project_config, :constraints => cons, via: [:get, :put]

@@ -146,14 +146,15 @@ class PersonController < ApplicationController
     internal_register
   end
 
+  class ErrRegisterSave < APIException
+  end
+
   def internal_register
     if CONFIG['ldap_mode'] == :on
-      render_error :message => "LDAP mode enabled, users can only be registered via LDAP", :errorcode => "err_register_save", :status => 400
-      return
+      raise ErrRegisterSave.new "LDAP mode enabled, users can only be registered via LDAP"
     end
     if CONFIG['proxy_auth_mode'] == :on or CONFIG['ichain_mode'] == :on
-      render_error :message => "Proxy authentification mode, manual registration is disabled", :errorcode => "err_register_save", :status => 400
-      return
+      raise ErrRegisterSave.new "Proxy authentification mode, manual registration is disabled"
     end
 
     xml = REXML::Document.new( request.raw_post )
@@ -173,9 +174,7 @@ class PersonController < ApplicationController
 
     if ::Configuration.first.registration == "deny"
       unless User.current and User.current.is_admin?
-        render_error :message => "User registration is disabled",
-                     :errorcode => "err_register_save", :status => 400
-        return
+        raise ErrRegisterSave.new "User registration is disabled"
       end
     elsif ::Configuration.first.registration == "confirmation"
       status = "unconfirmed"
@@ -188,8 +187,7 @@ class PersonController < ApplicationController
 
     if auth_method == :proxy
       if request.env['HTTP_X_USERNAME'].blank?
-        render_error :message => "Missing iChain header", :errorcode => "err_register_save", :status => 400
-        return
+        raise ErrRegisterSave.new "Missing iChain header"
       end
       login = request.env['HTTP_X_USERNAME']
       email = request.env['HTTP_X_EMAIL'] unless request.env['HTTP_X_EMAIL'].blank?
@@ -210,22 +208,19 @@ class PersonController < ApplicationController
     
     if !newuser.errors.empty?
       details = newuser.errors.map{ |key, msg| "#{key}: #{msg}" }.join(", ")
-      
-      render_error :message => "Could not save the registration",
-                   :errorcode => "err_register_save",
-                   :details => details, :status => 400
-    else
-      # create subscription for submit requests
-      if Object.const_defined? :Hermes
-        h = Hermes.new
-        h.add_user(login, email)
-        h.add_request_subscription(login)
-      end
-
-# This may fail when no notification is configured. Not important, so no exception handling for now
-#      IchainNotifier.deliver_approval(newuser)
-      render_ok
+      raise ErrRegisterSave.new "Could not save the registration", details: details
     end
+
+    # create subscription for submit requests
+    if Object.const_defined? :Hermes
+      h = Hermes.new
+      h.add_user(login, email)
+      h.add_request_subscription(login)
+    end
+
+    # This may fail when no notification is configured. Not important, so no exception handling for now
+    # IchainNotifier.deliver_approval(newuser)
+    render_ok
   rescue Exception => e
     # Strip passwords from request environment and re-raise exception
     request.env["RAW_POST_DATA"] = request.env["RAW_POST_DATA"].sub(/<password>(.*)<\/password>/, "<password>STRIPPED<password>")

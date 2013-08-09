@@ -286,6 +286,7 @@ class ApplicationController < ActionController::API
   end
 
   def require_valid_project_name
+    required_parameters :project
     raise InvalidProjectName.new("invalid project name '#{params[:project]}'") unless valid_project_name?(params[:project])
     # important because otherwise the filter chain is stopped
     return true
