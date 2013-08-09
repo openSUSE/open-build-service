@@ -44,6 +44,7 @@ class Distribution < ActiveRecord::Base
 
   def self.all_including_remotes
     list = Distribution.all_as_hash
+    repositories = list.map{ |d| d['reponame'] }
     
     remote_projects = Project.where("NOT ISNULL(projects.remoteurl)")
     remote_projects.each do |prj|
@@ -53,6 +54,8 @@ class Distribution < ActiveRecord::Base
       next if body.blank? # don't let broken remote instances break us
       xmlhash = Xmlhash.parse(body)
       xmlhash.elements('distribution') do |d|
+        next if repositories.include?( d['reponame'] )
+        repositories << d['reponame']
         iconlist = architecturelist = []
         d.elements('architecture') do |a|
           architecturelist << { "_content" => a.to_s }
