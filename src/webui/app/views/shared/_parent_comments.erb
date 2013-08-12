@@ -1,32 +1,29 @@
 <% @comments_as_thread.each do |comment| %>
 <%= javascript_tag do %>
-	<%= render :partial => "shared/expand_collapse_comments.js.erb", :locals => {:comment_id => comment[:id]}%>
+  <%= render :partial => "shared/expand_collapse_comments.js.erb", :locals => {:comment_id => comment[:id]}%>
 <%end%>
 
-<div class="parent_comment">
-	<div class="grid_2 alpha box box-shadow">
-		<div class="comment_image">
-			<%= user_icon(comment[:user], 80)%>
-			By <%=comment[:user]%>
-		</div>
-	</div>
-	<div class="grid_12 alpha box box-shadow">
-		<h2 class="box-header">
-			<%= comment[:title] %>
-			<em><%=Date.parse(comment[:created_at]).strftime("%m/%d/%Y")%></em>
-			<% unless comment[:children].empty? %>
-				<a class="comment_replies" id="<%="toggle_replies_of_#{comment[:id]}"%>">Collapse</a>
-			<%end%>
-		</h2>
-		<p><%= comment[:body] %></p>
-		<p>
-			<%=render partial: 'shared/comment_reply_link', locals: { comment: comment} %>
-		</p>
-	</div>
-</div>
-<div id="<%="reply_of_comment_#{comment[:id]}"%>">
-	<% unless comment[:children].empty? %>
-		<%= render partial: 'shared/child_comment', locals: {children: comment[:children] } %>
-	<% end %>
+<div class="comment_thread grid_16 box box-shadow alpha">
+  <h2 class="box-header">      
+    <%= comment[:title] %>
+    <% unless comment[:children].empty? %>
+      <a class="comment_collapse" id="<%="toggle_replies_of_#{comment[:id]}"%>">Collapse</a>
+    <%end%>
+  </h2>
+  <div class="grid_16 alpha omega">
+    <div class="comment">
+      <%= user_icon(comment[:user], 48, 'comment_image')%>
+      <%=comment[:user]%>
+      <%= link_to("Reply", {:controller => params[:controller], :action => 'save_comments', :parent_id => comment[:id], :reply => 'true' }, :remote => true, :class => 'comment_reply_link') %>
+      <br />
+      <span class="comment_time"><%= distance_of_time_in_words_to_now(DateTime.parse(comment[:created_at])) %> ago</span>
+      <%=simple_format(comment[:body]) %>
+    </div>
+    <% unless comment[:children].empty? %>
+      <div id="reply_of_comment_<%= comment[:id] %>">
+        <%= render partial: 'shared/child_comment', locals: {children: comment[:children] } %>
+      </div>
+    <% end %>
+  </div>
 </div>
 <% end %>
