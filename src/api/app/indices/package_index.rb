@@ -1,4 +1,4 @@
-ThinkingSphinx::Index.define :package, :with => :active_record, :delta => true do
+ThinkingSphinx::Index.define :package, :with => :active_record do
   indexes name, title, description
 
   has :db_project_id, :as => :project_id
