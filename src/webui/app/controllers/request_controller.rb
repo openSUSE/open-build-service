@@ -111,7 +111,7 @@ class RequestController < ApplicationController
       end
     end
 
-    Directory.free_cache(:project => @req.action.target.project, :package => @req.action.target.value('package'))
+    Directory.free_cache(:project => @req.action.target.project, :package => @req.action.target.value('package')) if @req.action.target.project
     if change_request(changestate, params)
       if params[:add_submitter_as_maintainer]
         if changestate != 'accepted'
