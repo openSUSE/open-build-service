@@ -1111,12 +1111,12 @@ class PackageController < ApplicationController
     end
   end
 
-  def update_comments
+  def edit_comments
     begin
       unless params[:update] == 'true'
         params[:project] = @project.name
         params[:package] = @package.name
-        ApiDetails.update_comments(:update_comments_for_packages, params)
+        ApiDetails.update_comments(:edit_comments_for_packages, params)
 
         respond_to do |format|
           format.js { render json: 'ok' }
@@ -1126,11 +1126,30 @@ class PackageController < ApplicationController
           end
         end
       else
+        @permission_check = @package.can_edit?(@user)
         render_dialog
       end
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
       redirect_to(:action => "comments", :project => params[:project], :package => params[:package]) and return
+    end
+  end
+
+  def delete_comments
+    begin
+      params[:project] = @project.name
+      params[:package] = @package.name
+      ApiDetails.update_comments(:delete_comments_for_packages, params)
+      respond_to do |format|
+        format.js { render json: 'ok' }
+        format.html do
+          flash[:notice] = "Comment deleted successfully"
+          redirect_to action: :comments
+        end
+      end
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = e.summary
+      redirect_to(:action => "comments", :project => params[:project]) and return
     end
   end
 

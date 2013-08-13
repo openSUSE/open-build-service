@@ -4,7 +4,9 @@
     <div class="comment_child <%= "comment_odd" if level.odd? %>"  style="<%= "margin-left: #{level * 10}px;" if level <= 4 %><%= "padding-right: 20px;" if level <= 1 %>">
       <%= user_icon(comment[:user], 48, 'comment_image')%>
       <%=comment[:user]%>
-      <%= link_to("Reply", {:controller => params[:controller], :action => 'save_comments', :parent_id => comment[:id], :reply => 'true' }, :remote => true, :class => 'comment_reply_link') %>
+
+      <%=render :partial => "shared/comment_links", :locals => {:comment => comment } %>
+
       <br />
       <span class="comment_time"><%= distance_of_time_in_words_to_now(DateTime.parse(comment[:created_at])) %> ago:</span>
       <%=simple_format(comment[:body]) %>

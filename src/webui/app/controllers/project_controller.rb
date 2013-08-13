@@ -1295,11 +1295,11 @@ class ProjectController < ApplicationController
     end
   end
 
-  def update_comments
+  def edit_comments
     begin
       unless params[:update] == 'true'
         params[:project] = @project.name
-        ApiDetails.update_comments(:update_comments_for_projects, params)
+        ApiDetails.update_comments(:edit_comments_for_projects, params)
 
         respond_to do |format|
           format.js { render json: 'ok' }
@@ -1309,7 +1309,25 @@ class ProjectController < ApplicationController
           end
         end
       else
+        @permission_check = @project.can_edit?(@user)
         render_dialog
+      end
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = e.summary
+      redirect_to(:action => "comments", :project => params[:project]) and return
+    end
+  end
+
+  def delete_comments
+    begin
+      params[:project] = @project.name
+      ApiDetails.update_comments(:delete_comments_for_projects, params)
+      respond_to do |format|
+        format.js { render json: 'ok' }
+        format.html do
+          flash[:notice] = "Comment deleted successfully"
+          redirect_to action: :comments
+        end
       end
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary

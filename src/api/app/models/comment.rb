@@ -29,20 +29,25 @@ class Comment < ActiveRecord::Base
     end
   end
 
-  def self.update_comment(params)
+  def self.edit_comment(params)
 
-    if params[:update_type] == 'edit' && User.current.login == params[:user]
+    if User.current.login == params[:user]
       self.update(params[:comment_id],:body => params[:body])
-    elsif params[:update_type] == 'delete' && @object_permission_check
-      self.update(params[:comment_id],:body => "Comment deleted.")
     else
       raise WritePermissionError, "You don't have the permissions to modify the content."
     end
 
-    if params[:update_type] == 'edit' && params[:body].blank?
+    if params[:body].blank?
       raise NoDataEnteredError.new "You didn't add a body to the comment." 
     end
+  end
 
+  def self.delete_comment(params)
+    if @object_permission_check
+      self.update(params[:comment_id],:body => "Comment deleted.")
+    else
+      raise WritePermissionError, "You don't have the permissions to modify the content."
+    end
   end
 
 end
