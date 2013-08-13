@@ -420,11 +420,11 @@ if ($BSConfig::secure_sandboxes) {
 
 sub oracle {
   my ($job, $worker, $constraints) = @_;
-  for my $l (@{$constraints->{'hostlabel'} || []}) {
-    if ($l->{'exclude'} && $l->{'exclude'} eq 'true') {
-      return 0 if grep {$_ eq $l->{'_content'}} @{$worker->{'hostlabel'} || []};
+  if ($constraints->{'hostlabel'} && $constraints->{'hostlabel'}->{'_content'}) {
+    if ($constraints->{'hostlabel'}->{'exclude'} && $constraints->{'hostlabel'}->{'exclude'} eq 'true') {
+      return 0 if grep {$_ eq $constraints->{'hostlabel'}->{'_content'}} @{$worker->{'hostlabel'} || []};
     } else {
-      return 0 unless grep {$_ eq $l->{'_content'}} @{$worker->{'hostlabel'} || []};
+      return 0 unless grep {$_ eq $constraints->{'hostlabel'}->{'_content'}} @{$worker->{'hostlabel'} || []};
     }
   }
   if ($constraints->{'sandbox'} && $constraints->{'sandbox'}->{'_content'}) {
