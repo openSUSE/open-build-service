@@ -869,7 +869,7 @@ sub getlogfile {
   #  $status->{'status'} = 'building';
   #  $status->{'uri'} = 'http://192.168.1.102:4711';
   #}
-  if ($jobstatus && $jobstatus->{'code'} && $jobstatus->{'code'} eq 'building' && $jobstatus->{'uri'}) {
+  if (!$cgi->{'last'} && $jobstatus && $jobstatus->{'code'} && $jobstatus->{'code'} eq 'building' && $jobstatus->{'uri'}) {
     my @args;
     push @args, 'nostream' if $cgi->{'nostream'};
     push @args, "start=$cgi->{'start'}" if defined $cgi->{'start'};
@@ -3700,7 +3700,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package/_history limit:num?' => \&getbuildhistory,
-  '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? handoff:bool? view:?' => \&getlogfile,
+  '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? handoff:bool? last:bool? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:?' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
   'DELETE:/build/$project/$repository/$arch/_repository/$filename' => \&delbinary,
@@ -3754,7 +3754,7 @@ my $dispatches = [
 my $dispatches_ajax = [
   '/' => \&hello,
   '/ajaxstatus' => \&getajaxstatus,
-  '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? view:?' => \&getlogfile,
+  '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? start:intnum? end:num? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nosource:bool?' => \&getbinarylist,
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:?' => \&getbinary,
   '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? summary:bool?' => \&getresult,

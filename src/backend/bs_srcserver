@@ -5950,6 +5950,7 @@ sub getlogfile {
   }
 
   my @args;
+  push @args, 'last' if $cgi->{'last'};
   push @args, 'nostream' if $cgi->{'nostream'};
   push @args, "start=$cgi->{'start'}" if defined $cgi->{'start'};
   push @args, "end=$cgi->{'end'}" if defined $cgi->{'end'};
@@ -7872,7 +7873,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* debug:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool?' => \&getbuildinfo,
-  '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? view:?' => \&getlogfile,
+  '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? start:intnum? end:num? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package/_history limit:num?' => \&getbuildhistory,
@@ -7903,7 +7904,7 @@ my $dispatches_ajax = [
   '/ajaxstatus' => \&getajaxstatus,
   '/build/$project/_result oldstate:md5? view:resultview* repository* arch* package* code:*' => \&getresult,
   '/build/$project/$repository/$arch package* view:?' => \&getpackagelist_build,
-  '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num?' => \&getlogfile,
+  '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? start:intnum? end:num?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool?' => \&getbinarylist,
   '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool?' => \&worker_getbinaries,
   '/lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,

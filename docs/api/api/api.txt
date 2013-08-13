@@ -1045,8 +1045,15 @@ GET /build/<project>/<repository>/<arch>/<package>/_log
 
   Get build log.
   
-Result: Build log as text file.
+Parameters:
+  
+  nostream: do not hang if the build is currently running
+  last: show log from last finished build
+  start: start at a given number of bytes
+  end: stop after the given number of bytes
+  view: special view instead of plain logfile. "entry" shows the size and mtime of logfile.
 
+Result: Build log as text file.
 
 === Control
 
