@@ -111,7 +111,6 @@ class RequestController < ApplicationController
       end
     end
 
-    Directory.free_cache(:project => @req.action.target.project, :package => @req.action.target.value('package')) if @req.action.target.project
     if change_request(changestate, params)
       if params[:add_submitter_as_maintainer]
         if changestate != 'accepted'
@@ -159,6 +158,7 @@ class RequestController < ApplicationController
           Package.free_cache(:all, :project => action.source.project)
           Package.free_cache(action.source.package, :project => action.source.project) if action.source.package
         end
+        Directory.free_cache(:project => action.target.project, :package => action.target.package) if action.target
       end
     end
     redirect_to :action => 'show', :id => params[:id]
