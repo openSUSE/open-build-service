@@ -290,7 +290,8 @@ sub mergeconstraints {
   $con = Storable::dclone($con);
   for my $con2 (@other) {
     if ($con2->{'hostlabel'}) {
-      push @{$con->{'hostlabel'}}, $con2->{'hostlabel'};
+      # FIXME: there is currently no way to specify excluded hostlabels via prjconf
+      push @{$con->{'hostlabel'}}, { '_content' => $con2->{'hostlabel'} };
     }
     if ($con2->{'sandbox'}) {
       $con->{'sandbox'} = $con2->{'sandbox'};
