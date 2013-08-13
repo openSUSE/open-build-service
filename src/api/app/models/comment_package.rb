@@ -6,7 +6,7 @@ class CommentPackage < Comment
 		CommentPackage.create(@comment)
 	end
 
-	def self.update_comment(params)
+	def self.delete_comment(params)
 		package = Package.get_by_project_and_name(params[:project], params[:package])
 		@object_permission_check = (User.current.can_modify_package?(package) || User.current.is_admin? || User.current.login == params[:user])		
 		super
