@@ -108,6 +108,11 @@ class BsRequest < ActiveRecord::Base
       request.description = hashed.value('description')
       hashed.delete('description')
 
+      str = hashed.value('accept_at')
+      request.accept_at = DateTime.parse(str) if str
+      hashed.delete('accept_at')
+      raise SaveError, 'Auto accept time is in the past' if request.accept_at and request.accept_at < DateTime.now
+
       history = hashed.delete('history')
       if history.kind_of? Hash
         history = [history]
@@ -169,6 +174,7 @@ class BsRequest < ActiveRecord::Base
       self.bs_request_histories.each do |history|
         history.render_xml(r)
       end
+      r.accept_at self.accept_at unless self.accept_at.nil?
       r.description self.description unless self.description.nil?
     end
     builder.to_xml
@@ -231,6 +237,10 @@ class BsRequest < ActiveRecord::Base
   def create_history
     bs_request_histories.create comment: self.comment, commenter: self.commenter,
                                 state: self.state, superseded_by: self.superseded_by, created_at: self.updated_at
+  end
+
+  def self.find_requests_to_accept
+     self.find(:all, :conditions => ['state = "new" AND accept_at < ?', DateTime.now])
   end
 
   def change_state(state, opts = {})

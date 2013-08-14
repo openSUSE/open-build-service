@@ -727,7 +727,8 @@ class BsRequestAction < ActiveRecord::Base
     
     # abort immediatly if we want to write and can't
     if opts[:cmd] == "changestate" and [ "accepted" ].include? opts[:newstate] and not write_permission_in_this_action
-      msg = "No permission to modify target of request #{self.bs_request.id} (type #{self.action_type}): project #{self.target_project}"
+      msg = ""
+      msg = "No permission to modify target of request #{self.bs_request.id} (type #{self.action_type}): project #{self.target_project}" unless self.bs_request.new_record?
       msg += ", package #{self.target_package}" if self.target_package
       raise RequestNoPermission.new msg
     end

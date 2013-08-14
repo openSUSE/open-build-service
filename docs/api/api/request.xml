@@ -54,6 +54,7 @@
  <history name="review" who="mls" when="2007-12-22T23:00:00">
    <comment>I don't want to make Klaas my enemy...</comment>
  </history>
+ <accept_at>2009-12-22T23:00:00</accept_at>
  <title>Kraft</title>
  <description>Kraft is KDE software for craftsmen and should urgently
  be added to the openSUSE distribution. The version from kraft.old can be 

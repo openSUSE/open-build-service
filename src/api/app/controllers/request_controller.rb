@@ -511,6 +511,11 @@ class RequestController < ApplicationController
         check_action_permission(action) || return
       end
 
+      # Autoapproval? Is the creator allowed to accept it?
+      if req.accept_at
+        check_request_change(req, {:cmd => "changestate", :newstate => "accepted"})
+      end
+
       #
       # Find out about defined reviewers in target
       #

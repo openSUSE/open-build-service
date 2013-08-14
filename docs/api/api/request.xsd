@@ -72,6 +72,7 @@
         <xs:element ref="state" minOccurs="1" maxOccurs="1" />
         <xs:element ref="review" minOccurs="0" maxOccurs="unbounded" />
         <xs:element ref="history" minOccurs="0" maxOccurs="unbounded" />
+        <xs:element name="accept_at" minOccurs="0" maxOccurs="1" />
         <xs:element name="title" minOccurs="0" maxOccurs="1" />
         <xs:element name="description" minOccurs="1" maxOccurs="1" />
       </xs:sequence>

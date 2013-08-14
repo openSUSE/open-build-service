@@ -25,6 +25,12 @@ every(1.hour, 'refresh issues') do
   end
 end
 
+every(1.hour, 'accept requests') do
+  BsRequest.find_requests_to_accept.each do |r|
+    r.change_state('accepted', :comment => "Auto accept")
+  end
+end
+
 every(49.minutes, 'rescale history') do
   # we just pick the first to have a model to .delay
   StatusHistory.first.delay.rescale

@@ -198,6 +198,7 @@ CREATE TABLE `bs_requests` (
   `superseded_by` int(11) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
+  `accept_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_bs_requests_on_creator` (`creator`),
   KEY `index_bs_requests_on_state` (`state`)
@@ -1149,6 +1150,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130802190951');
 INSERT INTO schema_migrations (version) VALUES ('20130805073101');
 
 INSERT INTO schema_migrations (version) VALUES ('20130807071147');
+
+INSERT INTO schema_migrations (version) VALUES ('20130814071147');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
