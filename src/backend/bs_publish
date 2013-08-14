@@ -336,6 +336,11 @@ sub createrepo_rpmmd {
   my @legacyargs;
   push @legacyargs, '--simple-md-filenames', '--checksum=sha' if $options{'legacy'};
   my @updateargs;
+  # createrepo 0.9.9 defaults to usually not used sqlite database. 
+  # We do disable it since it is time and space consuming.
+  # doing this via @updateargs for the case that an old createrepo is installed which does not support
+  # this switch.
+  push @updateargs, '--no-database';
   if (-f "$extrep/repodata/repomd.xml") {
     push @updateargs, '--update';
   }
