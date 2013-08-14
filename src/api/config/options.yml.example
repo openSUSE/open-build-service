@@ -55,9 +55,6 @@ ldap_mode: :off
 # Sam Account Name is the login name for LDAP
 ldap_search_attr: sAMAccountName
 
-# OVERRIDE with your company's ldap search base for the users who will use OBS
-ldap_search_base: OU=Organizational Unit,DC=Domain Component
-
 # LDAP Servers separated by ':'.
 # OVERRIDE with your company's ldap servers. Servers are picked randomly for
 # each connection to distribute load.
