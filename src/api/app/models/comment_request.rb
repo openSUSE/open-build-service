@@ -4,9 +4,4 @@ class CommentRequest < Comment
 		@comment['bs_request_id'] = params[:request_id]
 		CommentRequest.create(@comment)
 	end
-
-	def self.delete_comment(params)
-		@object_permission_check = (User.current.is_admin? || User.current.login == params[:user])		
-		super
-	end
 end

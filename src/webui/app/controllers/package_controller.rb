@@ -1093,6 +1093,8 @@ class PackageController < ApplicationController
   end
 
   def save_comments
+    required_parameters :project, :package, :user, :body
+    required_parameters :title if !params[:parent_id]
     begin
       params[:project] = @project.name
       params[:package] = @package.name
@@ -1112,6 +1114,7 @@ class PackageController < ApplicationController
   end
 
   def edit_comments
+    required_parameters :project, :package, :comment_id
     begin
       unless params[:update] == 'true'
         params[:project] = @project.name
@@ -1136,6 +1139,7 @@ class PackageController < ApplicationController
   end
 
   def delete_comments
+    required_parameters :user, :comment_id
     begin
       params[:project] = @project.name
       params[:package] = @package.name

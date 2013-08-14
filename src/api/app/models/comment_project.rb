@@ -7,9 +7,9 @@ class CommentProject < Comment
 		CommentProject.create(@comment)
 	end
 
-	def self.delete_comment(params)
+	def self.permission_check!(params)
 		project = Project.get_by_name(params[:project])
-		@object_permission_check = (User.current.can_modify_project?(project) || User.current.is_admin? || User.current.login == params[:user])		
+		@object_permission_check = User.current.can_modify_project?(project)	
 		super
 	end
 end

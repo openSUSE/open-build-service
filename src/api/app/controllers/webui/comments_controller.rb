@@ -38,32 +38,32 @@ class Webui::CommentsController < Webui::BaseController
 	end
 
 	def projects_edit
-		CommentProject.edit_comment(params)
+		CommentProject.edit(params)
 		render_ok
 	end
 
 	def packages_edit
-		CommentPackage.edit_comment(params)
+		CommentPackage.edit(params)
 		render_ok
 	end
 
 	def requests_edit
-		CommentRequest.edit_comment(params)
+		CommentRequest.edit(params)
 		render_ok
 	end
 
 	def projects_delete
-		CommentProject.delete_comment(params)
+		CommentProject.delete(params)
 		render_ok
 	end
 
 	def packages_delete
-		CommentPackage.delete_comment(params)
+		CommentPackage.delete(params)
 		render_ok
 	end
 
 	def requests_delete
-		CommentRequest.delete_comment(params)
+		CommentRequest.delete(params)
 		render_ok
 	end
 

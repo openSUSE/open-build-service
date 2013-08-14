@@ -291,6 +291,14 @@ class RequestController < ApplicationController
 
 
   def comments
+    # avoiding display of comment section for unnecessary request ids
+    begin
+      @req = ApiDetails.read(:request, params[:id])
+    rescue ApiDetails::NotFoundError
+      flash[:error] = "Can't find request #{params[:id]}"
+      redirect_back_or_to :controller => "home", :action => "requests" and return
+    end
+
     unless params[:reply] == 'true'
       @comment = ApiDetails.read(:comments_by_request, params[:id])
       @comments_as_thread = sort_comments(@comment)
@@ -300,6 +308,8 @@ class RequestController < ApplicationController
   end
 
   def save_comments
+    required_parameters :id, :user, :body
+    required_parameters :title if !params[:parent_id]
     begin
       params[:request_id] = params[:id]
       ApiDetails.save_comments(:save_comments_for_requests, params)
@@ -318,6 +328,7 @@ class RequestController < ApplicationController
   end
 
   def edit_comments
+    required_parameters :id, :comment_id
     begin
       unless params[:update] == 'true'
         params[:request_id] = params[:id]
@@ -341,6 +352,7 @@ class RequestController < ApplicationController
   end
 
   def delete_comments
+    required_parameters :user, :comment_id
     begin
       params[:request_id] = params[:id]
       ApiDetails.update_comments(:delete_comments_for_requests, params)

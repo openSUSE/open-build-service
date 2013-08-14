@@ -3,14 +3,29 @@ class Comment < ActiveRecord::Base
   belongs_to :package
   belongs_to :bs_request
 
-  class NoDataEnteredError < APIException
-    setup 'no_data_entered', 403, "No data Entered"
+  class CommentNoDataEntered < APIException
+    setup 'comment_no_data_entered', 403, "No data Entered"
   end
-  class NoUserFound < APIException
-    setup 'no_user_found', 403, "No user found"
+  class CommentNoUserFound < APIException
+    setup 'comment_no_user_found', 403, "No user found"
   end
-  class WritePermissionError < APIException
-    setup "project_write_permission_error"
+  class CommentWritePermissionError < APIException
+    setup "comment_write_permission_error"
+  end
+
+  def self.fields_check!(params)
+    if params[:body].blank?
+      raise CommentNoDataEntered.new "You didn't add a body to the comment." 
+    elsif params[:user].blank?
+      raise CommentNoUserFound.new "No user found. Sign in before continuing."
+    end
+  end
+
+  def self.permission_check!(params)
+    unless User.current.login == params[:user] || User.current.is_admin? || @object_permission_check
+      raise CommentWritePermissionError, "You don't have the permissions to modify the content."
+    end
+    fields_check!(params)
   end
 
   def self.save(params)
@@ -20,34 +35,21 @@ class Comment < ActiveRecord::Base
   	@comment['user'] = params[:user]
   	@comment['parent_id'] = params[:parent_id] if params[:parent_id]
 
-    if @comment['body'].blank?
-      raise NoDataEnteredError.new "You didn't add a body to the comment." 
-    elsif !@comment['parent_id'] && @comment['title'].blank?
-      raise NoDataEnteredError.new "You didnt add a title to the comment"
-    elsif @comment['user'].blank?
-      raise NoUserFound.new "No user found. Sign in before continuing."
+    fields_check!(params)
+    if !params[:parent_id] && params[:title].blank?
+      raise CommentNoDataEntered.new "You didn't add a title to the comment." 
     end
   end
 
-  def self.edit_comment(params)
-
-    if User.current.login == params[:user]
-      self.update(params[:comment_id],:body => params[:body])
-    else
-      raise WritePermissionError, "You don't have the permissions to modify the content."
-    end
-
-    if params[:body].blank?
-      raise NoDataEnteredError.new "You didn't add a body to the comment." 
-    end
+  def self.edit(params)
+    permission_check!(params)
+    self.update(params[:comment_id],:body => params[:body])
   end
 
-  def self.delete_comment(params)
-    if @object_permission_check
-      self.update(params[:comment_id],:body => "Comment deleted.")
-    else
-      raise WritePermissionError, "You don't have the permissions to modify the content."
-    end
+  def self.delete(params)
+    params[:body] = "Comment deleted."
+    permission_check!(params)
+    self.update(params[:comment_id],:body => params[:body] , :user => params[:user])
   end
 
 end
