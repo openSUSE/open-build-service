@@ -355,9 +355,9 @@ OBSApi::Application.routes.draw do
       post 'comments/package/:project/:package/new' => 'comments#packages_new', constraints: cons
       post 'comments/request/:id/new' => 'comments#requests_new', constraints: cons
 
-      put 'comments/project/:project/update' => 'comments#projects_edit', constraints: cons
-      put 'comments/package/:project/:package/update' => 'comments#packages_edit', constraints: cons
-      put 'comments/request/:id/update' => 'comments#requests_edit', constraints: cons
+      put 'comments/project/:project/edit' => 'comments#projects_edit', constraints: cons
+      put 'comments/package/:project/:package/edit' => 'comments#packages_edit', constraints: cons
+      put 'comments/request/:id/edit' => 'comments#requests_edit', constraints: cons
 
       put 'comments/project/:project/delete' => 'comments#projects_delete', constraints: cons
       put 'comments/package/:project/:package/delete' => 'comments#packages_delete', constraints: cons

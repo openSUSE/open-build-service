@@ -1278,6 +1278,8 @@ class ProjectController < ApplicationController
   end
 
   def save_comments
+    required_parameters :project, :user, :body
+    required_parameters :title if !params[:parent_id]
     begin
       params[:project] = @project.name
       ApiDetails.save_comments(:save_comments_for_projects, params)
@@ -1296,6 +1298,7 @@ class ProjectController < ApplicationController
   end
 
   def edit_comments
+    required_parameters :project, :comment_id
     begin
       unless params[:update] == 'true'
         params[:project] = @project.name
@@ -1319,6 +1322,7 @@ class ProjectController < ApplicationController
   end
 
   def delete_comments
+    required_parameters :user, :comment_id
     begin
       params[:project] = @project.name
       ApiDetails.update_comments(:delete_comments_for_projects, params)

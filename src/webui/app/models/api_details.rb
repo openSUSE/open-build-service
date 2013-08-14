@@ -40,9 +40,9 @@ class ApiDetails
   def self.update_comments(route_name, params)
     uri = "/webui/" +
     case route_name.to_sym
-      when :edit_comments_for_projects then "comments/project/#{params[:project]}/update"
-      when :edit_comments_for_packages then "comments/package/#{params[:project]}/#{params[:package]}/update"
-      when :edit_comments_for_requests then "comments/request/#{params[:request_id]}/update"
+      when :edit_comments_for_projects then "comments/project/#{params[:project]}/edit"
+      when :edit_comments_for_packages then "comments/package/#{params[:project]}/#{params[:package]}/edit"
+      when :edit_comments_for_requests then "comments/request/#{params[:request_id]}/edit"
 
       when :delete_comments_for_projects then "comments/project/#{params[:project]}/delete"
       when :delete_comments_for_packages then "comments/package/#{params[:project]}/#{params[:package]}/delete"
