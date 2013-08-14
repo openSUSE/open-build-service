@@ -395,7 +395,7 @@ touch $RPM_BUILD_ROOT/srv/www/obs/{webui,api}/log/production.log
 # needed for correct permissions in case sqlite3 is used
 touch $RPM_BUILD_ROOT/srv/www/obs/webui/db/database.db
 # prepare for running sphinx daemon
-install -m 0755 -d -o %apache_user -g %apache_group $RPM_BUILD_ROOT/srv/www/obs/api/db/sphinx{,/production}
+install -m 0755 -d $RPM_BUILD_ROOT/srv/www/obs/api/db/sphinx{,/production}
 
 #
 #set default api on localhost for the webui
@@ -800,8 +800,10 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/d
 /srv/www/obs/api/config/boot.rb
 /srv/www/obs/api/config/routes.rb
 /srv/www/obs/api/config/environments/development.rb
-%attr(0640,root,www) %config(noreplace) /srv/www/obs/api/config/database.yml*
+%attr(0640,root,%apache_group) %config(noreplace) /srv/www/obs/api/config/database.yml*
 %attr(0644,root,root) %config(noreplace) /srv/www/obs/api/config/options.yml*
+%dir %attr(0755,%apache_user,%apache_group) /srv/www/obs/api/db/sphinx
+%dir %attr(0755,%apache_user,%apache_group) /srv/www/obs/api/db/sphinx/production
 /srv/www/obs/api/config/environments/production_test.rb
 /srv/www/obs/api/.bundle
 
