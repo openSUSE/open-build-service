@@ -68,6 +68,8 @@ PreReq:         git-core
 Requires:       patch
 # require the createrepo version which got used in the testsuite
 Requires:       %(/bin/bash -c 'rpm -q --qf "%%{name} = %%{version}" createrepo')
+# depend hard to new python-yum. There are too many broken versions of yum-common around.
+Requires:       python-yum
 
 %if 0%{?suse_version:1}
 BuildRequires:  fdupes
