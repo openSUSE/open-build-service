@@ -113,32 +113,23 @@
     <div id="tabs2">
       <div class="box-header header-tabs">
         <ul>
-          <li><a href="#irequests">Involved Requests (<%= @new_requests.count + @declined_requests.count %>)</a></li>
-          <li><a href="#ipatches">Involved Patchinfos (<%=@open_patchinfos.length %>)</a></li>
+          <li><a href="#irequests" title="Requests that require your action">Involved Requests (<%= @new_requests.count + @open_reviews.count +  @declined_requests.count %>)</a></li>
+          <li><a href="#ipatches" title="Open Patchinfos">Involved Patchinfos (<%=@open_patchinfos.length %>)</a></li>
+          <li></li>
         </ul>
       </div>
       <div id="irequests" class="tab">
-      <% if @open_reviews.count > 0 %>
-        <h3 title="Someone asks you to review a change.">Open Reviews</h3>
-        <%= render(:partial => 'shared/requests', :locals => { :requests => @open_reviews, :request_table_id => 'new_reviews_table', :hide_state => true }) %>
+      <% if @requests.count > 0 %>
+        <%= render(:partial => 'shared/requests', :locals => { :requests => @requests, :request_table_id => 'new_reviews_table', :hide_state => true }) %>
+        <p>
+        <%= link_to('See requests in any state.', :action => 'requests', :user => @displayed_user.to_s) %>
+        </p>
+      <% else %>
+        <p>
+        There is currently no action required from you on any request.
+        <%= link_to('See requests in any state.', :action => 'requests', :user => @displayed_user.to_s) %>
+        </p>
       <% end %>
-
-      <% if @new_requests.count >0 %>
-        <h3 title="Someone requests to change something in your packages.">New Requests For You</h3>
-        <%= render(:partial => 'shared/requests', :locals => { :requests => @new_requests, :request_table_id => 'new_requests_table', :hide_state => true }) %>
-      <% end %>
-
-      <% if @declined_requests.count > 0 %>
-        <h3 title="Some other party has declined a request you created.">Your Declined Requests</h3>
-        <%= render(:partial => 'shared/requests', :locals => { :requests => @declined_requests, :request_table_id => 'declined_requests_table', :hide_state => true }) %>
-      <% end %>
-
-      <% if (@open_reviews.count + @new_requests.count + @declined_requests.count) < 1 %>
-        <p><%= @displayed_user.login %> is not involved in any requests</p>
-      <% end %>
-
-      <h3>See all other requests</h3>
-      <p><%= link_to('Other requests', :action => 'requests', :user => @displayed_user.to_s) %></p>
       </div>
 
       <div id="ipatches" class="tab">
