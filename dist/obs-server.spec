@@ -394,6 +394,8 @@ touch $RPM_BUILD_ROOT/srv/www/obs/{webui,api}/log/production.log
 #install -m 0644 ../dist/webui-production.rb $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/production.rb
 # needed for correct permissions in case sqlite3 is used
 touch $RPM_BUILD_ROOT/srv/www/obs/webui/db/database.db
+# prepare for running sphinx daemon
+install -m 0755 -d -o %apache_user -g %apache_group $RPM_BUILD_ROOT/srv/www/obs/api/db/sphinx{,/production}
 
 #
 #set default api on localhost for the webui
