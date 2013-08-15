@@ -1119,6 +1119,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(:tag => "request")
     assert_xml_tag(:tag => "review", :attributes => {:by_project => "home:Iggy", :by_package => "TestPack"})
+    assert_xml_tag(:tag => "review", :attributes => {:by_user => "adrian"})
+    assert_xml_tag(:tag => "review", :attributes => {:by_group => "test_group"})
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id_by_package = node.value(:id)
