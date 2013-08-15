@@ -65,10 +65,11 @@ class BsRequest < ActiveRecord::Base
       hashed['action']['type'] = 'submit'
     end
 
-    request = BsRequest.new
+    request = nil
 
     BsRequest.transaction do
 
+      request = BsRequest.new
       request.id = theid if theid
 
       actions = hashed.delete('action')
@@ -766,6 +767,7 @@ class BsRequest < ActiveRecord::Base
     result['state'] = self.state
     result['creator'] = self.creator
     result['created_at'] = self.created_at
+    result['accept_at'] = self.accept_at if self.accept_at
     result['superseded_by'] = self.superseded_by if self.superseded_by
     result['is_target_maintainer'] = self.is_target_maintainer?(User.current)
 

@@ -65,6 +65,7 @@ class RequestController < ApplicationController
 
     @id = @req['id']
     @state = @req['state']
+    @accept_at = @req['accept_at']
     @is_author = @req["creator"] == session[:login]
     @superseded_by = @req["superseded_by"]
     @is_target_maintainer = @req['is_target_maintainer']

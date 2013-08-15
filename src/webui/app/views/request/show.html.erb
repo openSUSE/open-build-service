@@ -30,6 +30,9 @@
       <% if @superseded_by %>
           <li><%= sprite_tag('exclamation') %> Superseded by <%= link_to @superseded_by, :id => @superseded_by %></li>
       <% end %>
+      <% if @accept_at -%>
+          <li><%= sprite_tag('exclamation') %> This request will get accepted after <%= @accept_at %> automatically!</li>
+      <% end -%>
       <% if @other_open_reviews.length > 0 %>
           <% @other_open_reviews.each do |review| %>
               <li>
