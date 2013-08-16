@@ -23,6 +23,10 @@ class ApplicationController < ActionController::API
     setup 400
   end
 
+  class NoDataEntered < APIException
+    setup 403
+  end
+
   include ActionController::ImplicitRender
   include ActionController::MimeResponds
 
@@ -479,6 +483,14 @@ class ApplicationController < ActionController::API
     parameters.each do |parameter|
       unless params.include? parameter.to_s
         raise MissingParameterError, "Required Parameter #{parameter} missing"
+      end
+    end
+  end
+
+  def required_fields(*parameters)
+    parameters.each do |parameter|
+      if params[parameter].blank? 
+        raise NoDataEntered.new "Required field #{parameter} is empty."
       end
     end
   end

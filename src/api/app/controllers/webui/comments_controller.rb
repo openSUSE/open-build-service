@@ -2,9 +2,6 @@ class Webui::CommentsController < Webui::BaseController
 	class NotFoundObjectError < APIException
 	 setup 'not_found', 404, "Not found"
 	end
-	class CommentNoDataEntered < APIException
-		setup 'comment_no_data_entered', 403, "No data Entered"
-	end
 	class CommentNoUserFound < APIException
 		setup 'comment_no_user_found', 403, "No user found"
 	end
@@ -35,8 +32,9 @@ class Webui::CommentsController < Webui::BaseController
 	def packages_new
 		required_parameters :body, :user, :project, :package
 		required_parameters :title if !params[:parent_id]
-		require_fields(params)
-		require_title(params)
+
+		required_fields :body
+		required_fields :title if !params[:parent_id]
 		permission_check!(params)
 
 		CommentPackage.save(params)
@@ -46,8 +44,9 @@ class Webui::CommentsController < Webui::BaseController
 	def projects_new
 		required_parameters :body, :user, :project
 		required_parameters :title if !params[:parent_id]
-		require_fields(params)
-		require_title(params)
+
+		required_fields :body
+		required_fields :title if !params[:parent_id]
 		permission_check!(params)
 
 		CommentProject.save(params)
@@ -57,8 +56,9 @@ class Webui::CommentsController < Webui::BaseController
 	def requests_new
 		required_parameters :body, :user, :id
 		required_parameters :title if !params[:parent_id]
-		require_fields(params)
-		require_title(params)
+
+		required_fields :body
+		required_fields :title if !params[:parent_id]
 		permission_check!(params)
 
 		CommentRequest.save(params)
@@ -67,7 +67,8 @@ class Webui::CommentsController < Webui::BaseController
 
 	def projects_edit
 		required_parameters :project, :comment_id, :body
-		require_fields(params)
+
+		required_fields :body
 		permission_check!(params)
 
 		CommentProject.edit(params)
@@ -76,7 +77,8 @@ class Webui::CommentsController < Webui::BaseController
 
 	def packages_edit
 		required_parameters :project, :package, :comment_id, :body
-		require_fields(params)
+
+		required_fields :body
 		permission_check!(params)
 
 		CommentPackage.edit(params)
@@ -85,7 +87,8 @@ class Webui::CommentsController < Webui::BaseController
 
 	def requests_edit
 		required_parameters :body, :comment_id, :id
-		require_fields(params)
+
+		required_fields :body
 		permission_check!(params)
 
 		CommentRequest.edit(params)
@@ -117,24 +120,11 @@ class Webui::CommentsController < Webui::BaseController
 	end
 
 	private
-	def require_fields(params)
-		if params[:body].blank?
-			raise CommentNoDataEntered.new "You didn't add a body to the comment."
-		elsif params[:user].blank?
-			raise CommentNoUserFound.new "No user found. Sign in before continuing."
-		end
-	end
-
-	def require_title(params)
-		if !params[:parent_id] && params[:title].blank?
-			raise CommentNoDataEntered.new "You didnt add a title to the comment."
-		end
-	end
 
 	def delete_action_check(params)
 		required_parameters :user, :comment_id
 		params[:body] = "Comment deleted."
-		require_fields(params)
+		
 	end
 
 	def permission_check!(params)
