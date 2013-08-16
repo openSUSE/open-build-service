@@ -151,11 +151,4 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # diff is expanded
     page.must_have_text "+DummyContent"
   end
-
-  test "comment creation without login" do
-    logout
-    visit "/request/comments/1000"
-    find_button("Add comment").click
-    find('#flash-messages').must_have_text "Please login to access the requested page."
-  end
 end

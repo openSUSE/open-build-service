@@ -14,7 +14,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # testing empty comments
-    post "/webui/comments/project/BaseDistro/new", {:project => "BaseDistro", :title => "This is a title", :user => "Admin"}
+    post "/webui/comments/project/BaseDistro/new", {:project => "BaseDistro", :title => "This is a title", :body => "", :user => "Admin"}
     assert_response 403
 
     # counter test
@@ -22,7 +22,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     post "/webui/comments/project/BaseDistro/new", {:project => "BaseDistro", :title => "This is a title"}
-    assert_response 403
+    assert_response 400
   end
 
   def test_update_permissions_for_comments_on_project

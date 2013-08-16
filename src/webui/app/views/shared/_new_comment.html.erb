@@ -3,7 +3,7 @@
 	<%= form_tag :controller => params[:controller], :action => "save_comments" do %>
 		<p>
   			<strong>Title:</strong><br/>
-  			<%= text_field_tag 'title', @title%><br/>
+  			<%= text_field_tag 'title',@titlee%><br/>
  			 <strong>Body:</strong><br/>
   			<%= text_area_tag 'body', @body, :cols => 80, :rows => 10 %><br/>
   			<%= hidden_field_tag 'user', session[:login] %>
