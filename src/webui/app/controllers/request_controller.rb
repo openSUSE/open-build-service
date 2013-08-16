@@ -329,7 +329,7 @@ class RequestController < ApplicationController
   end
 
   def edit_comments
-    required_parameters :id, :comment_id, :body
+    required_parameters :id, :comment_id
     begin
       unless params[:update] == 'true'
         params[:request_id] = params[:id]
