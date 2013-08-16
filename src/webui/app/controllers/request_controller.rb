@@ -288,22 +288,23 @@ class RequestController < ApplicationController
     end
     redirect_to :controller => :request, :action => "show", :id => params[:id]
   end
-
-
   def comments
-    # avoiding display of comment section for unnecessary request ids
     begin
-      @req = ApiDetails.read(:request, params[:id])
-    rescue ApiDetails::NotFoundError
-      flash[:error] = "Can't find request #{params[:id]}"
-      redirect_back_or_to :controller => "home", :action => "requests" and return
-    end
-
-    unless params[:reply] == 'true'
-      @comment = ApiDetails.read(:comments_by_request, params[:id])
-      @comments_as_thread = sort_comments(@comment)
-    else
-      render_dialog
+      # avoiding display of comment section for unnecessary request ids
+      begin
+        @req = ApiDetails.read(:request, params[:id])
+      rescue ApiDetails::NotFoundError
+        flash[:error] = "Can't find request #{params[:id]}"
+        redirect_back_or_to :controller => "home", :action => "requests" and return
+      end
+      unless params[:reply] == 'true'
+        @comment = ApiDetails.read(:comments_by_request, params[:id])
+        @comments_as_thread = sort_comments(@comment)
+      else
+        render_dialog
+      end
+    rescue ActiveXML::Transport::Error => e
+      render :text => e.summary, :status => 404, :content_type => "text/plain"
     end
   end
 
@@ -328,7 +329,7 @@ class RequestController < ApplicationController
   end
 
   def edit_comments
-    required_parameters :id, :comment_id
+    required_parameters :id, :comment_id, :body
     begin
       unless params[:update] == 'true'
         params[:request_id] = params[:id]

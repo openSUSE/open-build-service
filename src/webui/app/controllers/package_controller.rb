@@ -1114,7 +1114,7 @@ class PackageController < ApplicationController
   end
 
   def edit_comments
-    required_parameters :project, :package, :comment_id
+    required_parameters :project, :package, :comment_id, :body
     begin
       unless params[:update] == 'true'
         params[:project] = @project.name
