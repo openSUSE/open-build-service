@@ -375,6 +375,15 @@ CREATE TABLE `downloads` (
   KEY `index_downloads_on_architecture_id` (`architecture_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `events` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `eventtype` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `payload` text COLLATE utf8_unicode_ci,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `flags` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `status` enum('enable','disable') CHARACTER SET utf8 NOT NULL,
@@ -1234,6 +1243,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130814071147');
 INSERT INTO schema_migrations (version) VALUES ('20130816183104');
 
 INSERT INTO schema_migrations (version) VALUES ('20130819114303');
+
+INSERT INTO schema_migrations (version) VALUES ('20130817082602');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

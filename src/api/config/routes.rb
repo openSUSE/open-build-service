@@ -368,4 +368,9 @@ OBSApi::Application.routes.draw do
     #get ':controller/:action'
 
   end
+
+  defaults :format => 'json' do
+    resources :events, only: [:create]
+  end
+
 end
