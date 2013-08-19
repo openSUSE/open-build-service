@@ -277,8 +277,14 @@ our $productdesc = [
       [ $group ],
 ];
 
+# list of product definitions
+our $products = [
+   'productlist' =>
+      [ $productdesc ],
+];
+
 sub mergexmlfiles {
-  my ($absfile, $seen, $debug) = @_;
+  my ($absfile, $seen, $debug, $files) = @_;
 
   if ($seen->{$absfile}) {
     print "ERROR: cyclic file include ($absfile)!\n";
@@ -314,6 +320,10 @@ sub mergexmlfiles {
          return undef;
        }
        my $file = "$dir$ref";
+       if (defined($files)) {
+         # running via the source server, find the file in source archive
+         $file = "$dir/$files->{$ref}-$ref"
+       };
        $seen->{$absfile} = 1;
        my $replace = mergexmlfiles( $file, $seen, $debug );
        delete $seen->{$absfile};
@@ -335,10 +345,10 @@ sub mergexmlfiles {
   return $str;
 }
 
-sub readproductxml( $$$ ) {
-  my ($file, $nonfatal, $debug) = @_;
+sub readproductxml {
+  my ($file, $nonfatal, $debug, $files) = @_;
 
-  my $str = mergexmlfiles( $file, {}, $debug );
+  my $str = mergexmlfiles( $file, {}, $debug, $files );
   return undef if ( ! $str );
 
   return XMLin($productdesc, $str) unless $nonfatal;
