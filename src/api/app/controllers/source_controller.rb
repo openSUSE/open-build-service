@@ -834,6 +834,8 @@ class SourceController < ApplicationController
       validator = Suse::Validator.validate( "service", request.raw_post.to_s)
     elsif params[:filename] == "_patchinfo"
       validator = Suse::Validator.validate( "patchinfo", request.raw_post.to_s)
+    elsif params[:filename] == "_channel"
+      validator = Suse::Validator.validate( "channel", request.raw_post.to_s)
     elsif params[:package] == "_pattern"
       validator = Suse::Validator.validate( "pattern", request.raw_post.to_s)
     end

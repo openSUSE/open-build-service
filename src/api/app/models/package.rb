@@ -50,8 +50,9 @@ class Package < ActiveRecord::Base
   has_many :package_kinds, :dependent => :destroy, foreign_key: :db_package_id
   has_many :package_issues, :dependent => :destroy, foreign_key: :db_package_id # defined in sources
 
+  has_many :products, :dependent => :destroy
   has_many :comments, :dependent => :destroy
-  
+
   after_save :write_to_backend
   before_update :update_activity
   after_rollback :reset_cache
@@ -383,12 +384,34 @@ class Package < ActiveRecord::Base
           if e["name"] == '_link'
             self.package_kinds.create :kind => 'link'
           end
-          # further types my be product, spec, dsc, kiwi in future
+          if e["name"] == '_channel'
+            self.package_kinds.create :kind => 'channel'
+          end
+          if e["name"] =~ /.product$/
+            self.package_kinds.create :kind => 'product'
+          end
+          # further types my be spec, dsc, kiwi in future
         end
       end
     end
 
+    # track defined products in _product containers
+    Product.transaction do
+      self.products.destroy_all
+      if self.package_kinds.find_by_kind 'product'
+        begin
+          issues = Suse::Backend.get("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}?view=products")
+          xml = REXML::Document.new(issues.body.to_s)
+          xml.root.elements.each('/productlist/productdefinition/products/product') { |p|
+            Product.find_or_create_by_name_and_package( p.name, self )
+          }
+        rescue ActiveXML::Transport::Error
+        end
+      end
+    end # end of Product.transaction
+
     # update issue database based on file content
+    PackageIssue.transaction do
     if self.package_kinds.find_by_kind 'patchinfo'
       xml = Patchinfo.new.read_patchinfo_xmlhash(self)
       Project.transaction do
@@ -434,6 +457,7 @@ class Package < ActiveRecord::Base
         end
       end
     end
+    end # end if PackageIssues.transaction
   end
   private :private_set_package_kind
 

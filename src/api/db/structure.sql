@@ -204,6 +204,62 @@ CREATE TABLE `bs_requests` (
   KEY `index_bs_requests_on_state` (`state`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `channel_binaries` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `channel_binary_list_id` int(11) NOT NULL,
+  `project_id` int(11) DEFAULT NULL,
+  `repository_id` int(11) DEFAULT NULL,
+  `architecture_id` int(11) DEFAULT NULL,
+  `package` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `binaryarch` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `channel_binary_list_id` (`channel_binary_list_id`),
+  KEY `project_id` (`project_id`),
+  KEY `repository_id` (`repository_id`),
+  KEY `architecture_id` (`architecture_id`),
+  CONSTRAINT `channel_binaries_ibfk_1` FOREIGN KEY (`channel_binary_list_id`) REFERENCES `channel_binary_lists` (`id`),
+  CONSTRAINT `channel_binaries_ibfk_2` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
+  CONSTRAINT `channel_binaries_ibfk_3` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
+  CONSTRAINT `channel_binaries_ibfk_4` FOREIGN KEY (`architecture_id`) REFERENCES `architectures` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `channel_binary_lists` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `channel_id` int(11) NOT NULL,
+  `project_id` int(11) DEFAULT NULL,
+  `repository_id` int(11) DEFAULT NULL,
+  `architecture_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `channel_id` (`channel_id`),
+  KEY `project_id` (`project_id`),
+  KEY `repository_id` (`repository_id`),
+  KEY `architecture_id` (`architecture_id`),
+  CONSTRAINT `channel_binary_lists_ibfk_1` FOREIGN KEY (`channel_id`) REFERENCES `channels` (`id`),
+  CONSTRAINT `channel_binary_lists_ibfk_2` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
+  CONSTRAINT `channel_binary_lists_ibfk_3` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
+  CONSTRAINT `channel_binary_lists_ibfk_4` FOREIGN KEY (`architecture_id`) REFERENCES `architectures` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `channel_targets` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `channel_id` int(11) NOT NULL,
+  `repository_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_channel_targets_on_channel_id_and_repository_id` (`channel_id`,`repository_id`),
+  KEY `repository_id` (`repository_id`),
+  CONSTRAINT `channel_targets_ibfk_1` FOREIGN KEY (`channel_id`) REFERENCES `channels` (`id`),
+  CONSTRAINT `channel_targets_ibfk_2` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `channels` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `package_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_channels_on_package_id_and_product_id` (`package_id`,`product_id`),
+  CONSTRAINT `channels_ibfk_1` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `comments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `project_id` int(11) DEFAULT NULL,
@@ -477,7 +533,7 @@ CREATE TABLE `package_issues` (
 CREATE TABLE `package_kinds` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_package_id` int(11) DEFAULT NULL,
-  `kind` enum('patchinfo','aggregate','link') NOT NULL,
+  `kind` enum('patchinfo','aggregate','link','channel','product') NOT NULL,
   PRIMARY KEY (`id`),
   KEY `db_package_id` (`db_package_id`),
   CONSTRAINT `package_kinds_ibfk_1` FOREIGN KEY (`db_package_id`) REFERENCES `packages` (`id`)
@@ -518,6 +574,16 @@ CREATE TABLE `path_elements` (
   CONSTRAINT `path_elements_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `repositories` (`id`),
   CONSTRAINT `path_elements_ibfk_2` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `products` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `package_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_products_on_name_and_package_id` (`name`,`package_id`),
+  KEY `package_id` (`package_id`),
+  CONSTRAINT `products_ibfk_1` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1152,6 +1218,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130805073101');
 INSERT INTO schema_migrations (version) VALUES ('20130807071147');
 
 INSERT INTO schema_migrations (version) VALUES ('20130814071147');
+
+INSERT INTO schema_migrations (version) VALUES ('20130816183104');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
