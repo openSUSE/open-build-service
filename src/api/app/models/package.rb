@@ -778,7 +778,7 @@ class Package < ActiveRecord::Base
 
   def developed_packages
     packages = []
-    candidates = Package.where(develpackage_id: self).all
+    candidates = Package.where(develpackage_id: self).load
     logger.debug candidates.inspect
     candidates.each do |candidate|
       packages << candidate unless candidate.linkinfo
