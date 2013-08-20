@@ -833,8 +833,10 @@ class User < ActiveRecord::Base
       person.login( self.login )
       person.email( self.email )
       realname = self.realname
-      realname.toutf8
-      person.realname( realname )
+      unless realname.nil?
+        realname.toutf8
+        person.realname( realname )
+      end
       # FIXME 2.5: turn the state into an enum
       person.state( User.states.keys[self.state-1] )
 
