@@ -232,6 +232,10 @@ our $patchinfo = [
 
 our $channel = [
     'channel' =>
+      [ 'product' =>
+            'project',
+            'name',
+      ],
      [[ 'target' =>
 	    'project',
 	    'repository',

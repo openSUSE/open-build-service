@@ -51,6 +51,8 @@ class Package < ActiveRecord::Base
   has_many :package_issues, :dependent => :destroy, foreign_key: :db_package_id # defined in sources
 
   has_many :products, :dependent => :destroy
+  has_many :channels, :dependent => :destroy, foreign_key: :package_id
+
   has_many :comments, :dependent => :destroy
 
   after_save :write_to_backend
@@ -409,6 +411,19 @@ class Package < ActiveRecord::Base
         end
       end
     end # end of Product.transaction
+
+    # update channel information
+    if self.package_kinds.find_by_kind 'channel'
+      Channel.transaction do
+        xml = Suse::Backend.get("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}/_channel")
+        self.channels.destroy_all
+        channel = self.channels.create(package: self)
+        channel.update_from_xml(xml.body.to_s)
+      end
+    else
+      # any left overs?
+      self.channels.destroy_all
+    end
 
     # update issue database based on file content
     PackageIssue.transaction do

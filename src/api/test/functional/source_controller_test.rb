@@ -2443,6 +2443,97 @@ end
     assert_response :success
   end
 
+  def test_parse_channel_file
+    prepare_request_with_user "Iggy", "asdfasdf"
+    put "/source/home:Iggy/TestChannel/_meta", "<package project='home:Iggy' name='TestChannel'> <title/> <description/> </package>"
+    assert_response :success
+
+    put "/source/home:Iggy/TestChannel/_channel", '<channel/>' # binaries and binary element is required
+    assert_response 400
+    assert_xml_tag :tag => "status", :attributes => { :code => "validation_failed" }
+
+    put "/source/home:Iggy/TestChannel/_channel", '<?xml version="1.0" encoding="UTF-8"?>
+	<channel>
+	  <target project="BaseDistro" repository="Invalid" />
+	  <binaries>
+	    <binary name="krabber"/>
+	  </binaries>
+	</channel>'
+    assert_response 404
+    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_repository" }
+
+
+    put "/source/home:Iggy/TestChannel/_channel", '<?xml version="1.0" encoding="UTF-8"?>
+	<channel>
+	  <target project="Invalid" repository="Invalid" />
+	  <binaries>
+	    <binary name="krabber"/>
+	  </binaries>
+	</channel>'
+    assert_response 404
+    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
+
+    put "/source/home:Iggy/TestChannel/_channel", '<?xml version="1.0" encoding="UTF-8"?>
+	<channel>
+	  <binaries project="BaseDistro" repository="BaseDistro_repo" arch="does_not_exist">
+	    <binary name="glibc-devel" binaryarch="noarch" package="pack1" project="BaseDistro" repository="BaseDistro_repo" arch="i586"/>
+	  </binaries>
+	</channel>'
+    assert_response 404
+    assert_xml_tag :tag => "status", :attributes => { :code => "not_found" }
+
+    put "/source/home:Iggy/TestChannel/_channel", '<?xml version="1.0" encoding="UTF-8"?>
+	<channel>
+	  <binaries project="BaseDistro" repository="BaseDistro_repo" arch="i586">
+	    <binary name="glibc-devel" package="INVALID" project="BaseDistro"/>
+	  </binaries>
+	</channel>'
+    assert_response 404
+    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_package" }
+
+    put "/source/home:Iggy/TestChannel/_channel", '<?xml version="1.0" encoding="UTF-8"?>
+	<channel>
+	  <binaries>
+	    <binary />
+	  </binaries>
+	</channel>'
+    assert_response 400
+    assert_xml_tag :tag => "status", :attributes => { :code => "validation_failed" }
+
+    put "/source/home:Iggy/TestChannel/_channel", '<?xml version="1.0" encoding="UTF-8"?>
+	<channel>
+	  <product project="BaseDistro" name="simple" />
+	  <target project="BaseDistro" repository="BaseDistro_repo" />
+	  <binaries project="BaseDistro" repository="BaseDistro_repo" arch="i586">
+	    <binary name="glibc-devel" binaryarch="noarch" package="pack1" project="BaseDistro" repository="BaseDistro_repo" arch="i586"/>
+	    <binary name="glibc" />
+	  </binaries>
+	</channel>'
+    assert_response :success
+
+    # check data in database
+    c = Package.find_by_project_and_name("home:Iggy", "TestChannel").channels.first
+    assert_match c.channel_targets.first.repository.project.name, "BaseDistro"
+    assert_match c.channel_targets.first.repository.name, "BaseDistro_repo"
+
+    b = c.channel_binary_lists.first
+    assert_match b.project.name, "BaseDistro"
+    assert_match b.repository.project.name, "BaseDistro"
+    assert_match b.repository.name, "BaseDistro_repo"
+
+    b = b.channel_binaries.first
+    assert_match b.name, "glibc-devel"
+    assert_match b.binaryarch, "noarch"
+    assert_match b.package, "pack1"
+    assert_match b.project.name, "BaseDistro"
+    assert_match b.repository.project.name, "BaseDistro"
+    assert_match b.repository.name, "BaseDistro_repo"
+
+    # cleanup
+    delete "/source/home:Iggy/TestChannel"
+    assert_response :success
+  end
+
   def test_create_project_with_invalid_repository_reference
     prepare_request_with_user "tom", "thunder"
     put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temporary"), 

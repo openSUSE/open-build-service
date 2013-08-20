@@ -853,9 +853,15 @@ class SourceController < ApplicationController
             raise NotMissing.new "Link contains a missingok statement but link target (#{tproject_name}/#{tpackage_name}) exists."
           end
         else
+          # permission check
           Package.get_by_project_and_name(tproject_name, tpackage_name)
         end
       end
+    end
+
+    # verify channel data
+    if params[:filename] == "_channel"
+      Channel.verify_xml!(request.raw_post.to_s)
     end
 
     # verify patchinfo data
@@ -874,7 +880,7 @@ class SourceController < ApplicationController
 
     pass_to_backend @path
 
-    # update package timestamp, kind and issues
+    # update package timestamp and reindex sources
     @pack.sources_changed unless params[:rev] == 'repository' or [ "_project", "_pattern" ].include? @package_name
 
     if @package_name == "_product"
@@ -1448,8 +1454,10 @@ class SourceController < ApplicationController
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     pass_to_backend path
 
-    pack = Package.find_by_project_and_name( params[:project], params[:package] )
-    pack.sources_changed if pack # in case of _project package
+    unless params[:package] == "_project"
+      pack = Package.get_by_project_and_name( params[:project], params[:package] )
+      pack.sources_changed
+    end
 
     if params[:package] == "_product"
       Project.find_by_name!(params[:project]).update_product_autopackages
@@ -1469,7 +1477,7 @@ class SourceController < ApplicationController
     pack = Package.find_by_project_and_name( params[:project], params[:package] )
     if pack # in case of _project package
       pack.set_package_kind_from_commit(answer)
-      pack.sources_changed
+      pack.update_activity
     end
 
     if params[:package] == "_product"
