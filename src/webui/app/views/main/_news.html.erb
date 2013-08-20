@@ -1,7 +1,7 @@
 <% if (@news and @news.count.to_i > 0) or (@user and @user.is_admin?) %>
   <div class="box box-shadow" id="messages">
     <h2 class="box-header">
-      System Status
+      Announcements
       <%= link_to('', { :action => 'news', :format => 'rss'}, { class: 'alignright icons-feeds', title: "RSS Feed" }) %>
     </h2>
     <% if @news.count.to_i > 0 %>
