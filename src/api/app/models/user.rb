@@ -588,6 +588,7 @@ class User < ActiveRecord::Base
         ldap_con.search( CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
           dn = entry.dn
           ldap_info[0] = String.new(entry[CONFIG['ldap_mail_attr']][0])
+          ldap_info[1] = String.new(entry[CONFIG['ldap_name_attr']][0])
           if CONFIG.has_key?('ldap_authenticate') && CONFIG['ldap_authenticate'] == :local
             if entry[CONFIG['ldap_auth_attr']] then
               ldap_password = entry[CONFIG['ldap_auth_attr']][0]
