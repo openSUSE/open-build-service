@@ -375,6 +375,21 @@ CREATE TABLE `downloads` (
   KEY `index_downloads_on_architecture_id` (`architecture_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `event_subscriptions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `eventtype` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `type` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `project_id` int(11) DEFAULT NULL,
+  `package_id` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_event_subscriptions_on_user_id` (`user_id`),
+  KEY `index_event_subscriptions_on_project_id` (`project_id`),
+  KEY `index_event_subscriptions_on_package_id` (`package_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `events` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `eventtype` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -1245,6 +1260,10 @@ INSERT INTO schema_migrations (version) VALUES ('20130816183104');
 INSERT INTO schema_migrations (version) VALUES ('20130819114303');
 
 INSERT INTO schema_migrations (version) VALUES ('20130817082602');
+
+INSERT INTO schema_migrations (version) VALUES ('20130820151442');
+
+INSERT INTO schema_migrations (version) VALUES ('20130820152631');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

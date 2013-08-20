@@ -4,6 +4,16 @@ class Event < ActiveRecord::Base
 
   class << self
     @payload_keys = nil
+    @classnames = nil
+
+    def classnames
+      @classnames || [self.name]
+    end
+
+    def add_classname(name)
+      @classnames ||= [self.name]
+      @classnames << name
+    end
 
     def payload_keys(*keys)
       # this function serves both for reading and setting
@@ -13,9 +23,11 @@ class Event < ActiveRecord::Base
       @payload_keys += keys
     end
 
-    # make sure that subclasses can set shared payload keys
+    # make sure that subclasses can set shared attributes
     def inherited(subclass)
       super
+
+      subclass.add_classname(self.name) unless self.name == 'Event'
       subclass.payload_keys(*self.payload_keys)
     end
   end
@@ -49,13 +61,19 @@ class Event < ActiveRecord::Base
   def set_payload(attribs, keys)
     values = {}
     keys.each do |k|
-      v = attribs.delete k.to_s
+      k = k.to_s
+      v = attribs.delete k
       values[k] = v unless v.nil?
     end
     self.payload = Yajl::Encoder.encode(values)
     # now check if anything but the default rails params are left
     check_left_attribs(attribs)
   end
+
+  def payload
+    @payload ||= Yajl::Parser.parse(read_attribute(:payload))
+  end
+
 end
 
 class EventFactory
@@ -82,9 +100,8 @@ end
 
 class BuildEvent < Event
   self.abstract_class = true
-  payload_keys :verifymd5, :project, :disturl, :release, :file, :versrel, :readytime, :srcmd5,
-               :srcserver, :rev, :repository, :arch, :revtime, :job, :reason, :package, :bcnt,
-               :needed, :path, :reposerver, :subpack
+  payload_keys :project, :package, :repository, :arch, :disturl, :release, :file, :versrel, :readytime, :srcmd5,
+               :srcserver, :rev, :revtime, :job, :reason, :bcnt, :needed, :path, :reposerver, :subpack, :verifymd5
 end
 
 class BuildSuccessEvent < BuildEvent
@@ -97,15 +114,15 @@ class BuildUnchangedEvent < BuildEvent
 end
 
 class RepoPublishStateEvent < Event
-  payload_keys :project, :state, :repo
+  payload_keys :project, :repo, :state
 end
 
 class CommitEvent < Event
-  payload_keys :comment, :user, :files, :rev, :package, :requestid, :project
+  payload_keys :project, :package, :comment, :user, :files, :rev, :requestid
 end
 
 class CreatePackageEvent < Event
-  payload_keys :sender, :package, :project
+  payload_keys :project, :package, :sender
 end
 
 class StartEvent < Event
@@ -120,26 +137,26 @@ class RepoPublishedEvent < Event
 end
 
 class UpdatePackageEvent < Event
-  payload_keys :package, :project, :sender
+  payload_keys :project, :package, :sender
 end
 
 class BranchCommandEvent < Event
-  payload_keys :package, :project, :targetpackage, :targetproject, :user
+  payload_keys :project, :package, :targetproject, :targetpackage, :user
 end
 
 class DeletePackageEvent < Event
-  payload_keys :comment, :package, :project, :requestid, :sender
+  payload_keys :project, :package, :comment, :requestid, :sender
 end
 
 class DeleteProjectEvent < Event
-  payload_keys :comment, :project, :requestid, :sender
+  payload_keys :project, :comment, :requestid, :sender
 end
 
 class RequestEvent < Event
   self.abstract_class = true
   payload_keys :author, :comment, :description, :id, :oldstate, :sender,
-               :sourcepackage, :sourceproject, :state, :targetpackage, :targetproject, :type, :when, :who,
-               :deletepackage, :deleteproject, :person, :role, :sourcerevision
+               :sourceproject, :sourcepackage, :state, :targetproject, :targetpackage, :type, :when, :who,
+               :deleteproject, :deletepackage, :person, :role, :sourcerevision
 end
 
 class RequestAcceptedEvent < RequestEvent
@@ -166,7 +183,7 @@ class RequestReviewerGroupAddedEvent < RequestEvent
 end
 
 class RequestReviewerPackageAddedEvent < RequestEvent
-  payload_keys :newreviewer_package, :newreviewer_project
+  payload_keys :newreviewer_project, :newreviewer_package
 end
 
 class RequestReviewerProjectAddedEvent < RequestEvent
@@ -199,5 +216,5 @@ class UpdateProjectEvent < Event
 end
 
 class UploadEvent < Event
-  payload_keys :comment, :filename, :package, :project, :requestid, :target, :user
+  payload_keys :project, :package, :comment, :filename, :requestid, :target, :user
 end

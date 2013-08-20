@@ -24,7 +24,7 @@ class EventsTest < ActionDispatch::IntegrationTest
     post_json '{"eventtype": "BUILD_SUCCESS", "package": "kdelibs", "time": 1376833324}'
     assert_response :success
 
-    assert_equal "kdelibs", JSON.parse(BuildSuccessEvent.last.payload)["package"]
+    assert_equal "kdelibs", BuildSuccessEvent.last.payload["package"]
   end
 end
 
