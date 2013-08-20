@@ -8,18 +8,16 @@ module MaintenanceHelper
     tprj = nil
     Project.transaction do
       mi = MaintenanceIncident.new( :maintenance_db_project => maintenanceProject ) 
-      tprj = Project.new :name => mi.project_name
+      tprj = Project.create :name => mi.project_name
       if baseProject
         # copy as much as possible from base project
         tprj.title = baseProject.title.dup if baseProject.title
         tprj.description = baseProject.description.dup if baseProject.description
-        tprj.save
         baseProject.flags.each do |f|
           tprj.flags.create(:status => f.status, :flag => f.flag)
         end
       else
         # mbranch call is enabling selected packages
-        tprj.save
         tprj.flags.create( :position => 1, :flag => 'build', :status => "disable" )
       end
       # publish is disabled, just patchinfos get enabled
@@ -29,7 +27,7 @@ module MaintenanceHelper
       end
       # take over roles from maintenance project
       maintenanceProject.relationships.each do |r| 
-        tprj.relationships.new(user: r.user, role: r.role, group: r.group)
+        tprj.relationships.create(user: r.user, role: r.role, group: r.group)
       end
       # set default bugowner if missing
       bugowner = Role.rolecache['bugowner']
