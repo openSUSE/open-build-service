@@ -323,6 +323,7 @@ OBSApi::Application.routes.draw do
             delete :for_user, action: :remove_user
           end
         end
+        resources :subscriptions
         resources :flags, :only => [:index]
         resources :packages, :only => [], :constraints => { :id => %r{[^\/]*} } do
           resources :relationships, :only => [:create] do
