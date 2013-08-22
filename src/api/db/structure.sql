@@ -378,7 +378,7 @@ CREATE TABLE `downloads` (
 CREATE TABLE `event_subscriptions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `eventtype` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `type` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `receive` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `user_id` int(11) DEFAULT NULL,
   `project_id` int(11) DEFAULT NULL,
   `package_id` int(11) DEFAULT NULL,

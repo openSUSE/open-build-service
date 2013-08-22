@@ -22,7 +22,7 @@ class EventTest < ActiveSupport::TestCase
   end
 
   test "find subscribers" do
-    all_get_events = EventSubscriptionMaintainer.create eventtype: 'CreatePackageEvent'
+    all_get_events = EventSubscription.create eventtype: 'CreatePackageEvent', receive: 'maintainer'
 
     e = EventFactory.new_from_type('SRCSRV_CREATE_PACKAGE',
                                    {'project' => 'kde4',
@@ -33,9 +33,9 @@ class EventTest < ActiveSupport::TestCase
     assert_equal ["adrian", "fred", "fredlibs", "king"], users_for_event(e)
 
     # now fred configures off for the project
-    EventSubscriptionNone.create eventtype: 'CreatePackageEvent',
-                                 project: Project.find_by_name('kde4'),
-                                 user: User.find_by_login("fred")
+    EventSubscription.create eventtype: 'CreatePackageEvent',
+                             project: Project.find_by_name('kde4'),
+                             user: User.find_by_login("fred"), receive: 'none'
 
     # fred, fredlibs and king are maintainer, adrian is in test_group - fred disabled it
     assert_equal ["adrian", "fredlibs", "king"], users_for_event(e)
@@ -45,9 +45,9 @@ class EventTest < ActiveSupport::TestCase
     assert_equal [], users_for_event(e)
 
     # now fredlibs configures on for the project
-    EventSubscriptionAll.create eventtype: 'CreatePackageEvent',
-                                project: Project.find_by_name('kde4'),
-                                user: User.find_by_login("fredlibs")
+    EventSubscription.create eventtype: 'CreatePackageEvent',
+                             project: Project.find_by_name('kde4'),
+                             user: User.find_by_login("fredlibs"), receive: 'all'
 
     assert_equal ["fredlibs"], users_for_event(e)
 

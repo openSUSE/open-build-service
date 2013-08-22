@@ -3,7 +3,7 @@ require 'event_subscription'
 class AddDefaultSubscriptions < ActiveRecord::Migration
   def up
     # all maintainers get all request events by default
-    EventSubscriptionMaintainer.create(eventtype: 'RequestEvent')
+    EventSubscription.create(eventtype: 'RequestEvent', receive: 'maintainer')
   end
 
   def down

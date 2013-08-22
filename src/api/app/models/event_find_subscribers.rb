@@ -41,16 +41,16 @@ class EventFindSubscribers
     nt = []
     @toconsider.each do |r|
       users=[]
-      if r.type == 'EventSubscriptionMaintainer'
+      if r.receive == 'maintainer'
         users.concat @package_maintainers
         users.concat @project_maintainers
-      elsif r.type == 'EventSubscriptionStrictMaintainer'
+      elsif r.receive == 'package_maintainer'
         users.concat @package_maintainers
       else
         nt << r
       end
       users.each do |u|
-        e = EventSubscriptionAll.new(eventtype: r.eventtype)
+        e = EventSubscription.new(eventtype: r.eventtype, receive: 'all')
         unless r.user_id.nil?
           next if u != r.user_id
         end
@@ -82,7 +82,7 @@ class EventFindSubscribers
     #  puts "R I#{r.id} T:#{r.type} U:#{r.user_id} P#{r.project_id}#{r.package_id}"
     #end
     #puts ""
-    return false if rules[0].type == 'EventSubscriptionNone'
+    return false if rules[0].receive == 'none'
     return true
   end
 
@@ -123,7 +123,7 @@ class EventFindSubscribers
 
     # 4. all and none
     usergenerics = @subscriptions.where("package_id is null and project_id is null")
-    @toconsider |= usergenerics.where(type: ['EventSubscriptionAll', 'EventSubscriptionNone']).to_a
+    @toconsider |= usergenerics.where(receive: ['all', 'none']).to_a
 
     return [] if @toconsider.empty?
     expand_toconsider
