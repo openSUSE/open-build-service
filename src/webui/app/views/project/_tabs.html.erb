@@ -22,9 +22,7 @@
       <%= tab 'users', 'Users', :controller => :project, :action => :users unless @project.is_remote? %>
       <%= tab 'subprojects', 'Subprojects', :controller => :project, :action => :subprojects unless @project.is_remote? or @is_maintenance_project %>
     <% end -%>
-
-    <%= tab 'comments', "Comments", :controller => :project, :action => :comments%>
-    
+  
     <% if is_advanced_tab? %>
       <%= content_for :ready_function do %>
         $("#advanced_tabs").show();

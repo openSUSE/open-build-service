@@ -17,7 +17,7 @@ class BsRequest < ActiveRecord::Base
   has_many :bs_request_histories, :dependent => :delete_all
   has_many :reviews, :dependent => :delete_all
   has_and_belongs_to_many :bs_request_action_groups, join_table: :group_request_requests
-  has_many :comments
+  has_many :comments, :dependent => :destroy
   validates_inclusion_of :state, :in => VALID_REQUEST_STATES
   validates :creator, :presence => true
   validate :check_supersede_state

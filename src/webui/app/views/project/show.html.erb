@@ -194,5 +194,8 @@
   <div class="grid_6 omega box box-shadow">
     <%= render :partial => 'shared/buildresult_box', :locals => {:project => @project.name} %>
   </div>
+  <div class="grid_16 box box-shadow alpha omega">
+    <h2 class="box-header">Comments for <%= @project.name %> (<%= @comments.length %>)</h2>
+    <%= render :partial => "comment/show"%>
+  </div>
 <% end %>
-

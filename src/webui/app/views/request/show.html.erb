@@ -284,3 +284,8 @@
     </div>
   </div>
 </div>
+
+<div class="grid_16 box box-shadow alpha omega" style="margin-top: 15px;">
+  <h2 class="box-header">Comments for request <%= @id %> (<%= @comments.length %>)</h2>
+  <%= render :partial => "comment/show"%>
+</div>

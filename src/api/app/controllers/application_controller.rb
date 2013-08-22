@@ -490,7 +490,7 @@ class ApplicationController < ActionController::API
   def required_fields(*parameters)
     parameters.each do |parameter|
       if params[parameter].blank? 
-        raise NoDataEntered.new "Required field #{parameter} is empty."
+        raise NoDataEntered.new "Required Parameter #{parameter} is empty."
       end
     end
   end

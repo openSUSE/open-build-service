@@ -11,12 +11,8 @@ class Comment < ActiveRecord::Base
   	@comment['parent_id'] = params[:parent_id] if params[:parent_id]
   end
 
-  def self.edit(params)
-    self.update(params[:comment_id],:body => params[:body])
-  end
-
-  def self.delete(params)
-    self.update(params[:comment_id],:body => params[:body] , :user => params[:user])
+  def self.remove(params)
+    self.update(params[:comment_id], :title => "This comment has been deleted", :body => "", :user => "_nobody_")
   end
 
 end

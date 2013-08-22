@@ -9,14 +9,13 @@ class ProjectController < ApplicationController
 
   include ApplicationHelper
   include RequestHelper
-  include CommentsHelper
 
   before_filter :load_project_info, :only => [:show]
   before_filter :require_project, :except => [:repository_arch_list,
     :autocomplete_projects, :autocomplete_incidents, :clear_failed_comment, :edit_comment_form, :index,
     :list, :list_all, :list_public, :new, :package_buildresult, :save_new, :save_prjconf,
     :rebuild_time_png, :new_incident, :show]
-  before_filter :require_login, :only => [:save_new, :toggle_watch, :delete, :new, :save_comments]
+  before_filter :require_login, :only => [:save_new, :toggle_watch, :delete, :new, :save_comment]
   before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list,
                                                             :edit_repository, :update_target]
 
@@ -279,6 +278,12 @@ class ProjectController < ApplicationController
           @has_patchinfo = true if pkg_file[:name] == '_patchinfo'
         end
       end
+    end
+    begin
+      @comments = ApiDetails.read(:comments_by_project, @project)
+      @comment_permission = @user.has_role?('maintainer', @project, @package) || @user.is_admin?
+    rescue ActiveXML::Transport::Error => e
+      render :text => e.summary, :status => 404, :content_type => "text/plain"
     end
     render :show, :status => params[:nextstatus] if params[:nextstatus]
   end
@@ -1268,77 +1273,39 @@ class ProjectController < ApplicationController
     redirect_to :action => 'show', :project => params[:project] and return
   end
 
-  def comments
-    unless params[:reply] == 'true'
-      @comment = ApiDetails.read(:comments_by_project, @project)
-      @comments_as_thread = sort_comments(@comment)
-    else
-      render_dialog
-    end
-  end
-
-  def save_comments
-    required_parameters :project, :user, :body
-    required_parameters :title if !params[:parent_id]
+  def save_comment
+    required_parameters :project, :body
+    required_parameters :title if !params[:parent_id]    
     begin
-      params[:project] = @project.name
-      ApiDetails.save_comments(:save_comments_for_projects, params)
-
+      ApiDetails.save_comment(:save_project_comment, params)
       respond_to do |format|
         format.js { render json: 'ok' }
         format.html do
-          flash[:notice] = "Comment added successfully"
-          redirect_to action: :comments
+          flash[:notice] = "Comment added successfully"          
         end
       end
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
-      redirect_to(:action => "comments", :project => params[:project]) and return
     end
+    redirect_to :action => 'show', :project => params[:project] and return
   end
-
-  def edit_comments
-    required_parameters :project, :comment_id
+ 
+  def delete_comment
+    required_parameters :comment_id
     begin
-      unless params[:update] == 'true'
-        params[:project] = @project.name
-        ApiDetails.update_comments(:edit_comments_for_projects, params)
-
-        respond_to do |format|
-          format.js { render json: 'ok' }
-          format.html do
-            flash[:notice] = "Comment updated successfully"
-            redirect_to action: :comments
-          end
-        end
-      else
-        @permission_check = @project.can_edit?(@user)
-        render_dialog
-      end
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
-      redirect_to(:action => "comments", :project => params[:project]) and return
-    end
-  end
-
-  def delete_comments
-    required_parameters :user, :comment_id
-    begin
-      params[:project] = @project.name
-      ApiDetails.update_comments(:delete_comments_for_projects, params)
+      ApiDetails.save_comment(:delete_project_comment, params)
       respond_to do |format|
         format.js { render json: 'ok' }
         format.html do
-          flash[:notice] = "Comment deleted successfully"
-          redirect_to action: :comments
+          flash[:notice] = "Comment successfully deleted"
         end
       end
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
-      redirect_to(:action => "comments", :project => params[:project]) and return
     end
+    redirect_to :action => 'show', :project => params[:project] and return
   end
-  
+
   private
 
   def filter_packages( project, filterstring )

@@ -24,33 +24,19 @@ class ApiDetails
     http_do :delete, route_name, *args
   end
 
-  def self.save_comments(route_name, params)
+  def self.save_comment(route_name, params)
     uri = "/webui/" +
     case route_name.to_sym
-      when :save_comments_for_projects then "comments/project/#{params[:project]}/new"
-      when :save_comments_for_packages then "comments/package/#{params[:project]}/#{params[:package]}/new"
-      when :save_comments_for_requests then "comments/request/#{params[:request_id]}/new"
+      when :save_project_comment then "comments/project/#{params[:project]}/new"
+      when :save_package_comment then "comments/package/#{params[:project]}/#{params[:package]}/new"
+      when :save_request_comment then "comments/request/#{params[:bs_request_id]}/new"
+      when :delete_project_comment then "comments/project/#{params[:project]}/delete"
+      when :delete_package_comment then "comments/package/#{params[:project]}/#{params[:package]}/delete"
+      when :delete_request_comment then "comments/request/#{params[:bs_request_id]}/delete"
     end
 
     uri = URI(uri)
     data = ActiveXML::transport.http_json :post, uri, params
-    data
-  end
-
-  def self.update_comments(route_name, params)
-    uri = "/webui/" +
-    case route_name.to_sym
-      when :edit_comments_for_projects then "comments/project/#{params[:project]}/edit"
-      when :edit_comments_for_packages then "comments/package/#{params[:project]}/#{params[:package]}/edit"
-      when :edit_comments_for_requests then "comments/request/#{params[:request_id]}/edit"
-
-      when :delete_comments_for_projects then "comments/project/#{params[:project]}/delete"
-      when :delete_comments_for_packages then "comments/package/#{params[:project]}/#{params[:package]}/delete"
-      when :delete_comments_for_requests then "comments/request/#{params[:request_id]}/delete"
-    end
-
-    uri = URI(uri)
-    data = ActiveXML::transport.http_json :put, uri, params
     data
   end
 

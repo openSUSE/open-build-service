@@ -102,10 +102,8 @@ OBSWebUI::Application.routes.draw do
     post 'package/change_flag/:project/:package' => :change_flag, constraints: cons
     get 'package/import_spec/:project/:package' => :import_spec, constraints: cons
     get "package/files/:project/:package" => :files, constraints: cons
-    get 'package/comments/:project/:package' => :comments, constraints: cons
-    post 'package/comments/:project/:package' => :save_comments, constraints: cons
-    match 'package/comments/:project/:package/delete_comment' => :delete_comments, :via => [:get, :put], constraints: cons
-    match  'package/comments/:project/:package/edit_comment' => :edit_comments, :via => [:get, :put], constraints: cons
+    post 'package/comments/:project/:package' => :save_comment, constraints: cons
+    post 'package/comments/:project/:package/delete' => :delete_comment, constraints: cons
   end
 
   controller :patchinfo do
@@ -184,8 +182,6 @@ OBSWebUI::Application.routes.draw do
     post 'project/change_flag/:project' => :change_flag, constraints: cons
     get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons
     get 'project/edit/:project' => :edit, constraints: cons
-    get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons
-    post 'project/edit_comment/:project' => :edit_comment, constraints: cons
     get 'project/status/(:project)' => :status, constraints: cons, as: 'project_status'
     get 'project/maintained_projects/:project' => :maintained_projects, constraints: cons
     get 'project/add_maintained_project_dialog' => :add_maintained_project_dialog, constraints: cons
@@ -195,10 +191,8 @@ OBSWebUI::Application.routes.draw do
     get 'project/list_incidents/:project' => :list_incidents, constraints: cons
     get 'project/unlock_dialog' => :unlock_dialog
     post 'project/unlock' => :unlock
-    get  'project/comments/:project' => :comments, constraints: cons
-    post 'project/comments/:project' => :save_comments, constraints: cons
-    match 'project/comments/:project/delete_comment' => :delete_comments, :via => [:get, :put], constraints: cons
-    match  'project/comments/:project/edit_comment' => :edit_comments, :via => [:get, :put], constraints: cons
+    post 'project/comments/:project' => :save_comment, constraints: cons
+    post 'project/comments/:project/delete' => :delete_comment, constraints: cons
   end
 
   controller :request do
@@ -221,10 +215,8 @@ OBSWebUI::Application.routes.draw do
     get 'request/change_devel_request' => :change_devel_request
     get 'request/set_incident_dialog' => :set_incident_dialog
     post 'request/set_incident' => :set_incident
-    get 'request/comments/:id' => :comments
-    post 'request/comments/:id' => :save_comments
-    match 'request/comments/:id/delete_comment' => :delete_comments, :via => [:get, :put], constraints: cons
-    match 'request/comments/:id/edit_comments' => :edit_comments, :via => [:get, :put], constraints: cons
+    post 'request/comments/:id' => :save_comment
+    post 'request/comments/:id/delete' => :delete_comment, constraints: cons
 end
 
   controller :search do

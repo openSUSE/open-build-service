@@ -2,8 +2,7 @@ require 'base64'
 
 class RequestController < ApplicationController
   include ApplicationHelper
-  include CommentsHelper
-  before_filter :require_login, :only => [:save_comments]
+  before_filter :require_login, :only => [:save_comment]
 
   def add_reviewer_dialog
     @request_id = params[:id]
@@ -89,6 +88,14 @@ class RequestController < ApplicationController
       # will be nul for after end
       @request_after = request_list[index+1]
     end
+  
+    begin
+      @comments = ApiDetails.read(:comments_by_request, @req['id'])
+      @comment_permission = @is_author || @is_target_maintainer || @user.is_admin?
+    rescue ActiveXML::Transport::Error => e
+      render :text => e.summary, :status => 404, :content_type => "text/plain"
+    end
+
   end
 
   def sourcediff
@@ -288,86 +295,42 @@ class RequestController < ApplicationController
     end
     redirect_to :controller => :request, :action => "show", :id => params[:id]
   end
-  def comments
-    begin
-      # avoiding display of comment section for unnecessary request ids
-      begin
-        @req = ApiDetails.read(:request, params[:id])
-      rescue ApiDetails::NotFoundError
-        flash[:error] = "Can't find request #{params[:id]}"
-        redirect_back_or_to :controller => "home", :action => "requests" and return
-      end
-      unless params[:reply] == 'true'
-        @comment = ApiDetails.read(:comments_by_request, params[:id])
-        @comments_as_thread = sort_comments(@comment)
-      else
-        render_dialog
-      end
-    rescue ActiveXML::Transport::Error => e
-      render :text => e.summary, :status => 404, :content_type => "text/plain"
-    end
-  end
 
-  def save_comments
-    required_parameters :id, :user, :body
+  def save_comment
+    required_parameters :id, :body
     required_parameters :title if !params[:parent_id]
+    params[:bs_request_id] = params[:id]
+    logger.debug "FUCK ME: #{params}"
     begin
-      params[:request_id] = params[:id]
-      ApiDetails.save_comments(:save_comments_for_requests, params)
+      ApiDetails.save_comment(:save_request_comment, params)
 
       respond_to do |format|
         format.js { render json: 'ok' }
         format.html do
-          flash[:notice] = "Comment added successfully"
-          redirect_to action: :comments
+          flash[:notice] = "Comment added successfully"          
         end
       end
     rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
-      redirect_to(:action => "comments", :id => params[:id]) and return
+      flash[:error] = e.summary      
     end
+    redirect_to(:action => "show", :id => params[:id]) and return
   end
 
-  def edit_comments
-    required_parameters :id, :comment_id
+  def delete_comment
+    required_parameters :comment_id
+    params[:bs_request_id] = params[:id]
     begin
-      unless params[:update] == 'true'
-        params[:request_id] = params[:id]
-        ApiDetails.update_comments(:edit_comments_for_requests, params)
-
-        respond_to do |format|
-          format.js { render json: 'ok' }
-          format.html do
-            flash[:notice] = "Comment updated successfully"
-            redirect_to action: :comments
-          end
-        end
-      else
-        @permission_check = @can_add_reviews
-        render_dialog
-      end
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
-      redirect_to(:action => "comments", :id => params[:request_id]) and return
-    end
-  end
-
-  def delete_comments
-    required_parameters :user, :comment_id
-    begin
-      params[:request_id] = params[:id]
-      ApiDetails.update_comments(:delete_comments_for_requests, params)
+      ApiDetails.save_comment(:delete_request_comment, params)
       respond_to do |format|
         format.js { render json: 'ok' }
         format.html do
-          flash[:notice] = "Comment deleted successfully"
-          redirect_to action: :comments
+          flash[:notice] = "Comment deleted successfully"          
         end
       end
     rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
-      redirect_to(:action => "comments", :project => params[:project]) and return
+      flash[:error] = e.summary      
     end
+    redirect_to(:action => "show", :id => params[:id]) and return
   end
 
 private

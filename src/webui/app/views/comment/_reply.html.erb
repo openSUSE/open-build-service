@@ -1,0 +1,10 @@
+<div id="<%="reply_form_of_#{comment['id']}"%>" style="display: none; <%= "padding-bottom: 20px;" if level >= 1 %>">
+  <%= form_tag :controller => params[:controller], :action => "save_comment" do %>
+    <p>
+      <%= hidden_field_tag "reply_title_#{comment['id']}", comment['title'], :name => "title" %>
+      <%= text_area_tag "reply_body_#{comment['id']}", nil, :name => 'body', :size => "80x1", :onkeyup => "sz(this);", :onclick => "sz(this);" %>
+      <%= hidden_field_tag "reply_parent_id_#{comment['id']}", comment['id'], :name => "parent_id" %>
+    </p>
+    <p><%= submit_tag "Add reply"%></p>
+  <%end%>
+</div>

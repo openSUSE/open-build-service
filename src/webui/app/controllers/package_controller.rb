@@ -5,12 +5,11 @@ class PackageController < ApplicationController
 
   include ApplicationHelper
   include PackageHelper
-  include CommentsHelper
 
   before_filter :require_project, :except => [:rawlog, :rawsourcefile, :submit_request, :devel_project]
   before_filter :require_package, :except => [:rawlog, :rawsourcefile, :submit_request, :save_new_link, :save_new, :devel_project ]
   # make sure it's after the require_, it requires both
-  before_filter :require_login, :only => [:branch, :save_comments]
+  before_filter :require_login, :only => [:branch, :save_comment]
   prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
   def show
@@ -51,6 +50,12 @@ class PackageController < ApplicationController
       redirect_back_or_to :controller => "package", :action => "show", :project => @project, :package => @package and return
     end
 
+    begin
+      @comments = ApiDetails.read(:comments_by_package, @project, @package)
+      @comment_permission = @user.has_role?('maintainer', @project, @package) || @user.is_admin?
+    rescue ActiveXML::Transport::Error => e
+      render :text => e.summary, :status => 404, :content_type => "text/plain"
+    end
 
     @requests = []
     # TODO!!!
@@ -1079,82 +1084,37 @@ class PackageController < ApplicationController
     @package = Package.find( params[:package], project: @project.name, view: :flagdetails )
   end
 
-  def comments
-    begin
-      unless params[:reply] == 'true'
-        @comment = ApiDetails.read(:comments_by_package, @project, @package)
-        @comments_as_thread = sort_comments(@comment)
-      else
-        render_dialog # a dialog box shows up for users to post a reply, as a GET request.
-      end
-    rescue ActiveXML::Transport::Error => e
-      render :text => e.summary, :status => 404, :content_type => "text/plain"
-    end
-  end
-
-  def save_comments
-    required_parameters :project, :package, :user, :body
+  def save_comment
+    required_parameters :project, :package, :body
     required_parameters :title if !params[:parent_id]
     begin
-      params[:project] = @project.name
-      params[:package] = @package.name
-      ApiDetails.save_comments(:save_comments_for_packages, params)
-
+      ApiDetails.save_comment(:save_package_comment, params)
       respond_to do |format|
         format.js { render json: 'ok' }
         format.html do
           flash[:notice] = "Comment added successfully"
-          redirect_to action: :comments
         end
       end
     rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
-      redirect_to(:action => "comments", :project => params[:project], :package => params[:package]) and return
+      flash[:error] = e.summary      
     end
+    redirect_to(:action => "show", :project => params[:project], :package => params[:package]) and return
   end
 
-  def edit_comments
-    required_parameters :project, :package, :comment_id
+  def delete_comment
+    required_parameters :comment_id
     begin
-      unless params[:update] == 'true'
-        params[:project] = @project.name
-        params[:package] = @package.name
-        ApiDetails.update_comments(:edit_comments_for_packages, params)
-
-        respond_to do |format|
-          format.js { render json: 'ok' }
-          format.html do
-            flash[:notice] = "Comment updated successfully"
-            redirect_to action: :comments
-          end
-        end
-      else
-        @permission_check = @package.can_edit?(@user)
-        render_dialog
-      end
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
-      redirect_to(:action => "comments", :project => params[:project], :package => params[:package]) and return
-    end
-  end
-
-  def delete_comments
-    required_parameters :user, :comment_id
-    begin
-      params[:project] = @project.name
-      params[:package] = @package.name
-      ApiDetails.update_comments(:delete_comments_for_packages, params)
+      ApiDetails.save_comment(:delete_package_comment, params)
       respond_to do |format|
         format.js { render json: 'ok' }
         format.html do
           flash[:notice] = "Comment deleted successfully"
-          redirect_to action: :comments
         end
       end
     rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
-      redirect_to(:action => "comments", :project => params[:project]) and return
+      flash[:error] = e.summary      
     end
+    redirect_to(:action => "show", :project => params[:project], :package => params[:package]) and return
   end
 
   private
