@@ -26,8 +26,21 @@ every(1.hour, 'refresh issues') do
 end
 
 every(1.hour, 'accept requests') do
+  User.current = User.get_default_admin
   BsRequest.find_requests_to_accept.each do |r|
-    r.change_state('accepted', :comment => "Auto accept")
+    begin
+      r.bs_request_actions.each do |action|
+        action.execute_accept({:lowprio => 1, :comment => "Auto accept"})
+      end
+
+      r.bs_request_actions.each do |action|
+        action.per_request_cleanup(:comment => "Auto accept")
+      end
+
+      r.change_state('accepted', :comment => "Auto accept")
+    rescue
+      logger.info("Auto-Accepting request #{r.id} failed")
+    end
   end
 end
 

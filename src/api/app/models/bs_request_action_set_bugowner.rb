@@ -4,7 +4,7 @@ class BsRequestActionSetBugowner < BsRequestAction
     return :set_bugowner
   end
 
-  def execute_changestate(opts)
+  def execute_accept(opts)
     object = Project.find_by_name!(self.target_project)
     bugowner = Role.get_by_title("bugowner")
     if self.target_package

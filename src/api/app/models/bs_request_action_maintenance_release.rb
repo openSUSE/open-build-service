@@ -4,7 +4,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     return :maintenance_release
   end
   
-  def execute_changestate(opts)
+  def execute_accept(opts)
     pkg = Package.get_by_project_and_name(self.source_project, self.source_package)
     #FIXME2.5: support limiters to specified repositories
     

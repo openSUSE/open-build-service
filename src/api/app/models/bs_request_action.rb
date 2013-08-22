@@ -741,7 +741,7 @@ class BsRequestAction < ActiveRecord::Base
     nil
   end
 
-  def execute_changestate(opts)
+  def execute_accept(opts)
     raise "Needs to be reimplemented in subclass"
   end
 

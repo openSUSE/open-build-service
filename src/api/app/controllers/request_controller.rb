@@ -863,8 +863,7 @@ i          raise PostRequestNoPermission.new "Request is in review state. You ma
 
     # We have permission to change all requests inside, now execute
     req.bs_request_actions.each do |action|
-      # TODO execute_changeset is misnamed - it should be execute_accept
-      action.execute_changestate(params)
+      action.execute_accept(params)
     end
 
     # now do per request cleanup

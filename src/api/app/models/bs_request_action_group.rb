@@ -73,7 +73,7 @@ class BsRequestActionGroup < BsRequestAction
     end
   end
 
-  def execute_changestate(opts)
+  def execute_accept(opts)
     puts "changestate #{opts.inspect}"
     # TODO
   end

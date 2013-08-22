@@ -140,7 +140,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     incidentProject.store
   end
 
-  def execute_changestate(opts)
+  def execute_accept(opts)
     # create or merge into incident project
     source = nil
     if self.source_package

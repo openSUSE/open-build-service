@@ -786,6 +786,13 @@ class User < ActiveRecord::Base
       return Thread.current[:nobody_id] ||= get_by_login("_nobody_").id
     end
 
+    def get_default_admin
+      admin = CONFIG['default_admin'] || "Admin"
+      user = find_by_login(admin)
+      raise NotFound.new("Admin not found, user #{admin} has not admin permissions") unless user.is_admin?
+      return user
+    end
+
     def get_by_login(login)
       find_by_login(login) or raise NotFound.new("Couldn't find User with login = #{login}")
     end

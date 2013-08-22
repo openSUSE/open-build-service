@@ -22,7 +22,7 @@ class BsRequestActionDelete < BsRequestAction
       raise RepositoryMissing.new "The repository #{self.target_project} / #{self.target_repository} does not exist"
     end
     r.destroy
-    prj.store(login: opts[:login], lowprio: opts[:lowprio], comment: opts[:comment])
+    prj.store(lowprio: opts[:lowprio], comment: opts[:comment])
   end
 
   def render_xml_attributes(node)
@@ -33,7 +33,7 @@ class BsRequestActionDelete < BsRequestAction
     node.target attributes
   end
 
-  def execute_changestate(opts)
+  def execute_accept(opts)
     if self.target_repository
       remove_repository(opts)
     else
