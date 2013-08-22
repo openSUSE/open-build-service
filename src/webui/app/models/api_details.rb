@@ -1,3 +1,5 @@
+require 'yajl'
+
 class ApiDetails
 
   class TransportError < Exception ; end
@@ -60,6 +62,8 @@ class ApiDetails
       end
     end
 
+    logger.debug "ids #{ids.inspect}"
+
     uri = "/webui/" +
       case route_name.to_sym
 
@@ -84,6 +88,9 @@ class ApiDetails
       when :comments_by_project then "comments/project/#{ids.first}"
       when :comments_by_request then "comments/request/#{ids.first}"
 
+      when :user_subscriptions then "subscriptions"
+      when :change_subscriptions then "subscriptions?#{opts.to_query}"
+
       else raise "no valid route #{route_name}"
       end
 
@@ -93,6 +100,7 @@ class ApiDetails
         uri = "#{uri}?#{opts.to_query}" unless opts.empty?
         data = transport.http_do verb, uri
       else
+        logger.debug "http_json #{opts.inspect}"
         data = transport.http_json verb, URI(uri), opts
       end
     rescue ActiveXML::Transport::NotFoundError => e
@@ -100,7 +108,7 @@ class ApiDetails
     rescue ActiveXML::Transport::Error => e
       raise TransportError, e.summary
     end
-    data = JSON.parse(data)
+    data = Yajl::Parser.parse(data)
     logger.debug "data #{JSON.pretty_generate(data)}"
     data
   end

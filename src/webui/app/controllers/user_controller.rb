@@ -4,11 +4,11 @@ class UserController < ApplicationController
 
   include ApplicationHelper
 
-  before_filter :require_login, :only => [:edit, :save]
-  before_filter :check_user, :only => [:edit, :save, :change_password, :register, :delete, :confirm, :lock, :admin]
-  before_filter :overwrite_user, :only => [:edit]
-  before_filter :require_admin, :only => [:edit]
-  
+  before_action :require_login, :only => [:edit, :save]
+  before_action :check_user, :only => [:edit, :save, :change_password, :register, :delete, :confirm, :lock, :admin]
+  before_action :overwrite_user, :only => [:edit]
+  before_action :require_admin, :only => [:edit]
+
   def logout
     logger.info "Logging out: #{session[:login]}"
     reset_session
@@ -25,7 +25,7 @@ class UserController < ApplicationController
   def login
     @return_to_path = params['return_to_path'] || "/"
   end
-  
+
   def do_login
     @return_to_path = params['return_to_path'] || "/"
     if !params[:username].blank? and params[:password]
@@ -34,7 +34,7 @@ class UserController < ApplicationController
       session[:password] = params[:password]
       authenticate_form_auth
       begin
-        p = Person.find( session[:login] )
+        p = Person.find session[:login]
       rescue ActiveXML::Transport::UnauthorizedError => exception
         logger.info "Login to #{@return_to_path} failed for #{session[:login]}: #{exception}"
         reset_session
@@ -53,21 +53,27 @@ class UserController < ApplicationController
     redirect_to :action => 'login'
   end
 
-  def save
-    person_opts = { :login => params[:user],
-                    :realname => params[:realname],
-                    :email => params[:email],
-                    :globalrole => params[:globalrole],
-                    :state => params[:state]}
+  def save_user
     begin
-      person = Person.new(person_opts)
-      person.save
+      @user.save
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.message
+      return false
     end
-    flash[:success] = "User data for user '#{person.login}' successfully updated."
-    Rails.cache.delete("person_#{person.login}")
+    flash[:success] = "User data for user '#{@user.login}' successfully updated."
+    Rails.cache.delete("person_#{@user.login}")
     redirect_back_or_to :controller => "home", :action => :index
+    return true
+  end
+
+  def save
+    person_opts = {:login => params[:user],
+                   :realname => params[:realname],
+                   :email => params[:email],
+                   :globalrole => params[:globalrole],
+                   :state => params[:state]}
+    @user = Person.new(person_opts)
+    save_user
   end
 
   def edit
@@ -75,40 +81,28 @@ class UserController < ApplicationController
     @states = State.states
   end
 
+  def set_state(login, state)
+    @user = Person.find params[:user]
+    @user.state = state
+    save_user
+  end
+
   def delete
-    user = Person.find( params[:user] )
-    params[:realname] = user.realname
-    params[:email] = user.email
-    params[:globalrole] = user.globalrole
-    params[:state] = 'deleted'
-    save
+    set_state(params[:user], 'deleted')
   end
 
   def confirm
-    user = Person.find( params[:user] )
-    params[:realname] = user.realname
-    params[:email] = user.email
-    params[:globalrole] = user.globalrole
-    params[:state] = 'confirmed'
-    save
+    set_state(params[:user], 'confirmed')
   end
-  
+
   def lock
-    user = Person.find( params[:user] )
-    params[:realname] = user.realname
-    params[:email] = user.email
-    params[:globalrole] = user.globalrole
-    params[:state] = 'locked'
-    save
+    set_state(params[:user], 'locked')
   end
 
   def admin
-    user = Person.find( params[:user] )
-    params[:realname] = user.realname
-    params[:email] = user.email
-    params[:globalrole] = 'Admin'
-    params[:state] = user.state
-    save
+    @user = Person.find params[:user]
+    @user.globalrole = 'Admin'
+    save_user
   end
 
   def save_dialog
@@ -118,18 +112,19 @@ class UserController < ApplicationController
 
   def overwrite_user
     @displayed_user = @user
-    user = find_cached(Person, params['user'] ) if params['user'] && !params['user'].empty?
+    user = find_cached(Person, params['user']) if params['user'] && !params['user'].empty?
     @displayed_user = user if user
   end
+
   private :overwrite_user
 
 
   def register
-    unreg_person_opts = { :login => params[:login],
-                          :email => params[:email],
-                          :realname => params[:realname],
-                          :password => params[:password],
-                          :state => params[:state]}
+    unreg_person_opts = {:login => params[:login],
+                         :email => params[:email],
+                         :realname => params[:realname],
+                         :password => params[:password],
+                         :state => params[:state]}
     begin
       person = Unregisteredperson.new(unreg_person_opts)
       logger.debug "Registering user #{params[:login]}"
@@ -142,10 +137,10 @@ class UserController < ApplicationController
     if @user and @user.is_admin?
       redirect_to :controller => :configuration, :action => :users
     else
-     session[:login] = unreg_person_opts[:login]
-     session[:password] = unreg_person_opts[:password]
-     authenticate_form_auth
-     redirect_back_or_to :controller => :main, :action => :index
+      session[:login] = unreg_person_opts[:login]
+      session[:password] = unreg_person_opts[:password]
+      authenticate_form_auth
+      redirect_back_or_to :controller => :main, :action => :index
     end
   end
 
@@ -163,7 +158,7 @@ class UserController < ApplicationController
     end
     if not params[:new_password] == params[:repeat_password]
       errmsg = "The passwords do not match, please try again."
-    end    
+    end
     if params[:password] == params[:new_password]
       errmsg = "The new password is the same as your current password. Please enter a new password."
     end
@@ -187,7 +182,7 @@ class UserController < ApplicationController
       flash[:error] = e.summary
     end
     redirect_to :controller => :home, :action => :index
-  end 
+  end
 
   def autocomplete
     required_parameters :term
@@ -199,4 +194,43 @@ class UserController < ApplicationController
     render json: Person.list(params[:q], true)
   end
 
+  def grab_subclasses(key, opts)
+    value = @subscriptions[key]
+    return unless value # might already be gone for subclasses
+    return if opts[:ignore_main] && value['subclasses'].empty?
+    @subscriptions.delete key
+    value['type'] = key
+    subvalues = []
+    value['subclasses'].each do |sc|
+      sv = grab_subclasses(sc, ignore_main: false)
+      subvalues << sv if sv
+    end
+    value['subclasses'] = subvalues
+    value
+  end
+
+  def subscriptions
+    # no params, it's not meant for other users than the one logged in
+    @subscriptions = ApiDetails.read(:user_subscriptions)
+    @order = []
+    keys = @subscriptions.keys.sort
+    # we need to go through it twice - once grab subclasses and then the rest
+    keys.each do |key|
+      value = grab_subclasses(key, ignore_main: true)
+      @order << value if value
+    end
+    keys.each do |key|
+      value = grab_subclasses(key, ignore_main: false)
+      @order << value if value
+    end
+    @order.sort! { |x, y| x['description'] <=> y['description'] }
+    logger.debug JSON.pretty_generate(@order)
+  end
+
+  def change_subscription
+    check_ajax
+    required_parameters :event, :receive
+    ApiDetails.create :change_subscriptions, event: params[:event], receive: params[:receive]
+    head :ok
+  end
 end

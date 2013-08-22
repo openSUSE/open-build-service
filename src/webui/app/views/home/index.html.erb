@@ -53,6 +53,9 @@
         <%= link_to(sprite_tag('key') + " Change your password", { :controller => "user", :action => "password_dialog", :user => @user }, {:id => 'password_dialog', :remote => true}) %><br />
       <% end %>
       </p>
+      <p>
+        <%= link_to(sprite_tag("email") + " Configure Notifications", { controller: :user, action: :subscriptions } ) %>
+      </p>
     <% end %>
 </div>
 
