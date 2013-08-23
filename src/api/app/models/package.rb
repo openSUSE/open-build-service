@@ -828,12 +828,19 @@ class Package < ActiveRecord::Base
          package_name = li['package']
        end
      end
+     maintenanceProject=self.project.find_parent
      ChannelBinary.find_by_project_and_package( project_name, package_name ).each do |cb|
        cp = cb.channel_binary_list.channel.package
        name = cb.channel_binary_list.channel.name
 
        # does it exist already? then just skip it
        next if Package.exists_by_project_and_name(self.project.name, name)
+
+       # do we need to take care about a maintained list from upper project?
+       if maintenanceProject and not maintenanceProject.maintained_projects.include? cp.project
+         # not a maintained project here
+         next
+       end
 
        # create a package beside me
        tpkg = Package.new(:name => name, :title => cp.title, :description => cp.description)

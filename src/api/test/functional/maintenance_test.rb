@@ -452,6 +452,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/source/#{incidentProject}?cmd=addchannels", nil
     assert_response :success
     get "/source/#{incidentProject}/BaseDistro3.Channel/_meta"
+    assert_response 404 # not a maintained project
+    # make Channel project a maintained project and try again.
+    prj = Project.find_by_name("My:Maintenance")
+    prj.maintained_projects << Project.find_by_name("Channel")
+    prj.save
+    post "/source/#{incidentProject}?cmd=addchannels", nil
+    assert_response :success
+    get "/source/#{incidentProject}/BaseDistro3.Channel/_meta"
     assert_response :success
     assert_xml_tag :tag => 'enable', :attributes => { :repository=>"Channel" },
                    :parent => { :tag => 'build'}
