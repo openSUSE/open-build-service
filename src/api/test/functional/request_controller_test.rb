@@ -1040,7 +1040,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     post "/request?cmd=create", '<request>
                                    <action type="submit">
-                                     <source project="home:tom:branches:kde4" package="kdebase" rev="1"/>
+                                     <source project="home:tom:branches:kde4" package="kdebase" rev="0"/>
                                    </action>
                                    <state name="new" />
                                  </request>'
@@ -1054,7 +1054,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     post "/request?cmd=create", '<request>
                                    <action type="submit">
-                                     <source project="home:tom:branches:home:tom:branches:kde4" package="kdebase" rev="1"/>
+                                     <source project="home:tom:branches:home:tom:branches:kde4" package="kdebase" rev="0"/>
                                    </action>
                                    <state name="new" />
                                  </request>'
@@ -1293,7 +1293,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
       req = "<request>
               <action type='submit'>
-                <source project='home:Iggy:branches:Apache' package='apache2' rev='1' />
+                <source project='home:Iggy:branches:Apache' package='apache2' rev='2' />
               </action>
               <description/>
             </request>"
@@ -1345,7 +1345,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     req = "<request>
             <action type='submit'>
-              <source project='home:Iggy:branches:Apache' package='apache2' rev='1' />
+              <source project='home:Iggy:branches:Apache' package='apache2' rev='0' />
             </action>
             <description/>
           </request>"
@@ -1420,6 +1420,11 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     # create kdelibs package
     post "/source/kde4/kdebase", :cmd => :branch
+    assert_response :success
+    post "/request?cmd=create", req
+    assert_response 400
+    assert_xml_tag(:tag => "status", :attributes => {:code => "missing_actions"})
+    put "/source/home:Iggy:branches:kde4/kdebase/change", "avoid failure of unchanged package submit"
     assert_response :success
     post "/request?cmd=create", req
     assert_response :success
