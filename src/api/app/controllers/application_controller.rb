@@ -482,7 +482,7 @@ class ApplicationController < ActionController::API
   def required_parameters(*parameters)
     parameters.each do |parameter|
       unless params.include? parameter.to_s
-        raise MissingParameterError, "Required parameter #{parameter} missing."
+        raise MissingParameterError, "Required Parameter #{parameter} missing"
       end
     end
   end
@@ -490,7 +490,7 @@ class ApplicationController < ActionController::API
   def required_fields(*parameters)
     parameters.each do |parameter|
       if params[parameter].blank? 
-        raise NoDataEntered.new "Required parameter #{parameter} is empty."
+        raise NoDataEntered.new "Required Parameter #{parameter} is empty"
       end
     end
   end
