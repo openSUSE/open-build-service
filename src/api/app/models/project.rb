@@ -1062,9 +1062,17 @@ class Project < ActiveRecord::Base
           # branch from official release project?
           trepo.release_targets.create(:target_repository => repo, :trigger => trigger)
         elsif pkg_to_enable and pkg_to_enable.package_kinds.find_by_kind 'channel'
-          # branching a channel? set it's targets here as well
-          repo.release_targets.each do |rt|
-            trepo.release_targets.create(:target_repository => rt.target_repository, :trigger => trigger)
+          # check if the channel has defined release targets
+          if cts = pkg_to_enable.channels.first.channel_targets
+            # branching a channel? set it's targets here as well
+            cts.each do |rt|
+              trepo.release_targets.create(:target_repository => rt.repository, :trigger => trigger)
+            end
+          else
+            # use repository targets as fallback
+            repo.release_targets.each do |rt|
+              trepo.release_targets.create(:target_repository => rt.target_repository, :trigger => trigger)
+            end
           end
         end
       end
