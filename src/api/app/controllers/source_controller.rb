@@ -183,7 +183,7 @@ class SourceController < ApplicationController
 
     # init and validation
     #--------------------
-    valid_commands=["undelete", "showlinked", "remove_flag", "set_flag", "createpatchinfo", "createkey", "extendkey", "copy", "createmaintenanceincident", "unlock", "release"]
+    valid_commands=["undelete", "showlinked", "remove_flag", "set_flag", "createpatchinfo", "createkey", "extendkey", "copy", "createmaintenanceincident", "unlock", "release", "addchannels"]
     if params[:cmd]
       raise IllegalRequest.new "invalid_command" unless valid_commands.include?(params[:cmd])
       command = params[:cmd]
@@ -1109,6 +1109,21 @@ class SourceController < ApplicationController
         # ensure higher build numbers for re-release
         Suse::Backend.post "/build/#{URI.escape(pro.name)}?cmd=wipe", nil
       end
+    end
+
+    render_ok
+  end
+
+  # add channel packages and extend repository list
+  # POST /source/<project>?cmd=addchannels
+  def project_command_addchannels
+    required_parameters :project
+    project_name = params[:project]
+
+    pro = Project.find_by_name(project_name)
+
+    pro.packages.each do |pkg|
+      pkg.add_channels
     end
 
     render_ok

@@ -1040,6 +1040,54 @@ class Project < ActiveRecord::Base
     return false
   end
 
+  def branch_to_repositories_from(project, pkg_to_enable, extend_names=nil)
+    project.repositories.each do |repo|
+      repoName = repo.name
+      if extend_names
+        repoName = project.name.gsub(':', '_')
+        if project.repositories.count > 1
+          # keep short names if project has just one repo
+          repoName += "_"+repo.name unless repo.name == "standard"
+        end
+      end
+      unless self.repositories.find_by_name(repoName)
+        trepo = self.repositories.create :name => repoName
+        repo.repository_architectures.each do |ra|
+          trepo.repository_architectures.create :architecture => ra.architecture, :position => ra.position
+        end
+        trepo.path_elements.create(:link => repo, :position => 1)
+        trigger = nil # no trigger is set by default
+        trigger = "maintenance" if MaintenanceIncident.find_by_db_project_id( self.id ) # is target an incident project ?
+        if project.project_type == "maintenance_release"
+          # branch from official release project?
+          trepo.release_targets.create(:target_repository => repo, :trigger => trigger)
+        elsif pkg_to_enable and pkg_to_enable.package_kinds.find_by_kind 'channel'
+          # branching a channel? set it's targets here as well
+          repo.release_targets.each do |rt|
+            trepo.release_targets.create(:target_repository => rt.target_repository, :trigger => trigger)
+          end
+        end
+      end
+      if pkg_to_enable and self.flags.find_by_flag_and_status( 'build', 'disable' )
+        # enable package builds if project default is disabled
+        pkg_to_enable.flags.create( :position => 1, :flag => 'build', :status => "enable", :repo => repoName )
+        pkg_to_enable.store
+      end
+      if pkg_to_enable and self.flags.find_by_flag_and_status( 'debuginfo', 'disable' )
+        # take over debuginfo config from origin project
+        pkg_to_enable.flags.create( :position => 1, :flag => 'debuginfo', :status => "enable", :repo => repoName )
+        pkg_to_enable.store
+      end
+    end
+    # take over flags, but explicit disable publishing by default and enable building. Ommiting also lock or we can not create packages
+    project.flags.each do |f|
+      unless [ "build", "publish", "lock" ].include?(f.flag)
+        self.flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo)
+      end
+    end
+    self.flags.create(:status => "disable", :flag => 'publish') unless self.flags.find_by_flag_and_status( 'publish', 'disable' )
+  end
+
   def open_requests_with_project_as_source_or_target
     # Includes also requests for packages contained in this project
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)

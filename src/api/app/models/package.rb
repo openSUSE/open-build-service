@@ -815,6 +815,42 @@ class Package < ActiveRecord::Base
     return dir.to_hash['linkinfo']
   end
 
+  def add_channels
+     project_name = self.project.name
+     package_name = self.name
+     dir = self.dir_hash
+     if dir
+       # link target package name is more important, since local name could be
+       # extended. for example in maintenance incident projects.
+       li = dir['linkinfo']
+       if li
+         project_name = li['project']
+         package_name = li['package']
+       end
+     end
+     ChannelBinary.find_by_project_and_package( project_name, package_name ).each do |cb|
+       cp = cb.channel_binary_list.channel.package
+       name = cb.channel_binary_list.channel.name
+
+       # does it exist already? then just skip it
+       next if Package.exists_by_project_and_name(self.project.name, name)
+
+       # create a package beside me
+       tpkg = Package.new(:name => name, :title => cp.title, :description => cp.description)
+       self.project.packages << tpkg
+       tpkg.store
+
+       # branch sources
+       tpkg.branch_from(cp.project.name, cp.name)
+       tpkg.sources_changed
+
+       # branch repositories
+       self.project.branch_to_repositories_from(cp.project, tpkg, true)
+
+       self.project.store
+     end
+  end
+
   def developed_packages
     packages = []
     candidates = Package.where(develpackage_id: self).load
@@ -999,6 +1035,22 @@ class Package < ActiveRecord::Base
     end
 
     output
+  end
+
+  def branch_from(origin_project, origin_package, rev=nil, missingok=nil, comment=nil)
+        path = "/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}"
+        myparam = { :cmd => "branch",
+                    :noservice => "1",
+                    :oproject => origin_project,
+                    :opackage => origin_package,
+                    :user => User.current.login,
+                  }
+        myparam[:orev] = rev if rev and not rev.empty?
+        myparam[:missingok] = "1" if missingok
+        myparam[:comment] = comment if comment
+        path <<  Suse::Backend.build_query_from_hash(myparam, [:cmd, :oproject, :opackage, :user, :comment, :orev, :missingok])
+        # branch sources in backend
+        return Suse::Backend.post path, nil
   end
 
   def update_linkinfo

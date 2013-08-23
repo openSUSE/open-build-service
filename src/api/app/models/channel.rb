@@ -43,6 +43,13 @@ class Channel < ActiveRecord::Base
     }
   end
 
+  def name
+    name = package.name
+    name += "."
+    name += package.project.name.gsub(/:/,'_')
+    return name
+  end
+
   def update_from_xml(xmlhash, check=false)
     xmlhash = Xmlhash.parse(xmlhash) if xmlhash.class == String
     xmlhash.elements('target') { |p|
