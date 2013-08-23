@@ -5,90 +5,101 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-   prepare_request_with_user("Admin","opensuse")
+    prepare_request_with_user("king","sunflower")
   end
 
-  def test_show_and_post_comments_on_project
+  def test_writing_project_comments
     # Testing new comment creation
-    post "/webui/comments/project/BaseDistro/new", {:project => "BaseDistro", :title => "This is a title", :body => "This is a body", :user => "Admin"}
+    post "/webui/comments/project/BaseDistro2.0/new", {:title => "This is a title", :body => "This is a body"}
     assert_response :success
 
-    # testing empty comments
-    post "/webui/comments/project/BaseDistro/new", {:project => "BaseDistro", :title => "This is a title", :body => "", :user => "Admin"}
+    # Empty title or body shouldn't work
+    post "/webui/comments/project/BaseDistro2.0/new", {:title => "", :body => "This is a body"}
     assert_response 403
+    post "/webui/comments/project/BaseDistro2.0/new", {:title => "This is a title", :body => ""}
+    assert_response 403
+  end
 
-    # counter test
+  def test_writing_package_comments
+    # Testing new comment creation
+    post "/webui/comments/package/BaseDistro2.0/pack2/new", {:title => "This is a title", :body => "This is a body"}
+    assert_response :success
+
+    # Empty title or body shouldn't work
+    post "/webui/comments/package/BaseDistro2.0/pack2/new", {:title => "", :body => "This is a body"}
+    assert_response 403
+    post "/webui/comments/package/BaseDistro2.0/pack2/new", {:title => "This is a title", :body => ""}
+    assert_response 403
+  end
+
+  def test_writing_request_comments
+    # Testing new comment creation
+    post "/webui/comments/request/998/new", {:title => "This is a title", :body => "This is a body"}
+    assert_response :success
+
+    # Empty title or body shouldn't work
+    post "/webui/comments/request/998/new", {:title => "", :body => "This is a body"}
+    assert_response 403
+    post "/webui/comments/request/998/new", {:title => "This is a title", :body => ""}
+    assert_response 403
+  end
+
+  def test_reading_project_comments
+    # Getting comments
     get "/webui/comments/project/BaseDistro"
     assert_response :success
-
-    post "/webui/comments/project/BaseDistro/new", {:project => "BaseDistro", :title => "This is a title"}
-    assert_response 400
   end
 
-  def test_update_permissions_for_comments_on_project
+  def test_deleting_project_comments
+    # Admins should be able to delete all comments
+    post "/webui/comments/project/BaseDistro/delete", {:comment_id => 102}
+    assert_response 200
+
     reset_auth
     prepare_request_with_user "tom", "thunder"
 
-    put "/webui/comments/project/BaseDistro/delete", {:comment_id => 100, :user => 'tom', :body => "Comment deleted"}
+    # Users should be able to delete their own comments
+    post "/webui/comments/project/BaseDistro/delete", {:comment_id => 101}
     assert_response 200
 
-    # Test to see if another user can delete a comment he/she is not associated with
-    prepare_request_with_user "tom", "thunder"
-
-    put "/webui/comments/project/BaseDistro/delete", {:comment_id => 100, :user => 'Iggy',:project => "BaseDistro", :body => "Comment deleted"}
+    # Users shouldn't be able to delete a comment they are not associated with
+    post "/webui/comments/project/BaseDistro/delete", {:comment_id => 100}
     assert_response 400
 
-    # Test to see check permission on editing comments
-
-    put "/webui/comments/project/BaseDistro/edit", {:comment_id => 100, :user => 'Iggy',:project => "BaseDistro", :body => "Hurray this is a comment"}
-    assert_response 400
-
-    put "/webui/comments/project/BaseDistro/edit", {:comment_id => 100, :user => 'tom',:project => "BaseDistro", :body => "Hurray this is a comment 2"}
-    assert_response 200
   end
 
-  def test_update_permissions_for_comments_on_package
+  def test_deleting_package_comments
+    # Admins should be able to delete all comments
+    post "/webui/comments/package/BaseDistro/pack1/delete", {:comment_id => 202}
+    assert_response 200
+
+    reset_auth
+    prepare_request_with_user "tom", "thunder"
+    
+    # Users should be able to delete their own comments
+    post "/webui/comments/package/BaseDistro/pack1/delete", {:comment_id => 201}
+    assert_response 200
+
+    # Users shouldn't be able to delete a comment they are not associated with
+    put "/webui/comments/package/BaseDistro/pack1/delete", {:comment_id => 200}
+    assert_response 404
+  end
+
+  def test_delete_request_comments
+    # Admins should be able to delete all comments
+    post "/webui/comments/request/1000/delete", {:comment_id => 302}
+    assert_response 200
+
     reset_auth
     prepare_request_with_user "tom", "thunder"
 
-    put "/webui/comments/package/BaseDistro/pack1/delete", {:comment_id => 102, :user => 'tom', :body => "Comment deleted"}
+    # Users should be able to delete their own comments
+    post "/webui/comments/request/1000/delete", {:comment_id => 301}
     assert_response 200
 
-    # Test to see if another user can delete a comment he/she is not associated with
-    prepare_request_with_user "tom", "thunder"
-
-    put "/webui/comments/package/BaseDistro/pack1/delete", {:comment_id => 102, :user => 'Iggy', :body => "Comment deleted"}
-    assert_response 400
-
-    # Test to see check permission on editing comments
-
-    put "/webui/comments/package/BaseDistro/pack1/edit", {:comment_id => 102, :user => 'Iggy', :body => "Some comment"}
-    assert_response 400
-
-    put "/webui/comments/package/BaseDistro/pack1/edit", {:comment_id => 102, :user => 'tom', :body => "Some comment from the dark knight"}
-    assert_response 200
-  end
-
-  def test_update_permissions_for_comments_on_request
-    reset_auth
-    prepare_request_with_user "tom", "thunder"
-
-    put "/webui/comments/request/1000/delete", {:comment_id => 103, :user => 'tom', :body => "Comment deleted"}
-    assert_response 200
-
-    # Test to see if another user can delete a comment he/she is not associated with
-    prepare_request_with_user "tom", "thunder"
-
-    put "/webui/comments/request/1000/delete", {:comment_id => 103, :user => 'Iggy', :body => "Comment deleted"}
-    assert_response 400
-
-    # Test to see check permission on editing comments
-
-    put "/webui/comments/request/1000/edit", {:comment_id => 103, :user => 'Iggy', :body => "Comment from the president"}
-    assert_response 400
-
-    put "/webui/comments/request/1000/edit", {:comment_id => 103, :user => 'tom', :body => "Comment from anony"}
-    assert_response 200
+    # Users shouldn't be able to delete a comment they are not associated with
+    put "/webui/comments/request/1000/delete", {:comment_id => 300}
+    assert_response 404
   end
 
 end

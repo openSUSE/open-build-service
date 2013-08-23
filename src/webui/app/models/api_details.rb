@@ -29,10 +29,10 @@ class ApiDetails
     case route_name.to_sym
       when :save_project_comment then "comments/project/#{params[:project]}/new"
       when :save_package_comment then "comments/package/#{params[:project]}/#{params[:package]}/new"
-      when :save_request_comment then "comments/request/#{params[:bs_request_id]}/new"
+      when :save_request_comment then "comments/request/#{params[:id]}/new"
       when :delete_project_comment then "comments/project/#{params[:project]}/delete"
       when :delete_package_comment then "comments/package/#{params[:project]}/#{params[:package]}/delete"
-      when :delete_request_comment then "comments/request/#{params[:bs_request_id]}/delete"
+      when :delete_request_comment then "comments/request/#{params[:id]}/delete"
     end
 
     uri = URI(uri)

@@ -12,7 +12,7 @@
         </a>
       </li>
     <%end%>
-    <% if @user.login == comment['user'] || @comment_permission %>
+    <% if @user.login == comment['user'] || @user.is_admin? %>
       <li>
         <%= link_to(sprite_tag('comment_delete', title: "Delete") + "Delete", {:controller => params[:controller], :action => 'delete_comment', :comment_id => comment['id']}, :method => :post) %>
       </li>

@@ -10,7 +10,7 @@ b+= a.length;
 };
 <%end%>
 <% if @user %>
-	<%= form_tag :controller => params[:controller], :action => "save_comment" do %>
+	<%= form_tag :action => "save_comment" do %>
 	<p>	  
 	  <%= text_field_tag 'title',@title, :placeholder => "Comment Title"%>
 	</p>

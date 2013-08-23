@@ -26,7 +26,7 @@ class ProjectControllerTest < ActionDispatch::IntegrationTest
   test "adrian can edit kde4" do
     login_adrian
     # adrian is maintainer via group on kde4 
-    visit "/project/show?project=kde4"
+    visit "/project/show/kde4"
     # really simple test to get started
     page.must_have_link 'delete-project'
     page.must_have_link 'edit-description'
@@ -237,13 +237,6 @@ class ProjectControllerTest < ActionDispatch::IntegrationTest
   test "check status" do
     visit project_status_path(project: "LocalProject")
     page.must_have_text "Include version updates" # just don't crash
-  end
-
-  test "comment creation without login" do
-    logout
-    visit "/project/comments/home:adrian"
-    find_button("Add comment").click
-    find('#flash-messages').must_have_text "Please login to access the requested page."
   end
 
 end

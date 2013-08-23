@@ -91,7 +91,6 @@ class RequestController < ApplicationController
   
     begin
       @comments = ApiDetails.read(:comments_by_request, @req['id'])
-      @comment_permission = @is_author || @is_target_maintainer || @user.is_admin?
     rescue ActiveXML::Transport::Error => e
       render :text => e.summary, :status => 404, :content_type => "text/plain"
     end
@@ -299,8 +298,6 @@ class RequestController < ApplicationController
   def save_comment
     required_parameters :id, :body
     required_parameters :title if !params[:parent_id]
-    params[:bs_request_id] = params[:id]
-    logger.debug "FUCK ME: #{params}"
     begin
       ApiDetails.save_comment(:save_request_comment, params)
 
@@ -317,8 +314,7 @@ class RequestController < ApplicationController
   end
 
   def delete_comment
-    required_parameters :comment_id
-    params[:bs_request_id] = params[:id]
+    required_parameters :id, :comment_id
     begin
       ApiDetails.save_comment(:delete_request_comment, params)
       respond_to do |format|

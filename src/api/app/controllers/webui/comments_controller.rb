@@ -21,7 +21,7 @@ class Webui::CommentsController < Webui::BaseController
 	end
 
 	def requests
-		comments = CommentRequest.where(bs_request_id: params[:bid])
+		comments = CommentRequest.where(bs_request_id: params[:id])
                 comment_thread = sort_comments(comments)
 		render :json => comment_thread
 	end
@@ -29,8 +29,6 @@ class Webui::CommentsController < Webui::BaseController
 	def packages_new
 		required_parameters :title, :body, :project, :package
 		required_fields :body, :title
-
-		permission_check!(params)
 
 		CommentPackage.save(params)
 		render_ok
@@ -40,17 +38,13 @@ class Webui::CommentsController < Webui::BaseController
 		required_parameters :title, :body, :project
 		required_fields :body, :title
 
-		permission_check!(params)
-
 		CommentProject.save(params)
 		render_ok
 	end
 
 	def requests_new
-		required_parameters :title, :body, :bs_request_id
+		required_parameters :title, :body, :id
 		required_fields :body, :title
-
-		permission_check!(params)
 
 		CommentRequest.save(params)
 		render_ok
@@ -70,10 +64,33 @@ class Webui::CommentsController < Webui::BaseController
 	private
 
 	def permission_check!(params)
+		delete = false
+		comment = Comment.find(params[:comment_id])
 		package = Package.get_by_project_and_name(params[:project], params[:package]) if params[:package]    
 		project = Project.get_by_name(params[:project]) if params[:project]
+		request = BsRequest.find(params[:id]) if params[:id]
 
-		unless @http_user.login == params[:user] || @http_user.is_admin? || @http_user.has_local_permission?("change_project", project) || @http_user.has_local_permission?("change_package", package)
+		# Users can always delete their own comments
+		if @http_user.login == comment.user
+			delete = true
+		end
+		# Admins can always delete all comments
+		if @http_user.is_admin?
+			delete = true
+		end
+		# If you can change the project, you can delete the comment
+		if project and @http_user.has_local_permission?("change_project", project)
+			delete = true
+		end
+		# If you can change the package, you can delete the comment
+		if package and @http_user.has_local_permission?("change_package", package)
+			delete = true
+		end
+		# If you can review or if you are maintainer of the target of the request, you can delete the comment
+		if request and ( request.is_reviewer?(@http_user) || request.is_target_maintainer?(@http_user) )
+			delete = true
+		end
+		unless delete
 			raise CommentNoPermission.new, "You don't have the permissions to modify the content."
 		end
 	end

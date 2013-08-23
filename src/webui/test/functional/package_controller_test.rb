@@ -58,11 +58,4 @@ class PackageControllerTest < ActionDispatch::IntegrationTest
     page.wont_have_text '<person userid="Iggy" role="bugowner"/>'
   end
 
-  test "comment creation without login" do
-    logout
-    visit "/package/comments/home:Iggy/TestPack"
-    find_button("Add comment").click
-    find('#flash-messages').must_have_text "Please login to access the requested page."
-  end
-
 end

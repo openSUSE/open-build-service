@@ -8,7 +8,7 @@ class CreateProjectTest < ActionDispatch::IntegrationTest
    end
 
    def test_create_package
-      visit '/project/show?project=home:tom'
+      visit '/project/show/home:tom'
       page.must_have_text(/Packages \(0\)/)
       page.must_have_text(/This project does not contain any packages/)
 
@@ -19,7 +19,7 @@ class CreateProjectTest < ActionDispatch::IntegrationTest
    end
    
    def test_create_subproject
-     visit '/project/show?project=home:tom'
+     visit '/project/show/home:tom'
      click_link 'Subprojects' 
   
      page.must_have_text 'This project has no subprojects'

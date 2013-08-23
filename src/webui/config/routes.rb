@@ -182,6 +182,8 @@ OBSWebUI::Application.routes.draw do
     post 'project/change_flag/:project' => :change_flag, constraints: cons
     get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons
     get 'project/edit/:project' => :edit, constraints: cons
+    get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons
+    post 'project/edit_comment/:project' => :edit_comment, constraints: cons
     get 'project/status/(:project)' => :status, constraints: cons, as: 'project_status'
     get 'project/maintained_projects/:project' => :maintained_projects, constraints: cons
     get 'project/add_maintained_project_dialog' => :add_maintained_project_dialog, constraints: cons
@@ -191,8 +193,8 @@ OBSWebUI::Application.routes.draw do
     get 'project/list_incidents/:project' => :list_incidents, constraints: cons
     get 'project/unlock_dialog' => :unlock_dialog
     post 'project/unlock' => :unlock
-    post 'project/comments/:project' => :save_comment, constraints: cons
-    post 'project/comments/:project/delete' => :delete_comment, constraints: cons
+    post 'project/comments/:project' => :save_comment, constraints: cons, as: 'save_project_comment'
+    post 'project/comments/:project/delete' => :delete_comment, constraints: cons, as: 'delete_project_comment'
   end
 
   controller :request do

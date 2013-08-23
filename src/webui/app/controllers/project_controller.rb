@@ -281,7 +281,6 @@ class ProjectController < ApplicationController
     end
     begin
       @comments = ApiDetails.read(:comments_by_project, @project)
-      @comment_permission = @user.has_role?('maintainer', @project, @package) || @user.is_admin?
     rescue ActiveXML::Transport::Error => e
       render :text => e.summary, :status => 404, :content_type => "text/plain"
     end
