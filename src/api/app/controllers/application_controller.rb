@@ -83,6 +83,7 @@ class ApplicationController < ActionController::API
         raise InvalidParameterError, "Parameter #{key} has non String class #{value.class}"
       end
     end
+    return true
   end
 
   def extract_user
@@ -538,7 +539,10 @@ class ApplicationController < ActionController::API
     @errorcode ||= 'unknown'
 
     response.headers['X-Opensuse-Errorcode'] = @errorcode
-    render :template => 'status', :status => opt[:status]
+    respond_to do |format|
+      format.xml { render template: 'status', status: opt[:status] }
+      format.json { render json: { errorcode: @errorcode, summary: @summary, details: @details }, status: opt[:status] }
+    end
   end
 
   def render_ok(opt={})
