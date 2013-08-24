@@ -1073,8 +1073,6 @@ sub addrev {
     if ($acceptinfo) {
       $acceptinfo->{'rev'} = $rev->{'rev'};
       $acceptinfo->{'srcmd5'} = $rev->{'srcmd5'};
-      # FIXME2.4 remove the call
-      addacceptinfo($requestid, $projid, $packid, $acceptinfo);
       $rev->{'acceptinfo'} = $acceptinfo if $cgi->{'withacceptinfo'};
     }
     extract_old_prjsource($projid, $rev);
@@ -1124,8 +1122,6 @@ sub addrev {
 	$acceptinfo->{'xsrcmd5'} = $rev{'srcmd5'};
       };
     }
-    # FIXME2.4 remove
-    addacceptinfo($requestid, $projid, $packid, $acceptinfo);
     $rev->{'acceptinfo'} = $acceptinfo if $cgi->{'withacceptinfo'};
   }
 
@@ -6730,164 +6726,14 @@ sub getsslcert {
 
 ####################################################################
 
+# needed for migrations to 2.4
 sub getlastidrequest {
   my $lastid = readstr("$requestsdir/.nextid", 1) - 1;
   
   return ("$lastid", 'Content-Type: text/plain');
 }
 
-# FIXME2.4 remove
-sub getrequestlist {
-  my ($cgi) = @_;
-
-  my @requests = map {{'name' => $_}} sort(grep {!/^\./} ls($requestsdir));
-  return ({'entry' => \@requests}, $BSXML::dir);
-};
-
-# FIXME2.4 remove
-sub nextreqid {
-  local *F;
-  mkdir_p($requestsdir);
-  BSUtil::lockopen(*F, '>>', "$requestsdir/.nextid");
-  my $nextid = readstr("$requestsdir/.nextid", 1);
-  if (!$nextid) {
-    die("nextid was lost\n") if grep {$_ ne '.nextid'} ls($requestsdir);
-    $nextid = 1;
-  }
-  chomp $nextid;
-  die("nextid is bad\n") if $nextid =~ /[^0-9]/s;
-  writestr("$requestsdir/.nextid.new", "$requestsdir/.nextid", $nextid + 1);
-  close F;
-  return $nextid;
-}
-
-# FIXME2.4 remove
-sub writereq {
-  my ($oreq, $req) = @_;
-
-  my $id;
-  $id = $req->{'id'} if $req;
-  $id = $oreq->{'id'} if $oreq && !defined($id);
-  die unless defined $id;
-  my $name = $id;
-  if ($req) {
-    writexml("$requestsdir/.$name", "$requestsdir/$name", $req, $BSXML::request);
-  }
-  mkdir_p($reqindexdb);
-  my $db = BSDB::opendb($reqindexdb, '');
-  $db->{'noindex'} = {'id' => 1};
-  $db->updateindex($id, $oreq || {}, $req || {});
-  if (!$req) {
-    unlink("$requestsdir/$name");
-  }
-}
-
-# FIXME2.4 remove
-sub putrequest {
-  my ($cgi, $id) = @_;
-  my $reqxml = BSServer::read_data(1000000);
-  my $req = XMLin($BSXML::request, $reqxml);
-  BSVerify::verify_request($req);
-  my $oreq = readxml("$requestsdir/$id", $BSXML::request, 1);
-  die("404 no such request '$id'\n") unless $oreq;
-  $req->{'id'} = $id;
-  $req->{'history'} = [ @{$oreq->{'history'} || []} ];
-  push @{$req->{'history'}}, $oreq->{'state'};
-  $req->{'state'}->{'who'} = $cgi->{'user'} if defined $cgi->{'user'};
-  my @lt = localtime(time());
-  $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
-  writereq($oreq, $req);
-  BSNotify::notify("SRCSRV_REQUEST_CHANGE", BSNotify::requestParams($req, $cgi->{'user'}));
-  return $BSStdServer::return_ok;
-}
-
-# FIXME2.4 remove
-sub createrequest {
-  my ($cgi) = @_;
-
-  my $reqxml = BSServer::read_data(1000000);
-  my $cmd = $cgi->{'cmd'};
-  die("unknown command '$cmd'\n") unless $cmd eq 'create';
-  die("request must not be created by anonymous\n") unless defined $cgi->{'user'};
-  my $req = XMLin($BSXML::request, $reqxml);
-
-  if ($req->{'type'}) {
-    # old style request, convert to new style
-    die("action element in old style request\n") if $req->{'action'};
-    die("old style request with unknown type\n") if $req->{'type'} ne 'submit';
-    die("old style request without submit element\n") unless $req->{'submit'};
-    $req->{'submit'}->{'type'} = 'submit';
-    $req->{'action'} = [ $req->{'submit'} ];
-    delete $req->{'submit'};
-    delete $req->{'type'};
-  }
-
-  for my $r (@{$req->{'action'} || []}) {
-    if (($r->{'type'} || '') eq 'submit' && $r->{'source'} && !$r->{'target'}) {
-      # make source link target the submit request target, if not specified
-      my $projid = $r->{'source'}->{'project'};
-      my $packid = $r->{'source'}->{'package'};
-      my $rev = $r->{'source'}->{'rev'};
-      BSVerify::verify_projid($projid);
-      BSVerify::verify_packid($packid);
-      BSVerify::verify_rev($rev) if defined $rev;
-      if (defined($projid) && defined($packid)) {
-	my $rev = getrev($projid, $packid, $rev);
-        my $files = lsrev($rev);
-        if ($files->{'_link'}) {
-          my $l = repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
-          if ($l) {
-            $projid = $l->{'project'} if exists $l->{'project'};
-            $packid = $l->{'package'} if exists $l->{'package'};
-            $r->{'target'} = {'project' => $projid, 'package' => $packid};
-          }
-        }
-      }
-    }
-    die("target project does not exist\n") if ($r->{'type'} || '') eq 'submit' && (!$r->{'target'}->{'project'} || ! -e "$projectsdir/$r->{'target'}->{'project'}.xml");
-  }
-
-  # new requests are either in state 'new' or 'review'
-  $req->{'state'}->{'name'} = 'new';
-  $req->{'state'}->{'name'} = 'review' if defined($req->{'review'});
-
-  die("request must not contain an id\n") if $req->{'id'};
-  die("request must not contain a history\n") if $req->{'history'};
-  $req->{'state'}->{'who'} = $cgi->{'user'};
-  my @lt = localtime(time());
-  $req->{'state'}->{'when'} = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
-  BSVerify::verify_request($req);
-  $req->{'id'} = nextreqid();
-  writereq(undef, $req);
-
-  # notification about new request
-  BSNotify::notify("SRCSRV_REQUEST_CREATE", BSNotify::requestParams($req, $cgi->{'user'}));
-
-  # notification about new review of request
-  for my $r (@{$req->{'review'} || []}) {
-    my $notification = BSNotify::requestParams($req, $cgi->{'user'});
-    my $hermes_type;
-    if ($r->{'by_package'}) {
-      $hermes_type = "SRCSRV_REQUEST_REVIEWER_PACKAGE_ADDED";
-      $notification->{'newreviewer_project'} = $r->{'by_project'};
-      $notification->{'newreviewer_package'} = $r->{'by_package'};
-    }elsif ($r->{'by_project'}) {
-      $hermes_type = "SRCSRV_REQUEST_REVIEWER_PROJECT_ADDED";
-      $notification->{'newreviewer_project'} = $r->{'by_project'};
-    } elsif ($r->{'by_user'}) {
-      $hermes_type = "SRCSRV_REQUEST_REVIEWER_ADDED";
-      $notification->{'newreviewer'} = $r->{'by_user'};
-    } elsif ($r->{'by_group'}) {
-      $hermes_type = "SRCSRV_REQUEST_REVIEWER_GROUP_ADDED";
-      $notification->{'newreviewer_group'} = $r->{'by_group'};
-    }
-    $notification->{'comment'} = $r->{'comment'};
-    BSNotify::notify( $hermes_type, $notification) if( $hermes_type );
-   }
-
-  return ($req, $BSXML::request);
-}
-
+# needed for migrations to 2.4
 sub getrequest {
   my ($cgi, $id) = @_;
   local *F;
@@ -6904,246 +6750,7 @@ sub getrequest {
   close F;
   die unless @s;
   my $req = XMLin($BSXML::request, $reqxml);
-  my $key;
-  if ($cgi->{'withkey'} || $cgi->{'oldkey'}) {
-    $key = Digest::MD5::md5_hex("$s[9]/$s[7]/$s[1]");
-    $req->{'key'} = $key if $cgi->{'withkey'};
-    if ($cgi->{'oldkey'} && $key eq $cgi->{'oldkey'}) {
-      if (!$BSStdServer::isajax) {
-	my @args;
-	push @args, "withkey=1" if $cgi->{'withkey'};
-	push @args, "oldkey=$cgi->{'oldkey'}" if $cgi->{'oldkey'};
-	BSHandoff::handoff($ajaxsocket, "/request/$id", undef, @args);
-	exit(0);
-      }
-      BSWatcher::addfilewatcher("$rdir/$id");
-      return undef;
-    }
-  }
   return ($req, $BSXML::request);
-}
-
-# FIXME2.4 remove
-sub postrequest {
-  my ($cgi, $id) = @_;
-
-  # work around bad osc versions
-  delete $cgi->{'superseded_by'} if defined($cgi->{'superseded_by'}) && $cgi->{'superseded_by'} eq '';
-  my $cmd = $cgi->{'cmd'};
-  my $oreq = readxml("$requestsdir/$id", $BSXML::request, 1);
-  die("404 no such request '$id'\n") unless $oreq;
-  die("no user defined\n") unless $cgi->{'user'};
-  my $req = Storable::dclone($oreq);	# deep clone
-  die unless $req->{'id'} eq $id;
-  my $oldstate = $req->{'state'};
-  my @lt = localtime(time());
-  my $mytime = sprintf("%04d-%02d-%02dT%02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0]);
-  if ($cmd eq 'addreview'){
-    die("request review is not specified via by_user, by_group or by_project\n") if !$cgi->{'by_user'} && !$cgi->{'by_group'} && !$cgi->{'by_project'};
-    push @{$req->{'history'}}, $oldstate;
-    $req->{'state'} = {'name' => 'review'};
-    $req->{'state'}->{'who'} = $cgi->{'user'};
-    $req->{'state'}->{'comment'} = $cgi->{'comment'} if defined $cgi->{'comment'};
-    $req->{'state'}->{'when'} = $mytime;
-    if ($cgi->{'by_user'}) {
-      push @{$req->{'review'}}, { 'state' => 'new', 'by_user' => $cgi->{'by_user'}, 'comment' => $cgi->{'comment'} };
-    } elsif ($cgi->{'by_group'}) {
-      push @{$req->{'review'}}, { 'state' => 'new', 'by_group' => $cgi->{'by_group'}, 'comment' => $cgi->{'comment'} };
-    } else {
-      if ($cgi->{'by_package'}) {
-        push @{$req->{'review'}}, { 'state' => 'new', 'by_project' => $cgi->{'by_project'}, 'by_package' => $cgi->{'by_package'}, 'comment' => $cgi->{'comment'} };
-      } else {
-        push @{$req->{'review'}}, { 'state' => 'new', 'by_project' => $cgi->{'by_project'}, 'comment' => $cgi->{'comment'} };
-      }
-    }
-  } elsif ($cmd eq 'changereviewstate') {
-    die("request is not in review state\n") unless $req->{'state'}->{'name'} eq "review" || ($req->{'state'}->{'name'} eq "new" && $cgi->{'newstate'} eq 'new');
-    die("request review item is not specified via by_user, by_group or by_project\n") if not $cgi->{'by_user'} and not $cgi->{'by_group'} and not $cgi->{'by_project'};
-    die("missing superseded_by parameter\n") if $cgi->{'newstate'} eq 'superseded' and not defined($cgi->{'superseded_by'});
-    die("review state must be new, accepted, declined or superseded, but was >$cgi->{'newstate'}<\n") unless
-        $cgi->{'newstate'} eq 'new' or $cgi->{'newstate'} eq 'accepted' or $cgi->{'newstate'} eq 'declined' or $cgi->{'newstate'} eq 'superseded';
-    my $go_new_state = 'review';
-    $go_new_state = $cgi->{'newstate'} if $cgi->{'newstate'} eq 'declined' or $cgi->{'newstate'} eq 'superseded';
-    my $found = 0;
-    my %rkeyseen;
-    for my $r (reverse @{$req->{'review'} || []}) {
-      my $matching = 1;
-      $matching = 0 if defined($r->{'by_user'}) && $r->{'by_user'} ne ($cgi->{'by_user'}||'');
-      $matching = 0 if defined($r->{'by_group'}) && $r->{'by_group'} ne ($cgi->{'by_group'}||'');
-      $matching = 0 if defined($r->{'by_project'}) && $r->{'by_project'} ne ($cgi->{'by_project'}||'');
-      $matching = 0 if defined($r->{'by_package'}) && $r->{'by_package'} ne ($cgi->{'by_package'}||'');
-      my $rkey = '';
-      $rkey .= "::by_user:$r->{'by_user'}" if defined($r->{'by_user'});
-      $rkey .= "::by_group:$r->{'by_group'}" if defined($r->{'by_group'});
-      $rkey .= "::by_project:$r->{'by_project'}" if defined($r->{'by_project'});
-      $rkey .= "::by_package:$r->{'by_package'}" if defined($r->{'by_package'});
-      #                # This is needed for MeeGo BOSS, which adds multiple reviews by same user for each step
-      #                # FIXME3.0: think about review ordering and make reviews addressable
-      if ($matching && !($rkeyseen{$rkey} && $r->{'state'} eq 'accepted')) {
-        $rkeyseen{$rkey} = 1;
-        $found = 1;
-        $r->{'when'} = $mytime;
-        $r->{'comment'} = $cgi->{'comment'} if defined($cgi->{'comment'});
-        if ($r->{'state'} ne $cgi->{'newstate'} || $r->{'who'} ne $cgi->{'user'}){
-          $r->{'state'} = $cgi->{'newstate'};
-          $r->{'who'} = $cgi->{'user'};
-          $go_new_state = 'new' if $go_new_state eq "review" && $r->{'state'} eq 'accepted';
-          $go_new_state = $r->{'state'} if $go_new_state eq "review" and $r->{'state'} ne 'new'; # take decline
-        } else {
-          # no new history entry
-          $go_new_state = '';
-        }
-      } else {
-        # don't touch the request state if a review is still open, except the
-        # review got declined or superseded or reopened.
-        $go_new_state = '' if $r->{'state'} eq 'new' and $go_new_state ne 'declined' and $go_new_state ne 'superseded';
-      }
-    }
-    die("review item not found.\n") if $found == 0;
-    if ($go_new_state or $cgi->{'newstate'} eq 'superseded'){
-      push @{$req->{'history'}}, $oldstate;
-      if ($cgi->{'newstate'} eq 'superseded') { # superseded
-         $req->{'state'} = {'name' => 'superseded'};
-         $req->{'state'}->{'superseded_by'} = $cgi->{'superseded_by'} if defined $cgi->{'superseded_by'};
-      } else { # either no open reviews anymore or going back to review
-         $req->{'state'} = {'name' => $go_new_state} if $go_new_state;
-      }
-      $req->{'state'}->{'who'} = $cgi->{'user'};
-      $req->{'state'}->{'comment'} = $cgi->{'comment'} if defined $cgi->{'comment'};
-      $req->{'state'}->{'comment'} = "All reviewers accepted request" if $go_new_state eq "accepted";
-      $req->{'state'}->{'when'} = $mytime;
-    }
-  } elsif ($cmd eq 'changestate') {
-    die("no new state\n") unless $cgi->{'newstate'};
-    die("missing superseded_by parameter\n") if $cgi->{'newstate'} eq 'superseded' and not defined($cgi->{'superseded_by'});
-    push @{$req->{'history'}}, $oldstate;
-    $req->{'state'} = {'name' => $cgi->{'newstate'}};
-    $req->{'state'}->{'who'} = $cgi->{'user'};
-    $req->{'state'}->{'comment'} = $cgi->{'comment'} if defined $cgi->{'comment'};
-    $req->{'state'}->{'superseded_by'} = $cgi->{'superseded_by'} if defined $cgi->{'superseded_by'};
-    $req->{'state'}->{'when'} = $mytime;
-
-    # check for not accepted reviews on re-open
-    if ($cgi->{'newstate'} eq 'new' || $cgi->{'newstate'} eq 'review') {
-      for my $r (reverse @{$req->{'review'} || []}) {
-        if ($r->{'state'} ne 'accepted') {
-          $r->{'state'} = 'new';
-          $r->{'when'} = $mytime;
-          $r->{'who'} = $cgi->{'user'};
-          $r->{'comment'} = $cgi->{'comment'} if defined($cgi->{'comment'});
-          $req->{'state'}->{'name'} = 'review';
-        }
-      }
-    }
-  } else {
-    die("unknown command '$cmd'\n");
-  }
-  BSVerify::verify_request($req);
-  writereq($oreq, $req);
-  $req->{'oldstate'} = $oldstate;
-  # Additionally send type specific hermes notifications
-  my $hermes_type;
-  my $notification = BSNotify::requestParams($req, $cgi->{'user'});
-  if ($cmd eq 'addreview') {
-    if ($cgi->{'by_package'}) {
-      $hermes_type = "SRCSRV_REQUEST_REVIEWER_PACKAGE_ADDED";
-      $notification->{'newreviewer_project'} = $cgi->{'by_project'};
-      $notification->{'newreviewer_package'} = $cgi->{'by_package'};
-    }elsif ($cgi->{'by_project'}) {
-      $hermes_type = "SRCSRV_REQUEST_REVIEWER_PROJECT_ADDED";
-      $notification->{'newreviewer_project'} = $cgi->{'by_project'};
-    } elsif ($cgi->{'by_user'}) {
-      $hermes_type = "SRCSRV_REQUEST_REVIEWER_ADDED";
-      $notification->{'newreviewer'} = $cgi->{'by_user'};
-    } elsif ($cgi->{'by_group'}) {
-      $hermes_type = "SRCSRV_REQUEST_REVIEWER_GROUP_ADDED";
-      $notification->{'newreviewer_group'} = $cgi->{'by_group'};
-    }
-    $notification->{'comment'} = $cgi->{'comment'};
-  } else {
-    if ($cmd eq 'changereviewstate') {
-      if( $cgi->{'newstate'} eq "accepted" ) {
-        $hermes_type = "SRCSRV_REVIEW_ACCEPTED";
-      } elsif( $cgi->{'newstate'} eq "declined" ) {
-        $hermes_type = "SRCSRV_REVIEW_DECLINED";
-      } elsif( $cgi->{'newstate'} eq "revoked" ) {
-        $hermes_type = "SRCSRV_REVIEW_REVOKED";
-      }
-    } else {
-      if( $cgi->{'newstate'} eq "accepted" ) {
-        $hermes_type = "SRCSRV_REQUEST_ACCEPTED";
-      } elsif( $cgi->{'newstate'} eq "declined" ) {
-        $hermes_type = "SRCSRV_REQUEST_DECLINED";
-      } elsif( $cgi->{'newstate'} eq "revoked" ) {
-        $hermes_type = "SRCSRV_REQUEST_REVOKED";
-      }
-    }
-  }
-  BSNotify::notify( $hermes_type, $notification) if( $hermes_type );
-  BSNotify::notify("SRCSRV_REQUEST_STATECHANGE", BSNotify::requestParams($req, $cgi->{'user'})) unless $oldstate->{'name'} eq $req->{'state'}->{'name'};
-
-  return $BSStdServer::return_ok;
-}
-
-# FIXME2.4 remove
-sub delrequest {
-  my ($cgi, $id) = @_;
-  my $oreq = readxml("$requestsdir/$id", $BSXML::request, 1);
-  die("404 no such request '$id'\n") unless $oreq;
-  die unless $oreq->{'id'} eq $id;
-  writereq($oreq, undef);
-  BSNotify::notify("SRCSRV_REQUEST_DELETE", BSNotify::requestParams($oreq, $cgi->{'user'}));
-  return $BSStdServer::return_ok;
-}
-
-# FIXME2.4 remove
-sub fetchreq {
-  my ($db, $key) = @_;
-  my $req = readxml("$requestsdir/$key", $BSXML::request, 1) || {};
-  $req->{'id'} = $key;
-  return $req;
-}
-
-# FIXME2.4 remove
-sub search_request {
-  my ($cgi, $match) = @_;
-  my $db = BSDB::opendb($reqindexdb, '');
-  $db->{'noindex'} = {'id' => 1};
-  $db->{'allkeyspath'} = 'action/type';
-  $db->{'fetch'} = \&fetchreq;
-  my $limit = defined($cgi->{'limit'}) ? $cgi->{'limit'} : 0;
-  my $rootnode = BSXPathKeys::node($db, '', $limit * 10);
-  my $data = BSXPath::match($rootnode, $match) || [];
-  my $res = {};
-  $res->{'matches'} = @$data;
-  $res->{'limited'} = 'true' if $limit && @$data > $limit;
-  splice(@$data, $limit) if $limit && @$data > $limit;
-  $res->{'request'} = $data;
-  return ($res, $BSXML::collection);
-}
-
-# FIXME2.4 remove
-sub addacceptinfo {
-  my ($id, $projid, $packid, $acceptinfo) = @_;
-  my $oreq = readxml("$requestsdir/$id", $BSXML::request, 1);
-  return unless $oreq && $oreq->{'id'} eq $id;
-  my $req = Storable::dclone($oreq);	# deep clone
-  my $changed;
-  for my $r (@{$req->{'action'} || []}) {
-    next unless $r->{'type'} eq 'submit';
-    next unless $r->{'target'} && defined($r->{'target'}->{'project'}) && defined($r->{'target'}->{'package'});
-    next unless $r->{'target'}->{'project'} eq $projid && $r->{'target'}->{'package'} eq $packid;
-    if ($r->{'acceptinfo'}) {
-      for ('rev', 'srcmd5', 'xsrcmd5') {
-        delete $r->{'acceptinfo'}->{$_};
-        $r->{'acceptinfo'}->{$_} = $acceptinfo->{$_} if defined $acceptinfo->{$_};
-      }
-    } else {
-      $r->{'acceptinfo'} = $acceptinfo;
-    }
-    $changed = 1;
-  }
-  writereq($oreq, $req) if $changed;
 }
 
 ####################################################################
@@ -7885,10 +7492,7 @@ my $dispatches = [
   '/request' => \&getrequestlist,
   'POST:/request/$id:num cmd: newstate:? user:? comment:? by_user:? by_group:? by_project:? by_package:? superseded_by:?' => \&postrequest,
   '/request/_lastid' => \&getlastidrequest,                     # just required for migration into api
-  '/request/$id:num withkey:bool? oldkey:md5?' => \&getrequest, # just required for migration into api
-  'PUT:/request/$id:num user:?' => \&putrequest,
-  'DELETE:/request/$id:num' => \&delrequest,
-  '/search/request $match: limit:num?' => \&search_request,
+  '/request/$id:num' => \&getrequest, # just required for migration into api
 
   # notifications
   'POST:/notify/$_type: *:?' => \&external_notification,
