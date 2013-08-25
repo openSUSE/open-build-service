@@ -419,7 +419,8 @@ CREATE TABLE `linked_packages` (
   `links_to_id` int(11) NOT NULL,
   `package_id` int(11) NOT NULL AUTO_INCREMENT,
   `updated_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`package_id`)
+  PRIMARY KEY (`package_id`),
+  KEY `index_linked_packages_on_links_to_id` (`links_to_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `linked_projects` (
@@ -495,6 +496,7 @@ CREATE TABLE `packages` (
   `activity_index` float DEFAULT '100',
   `bcntsynctag` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `develpackage_id` int(11) DEFAULT NULL,
+  `delta` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `packages_all_index` (`db_project_id`,`name`(255)),
   KEY `devel_package_id_index` (`develpackage_id`),
@@ -529,6 +531,7 @@ CREATE TABLE `projects` (
   `type_id` int(11) DEFAULT NULL,
   `maintenance_project_id` int(11) DEFAULT NULL,
   `develproject_id` int(11) DEFAULT NULL,
+  `delta` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`name`(255)),
   KEY `updated_at_index` (`updated_at`),
@@ -1123,10 +1126,6 @@ INSERT INTO schema_migrations (version) VALUES ('20130618083665');
 INSERT INTO schema_migrations (version) VALUES ('20130619083665');
 
 INSERT INTO schema_migrations (version) VALUES ('20130621083665');
-
-INSERT INTO schema_migrations (version) VALUES ('20130624095423');
-
-INSERT INTO schema_migrations (version) VALUES ('20130626133922');
 
 INSERT INTO schema_migrations (version) VALUES ('20130626160000');
 
