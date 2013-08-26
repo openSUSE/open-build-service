@@ -641,10 +641,10 @@ sub createrepo_arch {
     print "    running bs_mkarchrepo $arch\n";
     qsystem("$INC[0]/bs_mkarchrepo", $rname, "$extrep/$arch") && die("    repo creation failed: $?\n");
     if (-e "$extrep/$arch/$rname.db.tar.gz") {
-      link("$rname.db.tar.gz", "$extrep/$arch/$rname.db");
+      link("$extrep/$arch/$rname.db.tar.gz", "$extrep/$arch/$rname.db");
     }
     if (-e "$extrep/$arch/$rname.files.tar.gz") {
-      link("$rname.files.tar.gz", "$extrep/$arch/$rname.files");
+      link("$extrep/$arch/$rname.files.tar.gz", "$extrep/$arch/$rname.files");
     }
     if ($BSConfig::sign) {
       my @signargs;
@@ -652,11 +652,11 @@ sub createrepo_arch {
       push @signargs, @$signargs;
       if (-e "$extrep/$arch/$rname.db.tar.gz") {
         qsystem($BSConfig::sign, @signargs, '-D', "$extrep/$arch/$rname.db.tar.gz") && die("    sign failed: $?\n");
-        link("$rname.db.tar.gz.sig", "$extrep/$arch/$rname.db.sig");
+        link("$extrep/$arch/$rname.db.tar.gz.sig", "$extrep/$arch/$rname.db.sig");
       }
       if (-e "$extrep/$arch/$rname.files.tar.gz") {
         qsystem($BSConfig::sign, @signargs, '-D', "$extrep/$arch/$rname.files.tar.gz") && die("    sign failed: $?\n");
-        link("$rname.files.tar.gz.sig", "$extrep/$arch/$rname.files.sig");
+        link("$extrep/$arch/$rname.files.tar.gz.sig", "$extrep/$arch/$rname.files.sig");
       }
     }
   }
