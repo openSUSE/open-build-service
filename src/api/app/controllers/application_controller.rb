@@ -480,17 +480,20 @@ class ApplicationController < ActionController::API
     return @http_user
   end
 
-  def required_parameters(*parameters)
-    parameters.each do |parameter|
-      unless params.include? parameter.to_s
-        raise MissingParameterError, "Required Parameter #{parameter} missing"
-      end
+  def require_parameter!(parameter)
+    unless params.include? parameter.to_s
+      raise MissingParameterError, "Required Parameter #{parameter} missing"
     end
+  end
+
+  def required_parameters(*parameters)
+    parameters.each { |parameter| require_parameter!(parameter) }
   end
 
   def required_fields(*parameters)
     parameters.each do |parameter|
-      if params[parameter].blank? 
+      require_parameter!(parameter)
+      if params[parameter].blank?
         raise NoDataEntered.new "Required Parameter #{parameter} is empty"
       end
     end
