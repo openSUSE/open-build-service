@@ -16,14 +16,14 @@ class Webui::RequestsController < Webui::BaseController
  
     # it's wiser to split the queries
     if params[:project] && roles.empty? && (states.empty? || states.include?('review'))
-      rel = BsRequest.collection(params.merge({ roles: ['reviewer'] }))
-      ids = rel.pluck("bs_requests.id")
-      rel = BsRequest.collection(params.merge({ roles: ['target', 'source'] }))
+      rel = BsRequestCollection.new(params.merge({ roles: ['reviewer'] }))
+      ids = rel.ids
+      rel = BsRequestCollection.new(params.merge({ roles: ['target', 'source'] }))
     else
-      rel = BsRequest.collection(params)
+      rel = BsRequestCollection.new(params)
       ids = []
     end
-    ids.concat(rel.pluck("bs_requests.id"))
+    ids.concat(rel.ids)
 
     render json: ids.uniq.sort
   end

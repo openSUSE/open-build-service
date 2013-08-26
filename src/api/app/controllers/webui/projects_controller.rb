@@ -79,8 +79,8 @@ class Webui::ProjectsController < Webui::BaseController
     end
 
     if pro.project_type == 'maintenance_incident'
-      rel = BsRequest.collection(project: project_name, states: ['new', 'review'], types: ['maintenance_release'], roles: ['source'])
-      infos[:open_release_requests] = rel.pluck("bs_requests.id")
+      rel = BsRequestCollection.new(project: project_name, states: ['new', 'review'], types: ['maintenance_release'], roles: ['source'])
+      infos[:open_release_requests] = rel.ids
     end
 
     render json: infos

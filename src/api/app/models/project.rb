@@ -1167,9 +1167,9 @@ class Project < ActiveRecord::Base
     all_pkgs.each do |pkg|
       if b_pkg_index.has_key?(pkg) and not f_pkg_index.has_key?(pkg)
         # new autopackage, import in database
-	p = self.packages.new(name: pkg)
-	p.update_from_xml(Xmlhash.parse(b_pkg_index[pkg].dump_xml))
-	p.store
+        p = self.packages.new(name: pkg)
+        p.update_from_xml(Xmlhash.parse(b_pkg_index[pkg].dump_xml))
+        p.store
       elsif f_pkg_index.has_key?(pkg) and not b_pkg_index.has_key?(pkg)
         # autopackage was removed, remove from database
         f_pkg_index[pkg].destroy
@@ -1178,18 +1178,18 @@ class Project < ActiveRecord::Base
   end
 
   def request_ids_by_class
-    rel = BsRequest.collection(project: name, states: ['review'], roles: ['reviewer'])
-    reviews = rel.pluck("bs_requests.id")
+    rel = BsRequestCollection.new(project: name, states: ['review'], roles: ['reviewer'])
+    reviews = rel.ids
 
-    rel = BsRequest.collection(project: name, states: ['new'], roles: ['target'])
-    targets = rel.pluck("bs_requests.id")
+    rel = BsRequestCollection.new(project: name, states: ['new'], roles: ['target'])
+    targets = rel.ids
 
-    rel = BsRequest.collection(project: name, states: ['new'], roles: ['source'], types: ['maintenance_incident'])
-    incidents = rel.pluck("bs_requests.id")
+    rel = BsRequestCollection.new(project: name, states: ['new'], roles: ['source'], types: ['maintenance_incident'])
+    incidents = rel.ids
 
     if project_type == "maintenance"
-      rel = BsRequest.collection(project: name, states: ['new'], roles: ['source'], types: ['maintenance_release'], subprojects: true)
-      maintenance_release = rel.pluck("bs_requests.id")
+      rel = BsRequestCollection.new(project: name, states: ['new'], roles: ['source'], types: ['maintenance_release'], subprojects: true)
+      maintenance_release = rel.ids
     else
       maintenance_release = []
     end

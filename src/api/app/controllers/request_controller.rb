@@ -30,7 +30,7 @@ class RequestController < ApplicationController
       ids = params[:ids].split(',').map { |i| i.to_i } if params[:ids]
 
       params.merge!({states: states, types: types, review_states: review_states, roles: roles, ids: ids})
-      rel = BsRequest.collection(params)
+      rel = BsRequestCollection.new(params).relation
       rel = rel.includes([:reviews, :bs_request_histories])
       rel = rel.includes({bs_request_actions: :bs_request_action_accept_info})
       rel = rel.order('bs_requests.id').references(:bs_requests)

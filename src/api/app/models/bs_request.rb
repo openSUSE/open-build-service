@@ -279,19 +279,7 @@ class BsRequest < ActiveRecord::Base
       end
       self.save!
 
-      notify = self.notify_parameters
-      notify[:oldstate] = oldstate
-      case state
-        when :accepted
-          Suse::Backend.send_notification('SRCSRV_REQUEST_ACCEPTED', notify)
-        when :declined
-          Suse::Backend.send_notification('SRCSRV_REQUEST_DECLINED', notify)
-        when :revoked
-          Suse::Backend.send_notification('SRCSRV_REQUEST_REVOKED', notify)
-        else
-          # nothing
-      end
-
+      send_state_notification('SRCSRV_REQUEST', oldstate: oldstate)
     end
   end
 
@@ -302,9 +290,7 @@ class BsRequest < ActiveRecord::Base
       unless self.state == :review || (self.state == :new && state == :new)
         raise InvalidStateError.new 'request is not in review state'
       end
-      if !opts[:by_user] && !opts[:by_group] && !opts[:by_project]
-        raise InvalidReview.new
-      end
+      check_if_valid_review!(opts)
       unless [:new, :accepted, :declined, :superseded].include? state
         raise InvalidStateError.new "review state must be new, accepted, declined or superseded, was #{state}"
       end
@@ -382,25 +368,32 @@ class BsRequest < ActiveRecord::Base
 
       self.save!
 
-      notify = self.notify_parameters
-      if go_new_state
-        case state
-          when :accepted
-            Suse::Backend.send_notification('SRCSRV_REVIEW_ACCEPTED', notify)
-          when :declined
-            Suse::Backend.send_notification('SRCSRV_REVIEW_DECLINED', notify)
-          when :revoked
-            Suse::Backend.send_notification('SRCSRV_REVIEW_REVOKED', notify)
-        end
-      end
+      send_state_notification('SRCSRV_REVIEW') if go_new_state
+
+    end
+  end
+
+  def send_state_notification(prefix, additional_notify_parameters = {})
+    notify = notify_parameters.merge additional_notify_parameters
+    case state
+    when :accepted
+      Suse::Backend.send_notification("#{prefix}_ACCEPTED", notify)
+    when :declined
+      Suse::Backend.send_notification("#{prefix}_DECLINED", notify)
+    when :revoked
+      Suse::Backend.send_notification("#{prefix}_REVOKED", notify)
+    end
+  end
+
+  def check_if_valid_review!(opts)
+    if !opts[:by_user] && !opts[:by_group] && !opts[:by_project]
+      raise InvalidReview.new
     end
   end
 
   def addreview(opts)
     BsRequest.transaction do
-      if !opts[:by_user] && !opts[:by_group] && !opts[:by_project]
-        raise InvalidReview.new
-      end
+      check_if_valid_review!(opts)
       create_history
 
       self.state = 'review'
@@ -446,178 +439,6 @@ class BsRequest < ActiveRecord::Base
       end
     end
     ret
-  end
-
-  def self.collection(opts)
-    roles = opts[:roles] || []
-    states = opts[:states] || []
-    types = opts[:types] || []
-    review_states = opts[:review_states] || %w(new)
-
-    rel = BsRequest.joins(:bs_request_actions)
-    c = ActiveRecord::Base.connection
-
-    # filter for request state(s)
-    unless states.blank?
-      rel = rel.where('bs_requests.state in (?)', states).references(:bs_requests)
-    end
-
-    # Filter by request type (submit, delete, ...)
-    unless types.blank?
-      rel = rel.where('bs_request_actions.type in (?)', types).references(:bs_request_actions)
-    end
-
-    unless opts[:project].blank?
-      inner_or = []
-
-      if opts[:package].blank?
-        if roles.count == 0 or roles.include? 'source'
-          rel = rel.references(:bs_request_actions)
-          if opts[:subprojects].blank?
-            inner_or << "bs_request_actions.source_project=#{c.quote(opts[:project])}"
-          else
-            inner_or << "(bs_request_actions.source_project like #{c.quote(opts[:project]+':%')})"
-          end
-        end
-        if roles.count == 0 or roles.include? 'target'
-          rel = rel.references(:bs_request_actions)
-          if opts[:subprojects].blank?
-            inner_or << "bs_request_actions.target_project=#{c.quote(opts[:project])}"
-          else
-            inner_or << "(bs_request_actions.target_project like #{c.quote(opts[:project]+':%')})"
-          end
-        end
-
-        if roles.count == 0 or roles.include? 'reviewer'
-          if states.count == 0 or states.include? 'review'
-            rel = rel.references(:reviews)
-            review_states.each do |r|
-              rel = rel.includes(:reviews)
-              inner_or << "(reviews.state=#{c.quote(r)} and reviews.by_project=#{c.quote(opts[:project])})"
-            end
-          end
-        end
-      else
-        if roles.count == 0 or roles.include? 'source'
-          rel = rel.references(:bs_request_actions)
-          inner_or << "(bs_request_actions.source_project=#{c.quote(opts[:project])} and bs_request_actions.source_package=#{c.quote(opts[:package])})"
-        end
-        if roles.count == 0 or roles.include? 'target'
-          rel = rel.references(:bs_request_actions)
-          inner_or << "(bs_request_actions.target_project=#{c.quote(opts[:project])} and bs_request_actions.target_package=#{c.quote(opts[:package])})"
-        end
-        if roles.count == 0 or roles.include? 'reviewer'
-          if states.count == 0 or states.include? 'review'
-            rel = rel.references(:reviews)
-            review_states.each do |r|
-              rel = rel.includes(:reviews)
-              inner_or << "(reviews.state=#{c.quote(r)} and reviews.by_project=#{c.quote(opts[:project])} and reviews.by_package=#{c.quote(opts[:package])})"
-            end
-          end
-        end
-      end
-
-      if inner_or.count > 0
-        rel = rel.where(inner_or.join(' or '))
-      end
-    end
-
-    if opts[:user]
-      inner_or = []
-      user = User.get_by_login(opts[:user])
-      # user's own submitted requests
-      if roles.count == 0 or roles.include? 'creator'
-        inner_or << "bs_requests.creator = #{c.quote(user.login)}"
-      end
-
-      # find requests where user is maintainer in target project
-      if roles.count == 0 or roles.include? 'maintainer'
-        names = user.involved_projects.map { |p| p.name }
-        rel = rel.references(:bs_request_actions)
-        inner_or << "bs_request_actions.target_project in ('" + names.join("','") + "')"
-
-        ## find request where user is maintainer in target package, except we have to project already
-        user.involved_packages.each do |ip|
-          rel = rel.references(:bs_request_actions)
-          inner_or << "(bs_request_actions.target_project='#{ip.project.name}' and bs_request_actions.target_package='#{ip.name}')"
-        end
-      end
-
-      if roles.count == 0 or roles.include? 'reviewer'
-        rel = rel.includes(:reviews).references(:reviews)
-        review_states.each do |r|
-
-          # requests where the user is reviewer or own requests that are in review by someone else
-          or_in_and = ["reviews.by_user=#{c.quote(user.login)}"]
-          # include all groups of user
-          usergroups = user.groups.map { |g| "'#{g.title}'" }
-          or_in_and << "reviews.by_group in (#{usergroups.join(',')})" unless usergroups.blank?
-
-          # find requests where user is maintainer in target project
-          userprojects = user.involved_projects.select('projects.name').map { |p| "'#{p.name}'" }
-          or_in_and << "reviews.by_project in (#{userprojects.join(',')})" unless userprojects.blank?
-
-          ## find request where user is maintainer in target package, except we have to project already
-          user.involved_packages.select('name,db_project_id').includes(:project).each do |ip|
-            or_in_and << "(reviews.by_project='#{ip.project.name}' and reviews.by_package='#{ip.name}')"
-          end
-
-          inner_or << "(reviews.state=#{c.quote(r)} and (#{or_in_and.join(' or ')}))"
-        end
-      end
-
-      unless inner_or.empty?
-        rel = rel.where(inner_or.join(' or '))
-      end
-    end
-
-    if opts[:group]
-      inner_or = []
-      group = Group.get_by_title(opts[:group])
-
-      # find requests where group is maintainer in target project
-      if roles.count == 0 or roles.include? 'maintainer'
-        names = group.involved_projects.map { |p| p.name }
-        rel = rel.references(:bs_request_actions)
-        inner_or << "bs_request_actions.target_project in ('" + names.join("','") + "')"
-
-        ## find request where group is maintainer in target package, except we have to project already
-        group.involved_packages.each do |ip|
-          inner_or << "(bs_request_actions.target_project='#{ip.project.name}' and bs_request_actions.target_package='#{ip.name}')"
-        end
-      end
-
-      if roles.count == 0 or roles.include? 'reviewer'
-        rel = rel.includes(:reviews).references(:reviews)
-
-        review_states.each do |r|
-
-          # requests where the user is reviewer or own requests that are in review by someone else
-          or_in_and = ["reviews.by_group='#{group.title}'"]
-
-          # find requests where group is maintainer in target project
-          groupprojects = group.involved_projects.select('projects.name').map { |p| "'#{p.name}'" }
-          or_in_and << "reviews.by_project in (#{groupprojects.join(',')})" unless groupprojects.blank?
-
-          ## find request where user is maintainer in target package, except we have to project already
-          group.involved_packages.select('name,db_project_id').includes(:project).each do |ip|
-            or_in_and << "(reviews.by_project='#{ip.project.name}' and reviews.by_package='#{ip.name}')"
-          end
-
-          inner_or << "(reviews.state='#{r}' and (#{or_in_and.join(' or ')}))"
-        end
-      end
-
-      unless inner_or.empty?
-        rel = rel.where(inner_or.join(' or '))
-      end
-    end
-
-    if opts[:ids]
-      rel = rel.where(:id => opts[:ids])
-    end
-
-    return rel
   end
 
   def review_matches_user?(review, user)
@@ -776,6 +597,20 @@ class BsRequest < ActiveRecord::Base
     result['events'] = self.events
     result['actions'] = self.webui_actions(opts[:diffs])
     result
+  end
+
+  def auto_accept
+    BsRequest.transaction do
+      r.bs_request_actions.each do |action|
+        action.execute_accept({ lowprio: 1, comment: "Auto accept" })
+      end
+
+      r.bs_request_actions.each do |action|
+        action.per_request_cleanup(:comment => "Auto accept")
+      end
+
+      r.change_state('accepted', :comment => "Auto accept")
+    end
   end
 
   # Check if 'user' is maintainer in _all_ request targets:

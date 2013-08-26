@@ -1313,14 +1313,14 @@ class User < ActiveRecord::Base
   def request_ids_by_class
     result = {}
 
-    rel = BsRequest.collection(user: login, states: ['declined'], roles: ['creator'])
-    result[:declined] = rel.pluck("bs_requests.id")
+    rel = BsRequestCollection.new(user: login, states: ['declined'], roles: ['creator'])
+    result[:declined] = rel.ids
 
-    rel = BsRequest.collection(user: login, states: ['new'], roles: ['maintainer'])
-    result[:new] = rel.pluck("bs_requests.id")
+    rel = BsRequestCollection.new(user: login, states: ['new'], roles: ['maintainer'])
+    result[:new] = rel.ids
 
-    rel = BsRequest.collection(user: login, roles: ['reviewer'], reviewstates: ['new'], states: ['review'])
-    result[:reviews] = rel.pluck("bs_requests.id")
+    rel = BsRequestCollection.new(user: login, roles: ['reviewer'], reviewstates: ['new'], states: ['review'])
+    result[:reviews] = rel.ids
 
     result
   end
