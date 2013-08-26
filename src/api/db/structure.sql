@@ -396,6 +396,7 @@ CREATE TABLE `events` (
   `payload` text COLLATE utf8_unicode_ci,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
+  `queued` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -1264,6 +1265,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130817082602');
 INSERT INTO schema_migrations (version) VALUES ('20130820151442');
 
 INSERT INTO schema_migrations (version) VALUES ('20130820152631');
+
+INSERT INTO schema_migrations (version) VALUES ('20130826142746');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

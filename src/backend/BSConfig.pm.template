@@ -61,11 +61,10 @@ our $servicedir = "/usr/lib/obs/service/";
 # public download service:
 our $repodownload = "http://$hostname/repositories";
 # optional notification service:
-#our $hermesserver = "http://$hostname/hermes";
-#our $hermesnamespace = "OBS";
+#our $apiurl = "http://apihost:80";
 #
 # Notification Plugin, multiple plugins supported, separated by space
-#our $notification_plugin = "notify_hermes notify_rabbitmq";
+#our $notification_plugin = "notify_api notify_rabbitmq";
 #
 
 # For the workers only, it is possible to define multiple repository servers here.

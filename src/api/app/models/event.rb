@@ -3,7 +3,7 @@ class Event < ActiveRecord::Base
   self.inheritance_column = 'eventtype'
 
   class << self
-    attr_accessor :description
+    attr_accessor :description, :raw_type
     @payload_keys = nil
     @classnames = nil
 
@@ -75,6 +75,17 @@ class Event < ActiveRecord::Base
     @payload ||= Yajl::Parser.parse(read_attribute(:payload))
   end
 
+  def queue
+    e.queued = 1
+    e.save
+    e.delay.send_notification
+  end
+
+  def send_notification
+    EventNotificationHermes.new(self).send
+    # try with all possibly types
+  end
+
 end
 
 class EventFactory
@@ -97,6 +108,7 @@ class ProjectEvent < Event
 end
 
 class CreateProjectEvent < ProjectEvent
+  self.raw_type = 'SRCSRV_CREATE_PROJECT'
   self.description = 'Project is created'
   payload_keys :sender
 end
@@ -107,26 +119,31 @@ class UpdateProjectConfigEvent < ProjectEvent
 end
 
 class UndeleteProjectEvent < ProjectEvent
+  self.raw_type = 'SRCSRV_UNDELETE_PROJECT'
   self.description = 'Project was undeleted'
   payload_keys :comment, :sender
 end
 
 class UpdateProjectEvent < ProjectEvent
+  self.raw_type = 'SRCSRV_UPDATE_PROJECT'
   self.description = 'Project meta was updated'
   payload_keys :sender
 end
 
 class DeleteProjectEvent < ProjectEvent
+  self.raw_type = 'SRCSRV_DELETE_PROJECT'
   self.description = 'Project was deleted'
   payload_keys :comment, :requestid, :sender
 end
 
 class RepoPublishStateEvent < Event
+  self.raw_type = 'REPO_PUBLISH_STATE'
   self.description = 'Publish State of Repository has changed'
   payload_keys :project, :repo, :state
 end
 
 class RepoPublishedEvent < Event
+  self.raw_type = 'REPO_PUBLISHED'
   self.description = 'Repository was published'
   payload_keys :project, :repo
 end
@@ -137,39 +154,47 @@ class PackageEvent < Event
 end
 
 class CreatePackageEvent < PackageEvent
+  self.raw_type = 'SRCSRV_CREATE_PACKAGE'
   self.description = 'Package was created'
 end
 
 class UpdatePackageEvent < PackageEvent
+  self.raw_type = 'SRCSRV_UPDATE_PACKAGE'
   self.description = 'Package meta data was updated'
 end
 
 class UndeletePackageEvent < PackageEvent
+  self.raw_type = 'SRCSRV_UNDELETE_PACKAGE'
   self.description = 'Package was undeleted'
   payload_keys :comment
 end
 
 class DeletePackageEvent < PackageEvent
+  self.raw_type = 'SRCSRV_DELETE_PACKAGE'
   self.description = 'Package was deleted'
   payload_keys :comment, :requestid
 end
 
 class BranchCommandEvent < PackageEvent
+  self.raw_type = 'SRCSRV_BRANCH_COMMAND'
   self.description = 'Package was branched'
   payload_keys :targetproject, :targetpackage, :user
 end
 
 class VersionChangeEvent < PackageEvent
+  self.raw_type = 'SRCSRV_VERSION_CHANGE'
   self.description = 'Package has changed its version'
   payload_keys :comment, :requestid, :files, :rev, :newversion, :user, :oldversion
 end
 
 class CommitEvent < PackageEvent
+  self.raw_type = 'SRCSRV_COMMIT'
   self.description = 'New revision of a package was commited'
   payload_keys :project, :package, :comment, :user, :files, :rev, :requestid
 end
 
 class UploadEvent < PackageEvent
+  self.raw_type = 'SRCSRV_UPLOAD'
   self.description = 'Package sources were uploaded'
   payload_keys :project, :package, :comment, :filename, :requestid, :target, :user
 end
@@ -183,14 +208,17 @@ class BuildEvent < PackageEvent
 end
 
 class BuildSuccessEvent < BuildEvent
+  self.raw_type = 'BUILD_SUCCESS'
   self.description = 'Package has succeeded building'
 end
 
 class BuildFailEvent < BuildEvent
+  self.raw_type = 'BUILD_FAIL'
   self.description = 'Package has failed to build'
 end
 
 class BuildUnchangedEvent < BuildEvent
+  self.raw_type = 'BUILD_UNCHANGED'
   self.description = 'Package has succeeded building with unchanged result'
 end
 
@@ -203,58 +231,71 @@ class RequestEvent < Event
 end
 
 class RequestAcceptedEvent < RequestEvent
+  self.raw_type = 'SRCSRV_REQUEST_ACCEPTED'
   self.description = 'Request was accepted'
 end
 
 class RequestChangeEvent < RequestEvent
+  self.raw_type = "SRCSRV_REQUEST_CHANGE"
   self.description = 'Request XML was updated (admin only)'
 end
 
 class RequestCreateEvent < RequestEvent
+  self.raw_type = "SRCSRV_REQUEST_CREATE"
   self.description = 'Request created'
 end
 
 class RequestDeclinedEvent < RequestEvent
+  self.raw_type = 'SRCSRV_REQUEST_DECLINED'
   self.description = 'Request declined'
 end
 
 class RequestDeleteEvent < RequestEvent
+  self.raw_type = "SRCSRV_REQUEST_DELETE"
   self.description = 'Request was deleted (admin only)'
 end
 
 class RequestReviewerAddedEvent < RequestEvent
+  self.raw_type = "SRCSRV_REQUEST_REVIEWER_ADDED"
   self.description = 'Reviewer was added to a request'
   payload_keys :newreviewer
 end
 
 class RequestReviewerGroupAddedEvent < RequestEvent
+  self.raw_type = "SRCSRV_REQUEST_REVIEWER_GROUP_ADDED"
   self.description = 'Review for a group was added to a request'
   payload_keys :newreviewer_group
 end
 
 class RequestReviewerPackageAddedEvent < RequestEvent
+  self.raw_type = "SRCSRV_REQUEST_REVIEWER_PACKAGE_ADDED"
   self.description = 'Review for package maintainers added to a request'
   payload_keys :newreviewer_project, :newreviewer_package
 end
 
 class RequestReviewerProjectAddedEvent < RequestEvent
+  self.raw_type = "SRCSRV_REQUEST_REVIEWER_PROJECT_ADDED"
   self.description = 'Review for project maintainers added to a request'
   payload_keys :newreviewer_project
 end
 
 class RequestRevokedEvent < RequestEvent
+  self.raw_type = 'SRCSRV_REQUEST_REVOKED'
   self.description = 'Request was revoked'
 end
 
 class RequestStatechangeEvent < RequestEvent
+  self.raw_type = 'SRCSRV_REQUEST_STATECHANGE'
   self.description = 'Request state was changed'
   payload_keys :oldstate
 end
 
 class ReviewAcceptedEvent < RequestEvent
+  self.raw_type = 'SRCSRV_REVIEW_ACCEPTED'
   self.description = 'Request was accepted'
 end
 
 class ReviewDeclinedEvent < RequestEvent
+  self.raw_type = 'SRCSRV_REVIEW_DECLINED'
   self.description = 'Request was declined'
 end
