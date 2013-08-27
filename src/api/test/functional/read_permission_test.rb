@@ -280,15 +280,12 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     get "/source/#{destprj}/#{destpkg}/_meta"
     orig=@response.body
     post "/source/#{destprj}/#{destpkg}", :cmd => "copy", :oproject => "#{srcprj}", :opackage => "#{srcpkg}"
-    puts @response.body if debug
     assert_response resp if resp
     # ret destination package meta
     get "/source/#{destprj}/#{destpkg}/_meta"
-    puts @response.body if debug
     # Fixme do assert_xml_tag or assert_select if implementation is fixed
     assert_match(flag, @response.body) if flag
     delete "/source/#{destprj}/#{destpkg}"
-    puts @response.body if debug
     assert_response delresp if delresp
     get url_for(:controller => :source, :action => :package_meta, :project => "#{destprj}", :package => "#{destpkg}")
     put "/source/#{destprj}/#{destpkg}/_meta", orig.dup
@@ -337,8 +334,8 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # some user
     prepare_request_with_user "tom", "thunder"
-    resp=404       # unknown prj
-    delresp=404    # unknown prj
+    resp=403       # not allowed to create project, which looks to be not existing
+    delresp=404    # project does not exist, it seems ...
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # maintainer
     prepare_request_with_user "hidden_homer", "homer"

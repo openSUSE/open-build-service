@@ -311,7 +311,7 @@ end
     # new project
     raw_put url_for(:controller => :source, :action => :project_meta, :project => "NewProject"), "<project name='NewProject'><title>blub</title><description/></project>"
     assert_response 403
-    assert_match(/not allowed to create new project/, @response.body)
+    assert_xml_tag :tag => "status", :attributes => { :code => "create_project_no_permission" } 
 
     prepare_request_with_user "king", "sunflower"
     raw_put url_for(:controller => :source, :action => :project_meta, :project => "_NewProject"), "<project name='_NewProject'><title>blub</title><description/></project>"
@@ -2968,7 +2968,7 @@ end
     assert_response 404
     assert_match(/unknown_project/, @response.body)
 
-    post "/source/home:Iggy/Nothere?cmd=remove_flag&repository=10.2&arch=i586"
+    post "/source/home:Iggy/Nothere?cmd=remove_flag&repository=10.2&arch=i586&flag=build"
     assert_response 404
     assert_match(/unknown_package/, @response.body)
 
