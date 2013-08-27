@@ -356,7 +356,7 @@ class ApplicationController < ActionController::Base
       @configuration = Rails.cache.fetch('configuration', :expires_in => 30.minutes) do
         # we need to use the public route here or speaking to remote apis behind a proxy will fail.
         response = ActiveXML::transport.direct_http(URI('/public/configuration.json'))
-	Yajl::Parser.parse(response)
+        Yajl::Parser.parse(response)
       end
     rescue ActiveXML::Transport::NotFoundError
       logger.error 'Site configuration not found'

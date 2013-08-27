@@ -62,8 +62,6 @@ class ApiDetails
       end
     end
 
-    logger.debug "ids #{ids.inspect}"
-
     uri = "/webui/" +
       case route_name.to_sym
 
@@ -100,7 +98,6 @@ class ApiDetails
         uri = "#{uri}?#{opts.to_query}" unless opts.empty?
         data = transport.http_do verb, uri
       else
-        logger.debug "http_json #{opts.inspect}"
         data = transport.http_json verb, URI(uri), opts
       end
     rescue ActiveXML::Transport::NotFoundError => e
