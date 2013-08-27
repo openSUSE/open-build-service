@@ -30,28 +30,30 @@ use strict;
 sub notify($$) {
   my ($type, $paramRef ) = @_;
 
-  return unless $BSConfig::notification_plugin;
+  return unless $BSConfig::apiurl;
 
-  my @hostnames = split(/\s+/, $BSConfig::notification_plugin);
+  $type = "UNKNOWN" unless $type;
 
-  for my $hostname (@hostnames) {
-      my $notifier = &loadPackage($hostname);
-      $notifier->notify($type, $paramRef );
-  }
+  my $apiuri = "$BSConfig::apiurl/events";
+  print STDERR "Notifying API at $apiuri\n";
 
-}
+  $paramRef->{'eventtype'} = $type;
+  $paramRef->{'time'} = time();
 
-sub loadPackage {
-  my ($componentname) = @_;
-  my $file = "plugins/$componentname.pm";
+  my $data = JSON::XS->new->encode($paramRef);
 
-  my $componentfile = $file;
-  eval{
-     require "$componentfile";
+  my $param = {
+    'uri' => $apiuri,
+    'request' => 'POST',
+    'verbatim_uri' => 1,
+    'content-length' => length($data),
+    'headers' => [ 'Content-Type: application/json', 'Accepts: application/json' ],
+    'data' => $data,
   };
-  print "error: $@" if $@;
-  my $obj = $componentname->new();
-  return $obj;    
+  eval {
+    BSRPC::rpc( $param, undef, () );
+  };
+  warn("Notify API: $@") if $@;
 }
 
 ##
