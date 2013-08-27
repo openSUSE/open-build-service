@@ -6,7 +6,7 @@ class ChannelBinary < ActiveRecord::Base
   belongs_to :architecture
 
   def self.find_by_project_and_package( project, package )
-    project = Project.find_by_name(project) if project.class == String
+    project = Project.find_by_name(project) if project.is_a? String
     cbs = Array.new
     # find direct refences
     cbs += ChannelBinary.where(project: project, package: package)

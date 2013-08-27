@@ -4,39 +4,39 @@ class Channel < ActiveRecord::Base
   has_many :channel_targets, dependent: :destroy
   has_many :channel_binary_lists, dependent: :destroy
 
-  class UnknownPackageError < APIException
+  class UnknownPackage < APIException
     setup 'unknown_package', 404, "Unknown referenced package"
   end
-  class UnknownRepositoryError < APIException
+  class UnknownRepository < APIException
     setup 'unknown_repository', 404, "Unknown referenced repository"
   end
 
   def self.verify_xml!(xmlhash)
-    xmlhash = Xmlhash.parse(xmlhash) if xmlhash.class == String
+    xmlhash = Xmlhash.parse(xmlhash) if xmlhash.is_a? String
     xmlhash.elements('target') { |p|
-      prj = Project.get_by_name(p.value("project"))
-      r = prj.repositories.find_by_name(p.value("repository"))
-      raise UnknownRepositoryError.new "Repository does not exist #{prj.name}/#{p.value("repository")}" unless r
+      prj = Project.get_by_name(p['project'])
+      unless prj.repositories.find_by_name(p['repository'])
+        raise UnknownRepository.new "Repository does not exist #{prj.name}/#{p['repository']}"
+      end
     }
     xmlhash.elements('binaries').each { |p|
-      project = p.value("project")
+      project = p['project']
       unless project.blank?
-        prj = Project.get_by_name( p.value("project") )
-        prj.repositories.find_by_name!( p.value("repository") ) if p.value("repository")
+        prj = Project.get_by_name( p['project'] )
+        prj.repositories.find_by_name!( p['repository'] ) if p['repository']
       end
-      Architecture.find_by_name!( p.value("arch") ) if p.value("arch")
+      Architecture.find_by_name!( p['arch'] ) if p['arch']
       p.elements('binary') { |b|
-        Architecture.find_by_name!( b.value("arch") ) if b.value("arch")
-        project = b.value("project")
+        Architecture.find_by_name!( b['arch'] ) if b['arch']
+        project = b['project']
         if project
           prj = Project.get_by_name( project )
-          if b.value("package")
-            pkg = prj.find_package(b.value("package") )
-            raise UnknownPackageError.new "Package does not exist #{prj.name}/#{p.value("package")}" unless pkg
+          if b['package']
+            pkg = prj.find_package(b['package'] )
+            raise UnknownPackage.new "Package does not exist #{prj.name}/#{p['package']}" unless pkg
           end
-          if b.value("repository")
-            r = prj.repositories.find_by_name!(b.value("repository") )
-            raise UnknownRepositoryError.new "Repository does not exist #{prj.name}/#{p.value("repository")}" unless r
+          if b['repository'] and not prj.repositories.find_by_name(b['repository'])
+            raise UnknownRepository.new "Repository does not exist #{prj.name}/#{b['repository']}"
           end
         end
       }
@@ -51,30 +51,30 @@ class Channel < ActiveRecord::Base
   end
 
   def update_from_xml(xmlhash, check=false)
-    xmlhash = Xmlhash.parse(xmlhash) if xmlhash.class == String
+    xmlhash = Xmlhash.parse(xmlhash) if xmlhash.is_a? String
     xmlhash.elements('target') { |p|
-      prj = Project.find_by_name(p.value("project"))
-      r = prj.repositories.find_by_name(p.value("repository"))
+      prj = Project.find_by_name(p['project'])
+      r = prj.repositories.find_by_name(p['repository'])
       self.channel_targets.create(:repository => r) if r
     }
     xmlhash.elements('binaries').each { |p|
       cbl = self.channel_binary_lists.create()
-      project = p.value("project")
+      project = p['project']
       unless project.blank?
         cbl.project = Project.find_by_name( project )
-        cbl.repository = cbl.project.repositories.find_by_name( p.value("repository") ) if p.value("repository")
+        cbl.repository = cbl.project.repositories.find_by_name( p['repository'] ) if p['repository']
       end
-      cbl.architecture = Architecture.find_by_name( p.value("arch") ) if p.value("arch")
+      cbl.architecture = Architecture.find_by_name( p['arch'] ) if p['arch']
       cbl.save
       p.elements('binary') { |b|
-        binary = cbl.channel_binaries.create( name: b.value("name") )
-        binary.binaryarch = b.value("binaryarch")
-        binary.architecture = Architecture.find_by_name( b.value("arch") ) if b.value("arch")
-        project = b.value("project")
+        binary = cbl.channel_binaries.create( name: b['name'] )
+        binary.binaryarch = b['binaryarch']
+        binary.architecture = Architecture.find_by_name( b['arch'] ) if b['arch']
+        project = b['project']
         if project
           binary.project = Project.find_by_name( project )
-          binary.package = b.value("package") if b.value("package")
-          binary.repository = binary.project.repositories.find_by_name(b.value("repository") ) if b.value("repository")
+          binary.package = b['package'] if b['package']
+          binary.repository = binary.project.repositories.find_by_name(b['repository'] ) if b['repository']
         end
         binary.save
       }

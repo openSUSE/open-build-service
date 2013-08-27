@@ -52,7 +52,7 @@ module SearchHelper
   
       if obj.nil?
         owners += find_containers_without_definition(project, devel, filter)
-      elsif obj.class == String
+      elsif obj.is_a? String
         owners += find_assignees(project, obj, limit.to_i, devel,
                                                 filter, (true unless params[:webui_mode].blank?))
       else

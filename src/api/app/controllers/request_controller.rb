@@ -279,11 +279,7 @@ class RequestController < ApplicationController
       end
     end
 
-    if newactions.length < 1
-      render_error :status => 400, :errorcode => 'missing_actions',
-                   :message => "The request contains no actions. Submit requests without source changes may have skipped!"
-      return
-    end
+    raise NoActionsInRequest.new if newactions.length < 1
 
     return newactions
   end
@@ -318,7 +314,7 @@ class RequestController < ApplicationController
           end
           action.target_project = maintenanceProject.name
         end
-        unless maintenanceProject.project_type.to_s == "maintenance" or maintenanceProject.project_type.to_s == "maintenance_incident"
+        unless maintenanceProject.is_maintenance_incident? or maintenanceProject.is_maintenance?
           render_error :status => 400, :errorcode => 'no_maintenance_project',
                        :message => "Maintenance incident requests have to go to projects of type maintenance or maintenance_incident"
           return

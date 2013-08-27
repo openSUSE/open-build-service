@@ -43,7 +43,7 @@ class Webui::ProjectsController < Webui::BaseController
     pm = pro.maintenance_project
     infos[:maintenance_project] = pm.name if pm
 
-    if pro.project_type == "maintenance"
+    if pro.is_maintenance?
       mi = DbProjectType.find_by_name!('maintenance_incident')
       subprojects = Project.where("projects.name like ?", pro.name + ":%").
           where(type_id: mi.id).joins(:repositories => :release_targets).
@@ -78,7 +78,7 @@ class Webui::ProjectsController < Webui::BaseController
       infos[:nr_of_problem_packages] = ret.keys.size
     end
 
-    if pro.project_type == 'maintenance_incident'
+    if pro.is_maintenance_incident?
       rel = BsRequestCollection.new(project: project_name, states: ['new', 'review'], types: ['maintenance_release'], roles: ['source'])
       infos[:open_release_requests] = rel.ids
     end

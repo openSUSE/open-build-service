@@ -294,7 +294,7 @@ module MaintenanceHelper
                 logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes["project"]} / #{e.attributes["name"]}"
               else
                 # is incident ?
-                if ipkg.project.project_type == "maintenance_incident" 
+                if ipkg.project.is_maintenance_incident?
                   # is a newer incident ?
                   if incident_pkg.nil? or ipkg.project.name.gsub(/.*:/,'').to_i > incident_pkg.project.name.gsub(/.*:/,'').to_i
                     incident_pkg = ipkg
@@ -535,14 +535,14 @@ module MaintenanceHelper
         # fetch newer sources from devel package, if defined
         if p[:copy_from_devel] and p[:copy_from_devel].project != tpkg.project
           msg="fetch+updates+from+devel+package+#{CGI.escape(p[:copy_from_devel].project.name)}/#{CGI.escape(p[:copy_from_devel].name)}"
-          msg="fetch+updates+from+open+incident+project+#{CGI.escape(p[:copy_from_devel].project.name)}" if p[:copy_from_devel].project.project_type == "maintenance_incident"
+          msg="fetch+updates+from+open+incident+project+#{CGI.escape(p[:copy_from_devel].project.name)}" if p[:copy_from_devel].project.is_maintenance_incident?
           answer = Suse::Backend.post "/source/#{tpkg.project.name}/#{tpkg.name}?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(p[:copy_from_devel].project.name)}&opackage=#{CGI.escape(p[:copy_from_devel].name)}&user=#{CGI.escape(User.current.login)}&comment=#{msg}", nil
         end
 
         tpkg.sources_changed
       end
 
-      if tprj.project_type == "maintenance_incident" 
+      if tprj.is_maintenance_incident?
         tpkg.add_channels
       end
     end

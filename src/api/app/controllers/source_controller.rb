@@ -1074,7 +1074,7 @@ class SourceController < ApplicationController
     project_name = params[:project]
 
     pro = Project.get_by_name(project_name)
-    if pro.project_type == "maintenance_incident"
+    if pro.is_maintenance_incident?
       rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
       rel = rel.where(bs_request_actions: { type: 'maintenance_release', source_project: pro.name})
       if rel.exists?
@@ -1096,7 +1096,7 @@ class SourceController < ApplicationController
       pro.store(p)
 
       # maintenance incidents need special treatment
-      if pro.project_type == "maintenance_incident"
+      if pro.is_maintenance_incident?
         # reopen all release targets
         pro.repositories.each do |repo|
           repo.release_targets.each do |releasetarget|
@@ -1117,10 +1117,7 @@ class SourceController < ApplicationController
   # add channel packages and extend repository list
   # POST /source/<project>?cmd=addchannels
   def project_command_addchannels
-    required_parameters :project
-    project_name = params[:project]
-
-    pro = Project.find_by_name(project_name)
+    pro = Project.get_by_name(params[:project])
 
     pro.packages.each do |pkg|
       pkg.add_channels
@@ -1196,7 +1193,7 @@ class SourceController < ApplicationController
     verify_repos_match!(pro)
 
     p = Project.get_by_name(params[:project])
-    if p.class == String # remote project
+    if p.is_a? String # remote project
       render_error :status => 404, :errorcode => "remote_project",
         :message => "The release from remote projects is currently not supported"
       return
@@ -1253,7 +1250,7 @@ class SourceController < ApplicationController
       end
     end
 
-    if oprj.class == String # remote project
+    if oprj.is_a? String # remote project
       raise RemoteProjectError.new "The copy from remote projects is currently not supported"
     end
 
@@ -1262,7 +1259,7 @@ class SourceController < ApplicationController
         raise ProjectCopyNoPermission.new "no permission to copy project with binaries for non admins"
       end
 
-      unless oprj.class == String
+      unless oprj.is_a? String
         oprj.packages.each do |pkg|
           next unless pkg.disabled_for?('sourceaccess', nil, nil)
           raise ProjectCopyNoPermission.new "no permission to copy project due to source protected package #{pkg.name}"
@@ -1273,7 +1270,7 @@ class SourceController < ApplicationController
     # create new project object based on oproject
     p = Project.find_by_name(project_name)
     Project.transaction do
-      if oprj.class == String # remote project
+      if oprj.is_a? String # remote project
         rdata = Xmlhash.parse(backend_get("/source/#{URI.escape(oprj)}/_meta"))
         p = Project.new :name => project_name, :title => rdata["title"], :description => rdata["description"]
       else # local project

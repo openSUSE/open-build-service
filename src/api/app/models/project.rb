@@ -274,6 +274,15 @@ class Project < ActiveRecord::Base
       return false
   end
 
+  def is_maintenance_incident?
+      return true if self.project_type == "maintenance_incident"
+      return false
+  end
+  def is_maintenance?
+      return true if self.project_type == "maintenance"
+      return false
+  end
+
   # NOTE: this is no permission check, should it be added ?
   def can_be_deleted?
     # check all packages
@@ -1029,7 +1038,7 @@ class Project < ActiveRecord::Base
       self.maintenance_project_id = project.id
       self.save!
       return true
-    elsif project.class == String
+    elsif project.is_a? String
       prj = Project.find_by_name(project)
       if prj
         self.maintenance_project_id = prj.id
