@@ -82,8 +82,10 @@ class Event < ActiveRecord::Base
   end
 
   def send_notification
-    EventNotificationHermes.new(self).send
     # try with all possibly types
+    EventNotificationHermes.new(self).send or return false
+    EventNotificationRabbitmq.new(self).send or return false
+    true
   end
 
 end

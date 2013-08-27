@@ -64,7 +64,7 @@ our $repodownload = "http://$hostname/repositories";
 #our $apiurl = "http://apihost:80";
 #
 # Notification Plugin, multiple plugins supported, separated by space
-#our $notification_plugin = "notify_api notify_rabbitmq";
+#our $notification_plugin = "notify_api";
 #
 
 # For the workers only, it is possible to define multiple repository servers here.

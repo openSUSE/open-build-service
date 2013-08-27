@@ -62,11 +62,13 @@ class EventTest < ActiveSupport::TestCase
   test "notifications are sent" do
     e = events(:reviewer_group_added)
     CONFIG['hermes_server'] = 'http://hermes.example.com'
-    stub_request(:get, "http://hermes.example.com/index.cgi?rm=notify&_type=OBS_SRCSRV_REQUEST_REVIEWER_GROUP_ADDED&author=king&description=&id=1029&newreviewer_group=test_group&sender=king&sourcepackage=TestPack&sourceproject=home:Iggy&sourcerevision=1&state=review&targetpackage=Testing&targetproject=kde4&type=submit&when=2010-07-12T00:00:00&who=king").
-        with(:headers => {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Host'=>'hermes.example.com', 'User-Agent'=>'Ruby'}).
-        to_return(:status => 200, :body => "42", :headers => {})
-    assert_equal "42", e.send_notification
-
+    # make sure not to try rabbitmq - bunny can't be mocked ;(
+    CONFIG.delete 'rabbitmq_server'
+    # yes, the URL is messy
+    hermes_url = 'http://hermes.example.com/index.cgi?rm=notify&_type=OBS_SRCSRV_REQUEST_REVIEWER_GROUP_ADDED&author=king&description=&id=1029&newreviewer_group=test_group&sender=king&sourcepackage=TestPack&sourceproject=home:Iggy&sourcerevision=1&state=review&targetpackage=Testing&targetproject=kde4&type=submit&when=2010-07-12T00:00:00&who=king'
+    hermes_get = stub_request(:get, hermes_url).to_return(:status => 200, :body => "42", :headers => {})
+    assert e.send_notification
+    assert_requested(hermes_get)
   end
 
 end
