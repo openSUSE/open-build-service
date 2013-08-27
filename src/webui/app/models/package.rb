@@ -84,45 +84,6 @@ class Package < ActiveXML::Node
     add_element('group', 'groupid' => opt[:groupid], 'role' => opt[:role])
   end
 
-  #removes persons based on attributes
-  def remove_person(person, role=nil)
-  end
-
-  def remove_persons( opt={} )
-    xpath="//person"
-    if not opt.empty?
-      opt_arr = []
-      opt.each {|k,v| opt_arr << "@#{k}='#{v}'" unless v.nil? or v.empty?}
-      xpath += "[#{opt_arr.join ' and '}]"
-    end
-    logger.debug "removing persons using xpath '#{xpath}'"
-    each(xpath) {|e| delete_element e}
-  end
-
-  def remove_group(opt={})
-    xpath="//group"
-    if not opt.empty?
-      opt_arr = []
-      opt.each {|k,v| opt_arr << "@#{k}='#{v}'" unless v.nil? or v.empty?}
-      xpath += "[#{opt_arr.join ' and '}]"
-    end
-    logger.debug "removing groups using xpath '#{xpath}'"
-    each(xpath) {|e| delete_element e }
-  end
-
-  def set_url( new_url )
-    logger.debug "set url #{new_url} for package #{self.name} (project #{self.project})"
-    add_element 'url' unless has_element? :url
-    url.text = new_url
-    save
-  end
-
-  def remove_url
-    logger.debug "remove url from package #{self.name} (project #{self.project})"
-    each('//url') { |e| delete_element e }
-    save
-  end
-
   def bugowners
     return users('bugowner')
   end
@@ -376,17 +337,6 @@ class Package < ActiveXML::Node
     rescue ActiveXML::Transport::Error
       return nil
     end
-  end
-
-  def issues_in_linkdiff
-    issues = {}
-    linkdiff = self.linkdiff()
-    if linkdiff.has_element?('issues')
-      linkdiff.issues.each(:issue) do |issue|
-        issues[issue.value('label')] = issue
-      end
-    end
-    return issues
   end
 
 end

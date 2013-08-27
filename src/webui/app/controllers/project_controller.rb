@@ -621,8 +621,6 @@ class ProjectController < ApplicationController
     @project.description.text = params[:description]
     @project.set_project_type('maintenance') if params[:maintenance_project]
     @project.set_remoteurl(params[:remoteurl]) if params[:remoteurl]
-    @project.add_person :userid => session[:login], :role => 'maintainer'
-    @project.add_person :userid => session[:login], :role => 'bugowner'
     if params[:access_protection]
       @project.add_element "access"
       @project.access.add_element "disable"

@@ -36,7 +36,7 @@ class Project < ActiveXML::Node
       e.text = arch
     end
 
-    def remove_arch(arch)
+    def eemove_arch(arch)
       return nil unless archs.include? arch
       each_arch do |a|
         delete_element(a) if a.text == arch
@@ -105,21 +105,6 @@ class Project < ActiveXML::Node
     to_hash["name"]
   end
 
-  def add_person( opt={} )
-    return false unless opt[:userid] and opt[:role]
-    logger.debug "adding person '#{opt[:userid]}', role '#{opt[:role]}' to project #{self.name}"
-
-    add_element 'person', 'userid' => opt[:userid], 'role' => opt[:role]
-  end
-
-  def add_group(opt={})
-    return false unless opt[:groupid] and opt[:role]
-    logger.debug "adding group '#{opt[:groupid]}', role '#{opt[:role]}' to project #{self.name}"
-
-    # add the new group
-    add_element 'group', 'groupid' => opt[:groupid], 'role' => opt[:role]
-  end
-
   def set_remoteurl(url)
     logger.debug "set remoteurl"
 
@@ -131,29 +116,6 @@ class Project < ActiveXML::Node
       add_element 'remoteurl' unless urlexists
       remoteurl.text = url
     end
-  end
-
-  #removes persons based on attributes
-  def remove_persons(opt={})
-    xpath="//person"
-    if not opt.empty?
-      opt_arr = []
-      opt.each {|k,v| opt_arr << "@#{k}='#{v}'" unless v.nil? or v.empty?}
-      xpath += "[#{opt_arr.join ' and '}]"
-    end
-    logger.debug "removing persons using xpath '#{xpath}'"
-    each(xpath) {|e| delete_element e}
-  end
-
-  def remove_group(opt={})
-    xpath="//group"
-    if not opt.empty?
-      opt_arr = []
-      opt.each {|k,v| opt_arr << "@#{k}='#{v}'" unless v.nil? or v.empty?}
-      xpath += "[#{opt_arr.join ' and '}]"
-    end
-    logger.debug "removing groups using xpath '#{xpath}'"
-    each(xpath) {|e| delete_element e}
   end
 
   def add_path_to_repository(opt={})

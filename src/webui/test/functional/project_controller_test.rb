@@ -59,7 +59,7 @@ class ProjectControllerTest < ActionDispatch::IntegrationTest
     find(:link, "Meta").click
     
     # TODO: find a more reliable way to retrieve the text - having the line numbers in here sounds dangerous
-    find(:css, "div.CodeMirror-lines").must_have_text %r{<access> 7 <disable/> 8 </access>}
+    find(:css, "div.CodeMirror-lines").must_have_text %r{<access> 6 <disable/> 7 </access>}
 
     # now check that adrian can't see it
     logout
