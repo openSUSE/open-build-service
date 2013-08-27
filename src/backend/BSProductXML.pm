@@ -170,6 +170,15 @@ our $product = [
               [],
               'allowresolving',
            ],
+           [[ 'productdependency' =>
+              'relationship',
+              'name',
+              'baseversion',
+              'patchlevel',
+              'release',
+              'flavor',
+              'flag',
+           ]],
 ];
 
 # Complete product definition. Defines how a media is setup
@@ -259,6 +268,7 @@ our $productdesc = [
                [[ 'package' => 'name', 'medium', 'relationship', 'arch', 'addarch' ]],
                [[ 'include' => 'group', 'relationship' ]],
             ]],
+            # product dependency got moved to product definition
             [[ 'productdependency' =>
                'relationship',
                'name',
