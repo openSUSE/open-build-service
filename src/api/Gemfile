@@ -7,16 +7,29 @@ gem 'activerecord', '~> 4.0'
 gem 'actionmailer'
 
 gem 'mysql2'
-gem 'daemons'
+
+# activexml require
 gem 'nokogiri', '~>1.6.0'
-gem 'delayed_job', '>= 4.0.0'
+
+# make sure we can delay tasks
 gem 'delayed_job_active_record', '>= 4.0.0'
+# to have the delayed job daemon
+gem 'daemons'
+
+# to fill errbit
 gem 'hoptoad_notifier', "~> 2.3"
+
 gem 'rdoc'
 gem 'xmlhash', '>=1.3.5'
-gem 'ruby-ldap', :require => false
-gem 'dalli', :require => false
+gem 'ruby-ldap', require: false
+
+# memcache client
+gem 'dalli', require: false
+
+# JSON library - the default json conflicts with activerecord (by means of vice-versa monkey patching)
 gem 'yajl-ruby'
+
+# for searching in webui
 gem 'thinking-sphinx'
 
 # don't rely on cron+rake 
@@ -33,10 +46,15 @@ group :test do
   gem 'ci_reporter'
   gem 'simplecov-rcov', :require => false
   gem 'minitest', '< 5.0'
+  # colorize minitest output
   gem 'minitest-colorize'
+  # generate random long strings
   gem 'faker'
+  # freeze time
   gem 'timecop'
+  # to fake backend replies
   gem 'webmock', '>= 1.9.0'
+  # for code quality checks
   gem 'flog', '> 4.1.0'
 end
 

@@ -138,7 +138,6 @@ DEPENDENCIES
   daemons
   dalli
   database_cleaner (>= 1.0.1)
-  delayed_job (>= 4.0.0)
   delayed_job_active_record (>= 4.0.0)
   faker
   flog (> 4.1.0)
