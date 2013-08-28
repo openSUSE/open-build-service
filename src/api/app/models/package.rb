@@ -6,6 +6,7 @@ class Package < ActiveRecord::Base
   include FlagHelper
   include CanRenderModel
   include HasRelationships
+  include HasRatings
 
   class CycleError < APIException
    setup "cycle_error"
@@ -38,7 +39,6 @@ class Package < ActiveRecord::Base
   has_many :tags, :through => :taggings
 
   has_many :download_stats
-  has_many :ratings, :as => :db_object, dependent: :delete_all
 
   has_many :flags, -> { order(:position) }, dependent: :delete_all, foreign_key: :db_package_id
 
@@ -737,24 +737,6 @@ class Package < ActiveRecord::Base
                                :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                              Nokogiri::XML::Node::SaveOptions::FORMAT
 
-  end
-
-  def rating( user_id=nil )
-    score = 0
-    self.ratings.each do |rating|
-      score += rating.score
-    end
-    count = self.ratings.length
-    score = score.to_f
-    score /= count
-    score = -1 if score.nan?
-    score = ( score * 100 ).round.to_f / 100
-    if user_rating = self.ratings.find_by_user_id( user_id )
-      user_score = user_rating.score
-    else
-      user_score = 0
-    end
-    return { :score => score, :count => count, :user_score => user_score }
   end
 
   def self.activity_algorithm

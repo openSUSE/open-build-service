@@ -4,6 +4,7 @@ class Project < ActiveRecord::Base
   include FlagHelper
   include CanRenderModel
   include HasRelationships
+  include HasRatings
 
   class CycleError < APIException
     setup "project_cycle"
@@ -47,7 +48,6 @@ class Project < ActiveRecord::Base
 
   has_many :download_stats
   has_many :downloads, :dependent => :delete_all, foreign_key: :db_project_id
-  has_many :ratings, :as => :db_object, :dependent => :delete_all
 
   has_many :flags, dependent: :delete_all, foreign_key: :db_project_id
 
@@ -804,25 +804,6 @@ class Project < ActiveRecord::Base
   def to_axml_id
     return "<project name='#{::Builder::XChar.encode(name)}'/>"
   end
-
-  def rating( user_id=nil )
-    score = 0
-    self.ratings.each do |rating|
-      score += rating.score
-    end
-    count = self.ratings.length
-    score = score.to_f
-    score /= count
-    score = -1 if score.nan?
-    score = ( score * 100 ).round.to_f / 100
-    if user_rating = self.ratings.find_by_user_id( user_id )
-      user_score = user_rating.score
-    else
-      user_score = 0
-    end
-    return { :score => score, :count => count, :user_score => user_score }
-  end
-
 
   def activity
     # the activity of a project is measured by the average activity
