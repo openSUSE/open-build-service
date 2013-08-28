@@ -7,6 +7,7 @@ class Package < ActiveRecord::Base
   include CanRenderModel
   include HasRelationships
   include HasRatings
+  include HasAttributes
 
   class CycleError < APIException
    setup "cycle_error"
@@ -141,14 +142,7 @@ class Package < ActiveRecord::Base
       raise "get_by_project_and_name expects a hash as third arg" unless opts.kind_of? Hash
       opts = { follow_project_links: true, allow_remote_packages: false}.merge(opts)
       if Project.is_remote_project?( project )
-        if opts[:allow_remote_packages]
-          begin
-            answer = Suse::Backend.get("/source/#{URI.escape(project)}/#{URI.escape(package)}")
-            return true if answer
-          rescue ActiveXML::Transport::Error
-          end
-        end
-        return false
+        return opts[:allow_remote_packages] && exist_package_on_backend?(package, project)
       end
       prj = Project.get_by_name( project )
       if opts[:follow_project_links]
@@ -158,19 +152,21 @@ class Package < ActiveRecord::Base
       end
       if pkg.nil?
         # local project, but package may be in a linked remote one
-        if opts[:allow_remote_packages]
-          begin
-            answer = Suse::Backend.get("/source/#{URI.escape(project)}/#{URI.escape(package)}")
-            return true if answer
-          rescue ActiveXML::Transport::Error
-          end
-        end
-        return false
+        return opts[:allow_remote_packages] && exist_package_on_backend?(package, project)
       end
       unless check_access?(pkg)
         return false
       end
       return true
+    end
+
+    def exist_package_on_backend?(package, project)
+      begin
+        answer = Suse::Backend.get("/source/#{URI.escape(project)}/#{URI.escape(package)}")
+        return true if answer
+      rescue ActiveXML::Transport::Error
+      end
+      return false
     end
 
     def find_by_project_and_name( project, package )
@@ -558,64 +554,9 @@ class Package < ActiveRecord::Base
     save!
   end
 
-  def store_attribute_axml( attrib, binary=nil )
-
-    raise SaveError, "attribute type without a namespace " if not attrib.has_attribute? :namespace
-    raise SaveError, "attribute type without a name " if not attrib.has_attribute? :name
-
-    # check attribute type
-    if ( not atype = AttribType.find_by_namespace_and_name(attrib.namespace,attrib.name) or atype.blank? )
-      raise SaveError, "unknown attribute type '#{attrib.namespace}':'#{attrib.name}'"
-    end
-    # verify the number of allowed values
-    if atype.value_count and attrib.has_element? :value and atype.value_count != attrib.each_value.length
-      raise SaveError, "attribute '#{attrib.namespace}:#{attrib.name}' has #{attrib.each_value.length} values, but only #{atype.value_count} are allowed"
-    end
-    if atype.value_count and atype.value_count > 0 and not attrib.has_element? :value
-      raise SaveError, "attribute '#{attrib.namespace}:#{attrib.name}' requires #{atype.value_count} values, but none given"
-    end
-    if attrib.has_element? :issue and not atype.issue_list
-      raise SaveError, "attribute '#{attrib.namespace}:#{attrib.name}' has issue elements which are not allowed in this attribute"
-    end
-
-    # verify with allowed values for this attribute definition
-    unless atype.allowed_values.empty?
-      logger.debug( "Verify value with allowed" )
-      attrib.each_value.each do |value|
-        found = 0
-        atype.allowed_values.each do |allowed|
-          if allowed.value == value.text
-            found = 1
-            break
-          end
-        end
-        if found == 0
-          raise SaveError, "attribute value #{value} for '#{attrib.namespace}':'#{attrib.name} is not allowed'"
-        end
-      end
-    end
-    # update or create attribute entry
-    changed = false
-    a = find_attribute(attrib.namespace, attrib.name, binary)
-    if a.nil?
-      # create the new attribute entry
-      if binary
-        a = self.attribs.create(:attrib_type => atype, :binary => binary)
-      else
-        a = self.attribs.create(:attrib_type => atype)
-      end
-      changed = true
-    end
-    # write values
-    changed = true if a.update_from_xml(attrib)
-    return changed
-  end
-
-  def write_attributes(comment=nil)
-    login = User.current.login
-    path = "/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}/_attribute?meta=1&user=#{CGI.escape(login)}"
-    path += "&comment=#{CGI.escape(comment)}" if comment
-    Suse::Backend.put_source( path, render_attribute_axml )
+  # for the HasAttributes mixing
+  def attribute_url
+    "/source/#{CGI.escape(self.project.name)}/#{CGI.escape(self.name)}/_attribute"
   end
 
   def store(opts = {})
@@ -640,18 +581,6 @@ class Package < ActiveRecord::Base
     @commit_opts = {}
   end
 
-  def find_attribute( namespace, name, binary=nil )
-    if binary
-      a = attribs.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = ? and attrib_namespaces.name = ? AND attribs.binary = ?", name, namespace, binary).first
-    else
-      a = attribs.nobinary.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = ? and attrib_namespaces.name = ?", name, namespace).first
-    end
-    if a && a.readonly? # FIXME - there must be a way with :through to get this without readonly
-      a = attribs.where(:id => a.id).first
-    end
-    return a
-  end
-
   def to_axml_id
     return "<package project='#{::Builder::XChar.encode(project.name)}' name='#{::Builder::XChar.encode(name)}'/>"
   end
@@ -668,75 +597,6 @@ class Package < ActiveRecord::Base
         render_xml(view)
       end
     end
-  end
-
-  def render_attribute_axml(params={})
-    builder = Nokogiri::XML::Builder.new
-
-    builder.attributes() do |a|
-      done={}
-      attribs.each do |attr|
-        type_name = attr.attrib_type.attrib_namespace.name+":"+attr.attrib_type.name
-        next if params[:name] and not attr.attrib_type.name == params[:name]
-        next if params[:namespace] and not attr.attrib_type.attrib_namespace.name == params[:namespace]
-        next if params[:binary] and attr.binary != params[:binary]
-        next if params[:binary] == "" and attr.binary != ""  # switch between all and NULL binary
-        done[type_name]=1 if not attr.binary
-        p={}
-        p[:name] = attr.attrib_type.name
-        p[:namespace] = attr.attrib_type.attrib_namespace.name
-        p[:binary] = attr.binary if attr.binary
-        a.attribute(p) do |y|
-          unless attr.issues.empty?
-            attr.issues.each do |ai|
-              y.issue(:name => ai.issue.name, :tracker => ai.issue.issue_tracker.name)
-            end
-          end
-          unless attr.values.empty?
-            attr.values.each do |val|
-              y.value(val.value)
-            end
-          else
-            if params[:with_default]
-              attr.attrib_type.default_values.each do |val|
-                y.value(val.value)
-              end
-            end
-          end
-        end
-      end
-
-      # show project values as fallback ?
-      if params[:with_project]
-        project.attribs.each do |attr|
-          type_name = attr.attrib_type.attrib_namespace.name+":"+attr.attrib_type.name
-          next if done[type_name]
-          next if params[:name] and not attr.attrib_type.name == params[:name]
-          next if params[:namespace] and not attr.attrib_type.attrib_namespace.name == params[:namespace]
-          p={}
-          p[:name] = attr.attrib_type.name
-          p[:namespace] = attr.attrib_type.attrib_namespace.name
-          p[:binary] = attr.binary if attr.binary
-          a.attribute(p) do |y|
-            unless attr.values.empty?
-              attr.values.each do |val|
-                y.value(val.value)
-              end
-            else
-              if params[:with_default]
-                attr.attrib_type.default_values.each do |val|
-                  y.value(val.value)
-                end
-              end
-            end
-          end
-        end
-      end
-    end
-    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
-                               :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                             Nokogiri::XML::Node::SaveOptions::FORMAT
-
   end
 
   def self.activity_algorithm

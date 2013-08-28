@@ -615,7 +615,7 @@ class BsRequestAction < ActiveRecord::Base
         source_project = Project.get_by_name(self.source_project)
         target_project = Project.get_by_name(self.target_project)
         if self.action_type == :change_devel and self.target_package.nil?
-          raise TargetPackageMissing.new "Target package is missing in request #{req.id} (type #{self.action_type})"
+          raise TargetPackageMissing.new "Target package is missing in request #{self.bs_request.id} (type #{self.action_type})"
         end
         if self.source_package or self.action_type == :change_devel
           source_package = Package.get_by_project_and_name self.source_project, self.source_package
@@ -623,14 +623,14 @@ class BsRequestAction < ActiveRecord::Base
         # require a local source package
         if [:change_devel].include? self.action_type
           unless source_package
-            raise SourceMissing.new "Local source package is missing for request #{req.id} (type #{self.action_type})"
+            raise SourceMissing.new "Local source package is missing for request #{self.bs_request.id} (type #{self.action_type})"
           end
         end
         # accept also a remote source package
         if source_package.nil? and [:submit].include? self.action_type
           unless Package.exists_by_project_and_name(source_project.name, self.source_package,
                                                     follow_project_links: true, allow_remote_packages: true)
-            raise SourceMissing.new "Source package is missing for request #{req.id} (type #{self.action_type})"
+            raise SourceMissing.new "Source package is missing for request #{self.bs_request.id} (type #{self.action_type})"
           end
         end
         # maintenance incident target permission checks

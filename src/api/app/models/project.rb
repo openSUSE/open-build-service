@@ -5,6 +5,7 @@ class Project < ActiveRecord::Base
   include CanRenderModel
   include HasRelationships
   include HasRatings
+  include HasAttributes
 
   class CycleError < APIException
     setup "project_cycle"
@@ -604,17 +605,9 @@ class Project < ActiveRecord::Base
       unless force
         #find repositories that link against this one and issue warning if found
         list = PathElement.where(repository_id: object.id)
-        error = ""
-        unless list.empty?
-          linking_repos = list.map {|x| x.repository.project.name+"/"+x.repository.name}.join "\n"
-          error << "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:\n"+linking_repos
-        end
+        check_for_empty_repo_list!(list, "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:")
         list = ReleaseTarget.where(target_repository_id: object.id)
-        unless list.empty?
-          linking_repos = list.map {|x| x.repository.project.name+"/"+x.repository.name}.join "\n"
-          error << "Repository #{self.name}/#{name} cannot be deleted because following repos define it as release target:/\n"+linking_repos
-        end
-        raise SaveError, error unless error.blank?
+        check_for_empty_repo_list!(list, "Repository #{self.name}/#{name} cannot be deleted because following repos define it as release target:/")
       end
       logger.debug "deleting repository '#{name}'"
       self.repositories.destroy object
@@ -624,6 +617,14 @@ class Project < ActiveRecord::Base
     #--- end update repositories ---#
     
     save!
+  end
+
+  def check_for_empty_repo_list!(list, error_prefix)
+    unless list.empty?
+      linking_repos = list.map { |x| x.repository.project.name+"/"+x.repository.name }.join "\n"
+      raise SaveError.new (error_prefix + "\n" + linking_repos)
+    end
+    linking_repos
   end
 
   def write_to_backend
@@ -654,114 +655,9 @@ class Project < ActiveRecord::Base
     Rails.cache.delete('xml_project_%d' % id)
   end
 
-  def store_attribute_axml( attrib, binary=nil )
-
-    raise SaveError, "attribute type without a namespace " if not attrib.namespace
-    raise SaveError, "attribute type without a name " if not attrib.name
-
-    # check attribute type
-    if ( not atype = AttribType.find_by_namespace_and_name(attrib.namespace, attrib.name) or atype.blank? )
-      raise SaveError, "unknown attribute type '#{attrib.namespace}:#{attrib.name}'"
-    end
-    # verify the number of allowed values
-    if atype.value_count and attrib.has_element? :value and atype.value_count != attrib.each_value.length
-      raise SaveError, "attribute '#{attrib.namespace}:#{attrib.name}' has #{attrib.each_value.length} values, but only #{atype.value_count} are allowed"
-    end
-    if atype.value_count and atype.value_count > 0 and not attrib.has_element? :value
-      raise SaveError, "attribute '#{attrib.namespace}:#{attrib.name}' requires #{atype.value_count} values, but none given"
-    end
-    if attrib.has_element? :issue and not atype.issue_list
-      raise SaveError, "attribute '#{attrib.namespace}:#{attrib.name}' has issue elements which are not allowed in this attribute"
-    end
-
-    # verify with allowed values for this attribute definition
-    unless atype.allowed_values.blank?
-      logger.debug( "Verify value with allowed" )
-      attrib.each_value.each do |value|
-        found = 0
-        atype.allowed_values.each do |allowed|
-          if allowed.value == value.to_s
-            found = 1
-            break
-          end
-        end
-        if found == 0
-          raise SaveError, "attribute value #{value} for '#{attrib.name} is not allowed'"
-        end
-      end
-    end
-
-    # update or create attribute entry
-    changed = false
-    a = find_attribute(attrib.namespace, attrib.name)
-    if a.nil?
-      # create the new attribute entry
-      a = self.attribs.create(:attrib_type => atype)
-      changed = true
-    end
-    # write values
-    changed = true if a.update_from_xml(attrib)
-    return changed
-  end
-
-  def write_attributes(comment=nil)
-    login = User.current.login
-    path = "/source/#{URI.escape(self.name)}/_project/_attribute?meta=1&user=#{CGI.escape(login)}"
-    path += "&comment=#{CGI.escape(opt[:comment])}" if comment
-    Suse::Backend.put_source( path, render_attribute_axml )
-  end
-
-  def find_attribute( namespace, name, binary=nil )
-    logger.debug "find_attribute for #{namespace}:#{name}"
-    if namespace.nil?
-      raise RuntimeError, "Namespace must be given"
-    end
-    if name.nil?
-      raise RuntimeError, "Name must be given"
-    end
-    if binary
-      raise RuntimeError, "binary packages are not allowed in project attributes"
-    end
-    a = attribs.nobinary.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = ? and attrib_namespaces.name = ?", name, namespace).first
-    if a && a.readonly? # FIXME: joins make things read only
-      a = attribs.where(:id => a.id).first
-    end 
-    return a
-  end
-
-  def render_attribute_axml(params={})
-    builder = Nokogiri::XML::Builder.new
-
-    done={}
-    builder.attributes() do |a|
-      attribs.each do |attr|
-        next if params[:name] and not attr.attrib_type.name == params[:name]
-        next if params[:namespace] and not attr.attrib_type.attrib_namespace.name == params[:namespace]
-        type_name = attr.attrib_type.attrib_namespace.name+":"+attr.attrib_type.name
-        a.attribute(:name => attr.attrib_type.name, :namespace => attr.attrib_type.attrib_namespace.name) do |y|
-          done[type_name]=1
-          unless attr.issues.blank?
-            attr.issues.each do |ai|
-              y.issue(:name => ai.issue.name, :tracker => ai.issue.issue_tracker.name)
-            end
-          end
-          unless attr.values.blank?
-            attr.values.each do |val|
-              y.value(val.value)
-            end
-          else
-            if params[:with_default]
-              attr.attrib_type.default_values.each do |val|
-                y.value(val.value)
-              end
-            end
-          end
-        end
-      end
-    end
-    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
-                              :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                            Nokogiri::XML::Node::SaveOptions::FORMAT
+  # for the HasAttributes mixing
+  def attribute_url
+    "/source/#{CGI.escape(self.name)}/_project/_attribute"
   end
 
   # step down through namespaces until a project is found, returns found project or nil
