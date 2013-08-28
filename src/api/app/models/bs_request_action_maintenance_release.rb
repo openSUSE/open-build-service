@@ -3,7 +3,11 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   def self.sti_name
     return :maintenance_release
   end
-  
+
+  def is_maintenance_release?
+    true
+  end
+
   def execute_accept(opts)
     pkg = Package.get_by_project_and_name(self.source_project, self.source_package)
     #FIXME2.5: support limiters to specified repositories
