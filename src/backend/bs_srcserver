@@ -6691,7 +6691,6 @@ sub getsslcert {
       my $expiredate = pk2expire($pk);
       if ($expiredate && $expiredate < time() + 24 * 3600) {
         extendkey({'comment' => 'auto-extend public key expiry date'}, $projid);
-        $pk = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
       }
     }
     my $rev = getrev_meta($projid, undef);
@@ -6700,10 +6699,10 @@ sub getsslcert {
     if (!$files->{'_sslcert'}) {
       # length(signkey) <= 2 means special handling, don't commit it
       if (length($sk) <= 2) {
-        $cert = pubkey2sslcert($origprojid, $pk);
+        $cert = pubkey2sslcert($origprojid, "$projectsdir/$projid.pkg/_pubkey");
         return ($cert, 'Content-Type: text/plain');
       }
-      $cert = pubkey2sslcert($projid, $pk);
+      $cert = pubkey2sslcert($projid);
       mkdir_p($uploaddir);
       writestr("$uploaddir/sslcert.$$", undef, $cert);
       addrev_meta({'comment' => 'automatic cert creation'}, $projid, undef, "$uploaddir/sslcert.$$", undef, '_sslcert');
