@@ -60,13 +60,8 @@ our $servicedir = "/usr/lib/obs/service/";
 #our $gpg_standard_key = "/etc/obs-default-gpg.asc";
 # public download service:
 our $repodownload = "http://$hostname/repositories";
-# optional notification service:
-#our $hermesserver = "http://$hostname/hermes";
-#our $hermesnamespace = "OBS";
-#
-# Notification Plugin, multiple plugins supported, separated by space
-#our $notification_plugin = "notify_hermes notify_rabbitmq";
-#
+# if you want notifications (hermes or rabbitmq), set the URL how to reach the api without login requirements
+#our $apiurl = "http://apihost:44";
 
 # For the workers only, it is possible to define multiple repository servers here.
 # But only one source server is possible yet.

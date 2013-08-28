@@ -26,9 +26,12 @@ GEM
       thread_safe (~> 0.1)
       tzinfo (~> 0.3.37)
     addressable (2.3.5)
+    amq-protocol (1.7.0)
     arel (4.0.0)
     atomic (1.1.10)
     builder (3.1.4)
+    bunny (0.10.4)
+      amq-protocol (>= 1.6.0)
     ci_reporter (1.9.0)
       builder (>= 2.1.2)
     clockwork (0.5.4)
@@ -37,7 +40,6 @@ GEM
     coderay (1.0.9)
     crack (0.4.1)
       safe_yaml (~> 0.9.0)
-    daemons (1.1.9)
     dalli (2.6.4)
     database_cleaner (1.0.1)
     delayed_job (4.0.0)
@@ -133,12 +135,11 @@ PLATFORMS
 DEPENDENCIES
   actionmailer
   activerecord (~> 4.0)
+  bunny
   ci_reporter
   clockwork
-  daemons
   dalli
   database_cleaner (>= 1.0.1)
-  delayed_job (>= 4.0.0)
   delayed_job_active_record (>= 4.0.0)
   faker
   flog (> 4.1.0)

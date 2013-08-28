@@ -252,6 +252,8 @@ end
     post 'user/do_login' => :do_login
     get 'configuration/users/:user' => :edit
 
+    get 'user/subscriptions' => :subscriptions
+    post 'user/change_subscription' => :change_subscription
   end
 
   controller :group do
