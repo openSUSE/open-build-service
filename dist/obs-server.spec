@@ -806,7 +806,6 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/d
 %attr(0644,root,root) %config(noreplace) /srv/www/obs/api/config/options.yml*
 %dir %attr(0755,%apache_user,%apache_group) /srv/www/obs/api/db/sphinx
 %dir %attr(0755,%apache_user,%apache_group) /srv/www/obs/api/db/sphinx/production
-/srv/www/obs/api/config/environments/production_test.rb
 /srv/www/obs/api/.bundle
 
 %config /srv/www/obs/api/config/environment.rb
