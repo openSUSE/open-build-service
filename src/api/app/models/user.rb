@@ -940,6 +940,10 @@ class User < ActiveRecord::Base
     @is_admin
   end
 
+  def is_nobody?
+    return self.login == '_nobody_'
+  end
+
   # used to avoid
   def is_admin=(is_she)
     @is_admin = is_she

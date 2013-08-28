@@ -64,7 +64,7 @@ class CodeQualityTest < ActiveSupport::TestCase
     flog.flog(*files)
 
     score = flog.average
-    Current_Score = 24.67
+    Current_Score = 24.29
     assert_operator score, :<=, Current_Score + 0.005
       
     if score < Current_Score - 0.01
