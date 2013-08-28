@@ -44,6 +44,7 @@ use BSServer;
 use BSUtil;
 use BSFileDB;
 use BSXML;
+use BSProductXML;
 use BSVerify;
 use BSHandoff;
 use BSWatcher ':https';
@@ -4349,6 +4350,22 @@ sub getfilelist {
     my @files = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} sort keys %$files;
     BSServer::reply_cpio(\@files);
     return undef;
+  }
+
+  if ($view && $view eq 'products') {
+    my @res;
+    for my $filename (sort keys %$files) {
+      next unless $filename =~ /.product$/;
+      my $xml = BSProductXML::readproductxml( "$srcrep/$rev->{'package'}/$files->{$filename}-$filename", 0, undef, $files);
+      if( defined($xml) ) {
+        push @res, $xml;
+      } else {
+        die("400 Unable to parse $filename: \n");
+      }
+    }
+    my $ret = {};
+    $ret->{'productdefinition'} = \@res;
+    return ($ret, $BSProductXML::products);
   }
 
   my $ret = {};

@@ -50,8 +50,11 @@ class Package < ActiveRecord::Base
   has_many :package_kinds, :dependent => :destroy, foreign_key: :db_package_id
   has_many :package_issues, :dependent => :destroy, foreign_key: :db_package_id # defined in sources
 
+  has_many :products, :dependent => :destroy
+  has_many :channels, :dependent => :destroy, foreign_key: :package_id
+
   has_many :comments, :dependent => :destroy
-  
+
   after_save :write_to_backend
   before_update :update_activity
   after_rollback :reset_cache
@@ -383,12 +386,47 @@ class Package < ActiveRecord::Base
           if e["name"] == '_link'
             self.package_kinds.create :kind => 'link'
           end
-          # further types my be product, spec, dsc, kiwi in future
+          if e["name"] == '_channel'
+            self.package_kinds.create :kind => 'channel'
+          end
+          if e["name"] =~ /.product$/
+            self.package_kinds.create :kind => 'product'
+          end
+          # further types my be spec, dsc, kiwi in future
         end
       end
     end
 
+    # track defined products in _product containers
+    Product.transaction do
+      self.products.destroy_all
+      if self.package_kinds.find_by_kind 'product'
+        begin
+          issues = Suse::Backend.get("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}?view=products")
+          xml = REXML::Document.new(issues.body.to_s)
+          xml.root.elements.each('/productlist/productdefinition/products/product') { |p|
+            Product.find_or_create_by_name_and_package( p.name, self )
+          }
+        rescue ActiveXML::Transport::Error
+        end
+      end
+    end # end of Product.transaction
+
+    # update channel information
+    if self.package_kinds.find_by_kind 'channel'
+      Channel.transaction do
+        xml = Suse::Backend.get("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}/_channel")
+        self.channels.destroy_all
+        channel = self.channels.create(package: self)
+        channel.update_from_xml(xml.body.to_s)
+      end
+    else
+      # any left overs?
+      self.channels.destroy_all
+    end
+
     # update issue database based on file content
+    PackageIssue.transaction do
     if self.package_kinds.find_by_kind 'patchinfo'
       xml = Patchinfo.new.read_patchinfo_xmlhash(self)
       Project.transaction do
@@ -434,6 +472,7 @@ class Package < ActiveRecord::Base
         end
       end
     end
+    end # end if PackageIssues.transaction
   end
   private :private_set_package_kind
 
@@ -776,6 +815,49 @@ class Package < ActiveRecord::Base
     return dir.to_hash['linkinfo']
   end
 
+  def add_channels
+     project_name = self.project.name
+     package_name = self.name
+     dir = self.dir_hash
+     if dir
+       # link target package name is more important, since local name could be
+       # extended. for example in maintenance incident projects.
+       li = dir['linkinfo']
+       if li
+         project_name = li['project']
+         package_name = li['package']
+       end
+     end
+     maintenanceProject=self.project.find_parent
+     ChannelBinary.find_by_project_and_package( project_name, package_name ).each do |cb|
+       cp = cb.channel_binary_list.channel.package
+       name = cb.channel_binary_list.channel.name
+
+       # does it exist already? then just skip it
+       next if Package.exists_by_project_and_name(self.project.name, name)
+
+       # do we need to take care about a maintained list from upper project?
+       if maintenanceProject and not maintenanceProject.maintained_projects.include? cp.project
+         # not a maintained project here
+         next
+       end
+
+       # create a package beside me
+       tpkg = Package.new(:name => name, :title => cp.title, :description => cp.description)
+       self.project.packages << tpkg
+       tpkg.store
+
+       # branch sources
+       tpkg.branch_from(cp.project.name, cp.name)
+       tpkg.sources_changed
+
+       # branch repositories
+       self.project.branch_to_repositories_from(cp.project, tpkg, true)
+
+       self.project.store
+     end
+  end
+
   def developed_packages
     packages = []
     candidates = Package.where(develpackage_id: self).load
@@ -960,6 +1042,22 @@ class Package < ActiveRecord::Base
     end
 
     output
+  end
+
+  def branch_from(origin_project, origin_package, rev=nil, missingok=nil, comment=nil)
+        path = "/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}"
+        myparam = { :cmd => "branch",
+                    :noservice => "1",
+                    :oproject => origin_project,
+                    :opackage => origin_package,
+                    :user => User.current.login,
+                  }
+        myparam[:orev] = rev if rev and not rev.empty?
+        myparam[:missingok] = "1" if missingok
+        myparam[:comment] = comment if comment
+        path <<  Suse::Backend.build_query_from_hash(myparam, [:cmd, :oproject, :opackage, :user, :comment, :orev, :missingok])
+        # branch sources in backend
+        return Suse::Backend.post path, nil
   end
 
   def update_linkinfo

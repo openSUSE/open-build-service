@@ -352,7 +352,7 @@ sub createProductOptions($$$)
     # Add REGISTERPRODUCT string - see: bnc#458340
     if (defined($medium->{'registration'}) and $medium->{'registration'} eq "false") {
 	$info{'REGISTERPRODUCT'} .= "false"
-    } elsif (defined($medium->{'productdependency'})) {
+    } elsif (defined($medium->{'productdependency'}) || $product->{'productdependency'}) {
 	$info{'REGISTERPRODUCT'} .= "true" if (defined($product->{'register'}));
     }
 
@@ -935,6 +935,7 @@ sub writeProductSPECfile( $$$$ )
      $content.="Group:          System/Fhs\n";
      $content.=$obsoletepackage;
      $content.=$productprovides;
+     $content.=createProductDependencyLines($product->{'productdependency'}) if defined($product->{'productdependency'});
      $content.="\nAutoReqProv:    on\n";
      $content.="BuildRoot:      %{_tmppath}/%{name}-%{version}-build\n";
      $content.="\n%description\n";
@@ -1003,6 +1004,32 @@ sub writeProductSPECfile( $$$$ )
     }
 }
 
+sub createProductDependencyLines ( $ ) {
+  my ( $productDependency ) = @_;
+
+  my $product_dependencies;
+
+  foreach my $dependency (@{$productDependency}){
+      my ($relship, $version, $flavor, $flag);
+      $relship = convertRelationship($dependency->{'relationship'});
+      $version = $dependency->{'version'} if defined($dependency->{'version'}); #old style
+      if (defined($dependency->{'baseversion'})) {
+        $version = $dependency->{'baseversion'};
+        $version .= ".".$dependency->{'patchlevel'} if defined($dependency->{'patchlevel'});
+        $version .= "-".$dependency->{'release'} if defined($dependency->{'release'});
+      }
+      $flavor = "-".$dependency->{'flavor'} if defined($dependency->{'flavor'});
+      $flag = convertFlags($dependency->{'flag'}) if defined($dependency->{'flag'});
+      if (!$flag && ($version ne "")) { # avoid something like Requires: sles 11
+          $flag = "=";
+      }
+      $flavor = "" unless defined($flavor);
+      
+      $product_dependencies.="$relship:       product(".$dependency->{'name'}."$flavor) $flag $version\n";
+  }
+  return $product_dependencies;
+}
+
 sub createSPECfileFlavors ( $$ ) {
     my ( $prodRef,$product ) = @_;
     my $product_flavors="";
@@ -1029,26 +1056,11 @@ sub createSPECfileFlavors ( $$ ) {
         $product_flavors.="Provides:       product_flavor($product->{name}) = $product->{version}-$release\n";
       }
       if (defined($flavor->{'productdependency'})){
-	foreach my $dependency (@{$flavor->{'productdependency'}}){
-	    my ($relship, $version, $patchlevel, $flavor, $release, $flag);
-	    $relship = convertRelationship($dependency->{'relationship'});
-            $version = $dependency->{'version'} if defined($dependency->{'version'});
-            $patchlevel = "-SP".$dependency->{'patchlevel'} if defined($dependency->{'patchlevel'});
-            $flavor = "-".$dependency->{'flavor'} if defined($dependency->{'flavor'});
-            $release = $dependency->{'release'} if defined($dependency->{'release'});
-            $flag = convertFlags($dependency->{'flag'}) if defined($dependency->{'flag'});
-	    if (!$flag && ($version ne "")) { # avoid something like Requires: sles 11
-                $flag = "=";
-            }
-            if ((defined($version)) && ($version ne "") && (defined($release)) && ($release ne "")){ # rpm style for version-release
-                $release = "-".$release;
-            } 
-            $patchlevel = "" unless defined($patchlevel);
-            $release = "" unless defined($release);
-            $flavor = "" unless defined($flavor);
-            
-            $product_flavors.="$relship:       product(".$dependency->{'name'}."$patchlevel$flavor) $flag $version$release\n";
+        # old compat code.
+        if ($medium->{'mediastyle'} ne "suse-11.1" && $medium->{'mediastyle'} ne "suse-11.2" && $medium->{'mediastyle'} ne "suse-11.3" && $medium->{'mediastyle'} ne "suse-12.1" && $medium->{'mediastyle'} ne "suse-sle11-sp2" ) {
+            die("productdependency must be defined per product for post 12.1 media styles");
         }
+        $product_flavors.=createProductDependencyLines($flavor->{'productdependency'});
       }
       foreach my $summary ( @{$product->{'summary'}} ){
         $product_flavors.="Summary:        $summary->{_content}\n" if ( ! $summary->{'language'} );
@@ -1175,6 +1187,7 @@ die("no product name set\n") unless $product->{'name'};
 die("illegal product name: $product->{'name'}\n") if $product->{'name'} =~ /^[_\.]/;
 die("illegal product name: $product->{'name'}\n") if $product->{'name'} =~ /[\/\000-\037]/;
 die("ERROR: File name does not match to product name ($infile/$prodRef->{'products'}->{'product'}[0]->{'name'}.product)\n") if not $infile =~ /.*\/$prodRef->{'products'}->{'product'}[0]->{'name'}.product$/;
+die("no support for multi product definitions\n") if $prodRef->{'products'}->{'product'}[1];
 
 #
 # Calculate version strings

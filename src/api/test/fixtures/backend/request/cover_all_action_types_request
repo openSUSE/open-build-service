@@ -1,10 +1,10 @@
 <request>
   <action type='submit'>
-    <source project='home:Iggy:branches:kde4' package='kdebase' rev='1' />
+    <source project='home:Iggy:branches:kde4' package='kdebase' />
     <options><sourceupdate>cleanup</sourceupdate></options>
   </action>
   <action type='submit'>
-    <source project='home:Iggy:branches:kde4' package='BranchPack' rev='1' />
+    <source project='home:Iggy:branches:kde4' package='BranchPack' />
     <target project='kde4' package="Testing" />
     <options><sourceupdate>cleanup</sourceupdate></options>
   </action>

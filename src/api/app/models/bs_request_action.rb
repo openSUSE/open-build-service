@@ -614,7 +614,7 @@ class BsRequestAction < ActiveRecord::Base
         # maintenance incident target permission checks
         if [ :maintenance_incident ].include? self.action_type
           if opts[:cmd] == "setincident"
-            if target_project.project_type == "maintenance_incident"
+            if target_project.is_maintenance_incident?
               raise TargetNotMaintenance.new "The target project is already an incident, changing is not possible via set_incident"
             end
             unless target_project.project_type == "maintenance"

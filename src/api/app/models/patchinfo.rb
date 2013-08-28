@@ -81,7 +81,7 @@ class Patchinfo
 
   def patchinfo_axml(project)
     xml = ActiveXML::Node.new("<patchinfo/>")
-    if project.project_type == "maintenance_incident"
+    if project.is_maintenance_incident?
       # this is a maintenance incident project, the sub project name is the maintenance ID
       xml.set_attribute('incident', @pkg.project.name.gsub(/.*:/, ''))
     end

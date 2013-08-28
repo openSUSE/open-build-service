@@ -1,7 +1,7 @@
 require 'delayed_job'
 require File.join(Rails.root, 'lib/workers/update_package_meta_job.rb')
 
-class UpdatePackageMeta < ActiveRecord::Migration
+class ReindexPackageSources < ActiveRecord::Migration
   def self.up
     Delayed::Job.enqueue UpdatePackageMetaJob.new
   end

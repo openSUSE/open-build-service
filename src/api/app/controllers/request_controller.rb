@@ -11,6 +11,12 @@ class RequestController < ApplicationController
   #TODO: allow PUT for non-admins
   before_filter :require_admin, :only => [:update, :destroy]
 
+
+  class NoActionsInRequest < APIException
+    setup 'missing_actions', 400,
+          "The request contains no actions. Submit requests without source changes may have skipped!"
+  end
+
   # GET /request
   def index
     if params[:view] == "collection"
@@ -179,6 +185,7 @@ class RequestController < ApplicationController
           end
         end
       end
+
       # Will this be a new package ?
       unless missing_ok_link
         unless e and Package.exists_by_project_and_name(tprj, tpkg, follow_project_links: true, allow_remote_packages: false)
@@ -197,6 +204,7 @@ class RequestController < ApplicationController
           end
         end
       end
+
       # is this package source going to a project which is specified as release target ?
       if action.action_type == :maintenance_release
         found = nil
@@ -214,17 +222,28 @@ class RequestController < ApplicationController
         end
       end
 
-      newTargets << tprj
       newAction = action.dup
       newAction.source_package = pkg.name
       if action.action_type == :maintenance_incident
+        newTargets << tprj
         newAction.target_releaseproject = releaseproject.name if releaseproject
+      elsif action.action_type == :maintenance_release and pkg.package_kinds.find_by_kind 'channel'
+        newAction.action_type = :submit
+        newAction.target_project = tprj
+        newAction.target_package = tpkg
       else
+        newTargets << tprj
         newAction.target_project = tprj
         newAction.target_package = tpkg + incident_suffix
       end
       newAction.source_rev = rev if rev
-      newactions << newAction
+      # check if the source contains really a diff or we can skip the entire action
+      if newAction.action_type == :submit and newAction.sourcediff.blank?
+        # submit contains no diff, drop it again
+        newAction.destroy
+      else
+        newactions << newAction
+      end
     end
     if action.action_type == :maintenance_release and found_patchinfo.nil? and params["ignore_build_state"].nil?
       render_error :status => 400, :errorcode => 'missing_patchinfo',
@@ -260,6 +279,8 @@ class RequestController < ApplicationController
       end
     end
 
+    raise NoActionsInRequest.new if newactions.length < 1
+
     return newactions
   end
 
@@ -293,7 +314,7 @@ class RequestController < ApplicationController
           end
           action.target_project = maintenanceProject.name
         end
-        unless maintenanceProject.project_type.to_s == "maintenance" or maintenanceProject.project_type.to_s == "maintenance_incident"
+        unless maintenanceProject.is_maintenance_incident? or maintenanceProject.is_maintenance?
           render_error :status => 400, :errorcode => 'no_maintenance_project',
                        :message => "Maintenance incident requests have to go to projects of type maintenance or maintenance_incident"
           return

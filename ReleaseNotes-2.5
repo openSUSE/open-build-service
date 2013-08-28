@@ -52,6 +52,9 @@ Changes on purpose:
  * The scheduler states in /build/_workerstates got moved into a 
    partition structure to support multiple backends running in one instance.
 
+ * Submit request for entire projects will skip packages which do not contain
+   source changes relative to their linked packages.
+
 Deprecated:
 ===========
 
