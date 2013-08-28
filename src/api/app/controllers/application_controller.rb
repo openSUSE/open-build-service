@@ -548,6 +548,15 @@ class ApplicationController < ActionController::API
     end
   end
 
+  class AnonymousUser < APIException
+   setup 401
+  end
+
+  def be_not_nobody!
+    return unless User.current.is_nobody?
+    raise AnonymousUser.new  "Anonymous user is not allowed to create requests"
+  end
+
   def render_ok(opt={})
     # keep compatible to old call style
     opt = {:details => opt} if opt.kind_of? String
