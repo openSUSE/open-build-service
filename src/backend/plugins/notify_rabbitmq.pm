@@ -46,7 +46,6 @@ sub notify() {
   #my $uu = Data::UUID->new;
   if ($paramRef) {
     $paramRef->{'eventtype'} = $type;
-    $paramRef->{'time'} = time();
     my $mq = Net::RabbitMQ->new();
     $mq->connect("192.168.50.99", { user => "mailer", password => "mailerpwd", vhost => "mailer_vhost" });
     warn("RabbitMQ Plugin: $@") if $@;

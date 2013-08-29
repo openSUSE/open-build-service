@@ -89,8 +89,10 @@ class Event < ActiveRecord::Base
 
   def notify_backend
     # tell the backend to tell the (old) plugins
-    logger.debug "notify_backend #{self.class.raw_type} #{payload.inspect}"
-    Suse::Backend.post("/notify/#{self.class.raw_type}?#{payload.to_query}", '').body
+    p = payload
+    p['time'] = self.create_at.to_i
+    logger.debug "notify_backend #{self.class.raw_type} #{p.inspect}"
+    Suse::Backend.post("/notify/#{self.class.raw_type}?#{p.to_query}", '').body
   end
 
 end
