@@ -252,6 +252,10 @@ Suse::Backend.put( '/source/kde4/kdelibs/my_patch.diff', 'argl')
 
 # manual placing of files
 FileUtils.cp("#{Rails.root}/test/fixtures/backend/source/_pubkey", "#{Rails.root}/tmp/backend_data/projects/BaseDistro.pkg/_pubkey")
+FileUtils.cp("#{Rails.root}/test/fixtures/backend/source/_sslcert", "#{Rails.root}/tmp/backend_data/projects/BaseDistro.pkg/_sslcert")
+# put meta again so that the srcserver puts the files into history
+FileUtils.rm("#{Rails.root}/tmp/backend_data/projects/BaseDistro.pkg/_project.mrev")
+Suse::Backend.put( "/source/BaseDistro/_meta", Project.find_by_name("BaseDistro").to_axml)
 
 @http_user = nil
 User.current = nil

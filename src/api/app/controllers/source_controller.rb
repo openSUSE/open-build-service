@@ -627,7 +627,7 @@ class SourceController < ApplicationController
         :message => "Illegal request: #{request.path}"
   end
 
-  # /source/:project/_pubkey
+  # /source/:project/_pubkey and /_sslcert
   def project_pubkey
     # check for project
     prj = Project.get_by_name(params[:project])
@@ -635,7 +635,7 @@ class SourceController < ApplicationController
     # assemble path for backend
     params[:user] = User.current.login if request.delete?
     path = request.path
-    path += build_query_from_hash(params, [:user, :comment, :rev])
+    path += build_query_from_hash(params, [:user, :comment, :meta, :rev])
 
     # GET /source/:project/_pubkey
     if request.get?
@@ -762,31 +762,22 @@ class SourceController < ApplicationController
     path = "/source/#{URI.escape(project_name)}/#{URI.escape(package_name)}/#{URI.escape(file)}"
 
     if params.has_key?(:deleted)
-      if Project.exists_by_name(project_name)
-        validate_read_access_of_deleted_package(project_name, package_name)
-        pass_to_backend
-        return
-      elsif package_name == "_project"
+      if package_name == "_project"
         validate_visibility_of_deleted_project(project_name)
         pass_to_backend
         return
       end
+
+      validate_read_access_of_deleted_package(project_name, package_name)
+      pass_to_backend
+      return
     end
 
     # a readable package, even on remote instance is enough here
-    begin
-      pack = Package.get_by_project_and_name(project_name, package_name)
-    rescue Package::UnknownObjectError
-    end
-
-    # TODO this code looks fishy - the code below would do the same
-    if pack.nil?
-      # Check if this is a package on a remote OBS instance
-      answer = Suse::Backend.get(request.path)
-      if answer
-        pass_to_backend
-        return
-      end
+    if package_name == "_project"
+      Project.get_by_name(project_name)
+    else
+      pack = Package.get_by_project_and_name(project_name, package_name, use_source: true)
     end
 
     if pack # local package
@@ -908,7 +899,7 @@ class SourceController < ApplicationController
   def delete_file
     check_permissions_for_file
 
-    @path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink])
+    @path += build_query_from_hash(params, [:user, :comment, :meta, :rev, :linkrev, :keeplink])
 
     unless @allowed
       raise DeleteFileNoPermission.new "Insufficient permissions to delete file"

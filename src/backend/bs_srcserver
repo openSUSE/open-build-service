@@ -2120,6 +2120,12 @@ sub retrofit_old_meta {
       BSUtil::cp("$projectsdir/$projid.xml", "$uploaddir/addrev_meta$$");
       $files->{'_meta'} = addfile($projid, $packid, "$uploaddir/addrev_meta$$", '_meta');
     }
+    if (-e "$projectsdir/$projid.pkg/_sslcert") {
+      # FIXME: this is only needed for the test suite. But as long we do not have a signing
+      #        stub there we need this to inject keys.
+      BSUtil::cp("$projectsdir/$projid.pkg/_sslcert", "$uploaddir/addrev_meta$$");
+      $files->{'_sslcert'} = addfile($projid, $packid, "$uploaddir/addrev_meta$$", '_sslcert');
+    }
     if (-e "$projectsdir/$projid.pkg/_pubkey") {
       BSUtil::cp("$projectsdir/$projid.pkg/_pubkey", "$uploaddir/addrev_meta$$");
       $files->{'_pubkey'} = addfile($projid, $packid, "$uploaddir/addrev_meta$$", '_pubkey');

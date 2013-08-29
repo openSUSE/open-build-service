@@ -1867,20 +1867,46 @@ end
     assert_response :success
   end
 
-  def test_pubkey
+  def test_public_keys
     prepare_request_with_user "tom", "thunder"
-    get url_for(:controller => :source, :action => :project_pubkey, :project => "DoesNotExist")
+    # old route
+    get "/source/DoesNotExist/_pubkey"
     assert_response 404
-    get url_for(:controller => :source, :action => :project_pubkey, :project => "kde4")
+    get "/source/kde4/_pubkey"
     assert_response 404
     assert_match(/kde4: no pubkey available/, @response.body)
-    get url_for(:controller => :source, :action => :project_pubkey, :project => "BaseDistro")
+    get "/source/BaseDistro/_pubkey"
     assert_response :success
 
-    delete url_for(:controller => :source, :action => :project_pubkey, :project => "kde4")
+    delete "/source/kde4/_pubkey"
     assert_response 403
 
     # FIXME: make a successful deletion of a key
+
+    # via new _project route
+    get "/source/DoesNotExist/_project/_pubkey?meta=1"
+    assert_response 404
+    get "/source/kde4/_project/_pubkey?meta=1"
+    assert_response 404
+    assert_match(/no such file/, @response.body)
+    get "/source/BaseDistro/_project/?meta=1"
+    get "/source/BaseDistro/_project/_pubkey?meta=1"
+    assert_response :success
+
+    delete "/source/kde4/_project/_pubkey?meta=1"
+    assert_response 403
+
+    # ssl certificate
+    get "/source/DoesNotExist/_project/_sslcert?meta=1"
+    assert_response 404
+    get "/source/kde4/_project/_sslcert?meta=1"
+    assert_response 404
+    assert_match(/no such file/, @response.body)
+    get "/source/BaseDistro/_project/_sslcert?meta=1"
+    assert_response :success
+
+    delete "/source/kde4/_project/_sslcert?meta=1"
+    assert_response 403
   end
 
   def test_linked_project_operations
