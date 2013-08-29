@@ -1,0 +1,14 @@
+<p>
+  <i><%= event['description'] %></i> receive
+  <%= select_tag(valid_xml_id("receive-#{event['type']}"),
+                 options_for_select({"Nothing" => 'none',
+                                     "Inherited Maintainer" => 'maintainer',
+                                     "Strictly Package Maintainer" => 'package maintainer',
+                                     "Everything" => 'all'},
+                                    event['receive']), class: 'receive_select') %>
+</p>
+<div style='margin-left: 1em'>
+  <% event['subclasses'].each do |sc| %>
+      <%= render :partial => 'subscriptions_event', locals: {event: sc} %>
+  <% end %>
+</div>

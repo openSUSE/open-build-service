@@ -1,0 +1,13 @@
+<%= form_tag({controller: :user, action: :subscriptions},
+             method: :get,
+             class: 'subscriptions_form',
+             data: {'ajax-url' => url_for(controller: :user,
+                                          action: :change_subscription)}) do %>
+    <% @order.each do |event| %>
+        <%= render :partial => 'subscriptions_event', locals: {event: event} %>
+    <% end -%>
+<% end %>
+
+<% content_for :ready_function do %>
+    setupSubscriptions();
+<% end %>
