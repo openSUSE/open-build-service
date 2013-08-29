@@ -54,8 +54,5 @@ every(5.minutes, 'check last events') do
 end
 
 every(1.minute, 'send notifications') do
-  Event.not_queued.each do |e|
-    # just put them in the delayed job queue
-    e.queue
-  end
+  EventNotifyBackends.trigger_delayed_sent
 end

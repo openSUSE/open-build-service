@@ -2,6 +2,8 @@
 # that users (or services) would like to know about
 class Event < ActiveRecord::Base
 
+  scope :not_in_queue, -> { where(queued: false) }
+
   self.inheritance_column = 'eventtype'
 
   class << self
@@ -81,18 +83,39 @@ class Event < ActiveRecord::Base
     @payload ||= Yajl::Parser.parse(read_attribute(:payload))
   end
 
-  def queue
-    e.queued = 1
-    e.save
-    e.delay.notify_backend
-  end
-
   def notify_backend
+    return false if self.queued
+    self.queued = true
+    begin
+      self.save
+    rescue ActiveRecord::StaleObjectError
+      # if someone else saved it too, better don't send it
+      return false
+    end
     # tell the backend to tell the (old) plugins
     p = payload
-    p['time'] = self.create_at.to_i
-    logger.debug "notify_backend #{self.class.raw_type} #{p.inspect}"
-    Suse::Backend.post("/notify/#{self.class.raw_type}?#{p.to_query}", '').body
+    p['time'] = self.created_at.to_i
+    logger.debug "notify_backend #{self.class.name} #{p.inspect}"
+    ans = Xmlhash.parse(Suse::Backend.post("/notify/#{self.class.raw_type}?#{p.to_query}", '').body)
+    return ans['code'] == 'ok'
+  end
+
+end
+
+# performed from delayed job triggered by clockwork
+class EventNotifyBackends
+
+  def self.trigger_delayed_sent
+    self.new.delay.send_not_in_queue
+  end
+
+  def send_not_in_queue
+    Event.not_in_queue.each do |e|
+      if !e.notify_backend
+        # if something went wrong, we better stop the queueing here
+        return
+      end
+    end
   end
 
 end
@@ -123,6 +146,7 @@ class CreateProjectEvent < ProjectEvent
 end
 
 class UpdateProjectConfigEvent < ProjectEvent
+  self.raw_type = 'SRCSRV_UPDATE_PROJECT_CONFIG'
   self.description = 'Project _config was updated'
   payload_keys :sender, :files, :comment
 end
