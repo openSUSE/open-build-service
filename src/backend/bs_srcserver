@@ -37,6 +37,7 @@ use Data::Dumper;
 use Storable ();
 use Symbol;
 use MIME::Base64 ();
+use JSON::XS ();
 
 use BSConfiguration;
 use BSRPC ':https';
@@ -7354,8 +7355,13 @@ sub getissuetrackers {
 sub external_notification {
   my ($cgi, $type) = @_;
   my $param = {};
-  for (keys %$cgi) {
-    $param->{$_} = $cgi->{$_} unless $_ eq '_type' || /^\./;
+  if (BSServer::have_content()) {
+    my $jsonbody = BSServer::read_data(10000000);
+    $param = JSON::XS::decode_json($jsonbody);
+  } else {
+    for (keys %$cgi) {
+      $param->{$_} = $cgi->{$_} unless $_ eq '_type' || /^\./;
+    }
   }
   BSNotify::notify_plugins($type, $param);
   return $BSStdServer::return_ok;
