@@ -2,6 +2,8 @@ require 'kconv'
 require_dependency 'api_exception'
 
 class User < ActiveRecord::Base
+  include CanRenderModel
+
   has_many :taggings, :dependent => :destroy
   has_many :tags, :through => :taggings
 
@@ -834,38 +836,7 @@ class User < ActiveRecord::Base
   end
 
   def render_axml( watchlist = false )
-    builder = Nokogiri::XML::Builder.new
- 
-    logger.debug "----------------- rendering person #{self.login} ------------------------"
-    builder.person() do |person|
-      person.login( self.login )
-      person.email( self.email )
-      realname = self.realname
-      unless realname.nil?
-        realname.toutf8
-        person.realname( realname )
-      end
-      # FIXME 2.5: turn the state into an enum
-      person.state( User.states.keys[self.state-1] )
-
-      self.roles.global.each do |role|
-        person.globalrole( role.title )
-      end
-
-      # Show the watchlist only to the user for privacy reasons
-      if watchlist
-        person.watchlist() do |wl|
-          self.watched_projects.each do |wp|
-            wl.project( :name => wp.project.name ) if Project.valid_name?(wp.project.name)
-          end
-        end
-      end
-    end
-
-    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
-                              :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                            Nokogiri::XML::Node::SaveOptions::FORMAT
-
+    render_xml(watchlist: watchlist)
   end
 
   # Returns true if the the state transition from "from" state to "to" state
