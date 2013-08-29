@@ -323,6 +323,7 @@ OBSApi::Application.routes.draw do
             delete :for_user, action: :remove_user
           end
         end
+        resources :subscriptions
         resources :flags, :only => [:index]
         resources :packages, :only => [], :constraints => { :id => %r{[^\/]*} } do
           resources :relationships, :only => [:create] do
@@ -345,6 +346,7 @@ OBSApi::Application.routes.draw do
       resources :owners, :only => [:index]
       resources :searches, :only => [:new, :create]
       resources :attrib_types, :only => [:index]
+      resources :subscriptions, only: [:index, :create]
 
       # comments
       get 'comments/request/:id/' => 'comments#requests', constraints: cons
@@ -368,4 +370,9 @@ OBSApi::Application.routes.draw do
     #get ':controller/:action'
 
   end
+
+  defaults :format => 'json' do
+    resources :events, only: [:create]
+  end
+
 end

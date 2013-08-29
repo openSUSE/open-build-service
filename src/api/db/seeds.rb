@@ -157,3 +157,6 @@ IssueTracker.find_or_create_by_name('bso', :description => 'Samba Bugzilla', :ki
 IssueTracker.find_or_create_by_name('sf', :description => 'SourceForge.net Tracker', :kind => 'sourceforge', :regex => 'sf#(\d+)', :url => 'http://sf.net/support/', :label => 'sf#@@@', :show_url => 'http://sf.net/support/tracker.php?aid=@@@')
 IssueTracker.find_or_create_by_name('Xamarin', :description => 'Xamarin Bugzilla', :kind => 'bugzilla', :regex => 'Xamarin#(\d+)', :url => 'http://bugzilla.xamarin.com/index.cgi', :label => 'Xamarin#@@@', :show_url => 'http://bugzilla.xamarin.com/show_bug.cgi?id=@@@')
 IssueTracker.find_or_create_by_name('bxo', :description => 'XFCE Bugzilla', :kind => 'bugzilla', :regex => 'bxo#(\d+)', :url => 'https://bugzilla.xfce.org/', :label => 'bxo#@@@', :show_url => 'https://bugzilla.xfce.org/show_bug.cgi?id=@@@')
+
+EventSubscription.create(eventtype: 'RequestEvent', type: 'EventSubscriptionMaintainer')
+

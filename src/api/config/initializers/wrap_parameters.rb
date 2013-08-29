@@ -22,6 +22,10 @@ OBSApi::Application.config.middleware.delete "ActionDispatch::ParamsParser"
 # custom params parser (modified form of ActionDispatch::ParamsParser)
 
 class MyParamsParser
+
+  class ParseError < APIException
+  end
+
   def initialize(app)
     @app = app
   end
@@ -44,7 +48,12 @@ class MyParamsParser
     
     case request.content_mime_type
     when Mime::JSON
-      data = ActiveSupport::JSON.decode(request.body)
+      begin
+        data = Yajl::Parser.parse(request.raw_post)
+      rescue Yajl::ParseError => e
+        Rails.logger.info "failed to parse JSON: #{e.message}"
+        return false
+      end
       request.body.rewind if request.body.respond_to?(:rewind)
       data = {:_json => data} unless data.is_a?(Hash)
       data.with_indifferent_access
