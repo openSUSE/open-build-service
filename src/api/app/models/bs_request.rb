@@ -1,4 +1,5 @@
 require 'xmlhash'
+require 'event'
 require 'opensuse/backend'
 
 class BsRequest < ActiveRecord::Base
