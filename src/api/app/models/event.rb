@@ -96,8 +96,10 @@ class Event < ActiveRecord::Base
     p = payload
     p['time'] = self.created_at.to_i
     logger.debug "notify_backend #{self.class.name} #{p.inspect}"
-    ans = Xmlhash.parse(Suse::Backend.post("/notify/#{self.class.raw_type}?#{p.to_query}", '').body)
-    return ans['code'] == 'ok'
+    ret = Suse::Backend.post("/notify/#{self.class.raw_type}",
+                              Yajl::Encoder.encode(p),
+                              'Content-Type' => 'application/json')
+    return Xmlhash.parse(ret.body)['code'] == 'ok'
   end
 
 end

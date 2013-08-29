@@ -1,10 +1,12 @@
 reviewer_group_added:
-  id: 1067338692
+  id: 1067339102
   eventtype: RequestReviewerGroupAddedEvent
-  payload: '{"author":"king","description":"","id":"1029","sender":"king","sourceproject":"home:Iggy","sourcepackage":"TestPack","state":"review","targetproject":"kde4","targetpackage":"Testing","type":"submit","when":"2010-07-12T00:00:00","who":"king","sourcerevision":"1","newreviewer_group":"test_group"}'
-  created_at: 2013-08-20 13:43:10.000000000 Z
-  updated_at: 2013-08-20 13:43:10.000000000 Z
+  payload: '{"author":"Iggy","comment":"give it a look","description":"test home project
+    shortening","id":1000,"actions":[{"type":"submit","sourceproject":"home:Iggy:branches:kde4","sourcepackage":"BranchPack","sourcerevision":"1","targetproject":"Apache","targetpackage":"BranchPack","person":null,"role":null}],"state":"review","when":"2013-08-29T14:32:24","newreviewer_group":"test_group"}'
+  created_at: 2013-08-29 14:32:24.000000000 Z
+  updated_at: 2013-08-29 14:32:24.000000000 Z
   queued: 0
+  lock_version: 0
 events_11469281:
   id: 11469281
   eventtype: UpdateProjectEvent
@@ -12,6 +14,7 @@ events_11469281:
   created_at: 2013-08-20 13:42:19.000000000 Z
   updated_at: 2013-08-20 13:42:19.000000000 Z
   queued: 0
+  lock_version: 0
 events_131114301:
   id: 131114301
   eventtype: BuildSuccessEvent
@@ -20,6 +23,7 @@ events_131114301:
   created_at: 2013-08-20 13:42:14.000000000 Z
   updated_at: 2013-08-20 13:42:14.000000000 Z
   queued: 0
+  lock_version: 0
 events_314401540:
   id: 314401540
   eventtype: CreateProjectEvent
@@ -27,13 +31,7 @@ events_314401540:
   created_at: 2013-08-20 13:42:05.000000000 Z
   updated_at: 2013-08-20 13:42:05.000000000 Z
   queued: 0
-events_347281411:
-  id: 347281411
-  eventtype: RequestStatechangeEvent
-  payload: '{"author":"Iggy","comment":"does it look ok?","description":"","id":"1002","oldstate":"new","sender":"Iggy","state":"review","targetproject":"kde4","targetpackage":"kdelibs","type":"add_role","when":"2013-08-20T13:42:43","who":"Iggy","person":"Iggy","role":"reviewer"}'
-  created_at: 2013-08-20 13:42:44.000000000 Z
-  updated_at: 2013-08-20 13:42:44.000000000 Z
-  queued: 0
+  lock_version: 0
 events_354504283:
   id: 354504283
   eventtype: RepoPublishStateEvent
@@ -41,6 +39,7 @@ events_354504283:
   created_at: 2013-08-20 13:42:14.000000000 Z
   updated_at: 2013-08-20 13:42:14.000000000 Z
   queued: 0
+  lock_version: 0
 events_468231828:
   id: 468231828
   eventtype: VersionChangeEvent
@@ -48,6 +47,7 @@ events_468231828:
   created_at: 2013-08-20 13:42:11.000000000 Z
   updated_at: 2013-08-20 13:42:11.000000000 Z
   queued: 0
+  lock_version: 0
 events_479658608:
   id: 479658608
   eventtype: UpdatePackageEvent
@@ -55,27 +55,7 @@ events_479658608:
   created_at: 2013-08-20 13:42:12.000000000 Z
   updated_at: 2013-08-20 13:42:12.000000000 Z
   queued: 0
-events_570089057:
-  id: 570089057
-  eventtype: ReviewAcceptedEvent
-  payload: '{"author":"Iggy","description":"","id":"1002","sender":"Iggy","state":"new","targetproject":"kde4","targetpackage":"kdelibs","type":"add_role","when":"2013-08-20T13:42:44","who":"Iggy","person":"Iggy","role":"reviewer"}'
-  created_at: 2013-08-20 13:42:44.000000000 Z
-  updated_at: 2013-08-20 13:42:44.000000000 Z
-  queued: 0
-events_647436920:
-  id: 647436920
-  eventtype: RequestCreateEvent
-  payload: '{"author":"king","description":"","id":"1028","sender":"king","state":"new","type":"group","when":"2010-07-12T00:00:00","who":"king"}'
-  created_at: 2013-08-20 13:43:10.000000000 Z
-  updated_at: 2013-08-20 13:43:10.000000000 Z
-  queued: 0
-events_67896720:
-  id: 67896720
-  eventtype: RequestReviewerAddedEvent
-  payload: '{"author":"Iggy","comment":"does it look ok?","description":"","id":"1002","sender":"Iggy","state":"review","targetproject":"kde4","targetpackage":"kdelibs","type":"add_role","when":"2013-08-20T13:42:43","who":"Iggy","person":"Iggy","role":"reviewer","newreviewer":"tom"}'
-  created_at: 2013-08-20 13:42:44.000000000 Z
-  updated_at: 2013-08-20 13:42:44.000000000 Z
-  queued: 0
+  lock_version: 0
 events_904316863:
   id: 904316863
   eventtype: CommitEvent
@@ -83,6 +63,7 @@ events_904316863:
   created_at: 2013-08-20 13:42:11.000000000 Z
   updated_at: 2013-08-20 13:42:11.000000000 Z
   queued: 0
+  lock_version: 0
 events_93074225:
   id: 93074225
   eventtype: UpdateProjectConfigEvent
@@ -90,10 +71,4 @@ events_93074225:
   created_at: 2013-08-20 13:42:11.000000000 Z
   updated_at: 2013-08-20 13:42:11.000000000 Z
   queued: 0
-events_954330912:
-  id: 954330912
-  eventtype: RequestStatechangeEvent
-  payload: '{"author":"tom","description":"","id":"998","oldstate":"new","sender":"king","state":"review","targetproject":"NeitherExisting","targetpackage":"unknown2","type":"delete","when":"2010-07-12T00:00:00","who":"king","deleteproject":"NeitherExisting","deletepackage":"unknown2"}'
-  created_at: 2013-08-20 13:43:11.000000000 Z
-  updated_at: 2013-08-20 13:43:11.000000000 Z
-  queued: 0
+  lock_version: 0
