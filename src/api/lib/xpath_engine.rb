@@ -160,6 +160,7 @@ class XpathEngine
         '@id' => { :cpart => 'bs_requests.id' },
         'state/@name' => { :cpart => 'bs_requests.state' },
         'state/@who' => { :cpart => 'bs_requests.commenter' },
+        'state/@when' => { :cpart => 'bs_requests.updated_at' },
         'action/@type' => { :cpart => 'a.type',
                             joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id"
         },
@@ -187,7 +188,7 @@ class XpathEngine
       }
     }
 
-    @operators = [:eq, :and, :or, :neq]
+    @operators = [:eq, :and, :or, :neq, :gt, :lt, :gteq, :lteq]
 
     @base_table = ""
     @conditions = []
@@ -426,6 +427,34 @@ class XpathEngine
     #logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition
+  end
+
+  def xpath_op_gt(root, lv, rv)
+    lval = evaluate_expr(lv, root)
+    rval = evaluate_expr(rv, root)
+
+    @conditions << "#{lval} > #{rval}"
+  end
+
+  def xpath_op_gteq(root, lv, rv)
+    lval = evaluate_expr(lv, root)
+    rval = evaluate_expr(rv, root)
+
+    @conditions << "#{lval} >= #{rval}"
+  end
+
+  def xpath_op_lt(root, lv, rv)
+    lval = evaluate_expr(lv, root)
+    rval = evaluate_expr(rv, root)
+
+    @conditions << "#{lval} < #{rval}"
+  end
+
+  def xpath_op_lteq(root, lv, rv)
+    lval = evaluate_expr(lv, root)
+    rval = evaluate_expr(rv, root)
+
+    @conditions << "#{lval} <= #{rval}"
   end
 
   def xpath_op_and(root, lv, rv)

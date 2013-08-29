@@ -652,5 +652,36 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     delete "/source/TEMPORARY:GA"
     assert_response :success
   end
+
+  test "xpath operators" do
+    login_Iggy
+
+    get '/search/request/id', match: '@id>997'
+    assert_response :success
+    assert_xml_tag tag: 'request', attributes: { id: '998'}
+    assert_no_xml_tag tag: 'request', attributes: { id: '997'}
+
+    get '/search/request/id', match: '@id>=998'
+    assert_response :success
+    assert_xml_tag tag: 'request', attributes: { id: '998'}
+    assert_no_xml_tag tag: 'request', attributes: { id: '997'}
+
+    get '/search/request/id', match: '@id<998'
+    assert_response :success
+    assert_no_xml_tag tag: 'request', attributes: { id: '998'}
+    assert_xml_tag tag: 'request', attributes: { id: '997'}
+
+    get '/search/request/id', match: '@id<=998'
+    assert_response :success
+    assert_no_xml_tag tag: 'request', attributes: { id: '999'}
+    assert_xml_tag tag: 'request', attributes: { id: '998'}
+
+    # verify it also works with dates
+    get '/search/request/id', match: 'state/@when>="2012-09-02"'
+    assert_response :success
+    assert_xml_tag tag: 'request', attributes: { id: '998'}
+    assert_no_xml_tag tag: 'request', attributes: { id: '997'}
+
+  end
 end
 
