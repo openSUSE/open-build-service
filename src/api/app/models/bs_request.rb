@@ -13,6 +13,8 @@ class BsRequest < ActiveRecord::Base
     setup 'request_save_error'
   end
 
+  scope :to_accept, -> { where(state: 'new').where("accept_at < ?", DateTime.now) }
+
   has_many :bs_request_actions, -> { includes([:bs_request_action_accept_info]) }, dependent: :destroy
   has_many :bs_request_histories, :dependent => :delete_all
   has_many :reviews, :dependent => :delete_all
@@ -238,10 +240,6 @@ class BsRequest < ActiveRecord::Base
   def create_history
     bs_request_histories.create comment: self.comment, commenter: self.commenter,
                                 state: self.state, superseded_by: self.superseded_by, created_at: self.updated_at
-  end
-
-  def self.find_requests_to_accept
-     self.find(:all, :conditions => ['state = "new" AND accept_at < ?', DateTime.now])
   end
 
   def change_state(state, opts = {})

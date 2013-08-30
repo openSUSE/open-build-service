@@ -27,7 +27,7 @@ end
 
 every(1.hour, 'accept requests') do
   User.current = User.get_default_admin
-  BsRequest.find_requests_to_accept.each do |r|
+  BsRequest.to_accept.each do |r|
     r.delay.auto_accept
   end
 end
