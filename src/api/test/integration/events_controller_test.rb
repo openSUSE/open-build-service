@@ -26,5 +26,6 @@ class EventsTest < ActionDispatch::IntegrationTest
 
     assert_equal "kdelibs", BuildSuccessEvent.last.payload["package"]
   end
+
 end
 

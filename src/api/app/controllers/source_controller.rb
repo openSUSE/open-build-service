@@ -2,6 +2,7 @@ include MaintenanceHelper
 include ValidationHelper
 
 require 'builder/xchar'
+require 'event'
 
 class SourceController < ApplicationController
 
@@ -1625,6 +1626,9 @@ class SourceController < ApplicationController
       if ret[:text]
         render ret
       else
+        BranchCommandEvent.create project: params[:project], package: params[:package],
+                                  targetproject: params[:target_project], targetpackage: params[:target_package],
+                                  user: User.current.login
         render_ok ret
       end
       return

@@ -5467,8 +5467,6 @@ sub sourcebranch {
   runservice($cgi, $rev, $lfiles) unless $cgi->{'noservice'};
   delete $rev->{'project'};
   delete $rev->{'package'};
-  BSNotify::notify("SRCSRV_BRANCH_COMMAND", {project => $projid, package => $packid, targetproject => $oprojid, targetpackage => $opackid,
-                                             user => $cgi->{'user'}});
   return ($rev, $BSXML::revision_acceptinfo);
 }
 
