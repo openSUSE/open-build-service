@@ -296,7 +296,6 @@ CREATE TABLE `configurations` (
   `gravatar` tinyint(1) DEFAULT '1',
   `enforce_project_keys` tinyint(1) DEFAULT '1',
   `download_on_demand` tinyint(1) DEFAULT '1',
-  `multiaction_notify_support` tinyint(1) DEFAULT '1',
   `download_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `ymp_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `errbit_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
@@ -1270,6 +1269,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130820152631');
 INSERT INTO schema_migrations (version) VALUES ('20130826142746');
 
 INSERT INTO schema_migrations (version) VALUES ('20130829130639');
+
+INSERT INTO schema_migrations (version) VALUES ('20130830043205');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
