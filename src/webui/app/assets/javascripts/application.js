@@ -29,6 +29,7 @@
 //= require request
 //= require patchinfo
 //= require comment
+//= require user
 
 // toggle visibility of an element via the CSS "display" property
 // -> does NOT reserve the needed space for the element when not displayed

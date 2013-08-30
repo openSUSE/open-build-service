@@ -68,24 +68,21 @@ class Review < ActiveRecord::Base
     ret
   end
 
-  def notify_parameters(params = {})
-    hermes_type = nil
+  def create_notification_event(params = {})
+    params[:comment] = self.reason
     if self.by_package
-      hermes_type = "SRCSRV_REQUEST_REVIEWER_PACKAGE_ADDED"
       params[:newreviewer_project] = self.by_project
       params[:newreviewer_package] = self.by_package
+      RequestReviewerPackageAddedEvent.create params
     elsif self.by_project
-      hermes_type = "SRCSRV_REQUEST_REVIEWER_PROJECT_ADDED"
       params[:newreviewer_project] = self.by_project
+      RequestReviewerProjectAddedEvent.create params
     elsif self.by_user
-      hermes_type = "SRCSRV_REQUEST_REVIEWER_ADDED"
       params[:newreviewer] = self.by_user
+      RequestReviewerAddedEvent.create params
     elsif self.by_group
-      hermes_type = "SRCSRV_REQUEST_REVIEWER_GROUP_ADDED"
       params[:newreviewer_group] = self.by_group
+      RequestReviewerGroupAddedEvent.create params
     end
-    params[:comment] = self.reason
-    
-    return hermes_type, params
   end
 end

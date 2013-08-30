@@ -37,6 +37,7 @@ use Data::Dumper;
 use Storable ();
 use Symbol;
 use MIME::Base64 ();
+use JSON::XS ();
 
 use BSConfiguration;
 use BSRPC ':https';
@@ -1126,7 +1127,7 @@ sub addrev {
     $rev->{'acceptinfo'} = $acceptinfo if $cgi->{'withacceptinfo'};
   }
 
-  # send out hermes notification
+  # send out notification
   BSNotify::notify("SRCSRV_COMMIT", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'}, user => $user, comment => $comment, 'requestid' => $requestid});
   $rev_old->{'version'} = "unknown" unless defined($rev_old->{'version'});
   BSNotify::notify("SRCSRV_VERSION_CHANGE", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'},
@@ -5472,8 +5473,6 @@ sub sourcebranch {
   runservice($cgi, $rev, $lfiles) unless $cgi->{'noservice'};
   delete $rev->{'project'};
   delete $rev->{'package'};
-  BSNotify::notify("SRCSRV_BRANCH_COMMAND", {project => $projid, package => $packid, targetproject => $oprojid, targetpackage => $opackid,
-                                             user => $cgi->{'user'}});
   return ($rev, $BSXML::revision_acceptinfo);
 }
 
@@ -7360,10 +7359,15 @@ sub getissuetrackers {
 sub external_notification {
   my ($cgi, $type) = @_;
   my $param = {};
-  for (keys %$cgi) {
-    $param->{$_} = $cgi->{$_} unless $_ eq '_type' || /^\./;
+  if (BSServer::have_content()) {
+    my $jsonbody = BSServer::read_data(10000000);
+    $param = JSON::XS::decode_json($jsonbody);
+  } else {
+    for (keys %$cgi) {
+      $param->{$_} = $cgi->{$_} unless $_ eq '_type' || /^\./;
+    }
   }
-  BSNotify::notify($type, $param);
+  BSNotify::notify_plugins($type, $param);
   return $BSStdServer::return_ok;
 }
 

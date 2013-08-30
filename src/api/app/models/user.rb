@@ -15,6 +15,8 @@ class User < ActiveRecord::Base
   has_many :status_messages
   has_many :messages
 
+  has_many :event_subscriptions
+
   @@ldap_search_con = nil
   
   # users have a n:m relation to group

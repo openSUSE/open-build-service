@@ -11,6 +11,10 @@ every(1.week, 're(start) sphinx') do
   `rake ts:restart`
 end
 
+every(1.hour, 'reindex sphinx') do
+  `rake ts:index`
+end
+
 every(30.seconds, 'status.refresh') do
   Rails.logger.debug "Refresh worker status"
   c = StatusController.new
@@ -49,6 +53,6 @@ every(5.minutes, 'check last events') do
   BackendInfo.first.delay.update_last_events 
 end
 
-every(1.hour, 'reindex sphinx') do
-  `rake ts:index`
+every(1.minute, 'send notifications') do
+  EventNotifyBackends.trigger_delayed_sent
 end

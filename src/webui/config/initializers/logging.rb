@@ -1,3 +1,5 @@
+require 'yajl'
+
 module APIInstrumentation
   module ControllerRuntime
     extend ActiveSupport::Concern
@@ -15,7 +17,7 @@ module APIInstrumentation
       runtime.each_key do |key|
         runtime[key] = Integer(runtime[key].to_f * 10 + 0.5).to_f / 10
       end
-      response.headers["X-Opensuse-Runtimes"] = runtime.to_json
+      response.headers["X-Opensuse-Runtimes"] = Yajl::Encoder.encode(runtime)
     end
 
     module ClassMethods

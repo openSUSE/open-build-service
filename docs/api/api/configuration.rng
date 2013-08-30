@@ -55,15 +55,6 @@
           </element>
         </optional>
         <optional>
-          <element name="multiaction_notify_support">
-            <!-- notification backend does understand events for requests containing multiple actions -->
-            <choice>
-              <value>on</value>
-              <value>off</value>
-            </choice>
-          </element>
-        </optional>
-        <optional>
           <element name="default_access_disabled">
             <!-- New created projects have disabled access by default -->
             <choice>

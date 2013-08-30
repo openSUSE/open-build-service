@@ -64,6 +64,7 @@ File.open("#{Rails.root}/../backend/BSConfig.pm.template") do |template|
     line.gsub!(/:5352/, ":#{CONFIG['source_port']}")
     line.gsub!(/:5252/, ":3201") # repservier, used via source server
     line.gsub!(/:5152/, ":3202") # source service, used via source server
+    #line.gsub!(/.*our apiurl.*/, "our $apiurl = 'http://localhost:3203';")
     file.print line
   end
 end

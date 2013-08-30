@@ -296,7 +296,6 @@ CREATE TABLE `configurations` (
   `gravatar` tinyint(1) DEFAULT '1',
   `enforce_project_keys` tinyint(1) DEFAULT '1',
   `download_on_demand` tinyint(1) DEFAULT '1',
-  `multiaction_notify_support` tinyint(1) DEFAULT '1',
   `download_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `ymp_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `errbit_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
@@ -374,6 +373,32 @@ CREATE TABLE `downloads` (
   KEY `index_downloads_on_db_project_id` (`db_project_id`),
   KEY `index_downloads_on_architecture_id` (`architecture_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `event_subscriptions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `eventtype` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `receive` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `project_id` int(11) DEFAULT NULL,
+  `package_id` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_event_subscriptions_on_user_id` (`user_id`),
+  KEY `index_event_subscriptions_on_project_id` (`project_id`),
+  KEY `index_event_subscriptions_on_package_id` (`package_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `events` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `eventtype` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `payload` text COLLATE utf8_unicode_ci,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `queued` tinyint(1) NOT NULL DEFAULT '0',
+  `lock_version` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `flags` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1233,7 +1258,19 @@ INSERT INTO schema_migrations (version) VALUES ('20130814071147');
 
 INSERT INTO schema_migrations (version) VALUES ('20130816183104');
 
+INSERT INTO schema_migrations (version) VALUES ('20130817082602');
+
 INSERT INTO schema_migrations (version) VALUES ('20130819114303');
+
+INSERT INTO schema_migrations (version) VALUES ('20130820151442');
+
+INSERT INTO schema_migrations (version) VALUES ('20130820152631');
+
+INSERT INTO schema_migrations (version) VALUES ('20130826142746');
+
+INSERT INTO schema_migrations (version) VALUES ('20130829130639');
+
+INSERT INTO schema_migrations (version) VALUES ('20130830043205');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

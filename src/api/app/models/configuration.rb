@@ -16,7 +16,6 @@ class Configuration < ActiveRecord::Base
                    :default_access_disabled => CONFIG['default_access_disabled'],
                    :allow_user_to_create_home_project => CONFIG['allow_user_to_create_home_project'],
                    :disallow_group_creation => CONFIG['disallow_group_creation_with_api'],
-                   :multiaction_notify_support => CONFIG['multiaction_notify_support'],
                    :change_password => CONFIG['change_passwd'],
                    :hide_private_options => CONFIG['hide_private_options'],
                    :gravatar => CONFIG['use_gravatar'],
@@ -28,7 +27,7 @@ class Configuration < ActiveRecord::Base
                    :no_proxy => nil,
                    :theme => CONFIG['theme'],
                  }
-  ON_OFF_OPTIONS = [ :anonymous, :default_access_disabled, :allow_user_to_create_home_project, :disallow_group_creation, :change_password, :hide_private_options, :gravatar, :download_on_demand, :enforce_project_keys, :multiaction_notify_support ]
+  ON_OFF_OPTIONS = [ :anonymous, :default_access_disabled, :allow_user_to_create_home_project, :disallow_group_creation, :change_password, :hide_private_options, :gravatar, :download_on_demand, :enforce_project_keys ]
    
   class << self
     def map_value(key, value)

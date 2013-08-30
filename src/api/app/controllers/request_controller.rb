@@ -1,4 +1,5 @@
 require 'base64'
+require 'event'
 
 include MaintenanceHelper
 
@@ -80,7 +81,7 @@ class RequestController < ApplicationController
       req.save!
 
       notify = oldrequest.notify_parameters
-      Suse::Backend.send_notification("SRCSRV_REQUEST_CHANGE", notify)
+      RequestChangeEvent.create notify
 
       send_data(req.render_xml, :type => "text/xml")
     end
@@ -91,7 +92,7 @@ class RequestController < ApplicationController
     request = BsRequest.find(params[:id])
     notify = request.notify_parameters
     request.destroy # throws us out of here if failing
-    Suse::Backend.send_notification("SRCSRV_REQUEST_DELETE", notify)
+    RequestDeleteEvent.create notify
     render_ok
   end
 
@@ -181,11 +182,10 @@ class RequestController < ApplicationController
       #
       req.save!
       notify = req.notify_parameters
-      Suse::Backend.send_notification('SRCSRV_REQUEST_CREATE', notify)
+      RequestCreateEvent.create notify
 
       req.reviews.each do |review|
-        hermes_type, review_notify = review.notify_parameters(notify.dup)
-        Suse::Backend.send_notification(hermes_type, review_notify) if hermes_type
+        review.create_notification_event(notify.dup)
       end
 
       # cache the diff (in the backend)

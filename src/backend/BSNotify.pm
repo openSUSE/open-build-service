@@ -27,7 +27,42 @@ use BSConfig;
 
 use strict;
 
+# This function is called for internal events to tell the API in
+# the so called push model.
+# TODO: switch to a pull model
 sub notify($$) {
+  my ($type, $paramRef ) = @_;
+
+  return unless $BSConfig::apiurl;
+
+  $type = "UNKNOWN" unless $type;
+
+  my $apiuri = "$BSConfig::apiurl/events";
+  print STDERR "Notifying API at $apiuri\n";
+
+  $paramRef->{'eventtype'} = $type;
+  $paramRef->{'time'} = time();
+
+  my $data = JSON::XS->new->encode($paramRef);
+
+  my $param = {
+    'uri' => $apiuri,
+    'request' => 'POST',
+    'verbatim_uri' => 1,
+    'content-length' => length($data),
+    'headers' => [ 'Content-Type: application/json', 'Accepts: application/json' ],
+    'data' => $data,
+  };
+  eval {
+    BSRPC::rpc( $param, undef, () );
+  };
+  warn("Notify API: $@") if $@;
+}
+
+# this is called from the /notification route that the API
+# calls for all events (no matter the origin) if the API
+# is configured to do so
+sub notify_plugins($$) {
   my ($type, $paramRef ) = @_;
 
   return unless $BSConfig::notification_plugin;

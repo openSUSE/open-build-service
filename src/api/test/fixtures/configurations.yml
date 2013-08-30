@@ -27,7 +27,6 @@ seed:
   gravatar: 1
   enforce_project_keys: 1
   download_on_demand: 1
-  multiaction_notify_support: 1
   download_url: http://example.com/download
   ymp_url: http://example.com/ymp
   errbit_url: 192.0.2.0
