@@ -282,7 +282,7 @@ CREATE TABLE `comments` (
 CREATE TABLE `configurations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) COLLATE utf8_bin DEFAULT '',
-  `description` text COLLATE utf8_bin,
+  `description` text CHARACTER SET utf8,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `name` varchar(255) COLLATE utf8_bin DEFAULT '',
@@ -296,7 +296,6 @@ CREATE TABLE `configurations` (
   `gravatar` tinyint(1) DEFAULT '1',
   `enforce_project_keys` tinyint(1) DEFAULT '1',
   `download_on_demand` tinyint(1) DEFAULT '1',
-  `multiaction_notify_support` tinyint(1) DEFAULT '1',
   `download_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `ymp_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `errbit_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
@@ -1201,8 +1200,6 @@ INSERT INTO schema_migrations (version) VALUES ('20130612151549');
 
 INSERT INTO schema_migrations (version) VALUES ('20130618083665');
 
-INSERT INTO schema_migrations (version) VALUES ('20130619083665');
-
 INSERT INTO schema_migrations (version) VALUES ('20130621083665');
 
 INSERT INTO schema_migrations (version) VALUES ('20130626160000');
@@ -1234,6 +1231,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130814071147');
 INSERT INTO schema_migrations (version) VALUES ('20130816183104');
 
 INSERT INTO schema_migrations (version) VALUES ('20130819114303');
+
+INSERT INTO schema_migrations (version) VALUES ('20130830043205');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
