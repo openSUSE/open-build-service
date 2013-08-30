@@ -50,14 +50,14 @@ sub notify() {
   if ($paramRef) {
     for my $key (sort keys %$paramRef) {
       if (ref $paramRef->{$key}) {
-	my $subref = $paramRef->{$key};
-	if ($key eq "actions") {
-	  # hermes can only display one, so pick the first
-	  $subref = $subref->[0];
-	  for my $skey (sort keys %$subref) {
-	    push @args, "$skey=$subref->{$skey}" if defined $subref->{$skey};
-	  }
-	}
+        my $subref = $paramRef->{$key};
+        if ($key eq "actions") {
+          # hermes can only display one, so pick the first
+          $subref = $subref->[0];
+          for my $skey (sort keys %$subref) {
+            push @args, "$skey=$subref->{$skey}" if defined $subref->{$skey};
+          }
+        }
       }
       push @args, "$key=$paramRef->{$key}" if defined $paramRef->{$key};
     }
