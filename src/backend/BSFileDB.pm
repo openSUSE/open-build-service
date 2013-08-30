@@ -32,16 +32,21 @@ sub decode_line {
   s/%([a-fA-F0-9]{2})/chr(hex($1))/ge for @line;
   my @lay = @$lay;
   my $r = {};
+  my $al;
+  ($al) = splice(@lay, -2, 2) if $lay->[-1] eq '[]';
   $r->{shift @lay} = shift @line while @lay && @line;
+  $r->{$al} = [ @line ] if $al;
   return $r;
 }
 
 sub encode_line {
   my ($r, $lay) = @_;
   my @line;
-  for (@$lay) {
-    push @line, defined($r->{$_})  ? $r->{$_} : '';
-  }
+  my @lay = @$lay;
+  my $al;
+  ($al) = splice(@lay, -2, 2) if $lay->[-1] eq '[]';
+  push @line, defined($r->{$_})  ? $r->{$_} : '' for @lay;
+  push @line, @{$r->{$al} || []} if $al;
   s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge for @line; 
   return join('|', @line);
 }

@@ -1615,4 +1615,17 @@ our $buildstatistics = [
         ],
 ];
 
+our $notifications = [
+    'notifications' =>
+	'next',
+	'sync',
+     [[ 'notification' =>
+	    'type',
+	 [[ 'data' =>
+		'key',
+		'_content',
+	 ]],
+     ]],
+];
+
 1;

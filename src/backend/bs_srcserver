@@ -87,6 +87,8 @@ my $remotecache = "$BSConfig::bsdir/remotecache";
 
 my $srcrevlay = [qw{rev vrev srcmd5 version time user comment requestid}];
 my $eventlay = [qw{number time type project package repository arch}];
+my $notificationlay = [qw{number type data []}];
+
 
 my $ajaxsocket = "$rundir/bs_srcserver.ajax";
 my $uploaddir = "$srcrep/:upload";
@@ -107,7 +109,63 @@ my %remote_getrev_cache;
 
 sub notify {
   my ($type, $p) = @_;
+  my @n = map {"$_=$p->{$_}"} grep {defined($p->{$_}) && !ref($p->{$_})} sort keys %{$p || {}};
+  BSFileDB::fdb_add_i("$eventdir/lastnotifications", $notificationlay, {'type' => $type, 'data' => \@n});
   BSNotify::notify($type, $p);
+}
+
+sub lastnotifications {
+  my ($cgi) = @_;
+  if (!$cgi->{'start'}) {
+    # just fetch the current event number
+    my $lastev = BSFileDB::fdb_getlast("$eventdir/lastnotifications", $notificationlay);
+    my $lastno = $lastev ? $lastev->{'number'} : 0;
+    my $ret = {'next' => $lastno, 'sync' => 'lost'};
+    return ($ret, $BSXML::notifications);
+  }
+  my $filter = sub {
+    return $cgi->{'start'} > $_[0]->{'number'} ? -2 : 1;
+  };
+  my @l = BSFileDB::fdb_getall_reverse("$eventdir/lastnotifications", $notificationlay, undef, $filter);
+  if (!@l) {
+    # pass on to AJAX
+    if (!$BSStdServer::isajax) {
+      my @args;
+      push @args, "start=$cgi->{'start'}";
+      BSHandoff::handoff($ajaxsocket, '/lastnotifications', undef, @args);
+      exit(0);
+    }
+  }
+  if ($BSStdServer::isajax && !@l) {
+    # wait untill we have a winner
+    BSWatcher::addfilewatcher("$eventdir/lastnotifications");
+    my $lastev = BSFileDB::fdb_getlast("$eventdir/lastnotifications", $notificationlay);
+    return undef if !$lastev || $lastev->{'number'} < $cgi->{'start'};
+    if ($cgi->{'start'} == $lastev->{'number'}) {
+      @l = ($lastev);
+    } else {
+      @l = BSFileDB::fdb_getall_reverse("$eventdir/lastnotifications", $notificationlay, undef, $filter);
+      return undef unless @l;
+    }
+  }
+  @l = reverse @l;
+  my $res = {};
+  $res->{'sync'} = 'lost' if @l && $l[0]->{'number'} > $cgi->{'start'};
+  if (@l) {
+    $res->{'next'} = $l[-1]->{'number'} + 1;
+  } else {
+    my $lastev = BSFileDB::fdb_getlast("$eventdir/lastnotifications", $notificationlay);
+    $res->{'next'} = ($lastev->{'number'} || 0) + 1;
+  }
+  for my $l (@l) {
+    delete $l->{'number'};
+    for (@{$l->{'data'} || []}) {
+      my @s = split('=', $_, 2);
+      $_ = {'key' => $s[0], '_content' => $s[1]};
+    }
+  }
+  $res->{'notification'} = \@l;
+  return ($res, $BSXML::notifications);
 }
 
 sub notify_repservers {
@@ -6956,7 +7014,7 @@ sub worker_getbinaryversions {
 my @lastev_cache;
 my @lastev_stat;
 
-sub worker_lastevents {
+sub lastevents {
   my ($cgi, $filter) = @_;
   if (!$cgi->{'start'}) {
     # just fetch the current event number
@@ -7460,10 +7518,11 @@ my $dispatches = [
   '/getsslcert $project autoextend:bool?' => \&getsslcert,
   '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaryversions,
-  '!- /lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,
+  '!- /lastevents $filter:* start:num? obsname:?' => \&lastevents,
+  '/lastnotifications start:num?' => \&lastnotifications,
   'POST:/event type: project: package:? repository:? arch:? job:?' => \&newevent,
   # tmp until lightty gets fixed
-  '/public/lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,
+  '/public/lastevents $filter:* start:num? obsname:?' => \&lastevents,
 
   # search interface
   '/search $in: $match: return:? values:bool?' => \&search,
@@ -7538,7 +7597,8 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? start:intnum? end:num?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool?' => \&getbinarylist,
   '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool?' => \&worker_getbinaries,
-  '/lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,
+  '/lastevents $filter:* start:num? obsname:?' => \&lastevents,
+  '/lastnotifications start:num?' => \&lastnotifications,
   '/source/$project/$package rev' => \&getfilelist_ajax,
   '/source/$project/$package:package/$filename rev?' => \&getfile,
   '/request/$id:num withkey:bool? oldkey:md5?' => \&getrequest,
