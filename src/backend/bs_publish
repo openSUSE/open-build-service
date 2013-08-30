@@ -68,6 +68,28 @@ my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my @binsufsrsync = map {"--include=*.$_"} @binsufs;
 
+sub notify {
+  my ($type, $p) = @_;
+  # strip
+  $p = { map {$_ => $p->{$_}} grep {defined($p->{$_}) && !ref($p->{$_})} sort keys %{$p || {}} };
+  if (0) {
+    BSNotify::notify($type, $p);
+  } else {
+    # always route over to the src server
+    my $param = {
+      'uri' => "$BSConfig::srcserver/notify/$type",
+      'request' => 'POST',
+      'Content-Type: application/x-www-form-urlencoded',
+      'timeout' => 60,
+    };
+    my @args = map {"$_=$p->{$_}"} sort keys %$p;
+    eval {
+      BSRPC::rpc($param, undef, @args);
+    };
+    warn($@) if $@;
+  }
+}
+
 sub qsystem {
   my @args = @_;
   my $pid;
@@ -1681,7 +1703,7 @@ publishprog_done:
   }
 
   
-  BSNotify::notify("REPO_PUBLISHED", { project => $projid , 'repo' => $repoid });
+  notify('REPO_PUBLISHED', { project => $projid , 'repo' => $repoid });
   # all done. till next time...
   if ($BSConfig::publishprogram && $BSConfig::publishprogram->{$prp}) {
     exit(0);
@@ -1761,7 +1783,7 @@ while(1) {
 	next;
       }
     rename("$myeventdir/$event", "$myeventdir/${event}::inprogress");
-    BSNotify::notify('REPO_PUBLISH_STATE', { 'project' => $ev->{'project'}, 'repo' => $ev->{'repository'}, 'state' => 'publishing'} );
+    notify('REPO_PUBLISH_STATE', { 'project' => $ev->{'project'}, 'repo' => $ev->{'repository'}, 'state' => 'publishing'} );
     eval {
       publish($ev->{'project'}, $ev->{'repository'});
     };
@@ -1784,7 +1806,7 @@ while(1) {
       my $now = time();
       $publish_lasttime{$prp} = $now;
       $publish_duration{$prp} = $now - $starttime;
-      BSNotify::notify('REPO_PUBLISH_STATE', { 'project' => $ev->{'project'}, 'repo' => $ev->{'repository'}, 'state' => 'published'} );
+      notify('REPO_PUBLISH_STATE', { 'project' => $ev->{'project'}, 'repo' => $ev->{'repository'}, 'state' => 'published'} );
       db_sync();
       unlink("$myeventdir/${event}::inprogress");
     }

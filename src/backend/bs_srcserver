@@ -105,6 +105,11 @@ my $collect_remote_getrev;
 my $remote_getrev_todo;
 my %remote_getrev_cache;
 
+sub notify {
+  my ($type, $p) = @_;
+  BSNotify::notify($type, $p);
+}
+
 sub notify_repservers {
   my ($type, $projid, $packid) = @_;
 
@@ -1003,8 +1008,8 @@ sub addrev {
   if ($target && $target eq 'upload') {
     my $srcmd5 = addmeta($projid, $packid, $files, 'upload');
     my $filenames = join( ', ', keys %$files );
-    BSNotify::notify("SRCSRV_UPLOAD", {project => $projid, package => $packid, filename => $filenames, comment => $comment, 
-                                       target => $target, requestid => $requestid, user => $user});
+    notify("SRCSRV_UPLOAD", {project => $projid, package => $packid, filename => $filenames, comment => $comment, 
+                             target => $target, requestid => $requestid, user => $user});
     return {'project' => $projid, 'package' => $packid, 'rev' => 'upload', 'srcmd5' => $srcmd5};
   } elsif ($target && $target eq 'repository') {
     # repository only upload.
@@ -1079,7 +1084,7 @@ sub addrev {
     extract_old_prjsource($projid, $rev);
     unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
     notify_repservers('project', $projid);
-    BSNotify::notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "files" => $filestr, "comment" => $comment, "sender" => $user });
+    notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "files" => $filestr, "comment" => $comment, "sender" => $user });
     return $rev;
   }
 
@@ -1127,9 +1132,9 @@ sub addrev {
   }
 
   # send out hermes notification
-  BSNotify::notify("SRCSRV_COMMIT", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'}, user => $user, comment => $comment, 'requestid' => $requestid});
+  notify("SRCSRV_COMMIT", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'}, user => $user, comment => $comment, 'requestid' => $requestid});
   $rev_old->{'version'} = "unknown" unless defined($rev_old->{'version'});
-  BSNotify::notify("SRCSRV_VERSION_CHANGE", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'},
+  notify("SRCSRV_VERSION_CHANGE", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'},
                                              oldversion => $rev_old->{'version'}, newversion => $rev->{'version'},
                                              user => $user, comment => $comment, 'requestid' => $requestid})
     if defined($rev->{'version'}) && defined($rev_old->{'version'}) && $rev->{'version'} ne $rev_old->{'version'};
@@ -3261,7 +3266,7 @@ sub putproject {
   writexml("$uploaddir/$$.2", undef, $proj, $BSXML::proj);
   unlink("$uploaddir/$$");
   my $oldproj = readxml("$projectsdir/$projid.xml", $BSXML::proj, 1);
-  BSNotify::notify($oldproj ? "SRCSRV_UPDATE_PROJECT" : "SRCSRV_CREATE_PROJECT", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
+  notify($oldproj ? "SRCSRV_UPDATE_PROJECT" : "SRCSRV_CREATE_PROJECT", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
   mkdir_p("$projectsdir") || die("creating $projectsdir: $!\n");
   addrev_meta($cgi, $projid, undef, "$uploaddir/$$.2", "$projectsdir/$projid.xml", '_meta');
   if ($BSConfig::forceprojectkeys) {
@@ -3337,7 +3342,7 @@ sub delproject {
   unlink("$projectsdir/$projid.xml");
   notify_repservers('project', $projid);
 
-  BSNotify::notify("SRCSRV_DELETE_PROJECT", { "project" => $projid, "comment" => $cgi->{'comment'}, "sender" => ($cgi->{'user'} || "unknown"), "requestid" => $cgi->{'requestid'} });
+  notify("SRCSRV_DELETE_PROJECT", { "project" => $projid, "comment" => $cgi->{'comment'}, "sender" => ($cgi->{'user'} || "unknown"), "requestid" => $cgi->{'requestid'} });
 
   return $BSStdServer::return_ok;
 }
@@ -3372,7 +3377,7 @@ sub undeleteproject {
     }
   }
   notify_repservers('project', $projid);
-  BSNotify::notify("SRCSRV_UNDELETE_PROJECT", { "project" => $projid, "comment" => $cgi->{'comment'}, "sender" => ($cgi->{'user'} || "unknown") });
+  notify("SRCSRV_UNDELETE_PROJECT", { "project" => $projid, "comment" => $cgi->{'comment'}, "sender" => ($cgi->{'user'} || "unknown") });
 
   return $BSStdServer::return_ok;
 }
@@ -3470,7 +3475,7 @@ sub putpackage {
   mkdir_p("$projectsdir/$projid.pkg");
 
   my $oldpack = readxml("$projectsdir/$projid.pkg/$packid.xml", $BSXML::pack, 1);
-  BSNotify::notify($oldpack ? "SRCSRV_UPDATE_PACKAGE" : "SRCSRV_CREATE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown")});
+  notify($oldpack ? "SRCSRV_UPDATE_PACKAGE" : "SRCSRV_CREATE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown")});
 
   addrev_meta($cgi, $projid, $packid, "$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml", '_meta');
   my %except = map {$_ => 1} qw{title description devel person group url};
@@ -3511,7 +3516,7 @@ sub delpackage {
     expandproduct($projid, $packid, undef);
   }
   notify_repservers('package', $projid, $packid);
-  BSNotify::notify("SRCSRV_DELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown"), "comment" => $cgi->{'comment'}, "requestid" => $cgi->{'requestid'} });
+  notify("SRCSRV_DELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown"), "comment" => $cgi->{'comment'}, "requestid" => $cgi->{'requestid'} });
   return $BSStdServer::return_ok;
 }
 
@@ -3557,7 +3562,7 @@ sub undeletepackage {
     updatelinkinfodb($projid, $packid, $nrev, lsrev($nrev));
   }
   notify_repservers('package', $projid, $packid);
-  BSNotify::notify("SRCSRV_UNDELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown"), "comment" => $cgi->{'comment'} });
+  notify("SRCSRV_UNDELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown"), "comment" => $cgi->{'comment'} });
 
   return $BSStdServer::return_ok;
 }
@@ -4102,7 +4107,7 @@ sub putprojectconfig {
     addrev_meta($cgi, $projid, undef, undef, "$projectsdir/$projid.conf", '_config', 'rev');
   }
   notify_repservers('project', $projid);
-  BSNotify::notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
+  notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
 
   return $BSStdServer::return_ok;
 }
@@ -4111,7 +4116,7 @@ sub delprojectconfig {
   my ($cgi, $projid) = @_;
   addrev_meta($cgi, $projid, undef, undef, "$projectsdir/$projid.conf", '_config', 'rev');
   notify_repservers('project', $projid);
-  BSNotify::notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
+  notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
   return $BSStdServer::return_ok;
 }
 
@@ -5472,7 +5477,7 @@ sub sourcebranch {
   runservice($cgi, $rev, $lfiles) unless $cgi->{'noservice'};
   delete $rev->{'project'};
   delete $rev->{'package'};
-  BSNotify::notify("SRCSRV_BRANCH_COMMAND", {project => $projid, package => $packid, targetproject => $oprojid, targetpackage => $opackid,
+  notify("SRCSRV_BRANCH_COMMAND", {project => $projid, package => $packid, targetproject => $oprojid, targetpackage => $opackid,
                                              user => $cgi->{'user'}});
   return ($rev, $BSXML::revision_acceptinfo);
 }
@@ -7363,7 +7368,7 @@ sub external_notification {
   for (keys %$cgi) {
     $param->{$_} = $cgi->{$_} unless $_ eq '_type' || /^\./;
   }
-  BSNotify::notify($type, $param);
+  notify($type, $param);
   return $BSStdServer::return_ok;
 }
 

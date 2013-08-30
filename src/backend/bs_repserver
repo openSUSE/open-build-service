@@ -106,6 +106,28 @@ sub jobname {
   return $job;
 }
 
+sub notify {
+  my ($type, $p) = @_;
+
+  # strip
+  $p = { map {$_ => $p->{$_}} grep {defined($p->{$_}) && !ref($p->{$_})} sort keys %{$p || {}} };
+  if (0) {
+    BSNotify::notify($type, $p);
+  } else {
+    # always route over to the src server
+    my $param = {
+      'uri' => "$BSConfig::srcserver/notify/$type",
+      'request' => 'POST',
+      'Content-Type: application/x-www-form-urlencoded',
+      'timeout' => 60,
+    };
+    my @args = map {"$_=$p->{$_}"} sort keys %$p;
+    eval {
+      BSRPC::rpc($param, undef, @args);
+    };
+    warn($@) if $@;
+  }
+}
 
 # add :full repo to pool, make sure repo is up-to-data by
 # scanning the directory
@@ -1767,9 +1789,9 @@ sub putjob {
 
   if ($cgi->{'code'} && $cgi->{'code'} eq 'unchanged') {
     $jobstatus->{'result'} = 'unchanged';
-    BSNotify::notify('BUILD_UNCHANGED', $info);
+    notify('BUILD_UNCHANGED', $info);
   } else {
-    BSNotify::notify($jobstatus->{'result'} eq 'succeeded' ? 'BUILD_SUCCESS' :  'BUILD_FAIL', $info);
+    notify($jobstatus->{'result'} eq 'succeeded' ? 'BUILD_SUCCESS' :  'BUILD_FAIL', $info);
   }
 
   # calculate binary info to speed up scheduler
