@@ -1,4 +1,5 @@
 require 'xmlhash'
+require 'event/request'
 require 'opensuse/backend'
 
 class BsRequest < ActiveRecord::Base
@@ -277,7 +278,7 @@ class BsRequest < ActiveRecord::Base
       end
       self.save!
 
-      send_state_notification('SRCSRV_REQUEST', oldstate: oldstate)
+      create_state_notification_event('Request', oldstate: oldstate)
     end
   end
 
@@ -366,20 +367,20 @@ class BsRequest < ActiveRecord::Base
 
       self.save!
 
-      send_state_notification('SRCSRV_REVIEW') if go_new_state
+      create_state_notification_event('Review') if go_new_state
 
     end
   end
 
-  def send_state_notification(prefix, additional_notify_parameters = {})
+  def create_state_notification_event(prefix, additional_notify_parameters = {})
     notify = notify_parameters.merge additional_notify_parameters
     case state
     when :accepted
-      Suse::Backend.send_notification("#{prefix}_ACCEPTED", notify)
+      "Event::#{prefix}Accepted".constantize.create notify
     when :declined
-      Suse::Backend.send_notification("#{prefix}_DECLINED", notify)
+      "Event::#{prefix}Declined".constantize.create notify
     when :revoked
-      Suse::Backend.send_notification("#{prefix}_REVOKED", notify)
+      "Event::#{prefix}Revoked".constantize.create notify
     end
   end
 
@@ -403,18 +404,16 @@ class BsRequest < ActiveRecord::Base
                                       by_package: opts[:by_package], creator: User.current.login
       self.save!
 
-      hermes_type, params = newreview.notify_parameters(self.notify_parameters)
-      Suse::Backend.send_notification(hermes_type, params) if hermes_type
+      newreview.create_notification_event(self.notify_parameters)
     end
   end
 
   def send_state_change
-    Suse::Backend.send_notification('SRCSRV_REQUEST_STATECHANGE', self.notify_parameters) if self.state_was.to_s != self.state.to_s
+    Event::RequestStatechange.create(self.notify_parameters) if self.state_was.to_s != self.state.to_s
   end
 
   def notify_parameters(ret = {})
     ret[:id] = self.id
-    ret[:type] = '' # old style
     ret[:description] = self.description
     ret[:state] = self.state
     ret[:oldstate] = self.state_was if self.state_changed?
@@ -422,19 +421,10 @@ class BsRequest < ActiveRecord::Base
     ret[:comment] = self.comment
     ret[:author] = self.creator
 
-    if CONFIG['multiaction_notify_support']
-      # Use a nested data structure to support multiple actions in one request
-      ret[:actions] = []
-      self.bs_request_actions.each do |a|
-        ret[:actions] << a.notify_params
-      end
-    else
-      # This is the old code that doesn't handle multiple actions in one request.
-      # The last one just wins ....
-      # Needed until Hermes supports $reqinfo{'actions'}
-      self.bs_request_actions.each do |a|
-        ret = a.notify_params(ret)
-      end
+    # Use a nested data structure to support multiple actions in one request
+    ret[:actions] = []
+    self.bs_request_actions.each do |a|
+      ret[:actions] << a.notify_params
     end
     ret
   end

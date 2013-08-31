@@ -1,15 +1,11 @@
 require File.dirname(__FILE__) + '/boot'
 require File.dirname(__FILE__) + '/environment'
 
+# make sure our event is loaded first - the clockwork::event is *not* ours
+require 'event'
+
 require 'clockwork'
 include Clockwork
-
-# We want Sphinx to be started everytime clockworkd starts. Scheduling a restart
-# every week ensures that initial start and doesn't really hurt. Not the
-# cleanest solution, but avoids creating/modifying init.d scripts
-every(1.week, 're(start) sphinx') do
-  `rake ts:restart`
-end
 
 every(30.seconds, 'status.refresh') do
   Rails.logger.debug "Refresh worker status"
@@ -49,6 +45,21 @@ every(5.minutes, 'check last events') do
   BackendInfo.first.delay.update_last_events 
 end
 
-every(1.hour, 'reindex sphinx') do
+every(30.seconds, 'send notifications') do
+  Event::NotifyBackends.trigger_delayed_sent
+end
+
+every(17.seconds, 'fetch notificatoins', thread: true) do
+  UpdateNotificationEvents.new.perform
+end
+
+# We want Sphinx to be started everytime clockworkd starts. Scheduling a restart
+# every week ensures that initial start and doesn't really hurt. Not the
+# cleanest solution, but avoids creating/modifying init.d scripts
+every(1.week, 're(start) sphinx', thread: true) do
+  `rake ts:restart`
+end
+
+every(1.hour, 'reindex sphinx', thread: true) do
   `rake ts:index`
 end

@@ -65,7 +65,7 @@ module ActionDispatch
 
       def raw_post(path, data, parameters = nil, rack_env = nil)
         rack_env ||= Hash.new
-        rack_env['CONTENT_TYPE'] = 'application/octet-stream'
+        rack_env['CONTENT_TYPE'] ||= 'application/octet-stream'
         rack_env['CONTENT_LENGTH'] = data.length
         rack_env['RAW_POST_DATA'] = data
         process(:post, path, parameters, add_auth(rack_env))
@@ -73,7 +73,7 @@ module ActionDispatch
 
       def raw_put(path, data, parameters = nil, rack_env = nil)
         rack_env ||= Hash.new
-        rack_env['CONTENT_TYPE'] = 'application/octet-stream'
+        rack_env['CONTENT_TYPE'] ||= 'application/octet-stream'
         rack_env['CONTENT_LENGTH'] = data.length
         rack_env['RAW_POST_DATA'] = data
         process(:put, path, parameters, add_auth(rack_env))

@@ -205,8 +205,6 @@ class BsRequestAction < ActiveRecord::Base
       ret[:sourcerevision] = self.source_rev
       ret[:targetproject] = self.target_project
       ret[:targetpackage] = self.target_package
-      ret[:deleteproject] = nil
-      ret[:deletepackage] = nil
       ret[:person] = nil
       ret[:role] = nil
     elsif self.action_type == :change_devel
@@ -214,8 +212,6 @@ class BsRequestAction < ActiveRecord::Base
       ret[:sourcepackage] = self.source_package
       ret[:targetproject] = self.target_project
       ret[:targetpackage] = self.target_package || self.source_package
-      ret[:deleteproject] = nil
-      ret[:deletepackage] = nil
       ret[:sourcerevision] = nil
       ret[:person] = nil
       ret[:role] = nil
@@ -224,15 +220,10 @@ class BsRequestAction < ActiveRecord::Base
       ret[:targetpackage] = self.target_package
       ret[:sourceproject] = nil
       ret[:sourcepackage] = nil
-      ret[:deleteproject] = nil
-      ret[:deletepackage] = nil
       ret[:sourcerevision] = nil
       ret[:person] = self.person_name
       ret[:role] = self.role
     elsif self.action_type == :delete
-      # FIXME3 this parameter is duplicating infos
-      ret[:deleteproject] = self.target_project
-      ret[:deletepackage] = self.target_package
       ret[:sourceproject] = nil
       ret[:sourcepackage] = nil
       ret[:targetproject] = self.target_project
