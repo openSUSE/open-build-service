@@ -28,6 +28,13 @@ use BSConfig;
 use strict;
 
 sub notify($$) {
+  # gone
+}
+
+# this is called from the /notification route that the API
+# calls for all events (no matter the origin) if the API
+# is configured to do so
+sub notify_plugins($$) {
   my ($type, $paramRef ) = @_;
 
   return unless $BSConfig::notification_plugin;

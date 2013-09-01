@@ -2,16 +2,36 @@
 # and that are not configuration
 class BackendInfo < ActiveRecord::Base
 
+  def self.set_value(key, value)
+    v = BackendInfo.find_or_initialize_by(key: key)
+    v.value = value
+    v.save!
+  end
+
   def self.lastevents_nr=(nr)
-    v = BackendInfo.find_or_initialize_by(key: 'lastevents_nr')
-    v.value = nr.to_s
-    v.save
+    self.set_value('lastevents_nr', nr.to_s)
+  end
+
+  def self.lastnotification_nr=(nr)
+    self.set_value('lastnotification_nr', nr.to_s)
+  end
+
+  def self.get_value(key)
+    BackendInfo.where(key: key).pluck(:value)
+  end
+
+  def self.get_integer(key)
+    nr = self.get_value(key)
+    return 0 if nr.empty?
+    Integer(nr[0])
   end
 
   def self.lastevents_nr
-    nr = BackendInfo.where(key: 'lastevents_nr').pluck(:value)
-    return 0 if nr.empty?
-    Integer(nr[0])
+    self.get_integer('lastevents_nr')
+  end
+
+  def self.lastnotification_nr
+    self.get_integer('lastnotification_nr')
   end
 
   # long running task - if we're out of sync with backend
@@ -39,7 +59,7 @@ class BackendInfo < ActiveRecord::Base
   def update_last_events
     # pick first admin so we can see all projects - as this function is called from delayed job
     # TODO: add an admin user without password exactly for delayed_jobs?
-    User.current ||= RolesUser.joins(:role).where("roles.title = 'Admin'").first.user
+    User.current ||= User.get_default_admin
 
     # it's possible that we see the same event more often but the
     # alternative is waiting for the *next* event, which would

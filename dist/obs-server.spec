@@ -55,6 +55,7 @@ BuildRequires:  perl-File-Sync >= 0.10
 BuildRequires:  perl-Net-SSLeay
 BuildRequires:  perl-Socket-MsgHdr
 BuildRequires:  perl-TimeDate
+BuildRequires:  perl-JSON-XS
 BuildRequires:  perl-XML-Parser
 BuildRequires:  xorg-x11-server
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
@@ -93,6 +94,7 @@ Requires:       perl-File-Sync >= 0.10
 Requires:       perl-Net-SSLeay
 Requires:       perl-Socket-MsgHdr
 Requires:       perl-XML-Parser
+Requires:       perl-JSON-XS
 
 %description
 The Open Build Service (OBS) backend is used to store all sources and binaries. It also

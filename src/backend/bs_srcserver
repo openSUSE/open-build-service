@@ -37,6 +37,7 @@ use Data::Dumper;
 use Storable ();
 use Symbol;
 use MIME::Base64 ();
+use JSON::XS ();
 
 use BSConfiguration;
 use BSRPC ':https';
@@ -111,7 +112,6 @@ sub notify {
   my ($type, $p) = @_;
   my @n = map {"$_=$p->{$_}"} grep {defined($p->{$_}) && !ref($p->{$_})} sort keys %{$p || {}};
   BSFileDB::fdb_add_i("$eventdir/lastnotifications", $notificationlay, {'type' => $type, 'data' => \@n});
-  BSNotify::notify($type, $p);
 }
 
 sub lastnotifications {
@@ -127,29 +127,8 @@ sub lastnotifications {
     return $cgi->{'start'} > $_[0]->{'number'} ? -2 : 1;
   };
   my @l = BSFileDB::fdb_getall_reverse("$eventdir/lastnotifications", $notificationlay, undef, $filter);
-  if (!@l) {
-    # pass on to AJAX
-    if (!$BSStdServer::isajax) {
-      my @args;
-      push @args, "start=$cgi->{'start'}";
-      BSHandoff::handoff($ajaxsocket, '/lastnotifications', undef, @args);
-      exit(0);
-    }
-  }
-  if ($BSStdServer::isajax && !@l) {
-    # wait untill we have a winner
-    BSWatcher::addfilewatcher("$eventdir/lastnotifications");
-    my $lastev = BSFileDB::fdb_getlast("$eventdir/lastnotifications", $notificationlay);
-    return undef if !$lastev || $lastev->{'number'} < $cgi->{'start'};
-    if ($cgi->{'start'} == $lastev->{'number'}) {
-      @l = ($lastev);
-    } else {
-      @l = BSFileDB::fdb_getall_reverse("$eventdir/lastnotifications", $notificationlay, undef, $filter);
-      return undef unless @l;
-    }
-  }
-  @l = reverse @l;
   my $res = {};
+  @l = reverse @l;
   $res->{'sync'} = 'lost' if @l && $l[0]->{'number'} > $cgi->{'start'};
   if (@l) {
     $res->{'next'} = $l[-1]->{'number'} + 1;
@@ -1189,12 +1168,12 @@ sub addrev {
     $rev->{'acceptinfo'} = $acceptinfo if $cgi->{'withacceptinfo'};
   }
 
-  # send out hermes notification
+  # send out notification
   notify("SRCSRV_COMMIT", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'}, user => $user, comment => $comment, 'requestid' => $requestid});
   $rev_old->{'version'} = "unknown" unless defined($rev_old->{'version'});
   notify("SRCSRV_VERSION_CHANGE", {project => $projid, package => $packid, files => $filestr, rev => $rev->{'rev'},
-                                             oldversion => $rev_old->{'version'}, newversion => $rev->{'version'},
-                                             user => $user, comment => $comment, 'requestid' => $requestid})
+                                   oldversion => $rev_old->{'version'}, newversion => $rev->{'version'},
+                                   user => $user, comment => $comment, 'requestid' => $requestid})
     if defined($rev->{'version'}) && defined($rev_old->{'version'}) && $rev->{'version'} ne $rev_old->{'version'};
 
   # kill upload revision as we did a real commit
@@ -5535,8 +5514,6 @@ sub sourcebranch {
   runservice($cgi, $rev, $lfiles) unless $cgi->{'noservice'};
   delete $rev->{'project'};
   delete $rev->{'package'};
-  notify("SRCSRV_BRANCH_COMMAND", {project => $projid, package => $packid, targetproject => $oprojid, targetpackage => $opackid,
-                                             user => $cgi->{'user'}});
   return ($rev, $BSXML::revision_acceptinfo);
 }
 
@@ -7430,6 +7407,23 @@ sub external_notification {
   return $BSStdServer::return_ok;
 }
 
+sub notify_plugins {
+  my ($cgi, $type) = @_;
+  my $param = {};
+  if (BSServer::have_content()) {
+    my $jsonbody = BSServer::read_data(10000000);
+    $param = JSON::XS::decode_json($jsonbody);
+  } else {
+    for (keys %$cgi) {
+      $param->{$_} = $cgi->{$_} unless $_ eq '_type' || /^\./;
+    }
+  }
+
+  BSNotify::notify_plugins($type, $param);
+  return $BSStdServer::return_ok;
+}
+
+
 ####################################################################
 
 sub hello {
@@ -7580,8 +7574,10 @@ my $dispatches = [
   '/request/_lastid' => \&getlastidrequest,                     # just required for migration into api
   '/request/$id:num' => \&getrequest, # just required for migration into api
 
-  # notifications
+  # notifications from publisher/repserver - CGI
   'POST:/notify/$_type: *:?' => \&external_notification,
+  # called from the API to notify hermes/rabbitmq
+  'POST:/notify_plugins/$_type:' => \&notify_plugins,
 
   '/ajaxstatus' => \&getajaxstatus,
   '/serverstatus' => \&BSStdServer::serverstatus,
