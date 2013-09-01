@@ -127,29 +127,8 @@ sub lastnotifications {
     return $cgi->{'start'} > $_[0]->{'number'} ? -2 : 1;
   };
   my @l = BSFileDB::fdb_getall_reverse("$eventdir/lastnotifications", $notificationlay, undef, $filter);
-  if (!@l) {
-    # pass on to AJAX
-    if (!$BSStdServer::isajax) {
-      my @args;
-      push @args, "start=$cgi->{'start'}";
-      BSHandoff::handoff($ajaxsocket, '/lastnotifications', undef, @args);
-      exit(0);
-    }
-  }
-  if ($BSStdServer::isajax && !@l) {
-    # wait untill we have a winner
-    BSWatcher::addfilewatcher("$eventdir/lastnotifications");
-    my $lastev = BSFileDB::fdb_getlast("$eventdir/lastnotifications", $notificationlay);
-    return undef if !$lastev || $lastev->{'number'} < $cgi->{'start'};
-    if ($cgi->{'start'} == $lastev->{'number'}) {
-      @l = ($lastev);
-    } else {
-      @l = BSFileDB::fdb_getall_reverse("$eventdir/lastnotifications", $notificationlay, undef, $filter);
-      return undef unless @l;
-    }
-  }
-  @l = reverse @l;
   my $res = {};
+  @l = reverse @l;
   $res->{'sync'} = 'lost' if @l && $l[0]->{'number'} > $cgi->{'start'};
   if (@l) {
     $res->{'next'} = $l[-1]->{'number'} + 1;

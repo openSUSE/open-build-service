@@ -41,7 +41,14 @@ class EventTest < ActiveSupport::TestCase
   end
 
   test "get last" do
+    firstcount = Event::Base.count
     UpdateNotificationEvents.new.perform
+    oldcount = Event::Base.count
+    # the first call fetches around 100
+    assert oldcount - firstcount > 100
+    # now check this returns - even though there are no results
+    UpdateNotificationEvents.new.perform
+    assert_equal oldcount, Event::Base.count
   end
 
 end
