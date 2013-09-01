@@ -92,14 +92,12 @@ class CodeQualityTest < ActiveSupport::TestCase
     'BuildController#project_index' => 129.0,
     'BuildController#file' => 127.42,
     'BsRequest::new_from_xml' => 126.34,
-    'main#none' => 118.88,
     'Project#branch_to_repositories_from' => 117.4,
     'ConfigurationsController#update' => 110.96,
     'RequestController#create_create' => 110.65,
     'User::render_grouplist_ldap' => 107.88,
     'SearchController#find_attribute' => 104.54,
     'Webui::ProjectsController#infos' => 104.05,
-    'ApplicationController#none' => 103.98,
     'StatusController#update_workerstatus_cache' => 102.09,
     'IssueTrackersController#update' => 100.78,
     'User#state_transition_allowed?' => 100.14,
@@ -148,7 +146,6 @@ class CodeQualityTest < ActiveSupport::TestCase
     'SourceController#project_command_undelete' => 58.11,
     'ApplicationController#forward_from_backend' => 57.96,
     'User#can_create_attribute_in?' => 57.78,
-    'User#none' => 57.5,
     'StatisticsController#rating' => 57.46,
     'BsRequestAction#notify_params' => 56.35,
     'ArchitecturesController#index' => 55.94,
@@ -163,12 +160,10 @@ class CodeQualityTest < ActiveSupport::TestCase
     'SourceController#verify_repos_match!' => 52.26,
     'ProjectStatusHelper::update_jobhistory' => 50.29,
     'StatusHelper::resample' => 49.79,
-    'Project#none' => 49.68,
     'MaintenanceIncident#project_name' => 49.41,
     'Project#expand_flags' => 48.97,
     'User::new_entry_ldap' => 48.87,
     'Relationship#check_sanity' => 48.62,
-    'Package#none' => 48.58,
     'RequestController#command_diff' => 48.55,
     'ApplicationController#render_error' => 48.45,
     'PersonController#index' => 48.28,
@@ -212,6 +207,7 @@ class CodeQualityTest < ActiveSupport::TestCase
 
     flog.each_by_score do |class_method, score, call_list|
       break if score < 40 # they are sorted
+      next if class_method.end_with? "#none"
       score = Integer(score * 100)
       score = score / Float(100)
 
