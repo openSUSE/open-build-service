@@ -79,7 +79,7 @@ sub notify {
     my $param = {
       'uri' => "$BSConfig::srcserver/notify/$type",
       'request' => 'POST',
-      'Content-Type: application/x-www-form-urlencoded',
+      'headers' => [ 'Content-Type: application/x-www-form-urlencoded' ],
       'timeout' => 60,
     };
     my @args = map {"$_=$p->{$_}"} sort keys %$p;
