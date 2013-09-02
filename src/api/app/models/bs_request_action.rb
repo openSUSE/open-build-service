@@ -3,6 +3,8 @@ require 'api_exception'
 
 class BsRequestAction < ActiveRecord::Base
 
+  include ParsePackageDiff
+
   # we want the XML attribute in the database
   #  self.store_full_sti_class = false
 
@@ -372,63 +374,18 @@ class BsRequestAction < ActiveRecord::Base
     return action_diff
   end
 
-  # FIXME this is code duplicated in the webui for package diffs - this needs to move into the API to then
-  # move into helpers
   def webui_infos
     begin
       sd = self.sourcediff(view: 'xml', withissues: true)
     rescue DiffError, Project::UnknownObjectError, Package::UnknownObjectError => e
       return [{error: e.message}]
     end
-    return {} if sd.blank?
-    # Sort files into categories by their ending and add all of them to a hash. We
-    # will later use the sorted and concatenated categories as key index into the per action file hash.
-    changes_file_keys, spec_file_keys, patch_file_keys, other_file_keys = [], [], [], []
-    files_hash, issues_hash = {}, {}
-
-    parsed_sourcediff = []
-
-    sd = "<diffs>" + sd + "</diffs>"
-    Xmlhash.parse(sd).elements('sourcediff').each do |sourcediff|
-
-      sourcediff.get('files').elements('file') do |file|
-        if file['new']
-          filename = file['new']['name']
-        else # in case of deleted files
-          filename = file['old']['name']
-        end
-        if filename.include?('/')
-          other_file_keys << filename
-        else
-          if filename.ends_with?('.spec')
-            spec_file_keys << filename
-          elsif filename.ends_with?('.changes')
-            changes_file_keys << filename
-          elsif filename.match(/.*.(patch|diff|dif)/)
-            patch_file_keys << filename
-          else
-            other_file_keys << filename
-          end
-        end
-        files_hash[filename] = file
-      end
-
-      sourcediff.get('issues').elements('issue') do |issue|
-        next unless issue['name']
-        next if issue['state'] == 'deleted'
-        i = Issue.find_by_name_and_tracker(issue['name'], issue['tracker'])
-        issues_hash[issue['label']] = i.webui_infos if i
-      end
-
-      parsed_sourcediff << {
-          'old' => sourcediff['old'],
-          'new' => sourcediff['new'],
-          'filenames' => changes_file_keys.sort + spec_file_keys.sort + patch_file_keys.sort + other_file_keys.sort,
-          'files' => files_hash,
-          'issues' => issues_hash
-      }
+    diff = sorted_filenames_from_sourcediff(sd)
+    if diff[0].empty?
+      nil
+    else
+      diff
     end
-    return parsed_sourcediff
   end
 
   class LackingMaintainership < APIException

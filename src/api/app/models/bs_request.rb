@@ -619,7 +619,6 @@ class BsRequest < ActiveRecord::Base
     has_target && is_target_maintainer
   end
 
-
   def webui_actions(with_diff = true)
     #TODO: Fix!
     actions = []
@@ -683,7 +682,6 @@ class BsRequest < ActiveRecord::Base
 
           if action[:tpkg] # API / Backend don't support whole project diff currently
             action[:sourcediff] = xml.webui_infos if with_diff
-                           # TODO2.4 BsRequest.sorted_filenames_from_sourcediff(sourcediff)
           end
         when :add_role then
           action[:name] = 'Add Role'

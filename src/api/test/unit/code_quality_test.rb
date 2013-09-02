@@ -117,7 +117,6 @@ class CodeQualityTest < ActiveSupport::TestCase
     'BsRequestAction#check_sanity' => 78.06,
     'Channel::verify_xml!' => 76.81,
     'StatusController#bsrequest' => 75.82,
-    'BsRequestAction#webui_infos' => 74.7,
     'MessageController#index' => 74.13,
     'SearchController#search' => 72.92,
     'StatisticsController#active_request_creators' => 71.14,
@@ -218,7 +217,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       mismatches << "  '#{class_method}' => #{score} # oldscore=#{oldscore},"
     end
 
-    mismatches.concat(black.values)
     assert mismatches.empty?, mismatches.join("\n")
+    assert black.empty?, "Some functions are no longer complex and need to removed from black list - #{black.keys.inspect}"
   end
 end
