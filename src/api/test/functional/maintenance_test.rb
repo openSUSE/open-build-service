@@ -1348,6 +1348,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_equal "old_crap", pac["format"]["rpm:obsoletes"]['rpm:entry']['name']
     if File.exist? "/etc/init.d/boot.local"
       # seems to be a SUSE system
+      if pac["format"]["rpm:suggests"].nil?
+        print "createrepo seems not to create week dependencies, we want this on SUSE systems"
+      end 
       assert_equal "pure_optional", pac["format"]["rpm:suggests"]['rpm:entry']['name']
       assert_equal "would_be_nice", pac["format"]["rpm:recommends"]['rpm:entry']['name']
       assert_equal "other_package_likes_it", pac["format"]["rpm:supplements"]['rpm:entry']['name']
