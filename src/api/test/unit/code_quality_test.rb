@@ -174,7 +174,7 @@ class CodeQualityTest < ActiveSupport::TestCase
     'BuildController#result' => 46.16,
     'User#has_local_permission?' => 45.84,
     'PersonController#change_password' => 45.67,
-    'BsRequest#change_state' => 45.0,
+    'BsRequest#change_state' => 43.81,
     'BsRequest#remove_reviews' => 44.57,
     'AttributeController#cmd_attribute' => 44.22,
     'StatusController#history' => 44.12,

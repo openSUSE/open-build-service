@@ -245,8 +245,7 @@ class BsRequest < ActiveRecord::Base
 
   def change_state(state, opts = {})
     state = state.to_sym
-    BsRequest.transaction do
-      self.lock!
+    self.with_lock do
       create_history
 
       bs_request_actions.each do |a|
@@ -283,7 +282,7 @@ class BsRequest < ActiveRecord::Base
   end
 
   def change_review_state(state, opts = {})
-    BsRequest.transaction do
+    self.with_lock do
       state = state.to_sym
 
       unless self.state == :review || (self.state == :new && state == :new)
@@ -391,7 +390,7 @@ class BsRequest < ActiveRecord::Base
   end
 
   def addreview(opts)
-    BsRequest.transaction do
+    self.with_lock do
       check_if_valid_review!(opts)
       create_history
 
@@ -588,7 +587,7 @@ class BsRequest < ActiveRecord::Base
   end
 
   def auto_accept
-    BsRequest.transaction do
+    self.with_lock do
       r.bs_request_actions.each do |action|
         action.execute_accept({ lowprio: 1, comment: "Auto accept" })
       end
