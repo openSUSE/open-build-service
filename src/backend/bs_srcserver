@@ -6905,26 +6905,41 @@ sub worker_getbinaries {
     BSHandoff::handoff($ajaxsocket, '/getbinaries', undef, @args);
     exit(0);
   }
-  my $jev = $BSServerEvents::gev;
   my @binaries = split(',', $cgi->{'binaries'});
   my ($remoteurl, $remoteprojid, $remoteproxy) = findremote($projid);
 
+  my $jev = $BSServerEvents::gev;
   my $binarylist;
   $binarylist = $jev->{'binarylist'} if $BSStdServer::isajax;
-  if (!$binarylist) {
+  $binarylist ||= {};
+  $jev->{'binarylist'} = $binarylist if $BSStdServer::isajax;
+
+  # fill binarylist
+  my @missing = grep {!exists $binarylist->{$_}} @binaries;
+  while (@missing) {
     my $param = {
       'uri' => "$remoteurl/build/$remoteprojid/$repoid/$arch/_repository",
       'proxy' => $remoteproxy,
     };
-    my $binarylistcpio = BSWatcher::rpc($param, $BSXML::binarylist, "view=names", map {"binary=$_"} @binaries);
+    # chunk it
+    my $binchunkl = 0;
+    for (splice @missing) {
+      $binchunkl += 10 + length($_);
+      last if @missing && $binchunkl > 1900;
+      push @missing, $_;
+    }
+    my $binarylistcpio = BSWatcher::rpc($param, $BSXML::binarylist, "view=names", map {"binary=$_"} @missing);
     return undef if $BSStdServer::isajax && !$binarylistcpio;
-    $binarylist = {};
     for my $b (@{$binarylistcpio->{'binary'} || []}) {
       my $bin = $b->{'filename'};
       $bin =~ s/\.(?:$binsufsre)$//;
       $binarylist->{$bin} = $b;
     }
-    $jev->{'binarylist'} = $binarylist if $BSStdServer::isajax;
+    # make sure that we don't loop forever if the server returns incomplete data
+    for (@missing) {
+      $binarylist->{$_} = {'filename' => $_, 'size' => 0} unless $binarylist->{$_};
+    }
+    @missing = grep {!exists $binarylist->{$_}} @binaries;
   }
 
   my @fetch;
@@ -7027,13 +7042,55 @@ sub worker_getbinaries {
 
 sub worker_getbinaryversions {
   my ($cgi, $projid, $repoid, $arch) = @_;
+
+  if (0 && !$BSStdServer::isajax) {
+    my @args;
+    push @args, "project=$projid";
+    push @args, "repository=$repoid";
+    push @args, "arch=$arch";
+    push @args, "binaries=$cgi->{'binaries'}";
+    push @args, "nometa=1" if $cgi->{'nometa'};
+    BSHandoff::handoff($ajaxsocket, '/getbinaryversions', undef, @args);
+    exit(0);
+  }
   my @binaries = split(',', $cgi->{'binaries'});
   my ($remoteurl, $remoteprojid, $remoteproxy) = findremote($projid);
-  my $param = {
-    'uri' => "$remoteurl/build/$remoteprojid/$repoid/$arch/_repository",
-    'proxy' => $remoteproxy,
-  };
-  my $bvl = BSWatcher::rpc($param, $BSXML::binaryversionlist, 'view=binaryversions', 'nometa=1', map {"binary=$_"} @binaries);
+
+  my $jev = $BSServerEvents::gev;
+  my $binaryversions;
+  $binaryversions = $jev->{'binaryversions'} if $BSStdServer::isajax;
+  $binaryversions ||= {};
+  $jev->{'binaryversions'} = $binaryversions if $BSStdServer::isajax;
+
+  # fill binaryversions
+  my @missing = grep {!exists $binaryversions->{$_}} @binaries;
+  while (@missing) {
+    # chunk it
+    my $binchunkl = 0;
+    for (splice @missing) {
+      $binchunkl += 10 + length($_);
+      last if @missing && $binchunkl > 1900;
+      push @missing, $_;
+    }
+    my $param = {
+      'uri' => "$remoteurl/build/$remoteprojid/$repoid/$arch/_repository",
+      'proxy' => $remoteproxy,
+    };
+    my $bvl = BSWatcher::rpc($param, $BSXML::binaryversionlist, 'view=binaryversions', 'nometa=1', map {"binary=$_"} @missing);
+    return undef if $BSStdServer::isajax && !$bvl;
+    for (@{$bvl->{'binary'} || []}) {
+      my $bin = $_->{'name'};
+      $bin =~ s/\.(?:$binsufsre)$//;
+      $binaryversions->{$bin} = $_;
+    }
+    # make sure that we don't loop forever if the server returns incomplete data
+    for (@missing) {
+      $binaryversions->{$_} = {'name' => $_, 'error' => 'not available'} unless $binaryversions->{$_};
+    }
+    @missing = grep {!exists $binaryversions->{$_}} @binaries;
+  }
+  my $bvl = {};
+  $bvl->{'binary'} = [ map {$binaryversions->{$_}} @binaries];
   return ($bvl, $BSXML::binaryversionlist);
 }
 
@@ -7604,6 +7661,7 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool?' => \&getbinarylist,
   '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool?' => \&worker_getbinaries,
+  '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaryversions,
   '/lastevents $filter:* start:num? obsname:?' => \&worker_lastevents,
   '/source/$project/$package rev' => \&getfilelist_ajax,
   '/source/$project/$package:package/$filename rev?' => \&getfile,
