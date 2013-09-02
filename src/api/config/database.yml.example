@@ -12,6 +12,8 @@ production:
   username: root
   password: opensuse
   encoding: utf8
+  timeout: 15
+  pool: 30
 
 development:
   adapter: mysql2
@@ -19,6 +21,8 @@ development:
   username: root
   password: opensuse
   encoding: utf8
+  timeout: 15
+  pool: 30
   
 # Warning: The database defined as 'test' will be erased and
 # re-generated from your development database when you run 'rake'.
@@ -29,4 +33,6 @@ test:
   username: root
   password: opensuse
   encoding: utf8
+  timeout: 15
+  pool: 30
 

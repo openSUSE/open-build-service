@@ -50,6 +50,7 @@ every(30.seconds, 'send notifications') do
 end
 
 every(17.seconds, 'fetch notificatoins', thread: true) do
+  # this will return if there is already a thread running
   UpdateNotificationEvents.new.perform
 end
 
