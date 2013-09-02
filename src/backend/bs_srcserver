@@ -116,6 +116,22 @@ sub notify {
   BSFileDB::fdb_add_i("$eventdir/lastnotifications", $notificationlay, {'type' => $type, 'time' => $time, 'data' => \@n});
 }
 
+sub prune_lastnotifications {
+  my ($cutoff) = @_;
+  local *F;
+  return unless BSUtil::lockopen(\*F, '<', "$eventdir/lastnotifications", 1);
+  my $filter = sub { $_[0]->{'number'} >= $cutoff ? 1 : 0 };
+  my @l = BSFileDB::fdb_getall("$eventdir/lastnotifications", $notificationlay, undef, $filter);
+  if (@l) {
+    unlink("$eventdir/.lastnotifications.$$");
+    if (! -e "$eventdir/.lastnotifications.$$") {
+      BSFileDB::fdb_add_multiple("$eventdir/.lastnotifications.$$", $notificationlay, @l);
+      rename("$eventdir/.lastnotifications.$$", "$eventdir/lastnotifications") || die("rename $eventdir/.lastnotifications.$$ $eventdir/lastnotifications: $!\n");
+    }
+  }
+  close F;
+}
+
 sub lastnotifications {
   my ($cgi) = @_;
   my $view = $cgi->{'view'};
@@ -124,13 +140,19 @@ sub lastnotifications {
     # just fetch the current event number
     my $lastev = BSFileDB::fdb_getlast("$eventdir/lastnotifications", $notificationlay);
     my $lastno = $lastev ? $lastev->{'number'} : 0;
-    my $ret = {'next' => $lastno, 'sync' => 'lost'};
+    my $ret = {'next' => $lastno + 1, 'sync' => 'lost'};
     return (JSON::XS::encode_json($ret), 'Content-Type: application/json') if $view && $view eq 'json';
     return ($ret, $BSXML::notifications);
   }
-  my $filter = sub {
-    return $cgi->{'start'} > $_[0]->{'number'} ? -2 : 1;
-  };
+  # check if we need to prune
+  if (!$BSStdServer::isajax && !$cgi->{'noprune'}) {
+    my $firstev = (BSFileDB::fdb_getall("$eventdir/lastnotifications", $notificationlay, undef, sub {-1}))[0];
+    if ($firstev && $cgi->{'start'} - $firstev->{'number'} > 1000) {
+      my $lastev = BSFileDB::fdb_getlast("$eventdir/lastnotifications", $notificationlay);
+      prune_lastnotifications($cgi->{'start'} - 500) if $lastev && $cgi->{'start'} <= $lastev->{'number'} + 1;
+    }
+  }
+  my $filter = sub { $cgi->{'start'} > $_[0]->{'number'} ? -2 : 1 };
   my @l = BSFileDB::fdb_getall_reverse("$eventdir/lastnotifications", $notificationlay, undef, $filter);
   if ($cgi->{'block'} && !@l) {
     # pass on to AJAX
@@ -7612,7 +7634,7 @@ my $dispatches = [
   '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaryversions,
   '!- /lastevents $filter:* start:num? obsname:?' => \&lastevents,
-  '/lastnotifications start:num? view:? block:bool?' => \&lastnotifications,
+  '/lastnotifications start:num? view:? block:bool? noprune:bool?' => \&lastnotifications,
   'POST:/event type: project: package:? repository:? arch:? job:?' => \&newevent,
   # tmp until lightty gets fixed
   '/public/lastevents $filter:* start:num? obsname:?' => \&lastevents,
