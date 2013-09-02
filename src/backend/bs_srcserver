@@ -116,11 +116,14 @@ sub notify {
 
 sub lastnotifications {
   my ($cgi) = @_;
+  my $view = $cgi->{'view'};
+  die("unsupported view\n") if $view && $view ne 'json';
   if (!$cgi->{'start'}) {
     # just fetch the current event number
     my $lastev = BSFileDB::fdb_getlast("$eventdir/lastnotifications", $notificationlay);
     my $lastno = $lastev ? $lastev->{'number'} : 0;
     my $ret = {'next' => $lastno, 'sync' => 'lost'};
+    return (JSON::XS::encode_json($ret), 'Content-Type: application/json') if $view && $view eq 'json';
     return ($ret, $BSXML::notifications);
   }
   my $filter = sub {
@@ -129,21 +132,35 @@ sub lastnotifications {
   my @l = BSFileDB::fdb_getall_reverse("$eventdir/lastnotifications", $notificationlay, undef, $filter);
   my $res = {};
   @l = reverse @l;
-  $res->{'sync'} = 'lost' if @l && $l[0]->{'number'} > $cgi->{'start'};
   if (@l) {
     $res->{'next'} = $l[-1]->{'number'} + 1;
   } else {
     my $lastev = BSFileDB::fdb_getlast("$eventdir/lastnotifications", $notificationlay);
     $res->{'next'} = ($lastev->{'number'} || 0) + 1;
   }
+  if (@l && $l[0]->{'number'} > $cgi->{'start'}) {
+    $res->{'sync'} = 'lost';
+    @l = ();
+  }
+  $res->{'notification'} = \@l;
+  delete $_->{'number'} for @l;		# XXX: why?
+  if ($view && $view eq 'json') {
+    for my $l (@l) {
+      my %d;
+      for (@{$l->{'data'} || []}) {
+        my @s = split('=', $_, 2);
+        $d{$s[0]} = $s[1];
+      }
+      $l->{'data'} = \%d;
+    }
+    return (JSON::XS::encode_json($res), 'Content-Type: application/json');
+  }
   for my $l (@l) {
-    delete $l->{'number'};
     for (@{$l->{'data'} || []}) {
       my @s = split('=', $_, 2);
       $_ = {'key' => $s[0], '_content' => $s[1]};
     }
   }
-  $res->{'notification'} = \@l;
   return ($res, $BSXML::notifications);
 }
 
@@ -7513,7 +7530,7 @@ my $dispatches = [
   '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaryversions,
   '!- /lastevents $filter:* start:num? obsname:?' => \&lastevents,
-  '/lastnotifications start:num?' => \&lastnotifications,
+  '/lastnotifications start:num? view:?' => \&lastnotifications,
   'POST:/event type: project: package:? repository:? arch:? job:?' => \&newevent,
   # tmp until lightty gets fixed
   '/public/lastevents $filter:* start:num? obsname:?' => \&lastevents,
@@ -7594,7 +7611,6 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool?' => \&getbinarylist,
   '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool?' => \&worker_getbinaries,
   '/lastevents $filter:* start:num? obsname:?' => \&lastevents,
-  '/lastnotifications start:num?' => \&lastnotifications,
   '/source/$project/$package rev' => \&getfilelist_ajax,
   '/source/$project/$package:package/$filename rev?' => \&getfile,
   '/request/$id:num withkey:bool? oldkey:md5?' => \&getrequest,
