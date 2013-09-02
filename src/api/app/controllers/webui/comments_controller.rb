@@ -17,7 +17,7 @@ class Webui::CommentsController < Webui::BaseController
   end
 
   def packages
-    package = Package.get_by_project_and_name(params[:project], params[:package])
+    package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
     @comments = CommentPackage.where(package_id: package.id)
     render_thread
   end
