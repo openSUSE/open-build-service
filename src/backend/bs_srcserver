@@ -88,7 +88,7 @@ my $remotecache = "$BSConfig::bsdir/remotecache";
 
 my $srcrevlay = [qw{rev vrev srcmd5 version time user comment requestid}];
 my $eventlay = [qw{number time type project package repository arch}];
-my $notificationlay = [qw{number type data []}];
+my $notificationlay = [qw{number type time data []}];
 
 
 my $ajaxsocket = "$rundir/bs_srcserver.ajax";
@@ -110,8 +110,10 @@ my %remote_getrev_cache;
 
 sub notify {
   my ($type, $p) = @_;
+  my $time = $p->{'time'} || time();
+  delete $p->{'time'};
   my @n = map {"$_=$p->{$_}"} grep {defined($p->{$_}) && !ref($p->{$_})} sort keys %{$p || {}};
-  BSFileDB::fdb_add_i("$eventdir/lastnotifications", $notificationlay, {'type' => $type, 'data' => \@n});
+  BSFileDB::fdb_add_i("$eventdir/lastnotifications", $notificationlay, {'type' => $type, 'time' => $time, 'data' => \@n});
 }
 
 sub lastnotifications {
@@ -130,6 +132,26 @@ sub lastnotifications {
     return $cgi->{'start'} > $_[0]->{'number'} ? -2 : 1;
   };
   my @l = BSFileDB::fdb_getall_reverse("$eventdir/lastnotifications", $notificationlay, undef, $filter);
+  if ($cgi->{'block'} && !@l) {
+    # pass on to AJAX
+    if (!$BSStdServer::isajax) {
+      my @args;
+      push @args, "start=$cgi->{'start'}";
+      push @args, "block=1";
+      BSHandoff::handoff($ajaxsocket, '/lastnotifications', undef, @args);
+      exit(0);
+    }
+    # wait untill we have a winner
+    BSWatcher::addfilewatcher("$eventdir/lastnotifications");
+    my $lastev = BSFileDB::fdb_getlast("$eventdir/lastnotifications", $notificationlay);
+    return undef if !$lastev || $lastev->{'number'} < $cgi->{'start'};
+    if ($cgi->{'start'} == $lastev->{'number'}) {
+      @l = ($lastev);
+    } else {
+      @l = BSFileDB::fdb_getall_reverse("$eventdir/lastnotifications", $notificationlay, undef, $filter);
+      return undef unless @l;
+    }
+  }
   my $res = {};
   @l = reverse @l;
   if (@l) {
@@ -7531,7 +7553,7 @@ my $dispatches = [
   '/getbinaries $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaryversions,
   '!- /lastevents $filter:* start:num? obsname:?' => \&lastevents,
-  '/lastnotifications start:num? view:?' => \&lastnotifications,
+  '/lastnotifications start:num? view:? block:bool?' => \&lastnotifications,
   'POST:/event type: project: package:? repository:? arch:? job:?' => \&newevent,
   # tmp until lightty gets fixed
   '/public/lastevents $filter:* start:num? obsname:?' => \&lastevents,
@@ -7612,6 +7634,7 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool?' => \&getbinarylist,
   '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool?' => \&worker_getbinaries,
   '/lastevents $filter:* start:num? obsname:?' => \&lastevents,
+  '/lastnotifications start:num? view:? block:bool?' => \&lastnotifications,
   '/source/$project/$package rev' => \&getfilelist_ajax,
   '/source/$project/$package:package/$filename rev?' => \&getfile,
   '/request/$id:num withkey:bool? oldkey:md5?' => \&getrequest,

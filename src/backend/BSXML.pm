@@ -1621,6 +1621,7 @@ our $notifications = [
 	'sync',
      [[ 'notification' =>
 	    'type',
+	    'time',
 	 [[ 'data' =>
 		'key',
 		'_content',
