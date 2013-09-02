@@ -32,6 +32,13 @@ This package serves one purpose only: to list the dependencies in Gemfile.lock
 %package -n obs-api-testsuite-deps
 Summary:        The Open Build Service -- The Testsuite dependencies
 Group:          Productivity/Networking/Web/Utilities
+Requires:       perl-Compress-Zlib
+Requires:       perl-File-Sync >= 0.10
+Requires:       perl-Net-SSLeay
+Requires:       perl-Socket-MsgHdr
+Requires:       perl-XML-Parser
+Requires:       perl-JSON-XS
+Requires:       perl-BSSolv >= 0.18.0
 # dependencies not needed in production
 # OBS_TESTSUITE_BEGIN
 Requires:       rubygem(1.9.1:actionmailer) = 3.2.12
