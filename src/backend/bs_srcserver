@@ -158,7 +158,8 @@ sub lastnotifications {
   for my $l (@l) {
     for (@{$l->{'data'} || []}) {
       my @s = split('=', $_, 2);
-      $_ = {'key' => $s[0], '_content' => $s[1]};
+      $_ = {'key' => $s[0]};
+      $_->{'_content'} = $s[1] if defined $s[1];
     }
   }
   return ($res, $BSXML::notifications);
