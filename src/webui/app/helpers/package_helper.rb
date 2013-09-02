@@ -61,58 +61,5 @@ module PackageHelper
     return text.gsub(' ', "&nbsp;")
   end
 
-  # FIXME2.4: this is copying stuff done in the API as bs_reqest_action - to be used!!
-  def sorted_filenames_from_sourcediff(sd)
-    # Sort files into categories by their ending and add all of them to a hash. We
-    # will later use the sorted and concatenated categories as key index into the per action file hash.
-    changes_file_keys, spec_file_keys, patch_file_keys, other_file_keys = [], [], [], []
-    files_hash, issues_hash = {}, {}
-
-    parsed_sourcediff = []
-
-    sd = "<diffs>" + sd + "</diffs>"
-    Xmlhash.parse(sd).elements('sourcediff') do |sourcediff|
-      
-      sourcediff.get('files').elements('file') do |file|
-        if file['new']
-          filename = file['new']['name']
-        else # in case of deleted files
-          filename = file['old']['name']
-        end
-
-        if filename.include?('/')
-          other_file_keys << filename
-        else
-          if filename.ends_with?('.spec')
-            spec_file_keys << filename
-          elsif filename.ends_with?('.changes')
-            changes_file_keys << filename
-          elsif filename.match(/.*.(patch|diff|dif)/)
-            patch_file_keys << filename
-          else
-            other_file_keys << filename
-          end
-        end
-        files_hash[filename] = file
-      end
-      
-      if sourcediff['issues']
-        sourcediff.elements('issues').each do |issue|
-          next unless issue['name']
-          issues_hash[issue['label']] = Issue.find_cached(issue['name'], :tracker => issue['tracker'])
-        end
-      end
-      
-      parsed_sourcediff << {
-        'old' => sourcediff['old'],
-        'new' => sourcediff['new'],
-        'filenames' => changes_file_keys.sort + spec_file_keys.sort + patch_file_keys.sort + other_file_keys.sort,
-        'files' => files_hash,
-        'issues' => issues_hash
-      }
-    end
-    return parsed_sourcediff
-  end
-  
 end
 

@@ -307,48 +307,14 @@ class PackageController < ApplicationController
   end
 
   def rdiff
-    required_parameters :project, :package
-    @last_rev = Package.current_rev(@project, @package.name)
-    @linkinfo = @package.linkinfo
-    if params[:oproject] and params[:opackage]
-      @oproject, @opackage = params[:oproject], params[:opackage]
-      @last_req = BsRequest.find_last_request(:targetproject => @oproject, :targetpackage => @opackage, :sourceproject => params[:project], :sourcepackage => params[:package])
-      if @last_req and @last_req.state.name != "declined"
-        @last_req = nil # ignore all !declined
-      end
-    end
-    if params[:rev]
-      @rev = params[:rev]
-    else
-      @rev = @last_rev
-    end
-
-    path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=diff&view=xml&withissues=1"
-    path += "&linkrev=#{CGI.escape(params[:linkrev])}" if params[:linkrev]
-    path += "&rev=#{CGI.escape(@rev)}" if @rev
-    path += "&oproject=#{CGI.escape(@oproject)}" if @oproject
-    path += "&opackage=#{CGI.escape(@opackage)}" if @opackage
-    path += "&orev=#{CGI.escape(params[:orev])}" if params[:orev]
-    begin
-      rdiff = frontend.transport.direct_http URI(path + "&expand=1"), :method => "POST", :data => ""
-    rescue ActiveXML::Transport::NotFoundError => e
-      flash.now[:error] = e.summary
-      return
-    rescue ActiveXML::Transport::Error => e
-      flash.now[:alert] = e.summary
-      begin
-        rdiff = frontend.transport.direct_http URI(path + "&expand=0"), :method => "POST", :data => ""
-      rescue ActiveXML::Transport::Error => e
-        flash.now[:alert] = nil
-        flash.now[:error] = "Error getting diff: " + e.summary
-        return
-      end
-    end
-
-    # we only look at [0] because this is a generic function for multi diffs - but we're sure we get one
-    filenames = sorted_filenames_from_sourcediff(rdiff)[0]
-    @files = filenames['files']
-    @filenames = filenames['filenames']
+    infos = ApiDetails.read(:package_rdiff, @project.name, @package.name, pick_params(:oproject, :opackage, :rev, :linkrev, :orev))
+    @files = infos['files']
+    @filenames = infos['filenames']
+    @last_rev = infos['last_rev']
+    @oproject, @opackage = params[:oproject], params[:opackage]
+    @last_req = infos['last_req']
+    @rev = infos['rev']
+    @linkinfo = infos['linkinfo']
   end
 
   def wizard_new

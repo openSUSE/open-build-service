@@ -331,6 +331,9 @@ OBSApi::Application.routes.draw do
             end
           end
           resources :flags, :only => [:index]
+          member do
+            get "rdiff"
+          end
         end
       end
       resources :packages, :only => [], :constraints => { :id => %r{[^\/]*} } do

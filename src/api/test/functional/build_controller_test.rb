@@ -2,9 +2,6 @@
 
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-require 'rexml/document'
-include REXML
-
 class BuildControllerTest < ActionDispatch::IntegrationTest 
 
   fixtures :all

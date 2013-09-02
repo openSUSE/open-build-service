@@ -4,7 +4,6 @@
 require_dependency 'opensuse/permission'
 require_dependency 'opensuse/backend'
 require_dependency 'opensuse/validator'
-require 'rexml/document'
 require_dependency 'api_exception'
 
 class ApplicationController < ActionController::API
@@ -450,14 +449,18 @@ class ApplicationController < ActionController::API
   end
 
   rescue_from ActiveXML::Transport::Error do |exception|
-    xml = REXML::Document.new( exception.message )
-    http_status = xml.root.attributes['code']
-    unless xml.root.attributes.include? 'origin'
-      xml.root.add_attribute "origin", "backend"
+    text = exception.message
+    http_status = 500
+    begin
+      xml = ActiveXML::Node.new( text )
+      http_status = xml.value('code')
+      unless xml.has_attribute? 'origin'
+        xml.set_attribute "origin", "backend"
+      end
+      text = xml.dump_xml
+    rescue ActiveXML::ParseError
     end
-    xml_text = String.new
-    xml.write xml_text
-    render :text => xml_text, :status => http_status
+    render text: text, status: http_status
   end
 
   rescue_from Project::WritePermissionError do |exception|

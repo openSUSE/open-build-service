@@ -208,7 +208,7 @@ class PersonController < ApplicationController
     
     if !newuser.errors.empty?
       details = newuser.errors.map{ |key, msg| "#{key}: #{msg}" }.join(", ")
-      raise ErrRegisterSave.new "Could not save the registration", details: details
+      raise ErrRegisterSave.new "Could not save the registration, details: #{details}"
     end
 
     # create subscription for submit requests

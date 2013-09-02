@@ -151,4 +151,9 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # diff is expanded
     page.must_have_text "+DummyContent"
   end
+
+  test "request 997 displays" do
+    visit request_show_path(997)
+    page.must_have_text "Request 997"
+  end
 end
