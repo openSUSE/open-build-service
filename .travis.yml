@@ -10,7 +10,7 @@ script: bash -x dist/ci/obs_testsuite_travis.sh
 env:
   # just one special test
   #- SUBTEST=webui:functional/users_test.rb:test_add_and_edit_package_people
-  - SUBTEST=api:functional/public_controller_test.rb:test_binaries
+  #- SUBTEST=api:functional/public_controller_test.rb:test_binaries
   # full api test suite
   - SUBTEST=api
   # full webrat test suite
