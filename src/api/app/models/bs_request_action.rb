@@ -55,6 +55,11 @@ class BsRequestAction < ActiveRecord::Base
     false
   end
 
+  def matches_package?(source_or_target, pkg)
+    (self.send("#{source_or_target}_project") == pkg.project.name) and
+        (self.send("#{source_or_target}_package") == pkg.name)
+  end
+
   def self.type_to_class_name(type_name)
     case type_name
       when :submit then
