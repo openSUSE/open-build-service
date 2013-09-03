@@ -7290,8 +7290,9 @@ sub postrelsync {
   for my $a (@{$repo->{'arch'} || []}) {
     next if $a eq $arch;
     next if $BSConfig::relsync_pool && ($BSConfig::relsync_pool->{$arch} || '') ne ($BSConfig::relsync_pool->{$a} || '');
+    my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
     my $param = {
-      'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$a/_relsync",
+      'uri' => "$reposerver/build/$projid/$repoid/$a/_relsync",
       'request' => 'POST',
       'data' => $relsyncdata,
     };
