@@ -7272,8 +7272,9 @@ sub newevent {
 sub getrelsync {
   my ($cgi, $projid, $repoid, $arch) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
+  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {
-    'uri' => "$BSConfig::reposerver/build/$projid/$repoid/$arch/_relsync",
+    'uri' => "$reposerver/build/$projid/$repoid/$arch/_relsync",
     'ignorestatus' => 1,
     'receiver' => \&BSServer::reply_receiver,
   };
