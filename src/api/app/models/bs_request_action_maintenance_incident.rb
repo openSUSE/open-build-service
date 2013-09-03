@@ -2,6 +2,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
   # for now we need do_branch
   include MaintenanceHelper
+  include SubmitRequestSourceDiff
 
   def is_maintenance_incident?
     true

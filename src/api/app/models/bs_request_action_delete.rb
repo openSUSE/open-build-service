@@ -26,36 +26,52 @@ class BsRequestActionDelete < BsRequestAction
   end
 
   def render_xml_attributes(node)
-    attributes = {}
-    attributes[:project] = self.target_project unless self.target_project.blank?
-    attributes[:package] = self.target_package unless self.target_package.blank?
+    attributes = xml_package_attributes('target')
     attributes[:repository] = self.target_repository unless self.target_repository.blank?
     node.target attributes
+  end
+
+  def sourcediff(opts = {})
+    if self.target_package
+      path = Package.source_path self.target_project, self.target_package
+      query = {'cmd' => 'diff', expand: 1, filelimit: 0, rev: 0}
+      query[:view] = 'xml' if opts[:view] == 'xml' # Request unified diff in full XML view
+      return BsRequestAction.get_package_diff(path, query)
+    elsif self.target_repository
+      # no source diff
+    else
+      raise DiffError.new("Project diff isn't implemented yet")
+    end
+    return ''
   end
 
   def execute_accept(opts)
     if self.target_repository
       remove_repository(opts)
-    else
-      if self.target_package
-        package = Package.get_by_project_and_name(self.target_project, self.target_package, use_source: true, follow_project_links: false)
-        package.destroy
-        delete_path = "/source/#{self.target_project}/#{self.target_package}"
-      else
-        project = Project.get_by_name(self.target_project)
-        project.destroy
-        delete_path = "/source/#{self.target_project}"
-      end
-      # use the request description as comments for history
-      source_history_comment = self.bs_request.description
-      h = { :user => User.current.login, :comment => source_history_comment, :requestid => self.bs_request.id }
-      delete_path << Suse::Backend.build_query_from_hash(h, [:user, :comment, :requestid])
-      Suse::Backend.delete delete_path
+      return
+    end
 
-      if self.target_package == "_product"
-        Project.find_by_name!(self.target_project).update_product_autopackages
-      end
-      
+    delete_path = destroy_object
+    # use the request description as comments for history
+    source_history_comment = self.bs_request.description
+    h = {:user => User.current.login, :comment => source_history_comment, :requestid => self.bs_request.id}
+    delete_path << Suse::Backend.build_query_from_hash(h, [:user, :comment, :requestid])
+    Suse::Backend.delete delete_path
+
+    if self.target_package == "_product"
+      Project.find_by_name!(self.target_project).update_product_autopackages
+    end
+
+  end
+
+  def destroy_object
+    if self.target_package
+      Package.get_by_project_and_name(self.target_project, self.target_package,
+                                      use_source: true, follow_project_links: false).destroy
+      return Package.source_path self.target_project, self.target_package
+    else
+      Project.get_by_name(self.target_project).destroy
+      return "/source/#{self.target_project}"
     end
   end
 end
