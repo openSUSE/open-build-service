@@ -57,13 +57,13 @@ case "$1" in
     start)
 	echo -n "Starting OBS api delayed job handler "
         run_in_api script/delayed_job.api.rb start -n $NUM
-        run_in_api $CLOCKWORKD -c config/clock.rb start
+        run_in_api $CLOCKWORKD -l -c config/clock.rb start
 	rc_status -v
 	;;
     stop)
 	echo -n "Stoping OBS api delayed job handler "
         run_in_api script/delayed_job.api.rb stop
-        run_in_api $CLOCKWORKD -c config/clock.rb stop
+        run_in_api $CLOCKWORKD -l -c config/clock.rb stop
 	rc_status -v
 	;;
     try-restart|condrestart)
