@@ -6884,13 +6884,16 @@ sub getrequest {
 sub findremote {
   my ($projid) = @_;
 
-  my $origprojid = $projid;
   my $proj = readproj($projid, 1);
   if ($proj) {
-    return ($BSConfig::reposerver, $projid, undef) if !$proj->{'remoteurl'};
+    if (!$proj->{'remoteurl'}) {
+      my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+      return ($reposerver, $projid, undef);
+    }
     die("no remoteproject specified\n") unless $proj->{'remoteproject'};
     return ($proj->{'remoteurl'}, $proj->{'remoteproject'}, $proxy);
   }
+  my $origprojid = $projid;
   my $rsuf = '';
   while ($projid =~ /^(.*)(:.*?)$/) {
     $projid = $1;
@@ -7307,10 +7310,12 @@ sub postrelsync {
   return $BSStdServer::return_ok;
 }
 
+# XXX: support multiple dispatchers
 sub putdispatchprios {
   my ($cgi) = @_;
+  my $dispatcher = $BSConfig::masterdispatcher || $BSConfig::reposerver;
   my $param = {
-    'uri' => "$BSConfig::reposerver/build/_dispatchprios",
+    'uri' => "$dispatcher/build/_dispatchprios",
     'request' => 'PUT',
     'data' => \&BSServer::forward_sender,
     'chunked' => 1,
@@ -7320,8 +7325,9 @@ sub putdispatchprios {
 
 sub getdispatchprios {
   my ($cgi) = @_;
+  my $dispatcher = $BSConfig::masterdispatcher || $BSConfig::reposerver;
   my $param = {
-    'uri' => "$BSConfig::reposerver/build/_dispatchprios",
+    'uri' => "$dispatcher/build/_dispatchprios",
     'ignorestatus' => 1,
     'receiver' => \&BSServer::reply_receiver,
   };
