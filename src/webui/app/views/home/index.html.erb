@@ -60,8 +60,9 @@
 <div id="tabs1">
   <div class="box-header header-tabs">
     <ul>
-      <li><a href="#ipackages">Involved Packages</a></li>
-      <li><a href="#iprojects">Involved Projects</a></li>
+      <li><a href="#ipackages" title="Packages that you are involved with">Involved Packages</a></li>
+      <li><a href="#iprojects" title="Projects that you are involved with">Involved Projects</a></li>
+      <li><a href="#owned" title="Projects/Packages where you are responsible for the maintenance">Owned Project/Packages</a></li>
       <!-- <li><a href="#activity">Public Activity</a></li> -->
     </ul>
   </div>
@@ -81,6 +82,7 @@
       <p><i><%= @displayed_user.login %> is not involved in any packages</i></p>
     <% end %>
     </div>
+
     <div id="iprojects" class="tab">
     <% if @iprojects.blank? %>
       <p><i><%= @displayed_user.login %> is not involved in any projects</i></p>
@@ -98,6 +100,39 @@
     </div>
     <% end %>
     </div>
+
+    <div id="owned" class="tab">
+      <% if @owned.length > 0 %>
+        <table id='owned-table'>
+          <thead>
+          <tr>
+            <!-- <th>Product</th> -->
+            <th>Project/Package</th>
+          </tr>
+         </thead>
+         <tbody>
+          <% @owned.each do |i| -%>
+              <tr>
+                <!--
+                <td>
+                    <%= i[0] %>
+                </td>
+              -->
+                <td>
+                  <% if i[1] %>
+                    <%= render :partial => 'shared/project_or_package_link', :locals => {:project => i[2], :package => i[1],:short => true} %>
+                  <% else %>
+                    <%= render :partial => 'shared/project_or_package_link', :locals => {:project => i[2],  :short => true} %>
+                  <%end %>
+                </td>
+              </tr>
+          <% end -%>
+          </tbody>
+        </table>
+      <% else -%>
+        <p><%= @displayed_user.login %> doesn't own packages/projects.</p>
+      <% end %>
+      </div>
 <!--
     <div id="activity" class="tab">
       <p>Activity</p>
@@ -166,5 +201,12 @@
 <% content_for :ready_function do %>
       $( "#tabs1" ).tabs();
       $( "#tabs2" ).tabs();
+      <% if @owned.length > 0 %>
+        $('#owned-table').dataTable({
+                                          "bLengthChange": false,
+                                         "bStateSave": true,
+                                         "iDisplayLength": 15,
+                                        });
+      <% end %>
 <% end %>
 
