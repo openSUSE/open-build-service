@@ -417,6 +417,7 @@ CREATE TABLE `groups` (
   `updated_at` datetime DEFAULT NULL,
   `title` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '',
   `parent_id` int(11) DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `groups_parent_id_index` (`parent_id`),
   KEY `index_groups_on_title` (`title`)
@@ -1248,6 +1249,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130819114303');
 INSERT INTO schema_migrations (version) VALUES ('20130830043205');
 
 INSERT INTO schema_migrations (version) VALUES ('20130903114302');
+
+INSERT INTO schema_migrations (version) VALUES ('20130904071147');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

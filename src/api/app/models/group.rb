@@ -34,14 +34,22 @@ class Group < ActiveRecord::Base
   end
 
   def update_from_xml( xmlhash )
-    self.title = xmlhash.value('title')
+    self.with_lock do
+      self.title = xmlhash.value('title')
+
+      if xmlhash.value('email')
+        self.email = xmlhash.value('email')
+      else
+        self.email = nil
+      end
+    end
+    self.save!
 
     # update user list
     cache = Hash.new
     self.groups_users.each do |gu|
       cache[gu.user.id] = gu
     end
-    self.save!
 
     persons = xmlhash.elements('person').first
     if persons
@@ -74,6 +82,11 @@ class Group < ActiveRecord::Base
 
   def remove_user(user)
     GroupsUser.delete_all(["user_id = ? AND group_id = ?", user.id, self.id])
+  end
+
+  def set_email(email)
+    self.email = email
+    self.save!
   end
 
   def to_s

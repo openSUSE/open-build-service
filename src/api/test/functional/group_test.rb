@@ -59,16 +59,20 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # add a user
-    xml2 = "<group><title>new_group</title> <person><person userid='fred' /></person> </group>"
+    xml2 = "<group><title>new_group</title> <email>obs@obs.com</email> <person><person userid='fred' /></person> </group>"
     put "/group/new_group", xml2
     assert_response :success
-    # double save is done by webui, we need to support it
+    get "/group/new_group"
+    assert_response :success
+    assert_xml_tag :tag => 'email', :content => "obs@obs.com"
+    # double save is done by webui, we need to support it. Drop email adress also
     xml2 = "<group><title>new_group</title> <person><person userid='fred' /><person userid='fred' /></person> </group>"
     put "/group/new_group", xml2
     assert_response :success
     get "/group/new_group"
     assert_response :success
     assert_xml_tag :tag => 'person', :attributes => {:userid => 'fred'}
+    assert_no_xml_tag :tag => 'email'
 
     # remove user
     put "/group/new_group", xml
@@ -90,6 +94,8 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
     post "/group/test_group", :cmd => "remove_user", :userid => "Iggy"
     assert_response 403
+    post "/group/test_group", :cmd => "set_email", :email => "obs@obs.de"
+    assert_response 403
     get "/group/test_group"
     assert_response :success
     assert_no_xml_tag :tag => 'person', :attributes => {:userid => 'Iggy'}
@@ -101,14 +107,20 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     # double add is a dummy operation, but needs to work for webui
     post "/group/test_group", :cmd => "add_user", :userid => "Iggy"
     assert_response :success
+    post "/group/test_group", :cmd => "set_email", :email => "email@me"
+    assert_response :success
     get "/group/test_group"
     assert_response :success
     assert_xml_tag :tag => 'person', :attributes => {:userid => 'Iggy'}
+    assert_xml_tag :tag => 'email', :content => "email@me"
     post "/group/test_group", :cmd => "remove_user", :userid => "Iggy"
+    assert_response :success
+    post "/group/test_group", :cmd => "set_email"
     assert_response :success
     get "/group/test_group"
     assert_response :success
     assert_no_xml_tag :tag => 'person', :attributes => {:userid => 'Iggy'}
+    assert_no_xml_tag :tag => 'email'
 
     # done, back at old state
   end

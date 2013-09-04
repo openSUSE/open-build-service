@@ -9,6 +9,9 @@
   <define ns="" name="group-element">
     <element name="group">
       <element name="title"><text/></element>
+      <optional>
+        <element name="email"><text/></element>
+      </optional>
       <element name="person"> <!-- FIXME3.0: should be plural -->
       <zeroOrMore>
         <element name="person">

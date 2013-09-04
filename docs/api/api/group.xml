@@ -1,5 +1,6 @@
 <group>
   <title>review-team</title>
+  <email>review@openbuildservice.org</email>
   <person>
     <person userid="Iggy"/>
     <person userid="king"/>

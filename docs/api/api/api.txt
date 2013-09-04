@@ -175,9 +175,11 @@ POST /group/<group title>
   Multiple commands on processing group.
   add_user: add a user to a group
   remove_user: remove a user from a group
+  set_email: set email adress of group.
 
 Parameters:
   userid: user login name, required for add_user and remove_user command
+  email: email address for set_email command. email of group gets removed if not defined
 
 XmlResult: status
 
