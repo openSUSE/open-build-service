@@ -58,9 +58,11 @@ end
 # every week ensures that initial start and doesn't really hurt. Not the
 # cleanest solution, but avoids creating/modifying init.d scripts
 every(1.week, 're(start) sphinx', thread: true) do
-  `rake ts:restart`
+  interface = ThinkingSphinx::RakeInterface.new
+  interface.stop
+  interface.start
 end
 
 every(1.hour, 'reindex sphinx', thread: true) do
-  `rake ts:index`
+  ThinkingSphinx::RakeInterface.new.index
 end
