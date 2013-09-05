@@ -260,8 +260,8 @@
                           <%= hidden_field_tag("review_by_group_#{index}", review['by_group']) if review['by_group'] %>
                           <%= hidden_field_tag("review_by_project_#{index}", review['by_project']) if review['by_project'] %>
                           <%= hidden_field_tag("review_by_package_#{index}", review['by_package']) if review['by_package'] %>
-                          <%= submit_tag 'Accept review', :name => 'accepted' %>
-                          <%= submit_tag 'Decline review', :name => 'declined' %>
+                          <%= submit_tag 'Accept review', :name => 'accepted', :id=> "review_accept_button_#{index}" %>
+                          <%= submit_tag 'Decline review', :name => 'declined', :id=> "review_decline_button_#{index}" %>
                         </p>
                     <% end %>
                   </div>
