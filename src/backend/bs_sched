@@ -1130,7 +1130,19 @@ sub makedeltas {
 	  my $aextrep = $oldbins{$aprp};
 	  my @s = stat("$aextrep/$binarch/$obin");
 	  next unless @s;
-	  my $deltaid = Digest::MD5::md5_hex("$packid/$bin/$aprp/$obin/$s[9]/$s[7]/$s[1]");
+	  # 2013-09-05 mls: dropped $s[1]
+	  my $deltaid = Digest::MD5::md5_hex("$packid/$bin/$aprp/$obin/$s[9]/$s[7]");
+	  if (!$ddir{$deltaid}) {
+	    # see if we know it under the old id
+	    my $olddeltaid = Digest::MD5::md5_hex("$packid/$bin/$aprp/$obin/$s[9]/$s[7]/$s[1]");
+	    if ($ddir{$olddeltaid}) {
+	      # yes, link it over
+	      unlink("$ddir/$deltaid");
+	      unlink("$ddir/$deltaid.dseq");
+	      link("$ddir/$olddeltaid", "$ddir/$deltaid");
+	      link("$ddir/$olddeltaid.dseq", "$ddir/$deltaid.dseq");
+	    }
+	  }
 	  $deltaids{$deltaid} = 1;
           if ($ddir{$deltaid}) {
 	    next unless $ddir{"$deltaid.dseq"};		# delta was too big
