@@ -119,22 +119,67 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     end
 
     page.must_have_text "Review for tom"
+
     click_link "My Decision"
     click_link "Add a review"
-
     page.must_have_text "Add Reviewer"
+    #test switching reviewer type
+    find(:id, "review_type").select("Group")
+    page.must_have_text "Group:"
+    fill_in "review_group", with: "test_group_b"
+    click_button "Ok"
+    page.must_have_text "Open review for test_group"
+
+    click_link "My Decision"
+    click_link "Add a review"
+    find(:id, "review_type").select("Project")
+    page.must_have_text "Project:"
+    fill_in "review_project", with: "home:Iggy"
+    click_button "Ok"
+    page.must_have_text "Open review for home:Iggy"
+
+    click_link "My Decision"
+    click_link "Add a review"
+    find(:id, "review_type").select("Package")
+    page.must_have_text "Project:"
+    fill_in "review_project", with: "home:Iggy"
+    page.must_have_text "Package:"
+    fill_in "review_package", with: "TestPack"
+    click_button "Ok"
+    page.must_have_text "Open review for home:Iggy / TestPack"
+
+    click_link "My Decision"
+    click_link "Add a review"
+    find(:id, "review_type").select("User")
+    page.must_have_text "User:"
     fill_in "review_user", with: "Iggy"
     click_button "Ok"
-
-    page.must_have_text "Request 1000 (review)"
     page.must_have_text "Open review for Iggy"
+    page.must_have_text "Request 1000 (review)"
 
     logout
     login_Iggy
     visit request_show_path(1000)
-    page.must_have_text "Review for Iggy"
+    click_link("review_descision_link_0")
+    fill_in "review_comment_0", with: "Ok for the project"
+    click_button "review_accept_button_0"
+    page.must_have_text "Ok for the project"
+    click_link("review_descision_link_0")
+    fill_in "review_comment_0", with: "Ok for the package"
+    click_button "review_accept_button_0"
+    page.must_have_text "Ok for the package"
+    click_link "review_descision_link_0"
+    fill_in "review_comment_0", with: "And ok for me"
+    click_button "review_accept_button_0"
+    page.must_have_text "And ok for me"
+    logout
+
+    login_adrian
+    visit request_show_path(1000)
+   
+    click_link "review_descision_link_0" 
     fill_in "review_comment_0", with: "BranchPack sounds strange"
-    click_button "Decline review"
+    click_button "review_decline_button_0"
     page.must_have_text "Request 1000 (declined)"
   end
 
