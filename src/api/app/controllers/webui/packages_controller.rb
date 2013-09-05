@@ -22,9 +22,12 @@ class Webui::PackagesController < Webui::BaseController
       if last_req.state != :declined
         return nil # ignore all !declined
       end
-      return last_req.webui_infos(diffs: false)
+      return { id: last_req.id,
+               decliner: last_req.commenter,
+               when: last_req.updated_at,
+               comment: last_req.comment }
     end
-    nil
+    return nil
   end
 
   class DiffError < APIException
@@ -53,7 +56,7 @@ class Webui::PackagesController < Webui::BaseController
 
     @infos[:rev] = params[:rev] || @infos[:last_rev]
 
-    query = {'cmd' => 'diff', 'view' => 'xml', 'withissues' => 1}
+    query = { 'cmd' => 'diff', 'view' => 'xml', 'withissues' => 1 }
     [:orev, :opackage, :oproject].each do |k|
       query[k] = params[k] unless params[k].blank?
     end
