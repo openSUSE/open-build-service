@@ -1,12 +1,14 @@
 module ParsePackageDiff
 
   def issues_hash(sourcediff)
+    ret = {}
     sourcediff.get('issues').elements('issue') do |issue|
       next unless issue['name']
       next if issue['state'] == 'deleted'
       i = Issue.find_by_name_and_tracker(issue['name'], issue['tracker'])
-      issues_hash[issue['label']] = i.webui_infos if i
+      ret[issue['label']] = i.webui_infos if i
     end
+    ret
   end
 
   def parse_one_diff(sourcediff)

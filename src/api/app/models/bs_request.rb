@@ -416,6 +416,7 @@ class BsRequest < ActiveRecord::Base
     ret[:description] = self.description
     ret[:state] = self.state
     ret[:oldstate] = self.state_was if self.state_changed?
+    ret[:who] = User.current.login
     ret[:when] = self.updated_at.strftime('%Y-%m-%dT%H:%M:%S')
     ret[:comment] = self.comment
     ret[:author] = self.creator
