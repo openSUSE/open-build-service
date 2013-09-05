@@ -102,7 +102,7 @@ OBSWebUI::Application.routes.draw do
     post 'package/change_flag/:project/:package' => :change_flag, constraints: cons
     get 'package/import_spec/:project/:package' => :import_spec, constraints: cons
     get "package/files/:project/:package" => :files, constraints: cons
-    post 'package/comments/:project/:package' => :save_comment, constraints: cons
+    post 'package/comments/(:project/(:package))' => :save_comment, constraints: cons
     post 'package/comments/:project/:package/delete' => :delete_comment, constraints: cons
   end
 
@@ -193,7 +193,7 @@ OBSWebUI::Application.routes.draw do
     get 'project/list_incidents/:project' => :list_incidents, constraints: cons
     get 'project/unlock_dialog' => :unlock_dialog
     post 'project/unlock' => :unlock
-    post 'project/comments/:project' => :save_comment, constraints: cons, as: 'save_project_comment'
+    post 'project/comments/(:project)' => :save_comment, constraints: cons, as: 'save_project_comment'
     post 'project/comments/:project/delete' => :delete_comment, constraints: cons, as: 'delete_project_comment'
   end
 
@@ -217,7 +217,7 @@ OBSWebUI::Application.routes.draw do
     get 'request/change_devel_request' => :change_devel_request
     get 'request/set_incident_dialog' => :set_incident_dialog
     post 'request/set_incident' => :set_incident
-    post 'request/comments/:id' => :save_comment
+    post 'request/comments/(:id)' => :save_comment
     post 'request/comments/:id/delete' => :delete_comment, constraints: cons
 end
 
