@@ -19,9 +19,13 @@ class HomeController < ApplicationController
       end
     end
     @ipackages = @displayed_user.involved_packages.each.map {|x| [x.name, x.project]}
-    @owned = ReverseOwner.find_cached(:user => @displayed_user.login).each.map {|x| [x.rootproject, x.package, x.project]} || []
-    logger.debug "OWNED: #{@owned.inspect}"
-    # :limit => "#{@owner_limit}", :devel => "#{@owner_devel}"
+    begin
+      @owned = ReverseOwner.find_cached(:user => @displayed_user.login).each.map {|x| [x.rootproject, x.package, x.project]} 
+      # :limit => "#{@owner_limit}", :devel => "#{@owner_devel}"
+    rescue ActiveXML::Transport::Error
+    # OBSRootOwner isn't set...
+      @owned = []
+    end
     if @user == @displayed_user
       requests
     end
