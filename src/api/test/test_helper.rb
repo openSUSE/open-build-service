@@ -3,7 +3,9 @@ require 'minitest/unit'
 
 require 'simplecov'
 require 'simplecov-rcov'
-SimpleCov.start 'rails' if ENV["DO_COVERAGE"]
+SimpleCov.start 'rails' do
+  add_filter '/app/indices/'
+end if ENV["DO_COVERAGE"]
 
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
