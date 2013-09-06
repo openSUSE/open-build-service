@@ -201,4 +201,13 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     visit request_show_path(997)
     page.must_have_text "Request 997"
   end
+
+  test "succesful comment creation" do
+    login_Iggy
+    visit "/request/show/997"
+    fill_in "title", with: "Comment Title"
+    fill_in "body", with: "Comment Body"
+    find_button("Add comment").click
+    find('#flash-messages').must_have_text "Comment added successfully "
+  end
 end
