@@ -35,7 +35,11 @@ class UpdateNotificationEvents
       # 0 is a bad start
       nr = 1 if nr == 0
 
-      @last = Xmlhash.parse(Suse::Backend.get("/lastnotifications?start=#{nr}&block=1").body)
+      begin
+        @last = Xmlhash.parse(Suse::Backend.get("/lastnotifications?start=#{nr}&block=1").body)
+      rescue Net::ReadTimeout, EOFError, ActiveXML::Transport::Error
+        return
+      end
 
       if @last['sync'] == 'lost'
         # we're doomed, but we can't help - it's not supposed to happen
