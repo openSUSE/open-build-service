@@ -16,7 +16,3 @@ class Event::BuildFail < Event::Build
   self.description = 'Package has failed to build'
 end
 
-class Event::BuildUnchanged < Event::Build
-  self.raw_type = 'BUILD_UNCHANGED'
-  self.description = 'Package has succeeded building with unchanged result'
-end

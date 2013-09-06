@@ -1787,10 +1787,7 @@ sub putjob {
     last;
   }
 
-  if ($cgi->{'code'} && $cgi->{'code'} eq 'unchanged') {
-    $jobstatus->{'result'} = 'unchanged';
-    notify('BUILD_UNCHANGED', $info);
-  } else {
+  if ($cgi->{'code'} && $cgi->{'code'} ne 'unchanged') {
     notify($jobstatus->{'result'} eq 'succeeded' ? 'BUILD_SUCCESS' :  'BUILD_FAIL', $info);
   }
 
