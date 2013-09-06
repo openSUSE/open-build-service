@@ -628,15 +628,16 @@ sub set_building {
       $syspath = [];
       for (@$prpsearchpath) {
 	my @pr = split('/', $_, 2);
+	my $server = $workerreposerver;
 	if ($remoteprojs{$pr[0]}) {
-	  if ($remoteprojs{$pr[0]}->{'partition'}) {
-	    push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $remoteprojs{$pr[0]}->{'remoteurl'}};
-	  } else {
-	    push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workersrcserver};
+	  $server = $workersrcserver;
+	  my $par = $remoteprojs{$pr[0]}->{'partition'};
+	  if ($par) {
+	    # XXX: should also come from src server
+	    $server = ($BSConfig::workerpartitionservers || {})->{$par} || $remoteprojs{$pr[0]}->{'remoteurl'};
 	  }
-	} else {
-	  push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workerreposerver};
 	}
+	push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $server};
       }
     }
     $prpsearchpath = [ expandkiwipath($info, $prpsearchpath) ];
@@ -644,15 +645,17 @@ sub set_building {
   my $searchpath = [];
   for (@$prpsearchpath) {
     my @pr = split('/', $_, 2);
+    my $server = $workerreposerver;
     if ($remoteprojs{$pr[0]}) {
-      if ($remoteprojs{$pr[0]}->{'partition'}) {
-	push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $remoteprojs{$pr[0]}->{'remoteurl'}};
-      } else {
-        push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workersrcserver};
+      $server = $workersrcserver;
+      my $par = $remoteprojs{$pr[0]}->{'partition'};
+      if ($par) {
+	$server = $remoteprojs{$pr[0]}->{'remoteurl'};
+	# XXX: should also come from src server
+	$server = ($BSConfig::workerpartitionservers || {})->{$par} || $remoteprojs{$pr[0]}->{'remoteurl'};
       }
-    } else {
-      push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workerreposerver};
     }
+    push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $server};
   }
 
   # calculate packages needed for building
@@ -986,15 +989,16 @@ sub createdeltajob {
   my $searchpath = [];
   for (@$prpsearchpath) {
     my @pr = split('/', $_, 2);
+    my $server = $workerreposerver;
     if ($remoteprojs{$pr[0]}) {
-      if ($remoteprojs{$pr[0]}->{'partition'}) {
-        push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $remoteprojs{$pr[0]}->{'remoteurl'}};
-      } else {
-        push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workersrcserver};
+      $server = $workersrcserver;
+      my $par = $remoteprojs{$pr[0]}->{'partition'};
+      if ($par) {
+	# XXX: should also come from src server
+	$server = ($BSConfig::workerpartitionservers || {})->{$par} || $remoteprojs{$pr[0]}->{'remoteurl'};
       }
-    } else {
-      push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workerreposerver};
     }
+    push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $server};
   }
 
   my $binfo = {
