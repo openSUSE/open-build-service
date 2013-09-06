@@ -177,7 +177,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BsRequest#remove_reviews' => 44.57,
       'AttributeController#cmd_attribute' => 44.22,
       'StatusController#history' => 44.12,
-      'StatusHistory#cleanup' => 43.59,
+      'StatusHistoryRescaler#cleanup' => 43.59,
       'BsRequest#render_xml' => 42.98,
       'Maintainership#find_containers' => 42.72,
       'StatusController#find_relationships_for_packages' => 42.59,

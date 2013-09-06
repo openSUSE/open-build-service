@@ -1,11 +1,17 @@
 require 'test_helper'
 
 class StatusHistoryTest < ActiveSupport::TestCase
+
+  def teardown
+    Timecop.return
+  end
+
   test "rescale" do
-    now = Time.now.to_i - 3.days
+    Timecop.freeze(2010, 7, 12)
+    now = Time.now.to_i - 2.days
     StatusHistory.transaction do
       1000.times do |i|
-        StatusHistory.create time: now - i, key: 'idle_x86_64', value: i
+        StatusHistory.create time: now + i, key: 'idle_x86_64', value: i
       end
     end
 

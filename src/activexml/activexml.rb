@@ -7,4 +7,3 @@ end
 
 require_dependency File.join(File.dirname(__FILE__), 'node')
 require_dependency File.join(File.dirname(__FILE__), 'transport')
-require_dependency File.join(File.dirname(__FILE__), 'matcher')

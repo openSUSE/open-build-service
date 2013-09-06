@@ -12,6 +12,8 @@ require 'webmock/minitest'
 
 require 'opensuse/backend'
 
+require './test/activexml_matcher'
+
 WebMock.disable_net_connect!(allow: CONFIG['source_host'])
 
 unless File.exists? "/proc"
