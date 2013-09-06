@@ -58,4 +58,22 @@ class PackageControllerTest < ActionDispatch::IntegrationTest
     page.wont_have_text '<person userid="Iggy" role="bugowner"/>'
   end
 
+  test "succesful comment creation" do
+    login_Iggy
+    visit "/package/show/home:Iggy/TestPack"
+    fill_in "title", with: "Comment Title"
+    fill_in "body", with: "Comment Body"
+    find_button("Add comment").click
+    find('#flash-messages').must_have_text "Comment added successfully "
+  end
+
+  test "another succesful comment creation" do
+    login_Iggy
+    visit "/package/show?project=home:Iggy&package=TestPack"
+    fill_in "title", with: "Comment Title"
+    fill_in "body", with: "Comment Body"
+    find_button("Add comment").click
+    find('#flash-messages').must_have_text "Comment added successfully "
+  end
+
 end

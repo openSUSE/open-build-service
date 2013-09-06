@@ -6,6 +6,17 @@
 	<p> 
 	  <%= text_area_tag 'body', nil, :size => "80x1", :onkeyup => "sz(this);", :onclick => "sz(this);", :style => "width: 90%;", :placeholder => "Comment Text" %>	  
 	</p>
+	<p>
+		<%if params[:controller] == "package" %>
+			<%= hidden_field_tag("project", @project.name) %>
+			<%= hidden_field_tag("package", @package) %>
+		<%elsif params[:controller] == "request"%>
+			<%= hidden_field_tag("request_id", @id, :name => "id") %>
+		<%else%>
+			<%= hidden_field_tag("project", @project.name) %>
+		<%end%>
+	</p>
+		
 	<p><%= submit_tag "Add comment"%></p>
 	<%end%>
 <% end %>
