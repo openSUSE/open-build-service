@@ -15,10 +15,7 @@ every(30.seconds, 'status.refresh') do
 end
  
 every(1.hour, 'refresh issues') do
-  IssueTracker.all.each do |t|
-    next unless t.enable_fetch
-    t.delay.update_issues
-  end
+  IssueTracker.update_all_issues
 end
 
 every(1.hour, 'accept requests') do

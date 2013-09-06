@@ -79,7 +79,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'ProjectStatusHelper::calc_status' => 159.25,
       'MaintenanceIncident#getUpdateinfoId' => 151.95,
       'PersonController#userinfo' => 149.28,
-      'IssueTracker#private_fetch_issues' => 147.27,
       'Maintainership#extract_maintainer' => 144.49,
       'BsRequest#events' => 143.76,
       'SourceController#project_command_copy' => 140.04,

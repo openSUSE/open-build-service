@@ -174,6 +174,8 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     get "/attribute/TEST/Dummy/_meta"
     assert_response :success
 
+    stub_request(:post, "http://bugzilla.novell.com/xmlrpc.cgi").to_timeout
+
     # set issues
     data = "<attributes><attribute namespace='TEST' name='Dummy'>
               <issue name='123' tracker='bnc'/> 
