@@ -650,7 +650,6 @@ sub set_building {
       $server = $workersrcserver;
       my $par = $remoteprojs{$pr[0]}->{'partition'};
       if ($par) {
-	$server = $remoteprojs{$pr[0]}->{'remoteurl'};
 	# XXX: should also come from src server
 	$server = ($BSConfig::workerpartitionservers || {})->{$par} || $remoteprojs{$pr[0]}->{'remoteurl'};
       }
