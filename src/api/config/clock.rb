@@ -29,8 +29,7 @@ every(1.hour, 'accept requests') do
 end
 
 every(49.minutes, 'rescale history') do
-  # we just pick the first to have a model to .delay
-  StatusHistory.first.delay.rescale
+  StatusHistoryRescaler.new.delay.rescale
 end
 
 every(1.day, 'optimize history', thread: true) do 
