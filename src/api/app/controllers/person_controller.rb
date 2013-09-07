@@ -133,12 +133,8 @@ class PersonController < ApplicationController
   def grouplist
     raise NoPermissionToGroupList.new unless User.current
 
-    @login = User.get_by_login params[:login]
-    if User.ldapgroup_enabled?
-      @list = User.render_grouplist_ldap(Group.all, @login.login)
-    else
-      @list = @login.groups
-    end
+    login = User.get_by_login params[:login]
+    @list = User.lookup_strategy.groups(login)
   end
 
   def register

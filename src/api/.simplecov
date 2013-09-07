@@ -1,6 +1,6 @@
 SimpleCov.merge_timeout 3600
 
-class SimpleCov::Formatter::MergedFormatter
+class SimpleCovMergedFormatter
   def format(result)
     if ENV["DO_COVERAGE"] == "rcov"
       SimpleCov::Formatter::RcovFormatter.new.format(result)
@@ -10,7 +10,7 @@ class SimpleCov::Formatter::MergedFormatter
   end
 end
 
-SimpleCov.formatter = SimpleCov::Formatter::MergedFormatter
+SimpleCov.formatter = SimpleCovMergedFormatter
 
 SimpleCov.at_exit do
   puts "Coverage done"

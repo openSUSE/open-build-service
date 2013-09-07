@@ -17,6 +17,7 @@ set -xe
 ret=0
 export OBS_REPORT_DIR=results/
 export HEADLESS=forsure
+export TESTOPTS=-v
 
 case $SUBTEST in
   api)

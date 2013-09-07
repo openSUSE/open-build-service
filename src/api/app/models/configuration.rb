@@ -58,6 +58,11 @@ class Configuration < ActiveRecord::Base
       Configuration.limit(1).pluck(:ymp_url).first
     end
 
+    # Check if ldap group support is enabled?
+    def ldapgroup_enabled?
+      return CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
+    end
+
     def errbit_url
       begin
         Configuration.limit(1).pluck(:errbit_url).first

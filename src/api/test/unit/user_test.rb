@@ -63,17 +63,6 @@ class UserTest < ActiveSupport::TestCase
     assert_no_xml_tag axml, :tag => :globalrole, :content => "Admin"
   end
 
-  def test_ldap
-    assert !@user.local_role_check_with_ldap( roles(:maintainer), @project)
-    ldm, lgs, CONFIG['ldap_mode'], CONFIG['ldap_group_support'] = CONFIG['ldap_mode'], CONFIG['ldap_group_support'], :on, :on
-    
-    user = users( :tom )
-    assert !user.has_local_permission?('change_project', projects( :kde4) )
-    assert !user.has_local_permission?('change_package', packages( :kdelibs ))
-
-    CONFIG['ldap_mode'], CONFIG['ldap_group_support'] = ldm, lgs
-  end
-
   def test_states
     assert_not_nil User.states
   end
