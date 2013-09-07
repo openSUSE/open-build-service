@@ -94,7 +94,7 @@ GEM
     rdoc (4.0.1)
       json (~> 1.4)
     riddle (1.5.8)
-    ruby-ldap (0.9.13)
+    ruby-ldap (0.9.16)
     ruby_parser (3.2.2)
       sexp_processor (~> 4.1)
     safe_yaml (0.9.5)

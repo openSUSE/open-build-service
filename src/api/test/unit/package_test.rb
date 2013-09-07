@@ -5,11 +5,13 @@ class PackageTest < ActiveSupport::TestCase
   fixtures :all
 
   def setup
+    super
     @package = Package.find( 10095 )
   end
 
   def teardown
     Timecop.return
+    super
   end
 
   def test_flags_to_axml

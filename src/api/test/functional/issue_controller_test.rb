@@ -3,6 +3,16 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 class IssueControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
 
+  def setup
+    stub_request(:post, "http://bugzilla.novell.com/xmlrpc.cgi").to_timeout
+    super
+  end
+
+  def teardown
+    WebMock.reset!
+    super
+  end
+
   def test_get_issues
     # bugs are public atm. Secret stuff should not get imported.
     get '/issue_trackers'

@@ -7,7 +7,6 @@ class EventTest < ActiveSupport::TestCase
 
   teardown do
     WebMock.reset!
-    Delayed::Worker.delay_jobs = true
   end
 
   test "find nothing" do
@@ -36,7 +35,6 @@ class EventTest < ActiveSupport::TestCase
   end
 
   test "sent all" do
-    Delayed::Worker.delay_jobs = false
     Event::NotifyBackends.trigger_delayed_sent
   end
 

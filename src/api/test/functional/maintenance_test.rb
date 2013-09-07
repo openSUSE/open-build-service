@@ -7,9 +7,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   def setup
     super
     wait_for_scheduler_start
+    stub_request(:post, "http://bugzilla.novell.com/xmlrpc.cgi").to_timeout
   end
 
   teardown do
+    WebMock.reset!
     Timecop.return
   end
 
