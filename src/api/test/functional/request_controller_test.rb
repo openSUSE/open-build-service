@@ -290,9 +290,15 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  # FIXME: we need a way to test this with api anonymous config and without
   def test_create_request_anonymous
+    # try it without anonymous - login required
     post "/request?cmd=create", load_backend_file('request/add_role')
+    assert_xml_tag tag: "status", attributes: { code: "authentication_required" }
+    assert_response 401
+
+    # now try as webui if we get a different error
+    post "/request?cmd=create", load_backend_file('request/add_role'), { 'HTTP_USER_AGENT' => 'obs-webui-something'}
+    assert_xml_tag tag: "status", attributes: { code: "anonymous_user" }
     assert_response 401
   end
 

@@ -379,10 +379,6 @@ class BsRequestAction < ActiveRecord::Base
     return reviewers
   end
 
-  class NotExistantTarget < APIException
-    setup 'not_existing_target'
-  end
-
   class TargetPackageMissing < APIException
     setup "post_request_no_permission", 403
   end
@@ -400,6 +396,7 @@ class BsRequestAction < ActiveRecord::Base
   end
 
   class ExpandError < APIException;
+    setup "expand_error"
   end
   class SourceChanged < APIException;
   end
@@ -527,7 +524,7 @@ class BsRequestAction < ActiveRecord::Base
         # target must exist
         if self.target_package
           unless target_package
-            raise NotExistantTarget.new "Unable to process package #{self.target_project}/#{self.target_package}; it does not exist."
+            raise NotExistingTarget.new "Unable to process package #{self.target_project}/#{self.target_package}; it does not exist."
           end
           if self.action_type == :delete
             target_package.can_be_deleted?
@@ -818,18 +815,10 @@ class BsRequestAction < ActiveRecord::Base
   class IncidentHasNoMaintenanceProject < APIException
   end
 
-  class UnknownProject < APIException
-    setup 404
-  end
-
   class NotSupported < APIException
   end
 
   class SubmitRequestRejected < APIException
-  end
-
-  class RequestRejected < APIException
-    setup 403
   end
 
   class RequestRejected < APIException
@@ -842,9 +831,6 @@ class BsRequestAction < ActiveRecord::Base
 
   class UnknownRole < APIException
     setup 404
-  end
-
-  class ExpandError < APIException
   end
 
   class IllegalRequest < APIException

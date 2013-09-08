@@ -96,8 +96,5 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     f = IssueTracker.find_by_name!("RT")
     f.update_issues
     f.enforced_update_all_issues
-
-    Delayed::Worker.new(:quiet => true).work_off
-
   end
 end

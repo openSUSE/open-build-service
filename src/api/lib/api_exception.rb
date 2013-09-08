@@ -23,7 +23,10 @@ class APIException < Exception
 
   def errorcode
     err = self.class.instance_variable_get "@errorcode"
-    err || self.class.name.split('::').last.underscore
+    return err if err
+    err = self.class.name.split('::').last.underscore
+    # if the class name stops with Error, strip that
+    err.gsub(%r{_error$}, '')
   end
   
   def status

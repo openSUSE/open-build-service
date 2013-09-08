@@ -399,7 +399,6 @@ i          raise PostRequestNoPermission.new "Request is in review state. You ma
     required_parameters :id
 
     req = BsRequest.find params[:id]
-    be_not_nobody!
 
     # transform request body into query parameter 'comment'
     # the query parameter is preferred if both are set

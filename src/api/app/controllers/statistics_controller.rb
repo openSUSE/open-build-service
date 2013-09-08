@@ -18,6 +18,10 @@ class StatisticsController < ApplicationController
   end
 
 
+   def min_votes_for_rating
+    return CONFIG["min_votes_for_rating"]
+   end
+
   def highest_rated
     # set automatic action_cache expiry time limit
     # response.time_to_live = 10.minutes

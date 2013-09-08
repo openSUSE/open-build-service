@@ -10,7 +10,9 @@ OBSApi::Application.routes.draw do
              :repository => %r{[^\/]*}, :filename => %r{[^\/]*}, :arch => %r{[^\/]*}, :id => %r{\d*} }
 
     ### /person
-    match 'person' => 'person#index', via: [:get, :post]
+    post 'person' => 'person#command'
+    get 'person' => 'person#show'
+
     # FIXME3.0: this is no clean namespace, a person "register" or "changepasswd" could exist ...
     #           remove these for OBS 3.0
     match 'person/register' => 'person#register', via: [:post, :put]      # use /person?cmd=register POST instead

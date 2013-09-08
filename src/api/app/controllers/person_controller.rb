@@ -8,52 +8,27 @@ class PersonController < ApplicationController
   validate_action :register => {:method => :put, :response => :status}
   validate_action :register => {:method => :post, :response => :status}
 
-  skip_before_filter :extract_user, :only => [:index, :register]
+  skip_before_action :extract_user, only: [:command, :register]
 
-  # Returns a list of all users (that optionally start with a prefix)
-  def index
-    unless request.post? and params[:cmd] == "register"
-      
-      if !extract_user
-        logger.debug "No user logged in, permission to index denied"
-        return
-      end
-    end
-
-    if request.get?
-      if params[:prefix]
-        list = User.where("login LIKE ?", params[:prefix] + '%')
-      else
-        list = User.all
-      end
-
-      builder = Builder::XmlMarkup.new(:indent => 2)
-      xml = builder.directory(:count => list.length) do |dir|
-        list.each {|user| dir.entry(:name => user.login)}
-      end
-      render :text => xml, :content_type => "text/xml"
-      return
-    elsif request.post?
-      if params[:cmd] == "register"
-        internal_register
-        return
-      else
-        render_error :status => 400, :errorcode => "unknown_command",
-                     :message => "Allow commands are 'change_password'"
-        return
-      end
+  def show
+    if params[:prefix]
+        @list = User.where("login LIKE ?", params[:prefix] + '%')
+    else
+        @list = User.all
     end
   end
 
-  def userinfo
-    if !@http_user
-      logger.debug "No user logged in, permission to userinfo denied"
-      @errorcode = 401
-      @summary = "No user logged in, permission to userinfo denied"
-      render :template => 'error', :status => @errorcode and return
+  # Returns a list of all users (that optionally start with a prefix)
+  def command
+    if params[:cmd] == "register"
+      internal_register 
+      return
     end
+    raise UnknownCommandError.new "Allowed commands are 'change_password'"
+  end
 
-    login = URI.unescape(params[:login]) if params[:login]
+  def userinfo
+    login = params[:login]
     user = User.find_by_login(login) if login
 
     if request.get?
@@ -88,9 +63,7 @@ class PersonController < ApplicationController
         render_ok
         return
       else
-        render_error :status => 400, :errorcode => "unknown_command",
-                     :message => "Allow commands are 'change_password'"
-        return
+        raise UnknownCommandError.new "Allowed commands are 'change_password'"
       end
     elsif request.put?
       if user 

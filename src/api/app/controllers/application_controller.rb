@@ -26,6 +26,12 @@ class ApplicationController < ActionController::API
     setup 403
   end
 
+  class UnknownCommandError < APIException
+  end
+  class AuthenticationRequiredError < APIException
+    setup 401, "Authentication required"
+  end
+
   include ActionController::ImplicitRender
   include ActionController::MimeResponds
 
@@ -44,7 +50,6 @@ class ApplicationController < ActionController::API
   before_action :extract_user
   before_action :setup_backend
   before_action :shutup_rails
-  before_action :set_current_user
   before_action :validate_params
 
   #contains current authentification method, one of (:proxy, :basic)
@@ -54,9 +59,6 @@ class ApplicationController < ActionController::API
   hide_action 'auth_method='
 
   protected
-  def set_current_user
-    User.current = @http_user
-  end
 
   def load_nobody
     @http_user = User.find_by_login( "_nobody_" )
@@ -85,208 +87,233 @@ class ApplicationController < ActionController::API
     return true
   end
 
-  def extract_user
-    mode = :basic
-    mode = CONFIG['ichain_mode'] if defined? CONFIG['ichain_mode']
-    mode = CONFIG['proxy_auth_mode'] if defined? CONFIG['proxy_auth_mode']
-    if mode == :on || mode == :simulate # configured in the the environment file
-      @auth_method = :proxy
-      proxy_user = request.env['HTTP_X_USERNAME']
-      if proxy_user
-        logger.info "iChain user extracted from header: #{proxy_user}"
-      elsif mode == :simulate
-        proxy_user = CONFIG['proxy_auth_test_user']
-        logger.debug "iChain user extracted from config: #{proxy_user}"
-      end
+  def check_for_nobody!
+    unless ::Configuration.anonymous?
+      raise AuthenticationRequiredError.new
+    end
+    load_nobody
+    true
+  end
 
-      # we're using a login proxy, there is no need to authenticate the user from the credentials
-      # However we have to care for the status of the user that must not be unconfirmed or proxy requested
-      if proxy_user
-        @http_user = User.find_by_login proxy_user
 
-        # If we do not find a User here, we need to create a user and wait for
-        # the confirmation by the user and the BS Admin Team.
-        unless @http_user
-          if ::Configuration.registration == "deny"
-            logger.debug( "No user found in database, creation disabled" )
-            render_error( :message => "User '#{login}' does not exist<br>#{errstr}", :status => 401 )
-            @http_user=nil
-            return false
+  class InactiveUserError < APIException
+    setup 403
+  end
+
+  class UnconfirmedUserError < APIException
+    setup 403
+  end
+
+  class UnregisteredUserError < APIException
+    setup 403
+  end
+
+  def extract_ldap_user
+    begin
+      require 'ldap'
+      logger.debug( "Using LDAP to find #{@login}" )
+      ldap_info = User.find_with_ldap( @login, @passwd )
+    rescue LoadError
+      logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
+      ldap_info = nil # now fall through as if we'd not found a user
+    rescue Exception
+      logger.debug "#{login} not found in LDAP."
+      ldap_info = nil # now fall through as if we'd not found a user
+    end
+
+    if ldap_info
+      # We've found an ldap authenticated user - find or create an OBS userDB entry.
+      @http_user = User.find_by_login( login )
+      if @http_user
+        # Check for ldap updates
+        if @http_user.email != ldap_info[0]
+          @http_user.email = ldap_info[0]
+          @http_user.save
+        end
+      else
+        if ::Configuration.registration == "deny"
+          logger.debug( "No user found in database, creation disabled" )
+          @http_user=nil
+          raise AuthenticationRequiredError.new "User '#{login}' does not exist<br>#{errstr}"
+        end
+        logger.debug( "No user found in database, creating" )
+        logger.debug( "Email: #{ldap_info[0]}" )
+        logger.debug( "Name : #{ldap_info[1]}" )
+        # Generate and store a fake pw in the OBS DB that no-one knows
+        chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
+        fakepw = (1..24).collect { chars[rand(chars.size)] }.pack('a'*24)
+        newuser = User.create(
+            :login => login,
+            :password => fakepw,
+            :password_confirmation => fakepw,
+            :email => ldap_info[0] )
+        unless newuser.errors.empty?
+          errstr = String.new
+          logger.debug("Creating User failed with: ")
+          newuser.errors.each_full do |msg|
+            errstr = errstr+msg
+            logger.debug(msg)
           end
-          state = User.states['confirmed']
-          state = User.states['unconfirmed'] if ::Configuration.registration == "confirmation"
-          # Generate and store a fake pw in the OBS DB that no-one knows
-          # FIXME: we should allow NULL passwords in DB, but that needs user management cleanup
-          chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
-          fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("a"*24)
-          @http_user = User.create(
+          @http_user=nil
+          raise AuthenticationRequiredError.new "Cannot create ldap userid: '#{login}' on OBS<br>#{errstr}"
+        end
+        newuser.realname = ldap_info[1]
+        newuser.state = User.states['confirmed']
+        newuser.state = User.states['unconfirmed'] if ::Configuration.registration == "confirmation"
+        newuser.adminnote = "User created via LDAP"
+        user_role = Role.find_by_title("User")
+        newuser.roles << user_role
+
+        logger.debug( "saving new user..." )
+        newuser.save
+
+        @http_user = newuser
+      end
+    else
+      logger.debug( "User not found with LDAP, falling back to database" )
+    end
+
+  end
+
+  def extract_proxy_user(mode)
+    @auth_method = :proxy
+    proxy_user = request.env['HTTP_X_USERNAME']
+    if proxy_user
+      logger.info "iChain user extracted from header: #{proxy_user}"
+    elsif mode == :simulate
+      proxy_user = CONFIG['proxy_auth_test_user']
+      logger.debug "iChain user extracted from config: #{proxy_user}"
+    end
+
+    # we're using a login proxy, there is no need to authenticate the user from the credentials
+    # However we have to care for the status of the user that must not be unconfirmed or proxy requested
+    if proxy_user
+      @http_user = User.find_by_login proxy_user
+
+      # If we do not find a User here, we need to create a user and wait for
+      # the confirmation by the user and the BS Admin Team.
+      unless @http_user
+        if ::Configuration.registration == "deny"
+          logger.debug("No user found in database, creation disabled")
+          raise AuthenticationRequiredError.new "User '#{login}' does not exist<br>#{errstr}"
+        end
+        state = User.states['confirmed']
+        state = User.states['unconfirmed'] if ::Configuration.registration == "confirmation"
+        # Generate and store a fake pw in the OBS DB that no-one knows
+        # FIXME: we should allow NULL passwords in DB, but that needs user management cleanup
+        chars = ["A".."Z", "a".."z", "0".."9"].collect { |r| r.to_a }.join
+        fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("a"*24)
+        @http_user = User.create(
             :login => proxy_user,
             :password => fakepw,
             :password_confirmation => fakepw,
             :state => state)
-        end
-
-        # update user data from login proxy headers
-        @http_user.update_user_info_from_proxy_env(request.env) unless @http_user.nil?
-      else
-        if ::Configuration.anonymous?
-          load_nobody
-          return true
-        end
-        logger.error "No X-username header from login proxy! Are we really using an authentification proxy?"
-        render_error( :message => "No user header found found!", :status => 401 ) and return false
       end
+
+      # update user data from login proxy headers
+      @http_user.update_user_info_from_proxy_env(request.env) if @http_user
+    else
+      logger.error "No X-username header from login proxy! Are we really using an authentification proxy?"
+    end
+
+  end
+
+  def authorization_infos
+    # 1. try to get it where mod_rewrite might have put it
+    # 2. for Apace/mod_fastcgi with -pass-header Authorization
+    # 3. regular location
+    %w{X-HTTP_AUTHORIZATION Authorization HTTP_AUTHORIZATION}.each do |header|
+      if request.env.has_key? header
+        return request.env[header].to_s.split
+      end
+    end
+    return nil
+  end
+
+  def extract_basic_auth_user
+    authorization = authorization_infos
+
+    # privacy! logger.debug( "AUTH: #{authorization.inspect}" )
+
+    if authorization and authorization[0] == "Basic"
+      # logger.debug( "AUTH2: #{authorization}" )
+      @login, @passwd = Base64.decode64(authorization[1]).split(':', 2)[0..1]
+
+      #set password to the empty string in case no password is transmitted in the auth string
+      @passwd ||= ""
+    else
+      logger.debug "no authentication string was sent"
+    end
+  end
+
+  def extract_user
+    mode = CONFIG['proxy_auth_mode'] || CONFIG['ichain_mode'] || :basic
+    if mode == :on || mode == :simulate # configured in the the environment file
+      extract_proxy_user mode
     else
       @auth_method = :basic
 
-      if request.env.has_key? 'X-HTTP_AUTHORIZATION'
-        # try to get it where mod_rewrite might have put it
-        authorization = request.env['X-HTTP_AUTHORIZATION'].to_s.split
-      elsif request.env.has_key? 'Authorization'
-        # for Apace/mod_fastcgi with -pass-header Authorization
-        authorization = request.env['Authorization'].to_s.split
-      elsif request.env.has_key? 'HTTP_AUTHORIZATION'
-        # this is the regular location
-        authorization = request.env['HTTP_AUTHORIZATION'].to_s.split
-      end
-
-      # privacy! logger.debug( "AUTH: #{authorization.inspect}" )
-
-      if authorization and authorization[0] == "Basic"
-        # logger.debug( "AUTH2: #{authorization}" )
-        login, passwd = Base64.decode64(authorization[1]).split(':', 2)[0..1]
-
-        #set password to the empty string in case no password is transmitted in the auth string
-        passwd ||= ""
-      else
-        if @http_user.nil? and ::Configuration.anonymous?
-          read_only_hosts = []
-          read_only_hosts = CONFIG['read_only_hosts'] if CONFIG['read_only_hosts']
-          read_only_hosts << CONFIG['webui_host'] if CONFIG['webui_host'] # this was used in config files until OBS 2.1
-          if read_only_hosts.include?(request.env['REMOTE_HOST']) or read_only_hosts.include?(request.env['REMOTE_ADDR'])
-            # Fixed list of clients which do support the read only mode
-            hua = request.env['HTTP_USER_AGENT']
-            if hua && (hua.match(/^obs-webui/) || hua.match(/^obs-software/))
-              load_nobody
-              return true
-            end
-          else
-            logger.info "anononymous configured, but #{read_only_hosts.inspect} does not include '#{request.env['REMOTE_HOST']}' '#{request.env['REMOTE_ADDR']}'"
-          end
-
-          if login
-            render_error :message => "User not yet registered", :status => 403,
-              :errorcode => "unregistered_user",
-              :details => "Please register."
-            return false
-          end
-        end
-
-        logger.debug "no authentication string was sent"
-        render_error( :message => "Authentication required", :status => 401 ) 
-        return false
-      end
-
-      # disallow empty passwords to prevent LDAP lockouts
-      if !passwd or passwd == ""
-        render_error( :message => "User '#{login}' did not provide a password", :status => 401 ) and return false
-      end
+      extract_basic_auth_user
 
       if CONFIG['ldap_mode'] == :on
-        begin
-          require 'ldap'
-          logger.debug( "Using LDAP to find #{login}" )
-          ldap_info = User.find_with_ldap( login, passwd )
-        rescue LoadError
-          logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
-          ldap_info = nil # now fall through as if we'd not found a user
-        rescue Exception
-          logger.debug "#{login} not found in LDAP."
-          ldap_info = nil # now fall through as if we'd not found a user          
+        # disallow empty passwords to prevent LDAP lockouts
+        if @passwd.blank?
+          raise AuthenticationRequiredError.new "User '#{@login}' did not provide a password"
         end
 
-        if not ldap_info.nil?
-          # We've found an ldap authenticated user - find or create an OBS userDB entry.
-          @http_user = User.find_by_login( login )
-          if @http_user
-            # Check for ldap updates
-            if @http_user.email != ldap_info[0]
-              @http_user.email = ldap_info[0]
-              @http_user.save
-            end
-          else
-            if ::Configuration.registration == "deny"
-              logger.debug( "No user found in database, creation disabled" )
-              render_error( :message => "User '#{login}' does not exist<br>#{errstr}", :status => 401 )
-              @http_user=nil
-              return false
-            end
-            logger.debug( "No user found in database, creating" )
-            logger.debug( "Email: #{ldap_info[0]}" )
-            logger.debug( "Name : #{ldap_info[1]}" )
-            # Generate and store a fake pw in the OBS DB that no-one knows
-            chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
-            fakepw = (1..24).collect { chars[rand(chars.size)] }.pack('a'*24)
-            newuser = User.create(
-              :login => login,
-              :password => fakepw,
-              :password_confirmation => fakepw,
-              :email => ldap_info[0] )
-            unless newuser.errors.empty?
-              errstr = String.new
-              logger.debug("Creating User failed with: ")
-              newuser.errors.each_full do |msg|
-                errstr = errstr+msg
-                logger.debug(msg)
-              end
-              render_error( :message => "Cannot create ldap userid: '#{login}' on OBS<br>#{errstr}",
-                :status => 401 )
-              @http_user=nil
-              return false
-            end
-            newuser.realname = ldap_info[1]
-            newuser.state = User.states['confirmed']
-            newuser.state = User.states['unconfirmed'] if ::Configuration.registration == "confirmation"
-            newuser.adminnote = "User created via LDAP"
-            user_role = Role.find_by_title("User")
-            newuser.roles << user_role
+        extract_ldap_user
+      end
 
-            logger.debug( "saving new user..." )
-            newuser.save
+      if @login && !@http_user
+        @http_user = User.find_with_credentials @login, @passwd
+      end
+    end
 
-            @http_user = newuser
-          end
-        else
-          logger.debug( "User not found with LDAP, falling back to database" )
-          @http_user = User.find_with_credentials login, passwd
+    check_extracted_user
+  end
+
+  def check_for_anonymous_user
+    if ::Configuration.anonymous?
+      read_only_hosts = []
+      read_only_hosts = CONFIG['read_only_hosts'] if CONFIG['read_only_hosts']
+      read_only_hosts << CONFIG['webui_host'] if CONFIG['webui_host'] # this was used in config files until OBS 2.1
+      if read_only_hosts.include?(request.env['REMOTE_HOST']) or read_only_hosts.include?(request.env['REMOTE_ADDR'])
+        # Fixed list of clients which do support the read only mode
+        hua = request.env['HTTP_USER_AGENT']
+        if hua && (hua.match(/^obs-webui/) || hua.match(/^obs-software/))
+          load_nobody
+          return true
         end
-
       else
-        @http_user = User.find_with_credentials login, passwd
+        logger.info "anononymous configured, but #{read_only_hosts.inspect} does not include '#{request.env['REMOTE_HOST']}' '#{request.env['REMOTE_ADDR']}'"
       end
     end
-
-    if @http_user.nil?
-      render_error( :message => "Unknown user '#{login}' or invalid password", :status => 401 ) and return false
-    else
-      if @http_user.state == User.states['ichainrequest'] or @http_user.state == User.states['unconfirmed']
-        render_error :message => "User is registered but not yet approved.", :status => 403,
-          :errorcode => "unconfirmed_user",
-          :details => "<p>Your account is a registered account, but it is not yet approved for the OBS by admin.</p>"
-        return false
-      end
-
-      if @http_user.state == User.states['confirmed']
-        logger.debug "USER found: #{@http_user.login}"
-        @user_permissions = Suse::Permission.new( @http_user )
-        return true
-      end
-    end
-
-    render_error :message => "User is registered but not in confirmed state.", :status => 403,
-      :errorcode => "inactive_user",
-      :details => "<p>Your account is a registered account, but it is in a not active state.</p>"
     return false
+  end
+
+  def check_extracted_user
+    unless @http_user
+      if @login.blank?
+        return true if check_for_anonymous_user
+        raise AuthenticationRequiredError.new
+      end
+      raise AuthenticationRequiredError.new "Unknown user '#{@login}' or invalid password"
+    end
+
+    if @http_user.state == User.states['ichainrequest'] or @http_user.state == User.states['unconfirmed']
+      raise UnconfirmedUserError.new "User is registered but not yet approved. " +
+                                         "Your account is a registered account, but it is not yet approved for the OBS by admin."
+    end
+
+    User.current = @http_user
+
+    if @http_user.state == User.states['confirmed']
+      logger.debug "USER found: #{@http_user.login}"
+      @user_permissions = Suse::Permission.new(@http_user)
+      return true
+    end
+
+    raise InactiveUserError.new "User is registered but not in confirmed state. Your account is a registered account, but it is in a not active state."
   end
 
   def require_valid_project_name
@@ -523,7 +550,6 @@ class ApplicationController < ActionController::API
     end
 
     @exception = opt[:exception]
-    @details = opt[:details]
     @errorcode = opt[:errorcode]
     
     opt[:status] ||= 400
@@ -547,7 +573,7 @@ class ApplicationController < ActionController::API
     response.headers['X-Opensuse-Errorcode'] = @errorcode
     respond_to do |format|
       format.xml { render template: 'status', status: opt[:status] }
-      format.json { render json: { errorcode: @errorcode, summary: @summary, details: @details }, status: opt[:status] }
+      format.json { render json: { errorcode: @errorcode, summary: @summary }, status: opt[:status] }
     end
   end
 
@@ -556,17 +582,15 @@ class ApplicationController < ActionController::API
   end
 
   def be_not_nobody!
-    return unless User.current.is_nobody?
-    raise AnonymousUser.new  "Anonymous user is not allowed to create requests"
+    if !User.current || User.current.is_nobody?
+      raise AnonymousUser.new  "Anonymous user is not allowed here - please login"
+    end 
   end
 
   def render_ok(opt={})
     # keep compatible to old call style
-    opt = {:details => opt} if opt.kind_of? String
-
     @errorcode = "ok"
     @summary = "Ok"
-    @details = opt[:details] if opt[:details]
     @data = opt[:data] if opt[:data]
     render :template => 'status', :status => 200
   end
@@ -574,7 +598,6 @@ class ApplicationController < ActionController::API
   def render_invoked(opt={})
     @errorcode = "invoked"
     @summary = "Job invoked"
-    @details = opt[:details] if opt[:details]
     @data = opt[:data] if opt[:data]
     render :template => 'status', :status => 200
   end
@@ -587,13 +610,6 @@ class ApplicationController < ActionController::API
   def backend_get( path )
     # TODO: check why not using SUSE:Backend::get
     backend.direct_http( URI(path) )
-  end
-
-  def backend_post( path, data )
-    backend.set_additional_header("Content-Length", data.size.to_s())
-    response = backend.direct_http( URI(path), :method => "POST", :data => data )
-    backend.delete_additional_header("Content-Length")
-    return response
   end
 
   # Passes control to subroutines determined by action and a request parameter. By
@@ -610,17 +626,13 @@ class ApplicationController < ActionController::API
       :cmd_param => :cmd
     }
     opt = defaults.merge opt
-    unless params.has_key? opt[:cmd_param]
-      raise MissingParameterError.new "Missing parameter '#{opt[:cmd_param]}'"
-    end
+    require_parameter! opt[:cmd_param]
 
     cmd_handler = "#{params[:action]}_#{params[opt[:cmd_param]]}"
     logger.debug "dispatch_command: trying to call method '#{cmd_handler}'"
 
     if not self.respond_to? cmd_handler, true
-      render_error :status => 400, :errorcode => "unknown_command",
-        :message => "Unknown command '#{params[opt[:cmd_param]]}' for path #{request.path}"
-      return
+      raise UnknownCommandError.new "Unknown command '#{params[opt[:cmd_param]]}' for path #{request.path}"
     end
 
     __send__ cmd_handler
@@ -633,43 +645,9 @@ class ApplicationController < ActionController::API
     Suse::Backend.build_query_from_hash(hash, key_list)
   end
 
-  def query_parms_missing?(*list)
-    missing = Array.new
-    for param in list
-      missing << param unless params.has_key? param
-    end
-
-    unless missing.empty?
-      render_error :status => 400, :errorcode => "missing_query_parameters",
-        :message => "Missing query parameters: #{missing.join ', '}"
-    end
-    return false
-  end
-
-  def min_votes_for_rating
-    return CONFIG["min_votes_for_rating"]
-  end
-
   private
   def shutup_rails
     Rails.cache.silence! unless Rails.env.development?
-  end
-
-  def action_fragment_key( options )
-    # this is for customizing the path/filename of cached files (cached by the
-    # action_cache plugin). here we want to include params in the filename
-    par = params
-    par.delete 'controller'
-    par.delete 'action'
-    pairs = []
-    par.sort.each { |pair| pairs << pair.join('=') }
-    url_for( options ).split('://').last + "/"+ pairs.join(',').gsub(' ', '-')
-  end
-
-  def log_process_action(payload)
-     messages = super
-     puts "LPA #{messages.join}"
-     messages
   end
 
 end

@@ -6,8 +6,8 @@ if Rails.env.test? || Rails.env.development?
 end
 
 class TestController < ApplicationController
-  skip_before_filter :extract_user
-  before_filter do 
+  skip_before_action :extract_user
+  before_action do
     return true if Rails.env.test? || Rails.env.development?
     render_error  message: "This is only accessible for testing environments", :status => 403
     return false
