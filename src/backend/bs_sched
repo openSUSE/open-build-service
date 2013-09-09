@@ -5372,10 +5372,12 @@ sub checkaggregate {
     $aggregate->{'package'} ||= \@apackids;
   }
   if (@broken) {
+    my $error = 'missing repositories: '.join(', ', @broken);
     print "      - $packid (aggregate)\n";
-    print "        broken (@broken)\n";
+    print "        broken ($error)\n";
     print "        (delayed)\n" if $delayed;
-    return ('broken', 'missing repositories: '.join(', ', @broken));
+    return ('delayed', $error) if $delayed;
+    return ('broken', $error);
   }
   if (@blocked) {
     print "      - $packid (aggregate)\n";
