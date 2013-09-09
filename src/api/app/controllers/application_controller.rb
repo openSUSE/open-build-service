@@ -87,15 +87,6 @@ class ApplicationController < ActionController::API
     return true
   end
 
-  def check_for_nobody!
-    unless ::Configuration.anonymous?
-      raise AuthenticationRequiredError.new
-    end
-    load_nobody
-    true
-  end
-
-
   class InactiveUserError < APIException
     setup 403
   end
@@ -526,13 +517,6 @@ class ApplicationController < ActionController::API
       if params[parameter].blank?
         raise NoDataEntered.new "Required Parameter #{parameter} is empty"
       end
-    end
-  end
-
-  def valid_http_methods(*methods)
-    list = methods.map {|x| x.to_s.downcase}
-    unless list.include? request.method.to_s.downcase
-      raise InvalidHttpMethodError, "Invalid HTTP Method: #{request.method.to_s.upcase}"
     end
   end
 

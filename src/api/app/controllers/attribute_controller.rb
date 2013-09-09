@@ -11,8 +11,6 @@ class AttributeController < ApplicationController
   validate_action :attribute_definition => {:method => :put, :request => :attrib_type, :response => :status}
 
   def index
-    valid_http_methods :get
-
     if params[:namespace]
       an = AttribNamespace.where(name: params[:namespace] ).first
       unless an

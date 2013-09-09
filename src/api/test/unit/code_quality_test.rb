@@ -140,7 +140,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Repository#cleanup_before_destroy' => 85.53,
       'RequestController#check_request_change' => 257.26,
       'RequestController#command_changestate' => 190.9,
-      'RequestController#command_diff' => 48.55,
+      'RequestController#command_diff' => 47.51,
       'RequestController#create_create' => 110.65,
       'RequestController#render_request_collection' => 92.82,
       'SearchController#find_attribute' => 104.54,

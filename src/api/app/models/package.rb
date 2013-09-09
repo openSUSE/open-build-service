@@ -70,11 +70,6 @@ class Package < ActiveRecord::Base
 
   class << self
 
-    def check_dbp_access?(dbp)
-      return false unless dbp.class == Project
-      return false if dbp.nil?
-      return Project.check_access?(dbp)
-    end
     def check_access?(dbpkg=self)
       return false if dbpkg.nil?
       return false unless dbpkg.class == Package
@@ -171,21 +166,6 @@ class Package < ActiveRecord::Base
 
     def find_by_project_and_name( project, package )
       return Package.where(name: package.to_s, projects: { name: project }).includes(:project).first
-    end
-
-    def find_by_project_and_kind( project, kind )
-      sql =<<-END_SQL
-      SELECT pack.*
-      FROM packages pack
-      LEFT OUTER JOIN projects pro ON pack.db_project_id = pro.id
-      LEFT OUTER JOIN package_kinds kinds ON kinds.db_package_id = pack.id
-      WHERE pro.name = ? AND kinds.kind = ?
-      END_SQL
-
-      result = Package.find_by_sql [sql, project.to_s, kind.to_s]
-      ret = result[0]
-      return nil unless Package.check_access?(ret)
-      return ret
     end
 
     def find_by_attribute_type( attrib_type, package=nil )
@@ -314,11 +294,6 @@ class Package < ActiveRecord::Base
   def sources_changed
     self.set_package_kind
     self.update_activity
-  end
-
-  def add_package_kind( kinds )
-    check_write_access!
-    private_set_package_kind( kinds, nil, true )
   end
 
   def set_package_kind( kinds = nil )

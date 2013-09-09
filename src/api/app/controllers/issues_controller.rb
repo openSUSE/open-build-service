@@ -3,7 +3,6 @@ class IssuesController < ApplicationController
   before_filter :require_admin, :only => [:create, :update, :destroy]
 
   def show
-    valid_http_methods :get
     required_parameters :id, :issue_tracker_id
 
     # NOTE: issue_tracker_id is here actually the name

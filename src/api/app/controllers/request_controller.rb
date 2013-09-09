@@ -198,8 +198,6 @@ class RequestController < ApplicationController
   end
 
   def command_diff
-    valid_http_methods :post
-
     req = BsRequest.find params[:id]
 
     diff_text = ""
