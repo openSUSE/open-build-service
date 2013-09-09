@@ -10,7 +10,7 @@ class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
     get '/public/configuration' # required for anonymous remote webui access
     assert_response :success
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get '/public/configuration'
     assert_response :success
     get '/configuration' # default
@@ -23,7 +23,7 @@ class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
     get '/configuration.json'
     assert_response :success
 
-    prepare_request_with_user 'king', 'sunflower' # User with admin rights
+    login_king # User with admin rights
     # webui is using this way to store data
     put '/configuration?title=openSUSE&description=blah_fasel&name=obsname'
     assert_response :success
@@ -56,7 +56,7 @@ class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
     put '/configuration', config
     assert_response :success
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get '/configuration.xml'
     assert_response :success
     assert_xml_tag :tag => "title", :content => "Open Build Service"

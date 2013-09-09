@@ -23,7 +23,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
   end
 
   def test_set_and_get
-    prepare_request_with_user "king", "sunflower"
+    login_king
     # make sure there is at least one
     id = upload_request("group")
     get "/request/#{id}"
@@ -118,7 +118,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
   end
 
   test "remove request" do
-    prepare_request_with_user "king", "sunflower"
+    login_king
     id = upload_request("group")
 
     # now one in review
@@ -140,7 +140,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
   end
 
   test "accept reviews in group" do
-    prepare_request_with_user "king", "sunflower"
+    login_king
     id = upload_request("group")
 
     # now one in review
@@ -185,7 +185,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
   end
 
   test "supersede replaces request" do
-    prepare_request_with_user "king", "sunflower"
+    login_king
     id = upload_request("group")
 
     withr = upload_request("submit_with_review")
@@ -225,7 +225,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
   end
 
   test "accept sub request" do
-    prepare_request_with_user "king", "sunflower"
+    login_king
     id = upload_request("group")
 
     # now one in review
@@ -247,7 +247,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
   end
 
   test "search groups" do
-    prepare_request_with_user "king", "sunflower"
+    login_king
     upload_request("group")
 
     get "/search/request?match=action/grouped/@id=997"

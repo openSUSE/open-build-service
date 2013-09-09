@@ -56,7 +56,7 @@ class MessageControllerTest < ActionDispatch::IntegrationTest
       assert_match(/id not found/, @response.body)
     end
     
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     put "/message?project=home:Iggy&package=TestPack", '<message severity="1" send_mail="true" private="true">sample message...</message>'
     assert_response 200
 

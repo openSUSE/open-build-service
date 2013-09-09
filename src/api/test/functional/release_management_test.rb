@@ -5,7 +5,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
   fixtures :all
   
   def test_release_project
-    prepare_request_with_user "tom", "thunder"
+    login_tom
 
     # inject a job for copy any entire project ... gets copied in testsuite but appears to be delayed
     post "/source/home:tom:BaseDistro", :cmd => :copy, :oproject => "BaseDistro"
@@ -42,7 +42,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     assert_not_equal vrevs.count, 0
 
     # make a full split as admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/source/TEST:BaseDistro", :cmd => :copy, :oproject => "BaseDistro", :makeolder => 1, :nodelay => 1
     assert_response :success
 

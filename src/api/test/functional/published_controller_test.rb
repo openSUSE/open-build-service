@@ -23,7 +23,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
     get "/published/kde4/openSUSE_11.3/i586"
     assert_response 401
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/published"
     assert_response :success
     assert_no_match(/entry name="HiddenProject"/, @response.body)
@@ -56,7 +56,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
     get "/published/kde4/openSUSE_11.3/i586/kdelibs-3.2.1-1.5.i586.rpm"
     assert_response 401
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/published/kde4/openSUSE_11.3/i586/kdelibs-3.2.1-1.5.i586.rpm"
     assert_response 400 #does not exist
   end

@@ -13,14 +13,14 @@ class WebuiControllerTest < ActionDispatch::IntegrationTest
     get "/webui/projects/home:Iggy/infos"
     assert_response 401
 
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/webui/projects/home:Iggy/infos"
     assert_response :success
 
   end
 
   def test_search_owner
-    prepare_request_with_user "king", "sunflower"
+    login_king
 
     get "/webui/owners"
     assert_response 400

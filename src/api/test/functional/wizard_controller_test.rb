@@ -34,7 +34,7 @@ class WizardControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'wizard'
 
     # Admin user should be able to access wizard
-    prepare_request_with_user "king", "sunflower"
+    login_king
 
     get "/source/HiddenProject/pack/_wizard"
     assert_response 200

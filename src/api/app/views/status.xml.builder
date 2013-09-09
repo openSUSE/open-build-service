@@ -1,6 +1,5 @@
 xml.status( "code" => @errorcode ) do
   xml.summary @summary
-  xml.details @details
   if @exception
     xml.exception do
       xml.type( @exception.class.name )

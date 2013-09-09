@@ -23,7 +23,7 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # as user
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get '/issue_trackers'
     assert_response :success
     get '/issue_trackers/bnc'
@@ -58,7 +58,7 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
     assert_response 401
 
     # as user
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get '/source/Devel:BaseDistro:Update/pack3?view=issues'
     assert_response :success
     assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "123456"
@@ -82,7 +82,7 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
     assert_response 401
 
     # search via bug owner
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     # running patchinfo search as done by webui
     get "/search/package/id", :match => '[issue/[@state="CLOSED" and owner/@login="fred"] and kind="patchinfo"]'
     assert_response :success
@@ -122,7 +122,7 @@ Blah bnc#14\n
 Blubber bnc#15\n
 "
 
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     post "/source/BaseDistro/pack1", :cmd => "branch", :target_project => "home:Iggy:branches:BaseDistro"
     assert_response :success
     put "/source/home:Iggy:branches:BaseDistro/pack1/file.changes", changes
@@ -241,7 +241,7 @@ Blah bnc#14\n
 Blubber bnc#15\n
 "
 
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     post "/source/BaseDistro/pack1", :cmd => "branch", :target_project => "home:Iggy:branches:BaseDistro"
     assert_response :success
     put "/source/home:Iggy:branches:BaseDistro/pack1/file.changes", changes
@@ -281,7 +281,7 @@ Blah bnc#14\n
 Blubber bnc#15\n
 "
 
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     post "/source/BaseDistro/new_package", :cmd => "branch", :missingok => 1, :target_project => "home:Iggy:branches:BaseDistro"
     assert_response :success
     put "/source/home:Iggy:branches:BaseDistro/new_package/file.changes", changes

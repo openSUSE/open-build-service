@@ -14,7 +14,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/attribute?namespace=OBS&name=FailedCommend"
     assert_response 401
 
-    prepare_request_with_user "Iggy", "asdfasdf" 
+    login_Iggy 
     get "/search/attribute?namespace=OBS&name=FailedCommend"
     assert_response 404
     assert_select "status[code] > summary", /no such attribute/
@@ -24,7 +24,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/attribute?namespace=OBS&name=Maintained"
     assert_response 401
 
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/search/attribute?namespace=OBS&name=Maintained"
     assert_response :success
     assert_xml_tag tag: 'attribute', :attributes => { :name => "Maintained", :namespace => "OBS" }, :children => { :count => 1 }
@@ -34,7 +34,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
   # there are 4 different code paths
   test "different parameters for search attribute" do
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/search/attribute?namespace=OBS&name=Maintained&project=home:Iggy"
     assert_response :success
     assert_xml_tag tag: 'attribute', children: { count: 0 }
@@ -58,7 +58,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end 
 
   def test_xpath_1
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/search/package", match: '[@name="apache2"]'
     assert_response :success
     assert_xml_tag tag: 'collection', :children => { :count => 1 }
@@ -73,7 +73,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_xpath_2
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/search/package", match: '[attribute/@name="OBS:Maintained"]'
     assert_response :success
     assert_xml_tag tag: 'collection', :children => { :count => 1 }
@@ -81,7 +81,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_xpath_3
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/search/package", match: '[attribute/@name="OBS:Maintained" and @name="apache2"]'
     assert_response :success
     assert_xml_tag tag: 'collection', :attributes => { :matches => 1 }
@@ -93,40 +93,40 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_xpath_4
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/search/package", match: '[attribute/@name="OBS:Maintained" and @name="Testpack"]'
     assert_response :success
     assert_xml_tag tag: 'collection', :children => { :count => 0 }
   end
   
   def test_xpath_5
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/search/package", match: '[devel/@project="kde4"]'
     assert_response :success
     assert_xml_tag tag: 'collection', :children => { :count => 0 }
   end
 
   def test_xpath_6
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/search/package", match: '[attribute/@name="Maintained"]'
     assert_response 400
     assert_xml_tag content: "attributes must be $NAMESPACE:$NAME"
   end
 
   def test_xpath_7
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/search/package", match: '[attribute/@name="OBS:Maintained"]'
     assert_response :success
     assert_xml_tag tag: 'collection', :children => { :count => 1 }
 
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/search/package", match: 'attribute/@name="[OBS:Maintained]"'
     assert_response :success
     assert_xml_tag tag: 'collection', :children => { :count => 0 }
   end
 
   def test_xpath_8
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/search/package", match: 'attribute/@name="[OBS:Maintained"'
     assert_response 400
     assert_xml_tag tag: 'status', :attributes => { :code => "illegal_xpath_error" }
@@ -137,7 +137,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
   def test_xpath_search_for_person_or_group
     # used by maintenance people
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/search/project", match: "(group/@role='bugowner' or person/@role='bugowner') and starts-with(@name,\"Base\"))"
     assert_response :success
     get "/search/package", match: "(group/@role='bugowner' or person/@role='bugowner') and starts-with(@project,\"Base\"))"
@@ -153,14 +153,14 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
   # do as the webui does
   test "involved packages" do
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/search/package/id", match: "(person/@userid='Iggy') or (group/@groupid='test_group')"
     assert_response :success
   end
 
   def test_person_searches
     # used by maintenance people
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/search/person", match: "(@login='Iggy')"
     assert_response :success
     assert_xml_tag tag: 'collection', :attributes => { :matches => "1" }
@@ -191,7 +191,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   def test_xpath_old_osc
     # old osc < 0.137 did use the search interface wrong, but that worked ... :/
     # FIXME3.0: to be removed!
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/search/package_id", match: '[attribute/@name="OBS:Maintained" and @name="apache2"]'
     assert_response :success
     assert_xml_tag tag: 'collection', :attributes => { :matches => 1 }
@@ -205,7 +205,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   # >>> Testing HiddenProject - flag "access" set to "disabled"
   def test_search_hidden_project_with_valid_user
     # user is maintainer, thus access to hidden project is allowed
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/search/project", match: '[@name="HiddenProject"]'
     assert_response :success
     assert_xml_tag tag: 'collection', :children => { :count => 1 }
@@ -214,7 +214,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
   def test_search_hidden_project_with_invalid_user
     # user is not maintainer - project has to be invisible
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/search/project", match: '[@name="HiddenProject"]'
     assert_response :success
     assert_xml_tag tag: 'collection', :children => { :count => 0 }
@@ -224,7 +224,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   # >>> Testing package inside HiddenProject - flag "access" set to "disabled" in Project
   def test_search_package_in_hidden_project_with_valid_user
     # user is maintainer, thus access to hidden package is allowed
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/search/package", match: '[@name="pack" and @project="HiddenProject"]'
     assert_response :success
     assert_xml_tag tag: 'collection', :children => { :count => 1 }
@@ -232,7 +232,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
   def test_search_package_in_hidden_project_as_non_maintainer
     # user is not maintainer - package has to be invisible
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/search/package", match: '[@name="pack" and @project="HiddenProject"]'
     assert_response :success
     assert_xml_tag tag: 'collection', :children => { :count => 0 }
@@ -254,7 +254,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_search_issues
-    prepare_request_with_user "Iggy", "asdfasdf" 
+    login_Iggy 
     get "/search/issue", match: '[@name="123456"]'
     assert_response :success
     assert_xml_tag :parent => { tag: 'issue'}, tag: 'name', :content => "123456"
@@ -294,7 +294,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_search_repository_id
-    prepare_request_with_user "Iggy", "asdfasdf" 
+    login_Iggy 
     get "/search/repository/id"
     assert_response :success
     assert_xml_tag tag: 'collection'
@@ -302,7 +302,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert repos.include?('home:Iggy/10.2')
     assert !repos.include?('HiddenProject/nada'), "HiddenProject repos public"
 
-    prepare_request_with_user "king", "sunflower" 
+    login_king 
     get "/search/repository/id"
     assert_response :success
     assert_xml_tag tag: 'collection'
@@ -312,7 +312,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_osc_search_devel_package_after_request_accept
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
 
     get "/search/package", match: "([devel/[@project='Devel:BaseDistro:Update' and @package='pack2']])"
     assert_response :success
@@ -321,7 +321,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_search_request
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/search/request", match: "(action/target/@package='pack2' and action/target/@project='BaseDistro2.0' and action/source/@project='BaseDistro2.0' and action/source/@package='pack2.linked' and action/@type='submit')"
     assert_response :success
 
@@ -350,7 +350,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_search_request_2
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     # this is not a good test - as the actual test is that didn't create bizar SQL queries, but this requires human eyes
     get "/search/request",  match: 'action/@type="submit" and (action/target/@project="Apache" or submit/target/@project="Apache") and (action/target/@package="apache2" or submit/target/@package="apache2")'
     assert_response :success
@@ -362,7 +362,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_pagination
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/search/package?match=*"
     assert_response :success
     assert_xml_tag tag: 'collection'
@@ -380,7 +380,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_find_owner
-    prepare_request_with_user "king", "sunflower"
+    login_king
 
     get "/search/owner"
     assert_response 400
@@ -581,7 +581,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_search_for_missing_role_defintions_in_all_visible_packages
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
 
     # search for not mantainer packages
     get "/search/missing_owner?project=BaseDistro&filter=bugowner"
@@ -598,7 +598,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_find_owner_when_binary_exist_in_Update_but_definition_is_in_GA_project
-    prepare_request_with_user "king", "sunflower"
+    login_king
 
     # must be after first search controller call or backend might not be started on single test case runs
     wait_for_publisher()

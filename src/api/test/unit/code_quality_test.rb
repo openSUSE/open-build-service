@@ -1,4 +1,3 @@
-
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'find'
 require 'tempfile'
@@ -59,9 +58,11 @@ class CodeQualityTest < ActiveSupport::TestCase
 
   # our current exceptions
   BlackList = {
-      'ApplicationController#extract_user' => 399.23,
+      'ApplicationController#extract_ldap_user' => 123.29,
+      'ApplicationController#extract_proxy_user' => 65.48,
+      'ApplicationController#check_for_anonymous_user' => 48.72,
       'ApplicationController#forward_from_backend' => 57.96,
-      'ApplicationController#render_error' => 48.45,
+      'ApplicationController#render_error' => 47.11,
       'ArchitecturesController#index' => 55.94,
       'Attrib#update_from_xml' => 62.88,
       'AttributeController#attribute_definition' => 87.7,
@@ -121,9 +122,8 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Package#resolve_devel_package' => 52.33,
       'Package::get_by_project_and_name' => 96.92,
       'PersonController#change_password' => 45.67,
-      'PersonController#index' => 48.28,
       'PersonController#internal_register' => 185.66,
-      'PersonController#userinfo' => 149.28,
+      'PersonController#userinfo' => 139.67,
       'Project#branch_to_repositories_from' => 117.4,
       'Project#cleanup_before_destroy' => 67.17,
       'Project#do_project_release' => 46.59,
@@ -139,7 +139,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Relationship#check_sanity' => 48.62,
       'Repository#cleanup_before_destroy' => 85.53,
       'RequestController#check_request_change' => 257.26,
-      'RequestController#command_changestate' => 191.97,
+      'RequestController#command_changestate' => 190.9,
       'RequestController#command_diff' => 48.55,
       'RequestController#create_create' => 110.65,
       'RequestController#render_request_collection' => 92.82,
@@ -182,6 +182,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'User#can_create_attribute_in?' => 57.78,
       'User#has_local_permission?' => 41.2,
       'User#state_transition_allowed?' => 100.14,
+      'UserLdapStrategy::find_with_ldap' => 181.11,
       'UserLdapStrategy::initialize_ldap_con' => 64.05,
       'UserLdapStrategy::new_entry_ldap' => 45.07,
       'UserLdapStrategy::render_grouplist_ldap' => 100.3,
@@ -189,7 +190,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::ProjectsController#infos' => 104.05,
       'Webui::ProjectsController#status' => 346.5,
       'WizardController#package_wizard' => 135.16,
-    'UserLdapStrategy::find_with_ldap' => 181.11,
   }
 
   test "code complexity" do

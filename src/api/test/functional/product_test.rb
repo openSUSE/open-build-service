@@ -5,7 +5,7 @@ class ProductTests < ActionDispatch::IntegrationTest
   fixtures :all
   
   def test_simple_product_file
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     put "/source/home:tom:temporary/_meta",
         '<project name="home:tom:temporary"> <title/> <description/> 
            <repository name="me" />

@@ -6,7 +6,7 @@ class CrossBuildTest < ActionDispatch::IntegrationTest
   fixtures :all
   
   def test_setup_project
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     put "/source/home:tom:CrossBuild/_meta", "<project name='home:tom:CrossBuild'> <title/> <description/>
             <repository name='standard'>
               <path repository='BaseDistro_repo' project='BaseDistro' />

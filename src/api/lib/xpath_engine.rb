@@ -3,7 +3,7 @@ class XpathEngine
   require 'rexml/parsers/xpathparser'
 
   class IllegalXpathError < APIException
-    setup 400
+    setup "illegal_xpath_error", 400
   end
 
   def initialize

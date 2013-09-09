@@ -192,6 +192,19 @@ module ActionDispatch
     def login_Iggy
       prepare_request_with_user "Iggy", "asdfasdf"
     end
+
+    def login_adrian
+      prepare_request_with_user "adrian", "so_alone"
+    end
+
+    def login_fred
+      prepare_request_with_user "fred", "geröllheimer"
+    end
+
+    def login_tom
+      prepare_request_with_user "tom", "thunder"
+    end
+
   end 
 end
 
