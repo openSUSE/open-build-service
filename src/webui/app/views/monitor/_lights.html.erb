@@ -24,8 +24,8 @@
             end
           %>
             <div class="statuslight <%= "status_" + state %>" style="margin: auto"></div>
-            <div class="statusarch">[<%=daemon["type"] %>
-              <%= daemon["arch"]  unless daemon["arch"].blank? -%>]
+            <div class="statusarch">
+              <%= daemon["arch"] ? daemon["arch"] : daemon["type"] %>
             </div>
             <span class="hidden statustext">
               <%= daemon["type"] %>:<%=daemon["arch"] %>: <%= daemon["state"] %>
