@@ -2010,7 +2010,7 @@ sub forwardevent {
   if ($arch) {
     dirty($projid, $repoid, $arch) unless $arch eq 'dispatch';
     writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
-    ping($a);
+    ping($arch);
   } else {
     # XXX: there should be a better way than to just write in all
     # directories... maybe a architecture list in BSConfig?
