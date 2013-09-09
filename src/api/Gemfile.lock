@@ -106,7 +106,7 @@ GEM
     simplecov-rcov (0.2.3)
       simplecov (>= 0.4.1)
     slop (3.4.6)
-    thinking-sphinx (3.0.5)
+    thinking-sphinx (3.0.4)
       activerecord (>= 3.1.0)
       builder (>= 2.1.2)
       innertube (>= 1.0.2)
