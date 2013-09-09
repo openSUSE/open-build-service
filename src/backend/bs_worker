@@ -1644,7 +1644,7 @@ sub getpreinstallimage {
     my $serverimages;
     eval { 
       $serverimages = BSRPC::rpc({
-	'uri' => "$buildinfo->{'reposerver'}/getpreinstallimageinfos",
+	'uri' => "$server/getpreinstallimageinfos",
 	'request' => 'POST',
 	'data' => $match,
 	'headers' => [ 'Content-Type: application/octet-stream' ],
