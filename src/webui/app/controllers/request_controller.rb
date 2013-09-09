@@ -65,14 +65,14 @@ class RequestController < ApplicationController
     @id = @req['id']
     @state = @req['state']
     @accept_at = @req['accept_at']
-    @is_author = @req["creator"] == session[:login]
-    @superseded_by = @req["superseded_by"]
+    @is_author = @req['creator'] == session[:login]
+    @superseded_by = @req['superseded_by']
     @is_target_maintainer = @req['is_target_maintainer']
 
     @my_open_reviews = @req['my_open_reviews']
     @other_open_reviews = @req['other_open_reviews']
-    @can_add_reviews = ['new', 'review'].include?(@state) && (@is_author || @is_target_maintainer || @my_open_reviews.length > 0) && session[:login]
-    @can_handle_request = ['new', 'review', 'declined'].include?(@state) && (@is_target_maintainer || @is_author) && session[:login]
+    @can_add_reviews = ['new', 'review'].include?(@state) && (@is_author || @is_target_maintainer || @my_open_reviews.length > 0) && !@user.nil?
+    @can_handle_request = ['new', 'review', 'declined'].include?(@state) && (@is_target_maintainer || @is_author) && !@user.nil?
 
     @events = @req['events']
     @actions = @req['actions']

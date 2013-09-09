@@ -98,9 +98,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # tab
     page.must_have_text 'My Decision'
     fill_in 'reason', with: 'Great work!'
-    # TODO: the button should not be there at all
-    click_button 'accept_request_button'
-    page.must_have_text 'No permission to modify target of request 1001'
+    page.wont_have_selector 'input#accept_request_button'
 
     fill_in 'reason', with: 'Oops'
     click_button 'Revoke request'
@@ -121,7 +119,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     page.must_have_text 'Review for tom'
 
-    click_link 'My Decision'
     click_link 'Add a review'
     page.must_have_text 'Add Reviewer'
     #test switching reviewer type
@@ -131,7 +128,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     click_button 'Ok'
     page.must_have_text 'Open review for test_group'
 
-    click_link 'My Decision'
     click_link 'Add a review'
     find(:id, 'review_type').select('Project')
     page.must_have_text 'Project:'
@@ -139,7 +135,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     click_button 'Ok'
     page.must_have_text 'Open review for home:Iggy'
 
-    click_link 'My Decision'
     click_link 'Add a review'
     find(:id, 'review_type').select('Package')
     page.must_have_text 'Project:'
@@ -149,7 +144,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     click_button 'Ok'
     page.must_have_text 'Open review for home:Iggy / TestPack'
 
-    click_link 'My Decision'
     click_link 'Add a review'
     find(:id, 'review_type').select('User')
     page.must_have_text 'User:'
@@ -210,4 +204,20 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     find_button("Add comment").click
     find('#flash-messages').must_have_text "Comment added successfully "
   end
+
+  test 'can not accept own requests' do
+    login_tom
+    visit package_show_path(project: 'Apache', package: 'apache2')
+    click_link 'Submit package'
+    fill_in 'targetproject', with: 'kde4'
+    fill_in 'description', with: 'I want to see his reaction'
+    click_button 'Ok'
+    click_link 'submit request 1001'
+    # request history
+    page.must_have_text %r{created request.*now}
+    page.must_have_selector 'input#revoke_request_button'
+    page.wont_have_selector 'input#accept_request_button'
+  end
+
 end
+

@@ -1,3 +1,6 @@
+require_dependency 'event/package'
+require_dependency 'event/project'
+
 class Event::CommentForProject < ::Event::Project
   self.raw_type = 'PROJECT_COMMENT_ADDED'
   self.description = 'New comment for project created.'

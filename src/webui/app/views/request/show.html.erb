@@ -213,6 +213,11 @@
             <% end %>
           </div>
           <div class="review_descision_display" style="<%= 'display: none;' if @can_add_reviews && @my_open_reviews.length > 0 %>" id="review_descision_display_-1">
+            <% if @can_add_reviews %>
+              <span style="float: right;">
+                <%= link_to(sprite_tag('user_add', title: 'Add a review') + 'Add a review', { controller: 'request', action: 'add_reviewer_dialog', id: @id }, remote: true) %>
+              </span>
+            <% end %>
             <% if @can_handle_request %>
                 <%= form_tag({ :action => 'changerequest' }, { id: 'request_handle_form' }) do %>
                     <p><%= text_area_tag(:reason, 'Please add a comment', :size => '80x2', :style => 'width: 99%') %></p>
@@ -234,9 +239,6 @@
                           <%= submit_tag 'Reopen request', name: 'new', id: 'reopen_request_button' %>
                       <% end %>
                       <span style="float: right;">
-                        <% if @can_add_reviews %>
-                            <%= link_to(sprite_tag('user_add', title: 'Add a review') + 'Add a review', { controller: 'request', action: 'add_reviewer_dialog', id: @id }, remote: true) %>
-                        <% end %>
                         <% if reqtype(@req['actions'].first) == 'incident' %>
                             <%= link_to(sprite_tag('package_link', title: 'Merge with existing incident') + 'Merge with existing incident', { :controller => 'request', :action => 'set_incident_dialog', id: @id }, :remote => true) %>
                         <% end %>

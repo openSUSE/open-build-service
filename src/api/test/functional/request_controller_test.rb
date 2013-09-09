@@ -2497,4 +2497,15 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   end
 
+  test "check target maintainer" do
+    login_tom
+    raw_post '/request?cmd=create', "<request><action type='submit'><source project='Apache' package='apache2'/><target project='kde4' package='apache2'/></action></request>"
+    assert_response :success
+    id = Xmlhash.parse(@response.body)['id']
+
+    get "/webui/requests/#{id}"
+    assert_response :success
+    ret = Yajl::Parser.parse(@response.body)
+    assert !ret['is_target_maintainer'], "tom is target maintainer"
+  end
 end
