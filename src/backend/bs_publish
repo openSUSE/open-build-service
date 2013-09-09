@@ -566,7 +566,9 @@ sub createrepo_debian {
 
 
   print "    running dpkg-scanpackages\n";
-  qsystem('chdir', $extrep, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-m', '.', '/dev/null') && print "    dpkg-scanpackages failed: $?\n";
+  if (qsystem('chdir', $extrep, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-m', '.', '/dev/null')) {
+      die("    dpkg-scansources failed: $?\n");
+  }
   if (-f "$extrep/Packages.new") {
     link("$extrep/Packages.new", "$extrep/Packages");
     qsystem('gzip', '-9', '-f', "$extrep/Packages") && print "    gzip Packages failed: $?\n";
@@ -575,7 +577,9 @@ sub createrepo_debian {
   }    
 
   print "    running dpkg-scansources\n";
-  qsystem('chdir', $extrep, 'stdout', 'Sources.new', 'dpkg-scansources', '.', '/dev/null') && print "    dpkg-scansources failed: $?\n";
+  if (qsystem('chdir', $extrep, 'stdout', 'Sources.new', 'dpkg-scansources', '.', '/dev/null')) {
+      die("    dpkg-scansources failed: $?\n");
+  }
   if (-f "$extrep/Sources.new") {
     link("$extrep/Sources.new", "$extrep/Sources");
     qsystem('gzip', '-9', '-f', "$extrep/Sources") && print "    gzip Sources failed: $?\n";
