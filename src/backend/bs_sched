@@ -7134,6 +7134,14 @@ NEXTPRP:
 	    next;
 	  }
 
+	  if ($ev->{'type'} ne 'built') {
+	    my $estr = $ev->{'evfilename'} ? 'event' : 'remote event';
+	    for (qw{type project repository arch package}) {
+	      $estr .= " $ev->{$_}" if $ev->{$_};
+	    }
+	    print "$estr\n";
+	  }
+
 	  unlink("$myeventdir/$ev->{'evfilename'}") if $ev->{'evfilename'};
 	  delete $ev->{'evfilename'};
 
@@ -7148,7 +7156,7 @@ NEXTPRP:
 
           # ignore exit events on initial startup, they are most likely left overs...
           if ($initialstartup && ($ev->{'type'} eq 'exit' || $ev->{'type'} eq 'exitcomplete')) {
-	    print "WARNING: there was an exit event, but we ignore it directly after starting the scheduler.";
+	    print "WARNING: there was an exit event, but we ignore it directly after starting the scheduler.\n";
             next;
           }
 
