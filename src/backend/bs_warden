@@ -81,7 +81,19 @@ while (1) {
     next unless $worker && $worker->{'job'} && $worker->{'arch'};
     my $job = $worker->{'job'};
     my $arch = $worker->{'arch'};
-    my $js = readxml("$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
+    my $js;
+    if ($worker->{'reposerver'}) {
+      # masterdispatched job. ask slave about job status.
+      my $param = {
+	'uri' => "$worker->{'reposerver'}/jobs/$arch/$job",
+	'timeout' => 60,
+      };
+      eval {
+	$js = BSRPC::rpc($param, $BSXML::jobstatus, 'view=status');
+      };
+    } else {
+      $js = readxml("$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
+    }
     next unless $js && $js->{'code'} eq 'building';
     next unless $js->{'workerid'} eq $worker->{'workerid'};
     #print "checking worker $wname\n";
@@ -94,18 +106,31 @@ while (1) {
     };
     if ($@) {
       warn($@);
-      local *F;
-      my $js2 = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
-      if (!$js2 || $js2->{'code'} ne 'building' || $js2->{'jobid'} ne $js->{'jobid'} || $js2->{'workerid'} ne $js->{'workerid'}) {
-        print "build of $job is done on a different worker\n";
-	close F;
-	next;
+      if ($worker->{'reposerver'}) {
+	my $param = {
+	  'uri' => "$worker->{'reposerver'}/jobs/$arch/$job",
+	  'request' => 'POST',
+	  'timeout' => 60,
+	};
+	eval {
+	  BSRPC::rpc($param, undef, 'cmd=idleworker', "workerid=$worker->{'workerid'}", "jobid=$js->{'jobid'}");
+	  unlink("$workersdir/building/$wname");
+	  delete $building{$wname};
+	};
+      } else {
+	local *F;
+	my $js2 = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
+	if (!$js2 || $js2->{'code'} ne 'building' || $js2->{'jobid'} ne $js->{'jobid'} || $js2->{'workerid'} ne $js->{'workerid'}) {
+	  print "build of $job is done on a different worker\n";
+	  close F;
+	  next;
+	}
+	print BSUtil::isotime().": restarting build of $job building on $js->{'workerid'}\n";
+	unlink("$jobsdir/$arch/$job:status");
+        unlink("$workersdir/building/$wname");
+        delete $building{$wname};
+        close F;
       }
-      print BSUtil::isotime().": restarting build of $job building on $js->{'workerid'}\n";
-      unlink("$jobsdir/$arch/$job:status");
-      unlink("$workersdir/building/$wname");
-      delete $building{$wname};
-      close F;
     } else {
       $b->{'lastcheck'} = $now;
     }

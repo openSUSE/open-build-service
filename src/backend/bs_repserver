@@ -3625,6 +3625,12 @@ sub addjob {
 sub getjob {
   my ($cgi, $arch, $job) = @_;
   die("404 no such job\n") unless -e "$jobsdir/$arch/$job";
+  if ($cgi->{'view'}) {
+    die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'status';
+    my $js = readxml("$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
+    $js ||= {'job' => $job, 'code' => 'scheduled'};
+    return ($js, $BSXML::jobstatus);
+  }
   my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo);
   return ($info, $BSXML::buildinfo);
 }
@@ -3673,6 +3679,7 @@ sub idleworkerjob {
   my $js = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
   if ($js) {
     # be extra careful here not to terminate jobs that run on different workers
+    $js->{'code'} = 'different' if $cgi->{'jobid'} && ($js->{'jobid'} || '') ne $cgi->{'jobid'};
     if ($js->{'code'} eq 'building' && (!defined($js->{'workerid'}) || $js->{'workerid'} eq $cgi->{'workerid'})) {
       print "restarting build of job $arch/$job\n";
       unlink("$jobsdir/$arch/$job");
@@ -3756,9 +3763,9 @@ my $dispatches = [
   '/jobs' => \&listjobarchs,
   '/jobs/$arch' => \&listjobs,
   'PUT:/jobs/$arch/$job' => \&addjob,
-  'POST:/jobs/$arch/$job cmd=idleworker workerid:' => \&idleworkerjob,
+  'POST:/jobs/$arch/$job cmd=idleworker workerid: jobid:md5?' => \&idleworkerjob,
   'DELETE:/jobs/$arch/$job' => \&deljob,
-  '/jobs/$arch/$job' => \&getjob,
+  '/jobs/$arch/$job view:?' => \&getjob,
 
   # info
   '/workerstatus daemonsonly:bool? arch* type:*' => \&workerstatus,
