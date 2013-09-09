@@ -107,6 +107,7 @@ while (1) {
     if ($@) {
       warn($@);
       if ($worker->{'reposerver'}) {
+	print BSUtil::isotime().": restarting build of $job building on $js->{'workerid'}\n";
 	my $param = {
 	  'uri' => "$worker->{'reposerver'}/jobs/$arch/$job",
 	  'request' => 'POST',
@@ -117,6 +118,7 @@ while (1) {
 	  unlink("$workersdir/building/$wname");
 	  delete $building{$wname};
 	};
+	warn($@) if $@;
       } else {
 	local *F;
 	my $js2 = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
