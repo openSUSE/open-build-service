@@ -67,7 +67,7 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     post "/public/lastevents", nil
     assert_response :success
     # new method (OBS 2.3) using credentials
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/lastevents", nil
     assert_response :success
   end

@@ -6,7 +6,7 @@ class MainTests < ActionDispatch::IntegrationTest
     get "/"
     assert_response 401
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/"
     assert_redirected_to "/about"
     follow_redirect!

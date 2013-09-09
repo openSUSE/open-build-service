@@ -47,7 +47,7 @@ class ArchitecturesControllerTest < ActionDispatch::IntegrationTest
     put "/architectures/futurearch", "<architecture><available>true</available></architecture>"
     assert_response 403
 
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put "/architectures/futurearch", "<architecture><available>true</available></architecture>"
     assert_response 400
     assert_xml_tag tag: "status", attributes: { code: "unknown_architecture" }
@@ -59,7 +59,7 @@ class ArchitecturesControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_update
-    prepare_request_with_user "king", "sunflower"
+    login_king
     get "/architectures/i586"
     assert_response :success
 

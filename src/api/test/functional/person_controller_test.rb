@@ -9,7 +9,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     get "/person/"
     assert_response 401
 
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/person"
     assert_response :success
 
@@ -21,26 +21,26 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
   end
  
   def test_ichain
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/person/tom", nil, { "username" => "fred" }
     assert_response :success
   end
 
   def test_userinfo_for_valid_http_user
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/person/tom"
     assert_response :success   
     # This returns the xml content with the user info
   end
 
   def test_userinfo_from_param_valid
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/person/fred"
     assert_response :success
   end
 
   def test_userinfo_from_param_invalid
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/person/notfred"
     assert_response 404 
   end
@@ -100,7 +100,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag :tag => "globalrole", :content => "Admin" # written as non-Admin
 
     # write as admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put "/person/tom", doc.to_s
     assert_response :success
     get "/person/tom"
@@ -122,11 +122,11 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_xml_tag :tag => "project", :attributes => { :name => "home:tom" }
 
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     put "/person/tom", doc.to_s
     assert_response 403
 
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put "/person/tom", doc.to_s
     assert_response :success
 
@@ -141,7 +141,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     put "/person/tom", doc.to_s
     assert_response 403
     # set back
-    prepare_request_with_user "king", "sunflower"
+    login_king
     doc.elements["//state"].text = "confirmed"
     put "/person/tom", doc.to_s
     assert_response :success
@@ -191,13 +191,13 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_response 401
 
     # wrong user
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     post "/person/adrianSuSE?cmd=change_password", data
     assert_response 403
     assert_xml_tag :tag => 'status', :attributes => { :code => "change_password_no_permission" }
 
     # admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/person/adrianSuSE?cmd=change_password", ""
     assert_response 404
     assert_xml_tag :tag => 'status', :attributes => { :code => "password_empty" }

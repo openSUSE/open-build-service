@@ -50,7 +50,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     delete "/group/new_group"
     assert_response 403
 
-    prepare_request_with_user "king", "sunflower"
+    login_king
     get "/group/new_group"
     assert_response 404
     delete "/group/new_group"
@@ -101,7 +101,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag :tag => 'person', :attributes => {:userid => 'Iggy'}
 
     # as admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/group/test_group", :cmd => "add_user", :userid => "Iggy"
     assert_response :success
     # double add is a dummy operation, but needs to work for webui

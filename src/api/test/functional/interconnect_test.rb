@@ -113,7 +113,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_no_xml_tag( :tag => "sourceinfo", :attributes => { :package => "pack3" } )
 
     # with credentials
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/UseRemoteInstance?package=pack1&package=pack2&view=info"
     assert_response :success
     assert_xml_tag( :tag => "sourceinfo", :attributes => { :package => "pack1" } )
@@ -127,7 +127,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
   end
 
   def test_use_remote_repositories
-    prepare_request_with_user "tom", "thunder"
+    login_tom
 
     # use repo
     put "/source/home:tom:testing/_meta", '<project name="home:tom:testing">
@@ -141,7 +141,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # try to update remote project container
-    prepare_request_with_user "king", "sunflower"
+    login_king
     get "/source/RemoteInstance/_meta"
     assert_response :success
     put "/source/RemoteInstance/_meta", @response.body.dup
@@ -153,7 +153,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
   end
 
   def test_read_and_command_tests
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source"
     assert_response :success
 
@@ -182,7 +182,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2", :originproject => "RemoteInstance:BaseDistro2.0" } )
     assert_xml_tag( :tag => "entry", :attributes => { :name => "pack2.linked", :originproject => "RemoteInstance:BaseDistro2.0" } )
     # test binary operations
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/build/RemoteInstance:BaseDistro", :cmd => "wipe", :package => "pack1"
     assert_response 403
     post "/build/RemoteInstance:BaseDistro", :cmd => "rebuild", :package => "pack1"
@@ -220,7 +220,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # direct access to remote instance, not existing project/package
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/RemoteInstance:NotExisting/_meta"
     assert_response 404
     get "/source/RemoteInstance:NotExisting/pack1"
@@ -283,7 +283,7 @@ end
     get "/source/UseRemoteInstance/NotExisting/my_file"
     assert_response 404
     # test binary operations
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/build/UseRemoteInstance", :cmd => "wipe", :package => "pack1"
     assert_response :success
     post "/build/UseRemoteInstance", :cmd => "rebuild", :package => "pack1"
@@ -294,7 +294,7 @@ end
     assert_response :success
 
     # access via a local package linking to a remote package
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/LocalProject/remotepackage"
     assert_response :success
     ret = ActiveXML::Node.new @response.body
@@ -320,7 +320,7 @@ end
     get "/source/LocalProject/remotepackage/not_existing"
     assert_response 404
     # test binary operations
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/build/LocalProject", :cmd => "wipe", :package => "remotepackage"
     assert_response :success
     post "/build/LocalProject", :cmd => "rebuild", :package => "remotepackage"
@@ -333,11 +333,11 @@ end
 
   def test_submit_requests_from_remote
 
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/source/LocalProject/pack1", :cmd => :copy, :oproject => "LocalProject", :opackage => "remotepackage"
     assert_response :success
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     # FIXME: submission from a remote project is not yet supported "RemoteInstance:BaseDistro"
     [ "LocalProject", "UseRemoteInstance" ].each do |prj|
       post "/request?cmd=create", '<request>
@@ -360,14 +360,14 @@ end
       assert_response :success
     end
 
-    prepare_request_with_user "king", "sunflower"
+    login_king
     delete "/source/LocalProject/pack1"
     assert_response :success
   end
 
   def test_copy_and_diff_package
     # do copy commands twice to test it with existing target and without
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/source/LocalProject/temporary", :cmd => :copy, :oproject => "LocalProject", :opackage => "remotepackage"
     assert_response :success
     post "/source/LocalProject/temporary", :cmd => :copy, :oproject => "LocalProject", :opackage => "remotepackage"
@@ -386,7 +386,7 @@ end
   end
 
   def test_diff_package
-    prepare_request_with_user "tom", "thunder"
+    login_tom
 
 # FIXME: not supported in api atm
 #    post "/source/RemoteInstance:BaseDistro/pack1", :cmd => :branch, :target_project => "LocalProject", :target_package => "branchedpackage"
@@ -400,7 +400,7 @@ end
 
 # FIXME: backend does not support project copy from remote
 # def test_copy_project
-#   prepare_request_with_user "tom", "thunder"
+#   login_tom
 #   get "/source/RemoteInstance:BaseDistro"
 #   assert_response :success
 #   post "/source/home:tom:TEMPORARY?cmd=copy&oproject=RemoteInstance:BaseDistro&nodelay=1"
@@ -412,7 +412,7 @@ end
 # end
 
   def test_get_packagelist_with_hidden_remoteurlproject
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/HiddenRemoteInstance"
     assert_response 404
     get "/source/HiddenRemoteInstance:BaseDistro"
@@ -426,7 +426,7 @@ end
   end
 
   def test_read_access_hidden_remoteurlproject_index
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository"
     assert_response 404
     get "/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository?view=cache"
@@ -454,11 +454,11 @@ end
   def test_setup_remote_propject
     p='<project name="home:tom:remote"> <title/> <description/>  <remoteurl>http://localhost</remoteurl> </project>'
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     put "/source/home:tom:remote/_meta", p
     assert_response 403
 
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put "/source/home:tom:remote/_meta", p
     assert_response :success
     p='<project name="home:tom:remote"> <title/> <description/>  <remoteurl>http://localhost2</remoteurl> </project>'
@@ -477,7 +477,7 @@ end
   end
 
   def test_check_meta_stripping
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     # package meta
     get "/source/home:Iggy/TestPack/_meta"
     assert_response :success
@@ -496,7 +496,7 @@ end
   end
 
   def test_remove_broken_link
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     put "/source/home:Iggy/TestLinkPack/_meta", "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
     assert_response :success
     put "/source/home:Iggy/TestLinkPack/_link", "<link project='RemoteInstance:home:Iggy' package='TestPack' rev='invalid' />"

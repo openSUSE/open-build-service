@@ -8,7 +8,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     get "/service"
     assert_response 401
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/service"
     assert_response :success
     assert_xml_tag :tag => "servicelist"
@@ -34,14 +34,14 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
   end
 
   def test_combine_project_service_list
-    prepare_request_with_user "king", "sunflower"
+    login_king
 
     raw_put "/source/BaseDistro2.0/_project/_service", '<services> <service name="set_version" > <param name="version">0815</param> </service> </services>'
     assert_response :success
     raw_put "/source/BaseDistro2.0:LinkedUpdateProject/_project/_service", '<services> <service name="download_files" /> </services>'
     assert_response :success
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "branch"
     assert_response :success
     raw_put "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/_project/_service", '<services> <service name="download_url" > <param name="host">blahfasel</param> </service> </services>'
@@ -54,7 +54,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_xml_tag( :parent => { :tag => "service", :attributes => { :name => "set_version" } }, :tag => "param", :attributes => { :name => "version"}, :content => "0815" )
 
     # cleanup
-    prepare_request_with_user "king", "sunflower"
+    login_king
     delete "/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject"
     assert_response :success
     delete "/source/BaseDistro2.0/_project/_service"
@@ -81,7 +81,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
   end
 
   def test_run_source_service
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     raw_put "/source/home:tom/service/_meta", "<package project='home:tom' name='service'> <title /> <description /> </package>"
     assert_response :success
     raw_put "/source/home:tom/service/pack.spec", "# Comment \nVersion: 12\nRelease: 9\nSummary: asd"
@@ -189,7 +189,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # failure check
-    prepare_request_with_user "king", "sunflower"
+    login_king
     get "/source/BaseDistro2.0/pack2"
     assert_response :success
     get "/source/BaseDistro2.0/pack2/_service"
@@ -199,7 +199,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
   end
 
   def test_source_commit_with_service
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     put "/source/home:tom/service/_meta", "<package project='home:tom' name='service'> <title /> <description /> </package>"
     assert_response :success
     put "/source/home:tom/service/_service", '<services> <service name="set_version" > <param name="version">0819</param> <param name="file">pack.spec</param> </service> </services>'
@@ -253,7 +253,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
   end
 
   def test_run_project_source_service
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     put "/source/home:tom/service/_meta", "<package project='home:tom' name='service'> <title /> <description /> </package>"
     assert_response :success
     put "/source/home:tom/service/pack.spec", "# Comment \nVersion: 12\nRelease: 9\nSummary: asd"

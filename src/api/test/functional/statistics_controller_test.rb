@@ -7,7 +7,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
 
   def test_latest_added
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "test_latest_added")
     assert_response 404
     put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "test_latest_added"), 
@@ -20,7 +20,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'latest_added', :child => { :tag => 'package' }
     assert_xml_tag :tag => 'package', :attributes => { :name => "test_latest_added" }
 
-    prepare_request_with_user 'tom', 'thunder'
+    login_tom
     get url_for(:controller => :statistics, :action => :latest_added)
     assert_response :success
     assert_xml_tag :tag => 'latest_added', :child => { :tag => 'project' }
@@ -28,7 +28,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
       :name => "kde4",
     }
 
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1")
     assert_response 404
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1"), 
@@ -44,7 +44,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
 
  def test_latest_updated
-   prepare_request_with_user "adrian", "so_alone"
+   login_adrian
    get url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "test_latest_added")
    assert_response 404
    put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "test_latest_added"), 
@@ -57,7 +57,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
    assert_xml_tag :tag => 'latest_updated', :child => { :tag => 'package' }
    assert_xml_tag :tag => 'package', :attributes => { :name => "test_latest_added" }
 
-   prepare_request_with_user 'tom', 'thunder'
+   login_tom
    get url_for(:controller => :statistics, :action => :latest_updated)
    assert_response :success
    assert_xml_tag :tag => 'latest_updated', :child => { :tag => 'project' }
@@ -65,7 +65,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
      :name => "kde4",
    }
 
-   prepare_request_with_user "fred", "geröllheimer"
+   login_fred
    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1")
    assert_response 404
    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1"), 
@@ -81,7 +81,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
 
  def test_timestamp_calls
-   prepare_request_with_user "adrian", "so_alone"
+   login_adrian
    get url_for(:controller => :statistics, :action => :added_timestamp, :project => "HiddenProject", :package => "pack")
    assert_response 200
 
@@ -94,7 +94,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
    get url_for(:controller => :statistics, :action => :updated_timestamp, :project => "kde4", :package => "kdelibs")
    assert_response 200
 
-   prepare_request_with_user "fred", "geröllheimer"
+   login_fred
    get url_for(:controller => :statistics, :action => :added_timestamp, :project => "kde4", :package => "kdelibs")
    assert_response 200
 
@@ -116,7 +116,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
  end
 
  def test_rating_and_activity
-   prepare_request_with_user "adrian", "so_alone"
+   login_adrian
    get url_for(:controller => :statistics, :action => :rating, :project => "kde4", :package => "kdelibs")
    assert_response :success
 
@@ -142,7 +142,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
    assert_response :success
 
    # no access to HiddenProject
-   prepare_request_with_user "fred", "geröllheimer"
+   login_fred
    get url_for(:controller => :statistics, :action => :rating, :project => "kde4", :package => "kdelibs")
    assert_response :success
 
@@ -157,7 +157,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
  end
 
   def test_most_active
-    prepare_request_with_user 'tom', 'thunder'
+    login_tom
     # get most active packages
     get url_for(:controller => :statistics, :action => :most_active_packages, :limit => 0)
     assert_response :success
@@ -200,7 +200,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
   # FIXME: works, but does not do anything usefull since 2.0 anymore
   #        we need a working rating mechanism, but this one is too simple.
   def test_highest_rated
-    prepare_request_with_user 'tom', 'thunder'
+    login_tom
     get url_for(:controller => :statistics, :action => :highest_rated)
     assert_response :success
     #assert_xml_tag :tag => 'collection', :child => { :tag => 'xxxxx' }
@@ -215,7 +215,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     get url_for(action: :active_request_creators, controller: :statistics, project: 'kde4')
     assert_response 401
     
-    prepare_request_with_user 'tom', 'thunder'
+    login_tom
     get url_for(action: :active_request_creators, controller: :statistics, project: 'kde4')
     assert_response :success
     assert_xml_tag tag: 'creator', attributes: { login: 'tom', email: 'tschmidt@suse.de', count: '1' }

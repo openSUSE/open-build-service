@@ -8,7 +8,7 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
   end
 
   def test_check_maintenance_project
-    prepare_request_with_user "king", "sunflower"
+    login_king
     get "/source/My:Maintenance/_meta"
     assert_response :success
     

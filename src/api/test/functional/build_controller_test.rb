@@ -43,13 +43,13 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     post "/build/home:Iggy/10.2/i586/TestPack", nil
     assert_response 401
 
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     post "/build/home:Iggy/10.2/i586/TestPack", nil
     assert_response 403
     put "/build/home:Iggy/10.2/i586/_repository/rpm.rpm", "/dev/null"
     assert_response 403
 
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/build/home:Iggy/10.2/i586/TestPack", nil
     assert_response 400 # actually a success, it reached the backend
     assert_xml_tag :tag => "status", :attributes => { :code => "400", :origin => "backend" }
@@ -72,20 +72,20 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     get "/build/_dispatchprios"
     assert_response 401
 
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/build/_dispatchprios"
     assert_response :success
     put "/build/_dispatchprios", ' <dispatchprios> <prio project="KDE:Distro:Factory" repository="openSUSE_Factory" adjust="7" /> </dispatchprios>'
     assert_response 403
 
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put "/build/_dispatchprios", ' <dispatchprios> <prio project="KDE:Distro:Factory" repository="openSUSE_Factory" adjust="7" /> </dispatchprios>'
     assert_response :success
   end
 
   def test_read_from_repository
     reset_auth
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/build/home:Iggy/10.2/i586/_repository/not_existing.rpm"
     assert_response 404
     get "/build/home:Iggy/10.2/i586/TestPack/package-1.0-1.i586.rpm"
@@ -112,7 +112,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     delete "/build/home:Iggy/10.2/i586/_repository/delete_me.rpm"
     assert_response 401
 
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     delete "/build/home:Iggy/10.2/i586/_repository/delete_me.rpm"
     assert_response 403
     delete "/build/home:Iggy/10.2/i586/_repository/not_existing.rpm"
@@ -120,7 +120,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     get "/build/home:Iggy/10.2/i586/_repository/delete_me.rpm"
     assert_response :success
 
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     delete "/build/home:Iggy/10.2/i586/_repository/delete_me.rpm"
     assert_response :success
     delete "/build/home:Iggy/10.2/i586/_repository/not_existing.rpm"
@@ -189,7 +189,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     assert_xml_tag( :tag => "status", :attributes => { :code => "unknown_project" } ) 
 
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/build/HiddenProject/nada/i586/_builddepinfo"
     assert_response :success
 
@@ -211,7 +211,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     assert_match(/unknown_project/, @response.body)
     # retry with maintainer
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/build/HiddenProject/nada/i586/pack"
     assert_response :success
     assert_xml_tag( :tag => "binarylist" ) 
@@ -243,7 +243,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     assert_match(/unknown_project/, @response.body)
     # retry with maintainer
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/build/HiddenProject/nada/i586/pack/_log"
     assert_response :success
   end
@@ -275,7 +275,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     get "/build/HiddenProject/_result"
     assert_response 404
     # retry with maintainer
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/build/HiddenProject/_result"
     assert_response :success
     assert_xml_tag :tag => "resultlist"
@@ -287,7 +287,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     # retry with maintainer
     reset_auth
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/build/HiddenProject/_result?package=pack"
     assert_response :success
     assert_xml_tag :tag => "resultlist"
@@ -315,7 +315,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
     # success on valid
     reset_auth
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/build/HiddenProject/nada/i586/pack/package?view=fileinfo"
     assert_response 404
     assert_match(/No such file or directory/, @response.body)
@@ -365,7 +365,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
     # success on valid
     reset_auth
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/build/HiddenProject/nada/i586/pack/"
     assert_response :success
     assert_match(/binarylist/, @response.body)
@@ -389,7 +389,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response 400
     assert_match(/unsupported POST command/, @response.body)
 
-    prepare_request_with_user "Iggy", "asdfasdf" 
+    login_Iggy 
     post "/build/home:Iggy"
     assert_response 400
     post "/build/home:Iggy?cmd=say_hallo"
@@ -415,7 +415,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
     assert_match(/No permission to execute command on package/, @response.body)
 
-    prepare_request_with_user "fred", "geröllheimer" 
+    login_fred 
     post "/build/Apache?cmd=wipe"
     assert_response :success
     post "/build/Apache?cmd=wipe&package=apache2"
@@ -435,7 +435,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_match(/entry name="HiddenProject"/, @response.body)
     # retry with maintainer
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/build"
     assert_response :success
     assert_match(/entry name="HiddenProject"/, @response.body)
@@ -464,7 +464,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
 
     #valid
     reset_auth
-    prepare_request_with_user "adrian", "so_alone" 
+    login_adrian 
     get "/build/HiddenProject"
     assert_response :success
     assert_xml_tag :tag => "directory", :children =>  { :count => 1 }
@@ -509,7 +509,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     # retry with maintainer
     reset_auth
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/build/HiddenProject/nada/i586/_jobhistory"
     assert_response :success
     get "/build/HiddenProject/nada/i586/_jobhistory?package=pack"

@@ -56,7 +56,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_response 200
 
     reset_auth
-    prepare_request_with_user "tom", "thunder"
+    login_tom
 
     # Users should be able to delete their own comments
     post "/webui/comments/project/BaseDistro/delete", {:comment_id => 101}
@@ -74,7 +74,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_response 200
 
     reset_auth
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     
     # Users should be able to delete their own comments
     post "/webui/comments/package/BaseDistro/pack1/delete", {:comment_id => 201}
@@ -91,7 +91,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_response 200
 
     reset_auth
-    prepare_request_with_user "tom", "thunder"
+    login_tom
 
     # Users should be able to delete their own comments
     post "/webui/comments/request/1000/delete", {:comment_id => 301}

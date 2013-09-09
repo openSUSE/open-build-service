@@ -26,10 +26,10 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     EOF
     post '/issue_trackers', issue_tracker_xml
     assert_response 401
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     post '/issue_trackers', issue_tracker_xml
     assert_response 403
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post '/issue_trackers', issue_tracker_xml
     assert_response :success
 
@@ -63,10 +63,10 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
       <show-url>http://test.com/@@@</show-url>
     </issue-tracker>
     EOF
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     put '/issue_trackers/test', issue_tracker_xml
     assert_response 403
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put '/issue_trackers/test', issue_tracker_xml
     assert_response :success
     get '/issue_trackers/test'
@@ -82,10 +82,10 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag :tag => "password"
 
     # Delete that issue tracker again
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     delete '/issue_trackers/test'
     assert_response 403
-    prepare_request_with_user "king", "sunflower"
+    login_king
     delete '/issue_trackers/test'
     assert_response :success
   end

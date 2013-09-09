@@ -40,7 +40,7 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should destroy distribution" do
-    prepare_request_with_user "king", "sunflower"
+    login_king
     assert_difference('Distribution.count', -1) do
       delete distribution_path(id: distributions(:one).to_param)
       assert_response :success
@@ -65,11 +65,11 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
     put "/distributions", data
     assert_response 401
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     put "/distributions", data
     assert_response 403
 
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put "/distributions", data
     assert_response 200
 
@@ -77,7 +77,7 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
     get "/distributions"
     assert_response :success
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/distributions"
     assert_response :success
     assert_no_xml_tag :tag => "project", :content => "RemoteInstance:openSUSE:12.2"
@@ -90,7 +90,7 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "remotes work" do
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     
     fake_distribution_body = File.open(Rails.root.join("test/fixtures/backend/distributions.xml")).read
 

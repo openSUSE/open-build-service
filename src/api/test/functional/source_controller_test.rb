@@ -11,7 +11,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
   
   def test_get_projectlist
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source"
     assert_response :success
     assert_xml_tag :tag => "directory", :child => { :tag => "entry" }
@@ -20,27 +20,27 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_get_projectlist_with_hidden_project
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source"
     assert_response :success 
     assert_no_match(/entry name="HiddenProject"/, @response.body)
 
     #retry with maintainer
     reset_auth
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/source"
     assert_response :success 
     assert_match(/entry name="HiddenProject"/, @response.body)
   end
 
   def test_get_projectlist_with_sourceaccess_protected_project
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source"
     assert_response :success 
     assert_match(/entry name="SourceprotectedProject"/, @response.body)
     #retry with maintainer
     reset_auth
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/source"
     assert_response :success 
     assert_match(/entry name="SourceprotectedProject"/, @response.body)
@@ -48,7 +48,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
 
   def test_get_packagelist
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/kde4"
     assert_response :success
     assert_xml_tag :tag => "directory", :child => { :tag => "entry" }
@@ -57,13 +57,13 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_get_packagelist_with_hidden_project
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/HiddenProject"
     assert_response 404
     assert_match(/not_found/, @response.body)
     #retry with maintainer
     reset_auth
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/source/HiddenProject"
     assert_response :success 
     assert_xml_tag :tag => "directory", :child => { :tag => "entry" }
@@ -74,7 +74,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_get_packagelist_with_sourceprotected_project
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/SourceprotectedProject"
     assert_response :success 
     assert_xml_tag :tag => "directory", :child => { :tag => "entry" }
@@ -83,7 +83,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_match(/entry name="target"/, @response.body)
     #retry with maintainer
     reset_auth
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/source/SourceprotectedProject"
     assert_response :success 
     assert_xml_tag :tag => "directory", :child => { :tag => "entry" }
@@ -95,7 +95,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   # non-existing project should return 404
   def test_get_illegal_project
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/kde2000/_meta"
     assert_response 404
   end
@@ -103,13 +103,13 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   # non-existing project-package should return 404
   def test_get_illegal_projectfile
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/kde4/kdelibs2000/_meta"
     assert_response 404
   end
 
   def test_use_illegal_encoded_parameters
-    prepare_request_with_user "king", "sunflower"
+    login_king
     raw_put "/source/kde4/kdelibs/DUMMY?comment=working%20with%20Uml%C3%A4ut", "WORKING"
     assert_response :success
     raw_put "/source/kde4/kdelibs/DUMMY?comment=illegalchar%96%96asd", "NOTWORKING"
@@ -118,27 +118,27 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_get_project_meta
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/kde4/_meta"
     assert_response :success
     assert_xml_tag :tag => "project", :attributes => { :name => "kde4" }
   end
 
   def test_get_project_meta_from_hidden_project
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/HiddenProject/_meta"
     assert_response 404
     assert_match(/unknown_project/, @response.body)
     #retry with maintainer
     reset_auth
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/source/HiddenProject/_meta"
     assert_response :success
     assert_xml_tag :tag => "project", :attributes => { :name => "HiddenProject" }
   end
 
   def test_get_project_meta_from_sourceaccess_protected_project
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/SourceprotectedProject/_meta"
     assert_response :success
     assert_xml_tag :tag => "project", :attributes => { :name => "SourceprotectedProject" }
@@ -151,7 +151,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_get_package_filelist
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/kde4/kdelibs"
     assert_response :success
     assert_xml_tag :tag => "directory", :child => { :tag => "entry" }
@@ -159,7 +159,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
       :children => { :count => 1, :only => { :tag => "entry", :attributes => { :name => "my_patch.diff" } } }
  
     # now testing if also others can see it
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     assert_response :success
     assert_xml_tag :tag => "directory", :child => { :tag => "entry" }
     assert_xml_tag :tag => "directory",
@@ -168,13 +168,13 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_get_package_filelist_from_hidden_project
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/HiddenProject/pack"
     assert_response 404
     assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
     #retry with maintainer
     reset_auth
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/source/HiddenProject/pack"
     assert_response :success
     assert_xml_tag :tag => "directory", :child => { :tag => "entry" }
@@ -183,7 +183,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_get_package_filelist_from_sourceaccess_protected_project
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/SourceprotectedProject/pack"
     assert_response 403
     #retry with maintainer
@@ -197,20 +197,20 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_get_package_meta
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/kde4/kdelibs/_meta"
     assert_response :success
     assert_xml_tag :tag => "package", :attributes => { :name => "kdelibs" }
   end
 
   def test_get_package_meta_from_hidden_project
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/HiddenProject/pack/_meta"
     assert_response 404
     assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
     #retry with maintainer
     reset_auth
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/source/HiddenProject/pack/_meta"
     assert_response :success
     assert_xml_tag :tag => "package", :attributes => { :name => "pack" , :project => "HiddenProject"}
@@ -218,7 +218,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_get_package_meta_from_sourceacces_protected_project
     # package meta is visible
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/SourceprotectedProject/pack/_meta"
     assert_response :success
     assert_xml_tag :tag => "package", :attributes => { :name => "pack" , :project => "SourceprotectedProject"}
@@ -231,7 +231,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_invalid_project_and_package_name
-    prepare_request_with_user "king", "sunflower"
+    login_king
     [ "_blah" ].each do |n|
       raw_put url_for(:controller => :source, :action => :project_meta, :project => n), "<project name='#{n}'> <title /> <description /> </project>"
       assert_response 400
@@ -250,7 +250,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "can branch package under two names" do
-    prepare_request_with_user "king", "sunflower" 
+    login_king 
     post "/source/home:Iggy/TestPack", :cmd => "branch", :target_package => "TestPack2"
     assert_response :success
     # this is behaving strange as it's creating a TestPack3 pack, but returns a 400 
@@ -269,14 +269,14 @@ end
   end
   
   def test_valid_user
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/kde4/_meta"
     assert_response :success
   end
 
   
   def test_put_project_meta_with_invalid_permissions
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     # The user is valid, but has weak permissions
     
     # Get meta file
@@ -298,7 +298,7 @@ end
     d = doc.elements["/project"]
     d = d.add_element "remoteurl"
     d.text = "http://localhost:5352"
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     put url_for(:controller => :source, :action => :project_meta, :project => "kde4"), doc.to_s
     assert_response 403
     assert_match(/admin rights are required to change remoteurl/, @response.body)
@@ -313,7 +313,7 @@ end
     assert_response 403
     assert_xml_tag :tag => "status", :attributes => { :code => "create_project_no_permission" } 
 
-    prepare_request_with_user "king", "sunflower"
+    login_king
     raw_put url_for(:controller => :source, :action => :project_meta, :project => "_NewProject"), "<project name='_NewProject'><title>blub</title><description/></project>"
     assert_response 400
     assert_match(/invalid project name/, @response.body)
@@ -327,13 +327,13 @@ end
     aresp={:tag => "status", :attributes => { :code => "ok" } }
     match=true      # value written matches 2nd read
     # admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # maintainer 
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # maintainer via group
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
 
     # check history
@@ -349,30 +349,30 @@ end
     # nobody
     put url_for(:controller => :source, :action => :project_meta, :project => "kde4:subproject"), subprojectmeta
     assert_response 401
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     put url_for(:controller => :source, :action => :project_meta, :project => "kde4:subproject"), subprojectmeta
     assert_response 403
     # admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put url_for(:controller => :source, :action => :project_meta, :project => "kde4:subproject"), subprojectmeta
     assert_response :success
     delete "/source/kde4:subproject"
     assert_response :success
     # maintainer 
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     put url_for(:controller => :source, :action => :project_meta, :project => "kde4:subproject"), subprojectmeta
     assert_response :success
     delete "/source/kde4:subproject"
     assert_response :success
     # maintainer via group
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     put url_for(:controller => :source, :action => :project_meta, :project => "kde4:subproject"), subprojectmeta
     assert_response :success
     delete "/source/kde4:subproject"
     assert_response :success
 
     # create illegal project 
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     subprojectmeta="<project name='kde4_subproject'><title></title><description/></project>"
     put url_for(:controller => :source, :action => :project_meta, :project => "kde4:subproject"), subprojectmeta
     assert_response 400
@@ -386,14 +386,14 @@ end
     resp2=nil
     aresp=nil
     match=nil
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # admin
     resp1=:success
     resp2=:success
     aresp={:tag => "status", :attributes => { :code => "ok" } }
     match=true
-    prepare_request_with_user "king", "sunflower"
+    login_king
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # maintainer
     prepare_request_with_user "hidden_homer", "homer"
@@ -408,7 +408,7 @@ end
     resp2=403
     aresp={:tag => "status", :attributes => { :code => "change_project_no_permission" } }
     match=nil
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # same with set_flag command ?
     post "/source/SourceprotectedProject?cmd=set_flag&flag=sourceaccess&status=enable"
@@ -419,7 +419,7 @@ end
     resp2=:success
     aresp={:tag => "status", :attributes => { :code => "ok" } }
     match=true
-    prepare_request_with_user "king", "sunflower"
+    login_king
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # maintainer
     prepare_request_with_user "sourceaccess_homer", "homer"
@@ -436,7 +436,7 @@ end
                    </project>"
 
     # create them
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put url_for(:controller => :source, :action => :project_meta, :project => "TEMPORARY:build"), build_meta
     assert_response :success
     get "/source/TEMPORARY:build/_meta"
@@ -502,7 +502,7 @@ end
                    </project>"
 
     # create them
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put url_for(:controller => :source, :action => :project_meta, :project => "TEMPORARY:rel_target"), rel_target_meta
     assert_response :success
     get "/source/TEMPORARY:rel_target/_meta"
@@ -616,14 +616,14 @@ end
     prepare_request_with_user "maintenance_coord", "power"
     delete "/source/kde5"
     assert_response 403
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     delete "/source/kde5"
     assert_response :success
   end
   
   
   def test_put_invalid_project_meta
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
 
     # Get meta file  
     get url_for(:controller => :source, :action => :project_meta, :project => "kde4")
@@ -637,7 +637,7 @@ end
     assert_response 400
     assert_xml_tag :tag => "status", :attributes => { :code => "validation_failed" }
 
-    prepare_request_with_user "king", "sunflower"
+    login_king
     # write to illegal location: 
     put url_for(:controller => :source, :action => :project_meta, :project => "$hash"), doc.to_s
     assert_response 400
@@ -658,7 +658,7 @@ end
   
   
   def test_lock_project
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     put "/source/home:Iggy/TestLinkPack/_meta", "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
     assert_response :success
     put "/source/home:Iggy/TestLinkPack/_link", "<link package='TestPack' />"
@@ -707,10 +707,10 @@ end
     assert_response 403
 
     # check unlock command
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     post "/source/home:Iggy", { :cmd => "unlock", :comment => "cleanup" }
     assert_response 403
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     post "/source/home:Iggy", { :cmd => "unlock", :comment => "cleanup" }
     assert_response :success
 
@@ -722,7 +722,7 @@ end
   end
   
   def test_lock_package
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     put "/source/home:Iggy/TestLinkPack/_meta", "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
     assert_response :success
 
@@ -759,11 +759,11 @@ end
     assert_response 400
     assert_xml_tag :tag => "status", :attributes => { :code => "missing_parameter" }
     # without permissions
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     post "/source/home:Iggy/TestLinkPack", { :cmd => "unlock", :comment => "BlahFasel" }
     assert_response 403
     # do for real and cleanup
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     post "/source/home:Iggy/TestLinkPack", { :cmd => "unlock", :comment => "BlahFasel" }
     assert_response :success
     delete "/source/home:Iggy/TestLinkPack"
@@ -771,7 +771,7 @@ end
   end
   
   def test_put_package_meta_with_invalid_permissions
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     # The user is valid, but has weak permissions
     
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
@@ -807,7 +807,7 @@ end
   end
 
   def test_put_package_meta_to_hidden_pkg_invalid_permissions
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     # The user is valid, but has weak permissions
     get url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "pack")
     assert_response 404
@@ -863,15 +863,15 @@ end
     aresp={:tag => "status", :attributes => { :code => "ok"} }
     match=true
     # admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
     # maintainer via user
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
     prepare_request_with_user "fredlibs", "geröllheimer"
     do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
     # maintainer via group
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
 
     # check history
@@ -889,14 +889,14 @@ end
     aresp=nil
     match=false
     # uninvolved user
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
     # admin
     resp1=:success
     resp2=:success
     aresp={:tag => "status", :attributes => { :code => "ok"} }
     match=true
-    prepare_request_with_user "king", "sunflower"
+    login_king
     do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
     # maintainer
     prepare_request_with_user "hidden_homer", "homer"
@@ -911,14 +911,14 @@ end
     aresp={:tag => "status", :attributes => { :code => "change_package_no_permission" } }
     match=nil
     # uninvolved user
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
     # admin
     resp1=:success
     resp2=:success
     aresp={:tag => "status", :attributes => { :code => "ok"} }
     match=true
-    prepare_request_with_user "king", "sunflower"
+    login_king
     do_change_package_meta_test(prj,pkg,resp1,resp2,aresp,match)
     # maintainer
     prepare_request_with_user "sourceaccess_homer", "homer"
@@ -927,7 +927,7 @@ end
 
   def test_create_package_meta
     # user without any special roles
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
     assert_response :success
     #change name to kdelibs2
@@ -951,7 +951,7 @@ end
     assert_equal(d.attribute('name').value(), 'kdelibs2', "Project name was not set to kdelibs2")
 
     # check for lacking permission to create a package
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     d.delete_attribute( 'name' )   
     d.add_attribute( 'name', 'kdelibs3' ) 
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs3"), newdoc.to_s
@@ -960,7 +960,7 @@ end
   end
 
   def test_captial_letter_change
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
     assert_response :success
     put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
@@ -1007,7 +1007,7 @@ end
   end
 
   def test_repository_dependencies
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
     assert_response :success
     put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
@@ -1057,7 +1057,7 @@ end
   end
 
   def test_full_remove_repository_dependencies
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
     assert_response :success
     put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
@@ -1089,7 +1089,7 @@ end
   end
 
   def test_fail_correctly_with_broken_repo_config
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     # double definition of i586 architecture
     put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'> <arch>i586</arch> <arch>i586</arch> </repository> </project>"
     assert_response 400
@@ -1098,7 +1098,7 @@ end
   end
 
   def test_delete_project_with_repository_dependencies
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'> <arch>i586</arch> </repository> </project>"
     assert_response :success
     put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> <arch>i586</arch> </repository> </project>"
@@ -1121,7 +1121,7 @@ end
   end
 
   def test_delete_project_with_local_devel_packages
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     put "/source/home:tom:project/_meta", "<project name='home:tom:project'> <title/> <description/> <repository name='repoA'> <arch>i586</arch> </repository> </project>"
     assert_response :success
     put "/source/home:tom:project/A/_meta", "<package name='A' project='home:tom:project'> <title/> <description/></package>"
@@ -1136,7 +1136,7 @@ end
   end
 
   def test_devel_project_cycle
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     put "/source/home:tom:A/_meta", "<project name='home:tom:A'> <title/> <description/> </project>"
     assert_response :success
     put "/source/home:tom:B/_meta", "<project name='home:tom:B'> <title/> <description/> <devel project='home:tom:A'/> </project>"
@@ -1156,7 +1156,7 @@ end
   end
 
   def test_devel_package_cycle
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     raw_put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> </package>"
     assert_response :success
     raw_put "/source/home:tom/packageB/_meta", "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageA' /> </package>"
@@ -1211,7 +1211,7 @@ end
     resp3=:success  # assert respons #3
     asel3="package > build > enable" # assert_select after response #3
     # user without any special roles
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     do_test_change_package_meta(prj,pkg,resp1,resp2,atag2,resp3,asel3)
   end
 
@@ -1224,7 +1224,7 @@ end
     atag2=nil
     resp3=nil
     asel3=nil
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     do_test_change_package_meta(prj,pkg,resp1,resp2,atag2,resp3,asel3)
     resp1=:success
     resp2=:success
@@ -1232,7 +1232,7 @@ end
     resp3=:success
     asel3="package > build > enable"
     # maintainer
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     do_test_change_package_meta(prj,pkg,resp1,resp2,atag2,resp3,asel3)
   end
 
@@ -1245,7 +1245,7 @@ end
     atag2={ :tag => "status", :attributes => { :code => "change_package_no_permission"} }
     resp3=:success
     asel3=nil
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     do_test_change_package_meta(prj,pkg,resp1,resp2,atag2,resp3,asel3)
 
     # maintainer
@@ -1271,7 +1271,7 @@ end
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs"), doc.to_s + "</xml>"
     assert_response 400
 
-    prepare_request_with_user "king", "sunflower"
+    login_king
     # write to illegal location: 
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "."), doc.to_s
     assert_response 400
@@ -1290,7 +1290,7 @@ end
 
 
   def test_read_file
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/kde4/kdelibs/my_patch.diff"
     assert_response :success
     assert_equal( @response.body.to_s, "argl" )
@@ -1309,7 +1309,7 @@ end
     assert_response 404
     assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project"} 
     # uninvolved, 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/HiddenProject/pack/my_file"
     assert_response 404
     assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project"} 
@@ -1321,7 +1321,7 @@ end
     assert_response :success
     assert_equal( @response.body.to_s, "Protected Content")
     # admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     get "/source/HiddenProject/pack/my_file"
     assert_response :success
     assert_equal( @response.body.to_s, "Protected Content")
@@ -1334,7 +1334,7 @@ end
     assert_response 403
     assert_xml_tag :tag => "status", :attributes => { :code => "source_access_no_permission"} 
     # uninvolved, 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/SourceprotectedProject/pack"
     assert_response 403
     assert_xml_tag :tag => "status", :attributes => { :code => "source_access_no_permission"} 
@@ -1346,7 +1346,7 @@ end
     assert_response :success
     assert_xml_tag :tag => "directory"
     # admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     get "/source/SourceprotectedProject/pack"
     assert_response :success
     assert_xml_tag :tag => "directory"
@@ -1359,7 +1359,7 @@ end
     assert_response 403
     assert_xml_tag :tag => "status", :attributes => { :code => "source_access_no_permission"} 
     # uninvolved, 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/SourceprotectedProject/pack/my_file"
     assert_response 403
     assert_xml_tag :tag => "status", :attributes => { :code => "source_access_no_permission"} 
@@ -1371,7 +1371,7 @@ end
     assert_response :success
     assert_equal( @response.body.to_s, "Protected Content")
     # admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     get "/source/SourceprotectedProject/pack/my_file"
     assert_response :success
     assert_equal( @response.body.to_s, "Protected Content")
@@ -1434,7 +1434,7 @@ end
                                assertselect2, assertselect2rev, 
                                assertresp3, asserteq3, assertresp4)
     # admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     add_file_to_package(url1, asserttag1, url2, assertresp2, 
                                assertselect2, assertselect2rev, 
                                assertresp3, asserteq3, assertresp4)
@@ -1472,7 +1472,7 @@ end
                                assertselect2, assertselect2rev, 
                                assertresp3, asserteq3, assertresp4)
     # admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     add_file_to_package(url1, asserttag1, url2, assertresp2, 
                                assertselect2, assertselect2rev, 
                                assertresp3, asserteq3, assertresp4)
@@ -1492,16 +1492,16 @@ end
     add_file_to_package(url1, asserttag1, url2, assertresp2, 
                                assertselect2, assertselect2rev, 
                                assertresp3, asserteq3, assertresp4)
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     add_file_to_package(url1, asserttag1, url2, assertresp2, 
                                assertselect2, assertselect2rev, 
                                assertresp3, asserteq3, assertresp4)
-    prepare_request_with_user "king", "sunflower"
+    login_king
     add_file_to_package(url1, asserttag1, url2, assertresp2, 
                                assertselect2, assertselect2rev, 
                                assertresp3, asserteq3, assertresp4)
     # write without permission: 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get url_for(:controller => :source, :action => :get_file, :project => "kde4", :package => "kdelibs", :filename => "my_patch.diff")
     assert_response :success
     origstring = @response.body.to_s
@@ -1634,7 +1634,7 @@ end
 #    assert_xml_tag( :tag => "entry", :attributes => { :name => "kdelibs"} )
 
     # list content of deleted project
-    prepare_request_with_user "king", "sunflower"
+    login_king
     get "/source", :deleted => 1
     assert_response 200
     assert_xml_tag( :tag => "entry", :attributes => { :name => "kde4"} )
@@ -1658,7 +1658,7 @@ end
     post "/source/kde4", :cmd => :undelete
     assert_response 403
 
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/source/kde4", :cmd => :undelete
     assert_response :success
 
@@ -1686,7 +1686,7 @@ end
   end
 
   def test_remove_project_and_verify_repositories
-    prepare_request_with_user "tom", "thunder" 
+    login_tom 
     delete "/source/home:coolo"
     assert_response 400
     assert_select "status[code] > summary", /following repositories depend on this project:/
@@ -1703,13 +1703,13 @@ end
   end
 
   def test_diff_package
-    prepare_request_with_user "tom", "thunder" 
+    login_tom 
     post "/source/home:Iggy/TestPack?oproject=kde4&opackage=kdelibs&cmd=diff"
     assert_response :success
   end
 
   def test_meta_diff_package
-    prepare_request_with_user "tom", "thunder" 
+    login_tom 
     post "/source/home:Iggy/TestPack?oproject=kde4&opackage=kdelibs&cmd=diff&meta=1"
     assert_response :success
     assert_match(/<\/package>/, @response.body)
@@ -1720,7 +1720,7 @@ end
   end
 
   def test_diff_package_hidden_project
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/source/HiddenProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
     assert_response 404
     assert_xml_tag :tag => 'status', :attributes => { :code => "unknown_project"}
@@ -1738,19 +1738,19 @@ end
     assert_response :success
     assert_match(/argl/, @response.body)
 
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/source/HiddenProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
     assert_response :success
     assert_match(/Minimal rpm package for testing the build controller/, @response.body)
     # reverse
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/source/kde4/kdelibs?oproject=HiddenProject&opackage=pack&cmd=diff"
     assert_response :success
     assert_match(/argl/, @response.body)
   end
 
   def test_diff_package_sourceaccess_protected_project
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/source/SourceprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
     assert_response 403
     assert_xml_tag :tag => 'status', :attributes => { :code => "source_access_no_permission"}
@@ -1768,19 +1768,19 @@ end
     assert_response :success
     assert_match(/argl/, @response.body)
 
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/source/SourceprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
     assert_response :success
     assert_match(/Protected Content/, @response.body)
     # reverse
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/source/kde4/kdelibs?oproject=SourceprotectedProject&opackage=pack&cmd=diff"
     assert_response :success
     assert_match(/argl/, @response.body)
   end
 
   def test_constraints
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/home:coolo:test"
     assert_response :success
     put "/source/home:coolo:test/_project/_constraints", "illegal"
@@ -1815,7 +1815,7 @@ end
     assert_response 403
     assert_match(/put_file_no_permission/, @response.body)
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/home:coolo:test"
     assert_response :success
     assert_no_match(/_pattern/, @response.body)
@@ -1836,7 +1836,7 @@ end
     assert_response 403
 
     # successfull delete
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     delete "/source/home:coolo:test/_pattern/mypattern"
     assert_response :success
     delete "/source/home:coolo:test/_pattern/mypattern"
@@ -1860,7 +1860,7 @@ end
     put url_for(:controller => :source, :action => :project_config, :project => "kde4"), "Substitute: nix da"
     assert_response 403
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     put url_for(:controller => :source, :action => :project_config, :project => "home:coolo:test"), "Substitute: nix da"
     assert_response :success
     get url_for(:controller => :source, :action => :project_config, :project => "home:coolo:test")
@@ -1868,7 +1868,7 @@ end
   end
 
   def test_public_keys
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     # old route
     get "/source/DoesNotExist/_pubkey"
     assert_response 404
@@ -1911,7 +1911,7 @@ end
 
   def test_linked_project_operations
     # first go with a read-only user
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     # listings
     get "/source/BaseDistro2.0:LinkedUpdateProject"
     assert_response :success
@@ -1957,7 +1957,7 @@ end
     assert_response :success
 
     # read-write user, binary operations must be allowed
-    prepare_request_with_user "king", "sunflower"
+    login_king
     # obsolete with OBS 3.0, rebuild only via /build/
     post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "rebuild"
     assert_response :success
@@ -1983,17 +1983,17 @@ end
   end
 
   def test_linktobranch
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     put "/source/home:Iggy/TestLinkPack/_meta", "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
     assert_response :success
     put "/source/home:Iggy/TestLinkPack/_link", "<link package='TestPack' />"
     assert_response :success
 
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     post "/source/home:Iggy/TestLinkPack?cmd=linktobranch"
     assert_response 403
 
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     post "/source/home:Iggy/TestLinkPack?cmd=linktobranch"
     assert_response :success
     get "/source/home:Iggy/TestLinkPack/_link"
@@ -2007,7 +2007,7 @@ end
 
   def test_release_project
     # define release target
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     # create and define manual release target
     put "/source/home:Iggy:RT/_meta", "<project name='home:Iggy:RT'> <title/> <description/> 
           <repository name='rt'>
@@ -2048,13 +2048,13 @@ end
     assert_response :success
 
     # this user is not allowed
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     post "/source/home:Iggy?cmd=release", nil
     assert_response 403
     assert_xml_tag :tag => "status", :attributes => { :code => "cmd_execution_no_permission" }
 
     # release for real
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     post "/source/home:Iggy?cmd=release", nil
     assert_response :success
     assert_xml_tag :tag => "status", :attributes => { :code => "invoked" }
@@ -2082,7 +2082,7 @@ end
     assert_xml_tag :tag => "binarylist", :children => { :count => 4 }
 
     # cleanup
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     put "/source/home:Iggy/_meta", orig_project_meta
     assert_response :success
     delete "/source/home:Iggy:RT"
@@ -2091,9 +2091,9 @@ end
 
   def test_release_package
     # define release target
-    prepare_request_with_user "king", "sunflower"
+    login_king
 
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     # create and define manual release target
     put "/source/home:Iggy:RT/_meta", "<project name='home:Iggy:RT'> <title/> <description/> 
           <repository name='rt'>
@@ -2127,13 +2127,13 @@ end
     assert_response :success
 
     # this user is not allowed
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     post "/source/home:Iggy/TestPack?cmd=release", nil
     assert_response 403
     assert_xml_tag :tag => "status", :attributes => { :code => "cmd_execution_no_permission" }
 
     # release for real
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     post "/source/home:Iggy/TestPack?cmd=release", nil
     assert_response :success
     assert_xml_tag :tag => "status", :attributes => { :code => "ok" }
@@ -2156,7 +2156,7 @@ end
     assert_xml_tag :tag => "binarylist", :children => { :count => 4 }
 
     # cleanup
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     put "/source/home:Iggy/_meta", orig_project_meta
     assert_response :success
     delete "/source/home:Iggy:RT"
@@ -2166,7 +2166,7 @@ end
   def test_copy_package
     # fred has maintainer permissions in this single package of Iggys home
     # this is the osc way
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     put "/source/home:Iggy/TestPack/filename", 'CONTENT'
     assert_response :success
     get "/source/home:Iggy/TestPack/_history"
@@ -2200,7 +2200,7 @@ end
 
   def test_copy_project
     # NOTE: copy tests for release projects are part of maintenance tests
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     get "/source/home:Iggy/_meta"
     assert_response :success
     assert_xml_tag :tag => "person", :attributes => { :userid => "Iggy", :role => "maintainer" }
@@ -2224,11 +2224,11 @@ end
     post "/source/TEMPCOPY", :cmd => :copy, :oproject => "home:Iggy", :nodelay => "1"
     assert_response 403
     assert_xml_tag( :tag => "status", :attributes => { :code => "cmd_execution_no_permission"} )
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put "/source/TEMPCOPY/_meta", '<project name="TEMPCOPY"> <title/> <description/> <person role="maintainer" userid="fred"/> </project>'
     assert_response :success
     # copy into existing project is allowed
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     post "/source/TEMPCOPY", :cmd => :copy, :oproject => "home:Iggy"
     assert_response :success
 
@@ -2238,7 +2238,7 @@ end
   end
 
   def test_source_commits
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/source/home:Iggy/TestPack", :cmd => "commitfilelist"
     assert_response 403
     put "/source/home:Iggy/TestPack/filename", 'CONTENT'
@@ -2246,7 +2246,7 @@ end
 
     # fred has maintainer permissions in this single package of Iggys home
     # this is the osc way
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     delete "/source/home:Iggy/TestPack/filename" # in case other tests created it
     put "/source/home:Iggy/TestPack/filename?rev=repository", 'CONTENT'
     assert_response :success
@@ -2278,7 +2278,7 @@ end
     assert_response 404
 
     # this is the future webui way
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     put "/source/home:Iggy/TestPack/filename?rev=upload", 'CONTENT'
     assert_response :success
     get "/source/home:Iggy/TestPack/filename"
@@ -2314,7 +2314,7 @@ end
     #
     # Test commits to special packages
     #
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     # _product must be created
     put "/source/home:Iggy/_product/_meta", "<package project='home:Iggy' name='_product'> <title/> <description/> </package>"
     assert_response :success
@@ -2357,7 +2357,7 @@ end
   end
 
   def test_list_of_linking_instances
-    prepare_request_with_user "tom", "thunder"
+    login_tom
 
     # list all linking projects
     post "/source/BaseDistro2.0", :cmd => "showlinked"
@@ -2377,12 +2377,12 @@ end
   end
 
   def test_create_links
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put url_for(:controller => :source, :action => :project_meta, :project => "TEMPORARY"), 
         '<project name="TEMPORARY"> <title/> <description/> <person role="maintainer" userid="fred"/> </project>'
     assert_response 200
     # create packages via user without any special roles
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary")
     assert_response 404
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary"), 
@@ -2464,13 +2464,13 @@ end
     assert_response :success
     delete "/source/kde4/temporary2"
     assert_response :success
-    prepare_request_with_user "king", "sunflower"
+    login_king
     delete "/source/TEMPORARY"
     assert_response :success
   end
 
   def test_parse_channel_file
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     put "/source/home:Iggy/TestChannel/_meta", "<package project='home:Iggy' name='TestChannel'> <title/> <description/> </package>"
     assert_response :success
 
@@ -2561,7 +2561,7 @@ end
   end
 
   def test_create_project_with_invalid_repository_reference
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temporary"), 
         '<project name="home:tom:temporary"> <title/> <description/> 
            <repository name="me" />
@@ -2611,7 +2611,7 @@ end
   end
 
   def test_use_project_link_as_non_maintainer
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temporary"), 
         '<project name="home:tom:temporary"> <title/> <description/> <link project="kde4" /> </project>'
     assert_response :success
@@ -2652,35 +2652,35 @@ end
     delete "/source/kde4"
     assert_response 401
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     delete "/source/kde4/kdelibs"
     assert_response 403
     delete "/source/kde4"
     assert_response 403
 
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     delete "/source/kde4/kdelibs"
     assert_response :success
     delete "/source/kde4"
     assert_response :success
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/source/kde4", :cmd => :undelete
     assert_response 403
 
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     post "/source/kde4", :cmd => :undelete
     assert_response 403
 
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/source/kde4", :cmd => :undelete
     assert_response :success
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/source/kde4/kdelibs", :cmd => :undelete
     assert_response 403
 
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     post "/source/kde4/kdelibs", :cmd => :undelete
     assert_response :success
   end
@@ -2701,7 +2701,7 @@ end
     assert_response 403
 
     # create home and try again
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put "/source/home:fredlibs/_meta", "<project name='home:fredlibs'><title/><description/> <person role='maintainer' userid='fredlibs'/> </project>"
     assert_response :success
 
@@ -2742,7 +2742,7 @@ end
     assert_xml_tag :tag => 'package', :attributes => {:package => 'TestPack', :project => 'home:Iggy'},
                                   :child => { :tag => 'target', :attributes => {:package => 'TestPack', :project => 'home:coolo:test'} }
  
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"    
     assert_response :success
     get "/source/home:coolo:test/TestPack/_meta"
@@ -2804,7 +2804,7 @@ end
     delete "/source/home:tom:branches:home:Iggy/TestPack"
     assert_response 401
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     delete "/source/home:tom:branches:home:Iggy/TestPack"
     assert_response :success
 
@@ -2832,7 +2832,7 @@ end
   end
 
   def test_package_set_flag
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
 
     get "/source/home:Iggy/TestPack/_meta"
     assert_response :success
@@ -2879,7 +2879,7 @@ end
 
 
   def test_project_set_flag
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
 
     get "/source/home:Iggy/_meta"
     assert_response :success
@@ -2933,7 +2933,7 @@ end
   end
 
   def test_package_remove_flag
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
 
     get "/source/home:Iggy/TestPack/_meta"
     assert_response :success
@@ -2984,7 +2984,7 @@ end
   end
 
   def test_project_remove_flag
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
 
     get "/source/home:Iggy/_meta"
     assert_response :success
@@ -3031,7 +3031,7 @@ end
   end
 
   def test_wild_chars
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/source/home:Iggy/TestPack"
     assert_response :success
    
@@ -3068,7 +3068,7 @@ end
   end
 
   def duplicated_user_test(package_or_project, user_or_group, url)
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     
     xml = draft_xml_for_duplicate_test(package_or_project) do
       if user_or_group == 'user'
@@ -3142,7 +3142,7 @@ end
   end
 
   test "store invalid package" do
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     name = Faker::Lorem.characters(255)
     url = url_for(controller: :source, action: :package_meta, project: "home:tom", package: name)
     put url, "<package name='#{name}' project='home:tom'> <title/> <description/></package>"
@@ -3154,7 +3154,7 @@ end
   end
   
   test "store invalid project" do
-    prepare_request_with_user "tom", "thunder" 
+    login_tom 
     name = "home:tom:#{Faker::Lorem.characters(255)}"
     url = url_for(controller: :source, action: :project_meta, project: name)
     put url, "<project name='#{name}'> <title/> <description/></project>"

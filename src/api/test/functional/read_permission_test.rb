@@ -50,7 +50,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 401
 
     # user access
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/SourceprotectedProject"
     assert_response :success
     get "/source/SourceprotectedProject/_meta"
@@ -76,7 +76,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     srcrpm="package-1.0-1.src.rpm"
 
     # user access
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/SourceprotectedProject/_meta"
     get "/build/SourceprotectedProject/repo/i586/pack"
     assert_response :success
@@ -101,7 +101,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 403
     assert_match(/only admins can see deleted projects/, @response.body )
 
-    prepare_request_with_user "king", "sunflower"
+    login_king
     get "/source?deleted"
     assert_response :success
     # can't do any check on the list without also deleting projects, which is too much for this test
@@ -152,7 +152,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     debug=false
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # tom/thunder
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     resp=404
     match=/unknown_project/
     delresp=404
@@ -170,7 +170,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     delete "/source/#{tprj}"
     assert_response :success
     # admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     delete "/source/#{tprj}"
     assert_response :success
@@ -188,7 +188,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     debug=false
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # tom/thunder
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     resp=403
     match=/create_project_no_permission/ # tom can't see it so it appears like a project creation
     delresp=404
@@ -204,7 +204,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     testflag=/<access>/
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
   end
 
@@ -221,7 +221,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     debug=false
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # tom/thunder
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     resp=403
     match=/source_access_no_permission/
     delresp=404
@@ -235,7 +235,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     delresp=:success
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
   end
 
@@ -304,7 +304,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     debug=false
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # some user
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     resp=404
     delresp=200
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
@@ -316,7 +316,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     debug=false
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # admin has special permission
-    prepare_request_with_user "king", "sunflower"
+    login_king
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     #
     # reverse 
@@ -333,7 +333,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     debug=false
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # some user
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     resp=403       # not allowed to create project, which looks to be not existing
     delresp=404    # project does not exist, it seems ...
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
@@ -344,7 +344,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     delresp=:success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
   end
 
@@ -360,7 +360,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     debug=false
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # some user
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     resp=403
     delresp=200
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
@@ -370,7 +370,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     delresp=:success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     #
     # reverse 
@@ -387,7 +387,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     debug=false
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # some user
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     resp=403
     delresp=403
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
@@ -397,13 +397,13 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     delresp=:success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     # maintainer
-    prepare_request_with_user "king", "sunflower"
+    login_king
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
   end
 
   def test_create_links_hidden_project
     # user without any special roles
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "temporary")
     assert_response 404
     put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "temporary"), 
@@ -457,7 +457,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # user without any special roles
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary3")
     assert_response 404
     put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary3"), 
@@ -485,7 +485,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
   def test_alter_source_access_flags
     # Create public project with protected package
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
         '<project name="home:adrian:Project"> <title/> <description/> </project>'
     assert_response :success
@@ -511,7 +511,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
   def test_alter_access_flags
     # Create public project with protected package
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
         '<project name="home:adrian:Project"> <title/> <description/> </project>'
     assert_response :success
@@ -525,7 +525,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
   def test_project_links_to_sourceaccess_protected_package
     # Create public project with protected package
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:PublicProject"),
         '<project name="home:adrian:PublicProject"> <title/> <description/> </project>'
     assert_response :success
@@ -535,7 +535,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put "/source/home:adrian:PublicProject/ProtectedPackage/dummy_file", "dummy"
 
     # try to access it directly with a user not permitted
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/home:adrian:PublicProject/ProtectedPackage"
     assert_response 403
     post "/source/home:tom:TEMP", :cmd => "copy", :oproject => "home:adrian:PublicProject"
@@ -566,7 +566,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     get "/public/source/home:tom:temp/ProtectedPackage"
     assert_response 403
     # Admin can bypass api
-    prepare_request_with_user "king", "sunflower"
+    login_king
     get "/source/home:tom:temp/ProtectedPackage"
     assert_response 403
     get "/source/home:tom:temp/ProtectedPackage/dummy_file"
@@ -575,7 +575,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 404
 
     # check access to deleted package
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     delete "/source/home:adrian:PublicProject/ProtectedPackage"
     assert_response :success
     get "/source/home:adrian:PublicProject?deleted=1"
@@ -586,7 +586,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 #    get "/source/home:adrian:PublicProject/ProtectedPackage/dummy_file?deleted=1"
 #    assert_response :success
     # must not see package content
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/home:adrian:PublicProject/ProtectedPackage?deleted=1"
     assert_response 403
 # belongs to the regression above
@@ -596,14 +596,14 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     # cleanup
     delete "/source/home:tom:temp"
     assert_response :success
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     delete "/source/home:adrian:PublicProject"
     assert_response :success
   end
 
   def test_project_links_to_sourceaccess_protected_project
     # Create public project with protected package
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/source/home:adrian:ProtectedProject"
     assert_response 404
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject"),
@@ -614,7 +614,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # try to access it directly with a user not permitted
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/home:adrian:ProtectedProject/Package"
     assert_response 403
     # try to access it via own project link
@@ -637,14 +637,14 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 403
 
     # cleanup
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     delete "/source/home:adrian:ProtectedProject"
     assert_response :success
   end
 
   def test_project_links_to_read_access_protected_projects
     # Create public project with sourceaccess protected package
-    prepare_request_with_user "tom", "thunder"
+    login_tom
 
     # try to link to an access protected hidden project from sourceaccess project
     put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:ProtectedProject2"),
@@ -655,7 +655,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 404
 
 
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     # try to link to an access protected hidden project from sourceaccess project
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <link project="HiddenProject"/> </project>'
@@ -699,7 +699,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # try to access it directly with a user not permitted
-    prepare_request_with_user "tom", "thunder"
+    login_tom
 
     # try to link to an access protected hidden project
     put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temp2"),
@@ -707,7 +707,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 404
 
     # cleanup
-    prepare_request_with_user "king", "sunflower"
+    login_king
     delete "/source/home:adrian:ProtectedProject2"
     assert_response :success
     delete "/source/home:adrian:ProtectedProject3"
@@ -720,13 +720,13 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 404
     get "/source/home:adrian:ProtectedProject4?deleted=1"
     assert_response :success
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/home:adrian:ProtectedProject4?deleted=1"
     assert_response 404
   end
 
   def test_compare_error_messages
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/home:adrian:ProtectedProject"
     assert_response 404
     error_message = @response.body
@@ -737,7 +737,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 404
     error_message3 = @response.body
 
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     get "/source/home:adrian:ProtectedProject"
     assert_response 404
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject"),
@@ -752,7 +752,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # now we check if the project creation has changed the error message
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/home:adrian:ProtectedProject"
     assert_response 404
     assert_match error_message, @response.body
@@ -764,7 +764,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_match error_message3, @response.body
 
     # cleanup
-    prepare_request_with_user "king", "sunflower"
+    login_king
     delete "/source/home:adrian:ProtectedProject"
     assert_response :success
   end
@@ -791,7 +791,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
   def test_project_paths_to_access_protected_projects
     # try to access it with a user not permitted
-    prepare_request_with_user "tom", "thunder"
+    login_tom
 
     # check if unsufficiently permitted users tries to access protected projects
     put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:ProtectedProject2"),
@@ -799,7 +799,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 404
 
     # try to access it with a user permitted for access
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
 
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject1"),
         '<project name="home:adrian:ProtectedProject1"> <title/> <description/> <access><disable/></access> </project>'
@@ -840,7 +840,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
   end
 
   def test_copy_project_of_hidden_project
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/source/CopyOfProject?cmd=copy&oproject=HiddenProject"
     assert_response :success
     get "/source/CopyOfProject/_meta"
@@ -852,7 +852,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
   end
 
   def test_copy_project_of_source_protected_project
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/source/CopyOfProject?cmd=copy&oproject=SourceprotectedProject"
     assert_response :success
     get "/source/CopyOfProject/_meta"
@@ -864,7 +864,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
   end
 
   def test_copy_project_of_source_protected_package
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put "/source/home:tom/ProtectedPackage/_meta",
         '<package project="home:tom" name="ProtectedPackage"> <title/> <description/> <sourceaccess><disable/></sourceaccess> </package>'
     assert_response :success
@@ -886,7 +886,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
   end
 
   def test_package_branch_with_noaccess
-    prepare_request_with_user "king", "sunflower"
+    login_king
     get "/source/BaseDistro/_meta"
     assert_response :success
     assert_no_xml_tag( :tag => "disable", :parent => { :tag => "access" } )
@@ -902,7 +902,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # as user
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/source/home:Iggy/TestPack", :cmd => "branch", :noaccess => "1"
     assert_response :success
     get "/source/home:tom:branches:home:Iggy/_meta"
@@ -914,7 +914,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
   def test_setup_default_project
     # Create public project
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
         '<project name="home:adrian:Project"> <title/> <description/> </project>'
     assert_response :success

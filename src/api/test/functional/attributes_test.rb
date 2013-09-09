@@ -10,7 +10,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     get "/attribute/"
     assert_response 401
 
-    prepare_request_with_user "Iggy", "asdfasdf" 
+    login_Iggy 
     get "/attribute/"
     assert_response :success
 
@@ -22,7 +22,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_namespace_index
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
 
     get "/attribute/NotExisting"
     assert_response 400
@@ -36,7 +36,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_namespace_meta
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/attribute/OBS/UpdateProject/_meta"
     assert_response :success
     assert_xml_tag :tag => 'definition', :attributes => { :name => "UpdateProject", :namespace => "OBS" }
@@ -47,7 +47,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
   def test_create_namespace
     data = "<namespace name='TEST'><modifiable_by user='adrian'/></namespace>"
 
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     post "/attribute/TEST/_meta", data
     assert_response 403
     assert_match(/Namespace changes are only permitted by the administrator/, @response.body)
@@ -56,7 +56,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
     assert_match(/Namespace changes are only permitted by the administrator/, @response.body)
 
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/attribute/TEST/_meta", data
     assert_response :success
     get "/attribute/TEST/_meta"
@@ -69,9 +69,9 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
 
   def test_create_type
     # create test namespace
-    prepare_request_with_user "king", "sunflower"
+    login_king
     data = "<namespace name='TEST'><modifiable_by user='adrian'/></namespace>"
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/attribute/TEST/_meta", data
     assert_response :success
 
@@ -95,12 +95,12 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     post "/attribute/TEST/Dummy/_meta", data
     assert_response 401
 
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     delete "/attribute/OBS/Maintenance/_meta"
     assert_response 403
     assert_match(/Attribute type changes are not permitted/, @response.body)
 
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     post "/attribute/TEST/Dummy/_meta", data
     assert_response :success
     get "/attribute/TEST/Dummy/_meta"
@@ -113,9 +113,9 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
 
   def test_create_type_via_group
     # create test namespace
-    prepare_request_with_user "king", "sunflower"
+    login_king
     data = "<namespace name='TEST'><modifiable_by group='test_group'/></namespace>"
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/attribute/TEST/_meta", data
     assert_response :success
 
@@ -139,12 +139,12 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     post "/attribute/TEST/Dummy/_meta", data
     assert_response 401
 
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     delete "/attribute/OBS/Maintenance/_meta"
     assert_response 403
     assert_match(/Attribute type changes are not permitted/, @response.body)
 
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     post "/attribute/TEST/Dummy/_meta", data
     assert_response :success
     get "/attribute/TEST/Dummy/_meta"
@@ -157,9 +157,9 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
 
   def test_with_issue
     # create test namespace
-    prepare_request_with_user "king", "sunflower"
+    login_king
     data = "<namespace name='TEST'><modifiable_by user='adrian'/></namespace>"
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/attribute/TEST/_meta", data
     assert_response :success
 
@@ -168,7 +168,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
               <issue_list/>
             </definition>"
 
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     post "/attribute/TEST/Dummy/_meta", data
     assert_response :success
     get "/attribute/TEST/Dummy/_meta"
@@ -212,7 +212,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_attrib_type_meta
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
 
     get "/attribute/OBS"
     assert_response :success
@@ -223,13 +223,13 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_invalid_get
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     get "/source/RemoteInstance:BaseDistro/pack1/_attribute"
     assert_response 404
   end
 
   def test_create_attributes_project
-    prepare_request_with_user "tom", "thunder"
+    login_tom
 
     data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
     post "/source/home:tom/_attribute", data
@@ -271,18 +271,18 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_response 400
 
     # via group
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     data = "<attributes><attribute namespace='OBS' name='Maintained'></attribute></attributes>"
     post "/source/home:tom/_attribute", data
     assert_response :success
 
     # as admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/source/home:tom/_attribute", data
     assert_response :success
 
     # not allowed
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     post "/source/home:tom/_attribute", data
     assert_response 403
     delete "/source/home:tom/_attribute/OBS:Maintained"
@@ -303,7 +303,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     srcmd5 = revision.srcmd5.text
 
     # delete
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/source/home:tom/_attribute", data
     assert_response :success
     delete "/source/home:tom/_attribute/OBS:Maintained"
@@ -328,7 +328,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_create_attributes_package
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
 
     data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
     post "/source/kde4/kdelibs/_attribute", data
@@ -380,7 +380,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
 
     # no permission check
-    prepare_request_with_user "Iggy", "asdfasdf"
+    login_Iggy
     post "/source/kde4/kdelibs/_attribute", data
     assert_response 403
     post "/source/kde4/kdelibs/_attribute/OBS:Maintained", data
@@ -418,7 +418,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
 
     # delete
     reset_auth
-    prepare_request_with_user "fred", "geröllheimer"
+    login_fred
     post "/source/kde4/kdelibs/_attribute", data
     assert_response :success
     post "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained", data

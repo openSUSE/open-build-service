@@ -16,7 +16,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_create_maintenance_project
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     
     put "/source/home:tom:maintenance/_meta", '<project name="home:tom:maintenance" > <title/> <description/> </project>'
     assert_response :success
@@ -44,7 +44,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_branch_package
-    prepare_request_with_user "tom", "thunder"
+    login_tom
 
     # branch a package which does not exist in update project via project link
     post "/source/BaseDistro/pack1", :cmd => :branch
@@ -106,13 +106,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
   def test_maintenance_request_from_foreign_project
     # special kdelibs
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put "/source/BaseDistro2.0:LinkedUpdateProject/kdelibs/_meta", "<package name='kdelibs'><title/><description/></package>"
     assert_response :success
     put "/source/BaseDistro2.0:LinkedUpdateProject/kdelibs/empty", "NOOP"
     assert_response :success
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     # create maintenance request for one package from a unrelated project
     post "/request?cmd=create", '<request>
                                    <action type="maintenance_incident">
@@ -163,7 +163,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'description', :content => "To fix my bug"
 
     # again but find update project automatically and use a linked package
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/source/kde4/kdelibs", :cmd => :branch, :ignoredevel => 1
     assert_response :success
     post "/request?cmd=create", '<request>
@@ -221,7 +221,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response 403
 
     # cleanup
-    prepare_request_with_user "king", "sunflower"
+    login_king
     delete "/source/BaseDistro2.0:LinkedUpdateProject/kdelibs"
     assert_response :success
     delete "/source/home:tom:branches:kde4"
@@ -229,7 +229,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_mbranch_and_maintenance_per_package_request
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put "/source/BaseDistro3/pack2/file", "NOOP"
     assert_response :success
     # setup maintained attributes
@@ -246,7 +246,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "collection", :children => { :count => 2 }
    
     # do the real mbranch for default maintained packages
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/source", :cmd => "branch", :package => "pack2"
     assert_response :success
 
@@ -426,7 +426,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # Add channels
     #
     # define one
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put "/source/Channel/_meta", '<project name="Channel"><title/><description/>
                                          <repository name="dummy">
                                            <releasetarget project="BaseDistro3" repository="BaseDistro3_repo" />
@@ -447,7 +447,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # create channel packages and repos
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     post "/source/#{incidentProject}?cmd=addchannels", nil
     assert_response 403
     prepare_request_with_user "maintenance_coord", "power"
@@ -473,7 +473,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                    :parent => { :tag => 'repository', :attributes => {:name=>"Channel"} }
 
     #cleanup
-    prepare_request_with_user "king", "sunflower"
+    login_king
     delete "/source/Channel"
     assert_response 400 # incident still refers to it
     delete "/source/#{incidentProject}"
@@ -485,7 +485,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_OBS_BranchTarget
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put "/source/ServicePack/_meta", "<project name='ServicePack'><title/><description/><link project='kde4'/></project>"
     assert_response :success
     post "/source/ServicePack/_attribute", "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
@@ -493,7 +493,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/source/ServicePack/_attribute", "<attributes><attribute namespace='OBS' name='BranchTarget' /></attributes>"
     assert_response :success
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/source", :cmd => "branch", :package => "kdelibs"
     assert_response :success
     assert_xml_tag :tag => "data", :attributes => { :name => "targetproject" }, :content => "home:tom:branches:OBS_Maintained:kdelibs"
@@ -507,7 +507,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_mbranch_and_maintenance_entire_project_request
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put "/source/ServicePack/_meta", "<project name='ServicePack'><title/><description/><link project='kde4'/></project>"
     assert_response :success
 
@@ -530,7 +530,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "collection", :children => { :count => 3 }
    
     # do the real mbranch for default maintained packages
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/source", :cmd => "branch", :package => "pack2", :noaccess => 1
     assert_response :success
     get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
@@ -753,7 +753,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_create_maintenance_incident
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put "/source/Temp:Maintenance/_meta", '<project name="Temp:Maintenance" kind="maintenance"> 
                                              <title/> <description/>
                                              <person userid="maintenance_coord" role="maintainer"/>
@@ -764,7 +764,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/source/Temp:Maintenance", :cmd => "createmaintenanceincident"
     assert_response 401
 
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     post "/source/Temp:Maintenance", :cmd => "createmaintenanceincident"
     assert_response 403
     post "/source/home:adrian", :cmd => "createmaintenanceincident"
@@ -813,7 +813,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
   def test_manual_branch_with_extend_names
     # submit packages via mbranch
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/source/BaseDistro2.0/pack2", :cmd => "branch", :target_package => "DUMMY_package", :extend_package_names => "1"
     assert_response :success
     assert_xml_tag( :tag => "data", :attributes => { :name => "sourceproject" }, :content => "BaseDistro2.0:LinkedUpdateProject" )
@@ -1179,7 +1179,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_no_xml_tag( :parent => { :tag => "lock" }, :tag => "disable" ) # disable got removed
 
     # incident project not visible for tom
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     raw_post "/request?cmd=create&addrevision=1", '<request>
                                    <action type="maintenance_incident">
                                      <source project="kde4" package="kdelibs" />
@@ -1189,7 +1189,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response 404
     # new incident request accept is blocked, but decline works
-    prepare_request_with_user "adrian", "so_alone"
+    login_adrian
     raw_post "/request?cmd=create&addrevision=1", '<request>
                                    <action type="maintenance_incident">
                                      <source project="kde4" package="kdelibs" />
@@ -1213,7 +1213,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag( :tag => "status", :attributes => { :code => "open_release_request"} )
 
     # approve review
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/request/#{reqid}?cmd=changereviewstate&newstate=accepted&by_group=test_group&comment=blahfasel"
     assert_response :success
     post "/request/#{reqid}?cmd=changereviewstate&newstate=accepted&by_user=fred&comment=blahfasel" # default package reviewer
@@ -1432,7 +1432,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_create_invalid_patchinfo
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     # collons in patchinfo names are not allowed but common mistake
     post "/source/home:tom?cmd=createpatchinfo&force=1&name=home:tom"
     assert_response 400
@@ -1440,7 +1440,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_create_invalid_submit_request
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     # submit requests are not allowed against release projects
     post "/request?cmd=create", '<request>
                                    <action type="submit">
@@ -1455,7 +1455,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_create_invalid_incident_request
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     # without specifing target, the default target must get found via attribute
     post "/request?cmd=create", '<request>
                                    <action type="maintenance_incident">
@@ -1500,7 +1500,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_create_invalid_release_request
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     # branch a package with simple branch command (not mbranch)
     post "/source/BaseDistro/pack1", :cmd => :branch
     assert_response :success
@@ -1541,7 +1541,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "status", :attributes => { :code => "wrong_linked_package_source" }
 
     # add a release target
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/home:tom:branches:BaseDistro:Update/_meta"
     assert_response :success
     meta = REXML::Document.new( @response.body )
@@ -1558,7 +1558,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "status", :attributes => { :code => "missing_patchinfo" }
 
     # add required informations about the update
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/source/home:tom:branches:BaseDistro:Update?cmd=createpatchinfo"
     assert_response :success
     post "/source/home:tom:branches:BaseDistro:Update?cmd=createpatchinfo&name=pack1"
@@ -1582,7 +1582,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "status", :attributes => { :code => "incomplete_patchinfo" }
 
     # fix patchinfo
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/home:tom:branches:BaseDistro:Update/patchinfo/_patchinfo"
     assert_response :success
     pi = REXML::Document.new( @response.body )
@@ -1601,7 +1601,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "status", :attributes => { :code => "repository_without_architecture" }
 
     # add a wrong architecture
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     meta.elements['//repository'].add_element 'arch'
     meta.elements['//arch'].text = "ppc"
     put "/source/home:tom:branches:BaseDistro:Update/_meta", meta.to_s
@@ -1613,7 +1613,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "status", :attributes => { :code => "architecture_order_missmatch" }
 
     # cleanup
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     delete "/source/home:tom:branches:BaseDistro:Update"
     assert_response :success
   end
@@ -1624,7 +1624,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # to it, but does not want to use reviewers
 
     # add temporary reviewer
-    prepare_request_with_user "king", "sunflower"
+    login_king
     get "/source/BaseDistro:Update/_meta"
     assert_response :success
     meta = originmeta = ActiveXML::Node.new( @response.body )
@@ -1636,7 +1636,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/source/BaseDistro:Update/pack2/_meta"
     assert_response :success
 
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     # create project
     put "/source/home:tom:EVERGREEN/_meta", "<project name='home:tom:EVERGREEN'> <title/> <description/> 
                                          <link project='BaseDistro:Update'/>
@@ -1687,10 +1687,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # but get reviewer added if defined in own project
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put "/source/home:tom:EVERGREEN/pack2/_meta", "<package name='pack2'> <title/> <description/> <person userid='adrian' role='reviewer' /> </package>"
     assert_response :success
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/request?cmd=create", '<request>
                                    <action type="maintenance_release">
                                      <source project="home:tom:EVERGREEN" package="pack" />
@@ -1708,7 +1708,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     #cleanup
-    prepare_request_with_user "king", "sunflower"
+    login_king
     put "/source/BaseDistro:Update/_meta", originmeta.dump_xml
     assert_response :success
     delete "/source/home:tom:EVERGREEN"
@@ -1716,7 +1716,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_try_to_release_without_permissions_binary_permissions
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     # create project without trigger
     put "/source/home:tom:test/_meta", "<project name='home:tom:test'> <title/> <description/> 
                                          <repository name='dummy'>
@@ -1779,7 +1779,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_try_to_release_without_permissions_source_permissions
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     # create project
     put "/source/home:tom:test/_meta", "<project name='home:tom:test'> <title/> <description/> </project>" 
     assert_response :success
@@ -1826,12 +1826,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
   def test_copy_project_for_release
     # temporary lock the project to validate copy
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/source/BaseDistro?cmd=set_flag&flag=lock&status=enable"
     assert_response :success
 
     # as user
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     get "/source/BaseDistro/pack1/_meta"
     assert_response :success
     assert_xml_tag :tag => "disable", :parent => { :tag => "useforbuild" }
@@ -1852,7 +1852,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # as admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&nodelay=1"
     assert_response :success
     get "/source/CopyOfBaseDistro/_meta"
@@ -1908,13 +1908,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_copy_project_with_history_and_binaries
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withbinaries=1"
     assert_response 403
     assert_xml_tag :tag => "status", :attributes => { :code => "project_copy_no_permission" }
 
     # as admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     sleep 1 # to ensure that the timestamp becomes newer
     post "/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withhistory=1&withbinaries=1&nodelay=1"
     assert_response :success
@@ -1967,7 +1967,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
   def test_copy_project_for_release_with_history
     # this is changing also the source project
-    prepare_request_with_user "tom", "thunder"
+    login_tom
     post "/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&makeolder=1"
     assert_response 403
     assert_xml_tag :tag => "status", :attributes => { :code => "cmd_execution_no_permission" }
@@ -1984,7 +1984,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_not_nil originsrcmd5
 
     # as admin
-    prepare_request_with_user "king", "sunflower"
+    login_king
     post "/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withhistory=1&makeolder=1&nodelay=1"
     assert_response :success
     get "/source/CopyOfBaseDistro/_meta"
