@@ -1,6 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 
-#noinspection ALL
+require 'home_controller'
+
 class RequestControllerTest < ActionDispatch::IntegrationTest
 
   def test_my_involved_requests
@@ -10,7 +11,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     page.must_have_selector 'table#request_table tr'
 
     # walk over the table
-    rs = find('tr#tr_request_997_1').find('.request_target')
+    rs = find('tr#tr_request_1_1').find('.request_target')
     rs.find(:xpath, '//a[@title="kde4"]').must_have_text 'kde4'
     rs.find(:xpath, '//a[@title="kdelibs"]').must_have_text 'kdelibs'
   end
@@ -112,7 +113,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     login_tom
     visit home_path
 
-    within('tr#tr_request_1000_1') do
+    within('tr#tr_request_4_1') do
       page.must_have_text '~:kde4 / BranchPack'
       first(:css, 'a.request_link').click
     end
@@ -150,11 +151,11 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     fill_in 'review_user', with: 'Iggy'
     click_button 'Ok'
     page.must_have_text 'Open review for Iggy'
-    page.must_have_text 'Request 1000 (review)'
+    page.must_have_text 'Request 4 (review)'
 
     logout
     login_Iggy
-    visit request_show_path(1000)
+    visit request_show_path(4)
     click_link('review_descision_link_0')
     fill_in 'review_comment_0', with: 'Ok for the project'
     click_button 'review_accept_button_0'
@@ -170,16 +171,16 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     logout
 
     login_adrian
-    visit request_show_path(1000)
+    visit request_show_path(4)
     click_link 'review_descision_link_0'
     fill_in 'review_comment_0', with: 'BranchPack sounds strange'
     click_button 'review_decline_button_0'
-    page.must_have_text 'Request 1000 (declined)'
+    page.must_have_text 'Request 4 (declined)'
   end
 
-  test 'request 1000 can expand' do
+  test 'request 4 can expand' do
     # no login required
-    visit request_show_path(1000)
+    visit request_show_path(4)
     within '#diff_headline_myfile_diff_action_0_submit_0_0' do
       page.wont_have_text '+DummyContent'
       click_link '[+]'
@@ -191,14 +192,24 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     page.must_have_text '+DummyContent'
   end
 
-  test 'request 997 displays' do
-    visit request_show_path(997)
-    page.must_have_text 'Request 997'
+  test 'requests display' do
+    visit request_show_path(1)
+    page.must_have_text 'Request 1'
+    page.wont_have_text 'XML errors'
+
+    visit request_show_path(2)
+    page.must_have_text 'Request 2'
+    page.wont_have_text 'XML errors'
+
+    visit request_show_path(10)
+    page.must_have_text 'Request 10'
+    page.wont_have_text 'XML errors'
+
   end
 
   test 'succesful comment creation' do
     login_Iggy
-    visit "/request/show/997"
+    visit "/request/show/1"
     fill_in "title", with: "Comment Title"
     fill_in "body", with: "Comment Body"
     find_button("Add comment").click

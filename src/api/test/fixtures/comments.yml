@@ -1,116 +1,87 @@
-project_comment_parent:
- id: 100
- title: This project rules!
- body: I am making a comment on a project.
- project_id: 2042
- package_id:
- bs_request_id:
- parent_id:
- type: CommentProject
- user: Admin
- created_at: 2013-07-25 14:00:21.000000000 Z
- updated_at: 2013-07-25 14:00:21.000000000 Z
-
-project_comment_reply_1:
- id: 101
- title: This project rules!
- body: And I like that comment.
- project_id: 2042
- package_id:
- bs_request_id:
- parent_id: 100
- type: CommentProject
- user: tom
- created_at: 2013-07-25 15:00:21.000000000 Z
- updated_at: 2013-07-25 15:00:21.000000000 Z
-
-project_comment_reply_2:
- id: 102
- title: This project rules!
- body: While I don't!
- project_id: 2042
- package_id:
- bs_request_id:
- parent_id: 101
- type: CommentProject
- user: adrian
- created_at: 2013-07-25 15:47:21.000000000 Z
- updated_at: 2013-07-25 15:47:21.000000000 Z
-
 package_comment_parent:
- id: 200
- title: This package rules!
- body: I am making a comment on a package.
- project_id:
- package_id: 10094
- bs_request_id:
- parent_id:
- type: CommentPackage
- user: Admin
- created_at: 2013-07-25 14:05:30.000000000 Z
- updated_at: 2013-07-25 14:05:30.000000000 Z
-
+  id: 200
+  package_id: 10094
+  title: This package rules!
+  body: I am making a comment on a package.
+  type: CommentPackage
+  user: Admin
+  created_at: 2013-07-25 14:05:30.000000000 Z
+  updated_at: 2013-07-25 14:05:30.000000000 Z
 package_comment_reply_1:
- id: 201
- title: This package rules!
- body: And I like that comment.
- project_id:
- package_id: 10094
- bs_request_id:
- parent_id: 200
- type: CommentPackage
- user: tom
- created_at: 2013-07-25 14:07:00.000000000 Z
- updated_at: 2013-07-25 14:07:00.000000000 Z
-
+  id: 201
+  package_id: 10094
+  title: This package rules!
+  body: And I like that comment.
+  parent_id: 200
+  type: CommentPackage
+  user: tom
+  created_at: 2013-07-25 14:07:00.000000000 Z
+  updated_at: 2013-07-25 14:07:00.000000000 Z
 package_comment_reply_2:
- id: 202
- title: This package rules!
- body: While I don't!
- project_id:
- package_id: 10094
- bs_request_id:
- parent_id: 201
- type: CommentPackage
- user: adrian
- created_at: 2013-07-25 14:38:44.000000000 Z
- updated_at: 2013-07-25 14:38:44.000000000 Z
-
+  id: 202
+  package_id: 10094
+  title: This package rules!
+  body: While I don't!
+  parent_id: 201
+  type: CommentPackage
+  user: adrian
+  created_at: 2013-07-25 14:38:44.000000000 Z
+  updated_at: 2013-07-25 14:38:44.000000000 Z
+project_comment_parent:
+  id: 100
+  project_id: 2042
+  title: This project rules!
+  body: I am making a comment on a project.
+  type: CommentProject
+  user: Admin
+  created_at: 2013-07-25 14:00:21.000000000 Z
+  updated_at: 2013-07-25 14:00:21.000000000 Z
+project_comment_reply_1:
+  id: 101
+  project_id: 2042
+  title: This project rules!
+  body: And I like that comment.
+  parent_id: 100
+  type: CommentProject
+  user: tom
+  created_at: 2013-07-25 15:00:21.000000000 Z
+  updated_at: 2013-07-25 15:00:21.000000000 Z
+project_comment_reply_2:
+  id: 102
+  project_id: 2042
+  title: This project rules!
+  body: While I don't!
+  parent_id: 101
+  type: CommentProject
+  user: adrian
+  created_at: 2013-07-25 15:47:21.000000000 Z
+  updated_at: 2013-07-25 15:47:21.000000000 Z
 request_comment_parent:
- id: 300
- title: This request rules!
- body: I am making a comment on a request.
- project_id:
- package_id:
- bs_request_id: 1000
- parent_id:
- type: CommentRequest
- user: Admin
- created_at: 2013-07-25 16:00:21.000000000 Z
- updated_at: 2013-07-25 16:00:21.000000000 Z
-
+  id: 300
+  bs_request_id: 4
+  title: This request rules!
+  body: I am making a comment on a request.
+  type: CommentRequest
+  user: Admin
+  created_at: 2013-07-25 16:00:21.000000000 Z
+  updated_at: 2013-07-25 16:00:21.000000000 Z
 request_comment_reply_1:
- id: 301
- title: This request rules!
- body: And I like that comment.
- project_id:
- package_id:
- bs_request_id: 1000
- parent_id: 300
- type: CommentRequest
- user: tom
- created_at: 2013-07-25 17:00:21.000000000 Z
- updated_at: 2013-07-25 17:00:21.000000000 Z
-
+  id: 301
+  bs_request_id: 4
+  title: This request rules!
+  body: And I like that comment.
+  parent_id: 300
+  type: CommentRequest
+  user: tom
+  created_at: 2013-07-25 17:00:21.000000000 Z
+  updated_at: 2013-07-25 17:00:21.000000000 Z
 request_comment_reply_2:
- id: 302
- title: This request rules!
- body: While I don't!
- project_id:
- package_id:
- bs_request_id: 1000
- parent_id: 301
- type: CommentRequest
- user: adrian
- created_at: 2013-07-25 18:00:21.000000000 Z
- updated_at: 2013-07-25 18:00:21.000000000 Z
+  id: 302
+  bs_request_id: 4
+  title: This request rules!
+  body: While I don't!
+  parent_id: 301
+  type: CommentRequest
+  user: adrian
+  created_at: 2013-07-25 18:00:21.000000000 Z
+  updated_at: 2013-07-25 18:00:21.000000000 Z

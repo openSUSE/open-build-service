@@ -34,13 +34,13 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
   def test_writing_request_comments
     # Testing new comment creation
-    post "/webui/comments/request/998/new", {:title => "This is a title", :body => "This is a body"}
+    post "/webui/comments/request/2/new", {:title => "This is a title", :body => "This is a body"}
     assert_response :success
 
     # Empty title or body shouldn't work
-    post "/webui/comments/request/998/new", {:title => "", :body => "This is a body"}
+    post "/webui/comments/request/2/new", {:title => "", :body => "This is a body"}
     assert_response 403
-    post "/webui/comments/request/998/new", {:title => "This is a title", :body => ""}
+    post "/webui/comments/request/2/new", {:title => "This is a title", :body => ""}
     assert_response 403
   end
 
@@ -87,18 +87,18 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
   def test_delete_request_comments
     # Admins should be able to delete all comments
-    post "/webui/comments/request/1000/delete", {:comment_id => 302}
+    post "/webui/comments/request/4/delete", {:comment_id => 302}
     assert_response 200
 
     reset_auth
     login_tom
 
     # Users should be able to delete their own comments
-    post "/webui/comments/request/1000/delete", {:comment_id => 301}
+    post "/webui/comments/request/4/delete", {:comment_id => 301}
     assert_response 200
 
     # Users shouldn't be able to delete a comment they are not associated with
-    put "/webui/comments/request/1000/delete", {:comment_id => 300}
+    put "/webui/comments/request/4/delete", {:comment_id => 300}
     assert_response 404
   end
 

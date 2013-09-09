@@ -6,6 +6,7 @@ BaseDistro:
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
   maintenance_project_id: 2048
+  delta: 1
 HiddenProject:
   id: 3000
   name: HiddenProject
@@ -13,11 +14,13 @@ HiddenProject:
   description: for testing read/view permissions = access disabled
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  delta: 1
 cplusplus:
   id: 5003
   name: c++
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  delta: 1
 home_Iggy:
   id: 502
   name: home:Iggy
@@ -25,6 +28,7 @@ home_Iggy:
   description: ''
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  delta: 1
 home_adrian:
   id: 5007
   name: home:adrian
@@ -34,6 +38,7 @@ home_adrian:
     Have fun!
   created_at: 2011-09-19 11:19:37.000000000 Z
   updated_at: 2011-09-19 11:19:37.000000000 Z
+  delta: 1
 kde4:
   id: 2
   name: kde4
@@ -41,6 +46,7 @@ kde4:
   description: bla
   created_at: 2008-04-28 07:05:05.000000000 Z
   updated_at: 2008-04-28 08:06:06.000000000 Z
+  delta: 1
 projects_1:
   id: 1
   name: kde
@@ -48,11 +54,13 @@ projects_1:
   description: bla
   created_at: 2003-03-03 04:03:03.000000000 Z
   updated_at: 2004-04-04 06:04:04.000000000 Z
+  delta: 1
 projects_1000:
   id: 1000
   name: deleted
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  delta: 1
 projects_1001:
   id: 1001
   name: home:tom
@@ -64,6 +72,7 @@ projects_1001:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2012-11-29 21:18:02.000000000 Z
   type_id: 1
+  delta: 1
 projects_2043:
   id: 2043
   name: BaseDistro:Update
@@ -73,6 +82,7 @@ projects_2043:
   updated_at: 2005-01-01 01:00:01.000000000 Z
   type_id: 4
   develproject_id: 3043
+  delta: 1
 projects_2044:
   id: 2044
   name: home:adrian:BaseDistro
@@ -80,6 +90,7 @@ projects_2044:
   description: For testing project linking
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  delta: 1
 projects_2045:
   id: 2045
   name: BaseDistro2.0
@@ -87,6 +98,7 @@ projects_2045:
   description: This could be openSUSE:11.3 project for example
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  delta: 1
 projects_2046:
   id: 2046
   name: BaseDistro2.0:LinkedUpdateProject
@@ -97,6 +109,7 @@ projects_2046:
   updated_at: 2005-01-01 01:00:01.000000000 Z
   type_id: 4
   maintenance_project_id: 2048
+  delta: 1
 projects_2047:
   id: 2047
   name: BaseDistro3
@@ -106,6 +119,7 @@ projects_2047:
   updated_at: 2005-01-01 01:00:01.000000000 Z
   type_id: 4
   maintenance_project_id: 2048
+  delta: 1
 projects_2048:
   id: 2048
   name: My:Maintenance
@@ -114,6 +128,7 @@ projects_2048:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
   type_id: 2
+  delta: 1
 projects_215:
   id: 215
   name: home:dmayr
@@ -121,6 +136,7 @@ projects_215:
   description: description
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2007-01-26 13:14:22.000000000 Z
+  delta: 1
 projects_226:
   id: 226
   name: Apache
@@ -128,6 +144,7 @@ projects_226:
   description: description
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  delta: 1
 projects_3001:
   id: 3001
   name: SourceprotectedProject
@@ -135,6 +152,7 @@ projects_3001:
   description: for testing read/view permissions = sourceaccess disabled
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  delta: 1
 projects_3002:
   id: 3002
   name: BinaryprotectedProject
@@ -142,6 +160,7 @@ projects_3002:
   description: for testing read/view permissions = binarydownload disabled
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  delta: 1
 projects_3004:
   id: 3004
   name: CopyTest
@@ -149,6 +168,7 @@ projects_3004:
   description: for testing access/sourceacces
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  delta: 1
 projects_3005:
   id: 3005
   name: home:adrian:ProtectionTest
@@ -156,6 +176,7 @@ projects_3005:
   description: ''
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  delta: 1
 projects_3006:
   id: 3006
   name: HiddenRemoteInstance
@@ -164,6 +185,7 @@ projects_3006:
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
   remoteurl: http://localhost:3200
+  delta: 1
 projects_3043:
   id: 3043
   name: Devel:BaseDistro:Update
@@ -171,6 +193,7 @@ projects_3043:
   description: contains candidate changes for next updates
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  delta: 1
 projects_5000:
   id: 5000
   name: RemoteInstance
@@ -180,6 +203,7 @@ projects_5000:
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
   remoteurl: http://localhost:3200
+  delta: 1
 projects_5001:
   id: 5001
   name: UseRemoteInstance
@@ -187,6 +211,7 @@ projects_5001:
   description: for testing remoteurl support
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  delta: 1
 projects_5002:
   id: 5002
   name: LocalProject
@@ -194,6 +219,7 @@ projects_5002:
   description: for testing remoteurl support
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  delta: 1
 projects_5003:
   id: 5005
   name: UseRemoteInstanceIndirect
@@ -202,6 +228,7 @@ projects_5003:
   description: for testing remoteurl support
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  delta: 1
 projects_503:
   id: 503
   name: home:fred:DeleteProject
@@ -209,6 +236,7 @@ projects_503:
   description: ''
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  delta: 1
 projects_504:
   id: 504
   name: home:Iggy:branches:kde4
@@ -216,6 +244,7 @@ projects_504:
   description: ''
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  delta: 1
 projects_505:
   id: 505
   name: home:fred
@@ -223,6 +252,7 @@ projects_505:
   description: ''
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  delta: 1
 projects_600:
   id: 600
   name: home:coolo
@@ -231,9 +261,11 @@ projects_600:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 15:04:23.000000000 Z
   type_id: 1
+  delta: 1
 projects_601:
   id: 601
   name: home:coolo:test
   title: only a test
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  delta: 1

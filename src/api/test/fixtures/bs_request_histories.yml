@@ -1,19 +1,19 @@
 bs_request_histories_1:
   id: 1
-  bs_request_id: 1000
+  bs_request_id: 4
   state: new
   commenter: Iggy
   created_at: 2012-09-28 11:55:19.000000000 Z
 bs_request_histories_2:
   id: 2
-  bs_request_id: 1000
+  bs_request_id: 4
   state: review
   comment: see if users can review
   commenter: king
   created_at: 2012-09-28 11:56:46.000000000 Z
 bs_request_histories_3:
   id: 3
-  bs_request_id: 1000
+  bs_request_id: 4
   state: review
   comment: one group review
   commenter: king
