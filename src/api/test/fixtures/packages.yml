@@ -9,6 +9,7 @@ Basedistro_Update_pack2:
   url: ''
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 TestPack:
   id: 10095
   db_project_id: 502
@@ -20,6 +21,7 @@ TestPack:
   url: ''
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 kdelibs:
   id: 1
   db_project_id: 2
@@ -31,6 +33,7 @@ kdelibs:
   update_counter: 0
   activity_index: 100.0
   develpackage_id: 1234
+  delta: 1
 pack1:
   id: 10096
   db_project_id: 2042
@@ -42,6 +45,7 @@ pack1:
   url: ''
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 packages_10089:
   id: 10089
   db_project_id: 504
@@ -53,6 +57,7 @@ packages_10089:
   url: ''
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 packages_10097:
   id: 10097
   db_project_id: 2042
@@ -64,6 +69,7 @@ packages_10097:
   url: ''
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 packages_10098:
   id: 10098
   db_project_id: 2043
@@ -75,6 +81,7 @@ packages_10098:
   update_counter: 1
   activity_index: 10.0
   develpackage_id: 11098
+  delta: 1
 packages_10099:
   id: 10099
   db_project_id: 2045
@@ -85,6 +92,7 @@ packages_10099:
   updated_at: 2007-05-16 16:19:18.000000000 Z
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 packages_10100:
   id: 10100
   db_project_id: 2045
@@ -95,6 +103,7 @@ packages_10100:
   updated_at: 2007-05-16 16:19:18.000000000 Z
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 packages_10195:
   id: 10195
   db_project_id: 502
@@ -106,6 +115,7 @@ packages_10195:
   url: ''
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 packages_11000:
   id: 11000
   db_project_id: 3000
@@ -117,6 +127,7 @@ packages_11000:
   url: ''
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 packages_11001:
   id: 11001
   db_project_id: 5002
@@ -128,6 +139,7 @@ packages_11001:
   url: ''
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 packages_11002:
   id: 11002
   db_project_id: 5002
@@ -139,6 +151,7 @@ packages_11002:
   url: ''
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 packages_11006:
   id: 11006
   db_project_id: 3000
@@ -150,6 +163,7 @@ packages_11006:
   url: ''
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 packages_11007:
   id: 11007
   db_project_id: 3002
@@ -161,6 +175,7 @@ packages_11007:
   url: ''
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 packages_11008:
   id: 11008
   db_project_id: 3001
@@ -172,6 +187,7 @@ packages_11008:
   url: ''
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 packages_11009:
   id: 11009
   db_project_id: 3004
@@ -183,6 +199,7 @@ packages_11009:
   url: ''
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 packages_11010:
   id: 11010
   db_project_id: 3004
@@ -194,6 +211,7 @@ packages_11010:
   url: ''
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 packages_11011:
   id: 11011
   db_project_id: 3001
@@ -205,6 +223,7 @@ packages_11011:
   url: ''
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 packages_11017:
   id: 11017
   db_project_id: 3000
@@ -216,6 +235,7 @@ packages_11017:
   url: ''
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 packages_11098:
   id: 11098
   db_project_id: 3043
@@ -227,6 +247,7 @@ packages_11098:
   url: ''
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 packages_11200:
   id: 11200
   db_project_id: 3005
@@ -238,6 +259,7 @@ packages_11200:
   url: ''
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 packages_1234:
   id: 1234
   db_project_id: 601
@@ -248,6 +270,7 @@ packages_1234:
   updated_at: 2002-02-02 03:02:02.000000000 Z
   update_counter: 0
   activity_index: 100.0
+  delta: 1
 packages_1336:
   id: 1336
   db_project_id: 215
@@ -259,6 +282,7 @@ packages_1336:
   url: http://geblubberblah/total/egal
   update_counter: 0
   activity_index: 100.0
+  delta: 1
 packages_1355:
   id: 1355
   db_project_id: 226
@@ -270,6 +294,7 @@ packages_1355:
   url: http://httpd.apache.org
   update_counter: 0
   activity_index: 100.0
+  delta: 1
 packages_1356:
   id: 1356
   db_project_id: 226
@@ -281,6 +306,7 @@ packages_1356:
   url: http://some.url
   update_counter: 0
   activity_index: 100.0
+  delta: 1
 packages_2:
   id: 2
   db_project_id: 2
@@ -291,6 +317,7 @@ packages_2:
   updated_at: 2002-02-02 03:02:02.000000000 Z
   update_counter: 0
   activity_index: 100.0
+  delta: 1
 packages_253895098:
   id: 253895098
   db_project_id: 2042
@@ -303,6 +330,7 @@ packages_253895098:
   update_counter: 1
   activity_index: 10.0
   bcntsynctag: pack1
+  delta: 1
 packages_289270358:
   id: 289270358
   db_project_id: 3043
@@ -314,6 +342,7 @@ packages_289270358:
   url: ''
   update_counter: 1
   activity_index: 10.0
+  delta: 1
 packages_63:
   id: 63
   db_project_id: 226
@@ -325,6 +354,7 @@ packages_63:
   url: http://some.url
   update_counter: 0
   activity_index: 100.0
+  delta: 1
 packages_64:
   id: 64
   db_project_id: 226
@@ -336,3 +366,4 @@ packages_64:
   url: http://some.url
   update_counter: 0
   activity_index: 100.0
+  delta: 1

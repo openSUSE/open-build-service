@@ -239,6 +239,7 @@ Suse::Backend.put( '/source/CopyTest/test/my_file', "CopyTest content")
 Suse::Backend.put( '/source/CopyTest/test/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
 # Apache, gets wipe binaries and similar calls
 Suse::Backend.put( '/source/Apache/apache2/my_file', "just a file")
+Suse::Backend.put( '/source/Apache/libapr-util1/onefile', "just another file")
 
 Suse::Backend.put( '/source/LocalProject/remotepackage/_link', "<link project=\"RemoteInstance:BaseDistro\" package=\"pack1\" />")
 Suse::Backend.put( '/source/home:adrian:ProtectionTest/_config', "Type: spec")

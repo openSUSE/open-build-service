@@ -120,7 +120,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Package#find_linking_packages' => 40.68,
       'Package#private_set_package_kind' => 223.09,
       'Package#resolve_devel_package' => 52.33,
-      'Package::get_by_project_and_name' => 96.92,
+      'Package::get_by_project_and_name' => 42.13,
       'PersonController#change_password' => 45.67,
       'PersonController#internal_register' => 185.66,
       'PersonController#userinfo' => 139.67,

@@ -344,7 +344,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: "request", children: { count: 3, only: { tag: "review"} }
     assert_xml_tag tag: "request", children: { count: 3, only: { tag: "history"} }
 
-    get "/search/request", match: "[@id=#{997}]"
+    get "/search/request", match: "[@id=#{1}]"
     assert_response :success
 
   end
@@ -656,31 +656,31 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   test "xpath operators" do
     login_Iggy
 
-    get '/search/request/id', match: '@id>997'
+    get '/search/request/id', match: '@id>1'
     assert_response :success
-    assert_xml_tag tag: 'request', attributes: { id: '998'}
-    assert_no_xml_tag tag: 'request', attributes: { id: '997'}
+    assert_xml_tag tag: 'request', attributes: { id: '2'}
+    assert_no_xml_tag tag: 'request', attributes: { id: '1'}
 
-    get '/search/request/id', match: '@id>=998'
+    get '/search/request/id', match: '@id>=2'
     assert_response :success
-    assert_xml_tag tag: 'request', attributes: { id: '998'}
-    assert_no_xml_tag tag: 'request', attributes: { id: '997'}
+    assert_xml_tag tag: 'request', attributes: { id: '2'}
+    assert_no_xml_tag tag: 'request', attributes: { id: '1'}
 
-    get '/search/request/id', match: '@id<998'
+    get '/search/request/id', match: '@id<2'
     assert_response :success
-    assert_no_xml_tag tag: 'request', attributes: { id: '998'}
-    assert_xml_tag tag: 'request', attributes: { id: '997'}
+    assert_no_xml_tag tag: 'request', attributes: { id: '2'}
+    assert_xml_tag tag: 'request', attributes: { id: '1'}
 
-    get '/search/request/id', match: '@id<=998'
+    get '/search/request/id', match: '@id<=2'
     assert_response :success
-    assert_no_xml_tag tag: 'request', attributes: { id: '999'}
-    assert_xml_tag tag: 'request', attributes: { id: '998'}
+    assert_no_xml_tag tag: 'request', attributes: { id: '3'}
+    assert_xml_tag tag: 'request', attributes: { id: '2'}
 
     # verify it also works with dates
     get '/search/request/id', match: 'state/@when>="2012-09-02"'
     assert_response :success
-    assert_xml_tag tag: 'request', attributes: { id: '998'}
-    assert_no_xml_tag tag: 'request', attributes: { id: '997'}
+    assert_xml_tag tag: 'request', attributes: { id: '2'}
+    assert_no_xml_tag tag: 'request', attributes: { id: '1'}
 
   end
 end

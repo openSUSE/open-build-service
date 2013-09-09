@@ -8,10 +8,6 @@ class BsRequestTest < ActiveSupport::TestCase
     User.current = users( :Iggy )
   end
 
-  def teardown
-    BsRequest.where("id not in (997, 998, 999, 1000)").each { |r| r.destroy }
-  end
-
   test "if create works" do
     xml = '<request>
               <action type="submit">
