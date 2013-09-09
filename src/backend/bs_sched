@@ -919,8 +919,7 @@ sub sendrepochangeevent {
 sub set_repo_state {
   my ($prp, $state, $details) = @_;
 
-  unlink("$reporoot/$prp/$myarch/:schedulerstate.dirty") if $state eq "scheduling";
-  
+  unlink("$reporoot/$prp/$myarch/:schedulerstate.dirty") if $state eq 'scheduling' || $state eq 'broken' || $state eq 'disabled';
   $state .= " $details" if $details;
   mkdir_p("$reporoot/$prp/$myarch");
   writestr("$reporoot/$prp/$myarch/.:schedulerstate", "$reporoot/$prp/$myarch/:schedulerstate", $state);
