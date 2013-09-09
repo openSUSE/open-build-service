@@ -6,7 +6,7 @@
 <% prj = Project.find_cached(project) %>
 <% project_exists = prj && !prj.is_remote? %>
 <% if package %>
-  <% if !short %>
+  <% unless short %>
     package
   <% end %>
   <% if !nolink %>

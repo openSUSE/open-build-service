@@ -189,7 +189,7 @@ class RequestController < ApplicationController
   def list_small
     redirect_to :controller => :home, :action => :requests and return unless request.xhr?  # non ajax request
     requests = BsRequest.list(params)
-    render :partial => "shared/requests_small", :locals => {:requests => requests}
+    render :partial => 'shared/requests_small', :locals => {:requests => requests}
   end
 
   def delete_request_dialog
@@ -201,15 +201,15 @@ class RequestController < ApplicationController
   def delete_request
     required_parameters :project, :package
     begin
-      req = BsRequest.new(:type => "delete", :targetproject => params[:project], :targetpackage => params[:package], :description => params[:description])
+      req = BsRequest.new(:type => 'delete', :targetproject => params[:project], :targetpackage => params[:package], :description => params[:description])
       req.save(:create => true)
-      Rails.cache.delete "requests_new"
+      Rails.cache.delete 'requests_new'
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
     end
-    redirect_to :controller => :request, :action => :show, :id => req.value("id")
+    redirect_to :controller => :request, :action => :show, :id => req.value('id')
   end
 
   def add_role_request_dialog
@@ -221,15 +221,15 @@ class RequestController < ApplicationController
   def add_role_request
     required_parameters :project, :role, :user
     begin
-      req = BsRequest.new(:type => "add_role", :targetproject => params[:project], :targetpackage => params[:package], :role => params[:role], :person => params[:user], :description => params[:description])
+      req = BsRequest.new(:type => 'add_role', :targetproject => params[:project], :targetpackage => params[:package], :role => params[:role], :person => params[:user], :description => params[:description])
       req.save(:create => true)
-      Rails.cache.delete "requests_new"
+      Rails.cache.delete 'requests_new'
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = e.summary
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
     end
-    redirect_to :controller => :request, :action => :show, :id => req.value("id")
+    redirect_to :controller => :request, :action => :show, :id => req.value('id')
   end
 
   def set_bugowner_request_dialog
@@ -239,16 +239,16 @@ class RequestController < ApplicationController
   def set_bugowner_request
     required_parameters :project, :user, :group
     begin
-      if params[:group] == "False"
-        req = BsRequest.new(:type => "set_bugowner", :targetproject => params[:project], :targetpackage => params[:package],
+      if params[:group] == 'False'
+        req = BsRequest.new(:type => 'set_bugowner', :targetproject => params[:project], :targetpackage => params[:package],
                             :person => params[:user], :description => params[:description])
       end
-      if params[:user] == "False"
-        req = BsRequest.new(:type => "set_bugowner", :targetproject => params[:project], :targetpackage => params[:package],
+      if params[:user] == 'False'
+        req = BsRequest.new(:type => 'set_bugowner', :targetproject => params[:project], :targetpackage => params[:package],
                             :group => params[:group], :description => params[:description])
       end
       req.save(:create => true)
-      Rails.cache.delete "requests_new"
+      Rails.cache.delete 'requests_new'
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = e.summary
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
@@ -334,7 +334,8 @@ private
   def change_request(changestate, params)
     begin
       if BsRequest.modify( params[:id], changestate, :reason => params[:reason], :force => true )
-        flash[:notice] = "Request #{changestate}!" and return true
+        flash[:notice] = "Request #{changestate}!"
+        return true
       else
         flash[:error] = "Can't change request to #{changestate}!"
       end

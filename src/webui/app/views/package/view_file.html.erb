@@ -1,7 +1,7 @@
 <% @pagetitle = "File #{@filename} of Package #{@package}" %>
 <% package_bread_crumb(@filename) %>
 
-<%= render :partial => "tabs" %>
+<%= render :partial => 'tabs' %>
 
 <h3><%= @pagetitle %> <% if @rev %>(Revision <%= @rev %>)<% end %></h3>
 <% if @rev %>

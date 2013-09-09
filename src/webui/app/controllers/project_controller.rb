@@ -181,7 +181,7 @@ class ProjectController < ApplicationController
     target_project = ''
     begin
       path = "/source/#{CGI.escape(params[:ns])}/?cmd=createmaintenanceincident"
-      result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => "POST", :data => ""))
+      result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => 'POST', :data => ''))
       result.each("/status/data[@name='targetproject']") { |n| target_project = n.text }
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
@@ -205,9 +205,9 @@ class ProjectController < ApplicationController
 
   def new_incident_request
     begin
-      req = BsRequest.new(:project => params[:project], :type => "maintenance_incident", :description => params[:description])
+      req = BsRequest.new(:project => params[:project], :type => 'maintenance_incident', :description => params[:description])
       req.save(create: true)
-      flash[:success] = "Created maintenance release request"
+      flash[:success] = 'Created maintenance release request'
     rescue ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => e
       flash[:error] = e.summary
       redirect_back_or_to :action => 'show', :project => params[:project] and return
@@ -224,9 +224,9 @@ class ProjectController < ApplicationController
       # FIXME2.3: do it directly here, api function missing
     else
       begin
-        req = BsRequest.new(:project => params[:project], :type => "maintenance_release", :description => params[:description])
+        req = BsRequest.new(:project => params[:project], :type => 'maintenance_release', :description => params[:description])
         req.save(create: true)
-        flash[:success] = "Created maintenance release request <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value("id"))}'>#{req.value("id")}</a>"
+        flash[:success] = "Created maintenance release request <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value('id'))}'>#{req.value('id')}</a>"
       rescue ActiveXML::Transport::NotFoundError => e
         flash[:error] = e.summary
         redirect_to(:action => 'show', :project => params[:project]) and return
@@ -245,8 +245,8 @@ class ProjectController < ApplicationController
     rescue ApiDetails::NotFoundError
       return render_project_missing
     end
-    @project = Project.new(@project_info["xml"])
-    @packages = @project_info["packages"].map { |p| p[0] }.sort
+    @project = Project.new(@project_info['xml'])
+    @packages = @project_info['packages'].map { |p| p[0] }.sort
     @open_maintenance_incidents = @project_info['incidents']
     @linking_projects = @project_info['linking_projects']
     @requests = @project_info['requests']
@@ -413,12 +413,13 @@ class ProjectController < ApplicationController
   def edit_repository
     check_ajax
     repo = @project.repository[params[:repository]]
-    redirect_back_or_to(:controller => "project", :action => "repositories", :project => @project) and return if not repo
+    redirect_back_or_to(:controller => 'project', :action => 'repositories', :project => @project) and return if not repo
     # Merge project repo's arch list with currently available arches from API. This needed as you want
     # to keep currently non-working arches in the project meta.
 
     # Prepare a list of recommended architectures
-    @recommended_arch_list = @available_architectures.each.map{|arch| arch.name if arch.recommended == "true"}
+    @recommended_arch_list = @available_architectures.each.map{|arch| arch.name if arch.recommended == 'true'
+    }
 
     @repository_arch_hash = Hash.new
     @available_architectures.each {|arch| @repository_arch_hash[arch.name] = false }
@@ -477,7 +478,7 @@ class ProjectController < ApplicationController
       repository.each_arch do |arch|
         cycles = Array.new
         # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
-        deps = find_cached(BuilddepInfo, :project => @project.name, :package => "-", :repository => repository.name, :arch => arch)
+        deps = find_cached(BuilddepInfo, :project => @project.name, :package => '-', :repository => repository.name, :arch => arch)
         nr_cycles = 0
         if deps and deps.has_element? :cycle
           packages = Hash.new
@@ -523,8 +524,8 @@ class ProjectController < ApplicationController
     @arch = params[:arch]
     @hosts = begin Integer(params[:hosts] || '40') rescue 40 end
     @scheduler = params[:scheduler] || 'needed'
-    unless ["fifo", "lifo", "random", "btime", "needed", "neededb", "longest_data", "longested_triedread", "longest"].include? @scheduler
-      flash[:error] = "Invalid scheduler type, check mkdiststats docu - aehm, source"
+    unless ['fifo', 'lifo', 'random', 'btime', 'needed', 'neededb', 'longest_data', 'longested_triedread', 'longest'].include? @scheduler
+      flash[:error] = 'Invalid scheduler type, check mkdiststats docu - aehm, source'
       redirect_to :action => :show, :project => @project
       return
     end
@@ -537,10 +538,10 @@ class ProjectController < ApplicationController
       return
     end
     indir = Dir.mktmpdir
-    f = File.open(indir + "/_builddepinfo.xml", 'w')
+    f = File.open(indir + '/_builddepinfo.xml', 'w')
     f.write(bdep.dump_xml)
     f.close
-    f = File.open(indir + "/_jobhistory.xml", 'w')
+    f = File.open(indir + '/_jobhistory.xml', 'w')
     f.write(jobs.dump_xml)
     f.close
     outdir = Dir.mktmpdir
@@ -549,17 +550,17 @@ class ProjectController < ApplicationController
              --buildhosts=#{@hosts} --scheduler=#{@scheduler}"
     fork do
       Dir.chdir(Rails.root.join('vendor', 'diststats'))
-      system("perl", "./mkdiststats", "--srcdir=#{indir}", "--destdir=#{outdir}",
-             "--outfmt=xml", "#{@project.name}/#{@repository}/#{@arch}", "--width=910",
+      system('perl', './mkdiststats', "--srcdir=#{indir}", "--destdir=#{outdir}",
+             '--outfmt=xml', "#{@project.name}/#{@repository}/#{@arch}", '--width=910',
              "--buildhosts=#{@hosts}", "--scheduler=#{@scheduler}")
     end
     Process.wait
-    f=File.open(outdir + "/rebuild.png")
+    f=File.open(outdir + '/rebuild.png')
     png=f.read
     f.close
     @pngkey = Digest::MD5.hexdigest( params.to_s )
-    Rails.cache.write("rebuild-%s.png" % @pngkey, png)
-    f=File.open(outdir + "/longest.xml")
+    Rails.cache.write('rebuild-%s.png' % @pngkey, png)
+    f=File.open(outdir + '/longest.xml')
     longest = ActiveXML::Node.new(f.read)
     @timings = Hash.new
     longest.timings.each_package do |p|
@@ -585,13 +586,13 @@ class ProjectController < ApplicationController
   def rebuild_time_png
     required_parameters :key
     key = params[:key]
-    png = Rails.cache.read("rebuild-%s.png" % key)
+    png = Rails.cache.read('rebuild-%s.png' % key)
     headers['Content-Type'] = 'image/png'
     send_data(png, :type => 'image/png', :disposition => 'inline')
   end
 
   def packages
-    headers["Status"] = "301 Moved Permanently"
+    headers['Status'] = '301 Moved Permanently'
     redirect_to :action => 'show', :project => @project
   end
 
@@ -604,15 +605,15 @@ class ProjectController < ApplicationController
   def save_new
     if params[:name].blank? || !valid_project_name?( params[:name] )
       flash[:error] = "Invalid project name '#{params[:name]}'."
-      redirect_to :action => "new", :ns => params[:ns] and return
+      redirect_to :action => 'new', :ns => params[:ns] and return
     end
 
     project_name = params[:name].strip
-    project_name = params[:ns].strip + ":" + project_name.strip if params[:ns]
+    project_name = params[:ns].strip + ':' + project_name.strip if params[:ns]
 
     if Project.exists? project_name
       flash[:error] = "Project '#{project_name}' already exists."
-      redirect_to :action => "new", :ns => params[:ns] and return
+      redirect_to :action => 'new', :ns => params[:ns] and return
     end
 
     #store project
@@ -622,16 +623,16 @@ class ProjectController < ApplicationController
     @project.set_project_type('maintenance') if params[:maintenance_project]
     @project.set_remoteurl(params[:remoteurl]) if params[:remoteurl]
     if params[:access_protection]
-      @project.add_element "access"
-      @project.access.add_element "disable"
+      @project.add_element 'access'
+      @project.access.add_element 'disable'
     end
     if params[:source_protection]
-      @project.add_element "sourceaccess"
-      @project.sourceaccess.add_element "disable"
+      @project.add_element 'sourceaccess'
+      @project.sourceaccess.add_element 'disable'
     end
     if params[:disable_publishing]
-      @project.add_element "publish"
-      @project.publish.add_element "disable"
+      @project.add_element 'publish'
+      @project.publish.add_element 'disable'
     end
     begin
       if @project.save
@@ -642,15 +643,15 @@ class ProjectController < ApplicationController
       end
     rescue ActiveXML::Transport::ForbiddenError
       flash[:error] = "You lack the permission to create the project '#{@project}'. " +
-        "Please create it in your home:%s namespace" % session[:login]
-      redirect_to :action => 'new', :ns => "home:" + session[:login] and return
+        'Please create it in your home:%s namespace' % session[:login]
+      redirect_to :action => 'new', :ns => 'home:' + session[:login] and return
     end
     redirect_to :action => 'new'
   end
 
   def save
     if ( !params[:title] )
-      flash[:error] = "Title must not be empty"
+      flash[:error] = 'Title must not be empty'
       redirect_to :action => 'edit', :project => params[:project]
       return
     end
@@ -670,8 +671,8 @@ class ProjectController < ApplicationController
   def save_targets
     if params[:target_project].blank? and params[:torepository].blank? and
         params[:repo].blank? and params[:target_repo].blank?
-      flash[:error] = "Missing arguments for target project or repository"
-      redirect_to :action => "add_repository_from_default_list", :project => @project and return
+      flash[:error] = 'Missing arguments for target project or repository'
+      redirect_to :action => 'add_repository_from_default_list', :project => @project and return
     end
     target_repo = params[:target_repo]
 
@@ -704,7 +705,7 @@ class ProjectController < ApplicationController
         @project.add_repository(:reponame => repo, :repo_path => repo_path, :arch => repo_archs)
 
         # FIXME: will be cleaned up after implementing FATE #308899
-        if repo == "images"
+        if repo == 'images'
           prjconf = frontend.get_source(:project => params[:project], :filename => '_config')
           unless prjconf =~ /^Type:/
             prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
@@ -714,11 +715,11 @@ class ProjectController < ApplicationController
       end
 
       @project.save
-      flash[:success] = "Build targets were added successfully"
+      flash[:success] = 'Build targets were added successfully'
       redirect_to :action => 'repositories', :project => @project and return
     end
   rescue ActiveXML::Transport::Error => e
-    flash[:error] = "Failed to add project or repository: " + e.summary
+    flash[:error] = 'Failed to add project or repository: ' + e.summary
     redirect_back_or_to :action => 'repositories', :project => @project and return
   end
 
@@ -736,9 +737,9 @@ class ProjectController < ApplicationController
 
   def remove_target_request
     begin
-      req = BsRequest.new(:type => "delete", :targetproject => params[:project], :targetrepository => params[:repository], :description => params[:description])
+      req = BsRequest.new(:type => 'delete', :targetproject => params[:project], :targetrepository => params[:repository], :description => params[:description])
       req.save(create: true)
-      flash[:success] = "Created <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value("id"))}'>repository delete request #{req.value("id")}</a>"
+      flash[:success] = "Created <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value('id'))}'>repository delete request #{req.value('id')}</a>"
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = e.summary
       redirect_to :action => :repositories, :project => @project and return
@@ -746,12 +747,12 @@ class ProjectController < ApplicationController
       flash[:error] = e.summary
       redirect_back_or_to :action => :repositories, :project => @project and return
     end
-    redirect_to :controller => :request, :action => :show, :id => req.value("id")
+    redirect_to :controller => :request, :action => :show, :id => req.value('id')
   end
 
   def remove_target
     if not params[:target]
-      flash[:error] = "Target removal failed, no target selected!"
+      flash[:error] = 'Target removal failed, no target selected!'
       redirect_to :action => :show, :project => params[:project]
     end
     @project.remove_repository params[:target]
@@ -891,9 +892,9 @@ class ProjectController < ApplicationController
     @avail_arch_values = []
     @avail_repo_values = []
 
-    @project.to_hash.elements("repository") { |r|
-      @avail_repo_values << r["name"]
-      @avail_arch_values << r.elements("arch")
+    @project.to_hash.elements('repository') { |r|
+      @avail_repo_values << r['name']
+      @avail_arch_values << r.elements('arch')
     }
     @avail_arch_values = @avail_arch_values.flatten.uniq.sort
     @avail_repo_values = @avail_repo_values.flatten.uniq.sort
@@ -926,7 +927,7 @@ class ProjectController < ApplicationController
     end
 
     @buildresult = @buildresult.to_hash
-    if not @buildresult.has_key? "result"
+    if not @buildresult.has_key? 'result'
       @buildresult_unavailable = true
       return
     end
@@ -936,10 +937,10 @@ class ProjectController < ApplicationController
     @repostatushash = Hash.new
     @packagenames = Array.new
 
-    @buildresult.elements("result") do |result|
+    @buildresult.elements('result') do |result|
       @resultvalue = result
-      repo = result["repository"]
-      arch = result["arch"]
+      repo = result['repository']
+      arch = result['arch']
 
       next unless @repo_filter.include? repo
       @repohash[repo] ||= Array.new
@@ -950,8 +951,8 @@ class ProjectController < ApplicationController
       @statushash[repo] ||= Hash.new
 
       stathash = Hash.new
-      result.elements("status") do |status|
-        stathash[status["package"]] = status
+      result.elements('status') do |status|
+        stathash[status['package']] = status
       end
       stathash.keys.each do |p|
         @packagenames << p.to_s
@@ -963,11 +964,11 @@ class ProjectController < ApplicationController
       @repostatushash[repo] ||= Hash.new
       @repostatushash[repo][arch] = Hash.new
 
-      if result.has_key? "state"
-        if result.has_key? "dirty"
-          @repostatushash[repo][arch] = "outdated_" + result["state"]
+      if result.has_key? 'state'
+        if result.has_key? 'dirty'
+          @repostatushash[repo][arch] = 'outdated_' + result['state']
         else
-          @repostatushash[repo][arch] = result["state"]
+          @repostatushash[repo][arch] = result['state']
         end
       end
     end
@@ -1023,9 +1024,9 @@ class ProjectController < ApplicationController
     @repohash = Hash.new
     @statushash = Hash.new
 
-    @buildresult.elements("result") do |result|
-      repo = result["repository"]
-      arch = result["arch"]
+    @buildresult.elements('result') do |result|
+      repo = result['repository']
+      arch = result['arch']
 
       @repohash[repo] ||= Array.new
       @repohash[repo] << arch
@@ -1035,8 +1036,8 @@ class ProjectController < ApplicationController
       @statushash[repo][arch] = Hash.new
 
       stathash = @statushash[repo][arch]
-      result.elements("status") do |status|
-        stathash[status["package"]] = status
+      result.elements('status') do |status|
+        stathash[status['package']] = status
       end
     end if @buildresult
     render :layout => false
@@ -1052,7 +1053,7 @@ class ProjectController < ApplicationController
     end
     @user.save
 
-    if request.env["HTTP_REFERER"]
+    if request.env['HTTP_REFERER']
       redirect_to :back
     else
       redirect_to :action => :show, :project => @project
@@ -1064,7 +1065,7 @@ class ProjectController < ApplicationController
       @meta = frontend.get_source(:project => params[:project], :filename => '_meta')
     rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "Project _meta not found: #{params[:project]}"
-      redirect_to :controller => "project", :action => "list_public", :nextstatus => 404
+      redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404
     end
   end
 
@@ -1072,12 +1073,12 @@ class ProjectController < ApplicationController
     begin
       frontend.put_file(params[:meta], :project => params[:project], :filename => '_meta')
     rescue ActiveXML::Transport::Error => e
-      render :text => e.summary, :status => 400, :content_type => "text/plain"
+      render :text => e.summary, :status => 400, :content_type => 'text/plain'
       return
     end
 
     Project.free_cache params[:project]
-    render :text => "Config successfully saved", :content_type => "text/plain"
+    render :text => 'Config successfully saved', :content_type => 'text/plain'
   end
 
   def prjconf
@@ -1092,8 +1093,8 @@ class ProjectController < ApplicationController
   def save_prjconf
     check_ajax
     frontend.put_file(params[:config], :project => params[:project], :filename => '_config')
-    flash[:notice] = "Project Config successfully saved"
-    render text: "Config successfully saved", content_type: "text/plain"
+    flash[:notice] = 'Project Config successfully saved'
+    render text: 'Config successfully saved', content_type: 'text/plain'
   end
 
   def change_flag
@@ -1106,9 +1107,9 @@ class ProjectController < ApplicationController
   def clear_failed_comment
     # TODO(Jan): put this logic in the Attribute model
     transport ||= ActiveXML::transport
-    params["package"].to_a.each do |p|
+    params['package'].to_a.each do |p|
       begin
-        transport.direct_http URI("/source/#{params[:project]}/#{p}/_attribute/OBS:ProjectStatusPackageFailComment"), :method => "DELETE"
+        transport.direct_http URI("/source/#{params[:project]}/#{p}/_attribute/OBS:ProjectStatusPackageFailComment"), :method => 'DELETE'
       rescue ActiveXML::Transport::ForbiddenError => e
         flash[:error] = e.summary
         redirect_to :action => :status, :project => params[:project]
@@ -1119,8 +1120,8 @@ class ProjectController < ApplicationController
       render :text => '<em>Cleared comment</em>'
       return
     end
-    if params["package"].to_a.length > 1
-      flash[:notice] = "Cleared comment for packages %s" % params[:package].to_a.join(',')
+    if params['package'].to_a.length > 1
+      flash[:notice] = 'Cleared comment for packages %s' % params[:package].to_a.join(',')
     else
       flash[:notice] = "Cleared comment for package #{params[:package]}"
     end
@@ -1153,14 +1154,14 @@ class ProjectController < ApplicationController
   end
 
   def status
-    all_packages = "All Packages"
-    no_project = "No Project"
+    all_packages = 'All Packages'
+    no_project = 'No Project'
     @current_develproject = params[:filter_devel] || all_packages
     filter = @current_develproject
     if filter == all_packages
-      filter = "_all_"
+      filter = '_all_'
     elsif filter == no_project
-      filter = "_none_"
+      filter = '_none_'
     end
     @ignore_pending = params[:ignore_pending] || false
     @limit_to_fails = !(!params[:limit_to_fails].nil? && params[:limit_to_fails] == 'false')
@@ -1183,7 +1184,7 @@ class ProjectController < ApplicationController
 
     respond_to do |format|
       format.json {
-        render :text => JSON.pretty_generate(@packages), :layout => false, :content_type => "text/plain"
+        render :text => JSON.pretty_generate(@packages), :layout => false, :content_type => 'text/plain'
       }
       format.html
     end
@@ -1191,7 +1192,7 @@ class ProjectController < ApplicationController
 
   def maintained_projects
     @maintained_projects = []
-    @project.each("maintenance/maintains") do |maintained_project_name|
+    @project.each('maintenance/maintains') do |maintained_project_name|
        @maintained_projects << maintained_project_name.value(:project)
     end
     redirect_back_or_to :action => 'show', :project => @project and return unless @is_maintenance_project
@@ -1261,7 +1262,7 @@ class ProjectController < ApplicationController
   def unlock
     begin
       path = "/source/#{CGI.escape(params[:project])}/?cmd=unlock&comment=#{CGI.escape(params[:comment])}"
-      frontend.transport.direct_http(URI(path), :method => "POST", :data => '')
+      frontend.transport.direct_http(URI(path), :method => 'POST', :data => '')
       flash[:success] = "Unlocked project #{params[:project]}"
       Project.free_cache(params[:project])
     rescue ActiveXML::Transport::Error => e
@@ -1278,7 +1279,7 @@ class ProjectController < ApplicationController
       respond_to do |format|
         format.js { render json: 'ok' }
         format.html do
-          flash[:notice] = "Comment added successfully"          
+          flash[:notice] = 'Comment added successfully'
         end
       end
     rescue ActiveXML::Transport::Error => e
@@ -1294,7 +1295,7 @@ class ProjectController < ApplicationController
       respond_to do |format|
         format.js { render json: 'ok' }
         format.html do
-          flash[:notice] = "Comment successfully deleted"
+          flash[:notice] = 'Comment successfully deleted'
         end
       end
     rescue ActiveXML::Transport::Error => e
@@ -1306,7 +1307,7 @@ class ProjectController < ApplicationController
   private
 
   def filter_packages( project, filterstring )
-    result = Collection.find :id, :what => "package",
+    result = Collection.find :id, :what => 'package',
       :predicate => "@project='#{project}' and contains(@name,'#{filterstring}')"
     return result.each.map {|x| x.name}
   end
@@ -1316,7 +1317,7 @@ class ProjectController < ApplicationController
     if !valid_project_name? params[:project]
       unless request.xhr?
         flash[:error] = "#{params[:project]} is not a valid project name"
-        redirect_to :controller => "project", :action => "list_public", :nextstatus => 404 and return false
+        redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404 and return false
       else
         render :text => 'Not a valid project name', :status => 404 and return false
       end
@@ -1329,7 +1330,7 @@ class ProjectController < ApplicationController
       # checks if the user is registered yet
       flash[:notice] = "Your home project doesn't exist yet. You can create it now by entering some" +
         " descriptive data and press the 'Create Project' button."
-      redirect_to :action => :new, :ns => "home:" + session[:login] and return
+      redirect_to :action => :new, :ns => 'home:' + session[:login] and return
     end
     # remove automatically if a user watches a removed project
     if @user and @user.watches? params[:project]
@@ -1337,7 +1338,7 @@ class ProjectController < ApplicationController
     end
     unless request.xhr?
       flash[:error] = "Project not found: #{params[:project]}"
-      redirect_to :controller => "project", :action => "list_public", :nextstatus => 404 and return
+      redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404 and return
     else
       render :text => "Project not found: #{params[:project]}", :status => 404 and return
     end
@@ -1350,7 +1351,7 @@ class ProjectController < ApplicationController
       return render_project_missing
     end
     # Is this a maintenance master project ?
-    @is_maintenance_project = @project.project_type == "maintenance"
+    @is_maintenance_project = @project.project_type == 'maintenance'
   end
 
 end

@@ -195,7 +195,7 @@ class PatchinfoController < ApplicationController
           if zypp_restart_needed
             node.zypp_restart_needed
           end
-          if params[:block] == "true"
+          if params[:block] == 'true'
             node.stopped  params[:block_reason]
           end
         end
@@ -204,12 +204,12 @@ class PatchinfoController < ApplicationController
             :package => @package, :filename => filename)
           flash[:notice] = "Successfully edited #{@package}"
         rescue Timeout::Error 
-          flash[:error] = "Timeout when saving file. Please try again."
+          flash[:error] = 'Timeout when saving file. Please try again.'
         end
 
         Package.free_cache( :all, :project => @project.name )
         Package.free_cache( @package.name, :project => @project )
-        redirect_to :controller => "patchinfo", :action => "show",
+        redirect_to :controller => 'patchinfo', :action => 'show',
           :project => @project.name, :package => @package
       end
       if valid_params == false
@@ -237,11 +237,11 @@ class PatchinfoController < ApplicationController
         @zypp_restart_needed = params[:zypp_restart_needed]
         @block = params[:block]
         @block_reason = params[:block_reason]
-        render :action => "edit_patchinfo", :project => @project, :package => @package
+        render :action => 'edit_patchinfo', :project => @project, :package => @package
       end
     rescue ActiveXML::Transport::ForbiddenError
-      flash[:error] = "No permission to edit the patchinfo-file."
-      redirect_to :action => "show", :project => @project.name, :package => @package.name
+      flash[:error] = 'No permission to edit the patchinfo-file.'
+      redirect_to :action => 'show', :project => @project.name, :package => @package.name
     end
   end
 
@@ -249,8 +249,8 @@ class PatchinfoController < ApplicationController
     begin
       FrontendCompat.new.delete_package :project => @project, :package => @package
       flash[:notice] = "'#{@package}' was removed successfully from project '#{@project}'"
-      Rails.cache.delete("%s_packages_mainpage" % @project)
-      Rails.cache.delete("%s_problem_packages" % @project)
+      Rails.cache.delete('%s_packages_mainpage' % @project)
+      Rails.cache.delete('%s_problem_packages' % @project)
       Package.free_cache( :all, :project => @project.name )
       Package.free_cache( @package, :project => @project )
       Patchinfo.free_cache(:project=> @project, :package => @package)
@@ -287,7 +287,7 @@ class PatchinfoController < ApplicationController
       if new_issue.starts_with? "CVE-"
         issue[0] = "cve"
         issue[1] = new_issue
-      elsif
+      else
         issue = new_issue.split("#")
       end
       if issue.length > 1

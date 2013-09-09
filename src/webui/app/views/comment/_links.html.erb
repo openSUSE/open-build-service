@@ -1,7 +1,8 @@
 <ul class="horizontal-list">
   <li>
     <a onclick="toggle_visibility('<%="reply_form_of_#{comment['id']}"%>');">
-      <%= sprite_tag('comment_add', title: "Reply") + "Reply" %>
+      <%= sprite_tag('comment_add', title: 'Reply'
+          ) + 'Reply' %>
     </a>
   </li>
   <%if @user %>

@@ -1,8 +1,8 @@
 <% unless @requests.blank? %>
   <li>
-  <%= sprite_tag("information") %>
+  <%= sprite_tag('information') %>
   <% if @requests.size == 1 %>
-    1 <%= link_to("open request", :action => "show", :controller => "request", :id => @requests[0]) %>
+    1 <%= link_to('open request', :action => "show", :controller => "request", :id => @requests[0]) %>
   <% else %>
     <%= @requests.size %>
     <% if @package %>

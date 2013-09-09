@@ -187,14 +187,14 @@ private
       ["#{t['attrib_namespace_name']}:#{t['name']}", t['id']]
     end
     @attrib_type_list.sort_by! {|a| a.first }
-    @attrib_type_list.unshift(["", ""])
+    @attrib_type_list.unshift(['', ''])
   end
 
   def set_tracker_list
     trackers = find_cached(IssueTracker, :all)
     @issue_tracker_list = []
-    @default_tracker = "bnc"
-    trackers.each("/issue-trackers/issue-tracker") do |t|
+    @default_tracker = 'bnc'
+    trackers.each('/issue-trackers/issue-tracker') do |t|
       @issue_tracker_list << ["#{t.name.text} (#{t.description.text})", t.name.text]
     end
     @issue_tracker_list.sort_by! {|a| a.first.downcase }
@@ -203,11 +203,11 @@ private
   def validate_result
     logger.debug "Found #{@results.length} search results: #{@results.inspect}"
     if @results.length < 1
-      flash[:notice] = "Your search did not return any results."
+      flash[:notice] = 'Your search did not return any results.'
     end
     if @results.length > 200
       @results = @results[0..199]
-      flash[:notice] = "Your search returned more than 200 results. Please be more precise."
+      flash[:notice] = 'Your search returned more than 200 results. Please be more precise.'
     end
   end
 

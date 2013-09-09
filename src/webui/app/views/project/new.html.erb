@@ -1,13 +1,13 @@
 <% 
 unless @pagetitle
-   @pagetitle = "Create New Project"
-   @pagetitle = "Create New Subproject" if @namespace 
+   @pagetitle = 'Create New Project'
+   @pagetitle = 'Create New Subproject' if @namespace
 end
 %>
 <% project_bread_crumb 'New Project' %>
 
 <h3><%= @pagetitle %></h3>
-<% if not @user.is_admin? %>
+<% unless @user.is_admin? %>
   <p>
     All users have a <b>home:&lt;login&gt;</b> project by default, and can also create new sub projects. New project outside of your home namespace can get requested via
     <a href="https://bugzilla.novell.com/enter_bug.cgi?classification=7340&amp;product=openSUSE.org&amp;submit=Use+This+Product&amp;component=OBS%20Request">bugzilla</a>.

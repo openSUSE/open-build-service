@@ -78,10 +78,12 @@ class Project < ActiveXML::Node
         if new_paths[i] == path           # found the path to move?
           if direction == :up and i != 0  # move up and is not the first?
             new_paths[i - 1], new_paths[i] = new_paths[i], new_paths[i - 1]
-            paths=(new_paths) and break
+            paths=new_paths
+            break
           elsif direction == :down and i != new_paths.length - 1
             new_paths[i + 1], new_paths[i] = new_paths[i], new_paths[i + 1]
-            paths=(new_paths) and break
+            paths=new_paths
+            break
           end
         end
       end

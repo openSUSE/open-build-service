@@ -5,7 +5,7 @@ class Person < ActiveXML::Node
   default_find_parameter :login
 
   handles_xml_element 'person'
-  
+
   class << self
     def make_stub( opt )
       logger.debug "make stub params: #{opt.inspect}"
@@ -30,7 +30,7 @@ class Person < ActiveXML::Node
       return reply
     end
   end
-  
+
   def self.find_cached(login, opts = {})
     if opts.has_key?(:is_current)
       # skip memcache
@@ -67,7 +67,7 @@ class Person < ActiveXML::Node
   def login
     @login || self.to_hash["login"]
   end
-  
+
   def globalrole
     roles = Array.new
     to_hash.elements("globalrole").each do |role|
@@ -143,7 +143,7 @@ class Person < ActiveXML::Node
     col.each_package do |pi|
       hash = { :package => { :project => pi.project, :name => pi.name } }
       issues = Array.new
-      
+
       begin
         # get users open issues for package
         path = "/source/#{URI.escape(pi.project)}/#{URI.escape(pi.name)}?view=issues&states=OPEN&login=#{CGI.escape(login)}"
@@ -156,21 +156,17 @@ class Person < ActiveXML::Node
           i[:tracker]= s.find_first("tracker").text
           i[:label]= s.find_first("label").text
           i[:url]= s.find_first("url").text
-          if summary=s.find_first("summary")
-            i[:summary] = summary.text
-          end
-          if state=s.find_first("state")
-            i[:state] = state.text
-          end
-          if login=s.find_first("login")
-            i[:login] = login.text
-          end
-          if updated_at=s.find_first("updated_at")
-            i[:updated_at] = updated_at.text
-          end
+          summary=s.find_first("summary")
+          i[:summary] = summary.text if summary
+          state=s.find_first("state")
+          i[:state] = state.text if state
+          login=s.find_first("login")
+          i[:login] = login.text if login
+          updated_at=s.find_first("updated_at")
+          i[:updated_at] = updated_at.text if updated_at
           issues << i
         end
-        
+
         hash[:issues] = issues
         array << hash
       rescue ActiveXML::Transport::NotFoundError
@@ -188,7 +184,7 @@ class Person < ActiveXML::Node
   def groups
     return @groups if @groups
     @groups = []
-    PersonGroup.find(login).to_hash.elements("entry") do |e|
+    PersonGroup.find(login).to_hash.elements('entry') do |e|
         groups << e['name']
     end
     @groups
@@ -203,7 +199,7 @@ class Person < ActiveXML::Node
   end
 
   def is_admin?
-    to_hash.elements("globalrole").each do |g|  
+    to_hash.elements('globalrole').each do |g|
       return true if g == 'Admin'
     end
     return false
@@ -234,8 +230,8 @@ class Person < ActiveXML::Node
       transport ||= ActiveXML::transport
       path = "/person?prefix=#{prefix}"
       begin
-        logger.debug "Fetching user list from API"
-        response = transport.direct_http URI("#{path}"), :method => "GET"
+        logger.debug 'Fetching user list from API'
+        response = transport.direct_http URI("#{path}"), :method => 'GET'
         names = []
         if hash
           Collection.new(response).each do |user|

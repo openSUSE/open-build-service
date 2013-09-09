@@ -184,7 +184,7 @@ class BsRequest < ActiveXML::Node
 
     def prepare_list_path(path, opts)
       unless opts[:states] or opts[:reviewstate] or opts[:roles] or opts[:types] or opts[:user] or opts[:project]
-        raise RuntimeError, "missing parameters"
+        raise RuntimeError, 'missing parameters'
       end
       
       opts.delete(:types) if opts[:types] == 'all' # All types means don't pass 'type' to backend
@@ -197,23 +197,23 @@ class BsRequest < ActiveXML::Node
       query << "user=#{CGI.escape(opts[:user])}" unless opts[:user].blank?
       query << "project=#{CGI.escape(opts[:project])}" unless opts[:project].blank?
       query << "package=#{CGI.escape(opts[:package])}" unless opts[:package].blank?
-      query << "subprojects=1" if opts[:subprojects]
-      return path + "?" + query.join('&')
+      query << 'subprojects=1' if opts[:subprojects]
+      return path + '?' + query.join('&')
     end
     
     def list_ids(opts)
        # All types means don't pass 'type' to backend
-      if opts[:types] == 'all' || (opts[:types].respond_to?(:include?) && opts[:types].include?("all"))
+      if opts[:types] == 'all' || (opts[:types].respond_to?(:include?) && opts[:types].include?('all'))
         opts.delete(:types)
       end
       ApiDetails.read(:ids_requests, opts)
     end
 
     def list(opts)
-      path = prepare_list_path("/request?view=collection", opts)
+      path = prepare_list_path('/request?view=collection', opts)
       begin
-        logger.debug "Fetching request list from api"
-        response = ActiveXML::transport.direct_http URI("#{path}"), :method => "GET"
+        logger.debug 'Fetching request list from api'
+        response = ActiveXML::transport.direct_http URI("#{path}"), :method => 'GET'
         return Collection.new(response).each # last statement, implicit return value of block, assigned to 'request_list' non-local variable
       rescue ActiveXML::Transport::Error => e
         raise ListError, e.summary

@@ -1,6 +1,6 @@
 <% @pagetitle = "Show #{@project}" %>
 <% @layouttype = 'custom' %>
-<% project_bread_crumb "Overview" %>
+<% project_bread_crumb 'Overview' %>
 
 <div class="grid_16 alpha omega box box-shadow">
   <%= render :partial => 'tabs' %>
@@ -196,6 +196,6 @@
   </div>
   <div class="grid_16 box box-shadow alpha omega">
     <h2 class="box-header">Comments for <%= @project.name %> (<%= @comments.length %>)</h2>
-    <%= render :partial => "comment/show"%>
+    <%= render :partial => 'comment/show'%>
   </div>
 <% end %>

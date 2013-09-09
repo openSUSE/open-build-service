@@ -38,7 +38,7 @@ class PackageEditSourcesTest < ActionDispatch::IntegrationTest
 
     fill_in "filename", with: file[:name]
 
-    if file[:upload_from] == :local_file then
+    if file[:upload_from] == :local_file
       find(:id, "file_type").select("local file")
       begin
         page.attach_file("file", file[:upload_path]) unless file[:upload_path].blank?

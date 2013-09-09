@@ -41,7 +41,8 @@
       </p>
     <% end %>
 
-    <% if descr = description_text(result[:data]) %>
+    <% descr = description_text(result[:data])
+       if descr %>
       <p class="data-description">
       <% descr.split(/\n/).each do |line| -%>
         <%= highlight(line, @search_text, highlighter: '<b>\1</b>') %>

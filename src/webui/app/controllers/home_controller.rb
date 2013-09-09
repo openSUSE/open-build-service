@@ -1,5 +1,6 @@
 require 'net/http'
 
+#noinspection ALL
 class HomeController < ApplicationController
 
   before_filter :require_login, :except => [:icon, :index, :requests]
@@ -89,7 +90,7 @@ class HomeController < ApplicationController
   end
 
   def remove_watched_project
-    logger.debug "removing watched project '#{params[:project]}' from user '#@user'"
+    logger.debug "removing watched project '#{params[:project]}' from user '#{@user}'"
     @user.remove_watched_project(params[:project])
     @user.save
     render :partial => 'watch_list'

@@ -10,7 +10,8 @@ task :check_erb do
     Open3.popen3('ruby -c') do |stdin, stdout, stderr|
       stdin.puts(ERB.new(File.read(file), nil, '-').src)
       stdin.close
-      if error = ((stderr.readline rescue false))
+      error = ((stderr.readline rescue false))
+      if error
         puts file + error[1..-1]
       end
       stdout.close rescue false
@@ -24,9 +25,8 @@ task :check_ruby do
     next if file.match("vendor/rails")
     next if file.match("vendor/plugins/.*/generators/.*/templates")
     Open3.popen3("ruby -c #{file}") do |stdin, stdout, stderr|
-      if error = ((stderr.readline rescue false))
-        puts error
-      end
+      error = ((stderr.readline rescue false))
+      puts error if error
       stdin.close rescue false
       stdout.close rescue false
       stderr.close rescue false

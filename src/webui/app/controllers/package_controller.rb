@@ -69,7 +69,8 @@ class PackageController < ApplicationController
 
   def set_linking_packages
     if @spider_bot
-      @linking_packages = [] and return
+      @linking_packages = []
+      return
     end
     cache_string = "%s/%s_linking_packages" % [ @project, @package ]
     Rails.cache.delete(cache_string) if discard_cache?
@@ -216,12 +217,12 @@ class PackageController < ApplicationController
   def submit_request
     required_parameters :project, :package
     if params[:targetproject].nil? or params[:targetproject].empty?
-      flash[:error] = "Please provide a target for the submit request"
+      flash[:error] = 'Please provide a target for the submit request'
       redirect_to :action => :show, :project => params[:project], :package => params[:package] and return
     end
 
     begin
-      params[:type] = "submit"
+      params[:type] = 'submit'
       if not params[:sourceupdate] and params[:project].include?(':branches:')
         params[:sourceupdate] = 'update' # Avoid auto-removal of branch
       end
@@ -229,7 +230,7 @@ class PackageController < ApplicationController
       req.save(:create => true)
     rescue ActiveXML::Transport::Error, ActiveXML::Transport::NotFoundError => e
       flash[:error] = "Unable to submit: #{e.message}"
-      redirect_to(:action => "show", :project => params[:project], :package => params[:package]) and return
+      redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
     end
 
     # Supersede logic has to be below addition as we need the new request id
@@ -238,15 +239,15 @@ class PackageController < ApplicationController
       pending_requests.each do |request|
         next if request.value(:id) == req.value(:id) # ignore newly created request
         begin
-          BsRequest.modify(request.value(:id), "superseded", :reason => "Superseded by request #{req.value(:id)}", :superseded_by => req.value(:id))
+          BsRequest.modify(request.value(:id), 'superseded', :reason => "Superseded by request #{req.value(:id)}", :superseded_by => req.value(:id))
         rescue BsRequest::ModifyError => e
           flash[:error] = e.message
-          redirect_to(:action => "requests", :project => params[:project], :package => params[:package]) and return
+          redirect_to(:action => 'requests', :project => params[:project], :package => params[:package]) and return
         end
       end
     end
 
-    Rails.cache.delete "requests_new"
+    Rails.cache.delete 'requests_new'
     flash[:notice] = "Created <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value('id'))}'>submit request #{req.value('id')}</a> to <a href='#{url_for(:controller => 'project', :action => 'show', :project => params[:targetproject])}'>#{params[:targetproject]}</a>"
     redirect_to(:action => 'show', :project => params[:project], :package => params[:package])
   end
@@ -388,12 +389,12 @@ class PackageController < ApplicationController
     end
     if params[:disable_publishing]
       @package.add_element "publish"
-      @package.publish.add_element "disable"
+      @package.publish.add_element 'disable'
     end
     if @package.save
       flash[:notice] = "Package '#{@package}' was created successfully"
-      Rails.cache.delete("%s_packages_mainpage" % @project)
-      Rails.cache.delete("%s_problem_packages" % @project)
+      Rails.cache.delete('%s_packages_mainpage' % @project)
+      Rails.cache.delete('%s_problem_packages' % @project)
       Package.free_cache( :all, :project => @project.name )
       Package.free_cache( @package.name, :project => @project )
       redirect_to :action => 'show', :project => params[:project], :package => params[:name]
@@ -410,14 +411,14 @@ class PackageController < ApplicationController
   def branch
     begin
       path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=branch"
-      result = ActiveXML::Node.new(frontend.transport.direct_http( URI(path), :method => "POST", :data => "" ))
+      result = ActiveXML::Node.new(frontend.transport.direct_http( URI(path), :method => 'POST', :data => ''))
       result_project = result.find_first( "/status/data[@name='targetproject']" ).text
       result_package = result.find_first( "/status/data[@name='targetpackage']" ).text
     rescue ActiveXML::Transport::Error => e
       message = e.summary
-      if e.code == "double_branch_package"
-        flash[:notice] = "You already branched the package and got redirected to it instead"
-        bprj, bpkg = message.split("exists: ")[1].split('/', 2) # Hack to find out branch project / package
+      if e.code == 'double_branch_package'
+        flash[:notice] = 'You already branched the package and got redirected to it instead'
+        bprj, bpkg = message.split('exists: ')[1].split('/', 2) # Hack to find out branch project / package
         redirect_to :controller => 'package', :action => 'show', :project => bprj, :package => bpkg and return
       else
         flash[:error] = message
@@ -451,24 +452,24 @@ class PackageController < ApplicationController
     linked_package = Package.find(@linked_package, :project => @linked_project)
     unless linked_package
       flash[:error] = "Unable to find package '#{@linked_package}' in project '#{@linked_project}'."
-      redirect_to :controller => :project, :action => "new_package_branch", :project => @project and return
+      redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
     end
 
     @target_package = @linked_package if @target_package.blank?
     if !valid_package_name_write? @target_package
       flash[:error] = "Invalid target package name: '#{@target_package}'"
-      redirect_to :controller => :project, :action => "new_package_branch", :project => @project and return
+      redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
     end
     if Package.exists? @project, @target_package
       flash[:error] = "Package '#{@target_package}' already exists in project '#{@project}'"
-      redirect_to :controller => :project, :action => "new_package_branch", :project => @project and return
+      redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
     end
 
     revision = Package.current_xsrcmd5(@linked_project, @linked_package)
     revision = Package.current_rev(@linked_project, @linked_package) unless revision
     unless revision
       flash[:error] = "Unable to branch package '#{@target_package}', it has no source revision yet"
-      redirect_to :controller => :project, :action => "new_package_branch", :project => @project and return
+      redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
     end
 
     @revision = revision if @current_revision
@@ -478,7 +479,7 @@ class PackageController < ApplicationController
       begin
         path = "/source/#{CGI.escape(@linked_project)}/#{CGI.escape(@linked_package)}?cmd=branch&target_project=#{CGI.escape(@project.name)}&target_package=#{CGI.escape(@target_package)}"
         path += "&rev=#{CGI.escape(@revision)}" if @revision
-        frontend.transport.direct_http( URI(path), :method => "POST", :data => "" )
+        frontend.transport.direct_http( URI(path), :method => 'POST', :data => '')
         flash[:success] = "Branched package #{@project.name} / #{@target_package}"
       rescue ActiveXML::Transport::Error => e
         flash[:error] = e.summary
@@ -488,7 +489,7 @@ class PackageController < ApplicationController
       package = Package.new( :name => @target_package, :project => @project )
       package.title.text = linked_package.title.text
 
-      description = "This package is based on the package " +
+      description = 'This package is based on the package ' +
         "'#{@linked_package}' from project '#{@linked_project}'.\n\n"
 
       description += linked_package.description.text if linked_package.description.text
@@ -514,8 +515,8 @@ class PackageController < ApplicationController
       end
     end
 
-    Rails.cache.delete("%s_packages_mainpage" % @project)
-    Rails.cache.delete("%s_problem_packages" % @project)
+    Rails.cache.delete('%s_packages_mainpage' % @project)
+    Rails.cache.delete('%s_problem_packages' % @project)
     Package.free_cache( :all, :project => @project.name )
     Package.free_cache( @target_package, :project => @project )
     redirect_to :controller => 'package', :action => 'show', :project => @project, :package => @target_package
@@ -540,8 +541,8 @@ class PackageController < ApplicationController
     begin
       FrontendCompat.new.delete_package :project => @project, :package => @package
       flash[:notice] = "Package '#{@package}' was removed successfully from project '#{@project}'"
-      Rails.cache.delete("%s_packages_mainpage" % @project)
-      Rails.cache.delete("%s_problem_packages" % @project)
+      Rails.cache.delete('%s_packages_mainpage' % @project)
+      Rails.cache.delete('%s_problem_packages' % @project)
       Package.free_cache( :all, :project => @project.name )
       Package.free_cache( @package.name, :project => @project.name )
     rescue ActiveXML::Transport::Error => e
@@ -614,7 +615,7 @@ class PackageController < ApplicationController
     required_parameters :filename
     filename = params[:filename]
     # extra escaping of filename (workaround for rails bug)
-    escaped_filename = URI.escape filename, "+"
+    escaped_filename = URI.escape filename, '+'
     if @package.remove_file escaped_filename
       flash[:notice] = "File '#{filename}' removed successfully"
       @package.free_directory
@@ -723,7 +724,7 @@ class PackageController < ApplicationController
       redirect_back_or_to :action => :show, :project => @project, :package => @package and return
     end
     if @spider_bot
-      render :template => "package/simple_file_view" and return
+      render :template => 'package/simple_file_view' and return
     end
   end
 
@@ -738,7 +739,8 @@ class PackageController < ApplicationController
       frontend.put_file(params[:file], :project => project, :package => package, :filename => filename, :comment => params[:comment])
       Directory.free_cache(:project => project, :package => package)
     rescue Timeout::Error => e
-      render json: { error: "Timeout when saving file. Please try again."}, status: 400 
+      render json: { error: 'Timeout when saving file. Please try again.'
+      }, status: 400
       return
     rescue ActiveXML::Transport::Error => e
       render json: { error: e.summary }, status: 400
@@ -774,7 +776,7 @@ class PackageController < ApplicationController
 
   def try_volley(path)
     # apache & mod_xforward case
-    if CONFIG['use_xforward'] and CONFIG['use_xforward'] != "false"
+    if CONFIG['use_xforward'] and CONFIG['use_xforward'] != 'false'
       logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
       headers['X-Forward'] = "#{CONFIG['frontend_protocol']}://#{CONFIG['frontend_host']}:#{CONFIG['frontend_port']}#{path}"
       head(200)
@@ -821,7 +823,7 @@ class PackageController < ApplicationController
     @repo = params[:repository]
     begin
       size = frontend.get_size_of_log(@project, @package, @repo, @arch)
-      logger.debug("log size is %d" % size)
+      logger.debug('log size is %d' % size)
       @offset = size - 32 * 1024
       @offset = 0 if @offset < 0
       @initiallog = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, size)
@@ -855,11 +857,11 @@ class PackageController < ApplicationController
       end
 
     rescue Timeout::Error, IOError
-      @log_chunk = ""
+      @log_chunk = ''
 
     rescue ActiveXML::Transport::Error => e
       if e.summary =~ %r{Logfile is not that big}
-        @log_chunk = ""
+        @log_chunk = ''
       else
         @log_chunk = "No live log available: #{e.summary}\n"
 	@finished = true
@@ -948,7 +950,7 @@ class PackageController < ApplicationController
     description.pop
 
     render :text => description.join("\n")
-    logger.debug "imported description from spec file"
+    logger.debug 'imported description from spec file'
   end
 
   def buildresult
@@ -996,7 +998,7 @@ class PackageController < ApplicationController
           res += line
         end
       end
-      render :text => res, content_type: "text/html"
+      render :text => res, content_type: 'text/html'
     rescue ActiveXML::Transport::NotFoundError
       render :text => 'No rpmlint log'
     end
@@ -1007,7 +1009,7 @@ class PackageController < ApplicationController
       @meta = frontend.get_source(:project => params[:project], :package => params[:package], :filename => '_meta')
     rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "Package _meta not found: #{params[:project]}/#{params[:package]}"
-      redirect_to :controller => "project", :action => "show", :project => params[:project], :nextstatus => 404
+      redirect_to :controller => 'project', :action => 'show', :project => params[:project], :nextstatus => 404
     end
   end
 
@@ -1018,13 +1020,13 @@ class PackageController < ApplicationController
       message = e.summary
       flash[:error] = message
       @meta = params[:meta]
-      render :text => message, :status => 400, :content_type => "text/plain"
+      render :text => message, :status => 400, :content_type => 'text/plain'
       return
     end
     
-    flash[:notice] = "Config successfully saved"
+    flash[:notice] = 'Config successfully saved'
     @package.free_cache
-    render :text => "Config successfully saved", :content_type => "text/plain"
+    render :text => 'Config successfully saved', :content_type => 'text/plain'
   end
 
   def attributes
@@ -1057,13 +1059,13 @@ class PackageController < ApplicationController
       respond_to do |format|
         format.js { render json: 'ok' }
         format.html do
-          flash[:notice] = "Comment added successfully"
+          flash[:notice] = 'Comment added successfully'
         end
       end
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary      
     end
-    redirect_to(:action => "show", :project => params[:project], :package => params[:package]) and return
+    redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
   end
 
   def delete_comment
@@ -1073,13 +1075,13 @@ class PackageController < ApplicationController
       respond_to do |format|
         format.js { render json: 'ok' }
         format.html do
-          flash[:notice] = "Comment deleted successfully"
+          flash[:notice] = 'Comment deleted successfully'
         end
       end
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary      
     end
-    redirect_to(:action => "show", :project => params[:project], :package => params[:package]) and return
+    redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
   end
 
   private
@@ -1107,7 +1109,7 @@ class PackageController < ApplicationController
     if !valid_project_name? params[:project]
       unless request.xhr?
         flash[:error] = "#{params[:project]} is not a valid project name"
-        redirect_to :controller => "project", :action => "list_public", :nextstatus => 404 and return
+        redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404 and return
       else
         render :text => "#{params[:project]} is not a valid project name", :status => 404 and return
       end
@@ -1116,7 +1118,7 @@ class PackageController < ApplicationController
     unless @project
       unless request.xhr?
         flash[:error] = "Project not found: #{params[:project]}"
-        redirect_to :controller => "project", :action => "list_public", :nextstatus => 404 and return
+        redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404 and return
       else
         render :text => "Project not found: #{params[:project]}", :status => 404 and return
       end
@@ -1165,10 +1167,10 @@ class PackageController < ApplicationController
     @repostatushash = Hash.new
     @failures = 0
 
-    @buildresult.elements("result") do |result|
+    @buildresult.elements('result') do |result|
       @resultvalue = result
-      repo = result["repository"]
-      arch = result["arch"]
+      repo = result['repository']
+      arch = result['arch']
 
       @repohash[repo] ||= Array.new
       @repohash[repo] << arch
@@ -1178,9 +1180,9 @@ class PackageController < ApplicationController
       @statushash[repo][arch] = Hash.new
 
       stathash = @statushash[repo][arch]
-      result.elements("status") do |status|
-        stathash[status["package"]] = status
-        if ['unresolvable', 'failed', 'broken'].include? status["code"]
+      result.elements('status') do |status|
+        stathash[status['package']] = status
+        if ['unresolvable', 'failed', 'broken'].include? status['code']
           @failures += 1
         end
       end
@@ -1189,29 +1191,29 @@ class PackageController < ApplicationController
       @repostatushash[repo] ||= Hash.new
       @repostatushash[repo][arch] = Hash.new
 
-      if result.has_key? "state"
-        if result.has_key? "dirty"
-          @repostatushash[repo][arch] = "outdated_" + result["state"]
+      if result.has_key? 'state'
+        if result.has_key? 'dirty'
+          @repostatushash[repo][arch] = 'outdated_' + result['state']
         else
-          @repostatushash[repo][arch] = result["state"]
+          @repostatushash[repo][arch] = result['state']
         end
       end
 
       @packagenames << stathash.keys
     end
 
-    if @buildresult and !@buildresult.has_key? "result"
+    if @buildresult and !@buildresult.has_key? 'result'
       @buildresult = nil
     end
 
     return unless @buildresult
 
     newr = Hash.new
-    @buildresult.elements("result").sort {|a,b| a['repository'] <=> b['repository']}.each do |result|
-      repo = result["repository"]
-      if result.has_key? "status"
+    @buildresult.elements('result').sort {|a,b| a['repository'] <=> b['repository']}.each do |result|
+      repo = result['repository']
+      if result.has_key? 'status'
         newr[repo] ||= Array.new
-        newr[repo] << result["arch"]
+        newr[repo] << result['arch']
       end
     end
 

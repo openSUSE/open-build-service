@@ -1,7 +1,7 @@
 <h2>Idle hosts</h2>
-<% idlehosts = @workerstatus.elements("idle") %>
+<% idlehosts = @workerstatus.elements('idle') %>
 <%  if idlehosts.length > 0 %>
-  <%= idlehosts.length %> of <%= pluralize(@workerstatus["clients"], 'host') %> idle.
+  <%= idlehosts.length %> of <%= pluralize(@workerstatus['clients'], 'host') %> idle.
   <table class="building">
     <tr><th>Host</th><th>Arch</th></tr>
     <% idlehosts.each do |b| %>

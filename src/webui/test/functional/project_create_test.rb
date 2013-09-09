@@ -36,7 +36,7 @@ class ProjectCreateTest < ActionDispatch::IntegrationTest
     new_project[:hidden]      ||= false
     new_project[:namespace]     = project_namespace
 
-    if creating_home_project? then
+    if creating_home_project?
       new_project[:name] ||= current_user
       current_user.must_equal new_project[:name]
     else

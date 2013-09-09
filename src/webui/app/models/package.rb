@@ -201,13 +201,13 @@ class Package < ActiveXML::Node
   def self.current_xsrcmd5(project, package )
     Directory.free_cache( :project => project, :package => package )
     dir = Directory.find_hashed( :project => project, :package => package )
-    return dir["xsrcmd5"]
+    return dir['xsrcmd5']
   end
 
   def self.current_rev(project, package )
     Directory.free_cache( :project => project, :package => package )
     dir = Directory.find_hashed( :project => project, :package => package )
-    return dir["rev"]
+    return dir['rev']
   end
 
   def cacheAllCommits
@@ -239,25 +239,27 @@ class Package < ActiveXML::Node
 
     frontend = ActiveXML::transport
     begin
-      answer = frontend.direct_http URI(path), :method => "GET"
+      answer = frontend.direct_http URI(path), :method => 'GET'
     rescue
       return nil
     end
 
     c = {}
     doc = ActiveXML::Node.new(answer)
-    doc.each("/revisionlist/revision") do |s|
-         c[:revision]= s.value("rev")
-         c[:user]    = s.find_first("user").text
-         c[:version] = s.find_first("version").text
-         c[:time]    = s.find_first("time").text
+    doc.each('/revisionlist/revision') do |s|
+         c[:revision]= s.value('rev')
+         c[:user]    = s.find_first('user').text
+         c[:version] = s.find_first('version').text
+         c[:time]    = s.find_first('time').text
          c[:srcmd5]  = s.find_first("srcmd5").text
          c[:comment] = nil
          c[:requestid] = nil
-         if comment=s.find_first("comment")
+         comment=s.find_first("comment")
+         if comment
            c[:comment] = comment.text
          end
-         if requestid=s.find_first("requestid")
+         requestid=s.find_first("requestid")
+         if requestid
            c[:requestid] = requestid.text
          end
     end

@@ -2,7 +2,7 @@
 <h3 class="centered">Welcome to Open Build Service <%= @configuration['title'] %></h3>
 
 
-<% if !session[:login] -%>
+<% unless session[:login] -%>
   <p class="centered">Please <%= link_to 'login', {:controller => :user, :action => :login}, 'data-rel' => "dialog", 'data-transition' => "slideup" %> with your openSUSE account.</p>
 <% end %>
 

@@ -182,37 +182,37 @@ module ApplicationHelper
   end
 
   REPO_STATUS_ICONS = {
-    "published"            => "lorry",
-    "publishing"           => "cog_go",
-    "outdated_published"   => "lorry_error",
-    "outdated_publishing"  => "cog_error",
-    "unpublished"          => "lorry_flatbed",
-    "outdated_unpublished" => "lorry_error",
-    "building"             => "cog",
-    "outdated_building"    => "cog_error",
-    "finished"             => "time",
-    "outdated_finished"    => "time_error",
-    "blocked"              => "time",
-    "outdated_blocked"     => "time_error",
-    "broken"               => "exclamation",
-    "outdated_broken"      => "exclamation",
-    "scheduling"           => "cog",
-    "outdated_scheduling"  => "cog_error",
+    'published' => 'lorry',
+    'publishing' => 'cog_go',
+    'outdated_published' => 'lorry_error',
+    'outdated_publishing' => 'cog_error',
+    'unpublished' => 'lorry_flatbed',
+    'outdated_unpublished' => 'lorry_error',
+    'building' => 'cog',
+    'outdated_building' => 'cog_error',
+    'finished' => 'time',
+    'outdated_finished' => 'time_error',
+    'blocked' => 'time',
+    'outdated_blocked' => 'time_error',
+    'broken' => 'exclamation',
+    'outdated_broken' => 'exclamation',
+    'scheduling' => 'cog',
+    'outdated_scheduling' => 'cog_error',
   }
 
   REPO_STATUS_DESCRIPTIONS = {
-    "published"   => "Repository has been published",
-    "publishing"  => "Repository is being created right now",
-    "unpublished" => "Build finished, but repository publishing is disabled",
-    "building"    => "Build jobs exists",
-    "finished"    => "Build jobs have been processed, new repository is not yet created",
-    "blocked"     => "No build possible atm, waiting for jobs in other repositories",
-    "broken"      => "The repository setup is broken, build not possible",
-    "scheduling"  => "The repository state is being calculated right now",
+    'published' => 'Repository has been published',
+    'publishing' => 'Repository is being created right now',
+    'unpublished' => 'Build finished, but repository publishing is disabled',
+    'building' => 'Build jobs exists',
+    'finished' => 'Build jobs have been processed, new repository is not yet created',
+    'blocked' => 'No build possible atm, waiting for jobs in other repositories',
+    'broken' => 'The repository setup is broken, build not possible',
+    'scheduling' => 'The repository state is being calculated right now',
   }
 
   def repo_status_icon( status )
-    icon = REPO_STATUS_ICONS[status] || "eye"
+    icon = REPO_STATUS_ICONS[status] || 'eye'
 
     outdated = nil
     if status =~ /^outdated_/
@@ -220,8 +220,8 @@ module ApplicationHelper
       outdated = true
     end
 
-    description = REPO_STATUS_DESCRIPTIONS[status] || "Unknown state of repository"
-    description = "State needs recalculations, former state was: " + description if outdated
+    description = REPO_STATUS_DESCRIPTIONS[status] || 'Unknown state of repository'
+    description = 'State needs recalculations, former state was: ' + description if outdated
 
     sprite_tag icon, title: description
   end
@@ -392,7 +392,7 @@ module ApplicationHelper
   end
 
   def is_advanced_tab?
-    ["prjconf", "attributes", "meta", "status"].include? @current_action.to_s
+    ['prjconf', 'attributes', 'meta', 'status'].include? @current_action.to_s
   end
 
   def mobile_device?
@@ -410,7 +410,7 @@ module ApplicationHelper
       if opts[:title]
         alt = opts[:title]
       else
-        Rails.logger.warn "No alt/title text for sprite_tag"
+        Rails.logger.warn 'No alt/title text for sprite_tag'
       end
       opts[:alt] = alt
     end
@@ -461,7 +461,7 @@ module ApplicationHelper
   end
 
   def remove_dialog_tag(text)
-    link_to(text, "#", title: 'Remove Dialog', id: 'remove_dialog')
+    link_to(text, '#', title: 'Remove Dialog', id: 'remove_dialog')
   end
 
   # dialog_init is a function name called before dialog is shown

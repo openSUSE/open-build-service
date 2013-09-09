@@ -1,7 +1,7 @@
 <% user_is_maintainer = (@user and @user.is_maintainer?(@project, @package)) 
-   data = { 'save-user' => url_for(:action => "save_person"),
-            'remove' => url_for(:action => "remove_role"),
-            'save-group' => url_for(:action => "save_group"),
+   data = { 'save-user' => url_for(:action => 'save_person'),
+            'remove' => url_for(:action => 'remove_role'),
+            'save-group' => url_for(:action => 'save_group'),
              project: @project.name }
    data[:package] = @package.name if @package
 -%>

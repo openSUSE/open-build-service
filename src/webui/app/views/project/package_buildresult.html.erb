@@ -1,7 +1,7 @@
 <% if @buildresult %>
 <span class="build_result_title">Build results of <%= @project %> / <%= @package %></span>
 <table>
-<% @buildresult.elements("result") do |r| %>
+<% @buildresult.elements('result') do |r| %>
   <tr>
     <td><%= r["repository"] %></td>
     <td><%= r["arch"] %></td>

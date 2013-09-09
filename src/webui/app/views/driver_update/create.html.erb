@@ -1,7 +1,7 @@
 <% @pagetitle = "Driver Update Disk Wizard" %>
 
 <% project_bread_crumb @package.name -%>
-<%= render :partial => "package/tabs" %>
+<%= render :partial => 'package/tabs' %>
 
 <%= content_for :ready_function do %> 
   $("#target_project").autocomplete({source: '<%= url_for :controller => 'project', :action => 'autocomplete_projects' %>', minLength: 2});
@@ -185,18 +185,18 @@
 
 
   <div id="add_repo_toggle"><p>
-      <%= image_tag("drive_add.png", :title => "Add Repository") %>
+      <%= image_tag('drive_add.png', :title => 'Add Repository') %>
       <%= link_to 'Add repository', '#' %>
     </p></div>
 
   <div id="add_repository" class="show_left box show_right" style="display: none">
     <p><strong>Project: </strong><%= text_field_tag 'target_project', @project.name, :size => 60, :id => 'target_project' %> <i>(gets auto-completed)</i> </p>
     <p><strong>Repository: </strong>
-      <%= select_tag "target_repo", options_for_select([""]), :id => 'target_repo', :disabled => true %>
-      <span id="target_repo_loader" style="display: none; margin-left: 15px;"><%= image_tag("ajax-loader.gif", :title => "Loading") %> Loading repositories</span>
+      <%= select_tag 'target_repo', options_for_select(['']), :id => 'target_repo', :disabled => true %>
+      <span id="target_repo_loader" style="display: none; margin-left: 15px;"><%= image_tag('ajax-loader.gif', :title => 'Loading') %> Loading repositories</span>
     </p>
     <div id="add_repo"><p>
-        <%= image_tag("drive_add.png", :title => "Add Repository") %>
+        <%= image_tag('drive_add.png', :title => 'Add Repository') %>
         <%= link_to 'Add this repository', '#' %>
       </p>
     </div>
@@ -208,18 +208,18 @@
 
   <div id="inst_packs">
     <% @packages.each do |pack| %>
-      <div id="pack_<%= pack %>"><p><%= image_tag("package.png", :title => "Package") %> <%= pack %>
+      <div id="pack_<%= pack %>"><p><%= image_tag('package.png', :title => 'Package') %> <%= pack %>
           <input type="hidden" name="packages[]" value="<%= "#{pack}" %>" />
-          <a href="#" onclick="remove_element('pack_<%= pack %>'); return false;"><%= image_tag("package_delete.png", :title => "Remove Package") %></a></p>
+          <a href="#" onclick="remove_element('pack_<%= pack %>'); return false;"><%= image_tag('package_delete.png', :title => 'Remove Package') %></a></p>
         <div id="pack_<%= pack %>_binaries" style="margin-left: 15px;">
           <div style="margin-left: 15px;">
             <% unless @binary_packages[pack].blank? %>
               <% @binary_packages[pack].each do |binary| %>
                 <div id="binary_<%= binary %>">
-                  <%= image_tag("package.png", :title => "Binary Package") %>
+                  <%= image_tag('package.png', :title => 'Binary Package') %>
                   <input type="hidden" value="<%= pack %>/<%= binary %>" name="binaries[]"/>
                   <%= binary %> <a onclick="remove_element('binary_<%= binary %>'); return false;" href="#">
-                    <%= image_tag("package_delete.png", :title => "Remove Package") %></a>
+                    <%= image_tag('package_delete.png', :title => 'Remove Package') %></a>
                 </div>
               <% end %>
             <% end %>
@@ -232,13 +232,13 @@
     <% end %>
   </div>
 
-  <div id="add_pack" style="<%= "display: none;" if @repositories.blank? %> ">
+  <div id="add_pack" style="<%= 'display: none;' if @repositories.blank? %> ">
     <p><strong>Add package: </strong><br/>
-      <%= select_tag "target_package_repo", options_for_select(@repositories), :id => 'target_package_repo' %>
+      <%= select_tag 'target_package_repo', options_for_select(@repositories), :id => 'target_package_repo' %>
       Name:
       <%= text_field_tag 'target_package', '', :size => 50, :id => 'target_package' %> <i>(gets auto-completed)</i> </p>
     <div id="add_package"><p>
-        <%= image_tag("package_add.png", :title => "Add Package") %>
+        <%= image_tag('package_add.png', :title => 'Add Package') %>
         <%= link_to 'Add this package', '#' %>
       </p>
     </div>
@@ -246,7 +246,7 @@
 
 
   <p>
-    <%= submit_tag "Generate kiwi file" %>
+    <%= submit_tag 'Generate kiwi file' %>
     <%= hidden_field_tag 'project', @project.name %>
     <%= hidden_field_tag 'package', @package.name %>
   </p>

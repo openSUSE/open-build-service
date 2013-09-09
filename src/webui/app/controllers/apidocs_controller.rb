@@ -19,7 +19,8 @@ class ApidocsController < ApplicationController
   end
 
   def index
-    unless filename = indexpath
+    filename = indexpath
+    unless filename
       flash[:error] = "Unable to load API documentation source file: #{CONFIG['apidocs_location']}"
       redirect_back_or_to :controller => 'main', :action => 'index'
     else

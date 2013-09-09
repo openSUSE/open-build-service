@@ -181,7 +181,7 @@ class UserController < ApplicationController
         redirect_to :controller => :home, :action => :index
         return
       else
-        flash[:error] = "Failed to change your password."
+        flash[:error] = 'Failed to change your password.'
       end
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary

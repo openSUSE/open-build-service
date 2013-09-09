@@ -1,7 +1,7 @@
 <p>
-  <%= link_to image_tag( 'script_lightning.png' ), '#', :class => "start_refresh hidden" %>
+  <%= link_to image_tag( 'script_lightning.png' ), '#', :class => 'start_refresh hidden' %>
   <a href="#" class="start_refresh hidden">Start refresh</a>
-  <%= link_to image_tag( 'script_link.png' ), '#', :class => "stop_refresh" %>
+  <%= link_to image_tag( 'script_link.png' ), '#', :class => 'stop_refresh' %>
   <a href="#" class="stop_refresh">Stop refresh</a>
   <%= link_to image_tag( 'script.png' ), :controller => :package, :action => :rawlog, :package => @package,
     :project => @project, :arch => @arch, :repository => @repo  %>

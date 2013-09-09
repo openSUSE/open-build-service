@@ -1,7 +1,7 @@
 <% @pagetitle = "Attributes of #{@project} (Project #{@package})" %>
 <% package_bread_crumb 'Attributes' %>
 
-<%= render :partial => "tabs" %>
+<%= render :partial => 'tabs' %>
 
 <% if @project.has_element? :remoteurl %>
   <h3>Remote OBS Instance:</h3>

@@ -389,8 +389,8 @@ class ApplicationController < ActionController::Base
   def require_available_architectures
     @available_architectures = Architecture.find_cached(:available)
     unless @available_architectures
-      flash[:error] = "Available architectures not found"
-      redirect_to :controller => "project", :action => "list_public", :nextstatus => 404 and return
+      flash[:error] = 'Available architectures not found'
+      redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404 and return
     end
   end
 

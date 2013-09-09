@@ -8,10 +8,10 @@
 
 <div id="request_navigation_box" style="position: absolute; right: 0.3em;">
   <% if @request_before -%>
-      <%= link_to "<<", :controller => :request, :action => :show, :id => @request_before %>
+      <%= link_to "<<", :controller => :request, :action => :show, id: @request_before %>
   <% end -%>
   <% if @request_after -%>
-      <%= link_to ">>", :controller => :request, :action => :show, :id => @request_after %>
+      <%= link_to ">>", :controller => :request, :action => :show, id: @request_after %>
   <% end -%>
 </div>
 
@@ -28,7 +28,7 @@
       <li><%= sprite_tag('information') %> In
         state <%= link_to @state, { :anchor => "request_history" }, { :style => "color: #{request_state_color(@state)};" } %></li>
       <% if @superseded_by %>
-          <li><%= sprite_tag('exclamation') %> Superseded by <%= link_to @superseded_by, :id => @superseded_by %></li>
+          <li><%= sprite_tag('exclamation') %> Superseded by <%= link_to @superseded_by, id: @superseded_by %></li>
       <% end %>
       <% if @accept_at -%>
           <li><%= sprite_tag('exclamation') %> This request will get accepted after <%= @accept_at %> automatically!</li>
@@ -214,31 +214,31 @@
           </div>
           <div class="review_descision_display" style="<%= 'display: none;' if @can_add_reviews && @my_open_reviews.length > 0 %>" id="review_descision_display_-1">
             <% if @can_handle_request %>
-                <%= form_tag({ :action => 'changerequest' }, { :id => 'request_handle_form' }) do %>
-                    <p><%= text_area_tag(:reason, 'Please add a comment', :size => '80x2', :style => "width: 99%") %></p>
+                <%= form_tag({ :action => 'changerequest' }, { id: 'request_handle_form' }) do %>
+                    <p><%= text_area_tag(:reason, 'Please add a comment', :size => '80x2', :style => 'width: 99%') %></p>
 
                     <p>
                       <%= hidden_field_tag(:id, @id) %>
                       <% if ['new', 'review'].include?(@state) && @is_target_maintainer %>
                           <% if @state == 'review' %>
-                              <%= submit_tag 'Accept request', :name => 'accepted', :id => 'accept_request_button', :confirm => 'Do you really want to approve this request, despite of open review requests?' %>
+                              <%= submit_tag 'Accept request', name: 'accepted', id: 'accept_request_button', :confirm => 'Do you really want to approve this request, despite of open review requests?' %>
                           <% else %>
-                              <%= submit_tag 'Accept request', :name => 'accepted', :id => 'accept_request_button' %>
+                              <%= submit_tag 'Accept request', name: 'accepted', id: 'accept_request_button' %>
                           <% end %>
-                          <%= submit_tag 'Decline request', :name => 'declined' if !@is_author %>
+                          <%= submit_tag 'Decline request', name: 'declined' if !@is_author %>
                       <% end %>
                       <% if ['new', 'review', 'declined'].include?(@state) && @is_author %>
-                          <%= submit_tag 'Revoke request', :name => 'revoked' %>
+                          <%= submit_tag 'Revoke request', name: 'revoked' , id: 'revoke_request_button' %>
                       <% end %>
                       <% if @state == 'declined' %>
-                          <%= submit_tag 'Reopen request', :name => 'new' %>
+                          <%= submit_tag 'Reopen request', name: 'new', id: 'reopen_request_button' %>
                       <% end %>
                       <span style="float: right;">
                         <% if @can_add_reviews %>
                             <%= link_to(sprite_tag('user_add', title: 'Add a review') + 'Add a review', { controller: 'request', action: 'add_reviewer_dialog', id: @id }, remote: true) %>
                         <% end %>
                         <% if reqtype(@req['actions'].first) == 'incident' %>
-                            <%= link_to(sprite_tag('package_link', title: 'Merge with existing incident') + 'Merge with existing incident', { :controller => 'request', :action => 'set_incident_dialog', :id => @id }, :remote => true) %>
+                            <%= link_to(sprite_tag('package_link', title: 'Merge with existing incident') + 'Merge with existing incident', { :controller => 'request', :action => 'set_incident_dialog', id: @id }, :remote => true) %>
                         <% end %>
                       </span>
                     </p>
@@ -260,8 +260,8 @@
                           <%= hidden_field_tag("review_by_group_#{index}", review['by_group']) if review['by_group'] %>
                           <%= hidden_field_tag("review_by_project_#{index}", review['by_project']) if review['by_project'] %>
                           <%= hidden_field_tag("review_by_package_#{index}", review['by_package']) if review['by_package'] %>
-                          <%= submit_tag 'Accept review', :name => 'accepted', :id=> "review_accept_button_#{index}" %>
-                          <%= submit_tag 'Decline review', :name => 'declined', :id=> "review_decline_button_#{index}" %>
+                          <%= submit_tag 'Accept review', name: 'accepted', id: "review_accept_button_#{index}" %>
+                          <%= submit_tag 'Decline review', name: 'declined', id: "review_decline_button_#{index}" %>
                         </p>
                     <% end %>
                   </div>
