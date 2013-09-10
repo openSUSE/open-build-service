@@ -235,5 +235,14 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     page.wont_have_selector 'input#accept_request_button'
   end
 
+  test "succesful reply comment creation" do
+    login_Iggy
+    visit "/request/show/4"
+    find(:id,'reply_link_id_301').click
+    fill_in "reply_body_301", with: "Comment Body"
+    find(:id,'add_reply_301').click
+    find('#flash-messages').must_have_text "Comment added successfully "
+  end
+
 end
 
