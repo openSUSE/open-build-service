@@ -119,11 +119,12 @@ class RequestController < ApplicationController
     end
 
     if change_request(changestate, params)
-      if params[:add_submitter_as_maintainer]
+      # TODO: Make this work for each submit action individually
+      if params[:add_submitter_as_maintainer_0]
         if changestate != 'accepted'
           flash[:error] = "Will not add maintainer for not accepted requests"
         else
-          tprj, tpkg = params[:add_submitter_as_maintainer].split('_#_') # split into project and package
+          tprj, tpkg = params[:add_submitter_as_maintainer_0].split('_#_') # split into project and package
           if tpkg
             target = find_cached(Package, tpkg, :project => tprj)
           else

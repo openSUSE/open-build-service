@@ -79,7 +79,7 @@
               <% if @can_handle_request && @is_target_maintainer %>
                   <% if !action['creator_is_target_maintainer'] %>
                       <%# TODO: Make this work for each submit action individually: %>
-                      <br/><%= check_box_tag(:add_submitter_as_maintainer, "#{action['tprj']}_#_#{action['tpkg']}", false, :class => 'submitter_is_maintainer_checkbox') %>
+                      <br/><%= check_box_tag("add_submitter_as_maintainer_#{action_index}", "#{action['tprj']}_#_#{action['tpkg']}", false, :class => 'submitter_is_maintainer_checkbox') %>
                       Add
                       <%= render :partial => 'shared/user_with_realname_and_icon', :locals => { :user => @req['creator'], :no_icon => true, :short => true } %>
                       as maintainer for

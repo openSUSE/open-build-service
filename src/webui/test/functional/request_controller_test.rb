@@ -192,19 +192,23 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     page.must_have_text '+DummyContent'
   end
 
-  test 'requests display' do
+  def visit_requests
     visit request_show_path(1)
     page.must_have_text 'Request 1'
-    page.wont_have_text 'XML errors'
 
     visit request_show_path(2)
     page.must_have_text 'Request 2'
-    page.wont_have_text 'XML errors'
 
     visit request_show_path(10)
     page.must_have_text 'Request 10'
-    page.wont_have_text 'XML errors'
+  end
 
+  test 'requests display as nobody' do
+    visit_requests
+  end
+
+  test 'requests display as king' do
+    visit_requests
   end
 
   test 'succesful comment creation' do
