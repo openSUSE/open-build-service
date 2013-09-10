@@ -1,4 +1,5 @@
 require_dependency 'event/base.rb'
-require_dependency 'event/project.rb'
-require_dependency 'event/request.rb'
-require_dependency 'event/comment.rb'
+require_dependency 'event/package'
+require_dependency 'event/project'
+require_dependency 'event/request'
+require_dependency 'event/comment'
