@@ -61,7 +61,7 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_bsrequest
-    get "/status/bsrequest?id=997"
+    get "/status/bsrequest?id=1"
     assert_xml_tag(:tag => "status", :attributes => {:code => 'not_found'})
     assert_response 404
   end

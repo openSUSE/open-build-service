@@ -76,6 +76,37 @@ class Package < ActiveRecord::Base
       return Project.check_access?(dbpkg.project)
     end
 
+    def check_cache(project, package, opts)
+      @key = { "get_by_project_and_name" => 1, package: package, opts: opts }
+
+      @key[:user] = User.current.cache_key if User.current
+
+      # the cache is only valid if the user, prj and pkg didn't change
+      if project.is_a? Project
+        @key[:project] = project.id
+      else
+        @key[:project] = project
+      end
+      pid, old_pkg_time, old_prj_time = Rails.cache.read(@key)
+      if pid
+        pkg=Package.where(id: pid).first
+        return pkg if pkg && pkg.updated_at == old_pkg_time && pkg.project.updated_at == old_prj_time
+        Rails.cache.delete(@key) # outdated anyway
+      end
+      return nil
+    end
+
+    def internal_get_project(project)
+      if project.is_a? Project
+        prj = project
+      else
+        return nil if Project.is_remote_project?( project )
+        prj = Project.get_by_name( project )
+      end
+      raise UnknownObjectError, "#{project}/#{package}" unless prj
+      prj
+    end
+
     # returns an object of package or raises an exception
     # should be always used when a project is required
     # in case you don't access sources or build logs in any way use 
@@ -83,53 +114,39 @@ class Package < ActiveRecord::Base
     # function returns a nil object in case the package is on remote instance
     def get_by_project_and_name( project, package, opts = {} )
       opts = { use_source: true, follow_project_links: true }.merge(opts)
-      key = { "get_by_project_and_name" => 1, package: package }.merge(opts)
 
-      key[:user] = User.current.cache_key if User.current
-	 
-      # the cache is only valid if the user, prj and pkg didn't change
-      if project.class == Project
-        key[:project] = project.id
-      else
-        key[:project] = project
-      end
-      pid, old_pkg_time, old_prj_time = Rails.cache.read(key)
-      logger.debug "get_by_project_and_name #{key} #{pid}"
-      if pid
-        pkg=Package.where(id: pid).first
-        return pkg if pkg && pkg.updated_at == old_pkg_time && pkg.project.updated_at == old_prj_time
-        Rails.cache.delete(key) # outdated anyway
-      end
-      use_source = opts.delete :use_source
-      follow_project_links = opts.delete :follow_project_links
-      raise "get_by_project_and_name passed unknown options #{opts.inspect}" unless opts.empty?
-      if project.class == Project
-        prj = project
-      else
-        return nil if Project.is_remote_project?( project )
-        prj = Project.get_by_name( project )
-      end
-      raise UnknownObjectError, "#{project}/#{package}" unless prj
-      if follow_project_links
+      pkg = check_cache( project, package, opts )
+      return pkg if pkg
+
+      prj = internal_get_project(project)
+      return nil unless prj # remote prjs
+
+      if opts[:follow_project_links]
         pkg = prj.find_package(package)
       else
         pkg = prj.packages.find_by_name(package)
       end
-      if pkg.nil? and follow_project_links
+      if pkg.nil? and opts[:follow_project_links]
         # in case we link to a remote project we need to assume that the
         # backend may be able to find it even when we don't have the package local
         prj.expand_all_projects.each do |p|
-          return nil unless p.class == Project
+          return nil unless p.is_a? Project
         end
       end
 
-      raise UnknownObjectError, "#{project}/#{package}" if pkg.nil?
+      raise UnknownObjectError, "#{project}/#{package}" unless pkg
       raise ReadAccessError, "#{project}/#{package}" unless check_access?(pkg)
 
-      pkg.check_source_access! if use_source
+      pkg.check_source_access! if opts[:use_source]
 
-      Rails.cache.write(key, [pkg.id, pkg.updated_at, prj.updated_at])
+      Rails.cache.write(@key, [pkg.id, pkg.updated_at, prj.updated_at])
       return pkg
+    end
+
+    def get_by_project_and_name!( project, package, opts = {} )
+      pkg = get_by_project_and_name(project, package, opts)
+      raise UnknownObjectError, "#{project}/#{package}" unless pkg
+      pkg
     end
 
     # to check existens of a project (local or remote)

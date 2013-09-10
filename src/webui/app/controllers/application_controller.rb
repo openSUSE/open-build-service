@@ -325,6 +325,7 @@ class ApplicationController < ActionController::Base
 
     unless document
       self.instance_variable_set(:@_response_body, nil)
+      logger.debug "XML Errors #{errors.inspect} #{xmlbody}"
       render :template => "xml_errors", :locals => { :oldbody => xmlbody, :errors => errors }, :status => 400
     end
   end

@@ -17,13 +17,13 @@ class Webui::CommentsController < Webui::BaseController
   end
 
   def packages
-    package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
+    package = Package.get_by_project_and_name!(params[:project], params[:package], use_source: false)
     @comments = CommentPackage.where(package_id: package.id)
     render_thread
   end
 
   def projects
-    project = Project.get_by_name(params[:project])
+    project = Project.find_by_name!(params[:project])
     @comments = CommentProject.where(project_id: project.id)
     render_thread
   end

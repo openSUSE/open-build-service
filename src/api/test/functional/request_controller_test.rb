@@ -767,7 +767,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     get "/request?view=collection&project=kde4&states=new,review"
     assert_response :success
     assert_xml_tag(:tag => 'collection', :child => {:tag => 'request'})
-    assert_xml_tag(:tag => "collection", :attributes => {:matches => "3"})
+    assert_xml_tag(:tag => "collection", :attributes => {:matches => "4"})
 
     # tom searches for all request of adrian, but adrian has one in a hidden project which must not be viewable ...
     login_tom
@@ -1091,18 +1091,18 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     login_tom
 
     # test revoke, the request is part of fixtures
-    post "/request/999?cmd=changestate&newstate=revoked"
+    post "/request/3?cmd=changestate&newstate=revoked"
     assert_response :success
     # missing target project
-    post "/request/998?cmd=changestate&newstate=revoked"
+    post "/request/2?cmd=changestate&newstate=revoked"
     assert_response :success
 
     # missing source project
-    post "/request/997?cmd=changestate&newstate=declined"
+    post "/request/1?cmd=changestate&newstate=declined"
     assert_response 403
 
     login_adrian
-    post "/request/997?cmd=changestate&newstate=declined"
+    post "/request/1?cmd=changestate&newstate=declined"
     assert_response :success
   end
 

@@ -1,6 +1,5 @@
 require 'net/http'
 
-#noinspection ALL
 class HomeController < ApplicationController
 
   before_filter :require_login, :except => [:icon, :index, :requests]

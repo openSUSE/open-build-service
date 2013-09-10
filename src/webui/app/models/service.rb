@@ -83,18 +83,18 @@ class Service < ActiveXML::Node
       return nil
     end
 
-    def summary(name)
+    def service_field(name, field)
       s = findService(name)
       return nil unless s
-      return "" unless s[:summary]
-      s[:summary]
+      s[field] || ""
+    end
+
+    def summary(name)
+      service_field(name, :summary)
     end
 
     def description(name)
-      s = findService(name)
-      return nil unless s
-      return "" unless s[:description]
-      s[:description]
+      service_field(name, :description)
     end
 
     def parameterDescription(serviceName, name)
@@ -143,6 +143,14 @@ class Service < ActiveXML::Node
      return false
   end
 
+  def fill_params(element, parameters)
+    parameters.each{ |p|
+      param = element.add_element('param', :name => p[:name])
+      param.text = p[:value]
+    }
+    true
+  end
+
   # parameters need to be given as an array with hash pairs :name and :value
   def addService( name, position=-1, parameters=[] )
      element = add_element 'service', 'name' => name
@@ -152,11 +160,7 @@ class Service < ActiveXML::Node
           element.move_before(service_elements[position-1])
 	end
      end
-     parameters.each{ |p|
-       param = element.add_element('param', :name => p[:name])
-       param.text = p[:value]
-     }
-     return true
+     fill_params(element, parameters)
   end
 
   def getParameters(serviceid)
@@ -176,12 +180,7 @@ class Service < ActiveXML::Node
      each("/services/service[#{serviceid}]/param") do |p|
        delete_element p
      end
-
-     parameters.each{ |p|
-        param = service.add_element('param', :name => p[:name])
-        param.text = p[:value]
-     }
-     return true
+     fill_params(service, parameters)
   end
 
   def moveService( from, to )

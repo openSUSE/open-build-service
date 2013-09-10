@@ -1,4 +1,5 @@
-require 'event/comment'
+require 'event'
+
 class Comment < ActiveRecord::Base
   belongs_to :project
   belongs_to :package
