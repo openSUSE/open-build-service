@@ -47,7 +47,7 @@ case $SUBTEST in
    fi
    if ! bundle exec ruby test/$thetest $thename ; then
      ret=1
-     cat log/test.log
+     tail -n 6000 log/test.log
    fi
    ;;
   api:*)
@@ -56,7 +56,7 @@ case $SUBTEST in
    thetest=${SUBTEST/:*/}
    thename=${SUBTEST/*:/}
    bundle exec ruby test/$thetest --name=$thename || ret=1
-   cat log/test.log
+   tail -n 6000 log/test.log
    ;;
 esac
 
