@@ -1,4 +1,4 @@
-require 'event/factory'
+require 'event'
 
 class UpdateNotificationEvents
 

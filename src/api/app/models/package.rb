@@ -48,13 +48,13 @@ class Package < ActiveRecord::Base
 
   has_many :attribs, :dependent => :destroy, foreign_key: :db_package_id
 
-  has_many :package_kinds, :dependent => :destroy, foreign_key: :db_package_id
-  has_many :package_issues, :dependent => :destroy, foreign_key: :db_package_id # defined in sources
+  has_many :package_kinds, dependent: :delete_all, foreign_key: :db_package_id
+  has_many :package_issues, dependent: :delete_all, foreign_key: :db_package_id # defined in sources
 
   has_many :products, :dependent => :destroy
   has_many :channels, :dependent => :destroy, foreign_key: :package_id
 
-  has_many :comments, :dependent => :destroy
+  has_many :comments, :dependent => :delete_all
 
   after_save :write_to_backend
   before_update :update_activity
@@ -65,8 +65,7 @@ class Package < ActiveRecord::Base
   validates :name, presence: true, length: { maximum: 200 }
   validate :valid_name
 
-  has_one :linked_package, foreign_key: :package_id, dependent: :destroy
-  delegate :links_to, to: :linked_package
+  has_one :backend_package, foreign_key: :package_id, dependent: :destroy
 
   class << self
 
@@ -174,7 +173,7 @@ class Package < ActiveRecord::Base
 
     def exist_package_on_backend?(package, project)
       begin
-        answer = Suse::Backend.get("/source/#{URI.escape(project)}/#{URI.escape(package)}")
+        answer = Suse::Backend.get(Package.source_path(project, package))
         return true if answer
       rescue ActiveXML::Transport::Error
       end
@@ -254,7 +253,7 @@ class Package < ActiveRecord::Base
       raise ReadSourceAccessError, "#{self.project.name}/#{self.name}"
     end
   end
-  
+
   def is_locked?
     return true if flags.find_by_flag_and_status "lock", "enable"
     return self.project.is_locked?
@@ -309,8 +308,8 @@ class Package < ActiveRecord::Base
   end
 
   def sources_changed
-    self.set_package_kind
     self.update_activity
+    self.set_package_kind
   end
 
   def set_package_kind( kinds = nil )
@@ -320,148 +319,166 @@ class Package < ActiveRecord::Base
 
   def set_package_kind_from_commit( commit )
     check_write_access!
-    private_set_package_kind( nil, commit )
+    private_set_package_kind( detect_package_kinds( Xmlhash.parse( commit ) ))
   end
 
-  def self.source_path(project, package, file = nil)
+  def self.source_path(project, package, file = nil, opts = {})
     path = "/source/#{URI.escape(project)}/#{URI.escape(package)}"
     path += "/#{URI.escape(file)}" unless file.blank?
+    path += '?' + opts.to_query unless opts.blank?
     path
   end
 
-  def source_path(file = nil)
-    Package.source_path(self.project.name, self.name, file)
+  def source_path(file = nil, opts = {})
+    Package.source_path(self.project.name, self.name, file, opts)
   end
 
   def source_file(file)
     Suse::Backend.get(source_path(file)).body
   end
 
-  def dir_hash
+  def dir_hash(opts = {})
     begin
-      directory = Suse::Backend.get(self.source_path).body
+      directory = Suse::Backend.get(self.source_path(nil, opts)).body
       Xmlhash.parse(directory)
     rescue ActiveXML::Transport::Error => e
-      Xmlhash::XMLHash.new error: e.summary 
+      Xmlhash::XMLHash.new error: e.summary
     end
   end
 
-  def private_set_package_kind( kinds=nil, directory=nil, _noreset=nil )
-    if kinds
-      # set to given value
-      Package.transaction do
-        self.package_kinds.destroy_all unless _noreset
-        kinds.each do |k|
-          self.package_kinds.create :kind => k
-        end
+  def private_set_package_kind( kinds )
+    oldkinds = self.package_kinds.pluck(:kind).sort
+
+    kinds ||= detect_package_kinds(self.dir_hash)
+    # recreate list if changes
+    Package.transaction do
+      self.package_kinds.delete_all
+      kinds.each do |k|
+        self.package_kinds.create :kind => k
       end
-    else
-      # none given, detect by existing UNEXPANDED sources
-      Package.transaction do
-        self.package_kinds.destroy_all unless _noreset
-        if directory
-          xml = Xmlhash.parse(directory)
-        else
-          xml = self.dir_hash
-        end
-        xml.elements("entry") do |e|
-          if e["name"] == '_patchinfo'
-            self.package_kinds.create :kind => 'patchinfo'
-          end
-          if e["name"] == '_aggregate'
-            self.package_kinds.create :kind => 'aggregate'
-          end
-          if e["name"] == '_link'
-            self.package_kinds.create :kind => 'link'
-          end
-          if e["name"] == '_channel'
-            self.package_kinds.create :kind => 'channel'
-          end
-          if e["name"] =~ /.product$/
-            self.package_kinds.create :kind => 'product'
-          end
-          # further types my be spec, dsc, kiwi in future
-        end
-      end
-    end
+    end if oldkinds != kinds.sort
 
     # track defined products in _product containers
-    Product.transaction do
-      self.products.destroy_all
-      if self.package_kinds.find_by_kind 'product'
-        begin
-          issues = Suse::Backend.get("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}?view=products")
-          xml = REXML::Document.new(issues.body.to_s)
-          xml.root.elements.each('/productlist/productdefinition/products/product') { |p|
-            Product.find_or_create_by_name_and_package( p.name, self )
-          }
-        rescue ActiveXML::Transport::Error
-        end
-      end
-    end # end of Product.transaction
+    update_product_list
 
     # update channel information
-    if self.package_kinds.find_by_kind 'channel'
-      Channel.transaction do
-        xml = Suse::Backend.get("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}/_channel")
-        self.channels.destroy_all
-        channel = self.channels.create(package: self)
-        channel.update_from_xml(xml.body.to_s)
-      end
-    else
-      # any left overs?
-      self.channels.destroy_all
-    end
+    update_channel_list
 
     # update issue database based on file content
+    update_issue_list
+  end
+
+  def is_of_kind? kind
+    self.package_kinds.where(kind: kind).exists?
+  end
+
+  def update_issue_list
     PackageIssue.transaction do
-    if self.package_kinds.find_by_kind 'patchinfo'
-      xml = Patchinfo.new.read_patchinfo_xmlhash(self)
-      Project.transaction do
-        self.package_issues.destroy_all
-        xml.elements('issue') { |i|
-          issue = Issue.find_or_create_by_name_and_tracker( i['id'], i['tracker'] )
-          self.package_issues.create( :issue => issue, :change => "kept" )
-        }
-      end
-    else
-      # onlyissues gets the issues from .changes files
-      issue_change={}
-      # all 
-      begin
-        # no expand=1, so only branches are tracked
-        issues = Suse::Backend.post("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}?cmd=diff&orev=0&onlyissues=1&linkrev=base&view=xml", nil)
-        xml = REXML::Document.new(issues.body.to_s)
-        xml.root.elements.each('/sourcediff/issues/issue') { |i|
-          issue = Issue.find_or_create_by_name_and_tracker( i.attributes['name'], i.attributes['tracker'] )
-          issue_change[issue] = 'kept' 
-        }
-      rescue ActiveXML::Transport::Error
-      end
-
-      # issues introduced by local changes
-      if self.package_kinds.find_by_kind 'link'
-        begin
-          issues = Suse::Backend.post("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml", nil)
-          xml = REXML::Document.new(issues.body.to_s)
-          xml.root.elements.each('/sourcediff/issues/issue') { |i|
-            issue = Issue.find_or_create_by_name_and_tracker( i.attributes['name'], i.attributes['tracker'] )
-            issue_change[issue] = i.attributes['state']
+      if self.is_of_kind? 'patchinfo'
+        xml = Patchinfo.new.read_patchinfo_xmlhash(self)
+        Project.transaction do
+          self.package_issues.delete_all
+          xml.elements('issue') { |i|
+            issue = Issue.find_or_create_by_name_and_tracker(i['id'], i['tracker'])
+            self.package_issues.create(issue: issue, change: 'kept')
           }
-        rescue ActiveXML::Transport::Error
         end
-      end
+      else
+        # onlyissues gets the issues from .changes files
+        issue_change = find_changed_issues
 
-      # store all
-      Project.transaction do
-        self.package_issues.destroy_all
-        issue_change.each do |issue, change|
-          self.package_issues.create( :issue => issue, :change => change )
+        # store all
+        Project.transaction do
+          self.package_issues.delete_all
+          issue_change.each do |issue, change|
+            self.package_issues.create(issue: issue, change: change)
+          end
         end
       end
     end
-    end # end if PackageIssues.transaction
   end
+
+  def parse_issues_xml(query)
+    begin
+      issues = Suse::Backend.post(self.source_path(nil, query), nil)
+      xml = Xmlhash.parse(issues.body)
+      xml.get('issues').elements('issue') do |i|
+        issue = Issue.find_or_create_by_name_and_tracker(i['name'], i['tracker'])
+        yield issue, i['state']
+      end
+    rescue ActiveXML::Transport::Error => e
+      Rails.logger.debug "failed to parse issues: #{e.inspect}"
+    end
+  end
+
+  def find_changed_issues
+    issue_change={}
+    # no expand=1, so only branches are tracked
+    query = { cmd: :diff, orev: 0, onlyissues: 1, linkrev: :base, view: :xml}
+    parse_issues_xml(query) do |issue, state|
+      issue_change[issue] = 'kept'
+    end
+
+    # issues introduced by local changes
+    return issue_change unless self.is_of_kind? 'link'
+    query = { cmd: :linkdiff, onlyissues: 1, linkrev: :base, view: :xml}
+    parse_issues_xml(query) do |issue, state|
+      issue_change[issue] = state
+    end
+
+    issue_change
+  end
+
+  def update_channel_list
+    Channel.transaction do
+      self.channels.destroy_all
+      if self.is_of_kind? 'channel'
+        xml = Suse::Backend.get(self.source_path('_channel'))
+        channel = self.channels.create
+        channel.update_from_xml(xml.body.to_s)
+      end
+    end
+  end
+
+  def update_product_list
+    return unless self.is_of_kind? 'product'
+    Product.transaction do
+      begin
+        xml = Xmlhash.parse(Suse::Backend.get(self.source_path(nil, view: :products)).body)
+      rescue ActiveXML::Transport::Error
+        return # do not touch
+      end
+      self.products.destroy_all
+      xml.elements('productdefinition') do |pd|
+        pd.elements('products') do |ps|
+          ps.elements('product') do |p|
+            Product.find_or_create_by_name_and_package(p['name'], self)
+          end
+        end
+      end
+    end
+  end
+
+  def detect_package_kinds(directory)
+    unless directory
+      # none given, detect by existing UNEXPANDED sources
+      directory = self.dir_hash
+    end
+    ret = []
+    directory.elements("entry") do |e|
+      %w{patchinfo aggregate link channel}.each do |kind|
+        if e["name"] == '_' + kind
+          ret << kind
+        end
+      end
+      if e["name"] =~ /.product$/
+        ret << 'product'
+      end
+      # further types my be spec, dsc, kiwi in future
+    end
+    ret
+  end
+
   private :private_set_package_kind
 
   def resolve_devel_package
@@ -470,7 +487,7 @@ class Package < ActiveRecord::Base
     processed = {}
 
     if pkg == pkg.develpackage
-      raise CycleError.new "Package defines itself as devel package"
+      raise CycleError.new 'Package defines itself as devel package'
     end
     while ( pkg.develpackage or pkg.project.develproject )
       #logger.debug "resolve_devel_package #{pkg.inspect}"
@@ -527,7 +544,7 @@ class Package < ActiveRecord::Base
       self.develpackage = develpkg
     end
     #--- end devel project ---#
-    
+
     # just for cycle detection
     self.resolve_devel_package
 
@@ -538,17 +555,17 @@ class Package < ActiveRecord::Base
 
     #---begin enable / disable flags ---#
     update_all_flags(xmlhash)
-    
+
     #--- update url ---#
     self.url = xmlhash.value('url')
     #--- end update url ---#
-    
+
     save!
   end
 
   # for the HasAttributes mixing
   def attribute_url
-    "/source/#{CGI.escape(self.project.name)}/#{CGI.escape(self.name)}/_attribute"
+    self.source_path("_attribute")
   end
 
   def store(opts = {})
@@ -566,9 +583,9 @@ class Package < ActiveRecord::Base
     @commit_opts ||= {}
     #--- write through to backend ---#
     if CONFIG['global_write_through']
-      path = "/source/#{self.project.name}/#{self.name}/_meta?user=#{CGI.escape(User.current ? User.current.login : "_nobody_")}"
-      path += "&comment=#{CGI.escape(@commit_opts[:comment])}" unless @commit_opts[:comment].blank?
-      Suse::Backend.put_source( path, to_axml )
+      query = { user: User.current ? User.current.login : '_nobody_' }
+      query[:comment] = @commit_opts[:comment] unless @commit_opts[:comment].blank?
+      Suse::Backend.put_source( self.source_path('_meta', query), to_axml )
     end
     @commit_opts = {}
   end
@@ -721,41 +738,52 @@ class Package < ActiveRecord::Base
   end
 
   def branch_from(origin_project, origin_package, rev=nil, missingok=nil, comment=nil)
-        path = "/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}"
-        myparam = { :cmd => "branch",
-                    :noservice => "1",
-                    :oproject => origin_project,
-                    :opackage => origin_package,
-                    :user => User.current.login,
-                  }
-        myparam[:orev] = rev if rev and not rev.empty?
-        myparam[:missingok] = "1" if missingok
-        myparam[:comment] = comment if comment
-        path <<  Suse::Backend.build_query_from_hash(myparam, [:cmd, :oproject, :opackage, :user, :comment, :orev, :missingok])
-        # branch sources in backend
-        return Suse::Backend.post path, nil
+    myparam = { :cmd => "branch",
+                :noservice => "1",
+                :oproject => origin_project,
+                :opackage => origin_package,
+                :user => User.current.login,
+    }
+    myparam[:orev] = rev if rev and not rev.empty?
+    myparam[:missingok] = "1" if missingok
+    myparam[:comment] = comment if comment
+    path =  self.source_path + Suse::Backend.build_query_from_hash(myparam, [:cmd, :oproject, :opackage, :user, :comment, :orev, :missingok])
+    # branch sources in backend
+    Suse::Backend.post path, nil
   end
 
-  def update_linkinfo
-     dir = self.dir_hash
-     # we will later delete all links not touched, so just go to return here
-     return if dir.blank?
-     li = dir['linkinfo']
-     if !li
-        self.linked_package.delete if self.linked_package
-        return
-     end
-     Rails.logger.debug "Syncing link #{self.project.name}/#{self.name} -> #{li['project']}/#{li['package']}"
-     # we have to be careful - the link target can be nowhere
-     link = Package.find_by_project_and_name(li['project'], li['package'])
-     unless link
-       self.linked_package.delete if self.linked_package
-       return
-     end
+  def update_backendinfo
+    bp = self.backend_package || self.build_backend_package
 
-     self.linked_package ||= LinkedPackage.new(links_to: link)
-     self.linked_package.save # update updated_at
+    # determine the infos provided by srcsrv
+    dir = self.dir_hash(view: :info, withchangesmd5: 1, nofilename: 1)
+    bp.verifymd5 = dir['verifymd5']
+    bp.changesmd5 = dir['changesmd5']
+    bp.expandedmd5 = dir['srcmd5']
+    if dir['revtime'].blank? # no commit, no revtime
+      bp.maxmtime = nil
+    else
+      bp.maxmtime = Time.at(Integer(dir['revtime']))
+    end
 
+    # now check the unexpanded sources
+    dir = self.dir_hash
+    private_set_package_kind(detect_package_kinds(dir))
+
+    bp.srcmd5 = dir['srcmd5']
+    li = dir['linkinfo']
+    if li
+      bp.error = li['error']
+
+      Rails.logger.debug "Syncing link #{self.project.name}/#{self.name} -> #{li['project']}/#{li['package']}"
+      # we have to be careful - the link target can be nowhere
+      bp.links_to = Package.find_by_project_and_name(li['project'], li['package'])
+    else
+      bp.error = nil
+      bp.links_to = nil
+    end
+
+    bp.save
   end
 
   # FIXME: we REALLY should use active_model_serializers

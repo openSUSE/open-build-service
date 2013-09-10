@@ -1,5 +1,5 @@
 require 'base64'
-require 'event/request'
+require 'event'
 
 include MaintenanceHelper
 

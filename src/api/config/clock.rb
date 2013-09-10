@@ -35,13 +35,6 @@ every(1.day, 'optimize history', thread: true) do
   end
 end
 
-every(5.minutes, 'check last events') do
-  bi = BackendInfo.first
-  # save *something* to have a model we can delay on
-  BackendInfo.lastevents_nr = 1 unless bi
-  BackendInfo.first.delay.update_last_events 
-end
-
 every(30.seconds, 'send notifications') do
   Event::NotifyBackends.trigger_delayed_sent
 end

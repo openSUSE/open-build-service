@@ -11,15 +11,13 @@ require(File.join(File.dirname(__FILE__), 'config', 'boot'))
 require 'workers/update_issues.rb'
 task(:updateissues => :environment) { Delayed::Job.enqueue UpdateIssuesJob.new }
 
-require 'workers/update_package_meta_job.rb'
-task(:updatepackagemeta => :environment) { u=UpdatePackageMetaJob.new; u.perform }
+task(:updatepackagemeta => :environment) { UpdatePackageMetaJob.new.perform }
 
 require 'workers/write_configuration.rb'
-task(:writeconfiguration => :environment) { i=WriteConfigurationJob.new; i.perform }
+task(:writeconfiguration => :environment) { WriteConfigurationJob.new.perform }
 
 require 'workers/import_requests.rb'
-#task(:importrequests => :environment) { Delayed::Job.enqueue ImportRequestsDelayedJob.new }
-task(:importrequests => :environment) { i=ImportRequestsDelayedJob.new; i.perform }
+task(:importrequests => :environment) { ImportRequestsDelayedJob.new.perform }
 
 if Rails.env.test?
   begin
