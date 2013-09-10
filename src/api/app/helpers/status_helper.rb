@@ -11,7 +11,7 @@ class LinkInfo
 end
 
 class PackInfo
-  attr_accessor :devel_project, :devel_package
+  attr_accessor :devel_project, :devel_package, :bp
   attr_accessor :srcmd5, :verifymd5, :changesmd5, :maxmtime, :error, :link
   attr_reader :name, :project, :key, :package_id
   attr_accessor :develpack
@@ -122,59 +122,24 @@ end
 
 class ProjectStatusHelper
 
-  def self.get_xml(uri)
-    key = Digest::MD5.hexdigest(uri)
-    d = Rails.cache.fetch(key, :expires_in => 2.hours) do
-      Suse::Backend.get(uri).body
-    end
-    Xmlhash.parse(d)
-  end
-
   def self.check_md5(proj, packages, mypackages)
-    uri = '/getprojpack?project=%s&withsrcmd5=1&ignoredisable=1' % CGI.escape(proj)
-    packages.each do |package|
-      uri += "&package=" + CGI.escape(package.name)
+    # remap
+    packages = Project.find_by_name(proj).packages.where(name: packages.map { |p| p.name })
+    BackendPackage.where(package_id: packages).each do |bp|
+      key = proj + "/" + bp.package.name
+      obj = mypackages[key]
+      next unless obj
+      obj.bp = bp
+      obj.srcmd5 = obj.bp.srcmd5
+      obj.verifymd5 = obj.bp.verifymd5
+      obj.error = obj.bp.error
+      if obj.bp.links_to
+        obj.link.project = obj.bp.links_to.project.name
+        obj.link.package = obj.bp.links_to.name
+      end
+      obj.changesmd5 = obj.bp.changesmd5
+      obj.maxmtime = obj.bp.maxmtime
     end
-    data = get_xml(uri)
-
-    data.get('project').elements('package') do |p|
-
-      packname = p['name']
-      key = proj + "/" + packname
-      next unless mypackages.has_key?(key)
-      mypackages[key].srcmd5 = p['srcmd5']
-      if p['verifymd5']
-        mypackages[key].verifymd5 = p['verifymd5']
-      end
-      p.elements('linked') do |l|
-        mypackages[key].link.project = l['project']
-        mypackages[key].link.package = l['package']
-        break # the first link will do
-      end
-      p.elements('error') do |e|
-        mypackages[key].error = e
-        break
-      end
-      cmd5, mtime = Rails.cache.fetch("change-data-%s" % p['srcmd5']) do
-        begin
-          directory = Directory.hashed(project: proj, package: packname, expand: 1)
-        rescue ActiveXML::Transport::Error
-          directory = nil
-        end
-        changesfile="%s.changes" % packname
-        md5 = ''
-        mtime = 0
-        directory.elements('entry') do |e|
-          if e['name'] == changesfile
-            md5 = e['md5']
-          end
-          mtime = [mtime, Integer(e['mtime'])].max
-        end if directory
-        [md5, mtime]
-      end
-      mypackages[key].changesmd5 = cmd5 unless cmd5.empty?
-      mypackages[key].maxmtime = mtime unless mtime == 0
-    end if data
   end
 
   def self.update_projpack(proj, mypackages)

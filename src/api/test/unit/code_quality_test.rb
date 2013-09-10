@@ -81,7 +81,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BsRequestAction#check_action_permission!' => 221.25,
       'BsRequestAction#check_newstate!' => 378.58,
       'BsRequestAction#check_sanity' => 78.06,
-      'BsRequestAction#create_expand_package' => 350.8,
+      'BsRequestAction#create_expand_package' => 347.77,
       'BsRequestAction#default_reviewers' => 135.96,
       'BsRequestAction#expand_targets' => 46.89,
       'BsRequestAction#find_reviewers' => 61.68,
@@ -108,15 +108,14 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Maintainership#find_assignees' => 64.17,
       'Maintainership#find_containers' => 42.72,
       'MaintenanceHelper#create_new_maintenance_incident' => 64.93,
-      'MaintenanceHelper#do_branch' => 1125.32,
-      'MaintenanceHelper#release_package' => 233.59,
+      'MaintenanceHelper#do_branch' => 1123,
+      'MaintenanceHelper#release_package' => 230.9,
       'MaintenanceIncident#getUpdateinfoId' => 151.95,
       'MaintenanceIncident#project_name' => 49.41,
       'MessageController#index' => 74.13,
       'PackInfo#to_xml' => 63.64,
       'Package#add_channels' => 60.1,
       'Package#find_linking_packages' => 40.68,
-      'Package#private_set_package_kind' => 223.09,
       'Package#resolve_devel_package' => 52.33,
       'Package::get_by_project_and_name' => 42.13,
       'PersonController#change_password' => 45.67,
@@ -131,7 +130,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Project::check_access?' => 54.05,
       'Project::get_by_name' => 53.44,
       'ProjectStatusHelper::calc_status' => 159.25,
-      'ProjectStatusHelper::check_md5' => 80.51,
+      'ProjectStatusHelper::check_md5' => 50.8,
       'ProjectStatusHelper::update_jobhistory' => 50.29,
       'PublicController#binary_packages' => 134.24,
       'Relationship#check_sanity' => 48.62,
@@ -207,7 +206,7 @@ class CodeQualityTest < ActiveSupport::TestCase
         next
       end
                           # don't want to be too strict here
-      next if (oldscore-score).abs < 0.5
+      next if (oldscore-score).abs < 2
       mismatches << "  '#{class_method}' => #{score}, # oldscore=#{oldscore}"
     end
 

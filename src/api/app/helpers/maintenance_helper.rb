@@ -344,7 +344,7 @@ module MaintenanceHelper
         next unless p[:package].class == Package # only for local packages
 
         pkg = p[:package]
-        if pkg.package_kinds.find_by_kind 'link'
+        if pkg.is_of_kind? 'link'
           # is the package itself a local link ?
           link = Suse::Backend.get( "/source/#{p[:package].project.name}/#{p[:package].name}/_link")
           ret = ActiveXML::Node.new(link.body)
@@ -566,7 +566,7 @@ module MaintenanceHelper
     else
       tpkg = Package.new(:name => targetPackageName, :title => sourcePackage.title, :description => sourcePackage.description)
       targetProject.packages << tpkg
-      if sourcePackage.package_kinds.find_by_kind 'patchinfo'
+      if sourcePackage.is_of_kind? 'patchinfo'
         # publish patchinfos only
         tpkg.flags.create( :flag => 'publish', :status => "enable" )
       end
@@ -661,7 +661,7 @@ module MaintenanceHelper
     end
 
     # create or update main package linking to incident package
-    unless sourcePackage.package_kinds.find_by_kind 'patchinfo'
+    unless sourcePackage.is_of_kind? 'patchinfo'
       basePackageName = targetPackageName.gsub(/\.[^\.]*$/, '')
 
       # only if package does not contain a _patchinfo file

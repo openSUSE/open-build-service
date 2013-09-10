@@ -17,6 +17,8 @@ class Event::UndeletePackage < Event::Package
   self.raw_type = 'SRCSRV_UNDELETE_PACKAGE'
   self.description = 'Package was undeleted'
   payload_keys :comment
+
+  after_create { |event| CheckPackageEvent.new(event).perform }
 end
 
 class Event::DeletePackage < Event::Package
@@ -41,6 +43,8 @@ class Event::Commit < Event::Package
   self.raw_type = 'SRCSRV_COMMIT'
   self.description = 'New revision of a package was commited'
   payload_keys :project, :package, :comment, :user, :files, :rev, :requestid
+
+  after_create { |event| CheckPackageEvent.new(event).perform }
 end
 
 class Event::Upload < Event::Package

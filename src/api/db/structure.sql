@@ -127,6 +127,20 @@ CREATE TABLE `backend_infos` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+CREATE TABLE `backend_packages` (
+  `package_id` int(11) NOT NULL AUTO_INCREMENT,
+  `links_to_id` int(11) DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `srcmd5` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `changesmd5` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `verifymd5` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `expandedmd5` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `error` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `maxmtime` datetime DEFAULT NULL,
+  PRIMARY KEY (`package_id`),
+  KEY `index_backend_packages_on_links_to_id` (`links_to_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `blacklist_tags` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
@@ -482,14 +496,6 @@ CREATE TABLE `issues` (
   CONSTRAINT `issues_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`),
   CONSTRAINT `issues_ibfk_2` FOREIGN KEY (`issue_tracker_id`) REFERENCES `issue_trackers` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-CREATE TABLE `linked_packages` (
-  `links_to_id` int(11) NOT NULL,
-  `package_id` int(11) NOT NULL AUTO_INCREMENT,
-  `updated_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`package_id`),
-  KEY `index_linked_packages_on_links_to_id` (`links_to_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `linked_projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1251,6 +1257,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130830043205');
 INSERT INTO schema_migrations (version) VALUES ('20130903114302');
 
 INSERT INTO schema_migrations (version) VALUES ('20130904071147');
+
+INSERT INTO schema_migrations (version) VALUES ('20130910162318');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

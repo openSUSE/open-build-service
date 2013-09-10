@@ -794,10 +794,6 @@ class Project < ActiveRecord::Base
     ret
   end
 
-  def complex_status(backend)
-    ProjectStatusHelper.calc_status(self)
-  end
-
   # find a package in a project and its linked projects
   def find_package(package_name, processed={})
     # cycle check in linked projects
@@ -947,7 +943,7 @@ class Project < ActiveRecord::Base
         if project.project_type == "maintenance_release"
           # branch from official release project?
           trepo.release_targets.create(:target_repository => repo, :trigger => trigger)
-        elsif pkg_to_enable and pkg_to_enable.package_kinds.find_by_kind 'channel'
+        elsif pkg_to_enable and pkg_to_enable.is_of_kind? 'channel'
           # check if the channel has defined release targets
           if cts = pkg_to_enable.channels.first.channel_targets
             # branching a channel? set it's targets here as well
@@ -1060,23 +1056,29 @@ class Project < ActiveRecord::Base
     end
   end
 
+  after_save do
+    Rails.cache.delete "bsrequest_repos_map-#{self.name}"
+  end
+
   def bsrequest_repos_map(project)
-    ret = Hash.new
-    uri = "/getprojpack?project=#{CGI.escape(project.to_s)}&nopackages&withrepos&expandedrepos"
-    begin
-      xml = Xmlhash.parse(Suse::Backend.get(uri).body)
-    rescue ActiveXML::Transport::Error
-      return ret
-    end
-
-    xml['project'].elements('repository') do |repo|
-      repo.elements('path') do |path|
-        ret[path['project']] ||= Array.new
-        ret[path['project']] << repo
+    Rails.cache.fetch("bsrequest_repos_map-#{project}", expires_in: 2.hours) do
+      ret = Hash.new
+      uri = "/getprojpack?project=#{CGI.escape(project.to_s)}&nopackages&withrepos&expandedrepos"
+      begin
+        xml = Xmlhash.parse(Suse::Backend.get(uri).body)
+      rescue ActiveXML::Transport::Error
+        return ret
       end
-    end
 
-    return ret
+      xml['project'].elements('repository') do |repo|
+        repo.elements('path') do |path|
+          ret[path['project']] ||= Array.new
+          ret[path['project']] << repo
+        end
+      end
+
+      ret
+    end
   end
 
   private :bsrequest_repos_map

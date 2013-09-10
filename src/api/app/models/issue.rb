@@ -6,7 +6,7 @@ class Issue < ActiveRecord::Base
     setup "issue_not_found", 404, "Issue not found"
   end
   
-  has_many :package_issues, :foreign_key => 'issue_id', :dependent => :destroy
+  has_many :package_issues, :foreign_key => 'issue_id', dependent: :delete_all
   belongs_to :issue_tracker
   belongs_to :owner, :class_name => "User"
 
