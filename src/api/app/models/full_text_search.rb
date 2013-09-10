@@ -3,7 +3,7 @@ class FullTextSearch
 
   cattr_accessor :ranker, :field_weights, :per_page, :star,
       :linked_count_weight, :activity_index_weight, :links_to_other_weight,
-      :is_devel_weight
+      :is_devel_weight, :max_matches
 
   self.linked_count_weight = 100
   self.activity_index_weight = 500
@@ -13,6 +13,7 @@ class FullTextSearch
   self.ranker = :sph04
   self.per_page = 50
   self.star = false
+  self.max_matches = ThinkingSphinx::Configuration.instance.settings["max_matches"]
 
   attr_accessor :text, :classes, :fields, :attrib_type_id, :issue_tracker_name, :issue_name
   attr_reader :result
@@ -43,6 +44,7 @@ class FullTextSearch
     args = {}
     args[:ranker] = FullTextSearch.ranker
     args[:star] = FullTextSearch.star
+    args[:max_matches] = FullTextSearch.max_matches
     args[:select] = "(@weight + "\
                     "#{FullTextSearch.linked_count_weight} * linked_count + "\
                     "#{FullTextSearch.links_to_other_weight} * links_to_other + "\
@@ -63,7 +65,6 @@ class FullTextSearch
     args[:page] = options[:page]
     args[:per_page] = options[:per_page] || FullTextSearch.per_page
 
-    puts args.inspect
     @result = ThinkingSphinx.search search_str, args
   end
 
