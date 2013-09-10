@@ -1457,31 +1457,32 @@ sub workerstatus {
   for my $a (@a) {
     next unless -d "$jobsdir/$a";
     my @d = grep {!/^\./ && !/:(?:dir|new|cross)$/} ls("$jobsdir/$a");
+    @d = sort @d;
     my %d = map {$_ => 1} @d;
     for my $d (grep {/:status$/} @d) {
       delete $d{$d};
       $d =~ s/:status$//;
+      next unless $d{$d};	# no buildinfo
       my $s = readxml("$jobsdir/$a/$d:status", $BSXML::jobstatus, 1);
-      print "bad job, no status: $d\n" if !$s;
+      print "bad job, no status: $d\n" unless $s;
       next unless $s;
-      my $i;
-      if (0) {
-	$i = readxml("$jobsdir/$a/$d", $BSXML::buildinfo, 1);
+      my $jn = $d;
+      $jn =~ s/-[0-9a-f]{32}$//s;
+      my ($projid, $repoid, $packid) = split('::', $jn);
+      my $info;
+      if (defined($packid)) {
+        # get info from job name like in the dispatcher
+	$info = {'project' => $projid, 'repository' => $repoid, 'package' => $packid, 'arch' => $a};
       } else {
-	# fake info from job name
-	next unless $d{$d};	# no buildinfo
-	my $jn = $d;
-	$jn =~ s/-[0-9a-f]{32}$//s;
-	my ($projid, $repoid, $packid) = split('::', $jn);
-	$i = {'project' => $projid, 'repository' => $repoid, 'package' => $packid, 'arch' => $a};
+	$info = readxml("$jobsdir/$a/$d", $BSXML::buildinfo, 1);
       }
-      print "bad job, no info: $d\n" if !$i;
-      next unless $i;
+      print "bad job, no info: $d\n" unless $info;
+      next unless $info;
       if ($s->{'code'} ne 'building') {
         delete $d{$d};
         next;
       }
-      push @building, {'workerid' => $s->{'workerid'}, 'uri' => $s->{'uri'}, 'hostarch' => $s->{'hostarch'}, 'project' => $i->{'project'}, 'repository' => $i->{'repository'}, 'package' => $i->{'package'}, 'arch' => $i->{'arch'}, 'starttime' => $s->{'starttime'}};
+      push @building, {'workerid' => $s->{'workerid'}, 'uri' => $s->{'uri'}, 'hostarch' => $s->{'hostarch'}, 'project' => $info->{'project'}, 'repository' => $info->{'repository'}, 'package' => $info->{'package'}, 'arch' => $info->{'arch'}, 'starttime' => $s->{'starttime'}};
       delete $d{$d};
     }
     if (!$BSConfig::masterdispatcher || $BSConfig::masterdispatcher eq $BSConfig::reposerver) {
