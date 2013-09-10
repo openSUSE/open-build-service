@@ -245,4 +245,3 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   end
 
 end
-
