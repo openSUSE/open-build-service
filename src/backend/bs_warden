@@ -107,7 +107,7 @@ while (1) {
     if ($@) {
       warn($@);
       if ($worker->{'reposerver'}) {
-	print BSUtil::isotime().": restarting build of $job building on $js->{'workerid'}\n";
+	print BSUtil::isotime().": restarting build of $arch/$job building on $js->{'workerid'}\n";
 	my $param = {
 	  'uri' => "$worker->{'reposerver'}/jobs/$arch/$job",
 	  'request' => 'POST',
@@ -127,7 +127,7 @@ while (1) {
 	  close F;
 	  next;
 	}
-	print BSUtil::isotime().": restarting build of $job building on $js->{'workerid'}\n";
+	print BSUtil::isotime().": restarting build of $arch/$job building on $js->{'workerid'}\n";
 	unlink("$jobsdir/$arch/$job:status");
         unlink("$workersdir/building/$wname");
         delete $building{$wname};
