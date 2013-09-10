@@ -34,7 +34,7 @@ setup_api() {
 
   echo "Setup additional configuration"
   cp config/options.yml.example config/options.yml
-
+  cp config/thinking_sphinx.yml.example config/thinking_sphinx.yml
   chmod a+x script/start_test_backend
 
   echo "Initialize test database, load seed data"
