@@ -2363,13 +2363,14 @@ sub xrpc_setchanged {
   die("no gctx in handle context\n") unless $gctx;
   my $changed = $gctx->{"changed_$changetype"};
   my $changed_dirty = $gctx->{'changed_dirty'};
+  my $lookat = $gctx->{"lookat_$changetype"};
   my ($projid, $repoid) = split('/', $what, 2);
   if (defined($repoid)) {
     my $prp = $what;
-    @{$gctx->{"lookat_$changetype"}} = grep {$_ ne $prp} @{$gctx->{"lookat_$changetype"}};
-    unshift(@{$gctx->{"lookat_$changetype"}}, $prp);
+    @$lookat = grep {$_ ne $prp} @$lookat;
+    unshift @$lookat, $prp;
     if ($changetype eq 'low') {
-      # we don't use changed2lookat to prevent infinte looping
+      # we don't use changed2lookat to prevent infinite looping
       for my $dprp (@prps) {
 	$changed->{$dprp} = 1 if grep {$_ eq $prp} @{$prpdeps{$dprp}};
       }
@@ -2388,17 +2389,17 @@ sub xrpc_setchanged {
     push @cprps, $prp if (split('/', $prp, 2))[0] eq $projid;
   }
   my %cprps = map {$_ => 1} @cprps;
-  @{$gctx->{"lookat_$changetype"}} = grep {!$cprps{$_}} @{$gctx->{"lookat_$changetype"}};
+  @$lookat = grep {!$cprps{$_}} @$lookat;
   if ($changelevel == 2) {
     for my $prp (@cprps) {
-      unshift(@{$gctx->{"lookat_$changetype"}}, $prp);
+      unshift @$lookat, $prp;
       $changed->{$prp} = 2;
       $changed_dirty->{$prp} = 1;
     }
     $changed->{$projid} = 2;
   } else {
     for my $prp (@cprps) {
-      unshift(@{$gctx->{"lookat_$changetype"}}, $prp);
+      unshift @$lookat, $prp;
       $changed->{$prp} ||= 1;
       $changed_dirty->{$prp} = 1;
     }
