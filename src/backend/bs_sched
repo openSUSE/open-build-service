@@ -8155,7 +8155,16 @@ NEXTPRP:
 	if (!$prpnoleaf{$prp}) {
 	  # only free repo data if all projects we depend on are finished, too.
 	  # (we always have to do the expansion if something changes)
-	  my @unfinishedprps = grep {!$prpfinished{$_}} @{$prpdeps{$prp}};
+	  my @unfinishedprps;
+	  for (@{$prpdeps{$prp}}) {
+	    next if $prpfinished{$_};
+	    # if this is a remote repo, check prpnotready
+	    if (!%{$prpnotready{$_} || {}}) {
+	      my ($p) = split('/', $_, 2);
+	      next if $remoteprojs{$p};
+	    }
+	    push @unfinishedprps, $_;
+	  }
 	  if (!@unfinishedprps) {
 	    print "    leaf prp, freeing data\n";
 	    delete $repodatas{$prp};
