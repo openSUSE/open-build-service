@@ -1,10 +1,10 @@
 <% if @finished %>
-  $('#log_space').append('<%= j @log_chunk %>');
+  $('#log_space').append('<%= escape_javascript(@log_chunk.html_safe) %>');
   build_finished();
   hide_abort();
 <% else %>
   show_abort();
-  $('#log_space').append('<%= j @log_chunk %>');
+  $('#log_space').append('<%= escape_javascript(@log_chunk.html_safe) %>');
 <% if @log_chunk.length < @maxsize || @initial == 0 %>
   autoscroll();
   setTimeout(function() { refresh(<%= @offset %>, 0); },2000);
