@@ -440,7 +440,6 @@ ln -sf /usr/lib/build $RPM_BUILD_ROOT/usr/lib/obs/server/build # just for check 
 # install executables and code
 cp -a * $RPM_BUILD_ROOT/usr/lib/obs/server/
 rm -r   $RPM_BUILD_ROOT/usr/lib/obs/server/testdata
-rm      $RPM_BUILD_ROOT/usr/lib/obs/server/Makefile.PL
 cd ..
 
 #
@@ -733,9 +732,6 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/d
 /usr/lib/obs/server/bs_sshgit
 /usr/lib/obs/server/bs_warden
 /usr/lib/obs/server/worker
-/usr/lib/obs/server/BSSolv.pm
-/usr/lib/obs/server/BSSolv.xs
-/usr/lib/obs/server/typemap
 /usr/lib/obs/server/worker-deltagen.spec
 %config(noreplace) /usr/lib/obs/server/BSConfig.pm
 %config(noreplace) /etc/slp.reg.d/*
