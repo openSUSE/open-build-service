@@ -2446,9 +2446,17 @@ sub get_projpacks_resume {
 
   # fetch linked packages with lower prio
   if ($handle->{'_dolink'}) {
+    my $gctx = $handle->{'_ctx'}->{'gctx'} || {};
+    my $delayedfetchprojpacks = $gctx->{'delayedfetchprojpacks'};
     my $linked = find_linked_sources($projid, $packids);
     for my $lprojid (sort keys %$linked) {
       my %lpackids = map {$_ => 1} @{$linked->{$lprojid}};
+      # delay package source changes if possible
+      if ($handle->{'_dolink'} == 2 && $lprojid ne $projid && $delayedfetchprojpacks && %lpackids) {
+	push @{$delayedfetchprojpacks->{$lprojid}}, sort keys %lpackids;
+	xrpc_setchanged($handle, $lprojid, $packids ? 'med' : 'low');
+	next;
+      }
       my $async = {'_changetype' => $packids ? 'med' : 'low'};
       get_projpacks($handle->{'_ctx'}, $async, $lprojid, sort keys %lpackids);
     }
@@ -6604,7 +6612,8 @@ sub do_fetchprojpacks {
 	delete $delayedfetchprojpacks->{$projid} unless @{$delayedfetchprojpacks->{$projid}};
       }
       if ($doasync && %packids) {
-        my $async = { '_dolink' => 1, '_changetype' => 'high', '_changelevel' => 1 };
+	# _dolink = 2: try to delay linked packages fetches
+	my $async = { '_dolink' => 2, '_changetype' => 'high', '_changelevel' => 1 };
 	get_projpacks($ctx, $async, $projid, sort keys %packids);
 	delete $fetchprojpacks->{$projid};	# backgrounded
 	next;
