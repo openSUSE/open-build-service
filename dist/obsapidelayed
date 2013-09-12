@@ -61,7 +61,7 @@ case "$1" in
 	rc_status -v
 	;;
     stop)
-	echo -n "Stoping OBS api delayed job handler "
+	echo -n "Shutting down OBS api delayed job handler "
         run_in_api script/delayed_job.api.rb stop
         run_in_api $CLOCKWORKD -l -c config/clock.rb stop
 	rc_status -v
