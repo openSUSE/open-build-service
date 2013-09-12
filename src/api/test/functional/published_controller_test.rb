@@ -75,9 +75,9 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag :tag => 'entry', :attributes => { :name => "other.xml.gz" }
     assert_no_xml_tag :tag => 'entry', :attributes => { :name => "primary.xml.gz" }
     assert_xml_tag :tag => 'entry', :attributes => { :name => "repomd.xml" }
-    assert_match /-filelists.xml.gz$/, @response.body
-    assert_match /-other.xml.gz$/, @response.body
-    assert_match /-primary.xml.gz$/, @response.body
+    assert_match(/-filelists.xml.gz"/, @response.body)
+    assert_match(/-other.xml.gz"/, @response.body)
+    assert_match(/-primary.xml.gz"/, @response.body)
     # legacy configured rpm-md
     get "/published/home:Iggy/10.2/repodata"
     assert_response :success
