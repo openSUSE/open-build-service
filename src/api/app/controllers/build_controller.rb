@@ -242,37 +242,41 @@ class BuildController < ApplicationController
 
   def result
     required_parameters :project
-    # for permission check
-    Project.get_by_name params[:project]
 
     # this route is mainly for checking submissions to a target project
     if params.has_key? :lastsuccess
-      required_parameters :package, :pathproject
-
-      pkg = Package.get_by_project_and_name params[:project], params[:package],
-                                            use_source: false, follow_project_links: false
-
-      tprj = Project.get_by_name params[:pathproject]
-      bs = pkg.buildstatus(target_project: tprj, srcmd5: params[:srcmd5])
-      @result = []
-      bs.each do |repo, status|
-        archs = []
-        status.each do |arch, archstat|
-          oneline = [arch, archstat[:result]]
-          unless archstat[:missing].blank?
-            oneline << archstat[:missing].join(",")
-          else
-            oneline << nil
-          end
-          archs << oneline
-        end
-        @result << [repo, archs]
-      end
-      render text: render_to_string(partial: "lastsuccess")
-      return
+      return result_lastsuccess
     end
 
+    # for permission check
+    Project.get_by_name params[:project]
+
     pass_to_backend
+  end
+
+  def result_lastsuccess
+    required_parameters :package, :pathproject
+
+    pkg = Package.get_by_project_and_name params[:project], params[:package],
+                                          use_source: false, follow_project_links: false
+
+    tprj = Project.get_by_name params[:pathproject]
+    bs = PackageBuildStatus.new(pkg).result(target_project: tprj, srcmd5: params[:srcmd5])
+    @result = []
+    bs.each do |repo, status|
+      archs = []
+      status.each do |arch, archstat|
+        oneline = [arch, archstat[:result]]
+        unless archstat[:missing].blank?
+          oneline << archstat[:missing].join(",")
+        else
+          oneline << nil
+        end
+        archs << oneline
+      end
+      @result << [repo, archs]
+    end
+    render text: render_to_string(partial: "lastsuccess")
   end
 
 end
