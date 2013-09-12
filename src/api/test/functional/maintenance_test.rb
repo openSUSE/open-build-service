@@ -1740,7 +1740,7 @@ class MaintenanceTests < ActionController::IntegrationTest
     assert_no_xml_tag :tag => "lock"
     get "/source/CopyOfBaseDistro/_config"
     assert_response :success
-    assert_match %r{Empty project config}, @response.body
+    assert_match %r{Repotype: rpm-md-legacy}, @response.body
     get "/source/BaseDistro"
     assert_response :success
     opackages = ActiveXML::Node.new(@response.body)
