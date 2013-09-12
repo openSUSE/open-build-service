@@ -208,6 +208,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'requests display as king' do
+    login_king
     visit_requests
   end
 
