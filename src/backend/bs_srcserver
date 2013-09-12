@@ -7472,17 +7472,19 @@ sub getprojectsourceinfo {
 
 sub getpackagesourceinfo {
   my ($cgi, $projid, $packid) = @_;
-  my $bconf;
   checkprojrepoarch($projid, $cgi->{'repository'}, $cgi->{'arch'});
-  if (!$cgi->{'repository'}) {
+  my $bconf;
+  if (!$cgi->{'nofilename'}) {
     my $cfile;
-    $cfile = "$projectsdir/$projid.conf" if -e "$projectsdir/$projid.conf";
+    if (!$cgi->{'repository'}) {
+      $cfile = "$projectsdir/$projid.conf" if -e "$projectsdir/$projid.conf";
+    } else {
+      print "expandsearchpath $projid $cgi->{'repository'}...\n";
+      my @path = expandsearchpath($projid, $cgi->{'repository'});
+      my $c = concatconfigs($projid, $cgi->{'repository'}, undef, @path);
+      $cfile = [ split("\n", $c) ];
+    }
     $bconf = Build::read_config($cgi->{'arch'} || 'noarch', $cfile);
-  } else {
-    print "expandsearchpath $projid $cgi->{'repository'}...\n";
-    my @path = expandsearchpath($projid, $cgi->{'repository'});
-    my $c = concatconfigs($projid, $cgi->{'repository'}, undef, @path);
-    $bconf = Build::read_config($cgi->{'arch'} || 'noarch', [ split("\n", $c) ]);
   }
   my $res = sourceinfo($cgi, $projid, $packid, $bconf);
   return ($res, $BSXML::sourceinfo);
