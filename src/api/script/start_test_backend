@@ -202,7 +202,7 @@ Package.all.each do |p|
   Suse::Backend.put( "/source/#{CGI.escape(p.project.name)}/#{CGI.escape(p.name)}/_meta", p.to_axml)
 end
 Suse::Backend.put( '/issue_trackers', IssueTracker.all.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS))
-Suse::Backend.put( '/source/BaseDistro/_config', "# Empty project config" )
+Suse::Backend.put( '/source/BaseDistro/_config', "Repotype: rpm-md-legacy" )
 Suse::Backend.put( '/source/BaseDistro/pack1/my_file', "just a file")
 Suse::Backend.put( '/source/BaseDistro/pack2/my_file', "different content")
 Suse::Backend.put( '/source/BaseDistro/pack2/my_file', "second commit")

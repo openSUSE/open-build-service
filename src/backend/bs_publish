@@ -356,7 +356,12 @@ sub createrepo_rpmmd {
   push @createrepoargs, '--changelog-limit', '20';
   push @createrepoargs, '--repo', $repotag;
   my @legacyargs;
-  push @legacyargs, '--simple-md-filenames', '--checksum=sha' if $options{'legacy'};
+  if ($options{'legacy'}) {
+    push @legacyargs, '--simple-md-filenames', '--checksum=sha';
+  } else {
+    # the default in newer createrepos
+    push @legacyargs, '--unique-md-filenames';
+  }
   my @updateargs;
   # createrepo 0.9.9 defaults to usually not used sqlite database. 
   # We do disable it since it is time and space consuming.
