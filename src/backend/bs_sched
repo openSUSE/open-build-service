@@ -2751,6 +2751,7 @@ sub update_project_meta_check {
 sub clone_projpacks_part {
   my ($projid, $packids) = @_;
   
+  return undef unless $projpacks->{$projid};
   my $oldprojdata = { %{$projpacks->{$projid} || {}} };
   delete $oldprojdata->{'package'};
   $oldprojdata = Storable::dclone($oldprojdata);
@@ -2766,6 +2767,7 @@ sub clone_projpacks_part {
 sub postprocess_needed_check {
   my ($projid, $oldprojdata) = @_;
 
+  return 0 if !defined($oldprojdata) && !$projpacks->{$projid};
   return 1 unless $oldprojdata && $oldprojdata->{'package'};		# sanity
   # if we just had a srcmd5 change in some packages there's no need to postprocess
   if (!identical($projpacks->{$projid}, $oldprojdata, {'package' => 1})) {
