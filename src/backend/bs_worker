@@ -914,6 +914,7 @@ sub qsystem {
 
 sub link_or_copy {
   my ($from, $to) = @_;
+  unlink($to);
   return 1 if link($from, $to);
   local *F;
   local *G;
