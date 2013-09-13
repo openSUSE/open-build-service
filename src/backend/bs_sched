@@ -671,7 +671,7 @@ sub set_building {
   my $eok;
   ($eok, @bdeps) = Build::get_build($bconf, $subpacks, @bdeps);
   if (!$eok) {
-    print "        unresolvables:\n";
+    print "        unresolvable:\n";
     print "          $_\n" for @bdeps;
     return (undef, "unresolvable: ".join(', ', @bdeps));
   }
@@ -965,7 +965,7 @@ sub createdeltajob {
   my $prptype = $bconf->{'type'};
   my ($eok, @bdeps) = Build::get_build($bconf, [], "deltarpm");
   if (!$eok) {
-    print "        unresolvables:\n";
+    print "        unresolvable:\n";
     print "          $_\n" for @bdeps;
     return (undef, "unresolvable: ".join(', ', @bdeps));
   }
@@ -4058,7 +4058,7 @@ sub checkkiwiimage {
   my ($eok, @edeps) = Build::get_deps($bconf, [], @deps);
   if (!$eok) {
     print "      - $packid (kiwi-image)\n";
-    print "        unresolvables:\n";
+    print "        unresolvable:\n";
     print "            $_\n" for @edeps;
     return ('unresolvable', join(', ', @edeps));
   }
@@ -4293,7 +4293,7 @@ sub checkkiwiproduct {
     ($eok, @kdeps) = Build::get_build($bconf, [], @kdeps);
     if (!$eok) {
       print "      - $packid (kiwi-product)\n";
-      print "        unresolvables:\n";
+      print "        unresolvable:\n";
       print "          $_\n" for @kdeps;
       return ('unresolvable', join(', ', @kdeps));
     }
@@ -5612,7 +5612,7 @@ sub checkpreinstallimage {
   my ($eok, @bdeps) = Build::get_build($bconf, [], @{$info->{'dep'} || []});
   if (!$eok) {
     print "      - $packid (preinstallimage)\n";
-    print "        unresolvables:\n";
+    print "        unresolvable:\n";
     print "          $_\n" for @bdeps;
     return ('unresolvable', join(', ', @bdeps));
   }
@@ -5629,7 +5629,7 @@ sub checkpreinstallimage {
     my $p = $dep2pkg->{$dep};
     if (!$p) {
       print "      - $packid (preinstallimage)\n";
-      print "        unresolvables:\n          $dep\n";
+      print "        unresolvable:\n          $dep\n";
       return ('unresolvable', $dep);
     }
     push @new_meta, $pool->pkg2pkgid($p)."  $dep";
@@ -7975,7 +7975,7 @@ NEXTPRP:
       # now print expandsion errors
       if ($experrors{$packid}) {
 	print "      - $packid ($packtype)\n";
-	print "        unresolvables:\n";
+	print "        unresolvable:\n";
 	print "            $experrors{$packid}\n";
 	$packstatus{$packid} = 'unresolvable';
 	$packerror{$packid} = $experrors{$packid};
