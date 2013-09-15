@@ -22,68 +22,77 @@ class Webui::ProjectsController < Webui::BaseController
     required_parameters :id
     project_name = params[:id]
     infos = Hash.new
-    pro = Project.find_by_name!(project_name)
-    infos[:name] = pro.name
-    infos[:packages] = Array.new
-    packages=pro.expand_all_packages
+    @pro = Project.find_by_name!(project_name)
+    infos[:name] = @pro.name
+    infos[:packages] = find_packages_info
+
+    infos[:xml] = @pro.to_axml
+
+    infos.merge! find_maintenance_infos
+
+    infos[:linking_projects] = @pro.find_linking_projects.map { |p| p.name }
+
+    reqs = @pro.request_ids_by_class
+    infos[:requests] = (reqs['reviews'] + reqs['targets'] + reqs['incidents'] + reqs['maintenance_release']).sort.uniq
+
+    infos[:nr_of_problem_packages] = find_nr_of_problems
+
+    render json: infos
+  end
+
+  def find_packages_info
+    ret = Array.new
+    packages=@pro.expand_all_packages
     prj_names = Hash.new
-    Project.where(id: packages.map {|a| a[1]}.uniq).pluck(:id, :name).each do |id, name|
+    Project.where(id: packages.map { |a| a[1] }.uniq).pluck(:id, :name).each do |id, name|
       prj_names[id] = name
     end
     packages.each do |name, prj_id|
-      if prj_id==pro.id
-        infos[:packages] << [name, nil]
+      if prj_id==@pro.id
+        ret << [name, nil]
       else
-        infos[:packages] << [name, prj_names[prj_id]]
+        ret << [name, prj_names[prj_id]]
       end
     end
+    ret
+  end
 
-    infos[:xml] = pro.to_axml
-
-    pm = pro.maintenance_project
+  def find_maintenance_infos
+    infos = {}
+    pm = @pro.maintenance_project
     infos[:maintenance_project] = pm.name if pm
 
-    if pro.is_maintenance?
+    if @pro.is_maintenance?
       mi = DbProjectType.find_by_name!('maintenance_incident')
-      subprojects = Project.where("projects.name like ?", pro.name + ":%").
+      subprojects = Project.where("projects.name like ?", @pro.name + ":%").
           where(type_id: mi.id).joins(:repositories => :release_targets).
           where("release_targets.trigger = 'maintenance'")
       infos[:incidents] = subprojects.pluck("projects.name").sort.uniq
 
       maintained_projects = []
-      pro.maintained_projects.each do |mp|
+      @pro.maintained_projects.each do |mp|
         maintained_projects << mp.name
       end
       infos[:maintained_projects] = maintained_projects
-
     end
-
-    infos[:linking_projects] = pro.find_linking_projects.map { |p| p.name }
-
-    reqs = pro.request_ids_by_class
-    infos[:requests] = (reqs['reviews'] + reqs['targets'] + reqs['incidents'] + reqs['maintenance_release']).sort.uniq
-
-    infos[:nr_of_problem_packages] = 0
-
-    begin
-      result = backend_get("/build/#{URI.escape(pro.name)}/_result?view=status&code=failed&code=broken&code=unresolvable")
-    rescue ActiveXML::Transport::NotFoundError
-      result = nil
-    end
-    if result
-      ret = {}
-      Xmlhash.parse(result).elements('result') do |r|
-        r.elements('status') { |p| ret[p['package']] = 1 }
-      end
-      infos[:nr_of_problem_packages] = ret.keys.size
-    end
-
-    if pro.is_maintenance_incident?
-      rel = BsRequestCollection.new(project: project_name, states: ['new', 'review'], types: ['maintenance_release'], roles: ['source'])
+    if @pro.is_maintenance_incident?
+      rel = BsRequestCollection.new(project: @pro.name, states: ['new', 'review'], types: ['maintenance_release'], roles: ['source'])
       infos[:open_release_requests] = rel.ids
     end
+    infos
+  end
 
-    render json: infos
+  def find_nr_of_problems
+    begin
+      result = backend_get("/build/#{URI.escape(@pro.name)}/_result?view=status&code=failed&code=broken&code=unresolvable")
+    rescue ActiveXML::Transport::NotFoundError
+      return 0
+    end
+    ret = {}
+    Xmlhash.parse(result).elements('result') do |r|
+      r.elements('status') { |p| ret[p['package']] = 1 }
+    end
+    ret.keys.size
   end
 
   def status
