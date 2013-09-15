@@ -194,8 +194,10 @@ OBSApi::Application.routes.draw do
       # --------------------------
       get 'status_message' => 'status#messages'
       
-      match 'status/messages' => :messages, via: [:get, :put]
-      match 'status/messages/:id' => :messages, :constraints => cons, via: [:get, :delete]
+      get 'status/messages' => :list_messages
+      put 'status/messages' => :update_messages
+      get 'status/messages/:id' => :show_message, constraints: cons
+      delete 'status/messages/:id' => :delete_message, constraints: cons
       get 'status/workerstatus' => :workerstatus
       get 'status/history'  => :history
       get 'status/project/:project' => :project, :constraints => cons

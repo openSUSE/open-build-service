@@ -4,4 +4,5 @@ class LinkedPackage < ActiveRecord::Base
   belongs_to :links_to, class_name: "Package"
   belongs_to :package, class_name: "Package"
 
+  scope :links, -> { where("links_to_id is not null") }
 end

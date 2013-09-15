@@ -40,7 +40,7 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     delete "/status/messages/17"
-    assert_response 400
+    assert_response 404
    
     get "/status/messages" 
     messages = ActiveXML::Node.new @response.body

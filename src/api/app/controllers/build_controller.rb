@@ -276,7 +276,7 @@ class BuildController < ApplicationController
       end
       @result << [repo, archs]
     end
-    render text: render_to_string(partial: "lastsuccess")
+    render xml: render_to_string(partial: "lastsuccess")
   end
 
 end

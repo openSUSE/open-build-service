@@ -14,10 +14,10 @@ class Relationship < ActiveRecord::Base
   validate :check_sanity
 
   # don't use "is not null" - it won't be in index
-  scope :projects, -> { where("project_id > 0") }
-  scope :packages, -> { where("package_id > 0") }
-  scope :groups, -> { where("group_id > 0") }
-  scope :users, -> { where("user_id > 0") }
+  scope :projects, -> { where("project_id is not null") }
+  scope :packages, -> { where("package_id is not null") }
+  scope :groups, -> { where("group_id is not null") }
+  scope :users, -> { where("user_id is not null") }
 
   protected
   def check_sanity
