@@ -754,7 +754,7 @@ class BsRequestAction < ActiveRecord::Base
       if self.is_maintenance_incident?
         newTargets << tprj
         newAction.target_releaseproject = releaseproject.name if releaseproject
-      elsif self.is_maintenance_release? and pkg.package_kinds.find_by_kind 'channel'
+      elsif self.is_maintenance_release? and pkg.is_of_kind? 'channel'
         newAction.action_type = :submit
         newAction.target_project = tprj
         newAction.target_package = tpkg
@@ -773,14 +773,14 @@ class BsRequestAction < ActiveRecord::Base
       end
     end
     if self.is_maintenance_release? and !found_patchinfo and !opts[:ignore_build_state]
-      raise MissingPatchinfo.new "maintenance release request without patchinfo would release no binaries"
+      raise MissingPatchinfo.new 'maintenance release request without patchinfo would release no binaries'
     end
 
     # new packages (eg patchinfos) go to all target projects by default in maintenance requests
     newTargets.uniq!
     newPackages.each do |pkg|
       releaseTargets=nil
-      if pkg.package_kinds.find_by_kind 'patchinfo'
+      if pkg.is_of_kind? 'patchinfo'
         releaseTargets = Patchinfo.new.fetch_release_targets(pkg)
       end
       newTargets.each do |p|

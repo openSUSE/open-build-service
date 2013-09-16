@@ -1,3 +1,14 @@
+action_for_1000:
+  id: 12
+  bs_request_id: 1000
+  type: submit
+  target_project: kde4
+  target_package: apache2
+  source_project: Apache
+  source_package: apache2
+  source_rev: '1'
+  updatelink: 0
+  created_at: 2013-09-09 19:15:16.000000000 Z
 action_for_3:
   id: 1
   bs_request_id: 3
@@ -10,17 +21,6 @@ action_for_3:
   sourceupdate: cleanup
   updatelink: 0
   created_at: 2012-09-03 13:08:02.000000000 Z
-action_for_1000:
-  id: 12
-  bs_request_id: 1000
-  type: submit
-  target_project: kde4
-  target_package: apache2
-  source_project: Apache
-  source_package: apache2
-  source_rev: '1'
-  updatelink: 0
-  created_at: 2013-09-09 19:15:16.000000000 Z
 bs_request_actions_13:
   id: 13
   bs_request_id: 10

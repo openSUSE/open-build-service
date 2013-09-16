@@ -1,4 +1,4 @@
-require 'status_helper'
+require_dependency 'status_helper'
 
 class StatusController < ApplicationController
 
@@ -84,9 +84,9 @@ class StatusController < ApplicationController
       # no prj -> we are not allowed
       unless names.has_key? b.project
         logger.debug "workerstatus2clean: hiding #{b.project} for user #{User.current.login}"
-        b.set_attribute('project', "---")
-        b.set_attribute('repository', "---")
-        b.set_attribute('package', "---")
+        b.set_attribute('project', '---')
+        b.set_attribute('repository', '---')
+        b.set_attribute('package', '---')
       end
     end
     send_data data.dump_xml
@@ -222,13 +222,8 @@ class StatusController < ApplicationController
 
   def project
     dbproj = Project.get_by_name(params[:project])
-    key ='project_status_xml2_%s' % dbproj.name
-    xml = Rails.cache.fetch(key, :expires_in => 10.seconds) do
-      @packages = dbproj.complex_status(backend)
-      find_relationships_for_packages(@packages)
-      render_to_string
-    end
-    render :text => xml
+    @packages = ProjectStatusHelper.calc_status(dbproj)
+    find_relationships_for_packages(@packages)
   end
 
   def bsrequest

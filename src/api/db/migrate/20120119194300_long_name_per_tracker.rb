@@ -1,6 +1,3 @@
-require 'delayed_job'
-require File.join(Rails.root, 'lib/workers/update_package_meta_job.rb')
-
 class LongNamePerTracker < ActiveRecord::Migration
   def self.up
     self.transaction do
@@ -19,8 +16,6 @@ class LongNamePerTracker < ActiveRecord::Migration
       execute("alter table issue_trackers modify long_name text NOT NULL")
 
     end
-    # and update backend
-    Delayed::Job.enqueue UpdatePackageMetaJob.new
   end
 
   def self.down

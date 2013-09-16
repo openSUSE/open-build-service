@@ -2,7 +2,7 @@ include MaintenanceHelper
 include ValidationHelper
 
 require 'builder/xchar'
-require 'event/package'
+require 'event'
 
 class SourceController < ApplicationController
 

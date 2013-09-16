@@ -50,7 +50,7 @@ class Patchinfo
 
   def fetch_issue_for_package(package)
     # create diff per package
-    return if package.package_kinds.find_by_kind 'patchinfo'
+    return if package.is_of_kind? 'patchinfo'
 
     package.package_issues.each do |i|
       add_issue_to_patchinfo(i.issue) if i.change == "added"
@@ -138,7 +138,7 @@ class Patchinfo
 
     @pkg = Package.get_by_project_and_name project, pkg_name
     return if force
-    if @pkg.package_kinds.find_by_kind 'patchinfo'
+    if @pkg.is_of_kind? 'patchinfo'
       raise PatchinfoFileExists.new "createpatchinfo command: the patchinfo #{pkg_name} exists already. " +
                                         "Either use force=1 re-create the _patchinfo or use updatepatchinfo for updating."
     else

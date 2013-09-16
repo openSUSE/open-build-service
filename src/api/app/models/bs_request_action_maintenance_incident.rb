@@ -17,7 +17,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
   end
 
   def get_releaseproject(pkg, tprj)
-    return nil if pkg.package_kinds.find_by_kind 'patchinfo'
+    return nil if pkg.is_of_kind? 'patchinfo'
     releaseproject = nil
     if self.target_releaseproject
       releaseproject = Project.get_by_name self.target_releaseproject
@@ -62,7 +62,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
         next
       end
       # patchinfos are handled as new packages
-      if pkg.package_kinds.find_by_kind 'patchinfo'
+      if pkg.is_of_kind? 'patchinfo'
         if Package.exists_by_project_and_name(incidentProject.name, pkg.name, follow_project_links: false)
           new_pkg = Package.get_by_project_and_name(incidentProject.name, pkg.name, use_source: false, follow_project_links: false)
         else

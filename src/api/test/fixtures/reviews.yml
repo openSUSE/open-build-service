@@ -1,3 +1,25 @@
+review_for_1000_1:
+  id: 4
+  bs_request_id: 1000
+  state: new
+  by_project: Apache
+  by_package: apache2
+  created_at: 2013-09-09 19:15:16.000000000 Z
+  updated_at: 2013-09-09 19:15:16.000000000 Z
+review_for_1000_2:
+  id: 5
+  bs_request_id: 1000
+  state: new
+  by_user: adrian
+  created_at: 2013-09-09 19:15:16.000000000 Z
+  updated_at: 2013-09-09 19:15:16.000000000 Z
+review_for_1000_3:
+  id: 6
+  bs_request_id: 1000
+  state: new
+  by_group: test_group
+  created_at: 2013-09-09 19:15:16.000000000 Z
+  updated_at: 2013-09-09 19:15:16.000000000 Z
 reviews_1:
   id: 1
   bs_request_id: 4
@@ -25,28 +47,6 @@ reviews_3:
   by_group: test_group_b
   created_at: 2012-09-28 11:56:53.000000000 Z
   updated_at: 2012-09-28 11:56:53.000000000 Z
-review_for_1000_1:
-  id: 4
-  bs_request_id: 1000
-  state: new
-  by_project: Apache
-  by_package: apache2
-  created_at: 2013-09-09 19:15:16.000000000 Z
-  updated_at: 2013-09-09 19:15:16.000000000 Z
-review_for_1000_2:
-  id: 5
-  bs_request_id: 1000
-  state: new
-  by_user: adrian
-  created_at: 2013-09-09 19:15:16.000000000 Z
-  updated_at: 2013-09-09 19:15:16.000000000 Z
-review_for_1000_3:
-  id: 6
-  bs_request_id: 1000
-  state: new
-  by_group: test_group
-  created_at: 2013-09-09 19:15:16.000000000 Z
-  updated_at: 2013-09-09 19:15:16.000000000 Z
 reviews_7:
   id: 7
   bs_request_id: 10

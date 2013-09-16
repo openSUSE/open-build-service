@@ -1,8 +1,4 @@
 # those contain tons of others
-require 'event/package'
-require 'event/project'
-require 'event/request'
-require 'event/build'
 
 module Event
 
