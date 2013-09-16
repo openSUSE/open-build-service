@@ -2444,13 +2444,15 @@ sub get_projpacks_resume {
     addretryevent({'type' => 'project', 'project' => $projid});
     return;
   }
+  my $wasremote = !$projpacks->{$projid} && $remoteprojs{$projid} ? 1 : undef;
   my $packids = $handle->{'_packids'};	# we only requested those
   my $oldprojdata = $packids ? clone_projpacks_part($projid, $packids) : undef;
   update_projpacks($projpacksin, $projid, $packids);
   get_projpacks_postprocess() if !$packids || postprocess_needed_check($projid, $oldprojdata);
 
-  # do some upgrades if the project is gone and we fetched all packages (i.e. project event case)
-  if (!$packids && !$projpacks->{$projid}) {
+  # do some upgrades if the project is gone and we fetched all packages
+  # (i.e. project event case as someone deleted a project)
+  if (!$packids && !$projpacks->{$projid} && !($wasremote && $remoteprojs{$projid})) {
     $handle->{'_dolink'} = 1;
     $handle->{'_changetype'} = 'high';
   }
