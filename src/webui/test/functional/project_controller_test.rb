@@ -257,4 +257,13 @@ class ProjectControllerTest < ActionDispatch::IntegrationTest
     find('#flash-messages').must_have_text "Comment added successfully "
   end
 
+  test "succesful reply comment creation" do
+     login_Iggy
+     visit "/project/show/BaseDistro"
+     find(:id,'reply_link_id_100').click
+     fill_in "reply_body_100", with: "Comment Body"
+     find(:id,'add_reply_100').click
+     find('#flash-messages').must_have_text "Comment added successfully "
+  end
+
 end

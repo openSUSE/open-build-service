@@ -1,10 +1,11 @@
-<div id="<%="reply_form_of_#{comment['id']}"%>" style="display: none; <%= "padding-bottom: 20px;" if level >= 1 %>">
-  <%= form_tag :controller => params[:controller], :action => "save_comment" do %>
+<% cid = comment['id'] %>
+<div id="<%="reply_form_of_#{cid}"%>" style="display: none; <%= "padding-bottom: 20px;" if level >= 1 %>">
+  <%= save_comment_form do %>
     <p>
-      <%= hidden_field_tag "reply_title_#{comment['id']}", comment['title'], :name => 'title' %>
-      <%= text_area_tag "reply_body_#{comment['id']}", nil, :name => 'body', :size => "80x1", :onkeyup => "sz(this);", :onclick => "sz(this);" %>
-      <%= hidden_field_tag "reply_parent_id_#{comment['id']}", comment['id'], :name => "parent_id" %>
+      <%= hidden_field_tag 'title', comment['title'], id: "reply_title_#{cid}" %>
+      <%= text_area_tag 'body', nil, size: "80x1", :onkeyup => "sz(this);", :onclick => "sz(this);", id: "reply_body_#{cid}" %>
+      <%= hidden_field_tag 'parent_id', comment['id'], id: "reply_parent_id_#{cid}" %>
     </p>
-    <p><%= submit_tag "Add reply"%></p>
-  <%end%>
+    <p><%= submit_tag "Add reply", id: "add_reply_#{cid}"%></p>
+  <% end %>
 </div>
