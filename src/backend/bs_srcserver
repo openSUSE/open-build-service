@@ -2597,6 +2597,10 @@ sub checkpartition {
     'name' => $projid, 'remoteurl' => $reposerver, 'remoteproject' => $projid, 'partition' => $par,
   };
   $proj ||= readproj($projid, 1);
+  if (!$proj) {
+    $remotemap->{$projid} = { 'name' => $projid };	# gone!
+    return;
+  }
   $remotemap->{$projid}->{'repository'} = $proj->{'repository'} if $proj->{'repository'};
   if ($proj->{'access'}) {
     for ('access', 'publish', 'person', 'group') {
@@ -2675,7 +2679,7 @@ sub getprojpack {
 	if (!($r && $r->{'remoteurl'})) {
 	  # not remote and wrong partition
 	  # if asked for a specific project, put it in remotemap
-          checkpartition($remotemap, $projid) if $remotemap && $cgi->{'project'} && $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$projid};
+          checkpartition($remotemap, $projid, $r) if $remotemap && $cgi->{'project'} && $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$projid};
 	  next;
 	}
       }

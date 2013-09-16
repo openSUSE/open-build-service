@@ -2625,6 +2625,11 @@ sub remotemap2remoteprojs {
 
   for my $proj (@{$remotemap || []}) {
     my $projid = delete $proj->{'project'};
+    if (!$proj->{'remoteurl'} && !$proj->{'error'}) {
+      # remote project is gone (partition case)
+      delete $remoteprojs{$projid};
+      next;
+    }
     my $oproj = $remoteprojs{$projid};
     undef $oproj if $oproj && ($oproj->{'remoteurl'} ne $proj->{'remoteurl'} || $oproj->{'remoteproject'} ne $proj->{'remoteproject'});
     my $c = $proj->{'config'};
