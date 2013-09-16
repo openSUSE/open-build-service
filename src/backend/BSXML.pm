@@ -429,6 +429,8 @@ our $sourceinfo = [
 	'error',
 	'originproject',
        [ $linked ],
+	'revtime',
+	'changesmd5',
 
 	'name',
 	'version',

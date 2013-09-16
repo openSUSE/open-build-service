@@ -7394,6 +7394,10 @@ sub sourceinfo {
     $meta .= "$files->{$_}  $_\n" for sort keys %$files;
     $r->{'verifymd5'} = Digest::MD5::md5_hex($meta);
   }
+  if ($cgi->{'withchangesmd5'}) {
+    $r->{'revtime'} = $rev->{'time'};
+    $r->{'changesmd5'} = $files->{"$packid.changes"} if $files->{"$packid.changes"};
+  }
   return $r if $cgi->{'nofilename'};
   return $r if $packid eq '_pattern';
   if ($files->{'_aggregate'}) {
@@ -7584,7 +7588,7 @@ my $dispatches = [
   'POST:/source/$project cmd=undelete user:? comment:?' => \&undeleteproject,
   'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool? makeolder:bool? resign:bool?' => \&copyproject,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
-  '/source/$project view=info parse:bool? nofilename:bool? repository? arch? package*' => \&getprojectsourceinfo,
+  '/source/$project view=info parse:bool? nofilename:bool? repository? arch? package* withchangesmd5:bool?' => \&getprojectsourceinfo,
   '/source/$project deleted:bool? expand:bool? noorigins:bool?' => \&getpackagelist,
 
   'DELETE:/source/$project user:? comment:? requestid:num?' => \&delproject,
@@ -7616,7 +7620,7 @@ my $dispatches = [
 
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,	# obsolete
 
-  '/source/$project/$package view=info rev? linkrev? parse:bool? nofilename:bool? repository? arch?' => \&getpackagesourceinfo,
+  '/source/$project/$package view=info rev? linkrev? parse:bool? nofilename:bool? repository? arch? withchangesmd5:bool?' => \&getpackagesourceinfo,
   '/source/$project/$package rev? linkrev? emptylink:bool? deleted:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool? meta:bool?' => \&getfilelist,
   '/source/$project/$package/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
   '/source/$project/$package/_meta rev? expand:bool? meta:bool? deleted:bool?' => \&getpackage,
