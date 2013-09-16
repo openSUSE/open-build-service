@@ -262,31 +262,35 @@ sub addrepo {
   my ($ctx, $pool, $prp) = @_;
 
   my $now = time();
-  if ($repodatas{$prp} && $repodatas{$prp}->{'lastscan'} && $repodatas{$prp}->{'lastscan'} > $now - 24*3600) {
-    if (exists $repodatas{$prp}->{'solv'}) {
+  my $repodata = $repodatas{$prp};
+  if ($repodata && $repodata->{'lastscan'} && $repodata->{'lastscan'} + 24 * 3600 + ($repodata->{'random'} || 0) * 1800 > $now) {
+    if (exists $repodata->{'solv'}) {
       my $r;
-      eval {$r = $pool->repofromstr($prp, $repodatas{$prp}->{'solv'});};
+      eval {$r = $pool->repofromstr($prp, $repodata->{'solv'});};
       return $r if $r;
-      delete $repodatas{$prp}->{'solv'};
+      delete $repodata->{'solv'};
     }
-    my $solvfile = $repodatas{$prp}->{'solvfile'} || "$reporoot/$prp/$myarch/:full.solv";
+    my $solvfile = $repodata->{'solvfile'} || "$reporoot/$prp/$myarch/:full.solv";
     if (-s $solvfile) {
       my $r;
-      if ($repodatas{$prp}->{'solvfile'}) {
+      if ($repodata->{'solvfile'}) {
 	my @s = stat _;
 	utime time(), $s[9], $solvfile;	# update atime
       }
       eval {$r = $pool->repofromfile($prp, $solvfile);};
       return $r if $r;
     }
-    if ($repodatas{$prp}->{'error'}) {
+    if ($repodata->{'error'}) {
       return undef;
     }
   }
-  delete $repodatas{$prp}->{'solv'};
-  delete $repodatas{$prp}->{'lastscan'};
-  delete $repodatas{$prp}->{'solvfile'};
-  delete $repodatas{$prp}->{'error'};
+  if ($repodata) {
+    delete $repodata->{'solv'};
+    delete $repodata->{'lastscan'};
+    delete $repodata->{'random'};
+    delete $repodata->{'solvfile'};
+    delete $repodata->{'error'};
+  }
   my ($projid, $repoid) = split('/', $prp, 2);
   if ($remoteprojs{$projid}) {
     return addrepo_remote($ctx, $pool, $prp, $myarch, $remoteprojs{$projid});
@@ -300,6 +304,8 @@ sub addrepo_scan {
   my ($pool, $prp) = @_;
 
   print "    scanning repo $prp...\n";
+  my $repodata = $repodatas{$prp};
+  $repodatas{$prp} = $repodata = {} unless $repodata;
   my $dir = "$reporoot/$prp/$myarch/:full";
   my $cache;
   my $dirty;
@@ -307,7 +313,8 @@ sub addrepo_scan {
     eval {$cache = $pool->repofromfile($prp, "$dir.solv");};
     warn($@) if $@;
     if ($cache && $cache->isexternal()) {
-      $repodatas{$prp}->{'lastscan'} = time();
+      $repodata->{'lastscan'} = time();
+      $repodata->{'random'} = rand();
       return $cache;
     }
   } elsif ($BSConfig::enable_download_on_demand) {
@@ -346,8 +353,9 @@ sub addrepo_scan {
     if (!$cache) {
       # return in-core empty repo
       my $r = $pool->repofrombins($prp, $dir);
-      $repodatas{$prp}->{'solv'} = $r->tostr();
-      $repodatas{$prp}->{'lastscan'} = time();
+      $repodata->{'solv'} = $r->tostr();
+      $repodata->{'lastscan'} = time();
+      $repodata->{'random'} = rand();
       return $r;
     }
   }
@@ -364,10 +372,12 @@ sub addrepo_scan {
     $cache = $pool->repofrombins($prp, $dir, @bins);
     $dirty = 1;
   }
-  if ($dirty && $cache && !$repodatas{$prp}->{'dontwrite'}) {
-    writesolv("$dir.solv.new", "$dir.solv", $cache);
+  if ($dirty) {
+    return $cache if $repodata->{'dontwrite'};	# don't write and don't update lastscan
+    writesolv("$dir.solv.new", "$dir.solv", $cache) if $cache;
   }
-  $repodatas{$prp}->{'lastscan'} = time() unless $dirty && $repodatas{$prp}->{'dontwrite'};
+  $repodata->{'lastscan'} = time();
+  $repodata->{'random'} = rand();
   return $cache;
 }
 
@@ -3238,12 +3248,14 @@ sub addrepo_remote_unpackcpio {
 	eval {$r = $pool->repofromfile($prp, "$remotecache/$cachemd5.solv");};
 	if ($r) {
 	  $repodata->{'lastscan'} = time();
+	  $repodata->{'random'} = rand();
 	  $repodata->{'solvfile'} = "$remotecache/$cachemd5.solv";
 	  return $r;
 	}
       }
     }
     $repodata->{'lastscan'} = time();
+    $repodata->{'random'} = rand();
     $repodata->{'error'} = $error;
     return undef;
   }
@@ -3284,6 +3296,7 @@ sub addrepo_remote_unpackcpio {
   mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
   writesolv("$remotecache/$cachemd5.solv.new$$", "$remotecache/$cachemd5.solv", $r);
   $repodata->{'lastscan'} = time();
+  $repodata->{'random'} = rand();
   $repodata->{'solvfile'} = "$remotecache/$cachemd5.solv";
   return $r;
 }
