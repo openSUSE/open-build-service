@@ -337,7 +337,7 @@ sub createrepo_rpmmd {
     push @legacyargs, '--simple-md-filenames', '--checksum=sha';
   } else {
     # the default in newer createrepos
-    push @legacyargs, '--unique-md-filenames';
+    push @legacyargs, '--unique-md-filenames', '--checksum=sha256';
   }
   my @updateargs;
   if (-f "$extrep/repodata/repomd.xml") {
