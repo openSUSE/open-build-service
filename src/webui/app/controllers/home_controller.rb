@@ -42,7 +42,10 @@ class HomeController < ApplicationController
       unless CONFIG['use_gravatar'] == :off
         email = Person.email_for_login(user)
         hash = Digest::MD5.hexdigest(email.downcase)
-        content = ActiveXML.transport.load_external_url("http://www.gravatar.com/avatar/#{hash}?s=#{size}&d=wavatar")
+        begin
+          content = ActiveXML.transport.load_external_url("http://www.gravatar.com/avatar/#{hash}?s=#{size}&d=wavatar")
+        rescue ActiveXML::Transport::Error
+        end
       end
 
       unless content

@@ -420,7 +420,7 @@ module ActiveXML
         if response.is_a?(Net::HTTPSuccess)
           content = response.body
         end
-      rescue SocketError, Errno::EINTR, Errno::EPIPE, EOFError, Net::HTTPBadResponse, IOError, 
+      rescue SocketError, Errno::EINTR, Errno::EPIPE, EOFError, Net::HTTPBadResponse, IOError, Errno::ENETUNREACH,
         Errno::ETIMEDOUT, Errno::ECONNREFUSED, Timeout::Error => err
         logger.debug "#{err} when fetching #{uri.to_s}"
         http = nil
