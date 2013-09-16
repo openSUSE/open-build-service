@@ -70,17 +70,20 @@ class PackageControllerTest < ActionDispatch::IntegrationTest
     visit "/package/show/home:Iggy/TestPack"
     fill_comment
   end
-
-  test "another succesful comment creation" do
-    login_Iggy
-    visit "/package/show?project=home:Iggy&package=TestPack"
-    fill_comment
-  end
-
+  
   test "check comments on remote projects" do
     login_Iggy
     visit package_show_path(project: "UseRemoteInstanceIndirect", package: "patchinfo")
     fill_comment
+  end
+
+  test "succesful reply comment creation" do
+    login_Iggy
+    visit "/package/show/BaseDistro3/pack2"
+    find(:id,'reply_link_id_201').click
+    fill_in "reply_body_201", with: "Comment Body"
+    find(:id,'add_reply_201').click
+    find('#flash-messages').must_have_text "Comment added successfully "
   end
 
 end
