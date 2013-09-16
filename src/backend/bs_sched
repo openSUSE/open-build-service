@@ -2462,6 +2462,9 @@ sub get_projpacks_resume {
       get_projpacks($handle->{'_ctx'}, $async, $lprojid, sort keys %lpackids);
     }
   }
+  # no need to call setchanged if this is a package source change event
+  # and the project does not exist (i.e. lives on another partition)
+  return if $packids && !$projpacks->{$projid};
   xrpc_setchanged($handle, $projid);
 }
 
