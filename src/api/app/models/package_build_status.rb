@@ -108,7 +108,7 @@ class PackageBuildStatus
     end
     # if it's currently succeeded but !@everbuilt, it's different sources
     if currentcode == 'succeeded'
-      if @@srcmd5 == @csrcmd5
+      if @srcmd5 == @csrcmd5
         @buildcode='building' # guesssing
       else
         @buildcode='outdated'
