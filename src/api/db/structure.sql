@@ -396,7 +396,8 @@ CREATE TABLE `events` (
   `lock_version` int(11) NOT NULL DEFAULT '0',
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_events_on_queued` (`queued`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `flags` (
@@ -1259,6 +1260,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130903114302');
 INSERT INTO schema_migrations (version) VALUES ('20130904071147');
 
 INSERT INTO schema_migrations (version) VALUES ('20130910162318');
+
+INSERT INTO schema_migrations (version) VALUES ('20130917124132');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
