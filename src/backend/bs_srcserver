@@ -4203,17 +4203,15 @@ sub putprojectconfig {
   my ($cgi, $projid) = @_;
   my $proj = readproj($projid);
   mkdir_p($uploaddir);
-  my $uploaded = BSServer::read_file("$uploaddir/$$");
-  die("upload failed\n") unless $uploaded;
-  if (-s "$uploaddir/$$") {
-    addrev_meta($cgi, $projid, undef, "$uploaddir/$$", "$projectsdir/$projid.conf", '_config', 'rev');
-  } else {
-    unlink("$uploaddir/$$");
-    addrev_meta($cgi, $projid, undef, undef, "$projectsdir/$projid.conf", '_config', 'rev');
+  my $uploadfile = "$uploaddir/$$";
+  die("upload failed\n") unless BSServer::read_file($uploadfile);
+  if (! -s $uploadfile) {
+    unlink($uploadfile);
+    $uploadfile = undef;
   }
+  addrev_meta($cgi, $projid, undef, $uploadfile, "$projectsdir/$projid.conf", '_config', 'rev');
   notify_repservers('project', $projid);
   notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
-
   return $BSStdServer::return_ok;
 }
 
