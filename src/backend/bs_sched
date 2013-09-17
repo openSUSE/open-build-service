@@ -2453,22 +2453,30 @@ sub get_projpacks_resume {
   # do some upgrades if the project is gone and we fetched all packages
   # (i.e. project event case as someone deleted a project)
   if (!$packids && !$projpacks->{$projid} && !($wasremote && $remoteprojs{$projid})) {
-    $handle->{'_dolink'} = 1;
+    print "get_projpacks_resume: upgrading project event\n";
+    $handle->{'_dolink'} ||= 2;
     $handle->{'_changetype'} = 'high';
+  }
+  delete $handle->{'_lpackids'} if $handle->{'_dolink'};	# just in case...
+  if (!$handle->{'_dolink'} && !$packids && $handle->{'_lpackids'}) {
+    # we had both a project event and changed source events.
+    # the changes source packages are in _lpackids
+    $handle->{'_dolink'} ||= 2;
   }
 
   # fetch linked packages with lower prio
   if ($handle->{'_dolink'}) {
     my $gctx = $handle->{'_ctx'}->{'gctx'} || {};
     my $delayedfetchprojpacks = $gctx->{'delayedfetchprojpacks'};
-    my $linked = find_linked_sources($projid, $packids);
+    my $xpackids = $packids || $handle->{'_lpackids'};	# just packages linking to those
+    my $linked = find_linked_sources($projid, $xpackids);
     for my $lprojid (sort keys %$linked) {
       my %lpackids = map {$_ => 1} @{$linked->{$lprojid}};
       # delay package source changes if possible
       if ($handle->{'_dolink'} == 2 && $lprojid ne $projid && $delayedfetchprojpacks && %lpackids) {
 	push @{$delayedfetchprojpacks->{$lprojid}}, sort keys %lpackids;
 	# we don't use xrpc_setchanged because it unshifts the prps onto lookat
-	my $changed = $gctx->{$packids ? 'changed_med' : 'changed_low'};
+	my $changed = $gctx->{$xpackids ? 'changed_med' : 'changed_low'};
 	my $changed_dirty = $gctx->{'changed_dirty'};
 	for my $prp (@prps) {
 	  next unless (split('/', $prp, 2))[0] eq $projid;
@@ -2477,10 +2485,11 @@ sub get_projpacks_resume {
 	}
 	next;
       }
-      my $async = {'_changetype' => $packids ? 'med' : 'low'};
+      my $async = {'_changetype' => $xpackids ? 'med' : 'low'};
       get_projpacks($handle->{'_ctx'}, $async, $lprojid, sort keys %lpackids);
     }
   }
+
   # no need to call setchanged if this is a package source change event
   # and the project does not exist (i.e. lives on another partition)
   return if $packids && !$projpacks->{$projid};
@@ -2693,22 +2702,23 @@ sub update_project_meta_resume {
       chomp $error;
       warn("$error\n");
     }
-    # update meta failed, do it the hard way...
-    my $async = {'_dolink' => $handle->{'_dolink'}, '_changetype' => $handle->{'_changetype'}, '_changelevel' => $handle->{'_changelevel'}};
+    # update meta failed, do it the hard way... maybe set _dolink = 2?
+    my $async = {'_changetype' => $handle->{'_changetype'}, '_changelevel' => $handle->{'_changelevel'}};
+    $async->{'_lpackids'} = $handle->{'_lpackids'} if $handle->{'_lpackids'};
     get_projpacks($handle->{'_ctx'}, $async, $projid);
   } elsif ($projpacks->{$projid}) {
     # update meta worked! Now get those packages as well
-    my $packids = $handle->{'_packids'};
+    my $packids = $handle->{'_lpackids'};
     if ($packids && @$packids) {
       # fetch those as well
-      my $async = {'_dolink' => 1, '_changetype' => 'high', '_changelevel' => 1};
+      my $async = {'_dolink' => 2, '_changetype' => 'high', '_changelevel' => 1};
       get_projpacks($handle->{'_ctx'}, $async, $projid, @$packids);
     } else {
       xrpc_setchanged($handle, $projid);
     }
   } else {
     # project is gone!
-    delete $handle->{'_packids'};
+    delete $handle->{'_lpackids'};
     get_projpacks_resume($handle, $error, $projpacksin);
   }
 }
@@ -6614,12 +6624,12 @@ sub do_fetchprojpacks {
       if ($doasync) {
         my %packids = map {$_ => 1} grep {defined($_)} @{$fetchprojpacks->{$projid}};
         my $async = { '_changetype' => 'high', '_changelevel' => 2 };
-	$async->{'_dolink'} = 1 if %packids || $deepcheck->{$projid};
         $async->{'_changetype'} = 'low' if $lowprioproject->{$projid} && !$deepcheck->{$projid};
+        $async->{'_lpackids'} = [ sort keys %packids ] if %packids;
 	if ($projpacks->{$projid} && !$deepcheck->{$projid}) {
-	  $async->{'_packids'} = [ sort keys %packids ];
 	  update_project_meta($ctx, $async, $projid);
 	} else {
+	  $async->{'_dolink'} = 1 if $deepcheck->{$projid};
 	  get_projpacks($ctx, $async, $projid);
 	}
 	delete $fetchprojpacks->{$projid};	# backgrounded
