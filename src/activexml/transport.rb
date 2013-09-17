@@ -293,7 +293,6 @@ module ActiveXML
       @mutex.lock
       defaults = {:timeout => 60}
       opt = defaults.merge opt
-      max_retries = 1
 
       if url.kind_of? String
         url = URI(url)
@@ -314,12 +313,9 @@ module ActiveXML
         keepalive = false
       when :get
         # if the http existed before, we shall retry
-        max_retries = 2 if @http
         keepalive = true
       end
-      retries = 0
       begin
-        retries += 1
         if not @http
           @http = Net::HTTP.new(url.host, url.port)
           @http.use_ssl = true if url.scheme == "https"
@@ -332,7 +328,7 @@ module ActiveXML
         raise "url.path.nil" if url.path.nil?
         path = url.path
         path += "?" + url.query if url.query
-        logger.debug "http_do ##{retries}: method: #{method} url: " +
+        logger.debug "http_do: method: #{method} url: " +
         "http#{"s" if @http.use_ssl?}://#{url.host}:#{url.port}#{path}"
 
         clength = { "Content-Length" => "0" }
@@ -363,16 +359,12 @@ module ActiveXML
         else
           raise "unknown HTTP method: #{method.inspect}"
         end
-      rescue Timeout::Error, Errno::ETIMEDOUT
+      rescue Timeout::Error, Errno::ETIMEDOUT, EOFError
         logger.error "--> caught timeout, closing HTTP"
         keepalive = false
         raise Timeout::Error
-      rescue SocketError, Errno::EINTR, Errno::EPIPE, EOFError, Net::HTTPBadResponse, IOError => err
+      rescue SocketError, Errno::EINTR, Errno::EPIPE, Net::HTTPBadResponse, IOError => err
         keepalive = false
-        if retries < max_retries
-          logger.error "--> caught #{err.class}: #{err.message}, retrying with new HTTP connection"
-          retry
-        end
         raise ConnectionError, "Connection failed #{err.class}: #{err.message} for #{url}"
       rescue SystemCallError => err
         keepalive = false
