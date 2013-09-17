@@ -2467,7 +2467,14 @@ sub get_projpacks_resume {
       # delay package source changes if possible
       if ($handle->{'_dolink'} == 2 && $lprojid ne $projid && $delayedfetchprojpacks && %lpackids) {
 	push @{$delayedfetchprojpacks->{$lprojid}}, sort keys %lpackids;
-	xrpc_setchanged($handle, $lprojid, $packids ? 'med' : 'low');
+	# we don't use xrpc_setchanged because it unshifts the prps onto lookat
+	my $changed = $gctx->{$packids ? 'changed_med' : 'changed_low'};
+	my $changed_dirty = $gctx->{'changed_dirty'};
+	for my $prp (@prps) {
+	  next unless (split('/', $prp, 2))[0] eq $projid;
+	  $changed->{$prp} ||= 1;
+	  $changed_dirty->{$prp} = 1;
+	}
 	next;
       }
       my $async = {'_changetype' => $packids ? 'med' : 'low'};
