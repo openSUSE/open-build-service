@@ -52,18 +52,18 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_get_issue_for_patchinfo_and_project
-    get '/source/Devel:BaseDistro:Update?view=issues'
+    get '/source/BaseDistro?view=issues'
     assert_response 401
-    get '/source/Devel:BaseDistro:Update/pack3?view=issues'
+    get '/source/BaseDistro/patchinfo?view=issues'
     assert_response 401
 
     # as user
     login_Iggy
-    get '/source/Devel:BaseDistro:Update/pack3?view=issues'
+    get '/source/BaseDistro/patchinfo?view=issues'
     assert_response :success
     assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "123456"
     assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "bnc"
-    get '/source/Devel:BaseDistro:Update?view=issues'
+    get '/source/BaseDistro?view=issues'
     assert_response :success
     assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'name', :content => "123456"
     assert_xml_tag :parent => { :tag => 'issue' }, :tag => 'tracker', :content => "bnc"
@@ -86,31 +86,31 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
     # running patchinfo search as done by webui
     get "/search/package/id", :match => '[issue/[@state="CLOSED" and owner/@login="fred"] and kind="patchinfo"]'
     assert_response :success
-    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
+    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'BaseDistro', :name => 'patchinfo' }
 
     get "/search/package/id", :match => 'issue/owner/@login="fred"'
     assert_response :success
-    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
+    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'BaseDistro', :name => 'patchinfo' }
 
     # search for specific issue state, issue is in RESOLVED state actually
     get "/search/package/id", :match => 'issue/@state="OPEN"'
     assert_response :success
-    assert_no_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
+    assert_no_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'BaseDistro', :name => 'patchinfo' }
 
     # running patchinfo search as done by webui
     get "/search/package/id", :match => '[kind="patchinfo" and issue/[@state="CLOSED" and owner/@login="fred"]]'
     assert_response :success
-    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
+    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'BaseDistro', :name => 'patchinfo' }
 
     # test with not matching kind to verify that it does not match
     get "/search/package/id", :match => '[issue/[@state="CLOSED" and owner/@login="fred"] and kind="aggregate"]'
     assert_response :success
-    assert_no_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
+    assert_no_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'BaseDistro', :name => 'patchinfo' }
 
     # search via bug issue id
     get "/search/package/id", :match => '[issue/[@name="123456" and @tracker="bnc"]]'
     assert_response :success
-    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'Devel:BaseDistro:Update', :name => 'pack3' }
+    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'BaseDistro', :name => 'patchinfo' }
   end
 
   def test_get_issue_for_linked_packages

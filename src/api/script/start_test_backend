@@ -207,6 +207,7 @@ Suse::Backend.put( '/source/BaseDistro/pack1/my_file', "just a file")
 Suse::Backend.put( '/source/BaseDistro/pack2/my_file', "different content")
 Suse::Backend.put( '/source/BaseDistro/pack2/my_file', "second commit")
 Suse::Backend.put( '/source/BaseDistro/pack3/my_file', "just a file")
+Suse::Backend.put( '/source/BaseDistro/patchinfo/_patchinfo', File.open("#{Rails.root}/test/fixtures/backend/source/_patchinfo").read())
 Suse::Backend.put( '/source/BaseDistro2.0/_config', "Type: spec" )
 Suse::Backend.post( '/source/BaseDistro2.0/pack2?cmd=commitfilelist&vrev=2.3&version=1.0', '<directory/>') # set vrev like it get created with makeolder=1
 Suse::Backend.put( '/source/BaseDistro2.0/pack2/myfile', "DummyContent of BaseDistro2.0/pack2")
@@ -257,6 +258,9 @@ FileUtils.cp("#{Rails.root}/test/fixtures/backend/source/_sslcert", "#{Rails.roo
 # put meta again so that the srcserver puts the files into history
 FileUtils.rm("#{Rails.root}/tmp/backend_data/projects/BaseDistro.pkg/_project.mrev")
 Suse::Backend.put( "/source/BaseDistro/_meta", Project.find_by_name("BaseDistro").to_axml)
+
+# reindex all sources
+UpdatePackageMetaJob.new.perform
 
 @http_user = nil
 User.current = nil
