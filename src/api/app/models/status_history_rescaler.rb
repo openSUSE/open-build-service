@@ -58,7 +58,7 @@ class StatusHistoryRescaler
         # now rescale yesterday
         cleanup(key, 3600, 24 * 3600)
         # 2h stuff
-        cleanup(key, 1200, 3600 * 2)
+        cleanup(key, 200, 3600 * 2)
       end
     end
   end
