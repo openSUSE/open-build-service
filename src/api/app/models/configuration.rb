@@ -43,7 +43,7 @@ class Configuration < ActiveRecord::Base
     end
 
     def anonymous?
-      Configuration.limit(1).pluck(:anonymous).first
+      @@anonymous ||= Configuration.limit(1).pluck(:anonymous).first
     end
    
     def registration
@@ -51,11 +51,11 @@ class Configuration < ActiveRecord::Base
     end
 
     def download_url
-      Configuration.limit(1).pluck(:download_url).first
+      @@download_url ||= Configuration.limit(1).pluck(:download_url).first
     end
 
     def ymp_url
-      Configuration.limit(1).pluck(:ymp_url).first
+      @@ymp_url ||= Configuration.limit(1).pluck(:ymp_url).first
     end
 
     # Check if ldap group support is enabled?
