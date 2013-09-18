@@ -3692,6 +3692,25 @@ sub idleworkerjob {
   return $BSStdServer::return_ok;
 }
 
+sub putconfiguration {
+  my ($cgi) = @_;
+  mkdir_p($uploaddir);
+  my $uploaded = BSServer::read_file("$uploaddir/$$");
+  die("upload failed\n") unless $uploaded;
+  my $configurationxml = readstr("$uploaddir/$$");
+  unlink("$uploaddir/$$");
+  my $oldconfigurationxml = readstr("$BSConfig::bsdir/configuration.xml", 1);
+  return $BSStdServer::return_ok if $configurationxml eq ($oldconfigurationxml || '');
+  BSUtil::fromxml($configurationxml, $BSXML::configuration);	# test xml syntax
+  writestr("$BSConfig::bsdir/.configuration.xml", "$BSConfig::bsdir/configuration.xml", $configurationxml);
+  return $BSStdServer::return_ok;
+}
+
+sub getconfiguration {
+  my $configuration = readxml("$BSConfig::bsdir/configuration.xml", $BSXML::configuration, 1) || {};
+  return ($configuration, $BSXML::configuration);
+}
+
 sub getajaxstatus {
   my ($cgi) = @_;
   if (!$BSStdServer::isajax) {
@@ -3772,6 +3791,10 @@ my $dispatches = [
 
   # info
   '/workerstatus daemonsonly:bool? arch* type:*' => \&workerstatus,
+
+  # configuration
+  'PUT:/configuration' => \&putconfiguration,
+  '/configuration' => \&getconfiguration,
 
   '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? withstats:bool? summary:bool?' => \&getresult,
   'POST:/_command $cmd: $prpa+ package* code:*' => \&docommand,

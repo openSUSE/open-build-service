@@ -7505,7 +7505,26 @@ sub putconfiguration {
   die("upload failed\n") unless $uploaded;
   my $configuration = readxml("$uploaddir/$$", $BSXML::configuration);
   unlink("$uploaddir/$$");
-  writexml("$BSConfig::bsdir/.configuration.xml", "$BSConfig::bsdir/configuration.xml", $configuration, $BSXML::configuration);
+  my $configurationxml = BSUtil::toxml($configuration, $BSXML::configuration);
+  writestr("$BSConfig::bsdir/.configuration.xml", "$BSConfig::bsdir/configuration.xml", $configurationxml);
+  # distribute to repo servers
+  my %reposervers;
+  if ($BSConfig::partitionservers) {
+    %reposervers = map {$_ => 1} values(%$BSConfig::partitionservers);
+  } else {
+    $reposervers{$BSConfig::reposerver} = 1;
+  }
+  for my $server (sort keys %reposervers) {
+    my $param = {
+      'uri' => "$server/configuration",
+      'request' => 'PUT',
+      'data' => $configurationxml,
+    };
+    eval {
+      BSRPC::rpc($param, undef);
+    };
+    warn($@) if $@;	# XXX: what now?
+  }
   return $BSStdServer::return_ok;
 }
 
