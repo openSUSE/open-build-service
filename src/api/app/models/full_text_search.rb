@@ -28,31 +28,22 @@ class FullTextSearch
   end
 
   def search(options = {})
-    if text.blank?
-      search_str = nil
-    elsif fields.nil? || fields.empty?
-      search_str = Riddle::Query.escape(text)
-    else
-      search_str = "@(#{fields.map(&:to_s).join(",")}) #{Riddle::Query.escape(text)}"
-    end
+    args = { ranker:        FullTextSearch.ranker,
+             star:          FullTextSearch.star,
+             max_matches:   FullTextSearch.max_matches,
+             order:         "adjusted_weight DESC",
+             field_weights: FullTextSearch.field_weights,
+             page:          options[:page],
+             per_page:      options[:per_page] || FullTextSearch.per_page }
 
-    issue_id = nil
-    if issue_tracker_name && issue_name
-      issue_id = Issue.joins(:issue_tracker).where("issue_trackers.name" => issue_tracker_name, name: issue_name).pluck(:id).first
-    end
-
-    args = {}
-    args[:ranker] = FullTextSearch.ranker
-    args[:star] = FullTextSearch.star
-    args[:max_matches] = FullTextSearch.max_matches
     args[:select] = "(@weight + "\
                     "#{FullTextSearch.linked_count_weight} * linked_count + "\
                     "#{FullTextSearch.links_to_other_weight} * links_to_other + "\
                     "#{FullTextSearch.is_devel_weight} * is_devel + "\
                     "#{FullTextSearch.activity_index_weight} * (activity_index * POW( 2.3276, (updated_at - #{Time.now.to_i}) / 10000000))) "\
                     "as adjusted_weight"
-    args[:order] = "adjusted_weight DESC"
-    args[:field_weights] = FullTextSearch.field_weights
+
+    issue_id = find_issue_id
     if issue_id || attrib_type_id
       args[:with] = {}
       args[:with][:issue_ids] = issue_id.to_i unless issue_id.nil?
@@ -61,9 +52,6 @@ class FullTextSearch
     if classes
       args[:classes] = classes.map {|i| i.to_s.classify.constantize }
     end
-
-    args[:page] = options[:page]
-    args[:per_page] = options[:per_page] || FullTextSearch.per_page
 
     @result = ThinkingSphinx.search search_str, args
   end
@@ -76,6 +64,24 @@ class FullTextSearch
   end
 
   private
+
+  def search_str
+    if text.blank?
+      nil
+    elsif fields.nil? || fields.empty?
+      Riddle::Query.escape(text)
+    else
+      "@(#{fields.map(&:to_s).join(",")}) #{Riddle::Query.escape(text)}"
+    end
+  end
+
+  def find_issue_id
+    if issue_tracker_name && issue_name
+      Issue.joins(:issue_tracker).where("issue_trackers.name" => issue_tracker_name, name: issue_name).pluck(:id).first
+    else
+      nil
+    end
+  end
 
   def read_attribute_for_serialization(attrib)
     if attrib.to_sym == :result

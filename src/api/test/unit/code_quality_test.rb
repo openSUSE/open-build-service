@@ -96,7 +96,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Channel::verify_xml!' => 76.81,
       'ConfigurationsController#update' => 110.96,
       'Distribution::all_including_remotes' => 58.7,
-      'FullTextSearch#search' => 69.44,
       'HasAttributes#check_attrib!' => 52.45,
       'HasAttributes#render_main_attributes' => 81.58,
       'HasRelationships#update_generic_relationships' => 42.42,
