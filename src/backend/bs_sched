@@ -6528,6 +6528,12 @@ sub event_exit {
   }
 }
 
+sub event_configuration {
+  my ($ectx, $ev) = @_;
+  print "updating configuration\n";
+  BSConfiguration::update_from_configuration();
+}
+
 my %event_handlers = (
   'built' => \&event_built,
   'uploadbuild' => \&event_built,
@@ -6554,6 +6560,7 @@ my %event_handlers = (
   'restart' => \&event_exit,
   'dumpstate' => \&event_exit,
   'useforbuild' => \&event_useforbuild,
+  'configuration' => \&event_configuration,
 );
 
 

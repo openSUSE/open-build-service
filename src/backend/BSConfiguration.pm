@@ -22,32 +22,39 @@
 
 package BSConfiguration;
 
+use strict;
+
 use BSConfig;
 use BSUtil;
 use BSXML;
 
+# old values from BSConfig.pm are winning, remember which have been set
+my %bsconfigvalues;
+$bsconfigvalues{'obsname'} = 1 if defined $BSConfig::obsname;
+$bsconfigvalues{'proxy'} = 1 if defined $BSConfig::proxy;
+$bsconfigvalues{'noproxy'} = 1 if defined $BSConfig::noproxy;
+$bsconfigvalues{'repodownload'} = 1 if defined $BSConfig::repodownload;
+$bsconfigvalues{'enable_download_on_demand'} = 1 if defined $BSConfig::enable_download_on_demand;
+$bsconfigvalues{'forceprojectkeys'} = 1 if defined $BSConfig::forceprojectkeys;
+
+
 my $configuration_file = "$BSConfig::bsdir/configuration.xml";
-my $xml = readxml($configuration_file, $BSXML::configuration, 1) || {};
 
-# old values from BSConfig.pm are winning
-$BSConfig::obsname = $xml->{'name'} if !defined($BSConfig::obsname);
-$BSConfig::proxy = $xml->{'http_proxy'} if !defined($BSConfig::proxy);
-$BSConfig::noproxy = $xml->{'no_proxy'} if !defined($BSConfig::noproxy);
-$BSConfig::repodownload = $xml->{'download_url'} if !defined($BSConfig::repodownload);
-if (!defined($BSConfig::enable_download_on_demand)) {
-  $BSConfig::enable_download_on_demand = 0;
-  if ($xml->{'download_on_demand'} && $xml->{'download_on_demand'} eq "on") {
-    $BSConfig::enable_download_on_demand = 1;
+sub update_from_configuration {
+  my $xml = readxml($configuration_file, $BSXML::configuration, 1) || {};
+  $BSConfig::obsname = $xml->{'name'} unless $bsconfigvalues{'obsname'};
+  $BSConfig::proxy = $xml->{'http_proxy'} unless $bsconfigvalues{'proxy'};
+  $BSConfig::noproxy = $xml->{'no_proxy'} unless $bsconfigvalues{'noproxy'};
+  $BSConfig::repodownload  = $xml->{'download_url'} unless $bsconfigvalues{'repodownload'};
+  if (!$bsconfigvalues{'enable_download_on_demand'}) {
+    $BSConfig::enable_download_on_demand = ($xml->{'download_on_demand'} || '') eq 'on' ? 1 : 0;
   }
-}
-if (!defined($BSConfig::forceprojectkeys)) {
-  $BSConfig::forceprojectkeys = 0;
-  if ($xml->{'enforce_project_keys'} && $xml->{'enforce_project_keys'} eq "on") {
-    $BSConfig::forceprojectkeys = 1;
+  if (!$bsconfigvalues{'forceprojectkeys'}) {
+    $BSConfig::forceprojectkeys = ($xml->{'enforce_project_keys'} || '') eq 'on' ? 1 : 0;
   }
+  $BSConfig::obsname = "build.some.where" unless defined $BSConfig::obsname;
 }
 
-# set defaults
-$BSConfig::obsname = "build.some.where" if !defined($BSConfig::obsname);
+update_from_configuration();
 
 1;

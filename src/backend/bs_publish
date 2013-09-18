@@ -1762,6 +1762,10 @@ while(1) {
     last if -e "$rundir/bs_publish.exit";
     last if -e "$rundir/bs_publish.restart";
     my $ev = readxml("$myeventdir/$event", $BSXML::event, 1);
+    if ($ev && $ev->{'type'} eq 'configuration') {
+      print "updating configuration\n";
+      BSConfiguration::update_from_configuration();
+    }
     if (!$ev || !$ev->{'type'} || $ev->{'type'} ne 'publish') {
       unlink("$myeventdir/$event");
       next;

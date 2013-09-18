@@ -1991,7 +1991,8 @@ sub uploadbuild {
 
 sub forwardevent {
   my ($cgi, $type, $projid, $packid, $repoid, $arch) = @_;
-  my $ev = { type => $type, 'project' => $projid };
+  my $ev = { type => $type };
+  $ev->{'project'} = $projid unless $type eq 'configuration';
   my $job;
   if ($type eq 'badhost') {
     $repoid = $cgi->{'repository'} if exists $cgi->{'repository'};
@@ -2011,7 +2012,7 @@ sub forwardevent {
   $arch = 'dispatch' if $type eq 'badhost';
   mkdir_p("$eventdir/$arch") if $arch;
   if ($arch) {
-    dirty($projid, $repoid, $arch) unless $arch eq 'dispatch';
+    dirty($projid, $repoid, $arch) unless !defined($repoid) || $arch eq 'dispatch';
     writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
     ping($arch);
   } else {
@@ -2020,8 +2021,8 @@ sub forwardevent {
     for my $a (ls($eventdir)) {
       next if $a =~ /^\./;
       next unless -d "$eventdir/$a";
-      next if $a eq 'publish' || $a eq 'repository' || $a eq 'watch' || $a eq 'signer' || $a eq 'dispatch';
-      dirty($projid, $repoid, $a);
+      next if $a eq 'publish' || $a eq 'repository' || $a eq 'watch' || $a eq 'signer' || $a eq 'dispatch' || $a eq 'service';
+      dirty($projid, $repoid, $a) if defined $repoid;
       writexml("$eventdir/$a/.$evname", "$eventdir/$a/$evname", $ev, $BSXML::event);
       ping($a);
     }
@@ -3700,9 +3701,13 @@ sub putconfiguration {
   my $configurationxml = readstr("$uploaddir/$$");
   unlink("$uploaddir/$$");
   my $oldconfigurationxml = readstr("$BSConfig::bsdir/configuration.xml", 1);
-  return $BSStdServer::return_ok if $configurationxml eq ($oldconfigurationxml || '');
-  BSUtil::fromxml($configurationxml, $BSXML::configuration);	# test xml syntax
-  writestr("$BSConfig::bsdir/.configuration.xml", "$BSConfig::bsdir/configuration.xml", $configurationxml);
+  if ($configurationxml ne ($oldconfigurationxml || '')) {
+    BSUtil::fromxml($configurationxml, $BSXML::configuration);	# test xml syntax
+    writestr("$BSConfig::bsdir/.configuration.xml", "$BSConfig::bsdir/configuration.xml", $configurationxml);
+  }
+  # signal schedulers and publisher
+  forwardevent($cgi, 'configuration', '');
+  forwardevent($cgi, 'configuration', '', undef, undef, 'publish') if -d "$eventdir/publish";
   return $BSStdServer::return_ok;
 }
 
