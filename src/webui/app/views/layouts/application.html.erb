@@ -24,7 +24,7 @@
       var _paq = _paq || [];
       $(function() {
         <%= yield :ready_function %>
-        <% if CONFIG['theme'] == 'bento' %>
+        <% if @configuration['theme'] == 'bento' %>
           callPiwik();  
         <% end %>
       });

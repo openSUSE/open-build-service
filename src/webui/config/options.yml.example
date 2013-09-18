@@ -1,29 +1,14 @@
 # Config options for the buildservice webclient
 version: 1.0
 
-# change this option to use a customized theme. See README.theme
-theme: neutral
-# this is build.opensuse.org's theme
-#theme: bento
-
 # Set this when the webclient runs from a subdirectory
 #relative_url_root: /stage
 
 # Set this when the api runs from a subdirectory
 #api_relative_url_root: /stage
 
-# Use static.opensuse.org for static style content
-#use_static: build.o.o
-
-# Hide private options in webui, like source or binary protection 
-# hide_private_options: true
-
 # Make use of mod_xforward module in apache
 #use_xforward: true
-
-# make use of http://blog.lighttpd.net/articles/2006/07/22/x-sendfiles-new-friend-x-rewrite
-# note that you need to enable the proxy-core option to allow this
-#use_lighttpd_x_rewrite: true
 
 # Make use of X-Accel-Redirect for Nginx.
 # http://kovyrin.net/2010/07/24/nginx-fu-x-accel-redirect-remote
@@ -47,11 +32,6 @@ frontend_host: api.opensuse.org
 # port of API
 frontend_port: 443
 frontend_protocol: https
-
-# old name for proxy_auth_mode
-#ichain_mode: :off
-# old name for proxy_auth_test_user
-#ichain_test_user
 
 proxy_auth_mode: :off
 #proxy_auth_host: https://build.opensuse.org

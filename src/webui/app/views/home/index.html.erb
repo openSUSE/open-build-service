@@ -49,7 +49,7 @@
       <% else %>
         <%= link_to(sprite_tag('user_edit') + " Edit your account", { :controller => "user", :action => "save_dialog", :user => @user }, {:id => 'save_dialog', :remote => true}) %><br />
       <% end %>
-      <% if CONFIG['change_passwd'] == :on and CONFIG['proxy_auth_mode'] != :on %>
+      <% if @configuration['change_password'] and CONFIG['proxy_auth_mode'] != :on %>
         <%= link_to(sprite_tag('key') + " Change your password", { :controller => "user", :action => "password_dialog", :user => @user }, {:id => 'password_dialog', :remote => true}) %><br />
       <% end %>
       </p>

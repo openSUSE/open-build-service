@@ -18,7 +18,7 @@ module ActionView
       if @@icon_cache[_source]
         return @@icon_cache[_source]
       end
-      new_path = "/vendor/#{CONFIG['theme']}#{_source}"
+      new_path = "/vendor/#{@configuration['theme']}#{_source}"
       if File.exists?("#{Rails.root.to_s}/public#{new_path}")
         source = new_path
       elsif File.exists?("#{Rails.root.to_s}/public#{_source}")
@@ -72,8 +72,8 @@ module ApplicationHelper
   end
 
   def repo_url(project, repo='' )
-    if defined? CONFIG['download_url']
-      "#{CONFIG['download_url']}/" + project.to_s.gsub(/:/,':/') + "/#{repo}"
+    if @configuration['download_url']
+      "#{@configuration['download_url']}/" + project.to_s.gsub(/:/,':/') + "/#{repo}"
     else
       nil
     end
@@ -93,12 +93,12 @@ module ApplicationHelper
   end
 
   def bugzilla_url(email_list="", desc="")
-    return '' if CONFIG['bugzilla_host'].nil?
+    return '' if @configuration['bugzilla_url'].blank?
     assignee = email_list.first if email_list
     if email_list.length > 1
       cc = ("&cc=" + email_list[1..-1].join("&cc=")) if email_list
     end
-    URI.escape("#{CONFIG['bugzilla_host']}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd party software&assigned_to=#{assignee}#{cc}&short_desc=#{desc}")
+    URI.escape("#{@configuration['bugzilla_url']}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd party software&assigned_to=#{assignee}#{cc}&short_desc=#{desc}")
   end
 
   def image_url(source)

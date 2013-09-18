@@ -12,8 +12,6 @@ rescue Exception
   CONFIG = Hash.new
 end
 
-CONFIG['download_url'] ||= 'http://download.opensuse.org/repositories'
-
 # Initialize the rails application
 OBSWebUI::Application.initialize!
 
