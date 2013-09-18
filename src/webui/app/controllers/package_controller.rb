@@ -308,7 +308,13 @@ class PackageController < ApplicationController
   end
 
   def rdiff
-    infos = ApiDetails.read(:package_rdiff, @project.name, @package.name, pick_params(:oproject, :opackage, :rev, :linkrev, :orev))
+    begin
+      infos = ApiDetails.read(:package_rdiff, @project.name, @package.name, pick_params(:oproject, :opackage, :rev, :linkrev, :orev))
+    rescue ApiDetails::TransportError => e
+      flash[:error] = e.to_s
+      redirect_back_or_to package_show_path(project: @project, package: @package)
+      return
+    end
     @files = infos['files']
     @filenames = infos['filenames']
     @last_rev = infos['last_rev']
