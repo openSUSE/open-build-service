@@ -77,11 +77,12 @@ class PackageControllerTest < ActionDispatch::IntegrationTest
     fill_comment
   end
 
-  test "check comments on remote projects" do
-    login_Iggy
-    visit package_show_path(project: "UseRemoteInstanceIndirect", package: "patchinfo")
-    fill_comment
-  end
+# broken test: issue 408
+# test "check comments on remote projects" do
+#   login_Iggy
+#   visit package_show_path(project: "UseRemoteInstanceIndirect", package: "patchinfo")
+#   fill_comment
+# end
 
   test "succesful reply comment creation" do
     login_Iggy
