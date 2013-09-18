@@ -108,7 +108,7 @@ class FrontendCompat
     rescue Encoding::UndefinedConversionError
        # encode is documented not to throw it if undef: is :replace, but at least we tried - and ruby 1.9.3 is buggy
     end
-    return log.gsub(/([^a-zA-Z0-9&;<>\/\n\r \t()])/n) do |c|
+    return log.gsub(/([^a-zA-Z0-9&;<>\/\n\r \t()])/) do |c|
       begin
         if c.ord < 32
           ''
