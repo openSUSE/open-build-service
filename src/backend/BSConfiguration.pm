@@ -32,6 +32,8 @@ my $xml = readxml($configuration_file, $BSXML::configuration, 1) || {};
 # old values from BSConfig.pm are winning
 $BSConfig::obsname = $xml->{'name'} if !defined($BSConfig::obsname);
 $BSConfig::proxy = $xml->{'http_proxy'} if !defined($BSConfig::proxy);
+$BSConfig::noproxy = $xml->{'no_proxy'} if !defined($BSConfig::noproxy);
+$BSConfig::repodownload = $xml->{'download_url'} if !defined($BSConfig::repodownload);
 if (!defined($BSConfig::enable_download_on_demand)) {
   $BSConfig::enable_download_on_demand = 0;
   if ($xml->{'download_on_demand'} && $xml->{'download_on_demand'} eq "on") {

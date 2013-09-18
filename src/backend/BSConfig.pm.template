@@ -72,11 +72,6 @@ our $repodownload = "http://$hostname/repositories";
 # But only one source server is possible yet.
 our @reposervers = ("http://$hostname:5252");
 
-# Curl-like interpretation for noproxy, i.e. each name in $noproxy is either
-# a domain containing the hostname or the hostname itself.
-# Example: host.com matches host.com, www.host.com etc but not www.myhost.com
-#our $noproxy = "localhost, 127.0.0.1";
-
 # Package defaults
 our $bsdir = '/srv/obs';
 our $bsuser = 'obsrun';
@@ -148,9 +143,6 @@ our $relsync_pool = {
 #No extra stage server sync
 #our $stageserver = 'rsync://127.0.0.1/put-repos-main';
 #our $stageserver_sync = 'rsync://127.0.0.1/trigger-repos-sync';
-
-#No public download server
-#our $repodownload = 'http://software.opensuse.org/download/repositories';
 
 #No package signing server
 #our $sign = '/usr/bin/sign';
