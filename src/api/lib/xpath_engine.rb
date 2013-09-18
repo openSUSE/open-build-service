@@ -24,13 +24,6 @@ class XpathEngine
         '@project' => {:cpart => 'projects.name',
                        joins: 'LEFT JOIN projects ON packages.db_project_id=projects.id' },
         '@name' => {:cpart => 'packages.name'},
-        '@state' => {:cpart => 'issues.state', :joins => 
-          ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
-           'LEFT JOIN issues ON issues.id = package_issues.issue_id']},
-        'owner/@login' => {:cpart => 'users.login', :joins => 
-          ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
-           'LEFT JOIN issues ON issues.id = package_issues.issue_id',
-           'LEFT JOIN users ON users.id = issues.owner_id']},
         'title' => {:cpart => 'packages.title'},
         'description' => {:cpart => 'packages.description'},
         'kind' => {:cpart => 'package_kinds.kind', :joins =>
@@ -464,7 +457,7 @@ class XpathEngine
     parse_predicate(root, rv)
     rv_cond = @conditions.pop
 
-    condition = "(#{lv_cond} AND #{rv_cond})"
+    condition = "((#{lv_cond}) AND (#{rv_cond}))"
     #logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition
@@ -483,7 +476,7 @@ class XpathEngine
     elsif rv_cond == '0'
       condition = lv_cond
     else
-      condition = "(#{lv_cond} OR #{rv_cond})"
+      condition = "((#{lv_cond}) OR (#{rv_cond}))"
     end
     #logger.debug "-- condition: [#{condition}]"
 

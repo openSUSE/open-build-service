@@ -239,7 +239,7 @@ novell_bugzilla:
   regex: bnc#(\d+)
   label: bnc#@@@
   issues_updated: 2011-07-29 14:00:21.000000000 Z
-  enable_fetch: 1
+  enable_fetch: 0
 perl_rt:
   id: 27
   name: RT

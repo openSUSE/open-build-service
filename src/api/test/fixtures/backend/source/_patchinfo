@@ -2,6 +2,7 @@
   <package>pack3</package>
 
   <issue tracker="bnc" id="123456"/>
+  <issue tracker="bnc" id="12345"/>
 
   <category>security</category>
   <rating>low</rating>

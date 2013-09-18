@@ -83,10 +83,19 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
 
     # search via bug owner
     login_Iggy
+
     # running patchinfo search as done by webui
     get "/search/package/id", :match => '[issue/[@state="CLOSED" and owner/@login="fred"] and kind="patchinfo"]'
     assert_response :success
     assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'BaseDistro', :name => 'patchinfo' }
+    get "/search/package/id", :match => '[issue/[@state="OPEN" and owner/@login="king"] and kind="patchinfo"]'
+    assert_response :success
+    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'BaseDistro', :name => 'patchinfo' }
+
+    # validate that state and login are from same issue. NOT matching:
+    get "/search/package/id", :match => '[issue/[@state="CLOSED" and owner/@login="king"] and kind="patchinfo"]'
+    assert_response :success
+    assert_no_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'BaseDistro', :name => 'patchinfo' }
 
     get "/search/package/id", :match => 'issue/owner/@login="fred"'
     assert_response :success
@@ -95,7 +104,7 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
     # search for specific issue state, issue is in RESOLVED state actually
     get "/search/package/id", :match => 'issue/@state="OPEN"'
     assert_response :success
-    assert_no_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'BaseDistro', :name => 'patchinfo' }
+    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'BaseDistro', :name => 'patchinfo' }
 
     # running patchinfo search as done by webui
     get "/search/package/id", :match => '[kind="patchinfo" and issue/[@state="CLOSED" and owner/@login="fred"]]'
