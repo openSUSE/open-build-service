@@ -1,8 +1,17 @@
-<patchinfo incident="1">
-  <packager>fred</packager>
-  <category>recommended</category>
+<patchinfo version="2">
+  <package>pack3</package>
+
+  <issue tracker="bnc" id="123456"/>
+
+  <category>security</category>
   <rating>low</rating>
-  <summary>update-test-trival: testupdate for QA with suggested relogin</summary>
-  <description>This update is a testcase for openSUSE 12.2 with a suggested relogin. </description>
+  <summary>security update</summary>
+  <description>Just a description
+in multiline
+</description>
+  <packager>adrian@suse.de</packager>
+  <zypp_restart_needed/>
+  <reboot_needed/>
   <relogin_needed/>
 </patchinfo>
+
