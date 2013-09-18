@@ -143,7 +143,7 @@ sub assignjob {
   };
   if (!BSUtil::lockcreatexml(\*F, "$jobsdir/$arch/.dispatch.$$", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus)) {
     print "job lock failed!\n";
-    return undef;
+    return 'badjob';
   }
 
   # got the lock, re-check if job is still there
@@ -151,7 +151,7 @@ sub assignjob {
     unlink("$jobsdir/$arch/$job:status");
     close F;
     print "job disappered!\n";
-    return undef;
+    return 'badjob';
   }
 
   # prepare job data
@@ -189,6 +189,9 @@ sub assignjob {
     print "rpc error: $@";
     unlink("$jobsdir/$arch/$job:status");
     close F;
+    if ($err =~ /cannot build anything/) {
+      return undef;
+    }
     if ($err =~ /cannot build this repository/) {
       $badhost{"$info->{'project'}/:repo:$info->{'repository'}/$info->{'arch'}/@{[(split(':', $idlename, 2))[1]]}"} = time();
       return 'badhost';

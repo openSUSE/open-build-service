@@ -2706,6 +2706,7 @@ if ($hostcheck) {
     my $res = ($? >> 8) || 1;
     unlink('job');
     die("400 cannot build this repository\n") if $res == 2;
+    die("400 cannot build anything\n") if $res == 3;
     die("400 cannot build this package\n");
   }
 }
