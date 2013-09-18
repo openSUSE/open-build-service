@@ -1,0 +1,8 @@
+<patchinfo incident="1">
+  <packager>fred</packager>
+  <category>recommended</category>
+  <rating>low</rating>
+  <summary>update-test-trival: testupdate for QA with suggested relogin</summary>
+  <description>This update is a testcase for openSUSE 12.2 with a suggested relogin. </description>
+  <relogin_needed/>
+</patchinfo>
