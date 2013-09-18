@@ -189,6 +189,10 @@ sub assignjob {
     print "rpc error: $@";
     unlink("$jobsdir/$arch/$job:status");
     close F;
+    if ($err =~ /cannot build this repository/) {
+      $badhost{"$info->{'project'}/:repo:$info->{'repository'}/$info->{'arch'}/@{[(split(':', $idlename, 2))[1]]}"} = time();
+      return 'badhost';
+    }
     if ($err =~ /cannot build this package/) {
       $badhost{"$info->{'project'}/$info->{'package'}/$info->{'arch'}/@{[(split(':', $idlename, 2))[1]]}"} = time();
       return 'badhost';
@@ -1077,13 +1081,14 @@ while (1) {
 	  $idle = $lastoracleidle;
 	  $lastoracleidle = '__lastoracle';
 	}
-        next if $badhost{"$project/$ic->{$job}->{'package'}/$arch/@{[(split(':', $idle, 2))[1]]}"};
+	my ($harch, $hname) = split(':', $idle, 2);
+	next if $badhost{"$project/$ic->{$job}->{'package'}/$arch/$hname"};
+	next if $badhost{"$project/:repo:$ic->{$job}->{'repository'}/$arch/$hname"};
 	if (!$workerinfo{$idle}) {
 	  my @s = stat("$workersdir/idle/$idle");
 	  next unless @s;
 	  my $worker = readxml("$workersdir/idle/$idle", $BSXML::worker, 1);
 	  if (!$worker) {
-	    my $harch = (split(':', $idle, 2))[0];
 	    for (@{$cando{$harch} || []}) { 
 	       $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
 	    }
@@ -1119,7 +1124,6 @@ while (1) {
 	$tries++;
 	my $res = assignjob($job, $idle, $arch);
 	if (!$res) {
-	  my $harch = (split(':', $idle, 2))[0];
 	  for (@{$cando{$harch} || []}) {
 	    $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
 	  }
@@ -1127,7 +1131,6 @@ while (1) {
 	}
 	last if $res eq 'badjob';
 	next if $res ne 'assigned';
-	my $harch = (split(':', $idle, 2))[0];
 	for (@{$cando{$harch} || []}) {
 	  $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
 	}
