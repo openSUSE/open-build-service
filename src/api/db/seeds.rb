@@ -112,7 +112,7 @@ DbProjectType.where(name: "maintenance_release").first_or_create
 
 # default repository to link when original one got removed
 Project.where(name: "deleted").first_or_create do |d|
-  d.repositories.create name: "deleted"
+  d.repositories.new name: "deleted"
 end
 
 # set default configuration settings if no settings exist
