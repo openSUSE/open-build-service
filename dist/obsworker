@@ -179,7 +179,7 @@ create_initrd()
                 return 1
         else
 		# create initrd with system scripts
-                mkinitrd -k $1 -i $2 -m "xfs reiserfs ext3 ext4" -B -S
+                mkinitrd -k $1 -i $2 -m "xfs reiserfs ext3 ext4 fat vfat" -B -S
                 TEMPDIR=$(mktemp -d /tmp/initrd.XXX)
                 pushd $TEMPDIR
 		# unpack initrd to add some extra files 
