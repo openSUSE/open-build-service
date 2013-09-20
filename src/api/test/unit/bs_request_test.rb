@@ -123,4 +123,17 @@ eos
     
   end
 
+  def check_user_targets(user, *trues)
+    User.current = User.find_by_login(user)
+    BsRequest.all.each do |r|
+      #puts r.render_xml
+      expect = trues.include?(r.id)
+      assert_equal expect, r.webui_infos(diffs: false)['is_target_maintainer'], "Request #{r.id} should have #{expect} in target_maintainer for #{user}"
+    end
+  end
+
+  test "request ownership" do
+    check_user_targets(:Iggy, 10)
+    check_user_targets(:adrian, 1, 1000)
+  end
 end

@@ -614,7 +614,10 @@ class BsRequest < ActiveRecord::Base
             is_target_maintainer &= user.can_modify_package?(tpkg)
           else
             tprj = Project.find_by_name(a.target_project)
-            is_target_maintainer &= user.can_modify_project?(tprj) if tprj
+            if tprj
+              has_target = true
+              is_target_maintainer &= user.can_modify_project?(tprj)
+            end
           end
         else
           tprj = Project.find_by_name(a.target_project)
