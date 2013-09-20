@@ -135,7 +135,7 @@ CREATE TABLE `backend_packages` (
   `changesmd5` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `verifymd5` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `expandedmd5` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `error` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `error` text COLLATE utf8_unicode_ci,
   `maxmtime` datetime DEFAULT NULL,
   PRIMARY KEY (`package_id`),
   KEY `index_backend_packages_on_links_to_id` (`links_to_id`)
@@ -1262,6 +1262,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130904071147');
 INSERT INTO schema_migrations (version) VALUES ('20130910162318');
 
 INSERT INTO schema_migrations (version) VALUES ('20130917124132');
+
+INSERT INTO schema_migrations (version) VALUES ('20130920090004');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
