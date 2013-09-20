@@ -4032,7 +4032,7 @@ sub metacheck {
   my @meta = split("\n", (readstr("$reporoot/$prp/$myarch/:meta/$packid", 1) || ''));
   if (!@meta) {
     print "      - $packid ($packtype)\n";
-    print "        start build\n";
+    print "        no former build, start build\n";
     return ('scheduled', [ @$data, {'explain' => 'new build'} ]);
   }
   if ($meta[0] ne $new_meta->[0]) {
@@ -5811,7 +5811,7 @@ sub checkpackage {
   }
   if (!$mylastcheck) {
     print "      - $packid ($packtype)\n";
-    print "        start build\n";
+    print "        no meta, start build\n";
     return ('scheduled', [ { 'explain' => 'new build' } ]);
   } elsif (substr($mylastcheck, 0, 32) ne ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})) {
     print "      - $packid ($packtype)\n";
