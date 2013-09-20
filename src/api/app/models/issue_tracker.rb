@@ -60,7 +60,7 @@ class IssueTracker < ActiveRecord::Base
     # before asking remote to ensure that it is older then on remote, assuming ntp works ...
     # to be sure, just reduce it by 5 seconds (would be nice to have a counter at bugzilla to 
     # guarantee a complete search)
-    update_time_stamp = Time.at(Time.now.to_f - 5)
+    @update_time_stamp = Time.at(Time.now.to_f - 5)
 
     if kind == "bugzilla"
       begin
@@ -71,7 +71,7 @@ class IssueTracker < ActiveRecord::Base
       ids = result["bugs"].map { |x| x["id"].to_i }
 
       if private_fetch_issues(ids)
-        self.issues_updated = update_time_stamp
+        self.issues_updated = @update_time_stamp
         self.save!
 
         return true
@@ -103,12 +103,12 @@ class IssueTracker < ActiveRecord::Base
 
   # this function is usually never called. Just for debugging and disaster recovery
   def enforced_update_all_issues
-    update_time_stamp = Time.at(Time.now.to_f - 5)
+    @update_time_stamp = Time.at(Time.now.to_f - 5)
 
     ids = issues.map { |x| x.name.to_s }
 
     if private_fetch_issues(ids)
-      self.issues_updated = update_time_stamp
+      self.issues_updated = @update_time_stamp
       self.save!
       return true
     end
@@ -170,7 +170,7 @@ class IssueTracker < ActiveRecord::Base
       u = User.find_by_email(r["assigned_to"].to_s)
       logger.info "Bug user #{r["assigned_to"].to_s} is not found in OBS user database" unless u
       issue.owner_id = u.id if u
-      issue.updated_at = update_time_stamp
+      issue.updated_at = @update_time_stamp
       if r["is_private"]
         issue.summary = nil
       else
