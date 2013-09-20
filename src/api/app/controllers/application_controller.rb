@@ -55,9 +55,6 @@ class ApplicationController < ActionController::API
   #contains current authentification method, one of (:proxy, :basic)
   attr_accessor :auth_method
   
-  hide_action :auth_method
-  hide_action 'auth_method='
-
   protected
 
   def load_nobody

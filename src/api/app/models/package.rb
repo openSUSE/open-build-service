@@ -255,7 +255,7 @@ class Package < ActiveRecord::Base
   end
 
   def is_locked?
-    return true if flags.find_by_flag_and_status "lock", "enable"
+    return true if flags.find_by_flag_and_status 'lock', 'enable'
     return self.project.is_locked?
   end
 
@@ -270,10 +270,10 @@ class Package < ActiveRecord::Base
   # NOTE: this is no permission check, should it be added ?
   def can_be_deleted?
     # check if other packages have me as devel package
-    msg = ""
+    msg = ''
     packs = []
     self.develpackages.each do |dpkg|
-      msg += dpkg.project.name + "/" + dpkg.name + ", "
+      msg += dpkg.project.name + '/' + dpkg.name + ', '
       packs << dpkg
     end
     unless msg.blank?
@@ -290,13 +290,13 @@ class Package < ActiveRecord::Base
   def find_linking_packages(project_local=nil)
     path = "/search/package/id?match=(linkinfo/@package=\"#{CGI.escape(self.name)}\"+and+linkinfo/@project=\"#{CGI.escape(self.project.name)}\""
     path += "+and+@project=\"#{CGI.escape(self.project.name)}\"" if project_local
-    path += ")"
+    path += ')'
     answer = Suse::Backend.post path, nil
     data = REXML::Document.new(answer.body)
     result = []
 
     data.elements.each("collection/package") do |e|
-      p = Package.find_by_project_and_name( e.attributes["project"], e.attributes["name"] )
+      p = Package.find_by_project_and_name( e.attributes['project'], e.attributes['name'] )
       if p.nil?
         logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes["project"]} / #{e.attributes["name"]}"
       else
@@ -307,19 +307,23 @@ class Package < ActiveRecord::Base
     return result
   end
 
-  def sources_changed
-    self.update_activity
-    self.set_package_kind
+  def check_for_product
+    if name == '_product'
+      project.update_product_autopackages
+    end
   end
 
-  def set_package_kind( kinds = nil )
-    check_write_access!
-    private_set_package_kind( kinds )
-  end
+  before_destroy :check_for_product
 
-  def set_package_kind_from_commit( commit )
-    check_write_access!
-    private_set_package_kind( detect_package_kinds( Xmlhash.parse( commit ) ))
+  def sources_changed(backend_answer = nil)
+    update_activity
+    # mark the backend infos "dirty"
+    BackendPackage.where(package_id: self.id).delete_all
+    if backend_answer
+      backend_answer = backend_answer.body if backend_answer.is_a? Net::HTTPSuccess
+      private_set_package_kind Xmlhash.parse(backend_answer)
+    end
+    check_for_product
   end
 
   def self.source_path(project, package, file = nil, opts = {})
@@ -346,10 +350,11 @@ class Package < ActiveRecord::Base
     end
   end
 
-  def private_set_package_kind( kinds )
+  def private_set_package_kind( dir )
+    raise ArgumentError.new 'need a xmlhash' unless dir.is_a? Xmlhash::XMLHash
+    kinds = detect_package_kinds( dir )
     oldkinds = self.package_kinds.pluck(:kind).sort
 
-    kinds ||= detect_package_kinds(self.dir_hash)
     # recreate list if changes
     Package.transaction do
       self.package_kinds.delete_all
@@ -358,17 +363,10 @@ class Package < ActiveRecord::Base
       end
     end if oldkinds != kinds.sort
 
-    # track defined products in _product containers
-    update_product_list
-
-    # update channel information
-    update_channel_list
-
-    # update issue database based on file content
-    update_issue_list
   end
 
   def is_of_kind? kind
+    update_if_dirty
     self.package_kinds.where(kind: kind).exists?
   end
 
@@ -460,10 +458,7 @@ class Package < ActiveRecord::Base
   end
 
   def detect_package_kinds(directory)
-    unless directory
-      # none given, detect by existing UNEXPANDED sources
-      directory = self.dir_hash
-    end
+    raise ArgumentError.new "neh!" if  directory.has_key? 'time'
     ret = []
     directory.elements("entry") do |e|
       %w{patchinfo aggregate link channel}.each do |kind|
@@ -478,8 +473,6 @@ class Package < ActiveRecord::Base
     end
     ret
   end
-
-  private :private_set_package_kind
 
   def resolve_devel_package
     pkg = self
@@ -666,6 +659,11 @@ class Package < ActiveRecord::Base
     return dir.to_hash['linkinfo']
   end
 
+  def channels
+    update_if_dirty
+    super
+  end
+
   def add_channels
      project_name = self.project.name
      package_name = self.name
@@ -679,40 +677,17 @@ class Package < ActiveRecord::Base
          package_name = li['package']
        end
      end
-     maintenanceProject=self.project.find_parent
+     parent = nil
      ChannelBinary.find_by_project_and_package( project_name, package_name ).each do |cb|
-       cp = cb.channel_binary_list.channel.package
-       name = cb.channel_binary_list.channel.name
-
-       # does it exist already? then just skip it
-       next if Package.exists_by_project_and_name(self.project.name, name)
-
-       # do we need to take care about a maintained list from upper project?
-       if maintenanceProject and not maintenanceProject.maintained_projects.include? cp.project
-         # not a maintained project here
-         next
-       end
-
-       # create a package beside me
-       tpkg = Package.new(:name => name, :title => cp.title, :description => cp.description)
-       self.project.packages << tpkg
-       tpkg.store
-
-       # branch sources
-       tpkg.branch_from(cp.project.name, cp.name)
-       tpkg.sources_changed
-
-       # branch repositories
-       self.project.branch_to_repositories_from(cp.project, tpkg, true)
-
-       self.project.store
+       parent ||= self.project.find_parent
+       cb.create_channel_package(self, parent)
      end
+     self.project.store
   end
 
   def developed_packages
     packages = []
     candidates = Package.where(develpackage_id: self).load
-    logger.debug candidates.inspect
     candidates.each do |candidate|
       packages << candidate unless candidate.linkinfo
     end
@@ -752,8 +727,20 @@ class Package < ActiveRecord::Base
     Suse::Backend.post path, nil
   end
 
+  # just make sure the backend_package is there
+  def update_if_dirty
+    self.backend_package
+  end
+
+  def backend_package
+    bp = super
+    # if it's there, it's supposed to be fine
+    return bp if bp
+    update_backendinfo
+  end
+
   def update_backendinfo
-    bp = self.backend_package || self.build_backend_package
+    bp = build_backend_package
 
     # determine the infos provided by srcsrv
     dir = self.dir_hash(view: :info, withchangesmd5: 1, nofilename: 1)
@@ -769,12 +756,22 @@ class Package < ActiveRecord::Base
     # now check the unexpanded sources
     update_backendinfo_unexpanded(bp)
 
+    # track defined products in _product containers
+    update_product_list
+
+    # update channel information
+    update_channel_list
+
+    # update issue database based on file content
+    update_issue_list
+
     bp.save
+    bp
   end
 
   def update_backendinfo_unexpanded(bp)
     dir = self.dir_hash
-    private_set_package_kind(detect_package_kinds(dir))
+    private_set_package_kind(dir)
 
     bp.srcmd5 = dir['srcmd5']
     li = dir['linkinfo']

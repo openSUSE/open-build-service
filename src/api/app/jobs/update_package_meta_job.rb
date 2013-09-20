@@ -12,7 +12,7 @@ class UpdatePackageMetaJob
         pkg = Package.find_by_project_and_name(p['project'], p['name'])
         # if there is a linkinfo for a package not in database, there can not be a linked_package either
         next unless pkg
-        pkg.update_backendinfo
+        pkg.update_if_dirty
       end
 
     end
@@ -23,12 +23,11 @@ class UpdatePackageMetaJob
     # while the delayed job runs can update our work
     scan_links
 
-    Package.order(:name).each do |pkg|
-      next unless Package.exists?(pkg)
-      begin
-        pkg.update_backendinfo
-      rescue ActiveXML::Transport::Error
-      end
+    BackendPackage.not_links.delete_all
+
+    dirties = Package.joins("left outer join backend_packages on backend_packages.package_id = packages.id").where("backend_packages.package_id is null")
+    dirties.each do |p|
+      p.delay.update_if_dirty
     end
   end
 

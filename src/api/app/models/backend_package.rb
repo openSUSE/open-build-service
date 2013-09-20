@@ -5,4 +5,5 @@ class BackendPackage < ActiveRecord::Base
   belongs_to :package, class_name: "Package"
 
   scope :links, -> { where("links_to_id is not null") }
+  scope :not_links, -> { where("links_to_id is null") }
 end

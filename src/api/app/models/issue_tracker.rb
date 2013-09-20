@@ -21,24 +21,11 @@ class IssueTracker < ActiveRecord::Base
     Suse::Backend.put_source(path, IssueTracker.all.to_xml(DEFAULT_RENDER_PARAMS))
 
     # We need to parse again ALL sources ...
-    IssueTracker.first.delay.update_package_metadata
+    UpdatePackageMetaJob.new.delay.perform
   end
 
   before_validation(:on => :create) do
     self.issues_updated ||= Time.now
-  end
-
-  def update_package_metadata
-    Project.all.each do |prj|
-      next unless Project.exists?(prj)
-      prj.packages.each do |pkg|
-        next unless Package.exists?(pkg)
-        begin
-          pkg.set_package_kind
-        rescue ActiveXML::Transport::Error
-        end
-      end
-    end
   end
 
   # Checks if the given issue belongs to this issue tracker

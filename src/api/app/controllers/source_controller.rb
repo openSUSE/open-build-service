@@ -75,12 +75,6 @@ class SourceController < ApplicationController
     render partial: 'project_issues'
   end
 
-  def render_package_issues(pkg)
-    set_issues_default
-    @package = pkg
-    render partial: 'package_issues'
-  end
-
   # GET /source/:project
   def show_project
     project_name = params[:project]
@@ -232,7 +226,9 @@ class SourceController < ApplicationController
     unless @tpkg
       raise NoLocalPackage.new "Issues can only be shown for local packages"
     end
-    render_package_issues(@tpkg)
+    set_issues_default
+    @tpkg.update_if_dirty
+    render partial: 'package_issues'
   end
 
   before_filter :require_package, only: [:show_package, :delete_package, :package_command]
@@ -318,13 +314,9 @@ class SourceController < ApplicationController
       tpkg.destroy
 
       params[:user] = User.current
-      path = Package.source_path @target_project_name, @target_package_name
+      path = tpkg.source_path
       path << build_query_from_hash(params, [:user, :comment])
       Suse::Backend.delete path
-
-      if @target_package_name == "_product"
-        Project.find_by_name!(params[:project]).update_product_autopackages
-      end
     end
     render_ok
   end
@@ -826,23 +818,19 @@ class SourceController < ApplicationController
 
     @path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink, :meta])
 
+    special_file = false
+
     # file validation where possible
-    if params[:filename] == "_aggregate"
-      validator = Suse::Validator.validate( "aggregate", request.raw_post.to_s)
-    elsif params[:filename] == "_constraints"
-      validator = Suse::Validator.validate( "constraints", request.raw_post.to_s)
-    elsif params[:filename] == "_link"
-      validator = Suse::Validator.validate( "link", request.raw_post.to_s)
-    elsif params[:filename] == "_service"
-      validator = Suse::Validator.validate( "service", request.raw_post.to_s)
-    elsif params[:filename] == "_patchinfo"
-      validator = Suse::Validator.validate( "patchinfo", request.raw_post.to_s)
-    elsif params[:filename] == "_channel"
-      validator = Suse::Validator.validate( "channel", request.raw_post.to_s)
-    elsif params[:package] == "_pattern"
-      validator = Suse::Validator.validate( "pattern", request.raw_post.to_s)
+    %w{aggregate constraints link service patchinfo channel}.each do |special|
+      if params[:filename] == '_' + special
+        special_file = true
+        Suse::Validator.validate( special, request.raw_post.to_s)
+      end
     end
 
+    if params[:package] == "_pattern"
+      Suse::Validator.validate( "pattern", request.raw_post.to_s)
+    end
 
     # verify link
     if params[:filename] == "_link"
@@ -884,12 +872,10 @@ class SourceController < ApplicationController
     pass_to_backend @path
 
     # update package timestamp and reindex sources
-    @pack.sources_changed unless params[:rev] == 'repository' or [ "_project", "_pattern" ].include? @package_name
-
-    if @package_name == "_product"
-      Project.find_by_name!(params[:project]).update_product_autopackages
+    unless params[:rev] == 'repository' or [ "_project", "_pattern" ].include? @package_name
+      @pack.sources_changed
+      @pack.update_if_dirty if special_file # scan
     end
-
   end
 
   class DeleteFileNoPermission < APIException
@@ -910,9 +896,6 @@ class SourceController < ApplicationController
     unless @package_name == "_pattern" or @package_name == "_project"
       # _pattern was not a real package in old times
       @pack.sources_changed
-    end
-    if @package_name == "_product"
-      Project.find_by_name!(params[:project]).update_product_autopackages
     end
     render_ok
   end
@@ -1447,8 +1430,6 @@ class SourceController < ApplicationController
 
     if @package # except in case of _project package
       @package.sources_changed
-
-      @project.update_product_autopackages if @package.name == "_product"
     end
   end
 
@@ -1460,10 +1441,7 @@ class SourceController < ApplicationController
     answer = pass_to_backend path
     
     if @package # except in case of _project package
-      @package.set_package_kind_from_commit(answer)
-      @package.update_activity
-
-      @project.update_product_autopackages if @package.name == "_product"
+      @package.sources_changed(answer)
     end
   end
 
@@ -1528,7 +1506,7 @@ class SourceController < ApplicationController
     end
 
     # We need to use the project name of package object, since it might come via a project linked project
-    path = "/source/#{CGI.escape(@package.project.name)}/#{CGI.escape(@package.name)}"
+    path = @package.source_path
     path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, 
                                            :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource, :withhistory])
     pass_to_backend path

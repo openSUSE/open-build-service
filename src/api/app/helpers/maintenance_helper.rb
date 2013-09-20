@@ -515,7 +515,7 @@ module MaintenanceHelper
         linked_package = params[:target_package] if params[:target_package] and params[:package] == ret.package  # user enforce a rename of base package
         linked_package += "." + p[:link_target_project].name.gsub(':', '_') if extend_names
         ret.set_attribute('package', linked_package)
-        answer = Suse::Backend.put "/source/#{tpkg.project.name}/#{tpkg.name}/_link?user=#{CGI.escape(User.current.login)}", ret.dump_xml
+        Suse::Backend.put tpkg.source_path('_link', user: User.current.login), ret.dump_xml
         tpkg.sources_changed
       else
         opackage = p[:package]
@@ -523,7 +523,7 @@ module MaintenanceHelper
         oproject = p[:link_target_project]
         oproject = p[:link_target_project].name if p[:link_target_project].class == Project
         # branch sources in backend
-        answer = tpkg.branch_from(oproject, opackage, p[:rev], params[:missingok]) 
+        tpkg.branch_from(oproject, opackage, p[:rev], params[:missingok])
         if response
           # multiple package transfers, just tell the target project
           response = {:targetproject => tpkg.project.name}
@@ -536,7 +536,8 @@ module MaintenanceHelper
         if p[:copy_from_devel] and p[:copy_from_devel].project != tpkg.project
           msg="fetch+updates+from+devel+package+#{CGI.escape(p[:copy_from_devel].project.name)}/#{CGI.escape(p[:copy_from_devel].name)}"
           msg="fetch+updates+from+open+incident+project+#{CGI.escape(p[:copy_from_devel].project.name)}" if p[:copy_from_devel].project.is_maintenance_incident?
-          answer = Suse::Backend.post "/source/#{tpkg.project.name}/#{tpkg.name}?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(p[:copy_from_devel].project.name)}&opackage=#{CGI.escape(p[:copy_from_devel].name)}&user=#{CGI.escape(User.current.login)}&comment=#{msg}", nil
+          # TODO: make this a query hash
+          Suse::Backend.post tpkg.source_path + "?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(p[:copy_from_devel].project.name)}&opackage=#{CGI.escape(p[:copy_from_devel].name)}&user=#{CGI.escape(User.current.login)}&comment=#{msg}", nil
         end
 
         tpkg.sources_changed
@@ -607,7 +608,7 @@ module MaintenanceHelper
       upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}"
       upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
       answer = Suse::Backend.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
-      tpkg.set_package_kind_from_commit(answer.body)
+      tpkg.sources_changed(answer)
     else
       # copy sources
       # backend copy of current sources as full copy
@@ -691,7 +692,7 @@ module MaintenanceHelper
       upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(basePackageName)}"
       upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
       answer = Suse::Backend.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
-      lpkg.set_package_kind_from_commit(answer.body)
+      lpkg.sources_changed(answer)
     end
 
     # publish incident if source is read protect, but release target is not. assuming it got public now.

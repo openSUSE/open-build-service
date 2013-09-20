@@ -124,12 +124,12 @@ class ProjectStatusHelper
 
   def self.check_md5(proj, packages, mypackages)
     # remap
-    packages = Project.find_by_name(proj).packages.where(name: packages.map { |p| p.name })
-    BackendPackage.where(package_id: packages).each do |bp|
-      key = proj + "/" + bp.package.name
+    packages = Project.find_by_name(proj).packages.where(name: packages.map { |p| p.name }).includes(:backend_package)
+    packages.each do |p|
+      key = proj + "/" + p.name
       obj = mypackages[key]
       next unless obj
-      obj.bp = bp
+      obj.bp = p.backend_package
       obj.srcmd5 = obj.bp.srcmd5
       obj.verifymd5 = obj.bp.verifymd5
       obj.error = obj.bp.error

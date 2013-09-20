@@ -2,9 +2,6 @@ require 'test_helper'
 
 class LastEventsTest < ActionDispatch::IntegrationTest
   test "update lastevents" do
-    # before we should not have any in the database
-    BackendPackage.delete_all
-    assert_operator BackendPackage.count, :<, 3
     UpdatePackageMetaJob.new.perform
     # at least 3 links found
     assert_operator BackendPackage.links.count, :>=, 3
@@ -17,11 +14,11 @@ class LastEventsTest < ActionDispatch::IntegrationTest
 
     # now create a link
     login_king
+    count_before = BackendPackage.links.count
     delete "/source/BaseDistro2.0/pack2.linked/_link"
     assert_response :success
 
     # the link should disappear in database
-    count_before = BackendPackage.links.count
     UpdateNotificationEvents.new.perform
     assert_equal 1, count_before - BackendPackage.links.count
 
