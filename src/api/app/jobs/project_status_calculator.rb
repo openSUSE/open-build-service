@@ -124,7 +124,7 @@ class ProjectStatusCalculator
       obj.error = obj.bp.error
       obj.links_to = obj.bp.links_to_id
       obj.changesmd5 = obj.bp.changesmd5
-      obj.maxmtime = obj.bp.maxmtime
+      obj.maxmtime = obj.bp.maxmtime.to_i
     end
   end
 
@@ -155,7 +155,7 @@ class ProjectStatusCalculator
     ret
   end
 
-  def update_jobhistory(targetproj, proj, mypackages)
+  def update_jobhistory(proj, mypackages)
     prjpacks = Hash.new
     dname = proj.name
     mypackages.each_value do |package|
@@ -164,7 +164,7 @@ class ProjectStatusCalculator
       end
     end
 
-    proj.repositories_linking_project(targetproj).each do |r|
+    proj.repositories_linking_project(@dbproj).each do |r|
       repo = r['name']
       r.elements('arch') do |arch|
 
@@ -242,7 +242,7 @@ class ProjectStatusCalculator
 
     projects.each do |id, name|
       if !opts[:pure_project] || id == @dbproj.id
-        update_jobhistory(@dbproj, Project.find(id), mypackages)
+        update_jobhistory(Project.find(id), mypackages)
       end
     end
 

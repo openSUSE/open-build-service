@@ -143,7 +143,7 @@ class Webui::ProjectsController < Webui::BaseController
     currentpack['requests_from'] = Array.new
     currentpack['requests_to'] = Array.new
 
-    key = @project.name + ''/'' + pname
+    key = @project.name + '/' + pname
     if @submits.has_key? key
       currentpack['requests_from'].concat(@submits[key])
     end
@@ -195,7 +195,7 @@ class Webui::ProjectsController < Webui::BaseController
 
     if p.links_to
       if currentpack['md5'] != p.links_to.verifymd5
-        currentpack['problems'] << "diff_against_link-#{currentpack['md5']}-#{p.links_to.verifymd5}-#{p.links_to.inspect}-#{currentpack.inspect}"
+        currentpack['problems'] << 'diff_against_link'
         currentpack['lproject'] = p.links_to.project
         currentpack['lpackage'] = p.links_to.name
       end
