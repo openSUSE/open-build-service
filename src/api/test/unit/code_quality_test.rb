@@ -128,9 +128,8 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Project#update_product_autopackages' => 47.69,
       'Project::check_access?' => 54.05,
       'Project::get_by_name' => 53.44,
-      'ProjectStatusHelper::calc_status' => 159.25,
-      'ProjectStatusHelper::check_md5' => 50.8,
-      'ProjectStatusHelper::update_jobhistory' => 50.29,
+      'ProjectStatusCalculator#calc_status' => 84.08,
+      'ProjectStatusCalculator#update_jobhistory' => 43.21,
       'PublicController#binary_packages' => 134.24,
       'Relationship#check_sanity' => 48.62,
       'Repository#cleanup_before_destroy' => 85.53,
@@ -162,7 +161,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'SourceController#verify_repos_match!' => 52.26,
       'StatisticsController#active_request_creators' => 71.14,
       'StatisticsController#rating' => 57.46,
-      'StatusHelper::resample' => 49.79,
+      'StatusHelper::resample' => 46.25,
       'StatusHistoryRescaler#cleanup' => 43.59,
       'SubmitRequestSourceDiff::ActionSourceDiffer#diff_for_source' => 60.19,
       'TagController#package_tags' => 42.02,
@@ -178,14 +177,15 @@ class CodeQualityTest < ActiveSupport::TestCase
       'UserLdapStrategy::new_entry_ldap' => 45.07,
       'UserLdapStrategy::render_grouplist_ldap' => 100.3,
       'UserLdapStrategy::update_entry_ldap' => 59.56,
-      'Webui::ProjectsController#status' => 346.5,
+      'Webui::ProjectsController#status_check_package' => 211.04,
+      'Webui::ProjectsController#status_filter_packages' => 47.19,
       'WizardController#package_wizard' => 135.16,
   }
 
   test "code complexity" do
     require "flog_cli"
     flog = Flog.new :continue => true
-    dirs = %w(app/controllers app/views app/models app/mixins app/indices app/helpers)
+    dirs = %w(app/controllers app/views app/models app/mixins app/indices app/helpers app/jobs)
     files = FlogCLI.expand_dirs_to_files(*dirs)
     flog.flog(*files)
 
