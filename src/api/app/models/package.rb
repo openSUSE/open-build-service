@@ -765,7 +765,13 @@ class Package < ActiveRecord::Base
     # update issue database based on file content
     update_issue_list
 
-    bp.save
+    begin
+      bp.save
+    rescue ActiveRecord::RecordNotUnique
+      # it's not too unlikely that another process tried to save the same infos
+      # we can ignore the problem - the other process will have gathered the
+      # same infos.
+    end
     bp
   end
 
