@@ -683,5 +683,12 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: 'request', attributes: { id: '1'}
 
   end
+
+  test "xpath with two relationships" do
+    login_Iggy
+    get '/search/package/id', match: "person/@userid = 'adrian' and person/@role = 'maintainer'"
+    assert_response :success
+    assert_xml_tag tag: 'package', attributes: { project: 'kde4', name: 'kdelibs' }
+  end
 end
 

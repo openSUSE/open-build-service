@@ -616,8 +616,9 @@ class BsRequestAction < ActiveRecord::Base
       # just remove one package
       source_package = source_project.packages.find_by_name(self.source_package)
       source_package.destroy
-      delete_path = "/source/#{self.source_project}/#{self.source_package}"
+      delete_path = Package.source_path("/source/#{self.source_project}/#{self.source_package}"
     end
+    return unless delete_path
     del_params = {
         :user => User.current.login,
         :requestid => self.bs_request.id,

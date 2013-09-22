@@ -72,11 +72,11 @@ class XpathEngine
            'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
            'LEFT JOIN users AS users2 ON users2.id = issues.owner_id']},
         'person/@userid' => {:cpart => 'users.login', :joins => 
-          ['LEFT JOIN relationships ON packages.id = package_id',
-           'LEFT JOIN users ON users.id = user_id']},
+          ['LEFT JOIN relationships rpu ON packages.id = package_id',
+           'LEFT JOIN users ON users.id = rpu.user_id']},
         'person/@role' => {:cpart => 'ppr.title', :joins =>
-          ['LEFT JOIN relationships ON packages.id = relationships.package_id',
-           'LEFT JOIN roles AS ppr ON relationships.role_id = ppr.id']},
+          ['LEFT JOIN relationships rpr ON packages.id = rpr.package_id',
+           'LEFT JOIN roles AS ppr ON rpr.role_id = ppr.id']},
         'group/@groupid' => {:cpart => 'groups.title', :joins =>
           ['LEFT JOIN relationships AS ppr ON packages.id = ppr.package_id',
            'LEFT JOIN groups ON groups.id = ppr.group_id']},
