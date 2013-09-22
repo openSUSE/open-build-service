@@ -209,8 +209,12 @@ OBSApi::Application.routes.draw do
 
     # Routes for messages
     # --------------------------
-    match 'message/:id' => 'message#index', via: [:get, :delete, :put]
-    match 'message' => 'message#index', via: [:get, :put]
+    controller :message do
+      put 'message' => :update
+      get 'message' => :list
+      get 'message/:id' => :show
+      delete 'message/:id' => :delete
+    end
 
 
     ### /search
@@ -277,7 +281,7 @@ OBSApi::Application.routes.draw do
     ### /lastevents
 
     get '/lastevents' => 'source#lastevents_public'
-    match 'public/lastevents' => "source#lastevents_public", via: [:get, :post]
+    match 'public/lastevents' => 'source#lastevents_public', via: [:get, :post]
     post '/lastevents' => 'source#lastevents'
 
     ### /distributions
@@ -319,8 +323,8 @@ OBSApi::Application.routes.draw do
     namespace :webui do
       resources :projects, :only => [:index], :constraints => { :id => %r{[^\/]*} } do
         member do
-          get "infos"
-          get "status"
+          get 'infos'
+          get 'status'
         end
         resources :relationships, :only => [:create] do
           collection do
@@ -336,12 +340,12 @@ OBSApi::Application.routes.draw do
           end
           resources :flags, :only => [:index]
           member do
-            get "rdiff"
+            get 'rdiff'
           end
         end
       end
       resources :packages, :only => [], :constraints => { :id => %r{[^\/]*} } do
-        get "flags", :on => :member
+        get 'flags', :on => :member
       end
       resources :requests, :only => [:index, :show] do
         collection do
@@ -368,7 +372,7 @@ OBSApi::Application.routes.draw do
 
     end
 
-    get "/404" => "main#notfound"
+    get '/404' => 'main#notfound'
 
     # Do not install default routes for maximum security
     #get ':controller(/:action(/:id))'
