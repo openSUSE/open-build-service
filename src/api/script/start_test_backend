@@ -251,6 +251,7 @@ Suse::Backend.put( '/source/home:Iggy/TestPack/TestPack.spec', File.open("#{Rail
 Suse::Backend.put( '/source/home:Iggy:branches:kde4/BranchPack/myfile', "DummyContent")
 Suse::Backend.put( '/source/kde4/kdebase/myfile2', "DummyContent")
 Suse::Backend.put( '/source/kde4/kdelibs/my_patch.diff', 'argl')
+Suse::Backend.put( '/source/home:dmayr/x11vnc/README', 'just to delete')
 
 # manual placing of files
 FileUtils.cp("#{Rails.root}/test/fixtures/backend/source/_pubkey", "#{Rails.root}/tmp/backend_data/projects/BaseDistro.pkg/_pubkey")

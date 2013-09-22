@@ -1,4 +1,4 @@
-ENV["RAILS_ENV"] = "test"
+ENV['RAILS_ENV'] = 'test'
 require 'minitest/unit'
 
 require 'simplecov'
@@ -6,7 +6,7 @@ require 'simplecov-rcov'
 SimpleCov.start 'rails' do
   add_filter '/app/indices/'
   add_filter '/app/models/user_ldap_stretegy.rb'
-end if ENV["DO_COVERAGE"]
+end if ENV['DO_COVERAGE']
 
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
@@ -19,12 +19,12 @@ require './test/activexml_matcher'
 
 WebMock.disable_net_connect!(allow: CONFIG['source_host'])
 
-unless File.exists? "/proc"
-  print "ERROR: proc file system not mounted, aborting"
+unless File.exists? '/proc'
+  print 'ERROR: proc file system not mounted, aborting'
   exit 1
 end
-unless File.exists? "/dev/fd"
-  print "ERROR: /dev/fd does not exist, aborting"
+unless File.exists? '/dev/fd'
+  print 'ERROR: /dev/fd does not exist, aborting'
   exit 1
 end
 
@@ -37,12 +37,12 @@ end
       jobfile=job.readlines.first
       return unless jobfile
       jobfile.chomp!
-      jobid=""
+      jobid=''
       IO.popen("md5sum #{jobfile}|cut -d' ' -f 1") do |io|
          jobid = io.readlines.first.chomp
       end
       data = REXML::Document.new(File.new(jobfile))
-      verifymd5 = data.elements["/buildinfo/verifymd5"].text
+      verifymd5 = data.elements['/buildinfo/verifymd5'].text
       f = File.open("#{jobfile}:status", 'w')
       f.write( "<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> <workerid>simulated</workerid> <hostarch>#{arch}</hostarch> </jobstatus>" )
       f.close
@@ -55,8 +55,8 @@ module ActionDispatch
     class Session
       def add_auth(headers)
         headers = Hash.new if headers.nil?
-        if !headers.has_key? "HTTP_AUTHORIZATION" and IntegrationTest.basic_auth
-          headers["HTTP_AUTHORIZATION"] = IntegrationTest.basic_auth
+        if !headers.has_key? 'HTTP_AUTHORIZATION' and IntegrationTest.basic_auth
+          headers['HTTP_AUTHORIZATION'] = IntegrationTest.basic_auth
         end
         return headers
       end
@@ -64,7 +64,7 @@ module ActionDispatch
       alias_method :real_process, :process
       def process(method, path, parameters, rack_env)
         CONFIG['global_write_through'] = true
-        self.accept = "text/xml,application/xml"
+        self.accept = 'text/xml,application/xml'
         real_process(method, path, parameters, add_auth(rack_env))
       end
 
@@ -142,33 +142,33 @@ module ActionDispatch
 
     # useful to fix our test cases
     def url_for(hash)
-      raise ArgumentError.new("we need a hash here") unless hash.kind_of? Hash
-      raise ArgumentError.new("we need a :controller") unless hash.has_key?(:controller)
-      raise ArgumentError.new("we need a :action") unless hash.has_key?(:action)
+      raise ArgumentError.new('we need a hash here') unless hash.kind_of? Hash
+      raise ArgumentError.new('we need a :controller') unless hash.has_key?(:controller)
+      raise ArgumentError.new('we need a :action') unless hash.has_key?(:action)
       super(hash)
     end
 
     def wait_for_publisher
-      Rails.logger.debug "Wait for publisher"
+      Rails.logger.debug 'Wait for publisher'
       counter = 0
       while counter < 100
-        events = Dir.open(Rails.root.join("tmp/backend_data/events/publish"))
+        events = Dir.open(Rails.root.join('tmp/backend_data/events/publish'))
         #  3 => ".", ".." and ".ping"
         break unless events.count > 3
         sleep 0.5
         counter = counter + 1
       end
       if counter == 100
-        raise "Waited 50 seconds for publisher"
+        raise 'Waited 50 seconds for publisher'
       end
     end
 
     def wait_for_scheduler_start
       # make sure it's actually tried to start
       Suse::Backend.start_test_backend
-      Rails.logger.debug "Wait for scheduler thread to finish start"
+      Rails.logger.debug 'Wait for scheduler thread to finish start'
       counter = 0
-      marker = Rails.root.join("tmp", "scheduler.done")
+      marker = Rails.root.join('tmp', 'scheduler.done')
       while counter < 100
         return if File.exists?(marker)
         sleep 0.5
@@ -186,25 +186,28 @@ module ActionDispatch
     end
 
     def login_king
-      prepare_request_with_user "king", "sunflower"
+      prepare_request_with_user 'king', 'sunflower'
     end
 
     def login_Iggy
-      prepare_request_with_user "Iggy", "asdfasdf"
+      prepare_request_with_user 'Iggy', 'asdfasdf'
     end
 
     def login_adrian
-      prepare_request_with_user "adrian", "so_alone"
+      prepare_request_with_user 'adrian', 'so_alone'
     end
 
     def login_fred
-      prepare_request_with_user "fred", "geröllheimer"
+      prepare_request_with_user 'fred', 'geröllheimer'
     end
 
     def login_tom
-      prepare_request_with_user "tom", "thunder"
+      prepare_request_with_user 'tom', 'thunder'
     end
 
+    def login_dmayr
+      prepare_request_with_user 'dmayr', '123456'
+    end
   end 
 end
 

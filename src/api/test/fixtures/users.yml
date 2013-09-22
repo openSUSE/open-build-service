@@ -96,6 +96,20 @@ binary_homer:
   password_hash_type: md5
   password_salt: ''
   state: 2
+dmayr:
+  id: 276
+  created_at: 2012-01-16 13:36:00.000000000 Z
+  updated_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
+  login_failure_count: 0
+  login: dmayr
+  email: test@example.com
+  realname: ''
+  password: df9a257e5a7c1af44987f695369adc44
+  password_hash_type: md5
+  password_salt: Vibb8QsN4I
+  password_crypted: osEJSjdDGtlBY
+  state: 2
 fred:
   id: 1
   created_at: 2011-07-29 14:00:21.000000000 Z
@@ -257,48 +271,6 @@ user6:
   last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
   login_failure_count: 0
   login: user6
-  email: test@example.com
-  realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
-  password_hash_type: md5
-  password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
-  state: 2
-user7:
-  id: 274
-  created_at: 2012-01-16 13:36:00.000000000 Z
-  updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
-  login_failure_count: 0
-  login: user7
-  email: test@example.com
-  realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
-  password_hash_type: md5
-  password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
-  state: 2
-user8:
-  id: 275
-  created_at: 2012-01-16 13:36:00.000000000 Z
-  updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
-  login_failure_count: 0
-  login: user8
-  email: test@example.com
-  realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
-  password_hash_type: md5
-  password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
-  state: 2
-user9:
-  id: 276
-  created_at: 2012-01-16 13:36:00.000000000 Z
-  updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
-  login_failure_count: 0
-  login: user9
   email: test@example.com
   realname: ''
   password: df9a257e5a7c1af44987f695369adc44

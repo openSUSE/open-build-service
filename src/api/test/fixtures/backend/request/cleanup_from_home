@@ -1,0 +1,11 @@
+<request>
+  <action type='submit'>
+    <source project='home:dmayr' package='x11vnc' />
+    <target project='home:Iggy' package='x11vnc' />
+    <options>
+      <sourceupdate>cleanup</sourceupdate>
+    </options>
+  </action>
+  <description/>
+</request>
+

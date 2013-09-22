@@ -1,0 +1,10 @@
+package_issues_75:
+  id: 75
+  db_package_id: 289270359
+  issue_id: 1
+  change: kept
+package_issues_76:
+  id: 76
+  db_package_id: 289270359
+  issue_id: 3
+  change: kept

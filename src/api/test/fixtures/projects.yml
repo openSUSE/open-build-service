@@ -135,7 +135,8 @@ projects_215:
   title: my home project
   description: description
   created_at: 2005-01-01 01:00:01.000000000 Z
-  updated_at: 2007-01-26 13:14:22.000000000 Z
+  updated_at: 2013-09-22 14:54:54.000000000 Z
+  type_id: 1
   delta: 1
 projects_226:
   id: 226

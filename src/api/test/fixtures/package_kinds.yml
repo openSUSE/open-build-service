@@ -14,15 +14,15 @@ package_kinds_874490196:
   id: 874490196
   db_package_id: 10100
   kind: link
-package_kinds_874490197:
-  id: 874490197
-  db_package_id: 289270358
-  kind: link
 package_kinds_874490198:
   id: 874490198
   db_package_id: 11001
   kind: link
-package_kinds_874490187:
-  id: 874490187
+package_kinds_874490267:
+  id: 874490267
   db_package_id: 289270358
+  kind: link
+package_kinds_874490268:
+  id: 874490268
+  db_package_id: 289270359
   kind: patchinfo

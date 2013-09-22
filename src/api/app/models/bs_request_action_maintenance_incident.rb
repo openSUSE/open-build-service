@@ -173,4 +173,27 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
   end
 
+  def expand_targets(ignore_build_state)
+    # find maintenance project
+    maintenanceProject = nil
+    if self.target_project
+      maintenanceProject = Project.get_by_name self.target_project
+    else
+      # hardcoded default. frontends can lookup themselfs a different target via attribute search
+      at = AttribType.find_by_name('OBS:MaintenanceProject')
+      unless at
+        raise AttributeNotFound.new 'Required OBS:Maintenance attribute not found, system not correctly deployed.'
+      end
+      maintenanceProject = Project.find_by_attribute_type(at).first
+      unless maintenanceProject
+        raise UnknownProject.new 'There is no project flagged as maintenance project on server and no target in request defined.'
+      end
+      self.target_project = maintenanceProject.name
+    end
+    unless maintenanceProject.is_maintenance_incident? or maintenanceProject.is_maintenance?
+      raise NoMaintenanceProject.new 'Maintenance incident requests have to go to projects of type maintenance or maintenance_incident'
+    end
+    super(ignore_build_state)
+  end
+
 end

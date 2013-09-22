@@ -48,6 +48,11 @@ relationships_100:
   project_id: 2
   role_id: 6
   group_id: 99
+dmayr_maintainer_home:
+  id: 357
+  project_id: 215
+  role_id: 3
+  user_id: 276
 relationships_70:
   id: 70
   package_id: 1
