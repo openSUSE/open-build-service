@@ -128,7 +128,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Project#update_product_autopackages' => 47.69,
       'Project::check_access?' => 54.05,
       'Project::get_by_name' => 53.44,
-      'ProjectStatusCalculator#calc_status' => 84.08,
+      'ProjectStatusCalculator#calc_status' => 78,
       'ProjectStatusCalculator#update_jobhistory' => 43.21,
       'PublicController#binary_packages' => 134.24,
       'Relationship#check_sanity' => 48.62,

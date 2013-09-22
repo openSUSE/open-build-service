@@ -22,7 +22,7 @@ class Webui::ProjectsController < Webui::BaseController
     required_parameters :id
     project_name = params[:id]
     infos = Hash.new
-    @pro = @project.find_by_name!(project_name)
+    @pro = Project.find_by_name!(project_name)
     infos[:name] = @pro.name
     infos[:packages] = find_packages_info
 

@@ -155,20 +155,20 @@ class ProjectStatusCalculator
     ret
   end
 
-  def update_jobhistory(targetproj, dbproj, mypackages)
+  def update_jobhistory(targetproj, proj, mypackages)
     prjpacks = Hash.new
-    dname = dbproj.name
+    dname = proj.name
     mypackages.each_value do |package|
       if package.project == dname
         prjpacks[package.name] = package
       end
     end
 
-    dbproj.repositories_linking_project(targetproj).each do |r|
+    proj.repositories_linking_project(targetproj).each do |r|
       repo = r['name']
       r.elements('arch') do |arch|
 
-        cachekey = "history#{dbproj.cache_key}#{repo}#{arch}"
+        cachekey = "history#{proj.cache_key}#{repo}#{arch}"
         jobhistory = Rails.cache.fetch(cachekey, expires_in: 30.minutes) do
           parse_jobhistory(dname, repo, arch)
         end
@@ -201,11 +201,11 @@ class ProjectStatusCalculator
   def calc_status(opts = {})
     mypackages = Hash.new
 
-    if !dbproj
+    if !@dbproj
       return mypackages
     end
 
-    dbproj.packages.select([:id, :name, :db_project_id, :develpackage_id]).includes(:develpackage).load.each do |dbpack|
+    @dbproj.packages.select([:id, :name, :db_project_id, :develpackage_id]).includes(:develpackage).load.each do |dbpack|
       add_recursively(mypackages, dbpack)
     end
 
@@ -214,7 +214,7 @@ class ProjectStatusCalculator
     links = Array.new
     # find links
     mypackages.values.each do |package|
-      if package.project == dbproj.name and package.links_to_id
+      if package.project == @dbproj.name and package.links_to_id
         links << package.links_to_id
       end
     end
@@ -241,14 +241,14 @@ class ProjectStatusCalculator
     end
 
     projects.each do |id, name|
-      if !opts[:pure_project] || id == dbproj.id
-        update_jobhistory(dbproj, Project.find(id), mypackages)
+      if !opts[:pure_project] || id == @dbproj.id
+        update_jobhistory(@dbproj, Project.find(id), mypackages)
       end
     end
 
     # cleanup
     mypackages.keys.each do |key|
-      mypackages.delete(key) if mypackages[key].project != dbproj.name
+      mypackages.delete(key) if mypackages[key].project != @dbproj.name
     end
 
     mypackages
