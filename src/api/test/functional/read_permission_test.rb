@@ -486,14 +486,14 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
   def test_alter_source_access_flags
     # Create public project with protected package
     login_adrian
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:Project"),
         '<project name="home:adrian:Project"> <title/> <description/> </project>'
     assert_response :success
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:Project"),
         '<project name="home:adrian:Project"> <title/> <description/> <sourceaccess><disable/></sourceaccess> </project>'
     assert_response 403
     assert_xml_tag :tag => "status", :attributes => { :code => "change_project_protection_level" }
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:PublicProject"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:PublicProject"),
         '<project name="home:adrian:PublicProject"> <title/> <description/> </project>'
     assert_response :success
     put url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:PublicProject", :package => "pack"), 
@@ -512,10 +512,10 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
   def test_alter_access_flags
     # Create public project with protected package
     login_adrian
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:Project"),
         '<project name="home:adrian:Project"> <title/> <description/> </project>'
     assert_response :success
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:Project"),
         '<project name="home:adrian:Project"> <title/> <description/> <access><disable/></access> </project>'
     assert_response 403
     assert_xml_tag :tag => "status", :attributes => { :code => "change_project_protection_level" }
@@ -526,7 +526,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
   def test_project_links_to_sourceaccess_protected_package
     # Create public project with protected package
     login_adrian
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:PublicProject"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:PublicProject"),
         '<project name="home:adrian:PublicProject"> <title/> <description/> </project>'
     assert_response :success
     put url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:PublicProject", :package => "ProtectedPackage"), 
@@ -542,7 +542,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 403
     assert_xml_tag :tag => "status", :attributes => { :code => "project_copy_no_permission" }
     # try to access it via own project link
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temp"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:tom:temp"),
         '<project name="home:tom:temp"> <title/> <description/> <link project="home:adrian:PublicProject"/> </project>'
     assert_response :success
     get "/source/home:tom:temp/ProtectedPackage"
@@ -606,7 +606,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     login_adrian
     get "/source/home:adrian:ProtectedProject"
     assert_response 404
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject"),
         '<project name="home:adrian:ProtectedProject"> <title/> <description/> <sourceaccess><disable/></sourceaccess>  </project>'
     assert_response :success
     put url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:ProtectedProject", :package => "Package"), 
@@ -618,7 +618,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     get "/source/home:adrian:ProtectedProject/Package"
     assert_response 403
     # try to access it via own project link
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temp"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:tom:temp"),
         '<project name="home:tom:temp"> <title/> <description/> <link project="home:adrian:ProtectedProject"/> </project>'
     assert_response :success
     get "/source/home:tom:temp/Package"
@@ -647,54 +647,54 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     login_tom
 
     # try to link to an access protected hidden project from sourceaccess project
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:ProtectedProject2"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:tom:ProtectedProject2"),
         '<project name="home:tom:ProtectedProject2"> <title/> <description/> <link project="HiddenProject"/> </project>'
     assert_response 404
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:ProtectedProject2"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:tom:ProtectedProject2"),
         '<project name="home:tom:ProtectedProject2"> <title/> <description/> <link project="HiddenProject"/> </project>'
     assert_response 404
 
 
     login_adrian
     # try to link to an access protected hidden project from sourceaccess project
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject2"),
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <link project="HiddenProject"/> </project>'
     assert_response 404
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject2"),
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <link project="HiddenProject"/> </project>'
     assert_response 404
 
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject2"),
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <sourceaccess><disable/></sourceaccess> </project>'
     assert_response :success
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject1"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject1"),
         '<project name="home:adrian:ProtectedProject1"> <title/> <description/> </project>'
     assert_response :success
 
     # Allow linking from not sourceaccess protected project to protected own. src.rpms are not delivered by the backend.
     #
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject1"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject1"),
      '<project name="home:adrian:ProtectedProject1"> <title/> <description/> <link project="home:adrian:ProtectedProject2"/> </project>'
     assert_response :success
 
     # try to link to an access protected hidden project from access hidden project
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject3"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject3"),
         '<project name="home:adrian:ProtectedProject3"> <title/> <description/> <link project="HiddenProject"/> </project>'
     assert_response 404
 
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject3"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject3"),
         '<project name="home:adrian:ProtectedProject3"> <title/> <description/> <access><disable/></access> </project>'
     assert_response :success
 
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject3"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject3"),
         '<project name="home:adrian:ProtectedProject3"> <title/> <description/> <link project="HiddenProject"/> </project>'
     assert_response 404
 
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject4"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject4"),
         '<project name="home:adrian:ProtectedProject4"> <title/> <description/> <access><disable/></access> </project>'
     assert_response :success
 
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject4"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject4"),
         '<project name="home:adrian:ProtectedProject4"> <title/> <description/> <access><disable/></access> <link project="home:adrian:ProtectedProject2"/> </project>'
     assert_response :success
 
@@ -702,7 +702,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     login_tom
 
     # try to link to an access protected hidden project
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:temp2"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:tom:temp2"),
         '<project name="home:tom:temp2"> <title/> <description/> <link project="HiddenProject"/> </project>'
     assert_response 404
 
@@ -740,7 +740,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     login_adrian
     get "/source/home:adrian:ProtectedProject"
     assert_response 404
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject"),
         '<project name="home:adrian:ProtectedProject"> <title/> <description/> <access><disable/></access> </project>'
     assert_response :success
     get "/source/home:adrian:ProtectedProject"
@@ -775,16 +775,16 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     prepare_request_with_user "binary_homer", "homer"
 
     # check if sufficiently protected projects can access protected projects
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:binary_homer:ProtectedProject1"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:binary_homer:ProtectedProject1"),
         '<project name="home:binary_homer:ProtectedProject1"> <title/> <description/> <binarydownload><disable/></binarydownload> </project>'
     assert_response 200
 
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:binary_homer:ProtectedProject1"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:binary_homer:ProtectedProject1"),
         '<project name="home:binary_homer:ProtectedProject1"> <title/> <description/> <repository name="BinaryprotectedProjectRepo"> <path repository="nada" project="BinaryprotectedProject"/> <arch>i586</arch> </repository> </project>'
     assert_response 200
 
     # check if sufficiently protected projects can access protected projects
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:binary_homer:ProtectedProject2"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:binary_homer:ProtectedProject2"),
         '<project name="home:binary_homer:ProtectedProject2"> <title/> <description/> </project>'
     assert_response 200
   end
@@ -794,45 +794,45 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     login_tom
 
     # check if unsufficiently permitted users tries to access protected projects
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:tom:ProtectedProject2"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:tom:ProtectedProject2"),
         '<project name="home:tom:ProtectedProject2"> <title/> <description/>  <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
     assert_response 404
 
     # try to access it with a user permitted for access
     login_adrian
 
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject1"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject1"),
         '<project name="home:adrian:ProtectedProject1"> <title/> <description/> <access><disable/></access> </project>'
     #STDERR.puts(@response.body)
     assert_response 200
 
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject1"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject1"),
         '<project name="home:adrian:ProtectedProject1"> <title/> <description/> <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
     assert_response 404
 
     # building against
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject2"),
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
     assert_response 404
 
     # check if download protected project has to access protected project, which reveals Hidden project existence to others and is and error
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject2"),
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <binarydownload><disable/></binarydownload> </project>'
     assert_response 200
 
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:ProtectedProject2"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject2"),
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
     #STDERR.puts(@response.body)
     assert_response 404
 
     # check if access protected project has access binarydownload protected project
     prepare_request_with_user "binary_homer", "homer"
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:binary_homer:ProtectedProject3"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:binary_homer:ProtectedProject3"),
         '<project name="home:binary_homer:ProtectedProject3"> <title/> <description/> <access><disable/></access> </project>'
     #STDERR.puts(@response.body)
     assert_response 200
 
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:binary_homer:ProtectedProject3"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:binary_homer:ProtectedProject3"),
         '<project name="home:binary_homer:ProtectedProject3"> <title/> <description/> <repository name="BinaryprotectedProjectRepo"> <path repository="nada" project="BinaryprotectedProject"/> <arch>i586</arch> </repository> </project>'
     #STDERR.puts(@response.body)
     assert_response 200
@@ -915,7 +915,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
   def test_setup_default_project
     # Create public project
     login_adrian
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:Project"),
         '<project name="home:adrian:Project"> <title/> <description/> </project>'
     assert_response :success
     get "/source/home:adrian:Project/_meta"
@@ -929,14 +929,14 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     orig_value = c.default_access_disabled
     c.default_access_disabled = true
     c.save!
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:Project"),
         '<project name="home:adrian:Project"> <title/> <description/> </project>'
     assert_response :success
     get "/source/home:adrian:Project/_meta"
     assert_response :success
     assert_xml_tag( :tag => "disable", :parent => { :tag => "access" } )
     # enabling access is not allowed in this mode
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:Project"),
         '<project name="home:adrian:Project"> <title/> <description/> </project>'
     assert_response 403
     assert_xml_tag :tag => "status", :attributes => { :code => "change_project_protection_level" }
@@ -944,7 +944,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     # enabling access is allowed
     c.default_access_disabled = orig_value
     c.save!
-    put url_for(:controller => :source, :action => :project_meta, :project => "home:adrian:Project"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:Project"),
         '<project name="home:adrian:Project"> <title/> <description/> </project>'
     assert_response :success
 

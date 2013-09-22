@@ -14,10 +14,10 @@ class SourceController < ApplicationController
   validate_action :projectlist => {:method => :get, :response => :directory}
   validate_action :packagelist => {:method => :get, :response => :directory}
   validate_action :filelist => {:method => :get, :response => :directory}
-  validate_action :project_meta => {:method => :get, :response => :project}
+  validate_action show_project_meta: {response: :project}
   validate_action :package_meta => {:method => :get, :response => :package}
 
-  validate_action :project_meta => {:method => :put, :request => :project, :response => :status}
+  validate_action update_project_meta: { request: :project, response: :status}
   validate_action :package_meta => {:method => :put, :request => :package, :response => :status}
 
   skip_before_action :validate_xml_request, :only => [:file]
@@ -265,7 +265,6 @@ class SourceController < ApplicationController
   end
 
   class PackageExists < APIException
-    setup 400
   end
 
   def delete_package
@@ -434,225 +433,215 @@ class SourceController < ApplicationController
     setup 403
   end
 
-  # /source/:project/_meta
-  def project_meta
-    # init and validation
-    #--------------------
-    required_parameters :project
+  class InvalidProjectParameters < APIException
+    setup 404
+  end
 
-    project_name = params[:project]
-    params[:user] = User.current.login
-
-    # GET /source/:project/_meta
-    #---------------------------
-    if request.get?
-      if Project.find_remote_project project_name
-        # project from remote buildservice, get metadata from backend
-        if params[:view]
-          render_error :status => 404, :errorcode => "invalid_project_parameters"
-          return
-        end
-        pass_to_backend
-      else
-        # access check
-        prj = Project.get_by_name(project_name)
-
-        render :text => prj.to_axml(params[:view]), :content_type => 'text/xml'
-      end
-      return
-
-    # PUT /source/:project/_meta
-    #----------------------------
-    elsif request.put?
-      # init
-      # assemble path for backend
-      path = request.path
-      path += build_query_from_hash(params, [:user, :comment, :rev])
-      #allowed = false
-      request_data = request.raw_post
-
-      # permission check
-      rdata = Xmlhash.parse(request_data)
-      if rdata['name'] != project_name 
-        render_error :status => 400, :errorcode => 'project_name_mismatch',
-                     :message => "project name in xml data ('#{rdata['name']}) does not match resource path component ('#{project_name}')"
-        return
-      end
-      begin
-        prj = Project.get_by_name rdata['name']
-      rescue Project::UnknownObjectError
-        prj = nil
-      end
-
-      # remote url project must be edited by the admin
-      unless User.current.is_admin?
-        if rdata.has_key? 'remoteurl' or rdata.has_key? 'remoteproject'
-          raise ChangeProjectNoPermission.new "admin rights are required to change remoteurl or remoteproject"
-        end
-      end
-
-      # Need permission
-      logger.debug "Checking permission for the put"
-      if prj
-        # is lock explicit set to disable ? allow the un-freeze of the project in that case ...
-        ignoreLock = nil
-        # do not support unlock via meta data, just via command or request revoke for now
-        # ignoreLock = true if rdata.has_key?("lock/disable")
-
-        # project exists, change it
-        unless User.current.can_modify_project?(prj, ignoreLock)
-          if prj.is_locked?
-            logger.debug "no permission to modify LOCKED project #{prj.name}"
-            raise ChangeProjectNoPermission.new "The project #{prj.name} is locked"
-          end
-          logger.debug "user #{user.login} has no permission to modify project #{prj.name}"
-          raise ChangeProjectNoPermission.new "no permission to change project"
-        end
-
-       else
-        # project is new
-        unless User.current.can_create_project? project_name
-          logger.debug "Not allowed to create new project"
-          raise CreateProjectNoPermission.new "no permission to create project #{project_name}"
-        end
-      end
-
-      # the following code checks if the target project of a linked project exists or is not readable by user
-      rdata.elements('link') do |e|
-        # permissions check
-        tproject_name = e.value("project")
-        tprj = Project.get_by_name(tproject_name)
-
-        # The read access protection for own and linked project must be the same.
-        # ignore this for remote targets
-        if tprj.class == Project and tprj.disabled_for?('access', nil, nil) and 
-            !FlagHelper.xml_disabled_for?(rdata, 'access')
-          render_error :status => 404, :errorcode => "project_read_access_failure" ,
-                       :message => "project links work only when both projects have same read access protection level: #{project_name} -> #{tproject_name}"
-          return
-        end
-
-        logger.debug "project #{project_name} link checked against #{tproject_name} projects permission"
-      end
-
-      new_repo_names = {}
-      # Check used repo pathes for existens and read access permissions
-      rdata.elements('repository') do |r|
-        new_repo_names[r['name']] = 1
-        r.elements('path') do |e|
-          # permissions check
-          tproject_name = e.value("project")
-          tprj = Project.get_by_name(tproject_name)
-          if tprj.class == Project and tprj.disabled_for?('access', nil, nil) # user can access tprj, but backend would refuse to take binaries from there
-            render_error :status => 404, :errorcode => "repository_access_failure" ,
-            :message => "The current backend implementation is not using binaries from read access protected projects #{tproject_name}"
-            return
-          end
-          
-          logger.debug "project #{project_name} repository path checked against #{tproject_name} projects permission"
-        end
-      end
-
-      if prj
-        removedRepositories = Array.new
-        prj.repositories.each do |repo|
-          if !new_repo_names[repo.name] and not repo.remote_project_name
-            # collect repositories to remove
-            removedRepositories << repo
-          end
-        end
-        private_check_and_remove_repositories(params, removedRepositories) or return
-      end
-
-      Project.transaction do
-        # exec
-        unless prj
-          prj = Project.new(name: project_name)
-          prj.update_from_xml(rdata)
-	  # failure is ok
-          prj.add_user(User.current.login, 'maintainer')
-        else
-          prj.update_from_xml(rdata)
-        end
-        prj.store
-      end
-      render_ok
-
-    # bad request
-    #------------
+  # GET /source/:project/_meta
+  #---------------------------
+  def show_project_meta
+    if Project.find_remote_project params[:project]
+      # project from remote buildservice, get metadata from backend
+      raise InvalidProjectParameters.new if params[:view]
+      pass_to_backend
     else
-      raise IllegalRequest.new
+      # access check
+      prj = Project.get_by_name params[:project]
+      render xml: prj.to_axml(params[:view])
     end
   end
 
-  # /source/:project/_config
-  def project_config
+  class ProjectNameMismatch < APIException
+  end
+
+  # PUT /source/:project/_meta
+  def update_project_meta
+    # init
+    #--------------------
+    project_name = params[:project]
+    params[:user] = User.current.login
+
+    # init
+    # assemble path for backend
+    path = request.path
+    path += build_query_from_hash(params, [:user, :comment, :rev])
+    #allowed = false
+    request_data = request.raw_post
+
+    # permission check
+    rdata = Xmlhash.parse(request_data)
+    if rdata['name'] != project_name
+      raise ProjectNameMismatch.new "project name in xml data ('#{rdata['name']}) does not match resource path component ('#{project_name}')"
+    end
+    begin
+      prj = Project.get_by_name rdata['name']
+    rescue Project::UnknownObjectError
+      prj = nil
+    end
+
+    # remote url project must be edited by the admin
+    unless User.current.is_admin?
+      if rdata.has_key? 'remoteurl' or rdata.has_key? 'remoteproject'
+        raise ChangeProjectNoPermission.new "admin rights are required to change remoteurl or remoteproject"
+      end
+    end
+
+    # Need permission
+    logger.debug "Checking permission for the put"
+    if prj
+      # is lock explicit set to disable ? allow the un-freeze of the project in that case ...
+      ignoreLock = nil
+      # do not support unlock via meta data, just via command or request revoke for now
+      # ignoreLock = true if rdata.has_key?("lock/disable")
+
+      # project exists, change it
+      unless User.current.can_modify_project?(prj, ignoreLock)
+        if prj.is_locked?
+          logger.debug "no permission to modify LOCKED project #{prj.name}"
+          raise ChangeProjectNoPermission.new "The project #{prj.name} is locked"
+        end
+        logger.debug "user #{user.login} has no permission to modify project #{prj.name}"
+        raise ChangeProjectNoPermission.new "no permission to change project"
+      end
+
+    else
+      # project is new
+      unless User.current.can_create_project? project_name
+        logger.debug "Not allowed to create new project"
+        raise CreateProjectNoPermission.new "no permission to create project #{project_name}"
+      end
+    end
+
+    # the following code checks if the target project of a linked project exists or is not readable by user
+    rdata.elements('link') do |e|
+      # permissions check
+      tproject_name = e.value("project")
+      tprj = Project.get_by_name(tproject_name)
+
+      # The read access protection for own and linked project must be the same.
+      # ignore this for remote targets
+      if tprj.class == Project and tprj.disabled_for?('access', nil, nil) and
+          !FlagHelper.xml_disabled_for?(rdata, 'access')
+        render_error :status => 404, :errorcode => "project_read_access_failure" ,
+                     :message => "project links work only when both projects have same read access protection level: #{project_name} -> #{tproject_name}"
+        return
+      end
+
+      logger.debug "project #{project_name} link checked against #{tproject_name} projects permission"
+    end
+
+    new_repo_names = {}
+    # Check used repo pathes for existens and read access permissions
+    rdata.elements('repository') do |r|
+      new_repo_names[r['name']] = 1
+      r.elements('path') do |e|
+        # permissions check
+        tproject_name = e.value("project")
+        tprj = Project.get_by_name(tproject_name)
+        if tprj.class == Project and tprj.disabled_for?('access', nil, nil) # user can access tprj, but backend would refuse to take binaries from there
+          render_error :status => 404, :errorcode => "repository_access_failure" ,
+                       :message => "The current backend implementation is not using binaries from read access protected projects #{tproject_name}"
+          return
+        end
+          
+        logger.debug "project #{project_name} repository path checked against #{tproject_name} projects permission"
+      end
+    end
+
+    if prj
+      removedRepositories = Array.new
+      prj.repositories.each do |repo|
+        if !new_repo_names[repo.name] and not repo.remote_project_name
+          # collect repositories to remove
+          removedRepositories << repo
+        end
+      end
+      private_check_and_remove_repositories(params, removedRepositories) or return
+    end
+
+    Project.transaction do
+      # exec
+      unless prj
+        prj = Project.new(name: project_name)
+        prj.update_from_xml(rdata)
+        # failure is ok
+        prj.add_user(User.current.login, 'maintainer')
+      else
+        prj.update_from_xml(rdata)
+      end
+      prj.store
+    end
+    render_ok
+  end
+
+  # GET /source/:project/_config
+  def show_project_config
+    path = request.path
+    path += build_query_from_hash(params, [:rev])
+    pass_to_backend path
+  end
+
+  class PutProjectConfigNoPermission < APIException
+    setup 403
+  end
+
+  # PUT /source/:project/_config
+  def update_project_config
     # check for project
     prj = Project.get_by_name(params[:project])
 
     # assemble path for backend
     params[:user] = User.current.login
 
-    # GET /source/:project/_config
-    if request.get?
-      path = request.path
-      path += build_query_from_hash(params, [:rev])
-      pass_to_backend path
-      return
+    unless User.current.can_modify_project?(prj)
+      raise PutProjectConfigNoPermission.new "No permission to write build configuration for project '#{params[:project]}'"
     end
 
     # assemble path for backend
     path = request.path
     path += build_query_from_hash(params, [:user, :comment])
 
-    # PUT /source/:project/_config
-    if request.put?
-      unless User.current.can_modify_project?(prj)
-        render_error :status => 403, :errorcode => 'put_project_config_no_permission',
-          :message => "No permission to write build configuration for project '#{params[:project]}'"
-        return
-      end
-
-      pass_to_backend path
-      return
-    end
-    render_error :status => 400, :errorcode => 'illegal_request',
-        :message => "Illegal request: #{request.path}"
+    pass_to_backend path
   end
 
-  # /source/:project/_pubkey and /_sslcert
-  def project_pubkey
+  def pubkey_path
     # check for project
-    prj = Project.get_by_name(params[:project])
+    @prj = Project.get_by_name(params[:project])
+    request.path + build_query_from_hash(params, [:user, :comment, :meta, :rev])
+  end
 
+  # GET /source/:project/_pubkey and /_sslcert
+  def show_project_pubkey
     # assemble path for backend
-    params[:user] = User.current.login if request.delete?
-    path = request.path
-    path += build_query_from_hash(params, [:user, :comment, :meta, :rev])
+    path = pubkey_path
 
     # GET /source/:project/_pubkey
-    if request.get?
-      pass_to_backend path
+    pass_to_backend path
+  end
 
-    # DELETE /source/:project/_pubkey
-    elsif request.delete?
-      #check for permissions
-      upperProject = prj.name.gsub(/:[^:]*$/,"")
-      while upperProject != prj.name and not upperProject.blank?
-        if Project.exists_by_name(upperProject) and User.current.can_modify_project?(Project.get_by_name(upperProject))
-          pass_to_backend path
-          return
-        end
-        upperProject = upperProject.gsub(/:[^:]*$/,"")
-      end
+  class DeleteProjectPubkeyNoPermission < APIException
+    setup 403
+  end
 
-      if User.current.is_admin?
+  # DELETE /source/:project/_pubkey
+  def delete_project_pubkey
+    params[:user] = User.current.login
+    path = pubkey_path
+
+    #check for permissions
+    upperProject = @prj.name.gsub(/:[^:]*$/, "")
+    while upperProject != @prj.name and not upperProject.blank?
+      if Project.exists_by_name(upperProject) and User.current.can_modify_project?(Project.get_by_name(upperProject))
         pass_to_backend path
-      else
-        render_error :status => 403, :errorcode => 'delete_project_pubkey_no_permission',
-          :message => "No permission to delete public key for project '#{params[:project]}'. Either maintainer permissions by upper project or admin permissions is needed."
+        return
       end
-      return
+      upperProject = upperProject.gsub(/:[^:]*$/, "")
+    end
+
+    if User.current.is_admin?
+      pass_to_backend path
+    else
+      raise DeleteProjectPubkeyNoPermission.new "No permission to delete public key for project '#{params[:project]}'. Either maintainer permissions by upper project or admin permissions is needed."
     end
   end
 

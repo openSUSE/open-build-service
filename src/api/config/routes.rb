@@ -17,9 +17,9 @@ OBSApi::Application.routes.draw do
     #           remove these for OBS 3.0
     match 'person/register' => 'person#register', via: [:post, :put]      # use /person?cmd=register POST instead
     match 'person/changepasswd' => 'person#change_my_password', via: [:post, :put]     # use /person/:login?cmd=changepassword POST instead
-    get 'person/:login/group' => 'person#grouplist', :constraints => cons # Use /group?person=:login GET instead
+    get 'person/:login/group' => 'person#grouplist', constraints: cons # Use /group?person=:login GET instead
     # /FIXME3.0
-    match 'person/:login' => 'person#userinfo', :constraints => cons, via: [:get, :put, :post]
+    match 'person/:login' => 'person#userinfo', constraints: cons, via: [:get, :put, :post]
 
     ### /group
     controller :group do
@@ -32,13 +32,13 @@ OBSApi::Application.routes.draw do
 
     ### /service
     get 'service' => 'service#index'
-    get 'service/:service' => 'service#index_service', :constraints => cons
+    get 'service/:service' => 'service#index_service', constraints: cons
 
     ### /source
     
-    get 'source/:project/:package/_wizard' => 'wizard#package_wizard', :constraints => cons
-    get 'source/:project/:package/_tags' => 'tag#package_tags', :constraints => cons
-    get 'source/:project/_tags' => 'tag#project_tags', :constraints => cons
+    get 'source/:project/:package/_wizard' => 'wizard#package_wizard', constraints: cons
+    get 'source/:project/:package/_tags' => 'tag#package_tags', constraints: cons
+    get 'source/:project/_tags' => 'tag#project_tags', constraints: cons
 
     get 'about' => 'about#index'
 
@@ -56,9 +56,9 @@ OBSApi::Application.routes.draw do
       match 'attribute/:namespace/_meta' =>  :namespace_definition, via: [:get, :delete, :post]
       match 'attribute/:namespace/:name/_meta' => :attribute_definition, via: [:get, :delete, :post]
 
-      get 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :show_attribute, :constraints => cons
-      post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :cmd_attribute, :constraints => cons
-      delete 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :delete_attribute, :constraints => cons
+      get 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :show_attribute, constraints: cons
+      post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :cmd_attribute, constraints: cons
+      delete 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :delete_attribute, constraints: cons
     end
 
     controller :source do
@@ -70,13 +70,16 @@ OBSApi::Application.routes.draw do
       get 'source/:project' => :show_project, constraints: cons
       delete 'source/:project' => :delete_project, constraints: cons
       post 'source/:project' => :project_command, constraints: cons
-      match 'source/:project/_meta' => :project_meta, :constraints => cons, via: [:get, :put]
+      get 'source/:project/_meta' => :show_project_meta, constraints: cons
+      put 'source/:project/_meta' => :update_project_meta, constraints: cons, via: [:get, :put]
 
-      match 'source/:project/_config' => :project_config, :constraints => cons, via: [:get, :put]
-      match 'source/:project/_pubkey' => :project_pubkey, :constraints => cons, via: [:get, :delete]
+      get 'source/:project/_config' => :show_project_config, constraints: cons
+      put 'source/:project/_config' => :update_project_config, constraints: cons
+      get    'source/:project/_pubkey' => :show_project_pubkey, constraints: cons
+      delete 'source/:project/_pubkey' => :delete_project_pubkey, constraints: cons
 
       # package level 
-      match '/source/:project/:package/_meta' => :package_meta, :constraints => cons, via: [:get, :put]
+      match '/source/:project/:package/_meta' => :package_meta, constraints: cons, via: [:get, :put]
 
       get 'source/:project/:package/:filename' => :get_file, constraints: cons
       delete 'source/:project/:package/:filename' => :delete_file, constraints: cons
@@ -132,15 +135,15 @@ OBSApi::Application.routes.draw do
     ### /user
 
     #Get objects tagged by user. (objects with tags)
-    get 'user/:user/tags/_projects' => 'tag#get_tagged_projects_by_user', :constraints => cons
-    get 'user/:user/tags/_packages' => 'tag#get_tagged_packages_by_user', :constraints => cons
+    get 'user/:user/tags/_projects' => 'tag#get_tagged_projects_by_user', constraints: cons
+    get 'user/:user/tags/_packages' => 'tag#get_tagged_packages_by_user', constraints: cons
 
     #Get tags by user.
-    get 'user/:user/tags/_tagcloud' => 'tag#tagcloud', :constraints => cons
+    get 'user/:user/tags/_tagcloud' => 'tag#tagcloud', constraints: cons
       
     #Get tags for a certain object by user.
-    match 'user/:user/tags/:project' => 'tag#tags_by_user_and_object', :constraints => cons, via: [:get, :post, :put, :delete]
-    match 'user/:user/tags/:project/:package' => 'tag#tags_by_user_and_object', :constraints => cons, via: [:get, :post, :put, :delete]
+    match 'user/:user/tags/:project' => 'tag#tags_by_user_and_object', constraints: cons, via: [:get, :post, :put, :delete]
+    match 'user/:user/tags/:project/:package' => 'tag#tags_by_user_and_object', constraints: cons, via: [:get, :post, :put, :delete]
 
     ### /statistics
     # Routes for statistics
@@ -153,20 +156,20 @@ OBSApi::Application.routes.draw do
 
       # Timestamps
       #
-      get 'statistics/added_timestamp/:project' => :added_timestamp, :constraints => cons
-      get 'statistics/added_timestamp/:project/:package' => :added_timestamp, :constraints => cons
-      get 'statistics/updated_timestamp/:project' => :updated_timestamp, :constraints => cons
-      get 'statistics/updated_timestamp/:project/:package' => :updated_timestamp, :constraints => cons
+      get 'statistics/added_timestamp/:project' => :added_timestamp, constraints: cons
+      get 'statistics/added_timestamp/:project/:package' => :added_timestamp, constraints: cons
+      get 'statistics/updated_timestamp/:project' => :updated_timestamp, constraints: cons
+      get 'statistics/updated_timestamp/:project/:package' => :updated_timestamp, constraints: cons
 
       # Ratings
       #
-      get 'statistics/rating/:project' => :rating, :constraints => cons
-      get 'statistics/rating/:project/:package' => :rating, :constraints => cons
+      get 'statistics/rating/:project' => :rating, constraints: cons
+      get 'statistics/rating/:project/:package' => :rating, constraints: cons
       
       # Activity
       #
-      get 'statistics/activity/:project' => :activity, :constraints => cons
-      get 'statistics/activity/:project/:package' => :activity, :constraints => cons
+      get 'statistics/activity/:project' => :activity, constraints: cons
+      get 'statistics/activity/:project/:package' => :activity, constraints: cons
 
       # Newest stats
       #
@@ -200,7 +203,7 @@ OBSApi::Application.routes.draw do
       delete 'status/messages/:id' => :delete_message, constraints: cons
       get 'status/workerstatus' => :workerstatus
       get 'status/history'  => :history
-      get 'status/project/:project' => :project, :constraints => cons
+      get 'status/project/:project' => :project, constraints: cons
       get 'status/bsrequest' => :bsrequest
 
     end
@@ -247,29 +250,29 @@ OBSApi::Application.routes.draw do
 
     ### /build
 
-    match 'build/:project/:repository/:arch/:package/_status' => 'build#index', :constraints => cons, via: [:get, :post]
-    get 'build/:project/:repository/:arch/:package/_log' => 'build#logfile', :constraints => cons
-    match 'build/:project/:repository/:arch/:package/_buildinfo' => 'build#buildinfo', :constraints => cons, via: [:get, :post]
-    match 'build/:project/:repository/:arch/:package/_history' => 'build#index', :constraints => cons, via: [:get, :post]
-    match 'build/:project/:repository/:arch/:package/:filename' => 'build#file', via: [:get, :put, :delete], :constraints => cons
-    get 'build/:project/:repository/:arch/_builddepinfo' => 'build#builddepinfo', :constraints => cons
-    match 'build/:project/:repository/:arch/:package' => 'build#index', :constraints => cons, via: [:get, :post]
-    match 'build/:project/:repository/_buildconfig' => 'build#index', :constraints => cons, via: [:get, :post]
-    match 'build/:project/:repository/:arch' => 'build#index', :constraints => cons, via: [:get, :post]
-    get 'build/:project/_result' => 'build#result', :constraints => cons
-    match 'build/:project/:repository' => 'build#index', :constraints => cons, via: [:get, :post]
+    match 'build/:project/:repository/:arch/:package/_status' => 'build#index', constraints: cons, via: [:get, :post]
+    get 'build/:project/:repository/:arch/:package/_log' => 'build#logfile', constraints: cons
+    match 'build/:project/:repository/:arch/:package/_buildinfo' => 'build#buildinfo', constraints: cons, via: [:get, :post]
+    match 'build/:project/:repository/:arch/:package/_history' => 'build#index', constraints: cons, via: [:get, :post]
+    match 'build/:project/:repository/:arch/:package/:filename' => 'build#file', via: [:get, :put, :delete], constraints: cons
+    get 'build/:project/:repository/:arch/_builddepinfo' => 'build#builddepinfo', constraints: cons
+    match 'build/:project/:repository/:arch/:package' => 'build#index', constraints: cons, via: [:get, :post]
+    match 'build/:project/:repository/_buildconfig' => 'build#index', constraints: cons, via: [:get, :post]
+    match 'build/:project/:repository/:arch' => 'build#index', constraints: cons, via: [:get, :post]
+    get 'build/:project/_result' => 'build#result', constraints: cons
+    match 'build/:project/:repository' => 'build#index', constraints: cons, via: [:get, :post]
     # the web client does no longer use that route, but we keep it for backward compat
     get 'build/_workerstatus' => 'status#workerstatus'
-    match 'build/:project' => 'build#project_index', :constraints => cons, via: [:get, :post, :put]
+    match 'build/:project' => 'build#project_index', constraints: cons, via: [:get, :post, :put]
     get 'build' => 'source#index'
 
     ### /published
 
-    get 'published/:project/:repository/:arch/:binary' => 'published#index', :constraints => cons
+    get 'published/:project/:repository/:arch/:binary' => 'published#index', constraints: cons
     # :arch can be also a ymp for a pattern :/
-    get 'published/:project/:repository/:arch' => 'published#index', :constraints => cons
-    get 'published/:project/:repository/' => 'published#index', :constraints => cons
-    get 'published/:project' => 'published#index', :constraints => cons
+    get 'published/:project/:repository/:arch' => 'published#index', constraints: cons
+    get 'published/:project/:repository/' => 'published#index', constraints: cons
+    get 'published/:project' => 'published#index', constraints: cons
     get 'published/' => 'source#index', via: :get
 
     ### /request
@@ -296,19 +299,19 @@ OBSApi::Application.routes.draw do
     
     controller :public do
       get 'public' => :index
-      get 'public/build/:project' => :build, :constraints => cons
-      get 'public/build/:project/:repository' => :build, :constraints => cons
-      get 'public/build/:project/:repository/:arch' => :build, :constraints => cons
-      get 'public/build/:project/:repository/:arch/:package' => :build, :constraints => cons
-      get 'public/source/:project' => :project_index, :constraints => cons
-      get 'public/source/:project/_meta' => :project_meta, :constraints => cons
-      get 'public/source/:project/_config' => :project_file, :constraints => cons
-      get 'public/source/:project/_pubkey' => :project_file, :constraints => cons
-      get 'public/source/:project/:package' => :package_index, :constraints => cons
-      get 'public/source/:project/:package/_meta' => :package_meta, :constraints => cons
-      get 'public/source/:project/:package/:filename' => :source_file, :constraints => cons
+      get 'public/build/:project' => :build, constraints: cons
+      get 'public/build/:project/:repository' => :build, constraints: cons
+      get 'public/build/:project/:repository/:arch' => :build, constraints: cons
+      get 'public/build/:project/:repository/:arch/:package' => :build, constraints: cons
+      get 'public/source/:project' => :project_index, constraints: cons
+      get 'public/source/:project/_meta' => :project_meta, constraints: cons
+      get 'public/source/:project/_config' => :project_file, constraints: cons
+      get 'public/source/:project/_pubkey' => :project_file, constraints: cons
+      get 'public/source/:project/:package' => :package_index, constraints: cons
+      get 'public/source/:project/:package/_meta' => :package_meta, constraints: cons
+      get 'public/source/:project/:package/:filename' => :source_file, constraints: cons
       get 'public/distributions' => :distributions
-      get 'public/binary_packages/:project/:package' => :binary_packages, :constraints => cons
+      get 'public/binary_packages/:project/:package' => :binary_packages, constraints: cons
     end
 
     get 'public/configuration' => 'configurations#show'
@@ -321,7 +324,7 @@ OBSApi::Application.routes.draw do
     #       DO NOT USE THEM IN YOUR TOOLS!
     #
     namespace :webui do
-      resources :projects, :only => [:index], :constraints => { :id => %r{[^\/]*} } do
+      resources :projects, :only => [:index], constraints: { :id => %r{[^\/]*} } do
         member do
           get 'infos'
           get 'status'
@@ -332,7 +335,7 @@ OBSApi::Application.routes.draw do
           end
         end
         resources :flags, :only => [:index]
-        resources :packages, :only => [], :constraints => { :id => %r{[^\/]*} } do
+        resources :packages, :only => [], constraints: { :id => %r{[^\/]*} } do
           resources :relationships, :only => [:create] do
             collection do
               delete :for_user, action: :remove_user
@@ -344,7 +347,7 @@ OBSApi::Application.routes.draw do
           end
         end
       end
-      resources :packages, :only => [], :constraints => { :id => %r{[^\/]*} } do
+      resources :packages, :only => [], constraints: { :id => %r{[^\/]*} } do
         get 'flags', :on => :member
       end
       resources :requests, :only => [:index, :show] do

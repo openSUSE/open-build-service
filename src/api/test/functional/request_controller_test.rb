@@ -2260,7 +2260,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
      </repository>
      </project>"
 
-    put url_for(:controller => :source, :action => :project_meta, :project => 'home:Iggy:todo'), meta
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'home:Iggy:todo'), meta
     assert_response :success
 
     meta="<package name='realfun' project='home:Iggy:todo'><title/><description/></package>"
@@ -2335,7 +2335,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
      </repository>
      </project>"
 
-    put url_for(:controller => :source, :action => :project_meta, :project => 'home:Iggy:todo'), meta
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'home:Iggy:todo'), meta
     assert_response :success
 
     meta="<package name='realfun' project='home:Iggy:todo'><title/><description/></package>"
