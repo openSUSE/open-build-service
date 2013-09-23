@@ -8,7 +8,7 @@
         <strong>Architecture:</strong>
         <%= select_tag(:architecture_display, options_for_select(@available_arch_list)) %><br/>
         <strong>Timeframe:</strong>
-        <%= select_tag(:time_display, options_for_select([["1 day", "24"], ["1 hour", 1], ["1 week", "168"], ["1 month", "700"]], "24")) %>
+        <%= select_tag(:time_display, options_for_select([["1 day", "24"], ["1 hour", 1], ["1 week", "168"], ["1 month", "720"], ["1 year", "8760"]], "24")) %>
       </p> 
     <% end unless @available_arch_list.empty? %>
   </div>

@@ -135,7 +135,7 @@ class FrontendCompat
     Rails.cache.delete(cachekey, :shared => true) if !cache
     return Rails.cache.fetch(cachekey, :expires_in => (range.to_i * 3600) / 150, :shared => true) do
       hash = Hash.new
-      data = transport.direct_http(URI('/public/status/history?key=%s&hours=%d&samples=400' % [key, range]))
+      data = transport.direct_http(URI('/status/history?key=%s&hours=%d&samples=400' % [key, range]))
       doc = Nokogiri::XML(data)
       doc.root.elements.each do |value|
         hash[value.attributes['time'].value.to_i] = value.attributes['value'].value.to_f
