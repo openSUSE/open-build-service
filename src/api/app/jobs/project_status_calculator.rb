@@ -11,7 +11,7 @@ class PackInfo
   attr_accessor :develpack
   attr_accessor :failed_comment, :upstream_version, :upstream_url, :declined_request
   attr_reader :version, :release, :versiontime
-  attr_reader :failed
+  attr_reader :failed, :groups, :persons
 
   def initialize(db_pack)
     @name = db_pack.name
@@ -62,22 +62,20 @@ class PackInfo
         end
       end
 
-      xml.persons do
-        @persons.each do |ulogin, role_name|
-          xml.person(:userid => ulogin, :role => role_name)
-        end
-      end unless @persons.empty?
-      xml.groups do
-        @groups.each do |gtitle, rolename|
-          xml.group(:groupid => gtitle, :role => rolename)
-        end
-      end unless @groups.empty?
+      relationships_to_xml(xml, :persons, :person, :userid)
+      relationships_to_xml(xml, :groups, :group, :groupid)
 
-      if @error then
-        xml.error(error)
-      end
-      if @links_to
-        xml.link(:project => @links_to.project, :package => @links_to.name)
+      xml.error(error) if @error
+      xml.link(:project => @links_to.project, :package => @links_to.name) if @links_to
+    end
+  end
+
+  def relationships_to_xml(builder, arrayname, elementname, tag)
+    arr = self.send(arrayname)
+    return if arr.empty?
+    builder.send(arrayname) do
+      arr.each do |element, role_name|
+        builder.send(elementname, tag => element, role: role_name)
       end
     end
   end
