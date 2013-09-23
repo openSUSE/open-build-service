@@ -292,6 +292,16 @@ sub adddiffheader {
   return $r->{'_content'};
 }
 
+# strip first dir if it is the same for all files
+sub stripfirstdir {
+  my ($l) = @_;
+  return unless @$l;
+  my $l1 = $l->[0]->{'sname'};
+  return unless $l1 =~ s/\/.*//;
+  return if grep {!($_->{'sname'} eq $l1 || $_->{'sname'} =~ /^\Q$l1\E\//)} @$l;
+  $_->{'sname'} =~ s/^[^\/]*\/?// for @$l;
+}
+
 sub tardiff {
   my ($f1, $f2, %opts) = @_;
 
@@ -305,13 +315,12 @@ sub tardiff {
   for (@l1, @l2) {
     $_->{'sname'} = $_->{'name'};
     $_->{'sname'} =~ s/^\.\///;
+  }
+  stripfirstdir(\@l1);
+  stripfirstdir(\@l2);
+
+  for (@l1, @l2) {
     $_->{'sname'} = '' if "/$_->{'sname'}/" =~ /\/(?:CVS|\.cvsignore|\.svn|\.svnignore)\//;
-  }
-  if ((grep {$_->{'sname'} !~ /\//} @l1) == 1) {
-    $_->{'sname'} =~ s/^[^\/]*\/?// for @l1;
-  }
-  if ((grep {$_->{'sname'} !~ /\//} @l2) == 1) {
-    $_->{'sname'} =~ s/^[^\/]*\/?// for @l2;
   }
 
   my %l1 = map {$_->{'sname'} => $_} @l1;
