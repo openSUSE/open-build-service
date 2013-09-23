@@ -62,6 +62,8 @@ class Package < ActiveRecord::Base
 
   default_scope { where("packages.db_project_id not in (?)", Relationship.forbidden_project_ids ) }
 
+  scope :dirty_backend_package, -> { joins("left outer join backend_packages on backend_packages.package_id = packages.id").where("backend_packages.package_id is null") }
+
   validates :name, presence: true, length: { maximum: 200 }
   validate :valid_name
 

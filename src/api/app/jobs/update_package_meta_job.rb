@@ -25,10 +25,7 @@ class UpdatePackageMetaJob
 
     BackendPackage.not_links.delete_all
 
-    dirties = Package.joins("left outer join backend_packages on backend_packages.package_id = packages.id").where("backend_packages.package_id is null")
-    dirties.each do |p|
-      p.delay(priority: 10).update_if_dirty
-    end
+    BackendPackage.refresh_dirty
   end
 
 end

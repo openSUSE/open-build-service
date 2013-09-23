@@ -101,7 +101,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'MaintenanceHelper#do_branch' => 1118,
       'MaintenanceHelper#release_package' => 227.71,
       'MaintenanceIncident#getUpdateinfoId' => 151.95,
-      'PackInfo#to_xml' => 63.64,
+      'PackInfo#to_xml' => 53.64,
       'Package#resolve_devel_package' => 52.33,
       'PersonController#internal_register' => 185.66,
       'PersonController#userinfo' => 139.67,

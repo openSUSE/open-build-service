@@ -1140,4 +1140,10 @@ class Project < ActiveRecord::Base
 
     { 'reviews' => reviews, 'targets' => targets, 'incidents' => incidents, 'maintenance_release' => maintenance_release }
   end
+
+  def update_packages_if_dirty
+    packages.dirty_backend_package.each do |p|
+      p.update_if_dirty
+    end
+  end
 end

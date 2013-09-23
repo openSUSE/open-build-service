@@ -6,4 +6,11 @@ class BackendPackage < ActiveRecord::Base
 
   scope :links, -> { where("links_to_id is not null") }
   scope :not_links, -> { where("links_to_id is null") }
+
+  # this is called from the UpdatePackageMetaJob and clockwork
+  def self.refresh_dirty
+    Package.dirty_backend_package.pluck(:db_project_id).uniq.each do |p|
+      Project.find(p).delay(priority: 10).update_packages_if_dirty
+    end
+  end
 end

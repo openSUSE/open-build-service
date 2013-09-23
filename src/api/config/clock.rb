@@ -60,3 +60,8 @@ end
 every(1.hour, 'reindex sphinx', thread: true) do
   ThinkingSphinx::RakeInterface.new.index
 end
+
+every(1.day, 'refresh dirties') do
+  # inject a delayed job for every dirty project
+  BackendPackage.refresh_dirty
+end
