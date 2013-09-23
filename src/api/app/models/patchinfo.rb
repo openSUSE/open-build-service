@@ -12,6 +12,10 @@ class Patchinfo
     setup 404
   end
 
+  class TrackerNotFound < APIException
+    setup 404
+  end
+
   def is_repository_matching?(repo, rt)
     return false if repo.project.name != rt['project']
     if rt['repository']
@@ -27,7 +31,7 @@ class Patchinfo
         return if is_repository_matching?(prt.target_repository, rt)
       end
     end
-    raise ReleasetargetNotFound.new "Release target '#{rt['project']}/#{rt['repository']}' is not defined in this project '#{@project.name}'"
+    raise ReleasetargetNotFound.new "Release target '#{rt['project']}/#{rt['repository']}' is not defined in this project '#{@project.name}'. Please ask your OBS administrator to add it."
   end
 
   def verify_data(project, raw_post)
@@ -35,6 +39,11 @@ class Patchinfo
     data = Xmlhash.parse(raw_post)
     # check the packager field
     User.get_by_login data["packager"] if data["packager"]
+    # valid tracker?
+    data.elements("issue").each do |i|
+      tracker = IssueTracker.find_by_name(i['tracker']) 
+      raise TrackerNotFound.new "Tracker #{i['tracker']} is not registered in this OBS instance" unless tracker
+    end
     # are releasetargets specified ? validate that this project is actually defining them.
     data.elements("releasetarget") { |r| check_releasetarget!(r) }
   end

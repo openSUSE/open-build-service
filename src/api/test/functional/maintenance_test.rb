@@ -979,11 +979,18 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     Timecop.freeze(1)
     raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response :success
+    # add broken releasetarget
     pi.add_element "releasetarget", { :project => "home:tom" } # invalid target
     Timecop.freeze(1)
     raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response 404
     assert_xml_tag :tag => "status", :attributes => { :code => "releasetarget_not_found" }
+    # add broken tracker
+    pi.add_element "issue", { "id" => "0815", "tracker" => "INVALID" } # invalid tracker
+    raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    assert_response 404
+    assert_xml_tag :tag => "status", :attributes => { :code => "tracker_not_found" }
+    # continue
     get "/source/#{incidentProject}/patchinfo/_meta"
     assert_xml_tag( :parent => {:tag => "build"}, :tag => "enable", :attributes => { :repository => nil, :arch => nil} )
     assert_no_xml_tag( :parent => { :tag => "publish" }, :tag => "enable", :attributes => { :repository => nil, :arch => nil} ) # not published due to access disable
