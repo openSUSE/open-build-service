@@ -297,7 +297,7 @@ sub stripfirstdir {
   my ($l) = @_;
   return unless @$l;
   my $l1 = $l->[0]->{'sname'};
-  return unless $l1 =~ s/\/.*//;
+  $l1 =~ s/\/.*//s;
   return if grep {!($_->{'sname'} eq $l1 || $_->{'sname'} =~ /^\Q$l1\E\//)} @$l;
   $_->{'sname'} =~ s/^[^\/]*\/?// for @$l;
 }
