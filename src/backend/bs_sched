@@ -1151,8 +1151,8 @@ sub makedeltas {
 	      # yes, link it over
 	      unlink("$ddir/$deltaid");
 	      unlink("$ddir/$deltaid.dseq");
-	      link("$ddir/$olddeltaid", "$ddir/$deltaid");
-	      link("$ddir/$olddeltaid.dseq", "$ddir/$deltaid.dseq");
+	      $ddir{$deltaid} = 1 if link("$ddir/$olddeltaid", "$ddir/$deltaid");
+	      $ddir{"$deltaid.dseq"} = 1 if link("$ddir/$olddeltaid.dseq", "$ddir/$deltaid.dseq");
 	    }
 	  }
 	  $deltaids{$deltaid} = 1;
