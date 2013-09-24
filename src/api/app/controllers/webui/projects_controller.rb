@@ -108,6 +108,10 @@ class Webui::ProjectsController < Webui::BaseController
     @limit_to_old = params[:limit_to_old] == "true"
     @include_versions = params[:include_versions] == "true"
 
+    @prj_status = Rails.cache.fetch("prj_status-#{@project.to_s}", expires_in: 5.minutes) do
+      ProjectStatusCalculator.new(@project).calc_status(pure_project: true)
+    end
+
     status_filter_packages
     status_gather_attributes
     status_gather_requests
@@ -211,7 +215,6 @@ class Webui::ProjectsController < Webui::BaseController
   end
 
   def status_filter_packages
-    prj_status = ProjectStatusCalculator.new(@project).calc_status(pure_project: true)
     filter_for_user = User.get_by_login(params[:filter_for_user]) unless params[:filter_for_user].blank?
     no_project = "_none_"
     all_projects = "_all_"
@@ -221,7 +224,7 @@ class Webui::ProjectsController < Webui::BaseController
     if filter_for_user
       packages_to_filter_for = filter_for_user.user_relevant_packages_for_status
     end
-    prj_status.each_value do |value|
+    @prj_status.each_value do |value|
       if value.develpack
         dproject = value.develpack.project
         @develprojects[dproject] = 1
