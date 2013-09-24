@@ -1,5 +1,11 @@
 OBSApi::Application.routes.draw do
 
+  scope constraints: { format: 'html' } do
+    namespace :html do
+      get '/' => 'main#index'
+    end
+  end
+
   defaults :format => 'xml' do
 
     get '/' => 'main#index'
@@ -379,10 +385,6 @@ OBSApi::Application.routes.draw do
     end
 
     get '/404' => 'main#notfound'
-
-    # Do not install default routes for maximum security
-    #get ':controller(/:action(/:id))'
-    #get ':controller/:action'
 
   end
 end
