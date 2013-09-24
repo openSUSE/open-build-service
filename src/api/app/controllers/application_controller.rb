@@ -6,7 +6,7 @@ require_dependency 'opensuse/backend'
 require_dependency 'opensuse/validator'
 require_dependency 'api_exception'
 
-class ApplicationController < ActionController::API
+class ApplicationController < ActionController::Base
 
   class InvalidHttpMethodError < APIException
     setup 'invalid_http_method'
