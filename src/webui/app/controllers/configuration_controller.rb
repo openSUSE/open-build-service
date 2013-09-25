@@ -49,6 +49,7 @@ class ConfigurationController < ApplicationController
     @project.set_remoteurl(params[:remoteurl])
 
     if @project.save
+      Distribution.free_cache(:all)
       if Project.exists? "home:#{@user.login.to_s}"
         flash[:notice] = "Project '#{project_name}' was created successfully"
         redirect_to :controller => :project, :action => 'show', :project => project_name and return
