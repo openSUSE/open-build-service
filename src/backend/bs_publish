@@ -1243,6 +1243,8 @@ sub publish {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.ovf(:?\.sha256)?$/) {
 	  $p = "$bin";
+	} elsif ($bin =~ /\.ova(:?\.sha256)?$/) {
+	  $p = "$bin";
 	} elsif ($bin =~ /\.qcow2(:?\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.vmdk(:?\.sha256)?$/) {
