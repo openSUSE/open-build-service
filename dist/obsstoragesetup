@@ -9,7 +9,7 @@
 #
 ### BEGIN INIT INFO
 # Provides:          obsstoragesetup
-# Start-Before:      mysql sshd
+# X-Start-Before:    mysql sshd
 # Should-Start:      xendomains haveged
 # Should-Stop:       $none
 # Required-Start:    $network

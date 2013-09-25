@@ -9,7 +9,7 @@
 #
 ### BEGIN INIT INFO
 # Provides:          obsapisetup
-# Start-Before:      apache2
+# X-Start-Before:    apache2
 # Should-Start:      obsstoragesetup
 # Should-Stop:       $none
 # Required-Start:    mysql
