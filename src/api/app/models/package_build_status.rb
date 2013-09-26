@@ -128,7 +128,7 @@ class PackageBuildStatus
         raise FailedToRetrieveBuildInfo.new "Can't get buildinfo: #{e.summary}"
       end
 
-      buildinfo["package"].elements("pkgdep") do |b|
+      buildinfo.get("package").elements("pkgdep") do |b|
         unless @tpackages.has_key? b
           missingdeps << b
         end
