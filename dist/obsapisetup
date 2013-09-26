@@ -126,8 +126,6 @@ case "$1" in
 		    /srv/www/obs/webui/config/options.yml
                 sed -i 's,^read_only_hosts: .*,read_only_hosts: [ "'"$FQHOSTNAME"'" ],' \
 		    /srv/www/obs/api/config/options.yml
-                sed -i -e /webui_url:/d -e /webui_host:/d -e /read_only_hosts:/d -e /allow_anonymous:/d \
-		    /srv/www/obs/api/config/options.yml
 		OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
 		OS=`head -n 1 /etc/SuSE-release`
                 RUN_INITIAL_SETUP=""
