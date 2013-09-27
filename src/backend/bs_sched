@@ -2447,6 +2447,17 @@ sub get_projpacks_resume {
   my $wasremote = !$projpacks->{$projid} && $remoteprojs{$projid} ? 1 : undef;
   my $packids = $handle->{'_packids'};	# we only requested those
   my $oldprojdata = $packids ? clone_projpacks_part($projid, $packids) : undef;
+
+  # check if there was a critical meta change
+  if ($packids && !update_project_meta_check($projid, $projpacksin)) {
+    # had a critical change, we have to refetch *all* packages
+    print "get_projpacks_resume: fetching all packages\n";
+    my $async = {'_changetype' => 'med'};
+    $async->{'_lpackids'} = $handle->{'_lpackids'} if $handle->{'_lpackids'};
+    get_projpacks($handle->{'_ctx'}, $async, $projid);
+  }
+ 
+  # commit the update
   update_projpacks($projpacksin, $projid, $packids);
   get_projpacks_postprocess() if !$packids || postprocess_needed_check($projid, $oldprojdata);
 
@@ -2635,6 +2646,21 @@ sub update_projpacks {
   remotemap2remoteprojs($projpacksin->{'remotemap'});
 }
 
+# like update_projpacks, but leaves the packages untouched
+sub update_projpacks_meta {
+  my ($projpacksin, $projid) = @_;
+  my $proj = $projpacksin->{'project'}->[0];
+  if (!$proj) {
+    delete $projpacks->{$projid};
+  } else {
+    delete $proj->{'name'};
+    delete $proj->{'package'};
+    my $oldproj = $projpacks->{$projid};
+    $proj->{'package'} = $oldproj->{'package'} if $oldproj->{'package'};
+    $projpacks->{$projid} = $proj;
+  }
+}
+
 # update remoteprojs with the remotemap data
 sub remotemap2remoteprojs {
   my ($remotemap) = @_;
@@ -2702,15 +2728,21 @@ sub update_project_meta_resume {
       chomp $error;
       warn("$error\n");
     }
-    # update meta failed, do it the hard way... maybe set _dolink = 2?
+    # update meta failed or critical meta change, do it the hard way...
+    # XXX: maybe set _dolink = 2?
     my $async = {'_changetype' => $handle->{'_changetype'}, '_changelevel' => $handle->{'_changelevel'}};
     $async->{'_lpackids'} = $handle->{'_lpackids'} if $handle->{'_lpackids'};
     get_projpacks($handle->{'_ctx'}, $async, $projid);
-  } elsif ($projpacks->{$projid}) {
-    # update meta worked! Now get those packages as well
+    return;
+  }
+
+  # commit the meta update
+  update_projpacks_meta($projpacksin, $projid);
+
+  if ($projpacks->{$projid}) {
     my $packids = $handle->{'_lpackids'};
     if ($packids && @$packids) {
-      # fetch those as well
+      # now get those packages as well
       my $async = {'_dolink' => 2, '_changetype' => 'high', '_changelevel' => 1};
       get_projpacks($handle->{'_ctx'}, $async, $projid, @$packids);
     } else {
@@ -2748,38 +2780,38 @@ sub update_project_meta {
     return undef;
   }
   return $projpacksin if $projpacksin && $param->{'async'};
-  return update_project_meta_check($projid, $projpacksin);
+  # check if this is a "critical change"
+  return 0 unless update_project_meta_check($projid, $projpacksin);
+  # change is not critical, commit
+  update_projpacks_meta($projpacksin, $projid);
+  return 1;
 }
 
+# check if the project meta update changes things so that we need
+# to re-fetch all packages
 sub update_project_meta_check {
   my ($projid, $projpacksin) = @_;
   return 0 unless $projpacksin;
   my $proj = $projpacksin->{'project'}->[0];
-  if (!$proj) {
-    # project is gone!
-    delete $projpacks->{$projid};
-    return 1;
-  }
-  return undef unless $proj->{'name'} eq $projid;
-  delete $proj->{'name'};
-  delete $proj->{'package'};
+  return 1 unless $proj;	# project is gone?
+  return 0 unless $proj->{'name'} eq $projid;	# huh?
   my $oldproj = $projpacks->{$projid};
-  $proj->{'package'} = $oldproj->{'package'} if $oldproj->{'package'};
   # check if the project meta has critical change
   return 0 unless identical($proj->{'build'}, $oldproj->{'build'});
   return 0 unless identical($proj->{'link'}, $oldproj->{'link'});
   # XXX: could be more clever here
   return 0 unless identical($proj->{'repository'}, $oldproj->{'repository'});
-
-  # check macro definitions and build type for all repositories
-  for my $repoid (map {$_->{'name'}} @{$proj->{'repository'} || []}) {
-    my @mprefix = ("%define _project $projid", "%define _repository $repoid");
-    my $cold = Build::read_config($myarch, [ @mprefix, split("\n", $oldproj->{'config'} || '') ]);
-    my $cnew = Build::read_config($myarch, [ @mprefix, split("\n", $proj->{'config'} || '') ]);
-    return 0 unless identical($cold->{'macros'}, $cnew->{'macros'});
-    return 0 unless identical($cold->{'type'}, $cnew->{'type'});
+  if ($proj->{'config'} ne $oldproj->{'config'}) {
+    # check macro definitions and build type for all repositories
+    for my $repoid (map {$_->{'name'}} @{$proj->{'repository'} || []}) {
+      my @mprefix = ("%define _project $projid", "%define _repository $repoid");
+      my $cold = Build::read_config($myarch, [ @mprefix, split("\n", $oldproj->{'config'} || '') ]);
+      my $cnew = Build::read_config($myarch, [ @mprefix, split("\n", $proj->{'config'} || '') ]);
+      return 0 unless identical($cold->{'macros'}, $cnew->{'macros'});
+      return 0 unless identical($cold->{'type'}, $cnew->{'type'});
+    }
   }
-  $projpacks->{$projid} = $proj;
+  # not a critical change
   return 1;
 }
 
@@ -6644,7 +6676,7 @@ sub do_fetchprojpacks {
       }
       if ($projpacks->{$projid} && !$deepcheck->{$projid}) {
 	if (!update_project_meta($ctx, 0, $projid)) {
-	  # update meta failed, do it the hard way...
+	  # update meta failed or critical change, do it the hard way...
 	  get_projpacks($ctx, undef, $projid);
 	  $fetchedall = 1;
 	}
