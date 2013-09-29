@@ -38,7 +38,7 @@ class BsRequestCollection
   end
 
   def ids
-    @rel.pluck("bs_requests.id")
+    @rel.pluck("bs_requests.id").uniq
   end
 
   def relation
@@ -63,7 +63,9 @@ class BsRequestCollection
   def wrapper_for_inner_or
     @inner_or = []
     yield
-    unless @inner_or.empty?
+    if @inner_or.empty?
+      @rel = @rel.where("1=0")
+    else
       @rel = @rel.where(@inner_or.join(' or '))
     end
   end

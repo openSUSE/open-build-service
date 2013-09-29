@@ -66,4 +66,13 @@ class UserTest < ActiveSupport::TestCase
   def test_states
     assert_not_nil User.states
   end
+
+  def test_user_by_class
+    # no projects, no requests
+    assert_equal({:declined=>[], :new=>[], :reviews=>[]}, users(:user4).request_ids_by_class)
+    assert_equal({declined: [], new: [], reviews: [4]}, users(:tom).request_ids_by_class)
+    assert_equal({declined: [], new: [1], reviews: [4, 1000]}, users(:adrian).request_ids_by_class)
+    assert_equal({declined: [], new: [1], reviews: [1000, 10]}, users(:fred).request_ids_by_class)
+  end
+
 end
