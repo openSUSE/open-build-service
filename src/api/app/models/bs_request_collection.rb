@@ -38,7 +38,7 @@ class BsRequestCollection
   end
 
   def ids
-    @rel.pluck("bs_requests.id").uniq
+    @rel.pluck("distinct bs_requests.id").sort
   end
 
   def relation
