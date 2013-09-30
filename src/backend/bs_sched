@@ -2801,7 +2801,7 @@ sub update_project_meta_check {
   return 0 unless identical($proj->{'link'}, $oldproj->{'link'});
   # XXX: could be more clever here
   return 0 unless identical($proj->{'repository'}, $oldproj->{'repository'});
-  if ($proj->{'config'} ne $oldproj->{'config'}) {
+  if (($proj->{'config'} || '') ne ($oldproj->{'config'} || '')) {
     # check macro definitions and build type for all repositories
     for my $repoid (map {$_->{'name'}} @{$proj->{'repository'} || []}) {
       my @mprefix = ("%define _project $projid", "%define _repository $repoid");
