@@ -159,7 +159,7 @@ issue_trackers_40:
   description: openSUSE Feature Database
   url: https://features.opensuse.org/
   show_url: https://features.opensuse.org/@@@
-  regex: '[Ff]ate#(\d+)'
+  regex: (?:fate|FATE|Fate)\s*#\s*(\d+)
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0

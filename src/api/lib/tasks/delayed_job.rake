@@ -1,10 +1,9 @@
-require 'workers/issue_trackers_to_backend_job.rb'
 require 'workers/import_requests.rb'
 require 'workers/update_issues.rb'
 
 namespace :jobs do
   desc "Inject a job to write issue tracker information to backend"
-  task(:issuetrackers => :environment) { Delayed::Job.enqueue IssueTrackersToBackendJob.new }
+  task(:issuetrackers => :environment) { IssueTracker.write_to_backend }
 
   desc "Update issue data of all changed issues in remote tracker"
   task(:updateissues => :environment) {

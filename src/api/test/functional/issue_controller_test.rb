@@ -311,4 +311,23 @@ Blubber bnc#15\n
     assert_response :success
   end
 
+  test "fate entries" do
+    changes = "-------------------------------------------------------------------\n
+Blah fate#13\n
+-------------------------------------------------------------------\n
+Blah FATE#14\n
+-------------------------------------------------------------------\n
+Blubber Fate#15\n
+"
+    login_Iggy
+    put "/source/home:Iggy/TestPack/file.changes", changes
+    assert_response :success
+
+    get "/source/home:Iggy/TestPack?view=issues"
+    assert_response :success
+
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'kept'}}, :tag => 'name', :content => "13"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'kept'}}, :tag => 'name', :content => "14"
+    assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'kept'}}, :tag => 'name', :content => "15"
+  end
 end
