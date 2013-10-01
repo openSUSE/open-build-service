@@ -63,6 +63,7 @@ my $rootservicedir = $servicedir;
 $rootservicedir = $BSConfig::serviceroot."/".$servicedir if $BSConfig::serviceroot;
 
 my $noproxy = $BSConfig::noproxy;
+my $maxchild = $BSConfig::service_maxchild;
 
 sub usage {
   my ($ret) = @_;
@@ -268,7 +269,7 @@ my $conf = {
   'port' => $port,
   'dispatches' => $dispatches,
   'setkeepalive' => 1,
-#  'maxchild' => 20,
+  'maxchild' => $maxchild,
 };
 
 BSStdServer::server('bs_service', \@ARGV, $conf);

@@ -57,6 +57,9 @@ our $servicedir = "/usr/lib/obs/service/";
 #our $servicetempdir = "/var/temp/";
 #our $serviceroot = "/opt/obs/MyServiceSystem";
 
+# Maximum number of concurrent jobs for source service
+#our $service_maxchild = 20;
+
 #our $gpg_standard_key = "/etc/obs-default-gpg.asc";
 # public download service:
 our $repodownload = "http://$hostname/repositories";
