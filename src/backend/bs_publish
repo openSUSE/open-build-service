@@ -363,7 +363,7 @@ sub createrepo_rpmmd {
     push @legacyargs, '--unique-md-filenames', '--checksum=sha256';
   }
   my @updateargs;
-  # createrepo 0.9.9 defaults to usually not used sqlite database. 
+  # createrepo 0.9.9 defaults to usually not used sqlite database.
   # We do disable it since it is time and space consuming.
   # doing this via @updateargs for the case that an old createrepo is installed which does not support
   # this switch.
@@ -569,17 +569,16 @@ sub createrepo_debian {
   unlink("$extrep/Release.gpg");
   unlink("$extrep/Release.key");
 
-
   print "    running dpkg-scanpackages\n";
   if (qsystem('chdir', $extrep, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-m', '.', '/dev/null')) {
-      die("    dpkg-scansources failed: $?\n");
+      die("    dpkg-scanpackages failed: $?\n");
   }
   if (-f "$extrep/Packages.new") {
     link("$extrep/Packages.new", "$extrep/Packages");
     qsystem('gzip', '-9', '-f', "$extrep/Packages") && print "    gzip Packages failed: $?\n";
     unlink("$extrep/Packages");
     rename("$extrep/Packages.new", "$extrep/Packages");
-  }    
+  }
 
   print "    running dpkg-scansources\n";
   if (qsystem('chdir', $extrep, 'stdout', 'Sources.new', 'dpkg-scansources', '.', '/dev/null')) {
@@ -605,22 +604,20 @@ Description: Open Build Service $projid $repoid
 MD5Sum:
 EOL
 
-  open(OUT,">$extrep/Release") || die("$extrep/Release: $!\n");
+  open(OUT, '>', "$extrep/Release") || die("$extrep/Release: $!\n");
   print OUT $str;
   close(OUT) || die("close: $!\n");
 
+  # append checksums
   my $sha1sums = "SHA1:\n";
   my $sha256sums = "SHA256:\n";
-
-  open(OUT,">>$extrep/Release") || die("$extrep/Release: $!\n");
-  foreach my $f ( "Packages", "Packages.gz", "Sources", "Sources.gz" ) {
-  
-    open(FILE,"<$extrep/$f") || die;
-    my @all = <FILE>;
-    close(FILE);
-    my $data = join("",@all);
+  open(OUT, '>>', "$extrep/Release") || die("$extrep/Release: $!\n");
+  for my $f ( "Packages", "Packages.gz", "Sources", "Sources.gz" ) {
+    my @s = stat("$extrep/$f");
+    next unless @s;
+    my $data = readstr("$extrep/$f");
     my $md5  = Digest::MD5::md5_hex($data);
-    my $size = (stat("$extrep/$f"))[7];
+    my $size = $s[7];
     print OUT " $md5 $size $f\n";
     my $sha1  = Digest::SHA::sha1_hex($data);
     $sha1sums .= " $sha1 $size $f\n";
@@ -629,7 +626,6 @@ EOL
   }
   print OUT $sha1sums;
   print OUT $sha256sums;
-
   close(OUT) || die("close: $!\n");
 
   # re-sign changed Release file
@@ -882,10 +878,10 @@ sub createpatterns_ymp {
     $group->{'name'} = $pat->{'name'};
     if ($pat->{'summary'}) {
       $group->{'summary'} = $pat->{'summary'}->[0]->{'_content'};
-    }    
+    }
     if ($pat->{'description'}) {
       $group->{'description'} = $pat->{'description'}->[0]->{'_content'};
-    }    
+    }
     my @repos;
     my @sprp = @{$repoinfo->{'prpsearchpath'} || []};
     while (@sprp) {
@@ -927,9 +923,9 @@ sub createpatterns_ymp {
     }
     $group->{'software'} = { 'item' => \@software };
     $ymp->{'group'} = [ $group ];
-    
+
     writexml("$extrep/.$ympname", "$extrep/$ympname", $ymp, $BSXML::ymp);
-    
+
     # write database entry
     my $ympidx = {'type' => 'ymp'};
     $ympidx->{'name'} = $pat->{'name'} if defined $pat->{'name'};
@@ -1123,7 +1119,7 @@ sub publish {
   }
   $extrep .= $dbgsplit if $dbgsplit;
   $prp_ext .= $dbgsplit if $dbgsplit;
-  
+
   # we now know that $reporoot/$prp/*/:repo will not change.
   # Build repo by mixing all architectures.
   my @archs = @{$repo->{'arch'} || []};
@@ -1711,7 +1707,7 @@ publishprog_done:
     qsystem($BSConfig::publishedhook->{$publish_prp}, $prp, $extrep, @changed) && warn("    $BSConfig::publishedhook->{$publish_prp} failed: $?");
   }
 
-  
+
   notify('REPO_PUBLISHED', { project => $projid , 'repo' => $repoid });
   # all done. till next time...
   if ($BSConfig::publishprogram && $BSConfig::publishprogram->{$prp}) {
