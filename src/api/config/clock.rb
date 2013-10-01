@@ -39,7 +39,7 @@ every(30.seconds, 'send notifications') do
   Event::NotifyBackends.trigger_delayed_sent
 end
 
-every(17.seconds, 'fetch notificatoins', thread: true) do
+every(17.seconds, 'fetch notifications', thread: true) do
   ActiveRecord::Base.connection_pool.with_connection do |sql| 
     # this will return if there is already a thread running
     UpdateNotificationEvents.new.perform

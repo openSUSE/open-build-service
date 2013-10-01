@@ -379,8 +379,13 @@ class Package < ActiveRecord::Base
         Project.transaction do
           self.package_issues.delete_all
           xml.elements('issue') { |i|
-            issue = Issue.find_or_create_by_name_and_tracker(i['id'], i['tracker'])
-            self.package_issues.create(issue: issue, change: 'kept')
+            begin
+              issue = Issue.find_or_create_by_name_and_tracker(i['id'], i['tracker'])
+              self.package_issues.create(issue: issue, change: 'kept')
+	    rescue IssueTracker::NotFoundError => e
+              # if the issue is invalid, we ignore it
+              Rails.logger.debug e
+	    end
           }
         end
       else

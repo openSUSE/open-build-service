@@ -60,67 +60,69 @@ if old_mode
   arch_rep_tbl="architectures_repositories"
 end
 
-check_foreign_key("db_project_id", packages_tbl, projects_tbl, 1);
-check_foreign_key("develproject_id", packages_tbl, projects_tbl, 0) if old_mode;
-check_foreign_key("develpackage_id", packages_tbl, packages_tbl, 0);
+check_foreign_key("db_project_id", packages_tbl, projects_tbl, 1)
+check_foreign_key("develproject_id", packages_tbl, projects_tbl, 0) if old_mode
+check_foreign_key("develpackage_id", packages_tbl, packages_tbl, 0)
 check_foreign_key("repository_id", arch_rep_tbl, "repositories", 1)
 check_foreign_key("architecture_id", arch_rep_tbl, "architectures", 1)
 
-check_foreign_key("bs_user_id", "watched_projects", "users", 1);
+check_foreign_key("bs_user_id", "watched_projects", "users", 1)
 
-check_foreign_key("db_project_id", "db_projects_tags", projects_tbl, 1);
-check_foreign_key("tag_id", "db_projects_tags", "tags", 1);
+check_foreign_key("db_project_id", "db_projects_tags", projects_tbl, 1)
+check_foreign_key("tag_id", "db_projects_tags", "tags", 1)
 
-check_foreign_key("attrib_type_id", "attribs", "attrib_types", 1);
-check_foreign_key("db_package_id", "attribs", packages_tbl, 1);
-check_foreign_key("db_project_id", "attribs", projects_tbl, 1);
+check_foreign_key("attrib_type_id", "attribs", "attrib_types", 1)
+check_foreign_key("db_package_id", "attribs", packages_tbl, 1)
+check_foreign_key("db_project_id", "attribs", projects_tbl, 1)
 
-check_foreign_key("db_project_id", "flags", projects_tbl, 1);
-check_foreign_key("db_package_id", "flags", packages_tbl, 1);
-check_foreign_key("architecture_id", "flags", "architectures", 1);
+check_foreign_key("db_project_id", "flags", projects_tbl, 1)
+check_foreign_key("db_package_id", "flags", packages_tbl, 1)
+check_foreign_key("architecture_id", "flags", "architectures", 1)
 
-check_foreign_key("attrib_id", "attrib_values", "attribs", 1);
+check_foreign_key("attrib_id", "attrib_values", "attribs", 1)
 
-check_foreign_key("attrib_namespace_id", "attrib_types", "attrib_namespaces", 1);
+check_foreign_key("attrib_namespace_id", "attrib_types", "attrib_namespaces", 1)
 
-check_foreign_key("group_id", "groups_roles", "groups", 1);
-check_foreign_key("role_id", "groups_roles", "roles", 1);
+check_foreign_key("group_id", "groups_roles", "groups", 1)
+check_foreign_key("role_id", "groups_roles", "roles", 1)
 
-check_foreign_key("group_id", "groups_users", "groups", 1);
-check_foreign_key("user_id", "groups_users", "users", 1);
+check_foreign_key("group_id", "groups_users", "groups", 1)
+check_foreign_key("user_id", "groups_users", "users", 1)
 
-check_foreign_key("db_package_id", "relationships", packages_tbl, 1);
-check_foreign_key("bs_user_id", "relationships", "users", 1);
-check_foreign_key("role_id", "relationships", "roles", 1);
-check_foreign_key("db_project_id", "relationships", projects_tbl, 1);
+check_foreign_key("db_package_id", "relationships", packages_tbl, 1)
+check_foreign_key("bs_user_id", "relationships", "users", 1)
+check_foreign_key("role_id", "relationships", "roles", 1)
+check_foreign_key("db_project_id", "relationships", projects_tbl, 1)
 
-check_foreign_key("parent_id", "path_elements", "repositories", 1);
-check_foreign_key("repository_id", "path_elements", "repositories", 1);
+check_foreign_key("parent_id", "path_elements", "repositories", 1)
+check_foreign_key("repository_id", "path_elements", "repositories", 1)
 
-check_foreign_key("repository_id", "release_targets", "repositories", 1);
-check_foreign_key("target_repository_id", "release_targets", "repositories", 1);
+check_foreign_key("repository_id", "release_targets", "repositories", 1)
+check_foreign_key("target_repository_id", "release_targets", "repositories", 1)
 
-check_foreign_key("user_id", "ratings", "users", 1);
+check_foreign_key("user_id", "ratings", "users", 1)
 
-check_foreign_key("db_project_id", "repositories", projects_tbl, 1);
+check_foreign_key("db_project_id", "repositories", projects_tbl, 1)
 
-check_foreign_key("parent_id", "roles", "roles", 1);
+check_foreign_key("parent_id", "roles", "roles", 1)
 
-check_foreign_key("role_id", "roles_static_permissions", "roles", 1);
-check_foreign_key("static_permission_id", "roles_static_permissions", "static_permissions", 1);
+check_foreign_key("role_id", "roles_static_permissions", "roles", 1)
+check_foreign_key("static_permission_id", "roles_static_permissions", "static_permissions", 1)
 
-check_foreign_key("user_id", "roles_users", "users", 1);
-check_foreign_key("role_id", "roles_users", "roles", 1);
+check_foreign_key("user_id", "roles_users", "users", 1)
+check_foreign_key("role_id", "roles_users", "roles", 1)
 
-check_foreign_key("tag_id", "taggings", "tags", 1);
-check_foreign_key("user_id", "taggings", "users", 1);
+check_foreign_key("tag_id", "taggings", "tags", 1)
+check_foreign_key("user_id", "taggings", "users", 1)
 
-check_foreign_key("user_id", "user_registrations", "users", 1);
+check_foreign_key("user_id", "user_registrations", "users", 1)
 
-check_foreign_key("attrib_type_id", "attrib_allowed_values", "attrib_types", 1);
-check_foreign_key("attrib_type_id", "attrib_default_values", "attrib_types", 1);
+check_foreign_key("attrib_type_id", "attrib_allowed_values", "attrib_types", 1)
+check_foreign_key("attrib_type_id", "attrib_default_values", "attrib_types", 1)
 
-check_foreign_key("attrib_namespace_id", "attrib_namespace_modifiable_bies", "attrib_namespaces", 1);
-check_foreign_key("bs_user_id", "attrib_namespace_modifiable_bies", "users", 1);
-check_foreign_key("bs_group_id", "attrib_namespace_modifiable_bies", "groups", 1);
+check_foreign_key("attrib_namespace_id", "attrib_namespace_modifiable_bies", "attrib_namespaces", 1)
+check_foreign_key("bs_user_id", "attrib_namespace_modifiable_bies", "users", 1)
+check_foreign_key("bs_group_id", "attrib_namespace_modifiable_bies", "groups", 1)
 
+check_foreign_key("package_id", "backend_packages", "packages", 1)
+check_foreign_key("links_to_id", "backend_packages", "packages", 1)

@@ -13,7 +13,8 @@ class CheckPackageEvent
     pkg.update_backendinfo
     self.checked_pkgs[pkg.id] = 1
     BackendPackage.where(links_to_id: pkg.id).each do |p|
-      update_pkg(Package.find(p.package_id))
+      p = Package.find_by_id p.package_id
+      update_pkg(p) if p
     end
   end
 
