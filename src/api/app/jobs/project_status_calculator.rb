@@ -140,7 +140,7 @@ class ProjectStatusCalculator
         line = {'name' => p['package'],
                 'code' => p['code'],
                 'versrel' => p['versrel'],
-                'srcmd5' => p['srcmd5']}
+                'verifymd5' => p['verifymd5']}
 
         begin
           line['readytime'] = Integer(p['readytime'])
@@ -166,7 +166,7 @@ class ProjectStatusCalculator
       repo = r['name']
       r.elements('arch') do |arch|
 
-        cachekey = "history#{proj.cache_key}#{repo}#{arch}"
+        cachekey = "history2#{proj.cache_key}#{repo}#{arch}"
         jobhistory = Rails.cache.fetch(cachekey, expires_in: 30.minutes) do
           parse_jobhistory(dname, repo, arch)
         end
@@ -175,7 +175,7 @@ class ProjectStatusCalculator
           next unless pkg
 
           pkg.set_versrel(p['versrel'], p['readytime'])
-          pkg.failure(repo, arch, p['readytime'], p['srcmd5']) if p['code'] == "failed"
+          pkg.failure(repo, arch, p['readytime'], p['verifymd5']) if p['code'] == "failed"
         end
       end
     end

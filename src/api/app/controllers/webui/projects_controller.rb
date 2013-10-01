@@ -135,7 +135,7 @@ class Webui::ProjectsController < Webui::BaseController
 
     p.fails.each do |repo, arch, time, md5|
       next if newest > time
-      next if md5 != p.srcmd5
+      next if md5 != p.verifymd5
       currentpack['failedarch'] = arch
       currentpack['failedrepo'] = repo
       newest = time
