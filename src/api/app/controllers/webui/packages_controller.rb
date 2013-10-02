@@ -35,11 +35,11 @@ class Webui::PackagesController < Webui::BaseController
 
   def get_diff(path)
     begin
-      @rdiff = ActiveXML.transport.direct_http URI(path + '&expand=1'), method: "POST", timeout: 10
+      @rdiff = ActiveXML.backend.direct_http URI(path + '&expand=1'), method: "POST", timeout: 10
     rescue ActiveXML::Transport::Error => e
       @infos[:alert] = e.summary
       begin
-        @rdiff = ActiveXML.transport.direct_http URI(path + '&expand=0'), method: "POST", timeout: 10
+        @rdiff = ActiveXML.backend.direct_http URI(path + '&expand=0'), method: "POST", timeout: 10
       rescue ActiveXML::Transport::Error => e
         raise DiffError.new "Error getting diff: " + e.summary
       end

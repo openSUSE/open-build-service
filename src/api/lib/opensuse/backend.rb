@@ -201,7 +201,8 @@ module Suse
 	#do_not_start_test_backend
         return unless Rails.env.test?
         return if @@backend
-        logger.debug "Starting test backend..."
+	return if ENV['BACKEND_STARTED']
+        puts "Starting test backend..."
         @@backend = IO.popen("#{Rails.root}/script/start_test_backend")
         logger.debug "Test backend started with pid: #{@@backend.pid}"
         while true do
@@ -211,9 +212,10 @@ module Suse
           logger.debug line.strip
         end
         CONFIG['global_write_through'] = true
-        WebMock.disable_net_connect!(allow: CONFIG['source_host'])
+        WebMock.disable_net_connect!(allow_localhost: true)
+	ENV['BACKEND_STARTED'] = '1'
         at_exit do
-          logger.debug "kill #{@@backend.pid}"
+          $stderr.puts "kill backend: #{@@backend.pid}"
           Process.kill "INT", @@backend.pid
           @@backend = nil
         end

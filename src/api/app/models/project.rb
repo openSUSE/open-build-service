@@ -1040,12 +1040,13 @@ class Project < ActiveRecord::Base
       ret = Hash.new
       uri = "/getprojpack?project=#{CGI.escape(project.to_s)}&nopackages&withrepos&expandedrepos"
       begin
-        xml = Xmlhash.parse(Suse::Backend.get(uri).body)
+        body = Suse::Backend.get(uri).body
+        xml = Xmlhash.parse body
       rescue ActiveXML::Transport::Error
         return ret
       end
 
-      xml['project'].elements('repository') do |repo|
+      xml.get('project').elements('repository') do |repo|
         repo.elements('path') do |path|
           ret[path['project']] ||= Array.new
           ret[path['project']] << repo

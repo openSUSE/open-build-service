@@ -1,0 +1,35 @@
+<% commit = @package.commit(rev.to_s) %>
+<% if commit %>
+  <% if commit[:user] == '_service' %>
+    <%= image_tag('cog.png') %> automatic update by service
+  <% else %>
+    <% user = Webui::Person.find_hashed(commit[:user]) %>
+    <% if user["login"] %>
+      <% realname = user["realname"] %>
+      <%= user_icon(user["login"]) %>
+      <% unless realname.empty? %>
+        <%= link_to_if(@user, realname + " (" + user["login"] + ")", :controller => :home, :user => user["login"]) %>
+      <% else %>
+        <%= link_to_if(@user, user["login"], :controller => :home, :user => user["login"]) %>
+      <% end %>
+    <% else %>
+       -
+    <% end %>
+    <% if commit[:requestid] %>
+      accepted <%= link_to("request #{commit[:requestid]}", {:controller => :request, :action => :show, :id => commit[:requestid]}) %>
+    <% else %>
+      committed
+    <% end %>
+  <% end %>
+  <%= fuzzy_time_string(Time.at(commit[:time].to_i).to_s) %> (revision <%= commit[:revision] %>)<br/>
+  <% unless commit[:user] == "_service" %>
+    <pre class="plain"><%= commit[:comment] %></pre>
+  <% end %>
+  <%= link_to(image_tag('brick.png'), { :controller => :package, :action => :rdiff,
+    :package => @package, :project => @project,
+    :rev => commit[:revision], :linkrev => 'base'}, :style => "margin-left: 2em") %>
+  <%= link_to('Show diff', :controller => :package, :action => :rdiff,
+    :package => @package, :project => @project, :rev => commit[:revision], :linkrev => 'base') unless commit[:revision] == 1 %>
+<% else %>
+  <i>Revision <%=rev.to_s%> not found</i>
+<% end %>

@@ -30,10 +30,8 @@ class TestController < ApplicationController
      end
      @@started = true
      @@test_running = false
-     system("cd #{Rails.root.to_s}; unset BUNDLE_GEMFILE; RAILS_ENV=test exec bundle exec rake db:fixtures:load")
-     # for requests the ID is user visible, so reset it to get reproducible results
-     max=BsRequest.maximum(:id)
-     BsRequest.connection.execute("alter table bs_requests AUTO_INCREMENT = #{max+1}")
+     WebMock.disable_net_connect!(allow_localhost: true)
+     CONFIG['global_write_through'] = true
      backend.direct_http(URI("/"))
      render_ok
   end
@@ -58,8 +56,5 @@ class TestController < ApplicationController
     @@test_running = false
     DatabaseCleaner.clean
     Rails.cache.clear
-    # for requests the ID is user visible, so reset it to get reproducible results
-    max=BsRequest.maximum(:id)
-    BsRequest.connection.execute("alter table bs_requests AUTO_INCREMENT = #{max+1}")
   end
 end

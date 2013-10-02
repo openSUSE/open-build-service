@@ -770,6 +770,17 @@ CREATE TABLE `schema_migrations` (
   UNIQUE KEY `unique_schema_migrations` (`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `sessions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `session_id` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `data` text COLLATE utf8_unicode_ci,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_sessions_on_session_id` (`session_id`),
+  KEY `index_sessions_on_updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `static_permissions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '',
@@ -1268,6 +1279,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130920090004');
 INSERT INTO schema_migrations (version) VALUES ('20130930130128');
 
 INSERT INTO schema_migrations (version) VALUES ('20131006000000');
+
+INSERT INTO schema_migrations (version) VALUES ('20131006162847');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

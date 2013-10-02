@@ -36,10 +36,14 @@ OBSApi::Application.configure do
 
   config.eager_load = false
 
+  config.allow_concurrency = false
 end
 
 CONFIG['extended_backend_log'] = true
 CONFIG['response_schema_validation'] = true
+
+CONFIG['frontend_host'] = "localhost"
+CONFIG['frontend_protocol'] = "http"
 
 require 'socket'
 fname = "#{Rails.root}/config/environments/development.#{Socket.gethostname}.rb"

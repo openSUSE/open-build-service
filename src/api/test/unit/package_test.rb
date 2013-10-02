@@ -7,6 +7,7 @@ class PackageTest < ActiveSupport::TestCase
   def setup
     super
     @package = Package.find( 10095 )
+    User.current = nil
   end
 
   def teardown
