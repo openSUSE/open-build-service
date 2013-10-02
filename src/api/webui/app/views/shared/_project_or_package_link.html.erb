@@ -1,0 +1,33 @@
+<% package ||= nil %>
+<% rev ||= nil %>
+<% short ||= false %>
+<% nolink ||= false %>
+
+<% prj = Webui::Project.find_cached(project) %>
+<% project_exists = prj && !prj.is_remote? %>
+<% if package %>
+  <% unless short %>
+    package
+  <% end %>
+  <% if !nolink %>
+    <%= link_to_if(project_exists, project, { controller: 'project', action: 'show', project: project}, {:class => 'project'} ) %>
+    /
+    <% package_exists = project_exists && Webui::Package.find_cached(package, project: project) %>
+    <%= link_to_if(package_exists, package, { controller: 'package', action: 'show', project: project, package: package}, {:class => 'package'}) %>
+    <% if rev && rev != Webui::Package.current_rev(project, package) %>
+      (<%= link_to_if(package_exists, "revision #{elide(rev, 10)}", { controller: 'package', action: 'show', project: project, package: package, rev: rev}, {:class => 'package'}) %>)
+    <% end %>
+  <% else %>
+    <%= project %>/<%= package %>
+  <% end %>
+<% else %>
+  <% if !short %>
+    project
+  <% end %>
+  <% if !nolink %>
+    <%= link_to_if(project_exists, project, { controller: 'project', action: 'show', project: project}, {:class => 'project'}) %>
+  <% else %>
+    <%= project %>
+  <% end %>
+<% end %>
+

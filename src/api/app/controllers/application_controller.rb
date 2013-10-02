@@ -262,8 +262,7 @@ class ApplicationController < ActionController::Base
 
   def check_for_anonymous_user
     if ::Configuration.anonymous?
-      read_only_hosts = []
-      read_only_hosts = CONFIG['read_only_hosts'] if CONFIG['read_only_hosts']
+      read_only_hosts = CONFIG['read_only_hosts'] || ['127.0.0.1', '::1']
       read_only_hosts << CONFIG['webui_host'] if CONFIG['webui_host'] # this was used in config files until OBS 2.1
       if read_only_hosts.include?(request.env['REMOTE_HOST']) or read_only_hosts.include?(request.env['REMOTE_ADDR'])
         # Fixed list of clients which do support the read only mode
@@ -490,6 +489,10 @@ class ApplicationController < ActionController::Base
     render_error message: exception.message, status: 404, errorcode: 'not_found'
   end
 
+  rescue_from ActionController::RoutingError do |exception|
+    render_error message: exception.message, status: 404, errorcode: 'not_route'
+  end
+
   def permissions
     return @user_permissions
   end
@@ -555,6 +558,7 @@ class ApplicationController < ActionController::Base
     respond_to do |format|
       format.xml { render template: 'status', status: opt[:status] }
       format.json { render json: { errorcode: @errorcode, summary: @summary }, status: opt[:status] }
+      format.html
     end
   end
 
@@ -585,7 +589,7 @@ class ApplicationController < ActionController::Base
 
   def backend
     Suse::Backend.start_test_backend if Rails.env.test?
-    @backend ||= ActiveXML.transport
+    @backend ||= ActiveXML.backend
   end
 
   def backend_get( path )

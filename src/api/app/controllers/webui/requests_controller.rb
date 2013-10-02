@@ -31,7 +31,7 @@ class Webui::RequestsController < Webui::BaseController
   def index
     required_parameters :ids
 
-    rel = BsRequest.where(id: params[:ids].split(','))
+    rel = ::BsRequest.where(id: params[:ids].split(','))
     rel = rel.includes({ bs_request_actions: :bs_request_action_accept_info }, :bs_request_histories)
     rel = rel.order('bs_requests.id')
 
@@ -45,7 +45,7 @@ class Webui::RequestsController < Webui::BaseController
   def show
     required_parameters :id
 
-    req = BsRequest.find(params[:id])
+    req = ::BsRequest.find(params[:id])
     render json: req.webui_infos
   end
 

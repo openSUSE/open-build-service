@@ -26,8 +26,9 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     get "/public/source/home:Iggy/TestPack/_meta"
     assert_response :success
 
-    get "/public/source"
-    assert_response 404 # no such action
+    get "/public/source" # no such action
+    assert_response 404
+
     get "/public/source/DoesNotExist/_meta"
     assert_response 404
     get "/public/source/home:Iggy/DoesNotExist/_meta"
@@ -87,7 +88,7 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     assert_match(/myfile2: no such file/, @response.body)
 
     get "/public/build/home:Iggy/10.2/i586/TestPack/doesnotexist"
-    assert_response 404
+    assert_response 404 
     # FIXME: do a working getbinary call
   end
 
@@ -106,6 +107,7 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     get "/public/build/home:Iggy/10.2/i586/TestPack"
     assert_response :success
     assert_xml_tag :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" }
+
     get "/public/build/home:Iggy/10.2/i586/TestPack/package-1.0-1.i586.rpm"
     assert_response 404
   end

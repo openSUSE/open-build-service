@@ -54,7 +54,7 @@ class ArchitecturesControllerTest < ActionDispatch::IntegrationTest
 
     # temporary disabled to create
     post "/architectures/futurearch", "<architecture><available>true</available></architecture>"
-    assert_response 404 
+    assert_response 404
 
   end
 

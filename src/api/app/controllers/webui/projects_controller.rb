@@ -22,7 +22,7 @@ class Webui::ProjectsController < Webui::BaseController
     required_parameters :id
     project_name = params[:id]
     infos = Hash.new
-    @pro = Project.find_by_name!(project_name)
+    @pro = ::Project.find_by_name!(project_name)
     infos[:name] = @pro.name
     infos[:packages] = find_packages_info
 
@@ -107,7 +107,7 @@ class Webui::ProjectsController < Webui::BaseController
 
   def status
     required_parameters :id
-    @project = Project.where(name: params[:id]).includes(:packages).first
+    @project = ::Project.where(name: params[:id]).includes(:packages).first
     @status = Hash.new
 
     # needed to map requests to package id
@@ -259,7 +259,7 @@ class Webui::ProjectsController < Webui::BaseController
   def status_gather_requests
     # we do not filter requests for project because we need devel projects too later on and as long as the
     # number of open requests is limited this is the easiest solution
-    raw_requests = BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
+    raw_requests = ::BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
         where(bs_request_actions: {type: 'submit'}).pluck("bs_requests.id", "bs_requests.state",
                                                           "bs_request_actions.target_project",
                                                           "bs_request_actions.target_package")
