@@ -34,11 +34,19 @@ gem 'thinking-sphinx', '= 3.0.4'
 # don't rely on cron+rake 
 gem 'clockwork'
 
+# for now used in webui routes
+gem 'mobileesp_converted'
+
+# used to paginate search results
+gem 'kaminari'
+
 group :production do
   # if you have an account, it can be configured by
   # placing a config/newrelic.yml
   gem 'newrelic_rpm'
 end
+
+gem 'webui', path: 'webui'
 
 group :test do
   gem 'database_cleaner', '>= 1.0.1'
@@ -55,10 +63,24 @@ group :test do
   gem 'webmock', '>= 1.9.0'
   # for code quality checks
   gem 'flog', '> 4.1.0'
+
+  gem 'capybara_minitest_spec'
+
+  # See test/test_helper.rb for details:
+  gem 'capybara', '~>2.0.1'
+  gem 'capybara-webkit', '< 1.0'
+
+  # for save_and_open_page to debug
+  gem 'launchy'
+  gem 'headless'
+
+  gem 'mocha', '> 0.13.0', require: false
+
 end
 
 group :development do
   gem 'pry', '>= 0.9.12'
+  gem 'unicorn-rails' # webrick won't work
 end
 
 # Gems used only for assets and not required in production environments by default.
@@ -73,5 +95,7 @@ group :assets do
   gem 'chunky_png'
 
   gem "bootstrap-sass"
+  gem 'jquery-rails'
+  gem 'jquery-ui-rails'
 end
 

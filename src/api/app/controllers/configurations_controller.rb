@@ -40,7 +40,7 @@ class ConfigurationsController < ApplicationController
         archs=Hash[params["arch"].map{|a| [a, 1]}]
       end
       if archs
-        Architecture.all().each do |arch|
+        Architecture.all.each do |arch|
           if arch.available != (archs[arch.name] == 1)
             arch.available = (archs[arch.name] == 1)
             arch.save!

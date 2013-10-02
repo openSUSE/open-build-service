@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 i*-
 require 'api_exception'
 require 'builder/xchar'
+require 'rexml/document'
 
 class Package < ActiveRecord::Base
   include FlagHelper

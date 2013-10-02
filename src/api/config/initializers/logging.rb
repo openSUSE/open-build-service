@@ -29,7 +29,7 @@ module TimestampFormatter
   def call(severity, timestamp, progname, msg)
     Thread.current[:timestamp_formatter_timestamp] ||= Time.now
     tdiff = sprintf("%02.2f", Time.now - Thread.current[:timestamp_formatter_timestamp])
-    super(severity, timestamp, progname, "[#{tdiff}] #{msg}")
+    super(severity, timestamp, progname, "[#{Process.pid}:#{tdiff}] #{msg}")
   end
 end
 

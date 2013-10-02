@@ -1,5 +1,7 @@
 OBSApi::Application.routes.draw do
 
+  mount Webui::Engine, at: "/webui2", as: 'webui_engine'
+
   scope constraints: { format: 'html' } do
     namespace :html do
       get '/' => 'main#index'

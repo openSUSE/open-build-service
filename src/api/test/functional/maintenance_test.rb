@@ -11,7 +11,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   teardown do
-    WebMock.reset!
     Timecop.return
   end
 

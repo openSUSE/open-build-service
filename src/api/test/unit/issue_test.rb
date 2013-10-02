@@ -3,10 +3,6 @@ require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 class IssueTest < ActiveSupport::TestCase
   fixtures :all
 
-  teardown do
-    WebMock.reset!
-  end
-
   BugGet0815 = "<?xml version=\"1.0\" ?><methodCall><methodName>Bug.get</methodName><params><param><value><struct><member><name>ids</name><value><array><data><value><string>1234</string></value><value><string>0815</string></value></data></array></value></member><member><name>permissive</name><value><i4>1</i4></value></member></struct></value></param></params></methodCall>\n"
 
   def test_create_and_destroy

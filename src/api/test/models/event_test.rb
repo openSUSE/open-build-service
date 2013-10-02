@@ -5,10 +5,6 @@ class EventTest < ActiveSupport::TestCase
   fixtures :all
   set_fixture_class events: Event::Base
 
-  teardown do
-    WebMock.reset!
-  end
-
   test "find nothing" do
     assert_nil Event::Factory.new_from_type('NOT_EXISTANT', {})
   end

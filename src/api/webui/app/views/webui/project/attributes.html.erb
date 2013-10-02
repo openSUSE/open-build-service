@@ -1,0 +1,13 @@
+<% @pagetitle = "Attributes of #{@project}"
+  project_bread_crumb 'Attributes' %>
+
+<%= render :partial => 'tabs' %>
+
+<% if @project.has_element? :remoteurl %>
+  <h3>Remote OBS Instance:</h3>
+  <p><%= @project.remoteurl %></p>
+<% end %>
+
+<h3><%= @pagetitle %></h3>
+
+<%= render :partial => "webui/attribute/attributes" %>

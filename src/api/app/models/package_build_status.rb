@@ -95,7 +95,7 @@ class PackageBuildStatus
     @buildcode="unknown"
     begin
       uri = URI("/build/#{CGI.escape(@pkg.project.name)}/_result?package=#{CGI.escape(@pkg.name)}&repository=#{CGI.escape(srep['name'])}&arch=#{CGI.escape(arch)}")
-      resultlist = Xmlhash.parse(ActiveXML.transport.direct_http(uri))
+      resultlist = Xmlhash.parse(ActiveXML.backend.direct_http(uri))
       currentcode = nil
       resultlist.elements('result') do |r|
         r.elements('status') { |s| currentcode = s['code'] }
@@ -128,7 +128,7 @@ class PackageBuildStatus
     if @eversucceeded
       uri = URI("/build/#{CGI.escape(@pkg.project.name)}/#{CGI.escape(srep['name'])}/#{CGI.escape(arch)}/_builddepinfo?package=#{CGI.escape(@pkg.name)}&view=pkgnames")
       begin
-        buildinfo = Xmlhash.parse(ActiveXML.transport.direct_http(uri))
+        buildinfo = Xmlhash.parse(ActiveXML.backend.direct_http(uri))
       rescue ActiveXML::Transport::Error => e
         # if there is an error, we ignore
         raise FailedToRetrieveBuildInfo.new "Can't get buildinfo: #{e.summary}"
