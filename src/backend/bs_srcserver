@@ -188,6 +188,11 @@ sub lastnotifications {
     $res->{'sync'} = 'lost';
     @l = ();
   }
+  # don't send more than 1000 notifications to the poor api
+  if (@l > 1000) {
+    $res->{'next'} = $l[1000]->{'number'};
+    @l = splice(@l, 0, 1000);
+  }
   $res->{'notification'} = \@l;
   delete $_->{'number'} for @l;		# XXX: why?
   if ($view && $view eq 'json') {
