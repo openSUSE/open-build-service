@@ -85,6 +85,12 @@ class PackageBuildStatus
     @result[srep['name']][arch][:missing] = missingdeps.uniq
   end
 
+  def current_srcmd5
+    cdir = Directory.hashed(project: @pkg.project.name,
+                            package: @pkg.name, view: :info)
+    cdir['srcmd5']
+  end
+
   def gather_current_buildcode(srep, arch)
     @buildcode="unknown"
     begin
@@ -108,7 +114,7 @@ class PackageBuildStatus
     end
     # if it's currently succeeded but !@everbuilt, it's different sources
     if currentcode == 'succeeded'
-      if @srcmd5 == @csrcmd5
+      if @srcmd5 == current_srcmd5
         @buildcode='building' # guesssing
       else
         @buildcode='outdated'
@@ -168,7 +174,7 @@ class PackageBuildStatus
 
     # going through the job history to check if it built and if yes, succeeded
     hist.elements('jobhist') do |jh|
-      next unless jh['verifymd5'] == @srcmd5 || jh['srcmd5'] == @srcmd5
+      next unless jh['verifymd5'] == @verifymd5 || jh['srcmd5'] == @srcmd5
       @everbuilt = true
       if jh['code'] == 'succeeded' || jh['code'] == 'unchanged'
         @buildcode ='succeeded'
@@ -178,7 +184,7 @@ class PackageBuildStatus
   end
 
   def gather_md5sums
-        # check current @srcmd5
+    # check current @srcmd5
     cdir = Directory.hashed(project: @pkg.project.name,
                             package: @pkg.name,
                             rev: @srcmd5,
