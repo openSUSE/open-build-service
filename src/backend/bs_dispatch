@@ -311,7 +311,8 @@ sub mergeconstraints {
     }
     if ($con2->{'hardware'}) {
       for my $el (qw{processors disk memory physicalmemory}) {
-	$con->{'hardware'}->{$el} = Storable::dclone($con2->{'hardware'}->{$el}) if defined $con2->{'hardware'}->{$el};
+        next unless defined $con2->{'hardware'}->{$el};
+        $con->{'hardware'}->{$el} = ref($con2->{'hardware'}->{$el}) ? Storable::dclone($con2->{'hardware'}->{$el}) : $con2->{'hardware'}->{$el};
       }
       if ($con2->{'hardware'}->{'cpu'} && $con2->{'hardware'}->{'cpu'}->{'flag'}) {
 	my %oldflags = map {$_ => 1} @{$con->{'hardware'}->{'cpu'}->{'flag'} || []};
