@@ -291,5 +291,31 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
       :in   => [:name],
       :expect => :invalid_search_text)
   end
+
+  test "search_hidden_as_anonymous" do
+
+    visit search_path
   
+    search(
+      :text => "packcopy",
+      :for  => [:projects, :packages],
+      :in   => [:name, :title],
+      :expect => :no_results)
+  end
+
+  test "search_hidden_as_adrian" do
+
+    login_adrian
+    visit search_path
+
+    search(
+      :text => "packcopy",
+      :for  => [:projects, :packages],
+      :in   => [:name, :title])
+
+    results = search_results
+    assert results.include? :type => :package, :package_name => "packCopy", :project_name=>"HiddenProject"
+    results.count.must_equal 1
+  end
+
 end
