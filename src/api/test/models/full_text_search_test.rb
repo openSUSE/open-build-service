@@ -56,4 +56,21 @@ class FullTextSearchTest < ActiveSupport::TestCase
     assert_equal ["BaseDistro2.0"], s.search.map(&:name)
   end
 
+  test "searching for a hidden project" do
+    s = FullTextSearch.new(text: 'HiddenProject')
+    assert_equal 0, s.search.total_entries
+    User.current = users(:adrian)
+    assert_equal 1, s.search.total_entries
+    User.current = users(:fred)
+    assert_equal 0, s.search.total_entries
+  end
+
+  test "searching for a hidden package" do
+    s = FullTextSearch.new(text: 'packcopy')
+    assert_equal 0, s.search.total_entries
+    User.current = users(:adrian)
+    assert_equal 1, s.search.total_entries
+    User.current = users(:fred)
+    assert_equal 0, s.search.total_entries
+  end
 end
