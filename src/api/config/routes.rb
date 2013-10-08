@@ -24,10 +24,10 @@ OBSApi::Application.routes.draw do
     ### /group
     controller :group do
       get 'group' => :index
-      get 'group/:title' => :show
-      delete 'group/:title' => :delete
-      put 'group/:title' => :update
-      post 'group/:title' => :command
+      get 'group/:title' => :show, constraints: cons
+      delete 'group/:title' => :delete, constraints: cons
+      put 'group/:title' => :update, constraints: cons
+      post 'group/:title' => :command, constraints: cons
     end
 
     ### /service
