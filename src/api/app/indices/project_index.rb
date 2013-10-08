@@ -1,6 +1,7 @@
 ThinkingSphinx::Index.define :project, :with => :active_record do
   indexes name, title, description
 
+  has :id, :as => :project_id
   has attribs.attrib_type_id, :as => :attrib_type_ids
   has packages.package_issues.issue_id, :as => :issue_ids
   has "(SELECT count(*) FROM linked_projects WHERE linked_db_project_id = projects.id)", :as => :linked_count, :type => :integer

@@ -34,7 +34,8 @@ class FullTextSearch
              order:         "adjusted_weight DESC",
              field_weights: FullTextSearch.field_weights,
              page:          options[:page],
-             per_page:      options[:per_page] || FullTextSearch.per_page }
+             per_page:      options[:per_page] || FullTextSearch.per_page,
+             without:       {:project_id => Relationship.forbidden_project_ids} }
 
     args[:select] = "(@weight + "\
                     "#{FullTextSearch.linked_count_weight} * linked_count + "\
