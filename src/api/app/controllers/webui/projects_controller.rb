@@ -2,20 +2,6 @@ require_dependency 'status_helper'
 
 class Webui::ProjectsController < Webui::BaseController
 
-  def index
-    # return all projects and their title
-    ret = {}
-    atype = AttribType.find_by_namespace_and_name('OBS', 'VeryImportantProject')
-    important = {}
-    Project.find_by_attribute_type(atype).pluck("projects.id").each do |p|
-      important[p] = true
-    end
-    projects = Project.where("name <> ?", "deleted").pluck(:id, :name, :title)
-    projects.each do |id, name, title|
-      ret[name] = { title: title, important: important[id] ? true : false }
-    end
-    render json: ret
-  end
 
   # return all data related that the webui wants to show on /project/show
   def infos
