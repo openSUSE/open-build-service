@@ -119,7 +119,7 @@ class ProjectController < WebuiController
   def users
     @users = @project.users
     @groups = @project.groups
-    @roles = Webui::Role.local_roles
+    @roles = Role.local_roles
   end
 
   def subprojects
