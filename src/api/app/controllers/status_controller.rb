@@ -7,15 +7,15 @@ class StatusController < ApplicationController
   end
 
   def list_messages
-    @messages = StatusMessage.alive.limit(params[:limit]).order("created_at DESC").includes(:user)
+    @messages = StatusMessage.alive.limit(params[:limit]).order('created_at DESC').includes(:user)
     @count = @messages.size
-    render xml: render_to_string(partial: "messages")
+    render xml: render_to_string(partial: 'messages')
   end
 
   def show_message
     @messages = [StatusMessage.find(params[:id])]
     @count = 1
-    render xml: render_to_string(partial: "messages")
+    render xml: render_to_string(partial: 'messages')
   end
 
   class CreatingMessagesError < APIException
@@ -54,7 +54,7 @@ class StatusController < ApplicationController
   def delete_message
     # check permissions
     unless permissions.status_message_create
-      raise PermissionDeniedError.new "message cannot be deleted, you have not sufficient permissions"
+      raise PermissionDeniedError.new 'message cannot be deleted, you have not sufficient permissions'
     end
 
     StatusMessage.find(params[:id]).delete
@@ -62,31 +62,7 @@ class StatusController < ApplicationController
   end
 
   def workerstatus
-    begin
-      data = Rails.cache.read('workerstatus')
-    rescue Zlib::GzipFile::Error
-      data = nil
-    end
-    data=ActiveXML::Node.new(data || update_workerstatus_cache)
-    prjs=Hash.new
-    data.each_building do |b|
-      prjs[b.project] = 1
-    end
-    names = Hash.new
-    # now try to find those we have a match for (the rest are hidden from you
-    Project.where(name: prjs.keys).pluck(:name).each do |n|
-      names[n] = 1
-    end
-    data.each_building do |b|
-      # no prj -> we are not allowed
-      unless names.has_key? b.project
-        logger.debug "workerstatus2clean: hiding #{b.project} for user #{User.current.login}"
-        b.set_attribute('project', '---')
-        b.set_attribute('repository', '---')
-        b.set_attribute('package', '---')
-      end
-    end
-    send_data data.dump_xml
+    send_data WorkerStatus.hidden.dump_xml
   end
 
   def history
@@ -101,84 +77,6 @@ class StatusController < ApplicationController
     end
     starttime = Time.now.to_i - hours.to_i * 3600
     @values = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, params[:key]).pluck(:time, :value).collect { |time, value| [time.to_i, value.to_f] }
-  end
-
-  def save_value_line(e, prefix)
-    line = StatusHistory.new
-    line.time = @mytime
-    line.key = "#{prefix}_#{e['arch']}"
-    line.value = e['jobs']
-    line.save
-  end
-
-  def update_workerstatus_cache
-    # do not add hiding in here - this is purely for statistics
-    ret=backend_get('/build/_workerstatus')
-    data=Xmlhash.parse(ret)
-
-    @mytime = Time.now.to_i
-    Rails.cache.write('workerstatus', ret, expires_in: 3.minutes)
-    Rails.cache.write('workerhash', data, expires_in: 3.minutes)
-    StatusHistory.transaction do
-      data.elements('blocked') do |e|
-        save_value_line(e, 'blocked')
-      end
-      data.elements('waiting') do |e|
-        save_value_line(e, 'waiting')
-      end
-      data.elements('partition') do |p|
-        p.elements('daemon') do |daemon|
-          parse_daemon_infos(daemon)
-        end
-      end
-      parse_worker_infos(data)
-    end
-    ret
-  end
-
-  def parse_daemon_infos(daemon)
-    return unless daemon['type'] == 'scheduler'
-    arch = daemon['arch']
-    # FIXME2.5: The current architecture model is a gross hack, not connected at all
-    #           to the backend config.
-    a=Architecture.find_by_name(arch)
-    if a
-      a.available=true
-      a.save
-    end
-    queue = daemon.get('queue')
-    return unless queue
-    StatusHistory.create :time => @mytime, :key => "squeue_high_#{arch}", :value => queue['high'].to_i
-    StatusHistory.create :time => @mytime, :key => "squeue_next_#{arch}", :value => queue['next'].to_i
-    StatusHistory.create :time => @mytime, :key => "squeue_med_#{arch}", :value => queue['med'].to_i
-    StatusHistory.create :time => @mytime, :key => "squeue_low_#{arch}", :value => queue['low'].to_i
-  end
-
-  def parse_worker_infos(data)
-    allworkers = Hash.new
-    workers = Hash.new
-    %w{building idle}.each do |state|
-      data.elements(state) do |e|
-        id=e['workerid']
-        if workers.has_key? id
-          logger.debug 'building+idle worker'
-          next
-        end
-        workers[id] = 1
-        key = state + '_' + e['hostarch']
-        allworkers["building_#{e['hostarch']}"] ||= 0
-        allworkers["idle_#{e['hostarch']}"] ||= 0
-        allworkers[key] = allworkers[key] + 1
-      end
-    end
-
-    allworkers.each do |key, value|
-      line = StatusHistory.new
-      line.time = @mytime
-      line.key = key
-      line.value = value
-      line.save
-    end
   end
 
   # move to models?
@@ -238,7 +136,7 @@ class StatusController < ApplicationController
                            package: action.source_package,
                            expand: 1, rev: action.source_rev)
     @result = PackageBuildStatus.new(spkg).result(target_project: tproj, srcmd5: dir['srcmd5'])
-    render xml: render_to_string(partial: "bsrequest")
+    render xml: render_to_string(partial: 'bsrequest')
   end
 
   class NotFoundError < APIException

@@ -22,9 +22,7 @@ class Webui::MainController < Webui::WebuiController
     if @spider_bot
       @workerstatus = Xmlhash::XMLHash.new
     else
-      @workerstatus = Rails.cache.fetch('frontpage_workerstatus', :expires_in => 15.minutes, :shared => true) do
-        Webui::Workerstatus.find(:all).to_hash
-      end
+      @workerstatus = WorkerStatus.hidden.to_hash
     end
     @waiting_packages = 0
     @workerstatus.elements('waiting') {|waiting| @waiting_packages += waiting['jobs'].to_i}
