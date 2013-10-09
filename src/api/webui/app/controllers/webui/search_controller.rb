@@ -182,9 +182,8 @@ private
   end
 
   def set_attribute_list
-    # FIXME: needs caching?
-    @attrib_type_list = Webui::ApiDetails.read(:attrib_types).map do |t|
-      ["#{t['attrib_namespace_name']}:#{t['name']}", t['id']]
+    @attrib_type_list = AttribType.includes(:attrib_namespace).map do |t|
+      ["#{t.attrib_namespace.name}:#{t.name}", t['id']]
     end
     @attrib_type_list.sort_by! {|a| a.first }
     @attrib_type_list.unshift(['', ''])
