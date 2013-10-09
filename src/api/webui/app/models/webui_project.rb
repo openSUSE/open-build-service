@@ -44,6 +44,10 @@ class WebuiProject < Webui::Node
     to_hash["name"]
   end
 
+  def api_project
+    Project.find_by_name(to_s)
+  end
+
   def set_remoteurl(url)
     logger.debug "set remoteurl"
 
