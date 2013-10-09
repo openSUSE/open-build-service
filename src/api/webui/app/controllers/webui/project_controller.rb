@@ -796,19 +796,19 @@ class ProjectController < WebuiController
     redirect_to :action => :repositories, :project => @project
   end
 
-  def change_role_options(params)
-    ret = Hash.new
-    ret[:role] = params[:role] if params.has_key? :role
-    if params.has_key? :userid
-      return ret.merge( { user: params[:userid] })
+  def load_obj
+    if login = params[:userid]
+      return User.get_by_login(login)
+    elsif title = params[:groupid]
+      return ::Group.get_by_title(title)
     else
-      return ret.merge( { group: params[:groupid] })
+      raise MissingParameterError, "Neither user nor group given"
     end
   end
 
   def save_person
     begin
-      ApiDetails.create(:project_relationships, @project.name, change_role_options(params))
+      @project.api_project.add_role(load_obj, Role.find_by_title!(params[:role]))
       @project.free_cache
     rescue ApiDetails::TransportError, ApiDetails::NotFoundError, User::NotFound => e
       flash[:error] = e.to_s
@@ -826,7 +826,7 @@ class ProjectController < WebuiController
 
   def save_group
     begin
-      ApiDetails.create :project_relationships, @project.name, change_role_options(params)
+      @project.api_project.add_role(load_obj, Role.find_by_title!(params[:role]))
       @project.free_cache
     rescue ApiDetails::TransportError, ApiDetails::NotFoundError, ::Group::NotFound => e
       flash[:error] = e.to_s
@@ -844,7 +844,7 @@ class ProjectController < WebuiController
 
   def remove_role
     begin
-      ApiDetails.destroy :for_user_project_relationships, @project.name, change_role_options(params)
+      @project.api_project.remove_role(load_obj, Role.find_by_title(params[:role]))
       @project.free_cache
     rescue ApiDetails::TransportError, ApiDetails::NotFoundError, User::NotFound, ::Group::NotFound => e
       flash[:error] = e.summary
