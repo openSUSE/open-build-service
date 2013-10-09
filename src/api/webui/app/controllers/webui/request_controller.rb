@@ -129,7 +129,7 @@ class RequestController < WebuiController
           if tpkg
             target = find_cached(Package, tpkg, :project => tprj)
           else
-            target = find_cached(Project, tprj)
+            target = find_cached(WebuiProject, tprj)
           end
           target.add_person(:userid => @req.creator, :role => "maintainer")
           target.save
@@ -261,7 +261,7 @@ class RequestController < WebuiController
 
   def change_devel_request_dialog
     required_parameters :package, :project
-    @project = find_cached(Project, params[:project])
+    @project = find_cached(WebuiProject, params[:project])
     @package = find_cached(Package, params[:package], :project => params[:project]) 
     if @package.has_element?(:devel)
       @current_devel_package = @package.devel.value('package') || @package.value('name')

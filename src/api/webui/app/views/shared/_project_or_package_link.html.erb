@@ -3,7 +3,7 @@
 <% short ||= false %>
 <% nolink ||= false %>
 
-<% prj = Webui::Project.find_cached(project) %>
+<% prj = WebuiProject.find_cached(project) %>
 <% project_exists = prj && !prj.is_remote? %>
 <% if package %>
   <% unless short %>

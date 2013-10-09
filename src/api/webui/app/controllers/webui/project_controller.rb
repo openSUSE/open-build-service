@@ -126,7 +126,7 @@ class ProjectController < WebuiController
     @subprojects = Hash.new
     sub_names = Collection.find :id, :what => "project", :predicate => "starts-with(@name,'#{@project}:')"
     sub_names.each do |sub|
-      @subprojects[sub.name] = find_cached( Project, sub.name )
+      @subprojects[sub.name] = find_cached( WebuiProject, sub.name )
     end
     @subprojects = @subprojects.sort # Sort by hash key for better display
     @parentprojects = Hash.new
@@ -134,7 +134,7 @@ class ProjectController < WebuiController
     parent_names.each_with_index do |parent, idx|
       parent_name = parent_names.slice(0, idx+1).join(':')
       unless [@project.name, 'home'].include?( parent_name )
-        parent_project = find_cached(Project, parent_name )
+        parent_project = find_cached(WebuiProject, parent_name )
         @parentprojects[parent_name] = parent_project unless parent_project.blank?
       end
     end
@@ -154,7 +154,7 @@ class ProjectController < WebuiController
     @project_name = params[:project]
     if @namespace
       begin
-        @project = find_cached(Project, @namespace)
+        @project = find_cached(WebuiProject, @namespace)
         if @namespace == "home:#{session[:login]}" and not @project
           @pagetitle = "Your home project doesn't exist yet. You can create it now"
           @project_name = @namespace
@@ -241,7 +241,7 @@ class ProjectController < WebuiController
     rescue ApiDetails::NotFoundError
       return render_project_missing
     end
-    @project = Webui::Project.new(@project_info['xml'])
+    @project = WebuiProject.new(@project_info['xml'])
     @packages = @project_info['packages'].map { |p| p[0] }.sort
     @open_maintenance_incidents = @project_info['incidents']
     @linking_projects = @project_info['linking_projects']
@@ -453,7 +453,7 @@ class ProjectController < WebuiController
     end
     # overwrite @project with different view
     # TODO to get this cached we need to make sure it gets purged on repo updates
-    @project = Project.find( params[:project], :view => :flagdetails )
+    @project = WebuiProject.find( params[:project], :view => :flagdetails )
   end
 
   def repository_state
@@ -607,13 +607,13 @@ class ProjectController < WebuiController
     project_name = params[:name].strip
     project_name = params[:ns].strip + ':' + project_name.strip if params[:ns]
 
-    if Project.exists? project_name
+    if WebuiProject.exists? project_name
       flash[:error] = "Project '#{project_name}' already exists."
       redirect_to :action => 'new', :ns => params[:ns] and return
     end
 
     #store project
-    @project = Project.new(:name => project_name)
+    @project = WebuiProject.new(name: project_name)
     @project.title.text = params[:title]
     @project.description.text = params[:description]
     @project.set_project_type('maintenance') if params[:maintenance_project]
@@ -1073,7 +1073,7 @@ class ProjectController < WebuiController
       return
     end
 
-    Project.free_cache params[:project]
+    WebuiProject.free_cache params[:project]
     render :text => 'Config successfully saved', :content_type => 'text/plain'
   end
 
@@ -1097,7 +1097,7 @@ class ProjectController < WebuiController
     check_ajax
     required_parameters :cmd, :flag
     frontend.source_cmd params[:cmd], :project => @project, :repository => params[:repository], :arch => params[:arch], :flag => params[:flag], :status => params[:status]
-    @project = Project.find( :name => params[:project], :view => :flagdetails )
+    @project = WebuiProject.find( :name => params[:project], :view => :flagdetails )
   end
 
   def clear_failed_comment
@@ -1260,7 +1260,7 @@ class ProjectController < WebuiController
       path = "/source/#{CGI.escape(params[:project])}/?cmd=unlock&comment=#{CGI.escape(params[:comment])}"
       frontend.transport.direct_http(URI(path), :method => 'POST', :data => '')
       flash[:success] = "Unlocked project #{params[:project]}"
-      Project.free_cache(params[:project])
+      WebuiProject.free_cache(params[:project])
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
     end
@@ -1342,7 +1342,7 @@ class ProjectController < WebuiController
 
   def require_project
     return unless check_valid_project_name
-    @project ||= find_cached(Webui::Project, params[:project], :expires_in => 5.minutes )
+    @project ||= find_cached(WebuiProject, params[:project], :expires_in => 5.minutes )
     unless @project
       return render_project_missing
     end

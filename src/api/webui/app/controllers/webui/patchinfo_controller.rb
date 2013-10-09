@@ -371,7 +371,7 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def require_all
     required_parameters :project
-    @project = Webui::Project.find( params[:project] )
+    @project = WebuiProject.find( params[:project] )
     unless @project
       flash[:error] = "Project not found: #{params[:project]}"
       redirect_to :controller => 'project', :action => 'list_public'

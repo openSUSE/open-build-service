@@ -1121,7 +1121,7 @@ class PackageController < WebuiController
         render :text => "#{params[:project]} is not a valid project name", :status => 404 and return
       end
     end
-    @project = Webui::Project.find( params[:project] )
+    @project = WebuiProject.find( params[:project] )
     unless @project
       unless request.xhr?
         flash[:error] = "Project not found: #{params[:project]}"
