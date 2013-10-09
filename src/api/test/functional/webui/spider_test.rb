@@ -33,11 +33,14 @@ class Webui::SpiderTest < Webui::IntegrationTest
       link = link.to_s
       next if link =~ %r{/mini-profiler-resources}
       # that link is just a top ref
-      next if link.end_with? "/package/rdiff"
+      next if link.end_with? '/package/rdiff'
       # admin can see even the hidden
-      next if link.end_with? "/package/show/HiddenRemoteInstance"
-      next if link.end_with? "/project/show/HiddenRemoteInstance"
-      next if link.end_with? "/project/show/RemoteInstance"
+      next if link.end_with? '/package/show/HiddenRemoteInstance'
+      next if link.end_with? '/project/show/HiddenRemoteInstance'
+      next if link.end_with? '/project/show/RemoteInstance'
+      next if link.end_with? '/package/show/BaseDistro3/pack2'
+      next if link.end_with? '/package/show/home:Iggy/TestPack'
+      next if tag.content == 'show latest'
       unless @pages_visited.has_key? link
         @pages_to_visit[link] ||= [baseuri.to_s, tag.content]
       end
@@ -49,23 +52,23 @@ class Webui::SpiderTest < Webui::IntegrationTest
     return if url =~ %r{/package/binary/BinaryprotectedProject/.*}
     return if url =~ %r{/package/statistics/BinaryprotectedProject/.*}
     return if url =~ %r{/package/statistics/SourceprotectedProject/.*}
-    return if url.end_with? "/package/binary/SourceprotectedProject/pack?arch=i586&filename=package-1.0-1.src.rpm&repository=repo"
+    return if url.end_with? '/package/binary/SourceprotectedProject/pack?arch=i586&filename=package-1.0-1.src.rpm&repository=repo'
     return if url =~ %r{/package/revisions/SourceprotectedProject.*}
-    return if url.end_with? "/package/show/kde4/kdelibs?rev=1"
-    return if url.end_with? "/package/show/SourceprotectedProject/target"
-    return if url.end_with? "/package/users/SourceprotectedProject/pack"
-    return if url.end_with? "/package/view_file/BaseDistro:Update/pack2?file=my_file&rev=1"
-    return if url.end_with? "/package/view_file/Devel:BaseDistro:Update/pack2?file=my_file&rev=1"
-    return if url.end_with? "/package/view_file/Devel:BaseDistro:Update/pack3?file=my_file&rev=1"
-    return if url.end_with? "/package/view_file/LocalProject/remotepackage?file=my_file&rev=1"
-    return if url.end_with? "/package/view_file/BaseDistro2.0:LinkedUpdateProject/pack2.linked?file=myfile&rev=1"
-    return if url.end_with? "/package/view_file/BaseDistro2.0/pack2.linked?file=myfile&rev=1"
-    return if url.end_with? "/package/view_file/BaseDistro2.0:LinkedUpdateProject/pack2.linked?file=package.spec&rev=1"
-    return if url.end_with? "/package/view_file/BaseDistro2.0/pack2.linked?file=package.spec&rev=1"
-    return if url.end_with? "/project/edit/RemoteInstance"
-    return if url.end_with? "/project/meta/HiddenRemoteInstance"
-    return if url.end_with? "/project/show/HiddenRemoteInstance"
-    return if url.end_with? "/project/edit/HiddenRemoteInstance"
+    return if url.end_with? '/package/show/kde4/kdelibs?rev=1'
+    return if url.end_with? '/package/show/SourceprotectedProject/target'
+    return if url.end_with? '/package/users/SourceprotectedProject/pack'
+    return if url.end_with? '/package/view_file/BaseDistro:Update/pack2?file=my_file&rev=1'
+    return if url.end_with? '/package/view_file/Devel:BaseDistro:Update/pack2?file=my_file&rev=1'
+    return if url.end_with? '/package/view_file/Devel:BaseDistro:Update/pack3?file=my_file&rev=1'
+    return if url.end_with? '/package/view_file/LocalProject/remotepackage?file=my_file&rev=1'
+    return if url.end_with? '/package/view_file/BaseDistro2.0:LinkedUpdateProject/pack2.linked?file=myfile&rev=1'
+    return if url.end_with? '/package/view_file/BaseDistro2.0/pack2.linked?file=myfile&rev=1'
+    return if url.end_with? '/package/view_file/BaseDistro2.0:LinkedUpdateProject/pack2.linked?file=package.spec&rev=1'
+    return if url.end_with? '/package/view_file/BaseDistro2.0/pack2.linked?file=package.spec&rev=1'
+    return if url.end_with? '/project/edit/RemoteInstance'
+    return if url.end_with? '/project/meta/HiddenRemoteInstance'
+    return if url.end_with? '/project/show/HiddenRemoteInstance'
+    return if url.end_with? '/project/edit/HiddenRemoteInstance'
 
     $stderr.puts "Found #{message} on #{url}, crawling path"
     indent = ' '
@@ -91,7 +94,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
       rescue Timeout::Error
         next
       rescue ActionController::RoutingError
-        raiseit("routing error", theone)
+        raiseit('routing error', theone)
         return
       end
       body = nil
@@ -101,28 +104,28 @@ class Webui::SpiderTest < Webui::IntegrationTest
         #puts "HARDCORE!! #{theone}"
       end
       next unless body
-      flashes = body.css("div#flash-messages div.ui-state-error")
+      flashes = body.css('div#flash-messages div.ui-state-error')
       if !flashes.empty?
         raiseit("flash alert #{flashes.first.content.strip}", theone)
       end
       body.css('h1').each do |h|
         if h.content == 'Internal Server Error'
-          raiseit("Internal Server Error", theone)
+          raiseit('Internal Server Error', theone)
         end
       end
       body.css('h2').each do |h|
         if h.content == 'XML errors'
-          raiseit("XML errors", theone)
+          raiseit('XML errors', theone)
         end
       end
-      body.css("#exception-error").each do |e|
+      body.css('#exception-error').each do |e|
         raiseit("error '#{e.content}'", theone)
       end
       getlinks(theone, body)
     end
   end
 
-  test "spider anonymously" do
+  test 'spider anonymously' do
     return unless ENV['RUN_SPIDER']
     visit webui_engine.root_path
     @pages_to_visit = {page.current_url => [nil, nil]}
@@ -132,7 +135,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
     ActiveRecord::Base.clear_active_connections!
   end
 
-  test "spider as admin" do
+  test 'spider as admin' do
     return unless ENV['RUN_SPIDER']
     login_king
     visit webui_engine.root_path

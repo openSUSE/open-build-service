@@ -96,12 +96,12 @@ module FlagHelper
     self.flags.delete(flags_to_remove)
   end
 
-  def add_flag(flag, status, repository, arch)
+  def add_flag(flag, status, repository = nil, arch = nil)
     validate_type flag 
     unless status == 'enable' or status == 'disable'
       raise ArgumentError.new("Error: unknown status for flag '#{status}'")
     end
-    self.flags.create( :status => status, :flag => flag ) do |f|
+    self.flags.build( status: status, flag: flag ) do |f|
       f.architecture = Architecture.find_by_name(arch) if arch
       f.repo = repository
     end
@@ -110,13 +110,13 @@ module FlagHelper
   def enabled_for?(flag_type, repo, arch)
     state = find_flag_state(flag_type, repo, arch)
     logger.debug "enabled_for #{flag_type} repo:#{repo} arch:#{arch} state:#{state.to_s}"
-    return state == 'enable' ? true : false
+    return state.to_sym == :enable ? true : false
   end
 
   def disabled_for?(flag_type, repo, arch)
     state = find_flag_state(flag_type, repo, arch)
     logger.debug "disabled_for #{flag_type} repo:#{repo} arch:#{arch} state:#{state.to_s}"
-    return state == 'disable' ? true : false
+    return state.to_sym == :disable ? true : false
   end
 
   def find_flag_state(flag_type, repo, arch)
@@ -133,7 +133,7 @@ module FlagHelper
 
     if state == :default
       if self.respond_to? 'project'
-        logger.debug "flagcheck: package has default state, checking project"
+        logger.debug 'flagcheck: package has default state, checking project'
         state = self.project.find_flag_state(flag_type, repo, arch)
       else
         state = FlagHelper.default_for(flag_type)
@@ -145,7 +145,7 @@ module FlagHelper
 
   def flags_to_xml(builder, expand_flags, pkg=nil)
     FlagHelper.flag_types.each do |flag_name|
-      next if pkg and flag_name == "access" # no access flag in packages
+      next if pkg and flag_name == 'access' # no access flag in packages
       builder.send(flag_name) do
         expand_flags[flag_name].each do |l|
           builder.send(l[0], l[1])
@@ -159,8 +159,8 @@ module FlagHelper
     disabled = false
     xmlhash.elements(flagtype.to_s) do |xmlflags|
       xmlflags.keys.each do |status|
-        disabled = true if status == "disable"
-        return false if status == "enable"
+        disabled = true if status == 'disable'
+        return false if status == 'enable'
       end
     end
     return disabled

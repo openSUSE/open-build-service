@@ -43,11 +43,7 @@ FileUtils.rm_rf("#{Rails.root}/tmp/backend_config")
 
 # minimal auth
 @http_user = User.find_by_login( "king" )
-unless @http_user
-  # we only need the fixtures if rake test didn't load it yet
-  system("rake --trace db:fixtures:load")
-  @http_user = User.find_by_login( "king" )
-end
+raise "NO fixtures" unless @http_user
 User.current = @http_user
 
 puts "Creating backend config at #{Rails.root}/tmp/backend_config/BSConfig.pm"
