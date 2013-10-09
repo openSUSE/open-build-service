@@ -1,33 +1,33 @@
-
 require 'rexml/document'
 require "rexml/streamlistener"
 
 class StatisticsController < ApplicationController
 
+  include StatisticsCalculations
+
   validate_action :redirect_stats => {:method => :get, :response => :redirect_stats}
 
   before_filter :get_limit, :only => [
-    :highest_rated, :most_active_packages, :most_active_projects, :latest_added, :latest_updated,
-    :latest_built, :download_counter
+      :highest_rated, :most_active_packages, :most_active_projects, :latest_added, :latest_updated,
+      :latest_built, :download_counter
   ]
 
   def index
-    text =  "This is the statistics controller.<br />"
+    text = "This is the statistics controller.<br />"
     text += "See the api documentation for details."
     render :text => text
   end
 
-
-   def min_votes_for_rating
+  def min_votes_for_rating
     return CONFIG["min_votes_for_rating"]
-   end
+  end
 
   def highest_rated
     # set automatic action_cache expiry time limit
     # response.time_to_live = 10.minutes
 
     ratings = Rating.select('db_object_id, db_object_type, count(score) as count,' +
-        'sum(score)/count(score) as score_calculated').group('db_object_id, db_object_type').order('score_calculated DESC')
+                                'sum(score)/count(score) as score_calculated').group('db_object_id, db_object_type').order('score_calculated DESC')
     ratings = ratings.delete_if { |r| r.count.to_i < min_votes_for_rating }
     if @limit
       @ratings = ratings[0..@limit-1]
@@ -45,14 +45,14 @@ class StatisticsController < ApplicationController
 
     if request.get?
 
-      @rating = object.rating( @http_user.id )
+      @rating = object.rating(@http_user.id)
       return
 
     elsif request.put?
 
       # try to get previous rating of this user for this object
       previous_rating = Rating.where('object_type=? AND object_id=? AND user_id=?', object.class.name, object.id, @http_user.id).first
-      data = ActiveXML::Node.new( request.raw_post )
+      data = ActiveXML::Node.new(request.raw_post)
       if previous_rating
         # update previous rating
         previous_rating.score = data.to_s.to_i
@@ -68,7 +68,7 @@ class StatisticsController < ApplicationController
           rating.save
         rescue
           render_error :status => 400, :errorcode => "error setting rating",
-            :message => "rating not saved"
+                       :message => "rating not saved"
           return
         end
       end
@@ -77,38 +77,36 @@ class StatisticsController < ApplicationController
     end
 
     render_error :status => 400, :errorcode => "invalid_method",
-      :message => "only GET or PUT method allowed for this action"
+                 :message => "only GET or PUT method allowed for this action"
   end
 
 
   def download_counter
     # FIXME: download stats are currently not supported and needs a re-implementation
-
     render_error :status => 400, :errorcode => "not_supported", :message => "download stats need a re-implementation"
   end
-
 
   def newest_stats
     render_error :status => 400, :errorcode => "not_supported", :message => "download stats need a re-implementation"
   end
- 
+
 
   def most_active_projects
     # get all packages including activity values
     @packages = Package.select("packages.*, #{Package.activity_algorithm}").
-	    limit(@limit).order('activity_value DESC')
+        limit(@limit).order('activity_value DESC')
     # count packages per project and sum up activity values
     projects = {}
     @packages.each do |package|
       pro = package.project.name
-      projects[pro] ||= { :count => 0, :activity => 0 }
+      projects[pro] ||= {:count => 0, :activity => 0}
       projects[pro][:count] += 1
-      av = package.activity_value.to_f 
+      av = package.activity_value.to_f
       projects[pro][:activity] = av if av > projects[pro][:activity]
     end
 
     # sort by activity
-    @projects = projects.sort do |a,b|
+    @projects = projects.sort do |a, b|
       b[1][:activity] <=> a[1][:activity]
     end
 
@@ -118,7 +116,7 @@ class StatisticsController < ApplicationController
   def most_active_packages
     # get all packages including activity values
     @packages = Package.select("packages.*, #{Package.activity_algorithm}").
-      limit(@limit).order('activity_value DESC')
+        limit(@limit).order('activity_value DESC')
     return @packages
   end
 
@@ -128,15 +126,14 @@ class StatisticsController < ApplicationController
     @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: false) if params[:package]
   end
 
-
   def latest_added
 
     packages = Package.limit(@limit).order('created_at DESC, name')
     projects = Project.limit(@limit).order('created_at DESC, name')
 
-    list = projects 
+    list = projects
     list.concat packages
-    list.sort! { |a,b| b.created_at <=> a.created_at }
+    list.sort! { |a, b| b.created_at <=> a.created_at }
 
 
     if @limit
@@ -158,27 +155,12 @@ class StatisticsController < ApplicationController
 
   def latest_updated
     @limit = 10 unless @limit
-
-    packages = Package.order("updated_at DESC").limit(@limit).pluck(:name, :db_project_id, :updated_at).map { |name, project, at| [at, name, project] }
-    projects = Project.order("updated_at DESC").limit(@limit).pluck(:name, :updated_at).map { |name, at| [at, name, :project] }
-
-    packprojs = Hash.new
-    Project.where(id: packages.map { |x| x[2] }).pluck(:id, :name).each do |id, name|
-      packprojs[id] = name
-    end
-    packages.map! { |at, name, project| [at, :package, name, packprojs[project] ] }
-
-    @list = packages + projects
-    @list.sort! { |a,b| b[0] <=> a[0] }
-    @list = @list.slice(0, @limit)
+    @list = get_latest_updated(@limit)
   end
 
-
   def updated_timestamp
-
     @project = Project.get_by_name(params[:project])
     @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: true)
-
   end
 
 
@@ -200,15 +182,15 @@ class StatisticsController < ApplicationController
 
     # get the devel projects
     @project = Project.find_by_name!(params[:project])
-    
+
     # get devel projects
     ids = Package.joins("left outer join packages d on d.develpackage_id = packages.id").
-      where("d.db_project_id = ?", @project.id).select("packages.db_project_id").map { |p| p.db_project_id }.sort.uniq
+        where("d.db_project_id = ?", @project.id).select("packages.db_project_id").map { |p| p.db_project_id }.sort.uniq
     ids << @project.id
-    projects = Project.where("id in (?)", ids).select(:name).map {|p| p.name }
+    projects = Project.where("id in (?)", ids).select(:name).map { |p| p.name }
 
     # get all requests to it
-    reqs = BsRequestAction.where(target_project: projects).select(:bs_request_id).map {|a| a.bs_request_id}.uniq.sort
+    reqs = BsRequestAction.where(target_project: projects).select(:bs_request_id).map { |a| a.bs_request_id }.uniq.sort
     reqs = BsRequest.where("id in (?)", reqs).select([:id, :created_at, :creator])
     if params[:raw] == '1'
       render json: reqs

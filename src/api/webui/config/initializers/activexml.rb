@@ -102,8 +102,6 @@ map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['fronte
     # Statistics
     map.connect :latestadded, 'rest:///statistics/latest_added?:limit',
       :specific => 'rest:///statistics/added_timestamp/:project/:package'
-    map.connect :latestupdated, 'rest:///statistics/latest_updated?:limit',
-      :specific => 'rest:///statistics/updated_timestamp/:project/:package'
     map.connect :downloadcounter, 'rest:///statistics/download_counter' +
       '?:project&:package&:arch&:repo&:group_by&:limit'
     map.connect :rating, 'rest:///statistics/rating/:project/:package',
