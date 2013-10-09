@@ -28,7 +28,7 @@ class Webui::GroupController < Webui::WebuiController
 
   def edit
     required_parameters :group
-    @roles = Webui::Role.global_roles
+    @roles = Role.global_roles
     @members = []
     @displayed_group.person.each do |person |
       user = { 'name' => person.userid }

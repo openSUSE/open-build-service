@@ -58,6 +58,12 @@ class Role < ActiveRecord::Base
     def get_by_title(title)
       find_by_title(title) or raise NotFound.new("Couldn't find Role '#{title}'")
     end
+    def local_roles
+      Array[ "maintainer", "bugowner", "reviewer", "downloader" , "reader"]
+    end
+    def global_roles
+      Array[ "Admin", "User"]
+    end
   end
 
   def rolecache
