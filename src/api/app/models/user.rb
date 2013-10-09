@@ -346,6 +346,11 @@ class User < ActiveRecord::Base
     def find_by_email(email)
       return where(:email => email).first
     end
+
+    def realname_for_login(login)
+      User.find_by_login(login).realname
+    end
+
   end
 
   # After validation, the password should be encrypted  

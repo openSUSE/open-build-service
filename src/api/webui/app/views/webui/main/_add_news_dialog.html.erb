@@ -7,7 +7,7 @@
           <%= label_tag(:message, 'Message:') %><br/>
           <%= text_area_tag(:message, '', :size => '40x3') %><br/>
           <%= label_tag(:severity, "Severity:") %><br/>
-          <%= select_tag(:severity, options_for_select([['Information', 0], ['Green', 1], ['Yello', 2], ['Red', 3]])) %>
+          <%= select_tag(:severity, options_for_select([['Information', 0], ['Green', 1], ['Yellow', 2], ['Red', 3]])) %>
         </p>
         <div class="buttons">
           <%= submit_tag('Ok') %>

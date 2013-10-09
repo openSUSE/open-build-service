@@ -40,14 +40,18 @@ class Person < Node
     super
   end
 
+  # temporary aid
+  def self.from_user(user)
+    Person.new(user.render_axml)
+  end
+
+  def api_user
+    User.find_by_login(login)
+  end
+
   def self.email_for_login(person)
     p = Person.find_hashed(person)
     return p["email"] || ''
-  end
-
-  def self.realname_for_login(person)
-    p = Person.find_hashed(person)
-    return p["realname"] || ''
   end
 
   def initialize(data)
