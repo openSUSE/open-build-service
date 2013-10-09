@@ -95,10 +95,6 @@ map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['fronte
     map.connect :patchinfo, 'rest:///source/:project/:package/_patchinfo',
       :issues => 'rest:///source/:project/:package/?view=issues'
  
-    # Monitor
-    map.connect :workerstatus, 'rest:///status/workerstatus',
-      :all => 'rest:///status/workerstatus'
-
     # Statistics
     map.connect :latestadded, 'rest:///statistics/latest_added?:limit',
       :specific => 'rest:///statistics/added_timestamp/:project/:package'

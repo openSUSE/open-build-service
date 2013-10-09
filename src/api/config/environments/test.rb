@@ -18,7 +18,7 @@ OBSApi::Application.configure do
   # ActionMailer::Base.deliveries array.
   config.action_mailer.delivery_method = :test
 
-  config.cache_store = :memory_store
+  config.cache_store = :null_store
 
   config.active_support.deprecation = :log
 

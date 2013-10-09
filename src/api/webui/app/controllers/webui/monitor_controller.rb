@@ -5,8 +5,7 @@ class Webui::MonitorController < Webui::WebuiController
   before_filter :fetch_workerstatus, :only => [:old, :filtered_list, :update_building]
 
   def fetch_workerstatus
-     @workerstatus = Webui::Workerstatus.find(:all).to_hash
-     Rails.cache.write('frontpage_workerstatus', @workerstatus, :expires_in => 15.minutes)
+     @workerstatus = WorkerStatus.hidden.to_hash
   end
   private :fetch_workerstatus
 
@@ -25,11 +24,11 @@ class Webui::MonitorController < Webui::WebuiController
 
       workers = Hash.new
       workers_list = Array.new
-      @workerstatus.elements("building") do |b|
-        workers_list << [b["workerid"], b["hostarch"]]
+      @workerstatus.elements('building') do |b|
+        workers_list << [b['workerid'], b['hostarch']]
       end
-      @workerstatus.elements("idle") do |b|
-        workers_list << [b["workerid"], b["hostarch"]]
+      @workerstatus.elements('idle') do |b|
+        workers_list << [b['workerid'], b['hostarch']]
       end
       workers_list.each do |bid, barch|
         hostname, subid = bid.gsub(%r{[:]}, '/').split('/')
@@ -48,14 +47,14 @@ class Webui::MonitorController < Webui::WebuiController
     check_ajax
     workers = Hash.new
     max_time = 4 * 3600
-    @workerstatus.elements("idle") do |b|
-      id=b["workerid"].gsub(%r{[:./]}, '_')
+    @workerstatus.elements('idle') do |b|
+      id=b['workerid'].gsub(%r{[:./]}, '_')
       workers[id] = Hash.new
     end
 
-    @workerstatus.elements("building") do |b|
-      id=b["workerid"].gsub(%r{[:./]}, '_')
-      delta = (Time.now - Time.at(b["starttime"].to_i)).round
+    @workerstatus.elements('building') do |b|
+      id=b['workerid'].gsub(%r{[:./]}, '_')
+      delta = (Time.now - Time.at(b['starttime'].to_i)).round
       if delta < 5
 	delta = 5
       end
@@ -66,8 +65,8 @@ class Webui::MonitorController < Webui::WebuiController
       if (delta > 100)
 	delta = 100
       end
-      workers[id] = { "delta" => delta, "project" => b["project"], "repository" => b["repository"], 
-	"package" => b["package"], "arch" => b["arch"], "starttime" => b["starttime"]}
+      workers[id] = { 'delta' => delta, 'project' => b['project'], 'repository' => b['repository'],
+	'package' => b['package'], 'arch' => b['arch'], 'starttime' => b['starttime']}
     end
     # logger.debug workers.inspect
     render :json => workers
@@ -81,10 +80,10 @@ class Webui::MonitorController < Webui::WebuiController
     arch = params[:arch]
     range = params[:range]
     %w{waiting blocked squeue_high squeue_med}.each do |prefix|
-      data[prefix] = frontend.gethistory(prefix + "_" + arch, range, !discard_cache?).map {|time,value| [time*1000,value]}
+      data[prefix] = frontend.gethistory(prefix + '_' + arch, range, !discard_cache?).map {|time,value| [time*1000,value]}
     end
     %w{idle building}.each do |prefix|
-      data[prefix] = frontend.gethistory(prefix + "_" + map_to_workers(arch), range, !discard_cache?).map {|time,value| [time*1000,value]}
+      data[prefix] = frontend.gethistory(prefix + '_' + map_to_workers(arch), range, !discard_cache?).map {|time,value| [time*1000,value]}
     end
     low = Hash.new
     frontend.gethistory("squeue_low_#{arch}", range).each do |time,value|
@@ -95,10 +94,10 @@ class Webui::MonitorController < Webui::WebuiController
       clow = low[time] || 0
       comb << [1000*time, clow + value]
     end
-    data["squeue_low"] = comb
-    max = Webui::MonitorController.addarrays(data["squeue_high"], data["squeue_med"]).map{|time,value| value}.max || 0
-    data["events_max"] = max * 2
-    data["jobs_max"] =  maximumvalue(data["waiting"]) * 2
+    data['squeue_low'] = comb
+    max = Webui::MonitorController.addarrays(data['squeue_high'], data['squeue_med']).map{|time,value| value}.max || 0
+    data['events_max'] = max * 2
+    data['jobs_max'] =  maximumvalue(data['waiting']) * 2
     render :json => data
   end
 
