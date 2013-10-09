@@ -31,7 +31,7 @@ unless File.exists? apiroot + "/config/thinking_sphinx.yml"
 end
 
 frontend = Thread.new do
-  cmdline = "ruby ./script/rails"
+  cmdline = "ruby ./bin/rails"
   frontend_out = IO.popen("cd #{apiroot}; unset BUNDLE_GEMFILE; exec bundle exec #{cmdline} server -e test -p #{CONFIG['frontend_port']} 2>&1")
   while frontend_out
     begin
