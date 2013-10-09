@@ -1,15 +1,15 @@
 class Webui::MainController < Webui::WebuiController
 
   include Webui::WebuiHelper
+  include StatisticsCalculations
 
   # permissions.status_message_create
   before_filter :require_admin, only: [:delete_message, :add_news]
 
-
   def index
     @news = StatusMessage.alive.limit(4)
     unless @spider_bot
-      @latest_updates = find_cached(Webui::LatestUpdated, :limit => 6, :expires_in => 5.minutes, :shared => true)
+      @latest_updates = get_latest_updated(6)
     end
   rescue ActiveXML::Transport::UnauthorizedError
     @anonymous_forbidden = true
@@ -57,7 +57,7 @@ class Webui::MainController < Webui::WebuiController
 
   def latest_updates
     raise ActionController::RoutingError.new('expected application/rss') unless request.format == Mime::RSS
-    @latest_updates = find_cached(Webui::LatestUpdated, :limit => 6, :expires_in => 5.minutes, :shared => true)
+    @latest_updates = get_latest_updated(10)
     render layout: false
   end
 
