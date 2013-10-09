@@ -11,26 +11,26 @@ class Package < ActiveRecord::Base
   include HasAttributes
 
   class CycleError < APIException
-   setup "cycle_error"
+   setup 'cycle_error'
   end
   class DeleteError < APIException
     attr_accessor :packages
-    setup "delete_error"
+    setup 'delete_error'
   end
   class SaveError < APIException
-    setup "package_save_error"
+    setup 'package_save_error'
   end
   class WritePermissionError < APIException
-    setup "package_write_permission_error"
+    setup 'package_write_permission_error'
   end
   class ReadAccessError < APIException
-    setup 'unknown_package', 404, "Unknown package"
+    setup 'unknown_package', 404, 'Unknown package'
   end
   class UnknownObjectError < APIException
-    setup 'unknown_package', 404, "Unknown package"
+    setup 'unknown_package', 404, 'Unknown package'
   end
   class ReadSourceAccessError < APIException
-    setup 'source_access_no_permission', 403, "Source Access not allowed"
+    setup 'source_access_no_permission', 403, 'Source Access not allowed'
   end
   belongs_to :project, foreign_key: :db_project_id, inverse_of: :packages
   delegate :name, to: :project, prefix: true
@@ -42,10 +42,10 @@ class Package < ActiveRecord::Base
 
   has_many :download_stats
 
-  has_many :flags, -> { order(:position) }, dependent: :delete_all, foreign_key: :db_package_id
+  has_many :flags, -> { order(:position) }, dependent: :delete_all, foreign_key: :db_package_id, inverse_of: :package
 
-  belongs_to :develpackage, :class_name => "Package", :foreign_key => 'develpackage_id'
-  has_many  :develpackages, :class_name => "Package", :foreign_key => 'develpackage_id'
+  belongs_to :develpackage, :class_name => 'Package', :foreign_key => 'develpackage_id'
+  has_many  :develpackages, :class_name => 'Package', :foreign_key => 'develpackage_id'
 
   has_many :attribs, :dependent => :destroy, foreign_key: :db_package_id
 
@@ -61,9 +61,9 @@ class Package < ActiveRecord::Base
   before_update :update_activity
   after_rollback :reset_cache
 
-  default_scope { where("packages.db_project_id not in (?)", Relationship.forbidden_project_ids ) }
+  default_scope { where('packages.db_project_id not in (?)', Relationship.forbidden_project_ids ) }
 
-  scope :dirty_backend_package, -> { joins("left outer join backend_packages on backend_packages.package_id = packages.id").where("backend_packages.package_id is null") }
+  scope :dirty_backend_package, -> { joins('left outer join backend_packages on backend_packages.package_id = packages.id').where('backend_packages.package_id is null') }
 
   validates :name, presence: true, length: { maximum: 200 }
   validate :valid_name
@@ -79,7 +79,7 @@ class Package < ActiveRecord::Base
     end
 
     def check_cache(project, package, opts)
-      @key = { "get_by_project_and_name" => 1, package: package, opts: opts }
+      @key = { 'get_by_project_and_name' => 1, package: package, opts: opts }
 
       @key[:user] = User.current.cache_key if User.current
 
@@ -153,12 +153,16 @@ class Package < ActiveRecord::Base
 
     # to check existens of a project (local or remote)
     def exists_by_project_and_name( project, package, opts = {} )
-      raise "get_by_project_and_name expects a hash as third arg" unless opts.kind_of? Hash
+      raise 'get_by_project_and_name expects a hash as third arg' unless opts.kind_of? Hash
       opts = { follow_project_links: true, allow_remote_packages: false}.merge(opts)
       if Project.is_remote_project?( project )
         return opts[:allow_remote_packages] && exist_package_on_backend?(package, project)
       end
-      prj = Project.get_by_name( project )
+      begin
+        prj = Project.get_by_name( project )
+      rescue Project::UnknownObjectError
+        return false
+      end
       if opts[:follow_project_links]
         pkg = prj.find_package(package)
       else
@@ -199,14 +203,14 @@ class Package < ActiveRecord::Base
       END_SQL
 
       if package
-        sql += " AND pack.name = ? GROUP by pack.id"
+        sql += ' AND pack.name = ? GROUP by pack.id'
         ret = Package.find_by_sql [sql, attrib_type.id.to_s, attrib_type.id.to_s, package]
         ret.each do |dbpkg|
           ret.delete(dbpkg) unless Package.check_access?(dbpkg)
         end
         return ret
       end
-      sql += " GROUP by pack.id"
+      sql += ' GROUP by pack.id'
       ret = Package.find_by_sql [sql, attrib_type.id.to_s, attrib_type.id.to_s]
       ret.each do |dbpkg|
         ret.delete(dbpkg) unless Package.check_access?(dbpkg)
@@ -225,14 +229,14 @@ class Package < ActiveRecord::Base
       END_SQL
 
       if package
-        sql += " AND pack.name = ?"
+        sql += ' AND pack.name = ?'
         ret = Package.find_by_sql [sql, attrib_type.id.to_s, value.to_s, package]
         ret.each do |dbpkg|
           ret.delete(dbpkg) unless Package.check_access?(dbpkg)
         end
         return ret
       end
-      sql += " GROUP by pack.id"
+      sql += ' GROUP by pack.id'
       ret = Package.find_by_sql [sql, attrib_type.id.to_s, value.to_s]
       ret.each do |dbpkg|
         ret.delete(dbpkg) unless Package.check_access?(dbpkg)
@@ -298,10 +302,10 @@ class Package < ActiveRecord::Base
     data = REXML::Document.new(answer.body)
     result = []
 
-    data.elements.each("collection/package") do |e|
+    data.elements.each('collection/package') do |e|
       p = Package.find_by_project_and_name( e.attributes['project'], e.attributes['name'] )
       if p.nil?
-        logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes["project"]} / #{e.attributes["name"]}"
+        logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
       else
         result.push( p )
       end
@@ -466,15 +470,15 @@ class Package < ActiveRecord::Base
   end
 
   def detect_package_kinds(directory)
-    raise ArgumentError.new "neh!" if  directory.has_key? 'time'
+    raise ArgumentError.new 'neh!' if  directory.has_key? 'time'
     ret = []
-    directory.elements("entry") do |e|
+    directory.elements('entry') do |e|
       %w{patchinfo aggregate link channel}.each do |kind|
-        if e["name"] == '_' + kind
+        if e['name'] == '_' + kind
           ret << kind
         end
       end
-      if e["name"] =~ /.product$/
+      if e['name'] =~ /.product$/
         ret << 'product'
       end
       # further types my be spec, dsc, kiwi in future
@@ -494,10 +498,10 @@ class Package < ActiveRecord::Base
       #logger.debug "resolve_devel_package #{pkg.inspect}"
 
       # cycle detection
-      str = prj_name+"/"+pkg.name
+      str = prj_name+'/'+pkg.name
       if processed[str]
         processed.keys.each do |key|
-          str = str + " -- " + key
+          str = str + ' -- ' + key
         end
         raise CycleError.new "There is a cycle in devel definition at #{str}"
       end
@@ -566,7 +570,7 @@ class Package < ActiveRecord::Base
 
   # for the HasAttributes mixing
   def attribute_url
-    self.source_path("_attribute")
+    self.source_path('_attribute')
   end
 
   def store(opts = {})
@@ -612,9 +616,9 @@ class Package < ActiveRecord::Base
   def self.activity_algorithm
     # this is the algorithm (sql) we use for calculating activity of packages
     # we use Time.now.to_i instead of UNIX_TIMESTAMP() so we can test with frozen ruby time
-    "( packages.activity_index * " +
+    '( packages.activity_index * ' +
       "POWER( 2.3276, (UNIX_TIMESTAMP(packages.updated_at) - #{Time.now.to_i})/10000000 ) " +
-      ") as activity_value"
+        ') as activity_value'
   end
 
   before_validation(on: :create) do
@@ -651,14 +655,14 @@ class Package < ActiveRecord::Base
 
   def open_requests_with_package_as_source_or_target
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
-    rel = rel.where("(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?) or (bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)", self.project.name, self.name, self.project.name, self.name)
-    return BsRequest.where(id: rel.select("bs_requests.id").map { |r| r.id})
+    rel = rel.where('(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?) or (bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)', self.project.name, self.name, self.project.name, self.name)
+    return BsRequest.where(id: rel.select('bs_requests.id').map { |r| r.id})
   end
 
   def open_requests_with_by_package_review
     rel = BsRequest.where(state: [:new, :review])
     rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? and reviews.by_package = ? ", self.project.name, self.name)
-    return BsRequest.where(id: rel.select("bs_requests.id").map { |r| r.id})
+    return BsRequest.where(id: rel.select('bs_requests.id').map { |r| r.id})
   end
 
   def linkinfo
@@ -717,18 +721,18 @@ class Package < ActiveRecord::Base
   end
 
   def valid_name
-    errors.add(:name, "is illegal") unless Package.valid_name?(self.name)
+    errors.add(:name, 'is illegal') unless Package.valid_name?(self.name)
   end
 
   def branch_from(origin_project, origin_package, rev=nil, missingok=nil, comment=nil)
-    myparam = { :cmd => "branch",
-                :noservice => "1",
+    myparam = { :cmd => 'branch',
+                :noservice => '1',
                 :oproject => origin_project,
                 :opackage => origin_package,
                 :user => User.current.login,
     }
     myparam[:orev] = rev if rev and not rev.empty?
-    myparam[:missingok] = "1" if missingok
+    myparam[:missingok] = '1' if missingok
     myparam[:comment] = comment if comment
     path =  self.source_path + Suse::Backend.build_query_from_hash(myparam, [:cmd, :oproject, :opackage, :user, :comment, :orev, :missingok])
     # branch sources in backend

@@ -24,11 +24,11 @@ class UserController < WebuiController
   end
 
   def login
-    @return_to_path = params['return_to_path'] || "/"
+    @return_to_path = params['return_to_path'] || root_path
   end
   
   def do_login
-    @return_to_path = params['return_to_path'] || "/"
+    @return_to_path = params['return_to_path'] || root_path
     if !params[:username].blank? and params[:password]
       logger.debug "Doing form authorization to login user #{params[:username]}"
       session[:login] = params[:username]
@@ -39,18 +39,18 @@ class UserController < WebuiController
       rescue ActiveXML::Transport::UnauthorizedError => exception
         logger.info "Login to #{@return_to_path} failed for #{session[:login]}: #{exception}"
         reset_session
-        flash.now[:error] = "Authentication failed"
-        render :template => "webui/user/login", :locals => {:return_to_path => @return_to_path} and return
+        flash.now[:error] = 'Authentication failed'
+        render :template => 'webui/user/login', :locals => {:return_to_path => @return_to_path} and return
       end
       unless p
         reset_session
-        flash.now[:error] = "Authentication failed"
-        render :template => "webui/user/login", :locals => {:return_to_path => @return_to_path} and return
+        flash.now[:error] = 'Authentication failed'
+        render :template => 'webui/user/login', :locals => {:return_to_path => @return_to_path} and return
       end
-      flash[:success] = "You are logged in now"
+      flash[:success] = 'You are logged in now'
       redirect_to params[:return_to_path] and return
     end
-    flash[:error] = "Authentication failed"
+    flash[:error] = 'Authentication failed'
     redirect_to :action => 'login'
   end
 
@@ -68,7 +68,7 @@ class UserController < WebuiController
     end
     flash[:success] = "User data for user '#{person.login}' successfully updated."
     Rails.cache.delete("person_#{person.login}")
-    redirect_back_or_to :controller => "home", :action => :index
+    redirect_back_or_to :controller => 'home', :action => :index
   end
 
   def edit
@@ -137,7 +137,7 @@ class UserController < WebuiController
       person.save({:create => true})
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.message
-      redirect_back_or_to :controller => "main", :action => "index" and return
+      redirect_back_or_to :controller => 'main', :action => 'index' and return
     end
     flash[:success] = "The account \"#{params[:login]}\" is now active."
     if @user and @user.is_admin?
@@ -160,13 +160,13 @@ class UserController < WebuiController
   def change_password
     # check the valid of the params  
     if not params[:password] == session[:password]
-      errmsg = "The value of current password does not match your current password. Please enter the password and try again."
+      errmsg = 'The value of current password does not match your current password. Please enter the password and try again.'
     end
     if not params[:new_password] == params[:repeat_password]
-      errmsg = "The passwords do not match, please try again."
+      errmsg = 'The passwords do not match, please try again.'
     end    
     if params[:password] == params[:new_password]
-      errmsg = "The new password is the same as your current password. Please enter a new password."
+      errmsg = 'The new password is the same as your current password. Please enter a new password.'
     end
     if errmsg
       flash[:error] = errmsg
@@ -178,7 +178,7 @@ class UserController < WebuiController
     begin
       if changepwd.save(:create => true)
         session[:password] = params[:new_password]
-        flash[:success] = "Your password has been changed successfully."
+        flash[:success] = 'Your password has been changed successfully.'
         redirect_to :controller => :home, :action => :index
         return
       else

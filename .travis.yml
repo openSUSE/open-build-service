@@ -9,16 +9,14 @@ before_script:
 script: bash -x dist/ci/obs_testsuite_travis.sh
 env:
   # just one special test
-  #- SUBTEST=webui:functional/users_test.rb:test_add_and_edit_package_people
   #- SUBTEST=api:functional/public_controller_test.rb:test_binaries
-  # full api test suite
-  - SUBTEST=rake:test:units
-  - SUBTEST=rake:test:webui
   - SUBTEST=rake:test:api
-  - SUBTEST=api:functional/webui/spider_test.rb:test_spider_as_admin RUN_SPIDER=1
+  - SUBTEST=rake:test:webui1
+  - SUBTEST=rake:test:webui2
   - SUBTEST=api:functional/webui/spider_test.rb:test_spider_anonymously RUN_SPIDER=1
+  - SUBTEST=api:functional/webui/spider_test.rb:test_spider_as_admin RUN_SPIDER=1
   # api and webui webrat with latest gems
-  - SUBTEST=rake:test REMOVEGEMLOCK=true
+  #- SUBTEST=rake:test REMOVEGEMLOCK=true
 matrix:
   allow_failures:
     - env: SUBTEST=rake:test REMOVEGEMLOCK=true

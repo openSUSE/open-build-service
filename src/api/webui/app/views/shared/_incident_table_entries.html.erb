@@ -51,8 +51,7 @@
         </td>
       <% else %>
         <td colspan="2">
-          <%= link_to(sprite_tag('exclamation', title: 'Missing patchinfo'), controller: 'patchinfo', action: 'new_patchinfo', project: incident.name, package: 'patchinfo') %>
-          <%= link_to('Missing patchinfo', {controller: 'patchinfo', action: 'new_patchinfo', project: incident.name, package: 'patchinfo'}, {style: 'color: red;'}) %>
+          <%= link_to(sprite_tag('exclamation', title: 'Missing patchinfo') + 'Missing patchinfo', {controller: 'patchinfo', action: 'new_patchinfo', project: incident.name, package: 'patchinfo'}, {style: 'color: red;', method: :post}) %>
         </td>
       <% end %>
       <td class="nowrap">

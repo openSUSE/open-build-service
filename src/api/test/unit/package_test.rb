@@ -202,6 +202,9 @@ class PackageTest < ActiveSupport::TestCase
     assert_equal np.name, 'testpack'
     assert np.id > 0
     assert np.id != @package.id
+
+    # cleanup backend
+    np.destroy
   end
 
   test "invalid names are catched" do

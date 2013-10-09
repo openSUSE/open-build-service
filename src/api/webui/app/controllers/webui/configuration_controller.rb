@@ -69,7 +69,8 @@ class Webui::ConfigurationController < Webui::WebuiController
     end
 
     begin
-      params[:archs].each do |archname, value|
+      archs = params[:archs] || []
+      archs.each do |archname, value|
         available = value == "1"
         if old = Architecture.where(name: archname, available: !available).first
           old.available = available

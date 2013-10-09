@@ -14,6 +14,7 @@ module Suse
 
     @@backend_logger = Logger.new( "#{Rails.root}/log/backend_access.log" )
     @@backend_time = 0
+    @semaphore = Mutex.new
     
     def initialize
      Rails.logger.debug "init backend"
@@ -44,6 +45,7 @@ module Suse
       end
 
       def get(path, in_headers={})
+	@semaphore.lock
         start_test_backend
         @start_of_last = Time.now
         logger.debug "[backend] GET: #{path}"
@@ -59,6 +61,7 @@ module Suse
       end
 
       def put_or_post(method, path, data, in_headers)
+        @semaphore.lock
         start_test_backend
         @start_of_last = Time.now
         logger.debug "[backend] #{method}: #{path}"
@@ -102,6 +105,7 @@ module Suse
       end
 
       def delete(path, in_headers={})
+        @semaphore.lock
         start_test_backend
         @start_of_last = Time.now
         logger.debug "[backend] DELETE: #{path}"
@@ -173,6 +177,7 @@ module Suse
       end
 
       def handle_response( response )
+        @semaphore.unlock
         case response
         when Net::HTTPSuccess, Net::HTTPRedirection, Net::HTTPOK
           return response

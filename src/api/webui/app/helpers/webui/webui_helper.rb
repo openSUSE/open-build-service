@@ -261,7 +261,7 @@ module Webui
 
   def valid_xml_id(rawid)
     rawid = '_' + rawid if rawid !~ /^[A-Za-z_]/ # xs:ID elements have to start with character or '_'
-    ERB::Util::h(rawid.gsub(/[+&: .\/\~\(\)@]/, '_'))
+    ERB::Util::h(rawid.gsub(/[+&: .\/\~\(\)@#]/, '_'))
   end
 
   def tab(id, text, opts)
@@ -401,7 +401,7 @@ module Webui
 
   def link_to_package(prj, pkg, linktext=nil)
     linktext = pkg if linktext.blank?
-    if Package.exists?(prj, pkg)
+    if ::Package.exists_by_project_and_name(prj, pkg)
       link_to(linktext, { controller: :package, action: :show, project: prj, package: pkg}, title: pkg)
     else
       linktext

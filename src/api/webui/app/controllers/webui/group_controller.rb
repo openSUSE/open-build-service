@@ -42,7 +42,7 @@ class Webui::GroupController < Webui::WebuiController
                    :members => params[:members]
                  }
     begin
-      group = Group.new(group_opts)
+      group = Webui::Group.new(group_opts)
       group.save
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.message

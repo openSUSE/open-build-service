@@ -8,26 +8,26 @@ class Project < ActiveRecord::Base
   include HasAttributes
 
   class CycleError < APIException
-    setup "project_cycle"
+    setup 'project_cycle'
   end
   class DeleteError < APIException
-    setup "delete_error"
+    setup 'delete_error'
   end
   # unknown objects and no read access permission are handled in the same way by default
   class ReadAccessError < APIException
-    setup 'unknown_project', 404, "Unknown project"
+    setup 'unknown_project', 404, 'Unknown project'
   end
   class UnknownObjectError < APIException
-    setup 'unknown_project', 404, "Unknown project"
+    setup 'unknown_project', 404, 'Unknown project'
   end
   class SaveError < APIException
-    setup "project_save_error"
+    setup 'project_save_error'
   end
   class WritePermissionError < APIException
-    setup "project_write_permission_error"
+    setup 'project_write_permission_error'
   end
   class ForbiddenError < APIException
-    setup("change_project_protection_level", 403,
+    setup('change_project_protection_level', 403,
           "admin rights are required to raise the protection level of a project (it won't be safe anyway)")
   end
 
@@ -43,7 +43,7 @@ class Project < ActiveRecord::Base
   has_many :messages, :as => :db_object, :dependent => :delete_all
   has_many :watched_projects, :dependent => :destroy
 
-  has_many :linkedprojects, -> { order(:position) }, :class_name => "LinkedProject", foreign_key: :db_project_id
+  has_many :linkedprojects, -> { order(:position) }, :class_name => 'LinkedProject', foreign_key: :db_project_id
 
   has_many :taggings, :as => :taggable, :dependent => :delete_all
   has_many :tags, :through => :taggings
@@ -51,21 +51,21 @@ class Project < ActiveRecord::Base
   has_many :download_stats
   has_many :downloads, :dependent => :delete_all, foreign_key: :db_project_id
 
-  has_many :flags, dependent: :delete_all, foreign_key: :db_project_id
+  has_many :flags, dependent: :delete_all, foreign_key: :db_project_id, inverse_of: :project
 
   # optional
   has_one :maintenance_incident, dependent: :delete, foreign_key: :db_project_id
 
   # self-reference between devel projects and maintenance projects
-  has_many :maintained_projects, :class_name => "Project", :foreign_key => "maintenance_project_id"
-  belongs_to :maintenance_project, :class_name => "Project"
+  has_many :maintained_projects, :class_name => 'Project', :foreign_key => 'maintenance_project_id'
+  belongs_to :maintenance_project, :class_name => 'Project'
 
-  has_many  :develprojects, :class_name => "Project", :foreign_key => 'develproject_id'
-  belongs_to :develproject, :class_name => "Project"
+  has_many  :develprojects, :class_name => 'Project', :foreign_key => 'develproject_id'
+  belongs_to :develproject, :class_name => 'Project'
 
   has_many :comments, :dependent => :destroy
 
-  default_scope { where("projects.id not in (?)", Relationship.forbidden_project_ids ) }
+  default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids ) }
 
   validates :name, presence: true, length: { maximum: 200 }
   validates :type_id, presence: true
@@ -76,7 +76,7 @@ class Project < ActiveRecord::Base
   end
   
   def cleanup_before_destroy
-    del_repo = Project.find_by_name("deleted").repositories[0]
+    del_repo = Project.find_by_name('deleted').repositories[0]
     # find linking repositories
     lreps = Array.new
     self.repositories.each do |repo|
@@ -180,7 +180,7 @@ class Project < ActiveRecord::Base
       dbp = arel.first
       if dbp.nil?
         dbp, remote_name = find_remote_project(name)
-        return dbp.name + ":" + remote_name if dbp
+        return dbp.name + ':' + remote_name if dbp
         raise UnknownObjectError, name
       end
       if opts[:includeallpackages]
@@ -235,14 +235,14 @@ class Project < ActiveRecord::Base
       remote_project = nil
 
       while fragments.length > 1
-        remote_project = [fragments.pop, remote_project].compact.join ":"
-        local_project = fragments.join ":"
+        remote_project = [fragments.pop, remote_project].compact.join ':'
+        local_project = fragments.join ':'
         logger.debug "checking local project #{local_project}, remote_project #{remote_project}"
         if skip_access
           # hmm calling a private class method is not the best idea..
           lpro = nil # FIXME2.4
         else
-          lpro = Project.find_by_name(local_project, select: "id,name,remoteurl")
+          lpro = Project.find_by_name(local_project, select: 'id,name,remoteurl')
         end
         return lpro, remote_project unless lpro.nil? or lpro.remoteurl.nil?
       end
@@ -283,11 +283,11 @@ class Project < ActiveRecord::Base
   end
 
   def is_maintenance_incident?
-    self.project_type == "maintenance_incident"
+    self.project_type == 'maintenance_incident'
   end
 
   def is_maintenance?
-    self.project_type == "maintenance"
+    self.project_type == 'maintenance'
   end
 
   # NOTE: this is no permission check, should it be added ?
@@ -306,9 +306,9 @@ class Project < ActiveRecord::Base
     end
 
     # do not allow to remove maintenance master projects if there are incident projects
-    if self.project_type == "maintenance"
+    if self.project_type == 'maintenance'
       if MaintenanceIncident.find_by_maintenance_db_project_id self.id
-        raise DeleteError.new "This maintenance project has incident projects and can therefore not be deleted."
+        raise DeleteError.new 'This maintenance project has incident projects and can therefore not be deleted.'
       end
     end
     
@@ -344,7 +344,7 @@ class Project < ActiveRecord::Base
     self.description = xmlhash.value('description')
     self.remoteurl = xmlhash.value('remoteurl')
     self.remoteproject = xmlhash.value('remoteproject')
-    kind = xmlhash['kind'] || "standard"
+    kind = xmlhash['kind'] || 'standard'
     project_type = DbProjectType.find_by_name(kind)
     raise SaveError.new("unable to find project kind '#{kind}'") unless project_type
     self.type_id = project_type.id
@@ -370,7 +370,7 @@ class Project < ActiveRecord::Base
         end
       else
         if link == self
-          raise SaveError, "unable to link against myself"
+          raise SaveError, 'unable to link against myself'
         end
         self.linkedprojects.create!(project: self,
                                     linked_db_project: link,
@@ -388,7 +388,7 @@ class Project < ActiveRecord::Base
           raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
         end
         if develprj == self
-          raise SaveError, "Devel project can not point to itself"
+          raise SaveError, 'Devel project can not point to itself'
         end
         self.develproject = develprj
       end
@@ -402,9 +402,9 @@ class Project < ActiveRecord::Base
       prj_name = prj.name
       # cycle detection
       if processed[prj_name]
-        str = ""
+        str = ''
         processed.keys.each do |key|
-          str = str + " -- " + key
+          str = str + ' -- ' + key
         end
         raise CycleError.new "There is a cycle in devel definition at #{str}"
       end
@@ -422,7 +422,7 @@ class Project < ActiveRecord::Base
       maintained_project.save!
     end
     # Set this project as the maintenance project for all maintained projects found in the XML
-    xmlhash.get('maintenance').elements("maintains") do |maintains|
+    xmlhash.get('maintenance').elements('maintains') do |maintains|
       maintained_project = Project.find_by_name!(maintains['project'])
       maintained_project.maintenance_project = self
       maintained_project.save!
@@ -457,7 +457,7 @@ class Project < ActiveRecord::Base
       cur.metafile = dl['metafile']
       cur.mtype = dl['mtype']
       cur.baseurl = dl['baseurl']
-      raise SaveError, "unknown architecture" unless Architecture.archcache.has_key? dl['arch']
+      raise SaveError, 'unknown architecture' unless Architecture.archcache.has_key? dl['arch']
       cur.architecture = Architecture.archcache[dl['arch']]
       cur.save!
       dlcache.delete dl['arch']
@@ -475,7 +475,7 @@ class Project < ActiveRecord::Base
       repocache[repo.name] = repo unless repo.remote_project_name
     end
     
-    xmlhash.elements("repository") do |repo|
+    xmlhash.elements('repository') do |repo|
       was_updated = false
       
       current_repo = repocache[repo['name']]
@@ -527,7 +527,7 @@ class Project < ActiveRecord::Base
       current_repo.release_targets.destroy_all
 
       #recreate release targets from xml
-      repo.elements("releasetarget") do |rt|
+      repo.elements('releasetarget') do |rt|
         target_repo = Repository.find_by_project_and_repo_name( rt['project'], rt['repository'] )
         unless target_repo
           raise SaveError.new("Unknown target repository '#{rt['project']}/#{rt['repository']}'")
@@ -544,7 +544,7 @@ class Project < ActiveRecord::Base
         hostsystem = Project.get_by_name repo['hostsystem']['project']
         target_repo = hostsystem.repositories.find_by_name repo['hostsystem']['repository']
         if repo['hostsystem']['project'] == self.name and repo['hostsystem']['repository'] == repo['name']
-          raise SaveError, "Using same repository as hostsystem element is not allowed"
+          raise SaveError, 'Using same repository as hostsystem element is not allowed'
         end
         unless target_repo
           raise SaveError, "Unknown target repository '#{repo['hostsystem']['project']}/#{repo['hostsystem']['repository']}'"
@@ -566,7 +566,7 @@ class Project < ActiveRecord::Base
       repo.elements('path') do |path|
         link_repo = Repository.find_by_project_and_repo_name( path['project'], path['repository'] )
         if path['project'] == self.name and path['repository'] == repo['name']
-          raise SaveError, "Using same repository as path element is not allowed"
+          raise SaveError, 'Using same repository as path element is not allowed'
         end
         unless link_repo
           raise SaveError, "unable to walk on path '#{path['project']}/#{path['repository']}'"
@@ -585,7 +585,7 @@ class Project < ActiveRecord::Base
 
       #destroy architecture references
       logger.debug "delete all of #{current_repo.id}"
-      RepositoryArchitecture.delete_all(["repository_id = ?", current_repo.id])
+      RepositoryArchitecture.delete_all(['repository_id = ?', current_repo.id])
 
       position = 1
       repo.elements('arch') do |arch|
@@ -627,12 +627,12 @@ class Project < ActiveRecord::Base
 
   def check_for_empty_repo_list(list, error_prefix)
     return if list.empty?
-    linking_repos = list.map { |x| x.repository.project.name+"/"+x.repository.name }.join "\n"
+    linking_repos = list.map { |x| x.repository.project.name+'/'+x.repository.name }.join "\n"
     raise SaveError.new (error_prefix + "\n" + linking_repos)
   end
 
   def write_to_backend
-    logger.debug "write_to_backend"
+    logger.debug 'write_to_backend'
     # expire cache
     reset_cache
     @commit_opts ||= {}
@@ -641,7 +641,7 @@ class Project < ActiveRecord::Base
       login = User.current.login unless @commit_opts[:login] # Allow to override if User.current isn't available yet
       path = "/source/#{self.name}/_meta?user=#{CGI.escape(login)}"
       path += "&comment=#{CGI.escape(@commit_opts[:comment])}" unless @commit_opts[:comment].blank?
-      path += "&lowprio=1" if @commit_opts[:lowprio]
+      path += '&lowprio=1' if @commit_opts[:lowprio]
       Suse::Backend.put_source( path, to_axml )
     end
     @commit_opts = {}
@@ -673,7 +673,7 @@ class Project < ActiveRecord::Base
 
     while name_parts.length > 1
       name_parts.pop
-      if (p = Project.find_by_name name_parts.join(":"))
+      if (p = Project.find_by_name name_parts.join(':'))
         #parent project found
         return p
       end
@@ -783,7 +783,7 @@ class Project < ActiveRecord::Base
     if processed[self]
       str = self.name
       processed.keys.each do |key|
-        str = str + " -- " + key.name
+        str = str + ' -- ' + key.name
       end
       raise CycleError.new "There is a cycle in project link defintion at #{str}"
       return nil
@@ -800,7 +800,7 @@ class Project < ActiveRecord::Base
     # search via all linked projects
     self.linkedprojects.each do |lp|
       if self == lp.linked_db_project
-        raise CycleError.new "project links against itself, this is not allowed"
+        raise CycleError.new 'project links against itself, this is not allowed'
         return nil
       end
 
@@ -911,7 +911,7 @@ class Project < ActiveRecord::Base
         repoName = project.name.gsub(':', '_')
         if project.repositories.count > 1
           # keep short names if project has just one repo
-          repoName += "_"+repo.name unless repo.name == "standard"
+          repoName += '_'+repo.name unless repo.name == 'standard'
         end
       end
       unless self.repositories.find_by_name(repoName)
@@ -921,8 +921,8 @@ class Project < ActiveRecord::Base
         end
         trepo.path_elements.create(:link => repo, :position => 1)
         trigger = nil # no trigger is set by default
-        trigger = "maintenance" if MaintenanceIncident.find_by_db_project_id( self.id ) # is target an incident project ?
-        if project.project_type == "maintenance_release"
+        trigger = 'maintenance' if MaintenanceIncident.find_by_db_project_id( self.id ) # is target an incident project ?
+        if project.project_type == 'maintenance_release'
           # branch from official release project?
           trepo.release_targets.create(:target_repository => repo, :trigger => trigger)
         elsif pkg_to_enable and pkg_to_enable.is_of_kind? 'channel'
@@ -942,36 +942,36 @@ class Project < ActiveRecord::Base
       end
       if pkg_to_enable and self.flags.find_by_flag_and_status( 'build', 'disable' )
         # enable package builds if project default is disabled
-        pkg_to_enable.flags.create( :position => 1, :flag => 'build', :status => "enable", :repo => repoName )
+        pkg_to_enable.flags.create( :position => 1, :flag => 'build', :status => 'enable', :repo => repoName )
         pkg_to_enable.store
       end
       if pkg_to_enable and self.flags.find_by_flag_and_status( 'debuginfo', 'disable' )
         # take over debuginfo config from origin project
-        pkg_to_enable.flags.create( :position => 1, :flag => 'debuginfo', :status => "enable", :repo => repoName )
+        pkg_to_enable.flags.create( :position => 1, :flag => 'debuginfo', :status => 'enable', :repo => repoName )
         pkg_to_enable.store
       end
     end
     # take over flags, but explicit disable publishing by default and enable building. Ommiting also lock or we can not create packages
     project.flags.each do |f|
-      unless [ "build", "publish", "lock" ].include?(f.flag)
+      unless [ 'build', 'publish', 'lock'].include?(f.flag)
         self.flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo)
       end
     end
-    self.flags.create(:status => "disable", :flag => 'publish') unless self.flags.find_by_flag_and_status( 'publish', 'disable' )
+    self.flags.create(:status => 'disable', :flag => 'publish') unless self.flags.find_by_flag_and_status( 'publish', 'disable' )
   end
 
   def open_requests_with_project_as_source_or_target
     # Includes also requests for packages contained in this project
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
-    rel = rel.where("bs_request_actions.source_project = ? or bs_request_actions.target_project = ?", self.name, self.name)
-    return BsRequest.where(id: rel.pluck("bs_requests.id"))
+    rel = rel.where('bs_request_actions.source_project = ? or bs_request_actions.target_project = ?', self.name, self.name)
+    return BsRequest.where(id: rel.pluck('bs_requests.id'))
   end
 
   def open_requests_with_by_project_review
     # Includes also by_package reviews for packages contained in this project
     rel = BsRequest.where(state: [:new, :review])
     rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? ", self.name)
-    return BsRequest.where(id: rel.pluck("bs_requests.id"))
+    return BsRequest.where(id: rel.pluck('bs_requests.id'))
   end
 
   # list only the repositories that have a target project in the build path
@@ -1077,7 +1077,7 @@ class Project < ActiveRecord::Base
   end
 
   def valid_name
-    errors.add(:name, "is illegal") unless Project.valid_name?(self.name)
+    errors.add(:name, 'is illegal') unless Project.valid_name?(self.name)
   end
 
   # updates packages automatically generated in the backend after submitting a product file
@@ -1114,7 +1114,7 @@ class Project < ActiveRecord::Base
     rel = BsRequestCollection.new(project: name, states: ['new'], roles: ['source'], types: ['maintenance_incident'])
     incidents = rel.ids
 
-    if project_type == "maintenance"
+    if project_type == 'maintenance'
       rel = BsRequestCollection.new(project: name, states: ['new'], roles: ['source'], types: ['maintenance_release'], subprojects: true)
       maintenance_release = rel.ids
     else

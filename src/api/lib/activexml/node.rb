@@ -125,20 +125,9 @@ module ActiveXML
         self.name + "_" + Digest::MD5.hexdigest( "2" + args.to_s )
       end
 
-      def free_object_cache
-        @@object_cache = {}
-      end
-
       def find_priv(cache_time, *args )
         args = prepare_args(args)
         cache_key = calc_key( args )
-        if cache_time
-          obj = @@object_cache[cache_key]
-          if obj
-            logger.debug "returning #{args.inspect} from object_cache"
-            return obj
-	  end
-        end
 
         objhash = nil
         begin
@@ -160,7 +149,6 @@ module ActiveXML
           obj.instance_variable_set( '@cache_key', cache_key ) if cache_key
           obj.instance_variable_set( '@init_options', params )
           obj.instance_variable_set( '@hash_cache', objhash) if objhash
-          @@object_cache[cache_key] = obj
           return obj
         rescue ActiveXML::Transport::NotFoundError
           Rails.logger.debug "#{self.name}.find( #{args.map {|a| a.inspect}.join(', ')} ) did not find anything, return nil"
@@ -198,7 +186,6 @@ module ActiveXML
 	free_args = prepare_args( free_args )
         key = calc_key( free_args )
 	logger.debug "free_cache #{free_args.inspect} #{key}"
-        @@object_cache.delete key
         Rails.cache.delete( key )
       end
 
@@ -559,8 +546,6 @@ module ActiveXML
     end
 
     @default_find_parameter = :name
-    @@object_cache = {}
-
 
     def name
       method_missing( :name )

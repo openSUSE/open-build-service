@@ -33,7 +33,7 @@ class Package < Webui::Node
   end
 
   def save_file(opt = {})
-    content = "" # touch an empty file first
+    content = '' # touch an empty file first
     content = opt[:file] if opt[:file]
     logger.debug "storing file: filename: #{opt[:filename]}, comment: #{opt[:comment]}"
 
@@ -58,7 +58,7 @@ class Package < Webui::Node
   def remove_file( name, expand = nil )
     delete_opt = Hash.new
     delete_opt[:package] = self.name
-    delete_opt[:project] = @init_options[:project]
+    delete_opt[:project] = self.api_package.project.name
     delete_opt[:filename] = name
     delete_opt[:keeplink] = expand if expand
 
@@ -87,24 +87,24 @@ class Package < Webui::Node
   end
 
   def bugowners
-    return users('bugowner')
+    return users('bugowner').map { |u| Person.find(u) }
   end
 
   def linking_packages
     opt = Hash.new
     opt[:project] = self.project
     opt[:package] = self.name
-    opt[:cmd] = "showlinked"
+    opt[:cmd] = 'showlinked'
     result = []
     begin
       fc = FrontendCompat.new
       answer = fc.do_post nil, opt
 
       doc = ActiveXML::Node.new(answer)
-      doc.each("/collection/package") do |e|
+      doc.each('/collection/package') do |e|
         hash = {}
-        hash[:project] = e.value("project")
-        hash[:package] = e.value("name")
+        hash[:project] = e.value('project')
+        hash[:package] = e.value('name')
         result.push( hash )
       end
     rescue ActiveXML::Transport::NotFoundError
@@ -115,7 +115,7 @@ class Package < Webui::Node
 
   def user_has_role?(user, role)
     if user
-      raise "user needs to be a Person" unless user.kind_of? Person
+      raise 'user needs to be a Person' unless user.kind_of? Person
       each_person do |p|
         return true if p.role == role and p.userid == user.to_s
       end
@@ -136,7 +136,7 @@ class Package < Webui::Node
       if not role or (role and p.role == role)
         users << p.userid
       end
-      user = Person.find_cached(p.userid)
+      user = Person.find(p.userid)
       if user
         each_group do |g|
           if not role or (role and g.role == role)
@@ -145,7 +145,7 @@ class Package < Webui::Node
         end
       end
     end
-    return users.uniq.sort.map { |u| Person.find_cached(u) }
+    users.uniq
   end
 
   def groups(role = nil)
@@ -159,8 +159,8 @@ class Package < Webui::Node
   end
 
   def is_maintainer?(user)
-    raise "user needs to be a Person" unless user.kind_of? Person
-    groups("maintainer").each do |group|
+    raise 'user needs to be a Person' unless user.kind_of? Person
+    groups('maintainer').each do |group|
       return true if user.is_in_group?(group)
     end
     return user_has_role?(user, 'maintainer')
@@ -168,7 +168,7 @@ class Package < Webui::Node
 
   def can_edit?(user)
     return false unless user
-    raise "user needs to be a Person" unless user.kind_of? Person
+    raise 'user needs to be a Person' unless user.kind_of? Person
     return true if is_maintainer?(user)
     return true if p=WebuiProject.find_cached(project) and p.can_edit?(user)
   end
@@ -253,14 +253,14 @@ class Package < Webui::Node
          c[:user]    = s.find_first('user').text
          c[:version] = s.find_first('version').text
          c[:time]    = s.find_first('time').text
-         c[:srcmd5]  = s.find_first("srcmd5").text
+         c[:srcmd5]  = s.find_first('srcmd5').text
          c[:comment] = nil
          c[:requestid] = nil
-         comment=s.find_first("comment")
+         comment=s.find_first('comment')
          if comment
            c[:comment] = comment.text
          end
-         requestid=s.find_first("requestid")
+         requestid=s.find_first('requestid')
          if requestid
            c[:requestid] = requestid.text
          end
@@ -340,8 +340,9 @@ class Package < Webui::Node
   end
 
   def api_package
-     ::Package.find_by_project_and_name(project, name)
+    ::Package.find_by_project_and_name(project, name)
   end
+
 end
 
 end

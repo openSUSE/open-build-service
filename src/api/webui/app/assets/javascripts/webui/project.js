@@ -31,7 +31,7 @@ function renderProjectsTable(length)
 					 {
 					     "sTitle": "Name",
 					     "fnRender": function ( obj ) {
-						 var url = projecturl.replace(/REPLACEIT/, encodeURIComponent(obj.aData[0]));
+						 var url = projecturl.replace(/REPLACEIT/, obj.aData[0]);
 						 return '<a href="' + url +'">' + obj.aData[0] + '</a>';
 					     }
 					 }, { "sTitle": "Title" } ],
@@ -56,8 +56,8 @@ function renderPackagesProjectsTable(options)
             {
             "sTitle": "Package",
             "fnRender": function ( obj ) {
-              var url1 = packageurl.replace(/REPLACEPKG/, encodeURIComponent(obj.aData[0]));
-              var url = url1.replace(/REPLACEPRJ/, encodeURIComponent(obj.aData[1]));
+              var url1 = packageurl.replace(/REPLACEPKG/, obj.aData[0]);
+              var url = url1.replace(/REPLACEPRJ/, obj.aData[1]);
               return '<a href="' + url +'">' + obj.aData[0] + '</a>';
               }
             },

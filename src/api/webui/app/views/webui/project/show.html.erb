@@ -3,7 +3,7 @@
 <% project_bread_crumb 'Overview' %>
 
 <div class="grid_16 alpha omega box box-shadow">
-  <%= render :partial => 'tabs' %>
+  <%= render partial: 'tabs' %>
   <div class="grid_10 alpha">
     <h3 id="project_title"><%= @project.title %><%= @project if @project.title.to_s.blank? -%></h3>
     <%= description_wrapper(@project.description.text) %>
@@ -18,7 +18,7 @@
             <% else %>
               <%= sprite_tag 'exclamation' %>
             <% end %>
-            <%= @open_maintenance_incidents.length %> <%= link_to "open incident#{@open_maintenance_incidents.length == 1 ? '' : 's'}", :action => 'maintenance_incidents', :project => @project %>
+            <%= @open_maintenance_incidents.length %> <%= link_to "open incident#{@open_maintenance_incidents.length == 1 ? '' : 's'}", action: 'maintenance_incidents', project: @project %>
           </li>
           <li>
             <% if @maintained_projects.length == 0 %>
@@ -26,27 +26,27 @@
             <% else %>
               <%= sprite_tag 'accept' %>
             <% end %>
-            <%= @maintained_projects.length %> <%= link_to("maintained project#{@maintained_projects.length == 1 ? '' : 's'}", :action => 'maintained_projects', :project => @project) %>
+            <%= @maintained_projects.length %> <%= link_to("maintained project#{@maintained_projects.length == 1 ? '' : 's'}", action: 'maintained_projects', project: @project) %>
           </li>
         <% else %> <!-- also for incident project -->
           <% if @nr_of_problem_packages and @nr_of_problem_packages > 0 %>
             <li>
               <%= sprite_tag 'exclamation' %>
               <%= @nr_of_problem_packages %>
-              <%= link_to "build error#{@nr_of_problem_packages == 1 ? '' : 's'}", :action => 'monitor', :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0 %>
+              <%= link_to "build error#{@nr_of_problem_packages == 1 ? '' : 's'}", action: 'monitor', project: @project, succeeded: 0, blocked: 0, finished: 0, signing: 0, dispatching: 0, scheduled: 0, building: 0 %>
             </li>
           <% end %>
           <% if @has_patchinfo %>
             <li>
               <%= sprite_tag 'accept' %>
-              <%= link_to('Patchinfo present', :controller => 'patchinfo', :action => 'show', :project => @project, :package => 'patchinfo') %>
+              <%= link_to('Patchinfo present', controller: 'patchinfo', action: 'show', project: @project, package: 'patchinfo') %>
             </li>
           <% end %>
           <% if @is_incident_project %>
             <% if !@has_patchinfo %>
               <li>
                 <%= sprite_tag 'exclamation' %>
-                <%= link_to_if(@project.can_edit?(@user), 'Patchinfo missing', :controller => 'patchinfo', :action => 'new_patchinfo', :project => @project, :package => 'patchinfo') %>
+		<%= link_to_if(@project.can_edit?(@user), 'Patchinfo missing', { controller: 'patchinfo', action: 'new_patchinfo', project: @project, package: 'patchinfo'}, method: :post) %>
               </li>
             <% end %>
             <% if @open_release_requests.length > 0 %>
@@ -69,7 +69,7 @@
           <% end %>
         <% end %> 
 
-        <%= render :partial => 'shared/open_requests' %>
+        <%= render partial: 'shared/open_requests' %>
 
         <% if @project.is_remote? %>
           <li>
@@ -82,13 +82,13 @@
         <% if @linking_projects.size > 0 %>
           <li>
             <%= sprite_tag 'information' %>
-            <%= @linking_projects.size %> <%= link_to("linking project#{@linking_projects.size == 1 ? '' : 's'}", {:action => 'linking_projects', :project => @project}, :remote => true) %>
+            <%= @linking_projects.size %> <%= link_to("linking project#{@linking_projects.size == 1 ? '' : 's'}", {action: 'linking_projects', project: @project}, remote: true) %>
           </li>
         <% end %>
         <% if @project_maintenance_project %>
           <li>
             <%= sprite_tag('accept') %>
-            Maintained by <%= link_to(@project_maintenance_project, :action => 'show', :project => @project_maintenance_project) %>
+            Maintained by <%= link_to(@project_maintenance_project, action: 'show', project: @project_maintenance_project) %>
           </li>
         <% end %>
         <% if @project.is_locked? %>
@@ -112,38 +112,38 @@
             <% unless @project.is_remote? %>
               <% if @is_incident_project && !@packages.blank? && @has_patchinfo && @open_release_requests.length == 0 %>
                 <li>
-                  <%= link_to(sprite_tag('brick_go') + 'Request to release', {:controller => 'project', :action => 'release_request_dialog', :project => @project}, :remote => true) %>
+                  <%= link_to(sprite_tag('brick_go') + 'Request to release', {controller: 'project', action: 'release_request_dialog', project: @project}, remote: true) %>
                 </li>
               <% elsif @is_maintenance_project %>
                 <li>
-                  <%= link_to(sprite_tag('brick_add') + 'Create maintenance incident', :controller => 'project', :action => 'new_incident', :ns => @project.name) %>
+                  <%= link_to(sprite_tag('brick_add') + 'Create maintenance incident', controller: 'project', action: 'new_incident', ns: @project.name) %>
                 </li>
               <% else %>
                 <%if !@has_patchinfo %>
                   <li>
-                    <%= link_to(sprite_tag( 'plugin_add' ) + 'Create patchinfo', :controller => 'patchinfo', :action => :new_patchinfo, :project => @project) %>
+		  <%= link_to(sprite_tag( 'plugin_add' ) + 'Create patchinfo', { controller: 'patchinfo', action: :new_patchinfo, project: @project}, method: :post) %>
                   </li>
                 <% else %>
                   <li>
-                    <%= link_to(sprite_tag( 'information' ) + 'Show patchinfo', :controller => 'patchinfo', :action => 'show', :project => @project, :package => 'patchinfo') %>
+                    <%= link_to(sprite_tag( 'information' ) + 'Show patchinfo', controller: 'patchinfo', action: 'show', project: @project, package: 'patchinfo') %>
                    </li>
                 <% end %>
                 <% if !@is_incident_project && @releasetargets.length > 0 %>
                   <li>
-                  <%= link_to(sprite_tag('brick_go') + 'Submit as update', {:controller => 'project', :action => 'incident_request_dialog', :project => @project}, :remote => true) %>
+                  <%= link_to(sprite_tag('brick_go') + 'Submit as update', {controller: 'project', action: 'incident_request_dialog', project: @project}, remote: true) %>
                   </li>
                 <% end %>
               <% end %>
             <% end %>
             <li>
-	      <%= link_to(sprite_tag('brick_edit') + "Edit description", { :action => 'edit', :project => @project}, id: 'edit-description') %>
+	      <%= link_to(sprite_tag('brick_edit') + "Edit description", { action: 'edit', project: @project}, id: 'edit-description') %>
             </li>
             <li>
-            <%= link_to(sprite_tag('brick_delete') + 'Delete project', {:controller => 'project', :action => 'delete_dialog', :project => @project.name}, :remote => true, id: 'delete-project') %>
+            <%= link_to(sprite_tag('brick_delete') + 'Delete project', {controller: 'project', action: 'delete_dialog', project: @project.name}, remote: true, id: 'delete-project') %>
             </li>
             <% if @project.is_locked? %>
               <li>
-              <%= link_to(sprite_tag('lock_open') + 'Unlock project', {:controller => 'project', :action => 'unlock_dialog', :project => @project.name}, :remote => true) %>
+              <%= link_to(sprite_tag('lock_open') + 'Unlock project', {controller: 'project', action: 'unlock_dialog', project: @project.name}, remote: true) %>
               </li>
             <% end %>
           <% else %>
@@ -166,8 +166,8 @@
   <div class="grid_10 alpha box box-shadow" id="packages_info">
     <h2 class="box-header">Packages (<%= @packages.length %>)</h2>
     <% if @packages.length > 0 %>
-       <div id="packages_table_wrapper" data-url="<%= url_for(:controller =>
-						  'package', :action => 'show', :project => @project, :package =>
+       <div id="packages_table_wrapper" data-url="<%= url_for(controller:
+						  'package', action: 'show', project: @project, package:
 						  'REPLACEIT') %>">
 	<% content_for :ready_function do %> 
 	var packages = [ <%= @packages.map {|p| "['#{p}']"
@@ -182,20 +182,20 @@
       <% if !@project.is_remote? && !(@is_incident_project && !@packages.blank? && @has_patchinfo && @open_release_requests.length == 0) && !@is_maintenance_project %>
          <ul class="horizontal-list">
                 <li>
-                  <%= link_to(sprite_tag('package_add') + 'Create package', :controller => 'project', :action => 'new_package', :project => @project) %>
+                  <%= link_to(sprite_tag('package_add') + 'Create package', controller: 'project', action: 'new_package', project: @project) %>
                 </li>
                 <li>
-                  <%= link_to sprite_tag('package_link') + 'Branch existing package', :controller => :project, :action => :new_package_branch, :project => @project %>
+                  <%= link_to sprite_tag('package_link') + 'Branch existing package', controller: :project, action: :new_package_branch, project: @project %>
                 </li>
            </ul>
          <% end %>
       <% end %>
   </div>
   <div class="grid_6 omega box box-shadow">
-    <%= render :partial => 'shared/buildresult_box', :locals => {:project => @project.name} %>
+    <%= render partial: 'shared/buildresult_box', locals: {project: @project.name} %>
   </div>
   <div class="grid_16 box box-shadow alpha omega">
     <h2 class="box-header">Comments for <%= @project.name %> (<%= @comments.length %>)</h2>
-    <%= render :partial => 'webui/comment/show'%>
+    <%= render partial: 'webui/comment/show'%>
   </div>
 <% end %>

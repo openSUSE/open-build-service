@@ -5,7 +5,7 @@
 
 <h3><%= @pagetitle %> <% if @rev %>(Revision <%= @rev %>)<% end %></h3>
 <% if @rev %>
-  <p>Currently displaying revision <i><%= @rev %></i>, <%= link_to('show latest', :project => @project, :package => @package, :file => @filename, :expand => @expand ) %></p>
+  <p>Currently displaying revision <i><%= @rev %></i>, <%= link_to('show latest', :project => @project, :package => @package, :filename => @filename, :expand => @expand ) %></p>
 <% end %>
 
 <% if @addeditlink %>

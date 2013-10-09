@@ -24,6 +24,7 @@ case $SUBTEST in
    cd src/api
    SUBTEST=${SUBTEST/rake:/}
    bundle exec rake $SUBTEST --trace || ret=1
+   tail -n 6000 log/test.log
    ;;
   api:*)
    cd src/api

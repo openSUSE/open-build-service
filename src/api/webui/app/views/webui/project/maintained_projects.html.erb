@@ -21,7 +21,7 @@
           <% if @project.can_edit?(@user) %>
             <td>
               <%# TODO: Convert into a dialog and use link_to + :remote => true %>
-              <%= link_to(image_tag('brick_delete.png', :title => 'Remove project from maintenance'), :controller => 'project', :action => 'remove_maintained_project', :project => @project, :maintained_project => maintained_project) %>
+	      <%= link_to(sprite_tag('brick_delete', title: 'Remove project from maintenance'), { :controller => 'project', :action => 'remove_maintained_project', :project => @project, :maintained_project => maintained_project }, method: :post) %>
             </td>
           <% end %>
         </tr>
@@ -41,7 +41,6 @@
 
 <% if @project.can_edit?(@user) %>
   <p>
-    <%= link_to(image_tag('brick_add.png', :title => 'Add project to maintenance'), {:controller => 'project', :action => 'add_maintained_project_dialog', :project => @project}, :remote => true) %>
-    <%= link_to('Add project to maintenance', {:controller => 'project', :action => 'add_maintained_project_dialog', :project => @project}, :remote => true) %>
+    <%= link_to(sprite_tag('brick_add', title: 'Add project to maintenance') + 'Add project to maintenance', {:controller => 'project', :action => 'add_maintained_project_dialog', :project => @project}, :remote => true) %>
   </p>
 <% end %>
