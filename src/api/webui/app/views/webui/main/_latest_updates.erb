@@ -12,7 +12,7 @@
     <% @latest_updates.each do |update| %>
         <tr>
           <td>
-            <% if update[1] == 'package' %>
+            <% if update[1] == :package %>
                 <%= sprite_tag 'package' %>
                 <%= link_to(elide(update[2], 20), :controller => 'package', :action => 'show', :project => update[3], :package => update[2]) %>
             <% else %>

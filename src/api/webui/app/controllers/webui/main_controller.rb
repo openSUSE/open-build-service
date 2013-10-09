@@ -23,7 +23,7 @@ class Webui::MainController < Webui::WebuiController
       @workerstatus = Xmlhash::XMLHash.new
     else
       @workerstatus = Rails.cache.fetch('frontpage_workerstatus', :expires_in => 15.minutes, :shared => true) do
-        Workerstatus.find(:all).to_hash
+        Webui::Workerstatus.find(:all).to_hash
       end
     end
     @waiting_packages = 0
