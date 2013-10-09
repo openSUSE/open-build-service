@@ -29,29 +29,26 @@ class StatusController < ApplicationController
 
     new_messages = ActiveXML::Node.new(request.raw_post)
 
-    begin
-      if new_messages.has_element? 'message'
-        # message(s) are wrapped in outer xml tag 'status_messages'
-        new_messages.each_message do |msg|
-          message = StatusMessage.new
-          message.message = msg.to_s
-          message.severity = msg.value :severity
-          message.user = @http_user
-          message.save
-        end
-      else
-        raise RuntimeError.new 'no message' if new_messages.element_name != 'message'
-        # just one message, NOT wrapped in outer xml tag 'status_messages'
-        message = StatusMessage.new
-        message.message = new_messages.to_s
-        message.severity = new_messages.value :severity
-        message.user = @http_user
-        message.save
+    if new_messages.has_element? 'message'
+      # message(s) are wrapped in outer xml tag 'status_messages'
+      new_messages.each_message do |msg|
+        save_new_message(msg)
       end
-      render_ok
-    rescue RuntimeError
-      raise CreatingMessagesError.new "message(s) cannot be created"
+    else
+      # TODO: make use of a validator
+      raise CreatingMessagesError.new "no message #{new_messages.dump_xml}" if new_messages.element_name != 'message'
+      # just one message, NOT wrapped in outer xml tag 'status_messages'
+      save_new_message(new_messages)
     end
+    render_ok
+  end
+
+  def save_new_message(msg)
+    message = StatusMessage.new
+    message.message = msg.to_s
+    message.severity = msg.value :severity
+    message.user = User.current
+    message.save!
   end
 
   def delete_message

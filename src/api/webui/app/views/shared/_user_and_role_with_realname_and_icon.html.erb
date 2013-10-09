@@ -1,7 +1,7 @@
 <% short ||= false %>
 <% no_icon ||= false %>
 <% no_link ||= false %>
-<% realname = Person.realname_for_login(user) %>
+<% realname = User.realname_for_login(user) %>
 
 <% unless no_icon %>
   <%= user_icon(user) %>
