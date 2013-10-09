@@ -589,15 +589,17 @@ class BsRequest < ActiveRecord::Base
 
   def auto_accept
     self.with_lock do
-      r.bs_request_actions.each do |action|
+      User.current ||= User.find_by_login self.creator
+
+      self.bs_request_actions.each do |action|
         action.execute_accept({ lowprio: 1, comment: "Auto accept" })
       end
 
-      r.bs_request_actions.each do |action|
+      self.bs_request_actions.each do |action|
         action.per_request_cleanup(:comment => "Auto accept")
       end
 
-      r.change_state('accepted', :comment => "Auto accept")
+      self.change_state('accepted', :comment => "Auto accept")
     end
   end
 
