@@ -202,7 +202,7 @@ class ProjectController < WebuiController
   end
 
   def new_package_branch
-    @remote_projects = ApiDetails.read(:projects_remotes)
+    @remote_projects = Project.where.not(remoteurl: nil).pluck(:id, :name, :title)
   end
 
   def incident_request_dialog
@@ -246,26 +246,72 @@ class ProjectController < WebuiController
     redirect_to :action => 'show', :project => params[:project]
   end
 
+  def find_packages_info
+    ret = Array.new
+    packages=@pro.expand_all_packages
+    prj_names = Hash.new
+    Project.where(id: packages.map { |a| a[1] }.uniq).pluck(:id, :name).each do |id, name|
+      prj_names[id] = name
+    end
+    packages.each do |name, prj_id|
+      if prj_id==@pro.id
+        ret << [name, nil]
+      else
+        ret << [name, prj_names[prj_id]]
+      end
+    end
+    ret
+  end
+
+  def find_maintenance_infos
+    pm = @pro.maintenance_project
+    @project_maintenance_project = pm.name if pm
+
+    @is_maintenance_project = @pro.is_maintenance?
+    if @is_maintenance_project
+      mi = DbProjectType.find_by_name!('maintenance_incident')
+      subprojects = Project.where("projects.name like ?", @pro.name + ":%").
+          where(type_id: mi.id).joins(:repositories => :release_targets).
+          where("release_targets.trigger = 'maintenance'")
+      @open_maintenance_incidents = subprojects.pluck("projects.name").sort.uniq
+
+      @maintained_projects = []
+      @pro.maintained_projects.each do |mp|
+        @maintained_projects << mp.name
+      end
+    end
+    @is_incident_project = @pro.is_maintenance_incident?
+    if @is_incident_project
+      rel = BsRequestCollection.new(project: @pro.name, states: ['new', 'review'], types: ['maintenance_release'], roles: ['source'])
+      @open_release_requests = rel.ids
+    end
+  end
+
+  def find_nr_of_problems
+    begin
+      result = ActiveXML.backend.direct_http("/build/#{URI.escape(@pro.name)}/_result?view=status&code=failed&code=broken&code=unresolvable")
+    rescue ActiveXML::Transport::NotFoundError
+      return 0
+    end
+    ret = {}
+    Xmlhash.parse(result).elements('result') do |r|
+      r.elements('status') { |p| ret[p['package']] = 1 }
+    end
+    ret.keys.size
+  end
+
   def load_project_info
     return unless check_valid_project_name
-    begin
-      @project_info = ApiDetails.read(:infos_project, params[:project])
-    rescue ApiDetails::NotFoundError
-      return render_project_missing
-    end
-    @project = WebuiProject.new(@project_info['xml'])
-    @packages = @project_info['packages'].map { |p| p[0] }.sort
-    @open_maintenance_incidents = @project_info['incidents']
-    @linking_projects = @project_info['linking_projects']
-    @requests = @project_info['requests']
-    @nr_of_problem_packages = @project_info['nr_of_problem_packages']
+    @pro = Project.find_by_name(params[:project])
+    return render_project_missing unless @pro
 
-    # Is this a maintenance master project ?
-    @is_maintenance_project = @project.project_type == "maintenance"
-    @is_incident_project = @project.project_type == 'maintenance_incident'
-
-    @maintained_projects = @project_info['maintained_projects']
-    @open_release_requests = @project_info['open_release_requests']
+    find_maintenance_infos
+    @project = WebuiProject.new(@pro.to_axml)
+    @packages = find_packages_info.map { |p| p[0] }.sort
+    @linking_projects = @pro.find_linking_projects.map { |p| p.name }
+    reqs = @pro.request_ids_by_class
+    @requests = (reqs['reviews'] + reqs['targets'] + reqs['incidents'] + reqs['maintenance_release']).sort.uniq
+    @nr_of_problem_packages = find_nr_of_problems
   end
 
   def show
@@ -275,8 +321,6 @@ class ProjectController < WebuiController
       mail = bugowner.email
       @bugowners_mail.push(mail.to_s) if mail
     end unless @spider_bot
-
-    @project_maintenance_project = @project_info['maintenance_project'] unless @spider_bot
 
     # An incident has a patchinfo if there is a package 'patchinfo' with file '_patchinfo', try to find that:
     @has_patchinfo = false
@@ -629,7 +673,9 @@ class ProjectController < WebuiController
     @project.title.text = params[:title]
     @project.description.text = params[:description]
     @project.set_project_type('maintenance') if params[:maintenance_project]
-    @project.set_remoteurl(params[:remoteurl]) if params[:remoteurl]
+    if params[:remoteurl]
+      @project.add_element('remoteurl').text = params[:remoteurl]
+    end
     if params[:access_protection]
       @project.add_element 'access'
       @project.access.add_element 'disable'
@@ -1161,15 +1207,231 @@ class ProjectController < WebuiController
     @update = params[:update]
   end
 
+  def calc_status(project_name)
+    @api_project = ::Project.where(name: project_name).includes(:packages).first
+    @status = Hash.new
+
+    # needed to map requests to package id
+    @name2id = Hash.new
+
+    @prj_status = Rails.cache.fetch("prj_status-#{@api_project.to_s}", expires_in: 5.minutes) do
+      ProjectStatusCalculator.new(@api_project).calc_status(pure_project: true)
+    end
+
+    status_filter_packages
+    status_gather_attributes
+    status_gather_requests
+
+    @packages = Array.new
+    @status.each_value do |p|
+      status_check_package(p)
+    end
+
+    return {packages: @packages, projects: @develprojects.keys}
+  end
+
+  def status_check_package(p)
+    currentpack = Hash.new
+    pname = p.name
+
+    currentpack['name'] = pname
+    currentpack['failedcomment'] = p.failed_comment unless p.failed_comment.blank?
+
+    newest = 0
+
+    p.fails.each do |repo, arch, time, md5|
+      next if newest > time
+      next if md5 != p.verifymd5
+      currentpack['failedarch'] = arch
+      currentpack['failedrepo'] = repo
+      newest = time
+      currentpack['firstfail'] = newest
+    end
+    return if !currentpack['firstfail'] && @limit_to_fails
+
+    currentpack['problems'] = Array.new
+    currentpack['requests_from'] = Array.new
+    currentpack['requests_to'] = Array.new
+
+    key = @api_project.name + '/' + pname
+    if @submits.has_key? key
+      currentpack['requests_from'].concat(@submits[key])
+    end
+
+    currentpack['md5'] = p.verifymd5
+
+    dp = p.develpack
+    if dp
+      dproject = p.develpack.project
+      currentpack['develproject'] = dproject
+      currentpack['develpackage'] = p.develpack.name
+      key = "%s/%s" % [dproject, p.develpack.name]
+      if @submits.has_key? key
+        currentpack['requests_to'].concat(@submits[key])
+      end
+      return if !currentpack['requests_from'].empty? && @ignore_pending
+
+      currentpack['develmd5'] = dp.verifymd5
+      currentpack['develmtime'] = dp.maxmtime
+
+      if dp.error
+        currentpack['problems'] << 'error-' + dp.error
+      end
+
+      if currentpack['md5'] && currentpack['develmd5'] && currentpack['md5'] != currentpack['develmd5']
+        if p.declined_request
+          @declined_requests[p.declined_request].bs_request_actions.each do |action|
+            return unless action.source_project == dp.project && action.source_package == dp.name
+
+            sourcerev = Rails.cache.fetch("rev-#{dp.project}-#{dp.name}-#{currentpack['md5']}") do
+              Directory.hashed(project: dp.project, package: dp.name)['rev']
+            end
+            if sourcerev == action.source_rev
+              currentpack['currently_declined'] = p.declined_request
+              currentpack['problems'] << 'currently_declined'
+            end
+          end
+        end
+        if currentpack['currently_declined'].nil?
+          if p.changesmd5 != dp.changesmd5
+            currentpack['problems'] << 'different_changes'
+          else
+            currentpack['problems'] << 'different_sources'
+          end
+        end
+      end
+    end
+    currentpack.merge!(project_status_set_version(p))
+
+    if p.links_to
+      if currentpack['md5'] != p.links_to.verifymd5
+        currentpack['problems'] << 'diff_against_link'
+        currentpack['lproject'] = p.links_to.project
+        currentpack['lpackage'] = p.links_to.name
+      end
+    end
+
+    return unless (currentpack['firstfail'] or currentpack['failedcomment'] or currentpack['upstream_version'] or
+        !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
+    if @limit_to_old
+      return if (currentpack['firstfail'] or currentpack['failedcomment'] or
+          !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
+    end
+    @packages << currentpack
+  end
+
+  def status_filter_packages
+    filter_for_user = User.get_by_login(@filter_for_user) unless @filter_for_user.blank?
+    current_develproject = @filter || @all_projects
+    @develprojects = Hash.new
+    packages_to_filter_for = nil
+    if filter_for_user
+      packages_to_filter_for = filter_for_user.user_relevant_packages_for_status
+    end
+    @prj_status.each_value do |value|
+      if value.develpack
+        dproject = value.develpack.project
+        @develprojects[dproject] = 1
+        if (current_develproject != dproject or current_develproject == @no_project) and current_develproject != @all_projects
+          next
+        end
+      else
+        next if @current_develproject == @no_project
+      end
+      if filter_for_user
+        if value.develpack
+          next unless packages_to_filter_for.include? value.develpack.package_id
+        else
+          next unless packages_to_filter_for.include? value.package_id
+        end
+      end
+      @status[value.package_id] = value
+      @name2id[value.name] = value.package_id
+    end
+  end
+
+  def status_gather_requests
+    # we do not filter requests for project because we need devel projects too later on and as long as the
+    # number of open requests is limited this is the easiest solution
+    raw_requests = ::BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
+        where(bs_request_actions: {type: 'submit'}).pluck("bs_requests.id", "bs_requests.state",
+                                                          "bs_request_actions.target_project",
+                                                          "bs_request_actions.target_package")
+
+    @declined_requests = {}
+    @submits = Hash.new
+    raw_requests.each do |id, state, tproject, tpackage|
+      if state == "declined"
+        next if tproject != @api_project.name || !@name2id.has_key?(tpackage)
+        @status[@name2id[tpackage]].declined_request = id
+        @declined_requests[id] = nil
+      else
+        key = "#{tproject}/#{tpackage}"
+        @submits[key] ||= Array.new
+        @submits[key] << id
+      end
+    end
+    ::BsRequest.where(id: @declined_requests.keys).each do |r|
+      @declined_requests[r.id] = r
+    end
+  end
+
+  def status_gather_attributes
+    project_status_attributes(@status.keys, 'OBS', 'ProjectStatusPackageFailComment') do |package, value|
+      @status[package].failed_comment = value
+    end
+
+    if @include_versions || @limit_to_old
+      project_status_attributes(@status.keys, 'openSUSE', 'UpstreamVersion') do |package, value|
+        @status[package].upstream_version = value
+      end
+      project_status_attributes(@status.keys, 'openSUSE', 'UpstreamTarballURL') do |package, value|
+        @status[package].upstream_url= value
+      end
+    end
+  end
+
+  def project_status_attributes(packages, namespace, name)
+    ret = Hash.new
+    at = AttribType.find_by_namespace_and_name(namespace, name)
+    return unless at
+    attribs = at.attribs.where(db_package_id: packages)
+    AttribValue.where(attrib_id: attribs).joins(:attrib).pluck("attribs.db_package_id, value").each do |id, value|
+      yield id, value
+    end
+    ret
+  end
+
+  def project_status_set_version(p)
+    ret = {}
+    ret['version'] = p.version
+    if p.upstream_version
+      begin
+        gup = Gem::Version.new(p.version)
+        guv = Gem::Version.new(p.upstream_version)
+      rescue ArgumentError
+        # if one of the versions can't be parsed we simply can't say
+      end
+
+      if gup && guv && gup < guv
+        ret['upstream_version'] = p.upstream_version
+        ret['upstream_url'] = p.upstream_url
+      end
+    end
+    ret
+  end
+
   def status
     all_packages = 'All Packages'
     no_project = 'No Project'
+    @no_project = "_none_"
+    @all_projects = "_all_"
     @current_develproject = params[:filter_devel] || all_packages
-    filter = @current_develproject
-    if filter == all_packages
-      filter = '_all_'
+    @filter = @current_develproject
+    if @filter == all_packages
+      @filter = @all_projects
     elsif filter == no_project
-      filter = '_none_'
+      @filter = @no_project
     end
     @ignore_pending = params[:ignore_pending] || false
     @limit_to_fails = !(!params[:limit_to_fails].nil? && params[:limit_to_fails] == 'false')
@@ -1178,15 +1440,10 @@ class ProjectController < WebuiController
     @filter_for_user = params[:filter_for_user]
 
     @develprojects = Hash.new
-    ps = ApiDetails.read(:status_project, params[:project],
-        filter_devel: filter,
-        ignore_pending: @ignore_pending,
-        limit_to_fails: @limit_to_fails,
-        limit_to_old: @limit_to_old,
-        include_versions: @include_versions,
-        filter_for_user:   params[:filter_for_user])
-    @packages = ps['packages']
-    @develprojects = ps['projects'].sort { |x,y| x.downcase <=> y.downcase }
+    ps = calc_status(params[:project])
+
+    @packages = ps[:packages]
+    @develprojects = ps[:projects].sort { |x,y| x.downcase <=> y.downcase }
     @develprojects.insert(0, all_packages)
     @develprojects.insert(1, no_project)
 
@@ -1354,7 +1611,7 @@ class ProjectController < WebuiController
 
   def require_project
     return unless check_valid_project_name
-    @project ||= find_cached(WebuiProject, params[:project], :expires_in => 5.minutes )
+    @project ||= WebuiProject.find(params[:project])
     unless @project
       return render_project_missing
     end

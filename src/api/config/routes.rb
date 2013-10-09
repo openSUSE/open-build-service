@@ -332,11 +332,7 @@ OBSApi::Application.routes.draw do
     #       DO NOT USE THEM IN YOUR TOOLS!
     #
     namespace :webui do
-      resources :projects, :only => [:index], constraints: { :id => %r{[^\/]*} } do
-        member do
-          get 'infos'
-          get 'status'
-        end
+      resources :projects, constraints: { :id => %r{[^\/]*} } do
         resources :flags, :only => [:index]
         resources :packages, :only => [], constraints: { :id => %r{[^\/]*} } do
           resources :relationships, :only => [:create] do

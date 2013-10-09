@@ -9,34 +9,6 @@ class WebuiControllerTest < ActionDispatch::IntegrationTest
     wait_for_scheduler_start
   end
 
-  def test_project_infos
-    get '/webui/projects/home:Iggy/infos'
-    assert_response 401
-
-    login_Iggy
-    get '/webui/projects/home:Iggy/infos'
-    assert_response :success
-
-  end
-
-  def test_remote_projects
-    get "/webui/projects/remotes"
-    assert_response 401
-
-    login_Iggy
-    get "/webui/projects/remotes"
-    assert_response :success
-    assert_match(/RemoteInstance/, @response.body)
-  end
-
-  def test_remote_projects_as_admin
-    login_king
-    get "/webui/projects/remotes"
-    assert_response :success
-    assert_match(/RemoteInstance/, @response.body)
-    assert_match(/Remoteurl project which is hidden/, @response.body)
-  end
-
   def test_search_owner
     login_king
 
@@ -97,13 +69,6 @@ class WebuiControllerTest < ActionDispatch::IntegrationTest
     pkg.save
     # cleanup
     delete '/source/home:Iggy/_attribute/OBS:OwnerRootProject'
-    assert_response :success
-  end
-
-  test 'project status' do
-    login_Iggy
-
-    get '/webui/projects/LocalProject/status?limit_to_fails=true&limit_to_old=false&include_versions=true&ignore_pending=false&filter_devel=_all_'
     assert_response :success
   end
 
