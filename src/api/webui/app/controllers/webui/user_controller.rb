@@ -14,11 +14,11 @@ class UserController < WebuiController
     logger.info "Logging out: #{session[:login]}"
     reset_session
     @user = nil
-    @return_to_path = "/"
+    @return_to_path = root_path
     if CONFIG['proxy_auth_mode'] == :on
       redirect_to CONFIG['proxy_auth_logout_page']
     else
-      redirect_to '/'
+      redirect_to root_path
     end
     Person.free_cache session[:login]
   end

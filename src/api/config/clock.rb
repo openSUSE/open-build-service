@@ -8,10 +8,8 @@ require 'clockwork'
 include Clockwork
 
 every(30.seconds, 'status.refresh') do
-  Rails.logger.debug "Refresh worker status"
-  c = StatusController.new
   # this should be fast, so don't delay
-  c.update_workerstatus_cache
+  WorkerStatus.new.update_workerstatus_cache
 end
  
 every(1.hour, 'refresh issues') do
@@ -29,7 +27,7 @@ end
 
 every(1.day, 'optimize history', thread: true) do 
   ActiveRecord::Base.connection_pool.with_connection do |sql|
-    sql.execute "optimize table status_histories;"
+    sql.execute 'optimize table status_histories;'
   end
 end
 

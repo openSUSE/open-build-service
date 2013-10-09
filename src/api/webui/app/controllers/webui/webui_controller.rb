@@ -7,7 +7,7 @@ module Webui
 class WebuiController < ActionController::Base
   Rails.cache.set_domain if Rails.cache.respond_to?('set_domain');
 
-  before_filter :check_mobile_views
+  #before_filter :check_mobile_views
   before_filter :instantiate_controller_and_action_names
   before_filter :set_return_to, :reset_activexml, :authenticate
   before_filter :check_user
@@ -26,17 +26,17 @@ class WebuiController < ActionController::Base
   # HTTPPaymentRequired, UnauthorizedError or Forbidden
   # here so the exception handler catches it but what the heck...
   rescue_from ActiveXML::Transport::ForbiddenError do |exception|
-    if exception.code == "unregistered_ichain_user"
-      render template: "user/request_ichain" and return
-    elsif exception.code == "unregistered_user"
-      render file: Rails.root.join("public/403"), formats: [:html], status: 402, layout: false and return
-    elsif exception.code == "unconfirmed_user"
-      render file: Rails.root.join("public/402"), formats: [:html], status: 402, layout: false
+    if exception.code == 'unregistered_ichain_user'
+      render template: 'user/request_ichain' and return
+    elsif exception.code == 'unregistered_user'
+      render file: Rails.root.join('public/403'), formats: [:html], status: 402, layout: false and return
+    elsif exception.code == 'unconfirmed_user'
+      render file: Rails.root.join('public/402'), formats: [:html], status: 402, layout: false
     else
       if @user
-        render file: Rails.root.join("public/403"), formats: [:html], status: :forbidden, layout: false 
+        render file: Rails.root.join('public/403'), formats: [:html], status: :forbidden, layout: false
       else
-        render file: Rails.root.join("public/401"), formats: [:html], status: :unauthorized, layout: false
+        render file: Rails.root.join('public/401'), formats: [:html], status: :unauthorized, layout: false
       end
     end
   end
@@ -57,7 +57,7 @@ class WebuiController < ActionController::Base
   class MissingParameterError < Exception; end
   rescue_from MissingParameterError do |exception|
     logger.debug "#{exception.class.name} #{exception.message} #{exception.backtrace.join('\n')}"
-    render file: Rails.root.join("public/404"), status: 404, layout: false, formats: [:html]
+    render file: Rails.root.join('public/404'), status: 404, layout: false, formats: [:html]
   end
 
   protected
@@ -67,8 +67,8 @@ class WebuiController < ActionController::Base
       @return_to_host = params['return_to_host']
     else
       # we have a proxy in front of us
-      @return_to_host = CONFIG['external_webui_protocol'] || "http"
-      @return_to_host += "://"
+      @return_to_host = CONFIG['external_webui_protocol'] || 'http'
+      @return_to_host += '://'
       @return_to_host += CONFIG['external_webui_host'] || request.host
     end
     @return_to_path = params['return_to_path'] || request.env['ORIGINAL_FULLPATH']
@@ -78,7 +78,7 @@ class WebuiController < ActionController::Base
   def require_login
     if !session[:login]
       render :text => 'Please login' and return if request.xhr?
-      flash[:error] = "Please login to access the requested page."
+      flash[:error] = 'Please login to access the requested page.'
       mode = :off
       mode = CONFIG['proxy_auth_mode'] unless CONFIG['proxy_auth_mode'].blank?
       if (mode == :off)
@@ -117,8 +117,8 @@ class WebuiController < ActionController::Base
       session[:login] = proxy_user
       session[:email] = proxy_email
       # Set the headers for direct connection to the api, TODO: is this thread safe?
-      ActiveXML::api.set_additional_header( "X-Username", proxy_user )
-      ActiveXML::api.set_additional_header( "X-Email", proxy_email ) if proxy_email
+      ActiveXML::api.set_additional_header( 'X-Username', proxy_user )
+      ActiveXML::api.set_additional_header( 'X-Email', proxy_email ) if proxy_email
     else
       session[:login] = nil
       session[:email] = nil
@@ -141,9 +141,9 @@ class WebuiController < ActionController::Base
   end
 
   def valid_package_name_read? name
-    return true if name == "_project"
-    return true if name == "_product"
-    return true if name == "_deltas"
+    return true if name == '_project'
+    return true if name == '_product'
+    return true if name == '_deltas'
     return true if name =~ /^_product:[-+\w\.:]*$/
     return true if name =~ /^_patchinfo:[-+\w\.:]*$/
     name =~ /^[[:alnum:]][-+\w\.:]*$/
@@ -177,8 +177,8 @@ class WebuiController < ActionController::Base
 
   def reset_activexml
     transport = ActiveXML::api
-    transport.delete_additional_header "X-Username"
-    transport.delete_additional_header "X-Email"
+    transport.delete_additional_header 'X-Username'
+    transport.delete_additional_header 'X-Email'
     transport.delete_additional_header 'Authorization'
   end
 
@@ -274,7 +274,7 @@ class WebuiController < ActionController::Base
 
   def put_body_to_tempfile(xmlbody)
     file = Tempfile.new('xml').path
-    file = File.open(file + ".xml", "w")
+    file = File.open(file + '.xml', 'w')
     file.write(xmlbody)
     file.close
     return file.path
@@ -311,7 +311,7 @@ class WebuiController < ActionController::Base
     begin
       document = Nokogiri::XML::Document.parse(xmlbody, nil, nil, Nokogiri::XML::ParseOptions::STRICT)
     rescue Nokogiri::XML::SyntaxError => e
-      errors << ("[%s:%s]" % [e.line, e.column]) + e.inspect
+      errors << ('[%s:%s]' % [e.line, e.column]) + e.inspect
       errors << put_body_to_tempfile(xmlbody)
     end
 
@@ -321,7 +321,7 @@ class WebuiController < ActionController::Base
         document = nil
         errors << put_body_to_tempfile(xmlbody) 
         ses.each do |err|
-          errors << ("[%s:%s]" % [err.line, err.column]) + err.inspect
+          errors << ('[%s:%s]' % [err.line, err.column]) + err.inspect
         end
       end
     end
@@ -329,7 +329,7 @@ class WebuiController < ActionController::Base
     unless document
       self.instance_variable_set(:@_response_body, nil)
       logger.debug "XML Errors #{errors.inspect} #{xmlbody}"
-      render :template => "webui/xml_errors", :locals => { :oldbody => xmlbody, :errors => errors }, :status => 400
+      render :template => 'webui/xml_errors', :locals => { :oldbody => xmlbody, :errors => errors }, :status => 400
     end
   end
 
@@ -344,7 +344,7 @@ class WebuiController < ActionController::Base
   # Before filter to check if current user is administrator
   def require_admin
     if !@user || !@user.is_admin?
-      flash[:error] = "Requires admin privileges"
+      flash[:error] = 'Requires admin privileges'
       redirect_back_or_to :controller => 'main', :action => 'index' and return
     end
   end
@@ -394,7 +394,6 @@ class WebuiController < ActionController::Base
   end
 
   def check_mobile_views
-    Rails.logger.debug "check_mobile"
     #prepend_view_path(Rails.root.join('app', 'mobile_views')) if mobile_request?
   end
 
