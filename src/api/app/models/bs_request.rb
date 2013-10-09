@@ -603,6 +603,12 @@ class BsRequest < ActiveRecord::Base
     end
   end
 
+  def self.delayed_auto_accept
+    BsRequest.to_accept.each do |r|
+      r.delay.auto_accept
+    end
+  end
+
   # Check if 'user' is maintainer in _all_ request targets:
   def is_target_maintainer?(user = User.current)
     has_target, is_target_maintainer = false, true

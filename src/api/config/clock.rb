@@ -20,9 +20,7 @@ end
 
 every(1.hour, 'accept requests') do
   User.current = User.get_default_admin
-  BsRequest.to_accept.each do |r|
-    r.delay.auto_accept
-  end
+  BsRequest.delayed_auto_accept
 end
 
 every(49.minutes, 'rescale history') do

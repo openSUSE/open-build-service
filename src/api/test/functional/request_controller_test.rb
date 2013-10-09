@@ -1862,12 +1862,15 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   def test_auto_accept_request
     login_tom
-    # create request with auto accept in far future
+ 
+    Timecop.freeze(2010, 07, 12)
+
+    # create request with auto accept tomorrow
     req = "<request>
             <action type='delete'>
               <target project='home:Iggy' package='TestPack' />
             </action>
-            <accept_at>2113-07-25 14:00:21.000000000 Z</accept_at>
+            <accept_at>2010-07-13 14:00:21.000000000 Z</accept_at>
             <description>SUBMIT</description>
             <state who='Iggy' name='new'/>
           </request>"
@@ -1887,20 +1890,39 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # correct rendered
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'accept_at', :content => '2113-07-25 14:00:21 UTC')
+    assert_xml_tag(:tag => 'accept_at', :content => '2010-07-13 14:00:21 UTC')
 
-    # but not when the time is in the past
+    # but not when the time is yesterday
     req = "<request>
             <action type='delete'>
               <target project='home:Iggy' package='TestPack' />
             </action>
-            <accept_at>2009-07-25 14:00:21.000000000 Z</accept_at>
+            <accept_at>2010-07-11 14:00:21.000000000 Z</accept_at>
             <description>SUBMIT</description>
             <state who='Iggy' name='new'/>
           </request>"
     post '/request?cmd=create', req
     assert_response 400
     assert_xml_tag(:tag => 'status', :attributes => {:code => 'request_save_error'})
+
+    # now time travel and accept
+    Timecop.freeze(2.days)
+    # the backend has to be up before we can accept
+    Suse::Backend.start_test_backend
+    BsRequest.delayed_auto_accept 
+
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(:tag => 'accept_at', :content => '2010-07-13 14:00:21 UTC')
+    assert_xml_tag(tag: 'state', attributes: { name: 'accepted', when: '2010-07-14T00:00:00', who: 'Iggy' })
+
+    # and now check that the package is gone indeed
+    get '/source/home:Iggy/TestPack'
+    assert_response 404
+
+    # good, now revive to fix the state of the union
+    post '/source/home:Iggy/TestPack?cmd=undelete'
+    assert_response :success
   end
 
   def test_branch_version_update_and_submit_request_back
@@ -2450,7 +2472,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   test 'revoke autodeclined submit requests' do
     login_Iggy
 
-    Timecop.freeze(2010, 12, 07)
+    Timecop.freeze(2010, 07, 12)
     raw_put '/source/home:Iggy:fordecline/_meta', "<project name='home:Iggy:fordecline'><title></title><description></description></project>"
     assert_response :success
 
@@ -2471,9 +2493,9 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                   'state' =>
                       {'name' => 'declined',
                        'who' => 'Iggy',
-                       'when' => '2010-12-07T00:00:00',
+                       'when' => '2010-07-12T00:00:00',
                        'comment' =>"The target project 'home:Iggy:fordecline' was removed"},
-                  'history' =>{'name' => 'new', 'who' => 'Iggy', 'when' => '2010-12-07T00:00:00'}}, node)
+                  'history' =>{'name' => 'new', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:00'}}, node)
 
     post "/request/#{id}?cmd=changestate&newstate=revoked"
     assert_response :success
@@ -2487,13 +2509,13 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                        'person' =>{'name' => 'Iggy', 'role' => 'reviewer'}},
                   'state' =>{'name' => 'revoked',
                             'who' => 'Iggy',
-                            'when' => '2010-12-07T00:00:00',
+                            'when' => '2010-07-12T00:00:00',
                             'comment' =>{}},
                   'history' =>
-                      [{'name' => 'new', 'who' => 'Iggy', 'when' => '2010-12-07T00:00:00'},
+                      [{'name' => 'new', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:00'},
                        {'name' => 'declined',
                         'who' => 'Iggy',
-                        'when' => '2010-12-07T00:00:00',
+                        'when' => '2010-07-12T00:00:00',
                         'comment' =>"The target project 'home:Iggy:fordecline' was removed"}]}, node)
 
   end
