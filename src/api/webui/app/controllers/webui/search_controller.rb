@@ -43,7 +43,7 @@ class Webui::SearchController < Webui::WebuiController
           end
         end
       end
-      project = find_cached(Project, result.project)
+      project = find_cached(WebuiProject, result.project)
       if result.package
         package = find_cached(Package, result.package, :project => project)
       end

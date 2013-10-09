@@ -64,7 +64,7 @@
             <%#TODO: Only display if there is really a diff: %>
             <li>
               <%= sprite_tag 'information' %>
-              Could have <%= link_to_if !Webui::Project.is_remote?(linked_project), 'a link diff', :action => :rdiff, :oproject => linked_project, :opackage => linked_package, :project => @project, :package => @package, :rev => @revision %>
+              Could have <%= link_to_if !WebuiProject.is_remote?(linked_project), 'a link diff', :action => :rdiff, :oproject => linked_project, :opackage => linked_package, :project => @project, :package => @package, :rev => @revision %>
             </li>
           <% end%>
         <% end %>

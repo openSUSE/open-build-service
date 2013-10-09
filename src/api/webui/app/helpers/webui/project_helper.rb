@@ -55,10 +55,10 @@ module ProjectHelper
     unless @project.nil? || @project.is_remote?
       prj_parents = nil
       if @namespace # corner case where no project object is available (i.e. 'new' action)
-        prj_parents = Webui::Project.parent_projects(@namespace)
+        prj_parents = WebuiProject.parent_projects(@namespace)
       else
         #FIXME: Some controller's @project is a Project object whereas other's @project is a String object.
-        prj_parents = Webui::Project.parent_projects(@project.to_s)
+        prj_parents = WebuiProject.parent_projects(@project.to_s)
       end
       project_list = []
       prj_parents.each do |name, short_name|

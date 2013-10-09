@@ -24,7 +24,7 @@
 <% end %>
 
 <% if @user && @filenames && !@filenames.empty? %>
-    <% if @oproject && @opackage && !Webui::Project.has_attribute?(@oproject, 'OBS', 'RejectRequests') && 
+    <% if @oproject && @opackage && !WebuiProject.has_attribute?(@oproject, 'OBS', 'RejectRequests') && 
 		   !Webui::Package.has_attribute?(@oproject, @opackage, 'OBS', 'RejectRequests') %>
         <% msg = "Submit to #{@oproject.to_s + ' / ' + @opackage.to_s}" %>
         <% target_project, target_package = @oproject, @opackage %>

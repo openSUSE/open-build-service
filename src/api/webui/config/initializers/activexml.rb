@@ -27,7 +27,7 @@ end
 
 map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['frontend_host'], CONFIG['frontend_port'])
 
-    map.connect :project, "rest:///source/:name/_meta?:view",
+    map.connect :webuiproject, "rest:///source/:name/_meta?:view",
       :all    => "rest:///source/",
       :delete => "rest:///source/:name?:force",
       :issues => "rest:///source/:name?view=issues"

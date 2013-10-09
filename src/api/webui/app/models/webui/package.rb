@@ -170,7 +170,7 @@ class Package < Webui::Node
     return false unless user
     raise "user needs to be a Person" unless user.kind_of? Person
     return true if is_maintainer?(user)
-    return true if p=Project.find_cached(project) and p.can_edit?(user)
+    return true if p=WebuiProject.find_cached(project) and p.can_edit?(user)
   end
 
   def free_directory( rev=nil, expand=false )
