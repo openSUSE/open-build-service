@@ -38,19 +38,19 @@ class Webui::ConfigurationController < Webui::WebuiController
 
     project_name = params[:name].strip
 
-    if Webui::Project.exists? project_name
+    if WebuiProject.exists? project_name
       flash[:error] = "Project '#{project_name}' already exists."
       redirect_to :action => :connect_instance and return
     end
 
-    @project = Webui::Project.new(:name => project_name)
+    @project = WebuiProject.new(:name => project_name)
     @project.title.text = params[:title]
     @project.description.text = params[:description]
     @project.set_remoteurl(params[:remoteurl])
 
     if @project.save
       Webui::Distribution.free_cache(:all)
-      if Project.exists? "home:#{@user.login.to_s}"
+      if WebuiProject.exists? "home:#{@user.login.to_s}"
         flash[:notice] = "Project '#{project_name}' was created successfully"
         redirect_to :controller => :project, :action => 'show', :project => project_name and return
       else

@@ -395,7 +395,7 @@ module Webui
 
   def link_to_project(prj, linktext=nil)
     linktext = prj if linktext.blank?
-    if Project.exists?(prj)
+    if WebuiProject.exists?(prj)
       link_to(linktext, {:controller => :project, :action => :show, :project => prj}, title: prj )
     else
       linktext

@@ -1,7 +1,6 @@
 require 'frontend_compat'
 
-module Webui
-class Project < Webui::Node
+class WebuiProject < Webui::Node
   
   default_find_parameter :name
 
@@ -15,6 +14,14 @@ class Project < Webui::Node
   attr_accessor :my_architectures
 
   handles_xml_element 'project'
+
+  def self.make_stub(opt)
+    doc = ActiveXML::Node.new("<project/>")
+    doc.set_attribute('name', opt[:name])
+    doc.add_element 'title'
+    doc.add_element 'description'
+    doc
+  end
 
   class Webui::Repository < Webui::Node
     handles_xml_element 'repository'
@@ -93,13 +100,13 @@ class Project < Webui::Node
 
   #check if named project exists
   def self.exists?(pro_name)
-    return true if Project.find pro_name
+    return true if WebuiProject.find pro_name
     return false
   end
   
   #check if named project comes from a remote OBS instance
   def self.is_remote?(pro_name)
-    p = Project.find pro_name
+    p = WebuiProject.find pro_name
     return true if p && p.is_remote?
     return false
   end
@@ -255,7 +262,7 @@ class Project < Webui::Node
 
   def user_has_role?(user, role)
     return false unless user
-    raise "user needs to be a Person" unless user.kind_of? Person
+    raise "user needs to be a Person" unless user.kind_of? Webui::Person
     login = user.to_hash["login"]
     if user && login
       to_hash.elements("person") do |p|
@@ -278,7 +285,7 @@ class Project < Webui::Node
       if not role or (role and p["role"] == role)
         users << p["userid"]
       end
-      user = Person.find_cached(p["userid"])
+      user = Webui::Person.find_cached(p["userid"])
       if user
         to_hash.elements("group") do |g|
           if not role or (role and g["role"] == role)
@@ -287,7 +294,7 @@ class Project < Webui::Node
         end
       end
     end
-    return users.uniq.sort.map { |u| Person.find_cached(u) }
+    return users.uniq.sort.map { |u| Webui::Person.find_cached(u) }
   end
 
   def groups(role = nil)
@@ -301,7 +308,7 @@ class Project < Webui::Node
   end
 
   def is_maintainer?(user)
-    raise "user needs to be a Person" unless user.kind_of? Person
+    raise "user needs to be a Person" unless user.kind_of? Webui::Person
     groups("maintainer").each do |group|
       return true if user.is_in_group?(group)
     end
@@ -310,7 +317,7 @@ class Project < Webui::Node
 
   def can_edit?(user)
     return false if not user
-    raise "user needs to be a Person" unless user.kind_of? Person
+    raise "user needs to be a Person" unless user.kind_of? Webui::Person
     return true if user.is_admin?
     return is_maintainer?(user)
   end
@@ -347,7 +354,7 @@ class Project < Webui::Node
       for i in 1..atoms.length do
         p = atoms.slice(0, i).join(":")
         r = atoms.slice(unused, i - unused).join(":")
-        if Project.exists? p
+        if WebuiProject.exists? p
           projects << [p, r]
           unused = i
         end
@@ -357,7 +364,7 @@ class Project < Webui::Node
   end
 
   def parent_projects
-    return Project.parent_projects(self.name)
+    return WebuiProject.parent_projects(self.name)
   end
 
   def self.attributes(project_name)
@@ -367,7 +374,7 @@ class Project < Webui::Node
   end
 
   def attributes
-    return Project.attributes(self.name)
+    return WebuiProject.attributes(self.name)
   end
 
   def self.has_attribute?(project_name, attribute_namespace, attribute_name)
@@ -378,7 +385,7 @@ class Project < Webui::Node
   end
 
   def FIXME_has_attribute?(attribute_namespace, attribute_name)
-    return Project.has_attribute?(self.name, attribute_namespace, attribute_name)
+    return WebuiProject.has_attribute?(self.name, attribute_namespace, attribute_name)
   end
 
   # Returns maintenance incidents by type for current project (if any)
@@ -397,14 +404,14 @@ class Project < Webui::Node
 
   def patchinfo
     begin
-      return Patchinfo.find_cached(:project => self.name, :package => 'patchinfo')
+      return Webui::Patchinfo.find_cached(:project => self.name, :package => 'patchinfo')
     rescue ActiveXML::Transport::Error, ActiveXML::ParseError
       return nil
     end
   end
 
   def packages
-    pkgs = Package.find(:all, :project => self.name)
+    pkgs = Webui::Package.find(:all, :project => self.name)
     if pkgs
       return pkgs.each
     else
@@ -414,7 +421,7 @@ class Project < Webui::Node
 
   def issues
     return Rails.cache.fetch("changes_and_patchinfo_issues_#{self.name}2", :expires_in => 5.minutes) do
-      issues = Project.find_cached(:issues, :name => self.name, :expires_in => 5.minutes)
+      issues = WebuiProject.find_cached(:issues, :name => self.name, :expires_in => 5.minutes)
       if issues
         changes_issues, patchinfo_issues = {}, {}
         issues.each(:package) do |package|
@@ -457,11 +464,11 @@ class Project < Webui::Node
       global_patchinfo = nil
       self.packages.each do |package|
         pkg_name, rt_name = package.value('name').split('.', 2)
-        pkg = Package.find_cached(package.value('name'), :project => self.name)
+        pkg = Webui::Package.find_cached(package.value('name'), :project => self.name)
         if pkg && rt_name
           if pkg_name == 'patchinfo'
             # Holy crap, we found a patchinfo that is specific to (at least) one release target!
-            pi = Patchinfo.find_cached(:project => self.name, :package => pkg_name)
+            pi = Webui::Patchinfo.find_cached(:project => self.name, :package => pkg_name)
             begin
               release_targets_ng[rt_name][:patchinfo] = pi
             rescue 
@@ -538,12 +545,12 @@ class Project < Webui::Node
   def requests(opts)
     # called for the incidents requests
     opts = {:project => self.name}.merge opts
-    ids = BsRequest.list_ids(opts)
-    return BsRequest.ids(ids)
+    ids = Webui::BsRequest.list_ids(opts)
+    return Webui::BsRequest.ids(ids)
   end
 
   def buildresults(view = 'summary')
-    return Buildresult.find_cached(:project => self.name, :view => view)
+    return Webui::Buildresult.find_cached(:project => self.name, :view => view)
   end
 
   def build_succeeded?(repository = nil)
@@ -583,5 +590,4 @@ class Project < Webui::Node
     return true
   end
 
-end
 end

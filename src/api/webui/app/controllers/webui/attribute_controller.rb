@@ -65,7 +65,7 @@ private
 
   def requires
     required_parameters :project
-    @project = find_cached(Webui::Project, params[:project], :expires_in => 5.minutes )
+    @project = WebuiProject.find(params[:project])
     unless @project
       flash[:error] = "Project not found: #{params[:project]}"
       redirect_to :controller => "project", :action => "list_public" and return
@@ -81,7 +81,7 @@ private
     end
     @is_maintenance_project = false
     @is_maintenance_project = true if @project.project_type and @project.project_type == "maintenance"
-    @package = find_cached(Webui::Package, params[:package], :project => @project.name) if params[:package]
+    @package = Webui::Package.find(params[:package], :project => @project.name) if params[:package]
     @attribute_opts = {:project => @project.name}
     @attribute_opts.store(:package, @package.to_s) if @package
     @attributes = Webui::Attribute.find(@attribute_opts)

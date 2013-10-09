@@ -217,7 +217,7 @@ class Person < Node
         return true
       end
     end
-    project = Webui::Project.find_cached(project) if project.class == String
+    project = WebuiProject.find_cached(project) if project.class == String
     if project
       return project.user_has_role?(self, role)
     else
