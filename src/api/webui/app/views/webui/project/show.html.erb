@@ -21,7 +21,7 @@
             <%= @open_maintenance_incidents.length %> <%= link_to "open incident#{@open_maintenance_incidents.length == 1 ? '' : 's'}", action: 'maintenance_incidents', project: @project %>
           </li>
           <li>
-            <% if @maintained_projects.length == 0 %>
+            <% if @maintained_projects.empty? %>
               <%= sprite_tag 'exclamation' %>
             <% else %>
               <%= sprite_tag 'accept' %>
@@ -110,7 +110,7 @@
         <% end -%>
           <% if @project.can_edit?( @user ) %>
             <% unless @project.is_remote? %>
-              <% if @is_incident_project && !@packages.blank? && @has_patchinfo && @open_release_requests.length == 0 %>
+              <% if @is_incident_project && @packages.present? && @has_patchinfo && @open_release_requests.blank? %>
                 <li>
                   <%= link_to(sprite_tag('brick_go') + 'Request to release', {controller: 'project', action: 'release_request_dialog', project: @project}, remote: true) %>
                 </li>

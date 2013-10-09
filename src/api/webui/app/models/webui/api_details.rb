@@ -63,11 +63,6 @@ class Webui::ApiDetails
     uri = "/webui/" +
       case route_name.to_sym
 
-      when :projects then "projects"
-      when :projects_remotes then "projects/remotes"
-      when :infos_project then "projects/#{ids.first}/infos"
-      when :status_project then "projects/#{ids.first}/status"
-
       when :package_rdiff then "projects/#{ids.first}/packages/#{ids.last}/rdiff"
 
       when :requests then "requests"

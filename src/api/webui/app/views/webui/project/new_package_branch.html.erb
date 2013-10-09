@@ -16,9 +16,8 @@ package.</p>
     <%= pluralize(@remote_projects.count, 'interconnect.', 'interconnects.') %>
   </p>
   <ul>
-  <% @remote_projects.each do |p| %>
-    <% prj = Project.find_cached(p[1]["name"]) %>
-      <li><%= link_to(prj.name, { controller: 'project', action: 'show', project: prj}, {:class => 'project'}) %></li>
+  <% @remote_projects.each do |id,name,title| %>
+      <li><%= link_to("#{name}: #{title}", { controller: 'project', action: 'show', project: name}, {:class => 'project'}) %></li>
   <% end %>
   </ul>
 <% end %>
