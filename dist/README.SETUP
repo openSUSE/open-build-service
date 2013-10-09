@@ -160,17 +160,28 @@ available after adding the SDK to the available installation repositories.
   A template for this file can be found in same directory as
   "database.yml.example".
 
-* populate the database
+* Populate the database
 
     cd /srv/www/obs/api/
     sudo RAILS_ENV="production" rake db:setup
-    sudo RAILS_ENV="production" ruby writeconfiguration
+    sudo RAILS_ENV="production" rake writeconfiguration # only for OBS 2.5+
     sudo chown -R wwwrun.www log tmp
 
 
     cd /srv/www/obs/webui/
     sudo RAILS_ENV="production" rake db:setup
     sudo chown -R wwwrun.www log tmp
+
+* Initialize the database
+
+  Store the initial values into the database (like roles, permissions,...):
+
+    cd /srv/www/obs/api/
+    sudo RAILS_ENV="production" rake db:seed
+
+  This will also create 'Admin' administrator user with 'opensuse' password by
+  default. Change the password in the webui ASAP or edit
+  /srv/www/obs/api/db/seeds.rb file _before_ running the rake task.
 
 
 3.2 Setup and configure apache2 for the api and webui
@@ -437,7 +448,8 @@ The following service are optional:
 
  * obssigner
    It is used to sign packages via the obs-sign daemon. You need to configure
-   it in BSConfig.pm before you can use it.
+   it in BSConfig.pm before you can use it. See 'obsstoragesetup' script
+   how to create the signing GPG key and how to setup the signing daemon.
 
  * obsservice
    This is the source service daemon. Older versions of OBS (<= 1.7) just came
