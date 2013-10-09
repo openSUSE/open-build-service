@@ -188,14 +188,14 @@ class PackageController < WebuiController
 
   def revisions
     begin
-      @max_revision = Package.current_rev(@project, @package.name).to_i
+      @max_revision = Webui::Package.current_rev(@project, @package.name).to_i
     rescue ActiveXML::Transport::ForbiddenError => e
       flash[:error] = "Could not access revisions: #{e.summary}"
       redirect_to :action => :show, :project => @project.name, :package => @package.name and return
     end
     @upper_bound = @max_revision
     if params[:showall]
-      p = Package.find( @package.name, :project => @project)
+      p = Webui::Package.find( @package.name, :project => @project)
       p.cacheAllCommits # we need to fetch commits alltogether for the cache and not each single one
       @visible_commits = @max_revision
     else
@@ -209,7 +209,7 @@ class PackageController < WebuiController
     if params[:revision]
       @revision = params[:revision]
     else
-      @revision = Package.current_rev(@project, @package)
+      @revision = Webui::Package.current_rev(@project, @package)
     end
     @cleanup_source = @project.value('name').include?(':branches:') # Rather ugly decision finding...
     render_dialog
@@ -257,7 +257,7 @@ class PackageController < WebuiController
     @forced_unexpand ||= ''
     
     begin
-      @current_rev = Package.current_rev(@project.name, @package.name)
+      @current_rev = Webui::Package.current_rev(@project.name, @package.name)
       if not @revision and not @srcmd5
         # on very first page load only
         @revision = @current_rev
@@ -331,7 +331,7 @@ class PackageController < WebuiController
         flash[:error] = "Invalid package name: '#{params[:name]}'"
         redirect_to :action => 'wizard_new', :project => params[:project]
       else
-        @package = Package.new( :name => params[:name], :project => @project )
+        @package = Webui::Package.new( :name => params[:name], :project => @project )
         if @package.save
           redirect_to :action => 'wizard', :project => params[:project], :package => params[:name]
         else
@@ -381,13 +381,13 @@ class PackageController < WebuiController
       redirect_to :controller => :project, :action => 'new_package', :project => @project
       return
     end
-    if Package.exists? @project, @package_name
+    if Webui::Package.exists? @project, @package_name
       flash[:error] = "Package '#{@package_name}' already exists in project '#{@project}'"
       redirect_to :controller => :project, :action => 'new_package', :project => @project
       return
     end
 
-    @package = Package.new( :name => params[:name], :project => @project )
+    @package = Webui::Package.new( :name => params[:name], :project => @project )
     @package.title.text = params[:title]
     @package.description.text = params[:description]
     if params[:source_protection]
@@ -402,8 +402,8 @@ class PackageController < WebuiController
       flash[:notice] = "Package '#{@package}' was created successfully"
       Rails.cache.delete('%s_packages_mainpage' % @project)
       Rails.cache.delete('%s_problem_packages' % @project)
-      Package.free_cache( :all, :project => @project.name )
-      Package.free_cache( @package.name, :project => @project )
+      Webui::Package.free_cache( :all, :project => @project.name )
+      Webui::Package.free_cache( @package.name, :project => @project )
       redirect_to :action => 'show', :project => params[:project], :package => params[:name]
     else
       flash[:notice] = "Failed to create package '#{@package}'"
@@ -456,7 +456,7 @@ class PackageController < WebuiController
       redirect_to :controller => :project, :action => 'new_package_branch', :project => params[:project] and return
     end
 
-    linked_package = Package.find(@linked_package, :project => @linked_project)
+    linked_package = Webui::Package.find(@linked_package, :project => @linked_project)
     unless linked_package
       flash[:error] = "Unable to find package '#{@linked_package}' in project '#{@linked_project}'."
       redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
@@ -467,13 +467,13 @@ class PackageController < WebuiController
       flash[:error] = "Invalid target package name: '#{@target_package}'"
       redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
     end
-    if Package.exists? @project, @target_package
+    if Webui::Package.exists? @project, @target_package
       flash[:error] = "Package '#{@target_package}' already exists in project '#{@project}'"
       redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
     end
 
-    revision = Package.current_xsrcmd5(@linked_project, @linked_package)
-    revision = Package.current_rev(@linked_project, @linked_package) unless revision
+    revision = Webui::Package.current_xsrcmd5(@linked_project, @linked_package)
+    revision = Webui::Package.current_rev(@linked_project, @linked_package) unless revision
     unless revision
       flash[:error] = "Unable to branch package '#{@target_package}', it has no source revision yet"
       redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
@@ -493,7 +493,7 @@ class PackageController < WebuiController
       end
     else
       # construct container for link
-      package = Package.new( :name => @target_package, :project => @project )
+      package = Webui::Package.new( :name => @target_package, :project => @project )
       package.title.text = linked_package.title.text
 
       description = 'This package is based on the package ' +
@@ -524,8 +524,8 @@ class PackageController < WebuiController
 
     Rails.cache.delete('%s_packages_mainpage' % @project)
     Rails.cache.delete('%s_problem_packages' % @project)
-    Package.free_cache( :all, :project => @project.name )
-    Package.free_cache( @target_package, :project => @project )
+    Webui::Package.free_cache( :all, :project => @project.name )
+    Webui::Package.free_cache( @target_package, :project => @project )
     redirect_to :controller => 'package', :action => 'show', :project => @project, :package => @target_package
   end
 
@@ -550,8 +550,8 @@ class PackageController < WebuiController
       flash[:notice] = "Package '#{@package}' was removed successfully from project '#{@project}'"
       Rails.cache.delete('%s_packages_mainpage' % @project)
       Rails.cache.delete('%s_problem_packages' % @project)
-      Package.free_cache( :all, :project => @project.name )
-      Package.free_cache( @package.name, :project => @project.name )
+      Webui::Package.free_cache( :all, :project => @project.name )
+      Webui::Package.free_cache( @package.name, :project => @project.name )
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
     end
@@ -633,19 +633,19 @@ class PackageController < WebuiController
     redirect_to :action => :show, :project => @project, :package => @package
   end
 
-  def change_role_options(params)
-    ret = Hash.new
-    ret[:role] = params[:role] if params.has_key? :role
-    if params.has_key? :userid
-      return ret.merge( { user: params[:userid] })
+  def load_obj
+    if login = params[:userid]
+      return User.get_by_login(login)
+    elsif title = params[:groupid]
+      return ::Group.get_by_title(title)
     else
-      return ret.merge( { group: params[:groupid] })
+      raise MissingParameterError, "Neither user nor group given"
     end
   end
 
   def save_person
     begin
-      ApiDetails.create :project_package_relationships, @project.name, @package.name, change_role_options(params)
+      @package.api_package.add_role(load_obj, Role.find_by_title!(params[:role]))
       @package.free_cache
     rescue ApiDetails::TransportError, ApiDetails::NotFoundError => e
       flash[:error] = e.to_s
@@ -663,7 +663,7 @@ class PackageController < WebuiController
 
   def save_group
     begin
-      ApiDetails.create :project_package_relationships, @project.name, @package.name, change_role_options(params)
+      @package.api_package.add_role(load_obj, Role.find_by_title!(params[:role]))
       @package.free_cache
     rescue ApiDetails::TransportError, ApiDetails::NotFoundError => e
       flash[:error] = e.to_s
@@ -681,7 +681,7 @@ class PackageController < WebuiController
 
   def remove_role
     begin
-      ApiDetails.destroy :for_user_project_package_relationships, @project.name, @package.name, change_role_options(params)
+      @package.api_package.remove_role(load_obj,  Role.find_by_title(params[:role]))
       @package.free_cache
     rescue ApiDetails::TransportError, ApiDetails::NotFoundError => e
       flash[:error] = e.summary
@@ -701,7 +701,7 @@ class PackageController < WebuiController
 
   def view_file
     @filename = params[:filename] || params[:file] || ''
-    if Package.is_binary_file?(@filename) # We don't want to display binary files
+    if Webui::Package.is_binary_file?(@filename) # We don't want to display binary files
       flash[:error] = "Unable to display binary file #{@filename}"
       redirect_back_or_to :action => :show, :project => @project, :package => @package and return
     end
@@ -896,7 +896,7 @@ class PackageController < WebuiController
   def devel_project
     check_ajax
     required_parameters :package, :project
-    tgt_pkg = Package.find( params[:package], project: params[:project] )
+    tgt_pkg = Webui::Package.find( params[:package], project: params[:project] )
     if tgt_pkg and tgt_pkg.has_element?(:devel)
       render :text => tgt_pkg.devel.project
     else
@@ -1048,7 +1048,7 @@ class PackageController < WebuiController
   end
 
   def repositories
-    @package = Package.find( params[:package], :project => params[:project], :view => :flagdetails )
+    @package = Webui::Package.find( params[:package], :project => params[:project], :view => :flagdetails )
   end
 
   def change_flag

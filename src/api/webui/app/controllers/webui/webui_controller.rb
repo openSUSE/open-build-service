@@ -248,7 +248,8 @@ class WebuiController < ActionController::Base
     end
     @user ||= Person.find_cached(session[:login], :is_current => true)
     if @user
-      Rails.cache.set_domain(@user.to_s) if Rails.cache.respond_to?('set_domain');
+      User.current = User.find_by_login session[:login]
+      Rails.cache.set_domain(@user.to_s) if Rails.cache.respond_to?('set_domain')
       begin
         @nr_requests_that_need_work = 0
         unless request.xhr?

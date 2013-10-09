@@ -68,9 +68,7 @@ class Webui::ApiDetails
       when :infos_project then "projects/#{ids.first}/infos"
       when :status_project then "projects/#{ids.first}/status"
       when :project_relationships then "projects/#{ids.first}/relationships"
-      when :project_package_relationships then "projects/#{ids.first}/packages/#{ids.last}/relationships"
       when :for_user_project_relationships then "projects/#{ids.first}/relationships/for_user"
-      when :for_user_project_package_relationships then "projects/#{ids.first}/packages/#{ids.last}/relationships/for_user"
 
       when :package_rdiff then "projects/#{ids.first}/packages/#{ids.last}/rdiff"
 
