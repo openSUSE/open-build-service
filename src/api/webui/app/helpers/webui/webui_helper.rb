@@ -65,8 +65,15 @@ module Webui
                      width: size, height: size, alt: alt, class: css_class)
   end
 
-  def fuzzy_time_string(time)
-    time_ago_in_words(Time.parse(time))
+  def fuzzy_time(time)
+    if Time.now - time < 60
+      return 'now' # rails' 'less than a minute' is a bit long
+    end
+    time_ago_in_words(time) + ' ago'
+  end
+
+  def fuzzy_time_string(timestring)
+    fuzzy_time(Time.parse(timestring))
   end
 
   def status_for( repo, arch, package )

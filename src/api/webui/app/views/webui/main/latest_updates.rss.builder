@@ -4,17 +4,16 @@ xml.rss :version => '2.0' do
     xml.description 'Latest project and package changes'
     xml.link url_for :only_path => false, :controller => 'main', :action => 'index'
 
-    for update in @latest_updates
+    @latest_updates.each do |element|
       xml.item do
-        if update.element_name == 'package'
-          xml.title "Package #{update.name} in.project #{update.project} updated"
-          xml.link url_for(:only_path => false, :controller => 'project', :action => 'show', :project => update.project, :package => update.name)
-        elsif update.element_name == 'project'
-          xml.title "Project #{update.name} updated"
-          xml.link url_for(:only_path => false, :controller => 'project', :action => 'show', :project => update.name)
+        if element[1] == :package
+          xml.title "Package #{element[2]} in.project #{element[3]} updated"
+          xml.link url_for(:only_path => false, :controller => 'project', :action => 'show', :project => element[3], :package => element[2])
+        else
+          xml.title "Project #{element[1]} updated"
+          xml.link url_for(:only_path => false, :controller => 'project', :action => 'show', :project => element[1])
         end
-        xml.title update.to_s
-        xml.pubDate update.updated
+        xml.pubDate element[0]
       end
     end
   end
