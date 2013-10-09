@@ -329,10 +329,6 @@ class Package < Webui::Node
     return false
   end
 
-  def FIXME_has_attribute?(attribute_namespace, attribute_name)
-    return Package.has_attribute?(self.project, self.name, attribute_namespace, attribute_name)
-  end
-
   def linkdiff
     begin
       path = "/source/#{self.project}/#{self.name}?cmd=linkdiff&view=xml&withissues=1"
@@ -343,6 +339,9 @@ class Package < Webui::Node
     end
   end
 
+  def api_package
+     ::Package.find_by_project_and_name(project, name)
+  end
 end
 
 end
