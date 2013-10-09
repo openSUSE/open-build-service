@@ -72,7 +72,7 @@ class UserController < WebuiController
   end
 
   def edit
-    @roles = Webui::Role.global_roles
+    @roles = Role.global_roles
     @states = State.states
   end
 
@@ -113,7 +113,7 @@ class UserController < WebuiController
   end
 
   def save_dialog
-    @roles = Webui::Role.global_roles
+    @roles = Role.global_roles
     render_dialog
   end
 

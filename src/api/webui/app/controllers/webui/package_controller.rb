@@ -174,7 +174,7 @@ class PackageController < WebuiController
   def users
     @users = [@project.users, @package.users].flatten.uniq
     @groups = [@project.groups, @package.groups].flatten.uniq
-    @roles = Webui::Role.local_roles
+    @roles = Role.local_roles
   end
 
   def requests
@@ -301,11 +301,11 @@ class PackageController < WebuiController
   private :set_file_details
 
   def add_person
-    @roles = Webui::Role.local_roles
+    @roles = Role.local_roles
   end
 
   def add_group
-    @roles = Webui::Role.local_roles
+    @roles = Role.local_roles
   end
 
   def rdiff
