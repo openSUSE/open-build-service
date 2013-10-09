@@ -30,9 +30,24 @@ class ProjectController < WebuiController
     list and return
   end
 
-  def list
-    all_projects = ApiDetails.read(:projects)
+  def all_projects
     @important_projects = []
+    # return all projects and their title
+    ret = {}
+    atype = AttribType.find_by_namespace_and_name('OBS', 'VeryImportantProject')
+    important = {}
+    Project.find_by_attribute_type(atype).pluck("projects.id").each do |p|
+      important[p] = true
+    end
+    projects = Project.where("name <> ?", "deleted").pluck(:id, :name, :title)
+    projects.each do |id, name, title|
+      @important_projects << [name, title] if important[id]
+      ret[name] = title
+    end
+    ret
+  end
+
+  def list
     @main_projects = []
     @excl_projects = []
     if params['excludefilter'] and params['excludefilter'] != 'undefined'
@@ -40,14 +55,11 @@ class ProjectController < WebuiController
     else
       @excludefilter = nil
     end
-    all_projects.each do |name, infos|
-      if infos['important']
-        @important_projects << [name, infos['title']]
-      end
+    all_projects.each do |name, title|
       if @excludefilter && name.start_with?(@excludefilter)
-        @excl_projects << [name, infos['title']]
+        @excl_projects << [name, title]
       else
-        @main_projects << [name, infos['title']]
+        @main_projects << [name, title]
       end
     end
     # excl and main are sorted by datatable, but important need to be in order
