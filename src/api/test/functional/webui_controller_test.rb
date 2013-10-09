@@ -2,6 +2,8 @@ require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 
 class WebuiControllerTest < ActionDispatch::IntegrationTest
 
+  fixtures :all
+
   def setup
     super
     wait_for_scheduler_start

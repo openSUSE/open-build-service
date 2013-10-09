@@ -187,6 +187,9 @@ module Webui
 
     @@display = nil
 
+    self.use_transactional_fixtures = false
+    fixtures :all
+
     setup do
       if !@@display
         @@display = Headless.new
@@ -195,12 +198,12 @@ module Webui
       olddriver = Capybara.current_driver
       Capybara.current_driver = :rack_test
       self.class.start_test_api
-      ActiveXML::api.http_do :post, "/test/test_start"
+      #ActiveXML::api.http_do :post, "/test/test_start"
       Capybara.current_driver = olddriver
       @starttime = Time.now
       WebMock.disable_net_connect!(allow_localhost: true)
-      max=::BsRequest.maximum(:id)
-      ::BsRequest.connection.execute("alter table bs_requests AUTO_INCREMENT = #{max+1}")
+      #max=::BsRequest.maximum(:id)
+      #::BsRequest.connection.execute("alter table bs_requests AUTO_INCREMENT = #{max+1}")
       CONFIG['global_write_through'] = true
     end
 
@@ -220,6 +223,7 @@ module Webui
       Rails.cache.clear
       WebMock.reset!
       ActiveRecord::Base.clear_active_connections!
+      DatabaseCleaner.clean_with :truncation,  pre_count: true
 
       #puts "#{self.__name__} took #{Time.now - @starttime}"
     end

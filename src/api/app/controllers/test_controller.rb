@@ -47,14 +47,12 @@ class TestController < ApplicationController
       test_end
     end
     @@test_running = true
-    DatabaseCleaner.start
     render_ok
   end
 
 
   def test_end
     @@test_running = false
-    DatabaseCleaner.clean
     Rails.cache.clear
   end
 end

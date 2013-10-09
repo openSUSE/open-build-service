@@ -73,7 +73,7 @@ class ProjectController < WebuiController
 
   def autocomplete_packages
     required_parameters :term
-    if valid_package_name_read?( params[:term] ) or params[:term] == ""
+    if valid_package_name_read?( params[:term] ) or params[:term] == ''
       render :json => @project.packages.select{|p| p.name.index(params[:term]) }.map{|p| p.name}
     else
       render :text => '[]'
@@ -101,15 +101,15 @@ class ProjectController < WebuiController
     filterstring.gsub!(/[']/, '&apos;')
     filterstring.gsub!(/["]/, '&quot;')
     predicate = filterstring.empty? ? '' : "starts-with(@name, '#{filterstring}')"
-    predicate += " and " if !predicate.empty? and !excludefilter.blank?
+    predicate += ' and ' if !predicate.empty? and !excludefilter.blank?
     predicate += "not(starts-with(@name,'#{excludefilter}'))" if !excludefilter.blank?
-    predicate += " and " if !predicate.empty?
+    predicate += ' and ' if !predicate.empty?
     if opts[:only_incidents]
       predicate += "@kind='maintenance_incident')"
     else
       predicate += "not(@kind='maintenance_incident')" # Filter all maintenance incidents
     end
-    result = Collection.find(:id, :what => "project", :predicate => predicate)
+    result = Collection.find(:id, :what => 'project', :predicate => predicate)
     @projects = Array.new
     result.each { |p| @projects << p.name }
     @projects =  @projects.sort_by { |a| project_key a }
@@ -117,14 +117,14 @@ class ProjectController < WebuiController
   private :get_filtered_projectlist
 
   def users
-    @users = @project.users
+    @users = @project.users.sort.map { |u| Person.find(u) }
     @groups = @project.groups
     @roles = Role.local_roles
   end
 
   def subprojects
     @subprojects = Hash.new
-    sub_names = Collection.find :id, :what => "project", :predicate => "starts-with(@name,'#{@project}:')"
+    sub_names = Collection.find :id, :what => 'project', :predicate => "starts-with(@name,'#{@project}:')"
     sub_names.each do |sub|
       @subprojects[sub.name] = find_cached( WebuiProject, sub.name )
     end
@@ -159,7 +159,7 @@ class ProjectController < WebuiController
           @pagetitle = "Your home project doesn't exist yet. You can create it now"
           @project_name = @namespace
         end
-      rescue
+      rescue ActiveXML::Transport::Error
         flash[:error] = "Invalid namespace name '#{@namespace}'"
         redirect_back_or_to :controller => 'project', :action => 'list_public' and return
       end
@@ -167,7 +167,7 @@ class ProjectController < WebuiController
     if @project_name =~ /home:(.+)/
       @project_title = "#$1's Home Project"
     else
-      @project_title = ""
+      @project_title = ''
     end
   end
 
@@ -277,8 +277,8 @@ class ProjectController < WebuiController
     end
     begin
       @comments = ApiDetails.read(:comments_by_project, @project)
-    rescue ActiveXML::Transport::Error => e
-      render :text => e.summary, :status => 404, :content_type => "text/plain"
+    rescue ApiDetails::NotFoundError
+      @comments = []
     end
     render :show, :status => params[:nextstatus] if params[:nextstatus]
   end
@@ -286,14 +286,14 @@ class ProjectController < WebuiController
   def load_releasetargets
     @releasetargets = []
     @project.each_repository do |repo|
-      @releasetargets.push(repo.releasetarget.value('project') + "/" + repo.releasetarget.value('repository')) if repo.has_element?('releasetarget')
+      @releasetargets.push(repo.releasetarget.value('project') + '/' + repo.releasetarget.value('repository')) if repo.has_element?('releasetarget')
     end
   end
 
   def linking_projects
     # TODO: remove this ajax call and replace it with a jquery dialog
-    Rails.cache.delete("%s_linking_projects" % @project.name) if discard_cache?
-    @linking_projects = Rails.cache.fetch("%s_linking_projects" % @project.name, :expires_in => 30.minutes) do
+    Rails.cache.delete('%s_linking_projects' % @project.name) if discard_cache?
+    @linking_projects = Rails.cache.fetch('%s_linking_projects' % @project.name, :expires_in => 30.minutes) do
        @project.linking_projects
     end
     render_dialog
@@ -337,19 +337,19 @@ class ProjectController < WebuiController
     @repostatushash = Hash.new
     @packagenames = Array.new
 
-    @buildresult.to_hash.elements("result") do |result|
-      repo = result["repository"]
-      arch = result["arch"]
+    @buildresult.to_hash.elements('result') do |result|
+      repo = result['repository']
+      arch = result['arch']
 
       # repository status cache
       @repostatushash[repo] ||= Hash.new
       @repostatushash[repo][arch] = Hash.new
 
-      if result.has_key? "state"
-        if result.has_key? "dirty"
-          @repostatushash[repo][arch] = "outdated_" + result["state"]
+      if result.has_key? 'state'
+        if result.has_key? 'dirty'
+          @repostatushash[repo][arch] = 'outdated_' + result['state']
         else
-          @repostatushash[repo][arch] = result["state"]
+          @repostatushash[repo][arch] = result['state']
         end
       end
     end if @buildresult
@@ -379,16 +379,16 @@ class ProjectController < WebuiController
       else
         @project.delete
       end
-      Rails.cache.delete("%s_packages_mainpage" % @project)
-      Rails.cache.delete("%s_problem_packages" % @project)
+      Rails.cache.delete('%s_packages_mainpage' % @project)
+      Rails.cache.delete('%s_problem_packages' % @project)
       flash[:notice] = "Project '#{@project}' was removed successfully"
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
     end
-    if not @project.project_type == 'maintenance'
+    if @project.project_type != 'maintenance'
       parent_projects = @project.parent_projects()
-      if parent_projects and parent_projects.length > 1
-        redirect_to :action => 'show', :project => parent_projects[parent_projects.length - 2][0]
+      if parent_projects.present?
+        redirect_to :action => 'show', :project => parent_projects[parent_projects.length - 1][0]
       else
         redirect_to :action => 'list_public'
       end
@@ -810,7 +810,7 @@ class ProjectController < WebuiController
     begin
       ApiDetails.create(:project_relationships, @project.name, change_role_options(params))
       @project.free_cache
-    rescue ApiDetails::TransportError, ApiDetails::NotFoundError => e
+    rescue ApiDetails::TransportError, ApiDetails::NotFoundError, User::NotFound => e
       flash[:error] = e.to_s
       redirect_to action: :add_person, project: @project, role: params[:role], userid: params[:userid]
       return
@@ -828,7 +828,7 @@ class ProjectController < WebuiController
     begin
       ApiDetails.create :project_relationships, @project.name, change_role_options(params)
       @project.free_cache
-    rescue ApiDetails::TransportError, ApiDetails::NotFoundError => e
+    rescue ApiDetails::TransportError, ApiDetails::NotFoundError, ::Group::NotFound => e
       flash[:error] = e.to_s
       redirect_to action: :add_group, project: @project, role: params[:role], groupid: params[:groupid]
       return
@@ -846,7 +846,7 @@ class ProjectController < WebuiController
     begin
       ApiDetails.destroy :for_user_project_relationships, @project.name, change_role_options(params)
       @project.free_cache
-    rescue ApiDetails::TransportError, ApiDetails::NotFoundError => e
+    rescue ApiDetails::TransportError, ApiDetails::NotFoundError, User::NotFound, ::Group::NotFound => e
       flash[:error] = e.summary
     end
     respond_to do |format|
@@ -1218,7 +1218,7 @@ class ProjectController < WebuiController
 
   def remove_maintained_project
     redirect_back_or_to :action => 'show', :project => @project and return unless @is_maintenance_project
-    if params[:maintained_project].nil? or params[:maintained_project].empty?
+    if params[:maintained_project].blank?
       flash[:error] = 'Please provide a valid project name'
       redirect_back_or_to(:action => 'maintained_projects', :project => @project) and return
     end

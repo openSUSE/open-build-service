@@ -36,7 +36,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     click_button "search_button"
 
     if options[:expect] == :success
-      first('.search_result h6').has_text? "Responsible for package"
+      #TODO first('.search_result h6').must_have_text "Responsible for package"
     elsif options[:expect] == :invalid_search_text
       flash_message.must_equal "Search string must contain at least two characters."
       flash_message_type.must_equal :alert

@@ -16,7 +16,7 @@ class WebuiProject < Webui::Node
   handles_xml_element 'project'
 
   def self.make_stub(opt)
-    doc = ActiveXML::Node.new("<project/>")
+    doc = ActiveXML::Node.new('<project/>')
     doc.set_attribute('name', opt[:name])
     doc.add_element 'title'
     doc.add_element 'description'
@@ -29,6 +29,10 @@ class WebuiProject < Webui::Node
     return false
   end
   
+  def api_project
+    Project.find_by_name(to_s)
+  end
+
   #check if named project comes from a remote OBS instance
   def self.is_remote?(pro_name)
     p = WebuiProject.find pro_name
@@ -182,23 +186,23 @@ class WebuiProject < Webui::Node
   end
 
   def bugowners
-    return users('bugowner')
+    return users('bugowner').map { |u| Webui::Person.find(u) }
   end
 
   def user_has_role?(user, role)
     return false unless user
-    raise "user needs to be a Person" unless user.kind_of? Webui::Person
-    login = user.to_hash["login"]
+    raise 'user needs to be a Person' unless user.kind_of? Webui::Person
+    login = user.to_hash['login']
     if user && login
-      to_hash.elements("person") do |p|
-        return true if p["role"] == role && p["userid"] == login
+      to_hash.elements('person') do |p|
+        return true if p['role'] == role && p['userid'] == login
       end
     end
     return false
   end
 
   def group_has_role?(group, role)
-    each("group") do |g|
+    each('group') do |g|
       return true if g.value(:role) == role and g.value(:groupid) == group
     end
     return false
@@ -206,20 +210,20 @@ class WebuiProject < Webui::Node
 
   def users(role = nil)
     users = []
-    to_hash.elements("person") do |p|
-      if not role or (role and p["role"] == role)
-        users << p["userid"]
+    to_hash.elements('person') do |p|
+      if not role or (role and p['role'] == role)
+        users << p['userid']
       end
-      user = Webui::Person.find_cached(p["userid"])
+      user = Webui::Person.find(p['userid'])
       if user
-        to_hash.elements("group") do |g|
-          if not role or (role and g["role"] == role)
-            users << p["userid"] if user.is_in_group?(g["groupid"])
+        to_hash.elements('group') do |g|
+          if not role or (role and g['role'] == role)
+            users << p['userid'] if user.is_in_group?(g['groupid'])
           end
         end
       end
     end
-    return users.uniq.sort.map { |u| Webui::Person.find_cached(u) }
+    return users.uniq
   end
 
   def groups(role = nil)
@@ -233,8 +237,8 @@ class WebuiProject < Webui::Node
   end
 
   def is_maintainer?(user)
-    raise "user needs to be a Person" unless user.kind_of? Webui::Person
-    groups("maintainer").each do |group|
+    raise 'user needs to be a Person' unless user.kind_of? Webui::Person
+    groups('maintainer').each do |group|
       return true if user.is_in_group?(group)
     end
     return user_has_role?(user, 'maintainer')
@@ -242,17 +246,17 @@ class WebuiProject < Webui::Node
 
   def can_edit?(user)
     return false if not user
-    raise "user needs to be a Person" unless user.kind_of? Webui::Person
+    raise 'user needs to be a Person' unless user.kind_of? Webui::Person
     return true if user.is_admin?
     return is_maintainer?(user)
   end
 
   def name
-    @name ||= to_hash["name"]
+    @name ||= to_hash['name']
   end
 
   def project_type
-    return to_hash["kind"]
+    return to_hash['kind']
   end
 
   def set_project_type(project_type)
@@ -265,7 +269,7 @@ class WebuiProject < Webui::Node
 
   def is_remote?
     th = to_hash
-    th.has_key?("remoteurl") || th.has_key?("mountproject")
+    th.has_key?('remoteurl') || th.has_key?('mountproject')
   end
 
   # Returns a list of pairs (full name, short name) for each parent
@@ -277,8 +281,8 @@ class WebuiProject < Webui::Node
       unused = 0
 
       for i in 1..atoms.length do
-        p = atoms.slice(0, i).join(":")
-        r = atoms.slice(unused, i - unused).join(":")
+        p = atoms.slice(0, i).join(':')
+        r = atoms.slice(unused, i - unused).join(':')
         if WebuiProject.exists? p
           projects << [p, r]
           unused = i
@@ -369,94 +373,92 @@ class WebuiProject < Webui::Node
   end
 
   def release_targets_ng
-    return Rails.cache.fetch("incident_release_targets_ng_#{self.name}2", :expires_in => 5.minutes) do
-      # First things first, get release targets as defined by the project, err.. incident. Later on we
-      # magically find out which of the contained packages, err. updates are build against those release
-      # targets.
-      release_targets_ng = {}
-      self.each(:repository) do |repo|
-        if repo.has_element?(:releasetarget)
-          release_targets_ng[repo.releasetarget.value('project')] = {:reponame => repo.value('name'), :packages => [], :patchinfo => nil, :package_issues => {}, :package_issues_by_tracker => {}}
-        end
+    # First things first, get release targets as defined by the project, err.. incident. Later on we
+    # magically find out which of the contained packages, err. updates are build against those release
+    # targets.
+    release_targets_ng = {}
+    self.each(:repository) do |repo|
+      if repo.has_element?(:releasetarget)
+        release_targets_ng[repo.releasetarget.value('project')] = {:reponame => repo.value('name'), :packages => [], :patchinfo => nil, :package_issues => {}, :package_issues_by_tracker => {}}
       end
+    end
 
-      # One catch, currently there's only one patchinfo per incident, but things keep changing every
-      # other day, so it never hurts to have a look into the future:
-      global_patchinfo = nil
-      self.packages.each do |package|
-        pkg_name, rt_name = package.value('name').split('.', 2)
-        pkg = Webui::Package.find_cached(package.value('name'), :project => self.name)
-        if pkg && rt_name
-          if pkg_name == 'patchinfo'
-            # Holy crap, we found a patchinfo that is specific to (at least) one release target!
-            pi = Webui::Patchinfo.find_cached(:project => self.name, :package => pkg_name)
-            begin
-              release_targets_ng[rt_name][:patchinfo] = pi
-            rescue 
-              #TODO FIXME ARGH: API/backend need some work to support this better.
-              # Until then, multiple patchinfos are problematic
-            end
-          else
-            # Here we try hard to find the release target our current package is build for:
-            found = false
-            if pkg.has_element?(:build)
-              # Stone cold map'o'rama of package.$SOMETHING with package/build/enable/@repository=$ANOTHERTHING to
-              # project/repository/releasetarget/@project=$YETSOMETINGDIFFERENT. Piece o' cake, eh?
-              pkg.build.each(:enable) do |enable|
-                if enable.has_attribute?(:repository)
-                  release_targets_ng.each do |rt_key, rt_value|
-                    if rt_value[:reponame] == enable.value('repository')
-                      rt_name = rt_key # Save for re-use
-                      found = true
-                      break
-                    end
+    # One catch, currently there's only one patchinfo per incident, but things keep changing every
+    # other day, so it never hurts to have a look into the future:
+    global_patchinfo = nil
+    api_project.packages.pluck(:name).each do |pname|
+      pkg_name, rt_name = pname.split('.', 2)
+      pkg = Webui::Package.find(pname, :project => self.name)
+      if pkg && rt_name
+        if pkg_name == 'patchinfo'
+          # Holy crap, we found a patchinfo that is specific to (at least) one release target!
+          pi = Webui::Patchinfo.find(:project => self.name, :package => pkg_name)
+          begin
+            release_targets_ng[rt_name][:patchinfo] = pi
+          rescue
+            #TODO FIXME ARGH: API/backend need some work to support this better.
+            # Until then, multiple patchinfos are problematic
+          end
+        else
+          # Here we try hard to find the release target our current package is build for:
+          found = false
+          if pkg.has_element?(:build)
+            # Stone cold map'o'rama of package.$SOMETHING with package/build/enable/@repository=$ANOTHERTHING to
+            # project/repository/releasetarget/@project=$YETSOMETINGDIFFERENT. Piece o' cake, eh?
+            pkg.build.each(:enable) do |enable|
+              if enable.has_attribute?(:repository)
+                release_targets_ng.each do |rt_key, rt_value|
+                  if rt_value[:reponame] == enable.value('repository')
+                    rt_name = rt_key # Save for re-use
+                    found = true
+                    break
                   end
                 end
-                if !found
-                  # Package only contains sth. like: <build><enable repository="standard"/></build>
-                  # Thus we asume it belongs to the _only_ release target:
-                  rt_name = release_targets_ng.keys.first
-                end
               end
-            else
-              # Last chance, package building is disabled, maybe it's name aligns to the release target..
-              release_targets_ng.each do |rt_key, rt_value|
-                if rt_value[:reponame] == rt_name
-                  rt_name = rt_key # Save for re-use
-                  found = true
-                  break
-                end
+              if !found
+                # Package only contains sth. like: <build><enable repository="standard"/></build>
+                # Thus we asume it belongs to the _only_ release target:
+                rt_name = release_targets_ng.keys.first
               end
             end
-
-            # Build-disabled packages can't be matched to release targets....
-            if found
-              # Let's silently hope that an incident newer introduces new (sub-)packages....
-              release_targets_ng[rt_name][:packages] << pkg
-              linkdiff = pkg.linkdiff()
-              if linkdiff && linkdiff.has_element?('issues')
-                linkdiff.issues.each(:issue) do |issue|
-                  release_targets_ng[rt_name][:package_issues][issue.value('label')] = issue
-
-                  release_targets_ng[rt_name][:package_issues_by_tracker][issue.value('tracker')] ||= []
-                  release_targets_ng[rt_name][:package_issues_by_tracker][issue.value('tracker')] << issue
-                end
+          else
+            # Last chance, package building is disabled, maybe it's name aligns to the release target..
+            release_targets_ng.each do |rt_key, rt_value|
+              if rt_value[:reponame] == rt_name
+                rt_name = rt_key # Save for re-use
+                found = true
+                break
               end
             end
           end
-        elsif pkg_name == 'patchinfo'
-          # Global 'patchinfo' without specific release target:
-          global_patchinfo = self.patchinfo()
-        end
-      end
 
-      if global_patchinfo
-        release_targets_ng.each do |rt_name, rt|
-          rt[:patchinfo] = global_patchinfo
+          # Build-disabled packages can't be matched to release targets....
+          if found
+            # Let's silently hope that an incident newer introduces new (sub-)packages....
+            release_targets_ng[rt_name][:packages] << pkg
+            linkdiff = pkg.linkdiff()
+            if linkdiff && linkdiff.has_element?('issues')
+              linkdiff.issues.each(:issue) do |issue|
+                release_targets_ng[rt_name][:package_issues][issue.value('label')] = issue
+
+                release_targets_ng[rt_name][:package_issues_by_tracker][issue.value('tracker')] ||= []
+                release_targets_ng[rt_name][:package_issues_by_tracker][issue.value('tracker')] << issue
+              end
+            end
+          end
         end
+      elsif pkg_name == 'patchinfo'
+        # Global 'patchinfo' without specific release target:
+        global_patchinfo = self.patchinfo()
       end
-      return release_targets_ng
     end
+
+    if global_patchinfo
+      release_targets_ng.each do |rt_name, rt|
+        rt[:patchinfo] = global_patchinfo
+      end
+    end
+    return release_targets_ng
   end
 
   def is_locked?

@@ -77,8 +77,9 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
     find(:id, 'delete-project').click
     find_button('Ok').click
+    find('#flash-messages').must_have_text "Project 'home:tom:toberemoved' was removed successfully" 
     # now the actual assertion :)
-    assert page.current_url.end_with? webui_engine.project_show_path(project: "home:tom")
+    assert page.current_url.end_with?(webui_engine.project_show_path(project: "home:tom")), "#{page.current_url} does not end with #{webui_engine.project_show_path(project: 'home:tom')}"
   end
 
   test "delete home project" do

@@ -63,6 +63,8 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     # overwrite confirm function to avoid the dialog - they are very racy with selenium
     page.evaluate_script('window.confirm = function() { return true; }')
     find(:css, "table#user_table tr#user-#{user} a.remove-user").click
+    flash_message_type.must_equal :info
+    flash_message.must_equal "Removed user #{user}"
   end
 
   test "add and edit package people" do
@@ -112,7 +114,7 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     :reader     => true
 
     delete_user :user4
-    assert page.has_no_selector? "table#user_table tr#user-user4"
+    page.wont_have_selector "table#user_table tr#user-user4"
     
   end
 

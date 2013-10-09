@@ -107,7 +107,7 @@ Webui::Engine.routes.draw do
   end
 
   controller :patchinfo do
-    get 'patchinfo/new_patchinfo' => :new_patchinfo
+    post 'patchinfo/new_patchinfo' => :new_patchinfo
     post 'patchinfo/updatepatchinfo' => :updatepatchinfo
     get 'patchinfo/edit_patchinfo' => :edit_patchinfo
     get 'patchinfo/show' => :show
@@ -188,7 +188,7 @@ Webui::Engine.routes.draw do
     get 'project/maintained_projects/:project' => :maintained_projects, constraints: cons
     get 'project/add_maintained_project_dialog' => :add_maintained_project_dialog, constraints: cons
     post 'project/add_maintained_project' => :add_maintained_project, constraints: cons
-    get 'project/remove_maintained_project/:project' => :remove_maintained_project, constraints: cons
+    post 'project/remove_maintained_project/:project' => :remove_maintained_project, constraints: cons
     get 'project/maintenance_incidents/:project' => :maintenance_incidents, constraints: cons
     get 'project/list_incidents/:project' => :list_incidents, constraints: cons
     get 'project/unlock_dialog' => :unlock_dialog

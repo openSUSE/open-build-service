@@ -9,7 +9,7 @@
 <!-- info -->
     <h1>
     <span id="home-realname">
-    <% if @displayed_user.realname && !@displayed_user.realname.to_s.empty? %>
+    <% if @displayed_user.realname.present? %>
       <%= @displayed_user.realname %><br />
     <% end %>
     </span>
@@ -18,8 +18,8 @@
 <!-- mail -->
     <p>
     <% mail_to = 'mailto:' + @displayed_user.email %>
-    <%= link_to(image_tag('email.png', :alt => "Send mail", :title => "Send mail to user"), mail_to) %>
-    <%= mail_to(@displayed_user.email, nil, :title => "Send mail to user") %>
+    <%= link_to(image_tag('email.png', :alt => 'Send mail', :title => 'Send mail to user'), mail_to) %>
+    <%= mail_to(@displayed_user.email, nil, :title => 'Send mail to user') %>
     </p>
 <!--  groups -->
     <% if not @displayed_user.groups.empty? %>
@@ -44,13 +44,13 @@
       <p>
       <% if CONFIG['proxy_auth_mode'] == :on %>
         <% unless CONFIG['proxy_auth_account_page'].blank? %>
-          <%= link_to "Edit your account", "#{CONFIG['proxy_auth_account_page']}" %><br />
+          <%= link_to 'Edit your account', "#{CONFIG['proxy_auth_account_page']}" %><br />
         <% end %>
       <% else %>
-        <%= link_to(sprite_tag('user_edit') + " Edit your account", { :controller => "user", :action => "save_dialog", :user => @user }, {:id => 'save_dialog', :remote => true}) %><br />
+        <%= link_to(sprite_tag('user_edit') + ' Edit your account', { :controller => 'user', :action => 'save_dialog', :user => @user }, {:id => 'save_dialog', :remote => true}) %><br />
       <% end %>
       <% if @configuration['change_password'] and CONFIG['proxy_auth_mode'] != :on %>
-        <%= link_to(sprite_tag('key') + " Change your password", { :controller => "user", :action => "password_dialog", :user => @user }, {:id => 'password_dialog', :remote => true}) %><br />
+        <%= link_to(sprite_tag('key') + ' Change your password', { :controller => 'user', :action => 'password_dialog', :user => @user }, {:id => 'password_dialog', :remote => true}) %><br />
       <% end %>
       </p>
     <% end %>

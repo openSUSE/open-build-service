@@ -24,10 +24,11 @@ class Webui::CreateProjectTest < Webui::IntegrationTest
   
      page.must_have_text 'This project has no subprojects'
      click_link 'Create subproject'
-     fill_in 'name', :with => 'coolstuff'     
+     fill_in 'name', :with => 'coolstuff'
      click_button 'Create Project'
+     flash_message.must_equal "Project 'home:tom:coolstuff' was created successfully"
 
-     assert current_url.end_with? webui_engine.project_show_path(project: "home:tom:coolstuff")
+     assert current_url.end_with?(webui_engine.project_show_path(project: "home:tom:coolstuff")), "#{current_url} not ending with coolstuff"
      find('#project_title').text.must_equal 'home:tom:coolstuff'
      find('#packages_info h2').text.must_equal 'Packages (0)'
    end

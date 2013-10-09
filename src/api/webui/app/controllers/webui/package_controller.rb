@@ -172,7 +172,8 @@ class PackageController < WebuiController
   end
 
   def users
-    @users = [@project.users, @package.users].flatten.uniq
+    @users = [@project.users, @package.users].flatten.uniq.sort
+    @users = @users.map.map { |u| Person.find(u) }
     @groups = [@project.groups, @package.groups].flatten.uniq
     @roles = Role.local_roles
   end
@@ -183,7 +184,8 @@ class PackageController < WebuiController
   end
 
   def commit
-    render :partial => 'commit_item', :locals => {:rev => params[:revision] }
+    required_parameters :revision
+    render partial: 'commit_item', locals: {rev: params[:revision] }
   end
 
   def revisions
@@ -647,7 +649,7 @@ class PackageController < WebuiController
     begin
       @package.api_package.add_role(load_obj, Role.find_by_title!(params[:role]))
       @package.free_cache
-    rescue ApiDetails::TransportError, ApiDetails::NotFoundError => e
+    rescue ApiDetails::TransportError, ApiDetails::NotFoundError, User::NotFound, ::Group::NotFound => e
       flash[:error] = e.to_s
       redirect_to action: :add_person, project: @project, package: @package, role: params[:role], userid: params[:userid]
       return
@@ -665,7 +667,7 @@ class PackageController < WebuiController
     begin
       @package.api_package.add_role(load_obj, Role.find_by_title!(params[:role]))
       @package.free_cache
-    rescue ApiDetails::TransportError, ApiDetails::NotFoundError => e
+    rescue ApiDetails::TransportError, ApiDetails::NotFoundError, User::NotFound, ::Group::NotFound => e
       flash[:error] = e.to_s
       redirect_to action: :add_group, project: @project, package: @package, role: params[:role], groupid: params[:groupid]
       return
@@ -683,7 +685,7 @@ class PackageController < WebuiController
     begin
       @package.api_package.remove_role(load_obj,  Role.find_by_title(params[:role]))
       @package.free_cache
-    rescue ApiDetails::TransportError, ApiDetails::NotFoundError => e
+    rescue ApiDetails::TransportError, ApiDetails::NotFoundError, User::NotFound, ::Group::NotFound => e
       flash[:error] = e.summary
     end
     respond_to do |format|
@@ -810,11 +812,17 @@ class PackageController < WebuiController
   end
 
   def rawsourcefile
-    path = "/source/#{params[:project]}/#{params[:package]}/#{params[:filename]}"
-    path += "?rev=#{params[:srcmd5]}" unless params[:srcmd5].blank?
+    opts = {}
+    opts[:rev] = params[:srcmd5] if params[:srcmd5].present?
+    path = ::Package.source_path(params[:project], params[:package], params[:filename], opts)
 
     return if try_volley(path)
-    self.response_body = frontend.transport.direct_http URI(path), timeout: 500
+    begin
+      self.response_body = frontend.transport.direct_http URI(path), timeout: 500
+    rescue ActiveXML::Transport::NotFoundError => e
+      flash[:error] = "Error: #{e.summary}"
+      redirect_back_or_to :action => :show, :project => params[:project], :package => params[:package]
+    end
   end
 
   def rawlog
@@ -871,7 +879,7 @@ class PackageController < WebuiController
         @log_chunk = ''
       else
         @log_chunk = "No live log available: #{e.summary}\n"
-	@finished = true
+        @finished = true
       end
     end
 
@@ -944,8 +952,11 @@ class PackageController < WebuiController
     all_files.each do |file|
       @specfile_name = file[:name] if file[:name].end_with?('.spec')
     end
+    if @specfile_name.blank?
+      render json: {} and return
+    end
     specfile_content = frontend.get_source(
-      :project => params[:project], :package => params[:package], :filename => @specfile_name
+      project: params[:project], package: params[:package], filename: @specfile_name
     )
 
     description = []
@@ -956,8 +967,7 @@ class PackageController < WebuiController
     # description << lines.shift until description.last =~ /^%\{?(debug_package|prep|pre|preun|....)/
     description.pop
 
-    render :text => description.join("\n")
-    logger.debug 'imported description from spec file'
+    render json: { description: description }
   end
 
   def buildresult
