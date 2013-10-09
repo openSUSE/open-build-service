@@ -22,8 +22,11 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
     put "/status/messages", '<whereareyou/>'
     assert_response 400
 
-    login_king
-    put "/status/messages", '<message>I have nothing to say</message>'
+    put "/status/messages", '<messages><message>nada</message></messages>'
+    assert_response 400
+    assert_xml_tag attributes: { code: 'invalid_record' }
+
+    put "/status/messages", '<message severity="1">I have nothing to say</message>'
     assert_response :success
   
     # delete it again

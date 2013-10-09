@@ -19,7 +19,7 @@ class Webui::MessagesTest < Webui::IntegrationTest
     find_button("Ok").click
     
     find(:id, 'messages').must_have_text message
-    find(:css, '.delete-message').click
+    first(:css, '.delete-message').click
     find_button("Ok").click
 
     # check that it's gone

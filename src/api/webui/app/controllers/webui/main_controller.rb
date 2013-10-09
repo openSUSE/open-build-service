@@ -1,18 +1,19 @@
-module Webui
-class MainController < WebuiController
+class Webui::MainController < Webui::WebuiController
 
   include Webui::WebuiHelper
 
-  before_filter :require_admin, only: [:delete_message]
+  # permissions.status_message_create
+  before_filter :require_admin, only: [:delete_message, :add_news]
+
 
   def index
-    @news = find_cached(Webui::Statusmessage, :conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 4, :expires_in => 15.minutes)
+    @news = StatusMessage.alive.limit(4)
     unless @spider_bot
-      @latest_updates = find_cached(LatestUpdated, :limit => 6, :expires_in => 5.minutes, :shared => true)
+      @latest_updates = find_cached(Webui::LatestUpdated, :limit => 6, :expires_in => 5.minutes, :shared => true)
     end
   rescue ActiveXML::Transport::UnauthorizedError
     @anonymous_forbidden = true
-    logger.error "Could not load all frontpage data, probably due to forbidden anonymous access in the api."
+    logger.error 'Could not load all frontpage data, probably due to forbidden anonymous access in the api.'
   end
 
   # This action does the heavy lifting for the index method and is only invoked by an AJAX request
@@ -26,16 +27,16 @@ class MainController < WebuiController
       end
     end
     @waiting_packages = 0
-    @workerstatus.elements("waiting") {|waiting| @waiting_packages += waiting["jobs"].to_i}
-    @global_counters = find_cached(GlobalCounters, :expires_in => 15.minutes, :shared => true)
+    @workerstatus.elements('waiting') {|waiting| @waiting_packages += waiting['jobs'].to_i}
+    @global_counters = find_cached(Webui::GlobalCounters, :expires_in => 15.minutes, :shared => true)
     @busy = nil
     require_available_architectures unless @spider_bot
     if @available_architectures
       @available_architectures.each.map {|arch| map_to_workers(arch.name) }.uniq.each do |arch|
-        archret = frontend.gethistory("building_" + arch, 168).map {|time,value| [time,value]}
+        archret = frontend.gethistory('building_' + arch, 168).map {|time,value| [time,value]}
         if archret.length > 0
           if @busy
-            @busy = MonitorController.addarrays(@busy, archret)
+            @busy = Webui::MonitorController.addarrays(@busy, archret)
           else
             @busy = archret
           end
@@ -49,36 +50,36 @@ class MainController < WebuiController
   end
 
   def news
-    @news = find_cached(Statusmessage, :conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 5, :expires_in => 15.minutes)
+    @news = StatusMessage.alive.limit(5)
     raise ActionController::RoutingError.new('expected application/rss') unless request.format == Mime::RSS
     render layout: false
   end
 
   def latest_updates
     raise ActionController::RoutingError.new('expected application/rss') unless request.format == Mime::RSS
-    @latest_updates = find_cached(LatestUpdated, :limit => 6, :expires_in => 5.minutes, :shared => true)
+    @latest_updates = find_cached(Webui::LatestUpdated, :limit => 6, :expires_in => 5.minutes, :shared => true)
     render layout: false
   end
 
   def sitemap
-    render :layout => false, :content_type => "application/xml"
+    render :layout => false, :content_type => 'application/xml'
   end
 
   def require_projects
     @projects = Array.new
-    find_cached(Collection, :id, :what => "project").each_project do |p|
+    find_cached(Webui::Collection, :id, :what => 'project').each_project do |p|
       @projects << p.value(:name)
     end
   end
 
   def sitemap_projects
     require_projects
-    render :layout => false, :content_type => "application/xml"
+    render :layout => false, :content_type => 'application/xml'
   end
  
   def sitemap_projects_subpage(action, changefreq, priority)
     require_projects
-    render :template => "webui/main/sitemap_projects_subpage", :layout => false, :locals => { :action => action, :changefreq => changefreq, :priority => priority }, :content_type => "application/xml"
+    render :template => 'webui/main/sitemap_projects_subpage', :layout => false, :locals => { :action => action, :changefreq => changefreq, :priority => priority }, :content_type => 'application/xml'
   end
 
   def sitemap_projects_packages
@@ -100,10 +101,10 @@ class MainController < WebuiController
     elsif category == 'main'
       predicate = "not(starts-with(@project,'home:')) and not(starts-with(@project,'DISCONTINUED:')) and not(starts-with(@project,'openSUSE:'))"
     end
-    find_cached(Collection, :id, :what => 'package', :predicate => predicate).each_package do |p|
+    find_cached(Webui::Collection, :id, :what => 'package', :predicate => predicate).each_package do |p|
       @packages << [p.value(:project), p.value(:name)]
     end
-    render :template => 'webui/main/sitemap_packages', :layout => false, :locals => {:action => params[:listaction]}, :content_type => "application/xml"
+    render :template => 'webui/main/sitemap_packages', :layout => false, :locals => {:action => params[:listaction]}, :content_type => 'application/xml'
   end
 
   def add_news_dialog
@@ -112,17 +113,11 @@ class MainController < WebuiController
 
   def add_news
     if params[:message].nil? or params[:severity].empty?
-      flash[:error] = "Please provide a message and severity"
+      flash[:error] = 'Please provide a message and severity'
       redirect_to(:action => 'index') and return
     end
-
-    begin
-      message = Statusmessage.new(:message => params[:message], :severity => params[:severity])
-      message.save
-      Statusmessage.free_cache(:conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 5)
-    rescue ActiveXML::Transport::ForbiddenError
-      flash[:error] = 'Only admin users may post status messages'
-    end
+    #TODO - make use of permissions.status_message_create
+    StatusMessage.create!(message: params[:message], severity: params[:severity], user: @user.api_user)
     redirect_to(:action => 'index')
   end
 
@@ -132,9 +127,7 @@ class MainController < WebuiController
 
   def delete_message
     required_parameters :message_id
-    message = Statusmessage.find(:id => params[:message_id])
-    message.delete
-    Statusmessage.free_cache(:conditions => 'deleted_at IS NULL', :order => 'create_at DESC', :limit => 5)
+    StatusMessage.find(params[:message_id]).delete
     redirect_to(:action => 'index')
   end
 
@@ -142,8 +135,7 @@ class MainController < WebuiController
     super # Call ApplicationController implementation, but catch an additional exception
   rescue ActiveXML::Transport::UnauthorizedError
     @anonymous_forbidden = true
-    logger.error "Could not load all frontpage data, probably due to forbidden anonymous access in the api."
+    logger.error 'Could not load all frontpage data, probably due to forbidden anonymous access in the api.'
   end
 
-end
 end
