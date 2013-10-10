@@ -159,12 +159,24 @@ sub cleanup_job {
 }
 
 sub kill_job {
-  # In z/VM, just kill the worker with name $vm_worker_name
-  if ($vm =~ /zvm/) {
-    if (system("$statedir/build/build", "--vm-worker", $vm_worker_name, "--kill")) {
-      return 0;
+  my @args;
+  # same args as in the build call
+  if ($vm =~ /(xen|kvm|zvm|emulator)/) {
+    push @args, '--root', "$buildroot/.mount";
+    if ($vm =~ /emulator/) {
+      push @args, '--vm-type', 'emulator';
+      push @args, '--vm-disk', $vm_root;
+      push @args, '--emulator-script', $emulator_script if $emulator_script;
+    } else {
+      push @args, '--vm-worker', $vm_worker_name if $vm_worker_name;
+      push @args, '--vm-worker-nr', $vm_worker_instance if $vm_worker_instance;
+      push @args, $vm, $vm_root;
     }
-  } elsif (system("$statedir/build/build", "--root", $buildroot, ($vm ? ($vm, "$vm_root") : ()), "--kill")) {
+  } else {
+    push @args, '--root', $buildroot;
+    push @args, '--vm-type', $vm if $vm =~ /lxc/;
+  }
+  if (system("$statedir/build/build", @args, "--kill")) {
     return 0;
   }
   cleanup_job();
@@ -2205,8 +2217,7 @@ sub dobuild {
       push @args, '--vm-type', 'emulator';
       push @args, '--vm-disk', $vm_root;
       push @args, '--emulator-script', $emulator_script if $emulator_script;
-    }
-    else {
+    } else {
       push @args, $vm, "$vm_root";
       push @args, '--swap', "$vm_swap";
       push @args, '--statistics';
@@ -2225,11 +2236,9 @@ sub dobuild {
     push @args, '--hugetlbfs', $hugetlbfs if $hugetlbfs;
     push @args, '--vm-worker', $vm_worker_name if $vm_worker_name;
     push @args, '--vm-worker-nr', $vm_worker_instance if $vm_worker_instance;
-  } elsif ($vm =~ /lxc/) {
-    push @args, '--root', $buildroot;
-    push @args, '--vm-type', $vm;
   } else {
     push @args, '--root', $buildroot;
+    push @args, '--vm-type', $vm if $vm =~ /lxc/;
   }
   push @args, '--clean';
   push @args, '--changelog';
