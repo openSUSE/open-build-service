@@ -48,19 +48,6 @@ class WebuiProject < Webui::Node
     Project.find_by_name(to_s)
   end
 
-  def set_remoteurl(url)
-    logger.debug "set remoteurl"
-
-    urlexists = has_element? 'remoteurl'
-
-    if url.nil?
-      delete_element if urlexists
-    else
-      add_element 'remoteurl' unless urlexists
-      remoteurl.text = url
-    end
-  end
-
   def add_path_to_repository(opt={})
     return nil if opt == {}
     repository = self.find_first("//repository[@name='#{opt[:reponame]}']")
