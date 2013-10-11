@@ -297,4 +297,22 @@ our $kiwidesc = [
       ],
 ];
 
+# returns SOURCEMEDIUM and DEBUGMEDIUM values from a parsed kiwi config,
+# returns undef if missing
+sub src_dbg_medium($) {
+  my ($kiwidesc) = @_;
+
+  my $srcmedium;
+  my $dbgmedium;
+
+  if ($kiwidesc->{'instsource'}) {
+    for my $productvar (@{$kiwidesc->{'instsource'}->{'productoptions'}->{'productvar'} || []}) {
+      $dbgmedium = $productvar->{'_content'} if ($productvar->{'name'} eq 'DEBUGMEDIUM');
+      $srcmedium = $productvar->{'_content'} if ($productvar->{'name'} eq 'SOURCEMEDIUM');
+    }
+  }
+
+  return ($srcmedium, $dbgmedium);
+}
+
 1;

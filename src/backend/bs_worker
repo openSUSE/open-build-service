@@ -1193,6 +1193,15 @@ sub getbinaries_cache {
 sub getbinaries_kiwiproduct {
   my ($buildinfo, $dir, $srcdir) = @_;
 
+  # parse the kiwi file
+  my $kiwidesc = readxml("$srcdir/$buildinfo->{'file'}", $BSKiwiXML::kiwidesc);
+
+  # read source and debug medium
+  my ($srcmedium, $dbgmedium) = BSKiwiXML::src_dbg_medium($kiwidesc);
+
+  print "$buildinfo->{'file'}: SOURCEMEDIUM disabled\n" unless $srcmedium && $srcmedium > 0;
+  print "$buildinfo->{'file'}: DEBUGMEDIUM disabled\n" unless $dbgmedium && $dbgmedium > 0;
+
   # we need the Build package for queryhdrmd5
   importbuild() unless defined &Build::queryhdrmd5;
 
@@ -1240,6 +1249,10 @@ sub getbinaries_kiwiproduct {
   my %cachenew;
   my @cacheold;
   my $downloadsizek = 0;
+  my $skipped_dbg = 0;
+  my $skipped_dbg_k = 0;
+  my $skipped_src = 0;
+  my $skipped_src_k = 0;
 
   for my $prpap (sort keys %prpaps) {
     my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
@@ -1314,6 +1327,20 @@ sub getbinaries_kiwiproduct {
 	    next;
 	  }
 	  next unless $bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+
+          # skip source packages if they are not needed
+          if (!$srcmedium > 0 && $bin =~ /\.(no|)src\.rpm$/) {
+            $skipped_src += 1;
+            $skipped_src_k += $bv->{'sizek'};
+            next;
+          }
+          # skip debuginfo packages if they are not needed
+          if (!$dbgmedium > 0 && $bin =~ /(-debuginfo-|-debuginfodeps-|-debugsource-)/) {
+            $skipped_dbg += 1;
+            $skipped_dbg_k += $bv->{'sizek'};
+            next;
+          }
+
 	  my $rarch = $1;
 	  my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}");
 	  my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
@@ -1482,6 +1509,10 @@ sub getbinaries_kiwiproduct {
       $meta{"$prpap/$n.$rarch"} = $id;
     }
   }
+
+  printf "Skipped $skipped_dbg (%d MB) debuginfo packages\n", $skipped_dbg_k / 1024 if ($skipped_dbg > 0);
+  printf "Skipped $skipped_src (%d MB) source packages\n", $skipped_src_k / 1024 if ($skipped_src > 0);
+
   $binariesdownloadsize += $downloadsizek;
 
   manage_cache($cachesize, \@cacheold, [ values %cachenew ]) if $cachedir;
@@ -2088,7 +2119,7 @@ sub dobuild {
   mkdir($srcdir) || die("mkdir $srcdir: $!\n");
   if ($deltamode) {
     push @meta, getdeltasources($buildinfo, $srcdir);
-    print "packages, ";
+    print "packages\n";
     getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
     undef $oldpkgdir;
     my $spec = readstr("$statedir/worker/worker-deltagen.spec", 1) || readstr("worker-deltagen.spec");
@@ -2096,7 +2127,7 @@ sub dobuild {
     $buildinfo->{'file'} = 'worker-deltagen.spec';
   } elsif ($followupmode) {
     getfollowupsources($buildinfo, $srcdir);
-    print "packages, ";
+    print "packages\n";
     getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
     undef $oldpkgdir;
     $buildinfo->{'file'} = $followupmode;
@@ -2122,7 +2153,7 @@ sub dobuild {
       }
     }
     getsslcert($buildinfo, $srcdir) if $needsslcert;
-    print "packages, ";
+    print "packages\n";
     push @meta, getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
   }
   $preinstallimagedata ||= {};
