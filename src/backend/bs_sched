@@ -4319,8 +4319,11 @@ sub checkkiwiproduct {
   my $repo = $ctx->{'repo'};
   my $prp = "$projid/$repoid";
 
+  my $fetch_prj = defined($pdata->{'linked'}[0]->{'project'}) ? $pdata->{'linked'}[0]->{'project'} : $projid;
+  my $fetch_pkg = defined($pdata->{'linked'}[0]->{'package'}) ? $pdata->{'linked'}[0]->{'package'} : $packid;
+
   # fetch the kiwi source file
-  my $kiwifile = fetch_src_file($projid, $packid, $info->{'file'});
+  my $kiwifile = fetch_src_file($fetch_prj, $fetch_pkg, $info->{'file'});
   # get the source and debug medium number from the kiwi file
   my ($srcmedium, $dbgmedium) = kiwi_src_dbg_medium($kiwifile);
 
