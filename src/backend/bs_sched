@@ -1491,7 +1491,7 @@ sub prpfinished {
 my $exportcnt = 0;
 
 sub createexportjob {
-  my ($prp, $arch, $jobrepo, $dst, $oldrepo, $meta, @exports) = @_;
+  my ($prp, $arch, $packid, $jobrepo, $dst, $oldrepo, $meta, @exports) = @_;
 
   # create unique id
   my $now = time();
@@ -1515,7 +1515,7 @@ sub createexportjob {
   my $info = {
     'project' => $projid,
     'repository' => $repoid,
-    'package' => ':import',
+    'package' => ($packid || ':import'),
     'arch' => $arch,
     'job' => $job,
   };
@@ -1961,7 +1961,7 @@ sub update_dst_full {
       my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
       if ($repo && grep {$_ eq $exportarch} @{$repo->{'arch'} || []}) {
 	print "    sending filtered packages to $exportarch\n";
-	createexportjob($prp, $exportarch, $jobrepo, $dst, $oldrepo, $meta, @{$exports{$exportarch}});
+	createexportjob($prp, $exportarch, $packid, $jobrepo, $dst, $oldrepo, $meta, @{$exports{$exportarch}});
       }
     }
   }
@@ -3797,6 +3797,7 @@ sub aggregatefinished {
   my $gdst = "$reporoot/$prp/$myarch";
   my $dst = "$gdst/$packid";
   mkdir_p($dst);
+  print "  - $prp: $packid aggregate built\n";
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
@@ -3897,6 +3898,7 @@ sub uploadbuildevent {
   my $gdst = "$reporoot/$prp/$myarch";
   my $dst = "$gdst/$packid";
   mkdir_p($dst);
+  print "  - $prp: $packid uploaded\n";
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
@@ -3927,6 +3929,7 @@ sub importevent {
   my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
   @all = map {"$jobdatadir/$_"} @all;
   my $pdata = (($projpacks->{$projid} || {})->{'package'} || {})->{$packid};
+  print "  - $prp: $packid imported\n";
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled) if $projpacks->{$projid};
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
