@@ -133,18 +133,18 @@ class Person < Node
     groups.each {|group| predicate += " or group/@groupid='#{group}'"}
     predicate += ") and @kind!='maintenance_incident'"
     logger.debug "Searching for involved projects of #{login} with #{predicate}"
-    Webui::Collection.find_cached(:what => 'project', :predicate => predicate)
+    Webui::Collection.find(:what => 'project', :predicate => predicate)
   end
 
   def involved_packages
     predicate = "person/@userid='#{login}'"
     groups.each {|group| predicate += " or group/@groupid='#{group}'"}
-    Webui::Collection.find_cached(:id, :what => 'package', :predicate => predicate)
+    Webui::Collection.find(:id, :what => 'package', :predicate => predicate)
   end
 
   def running_patchinfos
     array = Array.new
-    col = Webui::Collection.find_cached(:id, :what => 'package', :predicate => "[kind='patchinfo' and issue/[@state='OPEN' and owner/@login='#{CGI.escape(login)}']]")
+    col = Webui::Collection.find(:id, :what => 'package', :predicate => "[kind='patchinfo' and issue/[@state='OPEN' and owner/@login='#{CGI.escape(login)}']]")
     col.each_package do |pi|
       hash = { :package => { :project => pi.project, :name => pi.name } }
       issues = Array.new
@@ -216,12 +216,12 @@ class Person < Node
 
   def has_role?(role, project, package = nil)
     if package
-      package = Webui::Package.find_cached(:project => project, :package => package) if package.class == String
+      package = Webui::Package.find(:project => project, :package => package) if package.class == String
       if package && package.user_has_role?(self, role)
         return true
       end
     end
-    project = WebuiProject.find_cached(project) if project.class == String
+    project = WebuiProject.find(project) if project.class == String
     if project
       return project.user_has_role?(self, role)
     else
