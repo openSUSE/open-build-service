@@ -105,7 +105,7 @@ class RequestController < WebuiController
 
   def changerequest
     required_parameters :id
-    @req = find_cached(BsRequest, params[:id] )
+    @req = Webui::BsRequest.find params[:id] 
     unless @req
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_back_or_to :controller => 'home', :action => 'requests' and return
@@ -127,9 +127,9 @@ class RequestController < WebuiController
         else
           tprj, tpkg = params[:add_submitter_as_maintainer_0].split('_#_') # split into project and package
           if tpkg
-            target = find_cached(Package, tpkg, :project => tprj)
+            target = Package.find(tpkg, :project => tprj)
           else
-            target = find_cached(WebuiProject, tprj)
+            target = WebuiProject.find(tprj)
           end
           target.add_person(:userid => @req.creator, :role => "maintainer")
           target.save
@@ -261,8 +261,8 @@ class RequestController < WebuiController
 
   def change_devel_request_dialog
     required_parameters :package, :project
-    @project = find_cached(WebuiProject, params[:project])
-    @package = find_cached(Package, params[:package], :project => params[:project]) 
+    @project = WebuiProject.find params[:project]
+    @package = Package.find(params[:package], :project => params[:project]) 
     if @package.has_element?(:devel)
       @current_devel_package = @package.devel.value('package') || @package.value('name')
       @current_devel_project = @package.devel.value('project')
