@@ -719,7 +719,7 @@ sub createrepo_staticlinks {
       } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+([-\.].*\.(gz|bz2|xz))$/s) {
         $link = "$1$3";
         $link = "$1-$2$3" if $versioned;
-      } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+(\.(raw.install.raw.xz|raw.xz|install.iso|iso|qcow2))$/s) {
+      } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+(\.(raw.install.raw.xz|raw.xz|install.iso|iso|qcow2|ova))$/s) {
         $link = "$1$3";
         $link = "$1-$2$3" if $versioned;
       }
@@ -1238,6 +1238,8 @@ sub publish {
 	} elsif ($bin =~ /\.dsc(:?\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.ovf(:?\.sha256)?$/) {
+	  $p = "$bin";
+	} elsif ($bin =~ /\.ova(:?\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.qcow2(:?\.sha256)?$/) {
 	  $p = "$bin";
