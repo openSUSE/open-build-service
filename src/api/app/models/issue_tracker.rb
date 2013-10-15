@@ -16,6 +16,10 @@ class IssueTracker < ActiveRecord::Base
   DEFAULT_RENDER_PARAMS = {:except => [:id, :password, :user, :issues_updated], :dasherize => true, :skip_types => true, :skip_instruct => true}
 
   def self.write_to_backend
+    IssueTracker.first.delay.write_to_backend
+  end
+
+  def write_to_backend
     path = "/issue_trackers"
     logger.debug "Write issue tracker information to backend..."
     Suse::Backend.put_source(path, IssueTracker.all.to_xml(DEFAULT_RENDER_PARAMS))
