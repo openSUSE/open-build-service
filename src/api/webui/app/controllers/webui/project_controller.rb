@@ -138,7 +138,7 @@ class ProjectController < WebuiController
     @subprojects = Hash.new
     sub_names = Collection.find :id, :what => 'project', :predicate => "starts-with(@name,'#{@project}:')"
     sub_names.each do |sub|
-      @subprojects[sub.name] = find_cached( WebuiProject, sub.name )
+      @subprojects[sub.name] = WebuiProject.find( sub.name )
     end
     @subprojects = @subprojects.sort # Sort by hash key for better display
     @parentprojects = Hash.new
@@ -146,7 +146,7 @@ class ProjectController < WebuiController
     parent_names.each_with_index do |parent, idx|
       parent_name = parent_names.slice(0, idx+1).join(':')
       unless [@project.name, 'home'].include?( parent_name )
-        parent_project = find_cached(WebuiProject, parent_name )
+        parent_project = WebuiProject.find( parent_name )
         @parentprojects[parent_name] = parent_project unless parent_project.blank?
       end
     end
@@ -166,7 +166,7 @@ class ProjectController < WebuiController
     @project_name = params[:project]
     if @namespace
       begin
-        @project = find_cached(WebuiProject, @namespace)
+        @project = WebuiProject.find(@namespace)
         if @namespace == "home:#{session[:login]}" and not @project
           @pagetitle = "Your home project doesn't exist yet. You can create it now"
           @project_name = @namespace
@@ -326,7 +326,7 @@ class ProjectController < WebuiController
     @has_patchinfo = false
     @packages.each do |pkg_element|
       if pkg_element == 'patchinfo'
-        Webui::Package.find_cached(pkg_element, :project => @project).files.each do |pkg_file|
+        Webui::Package.find(pkg_element, :project => @project).files.each do |pkg_file|
           @has_patchinfo = true if pkg_file[:name] == '_patchinfo'
         end
       end
@@ -357,7 +357,7 @@ class ProjectController < WebuiController
 
   # TODO we need the architectures in api/distributions
   def add_repository_from_default_list
-    @distributions = find_cached(Distribution, :all)
+    @distributions = Distribution.find(:all)
     if @distributions.all_vendors.length < 1
       if @user and @user.is_admin?
         flash.now[:notice] = "There are no distributions configured! Check out <a href=\"/configuration/connect_instance\">Configuration > Interconnect</a>"
@@ -385,7 +385,7 @@ class ProjectController < WebuiController
       Buildresult.free_cache( :project => params[:project], :view => 'summary' )
     end
     unless @spider_bot
-      @buildresult = find_cached(Buildresult, :project => params[:project], :view => 'summary', :expires_in => 3.minutes )
+      @buildresult = Buildresult.find(:project => params[:project], :view => 'summary')
     end
 
     @repohash = Hash.new
@@ -530,7 +530,7 @@ class ProjectController < WebuiController
       repository.each_arch do |arch|
         cycles = Array.new
         # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
-        deps = find_cached(BuilddepInfo, :project => @project.name, :package => '-', :repository => repository.name, :arch => arch)
+        deps = BuilddepInfo.find(:project => @project.name, :package => '-', :repository => repository.name, :arch => arch)
         nr_cycles = 0
         if deps and deps.has_element? :cycle
           packages = Hash.new
@@ -581,8 +581,8 @@ class ProjectController < WebuiController
       redirect_to :action => :show, :project => @project
       return
     end
-    bdep = find_cached(BuilddepInfo, :project => @project.name, :repository => @repository, :arch => @arch)
-    jobs = find_cached(Jobhislist , :project => @project.name, :repository => @repository, :arch => @arch,
+    bdep = BuilddepInfo.find(:project => @project.name, :repository => @repository, :arch => @arch)
+    jobs = Jobhislist.find(:project => @project.name, :repository => @repository, :arch => @arch,
             :limit => @packages.size * 3, :code => ['succeeded', 'unchanged'])
     unless bdep and jobs
       flash[:error] = "Could not collect infos about repository #{@repository}/#{@arch}"

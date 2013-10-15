@@ -91,7 +91,7 @@ class PackageController < WebuiController
     @drepository = params[:drepository]
     @dproject = params[:dproject]
     @filename = params[:filename]
-    @fileinfo = find_cached(Fileinfo, :project => params[:dproject], :package => '_repository', :repository => params[:drepository], :arch => @arch,
+    @fileinfo = Fileinfo.find(:project => params[:dproject], :package => '_repository', :repository => params[:drepository], :arch => @arch,
       :filename => params[:dname], :view => 'fileinfo_ext')
     @durl = nil
     unless @fileinfo # avoid displaying an error for non-existing packages
@@ -124,7 +124,7 @@ class PackageController < WebuiController
     @repository = params[:repository]
     @filename = params[:filename]
     begin
-      @fileinfo = find_cached(Fileinfo, :project => @project, :package => @package, :repository => @repository, :arch => @arch,
+      @fileinfo = Fileinfo.find(:project => @project, :package => @package, :repository => @repository, :arch => @arch,
         :filename => @filename, :view => 'fileinfo_ext')
     rescue ActiveXML::Transport::ForbiddenError => e
       flash[:error] = "File #{@filename} can not be downloaded from #{@project}: #{e.summary}"
@@ -287,7 +287,7 @@ class PackageController < WebuiController
       @spec_count += 1 if file[:ext] == "spec"
       if file[:name] == "_link"
         begin
-          @link = find_cached(Link, :project => @project, :package => @package, :rev => @revision )
+          @link = Link.find(:project => @project, :package => @package, :rev => @revision )
         rescue RuntimeError
           # possibly thrown on bad link files
         end
@@ -584,7 +584,7 @@ class PackageController < WebuiController
       end
     elsif not file_url.blank?
       # we have a remote file uri
-      @services = find_cached(Service, :project => @project, :package => @package )
+      @services = Service.find(:project => @project, :package => @package )
       unless @services
         @services = Service.new( :project => @project, :package => @package )
       end

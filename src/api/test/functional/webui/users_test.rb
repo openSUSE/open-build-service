@@ -75,7 +75,6 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     @userspath = webui_engine.package_users_path(project: @project, package: @package)
     visit @userspath
 
-
     add_user "user2", "maintainer"
     add_user "user3", "bugowner"
     add_user "user4", "reviewer"
