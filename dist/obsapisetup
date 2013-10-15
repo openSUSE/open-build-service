@@ -67,7 +67,7 @@ if [ "$?" != "0" ]; then
 fi
 
 #Is there a non default configured datadir?
-MYSQL_DATA_DIR=`sed -n 's,^datadir[ \t]*=[\t ]*\(.*\),\1,p' /etc/my.cnf`
+MYSQL_DATA_DIR=`sed -n 's,^datadir[ \t]*=[\t ]*\(.*\),\1,p' /etc/my.cnf | head -n 1`
 [ -z "$MYSQL_DATA_DIR" ] && MYSQL_DATA_DIR="${backenddir}/MySQL"
 
 rc_reset
