@@ -271,17 +271,14 @@ class Project < ActiveRecord::Base
   end
 
   def is_locked?
-      return true if flags.find_by_flag_and_status "lock", "enable"
-      return false
+      flags.find_by_flag_and_status("lock", "enable") ? true : false
   end
 
   def is_maintenance_incident?
-      return true if self.project_type == "maintenance_incident"
-      return false
+      self.project_type == "maintenance_incident"
   end
   def is_maintenance?
-      return true if self.project_type == "maintenance"
-      return false
+      self.project_type == "maintenance"
   end
 
   # NOTE: this is no permission check, should it be added ?
@@ -434,11 +431,11 @@ class Project < ActiveRecord::Base
     end
     
     #--- update repository download settings ---#
-    dlcache = Hash.new
-    self.downloads.each do |dl|
-      dlcache["#{dl.architecture.name}"] = dl
+    dlcache = Hash.new  
+    self.downloads.each do  |dl| 
+      dlcache[dl.architecture.name] = dl
     end
-    
+
     xmlhash.elements('download') do |dl|
       if dlcache.has_key? dl['arch']
         logger.debug "modifying download element, arch: #{dl['arch']}"
@@ -464,7 +461,7 @@ class Project < ActiveRecord::Base
     end
     
     #--- update repositories ---#
-    repocache = Hash.new
+    repocache = Hash.new 
     self.repositories.each do |repo|
       repocache[repo.name] = repo unless repo.remote_project_name
     end
@@ -472,13 +469,13 @@ class Project < ActiveRecord::Base
     xmlhash.elements("repository") do |repo|
       was_updated = false
       
-      if not repocache.has_key? repo['name']
+      current_repo = if not repocache.has_key? repo['name']
         logger.debug "adding repository '#{repo['name']}'"
-        current_repo = self.repositories.new( :name => repo['name'] )
         was_updated = true
+        self.repositories.new( :name => repo['name'] )
       else
         logger.debug "modifying repository '#{repo['name']}'"
-        current_repo = repocache[repo['name']]
+        repocache[repo['name']]
       end
       
       #--- repository flags ---#
@@ -518,7 +515,8 @@ class Project < ActiveRecord::Base
       #--- end of repository flags ---#
 
       #destroy all current releasetargets
-      current_repo.release_targets.each { |rt| rt.destroy }
+      #current_repo.release_targets.each { |rt| rt.destroy }
+      current_repo.release_targets.destroy_all
 
       #recreate release targets from xml
       repo.elements("releasetarget") do |rt|
@@ -553,7 +551,8 @@ class Project < ActiveRecord::Base
       end
 
       #destroy all current pathelements
-      current_repo.path_elements.each { |pe| pe.destroy }
+      #current_repo.path_elements.each { |pe| pe.destroy }
+      current_repo.path_elements.destroy_all
 
       #recreate pathelements from xml
       position = 1
@@ -605,6 +604,7 @@ class Project < ActiveRecord::Base
       unless force
         #find repositories that link against this one and issue warning if found
         list = PathElement.where(repository_id: object.id)
+        #you are returning a new mapped list, but not using it
         check_for_empty_repo_list!(list, "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:")
         list = ReleaseTarget.where(target_repository_id: object.id)
         check_for_empty_repo_list!(list, "Repository #{self.name}/#{name} cannot be deleted because following repos define it as release target:/")
@@ -619,6 +619,7 @@ class Project < ActiveRecord::Base
     save!
   end
 
+  # why a bang (!) if there is no side effect?
   def check_for_empty_repo_list!(list, error_prefix)
     unless list.empty?
       linking_repos = list.map { |x| x.repository.project.name+"/"+x.repository.name }.join "\n"
@@ -707,17 +708,24 @@ class Project < ActiveRecord::Base
 
     # get all packages including activity values, we may not have access
     begin
+      #calling the activity method on a instance, gives me an mysql exception:
+      #To reproduce it: Project.first.activity
+      #Project Load (0.6ms)  SELECT `projects`.* FROM `projects` WHERE (projects.id not in (0)) ORDER BY `projects`.`id` ASC LIMIT 1
+      #Package Load (0.6ms)  SELECT projects.*,( ( packages.activity_index * POWER( 2.3276, (UNIX_TIMESTAMP(packages.updated_at) - 1381773320)/10000000 ) ) as activity_value ) AS act_tmp,IF( @activity<0, 0, @activity ) AS activity_value FROM packages, projects WHERE (packages.db_project_id = projects.id AND projects.id = 7
+      #Mysql2::Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as activity_value ) AS act_tmp,IF( @activity<0, 0, @activity ) AS activity_value' at line 1: SELECT projects.*,( ( packages.activity_index * POWER( 2.3276, (UNIX_TIMESTAMP(packages.updated_at) - 1381773320)/10000000 ) ) as activity_value ) AS act_tmp,IF( @activity<0, 0, @activity ) AS activity_value FROM packages, projects WHERE (packages.db_project_id = projects.id AND projects.id = 7
+     # => 0 
+
       @packages = Package.find_by_sql("SELECT projects.*,( #{Package.activity_algorithm} ) AS act_tmp,IF( @activity<0, 0, @activity ) AS activity_value FROM packages, projects WHERE (packages.db_project_id = projects.id AND projects.id = #{self.id}")
       # count packages and sum up activity values
-      project = { :count => 0, :sum => 0 }
+      project = { :count => 1, :sum => 0 } #count should be 1 otherwise you will get division by 0 exception
       @packages.each do |package|
         project[:count] += 1
         project[:sum] += package.activity_value.to_f
       end
       # calculate and return average activity
-      return project[:sum] / project[:count]
+      project[:sum] / project[:count]
     rescue
-      return
+      0 
     end
   end
 
@@ -883,10 +891,10 @@ class Project < ActiveRecord::Base
   def project_type
     return @project_type if @project_type
     mytype = DbProjectType.find(type_id) if type_id
-    if mytype
-      return @project_type = mytype.name
+    @project_type = if mytype
+      mytype.name
     else
-      return @project_type = 'standard'
+      'standard'
     end
   end
 
