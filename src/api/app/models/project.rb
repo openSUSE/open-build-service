@@ -708,7 +708,7 @@ class Project < ActiveRecord::Base
 
     # get all packages including activity values, we may not have access
     begin
-      #calling the activity method on a instance, gives me an mysql exception:
+      #calling the activity method on a instance, gives me a mysql exception:
       #To reproduce it: Project.first.activity
       #Project Load (0.6ms)  SELECT `projects`.* FROM `projects` WHERE (projects.id not in (0)) ORDER BY `projects`.`id` ASC LIMIT 1
       #Package Load (0.6ms)  SELECT projects.*,( ( packages.activity_index * POWER( 2.3276, (UNIX_TIMESTAMP(packages.updated_at) - 1381773320)/10000000 ) ) as activity_value ) AS act_tmp,IF( @activity<0, 0, @activity ) AS activity_value FROM packages, projects WHERE (packages.db_project_id = projects.id AND projects.id = 7
