@@ -29,8 +29,8 @@ gem 'dalli', require: false
 # JSON library - the default json conflicts with activerecord (by means of vice-versa monkey patching)
 gem 'yajl-ruby'
 
-# for searching in webui
-gem 'thinking-sphinx'
+# for searching in webui - 3.0.5 shows some regressions not yet debugged
+gem 'thinking-sphinx', '= 3.0.4'
 
 # don't rely on cron+rake 
 gem 'clockwork'
