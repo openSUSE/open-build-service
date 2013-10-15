@@ -49,11 +49,7 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def show
     read_patchinfo
-    @pkg_names = Array.new
-    packages = Webui::Package.find(:all, :project => @project.name, :expires_in => 30.seconds )
-    packages.each do |pkg|
-      @pkg_names << pkg.value(:name)
-    end
+    @pkg_names = @project.api_project.packages.pluck(:name)
     @pkg_names.delete('patchinfo')
     @packager = Webui::Person.find(:login => @packager)
   end

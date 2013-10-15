@@ -1,10 +1,5 @@
 require 'obsapi/test_sphinx'
 
-if Rails.env.test? || Rails.env.development?
-  require 'database_cleaner'
-  DatabaseCleaner.strategy = :transaction
-end
-
 class TestController < ApplicationController
   skip_before_action :extract_user
   before_action do
@@ -29,7 +24,6 @@ class TestController < ApplicationController
        return
      end
      @@started = true
-     @@test_running = false
      WebMock.disable_net_connect!(allow_localhost: true)
      CONFIG['global_write_through'] = true
      backend.direct_http(URI("/"))
@@ -43,16 +37,8 @@ class TestController < ApplicationController
   end
 
   def test_start
-    if @@test_running == true
-      test_end
-    end
-    @@test_running = true
+    Rails.cache.clear
     render_ok
   end
 
-
-  def test_end
-    @@test_running = false
-    Rails.cache.clear
-  end
 end
