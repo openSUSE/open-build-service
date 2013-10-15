@@ -717,13 +717,13 @@ class Project < ActiveRecord::Base
 
       @packages = Package.find_by_sql("SELECT projects.*,( #{Package.activity_algorithm} ) AS act_tmp,IF( @activity<0, 0, @activity ) AS activity_value FROM packages, projects WHERE (packages.db_project_id = projects.id AND projects.id = #{self.id}")
       # count packages and sum up activity values
-      project = { :count => 1, :sum => 0 } #count should be 1 otherwise you will get division by 0 exception
+      project = { :count => 0, :sum => 0 } #count should be 1 otherwise you will get division by 0 exception
       @packages.each do |package|
         project[:count] += 1
         project[:sum] += package.activity_value.to_f
       end
       # calculate and return average activity
-      project[:sum] / project[:count]
+      project[:sum] / (project[:count].nonzero? || 1)
     rescue
       0 
     end
