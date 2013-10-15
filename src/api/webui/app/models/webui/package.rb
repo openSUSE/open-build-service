@@ -39,7 +39,7 @@ class Package < Webui::Node
 
     put_opt = Hash.new
     put_opt[:package] = self.name
-    put_opt[:project] = @init_options[:project]
+    put_opt[:project] = self.project
     put_opt[:filename] = opt[:filename]
     put_opt[:comment] = opt[:comment]
     put_opt[:keeplink] = opt[:expand] if opt[:expand]
@@ -301,7 +301,7 @@ class Package < Webui::Node
   end
 
   def self.exists?(project, package)
-    if Package.find_cached(package, :project => project)
+    if ::Package.find_by_project_and_name project.to_param, package.to_param
       return true
     else
       return false
@@ -339,8 +339,24 @@ class Package < Webui::Node
     end
   end
 
+  def self.find(name, opts)
+    raise "UU" if name == :all
+    project = opts[:project].to_param
+    name = name.to_param
+    begin
+      ap = ::Package.get_by_project_and_name(project, name, use_source: false)
+    rescue ::Package::UnknownObjectError, Project::UnknownObjectError
+      return nil
+    end
+    p = Webui::Package.new(ap.render_xml(opts[:view]))
+    p.api_package = ap
+    p.instance_variable_set('@init_options', project: project, name: name)
+    p
+  end
+
+  attr_writer :api_package
   def api_package
-    ::Package.find_by_project_and_name(project, name)
+    @api_package ||= ::Package.find_by_project_and_name(project, name)
   end
 
 end

@@ -199,7 +199,7 @@ module Webui
       olddriver = Capybara.current_driver
       Capybara.current_driver = :rack_test
       self.class.start_test_api
-      #ActiveXML::api.http_do :post, "/test/test_start"
+      ActiveXML::api.http_do :post, "/test/test_start"
       Capybara.current_driver = olddriver
       @starttime = Time.now
       WebMock.disable_net_connect!(allow_localhost: true)
