@@ -198,7 +198,7 @@ EOF
                         [ -d "$backenddir"/MySQL/ ] && touch "$backenddir"/MySQL/.run-mysql_upgrade
 		fi
 
-		if [ "$OBS_SETUP_WORKER_PARTITIONS" = "take_all" -o "$OBS_SETUP_WORKER_PARTITIONS" = "use_obs_vg" ]; then
+			# FIXME: re-indent start
 			if [ 0"$OBS_WORKER_INSTANCES" -gt 0 ]; then
 				# got config setting from sysconfig or PXE server
 				NUM="$OBS_WORKER_INSTANCES"
@@ -223,7 +223,9 @@ EOF
 				echo "WARNING: OBS worker instances are 0, either misconfiguration or not enough resources"
 				exit 0
 			fi
+			# FIXME: re-indent stop
 
+		if [ "$OBS_SETUP_WORKER_PARTITIONS" = "take_all" -o "$OBS_SETUP_WORKER_PARTITIONS" = "use_obs_vg" ]; then
 			# Look for PV devices in OBS VG
 			pvs=""
 			for i in `vgdisplay -v OBS 2>/dev/null | grep "PV Name" | awk '{ print $3 }' | sort`; do
@@ -323,6 +325,26 @@ EOF
 			mkfs -text4 /dev/OBS/cache || exit
 		fi
 
+		if [ "$OBS_SETUP_WORKER_PARTITIONS" = "none" ]; then
+			# FIXME: this only checks if the same number of root and swap LVs are present. Additionally, they have to have the same name.
+			num_of_worker_root=`lvdisplay -c OBS 2>/dev/null | cut -d':' -f1 | grep worker_root_ | wc -l`
+			num_of_worker_swap=`lvdisplay -c OBS 2>/dev/null | cut -d':' -f1 | grep worker_swap_ | wc -l`
+			if [ $num_of_worker_root -ne $num_of_worker_swap ]; then
+				echo "WARNING: Inconsistent number of root and swap LVs for the workers. LVs won't be mounted."
+				NUM=0
+			else
+				if [ `lvdisplay -c OBS/cache 2>/dev/null` -ne 1 ]; then
+					echo "WARNING: No cache partition available for the workers. LVs won't be mounted."
+					NUM=0
+				else
+					if [ $num_of_worker_root -gt $NUM ]; then
+						echo "WARNING: Your resources allow to have ${NUM} workers, but the VG \"OBS\" is configured for ${num_of_worker_root} workers."
+					fi;
+					NUM=$num_of_worker_root
+				fi
+			fi
+		fi
+		
 		if [ ! "0$NUM" -gt 0 ]; then
 			exit 0
 		fi
