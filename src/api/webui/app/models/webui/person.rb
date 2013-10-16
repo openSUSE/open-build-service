@@ -32,28 +32,6 @@ class Person < Node
     end
   end
 
-  def self.find_cached(login, opts = {})
-    if opts.has_key?(:is_current)
-      # skip memcache
-      Person.free_cache(login, opts)
-    end
-    super
-  end
-
-  # temporary aid
-  def self.from_user(user)
-    Person.new(user.render_axml)
-  end
-
-  def api_user
-    User.find_by_login(login)
-  end
-
-  def self.email_for_login(person)
-    p = Person.find_hashed(person)
-    return p["email"] || ''
-  end
-
   def initialize(data)
     super(data)
     @login = self.to_hash["login"]
@@ -87,36 +65,6 @@ class Person < Node
 
   def to_s
     login
-  end
-
-  def add_watched_project(name)
-    return nil unless name
-    add_element('watchlist') unless has_element?(:watchlist)
-    watchlist.add_element('project', :name => name)
-    logger.debug "user '#{login}' is now watching project '#{name}'"
-    Rails.cache.delete("person_#{login}_watchlist")
-  end
-
-  def remove_watched_project(name)
-    return nil unless name
-    return nil unless watches? name
-    watchlist.delete_element "project[@name='#{name}']"
-    logger.debug "user '#{login}' removes project '#{name}' from watchlist"
-    Rails.cache.delete("person_#{login}_watchlist")
-  end
-
-  def watched_projects
-    return @watched_projects if @watched_projects
-    watchlist = to_hash["watchlist"]
-    if watchlist
-      return @watched_projects = watchlist.elements("project").map {|p| p["name"]}.sort {|a,b| a.downcase <=> b.downcase}
-    else
-      return @watched_projects = []
-    end
-  end
-
-  def watches?(name)
-    return watched_projects.include? name
   end
 
   def free_cache

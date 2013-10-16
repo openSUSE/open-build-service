@@ -107,6 +107,7 @@ class WebuiController < ActionController::Base
   end
 
   def authenticate_proxy
+    Rails.logger.debug "PROXY!!!"
     mode = :off
     mode = CONFIG['proxy_auth_host'] unless CONFIG['proxy_auth_host'].blank?
     proxy_user = request.env['HTTP_X_USERNAME']
@@ -241,12 +242,7 @@ class WebuiController < ActionController::Base
 
   def check_user
     check_spiders
-    return unless session[:login]
-    if discard_cache?
-      Rails.cache.delete("person_#{session[:login]}")
-      Person.free_cache(session[:login])
-    end
-    @user ||= Person.find_cached(session[:login], :is_current => true)
+    @user ||= Person.find(session[:login]) if session[:login]
     if @user
       User.current = User.find_by_login session[:login]
       Rails.cache.set_domain(@user.to_s) if Rails.cache.respond_to?('set_domain')
@@ -258,6 +254,9 @@ class WebuiController < ActionController::Base
       rescue Timeout::Error
         # TODO: add all temporary errors here, but no catch all
       end
+    else
+      # TODO: rebase on application_controller and use load_nobdy
+      User.current = User.find_by_login('_nobody_')
     end
   end
 

@@ -25,6 +25,9 @@ OBSApi::Application.configure do
   config.active_support.deprecation = :log
 
   config.eager_load = true
+
+  # Expands the lines which load the assets
+  config.assets.debug = false
 end
 
 CONFIG['source_host'] = "localhost"
