@@ -195,6 +195,7 @@ class ProjectController < ApplicationController
   end
 
   def new_package_branch
+    @remote_projects = ApiDetails.read(:projects_remotes)
   end
 
   def incident_request_dialog

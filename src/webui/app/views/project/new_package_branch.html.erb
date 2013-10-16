@@ -10,7 +10,18 @@ to your project in a transparent way. Changes of the files in the original
 project will also change the files in the branched package in your project.</p>
 <p>You can add patches to the branched package without affecting the original
 package.</p>
-
+<% unless @remote_projects.empty? %>
+  <p>
+    Branches also work across interconnected OBS instances. This OBS has
+    <%= pluralize(@remote_projects.count, 'interconnect.', 'interconnects.') %>
+  </p>
+  <ul>
+  <% @remote_projects.each do |p| %>
+    <% prj = Project.find_cached(p[1]["name"]) %>
+      <li><%= link_to(prj.name, { controller: 'project', action: 'show', project: prj}, {:class => 'project'}) %></li>
+  <% end %>
+  </ul>
+<% end %>
 <%= form_tag controller: "package", action: "save_new_link", project: @project.name do %>
 <p>
   <strong>Name of original project:</strong><br/>
