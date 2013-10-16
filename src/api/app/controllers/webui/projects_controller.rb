@@ -40,6 +40,16 @@ class Webui::ProjectsController < Webui::BaseController
     render json: infos
   end
 
+  def remotes 
+    # return all remote projects and their title
+    ret = {}
+    projects = Project.where.not(remoteurl: nil).pluck(:id, :name, :title)
+    projects.each do |id, name, title|
+      ret[id] = {name: name, title: title }
+    end
+    render json: ret
+  end
+
   def find_packages_info
     ret = Array.new
     packages=@pro.expand_all_packages
