@@ -21,7 +21,7 @@ class HomeController < WebuiController
     end
     @ipackages = @displayed_user.involved_packages.each.map {|x| [x.name, x.project]}
     begin
-      @owned = ReverseOwner.find_cached(:user => @displayed_user.login).each.map {|x| [x.package, x.project]} 
+      @owned = ReverseOwner.find(:user => @displayed_user.login).each.map {|x| [x.package, x.project]} 
       # :limit => "#{@owner_limit}", :devel => "#{@owner_devel}"
     rescue ActiveXML::Transport::Error
     # OBSRootOwner isn't set...
@@ -41,21 +41,21 @@ class HomeController < WebuiController
     content = Rails.cache.fetch(key, :expires_in => 5.hours) do
 
       if ::Configuration.use_gravatar?
-        email = Person.email_for_login(user)
+        email = User.email_for_login(user)
         hash = Digest::MD5.hexdigest(email.downcase)
         begin
           content = ActiveXML.api.load_external_url("http://www.gravatar.com/avatar/#{hash}?s=#{size}&d=wavatar")
+          content.force_encoding("ASCII-8BIT")
         rescue ActiveXML::Transport::Error
         end
       end
 
-      unless content
-        #TODO/FIXME: Looks like an asset...
-        f = File.open("#{Rails.root}/app/assets/images/default_face.png", "r")
-        content = f.read
-        f.close
-      end
-      content.force_encoding("ASCII-8BIT")
+      content || 'none'
+    end
+
+    if content == 'none'
+      redirect_to ActionController::Base.helpers.asset_path("default_face.png")
+      return
     end
 
     expires_in 5.hours, public: true
@@ -128,10 +128,11 @@ class HomeController < WebuiController
 
   def overwrite_user
     @displayed_user = @user
-    if params['user'] and not params['user'].empty?
-      user = find_cached(Person, params['user'] ) if params['user'] && !params['user'].empty?
-      @displayed_user = user if user
-      unless user
+    if params['user'].present?
+      user = Person.find( params['user'] ) if params['user'] && !params['user'].empty?
+      if user
+        @displayed_user = user 
+      else
         flash[:error] = "User not found #{params['user']}"
       end
     end

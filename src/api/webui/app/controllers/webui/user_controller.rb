@@ -25,29 +25,33 @@ class UserController < WebuiController
 
   def login
     @return_to_path = params['return_to_path'] || root_path
+    User.current ||= User.find_by_login('_nobody_')
   end
   
   def do_login
     @return_to_path = params['return_to_path'] || root_path
-    if !params[:username].blank? and params[:password]
+    if params[:username].present? and params[:password]
       logger.debug "Doing form authorization to login user #{params[:username]}"
       session[:login] = params[:username]
       session[:password] = params[:password]
       authenticate_form_auth
+
+      # TODO: remove again and use
+      User.current = User.where( login: session[:login] ).first
       begin
-        p = Person.find( session[:login] )
-      rescue ActiveXML::Transport::UnauthorizedError => exception
-        logger.info "Login to #{@return_to_path} failed for #{session[:login]}: #{exception}"
-        reset_session
-        flash.now[:error] = 'Authentication failed'
-        render :template => 'webui/user/login', :locals => {:return_to_path => @return_to_path} and return
+        ActiveXML.api.direct_http '/'
+      rescue ActiveXML::Transport::UnauthorizedError
+        User.current = nil
       end
-      unless p
+      unless User.current
         reset_session
         flash.now[:error] = 'Authentication failed'
-        render :template => 'webui/user/login', :locals => {:return_to_path => @return_to_path} and return
+        User.current = User.find_by_login('_nobody_')
+        render :template => 'webui/user/login', :locals => {:return_to_path => @return_to_path}
+        return
       end
       flash[:success] = 'You are logged in now'
+      session[:login] = User.current.login
       redirect_to params[:return_to_path] and return
     end
     flash[:error] = 'Authentication failed'
