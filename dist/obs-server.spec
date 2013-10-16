@@ -236,6 +236,7 @@ Requires:       rubygem(2.0.0:xmlhash) = 1.3.5
 Requires:       rubygem(2.0.0:yajl-ruby) = 1.1.0
 # OBS_SERVER_END
 # requires for webui:
+
 Requires:       ghostscript-fonts-std
 Summary:        The Open Build Service -- The API and WEBUI
 %if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
@@ -383,34 +384,15 @@ chmod 0755 $RPM_BUILD_ROOT/usr/sbin/obs_serverstatus
 # Install all web and api parts.
 #
 cd ../src
-for i in api webui; do
-  mkdir -p $RPM_BUILD_ROOT/srv/www/obs/
-  cp -a $i $RPM_BUILD_ROOT/srv/www/obs/$i
-  rm $RPM_BUILD_ROOT/srv/www/obs/$i/lib/activexml
-  mkdir $RPM_BUILD_ROOT/srv/www/obs/$i/lib/activexml
-  cp -a activexml/* $RPM_BUILD_ROOT/srv/www/obs/$i/lib/activexml/
-done
+mkdir -p $RPM_BUILD_ROOT/srv/www/obs/
+cp -a api $RPM_BUILD_ROOT/srv/www/obs/api
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/log
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/tmp
-mkdir -p $RPM_BUILD_ROOT/srv/www/obs/webui/log
-mkdir -p $RPM_BUILD_ROOT/srv/www/obs/webui/tmp
-touch $RPM_BUILD_ROOT/srv/www/obs/{webui,api}/log/production.log
+touch $RPM_BUILD_ROOT/srv/www/obs/api/log/production.log
 # the git webinterface tries to connect to api.opensuse.org by default
 #install -m 0644 ../dist/webui-production.rb $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/production.rb
-# needed for correct permissions in case sqlite3 is used
-touch $RPM_BUILD_ROOT/srv/www/obs/webui/db/database.db
 # prepare for running sphinx daemon
 install -m 0755 -d $RPM_BUILD_ROOT/srv/www/obs/api/db/sphinx{,/production}
-
-#
-#set default api on localhost for the webui
-# 
-sed -i 's,FRONTEND_HOST.*,FRONTEND_HOST = "127.0.42.2",' \
-  $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb
-sed -i 's,FRONTEND_PORT.*,FRONTEND_PORT = 80,' \
-  $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/development.rb
-sed -i 's,api.opensuse.org,127.0.42.2,' \
-  $RPM_BUILD_ROOT/srv/www/obs/webui/app/helpers/package_helper.rb
 
 #
 # install apidocs
@@ -419,11 +401,9 @@ mkdir -p $RPM_BUILD_ROOT/srv/www/obs/docs
 cp -a ../docs/api/api    $RPM_BUILD_ROOT/srv/www/obs/docs/
 cp -a ../docs/api/html   $RPM_BUILD_ROOT/srv/www/obs/docs/api/
 ln -sf /srv/www/obs/docs/api $RPM_BUILD_ROOT/srv/www/obs/api/public/schema
-sed -i -e '/^CONFIG..apidocs_location.*/d' \
-       -e '/^CONFIG..schema_location.*/d' \
-    $RPM_BUILD_ROOT/srv/www/obs/webui/config/environment.rb
-echo 'CONFIG["apidocs_location"] ||= File.expand_path("../docs/api/html/")' >> $RPM_BUILD_ROOT/srv/www/obs/webui/config/environment.rb
-echo 'CONFIG["schema_location"] ||= File.expand_path("../docs/api/")' >> $RPM_BUILD_ROOT/srv/www/obs/webui/config/environment.rb
+
+echo 'CONFIG["apidocs_location"] ||= File.expand_path("../docs/api/html/")' >> $RPM_BUILD_ROOT/srv/www/obs/api/config/environment.rb
+echo 'CONFIG["schema_location"] ||= File.expand_path("../docs/api/")' >> $RPM_BUILD_ROOT/srv/www/obs/api/config/environment.rb
 
 #
 # Install all backend parts.
@@ -458,21 +438,12 @@ rm $RPM_BUILD_ROOT/srv/www/obs/api/config/lighttpd.conf
 install api/config/database.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/database.yml
 install api/config/options.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/options.yml
 install api/config/thinking_sphinx.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/thinking_sphinx.yml
-install webui/config/database.yml.example $RPM_BUILD_ROOT/srv/www/obs/webui/config/database.yml
-install webui/config/options.yml.example $RPM_BUILD_ROOT/srv/www/obs/webui/config/options.yml
 
-for file in api/log/access.log api/log/backend_access.log api/log/delayed_job.log api/log/error.log api/log/lastevents.access.log webui/log/access.log webui/log/error.log; do
+for file in api/log/access.log api/log/backend_access.log api/log/delayed_job.log api/log/error.log api/log/lastevents.access.log; do
   touch $RPM_BUILD_ROOT/srv/www/obs/$file
 done
 
-pushd $RPM_BUILD_ROOT/srv/www/obs/webui
-cp config/database.yml{.example,}
-cat > config/database.yml <<EOF
-production:
-  adapter: sqlite3
-  database: db/database.db
-EOF
-bundle exec rake --trace db:create db:setup RAILS_ENV=production
+pushd $RPM_BUILD_ROOT/srv/www/obs/api
 bundle exec rake --trace assets:precompile RAILS_ENV=production RAILS_GROUPS=assets
 rm -rf tmp/cache/sass tmp/cache/assets
 export BUNDLE_WITHOUT=test:assets:development
@@ -482,11 +453,6 @@ bundle config --local without test:assets:development
 # reinstall
 install config/database.yml.example config/database.yml
 : > log/production.log
-popd
-# set api runtime dependencies
-pushd $RPM_BUILD_ROOT/srv/www/obs/api
-bundle config --local frozen 1
-bundle config --local without test:assets:development 
 sed -i -e 's,^api_version.*,api_version = "%version",' config/initializers/02_apiversion.rb
 popd
 
@@ -535,28 +501,7 @@ EOF
 export RAILS_ENV=test
 bundle exec rake --trace db:create db:setup || exit 1
 mv log/test.log{,.old}
-if ! bundle exec rake --trace test; then
-  cat log/test.log
-  exit 1
-fi
-popd
-##################### webui
-pushd src/webui/
-# setup files
-cp config/options.yml{.example,}
-cat > config/database.yml <<EOF
-test:
-  adapter: mysql2
-  host:    localhost
-  database: webui_test
-  username: root
-  encoding: utf8
-  socket:   /tmp/obs.test.mysql.socket
-EOF
-export RAILS_ENV=test
-bundle exec rake --trace db:create db:setup || exit 1
-mv log/test.log{,.old}
-if ! bundle exec rake --trace test; then
+if ! bundle exec rake --trace test:api test:webui1 test:webui2; then
   cat log/test.log
   exit 1
 fi
@@ -620,10 +565,6 @@ rmdir /srv/obs 2> /dev/null || :
 # and bs_worker is anyway updating itself at runtime based on server code
 
 %pre -n obs-api
-# help rpm to turn a directory in a symlink
-if [ -d /srv/www/obs/webui/public/vendor/neutral/images -a ! -L /srv/www/obs/webui/public/vendor/neutral/images ]; then
-  mv /srv/www/obs/webui/public/vendor/neutral/images /srv/www/obs/webui/public/vendor/neutral/images.rpmold
-fi
 getent passwd obsapidelayed >/dev/null || \
   /usr/sbin/useradd -r -s /bin/bash -c "User for build service api delayed jobs" -d /srv/www/obs/api -g www obsapidelayed
 
@@ -632,8 +573,7 @@ getent passwd obsapidelayed >/dev/null || \
 if [ -e /srv/www/obs/frontend/config/database.yml ] && [ ! -e /srv/www/obs/api/config/database.yml ]; then
   cp /srv/www/obs/frontend/config/database.yml /srv/www/obs/api/config/database.yml
 fi
-# updaters can keep their production_slave config
-for i in production_slave.rb production.rb development_base.rb; do
+for i in production.rb ; do
   if [ -e /srv/www/obs/frontend/config/environments/$i ] && [ ! -e /srv/www/obs/api/config/environments/$i ]; then
     cp /srv/www/obs/frontend/config/environments/$i /srv/www/obs/api/config/environments/$i
   fi
@@ -646,7 +586,6 @@ chmod 0640 $SECRET_KEY
 chown root.www $SECRET_KEY
 # update config
 sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/api/config/database.yml
-sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/database.yml
 
 %restart_on_update apache2
 %restart_on_update obsapisetup
@@ -759,8 +698,6 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/d
 
 /srv/www/obs/api/config/thinking_sphinx.yml.example
 %config(noreplace) /srv/www/obs/api/config/thinking_sphinx.yml
-%dir /srv/www/obs/webui/config/locales
-%config /srv/www/obs/webui/config/locales/*
 
 %dir /srv/www/obs
 %dir /srv/www/obs/api
@@ -787,8 +724,16 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/d
 /srv/www/obs/api/public
 /srv/www/obs/api/Rakefile
 /srv/www/obs/api/script
+/srv/www/obs/api/bin
 /srv/www/obs/api/test
 /srv/www/obs/docs
+
+# starting the webui part
+/srv/www/obs/api/webui/
+%dir /srv/www/obs/api/config
+/srv/www/obs/api/config/locales
+%dir /srv/www/obs/api/vendor
+/srv/www/obs/api/vendor/diststats
 
 #
 # some files below config actually are _not_ config files
@@ -798,6 +743,7 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/d
 /srv/www/obs/api/config/boot.rb
 /srv/www/obs/api/config/routes.rb
 /srv/www/obs/api/config/environments/development.rb
+/srv/www/obs/api/config/unicorn
 %attr(0640,root,%apache_group) %config(noreplace) /srv/www/obs/api/config/database.yml*
 %attr(0644,root,root) %config(noreplace) /srv/www/obs/api/config/options.yml*
 %dir %attr(0755,%apache_user,%apache_group) /srv/www/obs/api/db/sphinx
@@ -814,47 +760,6 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/d
 %verify(not size md5) %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/api/log/production.log
 %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/api/tmp
 
-# starting the webui part
-%dir /srv/www/obs/webui
-# sqlite3 needs write permissions
-%dir %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/webui/db
-/srv/www/obs/webui/app
-/srv/www/obs/webui/db/migrate
-/srv/www/obs/webui/db/schema.rb
-/srv/www/obs/webui/lib
-/srv/www/obs/webui/public
-/srv/www/obs/webui/Rakefile
-/srv/www/obs/webui/script
-/srv/www/obs/webui/test
-/srv/www/obs/webui/vendor
-/srv/www/obs/webui/.simplecov
-/srv/www/obs/webui/config.ru
-/srv/www/obs/webui/.bundle
-
-%dir /srv/www/obs/webui/config
-%dir /srv/www/obs/webui/config/environments
-%dir /srv/www/obs/webui/config/initializers
-/srv/www/obs/webui/config/routes.rb
-/srv/www/obs/webui/config/environments/development.rb
-/srv/www/obs/webui/README.theme
-/srv/www/obs/webui/Gemfile
-/srv/www/obs/webui/Gemfile.lock
-/srv/www/obs/webui/config/initializers
-
-%config /srv/www/obs/webui/config/application.rb
-%config /srv/www/obs/webui/config/boot.rb
-%config /srv/www/obs/webui/config/environment.rb
-%config /srv/www/obs/webui/config/environments/production.rb
-%config /srv/www/obs/webui/config/environments/test.rb
-%config /srv/www/obs/webui/config/environments/stage.rb
-%attr(0640,root,%{apache_group}) %config(noreplace) /srv/www/obs/webui/config/database.yml*
-%attr(0644,root,root) %config(noreplace) /srv/www/obs/webui/config/options.yml*
-
-%dir %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/webui/log
-%config(noreplace) %verify(not size md5) %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/webui/db/database.db
-%config(noreplace) %verify(not size md5) %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/webui/log/production.log
-%attr(-,%{apache_user},%{apache_group}) /srv/www/obs/webui/tmp
-
 # these dirs primarily belong to apache2:
 %dir /etc/apache2
 %dir /etc/apache2/vhosts.d
@@ -865,8 +770,6 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/d
 %ghost /srv/www/obs/api/log/delayed_job.log
 %ghost /srv/www/obs/api/log/error.log
 %ghost /srv/www/obs/api/log/lastevents.access.log
-%ghost /srv/www/obs/webui/log/access.log
-%ghost /srv/www/obs/webui/log/error.log
 
 %files -n obs-utils
 %defattr(-,root,root)
