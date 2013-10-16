@@ -3,7 +3,7 @@
   <%= save_comment_form do %>
     <p>
       <%= hidden_field_tag 'title', comment['title'], id: "reply_title_#{cid}" %>
-      <%= text_area_tag 'body', nil, size: "80x1", :onkeyup => "sz(this);", :onclick => "sz(this);", id: "reply_body_#{cid}" %>
+      <%= text_area_tag 'body', nil, size: "80x1", :onkeyup => "sz(this);", :onclick => "sz(this);", id: "reply_body_#{cid}", :placeholder => "Comment Text", :required => 'required' %>
       <%= hidden_field_tag 'parent_id', comment['id'], id: "reply_parent_id_#{cid}" %>
     </p>
     <p><%= submit_tag "Add reply", id: "add_reply_#{cid}"%></p>

@@ -293,6 +293,7 @@ class ApplicationController < ActionController::Base
     xmlbody.gsub!(%r{ data-\S+=\"[^\"]*\"}, ' ')
     xmlbody.gsub!(%r{ autocomplete=\"[^\"]*\"}, ' ')
     xmlbody.gsub!(%r{ placeholder=\"[^\"]*\"}, ' ')
+    xmlbody.gsub!(%r{ required=\"[^\"]*\"}, ' ')
     xmlbody.gsub!(%r{ <tester .*}, ' ')
     xmlbody.gsub!('</tester>', ' ')
     xmlbody.gsub!(%r{ type=\"range\"}, ' type="text"')
