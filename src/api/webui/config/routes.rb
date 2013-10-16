@@ -174,6 +174,7 @@ Webui::Engine.routes.draw do
     post 'project/remove_group/:project' => :remove_group, constraints: cons
     get 'project/monitor/(:project)' => :monitor, constraints: cons
     get 'project/package_buildresult/:project' => :package_buildresult, constraints: cons
+    # TODO: this should be POST (and the link AJAX)
     get 'project/toggle_watch/:project' => :toggle_watch, constraints: cons
     get 'project/meta/:project' => :meta, constraints: cons
     post 'project/save_meta/:project' => :save_meta, constraints: cons

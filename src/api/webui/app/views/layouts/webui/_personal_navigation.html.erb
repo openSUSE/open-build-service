@@ -1,10 +1,10 @@
-<div class="grid_6 omega" style="text-align: right;">
-  <% if @user %>
-    <%= link_to @user, :controller => 'home', :action => :index %>
+<div class="grid_6 omega" style="text-align: right">
+  <% unless User.current.is_nobody? %>
+    <%= link_to User.current, :controller => 'home', :action => :index %>
     <% if @nr_requests_that_need_work and @nr_requests_that_need_work > 0 %> |
       <%= link_to "You have "+ pluralize(@nr_requests_that_need_work, 'task'), {:controller => 'home', :action => 'index'}, {:title => "where an action is requested from you"} %>
     <% end %> |
-    <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{@user}" %> |
+    <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{User.current}" %> |
     <%= link_to "Logout", { :controller => 'user', :action => 'logout' }, :method => :post, id: 'logout-link' %>
   <% else %>
     <% if CONFIG['proxy_auth_mode'] == :on %>

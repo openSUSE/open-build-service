@@ -1098,14 +1098,13 @@ class ProjectController < WebuiController
   end
 
   def toggle_watch
-    if @user.watches? @project.name
+    if User.current.watches? @project.name
       logger.debug "Remove #{@project} from watchlist for #{@user}"
-      @user.remove_watched_project @project.name
+      User.current.remove_watched_project @project.name
     else
       logger.debug "Add #{@project} to watchlist for #{@user}"
-      @user.add_watched_project @project.name
+      User.current.add_watched_project @project.name
     end
-    @user.save
 
     if request.env['HTTP_REFERER']
       redirect_to :back

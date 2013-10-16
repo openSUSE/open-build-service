@@ -40,7 +40,7 @@ class Project < ActiveRecord::Base
   has_many :attribs, :dependent => :destroy, foreign_key: :db_project_id
   has_many :repositories, :dependent => :destroy, foreign_key: :db_project_id
   has_many :messages, :as => :db_object, :dependent => :delete_all
-  has_many :watched_projects, :dependent => :destroy
+  has_many :watched_projects, :dependent => :destroy, inverse_of: :project
 
   has_many :linkedprojects, -> { order(:position) }, :class_name => 'LinkedProject', foreign_key: :db_project_id
 

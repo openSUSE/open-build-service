@@ -11,17 +11,6 @@ module Webui
     !session[:login].nil?
   end
   
-  def current_user
-    if logged_in?
-      begin
-        @user ||= Person.find_cached( session[:login] )
-      rescue RuntimeError
-        logger.error "Cannot load person data for #{session[:login]} in application_helper"
-      end
-    end
-    return @user
-  end
-
   def repo_url(project, repo='' )
     if @configuration['download_url']
       "#{@configuration['download_url']}/" + project.to_s.gsub(/:/,':/') + "/#{repo}"
