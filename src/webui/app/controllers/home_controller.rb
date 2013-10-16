@@ -20,7 +20,7 @@ class HomeController < ApplicationController
     end
     @ipackages = @displayed_user.involved_packages.each.map {|x| [x.name, x.project]}
     begin
-      @owned = ReverseOwner.find_cached(:user => @displayed_user.login).each.map {|x| [x.rootproject, x.package, x.project]} 
+      @owned = ReverseOwner.find_cached(:user => @displayed_user.login).each.map {|x| [x.package, x.project]} 
       # :limit => "#{@owner_limit}", :devel => "#{@owner_devel}"
     rescue ActiveXML::Transport::Error
     # OBSRootOwner isn't set...
@@ -65,12 +65,39 @@ class HomeController < ApplicationController
 
   def requests
     requests = @displayed_user.requests_that_need_work
-    @declined_requests = BsRequest.ids(requests['declined'])
+
+    # Reviews
     @open_reviews = BsRequest.ids(requests['reviews'])
-    @new_requests = BsRequest.ids(requests['new'])
+    @reviews_in = []
+    @reviews_out = []
+    @open_reviews.each do |review|
+      if review["creator"] == @displayed_user.login
+        @reviews_out << review
+      else
+        @reviews_in << review
+      end
+    end
+
+    # Other requests
+    @declined_requests = BsRequest.ids(requests['declined'])
+
+    @open_requests = BsRequest.ids(requests['new'])
+    @requests_in = []
+    @requests_out = []
+    @open_requests.each do |request|
+      if request["creator"] == @displayed_user.login
+        @requests_out << request
+      else
+        @requests_in << request
+      end
+    end
+
+
     @open_patchinfos = @displayed_user.running_patchinfos
-    session[:requests] = (requests['declined'] + requests['reviews'] + requests['new'])    
-    @requests = BsRequest.ids(session[:requests])
+
+    session[:requests] = (requests['declined'] + requests['reviews'] + requests['new'])
+
+    @requests = @declined_requests + @open_reviews + @open_requests
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
 
@@ -78,9 +105,9 @@ class HomeController < ApplicationController
       format.html
       format.json do
         rawdata = Hash.new
-        rawdata["declined"] = @declined_requests
         rawdata["review"] = @open_reviews
-        rawdata["new"] = @new_requests
+        rawdata["new"] = @open_requests
+        rawdata["declined"] = @declined_requests
         rawdata["patchinfos"] = @open_patchinfos
         render :text => JSON.pretty_generate(rawdata)
       end

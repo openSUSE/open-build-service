@@ -40,15 +40,18 @@ function renderProjectsTable(length)
 				    });
 }
 
-function renderPackagesProjectsTable(packages, length)
+function renderPackagesProjectsTable(options)
 {
-    length = (typeof length === "undefined") ? 25 : length;
-    var packageurl = $("#packages_projects_table_wrapper").data("url");
-    $("#packages_projects_table_wrapper").html( '<table cellpadding="0" cellspacing="0" border="0" class="display" id="packages_projects_table"></table>' );
-    $("#packages_projects_table").dataTable(
+    var length = options.length || 25
+    var name = options.name || "packages_projects_wrapper"
+    console.log ("Rendering PackagesProjectTable for name: %s", name);
+
+    var packageurl = $("#" + name).data("url");
+    $("#" + name).html("<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"display\" id=\"" + name + '_table' + "\"></table>" );
+    $("#" + name + "_table").dataTable(
           {
-          "aaData": packages, 
-          "bPaginate": packages.length > 12,
+          "aaData": options.packages, 
+          "bPaginate": options.packages.length > 12,
           "aoColumns": [
             {
             "sTitle": "Package",
