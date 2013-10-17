@@ -5,7 +5,7 @@ require 'test_helper'
 class Webui::SearchControllerTest < Webui::IntegrationTest
 
   def setup
-    Webui::ApiDetails.prepare_search
+    OBSApi::TestSphinx.ensure
   end
 
   def validate_search_page
@@ -106,7 +106,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     fill_in 'search', with: 'basedistro3'
     page.evaluate_script("$('#global-search-form').get(0).submit()")
     validate_search_page
-    page.must_have_text(/Base.* distro without update/)
+    page.must_have_text(/Base.* distro without update project/)
   end
 
   test "search_by_baseurl" do
