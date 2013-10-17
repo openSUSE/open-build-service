@@ -30,12 +30,6 @@ class TestController < ApplicationController
      render_ok
   end
   
-  def prepare_search
-    # Sphinx indexing
-    OBSApi::TestSphinx.ensure
-    render_ok
-  end
-
   def test_start
     Rails.cache.clear
     render_ok
