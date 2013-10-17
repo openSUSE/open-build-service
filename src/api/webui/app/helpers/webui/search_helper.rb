@@ -1,18 +1,14 @@
 module Webui::SearchHelper
 
-  def description_text(obj)
-    desc = nil
-    if obj.respond_to?(:has_element?) && obj.has_element?("description")
-      desc = obj.description.to_s
-    elsif obj.respond_to?(:has_key?) && obj.has_key?("description")
-      desc = obj["description"].to_s
-    else
-      return nil
+  # @param [Hash] users a hash with roles as keys and an array of logins as
+  #         value. That is {"roletitle1" => ["login1", "login2"]}
+  def search_users_list(users)
+    return "" if users.nil? || users.empty?
+    output = []
+    users.each do |role, logins|
+      output += logins.map {|user| user_and_role(user, role)}
     end
-    if desc.empty?
-      nil
-    else
-      desc[0,80] + "..."
-    end
+    output.join("<br />").html_safe
   end
+
 end

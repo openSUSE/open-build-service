@@ -1,5 +1,3 @@
-include SearchHelper
-
 class SearchController < ApplicationController
 
   require_dependency 'xpath_engine'
@@ -51,7 +49,7 @@ class SearchController < ApplicationController
   def missing_owner
     params[:limit] ||= "0" #unlimited by default
 
-    @owners = search_owner(params, nil)
+    @owners = Owner.search(params, nil).map(&:to_hash)
 
   end
 
@@ -70,7 +68,7 @@ class SearchController < ApplicationController
       return
     end
 
-    @owners = search_owner(params, obj)
+    @owners = Owner.search(params, obj).map(&:to_hash)
   end
 
   def predicate_from_match_parameter(p)
