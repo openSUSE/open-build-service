@@ -213,7 +213,7 @@ Suse::Backend.post( '/source/BaseDistro2.0/pack2?cmd=commitfilelist&vrev=2.3&ver
 Suse::Backend.put( '/source/BaseDistro2.0/pack2/myfile', "DummyContent of BaseDistro2.0/pack2")
 Suse::Backend.put( '/source/BaseDistro2.0/pack2/package.spec',File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
 Suse::Backend.put( '/source/BaseDistro2.0/pack2.linked/_link', "<link package=\"pack2\" cicount='copy' />")
-Suse::Backend.put( '/source/BaseDistro3/_config', "Type: spec" )
+Suse::Backend.put( '/source/BaseDistro3/_config', "Type: spec\nRepotype: rpm-md suse" )
 Suse::Backend.put( '/source/BaseDistro3/pack2/package.spec',File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
 Suse::Backend.put( '/source/BaseDistro:Update/pack2/_link', "<link project=\"BaseDistro\" package=\"pack2\" />")
 Suse::Backend.put( '/source/Devel:BaseDistro:Update/pack2/_link', "<link project=\"BaseDistro:Update\" package=\"pack2\" />")
@@ -313,6 +313,7 @@ scheduler_thread = Thread.new do
   inject_build_job( "HiddenProject", "pack", "nada", "i586" )
   inject_build_job( "BinaryprotectedProject", "bdpack", "nada", "i586" )
   inject_build_job( "SourceprotectedProject", "pack", "repo", "i586" )
+  inject_build_job( "BaseDistro3", "pack2", "BaseDistro3_repo", "i586" )
   
   # upload a binary file to repository directly
   Suse::Backend.put( '/build/home:Iggy/10.2/i586/_repository/delete_me.rpm?wipe=1', File.open("#{Rails.root}/test/fixtures/backend/binary/delete_me-1.0-1.i586.rpm").read() )
