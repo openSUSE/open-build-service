@@ -85,9 +85,42 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'entry', :attributes => { :name => "primary.xml.gz" }
     assert_xml_tag :tag => 'entry', :attributes => { :name => "repomd.xml" }
 
+    # verify meta data created by create_package_descr
+    pac = nil
+    IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro3/BaseDistro3_repo/repodata/*-primary.xml.gz") do |io|
+       hashed = Xmlhash.parse(io.read)
+       hashed.elements("package").each do |p|
+         next unless p["name"] == "package"
+         next unless p["arch"] == "i586"
+         pac = p
+       end
+    end
+    assert_not_nil pac
+    assert_equal "GPLv2+", pac["format"]["rpm:license"]
+    assert_equal "Development/Tools/Building", pac["format"]["rpm:group"]
+    assert_equal "package-1.0-1.src.rpm", pac["format"]["rpm:sourcerpm"]
+    assert_equal "2084", pac["format"]["rpm:header-range"]['end']
+    assert_equal "280", pac["format"]["rpm:header-range"]['start']
+    assert_equal "bash", pac["format"]["rpm:requires"]['rpm:entry']['name']
+    assert_equal "myself", pac["format"]["rpm:provides"]['rpm:entry'][0]['name']
+    assert_equal "package", pac["format"]["rpm:provides"]['rpm:entry'][1]['name']
+    assert_equal "package(x86-32)", pac["format"]["rpm:provides"]['rpm:entry'][2]['name']
+    assert_equal "something", pac["format"]["rpm:conflicts"]['rpm:entry']['name']
+    assert_equal "old_crap", pac["format"]["rpm:obsoletes"]['rpm:entry']['name']
+    if File.exist? "/etc/init.d/boot.local"
+      # seems to be a SUSE system
+      if pac["format"]["rpm:suggests"].nil?
+        print "createrepo seems not to create week dependencies, we need this at least on SUSE systems"
+      end 
+      assert_equal "pure_optional", pac["format"]["rpm:suggests"]['rpm:entry']['name']
+      assert_equal "would_be_nice", pac["format"]["rpm:recommends"]['rpm:entry']['name']
+      assert_equal "other_package_likes_it", pac["format"]["rpm:supplements"]['rpm:entry']['name']
+      assert_equal "other_package", pac["format"]["rpm:enhances"]['rpm:entry']['name']
+    end
   end
 
   def test_suse_format
+    return unless File.exist? "/etc/init.d/boot.local"
     login_adrian
     get "/published/BaseDistro3/BaseDistro3_repo/content"
     assert_response :success
@@ -123,37 +156,5 @@ DATADIR .
     assert_response :success
     get "/published/BaseDistro3/BaseDistro3_repo/descr/packages"
     assert_response :success
-    # verify meta data created by create_package_descr
-    pac = nil
-    IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro3/BaseDistro3_repo/repodata/*-primary.xml.gz") do |io|
-       hashed = Xmlhash.parse(io.read)
-       hashed.elements("package").each do |p|
-         next unless p["name"] == "package"
-         next unless p["arch"] == "i586"
-         pac = p
-       end
-    end
-    assert_not_nil pac
-    assert_equal "GPLv2+", pac["format"]["rpm:license"]
-    assert_equal "Development/Tools/Building", pac["format"]["rpm:group"]
-    assert_equal "package-1.0-1.src.rpm", pac["format"]["rpm:sourcerpm"]
-    assert_equal "2084", pac["format"]["rpm:header-range"]['end']
-    assert_equal "280", pac["format"]["rpm:header-range"]['start']
-    assert_equal "bash", pac["format"]["rpm:requires"]['rpm:entry']['name']
-    assert_equal "myself", pac["format"]["rpm:provides"]['rpm:entry'][0]['name']
-    assert_equal "package", pac["format"]["rpm:provides"]['rpm:entry'][1]['name']
-    assert_equal "package(x86-32)", pac["format"]["rpm:provides"]['rpm:entry'][2]['name']
-    assert_equal "something", pac["format"]["rpm:conflicts"]['rpm:entry']['name']
-    assert_equal "old_crap", pac["format"]["rpm:obsoletes"]['rpm:entry']['name']
-    if File.exist? "/etc/init.d/boot.local"
-      # seems to be a SUSE system
-      if pac["format"]["rpm:suggests"].nil?
-        print "createrepo seems not to create week dependencies, we need this at least on SUSE systems"
-      end 
-      assert_equal "pure_optional", pac["format"]["rpm:suggests"]['rpm:entry']['name']
-      assert_equal "would_be_nice", pac["format"]["rpm:recommends"]['rpm:entry']['name']
-      assert_equal "other_package_likes_it", pac["format"]["rpm:supplements"]['rpm:entry']['name']
-      assert_equal "other_package", pac["format"]["rpm:enhances"]['rpm:entry']['name']
-    end
   end
 end
