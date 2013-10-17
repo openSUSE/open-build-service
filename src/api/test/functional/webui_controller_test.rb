@@ -19,12 +19,29 @@ class WebuiControllerTest < ActionDispatch::IntegrationTest
 
   end
 
+  def test_remote_projects
+    get "/webui/projects/remotes"
+    assert_response 401
+
+    login_Iggy
+    get "/webui/projects/remotes"
+    assert_response :success
+    assert_match(/RemoteInstance/, @response.body)
+  end
+
+  def test_remote_projects_as_admin
+    login_king
+    get "/webui/projects/remotes"
+    assert_response :success
+    assert_match(/RemoteInstance/, @response.body)
+    assert_match(/Remoteurl project which is hidden/, @response.body)
+  end
+
   def test_search_owner
     login_king
 
     get "/webui/owners"
     assert_response 400
-    assert_xml_tag :tag => 'status', :attributes => { :code => "missing_parameter" }
 
     # must be after first search controller call or backend might not be started on single test case runs
     wait_for_publisher()
