@@ -82,6 +82,8 @@
     </div> <!-- end advanced_container -->
   <% end %>
   </div> <!-- end search_form -->
-<%= render :partial => 'results' %>
+<% unless @results.nil? || @results.length < 1 %>
+  <%= render :partial => 'results' %>
+<% end %>
 </div>
 

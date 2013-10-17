@@ -83,20 +83,4 @@ class FullTextSearch
       nil
     end
   end
-
-  def read_attribute_for_serialization(attrib)
-    if attrib.to_sym == :result
-      # Format expected by webui search controller
-      if @result.nil?
-        nil
-      else
-        @result.map {|r| {:type => r.class.model_name.to_s.downcase,
-                          :data  => r, :search_attributes => r.sphinx_attributes}}
-      end
-    elsif attrib.to_sym == :total_entries
-      @result.nil? ? nil : @result.total_entries
-    else
-      super
-    end
-  end
 end

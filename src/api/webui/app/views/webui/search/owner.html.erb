@@ -79,13 +79,14 @@
     </div> <!-- end advanced_container -->
   <% end %>
   </div> <!-- end search_form -->
-<%= render :partial => 'results' %>
 
 <% unless @results.nil? || @results.length < 1 %>
+  <%= render :partial => 'owners' %>
+
   <div>
   <% projects = [] %>
   <% @results.each do |result| %>
-    <% link = Hash["project", result[:data].project, "package", result[:data].package ] %>
+    <% link = Hash["project", result.project, "package", result.package ] %>
     <% projects << link %>
   <% end %>
     <p>
