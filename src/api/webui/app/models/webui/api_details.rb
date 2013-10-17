@@ -7,11 +7,6 @@ class Webui::ApiDetails
     Rails.logger
   end
 
-  def self.prepare_search
-    transport = ActiveXML::api
-    transport.http_do 'post', "/test/prepare_search"
-  end
-
   def self.read(route_name, *args)
     http_do :get, route_name, *args
   end
