@@ -54,7 +54,6 @@ OBSApi::Application.routes.draw do
       post 'test/killme' => :killme
       post 'test/startme' => :startme
       post 'test/test_start' => :test_start
-      post 'test/prepare_search' => :prepare_search
     end
 
     ### /attribute is before source as it needs more specific routes for projects
