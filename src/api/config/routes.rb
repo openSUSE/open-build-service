@@ -355,8 +355,6 @@ OBSApi::Application.routes.draw do
           get :by_class
         end
       end
-      resources :owners, :only => [:index]
-      resources :searches, :only => [:new, :create]
 
       # comments
       get 'comments/request/:id/' => 'comments#requests', constraints: cons

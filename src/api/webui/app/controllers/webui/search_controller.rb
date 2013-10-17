@@ -9,6 +9,8 @@ class Webui::SearchController < Webui::WebuiController
   end
   
   def owner
+    Suse::Backend.start_test_backend if Rails.env.test?
+
     # If the search is too short, return
     return if @search_text.blank?
     if @search_text and @search_text.length < 2
@@ -16,45 +18,8 @@ class Webui::SearchController < Webui::WebuiController
       return
     end
 
-    r = []
-    collection = find_cached(Owner, :binary => "#{@search_text}", :limit => "#{@owner_limit}", :devel => "#{@owner_devel}", :expires_in => 5.minutes)
-    collection.send("each_owner") do |result|
-      users = []
-      groups = []
-      if result.to_hash['person']
-        if result.to_hash['person'].class != Array
-          blah = []
-          blah << result.to_hash['person']
-          users = blah
-        else
-          result.to_hash['person'].each do |p|
-            users << p
-          end
-        end
-      end
-      if result.to_hash['group']
-        if result.to_hash['group'].class != Array
-          blah = []
-          blah << result.to_hash['group']
-          groups = blah
-        else
-          result.to_hash['group'].each do |g|
-            groups << g
-          end
-        end
-      end
-      project = find_cached(WebuiProject, result.project)
-      if result.package
-        package = find_cached(Package, result.package, :project => project)
-      end
-      r << {:type => "owner", :data => result,
-            :users => users, :groups => groups,
-            :project => project, :package => package}
-    end
-    @results.concat(r)
-    @per_page = nil
-
-    validate_result
+    @results = Owner.search({:limit => "#{@owner_limit}", :devel => "#{@owner_devel}"}, @search_text)
+    flash[:notice] = 'Your search did not return any results.' if @results.count < 1
   end
 
   # The search method does the search and renders the results
@@ -93,18 +58,14 @@ class Webui::SearchController < Webui::WebuiController
     end
 
     @per_page = 20
-    search = Webui::ApiDetails.create(:searches, :page => params[:page], :per_page => @per_page, :search => {
-                    text: @search_text,
-                    classes: @search_what,
-                    attrib_type_id: @search_attrib_type_id,
-                    fields: @search_where,
-                    issue_name: @search_issue,
-                    issue_tracker_name: @search_tracker})
-    @results = search["result"].map {|i| i.symbolize_keys}
-    @results = Kaminari.paginate_array(@results, total_count: search["total_entries"])
-    @results = @results.page(params[:page]).per(@per_page)
-
-    validate_result
+    search = FullTextSearch.new(text: @search_text,
+                                classes: @search_what,
+                                attrib_type_id: @search_attrib_type_id,
+                                fields: @search_where,
+                                issue_name: @search_issue,
+                                issue_tracker_name: @search_tracker)
+    @results = search.search(:page => params[:page], :per_page => @per_page)
+    flash[:notice] = 'Your search did not return any results.' if @results.count < 1
   end
 
   # This method handles obs:// disturls
@@ -147,8 +108,6 @@ private
   #   - @results -> An empty array for the results
   #
   def set_parameters
-    @results = []
-
     @search_attrib_type_id = nil
     @search_attrib_type_id = params[:attrib_type_id] unless params[:attrib_type_id].blank?
 
@@ -190,24 +149,9 @@ private
   end
 
   def set_tracker_list
-    trackers = find_cached(Webui::IssueTracker, :all)
-    @issue_tracker_list = []
+    @issue_tracker_list = ::IssueTracker.order(:name).map do |t|
+      ["#{t.name} (#{t.description})", t.name]
+    end
     @default_tracker = 'bnc'
-    trackers.each('/issue-trackers/issue-tracker') do |t|
-      @issue_tracker_list << ["#{t.name.text} (#{t.description.text})", t.name.text]
-    end
-    @issue_tracker_list.sort_by! {|a| a.first.downcase }
   end
-  
-  def validate_result
-    logger.debug "Found #{@results.length} search results: #{@results.inspect}"
-    if @results.length < 1
-      flash[:notice] = 'Your search did not return any results.'
-    end
-    if @results.length > 200
-      @results = @results[0..199]
-      flash[:notice] = 'Your search returned more than 200 results. Please be more precise.'
-    end
-  end
-
 end

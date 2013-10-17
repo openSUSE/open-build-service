@@ -70,8 +70,6 @@ class Webui::ApiDetails
       when :ids_requests then "requests/ids"
       when :by_class_requests then "requests/by_class"
 
-      when :searches then "searches"
-
       when :comments_by_package then "comments/package/#{ids.first}/#{ids.last}"
       when :comments_by_project then "comments/project/#{ids.first}"
       when :comments_by_request then "comments/request/#{ids.first}"

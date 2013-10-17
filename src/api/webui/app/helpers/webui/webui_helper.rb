@@ -409,6 +409,31 @@ module Webui
     render partial: 'dialog', content_type: 'application/javascript'
   end
 
+  # @param [String] user login of the user
+  # @param [String] role title of the login
+  # @param [Hash]   options boolean flags :short, :no_icon and :no_link
+  def user_and_role(user, role=nil, options = {})
+    opt = {short: false, no_icon: false, no_link: false}.merge(options)
+    realname = User.realname_for_login(user)
+    output = ""
+
+    output += user_icon(user) unless opt[:no_icon]
+    unless realname.empty? or opt[:short] == true
+      printed_name = realname + ' (' + user + ')'
+    else
+      printed_name = user
+    end
+    if role
+      printed_name += " as " + role
+    end
+    if logged_in?
+      output += link_to_if(!opt[:no_link], printed_name, :controller => 'home', :user => user)
+    else
+      output += printed_name
+    end
+    output.html_safe
+  end
+
  end
 end
 
