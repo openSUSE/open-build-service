@@ -64,6 +64,7 @@ class ApiDetails
       case route_name.to_sym
 
       when :projects then "projects"
+      when :projects_remotes then "projects/remotes"
       when :infos_project then "projects/#{ids.first}/infos"
       when :status_project then "projects/#{ids.first}/status"
       when :project_relationships then "projects/#{ids.first}/relationships"

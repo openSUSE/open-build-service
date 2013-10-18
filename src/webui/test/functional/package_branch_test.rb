@@ -9,6 +9,7 @@ class PackageBranchTest < ActionDispatch::IntegrationTest
     page.must_have_text "Add New Package Branch to #{@project}"
     page.must_have_text "Name of original project:"
     page.must_have_text "Name of package in original project:"
+    page.must_have_text "RemoteInstance"
     assert page.current_url =~ %r{/project/new_package_branch}
 
     new_branch[:expect]           ||= :success

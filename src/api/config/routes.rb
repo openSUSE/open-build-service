@@ -329,6 +329,9 @@ OBSApi::Application.routes.draw do
           get 'infos'
           get 'status'
         end
+        collection do
+          get 'remotes'
+        end
         resources :relationships, :only => [:create] do
           collection do
             delete :for_user, action: :remove_user
