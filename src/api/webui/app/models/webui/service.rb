@@ -10,7 +10,7 @@ class Webui::Service < Webui::Node
        @serviceList = []
        @serviceParameterList = {}
 
-       doc = Service.find_cached :all
+       doc = Service.find :all
        doc.each_service do |s|
          serviceName = s.value("name")
          next if s.value("hidden") == "true"

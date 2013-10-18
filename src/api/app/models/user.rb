@@ -778,7 +778,6 @@ class User < ActiveRecord::Base
     result
   end
 
-
   def self.fetch_field(person, field)
     p = User.where(login: person).pluck(field)
     p[0] || ''

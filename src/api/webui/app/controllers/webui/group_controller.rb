@@ -6,17 +6,17 @@ class Webui::GroupController < Webui::WebuiController
 
   def autocomplete
     required_parameters :term
-    render :json => Webui::Group.list(params[:term])
+    render :json => WebuiGroup.list(params[:term])
   end
 
   def tokens
     required_parameters :q
-    render json: Webui::Group.list(params[:q], true)
+    render json: WebuiGroup.list(params[:q], true)
   end
 
   def show
-    required_parameters :group
-    @group = Webui::Group.find_cached(params[:group])
+    required_parameters :id
+    @group = WebuiGroup.find(params[:id])
     unless @group
       flash[:error] = "Group '#{params[:group]}' does not exist"
       redirect_back_or_to :controller => 'main', :action => 'index' and return
@@ -42,23 +42,23 @@ class Webui::GroupController < Webui::WebuiController
                    :members => params[:members]
                  }
     begin
-      group = Webui::Group.new(group_opts)
+      group = WebuiGroup.new(group_opts)
       group.save
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.message
     end
     flash[:success] = "Group '#{group.title}' successfully updated."
     Rails.cache.delete("group_#{group.title}")
-    if @user and @user.is_admin?
-      redirect_to :controller => :configuration, :action => :groups
+    if User.current.is_admin?
+      redirect_to controller: :configuration, action: :groups
     else
-      redirect_to :controller => "group", :action => 'show', :group => params[:group]
+      redirect_to controller: 'group', action: 'show', id: params[:group]
     end
   end
   
   def overwrite_group
     @displayed_group = @group
-    group = find_cached(Webui::Group, params['group'] ) if params['group'] && !params['group'].empty?
+    group = WebuiGroup.find(params['group'] ) if params['group'] && !params['group'].empty?
     @displayed_group = group if group
   end
   private :overwrite_group

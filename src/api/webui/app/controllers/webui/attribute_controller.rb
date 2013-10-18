@@ -14,11 +14,11 @@ class Webui::AttributeController < Webui::WebuiController
       selected_attribute.each("value") {|value| @selected_attribute_value << value.text} if selected_attribute
       @selected_attribute_value = @selected_attribute_value.join(', ')
     else
-      namespaces = find_cached(Webui::Attribute, :namespaces)
+      namespaces = Webui::Attribute.find(:namespaces)
       attributes = []
       @attribute_list = []
       namespaces.each do |d|
-         attributes << find_cached(Webui::Attribute, :attributes, :namespace => d.value(:name), :expires_in => 10.minutes)
+         attributes << Webui::Attribute.find(:attributes, :namespace => d.value(:name))
       end
       attributes.each do |d|
         if d.has_element? :entry

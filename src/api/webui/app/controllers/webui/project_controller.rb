@@ -129,7 +129,7 @@ class ProjectController < WebuiController
   private :get_filtered_projectlist
 
   def users
-    @users = @project.users.sort.map { |u| Person.find(u) }
+    @users = @project.users
     @groups = @project.groups
     @roles = Role.local_roles
   end
@@ -167,7 +167,7 @@ class ProjectController < WebuiController
     if @namespace
       begin
         @project = WebuiProject.find(@namespace)
-        if @namespace == "home:#{session[:login]}" and not @project
+        if @namespace == "home:#{User.current.login}" and not @project
           @pagetitle = "Your home project doesn't exist yet. You can create it now"
           @project_name = @namespace
         end
@@ -359,7 +359,7 @@ class ProjectController < WebuiController
   def add_repository_from_default_list
     @distributions = Distribution.find(:all)
     if @distributions.all_vendors.length < 1
-      if @user and @user.is_admin?
+      if User.current.is_admin?
         flash.now[:notice] = "There are no distributions configured! Check out <a href=\"/configuration/connect_instance\">Configuration > Interconnect</a>"
       else
         redirect_to :controller => 'project', :action => 'add_repository', :project => @project
@@ -697,8 +697,8 @@ class ProjectController < WebuiController
       end
     rescue ActiveXML::Transport::ForbiddenError
       flash[:error] = "You lack the permission to create the project '#{@project}'. " +
-        'Please create it in your home:%s namespace' % session[:login]
-      redirect_to :action => 'new', :ns => 'home:' + session[:login] and return
+        'Please create it in your home:%s namespace' % User.current.login
+      redirect_to :action => 'new', :ns => 'home:' + User.current.login and return
     end
     redirect_to :action => 'new'
   end
@@ -1072,7 +1072,7 @@ class ProjectController < WebuiController
     @project = params[:project]
     @package = params[:package]
     begin
-      @buildresult = find_hashed(Buildresult, :project => params[:project], :package => params[:package], :view => 'status', :lastbuild => 1, :expires_in => 2.minutes )
+      @buildresult = Buildresult.find_hashed(:project => params[:project], :package => params[:package], :view => 'status', :lastbuild => 1)
     rescue ActiveXML::Transport::Error # wild work around for backend bug (sends 400 for 'not found')
     end
     @repohash = Hash.new
@@ -1590,15 +1590,11 @@ class ProjectController < WebuiController
   end
 
   def render_project_missing
-    if @user and params[:project] == "home:#{@user}"
+    if params[:project] == "home:#{User.current.login}"
       # checks if the user is registered yet
       flash[:notice] = "Your home project doesn't exist yet. You can create it now by entering some" +
         " descriptive data and press the 'Create Project' button."
-      redirect_to :action => :new, :ns => 'home:' + session[:login] and return
-    end
-    # remove automatically if a user watches a removed project
-    if @user and @user.watches? params[:project]
-      @user.remove_watched_project params[:project] and @user.save
+      redirect_to :action => :new, :ns => 'home:' + User.current.login and return
     end
     unless request.xhr?
       flash[:error] = "Project not found: #{params[:project]}"

@@ -18,7 +18,7 @@
     </p>
     <p>
     <%= label_tag :globalrole, 'Admin:' %>
-    <% if @displayed_user.globalrole and @displayed_user.globalrole.include?('Admin') %>
+    <% if @displayed_user.is_admin? %>
       <% checked = 'checked="checked"' %>
     <% else %>
       <% checked = "" %>
@@ -28,7 +28,7 @@
     <p>
     <% @states.each do |s| %>
       <%= label_tag "state_#{s}", "#{s}" %>
-      <% if s.to_s == @displayed_user.state.to_s %>
+      <% if User.states[s.to_s] == @displayed_user.state %>
         <% select = true %>
       <% end %>
       <%= radio_button_tag :state, s, select %>

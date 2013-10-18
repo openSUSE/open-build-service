@@ -66,7 +66,8 @@ class RequestController < WebuiController
     @id = @req['id']
     @state = @req['state']
     @accept_at = @req['accept_at']
-    @is_author = @req['creator'] == session[:login]
+    @req['creator'] = User.find_by_login! @req['creator']
+    @is_author = @req['creator'] == User.current
     @superseded_by = @req['superseded_by']
     @is_target_maintainer = @req['is_target_maintainer']
 
@@ -164,10 +165,7 @@ class RequestController < WebuiController
         if action.value('type') == 'submit' and action.has_element?('options') and action.options.value('sourceupdate') == 'cleanup'
           Rails.cache.delete("#{action.source.project}_packages_mainpage")
           Rails.cache.delete("#{action.source.project}_problem_packages")
-          Package.free_cache(:all, :project => action.source.project)
-          Package.free_cache(action.source.package, :project => action.source.project) if action.source.package
         end
-        Directory.free_cache(:project => action.target.project, :package => action.target.package) if action.target
       end
     end
     redirect_to :action => 'show', :id => params[:id]
@@ -184,7 +182,7 @@ class RequestController < WebuiController
     elide_len = 44
     elide_len = params[:elide_len].to_i if params[:elide_len]
     session[:requests] = requests
-    requests = Webui::BsRequest.ids(session[:requests])
+    requests = BsRequestCollection.new(ids: session[:requests]).relation
     render :partial => 'shared/requests', :locals => {:requests => requests, :elide_len => elide_len, :no_target => params[:no_target]}
   end
 

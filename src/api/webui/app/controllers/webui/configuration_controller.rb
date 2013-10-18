@@ -12,19 +12,11 @@ class Webui::ConfigurationController < Webui::WebuiController
   end
 
   def users
-    @users = []
-    Webui::Person.find(:all).each do |u|
-      person = Webui::Person.find(u.value('name'))
-      @users << person if person
-    end
+    @users = ::User.all.to_a
   end
   
   def groups
-    @groups = []
-    Webui::Group.find(:all).each do |g|
-      group = Webui::Group.find(g.value('name'))
-      @groups << group if group
-    end
+    @groups = ::Group.all.to_a
   end
 
   def save_instance
@@ -50,12 +42,12 @@ class Webui::ConfigurationController < Webui::WebuiController
 
     if @project.save!
       Webui::Distribution.free_cache(:all)
-      if WebuiProject.exists? "home:#{@user.login.to_s}"
+      if WebuiProject.exists? "home:#{User.current.login}"
         flash[:notice] = "Project '#{project_name}' was created successfully"
         redirect_to :controller => :project, :action => 'show', :project => project_name and return
       else
         flash[:notice] = "Project '#{project_name}' was created successfully. Next step is create your home project"
-        redirect_to :controller => :project, :action => :new, :ns => "home:#{@user.login.to_s}"
+        redirect_to :controller => :project, :action => :new, :ns => "home:#{User.current.login}"
       end
     else
       flash[:error] = "Failed to save project '#{@project}'"
@@ -93,7 +85,7 @@ class Webui::ConfigurationController < Webui::WebuiController
 
   def update_architectures
     @available_architectures.each do |arch_elem|
-      arch = Webui::Architecture.find_cached(arch_elem.name) # fetch a real 'Architecture' from 'directory' entry
+      arch = Webui::Architecture.find(arch_elem.name) # fetch a real 'Architecture' from 'directory' entry
       if params[:arch_recommended] and params[:arch_recommended].include?(arch.name) and arch.recommended.text == 'false'
         arch.recommended.text = 'true'
         arch.save

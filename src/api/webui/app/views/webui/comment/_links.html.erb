@@ -5,18 +5,16 @@
           ) + 'Reply' %>
     </a>
   </li>
-  <%if @user %>
-    <%if @user.login == comment['user']%>
-      <li>
-        <a onclick="toggle_visibility('<%="edit_form_of_#{comment['id']}"%>');">
-          <%= sprite_tag('comment_edit', title: "Edit") + "Edit" %>
-        </a>
-      </li>
-    <%end%>
-    <% if @user.login == comment['user'] || @user.is_admin? %>
-      <li>
-        <%= link_to(sprite_tag('comment_delete', title: "Delete") + "Delete", {:controller => params[:controller], :action => 'delete_comment', :comment_id => comment['id']}, :method => :post) %>
-      </li>
-    <%end%> 
+  <%if User.current.login == comment['user']%>
+    <li>
+      <a onclick="toggle_visibility('<%="edit_form_of_#{comment['id']}"%>');">
+        <%= sprite_tag('comment_edit', title: "Edit") + "Edit" %>
+      </a>
+    </li>
   <%end%>
+  <% if User.current.login == comment['user'] || User.current.is_admin? %>
+    <li>
+      <%= link_to(sprite_tag('comment_delete', title: "Delete") + "Delete", {:controller => params[:controller], :action => 'delete_comment', :comment_id => comment['id']}, :method => :post) %>
+    </li>
+  <%end%> 
 </ul>

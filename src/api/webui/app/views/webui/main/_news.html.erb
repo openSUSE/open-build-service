@@ -1,4 +1,4 @@
-<% if @news.present? or (@user and @user.is_admin?) %>
+<% if @news.present? or User.current.is_admin? %>
     <div class="box box-shadow" id="messages">
       <h2 class="box-header">
         Announcements
@@ -6,14 +6,14 @@
       </h2>
       <% @news.each do |msg| %>
           <div class="grid_4 news-sender">
-            <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => msg.user.login, :short => true} %>
+            <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => msg.user, :short => true} %>
             wrote <%= time_ago_in_words(msg.created_at) %>
           </div>
 
           <div class="clear"></div>
 
           <div class="grid_4 box news-message">
-            <% if @user and @user.is_admin? %>
+            <% if User.current.is_admin? %>
                 <%= link_to(sprite_tag('comment_delete', :title => 'Remove message'),
                             {:controller => 'main', :action => 'delete_message_dialog', :message_id => msg.id},
                             :remote => true, class: 'delete-message') %>
@@ -32,7 +32,7 @@
           </div>
           <div class="clear"></div>
       <% end %>
-      <% if @user and @user.is_admin? %>
+      <% if User.current.is_admin? %>
           <p>
             <%= link_to(sprite_tag('comment_add') + content_tag(:span, 'Add new status', id: "add-new-message"), {controller: 'main', action: 'add_news_dialog'}, {remote: true}) %>
           </p>

@@ -206,13 +206,8 @@ class WebuiController < ActionController::Base
     return !request.xhr?
   end
 
-  def find_cached(classname, *args)
-    classname.free_cache( *args ) if discard_cache?
-    classname.find_cached( *args )
-  end
-
   def find_hashed(classname, *args)
-    ret = classname.find_cached( *args )
+    ret = classname.find( *args )
     return Xmlhash::XMLHash.new({}) unless ret
     ret.to_hash
   end
@@ -246,13 +241,9 @@ class WebuiController < ActionController::Base
     if @user
       User.current = User.find_by_login session[:login]
       Rails.cache.set_domain(@user.to_s) if Rails.cache.respond_to?('set_domain')
-      begin
-        @nr_requests_that_need_work = 0
-        unless request.xhr?
-          @user.requests_that_need_work.each { |key,array| @nr_requests_that_need_work += array.size }
-        end
-      rescue Timeout::Error
-        # TODO: add all temporary errors here, but no catch all
+      @nr_requests_that_need_work = 0
+      unless request.xhr?
+        User.current.request_ids_by_class.each { |key,array| @nr_requests_that_need_work += array.size }
       end
     else
       # TODO: rebase on application_controller and use load_nobdy
@@ -342,7 +333,7 @@ class WebuiController < ActionController::Base
 
   # Before filter to check if current user is administrator
   def require_admin
-    if !@user || !@user.is_admin?
+    unless User.current.is_admin?
       flash[:error] = 'Requires admin privileges'
       redirect_back_or_to :controller => 'main', :action => 'index' and return
     end
@@ -353,7 +344,7 @@ class WebuiController < ActionController::Base
   end
 
   def require_available_architectures
-    @available_architectures = Webui::Architecture.find_cached(:available)
+    @available_architectures = Webui::Architecture.find(:available)
     unless @available_architectures
       flash[:error] = 'Available architectures not found'
       redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404 and return

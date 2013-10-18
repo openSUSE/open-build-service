@@ -177,11 +177,14 @@ class WebuiProject < Webui::Node
   end
 
   def bugowners
-    return users('bugowner').map { |u| Webui::Person.find(u) }
+    return users('bugowner')
   end
 
   def user_has_role?(user, role)
     return false unless user
+    if user.kind_of? User
+      return api_project.relationships.where(user: user, role_id: Role.rolecache[role]).exists?
+    end
     raise 'user needs to be a Person' unless user.kind_of? Webui::Person
     login = user.to_hash['login']
     if user && login
@@ -200,46 +203,19 @@ class WebuiProject < Webui::Node
   end
 
   def users(role = nil)
-    users = []
-    to_hash.elements('person') do |p|
-      if not role or (role and p['role'] == role)
-        users << p['userid']
-      end
-      user = Webui::Person.find(p['userid'])
-      if user
-        to_hash.elements('group') do |g|
-          if not role or (role and g['role'] == role)
-            users << p['userid'] if user.is_in_group?(g['groupid'])
-          end
-        end
-      end
+    rels = api_project.relationships
+    rels = rels.where(role: Role.rolecache[role]) if role
+    users = rels.users.pluck(:user_id)
+    rels.groups.each do |g|
+      users << g.groups_users.pluck(:user_id)
     end
-    return users.uniq
+    User.where(id: users.flatten.uniq)
   end
 
   def groups(role = nil)
-    groups = []
-    each_group do |g|
-      if not role or (role and g.role == role)
-        groups << g.groupid
-      end
-    end
-    return groups.sort.uniq
-  end
-
-  def is_maintainer?(user)
-    raise 'user needs to be a Person' unless user.kind_of? Webui::Person
-    groups('maintainer').each do |group|
-      return true if user.is_in_group?(group)
-    end
-    return user_has_role?(user, 'maintainer')
-  end
-
-  def can_edit?(user)
-    return false if not user
-    raise 'user needs to be a Person' unless user.kind_of? Webui::Person
-    return true if user.is_admin?
-    return is_maintainer?(user)
+    rels = api_project.relationships
+    rels = rels.where(role: Role.rolecache[role]) if role
+    Group.where(id: rels.groups.pluck(:group_id).uniq)
   end
 
   def name
@@ -318,7 +294,7 @@ class WebuiProject < Webui::Node
 
   def patchinfo
     begin
-      return Webui::Patchinfo.find_cached(:project => self.name, :package => 'patchinfo')
+      return Webui::Patchinfo.find(:project => self.name, :package => 'patchinfo')
     rescue ActiveXML::Transport::Error, ActiveXML::ParseError
       return nil
     end
@@ -335,7 +311,7 @@ class WebuiProject < Webui::Node
 
   def issues
     return Rails.cache.fetch("changes_and_patchinfo_issues_#{self.name}2", :expires_in => 5.minutes) do
-      issues = WebuiProject.find_cached(:issues, :name => self.name, :expires_in => 5.minutes)
+      issues = WebuiProject.find(:issues, :name => self.name, :expires_in => 5.minutes)
       if issues
         changes_issues, patchinfo_issues = {}, {}
         issues.each(:package) do |package|
@@ -462,7 +438,7 @@ class WebuiProject < Webui::Node
   end
 
   def buildresults(view = 'summary')
-    return Webui::Buildresult.find_cached(:project => self.name, :view => view)
+    return Webui::Buildresult.find(:project => self.name, :view => view)
   end
 
   def build_succeeded?(repository = nil)
