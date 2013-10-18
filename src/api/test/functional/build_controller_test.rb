@@ -62,9 +62,10 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     assert_xml_tag :tag => "status", :attributes => { :code => "unknown_package" }
     put "/build/home:Iggy/10.2/i586/TestPack", nil
-    assert_response 404
+    assert_response 404 # no such route
+
     delete "/build/home:Iggy/10.2/i586/TestPack"
-    assert_response 404
+    assert_response 404 # no such route
   end
 
   def test_dispatchprios

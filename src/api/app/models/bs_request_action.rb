@@ -480,7 +480,7 @@ class BsRequestAction < ActiveRecord::Base
           query[:rev] = self.source_rev if self.source_rev
           url = Package.source_path(self.source_project, self.source_package, nil, query)
           begin
-            ActiveXML.transport.direct_http(url)
+            ActiveXML.backend.direct_http(url)
           rescue ActiveXML::Transport::Error
             raise ExpandError.new "The source of package #{self.source_project}/#{self.source_package}#{self.source_rev ? " for revision #{self.source_rev}" : ''} is broken"
           end
@@ -491,7 +491,7 @@ class BsRequestAction < ActiveRecord::Base
           if self.source_rev
             # FIXME2.4 we have a directory model
             url =  Package.source_path(self.source_project, self.source_package, nil, expand: 1)
-            c = ActiveXML.transport.direct_http(url)
+            c = ActiveXML.backend.direct_http(url)
             data = REXML::Document.new(c)
             unless self.source_rev == data.elements['directory'].attributes['srcmd5']
               raise SourceChanged.new "The current source revision in #{self.source_project}/#{self.source_package} are not on revision #{self.source_rev} anymore."
@@ -1005,7 +1005,7 @@ class BsRequestAction < ActiveRecord::Base
   def self.get_package_diff(path, query)
     path += "?#{query.to_query}"
     begin
-      return ActiveXML.transport.direct_http(URI(path), method: 'POST', timeout: 10)
+      return ActiveXML.backend.direct_http(URI(path), method: 'POST', timeout: 10)
     rescue Timeout::Error
       raise DiffError.new("Timeout while diffing #{path}")
     rescue ActiveXML::Transport::Error => e

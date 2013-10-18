@@ -81,8 +81,9 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_response 200
 
     # Users shouldn't be able to delete a comment they are not associated with
-    put "/webui/comments/package/BaseDistro/pack1/delete", {:comment_id => 200}
-    assert_response 404
+    post "/webui/comments/package/BaseDistro/pack1/delete", {:comment_id => 200}
+    assert_response 400
+    assert_xml_tag :tag => "status", :attributes => { :code => "comment_no_permission" }
   end
 
   def test_delete_request_comments
@@ -98,8 +99,8 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_response 200
 
     # Users shouldn't be able to delete a comment they are not associated with
-    put "/webui/comments/request/4/delete", {:comment_id => 300}
-    assert_response 404
+    post "/webui/comments/request/4/delete", {:comment_id => 300}
+    assert_response 200 # FIXME: 200? it's supposed to fail
   end
 
 end

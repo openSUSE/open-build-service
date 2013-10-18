@@ -9,7 +9,6 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
   end
 
   def teardown
-    WebMock.reset!
     super
   end
 

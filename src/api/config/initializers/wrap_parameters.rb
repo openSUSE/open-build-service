@@ -5,6 +5,7 @@
 require 'active_support/core_ext/hash/conversions'
 require 'action_dispatch/http/request'
 require 'active_support/core_ext/hash/indifferent_access'
+require 'api_exception'
 
 # Disable all default rails parameter parsing
 

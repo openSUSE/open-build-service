@@ -110,7 +110,7 @@ module SubmitRequestSourceDiff
       # the target is by default the _link target
       # maintenance_release creates new packages instance, but are changing the source only according to the link
       return unless !action.target_package or [:maintenance_release, :maintenance_incident].include? action.action_type
-      data = Xmlhash.parse(ActiveXML.transport.direct_http(URI("/source/#{URI.escape(action.source_project)}/#{URI.escape(spkg)}")))
+      data = Xmlhash.parse(ActiveXML.backend.direct_http(URI("/source/#{URI.escape(action.source_project)}/#{URI.escape(spkg)}")))
       e = data['linkinfo']
       return unless e
       @target_project = e["project"]

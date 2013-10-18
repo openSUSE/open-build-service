@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'find'
 require 'tempfile'
 
-RAILS_BASE_DIRS = ['app', 'db', 'config', 'lib', 'test'].map { |dir| Rails.root.join(dir) }
+RAILS_BASE_DIRS = ['app', 'db', 'config', 'lib', 'test', 'webui' ].map { |dir| Rails.root.join(dir) }
 
 class CodeQualityTest < ActiveSupport::TestCase
   def setup
@@ -19,32 +19,39 @@ class CodeQualityTest < ActiveSupport::TestCase
     # fast test first
     tmpfile = Tempfile.new('output')
     tmpfile.close
+    linenr = 1
+    linenrs = []
     IO.popen("ruby -cv - 2>&1 > /dev/null | grep '^-' > #{tmpfile.path}", "w") do |io|
       io.write("# encoding: utf-8\n")
       @ruby_files.each do |ruby_file|
-        lines = File.open(ruby_file).read
+        lines = File.open(ruby_file).readlines
         begin
-          io.write(lines)
+          io.write(lines.join)
           io.write("\n")
         rescue Errno::EPIPE
         end
+	linenrs << [ruby_file, linenr]
+	linenr += lines.size + 1
       end
     end
     tmpfile.open
-    line = tmpfile.read
+    lines = tmpfile.readlines
     tmpfile.close
-    return if line.empty?
-    puts "ruby -cv gave output: testing syntax of each ruby file... #{line}"
-    @ruby_files.each do |ruby_file|
-      IO.popen("ruby -cv #{ruby_file} 2>&1 > /dev/null | grep #{Rails.root}") do |io|
+
+    lines.each do |output|
+      failed = Integer(output.split(':')[1])
+      failedfile = nil
+      linenrs.each do |ruby_file, line|
+        break if line > failed 
+        failedfile = ruby_file
+      end
+      IO.popen("ruby -cv #{failedfile} 2>&1 > /dev/null | grep #{Rails.root}") do |io|
         line = io.read
         unless line.empty?
-          puts line
-          assert(false, "ruby -cv #{ruby_file} gave output\n#{line}")
+          assert(false, "ruby -cv gave output\n#{line}")
         end
       end
     end
-    puts "done"
   end
 
   # Checks that no 'debugger' statement is present in ruby code
@@ -52,6 +59,7 @@ class CodeQualityTest < ActiveSupport::TestCase
     @ruby_files.each do |ruby_file|
       File.open(ruby_file).each_with_index do |line, number|
         assert(false, "#{ruby_file}:#{number + 1} 'debugger' statement found!") if line.match(/^\s*debugger/)
+	assert(false, "#{ruby_file}:#{number + 1} 'save_and_open_page' statement found!") if line.match(/^\s*save_and_open_page/)
       end
     end
   end
@@ -142,7 +150,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'UserLdapStrategy::initialize_ldap_con' => 64.05,
       'UserLdapStrategy::render_grouplist_ldap' => 100.3,
       'UserLdapStrategy::update_entry_ldap' => 59.56,
-      'Webui::ProjectsController#status_check_package' => 200,
       'WizardController#package_wizard' => 135.16,
   }
 

@@ -1,10 +1,5 @@
 require 'obsapi/test_sphinx'
 
-if Rails.env.test? || Rails.env.development?
-  require 'database_cleaner'
-  DatabaseCleaner.strategy = :transaction
-end
-
 class TestController < ApplicationController
   skip_before_action :extract_user
   before_action do
@@ -29,37 +24,15 @@ class TestController < ApplicationController
        return
      end
      @@started = true
-     @@test_running = false
-     system("cd #{Rails.root.to_s}; unset BUNDLE_GEMFILE; RAILS_ENV=test exec bundle exec rake db:fixtures:load")
-     # for requests the ID is user visible, so reset it to get reproducible results
-     max=BsRequest.maximum(:id)
-     BsRequest.connection.execute("alter table bs_requests AUTO_INCREMENT = #{max+1}")
+     WebMock.disable_net_connect!(allow_localhost: true)
+     CONFIG['global_write_through'] = true
      backend.direct_http(URI("/"))
      render_ok
   end
   
-  def prepare_search
-    # Sphinx indexing
-    OBSApi::TestSphinx.ensure
-    render_ok
-  end
-
   def test_start
-    if @@test_running == true
-      test_end
-    end
-    @@test_running = true
-    DatabaseCleaner.start
+    Rails.cache.clear
     render_ok
   end
 
-
-  def test_end
-    @@test_running = false
-    DatabaseCleaner.clean
-    Rails.cache.clear
-    # for requests the ID is user visible, so reset it to get reproducible results
-    max=BsRequest.maximum(:id)
-    BsRequest.connection.execute("alter table bs_requests AUTO_INCREMENT = #{max+1}")
-  end
 end

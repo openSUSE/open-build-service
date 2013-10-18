@@ -43,6 +43,8 @@ module OBSApi
     # Enable the asset pipeline
     config.assets.enabled = true
 
+    config.assets.js_compressor = :uglifier
+
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
 
@@ -85,6 +87,11 @@ module OBSApi
     config.exceptions_app = self.routes
 
     config.action_controller.action_on_unpermitted_parameters = :raise
+
+    config.action_dispatch.rescue_responses.merge!('ActiveXML::Transport::UnauthorizedError' => 401)
+    config.action_dispatch.rescue_responses.merge!('ActiveXML::Transport::ConnectionError' => 503)
+    config.action_dispatch.rescue_responses.merge!('ActiveXML::Transport::Error' => 500)
+    config.action_dispatch.rescue_responses.merge!('Timeout::Error' => 408)
 
     config.after_initialize do
       # See Rails::Configuration for more options

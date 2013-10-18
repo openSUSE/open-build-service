@@ -1,0 +1,17 @@
+<% short ||= false %>
+<% no_icon ||= false %>
+<% no_link ||= false %>
+<% realname = User.realname_for_login(user) %>
+
+<% unless no_icon %>
+  <%= user_icon(user) %>
+<% end %>
+
+<% unless realname.empty? or short == true %>
+  <% printed_name = realname + ' (' + user + ')' %>
+<% else %>
+  <% printed_name = user %>
+<% end %>
+
+<%= link_to_if(!no_link, printed_name, :controller => 'home', :user => user) %>
+

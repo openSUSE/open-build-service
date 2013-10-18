@@ -1,5 +1,13 @@
 OBSApi::Application.routes.draw do
 
+  mount Webui::Engine, at: "/webui2", as: 'webui_engine'
+
+  scope constraints: { format: 'html' } do
+    namespace :html do
+      get '/' => 'main#index'
+    end
+  end
+
   defaults :format => 'xml' do
 
     get '/' => 'main#index'
@@ -46,7 +54,6 @@ OBSApi::Application.routes.draw do
       post 'test/killme' => :killme
       post 'test/startme' => :startme
       post 'test/test_start' => :test_start
-      post 'test/prepare_search' => :prepare_search
     end
 
     ### /attribute is before source as it needs more specific routes for projects
@@ -324,19 +331,7 @@ OBSApi::Application.routes.draw do
     #       DO NOT USE THEM IN YOUR TOOLS!
     #
     namespace :webui do
-      resources :projects, :only => [:index], constraints: { :id => %r{[^\/]*} } do
-        member do
-          get 'infos'
-          get 'status'
-        end
-        collection do
-          get 'remotes'
-        end
-        resources :relationships, :only => [:create] do
-          collection do
-            delete :for_user, action: :remove_user
-          end
-        end
+      resources :projects, constraints: { :id => %r{[^\/]*} } do
         resources :flags, :only => [:index]
         resources :packages, :only => [], constraints: { :id => %r{[^\/]*} } do
           resources :relationships, :only => [:create] do
@@ -359,9 +354,6 @@ OBSApi::Application.routes.draw do
           get :by_class
         end
       end
-      resources :owners, :only => [:index]
-      resources :searches, :only => [:new, :create]
-      resources :attrib_types, :only => [:index]
 
       # comments
       get 'comments/request/:id/' => 'comments#requests', constraints: cons
@@ -379,10 +371,6 @@ OBSApi::Application.routes.draw do
     end
 
     get '/404' => 'main#notfound'
-
-    # Do not install default routes for maximum security
-    #get ':controller(/:action(/:id))'
-    #get ':controller/:action'
 
   end
 end

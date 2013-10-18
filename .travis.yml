@@ -9,24 +9,17 @@ before_script:
 script: bash -x dist/ci/obs_testsuite_travis.sh
 env:
   # just one special test
-  #- SUBTEST=webui:functional/users_test.rb:test_add_and_edit_package_people
   #- SUBTEST=api:functional/public_controller_test.rb:test_binaries
-  # full api test suite
-  - SUBTEST=api
-  # full webrat test suite
-  - SUBTEST=webui1
-  - SUBTEST=webui2
-  - SUBTEST=webui:functional/spider_test.rb:test_spider_as_admin RUN_SPIDER=1
-  - SUBTEST=webui:functional/spider_test.rb:test_spider_anonymously RUN_SPIDER=1
+  - SUBTEST=rake:test:api
+  - SUBTEST=rake:test:webui1
+  - SUBTEST=rake:test:webui2
+  - SUBTEST=api:functional/webui/spider_test.rb:test_spider_anonymously RUN_SPIDER=1
+  - SUBTEST=api:functional/webui/spider_test.rb:test_spider_as_admin RUN_SPIDER=1
   # api and webui webrat with latest gems
-  #- SUBTEST=api REMOVEGEMLOCK=true
-  #- SUBTEST=webui1 REMOVEGEMLOCK=true
-  #- SUBTEST=webui2 REMOVEGEMLOCK=true
+  #- SUBTEST=rake:test REMOVEGEMLOCK=true
 matrix:
   allow_failures:
-    - env: SUBTEST=api REMOVEGEMLOCK=true
-    - env: SUBTEST=webui1 REMOVEGEMLOCK=true
-    - env: SUBTEST=webui2 REMOVEGEMLOCK=true
+    - env: SUBTEST=rake:test REMOVEGEMLOCK=true
 notifications:
   email:
     on_success: change

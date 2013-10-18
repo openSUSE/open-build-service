@@ -1,0 +1,32 @@
+<div id="__watchlist">
+  <% watched_projects = User.current.watched_projects
+     if watched_projects.present? %>
+      <table id="watched_projects-table" class="grid" title="Watched Projects">
+        <tr>
+          <th>Project</th>
+          <th style="width: 1%">Actions</th>
+        </tr>
+        <% watched_projects.each do |project| %>
+            <tr>
+              <td><%= link_to elide(project.name, 60), :action => :show, :project => project.name, :controller => :project %></td>
+              <td>
+                <%= link_to sprite_tag('monitor', title: 'Monitor'),
+                            :controller => :project, :action => :monitor, :project => project.name %>
+                <%= link_to(sprite_tag('list-remove', title: 'Remove'),
+                            {:action => :remove_watched_project, :project => project.name}, {:class => 'x', :remote => true}) %>
+              </td>
+            </tr>
+        <% end %>
+      </table>
+  <% else %>
+      <p><em>No projects marked to be watched.</em></p>
+
+      <p>Add a project in watchlist menu to watch a project.</p>
+  <% end %>
+</div>
+
+<% content_for :ready_function do %>
+    $('.x').bind('ajax:success', function (event, data, status, xhr) {
+    $("#__watchlist").html(data);
+    });
+<% end %>

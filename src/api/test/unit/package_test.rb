@@ -7,6 +7,7 @@ class PackageTest < ActiveSupport::TestCase
   def setup
     super
     @package = Package.find( 10095 )
+    User.current = nil
   end
 
   def teardown
@@ -201,6 +202,9 @@ class PackageTest < ActiveSupport::TestCase
     assert_equal np.name, 'testpack'
     assert np.id > 0
     assert np.id != @package.id
+
+    # cleanup backend
+    np.destroy
   end
 
   test "invalid names are catched" do

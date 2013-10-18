@@ -26,7 +26,7 @@ class User < ActiveRecord::Base
   has_many :taggings, :dependent => :destroy
   has_many :tags, :through => :taggings
 
-  has_many :watched_projects, :foreign_key => 'bs_user_id', :dependent => :destroy
+  has_many :watched_projects, :foreign_key => 'bs_user_id', :dependent => :destroy, inverse_of: :user
   has_many :groups_users, :foreign_key => 'user_id'
   has_many :roles_users, :foreign_key => 'user_id'
   has_many :relationships
@@ -346,6 +346,11 @@ class User < ActiveRecord::Base
     def find_by_email(email)
       return where(:email => email).first
     end
+
+    def realname_for_login(login)
+      User.find_by_login(login).realname
+    end
+
   end
 
   # After validation, the password should be encrypted  
@@ -370,6 +375,11 @@ class User < ActiveRecord::Base
     else
       logger.debug "Error - skipping to create user #{errors.empty?} #{@new_password.inspect} #{password.inspect}"
     end
+  end
+
+  after_save :cleanup_cache
+  def cleanup_cache
+    Rails.cache.delete('meta_user_%d' % id)
   end
 
   def to_axml
@@ -766,6 +776,36 @@ class User < ActiveRecord::Base
     result[:reviews] = rel.ids
 
     result
+  end
+
+
+  def self.fetch_field(person, field)
+    p = User.where(login: person).pluck(field)
+    p[0] || ''
+  end
+
+  def self.email_for_login(person)
+    fetch_field(person, :email)
+  end
+
+  def self.realname_for_login(person)
+    fetch_field(person, :realname)
+  end
+
+  def watched_project_names
+    Project.where(id: watched_projects.pluck(:project_id)).pluck(:name)
+  end
+
+  def add_watched_project(name)
+    watched_projects.create(project: Project.find_by_name!(name))
+  end
+
+  def remove_watched_project(name)
+    watched_projects.joins(:project).where(projects: { name: name }).delete_all
+  end
+
+  def watches?(name)
+    watched_projects.joins(:project).where(projects: { name: name }).exists?
   end
 
   protected

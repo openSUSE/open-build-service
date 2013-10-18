@@ -3,10 +3,6 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 class DistributionsControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
   
-  teardown do
-    WebMock.reset!
-  end
-
   test "should show distribution" do
     get distribution_path(id: distributions(:two).to_param)
     assert_response :success
