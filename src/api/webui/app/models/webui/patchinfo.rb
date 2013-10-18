@@ -39,7 +39,7 @@ class Webui::Patchinfo < Webui::Node
   end
 
   def issues
-    issues = Webui::Patchinfo.find_cached(:issues, :project => self.init_options[:project], :package => self.init_options[:package])
+    issues = Webui::Patchinfo.find(:issues, :project => self.init_options[:project], :package => self.init_options[:package])
     if issues
       return issues.each('issue')
     else
@@ -54,10 +54,6 @@ class Webui::Patchinfo < Webui::Node
       issues_by_tracker[issue.value('tracker')] << issue
     end
     return issues_by_tracker
-  end
-
-  def is_maintainer? userid
-    has_element? "person[@role='maintainer' and @userid = '#{userid}']"
   end
 
 end

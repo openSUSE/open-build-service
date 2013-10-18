@@ -26,7 +26,6 @@ class Webui::MainController < Webui::WebuiController
     end
     @waiting_packages = 0
     @workerstatus.elements('waiting') {|waiting| @waiting_packages += waiting['jobs'].to_i}
-    @global_counters = find_cached(Webui::GlobalCounters, :expires_in => 15.minutes, :shared => true)
     @busy = nil
     require_available_architectures unless @spider_bot
     if @available_architectures
@@ -65,7 +64,7 @@ class Webui::MainController < Webui::WebuiController
 
   def require_projects
     @projects = Array.new
-    find_cached(Webui::Collection, :id, :what => 'project').each_project do |p|
+    Webui::Collection.find(:id, :what => 'project').each_project do |p|
       @projects << p.value(:name)
     end
   end
@@ -99,7 +98,7 @@ class Webui::MainController < Webui::WebuiController
     elsif category == 'main'
       predicate = "not(starts-with(@project,'home:')) and not(starts-with(@project,'DISCONTINUED:')) and not(starts-with(@project,'openSUSE:'))"
     end
-    find_cached(Webui::Collection, :id, :what => 'package', :predicate => predicate).each_package do |p|
+    Webui::Collection.find(:id, :what => 'package', :predicate => predicate).each_package do |p|
       @packages << [p.value(:project), p.value(:name)]
     end
     render :template => 'webui/main/sitemap_packages', :layout => false, :locals => {:action => params[:listaction]}, :content_type => 'application/xml'

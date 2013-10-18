@@ -4,6 +4,7 @@ require 'project'
 module Webui
 class PackageController < WebuiController
 
+  include ParsePackageDiff
   include WebuiHelper
   include PackageHelper
 
@@ -23,8 +24,7 @@ class PackageController < WebuiController
     @revision_parameter = params[:rev]
     
     begin 
-      @buildresult = find_hashed(Buildresult, :project => @project, :package => @package, :view => 'status', 
-                                              :expires_in => 5.minutes ) unless @spider_bot
+      @buildresult = Buildresult.find_hashed(:project => @project, :package => @package, :view => 'status' ) unless @spider_bot
     rescue => e
       logger.error "No buildresult found for #{@project} / #{@package} : #{e.message}"
     end
@@ -48,13 +48,13 @@ class PackageController < WebuiController
       end
     elsif @revision_parameter
       flash[:error] = "No such revision: #{@revision_parameter}"
-      redirect_back_or_to :controller => "package", :action => "show", :project => @project, :package => @package and return
+      redirect_back_or_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
     end
 
     begin
       @comments = ApiDetails.read(:comments_by_package, @project, @package)
     rescue Webui::ApiDetails::NotFoundError => e
-      render :text => e, :status => 404, :content_type => "text/plain"
+      render :text => e, :status => 404, :content_type => 'text/plain'
     end
 
     @requests = []
@@ -73,7 +73,7 @@ class PackageController < WebuiController
       @linking_packages = []
       return
     end
-    cache_string = "%s/%s_linking_packages" % [ @project, @package ]
+    cache_string = '%s/%s_linking_packages' % [ @project, @package ]
     Rails.cache.delete(cache_string) if discard_cache?
     @linking_packages = Rails.cache.fetch( cache_string, :expires_in => 30.minutes) do
        @package.linking_packages
@@ -95,7 +95,7 @@ class PackageController < WebuiController
       :filename => params[:dname], :view => 'fileinfo_ext')
     @durl = nil
     unless @fileinfo # avoid displaying an error for non-existing packages
-      redirect_back_or_to(:action => "binary", :project => params[:project], :package => params[:package], :repository => @repository, :arch => @arch, :filename => @filename)
+      redirect_back_or_to(:action => 'binary', :project => params[:project], :package => params[:package], :repository => @repository, :arch => @arch, :filename => @filename)
     end
   end
 
@@ -112,7 +112,7 @@ class PackageController < WebuiController
     logger.debug "Statis #{@statistics.inspect}"
     unless @statistics
       flash[:error] = "No statistics of a successful build could be found in #{@repository}/#{@arch}"
-      redirect_to controller: "package", action: :binaries, project: @project,
+      redirect_to controller: 'package', action: :binaries, project: @project,
         package: @package, repository: @repository, nextstatus: 404
       return
     end
@@ -131,7 +131,7 @@ class PackageController < WebuiController
     end 
     unless @fileinfo
       flash[:error] = "File \"#{@filename}\" could not be found in #{@repository}/#{@arch}"
-      redirect_to :controller => "package", :action => :binaries, :project => @project, 
+      redirect_to :controller => 'package', :action => :binaries, :project => @project,
         :package => @package, :repository => @repository, :nextstatus => 404
       return
     end
@@ -157,15 +157,15 @@ class PackageController < WebuiController
     required_parameters :repository
     @repository = params[:repository]
     begin
-    @buildresult = find_hashed(Buildresult, :project => @project, :package => @package,
-      :repository => @repository, :view => ['binarylist', 'status'], :expires_in => 1.minute )
+    @buildresult = Buildresult.find_hashed(:project => @project, :package => @package,
+      :repository => @repository, :view => ['binarylist', 'status'] )
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.message
-      redirect_back_or_to :controller => "package", :action => "show", :project => @project, :package => @package and return
+      redirect_back_or_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
     end
     unless @buildresult
       flash[:error] = "Package \"#{@package}\" has no build result for repository #{@repository}" 
-      redirect_to :controller => "package", :action => :show, :project => @project, :package => @package, :nextstatus => 404 and return
+      redirect_to :controller => 'package', :action => :show, :project => @project, :package => @package, :nextstatus => 404 and return
     end
     # load the flag details to disable links for forbidden binary downloads
     @package = Webui::Package.find( @package.name, :project => @project, :view => :flagdetails )
@@ -173,7 +173,6 @@ class PackageController < WebuiController
 
   def users
     @users = [@project.users, @package.users].flatten.uniq.sort
-    @users = @users.map.map { |u| Person.find(u) }
     @groups = [@project.groups, @package.groups].flatten.uniq
     @roles = Role.local_roles
   end
@@ -284,8 +283,8 @@ class PackageController < WebuiController
     
     @spec_count = 0
     @files.each do |file|
-      @spec_count += 1 if file[:ext] == "spec"
-      if file[:name] == "_link"
+      @spec_count += 1 if file[:ext] == 'spec'
+      if file[:name] == '_link'
         begin
           @link = Link.find(:project => @project, :package => @package, :rev => @revision )
         rescue RuntimeError
@@ -310,21 +309,66 @@ class PackageController < WebuiController
     @roles = Role.local_roles
   end
 
-  def rdiff
-    begin
-      infos = ApiDetails.read(:package_rdiff, @project.name, @package.name, pick_params(:oproject, :opackage, :rev, :linkrev, :orev))
-    rescue ApiDetails::TransportError => e
-      flash[:error] = e.to_s
-      redirect_back_or_to package_show_path(project: @project, package: @package)
-      return
+        def find_last_req
+    if @oproject and @opackage
+      last_req = BsRequestAction.where(target_project: @oproject,
+                                       target_package: @opackage,
+                                       source_project: @package.project,
+                                       source_package: @package.name).order(:bs_request_id).last
+      return nil unless last_req
+      last_req = last_req.bs_request
+      if last_req.state != :declined
+        return nil # ignore all !declined
+      end
+      return { id: last_req.id,
+               decliner: last_req.commenter,
+               when: last_req.updated_at,
+               comment: last_req.comment }
     end
-    @files = infos['files']
-    @filenames = infos['filenames']
-    @last_rev = infos['last_rev']
+    return nil
+  end
+
+  class DiffError < APIException
+  end
+
+  def get_diff(path)
+    begin
+      @rdiff = ActiveXML.backend.direct_http URI(path + '&expand=1'), method: 'POST', timeout: 10
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = 'Problem getting expanded diff: ' + e.summary
+      begin
+        @rdiff = ActiveXML.backend.direct_http URI(path + '&expand=0'), method: 'POST', timeout: 10
+      rescue ActiveXML::Transport::Error => e
+        flash[:error] = 'Error getting diff: ' + e.summary
+        redirect_back_or_to package_show_path(project: @project, package: @package)
+        return false
+      end
+    end
+    return true
+  end
+
+
+  def rdiff
+    @last_rev = @package.api_package.dir_hash['rev']
+    @linkinfo = @package.linkinfo
     @oproject, @opackage = params[:oproject], params[:opackage]
-    @last_req = infos['last_req']
-    @rev = infos['rev']
-    @linkinfo = infos['linkinfo']
+
+    @last_req = find_last_req
+
+    @rev = params[:rev] || @last_rev
+
+    query = {'cmd' => 'diff', 'view' => 'xml', 'withissues' => 1}
+    [:orev, :opackage, :oproject].each do |k|
+      query[k] = params[k] unless params[k].blank?
+    end
+    query[:rev] = @rev if @rev
+    return unless get_diff(@package.api_package.source_path + "?#{query.to_query}")
+
+    # we only look at [0] because this is a generic function for multi diffs - but we're sure we get one
+    filenames = sorted_filenames_from_sourcediff(@rdiff)[0]
+    @files = filenames['files']
+    @filenames = filenames['filenames']
+
   end
 
   def wizard_new
@@ -393,11 +437,11 @@ class PackageController < WebuiController
     @package.title.text = params[:title]
     @package.description.text = params[:description]
     if params[:source_protection]
-      @package.add_element "sourceaccess"
-      @package.sourceaccess.add_element "disable"
+      @package.add_element 'sourceaccess'
+      @package.sourceaccess.add_element 'disable'
     end
     if params[:disable_publishing]
-      @package.add_element "publish"
+      @package.add_element 'publish'
       @package.publish.add_element 'disable'
     end
     if @package.save
@@ -616,7 +660,6 @@ class PackageController < WebuiController
     end
 
     flash[:success] = "The file #{filename} has been added."
-    @package.free_directory
     redirect_to :action => :show, :project => @project, :package => @package
   end
 
@@ -627,7 +670,6 @@ class PackageController < WebuiController
     escaped_filename = URI.escape filename, '+'
     if @package.remove_file escaped_filename
       flash[:notice] = "File '#{filename}' removed successfully"
-      @package.free_directory
       # TODO: remove patches from _link
     else
       flash[:notice] = "Failed to remove file '#{filename}'"
@@ -641,7 +683,7 @@ class PackageController < WebuiController
     elsif title = params[:groupid]
       return ::Group.get_by_title(title)
     else
-      raise MissingParameterError, "Neither user nor group given"
+      raise MissingParameterError, 'Neither user nor group given'
     end
   end
 
@@ -710,7 +752,7 @@ class PackageController < WebuiController
     @rev = params[:rev]
     @expand = params[:expand]
     @addeditlink = false
-    if @package.can_edit?( @user ) && @rev.blank?
+    if User.current.can_modify_package?(@package.api_package) && @rev.blank?
       begin
         files = @package.files(@rev, @expand)
       rescue ActiveXML::Transport::Error => e
@@ -973,8 +1015,7 @@ class PackageController < WebuiController
   def buildresult
     check_ajax
     # discard cache
-    Buildresult.free_cache( :project => @project, :package => @package, :view => 'status' )
-    @buildresult = find_hashed(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
+    @buildresult = Buildresult.find_hashed( :project => @project, :package => @package, :view => 'status')
     fill_status_cache unless @buildresult.blank?
     render :partial => 'buildstatus'
   end
@@ -982,7 +1023,7 @@ class PackageController < WebuiController
   def rpmlint_result
     check_ajax
     @repo_list, @repo_arch_hash = [], {}
-    @buildresult = find_hashed(Buildresult, :project => @project, :package => @package, :view => 'status', :expires_in => 5.minutes )
+    @buildresult = Buildresult.find_hashed(:project => @project, :package => @package, :view => 'status')
     repos = [] # Temp var
     @buildresult.elements('result') do |result|
       hash_key = valid_xml_id(elide(result.value('repository'), 30))

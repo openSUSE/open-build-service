@@ -45,9 +45,8 @@ map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['fronte
 
     map.connect :person, 'rest:///person/:login',
       :all => 'rest:///person/'
-    map.connect :group, 'rest:///group/:title',
+    map.connect :webuigroup, 'rest:///group/:title',
       :all => 'rest:///group/'
-    map.connect :persongroup, 'rest:///person/:login/group'
     map.connect :owner, 'rest:///search/owner?:binary&:devel&:limit&:project&:attribute'
     map.connect :reverseowner, 'rest:///search/owner?:user&:devel&:limit&:project&:attribute'
 
@@ -106,8 +105,6 @@ map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['fronte
       :specific => 'rest:///statistics/activity/:project'
     map.connect :mostactivepackages, 'rest:///statistics/most_active_packages?:limit',
       :specific => 'rest:///statistics/activity/:project/:package'
-    map.connect :globalcounters, 'rest:///statistics/global_counters',
-      :all => 'rest:///statistics/global_counters'
 
     map.connect :distribution, 'rest:///distributions/', all: 'rest:///distributions/include_remotes'
 
@@ -128,6 +125,5 @@ if defined?(Rack::MiniProfiler)
       "#{method.to_s.upcase} #{url.path}?#{url.query}" 
     end
   end
-#  ::Rack::MiniProfiler.profile_method(ActiveXML::Node, :find_cached) { "Fetching" }
 end
 

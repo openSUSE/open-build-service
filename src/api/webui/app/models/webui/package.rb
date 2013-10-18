@@ -87,7 +87,7 @@ class Package < Webui::Node
   end
 
   def bugowners
-    return users('bugowner').map { |u| Person.find(u) }
+    return users('bugowner')
   end
 
   def linking_packages
@@ -115,6 +115,9 @@ class Package < Webui::Node
 
   def user_has_role?(user, role)
     if user
+      if user.kind_of? User
+        return api_package.relationships.where(user: user, role_id: Role.rolecache[role]).exists?
+      end
       raise 'user needs to be a Person' unless user.kind_of? Person
       each_person do |p|
         return true if p.role == role and p.userid == user.to_s
@@ -131,57 +134,25 @@ class Package < Webui::Node
   end
 
   def users(role = nil)
-    users = []
-    each_person do |p|
-      if not role or (role and p.role == role)
-        users << p.userid
-      end
-      user = Person.find(p.userid)
-      if user
-        each_group do |g|
-          if not role or (role and g.role == role)
-            users << p.userid if user.is_in_group?(g.groupid)
-          end
-        end
-      end
+    rels = api_package.relationships
+    rels = rels.where(role: Role.rolecache[role]) if role
+    users = rels.users.pluck(:user_id)
+    rels.groups.each do |g|
+      users << g.groups_users.pluck(:user_id)
     end
-    users.uniq
+    User.where(id: users.flatten.uniq)
   end
 
   def groups(role = nil)
-    groups = []
-    each_group do |g|
-      if not role or (role and g.role == role)
-        groups << g.groupid
-      end
-    end
-    return groups.sort.uniq
-  end
-
-  def is_maintainer?(user)
-    raise 'user needs to be a Person' unless user.kind_of? Person
-    groups('maintainer').each do |group|
-      return true if user.is_in_group?(group)
-    end
-    return user_has_role?(user, 'maintainer')
-  end
-
-  def can_edit?(user)
-    return false unless user
-    raise 'user needs to be a Person' unless user.kind_of? Person
-    return true if is_maintainer?(user)
-    return true if p=WebuiProject.find_cached(project) and p.can_edit?(user)
-  end
-
-  def free_directory( rev=nil, expand=false )
-    # just free current revision cache
-    Directory.free_cache( :project => project, :package => name, :rev => rev, :expand => expand )
+    rels = api_package.relationships
+    rels = rels.where(role: Role.rolecache[role]) if role
+    Group.where(id: rels.groups.pluck(:group_id).uniq)
   end
 
   def linkinfo
     unless @linkinfo
       begin
-        dir = Directory.find_cached( :project => project, :package => name)
+        dir = Directory.find( :project => project, :package => name)
         @linkinfo = dir.linkinfo if dir && dir.has_element?('linkinfo')
       rescue ActiveXML::Transport::NotFoundError
       end
@@ -192,7 +163,7 @@ class Package < Webui::Node
   def serviceinfo
     unless @serviceinfo
       begin
-        dir = Directory.find_cached( :project => project, :package => name)
+        dir = Directory.find( :project => project, :package => name)
         @serviceinfo = dir.serviceinfo if dir && dir.has_element?('serviceinfo')
       rescue ActiveXML::Transport::NotFoundError
       end
@@ -293,7 +264,7 @@ class Package < Webui::Node
 
   def developed_packages
     packages = []
-    candidates = Collection.find_cached(:id, :what => 'package', :predicate => "[devel/@package='#{name}' and devel/@project='#{project}']", :expires_in => 5.minutes)
+    candidates = Collection.find(:id, :what => 'package', :predicate => "[devel/@package='#{name}' and devel/@project='#{project}']")
     candidates.each do |candidate|
       packages << candidate unless candidate.linkinfo
     end
@@ -340,12 +311,12 @@ class Package < Webui::Node
   end
 
   def self.find(name, opts)
-    raise "UU" if name == :all
     project = opts[:project].to_param
     name = name.to_param
     begin
       ap = ::Package.get_by_project_and_name(project, name, use_source: false)
-    rescue ::Package::UnknownObjectError, Project::UnknownObjectError
+    rescue ::Package::UnknownObjectError, Project::UnknownObjectError => e
+      Rails.logger.debug "NOT FOUND #{e.inspect}"
       return nil
     end
     p = Webui::Package.new(ap.render_xml(opts[:view]))

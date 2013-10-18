@@ -200,7 +200,8 @@ module Webui
         end
       end
 
-      if @user && @user.is_maintainer?(@project, @package)
+      if (@package && User.current.can_modify_package?(@package.api_package)) ||
+          (@project && User.current.can_modify_project?(@project.api_project))
         opts = { project: @project, package: @package, action: :repositories }
         data = { flag: flags.element_name }
         data[:repository] = repository if repository

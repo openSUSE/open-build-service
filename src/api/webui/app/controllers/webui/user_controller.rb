@@ -77,7 +77,7 @@ class UserController < WebuiController
 
   def edit
     @roles = Role.global_roles
-    @states = State.states
+    @states = %w(confirmed unconfirmed deleted locked)
   end
 
   def delete
@@ -122,8 +122,8 @@ class UserController < WebuiController
   end
 
   def overwrite_user
-    @displayed_user = @user
-    user = find_cached(Person, params['user'] ) if params['user'] && !params['user'].empty?
+    @displayed_user = User.current
+    user = User.find_by_login(params['user']) if params['user'].present?
     @displayed_user = user if user
   end
   private :overwrite_user
@@ -144,7 +144,7 @@ class UserController < WebuiController
       redirect_back_or_to :controller => 'main', :action => 'index' and return
     end
     flash[:success] = "The account \"#{params[:login]}\" is now active."
-    if @user and @user.is_admin?
+    if User.current.is_admin?
       redirect_to :controller => :configuration, :action => :users
     else
      session[:login] = unreg_person_opts[:login]

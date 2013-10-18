@@ -52,8 +52,6 @@ class Webui::RequestsController < Webui::BaseController
   def by_class
     if name = params[:project]
       obj = Project.find_by_name! name
-    elsif login = params[:user]
-      obj = User.find_by_login! login
     else
       render_error :status => 400, :errorcode => 'require_filter',
                    :message => "This call requires at least one filter, either by user or project"

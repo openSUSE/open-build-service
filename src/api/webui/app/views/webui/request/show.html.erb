@@ -116,7 +116,7 @@
               </b>
           <% elsif action['type'] == 'add_role' %>
               <b>
-                <%= render :partial => 'shared/user_with_realname_and_icon', :locals => { :user => action['user'] } %>
+                <%= render :partial => 'shared/user_with_realname_and_icon', :locals => { :user => User.find_by_login(action['user']) } %>
                 wants the role <b><%= action['role'] %></b> for
                 <%= render :partial => 'shared/project_or_package_link', :locals => { project: action['tprj'], package: action['tpkg'] } %>
               </b>

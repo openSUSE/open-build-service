@@ -9,17 +9,9 @@ class HomeController < WebuiController
 
   def index
     lockout_spiders
-    @displayed_user.free_cache if discard_cache?
-    @iprojects = @displayed_user.involved_projects.each.collect! do |x|
-      ret =[]
-      ret << x.name
-      if x.to_hash['title'].class == Xmlhash::XMLHash
-        ret << "No title set"
-      else
-        ret << x.to_hash['title']
-      end
-    end
-    @ipackages = @displayed_user.involved_packages.each.map {|x| [x.name, x.project]}
+    @iprojects = @displayed_user.involved_projects.pluck(:name, :title)
+    @ipackages = @displayed_user.involved_packages.joins(:project).pluck(:name, 'projects.name as pname')
+    Rails.logger.debug "INV #{@ipackages.inspect}"
     begin
       @owned = ReverseOwner.find(:user => @displayed_user.login).each.map {|x| [x.package, x.project]} 
       # :limit => "#{@owner_limit}", :devel => "#{@owner_devel}"
@@ -27,7 +19,7 @@ class HomeController < WebuiController
     # OBSRootOwner isn't set...
       @owned = []
     end
-    if @user == @displayed_user
+    if User.current == @displayed_user
       requests
     end
   end
@@ -64,11 +56,50 @@ class HomeController < WebuiController
     end
   end
 
+  def running_patchinfos(login)
+    array = Array.new
+    col = Webui::Collection.find(:id, :what => 'package', :predicate => "[kind='patchinfo' and issue/[@state='OPEN' and owner/@login='#{CGI.escape(login)}']]")
+    col.each_package do |pi|
+      hash = { :package => { :project => pi.project, :name => pi.name } }
+      issues = Array.new
+
+      begin
+        # get users open issues for package
+        path = ::Package.source_path(pi.project, pi.name, nil, view: :issues, states: 'OPEN', login: login)
+        frontend = ActiveXML::api
+        answer = frontend.direct_http URI(path), :method => "GET"
+        doc = ActiveXML::Node.new(answer)
+        doc.each("/package/issue") do |s|
+          i = {}
+          i[:name]= s.find_first("name").text
+          i[:tracker]= s.find_first("tracker").text
+          i[:label]= s.find_first("label").text
+          i[:url]= s.find_first("url").text
+          summary=s.find_first("summary")
+          i[:summary] = summary.text if summary
+          state=s.find_first("state")
+          i[:state] = state.text if state
+          login=s.find_first("login")
+          i[:login] = login.text if login
+          updated_at=s.find_first("updated_at")
+          i[:updated_at] = updated_at.text if updated_at
+          issues << i
+        end
+
+        hash[:issues] = issues
+        array << hash
+      rescue ActiveXML::Transport::NotFoundError
+        # Ugly catch for projects that where deleted while this loop is running... bnc#755463)
+      end
+    end
+    return array
+  end
+
   def requests
-    requests = @displayed_user.requests_that_need_work
+    login = @displayed_user.login
 
     # Reviews
-    @open_reviews = Webui::BsRequest.ids(requests['reviews'])
+    @open_reviews = BsRequestCollection.new(user: login, roles: ['reviewer'], reviewstates: ['new'], states: ['review']).relation
     @reviews_in = []
     @reviews_out = []
     @open_reviews.each do |review|
@@ -80,9 +111,9 @@ class HomeController < WebuiController
     end
 
     # Other requests
-    @declined_requests = Webui::BsRequest.ids(requests['declined'])
+    @declined_requests = BsRequestCollection.new(user: login, states: ['declined'], roles: ['creator']).relation
 
-    @open_requests = Webui::BsRequest.ids(requests['new'])
+    @open_requests = BsRequestCollection.new(user: login, states: ['new'], roles: ['maintainer']).relation
     @requests_in = []
     @requests_out = []
     @open_requests.each do |request|
@@ -93,10 +124,11 @@ class HomeController < WebuiController
       end
     end
 
+    @open_patchinfos = running_patchinfos(@displayed_user.login)
 
-    @open_patchinfos = @displayed_user.running_patchinfos
-
-    session[:requests] = (requests['declined'] + requests['reviews'] + requests['new'])
+    session[:requests] = (@declined_requests.pluck(:id) +
+        @open_reviews.pluck(:id) +
+        @open_requests.pluck(:id))
 
     @requests = @declined_requests + @open_reviews + @open_requests
     @default_request_type = params[:type] if params[:type]
@@ -116,7 +148,7 @@ class HomeController < WebuiController
   end
 
   def home_project
-    redirect_to :controller => :project, :action => :show, :project => "home:#{@user}"
+    redirect_to :controller => :project, :action => :show, :project => "home:#{User.current.login}"
   end
 
   def remove_watched_project
@@ -127,9 +159,9 @@ class HomeController < WebuiController
   end
 
   def overwrite_user
-    @displayed_user = @user
+    @displayed_user = User.current
     if params['user'].present?
-      user = Person.find( params['user'] ) if params['user'] && !params['user'].empty?
+      user = User.find_by_login( params['user'] )
       if user
         @displayed_user = user 
       else

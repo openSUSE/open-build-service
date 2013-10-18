@@ -1,4 +1,4 @@
-<% if @workerstatus and (@busy or @global_counters) %>
+<% if @workerstatus and @busy %>
   <div class="box box-shadow">
     <h2 class="box-header">System Status</h2>
     <% if @busy %>
@@ -18,12 +18,10 @@
       <% end %>
     <% end %>
 
-    <% if @global_counters %>
-      <p class="description">
-        <%= @configuration['title'] %> hosts <b><%= number_with_delimiter @global_counters.projects %></b> projects, with
-        <b><%= number_with_delimiter @global_counters.packages %></b> packages, in <b><%= number_with_delimiter @global_counters.repos %></b> repositories
-        and is used by <b><%= number_with_delimiter @global_counters.users %></b> confirmed developers.
-      </p>
-    <% end %>
+    <p class="description">
+      <%= @configuration['title'] %> hosts <b><%= number_with_delimiter Project.count %></b> projects, with
+      <b><%= number_with_delimiter Package.count %></b> packages, in <b><%= number_with_delimiter Repository.count %></b> repositories
+      and is used by <b><%= number_with_delimiter User.count %></b> confirmed developers.
+    </p>
   </div>
 <% end %>

@@ -3,9 +3,9 @@
 
 <% logger.debug review.inspect
    if review['by_user'] %>
-   <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => review['by_user'], :short => true, :no_link => no_link, :no_icon => no_icon} %>
+   <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => User.find_by_login(review['by_user']), :short => true, :no_link => no_link, :no_icon => no_icon} %>
 <% elsif review['by_group'] %>
-  <%= link_to_if(!no_link, review['by_group'], :controller => 'group', :action => 'show', :group => review['by_group']) %>
+  <%= link_to_if(!no_link, review['by_group'], :controller => 'group', :action => 'show', id: review['by_group']) %>
 <% elsif review['by_project'] %>
   <% if review['by_package'] %>
     <%= link_to_if(!no_link, "#{review['by_project']} / #{review['by_package']}", :controller => 'package', :action => 'users', :project => review['by_project'], :package => review['by_package']) %>

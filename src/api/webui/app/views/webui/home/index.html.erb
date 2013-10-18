@@ -18,29 +18,31 @@
 <!-- mail -->
     <p>
     <% mail_to = 'mailto:' + @displayed_user.email %>
-    <%= link_to(image_tag('email.png', :alt => 'Send mail', :title => 'Send mail to user'), mail_to) %>
+    <%= link_to(sprite_tag('email', title: 'Send mail to user'), mail_to) %>
     <%= mail_to(@displayed_user.email, nil, :title => 'Send mail to user') %>
     </p>
 <!--  groups -->
-    <% if not @displayed_user.groups.empty? %>
+    <% gs = @displayed_user.groups.pluck(:title) %>
+    <% unless gs.empty? %>
     <p>Member of the group</p>
     <ul>
-      <% @displayed_user.groups.each do |group| %>
-        <li><%= link_to(group, :controller => 'group', :action => 'show', :group => group) %></li>
+      <% gs.each do |group| %>
+        <li><%= link_to(group, :controller => 'group', :action => 'show', id: group) %></li>
       <% end %>
     </ul>
     <% end %>
 <!-- roles -->
-    <% if @displayed_user.globalrole %>
+    <% grs = @displayed_user.roles.global.pluck(:title)
+       if grs.present? %>
       <p>Has the role</p>
       <ul>
-      <% @displayed_user.globalrole.each do |role| %>
+      <% grs.each do |role| %>
           <li><%= role %></li>
         <% end %>
       </ul>
     <% end %>
 <!-- edit -->
-    <% if @user and @displayed_user.to_s == @user.login %>
+    <% if @displayed_user == User.current %>
       <p>
       <% if CONFIG['proxy_auth_mode'] == :on %>
         <% unless CONFIG['proxy_auth_account_page'].blank? %>

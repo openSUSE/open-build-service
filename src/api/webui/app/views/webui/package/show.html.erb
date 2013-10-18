@@ -93,7 +93,7 @@
               <%= link_to('Submit package', {:action => :submit_request_dialog, :project => @project, :package => @package}, :remote => true) %>
             </li>
           <% end %>
-          <% if @package.can_edit?(@user) %>
+          <% if User.current.can_modify_package? @package.api_package %>
             <li>
               <%= link_to sprite_tag('package_edit'), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
 	      <%= link_to "Edit description", { :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count }, id: 'edit-description' -%>
