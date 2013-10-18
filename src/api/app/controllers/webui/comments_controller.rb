@@ -102,7 +102,7 @@ class Webui::CommentsController < Webui::BaseController
   def destroy_or_remove(params)
     children = Comment.where("parent_id = ?", params[:comment_id])
     if children.length < 1
-      Comment.destroy(params[:comment_id])
+      Comment.destroy(params)
     else
       Comment.remove(params)
     end
