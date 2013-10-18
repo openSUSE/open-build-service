@@ -3613,7 +3613,7 @@ sub listjobs {
 
 sub addjob {
   my ($cgi, $arch, $job) = @_;
-  my $infoxml = BSServer::read_data(10000000);
+  my $infoxml = BSServer::read_data(100000000);
   # just check xml structure
   die("job '$job' already exists\n") if -e "$jobsdir/$arch/$job";
   my $info = XMLin($BSXML::buildinfo, $infoxml);
