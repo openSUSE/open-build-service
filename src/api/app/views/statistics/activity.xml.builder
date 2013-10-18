@@ -14,7 +14,7 @@ xml.activity do
 
     xml.project(
       :name => @project.name,
-      :activity => @project.activity
+      :activity => '' # this route needs to die
     )
 
   end
