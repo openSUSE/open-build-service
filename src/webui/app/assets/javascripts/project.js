@@ -73,6 +73,8 @@ function renderPackagesProjectsTable(options)
 
 function autocomplete_repositories(project_name) 
 {
+    if(project_name === "")
+      return;
     $('#loader-repo').show();
     $('#add_repository_button').attr('disabled', 'true');
     $('#target_repo').attr('disabled', 'true');

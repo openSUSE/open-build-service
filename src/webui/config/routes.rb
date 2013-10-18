@@ -162,7 +162,7 @@ OBSWebUI::Application.routes.draw do
     get 'project/remove_target_request_dialog' => :remove_target_request_dialog
     post 'project/remove_target_request' => :remove_target_request
     post 'project/remove_target' => :remove_target
-    get 'project/remove_path_from_target' => :remove_path_from_target
+    post 'project/remove_path_from_target' => :remove_path_from_target
     post 'project/release_repository/:project/:repository' => :release_repository, constraints: cons
     get 'project/release_repository_dialog/:project/:repository' => :release_repository_dialog, constraints: cons
     get 'project/move_path_up' => :move_path_up
