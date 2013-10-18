@@ -8,7 +8,7 @@
     Manage users.
   </p>
 
-<% if @users.length > 0 %>
+<% unless @users.empty? %>
   <table id="user_table">
     <thead>
       <tr>
@@ -20,7 +20,7 @@
     <tbody>
     <% @users.each do |user| %>
       <tr id='user-<%= valid_xml_id(user.login) %>'>
-        <td><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => user.login, :no_icon => true }%></td>
+        <td><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => user, :no_icon => true }%></td>
         <td><%= user.state %></td>
         <td class="nowrap">
           <a href="#" class="dropdown-menu" id="actions-trigger-<%= user.login %>"><strong>Actions</strong></a>

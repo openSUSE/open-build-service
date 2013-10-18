@@ -12,7 +12,7 @@
           <%= label_tag(:role, "Add role:") %><br/>
           <%= select_tag(:role, options_for_select([['Maintainer', 'maintainer'], ['Bugowner', 'bugowner']])) %><br/>
           <%= label_tag(:user, "For user:") %><br/>
-          <%= text_field_tag(:user, @user, :size => 40) %><br/>
+          <%= text_field_tag(:user, User.current.login, :size => 40) %><br/>
           <% if defined? @package %>
             <%= label_tag(:target_project, "In target project:") %><br/>
             <%= text_field_tag(:target_project, @project, :size => 40, :disabled => true) %><br/>

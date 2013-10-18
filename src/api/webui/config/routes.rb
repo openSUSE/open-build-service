@@ -110,7 +110,7 @@ Webui::Engine.routes.draw do
     post 'patchinfo/new_patchinfo' => :new_patchinfo
     post 'patchinfo/updatepatchinfo' => :updatepatchinfo
     get 'patchinfo/edit_patchinfo' => :edit_patchinfo
-    get 'patchinfo/show' => :show
+    get 'patchinfo/show/:project/:package' => :show, as: 'patchinfo_show'
     get 'patchinfo/read_patchinfo' => :read_patchinfo
     post 'patchinfo/save' => :save
     post 'patchinfo/remove' => :remove
@@ -256,7 +256,7 @@ end
   end
 
   controller :group do
-    get 'group/show'  => :show
+    get 'group/show/:id'  => :show, as: 'group_show'
     get 'group/add'  => :add
     post 'group/save' => :save
     get 'group/autocomplete' => :autocomplete

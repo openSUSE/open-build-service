@@ -6,17 +6,19 @@ class Webui::PatchinfoController < Webui::WebuiController
   before_filter :require_exists, :except => [:new_patchinfo]
 
   def new_patchinfo
+    unless User.current.can_create_package_in? @project.api_project
+      flash[:error] = "No permission to create packages"
+      redirect_to :controller => 'project', :action => 'show', project: @project and return
+    end
+
     unless Webui::Package.find('patchinfo', :project => @project )
-      begin
-        path = "/source/#{CGI.escape(params[:project])}?cmd=createpatchinfo"
-        frontend.transport.direct_http( URI(path), :method => 'POST')
-      rescue ActiveXML::Transport::Error => e
-        flash[:error] = e.summary
-        redirect_to :controller => 'project', :action => 'show' and return
+      unless ::Patchinfo.new.create_patchinfo(@project.name, nil)
+        flash[:error] = "Error creating patchinfo"
+        redirect_to :controller => 'project', :action => 'show', project: @project and return
       end
     end
-    @package = find_cached(Webui::Package, 'patchinfo', :project => @project )
-    @file = find_cached(Webui::Patchinfo, :project => @project, :package => @package )
+    @package = Webui::Package.find('patchinfo', :project => @project )
+    @file = Webui::Patchinfo.find(:project => @project, :package => @package )
     unless @file
       flash[:error] = "Patchinfo not found for #{params[:project]}"
       redirect_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
@@ -51,7 +53,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     read_patchinfo
     @pkg_names = @project.api_project.packages.pluck(:name)
     @pkg_names.delete('patchinfo')
-    @packager = Webui::Person.find(:login => @packager)
+    @packager = User.where(login: @packager).first
   end
 
   def read_patchinfo

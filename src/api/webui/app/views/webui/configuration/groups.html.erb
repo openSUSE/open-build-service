@@ -8,7 +8,7 @@
   Manage groups.
   </p>
     
-<% if @groups.length > 0 %>
+<% unless @groups.empty? %>
   <table id="group_table">
     <thead>
       <tr>
@@ -20,15 +20,14 @@
     <tbody>
       <% @groups.each do |group| %>
         <tr>
-          <td><%= link_to(group.title, {:controller => 'group', :action => 'show', :group => group.value('title')}, {:id => group.value('title') }) %></td>
+          <td><%= link_to(group.title, {:controller => 'group', :action => 'show', id: group.title}, {id: group.title }) %></td>
           <td>
-          <% group.person.each do |member| %>
-            <%= link_to_if(@user, member.userid, :controller => 'home', :action => 'index', :user => member.userid) %>, 
+          <% group.groups_users.each do |member| %>
+            <%= link_to_if(@user, member.user, :controller => 'home', :action => 'index', :user => member.user) %>, 
           <% end %>
           </td>
           <td class="nowrap">
-            <%= sprite_tag('accessories-text-editor') %>
-            <%= link_to("Edit Group", :controller => 'group', :action => 'edit', :group => group.value('title')) %>
+            <%= link_to(sprite_tag('accessories-text-editor') + "Edit Group", :controller => 'group', :action => 'edit', :group => group.title) %>
           </td>
         </tr>
       <% end %>

@@ -1,17 +1,18 @@
 <% short ||= false %>
 <% no_icon ||= false %>
 <% no_link ||= false %>
-<% realname = User.realname_for_login(user) %>
+<% raise "NIL" unless user.kind_of? User %>
+<% realname = user.realname %>
 
 <% unless no_icon %>
   <%= user_icon(user) %>
 <% end %>
 
 <% unless realname.empty? or short == true %>
-  <% printed_name = realname + ' (' + user + ')' %>
+  <% printed_name = realname + ' (' + user.login + ')' %>
 <% else %>
-  <% printed_name = user %>
+  <% printed_name = user.login %>
 <% end %>
 
-<%= link_to_if(!no_link, printed_name, :controller => 'home', :user => user) %>
+<%= link_to_if(!no_link, printed_name, :controller => 'home', :user => user.login) %>
 

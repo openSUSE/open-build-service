@@ -4,11 +4,10 @@
 
 <table>
   <tbody>
-    <% logger.debug @events.inspect
-       @events.each do |event| %>
+    <% @events.each do |event| %>
       <tr>
         <td class="nowrap" style="width: 1%;">
-          <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => event['who'], :short => true}%>
+          <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => User.find_by_login(event['who']), :short => true}%>
         </td>
         <td>
           <% if event['superseded_by'] %>

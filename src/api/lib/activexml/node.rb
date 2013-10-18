@@ -160,17 +160,8 @@ module ActiveXML
         find_priv(nil, *args )
       end
 
-      def find_cached( *args )
-        expires_in = 30.minutes
-        if args.last.kind_of?(Hash) and args.last[:expires_in]
-          expires_in = args.last[:expires_in]
-          args.last.delete :expires_in
-        end
-        find_priv(expires_in, *args)
-      end
-
       def find_hashed( *args )
-        ret = find_cached( *args )
+        ret = find( *args )
         return Xmlhash::XMLHash.new({}) unless ret
         ret.to_hash
       end

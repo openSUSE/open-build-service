@@ -67,7 +67,6 @@ class Webui::AllRoutesTest < Webui::IntegrationTest
     urls << webui_engine.patchinfo_new_patchinfo_path
     urls << webui_engine.patchinfo_updatepatchinfo_path
     urls << webui_engine.patchinfo_edit_patchinfo_path
-    urls << webui_engine.patchinfo_show_path
     urls << webui_engine.patchinfo_read_patchinfo_path
     urls << webui_engine.patchinfo_save_path
     urls << webui_engine.patchinfo_remove_path
@@ -148,7 +147,6 @@ class Webui::AllRoutesTest < Webui::IntegrationTest
     urls << webui_engine.user_delete_path
     urls << webui_engine.user_tokens_path
     urls << webui_engine.user_do_login_path
-    urls << webui_engine.group_show_path
     urls << webui_engine.group_add_path
     urls << webui_engine.group_save_path
     urls << webui_engine.group_tokens_path
