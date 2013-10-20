@@ -332,18 +332,6 @@ OBSApi::Application.routes.draw do
     #
     namespace :webui do
       resources :projects, constraints: { :id => %r{[^\/]*} } do
-        resources :flags, :only => [:index]
-        resources :packages, :only => [], constraints: { :id => %r{[^\/]*} } do
-          resources :relationships, :only => [:create] do
-            collection do
-              delete :for_user, action: :remove_user
-            end
-          end
-          resources :flags, :only => [:index]
-        end
-      end
-      resources :packages, :only => [], constraints: { :id => %r{[^\/]*} } do
-        get 'flags', :on => :member
       end
       resources :requests, :only => [:index, :show] do
         collection do
