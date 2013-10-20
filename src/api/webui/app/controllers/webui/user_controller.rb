@@ -5,8 +5,8 @@ class UserController < WebuiController
 
   include WebuiHelper
 
-  before_filter :require_login, :only => [:edit, :save]
   before_filter :check_user, :only => [:edit, :save, :change_password, :register, :delete, :confirm, :lock, :admin]
+  before_filter :require_login, :only => [:edit, :save]
   before_filter :overwrite_user, :only => [:edit]
   before_filter :require_admin, :only => [:edit]
   

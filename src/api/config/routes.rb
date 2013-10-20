@@ -331,28 +331,12 @@ OBSApi::Application.routes.draw do
     #       DO NOT USE THEM IN YOUR TOOLS!
     #
     namespace :webui do
-      resources :projects, constraints: { :id => %r{[^\/]*} } do
-      end
       resources :requests, :only => [:index, :show] do
         collection do
           get :ids
           get :by_class
         end
       end
-
-      # comments
-      get 'comments/request/:id/' => 'comments#requests', constraints: cons
-      get 'comments/package/:project/:package/' => 'comments#packages', constraints: cons
-      get 'comments/project/:project/' => 'comments#projects', constraints: cons
-      
-      post 'comments/project/:project/new' => 'comments#projects_new', constraints: cons
-      post 'comments/package/:project/:package/new' => 'comments#packages_new', constraints: cons
-      post 'comments/request/:id/new' => 'comments#requests_new', constraints: cons
-
-      post 'comments/project/:project/delete' => 'comments#delete', constraints: cons
-      post 'comments/package/:project/:package/delete' => 'comments#delete', constraints: cons
-      post 'comments/request/:id/delete' => 'comments#delete', constraints: cons
-
     end
 
     get '/404' => 'main#notfound'

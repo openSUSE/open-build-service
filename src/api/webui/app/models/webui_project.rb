@@ -29,7 +29,7 @@ class WebuiProject < Webui::Node
     return false
   end
   
-  def api_project
+  def api_obj
     Project.find_by_name(to_s)
   end
 
@@ -44,7 +44,7 @@ class WebuiProject < Webui::Node
     to_hash["name"]
   end
 
-  def api_project
+  def api_obj
     Project.find_by_name(to_s)
   end
 
@@ -183,7 +183,7 @@ class WebuiProject < Webui::Node
   def user_has_role?(user, role)
     return false unless user
     if user.kind_of? User
-      return api_project.relationships.where(user: user, role_id: Role.rolecache[role]).exists?
+      return api_obj.relationships.where(user: user, role_id: Role.rolecache[role]).exists?
     end
     raise 'user needs to be a Person' unless user.kind_of? Webui::Person
     login = user.to_hash['login']
@@ -203,7 +203,7 @@ class WebuiProject < Webui::Node
   end
 
   def users(role = nil)
-    rels = api_project.relationships
+    rels = api_obj.relationships
     rels = rels.where(role: Role.rolecache[role]) if role
     users = rels.users.pluck(:user_id)
     rels.groups.each do |g|
@@ -213,7 +213,7 @@ class WebuiProject < Webui::Node
   end
 
   def groups(role = nil)
-    rels = api_project.relationships
+    rels = api_obj.relationships
     rels = rels.where(role: Role.rolecache[role]) if role
     Group.where(id: rels.groups.pluck(:group_id).uniq)
   end
@@ -351,7 +351,7 @@ class WebuiProject < Webui::Node
     # One catch, currently there's only one patchinfo per incident, but things keep changing every
     # other day, so it never hurts to have a look into the future:
     global_patchinfo = nil
-    api_project.packages.pluck(:name).each do |pname|
+    api_obj.packages.pluck(:name).each do |pname|
       pkg_name, rt_name = pname.split('.', 2)
       pkg = Webui::Package.find(pname, :project => self.name)
       if pkg && rt_name

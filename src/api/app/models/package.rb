@@ -55,7 +55,7 @@ class Package < ActiveRecord::Base
   has_many :products, :dependent => :destroy
   has_many :channels, :dependent => :destroy, foreign_key: :package_id
 
-  has_many :comments, :dependent => :delete_all
+  has_many :comments, :dependent => :delete_all, inverse_of: :package
 
   after_save :write_to_backend
   before_update :update_activity
@@ -803,6 +803,10 @@ class Package < ActiveRecord::Base
       bp.error = nil
       bp.links_to = nil
     end
+  end
+
+  def comment_class
+    'CommentPackage'
   end
 
   # FIXME: we REALLY should use active_model_serializers

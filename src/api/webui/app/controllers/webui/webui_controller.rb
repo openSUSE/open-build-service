@@ -76,8 +76,8 @@ class WebuiController < ActionController::Base
   end
 
   def require_login
-    if !session[:login]
-      render :text => 'Please login' and return if request.xhr?
+    if User.current.is_nobody?
+      render :text => 'Please login' and return false if request.xhr?
       flash[:error] = 'Please login to access the requested page.'
       mode = :off
       mode = CONFIG['proxy_auth_mode'] unless CONFIG['proxy_auth_mode'].blank?
@@ -86,7 +86,9 @@ class WebuiController < ActionController::Base
       else
         redirect_to :controller => :main, :return_to_host => @return_to_host, :return_to_path => @return_to_path
       end
+      return false
     end
+    return true
   end
 
   # sets session[:login] if the user is authenticated

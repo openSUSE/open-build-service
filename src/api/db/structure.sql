@@ -284,13 +284,17 @@ CREATE TABLE `comments` (
   `body` text COLLATE utf8_unicode_ci,
   `parent_id` int(11) DEFAULT NULL,
   `type` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `user` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
+  `user_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `index_comments_on_project_id` (`project_id`),
   KEY `index_comments_on_package_id` (`package_id`),
-  KEY `index_comments_on_bs_request_id` (`bs_request_id`)
+  KEY `index_comments_on_bs_request_id` (`bs_request_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`),
+  CONSTRAINT `comments_ibfk_3` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `configurations` (
@@ -1285,6 +1289,10 @@ INSERT INTO schema_migrations (version) VALUES ('20131006000000');
 INSERT INTO schema_migrations (version) VALUES ('20131021063641');
 
 INSERT INTO schema_migrations (version) VALUES ('20131006162847');
+
+INSERT INTO schema_migrations (version) VALUES ('20131020151037');
+
+INSERT INTO schema_migrations (version) VALUES ('20131020165316');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

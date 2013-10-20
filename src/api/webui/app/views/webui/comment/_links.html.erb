@@ -1,20 +1,19 @@
 <ul class="horizontal-list">
-  <li>
-    <a onclick="toggle_visibility('<%="reply_form_of_#{comment['id']}"%>');" id="reply_link_id_<%="#{comment['id']}"%>">
-      <%= sprite_tag('comment_add', title: 'Reply'
-          ) + 'Reply' %>
+  <li class="togglable_comment" data-toggle="reply_form_of_<%= comment[:id] %>">
+    <a id="reply_link_id_<%= comment[:id] %>">
+      <%= sprite_tag('comment_add', title: 'Reply') + 'Reply' %>
     </a>
   </li>
-  <%if User.current.login == comment['user']%>
-    <li>
-      <a onclick="toggle_visibility('<%="edit_form_of_#{comment['id']}"%>');">
-        <%= sprite_tag('comment_edit', title: "Edit") + "Edit" %>
-      </a>
-    </li>
-  <%end%>
-  <% if User.current.login == comment['user'] || User.current.is_admin? %>
-    <li>
-      <%= link_to(sprite_tag('comment_delete', title: "Delete") + "Delete", {:controller => params[:controller], :action => 'delete_comment', :comment_id => comment['id']}, :method => :post) %>
-    </li>
-  <%end%> 
+  <% if User.current.login == comment[:user] || User.current.is_admin? %>
+      <!-- editing is missing and as such broken
+         <li class="togglable_comment" data-toggle="edit_form_of_<%= comment[:id] %>">
+            <%= link_to(sprite_tag('comment_edit', title: "Edit") + "Edit", '#') %>
+        </li>
+      -->
+      <li>
+        <%= link_to(sprite_tag('comment_delete', title: "Delete") + "Delete",
+                    {:controller => :comments, :action => :destroy,
+                     id: comment[:id]}, :method => :delete) %>
+      </li>
+  <% end %>
 </ul>

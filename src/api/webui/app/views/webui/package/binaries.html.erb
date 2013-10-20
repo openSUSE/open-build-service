@@ -36,7 +36,7 @@
     </ul>
   <% end %>
   <p>
-    <% if User.current.can_modify_package? @package.api_package %>
+    <% if User.current.can_modify_package? @package.api_obj %>
       <%= link_to sprite_tag('rebuild') + 'Trigger',{ :controller => :package, :action => :trigger_rebuild, :arch => result['arch'], :project => @project, :package => @package, :repo => @repository }, { :method => :delete} %> rebuild
 
       <% if result.get( 'binarylist')['binary'] %>

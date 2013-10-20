@@ -63,7 +63,7 @@ class Project < ActiveRecord::Base
   has_many  :develprojects, :class_name => 'Project', :foreign_key => 'develproject_id'
   belongs_to :develproject, :class_name => 'Project'
 
-  has_many :comments, :dependent => :destroy
+  has_many :comments, :dependent => :delete_all, inverse_of: :project
 
   default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids ) }
 
@@ -1057,6 +1057,10 @@ class Project < ActiveRecord::Base
 
       ret
     end
+  end
+
+  def comment_class
+    'CommentProject'
   end
 
   private :bsrequest_repos_map
