@@ -26,7 +26,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     # request created
     page.must_have_text 'Iggy Pop (Iggy) wants the role bugowner for project home:tom'
     find('#description_text').must_have_text 'I can fix bugs too.'
-    page.must_have_selector("input[@name='revoked']")
+    page.must_have_selector(:xpath, "//input[@name='revoked']")
     page.must_have_text('In state new')
 
     logout
@@ -50,7 +50,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     # request created
     find('#action_display_0').must_have_text 'Iggy Pop (Iggy) wants the role maintainer for package Apache / apache2'
     find('#description_text').must_have_text 'I can fix bugs too.'
-    page.must_have_selector("input[@name='revoked']")
+    page.must_have_selector(:xpath, "//input[@name='revoked']")
     page.must_have_text('In state new')
 
 
