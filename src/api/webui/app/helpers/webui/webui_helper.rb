@@ -49,7 +49,9 @@ module Webui
     abs_path
   end
 
-  def user_icon(login, size=20, css_class=nil, alt=login)    
+  def user_icon(login, size=20, css_class=nil, alt=nil)
+    alt ||= login
+    raise "Unknown login" unless alt.present?
     return image_tag(url_for(controller: :home, action: :icon, user: login.to_s, size: size), 
                      width: size, height: size, alt: alt, class: css_class)
   end
@@ -200,8 +202,8 @@ module Webui
         end
       end
 
-      if (@package && User.current.can_modify_package?(@package.api_package)) ||
-          (@project && User.current.can_modify_project?(@project.api_project))
+      if (@package && User.current.can_modify_package?(@package.api_obj)) ||
+          (@project && User.current.can_modify_project?(@project.api_obj))
         opts = { project: @project, package: @package, action: :repositories }
         data = { flag: flags.element_name }
         data[:repository] = repository if repository

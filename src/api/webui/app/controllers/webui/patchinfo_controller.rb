@@ -6,7 +6,7 @@ class Webui::PatchinfoController < Webui::WebuiController
   before_filter :require_exists, :except => [:new_patchinfo]
 
   def new_patchinfo
-    unless User.current.can_create_package_in? @project.api_project
+    unless User.current.can_create_package_in? @project.api_obj
       flash[:error] = "No permission to create packages"
       redirect_to :controller => 'project', :action => 'show', project: @project and return
     end
@@ -51,7 +51,7 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def show
     read_patchinfo
-    @pkg_names = @project.api_project.packages.pluck(:name)
+    @pkg_names = @project.api_obj.packages.pluck(:name)
     @pkg_names.delete('patchinfo')
     @packager = User.where(login: @packager).first
   end

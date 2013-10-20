@@ -4,6 +4,7 @@ require 'project'
 module Webui
 class PackageController < WebuiController
 
+  include HasComments
   include ParsePackageDiff
   include WebuiHelper
   include PackageHelper
@@ -11,19 +12,19 @@ class PackageController < WebuiController
   before_filter :require_project, :except => [:rawlog, :rawsourcefile, :submit_request, :devel_project]
   before_filter :require_package, :except => [:rawlog, :rawsourcefile, :submit_request, :save_new_link, :save_new, :devel_project ]
   # make sure it's after the require_, it requires both
-  before_filter :require_login, :only => [:branch, :save_comment]
+  before_filter :require_login, :only => [:branch]
   prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
   def show
-    if lockout_spiders 
+    if lockout_spiders
       params.delete(:rev)
       params.delete(:srcmd5)
     end
-    
+
     @srcmd5   = params[:srcmd5]
     @revision_parameter = params[:rev]
-    
-    begin 
+
+    begin
       @buildresult = Buildresult.find_hashed(:project => @project, :package => @package, :view => 'status' ) unless @spider_bot
     rescue => e
       logger.error "No buildresult found for #{@project} / #{@package} : #{e.message}"
@@ -35,7 +36,7 @@ class PackageController < WebuiController
     end unless @spider_bot
     @revision = params[:rev]
     fill_status_cache unless @buildresult.blank?
-    set_linking_packages    
+    set_linking_packages
     @expand = 1
     @expand = begin Integer(params[:expand]) rescue 1 end if params[:expand]
     @expand = 0 if @spider_bot
@@ -51,16 +52,16 @@ class PackageController < WebuiController
       redirect_back_or_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
     end
 
-    begin
-      @comments = ApiDetails.read(:comments_by_package, @project, @package)
-    rescue Webui::ApiDetails::NotFoundError => e
-      render :text => e, :status => 404, :content_type => 'text/plain'
-    end
+    sort_comments(@package.api_obj.comments)
 
     @requests = []
     # TODO!!!
     #BsRequest.list({:states => %w(review), :reviewstates => %w(new), :roles => %w(reviewer), :project => @project.name, :package => @package.name}) +
     #BsRequest.list({:states => %w(new), :roles => %w(target), :project => @project.name, :package => @package.name})
+  end
+
+  def comment_object
+    @package # used by HasComments mixin
   end
 
   def files
@@ -128,7 +129,7 @@ class PackageController < WebuiController
         :filename => @filename, :view => 'fileinfo_ext')
     rescue ActiveXML::Transport::ForbiddenError => e
       flash[:error] = "File #{@filename} can not be downloaded from #{@project}: #{e.summary}"
-    end 
+    end
     unless @fileinfo
       flash[:error] = "File \"#{@filename}\" could not be found in #{@repository}/#{@arch}"
       redirect_to :controller => 'package', :action => :binaries, :project => @project,
@@ -140,7 +141,7 @@ class PackageController < WebuiController
     if @durl and not file_available?( @durl )
       # ignore files not available
       @durl = nil
-    end 
+    end
     if @user and !@durl
       # only use API for logged in users if the mirror is not available
       @durl = rpm_url( @project, @package, @repository, @arch, @filename )
@@ -164,7 +165,7 @@ class PackageController < WebuiController
       redirect_back_or_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
     end
     unless @buildresult
-      flash[:error] = "Package \"#{@package}\" has no build result for repository #{@repository}" 
+      flash[:error] = "Package \"#{@package}\" has no build result for repository #{@repository}"
       redirect_to :controller => 'package', :action => :show, :project => @project, :package => @package, :nextstatus => 404 and return
     end
     # load the flag details to disable links for forbidden binary downloads
@@ -256,7 +257,7 @@ class PackageController < WebuiController
 
   def set_file_details
     @forced_unexpand ||= ''
-    
+
     begin
       @current_rev = Webui::Package.current_rev(@project.name, @package.name)
       if not @revision and not @srcmd5
@@ -280,7 +281,7 @@ class PackageController < WebuiController
       @files = []
       return false
     end
-    
+
     @spec_count = 0
     @files.each do |file|
       @spec_count += 1 if file[:ext] == 'spec'
@@ -292,7 +293,7 @@ class PackageController < WebuiController
         end
       end
     end
-    
+
     # check source service state
     serviceerror = nil
     serviceerror = @package.serviceinfo.value(:error) if @package.serviceinfo
@@ -309,7 +310,7 @@ class PackageController < WebuiController
     @roles = Role.local_roles
   end
 
-        def find_last_req
+  def find_last_req
     if @oproject and @opackage
       last_req = BsRequestAction.where(target_project: @oproject,
                                        target_package: @opackage,
@@ -349,7 +350,7 @@ class PackageController < WebuiController
 
 
   def rdiff
-    @last_rev = @package.api_package.dir_hash['rev']
+    @last_rev = @package.api_obj.dir_hash['rev']
     @linkinfo = @package.linkinfo
     @oproject, @opackage = params[:oproject], params[:opackage]
 
@@ -362,7 +363,7 @@ class PackageController < WebuiController
       query[k] = params[k] unless params[k].blank?
     end
     query[:rev] = @rev if @rev
-    return unless get_diff(@package.api_package.source_path + "?#{query.to_query}")
+    return unless get_diff(@package.api_obj.source_path + "?#{query.to_query}")
 
     # we only look at [0] because this is a generic function for multi diffs - but we're sure we get one
     filenames = sorted_filenames_from_sourcediff(@rdiff)[0]
@@ -547,7 +548,7 @@ class PackageController < WebuiController
 
       description += linked_package.description.text if linked_package.description.text
       package.description.text = description
-    
+
       begin
         saved = package.save
       rescue ActiveXML::Transport::ForbiddenError => e
@@ -689,7 +690,7 @@ class PackageController < WebuiController
 
   def save_person
     begin
-      @package.api_package.add_role(load_obj, Role.find_by_title!(params[:role]))
+      @package.api_obj.add_role(load_obj, Role.find_by_title!(params[:role]))
       @package.free_cache
     rescue ApiDetails::TransportError, ApiDetails::NotFoundError, User::NotFound, ::Group::NotFound => e
       flash[:error] = e.to_s
@@ -707,7 +708,7 @@ class PackageController < WebuiController
 
   def save_group
     begin
-      @package.api_package.add_role(load_obj, Role.find_by_title!(params[:role]))
+      @package.api_obj.add_role(load_obj, Role.find_by_title!(params[:role]))
       @package.free_cache
     rescue ApiDetails::TransportError, ApiDetails::NotFoundError, User::NotFound, ::Group::NotFound => e
       flash[:error] = e.to_s
@@ -725,7 +726,7 @@ class PackageController < WebuiController
 
   def remove_role
     begin
-      @package.api_package.remove_role(load_obj,  Role.find_by_title(params[:role]))
+      @package.api_obj.remove_role(load_obj,  Role.find_by_title(params[:role]))
       @package.free_cache
     rescue ApiDetails::TransportError, ApiDetails::NotFoundError, User::NotFound, ::Group::NotFound => e
       flash[:error] = e.summary
@@ -752,7 +753,7 @@ class PackageController < WebuiController
     @rev = params[:rev]
     @expand = params[:expand]
     @addeditlink = false
-    if User.current.can_modify_package?(@package.api_package) && @rev.blank?
+    if User.current.can_modify_package?(@package.api_obj) && @rev.blank?
       begin
         files = @package.files(@rev, @expand)
       rescue ActiveXML::Transport::Error => e
@@ -818,7 +819,7 @@ class PackageController < WebuiController
         return
       end
       if chunk.length == 0
-        return  
+        return
       end
       @offset += ActiveXML::api.last_body_length
       yield chunk
@@ -849,7 +850,7 @@ class PackageController < WebuiController
       return true
     end
 
-    headers['Content-Type'] = 'text/plain'    
+    headers['Content-Type'] = 'text/plain'
     return false
   end
 
@@ -988,7 +989,7 @@ class PackageController < WebuiController
     end
   end
   private :api_cmd
-  
+
   def import_spec
     all_files = @package.files
     all_files.each do |file|
@@ -1081,7 +1082,7 @@ class PackageController < WebuiController
       render :text => message, :status => 400, :content_type => 'text/plain'
       return
     end
-    
+
     flash[:notice] = 'Config successfully saved'
     @package.free_cache
     render :text => 'Config successfully saved', :content_type => 'text/plain'
@@ -1107,39 +1108,6 @@ class PackageController < WebuiController
     required_parameters :cmd, :flag
     frontend.source_cmd params[:cmd], project: @project, package: @package, repository: params[:repository], arch: params[:arch], flag: params[:flag], status: params[:status]
     @package = Package.find( params[:package], project: @project.name, view: :flagdetails )
-  end
-
-  def save_comment
-    required_parameters :project, :package, :body
-    required_parameters :title if !params[:parent_id]
-    begin
-      ApiDetails.save_comment(:save_package_comment, params)
-      respond_to do |format|
-        format.js { render json: 'ok' }
-        format.html do
-          flash[:notice] = 'Comment added successfully'
-        end
-      end
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary      
-    end
-    redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
-  end
-
-  def delete_comment
-    required_parameters :comment_id
-    begin
-      ApiDetails.save_comment(:delete_package_comment, params)
-      respond_to do |format|
-        format.js { render json: 'ok' }
-        format.html do
-          flash[:notice] = 'Comment deleted successfully'
-        end
-      end
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary      
-    end
-    redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
   end
 
   private

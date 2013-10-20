@@ -1,23 +1,17 @@
 require 'event'
 
 class Comment < ActiveRecord::Base
-  belongs_to :project
-  belongs_to :package
-  belongs_to :bs_request
 
-  after_save :create_notification
+  belongs_to :bs_request, inverse_of: :comments
+  belongs_to :project, inverse_of: :comments
+  belongs_to :package, inverse_of: :comments
+  belongs_to :user, inverse_of: :comments
 
-  def self.save(params)
-    @comment = {}
-  	@comment['title'] 	= params[:title]
-  	@comment['body'] = params[:body]
-  	@comment['user'] = params[:user]
-  	@comment['parent_id'] = params[:parent_id] if params[:parent_id]
-  end
+  validates :body, :user, :type, presence: true
 
-  def self.remove(params)
-    self.update(params[:comment_id], :title => "This comment has been deleted", :body => "", :user => "_nobody_")
-  end
+  after_create :create_notification
+
+  has_many :children, :class_name => 'Comment', :foreign_key => 'parent_id'
 
   def create_notification(params = {})
     params[:commenter] = self.user
@@ -25,13 +19,24 @@ class Comment < ActiveRecord::Base
   end
 
   # build an array of users, commenting on a specific object type
-  def involved_users(object_field , object_value)
+  def involved_users(object_field, object_value)
     record = Comment.where(object_field => object_value)
     users = []
     record.each do |comment|
       users << comment.user
     end
     users.uniq!
+  end
+
+  def check_delete_permissions
+
+    # Admins can always delete all comments
+    if User.current.is_admin?
+      return true
+    end
+
+    # Users can always delete their own comments - or if the comments are deleted
+    User.current == self.user || self.user.is_nobody?
   end
 
 end

@@ -31,6 +31,7 @@ class User < ActiveRecord::Base
   has_many :roles_users, :foreign_key => 'user_id'
   has_many :relationships
 
+  has_many :comments, dependent: :destroy, inverse_of: :user
   has_many :status_messages
   has_many :messages
 
@@ -113,7 +114,7 @@ class User < ActiveRecord::Base
   #   user.save
   #
   def update_password(pass)
-    self.password_crypted = hash_string(pass).crypt("os")
+    self.password_crypted = hash_string(pass).crypt('os')
     self.password_confirmation = hash_string(pass)
     self.password = hash_string(pass)
   end
@@ -260,9 +261,9 @@ class User < ActiveRecord::Base
   # of allowed values.
   def validate
     # validate state and password has type to be in the valid range of values
-    errors.add(:password_hash_type, "must be in the list of hash types.") unless User.password_hash_types.include? password_hash_type
+    errors.add(:password_hash_type, 'must be in the list of hash types.') unless User.password_hash_types.include? password_hash_type
     # check that the state transition is valid
-    errors.add(:state, "must be a valid new state from the current state.") unless state_transition_allowed?(@old_state, state)
+    errors.add(:state, 'must be a valid new state from the current state.') unless state_transition_allowed?(@old_state, state)
 
     # validate the password
     if @new_password and not password.nil?
@@ -329,11 +330,11 @@ class User < ActiveRecord::Base
     end
 
     def nobodyID
-      return Thread.current[:nobody_id] ||= get_by_login("_nobody_").id
+      return Thread.current[:nobody_id] ||= get_by_login('_nobody_').id
     end
 
     def get_default_admin
-      admin = CONFIG['default_admin'] || "Admin"
+      admin = CONFIG['default_admin'] || 'Admin'
       user = find_by_login(admin)
       raise NotFound.new("Admin not found, user #{admin} has not admin permissions") unless user.is_admin?
       return user
@@ -357,10 +358,10 @@ class User < ActiveRecord::Base
   after_validation(:on => :create) do
     if errors.empty? and @new_password and !password.nil?
       # generate a new 10-char long hash only Base64 encoded so things are compatible
-      self.password_salt = [Array.new(10){rand(256).chr}.join].pack("m")[0..9];
+      self.password_salt = [Array.new(10){rand(256).chr}.join].pack('m')[0..9];
 
       # vvvvvv added this to maintain the password list for lighttpd
-      write_attribute(:password_crypted, password.crypt("os"))
+      write_attribute(:password_crypted, password.crypt('os'))
       #  ^^^^^^
 
       # write encrypted password to object property
@@ -438,14 +439,14 @@ class User < ActiveRecord::Base
 
   # updates users email address and real name using data transmitted by authentification proxy
   def update_user_info_from_proxy_env(env)
-    proxy_email = env["HTTP_X_EMAIL"]
+    proxy_email = env['HTTP_X_EMAIL']
     if not proxy_email.blank? and self.email != proxy_email
       logger.info "updating email for user #{self.login} from proxy header: old:#{self.email}|new:#{proxy_email}"
       self.email = proxy_email
       self.save
     end
     if not env['HTTP_X_FIRSTNAME'].blank? and not env['HTTP_X_LASTNAME'].blank?
-      realname = env['HTTP_X_FIRSTNAME'] + " " + env['HTTP_X_LASTNAME']
+      realname = env['HTTP_X_FIRSTNAME'] + ' ' + env['HTTP_X_LASTNAME']
       if self.realname != realname
         self.realname = realname
         self.save
@@ -459,7 +460,7 @@ class User < ActiveRecord::Base
 
   def is_admin?
     if @is_admin.nil? # false is fine
-      @is_admin = roles.where(title: "Admin").exists?
+      @is_admin = roles.where(title: 'Admin').exists?
     end
     @is_admin
   end
@@ -495,7 +496,7 @@ class User < ActiveRecord::Base
   def has_global_permission?(perm_string)
     logger.debug "has_global_permission? #{perm_string}"
     self.roles.detect do |role|
-      return true if role.static_permissions.where("static_permissions.title = ?", perm_string).first
+      return true if role.static_permissions.where('static_permissions.title = ?', perm_string).first
     end
   end
 
@@ -506,8 +507,8 @@ class User < ActiveRecord::Base
     end
     return false if not ignoreLock and project.is_locked?
     return true if is_admin?
-    return true if has_global_permission? "change_project"
-    return true if has_local_permission? "change_project", project
+    return true if has_global_permission? 'change_project'
+    return true if has_local_permission? 'change_project', project
     return false
   end
 
@@ -519,8 +520,8 @@ class User < ActiveRecord::Base
     end
     return false if not ignoreLock and package.is_locked?
     return true if is_admin?
-    return true if has_global_permission? "change_package"
-    return true if has_local_permission? "change_package", package
+    return true if has_global_permission? 'change_package'
+    return true if has_local_permission? 'change_package', package
     return false
   end
 
@@ -532,8 +533,8 @@ class User < ActiveRecord::Base
 
     return false if not ignoreLock and project.is_locked?
     return true if is_admin?
-    return true if has_global_permission? "create_package"
-    return true if has_local_permission? "create_package", project
+    return true if has_global_permission? 'create_package'
+    return true if has_local_permission? 'create_package', project
     return false
   end
 
@@ -543,11 +544,11 @@ class User < ActiveRecord::Base
     return true if project_name == "home:#{self.login}" and ::Configuration.first.allow_user_to_create_home_project
     return true if /^home:#{self.login}:/.match( project_name ) and ::Configuration.first.allow_user_to_create_home_project
 
-    return true if has_global_permission? "create_project"
+    return true if has_global_permission? 'create_project'
     p = Project.find_parent_for(project_name)
     return false if p.nil?
     return true  if is_admin?
-    return has_local_permission?( "create_project", p)
+    return has_local_permission?( 'create_project', p)
   end
 
   def can_modify_attribute_definition?(object)
@@ -578,10 +579,10 @@ class User < ActiveRecord::Base
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
     unless opts[:namespace]
-      raise ArgumentError, "no namespace given"
+      raise ArgumentError, 'no namespace given'
     end
     unless opts[:name]
-      raise ArgumentError, "no name given"
+      raise ArgumentError, 'no name given'
     end
 
     # find attribute type definition
@@ -614,22 +615,22 @@ class User < ActiveRecord::Base
 
   def can_download_binaries?(package)
     return true if is_admin?
-    return true if has_global_permission? "download_binaries"
-    return true if has_local_permission?("download_binaries", package)
+    return true if has_global_permission? 'download_binaries'
+    return true if has_local_permission?('download_binaries', package)
     return false
   end
 
   def can_source_access?(package)
     return true if is_admin?
-    return true if has_global_permission? "source_access"
-    return true if has_local_permission?("source_access", package)
+    return true if has_global_permission? 'source_access'
+    return true if has_local_permission?('source_access', package)
     return false
   end
 
   def can_access?(parm)
     return true if is_admin?
-    return true if has_global_permission? "access"
-    return true if has_local_permission?("access", parm)
+    return true if has_global_permission? 'access'
+    return true if has_local_permission?('access', parm)
     return false
   end
 
@@ -692,9 +693,9 @@ class User < ActiveRecord::Base
     else
       return false
     end
-    rel = object.relationships.where(:user_id => self.id).where("role_id in (?)", roles)
+    rel = object.relationships.where(:user_id => self.id).where('role_id in (?)', roles)
     return true if rel.exists?
-    rel = object.relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where("role_id in (?)", roles)
+    rel = object.relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where('role_id in (?)', roles)
     return true if rel.exists?
 
     return true if lookup_strategy.local_permission_check(roles, object)
@@ -710,7 +711,7 @@ class User < ActiveRecord::Base
 
   def involved_projects_ids
     # just for maintainer for now.
-    role = Role.rolecache["maintainer"]
+    role = Role.rolecache['maintainer']
 
     ### all projects where user is maintainer
     projects = self.relationships.projects.where(role_id: role.id).pluck(:project_id)
@@ -729,18 +730,18 @@ class User < ActiveRecord::Base
   # lists packages maintained by this user and are not in maintained projects
   def involved_packages
     # just for maintainer for now.
-    role = Role.rolecache["maintainer"]
+    role = Role.rolecache['maintainer']
 
     projects = involved_projects_ids
     projects << -1 if projects.empty?
 
     # all packages where user is maintainer
-    packages = self.relationships.where(role_id: role.id).joins(:package).where("packages.db_project_id not in (?)", projects).pluck(:package_id)
+    packages = self.relationships.where(role_id: role.id).joins(:package).where('packages.db_project_id not in (?)', projects).pluck(:package_id)
 
     # all packages where user is maintainer via a group
     packages += Relationship.packages.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).pluck(:package_id)
 
-    return Package.where(id: packages).where("db_project_id not in (?)", projects)
+    return Package.where(id: packages).where('db_project_id not in (?)', projects)
   end
 
   def forbidden_project_ids
@@ -754,8 +755,8 @@ class User < ActiveRecord::Base
     packages = Package.joins("LEFT OUTER JOIN relationships ON (relationships.package_id = packages.id AND relationships.role_id = #{role_id})")
     # No maintainers
     packages = packages.where([
-      "(relationships.user_id = ?) OR "\
-      "(relationships.user_id is null AND db_project_id in (?) )", self.id, projects_ids])
+      '(relationships.user_id = ?) OR '\
+      '(relationships.user_id is null AND db_project_id in (?) )', self.id, projects_ids])
     packages.pluck(:id)
   end
 

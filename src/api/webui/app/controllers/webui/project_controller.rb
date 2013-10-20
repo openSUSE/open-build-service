@@ -1,6 +1,7 @@
 module Webui
 class ProjectController < WebuiController
 
+  include HasComments
   include Webui::WebuiHelper
   include Webui::RequestHelper
   include Webui::ProjectHelper
@@ -10,7 +11,7 @@ class ProjectController < WebuiController
     :autocomplete_projects, :autocomplete_incidents, :clear_failed_comment, :edit_comment_form, :index,
     :list, :list_all, :list_public, :new, :package_buildresult, :save_new, :save_prjconf,
     :rebuild_time_png, :new_incident, :show]
-  before_filter :require_login, :only => [:save_new, :toggle_watch, :delete, :new, :save_comment]
+  before_filter :require_login, :only => [:save_new, :toggle_watch, :delete, :new]
   before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list,
                                                             :edit_repository, :update_target]
 
@@ -331,12 +332,12 @@ class ProjectController < WebuiController
         end
       end
     end
-    begin
-      @comments = ApiDetails.read(:comments_by_project, @project)
-    rescue ApiDetails::NotFoundError
-      @comments = []
-    end
-    render :show, :status => params[:nextstatus] if params[:nextstatus]
+    sort_comments(@project.api_obj.comments)
+    render :show, status: params[:nextstatus] if params[:nextstatus]
+  end
+
+  def comment_object
+    @project # used by HasComments mixin
   end
 
   def load_releasetargets
@@ -866,7 +867,7 @@ class ProjectController < WebuiController
 
   def save_person
     begin
-      @project.api_project.add_role(load_obj, Role.find_by_title!(params[:role]))
+      @project.api_obj.add_role(load_obj, Role.find_by_title!(params[:role]))
       @project.free_cache
     rescue ApiDetails::TransportError, ApiDetails::NotFoundError, User::NotFound => e
       flash[:error] = e.to_s
@@ -884,7 +885,7 @@ class ProjectController < WebuiController
 
   def save_group
     begin
-      @project.api_project.add_role(load_obj, Role.find_by_title!(params[:role]))
+      @project.api_obj.add_role(load_obj, Role.find_by_title!(params[:role]))
       @project.free_cache
     rescue ApiDetails::TransportError, ApiDetails::NotFoundError, ::Group::NotFound => e
       flash[:error] = e.to_s
@@ -902,7 +903,7 @@ class ProjectController < WebuiController
 
   def remove_role
     begin
-      @project.api_project.remove_role(load_obj, Role.find_by_title(params[:role]))
+      @project.api_obj.remove_role(load_obj, Role.find_by_title(params[:role]))
       @project.free_cache
     rescue ApiDetails::TransportError, ApiDetails::NotFoundError, User::NotFound, ::Group::NotFound => e
       flash[:error] = e.summary
@@ -1207,14 +1208,14 @@ class ProjectController < WebuiController
   end
 
   def calc_status(project_name)
-    @api_project = ::Project.where(name: project_name).includes(:packages).first
+    @api_obj = ::Project.where(name: project_name).includes(:packages).first
     @status = Hash.new
 
     # needed to map requests to package id
     @name2id = Hash.new
 
-    @prj_status = Rails.cache.fetch("prj_status-#{@api_project.to_s}", expires_in: 5.minutes) do
-      ProjectStatusCalculator.new(@api_project).calc_status(pure_project: true)
+    @prj_status = Rails.cache.fetch("prj_status-#{@api_obj.to_s}", expires_in: 5.minutes) do
+      ProjectStatusCalculator.new(@api_obj).calc_status(pure_project: true)
     end
 
     status_filter_packages
@@ -1252,7 +1253,7 @@ class ProjectController < WebuiController
     currentpack['requests_from'] = Array.new
     currentpack['requests_to'] = Array.new
 
-    key = @api_project.name + '/' + pname
+    key = @api_obj.name + '/' + pname
     if @submits.has_key? key
       currentpack['requests_from'].concat(@submits[key])
     end
@@ -1361,7 +1362,7 @@ class ProjectController < WebuiController
     @submits = Hash.new
     raw_requests.each do |id, state, tproject, tpackage|
       if state == "declined"
-        next if tproject != @api_project.name || !@name2id.has_key?(tpackage)
+        next if tproject != @api_obj.name || !@name2id.has_key?(tpackage)
         @status[@name2id[tpackage]].declined_request = id
         @declined_requests[id] = nil
       else
@@ -1529,39 +1530,6 @@ class ProjectController < WebuiController
       frontend.transport.direct_http(URI(path), :method => 'POST', :data => '')
       flash[:success] = "Unlocked project #{params[:project]}"
       WebuiProject.free_cache(params[:project])
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
-    end
-    redirect_to :action => 'show', :project => params[:project] and return
-  end
-
-  def save_comment
-    required_parameters :project, :body
-    required_parameters :title if !params[:parent_id]    
-    begin
-      ApiDetails.save_comment(:save_project_comment, params)
-      respond_to do |format|
-        format.js { render json: 'ok' }
-        format.html do
-          flash[:notice] = 'Comment added successfully'
-        end
-      end
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
-    end
-    redirect_to :action => 'show', :project => params[:project] and return
-  end
- 
-  def delete_comment
-    required_parameters :comment_id
-    begin
-      ApiDetails.save_comment(:delete_project_comment, params)
-      respond_to do |format|
-        format.js { render json: 'ok' }
-        format.html do
-          flash[:notice] = 'Comment successfully deleted'
-        end
-      end
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
     end

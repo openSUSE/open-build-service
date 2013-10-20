@@ -9,6 +9,12 @@ OBS_ApprovedRequestSource:
   value_count: 0
   attrib_namespace_id: 9
   issue_list: 0
+OBS_BranchRepositoriesFromProject:
+  id: 78
+  name: BranchRepositoriesFromProject
+  value_count: 1
+  attrib_namespace_id: 9
+  issue_list: 0
 OBS_BranchTarget:
   id: 66
   name: BranchTarget
@@ -81,12 +87,6 @@ OBS_ScreenShots:
 OBS_UpdateProject:
   id: 57
   name: UpdateProject
-  value_count: 1
-  attrib_namespace_id: 9
-  issue_list: 0
-OBS_BranchRepositoriesFromProject:
-  id: 78
-  name: BranchRepositoriesFromProject
   value_count: 1
   attrib_namespace_id: 9
   issue_list: 0

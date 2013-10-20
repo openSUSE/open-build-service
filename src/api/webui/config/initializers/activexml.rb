@@ -110,10 +110,6 @@ map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['fronte
 
     map.connect :builddepinfo, 'rest:///build/:project/:repository/:arch/_builddepinfo?:package&:limit&:code'
 
-    map.connect :comment, 'rest:///comments/project/:project/',
-                 :comment_package => 'rest:///comments/package/:project/:package/',
-                 :comment_request => 'rest:///comments/request/:request_id/'
-
   map.set_additional_header( 'User-Agent', "obs-webui/#{CONFIG['version']}" )
   map.details = DetailsLogger.new
 

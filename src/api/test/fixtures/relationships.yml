@@ -1,3 +1,8 @@
+Iggy_bugowner_BaseDistro3:
+  id: 22
+  project_id: 2047
+  role_id: 4
+  user_id: 267
 Iggy_bugowner_TestPack:
   id: 67
   package_id: 10095
@@ -7,11 +12,6 @@ Iggy_maintainer_TestPack:
   id: 66
   package_id: 10095
   role_id: 3
-  user_id: 267
-Iggy_bugowner_BaseDistro3:
-  id: 22
-  project_id: 2047
-  role_id: 4
   user_id: 267
 QA_Team:
   id: 71

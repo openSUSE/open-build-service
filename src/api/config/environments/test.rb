@@ -28,6 +28,7 @@ OBSApi::Application.configure do
 
   # Expands the lines which load the assets
   config.assets.debug = false
+  config.assets.log = nil
 end
 
 CONFIG['source_host'] = "localhost"

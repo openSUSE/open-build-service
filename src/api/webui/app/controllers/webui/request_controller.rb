@@ -3,6 +3,8 @@ require 'base64'
 module Webui
 class RequestController < WebuiController
   include WebuiHelper
+  include HasComments
+
   before_filter :require_login, :only => [:save_comment]
 
   def add_reviewer_dialog
@@ -90,13 +92,9 @@ class RequestController < WebuiController
       # will be nul for after end
       @request_after = request_list[index+1]
     end
-  
-    begin
-      @comments = ApiDetails.read(:comments_by_request, @req['id'])
-    rescue ActiveXML::Transport::Error => e
-      render :text => e.summary, :status => 404, :content_type => "text/plain"
-    end
 
+    sort_comments(::BsRequest.find(params[:id]).comments)
+    Rails.logger.debug "C #{@comments.inspect}"
   end
 
   def sourcediff
@@ -295,38 +293,9 @@ class RequestController < WebuiController
     redirect_to :controller => :request, :action => "show", :id => params[:id]
   end
 
-  def save_comment
-    required_parameters :id, :body
-    required_parameters :title if !params[:parent_id]
-    begin
-      ApiDetails.save_comment(:save_request_comment, params)
-
-      respond_to do |format|
-        format.js { render json: 'ok' }
-        format.html do
-          flash[:notice] = "Comment added successfully"          
-        end
-      end
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary      
-    end
-    redirect_to(:action => "show", :id => params[:id]) and return
-  end
-
-  def delete_comment
-    required_parameters :id, :comment_id
-    begin
-      ApiDetails.save_comment(:delete_request_comment, params)
-      respond_to do |format|
-        format.js { render json: 'ok' }
-        format.html do
-          flash[:notice] = "Comment deleted successfully"          
-        end
-      end
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary      
-    end
-    redirect_to(:action => "show", :id => params[:id]) and return
+  # used by HasComments mixin
+  def comment_object
+    Webui::BsRequest.find params[:id]
   end
 
 private
