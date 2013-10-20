@@ -7,3 +7,11 @@ function sz(t) {
     b += a.length;
     if (b > t.rows) t.rows = b;
 }
+
+function setup_comment_toggles() {
+    $('.togglable_comment').click(function () {
+        var toggleid = $(this).data("toggle");
+        $("#" + toggleid).toggle()
+    });
+}
+

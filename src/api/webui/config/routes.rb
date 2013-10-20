@@ -103,7 +103,6 @@ Webui::Engine.routes.draw do
     get 'package/import_spec/:project/:package' => :import_spec, constraints: cons
     get "package/files/:project/:package" => :files, constraints: cons
     post 'package/comments/:project/:package' => :save_comment, constraints: cons
-    post 'package/comments/:project/:package/delete' => :delete_comment, constraints: cons
   end
 
   controller :patchinfo do
@@ -195,7 +194,6 @@ Webui::Engine.routes.draw do
     get 'project/unlock_dialog' => :unlock_dialog
     post 'project/unlock' => :unlock
     post 'project/comments/:project' => :save_comment, constraints: cons, as: 'save_project_comment'
-    post 'project/comments/:project/delete' => :delete_comment, constraints: cons, as: 'delete_project_comment'
   end
 
   controller :request do
@@ -219,7 +217,6 @@ Webui::Engine.routes.draw do
     get 'request/set_incident_dialog' => :set_incident_dialog
     post 'request/set_incident' => :set_incident
     post 'request/comments/:id' => :save_comment
-    post 'request/comments/:id/delete' => :delete_comment, constraints: cons
 end
 
   controller :search do
@@ -264,6 +261,8 @@ end
     get 'group/edit' => :edit
   end
       
+  resource :comment, only: [:destroy]
+
   controller :home do
     # Only here to make old url's work
     get 'home/' => :index 

@@ -58,7 +58,7 @@ class Package < Webui::Node
   def remove_file( name, expand = nil )
     delete_opt = Hash.new
     delete_opt[:package] = self.name
-    delete_opt[:project] = self.api_package.project.name
+    delete_opt[:project] = self.api_obj.project.name
     delete_opt[:filename] = name
     delete_opt[:keeplink] = expand if expand
 
@@ -116,7 +116,7 @@ class Package < Webui::Node
   def user_has_role?(user, role)
     if user
       if user.kind_of? User
-        return api_package.relationships.where(user: user, role_id: Role.rolecache[role]).exists?
+        return api_obj.relationships.where(user: user, role_id: Role.rolecache[role]).exists?
       end
       raise 'user needs to be a Person' unless user.kind_of? Person
       each_person do |p|
@@ -134,7 +134,7 @@ class Package < Webui::Node
   end
 
   def users(role = nil)
-    rels = api_package.relationships
+    rels = api_obj.relationships
     rels = rels.where(role: Role.rolecache[role]) if role
     users = rels.users.pluck(:user_id)
     rels.groups.each do |g|
@@ -144,7 +144,7 @@ class Package < Webui::Node
   end
 
   def groups(role = nil)
-    rels = api_package.relationships
+    rels = api_obj.relationships
     rels = rels.where(role: Role.rolecache[role]) if role
     Group.where(id: rels.groups.pluck(:group_id).uniq)
   end
@@ -320,14 +320,14 @@ class Package < Webui::Node
       return nil
     end
     p = Webui::Package.new(ap.render_xml(opts[:view]))
-    p.api_package = ap
+    p.api_obj = ap
     p.instance_variable_set('@init_options', project: project, name: name)
     p
   end
 
-  attr_writer :api_package
-  def api_package
-    @api_package ||= ::Package.find_by_project_and_name(project, name)
+  attr_writer :api_obj
+  def api_obj
+    @api_obj ||= ::Package.find_by_project_and_name(project, name)
   end
 
 end

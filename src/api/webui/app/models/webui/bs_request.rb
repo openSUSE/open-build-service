@@ -252,5 +252,9 @@ class BsRequest < Node
     details = ApiDetails.read(:request, self.id)
     return details['creator']
   end
+
+  def api_obj
+    ::BsRequest.find self.id
+  end
 end
 end

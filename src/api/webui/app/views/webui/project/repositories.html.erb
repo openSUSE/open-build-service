@@ -28,7 +28,7 @@
         <% rescue; end %>
 
         <div style="margin-top: 1em">
-          <% if User.current.can_modify_project?(@project.api_project) %>
+          <% if User.current.can_modify_project?(@project.api_obj) %>
             <%= sprite_tag('drive_edit') %>
             <%= link_to('Edit repository', {:action => :edit_repository, :project => @project, :repository => repository.name}, :id => "edit_repository_link_#{repository_id}", :remote => true) %>
             <% content_for :ready_function do %>
@@ -54,7 +54,7 @@
   <% end %>
 <% end %>
 
-<% if User.current.can_modify_project?(@project.api_project) %>
+<% if User.current.can_modify_project?(@project.api_obj) %>
   <p>
     <%= link_to(sprite_tag('drive_add', title: 'Add repository'), :action => 'add_repository_from_default_list', :project => @project) %>
     <%= link_to('Add repositories', :action => 'add_repository_from_default_list', :project => @project) %>
