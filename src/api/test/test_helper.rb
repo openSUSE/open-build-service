@@ -76,11 +76,7 @@ module ActionDispatch
 
       def process(method, path, parameters, rack_env)
         CONFIG['global_write_through'] = true
-        if path !~ %r{/webui2}
-          self.accept = 'text/xml,application/xml'
-        else
-          reset!
-        end
+        self.accept = 'text/xml,application/xml'
         real_process(method, path, parameters, add_auth(rack_env))
       end
 

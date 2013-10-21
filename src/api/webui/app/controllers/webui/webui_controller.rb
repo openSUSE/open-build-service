@@ -15,9 +15,6 @@ class WebuiController < ActionController::Base
   after_filter :validate_xhtml
   after_filter :clean_cache
 
-  if Rails.env.test?
-     prepend_before_filter :start_test_api
-  end
   # :notice and :alert are default, we add :success and :error
   add_flash_types :success, :error
 
@@ -313,10 +310,6 @@ class WebuiController < ActionController::Base
       logger.debug "XML Errors #{errors.inspect} #{xmlbody}"
       render :template => 'webui/xml_errors', :locals => { :oldbody => xmlbody, :errors => errors }, :status => 400
     end
-  end
-
-  def start_test_api
-    Webui::IntegrationTest.start_test_api
   end
 
   def require_configuration

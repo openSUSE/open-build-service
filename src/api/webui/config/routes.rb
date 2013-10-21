@@ -1,5 +1,13 @@
+# we take everything here that is not XML - the default mimetype is xml though
+class HTMLMatcher
+  def self.matches?(request)
+    request.format.to_sym != :xml
+  end
+end
+
 Webui::Engine.routes.draw do
 
+  constraints(HTMLMatcher) do 
   cons = { :project => %r{[^\/]*}, :package => %r{[^\/]*}, :binary => %r{[^\/]*}, 
     :user => %r{[^\/]*}, :login => %r{[^\/]*}, :title => %r{[^\/]*}, :service => %r{\w[^\/]*},
     :repository => %r{[^\/]*}, :filename => %r{[^\/]*}, :arch => %r{[^\/]*}, :id => %r{\d*} }
@@ -248,7 +256,7 @@ end
     get 'user/tokens' => :tokens
   
     post 'user/do_login' => :do_login
-    get 'configuration/users/:user' => :edit
+    get 'configuration/users/:user' => :edit, as: 'configuration_user'
 
   end
 
@@ -278,4 +286,5 @@ end
   get 'apidocs/index' => 'apidocs#index'
   get 'apidocs/:filename' => 'apidocs#file', constraints: { :filename => %r{[^\/]*} }, as: 'apidocs_file'
 
+end
 end
