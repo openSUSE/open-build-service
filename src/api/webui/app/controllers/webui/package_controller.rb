@@ -692,7 +692,7 @@ class PackageController < WebuiController
     begin
       @package.api_obj.add_role(load_obj, Role.find_by_title!(params[:role]))
       @package.free_cache
-    rescue ApiDetails::TransportError, ApiDetails::NotFoundError, User::NotFound, ::Group::NotFound => e
+    rescue User::NotFound, ::Group::NotFound => e
       flash[:error] = e.to_s
       redirect_to action: :add_person, project: @project, package: @package, role: params[:role], userid: params[:userid]
       return
@@ -710,7 +710,7 @@ class PackageController < WebuiController
     begin
       @package.api_obj.add_role(load_obj, Role.find_by_title!(params[:role]))
       @package.free_cache
-    rescue ApiDetails::TransportError, ApiDetails::NotFoundError, User::NotFound, ::Group::NotFound => e
+    rescue User::NotFound, ::Group::NotFound => e
       flash[:error] = e.to_s
       redirect_to action: :add_group, project: @project, package: @package, role: params[:role], groupid: params[:groupid]
       return
@@ -728,7 +728,7 @@ class PackageController < WebuiController
     begin
       @package.api_obj.remove_role(load_obj,  Role.find_by_title(params[:role]))
       @package.free_cache
-    rescue ApiDetails::TransportError, ApiDetails::NotFoundError, User::NotFound, ::Group::NotFound => e
+    rescue User::NotFound, ::Group::NotFound => e
       flash[:error] = e.summary
     end
     respond_to do |format|
