@@ -59,14 +59,15 @@ class RequestController < WebuiController
   def show
     redirect_back_or_to :controller => 'home', :action => 'requests' and return if !params[:id]
     begin
-      @req = ApiDetails.read(:request, params[:id])
-    rescue ApiDetails::NotFoundError
+      @req = ::BsRequest.find(params[:id])
+    rescue ActiveRecord::RecordNotFound
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_back_or_to :controller => "home", :action => "requests" and return
     end
 
+    @req = @req.webui_infos
     @id = @req['id']
-    @state = @req['state']
+    @state = @req['state'].to_s
     @accept_at = @req['accept_at']
     @req['creator'] = User.find_by_login! @req['creator']
     @is_author = @req['creator'] == User.current

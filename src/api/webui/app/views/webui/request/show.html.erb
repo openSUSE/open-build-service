@@ -24,7 +24,7 @@
   <div class="grid_6 omega">
     <ul class="clean_list">
       <li><%= sprite_tag('user_green') %> Created
-        by <%= render :partial => 'shared/user_with_realname_and_icon', :locals => { :user => @req['creator'], :no_icon => true, :short => true } %> <%= fuzzy_time_string(@req['created_at']) %></li>
+        by <%= render :partial => 'shared/user_with_realname_and_icon', :locals => { :user => @req['creator'], :no_icon => true, :short => true } %> <%= fuzzy_time(@req['created_at']) %></li>
       <li><%= sprite_tag('information') %> In
         state <%= link_to @state, { :anchor => "request_history" }, { :style => "color: #{request_state_color(@state)};" } %></li>
       <% if @superseded_by %>
@@ -51,7 +51,7 @@
         <ul id="action_select">
           <% @actions.each_with_index do |action, index| %>
               <li class="<%= 'selected' if index == 0 %>">
-                <a class="action_select_link" id="action_select_link_<%= index %>" href="#"><%= action['name'] %></a>
+                <a class="action_select_link" id="action_select_link_<%= index %>" href="#"><%= action[:name] %></a>
               </li>
           <% end %>
         </ul>
@@ -70,35 +70,35 @@
   <% @actions.each_with_index do |action, action_index| %>
       <div class="action_display" style="<%= 'display: none;' if action_index > 0 %>" id="action_display_<%= action_index %>">
         <p>
-          <% if action['type'] == 'submit' %>
+          <% if action[:type] == :submit %>
               <b>Submit
-                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action['sprj'], package: action['spkg'], :rev => action['srev'] } %>
+                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action[:sprj], package: action[:spkg], :rev => action[:srev] } %>
                 to
-                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action['tprj'], package: action['tpkg'] } %>
+                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action[:tprj], package: action[:tpkg] } %>
               </b>
               <% if @can_handle_request && @is_target_maintainer %>
-                  <% if !action['creator_is_target_maintainer'] %>
+                  <% if !action[:creator_is_target_maintainer] %>
                       <%# TODO: Make this work for each submit action individually: %>
-                      <br/><%= check_box_tag("add_submitter_as_maintainer_#{action_index}", "#{action['tprj']}_#_#{action['tpkg']}", false, :class => 'submitter_is_maintainer_checkbox') %>
+                      <br/><%= check_box_tag("add_submitter_as_maintainer_#{action_index}", "#{action[:tprj]}_#_#{action[:tpkg]}", false, :class => 'submitter_is_maintainer_checkbox') %>
                       Add
                       <%= render :partial => 'shared/user_with_realname_and_icon', :locals => { :user => @req['creator'], :no_icon => true, :short => true } %>
                       as maintainer for
-                      <%= render :partial => 'shared/project_or_package_link', :locals => { project: action['tprj'], package: action['tpkg'], :short => true } %>
+                      <%= render :partial => 'shared/project_or_package_link', :locals => { project: action[:tprj], package: action[:tpkg], :short => true } %>
                   <% end %>
 
-                  <% if action['forward'] %>
+                  <% if action[:forward] %>
                       <%# TODO: Make this work for each submit action individually: %>
-                      <% action['forward'].each do |forward| %>
+                      <% action[:forward].each do |forward| %>
                           <% index = 0 %>
-                          <% if forward['type'] == 'link' %>
-                              <br/><%= check_box_tag('forward_link', "#{forward['project']}_#_#{forward['package']}", false, :class => 'forward_checkbox') %>
+                          <% if forward[:type] == 'link' %>
+                              <br/><%= check_box_tag('forward_link', "#{forward[:project]}_#_#{forward[:package]}", false, :class => 'forward_checkbox') %>
                               Forward to linked package
-                              <%= render :partial => 'shared/project_or_package_link', :locals => { project: forward['project'], package: forward['package'], :short => true } %>
+                              <%= render :partial => 'shared/project_or_package_link', :locals => { project: forward[:project], package: forward[:package], :short => true } %>
                               <br/>
                           <% else %>
-                              <br/><%= check_box_tag("forward_devel_#{index}", "#{forward['project']}_#_#{forward['package']}", true, :class => 'forward_checkbox') %>
+                              <br/><%= check_box_tag("forward_devel_#{index}", "#{forward[:project]}_#_#{forward[:package]}", true, :class => 'forward_checkbox') %>
                               Forward to developed package
-                              <%= render :partial => 'shared/project_or_package_link', :locals => { project: forward['project'], package: forward['package'], :short => true } %>
+                              <%= render :partial => 'shared/project_or_package_link', :locals => { project: forward[:project], package: forward[:package], :short => true } %>
                               <br/>
                               <% index += 1 %>
                           <% end %>
@@ -106,64 +106,64 @@
                   <% end %>
               <% end %>
 
-          <% elsif action['type'] == 'delete' %>
+          <% elsif action[:type] == :delete %>
               <b>Delete
-                <% if action['trepo'] %>
-                    repository <%= link_to action['trepo'], :controller => :project, :action => :repositories, :project => action['tprj'], :repository => action['trepo'] %>
+                <% if action[:trepo] %>
+                    repository <%= link_to action[:trepo], :controller => :project, :action => :repositories, :project => action[:tprj], :repository => action[:trepo] %>
                     in
                 <% end %>
-                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action['tprj'], package: action['tpkg'] } %>
+                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action[:tprj], package: action[:tpkg] } %>
               </b>
-          <% elsif action['type'] == 'add_role' %>
+          <% elsif action[:type] == :add_role %>
               <b>
-                <%= render :partial => 'shared/user_with_realname_and_icon', :locals => { :user => User.find_by_login(action['user']) } %>
-                wants the role <b><%= action['role'] %></b> for
-                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action['tprj'], package: action['tpkg'] } %>
+                <%= render :partial => 'shared/user_with_realname_and_icon', :locals => { :user => User.find_by_login(action[:user]) } %>
+                wants the role <b><%= action[:role] %></b> for
+                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action[:tprj], package: action[:tpkg] } %>
               </b>
-          <% elsif action['type'] == 'change_devel' %>
+          <% elsif action[:type] == :change_devel %>
               <b>
                 Set the devel project to
-                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action['sprj'], package: action['spkg'] } %>
+                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action[:sprj], package: action[:spkg] } %>
                 for
-                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action['tprj'], package: action['tpkg'] } %>
+                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action[:tprj], package: action[:tpkg] } %>
               </b>
-          <% elsif action['type'] == 'maintenance_incident' %>
+          <% elsif action[:type] == :maintenance_incident %>
               <b>
                 Submit update from
-                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action['sprj'], package: action['spkg'], :homeproject => @req['creator'] } %>
+                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action[:sprj], package: action[:spkg], :homeproject => @req['creator'] } %>
                 to
-                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action['tprj'], package: action['tpkg'] } %>
+                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action[:tprj], package: action[:tpkg] } %>
               </b>
-              <% if action['releaseproject'] %>
+              <% if action[:releaseproject] %>
                   <br/><i>
           Release in
-          <%= action['releaseproject'] %>
+          <%= action[:releaseproject] %>
         </i>
               <% end %>
-          <% elsif action['type'] == 'maintenance_release' %>
+          <% elsif action[:type] == :maintenance_release %>
               <b>
                 Release
-                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action['sprj'], package: action['spkg'] } %>
+                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action[:sprj], package: action[:spkg] } %>
                 to
-                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action['tprj'], package: action['tpkg'] } %>
+                <%= render :partial => 'shared/project_or_package_link', :locals => { project: action[:tprj], package: action[:tpkg] } %>
               </b>
           <% end %>
         </p>
 
-        <% if action['sourcediff'] %>
-            <% action['sourcediff'].each_with_index do |sourcediff, sourcediff_index| %>
+        <% if action[:sourcediff] %>
+            <% action[:sourcediff].each_with_index do |sourcediff, sourcediff_index| %>
                 <div class="grid_10 alpha">
-                  <% if sourcediff['error'] %>
-                      <%= content_tag(:p, content_tag(:i, sourcediff['error'], class: :error)) %>
+                  <% if sourcediff[:error] %>
+                      <%= content_tag(:p, content_tag(:i, sourcediff[:error], class: :error)) %>
                   <% else %>
-                      <% if action['type'] == 'delete'
+                      <% if action[:type] == :delete
                            t = sourcediff['old']
                          else
                            t = sourcediff['new']
                          end
                          project, package, rev = t['project'], t['package'], t['rev'] %>
 
-                      <% if action['sourcediff'].length != 1 %>
+                      <% if action[:sourcediff].length != 1 %>
                           <h4>
                             <%= sourcediff['new']['project'] %> / <%= sourcediff['new']['package'] %>
                             (rev <%= sourcediff['new']['rev'] %>) -
@@ -172,11 +172,11 @@
                           </h4>
                       <% end %>
                       <%#TODO: Redo source/target link display %>
-                      <%= render(:partial => 'shared/sourcediff', locals: { filenames: sourcediff['filenames'], files: sourcediff['files'], :source => { project: project, package: package, :rev => rev }, :css_id => "diff_action_#{action_index}_#{action['type']}_#{sourcediff_index}", :editor_width => '550px' }) %>
+                      <%= render(:partial => 'shared/sourcediff', locals: { filenames: sourcediff['filenames'], files: sourcediff['files'], :source => { project: project, package: package, :rev => rev }, :css_id => "diff_action_#{action_index}_#{action[:type]}_#{sourcediff_index}", :editor_width => '550px' }) %>
                   <% end %>
                 </div>
                 <div class="grid_6 omega">
-                  <%= render :partial => 'shared/buildresult_box', locals: { project: project, package: package, index: action_index } %>
+                  <%#= render :partial => 'shared/buildresult_box', locals: { project: project, package: package, index: action_index } %>
                   <% if sourcediff['issues'] && sourcediff['issues'].length > 0 %>
                       <p><b>Mentioned Issues (<%= sourcediff['issues'].length %>)</b></p>
                       <%= render partial: 'issues_table', locals: { issues: sourcediff['issues'] } %>
@@ -254,14 +254,14 @@
               <% @my_open_reviews.each_with_index do |review, index| %>
                   <div class="review_descision_display <%= 'hidden' if index != 0 %>" id="review_descision_display_<%= index %>">
                     <%= form_tag(:action => "modify_review") do %>
-                        <p><%= text_area_tag("review_comment_#{index}", review['reason'], :size => '80x2', :style => "width: 99%", :class => 'review_comment') %></p>
+                        <p><%= text_area_tag("review_comment_#{index}", review[:reason], :size => '80x2', :style => "width: 99%", :class => 'review_comment') %></p>
 
                         <p>
                           <%= hidden_field_tag("review_request_id_#{index}", @id) %>
-                          <%= hidden_field_tag("review_by_user_#{index}", review['by_user']) if review['by_user'] %>
-                          <%= hidden_field_tag("review_by_group_#{index}", review['by_group']) if review['by_group'] %>
-                          <%= hidden_field_tag("review_by_project_#{index}", review['by_project']) if review['by_project'] %>
-                          <%= hidden_field_tag("review_by_package_#{index}", review['by_package']) if review['by_package'] %>
+                          <%= hidden_field_tag("review_by_user_#{index}", review[:by_user]) if review[:by_user] %>
+                          <%= hidden_field_tag("review_by_group_#{index}", review[:by_group]) if review[:by_group] %>
+                          <%= hidden_field_tag("review_by_project_#{index}", review[:by_project]) if review[:by_project] %>
+                          <%= hidden_field_tag("review_by_package_#{index}", review[:by_package]) if review[:by_package] %>
                           <%= submit_tag 'Accept review', name: 'accepted', id: "review_accept_button_#{index}" %>
                           <%= submit_tag 'Decline review', name: 'declined', id: "review_decline_button_#{index}" %>
                         </p>

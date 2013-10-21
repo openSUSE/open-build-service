@@ -650,7 +650,7 @@ class ProjectController < WebuiController
   end
 
   def requests
-    @requests = ApiDetails.read(:by_class_requests, project: @project.name)
+    @requests = @project.request_ids_by_class
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
   end

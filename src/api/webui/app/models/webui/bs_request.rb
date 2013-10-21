@@ -175,10 +175,12 @@ class BsRequest < Node
     # FIXME very bad method name
     def ids(ids)
       return [] if ids.blank?
-      logger.debug "Fetching request list from api"
+      logger.debug "Fetching request list from db"
       ret = []
-      ids.each_slice(50) do |a|
-        ret.concat(ApiDetails.read(:requests, ids: a))
+      rel = ::BsRequest.where(id: ids).order('bs_requests.id')
+      rel = rel.includes({ bs_request_actions: :bs_request_action_accept_info }, :bs_request_histories)
+      rel.each do |r|
+        ret << r.webui_infos(diffs: false)
       end
       return ret
     end
@@ -203,11 +205,27 @@ class BsRequest < Node
     end
     
     def list_ids(opts)
-       # All types means don't pass 'type' to backend
+       # All types means don't pass 'type'
       if opts[:types] == 'all' || (opts[:types].respond_to?(:include?) && opts[:types].include?('all'))
         opts.delete(:types)
       end
-      Webui::ApiDetails.read(:ids_requests, opts)
+      # Do not allow a full collection to avoid server load
+      if opts[:project].blank? && opts[:user].blank? && opts[:package].blank?
+        raise RuntimeError, "This call requires at least one filter, either by user, project or package"
+      end
+      roles = opts[:roles] || []
+      states = opts[:states] || []
+
+      # it's wiser to split the queries
+      if opts[:project] && roles.empty? && (states.empty? || states.include?('review'))
+        rel = BsRequestCollection.new(opts.merge({ roles: ['reviewer'] }))
+        ids = rel.ids
+        rel = BsRequestCollection.new(opts.merge({ roles: ['target', 'source'] }))
+      else
+        rel = BsRequestCollection.new(opts)
+        ids = []
+      end
+      ids.concat(rel.ids)
     end
 
     def list(opts)
@@ -249,12 +267,11 @@ class BsRequest < Node
 
   # return the login of the creator - to be obsoleted soon (FIXME2.4)
   def creator
-    details = ApiDetails.read(:request, self.id)
-    return details['creator']
+    api_obj.creator
   end
 
   def api_obj
-    ::BsRequest.find self.id
+    @api_obj ||= ::BsRequest.find self.id
   end
 end
 end
