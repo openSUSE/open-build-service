@@ -37,6 +37,7 @@ class MyParamsParser
       env["action_dispatch.request.request_parameters"] = params
     end
 
+    env['HTTP_ACCEPT'] ||= 'application/xml'
     @app.call(env)
   end
 

@@ -83,16 +83,16 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
   
   test "basic_search_functionality" do
-    visit '/webui2/search'
+    visit webui_engine.search_path
     validate_search_page
 
-    visit '/webui2/search?search_text=basedistro'
+    visit webui_engine.root_path + '/search?search_text=basedistro'
     page.must_have_text(/Base.* contains official released updates/)
 
-    visit '/webui2/search?search_text=basedistro3'
+    visit webui_engine.root_path + '/search?search_text=basedistro3'
     page.must_have_text(/Base.* distro without update project/)
 
-    visit '/webui2/search?search_text=kdebase'
+    visit webui_engine.root_path + '/search?search_text=kdebase'
     page.must_have_link 'kdebase'
   end
   
@@ -110,10 +110,10 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
   test "search_by_baseurl" do
-    visit '/webui2/search?search_text=obs://build.opensuse.org/openSUSE:Factory/standard/fd6e76cd402226c76e65438a5e3df693-bash'
+    visit webui_engine.root_path + '/search?search_text=obs://build.opensuse.org/openSUSE:Factory/standard/fd6e76cd402226c76e65438a5e3df693-bash'
     find('#flash-messages').must_have_text "Project not found: openSUSE:Factory"
 
-    visit '/webui2/search?search_text=obs://foo'
+    visit webui_engine.root_path + '/search?search_text=obs://foo'
     find('#flash-messages').must_have_text(%{This disturl does not compute!})
   end
 

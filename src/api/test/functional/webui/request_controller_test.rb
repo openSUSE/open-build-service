@@ -6,7 +6,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
   def test_my_involved_requests
     login_Iggy
-    visit '/webui2/home/requests?user=king'
+    visit webui_engine.root_path + '/home/requests?user=king'
 
     page.must_have_selector 'table#request_table tr'
 
@@ -63,7 +63,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
     logout
     login_fred
-    visit '/webui2/request/show/1001'
+    visit webui_engine.root_path + '/request/show/1001'
     find('#action_display_0').must_have_text 'Iggy Pop (Iggy) wants the role maintainer for package Apache / apache2'
     click_button 'Accept'
 

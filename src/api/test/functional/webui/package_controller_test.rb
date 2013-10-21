@@ -67,13 +67,13 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
 
   test 'succesful comment creation' do
     login_Iggy
-    visit '/webui2/package/show/home:Iggy/TestPack'
+    visit webui_engine.root_path + '/package/show/home:Iggy/TestPack'
     fill_comment
   end
 
   test 'another succesful comment creation' do
     login_Iggy
-    visit '/webui2/package/show?project=home:Iggy&package=TestPack'
+    visit webui_engine.root_path + '/package/show?project=home:Iggy&package=TestPack'
     fill_comment
   end
 
@@ -86,7 +86,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
 
   test 'succesful reply comment creation' do
     login_Iggy
-    visit '/webui2/package/show/BaseDistro3/pack2'
+    visit webui_engine.root_path + '/package/show/BaseDistro3/pack2'
     find(:id,'reply_link_id_201').click
     fill_in 'reply_body_201', with: 'Comment Body'
     find(:id,'add_reply_201').click
@@ -94,12 +94,12 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
    end
 
   test 'diff is empty' do
-    visit '/webui2/package/rdiff/BaseDistro2.0/pack2.linked?opackage=pack2&oproject=BaseDistro2.0'
+    visit webui_engine.root_path + '/package/rdiff/BaseDistro2.0/pack2.linked?opackage=pack2&oproject=BaseDistro2.0'
     find('#content').must_have_text 'No source changes!'
   end
 
   test 'revision is mepty' do
-    visit '/webui2/package/rdiff/BaseDistro2.0/pack2.linked?opackage=pack2&oproject=BaseDistro2.0&rev='
+    visit webui_engine.root_path + '/package/rdiff/BaseDistro2.0/pack2.linked?opackage=pack2&oproject=BaseDistro2.0&rev='
     flash_message_type.must_equal :alert
     flash_message.must_equal 'revision is empty'
   end
