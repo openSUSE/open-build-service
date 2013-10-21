@@ -4,7 +4,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
 
   def test_edit
     login_king
-    visit '/webui2/configuration/users/tom'
+    visit webui_engine.configuration_user_path(user: 'tom')
 
     fill_in "realname", with: "Tom Thunder"
     click_button "Update"

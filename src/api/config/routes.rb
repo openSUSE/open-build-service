@@ -1,14 +1,6 @@
 OBSApi::Application.routes.draw do
 
-  mount Webui::Engine, at: "/webui2", as: 'webui_engine'
-
-  scope constraints: { format: 'html' } do
-    namespace :html do
-      get '/' => 'main#index'
-    end
-  end
-
-  defaults :format => 'xml' do
+  mount Webui::Engine, at: '/', as: 'webui_engine'
 
     get '/' => 'main#index'
 
@@ -20,6 +12,7 @@ OBSApi::Application.routes.draw do
     ### /person
     post 'person' => 'person#command'
     get 'person' => 'person#show'
+    post 'person/login/:user' => 'person#login'
 
     # FIXME3.0: this is no clean namespace, a person "register" or "changepasswd" could exist ...
     #           remove these for OBS 3.0
@@ -341,5 +334,4 @@ OBSApi::Application.routes.draw do
 
     get '/404' => 'main#notfound'
 
-  end
 end

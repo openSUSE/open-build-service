@@ -27,6 +27,10 @@ class PersonController < ApplicationController
     raise UnknownCommandError.new "Allowed commands are 'change_password'"
   end
 
+  def login
+    render_ok # just a dummy check for the webui to call (for now)
+  end
+
   def userinfo
     login = params[:login]
     user = User.find_by_login(login) if login
