@@ -88,6 +88,7 @@ my @hostlabel;
 my $getbinariesproxy;
 
 my $jobs;
+my $threads;
 my $cachedir;
 my $cachesize;
 
@@ -263,6 +264,8 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
                    : do not update both worker and build code
 
        --jobs <nr> : hand over the number of parallel jobs to build
+
+       --threads <nr> : sets number of threads for KVM
 
        --oneshot <seconds>
                    : just build one package, do not wait more then
@@ -489,6 +492,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--jobs') {
     shift @ARGV;
     $jobs = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--threads') {
+    shift @ARGV;
+    $treads = shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--cachedir') {
@@ -2253,6 +2261,7 @@ sub dobuild {
   push @args, '--debug' if $buildinfo->{'debuginfo'};
   push @args, '--arch', $arch;
   push @args, '--jobs', $jobs if $jobs;
+  push @args, '--threads', $threads if $treads;
   push @args, '--reason', "Building $packid for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
   push @args, '--disturl', $disturl;
   push @args, '--linksources' if $localkiwi;

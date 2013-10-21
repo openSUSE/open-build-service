@@ -72,6 +72,9 @@ fi
 if [ -n "$OBS_WORKER_JOBS" ]; then
     OBS_JOBS="--jobs $OBS_WORKER_JOBS"
 fi
+if [ -n "$OBS_WORKER_THREADS" ]; then
+    OBS_THREADS="--threads $OBS_WORKER_THREADS"
+fi
 if [ -n "$OBS_WORKER_NICE_LEVEL" ]; then
     OBS_NICE=$OBS_WORKER_NICE_LEVEL
 else
@@ -323,7 +326,7 @@ case "$1" in
             fi
 	    echo "screen -t $WORKERID nice -n $OBS_NICE ./bs_worker $vmopt $port --root $R" \
                 "--statedir $workerdir/$I --id $WORKERID $REPO_PARAM $HUGETLBFS $HOSTLABELS" \
-                "$HOSTOWNER $OBS_JOBS $OBS_TEST $OBS_WORKER_OPT $TMPFS $DEVICE $SWAP $MEMORY" \
+                "$HOSTOWNER $OBS_JOBS $OBS_THREADS $OBS_TEST $OBS_WORKER_OPT $TMPFS $DEVICE $SWAP $MEMORY" \
                 "$ARCH $EMULATOR" \
                 >> $screenrc
 	    mkdir -p $workerdir/$I
