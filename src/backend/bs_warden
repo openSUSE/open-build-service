@@ -62,14 +62,19 @@ flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("worker warden is already running!\n");
 utime undef, undef, "$rundir/bs_warden.lock";
 
 my %building;
+my $nextorphan = 0;
+my $xcheck = 0;
+my %orphanchecks;
 
 while (1) {
   my $now = time();
+  my %nbuilding;
   for my $wname (ls("$workersdir/building")) {
     next if $wname =~ /^\./;
-    next if $building{$wname};
-    $building{$wname} = {'lastcheck' => $now};
+    $nbuilding{$wname} = $building{$wname} || {'lastcheck' => $now};
   }
+  %building = %nbuilding;
+  %nbuilding = ();
   for my $wname (sort keys %building) {
     my $b = $building{$wname};
     my $lastcheck = $b->{'lastcheck'};
@@ -81,6 +86,7 @@ while (1) {
     next unless $worker && $worker->{'job'} && $worker->{'arch'};
     my $job = $worker->{'job'};
     my $arch = $worker->{'arch'};
+    $building{$wname}->{'job'} = "$arch/$job";
     my $js;
     if ($worker->{'reposerver'}) {
       # masterdispatched job. ask slave about job status.
@@ -137,6 +143,85 @@ while (1) {
       $b->{'lastcheck'} = $now;
     }
   }
+  if ($now > $nextorphan) {
+    $nextorphan = $now + 60;	# every minute
+    $xcheck = 0 if $xcheck++ > 10;
+    my %buildingjobs = map {($_->{'job'} || '') => 1} values %building;
+    for my $arch (sort(ls($jobsdir))) {
+      next unless -d "$jobsdir/$arch";
+      my @b = sort(grep {!/^\./} ls("$jobsdir/$arch"));
+      my %locked = map {$_ => 1} grep {/:status$/} @b;
+      # check for orphaned jobs
+      my %norphanchecks;
+      $orphanchecks{$arch} ||= {};
+      for my $job (grep {!/:(?:dir|status|new)$/} @b) {
+	next unless $locked{"$job:status"};
+	next if $buildingjobs{"$arch/$job"};
+	if (!$orphanchecks{$arch}->{$job}) {
+	  my @s = stat("$jobsdir/$arch/$job:status");
+	  $norphanchecks{$job} = 1 + (((@s ? $s[9] : 0) / 60) % 30);
+	} else {
+	  $norphanchecks{$job} = $orphanchecks{$arch}->{$job};
+	}
+	next if $norphanchecks{$job}++ < 30;	# check every 30 minutes
+	$norphanchecks{$job} = 1;
+	my $js = readxml("$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
+	if ($js && $js->{'code'} ne 'building') {
+	  my @s = stat("$jobsdir/$arch/$job:status");
+	  if (@s && $s[9] + 86400 < $now) {
+	    print BSUtil::isotime().": restarting build of $arch/$job stuck in code $js->{'code'}\n";
+	    unlink("$jobsdir/$arch/$job:status");
+	  }
+	  next;
+	}
+        next unless $js && $js->{'code'} eq 'building';
+	#print "orphan check for $arch/$job...\n";
+	my $param = {
+	  'uri' => "$js->{'uri'}/worker",
+	  'timeout' => 60,
+	};
+	eval {
+	  BSRPC::rpc($param, undef, "jobid=$js->{'jobid'}");
+	};
+	if ($@) {
+	  warn($@);
+	  local *F;
+	  my $js2 = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
+	  if (!$js2 || $js2->{'code'} ne 'building' || $js2->{'jobid'} ne $js->{'jobid'} || $js2->{'workerid'} ne $js->{'workerid'}) {
+	    print "build of $job is done on a different worker\n";
+	    close F;
+	    next;
+	  }
+	  print BSUtil::isotime().": restarting orphaned build of $arch/$job building on $js->{'workerid'}\n";
+	  unlink("$jobsdir/$arch/$job:status");
+          close F;
+	}
+      }
+      $orphanchecks{$arch} = \%norphanchecks;
+      if (!$xcheck) {
+	# check orphaned :dir or :status files
+	my %jobs = map {$_ => 1} grep {!/:(?:dir|status|new)$/} @b;
+	for my $job (grep {s/:dir$//} @b) {
+	  next if $jobs{$job};
+	  my @s = stat("$jobsdir/$arch/$job:dir");
+	  if (@s && $s[9] + 86400 < $now) {
+	    print BSUtil::isotime().": removing orphaned $arch/$job result directory\n";
+	    BSUtil::cleandir("$jobsdir/$arch/$job:dir");
+	    rmdir("$jobsdir/$arch/$job:dir");
+	  }
+	}
+	for my $job (grep {s/:status$//} @b) {
+	  next if $jobs{$job};
+	  my @s = stat("$jobsdir/$arch/$job:status");
+	  if (@s && $s[9] + 86400 < $now) {
+	    print BSUtil::isotime().": removing orphaned $arch/$job status file\n";
+	    rmdir("$jobsdir/$arch/$job:status");
+	  }
+	}
+      }
+    }
+  }
+
   #print "sleeping\n";
   for my $i (qw{1 2 3 4 5}) {
     if (-e "$rundir/bs_warden.exit") {
