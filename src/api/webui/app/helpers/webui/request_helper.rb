@@ -2,7 +2,7 @@ module Webui::RequestHelper
 
   # for a simplified view on a request, must be used only for lists
   def reqtype(req)
-    type = req['type']
+    type = req[:type].to_s
     type = "chgdev"   if type == "change_devel"
     type = "bugowner" if type == "set_bugowner"
     type = "addrole"  if type == "add_role"
@@ -18,7 +18,7 @@ module Webui::RequestHelper
   }
 
   def map_request_state_to_flag(state)
-    STATE_ICONS[state] || ''
+    STATE_ICONS[state.to_s] || ''
   end
 
   STATE_COLORS = {
@@ -28,7 +28,7 @@ module Webui::RequestHelper
   }
 
   def request_state_color(state)
-    STATE_COLORS[state] || ''
+    STATE_COLORS[state.to_s] || ''
   end
 
 end
