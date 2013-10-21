@@ -624,7 +624,7 @@ CREATE TABLE `projects` (
   `updated_at` datetime DEFAULT '0000-00-00 00:00:00',
   `remoteurl` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `remoteproject` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `type_id` int(11) DEFAULT NULL,
+  `type_id` int(11) NOT NULL,
   `maintenance_project_id` int(11) DEFAULT NULL,
   `develproject_id` int(11) DEFAULT NULL,
   `delta` tinyint(1) NOT NULL DEFAULT '1',
@@ -632,7 +632,9 @@ CREATE TABLE `projects` (
   UNIQUE KEY `projects_name_index` (`name`(255)),
   KEY `updated_at_index` (`updated_at`),
   KEY `devel_project_id_index` (`develproject_id`),
-  KEY `index_db_projects_on_maintenance_project_id` (`maintenance_project_id`)
+  KEY `index_db_projects_on_maintenance_project_id` (`maintenance_project_id`),
+  KEY `type_id` (`type_id`),
+  CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`type_id`) REFERENCES `db_project_types` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `ratings` (
@@ -1268,6 +1270,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130920090004');
 INSERT INTO schema_migrations (version) VALUES ('20130930130128');
 
 INSERT INTO schema_migrations (version) VALUES ('20131006000000');
+
+INSERT INTO schema_migrations (version) VALUES ('20131021063641');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

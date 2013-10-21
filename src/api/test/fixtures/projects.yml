@@ -5,6 +5,7 @@ BaseDistro:
   description: This could be openSUSE:11.2 project for example
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  type_id: 1
   maintenance_project_id: 2048
   delta: 1
 HiddenProject:
@@ -14,12 +15,14 @@ HiddenProject:
   description: for testing read/view permissions = access disabled
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  type_id: 1
   delta: 1
 cplusplus:
   id: 5003
   name: c++
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  type_id: 1
   delta: 1
 home_Iggy:
   id: 502
@@ -28,6 +31,7 @@ home_Iggy:
   description: ''
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  type_id: 1
   delta: 1
 home_adrian:
   id: 5007
@@ -38,6 +42,7 @@ home_adrian:
     Have fun!
   created_at: 2011-09-19 11:19:37.000000000 Z
   updated_at: 2011-09-19 11:19:37.000000000 Z
+  type_id: 1
   delta: 1
 kde4:
   id: 2
@@ -46,6 +51,7 @@ kde4:
   description: bla
   created_at: 2008-04-28 07:05:05.000000000 Z
   updated_at: 2008-04-28 08:06:06.000000000 Z
+  type_id: 1
   delta: 1
 projects_1:
   id: 1
@@ -54,12 +60,14 @@ projects_1:
   description: bla
   created_at: 2003-03-03 04:03:03.000000000 Z
   updated_at: 2004-04-04 06:04:04.000000000 Z
+  type_id: 1
   delta: 1
 projects_1000:
   id: 1000
   name: deleted
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  type_id: 1
   delta: 1
 projects_1001:
   id: 1001
@@ -90,6 +98,7 @@ projects_2044:
   description: For testing project linking
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  type_id: 1
   delta: 1
 projects_2045:
   id: 2045
@@ -98,6 +107,7 @@ projects_2045:
   description: This could be openSUSE:11.3 project for example
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  type_id: 1
   delta: 1
 projects_2046:
   id: 2046
@@ -145,6 +155,7 @@ projects_226:
   description: description
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  type_id: 1
   delta: 1
 projects_3001:
   id: 3001
@@ -153,6 +164,7 @@ projects_3001:
   description: for testing read/view permissions = sourceaccess disabled
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  type_id: 1
   delta: 1
 projects_3002:
   id: 3002
@@ -161,6 +173,7 @@ projects_3002:
   description: for testing read/view permissions = binarydownload disabled
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  type_id: 1
   delta: 1
 projects_3004:
   id: 3004
@@ -169,6 +182,7 @@ projects_3004:
   description: for testing access/sourceacces
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  type_id: 1
   delta: 1
 projects_3005:
   id: 3005
@@ -177,6 +191,7 @@ projects_3005:
   description: ''
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  type_id: 1
   delta: 1
 projects_3006:
   id: 3006
@@ -186,6 +201,7 @@ projects_3006:
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
   remoteurl: http://localhost:3200
+  type_id: 1
   delta: 1
 projects_3043:
   id: 3043
@@ -194,6 +210,7 @@ projects_3043:
   description: contains candidate changes for next updates
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  type_id: 1
   delta: 1
 projects_5000:
   id: 5000
@@ -204,6 +221,7 @@ projects_5000:
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
   remoteurl: http://localhost:3200
+  type_id: 1
   delta: 1
 projects_5001:
   id: 5001
@@ -212,6 +230,7 @@ projects_5001:
   description: for testing remoteurl support
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  type_id: 1
   delta: 1
 projects_5002:
   id: 5002
@@ -220,6 +239,7 @@ projects_5002:
   description: for testing remoteurl support
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  type_id: 1
   delta: 1
 projects_5003:
   id: 5005
@@ -229,6 +249,7 @@ projects_5003:
   description: for testing remoteurl support
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  type_id: 1
   delta: 1
 projects_503:
   id: 503
@@ -237,6 +258,7 @@ projects_503:
   description: ''
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  type_id: 1
   delta: 1
 projects_504:
   id: 504
@@ -245,6 +267,7 @@ projects_504:
   description: ''
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  type_id: 1
   delta: 1
 projects_505:
   id: 505
@@ -253,6 +276,7 @@ projects_505:
   description: ''
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
+  type_id: 1
   delta: 1
 projects_600:
   id: 600
@@ -269,4 +293,5 @@ projects_601:
   title: only a test
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  type_id: 1
   delta: 1

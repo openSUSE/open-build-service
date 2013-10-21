@@ -35,6 +35,7 @@ class Project < ActiveRecord::Base
   after_save 'Relationship.discard_cache'
   after_rollback :reset_cache
   after_rollback 'Relationship.discard_cache'
+  after_initialize :init
 
   has_many :packages, :dependent => :destroy, foreign_key: :db_project_id, inverse_of: :project
   has_many :attribs, :dependent => :destroy, foreign_key: :db_project_id
@@ -67,6 +68,7 @@ class Project < ActiveRecord::Base
   default_scope { where("projects.id not in (?)", Relationship.forbidden_project_ids ) }
 
   validates :name, presence: true, length: { maximum: 200 }
+  validates :type_id, presence: true
   validate :valid_name
  
   def download_name
@@ -272,6 +274,12 @@ class Project < ActiveRecord::Base
 
   def is_locked?
     flags.where(flag: 'lock', status: 'enable').exists?
+  end
+
+  # set defaults
+  def init
+    return unless new_record?
+    self.type_id ||= DbProjectType.find_by_name('standard').id
   end
 
   def is_maintenance_incident?
@@ -856,13 +864,7 @@ class Project < ActiveRecord::Base
   end
 
   def project_type
-    return @project_type if @project_type
-    mytype = DbProjectType.find(type_id) if type_id
-    @project_type = if mytype
-      mytype.name
-    else
-      'standard'
-    end
+    @project_type ||= DbProjectType.find(type_id).name
   end
 
   def set_project_type(project_type_name)
