@@ -808,6 +808,80 @@ class User < ActiveRecord::Base
     watched_projects.joins(:project).where(projects: { name: name }).exists?
   end
 
+  def update_globalroles( new_globalroles )
+    old_globalroles = []
+
+    self.roles.where(global: true).each do |ugr|
+      old_globalroles << ugr.title
+    end
+
+    add_to_globalroles = new_globalroles.collect {|i| old_globalroles.include?(i) ? nil : i}.compact
+    remove_from_globalroles = old_globalroles.collect {|i| new_globalroles.include?(i) ? nil : i}.compact
+
+    remove_from_globalroles.each do |title|
+      self.roles_users.where(role_id: Role.find_by_title!(title).id).delete_all
+    end
+
+    add_to_globalroles.each do |title|
+      self.roles_users.new(role: Role.find_by_title!(title))
+    end
+  end
+
+  class ErrRegisterSave < APIException
+  end
+
+  def self.register(opts)
+    if CONFIG['ldap_mode'] == :on
+      raise ErrRegisterSave.new "LDAP mode enabled, users can only be registered via LDAP"
+    end
+    if CONFIG['proxy_auth_mode'] == :on or CONFIG['ichain_mode'] == :on
+      raise ErrRegisterSave.new "Proxy authentification mode, manual registration is disabled"
+    end
+
+    status = "confirmed"
+
+    unless User.current and User.current.is_admin?
+      opts[:note] = nil
+    end
+
+    if ::Configuration.first.registration == "deny"
+      unless User.current and User.current.is_admin?
+        raise ErrRegisterSave.new "User registration is disabled"
+      end
+    elsif ::Configuration.first.registration == "confirmation"
+      status = "unconfirmed"
+    elsif ::Configuration.first.registration != "allow"
+      render_error :message => "Admin configured an unknown config option for registration",
+                   :errorcode => "server_setup_error", :status => 500
+      return
+    end
+    status = opts[:status] if User.current and User.current.is_admin?
+
+    newuser = User.create(
+        :login => opts[:login],
+        :password => opts[:password],
+        :password_confirmation => opts[:password],
+        :email => opts[:email] )
+
+    newuser.realname = opts[:realname]
+    newuser.state = User.states[status]
+    newuser.adminnote = opts[:note]
+    logger.debug("Saving...")
+    newuser.save
+
+    if !newuser.errors.empty?
+      details = newuser.errors.map{ |key, msg| "#{key}: #{msg}" }.join(", ")
+      raise ErrRegisterSave.new "Could not save the registration, details: #{details}"
+    end
+
+    # create subscription for submit requests
+    if Object.const_defined? :Hermes
+      h = Hermes.new
+      h.add_user(login, email)
+      h.add_request_subscription(login)
+    end
+  end
+
   protected
   # This method allows to execute a block while deactivating timestamp
   # updating.

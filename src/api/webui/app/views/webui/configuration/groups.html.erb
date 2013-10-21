@@ -23,7 +23,7 @@
           <td><%= link_to(group.title, {:controller => 'group', :action => 'show', id: group.title}, {id: group.title }) %></td>
           <td>
           <% group.groups_users.each do |member| %>
-            <%= link_to_if(@user, member.user, :controller => 'home', :action => 'index', :user => member.user) %>, 
+            <%= link_to_if(!User.current.is_nobody?, member.user, :controller => 'home', :action => 'index', :user => member.user.login) %>, 
           <% end %>
           </td>
           <td class="nowrap">

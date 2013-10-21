@@ -15,7 +15,7 @@
           <%= proceed_link 'list', 'All Projects', :controller => 'project', :action => 'list_public' %>
           <%= proceed_link 'system-search', 'Search', :controller => 'search', :action => 'index' %>
         <% else %>
-          <%= proceed_link 'start-here', 'Your Home', :controller => 'home', :action => 'index' if @user %>
+          <%= proceed_link 'start-here', 'Your Home', :controller => 'home', :action => 'index' unless User.current.is_nobody? %>
           <%= proceed_link 'list', 'All Projects', :controller => 'project', :action => 'list_public' %>
           <%= proceed_link 'system-search', 'Search', :controller => 'search', :action => 'index' %>
           <%= proceed_link "document-new", 'New Project', :controller => 'project', :action => 'new', :ns => "home:#{User.current.login}" unless User.current.is_nobody? %>
@@ -37,7 +37,7 @@
 </div>
 
 <div class="grid_5 omega">
-<% unless @user %>
+<% if User.current.is_nobody? %>
   <div class="box box-shadow">
     <h2 class="box-header">New here? Sign up!</h2>
     <%= render :partial => 'shared/sign_up' %>

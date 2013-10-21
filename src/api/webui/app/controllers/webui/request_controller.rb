@@ -75,8 +75,9 @@ class RequestController < WebuiController
 
     @my_open_reviews = @req['my_open_reviews']
     @other_open_reviews = @req['other_open_reviews']
-    @can_add_reviews = ['new', 'review'].include?(@state) && (@is_author || @is_target_maintainer || @my_open_reviews.length > 0) && !@user.nil?
-    @can_handle_request = ['new', 'review', 'declined'].include?(@state) && (@is_target_maintainer || @is_author) && !@user.nil?
+    @can_add_reviews = ['new', 'review'].include?(@state) && (@is_author || @is_target_maintainer || @my_open_reviews.length > 0) && !User.current.is_nobody?
+    @can_handle_request = ['new', 'review', 'declined'].include?(@state) && (@is_target_maintainer || @is_author) && !User.current.is_nobody?
+Rails.logger.debug "CHR #{@can_handle_request} - #{@is_target_maintainer} - #{@is_author}"
 
     @events = @req['events']
     @actions = @req['actions']
@@ -197,9 +198,9 @@ class RequestController < WebuiController
   end
 
   def delete_request
-    required_parameters :project, :package
+    required_parameters :project
     begin
-      req = BsRequest.new(:type => 'delete', :targetproject => params[:project], :targetpackage => params[:package], :description => params[:description])
+      req = Webui::BsRequest.new(:type => 'delete', :targetproject => params[:project], :targetpackage => params[:package], :description => params[:description])
       req.save(:create => true)
       Rails.cache.delete 'requests_new'
     rescue ActiveXML::Transport::Error => e

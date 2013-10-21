@@ -1100,10 +1100,10 @@ class ProjectController < WebuiController
 
   def toggle_watch
     if User.current.watches? @project.name
-      logger.debug "Remove #{@project} from watchlist for #{@user}"
+      logger.debug "Remove #{@project} from watchlist for #{User.current}"
       User.current.remove_watched_project @project.name
     else
-      logger.debug "Add #{@project} to watchlist for #{@user}"
+      logger.debug "Add #{@project} to watchlist for #{User.current}"
       User.current.add_watched_project @project.name
     end
 
