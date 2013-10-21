@@ -326,19 +326,6 @@ OBSApi::Application.routes.draw do
     get 'public/configuration.xml' => 'configurations#show'
     get 'public/status/:action' => 'status#index'
 
-    #
-    # NOTE: webui routes are NOT stable and change together with the webui.
-    #       DO NOT USE THEM IN YOUR TOOLS!
-    #
-    namespace :webui do
-      resources :requests, :only => [:index, :show] do
-        collection do
-          get :ids
-          get :by_class
-        end
-      end
-    end
-
     get '/404' => 'main#notfound'
 
   end
