@@ -2684,7 +2684,12 @@ sub getprojpack {
 	if (!($r && $r->{'remoteurl'})) {
 	  # not remote and wrong partition
 	  # if asked for a specific project, put it in remotemap
-          checkpartition($remotemap, $projid, $r) if $remotemap && $cgi->{'project'} && $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$projid};
+	  checkpartition($remotemap, $projid, $r) if $remotemap && $cgi->{'project'} && $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$projid};
+	  if ($remotemap && $cgi->{'project'} && $cgi->{'withconfig'}) {
+	    # also put config in remotemap is asked for a specific project
+	    my $c = readstr("$projectsdir/$projid.conf", 1);
+	    $remotemap->{$projid}->{'config'} = defined($c) ? $c : '' if ($remotemap->{$projid} || {})->{'partition'};
+	  }
 	  next;
 	}
       }
