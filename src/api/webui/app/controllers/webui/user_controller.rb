@@ -8,19 +8,18 @@ class UserController < WebuiController
   before_filter :check_user, :only => [:edit, :save, :change_password, :register, :delete, :confirm, :lock, :admin]
   before_filter :require_login, :only => [:edit, :save]
   before_filter :overwrite_user, :only => [:edit]
-  before_filter :require_admin, :only => [:edit]
+  before_filter :require_admin, :only => [:edit, :delete, :lock, :confirm, :admin]
   
   def logout
     logger.info "Logging out: #{session[:login]}"
     reset_session
-    @user = nil
+    User.current = nil
     @return_to_path = root_path
     if CONFIG['proxy_auth_mode'] == :on
       redirect_to CONFIG['proxy_auth_logout_page']
     else
       redirect_to root_path
     end
-    Person.free_cache session[:login]
   end
 
   def login
@@ -59,19 +58,25 @@ class UserController < WebuiController
   end
 
   def save
-    person_opts = { :login => params[:user],
-                    :realname => params[:realname],
-                    :email => params[:email],
-                    :globalrole => params[:globalrole],
-                    :state => params[:state]}
-    begin
-      person = Person.new(person_opts)
-      person.save
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.message
+    if User.current.is_admin?
+      person = User.find_by_login!(params[:user])
+    else
+      person = User.current
+      if person.login != params[:user]
+        flash[:error] = "Can't edit #{params[:user]}"
+        redirect_to(:back) and return
+      end
     end
+    person.realname = params[:realname]
+    person.email = params[:email]
+    if User.current.is_admin?
+      person.state = User.states[params[:state]]
+      roles = [ params[:globalrole] ]
+      person.update_globalroles(roles)
+    end
+    person.save!
+
     flash[:success] = "User data for user '#{person.login}' successfully updated."
-    Rails.cache.delete("person_#{person.login}")
     redirect_back_or_to :controller => 'home', :action => :index
   end
 
@@ -81,39 +86,27 @@ class UserController < WebuiController
   end
 
   def delete
-    user = Person.find( params[:user] )
-    params[:realname] = user.realname
-    params[:email] = user.email
-    params[:globalrole] = user.globalrole
-    params[:state] = 'deleted'
-    save
+    u = User.find_by_login( params[:user] )
+    u.state = User.states['deleted']
+    u.save
   end
 
   def confirm
-    user = Person.find( params[:user] )
-    params[:realname] = user.realname
-    params[:email] = user.email
-    params[:globalrole] = user.globalrole
-    params[:state] = 'confirmed'
-    save
+    u = User.find_by_login( params[:user] )
+    u.state = User.states['confirmed']
+    u.save
   end
   
   def lock
-    user = Person.find( params[:user] )
-    params[:realname] = user.realname
-    params[:email] = user.email
-    params[:globalrole] = user.globalrole
-    params[:state] = 'locked'
-    save
+    u = User.find_by_login( params[:user] )
+    u.state = User.states['locked']
+    u.save
   end
 
   def admin
-    user = Person.find( params[:user] )
-    params[:realname] = user.realname
-    params[:email] = user.email
-    params[:globalrole] = 'Admin'
-    params[:state] = user.state
-    save
+    u = User.find_by_login( params[:user] )
+    u.update_globalroles(['Admin'])
+    u.save
   end
 
   def save_dialog
@@ -130,16 +123,14 @@ class UserController < WebuiController
 
 
   def register
-    unreg_person_opts = { :login => params[:login],
-                          :email => params[:email],
-                          :realname => params[:realname],
-                          :password => params[:password],
-                          :state => params[:state]}
+    opts = { :login => params[:login],
+             :email => params[:email],
+             :realname => params[:realname],
+             :password => params[:password],
+             :state => params[:state]}
     begin
-      person = Unregisteredperson.new(unreg_person_opts)
-      logger.debug "Registering user #{params[:login]}"
-      person.save({:create => true})
-    rescue ActiveXML::Transport::Error => e
+      person = User.register(opts)
+    rescue APIException => e
       flash[:error] = e.message
       redirect_back_or_to :controller => 'main', :action => 'index' and return
     end
@@ -194,14 +185,42 @@ class UserController < WebuiController
     redirect_to :controller => :home, :action => :index
   end 
 
+
   def autocomplete
     required_parameters :term
-    render json: Person.list(params[:term])
+    render json: list_users(params[:term])
   end
 
   def tokens
     required_parameters :q
-    render json: Person.list(params[:q], true)
+    render json: list_users(params[:q], true)
+  end
+
+  protected
+
+  def list_users(prefix=nil, hash=nil)
+    prefix = URI.encode(prefix)
+    user_list = Rails.cache.fetch("user_list_#{prefix.to_s}", :expires_in => 10.minutes) do
+      transport ||= ActiveXML::api
+      path = "/person?prefix=#{prefix}"
+      begin
+        logger.debug 'Fetching user list from API'
+        response = transport.direct_http URI("#{path}"), :method => 'GET'
+        names = []
+        if hash
+          Webui::Collection.new(response).each do |user|
+            user = { 'name' => user.name }
+            names << user
+          end
+        else
+          Webui::Collection.new(response).each {|user| names << user.name}
+        end
+        names
+      rescue ActiveXML::Transport::Error => e
+        raise ListError, e.summary
+      end
+    end
+    return user_list
   end
 
 end

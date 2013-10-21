@@ -12,7 +12,7 @@ class Webui::ConfigurationController < Webui::WebuiController
   end
 
   def users
-    @users = ::User.all.to_a
+    @users = ::User.where("login != '_nobody_'").to_a
   end
   
   def groups

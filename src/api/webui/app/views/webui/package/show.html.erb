@@ -73,16 +73,15 @@
     <% end %>
   </div>
 
-  <% if (not @bugowners_mail.empty? and @configuration['bugzilla_url']) or @user %>
+  <% if (not @bugowners_mail.empty? and @configuration['bugzilla_url']) or !User.current.is_nobody? %>
     <div class="grid_16 alpha omega">
       <ul class="horizontal-list">
         <% unless @bugowners_mail.empty? or @configuration['bugzilla_url']%>
           <li>
-            <%= link_to image_tag('tools-report-bug.png', :title => 'Report Bug'), bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug") %>
-            <%= link_to 'Report Bug', bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug") %>
+	    <%= link_to sprite_tag('tools-report-bug.png', :title => 'Report Bug') + 'Report Bug', bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug") %>
           </li>
         <% end %>
-        <% if @user %>
+        <% unless User.current.is_nobody? %>
           <% if @current_rev %>
             <li>
               <%= link_to(sprite_tag('arrow_branch'), {:action => :branch_dialog, :project => @project, :package => @package}, :remote => true) %>

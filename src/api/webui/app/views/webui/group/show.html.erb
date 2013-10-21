@@ -12,7 +12,7 @@
   <tbody>
     <% @group.person.each do |member| %>
       <tr>
-        <td><%= link_to_if(@user, member.userid, { :controller => 'home', :action => 'index', :user => member.userid}, {:id => member.userid}) %></td>
+        <td><%= link_to_if(!User.current.is_nobody?, member.userid, { :controller => 'home', :action => 'index', :user => member.userid}, {:id => member.userid}) %></td>
       </tr>
     <% end %>
   </tbody>
