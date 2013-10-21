@@ -1,2 +1,0 @@
-module Html::MainHelper
-end

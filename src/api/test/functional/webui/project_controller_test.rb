@@ -5,12 +5,12 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   test 'project show' do
     visit webui_engine.project_show_path(project: 'Apache')
     page.must_have_selector '#project_title'
-    visit '/webui2/project/show?project=My:Maintenance'
+    visit webui_engine.root_path + '/project/show?project=My:Maintenance'
     page.must_have_selector '#project_title'
   end
 
   test 'kde4 has two packages' do
-    visit '/webui2/project/show?project=kde4'
+    visit webui_engine.root_path + '/project/show?project=kde4'
     find('#packages_info').must_have_text 'Packages (2)'
     within('#packages_info') do
       page.must_have_link 'kdebase'
@@ -21,7 +21,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   test 'adrian can edit kde4' do
     login_adrian
     # adrian is maintainer via group on kde4 
-    visit '/webui2/project/show/kde4'
+    visit webui_engine.root_path + '/project/show/kde4'
     # really simple test to get started
     page.must_have_link 'delete-project'
     page.must_have_link 'edit-description'
@@ -237,7 +237,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
   test 'succesful comment creation' do
     login_Iggy
-    visit '/webui2/project/show/home:Iggy'
+    visit webui_engine.root_path + '/project/show/home:Iggy'
     fill_in 'title', with: 'Comment Title'
     fill_in 'body', with: 'Comment Body'
     find_button('Add comment').click
@@ -246,7 +246,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
   test 'another succesful comment creation' do
     login_Iggy
-    visit '/webui2/project/show?project=home:Iggy'
+    visit webui_engine.root_path + '/project/show?project=home:Iggy'
     fill_in 'title', with: 'Comment Title'
     fill_in 'body', with: 'Comment Body'
     find_button('Add comment').click
@@ -255,7 +255,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
   test 'succesful reply comment creation' do
      login_Iggy
-     visit '/webui2/project/show/BaseDistro'
+     visit webui_engine.root_path + '/project/show/BaseDistro'
      find(:id,'reply_link_id_100').click
      fill_in 'reply_body_100', with: 'Comment Body'
      find(:id,'add_reply_100').click

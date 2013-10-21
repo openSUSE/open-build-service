@@ -108,6 +108,8 @@ map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['fronte
     map.connect :builddepinfo, 'rest:///build/:project/:repository/:arch/_builddepinfo?:package&:limit&:code'
 
   map.set_additional_header( 'User-Agent', "obs-webui/#{CONFIG['version']}" )
+  map.set_additional_header( 'Accept', 'application/xml' )
+
   map.details = DetailsLogger.new
 
 if defined?(Rack::MiniProfiler)

@@ -94,7 +94,6 @@ group :assets do
   gem 'sprite-factory', '>= 1.5.2'
   gem 'chunky_png'
 
-  gem "bootstrap-sass"
   gem 'jquery-rails'
   gem 'jquery-ui-rails'
 end
