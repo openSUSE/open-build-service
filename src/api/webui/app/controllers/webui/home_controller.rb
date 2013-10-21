@@ -151,18 +151,11 @@ class HomeController < WebuiController
     redirect_to :controller => :project, :action => :show, :project => "home:#{User.current.login}"
   end
 
-  def remove_watched_project
-    logger.debug "removing watched project '#{params[:project]}' from user '#{@user}'"
-    @user.remove_watched_project(params[:project])
-    @user.save
-    render :partial => 'watch_list'
-  end
-
   def overwrite_user
     @displayed_user = User.current
     user = User.find_by_login(params['user']) if params['user'].present?
     @displayed_user = user if user
-    unless @displayed_user
+    if @displayed_user.is_nobody?
       flash[:error] = "Please log in"
       redirect_to :controller => :user, :action => :login
     end

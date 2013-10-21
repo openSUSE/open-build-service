@@ -6,7 +6,7 @@
       <tr>
         <th>Attribute</th>
         <th>Values</th>
-       <% if @user %>
+       <% unless User.current.is_nobody? %>
         <th>Actions</th>
        <% end %>
       </tr>
@@ -18,7 +18,7 @@
               <%= value %><br/>
             <% end %>
           </td>
-       <% if @user %>
+       <% unless User.current.is_nobody? %>
           <td>
             <%= link_to(image_tag('note_edit.png', :alt => 'Edit values', :title => 'Edit values'), { :controller => 'attribute', :action => 'edit', :project => @project.name, :package => @package, :namespace => attribute.namespace, :name => attribute.name }, class: 'edit-values') %>
             <%= button_to('Delete attribute',
@@ -32,9 +32,8 @@
   </div>
 <% end %>
 
-<% if @user %>
+<% unless User.current.is_nobody? %>
   <p>
-    <%= link_to(image_tag('note_add.png'), :controller => :attribute, :action => :edit, :project => @project.name, :package => @package) %>
-    <%= link_to('Add a new attribute', { :controller => :attribute, :action => :edit, :project => @project.name, :package => @package}, id: 'add-new-attribute') %>
+    <%= link_to(sprite_tag('note_add', title: 'Add a new attribute') + 'Add a new attribute', { :controller => :attribute, :action => :edit, :project => @project.name, :package => @package}, id: 'add-new-attribute') %>
   </p>
 <% end %>

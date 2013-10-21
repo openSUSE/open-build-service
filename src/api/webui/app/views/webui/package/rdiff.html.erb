@@ -23,7 +23,7 @@
     <pre><%= @last_req['comment'] %></pre>
 <% end %>
 
-<% if @user && @filenames && !@filenames.empty? %>
+<% if !User.current.is_nobody? && @filenames && !@filenames.empty? %>
     <% if @oproject && @opackage && !WebuiProject.has_attribute?(@oproject, 'OBS', 'RejectRequests') && 
 		   !Webui::Package.has_attribute?(@oproject, @opackage, 'OBS', 'RejectRequests') %>
         <% msg = "Submit to #{@oproject.to_s + ' / ' + @opackage.to_s}" %>

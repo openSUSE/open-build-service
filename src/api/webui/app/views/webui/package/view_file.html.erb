@@ -13,7 +13,7 @@
   <p>
       <%# Rather hacky attempt to provide 'osc vc'-like functionality, would benefit of proper 'snippet' support for editor: %>
       <%= link_to_function('Insert changes entry template',
-	  'addChangesEntryTemplate()', data: { 'email' => @user.email },
+	  'addChangesEntryTemplate()', data: { 'email' => User.current.email },
       class: "changes-link") %>
   </p>
     <% end %>

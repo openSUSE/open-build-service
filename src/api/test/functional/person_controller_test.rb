@@ -180,10 +180,10 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
 
     u = User.find_by_login "adrianSuSE"
     assert_not_nil u
-    assert_equal u.login, "adrianSuSE"
-    assert_equal u.email, "adrian@suse.de"
-    assert_equal u.realname, "Adrian Schroeter"
-    assert_equal u.adminnote, ""
+    assert_equal "adrianSuSE", u.login
+    assert_equal "adrian@suse.de", u.email
+    assert_equal "Adrian Schroeter", u.realname
+    assert_equal nil, u.adminnote
 
     # change password
     data = 'NEWPASSW0RD'
@@ -232,7 +232,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_equal u.login, "adrianSuSE"
     assert_equal u.email, "adrian@suse.de"
     assert_equal u.realname, "Adrian Schroeter"
-    assert_equal u.adminnote, ""
+    assert_equal nil, u.adminnote
     u.destroy
 
   end

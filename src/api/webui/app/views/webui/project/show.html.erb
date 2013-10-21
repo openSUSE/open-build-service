@@ -100,7 +100,7 @@
     <% end %>
   </div>
 
-  <% if (not @bugowners_mail.empty? and !CONFIG['bugzilla_host'].nil?) or @user %>
+  <% if (not @bugowners_mail.empty? and !CONFIG['bugzilla_host'].nil?) or !User.current.is_nobody? %>
     <div class="grid_16 alpha omega">
       <ul class="horizontal-list">
         <% if not @bugowners_mail.empty? and !CONFIG['bugzilla_host'].nil? %>

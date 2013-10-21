@@ -8,9 +8,9 @@
       <% realname = User.realname_for_login(user) %>
       <%= user_icon(user) %>
       <% unless realname.empty? %>
-        <%= link_to_if(@user, realname + " (" + user + ")", :controller => :home, :user => user) %>
+        <%= link_to_if(!User.current.is_nobody?, realname + " (" + user + ")", :controller => :home, :user => user) %>
       <% else %>
-        <%= link_to_if(@user, user, :controller => :home, :user => user) %>
+        <%= link_to_if(!User.current.is_nobody?, user, :controller => :home, :user => user) %>
       <% end %>
     <% else %>
        -
