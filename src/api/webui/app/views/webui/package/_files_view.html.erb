@@ -25,8 +25,8 @@
           <td><span class="hidden"><%= file[:size].rjust(10, '0') %></span><%= human_readable_fsize(file[:size]) %></td>
           <td><span class="hidden"><%= file[:mtime] %></span><%= fuzzy_time_string(Time.at(file[:mtime].to_i).to_s) %></td>
           <!-- limit download for anonymous user to avoid getting killed by crawlers -->
-          <td><%= if @user or file[:size].to_i < ( 4 * 1024 * 1024 )
-                    link_to image_tag('page_white_get.png', :alt => "Download", :title => "Download File"), 
+          <td><%= if !User.current.is_nobody? or file[:size].to_i < ( 4 * 1024 * 1024 )
+                    link_to sprite_tag('page_white_get', title: "Download File"), 
                             :controller => :package, :action => :rawsourcefile, :package => @package.to_param,
                            :project => @project.to_param, :filename => file[:name], :srcmd5 => file[:srcmd5]
                   end %>

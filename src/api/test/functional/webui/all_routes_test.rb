@@ -156,7 +156,6 @@ class Webui::AllRoutesTest < Webui::IntegrationTest
     urls << webui_engine.home_list_my_path
     urls << webui_engine.home_requests_path
     urls << webui_engine.home_home_project_path
-    urls << webui_engine.home_remove_watched_project_path
     urls << webui_engine.apidocs_path
     urls << webui_engine.apidocs_index_path
 

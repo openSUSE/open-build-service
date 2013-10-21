@@ -33,10 +33,10 @@ class WebuiController < ActionController::Base
     elsif exception.code == 'unconfirmed_user'
       render file: Rails.root.join('public/402'), formats: [:html], status: 402, layout: false
     else
-      if @user
-        render file: Rails.root.join('public/403'), formats: [:html], status: :forbidden, layout: false
-      else
+      if User.current.is_nobody?
         render file: Rails.root.join('public/401'), formats: [:html], status: :unauthorized, layout: false
+      else
+        render file: Rails.root.join('public/403'), formats: [:html], status: :forbidden, layout: false
       end
     end
   end
@@ -223,7 +223,6 @@ class WebuiController < ActionController::Base
     @spider_bot = false
     if defined? TREAT_USER_LIKE_BOT or request.env.has_key? 'HTTP_OBS_SPIDER'
       @spider_bot = true
-      return
     end
   end
   private :check_spiders
@@ -239,10 +238,8 @@ class WebuiController < ActionController::Base
 
   def check_user
     check_spiders
-    @user ||= Person.find(session[:login]) if session[:login]
-    if @user
+    if session[:login]
       User.current = User.find_by_login session[:login]
-      Rails.cache.set_domain(@user.to_s) if Rails.cache.respond_to?('set_domain')
       @nr_requests_that_need_work = 0
       unless request.xhr?
         User.current.request_ids_by_class.each { |key,array| @nr_requests_that_need_work += array.size }

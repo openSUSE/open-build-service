@@ -1,4 +1,4 @@
-<% if @user %>
+<% unless User.current.is_nobody? %>
   <%= save_comment_form do %>
     <p>
       <%= text_field_tag 'title',@title, :placeholder => 'Comment Title', :required => 'required'%>

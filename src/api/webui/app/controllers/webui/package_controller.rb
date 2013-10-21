@@ -142,7 +142,7 @@ class PackageController < WebuiController
       # ignore files not available
       @durl = nil
     end
-    if @user and !@durl
+    unless User.current.is_nobody? or @durl
       # only use API for logged in users if the mirror is not available
       @durl = rpm_url( @project, @package, @repository, @arch, @filename )
     end

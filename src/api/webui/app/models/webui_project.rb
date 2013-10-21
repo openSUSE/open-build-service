@@ -181,18 +181,7 @@ class WebuiProject < Webui::Node
   end
 
   def user_has_role?(user, role)
-    return false unless user
-    if user.kind_of? User
-      return api_obj.relationships.where(user: user, role_id: Role.rolecache[role]).exists?
-    end
-    raise 'user needs to be a Person' unless user.kind_of? Webui::Person
-    login = user.to_hash['login']
-    if user && login
-      to_hash.elements('person') do |p|
-        return true if p['role'] == role && p['userid'] == login
-      end
-    end
-    return false
+    user && api_obj.relationships.where(user: user, role_id: Role.rolecache[role]).exists?
   end
 
   def group_has_role?(group, role)

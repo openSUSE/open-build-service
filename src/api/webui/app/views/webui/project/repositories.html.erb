@@ -36,10 +36,10 @@
                 $("#<%= repository_id %>").html(data);
               });
             <% end %>
-            <%= sprite_tag('drive_delete') %>
+            <%= sprite_tag('drive_delete', title: 'Delete repository') %>
             <%= link_to('Delete repository', {action: :remove_target, project: @project, target: repository.name},
 			{data: { confirm: "Really remove repository '#{repository.name}'?"}, class: 'x', method: :post}) %>
-          <% elsif @user %>
+	<% elsif !User.current.is_nobody? %>
             <%= sprite_tag('drive_delete', title: 'Delete repository') %>
             <%= link_to('Request repository deletion', {:action => :remove_target_request_dialog, :project => @project, :repository => repository.name}, :remote => true) %>
           <% end %>

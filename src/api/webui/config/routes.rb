@@ -270,7 +270,6 @@ end
     get 'home/list_my' => :index
     get 'home/requests' => :requests
     get 'home/home_project' => :home_project
-    get 'home/remove_watched_project' => :remove_watched_project
     get 'user/:user/icon' => :icon, constraints: cons
   end
 

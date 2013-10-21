@@ -39,7 +39,7 @@
                     <% end %>
                 <% end %>
                 <td class="nowrap">
-                  <% if @user -%>
+                  <% unless User.current.is_nobody? -%>
                       <% mail_to = 'mailto:' + user.email + '?subject=openSUSE%20Build%20Service%20-%20' + @project.name %>
                       <% mail_to += '/' + @package.name if defined? @package %>
                       <%= link_to(sprite_tag('email', title: "Send mail to user"), mail_to) %>
