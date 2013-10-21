@@ -1,0 +1,35 @@
+#
+# openSUSE Build Service 2.4.5
+#
+
+Updaters from any OBS 2.4 release can just ugrade the packages
+and restart all services. Updaters from former releases should
+read the README.UPDATERS file.
+
+This release fixes a serious security leak tracked as CVE-2013-3703:
+ Users can add or remove other users to projects or packages where
+they have no maintainership.
+
+All OBS 2.4 user a requested to updated immediatly to close this
+hole. Instances with OBS 2.3 and before are not affected.
+
+Feature backports:
+==================
+
+* backend: Debian multiarch support (for Ubuntu 13.10 via perl-BSSolver)
+* api: support new CVE syntax as it will be used in 2014
+
+Changes:
+========
+
+* None
+
+Bugfixes:
+=========
+
+* appliance: fix start order between apache and mysql when using systemd
+* backend: fix for using if conditions in prjconf macros sections
+* backend: fix possible cache inconstency in worker binary cache
+* backend: multiple fixes for constraints handling
+* backend: use configured http proxies when download worker code.
+
