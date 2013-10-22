@@ -8,6 +8,11 @@ Iggy_maintainer_TestPack:
   package_id: 10095
   role_id: 3
   user_id: 267
+Iggy_bugowner_BaseDistro3:
+  id: 22
+  project_id: 2047
+  role_id: 4
+  user_id: 267
 QA_Team:
   id: 71
   package_id: 10099

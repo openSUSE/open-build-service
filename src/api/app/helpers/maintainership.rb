@@ -10,6 +10,9 @@ module Maintainership
     m[:package] = pkg.name
     m[:filter] = rolefilter
 
+    # no filter defined, so do not check for roles and just return container
+    return m if rolefilter.length == 0
+
     # construct where condition
     sql = nil
     if rolefilter.length > 0

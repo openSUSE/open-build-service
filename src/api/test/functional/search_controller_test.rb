@@ -580,6 +580,22 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_search_for_binary_without_definition_yet
+    login_Iggy
+
+    get "/search/owner?project=BaseDistro3&filter=bugowner&binary=package&limit=1"
+    assert_response :success
+    # found project container
+    assert_xml_tag tag: 'owner', :attributes => { :rootproject => "BaseDistro3", :project => "BaseDistro3" }
+    assert_no_xml_tag tag: 'owner', :attributes => { :package => "pack2" }
+
+    # search with empty filter just to find the container to be set
+    get "/search/owner?project=BaseDistro3&filter=&binary=package&limit=1"
+    assert_response :success
+    # found package container
+    assert_xml_tag tag: 'owner', :attributes => { :rootproject => "BaseDistro3", :project => "BaseDistro3", :package => "pack2" }
+  end
+
   def test_search_for_missing_role_defintions_in_all_visible_packages
     login_Iggy
 
