@@ -58,6 +58,7 @@ BuildRequires:  perl-TimeDate
 BuildRequires:  perl-JSON-XS
 BuildRequires:  perl-XML-Parser
 BuildRequires:  xorg-x11-server
+BuildRequires:  inst-source-utils
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 Requires:       build >= 20130114
 Requires:       obs-productconverter >= %version
