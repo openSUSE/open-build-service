@@ -1,6 +1,6 @@
 class CommentRequest < Comment
 
-  validate :bs_request, presence: true
+  validates :bs_request, presence: true
 
   def check_delete_permissions
     # If you can review or if you are maintainer of the target of the request, you can delete the comment

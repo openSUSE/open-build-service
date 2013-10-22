@@ -158,7 +158,7 @@ class HomeController < WebuiController
       if user
         @displayed_user = user 
       else
-        flash[:error] = "User not found #{params['user']}"
+        flash.now[:error] = "User not found #{params['user']}"
       end
     end
     if @displayed_user.is_nobody?
