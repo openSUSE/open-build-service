@@ -5,8 +5,8 @@
 <div class="grid_16 alpha omega box box-shadow">
   <%= render partial: 'tabs' %>
   <div class="grid_10 alpha">
-    <h3 id="project_title"><%= @project.title %><%= @project if @project.title.to_s.blank? -%></h3>
-    <%= description_wrapper(@project.description.text) %>
+    <h3 id="project_title"><%= @project.api_obj.title %><%= @project if @project.api_obj.title.blank? -%></h3>
+    <%= description_wrapper(@project.api_obj.description) %>
   </div>
   <div class="grid_6 omega" id="infos_list">
     <% if (@is_maintenance_project || @nr_of_problem_packages && @nr_of_problem_packages > 0 || @has_patchinfo || @is_incident_project || @releasetargets.length > 0 || @project.is_remote? || @linking_projects.length > 0 || @project_maintenance_project || @project.is_locked?) %>

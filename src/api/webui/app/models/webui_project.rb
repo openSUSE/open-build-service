@@ -25,27 +25,26 @@ class WebuiProject < Webui::Node
 
   #check if named project exists
   def self.exists?(pro_name)
-    return true if WebuiProject.find pro_name
-    return false
+    Project.where(name: pro_name).exists?
   end
-  
+
+  attr_writer :api_obj
   def api_obj
-    Project.find_by_name(to_s)
+    @api_obj ||= Project.find_by_name(to_s)
   end
 
   #check if named project comes from a remote OBS instance
   def self.is_remote?(pro_name)
     p = WebuiProject.find pro_name
-    return true if p && p.is_remote?
-    return false
+    p && p.is_remote?
   end
   
   def to_s
-    to_hash["name"]
+    name
   end
 
-  def api_obj
-    Project.find_by_name(to_s)
+  def to_param
+    name
   end
 
   def add_path_to_repository(opt={})
@@ -62,7 +61,7 @@ class WebuiProject < Webui::Node
       # put it on top
       first = repository.each.first
       if first != param
-	first.move_after(param)
+        first.move_after(param)
       end
     end
   end
@@ -134,20 +133,8 @@ class WebuiProject < Webui::Node
   end
 
   #get all architectures used in this project
-  #TODO could/should be optimized... somehow...here are many possibilities
-  #eg. object attribute, ...
   def architectures
-    #saves 30 ms
-    unless my_architectures.nil?
-      return my_architectures
-    end
-    archs = Hash.new
-    self.each('repository/arch') do |arch|
-      archs[arch.to_s] = nil
-    end
-    #hash to array
-    self.my_architectures = archs.keys.sort
-    return self.my_architectures
+    self.my_architectures ||= api_obj.repositories.joins(:architectures).pluck('distinct architectures.name')
   end
 
   def repositories
@@ -211,8 +198,16 @@ class WebuiProject < Webui::Node
     @name ||= to_hash['name']
   end
 
+  def name=(s)
+    @name = s
+  end
+
+  def to_param
+    name
+  end
+
   def project_type
-    return to_hash['kind']
+    api_obj.project_type
   end
 
   def set_project_type(project_type)
@@ -226,28 +221,6 @@ class WebuiProject < Webui::Node
   def is_remote?
     th = to_hash
     th.has_key?('remoteurl') || th.has_key?('mountproject')
-  end
-
-  # Returns a list of pairs (full name, short name) for each parent
-
-  def self.parent_projects(project_name)
-    atoms = project_name.split(':')
-    projects = []
-    unused = 0
-
-    for i in 1..atoms.length do
-      p = atoms.slice(0, i).join(':')
-      r = atoms.slice(unused, i - unused).join(':')
-      if WebuiProject.exists? p
-        projects << [p, r]
-        unused = i
-      end
-    end
-    projects
-  end
-
-  def parent_projects
-    return WebuiProject.parent_projects(self.name)
   end
 
   def self.attributes(project_name)
@@ -290,6 +263,7 @@ class WebuiProject < Webui::Node
   end
 
   def packages
+    raise "needed?"
     pkgs = Webui::Package.find(:all, :project => self.name)
     if pkgs
       return pkgs.each
@@ -416,7 +390,7 @@ class WebuiProject < Webui::Node
   end
 
   def is_locked?
-    return has_element?('lock') && lock.has_element?('enable')
+    api_obj.is_locked?
   end
 
   def requests(opts)
@@ -467,4 +441,28 @@ class WebuiProject < Webui::Node
     return true
   end
 
+  def self.find(name, opts = {})
+    name = name.to_param
+    begin
+      ap = Project.get_by_name(name)
+    rescue Project::UnknownObjectError
+      return nil
+    end
+    if ap.kind_of? Project
+      p = WebuiProject.new '<project/>'
+      p.api_obj = ap
+      p.name = ap.name
+      p.instance_variable_set('@init_options', name: name)
+    else
+      p = super
+    end
+    p
+  end
+
+  def parse(data)
+    if @api_obj
+      data = @api_obj.to_axml
+    end
+    super(data)
+  end
 end

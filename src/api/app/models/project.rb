@@ -1134,4 +1134,22 @@ class Project < ActiveRecord::Base
       p.update_if_dirty
     end
   end
+
+  # Returns a list of pairs (full name, short name) for each parent
+  def self.parent_projects(project_name)
+    atoms = project_name.split(':')
+    projects = []
+    unused = 0
+
+    for i in 1..atoms.length do
+      p = atoms.slice(0, i).join(':')
+      r = atoms.slice(unused, i - unused).join(':')
+      if Project.where(name: p).exists? # ignore remote projects here
+        projects << [p, r]
+        unused = i
+      end
+    end
+    projects
+  end
+
 end

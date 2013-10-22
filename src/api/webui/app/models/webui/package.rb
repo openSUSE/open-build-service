@@ -328,16 +328,13 @@ class Package < Webui::Node
     p.api_obj = ap
     p.name = name
     p.project = project
-    p.render_view = opts[:view]
     p.instance_variable_set('@init_options', project: project, name: name)
     p
   end
 
-  attr_accessor :render_view
-
   def parse(data)
     if @api_obj
-      data = api_obj.render_xml(self.render_view)
+      data = api_obj.to_axml
     end
     super(data)
   end

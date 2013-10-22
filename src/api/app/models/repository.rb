@@ -93,4 +93,7 @@ class Repository < ActiveRecord::Base
     return "<repository project='#{::Builder::XChar.encode(project.name)}' name='#{::Builder::XChar.encode(name)}'/>"
   end
 
+  def to_s
+    name
+  end
 end

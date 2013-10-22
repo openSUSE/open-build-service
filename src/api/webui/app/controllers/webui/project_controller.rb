@@ -342,9 +342,16 @@ class ProjectController < WebuiController
 
   def load_releasetargets
     @releasetargets = []
-    @project.each_repository do |repo|
-      @releasetargets.push(repo.releasetarget.value('project') + '/' + repo.releasetarget.value('repository')) if repo.has_element?('releasetarget')
+    Rails.logger.debug "load_releasetargets"
+    rts = ReleaseTarget.where(repository_id: @project.api_obj.repositories)
+    unless rts.empty?
+      Rails.logger.debug rts.inspect
+      @project.each_repository do |repo|
+        @releasetargets.push(repo.releasetarget.value('project') + '/' + repo.releasetarget.value('repository')) if repo.has_element?('releasetarget')
+      end
     end
+    Rails.logger.debug @releasetargets.inspect
+    Rails.logger.debug "done"
   end
 
   def linking_projects
@@ -443,7 +450,7 @@ class ProjectController < WebuiController
       flash[:error] = e.summary
     end
     if @project.project_type != 'maintenance'
-      parent_projects = @project.parent_projects()
+      parent_projects = Project.parent_projects(@project.name)
       if parent_projects.present?
         redirect_to :action => 'show', :project => parent_projects[parent_projects.length - 1][0]
       else
@@ -471,8 +478,9 @@ class ProjectController < WebuiController
     # to keep currently non-working arches in the project meta.
 
     # Prepare a list of recommended architectures
-    @recommended_arch_list = @available_architectures.each.map{|arch| arch.name if arch.recommended == 'true'
-    }
+    @recommended_arch_list = @available_architectures.each.map do |arch|
+      arch.name if arch.recommended == 'true'
+    end
 
     @repository_arch_hash = Hash.new
     @available_architectures.each {|arch| @repository_arch_hash[arch.name] = false }
@@ -508,9 +516,8 @@ class ProjectController < WebuiController
       redirect_to :action => :show, :project => params[:project]
       return
     end
-    # overwrite @project with different view
-    # TODO to get this cached we need to make sure it gets purged on repo updates
-    @project = WebuiProject.find( params[:project], :view => :flagdetails )
+    @flags = @project.api_obj.expand_flags
+    Rails.logger.debug "FLAG #{@flags['build'].inspect}"
   end
 
   def repository_state
@@ -1155,7 +1162,7 @@ class ProjectController < WebuiController
     check_ajax
     required_parameters :cmd, :flag
     frontend.source_cmd params[:cmd], :project => @project, :repository => params[:repository], :arch => params[:arch], :flag => params[:flag], :status => params[:status]
-    @project = WebuiProject.find( :name => params[:project], :view => :flagdetails )
+    @flags = @project.api_obj.expand_flags[params[:flag]]
   end
 
   def clear_failed_comment
@@ -1455,21 +1462,31 @@ class ProjectController < WebuiController
     end
   end
 
+  before_filter :require_maintenance_project, only: [:maintained_projects,
+                                                     :add_maintained_project_dialog,
+                                                     :add_maintained_project,
+                                                     :remove_maintained_project]
+
+  def require_maintenance_project
+    unless @is_maintenance_project
+      redirect_back_or_to :action => 'show', :project => @project
+      return false
+    end
+    return true
+  end
+
   def maintained_projects
     @maintained_projects = []
     @project.each('maintenance/maintains') do |maintained_project_name|
        @maintained_projects << maintained_project_name.value(:project)
     end
-    redirect_back_or_to :action => 'show', :project => @project and return unless @is_maintenance_project
   end
 
   def add_maintained_project_dialog
-    redirect_back_or_to :action => 'show', :project => @project and return unless @is_maintenance_project
     render_dialog
   end
 
   def add_maintained_project
-    redirect_back_or_to :action => 'show', :project => @project and return unless @is_maintenance_project
     if params[:maintained_project].nil? or params[:maintained_project].empty?
       flash[:error] = 'Please provide a valid project name'
       redirect_back_or_to(:action => 'maintained_projects', :project => @project) and return
@@ -1486,7 +1503,6 @@ class ProjectController < WebuiController
   end
 
   def remove_maintained_project
-    redirect_back_or_to :action => 'show', :project => @project and return unless @is_maintenance_project
     if params[:maintained_project].blank?
       flash[:error] = 'Please provide a valid project name'
       redirect_back_or_to(:action => 'maintained_projects', :project => @project) and return

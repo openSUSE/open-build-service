@@ -169,8 +169,6 @@ class PackageController < WebuiController
       flash[:error] = "Package \"#{@package}\" has no build result for repository #{@repository}"
       redirect_to :controller => 'package', :action => :show, :project => @project, :package => @package, :nextstatus => 404 and return
     end
-    # load the flag details to disable links for forbidden binary downloads
-    @package = Webui::Package.find( @package.name, :project => @project, :view => :flagdetails )
   end
 
   def users
@@ -1096,14 +1094,14 @@ class PackageController < WebuiController
   end
 
   def repositories
-    @package = Webui::Package.find( params[:package], :project => params[:project], :view => :flagdetails )
+    @flags = @package.api_obj.expand_flags
   end
 
   def change_flag
     check_ajax
     required_parameters :cmd, :flag
     frontend.source_cmd params[:cmd], project: @project, package: @package, repository: params[:repository], arch: params[:arch], flag: params[:flag], status: params[:status]
-    @package = Package.find( params[:package], project: @project.name, view: :flagdetails )
+    @flags = @package.api_obj.expand_flags[params[:flag]]
   end
 
   private
