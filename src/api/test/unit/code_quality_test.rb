@@ -136,7 +136,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'SourceController#project_command_set_flag' => 53.57,
       'SourceController#project_command_undelete' => 58.11,
       'SourceController#update_project_meta' => 139.28,
-      'SourceController#show_project' => 88.97,
       'SourceController#update_file' => 97.26,
       'SourceController#verify_repos_match!' => 52.26,
       'StatisticsController#active_request_creators' => 71.14,

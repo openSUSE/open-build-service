@@ -7,7 +7,7 @@ require 'event'
 class SourceController < ApplicationController
 
   class IllegalRequest < APIException
-    setup 404, "Illegal request"
+    setup 404, 'Illegal request'
   end
 
   validate_action :index => {:method => :get, :response => :directory}
@@ -26,7 +26,7 @@ class SourceController < ApplicationController
   before_action :require_valid_project_name, except: [:index, :lastevents, :lastevents_public, :global_command]
 
   class NoPermissionForDeleted < APIException
-    setup 403, "only admins can see deleted projects"
+    setup 403, 'only admins can see deleted projects'
   end
 
   # GET /source
@@ -60,13 +60,13 @@ class SourceController < ApplicationController
     output << "<directory>\n"
     output << dir.map { |item| "  <entry name=\"#{::Builder::XChar.encode(item)}\"/>\n" }.join
     output << "</directory>\n"
-    render :text => output, :content_type => "text/xml"
+    render :text => output, :content_type => 'text/xml'
   end
 
   def set_issues_default
     @filter_changes = @states = nil
-    @filter_changes = params[:changes].split(",") if params[:changes]
-    @states = params[:states].split(",") if params[:states]
+    @filter_changes = params[:changes].split(',') if params[:changes]
+    @states = params[:states].split(',') if params[:states]
     @login = params[:login]
   end
 
@@ -84,38 +84,47 @@ class SourceController < ApplicationController
         validate_visibility_of_deleted_project(project_name)
       end
       pass_to_backend
-    else
-      if Project.is_remote_project?(project_name)
-        # not a local project, hand over to backend
-        pass_to_backend
-      else
-        @project = Project.find_by_name!(project_name)
-        # we let the backend list the packages after we verified the project is visible
-        if params.has_key? :view
-          if params["view"] == "issues"
-            render_project_issues and return
-          end
-          pass_to_backend
-        else
-          packages=nil
-          if params.has_key? :expand
-            packages = @project.expand_all_packages
-          else
-            packages = @project.packages.pluck(:name, :db_project_id)
-          end
-          packages = packages.sort{|a,b| a[0]<=>b[0] }
-          prj_names = Hash.new
-          Project.where(id: packages.map {|a| a[1]}.uniq).pluck(:id, :name).each do |id, name|
-            prj_names[id] = name
-          end
-          output = String.new
-          output << "<directory count='#{packages.length}'>\n"
-          output << packages.map { |p| p[1]==@project.id ? "  <entry name=\"#{p[0]}\"/>\n" : "  <entry name=\"#{p[0]}\" originproject=\"#{prj_names[p[1]]}\"/>\n" }.join
-          output << "</directory>\n"
-          render :text => output, :content_type => "text/xml"
-        end
-      end
+      return
     end
+
+    if Project.is_remote_project?(project_name)
+      # not a local project, hand over to backend
+      pass_to_backend
+      return
+    end
+
+    @project = Project.find_by_name(project_name)
+    raise Project::UnknownObjectError.new project_name unless @project
+    # we let the backend list the packages after we verified the project is visible
+    if params.has_key? :view
+      if params['view'] == 'issues'
+        render_project_issues
+      else
+        pass_to_backend
+      end
+      return
+    end
+
+    render xml: render_project_packages
+  end
+
+  def render_project_packages
+    packages=nil
+    if params.has_key? :expand
+      packages = @project.expand_all_packages
+    else
+      packages = @project.packages.pluck(:name, :db_project_id)
+    end
+    packages = packages.sort{|a,b| a[0]<=>b[0] }
+    prj_names = Hash.new
+    Project.where(id: packages.map {|a| a[1]}.uniq).pluck(:id, :name).each do |id, name|
+      prj_names[id] = name
+    end
+    output = String.new
+    output << "<directory count='#{packages.length}'>\n"
+    output << packages.map { |p| p[1]==@project.id ? "  <entry name=\"#{p[0]}\"/>\n" : "  <entry name=\"#{p[0]}\" originproject=\"#{prj_names[p[1]]}\"/>\n" }.join
+    output << "</directory>\n"
+    output
   end
 
   # DELETE /source/:project
@@ -178,9 +187,9 @@ class SourceController < ApplicationController
 
     # init and validation
     #--------------------
-    valid_commands=["undelete", "showlinked", "remove_flag", "set_flag", "createpatchinfo", "createkey", "extendkey", "copy", "createmaintenanceincident", "unlock", "release", "addchannels"]
+    valid_commands=['undelete', 'showlinked', 'remove_flag', 'set_flag', 'createpatchinfo', 'createkey', 'extendkey', 'copy', 'createmaintenanceincident', 'unlock', 'release', 'addchannels']
     if params[:cmd]
-      raise IllegalRequest.new "invalid_command" unless valid_commands.include?(params[:cmd])
+      raise IllegalRequest.new 'invalid_command' unless valid_commands.include?(params[:cmd])
       command = params[:cmd]
     end
     project_name = params[:project]
@@ -203,9 +212,9 @@ class SourceController < ApplicationController
 
     @project = Project.get_by_name project_name
     # unlock
-    if command == "unlock" and User.current.can_modify_project?(@project, true)
+    if command == 'unlock' and User.current.can_modify_project?(@project, true)
       dispatch_command
-    elsif command == "showlinked" or User.current.can_modify_project?(@project)
+    elsif command == 'showlinked' or User.current.can_modify_project?(@project)
       # command: showlinked, set_flag, remove_flag, ...?
       dispatch_command
     else
@@ -219,12 +228,12 @@ class SourceController < ApplicationController
     setup 403
   end
   class CreateProjectNoPermission < APIException
-    setup "create_project_no_permission", 403
+    setup 'create_project_no_permission', 403
   end
 
   def show_package_issues
     unless @tpkg
-      raise NoLocalPackage.new "Issues can only be shown for local packages"
+      raise NoLocalPackage.new 'Issues can only be shown for local packages'
     end
     set_issues_default
     @tpkg.update_if_dirty
@@ -238,7 +247,7 @@ class SourceController < ApplicationController
     if @deleted_package 
       tpkg = Package.find_by_project_and_name(@target_project_name, @target_package_name)
       if tpkg
-        raise PackageExists.new "the package is not deleted"
+        raise PackageExists.new 'the package is not deleted'
       else
         validate_read_access_of_deleted_package(@target_project_name, @target_package_name)
       end 
@@ -250,7 +259,7 @@ class SourceController < ApplicationController
       end
     end
 
-    if params[:view] == "issues"
+    if params[:view] == 'issues'
        show_package_issues and return
     end
 
@@ -270,8 +279,8 @@ class SourceController < ApplicationController
   def delete_package
 
     # checks
-    if @target_package_name == "_project"
-      raise DeletePackageNoPermission.new "_project package can not be deleted."
+    if @target_package_name == '_project'
+      raise DeletePackageNoPermission.new '_project package can not be deleted.'
     end
 
     tpkg = Package.get_by_project_and_name(@target_project_name, @target_package_name,
@@ -328,7 +337,7 @@ class SourceController < ApplicationController
     @deleted_package = params.has_key? :deleted
 
     # FIXME: for OBS 3, api of branch and copy calls have target and source in the opossite place
-    if params[:cmd] == "branch"
+    if params[:cmd] == 'branch'
       @target_package_name = params[:package]
       @target_project_name = params[:target_project] # might be nil
       @target_package_name = params[:target_package] if params[:target_package]
@@ -340,7 +349,7 @@ class SourceController < ApplicationController
   end
 
   class NoMatchingReleaseTarget < APIException
-    setup 404, "No defined or matching release target"
+    setup 404, 'No defined or matching release target'
   end
 
   def verify_can_modify_target_package!
@@ -354,7 +363,7 @@ class SourceController < ApplicationController
     params[:user] = User.current.login
 
     unless params[:cmd]
-      raise MissingParameterError.new "POST request without given cmd parameter"
+      raise MissingParameterError.new 'POST request without given cmd parameter'
     end
 
     # valid post commands
@@ -364,7 +373,7 @@ class SourceController < ApplicationController
                     'getprojectservices', 'unlock', 'release']
 
     @command = params[:cmd]
-    raise IllegalRequest.new "invalid_command" unless valid_commands.include?(@command)
+    raise IllegalRequest.new 'invalid_command' unless valid_commands.include?(@command)
 
     origin_project_name = params[:oproject] if params[:oproject]
     origin_package_name = params[:opackage] if params[:opackage]
@@ -411,7 +420,7 @@ class SourceController < ApplicationController
 
     unless ['_project', '_pattern'].include? @target_package_name
       use_source = true
-      use_source = false if @command == "showlinked"
+      use_source = false if @command == 'showlinked'
       @package = Package.get_by_project_and_name(@target_project_name, @target_package_name,
                                              use_source: use_source, follow_project_links: follow_project_links)
       if @package # for remote package case it's nil
@@ -482,12 +491,12 @@ class SourceController < ApplicationController
     # remote url project must be edited by the admin
     unless User.current.is_admin?
       if rdata.has_key? 'remoteurl' or rdata.has_key? 'remoteproject'
-        raise ChangeProjectNoPermission.new "admin rights are required to change remoteurl or remoteproject"
+        raise ChangeProjectNoPermission.new 'admin rights are required to change remoteurl or remoteproject'
       end
     end
 
     # Need permission
-    logger.debug "Checking permission for the put"
+    logger.debug 'Checking permission for the put'
     if prj
       # is lock explicit set to disable ? allow the un-freeze of the project in that case ...
       ignoreLock = nil
@@ -501,13 +510,13 @@ class SourceController < ApplicationController
           raise ChangeProjectNoPermission.new "The project #{prj.name} is locked"
         end
         logger.debug "user #{user.login} has no permission to modify project #{prj.name}"
-        raise ChangeProjectNoPermission.new "no permission to change project"
+        raise ChangeProjectNoPermission.new 'no permission to change project'
       end
 
     else
       # project is new
       unless User.current.can_create_project? project_name
-        logger.debug "Not allowed to create new project"
+        logger.debug 'Not allowed to create new project'
         raise CreateProjectNoPermission.new "no permission to create project #{project_name}"
       end
     end
@@ -515,14 +524,14 @@ class SourceController < ApplicationController
     # the following code checks if the target project of a linked project exists or is not readable by user
     rdata.elements('link') do |e|
       # permissions check
-      tproject_name = e.value("project")
+      tproject_name = e.value('project')
       tprj = Project.get_by_name(tproject_name)
 
       # The read access protection for own and linked project must be the same.
       # ignore this for remote targets
       if tprj.class == Project and tprj.disabled_for?('access', nil, nil) and
           !FlagHelper.xml_disabled_for?(rdata, 'access')
-        render_error :status => 404, :errorcode => "project_read_access_failure" ,
+        render_error :status => 404, :errorcode => 'project_read_access_failure',
                      :message => "project links work only when both projects have same read access protection level: #{project_name} -> #{tproject_name}"
         return
       end
@@ -536,10 +545,10 @@ class SourceController < ApplicationController
       new_repo_names[r['name']] = 1
       r.elements('path') do |e|
         # permissions check
-        tproject_name = e.value("project")
+        tproject_name = e.value('project')
         tprj = Project.get_by_name(tproject_name)
         if tprj.class == Project and tprj.disabled_for?('access', nil, nil) # user can access tprj, but backend would refuse to take binaries from there
-          render_error :status => 404, :errorcode => "repository_access_failure" ,
+          render_error :status => 404, :errorcode => 'repository_access_failure',
                        :message => "The current backend implementation is not using binaries from read access protected projects #{tproject_name}"
           return
         end
@@ -629,13 +638,13 @@ class SourceController < ApplicationController
     path = pubkey_path
 
     #check for permissions
-    upperProject = @prj.name.gsub(/:[^:]*$/, "")
+    upperProject = @prj.name.gsub(/:[^:]*$/, '')
     while upperProject != @prj.name and not upperProject.blank?
       if Project.exists_by_name(upperProject) and User.current.can_modify_project?(Project.get_by_name(upperProject))
         pass_to_backend path
         return
       end
-      upperProject = upperProject.gsub(/:[^:]*$/, "")
+      upperProject = upperProject.gsub(/:[^:]*$/, '')
     end
 
     if User.current.is_admin?
@@ -665,7 +674,7 @@ class SourceController < ApplicationController
         if answer
           render :text => answer.body.to_s, :content_type => 'text/xml'
         else
-          render_error :status => 404, :errorcode => "unknown_package",
+          render_error :status => 404, :errorcode => 'unknown_package',
             :message => "Unknown package '#{package_name}'"
         end
         return
@@ -680,13 +689,13 @@ class SourceController < ApplicationController
       
       if rdata['project'] && rdata['project'] != project_name
         render_error :status => 400, :errorcode => 'project_name_mismatch',
-                     :message => "project name in xml data does not match resource path component"
+                     :message => 'project name in xml data does not match resource path component'
         return
       end
 
       if rdata['name'] && rdata['name'] != package_name
         render_error :status => 400, :errorcode => 'package_name_mismatch',
-                     :message => "package name in xml data does not match resource path component"
+                     :message => 'package name in xml data does not match resource path component'
         return
       end
 
@@ -699,22 +708,22 @@ class SourceController < ApplicationController
 
         pkg = Package.get_by_project_and_name( project_name, package_name, use_source: false )
         unless User.current.can_modify_package?(pkg, ignoreLock)
-          render_error :status => 403, :errorcode => "change_package_no_permission",
+          render_error :status => 403, :errorcode => 'change_package_no_permission',
             :message => "no permission to modify package '#{pkg.project.name}'/#{pkg.name}"
           return
         end
 
         if pkg and not pkg.disabled_for?('sourceaccess', nil, nil)
           if FlagHelper.xml_disabled_for?(rdata, 'sourceaccess')
-             render_error :status => 403, :errorcode => "change_package_protection_level",
-               :message => "admin rights are required to raise the protection level of a package"
+             render_error :status => 403, :errorcode => 'change_package_protection_level',
+               :message => 'admin rights are required to raise the protection level of a package'
              return
           end
         end
       else
         prj = Project.get_by_name(project_name)
         unless User.current.can_create_package_in?(prj)
-          render_error :status => 403, :errorcode => "create_package_no_permission",
+          render_error :status => 403, :errorcode => 'create_package_no_permission',
             :message => "no permission to create a package in project '#{project_name}'"
           return
         end
@@ -744,7 +753,7 @@ class SourceController < ApplicationController
     path = "/source/#{URI.escape(project_name)}/#{URI.escape(package_name)}/#{URI.escape(file)}"
 
     if params.has_key?(:deleted)
-      if package_name == "_project"
+      if package_name == '_project'
         validate_visibility_of_deleted_project(project_name)
         pass_to_backend
         return
@@ -756,7 +765,7 @@ class SourceController < ApplicationController
     end
 
     # a readable package, even on remote instance is enough here
-    if package_name == "_project"
+    if package_name == '_project'
       Project.get_by_name(project_name)
     else
       pack = Package.get_by_project_and_name(project_name, package_name, use_source: true)
@@ -786,7 +795,7 @@ class SourceController < ApplicationController
     @pack = nil
     @allowed = false
 
-    if @package_name == "_project" or @package_name == "_pattern"
+    if @package_name == '_project' or @package_name == '_pattern'
       @allowed = permissions.project_change? @prj
     else
       # we need a local package here in any case for modifications
@@ -817,16 +826,16 @@ class SourceController < ApplicationController
       end
     end
 
-    if params[:package] == "_pattern"
-      Suse::Validator.validate( "pattern", request.raw_post.to_s)
+    if params[:package] == '_pattern'
+      Suse::Validator.validate( 'pattern', request.raw_post.to_s)
     end
 
     # verify link
-    if params[:filename] == "_link"
+    if params[:filename] == '_link'
       data = ActiveXML::Node.new(request.raw_post.to_s)
       if data
-        tproject_name = data.value("project") || @project_name
-        tpackage_name = data.value("package") || @package_name
+        tproject_name = data.value('project') || @project_name
+        tpackage_name = data.value('package') || @package_name
         if data.has_attribute? 'missingok'
           Project.get_by_name(tproject_name) # permission check
           if Package.exists_by_project_and_name(tproject_name, tpackage_name, follow_project_links: true, allow_remote_packages: true)
@@ -840,20 +849,20 @@ class SourceController < ApplicationController
     end
 
     # verify channel data
-    if params[:filename] == "_channel"
+    if params[:filename] == '_channel'
       Channel.verify_xml!(request.raw_post.to_s)
     end
 
     # verify patchinfo data
-    if params[:filename] == "_patchinfo"
+    if params[:filename] == '_patchinfo'
       Patchinfo.new.verify_data(@prj, request.raw_post.to_s)
     end
 
     # _pattern was not a real package in former OBS 2.0 and before, so we need to create the
     # package here implicit to stay api compatible.
     # FIXME3.0: to be revisited
-    if @package_name == "_pattern" and not Package.exists_by_project_and_name( @project_name, @package_name, follow_project_links: false )
-      pack = Package.new(:name => "_pattern", :title => "Patterns", :description => "Package Patterns")
+    if @package_name == '_pattern' and not Package.exists_by_project_and_name( @project_name, @package_name, follow_project_links: false )
+      pack = Package.new(:name => '_pattern', :title => 'Patterns', :description => 'Package Patterns')
       @prj.packages << pack
       pack.save
     end
@@ -861,7 +870,7 @@ class SourceController < ApplicationController
     pass_to_backend @path
 
     # update package timestamp and reindex sources
-    unless params[:rev] == 'repository' or [ "_project", "_pattern" ].include? @package_name
+    unless params[:rev] == 'repository' or [ '_project', '_pattern'].include? @package_name
       @pack.sources_changed
       @pack.update_if_dirty if special_file # scan
     end
@@ -878,11 +887,11 @@ class SourceController < ApplicationController
     @path += build_query_from_hash(params, [:user, :comment, :meta, :rev, :linkrev, :keeplink])
 
     unless @allowed
-      raise DeleteFileNoPermission.new "Insufficient permissions to delete file"
+      raise DeleteFileNoPermission.new 'Insufficient permissions to delete file'
     end
 
     Suse::Backend.delete @path
-    unless @package_name == "_pattern" or @package_name == "_project"
+    unless @package_name == '_pattern' or @package_name == '_project'
       # _pattern was not a real package in old times
       @pack.sources_changed
     end
@@ -906,7 +915,7 @@ class SourceController < ApplicationController
   private
 
   class AttributeNotFound < APIException
-    setup "not_found", 404  
+    setup 'not_found', 404
   end
 
   class ModifyProjectNoPermission < APIException
@@ -917,7 +926,7 @@ class SourceController < ApplicationController
   def global_command_createmaintenanceincident
     # set defaults
     unless params[:attribute]
-      params[:attribute] = "OBS:MaintenanceProject"
+      params[:attribute] = 'OBS:MaintenanceProject'
     end
 
     # find maintenance project via attribute
@@ -938,9 +947,9 @@ class SourceController < ApplicationController
     end
 
     # check for correct project kind
-    unless prj and prj.project_type == "maintenance"
-      render_error :status => 400, :errorcode => "incident_has_no_maintenance_project",
-                   :message => "incident projects shall only create below maintenance projects"
+    unless prj and prj.project_type == 'maintenance'
+      render_error :status => 400, :errorcode => 'incident_has_no_maintenance_project',
+                   :message => 'incident projects shall only create below maintenance projects'
       return
     end
 
@@ -969,9 +978,9 @@ class SourceController < ApplicationController
     end
     unless params[:force] and not params[:force].empty?
       check_dependent_repositories!(linkingRepositories,
-                                    "Unable to delete repository; following repositories depend on this project:")
+                                    'Unable to delete repository; following repositories depend on this project:')
       check_dependent_repositories!(linkingTargetRepositories,
-                                    "Unable to delete repository; following target repositories depend on this project:")
+                                    'Unable to delete repository; following target repositories depend on this project:')
     end
     unless removeRepositories.empty?
       # do remove
@@ -981,7 +990,7 @@ class SourceController < ApplicationController
   end
 
   def private_remove_repositories( repositories, full_remove = false )
-    del_repo = Project.find_by_name("deleted").repositories[0]
+    del_repo = Project.find_by_name('deleted').repositories[0]
 
     repositories.each do |repo|
       linking_repos = repo.linking_repositories
@@ -1029,7 +1038,7 @@ class SourceController < ApplicationController
         c.project(p)
       end
     end
-    render :text => xml, :content_type => "text/xml"
+    render :text => xml, :content_type => 'text/xml'
   end
 
   class OpenReleaseRequest < APIException
@@ -1051,9 +1060,9 @@ class SourceController < ApplicationController
 
     p = { :comment => params[:comment] }
 
-    f = @project.flags.find_by_flag_and_status("lock", "enable")
+    f = @project.flags.find_by_flag_and_status('lock', 'enable')
     unless f
-      render_error :status => 400, :errorcode => "not_locked",
+      render_error :status => 400, :errorcode => 'not_locked',
         :message => "project '#{@project.name}' is not locked"
       return
     end
@@ -1067,7 +1076,7 @@ class SourceController < ApplicationController
         # reopen all release targets
         @project.repositories.each do |repo|
           repo.release_targets.each do |releasetarget|
-            releasetarget.trigger = "maintenance"
+            releasetarget.trigger = 'maintenance'
             releasetarget.save!
           end
         end
@@ -1128,7 +1137,7 @@ class SourceController < ApplicationController
     pass_to_backend path
 
     # read meta data from backend to restore database object
-    path = request.path + "/_meta"
+    path = request.path + '/_meta'
     prj = Project.new(name: params[:project])
     Project.transaction do
       prj.update_from_xml(Xmlhash.parse(backend_get(path)))
@@ -1139,7 +1148,7 @@ class SourceController < ApplicationController
     backend_pkgs = Collection.find :package, :match => "@project='#{params[:project]}'"
     backend_pkgs.each_package do |package|
       Package.transaction do
-        path = request.path + "/" + package.name + "/_meta"
+        path = request.path + '/' + package.name + '/_meta'
         p = Xmlhash.parse(backend_get(path))
         pkg = prj.packages.new(name: p['name'])
         pkg.update_from_xml(p)
@@ -1156,8 +1165,8 @@ class SourceController < ApplicationController
     verify_repos_match!(@project)
 
     if @project.is_a? String # remote project
-      render_error :status => 404, :errorcode => "remote_project",
-        :message => "The release from remote projects is currently not supported"
+      render_error :status => 404, :errorcode => 'remote_project',
+        :message => 'The release from remote projects is currently not supported'
       return
     end
 
@@ -1179,19 +1188,19 @@ class SourceController < ApplicationController
         unless User.current.can_modify_project?(releasetarget.target_repository.project)
           raise CmdExecutionNoPermission.new "no permission to write in project #{releasetarget.target_repository.project.name}"
         end
-        unless releasetarget.trigger == "manual"
+        unless releasetarget.trigger == 'manual'
           raise CmdExecutionNoPermission.new "Trigger is not set to manual in repository #{releasetarget.repository.project.name}/#{releasetarget.repository.name}"
         end
         repo_matches=true
       end
     end
     unless repo_matches
-      raise NoMatchingReleaseTarget.new "No defined or matching release target"
+      raise NoMatchingReleaseTarget.new 'No defined or matching release target'
     end
   end
 
   class RemoteProjectError < APIException
-    setup "remote_project", 404
+    setup 'remote_project', 404
   end
   class ProjectCopyNoPermission < APIException
     setup 403
@@ -1213,12 +1222,12 @@ class SourceController < ApplicationController
     end
 
     if oprj.is_a? String # remote project
-      raise RemoteProjectError.new "The copy from remote projects is currently not supported"
+      raise RemoteProjectError.new 'The copy from remote projects is currently not supported'
     end
 
     unless User.current.is_admin?
       if params[:withbinaries]
-        raise ProjectCopyNoPermission.new "no permission to copy project with binaries for non admins"
+        raise ProjectCopyNoPermission.new 'no permission to copy project with binaries for non admins'
       end
 
       unless oprj.is_a? String
@@ -1233,7 +1242,7 @@ class SourceController < ApplicationController
     Project.transaction do
       if oprj.is_a? String # remote project
         rdata = Xmlhash.parse(backend_get("/source/#{URI.escape(oprj)}/_meta"))
-        @project = Project.new :name => project_name, :title => rdata["title"], :description => rdata["description"]
+        @project = Project.new :name => project_name, :title => rdata['title'], :description => rdata['description']
       else # local project
         @project = Project.new :name => project_name, :title => oprj.title, :description => oprj.description
         @project.save
@@ -1252,7 +1261,7 @@ class SourceController < ApplicationController
           end
         end
       end
-      @project.add_user @http_user, "maintainer"
+      @project.add_user @http_user, 'maintainer'
       @project.store
     end unless @project
 
@@ -1291,7 +1300,7 @@ class SourceController < ApplicationController
 
     p = { :comment => params[:comment] }
 
-    f = @package.flags.find_by_flag_and_status("lock", "enable")
+    f = @package.flags.find_by_flag_and_status('lock', 'enable')
     raise NotLocked.new("package '#{@package.project.name}/#{@package.name}' is not locked") unless f
     @package.flags.delete(f)
     @package.store(p)
@@ -1320,7 +1329,7 @@ class SourceController < ApplicationController
 #      path = "/search/package/id?match=(@linkinfo/package=\"#{CGI.escape(package_name)}\"+and+@linkinfo/project=\"#{CGI.escape(project_name)}\")"
 #      answer = Suse::Backend.post path, nil
 #      render :text => answer.body, :content_type => 'text/xml'
-      render :text => "<collection/>", :content_type => 'text/xml'
+      render :text => '<collection/>', :content_type => 'text/xml'
       return
     end
 
@@ -1333,7 +1342,7 @@ class SourceController < ApplicationController
         c.package(p)
       end
     end
-    render :text => xml, :content_type => "text/xml"
+    render :text => xml, :content_type => 'text/xml'
   end
 
   # POST /source/<project>/<package>?cmd=undelete
@@ -1352,7 +1361,7 @@ class SourceController < ApplicationController
     pass_to_backend path
 
     # read meta data from backend to restore database object
-    path = request.path + "/_meta"
+    path = request.path + '/_meta'
     prj = Project.find_by_name!(params[:project])
     pkg = prj.packages.new(name: params[:package])
     pkg.update_from_xml(Xmlhash.parse(backend_get(path)))
@@ -1365,8 +1374,8 @@ class SourceController < ApplicationController
     specfile_path = "#{request.path}/#{params[:package]}.spec"
     begin
       backend_get( specfile_path )
-      render_error :status => 400, :errorcode => "spec_file_exists",
-        :message => "SPEC file already exists."
+      render_error :status => 400, :errorcode => 'spec_file_exists',
+        :message => 'SPEC file already exists.'
       return
     rescue ActiveXML::Transport::NotFoundError
       specfile = File.read "#{Rails.root}/files/specfiletemplate"
@@ -1405,7 +1414,7 @@ class SourceController < ApplicationController
       path += "&arch=#{arch_name}"
     end
 
-    backend.direct_http( URI(path), :method => "POST", :data => "" )
+    backend.direct_http( URI(path), :method => 'POST', :data => '')
 
     render_ok
   end
@@ -1546,11 +1555,11 @@ class SourceController < ApplicationController
     pkg_linkrev = params[:linkrev]
 
     #convert link to branch
-    rev = ""
+    rev = ''
     if not pkg_rev.nil? and not pkg_rev.empty?
       rev = "&orev=#{pkg_rev}"
     end
-    linkrev = ""
+    linkrev = ''
     if not pkg_linkrev.nil? and not pkg_linkrev.empty?
       linkrev = "&linkrev=#{pkg_linkrev}"
     end
@@ -1619,10 +1628,10 @@ class SourceController < ApplicationController
 
     # Raising permissions afterwards is not secure. Do not allow this by default.
     unless User.current.is_admin?
-      if params[:flag] == "access" and params[:status] == "enable" and not @project.enabled_for?('access', params[:repository], params[:arch])
+      if params[:flag] == 'access' and params[:status] == 'enable' and not @project.enabled_for?('access', params[:repository], params[:arch])
         raise Project::ForbiddenError.new
       end
-      if params[:flag] == "sourceaccess" and params[:status] == "enable" and
+      if params[:flag] == 'sourceaccess' and params[:status] == 'enable' and
           !@project.enabled_for?('sourceaccess', params[:repository], params[:arch])
         raise Project::ForbiddenError.new
       end
