@@ -2522,14 +2522,6 @@ sub get_projpacks {
   @packids = () unless defined $projid;
   @packids = grep {defined $_} @packids;
 
-  if (!@packids) {
-    if (defined($projid)) {
-      delete $remoteprojs{$projid};
-    } else {
-      %remoteprojs = ();
-    }
-  }
-
   $projid ||= $testprojid;
 
   my @args;
@@ -2643,6 +2635,11 @@ sub update_projpacks {
       delete $proj->{'package'};
     }
   }
+  if (!defined($projid)) {
+    %remoteprojs = ();
+  } elsif (!($packids && @$packids)) {
+    delete $remoteprojs{$projid};
+  }
   remotemap2remoteprojs($projpacksin->{'remotemap'});
 }
 
@@ -2659,6 +2656,8 @@ sub update_projpacks_meta {
     $proj->{'package'} = $oldproj->{'package'} if $oldproj->{'package'};
     $projpacks->{$projid} = $proj;
   }
+  delete $remoteprojs{$projid};
+  remotemap2remoteprojs($projpacksin->{'remotemap'});
 }
 
 # update remoteprojs with the remotemap data
