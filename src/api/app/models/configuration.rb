@@ -58,6 +58,10 @@ class Configuration < ActiveRecord::Base
       @@ymp_url ||= Configuration.limit(1).pluck(:ymp_url).first
     end
 
+    def use_gravatar?
+      @@use_gravatar ||= Configuration.limit(1).pluck(:gravatar).first
+    end
+
     # Check if ldap group support is enabled?
     def ldapgroup_enabled?
       return CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on

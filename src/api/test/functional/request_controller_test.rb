@@ -2526,10 +2526,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
 
-    get "/webui/requests/#{id}"
-    assert_response :success
-    ret = Yajl::Parser.parse(@response.body)
-    assert !ret['is_target_maintainer'], 'tom is target maintainer'
+    infos = JSON.parse(BsRequest.find(id).webui_infos.to_json)
+    assert !infos['is_target_maintainer'], 'tom is target maintainer'
   end
 
   test 'cleanup from home' do

@@ -1,0 +1,14 @@
+<% @pagetitle = "Project Configuration of #{@project}" %>
+<% @metarobots = 'noindex' %>
+<% project_bread_crumb 'Project Configuration' %>
+
+<%= render :partial => 'tabs' %>
+
+<h3><%= @pagetitle %></h3>
+<div style="margin-left: 15px; margin-right: 15px;">
+  <% if User.current.can_modify_project?(@project.api_obj) %>
+    <%= render partial: "shared/editor", locals: {text: @config, mode: 'prjconf', save: {url: url_for(controller: 'project', action: 'save_prjconf'), method: 'POST', data: {project: @project.name, submit: 'config'}}} %>
+  <% else %>
+    <%= render partial: "shared/editor", locals: {text: @config, mode: 'prjconf', read_only: true} %>
+  <% end %>
+</div>

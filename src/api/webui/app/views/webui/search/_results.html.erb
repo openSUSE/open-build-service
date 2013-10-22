@@ -1,0 +1,39 @@
+<div id="search_results">
+  <%
+  @results.each do |result|
+    if result.kind_of? Project
+      project = result.name
+      package = nil
+      rtype = "project"
+    else
+      project = result.project_name
+      package = result.name
+      rtype = "package"
+    end
+  %>
+    <div class="search_result">
+      <h6 class="data-title">
+      <%= sprite_tag(rtype, class: rtype, title: rtype.humanize) %>
+      <%= render :partial => 'shared/project_or_package_link', :locals => {:project => project,
+                                                                           :package => package,
+                                                                           :short => false} %>
+      <%= content_tag :span, result.sphinx_attributes, style: "display:none" %>
+      </h6>
+
+      <% if result.description.empty? %>
+        <p class="data-description">...</p>
+      <% else %>
+        <% desc = truncate(result.description, length: 80) %>
+        <p class="data-description">
+          <% desc.split(/\n/).each do |line| -%>
+            <%= highlight(line, @search_text, highlighter: '<b>\1</b>') %>
+          <% end %>
+        </p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if @per_page %>
+    <%= paginate @results %>
+  <% end %>
+</div>

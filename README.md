@@ -17,22 +17,20 @@ including the official books for OBS.
 Organization
 ------------
 
-The Open Build Service consists of several parts, namely the backend, the
-api and the webui. The backend implements all the core functionality (i.e. the
-business logic), whereas the webui provides a neat browser interface. The api
-forms the glue between those components and also serves as the integration
-point to other external tools (hence it's name). Therefore the source code is
-organized like this:
+The Open Build Service consists of several parts, namely the backend and the
+Rails app. The backend implements all the core functionality (i.e. the
+business logic), whereas the Rails app provides an interface to the backend.
+You can access the Rails app either using a browser or using our API.
+Therefore the source code is organized like this:
 
 ###Directory Description
 
 	dist          Files relevant for (distro) packaging
 	docs          Documentation, examples and schema files
-	src/api       Api code (Ruby / Ruby on Rails)
+	src/api       Rails app (Ruby / Ruby on Rails)
 	src/backend   Backend code (Perl)
-	src/webui     Webui code (Ruby / Ruby on Rails)
 
-Note that the three parts each also have their own documentation found in their
+Note that the two parts each also have their own documentation found in their
 respective subdirectories.
 
 Installation, deployment and development

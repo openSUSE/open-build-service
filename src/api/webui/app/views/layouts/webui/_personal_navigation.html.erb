@@ -1,0 +1,56 @@
+<div class="grid_6 omega" style="text-align: right">
+  <% unless User.current.is_nobody? %>
+    <%= link_to User.current, :controller => 'home', :action => :index %>
+    <% if @nr_requests_that_need_work and @nr_requests_that_need_work > 0 %> |
+      <%= link_to "You have "+ pluralize(@nr_requests_that_need_work, 'task'), {:controller => 'home', :action => 'index'}, {:title => "where an action is requested from you"} %>
+    <% end %> |
+    <%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{User.current.login}" %> |
+    <%= link_to "Logout", { :controller => 'user', :action => 'logout' }, :method => :post, id: 'logout-link' %>
+  <% else %>
+    <% if CONFIG['proxy_auth_mode'] == :on %>
+      <% unless CONFIG['proxy_auth_register_page'].blank? %>
+        <%= link_to "Sign Up", "#{CONFIG['proxy_auth_register_page']}?%22#{@return_to_host}#{@return_to_path}%22" %> |
+      <% end %>
+      <%= link_to 'Log In', { :controller => :user, :action => :login }, :id => "login-trigger" %>
+      <div id="login-form">
+        <%= form_tag(CONFIG['proxy_auth_login_page'], :method => :post, :id => 'login_form', :enctype => 'application/x-www-form-urlencoded') do %>
+          <p>
+            <%= hidden_field_tag(:url, "#{@return_to_host}#{@return_to_path}") %>
+            <%= hidden_field_tag(:context, 'default') %>
+            <%= hidden_field_tag(:proxypath, 'reserve') %>
+            <%= hidden_field_tag(:message, 'Please log in') %>
+            <%= hidden_field_tag(:return_to_path, @return_to_path) %>
+            <%= label_tag(:username, 'Username') %>
+            <%= text_field_tag(:username, '') %>
+          </p>
+          <p>
+            <%= label_tag(:password, 'Password') %>
+            <%= password_field_tag(:password, '') %>
+          </p>
+          <p><%= submit_tag('Log In', :onclick => 'fillEmptyFields();') %></p>
+          <p class="slim-footer"><%= link_to('Cancel', '#', id: 'close-login') %></p>
+        <% end %>
+      </div>
+    <% else %>
+      <% unless CONFIG['frontend_ldap_mode'] == :on %>
+        <%= link_to 'Sign Up', :controller => :user, :action => :register_user %> |
+      <% end %>
+      <%= link_to 'Log In', { :controller => :user, :action => :login }, id: 'login-trigger' %>
+      <div id="login-form">
+        <%= form_tag(:controller => :user, :action => :do_login) do %>
+          <p>
+            <%= hidden_field_tag(:return_to_path, @return_to_path) %>
+            <%= label_tag(:username, 'Username') %>
+            <%= text_field_tag(:username, '') %>
+          </p>
+          <p>
+            <%= label_tag(:password, 'Password') %>
+            <%= password_field_tag(:password, '') %>
+          </p>
+          <p><%= submit_tag('Log In') %></p>
+          <p class="slim-footer"><%= link_to('Cancel', '#', :id => 'close-login') %></p>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

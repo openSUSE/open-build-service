@@ -1,5 +1,7 @@
 # Settings specified here will take precedence over those in config/environment.rb
 
+ENV['CACHENAMESPACE'] ||= "obs-api-test-#{Time.now.to_i}"
+
 OBSApi::Application.configure do
 
   # The test environment is used exclusively to run your application's
@@ -18,11 +20,15 @@ OBSApi::Application.configure do
   # ActionMailer::Base.deliveries array.
   config.action_mailer.delivery_method = :test
 
-  config.cache_store = :memory_store
+  config.cache_store = :dalli_store, '127.0.0.1:11211', {namespace: ENV['CACHENAMESPACE'], expires_in: 1.hour }
 
   config.active_support.deprecation = :log
 
-  config.eager_load = false
+  config.eager_load = true
+
+  # Expands the lines which load the assets
+  config.assets.debug = false
+  config.assets.log = nil
 end
 
 CONFIG['source_host'] = "localhost"
@@ -39,3 +45,16 @@ CONFIG['global_write_through'] = false
 # make sure we have invalid setup for errbit
 CONFIG['errbit_api_key'] = 'INVALID'
 
+CONFIG['frontend_host'] = "localhost"
+CONFIG['frontend_port'] = 3203
+CONFIG['frontend_protocol'] = 'http'
+CONFIG['frontend_ldap_mode'] = :off
+
+CONFIG['proxy_auth_host'] = "https://build.opensuse.org"
+CONFIG['proxy_auth_login_page'] = "https://build.opensuse.org/ICSLogin"
+CONFIG['proxy_auth_logout_page'] = "/cmd/ICSLogout"
+CONFIG['proxy_auth_mode'] = :off
+
+# some defaults enforced
+CONFIG['use_static'] = nil
+#

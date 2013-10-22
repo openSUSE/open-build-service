@@ -1,0 +1,83 @@
+<% @pagetitle = "User Management" %>
+<% @crumb_list = [@pagetitle] -%>
+<% @layouttype = 'custom' %>
+
+<div class="grid_16 alpha omega box box-shadow">
+  <%= render :partial => 'tabs' %>
+  <p>
+    Manage users.
+  </p>
+
+<% unless @users.empty? %>
+  <table id="user_table">
+    <thead>
+      <tr>
+        <td>User</td>
+        <td>State</td>
+        <td>Actions</td>
+      </tr>
+    </thead>
+    <tbody>
+    <% @users.each do |user| %>
+      <tr id='user-<%= valid_xml_id(user.login) %>'>
+        <td><%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => user, :no_icon => true }%></td>
+        <td><%= user.state %></td>
+        <td class="nowrap">
+          <a href="#" class="dropdown-menu" id="actions-trigger-<%= user.login %>"><strong>Actions</strong></a>
+          <ul class="dropdown-menu-content" style="z-index:1;" id="actions-trigger-<%= user.login %>-content">
+              <li>
+                <%= sprite_tag('accessories-text-editor') %>
+                <%= link_to('Edit user', :controller => "user", :action => "edit", :user => user.login) %>
+              </li>
+              <li>
+                <%= sprite_tag('accept') %>
+                <%= link_to('Confirm user', {:controller => "user", :action => "confirm", :user => user.login },
+                          :method => :post, :confirm => "Are you sure?")
+                          %>
+              </li>
+              <li>
+                <%= sprite_tag('lock') %>
+                <%= link_to('Lock user', {:controller => "user", :action => "lock", :user => user.login },
+                          :method => :post, :confirm => "Are you sure?")
+                          %>
+              </li>
+              <li>
+                <%= sprite_tag('cancel') %>
+                <%= link_to('Delete user', {:controller => "user", :action => "delete", :user => user.login },
+                          :method => :delete, :confirm => "Are you sure?")
+                          %>
+              </li>
+              <li>
+                <%= sprite_tag('cog_add') %>
+                <%= link_to('Make user admin', {:controller => "user", :action => "admin", :user => user.login },
+                        :method => :post, :confirm => "Are you sure?")
+                        %>
+              </li>
+              <li>
+                <%= sprite_tag('email') %>
+                <%= mail_to(user.email, 'Contact user') %>
+              </li>
+          </ul>
+        </td>
+     </tr>
+   <% end %>
+   </tbody>
+  </table>
+<% else %>
+  <p>
+  <i>There are no users configured</i>
+  </p>
+<% end %>
+  <p>
+  <%= link_to sprite_tag('user_add') + ' Create new user', :controller => :user, :action => :register_user %>
+  </p>
+</div>
+
+
+<%= javascript_tag do %>
+  $(document).ready(function() {
+    <% if @users.length > 0 %>
+      $('#user_table').dataTable();
+    <% end %>
+  });
+<% end %>

@@ -284,13 +284,17 @@ CREATE TABLE `comments` (
   `body` text COLLATE utf8_unicode_ci,
   `parent_id` int(11) DEFAULT NULL,
   `type` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `user` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
+  `user_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `index_comments_on_project_id` (`project_id`),
   KEY `index_comments_on_package_id` (`package_id`),
-  KEY `index_comments_on_bs_request_id` (`bs_request_id`)
+  KEY `index_comments_on_bs_request_id` (`bs_request_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`),
+  CONSTRAINT `comments_ibfk_3` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `configurations` (
@@ -771,6 +775,17 @@ CREATE TABLE `schema_migrations` (
   `version` varchar(255) CHARACTER SET utf8 NOT NULL,
   UNIQUE KEY `unique_schema_migrations` (`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `sessions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `session_id` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `data` text COLLATE utf8_unicode_ci,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_sessions_on_session_id` (`session_id`),
+  KEY `index_sessions_on_updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `static_permissions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1272,6 +1287,12 @@ INSERT INTO schema_migrations (version) VALUES ('20130930130128');
 INSERT INTO schema_migrations (version) VALUES ('20131006000000');
 
 INSERT INTO schema_migrations (version) VALUES ('20131021063641');
+
+INSERT INTO schema_migrations (version) VALUES ('20131006162847');
+
+INSERT INTO schema_migrations (version) VALUES ('20131020151037');
+
+INSERT INTO schema_migrations (version) VALUES ('20131020165316');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

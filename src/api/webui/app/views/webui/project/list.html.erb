@@ -1,0 +1,53 @@
+<% @pagetitle = "Public Projects" %>
+<%
+@crumb_list = [ 'Projects' ]
+-%>
+
+<% unless @important_projects.blank? %>
+<h3>Main Projects</h3>
+<% for project in @important_projects -%>
+<p class='main-project'>
+  <%= link_to project[0], action: :show, project: project[0] %>:
+  <%= project[1] %>
+</p>
+<% end -%>
+<% end -%>
+
+<h3><%= @pagetitle %></h3>
+<div style="display: inline">
+  <%= form_tag({:controller => 'project', :action => 'list'}, {:method => :get, :id => 'filter_projects_form' }) do %>
+    <p>
+      <%= check_box_tag 'excludefilter', 'home:', (@excludefilter.nil? ? false : true) -%>Exclude user home projects
+
+      <% unless User.current.is_nobody? %>
+        <span style="float: right">
+          <%= link_to sprite_tag('brick_add', title: 'Create new project') + 'Create new project', :controller => :project, :action => :new %>
+        </span>
+      <% end %>
+    </p>
+  <% end-%>
+</div>
+
+<div id="project_list">
+  <% if @main_projects.blank? %>
+    <p><i>No projects found</i></p>
+  <% else %>
+    <div id="projects_table_wrapper" data-url="<%= url_for(controller:
+					       'project', action: 'show', project: 'REPLACEIT') %>">
+
+      <% content_for :head_javascript do %>
+      var main_projects = [ <%= @main_projects.map {|p|
+			   "['#{p[0]}','#{escape_javascript(p[1])}']" }.join(",\n").html_safe %> ];
+      var excl_projects = [ <%= @excl_projects.map {|p|
+				"['#{p[0]}','#{escape_javascript(p[1])}']"
+			   }.join(",\n").html_safe %> ];
+      <% end %>
+      <% content_for :ready_function do %>
+         renderProjectsTable();
+         $('#excludefilter').change(renderProjectsTable);
+      <% end %>
+    </div>
+  <% end %>
+
+</div>
+

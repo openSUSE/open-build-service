@@ -1,8 +1,8 @@
 class StatusMessage < ActiveRecord::Base
 
   belongs_to :user
-
-  scope :alive, -> { where(:deleted_at => nil) }
+  validates :user, :severity, :message, presence: true
+  scope :alive, -> { where(:deleted_at => nil).order("created_at DESC") }
 
   def delete
     self.deleted_at = Time.now

@@ -4,9 +4,9 @@ package_comment_parent:
   title: This package rules!
   body: I am making a comment on a package.
   type: CommentPackage
-  user: Admin
   created_at: 2013-07-25 14:05:30.000000000 Z
   updated_at: 2013-07-25 14:05:30.000000000 Z
+  user_id: 280
 package_comment_reply_1:
   id: 201
   package_id: 10094
@@ -14,9 +14,9 @@ package_comment_reply_1:
   body: And I like that comment.
   parent_id: 200
   type: CommentPackage
-  user: tom
   created_at: 2013-07-25 14:07:00.000000000 Z
   updated_at: 2013-07-25 14:07:00.000000000 Z
+  user_id: 3
 package_comment_reply_2:
   id: 202
   package_id: 10094
@@ -24,18 +24,18 @@ package_comment_reply_2:
   body: While I don't!
   parent_id: 201
   type: CommentPackage
-  user: adrian
   created_at: 2013-07-25 14:38:44.000000000 Z
   updated_at: 2013-07-25 14:38:44.000000000 Z
+  user_id: 42
 project_comment_parent:
   id: 100
   project_id: 2042
   title: This project rules!
   body: I am making a comment on a project.
   type: CommentProject
-  user: Admin
   created_at: 2013-07-25 14:00:21.000000000 Z
   updated_at: 2013-07-25 14:00:21.000000000 Z
+  user_id: 280
 project_comment_reply_1:
   id: 101
   project_id: 2042
@@ -43,9 +43,9 @@ project_comment_reply_1:
   body: And I like that comment.
   parent_id: 100
   type: CommentProject
-  user: tom
   created_at: 2013-07-25 15:00:21.000000000 Z
   updated_at: 2013-07-25 15:00:21.000000000 Z
+  user_id: 3
 project_comment_reply_2:
   id: 102
   project_id: 2042
@@ -53,18 +53,18 @@ project_comment_reply_2:
   body: While I don't!
   parent_id: 101
   type: CommentProject
-  user: adrian
   created_at: 2013-07-25 15:47:21.000000000 Z
   updated_at: 2013-07-25 15:47:21.000000000 Z
+  user_id: 42
 request_comment_parent:
   id: 300
   bs_request_id: 4
   title: This request rules!
   body: I am making a comment on a request.
   type: CommentRequest
-  user: Admin
   created_at: 2013-07-25 16:00:21.000000000 Z
   updated_at: 2013-07-25 16:00:21.000000000 Z
+  user_id: 280
 request_comment_reply_1:
   id: 301
   bs_request_id: 4
@@ -72,9 +72,9 @@ request_comment_reply_1:
   body: And I like that comment.
   parent_id: 300
   type: CommentRequest
-  user: tom
   created_at: 2013-07-25 17:00:21.000000000 Z
   updated_at: 2013-07-25 17:00:21.000000000 Z
+  user_id: 3
 request_comment_reply_2:
   id: 302
   bs_request_id: 4
@@ -82,6 +82,6 @@ request_comment_reply_2:
   body: While I don't!
   parent_id: 301
   type: CommentRequest
-  user: adrian
   created_at: 2013-07-25 18:00:21.000000000 Z
   updated_at: 2013-07-25 18:00:21.000000000 Z
+  user_id: 42

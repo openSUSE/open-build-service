@@ -36,32 +36,15 @@ setup_api() {
   cp config/options.yml.example config/options.yml
   cp config/thinking_sphinx.yml.example config/thinking_sphinx.yml
   chmod a+x script/start_test_backend
+  chmod a+x script/start_test_api
 
   echo "Initialize test database, load seed data"
   bundle exec rake db:drop db:create db:setup --trace
   cd ../..
-}
 
-setup_webui() {
-  echo "Enter Webui rails root"
-  cd src/webui
-
-  echo "Setup database configuration"
-  cp config/database.yml.example config/database.yml
-
-  echo "Setup additional configuration"
-  cp config/options.yml.example config/options.yml
-
-  chmod +x script/start_test_api 
-
-  echo "Initialize test database, load seed data"
-  bundle exec rake db:drop db:create db:setup --trace
-
-  cd ../..
   cd docs/api
   make
   cd ../..
-
 }
 
 cleanup() {
@@ -76,6 +59,5 @@ cleanup() {
   fi
 
   echo "Remove log/tmp files to save disc space"
-  rm -rf src/api/{log,tmp}/* \
-         src/webui/{log,tmp}/* || true
+  rm -rf src/api/{log,tmp}/* || true
 }

@@ -1,0 +1,26 @@
+<% @pagetitle = "Group #{@group.value('title')}" %>
+
+<h2><%= @pagetitle %></h2>
+
+<% if @group.person.has_elements? %>
+<table id="group_members_table">
+  <thead>
+    <tr>
+      <th>Group members</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @group.person.each do |member| %>
+      <tr>
+        <td><%= link_to_if(!User.current.is_nobody?, member.userid, { :controller => 'home', :action => 'index', :user => member.userid}, {:id => member.userid}) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<% else %>
+  <p><i>This group does not contain users</i></p>
+<% end %>
+
+<% content_for :ready_function do %>
+  $('#group_members_table').dataTable();
+<% end %>

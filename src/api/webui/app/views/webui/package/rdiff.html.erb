@@ -1,0 +1,43 @@
+<% @pagetitle = "Changes" %>
+<% package_bread_crumb('Changes') %>
+
+<%= render :partial => 'tabs' %>
+
+<% if @oproject and @opackage %>
+    <h3>Difference Between Revision <%= @rev %>
+      and <%= render :partial => 'shared/project_or_package_link', :locals => { :project => @oproject, :package => @opackage, :short => true } %></h3>
+<% else %>
+    <h3>Changes of Revision <%= @rev %></h3>
+<% end %>
+
+<%= render(:partial => 'shared/sourcediff', :locals => { :filenames => @filenames, :files => @files, :source => { :project => @project, :package => @package, :rev => @rev }, :editor_width => '915px' }) %>
+
+<% unless @last_req.blank? %>
+    <p class="error">
+      The previous
+      request <%= link_to(@last_req['id'], :controller => 'request', :action => 'show', id: @last_req['id']) %> was
+      declined <%= fuzzy_time_string(@last_req['when']) %> by
+      <%= render :partial => 'shared/user_with_realname_and_icon', locals: { user: @last_req['decliner'], short: true } %>
+      with the following message:
+    </p>
+    <pre><%= @last_req['comment'] %></pre>
+<% end %>
+
+<% if !User.current.is_nobody? && @filenames && !@filenames.empty? %>
+    <% if @oproject && @opackage && !WebuiProject.has_attribute?(@oproject, 'OBS', 'RejectRequests') && 
+		   !Webui::Package.has_attribute?(@oproject, @opackage, 'OBS', 'RejectRequests') %>
+        <% msg = "Submit to #{@oproject.to_s + ' / ' + @opackage.to_s}" %>
+        <% target_project, target_package = @oproject, @opackage %>
+    <% elsif @rev != @last_rev %>
+        <% msg = "Revert #{@project.to_s + ' / ' + @package.to_s} to revision #{@rev}" %>
+        <% target_project, target_package = @project, nil %>
+    <% else %>
+        <% msg = nil %>
+    <% end %>
+    <% if msg %>
+        <p>
+          <%= link_to(sprite_tag('package_go', title: msg) + msg,
+              { :action => 'submit_request_dialog', :project => @project, :package => @package, :targetproject => target_project, :targetpackage => target_package, :revision => @rev }, :remote => true) %>
+        </p>
+    <% end %>
+<% end %>

@@ -1,18 +1,19 @@
 class CommentProject < Comment
 
-	def self.save(params)
-		super
-		project = Project.get_by_name(params[:project])
-		@comment['project_id'] = project.id
-		CommentProject.create(@comment)
-	end
+  validates :project, presence: true
 
-	def create_notification(params = {})
-		super
-		params[:project] = self.project.name
-		params[:involved_users] = involved_users(:project_id, self.project.id)
+  def check_delete_permissions
+    # If you can change the project, you can delete the comment
+    User.current.has_local_permission?('change_project', project) || super
+  end
 
-		# call the action
-		Event::CommentForProject.create params
-	end
+
+  def create_notification(params = {})
+    super
+    params[:project] = self.project.name
+    params[:involved_users] = involved_users(:project_id, self.project.id)
+
+    # call the action
+    Event::CommentForProject.create params
+  end
 end

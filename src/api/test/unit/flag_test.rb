@@ -11,7 +11,7 @@ class FlagTest < ActiveSupport::TestCase
       assert_equal  false, f.save
       
       #expected error message
-      assert_equal "Please set either project_id or package_id.", f.errors[:name].join
+      assert_equal "Please set either project or package.", f.errors[:name].join
   end
   
   

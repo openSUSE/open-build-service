@@ -14,6 +14,7 @@ module Suse
 
     @@backend_logger = Logger.new( "#{Rails.root}/log/backend_access.log" )
     @@backend_time = 0
+    @semaphore = Mutex.new
     
     def initialize
      Rails.logger.debug "init backend"
@@ -44,6 +45,7 @@ module Suse
       end
 
       def get(path, in_headers={})
+	@semaphore.lock
         start_test_backend
         @start_of_last = Time.now
         logger.debug "[backend] GET: #{path}"
@@ -59,6 +61,7 @@ module Suse
       end
 
       def put_or_post(method, path, data, in_headers)
+        @semaphore.lock
         start_test_backend
         @start_of_last = Time.now
         logger.debug "[backend] #{method}: #{path}"
@@ -102,6 +105,7 @@ module Suse
       end
 
       def delete(path, in_headers={})
+        @semaphore.lock
         start_test_backend
         @start_of_last = Time.now
         logger.debug "[backend] DELETE: #{path}"
@@ -173,6 +177,7 @@ module Suse
       end
 
       def handle_response( response )
+        @semaphore.unlock
         case response
         when Net::HTTPSuccess, Net::HTTPRedirection, Net::HTTPOK
           return response
@@ -201,7 +206,8 @@ module Suse
 	#do_not_start_test_backend
         return unless Rails.env.test?
         return if @@backend
-        logger.debug "Starting test backend..."
+	return if ENV['BACKEND_STARTED']
+        puts "Starting test backend..."
         @@backend = IO.popen("#{Rails.root}/script/start_test_backend")
         logger.debug "Test backend started with pid: #{@@backend.pid}"
         while true do
@@ -211,9 +217,10 @@ module Suse
           logger.debug line.strip
         end
         CONFIG['global_write_through'] = true
-        WebMock.disable_net_connect!(allow: CONFIG['source_host'])
+        WebMock.disable_net_connect!(allow_localhost: true)
+	ENV['BACKEND_STARTED'] = '1'
         at_exit do
-          logger.debug "kill #{@@backend.pid}"
+          $stderr.puts "kill backend: #{@@backend.pid}"
           Process.kill "INT", @@backend.pid
           @@backend = nil
         end

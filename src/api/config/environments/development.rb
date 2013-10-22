@@ -12,7 +12,7 @@ OBSApi::Application.configure do
   # Show full error reports and disable caching
   config.consider_all_requests_local       = true
   config.action_controller.perform_caching = true
-  config.cache_store = :memory_store
+  config.cache_store = :dalli_store, '127.0.0.1:11211', {namespace: 'obs-api', expires_in: 1.hour }
 
   # Don't care if the mailer can't send
   config.action_mailer.raise_delivery_errors = false
@@ -27,7 +27,8 @@ OBSApi::Application.configure do
   config.assets.compress = false
 
   # Expands the lines which load the assets
-  config.assets.debug = true
+  config.assets.logger = false
+  config.assets.debug = false
 
   # Enable debug logging by default
   config.log_level = :debug
@@ -36,10 +37,14 @@ OBSApi::Application.configure do
 
   config.eager_load = false
 
+  config.allow_concurrency = false
 end
 
 CONFIG['extended_backend_log'] = true
 CONFIG['response_schema_validation'] = true
+
+CONFIG['frontend_host'] = "localhost"
+CONFIG['frontend_protocol'] = "http"
 
 require 'socket'
 fname = "#{Rails.root}/config/environments/development.#{Socket.gethostname}.rb"

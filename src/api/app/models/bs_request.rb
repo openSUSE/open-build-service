@@ -20,7 +20,7 @@ class BsRequest < ActiveRecord::Base
   has_many :bs_request_histories, :dependent => :delete_all
   has_many :reviews, :dependent => :delete_all
   has_and_belongs_to_many :bs_request_action_groups, join_table: :group_request_requests
-  has_many :comments, :dependent => :destroy
+  has_many :comments, :dependent => :delete_all, inverse_of: :bs_request
   validates_inclusion_of :state, :in => VALID_REQUEST_STATES
   validates :creator, :presence => true
   validate :check_supersede_state
@@ -36,6 +36,10 @@ class BsRequest < ActiveRecord::Base
     if self.superseded_by and not self.state == :superseded
       errors.add(:superseded_by, 'Superseded_by should not be set')
     end
+  end
+
+  def comment_class
+    'CommentRequest'
   end
 
   def state

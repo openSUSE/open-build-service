@@ -27,6 +27,10 @@ class PersonController < ApplicationController
     raise UnknownCommandError.new "Allowed commands are 'change_password'"
   end
 
+  def login
+    render_ok # just a dummy check for the webui to call (for now)
+  end
+
   def userinfo
     login = params[:login]
     user = User.find_by_login(login) if login
@@ -119,13 +123,6 @@ class PersonController < ApplicationController
   end
 
   def internal_register
-    if CONFIG['ldap_mode'] == :on
-      raise ErrRegisterSave.new "LDAP mode enabled, users can only be registered via LDAP"
-    end
-    if CONFIG['proxy_auth_mode'] == :on or CONFIG['ichain_mode'] == :on
-      raise ErrRegisterSave.new "Proxy authentification mode, manual registration is disabled"
-    end
-
     xml = REXML::Document.new( request.raw_post )
     
     logger.debug( "register XML: #{request.raw_post}" )
@@ -135,24 +132,7 @@ class PersonController < ApplicationController
     email = xml.elements["/unregisteredperson/email"].text
     password = xml.elements["/unregisteredperson/password"].text
     note = xml.elements["/unregisteredperson/note"].text if xml.elements["/unregisteredperson/note"]
-    status = "confirmed"
-
-    unless User.current and User.current.is_admin?
-      note = ""
-    end
-
-    if ::Configuration.first.registration == "deny"
-      unless User.current and User.current.is_admin?
-        raise ErrRegisterSave.new "User registration is disabled"
-      end
-    elsif ::Configuration.first.registration == "confirmation"
-      status = "unconfirmed"
-    elsif ::Configuration.first.registration != "allow"
-      render_error :message => "Admin configured an unknown config option for registration",
-                   :errorcode => "server_setup_error", :status => 500
-      return
-    end
-    status = xml.elements["/unregisteredperson/state"].text if User.current and User.current.is_admin?
+    status = xml.elements["/unregisteredperson/state"].text
 
     if auth_method == :proxy
       if request.env['HTTP_X_USERNAME'].blank?
@@ -163,29 +143,8 @@ class PersonController < ApplicationController
       realname = request.env['HTTP_X_FIRSTNAME'] + " " + request.env['HTTP_X_LASTNAME'] unless request.env['HTTP_X_LASTNAME'].blank?
     end
 
-    newuser = User.create( 
-              :login => login,
-              :password => password,
-              :password_confirmation => password,
-              :email => email )
-
-    newuser.realname = realname
-    newuser.state = User.states[status]
-    newuser.adminnote = note
-    logger.debug("Saving...")
-    newuser.save
-    
-    if !newuser.errors.empty?
-      details = newuser.errors.map{ |key, msg| "#{key}: #{msg}" }.join(", ")
-      raise ErrRegisterSave.new "Could not save the registration, details: #{details}"
-    end
-
-    # create subscription for submit requests
-    if Object.const_defined? :Hermes
-      h = Hermes.new
-      h.add_user(login, email)
-      h.add_request_subscription(login)
-    end
+    User.register(login: login, realname: realname, email:
+        email, password: password, note: note, status: status)
 
     # This may fail when no notification is configured. Not important, so no exception handling for now
     # IchainNotifier.deliver_approval(newuser)
@@ -224,27 +183,13 @@ class PersonController < ApplicationController
 
   def update_globalroles( user, xml )
     new_globalroles = []
-    old_globalroles = []
-
     xml.elements("globalrole") do |e|
       new_globalroles << e.to_s
     end
-
-    user.roles.where(global: true).each do |ugr|
-      old_globalroles << ugr.title
-    end
-    add_to_globalroles = new_globalroles.collect {|i| old_globalroles.include?(i) ? nil : i}.compact
-    remove_from_globalroles = old_globalroles.collect {|i| new_globalroles.include?(i) ? nil : i}.compact
-
-    remove_from_globalroles.each do |title|
-      user.roles_users.where(role_id: Role.find_by_title!(title).id).delete_all
-    end
-
-    add_to_globalroles.each do |title|
-      user.roles_users.new(role: Role.find_by_title!(title))
-    end
-    return true
+ 
+    user.update_globalroles( new_globalroles )
   end
+
   private :update_globalroles
 
   def change_my_password
