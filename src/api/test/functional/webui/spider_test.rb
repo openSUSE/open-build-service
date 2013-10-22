@@ -69,6 +69,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
     return if url.end_with? '/project/meta/HiddenRemoteInstance'
     return if url.end_with? '/project/show/HiddenRemoteInstance'
     return if url.end_with? '/project/edit/HiddenRemoteInstance'
+    return if url.end_with? '/home?user=unknown'
 
     $stderr.puts "Found #{message} on #{url}, crawling path"
     indent = ' '

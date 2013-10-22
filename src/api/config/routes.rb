@@ -315,7 +315,6 @@ OBSApi::Application.routes.draw do
   end
 
   get 'public/configuration' => 'configurations#show'
-  get 'public/configuration.json' => 'configurations#show'
   get 'public/configuration.xml' => 'configurations#show'
   get 'public/status/:action' => 'status#index'
 

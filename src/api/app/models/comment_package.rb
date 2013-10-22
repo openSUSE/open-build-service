@@ -1,15 +1,15 @@
 class CommentPackage < Comment
 
-  validate :package, presence: true
+  validates :package, presence: true
 
   def create_notification(params = {})
-		super
-		params[:project] = self.package.project.name
-		params[:package] = self.package.name
-		params[:involved_users] = involved_users(:package_id, self.package.id)
+    super
+    params[:project] = self.package.project.name
+    params[:package] = self.package.name
+    params[:involved_users] = involved_users(:package_id, self.package.id)
 
-		# call the action
-		Event::CommentForPackage.create params
+    # call the action
+    Event::CommentForPackage.create params
   end
 
   def check_delete_permissions

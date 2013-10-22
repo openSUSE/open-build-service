@@ -15,11 +15,18 @@ class Owner
   end
 
   include ActiveModel::Model
-  attr_accessor *attribute_names
+  attr_accessor(*attribute_names)
 
   def to_hash
-    # Sure it can be implemented in a less tricky way
-    Hash[*(Owner.attribute_names.map {|a| [a, send(a)] }.select {|a| !a.last.nil? }.flatten(1))]
+    # The same implemented as one-liner, but code climate doesn't like
+    # Hash[*(Owner.attribute_names.map {|a| [a, send(a)] }.select {|a| !a.last.nil? }.flatten(1))]
+    hash = {}
+    Owner.attribute_names.map do |a|
+      unless (value = send(a)).nil?
+        hash[a] = value
+      end
+    end
+    hash
   end
 
   def self.search(params, obj)

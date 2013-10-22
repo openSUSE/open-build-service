@@ -129,7 +129,7 @@ class UserController < WebuiController
              :password => params[:password],
              :state => params[:state]}
     begin
-      person = User.register(opts)
+      User.register(opts)
     rescue APIException => e
       flash[:error] = e.message
       redirect_back_or_to :controller => 'main', :action => 'index' and return

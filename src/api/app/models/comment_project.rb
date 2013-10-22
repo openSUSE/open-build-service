@@ -1,6 +1,6 @@
 class CommentProject < Comment
 
-  validate :project, presence: true
+  validates :project, presence: true
 
   def check_delete_permissions
     # If you can change the project, you can delete the comment
