@@ -1,15 +1,5 @@
 
-filelist = FileList['test/**/*_test.rb'].exclude(%r{test/(models|helpers|unit)/})
-
-Rake::TestTask.new do |t|
-  t.libs << "test"
-  nf = FileList.new
-  filelist.to_a.each do |f|
-    nf << f if f =~ %r{webui}
-  end
-  t.test_files = nf
-  t.name = 'test:webui'
-end
+filelist = FileList['test/**/*_test.rb']
 
 Rake::TestTask.new do |t|
   t.libs << "test"
@@ -17,7 +7,6 @@ Rake::TestTask.new do |t|
   t.name = 'test:api'
 end
 
-filelist = FileList['test/**/*_test.rb']
 filelist1 = FileList.new
 filelist2 = FileList.new
 
