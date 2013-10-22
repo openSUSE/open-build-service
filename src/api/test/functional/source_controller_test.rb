@@ -60,7 +60,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
     get "/source/HiddenProject"
     assert_response 404
-    assert_match(/not_found/, @response.body)
+    assert_match(/unknown_project/, @response.body)
     #retry with maintainer
     reset_auth
     login_adrian
@@ -3165,4 +3165,19 @@ end
     assert_select "status[code] > summary", %r{invalid project name}
   end
 
+  test "issue 441" do
+    login_tom
+    get "/source/Foo"
+    assert_response 404
+    assert_equal({"code"=>"unknown_project", "summary"=>"Foo"}, Xmlhash.parse(@response.body))
+
+    # and while we're at it, try it for packages too
+    get "/source/Foo/bar"
+    assert_response 404
+    assert_equal({"code"=>"unknown_project", "summary"=>"Foo"}, Xmlhash.parse(@response.body))
+
+    get "/source/home:tom/bar"
+    assert_response 404
+    assert_equal({"code"=>"unknown_package", "summary"=>"home:tom/bar"}, Xmlhash.parse(@response.body))
+  end
 end
