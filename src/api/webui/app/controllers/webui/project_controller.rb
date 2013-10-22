@@ -583,7 +583,7 @@ class ProjectController < WebuiController
       return
     end
     bdep = BuilddepInfo.find(:project => @project.name, :repository => @repository, :arch => @arch)
-    jobs = Jobhislist.find(:project => @project.name, :repository => @repository, :arch => @arch,
+    jobs = Jobhistory.find(:project => @project.name, :repository => @repository, :arch => @arch,
             :limit => @packages.size * 3, :code => ['succeeded', 'unchanged'])
     unless bdep and jobs
       flash[:error] = "Could not collect infos about repository #{@repository}/#{@arch}"
