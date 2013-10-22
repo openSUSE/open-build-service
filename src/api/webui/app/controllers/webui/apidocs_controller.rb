@@ -4,10 +4,6 @@ class Webui::ApidocsController < Webui::WebuiController
   # Apidocs is insensitive static information, no login needed therefore
   skip_before_filter :extract_user
   
-  def root
-    redirect_to action: :index
-  end
-
   # the main purpose of this subfunction is easier stubing
   def indexpath
     filename = File.expand_path(CONFIG['apidocs_location']) + "/index"
