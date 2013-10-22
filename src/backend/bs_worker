@@ -496,7 +496,7 @@ while (@ARGV) {
   }
   if ($ARGV[0] eq '--threads') {
     shift @ARGV;
-    $treads = shift @ARGV;
+    $threads = shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--cachedir') {
@@ -2261,7 +2261,7 @@ sub dobuild {
   push @args, '--debug' if $buildinfo->{'debuginfo'};
   push @args, '--arch', $arch;
   push @args, '--jobs', $jobs if $jobs;
-  push @args, '--threads', $threads if $treads;
+  push @args, '--threads', $threads if $threads;
   push @args, '--reason', "Building $packid for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
   push @args, '--disturl', $disturl;
   push @args, '--linksources' if $localkiwi;
