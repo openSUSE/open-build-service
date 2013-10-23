@@ -35,7 +35,6 @@ setup_api() {
   echo "Setup additional configuration"
   cp config/options.yml.example config/options.yml
   cp config/thinking_sphinx.yml.example config/thinking_sphinx.yml
-  echo "dummy" > config/secret.key
   chmod a+x script/start_test_backend
 
   echo "Initialize test database, load seed data"
@@ -52,7 +51,6 @@ setup_webui() {
 
   echo "Setup additional configuration"
   cp config/options.yml.example config/options.yml
-  echo "dummy" > config/secret.key
 
   chmod +x script/start_test_api 
 
