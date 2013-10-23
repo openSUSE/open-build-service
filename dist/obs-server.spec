@@ -49,16 +49,16 @@ BuildRequires:  python-devel
 # atm the obs rails version patch above unifies that setting among the applications
 # also see requires in the obs-server-api sub package
 BuildRequires:  build >= 20130109
+BuildRequires:  inst-source-utils
 BuildRequires:  perl-BSSolv
 BuildRequires:  perl-Compress-Zlib
 BuildRequires:  perl-File-Sync >= 0.10
+BuildRequires:  perl-JSON-XS
 BuildRequires:  perl-Net-SSLeay
 BuildRequires:  perl-Socket-MsgHdr
 BuildRequires:  perl-TimeDate
-BuildRequires:  perl-JSON-XS
 BuildRequires:  perl-XML-Parser
 BuildRequires:  xorg-x11-server
-BuildRequires:  inst-source-utils
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 Requires:       build >= 20130114
 Requires:       obs-productconverter >= %version
@@ -92,10 +92,10 @@ Requires:       yum-metadata-parser
 %endif
 Requires:       perl-Compress-Zlib
 Requires:       perl-File-Sync >= 0.10
+Requires:       perl-JSON-XS
 Requires:       perl-Net-SSLeay
 Requires:       perl-Socket-MsgHdr
 Requires:       perl-XML-Parser
-Requires:       perl-JSON-XS
 
 %description
 The Open Build Service (OBS) backend is used to store all sources and binaries. It also
@@ -186,10 +186,10 @@ Requires:       rubygem(2.0.0:activerecord) = 4.0.0
 Requires:       rubygem(2.0.0:activerecord-deprecated_finders) = 1.0.3
 Requires:       rubygem(2.0.0:activesupport) = 4.0.0
 Requires:       rubygem(2.0.0:arel) = 4.0.0
-Requires:       rubygem(2.0.0:atomic) = 1.1.10
+Requires:       rubygem(2.0.0:atomic) = 1.1.14
 Requires:       rubygem(2.0.0:builder) = 3.1.4
 Requires:       rubygem(2.0.0:bundler) = 1.3.4
-Requires:       rubygem(2.0.0:clockwork) = 0.5.4
+Requires:       rubygem(2.0.0:clockwork) = 0.6.1
 Requires:       rubygem(2.0.0:daemons) = 1.1.9
 Requires:       rubygem(2.0.0:dalli) = 2.6.4
 Requires:       rubygem(2.0.0:delayed_job) = 4.0.0
@@ -197,42 +197,39 @@ Requires:       rubygem(2.0.0:delayed_job_active_record) = 4.0.0
 Requires:       rubygem(2.0.0:erubis) = 2.7.0
 Requires:       rubygem(2.0.0:hike) = 1.2.3
 Requires:       rubygem(2.0.0:hoptoad_notifier) = 2.4.11
-Requires:       rubygem(2.0.0:i18n) = 0.6.4
+Requires:       rubygem(2.0.0:i18n) = 0.6.5
 Requires:       rubygem(2.0.0:innertube) = 1.1.0
-Requires:       rubygem(2.0.0:jquery-rails) = 3.0.4
-Requires:       rubygem(2.0.0:jquery-ui-rails) = 4.0.4
 Requires:       rubygem(2.0.0:json) = 1.8.0
 Requires:       rubygem(2.0.0:kaminari) = 0.14.1
 Requires:       rubygem(2.0.0:mail) = 2.5.4
 Requires:       rubygem(2.0.0:middleware) = 0.1.0
-Requires:       rubygem(2.0.0:mime-types) = 1.23
+Requires:       rubygem(2.0.0:mime-types) = 1.25
 Requires:       rubygem(2.0.0:mini_portile) = 0.5.1
 Requires:       rubygem(2.0.0:minitest) = 4.7.4
-Requires:       rubygem(2.0.0:mobileesp_converted) = 0.2.1
-Requires:       rubygem(2.0.0:multi_json) = 1.7.7
+Requires:       rubygem(2.0.0:mobileesp_converted) = 0.2.2
+Requires:       rubygem(2.0.0:multi_json) = 1.7.9
 Requires:       rubygem(2.0.0:mysql2) = 0.3.13
-Requires:       rubygem(2.0.0:newrelic_rpm) = 3.6.6.147
+Requires:       rubygem(2.0.0:newrelic_rpm) = 3.6.8.164
 Requires:       rubygem(2.0.0:nokogiri) = 1.6.0
 Requires:       rubygem(2.0.0:pkg-config) = 1.1.4
 Requires:       rubygem(2.0.0:polyglot) = 0.3.3
 Requires:       rubygem(2.0.0:rack) = 1.5.2
 Requires:       rubygem(2.0.0:rack-test) = 0.6.2
 Requires:       rubygem(2.0.0:rails) = 4.0.0
-Requires:       rubygem(2.0.0:rails-api) = 0.1.0
 Requires:       rubygem(2.0.0:railties) = 4.0.0
 Requires:       rubygem(2.0.0:rake) = 10.1.0
 Requires:       rubygem(2.0.0:rdoc) = 4.0.1
-Requires:       rubygem(2.0.0:riddle) = 1.5.7
-Requires:       rubygem(2.0.0:ruby-ldap) = 0.9.13
+Requires:       rubygem(2.0.0:riddle) = 1.5.8
+Requires:       rubygem(2.0.0:ruby-ldap) = 0.9.16
 Requires:       rubygem(2.0.0:sprockets) = 2.10.0
 Requires:       rubygem(2.0.0:sprockets-rails) = 2.0.0
 Requires:       rubygem(2.0.0:thinking-sphinx) = 3.0.4
 Requires:       rubygem(2.0.0:thor) = 0.18.1
-Requires:       rubygem(2.0.0:thread_safe) = 0.1.2
+Requires:       rubygem(2.0.0:thread_safe) = 0.1.3
 Requires:       rubygem(2.0.0:tilt) = 1.4.1
-Requires:       rubygem(2.0.0:treetop) = 1.4.14
+Requires:       rubygem(2.0.0:treetop) = 1.4.15
 Requires:       rubygem(2.0.0:tzinfo) = 0.3.37
-Requires:       rubygem(2.0.0:xmlhash) = 1.3.5
+Requires:       rubygem(2.0.0:xmlhash) = 1.3.6
 Requires:       rubygem(2.0.0:yajl-ruby) = 1.1.0
 # OBS_SERVER_END
 # requires for webui:
@@ -444,8 +441,10 @@ for file in api/log/access.log api/log/backend_access.log api/log/delayed_job.lo
 done
 
 pushd $RPM_BUILD_ROOT/srv/www/obs/api
+# we need to have *something* as secret key
+echo "" | sha256sum| cut -d\  -f 1 > config/secret.key
 bundle exec rake --trace assets:precompile RAILS_ENV=production RAILS_GROUPS=assets
-rm -rf tmp/cache/sass tmp/cache/assets
+rm -rf tmp/cache/sass tmp/cache/assets config/secret.key
 export BUNDLE_WITHOUT=test:assets:development
 export BUNDLE_FROZEN=1
 bundle config --local frozen 1
