@@ -101,7 +101,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   test 'revision is mepty' do
     visit webui_engine.root_path + '/package/rdiff/BaseDistro2.0/pack2.linked?opackage=pack2&oproject=BaseDistro2.0&rev='
     flash_message_type.must_equal :alert
-    flash_message.must_equal 'revision is empty'
+    flash_message.must_equal 'Error getting diff: revision is empty'
   end
 
 end

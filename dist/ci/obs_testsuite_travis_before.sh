@@ -35,16 +35,3 @@ gem install bundler
 bundle install
 popd
 
-case "$SUBTEST" in
- webui*)
-  sudo apt-cache show firefox 
-  sudo apt-get install --force-yes firefox=11.0+build1-0ubuntu4
-  pushd src/webui
-  if test "$REMOVEGEMLOCK" = true; then
-    rm Gemfile.lock
-  fi
-  bundle install
-  popd
-  ;;
-esac
-

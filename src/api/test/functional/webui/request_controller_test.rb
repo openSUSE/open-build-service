@@ -43,7 +43,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.wont_have_link 'Request role addition'
     # foreign package
     visit webui_engine.package_show_path(project: 'Apache', package: 'apache2')
-    click_link 'Request role addition'
+    find(:css, "a > img.icons-user_add").click
     find(:id, 'role').select('Maintainer')
     fill_in 'description', with: 'I can fix bugs too.'
     click_button 'Ok'

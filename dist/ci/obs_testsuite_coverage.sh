@@ -33,13 +33,13 @@
 #
 # Post Build Actions: #FIXME
 #   Publish JUnit test result report:
-#     Test report XMLs: src/webui/results/*.xml
+#     Test report XMLs: src/api/results/*.xml
 #   Publish Rails Notes report: 1
-#     Rake working directory: src/webui
+#     Rake working directory: src/api
 #   Publish Rails stats report: 1
-#     Rake working directory: src/webui
+#     Rake working directory: src/api
 #   Publish Rcov report:
-#     Rcov report directory:  src/webui/coverage
+#     Rcov report directory:  src/api/coverage
 #
 
 ###############################################################################
@@ -60,16 +60,7 @@ setup_api
 echo "Enter API rails root and running rcov"
 cd src/api
 mkdir -p coverage
-bundle exec rake test --trace
-cd ../..
-
-echo "Enter WebUI rails root and running rcov"
-setup_api
-setup_webui
-
-cd src/webui
-mkdir -p coverage
-bundle exec rake test --trace 
+bundle exec rake test:api test:webui1 test:webui2 --trace
 cd ../..
 
 cleanup

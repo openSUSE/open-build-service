@@ -20,7 +20,6 @@
 #     Repository browser: githubweb
 #       URL: https://github.com/openSUSE/open-build-service
 #     Excluded Regions:
-#       src/webui/.*
 #       docs/.*
 #
 # Build Triggers:
@@ -56,7 +55,7 @@ setup_api
 cd src/api
 
 echo "Invoke rake"
-bundle exec rake ci:setup:minitest test CI_REPORTS=results --trace || ret=1
+bundle exec rake ci:setup:minitest test:api test:webui1 test:webui2 CI_REPORTS=results --trace || ret=1
 cd ../..
 
 echo "Output test.log"

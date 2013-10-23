@@ -5,9 +5,3 @@
 setup_git
 setup_api
 
-case "$SUBTEST" in
-  webui*)
-    setup_webui
-    ;;
-esac
-

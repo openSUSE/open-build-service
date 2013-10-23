@@ -45,29 +45,17 @@ setup_api
 
 echo "Enter API rails root and running rcov"
 cd src/api
-bundle exec rake ci:setup:minitest test CI_REPORTS=results --trace || ret=1
-cd ../..
-
-echo "Enter WebUI rails root and running rcov"
-setup_api
-setup_webui
-
 export HEADLESS=forsure
-cd src/webui
-bundle exec rake ci:setup:minitest test CI_REPORTS=results --trace || ret=1
+bundle exec rake ci:setup:minitest test:api test:webui1 test:webui2 CI_REPORTS=results --trace || ret=1
 cd ../..
 
 mkdir results
-for i in src/api/results/*.xml src/webui/results/*.xml; do
+for i in src/api/results/*.xml; do
  cp -v $i results/`echo $i | sed -e 's,/,-,g'`
 done
 
 echo "Contents of src/api/log/test.log:"
 cat src/api/log/test.log
-echo
-
-echo "Contents of src/webui/log/test.log:"
-cat src/webui/log/test.log
 echo
 
 cleanup

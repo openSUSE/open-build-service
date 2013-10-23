@@ -40,6 +40,7 @@ setup_api() {
 
   echo "Initialize test database, load seed data"
   bundle exec rake db:drop db:create db:setup --trace
+  rm -f log/*
   cd ../..
 
   cd docs/api

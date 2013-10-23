@@ -13,7 +13,6 @@ corresponding helper scripts:
 
  * obs_common
  * obs_testsuite_api
- * obs_testsuite_webui
 
 
 Plugin dependencies
