@@ -35,6 +35,7 @@ class PackageController < WebuiController
         @bugowners_mail.push(mail.to_s) if mail
     end unless @spider_bot
     @revision = params[:rev]
+    @failures = 0
     fill_status_cache unless @buildresult.blank?
     set_linking_packages
     @expand = 1
@@ -1064,12 +1065,7 @@ class PackageController < WebuiController
   end
 
   def meta
-    begin
-      @meta = frontend.get_source(:project => params[:project], :package => params[:package], :filename => '_meta')
-    rescue ActiveXML::Transport::NotFoundError
-      flash[:error] = "Package _meta not found: #{params[:project]}/#{params[:package]}"
-      redirect_to :controller => 'project', :action => 'show', :project => params[:project], :nextstatus => 404
-    end
+    @meta = @package.api_obj.render_xml
   end
 
   def save_meta

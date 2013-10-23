@@ -1,19 +1,24 @@
 <% @pagetitle = "Show #{@project} / #{@package}" %>
 <% @layouttype = 'custom' %>
+<% dpackage = @package.api_obj.develpackage %>
 <% package_bread_crumb %>
 
 <div class="grid_16 alpha omega box box-shadow">
   <%= render :partial => 'tabs' %>
   <div class="grid_10 alpha">
-    <h3 id="package_title"><%= @package.title %><%= @package if @package.title.to_s.blank? -%></h3>
-    <%= description_wrapper(@package.description.text) %>
+    <h3 id="package_title"><%=
+        title = @package.api_obj.title
+        title = @package.name if title.blank?
+        title
+     %></h3>
+    <%= description_wrapper(@package.api_obj.description) %>
   </div>
   <div class="grid_6 omega">
-    <% if @failures && @failures > 0 || @package.has_element?(:devel) || !@package.developed_packages.blank? || @package.name =~ %r{^_patchinfo} || @linking_packages && @linking_packages.size > 0 || @linkinfo || CONFIG['theme'] == 'bento' %>
+    <% if @failures > 0 || dpackage || @package.developed_packages.present? || @package.name =~ %r{^_patchinfo} || @linking_packages && @linking_packages.size > 0 || @linkinfo || CONFIG['theme'] == 'bento' %>
       <ul class="clean_list">
-        <% if @failures && @failures > 0 %>
+        <% if @failures > 0 %>
           <li>
-            <%= image_tag 'exclamation.png' %>
+            <%= sprite_tag 'exclamation' %>
             <%= @failures %>
             <%= link_to "error#{@failures == 1 ? "" : "s"}", :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
           </li>
@@ -21,16 +26,15 @@
 
         <%= render :partial => "shared/open_requests" %>
 
-        <% if @package.has_element? :devel %>
+        <% if dpackage %>
           <li>
-            <% dpackage = @package.devel.value("package") || @package.name %>
-            <%= image_tag 'information.png' %>
-            Developed at <%= link_to(elide(@package.devel.project, 44), :action => :show, :controller => :package, :project => @package.devel.project, :package => dpackage) %>
+            <%= sprite_tag 'information' %>
+            Developed at <%= link_to(elide(dpackage.project.name, 44), :action => :show, :controller => :package, :project => dpackage.project.name, :package => dpackage.name) %>
           </li>
         <% end %>
-        <% if !@package.developed_packages.blank? %>
+        <% if @package.developed_packages.present? %>
           <li>
-            <%= image_tag 'information.png' %>
+            <%= sprite_tag 'information', title: 'Information' %>
             Devel package for
             <% @package.developed_packages.each_with_index do |pkg, index| %>
               <%= ',' if index > 0 %>
@@ -40,7 +44,7 @@
         <% end %>
         <% if @package.name =~ %r{^_patchinfo} %>
           <li>
-            <%= image_tag 'information.png' %>
+            <%= sprite_tag 'information', title: 'Information' %>
             Has a <%= link_to 'patchinfo', :controller => :patchinfo, :action => :show, :package => @package, :project => @project %>
             for <%= link_to 'maintenance updates', 'http://en.opensuse.org/Portal:Maintenance' %>
             <%#TODO: Fix this hard link %>
@@ -103,18 +107,18 @@
             </li>
           <% else %>
             <li>
-              <%= link_to(image_tag('user_add.png', :title => "Request role addition"), {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}, :remote => true) %>
+              <%= link_to(sprite_tag('user_add', :title => "Request role addition"), {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}, :remote => true) %>
               <%= link_to("Request role addition", {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}, :remote => true) %>
             </li>
             <li>
-              <%= link_to(image_tag('package_delete.png', :title => 'Request deletion'), {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package}, :remote => true) %>
+              <%= link_to(sprite_tag('package_delete', :title => 'Request deletion'), {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package}, :remote => true) %>
               <%= link_to('Request deletion', {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package}, :remote => true) %>
             </li>
           <% end %>
           <%# TODO: only users w/o rights should see this, maintainers should get a different dialog: %>
-          <% if @package.has_element?(:devel) %>
+          <% if @package.api_obj.develpackage %>
             <li>
-              <%= link_to(image_tag('arrow_switch.png', :title => 'Request devel project change'), {:controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package}, :remote => true) %>
+              <%= link_to(sprite_tag('arrow_switch', :title => 'Request devel project change'), {:controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package}, :remote => true) %>
               <%= link_to('Request devel project change', {:controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package}, :remote => true) %>
             </li>
           <% end %>
@@ -144,7 +148,7 @@
 </div>
 
 <div class="grid_6 omega box box-shadow">
-  <%= render :partial => 'shared/buildresult_box', :locals => {:project => @project.value('name'), :package => @package.value('name')} %>
+  <%= render :partial => 'shared/buildresult_box', :locals => {:project => @project.name, :package => @package.name} %>
 </div>
 
 <div class="grid_16 box box-shadow alpha omega">

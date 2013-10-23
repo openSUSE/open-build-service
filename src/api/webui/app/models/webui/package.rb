@@ -12,6 +12,8 @@ class Package < Webui::Node
   attr_accessor :df_updated
   attr_accessor :uf_updated
 
+  attr_writer :name, :project
+
   BINARY_EXTENSIONS = %w{.0 .bin .bin_mid .bz .bz2 .ccf .cert .chk .der .dll .exe .fw .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .otf .oxt .pdf .pk3 .png .ps .rpm .sig .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .ucode .xpm .xz .z .zip .ttf}
 
   def initialize(*args)
@@ -25,7 +27,19 @@ class Package < Webui::Node
   end
 
   def to_s
-    name.to_s
+    name
+  end
+
+  def to_param
+    name
+  end
+
+  def name
+    @name ||= value('name')
+  end
+
+  def project
+    @project ||= value('project') 
   end
 
   def last_save_error
@@ -310,10 +324,22 @@ class Package < Webui::Node
       Rails.logger.debug "NOT FOUND #{e.inspect}"
       return nil
     end
-    p = Webui::Package.new(ap.render_xml(opts[:view]))
+    p = Webui::Package.new  '<package/>'
     p.api_obj = ap
+    p.name = name
+    p.project = project
+    p.render_view = opts[:view]
     p.instance_variable_set('@init_options', project: project, name: name)
     p
+  end
+
+  attr_accessor :render_view
+
+  def parse(data)
+    if @api_obj
+      data = api_obj.render_xml(self.render_view)
+    end
+    super(data)
   end
 
   attr_writer :api_obj

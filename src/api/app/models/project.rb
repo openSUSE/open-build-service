@@ -1011,8 +1011,9 @@ class Project < ActiveRecord::Base
     # restore all package meta data objects in DB
     backend_pkgs = Collection.find :package, :match => "@project='#{self.name}'"
     backend_pkgs.each_package do |package|
-      path = "/source/#{URI.escape(self.name)}/#{package.name}/_meta"
-      p = self.packages.new(name: package.name)
+      pname = package.value('name')
+      path = "/source/#{URI.escape(self.name)}/#{pname}/_meta"
+      p = self.packages.new(name: pname)
       p.update_from_xml(Xmlhash.parse(Suse::Backend.get(path).body))
       p.save! # do not store
     end
