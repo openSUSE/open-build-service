@@ -104,7 +104,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Package#resolve_devel_package' => 52.33,
       'PersonController#internal_register' => 185.66,
       'PersonController#userinfo' => 139.67,
-      'Project#branch_to_repositories_from' => 117.4,
+      'Project#branch_to_repositories_from' => 126.41,
       'Project#cleanup_before_destroy' => 67.17,
       'Project#update_from_xml' => 448.36,
       'Project::check_access?' => 54.05,
