@@ -638,15 +638,12 @@ for i in production_slave.rb production.rb development_base.rb; do
     cp /srv/www/obs/frontend/config/environments/$i /srv/www/obs/api/config/environments/$i
   fi
 done
-# for update from 2.1(lighttpd), do a chown
-userid=`stat -c %U /srv/www/obs/api/config/secret.key 2> /dev/null` || :
-if [ "$userid" = lighttpd ]; then
-  chown %{apache_user}.%{apache_group} /srv/www/obs/api/config/secret.key
+SECRET_KEY="/srv/www/obs/api/config/secret.key"
+if [ ! -e "$SECRET_KEY" ]; then
+  ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >$SECRET_KEY )
 fi
-userid=`stat -c %U /srv/www/obs/webui/config/secret.key 2> /dev/null` || :
-if [ "$userid" = lighttpd ]; then
-  chown %{apache_user}.%{apache_group} /srv/www/obs/webui/config/secret.key
-fi
+chmod 0640 $SECRET_KEY
+chown root.www $SECRET_KEY
 # update config
 sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/api/config/database.yml
 sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/webui/config/database.yml

@@ -139,9 +139,6 @@ case "$1" in
 			echo "Initialize OBS api database (first time only)"
         		cd $apidir
 			RAILS_ENV=production bundle exec rake db:create db:setup >> $apidir/log/db_migrate.log
-                        ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key )
-			chmod 0640 config/secret.key
-			chown root.www config/secret.key
 		else
 			echo
 			echo "Migrate OBS api database"
