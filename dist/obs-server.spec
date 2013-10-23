@@ -20,13 +20,12 @@ Name:           obs-server
 Summary:        The Open Build Service -- Server Component
 License:        GPL-2.0 and GPL-3.0
 Group:          Productivity/Networking/Web/Utilities
-Version:        2.4.3
+Version:        2.4.5
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source:         obs-server-%version.tar.bz2
 Source2:        update-sources.sh
-Patch0:         branch.diff
 BuildRequires:  python-devel
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
@@ -48,6 +47,7 @@ Requires:       perl-BSSolv >= 0.18.0
 # Required by source server
 Requires:       diffutils
 PreReq:         git-core
+Requires:       patch
 PreReq:         sysvinit
 
 %if 0%{?suse_version:1}
@@ -57,8 +57,7 @@ PreReq:         %fillup_prereq %insserv_prereq permissions pwdutils
 
 %if 0%{?suse_version:1}
 Recommends:     yum yum-metadata-parser repoview dpkg
-Recommends:     createrepo
-Conflicts:      createrepo < 0.9.8
+Requires:       createrepo = 0.9.8
 Recommends:     deb >= 1.5
 Recommends:     lvm2
 Recommends:     openslp-server
@@ -145,6 +144,7 @@ BuildRequires:  rubygem-ruby-ldap
 # for test suite:
 BuildRequires:  createrepo
 BuildRequires:  curl
+BuildRequires:  inst-source-utils
 BuildRequires:  mysql
 BuildRequires:  netcfg
 BuildRequires:  rubygem-ci_reporter
