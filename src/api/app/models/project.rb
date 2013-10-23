@@ -900,6 +900,11 @@ class Project < ActiveRecord::Base
   end
 
   def branch_to_repositories_from(project, pkg_to_enable, extend_names=nil)
+    # shall we use the repositories from a different project?
+    if project and a = project.find_attribute("OBS", "BranchRepositoriesFromProject") and a.values.first
+      project = Project.get_by_name(a.values.first.value)
+    end
+
     project.repositories.each do |repo|
       repoName = repo.name
       if extend_names

@@ -84,6 +84,12 @@ OBS_UpdateProject:
   value_count: 1
   attrib_namespace_id: 9
   issue_list: 0
+OBS_BranchRepositoriesFromProject:
+  id: 78
+  name: BranchRepositoriesFromProject
+  value_count: 1
+  attrib_namespace_id: 9
+  issue_list: 0
 OBS_VeryImportantProject:
   id: 56
   name: VeryImportantProject
