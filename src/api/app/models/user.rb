@@ -102,7 +102,16 @@ class User < ActiveRecord::Base
     @new_password == true
   end
 
-  # Method to update the password and confirmation at the same time. Call
+  def discard_cache
+    @projects_to_modify = {}
+  end
+
+  after_initialize :init
+  def init
+    @projects_to_modify = {}
+  end
+
+    # Method to update the password and confirmation at the same time. Call
   # this method when you update the password from code and don't need 
   # password_confirmation - which should really only be used when data
   # comes from forms. 
@@ -378,18 +387,12 @@ class User < ActiveRecord::Base
     end
   end
 
-  after_save :cleanup_cache
-  def cleanup_cache
-    Rails.cache.delete('meta_user_%d' % id)
-  end
-
   def to_axml
-    Rails.cache.fetch('meta_user_%d' % id) do
-      render_axml
-    end
+    render_axml
   end
 
   def render_axml( watchlist = false )
+    # CanRenderModel
     render_xml(watchlist: watchlist)
   end
 
@@ -466,7 +469,7 @@ class User < ActiveRecord::Base
   end
 
   def is_nobody?
-    return self.login == '_nobody_'
+    self.login == '_nobody_'
   end
 
   # used to avoid
@@ -500,16 +503,29 @@ class User < ActiveRecord::Base
     end
   end
 
-  # project is instance of Project
-  def can_modify_project?(project, ignoreLock=nil)
-    unless project.kind_of? Project
-      raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
-    end
+  def can_modify_project_internal(project, ignoreLock)
     return false if not ignoreLock and project.is_locked?
     return true if is_admin?
     return true if has_global_permission? 'change_project'
     return true if has_local_permission? 'change_project', project
     return false
+  end
+  private :can_modify_project_internal
+
+  # project is instance of Project
+  def can_modify_project?(project, ignoreLock=nil)
+    unless project.kind_of? Project
+      raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
+    end
+    if ignoreLock # we ignore the cache in this case
+      can_modify_project_internal(project, ignoreLock)
+    else
+      if @projects_to_modify.has_key? project.id
+        @projects_to_modify[project.id]
+      else
+        @projects_to_modify[project.id] = can_modify_project_internal(project, nil)
+      end
+    end
   end
 
   # package is instance of Package
@@ -554,6 +570,7 @@ class User < ActiveRecord::Base
   def can_modify_attribute_definition?(object)
     return can_create_attribute_definition?(object)
   end
+
   def can_create_attribute_definition?(object)
     if object.kind_of? AttribType
       object = object.attrib_namespace

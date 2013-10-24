@@ -137,11 +137,13 @@ class Relationship < ActiveRecord::Base
 
   def self.discard_cache
     Rails.cache.delete(FORBIDDEN_PROJECT_IDS_CACHE_KEY)
+    User.current.discard_cache if User.current
   end
 
   # we only care for project<->user relationships, but the cache is not *that* expensive
   # to recalculate
   after_create 'Relationship.discard_cache'
   after_rollback 'Relationship.discard_cache'
+  after_destroy 'Relationship.discard_cache'
 
 end

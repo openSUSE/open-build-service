@@ -273,7 +273,10 @@ class Project < ActiveRecord::Base
   end
 
   def is_locked?
-    flags.where(flag: 'lock', status: 'enable').exists?
+    if @is_locked.nil?
+      @is_locked = flags.where(flag: 'lock', status: 'enable').exists?
+    end
+    @is_locked
   end
 
   # set defaults
@@ -1033,6 +1036,7 @@ class Project < ActiveRecord::Base
 
   after_save do
     Rails.cache.delete "bsrequest_repos_map-#{self.name}"
+    @is_locked = nil
   end
 
   def bsrequest_repos_map(project)
