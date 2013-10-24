@@ -4,6 +4,7 @@ class Project < ActiveRecord::Base
   include FlagHelper
   include CanRenderModel
   include HasRelationships
+  has_many :relationships, dependent: :destroy, inverse_of: :project
   include HasRatings
   include HasAttributes
 

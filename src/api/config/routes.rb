@@ -71,7 +71,7 @@ OBSApi::Application.routes.draw do
     delete 'source/:project' => :delete_project, constraints: cons
     post 'source/:project' => :project_command, constraints: cons
     get 'source/:project/_meta' => :show_project_meta, constraints: cons
-    put 'source/:project/_meta' => :update_project_meta, constraints: cons, via: [:get, :put]
+    put 'source/:project/_meta' => :update_project_meta, constraints: cons
 
     get 'source/:project/_config' => :show_project_config, constraints: cons
     put 'source/:project/_config' => :update_project_config, constraints: cons
@@ -79,7 +79,8 @@ OBSApi::Application.routes.draw do
     delete 'source/:project/_pubkey' => :delete_project_pubkey, constraints: cons
 
     # package level
-    match '/source/:project/:package/_meta' => :package_meta, constraints: cons, via: [:get, :put]
+    get '/source/:project/:package/_meta' => :show_package_meta, constraints: cons
+    put '/source/:project/:package/_meta' => :update_package_meta, constraints: cons
 
     get 'source/:project/:package/:filename' => :get_file, constraints: cons
     delete 'source/:project/:package/:filename' => :delete_file, constraints: cons

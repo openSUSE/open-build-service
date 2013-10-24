@@ -29,7 +29,7 @@ class User < ActiveRecord::Base
   has_many :watched_projects, :foreign_key => 'bs_user_id', :dependent => :destroy, inverse_of: :user
   has_many :groups_users, :foreign_key => 'user_id'
   has_many :roles_users, :foreign_key => 'user_id'
-  has_many :relationships
+  has_many :relationships, inverse_of: :user, dependent: :destroy
 
   has_many :comments, dependent: :destroy, inverse_of: :user
   has_many :status_messages

@@ -7,6 +7,8 @@ class Package < ActiveRecord::Base
   include FlagHelper
   include CanRenderModel
   include HasRelationships
+  has_many :relationships, dependent: :destroy, inverse_of: :package
+
   include HasRatings
   include HasAttributes
 
@@ -528,44 +530,44 @@ class Package < ActiveRecord::Base
     return pkg
   end
 
-  def update_from_xml( xmlhash )
+  def update_from_xml(xmlhash)
     check_write_access!
 
-    self.title = xmlhash.value('title')
-    self.description = xmlhash.value('description')
-    self.bcntsynctag = xmlhash.value('bcntsynctag')
+    Package.transaction do
 
-    #--- devel project ---#
-    self.develpackage = nil
-    if devel = xmlhash['devel']
-      prj_name = devel['project'] || xmlhash['project']
-      pkg_name = devel['package'] || xmlhash['name']
-      unless develprj = Project.find_by_name(prj_name)
-        raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
+      self.title = xmlhash.value('title')
+      self.description = xmlhash.value('description')
+      self.bcntsynctag = xmlhash.value('bcntsynctag')
+
+      #--- devel project ---#
+      self.develpackage = nil
+      if devel = xmlhash['devel']
+        prj_name = devel['project'] || xmlhash['project']
+        pkg_name = devel['package'] || xmlhash['name']
+        unless develprj = Project.find_by_name(prj_name)
+          raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
+        end
+        unless develpkg = develprj.packages.find_by_name(pkg_name)
+          raise SaveError, "value of develpackage has to be a existing package (package '#{pkg_name}' does not exist)"
+        end
+        self.develpackage = develpkg
       end
-      unless develpkg = develprj.packages.find_by_name(pkg_name)
-        raise SaveError, "value of develpackage has to be a existing package (package '#{pkg_name}' does not exist)"
-      end
-      self.develpackage = develpkg
+      #--- end devel project ---#
+
+      # just for cycle detection
+      self.resolve_devel_package
+
+      update_relationships_from_xml(xmlhash)
+
+      #---begin enable / disable flags ---#
+      update_all_flags(xmlhash)
+
+      #--- update url ---#
+      self.url = xmlhash.value('url')
+      #--- end update url ---#
+
+      save!
     end
-    #--- end devel project ---#
-
-    # just for cycle detection
-    self.resolve_devel_package
-
-    # give ourselves an ID
-    self.save!
-
-    update_relationships_from_xml( xmlhash )
-
-    #---begin enable / disable flags ---#
-    update_all_flags(xmlhash)
-
-    #--- update url ---#
-    self.url = xmlhash.value('url')
-    #--- end update url ---#
-
-    save!
   end
 
   # for the HasAttributes mixing
@@ -670,24 +672,24 @@ class Package < ActiveRecord::Base
   end
 
   def add_channels
-     project_name = self.project.name
-     package_name = self.name
-     dir = self.dir_hash
-     if dir
-       # link target package name is more important, since local name could be
-       # extended. for example in maintenance incident projects.
-       li = dir['linkinfo']
-       if li
-         project_name = li['project']
-         package_name = li['package']
-       end
-     end
-     parent = nil
-     ChannelBinary.find_by_project_and_package( project_name, package_name ).each do |cb|
-       parent ||= self.project.find_parent
-       cb.create_channel_package(self, parent)
-     end
-     self.project.store
+    project_name = self.project.name
+    package_name = self.name
+    dir = self.dir_hash
+    if dir
+      # link target package name is more important, since local name could be
+      # extended. for example in maintenance incident projects.
+      li = dir['linkinfo']
+      if li
+        project_name = li['project']
+        package_name = li['package']
+      end
+    end
+    parent = nil
+    ChannelBinary.find_by_project_and_package( project_name, package_name ).each do |cb|
+      parent ||= self.project.find_parent
+      cb.create_channel_package(self, parent)
+    end
+    self.project.store
   end
 
   def developed_packages
@@ -802,21 +804,4 @@ class Package < ActiveRecord::Base
     'CommentPackage'
   end
 
-  # FIXME: we REALLY should use active_model_serializers
-  def as_json(options = nil)
-    if options
-      if options.key?(:methods)
-        if options[:methods].kind_of? Array
-          options[:methods] << :project_name unless options[:methods].include?(:project_name)
-        elsif options[:methods] != :project_name
-          options[:methods] = [options[:methods]] + [:project_name]
-        end
-      else
-        options[:methods] = [:project_name]
-      end
-      super(options)
-    else
-      super(methods: [:project_name])
-    end
-  end
 end

@@ -2,12 +2,12 @@ class Relationship < ActiveRecord::Base
   belongs_to :role
 
   # only one is true
-  belongs_to :user
-  belongs_to :group
+  belongs_to :user, inverse_of: :relationships
+  belongs_to :group, inverse_of: :relationships
   has_many :groups_users, through: :group
 
-  belongs_to :project
-  belongs_to :package
+  belongs_to :project, inverse_of: :relationships
+  belongs_to :package, inverse_of: :relationships
 
   validates :role, presence: true
 
@@ -21,28 +21,33 @@ class Relationship < ActiveRecord::Base
 
   protected
   def check_sanity
-    if self.package_id && self.project_id
+    if self.package && self.project
       errors.add(:package_id, "Relationships are either for project or package")
     end
-    if self.group_id && self.user_id
+    if self.group && self.user
       errors.add(:user_id, "Relationships are either for groups or users")
     end
-    if !self.package_id && !self.project_id
+    if !self.package && !self.project
       errors.add(:package_id, "Relationships need either a project or a package")
     end
-    if !self.group_id && !self.user_id
+    if !self.group && !self.user
       errors.add(:user_id, "Relationships need either a group or a user")
     end
-    return unless errors.empty?
+    check_duplicates if errors.empty?
+  end
+
+  def check_duplicates
     relation=Relationship.where(role_id: self.role_id)
     if self.group_id
       relation=relation.where(group_id: self.group_id)
     else
+      return unless self.user_id # nothing to check
       relation=relation.where(user_id: self.user_id)
     end
     if self.project_id
       relation=relation.where(project_id: self.project_id)
     else
+      return unless self.package_id # nothing to check
       relation=relation.where(package_id: self.package_id)
     end
     if self.id
@@ -72,11 +77,13 @@ class Relationship < ActiveRecord::Base
     end
 
     logger.debug "adding user: #{user.login}, #{role.title}"
-    r = obj.relationships.create(user: user, role: role)
+    r = obj.relationships.build(user: user, role: role)
     if r.invalid?
       logger.debug "invalid: #{r.errors.inspect}"
       r.delete
     end
+
+    obj.save!
   end
 
   def self.add_group(obj, group, role)
@@ -95,8 +102,9 @@ class Relationship < ActiveRecord::Base
       group = Group.find_by_title(group.to_s)
     end
 
-    r = obj.relationships.create(group: group, role: role)
+    r = obj.relationships.build(group: group, role: role)
     r.delete if r.invalid?
+    obj.save!
   end
 
   FORBIDDEN_PROJECT_IDS_CACHE_KEY="forbidden_project_ids"

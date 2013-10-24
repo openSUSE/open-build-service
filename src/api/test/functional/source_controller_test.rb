@@ -775,7 +775,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
     # The user is valid, but has weak permissions
 
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => "kde4", :package => "kdelibs")
     assert_response :success
 
     # Change description
@@ -787,22 +787,22 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     d.text = new_desc
 
     # Write changed data back
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs"), doc.to_s
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "kdelibs"), doc.to_s
     assert_response 403
 
     #verify data is unchanged: 
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => "kde4", :package => "kdelibs")
     assert_response :success
     assert_equal(olddoc.to_s, REXML::Document.new((@response.body)).to_s)
 
     # try to trick api via non matching xml attributes
     doc.root.attributes["project"] = "kde4"
-    put url_for(:controller => :source, :action => :package_meta, :project => "home:tom", :package => "kdelibs"), doc.to_s
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "home:tom", :package => "kdelibs"), doc.to_s
     assert_response 400
     assert_xml_tag(:tag => "status", :attributes => { :code => "project_name_mismatch" })
     doc.root.attributes["project"] = nil
     doc.root.attributes["name"] = "none"
-    put url_for(:controller => :source, :action => :package_meta, :project => "home:tom", :package => "kdelibs"), doc.to_s
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "home:tom", :package => "kdelibs"), doc.to_s
     assert_response 400
     assert_xml_tag(:tag => "status", :attributes => { :code => "package_name_mismatch" })
   end
@@ -810,22 +810,22 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_put_package_meta_to_hidden_pkg_invalid_permissions
     login_tom
     # The user is valid, but has weak permissions
-    get url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "pack")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => "HiddenProject", :package => "pack")
     assert_response 404
 
     # Write changed data back
-    put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "pack"), "<package name=\"pack\"><title></title><description></description></package>"
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "HiddenProject", :package => "pack"), "<package name=\"pack\"><title></title><description></description></package>"
     assert_response 404
   end
 
   def do_change_package_meta_test (project, package, response1, response2, tag2, match)
     # Get meta file
-    get url_for(:controller => :source, :action => :package_meta, :project => project, :package => package)
+    get url_for(:controller => :source, :action => :show_package_meta, :project => project, :package => package)
     assert_response response1
 
     if !(response2 && tag2)
       #dummy write to check blocking
-      put url_for(:controller => :source, :action => :package_meta, :project => project, :package => package), "<package><title></title><description></description></package>"
+      put url_for(:controller => :source, :action => :update_package_meta, :project => project, :package => package), "<package><title></title><description></description></package>"
       assert_response 404
 #      assert_match(/unknown_package/, @response.body)
       assert_match(/unknown_project/, @response.body)
@@ -839,12 +839,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     d.text = new_desc
 
     # Write changed data back
-    put url_for(:controller => :source, :action => :package_meta, :project => project, :package => package), doc.to_s
+    put url_for(:controller => :source, :action => :update_package_meta, :project => project, :package => package), doc.to_s
     assert_response response2 #(:success, "--> Was not able to update kdelibs _meta")   
     assert_xml_tag tag2 #( :tag => "status", :attributes => { :code => "ok"} )
 
     # Get data again and check that it is the changed data
-    get url_for(:controller => :source, :action => :package_meta, :project => project, :package => package)
+    get url_for(:controller => :source, :action => :show_package_meta, :project => project, :package => package)
     newdoc = REXML::Document.new(@response.body)
     d = newdoc.elements["//description"]
     #ignore updated change
@@ -930,7 +930,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_create_package_meta
     # user without any special roles
     login_fred
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => "kde4", :package => "kdelibs")
     assert_response :success
     #change name to kdelibs2
     xml = @response.body
@@ -938,15 +938,15 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     d = doc.elements["/package"]
     d.delete_attribute('name')
     d.add_attribute('name', 'kdelibs2')
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs2"), doc.to_s
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "kdelibs2"), doc.to_s
     assert_response :success
     assert_xml_tag(:tag => "status", :attributes => { :code => "ok" })
     # do not allow to create it with invalid name
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs3"), doc.to_s
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "kdelibs3"), doc.to_s
     assert_response 400
 
     # Get data again and check that the maintainer was added
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs2")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => "kde4", :package => "kdelibs2")
     assert_response :success
     newdoc = REXML::Document.new(@response.body)
     d = newdoc.elements["/package"]
@@ -956,7 +956,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
     d.delete_attribute('name')
     d.add_attribute('name', 'kdelibs3')
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs3"), newdoc.to_s
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "kdelibs3"), newdoc.to_s
     assert_response 403
     assert_xml_tag(:tag => "status", :attributes => { :code => "create_package_no_permission" })
   end
@@ -1171,19 +1171,19 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # create a cycle via new package
     raw_put "/source/home:tom/packageB/_meta", "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageC' /> </package>"
     assert_response 400
-    assert_xml_tag(:tag => "status", :attributes => { :code => "devel_cycle" })
+    assert_xml_tag(:tag => "status", :attributes => { :code => "cycle_error" })
     # create a cycle via existing package
     raw_put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> <devel package='packageB' /> </package>"
     assert_response 400
-    assert_xml_tag(:tag => "status", :attributes => { :code => "devel_cycle" })
+    assert_xml_tag(:tag => "status", :attributes => { :code => "cycle_error" })
   end
 
   def do_test_change_package_meta (project, package, response1, response2, tag2, response3, select3)
-    get url_for(:controller => :source, :action => :package_meta, :project => project, :package => package)
+    get url_for(:controller => :source, :action => :show_package_meta, :project => project, :package => package)
     assert_response response1
     if !(response2 || tag2 || response3 || select3)
       #dummy write to check blocking
-      raw_put url_for(:controller => :source, :action => :package_meta, :project => project, :package => package),
+      raw_put url_for(:controller => :source, :action => :update_package_meta, :project => project, :package => package),
               "<package name=\"#{package}\"><title></title><description></description></package>"
       assert_response 404
 #      assert_match(/unknown_package/, @response.body)
@@ -1195,11 +1195,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     d = doc.elements["/package"]
     b = d.add_element 'build'
     b.add_element 'enable'
-    put url_for(:controller => :source, :action => :package_meta, :project => project, :package => package), doc.to_s
+    put url_for(:controller => :source, :action => :update_package_meta, :project => project, :package => package), doc.to_s
     assert_response response2
     assert_xml_tag(tag2)
 
-    get url_for(:controller => :source, :action => :package_meta, :project => project, :package => package)
+    get url_for(:controller => :source, :action => :show_package_meta, :project => project, :package => package)
     assert_response response3
     assert_select select3 if select3
   end
@@ -1263,28 +1263,28 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_put_invalid_package_meta
     prepare_request_with_user "fredlibs", "geröllheimer"
     # Get meta file
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => "kde4", :package => "kdelibs")
     assert_response :success
 
     xml = @response.body
     olddoc = REXML::Document.new(xml)
     doc = REXML::Document.new(xml)
     # Write corrupt data back
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs"), doc.to_s + "</xml>"
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "kdelibs"), doc.to_s + "</xml>"
     assert_response 400
 
     login_king
     # write to illegal location: 
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "."), doc.to_s
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "."), doc.to_s
     assert_response 400
     assert_xml_tag :tag => "status", :child => { :content => %r{project validation error: Expecting element project} }
 
     #must not create a package with different pathname and name in _meta.xml:
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs2000"), doc.to_s
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "kdelibs2000"), doc.to_s
     assert_response 400
     assert_xml_tag :tag => "status", :attributes => { :code => "package_name_mismatch" }
     #verify data is unchanged: 
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "kdelibs")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => "kde4", :package => "kdelibs")
     assert_response :success
     assert_equal(olddoc.to_s, REXML::Document.new((@response.body)).to_s)
   end
@@ -2385,19 +2385,19 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 200
     # create packages via user without any special roles
     login_fred
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary")
+    get url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "temporary")
     assert_response 404
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary"),
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "temporary"),
         '<package project="kde4" name="temporary"> <title/> <description/> </package>'
     assert_response 200
     assert_xml_tag(:tag => "status", :attributes => { :code => "ok" })
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary2"),
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "temporary2"),
         '<package project="kde4" name="temporary2"> <title/> <description/> </package>'
     assert_response 200
     assert_xml_tag(:tag => "status", :attributes => { :code => "ok" })
     put "/source/kde4/temporary/file_in_linked_package", 'FILE CONTENT'
     assert_response 200
-    put url_for(:controller => :source, :action => :package_meta, :project => "TEMPORARY", :package => "temporary2"),
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "TEMPORARY", :package => "temporary2"),
         '<package project="TEMPORARY" name="temporary2"> <title/> <description/> </package>'
     assert_response 200
 
@@ -3164,7 +3164,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   test "store invalid package" do
     login_tom
     name = Faker::Lorem.characters(255)
-    url = url_for(controller: :source, action: :package_meta, project: "home:tom", package: name)
+    url = url_for(controller: :source, action: :update_package_meta, project: "home:tom", package: name)
     put url, "<package name='#{name}' project='home:tom'> <title/> <description/></package>"
     assert_response 400
     assert_select "status[code] > summary", %r{invalid package name}

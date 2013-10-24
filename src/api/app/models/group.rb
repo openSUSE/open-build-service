@@ -10,7 +10,7 @@ class Group < ActiveRecord::Base
   end
 
   has_many :groups_users, :foreign_key => 'group_id'
-  has_many :relationships
+  has_many :relationships, dependent: :destroy, inverse_of: :group
 
   validates_format_of  :title,
                        :with => %r{\A[\w\.\-]*\z},

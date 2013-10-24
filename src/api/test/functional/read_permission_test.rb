@@ -287,7 +287,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_match(flag, @response.body) if flag
     delete "/source/#{destprj}/#{destpkg}"
     assert_response delresp if delresp
-    get url_for(:controller => :source, :action => :package_meta, :project => "#{destprj}", :package => "#{destpkg}")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => "#{destprj}", :package => "#{destpkg}")
     put "/source/#{destprj}/#{destpkg}/_meta", orig.dup
   end
   protected :do_test_copy_package
@@ -404,9 +404,9 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
   def test_create_links_hidden_project
     # user without any special roles
     login_adrian
-    get url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "temporary")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => "HiddenProject", :package => "temporary")
     assert_response 404
-    put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "temporary"), 
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "HiddenProject", :package => "temporary"),
         '<package project="HiddenProject" name="temporary"> <title/> <description/> </package>'
     assert_response 200
     assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
@@ -425,9 +425,9 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url, '<link project="HiddenProject" package="pack" />'
     assert_response :success
 
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary2")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => "kde4", :package => "temporary2")
     assert_response 404
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary2"), 
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "temporary2"),
         '<package project="kde4" name="temporary2"> <title/> <description/> </package>'
     assert_response 200
     assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
@@ -443,9 +443,9 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "status", :attributes => { :code => "unknown_package" }
 
     # check this works with remote projects also
-    get url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "temporary4")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => "HiddenProject", :package => "temporary4")
     assert_response 404
-    put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "temporary4"), 
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "HiddenProject", :package => "temporary4"),
         '<package project="HiddenProject" name="temporary4"> <title/> <description/> </package>'
     assert_response 200
     assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
@@ -458,9 +458,9 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
     # user without any special roles
     login_fred
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary3")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => "kde4", :package => "temporary3")
     assert_response 404
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "temporary3"), 
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "temporary3"),
         '<package project="kde4" name="temporary3"> <title/> <description/> </package>'
     assert_response 200
     assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
@@ -496,10 +496,10 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:PublicProject"),
         '<project name="home:adrian:PublicProject"> <title/> <description/> </project>'
     assert_response :success
-    put url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:PublicProject", :package => "pack"), 
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "home:adrian:PublicProject", :package => "pack"),
         '<package name="pack" project="home:adrian:PublicProject"> <title/> <description/> </package>'
     assert_response :success
-    put url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:PublicProject", :package => "pack"), 
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "home:adrian:PublicProject", :package => "pack"),
         '<package name="pack" project="home:adrian:PublicProject"> <title/> <description/>  <sourceaccess><disable/></sourceaccess>  </package>'
     assert_response 403
     assert_xml_tag :tag => "status", :attributes => { :code => "change_package_protection_level" }
@@ -529,7 +529,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:PublicProject"),
         '<project name="home:adrian:PublicProject"> <title/> <description/> </project>'
     assert_response :success
-    put url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:PublicProject", :package => "ProtectedPackage"), 
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "home:adrian:PublicProject", :package => "ProtectedPackage"),
         '<package name="ProtectedPackage" project="home:adrian:PublicProject"> <title/> <description/>  <sourceaccess><disable/></sourceaccess>  </package>'
     assert_response :success
     put "/source/home:adrian:PublicProject/ProtectedPackage/dummy_file", "dummy"
@@ -609,7 +609,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject"),
         '<project name="home:adrian:ProtectedProject"> <title/> <description/> <sourceaccess><disable/></sourceaccess>  </project>'
     assert_response :success
-    put url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:ProtectedProject", :package => "Package"), 
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "home:adrian:ProtectedProject", :package => "Package"),
         '<package name="Package" project="home:adrian:ProtectedProject"> <title/> <description/> </package>'
     assert_response :success
 
@@ -745,7 +745,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/home:adrian:ProtectedProject"
     assert_response :success
-    put url_for(:controller => :source, :action => :package_meta, :project => "home:adrian:ProtectedProject", :package => "package"),
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "home:adrian:ProtectedProject", :package => "package"),
         '<package project="home:adrian:ProtectedProject" name="package"> <title/> <description/></package>'
     assert_response :success
     get "/source/home:adrian:ProtectedProject/package"

@@ -8,9 +8,9 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
   def test_latest_added
     login_adrian
-    get url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "test_latest_added")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => "HiddenProject", :package => "test_latest_added")
     assert_response 404
-    put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "test_latest_added"), 
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "HiddenProject", :package => "test_latest_added"),
         '<package project="HiddenProject" name="test_latest_added"> <title/> <description/> </package>'
     assert_response 200
     assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
@@ -29,9 +29,9 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     }
 
     login_fred
-    get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => "kde4", :package => "test_latest_added1")
     assert_response 404
-    put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1"), 
+    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "test_latest_added1"),
         '<package project="kde4" name="test_latest_added1"> <title/> <description/> </package>'
     assert_response 200
     assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
@@ -45,9 +45,9 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
  def test_latest_updated
    login_adrian
-   get url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "test_latest_added")
+   get url_for(:controller => :source, :action => :show_package_meta, :project => "HiddenProject", :package => "test_latest_added")
    assert_response 404
-   put url_for(:controller => :source, :action => :package_meta, :project => "HiddenProject", :package => "test_latest_added"), 
+   put url_for(:controller => :source, :action => :update_package_meta, :project => "HiddenProject", :package => "test_latest_added"),
    '<package project="HiddenProject" name="test_latest_added"> <title/> <description/> </package>'
    assert_response 200
    assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
@@ -66,9 +66,9 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
    }
 
    login_fred
-   get url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1")
+   get url_for(:controller => :source, :action => :show_package_meta, :project => "kde4", :package => "test_latest_added1")
    assert_response 404
-   put url_for(:controller => :source, :action => :package_meta, :project => "kde4", :package => "test_latest_added1"), 
+   put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "test_latest_added1"),
    '<package project="kde4" name="test_latest_added1"> <title/> <description/> </package>'
    assert_response 200
    assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
