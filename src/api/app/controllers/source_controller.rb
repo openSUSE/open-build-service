@@ -654,94 +654,88 @@ class SourceController < ApplicationController
     end
   end
 
-  # /source/:project/:package/_meta
-  def package_meta
+  def require_package_name
     required_parameters :project, :package
-   
-    project_name = params[:project]
-    package_name = params[:package]
 
-    valid_package_name! package_name
+    @project_name = params[:project]
+    @package_name = params[:package]
 
-    if request.get?
-      # GET /source/:project/:package/_meta
-      pack = Package.get_by_project_and_name( project_name, package_name, use_source: false )
+    valid_package_name! @package_name
+  end
 
-      if params.has_key?(:rev) or pack.nil? # and not pro_name 
-        # check if this comes from a remote project, also true for _project package
-        # or if rev it specified we need to fetch the meta from the backend
-        answer = Suse::Backend.get(request.path)
-        if answer
-          render :text => answer.body.to_s, :content_type => 'text/xml'
-        else
-          render_error :status => 404, :errorcode => 'unknown_package',
-            :message => "Unknown package '#{package_name}'"
-        end
-        return
-      end
+  # GET /source/:project/:package/_meta
+  def show_package_meta
+    require_package_name
 
-      render :text => pack.to_axml(params[:view]), :content_type => 'text/xml'
+    pack = Package.get_by_project_and_name(@project_name, @package_name, use_source: false)
 
-    else
-      # PUT /source/:project/:package/_meta
-
-      rdata = Xmlhash.parse(request.raw_post)
-      
-      if rdata['project'] && rdata['project'] != project_name
-        render_error :status => 400, :errorcode => 'project_name_mismatch',
-                     :message => 'project name in xml data does not match resource path component'
-        return
-      end
-
-      if rdata['name'] && rdata['name'] != package_name
-        render_error :status => 400, :errorcode => 'package_name_mismatch',
-                     :message => 'package name in xml data does not match resource path component'
-        return
-      end
-
-      # check for project
-      if Package.exists_by_project_and_name( project_name, package_name, follow_project_links: false )
-        # is lock explicit set to disable ? allow the un-freeze of the project in that case ...
-        ignoreLock = nil
- # unlock only via command for now
-#        ignoreLock = 1 if Xmlhash.parse(request.raw_post).get("lock")["disable"]
-
-        pkg = Package.get_by_project_and_name( project_name, package_name, use_source: false )
-        unless User.current.can_modify_package?(pkg, ignoreLock)
-          render_error :status => 403, :errorcode => 'change_package_no_permission',
-            :message => "no permission to modify package '#{pkg.project.name}'/#{pkg.name}"
-          return
-        end
-
-        if pkg and not pkg.disabled_for?('sourceaccess', nil, nil)
-          if FlagHelper.xml_disabled_for?(rdata, 'sourceaccess')
-             render_error :status => 403, :errorcode => 'change_package_protection_level',
-               :message => 'admin rights are required to raise the protection level of a package'
-             return
-          end
-        end
+    if params.has_key?(:rev) or pack.nil? # and not pro_name
+                                          # check if this comes from a remote project, also true for _project package
+                                          # or if rev it specified we need to fetch the meta from the backend
+      answer = Suse::Backend.get(request.path)
+      if answer
+        render :text => answer.body.to_s, :content_type => 'text/xml'
       else
-        prj = Project.get_by_name(project_name)
-        unless User.current.can_create_package_in?(prj)
-          render_error :status => 403, :errorcode => 'create_package_no_permission',
-            :message => "no permission to create a package in project '#{project_name}'"
-          return
-        end
-        pkg = prj.packages.new(name: package_name)
+        render_error :status => 404, :errorcode => 'unknown_package',
+                     :message => "Unknown package '#{@package_name}'"
       end
-        
-      begin
-        Package.transaction do
-          pkg.update_from_xml(rdata)
-          pkg.store
-        end
-      rescue Package::CycleError => e
-        render_error :status => 400, :errorcode => 'devel_cycle', :message => e.message
+      return
+    end
+
+    render :text => pack.to_axml(params[:view]), :content_type => 'text/xml'
+  end
+
+  # PUT /source/:project/:package/_meta
+  def update_package_meta
+    require_package_name
+
+    rdata = Xmlhash.parse(request.raw_post)
+
+    if rdata['project'] && rdata['project'] != @project_name
+      render_error :status => 400, :errorcode => 'project_name_mismatch',
+                   :message => 'project name in xml data does not match resource path component'
+      return
+    end
+
+    if rdata['name'] && rdata['name'] != @package_name
+      render_error :status => 400, :errorcode => 'package_name_mismatch',
+                   :message => 'package name in xml data does not match resource path component'
+      return
+    end
+
+    # check for project
+    if Package.exists_by_project_and_name(@project_name, @package_name, follow_project_links: false)
+      # is lock explicit set to disable ? allow the un-freeze of the project in that case ...
+      ignoreLock = nil
+      # unlock only via command for now
+      #         ignoreLock = 1 if Xmlhash.parse(request.raw_post).get("lock")["disable"]
+
+      pkg = Package.get_by_project_and_name(@project_name, @package_name, use_source: false)
+      unless User.current.can_modify_package?(pkg, ignoreLock)
+        render_error :status => 403, :errorcode => 'change_package_no_permission',
+                     :message => "no permission to modify package '#{pkg.project.name}'/#{pkg.name}"
         return
       end
 
-      render_ok
+      if pkg and not pkg.disabled_for?('sourceaccess', nil, nil)
+        if FlagHelper.xml_disabled_for?(rdata, 'sourceaccess')
+          render_error :status => 403, :errorcode => 'change_package_protection_level',
+                       :message => 'admin rights are required to raise the protection level of a package'
+          return
+        end
+      end
+    else
+      prj = Project.get_by_name(@project_name)
+      unless User.current.can_create_package_in?(prj)
+        render_error :status => 403, :errorcode => 'create_package_no_permission',
+                     :message => "no permission to create a package in project '#{@project_name}'"
+        return
+      end
+      pkg = prj.packages.new(name: @package_name)
     end
+
+    pkg.update_from_xml(rdata)
+    render_ok
   end
 
   # GET /source/:project/:package/:filename
@@ -750,7 +744,6 @@ class SourceController < ApplicationController
     project_name = params[:project]
     package_name = params[:package]
     file = params[:filename]
-    path = "/source/#{URI.escape(project_name)}/#{URI.escape(package_name)}/#{URI.escape(file)}"
 
     if params.has_key?(:deleted)
       if package_name == '_project'
@@ -768,12 +761,10 @@ class SourceController < ApplicationController
     if package_name == '_project'
       Project.get_by_name(project_name)
     else
-      pack = Package.get_by_project_and_name(project_name, package_name, use_source: true)
+      Package.get_by_project_and_name(project_name, package_name, use_source: true)
     end
 
-    if pack # local package
-      path = "/source/#{URI.escape(pack.project.name)}/#{URI.escape(pack.name)}/#{URI.escape(file)}"
-    end
+    path = Package.source_path(project_name, package_name, file)
     path += build_query_from_hash(params, [:rev, :meta, :deleted, :limit, :expand])
     pass_to_backend path
   end

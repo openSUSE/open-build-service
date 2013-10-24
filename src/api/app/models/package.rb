@@ -7,6 +7,8 @@ class Package < ActiveRecord::Base
   include FlagHelper
   include CanRenderModel
   include HasRelationships
+  has_many :relationships, dependent: :destroy, inverse_of: :package
+
   include HasRatings
   include HasAttributes
 
@@ -553,9 +555,6 @@ class Package < ActiveRecord::Base
     # just for cycle detection
     self.resolve_devel_package
 
-    # give ourselves an ID
-    self.save!
-
     update_relationships_from_xml( xmlhash )
 
     #---begin enable / disable flags ---#
@@ -677,24 +676,24 @@ class Package < ActiveRecord::Base
   end
 
   def add_channels
-     project_name = self.project.name
-     package_name = self.name
-     dir = self.dir_hash
-     if dir
-       # link target package name is more important, since local name could be
-       # extended. for example in maintenance incident projects.
-       li = dir['linkinfo']
-       if li
-         project_name = li['project']
-         package_name = li['package']
-       end
-     end
-     parent = nil
-     ChannelBinary.find_by_project_and_package( project_name, package_name ).each do |cb|
-       parent ||= self.project.find_parent
-       cb.create_channel_package(self, parent)
-     end
-     self.project.store
+    project_name = self.project.name
+    package_name = self.name
+    dir = self.dir_hash
+    if dir
+      # link target package name is more important, since local name could be
+      # extended. for example in maintenance incident projects.
+      li = dir['linkinfo']
+      if li
+        project_name = li['project']
+        package_name = li['package']
+      end
+    end
+    parent = nil
+    ChannelBinary.find_by_project_and_package( project_name, package_name ).each do |cb|
+      parent ||= self.project.find_parent
+      cb.create_channel_package(self, parent)
+    end
+    self.project.store
   end
 
   def developed_packages
@@ -809,21 +808,4 @@ class Package < ActiveRecord::Base
     'CommentPackage'
   end
 
-  # FIXME: we REALLY should use active_model_serializers
-  def as_json(options = nil)
-    if options
-      if options.key?(:methods)
-        if options[:methods].kind_of? Array
-          options[:methods] << :project_name unless options[:methods].include?(:project_name)
-        elsif options[:methods] != :project_name
-          options[:methods] = [options[:methods]] + [:project_name]
-        end
-      else
-        options[:methods] = [:project_name]
-      end
-      super(options)
-    else
-      super(methods: [:project_name])
-    end
-  end
 end

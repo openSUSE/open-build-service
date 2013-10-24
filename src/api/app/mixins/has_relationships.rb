@@ -1,12 +1,6 @@
 # a model that has relationships - e.g. a project and a package
 module HasRelationships
 
-  def self.included(base)
-    base.class_eval do
-      has_many :relationships, dependent: :destroy
-    end
-  end
-
   class SaveError < APIException
   end
 
@@ -179,12 +173,12 @@ module HasRelationships
           pcache[role.title] = :keep
         else
           #new role
-          record = self.relationships.new(role: role)
+          record = self.relationships.build(role: role)
           @updater.set_item(record, item)
           pcache[role.title] = :new
         end
       else
-        record = self.relationships.new(role: role)
+        record = self.relationships.build(role: role)
         @updater.set_item(record, item)
         cache[id] = { role.title => :new }
       end
