@@ -172,6 +172,7 @@ BuildRequires:  rubygem-ruby-ldap
 # for test suite:
 BuildRequires:  createrepo
 BuildRequires:  curl
+BuildRequires:  memcached >= 1.4
 BuildRequires:  mysql
 BuildRequires:  netcfg
 BuildRequires:  rubygem-ci_reporter
@@ -498,12 +499,15 @@ test:
   socket:   /tmp/obs.test.mysql.socket
 EOF
 export RAILS_ENV=test
+/usr/sbin/memcached -l 127.0.0.1 -d -P $PWD/memcached.pid
 bundle exec rake --trace db:create db:setup || exit 1
 mv log/test.log{,.old}
 if ! bundle exec rake --trace test:api test:webui1 test:webui2; then
   cat log/test.log
+  kill $(cat memcached.pid)
   exit 1
 fi
+kill $(cat memcached.pid) || :
 popd
 
 #cleanup
