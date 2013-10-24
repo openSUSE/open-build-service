@@ -686,18 +686,10 @@ class Project < ActiveRecord::Base
     self.class.find_parent_for self.name
   end
 
-  def render_xml(view = nil)
-    # CanRenderModel
-    super(view: view)
-  end
-
-  def to_axml(view = nil)
-    unless view
-       Rails.cache.fetch('xml_project_%d' % id) do
-         render_xml(view)
-       end
-    else
-      render_xml(view)
+  def to_axml
+    Rails.cache.fetch('xml_project_%d' % id) do
+      # CanRenderModel
+      render_xml
     end
   end
 

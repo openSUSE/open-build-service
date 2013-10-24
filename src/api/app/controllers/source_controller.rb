@@ -456,7 +456,7 @@ class SourceController < ApplicationController
     else
       # access check
       prj = Project.get_by_name params[:project]
-      render xml: prj.to_axml(params[:view])
+      render xml: prj.to_axml
     end
   end
 
@@ -680,7 +680,7 @@ class SourceController < ApplicationController
         return
       end
 
-      render :text => pack.to_axml(params[:view]), :content_type => 'text/xml'
+      render xml: pack.to_axml
 
     else
       # PUT /source/:project/:package/_meta

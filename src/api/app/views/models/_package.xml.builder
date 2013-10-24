@@ -8,17 +8,13 @@ xml.package(name: my_model.name, project: my_model.project.name) do
 
   my_model.render_relationships(xml)
 
-  if view == 'flagdetails'
-    my_model.flags_to_xml(xml, my_model.expand_flags, 1)
-  else
-    FlagHelper.flag_types.each do |flag_name|
-      flaglist = my_model.type_flags(flag_name)
-      xml.send(flag_name) do
-        flaglist.each do |flag|
-          flag.to_xml(xml)
-        end
-      end unless flaglist.empty?
-    end
+  FlagHelper.flag_types.each do |flag_name|
+    flaglist = my_model.type_flags(flag_name)
+    xml.send(flag_name) do
+      flaglist.each do |flag|
+        flag.to_xml(xml)
+      end
+    end unless flaglist.empty?
   end
 
   xml.url(my_model.url) unless my_model.url.blank?

@@ -143,17 +143,6 @@ module FlagHelper
     return state
   end
 
-  def flags_to_xml(builder, expand_flags, pkg=nil)
-    FlagHelper.flag_types.each do |flag_name|
-      next if pkg and flag_name == 'access' # no access flag in packages
-      builder.send(flag_name) do
-        expand_flags[flag_name].each do |l|
-          builder.send(l[0], l[1])
-        end
-      end
-    end
-  end
-
   def self.xml_disabled_for?(xmlhash, flagtype)
     Rails.logger.debug "xml_disabled? #{xmlhash.inspect}"
     disabled = false

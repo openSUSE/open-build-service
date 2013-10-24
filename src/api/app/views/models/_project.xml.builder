@@ -26,17 +26,13 @@ xml.project(project_attributes) do
   end
 
   repos = my_model.repositories.not_remote.sort { |a, b| b.name <=> a.name }
-  if view == 'flagdetails'
-    my_model.flags_to_xml(xml, my_model.expand_flags)
-  else
-    FlagHelper.flag_types.each do |flag_name|
-      flaglist = my_model.type_flags(flag_name)
-      xml.send(flag_name) do
-        flaglist.each do |flag|
-          flag.to_xml(xml)
-        end
-      end unless flaglist.empty?
-    end
+  FlagHelper.flag_types.each do |flag_name|
+    flaglist = my_model.type_flags(flag_name)
+    xml.send(flag_name) do
+      flaglist.each do |flag|
+        flag.to_xml(xml)
+      end
+    end unless flaglist.empty?
   end
 
   repos.each do |repo|

@@ -599,17 +599,10 @@ class Package < ActiveRecord::Base
     return "<package project='#{::Builder::XChar.encode(project.name)}' name='#{::Builder::XChar.encode(name)}'/>"
   end
 
-  def render_xml(view = nil)
-    super(view: view) # CanRenderModel
-  end
-
-  def to_axml(view = nil)
-    if view
-      render_xml(view)
-    else
-      Rails.cache.fetch('xml_package_%d' % self.id) do
-        render_xml(view)
-      end
+  def to_axml
+    Rails.cache.fetch('xml_package_%d' % self.id) do
+      # CanRenderModel
+      render_xml
     end
   end
 

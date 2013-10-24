@@ -156,9 +156,6 @@
         <ref name="build-arch" />
       </attribute>
     </optional>
-    <optional>
-      <attribute name="explicit"/> <!-- this is not part of meta data, just visible when expanding via view=flagdetails -->
-    </optional>
   </define>
 
   <define ns="" name="flag-element">
@@ -180,17 +177,11 @@
   <define ns="" name="simple-flag-element">
     <optional>
       <element name="enable">
-        <optional>
-          <attribute name="explicit"/> <!-- this is not part of meta data, just visible when expanding via view=flagdetails -->
-        </optional>
         <empty/>
       </element>
     </optional>
     <optional>
       <element name="disable">
-        <optional>
-          <attribute name="explicit"/> <!-- this is not part of meta data, just visible when expanding via view=flagdetails -->
-        </optional>
         <empty/>
       </element>
     </optional>
