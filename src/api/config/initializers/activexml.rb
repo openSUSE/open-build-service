@@ -13,3 +13,6 @@ map.connect :collection, "rest:///search/:what?:match",
    project: "rest:///search/project?:match"
 
 map.connect :fileinfo, 'rest:///build/:project/:repository/:arch/:package/:filename?:view'
+
+map.connect :buildresult, 'rest:///build/:project/_result?:view&:package&:code&:lastbuild&:arch&:repository'
+

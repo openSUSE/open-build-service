@@ -342,7 +342,6 @@ class ProjectController < WebuiController
 
   def load_releasetargets
     @releasetargets = []
-    Rails.logger.debug "load_releasetargets"
     rts = ReleaseTarget.where(repository_id: @project.api_obj.repositories)
     unless rts.empty?
       Rails.logger.debug rts.inspect
@@ -350,8 +349,6 @@ class ProjectController < WebuiController
         @releasetargets.push(repo.releasetarget.value('project') + '/' + repo.releasetarget.value('repository')) if repo.has_element?('releasetarget')
       end
     end
-    Rails.logger.debug @releasetargets.inspect
-    Rails.logger.debug "done"
   end
 
   def linking_projects

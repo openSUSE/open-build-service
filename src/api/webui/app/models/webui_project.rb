@@ -401,7 +401,7 @@ class WebuiProject < Webui::Node
   end
 
   def buildresults(view = 'summary')
-    return Webui::Buildresult.find(:project => self.name, :view => view)
+    return Buildresult.find(:project => self.name, :view => view)
   end
 
   def build_succeeded?(repository = nil)

@@ -55,7 +55,6 @@ map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['fronte
                 :all => 'rest:///service'
     map.connect :file, 'rest:///source/:project/:package/:filename?:expand&:rev'
 
-    map.connect :buildresult, 'rest:///build/:project/_result?:view&:package&:code&:lastbuild&:arch&:repository'
     map.connect :statistic, 'rest:///build/:project/:repository/:arch/:package/_statistics'
 
     map.connect :result, 'rest:///result/:project/:platform/:package/:arch/result'

@@ -354,7 +354,7 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def get_binaries
     @binarylist = Array.new
-    @binary_list = Webui::Buildresult.find(:project => params[:project], :view => 'binarylist')
+    @binary_list = Buildresult.find(:project => params[:project], :view => 'binarylist')
     @binary_list.to_hash.elements('result') do |r|
       r.elements('binarylist') do |l|
         l.elements('binary') do |b|
