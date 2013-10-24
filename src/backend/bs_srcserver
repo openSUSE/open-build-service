@@ -3700,12 +3700,11 @@ sub getpackagehistory {
     if ($packid ne '_project' && ! -e "$projectsdir/$projid.pkg/$packid.xml") {
       # check project links
       die("404 package '$packid' does not exist\n") unless $proj->{'link'};
-      my %checked = ($projid => 1);
-      my @todo = map {$_->{'project'}} @{$proj->{'link'}};
-      while (@todo) {
-	my $lprojid = shift @todo;
-	next if $checked{$lprojid};
-	$checked{$lprojid} = 1;
+      $cgi->{'_checked'} ||= {};
+      $cgi->{'_checked'}->{$projid} = 1;
+      for my $lprojid (map {$_->{'project'}} @{$proj->{'link'}}) {
+	next if $cgi->{'_checked'}->{$lprojid};
+	$cgi->{'_checked'}->{$lprojid} = 1;
 	my $h;
 	eval {
 	  $h = (getpackagehistory($cgi, $lprojid, $packid))[0];
