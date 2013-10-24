@@ -2682,10 +2682,11 @@ sub getprojpack {
 	my $r = readproj($projid, 1);
 	$r = remoteprojid($projid) unless defined $r;
 	if (!($r && $r->{'remoteurl'})) {
-	  # not remote and wrong partition
+	  # not remote, but on wrong partition
 	  # if asked for a specific project, put it in remotemap
-	  checkpartition($remotemap, $projid, $r) if $remotemap && $cgi->{'project'} && $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$projid};
-	  if ($remotemap && $cgi->{'project'} && $cgi->{'withconfig'}) {
+	  next unless $remotemap && $cgi->{'project'};
+	  checkpartition($remotemap, $projid, $r) if $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$projid};
+	  if ($remotemap->{$projid} && $cgi->{'withconfig'}) {
 	    # also put config in remotemap is asked for a specific project
 	    my $c = readstr("$projectsdir/$projid.conf", 1);
 	    $remotemap->{$projid}->{'config'} = defined($c) ? $c : '' if ($remotemap->{$projid} || {})->{'partition'};
@@ -3689,8 +3690,31 @@ sub getpackagehistory {
   $packid = '_project' unless defined $packid;
 
   if (!$cgi->{'deleted'}) {
-    die("404 project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
-    die("404 package '$packid' does not exist\n") unless $packid eq '_project' || -e "$projectsdir/$projid.pkg/$packid.xml";
+    my $proj = checkprojrepoarch($projid, undef, undef, 1);
+    if ($proj->{'remoteurl'}) {
+      my @args;
+      push @args, "rev=$cgi->{'rev'}" if $cgi->{'rev'};
+      my $h = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/_history", 'proxy' => $proxy}, $BSXML::revisionlist, @args);
+      return ($h, $BSXML::revisionlist);
+    }
+    if ($packid ne '_project' && ! -e "$projectsdir/$projid.pkg/$packid.xml") {
+      # check project links
+      die("404 package '$packid' does not exist\n") unless $proj->{'link'};
+      my %checked = ($projid => 1);
+      my @todo = map {$_->{'project'}} @{$proj->{'link'}};
+      while (@todo) {
+	my $lprojid = shift @todo;
+	next if $checked{$lprojid};
+	$checked{$lprojid} = 1;
+	my $h;
+	eval {
+	  $h = (getpackagehistory($cgi, $lprojid, $packid))[0];
+	};
+	die($@) if $@ && $@ !~ /^404/;
+	return ($h, $BSXML::revisionlist) if $h;
+      }
+      die("404 package '$packid' does not exist\n");
+    }
   }
 
   $revfile = "$projectsdir/$projid.pkg";
