@@ -71,15 +71,7 @@ class PackageController < WebuiController
   end
 
   def set_linking_packages
-    if @spider_bot
-      @linking_packages = []
-      return
-    end
-    cache_string = '%s/%s_linking_packages' % [ @project, @package ]
-    Rails.cache.delete(cache_string) if discard_cache?
-    @linking_packages = Rails.cache.fetch( cache_string, :expires_in => 30.minutes) do
-       @package.linking_packages
-    end
+    @linking_packages = @package.api_obj.linking_packages
   end
 
   def linking_packages

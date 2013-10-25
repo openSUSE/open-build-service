@@ -739,6 +739,10 @@ class Package < ActiveRecord::Base
     self.backend_package
   end
 
+  def linking_packages
+    ::Package.joins(:backend_package).where(backend_packages: { links_to_id: self.id })
+  end
+
   def backend_package
     bp = super
     # if it's there, it's supposed to be fine

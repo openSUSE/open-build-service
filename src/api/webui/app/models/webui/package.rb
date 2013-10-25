@@ -104,29 +104,6 @@ class Package < Webui::Node
     return users('bugowner')
   end
 
-  def linking_packages
-    opt = Hash.new
-    opt[:project] = self.project
-    opt[:package] = self.name
-    opt[:cmd] = 'showlinked'
-    result = []
-    begin
-      fc = FrontendCompat.new
-      answer = fc.do_post nil, opt
-
-      doc = ActiveXML::Node.new(answer)
-      doc.each('/collection/package') do |e|
-        hash = {}
-        hash[:project] = e.value('project')
-        hash[:package] = e.value('name')
-        result.push( hash )
-      end
-    rescue ActiveXML::Transport::NotFoundError
-      # No answer is ok, it only means no linking projects...
-    end
-    return result
-  end
-
   def user_has_role?(user, role)
     user && api_obj.relationships.where(user: user, role_id: Role.rolecache[role]).exists?
   end

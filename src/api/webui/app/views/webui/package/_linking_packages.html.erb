@@ -1,19 +1,19 @@
-  <div class="dialog" id="disable_mask"></div>
-  <div class="dialog darkgrey_box" id="linking_packages">
-    <div class="box box-shadow">
-      <h2 class="box-header">Derived Packages</h2>
-      <ul>
-        <% @linking_packages.each do |lp| %>
-          <% if lp[:package] != @package.name %>
-            <% name = elide_two(lp[:project], lp[:package], 46).join(' / ') %>
+<div class="dialog" id="disable_mask"></div>
+<div class="dialog darkgrey_box" id="linking_packages">
+  <div class="box box-shadow">
+    <h2 class="box-header">Derived Packages</h2>
+    <ul>
+      <% @linking_packages.each do |lp| %>
+          <% if lp.name != @package.name %>
+              <% name = elide_two(lp.project.name, lp.name, 46).join(' / ') %>
           <% else %>
-            <% name = elide(lp[:project], 46) %>
+              <% name = elide(lp.project.name, 46) %>
           <% end %>
-          <li><%= link_to(name, :controller => 'package', :action => 'show', :project => lp[:project], :package => lp[:package]) %></li>
-        <% end %>
-      </ul>
-      <div class="buttons">
-        <%= remove_dialog_tag('Cancel') %>
-      </div>
+          <li><%= link_to(name, :controller => 'package', :action => 'show', :project => lp.project.name, :package => lp.name) %></li>
+      <% end %>
+    </ul>
+    <div class="buttons">
+      <%= remove_dialog_tag('Cancel') %>
     </div>
   </div>
+</div>
