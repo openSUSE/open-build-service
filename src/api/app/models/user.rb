@@ -810,19 +810,23 @@ class User < ActiveRecord::Base
   end
 
   def watched_project_names
-    Project.where(id: watched_projects.pluck(:project_id)).pluck(:name)
+    @watched_projects ||= Rails.cache.fetch(["watched_project_names", self]) do
+      Project.where(id: watched_projects.pluck(:project_id)).pluck(:name)
+    end
   end
 
   def add_watched_project(name)
     watched_projects.create(project: Project.find_by_name!(name))
+    self.touch
   end
 
   def remove_watched_project(name)
     watched_projects.joins(:project).where(projects: { name: name }).delete_all
+    self.touch
   end
 
   def watches?(name)
-    watched_projects.joins(:project).where(projects: { name: name }).exists?
+    watched_project_names.include? name
   end
 
   def update_globalroles( new_globalroles )

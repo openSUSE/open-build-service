@@ -7,7 +7,7 @@ class BsRequestCollection
     @review_states = opts[:review_states] || %w(new)
     @subprojects = opts[:subprojects]
     @project = opts[:project]
-    @rel = BsRequest.joins(:bs_request_actions)
+    @rel = BsRequest.joins(:bs_request_actions).distinct
 
     # filter for request state(s)
     unless @states.blank?

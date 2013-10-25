@@ -11,7 +11,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_selector 'table#request_table tr'
 
     # walk over the table
-    rs = find('tr#tr_request_1_1').find('.request_target')
+    rs = find('tr#tr_request_1').find('.request_target')
     rs.find(:xpath, '//a[@title="kde4"]').must_have_text 'kde4'
     rs.find(:xpath, '//a[@title="kdelibs"]').must_have_text 'kdelibs'
   end
@@ -113,7 +113,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     login_tom
     visit webui_engine.home_path
 
-    within('tr#tr_request_4_1') do
+    within('tr#tr_request_4') do
       page.must_have_text '~:kde4 / BranchPack'
       first(:css, 'a.request_link').click
     end

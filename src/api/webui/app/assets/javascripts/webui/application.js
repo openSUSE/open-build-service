@@ -14,6 +14,7 @@
 //= require jquery.ui.menu
 //= require jquery.ui.autocomplete
 //= require jquery.ui.tabs
+//= require jquery.ui.tooltip
 //= require jquery_ujs
 //
 //= require webui/jquery.expander.js
@@ -82,11 +83,8 @@ function remove_dialog() {
 
 function setup_buildresult_tooltip(element_id, url) {
     $('#' + element_id).tooltip({
-        showURL: false,
-        track: true,
-        fade: 250,
-        opacity: 1,
-        bodyHandler: function() {
+        position: { my: "center+15 center"},
+        content: function() {
             return "<div id='" + element_id + "_tooltip' style='width: 500px;'>loading buildresult...</div>";
         }
     });

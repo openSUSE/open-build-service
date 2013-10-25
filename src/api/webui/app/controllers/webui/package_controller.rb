@@ -8,6 +8,7 @@ class PackageController < WebuiController
   include ParsePackageDiff
   include WebuiHelper
   include PackageHelper
+  include Escaper
 
   before_filter :require_project, :except => [:rawlog, :rawsourcefile, :submit_request, :devel_project]
   before_filter :require_package, :except => [:rawlog, :rawsourcefile, :submit_request, :save_new_link, :save_new, :devel_project ]
@@ -1033,10 +1034,15 @@ class PackageController < WebuiController
     end
   end
 
+  def get_rpmlint_log(project, package, repository, architecture)
+    path = "/build/#{pesc project}/#{pesc repository}/#{pesc architecture}/#{pesc package}/rpmlint.log"
+    ActiveXML::backend.direct_http(URI(path), timeout: 500)
+  end
+
   def rpmlint_log
     required_parameters :project, :package, :repository, :architecture
     begin
-      rpmlint_log = frontend.get_rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
+      rpmlint_log = get_rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
       rpmlint_log.encode!(xml: :text)
       res = ''
       rpmlint_log.lines.each do |line|

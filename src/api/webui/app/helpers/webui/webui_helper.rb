@@ -389,7 +389,7 @@ module Webui::WebuiHelper
 
   def link_to_package(prj, pkg, linktext=nil)
     linktext = pkg if linktext.blank?
-    if ::Package.exists_by_project_and_name(prj, pkg)
+    if prj != :multiple && pkg != :multiple && ::Package.exists_by_project_and_name(prj, pkg)
       link_to(linktext, {controller: :package, action: :show, project: prj, package: pkg}, title: pkg)
     else
       linktext

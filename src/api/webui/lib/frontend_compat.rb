@@ -1,18 +1,6 @@
 class FrontendCompat
 
-  # parameters escape
-  def esc(str)
-    CGI.escape str.to_s
-  end
-
-  # path escape
-  def pesc(str)
-    URI.escape str.to_s
-  end
-
-  def initialize
-    @url_prefix = CONFIG['api_relative_url_root'] || ""
-  end
+  include Escaper
 
   def logger
     Rails.logger
@@ -27,32 +15,32 @@ class FrontendCompat
 
     raise RuntimeError, 'no project given' unless opt[:project]
     logger.debug "SOURCE CMD #{cmd} ; extraparams = #{extraparams}"
-    path = "#{@url_prefix}/source/#{pesc opt[:project]}"
+    path = "/source/#{pesc opt[:project]}"
     path += "/#{esc opt[:package].to_s}" if opt[:package]
     path += "?cmd=#{cmd}#{extraparams}"
     
-    transport.direct_http URI(path), :method => "POST", :data => ""
+    transport.direct_http URI(path), :method => 'POST', :data => ''
   end
 
   #  opt takes keys: project(needed), repository, arch
   #  missing project raises RuntimeError
   def cmd( command, opt={} )
-    raise RuntimeError, "project name missing" unless opt.has_key? :project
+    raise RuntimeError, 'project name missing' unless opt.has_key? :project
     logger.debug "--> #{command}: #{opt.inspect}"
-    path = "#{@url_prefix}/build/#{opt[:project]}?cmd=#{command}"
+    path = "/build/#{opt[:project]}?cmd=#{command}"
     opt.delete :project
 
-    valid_opts = %(project package repository arch code)
+    valid_opts = 'project package repository arch code'
     opt.each do |key, val|
       raise RuntimeError, "unknown method parameter #{key}" unless valid_opts.include? key.to_s
       path += "&#{key.to_s}=#{esc val}"
     end
-    transport.direct_http URI("#{path}"), :method => "POST", :data => ""
+    transport.direct_http URI("#{path}"), :method => 'POST', :data => ''
   end
 
   def get_source( opt={} )
     logger.debug "--> get_source: #{opt.inspect}"
-    path = "#{@url_prefix}/source"
+    path = '/source'
     path += "/#{pesc opt[:project]}" if opt[:project]
     path += "/#{pesc opt[:package]}" if opt[:project] && opt[:package]
     path += "/#{pesc opt[:filename]}" if opt[:filename]
@@ -66,7 +54,7 @@ class FrontendCompat
   end
 
   def put_file( data, opt={} )
-    path = "#{@url_prefix}/source"
+    path = '/source'
     path += "/#{pesc opt[:project]}" if opt[:project]
     path += "/#{pesc opt[:package]}" if opt[:project] && opt[:package]
     path += "/#{pesc opt[:filename]}" if opt[:filename]
@@ -75,11 +63,11 @@ class FrontendCompat
   end
 
   def do_post( data, opt={} )
-    path = "#{@url_prefix}/source"
+    path = '/source'
     path += "/#{pesc opt[:project]}" if opt[:project]
     path += "/#{pesc opt[:package]}" if opt[:project] && opt[:package]
     path += "/#{pesc opt[:filename]}" if opt[:filename]
-    path += "?"
+    path += '?'
     path += "cmd=#{esc opt[:cmd]}" unless opt[:cmd].blank?
     path += "&targetproject=#{esc opt[:targetproject]}" unless opt[:targetproject].blank?
     path += "&targetrepository=#{esc opt[:targetrepository]}" unless opt[:targetrepository].blank?
@@ -89,19 +77,19 @@ class FrontendCompat
 
   def delete_package( opt={} )
     logger.debug "deleting: #{opt.inspect}"
-    transport.direct_http URI("#{@url_prefix}/source/#{pesc opt[:project]}/#{pesc opt[:package]}"), 
-      :method => "DELETE", :timeout => 500
+    transport.direct_http URI("/source/#{pesc opt[:project]}/#{pesc opt[:package]}"),
+      :method => 'DELETE', :timeout => 500
   end
 
   def delete_file( opt={} )
     logger.debug "starting to delete file, opt: #{opt.inspect}"
-    transport.direct_http URI("#{@url_prefix}/source/#{pesc opt[:project]}/#{pesc opt[:package]}/#{pesc opt[:filename]}"),
-      :method => "DELETE", :timeout => 500
+    transport.direct_http URI("/source/#{pesc opt[:project]}/#{pesc opt[:package]}/#{pesc opt[:filename]}"),
+      :method => 'DELETE', :timeout => 500
   end
 
   def get_log_chunk( project, package, repo, arch, start, theend )
     logger.debug "get log chunk #{start}-#{theend}"
-    path = "#{@url_prefix}/build/#{pesc project}/#{pesc repo}/#{pesc arch}/#{pesc package}/_log?nostream=1&start=#{start}&end=#{theend}"
+    path = "/build/#{pesc project}/#{pesc repo}/#{pesc arch}/#{pesc package}/_log?nostream=1&start=#{start}&end=#{theend}"
     log = transport.direct_http URI("#{path}"), :timeout => 500
     begin
       log.encode!(invalid: :replace, xml: :text, undef: :replace, cr_newline: true)
@@ -122,19 +110,12 @@ class FrontendCompat
   end
 
   def get_size_of_log( project, package, repo, arch)
-    logger.debug "get log entry"
-    path = "#{@url_prefix}/build/#{pesc project}/#{pesc repo}/#{pesc arch}/#{pesc package}/_log?view=entry"
+    logger.debug 'get log entry'
+    path = "/build/#{pesc project}/#{pesc repo}/#{pesc arch}/#{pesc package}/_log?view=entry"
     data = transport.direct_http URI("#{path}"), :timeout => 500
     return 0 unless data
     doc = Nokogiri::XML(data)
     return doc.root.first_element_child().attributes['size'].value.to_i
-  end
-
-  def get_rpmlint_log(project, package, repository, architecture)
-    logger.debug "get rpmlint log"
-    path = "#{@url_prefix}/build/#{pesc project}/#{pesc repository}/#{pesc architecture}/#{pesc package}/rpmlint.log"
-    data = transport.direct_http(URI(path), :timeout => 500)
-    return data
   end
 
   def transport

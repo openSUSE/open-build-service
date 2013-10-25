@@ -29,6 +29,9 @@ OBSApi::Application.configure do
   # Expands the lines which load the assets
   config.assets.debug = false
   config.assets.log = nil
+
+  # better test with compressed
+  config.assets.js_compressor = :uglifier
 end
 
 CONFIG['source_host'] = "localhost"

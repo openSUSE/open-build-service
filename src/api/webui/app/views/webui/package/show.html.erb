@@ -77,7 +77,7 @@
     <% end %>
   </div>
 
-  <% if (@bugowners_mail.present? and @configuration['bugzilla_url']) and !User.current.is_nobody? %>
+  <% if (@bugowners_mail.present? and @configuration['bugzilla_url']) || !User.current.is_nobody? %>
     <div class="grid_16 alpha omega">
       <ul class="horizontal-list">
         <% unless @bugowners_mail.empty? or @configuration['bugzilla_url']%>

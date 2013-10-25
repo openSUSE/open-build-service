@@ -8,10 +8,10 @@
 
 <div id="request_navigation_box" style="position: absolute; right: 0.3em;">
   <% if @request_before -%>
-      <%= link_to "<<", :controller => :request, :action => :show, id: @request_before %>
+      <%= link_to '<<', :controller => :request, :action => :show, id: @request_before %>
   <% end -%>
   <% if @request_after -%>
-      <%= link_to ">>", :controller => :request, :action => :show, id: @request_after %>
+      <%= link_to '>>', :controller => :request, :action => :show, id: @request_after %>
   <% end -%>
 </div>
 
@@ -26,7 +26,7 @@
       <li><%= sprite_tag('user_green') %> Created
         by <%= render :partial => 'shared/user_with_realname_and_icon', :locals => { :user => @req['creator'], :no_icon => true, :short => true } %> <%= fuzzy_time(@req['created_at']) %></li>
       <li><%= sprite_tag('information') %> In
-        state <%= link_to @state, { :anchor => "request_history" }, { :style => "color: #{request_state_color(@state)};" } %></li>
+        state <%= link_to @state, { :anchor => 'request_history'}, { :style => "color: #{request_state_color(@state)};" } %></li>
       <% if @superseded_by %>
           <li><%= sprite_tag('exclamation') %> Superseded by <%= link_to @superseded_by, id: @superseded_by %></li>
       <% end %>
@@ -239,7 +239,7 @@
                           <%= submit_tag 'Reopen request', name: 'new', id: 'reopen_request_button' %>
                       <% end %>
                       <span style="float: right;">
-                        <% if reqtype(@req['actions'].first) == 'incident' %>
+                        <% if @req['actions'].first[:type] == :maintenance_incident %>
                             <%= link_to(sprite_tag('package_link', title: 'Merge with existing incident') + 'Merge with existing incident', { :controller => 'request', :action => 'set_incident_dialog', id: @id }, :remote => true) %>
                         <% end %>
                       </span>
@@ -253,8 +253,8 @@
           <% if @can_add_reviews && @my_open_reviews.length > 0 %>
               <% @my_open_reviews.each_with_index do |review, index| %>
                   <div class="review_descision_display <%= 'hidden' if index != 0 %>" id="review_descision_display_<%= index %>">
-                    <%= form_tag(:action => "modify_review") do %>
-                        <p><%= text_area_tag("review_comment_#{index}", review[:reason], :size => '80x2', :style => "width: 99%", :class => 'review_comment') %></p>
+                    <%= form_tag(:action => 'modify_review') do %>
+                        <p><%= text_area_tag("review_comment_#{index}", review[:reason], :size => '80x2', :style => 'width: 99%', :class => 'review_comment') %></p>
 
                         <p>
                           <%= hidden_field_tag("review_request_id_#{index}", @id) %>
@@ -289,5 +289,5 @@
 
 <div class="grid_16 box box-shadow alpha omega" style="margin-top: 15px;">
   <h2 class="box-header">Comments for request <%= @id %> (<%= @comments.length %>)</h2>
-  <%= render :partial => "webui/comment/show"%>
+  <%= render :partial => 'webui/comment/show'%>
 </div>

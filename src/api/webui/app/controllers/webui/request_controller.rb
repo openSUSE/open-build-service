@@ -1,15 +1,14 @@
 require 'base64'
 
-module Webui
-class RequestController < WebuiController
-  include WebuiHelper
+class Webui::RequestController < Webui::WebuiController
+  include Webui::WebuiHelper
   include HasComments
 
   before_filter :require_login, :only => [:save_comment]
 
   def add_reviewer_dialog
     @request_id = params[:id]
-    render_dialog "requestAddReviewAutocomplete"
+    render_dialog 'requestAddReviewAutocomplete'
   end
 
   def add_reviewer
@@ -17,19 +16,19 @@ class RequestController < WebuiController
     begin
       opts = {}
       case params[:review_type]
-        when "user" then opts[:user] = params[:review_user]
-        when "group" then opts[:group] = params[:review_group]
-        when "project" then opts[:project] = params[:review_project]
-        when "package" then opts[:project] = params[:review_project]
+        when 'user' then opts[:user] = params[:review_user]
+        when 'group' then opts[:group] = params[:review_group]
+        when 'project' then opts[:project] = params[:review_project]
+        when 'package' then opts[:project] = params[:review_project]
                             opts[:package] = params[:review_package]
       end
       opts[:comment] = params[:review_comment] if params[:review_comment]
 
-      BsRequest.addReview(params[:id], opts)
-    rescue BsRequest::ModifyError
+      Webui::BsRequest.addReview(params[:id], opts)
+    rescue Webui::BsRequest::ModifyError
       flash[:error] = "Unable add review to '#{params[:id]}'"
     end
-    redirect_to :controller => :request, :action => "show", :id => params[:id]
+    redirect_to :controller => :request, :action => 'show', :id => params[:id]
   end
 
   def modify_review
@@ -49,8 +48,8 @@ class RequestController < WebuiController
     end
 
     begin
-      BsRequest.modifyReview(opts[:id], opts[:new_review_state], opts)
-    rescue BsRequest::ModifyError => e
+      Webui::BsRequest.modifyReview(opts[:id], opts[:new_review_state], opts)
+    rescue Webui::BsRequest::ModifyError => e
       flash[:error] = e.message
     end
     redirect_to :action => 'show', :id => opts[:id]
@@ -62,7 +61,7 @@ class RequestController < WebuiController
       @req = ::BsRequest.find(params[:id])
     rescue ActiveRecord::RecordNotFound
       flash[:error] = "Can't find request #{params[:id]}"
-      redirect_back_or_to :controller => "home", :action => "requests" and return
+      redirect_back_or_to :controller => 'home', :action => 'requests' and return
     end
 
     @req = @req.webui_infos
@@ -78,7 +77,6 @@ class RequestController < WebuiController
     @other_open_reviews = @req['other_open_reviews']
     @can_add_reviews = ['new', 'review'].include?(@state) && (@is_author || @is_target_maintainer || @my_open_reviews.length > 0) && !User.current.is_nobody?
     @can_handle_request = ['new', 'review', 'declined'].include?(@state) && (@is_target_maintainer || @is_author) && !User.current.is_nobody?
-Rails.logger.debug "CHR #{@can_handle_request} - #{@is_target_maintainer} - #{@is_author}"
 
     @events = @req['events']
     @actions = @req['actions']
@@ -96,12 +94,11 @@ Rails.logger.debug "CHR #{@can_handle_request} - #{@is_target_maintainer} - #{@i
     end
 
     sort_comments(::BsRequest.find(params[:id]).comments)
-    Rails.logger.debug "C #{@comments.inspect}"
   end
 
   def sourcediff
     check_ajax
-    render :partial => "shared/editor", :locals => {:text => params[:text], :mode => 'diff', :read_only => true, :height => 'auto', :width => '750px', :no_border => true, uid: params[:uid]}
+    render :partial => 'shared/editor', :locals => {:text => params[:text], :mode => 'diff', :read_only => true, :height => 'auto', :width => '750px', :no_border => true, uid: params[:uid]}
   end
 
   def changerequest
@@ -124,7 +121,7 @@ Rails.logger.debug "CHR #{@can_handle_request} - #{@is_target_maintainer} - #{@i
       # TODO: Make this work for each submit action individually
       if params[:add_submitter_as_maintainer_0]
         if changestate != 'accepted'
-          flash[:error] = "Will not add maintainer for not accepted requests"
+          flash[:error] = 'Will not add maintainer for not accepted requests'
         else
           tprj, tpkg = params[:add_submitter_as_maintainer_0].split('_#_') # split into project and package
           if tpkg
@@ -132,7 +129,7 @@ Rails.logger.debug "CHR #{@can_handle_request} - #{@is_target_maintainer} - #{@i
           else
             target = WebuiProject.find(tprj)
           end
-          target.add_person(:userid => @req.creator, :role => "maintainer")
+          target.add_person(:userid => @req.creator, :role => 'maintainer')
           target.save
         end
       end
@@ -145,12 +142,12 @@ Rails.logger.debug "CHR #{@can_handle_request} - #{@is_target_maintainer} - #{@i
         tgt_prj, tgt_pkg = params[fwd].split('_#_') # split off 'forward_' and split into project and package
         description = @req.description.text
         if @req.has_element? 'state'
-          who = @req.state.value("who")
-          description += " (forwarded request %d from %s)" % [params[:id], who]
+          who = @req.state.value('who')
+          description += ' (forwarded request %d from %s)' % [params[:id], who]
         end
 
-        rev = Package.current_rev(@req.action.target.project, @req.action.target.package)
-        req = BsRequest.new(:type => 'submit', :targetproject => tgt_prj, :targetpackage => tgt_pkg,
+        rev = Webui::Package.current_rev(@req.action.target.project, @req.action.target.package)
+        req = Webui::BsRequest.new(:type => 'submit', :targetproject => tgt_prj, :targetpackage => tgt_pkg,
                              :project => @req.action.target.project, :package => @req.action.target.package,
                              :rev => rev, :description => description)
         req.save(:create => true)
@@ -221,7 +218,7 @@ Rails.logger.debug "CHR #{@can_handle_request} - #{@is_target_maintainer} - #{@i
   def add_role_request
     required_parameters :project, :role, :user
     begin
-      req = BsRequest.new(:type => 'add_role', :targetproject => params[:project], :targetpackage => params[:package], :role => params[:role], :person => params[:user], :description => params[:description])
+      req = Webui::BsRequest.new(:type => 'add_role', :targetproject => params[:project], :targetpackage => params[:package], :role => params[:role], :person => params[:user], :description => params[:description])
       req.save(:create => true)
       Rails.cache.delete 'requests_new'
     rescue ActiveXML::Transport::NotFoundError => e
@@ -240,11 +237,11 @@ Rails.logger.debug "CHR #{@can_handle_request} - #{@is_target_maintainer} - #{@i
     required_parameters :project, :user, :group
     begin
       if params[:group] == 'False'
-        req = BsRequest.new(:type => 'set_bugowner', :targetproject => params[:project], :targetpackage => params[:package],
+        req = Webui::BsRequest.new(:type => 'set_bugowner', :targetproject => params[:project], :targetpackage => params[:package],
                             :person => params[:user], :description => params[:description])
       end
       if params[:user] == 'False'
-        req = BsRequest.new(:type => 'set_bugowner', :targetproject => params[:project], :targetpackage => params[:package],
+        req = Webui::BsRequest.new(:type => 'set_bugowner', :targetproject => params[:project], :targetpackage => params[:package],
                             :group => params[:group], :description => params[:description])
       end
       req.save(:create => true)
@@ -254,13 +251,13 @@ Rails.logger.debug "CHR #{@can_handle_request} - #{@is_target_maintainer} - #{@i
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
     end
-    redirect_to :controller => :request, :action => :show, :id => req.value("id")
+    redirect_to :controller => :request, :action => :show, :id => req.value('id')
   end
 
   def change_devel_request_dialog
     required_parameters :package, :project
     @project = WebuiProject.find params[:project]
-    @package = Package.find(params[:package], :project => params[:project]) 
+    @package = Webui::Package.find(params[:package], :project => params[:project])
     if @package.has_element?(:devel)
       @current_devel_package = @package.devel.value('package') || @package.value('name')
       @current_devel_project = @package.devel.value('project')
@@ -271,14 +268,14 @@ Rails.logger.debug "CHR #{@can_handle_request} - #{@is_target_maintainer} - #{@i
   def change_devel_request
     required_parameters :devel_project, :package, :project
     begin
-      req = BsRequest.new(:type => 'change_devel', :project => params[:devel_project], :package => params[:package], :targetproject => params[:project], :targetpackage => params[:package], :description => params[:description])
+      req = Webui::BsRequest.new(:type => 'change_devel', :project => params[:devel_project], :package => params[:package], :targetproject => params[:project], :targetpackage => params[:package], :description => params[:description])
       req.save(:create => true)
       Rails.cache.delete 'requests_new'
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = e.summary
       redirect_to :controller => 'package', :action => 'show', :project => params[:project], :package => params[:package] and return
     end
-    redirect_to :controller => 'request', :action => 'show', :id => req.value("id")
+    redirect_to :controller => 'request', :action => 'show', :id => req.value('id')
   end
 
   def set_incident_dialog
@@ -287,12 +284,12 @@ Rails.logger.debug "CHR #{@can_handle_request} - #{@is_target_maintainer} - #{@i
 
   def set_incident
     begin
-      BsRequest.set_incident(params[:id], params[:incident_project])
+      Webui::BsRequest.set_incident(params[:id], params[:incident_project])
       flash[:notice] = "Set target of request #{params[:id]} to incident #{params[:incident_project]}"
-    rescue BsRequest::ModifyError => e
+    rescue Webui::BsRequest::ModifyError => e
       flash[:error] = "Incident #{e.message} does not exist"
     end
-    redirect_to :controller => :request, :action => "show", :id => params[:id]
+    redirect_to :controller => :request, :action => 'show', :id => params[:id]
   end
 
   # used by HasComments mixin
@@ -304,17 +301,16 @@ private
 
   def change_request(changestate, params)
     begin
-      if BsRequest.modify( params[:id], changestate, :reason => params[:reason], :force => true )
+      if Webui::BsRequest.modify( params[:id], changestate, :reason => params[:reason], :force => true )
         flash[:notice] = "Request #{changestate}!"
         return true
       else
         flash[:error] = "Can't change request to #{changestate}!"
       end
-    rescue BsRequest::ModifyError => e
+    rescue Webui::BsRequest::ModifyError => e
       flash[:error] = e.message
     end
     return false
   end
 
-end
 end
