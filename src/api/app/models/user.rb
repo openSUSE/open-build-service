@@ -781,19 +781,19 @@ class User < ActiveRecord::Base
     self.login
   end
 
-  def request_ids_by_class
-    result = {}
+  def nr_of_requests_that_need_work
+    Rails.cache.fetch("requests_for_#{login}", expires_in: 2.minutes) do
+      nr_requests_that_need_work = 0
 
-    rel = BsRequestCollection.new(user: login, states: ['declined'], roles: ['creator'])
-    result[:declined] = rel.ids
+      rel = BsRequestCollection.new(user: login, states: ['declined'], roles: ['creator'])
+      nr_requests_that_need_work += rel.ids.size
 
-    rel = BsRequestCollection.new(user: login, states: ['new'], roles: ['maintainer'])
-    result[:new] = rel.ids
+      rel = BsRequestCollection.new(user: login, states: ['new'], roles: ['maintainer'])
+      nr_requests_that_need_work += rel.ids.size
 
-    rel = BsRequestCollection.new(user: login, roles: ['reviewer'], reviewstates: ['new'], states: ['review'])
-    result[:reviews] = rel.ids
-
-    result
+      rel = BsRequestCollection.new(user: login, roles: ['reviewer'], reviewstates: ['new'], states: ['review'])
+      nr_requests_that_need_work += rel.ids.size
+    end
   end
 
   def self.fetch_field(person, field)

@@ -230,10 +230,6 @@ class WebuiController < ActionController::Base
     check_spiders
     if session[:login]
       User.current = User.find_by_login session[:login]
-      @nr_requests_that_need_work = 0
-      unless request.xhr?
-        User.current.request_ids_by_class.each { |key,array| @nr_requests_that_need_work += array.size }
-      end
     else
       # TODO: rebase on application_controller and use load_nobdy
       User.current = User.find_by_login('_nobody_')
