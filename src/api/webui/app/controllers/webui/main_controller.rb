@@ -20,7 +20,9 @@ class Webui::MainController < Webui::WebuiController
 
   def index
     @news = StatusMessage.alive.limit(4).to_a
-    @workerstatus = WorkerStatus.hidden.to_hash
+    @workerstatus = Rails.cache.fetch('workerstatus', expires_in: 10.minutes) do
+      WorkerStatus.hidden.to_hash
+    end
     @latest_updates = get_latest_updated(6)
     @waiting_packages = 0
     @building_workers = @workerstatus.elements('building').length
