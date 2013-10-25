@@ -42,8 +42,6 @@ map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['fronte
 
     map.connect :userchangepasswd, 'rest:///person/changepasswd'
 
-    map.connect :architecture, 'rest:///architectures/:name', :all => 'rest:///architectures/',
-                :available => 'rest:///architectures?available=1'
     map.connect :issuetracker, 'rest:///issue_trackers/:name', :all => 'rest:///issue_trackers/'
     map.connect :issue, 'rest:///issue_trackers/:tracker/issues/:name', :all => 'rest:///issue_trackers/:tracker/issues'
 

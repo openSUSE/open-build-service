@@ -29,6 +29,7 @@
 //= require webui/request
 //= require webui/patchinfo
 //= require webui/comment
+//= require webui/main
 
 // toggle visibility of an element via the CSS "display" property
 // -> does NOT reserve the needed space for the element when not displayed

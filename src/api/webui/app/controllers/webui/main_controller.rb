@@ -6,44 +6,33 @@ class Webui::MainController < Webui::WebuiController
   # permissions.status_message_create
   before_filter :require_admin, only: [:delete_message, :add_news]
 
-  def index
-    @news = StatusMessage.alive.limit(4)
-    unless @spider_bot
-      @latest_updates = get_latest_updated(6)
+  def gather_busy
+    busy = []
+    archs = Architecture.where(available: 1).pluck(:name).map {|arch| map_to_workers(arch)}.uniq
+    archs.each do |arch|
+      starttime = Time.now.to_i - 168.to_i * 3600
+      rel = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, 'building_' + arch)
+      values = rel.pluck(:time, :value).collect { |time, value| [time.to_i, value.to_f] }
+      busy = Webui::MonitorController.addarrays(busy, StatusHelper.resample(values, 400))
     end
-  rescue ActiveXML::Transport::UnauthorizedError
-    @anonymous_forbidden = true
-    logger.error 'Could not load all frontpage data, probably due to forbidden anonymous access in the api.'
+    busy
   end
 
-  # This action does the heavy lifting for the index method and is only invoked by an AJAX request
-  def systemstatus
-    check_ajax
-    if @spider_bot
-      @workerstatus = Xmlhash::XMLHash.new
-    else
-      @workerstatus = WorkerStatus.hidden.to_hash
-    end
+  def index
+    @news = StatusMessage.alive.limit(4).to_a
+    @workerstatus = WorkerStatus.hidden.to_hash
+    @latest_updates = get_latest_updated(6)
     @waiting_packages = 0
+    @building_workers = @workerstatus.elements('building').length
+    @overall_workers = @workerstatus['clients']
     @workerstatus.elements('waiting') {|waiting| @waiting_packages += waiting['jobs'].to_i}
-    @busy = nil
-    require_available_architectures unless @spider_bot
-    if @available_architectures
-      @available_architectures.each.map {|arch| map_to_workers(arch.name) }.uniq.each do |arch|
-        archret = frontend.gethistory('building_' + arch, 168).map {|time,value| [time,value]}
-        if archret.length > 0
-          if @busy
-            @busy = Webui::MonitorController.addarrays(@busy, archret)
-          else
-            @busy = archret
-          end
-        end
-      end
+    @busy = Rails.cache.fetch('mainpage_busy', expires_in: 10.minutes) do
+      gather_busy
     end
-    render :partial => 'webui/main/systemstatus'
-  rescue ActiveXML::Transport::UnauthorizedError 
-    @anonymous_forbidden = true
-    render :text => '' # AJAX-request means no 'flash' available, don't render anything if we aren't allowed
+    @project_count = Project.count
+    @package_count = Package.count
+    @repo_count = Repository.count
+    @user_count = User.count
   end
 
   def news
@@ -126,13 +115,6 @@ class Webui::MainController < Webui::WebuiController
     required_parameters :message_id
     StatusMessage.find(params[:message_id]).delete
     redirect_to(:action => 'index')
-  end
-
-  def require_available_architectures
-    super # Call ApplicationController implementation, but catch an additional exception
-  rescue ActiveXML::Transport::UnauthorizedError
-    @anonymous_forbidden = true
-    logger.error 'Could not load all frontpage data, probably due to forbidden anonymous access in the api.'
   end
 
 end

@@ -27,7 +27,7 @@ OBSApi::Application.configure do
   config.assets.compress = false
 
   # Expands the lines which load the assets
-  config.assets.logger = false
+  config.assets.logger = nil
   config.assets.debug = false
 
   # Enable debug logging by default

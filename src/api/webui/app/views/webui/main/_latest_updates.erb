@@ -1,11 +1,11 @@
 <%= content_for :content_for_head do %>
-    <%= auto_discovery_link_tag(:rss, {:controller => 'main', :action => 'latest_updates', :format => 'rss'}, {:title => 'Latest updates'}) %>
+    <%= auto_discovery_link_tag(:rss, { :controller => 'main', :action => 'latest_updates', :format => 'rss' }, { :title => 'Latest updates' }) %>
 <% end %>
 
 <div class="box box-shadow">
   <h2 class="box-header">
     Latest Updates
-    <%= link_to('', {:action => 'latest_updates', :format => 'rss'}, {class: "alignright icons-feeds", title: "RSS Feed"}) %>
+    <%= link_to('', { :action => 'latest_updates', :format => 'rss' }, { class: "alignright icons-feeds", title: "RSS Feed" }) %>
   </h2>
   <table>
     <tbody>
@@ -13,10 +13,10 @@
         <tr>
           <td>
             <% if update[1] == :package %>
-                <%= sprite_tag 'package' %>
+                <%= sprite_tag 'package', title: 'Package' %>
                 <%= link_to(elide(update[2], 20), :controller => 'package', :action => 'show', :project => update[3], :package => update[2]) %>
             <% else %>
-                <%= sprite_tag 'project' %>
+                <%= sprite_tag 'project', title: 'Project' %>
                 <%= link_to(elide(update[1], 20), :controller => 'project', :action => 'show', :project => update[1]) %>
             <% end %>
           </td>

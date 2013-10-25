@@ -177,7 +177,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::Package#commit' => 71.56,
       'Webui::PatchinfoController#new_tracker' => 68.43,
       'Webui::ProjectController#status' => 67.37,
-      'Webui::MonitorController#events' => 65.34,
+      'Webui::MonitorController#events' => 59.75,
       'Webui::ProjectHelper#show_status_comment' => 64.97,
       'Webui::RequestController#set_bugowner_request' => 64.93,
       'Webui::HomeController#running_patchinfos' => 64.05,

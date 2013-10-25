@@ -5,21 +5,22 @@ class Webui::MonitorController < Webui::WebuiController
   before_filter :fetch_workerstatus, :only => [:old, :filtered_list, :update_building]
 
   def fetch_workerstatus
-     @workerstatus = WorkerStatus.hidden.to_hash
+    @workerstatus = WorkerStatus.hidden.to_hash
   end
+
   private :fetch_workerstatus
 
   def old
   end
 
   def index
-    if request.post? && ! params[:project].nil? && valid_project_name?( params[:project] )
+    if request.post? && !params[:project].nil? && valid_project_name?(params[:project])
       redirect_to project: params[:project]
     else
       begin
-         fetch_workerstatus
+        fetch_workerstatus
       rescue ActiveXML::Transport::NotFoundError
-         @workerstatus = {}
+        @workerstatus = {}
       end
 
       workers = Hash.new
@@ -38,8 +39,8 @@ class Webui::MonitorController < Webui::WebuiController
         workers[hostname][subid] = id
       end
       @workers_sorted = {}
-      @workers_sorted = workers.sort {|a,b| a[0] <=> b[0] } if workers
-      @available_arch_list = @available_architectures.each.map{|arch| arch.name}
+      @workers_sorted = workers.sort { |a, b| a[0] <=> b[0] } if workers
+      @available_arch_list = @available_architectures.each.map { |arch| arch.name }
     end
   end
 
@@ -56,20 +57,34 @@ class Webui::MonitorController < Webui::WebuiController
       id=b['workerid'].gsub(%r{[:./]}, '_')
       delta = (Time.now - Time.at(b['starttime'].to_i)).round
       if delta < 5
-	delta = 5
+        delta = 5
       end
       if delta > max_time
         delta = max_time
       end
       delta = (100*Math.sin(Math.acos(1-(Float(delta)/max_time)))).round
       if (delta > 100)
-	delta = 100
+        delta = 100
       end
       workers[id] = { 'delta' => delta, 'project' => b['project'], 'repository' => b['repository'],
-	'package' => b['package'], 'arch' => b['arch'], 'starttime' => b['starttime']}
+                      'package' => b['package'], 'arch' => b['arch'], 'starttime' => b['starttime'] }
     end
     # logger.debug workers.inspect
     render :json => workers
+  end
+
+  def gethistory(key, range, cache=1)
+    cachekey = key + "-#{range}"
+    Rails.cache.delete(cachekey, :shared => true) if !cache
+    return Rails.cache.fetch(cachekey, :expires_in => (range.to_i * 3600) / 150, :shared => true) do
+      hash = Hash.new
+      data = ActiveXML::api.direct_http(URI('/status/history?key=%s&hours=%d&samples=400' % [key, range]))
+      doc = Nokogiri::XML(data)
+      doc.root.elements.each do |value|
+        hash[value.attributes['time'].value.to_i] = value.attributes['value'].value.to_f
+      end
+      hash.sort { |a, b| a[0] <=> b[0] }
+    end
   end
 
   def events
@@ -80,35 +95,34 @@ class Webui::MonitorController < Webui::WebuiController
     arch = params[:arch]
     range = params[:range]
     %w{waiting blocked squeue_high squeue_med}.each do |prefix|
-      data[prefix] = frontend.gethistory(prefix + '_' + arch, range, !discard_cache?).map {|time,value| [time*1000,value]}
+      data[prefix] = gethistory(prefix + '_' + arch, range, !discard_cache?).map { |time, value| [time*1000, value] }
     end
     %w{idle building}.each do |prefix|
-      data[prefix] = frontend.gethistory(prefix + '_' + map_to_workers(arch), range, !discard_cache?).map {|time,value| [time*1000,value]}
+      data[prefix] = gethistory(prefix + '_' + map_to_workers(arch), range, !discard_cache?).map { |time, value| [time*1000, value] }
     end
     low = Hash.new
-    frontend.gethistory("squeue_low_#{arch}", range).each do |time,value|
+    gethistory("squeue_low_#{arch}", range).each do |time, value|
       low[time] = value
     end
     comb = Array.new
-    frontend.gethistory("squeue_next_#{arch}", range).each do |time,value|
+    gethistory("squeue_next_#{arch}", range).each do |time, value|
       clow = low[time] || 0
       comb << [1000*time, clow + value]
     end
     data['squeue_low'] = comb
-    max = Webui::MonitorController.addarrays(data['squeue_high'], data['squeue_med']).map{|time,value| value}.max || 0
+    max = Webui::MonitorController.addarrays(data['squeue_high'], data['squeue_med']).map { |time, value| value }.max || 0
     data['events_max'] = max * 2
-    data['jobs_max'] =  maximumvalue(data['waiting']) * 2
+    data['jobs_max'] = maximumvalue(data['waiting']) * 2
     render :json => data
   end
 
   private
-  
+
   def maximumvalue(arr)
-    arr.map { |time,value| value }.max || 0
+    arr.map { |time, value| value }.max || 0
   end
 
   def self.addarrays(arr1, arr2)
-    logger.debug "1: #{arr1.length} 2: #{arr2.length}"
     # we assert that both have the same size
     ret = Array.new
     arr1.length.times do |i|

@@ -106,7 +106,7 @@ class WebuiController < ActionController::Base
   end
 
   def authenticate_proxy
-    Rails.logger.debug "PROXY!!!"
+    Rails.logger.debug 'PROXY!!!'
     mode = :off
     mode = CONFIG['proxy_auth_host'] unless CONFIG['proxy_auth_host'].blank?
     proxy_user = request.env['HTTP_X_USERNAME']
@@ -329,11 +329,7 @@ class WebuiController < ActionController::Base
   end
 
   def require_available_architectures
-    @available_architectures = Webui::Architecture.find(:available)
-    unless @available_architectures
-      flash[:error] = 'Available architectures not found'
-      redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404 and return
-    end
+    @available_architectures = Architecture.where(available: 1)
   end
 
   def mobile_request?

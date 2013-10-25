@@ -43,7 +43,7 @@
 
     <div id="subheader" class="container_16">
       <div id="breadcrump" class="grid_10 alpha">
-        <%= sprite_tag( "home_grey" ) %><%= link_to "#{@configuration ? @configuration['title'] : 'Open Build Service'}", :controller => 'main', :action => :index %>
+        <%= sprite_tag( "home_grey", title: 'Logo' ) %><%= link_to "#{@configuration ? @configuration['title'] : 'Open Build Service'}", :controller => 'main', :action => :index %>
         <% if @crumb_list %>
           <% @crumb_list.each do |link| %>
             &gt;

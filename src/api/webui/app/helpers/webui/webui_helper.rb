@@ -169,7 +169,7 @@ module Webui::WebuiHelper
     flag = determine_most_specific_flag(arch, flags, repository)
     return '' unless flag
 
-    image = flag_image(flag, flagname)
+    image, title = flag_image(flag, flagname)
 
     if (@package && User.current.can_modify_package?(@package.api_obj)) ||
         (@project && User.current.can_modify_project?(@project.api_obj))
@@ -209,26 +209,17 @@ module Webui::WebuiHelper
         end
       end
     else
-      sprite_tag(image)
+      sprite_tag(image, title: title)
     end
   end
 
   def flag_image(flag, flagname)
-    image = nil
-    if flag[1].has_key? :explicit
-      if flag[0] == 'disable'
-        image = "#{flagname}_disabled_blue"
-      else
-        image = "#{flagname}_enabled_blue"
-      end
+    suffix = flag[1].has_key?(:explicit) ? 'blue' : 'grey'
+    if flag[0] == 'disable'
+      ["#{flagname}_disabled_#{suffix}", 'disabled']
     else
-      if flag[0] == 'disable'
-        image = "#{flagname}_disabled_grey"
-      else
-        image = "#{flagname}_enabled_grey"
-      end
+      ["#{flagname}_enabled_#{suffix}", 'enabled']
     end
-    image
   end
 
   def determine_most_specific_flag(arch, flags, repository)

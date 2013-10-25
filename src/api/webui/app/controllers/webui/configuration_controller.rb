@@ -56,14 +56,14 @@ class Webui::ConfigurationController < Webui::WebuiController
 
   def update_configuration
     if ! (params[:name]  || params[:title] || params[:description])
-      flash[:error] = "Missing arguments (name, title or description)"
+      flash[:error] = 'Missing arguments (name, title or description)'
       redirect_back_or_to :action => 'index' and return
     end
 
     begin
       archs = params[:archs] || []
       archs.each do |archname, value|
-        available = value == "1"
+        available = value == '1'
         if old = Architecture.where(name: archname, available: !available).first
           old.available = available
           old.save
@@ -74,26 +74,24 @@ class Webui::ConfigurationController < Webui::WebuiController
       c.description = params[:description]
       c.name = params[:name]
       c.save
-      flash[:notice] = "Updated configuration"
+      flash[:notice] = 'Updated configuration'
       Rails.cache.delete('configuration')
     rescue ActiveXML::Transport::Error 
-      logger.debug "Failed to update configuration"
-      flash[:error] = "Failed to update configuration"
+      logger.debug 'Failed to update configuration'
+      flash[:error] = 'Failed to update configuration'
     end
     redirect_to :action => 'index'
   end
 
   def update_architectures
     @available_architectures.each do |arch_elem|
-      arch = Webui::Architecture.find(arch_elem.name) # fetch a real 'Architecture' from 'directory' entry
-      if params[:arch_recommended] and params[:arch_recommended].include?(arch.name) and arch.recommended.text == 'false'
-        arch.recommended.text = 'true'
+      arch = Architecture.find_by_name(arch_elem.name) # fetch a real 'Architecture' from 'directory' entry
+      if params[:arch_recommended] and params[:arch_recommended].include?(arch.name) and !arch.recommended
+        arch.recommended = true
         arch.save
-        Webui::Architecture.free_cache(:available)
-      elsif arch.recommended.text == 'true'
-        arch.recommended.text = 'false'
+      elsif arch.recommended
+        arch.recommended = false
         arch.save
-        Webui::Architecture.free_cache(:available)
       end
     end
     redirect_to :action => 'index'

@@ -130,20 +130,6 @@ class FrontendCompat
     return doc.root.first_element_child().attributes['size'].value.to_i
   end
 
-  def gethistory(key, range, cache=1)
-    cachekey = key + "-#{range}"
-    Rails.cache.delete(cachekey, :shared => true) if !cache
-    return Rails.cache.fetch(cachekey, :expires_in => (range.to_i * 3600) / 150, :shared => true) do
-      hash = Hash.new
-      data = transport.direct_http(URI('/status/history?key=%s&hours=%d&samples=400' % [key, range]))
-      doc = Nokogiri::XML(data)
-      doc.root.elements.each do |value|
-        hash[value.attributes['time'].value.to_i] = value.attributes['value'].value.to_f
-      end
-      hash.sort {|a,b| a[0] <=> b[0]}
-    end
-  end
-
   def get_rpmlint_log(project, package, repository, architecture)
     logger.debug "get rpmlint log"
     path = "#{@url_prefix}/build/#{pesc project}/#{pesc repository}/#{pesc architecture}/#{pesc package}/rpmlint.log"
