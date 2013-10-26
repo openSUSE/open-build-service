@@ -7,10 +7,11 @@ class ProjectController < WebuiController
   include Webui::ProjectHelper
 
   before_filter :load_project_info, :only => [:show]
-  before_filter :require_project, :except => [:repository_arch_list,
-    :autocomplete_projects, :autocomplete_incidents, :clear_failed_comment, :edit_comment_form, :index,
-    :list, :list_all, :list_public, :new, :package_buildresult, :save_new, :save_prjconf,
-    :rebuild_time_png, :new_incident, :show]
+  before_filter :require_project, :except => [:autocomplete_projects, :autocomplete_incidents,
+                                              :clear_failed_comment, :edit_comment_form, :index,
+                                              :list, :list_all, :list_public, :new, :package_buildresult,
+                                              :save_new, :save_prjconf,
+                                              :rebuild_time_png, :new_incident, :show]
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete, :new]
   before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list,
                                                             :edit_repository, :update_target]
@@ -37,10 +38,10 @@ class ProjectController < WebuiController
     ret = {}
     atype = AttribType.find_by_namespace_and_name('OBS', 'VeryImportantProject')
     important = {}
-    Project.find_by_attribute_type(atype).pluck("projects.id").each do |p|
+    Project.find_by_attribute_type(atype).pluck('projects.id').each do |p|
       important[p] = true
     end
-    projects = Project.where("name <> ?", "deleted").pluck(:id, :name, :title)
+    projects = Project.where('name <> ?', 'deleted').pluck(:id, :name, :title)
     projects.each do |id, name, title|
       @important_projects << [name, title] if important[id]
       ret[name] = title
@@ -271,10 +272,10 @@ class ProjectController < WebuiController
     @is_maintenance_project = @pro.is_maintenance?
     if @is_maintenance_project
       mi = DbProjectType.find_by_name!('maintenance_incident')
-      subprojects = Project.where("projects.name like ?", @pro.name + ":%").
+      subprojects = Project.where('projects.name like ?', @pro.name + ':%').
           where(type_id: mi.id).joins(:repositories => :release_targets).
           where("release_targets.trigger = 'maintenance'")
-      @open_maintenance_incidents = subprojects.pluck("projects.name").sort.uniq
+      @open_maintenance_incidents = subprojects.pluck('projects.name').sort.uniq
 
       @maintained_projects = []
       @pro.maintained_projects.each do |mp|
@@ -458,48 +459,42 @@ class ProjectController < WebuiController
     end
   end
 
-  def repository_arch_list
-    @repository_arch_list = Hash.new
-    @project.each_repository do |repo|
-      @repository_arch_list[repo.name] = repo.archs.sort.uniq
-    end
-    return @repository_arch_list
-  end
-  private :repository_arch_list
-
   def edit_repository
     check_ajax
-    repo = @project.repository[params[:repository]]
+    repo = @project.api_obj.repositories.where(name: params[:repository]).first
     redirect_back_or_to(:controller => 'project', :action => 'repositories', :project => @project) and return if not repo
     # Merge project repo's arch list with currently available arches from API. This needed as you want
     # to keep currently non-working arches in the project meta.
 
     # Prepare a list of recommended architectures
-    @recommended_arch_list = @available_architectures.each.map do |arch|
-      arch.name if arch.recommended == 'true'
-    end
+    @recommended_arch_list = Architecture.where(recommended: true, available: true).pluck(:name)
 
     @repository_arch_hash = Hash.new
     @available_architectures.each {|arch| @repository_arch_hash[arch.name] = false }
-    repository_arch_list()[repo.name].each {|arch| @repository_arch_hash[arch] = true }
+    repo.architectures.each {|arch| @repository_arch_hash[arch.name] = true }
 
     render(:partial => 'edit_repository', :locals => {:repository => repo, :error => nil})
   end
 
   def update_target
-    repo = @project.repository[params[:repo]]
+    repo = @project.api_obj.repositories.where(name: params[:repo]).first
+    archs = []
     if params[:arch]
-      repo.archs = params[:arch].keys
-    else
-      repo.archs = []
+      params[:arch].keys.each do |arch|
+        archs << Architecture.find_by_name(arch)
+      end
     end
+    repo.architectures = archs
+    repo.save
+    @project.api_obj.touch
+
     # Merge project repo's arch list with currently available arches from API. This needed as you want
     # to keep currently non-working arches in the project meta.
     @repository_arch_hash = Hash.new
     @available_architectures.each {|arch| @repository_arch_hash[arch.name] = false }
-    repository_arch_list()[repo.name].each {|arch| @repository_arch_hash[arch] = true }
+    repo.architectures.each {|arch| @repository_arch_hash[arch.name] = true }
+
     begin
-      @project.save
       render :partial => 'edit_repository', :locals => { :repository => repo, :has_data => true }
     rescue => e
       render :partial => 'edit_repository', :locals => { :repository => repo, :error => "#{e.summary}" }
@@ -865,7 +860,7 @@ class ProjectController < WebuiController
     elsif title = params[:groupid]
       return ::Group.get_by_title(title)
     else
-      raise MissingParameterError, "Neither user nor group given"
+      raise MissingParameterError, 'Neither user nor group given'
     end
   end
 
@@ -1269,7 +1264,7 @@ class ProjectController < WebuiController
       dproject = p.develpack.project
       currentpack['develproject'] = dproject
       currentpack['develpackage'] = p.develpack.name
-      key = "%s/%s" % [dproject, p.develpack.name]
+      key = '%s/%s' % [dproject, p.develpack.name]
       if @submits.has_key? key
         currentpack['requests_to'].concat(@submits[key])
       end
@@ -1358,14 +1353,14 @@ class ProjectController < WebuiController
     # we do not filter requests for project because we need devel projects too later on and as long as the
     # number of open requests is limited this is the easiest solution
     raw_requests = ::BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
-        where(bs_request_actions: {type: 'submit'}).pluck("bs_requests.id", "bs_requests.state",
-                                                          "bs_request_actions.target_project",
-                                                          "bs_request_actions.target_package")
+        where(bs_request_actions: {type: 'submit'}).pluck('bs_requests.id', 'bs_requests.state',
+                                                          'bs_request_actions.target_project',
+                                                          'bs_request_actions.target_package')
 
     @declined_requests = {}
     @submits = Hash.new
     raw_requests.each do |id, state, tproject, tpackage|
-      if state == "declined"
+      if state == 'declined'
         next if tproject != @api_obj.name || !@name2id.has_key?(tpackage)
         @status[@name2id[tpackage]].declined_request = id
         @declined_requests[id] = nil
@@ -1400,7 +1395,7 @@ class ProjectController < WebuiController
     at = AttribType.find_by_namespace_and_name(namespace, name)
     return unless at
     attribs = at.attribs.where(db_package_id: packages)
-    AttribValue.where(attrib_id: attribs).joins(:attrib).pluck("attribs.db_package_id, value").each do |id, value|
+    AttribValue.where(attrib_id: attribs).joins(:attrib).pluck('attribs.db_package_id, value').each do |id, value|
       yield id, value
     end
     ret
@@ -1428,8 +1423,8 @@ class ProjectController < WebuiController
   def status
     all_packages = 'All Packages'
     no_project = 'No Project'
-    @no_project = "_none_"
-    @all_projects = "_all_"
+    @no_project = '_none_'
+    @all_projects = '_all_'
     @current_develproject = params[:filter_devel] || all_packages
     @filter = @current_develproject
     if @filter == all_packages

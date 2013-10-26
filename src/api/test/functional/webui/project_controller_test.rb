@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class Webui::ProjectControllerTest < Webui::IntegrationTest
-  
+
   test 'project show' do
     visit webui_engine.project_show_path(project: 'Apache')
     page.must_have_selector '#project_title'
@@ -17,7 +17,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
       page.must_have_link 'kdelibs'
     end
   end
-  
+
   test 'adrian can edit kde4' do
     login_adrian
     # adrian is maintainer via group on kde4 
@@ -42,29 +42,29 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     # publish disabled icon should appear
     page.must_have_selector 'div.icons-publish_disabled_blue'
   end
-  
+
   test 'create hidden project' do
     create_subproject
-    
+
     fill_in 'name', with: 'hiddenstuff'
     find(:id, 'access_protection').click
     find_button('Create Project').click
-    
+
     find(:id, 'advanced_tabs_trigger').click
     find(:link, 'Meta').click
-    
+
     # TODO: find a more reliable way to retrieve the text - having the line numbers in here sounds dangerous
     find(:css, 'div.CodeMirror-lines').must_have_text %r{<access> 6 <disable/> 7 </access>}
 
     # now check that adrian can't see it
     logout
     login_adrian
-    
+
     visit webui_engine.project_subprojects_path(project: 'home:tom')
 
     page.wont_have_text 'hiddenstuff'
   end
-  
+
   test 'delete subproject redirects to parent' do
     create_subproject
     fill_in 'name', with: 'toberemoved'
@@ -72,7 +72,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
     find(:id, 'delete-project').click
     find_button('Ok').click
-    find('#flash-messages').must_have_text "Project 'home:tom:toberemoved' was removed successfully" 
+    find('#flash-messages').must_have_text "Project 'home:tom:toberemoved' was removed successfully"
     # now the actual assertion :)
     assert page.current_url.end_with?(webui_engine.project_show_path(project: 'home:tom')), "#{page.current_url} does not end with #{webui_engine.project_show_path(project: 'home:tom')}"
   end
@@ -167,7 +167,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find(:id, 'repo_images').click # aka "KIWI image build" checkbox
     find_button('Add selected repositories').click
     assert first(:id, 'images')
-     
+
     find(:link, 'Add repositories').click
     find(:link, 'advanced interface').click
     fill_in 'target_project', with: 'Local'
@@ -192,7 +192,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     first(:css, 'p.main-project a').click
     # verify it's a project
     assert page.current_url.end_with? webui_engine.project_show_path(project: 'BaseDistro')
- 
+
     visit webui_engine.project_list_public_path
     # avoid random results once projects moves to page 2
     find(:id, 'projects_table_length').select('100')
@@ -229,7 +229,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     click_link 'Meta'
     page.wont_have_text '<person userid="homer" role="maintainer"/>'
   end
-  
+
   test 'check status' do
     visit webui_engine.project_status_path(project: 'LocalProject')
     page.must_have_text 'Include version updates' # just don't crash
@@ -254,12 +254,30 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   end
 
   test 'succesful reply comment creation' do
-     login_Iggy
-     visit webui_engine.root_path + '/project/show/BaseDistro'
-     find(:id,'reply_link_id_100').click
-     fill_in 'reply_body_100', with: 'Comment Body'
-     find(:id,'add_reply_100').click
-     find('#flash-messages').must_have_text 'Comment added successfully '
+    login_Iggy
+    visit webui_engine.root_path + '/project/show/BaseDistro'
+    find(:id, 'reply_link_id_100').click
+    fill_in 'reply_body_100', with: 'Comment Body'
+    find(:id, 'add_reply_100').click
+    find('#flash-messages').must_have_text 'Comment added successfully '
   end
 
+  test "removing architectures in repo works" do
+    login_Iggy
+    visit webui_engine.project_repositories_path(project: 'home:Iggy')
+
+    page.must_have_text '10.2 (i586, x86_64)'
+    click_link 'Edit repository'
+    page.must_have_text 'Edit 10.2' # popup opened
+    uncheck('arch_i586')
+    click_button 'Update 10.2'
+
+    # now check again
+    visit webui_engine.project_repositories_path(project: 'home:Iggy')
+    page.must_have_text '10.2 (x86_64)'
+
+    # verify _meta
+    visit webui_engine.project_meta_path(project: 'home:Iggy')
+    page.wont_have_text '<arch>i586</arch>'
+  end
 end

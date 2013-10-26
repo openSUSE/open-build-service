@@ -660,7 +660,7 @@ class Project < ActiveRecord::Base
   end
 
   def reset_cache
-    Rails.cache.delete('xml_project_%d' % id)
+    Rails.cache.delete('xml_project_%s' % cache_key)
   end
 
   # for the HasAttributes mixing
@@ -691,7 +691,7 @@ class Project < ActiveRecord::Base
   end
 
   def to_axml
-    Rails.cache.fetch('xml_project_%d' % id) do
+    Rails.cache.fetch('xml_project_%s' % cache_key) do
       # CanRenderModel
       render_xml
     end
@@ -897,7 +897,7 @@ class Project < ActiveRecord::Base
 
   def branch_to_repositories_from(project, pkg_to_enable, extend_names=nil)
     # shall we use the repositories from a different project?
-    if project and a = project.find_attribute("OBS", "BranchRepositoriesFromProject") and a.values.first
+    if project and a = project.find_attribute('OBS', 'BranchRepositoriesFromProject') and a.values.first
       project = Project.get_by_name(a.values.first.value)
     end
 
