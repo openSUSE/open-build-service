@@ -172,7 +172,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::PackageController#fill_status_cache' => 81.3,
       'Webui::PackageController#require_package' => 80.11,
       'Webui::WebuiController#validate_xhtml' => 78.83,
-      'Webui::RequestController#show' => 78.03,
+      'Webui::RequestController#show' => 72.45,
       'Webui::PackageController#save_new' => 77.0,
       'Webui::Package#commit' => 71.56,
       'Webui::PatchinfoController#new_tracker' => 68.43,
