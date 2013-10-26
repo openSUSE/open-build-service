@@ -104,4 +104,29 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     flash_message.must_equal 'Error getting diff: revision is empty'
   end
 
+  test "group can modify" do
+    login_adrian
+    # verify we do not test ghosts
+    visit webui_engine.package_users_path(package: 'TestPack', project: 'home:Iggy')
+    page.wont_have_link 'Add group'
+    logout
+
+    login_Iggy
+    visit webui_engine.package_users_path(package: 'TestPack', project: 'home:Iggy')
+    click_link 'Add group'
+    page.must_have_text 'Add New Group to TestPack'
+    fill_in 'groupid', with: 'test_group'
+    click_button 'Add group'
+    flash_message.must_equal 'Added group test_group with role maintainer to package TestPack'
+    within('#group_table_wrapper') do
+      page.must_have_link 'test_group'
+    end
+    logout
+
+    # now test adrian can modify it for real
+    login_adrian
+    visit webui_engine.package_users_path(package: 'TestPack', project: 'home:Iggy')
+    page.must_have_link 'Add group'
+  end
+
 end
