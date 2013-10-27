@@ -509,7 +509,6 @@ class ProjectController < WebuiController
       return
     end
     @flags = @project.api_obj.expand_flags
-    Rails.logger.debug "FLAG #{@flags['build'].inspect}"
   end
 
   def repository_state

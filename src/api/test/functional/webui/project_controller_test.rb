@@ -271,6 +271,8 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.must_have_text 'Edit 10.2' # popup opened
     uncheck('arch_i586')
     click_button 'Update 10.2'
+    # wait for the button to be disabled again before continue
+    page.must_have_xpath('.//input[@id="save_button"][@disabled="disabled"]')
 
     # now check again
     visit webui_engine.project_repositories_path(project: 'home:Iggy')

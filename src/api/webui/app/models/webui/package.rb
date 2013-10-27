@@ -154,13 +154,11 @@ class Package < Webui::Node
   end
 
   def self.current_xsrcmd5(project, package )
-    Directory.free_cache( :project => project, :package => package )
     dir = Directory.find_hashed( :project => project, :package => package )
     return dir['xsrcmd5']
   end
 
   def self.current_rev(project, package )
-    Directory.free_cache( :project => project, :package => package )
     dir = Directory.find_hashed( :project => project, :package => package )
     return dir['rev']
   end

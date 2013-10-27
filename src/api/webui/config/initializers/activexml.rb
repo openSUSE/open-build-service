@@ -47,7 +47,6 @@ map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['fronte
 
     map.connect :wizard, 'rest:///source/:project/:package/_wizard?:response'
 
-    map.connect :directory, 'rest:///source/:project/:package?:expand&:rev'
     map.connect :link, 'rest:///source/:project/:package/_link'
     map.connect :service, 'rest:///source/:project/:package/_service',
                 :all => 'rest:///service'
