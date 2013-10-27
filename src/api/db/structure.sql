@@ -709,6 +709,8 @@ CREATE TABLE `repository_architectures` (
   `repository_id` int(11) NOT NULL,
   `architecture_id` int(11) NOT NULL,
   `position` int(11) NOT NULL DEFAULT '0',
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
   UNIQUE KEY `arch_repo_index` (`repository_id`,`architecture_id`),
   KEY `architecture_id` (`architecture_id`),
   CONSTRAINT `repository_architectures_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
@@ -1297,6 +1299,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131021063641');
 INSERT INTO schema_migrations (version) VALUES ('20131022114302');
 
 INSERT INTO schema_migrations (version) VALUES ('20131023063641');
+
+INSERT INTO schema_migrations (version) VALUES ('20131027122410');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

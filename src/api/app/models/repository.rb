@@ -11,7 +11,7 @@ class Repository < ActiveRecord::Base
   has_many :download_stats
   has_one :hostsystem, :class_name => "Repository", :foreign_key => 'hostsystem_id'
 
-  has_many :repository_architectures, -> { order("position") }, :dependent => :delete_all
+  has_many :repository_architectures, -> { order("position") }, :dependent => :delete_all, inverse_of: :repository
   has_many :architectures, -> { order("position") }, :through => :repository_architectures
 
   scope :not_remote, -> { where(:remote_project_name => nil) }

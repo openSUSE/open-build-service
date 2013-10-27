@@ -76,14 +76,19 @@ class Relationship < ActiveRecord::Base
       user = User.get_by_login(user)
     end
 
+    obj.relationships.each do |r|
+      if r.user_id == user.id && r.role_id == role.id
+        logger.debug "ignore user #{user.login} - already has role #{role.title}"
+        return
+      end
+    end
+
     logger.debug "adding user: #{user.login}, #{role.title}"
     r = obj.relationships.build(user: user, role: role)
     if r.invalid?
       logger.debug "invalid: #{r.errors.inspect}"
       r.delete
     end
-
-    obj.save!
   end
 
   def self.add_group(obj, group, role)
@@ -104,7 +109,6 @@ class Relationship < ActiveRecord::Base
 
     r = obj.relationships.build(group: group, role: role)
     r.delete if r.invalid?
-    obj.save!
   end
 
   FORBIDDEN_PROJECT_IDS_CACHE_KEY="forbidden_project_ids"

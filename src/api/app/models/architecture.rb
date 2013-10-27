@@ -6,7 +6,7 @@ class Architecture < ActiveRecord::Base
 #
 
 
-  has_many :repository_architectures
+  has_many :repository_architectures, inverse_of: :architecture
   has_many :repositories, :through => :repository_architectures
   
   has_many :download_stats

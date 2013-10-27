@@ -95,6 +95,10 @@ module HasRelationships
       'person'
     end
 
+    def ignore?(r)
+      !r.user_id
+    end
+
     def id(node)
       node['userid']
     end
@@ -111,6 +115,10 @@ module HasRelationships
   class GroupUpdater
     def name_for_relationship(r)
       r.group.title
+    end
+
+    def ignore?(r)
+      !r.group_id
     end
 
     def xml_element
@@ -145,11 +153,12 @@ module HasRelationships
     end
   end
 
-  def update_generic_relationships(xmlhash, relation)
+  def update_generic_relationships(xmlhash)
 
     # we remember the current relationships in a hash
     cache = Hash.new
-    relation.each do |purr|
+    self.relationships.each do |purr|
+      next if @updater.ignore?(purr)
       h = cache[@updater.name_for_relationship(purr)] ||= Hash.new
       h[purr.role.title] = purr
     end
@@ -193,14 +202,14 @@ module HasRelationships
     @updater = UserUpdater.new
 
     #--- update users ---#
-    update_generic_relationships(xmlhash, self.relationships.users)
+    update_generic_relationships(xmlhash)
   end
 
   def update_groups_from_xml(xmlhash)
     @updater = GroupUpdater.new
 
     # update groups
-    update_generic_relationships(xmlhash, self.relationships.groups)
+    update_generic_relationships(xmlhash)
   end
 
   def update_relationships_from_xml(xmlhash)

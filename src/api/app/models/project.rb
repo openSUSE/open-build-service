@@ -354,6 +354,7 @@ class Project < ActiveRecord::Base
     self.type_id = project_type.id
 
     # give us an id
+    @commit_opts = { no_backend_write: 1 }
     self.save!
 
     #--- update linked projects ---#
@@ -456,7 +457,6 @@ class Project < ActiveRecord::Base
       else
         logger.debug "adding new download entry, arch #{dl['arch']}"
         cur = self.downloads.create
-        self.updated_at = Time.now
       end
       cur.metafile = dl['metafile']
       cur.mtype = dl['mtype']
@@ -470,7 +470,6 @@ class Project < ActiveRecord::Base
     dlcache.each do |arch, object|
       logger.debug "remove download entry #{arch}"
       self.downloads.destroy object
-      self.updated_at = Time.now
     end
     
     #--- update repositories ---#
@@ -584,7 +583,6 @@ class Project < ActiveRecord::Base
 
       if was_updated
         current_repo.save!
-        self.updated_at = Time.now
       end
 
       #destroy architecture references
@@ -621,12 +619,10 @@ class Project < ActiveRecord::Base
       end
       logger.debug "deleting repository '#{name}'"
       self.repositories.destroy object
-      self.updated_at = Time.now
     end
     repocache = nil
     #--- end update repositories ---#
-    
-    save!
+    self.updated_at = Time.now
   end
 
   def check_for_empty_repo_list(list, error_prefix)
@@ -641,7 +637,7 @@ class Project < ActiveRecord::Base
     reset_cache
     @commit_opts ||= {}
     
-    if CONFIG['global_write_through']
+    if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       login = User.current.login unless @commit_opts[:login] # Allow to override if User.current isn't available yet
       path = "/source/#{self.name}/_meta?user=#{CGI.escape(login)}"
       path += "&comment=#{CGI.escape(@commit_opts[:comment])}" unless @commit_opts[:comment].blank?
@@ -660,7 +656,7 @@ class Project < ActiveRecord::Base
   end
 
   def reset_cache
-    Rails.cache.delete('xml_project_%s' % cache_key)
+    Rails.cache.delete('xml_project_%d' % id)
   end
 
   # for the HasAttributes mixing
@@ -691,7 +687,7 @@ class Project < ActiveRecord::Base
   end
 
   def to_axml
-    Rails.cache.fetch('xml_project_%s' % cache_key) do
+    Rails.cache.fetch('xml_project_%d' % id) do
       # CanRenderModel
       render_xml
     end

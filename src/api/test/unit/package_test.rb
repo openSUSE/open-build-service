@@ -185,14 +185,14 @@ class PackageTest < ActiveSupport::TestCase
   end
 
   def test_add_user
-    orig = @package.to_axml
+    orig = @package.render_xml
     @package.add_user('tom', 'maintainer')
     @package.update_from_xml(Xmlhash.parse(orig))
 
     assert_raise Relationship::SaveError do
       @package.add_user('tom', 'Admin')
     end
-    assert_equal orig, @package.to_axml
+    assert_equal orig, @package.render_xml
   end
 
   test "names are case sensitive" do
