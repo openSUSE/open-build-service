@@ -2,6 +2,8 @@ require 'opensuse/backend'
 
 class Configuration < ActiveRecord::Base
 
+  after_save :delayed_write_to_backend
+
   include CanRenderModel
 
   OPTIONS_YML =  { :title => nil,
@@ -73,15 +75,6 @@ class Configuration < ActiveRecord::Base
         # table, but the initializer checks the configuration
       end
     end
-
-    def save!
-      super
-      self.write_to_backend
-    end
-
-    def write_to_backend
-      Configuration.first.delay.write_to_backend
-    end
   end
 
   def update_from_options_yml()
@@ -98,13 +91,18 @@ class Configuration < ActiveRecord::Base
 
     self.update_attributes(attribs)
     self.save!
-    self.write_to_backend
+  end
+
+  def delayed_write_to_backend()
+    self.delay.write_to_backend
   end
 
   def write_to_backend
-    path = "/configuration"
-    logger.debug "Write configuration information to backend..."
-    Suse::Backend.put_source(path, self.render_xml)
+    if CONFIG['global_write_through']
+      path = "/configuration"
+      logger.debug "Write configuration information to backend..."
+      Suse::Backend.put_source(path, self.render_xml)
+    end
   end
 
 end
