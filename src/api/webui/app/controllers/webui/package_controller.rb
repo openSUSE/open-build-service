@@ -181,16 +181,14 @@ class PackageController < WebuiController
   end
 
   def revisions
-    begin
-      @max_revision = Webui::Package.current_rev(@project, @package.name).to_i
-    rescue ActiveXML::Transport::ForbiddenError => e
-      flash[:error] = "Could not access revisions: #{e.summary}"
+    unless @package.api_obj.check_source_access?
+      flash[:error] = 'Could not access revisions'
       redirect_to :action => :show, :project => @project.name, :package => @package.name and return
     end
+    @max_revision = @package.api_obj.rev.to_i
     @upper_bound = @max_revision
     if params[:showall]
-      p = Webui::Package.find( @package.name, :project => @project)
-      p.cacheAllCommits # we need to fetch commits alltogether for the cache and not each single one
+      @package.cacheAllCommits # we need to fetch commits alltogether for the cache and not each single one
       @visible_commits = @max_revision
     else
       @upper_bound = params[:rev].to_i if params[:rev]
@@ -203,7 +201,7 @@ class PackageController < WebuiController
     if params[:revision]
       @revision = params[:revision]
     else
-      @revision = Webui::Package.current_rev(@project, @package)
+      @revision = @package.api_obj.rev
     end
     @cleanup_source = @project.value('name').include?(':branches:') # Rather ugly decision finding...
     render_dialog
@@ -250,8 +248,11 @@ class PackageController < WebuiController
   def set_file_details
     @forced_unexpand ||= ''
 
+    # check source access
+    return false unless @package.api_obj.check_source_access?
+
     begin
-      @current_rev = Webui::Package.current_rev(@project.name, @package.name)
+      @current_rev = @package.api_obj.rev
       if not @revision and not @srcmd5
         # on very first page load only
         @revision = @current_rev
@@ -511,8 +512,8 @@ class PackageController < WebuiController
       redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
     end
 
-    revision = Webui::Package.current_xsrcmd5(@linked_project, @linked_package)
-    revision = Webui::Package.current_rev(@linked_project, @linked_package) unless revision
+    dirhash = linked_package.api_obj.dir_hash
+    revision = dirhash['xsrcmd5'] || dirhash['rev']
     unless revision
       flash[:error] = "Unable to branch package '#{@target_package}', it has no source revision yet"
       redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
@@ -523,7 +524,7 @@ class PackageController < WebuiController
     if @use_branch
       logger.debug "link params doing branch: #{@linked_project}, #{@linked_package}"
       begin
-        path = "/source/#{CGI.escape(@linked_project)}/#{CGI.escape(@linked_package)}?cmd=branch&target_project=#{CGI.escape(@project.name)}&target_package=#{CGI.escape(@target_package)}"
+        path = linked_package.api_obj.source_path('', { cmd: :branch, target_project: @project.name, target_package: @target_package})
         path += "&rev=#{CGI.escape(@revision)}" if @revision
         frontend.transport.direct_http( URI(path), :method => 'POST', :data => '')
         flash[:success] = "Branched package #{@project.name} / #{@target_package}"

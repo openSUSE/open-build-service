@@ -16,11 +16,15 @@ class Webui::RequestController < Webui::WebuiController
     begin
       opts = {}
       case params[:review_type]
-        when 'user' then opts[:user] = params[:review_user]
-        when 'group' then opts[:group] = params[:review_group]
-        when 'project' then opts[:project] = params[:review_project]
-        when 'package' then opts[:project] = params[:review_project]
-                            opts[:package] = params[:review_package]
+        when 'user' then
+          opts[:user] = params[:review_user]
+        when 'group' then
+          opts[:group] = params[:review_group]
+        when 'project' then
+          opts[:project] = params[:review_project]
+        when 'package' then
+          opts[:project] = params[:review_project]
+          opts[:package] = params[:review_package]
       end
       opts[:comment] = params[:review_comment] if params[:review_comment]
 
@@ -83,7 +87,7 @@ class Webui::RequestController < Webui::WebuiController
 
     request_list = session[:requests]
     @request_before = nil
-    @request_after  = nil
+    @request_after = nil
     index = request_list.index(@id) if request_list
     if index and index > 0
       @request_before = request_list[index-1]
@@ -103,7 +107,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def changerequest
     required_parameters :id
-    @req = Webui::BsRequest.find params[:id] 
+    @req = Webui::BsRequest.find params[:id]
     unless @req
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_back_or_to :controller => 'home', :action => 'requests' and return
@@ -134,38 +138,46 @@ class Webui::RequestController < Webui::WebuiController
         end
       end
     end
-    if changestate == 'accepted'
-      flash[:notice] = "Request #{params[:id]} accepted"
 
-      # Check if we have to forward this request to other projects / packages
-      params.keys.grep(/^forward_.*/).each do |fwd|
-        tgt_prj, tgt_pkg = params[fwd].split('_#_') # split off 'forward_' and split into project and package
-        description = @req.description.text
-        if @req.has_element? 'state'
-          who = @req.state.value('who')
-          description += ' (forwarded request %d from %s)' % [params[:id], who]
-        end
+    accept_request if changestate == 'accepted'
 
-        rev = Webui::Package.current_rev(@req.action.target.project, @req.action.target.package)
-        req = Webui::BsRequest.new(:type => 'submit', :targetproject => tgt_prj, :targetpackage => tgt_pkg,
-                             :project => @req.action.target.project, :package => @req.action.target.package,
-                             :rev => rev, :description => description)
-        req.save(:create => true)
-        Rails.cache.delete('requests_new')
-        # link_to isn't available here, so we have to write some HTML. Uses url_for to not hardcode URLs.
-        flash[:notice] += " and forwarded to <a href='#{url_for(:controller => 'package', :action => 'show', :project => tgt_prj, :package => tgt_pkg)}'>#{tgt_prj} / #{tgt_pkg}</a> (request <a href='#{url_for(:action => 'show', :id => req.value('id'))}'>#{req.value('id')}</a>)"
-      end
+    redirect_to :action => 'show', :id => params[:id]
+  end
 
-      # Cleanup prj/pkg cache after auto-removal of source projects / packages (mostly from branches).
-      # To keep things simple, we don't check if the src prj had more pkgs, etc..
-      @req.each_action do |action|
-        if action.value('type') == 'submit' and action.has_element?('options') and action.options.value('sourceupdate') == 'cleanup'
-          Rails.cache.delete("#{action.source.project}_packages_mainpage")
-          Rails.cache.delete("#{action.source.project}_problem_packages")
-        end
+  def accept_request
+    flash[:notice] = "Request #{params[:id]} accepted"
+
+    # Check if we have to forward this request to other projects / packages
+    params.keys.grep(/^forward_.*/).each do |fwd|
+      forward_request_to(fwd)
+    end
+
+    # Cleanup prj/pkg cache after auto-removal of source projects / packages (mostly from branches).
+    # To keep things simple, we don't check if the src prj had more pkgs, etc..
+    @req.each_action do |action|
+      if action.value('type') == 'submit' and action.has_element?('options') and action.options.value('sourceupdate') == 'cleanup'
+        Rails.cache.delete("#{action.source.project}_packages_mainpage")
+        Rails.cache.delete("#{action.source.project}_problem_packages")
       end
     end
-    redirect_to :action => 'show', :id => params[:id]
+  end
+
+  def forward_request_to(fwd)
+    tgt_prj, tgt_pkg = params[fwd].split('_#_') # split off 'forward_' and split into project and package
+    description = @req.description.text
+    if @req.has_element? 'state'
+      who = @req.state.value('who')
+      description += ' (forwarded request %d from %s)' % [params[:id], who]
+    end
+
+    rev = Package.dir_hash(@req.action.target.project, @req.action.target.package)['rev']
+    req = Webui::BsRequest.new(:type => 'submit', :targetproject => tgt_prj, :targetpackage => tgt_pkg,
+                               :project => @req.action.target.project, :package => @req.action.target.package,
+                               :rev => rev, :description => description)
+    req.save(:create => true)
+    Rails.cache.delete('requests_new')
+                                                # link_to isn't available here, so we have to write some HTML. Uses url_for to not hardcode URLs.
+    flash[:notice] += " and forwarded to <a href='#{url_for(:controller => 'package', :action => 'show', :project => tgt_prj, :package => tgt_pkg)}'>#{tgt_prj} / #{tgt_pkg}</a> (request <a href='#{url_for(:action => 'show', :id => req.value('id'))}'>#{req.value('id')}</a>)"
   end
 
   def diff
@@ -174,7 +186,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def list
-    redirect_to :controller => :home, :action => :requests and return unless request.xhr?  # non ajax request
+    redirect_to :controller => :home, :action => :requests and return unless request.xhr? # non ajax request
     requests = Webui::BsRequest.list_ids(params)
     elide_len = 44
     elide_len = params[:elide_len].to_i if params[:elide_len]
@@ -184,7 +196,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def list_small
-    redirect_to :controller => :home, :action => :requests and return unless request.xhr?  # non ajax request
+    redirect_to :controller => :home, :action => :requests and return unless request.xhr? # non ajax request
     requests = Webui::BsRequest.list(params)
     render :partial => 'shared/requests_small', :locals => {:requests => requests}
   end
@@ -238,11 +250,11 @@ class Webui::RequestController < Webui::WebuiController
     begin
       if params[:group] == 'False'
         req = Webui::BsRequest.new(:type => 'set_bugowner', :targetproject => params[:project], :targetpackage => params[:package],
-                            :person => params[:user], :description => params[:description])
+                                   :person => params[:user], :description => params[:description])
       end
       if params[:user] == 'False'
         req = Webui::BsRequest.new(:type => 'set_bugowner', :targetproject => params[:project], :targetpackage => params[:package],
-                            :group => params[:group], :description => params[:description])
+                                   :group => params[:group], :description => params[:description])
       end
       req.save(:create => true)
       Rails.cache.delete 'requests_new'
@@ -292,16 +304,16 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to :controller => :request, :action => 'show', :id => params[:id]
   end
 
-  # used by HasComments mixin
+# used by HasComments mixin
   def comment_object
     Webui::BsRequest.find params[:id]
   end
 
-private
+  private
 
   def change_request(changestate, params)
     begin
-      if Webui::BsRequest.modify( params[:id], changestate, :reason => params[:reason], :force => true )
+      if Webui::BsRequest.modify(params[:id], changestate, :reason => params[:reason], :force => true)
         flash[:notice] = "Request #{changestate}!"
         return true
       else

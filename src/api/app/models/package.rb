@@ -346,17 +346,21 @@ class Package < ActiveRecord::Base
     Package.source_path(self.project.name, self.name, file, opts)
   end
 
-  def source_file(file)
-    Suse::Backend.get(source_path(file)).body
+  def source_file(file, opts = {})
+    Suse::Backend.get(source_path(file, opts)).body
   end
 
-  def dir_hash(opts = {})
+  def self.dir_hash(project, package, opts = {})
     begin
-      directory = Suse::Backend.get(self.source_path(nil, opts)).body
+      directory = Suse::Backend.get(source_path(project, package, nil, opts)).body
       Xmlhash.parse(directory)
     rescue ActiveXML::Transport::Error => e
       Xmlhash::XMLHash.new error: e.summary
     end
+  end
+
+  def dir_hash(opts = {})
+    Package.dir_hash(self.project.name, self.name, opts)
   end
 
   def private_set_package_kind( dir )
@@ -385,15 +389,15 @@ class Package < ActiveRecord::Base
         xml = Patchinfo.new.read_patchinfo_xmlhash(self)
         Project.transaction do
           self.package_issues.delete_all
-          xml.elements('issue') { |i|
+          xml.elements('issue') do |i|
             begin
               issue = Issue.find_or_create_by_name_and_tracker(i['id'], i['tracker'])
               self.package_issues.create(issue: issue, change: 'kept')
-	    rescue IssueTracker::NotFoundError => e
+            rescue IssueTracker::NotFoundError => e
               # if the issue is invalid, we ignore it
               Rails.logger.debug e
-	    end
-          }
+            end
+          end
         end
       else
         # onlyissues gets the issues from .changes files
@@ -661,9 +665,11 @@ class Package < ActiveRecord::Base
   end
 
   def linkinfo
-    dir = Directory.find( :project => self.project.name, :package => self.name )
-    return nil unless dir
-    return dir.to_hash['linkinfo']
+    dir_hash['linkinfo']
+  end
+
+  def rev
+    dir_hash['rev']
   end
 
   def channels

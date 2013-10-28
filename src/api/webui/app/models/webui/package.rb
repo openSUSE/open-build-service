@@ -153,72 +153,31 @@ class Package < Webui::Node
     @serviceinfo
   end
 
-  def self.current_xsrcmd5(project, package )
-    dir = Directory.find_hashed( :project => project, :package => package )
-    return dir['xsrcmd5']
+  def parse_all_history
+    answer = api_obj.source_file('_history')
+
+    doc = Xmlhash.parse(answer)
+    doc.elements('revision') do |s|
+      Rails.cache.write(["history", api_obj, s['rev']], s)
+    end
   end
 
-  def self.current_rev(project, package )
-    dir = Directory.find_hashed( :project => project, :package => package )
-    return dir['rev']
-  end
-
-  def cacheAllCommits
-    commit( nil, true )
-    return true
-  end
-
-  def commit( rev = nil, cacheAll = nil )
+  def commit( rev = nil )
     if rev and rev.to_i < 0
       # going backward from not yet known current revision, find out ...
-      r = Package.current_rev(project, name).to_i + rev.to_i + 1
+      r = api_obj.rev.to_i + rev.to_i + 1
       rev = r.to_s
       return nil if rev.to_i < 1
     end
-    rev = Package.current_rev(project, name) unless rev
+    rev ||= api_obj.rev
 
-    cache_key = nil
-    if rev and not cacheAll
-      path = "/source/#{CGI.escape(project)}/#{CGI.escape(name)}/_history?rev=#{CGI.escape(rev)}"
-      cache_key = "Commit/#{project}/#{name}/#{rev}"
-      c = Rails.cache.read(cache_key, :expires_in => 30.minutes)
-      if c
-        return c
-      end
-    else
-      path = "/source/#{CGI.escape(project)}/#{CGI.escape(name)}/_history"
-    end
+    cache_key = ["history", api_obj, rev]
+    c = Rails.cache.read(cache_key)
+    return c if c
 
-
-    frontend = ActiveXML::api
-    begin
-      answer = frontend.direct_http URI(path), :method => 'GET'
-    rescue
-      return nil
-    end
-
-    c = {}
-    doc = ActiveXML::Node.new(answer)
-    doc.each('/revisionlist/revision') do |s|
-         c[:revision]= s.value('rev')
-         c[:user]    = s.find_first('user').text
-         c[:version] = s.find_first('version').text
-         c[:time]    = s.find_first('time').text
-         c[:srcmd5]  = s.find_first('srcmd5').text
-         c[:comment] = nil
-         c[:requestid] = nil
-         comment=s.find_first('comment')
-         if comment
-           c[:comment] = comment.text
-         end
-         requestid=s.find_first('requestid')
-         if requestid
-           c[:requestid] = requestid.text
-         end
-    end
-
-    return nil unless c[:revision]
-    return c
+    parse_all_history
+    # now it has to be in cache
+    Rails.cache.read(cache_key)
   end
 
   def files( rev = nil, expand = nil )

@@ -14,7 +14,7 @@
     /
     <% package_exists = project_exists && Webui::Package.find(package, project: project) %>
     <%= link_to_if(package_exists, package, { controller: 'package', action: 'show', project: project, package: package}, {:class => 'package'}) %>
-    <% if rev && rev != Webui::Package.current_rev(project, package) %>
+    <% if rev && rev != ::Package.dir_hash(project, package)['rev'] %>
       (<%= link_to_if(package_exists, "revision #{elide(rev, 10)}", { controller: 'package', action: 'show', project: project, package: package, rev: rev}, {:class => 'package'}) %>)
     <% end %>
   <% else %>

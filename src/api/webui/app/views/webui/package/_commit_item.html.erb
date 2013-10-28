@@ -1,35 +1,35 @@
 <% commit = @package.commit(rev.to_s) %>
 <% if commit %>
-  <% if commit[:user] == '_service' %>
-    <%= sprite_tag('cog') %> automatic update by service
-  <% else %>
-    <% user = commit[:user] %>
-    <% if user %>
-      <% realname = User.realname_for_login(user) %>
-      <%= user_icon(user) %>
-      <% unless realname.empty? %>
-        <%= link_to_if(!User.current.is_nobody?, realname + " (" + user + ")", :controller => :home, :user => user) %>
-      <% else %>
-        <%= link_to_if(!User.current.is_nobody?, user, :controller => :home, :user => user) %>
-      <% end %>
+    <% if commit['user'] == '_service' %>
+        <%= sprite_tag('cog') %> automatic update by service
     <% else %>
-       -
+        <% user = commit['user'] %>
+        <% if user %>
+            <% realname = User.realname_for_login(user) %>
+            <%= user_icon(user) %>
+            <% unless realname.empty? %>
+                <%= link_to_if(!User.current.is_nobody?, realname + ' (' + user + ')', :controller => :home, :user => user) %>
+            <% else %>
+                <%= link_to_if(!User.current.is_nobody?, user, :controller => :home, :user => user) %>
+            <% end %>
+        <% else %>
+            -
+        <% end %>
+        <% if commit['requestid'] %>
+            accepted <%= link_to("request #{commit['requestid']}", {:controller => :request, :action => :show, :id => commit['requestid']}) %>
+        <% else %>
+            committed
+        <% end %>
     <% end %>
-    <% if commit[:requestid] %>
-      accepted <%= link_to("request #{commit[:requestid]}", {:controller => :request, :action => :show, :id => commit[:requestid]}) %>
-    <% else %>
-      committed
+    <%= fuzzy_time(Time.at(commit['time'].to_i)) %> (revision <%= commit['rev'] %>)<br/>
+    <% unless commit['user'] == '_service' %>
+        <pre class="plain"><%= commit['comment'] %></pre>
     <% end %>
-  <% end %>
-  <%= fuzzy_time_string(Time.at(commit[:time].to_i).to_s) %> (revision <%= commit[:revision] %>)<br/>
-  <% unless commit[:user] == "_service" %>
-    <pre class="plain"><%= commit[:comment] %></pre>
-  <% end %>
-  <%= link_to(sprite_tag('brick'), { :controller => :package, :action => :rdiff,
-    :package => @package, :project => @project,
-    :rev => commit[:revision], :linkrev => 'base'}, :style => "margin-left: 2em") %>
-  <%= link_to('Show diff', :controller => :package, :action => :rdiff,
-    :package => @package, :project => @project, :rev => commit[:revision], :linkrev => 'base') unless commit[:revision] == 1 %>
+    <%= link_to(sprite_tag('brick'), {:controller => :package, :action => :rdiff,
+                                      :package => @package, :project => @project,
+                                      :rev => commit['rev'], :linkrev => 'base'}, :style => 'margin-left: 2em') %>
+    <%= link_to('Show diff', :controller => :package, :action => :rdiff,
+                :package => @package, :project => @project, :rev => commit['rev'], :linkrev => 'base') if commit['rev'] != '1' %>
 <% else %>
-  <i>Revision <%=rev.to_s%> not found</i>
+    <i>Revision <%= rev.to_s %> not found</i>
 <% end %>
