@@ -4,20 +4,18 @@
     if result.kind_of? Project
       project = result.name
       package = nil
-      rtype = "project"
+      rtype = 'project'
     else
       project = result.project_name
       package = result.name
-      rtype = "package"
+      rtype = 'package'
     end
   %>
     <div class="search_result">
       <h6 class="data-title">
       <%= sprite_tag(rtype, class: rtype, title: rtype.humanize) %>
-      <%= render :partial => 'shared/project_or_package_link', :locals => {:project => project,
-                                                                           :package => package,
-                                                                           :short => false} %>
-      <%= content_tag :span, result.sphinx_attributes, style: "display:none" %>
+      <%= project_or_package_link project: project, package: package, short: false %>
+      <%= content_tag :span, result.sphinx_attributes, style: 'display:none' %>
       </h6>
 
       <% if result.description.empty? %>

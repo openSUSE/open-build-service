@@ -203,7 +203,7 @@ class PackageController < WebuiController
     else
       @revision = @package.api_obj.rev
     end
-    @cleanup_source = @project.value('name').include?(':branches:') # Rather ugly decision finding...
+    @cleanup_source = @project.name.include?(':branches:') # Rather ugly decision finding...
     render_dialog
   end
 

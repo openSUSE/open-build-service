@@ -2,23 +2,23 @@
   <div class="dialog darkgrey_box">
     <div class="box box-shadow">
       <h2 class="box-header">Create Maintenance Release Request</h2>
-      <p>Do you want to release <%= render :partial => 'shared/project_or_package_link', :locals => {:project => @project.value('name')} %> as a maintenance update?</p>
+      <p>Do you want to release <%= project_or_package_link project: @project.name %> as a maintenance update?</p>
 
       <%= form_tag({:controller => 'project', :action => 'new_release_request'}) do -%>
         <%= hidden_field_tag(:project, @project.value('name')) %>
         <p>
-          <%= label_tag(:sourceproject, "From project:") %><br/>
+          <%= label_tag(:sourceproject, 'From project:') %><br/>
           <%= text_field_tag(:sourceproject, elide(@project.value('name'), 40), :size => 40, :disabled => true) %><br/>
-          <%= label_tag(:description, "Description:") %><br/>
-          <%= text_area_tag(:description, "", :size => "40x3") %><br/>
+          <%= label_tag(:description, 'Description:') %><br/>
+          <%= text_area_tag(:description, '', :size => '40x3') %><br/>
           <span id="supersede_display" class="hidden">
-            <%= label_tag(:pending_requests, "Pending requests:") %><br/>
+            <%= label_tag(:pending_requests, 'Pending requests:') %><br/>
             <span id="pending_requests"></span>
             <%= check_box_tag(:supersede) %> Supersede pending requests<br/>
           </span>
         </p>
         <div class="buttons">
-          <%= submit_tag("Ok") %>
+          <%= submit_tag('Ok') %>
           <%= remove_dialog_tag('Cancel') %>
         </div>
       <% end %>

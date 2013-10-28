@@ -266,6 +266,8 @@ module Webui::WebuiHelper
   def elide(text, length = 20, mode = :middle)
     shortened_text = text.to_s # make sure it's a String
 
+    return '' if text.blank?
+
     return '...' if length <= 3 # corner case
 
     if text.length > length
@@ -378,24 +380,6 @@ module Webui::WebuiHelper
     return @codemirror_editor_setup
   end
 
-  def link_to_project(prj, linktext=nil)
-    linktext = prj if linktext.blank?
-    if WebuiProject.exists?(prj)
-      link_to(linktext, {:controller => :project, :action => :show, :project => prj}, title: prj)
-    else
-      linktext
-    end
-  end
-
-  def link_to_package(prj, pkg, linktext=nil)
-    linktext = pkg if linktext.blank?
-    if prj != :multiple && pkg != :multiple && ::Package.exists_by_project_and_name(prj, pkg)
-      link_to(linktext, {controller: :package, action: :show, project: prj, package: pkg}, title: pkg)
-    else
-      linktext
-    end
-  end
-
   def remove_dialog_tag(text)
     link_to(text, '#', title: 'Remove Dialog', id: 'remove_dialog')
   end
@@ -433,5 +417,69 @@ module Webui::WebuiHelper
     output.html_safe
   end
 
-end
+  def package_link(pack, opts = {})
+    opts[:project] = pack.project.name
+    opts[:package] = pack.name
+    project_or_package_link opts
+  end
 
+  def link_to_package(prj, pkg, opts)
+    opts[:project_text] ||= opts[:project]
+    opts[:package_text] ||= opts[:package]
+
+    opts[:project_text], opts[:package_text] =
+        elide_two(opts[:project_text], opts[:package_text], opts[:trim_to])
+
+    if opts[:short]
+      out = ''.html_safe
+    else
+      out = 'package '.html_safe
+    end
+
+    opts[:short] = true # for project
+    out += link_to_project(prj, opts) + ' / ' +
+        link_to_if(pkg, opts[:package_text],
+                   {controller: 'package', action: 'show',
+                    project: opts[:project],
+                    package: opts[:package]}, {class: 'package', title: opts[:package]})
+    if opts[:rev] && pkg
+      out += ' ('.html_safe +
+          link_to("revision #{elide(opts[:rev], 10)}",
+                  {controller: 'package', action: 'show',
+                   project: opts[:project], package: opts[:package], rev: opts[:rev]},
+                  {class: 'package', title: opts[:rev]}) + ')'.html_safe
+    end
+    out
+  end
+
+  def link_to_project(prj, opts)
+    opts[:project_text] ||= opts[:project]
+    if opts[:short]
+      out = ''.html_safe
+    else
+      out = 'project '.html_safe
+    end
+    out + link_to_if(prj, elide(opts[:project_text], opts[:trim_to]),
+                     {controller: 'project', action: 'show', project: opts[:project]},
+                     {class: 'project', title: opts[:project]})
+  end
+
+  def project_or_package_link(opts)
+    defaults = {package: nil, rev: nil, short: false, trim_to: 40}
+    opts = defaults.merge(opts)
+
+    # only care for database entries
+    prj = Project.where(name: opts[:project]).select(:id, :name).first
+    if prj && opts[:creator]
+      opts[:project_text] ||= format_projectname(opts[:project], opts[:creator])
+    end
+    if opts[:package] && prj && opts[:package] != :multiple
+      pkg = prj.packages.where(name: opts[:package]).select(:id, :name).first
+    end
+    if opts[:package]
+      link_to_package(prj, pkg, opts)
+    else
+      link_to_project(prj, opts)
+    end
+  end
+end

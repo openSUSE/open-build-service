@@ -2,14 +2,14 @@
   <div class="dialog darkgrey_box" id="del_dialog">
     <div class="box box-shadow">
       <h2 class="box-header">Delete Confirmation</h2>
-      <p>Do you really want to delete <%= render :partial => 'shared/project_or_package_link', :locals => {:project => @project.value('name'), :package => @package.value('name')} %>?</p>
+      <p>Do you really want to delete <%= package_link @package %>?</p>
 
       <%= form_tag({:controller => :patchinfo, :action => :remove}, :method => :post) do %>
         <div>
         <%= hidden_field_tag(:project, @project) %>
         <%= hidden_field_tag(:package, @package) %>
         <div class="buttons">
-          <%= submit_tag("Ok") %>
+          <%= submit_tag('Ok') %>
           <%= remove_dialog_tag('Cancel') %>
         </div>
        </div>

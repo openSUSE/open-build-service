@@ -5,14 +5,14 @@
       <h2 class="box-header">Change Devel Project Request</h2>
 
       <% if @current_devel_project && @current_devel_package %>
-        <p>Do you want to request to change the devel project for <%= render :partial => 'shared/project_or_package_link', :locals => {:project => @project.value('name'), :package => @package.value('name')} %> from 
-         <%= render :partial => 'shared/project_or_package_link', :locals => {:project => @current_devel_project} %>?</p>
+        <p>Do you want to request to change the devel project for <%= package_link @package %> from 
+         <%= project_or_package_link project: @current_devel_project %>?</p>
       <% else %>
-        <p>Do you want to request to set the devel project for <%= render :partial => 'shared/project_or_package_link', :locals => {:project => @project.value('name'), :package => @package.value('name')} %>?</p>
+        <p>Do you want to request to set the devel project for <%= package_link @package %>?</p>
       <% end %>
       <%= form_tag(:action => 'change_devel_request', :method => 'post') do %>
-        <%= hidden_field_tag(:project, @project.value('name')) %>
-        <%= hidden_field_tag(:package, @package.value('name')) %>
+        <%= hidden_field_tag(:project, @project.name) %>
+        <%= hidden_field_tag(:package, @package.name) %>
         <p>
           <% if @current_devel_project && @current_devel_package %>
             <%= label_tag(:devel_project, 'New Devel project (leave free to delete the current one):') %><br/>

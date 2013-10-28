@@ -5,7 +5,7 @@
     Responsible for package
     <%= params['search_text'] %>
     for <%= result.rootproject %> set in
-    <%= render :partial => 'shared/project_or_package_link', :locals => {:project => result.project, :package => result.package, :short => false} %>
+    <%= project_or_package_link project: result.project, package: result.package, short: false %>
     </h6>
     <p>
     <%= search_users_list(result.users) %>

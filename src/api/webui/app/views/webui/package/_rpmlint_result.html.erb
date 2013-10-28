@@ -26,8 +26,8 @@
     $.ajax({
       url: '<%= url_for(:controller => 'package', :action => 'rpmlint_log') %>',
       data: {
-        'project': '<%= @project.value('name') %>',
-        'package': '<%= @package.value('name') %>',
+        'project': '<%= @project.name %>',
+        'package': '<%= @package.name %>',
         'repository': repo_name,
         'architecture': $("#rpmlint_arch_select_<%= index %>_" + repo_key + " option:selected").attr('value'),
       },

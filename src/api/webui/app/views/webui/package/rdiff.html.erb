@@ -1,11 +1,11 @@
-<% @pagetitle = "Changes" %>
+<% @pagetitle = 'Changes' %>
 <% package_bread_crumb('Changes') %>
 
 <%= render :partial => 'tabs' %>
 
 <% if @oproject and @opackage %>
     <h3>Difference Between Revision <%= @rev %>
-      and <%= render :partial => 'shared/project_or_package_link', :locals => { :project => @oproject, :package => @opackage, :short => true } %></h3>
+      and <%= project_or_package_link project: @oproject, package: @opackage, short: true %></h3>
 <% else %>
     <h3>Changes of Revision <%= @rev %></h3>
 <% end %>

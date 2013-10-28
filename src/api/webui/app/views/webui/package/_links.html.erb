@@ -3,7 +3,7 @@
   <% linked_project, linked_package = @package.linkinfo.project, @package.linkinfo.package %>
 
   This package links to
-  <%= render :partial => 'shared/project_or_package_link', :locals => {:project => linked_project, :package => linked_package, :short => true} -%>.
+  <%= project_or_package_link project: linked_project, package: linked_package, short: true -%>.
 
   <% if @package.linkinfo.value :error %>
     </p><p>The link contains errors: <i><%= @package.linkinfo.error %>.</i>

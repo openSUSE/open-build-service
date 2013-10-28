@@ -20,11 +20,11 @@
           <li>
             <%= sprite_tag 'exclamation' %>
             <%= @failures %>
-            <%= link_to "error#{@failures == 1 ? "" : "s"}", :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
+            <%= link_to "error#{@failures == 1 ? '' : 's'}", :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
           </li>
         <% end %>
 
-        <%= render :partial => "shared/open_requests" %>
+        <%= render :partial => 'shared/open_requests' %>
 
         <% if dpackage %>
           <li>
@@ -53,14 +53,14 @@
         <% if @linking_packages && @linking_packages.size > 0 %>
           <li>
             <%= image_tag 'information.png' %>
-            <%= @linking_packages.size %> <%= link_to("derived packages", {:action => :linking_packages, :project => @project, :package => @package }, :remote => true) %>
+            <%= @linking_packages.size %> <%= link_to('derived packages', {:action => :linking_packages, :project => @project, :package => @package }, :remote => true) %>
           </li>
         <% end %>
         <% if @linkinfo %>
           <% linked_project, linked_package = @linkinfo.project, @linkinfo.package %>
           <li>
             <%= sprite_tag 'package_link' %> Links to
-            <%= render :partial => 'shared/project_or_package_link', :locals => {:project => linked_project, :package => linked_package, :short => true} %>
+            <%= project_or_package_link project: linked_project, package: linked_package, short: true %>
           </li>
           <% if @linkinfo.value :error %>
             <li><%= sprite_tag 'exclamation' %> Link has errors: <i><%= @linkinfo.error %></i></li>
@@ -72,7 +72,7 @@
             </li>
           <% end%>
         <% end %>
-	<%= render partial: "extra_actions" %>
+	<%= render partial: 'extra_actions' %>
       </ul>
     <% end %>
   </div>
@@ -99,7 +99,7 @@
           <% if User.current.can_modify_package? @package.api_obj %>
             <li>
               <%= link_to sprite_tag('package_edit'), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
-	      <%= link_to "Edit description", { :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count }, id: 'edit-description' -%>
+	      <%= link_to 'Edit description', { :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count }, id: 'edit-description' -%>
             </li>
             <li>
               <%= link_to(sprite_tag('package_delete'), {:action => :delete_dialog, :package => @package, :project => @project}, :remote => true) %>
@@ -107,8 +107,8 @@
             </li>
           <% else %>
             <li>
-              <%= link_to(sprite_tag('user_add', :title => "Request role addition"), {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}, :remote => true) %>
-              <%= link_to("Request role addition", {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}, :remote => true) %>
+              <%= link_to(sprite_tag('user_add', :title => 'Request role addition'), {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}, :remote => true) %>
+              <%= link_to('Request role addition', {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}, :remote => true) %>
             </li>
             <li>
               <%= link_to(sprite_tag('package_delete', :title => 'Request deletion'), {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package}, :remote => true) %>
@@ -132,10 +132,10 @@
 <h3>Source Files <%= image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden') %>
 <% if @linkinfo && @revision_parameter.nil? %>
   <span style="font-size: small; font-weight: normal">
-    <% if @expand && @expand.to_s == "1" or !@forced_unexpand.blank?  %>
-      <%= link_to '(show unmerged sources)', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => "0" %>
+    <% if @expand && @expand.to_s == '1' or !@forced_unexpand.blank?  %>
+      <%= link_to '(show unmerged sources)', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '0' %>
     <% else %>
-      <%= link_to '(show merged sources derived from linked package)', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => "1" %>
+      <%= link_to '(show merged sources derived from linked package)', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '1' %>
     <% end %>
   </span>
 <% end %>
@@ -153,5 +153,5 @@
 
 <div class="grid_16 box box-shadow alpha omega">
   <h2 class="box-header">Comments for <%= @project.name %> (<%= @comments.length %>)</h2>
-  <%= render :partial => "webui/comment/show"%>
+  <%= render :partial => 'webui/comment/show'%>
 </div>

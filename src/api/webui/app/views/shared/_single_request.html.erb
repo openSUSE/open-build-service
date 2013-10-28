@@ -19,30 +19,20 @@
     <%= fuzzy_time(req.created_at) %>
   </td>
   <td class="request_source">
-    <% if source_package %>
-        <% src_proj = format_projectname(source_project, req.creator)
-           src_pack = elide(source_package, elide_len >> 1) %>
-        <%= link_to_project(source_project, src_proj) %>
-        / <%= link_to_package(source_project, source_package, src_pack) %>
-    <% elsif source_project %>
-        <%# Happens for maintenance requests, no source package there %>
-        <%= link_to_project(source_project, elide(source_project, elide_len)) %>
-    <% end %>
+    <%= project_or_package_link(project: source_project, package: source_package, creator: req.creator, trim_to: elide_len, short: true) %>
   </td>
   <% unless no_target %>
       <td class="request_target">
         <% if target_project %>
             <% if not @project or @project.name != target_project %><!-- <%= target_project %>  -->
-                <% if target_package and not (source_exists and source_package == target_package) %> <!-- /<%= target_package %> -->
-                    <% tgt_proj, tgt_pack = elide_two(target_project, target_package, elide_len) %>
-                    <%= link_to_project(target_project, tgt_proj) %>
-                    / <%= link_to_package(target_project, target_package, tgt_pack) %>
+                <% if target_package and source_package != target_package %> <!-- /<%= target_package %> -->
+			<%= project_or_package_link(project: target_project, package: target_package, trim_to: elide_len, short: true) -%>
                 <% else %>
-                    <%= link_to_project(target_project, elide(target_project, elide_len)) %>
+	           <%= project_or_package_link(project: target_project, trim_to: elide_len, short: true) %>
                 <% end %>
             <% else %>
-                <% if target_package and Webui::Package.exists?(@project.name, target_package) %> <!-- <%= target_package %> -->
-                    <%= link_to_package(target_project, target_package, elide(target_package, elide_len)) %>
+                <% if target_package %> <!-- <%= target_package %> -->
+   		  <%= project_or_package_link(project: target_project, package: target_package, trim_to: elide_len, short: true) %>
                 <% elsif request_type == :delete %>
                     This project
                 <% end %>

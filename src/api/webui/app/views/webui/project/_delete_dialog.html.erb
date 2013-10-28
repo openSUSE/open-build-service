@@ -2,7 +2,7 @@
   <div class="dialog darkgrey_box">
     <div class="box box-shadow">
       <h2 class="box-header">Delete Confirmation</h2>
-      <p>Do you really want to delete <%= render :partial => 'shared/project_or_package_link', :locals => {:project => @project.value('name')} %>?</p>
+      <p>Do you really want to delete <%= project_or_package_link project: @project.name %>?</p>
 
       <%= form_tag({:controller => 'project', :action => 'delete'}, :method => 'post') do %>
         <%= hidden_field_tag(:project, @project) %>
