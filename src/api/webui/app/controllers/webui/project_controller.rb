@@ -363,8 +363,13 @@ class ProjectController < WebuiController
 
   # TODO we need the architectures in api/distributions
   def add_repository_from_default_list
-    @distributions = Distribution.find(:all)
-    if @distributions.all_vendors.length < 1
+    @distributions = {}
+    Distribution.all_including_remotes.each do |dis|
+      @distributions[dis['vendor']] ||= []
+      @distributions[dis['vendor']] << dis
+    end
+
+    if @distributions.empty?
       if User.current.is_admin?
         flash.now[:notice] = "There are no distributions configured! Check out <a href=\"/configuration/connect_instance\">Configuration > Interconnect</a>"
       else

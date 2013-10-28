@@ -1,63 +1,62 @@
-<% @pagetitle = "Add Repository"
+<% @pagetitle = 'Add Repository'
    @metarobots = 'noindex'
    project_bread_crumb @pagetitle
 -%>
 
-<%= render :partial => "tabs" %>
+<%= render :partial => 'tabs' %>
 
-<h2>Add Repositories to Project <%= @project%></h2>
+<h2>Add Repositories to Project <%= @project %></h2>
 
-<p>Please choose the repositories that your packages will be built for by following default list. Or 
-<%= link_to "pick one via advanced interface", :action => :add_repository, :project => @project %>.
+<p>Please choose the repositories that your packages will be built for by following default list. Or
+  <%= link_to 'pick one via advanced interface', :action => :add_repository, :project => @project %>.
 </p>
 
 <%= form_tag(:action => :save_targets, :project => @project) do %>
-  <% vendors = @distributions.all_vendors %>
-  <% vendors.each do |vendor| %>
-    <h3><%= sprite_tag( "distributions-#{vendor.downcase}" ) %> <%= vendor -%> distributions</h3>
-    <p>
-      <% @distributions.each("distribution[@vendor='#{vendor}']") do |dist|
-        name = dist.find_first('name').text
-        project = dist.find_first('project').text
-        repo = dist.find_first('repository').text
-        reponame = dist.find_first('reponame').text
-        selected = false
-        selected = true if @project.has_element?("repository/path[@project='#{project}' and @repository='#{repo}']")
-        -%>
+    <% @distributions.each do |vendor, list| %>
+        <h3><%= sprite_tag("distributions-#{vendor.downcase}") %> <%= vendor -%> distributions</h3>
+        <p>
+          <% list.each do |dist|
+            Rails.logger.debug dist.inspect
+            name = dist['name']
+            project = dist['project']
+            repo = dist['repository']
+            reponame = dist['reponame']
+            selected = @project.has_element?("repository/path[@project='#{project}' and @repository='#{repo}']")
+          -%>
 
-        <span class="nowrap"><%= check_box_tag 'repo[]', reponame, selected, :disabled => selected, :id => 'repo_' + reponame, :class => "repocheckbox" -%>
-          <%= hidden_field_tag reponame + "_repo", (project + '/' + repo) -%>
+        <span class="nowrap"><%= check_box_tag 'repo[]', reponame, selected, :disabled => selected, :id => 'repo_' + reponame, :class => 'repocheckbox' -%>
+          <%= hidden_field_tag reponame + '_repo', (project + '/' + repo) -%>
           <% @available_architectures.each do |arch| %>
-            <%= hidden_field_tag(reponame + "_arch[]", arch.name, :id => reponame + "_arch_" + arch.name) if arch.recommended == "true" %>
+            <%= hidden_field_tag(reponame + '_arch[]', arch.name, :id => reponame + '_arch_' + arch.name) if arch.recommended == 'true' %>
           <% end %>
           <%= name %>
         </span>
-      <% end -%>
-    </p>
-  <% end -%>
+          <% end -%>
+        </p>
+    <% end -%>
 
-  <h3><%= image_tag( "distributions/kiwi.png", :width => 40 ) %> Kiwi image builds</h3>
-  <p>
+    <h3><%= image_tag('distributions/kiwi.png', :width => 40) %> Kiwi image builds</h3>
+    <p>
     <span class="nowrap">
 
       <% selected = false
-      selected = true if @project.has_element?("repository[@name = 'images']") -%>
+         selected = true if @project.has_element?("repository[@name = 'images']") -%>
 
-      <%= check_box_tag 'repo[]', 'images', selected, :disabled => selected, :id => 'repo_images', :class => "repocheckbox" -%>
+      <%= check_box_tag 'repo[]', 'images', selected, :disabled => selected, :id => 'repo_images', :class => 'repocheckbox' -%>
       <input id="images_repo" name="images_repo" value="" type="hidden"/>
       <% @available_architectures.each do |arch| %>
-        <% if arch.recommended == "true" %>
+        <% if arch.recommended == 'true' %>
           <input id="images_arch_<%= arch.name %>" name="images_arch[]" value="<%= arch.name %>" type="hidden"/>
         <% end %>
       <% end %>
       KIWI image build <i>(to be used for appliance and product builds with kiwi)</i>        </span>
-  </p>
+    </p>
 
-  <p>
-    <%= submit_tag 'Add selected repositories', :disabled => true, :id => 'submitrepos' -%>
-  </p>
+    <p>
+      <%= submit_tag 'Add selected repositories', :disabled => true, :id => 'submitrepos' -%>
+    </p>
 <% end %>
 
 <%= content_for :ready_function do %>
-  $('.repocheckbox').click(function() { $('#submitrepos').removeAttr('disabled'); } );
+    $('.repocheckbox').click(function() { $('#submitrepos').removeAttr('disabled'); } );
 <% end %>
