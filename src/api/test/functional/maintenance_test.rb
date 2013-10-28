@@ -1104,6 +1104,16 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :parent => { :tag => 'result', :attributes => { :repository=> 'BaseDistro2.0_LinkedUpdateProject', :arch=> 'i586', :state=> 'unpublished'} },
                :tag => 'status', :attributes => { :package=> 'patchinfo', :code=> 'broken'}
+    # try to create release request nevertheless
+    raw_post '/request?cmd=create&addrevision=1', '<request>
+                                   <action type="maintenance_release">
+                                     <source project="' + incidentProject + '" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 400
+    assert_xml_tag( :tag => 'status', :attributes => { :code => 'build_not_finished'} )
+    assert_match(/patchinfo patchinfo is broken/, @response.body)
     # un-block patchinfo build, but filter for an empty result
     pi.delete_element 'stopped'
     pi.add_element 'binary'

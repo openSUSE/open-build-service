@@ -704,18 +704,19 @@ class BsRequestAction < ActiveRecord::Base
             end
           end
           pkg.project.repositories.each do |repo|
-            firstarch=repo.architectures.first if repo
-            if firstarch
-              # skip excluded patchinfos
-              status = state.get_elements("/resultlist/result[@repository='#{repo.name}' and @arch='#{firstarch.name}']").first
-              unless status and s=status.get_elements("status[@package='#{pkg.name}']").first and s.attributes['code'] == 'excluded'
-                binaries = REXML::Document.new(Suse::Backend.get("/build/#{URI.escape(pkg.project.name)}/#{URI.escape(repo.name)}/#{URI.escape(firstarch.name)}/#{URI.escape(pkg.name)}").body)
-                l = binaries.get_elements('binarylist/binary')
-                if l and l.count > 0
-                  found_patchinfo = true
-                else
-                  raise BuildNotFinished.new "patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'"
-                end
+            next unless repo
+            firstarch=repo.architectures.first
+            next unless firstarch
+            # skip excluded patchinfos
+            status = state.get_elements("/resultlist/result[@repository='#{repo.name}' and @arch='#{firstarch.name}']").first
+            unless status and s=status.get_elements("status[@package='#{pkg.name}']").first and s.attributes['code'] == 'excluded'
+              raise BuildNotFinished.new "patchinfo #{pkg.name} is broken" if s.attributes['code'] == 'broken'
+              binaries = REXML::Document.new(Suse::Backend.get("/build/#{URI.escape(pkg.project.name)}/#{URI.escape(repo.name)}/#{URI.escape(firstarch.name)}/#{URI.escape(pkg.name)}").body)
+              l = binaries.get_elements('binarylist/binary')
+              if l and l.count > 0
+                found_patchinfo = true
+              else
+                raise BuildNotFinished.new "patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'"
               end
             end
           end
