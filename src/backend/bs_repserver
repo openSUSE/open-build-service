@@ -1999,6 +1999,10 @@ sub forwardevent {
     $arch = $cgi->{'arch'} if exists $cgi->{'arch'};
     $job = $cgi->{'job'} if exists $cgi->{'job'};
   }
+  # hack: mis-use job to transfer wipe target
+  if ($type eq 'wipe' && $cgi->{'wipe'}) {
+    $job = join(',', @{$cgi->{'wipe'}});
+  }
   my $evname = "$type:$projid";
   $ev->{'package'} = $packid if defined $packid;
   $evname .= "::$packid" if defined $packid;
@@ -2188,10 +2192,27 @@ sub getresult {
   return ({'result' => $r, 'state' => $state}, $BSXML::resultlist);
 }
 
+# special call that completely wipes the published area from a prp
+sub wipepublishedlocked {
+  my ($prp) = @_;
+  return unless -d "$reporoot/$prp";
+  local *F;
+  lockopen(\*F, '>', "$reporoot/$prp/.finishedlock");
+  for my $arch (sort(ls("$reporoot/$prp"))) {
+    my $r = "$reporoot/$prp/$arch/:repo";
+    next unless -d $r;
+    unlink("${r}info");
+    BSUtil::cleandir($r);
+    rmdir($r);
+  }
+  close F;
+}
+
 sub docommand {
   my ($cgi, $cmd, $prpas) = @_;
   my %code = map {$_ => 1} @{$cgi->{'code'} || []};
   my %buildingjobs;
+  my %wipepublishedlockeddone;
   for my $prpa (@$prpas) {
     my ($projid, $repoid, $arch) = split('/', $prpa);
     my @packids = @{$cgi->{'package'} || []};
@@ -2231,6 +2252,10 @@ sub docommand {
 	};
 	warn("$@") if $@;
       }
+    } elsif ($cmd eq 'wipepublishedlocked') {
+      my $prp = "$projid/$repoid";
+      wipepublishedlocked($prp) unless $wipepublishedlockeddone{$prp};
+      $wipepublishedlockeddone{$prp} = 1;
     } elsif ($cmd eq 'wipe') {
       undef $allpacks;
       if ($allpacks) {
@@ -3802,7 +3827,7 @@ my $dispatches = [
   '/configuration' => \&getconfiguration,
 
   '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? withstats:bool? summary:bool?' => \&getresult,
-  'POST:/_command $cmd: $prpa+ package* code:*' => \&docommand,
+  'POST:/_command $cmd: $prpa+ package* code:* wipe:*' => \&docommand,
 
   '/serverstatus' => \&BSStdServer::serverstatus,
   '/ajaxstatus' => \&getajaxstatus,

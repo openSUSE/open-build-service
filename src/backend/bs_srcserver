@@ -5817,14 +5817,19 @@ sub docommand {
   }
   die("no repository defined\n") unless @prpas;
   my @packids = @{$cgi->{'package'} || []};
-  if (@packids) {
-    my %packids = map {$_ => 1} findpackages($projid, $proj, 1);
-    my @badpacks = grep {!$packids{$_}} @packids;
-    die("404 unknown package: @badpacks\n") if @badpacks;
+  if ($cgi->{'cmd'} eq 'wipepublishedlocked') {
+    die("wipepublishedlocked can only wipe complete repos\n") if $cgi->{'arch'} || $cgi->{'code'} || @packids;
   } else {
-    @packids = findpackages($projid, $proj);
+    if (@packids) {
+      my %packids = map {$_ => 1} findpackages($projid, $proj, 1);
+      my @badpacks = grep {!$packids{$_}} @packids;
+      die("404 unknown package: @badpacks\n") if @badpacks;
+    } else {
+      @packids = findpackages($projid, $proj);
+    }
+    die("no packages defined\n") unless @packids;
   }
-  die("no packages defined\n") unless @packids;
+  die("illegal wipe parameter\n") if $cgi->{'wipe'} && $cgi->{'cmd'} ne 'wipe';
   
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
   my $res;
@@ -5832,6 +5837,7 @@ sub docommand {
   push @args, map {"prpa=$_"} @prpas;
   push @args, map {"package=$_"} @packids;
   push @args, map {"code=$_"} @{$cgi->{'code'} || []};
+  push @args, map {"wipe=$_"} @{$cgi->{'wipe'} || []};
   push @args, "cmd=$cgi->{'cmd'}";
   my $param = {
     'uri' => "$reposerver/_command",
@@ -7736,7 +7742,7 @@ my $dispatches = [
   '/build/_workerstatus scheduleronly:bool? daemonsonly:bool? arch*' => \&getworkerstatus,
   'PUT:/build/_dispatchprios' => \&putdispatchprios,
   '/build/_dispatchprios' => \&getdispatchprios,
-  'POST:/build/$project cmd: repository* arch* package* code:*' => \&docommand,
+  'POST:/build/$project cmd: repository* arch* package* code:* wipe:*' => \&docommand,
   '/build/$project' => \&getrepositorylist,
   '/build/$project/_result oldstate:md5? view:resultview* lastbuild:bool? repository* arch* package* code:*' => \&getresult,
   '/build/$project/$repository' => \&getarchlist,
