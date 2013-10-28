@@ -32,13 +32,13 @@
             <p>
               <strong><%= image_tag("info.png", :title => "Choose the category of your update", :alt => "Categoryinfo") %>
                 Category:</strong>
-              <%= select_tag "category", options_for_select(Webui::Patchinfo::CATEGORIES, @category) %>
+              <%= select_tag "category", options_for_select(WebuiPatchinfo::CATEGORIES, @category) %>
             </p>
 
             <p>
               <strong><%= image_tag("info.png", :title => "Select the rating of this update", :alt => "Ratinginfo") %>
                 Rating:</strong>
-              <%= select_tag "rating", options_for_select(Webui::Patchinfo::RATINGS, @rating) %>
+              <%= select_tag "rating", options_for_select(WebuiPatchinfo::RATINGS, @rating) %>
             </p>
           </div>
           <div class="box show_left show_right">

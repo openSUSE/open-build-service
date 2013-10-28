@@ -12,13 +12,13 @@ class Webui::PatchinfoController < Webui::WebuiController
     end
 
     unless Webui::Package.find('patchinfo', :project => @project )
-      unless ::Patchinfo.new.create_patchinfo(@project.name, nil)
+      unless Patchinfo.new.create_patchinfo(@project.name, nil)
         flash[:error] = "Error creating patchinfo"
         redirect_to :controller => 'project', :action => 'show', project: @project and return
       end
     end
     @package = Webui::Package.find('patchinfo', :project => @project )
-    @file = Webui::Patchinfo.find(:project => @project, :package => @package )
+    @file = WebuiPatchinfo.find(:project => @project, :package => @package )
     unless @file
       flash[:error] = "Patchinfo not found for #{params[:project]}"
       redirect_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
@@ -35,7 +35,7 @@ class Webui::PatchinfoController < Webui::WebuiController
   def updatepatchinfo
     path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=updatepatchinfo"
     frontend.transport.direct_http( URI(path), :method => 'POST')
-    Webui::Patchinfo.free_cache(:project=> @project, :package => @package)
+    WebuiPatchinfo.free_cache(:project=> @project, :package => @package)
     redirect_to :action => 'edit_patchinfo', :project => @project, :package => @package
   end
 
@@ -251,7 +251,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       Rails.cache.delete('%s_problem_packages' % @project)
       Webui::Package.free_cache( :all, :project => @project.name )
       Webui::Package.free_cache( @package, :project => @project )
-      Webui::Patchinfo.free_cache(:project=> @project, :package => @package)
+      WebuiPatchinfo.free_cache(:project=> @project, :package => @package)
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
     end
@@ -369,11 +369,12 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def require_all
     required_parameters :project
+    Rails.logger.debug "require_all #{params[:project]}"
     @project = WebuiProject.find( params[:project] )
     unless @project
       flash[:error] = "Project not found: #{params[:project]}"
       redirect_to :controller => 'project', :action => 'list_public'
-      return
+      return false
     end
   end
 
@@ -381,10 +382,10 @@ class Webui::PatchinfoController < Webui::WebuiController
     unless params[:package].blank?
       @package = Webui::Package.find( params[:package], :project => @project )
     end
-    @file = Webui::Patchinfo.find(:project => @project.to_s, :package => @package.to_s)
+    @file = WebuiPatchinfo.find(:project => @project.to_s, :package => @package.to_s)
     opt = {:project => @project.name, :package => @package}
     opt.store(:patchinfo, @patchinfo.to_s)
-    @patchinfo = Webui::Patchinfo.find(opt)
+    @patchinfo = WebuiPatchinfo.find(opt)
 
     unless @file
       flash[:error] = "Patchinfo not found for #{params[:project]}"

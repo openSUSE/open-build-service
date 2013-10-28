@@ -73,7 +73,7 @@ map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['fronte
       :config => 'rest:///attribute/:namespace/:attribute/_meta',
       :attributes => 'rest:///attribute/:namespace'
 
-    map.connect :patchinfo, 'rest:///source/:project/:package/_patchinfo',
+    map.connect :webuipatchinfo, 'rest:///source/:project/:package/_patchinfo',
       :issues => 'rest:///source/:project/:package/?view=issues'
  
     map.connect :distribution, 'rest:///distributions/', all: 'rest:///distributions/include_remotes'

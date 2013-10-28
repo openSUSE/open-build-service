@@ -60,7 +60,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     find(:id, 'action_display_0').must_have_text ('Release in BaseDistro2.0:LinkedUpdateProject')
     fill_in 'reason', with: 'really? ok'
     find(:id, 'accept_request_button').click
-    find(:css, '#action_display_0').must_have_text %r{Submit update from package home:tom:branches:BaseDistro2.0:LinkedUpdateProject / pack2 to project My:Maintenance:0}
+    find(:css, '#action_display_0').must_have_text %r{Submit update from package home:tom:branch.*UpdateProject / pack2 to project My:Maintenance:0}
 
     visit(webui_engine.project_show_path(project: 'My:Maintenance:0'))
     find(:link, 'Patchinfo present').click

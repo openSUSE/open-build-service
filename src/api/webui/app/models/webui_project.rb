@@ -256,7 +256,7 @@ class WebuiProject < Webui::Node
 
   def patchinfo
     begin
-      return Webui::Patchinfo.find(:project => self.name, :package => 'patchinfo')
+      return WebuiPatchinfo.find(:project => self.name, :package => 'patchinfo')
     rescue ActiveXML::Transport::Error, ActiveXML::ParseError
       return nil
     end
@@ -320,7 +320,7 @@ class WebuiProject < Webui::Node
       if pkg && rt_name
         if pkg_name == 'patchinfo'
           # Holy crap, we found a patchinfo that is specific to (at least) one release target!
-          pi = Webui::Patchinfo.find(:project => self.name, :package => pkg_name)
+          pi = WebuiPatchinfo.find(:project => self.name, :package => pkg_name)
           begin
             release_targets_ng[rt_name][:patchinfo] = pi
           rescue

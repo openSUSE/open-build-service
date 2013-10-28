@@ -1,4 +1,4 @@
-class Webui::Patchinfo < Webui::Node
+class WebuiPatchinfo < Webui::Node
   class << self
     def make_stub( opt )
       '<patchinfo/>'
@@ -39,7 +39,7 @@ class Webui::Patchinfo < Webui::Node
   end
 
   def issues
-    issues = Webui::Patchinfo.find(:issues, :project => self.init_options[:project], :package => self.init_options[:package])
+    issues = WebuiPatchinfo.find(:issues, :project => self.init_options[:project], :package => self.init_options[:package])
     if issues
       return issues.each('issue')
     else
