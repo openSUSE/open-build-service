@@ -1,4 +1,4 @@
-class Event::Request < Event::Base
+class Event::Request < ::Event::Base
   self.description = 'Request was updated'
   self.abstract_class = true
   payload_keys :author, :comment, :description, :id, :actions, :state, :when, :who

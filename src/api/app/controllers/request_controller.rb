@@ -1,5 +1,5 @@
 require 'base64'
-require 'event'
+require_dependency 'event/all'
 
 include MaintenanceHelper
 
