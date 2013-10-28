@@ -191,7 +191,7 @@
   </div>
 <% end %>
 
- <% if @open_patchinfos and @open_patchinfos.count > 0 %>
+ <% if @open_patchinfos.present? %>
   <div class="grid_16 alpha omega box box-shadow">
     <div id="patchinfos">
       <div class="box-header header-tabs">

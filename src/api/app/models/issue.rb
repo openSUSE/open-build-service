@@ -98,6 +98,10 @@ class Issue < ActiveRecord::Base
     return issue
   end
   
+  def url
+    self.issue_tracker.show_url.gsub('@@@', self.name)
+  end
+
   def render_body(node, change=nil)
     p={}
     p[:change] = change if change
@@ -107,7 +111,7 @@ class Issue < ActiveRecord::Base
       issue.name(self.name)
       issue.tracker(self.issue_tracker.name)
       issue.label(self.label)
-      issue.url(self.issue_tracker.show_url.gsub('@@@', self.name))
+      issue.url(self.url)
       issue.state(self.state)             if self.state
       issue.summary(self.summary) if self.summary
 

@@ -1,7 +1,6 @@
 require 'net/http'
 
-module Webui
-class HomeController < WebuiController
+class Webui::HomeController < Webui::WebuiController
 
   before_filter :require_login, :except => [:icon, :index, :requests]
   before_filter :check_user, :except => [:icon]
@@ -11,19 +10,18 @@ class HomeController < WebuiController
     lockout_spiders
     @iprojects = @displayed_user.involved_projects.pluck(:name, :title)
     @ipackages = @displayed_user.involved_packages.joins(:project).pluck(:name, 'projects.name as pname')
-    Rails.logger.debug "INV #{@ipackages.inspect}"
     begin
-      @owned = ReverseOwner.find(:user => @displayed_user.login).each.map {|x| [x.package, x.project]} 
-      # :limit => "#{@owner_limit}", :devel => "#{@owner_devel}"
+      @owned = ReverseOwner.find(:user => @displayed_user.login).each.map { |x| [x.package, x.project] }
+        # :limit => "#{@owner_limit}", :devel => "#{@owner_devel}"
     rescue ActiveXML::Transport::Error
-    # OBSRootOwner isn't set...
+      # OBSRootOwner isn't set...
       @owned = []
     end
     if User.current == @displayed_user
       requests
     end
   end
-  
+
   def icon
     required_parameters :user
     user = params[:user]
@@ -60,38 +58,29 @@ class HomeController < WebuiController
     array = Array.new
     col = Webui::Collection.find(:id, :what => 'package', :predicate => "[kind='patchinfo' and issue/[@state='OPEN' and owner/@login='#{CGI.escape(login)}']]")
     col.each_package do |pi|
-      hash = { :package => { :project => pi.project, :name => pi.name } }
+      hash = {:package => {:project => pi.project, :name => pi.name}}
       issues = Array.new
 
-      begin
-        # get users open issues for package
-        path = ::Package.source_path(pi.project, pi.name, nil, view: :issues, states: 'OPEN', login: login)
-        frontend = ActiveXML::api
-        answer = frontend.direct_http URI(path), :method => "GET"
-        doc = ActiveXML::Node.new(answer)
-        doc.each("/package/issue") do |s|
-          i = {}
-          i[:name]= s.find_first("name").text
-          i[:tracker]= s.find_first("tracker").text
-          i[:label]= s.find_first("label").text
-          i[:url]= s.find_first("url").text
-          summary=s.find_first("summary")
-          i[:summary] = summary.text if summary
-          state=s.find_first("state")
-          i[:state] = state.text if state
-          login=s.find_first("login")
-          i[:login] = login.text if login
-          updated_at=s.find_first("updated_at")
-          i[:updated_at] = updated_at.text if updated_at
-          issues << i
-        end
-
-        hash[:issues] = issues
-        array << hash
-      rescue ActiveXML::Transport::NotFoundError
-        # Ugly catch for projects that where deleted while this loop is running... bnc#755463)
+      p = Package.find_by_project_and_name(pi.project, pi.name)
+      p.package_issues.includes(:issue).each do |is|
+        Rails.logger.debug "IS #{is.inspect} #{is.issue.inspect}"
+        i = {}
+        is = is.issue
+        i[:name]= is.name
+        i[:tracker]= is.issue_tracker.name
+        i[:label]= is.label
+        i[:url]= is.url
+        i[:summary] = is.summary
+        i[:state] = is.state
+        i[:login] = is.owner.login
+        i[:updated_at] = is.updated_at
+        issues << i
       end
+
+      hash[:issues] = issues
+      array << hash
     end
+
     return array
   end
 
@@ -154,9 +143,9 @@ class HomeController < WebuiController
   def overwrite_user
     @displayed_user = User.current
     if params['user'].present?
-      user = User.find_by_login( params['user'] )
+      user = User.find_by_login(params['user'])
       if user
-        @displayed_user = user 
+        @displayed_user = user
       else
         flash.now[:error] = "User not found #{params['user']}"
       end
@@ -167,6 +156,6 @@ class HomeController < WebuiController
     end
     logger.debug "Displayed user is #{@displayed_user}"
   end
+
   private :overwrite_user
-end
 end
