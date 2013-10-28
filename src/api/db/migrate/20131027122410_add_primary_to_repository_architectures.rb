@@ -16,7 +16,7 @@ class AddPrimaryToRepositoryArchitectures < ActiveRecord::Migration
         id=id+1
       end
     end
-    execute("alter table repository_architectures modify COLUMN id int(11) NOT NULL AUTO_INCREMENT")
     execute("alter table repository_architectures add PRIMARY KEY (`id`)")
+    execute("alter table repository_architectures modify COLUMN id int(11) NOT NULL AUTO_INCREMENT")
   end
 end
