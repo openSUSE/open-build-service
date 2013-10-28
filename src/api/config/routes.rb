@@ -12,7 +12,9 @@ OBSApi::Application.routes.draw do
   ### /person
   post 'person' => 'person#command'
   get 'person' => 'person#show'
-  post 'person/login/:user' => 'person#login'
+  get 'person/:login/token' => 'person#tokenlist'
+  post 'person/:login/token' => 'person#command_token'
+  delete 'person/:login/token/:id' => 'person#delete_token'
 
   # FIXME3.0: this is no clean namespace, a person "register" or "changepasswd" could exist ...
   #           remove these for OBS 3.0
@@ -93,6 +95,9 @@ OBSApi::Application.routes.draw do
 
   ### /architecture
   resources :architectures, :only => [:index, :show, :update] # create,delete currently disabled
+
+  ### /trigger
+  post 'trigger/runservice' => 'trigger#runservice'
 
   ### /issue_trackers
   get 'issue_trackers/issues_in' => 'issue_trackers#issues_in'

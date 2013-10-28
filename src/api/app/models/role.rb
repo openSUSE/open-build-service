@@ -55,7 +55,7 @@ class Role < ActiveRecord::Base
       return @cache
     end
 
-    def get_by_title(title)
+    def find_by_title!(title)
       find_by_title(title) or raise NotFound.new("Couldn't find Role '#{title}'")
     end
     def local_roles

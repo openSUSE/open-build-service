@@ -110,8 +110,8 @@ class PersonController < ApplicationController
   def grouplist
     raise NoPermissionToGroupList.new unless User.current
 
-    login = User.get_by_login params[:login]
-    @list = User.lookup_strategy.groups(login)
+    user = User.find_by_login! params[:login]
+    @list = User.lookup_strategy.groups(user)
   end
 
   def register
@@ -120,6 +120,9 @@ class PersonController < ApplicationController
   end
 
   class ErrRegisterSave < APIException
+  end
+
+  class NoPermission < APIException
   end
 
   def internal_register
@@ -219,11 +222,7 @@ class PersonController < ApplicationController
             :message => "Failed to change password: missing parameter"
       return
     end
-    unless User.current.is_admin? or login == User.current.login
-      render_error :status => 403, :errorcode => 'failed to change password',
-            :message => "No sufficiend permissions to change password for others"
-      return
-    end
+    user = User.get_by_login(login)
     
     #change password to LDAP if LDAP is enabled    
     if CONFIG['ldap_mode'] == :on
@@ -247,10 +246,39 @@ class PersonController < ApplicationController
     end
 
     #update password in users db
-    @user = User.get_by_login(login)
-    @user.update_password( password )
-    @user.save!
+    user.update_password( password )
+    user.save!
   end
   private :change_password
+
+  # GET /person/<login>/token
+  def tokenlist
+    user = User.get_by_login(params[:login])
+    @list = user.tokens
+  end
+
+  # POST /person/<login>/token
+  def command_token
+    user = User.get_by_login(params[:login])
+
+    unless params[:cmd] == "create"
+      raise UnknownCommandError.new "Allowed commands are 'create'"
+      return
+    end
+    pkg = nil
+    if params[:project] or params[:package]
+      pkg = Package.get_by_project_and_name( params[:project], params[:package] )
+    end
+    @token = Token.create( user: user, package: pkg )
+  end
+
+  # DELETE /person/<login>/token/<id>
+  def delete_token
+    user = User.get_by_login(params[:login])
+
+    token = Token.where( user_id: user.id, id: params[:id] ).first
+    token.destroy
+    render_ok
+  end
 
 end

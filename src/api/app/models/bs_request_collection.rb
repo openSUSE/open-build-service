@@ -87,7 +87,7 @@ class BsRequestCollection
   end
 
   def extend_query_for_group(group)
-    group = Group.get_by_title(group)
+    group = Group.find_by_title!(group)
 
     # find requests where group is maintainer in target project
     extend_query_for_maintainer(group)
@@ -102,7 +102,7 @@ class BsRequestCollection
   end
 
   def extend_query_for_user(user)
-    user = User.get_by_login(user)
+    user = User.find_by_login!(user)
 
     # user's own submitted requests
     if @roles.count == 0 or @roles.include? 'creator'

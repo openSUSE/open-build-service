@@ -10,10 +10,10 @@ class AttribNamespace < ActiveRecord::Base
     end
     p={}
     if m["user"]
-      p[:user] = User.get_by_login(m["user"])
+      p[:user] = User.find_by_login!(m["user"])
     end
     if m["group"]
-      p[:group] = Group.get_by_title(m["group"])
+      p[:group] = Group.find_by_title!(m["group"])
     end
     self.attrib_namespace_modifiable_bies << AttribNamespaceModifiableBy.new(p)
   end

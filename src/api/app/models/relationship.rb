@@ -65,7 +65,7 @@ class Relationship < ActiveRecord::Base
     obj.check_write_access!
 
     unless role.kind_of? Role
-      role = Role.get_by_title(role)
+      role = Role.find_by_title!(role)
     end
     if role.global
       #only nonglobal roles may be set in a project
@@ -73,7 +73,7 @@ class Relationship < ActiveRecord::Base
     end
 
     unless user.kind_of? User
-      user = User.get_by_login(user)
+      user = User.find_by_login!(user)
     end
 
     obj.relationships.each do |r|
@@ -95,7 +95,7 @@ class Relationship < ActiveRecord::Base
     obj.check_write_access!
 
     unless role.kind_of? Role
-      role = Role.get_by_title(role)
+      role = Role.find_by_title!(role)
     end
 
     if role.global

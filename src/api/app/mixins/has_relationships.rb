@@ -108,7 +108,7 @@ module HasRelationships
     end
 
     def find!(id)
-      User.get_by_login(id)
+      User.find_by_login!(id)
     end
   end
 

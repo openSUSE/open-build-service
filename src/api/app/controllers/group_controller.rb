@@ -8,7 +8,7 @@ class GroupController < ApplicationController
 
   def index
     if params[:login]
-      user = User.get_by_login(params[:login])
+      user = User.find_by_login!(params[:login])
       @list = user.groups
     else
       @list = Group.all
@@ -20,14 +20,14 @@ class GroupController < ApplicationController
 
   # DELETE for removing it
   def delete
-    group = Group.get_by_title(params[:title])
+    group = Group.find_by_title!(params[:title])
     group.destroy
     render_ok
   end
 
   # GET for showing the group
   def show
-    @group = Group.get_by_title(params[:title])
+    @group = Group.find_by_title!(params[:title])
   end
 
   # PUT for rewriting it completely including defined user list.
@@ -44,8 +44,8 @@ class GroupController < ApplicationController
 
   # POST for editing it, adding or remove users
   def command
-    group = Group.get_by_title(URI.unescape(params[:title]))
-    user = User.get_by_login(params[:userid]) if params[:userid]
+    group = Group.find_by_title!(URI.unescape(params[:title]))
+    user = User.find_by_login!(params[:userid]) if params[:userid]
 
     if params[:cmd] == "add_user"
       group.add_user user

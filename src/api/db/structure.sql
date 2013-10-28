@@ -851,6 +851,19 @@ CREATE TABLE `tags` (
   UNIQUE KEY `tags_name_unique_index` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `tokens` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `string` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `user_id` int(11) NOT NULL,
+  `package_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_tokens_on_string` (`string`),
+  KEY `user_id` (`user_id`),
+  KEY `package_id` (`package_id`),
+  CONSTRAINT `tokens_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `tokens_ibfk_2` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `updateinfo_counter` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `maintenance_db_project_id` int(11) DEFAULT NULL,
@@ -1311,6 +1324,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131022114302');
 INSERT INTO schema_migrations (version) VALUES ('20131023063641');
 
 INSERT INTO schema_migrations (version) VALUES ('20131027122410');
+
+INSERT INTO schema_migrations (version) VALUES ('20131028085325');
 
 INSERT INTO schema_migrations (version) VALUES ('20131029112259');
 
