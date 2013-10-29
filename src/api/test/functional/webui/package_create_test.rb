@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 require 'test_helper'
 
+SimpleCov.command_name 'test:webui2'
+
 class Webui::PackageCreateTest < Webui::IntegrationTest
 
   setup do
