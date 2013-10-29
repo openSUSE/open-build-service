@@ -468,18 +468,20 @@ module Webui::WebuiHelper
     defaults = {package: nil, rev: nil, short: false, trim_to: 40}
     opts = defaults.merge(opts)
 
-    # only care for database entries
-    prj = Project.where(name: opts[:project]).select(:id, :name).first
-    if prj && opts[:creator]
-      opts[:project_text] ||= format_projectname(opts[:project], opts[:creator])
-    end
-    if opts[:package] && prj && opts[:package] != :multiple
-      pkg = prj.packages.where(name: opts[:package]).select(:id, :name).first
-    end
-    if opts[:package]
-      link_to_package(prj, pkg, opts)
-    else
-      link_to_project(prj, opts)
+    CacheLine.fetch(['project_or_package_link', opts], project: opts[:project], package: opts[:package]) do
+      # only care for database entries
+      prj = Project.where(name: opts[:project]).select(:id, :name).first
+      if prj && opts[:creator]
+        opts[:project_text] ||= format_projectname(opts[:project], opts[:creator])
+      end
+      if opts[:package] && prj && opts[:package] != :multiple
+        pkg = prj.packages.where(name: opts[:package]).select(:id, :name).first
+      end
+      if opts[:package]
+        link_to_package(prj, pkg, opts)
+      else
+        link_to_project(prj, opts)
+      end
     end
   end
 end
