@@ -3,54 +3,183 @@
 [![Coverage Status](https://coveralls.io/repos/openSUSE/open-build-service/badge.png)](https://coveralls.io/r/openSUSE/open-build-service)
 
 
-Open Build Service
-==================
+# Open Build Service
+The [Open Build Service (OBS)](http://www.open-build-service.org) is a generic system to build and distribute binary packages from sources in an automatic, consistent and reproducible way. You can release packages as well as updates, add-ons, appliances and entire distributions for a wide range of operating systems and hardware architectures. More information can be found on [openbuildservice.org](http://www.openbuildservice.org).
 
-[The Open Build Service (OBS)](http://www.open-build-service.org) is a generic system
-to build and distribute binary packages from sources in an automatic, consistent and
-reproducible way. You can release packages as well as updates, add-ons, appliances and
-entire distributions for a wide range of operating systems and hardware architectures.
+The OBS consists of the backend and the frontend. The backend implements all the core functionality (i.e. building packages), whereas the frontend provides an interface to the backend. You can access the frontend either via a browser or using our XML API. Additionally there is a command line client (osc) for the API which is developed in a [separate repository](https://github.com/openSUSE/osc).
 
-More information can be found on [openbuildservice.org](http://www.openbuildservice.org),
-including the official books for OBS.
+## Licensing
+The Open Build Service is Free Software and is released under the terms of the GPL, except where noted. Additionally, 3rd-party content (like, but not exclusively, the webui icon theme) may be released under a different license. Please check the respective files for details.
 
-Organization
-------------
+## Community
+You can discuss with the OBS Team via IRC on the channel [#opensuse-buildservice](irc://freenode.net/opensuse-buildservice). Or you can use our mailing list [opensuse-buildservice@opensuse.org](mailto:opensuse-buildservice+subscribe@opensuse.org)
 
-The Open Build Service consists of several parts, namely the backend and the
-Rails app. The backend implements all the core functionality (i.e. the
-business logic), whereas the Rails app provides an interface to the backend.
-You can access the Rails app either using a browser or using our API.
-Therefore the source code is organized like this:
+## Source Code Repository Layout
+The OBS source code repository is hosted on [Github](http://github.com/opensuse/open-build-service) and organized like this:
 
-###Directory Description
+        dist          Files relevant for our distribution packages
+        docs          Documentation, examples and schema files
+        src/api       Rails app (Ruby on Rails)
+        src/backend   Backend code (Perl)
 
-	dist          Files relevant for (distro) packaging
-	docs          Documentation, examples and schema files
-	src/api       Rails app (Ruby / Ruby on Rails)
-	src/backend   Backend code (Perl)
+## Setup
+There are 3 scenarios for which you can setup an OBS instance. Running it in *production* for your users, for *development* on it and for executing the *test* suite.
 
-Note that the two parts each also have their own documentation found in their
-respective subdirectories.
+To run the OBS in production we recommend to use our [OBS appliance](http://openbuildservice.org/download/) which is the whole package: a recent and stable Linux Operating System ([openSUSE](http://www.opensuse.org)) bundled and pre-configured with all the server and OBS components you need to get going.
 
-Installation, deployment and development
-----------------------------------------
+If an appliance isn’t an option for you, read on for how to setup OBS with packages or from the source code repository. 
 
-These topics are covered in the INSTALL file and on the
-[openSUSE wiki](http://en.opensuse.org/Portal:Build_Service).
+### Prerequisites
+The OBS needs a SQL database for persistent and a memcache daemon for volatile data.
 
-###Licensing
+#### Install/Configure the SQL Database
+Here is an example on how to setup [MariaDB](https://mariadb.org/) on the [openSUSE Linux Distribution](http://www.opensuse.org). If you use another Linux distribution or another OS please refer to your manuals on how to get this running.
 
-The Open Build Service is Free Software and is released under the terms of
-the GPL, except where noted. Additionally, 3rd-party content (like, but not
-exclusively, the webui icon theme) may be released under a different license.
-Please check the respective files for details.
+1. Install the mysql package:
+```
+zypper in mariadb
+```
 
-###Contact
+2. Start the database permanently:
+```
+systemctl enable mysql.service
+systemctl start mysql.service
+```
 
-The Build Service project is hosted on [Github](http://github.com/opensuse/open-build-service)
-and you can discuss with the OBS Team via IRC on the channel
-[#opensuse-buildservice](irc://freenode.net/opensuse-buildservice). Or you can use our mailing list
-[opensuse-buildservice@opensuse.org](mailto:opensuse-buildservice+subscribe@opensuse.org)
+3. Secure the database and set a root password:
+```
+mysql_secure_installation
+```
 
-> Your Open Build Service Team
+**WARNING**: If you use the SQL database for other services, too, then it's recommended to [add a separate SQL user](https://dev.mysql.com/doc/refman/5.1/en/adding-users.html). 
+
+4. Copy the frontend database example configuration:
+```
+cp config/database.yml.example config/database.yml
+```
+
+5. Edit the database.yml file and set the password you have set in step 3.
+
+#### Install the Memcache Daemon
+Here is an example on how to setup [memcached](http://www.memcached.org/) on the [openSUSE Linux Distribution](http://www.opensuse.org). If you use another Linux distribution or another OS please refer to your manuals on how to get this running.
+
+1. Install the memcachd package:
+```
+zypper in memcached
+```
+
+2. Start the memcache daemon permanently:
+```
+systemctl enable memcached
+systemctl start memcached
+```
+
+### Install/Configure the OBS Backend
+The OBS backend is not a monolithic server, it consists of [multiple daemons that fulfill different tasks](https://github.com/openSUSE/open-build-service/blob/master/src/backend/DESIGN).
+
+#### Production
+We maintain an [OBS package repository](https://build.opensuse.org/project/show/OBS:Server:2.4)  which provides all the neccesarry packages and dependencies to run an OBS backend on the [SUSE Linux Enterprise](https://www.suse.com/products/server/) or [openSUSE](http://www.opensuse.org) operating systems. We highly recommend, and in fact only test these host systems, for OBS backend installations. Here is an example on how to setup the backend on the [openSUSE Linux Distribution](http://www.opensuse.org). 
+
+1. Install the packages
+```
+zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/2.4/openSUSE_12.3/OBS:Server:2.4.repo
+zypper in -t pattern OBS_Server
+```
+
+2. Start the repository server
+```
+systemctl enable obsrepserver
+systemctl start obsrepserver
+```
+
+3. Start the source server
+```
+systemctl enable obssrcserver
+systemctl start obssrcserver
+```
+
+4. Start the scheduler
+```
+systemctl enable obsscheduler
+systemctl start obsscheduler
+```
+
+5. Start the dispatcher
+```
+systemctl enable obsdispatcher
+systemctl start obsdispatcher
+```
+
+6. Start the publisher
+```
+systemctl enable obspublisher
+systemctl start obspublisher
+```
+
+7. Start one or more workers
+```
+systemctl enable obsworker
+systemctl start obsworker
+```
+
+8. Start the signer in case you want to sign packages (**OPTIONAL**)
+```
+systemctl enable obssigner
+systemctl start obssigner
+```
+
+9. Start the warden in case you want to monitor workers (**OPTIONAL**)
+```
+systemctl enable obswarden
+systemctl start obswarden
+```
+
+**WARNING**: The commands start services which are accessible from the outside. Do not do this on a system connected to an untrusted network!
+
+##### Distributed Backend
+All OBS backend daemons can also be started on individual machines in your network. Especially for large scale OBS installations this is the recommended setup. You can configure all of this in the file
+
+```
+/usr/lib/obs/server/BSConfig.pm
+```
+
+##### Distributed Workers 
+To not burden your OBS backend servers with the unpredictable load package builds can produce (think someone builds a monstrous package like LibreOffice) you should not run OBS workers on the same host as the rest of the backend services. Here is an example on how to setup an OBS worker on the [openSUSE Linux Distribution](http://www.opensuse.org). 
+
+1. Install the worker packages
+```
+zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/2.4/openSUSE_12.3/OBS:Server:2.4.repo
+zypper in obs-worker
+```
+
+2. Configure the OBS repository server address
+Edit the file
+
+```
+/etc/sysconfig/obs-server
+```
+
+and change the variable *OBS_REPO_SERVERS* to the hostname of the machine where the repository server is running.
+
+```
+OBS_REPO_SERVERS="myobsserver:5252"
+```
+
+3. Start the worker
+```
+systemctl enable obsworker
+systemctl start obsworker
+```
+
+#### Test
+#### Development
+#### Importing Distributions
+
+### Frontend
+#### Development
+#### Test
+#### Production
+##### Apache
+##### openSSL
+
+:heart: Your Open Build Service Team
