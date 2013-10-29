@@ -802,7 +802,7 @@ class PackageController < WebuiController
       @repository = repository
       @arch = arch
       @offset = 0
-      @maxsize = 1024 * 256
+      @maxsize = 1024 * 1024 * 15 # 15mb
     end
 
     def each
