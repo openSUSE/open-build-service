@@ -4,7 +4,7 @@ require 'simplecov'
 require 'simplecov-rcov'
 SimpleCov.start 'rails' do
   add_filter '/app/indices/'
-  add_filter '/app/models/user_ldap_stretegy.rb'
+  add_filter '/app/models/user_ldap_strategy.rb'
 end if ENV['DO_COVERAGE']
 
 require File.expand_path('../../config/environment', __FILE__)
