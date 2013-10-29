@@ -218,6 +218,16 @@ CREATE TABLE `bs_requests` (
   KEY `index_bs_requests_on_state` (`state`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `cache_lines` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `key` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `package` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `project` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `request` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `channel_binaries` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -1301,6 +1311,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131022114302');
 INSERT INTO schema_migrations (version) VALUES ('20131023063641');
 
 INSERT INTO schema_migrations (version) VALUES ('20131027122410');
+
+INSERT INTO schema_migrations (version) VALUES ('20131029112259');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

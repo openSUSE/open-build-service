@@ -1,4 +1,4 @@
-class CheckPackageEvent
+class UpdateBackendInfos
 
   attr_accessor :event
   attr_accessor :checked_pkgs

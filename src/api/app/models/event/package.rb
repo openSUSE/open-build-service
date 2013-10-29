@@ -8,6 +8,8 @@ module Event
   class CreatePackage < Package
     self.raw_type = 'SRCSRV_CREATE_PACKAGE'
     self.description = 'Package was created'
+
+    create_jobs :cleanup_cache_lines
   end
 
   class UpdatePackage < Package
@@ -20,13 +22,15 @@ module Event
     self.description = 'Package was undeleted'
     payload_keys :comment
 
-    after_create { |event| CheckPackageEvent.new(event).perform }
+    create_jobs :cleanup_cache_lines, :update_backend_infos
   end
 
   class DeletePackage < Package
     self.raw_type = 'SRCSRV_DELETE_PACKAGE'
     self.description = 'Package was deleted'
     payload_keys :comment, :requestid
+
+    create_jobs :cleanup_cache_lines
   end
 
   class BranchCommand < Package
@@ -46,7 +50,7 @@ module Event
     self.description = 'New revision of a package was commited'
     payload_keys :project, :package, :comment, :user, :files, :rev, :requestid
 
-    after_create { |event| CheckPackageEvent.new(event).perform }
+    create_jobs :update_backend_infos
   end
 
   class Upload < Package
