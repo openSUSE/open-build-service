@@ -144,7 +144,7 @@ All OBS backend daemons can also be started on individual machines in your netwo
 ```
 
 ##### Distributed Workers 
-To not burden your OBS backend servers with the unpredictable load package builds can produce (think someone builds a monstrous package like LibreOffice) you should not run OBS workers on the same host as the rest of the backend services. Here is an example on how to setup an OBS worker on the [openSUSE Linux Distribution](http://www.opensuse.org). 
+To not burden your OBS backend servers with the unpredictable load package builds can produce (think someone builds a monstrous package like LibreOffice) you should not run OBS workers on the same host as the rest of the backend services. Here is an example on how to setup an OBS worker on the [openSUSE Linux Distribution](http://www.opensuse.org).
 
 1. Install the worker packages
 ```
@@ -153,16 +153,13 @@ zypper in obs-worker
 ```
 
 2. Configure the OBS repository server address
-Edit the file
-
+In the file
 ```
 /etc/sysconfig/obs-server
 ```
-
-and change the variable *OBS_REPO_SERVERS* to the hostname of the machine where the repository server is running.
-
+change a variable *OBS_REPO_SERVERS* to the hostname of the machine where the repository server is running
 ```
-OBS_REPO_SERVERS="myobsserver:5252"
+OBS_REPO_SERVERS="myreposerver:5252"
 ```
 
 3. Start the worker
