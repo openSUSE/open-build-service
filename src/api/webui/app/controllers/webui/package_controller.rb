@@ -1,17 +1,16 @@
 require 'open-uri'
 require 'project'
 
-module Webui
-class PackageController < WebuiController
+class Webui::PackageController < Webui::WebuiController
 
   include HasComments
   include ParsePackageDiff
-  include WebuiHelper
-  include PackageHelper
+  include Webui::WebuiHelper
+  include Webui::PackageHelper
   include Escaper
 
-  before_filter :require_project, :except => [:rawlog, :rawsourcefile, :submit_request, :devel_project]
-  before_filter :require_package, :except => [:rawlog, :rawsourcefile, :submit_request, :save_new_link, :save_new, :devel_project ]
+  before_filter :require_project, :except => [:submit_request, :devel_project]
+  before_filter :require_package, :except => [:submit_request, :save_new_link, :save_new, :devel_project ]
   # make sure it's after the require_, it requires both
   before_filter :require_login, :only => [:branch]
   prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
@@ -66,11 +65,6 @@ class PackageController < WebuiController
     @package # used by HasComments mixin
   end
 
-  def files
-    # we need to keep this as long as it's in google's index
-    redirect_to url_for(action: :show, package: params[:package], project: params[:project]), :status => :moved_permanently
-  end
-
   def set_linking_packages
     @linking_packages = @package.api_obj.linking_packages
   end
@@ -100,7 +94,7 @@ class PackageController < WebuiController
     @repository = params[:repository]
     @statistics = nil
     begin
-      @statistics = Statistic.find( project: @project, package: @package, repository: @repository, arch: @arch )
+      @statistics = Webui::Statistic.find( project: @project, package: @package, repository: @repository, arch: @arch )
       @statistics = @statistics.to_hash if @statistics
     rescue ActiveXML::Transport::ForbiddenError
     end
@@ -280,7 +274,7 @@ class PackageController < WebuiController
       @spec_count += 1 if file[:ext] == 'spec'
       if file[:name] == '_link'
         begin
-          @link = Link.find(:project => @project, :package => @package, :rev => @revision )
+          @link = Webui::Link.find(:project => @project, :package => @package, :rev => @revision )
         rescue RuntimeError
           # possibly thrown on bad link files
         end
@@ -367,17 +361,17 @@ class PackageController < WebuiController
 
   def wizard_new
     if params[:name]
-      if !valid_package_name_write? params[:name]
+      unless Package.valid_name? params[:name]
         flash[:error] = "Invalid package name: '#{params[:name]}'"
         redirect_to :action => 'wizard_new', :project => params[:project]
+        return
+      end
+      @package = WebuiPackage.new( :name => params[:name], :project => @project )
+      if @package.save
+        redirect_to :action => 'wizard', :project => params[:project], :package => params[:name]
       else
-        @package = Webui::Package.new( :name => params[:name], :project => @project )
-        if @package.save
-          redirect_to :action => 'wizard', :project => params[:project], :package => params[:name]
-        else
-          flash[:notice] = "Failed to save package '#{@package}'"
-          redirect_to :controller => 'project', :action => 'show', :project => params[:project]
-        end
+        flash[:notice] = "Failed to save package '#{@package}'"
+        redirect_to :controller => 'project', :action => 'show', :project => params[:project]
       end
     end
   end
@@ -416,18 +410,18 @@ class PackageController < WebuiController
     @package_title = params[:title]
     @package_description = params[:description]
 
-    if !valid_package_name_write? params[:name]
+    unless Package.valid_name? params[:name]
       flash[:error] = "Invalid package name: '#{params[:name]}'"
       redirect_to :controller => :project, :action => 'new_package', :project => @project
       return
     end
-    if Webui::Package.exists? @project, @package_name
+    if WebuiPackage.exists? @project, @package_name
       flash[:error] = "Package '#{@package_name}' already exists in project '#{@project}'"
       redirect_to :controller => :project, :action => 'new_package', :project => @project
       return
     end
 
-    @package = Webui::Package.new( :name => params[:name], :project => @project )
+    @package = WebuiPackage.new( :name => params[:name], :project => @project )
     @package.title.text = params[:title]
     @package.description.text = params[:description]
     if params[:source_protection]
@@ -442,8 +436,8 @@ class PackageController < WebuiController
       flash[:notice] = "Package '#{@package}' was created successfully"
       Rails.cache.delete('%s_packages_mainpage' % @project)
       Rails.cache.delete('%s_problem_packages' % @project)
-      Webui::Package.free_cache( :all, :project => @project.name )
-      Webui::Package.free_cache( @package.name, :project => @project )
+      WebuiPackage.free_cache( :all, :project => @project.name )
+      WebuiPackage.free_cache( @package.name, :project => @project )
       redirect_to :action => 'show', :project => params[:project], :package => params[:name]
     else
       flash[:notice] = "Failed to create package '#{@package}'"
@@ -486,28 +480,28 @@ class PackageController < WebuiController
     @revision       = nil
     @current_revision = true if params[:current_revision]
 
-    if !valid_package_name_write? @linked_package
+    unless Package.valid_name? @linked_package
       flash[:error] = "Invalid package name: '#{@linked_package}'"
       redirect_to :controller => :project, :action => 'new_package_branch', :project => params[:project] and return
     end
 
-    if !valid_project_name? @linked_project
+    unless Project.valid_name? @linked_project
       flash[:error] = "Invalid project name: '#{@linked_project}'"
       redirect_to :controller => :project, :action => 'new_package_branch', :project => params[:project] and return
     end
 
-    linked_package = Webui::Package.find(@linked_package, :project => @linked_project)
+    linked_package = WebuiPackage.find(@linked_package, :project => @linked_project)
     unless linked_package
       flash[:error] = "Unable to find package '#{@linked_package}' in project '#{@linked_project}'."
       redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
     end
 
     @target_package = @linked_package if @target_package.blank?
-    if !valid_package_name_write? @target_package
+    unless Package.valid_name? @target_package
       flash[:error] = "Invalid target package name: '#{@target_package}'"
       redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
     end
-    if Webui::Package.exists? @project, @target_package
+    if WebuiPackage.exists? @project, @target_package
       flash[:error] = "Package '#{@target_package}' already exists in project '#{@project}'"
       redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
     end
@@ -533,7 +527,7 @@ class PackageController < WebuiController
       end
     else
       # construct container for link
-      package = Webui::Package.new( :name => @target_package, :project => @project )
+      package = WebuiPackage.new( :name => @target_package, :project => @project )
       package.title.text = linked_package.title.text
 
       description = 'This package is based on the package ' +
@@ -554,7 +548,7 @@ class PackageController < WebuiController
         flash[:notice] = "Failed to save package '#{package}'"
         redirect_to :controller => 'project', :action => 'new_package_branch', :project => @project and return
         logger.debug "link params: #{@linked_project}, #{@linked_package}"
-        link = Link.new( :project => @project,
+        link = Webui::Link.new( :project => @project,
           :package => @target_package, :linked_project => @linked_project, :linked_package => @linked_package )
         link.set_revision @revision if @revision
         link.save
@@ -564,8 +558,8 @@ class PackageController < WebuiController
 
     Rails.cache.delete('%s_packages_mainpage' % @project)
     Rails.cache.delete('%s_problem_packages' % @project)
-    Webui::Package.free_cache( :all, :project => @project.name )
-    Webui::Package.free_cache( @target_package, :project => @project )
+    WebuiPackage.free_cache( :all, :project => @project.name )
+    WebuiPackage.free_cache( @target_package, :project => @project )
     redirect_to :controller => 'package', :action => 'show', :project => @project, :package => @target_package
   end
 
@@ -590,8 +584,8 @@ class PackageController < WebuiController
       flash[:notice] = "Package '#{@package}' was removed successfully from project '#{@project}'"
       Rails.cache.delete('%s_packages_mainpage' % @project)
       Rails.cache.delete('%s_problem_packages' % @project)
-      Webui::Package.free_cache( :all, :project => @project.name )
-      Webui::Package.free_cache( @package.name, :project => @project.name )
+      WebuiPackage.free_cache( :all, :project => @project.name )
+      WebuiPackage.free_cache( @package.name, :project => @project.name )
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
     end
@@ -739,7 +733,7 @@ class PackageController < WebuiController
 
   def view_file
     @filename = params[:filename] || params[:file] || ''
-    if Webui::Package.is_binary_file?(@filename) # We don't want to display binary files
+    if WebuiPackage.is_binary_file?(@filename) # We don't want to display binary files
       flash[:error] = "Unable to display binary file #{@filename}"
       redirect_back_or_to :action => :show, :project => @project, :package => @package and return
     end
@@ -794,80 +788,6 @@ class PackageController < WebuiController
     render json: { status: 'ok' }
   end
 
-  class RawOutPutStreamer
-    def initialize(frontend, project, package, repository, arch)
-      @frontend = frontend
-      @project = project
-      @package = package
-      @repository = repository
-      @arch = arch
-      @offset = 0
-      @maxsize = 1024 * 256
-    end
-
-    def each
-      begin
-        chunk = @frontend.get_log_chunk(@project, @package, @repository, @arch, @offset, @offset + @maxsize )
-      rescue ActiveXML::Transport::Error
-        return
-      end
-      if chunk.length == 0
-        return
-      end
-      @offset += ActiveXML::api.last_body_length
-      yield chunk
-    end
-  end
-
-  def try_volley(path)
-    # apache & mod_xforward case
-    if CONFIG['use_xforward'] and CONFIG['use_xforward'] != 'false'
-      logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
-      headers['X-Forward'] = "#{CONFIG['frontend_protocol']}://#{CONFIG['frontend_host']}:#{CONFIG['frontend_port']}#{path}"
-      head(200)
-      return true
-    end
-
-    # lighttpd 1.5 case
-    if CONFIG['use_lighttpd_x_rewrite']
-      headers['X-Rewrite-URI'] = path
-      headers['X-Rewrite-Host'] = CONFIG['frontend_host']
-      head(200)
-      return true
-    end
-
-    # nginx case
-    if CONFIG['use_nginx_redirect']
-      headers['X-Accel-Redirect'] = "#{CONFIG['use_nginx_redirect']}/#{CONFIG['frontend_protocol']}/#{CONFIG['frontend_host']}:#{CONFIG['frontend_port']}#{path}"
-      head(200)
-      return true
-    end
-
-    headers['Content-Type'] = 'text/plain'
-    return false
-  end
-
-  def rawsourcefile
-    opts = {}
-    opts[:rev] = params[:srcmd5] if params[:srcmd5].present?
-    path = ::Package.source_path(params[:project], params[:package], params[:filename], opts)
-
-    return if try_volley(path)
-    begin
-      self.response_body = frontend.transport.direct_http URI(path), timeout: 500
-    rescue ActiveXML::Transport::NotFoundError => e
-      flash[:error] = "Error: #{e.summary}"
-      redirect_back_or_to :action => :show, :project => params[:project], :package => params[:package]
-    end
-  end
-
-  def rawlog
-    path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_log"
-
-    return if try_volley(path)
-    self.response_body = RawOutPutStreamer.new(frontend, params[:project], params[:package], params[:repository], params[:arch])
-  end
-
   def live_build_log
     required_parameters :arch, :repository
     @arch = params[:arch]
@@ -884,7 +804,6 @@ class PackageController < WebuiController
     end
     @offset = (@offset || 0) + ActiveXML::api.last_body_length
   end
-
 
   def update_build_log
     check_ajax
@@ -940,7 +859,7 @@ class PackageController < WebuiController
   def devel_project
     check_ajax
     required_parameters :package, :project
-    tgt_pkg = Webui::Package.find( params[:package], project: params[:project] )
+    tgt_pkg = WebuiPackage.find( params[:package], project: params[:project] )
     if tgt_pkg and tgt_pkg.has_element?(:devel)
       render :text => tgt_pkg.devel.project
     else
@@ -1085,7 +1004,7 @@ class PackageController < WebuiController
     if @project.is_remote?
       @attributes = nil
     else
-      @attributes = Attribute.find(:project => @project.name, :package => @package.to_s)
+      @attributes = Webui::Attribute.find(:project => @project.name, :package => @package.to_s)
     end
   end
 
@@ -1125,7 +1044,7 @@ class PackageController < WebuiController
 
   def require_project
     required_parameters :project
-    if !valid_project_name? params[:project]
+    unless Project.valid_name? params[:project]
       unless request.xhr?
         flash[:error] = "#{params[:project]} is not a valid project name"
         redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404 and return
@@ -1147,7 +1066,7 @@ class PackageController < WebuiController
   def require_package
     required_parameters :package
     params[:rev], params[:package] = params[:pkgrev].split('-', 2) if params[:pkgrev]
-    unless valid_package_name_read? params[:package]
+    unless Package.valid_name? params[:package]
       logger.error "Package #{@project}/#{params[:package]} not valid"
       unless request.xhr?
         flash[:error] = "\"#{params[:package]}\" is not a valid package name"
@@ -1159,7 +1078,7 @@ class PackageController < WebuiController
     @project ||= params[:project]
     unless params[:package].blank?
       begin
-        @package = Webui::Package.find( params[:package], :project => @project )
+        @package = WebuiPackage.find( params[:package], :project => @project )
       rescue ActiveXML::Transport::Error => e
         flash[:error] = e.message
         unless request.xhr?
@@ -1242,5 +1161,4 @@ class PackageController < WebuiController
     end
   end
 
-end
 end

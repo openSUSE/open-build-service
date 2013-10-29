@@ -1,2 +1,2 @@
-class Webui::PackageAttribute < Webui::Node
+class WebuiPackageAttribute < Webui::Node
 end

@@ -136,25 +136,6 @@ class WebuiController < ActionController::Base
     FrontendCompat.new
   end
 
-  def valid_project_name? name
-    name =~ /^[[:alnum:]][-+\w.:]+$/
-  end
-
-  def valid_package_name_read? name
-    return true if name == '_project'
-    return true if name == '_product'
-    return true if name == '_deltas'
-    return true if name =~ /^_product:[-+\w\.:]*$/
-    return true if name =~ /^_patchinfo:[-+\w\.:]*$/
-    name =~ /^[[:alnum:]][-+\w\.:]*$/
-  end
-
-  def valid_package_name_write? name
-    return true if name =~ /^_project$/
-    return true if name =~ /^_product$/
-    name =~ /^[[:alnum:]][-+\w\.]*$/
-  end
-
   def valid_file_name? name
     name =~ /^[-\w+~ ][-\w\.+~ ]*$/
   end

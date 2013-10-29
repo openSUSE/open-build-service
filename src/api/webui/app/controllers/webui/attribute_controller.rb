@@ -81,7 +81,7 @@ private
     end
     @is_maintenance_project = false
     @is_maintenance_project = true if @project.project_type and @project.project_type == "maintenance"
-    @package = Webui::Package.find(params[:package], :project => @project.name) if params[:package]
+    @package = WebuiPackage.find(params[:package], :project => @project.name) if params[:package]
     @attribute_opts = {:project => @project.name}
     @attribute_opts.store(:package, @package.to_s) if @package
     @attributes = Webui::Attribute.find(@attribute_opts)

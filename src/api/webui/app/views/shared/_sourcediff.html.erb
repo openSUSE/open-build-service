@@ -43,7 +43,7 @@
             <% rev = source[:rev] %>
             <% rev = (rev.to_i - 1).to_s if file_element['state'] == 'deleted' %>
             <%# TODO: drop this check for '/' once we can 'view' files inside tarballs: %>
-            <%= link_to_unless(Webui::Package.is_binary_file?(filename) || filename.include?('/'), filename, controller: 'package', action: 'view_file', project: source[:project], package: source[:package], filename: filename, rev: rev ) %>
+            <%= link_to_unless(WebuiPackage.is_binary_file?(filename) || filename.include?('/'), filename, controller: 'package', action: 'view_file', project: source[:project], package: source[:package], filename: filename, rev: rev ) %>
           <% else %>
           <%= filename %>
           <% end %>

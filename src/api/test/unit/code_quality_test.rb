@@ -153,7 +153,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::BsRequest::make_stub' => 233.83,
       'Webui::ProjectController#status_check_package' => 187.14,
       'Webui::ProjectController#monitor' => 154.83,
-      'Webui::PackageController#save_new_link' => 136.05,
+      'Webui::PackageController#save_new_link' => 132.05,
       'Webui::WebuiHelper#flag_status' => 93.0,
       'Webui::ProjectController#save_targets' => 127.29,
       'Webui::PackageController#save_file' => 117.16,

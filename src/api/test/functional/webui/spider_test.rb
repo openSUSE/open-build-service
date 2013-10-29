@@ -97,6 +97,9 @@ class Webui::SpiderTest < Webui::IntegrationTest
       rescue ActionController::RoutingError
         raiseit('routing error', theone)
         return
+      rescue Capybara::Webkit::InvalidResponseError
+        raiseit('invalid response', theone)
+        return
       end
       body = nil
       begin

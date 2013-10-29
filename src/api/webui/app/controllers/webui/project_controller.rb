@@ -87,7 +87,7 @@ class ProjectController < WebuiController
 
   def autocomplete_packages
     required_parameters :term
-    if valid_package_name_read?( params[:term] ) or params[:term] == ''
+    if Package.valid_name?( params[:term] ) or params[:term] == ''
       render :json => @project.packages.select{|p| p.name.index(params[:term]) }.map{|p| p.name}
     else
       render :text => '[]'
@@ -215,7 +215,7 @@ class ProjectController < WebuiController
 
   def new_incident_request
     begin
-      req = BsRequest.new(:project => params[:project], :type => 'maintenance_incident', :description => params[:description])
+      req = Webui::BsRequest.new(:project => params[:project], :type => 'maintenance_incident', :description => params[:description])
       req.save(create: true)
       flash[:success] = 'Created maintenance release request'
     rescue ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => e
@@ -234,7 +234,7 @@ class ProjectController < WebuiController
       # FIXME2.3: do it directly here, api function missing
     else
       begin
-        req = BsRequest.new(:project => params[:project], :type => 'maintenance_release', :description => params[:description])
+        req = Webui::BsRequest.new(:project => params[:project], :type => 'maintenance_release', :description => params[:description])
         req.save(create: true)
         flash[:success] = "Created maintenance release request <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value('id'))}'>#{req.value('id')}</a>"
       rescue ActiveXML::Transport::NotFoundError => e
@@ -328,7 +328,7 @@ class ProjectController < WebuiController
     @has_patchinfo = false
     @packages.each do |pkg_element|
       if pkg_element == 'patchinfo'
-        Webui::Package.find(pkg_element, :project => @project).files.each do |pkg_file|
+        WebuiPackage.find(pkg_element, :project => @project).files.each do |pkg_file|
           @has_patchinfo = true if pkg_file[:name] == '_patchinfo'
         end
       end
@@ -659,7 +659,7 @@ class ProjectController < WebuiController
   end
 
   def save_new
-    if params[:name].blank? || !valid_project_name?( params[:name] )
+    if params[:name].blank? || !Project.valid_name?( params[:name] )
       flash[:error] = "Invalid project name '#{params[:name]}'."
       redirect_to :action => 'new', :ns => params[:ns] and return
     end
@@ -795,7 +795,7 @@ class ProjectController < WebuiController
 
   def remove_target_request
     begin
-      req = BsRequest.new(:type => 'delete', :targetproject => params[:project], :targetrepository => params[:repository], :description => params[:description])
+      req = Webui::BsRequest.new(:type => 'delete', :targetproject => params[:project], :targetrepository => params[:repository], :description => params[:description])
       req.save(create: true)
       flash[:success] = "Created <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value('id'))}'>repository delete request #{req.value('id')}</a>"
     rescue ActiveXML::Transport::NotFoundError => e
@@ -1558,7 +1558,7 @@ class ProjectController < WebuiController
 
   def check_valid_project_name
     required_parameters :project
-    if !valid_project_name? params[:project]
+    unless Project.valid_name? params[:project]
       unless request.xhr?
         flash[:error] = "#{params[:project]} is not a valid project name"
         redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404 and return false

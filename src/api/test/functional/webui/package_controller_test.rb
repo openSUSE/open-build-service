@@ -129,4 +129,13 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_link 'Add group'
   end
 
+  test "derived packages" do
+    login_adrian
+    visit webui_engine.package_show_path(package: 'pack2', project: 'BaseDistro')
+    page.must_have_text '1 derived packages'
+    click_link 'derived packages'
+
+    page.must_have_text 'Derived Packages'
+    page.must_have_link 'BaseDistro:Update'
+  end
 end

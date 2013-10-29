@@ -264,7 +264,7 @@ class WebuiProject < Webui::Node
 
   def packages
     raise "needed?"
-    pkgs = Webui::Package.find(:all, :project => self.name)
+    pkgs = WebuiPackage.find(:all, :project => self.name)
     if pkgs
       return pkgs.each
     else
@@ -316,7 +316,7 @@ class WebuiProject < Webui::Node
     global_patchinfo = nil
     api_obj.packages.pluck(:name).each do |pname|
       pkg_name, rt_name = pname.split('.', 2)
-      pkg = Webui::Package.find(pname, :project => self.name)
+      pkg = WebuiPackage.find(pname, :project => self.name)
       if pkg && rt_name
         if pkg_name == 'patchinfo'
           # Holy crap, we found a patchinfo that is specific to (at least) one release target!
