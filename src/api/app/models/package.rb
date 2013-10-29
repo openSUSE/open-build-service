@@ -53,6 +53,7 @@ class Package < ActiveRecord::Base
 
   has_many :package_kinds, dependent: :delete_all, foreign_key: :db_package_id
   has_many :package_issues, dependent: :delete_all, foreign_key: :db_package_id # defined in sources
+  has_many :issues, through: :package_issues
 
   has_many :products, :dependent => :destroy
   has_many :channels, :dependent => :destroy, foreign_key: :package_id

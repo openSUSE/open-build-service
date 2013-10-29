@@ -16,7 +16,6 @@
         <h3><%= sprite_tag("distributions-#{vendor.downcase}") %> <%= vendor -%> distributions</h3>
         <p>
           <% list.each do |dist|
-            Rails.logger.debug dist.inspect
             name = dist['name']
             project = dist['project']
             repo = dist['repository']

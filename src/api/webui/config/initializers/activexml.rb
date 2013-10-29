@@ -38,7 +38,6 @@ map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['fronte
     map.connect :webuigroup, 'rest:///group/:title',
       :all => 'rest:///group/'
     map.connect :owner, 'rest:///search/owner?:binary&:devel&:limit&:project&:attribute'
-    map.connect :reverseowner, 'rest:///search/owner?:user&:devel&:limit&:project&:attribute'
 
     map.connect :userchangepasswd, 'rest:///person/changepasswd'
 

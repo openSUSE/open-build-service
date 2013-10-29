@@ -220,7 +220,7 @@
                       <%= link_to i[:label], i[:url], :title => i[:summary]%>,
                     <% end -%>
                   </td>
-                <td><%= link_to image_tag('monitor.png', :size => '16x16', :alt => 'Monitor', :title => 'Monitor'), :action => :monitor, :project => pi[:package][:project], :pkgname => pi[:package][:name], :controller => :project  %></td>
+                <td><%= link_to sprite_tag('monitor', title: 'Monitor'), :action => :monitor, :project => pi[:package][:project], :pkgname => pi[:package][:name], :controller => :project  %></td>
                 </tr>
             <% end -%>
           </tbody>

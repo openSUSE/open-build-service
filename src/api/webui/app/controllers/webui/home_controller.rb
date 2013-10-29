@@ -5,18 +5,22 @@ class Webui::HomeController < Webui::WebuiController
   before_filter :require_login, :except => [:icon, :index, :requests]
   before_filter :check_user, :except => [:icon]
   before_filter :overwrite_user, :only => [:index, :requests, :list_my]
+  before_filter :lockout_spiders
 
   def index
-    lockout_spiders
     @iprojects = @displayed_user.involved_projects.pluck(:name, :title)
     @ipackages = @displayed_user.involved_packages.joins(:project).pluck(:name, 'projects.name as pname')
+
+    @owned = []
+
     begin
-      @owned = ReverseOwner.find(:user => @displayed_user.login).each.map { |x| [x.package, x.project] }
-        # :limit => "#{@owner_limit}", :devel => "#{@owner_devel}"
-    rescue ActiveXML::Transport::Error
-      # OBSRootOwner isn't set...
-      @owned = []
+      Owner.search({}, @displayed_user).each do |owner|
+        @owned << [owner.project, owner.package]
+      end
+    rescue APIException => e # no attribute set
+      Rails.logger.debug "0wned #{e.inspect}"
     end
+
     if User.current == @displayed_user
       requests
     end
@@ -35,7 +39,7 @@ class Webui::HomeController < Webui::WebuiController
         hash = Digest::MD5.hexdigest(email.downcase)
         begin
           content = ActiveXML.api.load_external_url("http://www.gravatar.com/avatar/#{hash}?s=#{size}&d=wavatar")
-          content.force_encoding("ASCII-8BIT")
+          content.force_encoding('ASCII-8BIT')
         rescue ActiveXML::Transport::Error
         end
       end
@@ -44,35 +48,36 @@ class Webui::HomeController < Webui::WebuiController
     end
 
     if content == 'none'
-      redirect_to ActionController::Base.helpers.asset_path("default_face.png")
+      redirect_to ActionController::Base.helpers.asset_path('default_face.png')
       return
     end
 
     expires_in 5.hours, public: true
     if stale?(etag: Digest::MD5.hexdigest(content))
-      render text: content, layout: false, content_type: "image/png"
+      render text: content, layout: false, content_type: 'image/png'
     end
   end
 
-  def running_patchinfos(login)
+  def running_patchinfos
     array = Array.new
-    col = Webui::Collection.find(:id, :what => 'package', :predicate => "[kind='patchinfo' and issue/[@state='OPEN' and owner/@login='#{CGI.escape(login)}']]")
-    col.each_package do |pi|
-      hash = {:package => {:project => pi.project, :name => pi.name}}
+
+    rel = PackageIssue.joins(:issue).where(issues: { state: 'OPEN', owner_id: @displayed_user.id})
+    rel = rel.joins('LEFT JOIN package_kinds ON package_kinds.db_package_id = package_issues.db_package_id')
+    ids = rel.where('package_kinds.kind="patchinfo"').pluck("distinct package_issues.db_package_id")
+
+    Package.where(id: ids).each do |p|
+      hash = {:package => {:project => p.project.name, :name => p.name}}
       issues = Array.new
 
-      p = Package.find_by_project_and_name(pi.project, pi.name)
-      p.package_issues.includes(:issue).each do |is|
-        Rails.logger.debug "IS #{is.inspect} #{is.issue.inspect}"
+      p.issues.each do |is|
         i = {}
-        is = is.issue
         i[:name]= is.name
         i[:tracker]= is.issue_tracker.name
         i[:label]= is.label
         i[:url]= is.url
         i[:summary] = is.summary
         i[:state] = is.state
-        i[:login] = is.owner.login
+        i[:login] = is.owner.login if is.owner
         i[:updated_at] = is.updated_at
         issues << i
       end
@@ -113,7 +118,7 @@ class Webui::HomeController < Webui::WebuiController
       end
     end
 
-    @open_patchinfos = running_patchinfos(@displayed_user.login)
+    @open_patchinfos = running_patchinfos
 
     session[:requests] = (@declined_requests.pluck(:id) +
         @open_reviews.pluck(:id) +
