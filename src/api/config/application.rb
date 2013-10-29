@@ -84,6 +84,8 @@ module OBSApi
 
     config.exceptions_app = self.routes
 
+    config.assets.precompile += %w( webui/cm2.js )
+
     config.action_controller.action_on_unpermitted_parameters = :raise
 
     config.action_dispatch.rescue_responses.merge!('ActiveXML::Transport::UnauthorizedError' => 401)
