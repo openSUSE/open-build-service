@@ -33,7 +33,8 @@ class PersonController < ApplicationController
 
   def userinfo
     login = params[:login]
-    user = User.find_by_login(login) if login
+    user = User.find_by_login(login) if login and request.put?
+    user = User.find_by_login!(login) if login and not request.put?
 
     if request.get?
       if not user
