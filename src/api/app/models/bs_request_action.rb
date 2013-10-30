@@ -849,15 +849,15 @@ class BsRequestAction < ActiveRecord::Base
     tpkg=nil
     if self.person_name
       # validate user object
-      User.get_by_login(self.person_name)
+      User.find_by_login!(self.person_name)
     end
     if self.group_name
       # validate group object
-      Group.get_by_title(self.group_name)
+      Group.find_by_title!(self.group_name)
     end
     if self.role
       # validate role object
-      role = Role.get_by_title(self.role)
+      role = Role.find_by_title!(self.role)
     end
     if self.source_project
       sprj = Project.get_by_name self.source_project

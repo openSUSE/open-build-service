@@ -860,9 +860,9 @@ class ProjectController < WebuiController
 
   def load_obj
     if login = params[:userid]
-      return User.get_by_login(login)
+      return User.find_by_login!(login)
     elsif title = params[:groupid]
-      return ::Group.get_by_title(title)
+      return ::Group.find_by_title!(title)
     else
       raise MissingParameterError, 'Neither user nor group given'
     end
@@ -1324,7 +1324,7 @@ class ProjectController < WebuiController
   end
 
   def status_filter_packages
-    filter_for_user = User.get_by_login(@filter_for_user) unless @filter_for_user.blank?
+    filter_for_user = User.find_by_login!(@filter_for_user) unless @filter_for_user.blank?
     current_develproject = @filter || @all_projects
     @develprojects = Hash.new
     packages_to_filter_for = nil

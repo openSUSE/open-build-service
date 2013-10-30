@@ -72,6 +72,9 @@ class Package < ActiveRecord::Base
   validate :valid_name
 
   has_one :backend_package, foreign_key: :package_id, dependent: :destroy
+  has_one :token, foreign_key: :package_id, dependent: :destroy
+
+  has_many :tokens, dependent: :destroy, inverse_of: :package
 
   class << self
 

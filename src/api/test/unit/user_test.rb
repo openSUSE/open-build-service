@@ -67,6 +67,16 @@ class UserTest < ActiveSupport::TestCase
     assert_not_nil User.states
   end
 
+  def test_deleted_user
+    assert_not_nil User.find_by_login "deleted"
+    assert_raise User::NotFound do
+       User.find_by_login! "deleted"
+    end
+    assert_raise User::NotFound do
+       User.get_by_login "deleted"
+    end
+  end
+
   def test_user_requests
     # no projects, no requests
     #assert_equal({:declined=>[], :new=>[], :reviews=>[]}, users(:user4).request_ids_by_class)

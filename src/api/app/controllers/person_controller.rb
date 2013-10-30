@@ -18,6 +18,10 @@ class PersonController < ApplicationController
     end
   end
 
+  def login
+    render_ok # just a dummy check for the webui to call (for now)
+  end
+
   # Returns a list of all users (that optionally start with a prefix)
   def command
     if params[:cmd] == "register"
@@ -27,80 +31,77 @@ class PersonController < ApplicationController
     raise UnknownCommandError.new "Allowed commands are 'change_password'"
   end
 
-  def login
-    render_ok # just a dummy check for the webui to call (for now)
+  def get_userinfo
+    user = User.find_by_login!(params[:login])
+
+    if user.login != @http_user.login
+      logger.debug "Generating for user from parameter #{user.login}"
+      render :text => user.render_axml(false), :content_type => "text/xml"
+    else
+      logger.debug "Generating user info for logged in user #{@http_user.login}"
+      render :text => @http_user.render_axml(true), :content_type => "text/xml"
+    end
   end
 
-  def userinfo
+  def post_userinfo
+    login = params[:login]
+    # just for permission checking
+    User.find_by_login!(login)
+
+    if params[:cmd] == "change_password"
+      login ||= @http_user.login
+      password = request.raw_post.to_s.chomp
+      if login != @http_user.login and not @http_user.is_admin?
+        render_error :status => 403, :errorcode => "change_password_no_permission",
+                     :message => "No permission to change password for user #{login}"
+        return
+      end
+      if password.blank?
+        render_error :status => 404, :errorcode => "password_empty",
+                     :message => "No new password given in first line of the body"
+        return
+      end
+      change_password(login, password)
+      render_ok
+      return
+    end
+    raise UnknownCommandError.new "Allowed commands are 'change_password'"
+  end
+
+  def put_userinfo
     login = params[:login]
     user = User.find_by_login(login) if login
 
-    if request.get?
-      if not user
-        logger.debug "Requested non-existing user"
+    if user 
+      unless user.login == User.current.login or User.current.is_admin?
+        logger.debug "User has no permission to change userinfo"
+        render_error :status => 403, :errorcode => 'change_userinfo_no_permission',
+          :message => "no permission to change userinfo for user #{user.login}" and return
+      end
+    else
+      if User.current.is_admin?
+        user = User.create(:login => login, :password => "notset", :password_confirmation => "notset", :email => "TEMP")
+        user.state = User.states["locked"]
+      else
+        logger.debug "Tried to create non-existing user without admin rights"
         @errorcode = 404
         @summary = "Requested non-existing user"
         render_error status: @errorcode and return
       end
-      if user.login != @http_user.login
-        logger.debug "Generating for user from parameter #{user.login}"
-        render :text => user.render_axml(false), :content_type => "text/xml"
-      else
-        logger.debug "Generating user info for logged in user #{@http_user.login}"
-        render :text => @http_user.render_axml(true), :content_type => "text/xml"
-      end
-    elsif request.post?
-      if params[:cmd] == "change_password"
-        login ||= @http_user.login
-        password = request.raw_post.to_s.chomp
-        if login != @http_user.login and not @http_user.is_admin?
-          render_error :status => 403, :errorcode => "change_password_no_permission",
-                       :message => "No permission to change password for user #{login}"
-          return
-        end
-        if password.blank?
-          render_error :status => 404, :errorcode => "password_empty",
-                       :message => "No new password given in first line of the body"
-          return
-        end
-        change_password(login, password)
-        render_ok
-        return
-      else
-        raise UnknownCommandError.new "Allowed commands are 'change_password'"
-      end
-    elsif request.put?
-      if user 
-        unless user.login == User.current.login or User.current.is_admin?
-          logger.debug "User has no permission to change userinfo"
-          render_error :status => 403, :errorcode => 'change_userinfo_no_permission',
-            :message => "no permission to change userinfo for user #{user.login}" and return
-        end
-      else
-        if User.current.is_admin?
-          user = User.create(:login => login, :password => "notset", :password_confirmation => "notset", :email => "TEMP")
-          user.state = User.states["locked"]
-        else
-          logger.debug "Tried to create non-existing user without admin rights"
-          @errorcode = 404
-          @summary = "Requested non-existing user"
-          render_error status: @errorcode and return
-        end
-      end
-
-      xml = Xmlhash.parse(request.raw_post)
-      logger.debug("XML: #{request.raw_post}")
-      user.email = xml.value('email') || ''
-      user.realname = xml.value('realname') || ''
-      if User.current.is_admin?
-        # only admin is allowed to change these, ignore for others
-        user.state = User.states[xml.value('state')]
-        update_globalroles(user, xml)
-      end
-      update_watchlist(user, xml)
-      user.save!
-      render_ok
     end
+
+    xml = Xmlhash.parse(request.raw_post)
+    logger.debug("XML: #{request.raw_post}")
+    user.email = xml.value('email') || ''
+    user.realname = xml.value('realname') || ''
+    if User.current.is_admin?
+      # only admin is allowed to change these, ignore for others
+      user.state = User.states[xml.value('state')]
+      update_globalroles(user, xml)
+    end
+    update_watchlist(user, xml)
+    user.save!
+    render_ok
   end
 
   class NoPermissionToGroupList < APIException
@@ -110,8 +111,8 @@ class PersonController < ApplicationController
   def grouplist
     raise NoPermissionToGroupList.new unless User.current
 
-    login = User.get_by_login params[:login]
-    @list = User.lookup_strategy.groups(login)
+    user = User.find_by_login! params[:login]
+    @list = User.lookup_strategy.groups(user)
   end
 
   def register
@@ -120,6 +121,9 @@ class PersonController < ApplicationController
   end
 
   class ErrRegisterSave < APIException
+  end
+
+  class NoPermission < APIException
   end
 
   def internal_register
@@ -219,11 +223,7 @@ class PersonController < ApplicationController
             :message => "Failed to change password: missing parameter"
       return
     end
-    unless User.current.is_admin? or login == User.current.login
-      render_error :status => 403, :errorcode => 'failed to change password',
-            :message => "No sufficiend permissions to change password for others"
-      return
-    end
+    user = User.get_by_login(login)
     
     #change password to LDAP if LDAP is enabled    
     if CONFIG['ldap_mode'] == :on
@@ -247,10 +247,39 @@ class PersonController < ApplicationController
     end
 
     #update password in users db
-    @user = User.get_by_login(login)
-    @user.update_password( password )
-    @user.save!
+    user.update_password( password )
+    user.save!
   end
   private :change_password
+
+  # GET /person/<login>/token
+  def tokenlist
+    user = User.get_by_login(params[:login])
+    @list = user.tokens
+  end
+
+  # POST /person/<login>/token
+  def command_token
+    user = User.get_by_login(params[:login])
+
+    unless params[:cmd] == "create"
+      raise UnknownCommandError.new "Allowed commands are 'create'"
+      return
+    end
+    pkg = nil
+    if params[:project] or params[:package]
+      pkg = Package.get_by_project_and_name( params[:project], params[:package] )
+    end
+    @token = Token.create( user: user, package: pkg )
+  end
+
+  # DELETE /person/<login>/token/<id>
+  def delete_token
+    user = User.get_by_login(params[:login])
+
+    token = Token.where( user_id: user.id, id: params[:id] ).first
+    token.destroy
+    render_ok
+  end
 
 end

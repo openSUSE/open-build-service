@@ -673,9 +673,9 @@ class PackageController < WebuiController
 
   def load_obj
     if login = params[:userid]
-      return User.get_by_login(login)
+      return User.find_by_login!(login)
     elsif title = params[:groupid]
-      return ::Group.get_by_title(title)
+      return ::Group.find_by_title!(title)
     else
       raise MissingParameterError, 'Neither user nor group given'
     end

@@ -294,4 +294,72 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_run_service_via_token
+    post "/person/tom/token?cmd=create"
+    assert_response 401
+
+    login_tom
+    put "/source/home:tom/service/_meta", "<package project='home:tom' name='service'> <title /> <description /> </package>"
+    assert_response :success
+
+    post "/person/tom/token?cmd=create"
+    assert_response :success
+    doc = REXML::Document.new(@response.body)
+    alltoken = doc.elements["//data"].text
+    assert_equal 128, alltoken.length
+    post "/person/tom/token?cmd=create&project=home:tom&package=service"
+    assert_response :success
+    doc = REXML::Document.new(@response.body)
+    token = doc.elements["//data"].text
+    assert_equal 128, token.length
+
+    # ANONYMOUS
+    reset_auth
+    post "/person/tom/token?cmd=create"
+    assert_response 401
+    post "/person/tom/token?cmd=create&project=home:tom&package=service"
+    assert_response 401
+    post "/trigger/runservice"
+    assert_response 403
+    assert_xml_tag :tag => "status", :attributes => { :code => 'permission_denied' }
+    assert_match(/No valid token found/, @response.body)
+
+    # with wrong token
+    post "/trigger/runservice", nil, { 'Authorization' => "Token wrong" }
+    assert_response 404
+    assert_xml_tag :tag => "status", :attributes => { :code => 'not_found' }
+
+    # with right token
+    post "/trigger/runservice", nil, { 'Authorization' => "Token #{token}" }
+    # success, but no source service configured :)
+    assert_response 404
+    assert_match(/no source service defined/, @response.body)
+
+    # with global token
+    post "/trigger/runservice", nil, { 'Authorization' => "Token #{alltoken}", 'Project' => 'home:tom', 'Package' => 'service' }
+    # success, but no source service configured :)
+    assert_response 404
+    assert_match(/no source service defined/, @response.body)
+
+    # and drop stuff as tom
+    login_tom
+    get "/person/tom/token"
+    assert_response :success
+    assert_xml_tag :tag => "directory", :attributes => { :count => "2" }
+    assert_xml_tag :tag => "entry", :attributes => { :project => "home:tom", :package => "service" }
+    doc = REXML::Document.new(@response.body)
+    id = doc.elements["//entry"].attributes['id']
+    assert_not_nil id
+    assert_not_nil doc.elements["//entry"].attributes['string']
+    delete "/person/tom/token/#{id}"
+    assert_response :success
+    assert_xml_tag :tag => "status", :attributes => { :code => 'ok' }
+    get "/person/tom/token"
+    assert_response :success
+    assert_xml_tag :tag => "directory", :attributes => { :count => "1" }
+
+    # cleanup
+    delete "/source/home:tom/service"
+    assert_response :success
+  end
 end

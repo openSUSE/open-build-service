@@ -12,7 +12,10 @@ OBSApi::Application.routes.draw do
   ### /person
   post 'person' => 'person#command'
   get 'person' => 'person#show'
-  post 'person/login/:user' => 'person#login'
+  post 'person/:login/login' => 'person#login' # temporary hack for webui, do not use, to be removed
+  get 'person/:login/token' => 'person#tokenlist'
+  post 'person/:login/token' => 'person#command_token'
+  delete 'person/:login/token/:id' => 'person#delete_token'
 
   # FIXME3.0: this is no clean namespace, a person "register" or "changepasswd" could exist ...
   #           remove these for OBS 3.0
@@ -20,7 +23,9 @@ OBSApi::Application.routes.draw do
   match 'person/changepasswd' => 'person#change_my_password', via: [:post, :put] # use /person/:login?cmd=changepassword POST instead
   get 'person/:login/group' => 'person#grouplist', constraints: cons # Use /group?person=:login GET instead
   # /FIXME3.0
-  match 'person/:login' => 'person#userinfo', constraints: cons, via: [:get, :put, :post]
+  match 'person/:login' => 'person#get_userinfo', constraints: cons, via: [:get]
+  match 'person/:login' => 'person#put_userinfo', constraints: cons, via: [:put]
+  match 'person/:login' => 'person#post_userinfo', constraints: cons, via: [:post]
 
   ### /group
   controller :group do
@@ -93,6 +98,9 @@ OBSApi::Application.routes.draw do
 
   ### /architecture
   resources :architectures, :only => [:index, :show, :update] # create,delete currently disabled
+
+  ### /trigger
+  post 'trigger/runservice' => 'trigger#runservice'
 
   ### /issue_trackers
   get 'issue_trackers/issues_in' => 'issue_trackers#issues_in'

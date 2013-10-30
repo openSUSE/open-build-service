@@ -41,13 +41,13 @@ class AttribType < ActiveRecord::Base
     end
     p={}
     if m["user"]
-      p[:user] = User.get_by_login(m["user"])
+      p[:user] = User.find_by_login!(m["user"])
     end
     if m["group"]
-      p[:group] = Group.get_by_title(m["group"])
+      p[:group] = Group.find_by_title!(m["group"])
     end
     if m["role"]
-      p[:role] = Role.get_by_title(m["role"])
+      p[:role] = Role.find_by_title!(m["role"])
     end
     self.attrib_type_modifiable_bies << AttribTypeModifiableBy.new(p)
   end

@@ -33,6 +33,17 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     # This returns the xml content with the user info
   end
 
+  def test_userinfo_for_deleted_user
+    login_adrian
+    # it exists
+    user = User.find_by_login "deleted"
+    assert_not_nil user
+    assert_equal user.state, User.states["deleted"]
+    # but is not visible since it is tagged as deleted
+    get "/person/deleted"
+    assert_response 404
+  end
+
   def test_userinfo_from_param_valid
     login_adrian
     get "/person/fred"
@@ -56,6 +67,15 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_select "status[code] > summary", /^Unknown user '[^\']+' or invalid password$/
 
     assert_response 401
+  end
+
+  def test_webui_login
+    post "/person/tom/login", nil, { "username" => "tom" }
+    assert_response 401
+
+    prepare_request_valid_user
+    post "/person/tom/login", nil, { "username" => "tom" }
+    assert_response :success
   end
 
   def test_watchlist_privacy

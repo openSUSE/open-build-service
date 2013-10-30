@@ -34,6 +34,7 @@ class User < ActiveRecord::Base
   has_many :comments, dependent: :destroy, inverse_of: :user
   has_many :status_messages
   has_many :messages
+  has_many :tokens, :foreign_key => 'user_id', :dependent => :destroy, inverse_of: :user
 
   # users have a n:m relation to group
   has_and_belongs_to_many :groups, -> { uniq() }
@@ -325,9 +326,13 @@ class User < ActiveRecord::Base
                       :too_short => 'must have between 6 and 64 characters.',
                      :if => Proc.new { |user| user.new_password? and not user.password.nil? }
 
-   class NotFound < APIException
-     setup 404
-   end
+  class NotFound < APIException
+    setup 404
+  end
+
+  class NoPermission < APIException
+    setup 403
+  end
 
   class << self
     def current
@@ -339,7 +344,7 @@ class User < ActiveRecord::Base
     end
 
     def nobodyID
-      return Thread.current[:nobody_id] ||= get_by_login('_nobody_').id
+      return Thread.current[:nobody_id] ||= find_by_login!('_nobody_').id
     end
 
     def get_default_admin
@@ -349,8 +354,20 @@ class User < ActiveRecord::Base
       return user
     end
 
+    def find_by_login!(login)
+      user = find_by_login(login)
+      if user.nil? or user.state == User.states["deleted"]
+        raise NotFound.new("Couldn't find User with login = #{login}")
+      end
+      return user
+    end
+
     def get_by_login(login)
-      find_by_login(login) or raise NotFound.new("Couldn't find User with login = #{login}")
+      user = find_by_login!(login)
+      unless User.current.is_admin? or user == User.current
+        raise NoPermission.new "User #{login} can not be accessed by #{User.current.login}"
+      end
+      return user
     end
 
     def find_by_email(email)

@@ -111,7 +111,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'PackInfo#to_xml' => 53.64,
       'Package#resolve_devel_package' => 52.33,
       'PersonController#internal_register' => 108.84,
-      'PersonController#userinfo' => 139.67,
+      'PersonController#put_userinfo' => 56.38,
       'Project#branch_to_repositories_from' => 126.41,
       'Project#cleanup_before_destroy' => 67.17,
       'Project#update_from_xml' => 442.36,

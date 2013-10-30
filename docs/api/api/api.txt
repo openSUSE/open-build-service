@@ -141,6 +141,29 @@ XmlResult: status
 Parameters:
   cmd: change_password
 
+GET /person/<userid>/token
+  
+  Lists all authentification token for a user
+
+XmlResult: tokenlist
+
+POST /person/<userid>/token
+
+  Create a new authentification token for this user. It may be limited for a specific package
+  via optional project&package parameters.
+
+  cmd: create
+  project: create a token for a specific project
+  package: create a token for a specific package
+
+XmlResult: status
+
+DELETE /person/<userid>/token/<id>
+
+  Delete a specific authentification token. The <id> is listed in GET call.
+
+XmlResult: status
+
 
 == Group data
 
@@ -498,6 +521,7 @@ GET /source/<project>/<package>/_history
   Get package commit history
 
 XmlResult: revisionlist
+
 
 
 POST /source/<project>/<package>?cmd=showlinked
@@ -1133,6 +1157,21 @@ Body: specfile
 
 XmlResult: buildinfo
 
+
+=== Trigger area
+
+POST /trigger/runservice
+
+  This call needs a token created via "createtoken" command to identify user and
+  package which shall be updated via a source service. The token must be delivered
+  as HTTP header:
+    Authorization: Token <TOKEN_STRING>
+
+Parameters
+  project: To be used together with "package" to identify the object.
+  package: 
+
+XmlResult: status
 
 === Repository Information
 

@@ -278,3 +278,17 @@ user6:
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
   state: 2
+deleted:
+  id: 274
+  created_at: 2012-01-16 13:36:00.000000000 Z
+  updated_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
+  login_failure_count: 0
+  login: deleted
+  email: test@example.com
+  realname: ''
+  password: df9a257e5a7c1af44987f695369adc44
+  password_hash_type: md5
+  password_salt: Vibb8QsN4I
+  password_crypted: osEJSjdDGtlBY
+  state: 4

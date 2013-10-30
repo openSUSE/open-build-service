@@ -29,7 +29,7 @@ class Group < ActiveRecord::Base
   # groups have a n:m relation to groups
   has_and_belongs_to_many :roles, -> { uniq() }
 
-  def self.get_by_title(title)
+  def self.find_by_title!(title)
     find_by_title(title) or raise NotFound.new("Couldn't find Group '#{title}'")
   end
 
@@ -55,7 +55,7 @@ class Group < ActiveRecord::Base
     if persons
       persons.elements('person') do |person|
         next unless person['userid']
-        user = User.get_by_login(person['userid'])
+        user = User.find_by_login!(person['userid'])
         if cache.has_key? user.id
           #user has already a role in this package
           cache[user.id] = :keep
