@@ -154,8 +154,8 @@ PreReq:         %fillup_prereq %insserv_prereq
 #For apache
 Recommends:     apache2 apache2-mod_xforward rubygem-passenger-apache2
 
-# memcache is speeding us up a lot. 
-Recommends:     memcached
+# memcache is required for session data
+Requires:       memcached
 Conflicts:      memcached < 1.4
 
 # For local runs
