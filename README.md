@@ -2,7 +2,6 @@
 [![Code Climate](https://codeclimate.com/github/openSUSE/open-build-service.png)](https://codeclimate.com/github/openSUSE/open-build-service)
 [![Coverage Status](https://coveralls.io/repos/openSUSE/open-build-service/badge.png)](https://coveralls.io/r/openSUSE/open-build-service)
 
-
 # Open Build Service
 The [Open Build Service (OBS)](http://www.open-build-service.org) is a generic system to build and distribute binary packages from sources in an automatic, consistent and reproducible way. You can release packages as well as updates, add-ons, appliances and entire distributions for a wide range of operating systems and hardware architectures. More information can be found on [openbuildservice.org](http://www.openbuildservice.org).
 
@@ -75,7 +74,7 @@ systemctl start memcached
 ```
 
 ### Install/Configure the OBS Backend
-The OBS backend is not a monolithic server, it consists of [multiple daemons that fulfill different tasks](https://github.com/openSUSE/open-build-service/blob/master/src/backend/DESIGN).
+The OBS backend is not a monolithic server, it consists of [multiple daemons that fulfill different tasks](https://github.com/openSUSE/open-build-service/blob/master/src/backend/DESIGN) and is written mostly in [Perl](http://www.perl.org/). 
 
 #### Production
 We maintain an [OBS package repository](https://build.opensuse.org/project/show/OBS:Server:2.4)  which provides all the neccesarry packages and dependencies to run an OBS backend on the [SUSE Linux Enterprise](https://www.suse.com/products/server/) or [openSUSE](http://www.opensuse.org) operating systems. We highly recommend, and in fact only test these host systems, for OBS backend installations. Here is an example on how to setup the backend on the [openSUSE Linux Distribution](http://www.opensuse.org). 
@@ -144,7 +143,7 @@ All OBS backend daemons can also be started on individual machines in your netwo
 ```
 
 ##### Distributed Workers 
-To not burden your OBS backend servers with the unpredictable load package builds can produce (think someone builds a monstrous package like LibreOffice) you should not run OBS workers on the same host as the rest of the backend services. Here is an example on how to setup an OBS worker on the [openSUSE Linux Distribution](http://www.opensuse.org).
+To not burden your OBS backend daemons with the unpredictable load package builds can produce (think someone builds a monstrous package like LibreOffice) you should not run OBS workers on the same host as the rest of the backend daemons. Here is an example on how to setup a remote OBS worker on the [openSUSE Linux Distribution](http://www.opensuse.org).
 
 1. Install the worker packages
 ```
@@ -168,14 +167,110 @@ systemctl enable obsworker
 systemctl start obsworker
 ```
 
-#### Test
-#### Development
-#### Importing Distributions
+##### Importing Distributions
+The easiest, and recommended way, is to reuse distributions hosted on the [OBS reference server](build.openSUSE.org). There is a mechanism to reuse projects from a remote instance. See the **frontend** section on how to make use of this. 
 
-### Frontend
+In addition to that, it is also possible to copy base projects with the OBS admin scripts. Here is an example on how to mirror an OBS project on the [openSUSE Linux Distribution](http://www.opensuse.org).
+
+1. Install the packages
+```
+zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/2.4/openSUSE_12.3/OBS:Server:2.4.repo
+zypper in osc obs-utils
+```
+
+2. As root, enter your OBS reference server account data.
+```
+osc
+```
+
+3. Run the *obs_mirror_project* script to fetch the project *openSUSE:13.1* from the reference server.
+```
+obs_mirror_project openSUSE:11.2 standard i586
+```
+
+4. Restart the scheduler to scan the new project
+```
+systemctl restart obsscheduler
+```
+
 #### Development
-#### Test
+Check [src/backend/README](https://github.com/openSUSE/open-build-service/blob/master/src/backend/README) how to run the backend from the source code repository. 
+
+### Install/Configure the OBS Frontend
+The OBS frontend is a [Ruby on Rails](http://rubyonrails.org/) application that collects the OBS data and serves the HTML and XML views.
+
 #### Production
+We maintain an [OBS package repository](https://build.opensuse.org/project/show/OBS:Server:2.4)  which provides all the necessary packages and dependencies to run an OBS frontend on the [SUSE Linux Enterprise](https://www.suse.com/products/server/) or [openSUSE](http://www.opensuse.org) operating systems. We highly recommend, and in fact only test these host systems, for OBS frontend installations. Here is an example on how to setup the frontend on the [openSUSE Linux Distribution](http://www.opensuse.org). 
+
+1. Install the packages
+```
+zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/2.4/openSUSE_12.3/OBS:Server:2.4.repo
+zypper in obs-api
+```
+
+2. Setup the database and permissions in *src/api/*
+```
+rake db:setup
+sudo chown -R wwwrun.www log tmp
+```
+
+3. Setup the webserver
+In the apache2 configuration file
+```
+/etc/sysconfig/apache2
+```
+add the following apache modules to the variable *APACHE_MODULES*
+```
+APACHE_MODULES="... passenger rewrite proxy proxy_http xforward headers"
+```
+and enable SSL in the *APACHE_SERVER_FLAGS* by adding
+```
+APACHE_SERVER_FLAGS="-DSSL"
+```
+The obs-api package comes with a apache configuration file.
+```
+/etc/apache2/vhosts.d/obs.conf
+```
+
+4. Create a SSL certificate
+```
+mkdir /srv/obs/certs
+openssl genrsa -out /srv/obs/certs/server.key 1024
+openssl req -new -key /srv/obs/certs/server.key -out /srv/obs/certs/server.csr
+openssl x509 -req -days 365 -in /srv/obs/certs/server.csr -signkey /srv/obs/certs/server.key -out /srv/obs/certs/server.crt
+cat /srv/obs/certs/server.key /srv/obs/certs/server.crt /srv/obs/certs/server.pem
+```
+
+5. Copy the example options.yml file in *src/api/*
+```
+cp config/options.yml.example config/options.yml
+```
+
+6. Enable the xforward mode (**OPTIONAL**)
+If you have the *xforward* apache module it is recommended that you enable it in the options file
+```
+use_xforward: true
+```
+
+7. Start the web server permanently
+```
+systemctl enable apache2
+systemctl start apache2
+```
+
+8. Start the OBS delayed job daemon
+```
+systemctl enable obsapidelayed
+systemctl start obsapidelayed
+```
+
+9. Check out your OBS frontend
+By default, you can see the HTML views on port 443 (e.g: https://localhost), the XML api on port 444 (e.g. https://localhost:444), and the repos on port 82 (once some packages are built). An overview page about your OBS instance can be found at http://localhost. The default admin user is "Admin" with the password "opensuse".
+
+#### Development
+
+#### Test
+
 ##### Apache
 ##### openSSL
 
