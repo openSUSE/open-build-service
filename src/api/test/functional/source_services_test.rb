@@ -336,7 +336,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_match(/no source service defined/, @response.body)
 
     # with global token
-    post "/trigger/runservice", nil, { 'Authorization' => "Token #{alltoken}", 'Project' => 'home:tom', 'Package' => 'service' }
+    post "/trigger/runservice?project=home:tom&package=service", nil, { 'Authorization' => "Token #{alltoken}" }
     # success, but no source service configured :)
     assert_response 404
     assert_match(/no source service defined/, @response.body)
