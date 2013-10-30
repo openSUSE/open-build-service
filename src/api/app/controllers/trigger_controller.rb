@@ -3,9 +3,12 @@ class TriggerController < ApplicationController
   validate_action :runservice => {:method => :post, :response => :status}
   skip_before_action :extract_user
 
+  # github.com sends a hash payload
+  skip_filter :validate_params, :only => [:update]
+
   def runservice
     auth = request.env['HTTP_AUTHORIZATION']
-    unless auth and auth[0..4] == "Token"
+    unless auth and auth[0..4] == "Token" and auth[6..-1].match(/^[A-Za-z0-9+\/]+$/)
       render_error errorcode: 'permission_denied',
                    message: "No valid token found 'Authorization' header",
                    status: 403
@@ -22,7 +25,7 @@ class TriggerController < ApplicationController
     pkg = token.package
     unless pkg
       # token is not bound to a package, but event may have specified it
-      pkg = Package.get_by_project_and_name(request.env['HTTP_PROJECT'], request.env['HTTP_PACKAGE'], use_source: true)
+      pkg = Package.get_by_project_and_name(params[:project].to_s, params[:package].to_s, use_source: true)
       unless token.user.can_modify_package? pkg
 	raise NoPermission.new "no permission for package #{pkg.name} in project #{pkg.project.name}"
       end

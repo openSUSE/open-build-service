@@ -19,14 +19,8 @@ class Token < ActiveRecord::Base
   end
 
   def update_token
-    characters = 'ABCDFGHJKLMNOPQRSTUVWXYZabcdefghjkmnpqrstvwxyz23456789-_'
-    token = ''
-    srand
-    128.times do
-      pos = rand(characters.length)
-      token += characters[pos..pos]
-    end
-    self.string = token
+    # base64 with a length that is a multiple of 3 avoids trailing "=" chars
+    self.string = SecureRandom.base64(30) # 30 bytes leads to 40 chars string
     self.save!
   end
 
