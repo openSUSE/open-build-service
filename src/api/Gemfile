@@ -32,13 +32,15 @@ gem 'yajl-ruby'
 gem 'thinking-sphinx', '= 3.0.4'
 
 # don't rely on cron+rake 
-gem 'clockwork'
+gem 'clockwork', '>= 0.7'
 
 # for now used in webui routes
 gem 'mobileesp_converted'
 
 # used to paginate search results
 gem 'kaminari'
+
+gem 'escape_utils'
 
 group :production do
   # if you have an account, it can be configured by

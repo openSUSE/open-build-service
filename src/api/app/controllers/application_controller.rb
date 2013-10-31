@@ -8,6 +8,8 @@ require_dependency 'api_exception'
 
 class ApplicationController < ActionController::Base
 
+  protect_from_forgery
+
   class InvalidHttpMethodError < APIException
     setup 'invalid_http_method'
   end
@@ -257,25 +259,23 @@ class ApplicationController < ActionController::Base
       end
     end
 
+    if !@http_user && session[:login]
+      @http_user = User.find_by_login session[:login]
+    end
+
     check_extracted_user
   end
 
   def check_for_anonymous_user
     if ::Configuration.anonymous?
-      read_only_hosts = CONFIG['read_only_hosts'] || ['127.0.0.1', '::1']
-      read_only_hosts << CONFIG['webui_host'] if CONFIG['webui_host'] # this was used in config files until OBS 2.1
-      if read_only_hosts.include?(request.env['REMOTE_HOST']) or read_only_hosts.include?(request.env['REMOTE_ADDR'])
-        # Fixed list of clients which do support the read only mode
-        hua = request.env['HTTP_USER_AGENT']
-        if hua && (hua.match(/^obs-webui/) || hua.match(/^obs-software/))
-          load_nobody
-          return true
-        end
-      else
-        logger.info "anononymous configured, but #{read_only_hosts.inspect} does not include '#{request.env['REMOTE_HOST']}' '#{request.env['REMOTE_ADDR']}'"
+      # Fixed list of clients which do support the read only mode
+      hua = request.env['HTTP_USER_AGENT']
+      if hua # ignore our test suite (TODO: we need to fix that)
+        load_nobody
+        return true
       end
     end
-    return false
+    false
   end
 
   def check_extracted_user
@@ -520,13 +520,7 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def render_error( opt = {} )
-    # workaround an exception in mod_rails, it dies when an answer is send without
-    # reading the body. We trigger passenger to read the entire body via requesting the size
-    if request.put? or request.post?
-      request.body.size if request.body.respond_to? 'size'
-    end
-
+  def gather_exception_defaults(opt)
     if opt[:message]
       @summary = opt[:message]
     elsif @exception
@@ -535,30 +529,45 @@ class ApplicationController < ActionController::Base
 
     @exception = opt[:exception]
     @errorcode = opt[:errorcode]
-    
-    opt[:status] ||= 400
 
-    if opt[:status].to_i == 401
+    if opt[:status]
+      @status = opt[:status].to_i
+    else
+      @status = 400
+    end
+
+    if @status == 401
       response.headers["WWW-Authenticate"] = 'basic realm="API login"'
     end
-    if opt[:status].to_i == 404
+    if @status == 404
       @summary ||= "Not found"
       @errorcode ||= "not_found"
     end
-    
+
     @summary ||= "Internal Server Error"
 
     if @exception
       @errorcode ||= 'uncaught_exception'
+    else
+      @errorcode ||= 'unknown'
     end
 
-    @errorcode ||= 'unknown'
+  end
+
+  def render_error( opt = {} )
+    # workaround an exception in mod_rails, it dies when an answer is send without
+    # reading the body. We trigger passenger to read the entire body via requesting the size
+    if request.put? or request.post?
+      request.body.size if request.body.respond_to? 'size'
+    end
+
+    gather_exception_defaults(opt)
 
     response.headers['X-Opensuse-Errorcode'] = @errorcode
     respond_to do |format|
-      format.xml { render template: 'status', status: opt[:status] }
-      format.json { render json: { errorcode: @errorcode, summary: @summary }, status: opt[:status] }
-      format.html
+      format.xml { render template: 'status', status: @status }
+      format.json { render json: { errorcode: @errorcode, summary: @summary }, status: @status }
+      format.html { render template: 'webui/error', status: @status }
     end
   end
 

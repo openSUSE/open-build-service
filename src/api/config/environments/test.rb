@@ -24,7 +24,7 @@ OBSApi::Application.configure do
 
   config.active_support.deprecation = :log
 
-  config.eager_load = true
+  config.eager_load = false
 
   # Expands the lines which load the assets
   config.assets.debug = false

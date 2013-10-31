@@ -29,24 +29,6 @@ module ActiveXML
         return ActiveXML::Node
       end
 
-      #creates an empty xml document
-      # FIXME: works only for projects/packages, or by overwriting it in the model definition
-      # FIXME: could get info somehow from schema, as soon as schema evaluation is built in
-      def make_stub(opt)
-        #Rails.logger.debug "--> creating stub element for #{self.name}, arguments: #{opt.inspect}"
-        if opt.nil?
-          raise CreationError, "Tried to create document without opt parameter"
-        end
-        root_tag_name = self.name.downcase.split('::').last
-        doc = ActiveXML::Node.new("<#{root_tag_name}/>")
-        doc.set_attribute('name', opt[:name])
-        doc.set_attribute('created', opt[:created_at]) if opt[:created_at]
-        doc.set_attribute('updated', opt[:updated_at]) if opt[:updated_at]
-        doc.add_element 'title'
-        doc.add_element 'description'
-        doc
-      end
-
       def handles_xml_element (*elements)
         elements.each do |elem|
           @@elements[elem] = self

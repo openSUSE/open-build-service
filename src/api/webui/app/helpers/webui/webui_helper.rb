@@ -6,10 +6,6 @@ module Webui::WebuiHelper
 
   include ActionView::Helpers::JavaScriptHelper
 
-  def logged_in?
-    !session[:login].nil?
-  end
-
   def repo_url(project, repo='')
     if @configuration['download_url']
       "#{@configuration['download_url']}/" + project.to_s.gsub(/:/, ':/') + "/#{repo}"
@@ -409,7 +405,7 @@ module Webui::WebuiHelper
     if role
       printed_name += ' as ' + role
     end
-    if logged_in?
+    unless User.current.is_nobody?
       output += link_to_if(!opt[:no_link], printed_name, :controller => 'home', :user => user)
     else
       output += printed_name

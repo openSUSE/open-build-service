@@ -1,20 +1,14 @@
 module Webui::PackageHelper
 
   protected
-  
-  def build_log_url( project, package, repository, arch )
-    get_frontend_url_for( :controller => 'result' ) +
-      "/#{project}/#{repository}/#{package}/#{arch}/log"
-  end
-
 
   def file_url( project, package, filename, revision=nil )
-    url = get_frontend_url_for( :controller => '') +
-      "source/#{project}/#{package}/#{CGI.escape filename}?"
-    url += "rev=#{CGI.escape revision}&" if revision
-    return url
+    opts = {}
+    if revision
+      opts[:rev] = revision
+    end
+    Package.source_path(project, package, filename, opts)
   end
-
 
   def rpm_url( project, package, repository, arch, filename )
     get_frontend_url_for( :controller => 'build' ) +

@@ -30,8 +30,7 @@
             <!-- limit download for anonymous user to avoid getting killed by crawlers -->
             <td><%= if !User.current.is_nobody? or file[:size].to_i < (4 * 1024 * 1024)
                       link_to sprite_tag('page_white_get', title: "Download File"),
-                              :controller => :package, :action => :rawsourcefile, :package => @package.to_param,
-                              :project => @project.to_param, :filename => file[:name], :srcmd5 => file[:srcmd5]
+                              file_url(@project.name, @package.name, file[:name], file[:srcmd5])
                     end %>
               <% unless file[:name].match(/^_service:/) %>
                   <% if User.current.can_modify_package? @package.api_obj %>

@@ -1,6 +1,4 @@
-module Webui
-
-class Package < Webui::Node
+class WebuiPackage < Webui::Node
    
   handles_xml_element 'package'
 
@@ -24,6 +22,14 @@ class Package < Webui::Node
     @uf_updated = false
     @linkinfo = nil
     @serviceinfo = nil
+  end
+
+  def self.make_stub(opt)
+    doc = ActiveXML::Node.new('<package/>')
+    doc.set_attribute('name', opt[:name])
+    doc.add_element 'title'
+    doc.add_element 'description'
+    doc
   end
 
   def to_s
@@ -193,7 +199,7 @@ class Package < Webui::Node
     @serviceinfo = dir.serviceinfo if dir.has_element? 'serviceinfo'
     dir.each_entry do |entry|
       file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.send(x.to_s)]}.flatten]
-      file[:viewable] = !Package.is_binary_file?(file[:name]) && file[:size].to_i < 2**20  # max. 1 MB
+      file[:viewable] = !WebuiPackage.is_binary_file?(file[:name]) && file[:size].to_i < 2**20  # max. 1 MB
       file[:editable] = file[:viewable] && !file[:name].match(/^_service[_:]/)
       file[:srcmd5] = dir.srcmd5
       files << file
@@ -203,7 +209,7 @@ class Package < Webui::Node
 
   def developed_packages
     packages = []
-    candidates = Collection.find(:id, :what => 'package', :predicate => "[devel/@package='#{name}' and devel/@project='#{project}']")
+    candidates = Webui::Collection.find(:id, :what => 'package', :predicate => "[devel/@package='#{name}' and devel/@project='#{project}']")
     candidates.each do |candidate|
       packages << candidate unless candidate.linkinfo
     end
@@ -211,7 +217,7 @@ class Package < Webui::Node
   end
 
   def self.exists?(project, package)
-    if ::Package.find_by_project_and_name project.to_param, package.to_param
+    if Package.find_by_project_and_name project.to_param, package.to_param
       return true
     else
       return false
@@ -225,11 +231,11 @@ class Package < Webui::Node
   def self.attributes(project_name, package_name)
     path = "/source/#{project_name}/#{package_name}/_attribute/"
     res = ActiveXML::api.direct_http(URI("#{path}"))
-    return Collection.new(res)
+    return Webui::Collection.new(res)
   end
 
   def attributes
-    return Package.attributes(self.project, self.name)
+    Package.attributes(self.project, self.name)
   end
 
   def self.has_attribute?(project_name, package_name, attribute_namespace, attribute_name)
@@ -243,7 +249,7 @@ class Package < Webui::Node
     begin
       path = "/source/#{self.project}/#{self.name}?cmd=linkdiff&view=xml&withissues=1"
       res = ActiveXML::api.direct_http(URI("#{path}"), :method => 'POST', :data => '')
-      return Sourcediff.new(res)
+      return Webui::Sourcediff.new(res)
     rescue ActiveXML::Transport::Error
       return nil
     end
@@ -253,12 +259,12 @@ class Package < Webui::Node
     project = opts[:project].to_param
     name = name.to_param
     begin
-      ap = ::Package.get_by_project_and_name(project, name, use_source: false)
-    rescue ::Package::UnknownObjectError, Project::UnknownObjectError => e
+      ap = Package.get_by_project_and_name(project, name, use_source: false)
+    rescue Package::UnknownObjectError, Project::UnknownObjectError => e
       Rails.logger.debug "NOT FOUND #{e.inspect}"
       return nil
     end
-    p = Webui::Package.new  '<package/>'
+    p = WebuiPackage.new  '<package/>'
     p.api_obj = ap
     p.name = name
     p.project = project
@@ -275,9 +281,8 @@ class Package < Webui::Node
 
   attr_writer :api_obj
   def api_obj
-    @api_obj ||= ::Package.find_by_project_and_name(project, name)
+    @api_obj ||= Package.find_by_project_and_name(project, name)
   end
 
 end
 
-end

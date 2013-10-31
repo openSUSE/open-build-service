@@ -90,7 +90,7 @@ class FrontendCompat
   def get_log_chunk( project, package, repo, arch, start, theend )
     logger.debug "get log chunk #{start}-#{theend}"
     path = "/build/#{pesc project}/#{pesc repo}/#{pesc arch}/#{pesc package}/_log?nostream=1&start=#{start}&end=#{theend}"
-    log = transport.direct_http URI("#{path}"), :timeout => 500
+    log = ActiveXML::backend.direct_http URI("#{path}"), :timeout => 500
     begin
       log.encode!(invalid: :replace, xml: :text, undef: :replace, cr_newline: true)
     rescue Encoding::UndefinedConversionError
@@ -112,10 +112,13 @@ class FrontendCompat
   def get_size_of_log( project, package, repo, arch)
     logger.debug 'get log entry'
     path = "/build/#{pesc project}/#{pesc repo}/#{pesc arch}/#{pesc package}/_log?view=entry"
-    data = transport.direct_http URI("#{path}"), :timeout => 500
+    data = ActiveXML::backend.direct_http URI("#{path}"), :timeout => 500
     return 0 unless data
-    doc = Nokogiri::XML(data)
-    return doc.root.first_element_child().attributes['size'].value.to_i
+    doc = Xmlhash.parse(data)
+    doc.elements("entry") do |e|
+      return e["size"].to_i
+    end
+    0
   end
 
   def transport

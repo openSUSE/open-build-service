@@ -1,19 +1,16 @@
 <p>
-  <%= link_to image_tag( 'script_lightning.png' ), '#', :class => 'start_refresh hidden' %>
-  <a href="#" class="start_refresh hidden">Start refresh</a>
-  <%= link_to image_tag( 'script_link.png' ), '#', :class => 'stop_refresh' %>
-  <a href="#" class="stop_refresh">Stop refresh</a>
-  <%= link_to image_tag( 'script.png' ), :controller => :package, :action => :rawlog, :package => @package,
-    :project => @project, :arch => @arch, :repository => @repo  %>
-  <%= link_to 'Download logfile', :controller => :package, :action => :rawlog, :package => @package,
-    :project => @project, :arch => @arch, :repository => @repo  %>
+  <%= link_to sprite_tag('script_lightning', title: 'Start refresh') + 'Start refresh', '#', :class => 'start_refresh hidden' %>
+  <%= link_to sprite_tag('script_link', title: 'Stop refresh') + 'Stop refresh', '#', :class => 'stop_refresh' %>
+  <%= link_to sprite_tag('script') + 'Download logfile',
+              Rails.application.routes.url_for(controller: :build, action: :logfile, package: @package,
+                                               project: @project, arch: @arch, repository: @repo, only_path: true) %>
 </p>
 
 <% if User.current.can_modify_package? @package.api_obj %>
-  <p><span class="link_trigger_rebuild hidden">
-      <%= link_to image_tag( 'rebuild.png' ), { :action => 'trigger_rebuild', :project => @project, :package => @package, :arch => @arch, :repo => @repo }, :method => :delete %>
-      <%= link_to "Trigger Rebuild", { :action => 'trigger_rebuild', :project => @project, :package => @package, :arch => @arch, :repo => @repo }, :method => :delete %>
-  </span>
+    <p>
+      <span class="link_trigger_rebuild hidden">
+      <%= link_to sprite_tag('rebuild') + 'Trigger Rebuild', {:action => 'trigger_rebuild', :project => @project, :package => @package, :arch => @arch, :repo => @repo}, :method => :delete %>
+    </span>
   <span class="link_abort_build hidden">
       <%= link_to "[Abort build]", :action => 'abort_build', :project => @project, :package => @package, :arch => @arch, :repo => @repo %>
     </span></p>

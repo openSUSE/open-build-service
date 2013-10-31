@@ -94,8 +94,6 @@ Webui::Engine.routes.draw do
       post 'package/remove_role/:project/:package' => :remove_role, constraints: cons
       get 'package/view_file/(:project/(:package/(:filename)))' => :view_file, constraints: cons
       post 'package/save_modified_file/:project/:package' => :save_modified_file, constraints: cons
-      get 'package/rawsourcefile/:project/:package/:filename' => :rawsourcefile, constraints: cons, as: 'package_rawsourcefile'
-      get 'package/rawlog/:project/:package/:repository/:arch' => :rawlog, constraints: cons
       get 'package/live_build_log/(:project/(:package/(:repository/(:arch))))' => :live_build_log, constraints: cons
       get 'package/update_build_log/:project/:package' => :update_build_log, constraints: cons
       get 'package/abort_build/:project/:package' => :abort_build, constraints: cons
@@ -112,7 +110,8 @@ Webui::Engine.routes.draw do
       get 'package/repositories/:project/:package' => :repositories, constraints: cons
       post 'package/change_flag/:project/:package' => :change_flag, constraints: cons
       get 'package/import_spec/:project/:package' => :import_spec, constraints: cons
-      get 'package/files/:project/:package' => :files, constraints: cons
+      # compat route
+      get 'package/files/:project/:package' => :show, constraints: cons
       post 'package/comments/:project/:package' => :save_comment, constraints: cons
     end
 

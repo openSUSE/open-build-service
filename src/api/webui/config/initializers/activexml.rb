@@ -31,7 +31,7 @@ map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['fronte
       :all    => 'rest:///source/',
       :delete => 'rest:///source/:name?:force',
       :issues => 'rest:///source/:name?view=issues'
-    map.connect :package, 'rest:///source/:project/:name/_meta?:view',
+    map.connect :webuipackage, 'rest:///source/:project/:name/_meta?:view',
       :all    => 'rest:///source/:project',
       :issues => 'rest:///source/:project/:name?view=issues'
 

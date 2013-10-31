@@ -526,7 +526,7 @@ class UserLdapStrategy
       count += 1
       server = ldap_servers[rand(ldap_servers.length)]
       # Ruby only contains TCP echo ping.  Use system ping for real ICMP ping.
-      ping = system("ping -c 1 #{server} >/dev/null 2>/dev/null")
+      ping = system("ping", "-c", "1", server)
     end
 
     if count == max_ldap_attempts
