@@ -14,7 +14,7 @@
     <% else %> <!-- also for incident project -->
       <%= tab 'repositories', "Repositories", :controller => :project, :action => :repositories unless @project.is_remote? or @spider_bot %>
     <% end %>
-    <% if @project.to_hash.has_key?("repository") && !@spider_bot -%>
+    <% if @project.api_obj.repositories && !@spider_bot -%>
       <%= tab 'monitor', "Monitor", :controller => :project, :action => :monitor %>
     <% end -%>
     <% unless @spider_bot -%>

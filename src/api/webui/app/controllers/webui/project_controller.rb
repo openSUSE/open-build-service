@@ -6,12 +6,12 @@ class ProjectController < WebuiController
   include Webui::RequestHelper
   include Webui::ProjectHelper
 
-  before_filter :load_project_info, :only => [:show]
   before_filter :require_project, :except => [:autocomplete_projects, :autocomplete_incidents,
                                               :clear_failed_comment, :edit_comment_form, :index,
                                               :list, :list_all, :list_public, :new, :package_buildresult,
                                               :save_new, :save_prjconf,
-                                              :rebuild_time_png, :new_incident, :show]
+                                              :rebuild_time_png, :new_incident]
+  before_filter :load_project_info, :only => [:show]
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete, :new]
   before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list,
                                                             :edit_repository, :update_target]
@@ -250,13 +250,13 @@ class ProjectController < WebuiController
 
   def find_packages_info
     ret = Array.new
-    packages=@pro.expand_all_packages
+    packages=@project.api_obj.expand_all_packages
     prj_names = Hash.new
     Project.where(id: packages.map { |a| a[1] }.uniq).pluck(:id, :name).each do |id, name|
       prj_names[id] = name
     end
     packages.each do |name, prj_id|
-      if prj_id==@pro.id
+      if prj_id==@project.api_obj.id
         ret << [name, nil]
       else
         ret << [name, prj_names[prj_id]]
@@ -266,32 +266,35 @@ class ProjectController < WebuiController
   end
 
   def find_maintenance_infos
-    pm = @pro.maintenance_project
+    pm = @project.api_obj.maintenance_project
     @project_maintenance_project = pm.name if pm
 
-    @is_maintenance_project = @pro.is_maintenance?
+    @is_maintenance_project = @project.api_obj.is_maintenance?
     if @is_maintenance_project
       mi = DbProjectType.find_by_name!('maintenance_incident')
-      subprojects = Project.where('projects.name like ?', @pro.name + ':%').
+      subprojects = Project.where('projects.name like ?', @project.name + ':%').
           where(type_id: mi.id).joins(:repositories => :release_targets).
           where("release_targets.trigger = 'maintenance'")
       @open_maintenance_incidents = subprojects.pluck('projects.name').sort.uniq
 
       @maintained_projects = []
-      @pro.maintained_projects.each do |mp|
+      @project.api_obj.maintained_projects.each do |mp|
         @maintained_projects << mp.name
       end
     end
-    @is_incident_project = @pro.is_maintenance_incident?
+    @is_incident_project = @project.api_obj.is_maintenance_incident?
     if @is_incident_project
-      rel = BsRequestCollection.new(project: @pro.name, states: ['new', 'review'], types: ['maintenance_release'], roles: ['source'])
+      rel = BsRequestCollection.new(project: @project.name,
+                                    states: ['new', 'review'],
+                                    types: ['maintenance_release'],
+                                    roles: ['source'])
       @open_release_requests = rel.ids
     end
   end
 
   def find_nr_of_problems
     begin
-      result = ActiveXML.backend.direct_http("/build/#{URI.escape(@pro.name)}/_result?view=status&code=failed&code=broken&code=unresolvable")
+      result = ActiveXML.backend.direct_http("/build/#{URI.escape(@project.name)}/_result?view=status&code=failed&code=broken&code=unresolvable")
     rescue ActiveXML::Transport::NotFoundError
       return 0
     end
@@ -303,15 +306,12 @@ class ProjectController < WebuiController
   end
 
   def load_project_info
-    return unless check_valid_project_name
-    @pro = Project.find_by_name(params[:project])
-    return render_project_missing unless @pro
+    return render_project_missing unless @project
 
     find_maintenance_infos
-    @project = WebuiProject.new(@pro.to_axml)
     @packages = find_packages_info.map { |p| p[0] }.sort
-    @linking_projects = @pro.find_linking_projects.map { |p| p.name }
-    reqs = @pro.request_ids_by_class
+    @linking_projects = @project.api_obj.find_linking_projects.map { |p| p.name }
+    reqs = @project.api_obj.request_ids_by_class
     @requests = (reqs['reviews'] + reqs['targets'] + reqs['incidents'] + reqs['maintenance_release']).sort.uniq
     @nr_of_problem_packages = find_nr_of_problems
   end
@@ -392,9 +392,6 @@ class ProjectController < WebuiController
   end
 
   def load_buildresult(cache = true)
-    unless cache
-      Buildresult.free_cache( :project => params[:project], :view => 'summary' )
-    end
     unless @spider_bot
       @buildresult = Buildresult.find(:project => params[:project], :view => 'summary')
     end
@@ -419,12 +416,9 @@ class ProjectController < WebuiController
           @repostatushash[repo][arch] = result['state']
         end
       end
-    end if @buildresult
-    if @buildresult
       @buildresult = @buildresult.to_a
-    else
-      @buildresult = Array.new
-    end
+    end if @buildresult
+    @buildresult ||= Array.new
   end
   protected :load_buildresult
 
@@ -518,7 +512,7 @@ class ProjectController < WebuiController
 
   def repository_state
     # Get cycles of the repository build dependency information
-    # 
+    #
     @repocycles = Hash.new
     @repositories = Array.new
     if params[:repository]
@@ -601,7 +595,7 @@ class ProjectController < WebuiController
     f.write(jobs.dump_xml)
     f.close
     outdir = Dir.mktmpdir
-    logger.debug "cd #{Rails.root.join('vendor', 'diststats').to_s} && perl ./mkdiststats --srcdir=#{indir} --destdir=#{outdir} 
+    logger.debug "cd #{Rails.root.join('vendor', 'diststats').to_s} && perl ./mkdiststats --srcdir=#{indir} --destdir=#{outdir}
              --outfmt=xml #{@project.name}/#{@repository}/#{@arch} --width=910
              --buildhosts=#{@hosts} --scheduler=#{@scheduler}"
     fork do
@@ -950,9 +944,9 @@ class ProjectController < WebuiController
     @avail_arch_values = []
     @avail_repo_values = []
 
-    @project.to_hash.elements('repository') { |r|
-      @avail_repo_values << r['name']
-      @avail_arch_values << r.elements('arch')
+    @project.api_obj.repositories.each { |r|
+      @avail_repo_values << r.name
+      @avail_arch_values << r.architectures.pluck(:name)
     }
     @avail_arch_values = @avail_arch_values.flatten.uniq.sort
     @avail_repo_values = @avail_repo_values.flatten.uniq.sort
@@ -996,6 +990,7 @@ class ProjectController < WebuiController
     @packagenames = Array.new
 
     @buildresult.elements('result') do |result|
+
       @resultvalue = result
       repo = result['repository']
       arch = result['arch']
@@ -1030,11 +1025,12 @@ class ProjectController < WebuiController
         end
       end
     end
-    logger.debug @packagenames.inspect
+
     @packagenames = @packagenames.flatten.uniq.sort
 
     ## Filter for PackageNames ####
     @packagenames.reject! {|name| not filter_matches?(name,@name_filter) } if not @name_filter.blank?
+
     packagename_hash = Hash.new
     @packagenames.each { |p| packagename_hash[p.to_s] = 1 }
 

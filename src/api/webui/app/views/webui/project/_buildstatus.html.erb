@@ -1,37 +1,39 @@
 <div id="project_buildstatus">
-  <% if !@project.to_hash.has_key?('repository') %>
-    <% if @project.to_hash.has_key?('remoteurl') %>
-      <p><i>This project is just used to get referenced for using remote resources. </i></p>
-    <% else %>
-      <p><i>This project currently has no <%= link_to "build targets", :controller => :project, :action => 'add_repository_from_default_list', :project => @project %> defined. </i></p>
-    <% end %>
-  <% elsif @buildresult.blank? %>
-    <p><i>No build result available</i></p>
-  <% else %>
-    <table title="Repositories" class="repostatus">
-      <% @buildresult.each do |repo, archarray| %>
-        <% index = 0
-           srepo = truncate(repo, :length => 17)
-           archarray.each do |arch, counts| %>
-          <tr>
-            <% if index == 0 %>
-              <td class="repo nowrap" rowspan="<%= archarray.length %>">
-                <%= link_to(elide(srepo, 26), {:action => 'repository_state', :project => @project.name, :repository => repo}, {:title => "Repository #{srepo}"}) %>
-              </td>
-              <% index += 1 %>
-            <% end %>
-            <td class="nowrap">
-              <%= repo_status_icon @repostatushash[repo][arch] %> <%= arch %>
-            </td>
-            <td style="width: 1%">
-              <% counts.each do |code, count| %>
-                <%= link_to("#{code}: #{count}", { :action => :monitor, valid_xml_id('repo_' + repo) => 1,
-                            'arch_' + arch => 1, :project => params[:project], code => 1, :defaults => 0 }, :rel => 'nofollow', :class => 'nowrap') %>
-              <% end %>
-            </td>
-          </tr>
-        <% end %>
+  <% if @buildresult.blank? %>
+      <% if @project.api_obj.remoteurl %>
+          <p><i>This project is just used to get referenced for using remote resources. </i></p>
+      <% elsif @project.api_obj.repositories.count == 0 %>
+          <p><i>This project currently has
+            no <%= link_to "build targets", :controller => :project, :action => 'add_repository_from_default_list', :project => @project %>
+            defined. </i></p>
+      <% else %>
+          <p><i>No build result available</i></p>
       <% end %>
-    </table>
+  <% else %>
+      <table title="Repositories" class="repostatus">
+        <% @buildresult.each do |repo, archarray| %>
+            <% index = 0
+               srepo = truncate(repo, :length => 17)
+               archarray.each do |arch, counts| %>
+                <tr>
+                  <% if index == 0 %>
+                      <td class="repo nowrap" rowspan="<%= archarray.length %>">
+                        <%= link_to(elide(srepo, 26), {:action => 'repository_state', :project => @project.name, :repository => repo}, {:title => "Repository #{srepo}"}) %>
+                      </td>
+                      <% index += 1 %>
+                  <% end %>
+                  <td class="nowrap">
+                    <%= repo_status_icon @repostatushash[repo][arch] %> <%= arch %>
+                  </td>
+                  <td style="width: 1%">
+                    <% counts.each do |code, count| %>
+                        <%= link_to("#{code}: #{count}", {:action => :monitor, valid_xml_id('repo_' + repo) => 1,
+                                                          'arch_' + arch => 1, :project => params[:project], code => 1, :defaults => 0}, :rel => 'nofollow', :class => 'nowrap') %>
+                    <% end %>
+                  </td>
+                </tr>
+            <% end %>
+        <% end %>
+      </table>
   <% end %>
 </div>

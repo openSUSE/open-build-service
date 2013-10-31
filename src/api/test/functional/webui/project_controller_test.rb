@@ -271,6 +271,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.must_have_text 'Edit 10.2' # popup opened
     uncheck('arch_i586')
     click_button 'Update 10.2'
+
     # wait for the button to be disabled again before continue
     page.must_have_xpath('.//input[@id="save_button"][@disabled="disabled"]')
 
@@ -281,5 +282,21 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     # verify _meta
     visit webui_engine.project_meta_path(project: 'home:Iggy')
     page.wont_have_text '<arch>i586</arch>'
+  end
+
+  test "buildresults" do
+    visit webui_engine.project_show_path(project: 'home:Iggy')
+    # test reload and wait for the build to finish
+    starttime=Time.now
+    while Time.now - starttime < 10
+      first('.icons-reload').click
+      if page.has_selector? '.repostatus'
+        break if find('.repostatus').text =~ %r{succeeded: 1}
+      end
+    end
+    click_link 'succeeded: 1'
+    page.current_path.must_match %r{project/monitor}
+    page.must_have_link 'TestPack'
+    page.wont_have_link 'disabled'
   end
 end

@@ -35,8 +35,7 @@ class WebuiProject < Webui::Node
 
   #check if named project comes from a remote OBS instance
   def self.is_remote?(pro_name)
-    p = WebuiProject.find pro_name
-    p && p.is_remote?
+    Project.where(name: pro_name).where("remoteurl is not null").exists?
   end
   
   def to_s
@@ -219,8 +218,7 @@ class WebuiProject < Webui::Node
   end
 
   def is_remote?
-    th = to_hash
-    th.has_key?('remoteurl') || th.has_key?('mountproject')
+    api_obj.remoteurl.present?
   end
 
   def self.attributes(project_name)
