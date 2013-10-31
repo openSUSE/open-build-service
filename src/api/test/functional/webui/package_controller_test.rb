@@ -49,7 +49,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     visit webui_engine.package_meta_path(package: 'TestPack', project: 'home:Iggy')
     page.must_have_text '<person userid="Iggy" role="bugowner"/>'
     within '#package_tabs' do
-     click_link('Users')
+      click_link('Users')
     end
     uncheck('user_bugowner_Iggy')
     # wait for it to be clickable again before switching pages
@@ -87,11 +87,11 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   test 'succesful reply comment creation' do
     login_Iggy
     visit webui_engine.root_path + '/package/show/BaseDistro3/pack2'
-    find(:id,'reply_link_id_201').click
+    find(:id, 'reply_link_id_201').click
     fill_in 'reply_body_201', with: 'Comment Body'
-    find(:id,'add_reply_201').click
+    find(:id, 'add_reply_201').click
     find('#flash-messages').must_have_text 'Comment added successfully '
-   end
+  end
 
   test 'diff is empty' do
     visit webui_engine.root_path + '/package/rdiff/BaseDistro2.0/pack2.linked?opackage=pack2&oproject=BaseDistro2.0'
@@ -137,5 +137,23 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
 
     page.must_have_text 'Derived Packages'
     page.must_have_link 'BaseDistro:Update'
+  end
+
+  test "download logfile" do
+    visit webui_engine.package_show_path(package: 'TestPack', project: 'home:Iggy')
+    # test reload and wait for the build to finish
+    starttime=Time.now
+    while Time.now - starttime < 10
+      first('.icons-reload').click
+      if page.has_selector? '.buildstatus'
+        break if find('.buildstatus').text == 'succeeded'
+      end
+    end
+    find('.buildstatus').must_have_text 'succeeded'
+    click_link 'succeeded'
+    find(:id, 'log_space').must_have_text '[1] this is my dummy logfile -> ümlaut'
+    first(:link, 'Download logfile').click
+    # don't bother with the ümlaut
+    assert_match %r{this is my dummy}, page.source
   end
 end
