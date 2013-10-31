@@ -32,7 +32,7 @@ gem 'yajl-ruby'
 gem 'thinking-sphinx', '= 3.0.4'
 
 # don't rely on cron+rake 
-gem 'clockwork'
+gem 'clockwork', '>= 0.7'
 
 # for now used in webui routes
 gem 'mobileesp_converted'
