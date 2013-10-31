@@ -40,6 +40,8 @@ gem 'mobileesp_converted'
 # used to paginate search results
 gem 'kaminari'
 
+gem 'escape_utils'
+
 group :production do
   # if you have an account, it can be configured by
   # placing a config/newrelic.yml

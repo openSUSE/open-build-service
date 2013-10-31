@@ -8,6 +8,8 @@ require_dependency 'api_exception'
 
 class ApplicationController < ActionController::Base
 
+  protect_from_forgery
+
   class InvalidHttpMethodError < APIException
     setup 'invalid_http_method'
   end
