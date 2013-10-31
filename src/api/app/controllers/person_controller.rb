@@ -273,11 +273,16 @@ class PersonController < ApplicationController
     @token = Token.create( user: user, package: pkg )
   end
 
+  class TokenNotFound < APIException
+    setup 404
+  end
+
   # DELETE /person/<login>/token/<id>
   def delete_token
     user = User.get_by_login(params[:login])
 
     token = Token.where( user_id: user.id, id: params[:id] ).first
+    raise TokenNotFound.new "Specified token \"#{params[:id]}\" got not found" unless token
     token.destroy
     render_ok
   end

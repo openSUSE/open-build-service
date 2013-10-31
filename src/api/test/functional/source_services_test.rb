@@ -354,6 +354,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     delete "/person/tom/token/#{id}"
     assert_response :success
     assert_xml_tag :tag => "status", :attributes => { :code => 'ok' }
+    delete "/person/tom/token/#{id}"
+    assert_response 404
     get "/person/tom/token"
     assert_response :success
     assert_xml_tag :tag => "directory", :attributes => { :count => "1" }
