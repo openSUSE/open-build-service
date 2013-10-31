@@ -4606,22 +4606,32 @@ sub rebuildkiwiproduct {
     $syspath = [];
     for (@{$prpsearchpath{$prp}}) {
       my @pr = split('/', $_, 2);
+      my $server = $workerreposerver;
       if ($remoteprojs{$pr[0]}) {
-        push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workersrcserver};
-      } else {
-        push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workerreposerver};
+	$server = $workersrcserver;
+	my $par = $remoteprojs{$pr[0]}->{'partition'};
+	if ($par) {
+	  # XXX: should also come from src server
+	  $server = ($BSConfig::workerpartitionservers || {})->{$par} || $remoteprojs{$pr[0]}->{'remoteurl'};
+	}
       }
+      push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $server};
     }
   }
   my @aprps = expandkiwipath($info, $ctx->{'prpsearchpath'});
   my $searchpath = [];
   for (@aprps) {
     my @pr = split('/', $_, 2);
+    my $server = $workerreposerver;
     if ($remoteprojs{$pr[0]}) {
-      push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workersrcserver};
-    } else {
-      push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $workerreposerver};
+      $server = $workersrcserver;
+      my $par = $remoteprojs{$pr[0]}->{'partition'};
+      if ($par) {
+	# XXX: should also come from src server
+	$server = ($BSConfig::workerpartitionservers || {})->{$par} || $remoteprojs{$pr[0]}->{'remoteurl'};
+      }
     }
+    push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $server};
   }
 
   my @bdeps;
