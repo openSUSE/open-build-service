@@ -48,8 +48,6 @@ group :production do
   gem 'newrelic_rpm'
 end
 
-gem 'rack-mini-profiler'
-
 gem 'webui', path: 'webui'
 
 group :test do
@@ -85,6 +83,7 @@ end
 group :development do
   gem 'pry', '>= 0.9.12'
   gem 'unicorn-rails' # webrick won't work
+  gem 'rack-mini-profiler'
 end
 
 # Gems used only for assets and not required in production environments by default.
