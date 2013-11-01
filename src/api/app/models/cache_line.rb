@@ -16,6 +16,25 @@ class CacheLine < ActiveRecord::Base
     cont
   end
 
+  def self.cleanup(rel)
+    rel.each do |r|
+      Rails.cache.delete(r.key)
+    end
+    rel.delete_all
+  end
+
+  def self.cleanup_package(project, package)
+    cleanup(CacheLine.where(project: project, package: package))
+  end
+
+  def self.cleanup_project(project)
+    cleanup(CacheLine.where(project: project))
+  end
+
+  def self.cleanup_request(request)
+    cleanup(CacheLine.where(request: request))
+  end
+
   private
 
   # copied from (MIT) ActiveSupport::Cache

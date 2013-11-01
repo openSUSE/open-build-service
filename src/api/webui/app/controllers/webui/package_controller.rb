@@ -415,7 +415,7 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to :controller => :project, :action => 'new_package', :project => @project
       return
     end
-    if WebuiPackage.exists? @project, @package_name
+    if Package.exists_by_project_and_name @project.name, @package_name
       flash[:error] = "Package '#{@package_name}' already exists in project '#{@project}'"
       redirect_to :controller => :project, :action => 'new_package', :project => @project
       return
@@ -501,7 +501,7 @@ class Webui::PackageController < Webui::WebuiController
       flash[:error] = "Invalid target package name: '#{@target_package}'"
       redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
     end
-    if WebuiPackage.exists? @project, @target_package
+    if Package.exists_by_project_and_name @project.name, @target_package
       flash[:error] = "Package '#{@target_package}' already exists in project '#{@project}'"
       redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
     end

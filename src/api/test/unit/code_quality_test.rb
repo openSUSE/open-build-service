@@ -113,7 +113,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'PersonController#internal_register' => 108.84,
       'PersonController#put_userinfo' => 56.38,
       'Project#branch_to_repositories_from' => 126.41,
-      'Project#cleanup_before_destroy' => 67.17,
       'Project#update_from_xml' => 442.36,
       'Project::check_access?' => 54.05,
       'Project::get_by_name' => 53.44,

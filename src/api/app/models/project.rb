@@ -77,50 +77,54 @@ class Project < ActiveRecord::Base
   end
   
   def cleanup_before_destroy
-    del_repo = Project.find_by_name('deleted').repositories[0]
+    CacheLine.cleanup_project(self.name)
+    @del_repo = Project.find_by_name('deleted').repositories[0]
+
     # find linking repositories
-    lreps = Array.new
-    self.repositories.each do |repo|
-      repo.linking_repositories.each do |lrep|
-        lreps << lrep
-      end
-    end
-    unless lreps.blank?
-      #replace links to this projects with links to the "deleted" project
-      lreps.each do |link_rep|
-        link_rep.path_elements.includes(:link).each do |pe|
-          next unless Repository.find(pe.repository_id).db_project_id == self.id
-          pe.link = del_repo
-          pe.save
-          #update backend
-          link_rep.project.write_to_backend
-        end
-      end
-    end
+    cleanup_linking_repos
+
     # find linking target repositories
-    lreps = Array.new
-    self.repositories.each do |repo|
-      repo.linking_target_repositories.each do |lrep|
-        lreps << lrep
-      end
-    end
-    unless lreps.blank?
-      #replace links to this projects with links to the "deleted" project
-      lreps.each do |link_rep|
-        link_rep.release_targets.includes(:target_repository).each do |rt|
-          next unless Repository.find(rt.repository_id).db_project_id == self.id
-          rt.target_repository = del_repo
-          rt.save
-          #update backend
-          link_rep.project.write_to_backend
-        end
-      end
-    end
+    cleanup_linking_targets
+
     # deleting local devel packages
     self.packages.each do |pkg|
       if pkg.develpackage_id
         pkg.develpackage_id = nil
         pkg.save
+      end
+    end
+  end
+
+  def find_repos(sym)
+    self.repositories.each do |repo|
+      repo.send(sym).each do |lrep|
+        yield lrep
+      end
+    end
+  end
+
+  def cleanup_linking_repos
+    #replace links to this projects with links to the "deleted" project
+    find_repos(:linking_repositories) do |link_rep|
+      link_rep.path_elements.includes(:link).each do |pe|
+        next unless Repository.find(pe.repository_id).db_project_id == self.id
+        pe.link = @del_repo
+        pe.save
+        #update backend
+        link_rep.project.write_to_backend
+      end
+    end
+  end
+
+  def cleanup_linking_targets
+    #replace links to this projects with links to the "deleted" project
+    find_repos(:linking_target_repositories) do |link_rep|
+      link_rep.release_targets.includes(:target_repository).each do |rt|
+        next unless Repository.find(rt.repository_id).db_project_id == self.id
+        rt.target_repository = @del_repo
+        rt.save
+        #update backend
+        link_rep.project.write_to_backend
       end
     end
   end

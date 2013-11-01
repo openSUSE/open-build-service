@@ -216,14 +216,6 @@ class WebuiPackage < Webui::Node
     return packages
   end
 
-  def self.exists?(project, package)
-    if Package.find_by_project_and_name project.to_param, package.to_param
-      return true
-    else
-      return false
-    end
-  end
-
   def self.is_binary_file?(filename)
     BINARY_EXTENSIONS.include?(File.extname(filename).downcase)
   end

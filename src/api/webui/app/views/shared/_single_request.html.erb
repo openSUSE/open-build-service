@@ -1,13 +1,14 @@
 <% elide_len ||= no_target ? 80 : 40
-   source_package = source_package_for_request(req)
-   source_project = source_project_for_request(req)
-   request_type = request_type_for_request(req)
-   target_package = target_package_for_request(req)
-   target_project = target_project_for_request(req)
+   cp = common_parts(req)
+   source_package = cp[:source_package]
+   source_project = cp[:source_project]
+   request_type = cp[:request_type]
+   target_package = cp[:target_package]
+   target_project = cp[:target_project]
    if source_package && source_package != :multiple && source_project != :multiple
      source_url = url_for(controller: 'package', action: 'show', project: source_project, package: source_package)
      buildresult_url = url_for(controller: 'project', action: 'package_buildresult', project: source_project, package: source_package)
-     source_exists = WebuiPackage.exists?(source_project, source_package)
+     source_exists = Package.exists_by_project_and_name(source_project, source_package)
    else
      source_exists = false
    end

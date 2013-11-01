@@ -60,6 +60,8 @@ class Package < ActiveRecord::Base
 
   has_many :comments, :dependent => :delete_all, inverse_of: :package
 
+  before_destroy :delete_cache_lines
+
   after_save :write_to_backend
   before_update :update_activity
   after_rollback :reset_cache
@@ -159,29 +161,28 @@ class Package < ActiveRecord::Base
 
     # to check existens of a project (local or remote)
     def exists_by_project_and_name( project, package, opts = {} )
-      raise 'get_by_project_and_name expects a hash as third arg' unless opts.kind_of? Hash
       opts = { follow_project_links: true, allow_remote_packages: false}.merge(opts)
-      if Project.is_remote_project?( project )
-        return opts[:allow_remote_packages] && exist_package_on_backend?(package, project)
-      end
       begin
         prj = Project.get_by_name( project )
       rescue Project::UnknownObjectError
         return false
       end
-      if opts[:follow_project_links]
-        pkg = prj.find_package(package)
-      else
-        pkg = prj.packages.find_by_name(package)
-      end
-      if pkg.nil?
-        # local project, but package may be in a linked remote one
+      unless prj.is_a? Project
         return opts[:allow_remote_packages] && exist_package_on_backend?(package, project)
       end
-      unless check_access?(pkg)
-        return false
+      CacheLine.fetch([prj, 'exists_package', package, opts], project: project, package: package) do
+        if opts[:follow_project_links]
+          pkg = prj.find_package(package)
+        else
+          pkg = prj.packages.find_by_name(package)
+        end
+        if pkg.nil?
+          # local project, but package may be in a linked remote one
+          opts[:allow_remote_packages] && exist_package_on_backend?(package, project)
+        else # if we could fetch the project, the package is fine accesswise
+          true
+        end
       end
-      return true
     end
 
     def exist_package_on_backend?(package, project)
@@ -818,4 +819,7 @@ class Package < ActiveRecord::Base
     'CommentPackage'
   end
 
+  def delete_cache_lines
+    CacheLine.cleanup_package(self.project.name, self.name)
+  end
 end

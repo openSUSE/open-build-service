@@ -20,33 +20,38 @@ module Webui::RequestHelper
     STATE_COLORS[state.to_s] || ''
   end
 
-  def find_common_part(req)
-    part = nil
-    req.bs_request_actions.each do |ae|
-      field = yield ae
-      part ||= field
-      if field != part
-        return :multiple
+  def merge_opt(res, opt, value)
+    res[opt] ||= value
+    if value != res[opt]
+      res[opt] = :multiple
+    end
+  end
+
+  def common_parts(req)
+    Rails.cache.fetch([req, 'common_parts']) do
+      res = {}
+      res[:source_package] = nil
+      res[:source_project] = nil
+      res[:target_package] = nil
+      res[:target_project] = nil
+      res[:request_type] = nil
+
+      req.bs_request_actions.each do |ae|
+        merge_opt(res, :source_package, ae.source_package)
+        merge_opt(res, :source_project, ae.source_project)
+        merge_opt(res, :target_package, ae.target_package)
+        merge_opt(res, :target_project, ae.target_project)
+        merge_opt(res, :request_type, ae.action_type)
       end
+
+      res[:request_type] = map_request_type(res[:request_type])
+      res
     end
-    part
+
   end
 
-  def source_package_for_request(req)
-    find_common_part(req) do |ae|
-      ae.source_package
-    end
-  end
-
-  def source_project_for_request(req)
-    find_common_part(req) do |ae|
-      ae.source_project
-    end
-  end
-
-  def request_type_for_request(req)
+  def map_request_type(type)
     # for a simplified view on a request, must be used only for lists
-    type = find_common_part(req) { |ae| ae.action_type }
     case type
     when :change_devel then
       'chgdev'
@@ -63,15 +68,4 @@ module Webui::RequestHelper
     end
   end
 
-  def target_package_for_request(req)
-    find_common_part(req) do |ae|
-      ae.target_package
-    end
-  end
-
-  def target_project_for_request(req)
-    find_common_part(req) do |ae|
-      ae.target_project
-    end
-  end
 end
