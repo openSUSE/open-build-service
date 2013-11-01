@@ -1,9 +1,8 @@
 <% no_link ||= false %>
 <% no_icon ||= false %>
 
-<% logger.debug review.inspect
-   if review[:by_user] %>
-   <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => User.find_by_login(review[:by_user]), :short => true, :no_link => no_link, :no_icon => no_icon} %>
+<% if review[:by_user] %>
+   <%= user_with_realname_and_icon review[:by_user], short: true, no_link: no_link, no_icon: no_icon %>
 <% elsif review[:by_group] %>
   <%= link_to_if(!no_link, review[:by_group], :controller => 'group', :action => 'show', id: review[:by_group]) %>
 <% elsif review[:by_project] %>

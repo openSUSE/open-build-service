@@ -480,4 +480,25 @@ module Webui::WebuiHelper
       end
     end
   end
+
+  def user_with_realname_and_icon(user, opts = {})
+    defaults = {short: false, no_icon: false, no_link: false}
+    opts = defaults.merge(opts)
+
+    user = User.find_by_login(user) unless user.is_a? User
+    return '' unless user
+
+    Rails.cache.fetch([user, 'realname_and_icon', opts]) do
+      realname = user.realname
+
+      if opts[:short] || realname.empty?
+        printed_name = user.login
+      else
+        printed_name = "#{realname} (#{user.login})"
+      end
+
+      user_icon(user) + ' ' + link_to_if(!opts[:no_link], printed_name,
+                                         controller: 'home', user: user.login)
+    end
+  end
 end

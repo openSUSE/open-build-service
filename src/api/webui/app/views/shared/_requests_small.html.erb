@@ -8,7 +8,7 @@
           <td style="border: medium none; padding: 0px;">
             <%= link_to("##{req.value(:id)}", :controller => :request, :action => :show, :id => req.value(:id)) -%>
             by
-            <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => req.creator, :short => true}%>
+            <%= user_with_realname_and_icon(req.creator, short: true) %>
             (<%= fuzzy_time_string(req.state.value :when) %>)
           </td>
         </tr>

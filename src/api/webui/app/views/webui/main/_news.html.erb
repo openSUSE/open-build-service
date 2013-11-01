@@ -6,7 +6,7 @@
       </h2>
       <% @news.each do |msg| %>
           <div class="grid_4 news-sender">
-            <%= render :partial => 'shared/user_with_realname_and_icon', :locals => {:user => msg.user, :short => true} %>
+            <%= user_with_realname_and_icon msg.user, short: true %>
             wrote <%= time_ago_in_words(msg.created_at) %>
           </div>
 

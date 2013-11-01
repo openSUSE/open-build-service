@@ -11,7 +11,7 @@
             <td><%= link_to(long_name, issue['url'], :class => 'issue_tracker_link') %></td>
             <td class="nowrap">
               <% if issue['owner'] %>
-                <%= render :partial => 'shared/user_with_realname_and_icon', locals: {user: issue['owner'], short: true} %>
+                <%= user_with_realname_and_icon issue['owner'], short: true %>
               <% end %>
             </td>
             <td><%= issue['state'].capitalize if issue['state'] %></td>

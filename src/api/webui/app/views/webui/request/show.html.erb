@@ -24,7 +24,7 @@
   <div class="grid_6 omega">
     <ul class="clean_list">
       <li><%= sprite_tag('user_green') %> Created
-        by <%= render :partial => 'shared/user_with_realname_and_icon', :locals => { :user => @req['creator'], :no_icon => true, :short => true } %> <%= fuzzy_time(@req['created_at']) %></li>
+        by <%= user_with_realname_and_icon(@req['creator'], no_icon: true, short: true) %> <%= fuzzy_time(@req['created_at']) %></li>
       <li><%= sprite_tag('information') %> In
         state <%= link_to @state, { :anchor => 'request_history'}, { :style => "color: #{request_state_color(@state)};" } %></li>
       <% if @superseded_by %>
@@ -81,7 +81,7 @@
                       <%# TODO: Make this work for each submit action individually: %>
                       <br/><%= check_box_tag("add_submitter_as_maintainer_#{action_index}", "#{action[:tprj]}_#_#{action[:tpkg]}", false, :class => 'submitter_is_maintainer_checkbox') %>
                       Add
-                      <%= render :partial => 'shared/user_with_realname_and_icon', :locals => { :user => @req['creator'], :no_icon => true, :short => true } %>
+                      <%= user_with_realname_and_icon @req['creator'], no_icon: true, short: true %>
                       as maintainer for
                       <%= project_or_package_link project: action[:tprj], package: action[:tpkg], short: true %>
                   <% end %>
@@ -116,7 +116,7 @@
               </b>
           <% elsif action[:type] == :add_role %>
               <b>
-                <%= render :partial => 'shared/user_with_realname_and_icon', :locals => { :user => User.find_by_login(action[:user]) } %>
+                <%= user_with_realname_and_icon action[:user] %>
                 wants the role <b><%= action[:role] %></b> for
                 <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
               </b>

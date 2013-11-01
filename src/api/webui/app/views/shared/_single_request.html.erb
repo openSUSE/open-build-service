@@ -40,7 +40,7 @@
         <% end %>
       </td>
   <% end %>
-  <td class="nowrap"><%= render :partial => 'shared/user_with_realname_and_icon', :locals => { user: User.find_by_login(req['creator']), short: true } %></td>
+  <td class="nowrap"><%= user_with_realname_and_icon(req['creator'], short: true) %></td>
   <td class="nowrap"><%= request_type %></td>
   <% if !hide_state %>
       <td class="nowrap"><%= req.state %></td>

@@ -23,7 +23,7 @@
           <tbody>
           <% @users.each do |user| %>
               <tr id='user-<%= valid_xml_id(user.login) %>'>
-                <td><%= render :partial => 'shared/user_with_realname_and_icon', :locals => { :user => user } %></td>
+                <td><%= user_with_realname_and_icon(user) %></td>
                 <% @roles.each do |role| %>
                     <%= content_tag(:td, data: { user: user.login, role: role, type: 'user' }) do %>
                         <% if defined? @package %>
