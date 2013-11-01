@@ -76,9 +76,8 @@ class WebuiController < ActionController::Base
     if User.current.is_nobody?
       render :text => 'Please login' and return false if request.xhr?
       flash[:error] = 'Please login to access the requested page.'
-      mode = :off
-      mode = CONFIG['proxy_auth_mode'] unless CONFIG['proxy_auth_mode'].blank?
-      if (mode == :off)
+      mode = CONFIG['proxy_auth_mode'] || :off
+      if mode == :off
         redirect_to :controller => :user, :action => :login, :return_to_host => @return_to_host, :return_to_path => @return_to_path
       else
         redirect_to :controller => :main, :return_to_host => @return_to_host, :return_to_path => @return_to_path
@@ -90,8 +89,7 @@ class WebuiController < ActionController::Base
 
   # sets session[:login] if the user is authenticated
   def authenticate
-    mode = :off
-    mode = CONFIG['proxy_auth_mode'] unless CONFIG['proxy_auth_mode'].blank?
+    mode = CONFIG['proxy_auth_mode'] || :off
     logger.debug "Authenticating with iChain mode: #{mode}"
     if mode == :on || mode == :simulate
       authenticate_proxy
@@ -106,13 +104,12 @@ class WebuiController < ActionController::Base
   end
 
   def authenticate_proxy
-    Rails.logger.debug 'PROXY!!!'
-    mode = :off
-    mode = CONFIG['proxy_auth_host'] unless CONFIG['proxy_auth_host'].blank?
+    mode = CONFIG['proxy_auth_mode'] || :off
     proxy_user = request.env['HTTP_X_USERNAME']
-    proxy_user = CONFIG['proxy_test_user'] if mode == :simulate and CONFIG['proxy_test_user']
+    if mode == :simulate
+      proxy_user ||= CONFIG['proxy_auth_test_user'] || CONFIG['proxy_test_user']
+    end 
     proxy_email = request.env['HTTP_X_EMAIL']
-    proxy_email = ICHAIN_TEST_EMAIL if mode == :simulate and ICHAIN_TEST_EMAIL
     if proxy_user
       session[:login] = proxy_user
       session[:email] = proxy_email
