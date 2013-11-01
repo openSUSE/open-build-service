@@ -116,13 +116,12 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
   end
   
   test "edit_empty_file" do
-    open_file "TestPack.spec"
+    open_file "myfile"
     edit_file File.read( text_path( "SourceFile.cc") )
   end
 
   
   test "add_new_source_file_to_home_project_package" do
-    
     open_add_file
     add_file :name => "HomeSourceFile1"
   end

@@ -46,7 +46,7 @@ setup_api
 echo "Enter API rails root and running rcov"
 cd src/api
 export HEADLESS=forsure
-bundle exec rake ci:setup:minitest test:api test:webui1 test:webui2 CI_REPORTS=results --trace || ret=1
+bundle exec rake ci:setup:minitest test:api test:webui CI_REPORTS=results --trace || ret=1
 cd ../..
 
 mkdir results
