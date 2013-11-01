@@ -44,11 +44,23 @@ module Webui::WebuiHelper
     abs_path
   end
 
-  def user_icon(login, size=20, css_class=nil, alt=nil)
-    alt ||= login
-    raise 'Unknown login' unless alt.present?
-    return image_tag(url_for(controller: :home, action: :icon, user: login.to_s, size: size),
-                     width: size, height: size, alt: alt, class: css_class)
+  def user_icon(user, size=20, css_class=nil, alt=nil)
+    user = User.find_by_login!(user) unless user.is_a? User
+    alt ||= user.realname
+    alt = user.login if alt.empty?
+    if size < 3 # TODO: needs more work, if the icon appears often on the page, it's cheaper to fetch it
+      content = user.gravatar_image(size)
+      if content == :none
+        content = Rails.cache.fetch('default_face') do
+          File.open(Rails.root.join('app', 'assets', 'images',
+                                    'default_face.png'), 'r').read
+        end
+      end
+       "<img src='data:image/jpeg;base64,#{Base64.encode64(content)}' width='#{size}' height='#{size}' alt='#{alt}' class='#{css_class}'/>".html_safe
+    else
+      image_tag(url_for(controller: :home, action: :icon, user: user.login, size: size),
+                width: size, height: size, alt: alt, class: css_class)
+    end
   end
 
   def fuzzy_time(time)
@@ -488,7 +500,7 @@ module Webui::WebuiHelper
     user = User.find_by_login(user) unless user.is_a? User
     return '' unless user
 
-    Rails.cache.fetch([user, 'realname_and_icon', opts]) do
+    Rails.cache.fetch([user, 'realname_and_icon', opts, Configuration.first]) do
       realname = user.realname
 
       if opts[:short] || realname.empty?

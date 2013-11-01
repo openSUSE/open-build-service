@@ -42,24 +42,28 @@ class Configuration < ActiveRecord::Base
       return value
     end
 
+    def first
+      @@first ||= super
+    end
+
     def anonymous?
-      @@anonymous ||= Configuration.limit(1).pluck(:anonymous).first
+      @@anonymous ||= first.anonymous
     end
    
     def registration
-      Configuration.limit(1).pluck(:registration).first
+      first.registration
     end
 
     def download_url
-      @@download_url ||= Configuration.limit(1).pluck(:download_url).first
+      @@download_url ||= first.download_url
     end
 
     def ymp_url
-      @@ymp_url ||= Configuration.limit(1).pluck(:ymp_url).first
+      @@ymp_url ||= first.ymp_url
     end
 
     def use_gravatar?
-      @@use_gravatar ||= Configuration.limit(1).pluck(:gravatar).first
+      @@use_gravatar ||= first.gravatar
     end
 
     # Check if ldap group support is enabled?
@@ -77,7 +81,7 @@ class Configuration < ActiveRecord::Base
     end
   end
 
-  def update_from_options_yml()
+  def update_from_options_yml
     # strip the not set ones
     attribs = ::Configuration::OPTIONS_YML.clone
     attribs.keys.each do |k|
@@ -93,7 +97,7 @@ class Configuration < ActiveRecord::Base
     self.save!
   end
 
-  def delayed_write_to_backend()
+  def delayed_write_to_backend
     self.delay.write_to_backend
   end
 

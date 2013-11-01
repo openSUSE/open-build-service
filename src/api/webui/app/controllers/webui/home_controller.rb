@@ -28,26 +28,11 @@ class Webui::HomeController < Webui::WebuiController
 
   def icon
     required_parameters :user
-    user = params[:user]
+    user = User.find_by_login! params[:user]
     size = params[:size] || '20'
-    key = "home_face_#{user}_#{size}"
-    Rails.cache.delete(key) if discard_cache?
-    content = Rails.cache.fetch(key, :expires_in => 5.hours) do
+    content = user.gravatar_image(size)
 
-      if ::Configuration.use_gravatar?
-        email = User.email_for_login(user)
-        hash = Digest::MD5.hexdigest(email.downcase)
-        begin
-          content = ActiveXML.api.load_external_url("http://www.gravatar.com/avatar/#{hash}?s=#{size}&d=wavatar")
-          content.force_encoding('ASCII-8BIT')
-        rescue ActiveXML::Transport::Error
-        end
-      end
-
-      content || 'none'
-    end
-
-    if content == 'none'
+    if content == :none
       redirect_to ActionController::Base.helpers.asset_path('default_face.png')
       return
     end

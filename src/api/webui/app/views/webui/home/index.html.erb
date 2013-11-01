@@ -5,7 +5,7 @@
 <!-- user -->
 <div class="grid_4 alpha box box-shadow" id="userinfo">
 <!-- avatar -->
-  <%= user_icon(@displayed_user.login, 200, 'home-avatar') if @displayed_user.email %>
+  <%= user_icon(@displayed_user, 200, 'home-avatar') if @displayed_user.email %>
 <!-- info -->
     <h1>
     <span id="home-realname">

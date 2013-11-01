@@ -3,17 +3,17 @@
     <% if commit['user'] == '_service' %>
         <%= sprite_tag('cog') %> automatic update by service
     <% else %>
-        <% user = commit['user'] %>
+        <% user = User.find_by_login commit['user'] %>
         <% if user %>
-            <% realname = User.realname_for_login(user) %>
+            <% realname = user.realname %>
             <%= user_icon(user) %>
             <% unless realname.empty? %>
-                <%= link_to_if(!User.current.is_nobody?, realname + ' (' + user + ')', :controller => :home, :user => user) %>
+                <%= link_to_if(!User.current.is_nobody?, realname + ' (' + user.login + ')', :controller => :home, :user => user) %>
             <% else %>
-                <%= link_to_if(!User.current.is_nobody?, user, :controller => :home, :user => user) %>
+                <%= link_to_if(!User.current.is_nobody?, user.login, :controller => :home, :user => user) %>
             <% end %>
         <% else %>
-            -
+            <i><%= commit['user'] || '-' %></i>
         <% end %>
         <% if commit['requestid'] %>
             accepted <%= link_to("request #{commit['requestid']}", {:controller => :request, :action => :show, :id => commit['requestid']}) %>

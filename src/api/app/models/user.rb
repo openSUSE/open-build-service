@@ -920,6 +920,23 @@ class User < ActiveRecord::Base
     end
   end
 
+  # returns the gravatar image as string or :none
+  def gravatar_image(size)
+    Rails.cache.fetch([self, 'home_face', size, Configuration.first]) do
+
+      if ::Configuration.use_gravatar?
+        hash = Digest::MD5.hexdigest(self.email.downcase)
+        begin
+          content = ActiveXML.backend.load_external_url("http://www.gravatar.com/avatar/#{hash}?s=#{size}&d=wavatar")
+          content.force_encoding('ASCII-8BIT')
+        rescue ActiveXML::Transport::Error
+        end
+      end
+
+      content || :none
+    end
+  end
+
   protected
   # This method allows to execute a block while deactivating timestamp
   # updating.
