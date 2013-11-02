@@ -16,3 +16,6 @@ map.connect :fileinfo, 'rest:///build/:project/:repository/:arch/:package/:filen
 
 map.connect :buildresult, 'rest:///build/:project/_result?:view&:package&:code&:lastbuild&:arch&:repository'
 
+map.connect :builddepinfo, 'rest:///build/:project/:repository/:arch/_builddepinfo?:package&:limit&:code'
+
+map.connect :statistic, 'rest:///build/:project/:repository/:arch/:package/_statistics'

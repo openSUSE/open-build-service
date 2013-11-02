@@ -94,7 +94,7 @@ class Webui::PackageController < Webui::WebuiController
     @repository = params[:repository]
     @statistics = nil
     begin
-      @statistics = Webui::Statistic.find( project: @project, package: @package, repository: @repository, arch: @arch )
+      @statistics = Statistic.find( project: @project, package: @package, repository: @repository, arch: @arch )
       @statistics = @statistics.to_hash if @statistics
     rescue ActiveXML::Transport::ForbiddenError
     end

@@ -51,10 +51,6 @@ map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['fronte
                 :all => 'rest:///service'
     map.connect :file, 'rest:///source/:project/:package/:filename?:expand&:rev'
 
-    map.connect :statistic, 'rest:///build/:project/:repository/:arch/:package/_statistics'
-
-    map.connect :result, 'rest:///result/:project/:platform/:package/:arch/result'
-
     map.connect :collection, 'rest:///search/:what?match=:predicate',
       :id => 'rest:///search/:what/id?match=:predicate',
       :tag => 'rest:///tag/:tagname/:type',
@@ -75,8 +71,6 @@ map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['fronte
     map.connect :webuipatchinfo, 'rest:///source/:project/:package/_patchinfo',
       :issues => 'rest:///source/:project/:package/?view=issues'
  
-    map.connect :builddepinfo, 'rest:///build/:project/:repository/:arch/_builddepinfo?:package&:limit&:code'
-
   map.set_additional_header( 'User-Agent', "obs-webui/#{CONFIG['version']}" )
   map.set_additional_header( 'Accept', 'application/xml' )
 
