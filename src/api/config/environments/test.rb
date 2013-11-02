@@ -32,6 +32,8 @@ OBSApi::Application.configure do
 
   # better test with compressed
   config.assets.js_compressor = :uglifier
+
+  config.secret_key_base = '92b2ed725cb4d68cc5fbf86d6ba204f1dec4172086ee7eac8f083fb62ef34057f1b770e0722ade7b298837be7399c6152938627e7d15aca5fcda7a4faef91fc7'
 end
 
 CONFIG['source_host'] = "localhost"
