@@ -66,6 +66,7 @@ class CodeQualityTest < ActiveSupport::TestCase
 
   # our current exceptions
   BlackList = {
+      'ApplicationController#validate_xml_response' => 59.51,
       'ApplicationController#extract_ldap_user' => 123.29,
       'ApplicationController#extract_proxy_user' => 65.48,
       'ApplicationController#forward_from_backend' => 57.96,
@@ -79,7 +80,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BsRequest#events' => 143.76,
       'BsRequest#webui_actions' => 130.13,
       'BsRequest::new_from_xml' => 126.34,
-      'BsRequestAction#check_action_permission!' => 221.25,
+      'BsRequestAction#check_action_permission!' => 217,
       'BsRequestAction#check_newstate!' => 372.38,
       'BsRequestAction#check_sanity' => 78.06,
       'BsRequestAction#create_expand_package' => 324.93,
@@ -102,7 +103,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'IssueTrackersController#create' => 53.05,
       'IssueTrackersController#update' => 100.78,
       'MaintenanceHelper#create_new_maintenance_incident' => 64.93,
-      'MaintenanceHelper#do_branch' => 1118,
+      'MaintenanceHelper#do_branch' => 1113,
       'MaintenanceHelper#release_package' => 227.71,
       'MaintenanceIncident#getUpdateinfoId' => 151.95,
       'Owner::find_assignees' => 71.55,
@@ -120,9 +121,8 @@ class CodeQualityTest < ActiveSupport::TestCase
       'PublicController#binary_packages' => 134.24,
       'Repository#cleanup_before_destroy' => 85.53,
       'RequestController#check_request_change' => 257.26,
-      'RequestController#command_changestate' => 190.9,
-      'RequestController#create_create' => 110.65,
       'RequestController#render_request_collection' => 92.82,
+      'RequestController#request_create' => 107.39,
       'SearchController#find_attribute' => 97.33,
       'SearchController#search' => 67.14,
       'SourceController#delete_package' => 65.55,

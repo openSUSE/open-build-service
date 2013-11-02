@@ -875,7 +875,7 @@ class BsRequestAction < ActiveRecord::Base
     if self.target_project
       tprj = Project.get_by_name self.target_project
       if tprj.is_a? Project
-        if tprj.project_type.to_sym == :maintenance_release and self.action_type == :submit
+        if tprj.is_maintenance_release? and self.action_type == :submit
           raise SubmitRequestRejected.new "The target project #{self.target_project} is a maintenance release project, a submit self is not possible, please use the maintenance workflow instead."
         end
         if a = tprj.find_attribute('OBS', 'RejectRequests') and a.values.first

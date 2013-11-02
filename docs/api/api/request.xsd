@@ -30,6 +30,7 @@
       <xs:enumeration value="set_bugowner"/>
       <xs:enumeration value="maintenance_incident"/>
       <xs:enumeration value="maintenance_release"/>
+      <xs:enumeration value="group"/>
     </xs:restriction>
   </xs:simpleType>
 
@@ -127,6 +128,7 @@
         <xs:element ref="group"  minOccurs="0" maxOccurs="1" />
         <xs:element ref="options"    minOccurs="0" maxOccurs="1" />
         <xs:element ref="acceptinfo" minOccurs="0" maxOccurs="1" />
+	<xs:element ref="grouped" minOccurs="0" maxOccurs="1" />
       </xs:sequence>
       <xs:attribute name="type" type="types" use="required"/>
     </xs:complexType>
@@ -161,6 +163,9 @@
       <xs:attribute name="name" type="xs:string" use="required" />
       <xs:attribute name="role" type="xs:string" use="optional" />
     </xs:complexType>
+  </xs:element>
+
+  <xs:element name="grouped" >
   </xs:element>
 
   <xs:element name="options" >

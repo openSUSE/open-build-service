@@ -286,9 +286,10 @@ OBSApi::Application.routes.draw do
 
   ### /request
 
-  resources :request, :only => [:index, :show, :update, :create, :destroy]
+  resources :request, :only => [:index, :show, :update, :destroy]
 
-  match 'request/:id' => 'request#command', via: [:post, :get]
+  post 'request' => 'request#global_command'
+  post 'request/:id' => 'request#request_command'
 
   ### /lastevents
 

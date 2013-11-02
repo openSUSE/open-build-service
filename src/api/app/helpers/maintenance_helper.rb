@@ -18,12 +18,12 @@ module MaintenanceHelper
         end
       else
         # mbranch call is enabling selected packages
-        tprj.flags.create( :position => 1, :flag => 'build', :status => "disable" )
+        tprj.flags.create( :position => 1, :flag => 'build', :status => 'disable')
       end
       # publish is disabled, just patchinfos get enabled
-      tprj.flags.create( :flag => 'publish', :status => "disable" )
+      tprj.flags.create( :flag => 'publish', :status => 'disable')
       if noaccess
-        tprj.flags.create( :flag => 'access', :status => "disable" )
+        tprj.flags.create( :flag => 'access', :status => 'disable')
       end
       # take over roles from maintenance project
       maintenanceProject.relationships.each do |r| 
@@ -31,11 +31,11 @@ module MaintenanceHelper
       end
       # set default bugowner if missing
       bugowner = Role.rolecache['bugowner']
-      unless tprj.relationships.users.where("role_id = ?", bugowner.id).exists?
+      unless tprj.relationships.users.where('role_id = ?', bugowner.id).exists?
         tprj.add_user( @http_user, bugowner )
       end
       # and write it
-      tprj.set_project_type "maintenance_incident"
+      tprj.set_project_type 'maintenance_incident'
       tprj.store
       mi.db_project_id = tprj.id
       mi.save!
@@ -61,7 +61,7 @@ module MaintenanceHelper
 
     # set defaults
     unless params[:attribute]
-      params[:attribute] = "OBS:Maintained"
+      params[:attribute] = 'OBS:Maintained'
     end
     target_project = nil
     if params[:target_project]
@@ -77,10 +77,10 @@ module MaintenanceHelper
       end
     end
     unless params[:update_project_attribute]
-      params[:update_project_attribute] = "OBS:UpdateProject"
+      params[:update_project_attribute] = 'OBS:UpdateProject'
     end
     if target_project and not valid_project_name? target_project
-      return { :status => 400, :errorcode => "invalid_project_name",
+      return { :status => 400, :errorcode => 'invalid_project_name',
         :message => "invalid project name '#{target_project}'" }
     end
     add_repositories = params[:add_repositories]
@@ -134,7 +134,7 @@ module MaintenanceHelper
         end
       else
         pkg = Package.get_by_project_and_name params[:project], params[:package]
-        unless prj.class == Project and prj.find_attribute("OBS", "BranchTarget")
+        unless prj.class == Project and prj.find_attribute('OBS', 'BranchTarget')
           prj = pkg.project if pkg 
         end
       end
@@ -178,7 +178,7 @@ module MaintenanceHelper
           pkg2 = lprj.find_package( params[:package] )
           unless pkg2.nil? or @packages.map {|p| p[:package] }.include? pkg2 # avoid double instances
             logger.info "Found package instance via project link in #{pkg2.project.name}/#{pkg2.name} for attribute #{at.name} and given package name #{params[:package]}"
-            if ltprj.find_attribute("OBS", "BranchTarget").nil?
+            if ltprj.find_attribute('OBS', 'BranchTarget').nil?
               ltprj = pkg2.project
             end
             @packages.push({ :base_project => pkg2.project, :link_target_project => ltprj, :package => pkg2, :target_package => "#{pkg2.name}.#{pkg2.project.name}" })
@@ -188,8 +188,8 @@ module MaintenanceHelper
     end
 
     if @packages.empty?
-      return { :status => 403, :errorcode => "not_found",
-        :message => "no packages found by search criteria" }
+      return { :status => 403, :errorcode => 'not_found',
+        :message => 'no packages found by search criteria'}
     end
 
 #    logger.debug "XXXXXXX BEFORE"
@@ -225,14 +225,14 @@ module MaintenanceHelper
           if pa = Package.find_by_project_and_name( a.values[0].value, pkg_name )
             # We have a package in the update project already, take that
             p[:package] = pa
-            unless p[:link_target_project].class == Project and p[:link_target_project].find_attribute("OBS", "BranchTarget")
+            unless p[:link_target_project].class == Project and p[:link_target_project].find_attribute('OBS', 'BranchTarget')
               p[:link_target_project] = pa.project
               logger.info "branch call found package in update project #{pa.project.name}"
             end
           else
             update_prj = Project.find_by_name( a.values[0].value )
             if update_prj
-              unless p[:link_target_project].class == Project and p[:link_target_project].find_attribute("OBS", "BranchTarget")
+              unless p[:link_target_project].class == Project and p[:link_target_project].find_attribute('OBS', 'BranchTarget')
                 p[:link_target_project] = update_prj
               end
               update_pkg = update_prj.find_package( pkg_name )
@@ -241,7 +241,7 @@ module MaintenanceHelper
                 if update_prj.develproject and up = update_prj.develproject.find_package(pkg.name)
                   # nevertheless, check if update project has a devel project which contains an instance
                   p[:package] = up
-                  unless p[:link_target_project].class == Project and p[:link_target_project].find_attribute("OBS", "BranchTarget")
+                  unless p[:link_target_project].class == Project and p[:link_target_project].find_attribute('OBS', 'BranchTarget')
                     p[:link_target_project] = up.project unless copy_from_devel
                   end
                   logger.info "link target will create package in update project #{up.project.name} for #{prj.name}"
@@ -279,7 +279,7 @@ module MaintenanceHelper
 
           if (p[:copy_from_devel].nil? or p[:copy_from_devel] == p[:package]) \
              and p[:package].class == Package \
-             and p[:link_target_project].class == Project and p[:link_target_project].project_type == "maintenance_release" \
+             and p[:link_target_project].is_a?(Project) and p[:link_target_project].is_maintenance_release? \
              and mp = p[:link_target_project].maintenance_project
             # no defined devel area or no package inside, but we branch from a release are: check in open incidents
 
@@ -288,10 +288,10 @@ module MaintenanceHelper
             answer = Suse::Backend.post path, nil
             data = REXML::Document.new(answer.body)
             incident_pkg = nil
-            data.elements.each("collection/package") do |e|
-              ipkg = Package.find_by_project_and_name( e.attributes["project"], e.attributes["name"] )
+            data.elements.each('collection/package') do |e|
+              ipkg = Package.find_by_project_and_name( e.attributes['project'], e.attributes['name'] )
               if ipkg.nil?
-                logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes["project"]} / #{e.attributes["name"]}"
+                logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
               else
                 # is incident ?
                 if ipkg.project.is_maintenance_incident?
@@ -328,13 +328,13 @@ module MaintenanceHelper
             dir = Directory.find({ :project => params[:project], :package => params[:package], :rev => params[:rev]})
           rescue
             return { :status => 400, :errorcode => 'invalid_filelist',
-              :message => "no such revision" }
+              :message => 'no such revision'}
           end
           if dir.has_attribute? 'srcmd5'
             p[:rev] = dir.srcmd5
           else
             return { :status => 400, :errorcode => 'invalid_filelist',
-              :message => "no srcmd5 revision found" }
+              :message => 'no srcmd5 revision found'}
           end
         end
       end
@@ -362,7 +362,7 @@ module MaintenanceHelper
           end
           
           target_package = ap.name
-          target_package += "." + p[:target_package].gsub(/^[^\.]*\./,'') if extend_names
+          target_package += '.' + p[:target_package].gsub(/^[^\.]*\./,'') if extend_names
 
           # avoid double entries and therefore endless loops
           found = false
@@ -412,19 +412,19 @@ module MaintenanceHelper
           end
         end
       end
-      return { :status => 200, :text => xml, :content_type => "text/xml" }
+      return { :status => 200, :text => xml, :content_type => 'text/xml'}
     end
 
     #create branch project
     if Project.exists_by_name target_project
       if noaccess
-        return { :status => 403, :errorcode => "create_project_no_permission",
+        return { :status => 403, :errorcode => 'create_project_no_permission',
           :message => "The destination project already exists, so the api can't make it not readable" }
       end
     else
       # permission check
       unless User.current.can_create_project?(target_project)
-        return { :status => 403, :errorcode => "create_project_no_permission",
+        return { :status => 403, :errorcode => 'create_project_no_permission',
           :message => "no permission to create project '#{target_project}' while executing branch command" }
       end
 
@@ -437,14 +437,14 @@ module MaintenanceHelper
       add_repositories = true # new projects shall get repositories
       Project.transaction do
         tprj = Project.create :name => target_project, :title => title, :description => description
-        tprj.add_user User.current, "maintainer"
-        tprj.flags.create( :flag => 'build', :status => "disable" ) if extend_names
-        tprj.flags.create( :flag => 'access', :status => "disable" ) if noaccess
+        tprj.add_user User.current, 'maintainer'
+        tprj.flags.create( :flag => 'build', :status => 'disable') if extend_names
+        tprj.flags.create( :flag => 'access', :status => 'disable') if noaccess
         tprj.store
       end
       if params[:request]
-        ans = AttribNamespace.find_by_name "OBS"
-        at = ans.attrib_types.where(:name => "RequestCloned").first
+        ans = AttribNamespace.find_by_name 'OBS'
+        at = ans.attrib_types.where(:name => 'RequestCloned').first
 
         tprj = Project.get_by_name target_project
         a = Attrib.new(:project => tprj, :attrib_type => at)
@@ -455,7 +455,7 @@ module MaintenanceHelper
 
     tprj = Project.get_by_name target_project
     unless User.current.can_modify_project?(tprj)
-      return { :status => 403, :errorcode => "modify_project_no_permission",
+      return { :status => 403, :errorcode => 'modify_project_no_permission',
         :message => "no permission to modify project '#{target_project}' while executing branch project command" }
     end
 
@@ -483,7 +483,7 @@ module MaintenanceHelper
       # no find_package call here to check really this project only
       if tpkg = tprj.packages.find_by_name(pack_name)
         unless params[:force]
-          return { :status => 400, :errorcode => "double_branch_package",
+          return { :status => 400, :errorcode => 'double_branch_package',
             :message => "branch target package already exists: #{tprj.name}/#{tpkg.name}" }
         end
       else
@@ -509,11 +509,11 @@ module MaintenanceHelper
         # copy project local linked packages
         Suse::Backend.post "/source/#{tpkg.project.name}/#{tpkg.name}?cmd=copy&oproject=#{CGI.escape(p[:link_target_project].name)}&opackage=#{CGI.escape(p[:package].name)}&user=#{CGI.escape(User.current.login)}", nil
         # and fix the link
-        ret = ActiveXML::Node.new(tpkg.source_file("_link"))
+        ret = ActiveXML::Node.new(tpkg.source_file('_link'))
         ret.delete_attribute('project') # its a local link, project name not needed
         linked_package = p[:link_target_package]
         linked_package = params[:target_package] if params[:target_package] and params[:package] == ret.package  # user enforce a rename of base package
-        linked_package += "." + p[:link_target_project].name.gsub(':', '_') if extend_names
+        linked_package += '.' + p[:link_target_project].name.gsub(':', '_') if extend_names
         ret.set_attribute('package', linked_package)
         Suse::Backend.put tpkg.source_path('_link', user: User.current.login), ret.dump_xml
         tpkg.sources_changed
@@ -569,7 +569,7 @@ module MaintenanceHelper
       targetProject.packages << tpkg
       if sourcePackage.is_of_kind? 'patchinfo'
         # publish patchinfos only
-        tpkg.flags.create( :flag => 'publish', :status => "enable" )
+        tpkg.flags.create( :flag => 'publish', :status => 'enable')
       end
       tpkg.store
     end
@@ -579,7 +579,7 @@ module MaintenanceHelper
     updateinfoId = nil
     if mi
       id_template = nil
-      if a = mi.maintenance_db_project.find_attribute("OBS", "MaintenanceIdTemplate")
+      if a = mi.maintenance_db_project.find_attribute('OBS', 'MaintenanceIdTemplate')
          id_template = a.values[0].value
       end
       updateinfoId = mi.getUpdateinfoId( id_template )
@@ -588,7 +588,7 @@ module MaintenanceHelper
     # detect local links
     link = nil
     begin
-      link = sourcePackage.source_file("_link")
+      link = sourcePackage.source_file('_link')
     rescue ActiveXML::Transport::Error
     end
     if link and ret = ActiveXML::Node.new(link) and (ret.project.nil? or ret.project == sourcePackage.project.name)
@@ -614,14 +614,14 @@ module MaintenanceHelper
       # backend copy of current sources as full copy
       # that means the xsrcmd5 is different, but we keep the incident project anyway.
       cp_params = {
-        :cmd => "copy",
+        :cmd => 'copy',
         :user => User.current.login,
         :oproject => sourcePackage.project.name,
         :opackage => sourcePackage.name,
         :comment => "Release from #{sourcePackage.project.name} / #{sourcePackage.name}",
-        :expand => "1",
-        :withvrev => "1",
-        :noservice => "1",
+        :expand => '1',
+        :withvrev => '1',
+        :noservice => '1',
       }
       cp_params[:comment] += ", setting updateinfo to #{updateinfoId}" if updateinfoId
       cp_params[:requestid] = request.id if request
@@ -639,12 +639,12 @@ module MaintenanceHelper
         sourceRepo.architectures.each do |arch|
           if releasetarget.target_repository.project == targetProject
             cp_params = {
-              :cmd => "copy",
+              :cmd => 'copy',
               :oproject => sourcePackage.project.name,
               :opackage => sourcePackage.name,
               :orepository => sourceRepo.name,
               :user => User.current.login,
-              :resign => "1",
+              :resign => '1',
             }
             cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
             cp_path = "/build/#{CGI.escape(releasetarget.target_repository.project.name)}/#{URI.escape(releasetarget.target_repository.name)}/#{URI.escape(arch.name)}/#{URI.escape(targetPackageName)}"
@@ -653,7 +653,7 @@ module MaintenanceHelper
           end
         end
         # remove maintenance release trigger in source
-        if releasetarget.trigger == "maintenance"
+        if releasetarget.trigger == 'maintenance'
           releasetarget.trigger = nil
           releasetarget.save!
           sourceRepo.project.store
@@ -699,7 +699,7 @@ module MaintenanceHelper
     if f=sourcePackage.project.flags.find_by_flag_and_status( 'access', 'disable' )
       unless targetProject.flags.find_by_flag_and_status( 'access', 'disable' )
         sourcePackage.project.flags.delete(f)
-        sourcePackage.project.store({:comment => "project become public though release"})
+        sourcePackage.project.store({:comment => 'project become public though release'})
         # patchinfos stay unpublished, it is anyway too late to test them now ...
       end
     end

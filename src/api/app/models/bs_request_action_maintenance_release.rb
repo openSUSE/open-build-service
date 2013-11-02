@@ -26,11 +26,11 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     # log release events once in target project
     opts[:projectCommit].each do |tprj, sprj|
       commit_params = {
-        :cmd => "commit",
+        :cmd => 'commit',
         :user => User.current.login,
         :requestid => self.bs_request.id,
-        :rev => "latest",
-        :comment => "Release from project: " + sprj
+        :rev => 'latest',
+        :comment => 'Release from project: ' + sprj
       }
       commit_path = "/source/#{URI.escape(tprj)}/_project"
       commit_path << Suse::Backend.build_query_from_hash(commit_params, [:cmd, :user, :comment, :requestid, :rev])
@@ -40,23 +40,23 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   end
 
   class LackingReleaseMaintainership < APIException
-    setup "lacking_maintainership", 403
+    setup 'lacking_maintainership', 403
   end
 
   class RepositoryWithoutReleaseTarget < APIException
-    setup "repository_without_releasetarget"
+    setup 'repository_without_releasetarget'
   end
   
   class RepositoryWithoutArchitecture < APIException
-    setup "repository_without_architecture"
+    setup 'repository_without_architecture'
   end
 
   class ArchitectureOrderMissmatch < APIException
-    setup "architecture_order_missmatch"
+    setup 'architecture_order_missmatch'
   end
   
   class OpenReleaseRequests < APIException
-    setup "open_release_requests"
+    setup 'open_release_requests'
   end
 
   def check_permissions!
@@ -89,11 +89,11 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
       rel = rel.where(bs_request_actions: { target_package: self.target_package } )
     else
       tpkgprefix = self.target_package.gsub(/\.[^\.]*$/, '')
-      rel = rel.where("bs_request_actions.target_package = ? or bs_request_actions.target_package like '#{tpkgprefix}.%'", self.target_package)
+      rel = rel.where('bs_request_actions.target_package = ? or bs_request_actions.target_package like ?', self.target_package, "#{tpkgprefix}.%")
     end
     
     # run search
-    open_ids = rel.select("bs_requests.id").map { |r| r.id }
+    open_ids = rel.select('bs_requests.id').map { |r| r.id }
     
     unless open_ids.blank?
       msg = "The following open requests have the same target #{self.target_project} / #{tpkgprefix}: " + open_ids.join(', ')
@@ -103,7 +103,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     # creating release requests is also locking the source package, therefore we require write access there.
     spkg = Package.find_by_project_and_name self.source_project, self.source_package
     unless spkg or not User.current.can_modify_package? spkg
-      raise LackingReleaseMaintainership.new "Creating a release request action requires maintainership in source package"
+      raise LackingReleaseMaintainership.new 'Creating a release request action requires maintainership in source package'
     end
     
   end
@@ -117,9 +117,9 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
       object = spkg.project
     end
     unless object.enabled_for?('lock', nil, nil)
-      f = object.flags.find_by_flag_and_status("lock", "disable")
+      f = object.flags.find_by_flag_and_status('lock', 'disable')
       object.flags.delete(f) if f # remove possible existing disable lock flag
-      object.flags.create(:status => "enable", :flag => "lock")
+      object.flags.create(:status => 'enable', :flag => 'lock')
       object.store
     end
   end

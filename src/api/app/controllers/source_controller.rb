@@ -49,7 +49,10 @@ class SourceController < ApplicationController
 
   # POST /source
   def global_command
-    dispatch_command
+    unless %w(createmaintenanceincident branch).include? params[:cmd]
+      raise UnknownCommandError.new "Unknown command '#{params[opt[:cmd_param]]}' for path #{request.path}"
+    end
+    dispatch_command(:global_command, params[:cmd])
   end
 
   def projectlist
@@ -197,26 +200,17 @@ class SourceController < ApplicationController
 
     params[:user] = User.current.login
 
-    # command: undelete
-    if command == 'undelete'
-      dispatch_command
-      return
-    elsif command == 'release'
-      # any package read protected?
-      dispatch_command
-      return
-    elsif command == 'copy'
-      dispatch_command
-      return
+    if %w(undelete release copy).include? command
+      return dispatch_command(:project_command, command)
     end
 
     @project = Project.get_by_name project_name
     # unlock
     if command == 'unlock' and User.current.can_modify_project?(@project, true)
-      dispatch_command
+      dispatch_command(:project_command, command)
     elsif command == 'showlinked' or User.current.can_modify_project?(@project)
       # command: showlinked, set_flag, remove_flag, ...?
-      dispatch_command
+      dispatch_command(:project_command, command)
     else
       raise CmdExecutionNoPermission.new "no permission to execute command '#{command}'"
     end
@@ -402,7 +396,7 @@ class SourceController < ApplicationController
       end
     end
 
-    dispatch_command
+    dispatch_command(:package_command, @command)
   end
 
 

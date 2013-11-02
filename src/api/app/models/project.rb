@@ -290,6 +290,10 @@ class Project < ActiveRecord::Base
     self.type_id ||= DbProjectType.find_by_name('standard').id
   end
 
+  def is_maintenance_release?
+    self.project_type == 'maintenance_release'
+  end
+
   def is_maintenance_incident?
     self.project_type == 'maintenance_incident'
   end
@@ -918,7 +922,7 @@ class Project < ActiveRecord::Base
         trepo.path_elements.create(:link => repo, :position => 1)
         trigger = nil # no trigger is set by default
         trigger = 'maintenance' if MaintenanceIncident.find_by_db_project_id( self.id ) # is target an incident project ?
-        if project.project_type == 'maintenance_release'
+        if project.is_maintenance_release?
           # branch from official release project?
           trepo.release_targets.create(:target_repository => repo, :trigger => trigger)
         elsif pkg_to_enable and pkg_to_enable.is_of_kind? 'channel'
@@ -1116,7 +1120,7 @@ class Project < ActiveRecord::Base
     rel = BsRequestCollection.new(project: name, states: ['new'], roles: ['source'], types: ['maintenance_incident'])
     incidents = rel.ids
 
-    if project_type == 'maintenance'
+    if is_maintenance?
       rel = BsRequestCollection.new(project: name, states: ['new'], roles: ['source'], types: ['maintenance_release'], subprojects: true)
       maintenance_release = rel.ids
     else
@@ -1147,6 +1151,14 @@ class Project < ActiveRecord::Base
       end
     end
     projects
+  end
+
+  def unlock_by_request(id)
+    f = self.flags.find_by_flag_and_status('lock', 'enable')
+    if f
+      self.flags.delete(f)
+      self.store(comment: "Request #{} got revoked", request: id, lowprio: 1)
+    end
   end
 
 end
