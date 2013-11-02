@@ -615,28 +615,70 @@ class ApplicationController < ActionController::Base
   # If you call dispatch_command from an action 'index' with the query parameter cmd
   # having the value 'show', it will call the method 'index_show'
   #
-  def dispatch_command(opt={})
-    defaults = {
-      :cmd_param => :cmd
-    }
-    opt = defaults.merge opt
-    require_parameter! opt[:cmd_param]
-
-    cmd_handler = "#{params[:action]}_#{params[opt[:cmd_param]]}"
+  def dispatch_command(action, cmd)
+    cmd_handler = "#{action}_#{cmd}"
     logger.debug "dispatch_command: trying to call method '#{cmd_handler}'"
-
-    if not self.respond_to? cmd_handler, true
-      raise UnknownCommandError.new "Unknown command '#{params[opt[:cmd_param]]}' for path #{request.path}"
-    end
-
     __send__ cmd_handler
   end
-  public :dispatch_command
-  hide_action :dispatch_command
-
 
   def build_query_from_hash(hash, key_list=nil)
     Suse::Backend.build_query_from_hash(hash, key_list)
+  end
+
+  # Method for mapping actions in a controller to (XML) schemas based on request
+  # method (GET, PUT, POST, etc.). Example:
+  #
+  # class UserController < ActionController::Base
+  #   # Validation on request data is performed based on the request type and the
+  #   # provided schema name. Validation for a GET request only checks the XML response,
+  #   # whereas a POST request may want to check the (user-supplied) request as well as the
+  #   # own response to the request.
+  #
+  #   validate_action :index => {:method => :get, :response => :users}
+  #   validate_action :edit =>  {:method => :put, :request => :user, :response => :status}
+  #
+  #   def index
+  #     # return all users ...
+  #   end
+  #
+  #   def edit
+  #     if @request.put?
+  #       # request data has already been validated here
+  #     end
+  #   end
+  # end
+  def self.validate_action(opt)
+    opt.each do |action, action_opt|
+      Suse::Validator.add_schema_mapping(self.controller_path, action, action_opt)
+    end
+  end
+
+  def validate_xml_request(method = nil)
+    opt = params()
+    opt[:method] = method || request.method.to_s
+    opt[:type] = 'request'
+    logger.debug "Validate XML request: #{request}"
+    Suse::Validator.validate(opt, request.raw_post.to_s)
+  end
+
+  def validate_xml_response
+    return if @skip_validation
+    if request.format != 'json' && response.status.to_s[0..2] == '200' && response.headers['Content-Type'] !~ /.*\/json/i && response.headers['Content-Disposition'] != 'attachment'
+      opt = params()
+      opt[:method] = request.method.to_s
+      opt[:type] = 'response'
+      ms = Benchmark.ms do
+        if response.body.respond_to? :call
+          sio = StringIO.new()
+          response.body.call(nil, sio) # send_file can return a block that takes |response, output|
+          str = sio.string
+        else
+          str = response.body
+        end
+        Suse::Validator.validate(opt, str)
+      end
+      logger.debug "Validate XML response: #{response} took #{Integer(ms + 0.5)}ms"
+    end
   end
 
   private
