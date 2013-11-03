@@ -6,7 +6,7 @@ module HasComments
     required_parameters :body
     required_parameters :title unless params[:parent_id]
 
-    obj = comment_object.api_obj
+    obj = main_object.api_obj
     comment = obj.comments.build(title: params[:title], body: params[:body], parent_id: params[:parent_id])
     comment.user = User.current
     comment.type = obj.comment_class

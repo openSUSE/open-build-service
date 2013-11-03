@@ -8,6 +8,9 @@ class Webui::PackageController < Webui::WebuiController
   include Webui::WebuiHelper
   include Webui::PackageHelper
   include Escaper
+  include LoadBuildresults
+  include RequiresProject
+  include ManageRelationships
 
   before_filter :require_project, :except => [:submit_request, :devel_project]
   before_filter :require_package, :except => [:submit_request, :save_new_link, :save_new, :devel_project ]
@@ -24,11 +27,6 @@ class Webui::PackageController < Webui::WebuiController
     @srcmd5   = params[:srcmd5]
     @revision_parameter = params[:rev]
 
-    begin
-      @buildresult = Buildresult.find_hashed(:project => @project, :package => @package, :view => 'status' ) unless @spider_bot
-    rescue => e
-      logger.error "No buildresult found for #{@project} / #{@package} : #{e.message}"
-    end
     @bugowners_mail = []
     (@package.bugowners + @project.bugowners).uniq.each do |bugowner|
         mail = bugowner.email if bugowner
@@ -36,7 +34,7 @@ class Webui::PackageController < Webui::WebuiController
     end unless @spider_bot
     @revision = params[:rev]
     @failures = 0
-    fill_status_cache unless @buildresult.blank?
+    load_buildresults
     set_linking_packages
     @expand = 1
     @expand = begin Integer(params[:expand]) rescue 1 end if params[:expand]
@@ -61,8 +59,8 @@ class Webui::PackageController < Webui::WebuiController
     #BsRequest.list({:states => %w(new), :roles => %w(target), :project => @project.name, :package => @package.name})
   end
 
-  def comment_object
-    @package # used by HasComments mixin
+  def main_object
+    @package # used by mixins
   end
 
   def set_linking_packages
@@ -94,8 +92,7 @@ class Webui::PackageController < Webui::WebuiController
     @repository = params[:repository]
     @statistics = nil
     begin
-      @statistics = Statistic.find( project: @project, package: @package, repository: @repository, arch: @arch )
-      @statistics = @statistics.to_hash if @statistics
+      @statistics = Statistic.find_hashed( project: @project, package: @package, repository: @repository, arch: @arch )
     rescue ActiveXML::Transport::ForbiddenError
     end
     logger.debug "Statis #{@statistics.inspect}"
@@ -665,72 +662,6 @@ class Webui::PackageController < Webui::WebuiController
     redirect_to :action => :show, :project => @project, :package => @package
   end
 
-  def load_obj
-    if login = params[:userid]
-      return User.find_by_login!(login)
-    elsif title = params[:groupid]
-      return ::Group.find_by_title!(title)
-    else
-      raise MissingParameterError, 'Neither user nor group given'
-    end
-  end
-
-  def save_person
-    begin
-      @package.api_obj.add_role(load_obj, Role.find_by_title!(params[:role]))
-      @package.free_cache
-    rescue User::NotFound, ::Group::NotFound => e
-      flash[:error] = e.to_s
-      redirect_to action: :add_person, project: @project, package: @package, role: params[:role], userid: params[:userid]
-      return
-    end
-    respond_to do |format|
-      format.js { render json: { status: 'ok' } }
-      format.html do
-        flash[:notice] = "Added user #{params[:userid]} with role #{params[:role]}"
-        redirect_to action: :users, package: @package, project: @project
-      end
-    end
-  end
-
-  def save_group
-    begin
-      @package.api_obj.add_role(load_obj, Role.find_by_title!(params[:role]))
-      @package.free_cache
-    rescue User::NotFound, ::Group::NotFound => e
-      flash[:error] = e.to_s
-      redirect_to action: :add_group, project: @project, package: @package, role: params[:role], groupid: params[:groupid]
-      return
-    end
-    respond_to do |format|
-      format.js { render json: { status: 'ok' } }
-      format.html do
-        flash[:notice] = "Added group #{params[:groupid]} with role #{params[:role]} to package #{@package}"
-        redirect_to action: :users, package: @package, project: @project
-      end
-    end
-  end
-
-  def remove_role
-    begin
-      @package.api_obj.remove_role(load_obj,  Role.find_by_title(params[:role]))
-      @package.free_cache
-    rescue User::NotFound, ::Group::NotFound => e
-      flash[:error] = e.summary
-    end
-    respond_to do |format|
-      format.js { render json: { status: 'ok' } }
-      format.html do
-        if params[:userid]
-          flash[:notice] = "Removed user #{params[:userid]}"
-        else
-          flash[:notice] = "Removed group '#{params[:groupid]}'"
-        end
-        redirect_to action: :users, package: @package, project: @project
-      end
-    end
-  end
-
   def view_file
     @filename = params[:filename] || params[:file] || ''
     if WebuiPackage.is_binary_file?(@filename) # We don't want to display binary files
@@ -927,9 +858,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def buildresult
     check_ajax
-    # discard cache
-    @buildresult = Buildresult.find_hashed( :project => @project, :package => @package, :view => 'status')
-    fill_status_cache unless @buildresult.blank?
+    load_buildresults
     render :partial => 'buildstatus'
   end
 
@@ -1042,27 +971,6 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 
-  def require_project
-    required_parameters :project
-    unless Project.valid_name? params[:project]
-      unless request.xhr?
-        flash[:error] = "#{params[:project]} is not a valid project name"
-        redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404 and return
-      else
-        render :text => "#{params[:project]} is not a valid project name", :status => 404 and return
-      end
-    end
-    @project = WebuiProject.find( params[:project] )
-    unless @project
-      unless request.xhr?
-        flash[:error] = "Project not found: #{params[:project]}"
-        redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404 and return
-      else
-        render :text => "Project not found: #{params[:project]}", :status => 404 and return
-      end
-    end
-  end
-
   def require_package
     required_parameters :package
     params[:rev], params[:package] = params[:pkgrev].split('-', 2) if params[:pkgrev]
@@ -1098,53 +1006,9 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 
-  def fill_status_cache
-    @repohash = Hash.new
-    @statushash = Hash.new
-    @packagenames = Array.new
-    @repostatushash = Hash.new
-    @failures = 0
-
-    @buildresult.elements('result') do |result|
-      @resultvalue = result
-      repo = result['repository']
-      arch = result['arch']
-
-      @repohash[repo] ||= Array.new
-      @repohash[repo] << arch
-
-      # package status cache
-      @statushash[repo] ||= Hash.new
-      @statushash[repo][arch] = Hash.new
-
-      stathash = @statushash[repo][arch]
-      result.elements('status') do |status|
-        stathash[status['package']] = status
-        if ['unresolvable', 'failed', 'broken'].include? status['code']
-          @failures += 1
-        end
-      end
-
-      # repository status cache
-      @repostatushash[repo] ||= Hash.new
-      @repostatushash[repo][arch] = Hash.new
-
-      if result.has_key? 'state'
-        if result.has_key? 'dirty'
-          @repostatushash[repo][arch] = 'outdated_' + result['state']
-        else
-          @repostatushash[repo][arch] = result['state']
-        end
-      end
-
-      @packagenames << stathash.keys
-    end
-
-    if @buildresult and !@buildresult.has_key? 'result'
-      @buildresult = nil
-    end
-
-    return unless @buildresult
+  def load_buildresults
+    @buildresult = Buildresult.find_hashed( :project => @project, :package => @package, :view => 'status')
+    fill_status_cache unless @buildresult.blank?
 
     newr = Hash.new
     @buildresult.elements('result').sort {|a,b| a['repository'] <=> b['repository']}.each do |result|
@@ -1159,6 +1023,14 @@ class Webui::PackageController < Webui::WebuiController
     newr.keys.sort.each do |r|
       @buildresult << [r, newr[r].flatten.sort]
     end
+  end
+
+  def users_path
+    url_for(action: :users, project: @project, package: @package)
+  end
+
+  def add_path(action)
+    url_for(action: action, project: @project, role: params[:role], userid: params[:userid], package: @package)
   end
 
 end

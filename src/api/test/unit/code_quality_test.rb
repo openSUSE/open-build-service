@@ -150,8 +150,8 @@ class CodeQualityTest < ActiveSupport::TestCase
       'WizardController#package_wizard' => 135.16,
       'Webui::PatchinfoController#save' => 248.01,
       'Webui::BsRequest::make_stub' => 233.83,
-      'Webui::ProjectController#status_check_package' => 187.14,
-      'Webui::ProjectController#monitor' => 154.83,
+      'Webui::ProjectController#status_check_package' => 90.29,
+      'Webui::ProjectController#monitor' => 55.26,
       'Webui::PackageController#save_new_link' => 132.05,
       'Webui::WebuiHelper#flag_status' => 93.0,
       'Webui::ProjectController#save_targets' => 127.29,
@@ -166,18 +166,19 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::ProjectController#repository_state' => 92.78,
       'Webui::BsRequest::prepare_list_path' => 88.77,
       'Webui::WebuiController#mobile_request?' => 84.33,
-      'Webui::PackageController#fill_status_cache' => 81.3,
       'Webui::PackageController#require_package' => 80.11,
       'Webui::WebuiController#validate_xhtml' => 78.83,
       'Webui::RequestController#show' => 72.45,
       'Webui::PackageController#save_new' => 77.0,
       'Webui::PatchinfoController#new_tracker' => 68.43,
       'Webui::ProjectController#status' => 67.37,
+      'Webui::ProjectController#check_devel_package_status' => 81.95, 
+      'Webui::ProjectController#monitor_set_filter' => 59.38,  
       'Webui::MonitorController#events' => 59.75,
       'Webui::ProjectHelper#show_status_comment' => 64.97,
       'Webui::RequestController#set_bugowner_request' => 64.93,
       'Webui::UserController#do_login' => 62.12,
-      'Webui::PackageController#show' => 61.72,
+      'Webui::PackageController#show' => 54.39,
       'Webui::HomeController#requests' => 59.67,
       'Webui::PatchinfoController#get_issue_sum' => 56.69,
       'Webui::AttributeController#edit' => 55.09,
@@ -191,7 +192,7 @@ class CodeQualityTest < ActiveSupport::TestCase
   test "code complexity" do
     require "flog_cli"
     flog = Flog.new :continue => true
-    dirs = %w(app/controllers app/views app/models app/mixins app/indices app/helpers app/jobs webui/app/controllers webui/app/models webui/app/helpers)
+    dirs = %w(app/controllers app/views app/models app/mixins app/indices app/helpers app/jobs webui/app/controllers webui/app/models webui/app/helpers webui/app/mixins)
     files = FlogCLI.expand_dirs_to_files(*dirs)
     flog.flog(*files)
 

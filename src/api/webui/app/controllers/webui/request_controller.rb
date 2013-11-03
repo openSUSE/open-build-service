@@ -304,8 +304,8 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to :controller => :request, :action => 'show', :id => params[:id]
   end
 
-# used by HasComments mixin
-  def comment_object
+  # used by mixins
+  def main_object
     Webui::BsRequest.find params[:id]
   end
 

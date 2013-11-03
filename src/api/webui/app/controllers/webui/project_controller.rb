@@ -5,6 +5,9 @@ class ProjectController < WebuiController
   include Webui::WebuiHelper
   include Webui::RequestHelper
   include Webui::ProjectHelper
+  include LoadBuildresults
+  include RequiresProject
+  include ManageRelationships
 
   before_filter :require_project, :except => [:autocomplete_projects, :autocomplete_incidents,
                                               :clear_failed_comment, :edit_comment_form, :index,
@@ -17,7 +20,7 @@ class ProjectController < WebuiController
                                                             :edit_repository, :update_target]
 
   before_filter :load_releasetargets, :only => [ :show, :incident_request_dialog, :release_repository_dialog ]
-  prepend_before_filter :lockout_spiders, :only => [:requests, :rebuild_time]
+  prepend_before_filter :lockout_spiders, :only => [:requests, :rebuild_time, :buildresults, :list_incidents]
 
   def index
     redirect_to :action => 'list_public'
@@ -337,8 +340,8 @@ class ProjectController < WebuiController
     render :show, status: params[:nextstatus] if params[:nextstatus]
   end
 
-  def comment_object
-    @project # used by HasComments mixin
+  def main_object
+    @project # used by mixins
   end
 
   def load_releasetargets
@@ -382,7 +385,6 @@ class ProjectController < WebuiController
     @torepository = params[:torepository]
   end
 
-
   def add_person
     @roles = Role.local_roles
   end
@@ -391,40 +393,50 @@ class ProjectController < WebuiController
     @roles = Role.local_roles
   end
 
-  def load_buildresult(cache = true)
-    unless @spider_bot
-      @buildresult = Buildresult.find(:project => params[:project], :view => 'summary')
-    end
-
-    @repohash = Hash.new
-    @statushash = Hash.new
-    @repostatushash = Hash.new
-    @packagenames = Array.new
-
-    @buildresult.to_hash.elements('result') do |result|
-      repo = result['repository']
-      arch = result['arch']
-
-      # repository status cache
-      @repostatushash[repo] ||= Hash.new
-      @repostatushash[repo][arch] = Hash.new
-
-      if result.has_key? 'state'
-        if result.has_key? 'dirty'
-          @repostatushash[repo][arch] = 'outdated_' + result['state']
-        else
-          @repostatushash[repo][arch] = result['state']
-        end
-      end
-      @buildresult = @buildresult.to_a
-    end if @buildresult
-    @buildresult ||= Array.new
+  def load_buildresult
+    @buildresult = Buildresult.find_hashed(:project => params[:project], :view => 'summary')
+    Rails.logger.debug "BR #{@buildresult.inspect}"
+    fill_status_cache
   end
   protected :load_buildresult
 
+  def convert_buildresult
+    myarray = Array.new
+    @buildresult.elements('result') do |result|
+      result['summary'].elements('statuscount') do |sc|
+        myarray << [result['repository'], result['arch'], Buildresult.code2index(sc['code']), sc['count']]
+      end
+    end
+    myarray.sort!
+    repos = Array.new
+    orepo = nil
+    oarch = nil
+    archs = nil
+    counts = nil
+    myarray.each do |repo, arch, code, count|
+      if orepo != repo
+        archs << [oarch, counts] if oarch
+        oarch = nil
+        repos << [orepo, archs] if orepo
+        archs = Array.new
+      end
+      orepo = repo
+      if oarch != arch
+        archs << [oarch, counts] if oarch
+        counts = Array.new
+      end
+      oarch = arch
+      counts << [Buildresult.index2code(code), count]
+    end
+    archs << [oarch, counts] if oarch
+    repos << [orepo, archs] if orepo
+    @buildresult = repos || Array.new
+  end
+
   def buildresult
     check_ajax
-    load_buildresult false
+    load_buildresult
+    convert_buildresult
     render :partial => 'buildstatus'
   end
 
@@ -744,7 +756,7 @@ class ProjectController < WebuiController
       repos = params[:repo]
       # this interface is a mess
       if repos.kind_of? String
-	repos=[repos]
+        repos=[repos]
       end
       repos.each do |repo|
         if !valid_target_name? repo
@@ -852,72 +864,6 @@ class ProjectController < WebuiController
     redirect_to :action => :repositories, :project => @project
   end
 
-  def load_obj
-    if login = params[:userid]
-      return User.find_by_login!(login)
-    elsif title = params[:groupid]
-      return ::Group.find_by_title!(title)
-    else
-      raise MissingParameterError, 'Neither user nor group given'
-    end
-  end
-
-  def save_person
-    begin
-      @project.api_obj.add_role(load_obj, Role.find_by_title!(params[:role]))
-      @project.free_cache
-    rescue User::NotFound => e
-      flash[:error] = e.to_s
-      redirect_to action: :add_person, project: @project, role: params[:role], userid: params[:userid]
-      return
-    end
-    respond_to do |format|
-      format.js { render json: 'ok' }
-      format.html do
-        flash[:notice] = "Added user #{params[:userid]} with role #{params[:role]}"
-        redirect_to action: :users, project: @project
-      end
-    end
-  end
-
-  def save_group
-    begin
-      @project.api_obj.add_role(load_obj, Role.find_by_title!(params[:role]))
-      @project.free_cache
-    rescue ::Group::NotFound => e
-      flash[:error] = e.to_s
-      redirect_to action: :add_group, project: @project, role: params[:role], groupid: params[:groupid]
-      return
-    end
-    respond_to do |format|
-      format.js { render json: 'ok' }
-      format.html do
-        flash[:notice] = "Added group #{params[:groupid]} with role #{params[:role]} to project #{@project}"
-        redirect_to action: :users, project: @project
-      end
-    end
-  end
-
-  def remove_role
-    begin
-      @project.api_obj.remove_role(load_obj, Role.find_by_title(params[:role]))
-      @project.free_cache
-    rescue User::NotFound, ::Group::NotFound => e
-      flash[:error] = e.summary
-    end
-    respond_to do |format|
-      format.js { render json: 'ok' }
-      format.html do
-        if params[:userid]
-          flash[:notice] = "Removed user #{params[:userid]}"
-        else
-          flash[:notice] = "Removed group '#{params[:groupid]}'"
-        end
-        redirect_to action: :users, project: @project
-      end
-    end
-  end
-
   def monitor
     @name_filter = params[:pkgname]
     @lastbuild_switch = params[:lastbuild]
@@ -927,6 +873,54 @@ class ProjectController < WebuiController
       defaults = true
     end
     params['expansionerror'] = 1 if params['unresolvable']
+    monitor_set_filter(defaults)
+
+    find_opt = { :project => @project, :view => 'status', :code => @status_filter,
+      :arch => @arch_filter, :repo => @repo_filter }
+    find_opt[:lastbuild] = 1 unless @lastbuild_switch.blank?
+
+    @buildresult = Buildresult.find( find_opt )
+    unless @buildresult
+      flash[:error] = "No build results for project '#{@project}'"
+      redirect_to :action => :show, :project => params[:project]
+      return
+    end
+
+    @buildresult = @buildresult.to_hash
+    if not @buildresult.has_key? 'result'
+      @buildresult_unavailable = true
+      return
+    end
+
+    fill_status_cache
+
+    @packagenames = @packagenames.flatten.uniq.sort
+
+    ## Filter for PackageNames ####
+    @packagenames.reject! {|name| not filter_matches?(name,@name_filter) } if not @name_filter.blank?
+
+    packagename_hash = Hash.new
+    @packagenames.each { |p| packagename_hash[p.to_s] = 1 }
+
+    # filter out repos without current packages
+    @statushash.each do |repo, hash|
+      hash.each do |arch, packages|
+
+        has_packages = false
+        packages.each do |p, status|
+          if packagename_hash.has_key? p
+            has_packages = true
+            break
+          end
+        end
+        unless has_packages
+          @repohash[repo].delete arch
+        end
+      end
+    end
+  end
+
+  def monitor_set_filter(defaults)
     @avail_status_values = Buildresult.avail_status_values
     @filter_out = ['disabled', 'excluded', 'unknown']
     @status_filter = []
@@ -966,90 +960,6 @@ class ProjectController < WebuiController
         @repo_filter << s
       end
     }
-
-    find_opt = { :project => @project, :view => 'status', :code => @status_filter,
-      :arch => @arch_filter, :repo => @repo_filter }
-    find_opt[:lastbuild] = 1 unless @lastbuild_switch.blank?
-
-    @buildresult = Buildresult.find( find_opt )
-    unless @buildresult
-      flash[:error] = "No build results for project '#{@project}'"
-      redirect_to :action => :show, :project => params[:project]
-      return
-    end
-
-    @buildresult = @buildresult.to_hash
-    if not @buildresult.has_key? 'result'
-      @buildresult_unavailable = true
-      return
-    end
-
-    @repohash = Hash.new
-    @statushash = Hash.new
-    @repostatushash = Hash.new
-    @packagenames = Array.new
-
-    @buildresult.elements('result') do |result|
-
-      @resultvalue = result
-      repo = result['repository']
-      arch = result['arch']
-
-      next unless @repo_filter.include? repo
-      @repohash[repo] ||= Array.new
-      next unless @arch_filter.include? arch
-      @repohash[repo] << arch
-
-      # package status cache
-      @statushash[repo] ||= Hash.new
-
-      stathash = Hash.new
-      result.elements('status') do |status|
-        stathash[status['package']] = status
-      end
-      stathash.keys.each do |p|
-        @packagenames << p.to_s
-      end
-
-      @statushash[repo][arch] = stathash
-
-      # repository status cache
-      @repostatushash[repo] ||= Hash.new
-      @repostatushash[repo][arch] = Hash.new
-
-      if result.has_key? 'state'
-        if result.has_key? 'dirty'
-          @repostatushash[repo][arch] = 'outdated_' + result['state']
-        else
-          @repostatushash[repo][arch] = result['state']
-        end
-      end
-    end
-
-    @packagenames = @packagenames.flatten.uniq.sort
-
-    ## Filter for PackageNames ####
-    @packagenames.reject! {|name| not filter_matches?(name,@name_filter) } if not @name_filter.blank?
-
-    packagename_hash = Hash.new
-    @packagenames.each { |p| packagename_hash[p.to_s] = 1 }
-
-    # filter out repos without current packages
-    @statushash.each do |repo, hash|
-      hash.each do |arch, packages|
-
-        has_packages = false
-        packages.each do |p, status|
-          if packagename_hash.has_key? p
-            has_packages = true
-            break
-          end
-        end
-        unless has_packages
-          @repohash[repo].delete arch
-        end
-      end
-    end
   end
 
   def filter_matches?(input,filter_string)
@@ -1257,49 +1167,11 @@ class ProjectController < WebuiController
       currentpack['requests_from'].concat(@submits[key])
     end
 
+    return if !currentpack['requests_from'].empty? && @ignore_pending
+
     currentpack['md5'] = p.verifymd5
 
-    dp = p.develpack
-    if dp
-      dproject = p.develpack.project
-      currentpack['develproject'] = dproject
-      currentpack['develpackage'] = p.develpack.name
-      key = '%s/%s' % [dproject, p.develpack.name]
-      if @submits.has_key? key
-        currentpack['requests_to'].concat(@submits[key])
-      end
-      return if !currentpack['requests_from'].empty? && @ignore_pending
-
-      currentpack['develmd5'] = dp.verifymd5
-      currentpack['develmtime'] = dp.maxmtime
-
-      if dp.error
-        currentpack['problems'] << 'error-' + dp.error
-      end
-
-      if currentpack['md5'] && currentpack['develmd5'] && currentpack['md5'] != currentpack['develmd5']
-        if p.declined_request
-          @declined_requests[p.declined_request].bs_request_actions.each do |action|
-            return unless action.source_project == dp.project && action.source_package == dp.name
-
-            sourcerev = Rails.cache.fetch("rev-#{dp.project}-#{dp.name}-#{currentpack['md5']}") do
-              Directory.hashed(project: dp.project, package: dp.name)['rev']
-            end
-            if sourcerev == action.source_rev
-              currentpack['currently_declined'] = p.declined_request
-              currentpack['problems'] << 'currently_declined'
-            end
-          end
-        end
-        if currentpack['currently_declined'].nil?
-          if p.changesmd5 != dp.changesmd5
-            currentpack['problems'] << 'different_changes'
-          else
-            currentpack['problems'] << 'different_sources'
-          end
-        end
-      end
-    end
+    check_devel_package_status(currentpack, p)
     currentpack.merge!(project_status_set_version(p))
 
     if p.links_to
@@ -1317,6 +1189,48 @@ class ProjectController < WebuiController
           !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
     end
     @packages << currentpack
+  end
+
+  def check_devel_package_status(currentpack, p)
+    dp = p.develpack
+    return unless dp
+    dproject = dp.project
+    currentpack['develproject'] = dproject
+    currentpack['develpackage'] = dp.name
+    key = '%s/%s' % [dproject, dp.name]
+    if @submits.has_key? key
+      currentpack['requests_to'].concat(@submits[key])
+    end
+
+    currentpack['develmd5'] = dp.verifymd5
+    currentpack['develmtime'] = dp.maxmtime
+
+    if dp.error
+      currentpack['problems'] << 'error-' + dp.error
+    end
+
+    if currentpack['md5'] && currentpack['develmd5'] && currentpack['md5'] != currentpack['develmd5']
+      if p.declined_request
+        @declined_requests[p.declined_request].bs_request_actions.each do |action|
+          next unless action.source_project == dp.project && action.source_package == dp.name
+
+          sourcerev = Rails.cache.fetch("rev-#{dp.project}-#{dp.name}-#{currentpack['md5']}") do
+            Directory.hashed(project: dp.project, package: dp.name)['rev']
+          end
+          if sourcerev == action.source_rev
+            currentpack['currently_declined'] = p.declined_request
+            currentpack['problems'] << 'currently_declined'
+          end
+        end
+      end
+      if currentpack['currently_declined'].nil?
+        if p.changesmd5 != dp.changesmd5
+          currentpack['problems'] << 'different_changes'
+        else
+          currentpack['problems'] << 'different_sources'
+        end
+      end
+    end
   end
 
   def status_filter_packages
@@ -1519,7 +1433,6 @@ class ProjectController < WebuiController
 
   def list_incidents
     check_ajax
-    lockout_spiders
     incidents = @project.maintenance_incidents(params[:type] || 'open', params.slice(:limit, :offset))
     if params[:append]
       render :partial => 'shared/incident_table_entries', :locals => { :incidents => incidents }
@@ -1552,43 +1465,12 @@ class ProjectController < WebuiController
     return result.each.map {|x| x.name}
   end
 
-  def check_valid_project_name
-    required_parameters :project
-    unless Project.valid_name? params[:project]
-      unless request.xhr?
-        flash[:error] = "#{params[:project]} is not a valid project name"
-        redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404 and return false
-      else
-        render :text => 'Not a valid project name', :status => 404 and return false
-      end
-    end
-    return true
+  def users_path
+    url_for(action: :users, project: @project)
   end
 
-  def render_project_missing
-    if params[:project] == "home:#{User.current.login}"
-      # checks if the user is registered yet
-      flash[:notice] = "Your home project doesn't exist yet. You can create it now by entering some" +
-        " descriptive data and press the 'Create Project' button."
-      redirect_to :action => :new, :ns => 'home:' + User.current.login and return
-    end
-    unless request.xhr?
-      flash[:error] = "Project not found: #{params[:project]}"
-      redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404 and return
-    else
-      render :text => "Project not found: #{params[:project]}", :status => 404 and return
-    end
+  def add_person_path(action)
+    url_for(action: action, project: @project, role: params[:role], userid: params[:userid])
   end
-
-  def require_project
-    return unless check_valid_project_name
-    @project ||= WebuiProject.find(params[:project])
-    unless @project
-      return render_project_missing
-    end
-    # Is this a maintenance master project ?
-    @is_maintenance_project = @project.project_type == 'maintenance'
-  end
-
 end
 end
