@@ -134,7 +134,7 @@ class Project < ActiveRecord::Base
     def is_remote_project?(name, skip_access=false)
       lpro = find_remote_project(name, skip_access)
       
-      lpro && lpro[0].remoteurl
+      lpro && lpro[0].is_remote?
     end
 
     def check_access?(dbp=self)
@@ -249,7 +249,7 @@ class Project < ActiveRecord::Base
         else
           lpro = Project.find_by_name(local_project, select: 'id,name,remoteurl')
         end
-        return lpro, remote_project unless lpro.nil? or lpro.remoteurl.nil?
+        return lpro, remote_project unless lpro.nil? or !lpro.is_remote?
       end
       return nil
     end
@@ -300,6 +300,10 @@ class Project < ActiveRecord::Base
 
   def is_maintenance?
     self.project_type == 'maintenance'
+  end
+
+  def is_remote?
+    !self.remoteurl.nil?
   end
 
   # NOTE: this is no permission check, should it be added ?
@@ -861,6 +865,26 @@ class Project < ActiveRecord::Base
     end
 
     return packages
+  end
+
+  # this is needed to displaying package and project names
+  # packages is an array of :name, :db_project_id
+  # return [package_name, project_name] where project_name is nil
+  # if the project is local
+  def map_packages_to_projects(packages)
+    prj_names = Hash.new
+    Project.where(id: packages.map { |a| a[1] }.uniq).pluck(:id, :name).each do |id, name|
+      prj_names[id] = name
+    end
+    ret = []
+    packages.each do |name, prj_id|
+      if prj_id==self.id
+        ret << [name, nil]
+      else
+        ret << [name, prj_names[prj_id]]
+      end
+    end
+    ret
   end
 
   def project_type

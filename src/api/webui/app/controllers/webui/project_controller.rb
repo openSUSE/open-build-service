@@ -170,15 +170,15 @@ class ProjectController < WebuiController
     @namespace = params[:ns]
     @project_name = params[:project]
     if @namespace
-      begin
-        @project = WebuiProject.find(@namespace)
-        if @namespace == "home:#{User.current.login}" and not @project
+      @project = Project.find_by_name(@namespace)
+      if !@project
+        if @namespace == "home:#{User.current.login}"
           @pagetitle = "Your home project doesn't exist yet. You can create it now"
           @project_name = @namespace
+        else
+          flash[:error] = "Invalid namespace name '#{@namespace}'"
+          redirect_back_or_to :controller => 'project', :action => 'list_public' and return
         end
-      rescue ActiveXML::Transport::Error
-        flash[:error] = "Invalid namespace name '#{@namespace}'"
-        redirect_back_or_to :controller => 'project', :action => 'list_public' and return
       end
     end
     if @project_name =~ /home:(.+)/
@@ -240,9 +240,6 @@ class ProjectController < WebuiController
         req = Webui::BsRequest.new(:project => params[:project], :type => 'maintenance_release', :description => params[:description])
         req.save(create: true)
         flash[:success] = "Created maintenance release request <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value('id'))}'>#{req.value('id')}</a>"
-      rescue ActiveXML::Transport::NotFoundError => e
-        flash[:error] = e.summary
-        redirect_to(:action => 'show', :project => params[:project]) and return
       rescue ActiveXML::Transport::Error => e
         flash[:error] = e.summary
         redirect_back_or_to :action => 'show', :project => params[:project] and return
@@ -252,20 +249,8 @@ class ProjectController < WebuiController
   end
 
   def find_packages_info
-    ret = Array.new
     packages=@project.api_obj.expand_all_packages
-    prj_names = Hash.new
-    Project.where(id: packages.map { |a| a[1] }.uniq).pluck(:id, :name).each do |id, name|
-      prj_names[id] = name
-    end
-    packages.each do |name, prj_id|
-      if prj_id==@project.api_obj.id
-        ret << [name, nil]
-      else
-        ret << [name, prj_names[prj_id]]
-      end
-    end
-    ret
+    @project.api_obj.map_packages_to_projects(packages)
   end
 
   def find_maintenance_infos
@@ -452,8 +437,6 @@ class ProjectController < WebuiController
       else
         @project.delete
       end
-      Rails.cache.delete('%s_packages_mainpage' % @project)
-      Rails.cache.delete('%s_problem_packages' % @project)
       flash[:notice] = "Project '#{@project}' was removed successfully"
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
@@ -523,60 +506,62 @@ class ProjectController < WebuiController
   end
 
   def repository_state
+    required_parameters :repository
+
     # Get cycles of the repository build dependency information
     #
     @repocycles = Hash.new
-    @repositories = Array.new
-    if params[:repository]
-      @repositories << params[:repository]
-    elsif @project.has_element? :repository
-      @project.each_repository { |repository| @repositories << repository.name }
+
+    @repository = @project.api_obj.repositories.where(name: params[:repository]).first
+
+    unless @repository
+      redirect_to :back, alert: "Repository '#{params[:repository]}' not found"
+      return
     end
 
-    @project.each_repository do |repository|
-      next unless @repositories.include? repository.name
-      @repocycles[repository.name] = Hash.new
+    @repository.architectures.each do |arch|
+      calculate_repo_cycle(arch.name)
+    end
+  end
 
-      repository.each_arch do |arch|
-        cycles = Array.new
-        # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
-        deps = BuilddepInfo.find(:project => @project.name, :package => '-', :repository => repository.name, :arch => arch)
-        nr_cycles = 0
-        if deps and deps.has_element? :cycle
-          packages = Hash.new
-          deps.each_cycle do |cycle|
-            current_cycles = Array.new
-            cycle.each_package do |p|
-              p = p.text
-              if packages.has_key? p
-                current_cycles << packages[p]
-              end
-            end
-            current_cycles.uniq!
-            if current_cycles.empty?
-              nr_cycles += 1
-              nr_cycle = nr_cycles
-            elsif current_cycles.length == 1
-              nr_cycle = current_cycles[0]
-            else
-              logger.debug "HELP! #{current_cycles.inspect}"
-            end
-            cycle.each_package do |p|
-              packages[p.text] = nr_cycle
-            end
+  def calculate_repo_cycle(arch)
+    cycles = Array.new
+    # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
+    deps = BuilddepInfo.find(:project => @project.name, :package => '-', :repository => @repository.name, :arch => arch)
+    nr_cycles = 0
+    if deps and deps.has_element? :cycle
+      packages = Hash.new
+      deps.each_cycle do |cycle|
+        current_cycles = Array.new
+        cycle.each_package do |p|
+          p = p.text
+          if packages.has_key? p
+            current_cycles << packages[p]
           end
         end
-        cycles = Array.new
-        1.upto(nr_cycles) do |i|
-          list = Array.new
-          packages.each do |package,cycle|
-            list.push(package) if cycle == i
-          end
-          cycles << list.sort
+        current_cycles.uniq!
+        if current_cycles.empty?
+          nr_cycles += 1
+          nr_cycle = nr_cycles
+        elsif current_cycles.length == 1
+          nr_cycle = current_cycles[0]
+        else
+          logger.debug "HELP! #{current_cycles.inspect}"
         end
-        @repocycles[repository.name][arch.text] = cycles unless cycles.empty?
+        cycle.each_package do |p|
+          packages[p.text] = nr_cycle
+        end
       end
     end
+    cycles = Array.new
+    1.upto(nr_cycles) do |i|
+      list = Array.new
+      packages.each do |package, cycle|
+        list.push(package) if cycle == i
+      end
+      cycles << list.sort
+    end
+    @repocycles[arch] = cycles unless cycles.empty?
   end
 
   def rebuild_time
@@ -599,6 +584,21 @@ class ProjectController < WebuiController
       redirect_to :action => :show, :project => @project
       return
     end
+    longest = call_diststats(bdep, jobs)
+    @longestpaths = Array.new
+    longest.longestpath.each_path do |path|
+      currentpath = Array.new
+      path.each_package do |p|
+        currentpath << p.text
+      end
+      @longestpaths << currentpath
+    end
+    # we append 4 empty paths, so there are always at least 4 in the array
+    # to simplify the view code
+    4.times { @longestpaths << Array.new }
+  end
+
+  def call_diststats(bdep, jobs)
     indir = Dir.mktmpdir
     f = File.open(indir + '/_builddepinfo.xml', 'w')
     f.write(bdep.dump_xml)
@@ -620,7 +620,7 @@ class ProjectController < WebuiController
     f=File.open(outdir + '/rebuild.png')
     png=f.read
     f.close
-    @pngkey = Digest::MD5.hexdigest( params.to_s )
+    @pngkey = Digest::MD5.hexdigest(params.to_s)
     Rails.cache.write('rebuild-%s.png' % @pngkey, png)
     f=File.open(outdir + '/longest.xml')
     longest = ActiveXML::Node.new(f.read)
@@ -630,19 +630,9 @@ class ProjectController < WebuiController
     end
     @rebuildtime = Integer(longest.value :rebuildtime)
     f.close
-    @longestpaths = Array.new
-    longest.longestpath.each_path do |path|
-      currentpath = Array.new
-      path.each_package do |p|
-        currentpath << p.text
-      end
-      @longestpaths << currentpath
-    end
-    # we append 4 empty paths, so there are always at least 4 in the array
-    # to simplify the view code
-    4.times { @longestpaths << Array.new }
     FileUtils.rm_rf indir
     FileUtils.rm_rf outdir
+    longest
   end
 
   def rebuild_time_png
@@ -850,18 +840,19 @@ class ProjectController < WebuiController
     redirect_to :action => :repositories, :project => @project
   end
 
-  def move_path_up
+  def move_repo(direction)
     required_parameters :repository, :path_project, :path_repository
-    @project.repository[params[:repository]].move_path(params[:path_project] + '/' + params[:path_repository], :up)
+    @project.repository[params[:repository]].move_path(params[:path_project] + '/' + params[:path_repository], direction)
     @project.save
     redirect_to :action => :repositories, :project => @project
   end
 
+  def move_path_up
+    move_repo(:up)
+  end
+
   def move_path_down
-    required_parameters :repository, :path_project, :path_repository
-    @project.repository[params[:repository]].move_path(params[:path_project] + '/' + params[:path_repository], :down)
-    @project.save
-    redirect_to :action => :repositories, :project => @project
+    move_repo(:down)
   end
 
   def monitor
@@ -1185,8 +1176,7 @@ class ProjectController < WebuiController
     return unless (currentpack['firstfail'] or currentpack['failedcomment'] or currentpack['upstream_version'] or
         !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
     if @limit_to_old
-      return if (currentpack['firstfail'] or currentpack['failedcomment'] or
-          !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
+      return unless currentpack['upstream_version']
     end
     @packages << currentpack
   end
@@ -1469,8 +1459,9 @@ class ProjectController < WebuiController
     url_for(action: :users, project: @project)
   end
 
-  def add_person_path(action)
+  def add_path(action)
     url_for(action: action, project: @project, role: params[:role], userid: params[:userid])
   end
+
 end
 end

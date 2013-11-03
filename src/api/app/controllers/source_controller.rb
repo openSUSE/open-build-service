@@ -118,14 +118,10 @@ class SourceController < ApplicationController
     else
       packages = @project.packages.pluck(:name, :db_project_id)
     end
-    packages = packages.sort{|a,b| a[0]<=>b[0] }
-    prj_names = Hash.new
-    Project.where(id: packages.map {|a| a[1]}.uniq).pluck(:id, :name).each do |id, name|
-      prj_names[id] = name
-    end
+    packages = @project.map_packages_to_projects(packages)
     output = String.new
     output << "<directory count='#{packages.length}'>\n"
-    output << packages.map { |p| p[1]==@project.id ? "  <entry name=\"#{p[0]}\"/>\n" : "  <entry name=\"#{p[0]}\" originproject=\"#{prj_names[p[1]]}\"/>\n" }.join
+    output << packages.map { |p| p[1].nil? ? "  <entry name=\"#{p[0]}\"/>\n" : "  <entry name=\"#{p[0]}\" originproject=\"#{p[1]}\"/>\n" }.join
     output << "</directory>\n"
     output
   end

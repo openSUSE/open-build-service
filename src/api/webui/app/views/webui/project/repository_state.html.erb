@@ -1,45 +1,46 @@
 <%
-@pagetitle = "Repository State of #{@project.name}"
-@metarobots = 'noindex'
-project_bread_crumb('Repository State')
+   @pagetitle = "Repository State of #{@project.name}"
+   @metarobots = 'noindex'
+   project_bread_crumb('Repository State')
 -%>
 
 <%= render :partial => "tabs" %>
 
 <!-- this page will also get other repository informations like jobhistory -->
 
-<% @repositories.each do |repository| %>
-  <div style="margin-bottom: 1.2em" id="<%= valid_xml_id(repository) %>" >
+<div style="margin-bottom: 1.2em" id="<%= valid_xml_id(@repository.name) %>">
 
-    <h3>State of Repository <%= repository %> for <%= @project %></h3>
+  <h3>State of Repository <%= @repository %> for <%= @project %></h3>
 
-    <p>
-      <%= render :partial => "shared/download_repository_link", :locals => {:project => @project, :repository => repository} %>
-    </p>
+  <p>
+    <%= render :partial => "shared/download_repository_link", :locals => {:project => @project, :repository => @repository} %>
+  </p>
 
-    <div style="margin-top: 1em">
-      <h4>Build Dependency Cycles</h4>
-      <% cycles = 0 
-         archs = []
-         archs = @repocycles[repository].keys.sort if @repocycles.has_key? repository
-         archs.each do |arch| 
+  <div style="margin-top: 1em">
+    <h4>Build Dependency Cycles</h4>
+    <% cycles = 0
+       archs = []
+       archs = @repocycles.keys.sort
+       archs.each do |arch|
          cycles = 1 %>
-        <h5>Cycles for <%= arch %> (#<%= @repocycles[repository][arch].length %>)</h5>
+        <h5>Cycles for <%= arch %> (#<%= @repocycles[arch].length %>)</h5>
         <ul>
-          <% @repocycles[repository][arch].each do |cycle| %>
-            <li>
-              <% cycle.each do |package| -%>
-                <%= link_to package, :project => @project, :package => package, :controller => :package, :action => :show -%>
-                <% if package == cycle.last %><% else %>,<% end -%>
-              <% end -%>
-            </li>
+          <% @repocycles[arch].each do |cycle| %>
+              <li>
+                <% cycle.each do |package| -%>
+                    <%= link_to package, :project => @project, :package => package, :controller => :package, :action => :show -%>
+                    <% if package == cycle.last %>
+                    <% else %>,
+                    <% end -%>
+                <% end -%>
+              </li>
           <% end %>
         </ul>
-      <p>Check the rebuild time for this <%= link_to 'architecture', { :action => :rebuild_time, :project => @project, :arch => arch, :repository => repository}, { :rel => "nofollow" } %></p>
-      <% end %>
+        <p>Check the rebuild time for
+          this <%= link_to 'architecture', {:action => :rebuild_time, :project => @project, :arch => arch, :repository => @repository}, {:rel => "nofollow"} %></p>
+    <% end %>
     <% unless cycles > 0 %>
-      <p><i>There are no cycles in this repository.</i></p>
+        <p><i>There are no cycles in this repository.</i></p>
     <% end %>
   </div>
 </div>
-<% end %>

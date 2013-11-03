@@ -43,6 +43,12 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.must_have_selector 'div.icons-publish_disabled_blue'
   end
 
+  test 'create invalid ns' do
+    login_tom
+    visit webui_engine.project_new_path(ns: 'home:toM')
+    flash_message.must_equal "Invalid namespace name 'home:toM'"
+  end
+
   test 'create hidden project' do
     create_subproject
 
@@ -97,7 +103,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find(:id, 'delete-project').click
     find_button('Ok').click
 
-    find('#flash-messages').must_have_text "Project 'LocalProject' was removed successfully"
+    flash_message.must_equal "Project 'LocalProject' was removed successfully"
     assert page.current_url.end_with? webui_engine.project_list_public_path
     find('#project_list').wont_have_text 'LocalProject'
 

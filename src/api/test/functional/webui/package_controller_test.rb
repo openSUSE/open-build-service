@@ -117,7 +117,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_text 'Add New Group to TestPack'
     fill_in 'groupid', with: 'test_group'
     click_button 'Add group'
-    flash_message.must_equal 'Added group test_group with role maintainer to package TestPack'
+    flash_message.must_equal 'Added group test_group with role maintainer'
     within('#group_table_wrapper') do
       page.must_have_link 'test_group'
     end
