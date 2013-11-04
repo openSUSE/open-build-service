@@ -12,13 +12,12 @@
         <th>Release Targets</th>
         <th>Category</th>
         <th>Rating</th>
-        <th>Issues</th>
         <th>Packages</th>
         <th>Build</th>
       </tr>
     </thead>
     <tbody>
-      <%= render :partial => 'shared/incident_table_entries', :locals => {:incidents => incidents} %>
+      <%= render :partial => 'incident_table_entries', :locals => {:incidents => incidents} %>
     </tbody>
   </table>
 <% end %>

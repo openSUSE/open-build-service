@@ -13,7 +13,7 @@ class Package < ActiveRecord::Base
   include HasAttributes
 
   class CycleError < APIException
-   setup 'cycle_error'
+    setup 'cycle_error'
   end
   class DeleteError < APIException
     attr_accessor :packages
@@ -47,7 +47,7 @@ class Package < ActiveRecord::Base
   has_many :flags, -> { order(:position) }, dependent: :delete_all, foreign_key: :db_package_id, inverse_of: :package
 
   belongs_to :develpackage, :class_name => 'Package', :foreign_key => 'develpackage_id'
-  has_many  :develpackages, :class_name => 'Package', :foreign_key => 'develpackage_id'
+  has_many :develpackages, :class_name => 'Package', :foreign_key => 'develpackage_id'
 
   has_many :attribs, :dependent => :destroy, foreign_key: :db_package_id
 
@@ -66,7 +66,7 @@ class Package < ActiveRecord::Base
   before_update :update_activity
   after_rollback :reset_cache
 
-  default_scope { where('packages.db_project_id not in (?)', Relationship.forbidden_project_ids ) }
+  default_scope { where('packages.db_project_id not in (?)', Relationship.forbidden_project_ids) }
 
   scope :dirty_backend_package, -> { joins('left outer join backend_packages on backend_packages.package_id = packages.id').where('backend_packages.package_id is null') }
 
@@ -110,8 +110,8 @@ class Package < ActiveRecord::Base
       if project.is_a? Project
         prj = project
       else
-        return nil if Project.is_remote_project?( project )
-        prj = Project.get_by_name( project )
+        return nil if Project.is_remote_project?(project)
+        prj = Project.get_by_name(project)
       end
       raise UnknownObjectError, "#{project}/#{package}" unless prj
       prj
@@ -122,10 +122,10 @@ class Package < ActiveRecord::Base
     # in case you don't access sources or build logs in any way use 
     # use_source: false to skip check for sourceaccess permissions
     # function returns a nil object in case the package is on remote instance
-    def get_by_project_and_name( project, package, opts = {} )
+    def get_by_project_and_name(project, package, opts = {})
       opts = { use_source: true, follow_project_links: true }.merge(opts)
 
-      pkg = check_cache( project, package, opts )
+      pkg = check_cache(project, package, opts)
       return pkg if pkg
 
       prj = internal_get_project(project)
@@ -153,17 +153,17 @@ class Package < ActiveRecord::Base
       return pkg
     end
 
-    def get_by_project_and_name!( project, package, opts = {} )
+    def get_by_project_and_name!(project, package, opts = {})
       pkg = get_by_project_and_name(project, package, opts)
       raise UnknownObjectError, "#{project}/#{package}" unless pkg
       pkg
     end
 
     # to check existens of a project (local or remote)
-    def exists_by_project_and_name( project, package, opts = {} )
-      opts = { follow_project_links: true, allow_remote_packages: false}.merge(opts)
+    def exists_by_project_and_name(project, package, opts = {})
+      opts = { follow_project_links: true, allow_remote_packages: false }.merge(opts)
       begin
-        prj = Project.get_by_name( project )
+        prj = Project.get_by_name(project)
       rescue Project::UnknownObjectError
         return false
       end
@@ -194,11 +194,11 @@ class Package < ActiveRecord::Base
       return false
     end
 
-    def find_by_project_and_name( project, package )
+    def find_by_project_and_name(project, package)
       return Package.where(name: package.to_s, projects: { name: project }).includes(:project).first
     end
 
-    def find_by_attribute_type( attrib_type, package=nil )
+    def find_by_attribute_type(attrib_type, package=nil)
       # One sql statement is faster than a ruby loop
       # attribute match in package or project
       sql =<<-END_SQL
@@ -225,7 +225,7 @@ class Package < ActiveRecord::Base
       return ret
     end
 
-    def find_by_attribute_type_and_value( attrib_type, value, package=nil )
+    def find_by_attribute_type_and_value(attrib_type, value, package=nil)
       # One sql statement is faster than a ruby loop
       sql =<<-END_SQL
       SELECT pack.*
@@ -310,11 +310,11 @@ class Package < ActiveRecord::Base
     result = []
 
     data.elements.each('collection/package') do |e|
-      p = Package.find_by_project_and_name( e.attributes['project'], e.attributes['name'] )
+      p = Package.find_by_project_and_name(e.attributes['project'], e.attributes['name'])
       if p.nil?
         logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
       else
-        result.push( p )
+        result.push(p)
       end
     end
 
@@ -368,9 +368,9 @@ class Package < ActiveRecord::Base
     Package.dir_hash(self.project.name, self.name, opts)
   end
 
-  def private_set_package_kind( dir )
+  def private_set_package_kind(dir)
     raise ArgumentError.new 'need a xmlhash' unless dir.is_a? Xmlhash::XMLHash
-    kinds = detect_package_kinds( dir )
+    kinds = detect_package_kinds(dir)
     oldkinds = self.package_kinds.pluck(:kind).sort
 
     # recreate list if changes
@@ -435,14 +435,14 @@ class Package < ActiveRecord::Base
   def find_changed_issues
     issue_change={}
     # no expand=1, so only branches are tracked
-    query = { cmd: :diff, orev: 0, onlyissues: 1, linkrev: :base, view: :xml}
+    query = { cmd: :diff, orev: 0, onlyissues: 1, linkrev: :base, view: :xml }
     parse_issues_xml(query) do |issue, state|
       issue_change[issue] = 'kept'
     end
 
     # issues introduced by local changes
     return issue_change unless self.is_of_kind? 'link'
-    query = { cmd: :linkdiff, onlyissues: 1, linkrev: :base, view: :xml}
+    query = { cmd: :linkdiff, onlyissues: 1, linkrev: :base, view: :xml }
     parse_issues_xml(query) do |issue, state|
       issue_change[issue] = state
     end
@@ -505,7 +505,7 @@ class Package < ActiveRecord::Base
     if pkg == pkg.develpackage
       raise CycleError.new 'Package defines itself as devel package'
     end
-    while ( pkg.develpackage or pkg.project.develproject )
+    while (pkg.develpackage or pkg.project.develproject)
       #logger.debug "resolve_devel_package #{pkg.inspect}"
 
       # cycle detection
@@ -601,7 +601,7 @@ class Package < ActiveRecord::Base
     if CONFIG['global_write_through']
       query = { user: User.current ? User.current.login : '_nobody_' }
       query[:comment] = @commit_opts[:comment] unless @commit_opts[:comment].blank?
-      Suse::Backend.put_source( self.source_path('_meta', query), to_axml )
+      Suse::Backend.put_source(self.source_path('_meta', query), to_axml)
     end
     @commit_opts = {}
   end
@@ -621,7 +621,7 @@ class Package < ActiveRecord::Base
     # this is the algorithm (sql) we use for calculating activity of packages
     # we use Time.now.to_i instead of UNIX_TIMESTAMP() so we can test with frozen ruby time
     '( packages.activity_index * ' +
-      "POWER( 2.3276, (UNIX_TIMESTAMP(packages.updated_at) - #{Time.now.to_i})/10000000 ) " +
+        "POWER( 2.3276, (UNIX_TIMESTAMP(packages.updated_at) - #{Time.now.to_i})/10000000 ) " +
         ') as activity_value'
   end
 
@@ -632,7 +632,7 @@ class Package < ActiveRecord::Base
 
   def activity
     package = Package.find_by_sql("SELECT packages.*, #{Package.activity_algorithm} " +
-                                  "FROM `packages` WHERE id = #{self.id} LIMIT 1")
+                                      "FROM `packages` WHERE id = #{self.id} LIMIT 1")
     return package.shift.activity_value.to_f
   end
 
@@ -660,13 +660,13 @@ class Package < ActiveRecord::Base
   def open_requests_with_package_as_source_or_target
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
     rel = rel.where('(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?) or (bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)', self.project.name, self.name, self.project.name, self.name)
-    return BsRequest.where(id: rel.select('bs_requests.id').map { |r| r.id})
+    return BsRequest.where(id: rel.select('bs_requests.id').map { |r| r.id })
   end
 
   def open_requests_with_by_package_review
     rel = BsRequest.where(state: [:new, :review])
     rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? and reviews.by_package = ? ", self.project.name, self.name)
-    return BsRequest.where(id: rel.select('bs_requests.id').map { |r| r.id})
+    return BsRequest.where(id: rel.select('bs_requests.id').map { |r| r.id })
   end
 
   def linkinfo
@@ -696,7 +696,7 @@ class Package < ActiveRecord::Base
       end
     end
     parent = nil
-    ChannelBinary.find_by_project_and_package( project_name, package_name ).each do |cb|
+    ChannelBinary.find_by_project_and_package(project_name, package_name).each do |cb|
       parent ||= self.project.find_parent
       cb.create_channel_package(self, parent)
     end
@@ -740,7 +740,7 @@ class Package < ActiveRecord::Base
     myparam[:orev] = rev if rev and not rev.empty?
     myparam[:missingok] = '1' if missingok
     myparam[:comment] = comment if comment
-    path =  self.source_path + Suse::Backend.build_query_from_hash(myparam, [:cmd, :oproject, :opackage, :user, :comment, :orev, :missingok])
+    path = self.source_path + Suse::Backend.build_query_from_hash(myparam, [:cmd, :oproject, :opackage, :user, :comment, :orev, :missingok])
     # branch sources in backend
     Suse::Backend.post path, nil
   end
@@ -824,7 +824,11 @@ class Package < ActiveRecord::Base
   end
 
   def patchinfo
-    Patchinfo.new(self.source_file('_patchinfo'))
+    begin
+      Patchinfo.new(self.source_file('_patchinfo'))
+    rescue ActiveXML::Transport::NotFoundError
+      nil
+    end
   end
 
 end

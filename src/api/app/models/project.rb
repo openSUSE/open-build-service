@@ -1226,6 +1226,18 @@ class Project < ActiveRecord::Base
     return true
   end
 
+  def find_incident_issues
+    linkdiff = pkg.linkdiff()
+    if linkdiff && linkdiff.has_element?('issues')
+      linkdiff.issues.each(:issue) do |issue|
+        release_targets_ng[rt_name][:package_issues][issue.value('label')] = issue
+
+        release_targets_ng[rt_name][:package_issues_by_tracker][issue.value('tracker')] ||= []
+        release_targets_ng[rt_name][:package_issues_by_tracker][issue.value('tracker')] << issue
+      end
+    end
+  end
+
   # Returns maintenance incidents by type for current project (if any)
   def maintenance_incidents
     all = Project.where('projects.name like ?', "#{self.name}:%").distinct.where(type_id: DbProjectType.find_by_name('maintenance_incident'))
@@ -1247,70 +1259,51 @@ class Project < ActiveRecord::Base
     # One catch, currently there's only one patchinfo per incident, but things keep changing every
     # other day, so it never hurts to have a look into the future:
     global_patchinfo = nil
-    self.packages.pluck(:name).each do |pname|
-      pkg_name, rt_name = pname.split('.', 2)
-      pkg = WebuiPackage.find(pname, :project => self.name)
-      if pkg && rt_name
-        if pkg_name == 'patchinfo'
-          # Holy crap, we found a patchinfo that is specific to (at least) one release target!
-          pi = WebuiPatchinfo.find(:project => self.name, :package => pkg_name)
-          begin
-            release_targets_ng[rt_name][:patchinfo] = pi
-          rescue
-            #TODO FIXME ARGH: API/backend need some work to support this better.
-            # Until then, multiple patchinfos are problematic
-          end
-        else
-          # Here we try hard to find the release target our current package is build for:
-          found = false
-          if pkg.has_element?(:build)
-            # Stone cold map'o'rama of package.$SOMETHING with package/build/enable/@repository=$ANOTHERTHING to
-            # project/repository/releasetarget/@project=$YETSOMETINGDIFFERENT. Piece o' cake, eh?
-            pkg.build.each(:enable) do |enable|
-              if enable.has_attribute?(:repository)
-                release_targets_ng.each do |rt_key, rt_value|
-                  if rt_value[:reponame] == enable.value('repository')
-                    rt_name = rt_key # Save for re-use
-                    found = true
-                    break
-                  end
-                end
-              end
-              if !found
-                # Package only contains sth. like: <build><enable repository="standard"/></build>
-                # Thus we asume it belongs to the _only_ release target:
-                rt_name = release_targets_ng.keys.first
-              end
-            end
-          else
-            # Last chance, package building is disabled, maybe it's name aligns to the release target..
+    self.packages.each do |pkg|
+      if pkg.name == 'patchinfo'
+        # Global 'patchinfo' without specific release target:
+        global_patchinfo = pkg.patchinfo
+        next
+      end
+
+      pkg_name, rt_name = pkg.name.split('.', 2)
+      next unless rt_name
+      if pkg_name == 'patchinfo'
+        # Holy crap, we found a patchinfo that is specific to (at least) one release target!
+        pi = pkg.patchinfo
+        begin
+          release_targets_ng[rt_name][:patchinfo] = pi
+        rescue
+          #TODO FIXME ARGH: API/backend need some work to support this better.
+          # Until then, multiple patchinfos are problematic
+        end
+      else
+        # Here we try hard to find the release target our current package is build for:
+        found = false
+        # Stone cold map'o'rama of package.$SOMETHING with package/build/enable/@repository=$ANOTHERTHING to
+        # project/repository/releasetarget/@project=$YETSOMETINGDIFFERENT. Piece o' cake, eh?
+        pkg.flags.where(flag: :build, status: 'enable').each do |enable|
+          if enable.repo
             release_targets_ng.each do |rt_key, rt_value|
-              if rt_value[:reponame] == rt_name
+              if rt_value[:reponame] == enable.repo
                 rt_name = rt_key # Save for re-use
                 found = true
                 break
               end
             end
           end
-
-          # Build-disabled packages can't be matched to release targets....
-          if found
-            # Let's silently hope that an incident newer introduces new (sub-)packages....
-            release_targets_ng[rt_name][:packages] << pkg
-            linkdiff = pkg.linkdiff()
-            if linkdiff && linkdiff.has_element?('issues')
-              linkdiff.issues.each(:issue) do |issue|
-                release_targets_ng[rt_name][:package_issues][issue.value('label')] = issue
-
-                release_targets_ng[rt_name][:package_issues_by_tracker][issue.value('tracker')] ||= []
-                release_targets_ng[rt_name][:package_issues_by_tracker][issue.value('tracker')] << issue
-              end
-            end
-          end
         end
-      elsif pkg_name == 'patchinfo'
-        # Global 'patchinfo' without specific release target:
-        global_patchinfo = self.packages.where(name: 'patchinfo').first.patchinfo
+        if !found
+          # Package only contains sth. like: <build><enable repository="standard"/></build>
+          # Thus we asume it belongs to the _only_ release target:
+          rt_name = release_targets_ng.keys.first
+        end
+      end
+
+      # Build-disabled packages can't be matched to release targets....
+      if found
+        # Let's silently hope that an incident newer introduces new (sub-)packages....
+        release_targets_ng[rt_name][:packages] << pkg
       end
     end
 
