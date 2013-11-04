@@ -111,7 +111,7 @@ class RequestController < ApplicationController
   def update
     body = request.raw_post
 
-    # TODO Suse::Validator.validate(:request, body)
+    Suse::Validator.validate(:request, body)
 
     BsRequest.transaction do
       oldrequest = BsRequest.find params[:id]
@@ -236,7 +236,7 @@ class RequestController < ApplicationController
     end
 
     xml = @req.render_xml
-    # TODO: Suse::Validator.validate(:request, xml)
+    Suse::Validator.validate(:request, xml)
 
     render xml: xml
   end
