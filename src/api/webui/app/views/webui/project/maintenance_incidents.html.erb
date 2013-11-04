@@ -1,78 +1,13 @@
-<% @pagetitle = "Maintenance Incidents" %>
+<% @pagetitle = 'Maintenance Incidents' %>
 <% project_bread_crumb @pagetitle %>
 
 <%= render :partial => 'tabs' %>
 
-<h3><%= @pagetitle %></h3>
-
-<p>
-  Display <%= select_tag("incident_type_select", options_for_select(['open', 'closed'], 'open'), :onchange => "updateIncidentDisplay();") %>
-  maintenance incidents
-  <span id="incident_count"><%= "(" + @incidents.length.to_s + ")" unless not defined?(@incidents) or @incidents.blank? %></span>:
-  <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
-</p>
+<h3>
+  Maintenance incidents <span id="incident_count"><%= "(#{@incidents.length})" %></span>
+</h3>
 
 <div id="incident_display" class="clearfix">
-  <%= render(:partial => 'shared/incident_table', :locals => {:incidents => @incidents, :incident_table_id => 'incident_table'}) unless not defined?(@incidents) %>
+  <%= render(:partial => 'shared/incident_table', :locals => { :incidents => @incidents, :incident_table_id => 'incident_table' }) %>
 </div>
 
-<%= javascript_tag do %>
-  function updateIncidentDisplay() {
-    $('#spinner').show();
-    $.ajax({
-      url: '<%= url_for(:controller => :project, :action => :list_incidents, :project => @project) %>',
-      data: {
-        'type': $('#incident_type_select')[0].value,
-        'limit': 20,
-      },
-      success: function(data) {
-        $('#incident_display').html(data);
-        if (data.indexOf('No incidents') == -1) {
-        incident_count = $('tbody > tr:not(.hidden) > td:first-child > a').length;
-          $('#incident_count').html('(' + incident_count.toString() + ')');
-          appendIncidents();
-        } else {
-          $('#incident_count').html('');
-        }
-      },
-      complete: function(data) {
-        $('#spinner').hide();
-      },
-    });
-  }
-
-  function appendIncidents() {
-    old_incident_count = $('tbody > tr:not(.hidden) > td:first-child > a').length;
-    $('#spinner').show();
-    $.ajax({
-      url: '<%= url_for(:controller => :project, :action => :list_incidents, :project => @project) %>',
-      data: {
-        'type': $('#incident_type_select')[0].value,
-        'append': true,
-        'limit': 20,
-        'offset': old_incident_count,
-      },
-      success: function(data) {
-        $('#incident_table tbody').append(data);
-        if (data.indexOf('No incidents') == -1) {
-          incident_count = $('tbody > tr:not(.hidden) > td:first-child > a').length;
-          $('#incident_count').html('(' + incident_count.toString() + ')');
-          if ((old_incident_count + 20) == incident_count) {
-            appendIncidents();
-          }
-        } else {
-          $('#incident_count').html('');
-        }
-      },
-      complete: function(data) {
-        $('#spinner').hide();
-      },
-    });
-  }
-
-  <% if defined?(@incidents) %>
-    appendIncidents();
-  <% else %>
-    updateIncidentDisplay();
-  <% end %>
-<% end %>

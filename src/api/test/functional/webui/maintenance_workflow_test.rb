@@ -104,8 +104,6 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
 
     find(:link, 'My:Maintenance').click
     find(:link, 'open incident').click
-    select('closed', from: 'incident_type_select')
-    select('open', from: 'incident_type_select')
 
     find(:link, 'recommended').click
     find(:id, 'edit-patchinfo').click

@@ -2,7 +2,7 @@
   <% index = 0 %>
   <% release_targets_ng = incident.release_targets_ng() %>
   <% release_targets_ng.each do |rt_name, rt| %>
-    <tr>
+        <tr>
       <% if index == 0 %>
         <td rowspan="<%= release_targets_ng.length %>">
           <%= link_to(short_incident_name(@project, incident), action: 'show', project: incident.name) %>
@@ -11,7 +11,7 @@
           <% if rt[:patchinfo] && rt[:patchinfo].value('summary') && !rt[:patchinfo].value('summary').empty? %>
             <%= link_to(rt[:patchinfo].value('summary'), action: 'show', project: incident.name) %>
           <% else %>
-            <i><%= link_to(incident.value('title'), action: 'show', project: incident.name) %></i>
+            <i><%= link_to(incident.title, action: 'show', project: incident.name) %></i>
           <% end %>
         </td>
         <td rowspan="<%= release_targets_ng.length %>" class="nowrap">
@@ -24,7 +24,7 @@
               <%= link_to(sprite_tag('exclamation', title: text), action: 'requests', project: incident.name) %>
             <% end %>
           <% end %>
-          <% rqs_out = incident.requests({roles: %w(source), states: %w(new review declined), types: %w(maintenance_release)}) %>
+          <% rqs_out = [] # TODO incident.requests({roles: %w(source), states: %w(new review declined), types: %w(maintenance_release)}) %>
           <% if rqs_out && rqs_out.length > 0 %>
             <% rqs_out.each do |rq_out| %>
               <% text = "Release request in state '#{rq_out['state']}'" %>

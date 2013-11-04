@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'find'
 require 'tempfile'
 
@@ -15,13 +15,13 @@ class CodeQualityTest < ActiveSupport::TestCase
   end
 
   # Does a static syntax check, but doesn't interpret the code
-  test "static ruby syntax" do
+  test 'static ruby syntax' do
     # fast test first
     tmpfile = Tempfile.new('output')
     tmpfile.close
     linenr = 1
     linenrs = []
-    IO.popen("ruby -cv - 2>&1 > /dev/null | grep '^-' > #{tmpfile.path}", "w") do |io|
+    IO.popen("ruby -cv - 2>&1 > /dev/null | grep '^-' > #{tmpfile.path}", 'w') do |io|
       io.write("# encoding: utf-8\n")
       @ruby_files.each do |ruby_file|
         lines = File.open(ruby_file).readlines
@@ -30,8 +30,8 @@ class CodeQualityTest < ActiveSupport::TestCase
           io.write("\n")
         rescue Errno::EPIPE
         end
-	linenrs << [ruby_file, linenr]
-	linenr += lines.size + 1
+        linenrs << [ruby_file, linenr]
+        linenr += lines.size + 1
       end
     end
     tmpfile.open
@@ -55,7 +55,7 @@ class CodeQualityTest < ActiveSupport::TestCase
   end
 
   # Checks that no 'debugger' statement is present in ruby code
-  test "no ruby debugger statement" do
+  test 'no ruby debugger statement' do
     @ruby_files.each do |ruby_file|
       File.open(ruby_file).each_with_index do |line, number|
         assert(false, "#{ruby_file}:#{number + 1} 'debugger' statement found!") if line.match(/^\s*debugger/)
@@ -117,6 +117,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Project#update_from_xml' => 442.36,
       'Project::check_access?' => 54.05,
       'Project::get_by_name' => 53.44,
+      'Project#release_targets_ng' => 111.74,
       'ProjectStatusCalculator#calc_status' => 74.59,
       'PublicController#binary_packages' => 134.24,
       'Repository#cleanup_before_destroy' => 85.53,
@@ -156,7 +157,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::WebuiHelper#flag_status' => 93.0,
       'Webui::ProjectController#save_targets' => 127.29,
       'Webui::PackageController#save_file' => 117.16,
-      'WebuiProject#release_targets_ng' => 104.14,
       'Webui::PackageController#submit_request' => 103.71,
       'Webui::PatchinfoController#read_patchinfo' => 103.22,
       'Webui::SearchController#set_parameters' => 98.04,
@@ -189,8 +189,8 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::PackageController#branch' => 50.36,
   }
 
-  test "code complexity" do
-    require "flog_cli"
+  test 'code complexity' do
+    require 'flog_cli'
     flog = Flog.new :continue => true
     dirs = %w(app/controllers app/views app/models app/mixins app/indices app/helpers app/jobs webui/app/controllers webui/app/models webui/app/helpers webui/app/mixins)
     files = FlogCLI.expand_dirs_to_files(*dirs)
@@ -202,7 +202,7 @@ class CodeQualityTest < ActiveSupport::TestCase
 
     flog.each_by_score do |class_method, score, call_list|
       break if score < 50 # they are sorted
-      next if class_method.end_with? "#none"
+      next if class_method.end_with? '#none'
       score = Integer(score * 100)
       score = score / Float(100)
 

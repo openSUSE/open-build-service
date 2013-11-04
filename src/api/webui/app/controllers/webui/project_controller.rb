@@ -20,7 +20,7 @@ class ProjectController < WebuiController
                                                             :edit_repository, :update_target]
 
   before_filter :load_releasetargets, :only => [ :show, :incident_request_dialog, :release_repository_dialog ]
-  prepend_before_filter :lockout_spiders, :only => [:requests, :rebuild_time, :buildresults, :list_incidents]
+  prepend_before_filter :lockout_spiders, :only => [:requests, :rebuild_time, :buildresults, :maintenance_incidents]
 
   def index
     redirect_to :action => 'list_public'
@@ -1414,21 +1414,7 @@ class ProjectController < WebuiController
   end
 
   def maintenance_incidents
-    if @spider_bot
-      @incidents = []
-    else
-      @incidents = @project.maintenance_incidents(params[:type] || 'open')
-    end
-  end
-
-  def list_incidents
-    check_ajax
-    incidents = @project.maintenance_incidents(params[:type] || 'open', params.slice(:limit, :offset))
-    if params[:append]
-      render :partial => 'shared/incident_table_entries', :locals => { :incidents => incidents }
-    else
-      render :partial => 'shared/incident_table', :locals => { :incidents => incidents }
-    end
+    @incidents = @project.api_obj.maintenance_incidents
   end
 
   def unlock_dialog

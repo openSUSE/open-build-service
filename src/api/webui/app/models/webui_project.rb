@@ -35,7 +35,7 @@ class WebuiProject < Webui::Node
 
   #check if named project comes from a remote OBS instance
   def self.is_remote?(pro_name)
-    Project.where(name: pro_name).where("remoteurl is not null").exists?
+    Project.where(name: pro_name).where('remoteurl is not null').exists?
   end
   
   def to_s
@@ -238,30 +238,8 @@ class WebuiProject < Webui::Node
     return false
   end
 
-  # Returns maintenance incidents by type for current project (if any)
-  def maintenance_incidents(type = 'open', opts = {})
-    predicate = "starts-with(@name,'#{self.name}:') and @kind='maintenance_incident'"
-    case type
-      when 'open' then predicate += " and repository/releasetarget/@trigger='maintenance'"
-      when 'closed' then predicate += " and not(repository/releasetarget/@trigger='maintenance')"
-    end
-    path = "/search/project/?match=#{CGI.escape(predicate)}"
-    path += "&limit=#{opts[:limit]}" if opts[:limit]
-    path += "&offset=#{opts[:offset]}" if opts[:offset]
-    result = ActiveXML::api.direct_http(URI(path))
-    return Collection.new(result).each
-  end
-
-  def patchinfo
-    begin
-      return WebuiPatchinfo.find(:project => self.name, :package => 'patchinfo')
-    rescue ActiveXML::Transport::Error, ActiveXML::ParseError
-      return nil
-    end
-  end
-
   def packages
-    raise "needed?"
+    raise 'needed?'
     pkgs = WebuiPackage.find(:all, :project => self.name)
     if pkgs
       return pkgs.each
@@ -298,95 +276,6 @@ class WebuiProject < Webui::Node
     end
   end
 
-  def release_targets_ng
-    # First things first, get release targets as defined by the project, err.. incident. Later on we
-    # magically find out which of the contained packages, err. updates are build against those release
-    # targets.
-    release_targets_ng = {}
-    self.each(:repository) do |repo|
-      if repo.has_element?(:releasetarget)
-        release_targets_ng[repo.releasetarget.value('project')] = {:reponame => repo.value('name'), :packages => [], :patchinfo => nil, :package_issues => {}, :package_issues_by_tracker => {}}
-      end
-    end
-
-    # One catch, currently there's only one patchinfo per incident, but things keep changing every
-    # other day, so it never hurts to have a look into the future:
-    global_patchinfo = nil
-    api_obj.packages.pluck(:name).each do |pname|
-      pkg_name, rt_name = pname.split('.', 2)
-      pkg = WebuiPackage.find(pname, :project => self.name)
-      if pkg && rt_name
-        if pkg_name == 'patchinfo'
-          # Holy crap, we found a patchinfo that is specific to (at least) one release target!
-          pi = WebuiPatchinfo.find(:project => self.name, :package => pkg_name)
-          begin
-            release_targets_ng[rt_name][:patchinfo] = pi
-          rescue
-            #TODO FIXME ARGH: API/backend need some work to support this better.
-            # Until then, multiple patchinfos are problematic
-          end
-        else
-          # Here we try hard to find the release target our current package is build for:
-          found = false
-          if pkg.has_element?(:build)
-            # Stone cold map'o'rama of package.$SOMETHING with package/build/enable/@repository=$ANOTHERTHING to
-            # project/repository/releasetarget/@project=$YETSOMETINGDIFFERENT. Piece o' cake, eh?
-            pkg.build.each(:enable) do |enable|
-              if enable.has_attribute?(:repository)
-                release_targets_ng.each do |rt_key, rt_value|
-                  if rt_value[:reponame] == enable.value('repository')
-                    rt_name = rt_key # Save for re-use
-                    found = true
-                    break
-                  end
-                end
-              end
-              if !found
-                # Package only contains sth. like: <build><enable repository="standard"/></build>
-                # Thus we asume it belongs to the _only_ release target:
-                rt_name = release_targets_ng.keys.first
-              end
-            end
-          else
-            # Last chance, package building is disabled, maybe it's name aligns to the release target..
-            release_targets_ng.each do |rt_key, rt_value|
-              if rt_value[:reponame] == rt_name
-                rt_name = rt_key # Save for re-use
-                found = true
-                break
-              end
-            end
-          end
-
-          # Build-disabled packages can't be matched to release targets....
-          if found
-            # Let's silently hope that an incident newer introduces new (sub-)packages....
-            release_targets_ng[rt_name][:packages] << pkg
-            linkdiff = pkg.linkdiff()
-            if linkdiff && linkdiff.has_element?('issues')
-              linkdiff.issues.each(:issue) do |issue|
-                release_targets_ng[rt_name][:package_issues][issue.value('label')] = issue
-
-                release_targets_ng[rt_name][:package_issues_by_tracker][issue.value('tracker')] ||= []
-                release_targets_ng[rt_name][:package_issues_by_tracker][issue.value('tracker')] << issue
-              end
-            end
-          end
-        end
-      elsif pkg_name == 'patchinfo'
-        # Global 'patchinfo' without specific release target:
-        global_patchinfo = self.patchinfo()
-      end
-    end
-
-    if global_patchinfo
-      release_targets_ng.each do |rt_name, rt|
-        rt[:patchinfo] = global_patchinfo
-      end
-    end
-    return release_targets_ng
-  end
-
   def is_locked?
     api_obj.is_locked?
   end
@@ -396,47 +285,6 @@ class WebuiProject < Webui::Node
     opts = {:project => self.name}.merge opts
     ids = Webui::BsRequest.list_ids(opts)
     return Webui::BsRequest.ids(ids)
-  end
-
-  def buildresults(view = 'summary')
-    return Buildresult.find(:project => self.name, :view => view)
-  end
-
-  def build_succeeded?(repository = nil)
-    states = {}
-    repository_states = {}
-
-    buildresults().each('result') do |result|
-
-      if repository && result.repository == repository
-        repository_states[repository] ||= {}
-        result.each('summary') do |summary|
-          summary.each('statuscount') do |statuscount|
-            repository_states[repository][statuscount.value('code')] ||= 0
-            repository_states[repository][statuscount.value('code')] += statuscount.value('count').to_i()
-          end
-        end
-      else
-        result.each('summary') do |summary|
-          summary.each('statuscount') do |statuscount|
-            states[statuscount.value('code')] ||= 0
-            states[statuscount.value('code')] += statuscount.value('count').to_i()
-          end
-        end
-      end
-    end
-    if repository && repository_states.has_key?(repository)
-      return false if repository_states[repository].empty? # No buildresult is bad
-      repository_states[repository].each do |state, count|
-        return false if ['broken', 'failed', 'unresolvable'].include?(state)
-      end
-    else
-      return false unless states.empty? # No buildresult is bad
-      states.each do |state, count|
-        return false if ['broken', 'failed', 'unresolvable'].include?(state)
-      end
-    end
-    return true
   end
 
   def self.find(name, opts = {})

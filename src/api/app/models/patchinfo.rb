@@ -2,9 +2,15 @@
 # in a update package
 
 # if you wonder it's not a module, read http://blog.codeclimate.com/blog/2012/11/14/why-ruby-class-methods-resist-refactoring
-class Patchinfo
+class Patchinfo < ActiveXML::Node
 
   include ValidationHelper
+
+  # patchinfo has two roles
+  def initialize( data = nil )
+    data ||= '<patchinfo/>'
+    super(data)
+  end
 
   def logger
     Rails.logger
@@ -183,15 +189,11 @@ class Patchinfo
     pkg = Package.get_by_project_and_name project, package
 
     # get existing file
-    xml = read_patchinfo_axml(pkg)
+    xml = pkg.patchinfo
     xml = self.update_patchinfo(pkg.project, xml)
 
     Suse::Backend.put(patchinfo_url(pkg, 'updated via updatepatchinfo call'), xml.dump_xml)
     pkg.sources_changed
-  end
-
-  def read_patchinfo_axml(pkg)
-    ActiveXML::Node.new(pkg.source_file('_patchinfo'))
   end
 
   def read_patchinfo_xmlhash(pkg)
@@ -214,6 +216,57 @@ class Patchinfo
     end
     # a patchinfo may limit the targets
     data.elements('releasetarget')
+  end
+
+  def self.make_stub( opt )
+    '<patchinfo/>'
+  end
+
+  # FIXME: Layout and colors belong to CSS
+  RATING_COLORS = {
+      'low'       => 'green',
+      'moderate'  => 'olive',
+      'important' => 'red',
+      'critical'  => 'maroon',
+  }
+
+  RATINGS = RATING_COLORS.keys
+
+  CATEGORY_COLORS = {
+      'recommended' => 'green',
+      'security'    => 'maroon',
+      'optional'    => 'olive',
+      'feature'     => '',
+  }
+
+  # '' is a valid category
+  CATEGORIES = [''].concat(CATEGORY_COLORS.keys)
+
+  def save
+    path = self.init_options[:package] ? "/source/#{self.init_options[:project]}/#{self.init_options[:package]}/_patchinfo" : "/source/#{self.init_options[:package]}/_patchinfo"
+    begin
+      frontend = ActiveXML::api
+      frontend.direct_http URI("#{path}"), :method => 'POST', :data => self.dump_xml
+      result = {:type => :notice, :msg => 'Patchinfo sucessfully updated!'}
+    rescue ActiveXML::Transport::Error => e
+      result = {:type => :error, :msg => "Saving Patchinfo failed: #{e.summary}"}
+    end
+
+    return result
+  end
+
+  def issues
+    #TODO 
+    []
+  end
+
+  def issues_by_tracker
+    issues_by_tracker = {}
+    self.issues.each do |issue|
+      issues_by_tracker[issue.value('tracker')] ||= []
+      issues_by_tracker[issue.value('tracker')] << issue
+    end
+    return issues_by_tracker
   end
 
 end

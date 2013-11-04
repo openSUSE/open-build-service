@@ -7,18 +7,18 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def new_patchinfo
     unless User.current.can_create_package_in? @project.api_obj
-      flash[:error] = "No permission to create packages"
+      flash[:error] = 'No permission to create packages'
       redirect_to :controller => 'project', :action => 'show', project: @project and return
     end
 
     unless WebuiPackage.find('patchinfo', :project => @project )
       unless Patchinfo.new.create_patchinfo(@project.name, nil)
-        flash[:error] = "Error creating patchinfo"
+        flash[:error] = 'Error creating patchinfo'
         redirect_to :controller => 'project', :action => 'show', project: @project and return
       end
     end
     @package = WebuiPackage.find('patchinfo', :project => @project )
-    @file = WebuiPatchinfo.find(:project => @project, :package => @package )
+    @file = @package.api_obj.patchinfo
     unless @file
       flash[:error] = "Patchinfo not found for #{params[:project]}"
       redirect_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
@@ -35,7 +35,6 @@ class Webui::PatchinfoController < Webui::WebuiController
   def updatepatchinfo
     path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=updatepatchinfo"
     frontend.transport.direct_http( URI(path), :method => 'POST')
-    WebuiPatchinfo.free_cache(:project=> @project, :package => @package)
     redirect_to :action => 'edit_patchinfo', :project => @project, :package => @package
   end
 
@@ -249,9 +248,6 @@ class Webui::PatchinfoController < Webui::WebuiController
       flash[:notice] = "'#{@package}' was removed successfully from project '#{@project}'"
       Rails.cache.delete('%s_packages_mainpage' % @project)
       Rails.cache.delete('%s_problem_packages' % @project)
-      WebuiPackage.free_cache( :all, :project => @project.name )
-      WebuiPackage.free_cache( @package, :project => @project )
-      WebuiPatchinfo.free_cache(:project=> @project, :package => @package)
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
     end
@@ -382,10 +378,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     unless params[:package].blank?
       @package = WebuiPackage.find( params[:package], :project => @project )
     end
-    @file = WebuiPatchinfo.find(:project => @project.to_s, :package => @package.to_s)
-    opt = {:project => @project.name, :package => @package}
-    opt.store(:patchinfo, @patchinfo.to_s)
-    @patchinfo = WebuiPatchinfo.find(opt)
+    @patchinfo = @file = @package.api_obj.patchinfo
 
     unless @file
       flash[:error] = "Patchinfo not found for #{params[:project]}"

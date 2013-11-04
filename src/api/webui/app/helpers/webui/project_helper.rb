@@ -6,30 +6,30 @@ module ProjectHelper
   protected
   
   def watch_link_text
-    user.watches?(@project.name) ? "Don't watch this project" : "Watch this project"
+    user.watches?(@project.name) ? "Don't watch this project" : 'Watch this project'
   end
 
   def watch_link_image
-    user.watches?(@project.name) ? "magnifier_zoom_out.png" : "magnifier_zoom_in.png"
+    user.watches?(@project.name) ? 'magnifier_zoom_out.png' : 'magnifier_zoom_in.png'
   end
 
   def show_status_comment( comment, package, firstfail, comments_to_clear )
-    status_comment_html = "".html_safe
+    status_comment_html = ''.html_safe
     if comment
       # TODO: Port _to_remote helpers to jQuery
       status_comment_html = ERB::Util::h(comment)
       if !firstfail
         if User.current.can_modify_project?(@project.api_obj)
-          status_comment_html += " ".html_safe + link_to( image_tag('comment_delete.png', :size => "16x16", :alt => 'Clear'), 
+          status_comment_html += ' '.html_safe + link_to( image_tag('comment_delete.png', :size => '16x16', :alt => 'Clear'),
                                                           { action: :clear_failed_comment, project: @project, 
                                                             package: package, update: valid_xml_id("comment_#{package}") }, 
                                                           remote: true )
           comments_to_clear << package
         end
       elsif User.current.can_modify_project?(@project.api_obj)
-        status_comment_html += " ".html_safe
-        status_comment_html += link_to(image_tag('comment_edit.png', :alt => "Edit"), 
-                                       { action: "edit_comment_form", comment: comment, 
+        status_comment_html += ' '.html_safe
+        status_comment_html += link_to(image_tag('comment_edit.png', :alt => 'Edit'),
+                                       { action: 'edit_comment_form', comment: comment,
                                          package: package, project: @project, 
                                          update: valid_xml_id("comment_edit_#{package}") }, 
                                        remote: true)
@@ -37,11 +37,11 @@ module ProjectHelper
     elsif firstfail
       if User.current.can_modify_project?(@project.api_obj)
         status_comment_html += " <span class='unknown_failure'>Unknown build failure ".html_safe + 
-          link_to( image_tag('comment_edit.png', size: "16x16", alt: "Edit"),
-                   { action: "edit_comment_form", comment: "", package: package, 
+          link_to( image_tag('comment_edit.png', size: '16x16', alt: 'Edit'),
+                   { action: 'edit_comment_form', comment: '', package: package,
                      project: @project, update: valid_xml_id("comment_edit_#{package}") }, 
                    remote: true )
-        status_comment_html += "</span>".html_safe
+        status_comment_html += '</span>'.html_safe
       else
         status_comment_html += "<span class='unknown_failure'>Unknown build failure</span>".html_safe
       end
@@ -72,18 +72,18 @@ module ProjectHelper
   def format_seconds( secs ) 
     secs = Integer(secs)
     if secs < 3600
-      "0:%02d" % (secs / 60)
+      '0:%02d' % (secs / 60)
     else
       hours = secs / 3600
       secs -= hours * 3600
-      "%d:%02d" % [ hours, secs / 60]
+      '%d:%02d' % [ hours, secs / 60]
     end
   end
 
   def rebuild_time_col( package )
      return '' if package.blank?
      btime = @timings[package][0]
-     link_to( h(package), :controller => :package, :action => :show, :project => @project, :package => package) + " " + format_seconds(btime)
+     link_to( h(package), :controller => :package, :action => :show, :project => @project, :package => package) + ' ' + format_seconds(btime)
   end
 
   def short_incident_name(maintenance_project, incident)
@@ -94,11 +94,11 @@ module ProjectHelper
   end
 
   def patchinfo_rating_color(rating)
-    WebuiPatchinfo::RATING_COLORS[rating.to_s] || ''
+    Patchinfo::RATING_COLORS[rating.to_s] || ''
   end
 
   def patchinfo_category_color(category)
-    WebuiPatchinfo::CATEGORY_COLORS[category.to_s] || ''
+    Patchinfo::CATEGORY_COLORS[category.to_s] || ''
   end
 
   def incident_issue_color(patchinfo_issues, package_issues)

@@ -822,4 +822,9 @@ class Package < ActiveRecord::Base
   def delete_cache_lines
     CacheLine.cleanup_package(self.project.name, self.name)
   end
+
+  def patchinfo
+    Patchinfo.new(self.source_file('_patchinfo'))
+  end
+
 end
