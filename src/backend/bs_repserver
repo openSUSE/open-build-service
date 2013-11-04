@@ -2194,7 +2194,8 @@ sub getresult {
 
 # special call that completely wipes the published area from a prp
 sub wipepublishedlocked {
-  my ($prp) = @_;
+  my ($projid, $repoid) = @_;
+  my $prp = "$projid/$repoid";
   return unless -d "$reporoot/$prp";
   local *F;
   BSUtil::lockopen(\*F, '>', "$reporoot/$prp/.finishedlock");
@@ -2206,6 +2207,7 @@ sub wipepublishedlocked {
     rmdir($r);
   }
   close F;
+  forwardevent({}, 'publish', $projid, undef, $repoid, undef);
 }
 
 sub docommand {
@@ -2254,7 +2256,7 @@ sub docommand {
       }
     } elsif ($cmd eq 'wipepublishedlocked') {
       my $prp = "$projid/$repoid";
-      wipepublishedlocked($prp) unless $wipepublishedlockeddone{$prp};
+      wipepublishedlocked($projid, $repoid) unless $wipepublishedlockeddone{$prp};
       $wipepublishedlockeddone{$prp} = 1;
     } elsif ($cmd eq 'wipe') {
       undef $allpacks;
