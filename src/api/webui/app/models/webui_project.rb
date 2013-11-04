@@ -280,13 +280,6 @@ class WebuiProject < Webui::Node
     api_obj.is_locked?
   end
 
-  def requests(opts)
-    # called for the incidents requests
-    opts = {:project => self.name}.merge opts
-    ids = Webui::BsRequest.list_ids(opts)
-    return Webui::BsRequest.ids(ids)
-  end
-
   def self.find(name, opts = {})
     name = name.to_param
     begin

@@ -24,7 +24,7 @@
                         <%= link_to(sprite_tag('exclamation', title: text), action: 'requests', project: incident.name) %>
                     <% end %>
                 <% end %>
-                <% rqs_out = [] # TODO incident.requests({roles: %w(source), states: %w(new review declined), types: %w(maintenance_release)})  %>
+                <% rqs_out = incident.requests({roles: %w(source), states: %w(new review declined), types: %w(maintenance_release)})  %>
                 <% if rqs_out && rqs_out.length > 0 %>
                     <% rqs_out.each do |rq_out| %>
                         <% text = "Release request in state '#{rq_out['state']}'" %>

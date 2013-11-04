@@ -1185,6 +1185,13 @@ class Project < ActiveRecord::Base
     end
   end
 
+  def requests(opts)
+    # called for the incidents requests
+    opts = {:project => self.name}.merge opts
+    ids = Webui::BsRequest.list_ids(opts)
+    rel = BsRequest.where(id: ids).order('bs_requests.id')
+  end
+
   def build_succeeded?(repository = nil)
     states = {}
     repository_states = {}
