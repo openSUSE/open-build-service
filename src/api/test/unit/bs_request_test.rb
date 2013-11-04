@@ -97,7 +97,7 @@ class BsRequestTest < ActiveSupport::TestCase
   </review>
   <history name="review" who="Iggy" when="2012-11-07T21:13:12"/>
   <history name="review" who="Iggy" when="2012-11-07T21:13:13">
-    <comment/>
+    <comment>Nada</comment>
   </history>
   <description>Left blank</description>
 </request>
