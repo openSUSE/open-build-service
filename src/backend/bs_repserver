@@ -2207,7 +2207,7 @@ sub wipepublishedlocked {
     rmdir($r);
   }
   close F;
-  forwardevent({}, 'publish', $projid, undef, $repoid, undef);
+  forwardevent({}, 'publish', $projid, undef, $repoid, 'publish');
 }
 
 sub docommand {
