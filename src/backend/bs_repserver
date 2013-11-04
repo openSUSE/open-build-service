@@ -2014,9 +2014,10 @@ sub forwardevent {
   $evname .= "::$job" if defined $job;
   $evname = "${type}:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
   $arch = 'dispatch' if $type eq 'badhost';
+  $arch = 'publish' if $type eq 'publish';
   mkdir_p("$eventdir/$arch") if $arch;
   if ($arch) {
-    dirty($projid, $repoid, $arch) unless !defined($repoid) || $arch eq 'dispatch';
+    dirty($projid, $repoid, $arch) unless !defined($repoid) || $arch eq 'dispatch' || $arch eq 'publish';
     writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
     ping($arch);
   } else {
@@ -2207,7 +2208,7 @@ sub wipepublishedlocked {
     rmdir($r);
   }
   close F;
-  forwardevent({}, 'publish', $projid, undef, $repoid, 'publish');
+  forwardevent({}, 'publish', $projid, undef, $repoid, undef);
 }
 
 sub docommand {
