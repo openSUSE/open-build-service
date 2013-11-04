@@ -1071,6 +1071,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                :tag => 'status', :attributes => { :package=> 'packNew.BaseDistro2.0_LinkedUpdateProject', :code=> 'disabled'}
     assert_xml_tag :parent => { :tag => 'result', :attributes => { :repository=> 'BaseDistro3', :arch=> 'i586'} },
                :tag => 'status', :attributes => { :package=> 'pack2.BaseDistro3', :code=> 'scheduled'}
+
+
     # try to create release request too early
     post '/request?cmd=create', '<request>
                                    <action type="maintenance_release">
@@ -1152,6 +1154,22 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_no_xml_tag :tag => 'reference', :attributes => { :href => 'https://bugzilla.novell.com/show_bug.cgi?id='}
     assert_no_xml_tag :tag => 'reference', :attributes => { :id => ''}
 
+    # let's say the maintenance guy wants to publish it now
+    get "/source/#{incidentProject}/_meta"
+    assert_response :success
+    maintenance_project_meta = REXML::Document.new(@response.body)
+    maintenance_project_meta.elements['/project'].delete_element "publish"
+    raw_put "/source/#{incidentProject}/_meta", maintenance_project_meta.to_s
+    assert_response :success
+    run_scheduler('x86_64')
+    run_scheduler('i586')
+    wait_for_publisher()
+    # is it published?
+    get "/published/#{incidentProject}/BaseDistro3/i586/package-1.0-1.i586.rpm"
+    assert_response :success
+    get "/published/#{incidentProject}/BaseDistro2.0_LinkedUpdateProject/x86_64/package-1.0-1.x86_64.rpm"
+    assert_response :success
+
     # create release request
     raw_post '/request?cmd=create&addrevision=1', '<request>
                                    <action type="maintenance_release">
@@ -1191,7 +1209,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag( :parent => {:tag => 'lock'}, :tag => 'enable')
     assert_xml_tag( :parent => {:tag => 'access'}, :tag => 'disable', :content => nil ) # but still not out there
-    assert_xml_tag( :parent => {:tag => 'publish'}, :tag => 'disable', :content => nil )
+    assert_no_xml_tag( :parent => {:tag => 'publish'} )
     assert_no_xml_tag( :parent => { :tag => 'lock'}, :tag => 'disable') # disable got removed
 
     # incident project not visible for tom
@@ -1238,23 +1256,34 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag( :parent => { :tag => 'state'}, :tag => 'comment', :content => 'blahfasel')
 
-    # release packages
+    #### release packages
+    # published binaries from incident still exist?
+    get "/published/#{incidentProject}/BaseDistro3/i586/package-1.0-1.i586.rpm"
+    assert_response :success
+    get "/published/#{incidentProject}/BaseDistro2.0_LinkedUpdateProject/x86_64/package-1.0-1.x86_64.rpm"
+    assert_response :success
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response :success
     get "/request/#{reqid}"
     assert_response :success
     assert_xml_tag( :parent => { :tag => 'state'}, :tag => 'comment', :content => 'releasing')
     run_scheduler('i586')
+    run_scheduler('x86_64')
+    wait_for_publisher()
+    # published binaries from incident got removed?
+    get "/published/#{incidentProject}/BaseDistro3/i586/package-1.0-1.i586.rpm"
+    assert_response 404
+    get "/published/#{incidentProject}/BaseDistro2.0_LinkedUpdateProject/x86_64/package-1.0-1.x86_64.rpm"
+    assert_response 404
 
     # validate result
     get "/source/#{incidentProject}/_meta"
     assert_response :success
     assert_xml_tag( :parent => {:tag => 'lock'}, :tag => 'enable') # still locked
-    assert_xml_tag( :parent => {:tag => 'publish'}, :tag => 'disable', :content => nil )
     assert_no_xml_tag( :parent => {:tag => 'access'}, :tag => 'disable', :content => nil ) # got published, so access got enabled
     get "/source/#{incidentProject}/patchinfo/_meta"
     assert_response :success
-    assert_no_xml_tag( :parent => {:tag => 'publish'}, :tag => 'enable', :content => nil ) # patchinfo stay unpublished, too late now anyway
+    assert_no_xml_tag( :parent => {:tag => 'publish'}, :tag => 'enable', :content => nil )
     get '/source/BaseDistro2.0:LinkedUpdateProject/pack2/_link'
     assert_response :success
     assert_xml_tag :tag => 'link', :attributes => { :project => nil, :package => "pack2.#{incidentID}" }
@@ -1423,9 +1452,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586'
     assert_response :success
     get '/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/delete_me-1.0-1.i586.rpm'
-    assert_response 400
+    assert_response 404
     get '/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/package-1.0-1.i586.rpm'
-    assert_response 400
+    assert_response 404
 
     # disable lock and verify meta
     delete "/source/#{incidentProject}"
