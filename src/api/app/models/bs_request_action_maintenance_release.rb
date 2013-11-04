@@ -23,6 +23,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   end
 
   def per_request_cleanup(opts)
+    cleanedProjects = {}
     # log release events once in target project
     opts[:projectCommit].each do |tprj, sprj|
       commit_params = {
@@ -35,6 +36,11 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
       commit_path = "/source/#{URI.escape(tprj)}/_project"
       commit_path << Suse::Backend.build_query_from_hash(commit_params, [:cmd, :user, :comment, :requestid, :rev])
       Suse::Backend.post commit_path, nil
+
+      next if cleanedProjects[sprj]
+      # cleanup published binaries to save disk space on ftp server and mirrors
+      Suse::Backend.post "/build/#{URI.escape(sprj)}?cmd=wipepublishedlocked", nil
+      cleanedProjects[sprj] = 1
     end
     opts[:projectCommit] = {}
   end
