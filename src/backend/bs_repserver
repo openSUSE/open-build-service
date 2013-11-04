@@ -3540,7 +3540,7 @@ sub publishedfile {
     }
     return makeymp($projid, $repoid, "$extrep/$filename", $projpack);
   }
-  die("no such file\n") unless -f "$extrep/$filename";
+  die("404 no such file\n") unless -f "$extrep/$filename";
   if ($cgi->{'view'} && $cgi->{'view'} eq 'fileinfo') {
     return fileinfo($cgi, "$extrep/$filename", $filename);
   }

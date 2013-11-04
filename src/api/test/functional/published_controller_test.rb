@@ -42,16 +42,15 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
     get "/published/kde4/openSUSE_11.3/i586"
     assert_response 200
 
-# FIXME: these error 400 are caused by incomplete test data, not by correct handling
-#        It should be a 404 if these files are not there or not accessable
+# FIXME: these error 404 are caused by incomplete test data, not by correct handling
 #    get "/published/kde4/openSUSE_11.3/i586/kdelibs"
-#    assert_response 400
+#    assert_response 404
 #
 #    get "/published/kde4/openSUSE_11.3/i586/kdelibs-3.2.1-1.5.i586.rpm"
-#    assert_response 400
+#    assert_response 404
 #
 #    get "/published/home:Iggy/10.2/i586/package-1.0-1.i586.rpm"
-#    assert_response 400
+#    assert_response 404
   end
 
   def test_binary_view
@@ -60,7 +59,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
 
     login_tom
     get "/published/kde4/openSUSE_11.3/i586/kdelibs-3.2.1-1.5.i586.rpm"
-    assert_response 400 #does not exist
+    assert_response 404 #does not exist
   end
   # FIXME: this needs to be extended, when we have added binaries and bs_publisher to the test suite
 
