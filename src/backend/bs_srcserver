@@ -2729,13 +2729,15 @@ sub getprojpack {
       if ($cgi->{'expandedrepos'}) {
 	$jinfo->{'repository'} = Storable::dclone($jinfo->{'repository'});
 	for my $repo (@{$jinfo->{'repository'}}) {
-	  my @prps = expandsearchpath($projid, $repo->{'name'}, $remotemap);
-          $expandedrepos{"$projid/$repo->{'name'}"} = [ @prps ];
+	  my $base = {};
+	  my @prps = expandsearchpath($projid, $repo->{'name'}, $remotemap, $base);
+	  $expandedrepos{"$projid/$repo->{'name'}"} = [ @prps ];
 	  for my $prp (@prps) {
 	    my @s = split('/', $prp, 2);
 	    $prp = {'project' => $s[0], 'repository' => $s[1]};
 	  }
 	  $repo->{'path'} = \@prps;
+	  $repo->{'base'} = $base;
 	}
       } elsif ($remotemap) {
 	for my $repo (@{$jinfo->{'repository'}}) {
@@ -4070,7 +4072,7 @@ sub remote_getrev {
 }
 
 sub expandsearchpath {
-  my ($projid, $repoid, $remotemap) = @_;
+  my ($projid, $repoid, $remotemap, $base) = @_;
   my %done;
   my @ret;
   my @path = {project => $projid, repository => $repoid};
@@ -4080,6 +4082,7 @@ sub expandsearchpath {
     push @ret, $prp unless $done{$prp};
     $done{$prp} = 1;
     if (!@path) {
+      ($base->{'project'}, $base->{'repository'}) = ($t->{'project'}, $t->{'repository'}) if $base;
       last if $done{"/$prp"};
       my ($pid, $tid) = ($t->{'project'}, $t->{'repository'});
       my $proj = readproj($pid, 1);
@@ -6514,7 +6517,11 @@ sub binary_key_to_data {
   $res->{'release'} = $release if defined $release;
   $res->{'path'} = $repoinfo->{'prpsearchpath'} if $repoinfo->{'prpsearchpath'};
   $res->{'package'} = $repoinfo->{'binaryorigins'}->{"$arch/$binary"} if defined $repoinfo->{'binaryorigins'}->{"$arch/$binary"};
-  $res->{'baseproject'} = $res->{'path'}->[-1]->{'project'} if $res->{'path'};
+  if ($repoinfo->{'base'}) {
+    $res->{'baseproject'} = $repoinfo->{'base'}->{'project'};
+  } elsif ($res->{'path'}) {
+    $res->{'baseproject'} = $res->{'path'}->[-1]->{'project'};
+  }
   return $res;
 }
 

@@ -62,6 +62,10 @@ our $repo = [
 	    'project',
 	    'repository',
      ],
+     [ 'base' =>		# expanded repo only!
+	    'project',
+	    'repository',
+     ],
       [ 'arch' ],
 	'status',
 ];

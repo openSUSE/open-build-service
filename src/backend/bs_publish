@@ -1521,6 +1521,7 @@ sub publish {
   $repoinfo->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
   $repoinfo->{'splitdebug'} = $repotype{'splitdebug'}->[0] if defined $dbgsplit;
   $repoinfo->{'subdir'} = $subdir if $subdir;
+  $repoinfo->{'base'} = $repo->{'base'} if $repo->{'base'};
 
   # store repoinfo on disk
   if (!$dbgsplit) {
