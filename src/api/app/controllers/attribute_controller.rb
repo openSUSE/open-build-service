@@ -37,9 +37,7 @@ class AttributeController < ApplicationController
   def namespace_definition
 
     if params[:namespace].nil?
-      render_error :status => 400, :errorcode => 'missing_parameter',
-        :message => "parameter 'namespace' is missing"
-      return
+      raise MissingParameterError.new "parameter 'namespace' is missing"
     end
     namespace = params[:namespace]
 
@@ -94,14 +92,10 @@ class AttributeController < ApplicationController
   # /attribute/:namespace/:name/_meta
   def attribute_definition
     if params[:namespace].nil?
-      render_error :status => 400, :errorcode => 'missing_parameter',
-        :message => "parameter 'namespace' is missing"
-      return
+      raise MissingParameterError.new "parameter 'namespace' is missing"
     end
     if params[:name].nil?
-      render_error :status => 400, :errorcode => 'missing_parameter',
-        :message => "parameter 'name' is missing"
-      return
+      raise MissingParameterError.new "parameter 'name' is missing"
     end
     namespace = params[:namespace]
     name = params[:name]

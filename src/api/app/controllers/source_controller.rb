@@ -217,9 +217,6 @@ class SourceController < ApplicationController
   class CmdExecutionNoPermission < APIException
     setup 403
   end
-  class CreateProjectNoPermission < APIException
-    setup 'create_project_no_permission', 403
-  end
 
   def show_package_issues
     unless @tpkg

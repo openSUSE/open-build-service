@@ -418,14 +418,12 @@ module MaintenanceHelper
     #create branch project
     if Project.exists_by_name target_project
       if noaccess
-        return { :status => 403, :errorcode => 'create_project_no_permission',
-          :message => "The destination project already exists, so the api can't make it not readable" }
+        raise CreateProjectNoPermission.new "The destination project already exists, so the api can't make it not readable"
       end
     else
       # permission check
       unless User.current.can_create_project?(target_project)
-        return { :status => 403, :errorcode => 'create_project_no_permission',
-          :message => "no permission to create project '#{target_project}' while executing branch command" }
+        raise CreateProjectNoPermission.new "no permission to create project '#{target_project}' while executing branch command"
       end
 
       title = "Branch project for package #{params[:package]}"
@@ -455,8 +453,8 @@ module MaintenanceHelper
 
     tprj = Project.get_by_name target_project
     unless User.current.can_modify_project?(tprj)
-      return { :status => 403, :errorcode => 'modify_project_no_permission',
-        :message => "no permission to modify project '#{target_project}' while executing branch project command" }
+        raise Project::WritePermissionError.new
+         "no permission to modify project '#{target_project}' while executing branch project command" 
     end
 
     # create package branches

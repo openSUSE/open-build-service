@@ -38,3 +38,16 @@ class APIException < Exception
   end
 
 end
+
+class CreateProjectNoPermission < APIException
+  setup 403
+end
+class MissingParameterError < APIException
+end
+class InvalidParameterError < APIException
+end
+class InvalidProjectName < APIException
+end
+class UnknownCommandError < APIException
+end
+

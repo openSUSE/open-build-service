@@ -10,26 +10,10 @@ class ApplicationController < ActionController::Base
 
   protect_from_forgery
 
-  class InvalidHttpMethodError < APIException
-    setup 'invalid_http_method'
-  end
-  class MissingParameterError < APIException
-    setup 'missing_parameter'
-  end
-  class InvalidParameterError < APIException
-    setup "invalid_parameter"
-  end
-
-  class InvalidProjectName < APIException
-    setup 400
-  end
-
   class NoDataEntered < APIException
     setup 403
   end
 
-  class UnknownCommandError < APIException
-  end
   class AuthenticationRequiredError < APIException
     setup 401, "Authentication required"
   end

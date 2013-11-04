@@ -4,7 +4,8 @@ require_dependency 'event/all'
 include MaintenanceHelper
 
 class RequestController < ApplicationController
-  #TODO: request schema validation
+  validate_action :show => {:method => :get, :response => :request}
+  validate_action :request_create => {:method => :post, :response => :request}
 
   #TODO: allow PUT for non-admins
   before_filter :require_admin, :only => [:update, :destroy]
@@ -53,8 +54,6 @@ class RequestController < ApplicationController
     xml.set_attribute('matches', matches.to_s)
     render :text => xml.dump_xml, :content_type => 'text/xml'
   end
-
-  validate_action :show => {:method => :get, :response => :request}
 
   # GET /request/:id
   def show
@@ -279,18 +278,18 @@ class RequestController < ApplicationController
   end
 
   class PostRequestNoPermission < APIException
-    setup 'post_request_no_permission', 403
+    setup 403
   end
 
   class PostRequestMissingParamater < APIException
-    setup 'post_request_missing_parameter', 403
+    setup 403
   end
 
   class ReviewNotSpecified < APIException;
   end
 
   class ReviewChangeStateNoPermission < APIException
-    setup 'review_change_state_no_permission', 403
+    setup 403
   end
 
   class GroupRequestSpecial < APIException

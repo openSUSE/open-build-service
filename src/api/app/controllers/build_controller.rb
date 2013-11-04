@@ -40,8 +40,7 @@ class BuildController < ApplicationController
 
       #check for cmd parameter
       if params[:cmd].nil?
-        render_error :status => 400, :errorcode => "missing_parameter",
-          :message => "Missing parameter 'cmd'"
+        raise MissingParameterError.new "Missing parameter 'cmd'"
         return
       end
 
