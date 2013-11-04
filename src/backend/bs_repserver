@@ -2197,7 +2197,7 @@ sub wipepublishedlocked {
   my ($prp) = @_;
   return unless -d "$reporoot/$prp";
   local *F;
-  lockopen(\*F, '>', "$reporoot/$prp/.finishedlock");
+  BSUtil::lockopen(\*F, '>', "$reporoot/$prp/.finishedlock");
   for my $arch (sort(ls("$reporoot/$prp"))) {
     my $r = "$reporoot/$prp/$arch/:repo";
     next unless -d $r;
