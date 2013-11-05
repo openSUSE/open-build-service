@@ -1790,6 +1790,7 @@ sub putjob {
 
   if ($cgi->{'code'} && $cgi->{'code'} eq 'unchanged') {
     $jobstatus->{'result'} = 'unchanged';
+    notify('BUILD_UNCHANGED', $info);
   } else {
     notify($jobstatus->{'result'} eq 'succeeded' ? 'BUILD_SUCCESS' :  'BUILD_FAIL', $info);
   }

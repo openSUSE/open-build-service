@@ -47,6 +47,15 @@ events_1067339513:
   lock_version: 0
   created_at: 2013-08-31 14:56:52.000000000 Z
   updated_at: 2013-08-31 14:56:52.000000000 Z
+events_1067339514:
+  id: 1067339514
+  eventtype: Event::BuildUnchanged
+  payload: '{"project":"HiddenProject","package":"pack","repository":"nada","arch":"i586","disturl":"obs://build.some.where/HiddenProject/nada/ee3a023192742ef3c4b2e3ea1cabec4f-pack","release":"2.1","file":"package.spec","versrel":"1.0-2","readytime":"1377958901","srcmd5":"ee3a023192742ef3c4b2e3ea1cabec4f","srcserver":"http://localhost:3200","rev":"2","revtime":"1377958895","job":"HiddenProject::nada::pack-ee3a023192742ef3c4b2e3ea1cabec4f","reason":"new
+    build","bcnt":"1","needed":"0","reposerver":"http://localhost:3201","verifymd5":"ee3a023192742ef3c4b2e3ea1cabec4f"}'
+  queued: 0
+  lock_version: 0
+  created_at: 2013-08-31 14:56:52.000000000 Z
+  updated_at: 2013-08-31 14:56:52.000000000 Z
 events_1067339518:
   id: 1067339518
   eventtype: Event::RepoPublished
