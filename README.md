@@ -160,31 +160,6 @@ systemctl enable obsworker
 systemctl start obsworker
 ```
 
-##### Importing Distributions (*OPTIONAL*)
-The easiest and recommended way is to reuse projects hosted on the [OBS reference server](http://build.openSUSE.org). See the **frontend** section on how to make use of this. 
-
-In addition to that, it is also possible to copy base projects with the OBS admin scripts. 
-
-1. Install the packages
-```
-zypper in osc obs-utils
-```
-
-2. As root, enter your [OBS reference server](http://build.opensuse.org) account data.
-```
-osc
-```
-
-3. Run the *obs_mirror_project* script to fetch the project *openSUSE:13.1* from the reference server.
-```
-obs_mirror_project openSUSE:13.1 standard i586
-```
-
-4. Restart the scheduler to scan the new project
-```
-systemctl restart obsscheduler.service
-```
-
 #### Setup an OBS backend for development
 Check [src/backend/README](https://github.com/openSUSE/open-build-service/blob/master/src/backend/README) how to run the backend from the source code repository. 
 
