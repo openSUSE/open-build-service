@@ -218,7 +218,7 @@ class ProjectController < WebuiController
 
   def new_incident_request
     begin
-      req = Webui::BsRequest.new(:project => params[:project], :type => 'maintenance_incident', :description => params[:description])
+      req = WebuiRequest.new(:project => params[:project], :type => 'maintenance_incident', :description => params[:description])
       req.save(create: true)
       flash[:success] = 'Created maintenance release request'
     rescue ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => e
@@ -237,7 +237,7 @@ class ProjectController < WebuiController
       # FIXME2.3: do it directly here, api function missing
     else
       begin
-        req = Webui::BsRequest.new(:project => params[:project], :type => 'maintenance_release', :description => params[:description])
+        req = WebuiRequest.new(:project => params[:project], :type => 'maintenance_release', :description => params[:description])
         req.save(create: true)
         flash[:success] = "Created maintenance release request <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value('id'))}'>#{req.value('id')}</a>"
       rescue ActiveXML::Transport::Error => e
@@ -273,9 +273,9 @@ class ProjectController < WebuiController
     @is_incident_project = @project.api_obj.is_maintenance_incident?
     if @is_incident_project
       rel = BsRequestCollection.new(project: @project.name,
-                                    states: ['new', 'review'],
-                                    types: ['maintenance_release'],
-                                    roles: ['source'])
+                                    states: %w(new review),
+                                    types: %w(maintenance_release),
+                                    roles: %w(source))
       @open_release_requests = rel.ids
     end
   end
@@ -380,7 +380,6 @@ class ProjectController < WebuiController
 
   def load_buildresult
     @buildresult = Buildresult.find_hashed(:project => params[:project], :view => 'summary')
-    Rails.logger.debug "BR #{@buildresult.inspect}"
     fill_status_cache
   end
   protected :load_buildresult
@@ -571,14 +570,14 @@ class ProjectController < WebuiController
     @arch = params[:arch]
     @hosts = begin Integer(params[:hosts] || '40') rescue 40 end
     @scheduler = params[:scheduler] || 'needed'
-    unless ['fifo', 'lifo', 'random', 'btime', 'needed', 'neededb', 'longest_data', 'longested_triedread', 'longest'].include? @scheduler
+    unless %w(fifo lifo random btime needed neededb longest_data longested_triedread longest).include? @scheduler
       flash[:error] = 'Invalid scheduler type, check mkdiststats docu - aehm, source'
       redirect_to :action => :show, :project => @project
       return
     end
     bdep = BuilddepInfo.find(:project => @project.name, :repository => @repository, :arch => @arch)
     jobs = Jobhistory.find(:project => @project.name, :repository => @repository, :arch => @arch,
-            :limit => @packages.size * 3, :code => ['succeeded', 'unchanged'])
+            :limit => @packages.size * 3, :code => %w(succeeded unchanged))
     unless bdep and jobs
       flash[:error] = "Could not collect infos about repository #{@repository}/#{@arch}"
       redirect_to :action => :show, :project => @project
@@ -791,7 +790,7 @@ class ProjectController < WebuiController
 
   def remove_target_request
     begin
-      req = Webui::BsRequest.new(:type => 'delete', :targetproject => params[:project], :targetrepository => params[:repository], :description => params[:description])
+      req = WebuiRequest.new(:type => 'delete', :targetproject => params[:project], :targetrepository => params[:repository], :description => params[:description])
       req.save(create: true)
       flash[:success] = "Created <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value('id'))}'>repository delete request #{req.value('id')}</a>"
     rescue ActiveXML::Transport::NotFoundError => e
@@ -913,7 +912,7 @@ class ProjectController < WebuiController
 
   def monitor_set_filter(defaults)
     @avail_status_values = Buildresult.avail_status_values
-    @filter_out = ['disabled', 'excluded', 'unknown']
+    @filter_out = %w(disabled excluded unknown)
     @status_filter = []
     @avail_status_values.each { |s|
       id=s.gsub(' ', '')
@@ -1256,7 +1255,7 @@ class ProjectController < WebuiController
   def status_gather_requests
     # we do not filter requests for project because we need devel projects too later on and as long as the
     # number of open requests is limited this is the easiest solution
-    raw_requests = ::BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
+    raw_requests = BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
         where(bs_request_actions: {type: 'submit'}).pluck('bs_requests.id', 'bs_requests.state',
                                                           'bs_request_actions.target_project',
                                                           'bs_request_actions.target_package')
@@ -1274,7 +1273,7 @@ class ProjectController < WebuiController
         @submits[key] << id
       end
     end
-    ::BsRequest.where(id: @declined_requests.keys).each do |r|
+    BsRequest.where(id: @declined_requests.keys).each do |r|
       @declined_requests[r.id] = r
     end
   end

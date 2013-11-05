@@ -45,6 +45,30 @@ class BsRequestCollection
     @rel
   end
 
+  def self.list_ids(opts)
+    # All types means don't pass 'type'
+    if opts[:types] == 'all' || (opts[:types].respond_to?(:include?) && opts[:types].include?('all'))
+      opts.delete(:types)
+    end
+    # Do not allow a full collection to avoid server load
+    if opts[:project].blank? && opts[:user].blank? && opts[:package].blank?
+      raise RuntimeError, "This call requires at least one filter, either by user, project or package"
+    end
+    roles = opts[:roles] || []
+    states = opts[:states] || []
+
+    # it's wiser to split the queries
+    if opts[:project] && roles.empty? && (states.empty? || states.include?('review'))
+      rel = BsRequestCollection.new(opts.merge({ roles: %w(reviewer) }))
+      ids = rel.ids
+      rel = BsRequestCollection.new(opts.merge({ roles: %w(target source) }))
+    else
+      rel = BsRequestCollection.new(opts)
+      ids = []
+    end
+    ids.concat(rel.ids)
+  end
+
   private
 
   def extend_query_for_maintainer(obj)

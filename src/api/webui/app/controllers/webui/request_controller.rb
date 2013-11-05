@@ -28,8 +28,8 @@ class Webui::RequestController < Webui::WebuiController
       end
       opts[:comment] = params[:review_comment] if params[:review_comment]
 
-      Webui::BsRequest.addReview(params[:id], opts)
-    rescue Webui::BsRequest::ModifyError
+      WebuiRequest.addReview(params[:id], opts)
+    rescue WebuiRequest::ModifyError
       flash[:error] = "Unable add review to '#{params[:id]}'"
     end
     redirect_to :controller => :request, :action => 'show', :id => params[:id]
@@ -52,8 +52,8 @@ class Webui::RequestController < Webui::WebuiController
     end
 
     begin
-      Webui::BsRequest.modifyReview(opts[:id], opts[:new_review_state], opts)
-    rescue Webui::BsRequest::ModifyError => e
+      WebuiRequest.modifyReview(opts[:id], opts[:new_review_state], opts)
+    rescue WebuiRequest::ModifyError => e
       flash[:error] = e.message
     end
     redirect_to :action => 'show', :id => opts[:id]
@@ -62,7 +62,7 @@ class Webui::RequestController < Webui::WebuiController
   def show
     redirect_back_or_to :controller => 'home', :action => 'requests' and return if !params[:id]
     begin
-      @req = ::BsRequest.find(params[:id])
+      @req = BsRequest.find(params[:id])
     rescue ActiveRecord::RecordNotFound
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_back_or_to :controller => 'home', :action => 'requests' and return
@@ -79,8 +79,8 @@ class Webui::RequestController < Webui::WebuiController
 
     @my_open_reviews = @req['my_open_reviews']
     @other_open_reviews = @req['other_open_reviews']
-    @can_add_reviews = ['new', 'review'].include?(@state) && (@is_author || @is_target_maintainer || @my_open_reviews.length > 0) && !User.current.is_nobody?
-    @can_handle_request = ['new', 'review', 'declined'].include?(@state) && (@is_target_maintainer || @is_author) && !User.current.is_nobody?
+    @can_add_reviews = %w(new review).include?(@state) && (@is_author || @is_target_maintainer || @my_open_reviews.length > 0) && !User.current.is_nobody?
+    @can_handle_request = %w(new review declined).include?(@state) && (@is_target_maintainer || @is_author) && !User.current.is_nobody?
 
     @events = @req['events']
     @actions = @req['actions']
@@ -97,7 +97,7 @@ class Webui::RequestController < Webui::WebuiController
       @request_after = request_list[index+1]
     end
 
-    sort_comments(::BsRequest.find(params[:id]).comments)
+    sort_comments(BsRequest.find(params[:id]).comments)
   end
 
   def sourcediff
@@ -107,14 +107,14 @@ class Webui::RequestController < Webui::WebuiController
 
   def changerequest
     required_parameters :id
-    @req = Webui::BsRequest.find params[:id]
+    @req = WebuiRequest.find params[:id]
     unless @req
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_back_or_to :controller => 'home', :action => 'requests' and return
     end
 
     changestate = nil
-    ['accepted', 'declined', 'revoked', 'new'].each do |s|
+    %w(accepted declined revoked new).each do |s|
       if params.has_key? s
         changestate = s
         break
@@ -131,7 +131,7 @@ class Webui::RequestController < Webui::WebuiController
           if tpkg
             target = Package.find(tpkg, :project => tprj)
           else
-            target = WebuiProject.find(tprj)
+            target = Project.find(tprj)
           end
           target.add_person(:userid => @req.creator, :role => 'maintainer')
           target.save
@@ -151,15 +151,6 @@ class Webui::RequestController < Webui::WebuiController
     params.keys.grep(/^forward_.*/).each do |fwd|
       forward_request_to(fwd)
     end
-
-    # Cleanup prj/pkg cache after auto-removal of source projects / packages (mostly from branches).
-    # To keep things simple, we don't check if the src prj had more pkgs, etc..
-    @req.each_action do |action|
-      if action.value('type') == 'submit' and action.has_element?('options') and action.options.value('sourceupdate') == 'cleanup'
-        Rails.cache.delete("#{action.source.project}_packages_mainpage")
-        Rails.cache.delete("#{action.source.project}_problem_packages")
-      end
-    end
   end
 
   def forward_request_to(fwd)
@@ -171,12 +162,12 @@ class Webui::RequestController < Webui::WebuiController
     end
 
     rev = Package.dir_hash(@req.action.target.project, @req.action.target.package)['rev']
-    req = Webui::BsRequest.new(:type => 'submit', :targetproject => tgt_prj, :targetpackage => tgt_pkg,
+    req = WebuiRequest.new(:type => 'submit', :targetproject => tgt_prj, :targetpackage => tgt_pkg,
                                :project => @req.action.target.project, :package => @req.action.target.package,
                                :rev => rev, :description => description)
     req.save(:create => true)
-    Rails.cache.delete('requests_new')
-                                                # link_to isn't available here, so we have to write some HTML. Uses url_for to not hardcode URLs.
+
+    # link_to isn't available here, so we have to write some HTML. Uses url_for to not hardcode URLs.
     flash[:notice] += " and forwarded to <a href='#{url_for(:controller => 'package', :action => 'show', :project => tgt_prj, :package => tgt_pkg)}'>#{tgt_prj} / #{tgt_pkg}</a> (request <a href='#{url_for(:action => 'show', :id => req.value('id'))}'>#{req.value('id')}</a>)"
   end
 
@@ -187,7 +178,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def list
     redirect_to :controller => :home, :action => :requests and return unless request.xhr? # non ajax request
-    requests = Webui::BsRequest.list_ids(params)
+    requests = BsRequestCollection.list_ids(params)
     elide_len = 44
     elide_len = params[:elide_len].to_i if params[:elide_len]
     session[:requests] = requests
@@ -197,7 +188,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def list_small
     redirect_to :controller => :home, :action => :requests and return unless request.xhr? # non ajax request
-    requests = Webui::BsRequest.list(params)
+    requests = WebuiRequest.list(params)
     render :partial => 'shared/requests_small', :locals => {:requests => requests}
   end
 
@@ -210,9 +201,8 @@ class Webui::RequestController < Webui::WebuiController
   def delete_request
     required_parameters :project
     begin
-      req = Webui::BsRequest.new(:type => 'delete', :targetproject => params[:project], :targetpackage => params[:package], :description => params[:description])
+      req = WebuiRequest.new(:type => 'delete', :targetproject => params[:project], :targetpackage => params[:package], :description => params[:description])
       req.save(:create => true)
-      Rails.cache.delete 'requests_new'
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
@@ -230,9 +220,8 @@ class Webui::RequestController < Webui::WebuiController
   def add_role_request
     required_parameters :project, :role, :user
     begin
-      req = Webui::BsRequest.new(:type => 'add_role', :targetproject => params[:project], :targetpackage => params[:package], :role => params[:role], :person => params[:user], :description => params[:description])
+      req = WebuiRequest.new(:type => 'add_role', :targetproject => params[:project], :targetpackage => params[:package], :role => params[:role], :person => params[:user], :description => params[:description])
       req.save(:create => true)
-      Rails.cache.delete 'requests_new'
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = e.summary
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
@@ -249,15 +238,14 @@ class Webui::RequestController < Webui::WebuiController
     required_parameters :project, :user, :group
     begin
       if params[:group] == 'False'
-        req = Webui::BsRequest.new(:type => 'set_bugowner', :targetproject => params[:project], :targetpackage => params[:package],
+        req = WebuiRequest.new(:type => 'set_bugowner', :targetproject => params[:project], :targetpackage => params[:package],
                                    :person => params[:user], :description => params[:description])
       end
       if params[:user] == 'False'
-        req = Webui::BsRequest.new(:type => 'set_bugowner', :targetproject => params[:project], :targetpackage => params[:package],
+        req = WebuiRequest.new(:type => 'set_bugowner', :targetproject => params[:project], :targetpackage => params[:package],
                                    :group => params[:group], :description => params[:description])
       end
       req.save(:create => true)
-      Rails.cache.delete 'requests_new'
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = e.summary
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
@@ -280,9 +268,8 @@ class Webui::RequestController < Webui::WebuiController
   def change_devel_request
     required_parameters :devel_project, :package, :project
     begin
-      req = Webui::BsRequest.new(:type => 'change_devel', :project => params[:devel_project], :package => params[:package], :targetproject => params[:project], :targetpackage => params[:package], :description => params[:description])
+      req = WebuiRequest.new(:type => 'change_devel', :project => params[:devel_project], :package => params[:package], :targetproject => params[:project], :targetpackage => params[:package], :description => params[:description])
       req.save(:create => true)
-      Rails.cache.delete 'requests_new'
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = e.summary
       redirect_to :controller => 'package', :action => 'show', :project => params[:project], :package => params[:package] and return
@@ -296,9 +283,9 @@ class Webui::RequestController < Webui::WebuiController
 
   def set_incident
     begin
-      Webui::BsRequest.set_incident(params[:id], params[:incident_project])
+      WebuiRequest.set_incident(params[:id], params[:incident_project])
       flash[:notice] = "Set target of request #{params[:id]} to incident #{params[:incident_project]}"
-    rescue Webui::BsRequest::ModifyError => e
+    rescue WebuiRequest::ModifyError => e
       flash[:error] = "Incident #{e.message} does not exist"
     end
     redirect_to :controller => :request, :action => 'show', :id => params[:id]
@@ -306,20 +293,20 @@ class Webui::RequestController < Webui::WebuiController
 
   # used by mixins
   def main_object
-    Webui::BsRequest.find params[:id]
+    WebuiRequest.find params[:id]
   end
 
   private
 
   def change_request(changestate, params)
     begin
-      if Webui::BsRequest.modify(params[:id], changestate, :reason => params[:reason], :force => true)
+      if WebuiRequest.modify(params[:id], changestate, :reason => params[:reason], :force => true)
         flash[:notice] = "Request #{changestate}!"
         return true
       else
         flash[:error] = "Can't change request to #{changestate}!"
       end
-    rescue Webui::BsRequest::ModifyError => e
+    rescue WebuiRequest::ModifyError => e
       flash[:error] = e.message
     end
     return false

@@ -57,7 +57,7 @@ map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['fronte
       :tags_by_user => 'rest:///user/:user/tags/:type',
       :hierarchical_browsing => 'rest:///tag/browsing/_hierarchical?tags=:tags'
 
-    map.connect :bsrequest, 'rest:///request/:id', :create => 'rest:///request?cmd=create'
+    map.connect :webuirequest, 'rest:///request/:id', :create => 'rest:///request?cmd=create'
 
     map.connect :packageattribute, 'rest:///search/attribute?:namespace&:name&:project'
  

@@ -5,14 +5,6 @@ module ProjectHelper
 
   protected
   
-  def watch_link_text
-    user.watches?(@project.name) ? "Don't watch this project" : 'Watch this project'
-  end
-
-  def watch_link_image
-    user.watches?(@project.name) ? 'magnifier_zoom_out.png' : 'magnifier_zoom_in.png'
-  end
-
   def show_status_comment( comment, package, firstfail, comments_to_clear )
     status_comment_html = ''.html_safe
     if comment

@@ -1,5 +1,4 @@
-module Webui
-class BsRequest < Node
+class WebuiRequest < Webui::Node
 
   class ListError < Exception; end
   class ModifyError < Exception; end
@@ -102,7 +101,6 @@ class BsRequest < Node
       path << "&by_package=#{CGI.escape(opts[:package])}" unless opts[:package].blank?
       begin
         ActiveXML::api.direct_http URI("#{path}"), :method => "POST", :data => opts[:comment]
-        BsRequest.free_cache(id)
         return true
       rescue ActiveXML::Transport::ForbiddenError => e
         raise ModifyError, e.summary
@@ -123,7 +121,6 @@ class BsRequest < Node
       path << "&by_package=#{CGI.escape(opts[:package])}" unless opts[:package].blank?
       begin
         ActiveXML::api.direct_http URI("#{path}"), :method => "POST", :data => opts[:comment]
-        BsRequest.free_cache(id)
         return true
       rescue ActiveXML::Transport::Error => e
         raise ModifyError, e.summary
@@ -132,7 +129,7 @@ class BsRequest < Node
 
     def modify(id, changestate, opts)
       opts = {:superseded_by => nil, :force => false, :reason => ''}.merge opts
-      unless ["accepted", "declined", "revoked", "superseded", "new"].include?(changestate)
+      unless %w(accepted declined revoked superseded new).include?(changestate)
         raise ModifyError, "unknown changestate #{changestate}"
       end
       path = "/request/#{id}?newstate=#{changestate}&cmd=changestate"
@@ -140,7 +137,6 @@ class BsRequest < Node
       path += "&force=1" if opts[:force]
       begin
         ActiveXML::api.direct_http URI("#{path}"), :method => "POST", :data => opts[:reason].to_s
-        BsRequest.free_cache(id)
         return true
       rescue ActiveXML::Transport::Error => e
         raise ModifyError, e.summary
@@ -151,7 +147,6 @@ class BsRequest < Node
       begin
         path = "/request/#{id}?cmd=setincident&incident=#{incident_project}"
         ActiveXML::api.direct_http URI(path), :method => "POST", :data => ''
-        BsRequest.free_cache(id)
         return true
       rescue ActiveXML::Transport::Error => e
         raise ModifyError, e.summary
@@ -159,86 +154,6 @@ class BsRequest < Node
       raise ModifyError, "Unable to merge with incident #{incident_project}"
     end
 
-    def find_last_request(opts)
-      unless opts[:targetpackage] and opts[:targetproject] and opts[:sourceproject] and opts[:sourcepackage]
-        raise RuntimeError, "missing parameters"
-      end
-      pred = "(action/target/@package='#{opts[:targetpackage]}' and action/target/@project='#{opts[:targetproject]}' and action/source/@project='#{opts[:sourceproject]}' and action/source/@package='#{opts[:sourcepackage]}' and action/@type='submit')"
-      requests = Collection.find :what => :request, :predicate => pred
-      last = nil
-      requests.each_request do |r|
-        last = r if not last or r.value(:id).to_i > last.value(:id).to_i
-      end
-      return last
-    end
-
-    # FIXME very bad method name
-    def ids(ids)
-      return [] if ids.blank?
-      logger.debug "Fetching request list from db"
-      ret = []
-      rel = ::BsRequest.where(id: ids).order('bs_requests.id')
-      rel = rel.includes({ bs_request_actions: :bs_request_action_accept_info }, :bs_request_histories)
-      rel.each do |r|
-        ret << r.webui_infos(diffs: false)
-      end
-      return ret
-    end
-
-    def prepare_list_path(path, opts)
-      unless opts[:states] or opts[:reviewstate] or opts[:roles] or opts[:types] or opts[:user] or opts[:project]
-        raise RuntimeError, 'missing parameters'
-      end
-      
-      opts.delete(:types) if opts[:types] == 'all' # All types means don't pass 'type' to backend
-      
-      query = []
-      query << "states=#{CGI.escape(opts[:states])}" unless opts[:states].blank?
-      query << "roles=#{CGI.escape(opts[:roles])}" unless opts[:roles].blank?
-      query << "reviewstates=#{CGI.escape(opts[:reviewstates])}" unless opts[:reviewstates].blank?
-      query << "types=#{CGI.escape(opts[:types])}" unless opts[:types].blank? # the API want's to have it that way, sigh...
-      query << "user=#{CGI.escape(opts[:user])}" unless opts[:user].blank?
-      query << "project=#{CGI.escape(opts[:project])}" unless opts[:project].blank?
-      query << "package=#{CGI.escape(opts[:package])}" unless opts[:package].blank?
-      query << 'subprojects=1' if opts[:subprojects]
-      return path + '?' + query.join('&')
-    end
-    
-    def list_ids(opts)
-       # All types means don't pass 'type'
-      if opts[:types] == 'all' || (opts[:types].respond_to?(:include?) && opts[:types].include?('all'))
-        opts.delete(:types)
-      end
-      # Do not allow a full collection to avoid server load
-      if opts[:project].blank? && opts[:user].blank? && opts[:package].blank?
-        raise RuntimeError, "This call requires at least one filter, either by user, project or package"
-      end
-      roles = opts[:roles] || []
-      states = opts[:states] || []
-
-      # it's wiser to split the queries
-      if opts[:project] && roles.empty? && (states.empty? || states.include?('review'))
-        rel = BsRequestCollection.new(opts.merge({ roles: ['reviewer'] }))
-        ids = rel.ids
-        rel = BsRequestCollection.new(opts.merge({ roles: ['target', 'source'] }))
-      else
-        rel = BsRequestCollection.new(opts)
-        ids = []
-      end
-      ids.concat(rel.ids)
-    end
-
-    def list(opts)
-      path = prepare_list_path('/request?view=collection', opts)
-      begin
-        logger.debug 'Fetching request list from api'
-        response = ActiveXML::api.direct_http URI("#{path}"), :method => 'GET'
-        return Collection.new(response).each # last statement, implicit return value of block, assigned to 'request_list' non-local variable
-      rescue ActiveXML::Transport::Error => e
-        raise ListError, e.summary
-      end
-    end
-  
   end
 
   def history
@@ -251,27 +166,7 @@ class BsRequest < Node
     return ret
   end
 
-  def reviewer_for_history_item(item)
-    reviewer = ''
-    if item.by_group
-      reviewer = item.value('by_group')
-    elsif item.by_project
-      reviewer = item.value('by_project')
-    elsif item.by_package
-      reviewer = item.value('by_package')
-    elsif item.by_user
-      reviewer = item.value('by_user')
-    end
-    return reviewer
-  end
-
-  # return the login of the creator - to be obsoleted soon (FIXME2.4)
-  def creator
-    api_obj.creator
-  end
-
   def api_obj
-    @api_obj ||= ::BsRequest.find self.id
+    @api_obj ||= BsRequest.find self.id
   end
-end
 end

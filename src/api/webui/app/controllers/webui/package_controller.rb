@@ -144,7 +144,7 @@ class Webui::PackageController < Webui::WebuiController
     @repository = params[:repository]
     begin
     @buildresult = Buildresult.find_hashed(:project => @project, :package => @package,
-      :repository => @repository, :view => ['binarylist', 'status'] )
+      :repository => @repository, :view => %w(binarylist status))
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.message
       redirect_back_or_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
@@ -210,7 +210,7 @@ class Webui::PackageController < Webui::WebuiController
       if not params[:sourceupdate] and params[:project].include?(':branches:')
         params[:sourceupdate] = 'update' # Avoid auto-removal of branch
       end
-      req = Webui::BsRequest.new(params)
+      req = WebuiRequest.new(params)
       req.save(:create => true)
     rescue ActiveXML::Transport::Error, ActiveXML::Transport::NotFoundError => e
       flash[:error] = "Unable to submit: #{e.message}"
@@ -219,11 +219,11 @@ class Webui::PackageController < Webui::WebuiController
 
     # Supersede logic has to be below addition as we need the new request id
     if params[:supersede]
-      pending_requests = Webui::BsRequest.list(:project => params[:targetproject], :package => params[:package], :states => %w(new review declined), :types => %w(submit))
+      pending_requests = WebuiRequest.list(:project => params[:targetproject], :package => params[:package], :states => %w(new review declined), :types => %w(submit))
       pending_requests.each do |request|
         next if request.value(:id) == req.value(:id) # ignore newly created request
         begin
-          Webui::BsRequest.modify(request.value(:id), 'superseded', :reason => "Superseded by request #{req.value(:id)}", :superseded_by => req.value(:id))
+          WebuiRequest.modify(request.value(:id), 'superseded', :reason => "Superseded by request #{req.value(:id)}", :superseded_by => req.value(:id))
         rescue BsRequest::ModifyError => e
           flash[:error] = e.message
           redirect_to(:action => 'requests', :project => params[:project], :package => params[:package]) and return
@@ -231,7 +231,6 @@ class Webui::PackageController < Webui::WebuiController
       end
     end
 
-    Rails.cache.delete 'requests_new'
     flash[:notice] = "Created <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value('id'))}'>submit request #{req.value('id')}</a> to <a href='#{url_for(:controller => 'project', :action => 'show', :project => params[:targetproject])}'>#{params[:targetproject]}</a>"
     redirect_to(:action => 'show', :project => params[:project], :package => params[:package])
   end
