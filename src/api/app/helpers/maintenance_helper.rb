@@ -43,6 +43,8 @@ module MaintenanceHelper
     return mi
   end
 
+  class InvalidFilelistError < APIException; end
+  class DoubleBranchPackageError < APIException; end
 
   # generic branch function for package based, project wide or request based branch
   def do_branch params
@@ -79,16 +81,15 @@ module MaintenanceHelper
     unless params[:update_project_attribute]
       params[:update_project_attribute] = 'OBS:UpdateProject'
     end
-    if target_project and not valid_project_name? target_project
-      return { :status => 400, :errorcode => 'invalid_project_name',
-        :message => "invalid project name '#{target_project}'" }
+    if target_project 
+      valid_project_name! target_project
     end
     add_repositories = params[:add_repositories]
     # use update project ?
     aname = params[:update_project_attribute]
     update_project_at = aname.split(/:/)
     if update_project_at.length != 2
-      raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
+      raise ArgumentError.new "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
     end
     # create hidden project ?
     noaccess = false
@@ -129,8 +130,7 @@ module MaintenanceHelper
       prj = Project.get_by_name params[:project]
       if params[:missingok]
         if Package.exists_by_project_and_name(params[:project], params[:package], follow_project_links: true, allow_remote_packages: true)
-          return { :status => 400, :errorcode => 'not_missing',
-            :message => "Branch call with missingok paramater but branch source (#{params[:project]}/#{params[:package]}) exists." }
+          raise NotMissingError.new "Branch call with missingok paramater but branch source (#{params[:project]}/#{params[:package]}) exists."
         end
       else
         pkg = Package.get_by_project_and_name params[:project], params[:package]
@@ -155,8 +155,7 @@ module MaintenanceHelper
       # find packages via attributes
       at = AttribType.find_by_name(params[:attribute])
       unless at
-        return { :status => 403, :errorcode => 'not_found',
-          :message => "The given attribute #{params[:attribute]} does not exist" }
+        raise NotFoundError.new "The given attribute #{params[:attribute]} does not exist"
       end
       if params[:value]
         Package.find_by_attribute_type_and_value( at, params[:value], params[:package] ) do |p|
@@ -187,10 +186,7 @@ module MaintenanceHelper
       end
     end
 
-    if @packages.empty?
-      return { :status => 403, :errorcode => 'not_found',
-        :message => 'no packages found by search criteria'}
-    end
+    raise NotFoundError.new 'no packages found by search criteria' if @packages.empty?
 
 #    logger.debug "XXXXXXX BEFORE"
 #    @packages.each do |p|
@@ -327,14 +323,12 @@ module MaintenanceHelper
           begin
             dir = Directory.find({ :project => params[:project], :package => params[:package], :rev => params[:rev]})
           rescue
-            return { :status => 400, :errorcode => 'invalid_filelist',
-              :message => 'no such revision'}
+            raise InvalidFilelistError.new 'no such revision'
           end
           if dir.has_attribute? 'srcmd5'
             p[:rev] = dir.srcmd5
           else
-            return { :status => 400, :errorcode => 'invalid_filelist',
-              :message => 'no srcmd5 revision found'}
+            raise InvalidFilelistError.new 'no srcmd5 revision found'
           end
         end
       end
@@ -481,8 +475,7 @@ module MaintenanceHelper
       # no find_package call here to check really this project only
       if tpkg = tprj.packages.find_by_name(pack_name)
         unless params[:force]
-          return { :status => 400, :errorcode => 'double_branch_package',
-            :message => "branch target package already exists: #{tprj.name}/#{tpkg.name}" }
+          raise DoubleBranchPackageError.new "branch target package already exists: #{tprj.name}/#{tpkg.name}"
         end
       else
         if pac.class == Package

@@ -786,8 +786,6 @@ class SourceController < ApplicationController
     end
   end
 
-  class NotMissing < APIException; end
-
   # PUT /source/:project/:package/:filename
   def update_file
     check_permissions_for_file
@@ -821,7 +819,7 @@ class SourceController < ApplicationController
         if data.has_attribute? 'missingok'
           Project.get_by_name(tproject_name) # permission check
           if Package.exists_by_project_and_name(tproject_name, tpackage_name, follow_project_links: true, allow_remote_packages: true)
-            raise NotMissing.new "Link contains a missingok statement but link target (#{tproject_name}/#{tpackage_name}) exists."
+            raise NotMissingError.new "Link contains a missingok statement but link target (#{tproject_name}/#{tpackage_name}) exists."
           end
         else
           # permission check

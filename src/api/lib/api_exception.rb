@@ -39,15 +39,19 @@ class APIException < Exception
 
 end
 
+# 403 errors
 class CreateProjectNoPermission < APIException
   setup 403
 end
-class MissingParameterError < APIException
+# 404 errors
+class NotFoundError < APIException
+  setup 404
 end
-class InvalidParameterError < APIException
-end
-class InvalidProjectName < APIException
-end
-class UnknownCommandError < APIException
-end
+# 400 errors
+class MissingParameterError < APIException; end
+class InvalidParameterError < APIException; end
+class InvalidProjectNameError < APIException; end
+class UnknownCommandError < APIException; end
+class NotMissingError < APIException; end
+
 

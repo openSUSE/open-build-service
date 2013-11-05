@@ -2,12 +2,20 @@ require 'api_exception'
 
 module ValidationHelper
 
-  class InvalidPackageName < APIException
-    setup "invalid_package_name", 400
+  class InvalidProjectNameError < APIException
+  end 
+
+  class InvalidPackageNameError < APIException
   end
 
   def valid_project_name? name
     return Project.valid_name? name  
+  end
+
+  def valid_project_name! project_name
+    unless valid_project_name? project_name
+      raise InvalidProjectNameError, "invalid project name '#{project_name}'"
+    end
   end
 
   def valid_package_name? name
@@ -16,7 +24,7 @@ module ValidationHelper
 
   def valid_package_name! package_name
     unless valid_package_name? package_name
-      raise InvalidPackageName, "invalid package name '#{package_name}'"
+      raise InvalidPackageNameError, "invalid package name '#{package_name}'"
     end
   end
 
