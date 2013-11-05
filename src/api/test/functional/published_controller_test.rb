@@ -128,6 +128,7 @@ VERSION 1.0-0
 LABEL This is another base distro, without update project (BaseDistro3_repo)
 VENDOR Open Build Service
 ARCH.x86_64 x86_64 i686 i586 i486 i386 noarch
+ARCH.ppc64le ppc64le noarch
 ARCH.ppc64p7 ppc64p7 noarch
 ARCH.ppc64 ppc64 ppc noarch
 ARCH.ppc ppc noarch

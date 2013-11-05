@@ -124,6 +124,7 @@ our $relsync_pool = {
  "ppc" => "ppc",
  "ppc64" => "ppc",
  "ppc64p7" => "ppc",
+ "ppc64le" => "ppc",
  "mips" => "mips",
  "mips64" => "mips",
  "mipsel" => "mipsel",
