@@ -389,34 +389,54 @@ class Package < ActiveRecord::Base
   end
 
   def update_issue_list
-    PackageIssue.transaction do
-      if self.is_of_kind? 'patchinfo'
-        xml = Patchinfo.new.read_patchinfo_xmlhash(self)
-        Project.transaction do
-          self.package_issues.delete_all
-          xml.elements('issue') do |i|
-            begin
-              issue = Issue.find_or_create_by_name_and_tracker(i['id'], i['tracker'])
-              self.package_issues.create(issue: issue, change: 'kept')
-            rescue IssueTracker::NotFoundError => e
-              # if the issue is invalid, we ignore it
-              Rails.logger.debug e
+    pis = Hash.new
+    self.package_issues.each { |pi| pis[pi.issue.label] = pi } # existing
+    if self.is_of_kind? 'patchinfo'
+      xml = Patchinfo.new.read_patchinfo_xmlhash(self)
+      xml.elements('issue') do |i|
+        begin
+          issue = Issue.find_or_create_by_name_and_tracker(i['id'], i['tracker'])
+          if pi = pis[issue.label] 
+            unless pi.change == 'kept'
+              # update state
+              pi.change = 'kept'
+              pi.save!
             end
+            # entry exists already in correct way, do not drop it
+            pis.delete(issue.label)
+          else
+            # new entry
+            self.package_issues.create(issue: issue, change: 'kept')
           end
+        rescue IssueTracker::NotFoundError => e
+          # if the issue is invalid, we ignore it
+          Rails.logger.debug e
         end
-      else
-        # onlyissues gets the issues from .changes files
-        issue_change = find_changed_issues
+      end
+    else
+      # onlyissues gets the issues from .changes files
+      issue_change = find_changed_issues
 
-        # store all
-        Project.transaction do
-          self.package_issues.delete_all
-          issue_change.each do |issue, change|
-            self.package_issues.create(issue: issue, change: change)
+      # store new
+      issue_change.each do |issue, change|
+        if pi = pis[issue.label] 
+          # issue exists already for this package
+          unless pi.change == change
+            # update state
+            pi.change = change
+            pi.save!
           end
+          # entry exists already in correct way, do not drop it
+          pis.delete(issue.label)
+        else
+          # new entry
+          self.package_issues.create(issue: issue, change: change)
         end
       end
     end
+
+    # drop old entries
+    self.package_issues.delete(pis.values)
   end
 
   def parse_issues_xml(query)
