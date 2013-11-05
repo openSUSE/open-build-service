@@ -389,49 +389,40 @@ class Package < ActiveRecord::Base
   end
 
   def update_issue_list
-    pis = Hash.new
-    self.package_issues.each { |pi| pis[pi.issue.label] = pi } # existing
+    current_issues = []
     if self.is_of_kind? 'patchinfo'
       xml = Patchinfo.new.read_patchinfo_xmlhash(self)
       xml.elements('issue') do |i|
         begin
-          issue = Issue.find_or_create_by_name_and_tracker(i['id'], i['tracker'])
-          if pi = pis[issue.label] 
-            unless pi.change == 'kept'
-              # update state
-              pi.change = 'kept'
-              pi.save!
-            end
-            # entry exists already in correct way, do not drop it
-            pis.delete(issue.label)
-          else
-            # new entry
-            self.package_issues.create(issue: issue, change: 'kept')
-          end
+          current_issues << [ Issue.find_or_create_by_name_and_tracker(i['id'], i['tracker']) ,'kept' ]
         rescue IssueTracker::NotFoundError => e
           # if the issue is invalid, we ignore it
           Rails.logger.debug e
         end
       end
     else
-      # onlyissues gets the issues from .changes files
-      issue_change = find_changed_issues
+      # onlyissues backend call gets the issues from .changes files
+      current_issues = find_changed_issues
+    end
 
-      # store new
-      issue_change.each do |issue, change|
-        if pi = pis[issue.label] 
-          # issue exists already for this package
-          unless pi.change == change
-            # update state
-            pi.change = change
-            pi.save!
-          end
-          # entry exists already in correct way, do not drop it
-          pis.delete(issue.label)
-        else
-          # new entry
-          self.package_issues.create(issue: issue, change: change)
+    # hash existing entries
+    pis = Hash.new
+    self.package_issues.each { |pi| pis[pi.issue.label] = pi }
+
+    # new/update issue entries
+    current_issues.each do |issue, change|
+      if pi = pis[issue.label] 
+        # issue exists already for this package
+        unless pi.change == change
+          # update state
+          pi.change = change
+          pi.save!
         end
+        # entry exists already in correct way, do not drop it
+        pis.delete(issue.label)
+      else
+        # new entry
+        self.package_issues.create(issue: issue, change: change)
       end
     end
 

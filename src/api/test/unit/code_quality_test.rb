@@ -111,7 +111,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Owner::extract_maintainer' => 155.65,
       'PackInfo#to_xml' => 53.64,
       'Package#resolve_devel_package' => 52.33,
-      'Package#update_issue_list' => 60.83,
       'PersonController#internal_register' => 108.84,
       'PersonController#put_userinfo' => 56.38,
       'Project#branch_to_repositories_from' => 126.41,
