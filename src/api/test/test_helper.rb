@@ -21,11 +21,11 @@ require_relative '../lib/obsapi/test_sphinx'
 
 require 'test/unit/assertions'
 require 'mocha/setup'
+require 'capybara/poltergeist'
 
 require 'headless'
 
 require 'capybara/rails'
-Capybara.default_driver = :webkit
 ## this is the build service! 2 seconds - HAHAHA
 Capybara.default_wait_time = 10
 
@@ -193,11 +193,10 @@ module Webui
         @@display = Headless.new
         @@display.start
       end
-      olddriver = Capybara.current_driver
       Capybara.current_driver = :rack_test
       self.class.start_test_api
       ActiveXML::api.http_do :post, "/test/test_start"
-      Capybara.current_driver = olddriver
+      Capybara.current_driver = :poltergeist
       @starttime = Time.now
       WebMock.disable_net_connect!(allow_localhost: true)
       #max=::BsRequest.maximum(:id)
@@ -214,16 +213,25 @@ module Webui
       elsif File.exists?(htmlpath)
         File.unlink(htmlpath)
       end
-      logout
 
-      Capybara.reset_sessions!
-      Capybara.use_default_driver
+      Capybara.reset!
       Rails.cache.clear
       WebMock.reset!
       ActiveRecord::Base.clear_active_connections!
       DatabaseCleaner.clean_with :truncation,  pre_count: true
 
       #puts "#{self.__name__} took #{Time.now - @starttime}"
+    end
+
+    def fill_autocomplete(field, options = {})
+      fill_in field, with: options[:with]
+
+      page.execute_script %Q{ $('##{field}').trigger('focus') }
+      page.execute_script %Q{ $('##{field}').trigger('keydown') }
+      selector = %Q{ul.ui-autocomplete li.ui-menu-item a:contains("#{options[:select]}")}
+
+      page.must_have_selector('ul.ui-autocomplete li.ui-menu-item a')
+      page.execute_script %Q{ $('#{selector}').trigger('mouseenter').click() }
     end
 
     # ============================================================================

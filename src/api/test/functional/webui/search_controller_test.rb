@@ -16,7 +16,9 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
   def search options  
     validate_search_page
-    find("#advanced_link").click
+    # avoid the animation that happens when you press the button
+    page.execute_script('$("#advanced_container").show()')
+    #click_button("advanced_link") # yes, that's the id of the button :)
 
     options[:for]    ||= [:projects, :packages]
     options[:in]     ||= [:name]
@@ -36,7 +38,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     click_button "search_button"
 
     if options[:expect] == :success
-      #TODO first('.search_result h6').must_have_text "Responsible for package"
+      page.must_have_selector('.search_result')
     elsif options[:expect] == :invalid_search_text
       flash_message.must_equal "Search string must contain at least two characters."
       flash_message_type.must_equal :alert

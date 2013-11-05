@@ -24,7 +24,7 @@ class Webui::AddRepoTest < Webui::IntegrationTest
 
      page.must_have_text("KIWI image build")
 
-     find('#submitrepos')['disabled'].to_s.must_equal 'true'
+     find('#submitrepos')['disabled'].must_equal 'disabled'
      
      check 'repo_images'
      click_button "Add selected repositories"

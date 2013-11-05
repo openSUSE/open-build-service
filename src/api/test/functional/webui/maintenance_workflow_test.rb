@@ -79,7 +79,8 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     check('relogin')
     check('reboot')
     find(:id, 'zypp_restart_needed').click
-    find(:id, 'block_reason')['disabled'].must_equal true
+    page.must_have_selector 'input[id=block_reason][disabled]'
+
     check('block')
     fill_in 'block_reason', with: 'locked!'
     find_button('Save Patchinfo').click
@@ -108,7 +109,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     find(:link, 'recommended').click
     find(:id, 'edit-patchinfo').click
     uncheck('block')
-    find(:id, 'block_reason')['disabled'].must_equal true
+    page.must_have_selector 'input[id=block_reason][disabled]'
     click_button 'Save Patchinfo'
 
     logout

@@ -176,9 +176,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
     find(:link, 'Add repositories').click
     find(:link, 'advanced interface').click
-    fill_in 'target_project', with: 'Local'
-    page.must_have_selector "ul.ui-autocomplete a:contains('LocalProject')"
-    page.execute_script "$('ul.ui-autocomplete a:contains(\"LocalProject\")').mouseenter().click();"
+    fill_autocomplete 'target_project', with: 'Local', select: 'LocalProject'
 
     # wait for the ajax loader to disappear
     page.wont_have_selector 'input[disabled]'

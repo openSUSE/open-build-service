@@ -1007,7 +1007,11 @@ class Webui::PackageController < Webui::WebuiController
 
   def load_buildresults
     @buildresult = Buildresult.find_hashed( :project => @project, :package => @package, :view => 'status')
-    fill_status_cache unless @buildresult.blank?
+    if @buildresult.blank?
+      @buildresult = Array.new
+      return
+    end
+    fill_status_cache
 
     newr = Hash.new
     @buildresult.elements('result').sort {|a,b| a['repository'] <=> b['repository']}.each do |result|

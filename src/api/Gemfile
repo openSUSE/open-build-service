@@ -69,8 +69,7 @@ group :test do
   gem 'capybara_minitest_spec'
 
   # See test/test_helper.rb for details:
-  gem 'capybara', '~>2.0.1'
-  gem 'capybara-webkit', '< 1.0'
+  gem 'poltergeist', '>= 1.4'
 
   # for save_and_open_page to debug
   gem 'launchy'

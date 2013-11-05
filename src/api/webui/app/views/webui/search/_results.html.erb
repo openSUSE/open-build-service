@@ -18,7 +18,7 @@
       <%= content_tag :span, result.sphinx_attributes, style: 'display:none' %>
       </h6>
 
-      <% if result.description.empty? %>
+      <% if result.description.blank? %>
         <p class="data-description">...</p>
       <% else %>
         <% desc = truncate(result.description, length: 80) %>

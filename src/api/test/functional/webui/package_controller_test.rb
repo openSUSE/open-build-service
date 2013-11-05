@@ -40,6 +40,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     check('user_reviewer_Iggy')
     # wait for it to be clickable again before switching pages
     page.wont_have_xpath('.//input[@id="user_reviewer_Iggy"][@disabled="disabled"]')
+    click_link 'Advanced'
     click_link 'Meta'
     page.must_have_text '<person userid="Iggy" role="reviewer"/>'
   end
@@ -54,6 +55,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     uncheck('user_bugowner_Iggy')
     # wait for it to be clickable again before switching pages
     page.wont_have_xpath './/input[@id="user_bugowner_Iggy"][@disabled="disabled"]'
+    click_link 'Advanced'
     click_link 'Meta'
     page.wont_have_text '<person userid="Iggy" role="bugowner"/>'
   end

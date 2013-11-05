@@ -38,7 +38,7 @@ class BsRequestCollection
   end
 
   def ids
-    @rel.pluck("distinct bs_requests.id").sort
+    @rel.pluck('distinct bs_requests.id').sort
   end
 
   def relation
@@ -52,7 +52,7 @@ class BsRequestCollection
     end
     # Do not allow a full collection to avoid server load
     if opts[:project].blank? && opts[:user].blank? && opts[:package].blank?
-      raise RuntimeError, "This call requires at least one filter, either by user, project or package"
+      raise RuntimeError, 'This call requires at least one filter, either by user, project or package'
     end
     roles = opts[:roles] || []
     states = opts[:states] || []
@@ -88,7 +88,7 @@ class BsRequestCollection
     @inner_or = []
     yield
     if @inner_or.empty?
-      @rel = @rel.where("1=0")
+      @rel = @rel.where('1=0')
     else
       @rel = @rel.where(@inner_or.join(' or '))
     end

@@ -40,8 +40,10 @@ class Webui::SpiderTest < Webui::IntegrationTest
       next if link.end_with? '/project/show/RemoteInstance'
       next if link.end_with? '/package/show/BaseDistro3/pack2'
       next if link.end_with? '/package/show/home:Iggy/TestPack'
-      next if link =~ %r{/package/live_build_log/BinaryprotectedProject}
-      next if link =~ %r{/package/live_build_log/SourceprotectedProject}
+      next if link =~ %r{/live_build_log/BinaryprotectedProject}
+      next if link =~ %r{/live_build_log/SourceprotectedProject}
+      next if link =~ %r{/live_build_log/home:Iggy/ToBeDeletedTestPack}
+      next if link =~ %r{/live_build_log}
       next if tag.content == 'show latest'
       unless @pages_visited.has_key? link
         @pages_to_visit[link] ||= [baseuri.to_s, tag.content]
@@ -93,14 +95,19 @@ class Webui::SpiderTest < Webui::IntegrationTest
       begin
         puts "V #{theone} #{@pages_to_visit.length}/#{@pages_visited.keys.length+@pages_to_visit.length}"
         page.visit(theone)
+        if page.status_code != 200
+          raiseit("Status code #{page.status_code}", theone)
+          return
+        end
+        if page.response_headers['Content-Type'] !~ %r{text/html}
+          #puts "ignoring #{page.response_headers.inspect}"
+          next
+        end
         page.first(:id, 'header-logo')
       rescue Timeout::Error
         next
       rescue ActionController::RoutingError
         raiseit('routing error', theone)
-        return
-      rescue Capybara::Webkit::InvalidResponseError
-        raiseit('invalid response', theone)
         return
       end
       body = nil
@@ -129,6 +136,10 @@ class Webui::SpiderTest < Webui::IntegrationTest
       end
       getlinks(theone, body)
     end
+  end
+
+  def setup
+    wait_for_scheduler_start
   end
 
   test 'spider anonymously' do
