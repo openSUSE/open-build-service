@@ -120,7 +120,6 @@ module ActiveXML
       # key: symbolified model name
       # value: hash with keys :target_uri and :opt (arguments to connect method)
       @mapping = Hash.new
-      @mutex = Mutex.new
     end
 
     def login( user, password )
@@ -294,8 +293,6 @@ module ActiveXML
     end
 
     def http_do( method, url, opt={} )
-      # protect two http transactions happening at the same time - we're not thread safe here
-      @mutex.lock
       defaults = {:timeout => 60}
       opt = defaults.merge opt
 
@@ -392,7 +389,6 @@ module ActiveXML
           @http.finish if @http.started?
           @http = nil
         end
-        @mutex.unlock
       end
 
       return handle_response( http_response )
