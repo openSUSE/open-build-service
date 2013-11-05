@@ -42,6 +42,7 @@
       <value>ppc</value>
       <value>ppc64</value>
       <value>ppc64p7</value>
+      <value>ppc64le</value>
 
       <value>s390</value>
       <value>s390x</value>
