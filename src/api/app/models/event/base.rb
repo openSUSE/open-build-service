@@ -110,6 +110,7 @@ module Event
         # if someone else saved it too, better don't send it
         return false
       end
+      return false unless self.class.raw_type
       # tell the backend to tell the (old) plugins
       p = payload
       p['time'] = self.created_at.to_i

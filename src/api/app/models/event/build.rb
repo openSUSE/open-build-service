@@ -17,6 +17,6 @@ class Event::BuildFail < Event::Build
 end
 
 class Event::BuildUnchanged < Event::Build
-  self.raw_type = 'BUILD_UNCHANGED'
+  # no raw_type as it should not go to plugins
   self.description = 'Package has succeeded building with unchanged result'
 end

@@ -41,8 +41,6 @@ sub notify() {
   my @args = ( "rm=notify" );
 
   $type = "UNKNOWN" unless $type;
-  # we do not want to deliver UNCHANGED events to hermes
-  return if $type eq "BUILD_UNCHANGED";
   # prepend something BS specific
   my $prefix = $BSConfig::hermesnamespace || "OBS";
   $type =  "${prefix}_$type";
