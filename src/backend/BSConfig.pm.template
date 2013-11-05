@@ -191,7 +191,7 @@ our $relsync_pool = {
 
 
 # host specific configs
-my $hostconfig = "bsconfig." . Net::Domain::hostname();
+my $hostconfig = "bsconfig." . $hostname;
 if(-r $hostconfig) {
   print "reading $hostconfig...\n";
   require $hostconfig;
