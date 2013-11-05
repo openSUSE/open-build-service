@@ -117,7 +117,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Project#update_from_xml' => 442.36,
       'Project::check_access?' => 54.05,
       'Project::get_by_name' => 53.44,
-      'Project#release_targets_ng' => 111.74,
+      'Project#release_targets_ng' => 57.91,
       'ProjectStatusCalculator#calc_status' => 74.59,
       'PublicController#binary_packages' => 134.24,
       'Repository#cleanup_before_destroy' => 85.53,
