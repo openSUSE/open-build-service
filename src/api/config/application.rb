@@ -106,6 +106,9 @@ module OBSApi
     config.action_dispatch.rescue_responses.merge!('ActiveXML::Transport::Error' => 500)
     config.action_dispatch.rescue_responses.merge!('Timeout::Error' => 408)
 
+    # we're not threadsafe
+    config.allow_concurrency = false
+
     config.after_initialize do
       # See Rails::Configuration for more options
     end unless Rails.env.test?
