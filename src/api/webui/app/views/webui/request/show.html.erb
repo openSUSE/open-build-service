@@ -20,6 +20,15 @@
   <div class="grid_10 alpha">
     <h3><%= @pagetitle %> (<%= @state %>)</h3>
     <%= description_wrapper(@req['description']) %>
+
+    <div class="grid_16 alpha omega">
+      <% if @can_add_reviews %>
+          <ul class="horizontal-list">
+            <li><%= link_to(sprite_tag('user_add', title: 'Add a review') + 'Add a review', { controller: 'request', action: 'add_reviewer_dialog', id: @id }, remote: true) %></li>
+          </ul>
+      <% end %>
+    </div>
+
   </div>
   <div class="grid_6 omega">
     <ul class="clean_list">
@@ -213,11 +222,6 @@
             <% end %>
           </div>
           <div class="review_descision_display" style="<%= 'display: none;' if @can_add_reviews && @my_open_reviews.length > 0 %>" id="review_descision_display_-1">
-            <% if @can_add_reviews %>
-              <span style="float: right;">
-                <%= link_to(sprite_tag('user_add', title: 'Add a review') + 'Add a review', { controller: 'request', action: 'add_reviewer_dialog', id: @id }, remote: true) %>
-              </span>
-            <% end %>
             <% if @can_handle_request %>
                 <%= form_tag({ :action => 'changerequest' }, { id: 'request_handle_form' }) do %>
                     <p><%= text_area_tag(:reason, 'Please add a comment', :size => '80x2', :style => 'width: 99%') %></p>
