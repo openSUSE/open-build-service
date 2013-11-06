@@ -18,7 +18,7 @@ class Attrib < ActiveRecord::Base
     end
   end
 
-  def update_from_xml(node)
+  def update(values = [], issues = [])
     save = false
     #--- update issues ---#
     issuecache = Hash.new
@@ -26,8 +26,7 @@ class Attrib < ActiveRecord::Base
       issuecache[ai.issue.id] = ai
     end
 
-    node.each_issue do |i|
-      issue = Issue.find_or_create_by_name_and_tracker( i.name, i.tracker )
+    issues.each do |issue|
       unless issuecache.has_key? issue.id
         self.save! unless self.id
         self.issues << AttribIssue.new(:issue_id => issue.id)
@@ -44,20 +43,15 @@ class Attrib < ActiveRecord::Base
     end
 
     #--- update values ---#
-    save = update_values = true unless node.each_value.length == self.values.count
+    current_values = self.values.map { |v| v.value}
 
-    node.each_value.each_with_index do |val, i|
-      next if val.text == self.values[i].value
-      save = update_values = true
-      break
-    end unless update_values
-
-    if update_values
+    if values != current_values
+      save = true
       logger.debug "--- updating values ---"
       self.values.delete_all
       position = 1
-      node.each_value do |val|
-        self.values << AttribValue.new(:value => val.text, :position => position)
+      values.each do |val|
+        self.values.build(value: val, position: position)
         position += 1
       end
     end

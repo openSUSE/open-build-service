@@ -929,11 +929,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def attributes
-    if @project.is_remote?
-      @attributes = nil
-    else
-      @attributes = Webui::Attribute.find(:project => @project.name, :package => @package.to_s)
-    end
+    @attributes = @package.api_obj.attribs
   end
 
   def edit

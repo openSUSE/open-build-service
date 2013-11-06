@@ -7,72 +7,85 @@ module HasAttributes
     end
   end
 
+  class AttributeSaveError < APIException
+  end
+
   def write_attributes(comment=nil)
     login = User.current.login
     path = self.attribute_url + "?meta=1&user=#{CGI.escape(login)}"
     path += "&comment=#{CGI.escape(comment)}" if comment
-    Suse::Backend.put_source(path, self.render_attribute_axml)
-  end
-
-  class SaveError < APIException
-    setup "attribute_save_error"
+    begin
+      Suse::Backend.put_source(path, self.render_attribute_axml)
+    rescue ActiveXML::Transport::Error => e
+      raise AttributeSaveError.new e.summary
+    end
   end
 
   def store_attribute_axml(attrib, binary=nil)
 
-    atype = check_attrib!(attrib)
+    values = []
+    attrib.each_value do |val|
+      values << val.text
+    end
 
-    # verify with allowed values for this attribute definition
-    unless atype.allowed_values.empty?
-      logger.debug("Verify value with allowed")
-      attrib.each_value.each do |value|
-        found = false
-        atype.allowed_values.each do |allowed|
-          if allowed.value == value.text
-            found = true
-            break
-          end
-        end
-        if !found
-          raise SaveError, "attribute value #{value} for '#{attrib.namespace}':'#{attrib.name} is not allowed'"
-        end
-      end
+    issues = []
+    attrib.each_issue do |i|
+      issues << Issue.find_or_create_by_name_and_tracker(i.name, i.tracker)
     end
-    # update or create attribute entry
-    changed = false
-    a = find_attribute(attrib.namespace, attrib.name, binary)
-    if a.nil?
-      # create the new attribute entry
-      if binary
-        a = self.attribs.create(:attrib_type => atype, :binary => binary)
-      else
-        a = self.attribs.create(:attrib_type => atype)
-      end
-      changed = true
-    end
-    # write values
-    changed = true if a.update_from_xml(attrib)
-    return changed
+
+    store_attribute(attrib.namespace, attrib.name, values, issues, binary)
   end
 
-  def check_attrib!(attrib)
-    raise SaveError, "attribute type without a namespace " if not attrib.namespace
-    raise SaveError, "attribute type without a name " if not attrib.name
+  def store_attribute(namespace, name, values, issues, binary = nil)
+
+    atype = check_attrib!(namespace, name, values, issues)
+
+    # update or create attribute entry
+    changed = false
+    a = find_attribute(namespace, name, binary)
+    if a.nil?
+      # create the new attribute entry
+      a = self.attribs.create(attrib_type: atype, binary: binary)
+      changed = true
+    end
+
+    # write values
+    a.update(values, issues) || changed
+  end
+
+  def check_attrib!(namespace, name, values, issues)
+    raise AttributeAttributeSaveError, "attribute type without a namespace " if not namespace
+    raise AttributeAttributeSaveError, "attribute type without a name " if not name
 
     # check attribute type
-    if (not atype = AttribType.find_by_namespace_and_name(attrib.namespace, attrib.name) or atype.blank?)
-      raise SaveError, "unknown attribute type '#{attrib.namespace}':'#{attrib.name}'"
+    if (not atype = AttribType.find_by_namespace_and_name(namespace, name) or atype.blank?)
+      raise AttributeSaveError, "unknown attribute type '#{namespace}':'#{name}'"
     end
     # verify the number of allowed values
-    if atype.value_count and attrib.has_element? :value and atype.value_count != attrib.each_value.length
-      raise SaveError, "attribute '#{attrib.namespace}:#{attrib.name}' has #{attrib.each_value.length} values, but only #{atype.value_count} are allowed"
+    if atype.value_count && atype.value_count != values.length
+      raise AttributeSaveError, "attribute '#{namespace}:#{name}' has #{values.length} values, but only #{atype.value_count} are allowed"
     end
-    if atype.value_count and atype.value_count > 0 and not attrib.has_element? :value
-      raise SaveError, "attribute '#{attrib.namespace}:#{attrib.name}' requires #{atype.value_count} values, but none given"
+    if issues.present? and not atype.issue_list
+      raise AttributeSaveError, "attribute '#{namespace}:#{name}' has issue elements which are not allowed in this attribute"
     end
-    if attrib.has_element? :issue and not atype.issue_list
-      raise SaveError, "attribute '#{attrib.namespace}:#{attrib.name}' has issue elements which are not allowed in this attribute"
+
+    # verify with allowed values for this attribute definition
+    return atype if atype.allowed_values.empty?
+
+    logger.debug("Verify value with allowed")
+    values.each do |value|
+      found = false
+      atype.allowed_values.each do |allowed|
+        if allowed.value == value
+          found = true
+          break
+        end
+      end
+      if !found
+        raise AttributeSaveError, "attribute value #{value} for '#{namespace}':'#{name} is not allowed'"
+      end
     end
+
     atype
   end
 

@@ -8,82 +8,94 @@ class Webui::AttributeController < Webui::WebuiController
     end
     if params[:namespace] and params[:name]
       selected_attribute = nil
-      selected_attribute = @attributes.find_first( "attribute[@name='#{params[:name]}' and @namespace='#{params[:namespace]}']")
-      @selected_attribute_name =  "%s:%s" % [params[:namespace], params[:name]]
-      @selected_attribute_value = Array.new
-      selected_attribute.each("value") {|value| @selected_attribute_value << value.text} if selected_attribute
-      @selected_attribute_value = @selected_attribute_value.join(', ')
+      atype = AttribType.find_by_namespace_and_name(params[:namespace], params[:name])
+      selected_attribute = @attributes.where(attrib_type: atype).first
+      @selected_attribute_name = '%s:%s' % [params[:namespace], params[:name]]
+      @selected_attribute_value = selected_attribute.values 
     else
-      namespaces = Webui::Attribute.find(:namespaces)
-      attributes = []
       @attribute_list = []
-      namespaces.each do |d|
-         attributes << Webui::Attribute.find(:attributes, :namespace => d.value(:name))
+      AttribType.all.each do |d|
+        @attribute_list << "#{d.attrib_namespace.name}:#{d.name}"
       end
-      attributes.each do |d|
-        if d.has_element? :entry
-          d.each {|f| @attribute_list << "#{d.init_options[:namespace]}:#{f.value(:name)}" }
-        end
-      end
-      @attributes.each {|d| @attribute_list.delete(d.name)}
+      @attribute_list.sort!
     end
   end
 
   def save
     values = params[:values].split(',')
     namespace, name = params[:attribute].split(/:/)
-    @attributes.set(namespace, name, values)
+
+    opt = { :action => :edit, :project => @project.name, package: params[:package] }
+
+    unless User.current.can_create_attribute_in? @attribute_container, namespace: namespace, name: name
+      redirect_to opt, error: 'No permission to save attribute'
+      return
+    end
+
+    begin
+      Attrib.transaction do
+        @attribute_container.store_attribute(namespace, name, values, [])
+        @attribute_container.write_attributes # save to backend
+      end
+    rescue APIException => e
+      redirect_to opt, error: "Saving attribute failed: #{e.message}"
+      return
+    end
+
     if params[:package]
       opt = {:controller => :package, :action => :attributes, :project => @project.name, package: params[:package] }
     elsif params[:project]
       opt = {:controller => :project, :action => :attributes, :project => @project.name }
     end
 
-    begin
-      @attributes.save
-      redirect_to opt, notice: "Attribute sucessfully added!"
-    rescue ActiveXML::Transport::Error => e
-      redirect_to opt, error: "Saving attribute failed: #{e.summary}"
-    end
+    redirect_to opt, notice: 'Attribute sucessfully added!'
   end
 
   def delete
     required_parameters :namespace, :name
-    result = @attributes.delete(params[:namespace], params[:name])
-    flash[result[:type]] = result[:msg]
-    Webui::Attribute.free_cache( @attribute_opts )
+
     if params[:package]
-      opt = {:controller => :package, :action => :attributes, :project => @project.name }
+      opt = { :controller => :package, :action => :attributes, :project => @project.name, package: params[:package] }
     elsif params[:project]
-      opt = {:controller => :project, :action => :attributes, :project => @project.name }
+      opt = { :controller => :project, :action => :attributes, :project => @project.name }
     end
-    opt.store( :package, params[:package] ) if params[:package]
-    redirect_to opt
+
+    unless User.current.can_create_attribute_in? @attribute_container, namespace: params[:namespace], name: params[:name]
+      redirect_to opt, error: 'Deleting attribute failed: no permission to change attribute'
+      return
+    end
+
+    atype = AttribType.find_by_namespace_and_name(params[:namespace], params[:name]) 
+    @attributes.where(attrib_type: atype).destroy_all
+    redirect_to opt, notice: 'Attribute sucessfully deleted!'
   end
 
-private
+  private
 
   def requires
     required_parameters :project
     @project = WebuiProject.find(params[:project])
     unless @project
       flash[:error] = "Project not found: #{params[:project]}"
-      redirect_to :controller => "project", :action => "list_public" and return
+      redirect_to :controller => 'project', :action => 'list_public' and return
     end
     if @project.is_remote?
-       flash[:error] = "Attribute access to remote project is not yet supported"
-       if params[:package].blank?
-         redirect_to controller: :project, action: :show, project: params[:project]
-       else
-         redirect_to controller: :package, action: :show, project: params[:project], package: params[:package]
-       end
-       return
+      flash[:error] = 'Attribute access to remote project is not yet supported'
+      if params[:package].blank?
+        redirect_to controller: :project, action: :show, project: params[:project]
+      else
+        redirect_to controller: :package, action: :show, project: params[:project], package: params[:package]
+      end
+      return
     end
     @is_maintenance_project = false
-    @is_maintenance_project = true if @project.project_type and @project.project_type == "maintenance"
-    @package = WebuiPackage.find(params[:package], :project => @project.name) if params[:package]
-    @attribute_opts = {:project => @project.name}
-    @attribute_opts.store(:package, @package.to_s) if @package
-    @attributes = Webui::Attribute.find(@attribute_opts)
+    @is_maintenance_project = true if @project.project_type and @project.project_type == 'maintenance'
+    if params[:package]
+      @package = WebuiPackage.find(params[:package], :project => @project.name)
+      @attribute_container = @package.api_obj
+    else
+      @attribute_container = @project.api_obj
+    end
+    @attributes = @attribute_container.attribs
   end
 end

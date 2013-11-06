@@ -2,4 +2,8 @@
 
 class AttribValue < ActiveRecord::Base
   belongs_to :attrib
+
+  def to_s
+    self.value
+  end
 end

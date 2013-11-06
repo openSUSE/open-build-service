@@ -1,39 +1,46 @@
-<% if @attributes.nil? || !@attributes.has_elements?  %>
-  <p><em>No attributes set</em></p>
+<% if @attributes.blank? %>
+    <p><em>No attributes set</em></p>
 <% else %>
-  <div>
-    <table>
-      <tr>
-        <th>Attribute</th>
-        <th>Values</th>
-       <% unless User.current.is_nobody? %>
-        <th>Actions</th>
-       <% end %>
-      </tr>
-      <% @attributes.each do |attribute| %>
-        <tr class='attribute-values'>
-          <td class='attribute-name'><%= attribute.namespace %>:<%= attribute.name %></td>
-          <td class='attribute-value'>
-            <% attribute.each do |value| %>
-              <%= value %><br/>
-            <% end %>
-          </td>
-       <% unless User.current.is_nobody? %>
-          <td>
-            <%= link_to(image_tag('note_edit.png', :alt => 'Edit values', :title => 'Edit values'), { :controller => 'attribute', :action => 'edit', :project => @project.name, :package => @package, :namespace => attribute.namespace, :name => attribute.name }, class: 'edit-values') %>
-            <%= button_to('Delete attribute',
-              {:controller => 'attribute', :action => 'delete', :project => @project.name, :package => @package, :namespace => attribute.namespace, :name => attribute.name},
-	      {data: { confirm: "Really remove attribute '#{attribute.namespace}:#{attribute.name}'?"}, method: :delete, class: 'delete-attribute'}) %>
-          </td>
-       <% end %>
+    <div>
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th>Values</th>
+          <% unless User.current.is_nobody? %>
+              <th>Actions</th>
+          <% end %>
         </tr>
-      <% end %>
-    </table>
-  </div>
+        <% @attributes.each do |attribute| %>
+            <% atype = attribute.attrib_type %>
+
+            <tr class='attribute-values'>
+              <td class='attribute-name'><%= atype.attrib_namespace.name %>:<%= atype.name %></td>
+              <td class='attribute-value'>
+                <% attribute.values.each do |value| %>
+                    <%= value.to_s %>
+                    <br/>
+                <% end %>
+              </td>
+              <% unless User.current.is_nobody? %>
+                  <td>
+                    <%= link_to(image_tag('note_edit.png', :alt => 'Edit values', :title => 'Edit values'), { :controller => 'attribute', :action => 'edit',
+                                                                                                              :project => @project.name, :package => @package,
+                                                                                                              :namespace => atype.attrib_namespace.name, :name => atype.name },
+                                class: 'edit-values') %>
+                    <%= button_to('Delete attribute',
+                                  { :controller => 'attribute', :action => 'delete', :project => @project.name, :package => @package, :namespace => atype.attrib_namespace.name, :name => atype.name },
+                                  { data: { confirm: "Really remove attribute '#{atype.attrib_namespace.name}:#{atype.name}'?" }, method: :delete, class: 'delete-attribute' }) %>
+                  </td>
+              <% end %>
+            </tr>
+        <% end %>
+      </table>
+    </div>
 <% end %>
 
 <% unless User.current.is_nobody? %>
-  <p>
-    <%= link_to(sprite_tag('note_add', title: 'Add a new attribute') + 'Add a new attribute', { :controller => :attribute, :action => :edit, :project => @project.name, :package => @package}, id: 'add-new-attribute') %>
-  </p>
+    <p>
+      <%= link_to(sprite_tag('note_add', title: 'Add a new attribute') + 'Add a new attribute',
+                  { :controller => :attribute, :action => :edit, :project => @project.name, :package => @package }, id: 'add-new-attribute') %>
+    </p>
 <% end %>

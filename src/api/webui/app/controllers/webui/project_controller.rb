@@ -159,11 +159,7 @@ class ProjectController < WebuiController
   end
 
   def attributes
-    if @project.is_remote?
-      @attributes = nil
-    else
-      @attributes = Attribute.find(:project => @project.name)
-    end
+    @attributes = @project.api_obj.attribs
   end
 
   def new

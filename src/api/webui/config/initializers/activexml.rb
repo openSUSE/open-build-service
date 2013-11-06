@@ -59,15 +59,6 @@ map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['fronte
 
     map.connect :webuirequest, 'rest:///request/:id', :create => 'rest:///request?cmd=create'
 
-    map.connect :packageattribute, 'rest:///search/attribute?:namespace&:name&:project'
- 
-    map.connect :attribute, 'rest:///source/:project/:package/_attribute/:attribute',
-      :project => 'rest:///source/:project/_attribute/:attribute',
-      :namespaces => 'rest:///attribute',
-      :namespace_config => 'rest:///attribute/:namespace/_meta',
-      :config => 'rest:///attribute/:namespace/:attribute/_meta',
-      :attributes => 'rest:///attribute/:namespace'
-
   map.set_additional_header( 'User-Agent', "obs-webui/#{CONFIG['version']}" )
   map.set_additional_header( 'Accept', 'application/xml' )
 
