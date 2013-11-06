@@ -593,16 +593,32 @@ sub createrepo_debian {
     rename("$extrep/Sources.new", "$extrep/Sources");
   }
 
+  my $obsname = $BSConfig::obsname || 'build.opensuse.org';
   my $date = POSIX::ctime(time());
   $date =~ s/\n//m;
+  my @debarchs = @{$repoinfo->{'arch'} || []};
+  for (@debarchs) {
+     s/x86_64/amd64/g;
+     s/i.86/i386/g;
+  };
+  my $archs = join(' ', @debarchs);
+
+  # The Release file enables users to use Pinning. See also:
+  #  http://www.debian.org/doc/manuals/repository-howto/repository-howto#release
+  #  apt_preferences(5)
+  #
+  # Note:
+  # There is no Version because this is not part of a Debian release (yet).
+  # The Component line is missing to not accidently associate the packages with
+  # a Debian licensing component.
   my $str = <<"EOL";
-Origin: Open Build Service $projid $repoid
-Label: $repoinfo->{'title'}
-Suite: $projid
-Codename: $projid
-Version: 0.00
+Archive: $repoid
+Codename: $repoid
+Origin: obs://$obsname/$projid/$repoid
+Label: $projid
+Architectures: $archs
 Date: $date
-Description: Open Build Service $projid $repoid
+Description: $repoinfo->{'title'}
 MD5Sum:
 EOL
 
