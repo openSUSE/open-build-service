@@ -83,7 +83,6 @@ function remove_dialog() {
 
 function setup_buildresult_tooltip(element_id, url) {
     $('#' + element_id).tooltip({
-        position: { my: "center+15 center"},
         content: function() {
             return "<div id='" + element_id + "_tooltip' style='width: 500px;'>loading buildresult...</div>";
         }
