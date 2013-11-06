@@ -123,28 +123,15 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
     login_adrian
     get "/published/BaseDistro3/BaseDistro3_repo/content"
     assert_response :success
-    assert_equal 'PRODUCT Open Build Service BaseDistro3 BaseDistro3_repo
-VERSION 1.0-0
-LABEL This is another base distro, without update project (BaseDistro3_repo)
-VENDOR Open Build Service
-ARCH.x86_64 x86_64 i686 i586 i486 i386 noarch
-ARCH.ppc64le ppc64le noarch
-ARCH.ppc64p7 ppc64p7 noarch
-ARCH.ppc64 ppc64 ppc noarch
-ARCH.ppc ppc noarch
-ARCH.sh4 sh4 noarch
-ARCH.m68k m68k noarch
-ARCH.aarch64 aarch64 noarch
-ARCH.armv4l arm       armv4l noarch
-ARCH.armv5l arm armel armv4l armv5l armv5tel noarch
-ARCH.armv6l arm armel armv4l armv5l armv5tel armv6l armv6vl armv6hl noarch
-ARCH.armv7l arm armel armv4l armv5l armv5tel armv6l armv6vl armv7l armv7hl noarch
-ARCH.i686 i686 i586 i486 i386 noarch
-ARCH.i586 i586 i486 i386 noarch
-DEFAULTBASE i586
-DESCRDIR descr
-DATADIR .
-', @response.body
+    assert_match(/PRODUCT Open Build Service BaseDistro3 BaseDistro3_repo\n/, @response.body)
+    assert_match(/\nVERSION 1.0-0/, @response.body)
+    assert_match(/\nLABEL This is another base distro, without update project/, @response.body)
+    assert_match(/\nVENDOR Open Build Service/, @response.body)
+    assert_match(/\nARCH.x86_64 x86_64 i686 i586 i486 i386 noarch/, @response.body)
+    assert_match(/\nARCH.i586 i586 i486 i386 noarch/, @response.body)
+    assert_match(/\nDEFAULTBASE i586\n/, @response.body)
+    assert_match(/\nDESCRDIR descr\n/, @response.body)
+    assert_match(/\nDATADIR .\n/, @response.body)
     get "/published/BaseDistro3/BaseDistro3_repo/media.1/directory.yast"
     assert_response :success
     get "/published/BaseDistro3/BaseDistro3_repo/media.1/media"
