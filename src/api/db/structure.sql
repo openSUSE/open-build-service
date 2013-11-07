@@ -238,11 +238,11 @@ CREATE TABLE `channel_binaries` (
   `package` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `binaryarch` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_channel_binaries_on_name_and_channel_binary_list_id` (`name`,`channel_binary_list_id`),
   KEY `index_channel_binaries_on_project_id_and_package` (`project_id`,`package`),
   KEY `channel_binary_list_id` (`channel_binary_list_id`),
   KEY `repository_id` (`repository_id`),
   KEY `architecture_id` (`architecture_id`),
+  KEY `index_channel_binaries_on_name_and_channel_binary_list_id` (`name`,`channel_binary_list_id`),
   CONSTRAINT `channel_binaries_ibfk_1` FOREIGN KEY (`channel_binary_list_id`) REFERENCES `channel_binary_lists` (`id`),
   CONSTRAINT `channel_binaries_ibfk_2` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
   CONSTRAINT `channel_binaries_ibfk_3` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
@@ -1330,6 +1330,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131027122410');
 INSERT INTO schema_migrations (version) VALUES ('20131028085325');
 
 INSERT INTO schema_migrations (version) VALUES ('20131029112259');
+
+INSERT INTO schema_migrations (version) VALUES ('20131106112233');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
