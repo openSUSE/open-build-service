@@ -16,8 +16,9 @@ class ChannelBinary < ActiveRecord::Base
   end
 
   def create_channel_package(pkg, maintenanceProject)
-    cp = self.channel_binary_list.channel.package
-    name = self.channel_binary_list.channel.name
+    channel = self.channel_binary_list.channel
+    cp = channel.package
+    name = channel.name
 
     # does it exist already? then just skip it
     return if Package.exists_by_project_and_name(pkg.project.name, name)
@@ -38,6 +39,20 @@ class ChannelBinary < ActiveRecord::Base
     tpkg.sources_changed
 
     # branch repositories
-    pkg.project.branch_to_repositories_from(cp.project, tpkg, true)
+    if channel.channel_targets.empty?
+      # not defined in channel, so take all from project
+      tpkg.project.branch_to_repositories_from(cp.project, cp, true)
+    else
+      # defined in channel
+      channel.channel_targets.each do |ct|
+        repo_name = ct.repository.extended_name
+        # add repositories
+        unless pkg.project.repositories.find_by_name(repo_name)
+          tpkg.project.add_repository_with_targets(repo_name, ct.repository, [ct.repository]) 
+        end
+        # enable package
+        tpkg.enable_for_repository repo_name
+      end
+    end
   end
 end

@@ -842,4 +842,18 @@ class Package < ActiveRecord::Base
     end
   end
 
+  def enable_for_repository repoName 
+    update_needed = nil
+    if self.project.flags.find_by_flag_and_status( 'build', 'disable' )
+      # enable package builds if project default is disabled
+      self.flags.create( :position => 1, :flag => 'build', :status => 'enable', :repo => repoName )
+      update_needed = true
+    end
+    if self.project.flags.find_by_flag_and_status( 'debuginfo', 'disable' )
+      # take over debuginfo config from origin project
+      self.flags.create( :position => 1, :flag => 'debuginfo', :status => 'enable', :repo => repoName )
+      update_needed = true
+    end
+    self.store if update_needed
+  end
 end

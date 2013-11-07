@@ -923,6 +923,25 @@ class Project < ActiveRecord::Base
     return false
   end
 
+  def add_repository_with_targets(repoName, source_repo, add_target_repos = [])
+    trepo = self.repositories.create :name => repoName
+    source_repo.repository_architectures.each do |ra|
+      trepo.repository_architectures.create :architecture => ra.architecture, :position => ra.position
+    end
+    trepo.path_elements.create(:link => source_repo, :position => 1)
+    trigger = nil # no trigger is set by default
+    trigger = 'maintenance' if MaintenanceIncident.find_by_db_project_id( self.id ) # is target an incident project ?
+    if add_target_repos.length > 0
+      # add repository targets
+      add_target_repos.each do |rt|
+        trepo.release_targets.create(:target_repository => rt, :trigger => trigger)
+      end
+    elsif source_repo.project.is_maintenance_release?
+      # branch from official release project?
+      trepo.release_targets.create(:target_repository => source_repo, :trigger => trigger)
+    end
+  end
+
   def branch_to_repositories_from(project, pkg_to_enable, extend_names=nil)
     # shall we use the repositories from a different project?
     if project and a = project.find_attribute('OBS', 'BranchRepositoriesFromProject') and a.values.first
@@ -930,50 +949,16 @@ class Project < ActiveRecord::Base
     end
 
     project.repositories.each do |repo|
-      repoName = repo.name
-      if extend_names
-        repoName = project.name.gsub(':', '_')
-        if project.repositories.count > 1
-          # keep short names if project has just one repo
-          repoName += '_'+repo.name unless repo.name == 'standard'
-        end
-      end
+      repoName = extend_names ? repo.extended_name : repo.name
       unless self.repositories.find_by_name(repoName)
-        trepo = self.repositories.create :name => repoName
-        repo.repository_architectures.each do |ra|
-          trepo.repository_architectures.create :architecture => ra.architecture, :position => ra.position
-        end
-        trepo.path_elements.create(:link => repo, :position => 1)
-        trigger = nil # no trigger is set by default
-        trigger = 'maintenance' if MaintenanceIncident.find_by_db_project_id( self.id ) # is target an incident project ?
-        if project.is_maintenance_release?
-          # branch from official release project?
-          trepo.release_targets.create(:target_repository => repo, :trigger => trigger)
-        elsif pkg_to_enable and pkg_to_enable.is_of_kind? 'channel'
-          # check if the channel has defined release targets
-          if cts = pkg_to_enable.channels.first.channel_targets
-            # branching a channel? set it's targets here as well
-            cts.each do |rt|
-              trepo.release_targets.create(:target_repository => rt.repository, :trigger => trigger)
-            end
-          else
-            # use repository targets as fallback
-            repo.release_targets.each do |rt|
-              trepo.release_targets.create(:target_repository => rt.target_repository, :trigger => trigger)
-            end
-          end
+        targets = source_repo.release_targets if (pkg_to_enable and pkg_to_enable.is_of_kind? 'channel')
+        if targets
+          self.add_repository_with_targets(repoName, repo, targets.map{|t| t.target_repository})
+        else
+          self.add_repository_with_targets(repoName, repo)
         end
       end
-      if pkg_to_enable and self.flags.find_by_flag_and_status( 'build', 'disable' )
-        # enable package builds if project default is disabled
-        pkg_to_enable.flags.create( :position => 1, :flag => 'build', :status => 'enable', :repo => repoName )
-        pkg_to_enable.store
-      end
-      if pkg_to_enable and self.flags.find_by_flag_and_status( 'debuginfo', 'disable' )
-        # take over debuginfo config from origin project
-        pkg_to_enable.flags.create( :position => 1, :flag => 'debuginfo', :status => 'enable', :repo => repoName )
-        pkg_to_enable.store
-      end
+      pkg_to_enable.enable_for_repository(repoName) if pkg_to_enable
     end
     # take over flags, but explicit disable publishing by default and enable building. Ommiting also lock or we can not create packages
     project.flags.each do |f|

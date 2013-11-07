@@ -89,6 +89,15 @@ class Repository < ActiveRecord::Base
     targetlinks.map {|l| l.target_repository}
   end
 
+  def extended_name
+    longName = self.project.name.gsub(':', '_')
+    if self.project.repositories.count > 1
+      # keep short names if project has just one repo
+      longName += '_'+self.name unless self.name == 'standard'
+    end
+    return longName
+  end
+
   def to_axml_id
     return "<repository project='#{::Builder::XChar.encode(project.name)}' name='#{::Builder::XChar.encode(name)}'/>"
   end

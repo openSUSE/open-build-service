@@ -426,24 +426,41 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     #
     # define one
     login_king
-    put '/source/Channel/_meta', '<project name="Channel"><title/><description/>
-                                         <repository name="dummy">
-                                           <releasetarget project="BaseDistro3" repository="BaseDistro3_repo" />
+    put '/source/BaseDistro3Channel/_meta', '<project name="BaseDistro3Channel"><title/><description/>
+                                         <repository name="channel_repo">
                                            <arch>i586</arch>
                                          </repository>
+                                   </project>'
+    assert_response :success
+    put '/source/Channel/_meta', '<project name="Channel"><title/><description/>
                                    </project>'
     assert_response :success
     put '/source/Channel/BaseDistro3/_meta', '<package project="Channel" name="BaseDistro3"><title/><description/></package>'
     assert_response :success
     put '/source/Channel/BaseDistro3/_channel', '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
-          <target project="BaseDistro3" repository="BaseDistro3_repo" />
+          <target project="BaseDistro3Channel" repository="channel_repo" />
+          <binaries project="BaseDistro3" repository="BaseDistro3_repo" arch="i586">
+            <binary name="package" package="pack2.linked" project="BaseDistro2.0" />
+          </binaries>
+        </channel>'
+    assert_response :success
+    get '/source/Channel/BaseDistro3/_channel'
+    assert_response :success
+    assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro2.0", :package => "pack2.linked" }
+    put '/source/Channel/BaseDistro3/_channel', '<?xml version="1.0" encoding="UTF-8"?>
+        <channel>
+          <target project="BaseDistro3Channel" repository="channel_repo" />
           <binaries project="BaseDistro3" repository="BaseDistro3_repo" arch="i586">
             <binary name="package" package="pack2" project="BaseDistro3" />
             <binary name="does_not_exist" />
           </binaries>
         </channel>'
     assert_response :success
+    get '/source/Channel/BaseDistro3/_channel'
+    assert_response :success
+    assert_no_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro2.0", :package => "pack2.linked" }
+    assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :package => "pack2" }
 
     # create channel packages and repos
     login_adrian
@@ -462,22 +479,24 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/#{incidentProject}/BaseDistro3.Channel/_meta"
     assert_response :success
-    assert_xml_tag :tag => 'enable', :attributes => { :repository=> 'Channel'},
+    assert_xml_tag :tag => 'enable', :attributes => { :repository=> 'BaseDistro3Channel'},
                    :parent => { :tag => 'build'}
     get "/source/#{incidentProject}/_meta"
     assert_response :success
-    assert_xml_tag :tag => 'path', :attributes => { :project=> 'Channel', :repository=> 'dummy'},
-                   :parent => { :tag => 'repository', :attributes => {:name=> 'Channel'} }
-    assert_xml_tag :tag => 'releasetarget', :attributes => { :project=> 'BaseDistro3', :repository=> 'BaseDistro3_repo', :trigger=> 'maintenance'},
-                   :parent => { :tag => 'repository', :attributes => {:name=> 'Channel'} }
+    assert_xml_tag :tag => 'path', :attributes => { :project=> 'BaseDistro3Channel', :repository=> 'channel_repo'},
+                   :parent => { :tag => 'repository', :attributes => {:name=> 'BaseDistro3Channel'} }
+    assert_xml_tag :tag => 'releasetarget', :attributes => { :project=> 'BaseDistro3Channel', :repository=> 'channel_repo', :trigger=> 'maintenance'},
+                   :parent => { :tag => 'repository', :attributes => {:name=> 'BaseDistro3Channel'} }
 
     #cleanup
     login_king
-    delete '/source/Channel'
+    delete '/source/BaseDistro3Channel'
     assert_response 400 # incident still refers to it
     delete "/source/#{incidentProject}"
     assert_response :success
     delete '/source/Channel'
+    assert_response :success
+    delete '/source/BaseDistro3Channel'
     assert_response :success
     delete '/source/BaseDistro3/pack2/file'
     assert_response :success
