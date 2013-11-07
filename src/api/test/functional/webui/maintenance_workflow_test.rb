@@ -3,9 +3,9 @@ require 'test_helper'
 class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
 
   test 'full maintenance workflow' do
-    login_king
+    use_js
 
-    visit(webui_engine.project_show_path(project: 'BaseDistro'))
+    login_king to: webui_engine.project_show_path(project: 'BaseDistro')
 
     find(:id, 'advanced_tabs_trigger').click
     find(:link, 'Attributes').click
@@ -15,9 +15,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
 
     logout
     # now let tom branch a package
-    login_tom
-
-    visit(webui_engine.project_show_path(project: 'My:Maintenance'))
+    login_tom to: webui_engine.project_show_path(project: 'My:Maintenance')
     find(:id, 'project_title').text.must_equal 'official maintenance space'
 
     find(:id, 'infos_list').must_have_text %r{3 maintained projects}
@@ -52,8 +50,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     logout
 
     # now let the coordinator act
-    login_user('maintenance_coord', 'power')
-    visit(webui_engine.project_show_path(project: 'My:Maintenance'))
+    login_user('maintenance_coord', 'power', to: webui_engine.project_show_path(project: 'My:Maintenance'))
 
     find(:link, 'open request').click
     find(:id, 'description_text').text.must_equal 'I want the update'
@@ -115,8 +112,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     logout
 
     # add a additional fix to the incident
-    login_tom
-    visit(webui_engine.project_show_path(project: 'home:tom:branches:BaseDistro2.0:LinkedUpdateProject'))
+    login_tom to: webui_engine.project_show_path(project: 'home:tom:branches:BaseDistro2.0:LinkedUpdateProject')
     find(:link, 'Submit as update').click
 
     find(:css, '.dialog h2').must_have_text 'Submit as Update'
@@ -126,8 +122,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     logout
 
     # let the maint-coordinator add the new submit to the running incident and cont
-    login_user('maintenance_coord', 'power')
-    visit(webui_engine.project_show_path(project: 'My:Maintenance'))
+    login_user('maintenance_coord', 'power', to: webui_engine.project_show_path(project: 'My:Maintenance'))
 
     find(:link, 'open request').click
     find(:id, 'description_text').text.must_equal 'I have a additional fix'

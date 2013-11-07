@@ -10,9 +10,8 @@ script: bash -x dist/ci/obs_testsuite_travis.sh
 env:
   # just one special test
   #- SUBTEST=api:functional/public_controller_test.rb:test_binaries
-  - SUBTEST=rake:test:api
-  - SUBTEST=rake:test:webui
-  - SUBTEST=rake:test:webuispider RUN_SPIDER=1
+  #- SUBTEST=rake:test:api
+  #- SUBTEST=rake:test:webui
   # api and webui webrat with latest gems
   #- SUBTEST=rake:test REMOVEGEMLOCK=true
 matrix:

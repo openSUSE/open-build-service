@@ -18,23 +18,27 @@ ret=0
 export OBS_REPORT_DIR=results/
 export HEADLESS=forsure
 
+cd src/api
+
+if test -z "$SUBTEST"; then
+  bundle exec rake test:api
+  bundle exec rake test:webui
+fi
+
 case $SUBTEST in
   rake:*)
-   echo "Enter API rails root and running rcov"
-   cd src/api
    SUBTEST=${SUBTEST/rake:/}
-   bundle exec rake $SUBTEST --trace || ret=1
-   tail -n 6000 log/test.log
+   bundle exec rake $SUBTEST --trace
    ;;
   api:*)
-   cd src/api
    SUBTEST=${SUBTEST/api:/}
    thetest=${SUBTEST/:*/}
    thename=${SUBTEST/*:/}
-   bundle exec ruby -Itest test/$thetest --name=$thename || ret=1
-   tail -n 6000 log/test.log
+   bundle exec ruby -Itest test/$thetest --name=$thename
    ;;
 esac
+
+#tail -n 6000 log/test.log
 
 cd ../..
 cleanup

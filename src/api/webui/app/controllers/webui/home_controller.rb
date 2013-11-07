@@ -48,7 +48,7 @@ class Webui::HomeController < Webui::WebuiController
 
     rel = PackageIssue.joins(:issue).where(issues: { state: 'OPEN', owner_id: @displayed_user.id})
     rel = rel.joins('LEFT JOIN package_kinds ON package_kinds.db_package_id = package_issues.db_package_id')
-    ids = rel.where('package_kinds.kind="patchinfo"').pluck("distinct package_issues.db_package_id")
+    ids = rel.where('package_kinds.kind="patchinfo"').pluck('distinct package_issues.db_package_id')
 
     Package.where(id: ids).each do |p|
       hash = {:package => {:project => p.project.name, :name => p.name}}
@@ -78,11 +78,11 @@ class Webui::HomeController < Webui::WebuiController
     login = @displayed_user.login
 
     # Reviews
-    @open_reviews = BsRequestCollection.new(user: login, roles: ['reviewer'], reviewstates: ['new'], states: ['review']).relation
+    @open_reviews = BsRequestCollection.new(user: login, roles: %w(reviewer), reviewstates: %w(new), states: %w(review)).relation
     @reviews_in = []
     @reviews_out = []
     @open_reviews.each do |review|
-      if review["creator"] == @displayed_user.login
+      if review['creator'] == @displayed_user.login
         @reviews_out << review
       else
         @reviews_in << review
@@ -90,13 +90,13 @@ class Webui::HomeController < Webui::WebuiController
     end
 
     # Other requests
-    @declined_requests = BsRequestCollection.new(user: login, states: ['declined'], roles: ['creator']).relation
+    @declined_requests = BsRequestCollection.new(user: login, states: %w(declined), roles: %w(creator)).relation
 
-    @open_requests = BsRequestCollection.new(user: login, states: ['new'], roles: ['maintainer']).relation
+    @open_requests = BsRequestCollection.new(user: login, states: %w(new), roles: %w(maintainer creator)).relation
     @requests_in = []
     @requests_out = []
     @open_requests.each do |request|
-      if request["creator"] == @displayed_user.login
+      if request['creator'] == @displayed_user.login
         @requests_out << request
       else
         @requests_in << request
@@ -117,10 +117,10 @@ class Webui::HomeController < Webui::WebuiController
       format.html
       format.json do
         rawdata = Hash.new
-        rawdata["review"] = @open_reviews
-        rawdata["new"] = @open_requests
-        rawdata["declined"] = @declined_requests
-        rawdata["patchinfos"] = @open_patchinfos
+        rawdata['review'] = @open_reviews
+        rawdata['new'] = @open_requests
+        rawdata['declined'] = @declined_requests
+        rawdata['patchinfos'] = @open_patchinfos
         render :text => JSON.pretty_generate(rawdata)
       end
     end
@@ -141,7 +141,7 @@ class Webui::HomeController < Webui::WebuiController
       end
     end
     if @displayed_user.is_nobody?
-      flash[:error] = "Please log in"
+      flash[:error] = 'Please log in'
       redirect_to :controller => :user, :action => :login
     end
     logger.debug "Displayed user is #{@displayed_user}"

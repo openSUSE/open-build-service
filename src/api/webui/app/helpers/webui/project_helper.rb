@@ -4,7 +4,11 @@ module ProjectHelper
   include WebuiHelper
 
   protected
-  
+
+  def escape_project_list(arr)
+    arr.map { |p| "['#{p[0]}','#{escape_javascript(p[1])}']" }.join(",\n").html_safe
+  end
+
   def show_status_comment( comment, package, firstfail, comments_to_clear )
     status_comment_html = ''.html_safe
     if comment

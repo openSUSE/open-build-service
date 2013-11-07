@@ -67,6 +67,8 @@ class Webui::OwnerSearchTest < Webui::IntegrationTest
   end
 
   test "owner_search_with_devel" do
+    use_js
+
     # set devel package (this one has another devel package in home:coolo:test)
     pkg = Package.find_by_project_and_name 'home:Iggy', 'TestPack'
     pkg.develpackage = Package.find_by_project_and_name 'kde4', 'kdelibs'

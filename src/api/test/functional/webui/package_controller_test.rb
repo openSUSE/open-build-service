@@ -15,8 +15,8 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   end
 
   test 'show package binary as user' do
-    login_user('fred', 'geröllheimer')
-    visit(webui_engine.package_binaries_path(package: 'TestPack', project: 'home:Iggy', repository: '10.2'))
+    login_user('fred', 'geröllheimer', to:
+        webui_engine.package_binaries_path(package: 'TestPack', project: 'home:Iggy', repository: '10.2'))
 
     find(:link, 'Show').click
     page.must_have_text 'Maximal used disk space: 1005 Mbyte'
@@ -25,18 +25,23 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   end
 
   test 'delete package as user' do
+    use_js
+
     login_user('fred', 'geröllheimer')
     delete_and_recreate_kdelibs
   end
 
   test 'delete package as admin' do
+    use_js
+
     login_king
     delete_and_recreate_kdelibs
   end
 
   test 'Iggy adds himself as reviewer' do
-    login_Iggy
-    visit webui_engine.package_users_path(package: 'TestPack', project: 'home:Iggy')
+    use_js
+
+    login_Iggy to: webui_engine.package_users_path(package: 'TestPack', project: 'home:Iggy')
     check('user_reviewer_Iggy')
     # wait for it to be clickable again before switching pages
     page.wont_have_xpath('.//input[@id="user_reviewer_Iggy"][@disabled="disabled"]')
@@ -46,8 +51,9 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   end
 
   test 'Iggy removes himself as bugowner' do
-    login_Iggy
-    visit webui_engine.package_meta_path(package: 'TestPack', project: 'home:Iggy')
+    use_js
+
+    login_Iggy to: webui_engine.package_meta_path(package: 'TestPack', project: 'home:Iggy')
     page.must_have_text '<person userid="Iggy" role="bugowner"/>'
     within '#package_tabs' do
       click_link('Users')
@@ -68,13 +74,15 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   end
 
   test 'succesful comment creation' do
+    use_js
     login_Iggy
     visit webui_engine.root_path + '/package/show/home:Iggy/TestPack'
     fill_comment
   end
 
   test 'another succesful comment creation' do
-    login_Iggy
+    use_js
+    login_Iggy 
     visit webui_engine.root_path + '/package/show?project=home:Iggy&package=TestPack'
     fill_comment
   end
@@ -87,8 +95,10 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
 # end
 
   test 'succesful reply comment creation' do
-    login_Iggy
+    use_js
+    login_Iggy 
     visit webui_engine.root_path + '/package/show/BaseDistro3/pack2'
+
     find(:id, 'reply_link_id_201').click
     fill_in 'reply_body_201', with: 'Comment Body'
     find(:id, 'add_reply_201').click
@@ -96,25 +106,26 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   end
 
   test 'diff is empty' do
-    visit webui_engine.root_path + '/package/rdiff/BaseDistro2.0/pack2.linked?opackage=pack2&oproject=BaseDistro2.0'
+    visit '/package/rdiff/BaseDistro2.0/pack2.linked?opackage=pack2&oproject=BaseDistro2.0'
     find('#content').must_have_text 'No source changes!'
   end
 
-  test 'revision is mepty' do
-    visit webui_engine.root_path + '/package/rdiff/BaseDistro2.0/pack2.linked?opackage=pack2&oproject=BaseDistro2.0&rev='
+  test 'revision is empty' do
+    visit '/package/rdiff/BaseDistro2.0/pack2.linked?opackage=pack2&oproject=BaseDistro2.0&rev='
     flash_message_type.must_equal :alert
     flash_message.must_equal 'Error getting diff: revision is empty'
   end
 
-  test "group can modify" do
-    login_adrian
+  test 'group can modify' do
+    use_js
+
     # verify we do not test ghosts
-    visit webui_engine.package_users_path(package: 'TestPack', project: 'home:Iggy')
+    login_adrian to: webui_engine.package_users_path(package: 'TestPack', project: 'home:Iggy')
+
     page.wont_have_link 'Add group'
     logout
 
-    login_Iggy
-    visit webui_engine.package_users_path(package: 'TestPack', project: 'home:Iggy')
+    login_Iggy to: webui_engine.package_users_path(package: 'TestPack', project: 'home:Iggy')
     click_link 'Add group'
     page.must_have_text 'Add New Group to TestPack'
     fill_in 'groupid', with: 'test_group'
@@ -126,14 +137,14 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     logout
 
     # now test adrian can modify it for real
-    login_adrian
-    visit webui_engine.package_users_path(package: 'TestPack', project: 'home:Iggy')
+    login_adrian to: webui_engine.package_users_path(package: 'TestPack', project: 'home:Iggy')
     page.must_have_link 'Add group'
   end
 
-  test "derived packages" do
-    login_adrian
-    visit webui_engine.package_show_path(package: 'pack2', project: 'BaseDistro')
+  test 'derived packages' do
+    use_js
+
+    login_adrian to: webui_engine.package_show_path(package: 'pack2', project: 'BaseDistro')
     page.must_have_text '1 derived packages'
     click_link 'derived packages'
 
@@ -141,7 +152,9 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_link 'BaseDistro:Update'
   end
 
-  test "download logfile" do
+  test 'download logfile' do
+    use_js
+
     visit webui_engine.package_show_path(package: 'TestPack', project: 'home:Iggy')
     # test reload and wait for the build to finish
     starttime=Time.now

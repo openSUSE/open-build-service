@@ -230,7 +230,7 @@ class Project < ActiveRecord::Base
     end
 
     def find_by_attribute_type( attrib_type )
-      return Project.joins(:attribs).where(:attribs => { :attrib_type_id => attrib_type.id })
+      Project.joins(:attribs).where(:attribs => { :attrib_type_id => attrib_type.id })
     end
 
     def find_remote_project(name, skip_access=false)

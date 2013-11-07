@@ -11,7 +11,8 @@ class ProjectController < WebuiController
 
   before_filter :require_project, :except => [:autocomplete_projects, :autocomplete_incidents,
                                               :clear_failed_comment, :edit_comment_form, :index,
-                                              :list, :list_all, :list_public, :new, :package_buildresult,
+                                              :list, :list_all, :list_simple,
+                                              :list_public, :new, :package_buildresult,
                                               :save_new, :save_prjconf,
                                               :rebuild_time_png, :new_incident]
   before_filter :load_project_info, :only => [:show]
@@ -52,7 +53,7 @@ class ProjectController < WebuiController
     ret
   end
 
-  def list
+  def set_list_vars
     @main_projects = []
     @excl_projects = []
     if params['excludefilter'] and params['excludefilter'] != 'undefined'
@@ -67,6 +68,10 @@ class ProjectController < WebuiController
         @main_projects << [name, title]
       end
     end
+  end
+
+  def list
+    set_list_vars
     # excl and main are sorted by datatable, but important need to be in order
     @important_projects.sort! {|a,b| a[0] <=> b[0] }
     if @spider_bot
@@ -74,6 +79,10 @@ class ProjectController < WebuiController
     else
       render :list, status: params[:nextstatus]
     end
+  end
+
+  def list_simple
+    set_list_vars
   end
 
   def autocomplete_projects

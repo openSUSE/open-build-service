@@ -27,7 +27,17 @@ require 'headless'
 
 require 'capybara/rails'
 ## this is the build service! 2 seconds - HAHAHA
-Capybara.default_wait_time = 10
+Capybara.default_wait_time = 30
+
+Capybara.register_driver :poltergeist do |app|
+  Capybara::Poltergeist::Driver.new(app, debug: false, timeout: 30)
+end
+
+Capybara.register_driver :rack_test do |app|
+  Capybara::RackTest::Driver.new(app, headers: { 'HTTP_ACCEPT' => 'text/html' })
+end
+
+Capybara.javascript_driver = :poltergeist
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
@@ -130,47 +140,44 @@ module Webui
       puts "Test API up and running with pid: #{@@frontend.pid}"
       at_exit do
         puts "Killing test API with pid: #{@@frontend.pid}"
-        Process.kill "INT", @@frontend.pid
+        Process.kill 'INT', @@frontend.pid
         Process.wait
         @@frontend = nil
       end
     end
 
-    def login_user(user, password, do_assert = true)
+    def login_user(user, password, opts = {})
       # no idea why calling it twice would help
       WebMock.disable_net_connect!(allow_localhost: true)
-      visit webui_engine.root_path
-      click_link 'login-trigger'
-      within('#login-form') do
-        fill_in 'Username', with: user
-        fill_in 'Password', with: password
-        click_button 'Log In'
-      end
+      visit webui_engine.user_login_path(return_to_path: opts[:to])
+      fill_in 'Username', with: user
+      fill_in 'Password', with: password
+      click_button 'Log In'
       @current_user = user
-      if do_assert
-        find('#flash-messages').must_have_content("You are logged in now")
+      if opts[:do_assert] != false
+        find('#link-to-user-home').text.must_match %r{^#{user}( |$)}
       end
     end
 
     # will provide a user without special permissions
-    def login_tom
-      login_user('tom', 'thunder')
+    def login_tom(opts = {})
+      login_user('tom', 'thunder', opts)
     end
 
-    def login_Iggy
-      login_user('Iggy', 'asdfasdf')
+    def login_Iggy(opts = {})
+      login_user('Iggy', 'asdfasdf', opts)
     end
 
-    def login_adrian
-      login_user('adrian', 'so_alone')
+    def login_adrian(opts = {})
+      login_user('adrian', 'so_alone', opts)
     end
 
-    def login_king
-      login_user("king", "sunflower", false)
+    def login_king(opts = {})
+      login_user('king', 'sunflower', opts.merge(do_assert: false))
     end
 
-    def login_fred
-      login_user("fred", "geröllheimer")
+    def login_fred(opts = {})
+      login_user('fred', 'geröllheimer', opts)
     end
 
     def logout
@@ -195,8 +202,8 @@ module Webui
       end
       Capybara.current_driver = :rack_test
       self.class.start_test_api
-      ActiveXML::api.http_do :post, "/test/test_start"
-      Capybara.current_driver = :poltergeist
+      ActiveXML::api.http_do :post, '/test/test_start'
+      #Capybara.current_driver = Capybara.javascript_driver
       @starttime = Time.now
       WebMock.disable_net_connect!(allow_localhost: true)
       #max=::BsRequest.maximum(:id)
@@ -204,9 +211,13 @@ module Webui
       CONFIG['global_write_through'] = true
     end
 
+    def use_js
+      Capybara.current_driver = Capybara.javascript_driver
+    end
+
     teardown do
-      dirpath = Rails.root.join("tmp", "capybara")
-      htmlpath = dirpath.join(self.__name__ + ".html")
+      dirpath = Rails.root.join('tmp', 'capybara')
+      htmlpath = dirpath.join(self.__name__ + '.html')
       if !passed?
         Dir.mkdir(dirpath) unless Dir.exists? dirpath
         save_page(htmlpath)
@@ -247,11 +258,11 @@ module Webui
     # @return [String]
     #
     def flash_message
-      results = all(:css, "div#flash-messages p")
+      results = all(:css, 'div#flash-messages p')
       if results.empty?
-        return "none"
+        return 'none'
       end
-      raise "One flash expected, but we had more." if results.count != 1
+      raise 'One flash expected, but we had more.' if results.count != 1
       return results.first.text
     end
 
@@ -261,7 +272,7 @@ module Webui
     # @return [array]
     #
     def flash_messages
-      results = all(:css, "div#flash-messages p")
+      results = all(:css, 'div#flash-messages p')
       ret = []
       results.each { |r| ret << r.text }
       return ret
@@ -273,10 +284,10 @@ module Webui
     # @return [:info, :alert]
     #
     def flash_message_type
-      result = first(:css, "div#flash-messages span")
+      result = first(:css, 'div#flash-messages span')
       return nil unless result
-      return :info if result["class"].include? "info"
-      return :alert if result["class"].include? "alert"
+      return :info if result['class'].include? 'info'
+      return :alert if result['class'].include? 'alert'
     end
 
     # helper function for teardown
@@ -284,7 +295,7 @@ module Webui
       visit webui_engine.package_show_path(package: package, project: project)
       find(:id, 'delete-package').click
       find(:id, 'del_dialog').must_have_text 'Delete Confirmation'
-      find_button("Ok").click
+      find_button('Ok').click
       find('#flash-messages').must_have_text "Package '#{package}' was removed successfully"
     end
 

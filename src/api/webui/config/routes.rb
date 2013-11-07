@@ -133,6 +133,7 @@ Webui::Engine.routes.draw do
       get 'project/list_public' => :list_public
       get 'project/list_all' => :list_all
       get 'project/list' => :list
+      get 'project/list_simple' => :list_simple
       get 'project/autocomplete_projects' => :autocomplete_projects
       get 'project/autocomplete_incidents' => :autocomplete_incidents
       get 'project/autocomplete_packages' => :autocomplete_packages

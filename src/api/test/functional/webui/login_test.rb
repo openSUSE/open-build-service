@@ -81,20 +81,25 @@ class Webui::LoginTest < Webui::IntegrationTest
   end
 
   test "change_real_name_for_user" do
+    use_js
+
     login_Iggy
     open_home
     change_user_real_name Faker::Name.name
   end
   
   test "remove_user_real_name" do
+    use_js
+
     login_Iggy
     open_home
     change_user_real_name ""
   end
   
   test "real_name_stays_changed" do
+    use_js
+
     login_Iggy
-    
     open_home
     new_name = "New imaginary name " + Time.now.to_i.to_s
     change_user_real_name new_name

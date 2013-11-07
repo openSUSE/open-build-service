@@ -74,6 +74,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
     return if url.end_with? '/project/show/HiddenRemoteInstance'
     return if url.end_with? '/project/edit/HiddenRemoteInstance'
     return if url.end_with? '/home?user=unknown'
+    return if url =~ %r{/source/}
 
     $stderr.puts "Found #{message} on #{url}, crawling path"
     indent = ' '
@@ -93,7 +94,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
       @pages_to_visit.delete theone
 
       begin
-        puts "V #{theone} #{@pages_to_visit.length}/#{@pages_visited.keys.length+@pages_to_visit.length}"
+       # puts "V #{theone} #{@pages_to_visit.length}/#{@pages_visited.keys.length+@pages_to_visit.length}"
         page.visit(theone)
         if page.status_code != 200
           raiseit("Status code #{page.status_code}", theone)
@@ -143,24 +144,25 @@ class Webui::SpiderTest < Webui::IntegrationTest
   end
 
   test 'spider anonymously' do
-    return unless ENV['RUN_SPIDER']
     visit webui_engine.root_path
     @pages_to_visit = {page.current_url => [nil, nil]}
     @pages_visited = Hash.new
 
     crawl
     ActiveRecord::Base.clear_active_connections!
+    
+    @pages_visited.keys.length.must_be :>, 700
   end
 
   test 'spider as admin' do
-    return unless ENV['RUN_SPIDER']
-    login_king
-    visit webui_engine.root_path
+    login_king to: webui_engine.root_path
     @pages_to_visit = {page.current_url => [nil, nil]}
     @pages_visited = Hash.new
 
     crawl
     ActiveRecord::Base.clear_active_connections!
+
+    @pages_visited.keys.length.must_be :>, 1300
   end
 
 end

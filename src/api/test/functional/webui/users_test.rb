@@ -8,11 +8,11 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     assert !options[:name].blank?
 
     row = find(:css, "tr#user-#{options[:name]}")
-    cell = row.all(:css, "td")
+    cell = row.all(:css, 'td')
 
     def edit_role cell, new_value
       unless new_value.nil?
-        input = cell.first(:css, "input")
+        input = cell.first(:css, 'input')
         input.click unless input.selected? == new_value
       end
     end
@@ -31,8 +31,8 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     find(:id, 'add-user').click
     
     page.must_have_text %r{Add New User to}
-    page.must_have_field "userid"
-    page.must_have_selector "select#role"
+    page.must_have_field 'userid'
+    page.must_have_selector 'select#role'
 
     curl = page.current_url
     options[:expect] ||= :success
@@ -67,28 +67,29 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     flash_message.must_equal "Removed user #{user}"
   end
 
-  test "add and edit package people" do
+  test 'add and edit package people' do
+    use_js
 
-    login_user("fred", "geröllheimer")
     @project = 'kde4'
     @package = 'kdelibs'
     @userspath = webui_engine.package_users_path(project: @project, package: @package)
-    visit @userspath
 
-    add_user "user2", "maintainer"
-    add_user "user3", "bugowner"
-    add_user "user4", "reviewer"
-    add_user "user5", "downloader"
-    add_user "user6", "reader"
-    add_user "user6", "reviewer"
-    add_user "user6", "downloader"
+    login_user 'fred', 'geröllheimer', to: @userspath
 
-    add_user "sadasxsacxsacsa", "reader", :expect => :unknown_user
-    add_user "", "maintainer", :expect => :unknown_user
-    add_user '~@$@#%#%@$0-=<m,.,\/\/12`;.{{}}{}', "maintainer", :expect => :unknown_user
+    add_user 'user2', 'maintainer'
+    add_user 'user3', 'bugowner'
+    add_user 'user4', 'reviewer'
+    add_user 'user5', 'downloader'
+    add_user 'user6', 'reader'
+    add_user 'user6', 'reviewer'
+    add_user 'user6', 'downloader'
+
+    add_user 'sadasxsacxsacsa', 'reader', :expect => :unknown_user
+    add_user '', 'maintainer', :expect => :unknown_user
+    add_user '~@$@#%#%@$0-=<m,.,\/\/12`;.{{}}{}', 'maintainer', :expect => :unknown_user
     
     # add_package_role_to_username_with_question_sign do
-    add_user 'still-buggy?', "maintainer", :expect => :unknown_user
+    add_user 'still-buggy?', 'maintainer', :expect => :unknown_user
     
     edit_user :name => :user3,
     :reviewer   => true,
@@ -113,30 +114,30 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     :reader     => true
 
     delete_user :user4
-    page.wont_have_selector "table#user_table tr#user-user4"
+    page.wont_have_selector 'table#user_table tr#user-user4'
     
   end
 
-  test "add and edit project users" do
+  test 'add and edit project users' do
 
-    login_user("fred", "geröllheimer")
     @project = 'kde4'
     @userspath = webui_engine.project_users_path(project: @project)
-    visit @userspath
 
-    add_user "user2", "maintainer"
-    add_user "user3", "bugowner"
-    add_user "user4", "reviewer"
-    add_user "user5", "downloader"
-    add_user "user6", "reader"
+    login_user 'fred', 'geröllheimer', to: @userspath
 
-    add_user "user6", "reviewer"
-    add_user "user6", "downloader"
+    add_user 'user2', 'maintainer'
+    add_user 'user3', 'bugowner'
+    add_user 'user4', 'reviewer'
+    add_user 'user5', 'downloader'
+    add_user 'user6', 'reader'
 
-    add_user "sadasxsacxsacsa", "reader", :expect => :unknown_user
-    add_user "", "maintainer", :expect => :unknown_user
-    add_user '~@$@#%#%@$0-=<m,.,\/\/12`;.{{}}{}', "maintainer", :expect => :unknown_user
-    add_user 'still-buggy?', "maintainer", :expect => :unknown_user
+    add_user 'user6', 'reviewer'
+    add_user 'user6', 'downloader'
+
+    add_user 'sadasxsacxsacsa', 'reader', :expect => :unknown_user
+    add_user '', 'maintainer', :expect => :unknown_user
+    add_user '~@$@#%#%@$0-=<m,.,\/\/12`;.{{}}{}', 'maintainer', :expect => :unknown_user
+    add_user 'still-buggy?', 'maintainer', :expect => :unknown_user
 
     edit_user :name => :user3,
       :reviewer   => true,

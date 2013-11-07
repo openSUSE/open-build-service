@@ -7,21 +7,21 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
     click_link 'Branch existing package'
 
     page.must_have_text "Add New Package Branch to #{@project}"
-    page.must_have_text "Name of original project:"
-    page.must_have_text "Name of package in original project:"
-    page.must_have_text "RemoteInstance"
+    page.must_have_text 'Name of original project:'
+    page.must_have_text 'Name of package in original project:'
+    page.must_have_text 'RemoteInstance'
     assert page.current_url =~ %r{/project/new_package_branch}
 
     new_branch[:expect]           ||= :success
-    new_branch[:name]             ||= ""
-    new_branch[:original_name]    ||= ""
-    new_branch[:original_project] ||= ""
+    new_branch[:name]             ||= ''
+    new_branch[:original_name]    ||= ''
+    new_branch[:original_project] ||= ''
 
-    fill_in "linked_project", with: new_branch[:original_project]
-    fill_in "linked_package", with: new_branch[:original_name]
-    fill_in "target_package", with: new_branch[:name]
+    fill_in 'linked_project', with: new_branch[:original_project]
+    fill_in 'linked_package', with: new_branch[:original_name]
+    fill_in 'target_package', with: new_branch[:name]
 
-    click_button "Create Branch"
+    click_button 'Create Branch'
 
     if new_branch[:expect] == :success
       flash_message.must_equal "Branched package #{@project} / #{new_branch[:name]}"
@@ -37,114 +37,106 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       flash_message.must_equal "Package '#{new_branch[:name]}' already exists in project '#{@project}'"
       flash_message_type.must_equal :alert
     else
-      throw "Invalid value for argument <expect>."
+      throw 'Invalid value for argument <expect>.'
     end
   end
 
   def setup
-    @project = "home:Iggy"
+    @project = 'home:Iggy'
     super
   end
 
-  test "branch_package_for_home_project" do
+  test 'branch_package_for_home_project' do
 
-    login_Iggy
-    visit webui_engine.project_show_path(:project => @project)
+    login_Iggy to: webui_engine.project_show_path(:project => @project)
 
     create_package_branch(
-      :name => "TestPack_link",
-      :original_name => "TestPack",
-      :original_project => "home:Iggy")
+      :name => 'TestPack_link',
+      :original_name => 'TestPack',
+      :original_project => 'home:Iggy')
   end
     
-  test "branch_package_for_global_project" do
+  test 'branch_package_for_global_project' do
 
-    login_Iggy
-    visit webui_engine.project_show_path(:project => @project)
+    login_Iggy to: webui_engine.project_show_path(:project => @project)
 
     create_package_branch(
-      :name => "PublicPackage1",
-      :original_name => "kdelibs",
-      :original_project => "kde4")
+      :name => 'PublicPackage1',
+      :original_name => 'kdelibs',
+      :original_project => 'kde4')
   end
     
   
-  test "branch_package_twice_duplicate_name" do
+  test 'branch_package_twice_duplicate_name' do
 
-    login_Iggy
-    visit webui_engine.project_show_path(:project => @project)
+    login_Iggy to: webui_engine.project_show_path(:project => @project)
 
     create_package_branch(
       :expect => :already_exists,
-      :name => "TestPack",
-      :original_name => "TestPack",
-      :original_project => "home:Iggy")
+      :name => 'TestPack',
+      :original_name => 'TestPack',
+      :original_project => 'home:Iggy')
   end
   
     
-  test "branch_package_twice" do
+  test 'branch_package_twice' do
 
-    login_Iggy
-    visit webui_engine.project_show_path(:project => @project)
+    login_Iggy to: webui_engine.project_show_path(:project => @project)
 
     create_package_branch(
-      :name => "TestPack2",
-      :original_name => "kdelibs",
-      :original_project => "kde4")
+      :name => 'TestPack2',
+      :original_name => 'kdelibs',
+      :original_project => 'kde4')
     visit webui_engine.project_show_path(:project => @project)
     create_package_branch(
-      :name => "TestPack3",
-      :original_name => "kdelibs",
-      :original_project => "kde4")
+      :name => 'TestPack3',
+      :original_name => 'kdelibs',
+      :original_project => 'kde4')
   end
 
 
-  test "branch_empty_package_name" do
+  test 'branch_empty_package_name' do
 
-    login_Iggy
-    visit webui_engine.project_show_path(:project => @project)
+    login_Iggy to: webui_engine.project_show_path(:project => @project)
 
     create_package_branch(
-      :name => "",
-      :original_name => "",
-      :original_project => "home:Iggy",
+      :name => '',
+      :original_name => '',
+      :original_project => 'home:Iggy',
       :expect => :invalid_package_name)
   end
   
-  test "branch_empty_project_name" do
+  test 'branch_empty_project_name' do
 
-    login_Iggy
-    visit webui_engine.project_show_path(:project => @project)
+    login_Iggy to: webui_engine.project_show_path(:project => @project)
 
     create_package_branch(
-      :name => "TestPack",
-      :original_name => "TestPack",
-      :original_project => "",
+      :name => 'TestPack',
+      :original_name => 'TestPack',
+      :original_project => '',
       :expect => :invalid_project_name)
   end
 
-  test "branch_package_name_with_spaces" do
+  test 'branch_package_name_with_spaces' do
 
-    login_Iggy
-    visit webui_engine.project_show_path(:project => @project)
+    login_Iggy to: webui_engine.project_show_path(:project => @project)
 
     create_package_branch(
-      :name => "BranchedPackage",
-      :original_name => "invalid package name",
-      :original_project => "home:Iggy",
+      :name => 'BranchedPackage',
+      :original_name => 'invalid package name',
+      :original_project => 'home:Iggy',
       :expect => :invalid_package_name)
   end
 
 
-  test "branch_project_name_with_spaces" do
+  test 'branch_project_name_with_spaces' do
   
-    login_Iggy
-    visit webui_engine.project_show_path(:project => @project)
+    login_Iggy to: webui_engine.project_show_path(:project => @project)
 
     create_package_branch(
-      :name => "BranchedPackage",
-      :original_name => "SomePackage",
-      :original_project => "invalid project name",
+      :name => 'BranchedPackage',
+      :original_name => 'SomePackage',
+      :original_project => 'invalid project name',
       :expect => :invalid_project_name)
   end
   

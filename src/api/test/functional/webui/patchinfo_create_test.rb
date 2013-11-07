@@ -13,6 +13,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
               "important",
               "critical"].sort
   setup do
+    use_js
     @project = 'home:Iggy' 
   end
 
