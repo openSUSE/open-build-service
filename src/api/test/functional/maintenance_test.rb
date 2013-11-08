@@ -488,6 +488,60 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'releasetarget', :attributes => { :project=> 'BaseDistro3Channel', :repository=> 'channel_repo', :trigger=> 'maintenance'},
                    :parent => { :tag => 'repository', :attributes => {:name=> 'BaseDistro3Channel'} }
 
+    # create release request
+    post '/request?cmd=create&ignore_build_state=1', '<request>
+                                   <action type="maintenance_release">
+                                     <source project="'+incidentProject+'" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    # no submit action
+    assert_no_xml_tag :tag => 'action', :attributes => { :type=> 'submit' }
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:id)
+    reqid = node.value(:id)
+    # revoke try new request
+    post "/request/#{reqid}?cmd=changestate&newstate=revoked"
+    assert_response :success
+
+    # and check what happens after modifing _channel file
+    put '/source/My:Maintenance:0/BaseDistro3.Channel/_channel', '<?xml version="1.0" encoding="UTF-8"?>
+        <channel>
+          <target project="BaseDistro3Channel" repository="channel_repo" />
+          <binaries project="BaseDistro3" repository="BaseDistro3_repo" arch="i586">
+            <binary name="package" package="pack2" project="BaseDistro3" />
+          </binaries>
+        </channel>'
+    assert_response :success
+
+    post '/request?cmd=create&ignore_build_state=1', '<request>
+                                   <action type="maintenance_release">
+                                     <source project="'+incidentProject+'" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:id)
+    reqid = node.value(:id)
+    # submit action
+    assert_xml_tag :tag => 'target', :attributes => { :project=> 'Channel', :package => 'BaseDistro3'},
+                   :parent => { :tag => 'action', :attributes => {:type => 'submit'} }
+    # matching release action for it
+    assert_xml_tag :tag => 'target', :attributes => { :project=> 'BaseDistro3Channel', :package => 'BaseDistro3.0'},
+                   :parent => { :tag => 'action', :attributes => {:type => 'maintenance_release'} }
+    assert_xml_tag :tag => 'target', :attributes => { :project=> 'Channel', :package => 'patchinfo.0'},
+                   :parent => { :tag => 'action', :attributes => {:type => 'maintenance_release'} }
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:id)
+    reqid = node.value(:id)
+
+    #FIXME: add test case for accepting the request
+    # revoke try new request
+    post "/request/#{reqid}?cmd=changestate&newstate=revoked"
+    assert_response :success
+
     #cleanup
     login_king
     delete '/source/BaseDistro3Channel'

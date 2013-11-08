@@ -738,36 +738,61 @@ class BsRequestAction < ActiveRecord::Base
           end
         end
       end
-      # is this package source going to a project which is specified as release target ?
-      if self.is_maintenance_release?
-        found = nil
-        pkg.project.repositories.includes(:release_targets).each do |repo|
-          repo.release_targets.each do |rt|
-            if rt.target_repository.project.name == tprj
-              found = 1
-            end
-          end
-        end
-        unless found
-          raise WrongLinkedPackageSource.new "According to the source link of package #{pkg.project.name}/#{pkg.name} it would go to project #{tprj} which is not specified as release target."
-        end
-      end
 
       newAction = self.dup
       newAction.source_package = pkg.name
       if self.is_maintenance_incident?
         newTargets << tprj
         newAction.target_releaseproject = releaseproject.name if releaseproject
-      elsif self.is_maintenance_release? and pkg.is_of_kind? 'channel'
-        newAction.action_type = :submit
-        newAction.target_project = tprj
-        newAction.target_package = tpkg
       else
         newTargets << tprj
         newAction.target_project = tprj
         newAction.target_package = tpkg + incident_suffix
       end
       newAction.source_rev = rev if rev
+      if self.is_maintenance_release? 
+        if pkg.is_of_kind? 'channel'
+          pkg.channels.each do |channel|
+            # no action if channel has no targets defined, the single release action
+            # will move binaries and sources to the right place in that case
+            next if channel.channel_targets.count == 0
+
+            # add channel targets from _channel file if defined there
+            channel.channel_targets.each do |target|
+              releaseAction = newAction.dup
+              releaseAction.target_project = target.repository.project.name
+              releaseAction.target_package = tpkg + incident_suffix
+              newactions << releaseAction
+            end
+
+            # create submit request for possible changes in the _channel file
+            submitAction = BsRequestActionSubmit.new
+            submitAction.source_project = newAction.source_project
+            submitAction.source_package = newAction.source_package
+            submitAction.source_rev     = newAction.source_rev
+            submitAction.target_project = tprj
+            submitAction.target_package = tpkg
+            # replace the new action
+            newAction.destroy
+            newAction = submitAction
+          end
+        else # non-channel package
+          # is this package source going to a project which is specified as release target ?
+          found = nil
+          pkg.project.repositories.includes(:release_targets).each do |repo|
+            repo.release_targets.each do |rt|
+              if rt.target_repository.project.name == tprj
+                found = 1
+              end
+            end
+          end
+          unless found
+           raise WrongLinkedPackageSource.new "According to the source link of package #{pkg.project.name}/#{pkg.name} it would go to project #{tprj} which is not specified as release target."
+          end
+        end
+      end
+      # no action, nothing to do
+      next unless newAction
       # check if the source contains really a diff or we can skip the entire action
       if newAction.action_type == :submit and newAction.sourcediff.blank?
         # submit contains no diff, drop it again
