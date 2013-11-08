@@ -5212,6 +5212,7 @@ sub checkchannel {
   # now create filter
   my %arepos;
   my %filter;
+  my %packagefilter;
   for my $binaries (@{$channel->{'binaries'} || []}) {
     my $defprojid = $binaries->{'project'};
     my $defrepoid = $binaries->{'repository'};
@@ -5229,6 +5230,9 @@ sub checkchannel {
         $arepos{$arepoid} = 1;
         push @{$filter{"$arepoid/$binary->{'name'}"}}, $binary;
       }
+      if ($binary->{'package'}) {
+	push @{$packagefilter{"$arepoid/$binary->{'package'}"}}, $binary;
+      }
     }
   }
   #print Dumper(\%filter);
@@ -5240,6 +5244,7 @@ sub checkchannel {
   # go through the repos and check the binaries
   my @new_meta = ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
   my @blocked;
+  my @broken;
   my %collected;
   my @channelbins;
   for my $arepoid (sort keys %arepos) {
@@ -5262,7 +5267,31 @@ sub checkchannel {
       my $bininfo = $gbininfo->{$apackid} || {};
       my @sbins;
       my %usedsrc;
+
+      # this messy code tries to guess the "final" package name for
+      # maintenance incidents.
       my $lapackid;	#linked package id
+      my $linked = ($pdatas->{$apackid} || {})->{'linked'};
+      if (!@{$linked || []}) {
+	$lapackid = $apackid;
+      } elsif ($linked->[0]->{'project'} ne $projid) {
+	$lapackid = $linked->[0]->{'package'};
+      } else {
+	# what a mess! but bug compatible to api...
+	my ($pin, $pout);
+	for (@$linked) {
+	  $pout = $_->{'package'};
+	  last if $_->{'project'} ne $projid;
+	  $pin = $pout;
+	}
+	$lapackid = $apackid;
+	if ($pout =~ s/^\Q$pin\E//) {
+	  $lapackid =~ s/\Q$pout\E$//;
+	}
+      }
+
+      my @pf = @{$packagefilter{"$arepoid/$apackid"} || $packagefilter{"$arepoid/$lapackid"} || []};
+
       for my $filename (sort keys %$bininfo) {
 	my $bi = $bininfo->{$filename};
 	my $n = $bi->{'name'};
@@ -5271,30 +5300,13 @@ sub checkchannel {
 	  push @sbins, $bi unless $bininfo->{'.nosourceaccess'};
 	  next;
 	}
-	next if $collected{$bi->{'filename'}};
-	next unless $filter{"$arepoid/$n"};
-	# this messy code tries to guess the "final" package name for
-	# maintenance incidents.
-	if (!defined($lapackid)) {
-	  my $linked = ($pdatas->{$apackid} || {})->{'linked'};
-	  if (!@{$linked || []}) {
-	    $lapackid = $apackid;
-	  } elsif ($linked->[0]->{'project'} ne $projid) {
-	    $lapackid = $linked->[0]->{'package'};
-	  } else {
-	    # what a mess! but bug compatible to api...
-	    my ($pin, $pout);
-	    for (@$linked) {
-	      $pout = $_->{'package'};
-	      last if $_->{'project'} ne $projid;
-	      $pin = $pout;
-	    }
-	    $lapackid = $apackid;
-	    if ($pout =~ s/^\Q$pin\E//) {
-	      $lapackid =~ s/\Q$pout\E$//;
-	    }
+	if (@pf) {
+	  for my $f (splice @pf) {
+	    push @pf, $f if $f->{'name'} ne $n || ($f->{'binaryarch'} && $bi->{'arch'} ne $f->{'binaryarch'});
 	  }
 	}
+	next if $collected{$bi->{'filename'}};
+	next unless $filter{"$arepoid/$n"};
 	my $found;
 	for my $f (@{$filter{"$arepoid/$n"}}) {
           next if $f->{'package'} && $apackid ne $f->{'package'} && $lapackid ne $f->{'package'};
@@ -5303,7 +5315,7 @@ sub checkchannel {
 	  last;
 	}
 	next unless $found;
-	# oooh, this binary goes into the channel! check for blocked
+	# oooh, this binary goes into the channel!
 	$collected{$bi->{'filename'}} = 1;
 	$usedsrc{$bi->{'source'}} = 1;
 	my $m = Digest::MD5::md5_hex($bi->{'id'})."  $arepoid/$apackid/$n.$bi->{'arch'}";
@@ -5318,7 +5330,19 @@ sub checkchannel {
 	  push @channelbins, [ $arepoid, $apackid, $bi ];
 	}
       }
+      for my $f (@pf) {
+	if ($f->{'binaryarch'}) {
+	  push @broken, "$arepoid/$apackid/$f->{'name'}.$f->{'binaryarch'}";
+	} else {
+	  push @broken, "$arepoid/$apackid/$f->{'name'}";
+	}
+      }
     }
+  }
+  if (@broken) {
+    print "      - $packid (channel)\n";
+    print "        broken (@blocked)\n";
+    return ('broken', 'missing: '.join(', ', @broken));
   }
   if (@blocked) {
     print "      - $packid (channel)\n";
