@@ -665,19 +665,19 @@ class BsRequestAction < ActiveRecord::Base
       # find target via linkinfo or submit to all.
       # FIXME: this is currently handling local project links for packages with multiple spec files.
       #        This can be removed when we handle this as shadow packages in the backend.
-      tprj = pkg.project.name
+      tprj = pkg.project
       tpkg = ltpkg = pkg.name
       rev = self.source_rev
       data = nil
       missing_ok_link=false
       suffix = ''
-      while tprj == pkg.project.name
-        data = Directory.hashed(project: tprj, package: ltpkg)
+      while tprj == pkg.project
+        data = Directory.hashed(project: tprj.name, package: ltpkg)
         e = data['linkinfo']
         if e
           suffix = ltpkg.gsub(/^#{e['package']}/, '')
           ltpkg = e['package']
-          tprj = e['project']
+          tprj = Project.get_by_name(e['project'])
           missing_ok_link=true if e['missingok']
         else
           tprj = nil
@@ -724,7 +724,7 @@ class BsRequestAction < ActiveRecord::Base
       end
       # Will this be a new package ?
       unless missing_ok_link
-        unless e and Package.exists_by_project_and_name(tprj, tpkg, follow_project_links: true, allow_remote_packages: false)
+        unless e and tprj.exists_package?(tpkg, follow_project_links: true, allow_remote_packages: false)
           if self.is_maintenance_release?
             newPackages << pkg
             pkg.project.repositories.includes(:release_targets).each do |repo|
@@ -742,11 +742,11 @@ class BsRequestAction < ActiveRecord::Base
       newAction = self.dup
       newAction.source_package = pkg.name
       if self.is_maintenance_incident?
-        newTargets << tprj
+        newTargets << tprj.name if tprj
         newAction.target_releaseproject = releaseproject.name if releaseproject
       else
-        newTargets << tprj
-        newAction.target_project = tprj
+        newTargets << tprj.name
+        newAction.target_project = tprj.name
         newAction.target_package = tpkg + incident_suffix
       end
       newAction.source_rev = rev if rev
@@ -770,24 +770,15 @@ class BsRequestAction < ActiveRecord::Base
             submitAction.source_project = newAction.source_project
             submitAction.source_package = newAction.source_package
             submitAction.source_rev     = newAction.source_rev
-            submitAction.target_project = tprj
+            submitAction.target_project = tprj.name
             submitAction.target_package = tpkg
             # replace the new action
             newAction.destroy
             newAction = submitAction
           end
         else # non-channel package
-          # is this package source going to a project which is specified as release target ?
-          found = nil
-          pkg.project.repositories.includes(:release_targets).each do |repo|
-            repo.release_targets.each do |rt|
-              if rt.target_repository.project.name == tprj
-                found = 1
-              end
-            end
-          end
-          unless found
-           raise WrongLinkedPackageSource.new "According to the source link of package #{pkg.project.name}/#{pkg.name} it would go to project #{tprj} which is not specified as release target."
+          unless pkg.project.can_be_released_to_project?(tprj) 
+           raise WrongLinkedPackageSource.new "According to the source link of package #{pkg.project.name}/#{pkg.name} it would go to project #{tprj.name} which is not specified as release target."
           end
         end
       end

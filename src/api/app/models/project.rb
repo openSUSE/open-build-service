@@ -781,6 +781,32 @@ class Project < ActiveRecord::Base
     ret
   end
 
+  def can_be_released_to_project?(target_project)
+    # is this package source going to a project which is specified as release target ?
+    self.repositories.includes(:release_targets).each do |repo|
+      repo.release_targets.each do |rt|
+        return true if rt.target_repository.project == target_project
+      end
+    end
+    false
+  end
+
+  def exists_package?(name, opts={})
+    CacheLine.fetch([self, 'exists_package', name, opts], project: self.name, package: name) do
+      if opts[:follow_project_links]
+        pkg = self.find_package(name)
+      else
+        pkg = self.packages.find_by_name(name)
+      end
+      if pkg.nil?
+        # local project, but package may be in a linked remote one
+        opts[:allow_remote_packages] && Package.exists_on_backend?(name, self.name)
+      else # if we could fetch the project, the package is fine accesswise
+        true
+      end
+    end
+  end
+
   # find a package in a project and its linked projects
   def find_package(package_name, processed={})
     # cycle check in linked projects

@@ -25,7 +25,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       if !tprj
         raise NoMaintenanceReleaseTarget.new "Maintenance incident request contains no defined release target project for package #{pkg.name}"
       end
-      releaseproject = Project.get_by_name tprj
+      releaseproject = tprj
     end
     # Automatically switch to update project
     if a = releaseproject.find_attribute('OBS', 'UpdateProject') and a.values[0]

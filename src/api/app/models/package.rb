@@ -168,24 +168,12 @@ class Package < ActiveRecord::Base
         return false
       end
       unless prj.is_a? Project
-        return opts[:allow_remote_packages] && exist_package_on_backend?(package, project)
+        return opts[:allow_remote_packages] && self.exists_on_backend?(package, project)
       end
-      CacheLine.fetch([prj, 'exists_package', package, opts], project: project, package: package) do
-        if opts[:follow_project_links]
-          pkg = prj.find_package(package)
-        else
-          pkg = prj.packages.find_by_name(package)
-        end
-        if pkg.nil?
-          # local project, but package may be in a linked remote one
-          opts[:allow_remote_packages] && exist_package_on_backend?(package, project)
-        else # if we could fetch the project, the package is fine accesswise
-          true
-        end
-      end
+      prj.exists_package?(package, opts)
     end
 
-    def exist_package_on_backend?(package, project)
+    def exists_on_backend?(package, project)
       begin
         answer = Suse::Backend.get(Package.source_path(project, package))
         return true if answer
