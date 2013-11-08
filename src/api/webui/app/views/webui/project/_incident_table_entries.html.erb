@@ -5,14 +5,13 @@
         <tr>
           <% if index == 0 %>
               <td rowspan="<%= release_targets_ng.length %>">
-                <%= link_to(short_incident_name(@project, incident), action: 'show', project: incident.name) %>
-              </td>
-              <td rowspan="<%= release_targets_ng.length %>">
-                <% if rt[:patchinfo] && rt[:patchinfo].value('summary') && !rt[:patchinfo].value('summary').empty? %>
-                    <%= link_to(rt[:patchinfo].value('summary'), action: 'show', project: incident.name) %>
-                <% else %>
-                    <i><%= link_to(incident.title, action: 'show', project: incident.name) %></i>
-                <% end %>
+                <% title = incident.title || incident.name %>
+                <% if rt[:patchinfo] && rt[:patchinfo].value('summary').present?
+                     title = rt[:patchinfo].value('summary')
+                   end
+                   title = "#{short_incident_name(@project, incident)}: #{title}"
+                %>
+                <%= link_to(elide(title, 70, :right), { action: 'show', project: incident.name }, title: title) %>
               </td>
               <td rowspan="<%= release_targets_ng.length %>" class="nowrap">
                 <% rqs_in = BsRequestCollection.list_ids(roles: %w(target), states: %w(new review), project: incident.name) %>
@@ -24,7 +23,7 @@
                         <%= link_to(sprite_tag('exclamation', title: text), action: 'requests', project: incident.name) %>
                     <% end %>
                 <% end %>
-                <% rqs_out = BsRequestCollection.list_ids(roles: %w(source), states: %w(new review declined), types: %w(maintenance_release), project: incident.name)  %>
+                <% rqs_out = BsRequestCollection.list_ids(roles: %w(source), states: %w(new review declined), types: %w(maintenance_release), project: incident.name) %>
                 <% if rqs_out.present? %>
                     <% BsRequest.where(id: rqs_out).order('bs_requests.id').each do |rq_out| %>
                         <% text = "Release request in state '#{rq_out['state']}'" %>
@@ -46,18 +45,19 @@
               <td>
                 <%= link_to(rt[:patchinfo].category, { controller: 'patchinfo', action: 'show', project: incident.name, package: 'patchinfo', file: '_patchinfo' }, { style: "color: #{patchinfo_category_color(rt[:patchinfo].category)};" }) %>
               </td>
-              <td>
-                <%= link_to(rt[:patchinfo].rating, { controller: 'patchinfo', action: 'show', project: incident.name, package: 'patchinfo', file: '_patchinfo' }, { style: "color: #{patchinfo_rating_color(rt[:patchinfo].rating)};" }) %>
-              </td>
           <% else %>
-              <td colspan="2">
-                <%= link_to(sprite_tag('exclamation', title: 'Missing patchinfo') + 'Missing patchinfo', { controller: 'patchinfo', action: 'new_patchinfo', project: incident.name, package: 'patchinfo' }, { style: 'color: red;', method: :post }) %>
+              <td>
+                <%= link_to(sprite_tag('exclamation', title: 'No patchinfo') + 'Missing patchinfo', { controller: 'patchinfo', action: 'new_patchinfo', project: incident.name, package: 'patchinfo' }, { style: 'color: red;', method: :post }) %>
               </td>
           <% end %>
           <td>
-            <% rt[:packages].each do |package| %>
+            <% packages = rt[:packages]
+               package = packages.shift
+               if package %>
                 <%= link_to(package.name.split('.', 2)[0], controller: 'package', action: 'show', project: incident.name, package: package.name) %>
-                <br/>
+                <% unless packages.empty? %>
+                    , ...
+                <% end %>
             <% end %>
           </td>
           <td>
