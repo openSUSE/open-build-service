@@ -977,7 +977,7 @@ class Project < ActiveRecord::Base
     project.repositories.each do |repo|
       repoName = extend_names ? repo.extended_name : repo.name
       unless self.repositories.find_by_name(repoName)
-        targets = source_repo.release_targets if (pkg_to_enable and pkg_to_enable.is_of_kind? 'channel')
+        targets = source_repo.release_targets if (pkg_to_enable and pkg_to_enable.is_channel?)
         if targets
           self.add_repository_with_targets(repoName, repo, targets.map{|t| t.target_repository})
         else

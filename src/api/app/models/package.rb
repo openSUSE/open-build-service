@@ -371,6 +371,22 @@ class Package < ActiveRecord::Base
 
   end
 
+  def is_patchinfo?
+    is_of_kind? :patchinfo
+  end
+
+  def is_link?
+    is_of_kind? :link
+  end
+
+  def is_channel?
+    is_of_kind? :channel
+  end
+
+  def is_product?
+    is_of_kind? :channel
+  end
+
   def is_of_kind? kind
     update_if_dirty
     self.package_kinds.where(kind: kind).exists?
@@ -378,7 +394,7 @@ class Package < ActiveRecord::Base
 
   def update_issue_list
     current_issues = []
-    if self.is_of_kind? 'patchinfo'
+    if self.is_patchinfo?
       xml = Patchinfo.new.read_patchinfo_xmlhash(self)
       xml.elements('issue') do |i|
         begin
@@ -440,7 +456,7 @@ class Package < ActiveRecord::Base
     end
 
     # issues introduced by local changes
-    return issue_change unless self.is_of_kind? 'link'
+    return issue_change unless self.is_link?
     query = { cmd: :linkdiff, onlyissues: 1, linkrev: :base, view: :xml }
     parse_issues_xml(query) do |issue, state|
       issue_change[issue] = state
@@ -452,7 +468,7 @@ class Package < ActiveRecord::Base
   def update_channel_list
     Channel.transaction do
       self.channels.destroy_all
-      if self.is_of_kind? 'channel'
+      if self.is_channel?
         xml = Suse::Backend.get(self.source_path('_channel'))
         channel = self.channels.create
         channel.update_from_xml(xml.body.to_s)
@@ -461,7 +477,7 @@ class Package < ActiveRecord::Base
   end
 
   def update_product_list
-    return unless self.is_of_kind? 'product'
+    return unless self.is_product?
     Product.transaction do
       begin
         xml = Xmlhash.parse(Suse::Backend.get(self.source_path(nil, view: :products)).body)

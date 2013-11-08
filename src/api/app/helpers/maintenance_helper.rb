@@ -338,7 +338,7 @@ module MaintenanceHelper
         next unless p[:package].class == Package # only for local packages
 
         pkg = p[:package]
-        if pkg.is_of_kind? 'link'
+        if pkg.is_link?
           # is the package itself a local link ?
           link = Suse::Backend.get( "/source/#{p[:package].project.name}/#{p[:package].name}/_link")
           ret = ActiveXML::Node.new(link.body)
@@ -552,143 +552,32 @@ module MaintenanceHelper
     targetProject = Project.get_by_name targetProjectName
 
     # create package container, if missing
-    tpkg = nil
-    if Package.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links: false)
-      tpkg = Package.get_by_project_and_name(targetProject.name, targetPackageName, use_source: false, follow_project_links: false)
-    else
-      tpkg = Package.new(:name => targetPackageName, :title => sourcePackage.title, :description => sourcePackage.description)
-      targetProject.packages << tpkg
-      if sourcePackage.is_of_kind? 'patchinfo'
-        # publish patchinfos only
-        tpkg.flags.create( :flag => 'publish', :status => 'enable')
-      end
-      tpkg.store
-    end
+    tpkg = create_package_container_if_missing(sourcePackage, targetPackageName, targetProject)
 
     # get updateinfo id in case the source package comes from a maintenance project
-    mi = MaintenanceIncident.find_by_db_project_id( sourcePackage.db_project_id ) 
-    updateinfoId = nil
-    if mi
-      id_template = nil
-      # check for a definition in maintenance project
-      if a = mi.maintenance_db_project.find_attribute('OBS', 'MaintenanceIdTemplate')
-         id_template = a.values[0].value
-      end
-      # a definition in channel release project is superseeding this
-      if sourcePackage.is_of_kind?('channel') and a = targetProject.find_attribute('OBS', 'MaintenanceIdTemplate')
-         id_template = a.values[0].value
-      end
-      updateinfoId = mi.getUpdateinfoId( id_template )
-    end
+    updateinfoId = get_updateinfo_id(sourcePackage, targetProject)
 
     # detect local links
-    link = nil
     begin
       link = sourcePackage.source_file('_link')
+      link = ActiveXML::Node.new(link)
     rescue ActiveXML::Transport::Error
+      link = nil
     end
-    if link and ret = ActiveXML::Node.new(link) and (ret.project.nil? or ret.project == sourcePackage.project.name)
-      ret.delete_attribute('project') # its a local link, project name not needed
-      ret.set_attribute('package', ret.package.gsub(/\..*/,'') + targetPackageName.gsub(/.*\./, '.')) # adapt link target with suffix
-      link_xml = ret.dump_xml
-      answer = Suse::Backend.put "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}/_link?rev=repository&user=#{CGI.escape(User.current.login)}", link_xml
-      md5 = Digest::MD5.hexdigest(link_xml)
-      # commit with noservice parameneter
-      upload_params = {
-        :user => User.current.login,
-        :cmd => 'commitfilelist',
-        :noservice => '1',
-        :comment => "Set link to #{targetPackageName} via maintenance_release request",
-      }
-      upload_params[:requestid] = request.id if request
-      upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}"
-      upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
-      answer = Suse::Backend.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
-      tpkg.sources_changed(answer)
+    if link and (link.project.nil? or link.project == sourcePackage.project.name)
+      release_package_relink(link, request, targetPackageName, targetProject, tpkg)
     else
       # copy sources
-      # backend copy of current sources as full copy
-      # that means the xsrcmd5 is different, but we keep the incident project anyway.
-      cp_params = {
-        :cmd => 'copy',
-        :user => User.current.login,
-        :oproject => sourcePackage.project.name,
-        :opackage => sourcePackage.name,
-        :comment => "Release from #{sourcePackage.project.name} / #{sourcePackage.name}",
-        :expand => '1',
-        :withvrev => '1',
-        :noservice => '1',
-      }
-      cp_params[:comment] += ", setting updateinfo to #{updateinfoId}" if updateinfoId
-      cp_params[:requestid] = request.id if request
-      cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
-      cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :expand, :withvrev, :noservice])
-      Suse::Backend.post cp_path, nil
+      release_package_copy_sources(request, sourcePackage, targetPackageName, targetProject, updateinfoId)
       tpkg.sources_changed
     end
 
     # copy binaries
-    sourcePackage.project.repositories.each do |sourceRepo|
-      next if filterSourceRepository and filterSourceRepository != sourceRepo
-      sourceRepo.release_targets.each do |releasetarget|
-        #FIXME2.5: filter given release and/or target repos here
-        sourceRepo.architectures.each do |arch|
-          if releasetarget.target_repository.project == targetProject
-            cp_params = {
-              :cmd => 'copy',
-              :oproject => sourcePackage.project.name,
-              :opackage => sourcePackage.name,
-              :orepository => sourceRepo.name,
-              :user => User.current.login,
-              :resign => '1',
-            }
-            cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
-            cp_path = "/build/#{CGI.escape(releasetarget.target_repository.project.name)}/#{URI.escape(releasetarget.target_repository.name)}/#{URI.escape(arch.name)}/#{URI.escape(targetPackageName)}"
-            cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :oproject, :opackage, :orepository, :setupdateinfoid, :resign])
-            Suse::Backend.post cp_path, nil
-          end
-        end
-        # remove maintenance release trigger in source
-        if releasetarget.trigger == 'maintenance'
-          releasetarget.trigger = nil
-          releasetarget.save!
-          sourceRepo.project.store
-        end
-      end
-    end
+    copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, updateinfoId)
 
     # create or update main package linking to incident package
-    unless sourcePackage.is_of_kind? 'patchinfo'
-      basePackageName = targetPackageName.gsub(/\.[^\.]*$/, '')
-
-      # only if package does not contain a _patchinfo file
-      lpkg = nil
-      if Package.exists_by_project_and_name(targetProject.name, basePackageName, follow_project_links: false)
-        lpkg = Package.get_by_project_and_name(targetProject.name, basePackageName, use_source: false, follow_project_links: false)
-      else
-        lpkg = Package.new(:name => basePackageName, :title => sourcePackage.title, :description => sourcePackage.description)
-        targetProject.packages << lpkg
-        lpkg.store
-      end
-      upload_params = {
-        :user => User.current.login,
-        :rev => 'repository',
-        :comment => "Set link to #{targetPackageName} via maintenance_release request",
-      }
-      upload_params[:comment] += ", for updateinfo ID #{updateinfoId}" if updateinfoId
-      upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(basePackageName)}/_link"
-      upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :rev])
-      link = "<link package='#{targetPackageName}' cicount='copy' />\n"
-      md5 = Digest::MD5.hexdigest(link)
-      answer = Suse::Backend.put upload_path, link
-      # commit
-      upload_params[:cmd] = 'commitfilelist'
-      upload_params[:noservice] = '1'
-      upload_params[:requestid] = request.id if request
-      upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(basePackageName)}"
-      upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
-      answer = Suse::Backend.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
-      lpkg.sources_changed(answer)
+    unless sourcePackage.is_patchinfo?
+      release_package_create_main_package(request, sourcePackage, targetPackageName, targetProject, updateinfoId)
     end
 
     # publish incident if source is read protect, but release target is not. assuming it got public now.
@@ -700,5 +589,147 @@ module MaintenanceHelper
       end
     end
   end
-  
+
+  def release_package_relink(link, request, targetPackageName, targetProject, tpkg)
+    link.delete_attribute('project') # its a local link, project name not needed
+    link.set_attribute('package', link.package.gsub(/\..*/, '') + targetPackageName.gsub(/.*\./, '.')) # adapt link target with suffix
+    link_xml = link.dump_xml
+    answer = Suse::Backend.put "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}/_link?rev=repository&user=#{CGI.escape(User.current.login)}", link_xml
+    md5 = Digest::MD5.hexdigest(link_xml)
+                                     # commit with noservice parameneter
+    upload_params = {
+        :user => User.current.login,
+        :cmd => 'commitfilelist',
+        :noservice => '1',
+        :comment => "Set link to #{targetPackageName} via maintenance_release request",
+    }
+    upload_params[:requestid] = request.id if request
+    upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}"
+    upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
+    answer = Suse::Backend.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
+    tpkg.sources_changed(answer)
+  end
+
+  def release_package_create_main_package(request, sourcePackage, targetPackageName, targetProject, updateinfoId)
+    basePackageName = targetPackageName.gsub(/\.[^\.]*$/, '')
+
+    # only if package does not contain a _patchinfo file
+    lpkg = nil
+    if Package.exists_by_project_and_name(targetProject.name, basePackageName, follow_project_links: false)
+      lpkg = Package.get_by_project_and_name(targetProject.name, basePackageName, use_source: false, follow_project_links: false)
+    else
+      lpkg = Package.new(:name => basePackageName, :title => sourcePackage.title, :description => sourcePackage.description)
+      targetProject.packages << lpkg
+      lpkg.store
+    end
+    upload_params = {
+        :user => User.current.login,
+        :rev => 'repository',
+        :comment => "Set link to #{targetPackageName} via maintenance_release request",
+    }
+    upload_params[:comment] += ", for updateinfo ID #{updateinfoId}" if updateinfoId
+    upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(basePackageName)}/_link"
+    upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :rev])
+    link = "<link package='#{targetPackageName}' cicount='copy' />\n"
+    md5 = Digest::MD5.hexdigest(link)
+    answer = Suse::Backend.put upload_path, link
+    # commit
+    upload_params[:cmd] = 'commitfilelist'
+    upload_params[:noservice] = '1'
+    upload_params[:requestid] = request.id if request
+    upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(basePackageName)}"
+    upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
+    answer = Suse::Backend.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
+    lpkg.sources_changed(answer)
+  end
+
+  def release_package_copy_sources(request, sourcePackage, targetPackageName, targetProject, updateinfoId)
+    # backend copy of current sources as full copy
+    # that means the xsrcmd5 is different, but we keep the incident project anyway.
+    cp_params = {
+        :cmd => 'copy',
+        :user => User.current.login,
+        :oproject => sourcePackage.project.name,
+        :opackage => sourcePackage.name,
+        :comment => "Release from #{sourcePackage.project.name} / #{sourcePackage.name}",
+        :expand => '1',
+        :withvrev => '1',
+        :noservice => '1',
+    }
+    cp_params[:comment] += ", setting updateinfo to #{updateinfoId}" if updateinfoId
+    cp_params[:requestid] = request.id if request
+    cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
+    cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :expand, :withvrev, :noservice])
+    Suse::Backend.post cp_path, nil
+  end
+
+  def copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, updateinfoId)
+    sourcePackage.project.repositories.each do |sourceRepo|
+      next if filterSourceRepository and filterSourceRepository != sourceRepo
+      sourceRepo.release_targets.each do |releasetarget|
+        #FIXME2.5: filter given release and/or target repos here
+        sourceRepo.architectures.each do |arch|
+          if releasetarget.target_repository.project == targetProject
+            copy_single_binary(arch, releasetarget, sourcePackage, sourceRepo, targetPackageName, updateinfoId)
+          end
+        end
+        # remove maintenance release trigger in source
+        if releasetarget.trigger == 'maintenance'
+          releasetarget.trigger = nil
+          releasetarget.save!
+          sourceRepo.project.store
+        end
+      end
+    end
+  end
+
+  def copy_single_binary(arch, releasetarget, sourcePackage, sourceRepo, targetPackageName, updateinfoId)
+    cp_params = {
+        :cmd => 'copy',
+        :oproject => sourcePackage.project.name,
+        :opackage => sourcePackage.name,
+        :orepository => sourceRepo.name,
+        :user => User.current.login,
+        :resign => '1',
+    }
+    cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
+    cp_path = "/build/#{CGI.escape(releasetarget.target_repository.project.name)}/#{URI.escape(releasetarget.target_repository.name)}/#{URI.escape(arch.name)}/#{URI.escape(targetPackageName)}"
+    cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :oproject, :opackage, :orepository, :setupdateinfoid, :resign])
+    Suse::Backend.post cp_path, nil
+  end
+
+  def get_updateinfo_id(sourcePackage, targetProject)
+    mi = MaintenanceIncident.find_by_db_project_id(sourcePackage.db_project_id)
+    updateinfoId = nil
+    if mi
+      id_template = nil
+      # check for a definition in maintenance project
+      if a = mi.maintenance_db_project.find_attribute('OBS', 'MaintenanceIdTemplate')
+        id_template = a.values[0].value
+      end
+      # a definition in channel release project is superseeding this
+      if sourcePackage.is_channel? and a = targetProject.find_attribute('OBS', 'MaintenanceIdTemplate')
+        id_template = a.values[0].value
+      end
+      updateinfoId = mi.getUpdateinfoId(id_template)
+    end
+    updateinfoId
+  end
+
+  def create_package_container_if_missing(sourcePackage, targetPackageName, targetProject)
+    tpkg = nil
+    if Package.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links: false)
+      tpkg = Package.get_by_project_and_name(targetProject.name, targetPackageName, use_source: false, follow_project_links: false)
+    else
+      tpkg = Package.new(:name => targetPackageName, :title => sourcePackage.title, :description => sourcePackage.description)
+      targetProject.packages << tpkg
+      if sourcePackage.is_patchinfo?
+        # publish patchinfos only
+        tpkg.flags.create(:flag => 'publish', :status => 'enable')
+      end
+      tpkg.store
+    end
+    tpkg
+  end
+
 end
