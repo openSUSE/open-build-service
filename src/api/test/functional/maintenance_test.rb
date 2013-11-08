@@ -432,6 +432,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                          </repository>
                                    </project>'
     assert_response :success
+    raw_post '/source/BaseDistro3Channel/_attribute', "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-BaseDistro3Channel-%Y-%C</value></attribute></attributes>"
+    assert_response :success
     put '/source/Channel/_meta', '<project name="Channel"><title/><description/>
                                    </project>'
     assert_response :success

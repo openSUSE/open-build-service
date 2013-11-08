@@ -570,7 +570,12 @@ module MaintenanceHelper
     updateinfoId = nil
     if mi
       id_template = nil
+      # check for a definition in maintenance project
       if a = mi.maintenance_db_project.find_attribute('OBS', 'MaintenanceIdTemplate')
+         id_template = a.values[0].value
+      end
+      # a definition in channel release project is superseeding this
+      if sourcePackage.is_of_kind?('channel') and a = targetProject.find_attribute('OBS', 'MaintenanceIdTemplate')
          id_template = a.values[0].value
       end
       updateinfoId = mi.getUpdateinfoId( id_template )
