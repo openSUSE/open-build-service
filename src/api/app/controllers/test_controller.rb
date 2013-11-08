@@ -30,9 +30,4 @@ class TestController < ApplicationController
      render_ok
   end
   
-  def test_start
-    Rails.cache.clear
-    render_ok
-  end
-
 end
