@@ -7,11 +7,17 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   uses_transaction :test_can_request_role_addition_for_packages
   uses_transaction :test_can_request_role_addition_for_projects
   uses_transaction :test_submit_package_and_revoke 
-  uses_transaction :test_can_request_role_addition_for_packages
 
   def setup 
     super
     use_js
+  end
+
+  def before_setup
+    super
+    # we need to do this as transaction rollback does not reset the ids
+    # and we rely on fixed request ids in tests
+    BsRequest.connection.execute("alter table bs_requests AUTO_INCREMENT = 1001")
   end
 
   def test_my_involved_requests
@@ -58,7 +64,6 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     find('#description_text').must_have_text 'I can fix bugs too.'
     page.must_have_selector(:xpath, "//input[@name='revoked']")
     page.must_have_text('In state new')
-
 
     logout
     login_tom to: webui_engine.request_show_path(1001)

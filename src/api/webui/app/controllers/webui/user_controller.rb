@@ -169,22 +169,14 @@ class UserController < WebuiController
       return
     end
 
-    changepwd = Userchangepasswd.new(:login => session[:login], :password => params[:new_password])
-    begin
-      if changepwd.save(:create => true)
-        session[:password] = params[:new_password]
-        flash[:success] = 'Your password has been changed successfully.'
-        redirect_to :controller => :home, :action => :index
-        return
-      else
-        flash[:error] = 'Failed to change your password.'
-      end
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
-    end
-    redirect_to :controller => :home, :action => :index
-  end 
+    user = User.current
+    user.update_password params[:new_password]
+    user.save!
 
+    session[:password] = params[:new_password]
+    flash[:success] = 'Your password has been changed successfully.'
+    redirect_to :controller => :home, :action => :index
+  end
 
   def autocomplete
     required_parameters :term

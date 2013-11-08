@@ -205,8 +205,6 @@ module Webui
       #Capybara.current_driver = Capybara.javascript_driver
       @starttime = Time.now
       WebMock.disable_net_connect!(allow_localhost: true)
-      #max=::BsRequest.maximum(:id)
-      #::BsRequest.connection.execute("alter table bs_requests AUTO_INCREMENT = #{max+1}")
       CONFIG['global_write_through'] = true
     end
 
@@ -230,7 +228,7 @@ module Webui
       ActiveRecord::Base.clear_active_connections!
      
       unless run_in_transaction?
-        DatabaseCleaner.clean_with :truncation,  pre_count: true
+        DatabaseCleaner.clean_with :deletion
       end
 
       #puts "#{self.__name__} took #{Time.now - @starttime}"

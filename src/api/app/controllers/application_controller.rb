@@ -495,15 +495,6 @@ class ApplicationController < ActionController::Base
     parameters.each { |parameter| require_parameter!(parameter) }
   end
 
-  def required_fields(*parameters)
-    parameters.each do |parameter|
-      require_parameter!(parameter)
-      if params[parameter].blank?
-        raise NoDataEntered.new "Required Parameter #{parameter} is empty"
-      end
-    end
-  end
-
   def gather_exception_defaults(opt)
     if opt[:message]
       @summary = opt[:message]

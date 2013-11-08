@@ -7,7 +7,7 @@
       <% @news.each do |msg| %>
           <div class="grid_4 news-sender">
             <%= user_with_realname_and_icon msg.user, short: true %>
-            wrote <%= time_ago_in_words(msg.created_at) %>
+            wrote <%= time_ago_in_words(msg.created_at) %> ago
           </div>
 
           <div class="clear"></div>

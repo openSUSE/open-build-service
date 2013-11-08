@@ -90,22 +90,6 @@ class WebuiPackage < Webui::Node
     end 
   end
 
-  def add_person( opt={} )
-    return false unless opt[:userid] and opt[:role]
-    logger.debug "adding person '#{opt[:userid]}', role '#{opt[:role]}' to package #{self.name}"
-
-    #add the new person
-    add_element('person', 'userid' => opt[:userid], 'role' => opt[:role])
-  end
-
-  def add_group(opt={})
-    return false unless opt[:groupid] and opt[:role]
-    logger.debug "adding group '#{opt[:groupid]}', role '#{opt[:role]}' to project #{self.name}"
-
-    # add the new group
-    add_element('group', 'groupid' => opt[:groupid], 'role' => opt[:role])
-  end
-
   def bugowners
     return users('bugowner')
   end
@@ -235,16 +219,6 @@ class WebuiPackage < Webui::Node
       return true if attr.namespace == attribute_namespace && attr.name == attribute_name
     end
     return false
-  end
-
-  def linkdiff
-    begin
-      path = "/source/#{self.project}/#{self.name}?cmd=linkdiff&view=xml&withissues=1"
-      res = ActiveXML::api.direct_http(URI("#{path}"), :method => 'POST', :data => '')
-      return Webui::Sourcediff.new(res)
-    rescue ActiveXML::Transport::Error
-      return nil
-    end
   end
 
   def self.find(name, opts)

@@ -355,52 +355,6 @@ class Webui::PackageController < Webui::WebuiController
 
   end
 
-  def wizard_new
-    if params[:name]
-      unless Package.valid_name? params[:name]
-        flash[:error] = "Invalid package name: '#{params[:name]}'"
-        redirect_to :action => 'wizard_new', :project => params[:project]
-        return
-      end
-      @package = WebuiPackage.new( :name => params[:name], :project => @project )
-      if @package.save
-        redirect_to :action => 'wizard', :project => params[:project], :package => params[:name]
-      else
-        flash[:notice] = "Failed to save package '#{@package}'"
-        redirect_to :controller => 'project', :action => 'show', :project => params[:project]
-      end
-    end
-  end
-
-  def wizard
-    files = params[:wizard_files]
-    fnames = {}
-    if files
-      logger.debug "files: #{files.inspect}"
-      files.each_key do |key|
-        file = files[key]
-        next if ! file.respond_to?(:original_filename)
-        fname = file.original_filename
-        fnames[key] = fname
-        # TODO: reuse code from PackageController#save_file and add_file.rhtml
-        # to also support fetching remote urls
-        @package.save_file :file => file, :filename => fname
-      end
-    end
-    other = params[:wizard]
-    if other
-      response = other.merge(fnames)
-    elsif ! fnames.empty?
-      response = fnames
-    else
-      response = nil
-    end
-    @wizard = Wizard.find(:project => params[:project],
-      :package => params[:package],
-      :response => response)
-  end
-
-
   def save_new
     @package_name = params[:name]
     @package_title = params[:title]
