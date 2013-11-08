@@ -149,7 +149,7 @@ private
   end
 
   def set_tracker_list
-    @issue_tracker_list = ::IssueTracker.order(:name).map do |t|
+    @issue_tracker_list = IssueTracker.order(:name).map do |t|
       ["#{t.name} (#{t.description})", t.name]
     end
     @default_tracker = 'bnc'

@@ -78,10 +78,9 @@ class Webui::PatchinfoController < Webui::WebuiController
         end
         issue = Array.new
         issueid = a.value(:id)
-        issueurl = Webui::IssueTracker.find(:name => a.tracker)
-        if !issueurl.nil?
-          issueurl = issueurl.each('/issue-tracker/show-url').first.text
-          issueurl = issueurl.sub(/@@@/, issueid)
+        issueurl = IssueTracker.find_by_name(a.tracker)
+        if issueurl
+          issueurl = issueurl.show_url.sub(/@@@/, issueid)
         else
           issueurl = ''
         end
@@ -287,10 +286,10 @@ class Webui::PatchinfoController < Webui::WebuiController
       if issue.length > 1
         begin
           
-          issueurl = Webui::IssueTracker.find(:name => issue[0])
-          if !issueurl.nil?
-            issueurl = issueurl.each('/issue-tracker/show-url').first.text
-            issueurl = issueurl.sub(/@@@/, issue[1])
+          issueurl = IssueTracker.find_by_name(issue[0])
+          if issueurl
+            Rails.logger.debug "URL2 #{issueurl.inspect}"
+            issueurl = issueurl.show_url.sub(/@@@/, issue[1])
             issue << issueurl
             get_issue_sum(issue[0], issue[1])
             if !@error.nil?

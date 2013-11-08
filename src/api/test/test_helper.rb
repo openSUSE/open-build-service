@@ -228,7 +228,11 @@ module Webui
       Rails.cache.clear
       WebMock.reset!
       ActiveRecord::Base.clear_active_connections!
-      DatabaseCleaner.clean_with :truncation,  pre_count: true
+     
+      unless run_in_transaction?
+        DatabaseCleaner.clean_with :truncation,  pre_count: true
+      end
+      #self.use_transactional_fixtures = true
 
       #puts "#{self.__name__} took #{Time.now - @starttime}"
     end
