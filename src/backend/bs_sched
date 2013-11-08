@@ -4794,9 +4794,11 @@ sub checkpatchinfo {
         last;
       }
       if (! -e "$reporoot/$projid/$repoid/$myarch/:logfiles.success/$apackid") {
-	next if $code eq 'disabled';
-	$blocked = 1;
-        last;
+	if (! -e "$reporoot/$projid/$repoid/$myarch/$apackid/.channelinfo") {
+	  next if $code eq 'disabled';
+	  $blocked = 1;
+          last;
+	}
       }
     }
     if (!$blocked) {
@@ -4869,9 +4871,11 @@ sub checkpatchinfo {
 	$blockedarch = 1;
       }
       if (! -e "$reporoot/$projid/$repoid/$arch/:logfiles.success/$apackid") {
-	next if $code eq 'disabled';
-	push @blocked, "$arch/$apackid";
-	$blockedarch = 1;
+	if (! -e "$reporoot/$projid/$repoid/$arch/$apackid/.channelinfo") {
+	  next if $code eq 'disabled';
+	  push @blocked, "$arch/$apackid";
+	  $blockedarch = 1;
+	}
       }
       if ($ptype eq 'binary') {
 	# like aggregates
