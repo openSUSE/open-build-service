@@ -156,7 +156,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::ProjectController#save_targets' => 127.29,
       'Webui::PackageController#save_file' => 117.16,
       'Webui::PackageController#submit_request' => 101.71,
-      'Webui::PatchinfoController#read_patchinfo' => 103.22,
+      'Webui::PatchinfoController#read_patchinfo' => 96.22,
       'Webui::SearchController#set_parameters' => 98.04,
       'Webui::DriverUpdateController#save' => 97.16,
       'Webui::ProjectController#save_new' => 94.35,

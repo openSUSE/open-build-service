@@ -142,7 +142,7 @@ Webui::Engine.routes.draw do
       get 'project/subprojects/:project' => :subprojects, constraints: cons, as: 'project_subprojects'
       get 'project/attributes/:project' => :attributes, constraints: cons, as: 'project_attributes'
       get 'project/new' => :new
-      get 'project/new_incident' => :new_incident
+      post 'project/new_incident' => :new_incident
       get 'project/new_package/:project' => :new_package, constraints: cons
       get 'project/new_package_branch/:project' => :new_package_branch, constraints: cons
       get 'project/incident_request_dialog' => :incident_request_dialog

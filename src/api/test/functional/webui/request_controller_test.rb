@@ -4,6 +4,11 @@ require 'webui/home_controller'
 
 class Webui::RequestControllerTest < Webui::IntegrationTest
 
+  uses_transaction :test_can_request_role_addition_for_packages
+  uses_transaction :test_can_request_role_addition_for_projects
+  uses_transaction :test_submit_package_and_revoke 
+  uses_transaction :test_can_request_role_addition_for_packages
+
   def setup 
     super
     use_js

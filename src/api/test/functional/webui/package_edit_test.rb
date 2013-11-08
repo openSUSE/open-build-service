@@ -3,6 +3,10 @@ require 'test_helper'
 
 class Webui::PackageEditTest < Webui::IntegrationTest
 
+  uses_transaction :test_change_home_project_package_description
+  uses_transaction :test_change_home_project_package_info 
+  uses_transaction :test_change_home_project_package_title 
+
   def setup
     @package = 'TestPack'
     @project = 'home:Iggy'

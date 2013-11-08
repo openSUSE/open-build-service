@@ -3,6 +3,9 @@ require 'test_helper'
 
 class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
+  uses_transaction :test_create_patchinfo_with_too_short_summary
+  uses_transaction :test_create_patchinfo_with_too_short_sum_and_des
+
   CATEGORIES = [ "", 
                  "recommended",
                  "security",

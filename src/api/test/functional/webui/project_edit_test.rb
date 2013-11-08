@@ -2,7 +2,13 @@ require 'test_helper'
 
 class Webui::ProjectEditTest < Webui::IntegrationTest
 
-  
+  uses_transaction :test_change_global_project_description
+  uses_transaction :test_change_global_project_info
+  uses_transaction :test_change_home_project_description
+  uses_transaction :test_change_home_project_info
+  uses_transaction :test_change_home_project_title
+  uses_transaction :test_change_global_project_title
+
   # ============================================================================
   #  
   def project_title

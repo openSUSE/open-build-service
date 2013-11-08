@@ -94,7 +94,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
       @pages_to_visit.delete theone
 
       begin
-       # puts "V #{theone} #{@pages_to_visit.length}/#{@pages_visited.keys.length+@pages_to_visit.length}"
+        #puts "V #{theone} #{@pages_to_visit.length}/#{@pages_visited.keys.length+@pages_to_visit.length}"
         page.visit(theone)
         if page.status_code != 200
           raiseit("Status code #{page.status_code}", theone)

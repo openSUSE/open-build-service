@@ -117,7 +117,7 @@
                       </li>
                   <% elsif @is_maintenance_project %>
                       <li>
-                        <%= link_to(sprite_tag('brick_add') + 'Create maintenance incident', controller: 'project', action: 'new_incident', ns: @project.name) %>
+                        <%= link_to(sprite_tag('brick_add') + 'Create maintenance incident', { controller: 'project', action: 'new_incident', ns: @project.name}, method: :post) %>
                       </li>
                   <% else %>
                       <% if !@has_patchinfo %>

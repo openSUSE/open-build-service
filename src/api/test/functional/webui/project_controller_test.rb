@@ -2,6 +2,9 @@ require 'test_helper'
 
 class Webui::ProjectControllerTest < Webui::IntegrationTest
 
+  uses_transaction :test_admin_can_delete_every_project
+  uses_transaction :test_create_project_publish_disabled
+
   test 'project show' do
     visit webui_engine.project_show_path(project: 'Apache')
     page.must_have_selector '#project_title'

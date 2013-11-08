@@ -4,6 +4,9 @@ require 'test_helper'
 
 class Webui::OwnerSearchTest < Webui::IntegrationTest
 
+  uses_transaction :test_basic_owner_search 
+  uses_transaction :test_owner_search_with_devel
+
   def setup
     @attrib = Attrib.find_or_create_by!(attrib_type: AttribType.where(name: "OwnerRootProject").first,
                    project: Project.where(name: "home:Iggy").first)
@@ -55,7 +58,7 @@ class Webui::OwnerSearchTest < Webui::IntegrationTest
     search text: "does_not_exist", expect: :no_results
   end
 
-  test "basic_owner_search_" do
+  test "basic_owner_search" do
     visit_owner_search
     search text: "package", expect: "success"
     result = search_results.first
