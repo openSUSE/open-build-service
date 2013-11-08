@@ -751,7 +751,7 @@ class BsRequestAction < ActiveRecord::Base
       end
       newAction.source_rev = rev if rev
       if self.is_maintenance_release? 
-        if pkg.is_of_kind? 'channel'
+        if pkg.is_channel?
           pkg.channels.each do |channel|
             # no action if channel has no targets defined, the single release action
             # will move binaries and sources to the right place in that case
@@ -800,7 +800,7 @@ class BsRequestAction < ActiveRecord::Base
     newTargets.uniq!
     newPackages.each do |pkg|
       releaseTargets=nil
-      if pkg.is_of_kind? 'patchinfo'
+      if pkg.is_patchinfo?
         releaseTargets = Patchinfo.new.fetch_release_targets(pkg)
       end
       newTargets.each do |p|

@@ -103,7 +103,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'IssueTrackersController#update' => 100.78,
       'MaintenanceHelper#create_new_maintenance_incident' => 64.93,
       'MaintenanceHelper#do_branch' => 1138.89,
-      'MaintenanceHelper#release_package' => 236.4,
       'MaintenanceIncident#getUpdateinfoId' => 151.95,
       'Owner::find_assignees' => 71.55,
       'Owner::search' => 67.56,

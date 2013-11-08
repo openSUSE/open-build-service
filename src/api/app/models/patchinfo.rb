@@ -67,7 +67,7 @@ class Patchinfo < ActiveXML::Node
 
   def fetch_issue_for_package(package)
     # create diff per package
-    return if package.is_of_kind? 'patchinfo'
+    return if package.is_patchinfo?
 
     package.package_issues.each do |i|
       add_issue_to_patchinfo(i.issue) if i.change == 'added'
@@ -155,7 +155,7 @@ class Patchinfo < ActiveXML::Node
 
     @pkg = Package.get_by_project_and_name project, pkg_name
     return if force
-    if @pkg.is_of_kind? 'patchinfo'
+    if @pkg.is_patchinfo?
       raise PatchinfoFileExists.new "createpatchinfo command: the patchinfo #{pkg_name} exists already. " +
                                         'Either use force=1 re-create the _patchinfo or use updatepatchinfo for updating.'
     else
