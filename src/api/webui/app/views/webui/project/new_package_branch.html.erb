@@ -31,7 +31,6 @@ package.</p>
   same name as in the original project) <br/>
   <%= text_field_tag 'target_package', @target_package, :size => 80 %><br/>
   <%= check_box_tag 'current_revision', false %>Stay on current revision, don't merge future upstream changes automatically
-  <%= hidden_field_tag 'branch', true %>
 </p>
 <p><%= submit_tag "Create Branch" %></p>
 <% end %>

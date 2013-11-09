@@ -17,11 +17,6 @@
                    link_opts[:rev] = file[:srcmd5]
                  end %>
               <%= link_to_if(file[:viewable], nbsp(file[:name]), link_opts) %>
-              <% if @link && @link.has_add_patch?(file[:name]) %>
-                  (Added Patch)
-              <% elsif @link && @link.has_patch?(file[:name]) %>
-                  (Global Patch)
-              <% end %>
             </td>
             <td><span class="hidden"><%= file[:size].rjust(10, '0') %></span><%= human_readable_fsize(file[:size]) %>
             </td>

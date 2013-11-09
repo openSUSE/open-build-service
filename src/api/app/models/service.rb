@@ -1,4 +1,4 @@
-class Webui::Service < ActiveXML::Node
+class Service < ActiveXML::Node
 
   class << self
     def make_stub( opt )

@@ -13,8 +13,6 @@ map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['fronte
     map.connect :webuigroup, 'rest:///group/:title',
       :all => 'rest:///group/'
 
-    map.connect :link, 'rest:///source/:project/:package/_link'
-
     map.connect :collection, 'rest:///search/:what?match=:predicate',
       :id => 'rest:///search/:what/id?match=:predicate',
       :tag => 'rest:///tag/:tagname/:type',

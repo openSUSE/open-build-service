@@ -268,13 +268,6 @@ class Webui::PackageController < Webui::WebuiController
     @spec_count = 0
     @files.each do |file|
       @spec_count += 1 if file[:ext] == 'spec'
-      if file[:name] == '_link'
-        begin
-          @link = Webui::Link.find(:project => @project, :package => @package, :rev => @revision )
-        rescue RuntimeError
-          # possibly thrown on bad link files
-        end
-      end
     end
 
     # check source service state
@@ -384,10 +377,6 @@ class Webui::PackageController < Webui::WebuiController
     end
     if @package.save
       flash[:notice] = "Package '#{@package}' was created successfully"
-      Rails.cache.delete('%s_packages_mainpage' % @project)
-      Rails.cache.delete('%s_problem_packages' % @project)
-      WebuiPackage.free_cache( :all, :project => @project.name )
-      WebuiPackage.free_cache( @package.name, :project => @project )
       redirect_to :action => 'show', :project => params[:project], :package => params[:name]
     else
       flash[:notice] = "Failed to create package '#{@package}'"
@@ -426,7 +415,6 @@ class Webui::PackageController < Webui::WebuiController
     @linked_project = params[:linked_project].strip
     @linked_package = params[:linked_package].strip
     @target_package = params[:target_package].strip
-    @use_branch     = true if params[:branch]
     @revision       = nil
     @current_revision = true if params[:current_revision]
 
@@ -465,51 +453,16 @@ class Webui::PackageController < Webui::WebuiController
 
     @revision = revision if @current_revision
 
-    if @use_branch
-      logger.debug "link params doing branch: #{@linked_project}, #{@linked_package}"
-      begin
-        path = linked_package.api_obj.source_path('', { cmd: :branch, target_project: @project.name, target_package: @target_package})
-        path += "&rev=#{CGI.escape(@revision)}" if @revision
-        frontend.transport.direct_http( URI(path), :method => 'POST', :data => '')
-        flash[:success] = "Branched package #{@project.name} / #{@target_package}"
-      rescue ActiveXML::Transport::Error => e
-        flash[:error] = e.summary
-      end
-    else
-      # construct container for link
-      package = WebuiPackage.new( :name => @target_package, :project => @project )
-      package.title.text = linked_package.title.text
-
-      description = 'This package is based on the package ' +
-        "'#{@linked_package}' from project '#{@linked_project}'.\n\n"
-
-      description += linked_package.description.text if linked_package.description.text
-      package.description.text = description
-
-      begin
-        saved = package.save
-      rescue ActiveXML::Transport::ForbiddenError => e
-        saved = false
-        flash[:error] = e.summary
-        redirect_to :controller => 'project', :action => 'new_package_branch', :project => @project and return
-      end
-
-      unless saved
-        flash[:notice] = "Failed to save package '#{package}'"
-        redirect_to :controller => 'project', :action => 'new_package_branch', :project => @project and return
-        logger.debug "link params: #{@linked_project}, #{@linked_package}"
-        link = Webui::Link.new( :project => @project,
-          :package => @target_package, :linked_project => @linked_project, :linked_package => @linked_package )
-        link.set_revision @revision if @revision
-        link.save
-        flash[:success] = "Successfully linked package '#{@linked_package}'"
-      end
+    logger.debug "link params doing branch: #{@linked_project}, #{@linked_package}"
+    begin
+      path = linked_package.api_obj.source_path('', { cmd: :branch, target_project: @project.name, target_package: @target_package})
+      path += "&rev=#{CGI.escape(@revision)}" if @revision
+      frontend.transport.direct_http( URI(path), :method => 'POST', :data => '')
+      flash[:success] = "Branched package #{@project.name} / #{@target_package}"
+    rescue ActiveXML::Transport::Error => e
+      flash[:error] = e.summary
     end
 
-    Rails.cache.delete('%s_packages_mainpage' % @project)
-    Rails.cache.delete('%s_problem_packages' % @project)
-    WebuiPackage.free_cache( :all, :project => @project.name )
-    WebuiPackage.free_cache( @target_package, :project => @project )
     redirect_to :controller => 'package', :action => 'show', :project => @project, :package => @target_package
   end
 
@@ -532,10 +485,6 @@ class Webui::PackageController < Webui::WebuiController
     begin
       FrontendCompat.new.delete_package :project => @project, :package => @package
       flash[:notice] = "Package '#{@package}' was removed successfully from project '#{@project}'"
-      Rails.cache.delete('%s_packages_mainpage' % @project)
-      Rails.cache.delete('%s_problem_packages' % @project)
-      WebuiPackage.free_cache( :all, :project => @project.name )
-      WebuiPackage.free_cache( @package.name, :project => @project.name )
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
     end
