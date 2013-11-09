@@ -1,4 +1,4 @@
-class WebuiGroup < Webui::Node
+class WebuiGroup < WebuiNode
   default_find_parameter :title
   handles_xml_element :group
 
@@ -32,12 +32,12 @@ class WebuiGroup < Webui::Node
         response = transport.direct_http URI("#{path}"), :method => "GET"
         names = []
         if hash
-          Webui::Collection.new(response).each do |user|
+          WebuiCollection.new(response).each do |user|
             user = { 'name' => user.name }
             names << user
           end
         else
-          Webui::Collection.new(response).each {|group| names << group.name}
+          WebuiCollection.new(response).each {|group| names << group.name}
         end
         names
       rescue ActiveXML::Transport::Error => e

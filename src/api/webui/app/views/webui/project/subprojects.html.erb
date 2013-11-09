@@ -36,10 +36,10 @@
       </tr>
     </thead>
     <tbody>
-      <% @subprojects.each do |name, project| %>
+      <% @subprojects.each do |project| %>
         <tr>
-          <td><%= link_to name.slice(prjlen + 1, name.length), :action => 'show', :project => name %></td>
-          <td><%= project.value('title') %></td>
+          <td><%= link_to project.name.slice(prjlen + 1, project.name.length), :action => 'show', :project => project.name %></td>
+          <td><%= project.title %></td>
         </tr>
       <% end %>
     </tbody>

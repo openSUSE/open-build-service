@@ -88,26 +88,26 @@ class ProjectController < WebuiController
   def autocomplete_projects
     required_parameters :term
     get_filtered_projectlist params[:term], ''
-    render :json => @projects
+    render json: @projects
   end
 
   def autocomplete_incidents
     required_parameters :term
     get_filtered_projectlist params[:term], '', :only_incidents => true
-    render :json => @projects
+    render json: @projects
   end
 
   def autocomplete_packages
     required_parameters :term
     if Package.valid_name?( params[:term] ) or params[:term] == ''
-      render :json => @project.packages.select{|p| p.name.index(params[:term]) }.map{|p| p.name}
+      render json: @project.packages.select{|p| p.name.index(params[:term]) }.map{|p| p.name}
     else
-      render :text => '[]'
+      render text: '[]'
     end
   end
 
   def autocomplete_repositories
-    render :json => @project.repositories
+    render json: @project.repositories
   end
 
   def project_key(a)
@@ -135,7 +135,7 @@ class ProjectController < WebuiController
     else
       predicate += "not(@kind='maintenance_incident')" # Filter all maintenance incidents
     end
-    result = Collection.find(:id, :what => 'project', :predicate => predicate)
+    result = WebuiCollection.find(:id, :what => 'project', :predicate => predicate)
     @projects = Array.new
     result.each { |p| @projects << p.name }
     @projects =  @projects.sort_by { |a| project_key a }
@@ -149,12 +149,13 @@ class ProjectController < WebuiController
   end
 
   def subprojects
-    @subprojects = Hash.new
-    sub_names = Collection.find :id, :what => 'project', :predicate => "starts-with(@name,'#{@project}:')"
-    sub_names.each do |sub|
-      @subprojects[sub.name] = WebuiProject.find( sub.name )
+    @subprojects = Array.new
+
+    projects=Project.arel_table
+    Project.where(projects[:name].matches("#{@project.name}:%")).each do |sub|
+      @subprojects << sub
     end
-    @subprojects = @subprojects.sort # Sort by hash key for better display
+    @subprojects.sort! { |x,y| x.name <=> y.name } # Sort by hash key for better display
     @parentprojects = Hash.new
     parent_names = @project.name.split ':'
     parent_names.each_with_index do |parent, idx|
@@ -1031,12 +1032,12 @@ class ProjectController < WebuiController
     begin
       frontend.put_file(params[:meta], :project => params[:project], :filename => '_meta')
     rescue ActiveXML::Transport::Error => e
-      render :text => e.summary, :status => 400, :content_type => 'text/plain'
+      render text: e.summary, :status => 400, :content_type => 'text/plain'
       return
     end
 
     WebuiProject.free_cache params[:project]
-    render :text => 'Config successfully saved', :content_type => 'text/plain'
+    render text: 'Config successfully saved', :content_type => 'text/plain'
   end
 
   def prjconf
@@ -1075,7 +1076,7 @@ class ProjectController < WebuiController
       end
     end
     if request.xhr?
-      render :text => '<em>Cleared comment</em>'
+      render text: '<em>Cleared comment</em>'
       return
     end
     if params['package'].to_a.length > 1
@@ -1356,7 +1357,7 @@ class ProjectController < WebuiController
 
     respond_to do |format|
       format.json {
-        render :text => JSON.pretty_generate(@packages), :layout => false, :content_type => 'text/plain'
+        render text: JSON.pretty_generate(@packages), :layout => false, :content_type => 'text/plain'
       }
       format.html
     end

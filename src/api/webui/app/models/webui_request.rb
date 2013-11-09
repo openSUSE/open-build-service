@@ -1,4 +1,4 @@
-class WebuiRequest < Webui::Node
+class WebuiRequest < WebuiNode
 
   class ListError < Exception; end
   class ModifyError < Exception; end

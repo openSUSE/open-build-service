@@ -1,4 +1,4 @@
-class Webui::Node < ActiveXML::Node
+class WebuiNode < ActiveXML::Node
   def self.transport
     ActiveXML::api
   end

@@ -3,9 +3,9 @@
 
 <%= render :partial => 'tabs' %>
 
-<% if @oproject and @opackage %>
+<% if @opackage %>
     <h3>Difference Between Revision <%= @rev %>
-      and <%= project_or_package_link project: @oproject, package: @opackage, short: true %></h3>
+      and <%= project_or_package_link project: @oproject.name, package: @opackage.name, short: true %></h3>
 <% else %>
     <h3>Changes of Revision <%= @rev %></h3>
 <% end %>
@@ -24,12 +24,12 @@
 <% end %>
 
 <% if !User.current.is_nobody? && @filenames && !@filenames.empty? %>
-    <% if @oproject && @opackage && !WebuiProject.has_attribute?(@oproject, 'OBS', 'RejectRequests') && 
-		   !WebuiPackage.has_attribute?(@oproject, @opackage, 'OBS', 'RejectRequests') %>
-        <% msg = "Submit to #{@oproject.to_s + ' / ' + @opackage.to_s}" %>
+    <% if @oproject && @opackage && !@oproject.find_attribute('OBS', 'RejectRequests') &&
+		   !@opackage.find_attribute('OBS', 'RejectRequests') %>
+        <% msg = "Submit to #{@oproject.name + ' / ' + @opackage.name}" %>
         <% target_project, target_package = @oproject, @opackage %>
     <% elsif @rev != @last_rev %>
-        <% msg = "Revert #{@project.to_s + ' / ' + @package.to_s} to revision #{@rev}" %>
+        <% msg = "Revert #{@project.name + ' / ' + @package.name} to revision #{@rev}" %>
         <% target_project, target_package = @project, nil %>
     <% else %>
         <% msg = nil %>

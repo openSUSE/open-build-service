@@ -200,12 +200,12 @@ class UserController < WebuiController
         response = transport.direct_http URI("#{path}"), :method => 'GET'
         names = []
         if hash
-          Webui::Collection.new(response).each do |user|
+          WebuiCollection.new(response).each do |user|
             user = { 'name' => user.name }
             names << user
           end
         else
-          Webui::Collection.new(response).each {|user| names << user.name}
+          WebuiCollection.new(response).each {|user| names << user.name}
         end
         names
       rescue ActiveXML::Transport::Error => e

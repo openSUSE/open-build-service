@@ -328,7 +328,8 @@ class Webui::PackageController < Webui::WebuiController
   def rdiff
     @last_rev = @package.api_obj.dir_hash['rev']
     @linkinfo = @package.linkinfo
-    @oproject, @opackage = params[:oproject], params[:opackage]
+    @oproject = Project.get_by_name(params[:oproject])
+    @opackage = @oproject.find_package(params[:opackage])
 
     @last_req = find_last_req
 
