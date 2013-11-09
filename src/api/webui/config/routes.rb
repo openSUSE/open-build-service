@@ -10,6 +10,13 @@ Webui::Engine.routes.draw do
   # this can be requested by non browsers (like HA proxies :)
   get 'apidocs/:filename' => 'apidocs#file', constraints: { :filename => %r{[^\/]*} }, as: 'apidocs_file'
 
+  # spiders request this, not browsers
+  get 'main/sitemap' => 'main#sitemap'
+  get 'main/sitemap_projects' => 'main#sitemap_projects'
+  get 'main/sitemap_projects_packages' => 'main#sitemap_projects_packages'
+  get 'main/sitemap_projects_prjconf' => 'main#sitemap_projects_prjconf'
+  get 'main/sitemap_packages/:listaction' => 'main#sitemap_packages'
+
   constraints(HTMLMatcher) do
     cons = { :project => %r{[^\/]*}, :package => %r{[^\/]*}, :binary => %r{[^\/]*},
              :user => %r{[^\/]*}, :login => %r{[^\/]*}, :title => %r{[^\/]*}, :service => %r{\w[^\/]*},
@@ -20,11 +27,6 @@ Webui::Engine.routes.draw do
       get 'main/systemstatus' => :systemstatus
       get 'main/news' => :news
       get 'main/latest_updates' => :latest_updates
-      get 'main/sitemap' => :sitemap
-      get 'main/sitemap_projects' => :sitemap_projects
-      get 'main/sitemap_projects_packages' => :sitemap_projects_packages
-      get 'main/sitemap_projects_prjconf' => :sitemap_projects_prjconf
-      get 'main/sitemap_packages/:listaction' => :sitemap_packages
       get 'main/add_news_dialog' => :add_news_dialog
       post 'main/add_news' => :add_news
       get 'main/delete_message_dialog' => :delete_message_dialog
