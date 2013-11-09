@@ -126,18 +126,21 @@ class ProjectController < WebuiController
     filterstring.gsub!(/[\[\]\n]/, '')
     filterstring.gsub!(/[']/, '&apos;')
     filterstring.gsub!(/["]/, '&quot;')
-    predicate = filterstring.empty? ? '' : "starts-with(@name, '#{filterstring}')"
-    predicate += ' and ' if !predicate.empty? and !excludefilter.blank?
-    predicate += "not(starts-with(@name,'#{excludefilter}'))" if !excludefilter.blank?
-    predicate += ' and ' if !predicate.empty?
-    if opts[:only_incidents]
-      predicate += "@kind='maintenance_incident')"
-    else
-      predicate += "not(@kind='maintenance_incident')" # Filter all maintenance incidents
+    rel = Project.all
+    projects=Project.arel_table
+    if filterstring.empty?
+      rel = rel.where(projects[:name].matches("#{filterstring}%"))
     end
-    result = WebuiCollection.find(:id, :what => 'project', :predicate => predicate)
-    @projects = Array.new
-    result.each { |p| @projects << p.name }
+    unless excludefilter.blank?
+      rel = rel.where.not(projects[:name].matches("#{excludefilter}%"))
+    end
+    mi = DbProjectType.find_by_name!('maintenance_incident')
+    if opts[:only_incidents]
+      rel = rel.where(type_id: mi.id)
+    else
+      rel = rel.where.not(type_id: mi.id)
+    end
+    @projects = rel.pluck(:name)
     @projects =  @projects.sort_by { |a| project_key a }
   end
   private :get_filtered_projectlist

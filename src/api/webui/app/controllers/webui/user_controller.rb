@@ -1,15 +1,14 @@
 require 'base64'
 
-module Webui
-class UserController < WebuiController
+class Webui::UserController < Webui::WebuiController
 
-  include WebuiHelper
+  include Webui::WebuiHelper
 
   before_filter :check_user, :only => [:edit, :save, :change_password, :register, :delete, :confirm, :lock, :admin]
   before_filter :require_login, :only => [:edit, :save]
   before_filter :overwrite_user, :only => [:edit]
   before_filter :require_admin, :only => [:edit, :delete, :lock, :confirm, :admin]
-  
+
   def logout
     logger.info "Logging out: #{session[:login]}"
     reset_session
@@ -26,7 +25,7 @@ class UserController < WebuiController
     @return_to_path = params['return_to_path'] || root_path
     User.current ||= User.find_by_login('_nobody_')
   end
-  
+
   def do_login
     @return_to_path = params['return_to_path'] || root_path
     if params[:username].present? and params[:password]
@@ -36,7 +35,7 @@ class UserController < WebuiController
       authenticate_form_auth
 
       # TODO: remove again and use
-      User.current = User.where( login: session[:login] ).first
+      User.current = User.where(login: session[:login]).first
       begin
         ActiveXML.api.direct_http "/person/#{session[:login]}/login", method: 'POST'
       rescue ActiveXML::Transport::UnauthorizedError
@@ -71,7 +70,7 @@ class UserController < WebuiController
     person.email = params[:email]
     if User.current.is_admin?
       person.state = User.states[params[:state]]
-      roles = [ params[:globalrole] ]
+      roles = [params[:globalrole]]
       person.update_globalroles(roles)
     end
     person.save!
@@ -86,25 +85,25 @@ class UserController < WebuiController
   end
 
   def delete
-    u = User.find_by_login( params[:user] )
+    u = User.find_by_login(params[:user])
     u.state = User.states['deleted']
     u.save
   end
 
   def confirm
-    u = User.find_by_login( params[:user] )
+    u = User.find_by_login(params[:user])
     u.state = User.states['confirmed']
     u.save
   end
-  
+
   def lock
-    u = User.find_by_login( params[:user] )
+    u = User.find_by_login(params[:user])
     u.state = User.states['locked']
     u.save
   end
 
   def admin
-    u = User.find_by_login( params[:user] )
+    u = User.find_by_login(params[:user])
     u.update_globalroles(['Admin'])
     u.save
   end
@@ -119,15 +118,16 @@ class UserController < WebuiController
     user = User.find_by_login(params['user']) if params['user'].present?
     @displayed_user = user if user
   end
+
   private :overwrite_user
 
 
   def register
-    opts = { :login => params[:login],
-             :email => params[:email],
-             :realname => params[:realname],
-             :password => params[:password],
-             :state => params[:state]}
+    opts = {:login => params[:login],
+            :email => params[:email],
+            :realname => params[:realname],
+            :password => params[:password],
+            :state => params[:state]}
     begin
       User.register(opts)
     rescue APIException => e
@@ -138,10 +138,10 @@ class UserController < WebuiController
     if User.current.is_admin?
       redirect_to :controller => :configuration, :action => :users
     else
-     session[:login] = unreg_person_opts[:login]
-     session[:password] = unreg_person_opts[:password]
-     authenticate_form_auth
-     redirect_back_or_to :controller => :main, :action => :index
+      session[:login] = unreg_person_opts[:login]
+      session[:password] = unreg_person_opts[:password]
+      authenticate_form_auth
+      redirect_back_or_to :controller => :main, :action => :index
     end
   end
 
@@ -159,7 +159,7 @@ class UserController < WebuiController
     end
     if not params[:new_password] == params[:repeat_password]
       errmsg = 'The passwords do not match, please try again.'
-    end    
+    end
     if params[:password] == params[:new_password]
       errmsg = 'The new password is the same as your current password. Please enter a new password.'
     end
@@ -191,29 +191,15 @@ class UserController < WebuiController
   protected
 
   def list_users(prefix=nil, hash=nil)
-    prefix = URI.encode(prefix)
-    user_list = Rails.cache.fetch("user_list_#{prefix.to_s}", :expires_in => 10.minutes) do
-      transport ||= ActiveXML::api
-      path = "/person?prefix=#{prefix}"
-      begin
-        logger.debug 'Fetching user list from API'
-        response = transport.direct_http URI("#{path}"), :method => 'GET'
-        names = []
-        if hash
-          WebuiCollection.new(response).each do |user|
-            user = { 'name' => user.name }
-            names << user
-          end
-        else
-          WebuiCollection.new(response).each {|user| names << user.name}
-        end
-        names
-      rescue ActiveXML::Transport::Error => e
-        raise ListError, e.summary
+    names = []
+    users = User.arel_table
+    User.where(users[:login].matches("#{prefix}%")).pluck(:login).each do |user|
+      if hash
+        names << {'name' => user}
+      else
+        names << user
       end
     end
-    return user_list
+    names
   end
-
-end
 end
