@@ -8,7 +8,7 @@ class Webui::MainController < Webui::WebuiController
 
   def gather_busy
     busy = []
-    archs = Architecture.where(available: 1).pluck(:name).map {|arch| map_to_workers(arch)}.uniq
+    archs = Architecture.where(available: 1).pluck(:name).map { |arch| map_to_workers(arch) }.uniq
     archs.each do |arch|
       starttime = Time.now.to_i - 168.to_i * 3600
       rel = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, 'building_' + arch)
@@ -27,7 +27,7 @@ class Webui::MainController < Webui::WebuiController
     @waiting_packages = 0
     @building_workers = @workerstatus.elements('building').length
     @overall_workers = @workerstatus['clients']
-    @workerstatus.elements('waiting') {|waiting| @waiting_packages += waiting['jobs'].to_i}
+    @workerstatus.elements('waiting') { |waiting| @waiting_packages += waiting['jobs'].to_i }
     @busy = Rails.cache.fetch('mainpage_busy', expires_in: 10.minutes) do
       gather_busy
     end
@@ -54,43 +54,35 @@ class Webui::MainController < Webui::WebuiController
   end
 
   def require_projects
-    @projects = Array.new
-    Webui::Collection.find(:id, :what => 'project').each_project do |p|
-      @projects << p.value(:name)
-    end
+    @projects = Project.all.pluck(:name)
   end
 
   def sitemap_projects
     require_projects
     render :layout => false, :content_type => 'application/xml'
   end
- 
-  def sitemap_projects_subpage(action, changefreq, priority)
-    require_projects
-    render :template => 'webui/main/sitemap_projects_subpage', :layout => false, :locals => { :action => action, :changefreq => changefreq, :priority => priority }, :content_type => 'application/xml'
-  end
-
-  def sitemap_projects_packages
-    sitemap_projects_subpage(:packages, 'monthly', 0.7)
-  end
-
-  def sitemap_projects_prjconf
-    sitemap_projects_subpage(:prjconf, 'monthly', 0.1)
-  end
 
   def sitemap_packages
     category = params[:category].to_s
-    @packages = Array.new
-    predicate = ''
+
+    projects=Project.arel_table
     if category =~ %r{home}
-      predicate = "starts-with(@project,'#{category}')"
+      rel = Project.where(projects[:name].matches("#{category}%"))
     elsif category == 'opensuse'
-      predicate = "starts-with(@project,'openSUSE:')"
-    elsif category == 'main'
-      predicate = "not(starts-with(@project,'home:')) and not(starts-with(@project,'DISCONTINUED:')) and not(starts-with(@project,'openSUSE:'))"
+      rel = Project.where(projects[:name].matches('openSUSE:%'))
+    else
+      rel = Project.all.where.not(projects[:name].matches('home:%'))
+      rel = rel.where.not(projects[:name].matches('DISCONTINUED:%'))
+      rel = rel.where.not(projects[:name].matches('openSUSE:%'))
     end
-    Webui::Collection.find(:id, :what => 'package', :predicate => predicate).each_package do |p|
-      @packages << [p.value(:project), p.value(:name)]
+    projects = {}
+    rel.pluck(:id, :name).each do |id, name|
+      projects[id] = name
+    end
+    result = Package.where(db_project_id: projects.keys).pluck(:db_project_id, :name)
+    @packages = Array.new
+    result.each do |pid, name|
+      @packages << [projects[pid], name]
     end
     render :template => 'webui/main/sitemap_packages', :layout => false, :locals => {:action => params[:listaction]}, :content_type => 'application/xml'
   end

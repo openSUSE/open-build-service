@@ -1,4 +1,4 @@
-class WebuiPackage < Webui::Node
+class WebuiPackage < WebuiNode
    
   handles_xml_element 'package'
 
@@ -192,33 +192,11 @@ class WebuiPackage < Webui::Node
   end
 
   def developed_packages
-    packages = []
-    candidates = Webui::Collection.find(:id, :what => 'package', :predicate => "[devel/@package='#{name}' and devel/@project='#{project}']")
-    candidates.each do |candidate|
-      packages << candidate unless candidate.linkinfo
-    end
-    return packages
+    raise ""
   end
 
   def self.is_binary_file?(filename)
     BINARY_EXTENSIONS.include?(File.extname(filename).downcase)
-  end
-
-  def self.attributes(project_name, package_name)
-    path = "/source/#{project_name}/#{package_name}/_attribute/"
-    res = ActiveXML::api.direct_http(URI("#{path}"))
-    return Webui::Collection.new(res)
-  end
-
-  def attributes
-    Package.attributes(self.project, self.name)
-  end
-
-  def self.has_attribute?(project_name, package_name, attribute_namespace, attribute_name)
-    self.attributes(project_name, package_name).each do |attr|
-      return true if attr.namespace == attribute_namespace && attr.name == attribute_name
-    end
-    return false
   end
 
   def self.find(name, opts)

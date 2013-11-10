@@ -1,8 +1,8 @@
-<% @pagetitle = "Group #{@group.value('title')}" %>
+<% @pagetitle = "Group #{@group.title}" %>
 
 <h2><%= @pagetitle %></h2>
 
-<% if @group.person.has_elements? %>
+<% unless @group.users.empty? %>
 <table id="group_members_table">
   <thead>
     <tr>
@@ -10,9 +10,9 @@
     </tr>
   </thead>
   <tbody>
-    <% @group.person.each do |member| %>
+    <% @group.users.each do |user| %>
       <tr>
-        <td><%= link_to_if(!User.current.is_nobody?, member.userid, { :controller => 'home', :action => 'index', :user => member.userid}, {:id => member.userid}) %></td>
+        <td><%= link_to(user.login, :controller => 'home', :action => 'index', :user => user.login) %></td>
       </tr>
     <% end %>
   </tbody>

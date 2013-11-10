@@ -1,6 +1,6 @@
 require 'frontend_compat'
 
-class WebuiProject < Webui::Node
+class WebuiProject < WebuiNode
   
   default_find_parameter :name
 

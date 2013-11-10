@@ -32,6 +32,7 @@ if test "$REMOVEGEMLOCK" = true; then
   rm Gemfile.lock
 fi
 gem install bundler
+echo 'gem "coveralls"' >> Gemfile
 bundle install
 popd
 

@@ -3,7 +3,7 @@
 require 'test_helper'
 require 'faker'
 
-SimpleCov.command_name 'test:webui1'
+SimpleCov.command_name 'test:webui'
 
 class Webui::LoginTest < Webui::IntegrationTest
   

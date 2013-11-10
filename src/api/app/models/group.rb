@@ -70,7 +70,7 @@ class Group < ActiveRecord::Base
     #delete all users which were not listed
     cache.each do |login_id, gu|
       next if gu == :keep
-      GroupsUser.delete_all(["user_id = ? AND group_id = ?", login_id, self.id])
+      GroupsUser.delete_all(['user_id = ? AND group_id = ?', login_id, self.id])
     end
   end
 
@@ -81,7 +81,7 @@ class Group < ActiveRecord::Base
   end
 
   def remove_user(user)
-    GroupsUser.delete_all(["user_id = ? AND group_id = ?", user.id, self.id])
+    GroupsUser.delete_all(['user_id = ? AND group_id = ?', user.id, self.id])
   end
 
   def set_email(email)
@@ -95,7 +95,7 @@ class Group < ActiveRecord::Base
 
   def involved_projects_ids
     # just for maintainer for now.
-    role = Role.rolecache["maintainer"]
+    role = Role.rolecache['maintainer']
 
     ### all projects where user is maintainer
     projects = Relationship.projects.where(group_id: id, role_id: role.id).pluck(:project_id)
@@ -112,14 +112,15 @@ class Group < ActiveRecord::Base
   # lists packages maintained by this user and are not in maintained projects
   def involved_packages
     # just for maintainer for now.
-    role = Role.rolecache["maintainer"]
+    role = Role.rolecache['maintainer']
 
     projects = involved_projects_ids
     projects << -1 if projects.empty?
 
     # all packages where group is maintainer
-    packages = Relationship.where(group_id: id, role_id: role.id).joins(:package).where("packages.db_project_id not in (?)", projects).pluck(:package_id)
+    packages = Relationship.where(group_id: id, role_id: role.id).joins(:package).where('packages.db_project_id not in (?)', projects).pluck(:package_id)
 
-    return Package.where(id: packages).where("db_project_id not in (?)", projects)
+    return Package.where(id: packages).where('db_project_id not in (?)', projects)
   end
+
 end

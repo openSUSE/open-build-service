@@ -513,4 +513,12 @@ module Webui::WebuiHelper
                                          controller: 'home', user: user.login)
     end
   end
+
+  def possibly_empty_ul(html_opts, &block)
+    content = capture(&block)
+    Rails.logger.debug "UL #{content}"
+    unless content.blank?
+      content_tag(:ul, content, html_opts)
+    end
+  end
 end

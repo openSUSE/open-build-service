@@ -2,6 +2,8 @@ require 'test_helper'
 
 class Webui::GroupControllerTest < Webui::IntegrationTest
 
+  uses_transaction :test_edit_group
+
   test 'list all groups' do
     use_js
 
@@ -14,8 +16,62 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
     visit webui_engine.configuration_groups_path
     find(:id, 'test_group').click
     find(:id, 'group_members_table_wrapper').must_have_text 'Showing 1 to 1 of 1 entries'
-    find(:id, 'adrian').click
+    find(:link, 'adrian').click
     assert page.current_url.end_with? webui_engine.home_path(user: 'adrian')
+  end
+
+  test 'edit group' do
+    use_js
+
+    login_king to: webui_engine.configuration_groups_path
+    within '#group-test_group' do
+      find('td.users').text.must_equal 'adrian'
+      click_link 'Edit Group'
+    end
+    page.must_have_text 'Edit Group test_group'
+    # testing autocomplete is horrible - see https://gist.github.com/jtanium/1229684
+    page.find('input#members', visible: false).set 'user4'
+    click_button 'Save'
+    within '#group-test_group' do
+      # adrian is out
+      find('td.users').text.must_equal 'user4'
+    end
+  end
+
+  test 'invalid group' do
+    visit webui_engine.group_show_path('nogroup')
+    flash_message.must_equal "Group 'nogroup' does not exist"
+    flash_message_type.must_equal :alert
+  end
+
+  test 'input tokens group' do
+    visit webui_engine.group_tokens_path(term: 'nosuch')
+    page.status_code.must_equal 404
+
+    visit webui_engine.group_tokens_path(q: 'nosuch')
+    page.status_code.must_equal 200
+
+    page.source.must_equal '[]'
+
+    visit webui_engine.group_tokens_path(q: 'test')
+    page.status_code.must_equal 200
+
+    JSON.parse(page.source).must_equal [{'name' => 'test_group'}, {'name' => 'test_group_b'}]
+  end
+
+  test 'autocomplete group' do
+    visit webui_engine.group_autocomplete_path(q: 'nosuch')
+    page.status_code.must_equal 404
+
+    visit webui_engine.group_autocomplete_path(term: 'nosuch')
+    page.status_code.must_equal 200
+
+    page.source.must_equal '[]'
+
+    visit webui_engine.group_autocomplete_path(term: 'test')
+    page.status_code.must_equal 200
+
+    JSON.parse(page.source).must_equal ['test_group', 'test_group_b']
   end
 
 end
