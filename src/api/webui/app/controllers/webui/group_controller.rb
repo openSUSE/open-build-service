@@ -16,10 +16,10 @@ class Webui::GroupController < Webui::WebuiController
 
   def show
     required_parameters :id
-    @group = WebuiGroup.find(params[:id])
+    @group = Group.find_by_title(params[:id])
     unless @group
-      flash[:error] = "Group '#{params[:group]}' does not exist"
-      redirect_back_or_to :controller => 'main', :action => 'index' and return
+      flash[:error] = "Group '#{params[:id]}' does not exist"
+      redirect_back_or_to :controller => 'main', :action => 'index'
     end
   end
 

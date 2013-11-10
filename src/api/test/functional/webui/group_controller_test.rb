@@ -36,4 +36,9 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
     end
   end
 
+  test 'invalid group' do
+    visit webui_engine.group_show_path('nogroup')
+    flash_message.must_equal "Group 'nogroup' does not exist"
+    flash_message_type.must_equal :alert
+  end
 end
