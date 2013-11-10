@@ -25,6 +25,7 @@ if test -z "$SUBTEST"; then
   bundle exec rake test:api
   bundle exec rake test:webui
   cat coverage/.last_run.json
+  ruby -rcoveralls -e 'Coveralls.push!'
 fi
 
 case $SUBTEST in
