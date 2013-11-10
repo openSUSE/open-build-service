@@ -6,12 +6,12 @@ class Webui::GroupController < Webui::WebuiController
 
   def autocomplete
     required_parameters :term
-    render :json => WebuiGroup.list(params[:term])
+    render json: list_groups(params[:term])
   end
 
   def tokens
     required_parameters :q
-    render json: WebuiGroup.list(params[:q], true)
+    render json: list_groups(params[:q], true)
   end
 
   def show
@@ -30,17 +30,17 @@ class Webui::GroupController < Webui::WebuiController
     required_parameters :group
     @roles = Role.global_roles
     @members = []
-    @displayed_group.person.each do |person |
-      user = { 'name' => person.userid }
+    @displayed_group.users.each do |person|
+      user = {'name' => person.login }
       @members << user
     end
   end
 
   def save
-    group_opts = { :name => params[:name],
-                   :title => params[:name],
-                   :members => params[:members]
-                 }
+    group_opts = {:name => params[:name],
+                  :title => params[:name],
+                  :members => params[:members]
+    }
     begin
       group = WebuiGroup.new(group_opts)
       group.save
@@ -48,19 +48,34 @@ class Webui::GroupController < Webui::WebuiController
       flash[:error] = e.message
     end
     flash[:success] = "Group '#{group.title}' successfully updated."
-    Rails.cache.delete("group_#{group.title}")
     if User.current.is_admin?
       redirect_to controller: :configuration, action: :groups
     else
       redirect_to controller: 'group', action: 'show', id: params[:group]
     end
   end
-  
+
   def overwrite_group
     @displayed_group = @group
-    group = WebuiGroup.find(params['group'] ) if params['group'] && !params['group'].empty?
+    group = Group.find_by_title(params['group']) if params['group'].present?
     @displayed_group = group if group
   end
+
   private :overwrite_group
+
+  protected
+
+  def list_groups(prefix=nil, hash=nil)
+    names = []
+    groups = Group.arel_table
+    Group.where(groups[:title].matches("#{prefix}%")).pluck(:title).each do |group|
+      if hash
+        names << {'name' => group}
+      else
+        names << group
+      end
+    end
+    names
+  end
 
 end

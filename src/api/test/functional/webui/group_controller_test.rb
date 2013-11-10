@@ -2,6 +2,8 @@ require 'test_helper'
 
 class Webui::GroupControllerTest < Webui::IntegrationTest
 
+  uses_transaction :test_edit_group
+
   test 'list all groups' do
     use_js
 
@@ -14,7 +16,7 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
     visit webui_engine.configuration_groups_path
     find(:id, 'test_group').click
     find(:id, 'group_members_table_wrapper').must_have_text 'Showing 1 to 1 of 1 entries'
-    find(:id, 'adrian').click
+    find(:link, 'adrian').click
     assert page.current_url.end_with? webui_engine.home_path(user: 'adrian')
   end
 
@@ -41,4 +43,35 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
     flash_message.must_equal "Group 'nogroup' does not exist"
     flash_message_type.must_equal :alert
   end
+
+  test 'input tokens group' do
+    visit webui_engine.group_tokens_path(term: 'nosuch')
+    page.status_code.must_equal 404
+
+    visit webui_engine.group_tokens_path(q: 'nosuch')
+    page.status_code.must_equal 200
+
+    page.source.must_equal '[]'
+
+    visit webui_engine.group_tokens_path(q: 'test')
+    page.status_code.must_equal 200
+
+    JSON.parse(page.source).must_equal [{'name' => 'test_group'}, {'name' => 'test_group_b'}]
+  end
+
+  test 'autocomplete group' do
+    visit webui_engine.group_autocomplete_path(q: 'nosuch')
+    page.status_code.must_equal 404
+
+    visit webui_engine.group_autocomplete_path(term: 'nosuch')
+    page.status_code.must_equal 200
+
+    page.source.must_equal '[]'
+
+    visit webui_engine.group_autocomplete_path(term: 'test')
+    page.status_code.must_equal 200
+
+    JSON.parse(page.source).must_equal ['test_group', 'test_group_b']
+  end
+
 end
