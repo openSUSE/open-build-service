@@ -13,7 +13,12 @@ class Webui::MainController < Webui::WebuiController
       starttime = Time.now.to_i - 168.to_i * 3600
       rel = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, 'building_' + arch)
       values = rel.pluck(:time, :value).collect { |time, value| [time.to_i, value.to_f] }
-      busy = Webui::MonitorController.addarrays(busy, StatusHelper.resample(values, 400))
+      values = StatusHelper.resample(values, 400)
+      if busy.empty?
+        busy = values
+      elsif values.present?
+        busy = Webui::MonitorController.addarrays(busy, values)
+      end
     end
     busy
   end
