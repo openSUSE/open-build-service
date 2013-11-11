@@ -25,6 +25,26 @@ Release:        1
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source:         obs-server-%version.tar.bz2
+Patch1:         0001-backend-Add-sb2install-dependancy-handling.patch
+Patch2:         0002-dist-Use-.log-instead-of-_log-for-apache-logs-so-the.patch
+Patch3:         0003-backend-Force-curl-to-use-no-proxy-to-get-the-bs_wor.patch
+Patch4:         0004-backend-Move-project-trees-to-_deleted-when-project-.patch
+Patch5:         0005-backend-Modify-copybuild-so-as-to-shortcircuit-unnec.patch
+Patch6:         0006-repserver-Make-prjlinks-a-bit-more-transparent.patch
+Patch7:         0007-backend-refactor-prjcopy-code-to-be-faster-and-less-.patch
+Patch8:         0008-Revert-changes-to-upstream-copybuild-leave-that-unto.patch
+Patch9:         0009-Use-the-copybinary-repo-server-API-Clarify-a-little-.patch
+Patch10:        0010-api-backend-Allow-per-package-build-flag-in-project-.patch
+Patch11:        0011-Allow-package-build-flags-in-prjmeta-to-override-arc.patch
+Patch12:        0012-Try-harder-to-preserve-flags.-Also-preserve-package-.patch
+Patch13:        0013-Worakaround-arch-mismatch-in-dod-armv7hl-metafile-vs.patch
+Patch14:        0014-Enable-HTTPS-support-for-the-benifit-of-https-dod-re.patch
+Patch15:        0015-Fix-tmpfs-umount-issues.patch
+Patch16:        0016-fix-64bit-debian-dod.patch
+Patch17:        0017-Don-t-use-ftools.patch
+Patch18:        0018-api-Rename-Flag-model-s-package-field-to-pkgname.patch
+Patch19:        0019-api-Allow-Repository-model-s-linkedbuild-attribute-t.patch
+Patch20:        0020-api-Actually-preserve-flags-during-project-copy.patch
 BuildRequires:  python-devel
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
@@ -256,6 +276,26 @@ obs_project_update is a tool to copy a packages of a project from one obs to ano
 #--------------------------------------------------------------------------------
 %prep
 %setup -q -n src
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
+#%patch4 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
+%patch10 -p1
+%patch11 -p1
+%patch12 -p1
+%patch13 -p1
+%patch14 -p1
+%patch15 -p1
+%patch16 -p1
+%patch17 -p1
+%patch18 -p1
+%patch19 -p1
+%patch20 -p1
 # drop build script, we require the installed one from own package
 rm -rf src/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
