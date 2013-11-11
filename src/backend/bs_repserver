@@ -2491,7 +2491,11 @@ sub getbuildinfo {
   my $projpack;
   my $uploaded;
   my @args = ("project=$projid", "repository=$repoid", "arch=$arch");
-  push @args, "package=$packid" if defined($packid);
+  if (defined($packid)) {
+    push @args, "package=$packid";
+  } else {
+    push @args, "nopackages";
+  }
   push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
   if (!$pdata) {
     $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'expandedrepos', 'withremotemap', 'ignoredisable', @args);
