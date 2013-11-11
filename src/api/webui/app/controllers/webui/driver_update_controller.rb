@@ -9,7 +9,7 @@ class Webui::DriverUpdateController < Webui::PackageController
     services = Service.find :project => @project, :package => @package
     services = Service.new( :project => @project, :package => @package ) unless services
     if services.find_first( "service[@name='generator_driver_update_disk']" )
-      flash[:alert] = "Existing Driver update disk section found in _services, editing that one"
+      flash[:alert] = 'Existing Driver update disk section found in _services, editing that one'
       redirect_to :action => :edit, :project => @project, :package => @package and return
     end
     @repositories = []
@@ -26,7 +26,7 @@ class Webui::DriverUpdateController < Webui::PackageController
     service = services.find_first( "service[@name='generator_driver_update_disk']" )
 
     if service.blank?
-      flash[:alert] = "No Driver update disk section found in _services, creating new"
+      flash[:alert] = 'No Driver update disk section found in _services, creating new'
       redirect_to :action => :create, :project => @project, :package => @package and return
     end
 
@@ -38,15 +38,15 @@ class Webui::DriverUpdateController < Webui::PackageController
     @architectures = service.each( 'param[@name="arch"]' ).map{|arch| arch.text} 
 
     #parse packages, binary packages from dud_packlist.xml file
-    packlist = frontend.get_source( :project => @project.to_s, :package => @package.to_s, :filename => "dud_packlist.xml" )
+    packlist = @package.api_obj.source_file('dud_packlist.xml')
     xml = ActiveXML::Node.new(packlist)
     @packages = []
     @binary_packages = {}
-    xml.each( "//binarylist" ) do |binarylist|
+    xml.each('//binarylist') do |binarylist|
       package = binarylist.value('package')
       @packages << package
       @binary_packages[package] = []
-      binarylist.each( "binary" ) do |binary|
+      binarylist.each('binary') do |binary|
         @binary_packages[package] << binary.value('filename')
       end
     end
@@ -67,7 +67,7 @@ class Webui::DriverUpdateController < Webui::PackageController
 
     @architectures = params[:arch] || []
 
-    errors = ""
+    errors = ''
     if params[:arch].blank?
       errors += "Please select at least one architecture. \n"
     end
@@ -95,8 +95,8 @@ class Webui::DriverUpdateController < Webui::PackageController
     opt = Hash.new
     opt[:project] = @project
     opt[:package] = @package
-    opt[:filename] = "dud_packlist.xml"
-    opt[:comment] = "Modified via driver update disk webui"
+    opt[:filename] = 'dud_packlist.xml'
+    opt[:comment] = 'Modified via driver update disk webui'
 
     fc = FrontendCompat.new
     file_content = "<?xml version=\"1.0\"?>\n"
@@ -113,7 +113,7 @@ class Webui::DriverUpdateController < Webui::PackageController
     file_content += "    </repopackages>\n"
     file_content += "    <modules/>\n"
     file_content += "    <instsys/>\n"
-    file_content += "  </packlist>"
+    file_content += '  </packlist>'
 
     fc.put_file file_content, opt
 
@@ -131,7 +131,7 @@ class Webui::DriverUpdateController < Webui::PackageController
     services.addService( 'generator_driver_update_disk', -1, dud_params )
     services.save
 
-    flash[:success] = "Saved Driver update disk service."
+    flash[:success] = 'Saved Driver update disk service.'
     redirect_to :controller => :package, :action => :show, :project => @project, :package => @package
   end
 
@@ -149,9 +149,9 @@ class Webui::DriverUpdateController < Webui::PackageController
   private
 
   def check_images_repo
-    unless @project.repositories.include? "images"
+    unless @project.repositories.include? 'images'
       flash.now[:alert] = "You need to add an 'images' repository to your project " +
-        "to be able to build a driver update disk image!" 
+          'to be able to build a driver update disk image!'
     end
   end
 

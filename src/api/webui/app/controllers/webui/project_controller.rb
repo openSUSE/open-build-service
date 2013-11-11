@@ -768,7 +768,7 @@ class ProjectController < WebuiController
 
         # FIXME: will be cleaned up after implementing FATE #308899
         if repo == 'images'
-          prjconf = frontend.get_source(:project => params[:project], :filename => '_config')
+          prjconf = @project.api_obj.source_file('_config')
           unless prjconf =~ /^Type:/
             prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
             frontend.put_file(prjconf, :project => @project, :filename => '_config')
@@ -1023,12 +1023,7 @@ class ProjectController < WebuiController
   end
 
   def meta
-    begin
-      @meta = frontend.get_source(:project => params[:project], :filename => '_meta')
-    rescue ActiveXML::Transport::NotFoundError
-      flash[:error] = "Project _meta not found: #{params[:project]}"
-      redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404
-    end
+    @meta = @project.api_obj.render_xml
   end
 
   def save_meta
@@ -1039,13 +1034,12 @@ class ProjectController < WebuiController
       return
     end
 
-    WebuiProject.free_cache params[:project]
     render text: 'Config successfully saved', :content_type => 'text/plain'
   end
 
   def prjconf
     begin
-      @config = frontend.get_source(:project => params[:project], :filename => '_config')
+      @config = @project.api_obj.source_file('_config')
     rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "Project _config not found: #{params[:project]}"
       redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404 and return
