@@ -1,87 +1,87 @@
 roles_static_permissions_001:
-  role_id: 1
   static_permission_id: 1
+  role: Admin
 roles_static_permissions_002:
-  role_id: 1
   static_permission_id: 2
+  role: Admin
 roles_static_permissions_003:
-  role_id: 2
   static_permission_id: 2
+  role: User
 roles_static_permissions_004:
-  role_id: 1
   static_permission_id: 3
+  role: Admin
 roles_static_permissions_005:
-  role_id: 1
   static_permission_id: 4
+  role: Admin
 roles_static_permissions_006:
-  role_id: 1
   static_permission_id: 5
+  role: Admin
 roles_static_permissions_007:
-  role_id: 1
   static_permission_id: 6
+  role: Admin
 roles_static_permissions_008:
-  role_id: 1
   static_permission_id: 7
+  role: Admin
 roles_static_permissions_009:
-  role_id: 3
   static_permission_id: 7
+  role: maintainer
 roles_static_permissions_010:
-  role_id: 1
   static_permission_id: 8
+  role: Admin
 roles_static_permissions_011:
-  role_id: 3
   static_permission_id: 8
+  role: maintainer
 roles_static_permissions_012:
-  role_id: 1
   static_permission_id: 9
+  role: Admin
 roles_static_permissions_013:
-  role_id: 3
   static_permission_id: 9
+  role: maintainer
 roles_static_permissions_014:
-  role_id: 1
   static_permission_id: 10
+  role: Admin
 roles_static_permissions_015:
-  role_id: 3
   static_permission_id: 10
+  role: maintainer
 roles_static_permissions_016:
-  role_id: 1
   static_permission_id: 11
+  role: Admin
 roles_static_permissions_017:
-  role_id: 3
   static_permission_id: 11
+  role: maintainer
 roles_static_permissions_018:
-  role_id: 5
   static_permission_id: 11
+  role: downloader
 roles_static_permissions_019:
-  role_id: 1
   static_permission_id: 12
+  role: Admin
 roles_static_permissions_020:
-  role_id: 3
   static_permission_id: 12
+  role: maintainer
 roles_static_permissions_021:
-  role_id: 7
   static_permission_id: 12
+  role: reader
 roles_static_permissions_022:
-  role_id: 1
   static_permission_id: 13
+  role: Admin
 roles_static_permissions_023:
-  role_id: 1
   static_permission_id: 14
+  role: Admin
 roles_static_permissions_024:
-  role_id: 3
   static_permission_id: 14
+  role: maintainer
 roles_static_permissions_025:
-  role_id: 7
   static_permission_id: 14
+  role: reader
 roles_static_permissions_026:
-  role_id: 1
   static_permission_id: 19
+  role: Admin
 roles_static_permissions_027:
-  role_id: 1
   static_permission_id: 20
+  role: Admin
 roles_static_permissions_028:
-  role_id: 1
   static_permission_id: 21
+  role: Admin
 roles_static_permissions_029:
-  role_id: 1
   static_permission_id: 22
+  role: Admin

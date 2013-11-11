@@ -6,7 +6,7 @@ package_comment_parent:
   type: CommentPackage
   created_at: 2013-07-25 14:05:30.000000000 Z
   updated_at: 2013-07-25 14:05:30.000000000 Z
-  user_id: 280
+  user: Admin
 package_comment_reply_1:
   id: 201
   package_id: 10094
@@ -16,7 +16,7 @@ package_comment_reply_1:
   type: CommentPackage
   created_at: 2013-07-25 14:07:00.000000000 Z
   updated_at: 2013-07-25 14:07:00.000000000 Z
-  user_id: 3
+  user: tom
 package_comment_reply_2:
   id: 202
   package_id: 10094
@@ -26,7 +26,7 @@ package_comment_reply_2:
   type: CommentPackage
   created_at: 2013-07-25 14:38:44.000000000 Z
   updated_at: 2013-07-25 14:38:44.000000000 Z
-  user_id: 42
+  user: adrian
 project_comment_parent:
   id: 100
   project_id: 2042
@@ -35,7 +35,7 @@ project_comment_parent:
   type: CommentProject
   created_at: 2013-07-25 14:00:21.000000000 Z
   updated_at: 2013-07-25 14:00:21.000000000 Z
-  user_id: 280
+  user: Admin
 project_comment_reply_1:
   id: 101
   project_id: 2042
@@ -45,7 +45,7 @@ project_comment_reply_1:
   type: CommentProject
   created_at: 2013-07-25 15:00:21.000000000 Z
   updated_at: 2013-07-25 15:00:21.000000000 Z
-  user_id: 3
+  user: tom
 project_comment_reply_2:
   id: 102
   project_id: 2042
@@ -55,7 +55,7 @@ project_comment_reply_2:
   type: CommentProject
   created_at: 2013-07-25 15:47:21.000000000 Z
   updated_at: 2013-07-25 15:47:21.000000000 Z
-  user_id: 42
+  user: adrian
 request_comment_parent:
   id: 300
   bs_request_id: 4
@@ -64,7 +64,7 @@ request_comment_parent:
   type: CommentRequest
   created_at: 2013-07-25 16:00:21.000000000 Z
   updated_at: 2013-07-25 16:00:21.000000000 Z
-  user_id: 280
+  user: Admin
 request_comment_reply_1:
   id: 301
   bs_request_id: 4
@@ -74,7 +74,7 @@ request_comment_reply_1:
   type: CommentRequest
   created_at: 2013-07-25 17:00:21.000000000 Z
   updated_at: 2013-07-25 17:00:21.000000000 Z
-  user_id: 3
+  user: tom
 request_comment_reply_2:
   id: 302
   bs_request_id: 4
@@ -84,4 +84,4 @@ request_comment_reply_2:
   type: CommentRequest
   created_at: 2013-07-25 18:00:21.000000000 Z
   updated_at: 2013-07-25 18:00:21.000000000 Z
-  user_id: 42
+  user: adrian

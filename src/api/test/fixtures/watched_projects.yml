@@ -1,12 +1,12 @@
 watched_projects_1:
   id: 1
-  user_id: 1
   project_id: 2
+  user: fred
 watched_projects_3:
   id: 3
-  user_id: 42
   project_id: 3004
+  user: adrian
 watched_projects_4:
   id: 4
-  user_id: 267
   project_id: 600
+  user: Iggy

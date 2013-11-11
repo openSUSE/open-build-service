@@ -74,6 +74,10 @@ class Role < ActiveRecord::Base
     self.class.discard_cache
   end
 
+  def to_param
+    title
+  end
+
   after_save :discard_cache
   after_destroy :discard_cache
 
