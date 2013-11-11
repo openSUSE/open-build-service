@@ -1,6 +1,7 @@
 require_dependency 'activexml/activexml'
 
 CONFIG['source_protocol'] ||= 'http'
+CONFIG['api_relative_url_root'] ||= ''
 
 map = ActiveXML::setup_transport_backend(CONFIG['source_protocol'], CONFIG['source_host'], CONFIG['source_port'])
 
@@ -32,7 +33,7 @@ if defined?(Rack::MiniProfiler)
   end
 end
 
-map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['frontend_host'], CONFIG['frontend_port'])
+map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['frontend_host'], CONFIG['frontend_port'], CONFIG['api_relative_url_root'])
 
 map.connect :webuiproject, 'rest:///source/:name/_meta?:view',
     :delete => 'rest:///source/:name?:force',
