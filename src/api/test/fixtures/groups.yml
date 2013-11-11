@@ -1,10 +1,8 @@
 test_group:
-  id: 99
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
   title: test_group
 test_group_b:
-  id: 199
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
   title: test_group_b

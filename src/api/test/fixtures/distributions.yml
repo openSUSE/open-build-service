@@ -16,3 +16,4 @@ two:
   reponame: Base_repo
   repository: BaseDistro2_repo
   link: http://www.openbuildservice.org/
+  architectures: i586, x86_64

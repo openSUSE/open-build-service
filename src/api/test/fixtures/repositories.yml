@@ -1,81 +1,81 @@
 BaseDistro2LinkedUpdateProject_repo:
   id: 86
-  db_project_id: 2046
   name: BaseDistro2LinkedUpdateProject_repo
   rebuild: local
+  project: BaseDistro2.0_LinkedUpdateProject
 deleted_deleted:
   id: 211
-  db_project_id: 1000
   name: deleted
+  project: deleted
 repositories_141:
   id: 141
-  db_project_id: 1001
   name: home_coolo_standard
+  project: home_tom
 repositories_142:
   id: 142
-  db_project_id: 1001
   name: SourceprotectedProject_repo
+  project: home_tom
 repositories_144:
   id: 144
-  db_project_id: 1001
   name: home_adrian_ProtectionTest_repo
+  project: home_tom
 repositories_75:
   id: 75
-  db_project_id: 226
   name: SUSE_Linux_10.1
+  project: Apache
 repositories_81:
   id: 81
-  db_project_id: 226
   name: SUSE_Linux_Factory
+  project: Apache
 repositories_82:
   id: 82
-  db_project_id: 600
   name: standard
+  project: home_coolo
 repositories_83:
   id: 83
-  db_project_id: 601
   name: home_coolo
+  project: home_coolo_test
 repositories_87:
   id: 87
-  db_project_id: 5001
   name: pop
+  project: UseRemoteInstance
 repositories_88:
   id: 88
-  db_project_id: 5002
   name: pop
+  project: LocalProject
 repositories_89:
   id: 89
-  db_project_id: 3000
   name: nada
+  project: HiddenProject
 repositories_90:
   id: 90
-  db_project_id: 3002
   name: nada
+  project: BinaryprotectedProject
 repositories_91:
   id: 91
-  db_project_id: 2042
   name: BaseDistro_repo
+  project: BaseDistro
 repositories_92:
   id: 92
-  db_project_id: 2045
   name: BaseDistro2_repo
+  project: BaseDistro2.0
 repositories_93:
   id: 93
-  db_project_id: 2047
   name: BaseDistro3_repo
+  project: BaseDistro3
 repositories_94:
   id: 94
-  db_project_id: 3005
   name: repo
+  project: home_adrian_ProtectionTest
 repositories_95:
   id: 95
-  db_project_id: 2043
   name: BaseDistroUpdateProject_repo
+  project: BaseDistro_Update
 repositories_96:
   id: 96
-  db_project_id: 3001
   name: repo
+  project: SourceprotectedProject
 repositories_home_Iggy:
   id: 85
-  db_project_id: 502
   name: '10.2'
+  project: home_Iggy

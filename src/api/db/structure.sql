@@ -50,6 +50,7 @@ CREATE TABLE `attrib_namespace_modifiable_bies` (
   `user_id` int(11) DEFAULT NULL,
   `group_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `attrib_namespace_user_role_all_index` (`attrib_namespace_id`,`user_id`,`group_id`),
   KEY `bs_user_id` (`user_id`),
   KEY `bs_group_id` (`group_id`),
   KEY `index_attrib_namespace_modifiable_bies_on_attrib_namespace_id` (`attrib_namespace_id`),

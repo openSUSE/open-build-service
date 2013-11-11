@@ -1,8 +1,8 @@
 Iggy_bugowner_BaseDistro3:
   id: 22
-  project_id: 2047
   user: Iggy
   role: bugowner
+  project: BaseDistro3
 Iggy_bugowner_TestPack:
   id: 67
   package_id: 10095
@@ -30,9 +30,9 @@ adrian_reviewer:
   role: reviewer
 dmayr_maintainer_home:
   id: 357
-  project_id: 215
   user: dmayr
   role: maintainer
+  project: home_dmayr
 fred_maintainer:
   id: 62
   package_id: 1
@@ -50,14 +50,14 @@ fred_maintainer_package_2:
   role: maintainer
 project_kde4_maintainer_fred:
   id: 72
-  project_id: 2
   user: fred
   role: maintainer
+  project: kde4
 relationships_100:
   id: 100
-  project_id: 2
   role: reviewer
   group: test_group
+  project: kde4
 relationships_70:
   id: 70
   package_id: 1
@@ -65,134 +65,134 @@ relationships_70:
   group: test_group
 relationships_73:
   id: 73
-  project_id: 2
   user: king
   role: maintainer
+  project: kde4
 relationships_74:
   id: 74
-  project_id: 2
   user: fredlibs
   role: maintainer
+  project: kde4
 relationships_75:
   id: 75
-  project_id: 2
   user: adrian
   role: reviewer
+  project: kde4
 relationships_76:
   id: 76
-  project_id: 226
   user: fred
   role: maintainer
+  project: Apache
 relationships_77:
   id: 77
-  project_id: 226
   user: fredlibs
   role: maintainer
+  project: Apache
 relationships_78:
   id: 78
-  project_id: 502
   user: hidden_homer
   role: maintainer
+  project: home_Iggy
 relationships_79:
   id: 79
-  project_id: 502
   user: Iggy
   role: maintainer
+  project: home_Iggy
 relationships_80:
   id: 80
-  project_id: 503
   user: fred
   role: maintainer
+  project: home_fred_DeleteProject
 relationships_81:
   id: 81
-  project_id: 505
   user: fred
   role: maintainer
+  project: home_fred
 relationships_82:
   id: 82
-  project_id: 600
   user: tom
   role: maintainer
+  project: home_coolo
 relationships_83:
   id: 83
-  project_id: 601
   user: tom
   role: maintainer
+  project: home_coolo_test
 relationships_84:
   id: 84
-  project_id: 1001
   user: tom
   role: maintainer
+  project: home_tom
 relationships_85:
   id: 85
-  project_id: 2048
   user: maintenance_coord
   role: maintainer
+  project: My_Maintenance
 relationships_86:
   id: 86
-  project_id: 3000
   user: adrian
   role: maintainer
+  project: HiddenProject
 relationships_87:
   id: 87
-  project_id: 3000
   user: adrian_reader
   role: reader
+  project: HiddenProject
 relationships_88:
   id: 88
-  project_id: 3000
   user: adrian_downloader
   role: downloader
+  project: HiddenProject
 relationships_89:
   id: 89
-  project_id: 3000
   user: hidden_homer
   role: maintainer
+  project: HiddenProject
 relationships_90:
   id: 90
-  project_id: 3001
   user: sourceaccess_homer
   role: maintainer
+  project: SourceprotectedProject
 relationships_91:
   id: 91
-  project_id: 3002
   user: adrian_reader
   role: reader
+  project: BinaryprotectedProject
 relationships_92:
   id: 92
-  project_id: 3002
   user: binary_homer
   role: maintainer
+  project: BinaryprotectedProject
 relationships_93:
   id: 93
-  project_id: 3004
   user: tom
   role: maintainer
+  project: CopyTest
 relationships_94:
   id: 94
-  project_id: 3004
   user: hidden_homer
   role: maintainer
+  project: CopyTest
 relationships_95:
   id: 95
-  project_id: 3004
   user: sourceaccess_homer
   role: maintainer
+  project: CopyTest
 relationships_96:
   id: 96
-  project_id: 3006
   user: hidden_homer
   role: maintainer
+  project: HiddenRemoteInstance
 relationships_97:
   id: 97
-  project_id: 5002
   user: tom
   role: maintainer
+  project: LocalProject
 relationships_98:
   id: 98
-  project_id: 5007
   user: adrian
   role: maintainer
+  project: home_adrian
 reviewer_for_Basedistro_pack2:
   id: 64
   package_id: 10094
@@ -200,11 +200,11 @@ reviewer_for_Basedistro_pack2:
   role: reviewer
 test_group_maintainer_HiddenProject:
   id: 101
-  project_id: 3000
   role: maintainer
   group: test_group
+  project: HiddenProject
 test_group_maintainer_kde4:
   id: 99
-  project_id: 2
   role: maintainer
   group: test_group
+  project: kde4

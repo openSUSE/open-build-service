@@ -1,140 +1,112 @@
-ppc64le:
-  id: 52
-  name: ppc64le
-  recommended: 0
-  available: 0
 armv4l:
-  id: 28
   name: armv4l
   recommended: 0
   available: 0
 armv5el:
-  id: 32
   name: armv5el
   recommended: 0
   available: 0
 armv5l:
-  id: 29
   name: armv5l
   recommended: 0
   available: 0
 armv6el:
-  id: 33
   name: armv6el
   recommended: 0
   available: 0
 armv6l:
-  id: 30
   name: armv6l
   recommended: 0
   available: 0
 armv7el:
-  id: 34
   name: armv7el
   recommended: 0
   available: 0
 armv7l:
-  id: 31
   name: armv7l
   recommended: 0
   available: 0
 armv8el:
-  id: 35
   name: armv8el
   recommended: 0
   available: 0
 hppa:
-  id: 36
   name: hppa
   recommended: 0
   available: 0
 i586:
-  id: 1
   name: i586
   recommended: 1
   available: 1
 i686:
-  id: 37
   name: i686
   recommended: 0
   available: 0
 ia64:
-  id: 38
   name: ia64
   recommended: 0
   available: 0
 local:
-  id: 39
   name: local
   recommended: 0
   available: 0
 mips:
-  id: 40
   name: mips
   recommended: 0
   available: 0
 mips32:
-  id: 41
   name: mips32
   recommended: 0
   available: 0
 mips64:
-  id: 42
   name: mips64
   recommended: 0
   available: 0
 ppc:
-  id: 3
   name: ppc
   recommended: 0
   available: 0
 ppc64:
-  id: 43
   name: ppc64
   recommended: 0
   available: 0
+ppc64le:
+  name: ppc64le
+  recommended: 0
+  available: 0
 s390:
-  id: 44
   name: s390
   recommended: 0
   available: 0
 s390x:
-  id: 45
   name: s390x
   recommended: 0
   available: 0
 sparc:
-  id: 46
   name: sparc
   recommended: 0
   available: 0
 sparc64:
-  id: 47
   name: sparc64
   recommended: 0
   available: 0
 sparc64v:
-  id: 48
   name: sparc64v
   recommended: 0
   available: 0
 sparcv8:
-  id: 49
   name: sparcv8
   recommended: 0
   available: 0
 sparcv9:
-  id: 50
   name: sparcv9
   recommended: 0
   available: 0
 sparcv9v:
-  id: 51
   name: sparcv9v
   recommended: 0
   available: 0
 x86_64:
-  id: 2
   name: x86_64
   recommended: 1
   available: 1

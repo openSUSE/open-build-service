@@ -1,24 +1,23 @@
 UseRemoteInstance:
   id: 43
-  db_project_id: 5001
-  linked_db_project_id: 0
   position: 1
   linked_remote_project_name: RemoteInstance:BaseDistro
+  project: UseRemoteInstance
 UseRemoteInstanceIndirect_to_UseRemoteInstance:
   id: 45
-  db_project_id: 5005
-  linked_db_project_id: 5001
   position: 1
   linked_remote_project_name: nil
-linked_projects_42:
+  project: UseRemoteInstanceIndirect
+  linked_db_project: UseRemoteInstance
+linked_db_projects_42:
   id: 42
-  db_project_id: 2046
-  linked_db_project_id: 2045
   position: 1
   linked_remote_project_name: nil
-linked_projects_44:
+  project: BaseDistro2.0_LinkedUpdateProject
+  linked_db_project: BaseDistro2.0
+linked_db_projects_44:
   id: 44
-  db_project_id: 2043
-  linked_db_project_id: 2042
   position: 1
   linked_remote_project_name: nil
+  project: BaseDistro_Update
+  linked_db_project: BaseDistro

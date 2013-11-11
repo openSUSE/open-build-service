@@ -93,6 +93,10 @@ class Group < ActiveRecord::Base
     self.title
   end
 
+  def to_param
+    to_s
+  end
+
   def involved_projects_ids
     # just for maintainer for now.
     role = Role.rolecache['maintainer']

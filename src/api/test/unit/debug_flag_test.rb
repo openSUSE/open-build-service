@@ -4,11 +4,11 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
   fixtures :all
   
   def setup
-    @project = Project.find(502)
+    @project = projects(:home_Iggy)
     assert_kind_of Project, @project
-    @package = Package.find(10095)
+    @package = packages(:TestPack)
     assert_kind_of Package, @package
-    @arch = Architecture.find(1)
+    @arch = architectures(:i586)
     assert_kind_of Architecture, @arch    
   end
   

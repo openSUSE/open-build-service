@@ -1,127 +1,127 @@
 flags_129437008:
   id: 129437008
   status: disable
-  db_project_id: 3006
   position: 1
   flag: publish
+  project: HiddenRemoteInstance
 flags_220542956:
   id: 220542956
   status: enable
   repo: '10.2'
-  db_project_id: 502
-  architecture_id: 2
   position: 2
   flag: debuginfo
+  architecture: x86_64
+  project: home_Iggy
 flags_238287425:
   id: 238287425
   status: disable
-  db_project_id: 3000
   position: 1
   flag: access
+  project: HiddenProject
 flags_361997832:
   id: 361997832
   status: disable
-  db_project_id: 3002
   position: 1
   flag: publish
+  project: BinaryprotectedProject
 flags_370537857:
   id: 370537857
   status: enable
   repo: '10.2'
   db_package_id: 10095
-  architecture_id: 2
   position: 1
   flag: publish
+  architecture: x86_64
 flags_377253800:
   id: 377253800
   status: enable
   repo: '10.2'
   db_package_id: 10095
-  architecture_id: 2
   position: 1
   flag: debuginfo
+  architecture: x86_64
 flags_421651534:
   id: 421651534
   status: disable
-  db_project_id: 3002
   position: 1
   flag: binarydownload
+  project: BinaryprotectedProject
 flags_463292953:
   id: 463292953
   status: disable
-  db_project_id: 3006
   position: 1
   flag: access
+  project: HiddenRemoteInstance
 flags_512515298:
   id: 512515298
   status: disable
   repo: '10.2'
-  db_project_id: 502
-  architecture_id: 1
   position: 1
   flag: build
+  architecture: i586
+  project: home_Iggy
 flags_521011324:
   id: 521011324
   status: disable
   repo: '10.2'
-  db_project_id: 502
-  architecture_id: 2
   position: 2
   flag: build
+  architecture: x86_64
+  project: home_Iggy
 flags_632907309:
   id: 632907309
   status: disable
-  db_project_id: 3001
   position: 1
   flag: sourceaccess
+  project: SourceprotectedProject
 flags_688596071:
   id: 688596071
   status: disable
-  db_project_id: 3001
   position: 1
   flag: publish
+  project: SourceprotectedProject
 flags_792784507:
   id: 792784507
   status: disable
-  db_project_id: 3000
   position: 1
   flag: publish
+  project: HiddenProject
 flags_801465961:
   id: 801465961
   status: enable
   repo: '10.2'
   db_package_id: 10095
-  architecture_id: 1
   position: 1
   flag: build
+  architecture: i586
 flags_811918905:
   id: 811918905
   status: disable
   repo: '10.2'
-  db_project_id: 502
-  architecture_id: 2
   position: 1
   flag: publish
+  architecture: x86_64
+  project: home_Iggy
 flags_813496:
   id: 813496
   status: enable
   repo: '10.2'
-  db_project_id: 502
-  architecture_id: 1
   position: 2
   flag: publish
+  architecture: i586
+  project: home_Iggy
 flags_BaseDistro2_0_LinkedUpdateProject_build_disable:
   id: 477459121
   status: disable
-  db_project_id: 2046
   position: 2
   flag: build
+  project: BaseDistro2.0_LinkedUpdateProject
 flags_BaseDistro2_0_LinkedUpdateProject_publish_disable:
   id: 477459122
   status: disable
-  db_project_id: 2046
   position: 3
   flag: publish
+  project: BaseDistro2.0_LinkedUpdateProject
 flags_BaseDistro_pack1_useforbuild_disable:
   id: 477459123
   status: disable
@@ -132,7 +132,7 @@ home_Iggy_102_disabled:
   id: 212298610
   status: disable
   repo: '10.2'
-  db_project_id: 502
-  architecture_id: 1
   position: 1
   flag: debuginfo
+  architecture: i586
+  project: home_Iggy
