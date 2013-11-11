@@ -1,8 +1,8 @@
 Admin_can_change_obs:
   id: 624394844
   attrib_namespace_id: 9
-  user_id: 280
+  user: Admin
 king_can_change_obs:
   id: 624394835
   attrib_namespace_id: 9
-  user_id: 2
+  user: king

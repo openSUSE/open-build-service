@@ -7,7 +7,7 @@ class WatchedProjectTest < ActiveSupport::TestCase
     tmp_prj = Project.create(name: 'no:use:for:a:name')
     user_ids = User.limit(5).map{|u|u.id} # Roundup some users to watch tmp_prj
     user_ids.each do |uid|
-      tmp_prj.watched_projects.create(bs_user_id: uid)
+      tmp_prj.watched_projects.create(user_id: uid)
     end
 
     tmp_id = tmp_prj.id
@@ -24,9 +24,9 @@ class WatchedProjectTest < ActiveSupport::TestCase
     end
 
     tmp_uid = tmp_user.id
-    assert_equal WatchedProject.where(bs_user_id: tmp_uid).count, project_ids.length
+    assert_equal WatchedProject.where(user_id: tmp_uid).count, project_ids.length
     tmp_user.destroy
-    assert_equal WatchedProject.where(bs_user_id: tmp_uid).count, 0
+    assert_equal WatchedProject.where(user_id: tmp_uid).count, 0
   end
 
 end

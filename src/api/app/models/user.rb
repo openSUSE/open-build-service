@@ -26,7 +26,7 @@ class User < ActiveRecord::Base
   has_many :taggings, :dependent => :destroy
   has_many :tags, :through => :taggings
 
-  has_many :watched_projects, :foreign_key => 'bs_user_id', :dependent => :destroy, inverse_of: :user
+  has_many :watched_projects, dependent: :destroy, inverse_of: :user
   has_many :groups_users, :foreign_key => 'user_id'
   has_many :roles_users, :foreign_key => 'user_id'
   has_many :relationships, inverse_of: :user, dependent: :destroy
@@ -796,6 +796,10 @@ class User < ActiveRecord::Base
 
   def to_s
     self.login
+  end
+
+  def to_param
+    to_s
   end
 
   def nr_of_requests_that_need_work

@@ -1,5 +1,4 @@
 Admin:
-  id: 280
   created_at: 2012-01-17 09:54:31.000000000 Z
   updated_at: 2012-01-17 09:54:31.000000000 Z
   last_logged_in_at: 2012-01-17 09:54:31.000000000 Z
@@ -13,7 +12,6 @@ Admin:
   password_crypted: osQq6OKjF0f8I
   state: 2
 Iggy:
-  id: 267
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
@@ -25,7 +23,6 @@ Iggy:
   password_salt: ''
   state: 2
 _nobody_:
-  id: 5
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
@@ -37,7 +34,6 @@ _nobody_:
   password_salt: ''
   state: 3
 adrian:
-  id: 42
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
@@ -49,7 +45,6 @@ adrian:
   password_salt: ''
   state: 2
 adrian_downloader:
-  id: 44
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
@@ -61,7 +56,6 @@ adrian_downloader:
   password_salt: ''
   state: 2
 adrian_nobody:
-  id: 45
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
@@ -73,7 +67,6 @@ adrian_nobody:
   password_salt: ''
   state: 2
 adrian_reader:
-  id: 43
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
@@ -85,7 +78,6 @@ adrian_reader:
   password_salt: ''
   state: 2
 binary_homer:
-  id: 47
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
@@ -96,8 +88,20 @@ binary_homer:
   password_hash_type: md5
   password_salt: ''
   state: 2
+deleted:
+  created_at: 2012-01-16 13:36:00.000000000 Z
+  updated_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
+  login_failure_count: 0
+  login: deleted
+  email: test@example.com
+  realname: ''
+  password: df9a257e5a7c1af44987f695369adc44
+  password_hash_type: md5
+  password_salt: Vibb8QsN4I
+  password_crypted: osEJSjdDGtlBY
+  state: 4
 dmayr:
-  id: 276
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
   last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
@@ -111,7 +115,6 @@ dmayr:
   password_crypted: osEJSjdDGtlBY
   state: 2
 fred:
-  id: 1
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
@@ -123,7 +126,6 @@ fred:
   password_salt: ''
   state: 2
 fredlibs:
-  id: 4
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
@@ -135,7 +137,6 @@ fredlibs:
   password_salt: ''
   state: 2
 hidden_homer:
-  id: 46
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
@@ -147,7 +148,6 @@ hidden_homer:
   password_salt: ''
   state: 2
 king:
-  id: 2
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
@@ -159,7 +159,6 @@ king:
   password_salt: ''
   state: 2
 maintenance_coord:
-  id: 172
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
@@ -171,7 +170,6 @@ maintenance_coord:
   password_salt: ''
   state: 2
 sourceaccess_homer:
-  id: 49
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
@@ -183,7 +181,6 @@ sourceaccess_homer:
   password_salt: ''
   state: 2
 tom:
-  id: 3
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
@@ -195,7 +192,6 @@ tom:
   password_salt: ''
   state: 2
 user1:
-  id: 268
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
   last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
@@ -209,7 +205,6 @@ user1:
   password_crypted: osEJSjdDGtlBY
   state: 2
 user2:
-  id: 269
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
   last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
@@ -223,7 +218,6 @@ user2:
   password_crypted: osEJSjdDGtlBY
   state: 2
 user3:
-  id: 270
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
   last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
@@ -237,7 +231,6 @@ user3:
   password_crypted: osEJSjdDGtlBY
   state: 2
 user4:
-  id: 271
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
   last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
@@ -251,7 +244,6 @@ user4:
   password_crypted: osEJSjdDGtlBY
   state: 2
 user5:
-  id: 272
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
   last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
@@ -265,7 +257,6 @@ user5:
   password_crypted: osEJSjdDGtlBY
   state: 2
 user6:
-  id: 273
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
   last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
@@ -278,17 +269,3 @@ user6:
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
   state: 2
-deleted:
-  id: 274
-  created_at: 2012-01-16 13:36:00.000000000 Z
-  updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
-  login_failure_count: 0
-  login: deleted
-  email: test@example.com
-  realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
-  password_hash_type: md5
-  password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
-  state: 4
