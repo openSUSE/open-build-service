@@ -163,7 +163,7 @@ Webui::Engine.routes.draw do
       get 'project/edit_repository/:project' => :edit_repository
       post 'project/update_target/:project' => :update_target
       get 'project/repositories/:project' => :repositories, constraints: cons, as: 'project_repositories'
-      get 'project/repository_state/:project/:repository' => :repository_state, constraints: cons
+      get 'project/repository_state/:project/:repository' => :repository_state, constraints: cons, as: 'project_repository_state'
       get 'project/rebuild_time/:project' => :rebuild_time, constraints: cons
       get 'project/rebuild_time_png/:project' => :rebuild_time_png, constraints: cons
       get 'project/packages/:project' => :packages, constraints: cons

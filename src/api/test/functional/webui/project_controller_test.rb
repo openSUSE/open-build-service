@@ -302,6 +302,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     # test reload and wait for the build to finish
     starttime=Time.now
     while Time.now - starttime < 10
+      page.must_have_selector '.icons-reload'
       first('.icons-reload').click
       if page.has_selector? '.repostatus'
         break if find('.repostatus').text =~ %r{succeeded: 1}
@@ -311,5 +312,17 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.current_path.must_match %r{project/monitor}
     page.must_have_link 'TestPack'
     page.wont_have_link 'disabled'
+
+    # this time we can assume repos are up
+    visit webui_engine.project_show_path(project: 'home:Iggy')
+    click_link '10.2'
+    page.must_have_text 'There are no cycles in this repository.'
+  end
+
+  test 'repository links' do
+    visit webui_engine.project_repositories_path(project: 'home:Iggy')
+    all(:link, '10.2').each do |l|
+      l['href'].must_equal webui_engine.project_repository_state_path(project: 'home:Iggy', repository: '10.2')
+    end
   end
 end
