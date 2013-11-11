@@ -57,28 +57,28 @@ end
 
 puts "Seeding attrib_namespaces table..."
 ans = AttribNamespace.first_or_create name: "OBS"
-ans.attrib_namespace_modifiable_bies.first_or_create(bs_user_id: admin.id)
+ans.attrib_namespace_modifiable_bies.first_or_create(user_id: admin.id)
 
 puts "Seeding attrib_types table..."
 at = ans.attrib_types.where(name: "VeryImportantProject").first_or_create(value_count: 0)
-at.attrib_type_modifiable_bies.where(bs_user_id: admin.id).first_or_create
+at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 at = ans.attrib_types.where(name: "UpdateProject").first_or_create(value_count: 1)
-at.attrib_type_modifiable_bies.where(bs_user_id: admin.id).first_or_create
+at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 at = ans.attrib_types.where(name: "RejectRequests").first_or_create
-at.attrib_type_modifiable_bies.where(bs_user_id: admin.id).first_or_create
+at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 at = ans.attrib_types.where(name: "ApprovedRequestSource").first_or_create(value_count: 0)
-at.attrib_type_modifiable_bies.where(bs_user_id: admin.id).first_or_create
+at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 at = ans.attrib_types.where(name: "Maintained").first_or_create(value_count: 0)
-at.attrib_type_modifiable_bies.where(bs_user_id: admin.id).first_or_create
+at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 at = ans.attrib_types.where(name: "MaintenanceProject").first_or_create(value_count: 0)
-at.attrib_type_modifiable_bies.where(bs_user_id: admin.id).first_or_create
+at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 at = ans.attrib_types.where(name: "MaintenanceIdTemplate").first_or_create(value_count: 1)
-at.attrib_type_modifiable_bies.where(bs_user_id: admin.id).first_or_create
+at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 at = ans.attrib_types.where(name: "ScreenShots").first_or_create
-at.attrib_type_modifiable_bies.where(bs_user_id: admin.id).first_or_create
+at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 
 at = ans.attrib_types.where(name: "OwnerRootProject").first_or_create
-at.attrib_type_modifiable_bies.where(bs_user_id: admin.id).first_or_create
+at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 at.allowed_values << AttribAllowedValue.new( value: "DisableDevel" )
 at.allowed_values << AttribAllowedValue.new( value: "BugownerOnly" )
 

@@ -2,7 +2,7 @@ class AddPpc64le < ActiveRecord::Migration
 
 
   def self.up
-    Architecture.find_or_create_by_name "ppc64le"
+    Architecture.where(name: "ppc64le").first_or_create
   end
 
 
