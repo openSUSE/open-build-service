@@ -2036,20 +2036,31 @@ sub forwardevent {
   return $BSStdServer::return_ok;
 }
 
+# done      -> failed|succeeded
+# scheduled -> scheduled|dispatching|building|finished|signing  + packerror
+# if codefilter is set, packages with a not-matching code will not get fixed
 sub fixpackstatus {
-  my ($prpa, $ps, $buildingjobs) = @_;
+  my ($prpa, $ps, $buildingjobs, $codefilter) = @_;
   return unless $ps && $ps->{'packstatus'};
   my $packstatus = $ps->{'packstatus'};
   $buildingjobs ||= {};
   my ($prp, $arch) = $prpa =~ /(.*)\/([^\/]*)$/;
   my $num = keys %$packstatus;
   my $logfiles_fail;
+  my $needjob = 1;
+  if ($codefilter) {
+    $needjob = 0 if $codefilter->{'dontmapscheduled'};
+    my %cf = %$codefilter;
+    delete $cf{$_} for qw{unresolvable succeeded failed};
+    $needjob = 0 unless %cf;
+  }
   for my $packid (keys %$packstatus) {
     $packstatus->{$packid} ||= 'unknown';
     # For old :packstatus files (before 2.0)
     if ($packstatus->{$packid} eq 'expansion error') {
       $packstatus->{$packid} = 'unresolvable';
     } elsif ($packstatus->{$packid} eq 'done') {
+      next if $codefilter && !$codefilter->{'failed'} && !$codefilter->{'succeeded'};
       if ($num > 10) {
 	$logfiles_fail ||= { map {$_ => 1} ls("$reporoot/$prpa/:logfiles.fail") };
 	$packstatus->{$packid} = $logfiles_fail->{$packid} ? 'failed' : 'succeeded';
@@ -2061,6 +2072,7 @@ sub fixpackstatus {
 	}
       }
     } elsif ($packstatus->{$packid} eq 'scheduled') {
+      next unless $needjob;
       if (!$buildingjobs->{$arch}) {
 	my $ba = {};
         for (grep {s/\:status$//} ls("$jobsdir/$arch")) {
@@ -2118,7 +2130,7 @@ sub getresult {
     $sl->{'details'} = $schedulerdetails if defined $schedulerdetails;
     $sl->{'dirty'} = 'true' if -e "$reporoot/$prpa/:schedulerstate.dirty";
     $sl->{'dirty'} = 'true' if $schedulerstate eq 'scheduling'; # flag already removed, but new state not yet written
-    fixpackstatus($prpa, $ps, \%buildingjobs);
+    fixpackstatus($prpa, $ps, \%buildingjobs, %code ? \%code : undef) unless $cgi->{'lastbuild'};
     for my $packid (sort(keys %{$ps->{'packstatus'} || {}})) {
       my $code = $ps->{'packstatus'}->{$packid};
       if ($cgi->{'lastbuild'}) {
