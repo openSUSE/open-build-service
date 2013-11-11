@@ -151,14 +151,14 @@ class Project < ActiveRecord::Base
         ret = 0
         grouprels.each do |grouprel|
           # check if User.current belongs to group
-          if grouprel and grouprel.bs_group_id
+          if grouprel and grouprel.group_id
             # LOCAL
             # if user is in group -> return true
             ret = ret + 1 if User.current.is_in_group?(grouprel.group_id)
             # LDAP
             # FIXME: please do not do special things here for ldap. please cover this in a generic group model.
             if CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
-              if User.current.user_in_group_ldap?(group.bs_group_id)
+              if User.current.user_in_group_ldap?(group.group_id)
                 ret = ret + 1
               end
             end

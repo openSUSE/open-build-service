@@ -83,23 +83,23 @@ at.allowed_values << AttribAllowedValue.new( value: "DisableDevel" )
 at.allowed_values << AttribAllowedValue.new( value: "BugownerOnly" )
 
 at = ans.attrib_types.where(name: "RequestCloned").first_or_create(value_count: 1)
-at.attrib_type_modifiable_bies.where(bs_role_id: maintainer_role.id).first_or_create
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 at = ans.attrib_types.where(name: "ProjectStatusPackageFailComment").first_or_create(value_count: 1)
-at.attrib_type_modifiable_bies.where(bs_role_id: maintainer_role.id).first_or_create
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 at = ans.attrib_types.where(name: "InitializeDevelPackage").first_or_create(value_count: 0)
-at.attrib_type_modifiable_bies.where(bs_role_id: maintainer_role.id).first_or_create
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 at = ans.attrib_types.where(name: "BranchTarget").first_or_create(value_count: 0)
-at.attrib_type_modifiable_bies.where(bs_role_id: maintainer_role.id).first_or_create
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 at = ans.attrib_types.where(name: "BranchRepositoriesFromProject").first_or_create(value_count: 1)
-at.attrib_type_modifiable_bies.where(bs_role_id: maintainer_role.id).first_or_create
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 
 at = ans.attrib_types.where(name: "Issues").first_or_create(value_count: 0)
-at.attrib_type_modifiable_bies.where(bs_role_id: maintainer_role.id).first_or_create
-at.attrib_type_modifiable_bies.where(bs_role_id: bugowner_role.id).first_or_create
-at.attrib_type_modifiable_bies.where(bs_role_id: reviewer_role.id).first_or_create
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
+at.attrib_type_modifiable_bies.where(role_id: bugowner_role.id).first_or_create
+at.attrib_type_modifiable_bies.where(role_id: reviewer_role.id).first_or_create
 
 at = ans.attrib_types.where(name: "QualityCategory").first_or_create(value_count: 1)
-at.attrib_type_modifiable_bies.where(bs_role_id: maintainer_role.id).first_or_create
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 at.allowed_values << AttribAllowedValue.new( value: "Stable" )
 at.allowed_values << AttribAllowedValue.new( value: "Testing" )
 at.allowed_values << AttribAllowedValue.new( value: "Development" )

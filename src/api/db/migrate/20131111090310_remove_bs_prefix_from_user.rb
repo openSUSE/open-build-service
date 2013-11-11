@@ -10,6 +10,4 @@ class RemoveBsPrefixFromUser < ActiveRecord::Migration
     execute "alter table attrib_type_modifiable_bies add FOREIGN KEY (user_id) references users (id);"
   end
 
-  def down
-  end
 end
