@@ -1,3 +1,8 @@
+ppc64le:
+  id: 52
+  name: ppc64le
+  recommended: 0
+  available: 0
 armv4l:
   id: 28
   name: armv4l

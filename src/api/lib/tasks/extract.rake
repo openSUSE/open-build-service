@@ -83,6 +83,10 @@ namespace :db do
             role = Role.find(record.delete('role_id'))
             record['role'] = role.title
           end
+          if record.has_key?('group_id')
+            group = Group.find(record.delete('group_id'))
+            record['group'] = group.title
+          end
           key = idtokey[id]
           if key.blank? && classname
             begin
@@ -91,12 +95,13 @@ namespace :db do
                 Integer(key)
                 key = nil # if it's a valid integer, ignore it :)
               rescue Exception
+	      	record.delete(primary)
               end
             rescue ActiveRecord::StatementInvalid
               # models without primary key
             end
           end
-          puts "#{table_name} #{record.inspect} -#{key}-"
+          #puts "#{table_name} #{record.inspect} -#{key}-"
           key ||= "#{table_name}_#{id}".force_encoding("UTF-8")
           raise "duplicated record" if hash.has_key? key
           hash[key] = record

@@ -14,6 +14,10 @@ class Architecture < ActiveRecord::Base
 
   has_many :flags
 
+  def to_param
+    self.name
+  end
+
   def self.discard_cache
     Rails.cache.delete("archcache")
   end
