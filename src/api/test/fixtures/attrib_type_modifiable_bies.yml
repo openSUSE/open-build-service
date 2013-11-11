@@ -5,11 +5,11 @@ attrib_type_modifiable_bies_179501368:
 attrib_type_modifiable_bies_292834146:
   id: 292834146
   attrib_type_id: 57
-  bs_user_id: 172
+  user_id: 172
 attrib_type_modifiable_bies_388974694:
   id: 388974694
   attrib_type_id: 63
-  bs_user_id: 172
+  user_id: 172
   bs_role_id: 3
 attrib_type_modifiable_bies_911731374:
   id: 911731374
@@ -26,39 +26,39 @@ attrib_type_modifiable_bies_967186686:
 attrib_type_modifiable_bies_973674845:
   id: 973674845
   attrib_type_id: 58
-  bs_user_id: 172
+  user_id: 172
 attrib_type_modifiable_bies_973674869:
   id: 973674869
   attrib_type_id: 56
-  bs_user_id: 280
+  user_id: 280
 attrib_type_modifiable_bies_973674870:
   id: 973674870
   attrib_type_id: 57
-  bs_user_id: 280
+  user_id: 280
 attrib_type_modifiable_bies_973674871:
   id: 973674871
   attrib_type_id: 64
-  bs_user_id: 280
+  user_id: 280
 attrib_type_modifiable_bies_973674872:
   id: 973674872
   attrib_type_id: 65
-  bs_user_id: 280
+  user_id: 280
 attrib_type_modifiable_bies_973674873:
   id: 973674873
   attrib_type_id: 58
-  bs_user_id: 280
+  user_id: 280
 attrib_type_modifiable_bies_973674874:
   id: 973674874
   attrib_type_id: 62
-  bs_user_id: 280
+  user_id: 280
 attrib_type_modifiable_bies_973674875:
   id: 973674875
   attrib_type_id: 63
-  bs_user_id: 280
+  user_id: 280
 attrib_type_modifiable_bies_973674876:
   id: 973674876
   attrib_type_id: 73
-  bs_user_id: 280
+  user_id: 280
 attrib_type_modifiable_bies_973674877:
   id: 973674877
   attrib_type_id: 60

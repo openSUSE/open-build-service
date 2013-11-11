@@ -47,16 +47,16 @@ CREATE TABLE `attrib_issues` (
 CREATE TABLE `attrib_namespace_modifiable_bies` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `attrib_namespace_id` int(11) NOT NULL,
-  `bs_user_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
   `bs_group_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `attrib_namespace_user_role_all_index` (`attrib_namespace_id`,`bs_user_id`,`bs_group_id`),
-  KEY `bs_user_id` (`bs_user_id`),
+  UNIQUE KEY `attrib_namespace_user_role_all_index` (`attrib_namespace_id`,`user_id`,`bs_group_id`),
+  KEY `bs_user_id` (`user_id`),
   KEY `bs_group_id` (`bs_group_id`),
   KEY `index_attrib_namespace_modifiable_bies_on_attrib_namespace_id` (`attrib_namespace_id`),
   CONSTRAINT `attrib_namespace_modifiable_bies_ibfk_1` FOREIGN KEY (`attrib_namespace_id`) REFERENCES `attrib_namespaces` (`id`),
-  CONSTRAINT `attrib_namespace_modifiable_bies_ibfk_2` FOREIGN KEY (`bs_user_id`) REFERENCES `users` (`id`),
-  CONSTRAINT `attrib_namespace_modifiable_bies_ibfk_3` FOREIGN KEY (`bs_group_id`) REFERENCES `groups` (`id`)
+  CONSTRAINT `attrib_namespace_modifiable_bies_ibfk_3` FOREIGN KEY (`bs_group_id`) REFERENCES `groups` (`id`),
+  CONSTRAINT `attrib_namespace_modifiable_bies_ibfk_4` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `attrib_namespaces` (
@@ -69,11 +69,13 @@ CREATE TABLE `attrib_namespaces` (
 CREATE TABLE `attrib_type_modifiable_bies` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `attrib_type_id` int(11) NOT NULL,
-  `bs_user_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
   `bs_group_id` int(11) DEFAULT NULL,
   `bs_role_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `attrib_type_user_role_all_index` (`attrib_type_id`,`bs_user_id`,`bs_group_id`,`bs_role_id`)
+  UNIQUE KEY `attrib_type_user_role_all_index` (`attrib_type_id`,`user_id`,`bs_group_id`,`bs_role_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `attrib_type_modifiable_bies_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `attrib_types` (
@@ -908,11 +910,11 @@ CREATE TABLE `users` (
 
 CREATE TABLE `watched_projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `bs_user_id` int(11) NOT NULL DEFAULT '0',
+  `user_id` int(11) NOT NULL DEFAULT '0',
   `project_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `watched_projects_users_fk_1` (`bs_user_id`),
-  CONSTRAINT `watched_projects_ibfk_1` FOREIGN KEY (`bs_user_id`) REFERENCES `users` (`id`)
+  KEY `watched_projects_users_fk_1` (`user_id`),
+  CONSTRAINT `watched_projects_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 INSERT INTO schema_migrations (version) VALUES ('1');
@@ -1332,6 +1334,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131028085325');
 INSERT INTO schema_migrations (version) VALUES ('20131029112259');
 
 INSERT INTO schema_migrations (version) VALUES ('20131106112233');
+
+INSERT INTO schema_migrations (version) VALUES ('20131111090310');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
