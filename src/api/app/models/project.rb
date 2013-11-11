@@ -1326,4 +1326,19 @@ class Project < ActiveRecord::Base
     return release_targets_ng
   end
 
+  def self.source_path(project, file = nil, opts = {})
+    path = "/source/#{URI.escape(project)}"
+    path += "/#{URI.escape(file)}" unless file.blank?
+    path += '?' + opts.to_query unless opts.blank?
+    path
+  end
+
+  def source_path(file = nil, opts = {})
+    Project.source_path(self.name, file, opts)
+  end
+
+  def source_file(file, opts = {})
+    Suse::Backend.get(source_path(file, opts)).body
+  end
+
 end

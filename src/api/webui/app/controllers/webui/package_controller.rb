@@ -590,7 +590,7 @@ class Webui::PackageController < Webui::WebuiController
       end
     end
     begin
-      @file = frontend.get_source(:project => @project.to_s, :package => @package.to_s, :filename => @filename, :rev => @rev, :expand => @expand)
+      @file = @package.api_obj.source_file(@filename, fetch_from_params(:rev, :expand))
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = "File not found: #{@filename}"
       redirect_to :action => :show, :package => @package, :project => @project and return
@@ -601,6 +601,14 @@ class Webui::PackageController < Webui::WebuiController
     if @spider_bot
       render :template => 'package/simple_file_view' and return
     end
+  end
+
+  def fetch_from_params(*arr)
+    opts = {}
+    arr.each do |k|
+      opts[k] = params[k] if params[k].present?
+    end
+    opts
   end
 
   def save_modified_file
@@ -746,9 +754,7 @@ class Webui::PackageController < Webui::WebuiController
     if @specfile_name.blank?
       render json: {} and return
     end
-    specfile_content = frontend.get_source(
-      project: params[:project], package: params[:package], filename: @specfile_name
-    )
+    specfile_content = @package.api_obj.source_file(@specfile_name)
 
     description = []
     lines = specfile_content.split(/\n/)

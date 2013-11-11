@@ -38,21 +38,6 @@ class FrontendCompat
     transport.direct_http URI("#{path}"), :method => 'POST', :data => ''
   end
 
-  def get_source( opt={} )
-    logger.debug "--> get_source: #{opt.inspect}"
-    path = '/source'
-    path += "/#{pesc opt[:project]}" if opt[:project]
-    path += "/#{pesc opt[:package]}" if opt[:project] && opt[:package]
-    path += "/#{pesc opt[:filename]}" if opt[:filename]
-    extra = []
-    extra << "rev=#{esc opt[:rev]}" if opt[:rev]
-    extra << "expand=#{opt[:expand]}" if opt[:expand]
-    path += "?#{extra.join('&')}" if extra.length
-    logger.debug "--> get_source path: #{path}"
-    
-    transport.http_do :get, URI("#{path}")
-  end
-
   def put_file( data, opt={} )
     path = '/source'
     path += "/#{pesc opt[:project]}" if opt[:project]
@@ -115,8 +100,8 @@ class FrontendCompat
     data = ActiveXML::backend.direct_http URI("#{path}"), :timeout => 500
     return 0 unless data
     doc = Xmlhash.parse(data)
-    doc.elements("entry") do |e|
-      return e["size"].to_i
+    doc.elements('entry') do |e|
+      return e['size'].to_i
     end
     0
   end
