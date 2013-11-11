@@ -27,6 +27,7 @@ copy $themedir/bento/images/icons/bricks.png ./app/assets/icons/project.png
 copy $themedir/bento/images/icons/bug_add.png ./app/assets/icons/bug_add.png
 copy $themedir/bento/images/icons/bug_delete.png ./app/assets/icons/bug_delete.png
 copy $themedir/bento/images/icons/cancel.png ./app/assets/icons/cancel.png
+copy $themedir/bento/images/icons/clock.png ./app/assets/icons/clock.png
 copy $themedir/bento/images/icons/cog.png ./app/assets/icons/cog.png
 copy $themedir/bento/images/icons/cog_add.png ./app/assets/icons/cog_add.png
 copy $themedir/bento/images/icons/cog_delete.png ./app/assets/icons/cog_delete.png
@@ -90,6 +91,7 @@ copy $themedir/bento/images/icons/user_delete.png ./app/assets/icons/user_delete
 copy $themedir/bento/images/icons/user_edit.png ./app/assets/icons/user_edit.png
 copy $themedir/bento/images/icons/user_green.png ./app/assets/icons/user_green.png
 copy $themedir/bento/images/icons/help.png ./app/assets/icons/help.png
+copy $themedir/bento/images/icons/stop.png ./app/assets/icons/stop.png
 copy $themedir/bento/images/home_grey.png ./app/assets/icons/home_grey.png
 copy $themedir/bento/images/sponsors/sponsor_suse.png ./app/assets/icons/sponsor_suse.png
 copy $themedir/bento/images/sponsors/sponsor_amd.png ./app/assets/icons/sponsor_amd.png
@@ -124,3 +126,4 @@ copy $themedir/bento/images/distributions/ubuntu.png ./app/assets/icons/distribu
 
 copy $themedir/bento/images/globalnav/globalnav-im.png ./app/assets/images/globalnav-im.png
 
+rake assets:resprite

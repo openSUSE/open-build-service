@@ -11,7 +11,24 @@
                    end
                    title = "#{short_incident_name(@project, incident)}: #{title}"
                 %>
-                <%= link_to(elide(title, 70, :right), { action: 'show', project: incident.name }, title: title) %>
+                <%= link_to(elide(title, 60, :right), { action: 'show', project: incident.name }, title: title) %>
+              </td>
+              <td rowspan="<%= release_targets_ng.length %>">
+                <% if rt[:patchinfo] %>
+                    <%= link_to(rt[:patchinfo].category, { controller: 'patchinfo', action: 'show', project: incident.name, package: 'patchinfo', file: '_patchinfo' }, { style: "color: #{patchinfo_category_color(rt[:patchinfo].category)};" }) %>
+                <% else %>
+                    <%= link_to(sprite_tag('exclamation', title: 'No patchinfo') + 'Missing patchinfo', { controller: 'patchinfo', action: 'new_patchinfo', project: incident.name, package: 'patchinfo' }, { style: 'color: red;', method: :post }) %>
+                <% end %>
+              </td>
+              <td rowspan="<%= release_targets_ng.length %>">
+                <% packages = rt[:packages]
+                   package = packages.shift
+                   if package %>
+                    <%= link_to(package.name.split('.', 2)[0], controller: 'package', action: 'show', project: incident.name, package: package.name) %>
+                    <% unless packages.empty? %>
+                        , ...
+                    <% end %>
+                <% end %>
               </td>
               <td rowspan="<%= release_targets_ng.length %>" class="nowrap">
                 <% rqs_in = BsRequestCollection.list_ids(roles: %w(target), states: %w(new review), project: incident.name) %>
@@ -36,30 +53,11 @@
                 <% end %>
                 <% if rt[:patchinfo] && rt[:patchinfo].value('stopped') && !rt[:patchinfo].value('stopped').empty? %>
                     <% title = "Stopped: #{rt[:patchinfo].value('stopped')}" %>
-                    <%= sprite_tag('dialog-warning', title: title) %>
+                    <%= sprite_tag('clock', title: title) %>
                 <% end %>
               </td>
           <% end %>
           <td><b><%= rt_name %></b></td>
-          <% if rt[:patchinfo] %>
-              <td>
-                <%= link_to(rt[:patchinfo].category, { controller: 'patchinfo', action: 'show', project: incident.name, package: 'patchinfo', file: '_patchinfo' }, { style: "color: #{patchinfo_category_color(rt[:patchinfo].category)};" }) %>
-              </td>
-          <% else %>
-              <td>
-                <%= link_to(sprite_tag('exclamation', title: 'No patchinfo') + 'Missing patchinfo', { controller: 'patchinfo', action: 'new_patchinfo', project: incident.name, package: 'patchinfo' }, { style: 'color: red;', method: :post }) %>
-              </td>
-          <% end %>
-          <td>
-            <% packages = rt[:packages]
-               package = packages.shift
-               if package %>
-                <%= link_to(package.name.split('.', 2)[0], controller: 'package', action: 'show', project: incident.name, package: package.name) %>
-                <% unless packages.empty? %>
-                    , ...
-                <% end %>
-            <% end %>
-          </td>
           <td>
             <% buildresult_css_id = "incident_#{valid_xml_id(incident.name)}_results_#{valid_xml_id(rt_name)}" %>
             <% if incident.build_succeeded?(rt[:reponame]) %>
