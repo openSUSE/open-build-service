@@ -6262,6 +6262,7 @@ sub getworkerstatus {
       $ob->{'buildavg'} += $b->{'buildavg'};
       $ob->{'count'} += 1;
     }
+    $cws->{'clients'} += $ws->{'clients'} if $ws->{'clients'};
   }
   for my $b (@{$cws->{'buildavg'} || []}) {
     $b->{'buildavg'} /= delete $b->{'count'};
