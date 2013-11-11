@@ -15,7 +15,7 @@ function updateSupersedeAndDevelPackageDisplay() {
                 project: $('#targetproject').attr('value'),
                 package: $('#package').attr('value'),
                 types: 'submit',
-                states: ['new','review','declined']
+                states: ['new', 'review', 'declined']
             },
             success: function (data) {
                 if (data.indexOf('No requests') == -1) {
@@ -139,15 +139,15 @@ function requestAddReviewAutocomplete() {
     $("#review_user").autocomplete({source: '/user/autocomplete', minChars: 2, matchCase: true, max: 50});
     $("#review_project").autocomplete({source: '/project/autocomplete_projects', minChars: 2, matchCase: true, max: 50});
     $("#review_package").autocomplete({
-        source: function(request, response) {
+        source: function (request, response) {
             $.ajax({
                 url: '/project/autocomplete_packages',
                 dataType: "json",
                 data: {
-                    term : request.term,
-                    project : $("#review_project").val()
+                    term: request.term,
+                    project: $("#review_project").val()
                 },
-                success: function(data) {
+                success: function (data) {
                     response(data);
                 }
             });
@@ -156,5 +156,16 @@ function requestAddReviewAutocomplete() {
         minChars: 0,
         matchCase: true,
         max: 50
+    });
+}
+
+function setupActionLink() {
+    $('.action_select_link').click(function (event) {
+        $('#action_select li.selected').attr('class', '');
+        $(event.target).parent().attr('class', 'selected')
+        $('.action_display').hide();
+        index = event.target.id.split('action_select_link_')[1]
+        $('#action_display_' + index).show();
+        return false;
     });
 }

@@ -56,7 +56,7 @@ module Webui::WebuiHelper
                                     'default_face.png'), 'r').read
         end
       end
-       "<img src='data:image/jpeg;base64,#{Base64.encode64(content)}' width='#{size}' height='#{size}' alt='#{alt}' class='#{css_class}'/>".html_safe
+      "<img src='data:image/jpeg;base64,#{Base64.encode64(content)}' width='#{size}' height='#{size}' alt='#{alt}' class='#{css_class}'/>".html_safe
     else
       image_tag(url_for(controller: :home, action: :icon, user: user.login, size: size),
                 width: size, height: size, alt: alt, class: css_class)
@@ -75,7 +75,7 @@ module Webui::WebuiHelper
   end
 
   def status_for(repo, arch, package)
-    @statushash[repo][arch][package] || {'package' => package}
+    @statushash[repo][arch][package] || { 'package' => package }
   end
 
   def format_projectname(prjname, login)
@@ -119,9 +119,9 @@ module Webui::WebuiHelper
     elsif ['-', 'excluded'].include? code
       out += code
     else
-      out += link_to code.gsub(/\s/, '&nbsp;'), {action: :live_build_log,
-                                                 package: packname, project: @project.to_s, arch: arch,
-                                                 controller: 'package', repository: repo}, {title: link_title, rel: 'nofollow'}
+      out += link_to code.gsub(/\s/, '&nbsp;'), { action: :live_build_log,
+                                                  package: packname, project: @project.to_s, arch: arch,
+                                                  controller: 'package', repository: repo }, { title: link_title, rel: 'nofollow' }
     end
     out += '</td>'
     return out.html_safe
@@ -181,8 +181,8 @@ module Webui::WebuiHelper
 
     if (@package && User.current.can_modify_package?(@package.api_obj)) ||
         (@project && User.current.can_modify_project?(@project.api_obj))
-      opts = {project: @project, package: @package, action: :repositories}
-      data = {flag: flagname}
+      opts = { project: @project, package: @package, action: :repositories }
+      data = { flag: flagname }
       data[:repository] = repository if repository
       data[:arch] = arch if arch
       content_tag(:div, class: 'flagimage', data: data) do
@@ -193,24 +193,24 @@ module Webui::WebuiHelper
               out += content_tag(:div, class: 'iconwrapper') do
                 content_tag(:div, '', class: "icons-#{flagname}_disabled_blue icon_24")
               end
-              out += link_to('Explicitly disable', opts, class: 'nowrap flag_trigger', data: {cmd: :set_flag, status: :disable})
+              out += link_to('Explicitly disable', opts, class: 'nowrap flag_trigger', data: { cmd: :set_flag, status: :disable })
             end
             if flag[0] == 'disable'
               out += content_tag(:div, class: 'iconwrapper') do
                 content_tag(:div, '', class: "icons-#{flagname}_enabled_grey icon_24")
               end
-              out += link_to('Take default', opts, class: 'nowrap flag_trigger', data: {cmd: :remove_flag})
+              out += link_to('Take default', opts, class: 'nowrap flag_trigger', data: { cmd: :remove_flag })
             else
               out += content_tag(:div, class: 'iconwrapper') do
                 content_tag(:div, '', class: "icons-#{flagname}_disabled_grey icon_24")
               end
-              out += link_to('Take default', opts, class: 'nowrap flag_trigger', data: {cmd: :remove_flag})
+              out += link_to('Take default', opts, class: 'nowrap flag_trigger', data: { cmd: :remove_flag })
             end if flag[1].has_key? :explicit
             unless flag[1].has_key? :explicit and flag[0] != 'disable'
               out += content_tag(:div, class: 'iconwrapper') do
                 content_tag(:div, '', class: "icons-#{flagname}_enabled_blue icon_24")
               end
-              out += link_to('Explicitly enable', opts, class: 'nowrap flag_trigger', data: {cmd: :set_flag, status: :enable})
+              out += link_to('Explicitly enable', opts, class: 'nowrap flag_trigger', data: { cmd: :set_flag, status: :enable })
             end
             out
           end
@@ -263,7 +263,7 @@ module Webui::WebuiHelper
   def tab(id, text, opts)
     opts[:package] = @package.to_s if @package
     opts[:project] = @project.to_s if @project
-    link_opts = {id: "tab-#{id}"}
+    link_opts = { id: "tab-#{id}" }
     if @current_action.to_s == opts[:action].to_s and @current_controller.to_s == opts[:controller].to_s
       link_opts[:class] = 'selected'
     end
@@ -280,16 +280,16 @@ module Webui::WebuiHelper
 
     if text.length > length
       case mode
-        when :left # shorten at the beginning
-          shortened_text = '...' + text[text.length - length + 3 .. text.length]
-        when :middle # shorten in the middle
-          pre = text[0 .. length / 2 - 2]
-          offset = 2 # depends if (shortened) length is even or odd
-          offset = 1 if length.odd?
-          post = text[text.length - length / 2 + offset .. text.length]
-          shortened_text = pre + '...' + post
-        when :right # shorten at the end
-          shortened_text = text[0 .. length - 4] + '...'
+      when :left # shorten at the beginning
+        shortened_text = '...' + text[text.length - length + 3 .. text.length]
+      when :middle # shorten in the middle
+        pre = text[0 .. length / 2 - 2]
+        offset = 2 # depends if (shortened) length is even or odd
+        offset = 1 if length.odd?
+        post = text[text.length - length / 2 + offset .. text.length]
+        shortened_text = pre + '...' + post
+      when :right # shorten at the end
+        shortened_text = text[0 .. length - 4] + '...'
       end
     end
     return shortened_text
@@ -373,7 +373,7 @@ module Webui::WebuiHelper
       return next_codemirror_uid
     end
     @codemirror_editor_setup = 0
-    opts.reverse_merge!({read_only: false, no_border: false, width: 'auto'})
+    opts.reverse_merge!({ read_only: false, no_border: false, width: 'auto' })
 
     content_for(:content_for_head, javascript_include_tag('webui/cm2'))
     style = ''
@@ -404,7 +404,7 @@ module Webui::WebuiHelper
   # @param [String] role title of the login
   # @param [Hash]   options boolean flags :short, :no_icon and :no_link
   def user_and_role(user, role=nil, options = {})
-    opt = {short: false, no_icon: false, no_link: false}.merge(options)
+    opt = { short: false, no_icon: false, no_link: false }.merge(options)
     realname = User.realname_for_login(user)
     output = ''
 
@@ -447,15 +447,15 @@ module Webui::WebuiHelper
     opts[:short] = true # for project
     out += link_to_project(prj, opts) + ' / ' +
         link_to_if(pkg, opts[:package_text],
-                   {controller: 'package', action: 'show',
-                    project: opts[:project],
-                    package: opts[:package]}, {class: 'package', title: opts[:package]})
+                   { controller: 'package', action: 'show',
+                     project: opts[:project],
+                     package: opts[:package] }, { class: 'package', title: opts[:package] })
     if opts[:rev] && pkg
       out += ' ('.html_safe +
           link_to("revision #{elide(opts[:rev], 10)}",
-                  {controller: 'package', action: 'show',
-                   project: opts[:project], package: opts[:package], rev: opts[:rev]},
-                  {class: 'package', title: opts[:rev]}) + ')'.html_safe
+                  { controller: 'package', action: 'show',
+                    project: opts[:project], package: opts[:package], rev: opts[:rev] },
+                  { class: 'package', title: opts[:rev] }) + ')'.html_safe
     end
     out
   end
@@ -468,12 +468,12 @@ module Webui::WebuiHelper
       out = 'project '.html_safe
     end
     out + link_to_if(prj, elide(opts[:project_text], opts[:trim_to]),
-                     {controller: 'project', action: 'show', project: opts[:project]},
-                     {class: 'project', title: opts[:project]})
+                     { controller: 'project', action: 'show', project: opts[:project] },
+                     { class: 'project', title: opts[:project] })
   end
 
   def project_or_package_link(opts)
-    defaults = {package: nil, rev: nil, short: false, trim_to: 40}
+    defaults = { package: nil, rev: nil, short: false, trim_to: 40 }
     opts = defaults.merge(opts)
 
     CacheLine.fetch(['project_or_package_link', opts], project: opts[:project], package: opts[:package]) do
@@ -494,7 +494,7 @@ module Webui::WebuiHelper
   end
 
   def user_with_realname_and_icon(user, opts = {})
-    defaults = {short: false, no_icon: false, no_link: false}
+    defaults = { short: false, no_icon: false, no_link: false }
     opts = defaults.merge(opts)
 
     user = User.find_by_login(user) unless user.is_a? User
@@ -516,8 +516,10 @@ module Webui::WebuiHelper
 
   def possibly_empty_ul(html_opts, &block)
     content = capture(&block)
-    Rails.logger.debug "UL #{content}"
-    unless content.blank?
+    if content.blank?
+      html_opts[:fallback]
+    else
+      html_opts.delete :fallback
       content_tag(:ul, content, html_opts)
     end
   end
