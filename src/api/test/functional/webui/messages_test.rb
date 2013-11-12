@@ -20,6 +20,16 @@ class Webui::MessagesTest < Webui::IntegrationTest
     find_button('Ok').click
     
     find(:id, 'messages').must_have_text message
+
+    get '/main/news.rss'
+    assert_response :success
+    ret = Xmlhash.parse(@response.body)
+    ret = ret['channel']
+    assert_equal 'Open Build Service News', ret['title']
+    assert_equal 'Recent news', ret['description']
+    assert_equal 'This is just a test', ret['item']['title']
+    assert_equal 'king', ret['item']['author']
+
     first(:css, '.delete-message .icons-comment_delete').click
     find_button('Ok').click
 

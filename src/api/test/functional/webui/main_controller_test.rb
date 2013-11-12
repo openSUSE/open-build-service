@@ -30,4 +30,5 @@ class Webui::MainControllerTest < ActionDispatch::IntegrationTest
     assert @urls.include? '/package/show/home:Iggy/TestPack'
     assert @urls.include? '/package/show/Apache/apache2'
   end
+
 end
