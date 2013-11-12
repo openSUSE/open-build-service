@@ -2,7 +2,7 @@ require 'active_record/fixtures'
 
 def local_to_yaml(hash, file)
   hash.sort.each do |k, v| # <-- here's my addition (the 'sort')
-    file.write({k => v}.to_yaml(:SortKeys => true, :ExplicitTypes => true).gsub(%r{^---\s*}, ''))
+    file.write({ k => v }.to_yaml(:SortKeys => true, :ExplicitTypes => true).gsub(%r{^---\s*}, ''))
   end
 end
 
@@ -61,7 +61,7 @@ namespace :db do
         classname = nil
       end
 
-      next unless table_name == 'taggings'
+      #next unless table_name == 'taggings'
 
       File.open("#{Rails.root}/test/fixtures/#{table_name}.yml", 'w') do |file|
         data = ActiveRecord::Base.connection.select_all(sql % table_name)
@@ -101,9 +101,11 @@ namespace :db do
             perm = StaticPermission.find(record.delete('static_permission_id'))
             record['static_permission'] = perm.title
           end
-          if record.has_key?('project_id')
-            p = Project.find(record.delete('project_id'))
-            record['project'] = p.name.gsub(':', '_')
+          %w(project develproject maintenance_project).each do |prefix|
+            if record.has_key?(prefix + '_id')
+              p = Project.find(record.delete(prefix + '_id'))
+              record[prefix] = p.name.gsub(':', '_')
+            end
           end
           if record.has_key?('db_project_id')
             p = Project.find(record.delete('db_project_id'))
@@ -137,8 +139,12 @@ namespace :db do
           if table_name == 'roles_static_permissions'
             defaultkey = "#{record['role']}_#{record['static_permission']}"
           end
-          if table_name == 'projects'
+          if table_name == 'projects' || table_name == 'architectures'
             defaultkey = record['name'].gsub(':', '_')
+            record.delete(primary)
+          end
+          if table_name == 'static_permissions'
+            defaultkey = record['title']
             record.delete(primary)
           end
           if table_name == 'db_project_types'

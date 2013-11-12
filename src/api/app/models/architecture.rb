@@ -14,10 +14,6 @@ class Architecture < ActiveRecord::Base
 
   has_many :flags
 
-  def to_param
-    self.name
-  end
-
   def self.discard_cache
     Rails.cache.delete("archcache")
   end
@@ -30,10 +26,6 @@ class Architecture < ActiveRecord::Base
       end
       ret
     end
-  end
-
-  def archcache
-    Architecture.archcache
   end
 
   after_save 'Architecture.discard_cache'
