@@ -105,8 +105,8 @@ class XpathEngine
         'maintenance/maintains/@project' => {:cpart => 'maintained.name', :joins => [
           'LEFT JOIN projects AS maintained ON projects.id = maintained.maintenance_project_id']},
         'person/@userid' => {:cpart => 'users.login', :joins => [
-          'LEFT JOIN relationships AS ppr ON projects.id = ppr.project_id',
-          'LEFT JOIN users ON users.id = ppr.user_id']},
+          'LEFT JOIN relationships AS rpr ON projects.id = rpr.project_id',
+          'LEFT JOIN users ON users.id = rpr.user_id']},
         'person/@role' => {:cpart => 'ppr.title', :joins => [
           'LEFT JOIN relationships ON projects.id = relationships.project_id',
           'LEFT JOIN roles AS ppr ON relationships.role_id = ppr.id']},

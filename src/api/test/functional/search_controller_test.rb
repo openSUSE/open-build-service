@@ -705,6 +705,11 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get '/search/package/id', match: "person/@userid = 'adrian' and person/@role = 'maintainer'"
     assert_response :success
     assert_xml_tag tag: 'package', attributes: { project: 'kde4', name: 'kdelibs' }
+
+    get '/search/project', match: "person/@userid = 'adrian' and person/@role = 'maintainer'"
+    assert_response :success
+    assert_xml_tag tag: 'project', attributes: { name: 'kde4' }
+    assert_xml_tag tag: 'project', attributes: { name: 'home:adrian' }
   end
 end
 
