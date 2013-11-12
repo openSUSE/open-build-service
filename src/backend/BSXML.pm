@@ -167,8 +167,10 @@ our $packinfo = [
 	'error',
 	  [ 'dep' ],
 	  [ 'prereq' ],
-	  [ 'imagetype' ],
-	  [ 'imagearch' ],
+	  [ 'imagetype' ],	# kiwi
+	  [ 'imagearch' ],	# kiwi
+	    'nodbgpkgs',	# kiwi
+	    'nosrcpkgs',	# kiwi
 	 [[ 'path' =>
 		'project',
 		'repository',
@@ -481,7 +483,9 @@ our $buildinfo = [
 	'constraintsmd5',
       [ 'prjconfconstraint' ],
       [ 'subpack' ],
-      [ 'imagetype' ],
+      [ 'imagetype' ],	# kiwi
+	'nodbgpkgs',	# kiwi
+	'nosrcpkgs',	# kiwi
       [ 'dep' ],
      [[ 'bdep' =>
 	'name',

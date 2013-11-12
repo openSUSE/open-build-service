@@ -4433,6 +4433,8 @@ sub checkkiwiproduct {
   }
 
   my $allpacks = $deps{'*'} ? 1 : 0;
+  my $nodbgpkgs = $info->{'nodbgpkgs'};
+  my $nosrcpkgs = $info->{'nosrcpkgs'};
 
   my $maxblocked = 20;
   my %blockedarch;
@@ -4506,6 +4508,8 @@ sub checkkiwiproduct {
 	my $needit;
 	for my $b (values %$bininfo) {
 	  next unless $b->{'filename'} && $b->{'filename'} =~ /\.rpm$/;
+	  next if $nodbgpkgs && $b->{'filename'} =~ /-(?:debuginfo|debugsource)-/;
+	  next if $nosrcpkgs && $b->{'filename'} =~ /\.(?:nosrc|src)\.rpm$/;
 	  $needit = 1 if $deps{$b->{'name'}} || ($allpacks && !$deps{"-$b->{'name'}"});
 	  push @got, "$aprp/$arch/$apackid/$b->{'filename'}";
 	  $rpms_hdrmd5{$got[-1]} = $b->{'hdrmd5'} if $b->{'hdrmd5'};
@@ -4706,6 +4710,8 @@ sub rebuildkiwiproduct {
   $binfo->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
   $binfo->{'revtime'} = $pdata->{'revtime'} if $pdata->{'revtime'};
   $binfo->{'imagetype'} = $info->{'imagetype'} if $info->{'imagetype'};
+  $binfo->{'nodbgpkgs'} = $info->{'nodbgpkgs'} if $info->{'nodbgpkgs'};
+  $binfo->{'nosrcpkgs'} = $info->{'nosrcpkgs'} if $info->{'nosrcpkgs'};
   mkdir_p("$reporoot/$prp/$myarch/$packid");
   writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => $now, 'job' => $job}, $BSXML::buildstatus);
   $reason->{'time'} = $now;

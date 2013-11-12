@@ -3171,6 +3171,11 @@ sub getprojpack {
 		$rinfo->{'imagearch'} = [ @{$d->{'exclarch'}} ];
 	        unshift @{$d->{'exclarch'}}, 'local' if defined($BSConfig::localarch);
 	      }
+	      # KIWI Products support debugmedium and sourcemedium filters
+	      if ($type eq 'kiwi' && ($d->{'imagetype'}[0] || '') eq 'product') {
+		$rinfo->{'nodbgpkgs'} = 1 if $d->{'debugmedium'} && $d->{'debugmedium'} < 0;
+		$rinfo->{'nosrcpkgs'} = 1 if $d->{'sourcemedium'} && $d->{'sourcemedium'} < 0;
+	      }
 	      # KIWI Images don't build with local arch
 	      if ($type eq 'kiwi' && ($d->{'imagetype'}[0] || '') ne 'product') {
 	        $rinfo->{'error'} = 'excluded' if defined($BSConfig::localarch) && $arch eq 'local';

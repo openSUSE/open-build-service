@@ -1222,6 +1222,8 @@ sub getbinaries_kiwiproduct {
   my %linkit;
   my %prpapackages;
   my %packagebinaryversionlist;
+  my $nodbgpkgs = $buildinfo->{'nodbgpkgs'};
+  my $nosrcpkgs = $buildinfo->{'nosrcpkgs'};
   for my $dep (@{$buildinfo->{'bdep'} || []}) {
     if (!defined($dep->{'package'})) {
       push @kdeps, $dep->{'name'};
@@ -1279,6 +1281,8 @@ sub getbinaries_kiwiproduct {
 	  $rarch = $arch; 
 	}
 	next unless $rarch;
+	next if $nodbgpkgs && $name =~ /-(?:debuginfo|debugsource)-/;
+	next if $nosrcpkgs && ($rarch eq 'src' || $rarch eq 'nosrc');
 	mkdir_p("$ddir/$rarch") unless -d "$ddir/$rarch";
 	if (!link("$localkiwi/build/$projid/$repoid/$arch/$packid/$name", "$ddir/$rarch/$name")) {
 	  # link fails if file already exists, rpc just overwrites
@@ -1335,6 +1339,8 @@ sub getbinaries_kiwiproduct {
 	  }
 	  next unless $bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
 	  my $rarch = $1;
+	  next if $nodbgpkgs && $bin =~ /-(?:debuginfo|debugsource)-/;
+	  next if $nosrcpkgs && ($rarch eq 'src' || $rarch eq 'nosrc');
 	  my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}");
 	  my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
 	  mkdir_p("$ddir/$rarch");
@@ -1467,6 +1473,8 @@ sub getbinaries_kiwiproduct {
 	      $rarch = $arch;
 	    }
 	    return undef unless $rarch;
+	    return undef if $nodbgpkgs && $name =~ /-(?:debuginfo|debugsource)-/;
+	    return undef if $nosrcpkgs && ($rarch eq 'src' || $rarch eq 'nosrc');
 	    mkdir_p("$param->{'directory'}/$rarch");
 	    return "$rarch/$name";
 	  },
