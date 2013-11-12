@@ -11,12 +11,12 @@
         <li id="item-support"><a href="http://en.opensuse.org/openSUSE:Browse#Support">Support</a></li>
         <li id="item-community"><a href="http://en.opensuse.org/openSUSE:Browse#Community">Community</a></li>
         <li id="item-development"><a href="http://en.opensuse.org/openSUSE:Browse#Development">Development</a></li>
-          <% if current_user -%>
+          <% unless User.current.is_nobody? -%>
             <li id="item-favorites" style="float: right;"><a href="<%= url_for :controller => "home", :action => :index %>">Watchlist</a></li>
           <% end -%>
         </ul>
 
-        <%= render :partial => "layouts/watch_and_search" %>
+        <%= render :partial => "layouts/webui/watch_and_search" %>
 
       </div>
     </div>
