@@ -43,11 +43,11 @@ class Configuration < ActiveRecord::Base
     end
 
     def first
-      @@first ||= super
+      super # caching in instance variables is evil for testing
     end
 
     def anonymous?
-      @@anonymous ||= first.anonymous
+      first.anonymous
     end
    
     def registration
@@ -55,25 +55,26 @@ class Configuration < ActiveRecord::Base
     end
 
     def download_url
-      @@download_url ||= first.download_url
+      first.download_url
     end
 
     def ymp_url
-      @@ymp_url ||= first.ymp_url
+      first.ymp_url
     end
 
     def use_gravatar?
-      @@use_gravatar ||= first.gravatar
+      first.gravatar
     end
 
     # Check if ldap group support is enabled?
     def ldapgroup_enabled?
-      return CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
+      CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
     end
 
     def errbit_url
       begin
-        Configuration.limit(1).pluck(:errbit_url).first
+        c = first
+        c.errbit_url if c
       rescue ActiveRecord::ActiveRecordError
         # there is a boostrap issue here - you need to run db:setup to get the
         # table, but the initializer checks the configuration
