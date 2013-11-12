@@ -288,17 +288,12 @@ scheduler_thread = nil
 at_exit do
   scheduler_thread.join if scheduler_thread
 
-  puts "kill #{srcsrv_out.pid}"
   Process.kill "TERM", -srcsrv_out.pid
-  puts "kill #{reposrv_out.pid}"
   Process.kill "TERM", -reposrv_out.pid
-  puts "kill #{servicesrv_out.pid}"
   Process.kill "TERM", -servicesrv_out.pid
-  puts "kill #{publishsrv_out.pid}"
   Process.kill "TERM", -publishsrv_out.pid
 
   if memcached_npid.to_i > 0
-    puts "kill #{memcached_npid}"
     Process.kill "TERM", memcached_npid
   end
 
