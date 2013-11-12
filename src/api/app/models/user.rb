@@ -400,7 +400,7 @@ class User < ActiveRecord::Base
       # mark the hash type as "not new" any more
       @new_hash_type = false
     else
-      logger.debug "Error - skipping to create user #{errors.empty?} #{@new_password.inspect} #{password.inspect}"
+      logger.debug "Error - skipping to create user #{errors.inspect} #{@new_password.inspect} #{password.inspect}"
     end
   end
 

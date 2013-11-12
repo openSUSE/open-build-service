@@ -106,10 +106,11 @@ class WebuiController < ActionController::Base
   def authenticate_proxy
     mode = CONFIG['proxy_auth_mode'] || :off
     proxy_user = request.env['HTTP_X_USERNAME']
+    proxy_email = request.env['HTTP_X_EMAIL']
     if mode == :simulate
       proxy_user ||= CONFIG['proxy_auth_test_user'] || CONFIG['proxy_test_user']
+      proxy_email ||= CONFIG['proxy_auth_test_email']
     end 
-    proxy_email = request.env['HTTP_X_EMAIL']
     if proxy_user
       session[:login] = proxy_user
       session[:email] = proxy_email
@@ -207,11 +208,10 @@ class WebuiController < ActionController::Base
   def check_user
     check_spiders
     if session[:login]
-      User.current = User.find_by_login session[:login]
-    else
-      # TODO: rebase on application_controller and use load_nobdy
-      User.current = User.find_by_login('_nobody_')
+      User.current = User.find_by_login(session[:login])
     end
+    # TODO: rebase on application_controller and use load_nobdy
+    User.current ||= User.find_by_login('_nobody_')
   end
 
   def map_to_workers(arch)

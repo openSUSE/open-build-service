@@ -35,6 +35,7 @@ proxy_auth_mode: :off
 # name that is coming as headervalue X-username as a
 # valid user does no further authentication. So take care...
 proxy_auth_test_user: coolguy
+proxy_auth_test_email: coolguy@example.com
 
 #schema_location
 
