@@ -144,5 +144,21 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :expect => :invalid_project_name)
   end
   
+  test 'autocomplete packages' do
+    use_js
   
+    login_Iggy to: webui_engine.project_show_path(:project => @project)
+    click_link 'Branch existing package'
+    
+    results = fill_autocomplete 'linked_project', with: 'home:', select: 'home:dmayr'
+    results.must_include 'home:dmayr'
+    results.wont_include 'Apache'
+    results = fill_autocomplete 'linked_package', with: 'x11', select: 'x11vnc'
+    results.must_equal ['x11vnc']
+
+    click_button 'Create Branch'
+    page.must_have_text "Branched package home:Iggy / x11vnc"
+    page.must_have_text "Links to home:dmayr / x11vnc"
+  end
+
 end

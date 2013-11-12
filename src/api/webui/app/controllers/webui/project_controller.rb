@@ -100,7 +100,8 @@ class ProjectController < WebuiController
   def autocomplete_packages
     required_parameters :term
     if Package.valid_name?( params[:term] ) or params[:term] == ''
-      render json: @project.packages.select{|p| p.name.index(params[:term]) }.map{|p| p.name}
+      packages=Package.arel_table
+      render json: @project.api_obj.packages.where(packages[:name].matches("#{params[:term]}%")).limit(100).pluck(:name)
     else
       render text: '[]'
     end
@@ -128,7 +129,7 @@ class ProjectController < WebuiController
     filterstring.gsub!(/["]/, '&quot;')
     rel = Project.all
     projects=Project.arel_table
-    if filterstring.empty?
+    unless filterstring.blank?
       rel = rel.where(projects[:name].matches("#{filterstring}%"))
     end
     unless excludefilter.blank?

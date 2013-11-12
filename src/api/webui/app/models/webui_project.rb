@@ -238,16 +238,6 @@ class WebuiProject < WebuiNode
     return false
   end
 
-  def packages
-    raise 'needed?'
-    pkgs = WebuiPackage.find(:all, :project => self.name)
-    if pkgs
-      return pkgs.each
-    else
-      return []
-    end
-  end
-
   def issues
     return Rails.cache.fetch("changes_and_patchinfo_issues_#{self.name}2", :expires_in => 5.minutes) do
       issues = WebuiProject.find(:issues, :name => self.name, :expires_in => 5.minutes)

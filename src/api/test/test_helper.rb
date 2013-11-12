@@ -117,6 +117,7 @@ module Webui
     include Capybara::DSL
 
     @@frontend = nil
+
     def self.start_test_api
       return if @@frontend
       if ENV['API_STARTED']
@@ -226,7 +227,7 @@ module Webui
       Rails.cache.clear
       WebMock.reset!
       ActiveRecord::Base.clear_active_connections!
-     
+
       unless run_in_transaction?
         DatabaseCleaner.clean_with :deletion
       end
@@ -239,10 +240,15 @@ module Webui
 
       page.execute_script %Q{ $('##{field}').trigger('focus') }
       page.execute_script %Q{ $('##{field}').trigger('keydown') }
-      selector = %Q{ul.ui-autocomplete li.ui-menu-item a:contains("#{options[:select]}")}
 
       page.must_have_selector('ul.ui-autocomplete li.ui-menu-item a')
-      page.execute_script %Q{ $('#{selector}').trigger('mouseenter').click() }
+      ret = []
+      all('ul.ui-autocomplete li.ui-menu-item a').each do |l|
+        ret << l.text
+      end
+      ret.must_include options[:select]
+      page.execute_script %Q{ select_from_autocomplete('#{options[:select]}') }
+      ret
     end
 
     # ============================================================================
