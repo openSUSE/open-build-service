@@ -3,6 +3,8 @@ require 'test_helper'
 
 class Webui::ConfigurationTest < Webui::IntegrationTest
 
+  uses_transaction :test_change_config
+
   test 'change config' do
     visit webui_engine.configuration_path
     flash_message_type.must_equal :alert
