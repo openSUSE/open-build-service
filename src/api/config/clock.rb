@@ -32,7 +32,7 @@ module Clockwork
   end
   
   every(30.seconds, 'send notifications') do
-    Event::NotifyBackends.trigger_delayed_sent
+    ::Event::NotifyBackends.trigger_delayed_sent
   end
   
   every(17.seconds, 'fetch notifications', thread: true) do
