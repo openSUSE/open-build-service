@@ -150,10 +150,10 @@ class IssueTracker < ActiveRecord::Base
     if issue
       if r["is_open"]
         # bugzilla sees it as open
-        issue.state = Issue.states["OPEN"]
+        issue.state = "OPEN"
       elsif r["is_open"] == false
         # bugzilla sees it as closed
-        issue.state = Issue.states["CLOSED"]
+        issue.state = "CLOSED"
       else
         # bugzilla does not tell a state
         issue.state = Issue.bugzilla_state(r["status"])

@@ -59,9 +59,9 @@ class Issue < ActiveRecord::Base
   end
 
   def self.bugzilla_state( string )
-    return self.states['OPEN'] if [ 'NEW', 'NEEDINFO', 'REOPENED', 'ASSIGNED' ].include? string
-    return self.states['CLOSED'] if [ 'RESOLVED', 'CLOSED', 'VERIFIED' ].include? string
-    return self.states['UNKNOWN']
+    return 'OPEN' if [ 'NEW', 'NEEDINFO', 'REOPENED', 'ASSIGNED' ].include? string
+    return 'CLOSED' if [ 'RESOLVED', 'CLOSED', 'VERIFIED' ].include? string
+    return 'UNKNOWN'
   end
 
   after_create :fetch_issues
