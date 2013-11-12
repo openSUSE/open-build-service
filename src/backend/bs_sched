@@ -49,6 +49,7 @@ use BSDB;
 use Meta;
 use BSSolv;
 use BSCando;
+use BSKiwiXML;
 
 use strict;
 
@@ -4280,6 +4281,36 @@ sub read_bininfo_oldok {
   return $bininfo;
 }
 
+# fetch a package source file from the src server
+sub fetch_src_file {
+  my ($projid, $packid, $filename) = @_;
+
+  print "    fetching source file $projid/$packid/$filename\n";
+  my $param = {
+    'uri' => "$BSConfig::srcserver/source/$projid/$packid/$filename",
+    'timeout' => 30,
+    'proxy' => $proxy,
+  };
+
+  return BSRPC::rpc($param);
+}
+
+# parse a kiwi XML configuration and return SOURCEMEDIUM and DEBUGMEDIUM attributes
+sub kiwi_src_dbg_medium {
+  my ($kiwifile) = @_;
+
+  if ($kiwifile) {
+    my $kiwidesc = XMLin($BSKiwiXML::kiwidesc, $kiwifile);
+
+    return BSKiwiXML::src_dbg_medium($kiwidesc);
+  }
+  else {
+    print "    error: empty or invalid content\n";
+  }
+
+  return (undef, undef);
+}
+
 sub checkkiwiproduct {
   my ($ctx, $packid, $pdata, $info) = @_;
 
@@ -4289,6 +4320,14 @@ sub checkkiwiproduct {
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
   my $prp = "$projid/$repoid";
+
+  my $fetch_prj = defined($pdata->{'linked'}[0]->{'project'}) ? $pdata->{'linked'}[0]->{'project'} : $projid;
+  my $fetch_pkg = defined($pdata->{'linked'}[0]->{'package'}) ? $pdata->{'linked'}[0]->{'package'} : $packid;
+
+  # fetch the kiwi source file
+  my $kiwifile = fetch_src_file($fetch_prj, $fetch_pkg, $info->{'file'});
+  # get the source and debug medium number from the kiwi file
+  my ($srcmedium, $dbgmedium) = kiwi_src_dbg_medium($kiwifile);
 
   # calculate all involved architectures
   my %imagearch = map {$_ => 1} @{$info->{'imagearch'} || []};
@@ -4438,6 +4477,9 @@ sub checkkiwiproduct {
 
   my $maxblocked = 20;
   my %blockedarch;
+  # skipped packages (debuginfo or src.rpm)
+  my $skipped_rpms = 0;
+
   for my $aprp (@aprps) {
     my %known;
     my ($aprojid, $arepoid) = split('/', $aprp, 2);
@@ -4511,9 +4553,18 @@ sub checkkiwiproduct {
 	  next if $nodbgpkgs && $b->{'filename'} =~ /-(?:debuginfo|debugsource)-/;
 	  next if $nosrcpkgs && $b->{'filename'} =~ /\.(?:nosrc|src)\.rpm$/;
 	  $needit = 1 if $deps{$b->{'name'}} || ($allpacks && !$deps{"-$b->{'name'}"});
-	  push @got, "$aprp/$arch/$apackid/$b->{'filename'}";
-	  $rpms_hdrmd5{$got[-1]} = $b->{'hdrmd5'} if $b->{'hdrmd5'};
-	  $rpms_meta{$got[-1]} = "$aprp/$arch/$apackid/$b->{'name'}.$b->{'arch'}";
+
+          # ignore debuginfo or source packages if not enabled in the kiwi file
+          if ((!$srcmedium > 0 && ($b->{'arch'} eq 'src' || $b->{'arch'} eq 'nosrc')) ||
+            (!$dbgmedium > 0 && $b->{'name'} =~ /(-debuginfo|-debuginfodeps|-debugsource)/))
+          {
+            $skipped_rpms += 1;
+          }
+          else {
+            push @got, "$aprp/$arch/$apackid/$b->{'filename'}";
+            $rpms_hdrmd5{"$aprp/$arch/$apackid/$b->{'filename'}"} = $b->{'hdrmd5'} if $b->{'hdrmd5'};
+            $rpms_meta{"$aprp/$arch/$apackid/$b->{'filename'}"} = "$aprp/$arch/$apackid/$b->{'name'}.$b->{'arch'}";
+          }
         }
 	next unless $needit;
 	# ok we need it. check if the package is built.
@@ -4563,6 +4614,11 @@ sub checkkiwiproduct {
       print "        unblocked\n";
     }
     return ('excluded');
+  }
+
+  if ($skipped_rpms > 0) {
+    print "      - $packid (kiwi-product)\n";
+    print "        skipped $skipped_rpms source or debuginfo packages\n";
   }
 
   # now create meta info
