@@ -156,7 +156,7 @@
   </div>
 <% end %>
 
- <% if @requests and @requests_in.count + @requests_out.count > 0 %>
+ <% if @requests and @requests_in.count + @requests_out.count + @declined_requests.count > 0 %>
   <div class="grid_16 alpha omega box box-shadow">
     <div id="requests">
       <div class="box-header header-tabs">
