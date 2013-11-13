@@ -46,6 +46,19 @@ class FullTextSearchTest < ActiveSupport::TestCase
     assert_equal ["patchinfo"], s.search.map(&:name)
   end
 
+  test "searching by non existent issue" do
+    # Only by issue
+    s = FullTextSearch.new(issue_tracker_name: "bnc", issue_name: "002200")
+    # Wrong issue and no text
+    assert_equal 0, s.search.total_entries
+    # Wrong issue + wrong text
+    s.text = "not to be found"
+    assert_equal 0, s.search.total_entries
+    # Wrong issue + existent text
+    s.text = "container"
+    assert_equal 0, s.search.total_entries
+  end
+
   test "searching by attrib" do
     # Only by attrib
     s = FullTextSearch.new(attrib_type_id: 57)
