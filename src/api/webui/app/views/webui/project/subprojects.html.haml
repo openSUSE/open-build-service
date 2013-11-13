@@ -1,0 +1,43 @@
+- @pagetitle = "Subprojects of #{@project}"
+- @metarobots = 'noindex'
+- project_bread_crumb 'Subprojects'
+
+= render :partial => "tabs"
+
+- if @parentprojects.present?
+  %h3 Parent projects of #{@project}
+  %table#parentprojects_table
+    %thead
+      %tr
+        %th Parent project
+        %th Description
+    %tbody
+      - @parentprojects.each do |name, project|
+        %tr
+          %td= link_to name, :action => 'show', :project => name
+          %td= project.title
+
+%h3= @pagetitle
+- prjlen = @project.name.length
+- if @subprojects.present?
+  %table#subprojects_table
+    %thead
+      %tr
+        %th Subproject
+        %th Description
+    %tbody
+      - @subprojects.each do |project|
+        %tr
+          %td= link_to project.name.slice(prjlen + 1, project.name.length), :action => 'show', :project => project.name
+          %td= project.title
+- else
+  %p
+    %i This project has no subprojects
+
+- if User.current.can_modify_project?(@project.api_obj)
+  %p
+    = link_to sprited_text('brick_add', 'Create subproject'), { :controller => :project, :action => :new, :ns => @project.name }, id: "link-create-subproject"
+
+- if @subprojects.present?
+  - content_for :ready_function do
+    setup_subprojects_tables();
