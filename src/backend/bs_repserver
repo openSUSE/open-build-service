@@ -2403,6 +2403,8 @@ sub expandkiwipath {
 sub getkiwiproductpackages {
   my ($proj, $repo, $pdata, $info, $deps, $remotemap) = @_;
 
+  my $nodbgpkgs = $info->{'nodbgpkgs'};
+  my $nosrcpkgs = $info->{'nosrcpkgs'};
   my @got;
   my %imagearch = map {$_ => 1} @{$info->{'imagearch'} || []};
   my @archs = grep {$imagearch{$_}} @{$repo->{'arch'} || []};
@@ -2442,11 +2444,23 @@ sub getkiwiproductpackages {
       if ($gbininfo) {
         for my $apackid (sort keys %$gbininfo) {
 	  my $bininfo = $gbininfo->{$apackid} || {};
-	  next unless grep {defined($_->{'name'}) && ($deps{$_->{'name'}} || $allpacks && !$deps{"-$_->{'name'}"})} values %$bininfo;
+	  my $needit;
+	  for my $b (values %$bininfo) {
+	    my $n = $b->{'name'};
+	    next unless defined $n;
+	    next unless $deps{$n} || ($allpacks && !$deps{"-$n"});
+	    next if $nodbgpkgs && $b->{'filename'} =~ /-(?:debuginfo|debugsource)-/;
+	    next if $nosrcpkgs && $b->{'filename'} =~ /\.(?:nosrc|src)\.rpm$/;
+	    $needit = 1;
+	    last;
+	  }
+	  next unless $needit;
 	  # need it
 	  for my $bf (sort keys %$bininfo) {
 	    my $b = $bininfo->{$bf};
             next unless $b->{'filename'};
+	    next if $nodbgpkgs && $b->{'filename'} =~ /-(?:debuginfo|debugsource)-/;
+	    next if $nosrcpkgs && $b->{'filename'} =~ /\.(?:nosrc|src)\.rpm$/;
 	    if ($b->{'filename'} =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/ || $b->{'filename'} =~ /^.*-appdata.xml$/) {
 	      push @got, "$aprp/$arch/$apackid/$b->{'filename'}";
 	    }
@@ -2468,13 +2482,17 @@ sub getkiwiproductpackages {
         my $needit;
 	for my $b (@bins) {
 	  next unless $b =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
-          next unless $deps{$1} || ($allpacks && !$deps{"-$1"});
-          $needit = 1;
+	  next unless $deps{$1} || ($allpacks && !$deps{"-$1"});
+	  next if $nodbgpkgs && $b =~ /-(?:debuginfo|debugsource)-/;
+	  next if $nosrcpkgs && $b =~ /\.(?:nosrc|src)\.rpm$/;
+	  $needit = 1;
 	  last;
-        }
+	}
         next unless $needit;
 	for my $b (@bins) {
 	  next unless $b =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	  next if $nodbgpkgs && $b =~ /-(?:debuginfo|debugsource)-/;
+	  next if $nosrcpkgs && $b =~ /\.(?:nosrc|src)\.rpm$/;
 	  push @got, "$aprp/$arch/$apackid/$b";
 	}
         for my $b (@bins) {
