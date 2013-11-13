@@ -31,7 +31,7 @@ class Webui::PackageEditTest < Webui::IntegrationTest
   def change_package_info new_info
     assert !new_info[:title].blank? || !new_info[:description].blank?
     
-    click_link('edit-description')
+    click_link('Edit description')
     
     page.must_have_text "Edit Package Information of #{@package} (Project #{@project})"
     page.must_have_text 'Title:'
