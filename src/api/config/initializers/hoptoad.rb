@@ -20,6 +20,7 @@ HoptoadNotifier.configure do |config|
   CGI::Session::CookieStore::TamperedWithCookie
   ActionController::UnknownAction
   AbstractController::ActionNotFound
+  ActionView::MissingTemplate
   Timeout::Error
   Net::HTTPBadResponse
   }
