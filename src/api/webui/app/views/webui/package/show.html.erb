@@ -17,7 +17,7 @@
     <%= possibly_empty_ul class: :clean_list do %>
         <% if @failures > 0 %>
             <li>
-              <%= sprite_tag 'exclamation' %>
+              <%= sprite_tag 'exclamation', title: '' %>
               <%= @failures %>
               <%= link_to "error#{@failures == 1 ? '' : 's'}", :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
             </li>
@@ -43,27 +43,26 @@
         <% end %>
         <% if @package.name =~ %r{^_patchinfo} %>
             <li>
-              <%= sprite_tag 'information', title: 'Information' %>
-              Has
-              a <%= link_to 'patchinfo', :controller => :patchinfo, :action => :show, :package => @package, :project => @project %>
+              <%= sprite_tag 'information', title: '' %>
+              Has a <%= link_to 'patchinfo', :controller => :patchinfo, :action => :show, :package => @package, :project => @project %>
               for <%= link_to 'maintenance updates', 'http://en.opensuse.org/Portal:Maintenance' %>
               <%#TODO: Fix this hard link %>
             </li>
         <% end %>
         <% if @linking_packages.present? %>
             <li>
-              <%= image_tag 'information.png' %>
+              <%= sprite_tag 'information', title: '' %>
               <%= @linking_packages.size %> <%= link_to('derived packages', {:action => :linking_packages, :project => @project, :package => @package}, :remote => true) %>
             </li>
         <% end %>
         <% if @linkinfo %>
             <% linked_project, linked_package = @linkinfo.project, @linkinfo.package %>
             <li>
-              <%= sprite_tag 'package_link' %> Links to
+              <%= sprite_tag 'package_link', title: '' %> Links to
               <%= project_or_package_link project: linked_project, package: linked_package, short: true %>
             </li>
             <% if @linkinfo.value :error %>
-                <li><%= sprite_tag 'exclamation' %> Link has errors: <i><%= @linkinfo.error %></i></li>
+                <li><%= sprite_tag 'exclamation', title: '' %> Link has errors: <i><%= @linkinfo.error %></i></li>
             <% else %>
                 <%#TODO: Only display if there is really a diff: %>
                 <li>
@@ -88,38 +87,31 @@
           <% unless User.current.is_nobody? %>
               <% if @current_rev %>
                   <li>
-                    <%= link_to(sprite_tag('arrow_branch'), {:action => :branch_dialog, :project => @project, :package => @package}, :remote => true) %>
-                    <%= link_to('Branch package', {:action => :branch_dialog, :project => @project, :package => @package}, :remote => true) %>
+                    <%= link_to(sprited_text('arrow_branch', 'Branch package'), {:action => :branch_dialog, :project => @project, :package => @package}, :remote => true) %>
                   </li>
                   <li>
-                    <%= link_to(sprite_tag('package_go'), {:action => :submit_request_dialog, :project => @project, :package => @package}, :remote => true) %>
-                    <%= link_to('Submit package', {:action => :submit_request_dialog, :project => @project, :package => @package}, :remote => true) %>
+                    <%= link_to(sprited_text('package_go','Submit package'), {:action => :submit_request_dialog, :project => @project, :package => @package}, :remote => true) %>
                   </li>
               <% end %>
               <% if User.current.can_modify_package? @package.api_obj %>
                   <li>
-                    <%= link_to sprite_tag('package_edit'), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
-                    <%= link_to 'Edit description', {:action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count}, id: 'edit-description' -%>
+                    <%= link_to sprited_text('package_edit', 'Edit description'), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
                   </li>
                   <li>
-                    <%= link_to(sprite_tag('package_delete'), {:action => :delete_dialog, :package => @package, :project => @project}, :remote => true) %>
-                    <%= link_to('Delete package', {:action => :delete_dialog, :package => @package, :project => @project}, :remote => true, id: 'delete-package') %>
+                    <%= link_to(sprited_text('package_delete', 'Delete package'), {:action => :delete_dialog, :package => @package, :project => @project}, :remote => true, id: 'delete-package') %>
                   </li>
               <% else %>
                   <li>
-                    <%= link_to(sprite_tag('user_add', :title => 'Request role addition'), {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}, :remote => true) %>
-                    <%= link_to('Request role addition', {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}, :remote => true) %>
+                    <%= link_to(sprited_text('user_add', 'Request role addition'), {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}, :remote => true) %>
                   </li>
                   <li>
-                    <%= link_to(sprite_tag('package_delete', :title => 'Request deletion'), {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package}, :remote => true) %>
-                    <%= link_to('Request deletion', {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package}, :remote => true) %>
+                    <%= link_to(sprited_text('package_delete', 'Request deletion'), {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package}, :remote => true) %>
                   </li>
               <% end %>
               <%# TODO: only users w/o rights should see this, maintainers should get a different dialog: %>
               <% if @package.api_obj.develpackage %>
                   <li>
-                    <%= link_to(sprite_tag('arrow_switch', :title => 'Request devel project change'), {:controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package}, :remote => true) %>
-                    <%= link_to('Request devel project change', {:controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package}, :remote => true) %>
+                    <%= link_to(sprited_text('arrow_switch', 'Request devel project change'), {:controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package}, :remote => true) %>
                   </li>
               <% end %>
           <% end %>

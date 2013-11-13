@@ -171,4 +171,17 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     # don't bother with the ümlaut
     assert_match %r{this is my dummy}, page.source
   end
+
+  test 'delete request' do
+    use_js
+
+    login_tom to: webui_engine.package_show_path(package: 'TestPack', project: 'home:Iggy')
+    click_link 'Request deletion'
+
+    fill_in 'description', with: 'It was just a test'
+    click_button 'Ok'
+
+    page.must_have_text 'Delete package home:Iggy / TestPack'
+    click_button 'Revoke request'
+  end
 end

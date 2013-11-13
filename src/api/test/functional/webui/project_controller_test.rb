@@ -325,4 +325,17 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
       l['href'].must_equal webui_engine.project_repository_state_path(project: 'home:Iggy', repository: '10.2')
     end
   end
+
+  def test_1
+    use_js
+
+    login_tom to: webui_engine.project_show_path(project: 'home:Iggy')
+    click_link 'Request deletion'
+
+    fill_in 'description', with: 'It was just a test'
+    click_button 'Ok'
+
+    page.must_have_text 'Delete project home:Iggy'
+    click_button 'Revoke request'
+  end
 end
