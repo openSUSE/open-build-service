@@ -504,7 +504,7 @@ export RAILS_ENV=test
 /usr/sbin/memcached -l 127.0.0.1 -d -P $PWD/memcached.pid
 bundle exec rake --trace db:create db:setup || exit 1
 mv log/test.log{,.old}
-if ! bundle exec rake --trace test:api test:webui; then
+if ! bundle exec rake --trace test:api ; then
   cat log/test.log
   kill $(cat memcached.pid)
   exit 1

@@ -25,7 +25,7 @@
 
       <%= possibly_empty_ul class: 'horizontal-list' do %>
           <% if @can_add_reviews %>
-              <li><%= link_to(sprite_tag('user_add', title: 'Add a review') + 'Add a review', { controller: 'request', action: 'add_reviewer_dialog', id: @id }, remote: true) %></li>
+              <li><%= link_to(sprited_text('user_add', 'Add a review'), { controller: 'request', action: 'add_reviewer_dialog', id: @id }, remote: true) %></li>
           <% end %>
       <% end %>
     </div>
@@ -38,10 +38,12 @@
         <li><%= sprite_tag('information') %> In
           state <%= link_to @state, { :anchor => 'request_history' }, { :style => "color: #{request_state_color(@state)};" } %></li>
         <% if @superseded_by %>
-            <li><%= sprite_tag('exclamation') %> Superseded by <%= link_to @superseded_by, id: @superseded_by %></li>
+            <li><%= sprite_tag('exclamation', title: '') %> Superseded
+              by <%= link_to @superseded_by, id: @superseded_by %></li>
         <% end %>
         <% if @accept_at -%>
-            <li><%= sprite_tag('exclamation') %> This request will get accepted after <%= @accept_at %>automatically!
+            <li><%= sprite_tag('exclamation', title: '') %> This request will get accepted after <%= @accept_at %>
+              automatically!
             </li>
         <% end -%>
         <% @other_open_reviews.each do |review| %>
@@ -177,8 +179,8 @@
                   <% end %>
                 </div>
                 <div class="grid_6 omega">
-                  <%#= render :partial => 'shared/buildresult_box', locals: { project: project, package: package, index: action_index } %>
-                  <% if sourcediff['issues'] && sourcediff['issues'].length > 0 %>
+                  <%= render :partial => 'shared/buildresult_box', locals: { project: action[:sprj], package: action[:spkg], index: action_index } %>
+                  <% if sourcediff['issues'].present? %>
                       <p><b>Mentioned Issues (<%= sourcediff['issues'].length %>)</b></p>
                       <%= render partial: 'issues_table', locals: { issues: sourcediff['issues'] } %>
                   <% end %>

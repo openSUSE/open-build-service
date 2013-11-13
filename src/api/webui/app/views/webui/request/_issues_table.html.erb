@@ -1,4 +1,4 @@
-<% if issues && issues.length > 0 %>
+<% if issues.present? %>
   <% content_for :ready_function do %>
     $('.expandable_issue_description').expander({slicePoint: 50, sliceEarlierAt: '<br>', expandText: '[+]', expandPrefix: ' ', userCollapseText: '[-]',});
   <% end %>
