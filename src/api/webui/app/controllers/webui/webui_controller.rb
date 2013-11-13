@@ -207,6 +207,7 @@ class WebuiController < ActionController::Base
 
   def check_user
     check_spiders
+    User.current = nil # reset old users hanging around
     if session[:login]
       User.current = User.find_by_login(session[:login])
     end
