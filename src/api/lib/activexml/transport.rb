@@ -115,7 +115,7 @@ module ActiveXML
       @host = host
       @port = port
       @default_servers ||= Hash.new
-      @http_header = {"Content-Type" => "text/plain"}
+      @http_header = {"Content-Type" => "text/plain", 'Accept-Encoding' => 'identity'}
       # stores mapping information
       # key: symbolified model name
       # value: hash with keys :target_uri and :opt (arguments to connect method)
