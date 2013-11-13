@@ -6,24 +6,24 @@
   <table>
     <tbody>
       <% issues.each do |long_name, issue| %>
-        <% if issue['owner'] && issue['state'] %>
+        <% if issue[:owner] && issue[:state] %>
           <tr>
-            <td><%= link_to(long_name, issue['url'], :class => 'issue_tracker_link') %></td>
+            <td><%= link_to(long_name, issue[:url], :class => 'issue_tracker_link') %></td>
             <td class="nowrap">
-              <% if issue['owner'] %>
-                <%= user_with_realname_and_icon issue['owner'], short: true %>
+              <% if issue[:owner] %>
+                <%= user_with_realname_and_icon issue[:owner], short: true %>
               <% end %>
             </td>
-            <td><%= issue['state'].capitalize if issue['state'] %></td>
+            <td><%= issue[:state].capitalize if issue[:state] %></td>
           </tr>
         <% else %>
           <tr class="even">
-            <td colspan="3"><%= link_to(long_name, issue['url'], class: 'issue_tracker_link') %></td>
+            <td colspan="3"><%= link_to(long_name, issue[:url], class: 'issue_tracker_link') %></td>
           </tr>
         <% end %>
-        <% if issue['summary'] %>
+        <% if issue[:summary] %>
           <tr class="odd">
-            <td colspan="3" class="expandable_issue_description"><%= issue['summary'] %></td>
+            <td colspan="3" class="expandable_issue_description"><%= issue[:summary] %></td>
           </tr>
         <% end %>
       <% end %>
