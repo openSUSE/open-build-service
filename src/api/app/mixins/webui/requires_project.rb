@@ -1,4 +1,4 @@
-module RequiresProject
+module Webui::RequiresProject
 
   def render_project_missing
     if params[:project] == "home:#{User.current.login}"

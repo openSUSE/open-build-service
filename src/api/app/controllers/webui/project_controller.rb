@@ -1,13 +1,14 @@
-module Webui
-class ProjectController < WebuiController
+class Webui::ProjectController < Webui::WebuiController
 
-  include HasComments
+  include Webui::HasComments
   include Webui::WebuiHelper
   include Webui::RequestHelper
   include Webui::ProjectHelper
-  include LoadBuildresults
-  include RequiresProject
-  include ManageRelationships
+  include Webui::LoadBuildresults
+  include Webui::RequiresProject
+  include Webui::ManageRelationships
+
+  helper 'webui/comment'
 
   before_filter :require_project, :except => [:autocomplete_projects, :autocomplete_incidents,
                                               :clear_failed_comment, :edit_comment_form, :index,
@@ -28,12 +29,12 @@ class ProjectController < WebuiController
   end
 
   def list_all
-    list and return
+    list
   end
 
   def list_public
     params['excludefilter'] = 'home:'
-    list and return
+    list
   end
 
   def all_projects
@@ -1452,5 +1453,4 @@ class ProjectController < WebuiController
     url_for(action: action, project: @project, role: params[:role], userid: params[:userid])
   end
 
-end
 end

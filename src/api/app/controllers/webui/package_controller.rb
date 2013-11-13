@@ -3,14 +3,16 @@ require 'project'
 
 class Webui::PackageController < Webui::WebuiController
 
-  include HasComments
+  include Webui::HasComments
   include ParsePackageDiff
   include Webui::WebuiHelper
   include Webui::PackageHelper
   include Escaper
-  include LoadBuildresults
-  include RequiresProject
-  include ManageRelationships
+  include Webui::LoadBuildresults
+  include Webui::RequiresProject
+  include Webui::ManageRelationships
+   
+  helper 'webui/comment'
 
   before_filter :require_project, :except => [:submit_request, :devel_project]
   before_filter :require_package, :except => [:submit_request, :save_new_link, :save_new, :devel_project ]

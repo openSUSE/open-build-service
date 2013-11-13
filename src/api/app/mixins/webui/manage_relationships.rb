@@ -1,4 +1,4 @@
-module ManageRelationships
+module Webui::ManageRelationships
 
   def load_obj
     if login = params[:userid]

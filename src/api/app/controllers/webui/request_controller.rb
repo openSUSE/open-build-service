@@ -2,7 +2,9 @@ require 'base64'
 
 class Webui::RequestController < Webui::WebuiController
   include Webui::WebuiHelper
-  include HasComments
+  include Webui::HasComments
+
+  helper 'webui/comment'
 
   before_filter :require_login, :only => [:save_comment]
 
