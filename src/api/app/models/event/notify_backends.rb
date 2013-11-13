@@ -9,10 +9,7 @@ module Event
   
   def send_not_in_queue
     Event::Base.not_in_queue.each do |e|
-      if !e.notify_backend
-        # if something went wrong, we better stop the queueing here
-        return
-      end
+      e.notify_backend
     end
   end
  end
