@@ -4,7 +4,7 @@ class TriggerController < ApplicationController
   skip_before_action :extract_user
 
   # github.com sends a hash payload
-  skip_filter :validate_params, :only => [:update]
+  skip_filter :validate_params, :only => [:runservice]
 
   def runservice
     auth = request.env['HTTP_AUTHORIZATION']
