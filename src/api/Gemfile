@@ -41,6 +41,7 @@ gem 'mobileesp_converted'
 gem 'kaminari'
 
 gem 'escape_utils'
+gem 'haml'
 
 group :production do
   # if you have an account, it can be configured by
