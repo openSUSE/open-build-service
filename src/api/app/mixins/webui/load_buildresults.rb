@@ -1,4 +1,4 @@
-module LoadBuildresults
+module Webui::LoadBuildresults
 
   def fill_status_cache
     @repohash = Hash.new

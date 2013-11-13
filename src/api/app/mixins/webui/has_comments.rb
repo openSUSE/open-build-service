@@ -1,4 +1,4 @@
-module HasComments
+module Webui::HasComments
 
   def save_comment
     require_login || return
