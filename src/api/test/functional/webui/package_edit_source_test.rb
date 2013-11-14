@@ -19,7 +19,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
   end
 
   def open_file file
-    find(:css, "tr##{valid_xml_id('file-' + file)} td:first-child a").click
+    super(file)
     page.must_have_text "File #{file} of Package #{@package}"
   end
 
@@ -83,33 +83,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     end
   end
 
-  # ============================================================================
-  #
-  def edit_file new_content
-    # new edit page does not allow comments
-    
-    savebutton = find(:css, '.buttons.save')
-    page.must_have_selector('.buttons.save.inactive')
-    
-    # is it all rendered?
-    page.must_have_selector('.CodeMirror-lines')
 
-    # codemirror is not really test friendly, so just brute force it - we basically
-    # want to test the load and save work flow not the codemirror library
-    page.execute_script("editors[0].setValue('#{escape_javascript(new_content)}');")
-    
-    # wait for it to be active
-    page.wont_have_selector('.buttons.save.inactive')
-    assert !savebutton['class'].split(' ').include?('inactive')
-    savebutton.click
-    page.must_have_selector('.buttons.save.inactive')
-    assert savebutton['class'].split(' ').include? 'inactive'
-
-    #flash_message.must_equal "Successfully saved file #{@file}"
-    #flash_message_type.must_equal :info
-
-  end
-  
   test 'erase_file_content' do
     open_file 'myfile'
     edit_file ''

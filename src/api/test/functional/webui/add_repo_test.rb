@@ -4,12 +4,9 @@ class Webui::AddRepoTest < Webui::IntegrationTest
 
   def test_add_default
     use_js
-    login_Iggy to: webui_engine.root_path
+    login_Iggy to: webui_engine.project_show_path(project: 'home:Iggy')
 
-    within('#subheader') do
-      click_link 'Home Project'
-    end
-
+    # actually check there is a link on the project
     click_link 'Repositories'
     page.must_have_text('Repositories of home:Iggy')
     page.must_have_text(/i586, x86_64/)
@@ -21,8 +18,18 @@ class Webui::AddRepoTest < Webui::IntegrationTest
 
     find('#submitrepos')['disabled'].must_equal 'disabled'
 
+    check 'repo_Base_repo'
     check 'repo_images'
     click_button 'Add selected repositories'
+
+    visit webui_engine.project_meta_path(project: 'home:Iggy')
+    page.must_have_selector('.editor', visible: false)
+    xml = Xmlhash.parse(first('.editor', visible: false).text)
+    assert_equal([{"name"=>"images", "arch"=>["x86_64", "i586"]},
+                  {"name"=>"Base_repo", "path"=>{"project"=>"BaseDistro2.0", "repository"=>"BaseDistro2_repo"},
+                   "arch"=>["x86_64", "i586"]},
+                  {"name"=>"10.2", "path"=>{"project"=>"BaseDistro", "repository"=>"BaseDistro_repo"},
+                   "arch"=>["i586", "x86_64"]}], xml['repository'])
   end
 
 end

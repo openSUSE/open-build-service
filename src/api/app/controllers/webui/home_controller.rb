@@ -78,7 +78,7 @@ class Webui::HomeController < Webui::WebuiController
     login = @displayed_user.login
 
     # Reviews
-    @open_reviews = BsRequestCollection.new(user: login, roles: %w(reviewer), reviewstates: %w(new), states: %w(review)).relation
+    @open_reviews = BsRequestCollection.new(user: login, roles: %w(reviewer creator), reviewstates: %w(new), states: %w(review)).relation
     @reviews_in = []
     @reviews_out = []
     @open_reviews.each do |review|
@@ -92,24 +92,16 @@ class Webui::HomeController < Webui::WebuiController
     # Other requests
     @declined_requests = BsRequestCollection.new(user: login, states: %w(declined), roles: %w(creator)).relation
 
-    @open_requests = BsRequestCollection.new(user: login, states: %w(new), roles: %w(maintainer creator)).relation
-    @requests_in = []
-    @requests_out = []
-    @open_requests.each do |request|
-      if request['creator'] == @displayed_user.login
-        @requests_out << request
-      else
-        @requests_in << request
-      end
-    end
+    @requests_in = BsRequestCollection.new(user: login, states: %w(new), roles: %w(maintainer)).relation
+    @requests_out = BsRequestCollection.new(user: login, states: %w(new), roles: %w(creator)).relation
 
     @open_patchinfos = running_patchinfos
 
     session[:requests] = (@declined_requests.pluck(:id) +
         @open_reviews.pluck(:id) +
-        @open_requests.pluck(:id))
+        @requests_in.pluck(:id))
 
-    @requests = @declined_requests + @open_reviews + @open_requests
+    @requests = @declined_requests + @open_reviews + @requests_in
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
 
@@ -117,8 +109,8 @@ class Webui::HomeController < Webui::WebuiController
       format.html
       format.json do
         rawdata = Hash.new
-        rawdata['review'] = @open_reviews
-        rawdata['new'] = @open_requests
+        rawdata['review'] = @reviews_in
+        rawdata['new'] = @requests_in
         rawdata['declined'] = @declined_requests
         rawdata['patchinfos'] = @open_patchinfos
         render :text => JSON.pretty_generate(rawdata)

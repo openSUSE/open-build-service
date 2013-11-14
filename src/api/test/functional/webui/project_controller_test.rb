@@ -326,7 +326,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     end
   end
 
-  def test_1
+  test 'request deletion' do
     use_js
 
     login_tom to: webui_engine.project_show_path(project: 'home:Iggy')
@@ -338,4 +338,5 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.must_have_text 'Delete project home:Iggy'
     click_button 'Revoke request'
   end
+
 end
