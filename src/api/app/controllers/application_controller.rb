@@ -311,6 +311,7 @@ class ApplicationController < ActionController::Base
     if CONFIG['use_xforward'] and CONFIG['use_xforward'] != "false"
       logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
       headers['X-Forward'] = "http://#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
+      headers['Cache-Control'] = 'no-transform' # avoid compression
       head(200)
       @skip_validation = true
       return
@@ -321,6 +322,7 @@ class ApplicationController < ActionController::Base
       logger.debug "[backend] VOLLEY(lighttpd): #{path}"
       headers['X-Rewrite-URI'] = path
       headers['X-Rewrite-Host'] = CONFIG['x_rewrite_host']
+      headers['Cache-Control'] = 'no-transform' # avoid compression
       head(200)
       @skip_validation = true
       return
@@ -330,24 +332,29 @@ class ApplicationController < ActionController::Base
     if CONFIG['use_nginx_redirect']
       logger.debug "[backend] VOLLEY(nginx): #{path}"
       headers['X-Accel-Redirect'] = "#{CONFIG['use_nginx_redirect']}/http/#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
+      headers['Cache-Control'] = 'no-transform' # avoid compression
       head(200)
       @skip_validation = true
       return
     end
 
+    volley_backend_path path
+  end
+
+  def volley_backend_path(path)
     logger.debug "[backend] VOLLEY: #{path}"
-    Suse::Backend.start_test_backend 
+    Suse::Backend.start_test_backend
     backend_http = Net::HTTP.new(CONFIG['source_host'], CONFIG['source_port'])
     backend_http.read_timeout = 1000
 
     # we have to be careful with object life cycle. the actual data is
-    # deleted once the tempfile is garbage collected, but isn't kept alive 
+    # deleted once the tempfile is garbage collected, but isn't kept alive
     # as the send_file function only references the path to it. So we keep it
     # for ourselves. And once the controller is garbage collected, it should
     # be fine to unlink the data
     @volleyfile = Tempfile.new 'volley', :encoding => 'ascii-8bit'
     opts = { :url_based_filename => true }
-    
+
     backend_http.request_get(path) do |res|
       opts[:status] = res.code
       opts[:type] = res['Content-Type']
