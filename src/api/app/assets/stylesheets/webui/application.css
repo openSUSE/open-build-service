@@ -11,22 +11,17 @@
  *= require dataTables/jquery.dataTables
  *= require token-input
  *= require token-input-facebook
+ *= require codemirror
+ *= require codemirror/modes/rpm-spec
+ *= require webui/application/bento.css.scss
+ *= require webui/application/cm2.css.scss
+ *= require webui/application/icons.css.scss
+ *= require webui/application/style.css.scss
+ *= require webui/application/our-own-jquery-ui.css.scss
+ *= require webui/application/monitor.css.scss
+ *= require webui/application/package.css.scss
+ *= require webui/application/project.css.scss
+ *= require webui/application/search.css.scss
+ *= require webui/application/home.css.scss
+ *= require webui/application/comments.css.scss
 */
-@import "bento/reset";
-@import "bento/960";
-@import "bento/base";
-
-
-@import "icons";
-@import "style";
-@import "our-own-jquery-ui";
-@import "monitor";
-@import "package";
-@import "project";
-@import "search";
-@import "home";
-@import "codemirror";
-@import "codemirror/modes/rpm-spec";
-@import "cm2/toolbars";
-@import "cm2/suse";
-@import "comments";

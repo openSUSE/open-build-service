@@ -99,5 +99,9 @@ group :assets do
 
   gem 'jquery-rails'
   gem 'jquery-ui-rails'
+  # Use bootstrap as the front-end framework
+  gem 'bootstrap-sass-rails'
+  # Use font-awesome as scalable vector icons
+  gem "font-awesome-rails"
 end
 
