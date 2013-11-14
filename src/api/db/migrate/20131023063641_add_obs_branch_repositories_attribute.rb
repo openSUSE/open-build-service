@@ -1,13 +1,13 @@
 class AddObsBranchRepositoriesAttribute  < ActiveRecord::Migration
 
+  class AttribTypeModifiableBy < ActiveRecord::Base; end
 
   def self.up
-    p={}
-    p[:role] = Role.find_by_title("maintainer")
+    role = Role.find_by_title("maintainer")
     ans = AttribNamespace.find_by_name "OBS"
 
     at=AttribType.create( :attrib_namespace => ans, :name => "BranchRepositoriesFromProject", :value_count=>1 )
-    at.attrib_type_modifiable_bies.create(p)
+    AttribTypeModifiableBy.create(bs_role_id: role.id, attrib_type_id: at.id)
   end
 
 
