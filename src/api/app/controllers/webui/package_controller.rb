@@ -202,7 +202,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def submit_request
     required_parameters :project, :package
-    if params[:targetproject].nil? or params[:targetproject].empty?
+    if params[:targetproject].blank?
       flash[:error] = 'Please provide a target for the submit request'
       redirect_to :action => :show, :project => params[:project], :package => params[:package] and return
     end
@@ -221,12 +221,12 @@ class Webui::PackageController < Webui::WebuiController
 
     # Supersede logic has to be below addition as we need the new request id
     if params[:supersede]
-      pending_requests = WebuiRequest.list(:project => params[:targetproject], :package => params[:package], :states => %w(new review declined), :types => %w(submit))
-      pending_requests.each do |request|
-        next if request.value(:id) == req.value(:id) # ignore newly created request
+      pending_requests = BsRequestCollection.list_ids(project: params[:targetproject], package: params[:package], states: %w(new review declined), types: %w(submit))
+      pending_requests.each do |request_id|
+        next if request_id == req.id # ignore newly created request
         begin
-          WebuiRequest.modify(request.value(:id), 'superseded', :reason => "Superseded by request #{req.value(:id)}", :superseded_by => req.value(:id))
-        rescue BsRequest::ModifyError => e
+          WebuiRequest.modify(request_id, 'superseded', reason: "Superseded by request #{req.id}", superseded_by: req.id)
+        rescue WebuiRequest::ModifyError => e
           flash[:error] = e.message
           redirect_to(:action => 'requests', :project => params[:project], :package => params[:package]) and return
         end
@@ -331,8 +331,8 @@ class Webui::PackageController < Webui::WebuiController
     @last_rev = @package.api_obj.dir_hash['rev']
     @linkinfo = @package.linkinfo
     if params[:oproject]
-      @oproject = Project.get_by_name(params[:oproject])
-      @opackage = @oproject.find_package(params[:opackage]) if params[:opackage]
+      @oproject = Project.find_by_name(params[:oproject])
+      @opackage = @oproject.find_package(params[:opackage]) if @oproject && params[:opackage]
     end
 
     @last_req = find_last_req

@@ -190,8 +190,9 @@ class Webui::RequestController < Webui::WebuiController
 
   def list_small
     redirect_to :controller => :home, :action => :requests and return unless request.xhr? # non ajax request
-    requests = WebuiRequest.list(params)
-    render :partial => 'shared/requests_small', :locals => {:requests => requests}
+    requests = BsRequestCollection.list_ids(params)
+    requests = BsRequestCollection.new(ids: requests).relation
+    render partial: 'requests_small', locals: {requests: requests}
   end
 
   def delete_request_dialog
