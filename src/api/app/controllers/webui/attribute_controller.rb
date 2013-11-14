@@ -2,6 +2,8 @@ class Webui::AttributeController < Webui::WebuiController
   helper :all
   before_filter :requires
 
+  helper 'webui/project'
+
   def edit
     if @attributes.nil? # fails if package does not exist in project anymore
       redirect_to :controller => :project, :action => :attributes, :project => params[:project] and return

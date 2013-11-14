@@ -3,6 +3,8 @@ require 'test_helper'
 
 class Webui::PackageControllerTest < Webui::IntegrationTest
 
+  include Webui::WebuiHelper
+
   def delete_and_recreate_kdelibs
     delete_package 'kde4', 'kdelibs'
 
@@ -183,5 +185,70 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
 
     page.must_have_text 'Delete package home:Iggy / TestPack'
     click_button 'Revoke request'
+  end
+
+  test "submit package" do
+    use_js
+
+    login_adrian to: webui_engine.project_show_path(project: 'home:adrian')
+    click_link 'Branch existing package'
+    fill_in 'linked_project', with: 'Apache'
+    fill_in 'linked_package', with: 'apache2'
+    click_button 'Create Branch'
+
+    click_link 'Submit package'
+
+    page.must_have_field('targetproject', with: 'Apache')
+    page.wont_have_field('targetpackage') # we do not offer renames (yet)
+
+    page.wont_have_field('supersede')
+    check('sourceupdate')
+
+    click_button 'Ok'
+    page.wont_have_selector '.dialog' # wait for the reload
+
+    flash_message.must_match %r{Created submit request \d* to Apache}
+    requestid = flash_message.gsub(%r{Created submit request (\d*) to Apache}, '\1').to_i
+    within '#flash-messages' do
+      click_link 'submit request'
+    end
+
+    logout
+    login_fred to: webui_engine.request_show_path(id: requestid)
+    page.must_have_text 'Submit package home:adrian / apache2 (revision 1) to package Apache / apache2'
+    fill_in 'reason', with: 'You did not changed anything'
+    click_button 'Decline request' # fred is a mean bastard
+    logout
+
+    login_adrian to: webui_engine.package_show_path(project: 'home:adrian', package: 'apache2')
+    # now change something
+    open_file 'my_file'
+    page.must_have_text 'just a file'
+    edit_file 'My new cool text'
+
+    login_adrian to: webui_engine.package_show_path(project: 'home:adrian', package: 'apache2')
+
+    click_link 'a link diff'
+
+    page.must_have_text "Difference Between Revision 2 and Apache / apache2"
+
+    click_link 'Submit to Apache / apache2'
+
+    page.must_have_field('targetproject', with: 'Apache')
+    page.must_have_field('targetpackage', with: 'apache2')
+
+    # TODO: actually it does not make sense to display requests that we can't supersede
+    # but that's for later
+    within '#supersede_display' do
+      page.must_have_text '10 by tom'
+      page.must_have_text "#{requestid} by adrian"
+    end
+
+    check('supersede')
+    click_button 'Ok'
+
+    # it actually tried
+    flash_message.must_equal 'You have no role in request 10'
+
   end
 end
