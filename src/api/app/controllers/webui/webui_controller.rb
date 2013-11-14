@@ -12,7 +12,9 @@ class WebuiController < ActionController::Base
   before_filter :set_return_to, :reset_activexml, :authenticate
   before_filter :check_user
   before_filter :require_configuration
-  after_filter :validate_xhtml
+  unless CONFIG['theme'] == 'bratwurst'
+    after_filter :validate_xhtml
+  end
   after_filter :clean_cache
 
   # :notice and :alert are default, we add :success and :error
