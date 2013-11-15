@@ -430,21 +430,7 @@ class Project < ActiveRecord::Base
       prj = self if prj && prj.id == self.id
     end
     
-    #--- maintenance-related parts ---#
-    # The attribute 'type' is only set for maintenance and maintenance incident projects.
-    # kind_element = xmlhash['kind)
-    # First remove all maintained project relations
-    maintained_projects.each do |maintained_project|
-      maintained_project.maintenance_project = nil
-      maintained_project.save!
-    end
-    # Set this project as the maintenance project for all maintained projects found in the XML
-    xmlhash.get('maintenance').elements('maintains') do |maintains|
-      maintained_project = Project.find_by_name!(maintains['project'])
-      maintained_project.maintenance_project = self
-      maintained_project.save!
-    end
-
+    update_maintained_prjs_from_xml( xmlhash )
     update_relationships_from_xml( xmlhash )
 
     #--- update flag group ---#
@@ -635,6 +621,28 @@ class Project < ActiveRecord::Base
     repocache = nil
     #--- end update repositories ---#
     self.updated_at = Time.now
+  end
+
+  def update_maintained_prjs_from_xml(xmlhash)
+    #--- maintenance-related parts ---#
+
+    # First check all current maintained project relations
+    olds = maintained_projects.pluck(:name)
+
+    # Set this project as the maintenance project for all maintained projects found in the XML
+    xmlhash.get('maintenance').elements('maintains') do |maintains|
+      pn = maintains['project']
+      next if olds.delete(pn)
+      maintained_project = Project.find_by_name!(pn)
+      maintained_project.maintenance_project = self
+      maintained_project.save!
+    end
+
+    olds.each do |pn|
+      maintained_project = Project.find_by_name!(pn)
+      maintained_project.maintenance_project = nil
+      maintained_project.save!
+    end
   end
 
   def check_for_empty_repo_list(list, error_prefix)
