@@ -339,4 +339,12 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     click_button 'Revoke request'
   end
 
+  def test_1
+    login_king to: webui_engine.project_show_path(project: 'My:Maintenance')
+    click_link 'maintained projects'
+    click_link 'Add'
+    fill_in 'project', with: 'Apache'
+    click_button 'Ok'
+
+  end
 end
