@@ -4,7 +4,7 @@ class Webui::UserController < Webui::WebuiController
 
   include Webui::WebuiHelper
 
-  before_filter :check_user, :only => [:edit, :save, :change_password, :register, :delete, :confirm, :lock, :admin]
+  before_filter :check_user, :only => [:edit, :save, :change_password, :register, :delete, :confirm, :lock, :admin, :login]
   before_filter :require_login, :only => [:edit, :save]
   before_filter :overwrite_user, :only => [:edit]
   before_filter :require_admin, :only => [:edit, :delete, :lock, :confirm, :admin]
@@ -23,7 +23,6 @@ class Webui::UserController < Webui::WebuiController
 
   def login
     @return_to_path = params['return_to_path'] || root_path
-    User.current ||= User.find_by_login('_nobody_')
   end
 
   def do_login

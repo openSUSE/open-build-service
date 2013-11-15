@@ -160,7 +160,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::DriverUpdateController#save' => 97.16,
       'Webui::ProjectController#save_new' => 94.35,
       'Webui::PackageController#require_package' => 80.11,
-      'Webui::WebuiController#validate_xhtml' => 78.83,
       'Webui::RequestController#show' => 72.45,
       'Webui::PackageController#save_new' => 63,
       'Webui::PatchinfoController#new_tracker' => 68.43,
