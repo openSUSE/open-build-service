@@ -27,13 +27,14 @@
 
         <% if dpackage %>
             <li>
-              <%= sprite_tag 'information' %>
-              Developed at <%= link_to(elide(dpackage.project.name, 44), :action => :show, :controller => :package, :project => dpackage.project.name, :package => dpackage.name) %>
+              <%= sprite_tag 'information', title: '' %>
+              Developed
+              at <%= link_to(elide(dpackage.project.name, 44), :action => :show, :controller => :package, :project => dpackage.project.name, :package => dpackage.name) %>
             </li>
         <% end %>
         <% if @package.api_obj.developed_packages.present? %>
             <li>
-              <%= sprite_tag 'information', title: 'Information' %>
+              <%= sprite_tag 'information', title: '' %>
               Devel package for
               <% @package.api_obj.developed_packages.each_with_index do |pkg, index| %>
                   <%= ',' if index > 0 %>
@@ -44,7 +45,8 @@
         <% if @package.name =~ %r{^_patchinfo} %>
             <li>
               <%= sprite_tag 'information', title: '' %>
-              Has a <%= link_to 'patchinfo', :controller => :patchinfo, :action => :show, :package => @package, :project => @project %>
+              Has
+              a <%= link_to 'patchinfo', :controller => :patchinfo, :action => :show, :package => @package, :project => @project %>
               for <%= link_to 'maintenance updates', 'http://en.opensuse.org/Portal:Maintenance' %>
               <%#TODO: Fix this hard link %>
             </li>
@@ -52,23 +54,21 @@
         <% if @linking_packages.present? %>
             <li>
               <%= sprite_tag 'information', title: '' %>
-              <%= @linking_packages.size %> <%= link_to('derived packages', {:action => :linking_packages, :project => @project, :package => @package}, :remote => true) %>
+              <%= @linking_packages.size %> <%= link_to('derived packages', { :action => :linking_packages, :project => @project, :package => @package }, :remote => true) %>
             </li>
         <% end %>
         <% if @linkinfo %>
-            <% linked_project, linked_package = @linkinfo.project, @linkinfo.package %>
+            <% linked_package = @linkinfo[:package] %>
             <li>
               <%= sprite_tag 'package_link', title: '' %> Links to
-              <%= project_or_package_link project: linked_project, package: linked_package, short: true %>
+              <%= project_or_package_link project: linked_package.project.name, package: linked_package.name, short: true %>
             </li>
-            <% if @linkinfo.value :error %>
-                <li><%= sprite_tag 'exclamation', title: '' %> Link has errors: <i><%= @linkinfo.error %></i></li>
-            <% else %>
-                <%#TODO: Only display if there is really a diff: %>
+            <% if @linkinfo[:error] %>
+                <li><%= sprite_tag 'exclamation', title: '' %> Link has errors: <i><%= @linkinfo[:error] %></i></li>
+            <% elsif @linkinfo[:diff] %>
                 <li>
-                  <%= sprite_tag 'information' %>
-                  Could
-                  have <%= link_to_if !WebuiProject.is_remote?(linked_project), 'a link diff', :action => :rdiff, :oproject => linked_project, :opackage => linked_package, :project => @project, :package => @package, :rev => @revision %>
+                  <%= sprite_tag 'information', title: '' %>
+                  Has a <%= link_to 'link diff', :action => :rdiff, :oproject => linked_package.project.name, :opackage => linked_package.name, :project => @project, :package => @package, :rev => @revision %>
                 </li>
             <% end %>
         <% end %>
@@ -76,48 +76,46 @@
     <% end -%>
   </div>
 
-  <% if (@bugowners_mail.present? and @configuration['bugzilla_url']) || !User.current.is_nobody? %>
-      <div class="grid_16 alpha omega">
-        <ul class="horizontal-list">
-          <% unless @bugowners_mail.empty? or @configuration['bugzilla_url'] %>
-              <li>
-                <%= link_to sprite_tag('tools-report-bug.png', :title => 'Report Bug') + 'Report Bug', bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug") %>
-              </li>
-          <% end %>
-          <% unless User.current.is_nobody? %>
-              <% if @current_rev %>
-                  <li>
-                    <%= link_to(sprited_text('arrow_branch', 'Branch package'), {:action => :branch_dialog, :project => @project, :package => @package}, :remote => true) %>
-                  </li>
-                  <li>
-                    <%= link_to(sprited_text('package_go','Submit package'), {:action => :submit_request_dialog, :project => @project, :package => @package}, :remote => true) %>
-                  </li>
-              <% end %>
-              <% if User.current.can_modify_package? @package.api_obj %>
-                  <li>
-                    <%= link_to sprited_text('package_edit', 'Edit description'), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
-                  </li>
-                  <li>
-                    <%= link_to(sprited_text('package_delete', 'Delete package'), {:action => :delete_dialog, :package => @package, :project => @project}, :remote => true, id: 'delete-package') %>
-                  </li>
-              <% else %>
-                  <li>
-                    <%= link_to(sprited_text('user_add', 'Request role addition'), {:controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package}, :remote => true) %>
-                  </li>
-                  <li>
-                    <%= link_to(sprited_text('package_delete', 'Request deletion'), {:controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package}, :remote => true) %>
-                  </li>
-              <% end %>
-              <%# TODO: only users w/o rights should see this, maintainers should get a different dialog: %>
-              <% if @package.api_obj.develpackage %>
-                  <li>
-                    <%= link_to(sprited_text('arrow_switch', 'Request devel project change'), {:controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package}, :remote => true) %>
-                  </li>
-              <% end %>
-          <% end %>
-        </ul>
-      </div>
-  <% end %>
+  <div class="grid_16 alpha omega">
+    <%= possibly_empty_ul class: 'horizontal-list' do %>
+        <% if @bugowners_mail.present? and @configuration['bugzilla_url'] %>
+            <li>
+              <%= link_to sprited_text('tools-report-bug', 'Report Bug'), bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug") %>
+            </li>
+        <% end %>
+        <% unless User.current.is_nobody? %>
+            <% if @current_rev %>
+                <li>
+                  <%= link_to(sprited_text('arrow_branch', 'Branch package'), { :action => :branch_dialog, :project => @project, :package => @package }, :remote => true) %>
+                </li>
+                <li>
+                  <%= link_to(sprited_text('package_go', 'Submit package'), { :action => :submit_request_dialog, :project => @project, :package => @package }, :remote => true) %>
+                </li>
+            <% end %>
+            <% if User.current.can_modify_package? @package.api_obj %>
+                <li>
+                  <%= link_to sprited_text('package_edit', 'Edit description'), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
+                </li>
+                <li>
+                  <%= link_to(sprited_text('package_delete', 'Delete package'), { :action => :delete_dialog, :package => @package, :project => @project }, :remote => true, id: 'delete-package') %>
+                </li>
+            <% else %>
+                <li>
+                  <%= link_to(sprited_text('user_add', 'Request role addition'), { :controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package }, :remote => true) %>
+                </li>
+                <li>
+                  <%= link_to(sprited_text('package_delete', 'Request deletion'), { :controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package }, :remote => true) %>
+                </li>
+            <% end %>
+            <%# TODO: only users w/o rights should see this, maintainers should get a different dialog: %>
+            <% if @package.api_obj.develpackage %>
+                <li>
+                  <%= link_to(sprited_text('arrow_switch', 'Request devel project change'), { :controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package }, :remote => true) %>
+                </li>
+            <% end %>
+        <% end %>
+    <% end %>
+  </div>
 </div>
 
 <div class="grid_10 alpha box box-shadow">
@@ -140,7 +138,7 @@
 </div>
 
 <div class="grid_6 omega box box-shadow">
-  <%= render :partial => 'shared/buildresult_box', :locals => {:project => @project.name, :package => @package.name} %>
+  <%= render :partial => 'shared/buildresult_box', :locals => { :project => @project.name, :package => @package.name } %>
 </div>
 
 <div class="grid_16 box box-shadow alpha omega">

@@ -187,18 +187,23 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     click_button 'Revoke request'
   end
 
-  test "submit package" do
+  uses_transaction :test_submit_package
+
+  test 'submit package' do
     use_js
 
     login_adrian to: webui_engine.project_show_path(project: 'home:adrian')
     click_link 'Branch existing package'
-    fill_in 'linked_project', with: 'Apache'
-    fill_in 'linked_package', with: 'apache2'
+    fill_in 'linked_project', with: 'home:dmayr'
+    fill_in 'linked_package', with: 'x11vnc'
     click_button 'Create Branch'
+
+    page.must_have_link 'Submit package'
+    page.wont_have_link 'link diff'
 
     click_link 'Submit package'
 
-    page.must_have_field('targetproject', with: 'Apache')
+    page.must_have_field('targetproject', with: 'home:dmayr')
     page.wont_have_field('targetpackage') # we do not offer renames (yet)
 
     page.wont_have_field('supersede')
@@ -207,48 +212,51 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     click_button 'Ok'
     page.wont_have_selector '.dialog' # wait for the reload
 
-    flash_message.must_match %r{Created submit request \d* to Apache}
-    requestid = flash_message.gsub(%r{Created submit request (\d*) to Apache}, '\1').to_i
+    flash_message.must_match %r{Created submit request \d* to home:dmayr}
+    requestid = flash_message.gsub(%r{Created submit request (\d*) to home:dmayr}, '\1').to_i
     within '#flash-messages' do
       click_link 'submit request'
     end
 
     logout
-    login_fred to: webui_engine.request_show_path(id: requestid)
-    page.must_have_text 'Submit package home:adrian / apache2 (revision 1) to package Apache / apache2'
+    login_dmayr to: webui_engine.request_show_path(id: requestid)
+    page.must_have_text 'Submit package home:adrian / x11vnc (revision 1) to package home:dmayr / x11vnc'
     fill_in 'reason', with: 'You did not changed anything'
-    click_button 'Decline request' # fred is a mean bastard
+    click_button 'Decline request' # dmayr is a mean bastard
     logout
 
-    login_adrian to: webui_engine.package_show_path(project: 'home:adrian', package: 'apache2')
+    login_adrian to: webui_engine.package_show_path(project: 'home:adrian', package: 'x11vnc')
     # now change something
-    open_file 'my_file'
-    page.must_have_text 'just a file'
+    open_file 'README'
+    page.must_have_text 'just to delete'
     edit_file 'My new cool text'
 
-    login_adrian to: webui_engine.package_show_path(project: 'home:adrian', package: 'apache2')
+    click_link 'Overview'
 
-    click_link 'a link diff'
+    click_link 'link diff'
 
-    page.must_have_text "Difference Between Revision 2 and Apache / apache2"
+    page.must_have_text 'Difference Between Revision 2 and home:dmayr / x11vnc'
 
-    click_link 'Submit to Apache / apache2'
+    click_link 'Submit to home:dmayr / x11vnc'
 
-    page.must_have_field('targetproject', with: 'Apache')
-    page.must_have_field('targetpackage', with: 'apache2')
+    page.must_have_field('targetproject', with: 'home:dmayr')
+    page.must_have_field('targetpackage', with: 'x11vnc')
 
     # TODO: actually it does not make sense to display requests that we can't supersede
     # but that's for later
     within '#supersede_display' do
-      page.must_have_text '10 by tom'
       page.must_have_text "#{requestid} by adrian"
     end
 
     check('supersede')
     click_button 'Ok'
+    page.wont_have_selector '.dialog' # wait for the reload
 
-    # it actually tried
-    flash_message.must_equal 'You have no role in request 10'
+    flash_message.must_match %r{Created submit request .* to home:dmayr}
+    new_requestid = flash_message.gsub(%r{Created submit request (\d*) to home:dmayr}, '\1').to_i
+    visit webui_engine.request_show_path(id: requestid)
+    page.must_have_text "Request #{requestid} (superseded)"
+    page.must_have_content "Superseded by #{new_requestid}"
 
   end
 end

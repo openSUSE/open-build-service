@@ -197,6 +197,12 @@ class Webui::PackageController < Webui::WebuiController
       @revision = @package.api_obj.rev
     end
     @cleanup_source = @project.name.include?(':branches:') # Rather ugly decision finding...
+    @tprj = ''
+    if lt = @package.api_obj.backend_package.links_to
+      @tprj = lt.project.name # fill in from link
+    end
+    @tprj = params[:targetproject] if params[:targetproject] # allow to override by parameter
+
     render_dialog
   end
 
@@ -237,11 +243,24 @@ class Webui::PackageController < Webui::WebuiController
     redirect_to(:action => 'show', :project => params[:project], :package => params[:package])
   end
 
+  def set_linkinfo
+    @linkinfo = nil
+    lt = @package.api_obj.backend_package.links_to
+    if lt
+      @linkinfo = { package: lt, error: @package.api_obj.backend_package.error }
+      if lt.backend_package.verifymd5 != @package.api_obj.backend_package.verifymd5
+        @linkinfo[:diff] = true
+      end
+    end
+  end
+
   def set_file_details
     @forced_unexpand ||= ''
 
     # check source access
     return false unless @package.api_obj.check_source_access?
+
+    set_linkinfo
 
     begin
       @current_rev = @package.api_obj.rev
@@ -255,7 +274,6 @@ class Webui::PackageController < Webui::WebuiController
       else
         @files = @package.files(@revision, @expand)
       end
-      @linkinfo = @package.linkinfo
     rescue ActiveXML::Transport::Error => e
       if @expand == 1
         @forced_unexpand = e.summary
@@ -329,7 +347,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def rdiff
     @last_rev = @package.api_obj.dir_hash['rev']
-    @linkinfo = @package.linkinfo
+    @linkinfo = @package.api_obj.linkinfo
     if params[:oproject]
       @oproject = Project.find_by_name(params[:oproject])
       @opackage = @oproject.find_package(params[:opackage]) if @oproject && params[:opackage]
@@ -571,7 +589,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def view_file
     @filename = params[:filename] || params[:file] || ''
-    if WebuiPackage.is_binary_file?(@filename) # We don't want to display binary files
+    if Webui::PackageHelper.is_binary_file?(@filename) # We don't want to display binary files
       flash[:error] = "Unable to display binary file #{@filename}"
       redirect_back_or_to :action => :show, :project => @project, :package => @package and return
     end

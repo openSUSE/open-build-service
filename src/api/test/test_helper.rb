@@ -181,6 +181,10 @@ module Webui
       login_user('fred', 'geröllheimer', opts)
     end
 
+    def login_dmayr(opts = {})
+      login_user 'dmayr', '123456', opts
+    end
+
     def logout
       @current_user = nil
       ll = page.first('#logout-link')

@@ -4,6 +4,14 @@ class Webui::ApplicationControllerTest < Webui::IntegrationTest
 
   include Webui::WebuiHelper
 
+  def setup
+    @oldtheme = CONFIG['theme']
+  end
+
+  def teardown
+    CONFIG['theme'] = @oldtheme
+  end
+
   def test_elide
     d = "don't shorten"
     assert_equal(d, elide(d, d.length))
@@ -36,4 +44,16 @@ class Webui::ApplicationControllerTest < Webui::IntegrationTest
     assert_equal("a_b", valid_xml_id("a.b"))
   end
 
+  test 'bento theme can be configured' do
+    CONFIG['theme'] = 'bento'
+    visit webui_engine.root_path
+    # without javascript there is no menu but just links
+    within '#header' do
+      page.must_have_selector '#item-downloads'
+    end
+
+    visit webui_engine.package_show_path(project: 'home:Iggy', package: 'TestPack')
+    page.must_have_link 'Download package'
+    first(:link, 'Download package')['href'].must_equal 'http://software.opensuse.org/download.html?project=home%3AIggy&package=TestPack'
+  end
 end

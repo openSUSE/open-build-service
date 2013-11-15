@@ -1,6 +1,10 @@
 module Webui::PackageHelper
 
-  protected
+  BINARY_EXTENSIONS = %w{.0 .bin .bin_mid .bz .bz2 .ccf .cert .chk .der .dll .exe .fw .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .otf .oxt .pdf .pk3 .png .ps .rpm .sig .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .ucode .xpm .xz .z .zip .ttf}
+
+  def self.is_binary_file?(filename)
+    BINARY_EXTENSIONS.include?(File.extname(filename).downcase)
+  end
 
   def file_url( project, package, filename, revision=nil )
     opts = {}
@@ -21,23 +25,23 @@ module Webui::PackageHelper
 
   def guess_code_class( filename )
     return 'xml' if ['_aggregate', '_link', '_patchinfo', '_service'].include?(filename) || filename.match(/.*\.service/)
-    return "shell" if filename.match(/^rc[\w-]+$/) # rc-scripts are shell
-    return "python" if filename.match(/^.*rpmlintrc$/)
-    return "makefile" if filename == "debian.rules"
-    return "baselibs" if filename == "baselibs.conf"
-    return "spec" if filename.match(/^macros\.\w+/)
+    return 'shell' if filename.match(/^rc[\w-]+$/) # rc-scripts are shell
+    return 'python' if filename.match(/^.*rpmlintrc$/)
+    return 'makefile' if filename == 'debian.rules'
+    return 'baselibs' if filename == 'baselibs.conf'
+    return 'spec' if filename.match(/^macros\.\w+/)
     ext = Pathname.new(filename).extname.downcase
     case ext
-      when ".group" then return "xml"
-      when ".kiwi" then return "xml"
-      when ".patch", ".dif" then return "diff"
-      when ".pl", ".pm" then return "perl"
-      when ".product" then return "xml"
-      when ".py" then return "python"
-      when ".rb" then return "ruby"
-      when ".tex" then return "latex"
-      when ".js" then return "javascript"
-      when ".sh" then return "shell"
+      when '.group' then return 'xml'
+      when '.kiwi' then return 'xml'
+      when '.patch', '.dif' then return 'diff'
+      when '.pl', '.pm' then return 'perl'
+      when '.product' then return 'xml'
+      when '.py' then return 'python'
+      when '.rb' then return 'ruby'
+      when '.tex' then return 'latex'
+      when '.js' then return 'javascript'
+      when '.sh' then return 'shell'
     end
     ext = ext[1..-1]
     return ext if ['changes', 'spec', 'diff', 'php', 'html', 'xml', 'css', 'perl'].include? ext
@@ -52,7 +56,7 @@ module Webui::PackageHelper
   end
 
   def nbsp(text)
-    return text.gsub(' ', "&nbsp;")
+    return text.gsub(' ', '&nbsp;')
   end
 
 end

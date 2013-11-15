@@ -15,22 +15,22 @@
 //= require jquery.ui.autocomplete
 //= require jquery.ui.tabs
 //= require jquery.ui.tooltip
-//= require jquery_ujs
-//
-//= require webui/jquery.expander.js
-//= require webui/jquery.flot.js
-//= require webui/jquery.flot.stack.js
-//= require dataTables/jquery.dataTables
 //= require jquery.tokeninput
-//= require webui/bento/script.js
-//= require webui/bento/global-navigation.js
-//= require webui/bento/l10n/global-navigation-data-en_US.js
-//= require webui/package
-//= require webui/project
-//= require webui/request
-//= require webui/patchinfo
-//= require webui/comment
-//= require webui/main
+//= require jquery_ujs
+//= require dataTables/jquery.dataTables
+//
+//= require webui/application/jquery.expander.js
+//= require webui/application/jquery.flot.js
+//= require webui/application/jquery.flot.stack.js
+//= require webui/application/bento/script.js
+//= require webui/application/bento/global-navigation.js
+//= require webui/application/bento/l10n/global-navigation-data-en_US.js
+//= require webui/application/package
+//= require webui/application/project
+//= require webui/application/request
+//= require webui/application/patchinfo
+//= require webui/application/comment
+//= require webui/application/main
 
 // toggle visibility of an element via the CSS "display" property
 // -> does NOT reserve the needed space for the element when not displayed

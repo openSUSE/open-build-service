@@ -2,25 +2,10 @@ class WebuiPackage < WebuiNode
    
   handles_xml_element 'package'
 
-  #cache variables
-  attr_accessor :linkinfo
-
-  attr_accessor :bf_updated
-  attr_accessor :pf_updated
-  attr_accessor :df_updated
-  attr_accessor :uf_updated
-
   attr_writer :name, :project
-
-  BINARY_EXTENSIONS = %w{.0 .bin .bin_mid .bz .bz2 .ccf .cert .chk .der .dll .exe .fw .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .otf .oxt .pdf .pk3 .png .ps .rpm .sig .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .ucode .xpm .xz .z .zip .ttf}
 
   def initialize(*args)
     super(*args)
-    @bf_updated = false
-    @pf_updated = false
-    @df_updated = false
-    @uf_updated = false
-    @linkinfo = nil
     @serviceinfo = nil
   end
 
@@ -121,17 +106,6 @@ class WebuiPackage < WebuiNode
     Group.where(id: rels.groups.pluck(:group_id).uniq)
   end
 
-  def linkinfo
-    unless @linkinfo
-      begin
-        dir = Directory.find( :project => project, :package => name)
-        @linkinfo = dir.linkinfo if dir && dir.has_element?('linkinfo')
-      rescue ActiveXML::Transport::NotFoundError
-      end
-    end
-    @linkinfo
-  end
-
   def serviceinfo
     unless @serviceinfo
       begin
@@ -148,7 +122,7 @@ class WebuiPackage < WebuiNode
 
     doc = Xmlhash.parse(answer)
     doc.elements('revision') do |s|
-      Rails.cache.write(["history", api_obj, s['rev']], s)
+      Rails.cache.write(['history', api_obj, s['rev']], s)
     end
   end
 
@@ -161,7 +135,7 @@ class WebuiPackage < WebuiNode
     end
     rev ||= api_obj.rev
 
-    cache_key = ["history", api_obj, rev]
+    cache_key = ['history', api_obj, rev]
     c = Rails.cache.read(cache_key)
     return c if c
 
@@ -179,24 +153,15 @@ class WebuiPackage < WebuiNode
     p[:rev]     = rev     if rev
     dir = Directory.find(p)
     return files unless dir
-    @linkinfo = dir.linkinfo if dir.has_element? 'linkinfo'
     @serviceinfo = dir.serviceinfo if dir.has_element? 'serviceinfo'
     dir.each_entry do |entry|
       file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.send(x.to_s)]}.flatten]
-      file[:viewable] = !WebuiPackage.is_binary_file?(file[:name]) && file[:size].to_i < 2**20  # max. 1 MB
+      file[:viewable] = !Webui::PackageHelper.is_binary_file?(file[:name]) && file[:size].to_i < 2**20  # max. 1 MB
       file[:editable] = file[:viewable] && !file[:name].match(/^_service[_:]/)
       file[:srcmd5] = dir.srcmd5
       files << file
     end
     return files
-  end
-
-  def developed_packages
-    raise ""
-  end
-
-  def self.is_binary_file?(filename)
-    BINARY_EXTENSIONS.include?(File.extname(filename).downcase)
   end
 
   def self.find(name, opts)

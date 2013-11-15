@@ -11,9 +11,9 @@
 // GO AFTER THE REQUIRES BELOW.
 //
 //= require codemirror
-//= require webui/cm2/toolbars
-//= require webui/cm2/mode/baselibsconf
-//= require webui/cm2/mode/prjconf
+//= require webui/application/cm2/toolbars
+//= require webui/application/cm2/mode/baselibsconf
+//= require webui/application/cm2/mode/prjconf
 //= require codemirror/modes/clike.js
 //= require codemirror/modes/clojure.js
 //= require codemirror/modes/coffeescript.js

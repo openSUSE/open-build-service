@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class WebuiPackageTest < ActiveSupport::TestCase
-  test "is_binary_file?" do
+  test 'is_binary_file?' do
     file_paths = [
       '/tmp/some/file',
       '/srv/www/another_file_',
@@ -14,7 +14,7 @@ class WebuiPackageTest < ActiveSupport::TestCase
     generate_suffixes(%w{exe bin bz bz2 gem gif jpg jpeg ttf zip gz png}).each do |suffix|
       file_paths.each do |file_path|
         filename = file_path + '.' + suffix
-        assert WebuiPackage::is_binary_file?(filename), "File #{filename} should be treated as binary"
+        assert PackageHelper::is_binary_file?(filename), "File #{filename} should be treated as binary"
       end
     end
 
@@ -22,7 +22,7 @@ class WebuiPackageTest < ActiveSupport::TestCase
     generate_suffixes(%w{diff txt csv pm c rb h}).each do |suffix|
       file_paths.each do |file_path|
         filename = file_path + '.' + suffix
-        assert !WebuiPackage::is_binary_file?(filename), "File #{filename} should not be treated as binary"
+        assert !PackageHelper::is_binary_file?(filename), "File #{filename} should not be treated as binary"
       end
     end
   end
