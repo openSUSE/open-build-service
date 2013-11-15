@@ -325,11 +325,9 @@ class Webui::ProjectController < Webui::WebuiController
 
     # An incident has a patchinfo if there is a package 'patchinfo' with file '_patchinfo', try to find that:
     @has_patchinfo = false
-    @packages.each do |pkg_element|
-      if pkg_element == 'patchinfo'
-        WebuiPackage.find(pkg_element, :project => @project).files.each do |pkg_file|
-          @has_patchinfo = true if pkg_file[:name] == '_patchinfo'
-        end
+    if @packages.include? 'patchinfo'
+      Directory.hashed(project: @project.name, package: 'patchinfo').elements('entry') do |e|
+        @has_patchinfo = true if e['name'] == '_patchinfo'
       end
     end
     sort_comments(@project.api_obj.comments)

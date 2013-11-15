@@ -254,6 +254,26 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 
+  def package_files( rev = nil, expand = nil )
+    files = []
+    p = {}
+    p[:project] = @package.project
+    p[:package] = @package.name
+    p[:expand]  = expand  if expand
+    p[:rev]     = rev     if rev
+    dir = Directory.find(p)
+    return files unless dir
+    @serviceinfo = dir.serviceinfo if dir.has_element? 'serviceinfo'
+    dir.each_entry do |entry|
+      file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.send(x.to_s)]}.flatten]
+      file[:viewable] = !Package.is_binary_file?(file[:name]) && file[:size].to_i < 2**20  # max. 1 MB
+      file[:editable] = file[:viewable] && !file[:name].match(/^_service[_:]/)
+      file[:srcmd5] = dir.srcmd5
+      files << file
+    end
+    return files
+  end
+
   def set_file_details
     @forced_unexpand ||= ''
 
@@ -270,9 +290,9 @@ class Webui::PackageController < Webui::WebuiController
       end
 
       if @srcmd5
-        @files = @package.files(@srcmd5, @expand)
+        @files = package_files(@srcmd5, @expand)
       else
-        @files = @package.files(@revision, @expand)
+        @files = package_files(@revision, @expand)
       end
     rescue ActiveXML::Transport::Error => e
       if @expand == 1
@@ -589,7 +609,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def view_file
     @filename = params[:filename] || params[:file] || ''
-    if Webui::PackageHelper.is_binary_file?(@filename) # We don't want to display binary files
+    if Package.is_binary_file?(@filename) # We don't want to display binary files
       flash[:error] = "Unable to display binary file #{@filename}"
       redirect_back_or_to :action => :show, :project => @project, :package => @package and return
     end
@@ -598,7 +618,7 @@ class Webui::PackageController < Webui::WebuiController
     @addeditlink = false
     if User.current.can_modify_package?(@package.api_obj) && @rev.blank?
       begin
-        files = @package.files(@rev, @expand)
+        files = package_files(@rev, @expand)
       rescue ActiveXML::Transport::Error => e
         files = []
       end
@@ -767,7 +787,7 @@ class Webui::PackageController < Webui::WebuiController
   private :api_cmd
 
   def import_spec
-    all_files = @package.files
+    all_files = package_files
     all_files.each do |file|
       @specfile_name = file[:name] if file[:name].end_with?('.spec')
     end

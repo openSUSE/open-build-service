@@ -1,11 +1,5 @@
 module Webui::PackageHelper
 
-  BINARY_EXTENSIONS = %w{.0 .bin .bin_mid .bz .bz2 .ccf .cert .chk .der .dll .exe .fw .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .otf .oxt .pdf .pk3 .png .ps .rpm .sig .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .ucode .xpm .xz .z .zip .ttf}
-
-  def self.is_binary_file?(filename)
-    BINARY_EXTENSIONS.include?(File.extname(filename).downcase)
-  end
-
   def file_url( project, package, filename, revision=nil )
     opts = {}
     if revision

@@ -5,6 +5,7 @@ class Webui::RequestController < Webui::WebuiController
   include Webui::HasComments
 
   helper 'webui/comment'
+  helper 'webui/package'
 
   before_filter :require_login, :only => [:save_comment]
 

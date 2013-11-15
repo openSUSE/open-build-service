@@ -144,26 +144,6 @@ class WebuiPackage < WebuiNode
     Rails.cache.read(cache_key)
   end
 
-  def files( rev = nil, expand = nil )
-    files = []
-    p = {}
-    p[:project] = project
-    p[:package] = name
-    p[:expand]  = expand  if expand
-    p[:rev]     = rev     if rev
-    dir = Directory.find(p)
-    return files unless dir
-    @serviceinfo = dir.serviceinfo if dir.has_element? 'serviceinfo'
-    dir.each_entry do |entry|
-      file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.send(x.to_s)]}.flatten]
-      file[:viewable] = !Webui::PackageHelper.is_binary_file?(file[:name]) && file[:size].to_i < 2**20  # max. 1 MB
-      file[:editable] = file[:viewable] && !file[:name].match(/^_service[_:]/)
-      file[:srcmd5] = dir.srcmd5
-      files << file
-    end
-    return files
-  end
-
   def self.find(name, opts)
     project = opts[:project].to_param
     name = name.to_param
