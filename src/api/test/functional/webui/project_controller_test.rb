@@ -339,12 +339,15 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     click_button 'Revoke request'
   end
 
-  def test_1
+  test 'add maintenance project' do
+    use_js
+
     login_king to: webui_engine.project_show_path(project: 'My:Maintenance')
     click_link 'maintained projects'
-    click_link 'Add'
-    fill_in 'project', with: 'Apache'
+    click_link 'Add project to maintenance'
+    fill_autocomplete 'maintained_project', with: 'Apa', select: 'Apache'
     click_button 'Ok'
+    page.must_have_link 'Apache'
 
   end
 end
