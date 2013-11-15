@@ -72,6 +72,10 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     elsif file[:expect] == :no_permission
       flash_message_type.must_equal :alert
       page.must_have_text 'Add File to'
+    elsif file[:expect] == :service
+      flash_message.must_equal "The file has been added."
+      flash_message_type.must_equal :info
+      assert find(:css, "#files_table tr#file-#{valid_xml_id("_service")}"), "expected to find the _service file in the files table"
     elsif file[:expect] == :download_failed
       # the _service file is added, but the download fails
       fm = flash_messages
@@ -126,6 +130,14 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
       upload_from: :local_file,
       upload_path: text_path('EmptySource.c'))
   end
+
+  test 'add_source_file_from_remote_file' do
+    open_add_file
+    add_file(
+      upload_from: :remote_url,
+      upload_path: 'https://raw.github.com/openSUSE/open-build-service/master/.gitignore',
+      :expect => :service)
+  end
   
   test 'add_source_file_with_invalid_name' do
   
@@ -135,7 +147,6 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
       :upload_from => :local_file,
       :expect => :invalid_upload_path)
   end
-
 
   test 'add_source_file_all_fields_empty' do
   

@@ -20,6 +20,9 @@ map.connect :builddepinfo, 'rest:///build/:project/:repository/:arch/_builddepin
 
 map.connect :statistic, 'rest:///build/:project/:repository/:arch/:package/_statistics'
 
+map.connect :service, "rest:///source/:project/:package/_service",
+            :all => "rest:///service"
+
 if defined?(Rack::MiniProfiler)
   ::Rack::MiniProfiler.profile_method(ActiveXML::Transport, :http_do) do |method,url|
     if url.kind_of? String
