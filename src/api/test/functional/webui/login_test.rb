@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-require 'test_helper'
+require_relative '../../test_helper'
 require 'faker'
 
 SimpleCov.command_name 'test:webui'
@@ -9,7 +9,7 @@ class Webui::LoginTest < Webui::IntegrationTest
   
   #
   def open_home
-    find(:css, "div#subheader a[href='#{webui_engine.home_path}']").click
+    find(:css, "div#subheader a[href='#{home_path}']").click
     page.must_have_text "Edit your account"
   end
 
@@ -28,7 +28,7 @@ class Webui::LoginTest < Webui::IntegrationTest
     find(:id, 'save_dialog').click
 
     fill_in "realname", with: new_name
-    find(:css, "form[action='#{webui_engine.user_save_path}'] input[name='commit']").click
+    find(:css, "form[action='#{user_save_path}'] input[name='commit']").click
 
     flash_message.must_equal "User data for user '#{current_user}' successfully updated."
     flash_message_type.must_equal :info
@@ -51,7 +51,7 @@ class Webui::LoginTest < Webui::IntegrationTest
 
   test "login_invalid_entry" do
   
-    visit webui_engine.root_path
+    visit root_path
     click_link 'login-trigger'
     within('#login-form') do
       fill_in 'Username', with: 'dasdasd'
@@ -68,7 +68,7 @@ class Webui::LoginTest < Webui::IntegrationTest
   
   test "login_empty_entry" do
   
-    visit webui_engine.root_path
+    visit root_path
     click_link 'login-trigger'
     within('#login-form') do
       fill_in 'Username', with: ''

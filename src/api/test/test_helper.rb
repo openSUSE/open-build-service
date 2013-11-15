@@ -150,7 +150,7 @@ module Webui
     def login_user(user, password, opts = {})
       # no idea why calling it twice would help
       WebMock.disable_net_connect!(allow_localhost: true)
-      visit webui_engine.user_login_path(return_to_path: opts[:to])
+      visit user_login_path(return_to_path: opts[:to])
       fill_in 'Username', with: user
       fill_in 'Password', with: password
       click_button 'Log In'
@@ -332,7 +332,7 @@ module Webui
 
     # helper function for teardown
     def delete_package project, package
-      visit webui_engine.package_show_path(package: package, project: project)
+      visit package_show_path(package: package, project: project)
       find(:id, 'delete-package').click
       find(:id, 'del_dialog').must_have_text 'Delete Confirmation'
       find_button('Ok').click

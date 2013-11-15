@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::GroupControllerTest < Webui::IntegrationTest
 
@@ -7,23 +7,23 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
   test 'list all groups' do
     use_js
 
-    login_king to: webui_engine.configuration_groups_path
+    login_king to: configuration_groups_path
 
     find(:id, 'group_table_wrapper').must_have_text 'Showing 1 to 2 of 2 entries'
     find(:id, 'test_group_b').click
     find(:id, 'content').must_have_text 'This group does not contain users'
 
-    visit webui_engine.configuration_groups_path
+    visit configuration_groups_path
     find(:id, 'test_group').click
     find(:id, 'group_members_table_wrapper').must_have_text 'Showing 1 to 1 of 1 entries'
     find(:link, 'adrian').click
-    assert page.current_url.end_with? webui_engine.home_path(user: 'adrian')
+    assert page.current_url.end_with? home_path(user: 'adrian')
   end
 
   test 'edit group' do
     use_js
 
-    login_king to: webui_engine.configuration_groups_path
+    login_king to: configuration_groups_path
     within '#group-test_group' do
       find('td.users').text.must_equal 'adrian'
       click_link 'Edit Group'
@@ -39,36 +39,36 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
   end
 
   test 'invalid group' do
-    visit webui_engine.group_show_path('nogroup')
+    visit group_show_path('nogroup')
     flash_message.must_equal "Group 'nogroup' does not exist"
     flash_message_type.must_equal :alert
   end
 
   test 'input tokens group' do
-    visit webui_engine.group_tokens_path(term: 'nosuch')
+    visit group_tokens_path(term: 'nosuch')
     page.status_code.must_equal 404
 
-    visit webui_engine.group_tokens_path(q: 'nosuch')
+    visit group_tokens_path(q: 'nosuch')
     page.status_code.must_equal 200
 
     page.source.must_equal '[]'
 
-    visit webui_engine.group_tokens_path(q: 'test')
+    visit group_tokens_path(q: 'test')
     page.status_code.must_equal 200
 
     JSON.parse(page.source).must_equal [{'name' => 'test_group'}, {'name' => 'test_group_b'}]
   end
 
   test 'autocomplete group' do
-    visit webui_engine.group_autocomplete_path(q: 'nosuch')
+    visit group_autocomplete_path(q: 'nosuch')
     page.status_code.must_equal 404
 
-    visit webui_engine.group_autocomplete_path(term: 'nosuch')
+    visit group_autocomplete_path(term: 'nosuch')
     page.status_code.must_equal 200
 
     page.source.must_equal '[]'
 
-    visit webui_engine.group_autocomplete_path(term: 'test')
+    visit group_autocomplete_path(term: 'test')
     page.status_code.must_equal 200
 
     JSON.parse(page.source).must_equal ['test_group', 'test_group_b']

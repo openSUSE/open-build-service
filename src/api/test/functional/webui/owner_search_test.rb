@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::OwnerSearchTest < Webui::IntegrationTest
 
@@ -13,7 +13,7 @@ class Webui::OwnerSearchTest < Webui::IntegrationTest
   end
 
   def visit_owner_search
-    visit webui_engine.url_for(controller: '/webui/search', action: :owner, only_path: true)
+    visit url_for(controller: '/webui/search', action: :owner, only_path: true)
   end
 
   def search(options)

@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::AddAttributesTest < Webui::IntegrationTest
 
@@ -98,7 +98,7 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
   test 'add_all_permited_project_attributes_for_user' do
     use_js
 
-    login_Iggy to: webui_engine.project_attributes_path(project: 'home:Iggy')
+    login_Iggy to: project_attributes_path(project: 'home:Iggy')
 
     add_new_attribute(name: 'OBS:RequestCloned',
                       value: 'cloneclone')
@@ -110,7 +110,7 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
 
     logout
     # admin should be able to delete all
-    login_king to: webui_engine.project_attributes_path(project: 'home:Iggy')
+    login_king to: project_attributes_path(project: 'home:Iggy')
     delete_attribute name: 'OBS:RequestCloned'
     delete_attribute name: 'OBS:ProjectStatusPackageFailComment'
     delete_attribute name: 'OBS:InitializeDevelPackage'
@@ -120,7 +120,7 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
 
   test 'add_all_permited_project_attributes_for_second_user' do
 
-    login_tom to: webui_engine.project_attributes_path(project: 'home:tom')
+    login_tom to: project_attributes_path(project: 'home:tom')
     add_new_attribute(name: 'OBS:RequestCloned',
                       value: 'cloneclone')
     add_new_attribute(name: 'OBS:ProjectStatusPackageFailComment',
@@ -132,7 +132,7 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
 
 
   test 'add_all_not_permited_project_attributes_for_user' do
-    login_Iggy to: webui_engine.project_attributes_path(project: 'home:Iggy')
+    login_Iggy to: project_attributes_path(project: 'home:Iggy')
     add_new_attribute(name: 'OBS:VeryImportantProject',
                       value: '',
                       expect: :no_permission)
@@ -140,7 +140,7 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
 
 
   test 'add_invalid_value_for_project_attribute' do
-    login_Iggy to: webui_engine.project_attributes_path(project: 'home:Iggy')
+    login_Iggy to: project_attributes_path(project: 'home:Iggy')
     add_new_attribute(name: 'OBS:QualityCategory',
                       value: 'invalid_value',
                       expect: :value_not_allowed)
@@ -148,7 +148,7 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
 
 
   test 'wrong_number_of_values_for_project_attribute' do
-    login_Iggy to: webui_engine.project_attributes_path(project: 'home:Iggy')
+    login_Iggy to: project_attributes_path(project: 'home:Iggy')
     add_new_attribute(name: 'OBS:ProjectStatusPackageFailComment',
                       value: 'val1,val2,val3',
                       expect: :wrong_number_of_values)
@@ -156,7 +156,7 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
 
 
   test 'add_same_project_attribute_twice' do
-    login_Iggy to: webui_engine.project_attributes_path(project: 'home:Iggy')
+    login_Iggy to: project_attributes_path(project: 'home:Iggy')
     add_new_attribute(name: 'OBS:RequestCloned',
                       value: 'value1')
     add_new_attribute(name: 'OBS:RequestCloned',
@@ -167,7 +167,7 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
   test 'add_all_admin_permited_project_attributes' do
     use_js
 
-    login_king to: webui_engine.project_attributes_path(project: 'home:Iggy')
+    login_king to: project_attributes_path(project: 'home:Iggy')
 
     add_new_attribute(name: 'OBS:VeryImportantProject')
     add_new_attribute(name: 'OBS:OwnerRootProject',
@@ -207,7 +207,7 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
 
 
   test 'add_all_permited_package_attributes_for_user' do
-    login_Iggy to: webui_engine.package_attributes_path(project: 'home:Iggy', package: 'TestPack')
+    login_Iggy to: package_attributes_path(project: 'home:Iggy', package: 'TestPack')
     add_new_attribute(name: 'OBS:RequestCloned',
                       value: 'cloneclone')
     add_new_attribute(name: 'OBS:ProjectStatusPackageFailComment',
@@ -219,7 +219,7 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
 
 
   test 'add_all_permited_package_attributes_for_second_user' do
-    login_tom to: webui_engine.package_attributes_path(project: 'home:coolo:test', package: 'kdelibs_DEVEL_package')
+    login_tom to: package_attributes_path(project: 'home:coolo:test', package: 'kdelibs_DEVEL_package')
 
     add_new_attribute(name: 'OBS:RequestCloned',
                       value: 'cloneclone')
@@ -232,29 +232,29 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
 
 
   test 'add_all_not_permited_package_attributes_for_user' do
-    login_Iggy to: webui_engine.package_attributes_path(project: 'home:Iggy', package: 'TestPack')
+    login_Iggy to: package_attributes_path(project: 'home:Iggy', package: 'TestPack')
     add_new_attribute(name: 'OBS:ApprovedRequestSource',
                       value: '',
                       expect: :success)
     add_new_attribute(name: 'OBS:VeryImportantProject',
                       value: '',
                       expect: :no_permission)
-    visit webui_engine.package_attributes_path(project: 'home:Iggy', package: 'TestPack')
+    visit package_attributes_path(project: 'home:Iggy', package: 'TestPack')
     add_new_attribute(name: 'OBS:UpdateProject',
                       value: '',
                       expect: :no_permission)
-    visit webui_engine.package_attributes_path(project: 'home:Iggy', package: 'TestPack')
+    visit package_attributes_path(project: 'home:Iggy', package: 'TestPack')
     add_new_attribute(name: 'OBS:Maintained',
                       value: '',
                       expect: :success)
     add_new_attribute(name: 'OBS:MaintenanceProject',
                       value: '',
                       expect: :no_permissions)
-    visit webui_engine.package_attributes_path(project: 'home:Iggy', package: 'TestPack')
+    visit package_attributes_path(project: 'home:Iggy', package: 'TestPack')
     add_new_attribute(name: 'OBS:MaintenanceIdTemplate',
                       value: '',
                       expect: :no_permission)
-    visit webui_engine.package_attributes_path(project: 'home:Iggy', package: 'TestPack')
+    visit package_attributes_path(project: 'home:Iggy', package: 'TestPack')
     add_new_attribute(name: 'OBS:ScreenShots',
                       value: '',
                       expect: :no_permission)
@@ -263,7 +263,7 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
 
   test 'add_invalid_value_for_package_attribute' do
 
-    login_Iggy to: webui_engine.package_attributes_path(project: 'home:Iggy', package: 'TestPack')
+    login_Iggy to: package_attributes_path(project: 'home:Iggy', package: 'TestPack')
     add_new_attribute(name: 'OBS:QualityCategory',
                       value: 'invalid_value',
                       expect: :value_not_allowed)
@@ -272,7 +272,7 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
 
   test 'wrong_number_of_values_for_package_attribute' do
 
-    login_Iggy to: webui_engine.package_attributes_path(project: 'home:Iggy', package: 'TestPack')
+    login_Iggy to: package_attributes_path(project: 'home:Iggy', package: 'TestPack')
     add_new_attribute(name: 'OBS:ProjectStatusPackageFailComment',
                       value: 'val1,val2,val3',
                       expect: :too_many_values)
@@ -281,7 +281,7 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
 
   test 'add_same_package_attribute_twice' do
 
-    login_Iggy to: webui_engine.package_attributes_path(project: 'home:Iggy', package: 'TestPack')
+    login_Iggy to: package_attributes_path(project: 'home:Iggy', package: 'TestPack')
     add_new_attribute(name: 'OBS:RequestCloned',
                       value: 'value1')
     add_new_attribute(name: 'OBS:RequestCloned',
@@ -292,7 +292,7 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
   test 'add_all_admin_permited_package_attributes' do
     use_js
 
-    login_king to: webui_engine.package_attributes_path(project: 'home:Iggy', package: 'TestPack')
+    login_king to: package_attributes_path(project: 'home:Iggy', package: 'TestPack')
 
     add_new_attribute(name: 'OBS:VeryImportantProject')
     add_new_attribute(name: 'OBS:UpdateProject',
@@ -314,7 +314,7 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
     add_new_attribute(name: 'OBS:InitializeDevelPackage')
 
     logout
-    login_Iggy to: webui_engine.package_attributes_path(project: 'home:Iggy', package: 'TestPack')
+    login_Iggy to: package_attributes_path(project: 'home:Iggy', package: 'TestPack')
 
     delete_attribute(name: 'OBS:VeryImportantProject',
                      expect: :no_permission)
@@ -336,7 +336,7 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
     use_js
 
     # add attributes as Iggy
-    login_Iggy to: webui_engine.project_attributes_path(project: 'home:Iggy')
+    login_Iggy to: project_attributes_path(project: 'home:Iggy')
 
     add_new_attribute(name: 'OBS:RequestCloned',
                       value: 'cloneclone')
@@ -346,7 +346,7 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
 
     # try to delete as tom - fails
     logout
-    login_tom to: webui_engine.project_attributes_path(project: 'home:Iggy')
+    login_tom to: project_attributes_path(project: 'home:Iggy')
 
     delete_attribute(name: 'OBS:RequestCloned', expect: :no_permission)
     delete_attribute(name: 'OBS:ProjectStatusPackageFailComment', expect: :no_permission)
@@ -354,7 +354,7 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
 
     # test to delete as Iggy
     logout
-    login_Iggy to: webui_engine.project_attributes_path(project: 'home:Iggy')
+    login_Iggy to: project_attributes_path(project: 'home:Iggy')
 
     delete_attribute name: 'OBS:RequestCloned'
     delete_attribute name: 'OBS:ProjectStatusPackageFailComment'

@@ -46,8 +46,6 @@ group :production do
   gem 'newrelic_rpm'
 end
 
-gem 'webui', path: 'webui'
-
 group :test do
   gem 'database_cleaner', '>= 1.0.1'
   gem 'ci_reporter'

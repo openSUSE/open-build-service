@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::PackageBranchTest < Webui::IntegrationTest
 
@@ -30,7 +30,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
     if new_branch[:expect] == :success
       flash_message.must_equal "Branched package #{@project} / #{new_branch[:name]}"
       flash_message_type.must_equal :info
-      assert page.current_url.end_with? webui_engine.package_show_path(project: @project, package: new_branch[:name])
+      assert page.current_url.end_with? package_show_path(project: @project, package: new_branch[:name])
     elsif new_branch[:expect] == :invalid_package_name
       flash_message.must_equal "Invalid package name: '#{new_branch[:original_name]}'"
       flash_message_type.must_equal :alert
@@ -52,7 +52,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
 
   test 'branch_package_for_home_project' do
 
-    login_Iggy to: webui_engine.project_show_path(:project => @project)
+    login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
       :name => 'TestPack_link',
@@ -62,7 +62,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
     
   test 'branch_package_for_global_project' do
 
-    login_Iggy to: webui_engine.project_show_path(:project => @project)
+    login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
       :name => 'PublicPackage1',
@@ -73,7 +73,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
   
   test 'branch_package_twice_duplicate_name' do
 
-    login_Iggy to: webui_engine.project_show_path(:project => @project)
+    login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
       :expect => :already_exists,
@@ -85,13 +85,13 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
     
   test 'branch_package_twice' do
 
-    login_Iggy to: webui_engine.project_show_path(:project => @project)
+    login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
       :name => 'TestPack2',
       :original_name => 'kdelibs',
       :original_project => 'kde4')
-    visit webui_engine.project_show_path(:project => @project)
+    visit project_show_path(:project => @project)
     create_package_branch(
       :name => 'TestPack3',
       :original_name => 'kdelibs',
@@ -101,7 +101,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
 
   test 'branch_empty_package_name' do
 
-    login_Iggy to: webui_engine.project_show_path(:project => @project)
+    login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
       :name => '',
@@ -112,7 +112,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
   
   test 'branch_empty_project_name' do
 
-    login_Iggy to: webui_engine.project_show_path(:project => @project)
+    login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
       :name => 'TestPack',
@@ -123,7 +123,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
 
   test 'branch_package_name_with_spaces' do
 
-    login_Iggy to: webui_engine.project_show_path(:project => @project)
+    login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
       :name => 'BranchedPackage',
@@ -135,7 +135,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
 
   test 'branch_project_name_with_spaces' do
   
-    login_Iggy to: webui_engine.project_show_path(:project => @project)
+    login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
       :name => 'BranchedPackage',
@@ -147,7 +147,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
   test 'autocomplete packages' do
     use_js
   
-    login_Iggy to: webui_engine.project_show_path(:project => @project)
+    login_Iggy to: project_show_path(:project => @project)
     click_link 'Branch existing package'
     
     results = fill_autocomplete 'linked_project', with: 'home:', select: 'home:dmayr'

@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::ProjectCreateTest < Webui::IntegrationTest
 
@@ -83,7 +83,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
 
 
   def open_create_subproject(opts)
-    visit webui_engine.project_subprojects_path(project: opts[:project])
+    visit project_subprojects_path(project: opts[:project])
     click_link('link-create-subproject')
     page.must_have_text 'Create New Subproject'
   end
@@ -92,7 +92,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
   test 'create_home_project_for_user' do
 
     login_user('user1', '123456')
-    visit webui_engine.root_path
+    visit root_path
     open_new_project_from_main
     assert creating_home_project?
     create_project(title: 'HomeProject Title', namespace: 'home:',
@@ -103,7 +103,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
   test 'create_home_project_for_second_user' do
 
     login_user('user2', '123456')
-    visit webui_engine.root_path
+    visit root_path
 
     open_new_project_from_main
     assert creating_home_project?
@@ -186,7 +186,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
 
   test 'create_global_project' do
 
-    login_king to: webui_engine.project_list_all_path
+    login_king to: project_list_all_path
 
     click_link('Create new project')
     create_project(
@@ -198,7 +198,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
 
   test 'create_global_project_as_user' do
 
-    login_Iggy to: webui_engine.project_list_all_path
+    login_Iggy to: project_list_all_path
 
     click_link('Create new project')
     create_project(
@@ -209,7 +209,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
   end
 
   test "first case of issue 204" do
-    login_king to: webui_engine.project_new_path
+    login_king to: project_new_path
 
     prjroot = Faker::Lorem.characters(20)
     create_project(
@@ -217,7 +217,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
         title: 'none',
         description: 'none')
 
-    visit webui_engine.project_subprojects_path project: prjroot
+    visit project_subprojects_path project: prjroot
     click_link 'Create subproject'
 
     fill_in :name, with: 'b'
@@ -233,17 +233,17 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
     prjroot = Faker::Lorem.characters(20)
     subproject = prjroot + ':b'
 
-    login_king to: webui_engine.project_new_path
+    login_king to: project_new_path
 
     fill_in :name, with: subproject
     click_button 'Create Project'
 
     # now create the parent project
-    visit webui_engine.project_new_path
+    visit project_new_path
     fill_in :name, with: prjroot
     click_button 'Create Project'
 
-    visit webui_engine.project_show_path project: subproject
+    visit project_show_path project: subproject
     # the parent project should be clickable
     within '#breadcrump' do
       find(:link, prjroot).text.must_equal prjroot

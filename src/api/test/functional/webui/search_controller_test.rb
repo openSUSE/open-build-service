@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::SearchControllerTest < Webui::IntegrationTest
 
@@ -80,27 +80,27 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
   test 'find_search_link_in_footer' do
-    visit webui_engine.root_path
+    visit root_path
     find(:css, 'div#footer a.search-link').click
     validate_search_page
   end
   
   test 'basic_search_functionality' do
-    visit webui_engine.search_path
+    visit search_path
     validate_search_page
 
-    visit webui_engine.root_path + '/search?search_text=basedistro'
+    visit root_path + '/search?search_text=basedistro'
     page.must_have_text(/Base.* contains official released updates/)
 
-    visit webui_engine.root_path + '/search?search_text=basedistro3'
+    visit root_path + '/search?search_text=basedistro3'
     page.must_have_text(/Base.* distro without update project/)
 
-    visit webui_engine.root_path + '/search?search_text=kdebase'
+    visit root_path + '/search?search_text=kdebase'
     page.must_have_link 'kdebase'
   end
   
   test 'header_search_functionality' do
-    visit webui_engine.root_path
+    visit root_path
     fill_in 'search', with: 'kdebase'
     page.evaluate_script("$('#global-search-form').get(0).submit()")
     validate_search_page
@@ -113,16 +113,16 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
   test 'search_by_baseurl' do
-    visit webui_engine.root_path + '/search?search_text=obs://build.opensuse.org/openSUSE:Factory/standard/fd6e76cd402226c76e65438a5e3df693-bash'
+    visit root_path + '/search?search_text=obs://build.opensuse.org/openSUSE:Factory/standard/fd6e76cd402226c76e65438a5e3df693-bash'
     find('#flash-messages').must_have_text 'Project not found: openSUSE:Factory'
 
-    visit webui_engine.root_path + '/search?search_text=obs://foo'
+    visit root_path + '/search?search_text=obs://foo'
     find('#flash-messages').must_have_text('This disturl does not compute!')
   end
 
   test 'search_for_home_projects' do
   
-    visit webui_engine.search_path
+    visit search_path
 
     search(
       :text => 'Home',
@@ -144,7 +144,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
   test 'search_for_subprojects' do
 
-    visit webui_engine.search_path
+    visit search_path
 
     search(
       :text => 'branches',
@@ -159,7 +159,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
   test 'search_for_projects' do
 
-    visit webui_engine.search_path
+    visit search_path
 
     search(
       :text => 'localproject',
@@ -174,7 +174,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
   test 'search_for_packages' do
 
-    visit webui_engine.search_path
+    visit search_path
 
     search(
       :text => 'Test',
@@ -206,7 +206,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
   test 'search_non_existing_by_name' do
 
-    visit webui_engine.search_path
+    visit search_path
   
     search(
       :text => 'no such name, please!',
@@ -218,7 +218,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
   test 'search_non_existing_by_title' do
 
-    visit webui_engine.search_path
+    visit search_path
 
     search(
       :text => 'Perhaps a non-existing title.',
@@ -230,7 +230,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
   test 'search_non_existing_by_description' do
 
-    visit webui_engine.search_path
+    visit search_path
 
     search(
       :text => 'Some non-existing description I hope.',
@@ -241,7 +241,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
 
   test 'search_non_existing_by_attributes' do
-    visit webui_engine.search_path
+    visit search_path
 
     search(
       :text => '',
@@ -252,7 +252,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
   test 'search_for_nothing' do
-    visit webui_engine.search_path
+    visit search_path
 
     search(
       :text => 'Some empty search.',
@@ -262,7 +262,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
   
   test 'search_russian' do
-    visit webui_engine.search_path
+    visit search_path
     
     search(
       :text => 'вокябюч',
@@ -276,7 +276,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
   test 'search_in_nothing' do
-    visit webui_engine.search_path
+    visit search_path
 
     search(
       :text => 'Some empty search again.',
@@ -287,7 +287,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   
   
   test 'search_with_empty_text' do
-    visit webui_engine.search_path
+    visit search_path
     search(
       :text => '',
       :for  => [:projects, :packages], 
@@ -297,7 +297,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
   test 'search_hidden_as_anonymous' do
 
-    visit webui_engine.search_path
+    visit search_path
   
     search(
       :text => 'packcopy',
@@ -308,7 +308,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
   test 'search_hidden_as_adrian' do
 
-    login_adrian to: webui_engine.search_path
+    login_adrian to: search_path
 
     search(
       :text => 'packcopy',

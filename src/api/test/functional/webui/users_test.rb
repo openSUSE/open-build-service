@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::EditPackageUsersTest < Webui::IntegrationTest
   # ============================================================================
@@ -72,7 +72,7 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
 
     @project = 'kde4'
     @package = 'kdelibs'
-    @userspath = webui_engine.package_users_path(project: @project, package: @package)
+    @userspath = package_users_path(project: @project, package: @package)
 
     login_user 'fred', 'geröllheimer', to: @userspath
 
@@ -121,7 +121,7 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
   test 'add and edit project users' do
 
     @project = 'kde4'
-    @userspath = webui_engine.project_users_path(project: @project)
+    @userspath = project_users_path(project: @project)
 
     login_user 'fred', 'geröllheimer', to: @userspath
 

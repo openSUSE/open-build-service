@@ -1,10 +1,10 @@
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::AddRepoTest < Webui::IntegrationTest
 
   def test_add_default
     use_js
-    login_Iggy to: webui_engine.project_show_path(project: 'home:Iggy')
+    login_Iggy to: project_show_path(project: 'home:Iggy')
 
     # actually check there is a link on the project
     click_link 'Repositories'
@@ -22,7 +22,7 @@ class Webui::AddRepoTest < Webui::IntegrationTest
     check 'repo_images'
     click_button 'Add selected repositories'
 
-    visit webui_engine.project_meta_path(project: 'home:Iggy')
+    visit project_meta_path(project: 'home:Iggy')
     page.must_have_selector('.editor', visible: false)
     xml = Xmlhash.parse(first('.editor', visible: false).text)
     assert_equal([{"name"=>"images", "arch"=>["x86_64", "i586"]},

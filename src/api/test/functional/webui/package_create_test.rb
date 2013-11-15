@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::PackageCreateTest < Webui::IntegrationTest
 
@@ -49,7 +49,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
   
   test 'create_home_project_package_for_user' do
     use_js
-    login_Iggy to: webui_engine.project_show_path(project: 'home:Iggy')
+    login_Iggy to: project_show_path(project: 'home:Iggy')
     open_new_package
     create_package(
       :name => 'HomePackage1',
@@ -57,7 +57,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
       :description => 'Empty home project package created')
 
     # now check duplicated name
-    visit webui_engine.project_show_path(project: 'home:Iggy')
+    visit project_show_path(project: 'home:Iggy')
     open_new_package
     create_package(
       :name => 'HomePackage1',
@@ -71,7 +71,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
 
   test 'create_global_project_package' do
     use_js
-    login_king to: webui_engine.project_show_path(project: 'LocalProject')
+    login_king to: project_show_path(project: 'LocalProject')
 
     open_new_package
     create_package(
@@ -84,7 +84,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
 
   test 'create_package_without_name' do
 
-    login_Iggy to: webui_engine.project_show_path(project: 'home:Iggy')
+    login_Iggy to: project_show_path(project: 'home:Iggy')
 
     open_new_package
     create_package(
@@ -97,7 +97,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
   
   test 'create_package_name_with_spaces' do
   
-    login_Iggy to: webui_engine.project_show_path(project: 'home:Iggy')
+    login_Iggy to: project_show_path(project: 'home:Iggy')
 
     open_new_package
     create_package(
@@ -109,7 +109,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
   
   test 'create_package_with_only_name' do
     use_js
-    login_Iggy to: webui_engine.project_show_path(project: 'home:Iggy')
+    login_Iggy to: project_show_path(project: 'home:Iggy')
 
     open_new_package
     create_package(
@@ -123,7 +123,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
   test 'create_package_with_long_description' do
     use_js
 
-    login_Iggy to: webui_engine.project_show_path(project: 'home:Iggy')
+    login_Iggy to: project_show_path(project: 'home:Iggy')
 
     open_new_package
     create_package(
@@ -139,14 +139,14 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
   
   test 'create_package_strange_name' do
     use_js
-    login_Iggy to: webui_engine.project_show_path(project: 'home:Iggy')
+    login_Iggy to: project_show_path(project: 'home:Iggy')
 
     open_new_package
     create_package name: 'Testing包صفقةäölü', expect: :invalid_name
 
     create_package name: 'Cplus+'
     packageurl = page.current_url
-    visit webui_engine.project_show_path( project: 'home:Iggy')
+    visit project_show_path( project: 'home:Iggy')
 
     baseuri = URI.parse(page.current_url)
     foundcplus=nil

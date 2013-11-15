@@ -1217,7 +1217,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
     post '/request/ILLEGAL_CONTENT?cmd=changestate&newstate=revoked'
     assert_response 404
-    assert_xml_tag tag: 'status', attributes: {code: 'not_found'}
+    #Rails does not allow /request/:id to match non-integers, so there is no XML generated for 404
+    #assert_xml_tag tag: 'status', attributes: {code: 'not_found'}
 
     login_Iggy
     post "/request/#{id}?cmd=changestate&newstate=revoked"

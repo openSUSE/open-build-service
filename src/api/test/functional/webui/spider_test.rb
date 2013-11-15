@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../../test_helper'
 
 require 'benchmark'
 require 'nokogiri'
@@ -144,7 +144,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
   end
 
   test 'spider anonymously' do
-    visit webui_engine.root_path
+    visit root_path
     @pages_to_visit = {page.current_url => [nil, nil]}
     @pages_visited = Hash.new
 
@@ -155,7 +155,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
   end
 
   test 'spider as admin' do
-    login_king to: webui_engine.root_path
+    login_king to: root_path
     @pages_to_visit = {page.current_url => [nil, nil]}
     @pages_visited = Hash.new
 

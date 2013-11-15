@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
@@ -123,7 +123,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
   end
 
   def delete_patchinfo project
-    visit webui_engine.patchinfo_show_path(package: 'patchinfo', project: project)
+    visit patchinfo_show_path(package: 'patchinfo', project: project)
     find(:id, 'delete-patchinfo').click
     find(:id, 'del_dialog').must_have_text 'Delete Confirmation'
     find_button("Ok").click
@@ -132,7 +132,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
   
   test "create_patchinfo_with_desc_and_sum" do
     login_Iggy
-    visit webui_engine.project_show_path(project: "home:Iggy")
+    visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
     create_patchinfo(
       :summary => "This is a test for the patchinfoeditor",
@@ -142,12 +142,12 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
     # check that the patchinfo is not editable for unauthorized users per buttons
     logout
-    visit webui_engine.patchinfo_show_path(project: "home:Iggy", package: "patchinfo")
+    visit patchinfo_show_path(project: "home:Iggy", package: "patchinfo")
     page.wont_have_content("Edit patchinfo")
     page.wont_have_content("Delete patchinfo")
     
     # check that the patchinfo is not editable per direct url for unauthorized users
-    visit webui_engine.patchinfo_edit_patchinfo_path(project: "home:Iggy", package: "patchinfo")
+    visit patchinfo_edit_patchinfo_path(project: "home:Iggy", package: "patchinfo")
     create_patchinfo(
       :summary => "This is a test for the patchinfoeditor",
       :description => LONG_DESCRIPTION,
@@ -160,7 +160,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
   test "create_patchinfo_with_desc_sum_changed_rating_and_category" do
     login_Iggy
-    visit webui_engine.project_show_path(project: "home:Iggy")
+    visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
     create_patchinfo(
       :summary => "This is a test for the patchinfoeditor",
@@ -172,7 +172,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
   test "create_patchinfo_and_edit_it" do
     login_Iggy
-    visit webui_engine.project_show_path(project: "home:Iggy")
+    visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
     create_patchinfo(
       :summary => "This is a test for the patchinfoeditor",
@@ -202,7 +202,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
   test "create_patchinfo_with_issues" do
     login_Iggy
-    visit webui_engine.project_show_path(project: "home:Iggy")
+    visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
     create_patchinfo(
       :summary => "This is a test for the patchinfoeditor",
@@ -232,7 +232,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
   test "create_patchinfo_with_flags" do
     login_Iggy
-    visit webui_engine.project_show_path(project: "home:Iggy")
+    visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
     create_patchinfo(
       :summary => "This is a test for the patchinfo-editor",
@@ -248,7 +248,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
   test "create_patchinfo_with_binaries" do
     login_Iggy
-    visit webui_engine.project_show_path(project: "home:Iggy")
+    visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
     create_patchinfo(
       :summary => "This is a test for the patchinfo-editor",
@@ -270,7 +270,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
   test "create_patchinfo_with_too_short_summary" do
     login_Iggy
-    visit webui_engine.project_show_path(project: "home:Iggy")
+    visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
     create_patchinfo(
       :summary => "Too short",
@@ -282,7 +282,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
   test "create_patchinfo_with_too_short_desc" do
     login_Iggy
-    visit webui_engine.project_show_path(project: "home:Iggy")
+    visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
     create_patchinfo(
       :summary => "This is a test for the patchinfo-editor",
@@ -294,7 +294,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
   test "create_patchinfo_with_too_short_sum_and_desc" do
     login_Iggy
-    visit webui_engine.project_show_path(project: "home:Iggy")
+    visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
     create_patchinfo(
       :summary => "Too short",

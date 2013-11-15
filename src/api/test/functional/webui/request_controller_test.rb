@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../../test_helper'
 
 require 'webui/home_controller'
 
@@ -21,7 +21,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   end
 
   def test_my_involved_requests
-    login_Iggy to: webui_engine.home_requests_path(user: 'king')
+    login_Iggy to: home_requests_path(user: 'king')
 
     page.must_have_selector 'table#request_table tr'
 
@@ -32,7 +32,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   end
 
   test 'can request role addition for projects' do
-    login_Iggy to: webui_engine.project_show_path(project: 'home:tom')
+    login_Iggy to: project_show_path(project: 'home:tom')
     click_link 'Request role addition'
     find(:id, 'role').select('Bugowner')
     fill_in 'description', with: 'I can fix bugs too.'
@@ -44,17 +44,17 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_text('In state new')
 
     logout
-    login_tom to: webui_engine.request_show_path(1001)
+    login_tom to: request_show_path(1001)
     page.must_have_text 'Iggy Pop (Iggy) wants the role bugowner for project home:tom'
     click_button 'Accept'
   end
 
   test 'can request role addition for packages' do
-    login_Iggy to: webui_engine.package_show_path(project: 'home:Iggy', package: 'TestPack')
+    login_Iggy to: package_show_path(project: 'home:Iggy', package: 'TestPack')
     # no need for "request role"
     page.wont_have_link 'Request role addition'
     # foreign package
-    visit webui_engine.package_show_path(project: 'Apache', package: 'apache2')
+    visit package_show_path(project: 'Apache', package: 'apache2')
     find(:css, 'a > img.icons-user_add').click
     find(:id, 'role').select('Maintainer')
     fill_in 'description', with: 'I can fix bugs too.'
@@ -66,32 +66,32 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_text('In state new')
 
     logout
-    login_tom to: webui_engine.request_show_path(1001)
+    login_tom to: request_show_path(1001)
     find('#action_display_0').must_have_text 'Iggy Pop (Iggy) wants the role maintainer for package Apache / apache2'
     # tom is not apache maintainer
     page.wont_have_button 'Accept'
 
     logout
-    login_fred to: webui_engine.request_show_path(1001)
+    login_fred to: request_show_path(1001)
     find('#action_display_0').must_have_text 'Iggy Pop (Iggy) wants the role maintainer for package Apache / apache2'
     click_button 'Accept'
 
     # now check the role addition link is gone
     logout
-    login_Iggy to: webui_engine.package_show_path(project: 'Apache' , package: 'apache2')
+    login_Iggy to: package_show_path(project: 'Apache' , package: 'apache2')
     page.wont_have_link 'Request role addition'
 
   end
 
   test 'invalid id gives error' do
     login_Iggy
-    visit webui_engine.request_show_path(2000)
+    visit request_show_path(2000)
     page.must_have_text("Can't find request 2000")
     page.must_have_text('Requests for Iggy')
   end
 
   test 'submit package and revoke' do
-    login_Iggy to: webui_engine.package_show_path(project: 'home:Iggy', package: 'TestPack')
+    login_Iggy to: package_show_path(project: 'home:Iggy', package: 'TestPack')
     click_link 'Submit package'
     fill_in 'targetproject', with: 'home:tom'
     fill_in 'description', with: 'Want it?'
@@ -117,7 +117,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   end
 
   test 'tom adds reviewer Iggy' do
-    login_tom to: webui_engine.home_path
+    login_tom to: home_path
 
     within('tr#tr_request_4') do
       page.must_have_text '~:kde4 / BranchPack'
@@ -160,7 +160,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_text 'Request 4 (review)'
 
     logout
-    login_Iggy to: webui_engine.request_show_path(4)
+    login_Iggy to: request_show_path(4)
     click_link('review_descision_link_0')
     fill_in 'review_comment_0', with: 'Ok for the project'
     click_button 'review_accept_button_0'
@@ -175,7 +175,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_text 'And ok for me'
     logout
 
-    login_adrian to: webui_engine.request_show_path(4)
+    login_adrian to: request_show_path(4)
     click_link 'review_descision_link_0'
     fill_in 'review_comment_0', with: 'BranchPack sounds strange'
     click_button 'review_decline_button_0'
@@ -184,7 +184,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
   test 'request 4 can expand' do
     # no login required
-    visit webui_engine.request_show_path(4)
+    visit request_show_path(4)
     within '#diff_headline_myfile_diff_action_0_submit_0_0' do
       page.wont_have_text '+DummyContent'
       click_link '[+]'
@@ -197,13 +197,13 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   end
 
   def visit_requests
-    visit webui_engine.request_show_path(1)
+    visit request_show_path(1)
     page.must_have_text 'Request 1'
 
-    visit webui_engine.request_show_path(2)
+    visit request_show_path(2)
     page.must_have_text 'Request 2'
 
-    visit webui_engine.request_show_path(10)
+    visit request_show_path(10)
     page.must_have_text 'Request 10'
   end
 
@@ -217,7 +217,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   end
 
   test 'succesful comment creation' do
-    login_Iggy to: webui_engine.request_show_path(1)
+    login_Iggy to: request_show_path(1)
     fill_in 'title', with: 'Comment Title'
     fill_in 'body', with: 'Comment Body'
     find_button('Add comment').click
@@ -225,7 +225,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   end
 
   test 'can not accept own requests' do
-    login_tom to: webui_engine.package_show_path(project: 'Apache', package: 'apache2')
+    login_tom to: package_show_path(project: 'Apache', package: 'apache2')
     click_link 'Submit package'
     fill_in 'targetproject', with: 'kde4'
     fill_in 'description', with: 'I want to see his reaction'
@@ -238,7 +238,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   end
 
   test 'succesful reply comment creation' do
-    login_Iggy to: webui_engine.request_show_path(4)
+    login_Iggy to: request_show_path(4)
     find(:id,'reply_link_id_301').click
     fill_in 'reply_body_301', with: 'Comment Body'
     find(:id,'add_reply_301').click

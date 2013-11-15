@@ -1,17 +1,17 @@
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::MessagesTest < Webui::IntegrationTest
 
   test 'add and remove message' do
     use_js
 
-    login_king to: webui_engine.project_show_path(project: 'home:king')
+    login_king to: project_show_path(project: 'home:king')
 
     # create admin's home to avoid interconnect
     find_button('Create Project').click
 
     message = 'This is just a test'
-    visit webui_engine.root_path
+    visit root_path
     page.wont_have_selector('#news-message')
 
     find(:id, 'add-new-message').click
@@ -38,7 +38,7 @@ class Webui::MessagesTest < Webui::IntegrationTest
     
     # and now to something completely different - we need to erase home:king
     # again so that you still get the same interconnect s*** workflow (TODO!!!)
-    visit webui_engine.project_show_path(project: 'home:king')
+    visit project_show_path(project: 'home:king')
     find(:id, 'delete-project').click
     find_button('Ok').click
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::PackageEditSourcesTest < Webui::IntegrationTest
   include Webui::WebuiHelper
@@ -11,7 +11,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     super
 
     use_js
-    login_Iggy to: webui_engine.package_show_path(:project => @project, :package => @package)
+    login_Iggy to: package_show_path(:project => @project, :package => @package)
   end
 
   def text_path(name)

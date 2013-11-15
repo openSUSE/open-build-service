@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::ProjectControllerTest < Webui::IntegrationTest
 
@@ -6,7 +6,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   uses_transaction :test_create_project_publish_disabled
 
   test 'project show' do
-    visit webui_engine.project_show_path(project: 'Apache')
+    visit project_show_path(project: 'Apache')
     page.must_have_selector '#project_title'
     visit '/project/show?project=My:Maintenance'
     page.must_have_selector '#project_title'
@@ -23,7 +23,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
   test 'adrian can edit kde4' do
     # adrian is maintainer via group on kde4
-    login_adrian to: webui_engine.project_show_path(project: 'kde4')
+    login_adrian to: project_show_path(project: 'kde4')
 
     # really simple test to get started
     page.must_have_link 'delete-project'
@@ -31,7 +31,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   end
 
   def create_subproject
-    login_tom to: webui_engine.project_subprojects_path(project: 'home:tom')
+    login_tom to: project_subprojects_path(project: 'home:tom')
     find(:id, 'link-create-subproject').click
   end
 
@@ -46,7 +46,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   end
 
   test 'create invalid ns' do
-    login_tom to: webui_engine.project_new_path(ns: 'home:toM')
+    login_tom to: project_new_path(ns: 'home:toM')
     flash_message.must_equal "Invalid namespace name 'home:toM'"
   end
 
@@ -67,7 +67,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
     # now check that adrian can't see it
     logout
-    login_adrian to: webui_engine.project_subprojects_path(project: 'home:tom')
+    login_adrian to: project_subprojects_path(project: 'home:tom')
 
     page.wont_have_text 'hiddenstuff'
   end
@@ -83,13 +83,13 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find_button('Ok').click
     find('#flash-messages').must_have_text "Project 'home:tom:toberemoved' was removed successfully"
     # now the actual assertion :)
-    assert page.current_url.end_with?(webui_engine.project_show_path(project: 'home:tom')), "#{page.current_url} does not end with #{webui_engine.project_show_path(project: 'home:tom')}"
+    assert page.current_url.end_with?(project_show_path(project: 'home:tom')), "#{page.current_url} does not end with #{project_show_path(project: 'home:tom')}"
   end
 
   test 'delete home project' do
     use_js
 
-    login_user('user1', '123456', to: webui_engine.project_show_path(project: 'home:user1'))
+    login_user('user1', '123456', to: project_show_path(project: 'home:user1'))
 
     # now on to a suprise - the project needs to be created on first login
     find_button('Create Project').click
@@ -99,23 +99,23 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
     find('#flash-messages').must_have_text "Project 'home:user1' was removed successfully"
     # now the actual assertion :)
-    assert page.current_url.end_with? webui_engine.project_list_public_path
+    assert page.current_url.end_with? project_list_public_path
   end
 
   test 'admin can delete every project' do
     use_js
 
-    login_king to: webui_engine.project_show_path(project: 'LocalProject')
+    login_king to: project_show_path(project: 'LocalProject')
     find(:id, 'delete-project').click
     find_button('Ok').click
 
     flash_message.must_equal "Project 'LocalProject' was removed successfully"
-    assert page.current_url.end_with? webui_engine.project_list_public_path
+    assert page.current_url.end_with? project_list_public_path
     find('#project_list').wont_have_text 'LocalProject'
 
     # now that it worked out we better make sure to recreate it.
     # The API database is rolled back on test end, but the backend is not
-    visit webui_engine.project_new_path
+    visit project_new_path
     fill_in 'name', with: 'LocalProject'
     find_button('Create Project').click
   end
@@ -124,7 +124,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     use_js
 
     # Let user1 create a project with a repo that others can request to delete
-    login_adrian to: webui_engine.project_show_path(project: 'home:adrian')
+    login_adrian to: project_show_path(project: 'home:adrian')
     find(:link, 'Subprojects').click
     find(:link, 'Create subproject').click
     fill_in 'name', with: 'hasrepotoremove'
@@ -137,12 +137,12 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     logout
 
     # check that anonymous has no links
-    visit webui_engine.project_show_path(project: 'home:adrian:hasrepotoremove')
+    visit project_show_path(project: 'home:adrian:hasrepotoremove')
     page.wont_have_link('Request repository deletion')
     page.wont_have_link('Remove repository')
 
     # Now let tom create the repository delete request:
-    login_tom to: webui_engine.project_show_path(project: 'home:adrian:hasrepotoremove')
+    login_tom to: project_show_path(project: 'home:adrian:hasrepotoremove')
     find(:link, 'Repositories').click
     find(:link, 'Request repository deletion').click
     # Wait for the dialog to appear
@@ -153,13 +153,13 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     logout
 
     # Finally, user1 should accept the request and make sure the repo is gone
-    login_adrian to: webui_engine.project_show_path(project: 'home:adrian:hasrepotoremove')
+    login_adrian to: project_show_path(project: 'home:adrian:hasrepotoremove')
     find('#tab-requests a').click # The project tab "Requests"
     find('.request_link').click # Should be the first and only request for this project
     find(:id, 'description_text').text.must_equal "I don't like the repo"
     fill_in 'reason', with: 'really? ok'
     find(:id, 'accept_request_button').click
-    visit webui_engine.project_show_path(project: 'home:adrian:hasrepotoremove')
+    visit project_show_path(project: 'home:adrian:hasrepotoremove')
     find(:link, 'Repositories').click
     page.wont_have_selector '#images' # The repo "images" should be gone by now
   end
@@ -167,7 +167,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   test 'add repo' do
     use_js
 
-    visit webui_engine.project_repositories_path(project: 'home:Iggy')
+    visit project_repositories_path(project: 'home:Iggy')
     # just check anonymous has no links
     page.wont_have_link 'Edit Repository'
     page.wont_have_link 'Delete Repository'
@@ -201,12 +201,12 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   test 'list all' do
     use_js
 
-    visit webui_engine.project_list_public_path
+    visit project_list_public_path
     first(:css, 'p.main-project a').click
     # verify it's a project
-    assert page.current_url.end_with? webui_engine.project_show_path(project: 'BaseDistro')
+    assert page.current_url.end_with? project_show_path(project: 'BaseDistro')
 
-    visit webui_engine.project_list_public_path
+    visit project_list_public_path
     # avoid random results once projects moves to page 2
     find(:id, 'projects_table_length').select('100')
     find(:id, 'project_list').must_have_link 'BaseDistro'
@@ -215,14 +215,14 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     uncheck('excludefilter')
     find(:id, 'project_list').must_have_link 'home:adrian'
 
-    login_king to: webui_engine.project_list_public_path
+    login_king to: project_list_public_path
     find(:id, 'projects_table_length').select('100')
     find(:id, 'project_list').must_have_link 'HiddenProject'
   end
 
   test 'Iggy adds himself as reviewer' do
     use_js
-    login_Iggy to: webui_engine.project_users_path(project: 'home:Iggy')
+    login_Iggy to: project_users_path(project: 'home:Iggy')
     check('user_reviewer_Iggy')
     # wait for it to be clickable again before switching pages
     page.wont_have_xpath('.//input[@id="user_reviewer_Iggy"][@disabled="disabled"]')
@@ -232,7 +232,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   end
 
   test 'Iggy removes homer as maintainer' do
-    login_Iggy to: webui_engine.project_users_path(project: 'home:Iggy')
+    login_Iggy to: project_users_path(project: 'home:Iggy')
     uncheck 'user_maintainer_hidden_homer'
     # wait for it to be clickable again before switching pages
     page.wont_have_xpath('.//input[@id="user_maintainer_hidden_homer"][@disabled="disabled"]')
@@ -242,7 +242,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   end
 
   test 'check status' do
-    visit webui_engine.project_status_path(project: 'LocalProject')
+    visit project_status_path(project: 'LocalProject')
     page.must_have_text 'Include version updates' # just don't crash
   end
 
@@ -275,7 +275,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
   test 'removing architectures in repo works' do
     use_js
-    login_Iggy to: webui_engine.project_repositories_path(project: 'home:Iggy')
+    login_Iggy to: project_repositories_path(project: 'home:Iggy')
 
     page.must_have_text '10.2 (i586, x86_64)'
     click_link 'Edit repository'
@@ -287,18 +287,18 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.must_have_xpath('.//input[@id="save_button"][@disabled="disabled"]')
 
     # now check again
-    visit webui_engine.project_repositories_path(project: 'home:Iggy')
+    visit project_repositories_path(project: 'home:Iggy')
     page.must_have_text '10.2 (x86_64)'
 
     # verify _meta
-    visit webui_engine.project_meta_path(project: 'home:Iggy')
+    visit project_meta_path(project: 'home:Iggy')
     page.wont_have_text '<arch>i586</arch>'
   end
 
   test 'buildresults' do
     use_js
 
-    visit webui_engine.project_show_path(project: 'home:Iggy')
+    visit project_show_path(project: 'home:Iggy')
     # test reload and wait for the build to finish
     starttime=Time.now
     while Time.now - starttime < 10
@@ -314,22 +314,22 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.wont_have_link 'disabled'
 
     # this time we can assume repos are up
-    visit webui_engine.project_show_path(project: 'home:Iggy')
+    visit project_show_path(project: 'home:Iggy')
     click_link '10.2'
     page.must_have_text 'There are no cycles in this repository.'
   end
 
   test 'repository links' do
-    visit webui_engine.project_repositories_path(project: 'home:Iggy')
+    visit project_repositories_path(project: 'home:Iggy')
     all(:link, '10.2').each do |l|
-      l['href'].must_equal webui_engine.project_repository_state_path(project: 'home:Iggy', repository: '10.2')
+      l['href'].must_equal project_repository_state_path(project: 'home:Iggy', repository: '10.2')
     end
   end
 
   test 'request deletion' do
     use_js
 
-    login_tom to: webui_engine.project_show_path(project: 'home:Iggy')
+    login_tom to: project_show_path(project: 'home:Iggy')
     click_link 'Request deletion'
 
     fill_in 'description', with: 'It was just a test'
@@ -342,7 +342,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   test 'add maintenance project' do
     use_js
 
-    login_king to: webui_engine.project_show_path(project: 'My:Maintenance')
+    login_king to: project_show_path(project: 'My:Maintenance')
     click_link 'maintained projects'
     click_link 'Add project to maintenance'
     fill_autocomplete 'maintained_project', with: 'Apa', select: 'Apache'

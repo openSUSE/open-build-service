@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::ApplicationControllerTest < Webui::IntegrationTest
 
@@ -46,13 +46,13 @@ class Webui::ApplicationControllerTest < Webui::IntegrationTest
 
   test 'bento theme can be configured' do
     CONFIG['theme'] = 'bento'
-    visit webui_engine.root_path
+    visit root_path
     # without javascript there is no menu but just links
     within '#header' do
       page.must_have_selector '#item-downloads'
     end
 
-    visit webui_engine.package_show_path(project: 'home:Iggy', package: 'TestPack')
+    visit package_show_path(project: 'home:Iggy', package: 'TestPack')
     page.must_have_link 'Download package'
     first(:link, 'Download package')['href'].must_equal 'http://software.opensuse.org/download.html?project=home%3AIggy&package=TestPack'
   end

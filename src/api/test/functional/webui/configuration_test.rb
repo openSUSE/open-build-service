@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::ConfigurationTest < Webui::IntegrationTest
 
   uses_transaction :test_change_config
 
   test 'change config' do
-    visit webui_engine.configuration_path
+    visit configuration_path
     flash_message_type.must_equal :alert
     flash_message.must_equal 'Requires admin privileges'
 
-    login_king to: webui_engine.configuration_path
+    login_king to: configuration_path
     title = 'Cool Build Service'
     fill_in 'title', with: title
     descr = "I don't like long texts - just some chinese: 這兩頭排開離觀止進"

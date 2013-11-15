@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::MainControllerTest < ActionDispatch::IntegrationTest
 
@@ -22,7 +22,7 @@ class Webui::MainControllerTest < ActionDispatch::IntegrationTest
   test 'sitemap' do
     @urls = []
     # verify we can fetch sitemaps and it contains useful stuff
-    fetch_sitemap(webui_engine.main_sitemap_path)
+    fetch_sitemap(main_sitemap_path)
     assert @urls.include? '/project/show/BaseDistro'
     assert @urls.include? '/project/show/home:Iggy'
     assert @urls.include? '/project/show/home:coolo:test'

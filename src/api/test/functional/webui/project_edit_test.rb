@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::ProjectEditTest < Webui::IntegrationTest
 
@@ -58,28 +58,28 @@ class Webui::ProjectEditTest < Webui::IntegrationTest
   end
 
   test 'change_home_project_title' do
-    login_Iggy to: webui_engine.project_show_path(project: 'home:Iggy')
+    login_Iggy to: project_show_path(project: 'home:Iggy')
 
     change_project_info(
       :title => 'My Title hopefully got changed ' + Time.now.to_i.to_s)
   end
 
   test 'change_home_project_description' do
-    login_Iggy to: webui_engine.project_show_path(project: 'home:Iggy')
+    login_Iggy to: project_show_path(project: 'home:Iggy')
     change_project_info(
       :description => 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
   end
 
   
   test 'change_home_project_info' do
-    login_Iggy to: webui_engine.project_show_path(project: 'home:Iggy')
+    login_Iggy to: project_show_path(project: 'home:Iggy')
     change_project_info(
       :title => 'My Title hopefully got changed ' + Time.now.to_i.to_s,
       :description => 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
   end
 
   test 'change_global_project_title' do
-    login_king to: webui_engine.project_show_path(project: 'LocalProject')
+    login_king to: project_show_path(project: 'LocalProject')
 
     change_project_info(
       :title => 'My Title hopefully got changed ' + Time.now.to_i.to_s)
@@ -87,7 +87,7 @@ class Webui::ProjectEditTest < Webui::IntegrationTest
 
   
   test 'change_global_project_description' do
-    login_king to: webui_engine.project_show_path(project: 'LocalProject')
+    login_king to: project_show_path(project: 'LocalProject')
 
     change_project_info(
       :description => 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
@@ -95,7 +95,7 @@ class Webui::ProjectEditTest < Webui::IntegrationTest
 
   
   test 'change_global_project_info' do
-    login_king to: webui_engine.project_show_path(project: 'LocalProject')
+    login_king to: project_show_path(project: 'LocalProject')
 
     change_project_info(
       :title => 'My Title hopefully got changed ' + Time.now.to_i.to_s,

@@ -1,11 +1,11 @@
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::CreateProjectTest < Webui::IntegrationTest
 
   uses_transaction :test_create_subproject
 
   def test_create_package
-    login_tom to: webui_engine.project_show_path(project: 'home:tom')
+    login_tom to: project_show_path(project: 'home:tom')
     page.must_have_text(/Packages \(0\)/)
     page.must_have_text(/This project does not contain any packages/)
 
@@ -16,7 +16,7 @@ class Webui::CreateProjectTest < Webui::IntegrationTest
   end
 
   def test_create_subproject
-    login_tom to: webui_engine.project_show_path(project: 'home:tom')
+    login_tom to: project_show_path(project: 'home:tom')
     click_link 'Subprojects'
 
     page.must_have_text 'This project has no subprojects'
@@ -25,7 +25,7 @@ class Webui::CreateProjectTest < Webui::IntegrationTest
     click_button 'Create Project'
     flash_message.must_equal "Project 'home:tom:coolstuff' was created successfully"
 
-    assert current_url.end_with?(webui_engine.project_show_path(project: 'home:tom:coolstuff')), "#{current_url} not ending with coolstuff"
+    assert current_url.end_with?(project_show_path(project: 'home:tom:coolstuff')), "#{current_url} not ending with coolstuff"
     find('#project_title').text.must_equal 'home:tom:coolstuff'
     find('#packages_info h2').text.must_equal 'Packages (0)'
   end

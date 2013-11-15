@@ -1,10 +1,10 @@
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::WatchlistTest < Webui::IntegrationTest
 
   test 'watchlists' do
     use_js
-    login_tom to: webui_engine.project_show_path(project: 'BaseDistro')
+    login_tom to: project_show_path(project: 'BaseDistro')
 
     # assert watchlist is empty
     page.execute_script("$('#menu-favorites').show();")
@@ -29,7 +29,7 @@ class Webui::WatchlistTest < Webui::IntegrationTest
 
     Timecop.travel 1
 
-    visit webui_engine.project_show_path(project: 'My:Maintenance')
+    visit project_show_path(project: 'My:Maintenance')
 
     page.execute_script("$('#menu-favorites').show();")
     find(:css, '#menu-favorites').must_have_text %r{Add this project to Watchlist}

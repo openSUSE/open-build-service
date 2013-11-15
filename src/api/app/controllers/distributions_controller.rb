@@ -6,6 +6,7 @@ class DistributionsController < ApplicationController
   validate_action :index => {:method => :get, :response => :distributions}
   validate_action :upload => {:method => :put, :request => :distributions, :response => :status}
 
+  respond_to :xml, :json
 
   # GET /distributions
   # GET /distributions.xml

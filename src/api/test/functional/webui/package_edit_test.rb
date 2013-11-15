@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::PackageEditTest < Webui::IntegrationTest
 
@@ -64,7 +64,7 @@ class Webui::PackageEditTest < Webui::IntegrationTest
 
   test 'change_home_project_package_title' do
     
-    login_Iggy to: webui_engine.package_show_path(:project => @project, :package => @package)
+    login_Iggy to: package_show_path(:project => @project, :package => @package)
 
     change_package_info(
       :title => 'My Title hopefully got changed ' + Time.now.to_i.to_s)
@@ -73,7 +73,7 @@ class Webui::PackageEditTest < Webui::IntegrationTest
   
   test 'change_home_project_package_description' do
 
-    login_Iggy to: webui_engine.package_show_path(:project => @project, :package => @package)
+    login_Iggy to: package_show_path(:project => @project, :package => @package)
 
     change_package_info(
       :description => 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
@@ -81,7 +81,7 @@ class Webui::PackageEditTest < Webui::IntegrationTest
 
   
   test 'change_home_project_package_info' do
-    login_Iggy to: webui_engine.package_show_path(:project => @project, :package => @package)
+    login_Iggy to: package_show_path(:project => @project, :package => @package)
 
     change_package_info(
       :title => 'My Title hopefully got changed ' + Time.now.to_i.to_s,

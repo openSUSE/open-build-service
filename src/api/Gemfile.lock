@@ -1,9 +1,3 @@
-PATH
-  remote: webui
-  specs:
-    webui (1.0)
-      rails (~> 4.0.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -266,6 +260,5 @@ DEPENDENCIES
   uglifier (>= 1.2.2)
   unicorn-rails
   webmock (>= 1.9.0)
-  webui!
   xmlhash (>= 1.3.6)
   yajl-ruby

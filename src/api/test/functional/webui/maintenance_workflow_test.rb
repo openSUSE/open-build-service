@@ -1,11 +1,11 @@
-require 'test_helper'
+require_relative '../../test_helper'
 
 class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
 
   test 'full maintenance workflow' do
     use_js
 
-    login_king to: webui_engine.project_show_path(project: 'BaseDistro')
+    login_king to: project_show_path(project: 'BaseDistro')
 
     find(:id, 'advanced_tabs_trigger').click
     find(:link, 'Attributes').click
@@ -15,7 +15,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
 
     logout
     # now let tom branch a package
-    login_tom to: webui_engine.project_show_path(project: 'My:Maintenance')
+    login_tom to: project_show_path(project: 'My:Maintenance')
     find(:id, 'project_title').text.must_equal 'official maintenance space'
 
     find(:id, 'infos_list').must_have_text %r{3 maintained projects}
@@ -32,7 +32,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
 
     find(:css, '#flash-messages').must_have_text %r{Branched package BaseDistro2\.0:LinkedUpdateProject.*pack2}
 
-    visit(webui_engine.project_show_path(project: 'home:tom'))
+    visit(project_show_path(project: 'home:tom'))
 
     find(:link, 'Subprojects').click
     find(:link, 'branches:BaseDistro2.0:LinkedUpdateProject').click
@@ -50,7 +50,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     logout
 
     # now let the coordinator act
-    login_user('maintenance_coord', 'power', to: webui_engine.project_show_path(project: 'My:Maintenance'))
+    login_user('maintenance_coord', 'power', to: project_show_path(project: 'My:Maintenance'))
 
     find(:link, 'open request').click
     find(:id, 'description_text').text.must_equal 'I want the update'
@@ -59,7 +59,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     find(:id, 'accept_request_button').click
     find(:css, '#action_display_0').must_have_text %r{Submit update from package home:tom:branch.*UpdateProject / pack2 to project My:Maintenance:0}
 
-    visit(webui_engine.project_show_path(project: 'My:Maintenance:0'))
+    visit(project_show_path(project: 'My:Maintenance:0'))
     find(:link, 'Patchinfo present').click
     find(:id, 'edit-patchinfo').click
 
@@ -112,7 +112,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     logout
 
     # add a additional fix to the incident
-    login_tom to: webui_engine.project_show_path(project: 'home:tom:branches:BaseDistro2.0:LinkedUpdateProject')
+    login_tom to: project_show_path(project: 'home:tom:branches:BaseDistro2.0:LinkedUpdateProject')
     find(:link, 'Submit as update').click
 
     find(:css, '.dialog h2').must_have_text 'Submit as Update'
@@ -122,7 +122,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     logout
 
     # let the maint-coordinator add the new submit to the running incident and cont
-    login_user('maintenance_coord', 'power', to: webui_engine.project_show_path(project: 'My:Maintenance'))
+    login_user('maintenance_coord', 'power', to: project_show_path(project: 'My:Maintenance'))
 
     find(:link, 'open request').click
     find(:id, 'description_text').text.must_equal 'I have a additional fix'
@@ -140,7 +140,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     find(:id, 'accept_request_button').click
 
     #TODO: make it unique find(:link, "0").click
-    visit webui_engine.project_show_path 'My:Maintenance:0'
+    visit project_show_path 'My:Maintenance:0'
     find(:link, 'Request to release').click
 
     fill_in 'description', with: 'RELEASE!'
