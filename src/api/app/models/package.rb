@@ -846,6 +846,20 @@ class Package < ActiveRecord::Base
     end
   end
 
+  def delete_file(name, opt = {})
+    delete_opt = Hash.new
+    delete_opt[:keeplink] = 1 if opt[:expand]
+    delete_opt[:user] = User.current.login
+    delete_opt[:comment] = opt[:comment] if opt[:comment]
+
+    unless User.current.can_modify_package? self
+      raise DeleteFileNoPermission.new 'Insufficient permissions to delete file'
+    end
+
+    Suse::Backend.delete self.source_path(name, delete_opt)
+    sources_changed
+  end
+
   def enable_for_repository repoName 
     update_needed = nil
     if self.project.flags.find_by_flag_and_status( 'build', 'disable' )

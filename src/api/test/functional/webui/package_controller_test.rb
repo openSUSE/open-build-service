@@ -259,4 +259,16 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_content "Superseded by #{new_requestid}"
 
   end
+
+  test 'remove file' do
+    use_js
+
+    login_dmayr to: webui_engine.package_show_path(project: 'home:dmayr', package: 'x11vnc')
+    within 'tr#file-README' do
+      find(:css, '.icons-page_white_delete').click
+    end
+    page.wont_have_link 'README'
+    # restore now
+    Suse::Backend.put( '/source/home:dmayr/x11vnc/README', 'just to delete')
+  end
 end

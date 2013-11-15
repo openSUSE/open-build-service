@@ -565,7 +565,6 @@ class Webui::PackageController < Webui::WebuiController
       begin
         if @services.addDownloadURL(file_url)
            @services.save
-           Service.free_cache :project => @project, :package => @package
         else
           raise 'foo' # same result as if an exception was thrown (will be catched in the surrounding block)
         end
@@ -596,11 +595,8 @@ class Webui::PackageController < Webui::WebuiController
   def remove_file
     required_parameters :filename
     filename = params[:filename]
-    # extra escaping of filename (workaround for rails bug)
-    escaped_filename = URI.escape filename, '+'
-    if @package.remove_file escaped_filename
+    if @package.api_obj.delete_file filename
       flash[:notice] = "File '#{filename}' removed successfully"
-      # TODO: remove patches from _link
     else
       flash[:notice] = "Failed to remove file '#{filename}'"
     end
@@ -660,7 +656,6 @@ class Webui::PackageController < Webui::WebuiController
     params[:file].gsub!( /\r\n/, "\n" )
     begin
       frontend.put_file(params[:file], :project => project, :package => package, :filename => filename, :comment => params[:comment])
-      Directory.free_cache(:project => project, :package => package)
     rescue Timeout::Error => e
       render json: { error: 'Timeout when saving file. Please try again.'
       }, status: 400
@@ -876,7 +871,6 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     flash[:notice] = 'Config successfully saved'
-    @package.free_cache
     render :text => 'Config successfully saved', :content_type => 'text/plain'
   end
 

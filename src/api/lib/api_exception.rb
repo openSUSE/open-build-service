@@ -39,10 +39,14 @@ class APIException < Exception
 
 end
 
-# 403 errors
+# 403 errors (how about a subclass?)
 class CreateProjectNoPermission < APIException
   setup 403
 end
+class DeleteFileNoPermission < APIException
+  setup 403
+end
+
 # 404 errors
 class NotFoundError < APIException
   setup 404
@@ -53,5 +57,4 @@ class InvalidParameterError < APIException; end
 class InvalidProjectNameError < APIException; end
 class UnknownCommandError < APIException; end
 class NotMissingError < APIException; end
-
 

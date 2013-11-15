@@ -856,10 +856,6 @@ class SourceController < ApplicationController
     end
   end
 
-  class DeleteFileNoPermission < APIException
-    setup 403
-  end
-
   # DELETE /source/:project/:package/:filename
   def delete_file
     check_permissions_for_file

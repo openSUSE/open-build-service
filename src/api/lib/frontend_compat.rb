@@ -66,12 +66,6 @@ class FrontendCompat
       :method => 'DELETE', :timeout => 500
   end
 
-  def delete_file( opt={} )
-    logger.debug "starting to delete file, opt: #{opt.inspect}"
-    transport.direct_http URI("/source/#{pesc opt[:project]}/#{pesc opt[:package]}/#{pesc opt[:filename]}"),
-      :method => 'DELETE', :timeout => 500
-  end
-
   def get_log_chunk( project, package, repo, arch, start, theend )
     logger.debug "get log chunk #{start}-#{theend}"
     path = "/build/#{pesc project}/#{pesc repo}/#{pesc arch}/#{pesc package}/_log?nostream=1&start=#{start}&end=#{theend}"

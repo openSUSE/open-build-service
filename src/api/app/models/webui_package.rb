@@ -60,21 +60,6 @@ class WebuiPackage < WebuiNode
     return true
   end
 
-  def remove_file( name, expand = nil )
-    delete_opt = Hash.new
-    delete_opt[:package] = self.name
-    delete_opt[:project] = self.api_obj.project.name
-    delete_opt[:filename] = name
-    delete_opt[:keeplink] = expand if expand
-
-    begin
-       FrontendCompat.new.delete_file delete_opt
-       true
-    rescue ActiveXML::Transport::NotFoundError
-       false
-    end 
-  end
-
   def bugowners
     return users('bugowner')
   end
