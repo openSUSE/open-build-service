@@ -34,9 +34,6 @@ gem 'thinking-sphinx', '= 3.0.4'
 # don't rely on cron+rake 
 gem 'clockwork', '>= 0.7'
 
-# for now used in webui routes
-gem 'mobileesp_converted'
-
 # used to paginate search results
 gem 'kaminari'
 

@@ -3,18 +3,14 @@
 
 require 'frontend_compat'
 
-module Webui
-class WebuiController < ActionController::Base
+class Webui::WebuiController < ActionController::Base
   Rails.cache.set_domain if Rails.cache.respond_to?('set_domain');
 
-  #before_filter :check_mobile_views
+  before_filter :setup_view_path
   before_filter :instantiate_controller_and_action_names
   before_filter :set_return_to, :reset_activexml, :authenticate
   before_filter :check_user
   before_filter :require_configuration
-  unless CONFIG['theme'] == 'bratwurst'
-    after_filter :validate_xhtml
-  end
   after_filter :clean_cache
 
   # :notice and :alert are default, we add :success and :error
@@ -237,58 +233,6 @@ class WebuiController < ActionController::Base
   end
   private :put_body_to_tempfile
 
-  def validate_xhtml
-    return if request.xhr?
-    return unless (response.status.to_i == 200 && response.content_type =~ /text\/html/i)
-    return if Rails.env.production? or Rails.env.stage?
-
-    errors = []
-    xmlbody = String.new response.body
-    xmlbody.gsub!(/[\n\r]/, "\n")
-    xmlbody.gsub!(/&[^;]*sp;/, '')
-    
-    # now to something fancy - patch HTML5 to look like xhtml 1.1
-    xmlbody.gsub!(%r{ data-\S+=\"[^\"]*\"}, ' ')
-    xmlbody.gsub!(%r{ autocomplete=\"[^\"]*\"}, ' ')
-    xmlbody.gsub!(%r{ placeholder=\"[^\"]*\"}, ' ')
-    xmlbody.gsub!(%r{ required=\"[^\"]*\"}, ' ')
-    xmlbody.gsub!(%r{ <tester .*}, ' ')
-    xmlbody.gsub!('</tester>', ' ')
-    xmlbody.gsub!(%r{ type=\"range\"}, ' type="text"')
-    xmlbody.gsub!(%r{ min=\"[^\"]*\"}, ' ')
-    xmlbody.gsub!(%r{ max=\"[^\"]*\"}, ' ')
-    xmlbody.gsub!(%r{(<script src="[^\"]*\")>}, '\1 type="application/javascript">')
-    xmlbody.gsub!('<script>', '<script type="application/javascript">')
-    xmlbody.gsub!(%r{<mark>(.*)</mark>}, '<b>\1</b>')
-    xmlbody.gsub!('<!DOCTYPE html>', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">')
-    xmlbody.gsub!('<html>', '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">')
-
-
-    begin
-      document = Nokogiri::XML::Document.parse(xmlbody, nil, nil, Nokogiri::XML::ParseOptions::STRICT)
-    rescue Nokogiri::XML::SyntaxError => e
-      errors << ('[%s:%s]' % [e.line, e.column]) + e.inspect
-      errors << put_body_to_tempfile(xmlbody)
-    end
-
-    if document
-      ses = XHTML_XSD.validate(document)
-      unless ses.empty?
-        document = nil
-        errors << put_body_to_tempfile(xmlbody) 
-        ses.each do |err|
-          errors << ('[%s:%s]' % [err.line, err.column]) + err.inspect
-        end
-      end
-    end
-
-    unless document
-      self.instance_variable_set(:@_response_body, nil)
-      logger.debug "XML Errors #{errors.inspect} #{xmlbody}"
-      render :template => 'webui/xml_errors', :locals => { :oldbody => xmlbody, :errors => errors }, :status => 400
-    end
-  end
-
   def require_configuration
     @configuration = ::Configuration.first
   end
@@ -309,43 +253,14 @@ class WebuiController < ActionController::Base
     @available_architectures = Architecture.where(available: 1)
   end
 
-  def mobile_request?
-    if params.has_key? :force_view
-      # check if it's a reset
-      if session[:force_view].to_s != 'mobile' && params[:force_view].to_s == 'mobile'
-        session.delete :force_view 
-      else
-        session[:force_view] = params[:force_view]
-      end
+  def setup_view_path
+    if CONFIG['theme']
+      theme_path = Rails.root.join('app', 'views', 'webui', 'theme', CONFIG['theme'])
+      prepend_view_path(theme_path)
     end
-    if session.has_key? :force_view
-      if session[:force_view].to_s == 'mobile'
-        request.env['mobile_device_type'] = :mobile
-      else
-        request.env['mobile_device_type'] = :forced_desktop
-      end
-    end
-    unless request.env.has_key? 'mobile_device_type'
-      if request.user_agent.nil? || request.env['HTTP_ACCEPT'].nil?
-        request.env['mobile_device_type'] = :desktop
-      else
-        mobileesp = MobileESPConverted::UserAgentInfo.new(request.user_agent, request.env['HTTP_ACCEPT'])
-        if mobileesp.is_tier_generic_mobile || mobileesp.is_tier_iphone || mobileesp.is_tier_rich_css || mobileesp.is_tier_tablet
-          request.env['mobile_device_type'] = :mobile
-        else
-          request.env['mobile_device_type'] = :desktop
-        end
-      end
-    end
-    return request.env['mobile_device_type'] == :mobile
-  end
-
-  def check_mobile_views
-    #prepend_view_path(Rails.root.join('app', 'mobile_views')) if mobile_request?
   end
 
   def check_ajax
     raise ActionController::RoutingError.new('Expected AJAX call') unless request.xhr?
   end
-end
 end
