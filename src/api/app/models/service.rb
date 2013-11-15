@@ -1,109 +1,7 @@
 class Service < ActiveXML::Node
 
-  class << self
-    def make_stub( opt )
-      "<services/>"
-    end
-
-    def updateServiceList
-       # cache service list
-       @serviceList = []
-       @serviceParameterList = {}
-
-       doc = Service.find :all
-       doc.each_service do |s|
-         serviceName = s.value("name")
-         next if s.value("hidden") == "true"
-         hash = {}
-         hash[:name]        = serviceName
-         hash[:summary]     = s.find_first("summary").text
-         hash[:description] = s.find_first("description").text
-         @serviceList.push( hash )
-
-         @serviceParameterList[serviceName] = {}
-         s.each("parameter") do |p|
-           hash = {}
-           hash[:description] = p.find_first("description").text
-           hash[:required] = true if p.has_element?("required")
-
-           allowedvalues = []
-           p.each("allowedvalue") do |a|
-             allowedvalues.push(a.text)
-           end
-           hash[:allowedvalues] = allowedvalues
-
-           @serviceParameterList[serviceName][p.value("name")] = hash
-         end
-       end
-    end
-
-    def findAvailableParameterValues(serviceName, parameter)
-      if @serviceList.nil?
-         # FIXME: do some more clever cacheing
-         updateServiceList
-      end
-
-      if @serviceParameterList[serviceName] and @serviceParameterList[serviceName][parameter] \
-         and @serviceParameterList[serviceName][parameter][:allowedvalues]
-        return @serviceParameterList[serviceName][parameter][:allowedvalues]
-      end
-      return nil
-    end
-
-    def findAvailableParameters(serviceName)
-      if @serviceList.nil?
-         # FIXME: do some more clever cacheing
-         updateServiceList
-      end
-
-      return {} unless @serviceParameterList[serviceName]
-      @serviceParameterList[serviceName]
-    end
-
-    def available
-      if @serviceList.nil?
-         # FIXME: do some more clever cacheing
-         updateServiceList
-      end
-
-      @serviceList
-    end
-
-    def findService(name)
-      # would be nicer if we store it as hash, but it makes us impossible to order it
-      if @serviceList.nil?
-         # FIXME: do some more clever cacheing
-         updateServiceList
-      end
-   
-      @serviceList.each do |s|
-        return s if s[:name] == name
-      end
-
-      return nil
-    end
-
-    def service_field(name, field)
-      s = findService(name)
-      return nil unless s
-      s[field] || ""
-    end
-
-    def summary(name)
-      service_field(name, :summary)
-    end
-
-    def description(name)
-      service_field(name, :description)
-    end
-
-    def parameterDescription(serviceName, name)
-      return nil unless findService(serviceName)
-      return nil unless @serviceParameterList[serviceName]
-      return nil unless @serviceParameterList[serviceName][name]
-      return ""  unless @serviceParameterList[serviceName][name][:description]
-      @serviceParameterList[serviceName][name][:description]
-    end
+  def self.make_stub( opt )
+    "<services/>"
   end
 
   def addDownloadURL( url )
@@ -163,38 +61,6 @@ class Service < ActiveXML::Node
      fill_params(element, parameters)
   end
 
-  def getParameters(serviceid)
-     ret = []
-     each("/services/service[#{serviceid}]/param") do |p|
-       ret << { :name => p.value(:name), :value => p.text }
-     end
-
-     return ret
-  end
-
-  def setParameters( serviceid, parameters=[] )
-     service = find_first("/services/service[#{serviceid}]")
-     return false if not service
-
-     # remove all existing parameters
-     each("/services/service[#{serviceid}]/param") do |p|
-       delete_element p
-     end
-     fill_params(service, parameters)
-  end
-
-  def moveService( from, to )
-    return if from == to
-    service_elements = each('/services/service')
-    return false if service_elements.count < from or service_elements.count < to or service_elements.count <= 0
-    logger.debug "moveService #{from}->#{to}"
-    if from > to
-      service_elements[from].move_before(service_elements[to])
-    else
-      service_elements[from].move_after(service_elements[to])
-    end
-  end
-
   def error
     opt = Hash.new
     opt[:project]  = self.init_options[:project]
@@ -213,7 +79,7 @@ class Service < ActiveXML::Node
     end
   end
 
-  def execute()
+  def execute
     opt = Hash.new
     opt[:project] = self.init_options[:project]
     opt[:package] = self.init_options[:package]
