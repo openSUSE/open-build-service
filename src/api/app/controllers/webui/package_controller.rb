@@ -243,13 +243,8 @@ class Webui::PackageController < Webui::WebuiController
     redirect_to(:action => 'show', :project => params[:project], :package => params[:package])
   end
 
-  def set_file_details
-    @forced_unexpand ||= ''
+  def set_linkinfo
     @linkinfo = nil
-
-    # check source access
-    return false unless @package.api_obj.check_source_access?
-
     lt = @package.api_obj.backend_package.links_to
     if lt
       @linkinfo = { package: lt, error: @package.api_obj.backend_package.error }
@@ -257,6 +252,15 @@ class Webui::PackageController < Webui::WebuiController
         @linkinfo[:diff] = true
       end
     end
+  end
+
+  def set_file_details
+    @forced_unexpand ||= ''
+
+    # check source access
+    return false unless @package.api_obj.check_source_access?
+
+    set_linkinfo
 
     begin
       @current_rev = @package.api_obj.rev

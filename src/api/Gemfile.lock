@@ -112,7 +112,6 @@ GEM
     minitest (4.7.4)
     minitest-colorize (0.0.5)
       minitest (>= 2.0)
-    mobileesp_converted (0.2.2)
     mocha (0.14.0)
       metaclass (~> 0.0.1)
     multi_json (1.8.2)
@@ -248,7 +247,6 @@ DEPENDENCIES
   launchy
   minitest (< 5.0)
   minitest-colorize
-  mobileesp_converted
   mocha (> 0.13.0)
   mysql2
   newrelic_rpm
