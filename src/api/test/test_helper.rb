@@ -304,8 +304,11 @@ module Webui
       if results.empty?
         return 'none'
       end
-      raise 'One flash expected, but we had more.' if results.count != 1
-      return results.first.text
+      if result.count > 1
+	texts = results.map { |r| r.text }
+        raise "One flash expected, but we had #{texts.inspect}"
+      end
+      results.first.text
     end
 
     # ============================================================================
