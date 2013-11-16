@@ -348,6 +348,12 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     fill_autocomplete 'maintained_project', with: 'Apa', select: 'Apache'
     click_button 'Ok'
     page.must_have_link 'Apache'
+  end
 
+  test 'test zypper on webui' do
+    # people do strange things
+    visit '/project/repository_state/Apache/content?repository=SLE11'
+    puts page.source
+    flash_message.must_equal "Repository 'content' not found"
   end
 end

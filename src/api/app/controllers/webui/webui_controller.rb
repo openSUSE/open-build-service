@@ -36,6 +36,10 @@ class Webui::WebuiController < ActionController::Base
     end
   end
   
+  rescue_from ActionController::RedirectBackError do |exception|
+    redirect_to root_path
+  end
+
   class ValidationError < Exception
     attr_reader :xml, :errors
 
