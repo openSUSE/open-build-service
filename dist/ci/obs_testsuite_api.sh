@@ -58,10 +58,6 @@ echo "Invoke rake"
 bundle exec rake ci:setup:minitest test:api test:webui CI_REPORTS=results --trace || ret=1
 cd ../..
 
-echo "Output test.log"
-cat src/api/log/test.log
-echo
-
 cleanup
 exit $ret
 

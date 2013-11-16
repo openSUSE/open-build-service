@@ -40,7 +40,7 @@ setup_api() {
 
   echo "Initialize test database, load seed data"
   bundle exec rake db:drop db:create db:setup --trace
-  rm -f log/*
+  rm -f log/* tmp/*
   cd ../..
 
   cd docs/api
@@ -58,7 +58,4 @@ cleanup() {
       kill $p || true
     done
   fi
-
-  echo "Remove log/tmp files to save disc space"
-  rm -rf src/api/{log,tmp}/* || true
 }
