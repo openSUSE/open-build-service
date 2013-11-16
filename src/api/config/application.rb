@@ -84,7 +84,7 @@ module OBSApi
 
     config.exceptions_app = self.routes
 
-    config.assets.precompile += %w( webui/cm2.js )
+    config.assets.precompile += %w( webui/application/cm2/index.js )
 
     config.assets.precompile +=
       %w( dataTables/back_disabled.png
