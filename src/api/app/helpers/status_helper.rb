@@ -7,15 +7,18 @@ module StatusHelper
     return result if values.empty?
 
     lastvalue = 0
-    now = values[0][0]
+    now = values[0][0].to_f
     samplerate = (values[-1][0] - now) / samples
+    if samples < values.length
+      now -= samplerate / 2
+    end
 
     index = 0
 
     1.upto(samples) do |i|
       value = 0.0
       count = 0
-      while index < values.length && values[index][0] < now + samplerate
+      while index < values.length && values[index][0] <= now + samplerate
         value += values[index][1]
         index += 1
         count += 1
@@ -25,7 +28,7 @@ module StatusHelper
       else
         value = lastvalue
       end
-      result << [now + samplerate / 2, value]
+      result << [now, value]
       now += samplerate
       lastvalue = value
     end

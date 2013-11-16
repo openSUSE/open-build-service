@@ -47,6 +47,10 @@ class MessageControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     ret = ActiveXML::Node.new @response.body
     ret.each_message do |m|
+      # test show too
+      get "/message/#{m.msg_id}"
+      assert_response :success
+
       delete "/message/#{m.msg_id}"
       assert_response :success
 
