@@ -229,6 +229,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     click_link 'Submit package'
     fill_in 'targetproject', with: 'kde4'
     fill_in 'description', with: 'I want to see his reaction'
+    uncheck('supersede')
     click_button 'Ok'
     click_link 'submit request 1001'
     # request history

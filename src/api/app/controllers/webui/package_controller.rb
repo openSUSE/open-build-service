@@ -295,6 +295,13 @@ class Webui::PackageController < Webui::WebuiController
         @files = package_files(@revision, @expand)
       end
     rescue ActiveXML::Transport::Error => e
+      # TODO crudest hack ever!
+      if e.summary == 'service in progress'
+        Rails.logger.error 'Service in progress, sleeping'
+        $stderr.puts 'Service in progress, sleeping'
+	sleep 1
+	return set_file_details
+      end
       if @expand == 1
         @forced_unexpand = e.summary
         @forced_unexpand = e.details if e.details
