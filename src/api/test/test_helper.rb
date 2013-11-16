@@ -158,6 +158,8 @@ module Webui
       if opts[:do_assert] != false
         find('#link-to-user-home').text.must_match %r{^#{user}( |$)}
       end
+      # login into API to ease test cases
+      prepare_request_with_user(user, password)
     end
 
     # will provide a user without special permissions

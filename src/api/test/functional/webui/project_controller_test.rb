@@ -293,6 +293,11 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     # verify _meta
     visit project_meta_path(project: 'home:Iggy')
     page.wont_have_text '<arch>i586</arch>'
+
+    # check API too
+    get '/source/home:Iggy/_meta'
+    assert_response :success
+    assert_equal('x86_64', Xmlhash.parse(@response.body)['repository']['arch'])
   end
 
   test 'buildresults' do

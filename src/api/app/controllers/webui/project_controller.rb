@@ -488,7 +488,7 @@ class Webui::ProjectController < Webui::WebuiController
     end
     repo.architectures = archs
     repo.save
-    @project.api_obj.touch
+    @project.api_obj.reset_cache
 
     # Merge project repo's arch list with currently available arches from API. This needed as you want
     # to keep currently non-working arches in the project meta.
