@@ -379,7 +379,7 @@ module Webui::WebuiHelper
     @codemirror_editor_setup = 0
     opts.reverse_merge!({ read_only: false, no_border: false, width: 'auto' })
 
-    content_for(:content_for_head, javascript_include_tag('webui/application/cm2'))
+    content_for(:content_for_head, javascript_include_tag('webui/application/cm2/index'))
     style = ''
     style += ".CodeMirror {\n"
     if opts[:no_border] || opts[:read_only]
