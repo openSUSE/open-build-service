@@ -104,53 +104,53 @@
         <ul class="horizontal-list">
           <% if not @bugowners_mail.empty? and !CONFIG['bugzilla_host'].nil? %>
               <li>
-                <%= link_to(sprite_tag('tools-report-bug') + 'Report bug', bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>
+                <%= link_to(sprited_text('tools-report-bug', 'Report bug'), bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>
               </li>
           <% end -%>
           <% if User.current.can_modify_project?(@project.api_obj) %>
               <% unless @project.is_remote? %>
                   <% if @is_incident_project && @packages.present? && @has_patchinfo && @open_release_requests.blank? %>
                       <li>
-                        <%= link_to(sprite_tag('brick_go') + 'Request to release', {controller: 'project', action: 'release_request_dialog', project: @project}, remote: true) %>
+                        <%= link_to(sprited_text('brick_go', 'Request to release'), {controller: 'project', action: 'release_request_dialog', project: @project}, remote: true) %>
                       </li>
                   <% elsif @is_maintenance_project %>
                       <li>
-                        <%= link_to(sprite_tag('brick_add') + 'Create maintenance incident', {controller: 'project', action: 'new_incident', ns: @project.name}, method: :post) %>
+                        <%= link_to(sprited_text('brick_add', 'Create maintenance incident'), {controller: 'project', action: 'new_incident', ns: @project.name}, method: :post) %>
                       </li>
                   <% else %>
                       <% if !@has_patchinfo %>
                           <li>
-                            <%= link_to(sprite_tag('plugin_add') + 'Create patchinfo', {controller: 'patchinfo', action: :new_patchinfo, project: @project}, method: :post) %>
+                            <%= link_to(sprited_text('plugin_add', 'Create patchinfo'), {controller: 'patchinfo', action: :new_patchinfo, project: @project}, method: :post) %>
                           </li>
                       <% else %>
                           <li>
-                            <%= link_to(sprite_tag('information') + 'Show patchinfo', controller: 'patchinfo', action: 'show', project: @project, package: 'patchinfo') %>
+                            <%= link_to(sprited_text('information', 'Show patchinfo'), controller: 'patchinfo', action: 'show', project: @project, package: 'patchinfo') %>
                           </li>
                       <% end %>
                       <% if !@is_incident_project && @releasetargets.length > 0 %>
                           <li>
-                            <%= link_to(sprite_tag('brick_go') + 'Submit as update', {controller: 'project', action: 'incident_request_dialog', project: @project}, remote: true) %>
+                            <%= link_to(sprited_text('brick_go', 'Submit as update'), {controller: 'project', action: 'incident_request_dialog', project: @project}, remote: true) %>
                           </li>
                       <% end %>
                   <% end %>
               <% end %>
               <li>
-                <%= link_to(sprite_tag('brick_edit') + "Edit description", {action: 'edit', project: @project}, id: 'edit-description') %>
+                <%= link_to(sprited_text('brick_edit', 'Edit description'), {action: 'edit', project: @project}, id: 'edit-description') %>
               </li>
               <li>
-                <%= link_to(sprite_tag('brick_delete') + 'Delete project', {controller: 'project', action: 'delete_dialog', project: @project.name}, remote: true, id: 'delete-project') %>
+                <%= link_to(sprited_text('brick_delete', 'Delete project'), {controller: 'project', action: 'delete_dialog', project: @project.name}, remote: true, id: 'delete-project') %>
               </li>
               <% if @project.is_locked? %>
                   <li>
-                    <%= link_to(sprite_tag('lock_open') + 'Unlock project', {controller: 'project', action: 'unlock_dialog', project: @project.name}, remote: true) %>
+                    <%= link_to(sprited_text('lock_open', 'Unlock project'), {controller: 'project', action: 'unlock_dialog', project: @project.name}, remote: true) %>
                   </li>
               <% end %>
           <% else %>
               <li>
-                <%= link_to(sprite_tag('user_add') + "Request role addition", {controller: 'request', action: 'add_role_request_dialog', project: @project}, remote: true) %>
+                <%= link_to(sprited_text('user_add', 'Request role addition'), {controller: 'request', action: 'add_role_request_dialog', project: @project}, remote: true) %>
               </li>
               <li>
-                <%= link_to(sprite_tag('package_delete') + 'Request deletion', {controller: 'request', action: 'delete_request_dialog', project: @project}, remote: true, id: 'request-deletion') %>
+                <%= link_to(sprited_text('package_delete', 'Request deletion'), {controller: 'request', action: 'delete_request_dialog', project: @project}, remote: true, id: 'request-deletion') %>
               </li>
           <% end %>
         </ul>
@@ -190,10 +190,10 @@
           <% if !@project.is_remote? && !(@is_incident_project && !@packages.blank? && @has_patchinfo && @open_release_requests.length == 0) && !@is_maintenance_project %>
               <ul class="horizontal-list">
                 <li>
-                  <%= link_to(sprite_tag('package_add') + 'Create package', controller: 'project', action: 'new_package', project: @project) %>
+                  <%= link_to(sprited_text('package_add', 'Create package'), controller: 'project', action: 'new_package', project: @project) %>
                 </li>
                 <li>
-                  <%= link_to sprite_tag('package_link') + 'Branch existing package', controller: :project, action: :new_package_branch, project: @project %>
+                  <%= link_to sprited_text('package_link', 'Branch existing package'), controller: :project, action: :new_package_branch, project: @project %>
                 </li>
               </ul>
           <% end %>

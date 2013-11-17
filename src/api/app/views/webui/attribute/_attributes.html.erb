@@ -23,7 +23,7 @@
               </td>
               <% unless User.current.is_nobody? %>
                   <td>
-                    <%= link_to(image_tag('note_edit.png', :alt => 'Edit values', :title => 'Edit values'), { :controller => 'attribute', :action => 'edit',
+                    <%= link_to(sprite_tag('note_edit', title: 'Edit values'), { :controller => 'attribute', :action => 'edit',
                                                                                                               :project => @project.name, :package => @package,
                                                                                                               :namespace => atype.attrib_namespace.name, :name => atype.name },
                                 class: 'edit-values') %>
@@ -40,7 +40,7 @@
 
 <% unless User.current.is_nobody? %>
     <p>
-      <%= link_to(sprite_tag('note_add', title: 'Add a new attribute') + 'Add a new attribute',
+      <%= link_to(sprited_text('note_add', 'Add a new attribute'),
                   { :controller => :attribute, :action => :edit, :project => @project.name, :package => @package }, id: 'add-new-attribute') %>
     </p>
 <% end %>

@@ -26,7 +26,7 @@
                   link_to(member.user, controller: 'home', action: 'index', user: member.user.login) }.join(', ').html_safe %>
               </td>
               <td class="nowrap">
-                <%= link_to(sprite_tag('accessories-text-editor') + "Edit Group", :controller => 'group', :action => 'edit', :group => group.title) %>
+                <%= link_to(sprited_text('accessories-text-editor', 'Edit Group'), :controller => 'group', :action => 'edit', :group => group.title) %>
               </td>
             </tr>
         <% end %>
@@ -37,7 +37,7 @@
         <i>There are no groups configured</i>
       </p>
   <% end %>
-  <p><%= link_to sprite_tag('group_add') + 'Add group', :controller => 'group', :action => :add %></p>
+  <p><%= link_to sprited_text('group_add', 'Add group'), :controller => 'group', :action => :add %></p>
 </div>
 
 

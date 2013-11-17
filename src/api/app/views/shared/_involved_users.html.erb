@@ -55,7 +55,7 @@
     <% end %>
     <% if user_is_maintainer %>
         <p>
-          <%= link_to(sprite_tag('user_add') + 'Add user', { :action => :add_person, :package => @package, :project => @project }, id: 'add-user') %>
+          <%= link_to(sprited_text('user_add', 'Add user'), { :action => :add_person, :package => @package, :project => @project }, id: 'add-user') %>
         </p>
     <% end %>
 
@@ -101,7 +101,7 @@
     <% end %>
     <% if user_is_maintainer %>
         <p>
-          <%= link_to sprite_tag('group_add') + 'Add group', :action => :add_group, :package => @package, :project => @project %>
+          <%= link_to sprited_text('group_add', 'Add group'), :action => :add_group, :package => @package, :project => @project %>
         </p>
     <% end %>
 <% end %>

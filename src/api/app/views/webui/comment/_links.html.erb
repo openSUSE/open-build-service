@@ -1,19 +1,19 @@
 <ul class="horizontal-list">
   <li class="togglable_comment" data-toggle="reply_form_of_<%= comment[:id] %>">
     <a id="reply_link_id_<%= comment[:id] %>">
-      <%= sprite_tag('comment_add', title: 'Reply') + 'Reply' %>
+      <%= sprited_text('comment_add', 'Reply') %>
     </a>
   </li>
   <% if User.current.login == comment[:user] || User.current.is_admin? %>
       <!-- editing is missing and as such broken
          <li class="togglable_comment" data-toggle="edit_form_of_<%= comment[:id] %>">
-            <%= link_to(sprite_tag('comment_edit', title: "Edit") + "Edit", '#') %>
+            <%= link_to(sprited_text('comment_edit', 'Edit'), '#') %>
         </li>
       -->
       <li>
-        <%= link_to(sprite_tag('comment_delete', title: "Delete") + "Delete",
-                    {:controller => :comments, :action => :destroy,
-                     id: comment[:id]}, :method => :delete) %>
+        <%= link_to(sprited_text('comment_delete', 'Delete'),
+                    {controller: :comments, action: :destroy,
+                     id: comment[:id]}, method: :delete) %>
       </li>
   <% end %>
 </ul>

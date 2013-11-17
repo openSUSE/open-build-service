@@ -237,7 +237,7 @@
                   <% end %>
                   <span style="float: right;">
                         <% if @req['actions'].first[:type] == :maintenance_incident %>
-                            <%= link_to(sprite_tag('package_link', title: 'Merge with existing incident') + 'Merge with existing incident', { :controller => 'request', :action => 'set_incident_dialog', id: @id }, :remote => true) %>
+                            <%= link_to(sprited_text('package_link', 'Merge with existing incident'), { :controller => 'request', :action => 'set_incident_dialog', id: @id }, :remote => true) %>
                         <% end %>
                       </span>
                 </p>
