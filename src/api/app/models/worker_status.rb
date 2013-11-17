@@ -2,7 +2,6 @@ class WorkerStatus
 
   def self.hidden
     mydata = Rails.cache.read('workerstatus')
-    Rails.logger.debug "MYDATA #{mydata.inspect}"
     ws = ActiveXML::Node.new(mydata || ActiveXML.backend.direct_http('/build/_workerstatus'))
     prjs=Hash.new
     ws.each_building do |b|

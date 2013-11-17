@@ -1,7 +1,15 @@
 # we take everything here that is not XML - the default mimetype is xml though
 class WebuiMatcher
+
+  class InvalidRequestFormat < APIException
+  end
+
   def self.matches?(request)
-    request.format.to_sym != :xml
+    begin
+      request.format.to_sym != :xml
+    rescue ArgumentError => e
+      raise InvalidRequestFormat.new e.to_s
+    end
   end
 end
 
