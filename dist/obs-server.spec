@@ -190,7 +190,7 @@ Requires:       rubygem(2.0.0:activesupport) = 4.0.1
 Requires:       rubygem(2.0.0:arel) = 4.0.1
 Requires:       rubygem(2.0.0:atomic) = 1.1.14
 Requires:       rubygem(2.0.0:builder) = 3.1.4
-Requires:       rubygem(2.0.0:bundler) = 1.3.4
+Requires:       rubygem(2.0.0:bundler) = 1.3.5
 Requires:       rubygem(2.0.0:clockwork) = 0.7.0
 Requires:       rubygem(2.0.0:daemons) = 1.1.9
 Requires:       rubygem(2.0.0:dalli) = 2.6.4
@@ -198,6 +198,7 @@ Requires:       rubygem(2.0.0:delayed_job) = 4.0.0
 Requires:       rubygem(2.0.0:delayed_job_active_record) = 4.0.0
 Requires:       rubygem(2.0.0:erubis) = 2.7.0
 Requires:       rubygem(2.0.0:escape_utils) = 1.0.0
+Requires:       rubygem(2.0.0:haml) = 4.0.3
 Requires:       rubygem(2.0.0:hike) = 1.2.3
 Requires:       rubygem(2.0.0:hoptoad_notifier) = 2.4.11
 Requires:       rubygem(2.0.0:i18n) = 0.6.5
@@ -209,7 +210,6 @@ Requires:       rubygem(2.0.0:middleware) = 0.1.0
 Requires:       rubygem(2.0.0:mime-types) = 1.25
 Requires:       rubygem(2.0.0:mini_portile) = 0.5.2
 Requires:       rubygem(2.0.0:minitest) = 4.7.4
-Requires:       rubygem(2.0.0:mobileesp_converted) = 0.2.2
 Requires:       rubygem(2.0.0:multi_json) = 1.8.2
 Requires:       rubygem(2.0.0:mysql2) = 0.3.13
 Requires:       rubygem(2.0.0:newrelic_rpm) = 3.6.8.168
@@ -235,7 +235,6 @@ Requires:       rubygem(2.0.0:tzinfo) = 0.3.37
 Requires:       rubygem(2.0.0:xmlhash) = 1.3.6
 Requires:       rubygem(2.0.0:yajl-ruby) = 1.1.0
 # OBS_SERVER_END
-# requires for webui:
 
 Requires:       ghostscript-fonts-std
 Summary:        The Open Build Service -- The API and WEBUI
@@ -389,8 +388,6 @@ cp -a api $RPM_BUILD_ROOT/srv/www/obs/api
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/log
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/tmp
 touch $RPM_BUILD_ROOT/srv/www/obs/api/log/production.log
-# the git webinterface tries to connect to api.opensuse.org by default
-#install -m 0644 ../dist/webui-production.rb $RPM_BUILD_ROOT/srv/www/obs/webui/config/environments/production.rb
 # prepare for running sphinx daemon
 install -m 0755 -d $RPM_BUILD_ROOT/srv/www/obs/api/db/sphinx{,/production}
 
@@ -733,8 +730,6 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/api/config/dat
 /srv/www/obs/api/test
 /srv/www/obs/docs
 
-# starting the webui part
-/srv/www/obs/api/webui/
 %dir /srv/www/obs/api/config
 /srv/www/obs/api/config/locales
 %dir /srv/www/obs/api/vendor
