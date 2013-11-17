@@ -358,7 +358,6 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   test 'test zypper on webui' do
     # people do strange things
     visit '/project/repository_state/Apache/content?repository=SLE11'
-    puts page.source
     flash_message.must_equal "Repository 'content' not found"
   end
 end

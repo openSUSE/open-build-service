@@ -410,7 +410,7 @@ i          raise PostRequestNoPermission.new 'Request is in review state. You ma
     end
 
     req.check_newstate! params.merge({extra_permission_checks: !permission_granted})
-    return true
+    true
   end
 
   def request_command_addrequest
