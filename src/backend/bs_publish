@@ -1263,6 +1263,8 @@ sub publish {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.vmdk(:?\.sha256)?$/) {
 	  $p = "$bin";
+        } elsif ($bin =~ /\.(packages|verified)$/) {
+          $p = "$bin";
 	} elsif (-d "$r/$rbin") {
 	  $p = "repo/$bin";
 	} else {
