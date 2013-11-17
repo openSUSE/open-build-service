@@ -1241,27 +1241,27 @@ sub publish {
 	my $q = Build::query("$r/$rbin", 'evra' => 1);
 	$p = "$q->{'arch'}/$bin";
       } else {
-	if ($bin =~ /\.iso(:?\.sha256)?$/) {
+	if ($bin =~ /\.iso(?:\.sha256)?$/) {
 	  $p = "iso/$bin";
-	} elsif ($bin =~ /\.raw\.(:?gz|bz2|xz)(:?\.sha256)?$/) {
+	} elsif ($bin =~ /\.raw\.(?:gz|bz2|xz)(?:\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.tbz?(:?\.sha256)?$/) {
+	} elsif ($bin =~ /\.tbz?(?:\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.raw(:?\.install)?(:?\.sha256)?$/) {
+	} elsif ($bin =~ /\.raw(?:\.install)?(?:\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.tar\.(:?gz|bz2|xz)(:?\.sha256)?$/) {
+	} elsif ($bin =~ /\.tar\.(?:gz|bz2|xz)(?:\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.diff\.(:?gz)(:?\.sha256)?$/) {
+	} elsif ($bin =~ /\.diff\.(?:gz)(?:\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.dsc(:?\.sha256)?$/) {
+	} elsif ($bin =~ /\.dsc(?:\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.ovf(:?\.sha256)?$/) {
+	} elsif ($bin =~ /\.ovf(?:\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.ova(:?\.sha256)?$/) {
+	} elsif ($bin =~ /\.ova(?:\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.qcow2(:?\.sha256)?$/) {
+	} elsif ($bin =~ /\.qcow2(?:\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.vmdk(:?\.sha256)?$/) {
+	} elsif ($bin =~ /\.vmdk(?:\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif (-d "$r/$rbin") {
 	  $p = "repo/$bin";
