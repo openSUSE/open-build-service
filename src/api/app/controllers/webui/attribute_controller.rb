@@ -12,6 +12,9 @@ class Webui::AttributeController < Webui::WebuiController
       selected_attribute = nil
       atype = AttribType.find_by_namespace_and_name(params[:namespace], params[:name])
       selected_attribute = @attributes.where(attrib_type: atype).first
+      unless selected_attribute
+	redirect_to :back and return
+      end
       @selected_attribute_name = '%s:%s' % [params[:namespace], params[:name]]
       @selected_attribute_value = selected_attribute.values 
     else
