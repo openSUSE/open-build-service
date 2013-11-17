@@ -13,7 +13,7 @@ class Webui::AttributeController < Webui::WebuiController
       atype = AttribType.find_by_namespace_and_name(params[:namespace], params[:name])
       selected_attribute = @attributes.where(attrib_type: atype).first
       unless selected_attribute
-	redirect_to :back and return
+        redirect_to :back and return
       end
       @selected_attribute_name = '%s:%s' % [params[:namespace], params[:name]]
       @selected_attribute_value = selected_attribute.values 
@@ -96,8 +96,8 @@ class Webui::AttributeController < Webui::WebuiController
     @is_maintenance_project = false
     @is_maintenance_project = true if @project.project_type and @project.project_type == 'maintenance'
     if params[:package]
-      @package = WebuiPackage.find(params[:package], :project => @project.name)
-      @attribute_container = @package.api_obj
+      @package = @project.api_obj.find_package(params[:package])
+      @attribute_container = @package
     else
       @attribute_container = @project.api_obj
     end

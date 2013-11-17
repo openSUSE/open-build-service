@@ -430,7 +430,7 @@ module Webui::WebuiHelper
   end
 
   def package_link(pack, opts = {})
-    opts[:project] = pack.project
+    opts[:project] = pack.project.name
     opts[:package] = pack.name
     project_or_package_link opts
   end

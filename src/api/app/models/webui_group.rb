@@ -2,6 +2,10 @@ class WebuiGroup < WebuiNode
   default_find_parameter :title
   handles_xml_element :group
 
+  def title
+    value(:title)
+  end
+
   class << self
     def make_stub(opt)
       name = ''

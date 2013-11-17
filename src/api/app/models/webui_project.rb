@@ -46,14 +46,22 @@ class WebuiProject < WebuiNode
     name
   end
 
+  def title
+    value(:title)
+  end
+
+  def description
+    value(:description)
+  end
+
   def add_path_to_repository(opt={})
     return nil if opt == {}
     repository = self.find_first("//repository[@name='#{opt[:reponame]}']")
 
     unless opt[:repo_path].blank?
       opt[:repo_path] =~ /(.*)\/(.*)/;
-      repository.each_path do |path| # Check if the path to add is already existant
-        return false if path.project == $1 and path.repository == $2
+      repository.each(:path) do |path| # Check if the path to add is already existant
+        return false if path.value(:project) == $1 and path.value(:repository) == $2
       end
 
       param = self.add_element('path', :project => $1, :repository => $2)
@@ -122,13 +130,13 @@ class WebuiProject < WebuiNode
   def add_maintained_project(maintained_project)
     return nil if not maintained_project
     add_element('maintenance') if not has_element?('maintenance')
-    maintenance.add_element('maintains', 'project' => maintained_project)
+    self.find_first(:maintenance).add_element('maintains', 'project' => maintained_project)
   end
 
   def remove_maintained_project(maintained_project)
     return nil if not maintained_project
     return nil if not has_element?('maintenance')
-    maintenance.delete_element("maintains[@project='#{maintained_project}']")
+    self.find_first(:maintenance).delete_element("maintains[@project='#{maintained_project}']")
   end
 
   #get all architectures used in this project
@@ -138,14 +146,14 @@ class WebuiProject < WebuiNode
 
   def repositories
     ret = Array.new
-    self.each_repository {|repo| ret << repo.name.to_s}
+    self.each(:repository) {|repo| ret << repo.value(:name) }
     ret
   end
 
   def repository
     repo_hash = Hash.new
-    self.each_repository {|repo| repo_hash[repo.name] = repo}
-    return repo_hash
+    self.each(:repository) {|repo| repo_hash[repo.value(:name)] = repo}
+    repo_hash
   end
     
   def linking_projects
@@ -162,10 +170,6 @@ class WebuiProject < WebuiNode
     return result
   end
 
-  def bugowners
-    return users('bugowner')
-  end
-
   def user_has_role?(user, role)
     user && api_obj.relationships.where(user: user, role_id: Role.rolecache[role]).exists?
   end
@@ -174,7 +178,7 @@ class WebuiProject < WebuiNode
     each('group') do |g|
       return true if g.value(:role) == role and g.value(:groupid) == group
     end
-    return false
+    false
   end
 
   def users(role = nil)
@@ -210,7 +214,7 @@ class WebuiProject < WebuiNode
   end
 
   def set_project_type(project_type)
-    if ['maintenance', 'maintenance_incident', 'standard'].include?(project_type)
+    if %w(maintenance maintenance_incident standard).include?(project_type)
       set_attribute('kind', project_type)
       return true
     end

@@ -11,13 +11,13 @@ class Webui::PatchinfoController < Webui::WebuiController
       redirect_to :controller => 'project', :action => 'show', project: @project and return
     end
 
-    unless WebuiPackage.find('patchinfo', :project => @project )
+    unless @project.api_obj.exists_package? 'patchinfo'
       unless Patchinfo.new.create_patchinfo(@project.name, nil)
         flash[:error] = 'Error creating patchinfo'
         redirect_to :controller => 'project', :action => 'show', project: @project and return
       end
     end
-    @package = WebuiPackage.find('patchinfo', :project => @project )
+    @package = @project.api_obj.packages.find_by_name('patchinfo')
     @file = @package.api_obj.patchinfo
     unless @file
       flash[:error] = "Patchinfo not found for #{params[:project]}"
@@ -57,41 +57,37 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def read_patchinfo
     @binaries = Array.new
-    if @file.has_element?('binary')
-      @file.each_binary do |binaries|
+    @file.each(:binary) do |binaries|
         @binaries << binaries.text
       end
-    end
     @binary = []
-    @packager = @file.packager.to_s
+    @packager = @file.value(:packager)
     @issues = []
-    if @file.has_element?('issue')
-      @file.each_issue do |a|
-        if a.text == ''
-          # old uploaded patchinfos could have broken tracker-names like "bnc " instead of "bnc". Catch these.
-          begin
-            get_issue_sum(a.tracker, a.value(:id))
-            a.text = @issuesum
-          rescue ActiveXML::Transport::NotFoundError
-            a.text = 'PLEASE CHECK THE FORMAT OF THE ISSUE'
-          end
+    @file.each(:issue) do |a|
+      if a.text == ''
+        # old uploaded patchinfos could have broken tracker-names like "bnc " instead of "bnc". Catch these.
+        begin
+          get_issue_sum(a.value(:tracker), a.value(:id))
+          a.text = @issuesum
+        rescue ActiveXML::Transport::NotFoundError
+          a.text = 'PLEASE CHECK THE FORMAT OF THE ISSUE'
         end
-        issue = Array.new
-        issueid = a.value(:id)
-        issueurl = IssueTracker.find_by_name(a.tracker)
-        if issueurl
-          issueurl = issueurl.show_url.sub(/@@@/, issueid)
-        else
-          issueurl = ''
-        end
-        issue << a.tracker
-        issue << issueid
-        issue << issueurl
-        issue << a.text
-        @issues << issue
       end
+      issue = Array.new
+      issueid = a.value(:id)
+      issueurl = IssueTracker.find_by_name(a.value(:tracker))
+      if issueurl
+        issueurl = issueurl.show_url.sub(/@@@/, issueid)
+      else
+        issueurl = ''
+      end
+      issue << a.value(:tracker)
+      issue << issueid
+      issue << issueurl
+      issue << a.text
+      @issues << issue
     end
-   
+
     if params[:issue] == nil
       params[:issue] = Array.new
       params[:issue] << params[:issueid]
@@ -100,14 +96,13 @@ class Webui::PatchinfoController < Webui::WebuiController
       params[:issue] << params[:issueid]
       @issues = params[:issue]
     end
-    @category = @file.category.to_s
-    @rating = @file.rating.to_s if @file.rating
-    @description = @summary = @category = nil
-    @category = @file.category.to_s       if @file.has_element? 'category'
-    @rating = @file.rating.to_s           if @file.has_element? 'rating'
-    @summary = @file.summary.text if @file.has_element? 'summary'
+    @category = @file.value(:category)
+    @rating = @file.value(:rating)
+    @category = @file.value(:category)
+    @rating = @file.value(:rating)
+    @summary = @file.value(:summary)
     
-    @description = @file.description.text if @file.has_element? 'description'
+    @description = @file.value(:description)
     if @file.has_element?('relogin_needed')
       @relogin = true
     else
@@ -125,7 +120,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     end
     if @file.has_element?('stopped')
       @block = true
-      @block_reason = @file.stopped.text
+      @block_reason = @file.value(:stopped)
     end
   end
 
@@ -163,7 +158,7 @@ class Webui::PatchinfoController < Webui::WebuiController
         rating = params[:rating]
         node = Builder::XmlMarkup.new(:indent=>2)
         attrs = {}
-        attrs[:incident] = @package.project.gsub(/.*:/,'')
+        attrs[:incident] = @package.project.name.gsub(/.*:/,'')
         xml = node.patchinfo(attrs) do |n|
           if binaries
             binaries.each do |binary|
@@ -203,8 +198,6 @@ class Webui::PatchinfoController < Webui::WebuiController
           flash[:error] = 'Timeout when saving file. Please try again.'
         end
 
-        WebuiPackage.free_cache( :all, :project => @project.name )
-        WebuiPackage.free_cache( @package.name, :project => @project )
         redirect_to :controller => 'patchinfo', :action => 'show',
           :project => @project.name, :package => @package
       end
@@ -322,19 +315,18 @@ class Webui::PatchinfoController < Webui::WebuiController
     path = "/issue_trackers/#{CGI.escape(tracker)}"
     tracker_result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => 'GET'))
     regexp = '^'
-    regexp += tracker_result.regex.text
+    regexp += tracker_result.value(:regex)
     regexp += '$'
     regexp = Regexp.new(regexp)
     if bug.match(regexp)
       begin
         path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}"
         result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => 'GET'))
-        if result.summary.nil?
+        unless result.value(:summary)
           path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}?force_update=1"
           result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => 'GET'))
         end
-        @issuesum = result.summary.text if result.summary
-        @issuesum = '' if !result.summary
+        @issuesum = result.value(:summary) || ''
         @issuesum.gsub!(/\\|'/) { |c| '' }
       # Add no summary if a connection to bugzilla doesn't work e.g. in the testsuite
       rescue ActiveXML::Transport::Error
@@ -375,7 +367,7 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def require_exists
     unless params[:package].blank?
-      @package = WebuiPackage.find( params[:package], :project => @project )
+      @package = Package.get_by_project_and_name( @project.to_param, params[:package] )
     end
     @patchinfo = @file = @package.api_obj.patchinfo
 

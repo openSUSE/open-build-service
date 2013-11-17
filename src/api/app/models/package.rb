@@ -1,7 +1,8 @@
 # -*- encoding: utf-8 i*-
-require 'api_exception'
+require_dependency 'api_exception'
 require 'builder/xchar'
 require 'rexml/document'
+require_dependency 'has_relationships'
 
 class Package < ActiveRecord::Base
   include FlagHelper
@@ -735,7 +736,7 @@ class Package < ActiveRecord::Base
     # obsolete, just for backward compatibility
     return true if name =~ /\A_patchinfo:\w[-+\w\.]*\z/
     return false if name =~ %r{[ \/:\000-\037]}
-    if name =~ %r{^[_\.]} && !['_product', '_pattern', '_project', '_patchinfo'].include?(name)
+    if name =~ %r{^[_\.]} && !%w(_product _pattern _project _patchinfo).include?(name)
       return false
     end
     return name =~ /\A\w[-+\w\.]*\z/
@@ -881,4 +882,65 @@ class Package < ActiveRecord::Base
     BINARY_EXTENSIONS.include?(File.extname(filename).downcase)
   end
 
+  def serviceinfo
+    unless @serviceinfo
+      begin
+        dir = Directory.find( project: project.name, :package => name)
+        @serviceinfo = dir.find_first(:serviceinfo) if dir
+      rescue ActiveXML::Transport::NotFoundError
+      end
+    end
+    @serviceinfo
+  end
+
+  def parse_all_history
+    answer = source_file('_history')
+
+    doc = Xmlhash.parse(answer)
+    doc.elements('revision') do |s|
+      Rails.cache.write(['history', self, s['rev']], s)
+    end
+  end
+
+  def commit( rev = nil )
+    if rev and rev.to_i < 0
+      # going backward from not yet known current revision, find out ...
+      r = self.rev.to_i + rev.to_i + 1
+      rev = r.to_s
+      return nil if rev.to_i < 1
+    end
+    rev ||= self.rev
+
+    cache_key = ['history', self, rev]
+    c = Rails.cache.read(cache_key)
+    return c if c
+
+    parse_all_history
+    # now it has to be in cache
+    Rails.cache.read(cache_key)
+  end
+
+  def save_file(opt = {})
+    content = '' # touch an empty file first
+    content = opt[:file] if opt[:file]
+    logger.debug "storing file: filename: #{opt[:filename]}, comment: #{opt[:comment]}"
+
+    put_opt = {}
+    put_opt[:comment] = opt[:comment] if opt[:comment]
+
+    path = self.source_path(opt[:filename], put_opt)
+    ActiveXML::backend.http_do :put, path, data: content, timeout: 500
+  end
+
+  def to_param
+    name
+  end
+
+  def to_s
+    name
+  end
+
+  def api_obj
+    self
+  end
 end

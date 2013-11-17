@@ -156,6 +156,10 @@ class WebuiRequest < WebuiNode
 
   end
 
+  def id
+    value(:id)
+  end
+
   def api_obj
     @api_obj ||= BsRequest.find self.id
   end

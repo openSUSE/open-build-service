@@ -20,7 +20,7 @@ map.connect :builddepinfo, 'rest:///build/:project/:repository/:arch/_builddepin
 
 map.connect :statistic, 'rest:///build/:project/:repository/:arch/:package/_statistics'
 
-map.connect :service, "rest:///source/:project/:package/_service"
+map.connect :service, 'rest:///source/:project/:package/_service'
 
 if defined?(Rack::MiniProfiler)
   ::Rack::MiniProfiler.profile_method(ActiveXML::Transport, :http_do) do |method,url|
@@ -37,9 +37,6 @@ map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['fronte
 map.connect :webuiproject, 'rest:///source/:name/_meta?:view',
     :delete => 'rest:///source/:name?:force',
     :issues => 'rest:///source/:name?view=issues'
-map.connect :webuipackage, 
-       'rest:///source/:project/:name/_meta?:view',
-       :issues => 'rest:///source/:project/:name?view=issues'
 
 map.connect :webuigroup, 'rest:///group/:title', :all => 'rest:///group/'
 

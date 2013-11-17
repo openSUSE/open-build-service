@@ -59,10 +59,11 @@ class Role < ActiveRecord::Base
       find_by_title(title) or raise NotFound.new("Couldn't find Role '#{title}'")
     end
     def local_roles
-      Array[ "maintainer", "bugowner", "reviewer", "downloader" , "reader"]
+      %w(maintainer bugowner reviewer downloader reader).map { |r| Role.rolecache[r] }
     end
+
     def global_roles
-      Array[ "Admin", "User"]
+      %w(Admin User)
     end
   end
 
@@ -78,11 +79,15 @@ class Role < ActiveRecord::Base
     title
   end
 
+  def to_s
+    title
+  end
+
   after_save :discard_cache
   after_destroy :discard_cache
 
   def self.ids_with_permission(perm_string)
-    RolesStaticPermission.joins(:static_permission).where(:static_permissions => { :title => perm_string } ).select("role_id").map { |rs| rs.role_id }
+    RolesStaticPermission.joins(:static_permission).where(:static_permissions => { :title => perm_string } ).select('role_id').map { |rs| rs.role_id }
   end
 
 end

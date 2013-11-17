@@ -15,9 +15,15 @@
               </td>
               <td rowspan="<%= release_targets_ng.length %>">
                 <% if rt[:patchinfo] %>
-                    <%= link_to(rt[:patchinfo].category, { controller: 'patchinfo', action: 'show', project: incident.name, package: 'patchinfo', file: '_patchinfo' }, { style: "color: #{patchinfo_category_color(rt[:patchinfo].category)};" }) %>
+                    <%= link_to(rt[:patchinfo].value(:category),
+                                { controller: 'patchinfo', action: 'show',
+                                  project: incident.name, package: 'patchinfo', file: '_patchinfo' },
+                                { style: "color: #{patchinfo_category_color(rt[:patchinfo].value(:category))};" }) %>
                 <% else %>
-                    <%= link_to(sprite_tag('exclamation', title: 'No patchinfo') + 'Missing patchinfo', { controller: 'patchinfo', action: 'new_patchinfo', project: incident.name, package: 'patchinfo' }, { style: 'color: red;', method: :post }) %>
+                    <%= link_to(sprited_text('exclamation', 'Missing patchinfo'),
+                                { controller: 'patchinfo', action: 'new_patchinfo',
+                                  project: incident.name, package: 'patchinfo' },
+                                { style: 'color: red;', method: :post }) %>
                 <% end %>
               </td>
               <td rowspan="<%= release_targets_ng.length %>">
@@ -35,12 +41,15 @@
                 <% if rqs_in && rqs_in.length > 0 %>
                     <% text = "#{rqs_in.length} open request#{rqs_in.length == 1 ? '' : 's'}" %>
                     <% if rqs_in.length == 1 %>
-                        <%= link_to(sprite_tag('exclamation', title: text), controller: 'request', action: 'show', id: rqs_in[0]) %>
+                        <%= link_to(sprite_tag('exclamation', title: text), controller: 'request',
+                                    action: 'show', id: rqs_in[0]) %>
                     <% else %>
-                        <%= link_to(sprite_tag('exclamation', title: text), action: 'requests', project: incident.name) %>
+                        <%= link_to(sprite_tag('exclamation', title: text), action: 'requests',
+                                    project: incident.name) %>
                     <% end %>
                 <% end %>
-                <% rqs_out = BsRequestCollection.list_ids(roles: %w(source), states: %w(new review declined), types: %w(maintenance_release), project: incident.name) %>
+                <% rqs_out = BsRequestCollection.list_ids(roles: %w(source), states: %w(new review declined),
+                                                          types: %w(maintenance_release), project: incident.name) %>
                 <% if rqs_out.present? %>
                     <% BsRequest.where(id: rqs_out).order('bs_requests.id').each do |rq_out| %>
                         <% text = "Release request in state '#{rq_out['state']}'" %>

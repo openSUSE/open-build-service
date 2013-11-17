@@ -41,7 +41,6 @@ class Webui::ConfigurationController < Webui::WebuiController
     @project.remoteurl = params[:remoteurl]
 
     if @project.save!
-      Webui::Distribution.free_cache(:all)
       if WebuiProject.exists? "home:#{User.current.login}"
         flash[:notice] = "Project '#{project_name}' was created successfully"
         redirect_to :controller => :project, :action => 'show', :project => project_name and return

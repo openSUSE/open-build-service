@@ -13,13 +13,31 @@ module HasRelationships
   end
 
   def users_and_roles
-    relationships.joins(:role, :user).order("role_name, login").
-        pluck("users.login as login, roles.title AS role_name")
+    relationships.joins(:role, :user).order('role_name, login').
+        pluck('users.login as login, roles.title AS role_name')
   end
 
   def groups_and_roles
-    relationships.joins(:role, :group).order("role_name, title").
-        pluck("groups.title as title", "roles.title as role_name")
+    relationships.joins(:role, :group).order('role_name, title').
+        pluck('groups.title as title', 'roles.title as role_name')
+  end
+
+  # webui code is a huge table - TODO to optimize
+  def users
+    relationships.users.includes(:user).map { |r| r.user }.uniq
+  end
+
+  def groups
+    relationships.groups.includes(:group).map { |r| r.group }.uniq
+  end
+
+  def bugowner_emails
+    ret = []
+    relationships.where(role: Role.rolecache['bugowner']).joins(:user).each do |bugowner|
+     mail = bugowner.user.email
+     ret.push(mail.to_s) if mail
+    end
+    ret
   end
 
   def render_relationships(xml)
@@ -34,7 +52,11 @@ module HasRelationships
 
   def user_has_role?(user, role)
     return true if self.relationships.where(role_id: role.id, user_id: user.id).exists?
-    return self.relationships.where(role_id: role).joins(:groups_users).where(groups_users: { user_id: user.id }).exists?
+    self.relationships.where(role_id: role).joins(:groups_users).where(groups_users: { user_id: user.id }).exists?
+  end
+
+  def group_has_role?(group, role)
+    self.relationships.where(role_id: role.id, group_id: group.id).exists?
   end
 
   def remove_role(what, role)

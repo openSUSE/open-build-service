@@ -8,7 +8,7 @@ class PackageTest < ActiveSupport::TestCase
 
   def setup
     super
-    @package = Package.find( 10095 )
+    @package = Package.find(10095)
     User.current = nil
   end
 
@@ -22,32 +22,32 @@ class PackageTest < ActiveSupport::TestCase
     assert_equal 1, @package.type_flags('build').size
     assert_equal 1, @package.type_flags('publish').size
     assert_equal 1, @package.type_flags('debuginfo').size
-    
+
     xml_string = @package.to_axml
 
     #check the results
     xml = REXML::Document.new(xml_string)
     assert_equal 1, xml.root.get_elements("/package/build").size
     assert_equal 1, xml.root.get_elements("/package/build/*").size
-    
+
     assert_equal 1, xml.root.get_elements("/package/publish").size
     assert_equal 1, xml.root.get_elements("/package/publish/*").size
-    
+
     assert_equal 1, xml.root.get_elements("/package/debuginfo").size
-    assert_equal 1, xml.root.get_elements("/package/debuginfo/*").size            
+    assert_equal 1, xml.root.get_elements("/package/debuginfo/*").size
   end
-  
-  
+
+
   def test_add_new_flags_from_xml
-    
+
     #precondition check
     @package.flags.destroy_all
     @package.reload
     assert_equal 0, @package.flags.size
-    
+
     #package is given as axml
     axml = Xmlhash.parse(
-      "<package name='TestPack' project='home:Iggy'>
+        "<package name='TestPack' project='home:Iggy'>
         <title>My Test package</title>
         <description></description>
         <build>
@@ -61,16 +61,16 @@ class PackageTest < ActiveSupport::TestCase
         </debuginfo>        
         <url></url>
       </package>"
-      )
-    
+    )
+
     position = 1
     ['build', 'publish', 'debuginfo'].each do |flagtype|
       position = @package.update_flags(axml, flagtype, position)
     end
-    
+
     @package.save
     @package.reload
-    
+
     #check results
     assert_equal 1, @package.type_flags('build').size
     assert_equal 'enable', @package.type_flags('build')[0].status
@@ -81,57 +81,57 @@ class PackageTest < ActiveSupport::TestCase
     assert_equal 'TestPack', @package.type_flags('build')[0].package.name
     assert_equal true, @package.enabled_for?('build', '10.2', 'i586')
     assert_equal false, @package.disabled_for?('build', '10.2', 'i586')
-    
+
     assert_equal 1, @package.type_flags('publish').size
     assert_equal 'enable', @package.type_flags('publish')[0].status
     assert_equal '10.1', @package.type_flags('publish')[0].repo
     assert_equal 'x86_64', @package.type_flags('publish')[0].architecture.name
     assert_equal 2, @package.type_flags('publish')[0].position
-    assert_nil @package.type_flags('publish')[0].project    
-    assert_equal 'TestPack', @package.type_flags('publish')[0].package.name    
-    
+    assert_nil @package.type_flags('publish')[0].project
+    assert_equal 'TestPack', @package.type_flags('publish')[0].package.name
+
     assert_equal 1, @package.type_flags('debuginfo').size
     assert_equal 'disable', @package.type_flags('debuginfo')[0].status
     assert_equal '10.0', @package.type_flags('debuginfo')[0].repo
     assert_equal 'i586', @package.type_flags('debuginfo')[0].architecture.name
     assert_equal 3, @package.type_flags('debuginfo')[0].position
     assert_nil @package.type_flags('debuginfo')[0].project
-    assert_equal 'TestPack', @package.type_flags('debuginfo')[0].package.name        
-    
+    assert_equal 'TestPack', @package.type_flags('debuginfo')[0].package.name
+
   end
-  
-  
+
+
   def test_delete_flags_through_xml
     #check precondition
     assert_equal 1, @package.type_flags('build').size
     assert_equal 1, @package.type_flags('publish').size
-    
+
     #package is given as axml
     axml = Xmlhash.parse(
-      "<package name='TestPack' project='home:Iggy'>
+        "<package name='TestPack' project='home:Iggy'>
         <title>My Test package</title>
         <description></description>
       </package>"
-      )    
-    
+    )
+
     #first update build-flags, should only delete build-flags
     @package.update_all_flags(axml)
     assert_equal 0, @package.type_flags('build').size
     assert_equal 0, @package.type_flags('publish').size
-    
+
   end
-  
+
   def test_rating
-     # pretty silly
-     assert_equal 0, @package.rating[:count]
+    # pretty silly
+    assert_equal 0, @package.rating[:count]
   end
 
   def test_render
-     xml = packages(:kdelibs).render_xml
-     assert_equal Xmlhash.parse(xml), {"name"=>"kdelibs", 
-	     "project"=>"kde4", "title"=>"blub", "description"=>"blub", 
-	     "devel"=>{"project"=>"home:coolo:test", "package"=>"kdelibs_DEVEL_package"}, 
-	     "person"=>[{"userid"=>"fredlibs", "role"=>"maintainer"}, {"userid"=>"adrian", "role"=>"reviewer"}], "group"=>{"groupid"=>"test_group", "role"=>"maintainer"}}
+    xml = packages(:kdelibs).render_xml
+    assert_equal Xmlhash.parse(xml), {"name" => "kdelibs",
+                                      "project" => "kde4", "title" => "blub", "description" => "blub",
+                                      "devel" => {"project" => "home:coolo:test", "package" => "kdelibs_DEVEL_package"},
+                                      "person" => [{"userid" => "fredlibs", "role" => "maintainer"}, {"userid" => "adrian", "role" => "reviewer"}], "group" => {"groupid" => "test_group", "role" => "maintainer"}}
   end
 
   def test_can_be_deleted
@@ -143,7 +143,7 @@ class PackageTest < ActiveSupport::TestCase
 
     assert_raise Package::SaveError do
       @package.update_from_xml(Xmlhash.parse(
-        "<package name='TestPack' project='home:Iggy'>
+                                   "<package name='TestPack' project='home:Iggy'>
         <title>My Test package</title>
         <description></description>
         <devel project='Notexistant'/>
@@ -151,7 +151,7 @@ class PackageTest < ActiveSupport::TestCase
     end
     assert_raise Package::SaveError do
       @package.update_from_xml(Xmlhash.parse(
-        "<package name='TestPack' project='home:Iggy'>
+                                   "<package name='TestPack' project='home:Iggy'>
 	   <title>My Test package</title>
 	   <description></description>
 	   <devel project='home:Iggy' package='nothing'/>
@@ -159,8 +159,8 @@ class PackageTest < ActiveSupport::TestCase
     end
 
     assert_raise User::NotFound do
-     @package.update_from_xml(Xmlhash.parse(
-       "<package name='TestBack' project='home:Iggy'>
+      @package.update_from_xml(Xmlhash.parse(
+                                   "<package name='TestBack' project='home:Iggy'>
            <title>My Test package</title>
            <description></description>
 	   <person userid='alice' role='maintainer'/>
@@ -169,7 +169,7 @@ class PackageTest < ActiveSupport::TestCase
 
     assert_raise HasRelationships::SaveError do
       @package.update_from_xml(Xmlhash.parse(
-         "<package name='TestBack' project='home:Iggy'>
+                                   "<package name='TestBack' project='home:Iggy'>
                               <title>My Test package</title>
                               <description></description>
 			      <person userid='tom' role='coolman'/>
@@ -178,7 +178,7 @@ class PackageTest < ActiveSupport::TestCase
 
     assert_equal orig, Xmlhash.parse(@package.to_axml)
     assert @package.update_from_xml(Xmlhash.parse(
-      "<package name='TestPack' project='home:Iggy'>
+                                        "<package name='TestPack' project='home:Iggy'>
         <title>My Test package</title>
         <description></description>
         <person userid='fred' role='bugowner'/>
@@ -299,7 +299,7 @@ The library includes bindings for both the C and C++ languages. It works on POSI
     newyear.title = "Just a silly update 7"
     newyear.save
     assert_in_delta(54.2, newyear.activity, 0.2)
-    
+
     Timecop.freeze(90000)
     newyear.title = "Just a silly update 8"
     newyear.save
@@ -309,7 +309,49 @@ The library includes bindings for both the C and C++ languages. It works on POSI
     newyear.title = "Just a silly update 8"
     newyear.save
     assert_in_delta(73.4, newyear.activity, 0.2)
-    
+
+  end
+
+  test 'is_binary_file?' do
+    file_paths = [
+        '/tmp/some/file',
+        '/srv/www/another_file_',
+        '/var/lib/cache/file with spaces'
+    ]
+
+    filename = ''
+
+    # binary files
+    generate_suffixes(%w{exe bin bz bz2 gem gif jpg jpeg ttf zip gz png}).each do |suffix|
+      file_paths.each do |file_path|
+        filename = file_path + '.' + suffix
+        assert Package.is_binary_file?(filename), "File #{filename} should be treated as binary"
+      end
+    end
+
+    # these aren't binary
+    generate_suffixes(%w{diff txt csv pm c rb h}).each do |suffix|
+      file_paths.each do |file_path|
+        filename = file_path + '.' + suffix
+        assert !Package.is_binary_file?(filename), "File #{filename} should not be treated as binary"
+      end
+    end
+  end
+
+  private
+
+  # gets list of strings and tries to generate another longer list
+  # with some letters up/down-cased, based on the original list
+  def generate_suffixes(suffixes_in)
+    suffixes_out = suffixes_in.dup
+    # some lower-cased suffixes
+    suffixes_out.collect! { |i| i.downcase }
+    # the same ones capitalized
+    suffixes_out.concat(suffixes_in.collect { |i| i.capitalize })
+    # the same ones upper-cased
+    suffixes_out.concat(suffixes_in.collect { |i| i.upcase })
+    # the same ones swap-cased
+    suffixes_out.concat(suffixes_in.collect { |i| i.capitalize.swapcase })
   end
 
 end

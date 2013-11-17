@@ -23,13 +23,17 @@
               </td>
               <% unless User.current.is_nobody? %>
                   <td>
-                    <%= link_to(sprite_tag('note_edit', title: 'Edit values'), { :controller => 'attribute', :action => 'edit',
-                                                                                                              :project => @project.name, :package => @package,
-                                                                                                              :namespace => atype.attrib_namespace.name, :name => atype.name },
+                    <%= link_to(sprite_tag('note_edit', title: 'Edit values'),
+                                { :controller => 'attribute', :action => 'edit',
+                                  :project => @project.name, :package => @package,
+                                  :namespace => atype.attrib_namespace.name, :name => atype.name },
                                 class: 'edit-values') %>
                     <%= button_to('Delete attribute',
-                                  { :controller => 'attribute', :action => 'delete', :project => @project.name, :package => @package, :namespace => atype.attrib_namespace.name, :name => atype.name },
-                                  { data: { confirm: "Really remove attribute '#{atype.attrib_namespace.name}:#{atype.name}'?" }, method: :delete, class: 'delete-attribute' }) %>
+                                  { :controller => 'attribute', :action => 'delete',
+                                    :project => @project.name, :package => @package,
+                                    :namespace => atype.attrib_namespace.name, :name => atype.name },
+                                  { data: { confirm: "Really remove attribute '#{atype.attrib_namespace.name}:#{atype.name}'?" },
+                                    method: :delete, class: 'delete-attribute' }) %>
                   </td>
               <% end %>
             </tr>

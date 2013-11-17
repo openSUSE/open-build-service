@@ -49,7 +49,7 @@ module ActiveXML
       def inherited( subclass )
         # called when a subclass is defined
         #Rails.logger.debug "Initializing ActiveXML model #{subclass}"
-        subclass.instance_variable_set "@default_find_parameter", @default_find_parameter
+        subclass.instance_variable_set '@default_find_parameter', @default_find_parameter
       end
       private :inherited
 
@@ -104,7 +104,7 @@ module ActiveXML
 
       def calc_key( args )
         #Rails.logger.debug "Cache key for #{args.inspect}"
-        self.name + "_" + Digest::MD5.hexdigest( "2" + args.to_s )
+        self.name + '_' + Digest::MD5.hexdigest( '2' + args.to_s )
       end
 
       def find_priv(cache_time, *args )
@@ -186,7 +186,7 @@ module ActiveXML
       elsif data.kind_of? Node
         @data = data.internal_data.clone
       else
-        raise "constructor needs either XML::Node, String or Hash"
+        raise 'constructor needs either XML::Node, String or Hash'
       end
 
       cleanup_cache
@@ -259,7 +259,7 @@ module ActiveXML
 
     def each_with_index(symbol = nil)
       unless block_given?
-        raise "use each instead"
+        raise 'use each instead'
       end
       index = 0
       if symbol.nil?
@@ -330,13 +330,13 @@ module ActiveXML
 
     def to_param
       if @hash_cache
-        return @hash_cache["name"]
+        return @hash_cache['name']
       end
       _data.attributes['name'].value
     end
 
     def add_node(node)
-      raise ArgumentError, "argument must be a string" unless node.kind_of? String
+      raise ArgumentError, 'argument must be a string' unless node.kind_of? String
       xmlnode = Nokogiri::XML::Document.parse(node, nil, nil, Nokogiri::XML::ParseOptions::STRICT).root
       _data.add_child(xmlnode)
       cleanup_cache
@@ -344,7 +344,7 @@ module ActiveXML
     end
 
     def add_element ( element, attrs=nil )
-      raise "First argument must be an element name" if element.nil?
+      raise 'First argument must be an element name' if element.nil?
       el = _data.document.create_element(element)
       _data.add_child(el)
       attrs.each do |key, value|
@@ -404,15 +404,15 @@ module ActiveXML
 
     def delete_element( elem )
       if elem.kind_of? Node
-        raise "NO GOOD IDEA!" unless _data.document == elem.internal_data.document
+        raise 'NO GOOD IDEA!' unless _data.document == elem.internal_data.document
         elem.internal_data.remove
       elsif elem.kind_of? Nokogiri::XML::Node
-        raise "this should be obsolete!!!"
+        raise 'this should be obsolete!!!'
         elem.remove
       else
         s = _data.xpath(elem.to_s)
-        raise "this was supposed to return sets" unless s.kind_of? Nokogiri::XML::NodeSet
-        raise "xpath for delete did not give exactly one node!" unless s.length == 1
+        raise 'this was supposed to return sets' unless s.kind_of? Nokogiri::XML::NodeSet
+        raise 'xpath for delete did not give exactly one node!' unless s.length == 1
         s.first.remove
       end
       # you never know
@@ -468,13 +468,13 @@ module ActiveXML
     end
 
     def move_after other
-      raise "NO GOOD IDEA!" unless _data.document == other.internal_data.document	    
+      raise 'NO GOOD IDEA!' unless _data.document == other.internal_data.document
       # the naming of the API is a bit strange IMO
       _data.before(other.internal_data)
     end
 
     def move_before other
-      raise "NO GOOD IDEA!" unless _data.document == other.internal_data.document
+      raise 'NO GOOD IDEA!' unless _data.document == other.internal_data.document
       # the naming of the API is a bit strange IMO
       _data.after(other.internal_data)
     end

@@ -317,11 +317,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   def show
     required_parameters :project
-    @bugowners_mail = []
-    @project.bugowners.each do |bugowner|
-      mail = bugowner.email
-      @bugowners_mail.push(mail.to_s) if mail
-    end unless @spider_bot
+    @bugowners_mail = @project.api_obj.bugowner_emails
 
     # An incident has a patchinfo if there is a package 'patchinfo' with file '_patchinfo', try to find that:
     @has_patchinfo = false
@@ -343,8 +339,9 @@ class Webui::ProjectController < Webui::WebuiController
     rts = ReleaseTarget.where(repository_id: @project.api_obj.repositories)
     unless rts.empty?
       Rails.logger.debug rts.inspect
-      @project.each_repository do |repo|
-        @releasetargets.push(repo.releasetarget.value('project') + '/' + repo.releasetarget.value('repository')) if repo.has_element?('releasetarget')
+      @project.each('repository') do |repo|
+        rt = repo.find_first(:releasetarget)
+        @releasetargets.push(rt.value('project') + '/' + rt.value('repository')) if rt
       end
     end
   end
@@ -657,7 +654,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def requests
-    @requests = @project.request_ids_by_class
+    @requests = @project.api_obj.request_ids_by_class
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
   end
@@ -678,23 +675,20 @@ class Webui::ProjectController < Webui::WebuiController
 
     #store project
     @project = WebuiProject.new(name: project_name)
-    @project.title.text = params[:title]
-    @project.description.text = params[:description]
+    @project.find_first(:title).text = params[:title]
+    @project.find_first(:description).text = params[:description]
     @project.set_project_type('maintenance') if params[:maintenance_project]
     if params[:remoteurl]
       @project.add_element('remoteurl').text = params[:remoteurl]
     end
     if params[:access_protection]
-      @project.add_element 'access'
-      @project.access.add_element 'disable'
+      @project.add_element('access').add_element 'disable'
     end
     if params[:source_protection]
-      @project.add_element 'sourceaccess'
-      @project.sourceaccess.add_element 'disable'
+      @project.add_element('sourceaccess').add_element 'disable'
     end
     if params[:disable_publishing]
-      @project.add_element 'publish'
-      @project.publish.add_element 'disable'
+      @project.add_element('publish').add_element 'disable'
     end
     begin
       if @project.save
@@ -718,8 +712,8 @@ class Webui::ProjectController < Webui::WebuiController
       return
     end
 
-    @project.title.text = params[:title]
-    @project.description.text = params[:description]
+    @project.find_first(:title).text = params[:title]
+    @project.find_first(:description).text = params[:description]
 
     if @project.save
       flash[:notice] = "Project '#{@project}' was saved successfully"
@@ -727,7 +721,7 @@ class Webui::ProjectController < Webui::WebuiController
       flash[:error] = "Failed to save project '#{@project}'"
     end
 
-    redirect_to :action => :show, :project => @project
+    redirect_to action: :show, project: @project
   end
 
   def save_targets
@@ -1428,7 +1422,6 @@ class Webui::ProjectController < Webui::WebuiController
       path = "/source/#{CGI.escape(params[:project])}/?cmd=unlock&comment=#{CGI.escape(params[:comment])}"
       frontend.transport.direct_http(URI(path), :method => 'POST', :data => '')
       flash[:success] = "Unlocked project #{params[:project]}"
-      WebuiProject.free_cache(params[:project])
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
     end

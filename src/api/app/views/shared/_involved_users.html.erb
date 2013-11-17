@@ -7,7 +7,7 @@
    data[:package] = @package.name if @package
 -%>
 
-<%= content_tag(:div, id: "involved_users", data: data) do %>
+<%= content_tag(:div, id: 'involved_users', data: data) do %>
     <% if @users.present? %>
         <h3>User Roles <%= image_tag 'ajax-loader.gif', :id => 'user_spinner', :class => 'hidden' %></h3>
         <table id="user_table">
@@ -15,7 +15,7 @@
           <tr>
             <td>Username</td>
             <% @roles.each do |role| %>
-                <td><%= role.capitalize %></td>
+                <td><%= role.title.capitalize %></td>
             <% end %>
             <td></td>
           </tr>
@@ -25,16 +25,16 @@
               <tr id='user-<%= valid_xml_id(user.login) %>'>
                 <td><%= user_with_realname_and_icon(user) %></td>
                 <% @roles.each do |role| %>
-                    <%= content_tag(:td, data: { user: user.login, role: role, type: 'user' }) do %>
+                    <%= content_tag(:td, data: { user: user.login, role: role.title, type: 'user' }) do %>
                         <% if defined? @package %>
-                            <%= check_box_tag("user_" + role + "_" + user.login, '',
-                                              @package.user_has_role?(user, role),
-                                              disabled: !user_is_maintainer, class: "trigger") %>
-                            <% if @project.user_has_role?(user, role) %>
-                                <%= link_to(sprite_tag('project', title: "Inherited from project"), :controller => "project", :action => "users", :project => @project) %>
+                            <%= check_box_tag('user_' + role.title + '_' + user.login, '',
+                                              @package.api_obj.user_has_role?(user, role),
+                                              disabled: !user_is_maintainer, class: 'trigger') %>
+                            <% if @project.api_obj.user_has_role?(user, role) %>
+                                <%= link_to(sprite_tag('project', title: 'Inherited from project'), :controller => 'project', :action => 'users', :project => @project) %>
                             <% end %>
                         <% else %>
-                            <%= check_box_tag("user_" + role + "_" + user.login, '', @project.user_has_role?(user, role), :disabled => !user_is_maintainer, :class => "trigger") %>
+                            <%= check_box_tag('user_' + role.title + '_' + user.login, '', @project.api_obj.user_has_role?(user, role), :disabled => !user_is_maintainer, :class => 'trigger') %>
                         <% end %>
                     <% end %>
                 <% end %>
@@ -42,9 +42,9 @@
                   <% unless User.current.is_nobody? -%>
                       <% mail_to = 'mailto:' + user.email + '?subject=openSUSE%20Build%20Service%20-%20' + @project.name %>
                       <% mail_to += '/' + @package.name if defined? @package %>
-                      <%= link_to(sprite_tag('email', title: "Send mail to user"), mail_to) %>
+                      <%= link_to(sprite_tag('email', title: 'Send mail to user'), mail_to) %>
                       <% if user_is_maintainer %>
-                          <%= link_to sprite_tag('user_delete', title: "Remove user"), { :action => "remove_role", :project => @project, :package => @package, :userid => user.login }, { data: { confirm: "Really remove '#{user.login}'?" }, :method => :post, class: 'remove-user' } %>
+                          <%= link_to sprite_tag('user_delete', title: 'Remove user'), { :action => 'remove_role', :project => @project, :package => @package, :userid => user.login }, { data: { confirm: "Really remove '#{user.login}'?" }, :method => :post, class: 'remove-user' } %>
                       <% end %>
                   <% end %>
                 </td>
@@ -66,7 +66,7 @@
           <tr>
             <td>Group name</td>
             <% @roles.each do |role| %>
-                <td><%= role.capitalize %></td>
+                <td><%= role.title.capitalize %></td>
             <% end %>
             <% if user_is_maintainer %>
                 <td></td>
@@ -78,20 +78,21 @@
               <tr>
                 <td><%= link_to(group.title, :controller => 'group', :action => 'show', id: group.title) %></td>
                 <% @roles.each do |role| %>
-                    <%= content_tag(:td, data: { group: group, role: role, type: 'group' }) do %>
+                    <%= content_tag(:td, data: { group: group, role: role.title, type: 'group' }) do %>
                         <% if @package %>
-                            <%= check_box_tag("group_" + role + "_" + group.title, '', @package.group_has_role?(group, role), disabled: !user_is_maintainer, :class => :trigger) %>
+                            <%= check_box_tag('group_' + role.title + '_' + group.title, '', @package.api_obj.group_has_role?(group, role), disabled: !user_is_maintainer, :class => :trigger) %>
                             <% if @project.group_has_role?(group, role) %>
-                                <%= link_to(sprite_tag('project', title: "Inherited from project"), :controller => "project", :action => "users", :project => @project) %>
+                                <%= link_to(sprite_tag('project', title: 'Inherited from project'), :controller => 'project', :action => 'users', :project => @project) %>
                             <% end %>
                         <% else %>
-                            <%= check_box_tag("group_" + role + "_" + group.title, '', @project.group_has_role?(group, role), disabled: !user_is_maintainer, :class => :trigger) %>
+				<%= check_box_tag('group_' + role.title + '_' + group.title, '', 
+						   @project.group_has_role?(group, role), disabled: !user_is_maintainer, :class => :trigger) %>
                         <% end %>
                     <% end %>
                 <% end %>
                 <% if user_is_maintainer %>
                     <td>
-                      <%= link_to sprite_tag('group_delete', title: "Remove group"), { :action => "remove_role", :project => @project, :package => @package, :groupid => group }, { data: { confirm: "Really remove '#{group}'?" }, :method => :post } %>
+                      <%= link_to sprite_tag('group_delete', title: 'Remove group'), { :action => 'remove_role', :project => @project, :package => @package, :groupid => group }, { data: { confirm: "Really remove '#{group}'?" }, :method => :post } %>
                     </td>
                 <% end %>
               </tr>

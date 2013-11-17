@@ -98,7 +98,7 @@ class Service < ActiveXML::Node
            # to be ignored, if it's gone, it's gone
         end
     else
-	super(:comment => 'Modified via webui')
+	super(comment: 'Modified via webui')
         fc = FrontendCompat.new
         fc.do_post nil, self.init_options.merge(:cmd => 'runservice')
     end

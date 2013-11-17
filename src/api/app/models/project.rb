@@ -1,4 +1,5 @@
 require_dependency 'opensuse/backend'
+require_dependency 'has_relationships'
 
 class Project < ActiveRecord::Base
   include FlagHelper
@@ -772,7 +773,7 @@ class Project < ActiveRecord::Base
       flag_default = FlagHelper.default_for(flag_name)
       archs = Array.new
       flagret = Array.new
-      unless [ 'lock', 'access', 'sourceaccess' ].include?(flag_name)
+      unless %w(lock access sourceaccess).include?(flag_name)
         repos.each do |repo|
           flagret << flag_status(flag_default, repo.name, nil, flaglist, pkg_flags)
           repo.architectures.each do |arch|
@@ -997,7 +998,7 @@ class Project < ActiveRecord::Base
     end
     # take over flags, but explicit disable publishing by default and enable building. Ommiting also lock or we can not create packages
     project.flags.each do |f|
-      unless [ 'build', 'publish', 'lock'].include?(f.flag)
+      unless %w(build publish lock).include?(f.flag)
         self.flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo)
       end
     end
@@ -1155,17 +1156,17 @@ class Project < ActiveRecord::Base
   end
 
   def request_ids_by_class
-    rel = BsRequestCollection.new(project: name, states: ['review'], roles: ['reviewer'])
+    rel = BsRequestCollection.new(project: name, states: %w(review), roles: %w(reviewer))
     reviews = rel.ids
 
-    rel = BsRequestCollection.new(project: name, states: ['new'], roles: ['target'])
+    rel = BsRequestCollection.new(project: name, states: %w(new), roles: %w(target))
     targets = rel.ids
 
-    rel = BsRequestCollection.new(project: name, states: ['new'], roles: ['source'], types: ['maintenance_incident'])
+    rel = BsRequestCollection.new(project: name, states: %w(new), roles: %w(source), types: %w(maintenance_incident))
     incidents = rel.ids
 
     if is_maintenance?
-      rel = BsRequestCollection.new(project: name, states: ['new'], roles: ['source'], types: ['maintenance_release'], subprojects: true)
+      rel = BsRequestCollection.new(project: name, states: %w(new), roles: %w(source), types: %w(maintenance_release), subprojects: true)
       maintenance_release = rel.ids
     else
       maintenance_release = []
@@ -1215,7 +1216,7 @@ class Project < ActiveRecord::Base
 
     br.each('result') do |result|
 
-      if repository && result.repository == repository
+      if repository && result.value(:repository) == repository
         repository_states[repository] ||= {}
         result.each('summary') do |summary|
           summary.each('statuscount') do |statuscount|
@@ -1235,12 +1236,12 @@ class Project < ActiveRecord::Base
     if repository && repository_states.has_key?(repository)
       return false if repository_states[repository].empty? # No buildresult is bad
       repository_states[repository].each do |state, count|
-        return false if ['broken', 'failed', 'unresolvable'].include?(state)
+        return false if %w(broken failed unresolvable).include?(state)
       end
     else
       return false unless states.empty? # No buildresult is bad
       states.each do |state, count|
-        return false if ['broken', 'failed', 'unresolvable'].include?(state)
+        return false if %w(broken failed unresolvable).include?(state)
       end
     end
     return true
