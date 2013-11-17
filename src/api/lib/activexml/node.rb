@@ -462,31 +462,6 @@ module ActiveXML
       end 
     end
 
-    def method_missing( symbol, *args, &block )
-      #puts "called method: #{symbol}(#{args.map do |a| a.inspect end.join ', '})"
-
-      symbols = symbol.to_s
-      if( symbols =~ /^each_(.*)$/ )
-        elem = $1
-        return [] if not has_element? elem
-        result = Array.new
-        _data.xpath(elem).each do |e|
-          result << node = create_node_with_relations(e)
-          block.call(node) if block
-        end
-        return result
-      end
-
-      return nil unless _data
-
-      if _data.attributes[symbols]
-        return _data.attributes[symbols].value
-      end
-
-      #      puts "method_missing bouncing to find_first #{symbols}"
-      find_first(symbols)
-    end
-
     def == other
       return false unless other
       _data == other.internal_data
@@ -516,12 +491,6 @@ module ActiveXML
     # stay away from this
     def internal_data #nodoc
       _data
-    end
-
-    @default_find_parameter = :name
-
-    def name
-      method_missing( :name )
     end
 
     def marshal_dump

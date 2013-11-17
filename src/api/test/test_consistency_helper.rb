@@ -14,30 +14,31 @@ def resubmit_all_fixtures
   get "/source"
   assert_response :success
   node = ActiveXML::Node.new(@response.body)
-  node.each_entry do |e|
-    get "/source/#{e.name}/_meta"
+  node.each(:entry) do |e|
+    name = e.value('name')
+    get "/source/#{name}/_meta"
     assert_response :success
     r = @response.body
     # FIXME: add some more validation checks here
-    put "/source/#{e.name}/_meta", r.dup
+    put "/source/#{name}/_meta", r.dup
     assert_response :success
-    get "/source/#{e.name}/_meta"
+    get "/source/#{name}/_meta"
     assert_response :success
     assert_not_nil r
     assert_equal r, @response.body
   
     # packages
-    get "/source/#{e.name}"
+    get "/source/#{name}"
     assert_response :success
-    packages = ActiveXML::Node.new(@response.body)
-    packages.each_entry do |p|
-      get "/source/#{e.name}/#{p.name}/_meta"
+    packages = Xmlhash.parse(@response.body)
+    packages.elements('entry') do |p|
+      get "/source/#{name}/#{p['name']}/_meta"
       assert_response :success
       r = @response.body
       # FIXME: add some more validation checks here
-      put "/source/#{e.name}/#{p.name}/_meta", r.dup
+      put "/source/#{name}/#{p['name']}/_meta", r.dup
       assert_response :success
-      get "/source/#{e.name}/#{p.name}/_meta"
+      get "/source/#{name}/#{p['name']}/_meta"
       assert_response :success
       assert_not_nil r
       assert_equal r, @response.body

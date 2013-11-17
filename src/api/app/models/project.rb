@@ -1054,7 +1054,7 @@ class Project < ActiveRecord::Base
 
     # restore all package meta data objects in DB
     backend_pkgs = Collection.find :package, :match => "@project='#{self.name}'"
-    backend_pkgs.each_package do |package|
+    backend_pkgs.each('package') do |package|
       pname = package.value('name')
       path = "/source/#{URI.escape(self.name)}/#{pname}/_meta"
       p = self.packages.new(name: pname)
@@ -1135,7 +1135,7 @@ class Project < ActiveRecord::Base
     check_write_access!
 
     backend_pkgs = Collection.find :id, :what => 'package', :match => "@project='#{self.name}' and starts-with(@name,'_product:')"
-    b_pkg_index = backend_pkgs.each_package.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
+    b_pkg_index = backend_pkgs.each(:package).inject(Hash.new) {|hash,elem| hash[elem.value(:name)] = elem; hash}
     frontend_pkgs = self.packages.where("`packages`.name LIKE '_product:%'")
     f_pkg_index = frontend_pkgs.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
 

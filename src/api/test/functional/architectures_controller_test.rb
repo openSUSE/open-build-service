@@ -64,7 +64,7 @@ class ArchitecturesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     xml = ActiveXML::Node.new @response.body
-    xml.available.text = "true"
+    xml.find_first('available').text = "true"
     put "/architectures/i586", xml.dump_xml
     assert_response :success
   end

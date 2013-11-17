@@ -32,14 +32,15 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
     # delete it again
     get "/status/messages"
     assert_response :success
-    messages = ActiveXML::Node.new @response.body
+    messages = Xmlhash.parse @response.body
+    msg_id = messages.get('message').value('msg_id')
 
     prepare_request_valid_user
-    delete "/status/messages/#{messages.message.value('msg_id')}"
+    delete "/status/messages/#{msg_id}"
     assert_response 403
    
     login_king    
-    delete "/status/messages/#{messages.message.value('msg_id')}"
+    delete "/status/messages/#{msg_id}"
     assert_response :success
 
     delete "/status/messages/17"

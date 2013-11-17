@@ -1122,9 +1122,9 @@ class SourceController < ApplicationController
 
     # restore all package meta data objects in DB
     backend_pkgs = Collection.find :package, :match => "@project='#{params[:project]}'"
-    backend_pkgs.each_package do |package|
+    backend_pkgs.each('package') do |package|
       Package.transaction do
-        path = request.path + '/' + package.name + '/_meta'
+        path = Package.source_path(params[:project], package.value(:name), '_meta')
         p = Xmlhash.parse(backend_get(path))
         pkg = prj.packages.new(name: p['name'])
         pkg.update_from_xml(p)

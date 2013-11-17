@@ -46,16 +46,17 @@ class MessageControllerTest < ActionDispatch::IntegrationTest
     get '/message'
     assert_response :success
     ret = ActiveXML::Node.new @response.body
-    ret.each_message do |m|
+    ret.each('message') do |m|
+      msg_id = m.value('msg_id')
       # test show too
-      get "/message/#{m.msg_id}"
+      get "/message/#{msg_id}"
       assert_response :success
 
-      delete "/message/#{m.msg_id}"
+      delete "/message/#{msg_id}"
       assert_response :success
 
       # should fail a second time
-      delete "/message/#{m.msg_id}"
+      delete "/message/#{msg_id}"
       assert_response 404
       assert_match %r{Couldn't find Message with}, @response.body
     end
@@ -67,8 +68,8 @@ class MessageControllerTest < ActionDispatch::IntegrationTest
     get '/message'
     assert_response :success
     ret = ActiveXML::Node.new @response.body
-    ret.each_message do |m|
-      delete "/message/#{m.msg_id}"
+    ret.each('message') do |m|
+      delete "/message/#{m.value('msg_id')}"
       assert_response :success
     end
 

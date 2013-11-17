@@ -62,7 +62,7 @@ class Patchinfo < ActiveXML::Node
     e = @patchinfo.add_element 'issue'
     e.set_attribute 'tracker', tracker.name
     e.set_attribute 'id', issue.name
-    @patchinfo.category.text = 'security' if tracker.kind == 'cve'
+    @patchinfo.find_first('category').text = 'security' if tracker.kind == 'cve'
   end
 
   def fetch_issue_for_package(package)
@@ -84,9 +84,9 @@ class Patchinfo < ActiveXML::Node
     project.packages.each { |p| fetch_issue_for_package(p) }
 
     # update informations of empty issues
-    patchinfo.each_issue do |i|
-      next if !i.text.blank? or i.name.blank?
-      issue = Issue.find_or_create_by_name_and_tracker(i.name, i.tracker)
+    patchinfo.each('issue') do |i|
+      next if !i.text.blank? or i.value(:name).blank?
+      issue = Issue.find_or_create_by_name_and_tracker(i.value(:name), i.value(:tracker))
       next unless issue
       # enforce update from issue server
       issue.fetch_updates if opts[:enfore_issue_update]

@@ -24,16 +24,16 @@ module HasAttributes
   def store_attribute_axml(attrib, binary=nil)
 
     values = []
-    attrib.each_value do |val|
+    attrib.each('value') do |val|
       values << val.text
     end
 
     issues = []
-    attrib.each_issue do |i|
-      issues << Issue.find_or_create_by_name_and_tracker(i.name, i.tracker)
+    attrib.each('issue') do |i|
+      issues << Issue.find_or_create_by_name_and_tracker(i.value('name'), i.value('tracker'))
     end
 
-    store_attribute(attrib.namespace, attrib.name, values, issues, binary)
+    store_attribute(attrib.value('namespace'), attrib.value('name'), values, issues, binary)
   end
 
   def store_attribute(namespace, name, values, issues, binary = nil)

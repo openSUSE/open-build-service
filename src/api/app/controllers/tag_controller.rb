@@ -213,18 +213,18 @@ class TagController < ApplicationController
       
       #get the projects
       projects =[]
-      collection.each_project do |project|
-        proj = Project.get_by_name(project.name)
+      collection.each('project') do |project|
+        proj = Project.get_by_name(project.value('name'))
         
         projects << proj
       end
       
       #get the packages
       packages = []
-      collection.each_package do |package|
-        project = Project.get_by_name(package.project)
+      collection.each('package') do |package|
+        project = Project.get_by_name(package.value('project'))
         
-        pack = Package.get_by_project_and_name( project.name, package.name, use_source: false, follow_project_links: false )
+        pack = Package.get_by_project_and_name( project.name, package.value('name'), use_source: false, follow_project_links: false )
         
         packages << pack
       end

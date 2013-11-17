@@ -134,10 +134,10 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     # compare times
     node = ActiveXML::Node.new(@response.body)
-    assert((node.state.value('when') > node.each_history.last.value('when')), 'Current state is not newer than the former state')
-    assert_equal create_time, node.each_history.first.value('when')
+    assert((node.find_first('state').value('when') > node.each(:history).last.value('when')), 'Current state is not newer than the former state')
+    assert_equal create_time, node.each(:history).first.value('when')
     oldhistory=nil
-    node.each_history do |h|
+    node.each(:history) do |h|
       unless h
         assert((h.value('when') > oldhistory.value('when')), 'Current history is not newer than the former history')
       end
@@ -1683,9 +1683,9 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # check source link
     get '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_link'
     assert_response :success
-    ret = ActiveXML::Node.new @response.body
-    assert_equal ret.project, 'BaseDistro2.0:LinkedUpdateProject'
-    assert_nil ret.package # same package name
+    ret = Xmlhash.parse @response.body
+    assert_equal 'BaseDistro2.0:LinkedUpdateProject', ret['project']
+    assert_nil ret['package'] # same package name
 
     # create request
     req = "<request>
@@ -1702,9 +1702,9 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', req
     assert_response :success
     assert_xml_tag(:tag => 'request')
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    id = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    id = node['id']
+    assert id.present?
 
     # accept the request
     login_king
@@ -1745,9 +1745,9 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', req
     assert_response :success
     assert_xml_tag(:tag => 'request')
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    id = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    id = node['id']
+    assert id.present?
 
     # ensure that the diff shows the link change
     post "/request/#{id}?cmd=diff&view=xml", nil
@@ -1789,21 +1789,21 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # we explicitly decided to ignore the who, so tom will become creator
     assert_response :success
     assert_xml_tag(:tag => 'request')
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    id = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    id = node['id']
+    assert id.present?
     post '/request?cmd=create', req
     assert_response :success
     assert_xml_tag(:tag => 'request')
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    id2 = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    id2 = node['id']
+    assert id2.present?
     post '/request?cmd=create', req
     assert_response :success
     assert_xml_tag(:tag => 'request')
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    id3 = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    id3 = node['id']
+    assert id3.present?
 
     # accept the request
     login_king
@@ -1885,9 +1885,10 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', req
     assert_response :success
     assert_xml_tag(:tag => 'request')
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    id = node.value(:id)
+    node = Xmlhash.parse(@response.body)
+    id = node['id']
+    assert id.present?
+
     # correct rendered
     get "/request/#{id}"
     assert_response :success

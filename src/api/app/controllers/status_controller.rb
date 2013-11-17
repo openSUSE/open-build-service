@@ -31,7 +31,7 @@ class StatusController < ApplicationController
 
     if new_messages.has_element? 'message'
       # message(s) are wrapped in outer xml tag 'status_messages'
-      new_messages.each_message do |msg|
+      new_messages.each('message') do |msg|
         save_new_message(msg)
       end
     else

@@ -41,8 +41,7 @@ module ValidationHelper
     end
 
     data = ActiveXML::Node.new(r.body.to_s)
-    lastrev = nil
-    data.each_revision {|rev| lastrev = rev}
+    lastrev = data.each('revision').last
     metapath = "/source/#{CGI.escape(project)}/#{name}/_meta"
     if lastrev
       srcmd5 = lastrev.value('srcmd5')
@@ -66,8 +65,7 @@ module ValidationHelper
     end
 
     data = ActiveXML::Node.new(r.body.to_s)
-    lastrev = nil
-    data.each_revision {|rev| lastrev = rev}
+    lastrev = data.each(:revision).last
     raise Project::UnknownObjectError, "#{project}" unless lastrev
 
     metapath = "/source/#{CGI.escape(project)}/_project/_meta?rev=#{lastrev.value('srcmd5')}&deleted=1"

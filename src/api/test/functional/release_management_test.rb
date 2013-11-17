@@ -33,11 +33,11 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     assert_response :success
     packages = ActiveXML::Node.new(@response.body)
     vrevs = {}
-    packages.each_entry do |p|
-      get "/source/BaseDistro/#{p.name}"
+    packages.each(:entry) do |p|
+      get "/source/BaseDistro/#{p.value(:name)}"
       assert_response :success
       files = ActiveXML::Node.new(@response.body)
-      vrevs[p.name] = files.vrev 
+      vrevs[p.value(:name)] = files.value(:vrev)
     end
     assert_not_equal vrevs.count, 0
 
@@ -51,7 +51,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
       get "/source/BaseDistro/#{k}"
       assert_response :success
       files = ActiveXML::Node.new(@response.body)
-      assert_equal "#{vrevs[k].to_i+2}", files.vrev 
+      assert_equal "#{vrevs[k].to_i+2}", files.value(:vrev)
     end
 
     # the copy must have a vrev by one higher and an extended .1
@@ -59,7 +59,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
       get "/source/TEST:BaseDistro/#{k}"
       assert_response :success
       files = ActiveXML::Node.new(@response.body)
-      assert_equal "#{vrevs[k].to_i+1}.1", files.vrev 
+      assert_equal "#{vrevs[k].to_i+1}.1", files.value(:vrev)
     end
 
     #cleanup
@@ -75,7 +75,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
       get "/source/BaseDistro/#{k}"
       assert_response :success
       files = ActiveXML::Node.new(@response.body)
-      assert_equal "#{vrevs[k].to_i+4}", files.vrev 
+      assert_equal "#{vrevs[k].to_i+4}", files.value(:vrev)
     end
 
     # the copy must have a vrev by 3 higher and an extended .1
@@ -83,7 +83,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
       get "/source/TEST:BaseDistro/#{k}"
       assert_response :success
       files = ActiveXML::Node.new(@response.body)
-      assert_equal "#{vrevs[k].to_i+3}.1", files.vrev 
+      assert_equal "#{vrevs[k].to_i+3}.1", files.value(:vrev)
     end
 
     #cleanup

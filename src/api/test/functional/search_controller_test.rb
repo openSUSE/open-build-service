@@ -246,9 +246,9 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
   def get_repos
     ret = Array.new
-    col = ActiveXML::Node.new @response.body
-    col.each_repository do |r|
-      ret << "#{r.project}/#{r.name}"
+    col = Xmlhash.parse @response.body
+    col.elements('repository') do |r|
+      ret << "#{r['project']}/#{r['name']}"
     end
     return ret
   end

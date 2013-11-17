@@ -4,7 +4,7 @@ class WorkerStatus
     mydata = Rails.cache.read('workerstatus')
     ws = ActiveXML::Node.new(mydata || ActiveXML.backend.direct_http('/build/_workerstatus'))
     prjs=Hash.new
-    ws.each_building do |b|
+    ws.each('building') do |b|
       prjs[b.project] = 1
     end
     names = Hash.new
@@ -12,7 +12,7 @@ class WorkerStatus
     Project.where(name: prjs.keys).pluck(:name).each do |n|
       names[n] = 1
     end
-    ws.each_building do |b|
+    ws.each('building') do |b|
       # no prj -> we are not allowed
       unless names.has_key? b.project
         Rails.logger.debug "workerstatus2clean: hiding #{b.project} for user #{User.current.login}"

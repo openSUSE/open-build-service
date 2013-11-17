@@ -253,11 +253,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/home:tom/_attribute/OBS:Maintained"
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert_equal node.has_element?(:attribute), true
-    assert_equal node.attribute.has_attribute?(:binary), false
-    assert_equal node.attribute.namespace, "OBS"
-    assert_equal node.attribute.name, "Maintained"
+    assert_equal({"attribute"=>{"name"=>"Maintained", "namespace"=>"OBS"}}, Xmlhash.parse(@response.body))
 
     get "/source/NOT_EXISTING/_attribute"
     assert_response 404
@@ -297,10 +293,9 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     get "/source/home:tom/_project/_history?meta=1"
     assert_response :success
     assert_xml_tag( :tag => "revisionlist" )
-    node = ActiveXML::Node.new(@response.body)
-    revision = node.each_revision.last
-    assert_equal revision.user.text, "tom"
-    srcmd5 = revision.srcmd5.text
+    revision = Xmlhash.parse(@response.body).elements('revision').last
+    assert_equal 'tom', revision['user']
+    srcmd5 = revision['srcmd5']
 
     # delete
     login_tom
@@ -361,20 +356,13 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/kde4/kdelibs/_attribute/OBS:Maintained"
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert_equal node.has_element?(:attribute), true
-    assert_equal node.attribute.has_attribute?(:binary), false
-    assert_equal node.attribute.namespace, "OBS"
-    assert_equal node.attribute.name, "Maintained"
+    assert_equal({"attribute"=>[{"name"=>"Maintained", "namespace"=>"OBS"}, 
+                                {"name"=>"Maintained", "namespace"=>"OBS", "binary"=>"kdelibs-devel"}]}, Xmlhash.parse(@response.body))
     get "/source/kde4/kdelibs/kdelibs-devel/_attribute"
     assert_response :success
     get "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained"
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    assert_equal node.attribute.has_attribute?(:binary), true
-    assert_equal node.attribute.binary, "kdelibs-devel"
-    assert_equal node.attribute.namespace, "OBS"
-    assert_equal node.attribute.name, "Maintained"
+    assert_equal({"attribute"=>{"name"=>"Maintained", "namespace"=>"OBS", "binary"=>"kdelibs-devel"}}, Xmlhash.parse(@response.body))
 
     get "/source/kde4/NOT_EXISTING/_attribute"
     assert_response 404
@@ -411,10 +399,9 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     get "/source/kde4/kdelibs/_history?meta=1"
     assert_response :success
     assert_xml_tag( :tag => "revisionlist" )
-    node = ActiveXML::Node.new(@response.body)
-    revision = node.each_revision.last
-    assert_equal revision.user.text, "fred"
-    srcmd5 = revision.srcmd5.text
+    revision = Xmlhash.parse(@response.body)['revision'].last
+    assert_equal "fred", revision['user']
+    srcmd5 = revision['srcmd5']
 
     # delete
     reset_auth

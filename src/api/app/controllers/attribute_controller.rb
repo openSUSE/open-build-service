@@ -243,9 +243,9 @@ class AttributeController < ApplicationController
         return
       end
     else
-      req.each_attribute do |attr|
+      req.each('attribute') do |attr|
         begin
-          can_create = User.current.can_create_attribute_in? @attribute_container, namespace: attr.namespace, name: attr.name
+          can_create = User.current.can_create_attribute_in? @attribute_container, namespace: attr.value('namespace'), name: attr.value('name')
         rescue ArgumentError => e
           render_error :status => 400, :errorcode => "change_attribute_attribute_error",
                        :message => e.message
@@ -261,7 +261,7 @@ class AttributeController < ApplicationController
 
     # exec
     changed = false
-    req.each_attribute do |attr|
+    req.each('attribute') do |attr|
       changed = true if @attribute_container.store_attribute_axml(attr, @binary)
     end
     @attribute_container.write_attributes(params[:comment]) if changed

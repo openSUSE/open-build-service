@@ -319,15 +319,14 @@ module MaintenanceHelper
         end
 
         # link against srcmd5 instead of plain revision
-        unless p[:rev].nil?
+        if p[:rev]
           begin
             dir = Directory.find({ :project => params[:project], :package => params[:package], :rev => params[:rev]})
           rescue
             raise InvalidFilelistError.new 'no such revision'
           end
-          if dir.has_attribute? 'srcmd5'
-            p[:rev] = dir.srcmd5
-          else
+          p[:rev] = dir.value(:srcmd5)
+          unless p[:rev]
             raise InvalidFilelistError.new 'no srcmd5 revision found'
           end
         end
@@ -341,9 +340,9 @@ module MaintenanceHelper
         if pkg.is_link?
           # is the package itself a local link ?
           link = Suse::Backend.get( "/source/#{p[:package].project.name}/#{p[:package].name}/_link")
-          ret = ActiveXML::Node.new(link.body)
-          if ret.project.nil? or ret.project == p[:package].project.name
-            pkg = Package.get_by_project_and_name(p[:package].project.name, ret.package)
+          ret = Xmlhash.parse(link.body)
+          if !ret['project'] or ret['project'] == p[:package].project.name
+            pkg = Package.get_by_project_and_name(p[:package].project.name, ret['package'])
           end
         end
 
@@ -503,7 +502,7 @@ module MaintenanceHelper
         ret = ActiveXML::Node.new(tpkg.source_file('_link'))
         ret.delete_attribute('project') # its a local link, project name not needed
         linked_package = p[:link_target_package]
-        linked_package = params[:target_package] if params[:target_package] and params[:package] == ret.package  # user enforce a rename of base package
+        linked_package = params[:target_package] if params[:target_package] and params[:package] == ret.value('package')  # user enforce a rename of base package
         linked_package += '.' + p[:link_target_project].name.gsub(':', '_') if extend_names
         ret.set_attribute('package', linked_package)
         Suse::Backend.put tpkg.source_path('_link', user: User.current.login), ret.dump_xml
@@ -564,7 +563,7 @@ module MaintenanceHelper
     rescue ActiveXML::Transport::Error
       link = nil
     end
-    if link and (link.project.nil? or link.project == sourcePackage.project.name)
+    if link and (link.value(:project).nil? or link.value(:project) == sourcePackage.project.name)
       release_package_relink(link, request, targetPackageName, targetProject, tpkg)
     else
       # copy sources
@@ -592,7 +591,7 @@ module MaintenanceHelper
 
   def release_package_relink(link, request, targetPackageName, targetProject, tpkg)
     link.delete_attribute('project') # its a local link, project name not needed
-    link.set_attribute('package', link.package.gsub(/\..*/, '') + targetPackageName.gsub(/.*\./, '.')) # adapt link target with suffix
+    link.set_attribute('package', link.value(:package).gsub(/\..*/, '') + targetPackageName.gsub(/.*\./, '.')) # adapt link target with suffix
     link_xml = link.dump_xml
     answer = Suse::Backend.put "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}/_link?rev=repository&user=#{CGI.escape(User.current.login)}", link_xml
     md5 = Digest::MD5.hexdigest(link_xml)

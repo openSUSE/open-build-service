@@ -43,9 +43,9 @@ class MessageController < ApplicationController
     begin
       msg = Message.new
       msg.text = new_msg.to_s
-      msg.severity = new_msg.severity
-      msg.send_mail = new_msg.send_mail
-      msg.private = new_msg.private
+      msg.severity = new_msg.value('severity')
+      msg.send_mail = new_msg.value('send_mail')
+      msg.private = new_msg.value('private')
       msg.user = @http_user
       if @package
         @package.messages += [msg]

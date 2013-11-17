@@ -42,6 +42,15 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'collection', :children => { :count => 0 }
   end
 
+  def assert_project(prj)
+    ret = Xmlhash.parse @response.body
+    assert_equal prj, ret['project']
+    assert_nil ret['package']
+    assert_not_nil ret['baserev']
+    assert_not_nil ret['patches']
+    assert_not_nil ret['patches']['branch']
+  end
+
   def test_branch_package
     login_tom
 
@@ -51,12 +60,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # check source link
     get '/source/home:tom:branches:BaseDistro:Update/pack1/_link'
     assert_response :success
-    ret = ActiveXML::Node.new @response.body
-    assert_equal ret.project, 'BaseDistro:Update'
-    assert_nil ret.package
-    assert_not_nil ret.baserev
-    assert_not_nil ret.patches
-    assert_not_nil ret.patches.branch
+    assert_project 'BaseDistro:Update'
 
     # branch a package which does exist in update project and even have a devel package defined there
     post '/source/BaseDistro/pack2', :cmd => :branch
@@ -64,12 +68,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # check source link
     get '/source/home:tom:branches:Devel:BaseDistro:Update/pack2/_link'
     assert_response :success
-    ret = ActiveXML::Node.new @response.body
-    assert_equal ret.project, 'Devel:BaseDistro:Update'
-    assert_nil ret.package
-    assert_not_nil ret.baserev
-    assert_not_nil ret.patches
-    assert_not_nil ret.patches.branch
+    ret = Xmlhash.parse @response.body
+    assert_project 'Devel:BaseDistro:Update'
 
     # branch a package which does exist in update project and a stage project is defined via project wide devel project
     post '/source/BaseDistro/pack3', :cmd => :branch
@@ -77,12 +77,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # check source link
     get '/source/home:tom:branches:Devel:BaseDistro:Update/pack3/_link'
     assert_response :success
-    ret = ActiveXML::Node.new @response.body
-    assert_equal ret.project, 'Devel:BaseDistro:Update'
-    assert_nil ret.package
-    assert_not_nil ret.baserev
-    assert_not_nil ret.patches
-    assert_not_nil ret.patches.branch
+    assert_project 'Devel:BaseDistro:Update'
 
     # branch a package which does not exist in update project, but update project is linked
     post '/source/BaseDistro2.0/pack2', :cmd => :branch
@@ -90,9 +85,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # check source link
     get '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_link'
     assert_response :success
-    ret = ActiveXML::Node.new @response.body
-    assert_equal ret.project, 'BaseDistro2.0:LinkedUpdateProject'
-    assert_nil ret.package
+    ret = Xmlhash.parse @response.body
+    assert_equal 'BaseDistro2.0:LinkedUpdateProject', ret['project']
+    assert_nil ret['package']
 
     # check if we can upload a link to a packge only exist via project link
     put '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_link', @response.body
@@ -790,15 +785,15 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag( :parent => {:tag => 'build'}, :tag => 'disable', :content => nil )
     node = ActiveXML::Node.new(@response.body)
-    assert_not_nil node.repository.element_name
     # repository definition must be the same, except for the maintenance trigger
-    node.each_repository do |r|
-      assert_not_nil r.releasetarget
-      assert_equal r.releasetarget.value('trigger'), 'maintenance'
-      r.releasetarget.delete_attribute('trigger')
+    node.each('repository') do |r|
+      rt = r.find_first('releasetarget')
+      assert_not_nil rt
+      assert_equal 'maintenance', rt.value('trigger')
+      rt.delete_attribute('trigger')
     end
-    assert_equal node.repository.dump_xml, oprojectmeta.repository.dump_xml
-    assert_equal node.build.dump_xml, oprojectmeta.build.dump_xml
+    assert_equal node.find_first('repository').dump_xml, oprojectmeta.find_first('repository').dump_xml
+    assert_equal node.find_first('build').dump_xml, oprojectmeta.find_first('build').dump_xml
 
     get "/source/#{incidentProject}"
     assert_response :success
@@ -1044,9 +1039,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     #FIXME: add another patchinfo pointing to a third place
     # add required informations about the update
     pi = ActiveXML::Node.new( @response.body )
-    pi.summary.text = 'if you are bored'
-    pi.description.text = 'if you are bored and really want fixes'
-    pi.rating.text = 'low'
+    pi.find_first('summary').text = 'if you are bored'
+    pi.find_first('description').text = 'if you are bored and really want fixes'
+    pi.find_first('rating').text = 'low'
     pi.add_element 'issue', { 'id' => '0815', 'tracker' => 'bnc'}
     pi.add_element 'releasetarget', { :project => 'BaseDistro2.0:LinkedUpdateProject'}
     pi.add_element 'releasetarget', { :project => 'BaseDistro3'}
@@ -1169,8 +1164,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/source/#{incidentProject}/patchinfo/_patchinfo"
     assert_response :success
     pi = ActiveXML::Node.new( @response.body )
-    pi.add_element 'stopped'
-    pi.stopped.text = 'The issue is not fixed for real yet'
+    s = pi.add_element 'stopped'
+    s.text = 'The issue is not fixed for real yet'
     raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response :success
     # collect the job results
@@ -1193,8 +1188,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_match(/patchinfo patchinfo is broken/, @response.body)
     # un-block patchinfo build, but filter for an empty result
     pi.delete_element 'stopped'
-    pi.add_element 'binary'
-    pi.binary.text = 'does not exist'
+    pi.add_element('binary').text = 'does not exist'
     raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response :success
     # collect the job results
@@ -1947,6 +1941,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def last_revision(axml)
+    axml.each('revision').last
+  end
+  
   def test_copy_project_for_release
     # temporary lock the project to validate copy
     login_king
@@ -2004,24 +2002,24 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/BaseDistro/pack2/_history'
     assert_response :success
     history = ActiveXML::Node.new(@response.body)
-    srcmd5 = history.each_revision.last.srcmd5.text
-    version = history.each_revision.last.version.text
-    time = history.each_revision.last.time.text
-    vrev = history.each_revision.last.vrev
+    srcmd5 = last_revision(history).value(:srcmd5)
+    version = last_revision(history).value(:version)
+    time = last_revision(history).value(:time)
+    vrev = last_revision(history).value(:vrev)
     assert_not_nil srcmd5
     get '/source/CopyOfBaseDistro/pack2/_history'
     assert_response :success
     copyhistory = ActiveXML::Node.new(@response.body)
-    copysrcmd5 = copyhistory.each_revision.last.srcmd5.text
-    copyversion = copyhistory.each_revision.last.version.text
-    copytime = copyhistory.each_revision.last.time.text
-    #copyrev = copyhistory.each_revision.last.rev
-    copyvrev = copyhistory.each_revision.last.vrev
+    copysrcmd5 = last_revision(copyhistory).value(:srcmd5)
+    copyversion = last_revision(copyhistory).value(:version)
+    copytime = last_revision(copyhistory).value(:time)
+    #copyrev = last_revision(copyhistory).rev
+    copyvrev = last_revision(copyhistory).value(:vrev)
     assert_equal srcmd5, copysrcmd5
     assert_equal vrev.to_i, copyvrev.to_i - 1  #the copy gets always an additional commit
     assert_equal version, copyversion
     assert_not_equal time, copytime
-    assert_equal copyhistory.each_revision.last.user.text, 'king'
+    assert_equal last_revision(copyhistory).value(:user), 'king'
 
     # cleanup and unlock
     delete '/source/CopyOfBaseDistro'
@@ -2055,24 +2053,24 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/BaseDistro/pack2/_history'
     assert_response :success
     history = ActiveXML::Node.new(@response.body)
-    srcmd5 = history.each_revision.last.srcmd5.text
-    version = history.each_revision.last.version.text
-    time = history.each_revision.last.time.text
-    vrev = history.each_revision.last.vrev
+    srcmd5 = last_revision(history).value(:srcmd5)
+    version = last_revision(history).value(:version)
+    time = last_revision(history).value(:time)
+    vrev = last_revision(history).value(:vrev)
     assert_not_nil srcmd5
     get '/source/CopyOfBaseDistro/pack2/_history'
     assert_response :success
     copyhistory = ActiveXML::Node.new(@response.body)
-    copysrcmd5 = copyhistory.each_revision.last.srcmd5.text
-    copyversion = copyhistory.each_revision.last.version.text
-    copytime = copyhistory.each_revision.last.time.text
-    #copyrev = copyhistory.each_revision.last.rev
-    copyvrev = copyhistory.each_revision.last.vrev
+    copysrcmd5 = last_revision(copyhistory).value(:srcmd5)
+    copyversion = last_revision(copyhistory).value(:version)
+    copytime = last_revision(copyhistory).value(:time)
+    #copyrev = last_revision(copyhistory).rev
+    copyvrev = last_revision(copyhistory).value(:vrev)
     assert_equal srcmd5, copysrcmd5
     assert_equal vrev.to_i + 1, copyvrev.to_i  #the copy gets always a higher vrev
     assert_equal version, copyversion
     assert_not_equal time, copytime # the timestamp got not copied
-    assert_equal copyhistory.each_revision.last.user.text, 'king'
+    assert_equal last_revision(copyhistory).value(:user), 'king'
 
     # compare binaries
     run_scheduler('i586')
@@ -2100,10 +2098,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/BaseDistro/pack2/_history'
     assert_response :success
     originhistory = ActiveXML::Node.new(@response.body)
-    originsrcmd5 = originhistory.each_revision.last.srcmd5.text
-    originversion = originhistory.each_revision.last.version.text
-    origintime = originhistory.each_revision.last.time.text
-    originvrev = originhistory.each_revision.last.vrev
+    last = originhistory.each('revision').last
+    originsrcmd5 = last.value(:srcmd5)
+    originversion = last.value(:version)
+    origintime = last.value('time')
+    originvrev = last.value('vrev')
     assert_not_nil originsrcmd5
 
     # as admin
@@ -2124,33 +2123,33 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/BaseDistro/pack2/_history'
     assert_response :success
     history = ActiveXML::Node.new(@response.body)
-    srcmd5 = history.each_revision.last.srcmd5.text
-    version = history.each_revision.last.version.text
-    time = history.each_revision.last.time.text
-    #rev = history.each_revision.last.rev
-    vrev = history.each_revision.last.vrev
+    srcmd5 = last_revision(history).value(:srcmd5)
+    version = last_revision(history).value(:version)
+    time = last_revision(history).value(:time)
+    #rev = last_revision(history).rev
+    vrev = last_revision(history).value(:vrev)
     assert_not_nil srcmd5
     assert_equal originsrcmd5, srcmd5
     assert_equal originvrev.to_i + 2, vrev.to_i  # vrev jumps two numbers
     assert_equal version, originversion
     assert_not_equal time, origintime
-    assert_equal 'king', history.each_revision.last.user.text
+    assert_equal 'king', last_revision(history).value(:user)
 
     # compare revisions of destination project
     get '/source/CopyOfBaseDistro/pack2/_history'
     assert_response :success
     copyhistory = ActiveXML::Node.new(@response.body)
-    copysrcmd5 = copyhistory.each_revision.last.srcmd5.text
-    copyversion = copyhistory.each_revision.last.version.text
-    copytime = copyhistory.each_revision.last.time.text
-    #copyrev = copyhistory.each_revision.last.rev
-    copyvrev = copyhistory.each_revision.last.vrev
+    copysrcmd5 = last_revision(copyhistory).value(:srcmd5)
+    copyversion = last_revision(copyhistory).value(:version)
+    copytime = last_revision(copyhistory).value(:time)
+    #copyrev = last_revision(copyhistory).rev
+    copyvrev = last_revision(copyhistory).value(:vrev)
     assert_equal originsrcmd5, copysrcmd5
     expectedvrev="#{(originvrev.to_i+1).to_s}.1" # the copy gets incremented by one, but also extended to avoid that it can become
     assert_equal expectedvrev, copyvrev    # newer than the origin project at any time later.
     assert_equal originversion, copyversion
     assert_not_equal origintime, copytime
-    assert_equal 'king', copyhistory.each_revision.last.user.text
+    assert_equal 'king', last_revision(copyhistory).value(:user)
 
     #cleanup
     delete '/source/CopyOfBaseDistro'

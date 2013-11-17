@@ -11,13 +11,13 @@ class PublicController < ApplicationController
       load_nobody
       return true
     end
-    logger.error "No public access is configured"
-    render_error( :message => "No public access is configured", :status => 401 )
+    logger.error 'No public access is configured'
+    render_error( :message => 'No public access is configured', :status => 401 )
     return false
   end
 
   def index
-    redirect_to controller: "about", action: "index"
+    redirect_to controller: 'about', action: 'index'
   end
 
   def check_package_access(project, package, use_source=true)
@@ -29,7 +29,7 @@ class PublicController < ApplicationController
     end
 
     # generic access checks
-    key = "public_package:" + project + ":" + package
+    key = 'public_package:' + project + ':' + package
     allowed = Rails.cache.fetch(key, :expires_in => 30.minutes) do
       begin
         Package.get_by_project_and_name(project, package, use_source: false)
@@ -68,17 +68,17 @@ class PublicController < ApplicationController
     # project visible/known ? 
     Project.get_by_name(params[:project])
     path = unshift_public(request.path)
-    if params[:view] == "info"
+    if params[:view] == 'info'
       # nofilename since a package may have no source access
-      if params[:nofilename] and params[:nofilename] != "1"
-        render_error :status => 400, :errorcode => 'parameter_error', :message => "nofilename is not allowed as parameter"
+      if params[:nofilename] and params[:nofilename] != '1'
+        render_error :status => 400, :errorcode => 'parameter_error', :message => 'nofilename is not allowed as parameter'
         return
       end
       # path has multiple package= parameters
-      path += "?" + request.query_string 
-      path += "&nofilename=1" unless params[:nofilename]
+      path += '?' + request.query_string
+      path += '&nofilename=1' unless params[:nofilename]
     else
-      path += "?expand=1&noorigins=1" # to stay compatible to OBS <2.4
+      path += '?expand=1&noorigins=1' # to stay compatible to OBS <2.4
     end
     pass_to_backend path
   end
@@ -126,7 +126,7 @@ class PublicController < ApplicationController
   def distributions
     @distributions = Distribution.all_as_hash
     
-    render "distributions/index"
+    render 'distributions/index'
   end
 
   # GET /public/binary_packages/:project/:package
@@ -144,8 +144,8 @@ class PublicController < ApplicationController
 
     binary_map = Hash.new
     binaries.each do |bin|
-      repo_string = bin.repository.to_s
-      next if bin.arch.to_s == "src"
+      repo_string = bin.value(:repository)
+      next if bin.value(:arch) == 'src'
       binary_map[repo_string] ||= Array.new
       binary_map[repo_string] << bin
     end
@@ -160,15 +160,15 @@ class PublicController < ApplicationController
         unless binary_map[repo.name].blank?
           dist_id = dist.id
           @binary_links[dist_id] ||= {}
-          binary = binary_map[repo.name].select {|bin| bin.name == @pkg.name}.first
-          if binary and dist.vendor == "openSUSE"
-            @binary_links[dist_id][:ymp] = { :url => ymp_url(File.join(@pkg.project.name, repo.name, @pkg.name+".ymp") ) }
+          binary = binary_map[repo.name].select {|bin| bin.value(:name) == @pkg.name}.first
+          if binary and dist.vendor == 'openSUSE'
+            @binary_links[dist_id][:ymp] = { :url => ymp_url(File.join(@pkg.project.name, repo.name, @pkg.name+'.ymp') ) }
           end
 
           @binary_links[dist_id][:binary] ||= []
           binary_map[repo.name].each do |b|
-            binary_type = b.method_missing(:type)
-            @binary_links[dist_id][:binary] << {:type => binary_type, :arch => b.arch, :url => download_url(b.filepath)}
+            binary_type = b.value(:type)
+            @binary_links[dist_id][:binary] << {:type => binary_type, :arch => b.value(:arch), :url => download_url(b.value(:filepath))}
             if @binary_links[dist_id][:repository].blank?
               repo_filename = (binary_type == 'rpm') ? "#{@pkg.project.name}.repo" : ''
               repository_path = File.join(@pkg.project.download_name, repo.name, repo_filename)

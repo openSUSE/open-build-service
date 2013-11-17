@@ -81,7 +81,7 @@ module SubmitRequestSourceDiff
             query[:rev] = action.source_rev
           else # Otherwise generate diff for latest source package revision
                # FIXME: move to Package model
-            spkg_rev = Directory.find(project: action.source_project, package: spkg).rev
+            spkg_rev = Directory.find_hashed(project: action.source_project, package: spkg)['rev']
             query[:orev] = 0
             query[:rev] = spkg_rev
           end

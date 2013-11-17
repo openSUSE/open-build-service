@@ -146,7 +146,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_xml_tag :tag => "xsrcmd5" # is no link, srcmd5 is valid
     node = ActiveXML::Node.new(@response.body)
-    srcmd5 = node.srcmd5
+    srcmd5 = node.value(:srcmd5)
 
     # osc local package build call
     get "/source/home:Iggy/TestPack/TestPack.spec"

@@ -1,5 +1,5 @@
 # encoding: UTF-8
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'source_controller'
 
 class SourceControllerTest < ActionDispatch::IntegrationTest
@@ -12,36 +12,36 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_get_projectlist
     login_tom
-    get "/source"
+    get '/source'
     assert_response :success
-    assert_xml_tag :tag => "directory", :child => { :tag => "entry" }
-    assert_xml_tag :tag => "directory",
-                   :children => { :only => { :tag => "entry" } }
+    assert_xml_tag :tag => 'directory', :child => { :tag => 'entry' }
+    assert_xml_tag :tag => 'directory',
+                   :children => { :only => { :tag => 'entry' } }
   end
 
   def test_get_projectlist_with_hidden_project
     login_tom
-    get "/source"
+    get '/source'
     assert_response :success
     assert_no_match(/entry name="HiddenProject"/, @response.body)
 
     #retry with maintainer
     reset_auth
     login_adrian
-    get "/source"
+    get '/source'
     assert_response :success
     assert_match(/entry name="HiddenProject"/, @response.body)
   end
 
   def test_get_projectlist_with_sourceaccess_protected_project
     login_tom
-    get "/source"
+    get '/source'
     assert_response :success
     assert_match(/entry name="SourceprotectedProject"/, @response.body)
     #retry with maintainer
     reset_auth
     login_adrian
-    get "/source"
+    get '/source'
     assert_response :success
     assert_match(/entry name="SourceprotectedProject"/, @response.body)
   end
@@ -49,46 +49,46 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_get_packagelist
     login_tom
-    get "/source/kde4"
+    get '/source/kde4'
     assert_response :success
-    assert_xml_tag :tag => "directory", :child => { :tag => "entry" }
-    assert_xml_tag :tag => "directory",
-                   :children => { :count => 2, :only => { :tag => "entry" } }
+    assert_xml_tag :tag => 'directory', :child => { :tag => 'entry' }
+    assert_xml_tag :tag => 'directory',
+                   :children => { :count => 2, :only => { :tag => 'entry' } }
   end
 
   def test_get_packagelist_with_hidden_project
     login_tom
-    get "/source/HiddenProject"
+    get '/source/HiddenProject'
     assert_response 404
     assert_match(/unknown_project/, @response.body)
     #retry with maintainer
     reset_auth
     login_adrian
-    get "/source/HiddenProject"
+    get '/source/HiddenProject'
     assert_response :success
-    assert_xml_tag :tag => "directory", :child => { :tag => "entry" }
-    assert_xml_tag :tag => "directory",
-                   :children => { :count => 3, :only => { :tag => "entry" } }
+    assert_xml_tag :tag => 'directory', :child => { :tag => 'entry' }
+    assert_xml_tag :tag => 'directory',
+                   :children => { :count => 3, :only => { :tag => 'entry' } }
     assert_match(/entry name="pack"/, @response.body)
     assert_match(/entry name="target"/, @response.body)
   end
 
   def test_get_packagelist_with_sourceprotected_project
     login_tom
-    get "/source/SourceprotectedProject"
+    get '/source/SourceprotectedProject'
     assert_response :success
-    assert_xml_tag :tag => "directory", :child => { :tag => "entry" }
-    assert_xml_tag :tag => "directory",
+    assert_xml_tag :tag => 'directory', :child => { :tag => 'entry' }
+    assert_xml_tag :tag => 'directory',
                    :children => { :count => 2 }
     assert_match(/entry name="target"/, @response.body)
     #retry with maintainer
     reset_auth
     login_adrian
-    get "/source/SourceprotectedProject"
+    get '/source/SourceprotectedProject'
     assert_response :success
-    assert_xml_tag :tag => "directory", :child => { :tag => "entry" }
-    assert_xml_tag :tag => "directory",
-                   :children => { :count => 2, :only => { :tag => "entry" } }
+    assert_xml_tag :tag => 'directory', :child => { :tag => 'entry' }
+    assert_xml_tag :tag => 'directory',
+                   :children => { :count => 2, :only => { :tag => 'entry' } }
     assert_match(/entry name="pack"/, @response.body)
     assert_match(/entry name="target"/, @response.body)
   end
@@ -96,7 +96,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   # non-existing project should return 404
   def test_get_illegal_project
     login_tom
-    get "/source/kde2000/_meta"
+    get '/source/kde2000/_meta'
     assert_response 404
   end
 
@@ -104,143 +104,143 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   # non-existing project-package should return 404
   def test_get_illegal_projectfile
     login_tom
-    get "/source/kde4/kdelibs2000/_meta"
+    get '/source/kde4/kdelibs2000/_meta'
     assert_response 404
   end
 
   def test_use_illegal_encoded_parameters
     login_king
-    raw_put "/source/kde4/kdelibs/DUMMY?comment=working%20with%20Uml%C3%A4ut", "WORKING"
+    raw_put '/source/kde4/kdelibs/DUMMY?comment=working%20with%20Uml%C3%A4ut', 'WORKING'
     assert_response :success
-    raw_put "/source/kde4/kdelibs/DUMMY?comment=illegalchar%96%96asd", "NOTWORKING"
+    raw_put '/source/kde4/kdelibs/DUMMY?comment=illegalchar%96%96asd', 'NOTWORKING'
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "invalid_text_encoding" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'invalid_text_encoding' }
   end
 
   def test_get_project_meta
     login_tom
-    get "/source/kde4/_meta"
+    get '/source/kde4/_meta'
     assert_response :success
-    assert_xml_tag :tag => "project", :attributes => { :name => "kde4" }
+    assert_xml_tag :tag => 'project', :attributes => { :name => 'kde4' }
   end
 
   def test_get_project_meta_from_hidden_project
     login_tom
-    get "/source/HiddenProject/_meta"
+    get '/source/HiddenProject/_meta'
     assert_response 404
     assert_match(/unknown_project/, @response.body)
     #retry with maintainer
     reset_auth
     login_adrian
-    get "/source/HiddenProject/_meta"
+    get '/source/HiddenProject/_meta'
     assert_response :success
-    assert_xml_tag :tag => "project", :attributes => { :name => "HiddenProject" }
+    assert_xml_tag :tag => 'project', :attributes => { :name => 'HiddenProject' }
   end
 
   def test_get_project_meta_from_sourceaccess_protected_project
     login_tom
-    get "/source/SourceprotectedProject/_meta"
+    get '/source/SourceprotectedProject/_meta'
     assert_response :success
-    assert_xml_tag :tag => "project", :attributes => { :name => "SourceprotectedProject" }
+    assert_xml_tag :tag => 'project', :attributes => { :name => 'SourceprotectedProject' }
     #retry with maintainer
     reset_auth
-    prepare_request_with_user "sourceaccess_homer", "homer"
-    get "/source/SourceprotectedProject/_meta"
+    prepare_request_with_user 'sourceaccess_homer', 'homer'
+    get '/source/SourceprotectedProject/_meta'
     assert_response :success
-    assert_xml_tag :tag => "project", :attributes => { :name => "SourceprotectedProject" }
+    assert_xml_tag :tag => 'project', :attributes => { :name => 'SourceprotectedProject' }
   end
 
   def test_get_package_filelist
     login_tom
-    get "/source/kde4/kdelibs"
+    get '/source/kde4/kdelibs'
     assert_response :success
-    assert_xml_tag :tag => "directory", :child => { :tag => "entry" }
-    assert_xml_tag :tag => "directory",
-                   :children => { :count => 1, :only => { :tag => "entry", :attributes => { :name => "my_patch.diff" } } }
+    assert_xml_tag :tag => 'directory', :child => { :tag => 'entry' }
+    assert_xml_tag :tag => 'directory',
+                   :children => { :count => 1, :only => { :tag => 'entry', :attributes => { :name => 'my_patch.diff' } } }
 
     # now testing if also others can see it
     login_Iggy
     assert_response :success
-    assert_xml_tag :tag => "directory", :child => { :tag => "entry" }
-    assert_xml_tag :tag => "directory",
-                   :children => { :count => 1, :only => { :tag => "entry", :attributes => { :name => "my_patch.diff" } } }
+    assert_xml_tag :tag => 'directory', :child => { :tag => 'entry' }
+    assert_xml_tag :tag => 'directory',
+                   :children => { :count => 1, :only => { :tag => 'entry', :attributes => { :name => 'my_patch.diff' } } }
 
   end
 
   def test_get_package_filelist_from_hidden_project
     login_tom
-    get "/source/HiddenProject/pack"
+    get '/source/HiddenProject/pack'
     assert_response 404
-    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_project' }
     #retry with maintainer
     reset_auth
     login_adrian
-    get "/source/HiddenProject/pack"
+    get '/source/HiddenProject/pack'
     assert_response :success
-    assert_xml_tag :tag => "directory", :child => { :tag => "entry" }
-    assert_xml_tag :tag => "directory",
+    assert_xml_tag :tag => 'directory', :child => { :tag => 'entry' }
+    assert_xml_tag :tag => 'directory',
                    :children => { :count => 2 }
   end
 
   def test_get_package_filelist_from_sourceaccess_protected_project
     login_tom
-    get "/source/SourceprotectedProject/pack"
+    get '/source/SourceprotectedProject/pack'
     assert_response 403
     #retry with maintainer
     reset_auth
-    prepare_request_with_user "sourceaccess_homer", "homer"
-    get "/source/SourceprotectedProject/pack"
+    prepare_request_with_user 'sourceaccess_homer', 'homer'
+    get '/source/SourceprotectedProject/pack'
     assert_response :success
-    assert_xml_tag :tag => "directory", :child => { :tag => "entry" }
-    assert_xml_tag :tag => "directory",
+    assert_xml_tag :tag => 'directory', :child => { :tag => 'entry' }
+    assert_xml_tag :tag => 'directory',
                    :children => { :count => 2 }
   end
 
   def test_get_package_meta
     login_tom
-    get "/source/kde4/kdelibs/_meta"
+    get '/source/kde4/kdelibs/_meta'
     assert_response :success
-    assert_xml_tag :tag => "package", :attributes => { :name => "kdelibs" }
+    assert_xml_tag :tag => 'package', :attributes => { :name => 'kdelibs' }
   end
 
   def test_get_package_meta_from_hidden_project
     login_tom
-    get "/source/HiddenProject/pack/_meta"
+    get '/source/HiddenProject/pack/_meta'
     assert_response 404
-    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_project' }
     #retry with maintainer
     reset_auth
     login_adrian
-    get "/source/HiddenProject/pack/_meta"
+    get '/source/HiddenProject/pack/_meta'
     assert_response :success
-    assert_xml_tag :tag => "package", :attributes => { :name => "pack", :project => "HiddenProject" }
+    assert_xml_tag :tag => 'package', :attributes => { :name => 'pack', :project => 'HiddenProject' }
   end
 
   def test_get_package_meta_from_sourceacces_protected_project
     # package meta is visible
     login_tom
-    get "/source/SourceprotectedProject/pack/_meta"
+    get '/source/SourceprotectedProject/pack/_meta'
     assert_response :success
-    assert_xml_tag :tag => "package", :attributes => { :name => "pack", :project => "SourceprotectedProject" }
+    assert_xml_tag :tag => 'package', :attributes => { :name => 'pack', :project => 'SourceprotectedProject' }
     # retry with maintainer
     reset_auth
-    prepare_request_with_user "sourceaccess_homer", "homer"
-    get "/source/SourceprotectedProject/pack/_meta"
+    prepare_request_with_user 'sourceaccess_homer', 'homer'
+    get '/source/SourceprotectedProject/pack/_meta'
     assert_response :success
-    assert_xml_tag :tag => "package", :attributes => { :name => "pack", :project => "SourceprotectedProject" }
+    assert_xml_tag :tag => 'package', :attributes => { :name => 'pack', :project => 'SourceprotectedProject' }
   end
 
   def test_invalid_project_and_package_name
     login_king
-    ["_blah"].each do |n|
+    ['_blah'].each do |n|
       raw_put url_for(:controller => :source, :action => :update_project_meta, :project => n), "<project name='#{n}'> <title /> <description /> </project>"
       assert_response 400
       put "/source/kde4/#{n}/_meta", "<package project='kde4' name='#{n}'> <title /> <description /> </project>"
       assert_response 400
-      post "/source/kde4/kdebase", :cmd => "branch", :target_package => n
+      post '/source/kde4/kdebase', :cmd => 'branch', :target_package => n
       assert_response 400
-      post "/source/kde4/#{n}", :cmd => "copy", :opackage => "kdebase", :oproject => "kde4"
-      if n == ".."
+      post "/source/kde4/#{n}", :cmd => 'copy', :opackage => 'kdebase', :oproject => 'kde4'
+      if n == '..'
         # this is failing already at routing
         assert_response 403
       else
@@ -249,28 +249,28 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "can branch package under two names" do
+  test 'can branch package under two names' do
     login_king
-    post "/source/home:Iggy/TestPack", :cmd => "branch", :target_package => "TestPack2"
+    post '/source/home:Iggy/TestPack', :cmd => 'branch', :target_package => 'TestPack2'
     assert_response :success
     # this is behaving strange as it's creating a TestPack3 pack, but returns a 400 
     # as it tries to branch TestPack2 -> TestPack too and fails 
     if $ENABLE_BROKEN_TEST
-      post "/source/home:Iggy/TestPack", :cmd => "branch", :target_package => "TestPack3"
+      post '/source/home:Iggy/TestPack', :cmd => 'branch', :target_package => 'TestPack3'
       assert_response :success
     end
   end
 
   # project_meta does not require auth
   def test_invalid_user
-    prepare_request_with_user "king123", "sunflower"
-    get "/source/kde4/_meta"
+    prepare_request_with_user 'king123', 'sunflower'
+    get '/source/kde4/_meta'
     assert_response 401
   end
 
   def test_valid_user
     login_tom
-    get "/source/kde4/_meta"
+    get '/source/kde4/_meta'
     assert_response :success
   end
 
@@ -280,51 +280,51 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # The user is valid, but has weak permissions
 
     # Get meta file
-    get "/source/kde4/_meta"
+    get '/source/kde4/_meta'
     assert_response :success
 
     # Change description
     xml = @response.body
-    new_desc = "Changed description"
+    new_desc = 'Changed description'
     doc = REXML::Document.new(xml)
-    d = doc.elements["//description"]
+    d = doc.elements['//description']
     d.text = new_desc
 
     # Write changed data back
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "kde4"), doc.to_s
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4'), doc.to_s
     assert_response 403
 
     # admin only tag    
-    d = doc.elements["/project"]
-    d = d.add_element "remoteurl"
-    d.text = "http://localhost:5352"
+    d = doc.elements['/project']
+    d = d.add_element 'remoteurl'
+    d.text = 'http://localhost:5352'
     login_fred
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "kde4"), doc.to_s
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4'), doc.to_s
     assert_response 403
     assert_match(/admin rights are required to change remoteurl/, @response.body)
 
     # invalid xml
-    raw_put url_for(:controller => :source, :action => :update_project_meta, :project => "NewProject"), "<asd/>"
+    raw_put url_for(:controller => :source, :action => :update_project_meta, :project => 'NewProject'), '<asd/>'
     assert_response 400
     assert_match(/validation error/, @response.body)
 
     # new project
-    raw_put url_for(:controller => :source, :action => :update_project_meta, :project => "NewProject"), "<project name='NewProject'><title>blub</title><description/></project>"
+    raw_put url_for(:controller => :source, :action => :update_project_meta, :project => 'NewProject'), "<project name='NewProject'><title>blub</title><description/></project>"
     assert_response 403
-    assert_xml_tag :tag => "status", :attributes => { :code => "create_project_no_permission" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'create_project_no_permission' }
 
     login_king
-    raw_put url_for(:controller => :source, :action => :update_project_meta, :project => "_NewProject"), "<project name='_NewProject'><title>blub</title><description/></project>"
+    raw_put url_for(:controller => :source, :action => :update_project_meta, :project => '_NewProject'), "<project name='_NewProject'><title>blub</title><description/></project>"
     assert_response 400
     assert_match(/invalid project name/, @response.body)
   end
 
 
   def test_put_project_meta
-    prj="kde4" # project
+    prj='kde4' # project
     resp1=:success # expected response 1 & 2
     resp2=:success # \/ expected assert
-    aresp={ :tag => "status", :attributes => { :code => "ok" } }
+    aresp={ :tag => 'status', :attributes => { :code => 'ok' } }
     match=true # value written matches 2nd read
                # admin
     login_king
@@ -337,50 +337,50 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
 
     # check history
-    get "/source/kde4/_project/_history?meta=1"
+    get '/source/kde4/_project/_history?meta=1'
     assert_response :success
-    assert_xml_tag(:tag => "revisionlist")
-    assert_xml_tag(:tag => "user", :content => "adrian")
+    assert_xml_tag(:tag => 'revisionlist')
+    assert_xml_tag(:tag => 'user', :content => 'adrian')
   end
 
   def test_create_subproject
     subprojectmeta="<project name='kde4:subproject'><title></title><description/></project>"
 
     # nobody
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "kde4:subproject"), subprojectmeta
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4:subproject'), subprojectmeta
     assert_response 401
     login_tom
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "kde4:subproject"), subprojectmeta
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4:subproject'), subprojectmeta
     assert_response 403
     # admin
     login_king
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "kde4:subproject"), subprojectmeta
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4:subproject'), subprojectmeta
     assert_response :success
-    delete "/source/kde4:subproject"
+    delete '/source/kde4:subproject'
     assert_response :success
     # maintainer 
     login_fred
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "kde4:subproject"), subprojectmeta
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4:subproject'), subprojectmeta
     assert_response :success
-    delete "/source/kde4:subproject"
+    delete '/source/kde4:subproject'
     assert_response :success
     # maintainer via group
     login_adrian
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "kde4:subproject"), subprojectmeta
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4:subproject'), subprojectmeta
     assert_response :success
-    delete "/source/kde4:subproject"
+    delete '/source/kde4:subproject'
     assert_response :success
 
     # create illegal project 
     login_fred
     subprojectmeta="<project name='kde4_subproject'><title></title><description/></project>"
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "kde4:subproject"), subprojectmeta
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4:subproject'), subprojectmeta
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "project_name_mismatch" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'project_name_mismatch' }
   end
 
   def test_put_project_meta_hidden_project
-    prj="HiddenProject"
+    prj='HiddenProject'
     # uninvolved user
     resp1=404
     resp2=nil
@@ -391,38 +391,38 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # admin
     resp1=:success
     resp2=:success
-    aresp={ :tag => "status", :attributes => { :code => "ok" } }
+    aresp={ :tag => 'status', :attributes => { :code => 'ok' } }
     match=true
     login_king
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # maintainer
-    prepare_request_with_user "hidden_homer", "homer"
+    prepare_request_with_user 'hidden_homer', 'homer'
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # FIXME: maintainer via group
   end
 
   def test_put_project_meta_sourceaccess_protected_project
-    prj="SourceprotectedProject"
+    prj='SourceprotectedProject'
     # uninvolved user - can't change meta
     resp1=:success
     resp2=403
-    aresp={ :tag => "status", :attributes => { :code => "change_project_no_permission" } }
+    aresp={ :tag => 'status', :attributes => { :code => 'change_project_no_permission' } }
     match=nil
     login_tom
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # same with set_flag command ?
-    post "/source/SourceprotectedProject?cmd=set_flag&flag=sourceaccess&status=enable"
+    post '/source/SourceprotectedProject?cmd=set_flag&flag=sourceaccess&status=enable'
     assert_response 403
     assert_match(/no permission to execute command/, @response.body)
     # admin
     resp1=:success
     resp2=:success
-    aresp={ :tag => "status", :attributes => { :code => "ok" } }
+    aresp={ :tag => 'status', :attributes => { :code => 'ok' } }
     match=true
     login_king
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # maintainer
-    prepare_request_with_user "sourceaccess_homer", "homer"
+    prepare_request_with_user 'sourceaccess_homer', 'homer'
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
   end
 
@@ -437,12 +437,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # create them
     login_king
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "TEMPORARY:build"), build_meta
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'TEMPORARY:build'), build_meta
     assert_response :success
-    get "/source/TEMPORARY:build/_meta"
+    get '/source/TEMPORARY:build/_meta'
     assert_response :success
-    assert_xml_tag :parent => { :tag => "project" },
-                   :tag => 'download', :attributes => { :arch => 'x86_64', :baseurl => 'http://somewhere', :mtype => "rpm-md", :metafile => "somefile" }
+    assert_xml_tag :parent => { :tag => 'project' },
+                   :tag => 'download', :attributes => { :arch => 'x86_64', :baseurl => 'http://somewhere', :mtype => 'rpm-md', :metafile => 'somefile' }
 
     # change download definition
     build_meta="<project name='TEMPORARY:build'><title></title><description/>
@@ -452,12 +452,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                         <arch>x86_64</arch>
                       </repository>
                    </project>"
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "TEMPORARY:build"), build_meta
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'TEMPORARY:build'), build_meta
     assert_response :success
-    get "/source/TEMPORARY:build/_meta"
+    get '/source/TEMPORARY:build/_meta'
     assert_response :success
-    assert_xml_tag :parent => { :tag => "project" },
-                   :tag => 'download', :attributes => { :arch => 'x86_64', :baseurl => 'http://somewhereelse', :mtype => "yast", :metafile => "someotherfile" }
+    assert_xml_tag :parent => { :tag => 'project' },
+                   :tag => 'download', :attributes => { :arch => 'x86_64', :baseurl => 'http://somewhereelse', :mtype => 'yast', :metafile => 'someotherfile' }
 
     # delete download definition
     build_meta="<project name='TEMPORARY:build'><title></title><description/>
@@ -466,14 +466,14 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                         <arch>x86_64</arch>
                       </repository>
                    </project>"
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "TEMPORARY:build"), build_meta
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'TEMPORARY:build'), build_meta
     assert_response :success
-    get "/source/TEMPORARY:build/_meta"
+    get '/source/TEMPORARY:build/_meta'
     assert_response :success
-    assert_no_xml_tag :tag => "download"
+    assert_no_xml_tag :tag => 'download'
 
     # cleanup
-    delete "/source/TEMPORARY:build"
+    delete '/source/TEMPORARY:build'
     assert_response :success
   end
 
@@ -503,17 +503,17 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # create them
     login_king
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "TEMPORARY:rel_target"), rel_target_meta
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'TEMPORARY:rel_target'), rel_target_meta
     assert_response :success
-    get "/source/TEMPORARY:rel_target/_meta"
+    get '/source/TEMPORARY:rel_target/_meta'
     assert_response :success
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "TEMPORARY:build"), build_meta
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'TEMPORARY:build'), build_meta
     assert_response :success
-    get "/source/TEMPORARY:build/_meta"
+    get '/source/TEMPORARY:build/_meta'
     assert_response :success
-    assert_xml_tag :parent => { :tag => "repository", :attributes => { :name => "repo1" } },
+    assert_xml_tag :parent => { :tag => 'repository', :attributes => { :name => 'repo1' } },
                    :tag => 'releasetarget', :attributes => { :project => 'TEMPORARY:rel_target', :repository => 'rel_target1' }
-    assert_xml_tag :parent => { :tag => "repository", :attributes => { :name => "repo2" } },
+    assert_xml_tag :parent => { :tag => 'repository', :attributes => { :name => 'repo2' } },
                    :tag => 'releasetarget', :attributes => { :project => 'TEMPORARY:rel_target', :repository => 'rel_target2' }
 
     # delete one repository where a release target defintion points to
@@ -523,38 +523,38 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                         <arch>x86_64</arch>
                       </repository>
                    </project>"
-    put "/source/TEMPORARY:rel_target/_meta", rel_target_meta
+    put '/source/TEMPORARY:rel_target/_meta', rel_target_meta
     assert_response 400
-    assert_xml_tag(:tag => "status", :attributes => { :code => "repo_dependency" })
+    assert_xml_tag(:tag => 'status', :attributes => { :code => 'repo_dependency' })
     assert_match(/following target repositories depend on this project:/, @response.body)
-    put "/source/TEMPORARY:rel_target/_meta?force=1", rel_target_meta
+    put '/source/TEMPORARY:rel_target/_meta?force=1', rel_target_meta
     assert_response :success
-    get "/source/TEMPORARY:rel_target/_meta"
+    get '/source/TEMPORARY:rel_target/_meta'
     assert_response :success
-    get "/source/TEMPORARY:build/_meta"
+    get '/source/TEMPORARY:build/_meta'
     assert_response :success
-    assert_xml_tag :parent => { :tag => "repository", :attributes => { :name => "repo1" } },
+    assert_xml_tag :parent => { :tag => 'repository', :attributes => { :name => 'repo1' } },
                    :tag => 'releasetarget', :attributes => { :project => 'deleted', :repository => 'deleted' }
-    assert_xml_tag :parent => { :tag => "repository", :attributes => { :name => "repo2" } },
+    assert_xml_tag :parent => { :tag => 'repository', :attributes => { :name => 'repo2' } },
                    :tag => 'releasetarget', :attributes => { :project => 'TEMPORARY:rel_target', :repository => 'rel_target2' }
 
     # delete entire project including release target
-    delete "/source/TEMPORARY:rel_target"
+    delete '/source/TEMPORARY:rel_target'
     assert_response 400
-    assert_xml_tag(:tag => "status", :attributes => { :code => "repo_dependency" })
-    delete "/source/TEMPORARY:rel_target?force=1"
+    assert_xml_tag(:tag => 'status', :attributes => { :code => 'repo_dependency' })
+    delete '/source/TEMPORARY:rel_target?force=1'
     assert_response :success
-    get "/source/TEMPORARY:rel_target/_meta"
+    get '/source/TEMPORARY:rel_target/_meta'
     assert_response 404
-    get "/source/TEMPORARY:build/_meta"
+    get '/source/TEMPORARY:build/_meta'
     assert_response :success
-    assert_xml_tag :parent => { :tag => "repository", :attributes => { :name => "repo1" } },
+    assert_xml_tag :parent => { :tag => 'repository', :attributes => { :name => 'repo1' } },
                    :tag => 'releasetarget', :attributes => { :project => 'deleted', :repository => 'deleted' }
-    assert_xml_tag :parent => { :tag => "repository", :attributes => { :name => "repo2" } },
+    assert_xml_tag :parent => { :tag => 'repository', :attributes => { :name => 'repo2' } },
                    :tag => 'releasetarget', :attributes => { :project => 'deleted', :repository => 'deleted' }
 
     # cleanup
-    delete "/source/TEMPORARY:build"
+    delete '/source/TEMPORARY:build'
     assert_response :success
   end
 
@@ -573,9 +573,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # Change description
     xml = @response.body
-    new_desc = "Changed description"
+    new_desc = 'Changed description'
     doc = REXML::Document.new(xml)
-    d = doc.elements["//description"]
+    d = doc.elements['//description']
     d.text = new_desc
 
     # Write changed data back
@@ -586,39 +586,39 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # Get data again and check that it is the changed data
     get url_for(:controller => :source, :action => :show_project_meta, :project => project)
     assert_response :success
-    assert_equal new_desc, Xmlhash.parse(@response.body)["description"] if doesmatch
+    assert_equal new_desc, Xmlhash.parse(@response.body)['description'] if doesmatch
   end
 
   private :do_change_project_meta_test
 
 
   def test_create_and_delete_project
-    prepare_request_with_user("king", "sunflower")
+    prepare_request_with_user('king', 'sunflower')
     # Get meta file  
-    get url_for(:controller => :source, :action => :show_project_meta, :project => "kde4")
+    get url_for(:controller => :source, :action => :show_project_meta, :project => 'kde4')
     assert_response :success
 
     xml = @response.body
     doc = REXML::Document.new(xml)
     # change name to kde5: 
-    d = doc.elements["/project"]
+    d = doc.elements['/project']
     d.delete_attribute('name')
     d.add_attribute('name', 'kde5')
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "kde5"), doc.to_s
-    assert_response(:success, "--> king was not allowed to create a project")
-    assert_xml_tag(:tag => "status", :attributes => { :code => "ok" })
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde5'), doc.to_s
+    assert_response(:success, '--> king was not allowed to create a project')
+    assert_xml_tag(:tag => 'status', :attributes => { :code => 'ok' })
 
     # Get data again and check that the maintainer was added
-    get url_for(:controller => :source, :action => :show_project_meta, :project => "kde5")
+    get url_for(:controller => :source, :action => :show_project_meta, :project => 'kde5')
     assert_response :success
-    assert_select "project[name=kde5]"
-    assert_select "person[userid=king][role=maintainer]", {}, "Creator was not added as project maintainer"
+    assert_select 'project[name=kde5]'
+    assert_select 'person[userid=king][role=maintainer]', {}, 'Creator was not added as project maintainer'
 
-    prepare_request_with_user "maintenance_coord", "power"
-    delete "/source/kde5"
+    prepare_request_with_user 'maintenance_coord', 'power'
+    delete '/source/kde5'
     assert_response 403
     login_fred
-    delete "/source/kde5"
+    delete '/source/kde5'
     assert_response :success
   end
 
@@ -627,32 +627,32 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_fred
 
     # Get meta file  
-    get url_for(:controller => :source, :action => :show_project_meta, :project => "kde4")
+    get url_for(:controller => :source, :action => :show_project_meta, :project => 'kde4')
     assert_response :success
 
     xml = @response.body
     olddoc = REXML::Document.new(xml)
     doc = REXML::Document.new(xml)
     # Write corrupt data back
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "kde4"), doc.to_s + "</xml>"
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4'), doc.to_s + '</xml>'
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "validation_failed" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'validation_failed' }
 
     login_king
     # write to illegal location: 
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "$hash"), doc.to_s
+    put url_for(:controller => :source, :action => :update_project_meta, :project => '$hash'), doc.to_s
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "invalid_project_name" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'invalid_project_name' }
 
     #must not create a project with different pathname and name in _meta.xml:
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "kde5"), doc.to_s
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde5'), doc.to_s
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "project_name_mismatch" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'project_name_mismatch' }
     #TODO: referenced repository names must exist
 
 
     #verify data is unchanged: 
-    get url_for(:controller => :source, :action => :show_project_meta, :project => "kde4")
+    get url_for(:controller => :source, :action => :show_project_meta, :project => 'kde4')
     assert_response :success
     assert_equal(olddoc.to_s, REXML::Document.new((@response.body)).to_s)
   end
@@ -660,114 +660,114 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_lock_project
     login_Iggy
-    put "/source/home:Iggy/TestLinkPack/_meta", "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
+    put '/source/home:Iggy/TestLinkPack/_meta', "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
     assert_response :success
-    put "/source/home:Iggy/TestLinkPack/_link", "<link package='TestPack' />"
+    put '/source/home:Iggy/TestLinkPack/_link', "<link package='TestPack' />"
     assert_response :success
 
     # lock project
-    get "/source/home:Iggy/_meta"
+    get '/source/home:Iggy/_meta'
     assert_response :success
     doc = REXML::Document.new(@response.body)
-    doc.elements["/project"].add_element "lock"
-    doc.elements["/project/lock"].add_element "enable"
-    put "/source/home:Iggy/_meta", doc.to_s
+    doc.elements['/project'].add_element 'lock'
+    doc.elements['/project/lock'].add_element 'enable'
+    put '/source/home:Iggy/_meta', doc.to_s
     assert_response :success
-    get "/source/home:Iggy/_meta"
+    get '/source/home:Iggy/_meta'
     assert_response :success
-    assert_xml_tag :parent => { :tag => "project" }, :tag => "lock"
-    assert_xml_tag :parent => { :tag => "lock" }, :tag => "enable"
+    assert_xml_tag :parent => { :tag => 'project' }, :tag => 'lock'
+    assert_xml_tag :parent => { :tag => 'lock' }, :tag => 'enable'
 
     # modifications are not allowed anymore
-    delete "/source/home:Iggy"
+    delete '/source/home:Iggy'
     assert_response 403
-    delete "/source/home:Iggy/TestLinkPack"
+    delete '/source/home:Iggy/TestLinkPack'
     assert_response 403
-    doc.elements["/project/description"].text = "new text"
-    put "/source/home:Iggy/_meta", doc.to_s
+    doc.elements['/project/description'].text = 'new text'
+    put '/source/home:Iggy/_meta', doc.to_s
     assert_response 403
-    put "/source/home:Iggy/TestLinkPack/_link", ""
+    put '/source/home:Iggy/TestLinkPack/_link', ''
     assert_response 403
 
     # check branching from a locked project
-    post "/source/home:Iggy/TestLinkPack", :cmd => "branch"
+    post '/source/home:Iggy/TestLinkPack', :cmd => 'branch'
     assert_response :success
-    get "/source/home:Iggy:branches:home:Iggy/_meta"
+    get '/source/home:Iggy:branches:home:Iggy/_meta'
     assert_response :success
     assert_no_xml_tag :tag => 'lock'
 
     # try to unlock without comment
-    post "/source/home:Iggy", { :cmd => "unlock" }
+    post '/source/home:Iggy', { :cmd => 'unlock' }
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "missing_parameter" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'missing_parameter' }
 
     # unlock does not work via meta data anymore
-    doc.elements["/project/lock"].delete_element "enable"
-    doc.elements["/project/lock"].add_element "disable"
-    put "/source/home:Iggy/_meta", doc.to_s
+    doc.elements['/project/lock'].delete_element 'enable'
+    doc.elements['/project/lock'].add_element 'disable'
+    put '/source/home:Iggy/_meta', doc.to_s
     assert_response 403
 
     # check unlock command
     login_adrian
-    post "/source/home:Iggy", { :cmd => "unlock", :comment => "cleanup" }
+    post '/source/home:Iggy', { :cmd => 'unlock', :comment => 'cleanup' }
     assert_response 403
     login_Iggy
-    post "/source/home:Iggy", { :cmd => "unlock", :comment => "cleanup" }
+    post '/source/home:Iggy', { :cmd => 'unlock', :comment => 'cleanup' }
     assert_response :success
 
     # cleanup works now again
-    delete "/source/home:Iggy/TestLinkPack"
+    delete '/source/home:Iggy/TestLinkPack'
     assert_response :success
-    delete "/source/home:Iggy:branches:home:Iggy"
+    delete '/source/home:Iggy:branches:home:Iggy'
     assert_response :success
   end
 
   def test_lock_package
     login_Iggy
-    put "/source/home:Iggy/TestLinkPack/_meta", "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
+    put '/source/home:Iggy/TestLinkPack/_meta', "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
     assert_response :success
 
     # lock package
-    get "/source/home:Iggy/TestLinkPack/_meta"
+    get '/source/home:Iggy/TestLinkPack/_meta'
     assert_response :success
     doc = REXML::Document.new(@response.body)
-    doc.elements["/package"].add_element "lock"
-    doc.elements["/package/lock"].add_element "enable"
-    put "/source/home:Iggy/TestLinkPack/_meta", doc.to_s
+    doc.elements['/package'].add_element 'lock'
+    doc.elements['/package/lock'].add_element 'enable'
+    put '/source/home:Iggy/TestLinkPack/_meta', doc.to_s
     assert_response :success
-    get "/source/home:Iggy/TestLinkPack/_meta"
+    get '/source/home:Iggy/TestLinkPack/_meta'
     assert_response :success
-    assert_xml_tag :parent => { :tag => "package" }, :tag => "lock"
-    assert_xml_tag :parent => { :tag => "lock" }, :tag => "enable"
+    assert_xml_tag :parent => { :tag => 'package' }, :tag => 'lock'
+    assert_xml_tag :parent => { :tag => 'lock' }, :tag => 'enable'
 
     # modifications are not allowed anymore
-    delete "/source/home:Iggy/TestLinkPack"
+    delete '/source/home:Iggy/TestLinkPack'
     assert_response 403
-    doc.elements["/package/description"].text = "new text"
-    put "/source/home:Iggy/TestLinkPack/_meta", doc.to_s
+    doc.elements['/package/description'].text = 'new text'
+    put '/source/home:Iggy/TestLinkPack/_meta', doc.to_s
     assert_response 403
-    put "/source/home:Iggy/TestLinkPack/_link", ""
+    put '/source/home:Iggy/TestLinkPack/_link', ''
     assert_response 403
 
     # make package read-writable is not working via meta
-    doc.elements["/package/lock"].delete_element "enable"
-    doc.elements["/package/lock"].add_element "disable"
-    put "/source/home:Iggy/TestLinkPack/_meta", doc.to_s
+    doc.elements['/package/lock'].delete_element 'enable'
+    doc.elements['/package/lock'].add_element 'disable'
+    put '/source/home:Iggy/TestLinkPack/_meta', doc.to_s
     assert_response 403
 
     # try to unlock without comment
-    post "/source/home:Iggy/TestLinkPack", { :cmd => "unlock" }
+    post '/source/home:Iggy/TestLinkPack', { :cmd => 'unlock' }
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "missing_parameter" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'missing_parameter' }
     # without permissions
     login_adrian
-    post "/source/home:Iggy/TestLinkPack", { :cmd => "unlock", :comment => "BlahFasel" }
+    post '/source/home:Iggy/TestLinkPack', { :cmd => 'unlock', :comment => 'BlahFasel' }
     assert_response 403
     # do for real and cleanup
     login_Iggy
-    post "/source/home:Iggy/TestLinkPack", { :cmd => "unlock", :comment => "BlahFasel" }
+    post '/source/home:Iggy/TestLinkPack', { :cmd => 'unlock', :comment => 'BlahFasel' }
     assert_response :success
-    delete "/source/home:Iggy/TestLinkPack"
+    delete '/source/home:Iggy/TestLinkPack'
     assert_response :success
   end
 
@@ -775,46 +775,46 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
     # The user is valid, but has weak permissions
 
-    get url_for(:controller => :source, :action => :show_package_meta, :project => "kde4", :package => "kdelibs")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => 'kde4', :package => 'kdelibs')
     assert_response :success
 
     # Change description
     xml = @response.body
-    new_desc = "Changed description"
+    new_desc = 'Changed description'
     olddoc = REXML::Document.new(xml)
     doc = REXML::Document.new(xml)
-    d = doc.elements["//description"]
+    d = doc.elements['//description']
     d.text = new_desc
 
     # Write changed data back
-    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "kdelibs"), doc.to_s
+    put url_for(:controller => :source, :action => :update_package_meta, :project => 'kde4', :package => 'kdelibs'), doc.to_s
     assert_response 403
 
     #verify data is unchanged: 
-    get url_for(:controller => :source, :action => :show_package_meta, :project => "kde4", :package => "kdelibs")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => 'kde4', :package => 'kdelibs')
     assert_response :success
     assert_equal(olddoc.to_s, REXML::Document.new((@response.body)).to_s)
 
     # try to trick api via non matching xml attributes
-    doc.root.attributes["project"] = "kde4"
-    put url_for(:controller => :source, :action => :update_package_meta, :project => "home:tom", :package => "kdelibs"), doc.to_s
+    doc.root.attributes['project'] = 'kde4'
+    put url_for(:controller => :source, :action => :update_package_meta, :project => 'home:tom', :package => 'kdelibs'), doc.to_s
     assert_response 400
-    assert_xml_tag(:tag => "status", :attributes => { :code => "project_name_mismatch" })
-    doc.root.attributes["project"] = nil
-    doc.root.attributes["name"] = "none"
-    put url_for(:controller => :source, :action => :update_package_meta, :project => "home:tom", :package => "kdelibs"), doc.to_s
+    assert_xml_tag(:tag => 'status', :attributes => { :code => 'project_name_mismatch' })
+    doc.root.attributes['project'] = nil
+    doc.root.attributes['name'] = 'none'
+    put url_for(:controller => :source, :action => :update_package_meta, :project => 'home:tom', :package => 'kdelibs'), doc.to_s
     assert_response 400
-    assert_xml_tag(:tag => "status", :attributes => { :code => "package_name_mismatch" })
+    assert_xml_tag(:tag => 'status', :attributes => { :code => 'package_name_mismatch' })
   end
 
   def test_put_package_meta_to_hidden_pkg_invalid_permissions
     login_tom
     # The user is valid, but has weak permissions
-    get url_for(:controller => :source, :action => :show_package_meta, :project => "HiddenProject", :package => "pack")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => 'HiddenProject', :package => 'pack')
     assert_response 404
 
     # Write changed data back
-    put url_for(:controller => :source, :action => :update_package_meta, :project => "HiddenProject", :package => "pack"), "<package name=\"pack\"><title></title><description></description></package>"
+    put url_for(:controller => :source, :action => :update_package_meta, :project => 'HiddenProject', :package => 'pack'), "<package name=\"pack\"><title></title><description></description></package>"
     assert_response 404
   end
 
@@ -825,7 +825,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     if !(response2 && tag2)
       #dummy write to check blocking
-      put url_for(:controller => :source, :action => :update_package_meta, :project => project, :package => package), "<package><title></title><description></description></package>"
+      put url_for(:controller => :source, :action => :update_package_meta, :project => project, :package => package), '<package><title></title><description></description></package>'
       assert_response 404
 #      assert_match(/unknown_package/, @response.body)
       assert_match(/unknown_project/, @response.body)
@@ -833,9 +833,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     end
     # Change description
     xml = @response.body
-    new_desc = "Changed description"
+    new_desc = 'Changed description'
     doc = REXML::Document.new(xml)
-    d = doc.elements["//description"]
+    d = doc.elements['//description']
     d.text = new_desc
 
     # Write changed data back
@@ -846,7 +846,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # Get data again and check that it is the changed data
     get url_for(:controller => :source, :action => :show_package_meta, :project => project, :package => package)
     newdoc = REXML::Document.new(@response.body)
-    d = newdoc.elements["//description"]
+    d = newdoc.elements['//description']
     #ignore updated change
     newdoc.root.attributes['updated'] = doc.root.attributes['updated']
     assert_equal new_desc, d.text if match
@@ -858,11 +858,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   # admins, project-maintainer and package maintainer can edit package data
   def test_put_package_meta
-    prj="kde4"
-    pkg="kdelibs"
+    prj='kde4'
+    pkg='kdelibs'
     resp1=:success
     resp2=:success
-    aresp={ :tag => "status", :attributes => { :code => "ok" } }
+    aresp={ :tag => 'status', :attributes => { :code => 'ok' } }
     match=true
     # admin
     login_king
@@ -870,22 +870,22 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # maintainer via user
     login_fred
     do_change_package_meta_test(prj, pkg, resp1, resp2, aresp, match)
-    prepare_request_with_user "fredlibs", "geröllheimer"
+    prepare_request_with_user 'fredlibs', 'geröllheimer'
     do_change_package_meta_test(prj, pkg, resp1, resp2, aresp, match)
     # maintainer via group
     login_adrian
     do_change_package_meta_test(prj, pkg, resp1, resp2, aresp, match)
 
     # check history
-    get "/source/kde4/kdelibs/_history?meta=1"
+    get '/source/kde4/kdelibs/_history?meta=1'
     assert_response :success
-    assert_xml_tag(:tag => "revisionlist")
-    assert_xml_tag(:tag => "user", :content => "adrian")
+    assert_xml_tag(:tag => 'revisionlist')
+    assert_xml_tag(:tag => 'user', :content => 'adrian')
   end
 
   def test_put_package_meta_hidden_package
-    prj="HiddenProject"
-    pkg="pack"
+    prj='HiddenProject'
+    pkg='pack'
     resp1=404
     resp2=nil
     aresp=nil
@@ -896,21 +896,21 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # admin
     resp1=:success
     resp2=:success
-    aresp={ :tag => "status", :attributes => { :code => "ok" } }
+    aresp={ :tag => 'status', :attributes => { :code => 'ok' } }
     match=true
     login_king
     do_change_package_meta_test(prj, pkg, resp1, resp2, aresp, match)
     # maintainer
-    prepare_request_with_user "hidden_homer", "homer"
+    prepare_request_with_user 'hidden_homer', 'homer'
     do_change_package_meta_test(prj, pkg, resp1, resp2, aresp, match)
   end
 
   def test_put_package_meta_sourceaccess_protected_package
-    prj="SourceprotectedProject"
-    pkg="pack"
+    prj='SourceprotectedProject'
+    pkg='pack'
     resp1=:success
     resp2=403
-    aresp={ :tag => "status", :attributes => { :code => "change_package_no_permission" } }
+    aresp={ :tag => 'status', :attributes => { :code => 'change_package_no_permission' } }
     match=nil
     # uninvolved user
     login_fred
@@ -918,264 +918,264 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # admin
     resp1=:success
     resp2=:success
-    aresp={ :tag => "status", :attributes => { :code => "ok" } }
+    aresp={ :tag => 'status', :attributes => { :code => 'ok' } }
     match=true
     login_king
     do_change_package_meta_test(prj, pkg, resp1, resp2, aresp, match)
     # maintainer
-    prepare_request_with_user "sourceaccess_homer", "homer"
+    prepare_request_with_user 'sourceaccess_homer', 'homer'
     do_change_package_meta_test(prj, pkg, resp1, resp2, aresp, match)
   end
 
   def test_create_package_meta
     # user without any special roles
     login_fred
-    get url_for(:controller => :source, :action => :show_package_meta, :project => "kde4", :package => "kdelibs")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => 'kde4', :package => 'kdelibs')
     assert_response :success
     #change name to kdelibs2
     xml = @response.body
     doc = REXML::Document.new(xml)
-    d = doc.elements["/package"]
+    d = doc.elements['/package']
     d.delete_attribute('name')
     d.add_attribute('name', 'kdelibs2')
-    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "kdelibs2"), doc.to_s
+    put url_for(:controller => :source, :action => :update_package_meta, :project => 'kde4', :package => 'kdelibs2'), doc.to_s
     assert_response :success
-    assert_xml_tag(:tag => "status", :attributes => { :code => "ok" })
+    assert_xml_tag(:tag => 'status', :attributes => { :code => 'ok' })
     # do not allow to create it with invalid name
-    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "kdelibs3"), doc.to_s
+    put url_for(:controller => :source, :action => :update_package_meta, :project => 'kde4', :package => 'kdelibs3'), doc.to_s
     assert_response 400
 
     # Get data again and check that the maintainer was added
-    get url_for(:controller => :source, :action => :show_package_meta, :project => "kde4", :package => "kdelibs2")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => 'kde4', :package => 'kdelibs2')
     assert_response :success
     newdoc = REXML::Document.new(@response.body)
-    d = newdoc.elements["/package"]
-    assert_equal(d.attribute('name').value(), 'kdelibs2', "Project name was not set to kdelibs2")
+    d = newdoc.elements['/package']
+    assert_equal(d.attribute('name').value(), 'kdelibs2', 'Project name was not set to kdelibs2')
 
     # check for lacking permission to create a package
     login_tom
     d.delete_attribute('name')
     d.add_attribute('name', 'kdelibs3')
-    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "kdelibs3"), newdoc.to_s
+    put url_for(:controller => :source, :action => :update_package_meta, :project => 'kde4', :package => 'kdelibs3'), newdoc.to_s
     assert_response 403
-    assert_xml_tag(:tag => "status", :attributes => { :code => "create_package_no_permission" })
+    assert_xml_tag(:tag => 'status', :attributes => { :code => 'create_package_no_permission' })
   end
 
   def test_captial_letter_change
     login_tom
-    put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
+    put '/source/home:tom:projectA/_meta', "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
     assert_response :success
-    put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
+    put '/source/home:tom:projectB/_meta', "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
     assert_response :success
-    get "/source/home:tom:projectB/_meta"
+    get '/source/home:tom:projectB/_meta'
     assert_response :success
-    assert_xml_tag :tag => "path", :attributes => { :project => 'home:tom:projectA' }
-    assert_no_xml_tag :tag => "path", :attributes => { :project => 'home:tom:projecta' }
+    assert_xml_tag :tag => 'path', :attributes => { :project => 'home:tom:projectA' }
+    assert_no_xml_tag :tag => 'path', :attributes => { :project => 'home:tom:projecta' }
 
     # write again with a capital letter change
-    put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projecta' repository='repoA' /> </repository> </project>"
+    put '/source/home:tom:projectB/_meta', "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projecta' repository='repoA' /> </repository> </project>"
     assert_response 404
-    assert_xml_tag :tag => "status", :attributes => { :code => 'unknown_project' }
-    get "/source/home:tom:projectB/_meta"
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_project' }
+    get '/source/home:tom:projectB/_meta'
     assert_response :success
-    assert_xml_tag :tag => "path", :attributes => { :project => 'home:tom:projectA' }
-    assert_no_xml_tag :tag => "path", :attributes => { :project => 'home:tom:projecta' }
+    assert_xml_tag :tag => 'path', :attributes => { :project => 'home:tom:projectA' }
+    assert_no_xml_tag :tag => 'path', :attributes => { :project => 'home:tom:projecta' }
 
     # change back using remote project
-    put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='RemoteInstance:home:tom:projectA' repository='repoA' /> </repository> </project>"
+    put '/source/home:tom:projectB/_meta', "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='RemoteInstance:home:tom:projectA' repository='repoA' /> </repository> </project>"
     assert_response :success
-    get "/source/home:tom:projectB/_meta"
+    get '/source/home:tom:projectB/_meta'
     assert_response :success
-    assert_xml_tag :tag => "path", :attributes => { :project => 'RemoteInstance:home:tom:projectA' }
-    assert_no_xml_tag :tag => "path", :attributes => { :project => 'RemoteInstance:home:tom:projecta' }
+    assert_xml_tag :tag => 'path', :attributes => { :project => 'RemoteInstance:home:tom:projectA' }
+    assert_no_xml_tag :tag => 'path', :attributes => { :project => 'RemoteInstance:home:tom:projecta' }
 
     if $ENABLE_BROKEN_TEST
 # FIXME: the case insensitive database select is not okay.
 # and switch letter again
-      put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='RemoteInstance:home:tom:projecta' repository='repoA' /> </repository> </project>"
+      put '/source/home:tom:projectB/_meta', "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='RemoteInstance:home:tom:projecta' repository='repoA' /> </repository> </project>"
       assert_response 404
-      assert_xml_tag :tag => "status", :attributes => { :code => 'unknown_project' }
-      get "/source/home:tom:projectB/_meta"
+      assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_project' }
+      get '/source/home:tom:projectB/_meta'
       assert_response :success
-      assert_xml_tag :tag => "path", :attributes => { :project => 'RemoteInstance:home:tom:projectA' }
-      assert_no_xml_tag :tag => "path", :attributes => { :project => 'RemoteInstance:home:tom:projecta' }
+      assert_xml_tag :tag => 'path', :attributes => { :project => 'RemoteInstance:home:tom:projectA' }
+      assert_no_xml_tag :tag => 'path', :attributes => { :project => 'RemoteInstance:home:tom:projecta' }
     end
 
     # cleanup
-    delete "/source/home:tom:projectB"
+    delete '/source/home:tom:projectB'
     assert_response :success
-    delete "/source/home:tom:projectA"
+    delete '/source/home:tom:projectA'
     assert_response :success
   end
 
   def test_repository_dependencies
     login_tom
-    put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
+    put '/source/home:tom:projectA/_meta', "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
     assert_response :success
-    put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
+    put '/source/home:tom:projectB/_meta', "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
     assert_response :success
-    put "/source/home:tom:projectC/_meta", "<project name='home:tom:projectC'> <title/> <description/> <repository name='repoC'> <path project='home:tom:projectB' repository='repoB' /> </repository> </project>"
+    put '/source/home:tom:projectC/_meta', "<project name='home:tom:projectC'> <title/> <description/> <repository name='repoC'> <path project='home:tom:projectB' repository='repoB' /> </repository> </project>"
     assert_response :success
-    put "/source/home:tom:projectD/_meta", "<project name='home:tom:projectD'> <title/> <description/> <repository name='repoD'> " \
+    put '/source/home:tom:projectD/_meta', "<project name='home:tom:projectD'> <title/> <description/> <repository name='repoD'> " \
                                            " <path project='home:tom:projectA' repository='repoA' />" \
                                            " <path project='home:tom:projectB' repository='repoB' />" \
                                            " <path project='home:tom:projectC' repository='repoC' />" \
-                                           "</repository> </project>"
+                                           '</repository> </project>'
     assert_response :success
     # delete a repo
-    put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> </project>"
+    put '/source/home:tom:projectA/_meta', "<project name='home:tom:projectA'> <title/> <description/> </project>"
     assert_response 400
-    assert_xml_tag(:tag => "status", :attributes => { :code => "repo_dependency" })
-    delete "/source/home:tom:projectA"
+    assert_xml_tag(:tag => 'status', :attributes => { :code => 'repo_dependency' })
+    delete '/source/home:tom:projectA'
     assert_response 400
-    put "/source/home:tom:projectA/_meta?force=1", "<project name='home:tom:projectA'> <title/> <description/> </project>"
+    put '/source/home:tom:projectA/_meta?force=1', "<project name='home:tom:projectA'> <title/> <description/> </project>"
     assert_response :success
-    get "/source/home:tom:projectB/_meta"
+    get '/source/home:tom:projectB/_meta'
     assert_response :success
-    assert_xml_tag :tag => 'path', :attributes => { :project => "deleted", :repository => "deleted" }
-    get "/source/home:tom:projectC/_meta"
+    assert_xml_tag :tag => 'path', :attributes => { :project => 'deleted', :repository => 'deleted' }
+    get '/source/home:tom:projectC/_meta'
     assert_response :success
-    assert_xml_tag :tag => 'path', :attributes => { :project => "home:tom:projectB", :repository => "repoB" } # unmodified
+    assert_xml_tag :tag => 'path', :attributes => { :project => 'home:tom:projectB', :repository => 'repoB' } # unmodified
 
     # delete another repo
-    put "/source/home:tom:projectB/_meta?force=1", "<project name='home:tom:projectB'> <title/> <description/> </project>"
+    put '/source/home:tom:projectB/_meta?force=1', "<project name='home:tom:projectB'> <title/> <description/> </project>"
     assert_response :success
-    get "/source/home:tom:projectD/_meta"
+    get '/source/home:tom:projectD/_meta'
     assert_response :success
-    assert_xml_tag :tag => 'path', :attributes => { :project => "deleted", :repository => "deleted" }
-    assert_xml_tag :tag => 'path', :attributes => { :project => "home:tom:projectC", :repository => "repoC" } # unmodified
+    assert_xml_tag :tag => 'path', :attributes => { :project => 'deleted', :repository => 'deleted' }
+    assert_xml_tag :tag => 'path', :attributes => { :project => 'home:tom:projectC', :repository => 'repoC' } # unmodified
 
     # cleanup
-    delete "/source/home:tom:projectA"
+    delete '/source/home:tom:projectA'
     assert_response :success
-    delete "/source/home:tom:projectB"
+    delete '/source/home:tom:projectB'
     assert_response :success
-    delete "/source/home:tom:projectC"
+    delete '/source/home:tom:projectC'
     assert_response 400 # projectD is still using it
-    delete "/source/home:tom:projectD"
+    delete '/source/home:tom:projectD'
     assert_response :success
-    delete "/source/home:tom:projectC"
+    delete '/source/home:tom:projectC'
     assert_response :success
   end
 
   def test_full_remove_repository_dependencies
     login_tom
-    put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
+    put '/source/home:tom:projectA/_meta', "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
     assert_response :success
-    put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
+    put '/source/home:tom:projectB/_meta', "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
     assert_response :success
-    put "/source/home:tom:projectC/_meta", "<project name='home:tom:projectC'> <title/> <description/> <repository name='repoC'> <path project='home:tom:projectB' repository='repoB' /> </repository> </project>"
+    put '/source/home:tom:projectC/_meta', "<project name='home:tom:projectC'> <title/> <description/> <repository name='repoC'> <path project='home:tom:projectB' repository='repoB' /> </repository> </project>"
     assert_response :success
     # delete a repo
-    put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> </project>"
+    put '/source/home:tom:projectA/_meta', "<project name='home:tom:projectA'> <title/> <description/> </project>"
     assert_response 400
-    assert_xml_tag(:tag => "status", :attributes => { :code => "repo_dependency" })
-    delete "/source/home:tom:projectA"
+    assert_xml_tag(:tag => 'status', :attributes => { :code => 'repo_dependency' })
+    delete '/source/home:tom:projectA'
     assert_response 400
-    put "/source/home:tom:projectA/_meta?force=1&remove_linking_repositories=1", "<project name='home:tom:projectA'> <title/> <description/> </project>"
+    put '/source/home:tom:projectA/_meta?force=1&remove_linking_repositories=1', "<project name='home:tom:projectA'> <title/> <description/> </project>"
     assert_response :success
-    get "/source/home:tom:projectB/_meta"
+    get '/source/home:tom:projectB/_meta'
     assert_response :success
     assert_no_xml_tag :tag => 'path'
-    get "/source/home:tom:projectC/_meta"
+    get '/source/home:tom:projectC/_meta'
     assert_response :success
     assert_no_xml_tag :tag => 'path'
 
     # cleanup
-    delete "/source/home:tom:projectA"
+    delete '/source/home:tom:projectA'
     assert_response :success
-    delete "/source/home:tom:projectB"
+    delete '/source/home:tom:projectB'
     assert_response :success
-    delete "/source/home:tom:projectC"
+    delete '/source/home:tom:projectC'
     assert_response :success
   end
 
   def test_fail_correctly_with_broken_repo_config
     login_tom
     # double definition of i586 architecture
-    put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'> <arch>i586</arch> <arch>i586</arch> </repository> </project>"
+    put '/source/home:tom:projectA/_meta', "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'> <arch>i586</arch> <arch>i586</arch> </repository> </project>"
     assert_response 400
-    assert_xml_tag(:tag => "status", :attributes => { :code => "project_save_error" })
+    assert_xml_tag(:tag => 'status', :attributes => { :code => 'project_save_error' })
     assert_match %r(double use of architecture: 'i586'), @response.body
   end
 
   def test_delete_project_with_repository_dependencies
     login_tom
-    put "/source/home:tom:projectA/_meta", "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'> <arch>i586</arch> </repository> </project>"
+    put '/source/home:tom:projectA/_meta', "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'> <arch>i586</arch> </repository> </project>"
     assert_response :success
-    put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> <arch>i586</arch> </repository> </project>"
+    put '/source/home:tom:projectB/_meta', "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> <arch>i586</arch> </repository> </project>"
     assert_response :success
     # delete the project including the repository
-    delete "/source/home:tom:projectA"
+    delete '/source/home:tom:projectA'
     assert_response 400
-    assert_xml_tag(:tag => "status", :attributes => { :code => "repo_dependency" })
-    delete "/source/home:tom:projectA?force=1"
+    assert_xml_tag(:tag => 'status', :attributes => { :code => 'repo_dependency' })
+    delete '/source/home:tom:projectA?force=1'
     assert_response :success
-    get "/source/home:tom:projectB/_meta"
+    get '/source/home:tom:projectB/_meta'
     assert_response :success
-    assert_xml_tag :tag => 'path', :attributes => { :project => "deleted", :repository => "deleted" }
-    put "/source/home:tom:projectB/_meta", "<project name='home:tom:projectB'> <title/> <description/> </project>"
+    assert_xml_tag :tag => 'path', :attributes => { :project => 'deleted', :repository => 'deleted' }
+    put '/source/home:tom:projectB/_meta', "<project name='home:tom:projectB'> <title/> <description/> </project>"
     assert_response :success
 
     # cleanup
-    delete "/source/home:tom:projectB"
+    delete '/source/home:tom:projectB'
     assert_response :success
   end
 
   def test_delete_project_with_local_devel_packages
     login_tom
-    put "/source/home:tom:project/_meta", "<project name='home:tom:project'> <title/> <description/> <repository name='repoA'> <arch>i586</arch> </repository> </project>"
+    put '/source/home:tom:project/_meta', "<project name='home:tom:project'> <title/> <description/> <repository name='repoA'> <arch>i586</arch> </repository> </project>"
     assert_response :success
-    put "/source/home:tom:project/A/_meta", "<package name='A' project='home:tom:project'> <title/> <description/></package>"
+    put '/source/home:tom:project/A/_meta', "<package name='A' project='home:tom:project'> <title/> <description/></package>"
     assert_response :success
-    put "/source/home:tom:project/B/_meta", "<package name='B' project='home:tom:project'> <title/> <description/> <devel package='A'/> </package>"
+    put '/source/home:tom:project/B/_meta', "<package name='B' project='home:tom:project'> <title/> <description/> <devel package='A'/> </package>"
     assert_response :success
-    put "/source/home:tom:project/C/_meta", "<package name='C' project='home:tom:project'> <title/> <description/> <devel package='B'/> </package>"
+    put '/source/home:tom:project/C/_meta', "<package name='C' project='home:tom:project'> <title/> <description/> <devel package='B'/> </package>"
     assert_response :success
     # delete the project including the packages
-    delete "/source/home:tom:project"
+    delete '/source/home:tom:project'
     assert_response :success
   end
 
   def test_devel_project_cycle
     login_tom
-    put "/source/home:tom:A/_meta", "<project name='home:tom:A'> <title/> <description/> </project>"
+    put '/source/home:tom:A/_meta', "<project name='home:tom:A'> <title/> <description/> </project>"
     assert_response :success
-    put "/source/home:tom:B/_meta", "<project name='home:tom:B'> <title/> <description/> <devel project='home:tom:A'/> </project>"
+    put '/source/home:tom:B/_meta', "<project name='home:tom:B'> <title/> <description/> <devel project='home:tom:A'/> </project>"
     assert_response :success
-    get "/source/home:tom:B/_meta"
+    get '/source/home:tom:B/_meta'
     assert_response :success
     assert_xml_tag :tag => 'devel', :attributes => { :project => 'home:tom:A' }
-    put "/source/home:tom:C/_meta", "<project name='home:tom:C'> <title/> <description/> <devel project='home:tom:B'/> </project>"
+    put '/source/home:tom:C/_meta', "<project name='home:tom:C'> <title/> <description/> <devel project='home:tom:B'/> </project>"
     assert_response :success
     # no self reference
-    put "/source/home:tom:A/_meta", "<project name='home:tom:A'> <title/> <description/> <devel project='home:tom:A'/> </project>"
+    put '/source/home:tom:A/_meta', "<project name='home:tom:A'> <title/> <description/> <devel project='home:tom:A'/> </project>"
     assert_response 400
     # create a cycle via new package
-    put "/source/home:tom:A/_meta", "<project name='home:tom:A'> <title/> <description/> <devel project='home:tom:C'/> </project>"
+    put '/source/home:tom:A/_meta', "<project name='home:tom:A'> <title/> <description/> <devel project='home:tom:C'/> </project>"
     assert_response 400
-    assert_xml_tag(:tag => "status", :attributes => { :code => "project_cycle" })
+    assert_xml_tag(:tag => 'status', :attributes => { :code => 'project_cycle' })
   end
 
   def test_devel_package_cycle
     login_tom
-    raw_put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> </package>"
+    raw_put '/source/home:tom/packageA/_meta', "<package project='home:tom' name='packageA'> <title/> <description/> </package>"
     assert_response :success
-    raw_put "/source/home:tom/packageB/_meta", "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageA' /> </package>"
+    raw_put '/source/home:tom/packageB/_meta', "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageA' /> </package>"
     assert_response :success
-    raw_put "/source/home:tom/packageC/_meta", "<package project='home:tom' name='packageC'> <title/> <description/> <devel package='packageB' /> </package>"
+    raw_put '/source/home:tom/packageC/_meta', "<package project='home:tom' name='packageC'> <title/> <description/> <devel package='packageB' /> </package>"
     assert_response :success
     # no self reference
-    raw_put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> <devel package='packageA' /> </package>"
+    raw_put '/source/home:tom/packageA/_meta', "<package project='home:tom' name='packageA'> <title/> <description/> <devel package='packageA' /> </package>"
     assert_response 400
     # create a cycle via new package
-    raw_put "/source/home:tom/packageB/_meta", "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageC' /> </package>"
+    raw_put '/source/home:tom/packageB/_meta', "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageC' /> </package>"
     assert_response 400
-    assert_xml_tag(:tag => "status", :attributes => { :code => "cycle_error" })
+    assert_xml_tag(:tag => 'status', :attributes => { :code => 'cycle_error' })
     # create a cycle via existing package
-    raw_put "/source/home:tom/packageA/_meta", "<package project='home:tom' name='packageA'> <title/> <description/> <devel package='packageB' /> </package>"
+    raw_put '/source/home:tom/packageA/_meta', "<package project='home:tom' name='packageA'> <title/> <description/> <devel package='packageB' /> </package>"
     assert_response 400
-    assert_xml_tag(:tag => "status", :attributes => { :code => "cycle_error" })
+    assert_xml_tag(:tag => 'status', :attributes => { :code => 'cycle_error' })
   end
 
   def do_test_change_package_meta (project, package, response1, response2, tag2, response3, select3)
@@ -1192,7 +1192,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     end
     xml = @response.body
     doc = REXML::Document.new(xml)
-    d = doc.elements["/package"]
+    d = doc.elements['/package']
     b = d.add_element 'build'
     b.add_element 'enable'
     put url_for(:controller => :source, :action => :update_package_meta, :project => project, :package => package), doc.to_s
@@ -1205,21 +1205,21 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_change_package_meta
-    prj="kde4" # project
-    pkg="kdelibs" # package
+    prj='kde4' # project
+    pkg='kdelibs' # package
     resp1=:success # assert response #1
     resp2=:success # assert response #2
-    atag2={ :tag => "status", :attributes => { :code => "ok" } } # assert_xml_tag after response #2
+    atag2={ :tag => 'status', :attributes => { :code => 'ok' } } # assert_xml_tag after response #2
     resp3=:success # assert respons #3
-    asel3="package > build > enable" # assert_select after response #3
+    asel3='package > build > enable' # assert_select after response #3
                # user without any special roles
     login_fred
     do_test_change_package_meta(prj, pkg, resp1, resp2, atag2, resp3, asel3)
   end
 
   def test_change_package_meta_hidden
-    prj="HiddenProject"
-    pkg="pack"
+    prj='HiddenProject'
+    pkg='pack'
     # uninvolved user
     resp1=404
     resp2=nil
@@ -1230,21 +1230,21 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     do_test_change_package_meta(prj, pkg, resp1, resp2, atag2, resp3, asel3)
     resp1=:success
     resp2=:success
-    atag2={ :tag => "status", :attributes => { :code => "ok" } }
+    atag2={ :tag => 'status', :attributes => { :code => 'ok' } }
     resp3=:success
-    asel3="package > build > enable"
+    asel3='package > build > enable'
     # maintainer
     login_adrian
     do_test_change_package_meta(prj, pkg, resp1, resp2, atag2, resp3, asel3)
   end
 
   def test_change_package_meta_sourceaccess_protect
-    prj="SourceprotectedProject"
-    pkg="pack"
+    prj='SourceprotectedProject'
+    pkg='pack'
     # uninvolved user
     resp1=:success
     resp2=403
-    atag2={ :tag => "status", :attributes => { :code => "change_package_no_permission" } }
+    atag2={ :tag => 'status', :attributes => { :code => 'change_package_no_permission' } }
     resp3=:success
     asel3=nil
     login_fred
@@ -1253,38 +1253,38 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # maintainer
     resp1=:success
     resp2=:success
-    atag2={ :tag => "status", :attributes => { :code => "ok" } }
+    atag2={ :tag => 'status', :attributes => { :code => 'ok' } }
     resp3=:success
-    asel3="package > build > enable"
-    prepare_request_with_user "sourceaccess_homer", "homer"
+    asel3='package > build > enable'
+    prepare_request_with_user 'sourceaccess_homer', 'homer'
     do_test_change_package_meta(prj, pkg, resp1, resp2, atag2, resp3, asel3)
   end
 
   def test_put_invalid_package_meta
-    prepare_request_with_user "fredlibs", "geröllheimer"
+    prepare_request_with_user 'fredlibs', 'geröllheimer'
     # Get meta file
-    get url_for(:controller => :source, :action => :show_package_meta, :project => "kde4", :package => "kdelibs")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => 'kde4', :package => 'kdelibs')
     assert_response :success
 
     xml = @response.body
     olddoc = REXML::Document.new(xml)
     doc = REXML::Document.new(xml)
     # Write corrupt data back
-    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "kdelibs"), doc.to_s + "</xml>"
+    put url_for(:controller => :source, :action => :update_package_meta, :project => 'kde4', :package => 'kdelibs'), doc.to_s + '</xml>'
     assert_response 400
 
     login_king
     # write to illegal location: 
-    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "."), doc.to_s
+    put url_for(:controller => :source, :action => :update_package_meta, :project => 'kde4', :package => '.'), doc.to_s
     assert_response 400
-    assert_xml_tag :tag => "status", :child => { :content => %r{project validation error: Expecting element project} }
+    assert_xml_tag :tag => 'status', :child => { :content => %r{project validation error: Expecting element project} }
 
     #must not create a package with different pathname and name in _meta.xml:
-    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "kdelibs2000"), doc.to_s
+    put url_for(:controller => :source, :action => :update_package_meta, :project => 'kde4', :package => 'kdelibs2000'), doc.to_s
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "package_name_mismatch" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'package_name_mismatch' }
     #verify data is unchanged: 
-    get url_for(:controller => :source, :action => :show_package_meta, :project => "kde4", :package => "kdelibs")
+    get url_for(:controller => :source, :action => :show_package_meta, :project => 'kde4', :package => 'kdelibs')
     assert_response :success
     assert_equal(olddoc.to_s, REXML::Document.new((@response.body)).to_s)
   end
@@ -1292,90 +1292,90 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_read_file
     login_tom
-    get "/source/kde4/kdelibs/my_patch.diff"
+    get '/source/kde4/kdelibs/my_patch.diff'
     assert_response :success
-    assert_equal(@response.body.to_s, "argl")
+    assert_equal(@response.body.to_s, 'argl')
 
-    get "/source/kde4/kdelibs/BLUB"
+    get '/source/kde4/kdelibs/BLUB'
     #STDERR.puts(@response.body)
     assert_response 404
-    assert_xml_tag(:tag => "status")
+    assert_xml_tag(:tag => 'status')
   end
 
   def test_read_file_hidden_proj
     # nobody 
-    prepare_request_with_user "adrian_nobody", "so_alone"
-    get "/source/HiddenProject/pack/my_file"
+    prepare_request_with_user 'adrian_nobody', 'so_alone'
+    get '/source/HiddenProject/pack/my_file'
 
     assert_response 404
-    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_project' }
     # uninvolved, 
     login_tom
-    get "/source/HiddenProject/pack/my_file"
+    get '/source/HiddenProject/pack/my_file'
     assert_response 404
-    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_project' }
     # reader
     # downloader
     # maintainer
-    prepare_request_with_user "hidden_homer", "homer"
-    get "/source/HiddenProject/pack/my_file"
+    prepare_request_with_user 'hidden_homer', 'homer'
+    get '/source/HiddenProject/pack/my_file'
     assert_response :success
-    assert_equal(@response.body.to_s, "Protected Content")
+    assert_equal(@response.body.to_s, 'Protected Content')
     # admin
     login_king
-    get "/source/HiddenProject/pack/my_file"
+    get '/source/HiddenProject/pack/my_file'
     assert_response :success
-    assert_equal(@response.body.to_s, "Protected Content")
+    assert_equal(@response.body.to_s, 'Protected Content')
   end
 
   def test_read_filelist_sourceaccess_proj
     # nobody 
-    prepare_request_with_user "adrian_nobody", "so_alone"
-    get "/source/SourceprotectedProject/pack"
+    prepare_request_with_user 'adrian_nobody', 'so_alone'
+    get '/source/SourceprotectedProject/pack'
     assert_response 403
-    assert_xml_tag :tag => "status", :attributes => { :code => "source_access_no_permission" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'source_access_no_permission' }
     # uninvolved, 
     login_tom
-    get "/source/SourceprotectedProject/pack"
+    get '/source/SourceprotectedProject/pack'
     assert_response 403
-    assert_xml_tag :tag => "status", :attributes => { :code => "source_access_no_permission" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'source_access_no_permission' }
     # reader
     # downloader
     # maintainer
-    prepare_request_with_user "sourceaccess_homer", "homer"
-    get "/source/SourceprotectedProject/pack"
+    prepare_request_with_user 'sourceaccess_homer', 'homer'
+    get '/source/SourceprotectedProject/pack'
     assert_response :success
-    assert_xml_tag :tag => "directory"
+    assert_xml_tag :tag => 'directory'
     # admin
     login_king
-    get "/source/SourceprotectedProject/pack"
+    get '/source/SourceprotectedProject/pack'
     assert_response :success
-    assert_xml_tag :tag => "directory"
+    assert_xml_tag :tag => 'directory'
   end
 
   def test_read_file_sourceaccess_proj
     # nobody 
-    prepare_request_with_user "adrian_nobody", "so_alone"
-    get "/source/SourceprotectedProject/pack/my_file"
+    prepare_request_with_user 'adrian_nobody', 'so_alone'
+    get '/source/SourceprotectedProject/pack/my_file'
     assert_response 403
-    assert_xml_tag :tag => "status", :attributes => { :code => "source_access_no_permission" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'source_access_no_permission' }
     # uninvolved, 
     login_tom
-    get "/source/SourceprotectedProject/pack/my_file"
+    get '/source/SourceprotectedProject/pack/my_file'
     assert_response 403
-    assert_xml_tag :tag => "status", :attributes => { :code => "source_access_no_permission" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'source_access_no_permission' }
     # reader
     # downloader
     # maintainer
-    prepare_request_with_user "sourceaccess_homer", "homer"
-    get "/source/SourceprotectedProject/pack/my_file"
+    prepare_request_with_user 'sourceaccess_homer', 'homer'
+    get '/source/SourceprotectedProject/pack/my_file'
     assert_response :success
-    assert_equal(@response.body.to_s, "Protected Content")
+    assert_equal(@response.body.to_s, 'Protected Content')
     # admin
     login_king
-    get "/source/SourceprotectedProject/pack/my_file"
+    get '/source/SourceprotectedProject/pack/my_file'
     assert_response :success
-    assert_equal(@response.body.to_s, "Protected Content")
+    assert_equal(@response.body.to_s, 'Protected Content')
   end
 
   def add_file_to_package (url1, asserttag1, url2, assertresp2,
@@ -1405,10 +1405,10 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_add_file_to_package_hidden
     # uninvolved user
-    prepare_request_with_user "fredlibs", "geröllheimer"
-    url1="/source/HiddenProject/pack"
-    asserttag1={ :tag => 'status', :attributes => { :code => "unknown_project" } }
-    url2="/source/HiddenProject/pack/testfile"
+    prepare_request_with_user 'fredlibs', 'geröllheimer'
+    url1='/source/HiddenProject/pack'
+    asserttag1={ :tag => 'status', :attributes => { :code => 'unknown_project' } }
+    url2='/source/HiddenProject/pack/testfile'
     assertresp2=404
     assertselect2=nil
     assertselect2rev=nil
@@ -1419,15 +1419,15 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                         assertselect2, assertselect2rev,
                         assertresp3, asserteq3, assertresp4)
     # nobody 
-    prepare_request_with_user "adrian_nobody", "so_alone"
+    prepare_request_with_user 'adrian_nobody', 'so_alone'
     add_file_to_package(url1, asserttag1, url2, assertresp2,
                         assertselect2, assertselect2rev,
                         assertresp3, asserteq3, assertresp4)
     # maintainer
-    prepare_request_with_user "hidden_homer", "homer"
-    asserttag1={ :tag => 'directory', :attributes => { :srcmd5 => "ee3a023192742ef3c4b2e3ea1cabec4f" } }
+    prepare_request_with_user 'hidden_homer', 'homer'
+    asserttag1={ :tag => 'directory', :attributes => { :srcmd5 => 'ee3a023192742ef3c4b2e3ea1cabec4f' } }
     assertresp2=:success
-    assertselect2="revision > srcmd5"
+    assertselect2='revision > srcmd5'
     assertselect2rev='c123834bc133a23e3cfee9fb299ae6c5'
     assertresp3=:success
     asserteq3=true
@@ -1444,9 +1444,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_add_file_to_package_sourceaccess_protect
     # uninvolved user
-    prepare_request_with_user "fredlibs", "geröllheimer"
-    url1="/source/SourceprotectedProject/pack"
-    url2="/source/SourceprotectedProject/pack/testfile"
+    prepare_request_with_user 'fredlibs', 'geröllheimer'
+    url1='/source/SourceprotectedProject/pack'
+    url2='/source/SourceprotectedProject/pack/testfile'
     assertresp2=403
     assertselect2=nil
     assertselect2rev=nil
@@ -1457,15 +1457,15 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                         assertselect2, assertselect2rev,
                         assertresp3, asserteq3, assertresp4)
     # nobody 
-    prepare_request_with_user "adrian_nobody", "so_alone"
+    prepare_request_with_user 'adrian_nobody', 'so_alone'
     add_file_to_package(url1, nil, url2, assertresp2,
                         assertselect2, assertselect2rev,
                         assertresp3, asserteq3, assertresp4)
     # maintainer
-    prepare_request_with_user "sourceaccess_homer", "homer"
-    asserttag1={ :tag => 'directory', :attributes => { :srcmd5 => "ee3a023192742ef3c4b2e3ea1cabec4f" } }
+    prepare_request_with_user 'sourceaccess_homer', 'homer'
+    asserttag1={ :tag => 'directory', :attributes => { :srcmd5 => 'ee3a023192742ef3c4b2e3ea1cabec4f' } }
     assertresp2=:success
-    assertselect2="revision > srcmd5"
+    assertselect2='revision > srcmd5'
     assertselect2rev='c123834bc133a23e3cfee9fb299ae6c5'
     assertresp3=:success
     asserteq3=true
@@ -1481,16 +1481,16 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_add_file_to_package
-    url1="/source/kde4/kdelibs"
-    asserttag1={ :tag => 'directory', :attributes => { :srcmd5 => "1636661d96a88cd985d82dc611ebd723" } }
-    url2="/source/kde4/kdelibs/testfile"
+    url1='/source/kde4/kdelibs'
+    asserttag1={ :tag => 'directory', :attributes => { :srcmd5 => '1636661d96a88cd985d82dc611ebd723' } }
+    url2='/source/kde4/kdelibs/testfile'
     assertresp2=:success
-    assertselect2="revision > srcmd5"
+    assertselect2='revision > srcmd5'
     assertselect2rev='bc1d31b2403fa8925b257101b96196ec'
     assertresp3=:success
     asserteq3=true
     assertresp4=:success
-    prepare_request_with_user "fredlibs", "geröllheimer"
+    prepare_request_with_user 'fredlibs', 'geröllheimer'
     add_file_to_package(url1, asserttag1, url2, assertresp2,
                         assertselect2, assertselect2rev,
                         assertresp3, asserteq3, assertresp4)
@@ -1504,129 +1504,129 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                         assertresp3, asserteq3, assertresp4)
     # write without permission: 
     login_tom
-    get url_for(:controller => :source, :action => :get_file, :project => "kde4", :package => "kdelibs", :filename => "my_patch.diff")
+    get url_for(:controller => :source, :action => :get_file, :project => 'kde4', :package => 'kdelibs', :filename => 'my_patch.diff')
     assert_response :success
     origstring = @response.body.to_s
-    teststring = "&;"
-    put url_for(:controller => :source, :action => :get_file, :project => "kde4", :package => "kdelibs", :filename => "my_patch.diff"), teststring
-    assert_response(403, message="Was able to write a package file without permission")
-    assert_xml_tag(:tag => "status")
+    teststring = '&;'
+    put url_for(:controller => :source, :action => :get_file, :project => 'kde4', :package => 'kdelibs', :filename => 'my_patch.diff'), teststring
+    assert_response(403, message='Was able to write a package file without permission')
+    assert_xml_tag(:tag => 'status')
 
     # check that content is unchanged: 
-    get url_for(:controller => :source, :action => :get_file, :project => "kde4", :package => "kdelibs", :filename => "my_patch.diff")
+    get url_for(:controller => :source, :action => :get_file, :project => 'kde4', :package => 'kdelibs', :filename => 'my_patch.diff')
     assert_response :success
-    assert_equal(@response.body.to_s, origstring, message="Package file was changed without permissions")
+    assert_equal(@response.body.to_s, origstring, message='Package file was changed without permissions')
 
     # invalid permission
     reset_auth
-    delete "/source/kde4/kdelibs/my_patch.diff"
+    delete '/source/kde4/kdelibs/my_patch.diff'
     assert_response 401
 
-    prepare_request_with_user "adrian_nobody", "so_alone"
-    delete "/source/kde4/kdelibs/my_patch.diff"
+    prepare_request_with_user 'adrian_nobody', 'so_alone'
+    delete '/source/kde4/kdelibs/my_patch.diff'
     assert_response 403
 
-    get "/source/kde4/kdelibs/my_patch.diff"
+    get '/source/kde4/kdelibs/my_patch.diff'
     assert_response :success
   end
 
   def test_get_project_meta_history
-    get "/source/kde4/_project/_history"
+    get '/source/kde4/_project/_history'
     assert_response 401
-    prepare_request_with_user "fredlibs", "geröllheimer"
-    get "/source/kde4/_project/_history"
+    prepare_request_with_user 'fredlibs', 'geröllheimer'
+    get '/source/kde4/_project/_history'
     assert_response :success
-    assert_xml_tag(:tag => "revisionlist")
-    get "/source/kde4/_project/_history?meta=1"
+    assert_xml_tag(:tag => 'revisionlist')
+    get '/source/kde4/_project/_history?meta=1'
     assert_response :success
-    assert_xml_tag(:tag => "revisionlist")
+    assert_xml_tag(:tag => 'revisionlist')
   end
 
   def test_invalid_package_command
-    prepare_request_with_user "fredlibs", "geröllheimer"
-    post "/source/kde4/kdelibs"
+    prepare_request_with_user 'fredlibs', 'geröllheimer'
+    post '/source/kde4/kdelibs'
     assert_response 400
-    assert_xml_tag(:tag => "status", :attributes => { :code => "missing_parameter" })
-    post "/source/kde4/kdelibs", :cmd => :invalid
+    assert_xml_tag(:tag => 'status', :attributes => { :code => 'missing_parameter' })
+    post '/source/kde4/kdelibs', :cmd => :invalid
     assert_response 404
-    assert_xml_tag :tag => 'status', :attributes => { :code => "illegal_request" }
-    assert_xml_tag :tag => 'summary', :content => "invalid_command"
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'illegal_request' }
+    assert_xml_tag :tag => 'summary', :content => 'invalid_command'
 
-    prepare_request_with_user "adrian_nobody", "so_alone"
-    post "/source/kde4/kdelibs"
+    prepare_request_with_user 'adrian_nobody', 'so_alone'
+    post '/source/kde4/kdelibs'
     assert_response 400
-    assert_xml_tag(:tag => "status", :attributes => { :code => "missing_parameter" })
-    post "/source/kde4/kdelibs", :cmd => :invalid
+    assert_xml_tag(:tag => 'status', :attributes => { :code => 'missing_parameter' })
+    post '/source/kde4/kdelibs', :cmd => :invalid
     assert_response 404
-    assert_xml_tag :tag => 'status', :attributes => { :code => "illegal_request" }
-    assert_xml_tag :tag => 'summary', :content => "invalid_command"
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'illegal_request' }
+    assert_xml_tag :tag => 'summary', :content => 'invalid_command'
   end
 
   def test_remove_and_undelete_operations
-    delete "/source/kde4/kdelibs"
+    delete '/source/kde4/kdelibs'
     assert_response 401
-    delete "/source/kde4"
+    delete '/source/kde4'
     assert_response 401
 
     # delete single package in project
-    prepare_request_with_user "fredlibs", "geröllheimer"
-    put "/source/kde4/kdelibs/DUMMYFILE", "dummy"
+    prepare_request_with_user 'fredlibs', 'geröllheimer'
+    put '/source/kde4/kdelibs/DUMMYFILE', 'dummy'
     assert_response :success
     # to have different revision number in meta and plain files
-    delete "/source/kde4/kdelibs?user=illegal&comment=test%20deleted"
+    delete '/source/kde4/kdelibs?user=illegal&comment=test%20deleted'
     assert_response :success
 
-    get "/source/kde4/kdelibs"
+    get '/source/kde4/kdelibs'
     assert_response 404
-    get "/source/kde4/kdelibs/_meta"
+    get '/source/kde4/kdelibs/_meta'
     assert_response 404
 
     # check history
-    get "/source/kde4/kdelibs/_history?deleted=1"
+    get '/source/kde4/kdelibs/_history?deleted=1'
     assert_response :success
-    assert_xml_tag(:parent => { :tag => "revision" }, :tag => "user", :content => "fredlibs")
-    assert_xml_tag(:parent => { :tag => "revision" }, :tag => "comment", :content => "test deleted")
-    get "/source/kde4/kdelibs/_history?meta=1&deleted=1"
-    assert_xml_tag(:parent => { :tag => "revision" }, :tag => "user", :content => "fredlibs")
-    assert_xml_tag(:parent => { :tag => "revision" }, :tag => "comment", :content => "test deleted")
+    assert_xml_tag(:parent => { :tag => 'revision' }, :tag => 'user', :content => 'fredlibs')
+    assert_xml_tag(:parent => { :tag => 'revision' }, :tag => 'comment', :content => 'test deleted')
+    get '/source/kde4/kdelibs/_history?meta=1&deleted=1'
+    assert_xml_tag(:parent => { :tag => 'revision' }, :tag => 'user', :content => 'fredlibs')
+    assert_xml_tag(:parent => { :tag => 'revision' }, :tag => 'comment', :content => 'test deleted')
     assert_response :success
 
     # list deleted packages of existing project
-    get "/source/kde4", :deleted => 1
+    get '/source/kde4', :deleted => 1
     assert_response :success
-    assert_xml_tag(:tag => "entry", :attributes => { :name => "kdelibs" })
+    assert_xml_tag(:tag => 'entry', :attributes => { :name => 'kdelibs' })
 
     # access to files of a deleted package
-    get "/source/kde4/kdelibs/_history"
+    get '/source/kde4/kdelibs/_history'
     assert_response 404
-    get "/source/kde4/kdelibs/_history", :deleted => 1
+    get '/source/kde4/kdelibs/_history', :deleted => 1
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
-    srcmd5 = node.each_revision.last.srcmd5.text
-    get "/source/kde4/kdelibs", :deleted => 1, :rev => srcmd5
+    srcmd5 = node.each(:revision).last.value(:srcmd5)
+    get '/source/kde4/kdelibs', :deleted => 1, :rev => srcmd5
     assert_response :success
-    get "/source/kde4/kdelibs/my_patch.diff", :rev => srcmd5
+    get '/source/kde4/kdelibs/my_patch.diff', :rev => srcmd5
     assert_response 404
-    get "/source/kde4/kdelibs/my_patch.diff", :deleted => 1, :rev => srcmd5
+    get '/source/kde4/kdelibs/my_patch.diff', :deleted => 1, :rev => srcmd5
     assert_response :success
-    get "/source/kde4/kdelibs/my_patch.diff", :deleted => 1
+    get '/source/kde4/kdelibs/my_patch.diff', :deleted => 1
     assert_response :success
 
     # undelete single package
-    post "/source/kde4/kdelibs", :cmd => :undelete
+    post '/source/kde4/kdelibs', :cmd => :undelete
     assert_response :success
-    get "/source/kde4/kdelibs"
+    get '/source/kde4/kdelibs'
     assert_response :success
-    get "/source/kde4/kdelibs/_meta"
+    get '/source/kde4/kdelibs/_meta'
     assert_response :success
 
     # delete entire project
-    delete "/source/kde4?user=illegal&comment=drop%20project"
+    delete '/source/kde4?user=illegal&comment=drop%20project'
     assert_response :success
 
-    get "/source/kde4"
+    get '/source/kde4'
     assert_response 404
-    get "/source/kde4/_meta"
+    get '/source/kde4/_meta'
     assert_response 404
 
     # list deleted packages of deleted project
@@ -1637,277 +1637,277 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # list content of deleted project
     login_king
-    get "/source", :deleted => 1
+    get '/source', :deleted => 1
     assert_response 200
-    assert_xml_tag(:tag => "entry", :attributes => { :name => "kde4" })
-    prepare_request_with_user "fredlibs", "geröllheimer"
-    get "/source", :deleted => 1
+    assert_xml_tag(:tag => 'entry', :attributes => { :name => 'kde4' })
+    prepare_request_with_user 'fredlibs', 'geröllheimer'
+    get '/source', :deleted => 1
     assert_response 403
     assert_match(/only admins can see deleted projects/, @response.body)
 
     # check history
-    get "/source/kde4/_project/_history?deleted=1"
+    get '/source/kde4/_project/_history?deleted=1'
     assert_response :success
-    assert_xml_tag(:parent => { :tag => "revision" }, :tag => "user", :content => "fredlibs")
-    assert_xml_tag(:parent => { :tag => "revision" }, :tag => "comment", :content => "drop project")
-    get "/source/kde4/_project/_history?meta=1&deleted=1"
-    assert_xml_tag(:parent => { :tag => "revision" }, :tag => "user", :content => "fredlibs")
-    assert_xml_tag(:parent => { :tag => "revision" }, :tag => "comment", :content => "drop project")
+    assert_xml_tag(:parent => { :tag => 'revision' }, :tag => 'user', :content => 'fredlibs')
+    assert_xml_tag(:parent => { :tag => 'revision' }, :tag => 'comment', :content => 'drop project')
+    get '/source/kde4/_project/_history?meta=1&deleted=1'
+    assert_xml_tag(:parent => { :tag => 'revision' }, :tag => 'user', :content => 'fredlibs')
+    assert_xml_tag(:parent => { :tag => 'revision' }, :tag => 'comment', :content => 'drop project')
     assert_response :success
 
-    prepare_request_with_user "fredlibs", "geröllheimer"
+    prepare_request_with_user 'fredlibs', 'geröllheimer'
     # undelete project
-    post "/source/kde4", :cmd => :undelete
+    post '/source/kde4', :cmd => :undelete
     assert_response 403
 
     login_king
-    post "/source/kde4", :cmd => :undelete
+    post '/source/kde4', :cmd => :undelete
     assert_response :success
 
     # content got restored ?
-    get "/source/kde4"
+    get '/source/kde4'
     assert_response :success
-    get "/source/kde4/_project"
+    get '/source/kde4/_project'
 
     assert_response :success
-    get "/source/kde4/_meta"
+    get '/source/kde4/_meta'
     assert_response :success
-    get "/source/kde4/kdelibs"
+    get '/source/kde4/kdelibs'
     assert_response :success
-    get "/source/kde4/kdelibs/_meta"
+    get '/source/kde4/kdelibs/_meta'
     assert_response :success
-    get "/source/kde4/kdelibs/my_patch.diff"
+    get '/source/kde4/kdelibs/my_patch.diff'
     assert_response :success
-    delete "/source/kde4/kdelibs/DUMMYFILE" # restore as before
+    delete '/source/kde4/kdelibs/DUMMYFILE' # restore as before
     assert_response :success
 
     # undelete project again
-    post "/source/kde4", :cmd => :undelete
+    post '/source/kde4', :cmd => :undelete
     assert_response 404
     assert_match(/project 'kde4' already exists/, @response.body)
   end
 
   def test_remove_project_and_verify_repositories
     login_tom
-    delete "/source/home:coolo"
+    delete '/source/home:coolo'
     assert_response 400
-    assert_select "status[code] > summary", /following repositories depend on this project:/
+    assert_select 'status[code] > summary', /following repositories depend on this project:/
 
-    delete "/source/home:coolo", :force => 1
+    delete '/source/home:coolo', :force => 1
     assert_response :success
 
     # verify the repo is updated
-    get "/source/home:coolo:test/_meta"
-    node = ActiveXML::Node.new(@response.body)
-    assert_equal node.repository.name, "home_coolo"
-    assert_equal node.repository.path.project, "deleted"
-    assert_equal node.repository.path.repository, "deleted"
+    get '/source/home:coolo:test/_meta'
+    node = Xmlhash.parse(@response.body)['repository']
+    assert_equal 'home_coolo', node['name']
+    assert_equal 'deleted', node['path']['project']
+    assert_equal 'deleted', node['path']['repository']
   end
 
   def test_diff_package
     login_tom
-    post "/source/home:Iggy/TestPack?oproject=kde4&opackage=kdelibs&cmd=diff"
+    post '/source/home:Iggy/TestPack?oproject=kde4&opackage=kdelibs&cmd=diff'
     assert_response :success
   end
 
   def test_meta_diff_package
     login_tom
-    post "/source/home:Iggy/TestPack?oproject=kde4&opackage=kdelibs&cmd=diff&meta=1"
+    post '/source/home:Iggy/TestPack?oproject=kde4&opackage=kdelibs&cmd=diff&meta=1'
     assert_response :success
     assert_match(/<\/package>/, @response.body)
 
-    post "/source/home:Iggy/_project?oproject=kde4&opackage=_project&cmd=diff&meta=1"
+    post '/source/home:Iggy/_project?oproject=kde4&opackage=_project&cmd=diff&meta=1'
     assert_response :success
     assert_match(/<\/project>/, @response.body)
   end
 
   def test_diff_package_hidden_project
     login_tom
-    post "/source/HiddenProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
+    post '/source/HiddenProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff'
     assert_response 404
-    assert_xml_tag :tag => 'status', :attributes => { :code => "unknown_project" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_project' }
     #reverse
-    post "/source/kde4/kdelibs?oproject=HiddenProject&opackage=pack&cmd=diff"
+    post '/source/kde4/kdelibs?oproject=HiddenProject&opackage=pack&cmd=diff'
     assert_response 404
-    assert_xml_tag :tag => 'status', :attributes => { :code => "unknown_project" } # was package
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_project' } # was package
 
-    prepare_request_with_user "hidden_homer", "homer"
-    post "/source/HiddenProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
+    prepare_request_with_user 'hidden_homer', 'homer'
+    post '/source/HiddenProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff'
     assert_response :success
     assert_match(/Minimal rpm package for testing the build controller/, @response.body)
     # reverse
-    post "/source/kde4/kdelibs?oproject=HiddenProject&opackage=pack&cmd=diff"
+    post '/source/kde4/kdelibs?oproject=HiddenProject&opackage=pack&cmd=diff'
     assert_response :success
     assert_match(/argl/, @response.body)
 
     login_king
-    post "/source/HiddenProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
+    post '/source/HiddenProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff'
     assert_response :success
     assert_match(/Minimal rpm package for testing the build controller/, @response.body)
     # reverse
     login_king
-    post "/source/kde4/kdelibs?oproject=HiddenProject&opackage=pack&cmd=diff"
+    post '/source/kde4/kdelibs?oproject=HiddenProject&opackage=pack&cmd=diff'
     assert_response :success
     assert_match(/argl/, @response.body)
   end
 
   def test_diff_package_sourceaccess_protected_project
     login_tom
-    post "/source/SourceprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
+    post '/source/SourceprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff'
     assert_response 403
-    assert_xml_tag :tag => 'status', :attributes => { :code => "source_access_no_permission" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'source_access_no_permission' }
     #reverse
-    post "/source/kde4/kdelibs?oproject=SourceprotectedProject&opackage=pack&cmd=diff"
+    post '/source/kde4/kdelibs?oproject=SourceprotectedProject&opackage=pack&cmd=diff'
     assert_response 403
-    assert_xml_tag :tag => 'status', :attributes => { :code => "source_access_no_permission" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'source_access_no_permission' }
 
-    prepare_request_with_user "sourceaccess_homer", "homer"
-    post "/source/SourceprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
+    prepare_request_with_user 'sourceaccess_homer', 'homer'
+    post '/source/SourceprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff'
     assert_response :success
     assert_match(/Protected Content/, @response.body)
     # reverse
-    post "/source/kde4/kdelibs?oproject=SourceprotectedProject&opackage=pack&cmd=diff"
+    post '/source/kde4/kdelibs?oproject=SourceprotectedProject&opackage=pack&cmd=diff'
     assert_response :success
     assert_match(/argl/, @response.body)
 
     login_king
-    post "/source/SourceprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff"
+    post '/source/SourceprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff'
     assert_response :success
     assert_match(/Protected Content/, @response.body)
     # reverse
     login_king
-    post "/source/kde4/kdelibs?oproject=SourceprotectedProject&opackage=pack&cmd=diff"
+    post '/source/kde4/kdelibs?oproject=SourceprotectedProject&opackage=pack&cmd=diff'
     assert_response :success
     assert_match(/argl/, @response.body)
   end
 
   def test_constraints
     login_tom
-    get "/source/home:coolo:test"
+    get '/source/home:coolo:test'
     assert_response :success
-    put "/source/home:coolo:test/_project/_constraints", "illegal"
+    put '/source/home:coolo:test/_project/_constraints', 'illegal'
     assert_response 400
     assert_match(/validation error/, @response.body)
-    put "/source/home:coolo:test/_project/_constraints", "<constraints> <hardware> <processors>3</processors> </hardware> </constraints>"
+    put '/source/home:coolo:test/_project/_constraints', '<constraints> <hardware> <processors>3</processors> </hardware> </constraints>'
     assert_response :success
-    put "/source/home:coolo:test/test/_meta", "<package project='home:coolo:test' name='test'><title/><description/></package>"
+    put '/source/home:coolo:test/test/_meta', "<package project='home:coolo:test' name='test'><title/><description/></package>"
     assert_response :success
-    put "/source/home:coolo:test/test/_constraints", "<constraints> <linux> <version><min>1.0</min></version> </linux> </constraints>"
+    put '/source/home:coolo:test/test/_constraints', '<constraints> <linux> <version><min>1.0</min></version> </linux> </constraints>'
     assert_response :success
 
     # cleanup
-    delete "/source/home:coolo:test/_project/_constraints"
+    delete '/source/home:coolo:test/_project/_constraints'
     assert_response :success
-    delete "/source/home:coolo:test/test"
+    delete '/source/home:coolo:test/test'
     assert_response :success
   end
 
   def test_pattern
-    put "/source/kde4/_pattern/mypattern", load_backend_file("pattern/digiKam.xml")
+    put '/source/kde4/_pattern/mypattern', load_backend_file('pattern/digiKam.xml')
     assert_response 401
 
-    prepare_request_with_user "adrian_nobody", "so_alone"
-    get "/source/DoesNotExist/_pattern"
+    prepare_request_with_user 'adrian_nobody', 'so_alone'
+    get '/source/DoesNotExist/_pattern'
     assert_response 404
-    get "/source/kde4/_pattern"
+    get '/source/kde4/_pattern'
     assert_response :success
-    get "/source/kde4/_pattern/DoesNotExist"
+    get '/source/kde4/_pattern/DoesNotExist'
     assert_response 404
-    put "/source/kde4/_pattern/mypattern", load_backend_file("pattern/digiKam.xml")
+    put '/source/kde4/_pattern/mypattern', load_backend_file('pattern/digiKam.xml')
     assert_response 403
     assert_match(/put_file_no_permission/, @response.body)
 
     login_tom
-    get "/source/home:coolo:test"
+    get '/source/home:coolo:test'
     assert_response :success
     assert_no_match(/_pattern/, @response.body)
-    put "/source/home:coolo:test/_pattern/mypattern", "broken"
+    put '/source/home:coolo:test/_pattern/mypattern', 'broken'
     assert_response 400
     assert_match(/validation error/, @response.body)
-    put "/source/home:coolo:test/_pattern/mypattern", load_backend_file("pattern/digiKam.xml")
+    put '/source/home:coolo:test/_pattern/mypattern', load_backend_file('pattern/digiKam.xml')
     assert_response :success
-    get "/source/home:coolo:test/_pattern/mypattern"
+    get '/source/home:coolo:test/_pattern/mypattern'
     assert_response :success
-    get "/source/home:coolo:test"
+    get '/source/home:coolo:test'
     assert_response :success
     assert_match(/_pattern/, @response.body)
 
     # delete failure
-    prepare_request_with_user "adrian_nobody", "so_alone"
-    delete "/source/home:coolo:test/_pattern/mypattern"
+    prepare_request_with_user 'adrian_nobody', 'so_alone'
+    delete '/source/home:coolo:test/_pattern/mypattern'
     assert_response 403
 
     # successfull delete
     login_tom
-    delete "/source/home:coolo:test/_pattern/mypattern"
+    delete '/source/home:coolo:test/_pattern/mypattern'
     assert_response :success
-    delete "/source/home:coolo:test/_pattern/mypattern"
+    delete '/source/home:coolo:test/_pattern/mypattern'
     assert_response 404
-    delete "/source/home:coolo:test/_pattern"
+    delete '/source/home:coolo:test/_pattern'
     assert_response :success
-    delete "/source/home:coolo:test/_pattern"
+    delete '/source/home:coolo:test/_pattern'
     assert_response 404
   end
 
   def test_prjconf
-    get url_for(:controller => :source, :action => :show_project_config, :project => "DoesNotExist")
+    get url_for(:controller => :source, :action => :show_project_config, :project => 'DoesNotExist')
     assert_response 401
-    prepare_request_with_user "adrian_nobody", "so_alone"
-    get url_for(:controller => :source, :action => :show_project_config, :project => "DoesNotExist")
+    prepare_request_with_user 'adrian_nobody', 'so_alone'
+    get url_for(:controller => :source, :action => :show_project_config, :project => 'DoesNotExist')
     assert_response 404
-    get url_for(:controller => :source, :action => :show_project_config, :project => "kde4")
+    get url_for(:controller => :source, :action => :show_project_config, :project => 'kde4')
     assert_response :success
 
-    prepare_request_with_user "adrian_nobody", "so_alone"
-    put url_for(:controller => :source, :action => :update_project_config, :project => "kde4"), "Substitute: nix da"
+    prepare_request_with_user 'adrian_nobody', 'so_alone'
+    put url_for(:controller => :source, :action => :update_project_config, :project => 'kde4'), 'Substitute: nix da'
     assert_response 403
 
     login_tom
-    put url_for(:controller => :source, :action => :update_project_config, :project => "home:coolo:test"), "Substitute: nix da"
+    put url_for(:controller => :source, :action => :update_project_config, :project => 'home:coolo:test'), 'Substitute: nix da'
     assert_response :success
-    get url_for(:controller => :source, :action => :show_project_config, :project => "home:coolo:test")
+    get url_for(:controller => :source, :action => :show_project_config, :project => 'home:coolo:test')
     assert_response :success
   end
 
   def test_public_keys
     login_tom
     # old route
-    get "/source/DoesNotExist/_pubkey"
+    get '/source/DoesNotExist/_pubkey'
     assert_response 404
-    get "/source/kde4/_pubkey"
+    get '/source/kde4/_pubkey'
     assert_response 404
     assert_match(/kde4: no pubkey available/, @response.body)
-    get "/source/BaseDistro/_pubkey"
+    get '/source/BaseDistro/_pubkey'
     assert_response :success
 
-    delete "/source/kde4/_pubkey"
+    delete '/source/kde4/_pubkey'
     assert_response 403
 
     # FIXME: make a successful deletion of a key
 
     # via new _project route
-    get "/source/DoesNotExist/_project/_pubkey?meta=1"
+    get '/source/DoesNotExist/_project/_pubkey?meta=1'
     assert_response 404
-    get "/source/kde4/_project/_pubkey?meta=1"
+    get '/source/kde4/_project/_pubkey?meta=1'
     assert_response 404
     assert_match(/no such file/, @response.body)
-    get "/source/BaseDistro/_project/?meta=1"
-    get "/source/BaseDistro/_project/_pubkey?meta=1"
+    get '/source/BaseDistro/_project/?meta=1'
+    get '/source/BaseDistro/_project/_pubkey?meta=1'
     assert_response :success
 
-    delete "/source/kde4/_project/_pubkey?meta=1"
+    delete '/source/kde4/_project/_pubkey?meta=1'
     assert_response 403
 
     # ssl certificate
-    get "/source/DoesNotExist/_project/_sslcert?meta=1"
+    get '/source/DoesNotExist/_project/_sslcert?meta=1'
     assert_response 404
-    get "/source/kde4/_project/_sslcert?meta=1"
+    get '/source/kde4/_project/_sslcert?meta=1'
     assert_response 404
     assert_match(/no such file/, @response.body)
-    get "/source/BaseDistro/_project/_sslcert?meta=1"
+    get '/source/BaseDistro/_project/_sslcert?meta=1'
     assert_response :success
 
-    delete "/source/kde4/_project/_sslcert?meta=1"
+    delete '/source/kde4/_project/_sslcert?meta=1'
     assert_response 403
   end
 
@@ -1915,95 +1915,95 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # first go with a read-only user
     login_tom
     # listings
-    get "/source/BaseDistro2.0:LinkedUpdateProject"
+    get '/source/BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
-    assert_xml_tag(:tag => "directory", :attributes => { :count => "0" })
-    get "/source/BaseDistro2.0:LinkedUpdateProject?expand=1"
+    assert_xml_tag(:tag => 'directory', :attributes => { :count => '0' })
+    get '/source/BaseDistro2.0:LinkedUpdateProject?expand=1'
     assert_response :success
-    assert_xml_tag(:tag => "directory", :attributes => { :count => "2" })
-    assert_xml_tag(:tag => "entry", :attributes => { :name => "pack2", :originproject => "BaseDistro2.0" })
-    assert_xml_tag(:tag => "entry", :attributes => { :name => "pack2.linked", :originproject => "BaseDistro2.0" })
+    assert_xml_tag(:tag => 'directory', :attributes => { :count => '2' })
+    assert_xml_tag(:tag => 'entry', :attributes => { :name => 'pack2', :originproject => 'BaseDistro2.0' })
+    assert_xml_tag(:tag => 'entry', :attributes => { :name => 'pack2.linked', :originproject => 'BaseDistro2.0' })
 
     # pack2 exists only via linked project
-    get "/source/BaseDistro2.0:LinkedUpdateProject/pack2"
+    get '/source/BaseDistro2.0:LinkedUpdateProject/pack2'
     assert_response :success
-    delete "/source/BaseDistro2.0:LinkedUpdateProject/pack2"
+    delete '/source/BaseDistro2.0:LinkedUpdateProject/pack2'
     assert_response 404
     assert_match(/unknown_package/, @response.body)
 
     # test not permitted commands
-    post "/build/BaseDistro2.0:LinkedUpdateProject", :cmd => "rebuild"
+    post '/build/BaseDistro2.0:LinkedUpdateProject', :cmd => 'rebuild'
     assert_response 403
-    post "/build/BaseDistro2.0:LinkedUpdateProject", :cmd => "wipe"
+    post '/build/BaseDistro2.0:LinkedUpdateProject', :cmd => 'wipe'
     assert_response 403
     assert_match(/permission to execute command on project BaseDistro2.0:LinkedUpdateProject/, @response.body)
-    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "deleteuploadrev"
+    post '/source/BaseDistro2.0:LinkedUpdateProject/pack2', :cmd => 'deleteuploadrev'
     assert_response 404
     assert_match(/unknown_package/, @response.body)
-    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "commitfilelist"
+    post '/source/BaseDistro2.0:LinkedUpdateProject/pack2', :cmd => 'commitfilelist'
     assert_response 404
     assert_match(/unknown_package/, @response.body)
-    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "commit"
+    post '/source/BaseDistro2.0:LinkedUpdateProject/pack2', :cmd => 'commit'
     assert_response 404
     assert_match(/unknown_package/, @response.body)
-    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "linktobranch"
+    post '/source/BaseDistro2.0:LinkedUpdateProject/pack2', :cmd => 'linktobranch'
     assert_response 404
     assert_match(/unknown_package/, @response.body)
 
     # test permitted commands
-    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "diff", :oproject => "RemoteInstance:BaseDistro", :opackage => "pack1"
+    post '/source/BaseDistro2.0:LinkedUpdateProject/pack2', :cmd => 'diff', :oproject => 'RemoteInstance:BaseDistro', :opackage => 'pack1'
     assert_response :success
-    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "branch"
+    post '/source/BaseDistro2.0:LinkedUpdateProject/pack2', :cmd => 'branch'
     assert_response :success
-    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2.linked", :cmd => "linkdiff"
+    post '/source/BaseDistro2.0:LinkedUpdateProject/pack2.linked', :cmd => 'linkdiff'
     assert_response :success
 
     # read-write user, binary operations must be allowed
     login_king
     # obsolete with OBS 3.0, rebuild only via /build/
-    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "rebuild"
+    post '/source/BaseDistro2.0:LinkedUpdateProject/pack2', :cmd => 'rebuild'
     assert_response :success
-    post "/build/BaseDistro2.0:LinkedUpdateProject", :cmd => "rebuild", :package => "pack2"
+    post '/build/BaseDistro2.0:LinkedUpdateProject', :cmd => 'rebuild', :package => 'pack2'
     assert_response :success
-    post "/build/BaseDistro2.0:LinkedUpdateProject", :cmd => "wipe"
+    post '/build/BaseDistro2.0:LinkedUpdateProject', :cmd => 'wipe'
     assert_response :success
 
     # create package and remove it again
-    get "/source/BaseDistro2.0:LinkedUpdateProject/pack2"
+    get '/source/BaseDistro2.0:LinkedUpdateProject/pack2'
     assert_response :success
-    delete "/source/BaseDistro2.0:LinkedUpdateProject/pack2"
+    delete '/source/BaseDistro2.0:LinkedUpdateProject/pack2'
     assert_response 404
-    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "copy", :oproject => "BaseDistro:Update", :opackage => "pack2"
+    post '/source/BaseDistro2.0:LinkedUpdateProject/pack2', :cmd => 'copy', :oproject => 'BaseDistro:Update', :opackage => 'pack2'
     assert_response :success
-    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "undelete"
+    post '/source/BaseDistro2.0:LinkedUpdateProject/pack2', :cmd => 'undelete'
     assert_response 400 # already exists
     assert_match(/package_exists/, @response.body)
-    delete "/source/BaseDistro2.0:LinkedUpdateProject/pack2"
+    delete '/source/BaseDistro2.0:LinkedUpdateProject/pack2'
     assert_response :success
-    post "/source/BaseDistro2.0:LinkedUpdateProject/pack2", :cmd => "undelete"
+    post '/source/BaseDistro2.0:LinkedUpdateProject/pack2', :cmd => 'undelete'
     assert_response :success
   end
 
   def test_linktobranch
     login_Iggy
-    put "/source/home:Iggy/TestLinkPack/_meta", "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
+    put '/source/home:Iggy/TestLinkPack/_meta', "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
     assert_response :success
-    put "/source/home:Iggy/TestLinkPack/_link", "<link package='TestPack' />"
+    put '/source/home:Iggy/TestLinkPack/_link', "<link package='TestPack' />"
     assert_response :success
 
     login_fred
-    post "/source/home:Iggy/TestLinkPack?cmd=linktobranch"
+    post '/source/home:Iggy/TestLinkPack?cmd=linktobranch'
     assert_response 403
 
     login_Iggy
-    post "/source/home:Iggy/TestLinkPack?cmd=linktobranch"
+    post '/source/home:Iggy/TestLinkPack?cmd=linktobranch'
     assert_response :success
-    get "/source/home:Iggy/TestLinkPack/_link"
+    get '/source/home:Iggy/TestLinkPack/_link'
     assert_response :success
-    assert_xml_tag(:tag => "link", :attributes => { :package => "TestPack" })
-    assert_xml_tag(:parent => { :tag => "patches", :content => nil }, :tag => "branch", :content => nil)
+    assert_xml_tag(:tag => 'link', :attributes => { :package => 'TestPack' })
+    assert_xml_tag(:parent => { :tag => 'patches', :content => nil }, :tag => 'branch', :content => nil)
 
-    delete "/source/home:Iggy/TestLinkPack"
+    delete '/source/home:Iggy/TestLinkPack'
     assert_response :success
   end
 
@@ -2011,7 +2011,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # define release target
     login_Iggy
     # create and define manual release target
-    put "/source/home:Iggy:RT/_meta", "<project name='home:Iggy:RT'> <title/> <description/> 
+    put '/source/home:Iggy:RT/_meta', "<project name='home:Iggy:RT'> <title/> <description/>
           <repository name='rt'>
             <arch>i586</arch>
             <arch>x86_64</arch>
@@ -2021,73 +2021,73 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # workaround of testsuite breakage, database object gets restored during
     # request controller run, but backend part not
-    get "/source/home:Iggy/ToBeDeletedTestPack/_meta"
+    get '/source/home:Iggy/ToBeDeletedTestPack/_meta'
     assert_response :success
-    put "/source/home:Iggy/ToBeDeletedTestPack/_meta", @response.body
+    put '/source/home:Iggy/ToBeDeletedTestPack/_meta', @response.body
     assert_response :success
 
-    run_scheduler("i586")
-    run_scheduler("x86_64")
+    run_scheduler('i586')
+    run_scheduler('x86_64')
 
-    get "/source/home:Iggy/_meta"
+    get '/source/home:Iggy/_meta'
     assert_response :success
     orig_project_meta = @response.body
     doc = REXML::Document.new(@response.body)
-    rt = doc.elements["/project/repository'"].add_element "releasetarget"
+    rt = doc.elements["/project/repository'"].add_element 'releasetarget'
     rt.add_attribute REXML::Attribute.new('project', 'home:Iggy:RT')
     rt.add_attribute REXML::Attribute.new('repository', 'rt')
-    put "/source/home:Iggy/_meta", doc.to_s
+    put '/source/home:Iggy/_meta', doc.to_s
     assert_response :success
 
     # try to release with incorrect trigger
-    post "/source/home:Iggy?cmd=release", nil
+    post '/source/home:Iggy?cmd=release', nil
     assert_response 403 # cmd_no_permissions
     assert_match(/Trigger is not set to manual in repository home:Iggy\/10.2/, @response.body)
 
     # add correct trigger
     rt.add_attribute REXML::Attribute.new('trigger', 'manual')
-    put "/source/home:Iggy/_meta", doc.to_s
+    put '/source/home:Iggy/_meta', doc.to_s
     assert_response :success
 
     # this user is not allowed
     login_adrian
-    post "/source/home:Iggy?cmd=release", nil
+    post '/source/home:Iggy?cmd=release', nil
     assert_response 403
-    assert_xml_tag :tag => "status", :attributes => { :code => "cmd_execution_no_permission" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'cmd_execution_no_permission' }
 
     # release for real
     login_Iggy
-    post "/source/home:Iggy?cmd=release", nil
+    post '/source/home:Iggy?cmd=release', nil
     assert_response :success
-    assert_xml_tag :tag => "status", :attributes => { :code => "invoked" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'invoked' }
     # just invoked, it will not get executed in test suite
     # so try it again without delay
-    post "/source/home:Iggy?cmd=release&nodelay=1", nil
+    post '/source/home:Iggy?cmd=release&nodelay=1', nil
     assert_response :success
-    assert_xml_tag :tag => "status", :attributes => { :code => "ok" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'ok' }
 
     # process events
-    run_scheduler("i586")
+    run_scheduler('i586')
 
     # verify result
-    get "/source/home:Iggy:RT"
+    get '/source/home:Iggy:RT'
     assert_response :success
-    assert_xml_tag :tag => "entry", :attributes => { :name => "TestPack" }
+    assert_xml_tag :tag => 'entry', :attributes => { :name => 'TestPack' }
 
     # compare source with target repo
-    get "/build/home:Iggy/10.2/i586/TestPack/"
+    get '/build/home:Iggy/10.2/i586/TestPack/'
     assert_response :success
-    assert_xml_tag :tag => "binarylist", :children => { :count => 4 }
+    assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
 
-    get "/build/home:Iggy:RT/rt/i586/TestPack/"
+    get '/build/home:Iggy:RT/rt/i586/TestPack/'
     assert_response :success
-    assert_xml_tag :tag => "binarylist", :children => { :count => 4 }
+    assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
 
     # cleanup
     login_Iggy
-    put "/source/home:Iggy/_meta", orig_project_meta
+    put '/source/home:Iggy/_meta', orig_project_meta
     assert_response :success
-    delete "/source/home:Iggy:RT"
+    delete '/source/home:Iggy:RT'
     assert_response :success
   end
 
@@ -2097,7 +2097,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     login_Iggy
     # create and define manual release target
-    put "/source/home:Iggy:RT/_meta", "<project name='home:Iggy:RT'> <title/> <description/> 
+    put '/source/home:Iggy:RT/_meta', "<project name='home:Iggy:RT'> <title/> <description/>
           <repository name='rt'>
             <arch>i586</arch>
             <arch>x86_64</arch>
@@ -2105,63 +2105,63 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
         </project>"
     assert_response :success
 
-    run_scheduler("i586")
-    run_scheduler("x86_64")
+    run_scheduler('i586')
+    run_scheduler('x86_64')
 
-    get "/source/home:Iggy/_meta"
+    get '/source/home:Iggy/_meta'
     assert_response :success
     orig_project_meta = @response.body
     doc = REXML::Document.new(@response.body)
-    rt = doc.elements["/project/repository'"].add_element "releasetarget"
+    rt = doc.elements["/project/repository'"].add_element 'releasetarget'
     rt.add_attribute REXML::Attribute.new('project', 'home:Iggy:RT')
     rt.add_attribute REXML::Attribute.new('repository', 'rt')
-    put "/source/home:Iggy/_meta", doc.to_s
+    put '/source/home:Iggy/_meta', doc.to_s
     assert_response :success
 
     # try to release with incorrect trigger
-    post "/source/home:Iggy/TestPack?cmd=release", nil
+    post '/source/home:Iggy/TestPack?cmd=release', nil
     assert_response 403
     assert_match(/Trigger is not set to manual in repository home:Iggy\/10.2/, @response.body)
 
     # add correct trigger
     rt.add_attribute REXML::Attribute.new('trigger', 'manual')
-    put "/source/home:Iggy/_meta", doc.to_s
+    put '/source/home:Iggy/_meta', doc.to_s
     assert_response :success
 
     # this user is not allowed
     login_adrian
-    post "/source/home:Iggy/TestPack?cmd=release", nil
+    post '/source/home:Iggy/TestPack?cmd=release', nil
     assert_response 403
-    assert_xml_tag :tag => "status", :attributes => { :code => "cmd_execution_no_permission" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'cmd_execution_no_permission' }
 
     # release for real
     login_Iggy
-    post "/source/home:Iggy/TestPack?cmd=release", nil
+    post '/source/home:Iggy/TestPack?cmd=release', nil
     assert_response :success
-    assert_xml_tag :tag => "status", :attributes => { :code => "ok" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'ok' }
 
     # process events
-    run_scheduler("i586")
+    run_scheduler('i586')
 
     # verify result
-    get "/source/home:Iggy:RT"
+    get '/source/home:Iggy:RT'
     assert_response :success
-    assert_xml_tag :tag => "entry", :attributes => { :name => "TestPack" }
+    assert_xml_tag :tag => 'entry', :attributes => { :name => 'TestPack' }
 
     # compare source with target repo
-    get "/build/home:Iggy/10.2/i586/TestPack/"
+    get '/build/home:Iggy/10.2/i586/TestPack/'
     assert_response :success
-    assert_xml_tag :tag => "binarylist", :children => { :count => 4 }
+    assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
 
-    get "/build/home:Iggy:RT/rt/i586/TestPack/"
+    get '/build/home:Iggy:RT/rt/i586/TestPack/'
     assert_response :success
-    assert_xml_tag :tag => "binarylist", :children => { :count => 4 }
+    assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
 
     # cleanup
     login_Iggy
-    put "/source/home:Iggy/_meta", orig_project_meta
+    put '/source/home:Iggy/_meta', orig_project_meta
     assert_response :success
-    delete "/source/home:Iggy:RT"
+    delete '/source/home:Iggy:RT'
     assert_response :success
   end
 
@@ -2169,50 +2169,50 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # fred has maintainer permissions in this single package of Iggys home
     # this is the osc way
     login_fred
-    put "/source/home:Iggy/TestPack/filename", 'CONTENT'
+    put '/source/home:Iggy/TestPack/filename', 'CONTENT'
     assert_response :success
-    get "/source/home:Iggy/TestPack/_history"
+    get '/source/home:Iggy/TestPack/_history'
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
-    revision = node.each_revision.last.value :rev
+    revision = node.each(:revision).last.value :rev
 
     # standard copy
-    post "/source/home:fred/DELETE", :cmd => :copy, :oproject => "home:Iggy", :opackage => "TestPack"
+    post '/source/home:fred/DELETE', :cmd => :copy, :oproject => 'home:Iggy', :opackage => 'TestPack'
     assert_response :success
-    get "/source/home:fred/DELETE/_history"
+    get '/source/home:fred/DELETE/_history'
     assert_response :success
-    assert_xml_tag :tag => "revisionlist", :children => { :count => 1 }
+    assert_xml_tag :tag => 'revisionlist', :children => { :count => 1 }
 
-# FIXME: this is not yet supported in backend
+    # FIXME: this is not yet supported in backend
     if $ENABLE_BROKEN_TEST
       # copy with history
-      post "/source/home:fred/DELETE", :cmd => :copy, :oproject => "home:Iggy", :opackage => "TestPack", :withhistory => "1"
+      post '/source/home:fred/DELETE', :cmd => :copy, :oproject => 'home:Iggy', :opackage => 'TestPack', :withhistory => '1'
       assert_response :success
-      get "/source/home:fred/DELETE/_history"
+      get '/source/home:fred/DELETE/_history'
       assert_response :success
-      assert_xml_tag :tag => "revisionlist", :children => { :count => revision }
+      assert_xml_tag :tag => 'revisionlist', :children => { :count => revision }
     end
 
     # cleanup
-    delete "/source/home:fred/DELETE"
+    delete '/source/home:fred/DELETE'
     assert_response :success
-    delete "/source/home:Iggy/TestPack/filename"
+    delete '/source/home:Iggy/TestPack/filename'
     assert_response :success
   end
 
   def test_copy_project
     # NOTE: copy tests for release projects are part of maintenance tests
     login_fred
-    get "/source/home:Iggy/_meta"
+    get '/source/home:Iggy/_meta'
     assert_response :success
-    assert_xml_tag :tag => "person", :attributes => { :userid => "Iggy", :role => "maintainer" }
+    assert_xml_tag :tag => 'person', :attributes => { :userid => 'Iggy', :role => 'maintainer' }
     orig = @response.body
-    post "/source/home:fred:COPY", :cmd => :copy, :oproject => "home:Iggy"
+    post '/source/home:fred:COPY', :cmd => :copy, :oproject => 'home:Iggy'
     assert_response :success
-    get "/source/home:fred:COPY/_meta"
+    get '/source/home:fred:COPY/_meta'
     assert_response :success
-    assert_no_xml_tag :tag => "person", :attributes => { :userid => "Iggy" }
-    assert_xml_tag :tag => "person", :attributes => { :userid => "fred", :role => "maintainer" }
+    assert_no_xml_tag :tag => 'person', :attributes => { :userid => 'Iggy' }
+    assert_xml_tag :tag => 'person', :attributes => { :userid => 'fred', :role => 'maintainer' }
     copy = @response.body
     # almost everything must be identical
     orig = orig.gsub(/project name=.*/, 'project') # make project name identical
@@ -2223,94 +2223,94 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # permissions
     # create new project is not allowed
-    post "/source/TEMPCOPY", :cmd => :copy, :oproject => "home:Iggy", :nodelay => "1"
+    post '/source/TEMPCOPY', :cmd => :copy, :oproject => 'home:Iggy', :nodelay => '1'
     assert_response 403
-    assert_xml_tag(:tag => "status", :attributes => { :code => "cmd_execution_no_permission" })
+    assert_xml_tag(:tag => 'status', :attributes => { :code => 'cmd_execution_no_permission' })
     login_king
-    put "/source/TEMPCOPY/_meta", '<project name="TEMPCOPY"> <title/> <description/> <person role="maintainer" userid="fred"/> </project>'
+    put '/source/TEMPCOPY/_meta', '<project name="TEMPCOPY"> <title/> <description/> <person role="maintainer" userid="fred"/> </project>'
     assert_response :success
     # copy into existing project is allowed
     login_fred
-    post "/source/TEMPCOPY", :cmd => :copy, :oproject => "home:Iggy"
+    post '/source/TEMPCOPY', :cmd => :copy, :oproject => 'home:Iggy'
     assert_response :success
 
     # cleanup
-    delete "/source/TEMPCOPY"
+    delete '/source/TEMPCOPY'
     assert_response :success
   end
 
   def test_source_commits
     login_tom
-    post "/source/home:Iggy/TestPack", :cmd => "commitfilelist"
+    post '/source/home:Iggy/TestPack', :cmd => 'commitfilelist'
     assert_response 403
-    put "/source/home:Iggy/TestPack/filename", 'CONTENT'
+    put '/source/home:Iggy/TestPack/filename', 'CONTENT'
     assert_response 403
 
     # fred has maintainer permissions in this single package of Iggys home
     # this is the osc way
     login_fred
-    delete "/source/home:Iggy/TestPack/filename" # in case other tests created it
-    put "/source/home:Iggy/TestPack/filename?rev=repository", 'CONTENT'
+    delete '/source/home:Iggy/TestPack/filename' # in case other tests created it
+    put '/source/home:Iggy/TestPack/filename?rev=repository', 'CONTENT'
     assert_response :success
-    get "/source/home:Iggy/TestPack/filename"
+    get '/source/home:Iggy/TestPack/filename'
     assert_response 404
-    get "/source/home:Iggy/TestPack/_history?limit=1"
+    get '/source/home:Iggy/TestPack/_history?limit=1'
     assert_response :success
-    assert_xml_tag :tag => "revisionlist", :children => { :count => 1 }
-    get "/source/home:Iggy/TestPack/_history"
+    assert_xml_tag :tag => 'revisionlist', :children => { :count => 1 }
+    get '/source/home:Iggy/TestPack/_history'
     assert_response :success
-    assert_no_xml_tag :tag => "revisionlist", :children => { :count => 1 }
+    assert_no_xml_tag :tag => 'revisionlist', :children => { :count => 1 }
     node = ActiveXML::Node.new(@response.body)
-    revision = node.each_revision.last.value :rev
+    revision = node.each(:revision).last.value :rev
     revision = revision.to_i + 1
-    raw_post "/source/home:Iggy/TestPack?cmd=commitfilelist", ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
+    raw_post '/source/home:Iggy/TestPack?cmd=commitfilelist', ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
     assert_response :success
-    get "/source/home:Iggy/TestPack/filename"
+    get '/source/home:Iggy/TestPack/filename'
     assert_response :success
-    get "/source/home:Iggy/TestPack/_history"
+    get '/source/home:Iggy/TestPack/_history'
     assert_response :success
-    assert_xml_tag(:parent => { :tag => "revision", :attributes => { :rev => revision.to_s }, :content => nil }, :tag => "user", :content => "fred")
-    assert_xml_tag(:parent => { :tag => "revision", :attributes => { :rev => revision.to_s }, :content => nil }, :tag => "srcmd5")
+    assert_xml_tag(:parent => { :tag => 'revision', :attributes => { :rev => revision.to_s }, :content => nil }, :tag => 'user', :content => 'fred')
+    assert_xml_tag(:parent => { :tag => 'revision', :attributes => { :rev => revision.to_s }, :content => nil }, :tag => 'srcmd5')
 
     # delete file with commit
-    delete "/source/home:Iggy/TestPack/filename"
+    delete '/source/home:Iggy/TestPack/filename'
     assert_response :success
     revision = revision.to_i + 1
-    get "/source/home:Iggy/TestPack/filename"
+    get '/source/home:Iggy/TestPack/filename'
     assert_response 404
 
     # this is the future webui way
     login_fred
-    put "/source/home:Iggy/TestPack/filename?rev=upload", 'CONTENT'
+    put '/source/home:Iggy/TestPack/filename?rev=upload', 'CONTENT'
     assert_response :success
-    get "/source/home:Iggy/TestPack/filename"
+    get '/source/home:Iggy/TestPack/filename'
     assert_response :success
-    get "/source/home:Iggy/TestPack/filename?rev=latest"
+    get '/source/home:Iggy/TestPack/filename?rev=latest'
     assert_response 404
-    get "/source/home:Iggy/TestPack/_history"
+    get '/source/home:Iggy/TestPack/_history'
     assert_response :success
     revision = revision.to_i + 1
-    assert_no_xml_tag(:tag => "revision", :attributes => { :rev => revision.to_s })
-    post "/source/home:Iggy/TestPack?cmd=commit"
+    assert_no_xml_tag(:tag => 'revision', :attributes => { :rev => revision.to_s })
+    post '/source/home:Iggy/TestPack?cmd=commit'
     assert_response :success
-    get "/source/home:Iggy/TestPack/filename?rev=latest"
+    get '/source/home:Iggy/TestPack/filename?rev=latest'
     assert_response :success
-    get "/source/home:Iggy/TestPack/_history"
+    get '/source/home:Iggy/TestPack/_history'
     assert_response :success
-    assert_xml_tag(:parent => { :tag => "revision", :attributes => { :rev => revision.to_s }, :content => nil }, :tag => "user", :content => "fred")
-    assert_xml_tag(:parent => { :tag => "revision", :attributes => { :rev => revision.to_s }, :content => nil }, :tag => "srcmd5")
+    assert_xml_tag(:parent => { :tag => 'revision', :attributes => { :rev => revision.to_s }, :content => nil }, :tag => 'user', :content => 'fred')
+    assert_xml_tag(:parent => { :tag => 'revision', :attributes => { :rev => revision.to_s }, :content => nil }, :tag => 'srcmd5')
 
 
     # test deleteuploadrev
-    put "/source/home:Iggy/TestPack/anotherfilename?rev=upload", 'CONTENT'
+    put '/source/home:Iggy/TestPack/anotherfilename?rev=upload', 'CONTENT'
     assert_response :success
-    get "/source/home:Iggy/TestPack/anotherfilename"
+    get '/source/home:Iggy/TestPack/anotherfilename'
     assert_response :success
-    get "/source/home:Iggy/TestPack/anotherfilename?rev=latest"
+    get '/source/home:Iggy/TestPack/anotherfilename?rev=latest'
     assert_response 404
-    post "/source/home:Iggy/TestPack?cmd=deleteuploadrev"
+    post '/source/home:Iggy/TestPack?cmd=deleteuploadrev'
     assert_response :success
-    get "/source/home:Iggy/TestPack/anotherfilename"
+    get '/source/home:Iggy/TestPack/anotherfilename'
     assert_response 404
 
     #
@@ -2318,43 +2318,43 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     #
     login_Iggy
     # _product must be created
-    put "/source/home:Iggy/_product/_meta", "<package project='home:Iggy' name='_product'> <title/> <description/> </package>"
+    put '/source/home:Iggy/_product/_meta', "<package project='home:Iggy' name='_product'> <title/> <description/> </package>"
     assert_response :success
-    put "/source/home:Iggy/_product/filename?rev=repository", 'CONTENT'
+    put '/source/home:Iggy/_product/filename?rev=repository', 'CONTENT'
     assert_response :success
-    raw_post "/source/home:Iggy/_product?cmd=commitfilelist", ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
+    raw_post '/source/home:Iggy/_product?cmd=commitfilelist', ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
     assert_response :success
-    get "/source/home:Iggy/_product/filename"
+    get '/source/home:Iggy/_product/filename'
     assert_response :success
-    put "/source/home:Iggy/_product/filename2", 'CONTENT'
+    put '/source/home:Iggy/_product/filename2', 'CONTENT'
     assert_response :success
-    get "/source/home:Iggy/_product/filename2"
+    get '/source/home:Iggy/_product/filename2'
     assert_response :success
 
     # _pattern exists always
-    put "/source/home:Iggy/_pattern/filename", 'CONTENT'
+    put '/source/home:Iggy/_pattern/filename', 'CONTENT'
     assert_response 400 # illegal content
-    put "/source/home:Iggy/_pattern/filename?rev=repository", load_backend_file("pattern/digiKam.xml")
+    put '/source/home:Iggy/_pattern/filename?rev=repository', load_backend_file('pattern/digiKam.xml')
     assert_response :success
-    raw_post "/source/home:Iggy/_pattern?cmd=commitfilelist", ' <directory> <entry name="filename" md5="c5fadc30cd4c7d45bd3ce053b2751ec2" /> </directory> '
+    raw_post '/source/home:Iggy/_pattern?cmd=commitfilelist', ' <directory> <entry name="filename" md5="c5fadc30cd4c7d45bd3ce053b2751ec2" /> </directory> '
     assert_response :success
-    get "/source/home:Iggy/_pattern/filename"
+    get '/source/home:Iggy/_pattern/filename'
     assert_response :success
-    put "/source/home:Iggy/_pattern/filename2", load_backend_file("pattern/digiKam.xml")
+    put '/source/home:Iggy/_pattern/filename2', load_backend_file('pattern/digiKam.xml')
     assert_response :success
-    get "/source/home:Iggy/_pattern/filename2"
+    get '/source/home:Iggy/_pattern/filename2'
     assert_response :success
 
     # _project exists always
-    put "/source/home:Iggy/_project/filename?rev=repository", 'CONTENT'
+    put '/source/home:Iggy/_project/filename?rev=repository', 'CONTENT'
     assert_response :success
-    raw_post "/source/home:Iggy/_project?cmd=commitfilelist", ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
+    raw_post '/source/home:Iggy/_project?cmd=commitfilelist', ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
     assert_response :success
-    get "/source/home:Iggy/_project/filename"
+    get '/source/home:Iggy/_project/filename'
     assert_response :success
-    put "/source/home:Iggy/_project/filename2", 'CONTENT'
+    put '/source/home:Iggy/_project/filename2', 'CONTENT'
     assert_response :success
-    get "/source/home:Iggy/_project/filename2"
+    get '/source/home:Iggy/_project/filename2'
     assert_response :success
   end
 
@@ -2362,14 +2362,14 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
 
     # list all linking projects
-    post "/source/BaseDistro2.0", :cmd => "showlinked"
+    post '/source/BaseDistro2.0', :cmd => 'showlinked'
     assert_response :success
-    assert_xml_tag(:tag => "project", :attributes => { :name => "BaseDistro2.0:LinkedUpdateProject" }, :content => nil)
+    assert_xml_tag(:tag => 'project', :attributes => { :name => 'BaseDistro2.0:LinkedUpdateProject' }, :content => nil)
 
     # list all linking packages with a local link
-    post "/source/BaseDistro/pack2", :cmd => "showlinked"
+    post '/source/BaseDistro/pack2', :cmd => 'showlinked'
     assert_response :success
-    assert_xml_tag(:tag => "package", :attributes => { :project => "BaseDistro:Update", :name => "pack2" }, :content => nil)
+    assert_xml_tag(:tag => 'package', :attributes => { :project => 'BaseDistro:Update', :name => 'pack2' }, :content => nil)
 
     # list all linking packages, base package is a package on a remote OBS instance
     # FIXME: support for this search is possible, but not yet implemented
@@ -2380,45 +2380,45 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_create_links
     login_king
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "TEMPORARY"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'TEMPORARY'),
         '<project name="TEMPORARY"> <title/> <description/> <person role="maintainer" userid="fred"/> </project>'
     assert_response 200
     # create packages via user without any special roles
     login_fred
-    get url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "temporary")
+    get url_for(:controller => :source, :action => :update_package_meta, :project => 'kde4', :package => 'temporary')
     assert_response 404
-    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "temporary"),
+    put url_for(:controller => :source, :action => :update_package_meta, :project => 'kde4', :package => 'temporary'),
         '<package project="kde4" name="temporary"> <title/> <description/> </package>'
     assert_response 200
-    assert_xml_tag(:tag => "status", :attributes => { :code => "ok" })
-    put url_for(:controller => :source, :action => :update_package_meta, :project => "kde4", :package => "temporary2"),
+    assert_xml_tag(:tag => 'status', :attributes => { :code => 'ok' })
+    put url_for(:controller => :source, :action => :update_package_meta, :project => 'kde4', :package => 'temporary2'),
         '<package project="kde4" name="temporary2"> <title/> <description/> </package>'
     assert_response 200
-    assert_xml_tag(:tag => "status", :attributes => { :code => "ok" })
-    put "/source/kde4/temporary/file_in_linked_package", 'FILE CONTENT'
+    assert_xml_tag(:tag => 'status', :attributes => { :code => 'ok' })
+    put '/source/kde4/temporary/file_in_linked_package', 'FILE CONTENT'
     assert_response 200
-    put url_for(:controller => :source, :action => :update_package_meta, :project => "TEMPORARY", :package => "temporary2"),
+    put url_for(:controller => :source, :action => :update_package_meta, :project => 'TEMPORARY', :package => 'temporary2'),
         '<package project="TEMPORARY" name="temporary2"> <title/> <description/> </package>'
     assert_response 200
 
-    url = "/source/kde4/temporary/_link"
-    url2 = "/source/kde4/temporary2/_link"
-    url3 = "/source/TEMPORARY/temporary2/_link"
+    url = '/source/kde4/temporary/_link'
+    url2 = '/source/kde4/temporary2/_link'
+    url3 = '/source/TEMPORARY/temporary2/_link'
 
     # illegal targets
     put url, '<link project="notexisting" />'
     assert_response 404
-    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_project' }
     put url, '<link project="kde4" package="notexiting" />'
     assert_response 404
-    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_package" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_package' }
 
     # not existing link target, but ignore it
     put url, '<link project="kde4" package="notexiting" missingok="true" />'
     assert_response :success
     put url, '<link project="BaseDistro" package="pack1" missingok="true" />'
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "not_missing" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'not_missing' }
 
     # working local link
     put url, '<link project="BaseDistro" package="pack1" />'
@@ -2441,46 +2441,46 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # check backend functionality
-    get "/source/kde4/temporary"
+    get '/source/kde4/temporary'
     assert_response :success
-    assert_no_xml_tag(:tag => "entry", :attributes => { :name => "my_file" })
-    assert_xml_tag(:tag => "entry", :attributes => { :name => "file_in_linked_package" })
-    assert_xml_tag(:tag => "entry", :attributes => { :name => "_link" })
-    assert_xml_tag(:tag => "linkinfo", :attributes => { :project => "UseRemoteInstance", :package => "pack1",
-                                                        :srcmd5 => "96c3955b419fec1a637698e52b6a7d37", :xsrcmd5 => "6660e7c304ba16c50a415617bacb8b2f", :lsrcmd5 => "eabf686413b92c976ea073b11d797a2e" })
-    get "/source/kde4/temporary2?expand=1"
+    assert_no_xml_tag(:tag => 'entry', :attributes => { :name => 'my_file' })
+    assert_xml_tag(:tag => 'entry', :attributes => { :name => 'file_in_linked_package' })
+    assert_xml_tag(:tag => 'entry', :attributes => { :name => '_link' })
+    assert_xml_tag(:tag => 'linkinfo', :attributes => { :project => 'UseRemoteInstance', :package => 'pack1',
+                                                        :srcmd5 => '96c3955b419fec1a637698e52b6a7d37', :xsrcmd5 => '6660e7c304ba16c50a415617bacb8b2f', :lsrcmd5 => 'eabf686413b92c976ea073b11d797a2e' })
+    get '/source/kde4/temporary2?expand=1'
     assert_response :success
-    assert_xml_tag(:tag => "entry", :attributes => { :name => "my_file" })
-    assert_xml_tag(:tag => "entry", :attributes => { :name => "file_in_linked_package" })
-    assert_xml_tag(:tag => "linkinfo", :attributes => { :project => "kde4", :package => "temporary" })
-    assert_no_xml_tag(:tag => "entry", :attributes => { :name => "_link" })
-    get "/source/TEMPORARY/temporary2?expand=1"
+    assert_xml_tag(:tag => 'entry', :attributes => { :name => 'my_file' })
+    assert_xml_tag(:tag => 'entry', :attributes => { :name => 'file_in_linked_package' })
+    assert_xml_tag(:tag => 'linkinfo', :attributes => { :project => 'kde4', :package => 'temporary' })
+    assert_no_xml_tag(:tag => 'entry', :attributes => { :name => '_link' })
+    get '/source/TEMPORARY/temporary2?expand=1'
     assert_response :success
-    assert_xml_tag(:tag => "entry", :attributes => { :name => "my_file" })
-    assert_xml_tag(:tag => "entry", :attributes => { :name => "file_in_linked_package" })
-    assert_xml_tag(:tag => "linkinfo", :attributes => { :project => "kde4", :package => "temporary2" })
-    assert_no_xml_tag(:tag => "entry", :attributes => { :name => "_link" })
+    assert_xml_tag(:tag => 'entry', :attributes => { :name => 'my_file' })
+    assert_xml_tag(:tag => 'entry', :attributes => { :name => 'file_in_linked_package' })
+    assert_xml_tag(:tag => 'linkinfo', :attributes => { :project => 'kde4', :package => 'temporary2' })
+    assert_no_xml_tag(:tag => 'entry', :attributes => { :name => '_link' })
 
     # cleanup
-    delete "/source/kde4/temporary"
+    delete '/source/kde4/temporary'
     assert_response :success
-    delete "/source/kde4/temporary2"
+    delete '/source/kde4/temporary2'
     assert_response :success
     login_king
-    delete "/source/TEMPORARY"
+    delete '/source/TEMPORARY'
     assert_response :success
   end
 
   def test_parse_channel_file
     login_Iggy
-    put "/source/home:Iggy/TestChannel/_meta", "<package project='home:Iggy' name='TestChannel'> <title/> <description/> </package>"
+    put '/source/home:Iggy/TestChannel/_meta', "<package project='home:Iggy' name='TestChannel'> <title/> <description/> </package>"
     assert_response :success
 
-    put "/source/home:Iggy/TestChannel/_channel", '<channel/>' # binaries and binary element is required
+    put '/source/home:Iggy/TestChannel/_channel', '<channel/>' # binaries and binary element is required
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "validation_failed" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'validation_failed' }
 
-    put "/source/home:Iggy/TestChannel/_channel", '<?xml version="1.0" encoding="UTF-8"?>
+    put '/source/home:Iggy/TestChannel/_channel', '<?xml version="1.0" encoding="UTF-8"?>
 	<channel>
 	  <target project="BaseDistro" repository="Invalid" />
 	  <binaries>
@@ -2488,10 +2488,10 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 	  </binaries>
 	</channel>'
     assert_response 404
-    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_repository" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_repository' }
 
 
-    put "/source/home:Iggy/TestChannel/_channel", '<?xml version="1.0" encoding="UTF-8"?>
+    put '/source/home:Iggy/TestChannel/_channel', '<?xml version="1.0" encoding="UTF-8"?>
 	<channel>
 	  <target project="Invalid" repository="Invalid" />
 	  <binaries>
@@ -2499,36 +2499,36 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 	  </binaries>
 	</channel>'
     assert_response 404
-    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_project' }
 
-    put "/source/home:Iggy/TestChannel/_channel", '<?xml version="1.0" encoding="UTF-8"?>
+    put '/source/home:Iggy/TestChannel/_channel', '<?xml version="1.0" encoding="UTF-8"?>
 	<channel>
 	  <binaries project="BaseDistro" repository="BaseDistro_repo" arch="does_not_exist">
 	    <binary name="glibc-devel" binaryarch="noarch" package="pack1" project="BaseDistro" repository="BaseDistro_repo" arch="i586"/>
 	  </binaries>
 	</channel>'
     assert_response 404
-    assert_xml_tag :tag => "status", :attributes => { :code => "not_found" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'not_found' }
 
-    put "/source/home:Iggy/TestChannel/_channel", '<?xml version="1.0" encoding="UTF-8"?>
+    put '/source/home:Iggy/TestChannel/_channel', '<?xml version="1.0" encoding="UTF-8"?>
 	<channel>
 	  <binaries project="BaseDistro" repository="BaseDistro_repo" arch="i586">
 	    <binary name="glibc-devel" package="INVALID" project="BaseDistro"/>
 	  </binaries>
 	</channel>'
     assert_response 404
-    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_package" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_package' }
 
-    put "/source/home:Iggy/TestChannel/_channel", '<?xml version="1.0" encoding="UTF-8"?>
+    put '/source/home:Iggy/TestChannel/_channel', '<?xml version="1.0" encoding="UTF-8"?>
 	<channel>
 	  <binaries>
 	    <binary />
 	  </binaries>
 	</channel>'
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "validation_failed" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'validation_failed' }
 
-    put "/source/home:Iggy/TestChannel/_channel", '<?xml version="1.0" encoding="UTF-8"?>
+    put '/source/home:Iggy/TestChannel/_channel', '<?xml version="1.0" encoding="UTF-8"?>
 	<channel>
 	  <product project="BaseDistro" name="simple" />
 	  <target project="BaseDistro" repository="BaseDistro_repo" />
@@ -2540,295 +2540,292 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # check data in database
-    c = Package.find_by_project_and_name("home:Iggy", "TestChannel").channels.first
-    assert_match c.channel_targets.first.repository.project.name, "BaseDistro"
-    assert_match c.channel_targets.first.repository.name, "BaseDistro_repo"
+    c = Package.find_by_project_and_name('home:Iggy', 'TestChannel').channels.first
+    assert_match c.channel_targets.first.repository.project.name, 'BaseDistro'
+    assert_match c.channel_targets.first.repository.name, 'BaseDistro_repo'
 
     b = c.channel_binary_lists.first
-    assert_match b.project.name, "BaseDistro"
-    assert_match b.repository.project.name, "BaseDistro"
-    assert_match b.repository.name, "BaseDistro_repo"
+    assert_match b.project.name, 'BaseDistro'
+    assert_match b.repository.project.name, 'BaseDistro'
+    assert_match b.repository.name, 'BaseDistro_repo'
 
     b = b.channel_binaries.first
-    assert_match b.name, "glibc-devel"
-    assert_match b.binaryarch, "noarch"
-    assert_match b.package, "pack1"
-    assert_match b.project.name, "BaseDistro"
-    assert_match b.repository.project.name, "BaseDistro"
-    assert_match b.repository.name, "BaseDistro_repo"
+    assert_match b.name, 'glibc-devel'
+    assert_match b.binaryarch, 'noarch'
+    assert_match b.package, 'pack1'
+    assert_match b.project.name, 'BaseDistro'
+    assert_match b.repository.project.name, 'BaseDistro'
+    assert_match b.repository.name, 'BaseDistro_repo'
 
     # cleanup
-    delete "/source/home:Iggy/TestChannel"
+    delete '/source/home:Iggy/TestChannel'
     assert_response :success
   end
 
   def test_create_project_with_invalid_repository_reference
     login_tom
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:tom:temporary"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'home:tom:temporary'),
         '<project name="home:tom:temporary"> <title/> <description/>
            <repository name="me" />
          </project>'
     assert_response :success
     # self reference
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:tom:temporary"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'home:tom:temporary'),
         '<project name="home:tom:temporary"> <title/> <description/>
            <repository name="me">
              <path project="home:tom:temporary" repository="me" />
            </repository>
          </project>'
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "project_save_error" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'project_save_error' }
     assert_match(/Using same repository as path element is not allowed/, @response.body)
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:tom:temporary"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'home:tom:temporary'),
         '<project name="home:tom:temporary"> <title/> <description/> 
            <repository name="me">
              <hostsystem project="home:tom:temporary" repository="me" />
            </repository>
          </project>'
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "project_save_error" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'project_save_error' }
     assert_match(/Using same repository as hostsystem element is not allowed/, @response.body)
     # not existing repo
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:tom:temporary"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'home:tom:temporary'),
         '<project name="home:tom:temporary"> <title/> <description/> 
            <repository name="me">
              <path project="home:tom:temporary" repository="DOESNOTEXIST" />
            </repository>
          </project>'
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "project_save_error" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'project_save_error' }
     assert_match(/unable to walk on path/, @response.body)
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:tom:temporary"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'home:tom:temporary'),
         '<project name="home:tom:temporary"> <title/> <description/> 
            <repository name="me">
              <hostsystem project="home:tom:temporary" repository="DOESNOTEXIST" />
            </repository>
          </project>'
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "project_save_error" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'project_save_error' }
     assert_match(/Unknown target repository/, @response.body)
 
-    delete "/source/home:tom:temporary"
+    delete '/source/home:tom:temporary'
     assert_response :success
   end
 
   def test_use_project_link_as_non_maintainer
     login_tom
-    put url_for(:controller => :source, :action => :update_project_meta, :project => "home:tom:temporary"),
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'home:tom:temporary'),
         '<project name="home:tom:temporary"> <title/> <description/> <link project="kde4" /> </project>'
     assert_response :success
-    get "/source/home:tom:temporary"
+    get '/source/home:tom:temporary'
     assert_response :success
-    get "/source/home:tom:temporary/kdelibs"
+    get '/source/home:tom:temporary/kdelibs'
     assert_response :success
-    get "/source/home:tom:temporary/kdelibs/_history"
+    get '/source/home:tom:temporary/kdelibs/_history'
     assert_response :success
-    delete "/source/home:tom:temporary/kdelibs"
+    delete '/source/home:tom:temporary/kdelibs'
     assert_response 404
-    post "/source/home:tom:temporary/kdelibs", :cmd => :copy, :oproject => "home:tom:temporary", :opackage => "kdelibs"
+    post '/source/home:tom:temporary/kdelibs', :cmd => :copy, :oproject => 'home:tom:temporary', :opackage => 'kdelibs'
     assert_response :success
-    get "/source/home:tom:temporary/kdelibs/_meta"
+    get '/source/home:tom:temporary/kdelibs/_meta'
     meta = @response.body
     assert_response :success
-    delete "/source/home:tom:temporary/kdelibs"
+    delete '/source/home:tom:temporary/kdelibs'
     assert_response :success
-    delete "/source/home:tom:temporary/kdelibs"
+    delete '/source/home:tom:temporary/kdelibs'
     assert_response 404
 
     # check if package creation is doing the right thing
-    put "/source/home:tom:temporary/kdelibs/_meta", meta.dup
+    put '/source/home:tom:temporary/kdelibs/_meta', meta.dup
     assert_response :success
-    delete "/source/home:tom:temporary/kdelibs"
+    delete '/source/home:tom:temporary/kdelibs'
     assert_response :success
-    delete "/source/home:tom:temporary/kdelibs"
+    delete '/source/home:tom:temporary/kdelibs'
     assert_response 404
 
     # cleanup
-    delete "/source/home:tom:temporary"
+    delete '/source/home:tom:temporary'
     assert_response :success
   end
 
   def test_delete_and_undelete_permissions
-    delete "/source/kde4/kdelibs"
+    delete '/source/kde4/kdelibs'
     assert_response 401
-    delete "/source/kde4"
+    delete '/source/kde4'
     assert_response 401
 
     login_tom
-    delete "/source/kde4/kdelibs"
+    delete '/source/kde4/kdelibs'
     assert_response 403
-    delete "/source/kde4"
+    delete '/source/kde4'
     assert_response 403
 
     login_adrian
-    delete "/source/kde4/kdelibs"
+    delete '/source/kde4/kdelibs'
     assert_response :success
-    delete "/source/kde4"
+    delete '/source/kde4'
     assert_response :success
 
     login_tom
-    post "/source/kde4", :cmd => :undelete
+    post '/source/kde4', :cmd => :undelete
     assert_response 403
 
     login_adrian
-    post "/source/kde4", :cmd => :undelete
+    post '/source/kde4', :cmd => :undelete
     assert_response 403
 
     login_king
-    post "/source/kde4", :cmd => :undelete
+    post '/source/kde4', :cmd => :undelete
     assert_response :success
 
     login_tom
-    post "/source/kde4/kdelibs", :cmd => :undelete
+    post '/source/kde4/kdelibs', :cmd => :undelete
     assert_response 403
 
     login_adrian
-    post "/source/kde4/kdelibs", :cmd => :undelete
+    post '/source/kde4/kdelibs', :cmd => :undelete
     assert_response :success
   end
 
   def test_branch_creating_project
-    prepare_request_with_user "fredlibs", "geröllheimer"
+    prepare_request_with_user 'fredlibs', 'geröllheimer'
     # ensure he has no home project
-    get "/source/home:fredlibs"
+    get '/source/home:fredlibs'
     assert_response 404
 
     # Create public project, but api config is changed to make it closed
     c = Configuration.first
     c.allow_user_to_create_home_project = false
     c.save!
-    post "/source/home:Iggy/TestPack", :cmd => :branch, :dryrun => "1"
+    post '/source/home:Iggy/TestPack', :cmd => :branch, :dryrun => '1'
     assert_response :success
-    post "/source/home:Iggy/TestPack", :cmd => :branch
+    post '/source/home:Iggy/TestPack', :cmd => :branch
     assert_response 403
 
     # create home and try again
     login_king
-    put "/source/home:fredlibs/_meta", "<project name='home:fredlibs'><title/><description/> <person role='maintainer' userid='fredlibs'/> </project>"
+    put '/source/home:fredlibs/_meta', "<project name='home:fredlibs'><title/><description/> <person role='maintainer' userid='fredlibs'/> </project>"
     assert_response :success
 
-    prepare_request_with_user "fredlibs", "geröllheimer"
-    post "/source/home:Iggy/TestPack", :cmd => :branch
+    prepare_request_with_user 'fredlibs', 'geröllheimer'
+    post '/source/home:Iggy/TestPack', :cmd => :branch
     assert_response :success
 
     # cleanup and try again with defaults
     c.allow_user_to_create_home_project = true
     c.save!
-    delete "/source/home:fredlibs:branches:home:Iggy"
+    delete '/source/home:fredlibs:branches:home:Iggy'
     assert_response :success
-    delete "/source/home:fredlibs"
+    delete '/source/home:fredlibs'
     assert_response :success
-    post "/source/home:Iggy/TestPack", :cmd => :branch
+    post '/source/home:Iggy/TestPack', :cmd => :branch
     assert_response :success
 
     # final cleanup
-    delete "/source/home:fredlibs:branches:home:Iggy"
+    delete '/source/home:fredlibs:branches:home:Iggy'
     assert_response :success
   end
 
   def test_branch_package_delete_and_undelete
-    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
+    post '/source/home:Iggy/TestPack', :cmd => :branch, :target_project => 'home:coolo:test'
     assert_response 401
-    prepare_request_with_user "fredlibs", "geröllheimer"
-    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "NotExisting"
+    prepare_request_with_user 'fredlibs', 'geröllheimer'
+    post '/source/home:Iggy/TestPack', :cmd => :branch, :target_project => 'NotExisting'
     assert_response 403
     assert_match(/no permission to create project/, @response.body)
-    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
+    post '/source/home:Iggy/TestPack', :cmd => :branch, :target_project => 'home:coolo:test'
     assert_response 403
     assert_match(/no permission to/, @response.body)
-    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1"
+    post '/source/home:Iggy/TestPack', :cmd => :branch, :target_project => 'home:coolo:test', :force => '1'
     assert_response 403
     assert_match(/no permission to/, @response.body)
-    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :dryrun => "1"
+    post '/source/home:Iggy/TestPack', :cmd => :branch, :target_project => 'home:coolo:test', :dryrun => '1'
     assert_response :success
     assert_xml_tag :tag => 'package', :attributes => { :package => 'TestPack', :project => 'home:Iggy' },
                    :child => { :tag => 'target', :attributes => { :package => 'TestPack', :project => 'home:coolo:test' } }
 
     login_tom
-    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
+    post '/source/home:Iggy/TestPack', :cmd => :branch, :target_project => 'home:coolo:test'
     assert_response :success
-    get "/source/home:coolo:test/TestPack/_meta"
+    get '/source/home:coolo:test/TestPack/_meta'
     assert_response :success
 
     # branch again
-    get "/source/home:coolo:test/_meta"
+    get '/source/home:coolo:test/_meta'
     assert_response :success
     oldmeta = @response.body
-    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test"
+    post '/source/home:Iggy/TestPack', :cmd => :branch, :target_project => 'home:coolo:test'
     assert_response 400
     assert_match(/branch target package already exists/, @response.body)
-    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1"
+    post '/source/home:Iggy/TestPack', :cmd => :branch, :target_project => 'home:coolo:test', :force => '1'
     assert_response :success
-    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1", :rev => "1"
+    post '/source/home:Iggy/TestPack', :cmd => :branch, :target_project => 'home:coolo:test', :force => '1', :rev => '1'
     assert_response :success
-    post "/source/home:Iggy/TestPack", :cmd => :branch, :target_project => "home:coolo:test", :force => "1", :rev => "42424242"
+    post '/source/home:Iggy/TestPack', :cmd => :branch, :target_project => 'home:coolo:test', :force => '1', :rev => '42424242'
     assert_response 400
     assert_match(/no such revision/, @response.body)
     # project meta must be untouched
-    get "/source/home:coolo:test/_meta"
+    get '/source/home:coolo:test/_meta'
     assert_response :success
     assert_equal oldmeta, @response.body
     # FIXME: do a real commit and branch afterwards
 
     # now with a new project
-    post "/source/home:Iggy/TestPack", :cmd => :branch
+    post '/source/home:Iggy/TestPack', :cmd => :branch
     assert_response :success
 
-    get "/source/home:tom:branches:home:Iggy/TestPack/_meta"
+    get '/source/home:tom:branches:home:Iggy/TestPack/_meta'
     assert_response :success
 
-    get "/source/home:tom:branches:home:Iggy/_meta"
-    ret = ActiveXML::Node.new @response.body
-    assert_equal ret.repository.name, "10.2"
-    assert_equal ret.repository.path.repository, "10.2"
-    assert_equal ret.repository.path.project, "home:Iggy"
+    get '/source/home:tom:branches:home:Iggy/_meta'
+    assert_equal({"name"=>"10.2", "path"=>{"project"=>"home:Iggy", "repository"=>"10.2"}, "arch"=>["i586", "x86_64"]}, Xmlhash.parse(@response.body)['repository'])
 
     # check source link
-    get "/source/home:tom:branches:home:Iggy/TestPack/_link"
+    get '/source/home:tom:branches:home:Iggy/TestPack/_link'
     assert_response :success
-    ret = ActiveXML::Node.new @response.body
-    assert_equal ret.project, "home:Iggy"
-    assert_nil ret.package
-    assert_not_nil ret.baserev
-    assert_not_nil ret.patches
-    assert_not_nil ret.patches.branch
+    ret = Xmlhash.parse(@response.body)
+    assert_equal 'home:Iggy', ret['project']
+    assert_nil ret['package']
+    assert_not_nil ret['baserev']
+    assert_not_nil ret['patches']
+    assert_not_nil ret['patches']['branch']
 
     # Branch a package with a defined devel package
-    post "/source/kde4/kdelibs", :cmd => :branch
+    post '/source/kde4/kdelibs', :cmd => :branch
     assert_response :success
-    assert_xml_tag(:tag => "data", :attributes => { :name => "targetproject" }, :content => "home:tom:branches:home:coolo:test")
-    assert_xml_tag(:tag => "data", :attributes => { :name => "targetpackage" }, :content => "kdelibs_DEVEL_package")
-    assert_xml_tag(:tag => "data", :attributes => { :name => "sourceproject" }, :content => "home:coolo:test")
-    assert_xml_tag(:tag => "data", :attributes => { :name => "sourcepackage" }, :content => "kdelibs_DEVEL_package")
+    assert_xml_tag(:tag => 'data', :attributes => { :name => 'targetproject' }, :content => 'home:tom:branches:home:coolo:test')
+    assert_xml_tag(:tag => 'data', :attributes => { :name => 'targetpackage' }, :content => 'kdelibs_DEVEL_package')
+    assert_xml_tag(:tag => 'data', :attributes => { :name => 'sourceproject' }, :content => 'home:coolo:test')
+    assert_xml_tag(:tag => 'data', :attributes => { :name => 'sourcepackage' }, :content => 'kdelibs_DEVEL_package')
 
     # delete package
     reset_auth
-    delete "/source/home:tom:branches:home:Iggy/TestPack"
+    delete '/source/home:tom:branches:home:Iggy/TestPack'
     assert_response 401
 
     login_tom
-    delete "/source/home:tom:branches:home:Iggy/TestPack"
+    delete '/source/home:tom:branches:home:Iggy/TestPack'
     assert_response :success
 
-    get "/source/home:tom:branches:home:Iggy/TestPack"
+    get '/source/home:tom:branches:home:Iggy/TestPack'
     assert_response 404
-    get "/source/home:tom:branches:home:Iggy/TestPack/_meta"
+    get '/source/home:tom:branches:home:Iggy/TestPack/_meta'
     assert_response 404
 
     # undelete package
-    post "/source/home:tom:branches:home:Iggy/TestPack", :cmd => :undelete
+    post '/source/home:tom:branches:home:Iggy/TestPack', :cmd => :undelete
     assert_response :success
 
     # content got restored ?
-    get "/source/home:tom:branches:home:Iggy/TestPack"
+    get '/source/home:tom:branches:home:Iggy/TestPack'
     assert_response :success
-    get "/source/home:tom:branches:home:Iggy/TestPack/_meta"
+    get '/source/home:tom:branches:home:Iggy/TestPack/_meta'
     assert_response :success
-    get "/source/home:tom:branches:home:Iggy/TestPack/_link"
+    get '/source/home:tom:branches:home:Iggy/TestPack/_link'
     assert_response :success
 
     # undelete package again
-    post "/source/home:tom:branches:home:Iggy/TestPack", :cmd => :undelete
+    post '/source/home:tom:branches:home:Iggy/TestPack', :cmd => :undelete
     assert_response 400 # already exists
 
   end
@@ -2836,43 +2833,43 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_package_set_flag
     login_Iggy
 
-    get "/source/home:Iggy/TestPack/_meta"
+    get '/source/home:Iggy/TestPack/_meta'
     assert_response :success
     original = @response.body
 
-    post "/source/home:unknown/Nothere?cmd=set_flag&repository=10.2&arch=i586&flag=build"
+    post '/source/home:unknown/Nothere?cmd=set_flag&repository=10.2&arch=i586&flag=build'
     assert_response 404
     assert_match(/unknown_project/, @response.body)
 
-    post "/source/home:Iggy/Nothere?cmd=set_flag&repository=10.2&arch=i586&flag=build"
+    post '/source/home:Iggy/Nothere?cmd=set_flag&repository=10.2&arch=i586&flag=build'
     assert_response 404
     assert_match(/unknown_package/, @response.body)
 
-    post "/source/home:Iggy/Nothere?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=enable"
+    post '/source/home:Iggy/Nothere?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=enable'
     assert_response 404
     assert_match(/unknown_package/, @response.body)
 
-    post "/source/home:Iggy/TestPack?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=anything"
+    post '/source/home:Iggy/TestPack?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=anything'
     assert_response 400
     assert_match(/Error: unknown status for flag 'anything'/, @response.body)
 
-    post "/source/home:Iggy/TestPack?cmd=set_flag&repository=10.2&arch=i586&flag=shine&status=enable"
+    post '/source/home:Iggy/TestPack?cmd=set_flag&repository=10.2&arch=i586&flag=shine&status=enable'
     assert_response 400
     assert_match(/Error: unknown flag type 'shine' not found./, @response.body)
 
-    get "/source/home:Iggy/TestPack/_meta"
+    get '/source/home:Iggy/TestPack/_meta'
     assert_response :success
     # so far noting should have changed
     assert_equal original, @response.body
 
-    post "/source/kde4/kdelibs?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
+    post '/source/kde4/kdelibs?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable'
     assert_response 403
-    assert_xml_tag :tag => "status", :attributes => { :code => "cmd_execution_no_permission" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'cmd_execution_no_permission' }
 
-    post "/source/home:Iggy/TestPack?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
+    post '/source/home:Iggy/TestPack?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable'
     assert_response :success # actually I consider forbidding repositories not existant
 
-    get "/source/home:Iggy/TestPack/_meta"
+    get '/source/home:Iggy/TestPack/_meta'
     assert_not_equal original, @response.body
   end
 
@@ -2880,196 +2877,196 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_project_set_flag
     login_Iggy
 
-    get "/source/home:Iggy/_meta"
+    get '/source/home:Iggy/_meta'
     assert_response :success
     original = @response.body
 
-    assert_equal([["enable", { :repository => "10.2" }],
-                  ["disable", { :repository => "10.2", :arch => "i586", :explicit => "1" }],
-                  ["disable", { :repository => "10.2", :arch => "x86_64", :explicit => "1" }],
-                  ["enable", { :arch => "i586" }],
-                  ["enable", { :arch => "x86_64" }],
-                  ["enable", {}]], projects(:home_Iggy).expand_flags['build'])
+    assert_equal([['enable', { :repository => '10.2' }],
+                  ['disable', { :repository => '10.2', :arch => 'i586', :explicit => '1' }],
+                  ['disable', { :repository => '10.2', :arch => 'x86_64', :explicit => '1' }],
+                  ['enable', { :arch => 'i586' }],
+                  ['enable', { :arch => 'x86_64' }],
+                  ['enable', {}]], projects(:home_Iggy).expand_flags['build'])
 
-    post "/source/home:unknown?cmd=set_flag&repository=10.2&arch=i586&flag=build"
+    post '/source/home:unknown?cmd=set_flag&repository=10.2&arch=i586&flag=build'
     assert_response 404
 
-    post "/source/home:Iggy?cmd=set_flag&repository=10.2&arch=i586&flag=build"
+    post '/source/home:Iggy?cmd=set_flag&repository=10.2&arch=i586&flag=build'
     assert_response 400
     assert_match(/Required Parameter status missing/, @response.body)
 
-    post "/source/home:Iggy?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=anything"
+    post '/source/home:Iggy?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=anything'
     assert_response 400
     assert_match(/Error: unknown status for flag 'anything'/, @response.body)
 
-    post "/source/home:Iggy?cmd=set_flag&repository=10.2&arch=i586&flag=shine&status=enable"
+    post '/source/home:Iggy?cmd=set_flag&repository=10.2&arch=i586&flag=shine&status=enable'
     assert_response 400
     assert_match(/Error: unknown flag type 'shine' not found./, @response.body)
 
-    get "/source/home:Iggy/_meta"
+    get '/source/home:Iggy/_meta'
     assert_response :success
     # so far noting should have changed
     assert_equal original, @response.body
 
-    post "/source/kde4?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
+    post '/source/kde4?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable'
     assert_response 403
     assert_match(/no permission to execute command/, @response.body)
 
-    post "/source/home:Iggy?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable"
+    post '/source/home:Iggy?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable'
     assert_response :success # actually I consider forbidding repositories not existant
 
-    get "/source/home:Iggy/_meta"
+    get '/source/home:Iggy/_meta'
     assert_not_equal original, @response.body
 
     # while the actual _meta changed, the expanded flags only show existing repos
-    assert_equal([["enable", { :repository => "10.2" }],
-                  ["disable", { :repository => "10.2", :arch => "i586", :explicit => "1" }],
-                  ["disable", { :repository => "10.2", :arch => "x86_64", :explicit => "1" }],
-                  ["enable", { :arch => "i586" }],
-                  ["enable", { :arch => "x86_64" }],
-                  ["enable", {}]], projects(:home_Iggy).expand_flags['build'])
+    assert_equal([['enable', { :repository => '10.2' }],
+                  ['disable', { :repository => '10.2', :arch => 'i586', :explicit => '1' }],
+                  ['disable', { :repository => '10.2', :arch => 'x86_64', :explicit => '1' }],
+                  ['enable', { :arch => 'i586' }],
+                  ['enable', { :arch => 'x86_64' }],
+                  ['enable', {}]], projects(:home_Iggy).expand_flags['build'])
 
-    assert_equal({ "disable" => [{ "arch" => "i586", "repository" => "10.2" },
-                                 { "arch" => "x86_64", "repository" => "10.2" }],
-                   "enable" => { "arch" => "i586", "repository" => "10.7" } },
+    assert_equal({ 'disable' => [{ 'arch' => 'i586', 'repository' => '10.2' },
+                                 { 'arch' => 'x86_64', 'repository' => '10.2' }],
+                   'enable' => { 'arch' => 'i586', 'repository' => '10.7' } },
                  Xmlhash.parse(@response.body)['build'])
 
-    post "/source/home:Iggy?cmd=set_flag&flag=build&status=enable"
+    post '/source/home:Iggy?cmd=set_flag&flag=build&status=enable'
     assert_response :success
 
-    get "/source/home:Iggy/_meta"
-    assert_equal({"disable"=>[{"arch"=>"i586", "repository"=>"10.2"},
-                              {"arch"=>"x86_64", "repository"=>"10.2"}],
-                  "enable"=>[{"arch"=>"i586", "repository"=>"10.7"}, {}]},
+    get '/source/home:Iggy/_meta'
+    assert_equal({ 'disable' =>[{ 'arch' => 'i586', 'repository' => '10.2' },
+                              { 'arch' => 'x86_64', 'repository' => '10.2' }],
+                  'enable' =>[{ 'arch' => 'i586', 'repository' => '10.7' }, {}]},
                  Xmlhash.parse(@response.body)['build'])
 
-    assert_equal([["enable", {:repository=>"10.2"}],
-                  ["disable", {:repository=>"10.2", :arch=>"i586", :explicit=>"1"}],
-                  ["disable", {:repository=>"10.2", :arch=>"x86_64", :explicit=>"1"}],
-                  ["enable", {:arch=>"i586"}],
-                  ["enable", {:arch=>"x86_64"}],
-                  ["enable", {}]],
+    assert_equal([['enable', {:repository=> '10.2' }],
+                  ['disable', {:repository=> '10.2', :arch=> 'i586', :explicit=> '1' }],
+                  ['disable', {:repository=> '10.2', :arch=> 'x86_64', :explicit=> '1' }],
+                  ['enable', {:arch=> 'i586' }],
+                  ['enable', {:arch=> 'x86_64' }],
+                  ['enable', {}]],
                  projects(:home_Iggy).expand_flags['build'])
   end
 
   def test_package_remove_flag
     login_Iggy
 
-    get "/source/home:Iggy/TestPack/_meta"
+    get '/source/home:Iggy/TestPack/_meta'
     assert_response :success
     original = @response.body
 
-    post "/source/home:unknown/Nothere?cmd=remove_flag&repository=10.2&arch=i586&flag=build"
+    post '/source/home:unknown/Nothere?cmd=remove_flag&repository=10.2&arch=i586&flag=build'
     assert_response 404
     assert_match(/unknown_project/, @response.body)
 
-    post "/source/home:Iggy/Nothere?cmd=remove_flag&repository=10.2&arch=i586"
+    post '/source/home:Iggy/Nothere?cmd=remove_flag&repository=10.2&arch=i586'
     assert_response 404
     assert_match(/unknown_package/, @response.body)
 
-    post "/source/home:Iggy/Nothere?cmd=remove_flag&repository=10.2&arch=i586&flag=build"
+    post '/source/home:Iggy/Nothere?cmd=remove_flag&repository=10.2&arch=i586&flag=build'
     assert_response 404
     assert_match(/unknown_package/, @response.body)
 
-    post "/source/home:Iggy/TestPack?cmd=remove_flag&repository=10.2&arch=i586&flag=shine"
+    post '/source/home:Iggy/TestPack?cmd=remove_flag&repository=10.2&arch=i586&flag=shine'
     assert_response 400
     assert_match(/Error: unknown flag type 'shine' not found./, @response.body)
 
-    get "/source/home:Iggy/TestPack/_meta"
+    get '/source/home:Iggy/TestPack/_meta'
     assert_response :success
     # so far noting should have changed
     assert_equal original, @response.body
 
-    post "/source/kde4/kdelibs?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
+    post '/source/kde4/kdelibs?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo'
     assert_response 403
-    assert_xml_tag :tag => "status", :attributes => { :code => "cmd_execution_no_permission" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'cmd_execution_no_permission' }
 
-    post "/source/home:Iggy/TestPack?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
+    post '/source/home:Iggy/TestPack?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo'
     assert_response :success
 
-    get "/source/home:Iggy/TestPack/_meta"
+    get '/source/home:Iggy/TestPack/_meta'
     assert_not_equal original, @response.body
 
     # non existant repos should not change anything
     original = @response.body
 
-    post "/source/home:Iggy/TestPack?cmd=remove_flag&repository=10.7&arch=x86_64&flag=debuginfo"
+    post '/source/home:Iggy/TestPack?cmd=remove_flag&repository=10.7&arch=x86_64&flag=debuginfo'
     assert_response :success # actually I consider forbidding repositories not existant
 
-    get "/source/home:Iggy/TestPack/_meta"
+    get '/source/home:Iggy/TestPack/_meta'
     assert_equal original, @response.body
 
-    get "/source/home:Iggy/TestPack/_meta?view=flagdetails"
+    get '/source/home:Iggy/TestPack/_meta?view=flagdetails'
     assert_response :success
   end
 
   def test_project_remove_flag
     login_Iggy
 
-    get "/source/home:Iggy/_meta"
+    get '/source/home:Iggy/_meta'
     assert_response :success
     original = @response.body
 
-    post "/source/home:unknown/Nothere?cmd=remove_flag&repository=10.2&arch=i586&flag=build"
+    post '/source/home:unknown/Nothere?cmd=remove_flag&repository=10.2&arch=i586&flag=build'
     assert_response 404
     assert_match(/unknown_project/, @response.body)
 
-    post "/source/home:Iggy/Nothere?cmd=remove_flag&repository=10.2&arch=i586&flag=build"
+    post '/source/home:Iggy/Nothere?cmd=remove_flag&repository=10.2&arch=i586&flag=build'
     assert_response 404
     assert_match(/unknown_package/, @response.body)
 
-    post "/source/home:Iggy?cmd=remove_flag&repository=10.2&arch=i586&flag=shine"
+    post '/source/home:Iggy?cmd=remove_flag&repository=10.2&arch=i586&flag=shine'
     assert_response 400
     assert_match(/Error: unknown flag type 'shine' not found./, @response.body)
 
-    get "/source/home:Iggy/_meta"
+    get '/source/home:Iggy/_meta'
     assert_response :success
     # so far noting should have changed
     assert_equal original, @response.body
 
-    post "/source/kde4/kdelibs?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
+    post '/source/kde4/kdelibs?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo'
     assert_response 403
-    assert_xml_tag :tag => "status", :attributes => { :code => "cmd_execution_no_permission" }
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'cmd_execution_no_permission' }
 
-    post "/source/home:Iggy?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo"
+    post '/source/home:Iggy?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo'
     assert_response :success
 
-    get "/source/home:Iggy/_meta"
+    get '/source/home:Iggy/_meta'
     assert_not_equal original, @response.body
 
     # non existant repos should not change anything
     original = @response.body
 
-    post "/source/home:Iggy?cmd=remove_flag&repository=10.7&arch=x86_64&flag=debuginfo"
+    post '/source/home:Iggy?cmd=remove_flag&repository=10.7&arch=x86_64&flag=debuginfo'
     assert_response :success # actually I consider forbidding repositories not existant
 
-    get "/source/home:Iggy/_meta"
+    get '/source/home:Iggy/_meta'
     assert_equal original, @response.body
 
-    get "/source/home:Iggy/_meta?view=flagdetails"
+    get '/source/home:Iggy/_meta?view=flagdetails'
     assert_response :success
   end
 
   def test_wild_chars
     login_Iggy
-    get "/source/home:Iggy/TestPack"
+    get '/source/home:Iggy/TestPack'
     assert_response :success
 
     Suse::Backend.put('/source/home:Iggy/TestPack/bnc%23620675.diff', 'argl')
     assert_response :success
 
-    get "/source/home:Iggy/TestPack"
+    get '/source/home:Iggy/TestPack'
     assert_response :success
 
-    assert_xml_tag :tag => "directory", :child => { :tag => "entry" }
-    assert_xml_tag :tag => "directory",
-                   :children => { :count => 1, :only => { :tag => "entry", :attributes => { :name => "bnc#620675.diff" } } }
+    assert_xml_tag :tag => 'directory', :child => { :tag => 'entry' }
+    assert_xml_tag :tag => 'directory',
+                   :children => { :count => 1, :only => { :tag => 'entry', :attributes => { :name => 'bnc#620675.diff' } } }
 
-    get "/source/home:Iggy/TestPack/bnc%23620675.diff"
+    get '/source/home:Iggy/TestPack/bnc%23620675.diff'
     assert_response :success
 
     #cleanup
-    delete "/source/home:Iggy/TestPack/bnc%23620675.diff"
+    delete '/source/home:Iggy/TestPack/bnc%23620675.diff'
     assert_response :success
   end
 
@@ -3080,7 +3077,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     else
       xml = "<project name='home:Iggy'>"
     end
-    xml += "<title>Strange XML</title><description></description>"
+    xml += '<title>Strange XML</title><description></description>'
     # make sure never to erase ourselves
     xml += "<person userid='Iggy' role='maintainer'/>"
     xml += yield
@@ -3121,83 +3118,83 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     return Xmlhash.parse(@response.body)
   end
 
-  test "have the same user role twice in package meta" do
-    ret = duplicated_user_test("package", "user", "/source/home:Iggy/TestPack/_meta")
-    assert_equal({ "name" => "TestPack",
-                   "project" => "home:Iggy",
-                   "title" => "Strange XML",
-                   "description" => {},
-                   "person" =>
-                       [{ "userid" => "tom", "role" => "bugowner" },
-                        { "userid" => "Iggy", "role" => "maintainer" },
-                        { "userid" => "tom", "role" => "maintainer" }] }, ret)
+  test 'have the same user role twice in package meta' do
+    ret = duplicated_user_test('package', 'user', '/source/home:Iggy/TestPack/_meta')
+    assert_equal({ 'name' => 'TestPack',
+                   'project' => 'home:Iggy',
+                   'title' => 'Strange XML',
+                   'description' => {},
+                   'person' =>
+                       [{ 'userid' => 'tom', 'role' => 'bugowner' },
+                        { 'userid' => 'Iggy', 'role' => 'maintainer' },
+                        { 'userid' => 'tom', 'role' => 'maintainer' }] }, ret)
 
-    ret = duplicated_user_test("package", "group", "/source/home:Iggy/TestPack/_meta")
-    assert_equal({ "name" => "TestPack",
-                   "project" => "home:Iggy",
-                   "title" => "Strange XML",
-                   "description" => {},
-                   "person" => { "userid" => "Iggy", "role" => "maintainer" },
-                   "group" =>
-                       [{ "groupid" => "test_group", "role" => "bugowner" },
-                        { "groupid" => "test_group", "role" => "maintainer" }] }, ret)
+    ret = duplicated_user_test('package', 'group', '/source/home:Iggy/TestPack/_meta')
+    assert_equal({ 'name' => 'TestPack',
+                   'project' => 'home:Iggy',
+                   'title' => 'Strange XML',
+                   'description' => {},
+                   'person' => { 'userid' => 'Iggy', 'role' => 'maintainer' },
+                   'group' =>
+                       [{ 'groupid' => 'test_group', 'role' => 'bugowner' },
+                        { 'groupid' => 'test_group', 'role' => 'maintainer' }] }, ret)
 
-    ret = duplicated_user_test("project", "user", "/source/home:Iggy/_meta")
-    assert_equal({ "name" => "home:Iggy",
-                   "title" => "Strange XML",
-                   "description" => {},
-                   "person" =>
-                       [{ "userid" => "tom", "role" => "bugowner" },
-                        { "userid" => "Iggy", "role" => "maintainer" },
-                        { "userid" => "tom", "role" => "maintainer" }] }, ret)
+    ret = duplicated_user_test('project', 'user', '/source/home:Iggy/_meta')
+    assert_equal({ 'name' => 'home:Iggy',
+                   'title' => 'Strange XML',
+                   'description' => {},
+                   'person' =>
+                       [{ 'userid' => 'tom', 'role' => 'bugowner' },
+                        { 'userid' => 'Iggy', 'role' => 'maintainer' },
+                        { 'userid' => 'tom', 'role' => 'maintainer' }] }, ret)
 
-    ret = duplicated_user_test("project", "group", "/source/home:Iggy/_meta")
-    assert_equal({ "name" => "home:Iggy",
-                   "title" => "Strange XML",
-                   "description" => {},
-                   "person" => { "userid" => "Iggy", "role" => "maintainer" },
-                   "group" =>
-                       [{ "groupid" => "test_group", "role" => "bugowner" },
-                        { "groupid" => "test_group", "role" => "maintainer" }] }, ret)
+    ret = duplicated_user_test('project', 'group', '/source/home:Iggy/_meta')
+    assert_equal({ 'name' => 'home:Iggy',
+                   'title' => 'Strange XML',
+                   'description' => {},
+                   'person' => { 'userid' => 'Iggy', 'role' => 'maintainer' },
+                   'group' =>
+                       [{ 'groupid' => 'test_group', 'role' => 'bugowner' },
+                        { 'groupid' => 'test_group', 'role' => 'maintainer' }] }, ret)
   end
 
-  test "store invalid package" do
+  test 'store invalid package' do
     login_tom
     name = Faker::Lorem.characters(255)
-    url = url_for(controller: :source, action: :update_package_meta, project: "home:tom", package: name)
+    url = url_for(controller: :source, action: :update_package_meta, project: 'home:tom', package: name)
     put url, "<package name='#{name}' project='home:tom'> <title/> <description/></package>"
     assert_response 400
-    assert_select "status[code] > summary", %r{invalid package name}
+    assert_select 'status[code] > summary', %r{invalid package name}
     get url
     assert_response 400
-    assert_select "status[code] > summary", %r{invalid package name}
+    assert_select 'status[code] > summary', %r{invalid package name}
   end
 
-  test "store invalid project" do
+  test 'store invalid project' do
     login_tom
     name = "home:tom:#{Faker::Lorem.characters(255)}"
     url = url_for(controller: :source, action: :update_project_meta, project: name)
     put url, "<project name='#{name}'> <title/> <description/></project>"
     assert_response 400
-    assert_select "status[code] > summary", %r{invalid project name}
+    assert_select 'status[code] > summary', %r{invalid project name}
     get url
     assert_response 400
-    assert_select "status[code] > summary", %r{invalid project name}
+    assert_select 'status[code] > summary', %r{invalid project name}
   end
 
-  test "issue 441" do
+  test 'issue 441' do
     login_tom
-    get "/source/Foo"
+    get '/source/Foo'
     assert_response 404
-    assert_equal({ "code" => "unknown_project", "summary" => "Foo" }, Xmlhash.parse(@response.body))
+    assert_equal({ 'code' => 'unknown_project', 'summary' => 'Foo' }, Xmlhash.parse(@response.body))
 
     # and while we're at it, try it for packages too
-    get "/source/Foo/bar"
+    get '/source/Foo/bar'
     assert_response 404
-    assert_equal({ "code" => "unknown_project", "summary" => "Foo" }, Xmlhash.parse(@response.body))
+    assert_equal({ 'code' => 'unknown_project', 'summary' => 'Foo' }, Xmlhash.parse(@response.body))
 
-    get "/source/home:tom/bar"
+    get '/source/home:tom/bar'
     assert_response 404
-    assert_equal({ "code" => "unknown_package", "summary" => "home:tom/bar" }, Xmlhash.parse(@response.body))
+    assert_equal({ 'code' => 'unknown_package', 'summary' => 'home:tom/bar' }, Xmlhash.parse(@response.body))
   end
 end
