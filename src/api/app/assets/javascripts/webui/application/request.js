@@ -8,7 +8,7 @@ function updateSupersedeAndDevelPackageDisplay() {
             $('#sourceupdate').prop('disabled', false);
         }
         $.ajax({
-            url: $('#targetproject').data('autocomplete-url'),
+            url: $('#targetproject').data('requests-url'),
             data: {
                 project: $('#targetproject').attr('value'),
                 package: $('#package').attr('value'),
@@ -50,10 +50,11 @@ function setup_request_dialog() {
     });
 
     $('#targetproject').autocomplete({
-        source: $('#targetproject').data('autocomplete_url'),
+        source: $('#targetproject').data('autocomplete-url'),
         minLength: 2,
         select: updateSupersedeAndDevelPackageDisplay,
-        change: updateSupersedeAndDevelPackageDisplay
+        change: updateSupersedeAndDevelPackageDisplay,
+        max: 50
     });
 
     updateSupersedeAndDevelPackageDisplay();

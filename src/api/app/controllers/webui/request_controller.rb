@@ -190,6 +190,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def list_small
+    required_parameters :project # the minimum
     redirect_to :controller => :home, :action => :requests and return unless request.xhr? # non ajax request
     requests = BsRequestCollection.list_ids(params)
     requests = BsRequestCollection.new(ids: requests).relation
