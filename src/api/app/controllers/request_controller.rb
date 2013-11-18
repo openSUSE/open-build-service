@@ -52,7 +52,7 @@ class RequestController < ApplicationController
       xml.add_node(r.render_xml)
     end
     xml.set_attribute('matches', matches.to_s)
-    render :text => xml.dump_xml, :content_type => 'text/xml'
+    render xml: xml.dump_xml
   end
 
   # GET /request/:id
@@ -60,7 +60,7 @@ class RequestController < ApplicationController
     required_parameters :id
 
     req = BsRequest.find(params[:id])
-    send_data(req.render_xml, :type => 'text/xml')
+    render xml: req.render_xml
   end
 
   # POST /request?cmd=create
@@ -124,7 +124,7 @@ class RequestController < ApplicationController
       notify = oldrequest.notify_parameters
       Event::RequestChange.create notify
 
-      send_data(req.render_xml, :type => 'text/xml')
+      render xml: req.render_xml
     end
   end
 
@@ -165,7 +165,7 @@ class RequestController < ApplicationController
 
     body = request.raw_post.to_s
 
-    BsRequest.transaction do
+    xml = BsRequest.transaction do
       @req = BsRequest.new_from_xml(body)
 
       # overwrite stuff
@@ -228,15 +228,15 @@ class RequestController < ApplicationController
         review.create_notification_event(notify.dup)
       end
 
+      xml = @req.render_xml
+      Suse::Validator.validate(:request, xml)
+      xml
     end
 
     # cache the diff (in the backend)
     @req.bs_request_actions.each do |a|
       a.delay.webui_infos
     end
-
-    xml = @req.render_xml
-    Suse::Validator.validate(:request, xml)
 
     render xml: xml
   end
@@ -271,9 +271,9 @@ class RequestController < ApplicationController
 
     if xml_request
       xml_request.set_attribute('actions', action_counter.to_s)
-      send_data(xml_request.dump_xml, :type => 'text/xml')
+      render xml: xml_request.dump_xml
     else
-      send_data(diff_text, :type => 'text/plain')
+      render text: diff_text
     end
   end
 

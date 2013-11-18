@@ -543,6 +543,8 @@ class ApplicationController < ActionController::Base
       request.body.size if request.body.respond_to? 'size'
     end
 
+    # avoid double render error
+    self.response_body = nil
     gather_exception_defaults(opt)
 
     response.headers['X-Opensuse-Errorcode'] = @errorcode

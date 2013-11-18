@@ -125,14 +125,14 @@
         </element>
       </optional>
       <optional>
-        <element name="grouped">      <!-- and this refers to the infame request groups -->
-          <oneOrMore>
+        <oneOrMore>
+          <element name="grouped">      <!-- and this refers to the famous request groups -->
             <attribute name="id">
               <data type="string" />
             </attribute>
-          </oneOrMore>
-          <empty/>
-        </element>
+            <empty/>
+          </element>
+        </oneOrMore>
       </optional>
       <optional>
         <element name="options">
