@@ -24,8 +24,8 @@ end
 
 OBSApi::Application.routes.draw do
 
-
   constraints(WebuiMatcher) do
+
     cons = {project: %r{[^\/]*}, package: %r{[^\/]*}, binary: %r{[^\/]*},
             user: %r{[^\/]*}, login: %r{[^\/]*}, title: %r{[^\/]*}, service: %r{\w[^\/]*},
             repository: %r{[^\/]*}, filename: %r{[^\/]*}, arch: %r{[^\/]*},
@@ -304,17 +304,45 @@ OBSApi::Application.routes.draw do
 
   end
 
+  # first the routes where the mime type does not matter
+  cons = {project: %r{[^\/]*}, package: %r{[^\/]*},
+          binary: %r{[^\/]*}, user: %r{[^\/]*}, login: %r{[^\/]*},
+          title: %r{[^\/]*}, service: %r{\w[^\/]*},
+          repository: %r{[^\/]*}, filename: %r{[^\/]*},
+          arch: %r{[^\/]*}, id: %r{\d*}}
+
+  ### /build
+  match 'build/:project/:repository/:arch/:package/_status' => 'build#index', constraints: cons, via: [:get, :post]
+  get 'build/:project/:repository/:arch/:package/_log' => 'build#logfile', constraints: cons
+  match 'build/:project/:repository/:arch/:package/_buildinfo' => 'build#buildinfo', constraints: cons, via: [:get, :post]
+  match 'build/:project/:repository/:arch/:package/_history' => 'build#index', constraints: cons, via: [:get, :post]
+  match 'build/:project/:repository/:arch/:package/:filename' => 'build#file', via: [:get, :put, :delete], constraints: cons
+  get 'build/:project/:repository/:arch/_builddepinfo' => 'build#builddepinfo', constraints: cons
+  match 'build/:project/:repository/:arch/:package' => 'build#index', constraints: cons, via: [:get, :post]
+  match 'build/:project/:repository/_buildconfig' => 'build#index', constraints: cons, via: [:get, :post]
+  match 'build/:project/:repository/:arch' => 'build#index', constraints: cons, via: [:get, :post]
+  get 'build/:project/_result' => 'build#result', constraints: cons
+  match 'build/:project/:repository' => 'build#index', constraints: cons, via: [:get, :post]
+  # the web client does no longer use that route, but we keep it for backward compat
+  get 'build/_workerstatus' => 'status#workerstatus'
+  match 'build/:project' => 'build#project_index', constraints: cons, via: [:get, :post, :put]
+  get 'build' => 'source#index'
+
+  ### /published
+
+  get 'published/:project/:repository/:arch/:binary' => 'published#index', constraints: cons
+  # :arch can be also a ymp for a pattern :/
+  get 'published/:project/:repository/:arch' => 'published#index', constraints: cons
+  get 'published/:project/:repository/' => 'published#index', constraints: cons
+  get 'published/:project' => 'published#index', constraints: cons
+  get 'published/' => 'source#index', via: :get
+
+
   constraints(APIMatcher) do
 
     get '/' => 'main#index'
 
     resource :configuration, only: [:show, :update, :schedulers]
-
-    cons = {project: %r{[^\/]*}, package: %r{[^\/]*},
-            binary: %r{[^\/]*}, user: %r{[^\/]*}, login: %r{[^\/]*},
-            title: %r{[^\/]*}, service: %r{\w[^\/]*},
-            repository: %r{[^\/]*}, filename: %r{[^\/]*},
-            arch: %r{[^\/]*}, id: %r{\d*}}
 
     ### /person
     post 'person' => 'person#command'
@@ -371,36 +399,6 @@ OBSApi::Application.routes.draw do
       get 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :show_attribute, constraints: cons
       post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :cmd_attribute, constraints: cons
       delete 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :delete_attribute, constraints: cons
-    end
-
-    controller :source do
-
-      get 'source' => :index
-      post 'source' => :global_command
-
-      # project level
-      get 'source/:project' => :show_project, constraints: cons
-      delete 'source/:project' => :delete_project, constraints: cons
-      post 'source/:project' => :project_command, constraints: cons
-      get 'source/:project/_meta' => :show_project_meta, constraints: cons
-      put 'source/:project/_meta' => :update_project_meta, constraints: cons
-
-      get 'source/:project/_config' => :show_project_config, constraints: cons
-      put 'source/:project/_config' => :update_project_config, constraints: cons
-      get 'source/:project/_pubkey' => :show_project_pubkey, constraints: cons
-      delete 'source/:project/_pubkey' => :delete_project_pubkey, constraints: cons
-
-      # package level
-      get '/source/:project/:package/_meta' => :show_package_meta, constraints: cons
-      put '/source/:project/:package/_meta' => :update_package_meta, constraints: cons
-
-      get 'source/:project/:package/:filename' => :get_file, constraints: cons
-      delete 'source/:project/:package/:filename' => :delete_file, constraints: cons
-      put 'source/:project/:package/:filename' => :update_file, constraints: cons
-
-      get 'source/:project/:package' => :show_package, constraints: cons
-      post 'source/:project/:package' => :package_command, constraints: cons
-      delete 'source/:project/:package' => :delete_package, constraints: cons
     end
 
     ### /architecture
@@ -564,33 +562,6 @@ OBSApi::Application.routes.draw do
 
     end
 
-    ### /build
-
-    match 'build/:project/:repository/:arch/:package/_status' => 'build#index', constraints: cons, via: [:get, :post]
-    get 'build/:project/:repository/:arch/:package/_log' => 'build#logfile', constraints: cons
-    match 'build/:project/:repository/:arch/:package/_buildinfo' => 'build#buildinfo', constraints: cons, via: [:get, :post]
-    match 'build/:project/:repository/:arch/:package/_history' => 'build#index', constraints: cons, via: [:get, :post]
-    match 'build/:project/:repository/:arch/:package/:filename' => 'build#file', via: [:get, :put, :delete], constraints: cons
-    get 'build/:project/:repository/:arch/_builddepinfo' => 'build#builddepinfo', constraints: cons
-    match 'build/:project/:repository/:arch/:package' => 'build#index', constraints: cons, via: [:get, :post]
-    match 'build/:project/:repository/_buildconfig' => 'build#index', constraints: cons, via: [:get, :post]
-    match 'build/:project/:repository/:arch' => 'build#index', constraints: cons, via: [:get, :post]
-    get 'build/:project/_result' => 'build#result', constraints: cons
-    match 'build/:project/:repository' => 'build#index', constraints: cons, via: [:get, :post]
-    # the web client does no longer use that route, but we keep it for backward compat
-    get 'build/_workerstatus' => 'status#workerstatus'
-    match 'build/:project' => 'build#project_index', constraints: cons, via: [:get, :post, :put]
-    get 'build' => 'source#index'
-
-    ### /published
-
-    get 'published/:project/:repository/:arch/:binary' => 'published#index', constraints: cons
-    # :arch can be also a ymp for a pattern :/
-    get 'published/:project/:repository/:arch' => 'published#index', constraints: cons
-    get 'published/:project/:repository/' => 'published#index', constraints: cons
-    get 'published/:project' => 'published#index', constraints: cons
-    get 'published/' => 'source#index', via: :get
-
     ### /request
 
     resources :request, only: [:index, :show, :update, :destroy]
@@ -637,6 +608,36 @@ OBSApi::Application.routes.draw do
 
     get '/404' => 'main#notfound'
 
+  end
+
+  controller :source do
+
+    get 'source' => :index
+    post 'source' => :global_command
+
+    # project level
+    get 'source/:project' => :show_project, constraints: cons
+    delete 'source/:project' => :delete_project, constraints: cons
+    post 'source/:project' => :project_command, constraints: cons
+    get 'source/:project/_meta' => :show_project_meta, constraints: cons
+    put 'source/:project/_meta' => :update_project_meta, constraints: cons
+
+    get 'source/:project/_config' => :show_project_config, constraints: cons
+    put 'source/:project/_config' => :update_project_config, constraints: cons
+    get 'source/:project/_pubkey' => :show_project_pubkey, constraints: cons
+    delete 'source/:project/_pubkey' => :delete_project_pubkey, constraints: cons
+
+    # package level
+    get '/source/:project/:package/_meta' => :show_package_meta, constraints: cons
+    put '/source/:project/:package/_meta' => :update_package_meta, constraints: cons
+
+    get 'source/:project/:package/:filename' => :get_file, constraints: cons
+    delete 'source/:project/:package/:filename' => :delete_file, constraints: cons
+    put 'source/:project/:package/:filename' => :update_file, constraints: cons
+
+    get 'source/:project/:package' => :show_package, constraints: cons
+    post 'source/:project/:package' => :package_command, constraints: cons
+    delete 'source/:project/:package' => :delete_package, constraints: cons
   end
 
   # this can be requested by non browsers (like HA proxies :)
