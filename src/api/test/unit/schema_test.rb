@@ -1,24 +1,27 @@
-require 'test/unit'
+require_relative '../test_helper'
+require 'find'
 
-class SchemaTest < Test::Unit::TestCase
+class SchemaTest < ActiveSupport::TestCase
 
-  # Called before every test method runs. Can be used
-  # to set up fixture information.
-  def setup
-    # Do nothing
-  end
-
-  # Called after every test method runs. Can be used to tear
-  # down fixture information.
-
-  def teardown
-    # Do nothing
-  end
-
-  # Fake test
-  def test_fail
-
-    # To change this template use File | Settings | File Templates.
-    fail('Not implemented')
+  test 'schemas' do
+    Find.find(CONFIG['schema_location']).each do |f|
+      io = nil
+      if f =~ %r{\.rng$}
+        testfile = f.gsub(%r{\.rng$}, '.xml')
+        if File.exists?(testfile)
+          io = IO.popen("xmllint --noout --relaxng #{f} #{testfile} 2>&1 > /dev/null", 'r')
+        end
+      elsif f =~ %r{xsd}
+        testfile = f.gsub(%r{\.xsd$}, '.xml')
+        if File.exists?(testfile)
+          io = IO.popen("xmllint --noout --schema #{f} #{testfile} 2>&1 > /dev/null", 'r')
+        end
+      end
+      if io
+        testresult = io.read
+        io.close
+        # TODO assert $? == 0, "#{testfile} does not validate against #{f} -> #{testresult}"
+      end
+    end
   end
 end

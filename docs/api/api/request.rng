@@ -25,14 +25,19 @@
         <ref name="request-states" />
       </attribute>
       <optional>
-      <attribute name="who">
-        <data type="string" />
-      </attribute>
+	<attribute name="who">
+          <data type="string" />
+	</attribute>
       </optional>
       <optional>
-      <attribute name="when">
-        <data type="string" />
-      </attribute>
+	<attribute name="when">
+          <data type="string" />
+	</attribute>
+      </optional>
+      <optional>
+	<attribute name="superseded_by">
+          <data type="integer" />
+	</attribute>
       </optional>
       <optional>
         <element name="comment">
@@ -57,105 +62,119 @@
           <value>group</value>
         </choice>
       </attribute>
-      <optional>
-        <element name="source">
-          <attribute name="project">
-            <data type="string" />
-          </attribute>
-          <optional>
-            <attribute name="package">
+      <interleave>
+	<optional>
+          <element name="source">
+            <attribute name="project">
               <data type="string" />
             </attribute>
-          </optional>
-          <optional>
-            <attribute name="rev">
-              <data type="string" />
-            </attribute>
-          </optional>
-          <empty/>
-        </element>
-      </optional>
-      <optional>
-        <element name="target">
-          <attribute name="project">
-            <data type="string" />
-          </attribute>
-          <optional>
-            <attribute name="package">
-              <data type="string" />
-            </attribute>
-          </optional>
-          <optional>
-            <attribute name="releaseproject">
-              <data type="string" />
-            </attribute>
-          </optional>
-          <optional>
-            <attribute name="repository">
-              <data type="string" />
-            </attribute>
-          </optional>
-          <empty/>
-        </element>
-      </optional>
-      <optional>
-        <element name="person">
-          <attribute name="name">
-            <data type="string" />
-          </attribute>
-          <optional>
-            <attribute name="role">
-              <data type="string" />
-            </attribute>
-          </optional>
-          <empty/>
-        </element>
-      </optional>
-      <optional>
-        <element name="group">       <!-- this refers to the user groups -->
-          <attribute name="name">
-            <data type="string" />
-          </attribute>
-          <optional>
-            <attribute name="role">
-              <data type="string" />
-            </attribute>
-          </optional>
-          <empty/>
-        </element>
-      </optional>
-      <optional>
-        <oneOrMore>
-          <element name="grouped">      <!-- and this refers to the famous request groups -->
-            <attribute name="id">
-              <data type="string" />
-            </attribute>
+            <optional>
+              <attribute name="package">
+		<data type="string" />
+              </attribute>
+            </optional>
+            <optional>
+              <attribute name="rev">
+		<data type="string" />
+              </attribute>
+            </optional>
             <empty/>
           </element>
-        </oneOrMore>
-      </optional>
-      <optional>
-        <element name="options">
-          <optional>
-            <element name="sourceupdate">
-              <choice>
-                <value>update</value>
-                <value>noupdate</value>
-                <value>cleanup</value>
-              </choice>
+	</optional>
+	<optional>
+          <element name="target">
+            <attribute name="project">
+              <data type="string" />
+            </attribute>
+            <optional>
+              <attribute name="package">
+		<data type="string" />
+              </attribute>
+            </optional>
+            <optional>
+              <attribute name="releaseproject">
+		<data type="string" />
+              </attribute>
+            </optional>
+            <optional>
+              <attribute name="repository">
+		<data type="string" />
+              </attribute>
+            </optional>
+            <empty/>
+          </element>
+	</optional>
+	<optional>
+          <element name="person">
+            <attribute name="name">
+              <data type="string" />
+            </attribute>
+            <optional>
+              <attribute name="role">
+		<data type="string" />
+              </attribute>
+            </optional>
+            <empty/>
+          </element>
+	</optional>
+	<optional>
+          <element name="group">       <!-- this refers to the user groups -->
+            <attribute name="name">
+              <data type="string" />
+            </attribute>
+            <optional>
+              <attribute name="role">
+		<data type="string" />
+              </attribute>
+            </optional>
+            <empty/>
+          </element>
+	</optional>
+	<optional>
+          <oneOrMore>
+            <element name="grouped">      <!-- and this refers to the famous request groups -->
+              <attribute name="id">
+		<data type="string" />
+              </attribute>
+              <empty/>
             </element>
-          </optional>
-          <optional>
-            <element name="updatelink"> <!-- obsolete? -->
-              <choice>
-                <value>true</value>
-                <value>false</value>
-              </choice>
-            </element>
-          </optional>
-          <empty/>
-        </element>
-      </optional>
+          </oneOrMore>
+	</optional>
+        <optional>
+          <element name="options">
+            <optional>
+              <element name="sourceupdate">
+                <choice>
+                  <value>update</value>
+                  <value>noupdate</value>
+                  <value>cleanup</value>
+                </choice>
+              </element>
+            </optional>
+            <optional>
+              <element name="updatelink"> <!-- obsolete? -->
+                <choice>
+                  <value>true</value>
+                  <value>false</value>
+                </choice>
+              </element>
+            </optional>
+            <empty/>
+          </element>
+        </optional>
+	<optional>
+	  <element name="acceptinfo">
+	    <attribute name="rev"/>
+	    <attribute name="srcmd5"/>
+	    <attribute name="osrcmd5"/>
+	    <optional>
+	      <attribute name="xsrcmd5"/>
+	      <attribute name="oxsrcmd5"/>
+	    </optional>
+	    <empty/>
+	  </element>
+	</optional>
+      </interleave>
       <empty/>
     </element>
   </define>
@@ -181,7 +200,7 @@
             </optional>
           </element>
         </optional>
-        <zeroOrMore>
+       <zeroOrMore>
           <element name="review">
             <attribute name="state">
               <ref name="request-states" />
