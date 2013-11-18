@@ -11,6 +11,12 @@ function useMeeGo(){
 	document.getElementById('title').value = "Official Tizen Project OBS instance at build.tizen.org";
 	document.getElementById('description').value = "This instance can be used to access resources from the Tizen project.";
 }
+function usePackman(){
+	document.getElementById('name').value = "Packman";
+	document.getElementById('remoteurl').value = "https://pmbs-api.links2linux.de/public";
+	document.getElementById('title').value = "Packman Build Service PMBS";
+	document.getElementById('description').value = "This instance can be used to access resources from Packman.";
+}
 <% end %>
 
 <% name = nil -%>
@@ -31,6 +37,7 @@ function useMeeGo(){
   <%# end -%>
   <%= button_to_function "build.openSUSE.org", "useOpenSUSE()" %>
   <input type='button' onclick='javascript:useMeeGo()' value='build.tizen.org'/>
+  <input type='button' onclick='javascript:usePackman()' value='pmbs.links2linux.org'/>
 
   <h3>Add custom OBS instance</h3>
   <%= form_tag  :action => :save_instance do -%>
