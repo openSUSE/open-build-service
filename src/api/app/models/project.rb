@@ -678,6 +678,7 @@ class Project < ActiveRecord::Base
   def reset_cache
     Rails.cache.delete('xml_project_%d' % id)
   end
+  private :reset_cache # whoever changes the project, needs to store it too
 
   # for the HasAttributes mixing
   def attribute_url
