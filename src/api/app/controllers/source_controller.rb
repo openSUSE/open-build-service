@@ -631,6 +631,9 @@ class SourceController < ApplicationController
         pass_to_backend path
         return
       end
+      if not upperProject.include? ':'
+        break
+      end
       upperProject = upperProject.gsub(/:[^:]*$/, '')
     end
 

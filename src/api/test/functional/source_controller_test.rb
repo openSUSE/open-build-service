@@ -1883,6 +1883,19 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     delete '/source/kde4/_pubkey'
     assert_response 403
 
+    login_king
+    subprojectmeta="<project name='DoesNotExist:subproject'><title></title><description/></project>"
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'DoesNotExist:subproject'), subprojectmeta
+    assert_response :success
+
+    delete '/source/DoesNotExist:subproject/_pubkey'
+    assert_response :success
+
+    delete '/source/DoesNotExist:subproject'
+    assert_response :success
+
+    login_tom
+
     # FIXME: make a successful deletion of a key
 
     # via new _project route
