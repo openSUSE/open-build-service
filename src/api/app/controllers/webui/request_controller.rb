@@ -158,15 +158,16 @@ class Webui::RequestController < Webui::WebuiController
 
   def forward_request_to(fwd)
     tgt_prj, tgt_pkg = params[fwd].split('_#_') # split off 'forward_' and split into project and package
-    description = @req.description.text
+    description = @req.value(:description)
     if @req.has_element? 'state'
       who = @req.state.value('who')
       description += ' (forwarded request %d from %s)' % [params[:id], who]
     end
 
-    rev = Package.dir_hash(@req.action.target.project, @req.action.target.package)['rev']
+    target = @req.find_first(:action).find_first(:target)
+    rev = Package.dir_hash(target.value(:project), target.value(:package))['rev']
     req = WebuiRequest.new(:type => 'submit', :targetproject => tgt_prj, :targetpackage => tgt_pkg,
-                               :project => @req.action.target.project, :package => @req.action.target.package,
+                               :project => target.value(:project), :package => target.value(:package),
                                :rev => rev, :description => description)
     req.save(:create => true)
 
