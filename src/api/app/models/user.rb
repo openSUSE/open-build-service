@@ -593,7 +593,7 @@ class User < ActiveRecord::Base
       object = object.attrib_namespace
     end
     if not object.kind_of? AttribNamespace
-      raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
+      raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}"
     end
 
     return true  if is_admin?
@@ -610,7 +610,7 @@ class User < ActiveRecord::Base
 
   def can_create_attribute_in?(object, opts)
     if not object.kind_of? Project and not object.kind_of? Package
-      raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
+      raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}"
     end
     unless opts[:namespace]
       raise ArgumentError, 'no namespace given'

@@ -1090,16 +1090,21 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def edit_comment
-    @package = params[:package]
-    attr = Attribute.new(:project => params[:project], :package => params[:package])
-    attr.set('OBS', 'ProjectStatusPackageFailComment', params[:text])
-    begin
-      attr.save
-      @comment = params[:text]
-    rescue ActiveXML::Transport::Error => e
+    @package = @project.api_obj.find_package(params[:package])
+
+    unless User.current.can_create_attribute_in? @package, namespace: 'OBS', name: 'ProjectStatusPackageFailComment'
       @comment = params[:last_comment]
-      @error = e.message
+      @error = "Can't create attributes in #{@package}"
+      return
     end
+
+    at = AttribType.find_by_namespace_and_name('OBS', 'ProjectStatusPackageFailComment')
+    attr = @package.attribs.where(attrib_type: at).first_or_initialize
+    v = attr.values.first_or_initialize
+    v.value = params[:text]
+    v.position = 1
+    attr.save!
+    @comment = params[:text]
     @update = params[:update]
   end
 
