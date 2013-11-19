@@ -1,4 +1,4 @@
-<% user_is_maintainer = (@package && User.current.can_modify_package?(@package.api_obj)) ||
+<% user_is_maintainer = (@package && User.current.can_modify_package?(@package)) ||
         (@project && User.current.can_modify_project?(@project.api_obj))
    data = { 'save-user' => url_for(:action => 'save_person'),
             'remove' => url_for(:action => 'remove_role'),
@@ -28,7 +28,7 @@
                     <%= content_tag(:td, data: { user: user.login, role: role.title, type: 'user' }) do %>
                         <% if defined? @package %>
                             <%= check_box_tag('user_' + role.title + '_' + user.login, '',
-                                              @package.api_obj.user_has_role?(user, role),
+                                              @package.user_has_role?(user, role),
                                               disabled: !user_is_maintainer, class: 'trigger') %>
                             <% if @project.api_obj.user_has_role?(user, role) %>
                                 <%= link_to(sprite_tag('project', title: 'Inherited from project'), :controller => 'project', :action => 'users', :project => @project) %>
@@ -80,7 +80,7 @@
                 <% @roles.each do |role| %>
                     <%= content_tag(:td, data: { group: group, role: role.title, type: 'group' }) do %>
                         <% if @package %>
-                            <%= check_box_tag('group_' + role.title + '_' + group.title, '', @package.api_obj.group_has_role?(group, role), disabled: !user_is_maintainer, :class => :trigger) %>
+                            <%= check_box_tag('group_' + role.title + '_' + group.title, '', @package.group_has_role?(group, role), disabled: !user_is_maintainer, :class => :trigger) %>
                             <% if @project.group_has_role?(group, role) %>
                                 <%= link_to(sprite_tag('project', title: 'Inherited from project'), :controller => 'project', :action => 'users', :project => @project) %>
                             <% end %>

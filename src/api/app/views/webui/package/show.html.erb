@@ -1,17 +1,17 @@
 <% @pagetitle = "Show #{@project} / #{@package}" %>
 <% @layouttype = 'custom' %>
-<% dpackage = @package.api_obj.develpackage %>
+<% dpackage = @package.develpackage %>
 <% package_bread_crumb %>
 
 <div class="grid_16 alpha omega box box-shadow">
   <%= render :partial => 'tabs' %>
   <div class="grid_10 alpha">
     <h3 id="package_title"><%=
-        title = @package.api_obj.title
+        title = @package.title
         title = @package.name if title.blank?
         title
     %></h3>
-    <%= description_wrapper(@package.api_obj.description) %>
+    <%= description_wrapper(@package.description) %>
   </div>
   <div class="grid_6 omega">
     <%= possibly_empty_ul class: :clean_list do %>
@@ -32,11 +32,11 @@
               at <%= link_to(elide(dpackage.project.name, 44), :action => :show, :controller => :package, :project => dpackage.project.name, :package => dpackage.name) %>
             </li>
         <% end %>
-        <% if @package.api_obj.developed_packages.present? %>
+        <% if @package.developed_packages.present? %>
             <li>
               <%= sprite_tag 'information', title: '' %>
               Devel package for
-              <% @package.api_obj.developed_packages.each_with_index do |pkg, index| %>
+              <% @package.developed_packages.each_with_index do |pkg, index| %>
                   <%= ',' if index > 0 %>
                   <%= link_to("#{elide(pkg.project.name, 40)}", :action => 'show', :project => pkg.project.name, :package => pkg.name) %>
               <% end %>
@@ -92,7 +92,7 @@
                   <%= link_to(sprited_text('package_go', 'Submit package'), { :action => :submit_request_dialog, :project => @project, :package => @package }, :remote => true) %>
                 </li>
             <% end %>
-            <% if User.current.can_modify_package? @package.api_obj %>
+            <% if User.current.can_modify_package? @package %>
                 <li>
                   <%= link_to sprited_text('package_edit', 'Edit description'), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
                 </li>
@@ -108,7 +108,7 @@
                 </li>
             <% end %>
             <%# TODO: only users w/o rights should see this, maintainers should get a different dialog: %>
-            <% if @package.api_obj.develpackage %>
+            <% if @package.develpackage %>
                 <li>
                   <%= link_to(sprited_text('arrow_switch', 'Request devel project change'), { :controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package }, :remote => true) %>
                 </li>

@@ -179,7 +179,7 @@ module Webui::WebuiHelper
 
     image, title = flag_image(flag, flagname)
 
-    if (@package && User.current.can_modify_package?(@package.api_obj)) ||
+    if (@package && User.current.can_modify_package?(@package)) ||
         (@project && User.current.can_modify_project?(@project.api_obj))
       opts = { project: @project, package: @package, action: :repositories }
       data = { flag: flagname }

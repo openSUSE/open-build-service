@@ -30,7 +30,7 @@
       %p
         %i
           This package has no files yet
-    - if User.current.can_modify_package? @package.api_obj
+    - if User.current.can_modify_package? @package
       %p
         = link_to sprite_tag('page_white_add'), :action => :add_file, :project => @project, :package => @package
         = link_to 'Add file', :action => :add_file, :project => @project, :package => @package

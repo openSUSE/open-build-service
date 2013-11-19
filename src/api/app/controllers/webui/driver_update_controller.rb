@@ -38,7 +38,7 @@ class Webui::DriverUpdateController < Webui::PackageController
     @architectures = service.each( 'param[@name="arch"]' ).map{|arch| arch.text} 
 
     #parse packages, binary packages from dud_packlist.xml file
-    packlist = @package.api_obj.source_file('dud_packlist.xml')
+    packlist = @package.source_file('dud_packlist.xml')
     xml = ActiveXML::Node.new(packlist)
     @packages = []
     @binary_packages = {}

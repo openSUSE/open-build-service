@@ -1,4 +1,4 @@
-<% commit = @package.api_obj.commit(rev.to_s) %>
+<% commit = @package.commit(rev.to_s) %>
 <% if commit %>
     <% if commit['user'] == '_service' %>
         <%= sprite_tag('cog') %> automatic update by service

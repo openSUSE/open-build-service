@@ -18,7 +18,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       end
     end
     @package = @project.api_obj.packages.find_by_name('patchinfo')
-    @file = @package.api_obj.patchinfo
+    @file = @package.patchinfo
     unless @file
       flash[:error] = "Patchinfo not found for #{params[:project]}"
       redirect_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
@@ -369,7 +369,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     unless params[:package].blank?
       @package = Package.get_by_project_and_name( @project.to_param, params[:package] )
     end
-    @patchinfo = @file = @package.api_obj.patchinfo
+    @patchinfo = @file = @package.patchinfo
 
     unless @file
       flash[:error] = "Patchinfo not found for #{params[:project]}"

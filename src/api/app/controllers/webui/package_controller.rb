@@ -29,7 +29,7 @@ class Webui::PackageController < Webui::WebuiController
     @srcmd5   = params[:srcmd5]
     @revision_parameter = params[:rev]
 
-    @bugowners_mail = (@package.api_obj.bugowner_emails + @project.api_obj.bugowner_emails).uniq
+    @bugowners_mail = (@package.bugowner_emails + @project.api_obj.bugowner_emails).uniq
     @revision = params[:rev]
     @failures = 0
     load_buildresults
@@ -49,7 +49,7 @@ class Webui::PackageController < Webui::WebuiController
       redirect_back_or_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
     end
 
-    sort_comments(@package.api_obj.comments)
+    sort_comments(@package.comments)
 
     @requests = []
     # TODO!!!
@@ -62,7 +62,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def set_linking_packages
-    @linking_packages = @package.api_obj.linking_packages
+    @linking_packages = @package.linking_packages
   end
 
   def linking_packages
@@ -154,8 +154,8 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def users
-    @users = [@project.api_obj.users, @package.api_obj.users].flatten.uniq
-    @groups = [@project.api_obj.groups, @package.api_obj.groups].flatten.uniq
+    @users = [@project.api_obj.users, @package.users].flatten.uniq
+    @groups = [@project.api_obj.groups, @package.groups].flatten.uniq
     @roles = Role.local_roles
   end
 
@@ -170,11 +170,11 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def revisions
-    unless @package.api_obj.check_source_access?
+    unless @package.check_source_access?
       flash[:error] = 'Could not access revisions'
       redirect_to :action => :show, :project => @project.name, :package => @package.name and return
     end
-    @max_revision = @package.api_obj.rev.to_i
+    @max_revision = @package.rev.to_i
     @upper_bound = @max_revision
     if params[:showall]
       @package.cacheAllCommits # we need to fetch commits alltogether for the cache and not each single one
@@ -190,11 +190,11 @@ class Webui::PackageController < Webui::WebuiController
     if params[:revision]
       @revision = params[:revision]
     else
-      @revision = @package.api_obj.rev
+      @revision = @package.rev
     end
     @cleanup_source = @project.name.include?(':branches:') # Rather ugly decision finding...
     @tprj = ''
-    if lt = @package.api_obj.backend_package.links_to
+    if lt = @package.backend_package.links_to
       @tprj = lt.project.name # fill in from link
     end
     @tprj = params[:targetproject] if params[:targetproject] # allow to override by parameter
@@ -241,10 +241,10 @@ class Webui::PackageController < Webui::WebuiController
 
   def set_linkinfo
     @linkinfo = nil
-    lt = @package.api_obj.backend_package.links_to
+    lt = @package.backend_package.links_to
     if lt
-      @linkinfo = { package: lt, error: @package.api_obj.backend_package.error }
-      if lt.backend_package.verifymd5 != @package.api_obj.backend_package.verifymd5
+      @linkinfo = { package: lt, error: @package.backend_package.error }
+      if lt.backend_package.verifymd5 != @package.backend_package.verifymd5
         @linkinfo[:diff] = true
       end
     end
@@ -274,12 +274,12 @@ class Webui::PackageController < Webui::WebuiController
     @forced_unexpand ||= ''
 
     # check source access
-    return false unless @package.api_obj.check_source_access?
+    return false unless @package.check_source_access?
 
     set_linkinfo
 
     begin
-      @current_rev = @package.api_obj.rev
+      @current_rev = @package.rev
       if not @revision and not @srcmd5
         # on very first page load only
         @revision = @current_rev
@@ -314,7 +314,7 @@ class Webui::PackageController < Webui::WebuiController
 
     # check source service state
     serviceerror = nil
-    serviceerror = @package.api_obj.serviceinfo.value(:error) if @package.api_obj.serviceinfo
+    serviceerror = @package.serviceinfo.value(:error) if @package.serviceinfo
 
     return true
   end
@@ -368,8 +368,8 @@ class Webui::PackageController < Webui::WebuiController
 
 
   def rdiff
-    @last_rev = @package.api_obj.dir_hash['rev']
-    @linkinfo = @package.api_obj.linkinfo
+    @last_rev = @package.dir_hash['rev']
+    @linkinfo = @package.linkinfo
     if params[:oproject]
       @oproject = Project.find_by_name(params[:oproject])
       @opackage = @oproject.find_package(params[:opackage]) if @oproject && params[:opackage]
@@ -384,7 +384,7 @@ class Webui::PackageController < Webui::WebuiController
       query[k] = params[k] unless params[k].blank?
     end
     query[:rev] = @rev if @rev
-    return unless get_diff(@package.api_obj.source_path + "?#{query.to_query}")
+    return unless get_diff(@package.source_path + "?#{query.to_query}")
 
     # we only look at [0] because this is a generic function for multi diffs - but we're sure we get one
     filenames = sorted_filenames_from_sourcediff(@rdiff)[0]
@@ -521,13 +521,13 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def save
-    unless User.current.can_modify_package? @package.api_obj
+    unless User.current.can_modify_package? @package
       redirect_to :action => 'show', :project => params[:project], :package => params[:package], error: 'No permission to save'
       return
     end
-    @package.api_obj.title = params[:title]
-    @package.api_obj.description = params[:description]
-    if @package.api_obj.save
+    @package.title = params[:title]
+    @package.description = params[:description]
+    if @package.save
       flash[:notice] = "Package data for '#{@package.name}' was saved successfully"
     else
       flash[:notice] = "Failed to save package '#{@package.name}'"
@@ -554,7 +554,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def save_file
-    unless User.current.can_modify_package? @package.api_obj
+    unless User.current.can_modify_package? @package
       redirect :back, error: "You're not allowed to modify #{@package.name}"
       return
     end
@@ -574,7 +574,7 @@ class Webui::PackageController < Webui::WebuiController
       end
 
       begin
-        @package.api_obj.save_file file: file, filename: filename
+        @package.save_file file: file, filename: filename
       rescue ActiveXML::Transport::Error => e
         flash[:error] = e.summary
         redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package]
@@ -603,7 +603,7 @@ class Webui::PackageController < Webui::WebuiController
         return false
       end
       begin
-        @package.api_obj.save_file filename: filename
+        @package.save_file filename: filename
       rescue ActiveXML::Transport::Error => e
         flash[:error] = e.summary
         redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package]
@@ -630,7 +630,7 @@ class Webui::PackageController < Webui::WebuiController
   def remove_file
     required_parameters :filename
     filename = params[:filename]
-    if @package.api_obj.delete_file filename
+    if @package.delete_file filename
       flash[:notice] = "File '#{filename}' removed successfully"
     else
       flash[:notice] = "Failed to remove file '#{filename}'"
@@ -647,7 +647,7 @@ class Webui::PackageController < Webui::WebuiController
     @rev = params[:rev]
     @expand = params[:expand]
     @addeditlink = false
-    if User.current.can_modify_package?(@package.api_obj) && @rev.blank?
+    if User.current.can_modify_package?(@package) && @rev.blank?
       begin
         files = package_files(@rev, @expand)
       rescue ActiveXML::Transport::Error => e
@@ -661,7 +661,7 @@ class Webui::PackageController < Webui::WebuiController
       end
     end
     begin
-      @file = @package.api_obj.source_file(@filename, fetch_from_params(:rev, :expand))
+      @file = @package.source_file(@filename, fetch_from_params(:rev, :expand))
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = "File not found: #{@filename}"
       redirect_to :action => :show, :package => @package, :project => @project and return
@@ -824,7 +824,7 @@ class Webui::PackageController < Webui::WebuiController
     if @specfile_name.blank?
       render json: {} and return
     end
-    specfile_content = @package.api_obj.source_file(@specfile_name)
+    specfile_content = @package.source_file(@specfile_name)
 
     description = []
     lines = specfile_content.split(/\n/)
@@ -891,7 +891,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def meta
-    @meta = @package.api_obj.render_xml
+    @meta = @package.render_xml
   end
 
   def save_meta
@@ -910,21 +910,21 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def attributes
-    @attributes = @package.api_obj.attribs
+    @attributes = @package.attribs
   end
 
   def edit
   end
 
   def repositories
-    @flags = @package.api_obj.expand_flags
+    @flags = @package.expand_flags
   end
 
   def change_flag
     check_ajax
     required_parameters :cmd, :flag
     frontend.source_cmd params[:cmd], project: @project, package: @package, repository: params[:repository], arch: params[:arch], flag: params[:flag], status: params[:status]
-    @flags = @package.api_obj.expand_flags[params[:flag]]
+    @flags = @package.expand_flags[params[:flag]]
   end
 
   private

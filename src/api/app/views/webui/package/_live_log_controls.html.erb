@@ -5,7 +5,7 @@
                                                project: @project, arch: @arch, repository: @repo, only_path: true) %>
 </p>
 
-<% if User.current.can_modify_package? @package.api_obj %>
+<% if User.current.can_modify_package? @package %>
     <p>
       <span class="link_trigger_rebuild hidden">
       <%= link_to sprited_text('rebuild', 'Trigger Rebuild'), {action: 'trigger_rebuild', project: @project, package: @package, arch: @arch, repo: @repo}, method: :delete %>
