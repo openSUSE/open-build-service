@@ -47,6 +47,7 @@ OBSApi::Application.configure do
 
   # compress our HTML
   config.middleware.use Rack::Deflater
+
 end
 
 

@@ -1,5 +1,5 @@
 function updateSupersedeAndDevelPackageDisplay() {
-    if ($('#targetproject').length > 0 && $('#targetproject')[0].value.length > 0) {
+    if ($('#targetproject').length > 0 && $('#targetproject')[0].value.length > 2) {
         if ($('#targetproject')[0].value == $('#sourceproject')[0].value) {
             $('#sourceupdate_display').hide();
             $('#sourceupdate').prop('disabled', true); // hide 'sourceupdate' from Ruby
@@ -10,8 +10,8 @@ function updateSupersedeAndDevelPackageDisplay() {
         $.ajax({
             url: $('#targetproject').data('requests-url'),
             data: {
-                project: $('#targetproject').attr('value'),
-                package: $('#package').attr('value'),
+                project: $('#targetproject')[0].value,
+                package: $('#package')[0].value,
                 types: 'submit',
                 states: ['new', 'review', 'declined']
             },

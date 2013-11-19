@@ -84,6 +84,8 @@ module OBSApi
 
     config.exceptions_app = self.routes
 
+    config.assets.js_compressor = :uglifier
+
     config.assets.precompile += %w( webui/application/cm2/index.js )
 
     config.assets.precompile +=
