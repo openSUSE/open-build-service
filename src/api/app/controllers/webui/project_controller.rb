@@ -1329,7 +1329,7 @@ class Webui::ProjectController < Webui::WebuiController
     @filter = @current_develproject
     if @filter == all_packages
       @filter = @all_projects
-    elsif filter == no_project
+    elsif @filter == no_project
       @filter = @no_project
     end
     @ignore_pending = params[:ignore_pending] || false
