@@ -949,18 +949,12 @@ class Webui::PackageController < Webui::WebuiController
   def require_package
     required_parameters :package
     params[:rev], params[:package] = params[:pkgrev].split('-', 2) if params[:pkgrev]
-    unless Package.valid_name? params[:package]
-      logger.error "Package #{@project}/#{params[:package]} not valid"
-      unless request.xhr?
-        flash[:error] = "\"#{params[:package]}\" is not a valid package name"
-        redirect_to :controller => 'project', :action => 'show', :project => @project, :nextstatus => 404 and return
-      else
-        render :text => "\"#{params[:package]}\" is not a valid package name", :status => 404 and return
-      end
-    end
     @project ||= params[:project]
     unless params[:package].blank?
-      @package = Package.find_by_project_and_name( @project.to_param, params[:package] )
+      begin
+        @package = Package.get_by_project_and_name( @project.to_param, params[:package] )
+      rescue APIException # why it's not found is of no concern :)
+      end
     end
 
     render_missing_package unless @package
