@@ -78,13 +78,10 @@ class Webui::HomeController < Webui::WebuiController
     login = @displayed_user.login
 
     # Reviews
-    @open_reviews = BsRequestCollection.new(user: login, roles: %w(reviewer creator), reviewstates: %w(new), states: %w(review)).relation
+    open_reviews = BsRequestCollection.new(user: login, roles: %w(reviewer creator), reviewstates: %w(new), states: %w(review)).relation
     @reviews_in = []
-    @reviews_out = []
-    @open_reviews.each do |review|
-      if review['creator'] == @displayed_user.login
-        @reviews_out << review
-      else
+    open_reviews.each do |review|
+      if review['creator'] != @displayed_user.login
         @reviews_in << review
       end
     end
@@ -93,15 +90,13 @@ class Webui::HomeController < Webui::WebuiController
     @declined_requests = BsRequestCollection.new(user: login, states: %w(declined), roles: %w(creator)).relation
 
     @requests_in = BsRequestCollection.new(user: login, states: %w(new), roles: %w(maintainer)).relation
-    @requests_out = BsRequestCollection.new(user: login, states: %w(new), roles: %w(creator)).relation
+    @requests_out = BsRequestCollection.new(user: login, states: %w(new review), roles: %w(creator)).relation
 
     @open_patchinfos = running_patchinfos
 
-    session[:requests] = (@declined_requests.pluck(:id) +
-        @open_reviews.pluck(:id) +
-        @requests_in.pluck(:id))
+    session[:requests] = @declined_requests.pluck(:id) + @reviews_in.map { |r| r.id } + @requests_in.pluck(:id)
 
-    @requests = @declined_requests + @open_reviews + @requests_in
+    @requests = @declined_requests + @reviews_in + @requests_in
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
 

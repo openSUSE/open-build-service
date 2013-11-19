@@ -129,16 +129,13 @@
 
 <div class="clear"></div>  
 
- <% if @requests and @reviews_in.count + @reviews_out.count  > 0 %>
+ <% if @requests and @reviews_in.count > 0 %>
   <div class="grid_16 alpha omega box box-shadow">
     <div id="reviews">
       <div class="box-header header-tabs">
         <ul>
           <% if @reviews_in.count > 0 %>
             <li><a href="#reviews_in" title="Requests that <%= @displayed_user.login %> has to review">Incoming Reviews</a></li>
-          <% end %>
-          <% if @reviews_out.count > 0 %>
-            <li><a href="#reviews_out" title="Requests <%= @displayed_user.login %> has sent">Outgoing Reviews</a></li>
           <% end %>
         </ul>
       </div>
@@ -147,11 +144,6 @@
           <%= render(:partial => 'shared/requests', :locals => { :requests => @reviews_in, :request_table_id => 'reviews_in_table', :hide_state => true }) %>
         </div>
       <% end %>
-      <% if @reviews_out.count > 0 %>
-        <div id="reviews_out" class="tab">
-          <%= render(:partial => 'shared/requests', :locals => { :requests => @reviews_out, :request_table_id => 'reviews_out_table', :hide_state => true }) %>
-        </div>
-      <% end -%>
    </div>
   </div>
 <% end %>
