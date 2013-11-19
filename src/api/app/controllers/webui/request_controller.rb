@@ -160,7 +160,7 @@ class Webui::RequestController < Webui::WebuiController
     tgt_prj, tgt_pkg = params[fwd].split('_#_') # split off 'forward_' and split into project and package
     description = @req.value(:description)
     if @req.has_element? 'state'
-      who = @req.state.value('who')
+      who = @req.find_first(:state).value('who')
       description += ' (forwarded request %d from %s)' % [params[:id], who]
     end
 
