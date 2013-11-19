@@ -177,7 +177,6 @@ class Webui::PackageController < Webui::WebuiController
     @max_revision = @package.rev.to_i
     @upper_bound = @max_revision
     if params[:showall]
-      @package.cacheAllCommits # we need to fetch commits alltogether for the cache and not each single one
       @visible_commits = @max_revision
     else
       @upper_bound = params[:rev].to_i if params[:rev]
