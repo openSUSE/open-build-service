@@ -72,7 +72,7 @@ module FlagHelper
             #set the flag attributes
             flag.repo = repo
             flag.architecture = arch
-            flag.package = package
+            flag.pkgname = package
           end
           position += 1
         end

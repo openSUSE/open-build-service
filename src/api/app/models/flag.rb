@@ -9,7 +9,7 @@ class Flag < ActiveRecord::Base
     options = Hash.new
     options['arch'] = self.architecture.name unless self.architecture.nil?
     options['repository'] = self.repo unless self.repo.nil?
-    options['package'] = self.package unless self.package.nil?
+    options['package'] = self.pkgname unless self.pkgname.nil?
     builder.send(status.to_s, options)
   end
 
@@ -24,8 +24,8 @@ class Flag < ActiveRecord::Base
     return false if repo.nil? and !in_repo.nil?
     return false if !repo.nil? and in_repo.nil?
 
-    return false if package.nil? and !in_package.nil?
-    return false if !package.nil? and in_package.nil?
+    return false if pkgname.nil? and !in_package.nil?
+    return false if !pkgname.nil? and in_package.nil?
 
     return true
   end
@@ -59,7 +59,7 @@ class Flag < ActiveRecord::Base
     ret = status
     ret += " arch=#{self.architecture.name}" unless self.architecture.nil?
     ret += " repo=#{self.repo}" unless self.repo.nil?
-    ret += " package=#{self.package}" unless self.package.nil?
+    ret += " package=#{self.pkgname}" unless self.pkgname.nil?
     ret
   end
 

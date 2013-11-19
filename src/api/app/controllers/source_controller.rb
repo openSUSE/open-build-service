@@ -1257,8 +1257,8 @@ class SourceController < ApplicationController
 
     if params.has_key? :nodelay
       @project.do_project_copy(params)
-      @project.flags.delete_if { |f| f.flag == "build" and f.status == "disable" and f.architecture.nil? and f.repo.nil? and f.package.nil? }
-      @project.flags.delete_if { |f| f.flag == "publish" and f.status == "disable" and f.architecture.nil? and f.repo.nil? and f.package.nil? }
+      @project.flags.delete_if { |f| f.flag == "build" and f.status == "disable" and f.architecture.nil? and f.repo.nil? and f.pkgname.nil? }
+      @project.flags.delete_if { |f| f.flag == "publish" and f.status == "disable" and f.architecture.nil? and f.repo.nil? and f.pkgname.nil? }
       @project.store
       render_ok
     else
