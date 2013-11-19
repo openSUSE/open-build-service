@@ -536,9 +536,9 @@ class Webui::ProjectController < Webui::WebuiController
     nr_cycles = 0
     if deps and deps.has_element? :cycle
       packages = Hash.new
-      deps.each_cycle do |cycle|
+      deps.each(:cycle) do |cycle|
         current_cycles = Array.new
-        cycle.each_package do |p|
+        cycle.each(:package) do |p|
           p = p.text
           if packages.has_key? p
             current_cycles << packages[p]
@@ -553,7 +553,7 @@ class Webui::ProjectController < Webui::WebuiController
         else
           logger.debug "HELP! #{current_cycles.inspect}"
         end
-        cycle.each_package do |p|
+        cycle.each(:package) do |p|
           packages[p.text] = nr_cycle
         end
       end
