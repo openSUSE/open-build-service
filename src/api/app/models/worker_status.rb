@@ -5,7 +5,7 @@ class WorkerStatus
     ws = ActiveXML::Node.new(mydata || ActiveXML.backend.direct_http('/build/_workerstatus'))
     prjs=Hash.new
     ws.each('building') do |b|
-      prjs[b.project] = 1
+      prjs[b.value(:project)] = 1
     end
     names = Hash.new
     # now try to find those we have a match for (the rest are hidden from you
@@ -14,8 +14,8 @@ class WorkerStatus
     end
     ws.each('building') do |b|
       # no prj -> we are not allowed
-      unless names.has_key? b.project
-        Rails.logger.debug "workerstatus2clean: hiding #{b.project} for user #{User.current.login}"
+      unless names.has_key? b.value(:project)
+        Rails.logger.debug "workerstatus2clean: hiding #{b.value(:project)} for user #{User.current.login}"
         b.set_attribute('project', '---')
         b.set_attribute('repository', '---')
         b.set_attribute('package', '---')
