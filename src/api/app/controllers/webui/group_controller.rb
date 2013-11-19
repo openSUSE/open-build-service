@@ -2,7 +2,8 @@ class Webui::GroupController < Webui::WebuiController
 
   include Webui::WebuiHelper
 
-  before_filter :overwrite_group, :only => [:edit]
+  before_filter :overwrite_group, only: [:edit]
+  before_filter :require_admin, only: [:save]
 
   def autocomplete
     required_parameters :term
@@ -37,22 +38,16 @@ class Webui::GroupController < Webui::WebuiController
   end
 
   def save
-    group_opts = {:name => params[:name],
-                  :title => params[:name],
-                  :members => params[:members]
-    }
-    begin
-      group = WebuiGroup.new(group_opts)
-      group.save
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.message
+    group = Group.where(title: params[:name]).first_or_create
+    Group.transaction do
+      group.users.delete_all
+      params[:members].split(',').each do |m|
+        group.users << User.find_by_login!(m)
+      end
+      group.save!
     end
     flash[:success] = "Group '#{group.title}' successfully updated."
-    if User.current.is_admin?
-      redirect_to controller: :configuration, action: :groups
-    else
-      redirect_to controller: 'group', action: 'show', id: params[:group]
-    end
+    redirect_to controller: :configuration, action: :groups
   end
 
   def overwrite_group

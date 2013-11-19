@@ -1,7 +1,11 @@
 require 'frontend_compat'
 
-class WebuiProject < WebuiNode
-  
+class WebuiProject < ActiveXML::Node
+
+  def self.transport
+    ActiveXML::api
+  end
+
   default_find_parameter :name
 
   attr_accessor :bf_updated

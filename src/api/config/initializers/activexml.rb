@@ -38,8 +38,6 @@ map.connect :webuiproject, 'rest:///source/:name/_meta?:view',
     :delete => 'rest:///source/:name?:force',
     :issues => 'rest:///source/:name?view=issues'
 
-map.connect :webuigroup, 'rest:///group/:title', :all => 'rest:///group/'
-
 map.connect :webuirequest, 'rest:///request/:id', :create => 'rest:///request?cmd=create'
 
 map.set_additional_header( 'User-Agent', "obs-webui/#{CONFIG['version']}" )

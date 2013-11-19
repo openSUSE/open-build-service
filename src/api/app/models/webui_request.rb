@@ -1,4 +1,8 @@
-class WebuiRequest < WebuiNode
+class WebuiRequest < ActiveXML::Node
+
+  def self.transport
+    ActiveXML::api
+  end
 
   class ListError < Exception; end
   class ModifyError < Exception; end
