@@ -86,8 +86,6 @@ while !dienow do
   sleep 1
 end
 
-$stderr.puts "got signal handler"
-
 begin
   Net::HTTP.start(CONFIG['frontend_host'], CONFIG['frontend_port']) do |http|
     http.post("/test/killme", '')

@@ -291,7 +291,10 @@ at_exit do
   Process.kill "TERM", -srcsrv_out.pid
   Process.kill "TERM", -reposrv_out.pid
   Process.kill "TERM", -servicesrv_out.pid
-  Process.kill "TERM", -publishsrv_out.pid
+  begin
+    Process.kill "TERM", -publishsrv_out.pid
+  rescue Errno::ESRCH
+  end
 
   if memcached_npid.to_i > 0
     Process.kill "TERM", memcached_npid

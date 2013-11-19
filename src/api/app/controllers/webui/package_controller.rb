@@ -961,19 +961,10 @@ class Webui::PackageController < Webui::WebuiController
     end
     @project ||= params[:project]
     unless params[:package].blank?
-      begin
-        @package = Package.get_by_project_and_name( @project.to_param, params[:package], use_source: false )
-      rescue Package::UnknownObjectError
-        flash[:error] = "Package #{params[:package]} not found"
-        unless request.xhr?
-          redirect_to :controller => 'project', :action => 'show', :project => @project, :nextstatus => 400 and return
-        else
-        render :text => e.message, :status => 404 and return
-        end
-      end
+      @package = Package.find_by_project_and_name( @project.to_param, params[:package] )
     end
 
-    return render_missing_package unless @package
+    render_missing_package unless @package
   end
 
   def render_missing_package

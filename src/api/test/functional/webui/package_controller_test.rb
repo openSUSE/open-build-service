@@ -26,6 +26,18 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_text 'Total build: 503 s'
   end
 
+  test 'show invalid package' do
+    visit package_show_path(package: 'TestPok', project: 'home:Iggy')
+    page.status_code.must_equal 404
+    flash_message.must_equal 'Package "TestPok" not found in project "home:Iggy"'
+  end
+
+  test 'show invalid project' do
+    visit package_show_path(package: 'TestPok', project: 'home:Oggy')
+    page.status_code.must_equal 404
+    flash_message.must_equal 'Project not found: home:Oggy'
+  end
+
   test 'delete package as user' do
     use_js
 
