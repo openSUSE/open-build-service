@@ -157,7 +157,7 @@ class WebuiRequest < WebuiNode
   end
 
   def id
-    value(:id)
+    value(:id).to_i
   end
 
   def api_obj
