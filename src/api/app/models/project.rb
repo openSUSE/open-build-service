@@ -1123,6 +1123,7 @@ class Project < ActiveRecord::Base
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200 || name.blank?
     return false if name =~ %r{^[_\.]} 
+    return false if name =~ %r{::}
     return true if name =~ /\A\w[-+\w\.:]*\z/
     return false
   end

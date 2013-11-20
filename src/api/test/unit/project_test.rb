@@ -284,7 +284,10 @@ END
     end
   end  
   
-  
+  test 'invalid names' do
+    # no ::
+    assert !Project.valid_name?('home:M0ses:raspi::qtdesktop')
+  end
 end
 
 
