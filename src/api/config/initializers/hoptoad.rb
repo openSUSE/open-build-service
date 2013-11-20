@@ -24,6 +24,7 @@ HoptoadNotifier.configure do |config|
   Timeout::Error
   Net::HTTPBadResponse
   WebuiMatcher::InvalidRequestFormat
+  ActionController::UnknownFormat
   }
  
   config.ignore_by_filter do |exception_data|
