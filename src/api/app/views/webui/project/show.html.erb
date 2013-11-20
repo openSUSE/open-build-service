@@ -166,7 +166,7 @@
       <h2 class="box-header">Packages (<%= @packages.length %>)</h2>
       <% packageurl = url_for(controller: 'package', action: 'show', project: @project, package: 'REPLACEIT') %>
       <% if @packages.length > 0 %>
-          <% cache [@project.api_obj, @packages.length] do %>
+          <% cache [packageurl, @packages.hash] do %>
               <div id="packages_table_wrapper" data-url="<%= packageurl %>">
                 <%= javascript_tag do %>
                     var packages = [ <%= @packages.map { |p| "['#{p}']" }.join(',').html_safe %> ];
