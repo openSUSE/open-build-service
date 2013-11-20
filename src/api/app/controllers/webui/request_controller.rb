@@ -132,9 +132,9 @@ class Webui::RequestController < Webui::WebuiController
         else
           tprj, tpkg = params[:add_submitter_as_maintainer_0].split('_#_') # split into project and package
           if tpkg
-            target = Package.find(tpkg, :project => tprj)
+            target = Package.find_by_project_and_name(tprj, tpkg)
           else
-            target = Project.find(tprj)
+            target = Project.Project.find_by_name tprj
           end
           target.add_person(:userid => @req.creator, :role => 'maintainer')
           target.save

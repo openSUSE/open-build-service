@@ -481,8 +481,9 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to :controller => :project, :action => 'new_package_branch', :project => params[:project] and return
     end
 
-    linked_package = Package.get_by_project_and_name(@linked_project, @linked_package)
-    unless linked_package
+    begin
+      linked_package = Package.get_by_project_and_name(@linked_project, @linked_package)
+    rescue APIException
       flash[:error] = "Unable to find package '#{@linked_package}' in project '#{@linked_project}'."
       redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
     end
@@ -952,7 +953,7 @@ class Webui::PackageController < Webui::WebuiController
     @project ||= params[:project]
     unless params[:package].blank?
       begin
-        @package = Package.get_by_project_and_name( @project.to_param, params[:package], use_source: false )
+        @package = Package.get_by_project_and_name( @project.to_param, params[:package], use_source: false, follow_project_links: true )
       rescue APIException # why it's not found is of no concern :)
       end
     end
