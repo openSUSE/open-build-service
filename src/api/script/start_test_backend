@@ -98,12 +98,6 @@ puts "Starting backend srcserver..."
 srcsrv = Thread.new do
   srcsrv_out = IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_srcserver 2>&1")
   puts "Started backend srcserver with pid: #{srcsrv_out.pid}"
-  begin
-    Process.setpgid srcsrv_out.pid, 0
-  rescue Errno::EACCES
-    puts "Could not set backend srcserver group to root"
-    # what to do?
-  end
   while srcsrv_out && !dienow
     begin
       line = srcsrv_out.gets
@@ -119,12 +113,6 @@ puts "Starting backend repserver..."
 reposrv = Thread.new do
   reposrv_out = IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_repserver 2>&1")
   puts "Started backend repserver with pid #{reposrv_out.pid}"
-  begin
-    Process.setpgid reposrv_out.pid, 0
-  rescue Errno::EACCES
-    # what to do?
-    puts "Could not set backend repserver group to root"
-  end
   while reposrv_out && !dienow
     begin
       line = reposrv_out.gets
@@ -140,12 +128,6 @@ puts "Starting backend serviceserver..."
 servicesrv = Thread.new do
   servicesrv_out = IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_service 2>&1")
   puts "Started backend service server with pid #{servicesrv_out.pid}"
-  begin
-    Process.setpgid servicesrv_out.pid, 0
-  rescue Errno::EACCES
-    # what to do?
-    puts "Could not set backend serviceserver group to root"
-  end
   while servicesrv_out && !dienow
     begin
       line = servicesrv_out.gets
@@ -161,17 +143,11 @@ puts "Starting backend publisher..."
 publishsrv = Thread.new do
   publishsrv_out = IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_publish 2>&1")
   puts "Started backend publish server with pid #{publishsrv_out.pid}"
-  begin
-    Process.setpgid publishsrv_out.pid, 0
-  rescue Errno::EACCES
-    # what to do?
-    puts "Could not set backend publish server group to root"
-  end
   while publishsrv_out && !dienow
     begin
       line = publishsrv_out.gets
-      logger.debug line.strip unless line.blank?
-      sleep 0.5
+      break if line.nil?
+      logger.debug line.strip unless line.empty?
     rescue IOError
       break
     end
@@ -288,11 +264,15 @@ scheduler_thread = nil
 at_exit do
   scheduler_thread.join if scheduler_thread
 
-  Process.kill "TERM", -srcsrv_out.pid
-  Process.kill "TERM", -reposrv_out.pid
-  Process.kill "TERM", -servicesrv_out.pid
+  system("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_srcserver --stop")
+  system("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_repserver --stop")
+  system("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_publish --stop")
+
+  Process.kill "TERM", srcsrv_out.pid
+  Process.kill "TERM", reposrv_out.pid
+  Process.kill "TERM", servicesrv_out.pid
   begin
-    Process.kill "TERM", -publishsrv_out.pid
+    Process.kill "TERM", publishsrv_out.pid
   rescue Errno::ESRCH
   end
 
@@ -366,3 +346,4 @@ trap("INT") { dienow = true }
 while !dienow do
   sleep 1
 end
+
