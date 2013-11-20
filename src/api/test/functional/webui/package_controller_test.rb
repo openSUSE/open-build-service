@@ -281,6 +281,6 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     end
     page.wont_have_link 'README'
     # restore now
-    Suse::Backend.put( '/source/home:dmayr/x11vnc/README', 'just to delete')
+    Suse::Backend.put( '/source/home:dmayr/x11vnc/README?user=king', 'just to delete')
   end
 end

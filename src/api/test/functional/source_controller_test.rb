@@ -232,7 +232,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_invalid_project_and_package_name
     login_king
-    ['_blah'].each do |n|
+    %w(_blah).each do |n|
       raw_put url_for(:controller => :source, :action => :update_project_meta, :project => n), "<project name='#{n}'> <title /> <description /> </project>"
       assert_response 400
       put "/source/kde4/#{n}/_meta", "<package project='kde4' name='#{n}'> <title /> <description /> </project>"
@@ -2791,7 +2791,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     get '/source/home:tom:branches:home:Iggy/_meta'
-    assert_equal({"name"=>"10.2", "path"=>{"project"=>"home:Iggy", "repository"=>"10.2"}, "arch"=>["i586", "x86_64"]}, Xmlhash.parse(@response.body)['repository'])
+    assert_equal({'name' => '10.2', 'path' =>{'project' => 'home:Iggy', 'repository' => '10.2'}, 'arch' => %w(i586 x86_64)}, Xmlhash.parse(@response.body)['repository'])
 
     # check source link
     get '/source/home:tom:branches:home:Iggy/TestPack/_link'
@@ -3065,7 +3065,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:Iggy/TestPack'
     assert_response :success
 
-    Suse::Backend.put('/source/home:Iggy/TestPack/bnc%23620675.diff', 'argl')
+    Suse::Backend.put('/source/home:Iggy/TestPack/bnc%23620675.diff?user=king', 'argl')
     assert_response :success
 
     get '/source/home:Iggy/TestPack'

@@ -240,7 +240,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_match(/no pubkey available/, @response.body)
 
     # access to local project with project link to remote, and via a local indirection
-    [ 'UseRemoteInstance', 'UseRemoteInstanceIndirect'].each do |project|
+    %w(UseRemoteInstance UseRemoteInstanceIndirect).each do |project|
       get "/source/#{project}"
       assert_response :success
       get "/source/#{project}/_meta"
@@ -339,7 +339,7 @@ end
 
     login_tom
     # FIXME: submission from a remote project is not yet supported "RemoteInstance:BaseDistro"
-    [ 'LocalProject', 'UseRemoteInstance'].each do |prj|
+    %w(LocalProject UseRemoteInstance).each do |prj|
       post '/request?cmd=create', '<request>
                                    <action type="submit">
                                      <source project="' + prj + '" package="pack1" rev="1"/>
@@ -392,8 +392,8 @@ end
 #    post "/source/RemoteInstance:BaseDistro/pack1", :cmd => :branch, :target_project => "LocalProject", :target_package => "branchedpackage"
 #    assert_response :success
 
-    Suse::Backend.put( '/source/LocalProject/newpackage/_meta', Package.find_by_project_and_name('LocalProject', 'newpackage').to_axml)
-    Suse::Backend.put( '/source/LocalProject/newpackage/new_file', 'adding stuff')
+    Suse::Backend.put( '/source/LocalProject/newpackage/_meta?user=king', Package.find_by_project_and_name('LocalProject', 'newpackage').to_axml)
+    Suse::Backend.put( '/source/LocalProject/newpackage/new_file?user=king', 'adding stuff')
     post '/source/LocalProject/newpackage', :cmd => :diff, :oproject => 'RemoteInstance:BaseDistro', :opackage => 'pack1'
     assert_response :success
   end

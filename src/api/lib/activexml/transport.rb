@@ -194,7 +194,7 @@ module ActiveXML
 
     def save(object, opt={})
       logger.debug "saving object #{object.class} (#{object.init_options.inspect}) to api:\n #{object.dump_xml}"
-      url = substituted_uri_for( object )
+      url = substituted_uri_for( object, nil, opt )
       http_do 'put', url, :data => object.dump_xml
     end
 

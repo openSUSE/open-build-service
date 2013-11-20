@@ -444,7 +444,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/Channel/BaseDistro3/_channel'
     assert_response :success
-    assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro2.0", :package => "pack2.linked" }
+    assert_xml_tag :tag => 'binary', :attributes => { :project => 'BaseDistro2.0', :package => 'pack2.linked'}
     put '/source/Channel/BaseDistro3/_channel', '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
           <target project="BaseDistro3Channel" repository="channel_repo" />
@@ -456,8 +456,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/Channel/BaseDistro3/_channel'
     assert_response :success
-    assert_no_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro2.0", :package => "pack2.linked" }
-    assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :package => "pack2" }
+    assert_no_xml_tag :tag => 'binary', :attributes => { :project => 'BaseDistro2.0', :package => 'pack2.linked'}
+    assert_xml_tag :tag => 'binary', :attributes => { :project => 'BaseDistro3', :package => 'pack2'}
 
     # create channel packages and repos
     login_adrian
@@ -1227,7 +1227,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/source/#{incidentProject}/_meta"
     assert_response :success
     maintenance_project_meta = REXML::Document.new(@response.body)
-    maintenance_project_meta.elements['/project'].delete_element "publish"
+    maintenance_project_meta.elements['/project'].delete_element 'publish'
     raw_put "/source/#{incidentProject}/_meta", maintenance_project_meta.to_s
     assert_response :success
     run_scheduler('x86_64')
@@ -1540,10 +1540,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     delete '/source/BaseDistro3/pack2.0'
     assert_response :success
     # don't leave the broken link and just recreate it
-    Suse::Backend.delete '/source/BaseDistro3/pack2'
+    Suse::Backend.delete '/source/BaseDistro3/pack2?user=king'
     assert_response :success
     p = Package.find_by_project_and_name('BaseDistro3', 'pack2')
-    Suse::Backend.put( '/source/BaseDistro3/pack2/_meta', p.to_axml)
+    Suse::Backend.put( '/source/BaseDistro3/pack2/_meta?user=king', p.to_axml)
     raw_put '/source/BaseDistro3/pack2/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read()
     assert_response :success
   end

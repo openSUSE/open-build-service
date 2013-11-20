@@ -927,6 +927,7 @@ class Package < ActiveRecord::Base
 
     put_opt = {}
     put_opt[:comment] = opt[:comment] if opt[:comment]
+    put_opt[:user] = User.current.login
 
     path = self.source_path(opt[:filename], put_opt)
     ActiveXML::backend.http_do :put, path, data: content, timeout: 500
