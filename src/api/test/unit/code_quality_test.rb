@@ -144,7 +144,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'UserLdapStrategy::initialize_ldap_con' => 64.05,
       'UserLdapStrategy::render_grouplist_ldap' => 100.3,
       'UserLdapStrategy::update_entry_ldap' => 59.56,
-      'WizardController#package_wizard' => 135.16,
+      'WizardController#package_wizard' => 97.46,
       'Webui::PatchinfoController#save' => 244.01,
       'WebuiRequest::make_stub' => 233.83,
       'Webui::ProjectController#status_check_package' => 73,
