@@ -465,9 +465,6 @@ class Webui::ProjectController < Webui::WebuiController
     # Merge project repo's arch list with currently available arches from API. This needed as you want
     # to keep currently non-working arches in the project meta.
 
-    # Prepare a list of recommended architectures
-    @recommended_arch_list = Architecture.where(recommended: true, available: true).pluck(:name)
-
     @repository_arch_hash = Hash.new
     @available_architectures.each {|arch| @repository_arch_hash[arch.name] = false }
     repo.architectures.each {|arch| @repository_arch_hash[arch.name] = true }

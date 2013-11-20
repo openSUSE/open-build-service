@@ -85,11 +85,11 @@ class Webui::ConfigurationController < Webui::WebuiController
   def update_architectures
     @available_architectures.each do |arch_elem|
       arch = Architecture.find_by_name(arch_elem.name) # fetch a real 'Architecture' from 'directory' entry
-      if params[:arch_recommended] and params[:arch_recommended].include?(arch.name) and !arch.recommended
-        arch.recommended = true
+      if params[:arch_available] and params[:arch_available].include?(arch.name) and !arch.available
+        arch.available = true
         arch.save
-      elsif arch.recommended
-        arch.recommended = false
+      elsif arch.available
+        arch.available = false
         arch.save
       end
     end

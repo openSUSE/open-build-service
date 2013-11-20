@@ -69,7 +69,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'ApplicationController#validate_xml_response' => 59.51,
       'ApplicationController#extract_ldap_user' => 123.29,
       'ApplicationController#extract_proxy_user' => 65.48,
-      'ArchitecturesController#index' => 55.94,
       'AttributeController#attribute_definition' => 87.7,
       'AttributeController#find_attribute_container' => 62.42,
       'AttributeController#namespace_definition' => 64.52,

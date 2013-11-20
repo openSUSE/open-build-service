@@ -30,7 +30,7 @@
       <%= text_field_tag 'repo', '', size: 60, id: 'repo_name', disabled: true %><br/>
       <strong>Architectures: </strong><br/>
       <% @available_architectures.each do |arch| %>
-        <%= check_box_tag "arch[#{arch.name}]", "", arch.recommended == "true" %><%= arch.name %>
+        <%= check_box_tag "arch[#{arch.name}]", "", arch.available == "true" %><%= arch.name %>
       <% end %>
     <% end %>
   </p>
