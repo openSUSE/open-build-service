@@ -630,9 +630,10 @@ class Webui::PackageController < Webui::WebuiController
   def remove_file
     required_parameters :filename
     filename = params[:filename]
-    if @package.delete_file filename
+    begin
+      @package.delete_file filename
       flash[:notice] = "File '#{filename}' removed successfully"
-    else
+    rescue ActiveXML::Transport::NotFoundError
       flash[:notice] = "Failed to remove file '#{filename}'"
     end
     redirect_to :action => :show, :project => @project, :package => @package
