@@ -1,7 +1,6 @@
 CREATE TABLE `architectures` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) CHARACTER SET utf8 NOT NULL,
-  `recommended` tinyint(1) DEFAULT '0',
   `available` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `arch_name_index` (`name`)
@@ -1337,6 +1336,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131028085325');
 
 INSERT INTO schema_migrations (version) VALUES ('20131029112259');
 
+INSERT INTO schema_migrations (version) VALUES ('20131105112259');
+
 INSERT INTO schema_migrations (version) VALUES ('20131106112233');
 
 INSERT INTO schema_migrations (version) VALUES ('20131111090310');
@@ -1344,6 +1345,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131111090310');
 INSERT INTO schema_migrations (version) VALUES ('20131111193512');
 
 INSERT INTO schema_migrations (version) VALUES ('20131111194720');
+
+INSERT INTO schema_migrations (version) VALUES ('20131120193512');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

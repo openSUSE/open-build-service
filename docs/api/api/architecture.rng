@@ -15,12 +15,7 @@
       <attribute name="name">
         <ref name="build-arch"/>
       </attribute>
-      <element name="available">
-        <data type="boolean"/>
-      </element>
-      <element name="recommended">
-        <data type="boolean"/>
-      </element>
+      <empty/>
     </element>
   </define>
 </grammar>

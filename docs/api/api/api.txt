@@ -27,6 +27,17 @@ GET /about
 XmlResult: about
 
 
+== Architectures
+
+GET /architectures
+
+  Get a list of all known architectures known to OBS in general. 
+  This is not the list of architectures provided by this instance, go
+  to /configuration for this
+
+XmlResult: architecture list
+
+
 == Issue Trackers
 
 GET /issue_trackers

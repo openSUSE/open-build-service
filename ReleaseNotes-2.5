@@ -68,12 +68,15 @@ Changes on purpose:
 Deprecated:
 ===========
 
-The following calls have been marked as deprecated, they will get removed in OBS 3.0
+List of incompatible changes:
 
- * The /architectures path got obsoleted by the following:
-   => Use /configuration to configure the available architectures. This is also
-      used by the backend now.
-   => Define the used architectures for default targets directly in /distribution
+ * The /architectures does not provided the attributes "recommended" and "available"
+   anymore. It just provides a fixed list of all known architectures in general.
+   => Use /configuration to configure the available architectures for your instance.
+      This is also used by the backend now.
+   => Define the used architectures for default targets directly in /distribution.
+      A migration is transfering the recommended architectures if not yet defined.
+   => Modification of architectures is not supported in this route anymore.
 
 Notes for systems using systemd:
 ================================

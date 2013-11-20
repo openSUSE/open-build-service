@@ -1,112 +1,84 @@
 armv4l:
   name: armv4l
-  recommended: 0
   available: 0
 armv5el:
   name: armv5el
-  recommended: 0
   available: 0
 armv5l:
   name: armv5l
-  recommended: 0
   available: 0
 armv6el:
   name: armv6el
-  recommended: 0
   available: 0
 armv6l:
   name: armv6l
-  recommended: 0
   available: 0
 armv7el:
   name: armv7el
-  recommended: 0
   available: 0
 armv7l:
   name: armv7l
-  recommended: 0
   available: 0
 armv8el:
   name: armv8el
-  recommended: 0
   available: 0
 hppa:
   name: hppa
-  recommended: 0
   available: 0
 i586:
   name: i586
-  recommended: 1
   available: 1
 i686:
   name: i686
-  recommended: 0
   available: 0
 ia64:
   name: ia64
-  recommended: 0
   available: 0
 local:
   name: local
-  recommended: 0
   available: 0
 mips:
   name: mips
-  recommended: 0
   available: 0
 mips32:
   name: mips32
-  recommended: 0
   available: 0
 mips64:
   name: mips64
-  recommended: 0
   available: 0
 ppc:
   name: ppc
-  recommended: 0
   available: 0
 ppc64:
   name: ppc64
-  recommended: 0
   available: 0
 ppc64le:
   name: ppc64le
-  recommended: 0
   available: 0
 s390:
   name: s390
-  recommended: 0
   available: 0
 s390x:
   name: s390x
-  recommended: 0
   available: 0
 sparc:
   name: sparc
-  recommended: 0
   available: 0
 sparc64:
   name: sparc64
-  recommended: 0
   available: 0
 sparc64v:
   name: sparc64v
-  recommended: 0
   available: 0
 sparcv8:
   name: sparcv8
-  recommended: 0
   available: 0
 sparcv9:
   name: sparcv9
-  recommended: 0
   available: 0
 sparcv9v:
   name: sparcv9v
-  recommended: 0
   available: 0
 x86_64:
   name: x86_64
-  recommended: 1
   available: 1

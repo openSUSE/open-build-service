@@ -1,5 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<architecture name="x86_64">
-  <available>true</available>
-  <recommended>true</recommended>
-</architecture>
+<architecture name="x86_64" />

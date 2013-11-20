@@ -1,10 +1,6 @@
 class Architecture < ActiveRecord::Base
 
-#
-# FIXME3.0: This controller is obsolete and will be removed
-#           Do not add new stuff here!
-#
-
+  # This class provides all existing architectures known to OBS
 
   has_many :repository_architectures, inverse_of: :architecture
   has_many :repositories, :through => :repository_architectures
