@@ -80,23 +80,17 @@ class Webui::AttributeController < Webui::WebuiController
   def requires
     required_parameters :project
     @project = WebuiProject.find(params[:project])
-    unless @project
+    unless @project && !@project.is_remote?
       flash[:error] = "Project not found: #{params[:project]}"
       redirect_to :controller => 'project', :action => 'list_public' and return
-    end
-    if @project.is_remote?
-      flash[:error] = 'Attribute access to remote project is not yet supported'
-      if params[:package].blank?
-        redirect_to controller: :project, action: :show, project: params[:project]
-      else
-        redirect_to controller: :package, action: :show, project: params[:project], package: params[:package]
-      end
-      return
     end
     @is_maintenance_project = false
     @is_maintenance_project = true if @project.project_type and @project.project_type == 'maintenance'
     if params[:package]
       @package = @project.api_obj.find_package(params[:package])
+      unless @package
+        redirect_to project_show_path(@project.api_obj.name), error: "Package #{params[:package]} not found" and return
+      end
       @attribute_container = @package
     else
       @attribute_container = @project.api_obj

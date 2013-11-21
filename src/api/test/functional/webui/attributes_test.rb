@@ -362,4 +362,9 @@ class Webui::AddAttributesTest < Webui::IntegrationTest
 
   end
 
+  test 'attribute invalid package' do
+    visit attribute_edit_path(project: 'home:Iggy', package: 'Pok')
+    page.must_have_content "Package Pok not found"
+  end
+
 end
