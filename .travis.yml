@@ -21,4 +21,5 @@ notifications:
   email:
     on_success: change
     on_failure: change
-
+services:
+  - memcached # will start memcached
