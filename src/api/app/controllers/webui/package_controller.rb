@@ -570,7 +570,7 @@ class Webui::PackageController < Webui::WebuiController
       unless valid_file_name?(filename)
         flash[:error] = "'#{filename}' is not a valid filename."
         redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package]
-        #return
+        return
       end
 
       begin
@@ -578,7 +578,7 @@ class Webui::PackageController < Webui::WebuiController
       rescue ActiveXML::Transport::Error => e
         flash[:error] = e.summary
         redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package]
-        #return
+        return
       end
     elsif file_url.present?
       # we have a remote file uri
