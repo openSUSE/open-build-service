@@ -32,6 +32,7 @@ record_4:
   payload: '{"project":"BaseDistro","package":"pack1","user":"unknown","files":"Added:\n  my_file\n\n","rev":"1"}'
   queued: 0
   lock_version: 0
+  project_logged: true
   created_at: 2013-08-31 14:56:50.000000000 Z
   updated_at: 2013-08-31 14:56:50.000000000 Z
 record_5:
@@ -99,3 +100,27 @@ record_13:
   lock_version: 0
   created_at: 2013-08-20 13:42:12.000000000 Z
   updated_at: 2013-08-20 13:42:12.000000000 Z
+commit_for_deleted_package:
+  id: 1067339103
+  eventtype: Event::Commit
+  payload: '{"project":"BaseDistro2.0","package":"isgone","user":"Iggy","requestid":"1000","files":"Added:\n  onefile\n\n","rev":"3"}'
+  queued: 0
+  lock_version: 0
+  created_at: 2013-08-30 14:56:50.000000000 Z
+  updated_at: 2013-08-30 14:56:50.000000000 Z
+build_success_for_deleted_project:
+  id: 1067339104
+  eventtype: Event::BuildSuccess
+  payload: '{"project":"NotLongerThere","package":"IsAlsoGone","user":"Iggy","arch":"WhoCares"}'
+  queued: 0
+  lock_version: 0
+  created_at: 2013-08-30 14:56:50.000000000 Z
+  updated_at: 2013-08-30 14:56:50.000000000 Z
+build_fails_with_deleted_user_and_request:
+  id: 1067339105
+  eventtype: Event::BuildFail
+  payload: '{"project":"BaseDistro","package":"pack1","requestid":"666","sender":"no_longer_there","rev":"5"}'
+  queued: 0
+  lock_version: 0
+  created_at: 2013-08-30 14:56:50.000000000 Z
+  updated_at: 2013-08-30 14:56:50.000000000 Z
