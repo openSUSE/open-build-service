@@ -34,7 +34,7 @@
     <p>
       <%= fields_for :archs do |arch_fields| %>
         All architectures:
-        <% Architecture.all.each do |arch| %>
+        <% Architecture.all.sort_by{|x| x[:name]}.each do |arch| %>
             <%= arch_fields.check_box(arch.name, {checked: arch.available}) %>
               <%= arch.name %>
         <% end %>
