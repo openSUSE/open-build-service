@@ -67,6 +67,8 @@ class Project < ActiveRecord::Base
 
   has_many :comments, :dependent => :delete_all, inverse_of: :project
 
+  has_many :project_log_entries, :dependent => :delete_all
+
   default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids ) }
 
   validates :name, presence: true, length: { maximum: 200 }

@@ -417,8 +417,12 @@ CREATE TABLE `events` (
   `lock_version` int(11) NOT NULL DEFAULT '0',
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
+  `project_logged` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
-  KEY `index_events_on_queued` (`queued`)
+  KEY `index_events_on_queued` (`queued`),
+  KEY `index_events_on_project_logged` (`project_logged`),
+  KEY `index_events_on_eventtype` (`eventtype`),
+  KEY `index_events_on_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `flags` (
@@ -634,6 +638,24 @@ CREATE TABLE `products` (
   UNIQUE KEY `index_products_on_name_and_package_id` (`name`,`package_id`),
   KEY `package_id` (`package_id`),
   CONSTRAINT `products_ibfk_1` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `project_log_entries` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `project_id` int(11) DEFAULT NULL,
+  `user_name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `package_name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `bs_request_id` int(11) DEFAULT NULL,
+  `datetime` datetime DEFAULT NULL,
+  `event_type` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `additional_info` text COLLATE utf8_unicode_ci,
+  PRIMARY KEY (`id`),
+  KEY `project_id` (`project_id`),
+  KEY `index_project_log_entries_on_user_name` (`user_name`),
+  KEY `index_project_log_entries_on_package_name` (`package_name`),
+  KEY `index_project_log_entries_on_bs_request_id` (`bs_request_id`),
+  KEY `index_project_log_entries_on_event_type` (`event_type`),
+  CONSTRAINT `project_log_entries_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `projects` (
@@ -1347,6 +1369,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131111090310');
 INSERT INTO schema_migrations (version) VALUES ('20131111193512');
 
 INSERT INTO schema_migrations (version) VALUES ('20131111194720');
+
+INSERT INTO schema_migrations (version) VALUES ('20131112140033');
 
 INSERT INTO schema_migrations (version) VALUES ('20131120193512');
 
