@@ -77,6 +77,8 @@ case "$1" in
 				[ -e /root/.ssh ] || mkdir /root/.ssh
 				curl $OBS_ROOT_SSHD_KEY_URL > /root/.ssh/authorized_keys
 				insserv sshd
+				# avoid dead lock in systemctl
+				export SYSTEMCTL_OPTIONS=--ignore-dependencies
 				rcsshd start
 			fi
 		fi
