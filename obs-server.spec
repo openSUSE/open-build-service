@@ -396,6 +396,7 @@ ln -sf /usr/lib/build $RPM_BUILD_ROOT/usr/lib/obs/server/build # just for %check
 cp -a * $RPM_BUILD_ROOT/usr/lib/obs/server/
 rm -r   $RPM_BUILD_ROOT/usr/lib/obs/server/testdata
 rm      $RPM_BUILD_ROOT/usr/lib/obs/server/Makefile.PL
+rm      $RPM_BUILD_ROOT/usr/lib/obs/server/*.orig
 cd ..
 
 #

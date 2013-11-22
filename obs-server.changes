@@ -1,2 +1,4 @@
+* Fri Nov 22 2013 Oleg Girko <oleg.girko@jolla.com> - 2.4.4-2
+- Remove *.orig files from backend install dir
 * Sun Nov 10 2013 Oleg Girko <oleg.girko@jolla.com> - 2.4.4-1
 - Initial packaging for OBS 2.4.4
