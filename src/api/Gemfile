@@ -49,7 +49,7 @@ end
 group :test do
   gem 'database_cleaner', '>= 1.0.1'
   gem 'ci_reporter'
-  gem 'simplecov-rcov', :require => false
+  gem 'simplecov', require: false
   gem 'minitest', '< 5.0'
   # colorize minitest output
   gem 'minitest-colorize'
@@ -66,10 +66,6 @@ group :test do
 
   # See test/test_helper.rb for details:
   gem 'poltergeist', '>= 1.4'
-
-  # for save_and_open_page to debug
-  gem 'launchy'
-  gem 'headless'
 
   gem 'mocha', '> 0.13.0', require: false
 

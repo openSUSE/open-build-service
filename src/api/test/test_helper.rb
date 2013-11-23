@@ -1,7 +1,6 @@
 ENV['RAILS_ENV'] = 'test'
 
 require 'simplecov'
-require 'simplecov-rcov'
 SimpleCov.start 'rails' do
   add_filter '/app/indices/'
   add_filter '/app/models/user_ldap_strategy.rb'
@@ -22,8 +21,6 @@ require_relative '../lib/obsapi/test_sphinx'
 require 'test/unit/assertions'
 require 'mocha/setup'
 require 'capybara/poltergeist'
-
-require 'headless'
 
 require 'capybara/rails'
 ## this is the build service! 2 seconds - HAHAHA
@@ -227,16 +224,10 @@ module Webui
       @current_user
     end
 
-    @@display = nil
-
     self.use_transactional_fixtures = true
     fixtures :all
 
     setup do
-      if !@@display
-        @@display = Headless.new
-        @@display.start
-      end
       Capybara.current_driver = :rack_test
       self.class.start_test_api
       #Capybara.current_driver = Capybara.javascript_driver

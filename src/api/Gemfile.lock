@@ -75,7 +75,6 @@ GEM
       railties (>= 3.2, < 5.0)
     haml (4.0.4)
       tilt
-    headless (1.0.1)
     hike (1.2.3)
     hoptoad_notifier (2.4.11)
       activesupport
@@ -94,8 +93,6 @@ GEM
       actionpack (>= 3.0.0)
       activesupport (>= 3.0.0)
     kgio (2.8.1)
-    launchy (2.4.0)
-      addressable (~> 2.3)
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
@@ -165,8 +162,6 @@ GEM
       multi_json
       simplecov-html (~> 0.8.0)
     simplecov-html (0.8.0)
-    simplecov-rcov (0.2.3)
-      simplecov (>= 0.4.1)
     slop (3.4.7)
     sprite-factory (1.5.3)
     sprockets (2.10.1)
@@ -234,13 +229,11 @@ DEPENDENCIES
   flog (> 4.1.0)
   font-awesome-rails
   haml
-  headless
   hoptoad_notifier (~> 2.3)
   jquery-datatables-rails
   jquery-rails
   jquery-ui-rails
   kaminari
-  launchy
   minitest (< 5.0)
   minitest-colorize
   mocha (> 0.13.0)
@@ -255,7 +248,7 @@ DEPENDENCIES
   rdoc
   ruby-ldap
   sass-rails
-  simplecov-rcov
+  simplecov
   sprite-factory (>= 1.5.2)
   thinking-sphinx
   timecop
