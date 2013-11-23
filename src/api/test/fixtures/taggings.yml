@@ -1,84 +1,70 @@
-taggings_1731:
-  id: 1731
+record_0:
+  taggable_id: 904901250
+  taggable_type: Package
+  tag_id: 462
+  user: Iggy
+record_1:
+  taggable_id: 904901250
+  taggable_type: Package
+  tag_id: 463
+  user: Iggy
+record_2:
+  taggable_id: 679710779
+  taggable_type: Project
+  tag_id: 463
+  user: Iggy
+record_3:
+  taggable_id: 679710779
+  taggable_type: Project
+  tag_id: 463
+  user: fred
+record_4:
+  taggable_id: 904901250
+  taggable_type: Package
+  tag_id: 462
+  user: fred
+record_5:
+  taggable_id: 679710779
+  taggable_type: Project
+  tag_id: 462
+  user: Iggy
+record_6:
+  taggable_id: 679710779
+  taggable_type: Project
+  tag_id: 462
+  user: fred
+record_7:
   taggable_id: 126535337
   taggable_type: Project
-  tag_id: 461
+  tag_id: 463
   user: Iggy
-taggings_1732:
-  id: 1732
+record_8:
+  taggable_id: 904901250
+  taggable_type: Package
+  tag_id: 465
+  user: Iggy
+record_9:
   taggable_id: 998483895
   taggable_type: Project
   tag_id: 461
   user: Iggy
-taggings_1733:
-  id: 1733
-  taggable_id: 679710779
-  taggable_type: Project
-  tag_id: 461
-  user: Iggy
-taggings_1734:
-  id: 1734
+record_10:
   taggable_id: 679710779
   taggable_type: Project
   tag_id: 388
   user: Iggy
-taggings_1735:
-  id: 1735
-  taggable_id: 679710779
-  taggable_type: Project
-  tag_id: 462
-  user: Iggy
-taggings_1736:
-  id: 1736
-  taggable_id: 10095
-  taggable_type: Package
-  tag_id: 462
-  user: Iggy
-taggings_1737:
-  id: 1737
-  taggable_id: 679710779
-  taggable_type: Project
-  tag_id: 463
-  user: Iggy
-taggings_1738:
-  id: 1738
-  taggable_id: 126535337
-  taggable_type: Project
-  tag_id: 463
-  user: Iggy
-taggings_1740:
-  id: 1740
-  taggable_id: 10095
+record_11:
+  taggable_id: 904901250
   taggable_type: Package
   tag_id: 464
   user: Iggy
-taggings_1741:
-  id: 1741
-  taggable_id: 10095
-  taggable_type: Package
-  tag_id: 465
-  user: Iggy
-taggings_1742:
-  id: 1742
-  taggable_id: 10095
-  taggable_type: Package
-  tag_id: 463
-  user: Iggy
-taggings_1743:
-  id: 1743
+record_12:
   taggable_id: 679710779
   taggable_type: Project
-  tag_id: 463
-  user: fred
-taggings_1744:
-  id: 1744
-  taggable_id: 679710779
+  tag_id: 461
+  user: Iggy
+record_13:
+  taggable_id: 126535337
   taggable_type: Project
-  tag_id: 462
-  user: fred
-taggings_1745:
-  id: 1745
-  taggable_id: 10095
-  taggable_type: Package
-  tag_id: 462
-  user: fred
+  tag_id: 461
+  user: Iggy

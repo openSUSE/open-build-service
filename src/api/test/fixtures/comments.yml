@@ -1,15 +1,14 @@
 package_comment_parent:
   id: 200
-  package_id: 10094
   title: This package rules!
   body: I am making a comment on a package.
   type: CommentPackage
   created_at: 2013-07-25 14:05:30.000000000 Z
   updated_at: 2013-07-25 14:05:30.000000000 Z
   user: Admin
+  package: BaseDistro3_pack2
 package_comment_reply_1:
   id: 201
-  package_id: 10094
   title: This package rules!
   body: And I like that comment.
   parent_id: 200
@@ -17,9 +16,9 @@ package_comment_reply_1:
   created_at: 2013-07-25 14:07:00.000000000 Z
   updated_at: 2013-07-25 14:07:00.000000000 Z
   user: tom
+  package: BaseDistro3_pack2
 package_comment_reply_2:
   id: 202
-  package_id: 10094
   title: This package rules!
   body: While I don't!
   parent_id: 201
@@ -27,6 +26,7 @@ package_comment_reply_2:
   created_at: 2013-07-25 14:38:44.000000000 Z
   updated_at: 2013-07-25 14:38:44.000000000 Z
   user: adrian
+  package: BaseDistro3_pack2
 project_comment_parent:
   id: 100
   title: This project rules!

@@ -6,7 +6,7 @@ class PublishFlagTest < ActiveSupport::TestCase
   def setup
     @project = projects(:home_Iggy)
     assert_kind_of Project, @project
-    @package = packages(:TestPack)
+    @package = packages(:home_Iggy_TestPack)
     assert_kind_of Package, @package
     @arch = architectures(:i586)
   end

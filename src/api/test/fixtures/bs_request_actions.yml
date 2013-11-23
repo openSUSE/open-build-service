@@ -1,58 +1,4 @@
-action_for_1000:
-  id: 12
-  bs_request_id: 1000
-  type: submit
-  target_project: kde4
-  target_package: apache2
-  source_project: Apache
-  source_package: apache2
-  source_rev: '1'
-  updatelink: 0
-  created_at: 2013-09-09 19:15:16.000000000 Z
-action_for_3:
-  id: 1
-  bs_request_id: 3
-  type: submit
-  target_project: NeitherExisting
-  target_package: unknown
-  source_project: NotExisiting
-  source_package: notthere
-  source_rev: '1'
-  sourceupdate: cleanup
-  updatelink: 0
-  created_at: 2012-09-03 13:08:02.000000000 Z
-bs_request_actions_13:
-  id: 13
-  bs_request_id: 10
-  type: delete
-  target_project: home:Iggy
-  target_package: ToBeDeletedTestPack
-  updatelink: 0
-  created_at: 2013-09-09 19:20:44.000000000 Z
-bs_request_actions_14:
-  id: 14
-  bs_request_id: 10
-  type: submit
-  target_project: home:Iggy
-  target_package: apache2
-  source_project: Apache
-  source_package: apache2
-  source_rev: '1'
-  updatelink: 0
-  created_at: 2013-09-09 19:20:44.000000000 Z
-bs_request_actions_15:
-  id: 15
-  bs_request_id: 10
-  type: submit
-  target_project: home:Iggy
-  target_package: libapr-util1
-  source_project: Apache
-  source_package: libapr-util1
-  source_rev: '1'
-  updatelink: 0
-  created_at: 2013-09-09 19:20:44.000000000 Z
-bs_request_actions_2:
-  id: 2
+record_0:
   bs_request_id: 1
   type: submit
   target_project: kde4
@@ -63,8 +9,62 @@ bs_request_actions_2:
   sourceupdate: cleanup
   updatelink: 0
   created_at: 2012-09-03 13:08:02.000000000 Z
-bs_request_actions_3:
-  id: 3
+record_1:
+  bs_request_id: 10
+  type: submit
+  target_project: home:Iggy
+  target_package: apache2
+  source_project: Apache
+  source_package: apache2
+  source_rev: '1'
+  updatelink: 0
+  created_at: 2013-09-09 19:20:44.000000000 Z
+record_2:
+  bs_request_id: 3
+  type: submit
+  target_project: NeitherExisting
+  target_package: unknown
+  source_project: NotExisiting
+  source_package: notthere
+  source_rev: '1'
+  sourceupdate: cleanup
+  updatelink: 0
+  created_at: 2012-09-03 13:08:02.000000000 Z
+record_3:
+  bs_request_id: 10
+  type: submit
+  target_project: home:Iggy
+  target_package: libapr-util1
+  source_project: Apache
+  source_package: libapr-util1
+  source_rev: '1'
+  updatelink: 0
+  created_at: 2013-09-09 19:20:44.000000000 Z
+record_4:
+  bs_request_id: 1000
+  type: submit
+  target_project: kde4
+  target_package: apache2
+  source_project: Apache
+  source_package: apache2
+  source_rev: '1'
+  updatelink: 0
+  created_at: 2013-09-09 19:15:16.000000000 Z
+record_5:
+  bs_request_id: 10
+  type: delete
+  target_project: home:Iggy
+  target_package: ToBeDeletedTestPack
+  updatelink: 0
+  created_at: 2013-09-09 19:20:44.000000000 Z
+record_6:
+  bs_request_id: 2
+  type: delete
+  target_project: NeitherExisting
+  target_package: unknown2
+  updatelink: 0
+  created_at: 2012-09-03 13:08:02.000000000 Z
+record_7:
   bs_request_id: 2
   type: submit
   target_project: NeitherExisting
@@ -75,16 +75,7 @@ bs_request_actions_3:
   sourceupdate: cleanup
   updatelink: 0
   created_at: 2012-09-03 13:08:02.000000000 Z
-bs_request_actions_4:
-  id: 4
-  bs_request_id: 2
-  type: delete
-  target_project: NeitherExisting
-  target_package: unknown2
-  updatelink: 0
-  created_at: 2012-09-03 13:08:02.000000000 Z
-bs_request_actions_5:
-  id: 5
+record_8:
   bs_request_id: 4
   type: submit
   target_project: Apache

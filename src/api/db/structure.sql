@@ -307,9 +307,11 @@ CREATE TABLE `comments` (
   KEY `index_comments_on_package_id` (`package_id`),
   KEY `index_comments_on_bs_request_id` (`bs_request_id`),
   KEY `user_id` (`user_id`),
+  KEY `parent_id` (`parent_id`),
   CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
   CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`),
-  CONSTRAINT `comments_ibfk_3` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`)
+  CONSTRAINT `comments_ibfk_3` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
+  CONSTRAINT `comments_ibfk_4` FOREIGN KEY (`parent_id`) REFERENCES `comments` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `configurations` (
@@ -1349,6 +1351,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131111194720');
 INSERT INTO schema_migrations (version) VALUES ('20131120193512');
 
 INSERT INTO schema_migrations (version) VALUES ('20131123113417');
+
+INSERT INTO schema_migrations (version) VALUES ('20131124071042');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

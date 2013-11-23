@@ -941,6 +941,10 @@ class Package < ActiveRecord::Base
     name
   end
 
+  def fixtures_name
+    "#{project.name}_#{name}".gsub(':', '_')
+  end
+
   def api_obj
     self
   end

@@ -6,7 +6,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
   def setup
     @project = projects(:home_Iggy)
     assert_kind_of Project, @project
-    @package = packages(:TestPack)
+    @package = packages(:home_Iggy_TestPack)
     assert_kind_of Package, @package
     @arch = architectures(:i586)
     assert_kind_of Architecture, @arch    

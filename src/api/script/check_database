@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/../config/boot'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 
 def check_foreign_key(id, table, othertable, delete)
-  puts "alter table %s add FOREIGN KEY (%s) references %s (id);" % [table, id, othertable]
+  #puts "alter table %s add FOREIGN KEY (%s) references %s (id);" % [table, id, othertable]
   sql="select distinct %s from %s where %s is not null and %s not in (select id from %s);" % [id, table, id, id, othertable]
   ids=[]
   ActiveRecord::Base.connection.execute(sql).each do |row|
@@ -19,49 +19,29 @@ end
 
 User.current = User.find_by_login('_nobody_')
 
-old_mode=nil
-begin
-  packs=nil
+packs = Package.find :all, :conditions => "(develpackage_id is not null)"
+projects = Hash.new
+  
+packs.each do |p|
   begin
-    # 2.3 database
-    packs = Package.find :all, :conditions => "(develpackage_id is not null) or (develproject_id is not null)"
-    old_mode=true
-  rescue
-    # 2.4 database
-    packs = Package.find :all, :conditions => "(develpackage_id is not null)"
+    p.resolve_devel_package
+  rescue Package::CycleError => e
+    projects[p.project.name] ||= Array.new
+    projects[p.project.name] << e.message
   end
-  projects = Hash.new
+end
   
-  packs.each do |p|
-    begin
-      p.resolve_devel_package
-    rescue Package::CycleError => e
-      projects[p.project.name] ||= Array.new
-      projects[p.project.name] << e.message
-    end
+projects.keys.sort.each do |p|
+  projects[p].each do |m|
+    puts " " + m
   end
-  
-  projects.keys.sort.each do |p|
-    projects[p].each do |m|
-      puts " " + m
-    end
-  end
-rescue
-  # the models failed to work, asume 2.3 database layout
-  old_mode=true
 end
 
 packages_tbl="packages"
 projects_tbl="projects"
 arch_rep_tbl="repository_architectures"
-if old_mode
-  packages_tbl="db_packages"
-  projects_tbl="db_projects"
-  arch_rep_tbl="architectures_repositories"
-end
 
-check_foreign_key("db_project_id", packages_tbl, projects_tbl, 1)
-check_foreign_key("develproject_id", packages_tbl, projects_tbl, 0) if old_mode
+check_foreign_key("project_id", packages_tbl, projects_tbl, 1)
 check_foreign_key("develpackage_id", packages_tbl, packages_tbl, 0)
 check_foreign_key("repository_id", arch_rep_tbl, "repositories", 1)
 check_foreign_key("architecture_id", arch_rep_tbl, "architectures", 1)
@@ -126,3 +106,5 @@ check_foreign_key("group_id", "attrib_namespace_modifiable_bies", "groups", 1)
 
 check_foreign_key("package_id", "backend_packages", "packages", 1)
 check_foreign_key("links_to_id", "backend_packages", "packages", 1)
+
+check_foreign_key('parent_id', 'comments', 'comments', 1)
