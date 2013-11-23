@@ -1296,8 +1296,8 @@ class Webui::ProjectController < Webui::WebuiController
     ret = Hash.new
     at = AttribType.find_by_namespace_and_name(namespace, name)
     return unless at
-    attribs = at.attribs.where(db_package_id: packages)
-    AttribValue.where(attrib_id: attribs).joins(:attrib).pluck('attribs.db_package_id, value').each do |id, value|
+    attribs = at.attribs.where(package_id: packages)
+    AttribValue.where(attrib_id: attribs).joins(:attrib).pluck('attribs.package_id, value').each do |id, value|
       yield id, value
     end
     ret

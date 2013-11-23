@@ -35,7 +35,7 @@ class Package < ActiveRecord::Base
   class ReadSourceAccessError < APIException
     setup 'source_access_no_permission', 403, 'Source Access not allowed'
   end
-  belongs_to :project, foreign_key: :db_project_id, inverse_of: :packages
+  belongs_to :project, inverse_of: :packages
   delegate :name, to: :project, prefix: true
 
   has_many :messages, :as => :db_object, dependent: :delete_all
@@ -45,15 +45,15 @@ class Package < ActiveRecord::Base
 
   has_many :download_stats
 
-  has_many :flags, -> { order(:position) }, dependent: :delete_all, foreign_key: :db_package_id, inverse_of: :package
+  has_many :flags, -> { order(:position) }, dependent: :delete_all, inverse_of: :package
 
   belongs_to :develpackage, :class_name => 'Package', :foreign_key => 'develpackage_id'
   has_many :develpackages, :class_name => 'Package', :foreign_key => 'develpackage_id'
 
-  has_many :attribs, :dependent => :destroy, foreign_key: :db_package_id
+  has_many :attribs, :dependent => :destroy, foreign_key: :package_id
 
-  has_many :package_kinds, dependent: :delete_all, foreign_key: :db_package_id
-  has_many :package_issues, dependent: :delete_all, foreign_key: :db_package_id # defined in sources
+  has_many :package_kinds, dependent: :delete_all
+  has_many :package_issues, dependent: :delete_all # defined in sources
   has_many :issues, through: :package_issues
 
   has_many :products, :dependent => :destroy
@@ -67,7 +67,7 @@ class Package < ActiveRecord::Base
   before_update :update_activity
   after_rollback :reset_cache
 
-  default_scope { where('packages.db_project_id not in (?)', Relationship.forbidden_project_ids) }
+  default_scope { where('packages.project_id not in (?)', Relationship.forbidden_project_ids) }
 
   scope :dirty_backend_package, -> { joins('left outer join backend_packages on backend_packages.package_id = packages.id').where('backend_packages.package_id is null') }
 
@@ -193,8 +193,8 @@ class Package < ActiveRecord::Base
       sql =<<-END_SQL
       SELECT pack.*
       FROM packages pack
-      LEFT OUTER JOIN attribs attr ON pack.id = attr.db_package_id
-      LEFT OUTER JOIN attribs attrprj ON pack.db_project_id = attrprj.db_project_id
+      LEFT OUTER JOIN attribs attr ON pack.id = attr.package_id
+      LEFT OUTER JOIN attribs attrprj ON pack.project_id = attrprj.project_id
       WHERE ( attr.attrib_type_id = ? or attrprj.attrib_type_id = ? )
       END_SQL
 
@@ -219,7 +219,7 @@ class Package < ActiveRecord::Base
       sql =<<-END_SQL
       SELECT pack.*
       FROM packages pack
-      LEFT OUTER JOIN attribs attr ON pack.id = attr.db_package_id
+      LEFT OUTER JOIN attribs attr ON pack.id = attr.package_id
       LEFT OUTER JOIN attrib_values val ON attr.id = val.attrib_id
       WHERE attr.attrib_type_id = ? AND val.value = ?
       END_SQL

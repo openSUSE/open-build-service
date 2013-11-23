@@ -158,7 +158,7 @@ class Owner
 
     # fast find packages with defintions
     # relationship in package object
-    defined_packages = Package.joins(:relationships).where("db_project_id in (?) AND role_id in (?)", projects, roles).pluck(:name)
+    defined_packages = Package.where(project_id: projects).joins(:relationships).where(relationships: { role_id: roles}).pluck(:name)
     # relationship in project object
     Project.joins(:relationships).where("projects.id in (?) AND role_id in (?)", projects, roles).each do |prj|
       defined_packages += prj.packages.map{ |p| p.name }
@@ -168,7 +168,7 @@ class Owner
     end
     defined_packages.uniq!
 
-    all_packages = Package.where("db_project_id in (?)", projects).pluck(:name)
+    all_packages = Package.where(project_id: projects).pluck(:name)
 
     undefined_packages = all_packages - defined_packages
     maintainers=[]
@@ -197,7 +197,7 @@ class Owner
       roles << Role.find_by_title!(f)
     end
 
-    found_packages = Relationship.where(role_id: roles, package_id: Package.where(:db_project_id => projects).pluck(:id))
+    found_packages = Relationship.where(role_id: roles, package_id: Package.where(project_id: projects).pluck(:id))
     found_projects = Relationship.where(role_id: roles, project_id: projects)
     # fast find packages with defintions
     if owner.class == User

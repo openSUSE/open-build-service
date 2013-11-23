@@ -1,10 +1,10 @@
 package_issues_79:
   id: 79
-  db_package_id: 289270359
+  package_id: 289270359
   issue_id: 1
   change: kept
 package_issues_80:
   id: 80
-  db_package_id: 289270359
+  package_id: 289270359
   issue_id: 3
   change: kept

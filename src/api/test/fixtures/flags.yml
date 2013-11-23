@@ -28,7 +28,7 @@ flags_370537857:
   id: 370537857
   status: enable
   repo: '10.2'
-  db_package_id: 10095
+  package_id: 10095
   position: 1
   flag: publish
   architecture: x86_64
@@ -36,7 +36,7 @@ flags_377253800:
   id: 377253800
   status: enable
   repo: '10.2'
-  db_package_id: 10095
+  package_id: 10095
   position: 1
   flag: debuginfo
   architecture: x86_64
@@ -90,7 +90,7 @@ flags_801465961:
   id: 801465961
   status: enable
   repo: '10.2'
-  db_package_id: 10095
+  package_id: 10095
   position: 1
   flag: build
   architecture: i586
@@ -125,7 +125,7 @@ flags_BaseDistro2_0_LinkedUpdateProject_publish_disable:
 flags_BaseDistro_pack1_useforbuild_disable:
   id: 477459123
   status: disable
-  db_package_id: 10096
+  package_id: 10096
   position: 1
   flag: useforbuild
 home_Iggy_102_disabled:

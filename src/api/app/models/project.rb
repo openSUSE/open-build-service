@@ -39,8 +39,8 @@ class Project < ActiveRecord::Base
   after_rollback 'Relationship.discard_cache'
   after_initialize :init
 
-  has_many :packages, :dependent => :destroy, foreign_key: :db_project_id, inverse_of: :project
-  has_many :attribs, :dependent => :destroy, foreign_key: :db_project_id
+  has_many :packages, :dependent => :destroy, inverse_of: :project
+  has_many :attribs, :dependent => :destroy
   has_many :repositories, :dependent => :destroy, foreign_key: :db_project_id
   has_many :messages, :as => :db_object, :dependent => :delete_all
   has_many :watched_projects, :dependent => :destroy, inverse_of: :project
@@ -53,7 +53,7 @@ class Project < ActiveRecord::Base
   has_many :download_stats
   has_many :downloads, :dependent => :delete_all, foreign_key: :db_project_id
 
-  has_many :flags, dependent: :delete_all, foreign_key: :db_project_id, inverse_of: :project
+  has_many :flags, dependent: :delete_all, inverse_of: :project
 
   # optional
   has_one :maintenance_incident, dependent: :delete, foreign_key: :db_project_id
@@ -190,7 +190,7 @@ class Project < ActiveRecord::Base
         raise UnknownObjectError, name
       end
       if opts[:includeallpackages]
-         Package.joins(:flags).where(db_project_id: dbp.id).where("flags.flag='sourceaccess'").each do |pkg|
+         Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").each do |pkg|
            raise ReadAccessError, name unless Package.check_access? pkg
          end
          opts.delete :includeallpackages
@@ -883,7 +883,7 @@ class Project < ActiveRecord::Base
 
   # return array of [:name, :project_id] tuples
   def expand_all_packages
-    packages = self.packages.pluck([:name,:db_project_id])
+    packages = self.packages.pluck([:name,:project_id])
     p_map = Hash.new
     packages.each { |name, prjid| p_map[name] = 1 } # existing packages map
     # second path, all packages from indirect linked projects

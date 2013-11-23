@@ -243,18 +243,18 @@ class SearchController < ApplicationController
       if params[:project]
         attribs = Package.get_by_project_and_name(params[:project], params[:package]).attribs
       else
-        attribs = attrib.attribs.where(db_package_id: Package.where(name: params[:package]))
+        attribs = attrib.attribs.where(package_id: Package.where(name: params[:package]))
       end
     else
       if params[:project]
-        attribs = attrib.attribs.where(db_package_id: Project.get_by_name(params[:project]).packages)
+        attribs = attrib.attribs.where(package_id: Project.get_by_name(params[:project]).packages)
       else
         attribs = attrib.attribs
       end
     end
 
     # get the values associated with the attributes and store them
-    attribs = attribs.pluck(:id, :db_package_id)
+    attribs = attribs.pluck(:id, :package_id)
     values = AttribValue.where("attrib_id IN (?)", attribs.collect { |a| a[0] })
     attribValues = Hash.new
     values.each do |v|
@@ -262,7 +262,7 @@ class SearchController < ApplicationController
       attribValues[v.attrib_id] << v
     end
     # retrieve the package name and project for the attributes
-    packages = Package.where("packages.id IN (?)", attribs.collect { |a| a[1] }).pluck(:id, :name, :db_project_id)
+    packages = Package.where("packages.id IN (?)", attribs.collect { |a| a[1] }).pluck(:id, :name, :project_id)
     pack2attrib = Hash.new
     attribs.each do |attrib_id, pkg|
       pack2attrib[pkg] = attrib_id

@@ -770,12 +770,12 @@ class User < ActiveRecord::Base
     projects << -1 if projects.empty?
 
     # all packages where user is maintainer
-    packages = self.relationships.where(role_id: role.id).joins(:package).where('packages.db_project_id not in (?)', projects).pluck(:package_id)
+    packages = self.relationships.where(role_id: role.id).joins(:package).where('packages.project_id not in (?)', projects).pluck(:package_id)
 
     # all packages where user is maintainer via a group
     packages += Relationship.packages.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).pluck(:package_id)
 
-    return Package.where(id: packages).where('db_project_id not in (?)', projects)
+    return Package.where(id: packages).where('project_id not in (?)', projects)
   end
 
   def forbidden_project_ids
@@ -790,7 +790,7 @@ class User < ActiveRecord::Base
     # No maintainers
     packages = packages.where([
       '(relationships.user_id = ?) OR '\
-      '(relationships.user_id is null AND db_project_id in (?) )', self.id, projects_ids])
+      '(relationships.user_id is null AND project_id in (?) )', self.id, projects_ids])
     packages.pluck(:id)
   end
 

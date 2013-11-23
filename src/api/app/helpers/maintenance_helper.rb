@@ -698,7 +698,7 @@ module MaintenanceHelper
   end
 
   def get_updateinfo_id(sourcePackage, targetProject)
-    mi = MaintenanceIncident.find_by_db_project_id(sourcePackage.db_project_id)
+    mi = MaintenanceIncident.find_by_db_project_id(sourcePackage.project_id)
     updateinfoId = nil
     if mi
       id_template = nil

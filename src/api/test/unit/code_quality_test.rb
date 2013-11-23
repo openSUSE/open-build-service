@@ -132,7 +132,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'SourceController#update_project_meta' => 139.28,
       'SourceController#update_file' => 97.26,
       'SourceController#verify_repos_match!' => 52.26,
-      'StatisticsController#active_request_creators' => 71.14,
+      'StatisticsController#active_request_creators' => 67.1,
       'StatisticsController#rating' => 57.46,
       'SubmitRequestSourceDiff::ActionSourceDiffer#diff_for_source' => 60.19,
       'TagController#tagcloud' => 68.37,

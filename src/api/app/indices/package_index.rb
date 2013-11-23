@@ -1,7 +1,7 @@
 ThinkingSphinx::Index.define :package, :with => :active_record do
   indexes name, title, description
 
-  has :db_project_id, :as => :project_id
+  has :project_id, :as => :project_id
   has attribs.attrib_type_id, :as => :attrib_type_ids
   has package_issues.issue_id, :as => :issue_ids
   has "(SELECT count(*) FROM backend_packages WHERE links_to_id = packages.id)", :as => :linked_count, :type => :integer

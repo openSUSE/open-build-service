@@ -1,6 +1,6 @@
 module StatisticsCalculations
   def get_latest_updated(limit = 10)
-    packages = Package.order("updated_at DESC").limit(limit).pluck(:name, :db_project_id, :updated_at).map { |name, project, at| [at, name, project] }
+    packages = Package.order("updated_at DESC").limit(limit).pluck(:name, :project_id, :updated_at).map { |name, project, at| [at, name, project] }
     projects = Project.order("updated_at DESC").limit(limit).pluck(:name, :updated_at).map { |name, at| [at, name, :project] }
 
     packprojs = Hash.new

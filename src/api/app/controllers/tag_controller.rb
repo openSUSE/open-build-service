@@ -296,7 +296,7 @@ class TagController < ApplicationController
     package_name = params[:package]
     if request.get?
       @project = Project.get_by_name( project_name )
-      @package = Package.find_by_db_project_id_and_name( @project.id, package_name )
+      @package = @project.packages.find_by_name package_name
       
       logger.debug "[TAG:] GET REQUEST for package_tags. User: #{@user}"
       

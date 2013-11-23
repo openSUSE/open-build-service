@@ -33,8 +33,8 @@ class PublishFlagTest < ActiveSupport::TestCase
     assert_equal '10.1', f.repo
     assert_equal @arch.id, f.architecture_id
     assert_equal 'enable', f.status
-    assert_equal @project.id, f.db_project_id
-    assert_nil f.db_package_id
+    assert_equal @project.id, f.project_id
+    assert_nil f.package_id
     assert_equal 3, f.position
 
     f = @project.type_flags('publish')[3]
@@ -43,8 +43,8 @@ class PublishFlagTest < ActiveSupport::TestCase
     assert_equal '10.2', f.repo
     assert_equal @arch.id, f.architecture_id
     assert_equal 'enable', f.status
-    assert_equal @project.id, f.db_project_id
-    assert_nil f.db_package_id
+    assert_equal @project.id, f.project_id
+    assert_nil f.package_id
     assert_equal 4, f.position
 
   end
@@ -71,8 +71,8 @@ class PublishFlagTest < ActiveSupport::TestCase
     assert_equal '10.1', f.repo
     assert_equal @arch.id, f.architecture_id
     assert_equal 'disable', f.status
-    assert_equal @package.id, f.db_package_id
-    assert_nil f.db_project_id
+    assert_equal @package.id, f.package_id
+    assert_nil f.project_id
     assert_equal 2, f.position
 
     f = @package.type_flags('publish')[2]
@@ -81,8 +81,8 @@ class PublishFlagTest < ActiveSupport::TestCase
     assert_equal '10.2', f.repo
     assert_equal @arch.id, f.architecture_id
     assert_equal 'disable', f.status
-    assert_equal @package.id, f.db_package_id
-    assert_nil f.db_project_id
+    assert_equal @package.id, f.package_id
+    assert_nil f.project_id
     assert_equal 3, f.position
 
   end
@@ -128,12 +128,12 @@ class PublishFlagTest < ActiveSupport::TestCase
 
 
   def test_position
-    # Because of each flag belongs_to architecture AND db_project|db_package for the 
+    # Because of each flag belongs_to architecture AND project|package for the 
     # position calculation it is important in which order the assignments
-    # flag -> architecture and flag -> db_project|db_package are done.
+    # flag -> architecture and flag -> project|package are done.
     # If flag -> architecture is be done first, no flag position (in the list of
     # flags assigned to a object) can be calculated. This is because of no reference
-    # (db_project_id or db_package_id) is set, which is needed for position calculation. 
+    # (project_id or package_id) is set, which is needed for position calculation. 
     # The models should take this circumstances into consideration.
 
     #checking precondition

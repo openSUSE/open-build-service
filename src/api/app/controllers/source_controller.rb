@@ -118,7 +118,7 @@ class SourceController < ApplicationController
     if params.has_key? :expand
       packages = @project.expand_all_packages
     else
-      packages = @project.packages.pluck(:name, :db_project_id)
+      packages = @project.packages.pluck(:name, :project_id)
     end
     packages = @project.map_packages_to_projects(packages)
     output = String.new

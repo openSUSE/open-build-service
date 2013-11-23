@@ -1,6 +1,6 @@
 class Flag < ActiveRecord::Base
-  belongs_to :project, foreign_key: :db_project_id, inverse_of: :flags
-  belongs_to :package, foreign_key: :db_package_id, inverse_of: :flags
+  belongs_to :project, inverse_of: :flags
+  belongs_to :package, inverse_of: :flags
 
   belongs_to :architecture
 

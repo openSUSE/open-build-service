@@ -9,7 +9,7 @@ class BackendPackage < ActiveRecord::Base
 
   # this is called from the UpdatePackageMetaJob and clockwork
   def self.refresh_dirty
-    Package.dirty_backend_package.pluck(:db_project_id).uniq.each do |p|
+    Package.dirty_backend_package.pluck(:project_id).uniq.each do |p|
       Project.find(p).delay(priority: 10).update_packages_if_dirty
     end
   end

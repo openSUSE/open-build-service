@@ -47,8 +47,8 @@ class Webui::HomeController < Webui::WebuiController
     array = Array.new
 
     rel = PackageIssue.joins(:issue).where(issues: { state: 'OPEN', owner_id: @displayed_user.id})
-    rel = rel.joins('LEFT JOIN package_kinds ON package_kinds.db_package_id = package_issues.db_package_id')
-    ids = rel.where('package_kinds.kind="patchinfo"').pluck('distinct package_issues.db_package_id')
+    rel = rel.joins('LEFT JOIN package_kinds ON package_kinds.package_id = package_issues.package_id')
+    ids = rel.where('package_kinds.kind="patchinfo"').pluck('distinct package_issues.package_id')
 
     Package.where(id: ids).each do |p|
       hash = {:package => {:project => p.project.name, :name => p.name}}

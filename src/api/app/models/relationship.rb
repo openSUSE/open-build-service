@@ -126,7 +126,7 @@ class Relationship < ActiveRecord::Base
     project_user_cache = Rails.cache.fetch(FORBIDDEN_PROJECT_IDS_CACHE_KEY) do
       puc = Hash.new
       Relationship.find_by_sql("SELECT ur.project_id, ur.user_id from flags f,
-                relationships ur where f.flag = 'access' and f.status = 'disable' and ur.project_id = f.db_project_id").each do |r|
+                relationships ur where f.flag = 'access' and f.status = 'disable' and ur.project_id = f.project_id").each do |r|
         puc[r.project_id] ||= Hash.new
         puc[r.project_id][r.user_id] = 1
       end

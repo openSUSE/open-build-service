@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/../config/boot'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 
 def check_foreign_key(id, table, othertable, delete)
-#  puts "alter table %s add FOREIGN KEY (%s) references %s (id);" % [table, id, othertable]
+  puts "alter table %s add FOREIGN KEY (%s) references %s (id);" % [table, id, othertable]
   sql="select distinct %s from %s where %s is not null and %s not in (select id from %s);" % [id, table, id, id, othertable]
   ids=[]
   ActiveRecord::Base.connection.execute(sql).each do |row|
@@ -66,17 +66,17 @@ check_foreign_key("develpackage_id", packages_tbl, packages_tbl, 0)
 check_foreign_key("repository_id", arch_rep_tbl, "repositories", 1)
 check_foreign_key("architecture_id", arch_rep_tbl, "architectures", 1)
 
-check_foreign_key("bs_user_id", "watched_projects", "users", 1)
+check_foreign_key("user_id", "watched_projects", "users", 1)
 
 check_foreign_key("db_project_id", "db_projects_tags", projects_tbl, 1)
 check_foreign_key("tag_id", "db_projects_tags", "tags", 1)
 
 check_foreign_key("attrib_type_id", "attribs", "attrib_types", 1)
-check_foreign_key("db_package_id", "attribs", packages_tbl, 1)
-check_foreign_key("db_project_id", "attribs", projects_tbl, 1)
+check_foreign_key("package_id", "attribs", packages_tbl, 1)
+check_foreign_key("project_id", "attribs", projects_tbl, 1)
 
-check_foreign_key("db_project_id", "flags", projects_tbl, 1)
-check_foreign_key("db_package_id", "flags", packages_tbl, 1)
+check_foreign_key("project_id", "flags", projects_tbl, 1)
+check_foreign_key("package_id", "flags", packages_tbl, 1)
 check_foreign_key("architecture_id", "flags", "architectures", 1)
 
 check_foreign_key("attrib_id", "attrib_values", "attribs", 1)
@@ -89,10 +89,10 @@ check_foreign_key("role_id", "groups_roles", "roles", 1)
 check_foreign_key("group_id", "groups_users", "groups", 1)
 check_foreign_key("user_id", "groups_users", "users", 1)
 
-check_foreign_key("db_package_id", "relationships", packages_tbl, 1)
-check_foreign_key("bs_user_id", "relationships", "users", 1)
+check_foreign_key("package_id", "relationships", packages_tbl, 1)
+check_foreign_key("user_id", "relationships", "users", 1)
 check_foreign_key("role_id", "relationships", "roles", 1)
-check_foreign_key("db_project_id", "relationships", projects_tbl, 1)
+check_foreign_key("project_id", "relationships", projects_tbl, 1)
 
 check_foreign_key("parent_id", "path_elements", "repositories", 1)
 check_foreign_key("repository_id", "path_elements", "repositories", 1)
@@ -121,8 +121,8 @@ check_foreign_key("attrib_type_id", "attrib_allowed_values", "attrib_types", 1)
 check_foreign_key("attrib_type_id", "attrib_default_values", "attrib_types", 1)
 
 check_foreign_key("attrib_namespace_id", "attrib_namespace_modifiable_bies", "attrib_namespaces", 1)
-check_foreign_key("bs_user_id", "attrib_namespace_modifiable_bies", "users", 1)
-check_foreign_key("bs_group_id", "attrib_namespace_modifiable_bies", "groups", 1)
+check_foreign_key("user_id", "attrib_namespace_modifiable_bies", "users", 1)
+check_foreign_key("group_id", "attrib_namespace_modifiable_bies", "groups", 1)
 
 check_foreign_key("package_id", "backend_packages", "packages", 1)
 check_foreign_key("links_to_id", "backend_packages", "packages", 1)

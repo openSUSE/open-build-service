@@ -101,7 +101,7 @@ class BsRequestCollection
       or_in_and << "reviews.by_project in (#{projects.join(',')})" unless projects.blank?
 
       ## find request where user is maintainer in target package, except we have to project already
-      obj.involved_packages.select('name,db_project_id').includes(:project).each do |ip|
+      obj.involved_packages.select('name,project_id').includes(:project).each do |ip|
         or_in_and << "(reviews.by_project='#{ip.project.name}' and reviews.by_package='#{ip.name}')"
       end
 

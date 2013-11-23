@@ -21,4 +21,4 @@ basedistro_important:
 maintained_apache2_package:
   id: 101
   attrib_type_id: 58
-  db_package_id: 1355
+  package_id: 1355

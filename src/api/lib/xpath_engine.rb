@@ -22,53 +22,53 @@ class XpathEngine
     @attribs = {
       'packages' => {
         '@project' => {:cpart => 'projects.name',
-                       joins: 'LEFT JOIN projects ON packages.db_project_id=projects.id' },
+                       joins: 'LEFT JOIN projects ON packages.project_id=projects.id' },
         '@name' => {:cpart => 'packages.name'},
         'title' => {:cpart => 'packages.title'},
         'description' => {:cpart => 'packages.description'},
         'kind' => {:cpart => 'package_kinds.kind', :joins =>
-           ['LEFT JOIN package_kinds ON package_kinds.db_package_id = packages.id']},
+           ['LEFT JOIN package_kinds ON package_kinds.package_id = packages.id']},
         'devel/@project' => {:cpart => 'projs.name', :joins => 
           ['left join packages devels on packages.develpackage_id = devels.id',
-           'left join projects projs on devels.db_project_id=projs.id']},
+           'left join projects projs on devels.project_id=projs.id']},
         'devel/@package' => {:cpart => 'develpackage.name', :joins => 
           ['LEFT JOIN packages develpackage ON develpackage.id = packages.develpackage_id']},
         'issue/@state' => {:cpart => 'issues.state', :joins => 
-          ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
+          ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
            'LEFT JOIN issues ON issues.id = package_issues.issue_id',
-           'LEFT JOIN attribs ON attribs.db_package_id = packages.id',
+           'LEFT JOIN attribs ON attribs.package_id = packages.id',
            'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
            'LEFT JOIN issues AS issues2 ON issues2.id = attrib_issues.issue_id',
           ]},
         'issue/@name' => {:cpart => 'issues.name = ? or issues2.name', :double => true, :joins =>
-          ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
+          ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
            'LEFT JOIN issues ON issues.id = package_issues.issue_id',
-           'LEFT JOIN attribs ON attribs.db_package_id = packages.id',
+           'LEFT JOIN attribs ON attribs.package_id = packages.id',
            'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
            'LEFT JOIN issues AS issues2 ON issues2.id = attrib_issues.issue_id',
           ]},
         'issue/@tracker' => {:cpart => 'issue_trackers.name', :joins =>
-          ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
+          ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
            'LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id',
-           'LEFT JOIN attribs ON attribs.db_package_id = packages.id',
+           'LEFT JOIN attribs ON attribs.package_id = packages.id',
            'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
            'LEFT JOIN issue_trackers AS issue_trackers2 ON issues.issue_tracker_id = issue_trackers2.id'
           ]},
         'issue/@change' => {:cpart => 'package_issues.change',
-                            joins: 'LEFT JOIN package_issues ON packages.id = package_issues.db_package_id'},
+                            joins: 'LEFT JOIN package_issues ON packages.id = package_issues.package_id'},
         'issue/owner/@email' => {:cpart => 'users2.email = ? or users.email', :double => 1, :joins => 
-          ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
+          ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
            'LEFT JOIN issues ON issues.id = package_issues.issue_id',
            'LEFT JOIN users ON users.id = issues.owner_id',
-           'LEFT JOIN attribs ON attribs.db_package_id = packages.id',
+           'LEFT JOIN attribs ON attribs.package_id = packages.id',
            'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
            'LEFT JOIN issues2 ON issues2.id = attrib_issues.issue_id',
            'LEFT JOIN users AS users2 ON users.id = issues2.owner_id']},
         'issue/owner/@login' => {:cpart => 'users2.login = ? or users.login', :double => 1, :joins => 
-          ['LEFT JOIN package_issues ON packages.id = package_issues.db_package_id',
+          ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
            'LEFT JOIN issues ON issues.id = package_issues.issue_id',
            'LEFT JOIN users ON users.id = issues.owner_id',
-           'LEFT JOIN attribs ON attribs.db_package_id = packages.id',
+           'LEFT JOIN attribs ON attribs.package_id = packages.id',
            'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
            'LEFT JOIN users AS users2 ON users2.id = issues.owner_id']},
         'person/@userid' => {:cpart => 'users.login', :joins => 
@@ -85,14 +85,14 @@ class XpathEngine
            'LEFT JOIN roles AS gpr ON relationships.role_id = gpr.id']},
         'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name',
           :split => ':', :joins => 
-          ['LEFT JOIN attribs ON attribs.db_package_id = packages.id',
+          ['LEFT JOIN attribs ON attribs.package_id = packages.id',
            'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
            'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id',
-           'LEFT JOIN attribs AS attribsprj ON attribsprj.db_project_id = packages.db_project_id',   # include also, when set in project
+           'LEFT JOIN attribs AS attribsprj ON attribsprj.project_id = packages.project_id',   # include also, when set in project
            'LEFT JOIN attrib_types AS attrib_typesprj ON attribsprj.attrib_type_id = attrib_typesprj.id', 
            'LEFT JOIN attrib_namespaces AS attrib_namespacesprj ON attrib_typesprj.attrib_namespace_id = attrib_namespacesprj.id']},
         'project/attribute/@name' => {:cpart => 'attrib_namespaces_proj.name = ? AND attrib_types_proj.name', :split => ':', :joins =>
-          ['LEFT JOIN attribs AS attribs_proj ON attribs_proj.db_project_id = packages.db_project_id',
+          ['LEFT JOIN attribs AS attribs_proj ON attribs_proj.project_id = packages.project_id',
            'LEFT JOIN attrib_types AS attrib_types_proj ON attribs_proj.attrib_type_id = attrib_types_proj.id',
            'LEFT JOIN attrib_namespaces AS attrib_namespaces_proj ON attrib_types_proj.attrib_namespace_id = attrib_namespaces_proj.id']},
       },
@@ -126,9 +126,9 @@ class XpathEngine
           'join repositories r on r.db_project_id=projects.id',
           'join release_targets rt on rt.repository_id=r.id']},
         'package/@name' => {:cpart => 'packs.name', :joins => 
-          ['LEFT JOIN packages AS packs ON packs.db_project_id = projects.id']},
+          ['LEFT JOIN packages AS packs ON packs.project_id = projects.id']},
         'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name', :split => ':', :joins => 
-          ['LEFT JOIN attribs ON attribs.db_project_id = projects.id',
+          ['LEFT JOIN attribs ON attribs.project_id = projects.id',
            'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
            'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id']},
       },

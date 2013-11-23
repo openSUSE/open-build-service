@@ -122,9 +122,9 @@ class Group < ActiveRecord::Base
     projects << -1 if projects.empty?
 
     # all packages where group is maintainer
-    packages = Relationship.where(group_id: id, role_id: role.id).joins(:package).where('packages.db_project_id not in (?)', projects).pluck(:package_id)
+    packages = Relationship.where(group_id: id, role_id: role.id).joins(:package).where('packages.project_id not in (?)', projects).pluck(:package_id)
 
-    return Package.where(id: packages).where('db_project_id not in (?)', projects)
+    Package.where(id: packages).where.not(project_id: projects)
   end
 
 end

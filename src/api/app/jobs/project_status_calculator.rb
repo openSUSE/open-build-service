@@ -203,7 +203,7 @@ class ProjectStatusCalculator
       return mypackages
     end
 
-    @dbproj.packages.select([:id, :name, :db_project_id, :develpackage_id]).includes(:develpackage).load.each do |dbpack|
+    @dbproj.packages.select([:id, :name, :project_id, :develpackage_id]).includes(:develpackage).load.each do |dbpack|
       add_recursively(mypackages, dbpack)
     end
 

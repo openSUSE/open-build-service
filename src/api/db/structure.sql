@@ -110,17 +110,17 @@ CREATE TABLE `attrib_values` (
 CREATE TABLE `attribs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `attrib_type_id` int(11) NOT NULL,
-  `db_package_id` int(11) DEFAULT NULL,
+  `package_id` int(11) DEFAULT NULL,
   `binary` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `db_project_id` int(11) DEFAULT NULL,
+  `project_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `attribs_index` (`attrib_type_id`,`db_package_id`,`db_project_id`,`binary`),
-  UNIQUE KEY `attribs_on_proj_and_pack` (`attrib_type_id`,`db_project_id`,`db_package_id`,`binary`),
-  KEY `db_package_id` (`db_package_id`),
-  KEY `db_project_id` (`db_project_id`),
+  UNIQUE KEY `attribs_index` (`attrib_type_id`,`package_id`,`project_id`,`binary`),
+  UNIQUE KEY `attribs_on_proj_and_pack` (`attrib_type_id`,`project_id`,`package_id`,`binary`),
+  KEY `index_attribs_on_package_id` (`package_id`),
+  KEY `index_attribs_on_project_id` (`project_id`),
   CONSTRAINT `attribs_ibfk_1` FOREIGN KEY (`attrib_type_id`) REFERENCES `attrib_types` (`id`),
-  CONSTRAINT `attribs_ibfk_2` FOREIGN KEY (`db_package_id`) REFERENCES `packages` (`id`),
-  CONSTRAINT `attribs_ibfk_3` FOREIGN KEY (`db_project_id`) REFERENCES `projects` (`id`)
+  CONSTRAINT `attribs_ibfk_2` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`),
+  CONSTRAINT `attribs_ibfk_3` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `backend_infos` (
@@ -423,19 +423,19 @@ CREATE TABLE `flags` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `status` enum('enable','disable') CHARACTER SET utf8 NOT NULL,
   `repo` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `db_project_id` int(11) DEFAULT NULL,
-  `db_package_id` int(11) DEFAULT NULL,
+  `project_id` int(11) DEFAULT NULL,
+  `package_id` int(11) DEFAULT NULL,
   `architecture_id` int(11) DEFAULT NULL,
   `position` int(11) NOT NULL,
   `flag` enum('useforbuild','sourceaccess','binarydownload','debuginfo','build','publish','access','lock') CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_flags_on_db_package_id` (`db_package_id`),
-  KEY `index_flags_on_db_project_id` (`db_project_id`),
   KEY `index_flags_on_flag` (`flag`),
   KEY `architecture_id` (`architecture_id`),
-  CONSTRAINT `flags_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `projects` (`id`),
-  CONSTRAINT `flags_ibfk_2` FOREIGN KEY (`db_package_id`) REFERENCES `packages` (`id`),
-  CONSTRAINT `flags_ibfk_3` FOREIGN KEY (`architecture_id`) REFERENCES `architectures` (`id`)
+  KEY `index_flags_on_package_id` (`package_id`),
+  KEY `index_flags_on_project_id` (`project_id`),
+  CONSTRAINT `flags_ibfk_3` FOREIGN KEY (`architecture_id`) REFERENCES `architectures` (`id`),
+  CONSTRAINT `flags_ibfk_4` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
+  CONSTRAINT `flags_ibfk_5` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `group_request_requests` (
@@ -557,29 +557,29 @@ CREATE TABLE `messages` (
 
 CREATE TABLE `package_issues` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `db_package_id` int(11) NOT NULL,
+  `package_id` int(11) NOT NULL,
   `issue_id` int(11) NOT NULL,
   `change` enum('added','deleted','changed','kept') DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_db_package_issues_on_db_package_id` (`db_package_id`),
-  KEY `index_db_package_issues_on_issue_id` (`issue_id`),
-  KEY `index_db_package_issues_on_db_package_id_and_issue_id` (`db_package_id`,`issue_id`),
-  CONSTRAINT `package_issues_ibfk_1` FOREIGN KEY (`db_package_id`) REFERENCES `packages` (`id`),
+  KEY `index_package_issues_on_package_id` (`package_id`),
+  KEY `index_package_issues_on_package_id_and_issue_id` (`package_id`,`issue_id`),
+  KEY `index_package_issues_on_issue_id` (`issue_id`),
+  CONSTRAINT `package_issues_ibfk_1` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`),
   CONSTRAINT `package_issues_ibfk_2` FOREIGN KEY (`issue_id`) REFERENCES `issues` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `package_kinds` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `db_package_id` int(11) DEFAULT NULL,
+  `package_id` int(11) DEFAULT NULL,
   `kind` enum('patchinfo','aggregate','link','channel','product') NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `db_package_id` (`db_package_id`),
-  CONSTRAINT `package_kinds_ibfk_1` FOREIGN KEY (`db_package_id`) REFERENCES `packages` (`id`)
+  KEY `index_package_kinds_on_package_id` (`package_id`),
+  CONSTRAINT `package_kinds_ibfk_1` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `packages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `db_project_id` int(11) NOT NULL,
+  `project_id` int(11) NOT NULL,
   `name` text COLLATE utf8_bin,
   `title` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `description` text CHARACTER SET utf8,
@@ -592,12 +592,12 @@ CREATE TABLE `packages` (
   `develpackage_id` int(11) DEFAULT NULL,
   `delta` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `packages_all_index` (`db_project_id`,`name`(255)),
+  UNIQUE KEY `packages_all_index` (`project_id`,`name`(255)),
   KEY `devel_package_id_index` (`develpackage_id`),
-  KEY `index_db_packages_on_db_project_id` (`db_project_id`),
   KEY `updated_at_index` (`updated_at`),
-  CONSTRAINT `packages_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `projects` (`id`),
-  CONSTRAINT `packages_ibfk_3` FOREIGN KEY (`develpackage_id`) REFERENCES `packages` (`id`)
+  KEY `index_packages_on_project_id` (`project_id`),
+  CONSTRAINT `packages_ibfk_3` FOREIGN KEY (`develpackage_id`) REFERENCES `packages` (`id`),
+  CONSTRAINT `packages_ibfk_4` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `path_elements` (
@@ -1347,6 +1347,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131111193512');
 INSERT INTO schema_migrations (version) VALUES ('20131111194720');
 
 INSERT INTO schema_migrations (version) VALUES ('20131120193512');
+
+INSERT INTO schema_migrations (version) VALUES ('20131123113417');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

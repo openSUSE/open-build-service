@@ -487,7 +487,7 @@ module Webui::WebuiHelper
         opts[:project_text] ||= format_projectname(opts[:project], opts[:creator])
       end
       if opts[:package] && prj && opts[:package] != :multiple
-        pkg = prj.packages.where(name: opts[:package]).select(:id, :name, :db_project_id).first
+        pkg = prj.packages.where(name: opts[:package]).select(:id, :name, :project_id).first
       end
       if opts[:package]
         link_to_package(prj, pkg, opts)

@@ -3,7 +3,7 @@
 
 class Attrib < ActiveRecord::Base
   belongs_to :package
-  belongs_to :project, foreign_key: :db_project_id
+  belongs_to :project
   belongs_to :attrib_type
   has_many :issues, class_name: 'AttribIssue', dependent: :destroy
   has_many :values, -> { order("position") }, class_name: 'AttribValue', dependent: :delete_all

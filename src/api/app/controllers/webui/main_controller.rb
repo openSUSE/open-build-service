@@ -84,7 +84,7 @@ class Webui::MainController < Webui::WebuiController
     rel.pluck(:id, :name).each do |id, name|
       projects[id] = name
     end
-    result = Package.where(db_project_id: projects.keys).pluck(:db_project_id, :name)
+    result = Package.where(project_id: projects.keys).pluck(:project_id, :name)
     @packages = Array.new
     result.each do |pid, name|
       @packages << [projects[pid], name]
