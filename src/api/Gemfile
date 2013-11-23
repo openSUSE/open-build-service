@@ -29,7 +29,7 @@ gem 'dalli', require: false
 gem 'yajl-ruby'
 
 # for searching in webui - 3.0.5 shows some regressions not yet debugged
-gem 'thinking-sphinx', '= 3.0.4'
+gem 'thinking-sphinx'
 
 # don't rely on cron+rake 
 gem 'clockwork', '>= 0.7'
