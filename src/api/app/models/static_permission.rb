@@ -17,4 +17,5 @@ class StaticPermission < ActiveRecord::Base
   validates_format_of     :title, :with => %r{\A[\w\-]*\z}, 
                           :message => 'must not contain invalid characters.'
 
+  alias_attribute :fixtures_name, :title
 end

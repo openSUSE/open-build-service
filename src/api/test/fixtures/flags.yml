@@ -1,138 +1,118 @@
-flags_129437008:
-  id: 129437008
-  status: disable
-  position: 1
-  flag: publish
-  project: HiddenRemoteInstance
-flags_220542956:
-  id: 220542956
+record_0:
   status: enable
   repo: '10.2'
   position: 2
   flag: debuginfo
   architecture: x86_64
   project: home_Iggy
-flags_238287425:
-  id: 238287425
+record_1:
   status: disable
   position: 1
-  flag: access
-  project: HiddenProject
-flags_361997832:
-  id: 361997832
-  status: disable
-  position: 1
-  flag: publish
-  project: BinaryprotectedProject
-flags_370537857:
-  id: 370537857
+  flag: useforbuild
+  package: BaseDistro_pack1
+record_2:
   status: enable
-  repo: '10.2'
-  package_id: 10095
-  position: 1
-  flag: publish
-  architecture: x86_64
-flags_377253800:
-  id: 377253800
-  status: enable
-  repo: '10.2'
-  package_id: 10095
-  position: 1
-  flag: debuginfo
-  architecture: x86_64
-flags_421651534:
-  id: 421651534
-  status: disable
-  position: 1
-  flag: binarydownload
-  project: BinaryprotectedProject
-flags_463292953:
-  id: 463292953
-  status: disable
-  position: 1
-  flag: access
-  project: HiddenRemoteInstance
-flags_512515298:
-  id: 512515298
-  status: disable
   repo: '10.2'
   position: 1
   flag: build
   architecture: i586
-  project: home_Iggy
-flags_521011324:
-  id: 521011324
-  status: disable
-  repo: '10.2'
-  position: 2
-  flag: build
-  architecture: x86_64
-  project: home_Iggy
-flags_632907309:
-  id: 632907309
+  package: home_Iggy_TestPack
+record_3:
   status: disable
   position: 1
   flag: sourceaccess
   project: SourceprotectedProject
-flags_688596071:
-  id: 688596071
-  status: disable
-  position: 1
-  flag: publish
-  project: SourceprotectedProject
-flags_792784507:
-  id: 792784507
-  status: disable
-  position: 1
-  flag: publish
-  project: HiddenProject
-flags_801465961:
-  id: 801465961
-  status: enable
-  repo: '10.2'
-  package_id: 10095
-  position: 1
-  flag: build
-  architecture: i586
-flags_811918905:
-  id: 811918905
-  status: disable
-  repo: '10.2'
-  position: 1
-  flag: publish
-  architecture: x86_64
-  project: home_Iggy
-flags_813496:
-  id: 813496
-  status: enable
-  repo: '10.2'
-  position: 2
-  flag: publish
-  architecture: i586
-  project: home_Iggy
-flags_BaseDistro2_0_LinkedUpdateProject_build_disable:
-  id: 477459121
-  status: disable
-  position: 2
-  flag: build
-  project: BaseDistro2.0_LinkedUpdateProject
-flags_BaseDistro2_0_LinkedUpdateProject_publish_disable:
-  id: 477459122
+record_4:
   status: disable
   position: 3
   flag: publish
   project: BaseDistro2.0_LinkedUpdateProject
-flags_BaseDistro_pack1_useforbuild_disable:
-  id: 477459123
+record_5:
   status: disable
-  package_id: 10096
   position: 1
-  flag: useforbuild
-home_Iggy_102_disabled:
-  id: 212298610
+  flag: publish
+  project: SourceprotectedProject
+record_6:
+  status: disable
+  position: 1
+  flag: publish
+  project: HiddenProject
+record_7:
+  status: disable
+  position: 1
+  flag: publish
+  project: BinaryprotectedProject
+record_8:
+  status: disable
+  position: 2
+  flag: build
+  project: BaseDistro2.0_LinkedUpdateProject
+record_9:
+  status: enable
+  repo: '10.2'
+  position: 2
+  flag: publish
+  architecture: i586
+  project: home_Iggy
+record_10:
+  status: enable
+  repo: '10.2'
+  position: 1
+  flag: debuginfo
+  architecture: x86_64
+  package: home_Iggy_TestPack
+record_11:
+  status: disable
+  position: 1
+  flag: binarydownload
+  project: BinaryprotectedProject
+record_12:
+  status: disable
+  repo: '10.2'
+  position: 2
+  flag: build
+  architecture: x86_64
+  project: home_Iggy
+record_13:
+  status: disable
+  position: 1
+  flag: access
+  project: HiddenProject
+record_14:
   status: disable
   repo: '10.2'
   position: 1
   flag: debuginfo
   architecture: i586
+  project: home_Iggy
+record_15:
+  status: disable
+  repo: '10.2'
+  position: 1
+  flag: build
+  architecture: i586
+  project: home_Iggy
+record_16:
+  status: enable
+  repo: '10.2'
+  position: 1
+  flag: publish
+  architecture: x86_64
+  package: home_Iggy_TestPack
+record_17:
+  status: disable
+  position: 1
+  flag: publish
+  project: HiddenRemoteInstance
+record_18:
+  status: disable
+  position: 1
+  flag: access
+  project: HiddenRemoteInstance
+record_19:
+  status: disable
+  repo: '10.2'
+  position: 1
+  flag: publish
+  architecture: x86_64
   project: home_Iggy

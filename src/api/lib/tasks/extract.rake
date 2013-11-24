@@ -1,8 +1,14 @@
 require 'active_record/fixtures'
 
 def local_to_yaml(hash, file)
-  hash.sort.each do |k, v| # <-- here's my addition (the 'sort')
-    file.write({ k => v }.to_yaml(:SortKeys => true, :ExplicitTypes => true).gsub(%r{^---\s*}, ''))
+  return if hash.empty?
+  keys = hash.keys.sort
+  keys.each_with_index do |k, index| # <-- here's my addition (the 'sort')
+    v = hash[k]
+    if k.is_a?(Bignum) || k.is_a?(Fixnum)
+      k = "record_#{index}"
+    end
+    file.write({k => v}.to_yaml(SortKeys: true, ExplicitTypes: true).gsub(%r{^---\s*}, ''))
   end
 end
 
@@ -101,15 +107,18 @@ namespace :db do
             perm = StaticPermission.find(record.delete('static_permission_id'))
             record['static_permission'] = perm.title
           end
-          %w(project develproject maintenance_project).each do |prefix|
+          %w(db_project project develproject maintenance_project).each do |prefix|
             if record.has_key?(prefix + '_id')
               p = Project.find(record.delete(prefix + '_id'))
+              prefix = 'project' if prefix == 'db_project'
               record[prefix] = p.name.gsub(':', '_')
             end
           end
-          if record.has_key?('db_project_id')
-            p = Project.find(record.delete('db_project_id'))
-            record['project'] = p.name.gsub(':', '_')
+          %w(package develpackage links_to).each do |prefix|
+            if record.has_key?(prefix + '_id')
+              p = Package.find(record.delete(prefix + '_id'))
+              record[prefix] = p.fixtures_name
+            end
           end
           if record.has_key?('linked_db_project_id')
             pid = record.delete('linked_db_project_id')
@@ -121,6 +130,9 @@ namespace :db do
           if table_name == 'taggings'
             if record['taggable_type'] == 'Project'
               record['taggable_id'] = ActiveRecord::FixtureSet.identify(Project.find(record['taggable_id']).name.gsub(':', '_'))
+            end
+            if record['taggable_type'] == 'Package'
+              record['taggable_id'] = ActiveRecord::FixtureSet.identify(Package.find(record['taggable_id']).fixtures_name)
             end
           end
 
@@ -140,15 +152,26 @@ namespace :db do
             defaultkey = "#{record['role']}_#{record['static_permission']}"
           end
           if table_name == 'projects' || table_name == 'architectures'
-            defaultkey = record['name'].gsub(':', '_')
+            key = record['name'].gsub(':', '_')
             record.delete(primary)
           end
-          if table_name == 'static_permissions'
-            defaultkey = record['title']
-            record.delete(primary)
+          if %w(static_permissions packages).include? table_name
+            key = classname.find(record.delete(primary)).fixtures_name
           end
           if table_name == 'db_project_types'
             defaultkey = record['name']
+          end
+          if table_name == 'backend_packages'
+            defaultkey = record['package']
+          end
+          if %w(event_subscriptions events ratings package_kinds package_issues
+                linked_db_projects relationships watched_projects path_elements
+                flags taggings bs_request_histories bs_request_actions
+                ).include? table_name
+            record.delete(primary)
+            t = record.to_a.sort
+            # a bit clumpsy but reliable order is important for git diff
+            key = Digest::MD5.hexdigest(t.to_yaml).to_i(16)
           end
 
           if key.blank? && classname
@@ -166,7 +189,7 @@ namespace :db do
           end
           # puts "#{table_name} #{record.inspect} -#{key}-"
           key ||= defaultkey
-          raise "duplicated record" if hash.has_key? key
+          raise "duplicated record #{table_name}:#{key}" if hash.has_key? key
           hash[key] = record
         end
         local_to_yaml(hash, file)

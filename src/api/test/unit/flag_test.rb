@@ -5,7 +5,7 @@ class FlagTest < ActiveSupport::TestCase
 
   def test_validation
       #only a flag with a set project_id OR package_id can be saved!
-      f = Flag.new(project: projects( :home_Iggy ), package: packages( :TestPack ), flag: 'build', status: 'enable')
+      f = Flag.new(project: projects( :home_Iggy ), package: packages( :home_Iggy_TestPack ), flag: 'build', status: 'enable')
       
       #the flag shouldn't be saved
       assert_equal  false, f.save

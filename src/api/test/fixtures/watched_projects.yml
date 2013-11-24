@@ -1,12 +1,9 @@
-watched_projects_1:
-  id: 1
+record_0:
   user: fred
   project: kde4
-watched_projects_3:
-  id: 3
+record_1:
   user: adrian
   project: CopyTest
-watched_projects_4:
-  id: 4
+record_2:
   user: Iggy
   project: home_coolo

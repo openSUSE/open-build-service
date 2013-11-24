@@ -1,10 +1,8 @@
-package_issues_79:
-  id: 79
-  package_id: 289270359
+record_0:
   issue_id: 1
   change: kept
-package_issues_80:
-  id: 80
-  package_id: 289270359
+  package: BaseDistro_patchinfo
+record_1:
   issue_id: 3
   change: kept
+  package: BaseDistro_patchinfo

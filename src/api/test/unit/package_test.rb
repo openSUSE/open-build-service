@@ -8,7 +8,7 @@ class PackageTest < ActiveSupport::TestCase
 
   def setup
     super
-    @package = Package.find(10095)
+    @package = packages(:home_Iggy_TestPack)
     User.current = nil
   end
 
@@ -127,7 +127,7 @@ class PackageTest < ActiveSupport::TestCase
   end
 
   def test_render
-    xml = packages(:kdelibs).render_xml
+    xml = packages(:kde4_kdelibs).render_xml
     assert_equal Xmlhash.parse(xml), {"name" => "kdelibs",
                                       "project" => "kde4", "title" => "blub", "description" => "blub",
                                       "devel" => {"project" => "home:coolo:test", "package" => "kdelibs_DEVEL_package"},
@@ -135,7 +135,7 @@ class PackageTest < ActiveSupport::TestCase
   end
 
   def test_can_be_deleted
-    assert !packages(:kdelibs).can_be_deleted?
+    assert !packages(:kde4_kdelibs).can_be_deleted?
   end
 
   def test_store
@@ -336,6 +336,10 @@ The library includes bindings for both the C and C++ languages. It works on POSI
         assert !Package.is_binary_file?(filename), "File #{filename} should not be treated as binary"
       end
     end
+  end
+
+  test 'fixtures name' do
+    packages(:home_Iggy_TestPack).fixtures_name.must_equal 'home_Iggy_TestPack'
   end
 
   private

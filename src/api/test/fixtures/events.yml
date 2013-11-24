@@ -1,54 +1,4 @@
-events_1067339424:
-  id: 1067339424
-  eventtype: Event::CreateProject
-  payload: '{"project":"home:adrian","sender":"unknown"}'
-  queued: 0
-  lock_version: 0
-  created_at: 2013-08-31 14:56:49.000000000 Z
-  updated_at: 2013-08-31 14:56:49.000000000 Z
-events_1067339425:
-  id: 1067339425
-  eventtype: Event::CreatePackage
-  payload: '{"project":"kde4","package":"kdelibs","sender":"unknown"}'
-  queued: 0
-  lock_version: 0
-  created_at: 2013-08-31 14:56:49.000000000 Z
-  updated_at: 2013-08-31 14:56:49.000000000 Z
-events_1067339456:
-  id: 1067339456
-  eventtype: Event::UpdateProjectConfig
-  payload: '{"project":"BaseDistro","sender":"unknown"}'
-  queued: 0
-  lock_version: 0
-  created_at: 2013-08-31 14:56:50.000000000 Z
-  updated_at: 2013-08-31 14:56:50.000000000 Z
-events_1067339457:
-  id: 1067339457
-  eventtype: Event::Commit
-  payload: '{"project":"BaseDistro","package":"pack1","user":"unknown","files":"Added:\n  my_file\n\n","rev":"1"}'
-  queued: 0
-  lock_version: 0
-  created_at: 2013-08-31 14:56:50.000000000 Z
-  updated_at: 2013-08-31 14:56:50.000000000 Z
-events_1067339464:
-  id: 1067339464
-  eventtype: Event::Commit
-  payload: '{"project":"BaseDistro2.0","package":"pack2","user":"unknown","files":"Added:\n  myfile\n\n","rev":"2"}'
-  queued: 0
-  lock_version: 0
-  created_at: 2013-08-31 14:56:50.000000000 Z
-  updated_at: 2013-08-31 14:56:50.000000000 Z
-events_1067339513:
-  id: 1067339513
-  eventtype: Event::BuildFail
-  payload: '{"project":"home:Iggy","package":"TestPack","repository":"10.2","arch":"i586","disturl":"obs://build.some.where/home:Iggy/10.2/1ac07842727acaf13d0e2b3213b47785-TestPack","release":"42.1","file":"TestPack.spec","versrel":"1.0-42","readytime":"1377958901","srcmd5":"1ac07842727acaf13d0e2b3213b47785","srcserver":"http://localhost:3200","rev":"2","revtime":"1377958897","job":"home:Iggy::10.2::TestPack-1ac07842727acaf13d0e2b3213b47785","reason":"new
-    build","bcnt":"1","needed":"0","reposerver":"http://localhost:3201","verifymd5":"1ac07842727acaf13d0e2b3213b47785"}'
-  queued: 0
-  lock_version: 0
-  created_at: 2013-08-31 14:56:52.000000000 Z
-  updated_at: 2013-08-31 14:56:52.000000000 Z
-events_1067339514:
-  id: 1067339514
+record_0:
   eventtype: Event::BuildUnchanged
   payload: '{"project":"HiddenProject","package":"pack","repository":"nada","arch":"i586","disturl":"obs://build.some.where/HiddenProject/nada/ee3a023192742ef3c4b2e3ea1cabec4f-pack","release":"2.1","file":"package.spec","versrel":"1.0-2","readytime":"1377958901","srcmd5":"ee3a023192742ef3c4b2e3ea1cabec4f","srcserver":"http://localhost:3200","rev":"2","revtime":"1377958895","job":"HiddenProject::nada::pack-ee3a023192742ef3c4b2e3ea1cabec4f","reason":"new
     build","bcnt":"1","needed":"0","reposerver":"http://localhost:3201","verifymd5":"ee3a023192742ef3c4b2e3ea1cabec4f"}'
@@ -56,56 +6,71 @@ events_1067339514:
   lock_version: 0
   created_at: 2013-08-31 14:56:52.000000000 Z
   updated_at: 2013-08-31 14:56:52.000000000 Z
-events_1067339518:
-  id: 1067339518
-  eventtype: Event::RepoPublished
-  payload: '{"project":"home:Iggy","repo":"10.2"}'
+record_1:
+  eventtype: Event::CreatePackage
+  payload: '{"project":"kde4","package":"kdelibs","sender":"unknown"}'
   queued: 0
   lock_version: 0
-  created_at: 2013-08-31 14:56:52.000000000 Z
-  updated_at: 2013-08-31 14:56:52.000000000 Z
-events_11469281:
-  id: 11469281
+  created_at: 2013-08-31 14:56:49.000000000 Z
+  updated_at: 2013-08-31 14:56:49.000000000 Z
+record_2:
+  eventtype: Event::CreateProject
+  payload: '{"project":"home:adrian","sender":"unknown"}'
+  queued: 0
+  lock_version: 0
+  created_at: 2013-08-31 14:56:49.000000000 Z
+  updated_at: 2013-08-31 14:56:49.000000000 Z
+record_3:
   eventtype: Event::UpdateProject
   payload: '{"project":"BaseDistro","sender":"king"}'
   queued: 0
   lock_version: 0
   created_at: 2013-08-20 13:42:19.000000000 Z
   updated_at: 2013-08-20 13:42:19.000000000 Z
-events_354504283:
-  id: 354504283
-  eventtype: Event::RepoPublishState
-  payload: '{"project":"home:tom","repo":"home_coolo_standard","state":"publishing"}'
+record_4:
+  eventtype: Event::Commit
+  payload: '{"project":"BaseDistro","package":"pack1","user":"unknown","files":"Added:\n  my_file\n\n","rev":"1"}'
   queued: 0
   lock_version: 0
-  created_at: 2013-08-20 13:42:14.000000000 Z
-  updated_at: 2013-08-20 13:42:14.000000000 Z
-events_468231828:
-  id: 468231828
-  eventtype: Event::VersionChange
-  payload: '{"package":"test","comment":"","files":"Added:\n  package.spec\n\n","project":"CopyTest","rev":2,"newversion":"1.0","user":"unknown","oldversion":"unknown"}'
+  created_at: 2013-08-31 14:56:50.000000000 Z
+  updated_at: 2013-08-31 14:56:50.000000000 Z
+record_5:
+  eventtype: Event::Commit
+  payload: '{"project":"BaseDistro2.0","package":"pack2","user":"unknown","files":"Added:\n  myfile\n\n","rev":"2"}'
   queued: 0
   lock_version: 0
-  created_at: 2013-08-20 13:42:11.000000000 Z
-  updated_at: 2013-08-20 13:42:11.000000000 Z
-events_479658608:
-  id: 479658608
-  eventtype: Event::UpdatePackage
-  payload: '{"project":"Apache","package":"Taskjuggler","sender":"king"}'
+  created_at: 2013-08-31 14:56:50.000000000 Z
+  updated_at: 2013-08-31 14:56:50.000000000 Z
+record_6:
+  eventtype: Event::BuildFail
+  payload: '{"project":"home:Iggy","package":"TestPack","repository":"10.2","arch":"i586","disturl":"obs://build.some.where/home:Iggy/10.2/1ac07842727acaf13d0e2b3213b47785-TestPack","release":"42.1","file":"TestPack.spec","versrel":"1.0-42","readytime":"1377958901","srcmd5":"1ac07842727acaf13d0e2b3213b47785","srcserver":"http://localhost:3200","rev":"2","revtime":"1377958897","job":"home:Iggy::10.2::TestPack-1ac07842727acaf13d0e2b3213b47785","reason":"new
+    build","bcnt":"1","needed":"0","reposerver":"http://localhost:3201","verifymd5":"1ac07842727acaf13d0e2b3213b47785"}'
   queued: 0
   lock_version: 0
-  created_at: 2013-08-20 13:42:12.000000000 Z
-  updated_at: 2013-08-20 13:42:12.000000000 Z
-events_904316863:
-  id: 904316863
+  created_at: 2013-08-31 14:56:52.000000000 Z
+  updated_at: 2013-08-31 14:56:52.000000000 Z
+record_7:
   eventtype: Event::Commit
   payload: '{"project":"CopyTest","package":"test","comment":"","user":"unknown","files":"Added:\n  my_file\n\n","rev":1}'
   queued: 0
   lock_version: 0
   created_at: 2013-08-20 13:42:11.000000000 Z
   updated_at: 2013-08-20 13:42:11.000000000 Z
-reviewer_group_added:
-  id: 1067339102
+record_8:
+  eventtype: Event::RepoPublishState
+  payload: '{"project":"home:tom","repo":"home_coolo_standard","state":"publishing"}'
+  queued: 0
+  lock_version: 0
+  created_at: 2013-08-20 13:42:14.000000000 Z
+  updated_at: 2013-08-20 13:42:14.000000000 Z
+record_9:
+  eventtype: Event::VersionChange
+  payload: '{"package":"test","comment":"","files":"Added:\n  package.spec\n\n","project":"CopyTest","rev":2,"newversion":"1.0","user":"unknown","oldversion":"unknown"}'
+  queued: 0
+  lock_version: 0
+  created_at: 2013-08-20 13:42:11.000000000 Z
+  updated_at: 2013-08-20 13:42:11.000000000 Z
+record_10:
   eventtype: Event::RequestReviewerGroupAdded
   payload: '{"author":"Iggy","comment":"give it a look","description":"test home project
     shortening","id":4,"actions":[{"type":"submit","sourceproject":"home:Iggy:branches:kde4","sourcepackage":"BranchPack","sourcerevision":"1","targetproject":"Apache","targetpackage":"BranchPack","person":null,"role":null}],"state":"review","when":"2013-08-29T14:32:24","newreviewer_group":"test_group"}'
@@ -113,3 +78,24 @@ reviewer_group_added:
   lock_version: 0
   created_at: 2013-08-29 14:32:24.000000000 Z
   updated_at: 2013-08-29 14:32:24.000000000 Z
+record_11:
+  eventtype: Event::UpdateProjectConfig
+  payload: '{"project":"BaseDistro","sender":"unknown"}'
+  queued: 0
+  lock_version: 0
+  created_at: 2013-08-31 14:56:50.000000000 Z
+  updated_at: 2013-08-31 14:56:50.000000000 Z
+record_12:
+  eventtype: Event::RepoPublished
+  payload: '{"project":"home:Iggy","repo":"10.2"}'
+  queued: 0
+  lock_version: 0
+  created_at: 2013-08-31 14:56:52.000000000 Z
+  updated_at: 2013-08-31 14:56:52.000000000 Z
+record_13:
+  eventtype: Event::UpdatePackage
+  payload: '{"project":"Apache","package":"Taskjuggler","sender":"king"}'
+  queued: 0
+  lock_version: 0
+  created_at: 2013-08-20 13:42:12.000000000 Z
+  updated_at: 2013-08-20 13:42:12.000000000 Z

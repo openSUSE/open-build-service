@@ -1,28 +1,21 @@
-package_kinds_874490193:
-  id: 874490193
-  package_id: 11200
-  kind: aggregate
-package_kinds_874490194:
-  id: 874490194
-  package_id: 11098
+record_0:
   kind: link
-package_kinds_874490195:
-  id: 874490195
-  package_id: 10098
+  package: LocalProject_remotepackage
+record_1:
   kind: link
-package_kinds_874490196:
-  id: 874490196
-  package_id: 10100
-  kind: link
-package_kinds_874490198:
-  id: 874490198
-  package_id: 11001
-  kind: link
-package_kinds_874490267:
-  id: 874490267
-  package_id: 289270358
-  kind: link
-package_kinds_874490268:
-  id: 874490268
-  package_id: 289270359
+  package: Devel_BaseDistro_Update_pack3
+record_2:
   kind: patchinfo
+  package: BaseDistro_patchinfo
+record_3:
+  kind: link
+  package: BaseDistro_Update_pack2
+record_4:
+  kind: link
+  package: Devel_BaseDistro_Update_pack2
+record_5:
+  kind: aggregate
+  package: home_adrian_ProtectionTest_aggregate
+record_6:
+  kind: link
+  package: BaseDistro2.0_pack2.linked
