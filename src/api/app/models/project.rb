@@ -1058,7 +1058,7 @@ class Project < ActiveRecord::Base
     backend_pkgs.each('package') do |package|
       pname = package.value('name')
       path = "/source/#{URI.escape(self.name)}/#{pname}/_meta"
-      p = self.packages.find_by_name(pname) || self.packages.build(name: pname)
+      p = self.packages.where(name: pname).first_or_initialize
       p.update_from_xml(Xmlhash.parse(Suse::Backend.get(path).body))
       p.save! # do not store
     end
