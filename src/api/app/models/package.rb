@@ -657,7 +657,6 @@ class Package < ActiveRecord::Base
     # the value we add to the activity, when the object gets updated
     addon = 10 * (Time.now.to_f - self.updated_at_was.to_f) / 86400
     addon = 10 if addon > 10
-    logger.debug "update_activity #{activity} #{addon} #{Time.now} #{self.updated_at} #{self.updated_at_was}"
     new_activity = activity + addon
     new_activity = 100 if new_activity > 100
 
@@ -665,7 +664,7 @@ class Package < ActiveRecord::Base
     self.update_column(:activity_index, new_activity)
     # we need to update the timestamp manually to avoid the activity_algorithm to run away
     self.update_column(:updated_at, Time.now)
-    # just for Schönheit - and only saved if we save it for other reasons
+    # just for beauty - and only saved if we save it for other reasons
     self.update_counter += 1
   end
 
