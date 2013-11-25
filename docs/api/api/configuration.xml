@@ -2,4 +2,7 @@
 <configuration>
   <description>MyText</description>
   <title>openSUSE Build Service</title>
+  <schedulers>
+     <arch>i586</arch>
+  </schedulers>
 </configuration>
