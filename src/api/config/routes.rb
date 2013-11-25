@@ -35,12 +35,16 @@ OBSApi::Application.routes.draw do
 
     controller 'webui/main' do
       get 'main/systemstatus' => :systemstatus
-      get 'main/news' => :news
-      get 'main/latest_updates' => :latest_updates
       get 'main/add_news_dialog' => :add_news_dialog
       post 'main/add_news' => :add_news
       get 'main/delete_message_dialog' => :delete_message_dialog
       post 'main/delete_message' => :delete_message
+    end
+
+    controller 'webui/feeds' do
+      get 'main/news' => :news, as: :news_feed
+      get 'main/latest_updates' => :latest_updates, as: :latest_updates_feed
+      get 'project/latest_commits/:project' => :commits, defaults: { format: 'atom' }, constraints: cons
     end
 
     controller 'webui/attribute' do

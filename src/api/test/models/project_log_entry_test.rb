@@ -10,7 +10,7 @@ class ProjectLogEntryTest < ActiveSupport::TestCase
     assert_equal "New revision of a package was commited", entry.message
     assert_equal projects(:BaseDistro), entry.project
     assert_nil entry.user_name
-    assert_equal packages(:pack1), entry.package
+    assert_equal packages(:BaseDistro_pack1), entry.package
     assert_equal Date.parse("2013-08-31"), entry.datetime.to_date
     assert_equal({"files" => "Added:\n  my_file\n\n", "rev" => "1"}, entry.additional_info)
   end

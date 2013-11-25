@@ -26,3 +26,9 @@ log_entry_for_events_1067339456:
   event_type: "update_project_config"
   project: BaseDistro
   datetime: 2013-08-31 14:56:50.000000000 Z
+protected_commit_log_entry:
+  event_type: "commit"
+  project: SourceprotectedProject
+  package_name: "pack"
+  user_name: "king"
+  datetime: 2013-08-12 14:00

@@ -42,18 +42,6 @@ class Webui::MainController < Webui::WebuiController
     @user_count = User.count
   end
 
-  def news
-    @news = StatusMessage.alive.limit(5)
-    raise ActionController::RoutingError.new('expected application/rss') unless request.format == Mime::RSS
-    render layout: false
-  end
-
-  def latest_updates
-    raise ActionController::RoutingError.new('expected application/rss') unless request.format == Mime::RSS
-    @latest_updates = get_latest_updated(10)
-    render layout: false
-  end
-
   def sitemap
     render :layout => false, :content_type => 'application/xml'
   end
