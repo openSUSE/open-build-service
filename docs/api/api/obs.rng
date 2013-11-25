@@ -25,6 +25,8 @@
 
       <value>hppa</value>
 
+      <value>m68k</value>
+
       <value>i386</value>
       <value>i486</value>
       <value>i586</value>

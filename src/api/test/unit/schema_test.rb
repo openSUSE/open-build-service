@@ -18,9 +18,9 @@ class SchemaTest < ActiveSupport::TestCase
         end
       end
       if io
-        # testresult = io.read
+        testresult = io.read
         io.close
-        # TODO assert $? == 0, "#{testfile} does not validate against #{f} -> #{testresult}"
+        assert $? == 0, "#{testfile} does not validate against #{f} -> #{testresult}"
       end
     end
   end
