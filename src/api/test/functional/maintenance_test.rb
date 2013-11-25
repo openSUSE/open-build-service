@@ -1976,6 +1976,16 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     login_king
     post '/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&nodelay=1'
     assert_response :success
+    get '/source/CopyOfBaseDistro'
+    assert_response :success
+    assert_xml_tag(:tag => 'directory', :attributes => { :count => '4' })
+    assert_xml_tag(:tag => 'entry', :attributes => { :name => 'patchinfo' })
+    assert_xml_tag(:tag => 'entry', :attributes => { :name => 'pack1' })
+    assert_xml_tag(:tag => 'entry', :attributes => { :name => 'pack2' })
+    assert_xml_tag(:tag => 'entry', :attributes => { :name => 'pack3' })
+    # do not crasah on second copy
+    post '/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&nodelay=1'
+    assert_response :success
     get '/source/CopyOfBaseDistro/_meta'
     assert_response :success
     assert_no_xml_tag :tag => 'path'
