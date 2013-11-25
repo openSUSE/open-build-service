@@ -142,7 +142,11 @@ Requires:       git-core
 Requires:       patch
 
 # needed for api test suite
+%if %0{suse_version} > 1210
 Requires:       libxml2-tools
+%else
+Requires:       libxml2
+%endif
 
 Recommends:     yum yum-metadata-parser repoview dpkg
 Recommends:     deb >= 1.5
