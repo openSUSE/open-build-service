@@ -12,7 +12,7 @@ class UpdateBackendInfos
     return if self.checked_pkgs.has_key? pkg.id
     pkg.update_backendinfo
     self.checked_pkgs[pkg.id] = 1
-    BackendPackage.where(links_to_id: pkg.id).each do |p|
+    BackendPackage.where(links_to_id: pkg.id).find_each do |p|
       p = Package.find_by_id p.package_id
       update_pkg(p) if p
     end

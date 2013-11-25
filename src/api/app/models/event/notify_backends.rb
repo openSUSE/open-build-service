@@ -8,7 +8,7 @@ module Event
   end
   
   def send_not_in_queue
-    Event::Base.not_in_queue.each do |e|
+    Event::Base.not_in_queue.find_each do |e|
       e.notify_backend
     end
   end

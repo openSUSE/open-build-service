@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../test_helper'
 require 'event'
 
 class EventTest < ActiveSupport::TestCase
@@ -42,4 +42,18 @@ class EventTest < ActiveSupport::TestCase
     assert oldcount - firstcount > 100
   end
 
+  test 'cleanup job' do
+    firstcount = Event::Base.count
+    CleanupEvents.new.perform
+    assert Event::Base.count == firstcount, 'all our fixtures are fresh'
+    f = Event::Base.first
+    f.queued = true
+    f.save
+    CleanupEvents.new.perform
+    assert Event::Base.count == firstcount, 'queuing is not enough'
+    f.project_logged = true
+    f.save
+    CleanupEvents.new.perform
+    assert Event::Base.count != firstcount, 'now its gone'
+  end
 end
