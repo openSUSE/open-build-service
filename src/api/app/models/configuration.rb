@@ -21,7 +21,6 @@ class Configuration < ActiveRecord::Base
                    :gravatar => CONFIG['use_gravatar'],
                    :download_url => CONFIG['download_url'],
                    :ymp_url => CONFIG['ymp_url'],
-                   :errbit_url => CONFIG['errbit_host'],
                    :bugzilla_url => CONFIG['bugzilla_host'],
                    :http_proxy => CONFIG['http_proxy'],
                    :no_proxy => nil,
@@ -71,15 +70,6 @@ class Configuration < ActiveRecord::Base
       CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
     end
 
-    def errbit_url
-      begin
-        c = first
-        c.errbit_url if c
-      rescue ActiveRecord::ActiveRecordError
-        # there is a boostrap issue here - you need to run db:setup to get the
-        # table, but the initializer checks the configuration
-      end
-    end
   end
 
   def update_from_options_yml

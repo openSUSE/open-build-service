@@ -81,6 +81,12 @@
           </element>
         </optional>
         <optional>
+          <element name="obs_url">
+            <!-- The URL to this OBS instance as seen from outside -->
+            <text/>
+          </element>
+        </optional>
+        <optional>
           <element name="http_proxy">
             <!-- May be used if external hosts, like remote OBS instances, gravatar or to download from external sides -->
             <text/>
@@ -129,12 +135,6 @@
         <optional>
           <element name="bugzilla_url">
             <!-- Default bugzilla instance for reporting to bugowners -->
-            <text/>
-          </element>
-        </optional>
-        <optional>
-          <element name="errbit_url">
-            <!-- For monitoring instance failures -->
             <text/>
           </element>
         </optional>

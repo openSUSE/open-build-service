@@ -66,9 +66,14 @@ class Webui::WebuiController < ActionController::Base
       @return_to_host = params['return_to_host']
     else
       # we have a proxy in front of us
-      @return_to_host = CONFIG['external_webui_protocol'] || 'http'
-      @return_to_host += '://'
-      @return_to_host += CONFIG['external_webui_host'] || request.host
+      @return_to_host = ::Configuration.first.obs_url
+      unless @return_to_host
+        # fetch old config value and store in db
+        @return_to_host = CONFIG['external_webui_protocol'] || 'http'
+        @return_to_host += '://'
+        @return_to_host += CONFIG['external_webui_host'] || request.host
+        ::Configuration.first.obs_url = @return_to_host
+      end
     end
     @return_to_path = params['return_to_path'] || request.env['ORIGINAL_FULLPATH']
     logger.debug "Setting return_to: \"#{@return_to_path}\""

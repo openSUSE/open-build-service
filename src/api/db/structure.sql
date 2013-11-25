@@ -334,11 +334,11 @@ CREATE TABLE `configurations` (
   `download_on_demand` tinyint(1) DEFAULT '1',
   `download_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `ymp_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `errbit_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `bugzilla_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `http_proxy` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `no_proxy` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `theme` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `obs_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -1380,6 +1380,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131123113417');
 INSERT INTO schema_migrations (version) VALUES ('20131124071042');
 
 INSERT INTO schema_migrations (version) VALUES ('20131125071042');
+
+INSERT INTO schema_migrations (version) VALUES ('20131125101042');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
