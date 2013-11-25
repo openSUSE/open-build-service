@@ -46,7 +46,9 @@
          <attribute name="repository"/>
        </optional>
        <optional>
-         <attribute name="arch"/>
+         <attribute name="arch">
+           <ref name="build-arch" />
+         </attribute>
        </optional>
        <oneOrMore>
          <ref name="channel-binary-element"/>
@@ -72,7 +74,19 @@
          <attribute name="package"/>
        </optional>
        <optional>
-         <attribute name="arch"/>
+         <attribute name="arch">
+           <ref name="build-arch" />
+         </attribute>
+       </optional>
+       <optional>
+         <attribute name="supportstatus">
+           <choice>
+             <value>l3</value>
+             <value>l2</value>
+             <value>acc</value>
+             <value>unsupported</value>
+           </choice>
+         </attribute>
        </optional>
        <empty/>
      </element>

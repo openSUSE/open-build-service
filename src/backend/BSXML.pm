@@ -257,6 +257,7 @@ our $channel = [
 		'repository',
 		'package',
 		'arch',
+		'supportstatus',
 	 ]],
      ]],
 ];

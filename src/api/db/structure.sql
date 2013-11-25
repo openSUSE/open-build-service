@@ -242,6 +242,7 @@ CREATE TABLE `channel_binaries` (
   `architecture_id` int(11) DEFAULT NULL,
   `package` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `binaryarch` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `supportstatus` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_channel_binaries_on_project_id_and_package` (`project_id`,`package`),
   KEY `channel_binary_list_id` (`channel_binary_list_id`),
@@ -1353,6 +1354,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131120193512');
 INSERT INTO schema_migrations (version) VALUES ('20131123113417');
 
 INSERT INTO schema_migrations (version) VALUES ('20131124071042');
+
+INSERT INTO schema_migrations (version) VALUES ('20131125071042');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

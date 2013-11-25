@@ -449,7 +449,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
         <channel>
           <target project="BaseDistro3Channel" repository="channel_repo" />
           <binaries project="BaseDistro3" repository="BaseDistro3_repo" arch="i586">
-            <binary name="package" package="pack2" project="BaseDistro3" />
+            <binary name="package" package="pack2" project="BaseDistro3" supportstatus="l3" />
             <binary name="does_not_exist" />
           </binaries>
         </channel>'
@@ -457,7 +457,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/Channel/BaseDistro3/_channel'
     assert_response :success
     assert_no_xml_tag :tag => 'binary', :attributes => { :project => 'BaseDistro2.0', :package => 'pack2.linked'}
-    assert_xml_tag :tag => 'binary', :attributes => { :project => 'BaseDistro3', :package => 'pack2'}
+    assert_xml_tag :tag => 'binary', :attributes => { :project => 'BaseDistro3', :package => 'pack2', :supportstatus => 'l3' }
 
     # create channel packages and repos
     login_adrian

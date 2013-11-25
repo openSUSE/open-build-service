@@ -385,7 +385,7 @@ class Package < ActiveRecord::Base
   end
 
   def is_product?
-    is_of_kind? :channel
+    is_of_kind? :product
   end
 
   def is_of_kind? kind

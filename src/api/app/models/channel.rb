@@ -69,6 +69,7 @@ class Channel < ActiveRecord::Base
       p.elements('binary') { |b|
         binary = cbl.channel_binaries.create( name: b['name'] )
         binary.binaryarch = b['binaryarch']
+        binary.supportstatus = b['supportstatus']
         binary.architecture = Architecture.find_by_name( b['arch'] ) if b['arch']
         project = b['project']
         if project
