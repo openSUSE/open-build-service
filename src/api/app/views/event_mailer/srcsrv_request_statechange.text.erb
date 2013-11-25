@@ -1,0 +1,22 @@
+State of <%= pl['type'] %>-request #<%= pl['id'] %> was changed by <%= pl['who'] %>:
+
+  <%= pl['oldstate'] %> -> <%= pl['state'] %>
+
+Comment:
+  <%= pl['comment'] %>
+
+<%= url_for(controller: :request, action: :show, id: pl['id'], only_path: false) %>
+
+<% if pl['sourceproject'] -%>
+Source
+  project:  <%= pl['sourceproject'] %>
+  package:  <%= pl['sourcepackage'] %>
+<% if pl['sourcerevision'] -%>
+ revision:  <%= pl['sourcerevision'] %>
+<% end -%>
+<% end -%>
+
+Target:
+  project: <%= pl['targetproject'] %>
+  package: <%= pl['targetpackage'] %>
+

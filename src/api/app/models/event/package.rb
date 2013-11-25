@@ -51,6 +51,10 @@ module Event
     payload_keys :project, :package, :comment, :user, :files, :rev, :requestid
 
     create_jobs :update_backend_infos
+
+    def subject
+      "#{payload['project']}/#{payload['package']} r#{payload['rev']} commited"
+    end
   end
 
   class Upload < Package

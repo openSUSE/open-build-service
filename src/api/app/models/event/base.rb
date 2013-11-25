@@ -60,6 +60,10 @@ module Event
       self.class.create_jobs
     end
 
+    def raw_type
+      self.class.raw_type
+    end
+
     def initialize(attribs)
       super()
       self.created_at = attribs[:time] if attribs[:time]
@@ -128,6 +132,11 @@ module Event
         obj = job.to_s.camelize.safe_constantize.new(self)
         obj.delay.perform
       end
+    end
+
+    # to be overwritten in subclasses
+    def subject
+      'Build Service Notification'
     end
 
   end
