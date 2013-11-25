@@ -2520,8 +2520,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 	    <binary name="glibc-devel" binaryarch="noarch" package="pack1" project="BaseDistro" repository="BaseDistro_repo" arch="i586"/>
 	  </binaries>
 	</channel>'
-    assert_response 404
-    assert_xml_tag :tag => 'status', :attributes => { :code => 'not_found' }
+    assert_response 400
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'validation_failed' }
 
     put '/source/home:Iggy/TestChannel/_channel', '<?xml version="1.0" encoding="UTF-8"?>
 	<channel>
