@@ -159,7 +159,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::ProjectController#save_new' => 90,
       'Webui::RequestController#show' => 72.45,
       'Webui::PatchinfoController#new_tracker' => 68.43,
-      'Webui::ProjectController#status' => 67.37,
+      'Webui::ProjectController#status' => 58.09,
       'Webui::ProjectController#call_diststats' => 57.81, 
       'Webui::ProjectController#calculate_repo_cycle' => 51.82, 
       'Webui::ProjectController#check_devel_package_status' => 81.95, 
