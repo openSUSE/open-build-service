@@ -464,6 +464,8 @@ module ActionDispatch
 end
 
 class ActiveSupport::TestCase
+  set_fixture_class events: Event::Base
+
   def assert_xml_tag(data, conds)
     node = ActiveXML::Node.new(data)
     ret = node.find_matching(NodeMatcher::Conditions.new(conds))
