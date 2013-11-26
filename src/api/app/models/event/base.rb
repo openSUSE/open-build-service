@@ -126,7 +126,7 @@ module Event
     def perform_create_jobs
       self.create_jobs.each do |job|
         obj = job.to_s.camelize.safe_constantize.new(self)
-        obj.perform
+        obj.delay.perform
       end
     end
 
