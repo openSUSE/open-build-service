@@ -1,10 +1,11 @@
-require 'test_helper'
+require_relative '../test_helper'
 
 class ProjectLogEntryTest < ActiveSupport::TestCase
   fixtures :all
+  set_fixture_class events: Event::Base
 
   test "create from a commit" do
-    event = Event::Package.find(1067339457)
+    event = events(:pack1_commit)
     entry = ProjectLogEntry.create_from event
     assert_equal "commit", entry.event_type
     assert_equal "New revision of a package was commited", entry.message
@@ -16,7 +17,7 @@ class ProjectLogEntryTest < ActiveSupport::TestCase
   end
 
   test "create from commit for a deleted package" do
-    event = Event::Package.find(1067339103) #:commit_for_deleted_package
+    event = events(:commit_for_deleted_package)
     entry = ProjectLogEntry.create_from event
     refute entry.new_record?
     assert_equal projects(:"BaseDistro2.0"), entry.project
@@ -27,7 +28,7 @@ class ProjectLogEntryTest < ActiveSupport::TestCase
   end
 
   test "create from build_success for a deleted project" do
-    event = Event::Package.find(1067339104) #:build_success_from_deleted_project
+    event = events(:build_success_from_deleted_project)
     entry = ProjectLogEntry.create_from event
     assert entry.new_record?
     assert_nil entry.id
@@ -35,7 +36,7 @@ class ProjectLogEntryTest < ActiveSupport::TestCase
   end
 
   test "create from build_fail with deleted user and request" do
-    event = Event::Package.find(1067339105) #:build_fails_with_deleted_user_and_request
+    event = events(:build_fails_with_deleted_user_and_request)
     entry = ProjectLogEntry.create_from event
     assert_equal "build_fail", entry.event_type
     assert_equal "Package has failed to build", entry.message

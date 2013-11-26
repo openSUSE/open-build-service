@@ -164,9 +164,9 @@ namespace :db do
           if table_name == 'backend_packages'
             defaultkey = record['package']
           end
-          if %w(event_subscriptions events ratings package_kinds package_issues
+          if %w(event_subscriptions ratings package_kinds package_issues
                 linked_db_projects relationships watched_projects path_elements
-                flags taggings bs_request_histories bs_request_actions
+                flags taggings bs_request_histories bs_request_actions project_log_entries
                 ).include? table_name
             record.delete(primary)
             t = record.to_a.sort
