@@ -20,7 +20,7 @@ Name:           obs-api-deps
 Summary:        The Open Build Service -- Gem dependencies
 License:        MIT
 Group:          Productivity/Networking/Web/Utilities
-Version:        20131125143051.d0638692
+Version:        20131125162529.531692f8
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -142,7 +142,7 @@ Requires:       git-core
 Requires:       patch
 
 # needed for api test suite
-%if %0{suse_version} > 1210
+%if 0%{suse_version} > 1210
 Requires:       libxml2-tools
 %else
 Requires:       libxml2
@@ -156,10 +156,10 @@ Recommends:     obs-signd
 Recommends:     inst-source-utils
 Requires:       perl-Compress-Zlib
 Requires:       perl-File-Sync >= 0.10
+Requires:       perl-JSON-XS
 Requires:       perl-Net-SSLeay
 Requires:       perl-Socket-MsgHdr
 Requires:       perl-XML-Parser
-Requires:       perl-JSON-XS
 Requires:       sphinx
 Conflicts:      sphinx < 2.0.8
 
