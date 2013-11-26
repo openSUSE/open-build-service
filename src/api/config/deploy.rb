@@ -13,7 +13,7 @@ set :git_enable_submodules, 1
 set :git_subdir, '/src/api'
 set :migrate_target, :current
 
-set :deploy_notification_to, ['tschmidt@suse.de', 'coolo@suse.de', 'adrian@suse.de', 'saschpe@suse.de', 'mls@suse.de']
+set :deploy_notification_to, %w(tschmidt@suse.de coolo@suse.de adrian@suse.de saschpe@suse.de mls@suse.de)
 server "buildserviceapi.suse.de", :app, :web, :db, :primary => true
 
 # If you aren't deploying to /u/apps/#{application} on the target

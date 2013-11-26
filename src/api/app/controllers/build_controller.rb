@@ -2,7 +2,7 @@ class BuildController < ApplicationController
 
   def index
     # for read access and visibility permission check
-    if params[:package] and not ["_repository", "_jobhistory"].include?(params[:package])
+    if params[:package] and not %w(_repository _jobhistory).include?(params[:package])
       Package.get_by_project_and_name( params[:project], params[:package], use_source: false )
     else
       Project.get_by_name params[:project]
@@ -44,7 +44,7 @@ class BuildController < ApplicationController
         return
       end
 
-      unless ["wipe", "restartbuild", "killbuild", "abortbuild", "rebuild"].include? params[:cmd]
+      unless %w(wipe restartbuild killbuild abortbuild rebuild).include? params[:cmd]
         render_error :status => 400, :errorcode => "illegal_request",
           :message => "unsupported POST command #{params[:cmd]} to #{request.url}"
         return

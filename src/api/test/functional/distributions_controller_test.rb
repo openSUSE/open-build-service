@@ -18,7 +18,7 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
                    "version"=>"Base",
                    "architectures"=>
                    {"type"=>"array",
-                     "architecture"=>["i586", "x86_64"]},
+                     "architecture"=> %w(i586 x86_64) },
                    "icons"=>
                    {"type"=>"array",
                      "icon"=>

@@ -70,7 +70,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
       assert_response :success
       node = ActiveXML::Node.new(@response.body)
       return unless node.has_element? 'serviceinfo'
-      return if [ 'failed', 'succeeded'].include? node.find_first(:serviceinfo).value(:code) # else "running"
+      return if %w(failed succeeded).include? node.find_first(:serviceinfo).value(:code) # else "running"
       i=i+1
       if i > 10
         puts 'ERROR in wait_for_service: service did not run until time limit'

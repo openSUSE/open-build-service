@@ -188,7 +188,8 @@ class SourceController < ApplicationController
 
     # init and validation
     #--------------------
-    valid_commands=['undelete', 'showlinked', 'remove_flag', 'set_flag', 'createpatchinfo', 'createkey', 'extendkey', 'copy', 'createmaintenanceincident', 'unlock', 'release', 'addchannels']
+    valid_commands=%w(undelete showlinked remove_flag set_flag createpatchinfo createkey extendkey copy
+                      createmaintenanceincident unlock release addchannels)
     if params[:cmd]
       raise IllegalRequest.new 'invalid_command' unless valid_commands.include?(params[:cmd])
       command = params[:cmd]
@@ -241,7 +242,7 @@ class SourceController < ApplicationController
         validate_read_access_of_deleted_package(@target_project_name, @target_package_name)
       end 
     else
-      if ['_project', '_pattern'].include? @target_package_name
+      if %w(_project _pattern).include? @target_package_name
         Project.get_by_name @target_project_name
       else
         @tpkg = Package.get_by_project_and_name(@target_project_name, @target_package_name, use_source: true, follow_project_links: true)
@@ -356,10 +357,9 @@ class SourceController < ApplicationController
     end
 
     # valid post commands
-    valid_commands=['diff', 'branch', 'servicediff', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag',
-                    'rebuild', 'undelete', 'wipe', 'runservice', 'commit', 'commitfilelist',
-                    'createSpecFileTemplate', 'deleteuploadrev', 'linktobranch', 'updatepatchinfo',
-                    'getprojectservices', 'unlock', 'release']
+    valid_commands=%w(diff branch servicediff linkdiff showlinked copy remove_flag set_flag rebuild undelete
+                      wipe runservice commit commitfilelist createSpecFileTemplate deleteuploadrev linktobranch
+                      updatepatchinfo getprojectservices unlock release)
 
     @command = params[:cmd]
     raise IllegalRequest.new 'invalid_command' unless valid_commands.include?(@command)
@@ -374,8 +374,8 @@ class SourceController < ApplicationController
     # Check for existens/access of origin package when specified
     @spkg = nil
     Project.get_by_name origin_project_name if origin_project_name
-    if origin_package_name && !['_project', '_pattern'].include?(origin_package_name) && !(params[:missingok] && @command == 'branch')
-      @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name) if origin_package_name && !['_project', '_pattern'].include?(origin_package_name)
+    if origin_package_name && !%w(_project _pattern).include?(origin_package_name) && !(params[:missingok] && @command == 'branch')
+      @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name) if origin_package_name && !%w(_project _pattern).include?(origin_package_name)
     end
     if @spkg
       # use real source in case we followed project link
@@ -395,11 +395,11 @@ class SourceController < ApplicationController
   end
 
 
-  Source_untouched_commands = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'rebuild', 'wipe', 'remove_flag', 'set_flag', 'getprojectservices']
+  Source_untouched_commands = %w(branch diff linkdiff servicediff showlinked rebuild wipe remove_flag set_flag getprojectservices)
   # list of cammands which create the target package
-  Package_creating_commands = ['branch', 'copy', 'undelete']
+  Package_creating_commands = %w(branch copy undelete)
   # list of commands which are allowed even when the project has the package only via a project link
-  Read_commands = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'getprojectservices']
+  Read_commands = %w(branch diff linkdiff servicediff showlinked getprojectservices)
 
   def validate_target_for_package_command_exists!
     @project = nil
@@ -407,7 +407,7 @@ class SourceController < ApplicationController
 
     follow_project_links = Source_untouched_commands.include?(@command)
 
-    unless ['_project', '_pattern'].include? @target_package_name
+    unless %w(_project _pattern).include? @target_package_name
       use_source = true
       use_source = false if @command == 'showlinked'
       @package = Package.get_by_project_and_name(@target_project_name, @target_package_name,
@@ -855,7 +855,7 @@ class SourceController < ApplicationController
     pass_to_backend @path
 
     # update package timestamp and reindex sources
-    unless params[:rev] == 'repository' or [ '_project', '_pattern'].include? @package_name
+    unless params[:rev] == 'repository' or %w(_project _pattern).include? @package_name
       @pack.sources_changed
       @pack.update_if_dirty if special_file # scan
     end

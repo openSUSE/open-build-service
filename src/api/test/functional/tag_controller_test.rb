@@ -167,7 +167,7 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_kind_of Project, p
     
     #tags to create
-    tags = ["TagX", "TagY", "TagZ", "IamNotAllowed"]
+    tags = %w(TagX TagY TagZ IamNotAllowed)
     
     #Precondition check: Tag "TagX" should not exist.
     tags.each do |tag|
@@ -1185,7 +1185,7 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     
     
     #tags to create  
-    tags = ["TagX", "TagY", "TagZ", "TagA"]  
+    tags = %w(TagX TagY TagZ TagA)
     #prepare the xml document (request data)
     xml = REXML::Document.new
     xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
@@ -1254,7 +1254,7 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     
     
     #tags to create  
-    tags = ["TagX", "TagY", "TagZ", "TagB"]  
+    tags = %w(TagX TagY TagZ TagB)
     #prepare the xml document (request data)
     xml = REXML::Document.new
     xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")
@@ -1304,7 +1304,7 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     
     #tags to create  
-    tags = ["TagX", "TagY", "TagZ", "TagB"]  
+    tags = %w(TagX TagY TagZ TagB)
     #prepare the xml document (request data)
     xml = REXML::Document.new
     xml << REXML::XMLDecl.new(1.0, "UTF-8", "no")

@@ -53,7 +53,7 @@ class ProjectTest < ActiveSupport::TestCase
       )
     
     position = 1
-    ['build', 'publish', 'debuginfo'].each do |flagtype|
+    %w(build publish debuginfo).each do |flagtype|
       position = @project.update_flags(axml, flagtype, position)
     end
     

@@ -63,7 +63,7 @@ class WebuiProject < ActiveXML::Node
     repository = self.find_first("//repository[@name='#{opt[:reponame]}']")
 
     unless opt[:repo_path].blank?
-      opt[:repo_path] =~ /(.*)\/(.*)/;
+      opt[:repo_path] =~ /(.*)\/(.*)/
       repository.each(:path) do |path| # Check if the path to add is already existant
         return false if path.value(:project) == $1 and path.value(:repository) == $2
       end
@@ -82,7 +82,7 @@ class WebuiProject < ActiveXML::Node
     repository = add_element 'repository', 'name' => opt[:reponame]
 
     unless opt[:repo_path].blank?
-      opt[:repo_path] =~ /(.*)\/(.*)/;
+      opt[:repo_path] =~ /(.*)\/(.*)/
       repository.add_element 'path', 'project' => $1, 'repository' => $2
     end
 

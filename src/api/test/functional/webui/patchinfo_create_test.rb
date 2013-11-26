@@ -11,10 +11,8 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
                  "security",
                  "optional",
                  "feature"].sort
-  RATINGS = [ "low",
-              "moderate",
-              "important",
-              "critical"].sort
+  RATINGS = %w(low moderate important critical).sort
+
   setup do
     use_js
     @project = 'home:Iggy' 
@@ -255,7 +253,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
       :description => LONG_DESCRIPTION,
       :category => "recommended",
       :rating => "low",
-      :select_binaries => ["package", "delete_me"],
+      :select_binaries => %w(package delete_me),
       :expect => :success)
     click_link("Edit patchinfo")
     

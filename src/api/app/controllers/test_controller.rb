@@ -19,7 +19,7 @@ class TestController < ApplicationController
   
   # we need a way so the API uprises fully
   def startme
-     if @@started == true
+     if @@started
        render_ok
        return
      end

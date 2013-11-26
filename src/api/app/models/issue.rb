@@ -59,8 +59,8 @@ class Issue < ActiveRecord::Base
   end
 
   def self.bugzilla_state( string )
-    return 'OPEN' if [ 'NEW', 'NEEDINFO', 'REOPENED', 'ASSIGNED' ].include? string
-    return 'CLOSED' if [ 'RESOLVED', 'CLOSED', 'VERIFIED' ].include? string
+    return 'OPEN' if %w(NEW NEEDINFO REOPENED ASSIGNED).include? string
+    return 'CLOSED' if %w(RESOLVED CLOSED VERIFIED).include? string
     return 'UNKNOWN'
   end
 

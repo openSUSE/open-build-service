@@ -25,7 +25,7 @@ module Webui::LoadBuildresults
 
       result.elements('status') do |status|
         stathash[status['package']] = status
-        if ['unresolvable', 'failed', 'broken'].include? status['code']
+        if %w(unresolvable failed broken).include? status['code']
           @failures += 1
         end
       end

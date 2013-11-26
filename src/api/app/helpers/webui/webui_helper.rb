@@ -111,12 +111,12 @@ module Webui::WebuiHelper
     end
 
     out = "<td class='#{theclass} buildstatus'>"
-    if ['unresolvable', 'blocked'].include? code
+    if %w(unresolvable blocked).include? code
       out += link_to code, '#', title: link_title, id: status_id
       content_for :ready_function do
         "$('a##{status_id}').click(function() { alert('#{link_title.gsub(/'/, '\\\\\'')}'); return false; });\n".html_safe
       end
-    elsif ['-', 'excluded'].include? code
+    elsif %w(- excluded).include? code
       out += code
     else
       out += link_to code.gsub(/\s/, '&nbsp;'), { action: :live_build_log,
@@ -338,7 +338,7 @@ module Webui::WebuiHelper
   end
 
   def is_advanced_tab?
-    ['prjconf', 'attributes', 'meta', 'status'].include? @current_action.to_s
+    %w(prjconf attributes meta status).include? @current_action.to_s
   end
 
   def mobile_device?

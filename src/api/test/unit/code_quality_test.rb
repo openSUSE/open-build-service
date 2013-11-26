@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'find'
 require 'tempfile'
 
-RAILS_BASE_DIRS = ['app', 'db', 'config', 'lib', 'test' ].map { |dir| Rails.root.join(dir) }
+RAILS_BASE_DIRS = %w(app db config lib test).map { |dir| Rails.root.join(dir) }
 
 class CodeQualityTest < ActiveSupport::TestCase
   def setup

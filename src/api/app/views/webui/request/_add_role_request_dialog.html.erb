@@ -10,7 +10,7 @@
         <%= hidden_field_tag(:package, @package) if defined? @package %>
         <p>
           <%= label_tag(:role, 'Add role:') %><br/>
-          <%= select_tag(:role, options_for_select([['Maintainer', 'maintainer'], ['Bugowner', 'bugowner']])) %><br/>
+          <%= select_tag(:role, options_for_select([%w(Maintainer maintainer), %w(Bugowner bugowner)])) %><br/>
           <%= label_tag(:user, 'For user:') %><br/>
           <%= text_field_tag(:user, User.current.login, :size => 40) %><br/>
           <% if defined? @package %>

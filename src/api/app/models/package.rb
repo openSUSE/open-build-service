@@ -180,6 +180,7 @@ class Package < ActiveRecord::Base
         answer = Suse::Backend.get(Package.source_path(project, package))
         return true if answer
       rescue ActiveXML::Transport::Error
+        # ignored
       end
       return false
     end

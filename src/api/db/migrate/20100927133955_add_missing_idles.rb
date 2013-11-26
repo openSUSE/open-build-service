@@ -1,6 +1,6 @@
 class AddMissingIdles < ActiveRecord::Migration
   def self.up
-    sql = ActiveRecord::Base.connection();
+    sql = ActiveRecord::Base.connection()
     archs = StatusHistory.where('`key` like "building_%"').select('DISTINCT `key`').all.collect {|item| item.key.gsub(%r{building_},'') }
     archs.each do |arch|
       idle_times = Hash.new
