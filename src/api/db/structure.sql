@@ -232,7 +232,9 @@ CREATE TABLE `cache_lines` (
   `project` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `request` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_cache_lines_on_project` (`project`),
+  KEY `index_cache_lines_on_project_and_package` (`project`,`package`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `channel_binaries` (
@@ -1386,6 +1388,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131125071042');
 INSERT INTO schema_migrations (version) VALUES ('20131125101042');
 
 INSERT INTO schema_migrations (version) VALUES ('20131126074753');
+
+INSERT INTO schema_migrations (version) VALUES ('20131126205430');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
