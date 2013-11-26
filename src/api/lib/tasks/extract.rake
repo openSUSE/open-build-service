@@ -30,7 +30,7 @@ namespace :db do
   task :extract_fixtures => :environment do
     raise "You only want to run this in test environment" unless ENV['RAILS_ENV'] == 'test'
     sql = "SELECT * FROM %s"
-    skip_tables = ["schema_info", "sessions", "schema_migrations"]
+    skip_tables = %w(schema_info sessions schema_migrations)
     ActiveRecord::Base.establish_connection
     User.current = User.find_by_login('Admin')
     tables = ENV['FIXTURES'] ? ENV['FIXTURES'].split(/,/) : ActiveRecord::Base.connection.tables - skip_tables

@@ -7,7 +7,7 @@ class MaintenanceIncident < ActiveRecord::Base
 
   def project_name
       unless self.incident_id
-        sql = ActiveRecord::Base.connection();
+        sql = ActiveRecord::Base.connection()
         r = sql.execute( "SELECT counter FROM incident_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project_id.to_s + " FOR UPDATE" ).first
 
         if r.nil?
@@ -53,7 +53,7 @@ class MaintenanceIncident < ActiveRecord::Base
         counterType << " AND ISNULL(day)"
         day = "NULL"
       end
-      sql = ActiveRecord::Base.connection();
+      sql = ActiveRecord::Base.connection()
       r = sql.execute( "SELECT counter FROM updateinfo_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project.id.to_s + counterType + " FOR UPDATE" ).first
       if r.nil?
         # no counter exists, initialize it and select again

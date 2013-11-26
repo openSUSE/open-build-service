@@ -1,9 +1,7 @@
 class Buildresult < ActiveXML::Node
 
-  Avail_status_values =
-      ['succeeded', 'failed', 'unresolvable', 'broken',
-       'blocked', 'dispatching', 'scheduled', 'building', 'finished', 'signing',
-       'disabled', 'excluded', 'locked', 'deleting', 'unknown']
+  Avail_status_values = %w(succeeded failed unresolvable broken blocked dispatching scheduled
+                           building finished signing disabled excluded locked deleting unknown)
   @@status_hash = nil
 
   def self.avail_status_values

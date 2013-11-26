@@ -154,7 +154,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
     results.must_include 'home:dmayr'
     results.wont_include 'Apache'
     results = fill_autocomplete 'linked_package', with: 'x11', select: 'x11vnc'
-    results.must_equal ['x11vnc']
+    results.must_equal %w(x11vnc)
 
     click_button 'Create Branch'
     page.must_have_text "Branched package home:Iggy / x11vnc"

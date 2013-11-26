@@ -9,7 +9,7 @@
         <%= hidden_field_tag(:id, @request_id) %>
         <p>
           <%= label_tag(:review_type, "Type:") %><br/>
-          <%= select_tag(:review_type, options_for_select([["User", "user"], ["Group", "group"], ["Project", "project"], ["Package", "package"]])) %>
+          <%= select_tag(:review_type, options_for_select([%w(User user), %w(Group group), %w(Project project), %w(Package package)])) %>
           <br/>
           <span id="review_user_span">
             <%= label_tag(:review_user, "User:") %><br/>

@@ -306,7 +306,7 @@ class RequestController < ApplicationController
     # do not allow direct switches from a final state to another one to avoid races and double actions.
     # request needs to get reopened first.
     if [:accepted, :superseded, :revoked].include? req.state
-      if ['accepted', 'declined', 'superseded', 'revoked'].include? params[:newstate]
+      if %w(accepted declined superseded revoked).include? params[:newstate]
         raise PostRequestNoPermission.new "set state to #{params[:newstate]} from a final state is not allowed."
       end
     end
@@ -321,7 +321,7 @@ class RequestController < ApplicationController
     end
 
     # adding and removing of requests is only allowed for groups
-    if ['addrequest', 'removerequest'].include? params[:cmd]
+    if %w(addrequest removerequest).include? params[:cmd]
       if req.bs_request_actions.first.action_type != :group
         raise GroupRequestSpecial.new "Command #{params[:cmd]} is only valid for group requests"
       end
@@ -397,7 +397,7 @@ i          raise PostRequestNoPermission.new 'Request is in review state. You ma
       end
       #
       permission_granted = true
-    elsif req.state != :accepted and ['new', 'review', 'revoked', 'superseded'].include?(params[:newstate]) and req.creator == User.current.login
+    elsif req.state != :accepted and %w(new review revoked superseded).include?(params[:newstate]) and req.creator == User.current.login
       # request creator can reopen, revoke or supersede a request which was declined
       permission_granted = true
     elsif req.state == :declined and (params[:newstate] == 'new' or params[:newstate] == 'review') and req.commenter == User.current.login

@@ -384,7 +384,7 @@ class User < ActiveRecord::Base
   after_validation(:on => :create) do
     if errors.empty? and @new_password and !password.nil?
       # generate a new 10-char long hash only Base64 encoded so things are compatible
-      self.password_salt = [Array.new(10){rand(256).chr}.join].pack('m')[0..9];
+      self.password_salt = [Array.new(10){rand(256).chr}.join].pack('m')[0..9]
 
       # vvvvvv added this to maintain the password list for lighttpd
       write_attribute(:password_crypted, password.crypt('os'))
@@ -430,13 +430,13 @@ class User < ActiveRecord::Base
       when User.states['unconfirmed']
         true
       when User.states['confirmed']
-        ['retrieved_password','locked','deleted','deleted','ichainrequest'].map{|x| User.states[x]}.include?(to)
+        %w(retrieved_password locked deleted deleted ichainrequest).map{|x| User.states[x]}.include?(to)
       when User.states['locked']
-        ['confirmed', 'deleted'].map{|x| User.states[x]}.include?(to)
+        %w(confirmed deleted).map{|x| User.states[x]}.include?(to)
       when User.states['deleted']
         to == User.states['confirmed']
       when User.states['ichainrequest']
-        ['locked', 'confirmed', 'deleted'].map{|x| User.states[x]}.include?(to)
+        %w(locked confirmed deleted).map{|x| User.states[x]}.include?(to)
       when 0
         User.states.value?(to)
       else
@@ -806,13 +806,13 @@ class User < ActiveRecord::Base
     Rails.cache.fetch("requests_for_#{login}", expires_in: 2.minutes) do
       nr_requests_that_need_work = 0
 
-      rel = BsRequestCollection.new(user: login, states: ['declined'], roles: ['creator'])
+      rel = BsRequestCollection.new(user: login, states: %w(declined), roles: %w(creator))
       nr_requests_that_need_work += rel.ids.size
 
-      rel = BsRequestCollection.new(user: login, states: ['new'], roles: ['maintainer'])
+      rel = BsRequestCollection.new(user: login, states: %w(new), roles: %w(maintainer))
       nr_requests_that_need_work += rel.ids.size
 
-      rel = BsRequestCollection.new(user: login, roles: ['reviewer'], reviewstates: ['new'], states: ['review'])
+      rel = BsRequestCollection.new(user: login, roles: %w(reviewer), reviewstates: %w(new), states: %w(review))
       nr_requests_that_need_work += rel.ids.size
     end
   end
@@ -957,7 +957,7 @@ class User < ActiveRecord::Base
 
   # This method returns an array which contains all valid hash types.
   def self.default_password_hash_types
-    [ 'md5' ]
+    %w(md5)
   end
 
   # Hashes the given parameter by the selected hashing method. It uses the

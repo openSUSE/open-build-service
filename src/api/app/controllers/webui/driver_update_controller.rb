@@ -140,7 +140,7 @@ class Webui::DriverUpdateController < Webui::PackageController
     required_parameters :repository
     @repository = params[:repository]
     @buildresult = Buildresult.find(:project => @project, :package => @package,
-      :repository => @repository, :view => ['binarylist', 'status'])
+      :repository => @repository, :view => %w(binarylist status))
     @binaries = @buildresult.each('//binary').map{|binary| binary['filename']}
     render :partial => 'binary_packages'
   end

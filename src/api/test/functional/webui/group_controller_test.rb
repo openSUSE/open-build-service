@@ -71,7 +71,7 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
     visit group_autocomplete_path(term: 'test')
     page.status_code.must_equal 200
 
-    JSON.parse(page.source).must_equal ['test_group', 'test_group_b']
+    JSON.parse(page.source).must_equal %w(test_group test_group_b)
   end
 
 end

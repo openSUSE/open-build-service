@@ -33,17 +33,17 @@ class FullTextSearchTest < ActiveSupport::TestCase
     # Only by issue
     s = FullTextSearch.new(issue_tracker_name: "bnc", issue_name: "123456")
     # Order is not relevant
-    assert_equal ["BaseDistro", "patchinfo"], s.search.map(&:name).sort
+    assert_equal %w(BaseDistro patchinfo), s.search.map(&:name).sort
     # Only projects
     s.classes = %w(Project)
-    assert_equal ["BaseDistro"], s.search.map(&:name)
+    assert_equal %w(BaseDistro), s.search.map(&:name)
     s.classes = []
     # Issue + incorrect text
     s.text = "not to be found"
     assert_equal 0, s.search.total_entries
     # Issue + included text
     s.text = "container"
-    assert_equal ["patchinfo"], s.search.map(&:name)
+    assert_equal %w(patchinfo), s.search.map(&:name)
   end
 
   test "searching by non existent issue" do
@@ -63,10 +63,10 @@ class FullTextSearchTest < ActiveSupport::TestCase
     # Only by attrib
     s = FullTextSearch.new(attrib_type_id: 57)
     # Order is not relevant
-    assert_equal ["BaseDistro", "BaseDistro2.0"], s.search.map(&:name).sort
+    assert_equal %w(BaseDistro BaseDistro2.0), s.search.map(&:name).sort
     # Attrib + included text
     s.text = "another"
-    assert_equal ["BaseDistro2.0"], s.search.map(&:name)
+    assert_equal %w(BaseDistro2.0), s.search.map(&:name)
   end
 
   test "searching for a hidden project" do

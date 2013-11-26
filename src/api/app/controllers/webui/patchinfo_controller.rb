@@ -139,7 +139,7 @@ class Webui::PatchinfoController < Webui::WebuiController
         flash[:error] = "#{flash[:error]}" + ' || Description is too short (should have more than 50 signs and longer than summary)'
       end
 
-      if valid_params == true
+      if valid_params
         packager = params[:packager]
         binaries = params[:selected_binaries]
         relogin = params[:relogin]

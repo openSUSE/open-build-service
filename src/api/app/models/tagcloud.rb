@@ -158,7 +158,7 @@ class Tagcloud
     range = 1 if @max == @min
     tagcloud = Hash.new
     @tags.each do |tag|
-      ratio = (tag.count - @min.to_f) / range;
+      ratio = (tag.count - @min.to_f) / range
       fsize = (0 + steps) * ratio
       tagcloud[tag.name] = fsize.round
     end

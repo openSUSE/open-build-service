@@ -119,7 +119,7 @@ class BsRequestCollection
     if @roles.count == 0 or @roles.include? 'reviewer'
       @rel = @rel.includes(:reviews).references(:reviews)
       # requests where the user is reviewer or own requests that are in review by someone else
-      or_in_and = ["reviews.by_group=#{quote(group.title)}"]
+      or_in_and = %W(reviews.by_group=#{quote(group.title)})
 
       extend_query_for_involved_reviews(group, or_in_and)
     end
@@ -140,7 +140,7 @@ class BsRequestCollection
       @rel = @rel.includes(:reviews).references(:reviews)
 
       # requests where the user is reviewer or own requests that are in review by someone else
-      or_in_and = ["reviews.by_user=#{quote(user.login)}"]
+      or_in_and = %W(reviews.by_user=#{quote(user.login)})
 
       # include all groups of user
       usergroups = user.groups.map { |g| "'#{g.title}'" }

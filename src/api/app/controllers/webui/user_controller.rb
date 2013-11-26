@@ -103,7 +103,7 @@ class Webui::UserController < Webui::WebuiController
 
   def admin
     u = User.find_by_login(params[:user])
-    u.update_globalroles(['Admin'])
+    u.update_globalroles(%w(Admin))
     u.save
   end
 

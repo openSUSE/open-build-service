@@ -150,7 +150,7 @@ projects.each_entry do |entry|
   cache[entry.name] = p unless store_project(p)
 end
 
-run_count = 0;
+run_count = 0
 
 while( cache.length > 0 )
   STDERR.puts "--> trying to store previously unsaved projects, run [#{run_count += 1}]"
