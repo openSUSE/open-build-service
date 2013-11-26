@@ -143,7 +143,9 @@ CREATE TABLE `backend_packages` (
   `error` text COLLATE utf8_unicode_ci,
   `maxmtime` datetime DEFAULT NULL,
   PRIMARY KEY (`package_id`),
-  KEY `index_backend_packages_on_links_to_id` (`links_to_id`)
+  KEY `index_backend_packages_on_links_to_id` (`links_to_id`),
+  CONSTRAINT `backend_packages_ibfk_1` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`),
+  CONSTRAINT `backend_packages_ibfk_2` FOREIGN KEY (`links_to_id`) REFERENCES `packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `blacklist_tags` (
@@ -1382,6 +1384,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131124071042');
 INSERT INTO schema_migrations (version) VALUES ('20131125071042');
 
 INSERT INTO schema_migrations (version) VALUES ('20131125101042');
+
+INSERT INTO schema_migrations (version) VALUES ('20131126074753');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
