@@ -62,6 +62,7 @@ class Package < ActiveRecord::Base
   has_many :comments, :dependent => :delete_all, inverse_of: :package
 
   before_destroy :delete_cache_lines
+  before_destroy :remove_linked_packages
 
   after_save :write_to_backend
   before_update :update_activity
@@ -74,7 +75,7 @@ class Package < ActiveRecord::Base
   validates :name, presence: true, length: { maximum: 200 }
   validate :valid_name
 
-  has_one :backend_package, foreign_key: :package_id, dependent: :destroy
+  has_one :backend_package, foreign_key: :package_id, dependent: :destroy, inverse_of: :package
   has_one :token, foreign_key: :package_id, dependent: :destroy
 
   has_many :tokens, dependent: :destroy, inverse_of: :package
@@ -836,6 +837,10 @@ class Package < ActiveRecord::Base
 
   def delete_cache_lines
     CacheLine.cleanup_package(self.project.name, self.name)
+  end
+
+  def remove_linked_packages
+    BackendPackage.where(links_to_id: self.id).delete_all
   end
 
   def patchinfo

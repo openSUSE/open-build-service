@@ -3,13 +3,13 @@ require File.dirname(__FILE__) + '/../config/boot'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 
 def check_foreign_key(id, table, othertable, delete)
-  #puts "alter table %s add FOREIGN KEY (%s) references %s (id);" % [table, id, othertable]
   sql="select distinct %s from %s where %s is not null and %s not in (select id from %s);" % [id, table, id, id, othertable]
   ids=[]
   ActiveRecord::Base.connection.execute(sql).each do |row|
     ids << Integer(row[0])
   end
   return if ids.empty?
+  puts "# alter table %s add FOREIGN KEY (%s) references %s (id);" % [table, id, othertable]
   if delete == 1
     puts " delete from %s where %s in (%s);" % [table, id, ids.join(",")]
   else
