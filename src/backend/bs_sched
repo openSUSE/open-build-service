@@ -1960,19 +1960,19 @@ sub update_dst_full {
 
   my $pool;
   my $satrepo;
-  my %old;
+  my %oldids;
   my $metacache;
   my $metacache_ismerge;
   if ($fullcache && $fullcache->{'old'}) {
     $pool = $fullcache->{'pool'};
     $satrepo = $fullcache->{'satrepo'};
-    %old = %{$fullcache->{'old'}};
+    %oldids = %{$fullcache->{'old'}};
     $metacache = $fullcache->{'metacache'} || {};
     $metacache_ismerge = $fullcache->{'metacache_ismerge'};
   } else {
     $pool = BSSolv::pool->new();
     eval { $satrepo = $pool->repofromfile($prp, "$gdst/:full.solv"); };
-    %old = $satrepo->getpathid() if $satrepo;
+    %oldids = $satrepo->getpathid() if $satrepo;
     if (((-s "$gdst/:full.metacache") || 0) < 16384 && ! -e "$gdst/:full.metacache.merge") {
       $metacache = BSUtil::retrieve("$gdst/:full.metacache", 1) || {};
     } else {
@@ -2006,11 +2006,11 @@ sub update_dst_full {
     link("$dst/$rp", "$dst/$rp.dup");
     rename("$dst/$rp.dup", "$gdst/:full/$n.$suf") || die("rename $dst/$rp.dup $gdst/:full/$n.$suf: $!\n");
     unlink("$dst/$rp.dup");
-    $old{"$n.$suf"} = "$s[9]/$s[7]/$s[1]";
+    $oldids{"$n.$suf"} = "$s[9]/$s[7]/$s[1]";
     for my $osuf (@binsufs) {
       next if $suf eq $osuf;
       unlink("$gdst/:full/$n.$osuf");
-      delete $old{"$n.$osuf"};
+      delete $oldids{"$n.$osuf"};
     }
     if ($meta) {
       if (!$metamd5) {
@@ -2064,7 +2064,7 @@ sub update_dst_full {
     print "      - :full/$n.$suf\n";
     for my $osuf (@binsufs) {
       unlink("$gdst/:full/$n.$osuf");
-      delete $old{"$n.$osuf"};
+      delete $oldids{"$n.$osuf"};
     }
     unlink("$gdst/:full/$n.iso");
     unlink("$gdst/:full/$n.meta");
@@ -2080,14 +2080,14 @@ sub update_dst_full {
     $fullcache->{'prp'} = $prp;
     $fullcache->{'pool'} = $pool;
     $fullcache->{'satrepo'} = $satrepo if $satrepo;
-    $fullcache->{'old'} = \%old;
+    $fullcache->{'old'} = \%oldids;
     $fullcache->{'metacache'} = $metacache;
     $fullcache->{'metacache_ismerge'} = $metacache_ismerge;
   } else {
     if ($satrepo) {
-      $satrepo->updatefrombins("$gdst/:full", %old);
+      $satrepo->updatefrombins("$gdst/:full", %oldids);
     } else {
-      $satrepo = $pool->repofrombins($prp, "$gdst/:full", %old);
+      $satrepo = $pool->repofrombins($prp, "$gdst/:full", %oldids);
     }
     writesolv("$gdst/:full.solv.new", "$gdst/:full.solv", $satrepo);
     if ($metacache_ismerge) {
@@ -2170,11 +2170,11 @@ sub sync_fullcache {
   mkdir_p($gdst) unless -d $gdst;
   my $pool = $fullcache->{'pool'};
   my $satrepo = $fullcache->{'satrepo'};
-  my %old = %{$fullcache->{'old'}};
+  my %oldids = %{$fullcache->{'old'}};
   if ($satrepo) {
-    $satrepo->updatefrombins("$gdst/:full", %old);
+    $satrepo->updatefrombins("$gdst/:full", %oldids);
   } else {
-    $satrepo = $pool->repofrombins($prp, "$gdst/:full", %old);
+    $satrepo = $pool->repofrombins($prp, "$gdst/:full", %oldids);
   }
   writesolv("$gdst/:full.solv.new", "$gdst/:full.solv", $satrepo);
   delete $repodatas{$prp}->{'solv'};
