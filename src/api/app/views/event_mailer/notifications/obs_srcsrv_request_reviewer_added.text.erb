@@ -1,0 +1,17 @@
+@subject: [review of <%= @e['type']%>-request <%= @e['id']%>] requested
+<% if @e['sourceproject']-%>
+   <%= @e['sourceproject']%>/<%= @e['sourcepackage']%> -> <%= @e['targetproject']%>/<%= @e['targetpackage']%>
+<%-end-%>
+
+   https://build.opensuse.org/request/show/<%= @e['id']%>
+<% if @e['description']-%>
+   Description: <%= @e['description']%><%-end-%>
+
+To REVIEW the request in question against the previous version:
+   osc request show --diff <%= @e['id']%>
+
+To ACCEPT the review:
+   osc review accept <%= @e['id']%>
+   
+To DECLINE the review:
+   osc review decline <%= @e['id']%> --message="declined for reason xyz (see ... for background / policy / ...)."

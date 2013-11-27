@@ -1,0 +1,16 @@
+@subject: OBS <%= @e['project']%>/<%= @e['package']%> r<%= @e['rev']%> commited
+Committer: <%= @e['user']%>
+New Revision: <%= @e['rev']%>
+
+Log:
+<%= @e['comment']%>
+
+<%= @e['files']%>
+
+<%= @e['diff']%>
+
+To compare against the previous version:
+   osc rdiff <%= @e['project']%> <%= @e['package']%>
+
+Check out the package for editing:
+   osc checkout <%= @e['project']%> <%= @e['package']%>

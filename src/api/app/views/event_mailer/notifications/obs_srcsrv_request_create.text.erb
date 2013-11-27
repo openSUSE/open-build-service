@@ -1,0 +1,23 @@
+@subject: [obs <%= @e['type']%>-request <%= @e['id']%>] <%= @e['targetproject']%>/<%= @e['targetpackage']%>: created by <%= @e['who'%>
+<% if @e['sourceproject']-%>
+   <%= @e['sourceproject']%>/<%= @e['sourcepackage']%> -> <%= @e['targetproject']%>/<%= @e['targetpackage']%>
+<%-else-%>
+   <%= @e['targetproject']%>/<%= @e['targetpackage']%>
+<%-end-%>
+
+   https://build.opensuse.org/request/show/<%= @e['id']%>
+<% if @e['description']-%>
+   Description: <%= @e['description']%><%-end-%>
+<%= @e['reqdiff']%>
+
+To REVIEW against the previous version:
+   osc request show --diff <%= @e['id']%>
+
+To ACCEPT the request:
+   osc request accept <%= @e['id']%> --message="reviewed ok."
+   
+To DECLINE the request:
+   osc request decline <%= @e['id']%> --message="declined for reason xyz (see ... for background / policy / ...)."
+
+To REVOKE the request:
+   osc request revoke <%= @e['id']%> --message="retracted because ..., sorry / thx / see better version ..."

@@ -1,0 +1,23 @@
+@subject: <%= @e['issue']%> (<%= @e['rating']%>): <%= @e['title']%>
+______________________________________________________________________________
+Announcement ID:    <%= @e['issue']%>
+Rating:             <%= @e['rating']%>
+References:         <%= @e['bugs']%>
+Cross-References:   <%= @e['cve']%>
+Affected Products:
+
+<%= @e['product_list']%>
+______________________________________________________________________________
+
+Description:
+
+ <%= @e['descr']%>
+
+Patch Instructions: 
+<%= @e['patch_instructions']%>
+
+Package List: 
+<%= @e['package_list']%>
+
+References:
+<%= @e['references']%>

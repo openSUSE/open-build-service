@@ -1,0 +1,7 @@
+@subject: [wiki <%= @e['change_type']%>] <%= @e['page']%> updated by <%= @e['author']%>
+The page <%= @e['page']%> was updated (<%= @e['change_type']%>) by <%= @e['author']%> to revision <%= @e['revision']%>.
+
+URL: <%= @e['url']%><% if @e['revision']-%>?oldid=<%= @e['revision']%><%-end-%>
+Change type: <%= @e['change_type']%>
+<% if @e['description']-%>Comment: <%= @e['log']%><%-end-%>
+<% if @e['revision']-%>Diff: <%= @e['url']%>&diff=<%= @e['revision']%>&oldid=<%= @e['last_revision']%><%-end-%>
