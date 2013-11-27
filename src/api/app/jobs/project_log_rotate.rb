@@ -4,13 +4,13 @@ class ProjectLogRotate
     event_classes = [Event::Package, Event::Project]
     oldest_date = 10.days.ago
 
-    # Create log entries based on the events
+    # First, skip old events and mark them all as "logged" (even those that
+    # don't belong to the event_classes)
+    Event::Base.where(project_logged: false).where(["created_at < ?", oldest_date]).update_all(project_logged: true)
+
+    # Create log entries based on the events (but this time, only those in event_classes)
     event_classes.each do |event_class|
-      unprocessed_events = event_class.where(project_logged: false)
-      # First, skip old events and mark them all as "logged"
-      unprocessed_events.where(["created_at < ?", oldest_date]).update_all(project_logged: true)
-      # Then, process the rest (this will query project_logged again)
-      unprocessed_events.find_in_batches batch_size: 10000 do |group|
+      event_class.where(project_logged: false).find_in_batches batch_size: 10000 do |group|
         processed_ids = []
         group.each do |event|
           entry = ProjectLogEntry.create_from(event)
