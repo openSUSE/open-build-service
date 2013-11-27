@@ -1832,7 +1832,7 @@ sub update_dst_full {
   } elsif ($dst) {
     # get old state
     my @oldfiles = sort(ls($dst));
-    @oldfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && $_ ne '.bininfo'} @oldfiles;
+    @oldfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && $_ ne '.bininfo' && $_ ne '.meta.success'} @oldfiles;
     $oldrepo = findbins_dir([ map {"$dst/$_"} grep {/\.(?:$binsufsre)$/ && !/\.delta\.rpm$/} @oldfiles ]);
 
     # move files over
@@ -1854,6 +1854,11 @@ sub update_dst_full {
       } else {
 	unlink("$dst/$f") ;
       }
+    }
+    # save meta into .meta.success file
+    unlink("$dst/.meta.success");
+    if ($meta) {
+      link($meta, "$dst/.meta.success") || die("link $meta $dst/.meta.success: $!\n");
     }
     # we only check 'sourceaccess', not 'access' here. 'access' has
     # to be handled anyway, so we don't gain anything by limiting
@@ -1960,7 +1965,7 @@ sub update_dst_full {
 
   my $pool;
   my $satrepo;
-  my %oldids;
+  my %oldids;	# maps path => id
   my $metacache;
   my $metacache_ismerge;
   if ($fullcache && $fullcache->{'old'}) {
