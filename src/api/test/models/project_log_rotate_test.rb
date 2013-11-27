@@ -37,6 +37,9 @@ class ProjectLogRotateTest < ActiveSupport::TestCase
       expected_logged_events = old_events + recent_events - 1
       # -1 again because of the same reason
       assert_equal expected_logged_events, logged_events
+      # Check that every old event (event if not a Event::Package or a Event::Project) is now
+      # marked as 'project_logged'
+      assert Event::Base.where(["created_at < ?", threshold]).all? {|i| i.project_logged }
     end
   end
 end
