@@ -480,7 +480,7 @@ popd
 # setup mysqld
 rm -rf /tmp/obs.mysql.db /tmp/obs.test.mysql.socket
 mysql_install_db --user=`whoami` --datadir="/tmp/obs.mysql.db"
-/usr/sbin/mysqld --datadir=/tmp/obs.mysql.db -P 54321 --socket=/tmp/obs.test.mysql.socket &
+/usr/sbin/mysqld --datadir=/tmp/obs.mysql.db --skip-networking --socket=/tmp/obs.test.mysql.socket &
 sleep 2
 ##################### api
 pushd src/api/
