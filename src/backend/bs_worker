@@ -1823,6 +1823,7 @@ sub getbinaries {
   die("no binaries needed for this package?\n") unless @todo;
   my @meta;
   my %meta;
+  my $packid = $buildinfo->{'package'};
   my $projid = $buildinfo->{'project'};
   my $repoid = $buildinfo->{'repository'};
 
@@ -1926,6 +1927,8 @@ sub getbinaries {
       } else {
 	chomp $m;
 	my @m = split("\n", $m);
+	# do not include our own build results
+	next if $m[0] =~ /  \Q$packid\E$/s;
 	$m[0] =~ s/  .*/  $dep/;
 	push @meta, shift @m;
 	if ($subpackre && "/$dep/" =~ /$subpackre/) {
@@ -1942,7 +1945,7 @@ sub getbinaries {
 	}
       }
     }
-    @meta = BSBuild::gen_meta(($buildinfo->{'verifymd5'} || $buildinfo->{'srcmd5'})."  $buildinfo->{'package'}", $buildinfo->{'subpack'} || [], @meta);
+    @meta = BSBuild::gen_meta(($buildinfo->{'verifymd5'} || $buildinfo->{'srcmd5'})."  $packid", $buildinfo->{'subpack'} || [], @meta);
     shift @meta;	# strip srcinfo again
   }
   return @meta;

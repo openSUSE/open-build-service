@@ -5939,13 +5939,25 @@ sub checkpackage {
 	    close F;
 	    chomp @m;
 	    s/  /  $bpack\// for @m;
-	    $m[0] =~ s/  .*/  $bpack/ if @m;
 	  }
 	  @m = ($pool->pkg2pkgid($pkg)."  $bpack") unless @m;
 	  $dep2meta->{$bpack} = join("\n", @m);
+	  # do not include our own build results
+	  next if $m[0] =~ /\/\Q$packid\E$/s;
+	  # fixup first line 
+	  $m[0] =~ s/  .*/  $bpack/;
 	  push @new_meta, @m;
 	} else {
+	  my $oldlen = @new_meta;
 	  push @new_meta, split("\n", $dep2meta->{$bpack});
+	  next if $oldlen == @new_meta;		# hmm?
+	  # do not include our own build results
+	  if ($new_meta[$oldlen] =~ /\/\Q$packid\E$/) {
+	    splice(@new_meta, $oldlen);
+	    next;
+	  }
+	  # fixup first line
+	  $new_meta[$oldlen] =~ s/  .*/  $bpack/;
 	}
       } else {
 	my $pkgid = $pool->pkg2pkgid($pkg);
