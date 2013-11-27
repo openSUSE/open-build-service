@@ -658,6 +658,7 @@ CREATE TABLE `project_log_entries` (
   KEY `index_project_log_entries_on_package_name` (`package_name`),
   KEY `index_project_log_entries_on_bs_request_id` (`bs_request_id`),
   KEY `index_project_log_entries_on_event_type` (`event_type`),
+  KEY `index_project_log_entries_on_datetime` (`datetime`),
   CONSTRAINT `project_log_entries_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -1386,6 +1387,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131125071042');
 INSERT INTO schema_migrations (version) VALUES ('20131125101042');
 
 INSERT INTO schema_migrations (version) VALUES ('20131126074753');
+
+INSERT INTO schema_migrations (version) VALUES ('20131127091624');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
