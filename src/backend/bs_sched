@@ -1622,6 +1622,45 @@ sub compile_exportfilter {
   return \@res;
 }
 
+sub filter_exports {
+  my ($repo, $filter, $exports) = @_;
+  my %n;
+  for my $rp (sort keys %$repo) {
+    my $r = $repo->{$rp};
+    delete $r->{'suf'};
+    next unless $r->{'source'};		# no src in full tree
+    next unless $r->{'name'};		# need binary name
+    my $suf;
+    $suf = $1 if $rp =~ /\.($binsufsre)$/;
+    next unless $suf;			# need a valid suffix
+    my $nn = $rp;
+    $nn =~ s/.*\///;
+    if ($filter) {
+      my $skip;
+      for (@$filter) {
+	if ($nn =~ /$_->[0]/) {
+	  $skip = $_->[1];
+	  last;
+	}
+      }
+      if ($skip) {
+	my $myself;
+	for my $exportarch (@$skip) {
+	  if ($exportarch eq '.' || $exportarch eq $myarch) {
+	    $myself = 1;
+	    next;
+	  }
+	  push @{$exports->{$exportarch}}, $rp if $exports;
+	}
+	next unless $myself;
+      }
+    }
+    $r->{'suf'} = $suf;
+    $n{$nn} = $r;
+  }
+  return %n;
+}
+
 sub read_bininfo {
   my ($dir, $withid) = @_;
   my $bininfo;
@@ -1891,68 +1930,16 @@ sub update_dst_full {
   $filter = [ map {[$_, $filter->{$_}]} reverse sort keys %$filter ] if $filter;
   $filter = compile_exportfilter($filter);
 
-  # link new ones into full, delete old ones no longer in use
   my %exports;
-
-  my %new;
-  for my $rp (sort keys %$jobrepo) {
-    my $nn = $rp;
-    $nn =~ s/.*\///;
-    $new{$nn} = $jobrepo->{$rp};
-  }
-
-  # find destination for all new binaries
-  my @movetofull;
-  for my $rp (sort keys %new) {
-    my $r = $new{$rp};
-    next unless $r->{'source'};	# no src in full tree
-
-    if ($filter) {
-      my $skip;
-      for (@$filter) {
-	if ($rp =~ /$_->[0]/) {
-	  $skip = $_->[1];
-	  last;
-	}
-      }
-      if ($skip) {
-	my $myself;
-        for my $exportarch (@$skip) {
-	  if ($exportarch eq '.' || $exportarch eq $myarch) {
-	    $myself = 1;
-	    next;
-	  }
-	  next if $isimport;	# no re-exports
-	  push @{$exports{$exportarch}}, $rp, $r;
-	}
-        next unless $myself;
-      }
-    }
-    push @movetofull, $rp;
-  }
+  my %new = filter_exports($jobrepo, $filter, \%exports);
   if ($filter && !$isimport) {
-    # need also to check old entries
-    for my $rp (sort keys %$oldrepo) {
-      my $r = $oldrepo->{$rp};
-      next unless $r->{'source'};	# no src rpms in full tree
-      my $rn = $rp;
-      $rn =~ s/.*\///;
-      my $skip;
-      for (@$filter) {
-	if ($rn =~ /$_->[0]/) {
-	  $skip = $_->[1];
-	  last;
-	}
-      }
-      if ($skip) {
-        for my $exportarch (@$skip) {
-	  $exports{$exportarch} ||= [] if $exportarch ne '.' && $exportarch ne $myarch;
-	}
-      }
-    }
+    # also filter old entries to make sure createexportjob is called for all exportarchs
+    my %exports_replaced;
+    filter_exports($oldrepo, $filter, \%exports_replaced);
+    $exports{$_} ||= [] for keys %exports_replaced;
   }
 
-  if ($filter && !$isimport) {
+  if ($filter && %exports && !$isimport) {
     # we always export, the other schedulers are free to reject the job
     # if move to full is also disabled for them
     for my $exportarch (sort keys %exports) {
@@ -1995,14 +1982,14 @@ sub update_dst_full {
   }
 
   # move em over into :full
-  mkdir_p("$gdst/:full") if @movetofull && ! -d "$gdst/:full";
+  mkdir_p("$gdst/:full") if %new && ! -d "$gdst/:full";
   my %fnew;
   my $dep2meta;
   $dep2meta = $repodatas{$prp}->{'meta'} if $repodatas{$prp} && $repodatas{$prp}->{'meta'};
   my $linkedmeta = 0;
   my $metamd5;
   my $metaid;
-  for my $rp (@movetofull) {
+  for my $rp (sort keys %new) {
     my $r = $new{$rp};
     my $suf;
     $suf = $1 if $rp =~ /\.($binsufsre)$/;
