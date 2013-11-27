@@ -7,7 +7,7 @@ class Webui::CommitsFeedTest < Webui::IntegrationTest
       get '/project/latest_commits/BaseDistro'
       assert_response :success
       feed = Xmlhash.parse(@response.body)
-      assert_equal 'Commits for BaseDistro from 2013-08-07 12:00', feed['title']
+      assert_equal 'Commits for BaseDistro', feed['title']
       assert_equal Time.zone.parse("2013-08-12 14:00"), Time.zone.parse(feed['updated'])
       assert_equal 2, feed['entry'].size
     end
@@ -20,9 +20,9 @@ class Webui::CommitsFeedTest < Webui::IntegrationTest
       get '/project/latest_commits/BaseDistro', {starting_at: "2013-08-10", ending_at: "2013-08-13"}
       assert_response :success
       feed = Xmlhash.parse(@response.body)
-      assert_equal 'Commits for BaseDistro from 2013-08-10 00:00 to 2013-08-13 00:00', feed['title']
+      assert_equal 'Commits for BaseDistro', feed['title']
       assert_equal Time.zone.parse("2013-08-12 14:00"), Time.zone.parse(feed['updated'])
-      assert_equal "In pack1 at 2013-08-12 14:00:00 UTC by Iggy", feed['entry']['title']
+      assert_equal "In pack1", feed['entry']['title']
     end
   end
 
@@ -44,7 +44,7 @@ class Webui::CommitsFeedTest < Webui::IntegrationTest
       visit '/project/latest_commits/HiddenProject'
       assert_equal 200, page.status_code
       feed = Xmlhash.parse(page.body)
-      assert_equal "In packCopy at 2013-08-18 14:00:00 UTC by adrian", feed['entry']['title']
+      assert_equal "In packCopy", feed['entry']['title']
     end
   end
 
@@ -61,7 +61,7 @@ class Webui::CommitsFeedTest < Webui::IntegrationTest
       visit '/project/latest_commits/SourceprotectedProject'
       assert_equal 200, page.status_code
       feed = Xmlhash.parse(page.body)
-      assert_equal "In pack at 2013-08-12 14:00:00 UTC by king", feed['entry']['title']
+      assert_equal "In pack", feed['entry']['title']
     end
   end
 end
