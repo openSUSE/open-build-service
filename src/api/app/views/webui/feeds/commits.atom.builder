@@ -6,10 +6,9 @@ schema_date = "2013-11-22"
 xml.feed(feed_opts) do |feed|
   feed.id "tag:#{request.host},#{schema_date}:#{request.fullpath.split(".")[0]}"
   feed.link rel: 'self', type: 'application/atom+xml', href: request.url
-  title = "Commits for #{@project.name} from #{@start.strftime('%Y-%m-%d %H:%M')}"
-  title += " to #{@finish.strftime('%Y-%m-%d %H:%M')}" unless @finish.nil?
+  title = "Commits for #{@project.name}"
   feed.title(title)
-  feed.updated(@commits.first.datetime) if @commits.length > 0
+  feed.updated(@commits.first.datetime.iso8601) if @commits.length > 0
 
   @commits.each do |commit|
     feed.entry do |entry|
@@ -18,25 +17,35 @@ xml.feed(feed_opts) do |feed|
       reqid = commit.bs_request_id
       datetime = commit.datetime
 
-      title = "In #{package} at #{datetime} by #{user}"
+      title = "In #{package}"
       title += " (request #{reqid})" unless reqid.blank?
       entry.title(title)
       entry.content type: 'xhtml' do |xhtml|
-        xhtml.p commit.message
-        xhtml.p "Basic information:"
-        xhtml.dl do |dl|
-          dl.dt "Package"
-          dl.dd package
-          dl.dt "User"
-          dl.dd user
-          dl.dt "Request"
-          dl.dd reqid
-        end
-        xhtml.p "Additional information:"
-        xhtml.dl do |dl|
-          commit.additional_info.each do |k,v|
-            dl.dt k
-            dl.dd v
+        xhtml.div do |div|
+          div.p commit.message
+          div.p "Basic information:"
+          div.dl do |dl|
+            dl.dt "Package"
+            dl.dd do |dd|
+              dd.a package, href: url_for(:only_path => false, :controller => 'package', :action  => 'revisions', :project => @project.name, :package => package, :format => :html, :showall => 1)
+            end
+            dl.dt "User"
+            dl.dd user
+            dl.dt "Request"
+            if reqid
+              dl.dd do |dd|
+                dd.a reqid, href: request_show_url(reqid)
+              end
+            else
+              dl.dd reqid
+            end
+          end
+          div.p "Additional information:"
+          div.dl do |dl|
+            commit.additional_info.each do |k,v|
+              dl.dt k
+              dl.dd v
+            end
           end
         end
       end
@@ -45,8 +54,8 @@ xml.feed(feed_opts) do |feed|
         author.name(user)
       end
 
-      entry.published(datetime)
-      entry.updated(datetime)
+      entry.published(datetime.iso8601)
+      entry.updated(datetime.iso8601)
     end
   end
 end
