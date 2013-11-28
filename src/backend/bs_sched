@@ -1622,6 +1622,7 @@ sub compile_exportfilter {
   return \@res;
 }
 
+# apply the export filter to a job repo
 sub filter_exports {
   my ($repo, $filter, $exports) = @_;
   my %n;
@@ -1766,6 +1767,95 @@ sub read_gbininfo {
   warn($@) if $@;
   unlink("$dir/:bininfo.merge");
   return $gbininfo;
+}
+
+# calculate id/md5 of the meta file and cache it
+sub fctx_set_metamd5 {
+  my ($fctx) = @_;
+  local *F;
+  my $metamd5 = '0' x 32;
+  my $metaid = '0/0/0';
+  if (open(F, '<', $fctx->{'meta'})) {
+    my @s = stat(F);
+    $metaid = "$s[9]/$s[7]/$s[1]" if @s;
+    my $ctx = Digest::MD5->new;
+    $ctx->addfile(*F);
+    close F;
+    $metamd5 = $ctx->hexdigest();
+  }    
+  $fctx->{'metamd5'} = $metamd5;
+  $fctx->{'metaid'} = $metaid;
+}
+
+# workaround for btrfs hardlink limitation. sigh.
+sub fctx_reset_linkedmeta {
+  my ($fctx) = @_;
+  my $meta = $fctx->{'meta'};
+  writestr("$meta.dup", $meta, readstr($meta));
+  $fctx->{'linkedmeta'} = 0;
+  if ($fctx->{'metaid'}) {
+    my @s = stat($meta);
+    $fctx->{'metaid'} = "$s[9]/$s[7]/$s[1]" if @s;
+  }
+}
+
+# add a single binary to the full tree
+sub add_binary_to_full {
+  my ($fctx, $dir, $rp, $r) = @_;
+  my $n = $r->{'name'};
+  my $suf = $r->{'suf'};
+  print "      + :full/$n.$suf ($rp)\n";
+  my $gdst = "$reporoot/$fctx->{'prp'}/$myarch";
+  # link gives an error if the dest exists, so we dup
+  # and rename instead.
+  # when the dest is the same file, rename doesn't do
+  # anything, so we need the unlink after the rename
+  unlink("$dir/$rp.dup");
+  link("$dir/$rp", "$dir/$rp.dup");
+  rename("$dir/$rp.dup", "$gdst/:full/$n.$suf") || die("rename $dir/$rp.dup $gdst/:full/$n.$suf: $!\n");
+  unlink("$dir/$rp.dup");
+  $fctx->{'oldids'}->{"$n.$suf"} = $r->{'id'};
+  for my $osuf (@binsufs) {
+    next if $suf eq $osuf;
+    unlink("$gdst/:full/$n.$osuf");
+    delete $fctx->{'oldids'}->{"$n.$osuf"};
+  }
+  if ($fctx->{'meta'}) {
+    fctx_reset_linkedmeta($fctx) if $BSConfig::maxmetahardlink && ++$fctx->{'linkedmeta'} >= $BSConfig::maxmetahardlink;
+    my $meta = $fctx->{'meta'};
+    link($meta, "$meta.dup");
+    rename("$meta.dup", "$gdst/:full/$n.meta") || die("rename $meta.dup $gdst/:full/$n.meta: $!\n");
+    unlink("$meta.dup");
+    fctx_set_metamd5($fctx) if $fctx->{'metacache'} && !$fctx->{'metamd5'};
+    $fctx->{'metacache'}->{$n} = [$fctx->{'metaid'}, $fctx->{'metamd5'}] if $fctx->{'metacache'};
+  } else {
+    unlink("$gdst/:full/$n.meta");
+    if ($fctx->{'metacache'}) {
+      delete $fctx->{'metacache'}->{$n};
+      $fctx->{'metacache'}->{$n} = undef if $fctx->{'metacache_ismerge'};
+    }
+  }
+  delete $fctx->{'dep2meta'}->{$n} if $fctx->{'dep2meta'};
+}
+
+# remove a single binary from the full tree
+sub del_binary_from_full {
+  my ($fctx, $r) = @_;
+  my $n = $r->{'name'};
+  my $suf = $r->{'suf'};
+  print "      - :full/$n.$suf\n";
+  my $gdst = "$reporoot/$fctx->{'prp'}/$myarch";
+  for my $osuf (@binsufs) {
+    unlink("$gdst/:full/$n.$osuf");
+    delete $fctx->{'oldids'}->{"$n.$osuf"};
+  }
+  unlink("$gdst/:full/$n.meta");
+  unlink("$gdst/:full/$n-MD5SUMS.meta");       # obsolete
+  if ($fctx->{'metacache'}) {
+    delete $fctx->{'metacache'}->{$n};
+    $fctx->{'metacache'}->{$n} = undef if $fctx->{'metacache_ismerge'};
+  }
+  delete $fctx->{'dep2meta'}->{$n} if $fctx->{'dep2meta'};
 }
 
 #
@@ -1984,98 +2074,29 @@ sub update_dst_full {
   }
 
   # move em over into :full
+  my $fctx = {
+    'prp' => $prp,
+    'oldids' => \%oldids,
+    'meta' => $meta,
+    'metacache' => $metacache,
+    'metacache_ismerge' => $metacache_ismerge,
+    'linkedmeta' => 0,
+  };
+  $fctx->{'dep2meta'} = $repodatas{$prp}->{'meta'} if $repodatas{$prp} && $repodatas{$prp}->{'meta'};
   mkdir_p("$gdst/:full") if %new && ! -d "$gdst/:full";
   my %fnew;
-  my $dep2meta;
-  $dep2meta = $repodatas{$prp}->{'meta'} if $repodatas{$prp} && $repodatas{$prp}->{'meta'};
-  my $linkedmeta = 0;
-  my $metamd5;
-  my $metaid;
   for my $rp (sort keys %new) {
     my $r = $new{$rp};
-    my $suf;
-    $suf = $1 if $rp =~ /\.($binsufsre)$/;
-    next unless $suf;
-    my $n = $r->{'name'};
-    my @s = stat("$dst/$rp");
-    next unless @s;
-    print "      + :full/$n.$suf ($rp)\n";
-    # link gives an error if the dest exists, so we dup
-    # and rename instead.
-    # when the dest is the same file, rename doesn't do
-    # anything, so we need the unlink after the rename
-    unlink("$dst/$rp.dup");
-    link("$dst/$rp", "$dst/$rp.dup");
-    rename("$dst/$rp.dup", "$gdst/:full/$n.$suf") || die("rename $dst/$rp.dup $gdst/:full/$n.$suf: $!\n");
-    unlink("$dst/$rp.dup");
-    $oldids{"$n.$suf"} = "$s[9]/$s[7]/$s[1]";
-    for my $osuf (@binsufs) {
-      next if $suf eq $osuf;
-      unlink("$gdst/:full/$n.$osuf");
-      delete $oldids{"$n.$osuf"};
-    }
-    if ($meta) {
-      if (!$metamd5) {
-	local *F;
-        $metamd5 = '0' x 32;
-	$metaid = '0/0/0';
-	if (open(F, '<', $meta)) {
-	  my @s = stat(F);
-	  $metaid = "$s[9]/$s[7]/$s[1]" if @s;
-	  my $ctx = Digest::MD5->new;
-	  $ctx->addfile(*F);
-	  close F;
-	  $metamd5 = $ctx->hexdigest();
-	}
-      }
-      if ($BSConfig::maxmetahardlink && ++$linkedmeta >= $BSConfig::maxmetahardlink) {
-	# workaround for btrfs hardlink limitation. sigh.
-	writestr("$meta.dup", $meta, readstr($meta));
-	my @s = stat($meta);
-	$metaid = "$s[9]/$s[7]/$s[1]" if @s;
-	$linkedmeta = 0;
-      }
-      link($meta, "$meta.dup");
-      rename("$meta.dup", "$gdst/:full/$n.meta") || die("rename $meta.dup $gdst/:full/$n.meta: $!\n");
-      unlink("$meta.dup");
-      $metacache->{$n} = [$metaid, $metamd5];
-    } else {
-      unlink("$gdst/:full/$n.meta");
-      delete $metacache->{$n};
-      $metacache->{$n} = undef if $metacache_ismerge;
-    }
-    delete $dep2meta->{$n} if $dep2meta;
-
-    $fnew{$n} = 1;
+    next unless $r->{'suf'} && $r->{'id'};
+    add_binary_to_full($fctx, $dst, $rp, $r);
+    $fnew{$r->{'name'}} = 1;
   }
-
   for my $rp (sort keys %$oldrepo) {
     my $r = $oldrepo->{$rp};
-    next unless $r->{'source'};	# no src rpms in full tree
-    my $suf;
-    $suf = $1 if $rp =~ /\.($binsufsre)$/;
-    next unless $suf;
-    my $n = $r->{'name'};
-    next if $fnew{$n};		# got new version, already deleted old
-
-    my @s = stat("$gdst/:full/$n.$suf");
-
-    # don't delete package if not ours
-    next unless @s && $r->{'id'} eq "$s[9]/$s[7]/$s[1]";
-    # package no longer built, kill full entry
-    print "      - :full/$n.$suf\n";
-    for my $osuf (@binsufs) {
-      unlink("$gdst/:full/$n.$osuf");
-      delete $oldids{"$n.$osuf"};
-    }
-    unlink("$gdst/:full/$n.iso");
-    unlink("$gdst/:full/$n.meta");
-    unlink("$gdst/:full/$n-MD5SUMS.meta");
-    delete $dep2meta->{$n} if $dep2meta;
-    delete $metacache->{$n};
-    $metacache->{$n} = undef if $metacache_ismerge;
+    next unless $r->{'suf'} && $r->{'id'};
+    next if $fnew{$r->{'name'}};	# already overwritten with new version
+    del_binary_from_full($fctx, $r);
   }
-  
   mkdir_p($gdst) unless -d $gdst;
   if ($fullcache) {
     # delayed writing of the solv file, just update the fullcache
