@@ -1516,7 +1516,7 @@ sub createexportjob {
     'project' => $projid,
     'repository' => $repoid,
     'package' => ($packid || ':import'),
-    'arch' => $arch,
+    'arch' => $myarch,	# use hostarch instead?
     'job' => $job,
   };
   writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
@@ -1773,7 +1773,7 @@ sub read_gbininfo {
 #
 
 sub update_dst_full {
-  my ($prp, $packid, $dst, $jobdir, $meta, $useforbuildenabled, $prpsearchpath, $fullcache) = @_;
+  my ($prp, $packid, $dst, $jobdir, $meta, $useforbuildenabled, $prpsearchpath, $fullcache, $importarch) = @_;
 
   my ($projid, $repoid) = split('/', $prp, 2);
 
@@ -1821,15 +1821,14 @@ sub update_dst_full {
   my $gdst = "$reporoot/$prp/$myarch";
 
   my $oldrepo;
-  my $isimport;
   my $bininfo;
 
-  if ($dst && $jobdir && $dst eq $jobdir) {
+  if (!$importarch && $dst && $jobdir && $dst eq $jobdir) {
     # a "refresh" operation, nothing to do here
     $oldrepo = $jobrepo;
     $bininfo = $jobbininfo;
     $bininfo->{'.nosourceaccess'} = {} if -e "$dst/.nosourceaccess";
-  } elsif ($dst) {
+  } elsif (!$importarch && $dst) {
     # get old state
     my @oldfiles = sort(ls($dst));
     @oldfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && $_ ne '.bininfo' && $_ ne '.meta.success'} @oldfiles;
@@ -1868,8 +1867,6 @@ sub update_dst_full {
       $bininfo->{'.nosourceaccess'} = {};
     }
   } else {
-    # dst = undef is true for importevents
-    $isimport = 1;
     my $replaced = (readxml("$jobdir/replaced.xml", $BSXML::dir, 1) || {})->{'entry'};
     $oldrepo = {};
     for (@{$replaced || []}) {
@@ -1884,7 +1881,7 @@ sub update_dst_full {
   }
 
   # write .bininfo file and update :bininfo.merge (jobdir is undef for package deletion)
-  if (!$isimport) {
+  if (!$importarch) {
     my @bininfo_s;
     if (defined($jobdir) && defined($bininfo)) {
       BSUtil::store("$dst/.bininfo.new", "$dst/.bininfo", $bininfo);
@@ -1937,14 +1934,14 @@ sub update_dst_full {
 
   my %exports;
   my %new = filter_exports($jobrepo, $filter, \%exports);
-  if ($filter && !$isimport) {
+  if ($filter && !$importarch) {
     # also filter old entries to make sure createexportjob is called for all exportarchs
     my %exports_replaced;
     filter_exports($oldrepo, $filter, \%exports_replaced);
     $exports{$_} ||= [] for keys %exports_replaced;
   }
 
-  if ($filter && %exports && !$isimport) {
+  if ($filter && !$importarch && %exports) {
     # we always export, the other schedulers are free to reject the job
     # if move to full is also disabled for them
     for my $exportarch (sort keys %exports) {
@@ -3914,17 +3911,19 @@ sub importevent {
   my $projid = $info->{'project'};
   my $repoid = $info->{'repository'};
   my $packid = $info->{'package'};
+  my $importarch = $info->{'arch'} || 'unknown';
   my $prp = "$projid/$repoid";
+  my $gdst = "$reporoot/$prp/$myarch";
   my @all = ls($jobdatadir);
   my %all = map {$_ => 1} @all;
   my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
   @all = map {"$jobdatadir/$_"} @all;
   my $pdata = (($projpacks->{$projid} || {})->{'package'} || {})->{$packid};
-  print "  - $prp: $packid imported\n";
+  print "  - $prp: $packid imported from $importarch\n";
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled) if $projpacks->{$projid};
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($prp, $packid, undef, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp});
+  update_dst_full($prp, $packid, "$gdst/$packid", $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp}, undef, $importarch);
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
   unlink($_) for @all;
