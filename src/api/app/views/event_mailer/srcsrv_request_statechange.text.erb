@@ -1,22 +1,19 @@
-State of <%= pl['type'] %>-request #<%= pl['id'] %> was changed by <%= pl['who'] %>:
+@subject: [obs <%= @e['type']%>-request <%= @e['id']%>] <%= @e['targetproject']%>/<%= @e['targetpackage']%>: <%= @e['state']%> by <%= @e['who']%>
+State of <%= @e['type']%>-request #<%= @e['id']%> was changed by <%= @e['who']%>:
 
-  <%= pl['oldstate'] %> -> <%= pl['state'] %>
+  <%= @e['oldstate']%> -> <%= @e['state']%>
 
 Comment:
-  <%= pl['comment'] %>
+  <%= @e['comment']%>
 
-<%= url_for(controller: :request, action: :show, id: pl['id'], only_path: false) %>
+https://build.opensuse.org/request/diff/<%= @e['id']%>
 
-<% if pl['sourceproject'] -%>
-Source
-  project:  <%= pl['sourceproject'] %>
-  package:  <%= pl['sourcepackage'] %>
-<% if pl['sourcerevision'] -%>
- revision:  <%= pl['sourcerevision'] %>
-<% end -%>
-<% end -%>
+<% if @e['sourceproject']-%>Source 
+  project:  <%= @e['sourceproject']%>
+  package:  <%= @e['sourcepackage']%>
+<% if @e['sourcerevision']%>  revision: <%= @e['sourcerevision']%><%-end-%>
 
 Target:
-  project: <%= pl['targetproject'] %>
-  package: <%= pl['targetpackage'] %>
-
+  project: <%= @e['targetproject']%>
+  package: <%= @e['targetpackage']%>
+<%-end-%>
