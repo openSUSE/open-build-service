@@ -189,7 +189,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
   def test_register_and_change_password_new_way
     data = '<unregisteredperson>
               <login>adrianSuSE</login>
-              <email>adrian@suse.de</email>
+              <email>adrian@example.com</email>
               <realname>Adrian Schroeter</realname>
               <state>locked</state>
               <password>so_alone</password>
@@ -201,7 +201,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     u = User.find_by_login "adrianSuSE"
     assert_not_nil u
     assert_equal "adrianSuSE", u.login
-    assert_equal "adrian@suse.de", u.email
+    assert_equal "adrian@example.com", u.email
     assert_equal "Adrian Schroeter", u.realname
     assert_equal nil, u.adminnote
 
@@ -236,7 +236,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
   def test_register_old_way
     data = '<unregisteredperson>
               <login>adrianSuSE</login>
-              <email>adrian@suse.de</email>
+              <email>adrian@example.com</email>
               <realname>Adrian Schroeter</realname>
               <state>locked</state>
               <password>so_alone</password>
@@ -250,7 +250,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     u = User.find_by_login "adrianSuSE"
     assert_not_nil u
     assert_equal u.login, "adrianSuSE"
-    assert_equal u.email, "adrian@suse.de"
+    assert_equal u.email, "adrian@example.com"
     assert_equal u.realname, "Adrian Schroeter"
     assert_equal nil, u.adminnote
     u.destroy

@@ -38,7 +38,7 @@ adrian:
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: adrian
-  email: adrian@suse.de
+  email: adrian@example.com
   realname: Johnny Thunders
   password: 65e53e3c6c7e3eb0935a1f7900e3cd13
   password_hash_type: md5
@@ -49,7 +49,7 @@ adrian_downloader:
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: adrian_downloader
-  email: adrian@suse.de
+  email: adrian@example.com
   realname: user has access to binary files only
   password: 65e53e3c6c7e3eb0935a1f7900e3cd13
   password_hash_type: md5
@@ -60,7 +60,7 @@ adrian_nobody:
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: adrian_nobody
-  email: adrian@suse.de
+  email: adrian@example.com
   realname: user exists, but has no permissions
   password: 65e53e3c6c7e3eb0935a1f7900e3cd13
   password_hash_type: md5
@@ -71,7 +71,7 @@ adrian_reader:
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: adrian_reader
-  email: adrian@suse.de
+  email: adrian@example.com
   realname: user has access to sources (and binaries ?)
   password: 65e53e3c6c7e3eb0935a1f7900e3cd13
   password_hash_type: md5
@@ -163,7 +163,7 @@ maintenance_coord:
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: maintenance_coord
-  email: dirkmueller@suse.de
+  email: dirkmueller@example.com
   realname: our hero
   password: 62cd275989e78ee56a81f0265a87562e
   password_hash_type: md5
@@ -185,7 +185,7 @@ tom:
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: tom
-  email: tschmidt@suse.de
+  email: tschmidt@example.com
   realname: Thor
   password: 5c7686c0284e0875b26de99c1008e998
   password_hash_type: md5

@@ -114,7 +114,7 @@ EOS
    xml = <<-EOS
 <person>
   <login>tom</login>
-  <email>tschmidt@suse.de</email>
+  <email>tschmidt@example.com</email>
   <realname>Freddy Cool</realname>
   <watchlist>
   </watchlist>

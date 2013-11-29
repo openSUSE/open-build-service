@@ -218,7 +218,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     login_tom
     get url_for(action: :active_request_creators, controller: :statistics, project: 'kde4')
     assert_response :success
-    assert_xml_tag tag: 'creator', attributes: { login: 'tom', email: 'tschmidt@suse.de', count: '1' }
+    assert_xml_tag tag: 'creator', attributes: { login: 'tom', email: 'tschmidt@example.com', count: '1' }
 
     get url_for(action: :active_request_creators, controller: :statistics, project: 'HiddenProject')
     assert_response 404

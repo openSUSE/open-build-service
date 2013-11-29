@@ -89,15 +89,6 @@ events_16:
   created_at: 2013-08-20 13:42:19.000000000 Z
   updated_at: 2013-08-20 13:42:19.000000000 Z
   project_logged: 0
-pack1_commit:
-  id: 17
-  eventtype: Event::Commit
-  payload: '{"project":"BaseDistro","package":"pack1","user":"unknown","files":"Added:\n  my_file\n\n","rev":"1"}'
-  queued: 0
-  lock_version: 0
-  created_at: 2013-08-31 14:56:50.000000000 Z
-  updated_at: 2013-08-31 14:56:50.000000000 Z
-  project_logged: 1
 events_5:
   id: 5
   eventtype: Event::Commit
@@ -143,3 +134,12 @@ events_9:
   created_at: 2013-08-20 13:42:11.000000000 Z
   updated_at: 2013-08-20 13:42:11.000000000 Z
   project_logged: 0
+pack1_commit:
+  id: 17
+  eventtype: Event::Commit
+  payload: '{"project":"BaseDistro","package":"pack1","user":"unknown","files":"Added:\n  my_file\n\n","rev":"1"}'
+  queued: 0
+  lock_version: 0
+  created_at: 2013-08-31 14:56:50.000000000 Z
+  updated_at: 2013-08-31 14:56:50.000000000 Z
+  project_logged: 1

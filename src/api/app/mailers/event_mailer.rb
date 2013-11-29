@@ -6,6 +6,7 @@ class EventMailer < ActionMailer::Base
     @configuration = ::Configuration.first
     mail(to: user.email,
          subject: e.subject,
+	 from: 'hermes@opensuse.org',
          layout: 'layout',
          template_name: e.raw_type.downcase)
   end
