@@ -1623,7 +1623,7 @@ sub compile_exportfilter {
 }
 
 # apply the export filter to a job repo
-sub filter_exports {
+sub set_suf_and_filter_exports {
   my ($repo, $filter, $exports) = @_;
   my %n;
   for my $rp (sort keys %$repo) {
@@ -1634,6 +1634,7 @@ sub filter_exports {
     my $suf;
     $suf = $1 if $rp =~ /\.($binsufsre)$/;
     next unless $suf;			# need a valid suffix
+    $r->{'suf'} = $suf;
     my $nn = $rp;
     $nn =~ s/.*\///;
     if ($filter) {
@@ -1656,7 +1657,6 @@ sub filter_exports {
 	next unless $myself;
       }
     }
-    $r->{'suf'} = $suf;
     $n{$nn} = $r;
   }
   return %n;
@@ -2023,12 +2023,14 @@ sub update_dst_full {
   $filter = compile_exportfilter($filter);
 
   my %exports;
-  my %new = filter_exports($jobrepo, $filter, \%exports);
+  my %new = set_suf_and_filter_exports($jobrepo, $filter, \%exports);
   if ($filter && !$importarch) {
-    # also filter old entries to make sure createexportjob is called for all exportarchs
     my %exports_replaced;
-    filter_exports($oldrepo, $filter, \%exports_replaced);
+    # also filter old entries to make sure createexportjob is called for all exportarchs
+    set_suf_and_filter_exports($oldrepo, $filter, \%exports_replaced);
     $exports{$_} ||= [] for keys %exports_replaced;
+  } else {
+    set_suf_and_filter_exports($oldrepo);	# just set suf
   }
 
   if ($filter && !$importarch && %exports) {
@@ -2095,6 +2097,8 @@ sub update_dst_full {
     my $r = $oldrepo->{$rp};
     next unless $r->{'suf'} && $r->{'id'};
     next if $fnew{$r->{'name'}};	# already overwritten with new version
+    my @s = stat("$gdst/:full/$r->{'name'}.$r->{'suf'}");
+    next unless @s && $r->{'id'} eq "$s[9]/$s[7]/$s[1]";	# don't delete package if not ours
     del_binary_from_full($fctx, $r);
   }
   mkdir_p($gdst) unless -d $gdst;
