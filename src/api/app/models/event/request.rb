@@ -65,6 +65,10 @@ class Event::RequestStatechange < Event::Request
   self.raw_type = 'SRCSRV_REQUEST_STATECHANGE'
   self.description = 'Request state was changed'
   payload_keys :oldstate
+
+  def subject
+    "[obs #{payload['type']}-request #{payload['id']}] #{payload['targetproject']}/#{payload['targetpackage']}: #{payload['state']} by #{payload['who']}"
+  end
 end
 
 class Event::ReviewAccepted < Event::Request

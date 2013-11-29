@@ -1,4 +1,4 @@
 @subject: [obs update] Project <%= @e['project']%> updated
 Project data of project <%= @e['project']%> was updated.
 
-https://build.opensuse.org/project/show?project=<%= @['project']%>
+<%= url_for(project: @e['project'], controller: 'webui/project', action: :show, only_path: false, host: @host) %>

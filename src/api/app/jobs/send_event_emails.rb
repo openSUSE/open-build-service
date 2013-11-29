@@ -9,7 +9,6 @@ class SendEventEmails
   def perform
     users = EventFindSubscribers.new(event).subscribers 
     return if users.empty?
-    $stderr.puts "send mail to #{users}"
     users.each do |u|
       EventMailer.event(User.find(u), event).deliver
     end

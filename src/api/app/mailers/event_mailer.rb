@@ -7,7 +7,6 @@ class EventMailer < ActionMailer::Base
     mail(to: user.email,
          subject: e.subject,
 	 from: 'hermes@opensuse.org',
-         layout: 'layout',
          template_name: e.raw_type.downcase)
   end
 end

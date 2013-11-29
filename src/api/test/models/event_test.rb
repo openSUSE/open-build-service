@@ -26,6 +26,9 @@ class EventTest < ActiveSupport::TestCase
   end
 
   test 'find subscribers' do
+    # for this test we don't want fixtures to interfere
+    EventSubscription.delete_all
+
     all_get_events = EventSubscription.create eventtype: 'Event::CreatePackage', receive: 'maintainer'
 
     e = Event::Factory.new_from_type('SRCSRV_CREATE_PACKAGE',
