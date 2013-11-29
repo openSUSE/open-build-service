@@ -4014,7 +4014,7 @@ sub remote_getrev {
     next if -e "$srcrep/$packid/$entry->{'md5'}-$entry->{'name'}";
     if ($linked && $entry->{'size'} > 8192) {
       # getprojpack request, hand over to AJAX
-      BSHandoff::rpc($ajaxsocket, "/source/$projid/$packid", undef, "rev=$dir->{'srcmd5'}");
+      BSHandoff::rpc($ajaxsocket, "/source/$projid/$packid", undef, "rev=$dir->{'srcmd5'}", 'view=notify');
       die("download in progress\n");
     }
     mkdir_p($uploaddir);
@@ -4292,6 +4292,14 @@ my %getfilelist_ajax_inprogress;
 sub getfilelist_ajax {
   my ($cgi, $projid, $packid) = @_;
 
+  if ($cgi->{'view'} eq 'cpio') {
+    my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $cgi->{'rev'}};
+    my $files = lsrev($rev);
+    my @send = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} keys %$files;
+    BSWatcher::reply_cpio(\@send);
+    return undef;
+  }
+  die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'notify';
   my $jev = $BSServerEvents::gev;
   if (!$jev->{'remoteurl'}) {
     die unless $cgi->{'rev'};
@@ -4502,6 +4510,14 @@ sub getfilelist {
   }
 
   if ($view && $view eq 'cpio') {
+    if (!$cgi->{'extension'} && $rev->{'srcmd5'} && $rev->{'srcmd5'} ne 'upload' && $rev->{'srcmd5'} ne 'pattern' && $rev->{'srcmd5'} ne 'empty' && $rev->{'srcmd5'} ne $emptysrcmd5) {
+      # hack: we identify remote source downloads by looking at the user agent
+      my $useragent = $BSServer::request->{'headers'}->{'user-agent'} || '';
+      if ($useragent =~ /BSRPC/) {
+	BSHandoff::handoff($ajaxsocket, "/source/$projid/$packid", undef, "rev=$rev->{'srcmd5'}", 'view=cpio');
+	exit(0);
+      }
+    }
     my @files = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} sort keys %$files;
     BSServer::reply_cpio(\@files);
     return undef;
@@ -7805,7 +7821,7 @@ my $dispatches_ajax = [
   '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaryversions,
   '/lastevents $filter:* start:num? obsname:?' => \&lastevents,
   '/lastnotifications start:num? view:? block:bool?' => \&lastnotifications,
-  '/source/$project/$package rev' => \&getfilelist_ajax,
+  '/source/$project/$package rev view:' => \&getfilelist_ajax,
   '/source/$project/$package:package/$filename rev?' => \&getfile,
   '/request/$id:num withkey:bool? oldkey:md5?' => \&getrequest,
   '/sourcediffcache/$cacheid:md5 view:?' => \&getsourcediffcache,
