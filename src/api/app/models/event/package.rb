@@ -10,6 +10,10 @@ module Event
     self.description = 'Package was created'
 
     create_jobs :cleanup_cache_lines
+
+    def subject
+      "New Package #{payload['project']}/#{payload['package']}"
+    end
   end
 
   class UpdatePackage < Package

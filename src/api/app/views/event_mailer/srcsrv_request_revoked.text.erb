@@ -1,9 +1,0 @@
-subject: [obs <%= @e['type']%>-request <%= @e['id']%>] <%= @e['targetproject']%>/<%= @e['targetpackage']%>: revoked by <%= @e['who']%>
-<% if @e['sourceproject']-%>
-   <%= @e['sourceproject']%>/<%= @e['sourcepackage']%> -> <%= @e['targetproject']%>/<%= @e['targetpackage']%>
-
-   https://build.opensuse.org/request/show/<%= @e['id']%>
-<% if @e['description']-%>
-   Description: 
-<%= @e['description']%><%-end-%>
-<%-end-%>

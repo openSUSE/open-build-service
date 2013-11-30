@@ -5,7 +5,7 @@ State of <%= @e['type']%>-request #<%= @e['id']%> was changed by <%= @e['who']%>
 Comment:
   <%= @e['comment']%>
 
-https://build.opensuse.org/request/diff/<%= @e['id']%>
+<%= url_for(controller: 'webui/request', action: :show, id: @e['id'], host: @host, only_path: false) %>
 
 <% if @e['sourceproject']-%>Source 
   project:  <%= @e['sourceproject']%>

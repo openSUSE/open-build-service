@@ -2,4 +2,4 @@
 
 Comment: <%= @e['comment']%>
 By: <%= @e['commenter']%>
-Link: https://build.opensuse.org/request/show/<%= @e['request_id']%>
+Link: <%= url_for(controller: 'webui/request', action: :show, id: @e['request_id'], host: @host, only_path: false) %>

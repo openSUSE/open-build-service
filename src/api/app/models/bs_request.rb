@@ -280,8 +280,6 @@ class BsRequest < ActiveRecord::Base
         end
       end
       self.save!
-
-      create_state_notification_event('Request', oldstate: oldstate)
     end
   end
 
@@ -369,21 +367,6 @@ class BsRequest < ActiveRecord::Base
       end
 
       self.save!
-
-      create_state_notification_event('Review') if go_new_state
-
-    end
-  end
-
-  def create_state_notification_event(prefix, additional_notify_parameters = {})
-    notify = notify_parameters.merge additional_notify_parameters
-    case state
-    when :accepted
-      "Event::#{prefix}Accepted".constantize.create notify
-    when :declined
-      "Event::#{prefix}Declined".constantize.create notify
-    when :revoked
-      "Event::#{prefix}Revoked".constantize.create notify
     end
   end
 

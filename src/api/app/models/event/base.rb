@@ -131,7 +131,7 @@ module Event
     def perform_create_jobs
       self.create_jobs.each do |job|
         eclass = job.to_s.camelize.safe_constantize
-	raise "#{job.to_s.camelize} does not map to a constant" if eclass.nil?
+        raise "#{job.to_s.camelize} does not map to a constant" if eclass.nil?
         eclass.new(self).delay.perform
       end
     end
@@ -141,6 +141,11 @@ module Event
       'Build Service Notification'
     end
 
+    # needs to return a hash (merge super)
+    def custom_headers
+      # not to break user's filters for now
+      {'X-hermes-msg-type' => "OBS_#{raw_type}"}
+    end
   end
 
 end

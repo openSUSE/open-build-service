@@ -1,11 +1,11 @@
-@subject: [obs <%= @e['type']%>-request <%= @e['id']%>] <%= @e['targetproject']%>/<%= @e['targetpackage']%>: created by <%= @e['who'%>
 <% if @e['sourceproject']-%>
    <%= @e['sourceproject']%>/<%= @e['sourcepackage']%> -> <%= @e['targetproject']%>/<%= @e['targetpackage']%>
 <%-else-%>
    <%= @e['targetproject']%>/<%= @e['targetpackage']%>
 <%-end-%>
 
-   https://build.opensuse.org/request/show/<%= @e['id']%>
+   <%= url_for(controller: 'webui/request', action: :show, id: @e['id'], host: @host, only_path: false) %>
+
 <% if @e['description']-%>
    Description: <%= @e['description']%><%-end-%>
 <%= @e['reqdiff']%>
