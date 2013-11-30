@@ -210,6 +210,7 @@ class BsRequestAction < ActiveRecord::Base
   end
 
   def notify_params(ret = {})
+    ret[:action_id] = self.id
     ret[:type] = self.action_type.to_s
     if self.action_type == :submit
       ret[:sourceproject] = self.source_project
@@ -1022,7 +1023,7 @@ class BsRequestAction < ActiveRecord::Base
   def self.get_package_diff(path, query)
     path += "?#{query.to_query}"
     begin
-      return ActiveXML.backend.direct_http(URI(path), method: 'POST', timeout: 10)
+      Suse::Backend.post(path, '', 'Timeout' => 10).body
     rescue Timeout::Error
       raise DiffError.new("Timeout while diffing #{path}")
     rescue ActiveXML::Transport::Error => e

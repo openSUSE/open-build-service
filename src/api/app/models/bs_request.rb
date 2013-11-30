@@ -389,7 +389,7 @@ class BsRequest < ActiveRecord::Base
                                       by_package: opts[:by_package], creator: User.current.login
       self.save!
 
-      newreview.create_notification_event(self.notify_parameters)
+      newreview.create_notification(self.notify_parameters)
     end
   end
 

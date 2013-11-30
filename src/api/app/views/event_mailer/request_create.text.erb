@@ -4,11 +4,14 @@
    <%= @e['targetproject']%>/<%= @e['targetpackage']%>
 <%-end-%>
 
-   <%= url_for(controller: 'webui/request', action: :show, id: @e['id'], host: @host, only_path: false) %>
+Visit <%= url_for(controller: 'webui/request', action: :show, id: @e['id'], host: @host, only_path: false) %>
 
 <% if @e['description']-%>
-   Description: <%= @e['description']%><%-end-%>
-<%= @e['reqdiff']%>
+Description:
+<%= @e['description']%>
+<%-end-%>
+
+<%= render partial: 'actions' %>
 
 To REVIEW against the previous version:
    osc request show --diff <%= @e['id']%>

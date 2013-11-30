@@ -1,1 +1,17 @@
-Not implemented
+<% bystring = ''
+   if @e['by_user']
+     bystring = "by user #{@e['by_user']}"
+   elsif @e['by_group']
+     bystring = "by group #{@e['by_group']}"
+   elsif @e['by_package']
+     bystring = "by package maintainers of #{@e['by_project']}/#{@e['by_package']}"
+   else
+     bystring = "by project maintainers of #{@e['by_project']}"
+   end -%>
+Request <%= @e['id'] %> requires a review <%= bystring %>
+  Visit <%= url_for(controller: 'webui/request', action: :show, id: @e['id'], host: @host, only_path: false) %>
+
+Reason:
+<%= @e['comment'] %>
+
+<%= render partial: 'actions' %>

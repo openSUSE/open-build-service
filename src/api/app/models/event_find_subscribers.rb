@@ -6,10 +6,10 @@ class EventFindSubscribers
   end
 
   def find_maintainers(obj)
-    maintainer = obj.relationships.where(role: Role.rolecache["maintainer"])
-    users = maintainer.joins(:user).pluck("users.id")
-    users |= maintainer.joins(:groups_users).pluck("groups_users.user_id")
-    @toconsider |= @subscriptions.where("package_id is null").where(user_id: users).to_a
+    maintainer = obj.relationships.where(role: Role.rolecache['maintainer'])
+    users = maintainer.joins(:user).pluck('users.id')
+    users |= maintainer.joins(:groups_users).pluck('groups_users.user_id')
+    @toconsider |= @subscriptions.where('package_id is null').where(user_id: users).to_a
     users
   end
 
@@ -108,21 +108,21 @@ class EventFindSubscribers
     # we have 4 different subscription types and each requires a different strategy
 
     # 1. generic defaults
-    @toconsider = @subscriptions.where("user_id is null and package_id is null and project_id is null").to_a
+    @toconsider = @subscriptions.where('user_id is null and package_id is null and project_id is null').to_a
     @package_maintainers = []
     @project_maintainers = []
 
     # 2. package maintainers
-    find_package_maintainers @payload["project"], @payload["package"]
+    find_package_maintainers @payload['project'], @payload['package']
     # for requests
-    find_package_maintainers @payload["targetproject"], @payload["targetpackage"]
+    find_package_maintainers @payload['targetproject'], @payload['targetpackage']
 
     # 3. project maintainers
-    find_project_maintainers @payload["project"]
-    find_project_maintainers @payload["targetproject"]
+    find_project_maintainers @payload['project']
+    find_project_maintainers @payload['targetproject']
 
     # 4. all and none
-    usergenerics = @subscriptions.where("package_id is null and project_id is null")
+    usergenerics = @subscriptions.where('package_id is null and project_id is null')
     @toconsider |= usergenerics.where(receive: ['all', 'none']).to_a
 
     return [] if @toconsider.empty?

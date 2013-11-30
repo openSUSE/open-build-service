@@ -47,10 +47,11 @@ module Suse
         start_test_backend
         @start_of_last = Time.now
         logger.debug "[backend] GET: #{path}"
+	timeout = in_headers.delete('Timeout') || 1000
         backend_request = Net::HTTP::Get.new(path, in_headers)
 
         response = Net::HTTP.start(host, port) do |http|
-          http.read_timeout = 1000
+          http.read_timeout = timeout
           http.request backend_request
         end
 
@@ -62,6 +63,7 @@ module Suse
         start_test_backend
         @start_of_last = Time.now
         logger.debug "[backend] #{method}: #{path}"
+	timeout = in_headers.delete('Timeout')
         if method == "PUT"
           backend_request = Net::HTTP::Put.new(path, in_headers)
         else
@@ -76,9 +78,9 @@ module Suse
         response = Net::HTTP.start(host, port) do |http|
           if method == "POST"
             # POST requests can be quite complicate and take some time ..
-            http.read_timeout = 100000
+            http.read_timeout = timeout || 100000
           else
-            http.read_timeout = 1000
+            http.read_timeout = timeout || 1000
           end
           begin
             http.request backend_request
@@ -105,9 +107,10 @@ module Suse
         start_test_backend
         @start_of_last = Time.now
         logger.debug "[backend] DELETE: #{path}"
+	timeout = in_headers.delete('Timeout') || 1000
         backend_request = Net::HTTP::Delete.new(path, in_headers)
         response = Net::HTTP.start(host, port) do |http|
-          http.read_timeout = 1000
+          http.read_timeout = timeout
           http.request backend_request
         end
         write_backend_log "DELETE", host, port, path, response

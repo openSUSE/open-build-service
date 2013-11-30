@@ -18,7 +18,7 @@ OBSApi::Application.configure do
   # Tell ActionMailer not to deliver emails to the real world.
   # The :test delivery method accumulates sent emails in the
   # ActionMailer::Base.deliveries array.
-  config.action_mailer.delivery_method = :file
+  config.action_mailer.delivery_method = :test
 
   config.cache_store = :dalli_store, '127.0.0.1:11211', {namespace: ENV['CACHENAMESPACE'], expires_in: 1.hour }
 

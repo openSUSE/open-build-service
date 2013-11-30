@@ -31,7 +31,7 @@ Capybara.register_driver :poltergeist do |app|
 end
 
 Capybara.register_driver :rack_test do |app|
-  Capybara::RackTest::Driver.new(app, headers: { 'HTTP_ACCEPT' => 'text/html' })
+  Capybara::RackTest::Driver.new(app, headers: {'HTTP_ACCEPT' => 'text/html'})
 end
 
 Capybara.javascript_driver = :poltergeist
@@ -296,7 +296,7 @@ module Webui
         return 'none'
       end
       if results.count > 1
-	texts = results.map { |r| r.text }
+        texts = results.map { |r| r.text }
         raise "One flash expected, but we had #{texts.inspect}"
       end
       results.first.text
@@ -375,8 +375,12 @@ module ActionDispatch
       prepare_request_with_user 'tom123', 'thunder123'
     end
 
+    def load_fixture(path)
+      File.open(File.join(ActionController::TestCase.fixture_path, path)).read()
+    end
+
     def load_backend_file(path)
-      File.open(ActionController::TestCase.fixture_path + "/backend/#{path}").read()
+      load_fixture("backend/#{path}")
     end
 
     def assert_xml_tag(conds)
@@ -478,8 +482,12 @@ class ActiveSupport::TestCase
     assert !ret, "expected no tag, but found tag matching #{conds.inspect} in:\n#{node.dump_xml}" if ret
   end
 
+  def load_fixture(path)
+    File.open(File.join(ActionController::TestCase.fixture_path, path)).read()
+  end
+
   def load_backend_file(path)
-    File.open(ActionController::TestCase.fixture_path + "/backend/#{path}").read()
+    load_fixture("backend/#{path}")
   end
 
   def teardown

@@ -41,6 +41,10 @@ module Event
     self.raw_type = 'SRCSRV_BRANCH_COMMAND'
     self.description = 'Package was branched'
     payload_keys :targetproject, :targetpackage, :user
+
+    def subject
+      "Package Branched: #{payload['project']}/#{payload['package']} => #{payload['targetproject']}/#{payload['targetpackage']}"
+    end
   end
 
   class VersionChange < Package

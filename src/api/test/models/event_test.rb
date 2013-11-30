@@ -13,9 +13,9 @@ class EventTest < ActiveSupport::TestCase
 
   test 'find event' do
     e = Event::Factory.new_from_type('SRCSRV_CREATE_PACKAGE',
-                                     { 'project' => 'kde4',
-                                       'package' => 'kdelibs',
-                                       'sender' => 'tom' })
+                                     {'project' => 'kde4',
+                                      'package' => 'kdelibs',
+                                      'sender' => 'tom'})
     assert_equal 'Event::CreatePackage', e.class.name
     assert_equal 'kdelibs', e.payload['package']
   end
@@ -32,9 +32,9 @@ class EventTest < ActiveSupport::TestCase
     all_get_events = EventSubscription.create eventtype: 'Event::CreatePackage', receive: 'maintainer'
 
     e = Event::Factory.new_from_type('SRCSRV_CREATE_PACKAGE',
-                                     { 'project' => 'kde4',
-                                       'package' => 'kdebase',
-                                       'sender' => 'tom' })
+                                     {'project' => 'kde4',
+                                      'package' => 'kdebase',
+                                      'sender' => 'tom'})
 
     # fred, fredlibs and king are maintainer, adrian is in test_group
     assert_equal %w(adrian fred fredlibs king), users_for_event(e)
@@ -63,8 +63,17 @@ class EventTest < ActiveSupport::TestCase
   test 'create request' do
     User.current = users(:Iggy)
     req = bs_requests(:submit_from_home_project)
-    req.addreview by_user: 'Iggy'
-    assert Event::Base.last.is_a? Event::ReviewWanted
+    myid = req.id
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+      req.addreview by_user: 'Iggy', comment: 'Can you check that?'
+    end
+    email = ActionMailer::Base.deliveries.last
+
+    assert_equal "Request #{myid}: Review wanted", email.subject
+    assert_equal %w(Iggy@pop.org), email.to
+    should = load_fixture('event_mailer/review_wanted').gsub('REQUESTID', myid.to_s).chomp
+    email.message_id = '<test@localhost>'
+    assert_equal should, email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }.join("\n")
   end
 
   test 'notifications are sent' do
