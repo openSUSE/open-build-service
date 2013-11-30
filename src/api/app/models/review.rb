@@ -8,9 +8,9 @@ class Review < ActiveRecord::Base
 
   belongs_to :bs_request
   validates_inclusion_of :state, :in => VALID_REQUEST_STATES
-  
+
   before_validation(on: :create) do
-    if read_attribute(:state).nil?	
+    if read_attribute(:state).nil?
       self.state = :new
     end
   end
@@ -43,7 +43,7 @@ class Review < ActiveRecord::Base
   end
 
   def _get_attributes
-    attributes = { :state => self.state.to_s  }
+    attributes = {:state => self.state.to_s}
     # old requests didn't have who and when
     attributes[:when] = self.created_at.strftime("%Y-%m-%dT%H:%M:%S") if self.reviewer
     attributes[:who] = self.reviewer if self.reviewer
@@ -68,9 +68,26 @@ class Review < ActiveRecord::Base
     ret
   end
 
-  def create_notification_event(params = {})
+  def users_for_review
+    if self.by_user
+       return [User.find_by_login(self.by_user)]
+    end
+    if self.by_group
+      return Group.find_by_title(self.by_group).users.to_a
+    end
+    obj = nil
+    if self.by_package
+      obj = Package.find_by_project_and_name(self.by_project, self.by_package)
+    else
+      obj = Project.find_by_name(self.by_project)
+    end
+    User.where(id: obj.relationships.users.where(role: Role.rolecache['maintainer']).pluck(:user_id)).to_a
+  end
+
+  def create_notification(params = {})
+    params = params.merge(_get_attributes)
     params[:comment] = self.reason
-    params.merge(_get_attributes)
-    Event::ReviewWanted.create params
+
+    EventMailer.delay.review_wanted params, users_for_review
   end
 end

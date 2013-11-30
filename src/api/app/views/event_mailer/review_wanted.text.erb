@@ -1,1 +1,19 @@
-Not implemented
+<% bystring = ''
+   if @opts[:by_user]
+     bystring = "by user #{@opts[:by_user]}"
+   elsif @opts[:by_group]
+     bystring = "by group #{@opts[:by_group]}"
+   elsif @opts[:by_package]
+     bystring = "by package maintainers of #{@opts[:by_project]}/#{@opts[:by_package]}"
+   else
+     bystring = "by project maintainers of #{@opts[:by_project]}"
+   end -%>
+Request <%= @opts[:id] %> requires a review <%= bystring %>
+
+Reason: <%= @opts[:comment] %>
+
+<% @opts[:actions].each do |a| -%>
+  <%= a[:type] %> <%= a[:targetproject] %>/<%= a[:targetpackage] %>
+<% end -%>
+
+Visit <%= url_for(controller: 'webui/request', action: :show, id: @opts[:id], host: @host, only_path: false) %>

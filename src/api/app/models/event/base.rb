@@ -64,7 +64,8 @@ module Event
       self.class.raw_type
     end
 
-    def initialize(attribs)
+    def initialize(_attribs)
+      attribs = _attribs.dup
       super()
       self.created_at = attribs[:time] if attribs[:time]
       attribs.delete :eventtype
@@ -144,7 +145,9 @@ module Event
     # needs to return a hash (merge super)
     def custom_headers
       # not to break user's filters for now
-      {'X-hermes-msg-type' => "OBS_#{raw_type}"}
+      ret = {}
+      ret['X-hermes-msg-type'] = "OBS_#{raw_type}" if raw_type
+      ret
     end
   end
 

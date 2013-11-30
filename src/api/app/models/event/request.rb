@@ -3,9 +3,13 @@ class Event::Request < ::Event::Base
   self.abstract_class = true
   payload_keys :author, :comment, :description, :id, :actions, :state, :when, :who
 
-  def my_message_id
+  def self.message_id(id)
     domain = URI.parse(::Configuration.first.obs_url)
-    "obs-request-#{payload['id']}@#{domain.host.downcase}"
+    "obs-request-#{id}@#{domain.host.downcase}"
+  end
+
+  def my_message_id
+    Event::Request.message_id(payload['id'])
   end
 
   def custom_headers
@@ -19,20 +23,27 @@ class Event::RequestChange < Event::Request
   self.description = 'Request XML was updated (admin only)'
 end
 
-class Event::ReviewWanted < Event::Request
-  self.description = 'Request review wanted'
-end
-
 class Event::RequestCreate < Event::Request
   self.raw_type = "SRCSRV_REQUEST_CREATE"
   self.description = 'Request created'
 
   def custom_headers
-    {'Message-ID' => my_message_id}.merge(super)
+    base = super
+    # we're the one they mean
+    base.delete('In-Reply-To')
+    base.delete('References')
+    base.merge({'Message-ID' => my_message_id})
   end
 
   def subject
-    "[#{payload['type']}-request #{payload['id']}] #{payload['targetproject']}/#{payload['targetpackage']}: created by #{payload['who']}%>"
+    subj = "Request #{payload['id']} created by #{payload['who']}: "
+    actions_summary = []
+    payload['actions'].each do |a|
+      str = "#{a['type']} #{a['targetproject']}"
+      str += "/#{a['targetpackage']}" if a['targetpackage']
+      actions_summary << str
+    end
+    subj + actions_summary.join(', ')
   end
 end
 
@@ -47,7 +58,7 @@ class Event::RequestStatechange < Event::Request
   payload_keys :oldstate
 
   def subject
-    "[obs #{payload['type']}-request #{payload['id']}] #{payload['targetproject']}/#{payload['targetpackage']}: #{payload['state']} by #{payload['who']}"
+    "Request state of #{payload['id']} changed to #{payload['state']}"
   end
 end
 

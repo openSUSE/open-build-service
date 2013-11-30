@@ -1,0 +1,33 @@
+From: hermes@opensuse.org
+To: user1@example.com
+Message-ID: obs-request-REQUESTID@localhost
+Subject: Request REQUESTID created by Iggy: add_role home:tom
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Precdence: bulk
+X-Mailer: OBS Notification System
+X-hermes-msg-type: OBS_SRCSRV_REQUEST_CREATE
+
+   /
+
+   http://localhost/request/show/REQUESTID
+
+
+
+
+To REVIEW against the previous version:
+   osc request show --diff REQUESTID
+
+To ACCEPT the request:
+   osc request accept REQUESTID --message="reviewed ok."
+   
+To DECLINE the request:
+   osc request decline REQUESTID --message="declined for reason xyz (see ... for background / policy / ...)."
+
+To REVOKE the request:
+   osc request revoke REQUESTID --message="retracted because ..., sorry / thx / see better version ..."
+
+-- 
+Open Build Service (http://localhost/)
