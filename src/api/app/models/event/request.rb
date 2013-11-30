@@ -19,6 +19,10 @@ class Event::RequestChange < Event::Request
   self.description = 'Request XML was updated (admin only)'
 end
 
+class Event::ReviewWanted < Event::Request
+  self.description = 'Request review wanted'
+end
+
 class Event::RequestCreate < Event::Request
   self.raw_type = "SRCSRV_REQUEST_CREATE"
   self.description = 'Request created'

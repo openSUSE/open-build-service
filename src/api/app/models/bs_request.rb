@@ -262,7 +262,6 @@ class BsRequest < ActiveRecord::Base
           g.addrequest("newid" => opts[:superseded_by])
         end
       end
-      oldstate = self.state
       self.state = state
       self.commenter = User.current.login
       self.comment = opts[:comment]

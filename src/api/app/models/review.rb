@@ -70,7 +70,7 @@ class Review < ActiveRecord::Base
 
   def create_notification_event(params = {})
     params[:comment] = self.reason
-    # TODO: Send out mail to persons that have a review
-    # no matter if by_group or by_project
+    params.merge(_get_attributes)
+    Event::ReviewWanted.create params
   end
 end

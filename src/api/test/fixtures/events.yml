@@ -25,16 +25,6 @@ commit_for_deleted_package:
   created_at: 2013-08-30 14:56:50.000000000 Z
   updated_at: 2013-08-30 14:56:50.000000000 Z
   project_logged: 0
-events_10:
-  id: 10
-  eventtype: Event::RequestReviewerGroupAdded
-  payload: '{"author":"Iggy","comment":"give it a look","description":"test home project
-    shortening","id":4,"actions":[{"type":"submit","sourceproject":"home:Iggy:branches:kde4","sourcepackage":"BranchPack","sourcerevision":"1","targetproject":"Apache","targetpackage":"BranchPack","person":null,"role":null}],"state":"review","when":"2013-08-29T14:32:24","newreviewer_group":"test_group"}'
-  queued: 0
-  lock_version: 0
-  created_at: 2013-08-29 14:32:24.000000000 Z
-  updated_at: 2013-08-29 14:32:24.000000000 Z
-  project_logged: 0
 events_11:
   id: 11
   eventtype: Event::UpdateProjectConfig

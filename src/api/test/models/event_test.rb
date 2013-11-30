@@ -64,11 +64,11 @@ class EventTest < ActiveSupport::TestCase
     User.current = users(:Iggy)
     req = bs_requests(:submit_from_home_project)
     req.addreview by_user: 'Iggy'
-    assert Event::Base.last.is_a? Event::RequestReviewerAdded
+    assert Event::Base.last.is_a? Event::ReviewWanted
   end
 
   test 'notifications are sent' do
-    e = Event::RequestReviewerGroupAdded.first
+    e = Event::VersionChange.first
     assert e.notify_backend
   end
 

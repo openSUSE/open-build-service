@@ -10,9 +10,10 @@ class EventMailer < ActionMailer::Base
     headers['Precdence'] = 'bulk'
     headers['X-Mailer'] = 'OBS Notification System'
 
+    template_name = e.class.name.gsub('Event::', '').underscore
     mail(to: user.email,
          subject: e.subject,
          from: 'hermes@opensuse.org',
-         template_name: e.raw_type.downcase)
+         template_name: template_name)
   end
 end
