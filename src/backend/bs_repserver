@@ -3740,6 +3740,36 @@ sub deljob {
   return $BSStdServer::return_ok;
 }
 
+sub postmdload {
+  my ($cgi) = @_;
+
+  my $newdata = BSServer::read_data(200000000);
+  my $newmdload = Storable::thaw(substr($newdata, 4));
+  die("no data\n") unless $newmdload;
+  return $BSStdServer::return_ok unless %$newmdload;
+  local *F;
+  BSUtil::lockopen(\*F, '+>>', "$jobsdir/mdload");
+  my $oldmdload = {};
+  if (-s "$jobsdir/mdload") {
+    $oldmdload = BSUtil::retrieve("$jobsdir/mdload");
+  }
+  for (keys %$newmdload) {
+    if (!$oldmdload->{$_} || $oldmdload->{$_}->[0] < $newmdload->{$_}->[0]) {
+      $oldmdload->{$_} = $newmdload->{$_};
+    } elsif ($newmdload->{$_}->[3] && $oldmdload->{$_}->[3] < $newmdload->{$_}->[3]) {
+      ($oldmdload->{$_}->[2], $oldmdload->{$_}->[3]) = ($newmdload->{$_}->[2], $newmdload->{$_}->[3]);
+    }
+  }
+  my $prunetime = time() - 50 * 86400;
+  for (keys %$oldmdload) {
+    my $l = $oldmdload->{$_};
+    delete $oldmdload->{$_} if $l->[0] < $prunetime && $l->[2] < $prunetime;
+  }
+  BSUtil::store("$jobsdir/.mdload.$$", "$jobsdir/mdload", $oldmdload);
+  close F;
+  return $BSStdServer::return_ok;
+}
+
 sub idleworkerjob {
   my ($cgi, $arch, $job) = @_;
   local *F;
@@ -3851,6 +3881,7 @@ my $dispatches = [
 
   # jobs
   '/jobs' => \&listjobarchs,
+  'POST:/jobs/_mdload' => \&postmdload,
   '/jobs/$arch' => \&listjobs,
   'PUT:/jobs/$arch/$job' => \&addjob,
   'POST:/jobs/$arch/$job cmd=idleworker workerid: jobid:md5?' => \&idleworkerjob,

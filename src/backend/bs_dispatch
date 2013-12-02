@@ -133,6 +133,8 @@ my %constraintscache;
 
 my %lastbuild;	# last time a job was build in that prpa
 
+my %masterdispatched;	# we masterdispatched those, prpa => [ starttime, ... ]
+
 sub assignjob {
   my ($job, $idlename, $arch) = @_;
   local *F;
@@ -218,7 +220,10 @@ sub assignjob {
   $worker->{'job'} = $job;
   $worker->{'jobid'} = $jobid;
   $worker->{'arch'} = $arch;
-  $worker->{'reposerver'} = $info->{'reposerver'} if $info->{'masterdispatched'};
+  if ($info->{'masterdispatched'}) {
+    $worker->{'reposerver'} = $info->{'reposerver'};
+    push @{$masterdispatched{"$info->{'project'}/$info->{'repository'}/$info->{'arch'}"}}, $jobstatus->{'starttime'};
+  }
   mkdir_p("$workersdir/building");
   writexml("$workersdir/building/.$idlename", "$workersdir/building/$idlename", $worker, $BSXML::worker);
 
@@ -473,6 +478,7 @@ sub oracle {
 
 my %syncedjobs;
 my %lastmastersync;
+my $lastmdloadsync;
 
 #
 # XXX: should not be here! Use src server instead!
@@ -498,6 +504,9 @@ sub dispatchslave {
   my $synced = 0;
   my @archs = grep {!/^\./} sort(ls($jobsdir));
   my %projid2repocache;
+
+  my %building;
+  my %building_time;
   for my $arch (@archs) {
     next unless -d "$jobsdir/$arch";
     my $now = time();
@@ -534,6 +543,7 @@ sub dispatchslave {
     my @jobs = sort(ls($jobsdir));
     my @b = grep {!/^\./} ls("$jobsdir/$arch");
     my %locked = map {$_ => 1} grep {/:status$/} @b;
+    my %notlocked = map {$_ => 1} grep {!$locked{$_}} @b;
     my %seen;
     for my $job (grep {!/:(?:dir|status|new)$/} @b) {
       next if $locked{"$job:status"};
@@ -585,6 +595,47 @@ sub dispatchslave {
       delete $syncedjobs{$arch}->{$job};
     }
     print "$arch: added $added, deleted $deleted\n" if $added || $deleted;
+    # adapt the load
+    my $load = {};
+    for my $job (keys %locked) {
+      my $jn = $job;
+      $jn =~ s/:status$//;
+      next unless $notlocked{$jn};
+      $jn =~ s/-[0-9a-f]{32}$//s;
+      my ($projid, $repoid, $packid) = split('::', $jn);
+      if (!defined($packid)) {
+        my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
+	next unless $info;
+	($projid, $repoid, $packid) = ($info->{'project'}, $info->{'repository'}, $info->{'package'});
+	next unless defined $packid;
+      }
+      my $prpa = "$projid/$repoid/$arch";
+      $building{$prpa} ||= 0;
+      $building{$prpa} += 1;
+      $building_time{$prpa} = $now;
+    }
+  }
+  # upload the mdload from time to time
+  my $now = time();
+  if (!$lastmdloadsync || $lastmdloadsync + 120 < $now) {
+    print "uploading load to master dispatcher\n";
+    $lastmdloadsync = $now;
+    my $load = BSUtil::retrieve("$jobsdir/load", 1) || {};
+    for my $prpa (keys %$load) {
+      $load->{$prpa}->[2] = $building_time{$prpa} || $now;
+      $load->{$prpa}->[3] = $building{$prpa} || 0;
+    }
+    eval {
+      BSRPC::rpc({
+        'uri'     => "$BSConfig::masterdispatcher/jobs/_mdload",
+        'request' => 'POST',
+        'data' => "pst0".Storable::nfreeze($load),
+        'timeout' => 60,
+      }, undef);
+    };
+    if ($@) {
+      warn($@);
+    }
   }
   return $synced;
 }
@@ -615,7 +666,7 @@ sub forwardevents {
       } elsif ($ev->{'type'} eq 'badhost') {
         print "badhost event: $ev->{'project'}/$ev->{'package'}/$ev->{'arch'}/$ev->{'job'}\n";
 	if ($BSConfig::masterdispatcher && $BSConfig::masterdispatcher ne $BSConfig::reposerver) {
-          sendeventtoserver($BSConfig::masterdispatcher, $ev);
+          sendeventtoserver($BSConfig::masterdispatcher, $ev) unless $ev->{'package'} eq '_deltas';	# XXX
 	} else {
 	  $badhost{"$ev->{'project'}/$ev->{'package'}/$ev->{'arch'}/$ev->{'job'}"} = time();
 	}
@@ -729,6 +780,10 @@ while (1) {
 	}
       }
       close F;
+      my $prunetime = time() - 50 * 86400;
+      for (keys %$load) {
+	delete $load->{$_} if $load->{$_}->[0] < $prunetime;
+      }
       BSUtil::store("$jobsdir/load.new", "$jobsdir/load", $load);
     }
   }
@@ -778,6 +833,34 @@ while (1) {
     $ll *= exp($decay * ($now - $l->[0])) if $now > $l->[0];
     $load->{$prpa} = $ll;
     $lastbuild{$prpa} = $l->[0];
+  }
+
+  # adapt load for masterdispatched prpas
+  my $mdload = BSUtil::retrieve("$jobsdir/mdload", 1) || {};
+  for my $prpa (sort keys %$mdload) {
+    my $l = $mdload->{$prpa};
+    my $ll = $l->[1];
+    $ll *= exp($decay * ($now - $l->[0])) if $now > $l->[0];
+    $load->{$prpa} = $ll;
+    $lastbuild{$prpa} = $l->[0];
+    if ($l->[3]) {
+      $load->{$prpa} += $l->[3];
+      $lastbuild{$prpa} = $l->[2];
+    }
+  }
+  if (%masterdispatched) {
+    for my $prpa (sort keys %masterdispatched) {
+      my $md = $masterdispatched{$prpa};
+      if ($mdload->{$prpa}) {
+        shift(@$md) while @$md && $md->[0] < $mdload->{$prpa}->[2];
+      }
+      if (@$md) {
+	$load->{$prpa} += @$md;
+        $lastbuild{$prpa} = $now;
+      } else {
+        delete $masterdispatched{$prpa};
+      }
+    }
   }
   
   my @idle = grep {!/^\./} ls("$workersdir/idle");
