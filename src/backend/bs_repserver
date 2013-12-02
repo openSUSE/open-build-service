@@ -2037,9 +2037,12 @@ sub forwardevent {
       next if $a =~ /^\./;
       next unless -d "$eventdir/$a";
       next if $a eq 'publish' || $a eq 'repository' || $a eq 'watch' || $a eq 'signer' || $a eq 'dispatch' || $a eq 'service';
-      dirty($projid, $repoid, $a) if defined $repoid;
-      writexml("$eventdir/$a/.$evname", "$eventdir/$a/$evname", $ev, $BSXML::event);
-      ping($a);
+      eval {
+        dirty($projid, $repoid, $a) if defined $repoid;
+        writexml("$eventdir/$a/.$evname", "$eventdir/$a/$evname", $ev, $BSXML::event);
+        ping($a);
+      };
+      warn($@) if $@;
     }
   }
   return $BSStdServer::return_ok;
