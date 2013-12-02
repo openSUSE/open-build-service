@@ -1,9 +1,8 @@
 class Event::Build < Event::Package
   self.description = 'Package has finished building'
   self.abstract_class = true
-  payload_keys :repository, :arch, :disturl, :release, :file, :versrel, :readytime, :srcmd5,
-               :srcserver, :rev, :revtime, :job, :reason, :bcnt, :needed, :path, :reposerver,
-               :subpack, :verifymd5, :debuginfo, :constraintsmd5, :hostarch, :followupfile
+  payload_keys :repository, :arch, :release, :readytime, :srcmd5,
+               :rev, :reason, :bcnt, :verifymd5, :hostarch, :starttime, :endtime, :workerid
 end
 
 class Event::BuildSuccess < Event::Build
