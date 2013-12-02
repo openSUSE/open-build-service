@@ -1788,11 +1788,20 @@ sub putjob {
     last;
   }
 
+  # prune notification info
+  my %ninfo;
+  for (qw{project package repository arch rev srcmd5 verifymd5 readytime reason versrel bcnt release}) {
+    $ninfo{$_} = $info->{$_} if defined $info->{$_};
+  }
+  $ninfo{'starttime'} = $jobstatus->{'starttime'};
+  $ninfo{'endtime'} = $jobstatus->{'endtime'};
+  $ninfo{'workerid'} = $jobstatus->{'workerid'};
+
   if ($cgi->{'code'} && $cgi->{'code'} eq 'unchanged') {
     $jobstatus->{'result'} = 'unchanged';
-    notify('BUILD_UNCHANGED', $info);
+    notify('BUILD_UNCHANGED', \%ninfo);
   } else {
-    notify($jobstatus->{'result'} eq 'succeeded' ? 'BUILD_SUCCESS' :  'BUILD_FAIL', $info);
+    notify($jobstatus->{'result'} eq 'succeeded' ? 'BUILD_SUCCESS' :  'BUILD_FAIL', \%ninfo);
   }
 
   # calculate binary info to speed up scheduler
