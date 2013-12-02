@@ -2,6 +2,7 @@
 feed_opts = { "xml:lang" => "en-US",
               "xmlns" => 'http://www.w3.org/2005/Atom' }
 schema_date = "2013-11-22"
+obs_host = URI.parse(::Configuration.first.obs_url).host
 
 xml.feed(feed_opts) do |feed|
   feed.id "tag:#{request.host},#{schema_date}:#{request.fullpath.split(".")[0]}"
@@ -16,6 +17,7 @@ xml.feed(feed_opts) do |feed|
       user = commit.user_name
       reqid = commit.bs_request_id
       datetime = commit.datetime
+      url = ''
 
       title = "In #{package}"
       title += " (request #{reqid})" unless reqid.blank?
@@ -27,14 +29,17 @@ xml.feed(feed_opts) do |feed|
           div.dl do |dl|
             dl.dt "Package"
             dl.dd do |dd|
-              dd.a package, href: url_for(:only_path => false, :controller => 'package', :action  => 'revisions', :project => @project.name, :package => package, :format => :html, :showall => 1)
+              url = url_for(:only_path => false, :controller => 'package', :action  => 'revisions', :project => @project.name, :package => package, :format => :html, :showall => 1)
+              dd.a package, href: url
             end
             dl.dt "User"
             dl.dd user
             dl.dt "Request"
             if reqid
+              # prefer the request url
+              url = request_show_url(reqid)
               dl.dd do |dd|
-                dd.a reqid, href: request_show_url(reqid)
+                dd.a reqid, href: url
               end
             else
               dl.dd reqid
@@ -55,6 +60,8 @@ xml.feed(feed_opts) do |feed|
       end
 
       entry.published(datetime.iso8601)
+      entry.id("tag:#{obs_host},2013-12-01:#{@project.name}/#{commit.id}")
+      entry.link(href: url)
       entry.updated(datetime.iso8601)
     end
   end
