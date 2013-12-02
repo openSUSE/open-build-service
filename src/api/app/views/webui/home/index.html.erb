@@ -112,7 +112,7 @@
                                                              :package => 'REPLACEPKG') %> ">
           <% content_for :ready_function do %> 
             var iowned = [ <%= @owned.map {|p|
-                                "['#{p[0]}','#{escape_javascript(p[1])}']" }.join(",\n").html_safe %> ];
+                                "['#{p[1]}','#{escape_javascript(p[0])}']" }.join(",\n").html_safe %> ];
             renderPackagesProjectsTable({packages: iowned, length: '15', name: 'iowned_wrapper'});
           <% end %>
         </div>
