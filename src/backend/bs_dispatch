@@ -983,12 +983,12 @@ while (1) {
   my @jobprpas = keys %jobs;
   for my $prpa (@jobprpas) {
     $load->{$prpa} = rand(.01) unless $load->{$prpa};
-    $scales{$prpa} = 0;
+    my $sc = 0;
     if ($BSConfig::dispatch_adjust) {
       my @prios = @{$BSConfig::dispatch_adjust || []};
       while (@prios) {
         my ($match, $adj) = splice(@prios, 0, 2);
-        $scales{$prpa} += $adj if $prpa =~ /^$match/s;
+        $sc += $adj if $prpa =~ /^$match/s;
       }
     }
     if ($dispatchprios) {
@@ -998,10 +998,13 @@ while (1) {
         next if defined($_->{'project'}) && $_->{'project'} ne $project;
         next if defined($_->{'repository'}) && $_->{'repository'} ne $repository;
         next if defined($_->{'arch'}) && $_->{'arch'} ne $arch;
-        $scales{$prpa} = 0 + $_->{'adjust'};
+        $sc = 0 + $_->{'adjust'};
       }
     }
-    $scales{$prpa} = exp(-$scales{$prpa} * (log(10.)/10.));
+    # clamp
+    $sc = -10000 if $sc < -10000;
+    $sc =  10000 if $sc >  10000;
+    $scales{$prpa} = exp(-$sc * (log(10.)/10.));
   }
 
   if (1) {
