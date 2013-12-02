@@ -72,7 +72,9 @@ class Webui::WebuiController < ActionController::Base
         @return_to_host = CONFIG['external_webui_protocol'] || 'http'
         @return_to_host += '://'
         @return_to_host += CONFIG['external_webui_host'] || request.host
-        ::Configuration.first.obs_url = @return_to_host
+        f = ::Configuration.first
+        f.obs_url = @return_to_host
+        f.save
       end
     end
     @return_to_path = params['return_to_path'] || request.env['ORIGINAL_FULLPATH']
