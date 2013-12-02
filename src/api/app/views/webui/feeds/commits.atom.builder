@@ -29,7 +29,7 @@ xml.feed(feed_opts) do |feed|
           div.dl do |dl|
             dl.dt "Package"
             dl.dd do |dd|
-              url = url_for(:only_path => false, :controller => 'package', :action  => 'revisions', :project => @project.name, :package => package, :format => :html, :showall => 1)
+              url = url_for(:only_path => false, :controller => 'package', :action  => 'revisions', :project => @project.name, :package => package, :showall => 1)
               dd.a package, href: url
             end
             dl.dt "User"
