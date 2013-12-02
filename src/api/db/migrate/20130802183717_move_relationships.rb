@@ -4,6 +4,7 @@ class MoveRelationships < ActiveRecord::Migration
   class PackageGroupRoleRelationship < ActiveRecord::Base; end
   class ProjectUserRoleRelationship < ActiveRecord::Base; end
   class ProjectGroupRoleRelationship < ActiveRecord::Base; end
+  class Relationship < ActiveRecord::Base; end
 
   def up
     Relationship.transaction do

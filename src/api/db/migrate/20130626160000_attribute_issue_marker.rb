@@ -10,8 +10,8 @@ class AttributeIssueMarker  < ActiveRecord::Migration
     at.attrib_type_modifiable_bies.create(p)
     p[:bs_role_id] = Role.find_by_title("bugowner").id
     at.attrib_type_modifiable_bies.create(p)
-    p[:bs_role_id] = Role.find_by_title("reviewer")
-    at.attrib_type_modifiable_bies.create(p).id
+    p[:bs_role_id] = Role.find_by_title("reviewer").id
+    at.attrib_type_modifiable_bies.create(p)
   end
 
 
