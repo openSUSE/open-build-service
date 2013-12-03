@@ -18,7 +18,5 @@ class CreateBackendPackage < ActiveRecord::Migration
     add_index :backend_packages, :links_to_id
 
     drop_table :linked_packages
-
-    UpdatePackageMetaJob.new.delay.perform
   end
 end
