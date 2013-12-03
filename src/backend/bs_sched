@@ -2503,7 +2503,7 @@ sub get_projpacks_resume {
 	my $changed = $gctx->{$xpackids ? 'changed_med' : 'changed_low'};
 	my $changed_dirty = $gctx->{'changed_dirty'};
 	for my $prp (@prps) {
-	  next unless (split('/', $prp, 2))[0] eq $projid;
+	  next unless (split('/', $prp, 2))[0] eq $lprojid;
 	  $changed->{$prp} ||= 1;
 	  $changed_dirty->{$prp} = 1;
 	}
