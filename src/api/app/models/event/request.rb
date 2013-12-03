@@ -2,77 +2,76 @@ class Event::Request < ::Event::Base
   self.description = 'Request was updated'
   self.abstract_class = true
   payload_keys :author, :comment, :description, :id, :actions, :state, :when, :who
-end
 
-class Event::RequestAccepted < Event::Request
-  self.raw_type = 'SRCSRV_REQUEST_ACCEPTED'
-  self.description = 'Request was accepted'
-  payload_keys :oldstate
+  def self.message_id(id)
+    domain = URI.parse(::Configuration.first.obs_url)
+    "obs-request-#{id}@#{domain.host.downcase}"
+  end
+
+  def my_message_id
+    Event::Request.message_id(payload['id'])
+  end
+
+  def custom_headers
+    mid = my_message_id
+    super.merge({ 'In-Reply-To' => mid, 'References' => mid })
+  end
 end
 
 class Event::RequestChange < Event::Request
-  self.raw_type = "SRCSRV_REQUEST_CHANGE"
+  self.raw_type = 'SRCSRV_REQUEST_CHANGE'
   self.description = 'Request XML was updated (admin only)'
 end
 
 class Event::RequestCreate < Event::Request
-  self.raw_type = "SRCSRV_REQUEST_CREATE"
+  self.raw_type = 'SRCSRV_REQUEST_CREATE'
   self.description = 'Request created'
-end
 
-class Event::RequestDeclined < Event::Request
-  self.raw_type = 'SRCSRV_REQUEST_DECLINED'
-  self.description = 'Request declined'
-  payload_keys :oldstate
+  def custom_headers
+    base = super
+    # we're the one they mean
+    base.delete('In-Reply-To')
+    base.delete('References')
+    base.merge({ 'Message-ID' => my_message_id })
+  end
+
+  def subject
+    subj = "Request #{payload['id']} created by #{payload['who']}: "
+    actions_summary = []
+    payload['actions'].each do |a|
+      str = "#{a['type']} #{a['targetproject']}"
+      str += "/#{a['targetpackage']}" if a['targetpackage']
+      actions_summary << str
+    end
+    subj + actions_summary.join(', ')
+  end
 end
 
 class Event::RequestDelete < Event::Request
-  self.raw_type = "SRCSRV_REQUEST_DELETE"
+  self.raw_type = 'SRCSRV_REQUEST_DELETE'
   self.description = 'Request was deleted (admin only)'
-end
-
-class Event::RequestReviewerAdded < Event::Request
-  self.raw_type = "SRCSRV_REQUEST_REVIEWER_ADDED"
-  self.description = 'Reviewer was added to a request'
-  payload_keys :newreviewer
-end
-
-class Event::RequestReviewerGroupAdded < Event::Request
-  self.raw_type = "SRCSRV_REQUEST_REVIEWER_GROUP_ADDED"
-  self.description = 'Review for a group was added to a request'
-  payload_keys :newreviewer_group
-end
-
-class Event::RequestReviewerPackageAdded < Event::Request
-  self.raw_type = "SRCSRV_REQUEST_REVIEWER_PACKAGE_ADDED"
-  self.description = 'Review for package maintainers added to a request'
-  payload_keys :newreviewer_project, :newreviewer_package
-end
-
-class Event::RequestReviewerProjectAdded < Event::Request
-  self.raw_type = "SRCSRV_REQUEST_REVIEWER_PROJECT_ADDED"
-  self.description = 'Review for project maintainers added to a request'
-  payload_keys :newreviewer_project
-end
-
-class Event::RequestRevoked < Event::Request
-  self.raw_type = 'SRCSRV_REQUEST_REVOKED'
-  self.description = 'Request was revoked'
-  payload_keys :oldstate
 end
 
 class Event::RequestStatechange < Event::Request
   self.raw_type = 'SRCSRV_REQUEST_STATECHANGE'
   self.description = 'Request state was changed'
   payload_keys :oldstate
+
+  def subject
+    "Request state of #{payload['id']} changed to #{payload['state']}"
+  end
 end
 
-class Event::ReviewAccepted < Event::Request
-  self.raw_type = 'SRCSRV_REVIEW_ACCEPTED'
-  self.description = 'Request was accepted'
-end
+class Event::ReviewWanted < Event::Request
+  self.description = 'Review was created'
 
-class Event::ReviewDeclined < Event::Request
-  self.raw_type = 'SRCSRV_REVIEW_DECLINED'
-  self.description = 'Request was declined'
+  payload_keys :users, :by_user, :by_group, :by_project, :by_package
+
+  def subject
+    "Request #{payload['id']}: Review wanted"
+  end
+
+  def subscribers
+    User.where(id: payload['users'])
+  end
 end

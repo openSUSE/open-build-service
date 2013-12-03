@@ -10,6 +10,10 @@ module Event
     self.description = 'Package was created'
 
     create_jobs :cleanup_cache_lines
+
+    def subject
+      "New Package #{payload['project']}/#{payload['package']}"
+    end
   end
 
   class UpdatePackage < Package
@@ -51,6 +55,10 @@ module Event
     payload_keys :project, :package, :comment, :user, :files, :rev, :requestid
 
     create_jobs :update_backend_infos
+
+    def subject
+      "#{payload['project']}/#{payload['package']} r#{payload['rev']} commited"
+    end
   end
 
   class Upload < Package

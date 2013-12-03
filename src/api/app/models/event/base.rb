@@ -60,7 +60,12 @@ module Event
       self.class.create_jobs
     end
 
-    def initialize(attribs)
+    def raw_type
+      self.class.raw_type
+    end
+
+    def initialize(_attribs)
+      attribs = _attribs.dup
       super()
       self.created_at = attribs[:time] if attribs[:time]
       attribs.delete :eventtype
@@ -121,15 +126,33 @@ module Event
       return Xmlhash.parse(ret.body)['code'] == 'ok'
     end
 
+    create_jobs :send_event_emails
     after_create :perform_create_jobs
 
     def perform_create_jobs
       self.create_jobs.each do |job|
-        obj = job.to_s.camelize.safe_constantize.new(self)
-        obj.delay.perform
+        eclass = job.to_s.camelize.safe_constantize
+        raise "#{job.to_s.camelize} does not map to a constant" if eclass.nil?
+        eclass.new(self).delay.perform
       end
     end
 
+    # to be overwritten in subclasses
+    def subject
+      'Build Service Notification'
+    end
+
+    # needs to return a hash (merge super)
+    def custom_headers
+      # not to break user's filters for now
+      ret = {}
+      ret['X-hermes-msg-type'] = "OBS_#{raw_type}" if raw_type
+      ret
+    end
+
+    def subscribers
+      EventFindSubscribers.new(self).subscribers
+    end
   end
 
 end

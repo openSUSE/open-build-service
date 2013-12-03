@@ -25,16 +25,6 @@ commit_for_deleted_package:
   created_at: 2013-08-30 14:56:50.000000000 Z
   updated_at: 2013-08-30 14:56:50.000000000 Z
   project_logged: 0
-events_10:
-  id: 10
-  eventtype: Event::RequestReviewerGroupAdded
-  payload: '{"author":"Iggy","comment":"give it a look","description":"test home project
-    shortening","id":4,"actions":[{"type":"submit","sourceproject":"home:Iggy:branches:kde4","sourcepackage":"BranchPack","sourcerevision":"1","targetproject":"Apache","targetpackage":"BranchPack","person":null,"role":null}],"state":"review","when":"2013-08-29T14:32:24","newreviewer_group":"test_group"}'
-  queued: 0
-  lock_version: 0
-  created_at: 2013-08-29 14:32:24.000000000 Z
-  updated_at: 2013-08-29 14:32:24.000000000 Z
-  project_logged: 0
 events_11:
   id: 11
   eventtype: Event::UpdateProjectConfig
@@ -89,15 +79,6 @@ events_16:
   created_at: 2013-08-20 13:42:19.000000000 Z
   updated_at: 2013-08-20 13:42:19.000000000 Z
   project_logged: 0
-pack1_commit:
-  id: 17
-  eventtype: Event::Commit
-  payload: '{"project":"BaseDistro","package":"pack1","user":"unknown","files":"Added:\n  my_file\n\n","rev":"1"}'
-  queued: 0
-  lock_version: 0
-  created_at: 2013-08-31 14:56:50.000000000 Z
-  updated_at: 2013-08-31 14:56:50.000000000 Z
-  project_logged: 1
 events_5:
   id: 5
   eventtype: Event::Commit
@@ -143,3 +124,12 @@ events_9:
   created_at: 2013-08-20 13:42:11.000000000 Z
   updated_at: 2013-08-20 13:42:11.000000000 Z
   project_logged: 0
+pack1_commit:
+  id: 17
+  eventtype: Event::Commit
+  payload: '{"project":"BaseDistro","package":"pack1","user":"unknown","files":"Added:\n  my_file\n\n","rev":"1"}'
+  queued: 0
+  lock_version: 0
+  created_at: 2013-08-31 14:56:50.000000000 Z
+  updated_at: 2013-08-31 14:56:50.000000000 Z
+  project_logged: 1

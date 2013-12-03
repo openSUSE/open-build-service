@@ -1,0 +1,10 @@
+@subject: Build failure of <%= @e['project']%>/<%= @e['package']%> <%= @e['repository']%>/<%= @e['arch']%>
+Package <%= @e['package']%> (version <%= @e['versrel']%>.<%= @e['bcnt']%>) of 
+project <%= @e['project']%> failed to build
+for <%= @e['repository']%> / <%= @e['arch']%>.
+
+Review the build log:
+   osc remotebuildlog <%= @e['project']%> <%= @e['package']%> <%= @e['repository']%> <%= @e['arch']%> | less
+
+Check out the package for editing:
+   osc checkout <%= @e['project']%> <%= @e['package']%>

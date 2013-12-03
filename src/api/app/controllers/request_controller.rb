@@ -225,7 +225,7 @@ class RequestController < ApplicationController
       Event::RequestCreate.create notify
 
       @req.reviews.each do |review|
-        review.create_notification_event(notify.dup)
+        review.create_notification(notify)
       end
 
       xml = @req.render_xml

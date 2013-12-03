@@ -10,6 +10,10 @@ module Event
     payload_keys :sender
 
     create_jobs :cleanup_cache_lines
+
+    def subject
+      "New Project #{payload['project']}"
+    end
   end
 
   class UpdateProjectConfig < Project

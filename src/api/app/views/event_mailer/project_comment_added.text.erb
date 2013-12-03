@@ -1,0 +1,6 @@
+@subject: New comment for project - <%= @e['project']%>
+
+Comment: <%= @e['comment']%>
+By: <%= @e['commenter']%>
+Link: <%= url_for(project: @e['project'], controller: 'webui/project', action: :show, only_path: false, host: @host) %>
+

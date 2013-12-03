@@ -23,7 +23,7 @@ OBSApi::Application.configure do
   config.cache_store = :dalli_store, '127.0.0.1:11211', {namespace: ENV['CACHENAMESPACE'], expires_in: 1.hour }
 
   config.active_support.deprecation = :log
-
+  
   config.eager_load = false
 
   # Expands the lines which load the assets

@@ -1,0 +1,25 @@
+From: hermes@opensuse.org
+To: Iggy@pop.org
+Message-ID: <test@localhost>
+In-Reply-To: obs-request-4@localhost
+References: obs-request-4@localhost
+Subject: Request 4: Review wanted
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Precdence: bulk
+X-Mailer: OBS Notification System
+
+Request 4 requires a review by user Iggy
+
+Reason:
+Can you check that?
+
+Actions:
+  submit home:Iggy:branches:kde4/BranchPack => Apache/BranchPack
+
+Visit http://localhost/request/show/4
+
+-- 
+Open Build Service (http://localhost/)

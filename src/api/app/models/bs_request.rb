@@ -262,7 +262,6 @@ class BsRequest < ActiveRecord::Base
           g.addrequest("newid" => opts[:superseded_by])
         end
       end
-      oldstate = self.state
       self.state = state
       self.commenter = User.current.login
       self.comment = opts[:comment]
@@ -280,8 +279,6 @@ class BsRequest < ActiveRecord::Base
         end
       end
       self.save!
-
-      create_state_notification_event('Request', oldstate: oldstate)
     end
   end
 
@@ -369,21 +366,6 @@ class BsRequest < ActiveRecord::Base
       end
 
       self.save!
-
-      create_state_notification_event('Review') if go_new_state
-
-    end
-  end
-
-  def create_state_notification_event(prefix, additional_notify_parameters = {})
-    notify = notify_parameters.merge additional_notify_parameters
-    case state
-    when :accepted
-      "Event::#{prefix}Accepted".constantize.create notify
-    when :declined
-      "Event::#{prefix}Declined".constantize.create notify
-    when :revoked
-      "Event::#{prefix}Revoked".constantize.create notify
     end
   end
 
@@ -407,7 +389,7 @@ class BsRequest < ActiveRecord::Base
                                       by_package: opts[:by_package], creator: User.current.login
       self.save!
 
-      newreview.create_notification_event(self.notify_parameters)
+      newreview.create_notification(self.notify_parameters)
     end
   end
 

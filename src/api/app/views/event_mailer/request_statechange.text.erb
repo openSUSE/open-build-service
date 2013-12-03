@@ -1,0 +1,18 @@
+State of <%= @e['type']%>-request #<%= @e['id']%> was changed by <%= @e['who']%>:
+
+  <%= @e['oldstate']%> -> <%= @e['state']%>
+
+Comment:
+  <%= @e['comment']%>
+
+<%= url_for(controller: 'webui/request', action: :show, id: @e['id'], host: @host, only_path: false) %>
+
+<% if @e['sourceproject']-%>Source 
+  project:  <%= @e['sourceproject']%>
+  package:  <%= @e['sourcepackage']%>
+<% if @e['sourcerevision']%>  revision: <%= @e['sourcerevision']%><%-end-%>
+
+Target:
+  project: <%= @e['targetproject']%>
+  package: <%= @e['targetpackage']%>
+<%-end-%>

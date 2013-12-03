@@ -10,7 +10,7 @@
   <description>Just a description
 in multiline
 </description>
-  <packager>adrian@suse.de</packager>
+  <packager>adrian@example.com</packager>
   <zypp_restart_needed/>
   <reboot_needed/>
   <relogin_needed/>
