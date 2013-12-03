@@ -110,8 +110,7 @@ events_5:
 events_6:
   id: 6
   eventtype: Event::BuildFail
-  payload: '{"project":"home:Iggy","package":"TestPack","repository":"10.2","arch":"i586","disturl":"obs://build.some.where/home:Iggy/10.2/1ac07842727acaf13d0e2b3213b47785-TestPack","release":"42.1","file":"TestPack.spec","versrel":"1.0-42","readytime":"1377958901","srcmd5":"1ac07842727acaf13d0e2b3213b47785","srcserver":"http://localhost:3200","rev":"2","revtime":"1377958897","job":"home:Iggy::10.2::TestPack-1ac07842727acaf13d0e2b3213b47785","reason":"new
-    build","bcnt":"1","needed":"0","reposerver":"http://localhost:3201","verifymd5":"1ac07842727acaf13d0e2b3213b47785"}'
+  payload: '{"project":"home:Iggy","package":"TestPack","repository":"10.2","arch":"i586","release":"42.1","versrel":"1.0-42","readytime":"1377958901","srcmd5":"1ac07842727acaf13d0e2b3213b47785","rev":"2","revtime":"1377958897","reason":"new build","bcnt":"1","verifymd5":"1ac07842727acaf13d0e2b3213b47785"}'
   queued: 0
   lock_version: 0
   created_at: 2013-08-31 14:56:52.000000000 Z
