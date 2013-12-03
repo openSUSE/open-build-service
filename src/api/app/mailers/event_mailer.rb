@@ -11,7 +11,7 @@ class EventMailer < ActionMailer::Base
 
   def event(user, e)
     set_headers
-    @e = e.payload
+    @e = e.payload.merge(e.additional_infos)
 
     headers(e.custom_headers)
 
@@ -22,20 +22,4 @@ class EventMailer < ActionMailer::Base
          template_name: template_name)
   end
 
-  def review_wanted(opts, users)
-    set_headers
-
-    raise "We need an id" unless opts[:id]
-
-    mid = Event::Request.message_id(opts[:id])
-    headers('In-Reply-To' => mid, 'References' => mid)
-
-    @opts = opts
-    users.each do |u|
-      mail(to: u.email,
-           subject: "Request #{opts[:id]}: Review wanted",
-           from: 'hermes@opensuse.org',
-           template_name: 'review_wanted')
-    end
-  end
 end

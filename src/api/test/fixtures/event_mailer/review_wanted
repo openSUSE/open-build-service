@@ -13,9 +13,11 @@ X-Mailer: OBS Notification System
 
 Request 4 requires a review by user Iggy
 
-Reason: Can you check that?
+Reason:
+Can you check that?
 
-  submit Apache/BranchPack
+Actions:
+  submit home:Iggy:branches:kde4/BranchPack => Apache/BranchPack
 
 Visit http://localhost/request/show/4
 

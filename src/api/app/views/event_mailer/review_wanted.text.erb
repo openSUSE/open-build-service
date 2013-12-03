@@ -1,19 +1,24 @@
 <% bystring = ''
-   if @opts[:by_user]
-     bystring = "by user #{@opts[:by_user]}"
-   elsif @opts[:by_group]
-     bystring = "by group #{@opts[:by_group]}"
-   elsif @opts[:by_package]
-     bystring = "by package maintainers of #{@opts[:by_project]}/#{@opts[:by_package]}"
+   if @e['by_user']
+     bystring = "by user #{@e['by_user']}"
+   elsif @e['by_group']
+     bystring = "by group #{@e['by_group']}"
+   elsif @e['by_package']
+     bystring = "by package maintainers of #{@e['by_project']}/#{@e['by_package']}"
    else
-     bystring = "by project maintainers of #{@opts[:by_project]}"
+     bystring = "by project maintainers of #{@e['by_project']}"
    end -%>
-Request <%= @opts[:id] %> requires a review <%= bystring %>
+Request <%= @e['id'] %> requires a review <%= bystring %>
 
-Reason: <%= @opts[:comment] %>
+Reason:
+<%= @e['comment'] %>
 
-<% @opts[:actions].each do |a| -%>
-  <%= a[:type] %> <%= a[:targetproject] %>/<%= a[:targetpackage] %>
+Actions:
+<% @e['actions'].each do |a| -%>
+ <%= a['type'] %> <%= a['sourceproject'] %>/<%= a['sourcepackage'] %> => <%= a['targetproject'] %>/<%= a['targetpackage'] %>
+    <% if a['diff'] -%>
+ <%= a['diff'] %>
+    <% end -%>
 <% end -%>
 
-Visit <%= url_for(controller: 'webui/request', action: :show, id: @opts[:id], host: @host, only_path: false) %>
+Visit <%= url_for(controller: 'webui/request', action: :show, id: @e['id'], host: @host, only_path: false) %>

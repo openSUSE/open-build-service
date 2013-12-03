@@ -149,6 +149,10 @@ module Event
       ret['X-hermes-msg-type'] = "OBS_#{raw_type}" if raw_type
       ret
     end
+
+    def subscribers
+      EventFindSubscribers.new(self).subscribers
+    end
   end
 
 end

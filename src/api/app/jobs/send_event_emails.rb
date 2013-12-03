@@ -7,7 +7,7 @@ class SendEventEmails
   end
 
   def perform
-    users = EventFindSubscribers.new(event).subscribers 
+    users = event.subscribers
     return if users.empty?
     users.each do |u|
       EventMailer.event(User.find(u), event).deliver

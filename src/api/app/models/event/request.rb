@@ -14,17 +14,17 @@ class Event::Request < ::Event::Base
 
   def custom_headers
     mid = my_message_id
-    super.merge({'In-Reply-To' => mid, 'References' => mid})
+    super.merge({ 'In-Reply-To' => mid, 'References' => mid })
   end
 end
 
 class Event::RequestChange < Event::Request
-  self.raw_type = "SRCSRV_REQUEST_CHANGE"
+  self.raw_type = 'SRCSRV_REQUEST_CHANGE'
   self.description = 'Request XML was updated (admin only)'
 end
 
 class Event::RequestCreate < Event::Request
-  self.raw_type = "SRCSRV_REQUEST_CREATE"
+  self.raw_type = 'SRCSRV_REQUEST_CREATE'
   self.description = 'Request created'
 
   def custom_headers
@@ -32,7 +32,7 @@ class Event::RequestCreate < Event::Request
     # we're the one they mean
     base.delete('In-Reply-To')
     base.delete('References')
-    base.merge({'Message-ID' => my_message_id})
+    base.merge({ 'Message-ID' => my_message_id })
   end
 
   def subject
@@ -48,7 +48,7 @@ class Event::RequestCreate < Event::Request
 end
 
 class Event::RequestDelete < Event::Request
-  self.raw_type = "SRCSRV_REQUEST_DELETE"
+  self.raw_type = 'SRCSRV_REQUEST_DELETE'
   self.description = 'Request was deleted (admin only)'
 end
 
@@ -62,3 +62,16 @@ class Event::RequestStatechange < Event::Request
   end
 end
 
+class Event::ReviewWanted < Event::Request
+  self.description = 'Review was created'
+
+  payload_keys :users, :by_user, :by_group, :by_project, :by_package
+
+  def subject
+    "Request #{payload['id']}: Review wanted"
+  end
+
+  def subscribers
+    User.where(id: payload['users'])
+  end
+end
