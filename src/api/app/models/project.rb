@@ -1114,7 +1114,7 @@ class Project < ActiveRecord::Base
   end
 
   def comment_class
-    'CommentProject'
+    CommentProject
   end
 
   private :bsrequest_repos_map

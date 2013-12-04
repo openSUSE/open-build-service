@@ -7,13 +7,15 @@ module Webui::HasComments
     required_parameters :title unless params[:parent_id]
 
     obj = main_object.api_obj
-    comment = obj.comments.build(title: params[:title], body: params[:body], parent_id: params[:parent_id])
+    comment = obj.comment_class.new(title: params[:title], body: params[:body], parent_id: params[:parent_id])
+    obj.comments << comment
     comment.user = User.current
-    comment.type = obj.comment_class
     comment.save!
 
     respond_to do |format|
-      format.js { render json: 'ok' }
+      format.js do
+        render json: 'ok'
+      end
       format.html do
         flash[:notice] = 'Comment added successfully'
       end

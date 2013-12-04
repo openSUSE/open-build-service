@@ -83,7 +83,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BsRequestAction#create_expand_package' => 350.52,
       'BsRequestAction#default_reviewers' => 135.96,
       'BsRequestAction#find_reviewers' => 61.68,
-      'BsRequestAction#notify_params' => 56.35,
       'BsRequestAction#store_from_xml' => 88.01,
       'BsRequestActionMaintenanceIncident#merge_into_maintenance_incident' => 166.26,
       'BsRequestActionMaintenanceRelease#check_permissions!' => 91.4,

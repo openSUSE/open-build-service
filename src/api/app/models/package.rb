@@ -833,7 +833,7 @@ class Package < ActiveRecord::Base
   end
 
   def comment_class
-    'CommentPackage'
+    CommentPackage
   end
 
   def delete_cache_lines

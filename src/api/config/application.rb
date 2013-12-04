@@ -108,6 +108,9 @@ module OBSApi
     config.action_dispatch.rescue_responses.merge!('ActiveXML::Transport::Error' => 500)
     config.action_dispatch.rescue_responses.merge!('Timeout::Error' => 408)
 
+    # avoid a warning
+    I18n.enforce_available_locales = true
+
     # we're not threadsafe
     config.allow_concurrency = false
 

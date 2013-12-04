@@ -39,7 +39,7 @@ class BsRequest < ActiveRecord::Base
   end
 
   def comment_class
-    'CommentRequest'
+    CommentRequest
   end
 
   def state
