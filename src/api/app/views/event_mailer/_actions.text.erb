@@ -1,7 +1,8 @@
 Actions:
 <% @e['actions'].each do |a| -%>
-- <%= a['type'] %> <%= a['sourceproject'] %>/<%= a['sourcepackage'] %> => <%= a['targetproject'] %>/<%= a['targetpackage'] %>
-    <% if a['diff'] -%>
-<%= a['diff'] %>
-    <% end -%>
+<% if %w(submit maintenance_incident maintenance_release).include? a['type'] -%>
+<%= render partial: 'submit_action', locals: { a: a } -%>
+<% else -%>
+<%= render partial: "#{a['type']}_action", locals: { a: a } -%>
+<% end -%>
 <% end -%>

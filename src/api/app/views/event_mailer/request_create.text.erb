@@ -1,16 +1,10 @@
-<% if @e['sourceproject']-%>
-   <%= @e['sourceproject']%>/<%= @e['sourcepackage']%> -> <%= @e['targetproject']%>/<%= @e['targetpackage']%>
-<%-else-%>
-   <%= @e['targetproject']%>/<%= @e['targetpackage']%>
-<%-end-%>
-
 Visit <%= url_for(controller: 'webui/request', action: :show, id: @e['id'], host: @host, only_path: false) %>
 
 <% if @e['description']-%>
 Description:
 <%= @e['description']%>
-<%-end-%>
 
+<%-end-%>
 <%= render partial: 'actions' %>
 
 To REVIEW against the previous version:
