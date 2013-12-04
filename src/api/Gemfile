@@ -10,6 +10,8 @@ gem 'mysql2'
 # activexml require
 gem 'nokogiri', '~>1.6.0'
 
+gem 'tilt', '>= 1.4.1'
+
 # make sure we can delay tasks
 gem 'delayed_job_active_record', '>= 4.0.0'
 # to have the delayed job daemon
