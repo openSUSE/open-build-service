@@ -212,44 +212,30 @@ class BsRequestAction < ActiveRecord::Base
   def notify_params(ret = {})
     ret[:action_id] = self.id
     ret[:type] = self.action_type.to_s
-    if self.action_type == :submit
-      ret[:sourceproject] = self.source_project
-      ret[:sourcepackage] = self.source_package
-      ret[:sourcerevision] = self.source_rev
-      ret[:targetproject] = self.target_project
-      ret[:targetpackage] = self.target_package
-      ret[:person] = nil
-      ret[:role] = nil
-    elsif self.action_type == :change_devel
-      ret[:sourceproject] = self.source_project
-      ret[:sourcepackage] = self.source_package
-      ret[:targetproject] = self.target_project
-      ret[:targetpackage] = self.target_package || self.source_package
-      ret[:sourcerevision] = nil
-      ret[:person] = nil
-      ret[:role] = nil
-    elsif self.action_type == :add_role
-      ret[:targetproject] = self.target_project
-      ret[:targetpackage] = self.target_package
-      ret[:sourceproject] = nil
-      ret[:sourcepackage] = nil
-      ret[:sourcerevision] = nil
-      ret[:person] = self.person_name
-      ret[:role] = self.role
-    elsif self.action_type == :delete
-      ret[:sourceproject] = nil
-      ret[:sourcepackage] = nil
-      ret[:targetproject] = self.target_project
-      ret[:targetpackage] = self.target_package
-      ret[:sourcerevision] = nil
-      ret[:person] = nil
-      ret[:role] = nil
+    ret[:sourceproject] = self.source_project
+    ret[:sourcepackage] = self.source_package
+    ret[:sourcerevision] = self.source_rev
+    ret[:person] = self.person_name
+    ret[:group] = self.group_name
+    ret[:role] = self.role
+    ret[:targetproject] = self.target_project
+    ret[:targetpackage] = self.target_package
+    ret[:targetrepository] = self.target_repository
+    ret[:target_releaseproject] = self.target_releaseproject
+    ret[:sourceupdate] = self.sourceupdate
+
+    if self.action_type == :change_devel
+      ret[:targetpackage] ||= self.source_package
     end
-    return ret
+
+    ret.keys.each do |k|
+      ret.delete(k) if ret[k].nil?
+    end
+    ret
   end
 
   def sourcediff(opts = {})
-    return ''
+    ''
   end
 
   def webui_infos

@@ -15,8 +15,8 @@ OBSApi::Application.configure do
   # Enable serving of images, stylesheets, and javascripts from an asset server
   # config.action_controller.asset_host                  = "http://assets.example.com"
 
-  # Disable delivery errors if you bad email addresses should just be ignored
-  # config.action_mailer.raise_delivery_errors = false
+  # see http://guides.rubyonrails.org/action_mailer_basics.html#example-action-mailer-configuration
+  config.action_mailer.delivery_method = :sendmail
 
   config.active_support.deprecation = :log
  
