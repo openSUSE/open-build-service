@@ -13,6 +13,12 @@ X-Mailer: OBS Notification System
 X-OBS-URL: http://localhost
 Auto-Submitted: auto-generated
 X-OBS-event-type: review_wanted
+X-OBS-Request-Creator: Iggy
+X-OBS-Request-Id: 4
+X-OBS-Request-State: new
+X-OBS-Request-Action-type: submit
+X-OBS-Request-Action-target: Apache/BranchPack
+X-OBS-Request-Action-source: home:Iggy:branches:kde4/BranchPack
 X-OBS-Review-By-User: Iggy
 
 Request 4 (by Iggy) requires a review by user Iggy
