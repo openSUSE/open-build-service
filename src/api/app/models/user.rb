@@ -358,7 +358,7 @@ class User < ActiveRecord::Base
 
     def find_by_login!(login)
       user = find_by_login(login)
-      if user.nil? or user.state == User.states["deleted"]
+      if user.nil? or user.state == User.states['deleted']
         raise NotFound.new("Couldn't find User with login = #{login}")
       end
       return user
@@ -833,7 +833,7 @@ class User < ActiveRecord::Base
   end
 
   def watched_project_names
-    @watched_projects ||= Rails.cache.fetch(["watched_project_names", self]) do
+    @watched_projects ||= Rails.cache.fetch(['watched_project_names', self]) do
       Project.where(id: watched_projects.pluck(:project_id)).pluck(:name).sort
     end
   end
@@ -876,27 +876,27 @@ class User < ActiveRecord::Base
 
   def self.register(opts)
     if CONFIG['ldap_mode'] == :on
-      raise ErrRegisterSave.new "LDAP mode enabled, users can only be registered via LDAP"
+      raise ErrRegisterSave.new 'LDAP mode enabled, users can only be registered via LDAP'
     end
     if CONFIG['proxy_auth_mode'] == :on or CONFIG['ichain_mode'] == :on
-      raise ErrRegisterSave.new "Proxy authentification mode, manual registration is disabled"
+      raise ErrRegisterSave.new 'Proxy authentification mode, manual registration is disabled'
     end
 
-    status = "confirmed"
+    status = 'confirmed'
 
     unless User.current and User.current.is_admin?
       opts[:note] = nil
     end
 
-    if ::Configuration.first.registration == "deny"
+    if ::Configuration.first.registration == 'deny'
       unless User.current and User.current.is_admin?
-        raise ErrRegisterSave.new "User registration is disabled"
+        raise ErrRegisterSave.new 'User registration is disabled'
       end
-    elsif ::Configuration.first.registration == "confirmation"
-      status = "unconfirmed"
-    elsif ::Configuration.first.registration != "allow"
-      render_error :message => "Admin configured an unknown config option for registration",
-                   :errorcode => "server_setup_error", :status => 500
+    elsif ::Configuration.first.registration == 'confirmation'
+      status = 'unconfirmed'
+    elsif ::Configuration.first.registration != 'allow'
+      render_error :message => 'Admin configured an unknown config option for registration',
+                   :errorcode => 'server_setup_error', :status => 500
       return
     end
     status = opts[:status] if User.current and User.current.is_admin?
@@ -910,20 +910,14 @@ class User < ActiveRecord::Base
     newuser.realname = opts[:realname]
     newuser.state = User.states[status]
     newuser.adminnote = opts[:note]
-    logger.debug("Saving...")
+    logger.debug('Saving...')
     newuser.save
 
     if !newuser.errors.empty?
-      details = newuser.errors.map{ |key, msg| "#{key}: #{msg}" }.join(", ")
+      details = newuser.errors.map{ |key, msg| "#{key}: #{msg}" }.join(', ')
       raise ErrRegisterSave.new "Could not save the registration, details: #{details}"
     end
 
-    # create subscription for submit requests
-    if Object.const_defined? :Hermes
-      h = Hermes.new
-      h.add_user(login, email)
-      h.add_request_subscription(login)
-    end
   end
 
   # returns the gravatar image as string or :none

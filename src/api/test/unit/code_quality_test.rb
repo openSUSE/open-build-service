@@ -136,7 +136,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'SubmitRequestSourceDiff::ActionSourceDiffer#diff_for_source' => 60.19,
       'TagController#tagcloud' => 68.37,
       'TagController#update_tags_by_object_and_user' => 67.76,
-      'User::register' => 80.9,
+      'User::register' => 71,
       'User#can_create_attribute_in?' => 57.78,
       'User#state_transition_allowed?' => 100.14,
       'UserLdapStrategy::find_with_ldap' => 181.11,

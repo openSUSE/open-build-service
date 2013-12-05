@@ -6,7 +6,8 @@ class EventMailer < ActionMailer::Base
 
     headers['Precdence'] = 'bulk'
     headers['X-Mailer'] = 'OBS Notification System'
-
+    headers['X-OBS-URL'] = ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false, host: @host)
+    headers['Auto-Submitted'] = 'auto-generated'
   end
 
   def event(user, e)
@@ -15,10 +16,10 @@ class EventMailer < ActionMailer::Base
 
     headers(e.custom_headers)
 
-    template_name = e.class.name.gsub('Event::', '').underscore
+    template_name = e.template_name
     mail(to: user.email,
          subject: e.subject,
-         from: 'hermes@opensuse.org',
+         from: e.mail_sender,
          template_name: template_name)
   end
 

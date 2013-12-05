@@ -8,10 +8,13 @@
    else
      bystring = "by project maintainers of #{@e['by_project']}"
    end -%>
-Request <%= @e['id'] %> requires a review <%= bystring %>
+Request <%= @e['id'] %> (by <%= @e['author'] %>) requires a review <%= bystring %>
   Visit <%= url_for(controller: 'webui/request', action: :show, id: @e['id'], host: @host, only_path: false) %>
 
-Reason:
+Review reason:
 <%= @e['comment'] %>
+
+Request description:
+<%= @e['description'] %>
 
 <%= render partial: 'actions' %>

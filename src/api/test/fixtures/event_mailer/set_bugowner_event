@@ -1,4 +1,4 @@
-From: hermes@opensuse.org
+From: obs-email@opensuse.org
 To: user1@example.com
 Message-ID: obs-request-REQUESTID@localhost
 Subject: Request REQUESTID created by Iggy: set_bugowner home:tom
@@ -8,7 +8,14 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 7bit
 Precdence: bulk
 X-Mailer: OBS Notification System
-X-hermes-msg-type: OBS_SRCSRV_REQUEST_CREATE
+X-OBS-URL: http://localhost
+Auto-Submitted: auto-generated
+X-OBS-event-type: request_create
+X-OBS-Request-Creator: Iggy
+X-OBS-Request-Id: REQUESTID
+X-OBS-Request-State: new
+X-OBS-Request-Action-type: set_bugowner
+X-OBS-Request-Action-target: home:tom
 
 Visit http://localhost/request/show/REQUESTID
 

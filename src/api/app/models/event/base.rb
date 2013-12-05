@@ -146,7 +146,7 @@ module Event
     def custom_headers
       # not to break user's filters for now
       ret = {}
-      ret['X-hermes-msg-type'] = "OBS_#{raw_type}" if raw_type
+      ret['X-OBS-event-type'] = template_name # cheating
       ret
     end
 
@@ -157,6 +157,14 @@ module Event
     # to calculate expensive things we don't want to store in database (i.e. diffs)
     def expanded_payload
       payload
+    end
+
+    def mail_sender
+      'obs-email@opensuse.org'
+    end
+
+    def template_name
+      self.class.name.gsub('Event::', '').underscore
     end
   end
 

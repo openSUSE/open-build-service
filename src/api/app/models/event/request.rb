@@ -14,12 +14,39 @@ class Event::Request < ::Event::Base
 
   def custom_headers
     mid = my_message_id
-    super.merge({'In-Reply-To' => mid, 'References' => mid})
+    h = super
+    h['In-Reply-To'] = mid
+    h['References'] = mid
+    h['X-OBS-Request-Creator'] = payload['author']
+    h['X-OBS-Request-Id'] = payload['id']
+    h['X-OBS-Request-State'] = payload['state']
+
+    payload['actions'].each_with_index do |a, index|
+      if payload['actions'].length == 1 || index == 0
+        suffix = 'X-OBS-Request-Action'
+      else
+        suffix = "X-OBS-Request-Action-#{index}"
+      end
+
+      h[suffix + '-type'] = a['type']
+      if a['targetpackage']
+        h[suffix + '-target'] = "#{a['targetproject']}/#{a['targetpackage']}"
+      elsif a['targetproject']
+        h[suffix + '-target'] = a['targetproject']
+      end
+      if a['sourcepackage']
+        h[suffix + '-source'] = "#{a['sourceproject']}/#{a['sourcepackage']}"
+      elsif a['sourceproject']
+        h[suffix + '-source'] = a['sourceproject']
+      end
+    end
+
+    h
   end
 
   def calculate_diff(a)
     return nil if a['type'] != 'submit'
-    raise "We need action_id" unless a['action_id']
+    raise 'We need action_id' unless a['action_id']
     action = BsRequestAction.find a['action_id']
     action.sourcediff(view: nil, withissues: 0)
   end
@@ -48,7 +75,7 @@ class Event::RequestCreate < Event::Request
     # we're the one they mean
     base.delete('In-Reply-To')
     base.delete('References')
-    base.merge({'Message-ID' => my_message_id})
+    base.merge({ 'Message-ID' => my_message_id })
   end
 
   def subject
@@ -97,6 +124,20 @@ class Event::ReviewWanted < Event::Request
 
   def expanded_payload
     payload_with_diff
+  end
+
+  def custom_headers
+    h = super
+    if payload['by_user']
+      h['X-OBS-Review-By_User'] = payload['by_user']
+    elsif payload['by_group']
+      h['X-OBS-Review-By_Group'] = payload['by_group']
+    elsif payload['by_package']
+      h['X-OBS-Review-By_Package'] = "#{payload['by_project']}/#{payload['by_package']}"
+    else
+      h['X-OBS-Review-By_Project'] = payload['by_project']
+    end
+    h
   end
 
 end

@@ -50,15 +50,6 @@ OBSApi::Application.configure do
 
 end
 
-
-#require 'hermes'
-#Hermes::Config.setup do |hermesconf|
-#  hermesconf.dbhost = 'storage'
-#  hermesconf.dbuser = 'hermes'
-#  hermesconf.dbpass = ''
-#  hermesconf.dbname = 'hermes'
-#end
-
 # disabled on production for performance reasons
 # CONFIG['response_schema_validation'] = true
 
