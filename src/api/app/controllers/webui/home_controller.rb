@@ -29,7 +29,7 @@ class Webui::HomeController < Webui::WebuiController
   def icon
     required_parameters :user
     user = User.find_by_login! params[:user]
-    size = params[:size] || '20'
+    size = params[:size].to_i || '20'
     content = user.gravatar_image(size)
 
     if content == :none
