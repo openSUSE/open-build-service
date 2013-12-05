@@ -1,0 +1,4 @@
+Visit <%= url_for(controller: 'webui/request', action: :show, id: @e['request_id'], host: @host, only_path: false) %>
+
+<%= @e['commenter'].realname %> wrote in request <%= @e['request_id'] %>:
+<%= @e['comment'] %>

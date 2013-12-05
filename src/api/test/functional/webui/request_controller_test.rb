@@ -6,11 +6,18 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
   uses_transaction :test_can_request_role_addition_for_packages
   uses_transaction :test_can_request_role_addition_for_projects
-  uses_transaction :test_submit_package_and_revoke 
+  uses_transaction :test_submit_package_and_revoke
 
-  def setup 
+  fixtures :all
+
+  teardown do
+    Timecop.return
+  end
+
+  def setup
     super
     use_js
+    ActionMailer::Base.deliveries.clear
   end
 
   def before_setup
@@ -78,7 +85,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
     # now check the role addition link is gone
     logout
-    login_Iggy to: package_show_path(project: 'Apache' , package: 'apache2')
+    login_Iggy to: package_show_path(project: 'Apache', package: 'apache2')
     page.wont_have_link 'Request role addition'
 
   end
@@ -240,10 +247,35 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
   test 'succesful reply comment creation' do
     login_Iggy to: request_show_path(4)
-    find(:id,'reply_link_id_301').click
+    find(:id, 'reply_link_id_301').click
     fill_in 'reply_body_301', with: 'Comment Body'
-    find(:id,'add_reply_301').click
+    find(:id, 'add_reply_301').click
     find('#flash-messages').must_have_text 'Comment added successfully '
+  end
+
+  def verify_email(fixture_name, myid, email)
+    should = load_fixture("event_mailer/#{fixture_name}").gsub('REQUESTID', myid).chomp
+    email.message_id = '<test@localhost>'
+    assert_equal should, email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }.join("\n")
+  end
+
+  test 'comment event' do
+    login_Iggy to: request_show_path(4)
+
+    Timecop.travel(2013, 8, 20, 12, 0, 0)
+
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+      fill_in 'title', with: 'Comment Title'
+      fill_in 'body', with: 'Comment Body'
+      find_button('Add comment').click
+      page.must_have_text 'Comment Title'
+    end
+
+    email = ActionMailer::Base.deliveries.last
+
+    assert_equal "New comment in request 4 by Iggy", email.subject
+    assert_equal %w(Iggy@pop.org), email.to
+    verify_email('comment_event', "4", email)
   end
 
 end

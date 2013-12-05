@@ -1,18 +1,55 @@
+module CommitEvent
+
+  def self.included(base)
+    base.class_eval do
+      payload_keys :involved_users, :commenter, :comment
+    end
+  end
+
+  def expanded_payload
+    p = payload
+    p['commenter'] = User.find(p['commenter'])
+    p
+  end
+end
+
 class Event::CommentForProject < ::Event::Project
-  self.raw_type = 'PROJECT_COMMENT_ADDED'
+  include CommitEvent
   self.description = 'New comment for project created.'
-  payload_keys :involved_users, :commenter, :comment
+
+  def subject
+    "New comment in project #{payload['project']} by #{User.find(payload['commenter']).login}"
+  end
+
 end
 
 class Event::CommentForPackage < ::Event::Package
-  self.raw_type = 'PACKAGE_COMMENT_ADDED'
+  include CommitEvent
+
   self.description = 'New comment for package created.'
-  payload_keys :involved_users, :commenter, :comment
+
+  def subject
+    "New comment in package #{payload['project']}/#{payload['package']} by #{User.find(payload['commenter']).login}"
+  end
+
 end
 
 class Event::CommentForRequest < ::Event::Base
-  self.raw_type = 'REQUEST_COMMENT_ADDED'
+
+  include CommitEvent
   self.description = 'New comment for request created.'
-  payload_keys :involved_users, :commenter, :request_id, :comment
+  payload_keys :request_id
+
+  def subject
+    "New comment in request #{payload['request_id']} by #{User.find(payload['commenter']).login}"
+  end
+
+  def subscribers
+    req = BsRequest.find(payload['request_id'])
+    subs = super
+    subs << User.find_by_login(req.creator)
+    subs.uniq
+  end
+
 end
 

@@ -14,7 +14,7 @@ class Comment < ActiveRecord::Base
   has_many :children, :class_name => 'Comment', :foreign_key => 'parent_id'
 
   def create_notification(params = {})
-    params[:commenter] = self.user
+    params[:commenter] = self.user.id
     params[:comment] = self.body
   end
 
@@ -23,7 +23,7 @@ class Comment < ActiveRecord::Base
     record = Comment.where(object_field => object_value)
     users = []
     record.each do |comment|
-      users << comment.user
+      users << comment.user.id
     end
     users.uniq!
   end
