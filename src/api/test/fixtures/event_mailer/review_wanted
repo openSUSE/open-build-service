@@ -1,5 +1,5 @@
 From: obs-email@opensuse.org
-To: Iggy@pop.org
+To: tschmidt@example.com
 Message-ID: <test@localhost>
 In-Reply-To: obs-request-4@localhost
 References: obs-request-4@localhost
@@ -19,12 +19,12 @@ X-OBS-Request-State: new
 X-OBS-Request-Action-type: submit
 X-OBS-Request-Action-target: Apache/BranchPack
 X-OBS-Request-Action-source: home:Iggy:branches:kde4/BranchPack
-X-OBS-Review-By-User: Iggy
+X-OBS-Review-By-User: tom
 
-Request 4 (by Iggy) requires a review by user Iggy
+Request 4 (by Iggy) requires a review by user tom
   Visit http://localhost/request/show/4
 
-Review reason:
+Review reason set by Iggy:
 Can you check that?
 
 Request description:

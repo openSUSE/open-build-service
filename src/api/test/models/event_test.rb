@@ -65,12 +65,12 @@ class EventTest < ActiveSupport::TestCase
     req = bs_requests(:submit_from_home_project)
     myid = req.id
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      req.addreview by_user: 'Iggy', comment: 'Can you check that?'
+      req.addreview by_user: 'tom', comment: 'Can you check that?'
     end
     email = ActionMailer::Base.deliveries.last
 
     assert_equal "Request #{myid}: Review wanted", email.subject
-    assert_equal %w(Iggy@pop.org), email.to
+    assert_equal %w(tschmidt@example.com), email.to
     should = load_fixture('event_mailer/review_wanted').gsub('REQUESTID', myid.to_s).chomp
     email.message_id = '<test@localhost>'
     assert_equal should, email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }.join("\n")

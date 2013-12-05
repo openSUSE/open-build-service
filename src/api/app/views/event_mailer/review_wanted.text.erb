@@ -11,10 +11,12 @@
 Request <%= @e['id'] %> (by <%= @e['author'] %>) requires a review <%= bystring %>
   Visit <%= url_for(controller: 'webui/request', action: :show, id: @e['id'], host: @host, only_path: false) %>
 
-Review reason:
+<% if @e['comment'] -%>
+Review reason set by <%= @e['who'] %>:
 <%= @e['comment'] %>
 
+<% end -%>
 Request description:
 <%= @e['description'] %>
 
-<%= render partial: 'actions' %>
+<%= render partial: 'actions' -%>

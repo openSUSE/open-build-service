@@ -8,6 +8,9 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 7bit
 Precdence: bulk
 X-Mailer: OBS Notification System
+X-OBS-URL: http://localhost
+Auto-Submitted: auto-generated
+X-OBS-event-type: comment_for_request
 
 Visit http://localhost/request/show/4
 
