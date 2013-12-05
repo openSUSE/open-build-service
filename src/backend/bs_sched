@@ -4888,14 +4888,19 @@ sub checkpatchinfo {
         next;
       }
       if (-e "$reporoot/$projid/$repoid/$arch/:logfiles.fail/$apackid") {
-	push @blocked, "$arch/$apackid";
-	$blockedarch = 1;
-      }
-      if (! -e "$reporoot/$projid/$repoid/$arch/:logfiles.success/$apackid") {
+        # last build failed
+        if ($code ne 'disabled' || -e "$reporoot/$projid/$repoid/$arch/:logfiles.success/$apackid") {
+	  $blockedarch = 1;
+	  push @blocked, "$arch/$apackid";
+	  next;
+	}
+      } elsif (! -e "$reporoot/$projid/$repoid/$arch/:logfiles.success/$apackid") {
+	# package was never built yet or channel
 	if (! -e "$reporoot/$projid/$repoid/$arch/$apackid/.channelinfo") {
 	  next if $code eq 'disabled';
-	  push @blocked, "$arch/$apackid";
 	  $blockedarch = 1;
+	  push @blocked, "$arch/$apackid";
+	  next;
 	}
       }
       if ($ptype eq 'binary') {
