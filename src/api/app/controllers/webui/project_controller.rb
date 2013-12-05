@@ -721,6 +721,10 @@ class Webui::ProjectController < Webui::WebuiController
     redirect_to action: :show, project: @project
   end
 
+  def valid_target_name? name
+    name =~ /^\w[-\.\w&]*$/
+  end
+
   def save_targets
     if params[:target_project].blank? and params[:torepository].blank? and
         params[:repo].blank? and params[:target_repo].blank?

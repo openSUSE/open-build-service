@@ -309,6 +309,7 @@ module Webui::WebuiHelper
       text = 'The file you look at is not valid UTF-8 text. Please convert the file.'
     end
     # Ged rid of stuff that shouldn't be part of PCDATA:
+    text.force_encoding('UTF-8')
     return text.gsub(/([^a-zA-Z0-9&;<>\/\n \t()])/) do
       if $1[0].getbyte(0) < 32
         ''

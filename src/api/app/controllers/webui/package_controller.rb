@@ -553,6 +553,10 @@ class Webui::PackageController < Webui::WebuiController
     set_file_details
   end
 
+  def valid_file_name? name
+    name.present? && name =~ %r{^[^\/]+$}
+  end
+
   def save_file
     unless User.current.can_modify_package? @package
       redirect :back, error: "You're not allowed to modify #{@package.name}"
@@ -563,7 +567,7 @@ class Webui::PackageController < Webui::WebuiController
     file_url = params[:file_url]
     filename = params[:filename]
 
-    if !file.blank?
+    if file.present?
       # we are getting an uploaded file
       filename = file.original_filename if filename.blank?
 

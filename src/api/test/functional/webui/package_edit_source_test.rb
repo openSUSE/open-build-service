@@ -73,9 +73,9 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
       flash_message_type.must_equal :alert
       page.must_have_text 'Add File to'
     elsif file[:expect] == :service
-      flash_message.must_equal "The file has been added."
+      flash_message.must_equal 'The file has been added.'
       flash_message_type.must_equal :info
-      assert find(:css, "#files_table tr#file-#{valid_xml_id("_service")}"), "expected to find the _service file in the files table"
+      assert find(:css, "#files_table tr#file-#{valid_xml_id('_service')}"), 'expected to find the _service file in the files table'
     elsif file[:expect] == :download_failed
       # the _service file is added, but the download fails
       fm = flash_messages
@@ -104,6 +104,14 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     add_file :name => 'HomeSourceFile1'
   end
 
+  test 'chinese chars' do
+    open_add_file
+    fu = '学习总结' # you don't want to know what that means in chinese
+    add_file name: fu, upload_path: text_path('chinese.txt')
+
+    visit package_view_file_path(project: @project, package: @package, filename: fu)
+    page.must_have_button 'Save'
+  end
 
   test 'add_source_file_from_local_file' do
     

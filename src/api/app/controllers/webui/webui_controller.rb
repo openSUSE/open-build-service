@@ -143,26 +143,6 @@ class Webui::WebuiController < ActionController::Base
     FrontendCompat.new
   end
 
-  def valid_file_name? name
-    name =~ /^[-\w+~ ][-\w\.+~ ]*$/
-  end
-
-  def valid_role_name? name
-    name =~ /^[\w\-\.+]+$/
-  end
-
-  def valid_target_name? name
-    name =~ /^\w[-\.\w&]*$/
-  end
-
-  def valid_user_name? name
-    name =~ /^[\w\-\.+]+$/
-  end
-
-  def valid_group_name? name
-    name =~ /^[\w\-\.+]+$/
-  end
-
   def reset_activexml
     transport = ActiveXML::api
     transport.delete_additional_header 'X-Username'
