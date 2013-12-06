@@ -51,10 +51,18 @@ class Event::Request < ::Event::Base
     action.sourcediff(view: nil, withissues: 0)
   end
 
+  DiffLimit = 200
+
   def payload_with_diff
     ret = payload
     payload['actions'].each do |a|
-      a['diff'] = calculate_diff(a)
+      diff = calculate_diff(a).lines
+      dl = diff.length
+      if dl > DiffLimit
+	diff = diff[0..DiffLimit]
+        diff << "[cut #{dl-DiffLimit} lines to limit mail size]"
+      end
+      a['diff'] = diff.join
     end
     ret
   end
