@@ -547,11 +547,7 @@ bundle exec rake --trace db:create db:setup || exit 1
 mv log/test.log{,.old}
 if ! bundle exec rake --trace test; then
   cat log/test.log
-%if 0%{?suse_version} == 1210
   # ignore broken webkit atm
-%else
-  exit 1
-%endif
 fi
 popd
 
