@@ -4,7 +4,7 @@ class EventMailer < ActionMailer::Base
     @host = ::Configuration.first.obs_url
     @configuration = ::Configuration.first
 
-    headers['Precdence'] = 'bulk'
+    headers['Precedence'] = 'bulk'
     headers['X-Mailer'] = 'OBS Notification System'
     headers['X-OBS-URL'] = ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false, host: @host)
     headers['Auto-Submitted'] = 'auto-generated'
