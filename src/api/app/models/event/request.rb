@@ -56,7 +56,9 @@ class Event::Request < ::Event::Base
   def payload_with_diff
     ret = payload
     payload['actions'].each do |a|
-      diff = calculate_diff(a).lines
+      diff = calculate_diff(a)
+      next unless diff
+      diff = diff.lines
       dl = diff.length
       if dl > DiffLimit
 	diff = diff[0..DiffLimit]
