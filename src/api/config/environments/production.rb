@@ -16,7 +16,7 @@ OBSApi::Application.configure do
   # config.action_controller.asset_host                  = "http://assets.example.com"
 
   # see http://guides.rubyonrails.org/action_mailer_basics.html#example-action-mailer-configuration
-  config.action_mailer.delivery_method = :sendmail
+  config.action_mailer.delivery_method = :file
 
   config.active_support.deprecation = :log
  
