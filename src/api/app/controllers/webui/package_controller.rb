@@ -559,7 +559,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def save_file
     unless User.current.can_modify_package? @package
-      redirect :back, error: "You're not allowed to modify #{@package.name}"
+      redirect_to :back, error: "You're not allowed to modify #{@package.name}"
       return
     end
 
