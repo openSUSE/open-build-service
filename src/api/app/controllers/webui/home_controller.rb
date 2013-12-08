@@ -102,15 +102,17 @@ class Webui::HomeController < Webui::WebuiController
 
     respond_to do |format|
       format.html
-      format.json do
-        rawdata = Hash.new
-        rawdata['review'] = @reviews_in.to_a
-        rawdata['new'] = @requests_in.to_a
-        rawdata['declined'] = @declined_requests.to_a
-        rawdata['patchinfos'] = @open_patchinfos.to_a
-        render json: Yajl::Encoder.encode(rawdata)
-      end
+      format.json { render_requests_json }
     end
+  end
+
+  def render_requests_json
+    rawdata = Hash.new
+    rawdata['review'] = @reviews_in.to_a
+    rawdata['new'] = @requests_in.to_a
+    rawdata['declined'] = @declined_requests.to_a
+    rawdata['patchinfos'] = @open_patchinfos.to_a
+    render json: Yajl::Encoder.encode(rawdata)
   end
 
   def home_project

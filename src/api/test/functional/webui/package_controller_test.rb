@@ -199,6 +199,23 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     click_button 'Revoke request'
   end
 
+  test 'change devel request' do
+    use_js
+
+    # we need a package with current devel package
+    login_tom to: package_show_path(package: 'kdelibs', project: 'kde4')
+    click_link 'Request devel project change'
+
+    page.must_have_content 'Do you want to request to change the devel project for package kde4 / kdelibs from project home:coolo:test'
+    fill_in 'description', with: 'It was just a test'
+    fill_in 'devel_project', with: 'home:coolo:test' # not really a change, but the package is reset
+    click_button 'Ok'
+
+    find('#flash-messages').must_have_text 'No such package: home:coolo:test/kdelibs'
+    # check that no harm was done
+    assert_equal packages(:home_coolo_test_kdelibs_DEVEL_package), packages(:kde4_kdelibs).develpackage
+  end
+
   uses_transaction :test_submit_package
 
   test 'submit package' do

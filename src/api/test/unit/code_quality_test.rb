@@ -167,7 +167,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::ProjectHelper#show_status_comment' => 64.97,
       'Webui::RequestController#set_bugowner_request' => 62.93,
       'Webui::UserController#do_login' => 62.12,
-      'Webui::HomeController#requests' => 52.89,
       'Webui::MonitorController#index' => 54.45,
       'WebuiRequest::modifyReview' => 52.84,
       'WebuiRequest::addReview' => 52.7,

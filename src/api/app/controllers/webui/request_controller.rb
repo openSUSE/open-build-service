@@ -263,10 +263,10 @@ class Webui::RequestController < Webui::WebuiController
   def change_devel_request_dialog
     required_parameters :package, :project
     @project = WebuiProject.find params[:project]
-    @package = WebuiPackage.find(params[:package], :project => params[:project])
-    if @package.has_element?(:devel)
-      @current_devel_package = @package.devel.value('package') || @package.value('name')
-      @current_devel_project = @package.devel.value('project')
+    @package = Package.find_by_project_and_name(params[:project], params[:package])
+    if @package.develpackage
+      @current_devel_package = @package.develpackage.name
+      @current_devel_project = @package.develpackage.project.name
     end
     render_dialog
   end
@@ -277,10 +277,10 @@ class Webui::RequestController < Webui::WebuiController
       req = WebuiRequest.new(:type => 'change_devel', :project => params[:devel_project], :package => params[:package], :targetproject => params[:project], :targetpackage => params[:package], :description => params[:description])
       req.save(:create => true)
     rescue ActiveXML::Transport::NotFoundError => e
-      flash[:error] = e.summary
+      flash[:error] = "No such package: #{e.summary}"
       redirect_to :controller => 'package', :action => 'show', :project => params[:project], :package => params[:package] and return
     end
-    redirect_to :controller => 'request', :action => 'show', :id => req.value('id')
+    redirect_to :controller => 'request', :action => 'show', id: req.value('id')
   end
 
   def set_incident_dialog
