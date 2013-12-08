@@ -104,11 +104,11 @@ class Webui::HomeController < Webui::WebuiController
       format.html
       format.json do
         rawdata = Hash.new
-        rawdata['review'] = @reviews_in
-        rawdata['new'] = @requests_in
-        rawdata['declined'] = @declined_requests
-        rawdata['patchinfos'] = @open_patchinfos
-        render :text => JSON.pretty_generate(rawdata)
+        rawdata['review'] = @reviews_in.to_a
+        rawdata['new'] = @requests_in.to_a
+        rawdata['declined'] = @declined_requests.to_a
+        rawdata['patchinfos'] = @open_patchinfos.to_a
+        render json: Yajl::Encoder.encode(rawdata)
       end
     end
   end

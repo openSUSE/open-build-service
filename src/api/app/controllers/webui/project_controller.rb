@@ -1354,7 +1354,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     respond_to do |format|
       format.json {
-        render text: JSON.pretty_generate(@packages), :layout => false, :content_type => 'text/plain'
+        render json: Yajl::Encoder.encode(@packages)
       }
       format.html
     end
