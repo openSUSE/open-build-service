@@ -15,8 +15,11 @@ module Webui::ManageRelationships
       main_object.api_obj.add_role(load_obj, Role.find_by_title!(params[:role]))
     rescue User::NotFound => e
       flash[:error] = e.to_s
-      redirect_to add_path(:add_person)
-      return
+      redirect_to add_path(:add_person) and return
+    rescue ActiveRecord::RecordInvalid => e
+      Rails.logger.debug e.inspect
+      flash[:error] = e.to_s
+      redirect_to add_path(:add_person) and return
     end
     respond_to do |format|
       format.js { render json: 'ok' }

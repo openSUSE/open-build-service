@@ -51,6 +51,10 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
       assert curl, page.current_url
       # go back manually
       visit @userspath
+    elsif options[:expect] == :already_exists
+      flash_message_type.must_equal :alert
+      flash_message.must_equal 'Validation failed: Role Relationship already exists'
+      visit @userspath
     else
       raise ArgumentError
     end
@@ -133,6 +137,7 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
 
     add_user 'user6', 'reviewer'
     add_user 'user6', 'downloader'
+    add_user 'user6', 'downloader', expect: :already_exists
 
     add_user 'sadasxsacxsacsa', 'reader', :expect => :unknown_user
     add_user '', 'maintainer', :expect => :unknown_user
