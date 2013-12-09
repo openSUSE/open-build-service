@@ -15,9 +15,9 @@ end
 def force_hash(record)
   ret = Hash.new
   record.each do |key, value|
-    key = key.dup.force_encoding("UTF-8")
+    key = key.dup.force_encoding('UTF-8')
     if value
-      value = value.dup.force_encoding("UTF-8") if value.kind_of? String
+      value = value.dup.force_encoding('UTF-8') if value.kind_of? String
       ret[key] = value
     end
   end
@@ -28,14 +28,14 @@ namespace :db do
   desc 'Create YAML test fixtures from data in test database.'
 
   task :extract_fixtures => :environment do
-    raise "You only want to run this in test environment" unless ENV['RAILS_ENV'] == 'test'
-    sql = "SELECT * FROM %s"
+    raise 'You only want to run this in test environment' unless ENV['RAILS_ENV'] == 'test'
+    sql = 'SELECT * FROM %s'
     skip_tables = %w(schema_info sessions schema_migrations)
     ActiveRecord::Base.establish_connection
     User.current = User.find_by_login('Admin')
     tables = ENV['FIXTURES'] ? ENV['FIXTURES'].split(/,/) : ActiveRecord::Base.connection.tables - skip_tables
     tables.each do |table_name|
-      i = "000"
+      i = '000'
       begin
         oldhash = YAML.load_file("#{Rails.root}/test/fixtures/#{table_name}.yml")
         oldhash = {} unless oldhash
@@ -48,7 +48,7 @@ namespace :db do
       idtokey = {}
       force_hash(oldhash).each do |key, record|
         if record.has_key? 'id'
-          key = key.dup.force_encoding("UTF-8")
+          key = key.dup.force_encoding('UTF-8')
           id = Integer(record['id'])
           idtokey[id] = key
         end
@@ -141,7 +141,7 @@ namespace :db do
             archs = dist.architectures.pluck(:name).join(', ')
             record['architectures'] = archs if archs.present?
           end
-          defaultkey = "#{table_name}_#{id}".force_encoding("UTF-8")
+          defaultkey = "#{table_name}_#{id}".force_encoding('UTF-8')
           key = idtokey[id]
           key = nil if key == defaultkey
 
@@ -165,7 +165,7 @@ namespace :db do
             defaultkey = record['package']
           end
           if %w(event_subscriptions ratings package_kinds package_issues
-                linked_db_projects relationships watched_projects path_elements
+                linked_db_projects relationships watched_projects path_elements groups_users
                 flags taggings bs_request_histories bs_request_actions project_log_entries
                 ).include? table_name
             record.delete(primary)

@@ -58,7 +58,11 @@ class Event::Request < ::Event::Base
     return nil if a['type'] != 'submit'
     raise 'We need action_id' unless a['action_id']
     action = BsRequestAction.find a['action_id']
-    action.sourcediff(view: nil, withissues: 0)
+    begin
+      action.sourcediff(view: nil, withissues: 0)
+    rescue BsRequestAction::DiffError
+      return nil # can't help
+    end
   end
 
   DiffLimit = 200

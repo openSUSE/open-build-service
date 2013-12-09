@@ -54,4 +54,34 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     verify_email('set_bugowner_event', myid, email)
   end
 
+  test 'group emails' do
+    User.current = users(:Iggy)
+
+    # the default is reviewer groups get email, so check that adrian gets an email
+    req = bs_requests(:submit_from_home_project)
+    Timecop.travel(2013, 8, 20, 12, 0, 0)
+    myid = req.id
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+      req.addreview(by_group: 'test_group', comment: 'does it look ok?')
+    end
+
+    email = ActionMailer::Base.deliveries.last
+
+    assert_equal "Review required for request #{myid} (submit Apache/BranchPack)", email.subject
+    assert_equal %w(adrian@example.com), email.to
+  end
+
+  # now check that disabling it for adrian works too
+  test 'group emails disabled' do
+    login_Iggy
+
+    # the default is reviewer groups get email, so check that adrian gets an email
+    req = bs_requests(:submit_from_home_project)
+
+    GroupsUser.where(user: users(:adrian), group: groups(:test_group)).first.update_attribute(:email, false)
+    assert_difference 'ActionMailer::Base.deliveries.size', 0 do
+      req.addreview(by_group: 'test_group', comment: 'does it still look ok?')
+    end
+  end
+
 end

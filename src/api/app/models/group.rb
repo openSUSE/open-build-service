@@ -9,7 +9,7 @@ class Group < ActiveRecord::Base
     setup 404
   end
 
-  has_many :groups_users, :foreign_key => 'group_id'
+  has_many :groups_users, inverse_of: :group
   has_many :relationships, dependent: :destroy, inverse_of: :group
 
   validates_format_of  :title,
@@ -25,9 +25,9 @@ class Group < ActiveRecord::Base
                           :message => 'is the name of an already existing group.'
 
   # groups have a n:m relation to user
-  has_and_belongs_to_many :users, -> { uniq() }
+  has_and_belongs_to_many :users, -> { uniq }
   # groups have a n:m relation to groups
-  has_and_belongs_to_many :roles, -> { uniq() }
+  has_and_belongs_to_many :roles, -> { uniq }
 
   def self.find_by_title!(title)
     find_by_title(title) or raise NotFound.new("Couldn't find Group '#{title}'")
@@ -127,4 +127,8 @@ class Group < ActiveRecord::Base
     Package.where(id: packages).where.not(project_id: projects)
   end
 
+  # returns the users that actually want email for this group's notifications
+  def email_users
+    User.where(id: groups_users.where(email: true).pluck(:user_id))
+  end
 end

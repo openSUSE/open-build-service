@@ -43,7 +43,7 @@ class Review < ActiveRecord::Base
   end
 
   def _get_attributes
-    attributes = {:state => self.state.to_s}
+    attributes = { state: self.state.to_s }
     # old requests didn't have who and when
     attributes[:when] = self.created_at.strftime('%Y-%m-%dT%H:%M:%S') if self.reviewer
     attributes[:who] = self.reviewer if self.reviewer
@@ -73,7 +73,7 @@ class Review < ActiveRecord::Base
        return [User.find_by_login(self.by_user).id]
     end
     if self.by_group
-      return Group.find_by_title(self.by_group).users.pluck('users.id')
+      return Group.find_by_title(self.by_group).email_users.pluck('users.id')
     end
     obj = nil
     if self.by_package

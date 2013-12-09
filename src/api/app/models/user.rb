@@ -27,21 +27,21 @@ class User < ActiveRecord::Base
   has_many :tags, :through => :taggings
 
   has_many :watched_projects, dependent: :destroy, inverse_of: :user
-  has_many :groups_users, :foreign_key => 'user_id'
-  has_many :roles_users, :foreign_key => 'user_id'
+  has_many :groups_users, inverse_of: :user
+  has_many :roles_users, inverse_of: :user
   has_many :relationships, inverse_of: :user, dependent: :destroy
 
   has_many :comments, dependent: :destroy, inverse_of: :user
   has_many :status_messages
   has_many :messages
-  has_many :tokens, :foreign_key => 'user_id', :dependent => :destroy, inverse_of: :user
+  has_many :tokens, :dependent => :destroy, inverse_of: :user
 
   has_many :event_subscriptions
 
   # users have a n:m relation to group
-  has_and_belongs_to_many :groups, -> { uniq() }
+  has_and_belongs_to_many :groups, -> { uniq }
   # users have a n:m relation to roles
-  has_and_belongs_to_many :roles, -> { uniq() }
+  has_and_belongs_to_many :roles, -> { uniq }
   # users have 0..1 user_registration records assigned to them
   has_one :user_registration
 
@@ -102,7 +102,7 @@ class User < ActiveRecord::Base
   # Returns true if the password has been set after the User has been loaded
   # from the database and false otherwise
   def new_password?
-    @new_password == true
+    @new_password
   end
 
   def discard_cache
@@ -229,11 +229,11 @@ class User < ActiveRecord::Base
     self.class.execute_without_timestamps { save }
   end
 
-  # Returns true if the the state transition from "from" state to "to" state 
-  # is valid. Returns false otherwise. +new_state+ must be the integer value 
+  # Returns true if the the state transition from "from" state to "to" state
+  # is valid. Returns false otherwise. +new_state+ must be the integer value
   # of the state as returned by +User.states['state_name']+.
   #
-  # Note that currently no permission checking is included here; It does not 
+  # Note that currently no permission checking is included here; It does not
   # matter what permissions the currently logged in user has, only that the
   # state transition is legal in principle.
   def state_transition_allowed?(from, to)
@@ -243,21 +243,21 @@ class User < ActiveRecord::Base
     return true if from == to # allow keeping state
 
     return case from
-           when User.states['unconfirmed']
-             true
-           when User.states['confirmed']
-             [ User.states['retrieved_password'], User.states['locked'], User.states['deleted'] ].include?(to)
-           when User.states['locked']
-             [ User.states['confirmed'], User.states['deleted'] ].include?(to)
-           when User.states['deleted']
-             [ User.states['confirmed'] ].include?(to)
-           when User.states['retrieved_password']
-             [ User.states['confirmed'], User.states['locked'], User.states['deleted'] ].include?(to)
-           when 0
-             User.states.value?(to)
-           else
-             false
-           end
+    when User.states['unconfirmed']
+      true
+    when User.states['confirmed']
+      %w(retrieved_password locked deleted deleted ichainrequest).map{|x| User.states[x]}.include?(to)
+    when User.states['locked']
+      %w(confirmed deleted).map{|x| User.states[x]}.include?(to)
+    when User.states['deleted']
+      to == User.states['confirmed']
+    when User.states['ichainrequest']
+      %w(locked confirmed deleted).map{|x| User.states[x]}.include?(to)
+    when 0
+      User.states.value?(to)
+    else
+      false
+    end
   end
 
   # Model Validation
@@ -284,7 +284,7 @@ class User < ActiveRecord::Base
 
     # check that the password hash type has not been set if no new password
     # has been provided
-    if @new_hash_type and (!@new_password or password.nil?) then
+    if @new_hash_type and (!@new_password or password.nil?)
       errors.add(:password_hash_type, 'cannot be changed unless a new password has been provided.')
     end
   end
@@ -413,37 +413,6 @@ class User < ActiveRecord::Base
   def render_axml( watchlist = false )
     # CanRenderModel
     render_xml(watchlist: watchlist)
-  end
-
-  # Returns true if the the state transition from "from" state to "to" state
-  # is valid. Returns false otherwise. +new_state+ must be the integer value
-  # of the state as returned by +User.states['state_name']+.
-  #
-  # Note that currently no permission checking is included here; It does not
-  # matter what permissions the currently logged in user has, only that the
-  # state transition is legal in principle.
-  def state_transition_allowed?(from, to)
-    from = from.to_i
-    to = to.to_i
-
-    return true if from == to # allow keeping state
-
-    return case from
-      when User.states['unconfirmed']
-        true
-      when User.states['confirmed']
-        %w(retrieved_password locked deleted deleted ichainrequest).map{|x| User.states[x]}.include?(to)
-      when User.states['locked']
-        %w(confirmed deleted).map{|x| User.states[x]}.include?(to)
-      when User.states['deleted']
-        to == User.states['confirmed']
-      when User.states['ichainrequest']
-        %w(locked confirmed deleted).map{|x| User.states[x]}.include?(to)
-      when 0
-        User.states.value?(to)
-      else
-        false
-    end
   end
 
   STATES = {
@@ -622,7 +591,8 @@ class User < ActiveRecord::Base
     end
 
     # find attribute type definition
-    if ( not atype = AttribType.find_by_namespace_and_name(opts[:namespace], opts[:name]) or atype.blank? )
+    atype = AttribType.find_by_namespace_and_name(opts[:namespace], opts[:name])
+    if atype.blank?
       raise ActiveRecord::RecordNotFound, "unknown attribute type '#{opts[:namespace]}:#{opts[:name]}'"
     end
 
@@ -630,19 +600,19 @@ class User < ActiveRecord::Base
 
     # check modifiable_by rules
     abies = atype.attrib_type_modifiable_bies.includes([:user, :group, :role])
-    unless abies.empty?
-      abies.each do |mod_rule|
-        next if mod_rule.user and mod_rule.user != self
-        next if mod_rule.group and not is_in_group? mod_rule.group
-        next if mod_rule.role and not has_local_role?(mod_rule.role, object)
-        return true
-      end
-    else
+    if abies.empty?
       # no rules set for attribute, just check package maintainer rules
       if object.kind_of? Project
         return can_modify_project?(object)
       else
         return can_modify_package?(object)
+      end
+    else
+      abies.each do |mod_rule|
+        next if mod_rule.user and mod_rule.user != self
+        next if mod_rule.group and not is_in_group? mod_rule.group
+        next if mod_rule.role and not has_local_role?(mod_rule.role, object)
+        return true
       end
     end
     # never reached
@@ -694,7 +664,7 @@ class User < ActiveRecord::Base
       logger.debug "running local role package check: user #{self.login}, package #{object.name}, role '#{role.title}'"
       rels = object.relationships.where(:role_id => role.id, :user_id => self.id)
       return true if rels.exists?
-      rels = object.relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where(:role_id => role.id)
+      rels = object.relationships.joins(:groups_users).where(:groups_users => { user_id: self.id }).where(:role_id => role.id)
       return true if rels.exists?
 
       return true if lookup_strategy.local_role_check(role, object)
@@ -731,7 +701,7 @@ class User < ActiveRecord::Base
     end
     rel = object.relationships.where(:user_id => self.id).where('role_id in (?)', roles)
     return true if rel.exists?
-    rel = object.relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where('role_id in (?)', roles)
+    rel = object.relationships.joins(:groups_users).where(:groups_users => { user_id: self.id }).where('role_id in (?)', roles)
     return true if rel.exists?
 
     return true if lookup_strategy.local_permission_check(roles, object)
@@ -930,6 +900,7 @@ class User < ActiveRecord::Base
           content = ActiveXML.backend.load_external_url("http://www.gravatar.com/avatar/#{hash}?s=#{size}&d=wavatar")
           content.force_encoding('ASCII-8BIT') if content
         rescue ActiveXML::Transport::Error
+          # ignored
         end
       end
 

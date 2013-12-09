@@ -498,6 +498,8 @@ CREATE TABLE `groups_users` (
   `user_id` int(11) NOT NULL DEFAULT '0',
   `created_at` datetime DEFAULT NULL,
   `email` tinyint(1) DEFAULT '1',
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
   UNIQUE KEY `groups_users_all_index` (`group_id`,`user_id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `groups_users_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`),
@@ -1413,6 +1415,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131126205430');
 INSERT INTO schema_migrations (version) VALUES ('20131127091624');
 
 INSERT INTO schema_migrations (version) VALUES ('20131209095749');
+
+INSERT INTO schema_migrations (version) VALUES ('20131209103450');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
