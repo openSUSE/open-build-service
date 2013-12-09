@@ -39,3 +39,8 @@ record_6:
   created_at: 2013-11-29 16:20:18.000000000 Z
   updated_at: 2013-11-29 16:20:18.000000000 Z
   user: user1
+record_8:
+  eventtype: Event::RequestStateChange
+  receive: creator
+  created_at: 2013-11-29 16:20:19.000000000 Z
+  updated_at: 2013-11-29 16:20:19.000000000 Z

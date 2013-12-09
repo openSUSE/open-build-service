@@ -37,6 +37,10 @@ class EventFindSubscribers
     @package_maintainers = find_maintainers(p)
   end
 
+  def request_creator
+    User.find_by_login(@event.payload['author']).id
+  end
+
   def expand_toconsider
     nt = []
     @toconsider.each do |r|
@@ -46,8 +50,12 @@ class EventFindSubscribers
         users.concat @project_maintainers
       elsif r.receive == 'package_maintainer'
         users.concat @package_maintainers
-      else
+      elsif r.receive == 'creator'
+        users << request_creator
+      elsif %w(none all).include? r.receive
         nt << r
+      else
+        raise "unknown receive? #{r.inspect}"
       end
       users.each do |u|
         e = EventSubscription.new(eventtype: r.eventtype, receive: 'all')
@@ -123,7 +131,7 @@ class EventFindSubscribers
 
     # 4. all and none
     usergenerics = @subscriptions.where('package_id is null and project_id is null')
-    @toconsider |= usergenerics.where(receive: ['all', 'none']).to_a
+    @toconsider |= usergenerics.where(receive: %w(all none)).to_a
 
     return [] if @toconsider.empty?
     expand_toconsider

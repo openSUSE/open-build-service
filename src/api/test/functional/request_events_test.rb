@@ -52,6 +52,23 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     assert_equal "Iggy created request #{myid} (set_bugowner home:tom)", email.subject
     assert_equal %w(user1@example.com), email.to
     verify_email('set_bugowner_event', myid, email)
+
+    ActionMailer::Base.deliveries.clear
+
+    # now check if we get an email about revokes
+    # user1 should get one (as always) and Iggy, the creator
+    assert_difference 'ActionMailer::Base.deliveries.size', +2 do
+      raw_post "/request/#{myid}?cmd=changestate&newstate=revoked", ''
+      assert_response :success
+    end
+    email = nil
+    ActionMailer::Base.deliveries.each do |m|
+      email = m if m.to.include? 'Iggy@pop.org'
+    end
+
+    email.message_id = 'test@localhost' # easier to compare :)
+    assert_equal "Request state of #{myid} (set_bugowner home:tom) changed to revoked", email.subject
+    verify_email('iggy_revoked', myid, email)
   end
 
   test 'group emails' do

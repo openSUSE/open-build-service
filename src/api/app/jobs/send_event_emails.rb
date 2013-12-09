@@ -10,7 +10,9 @@ class SendEventEmails
     users = event.subscribers
     return if users.empty?
     users.each do |u|
-      EventMailer.event(User.find(u), event).deliver
+      u = User.find_by_id(u)
+      raise 'we need valid users' unless u
+      EventMailer.event(u, event).deliver
     end
   end
 end
