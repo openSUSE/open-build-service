@@ -1,7 +1,7 @@
 From: obs-email@opensuse.org
 To: user1@example.com
 Message-ID: obs-request-REQUESTID@localhost
-Subject: Request REQUESTID created by Iggy: set_bugowner home:tom
+Subject: Iggy created request REQUESTID (set_bugowner home:tom)
 Mime-Version: 1.0
 Content-Type: text/plain;
  charset=UTF-8

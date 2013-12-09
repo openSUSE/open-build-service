@@ -44,6 +44,16 @@ class Event::Request < ::Event::Base
     h
   end
 
+  def actions_summary
+    ret = []
+    payload['actions'].each do |a|
+      str = "#{a['type']} #{a['targetproject']}"
+      str += "/#{a['targetpackage']}" if a['targetpackage']
+      ret << str
+    end
+    ret.join(', ')
+  end
+
   def calculate_diff(a)
     return nil if a['type'] != 'submit'
     raise 'We need action_id' unless a['action_id']
@@ -61,7 +71,7 @@ class Event::Request < ::Event::Base
       diff = diff.lines
       dl = diff.length
       if dl > DiffLimit
-	diff = diff[0..DiffLimit]
+        diff = diff[0..DiffLimit]
         diff << "[cut #{dl-DiffLimit} lines to limit mail size]"
       end
       a['diff'] = diff.join
@@ -89,14 +99,7 @@ class Event::RequestCreate < Event::Request
   end
 
   def subject
-    subj = "Request #{payload['id']} created by #{payload['who']}: "
-    actions_summary = []
-    payload['actions'].each do |a|
-      str = "#{a['type']} #{a['targetproject']}"
-      str += "/#{a['targetpackage']}" if a['targetpackage']
-      actions_summary << str
-    end
-    subj + actions_summary.join(', ')
+    "#{payload['who']} created request #{payload['id']} (#{actions_summary})"
   end
 
   def expanded_payload
@@ -115,7 +118,7 @@ class Event::RequestStatechange < Event::Request
   payload_keys :oldstate
 
   def subject
-    "Request state of #{payload['id']} changed to #{payload['state']}"
+    "Request state of #{payload['id']} (#{actions_summary}) changed to #{payload['state']}"
   end
 end
 
@@ -125,7 +128,7 @@ class Event::ReviewWanted < Event::Request
   payload_keys :users, :by_user, :by_group, :by_project, :by_package
 
   def subject
-    "Request #{payload['id']}: Review wanted"
+    "Review required for request #{payload['id']} (#{actions_summary})"
   end
 
   def subscribers
