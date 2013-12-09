@@ -237,6 +237,34 @@ sub notify_repservers {
   print "warning: $reposerver: $@" if $@;
 }
 
+# this is only used from getfilelist_ajax.
+# as projid is a remote project, we don't know which reposerver
+# we need to notify. so send the event to all of them.
+# we also do not call addevent in this specific case.
+sub notify_all_repservers {
+  my ($type, $projid, $packid) = @_;
+
+  my %reposervers;
+  if ($BSConfig::partitioning) {
+    %reposervers = map {$_ => 1} values(%$BSConfig::partitionservers);
+  } else {
+    %reposervers = ($BSConfig::reposerver => 1);
+  }
+  my @args = ("type=$type", "project=$projid");
+  push @args, "package=$packid" if defined $packid;
+  for my $reposerver (sort keys %reposervers) {
+    my $param = {
+      'uri' => "$reposerver/event",
+      'request'   => 'POST',
+      'background' => 1,
+    };
+    eval {
+      BSWatcher::rpc($param, undef, @args);
+    };
+    print "warning: $reposerver: $@" if $@;
+  }
+}
+
 # check if a service run is needed for the upcoming commit
 sub genservicemark {
   my ($projid, $packid, $files, $rev, $force) = @_;
@@ -4320,7 +4348,7 @@ sub getfilelist_ajax {
     };
     if ($@) {
       my $err = $@;
-      notify_repservers('package', $projid, $packid);
+      notify_all_repservers('package', $projid, $packid);
       die($err);
     }
     return undef unless $jev->{'filelist'};
@@ -4372,7 +4400,7 @@ sub getfilelist_ajax {
       # notify scheduler that the download failed
       my $err = $@;
       BSWatcher::serialize_end($serial) if $serial;
-      notify_repservers('package', $projid, $packid);
+      notify_all_repservers('package', $projid, $packid);
       die($err);
     }
     return undef unless $res;
@@ -4394,7 +4422,7 @@ sub getfilelist_ajax {
       # notify scheduler that the download failed
       my $err = $@;
       BSWatcher::serialize_end($serial) if $serial;
-      notify_repservers('package', $projid, $packid);
+      notify_all_repservers('package', $projid, $packid);
       die($err);
     }
     return undef unless $res;
@@ -4404,7 +4432,7 @@ sub getfilelist_ajax {
   }
   BSWatcher::serialize_end($serial) if $serial;
   delete $getfilelist_ajax_inprogress{"$projid/$packid/$cgi->{'rev'}"};
-  notify_repservers('package', $projid, $packid);
+  notify_all_repservers('package', $projid, $packid);
   return '';
 }
 
