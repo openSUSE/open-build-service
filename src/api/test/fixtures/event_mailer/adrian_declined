@@ -1,9 +1,10 @@
 From: obs-email@opensuse.org
+Reply-To: tschmidt@example.com
 To: Iggy@pop.org
 message-id: test@localhost
 In-Reply-To: obs-request-REQUESTID@localhost
 References: obs-request-REQUESTID@localhost
-Subject: Request state of REQUESTID (set_bugowner home:tom) changed to revoked
+Subject: Request state of REQUESTID (set_bugowner home:tom) changed to declined
 Mime-Version: 1.0
 Content-Type: text/plain;
  charset=UTF-8
@@ -15,15 +16,15 @@ Auto-Submitted: auto-generated
 X-OBS-event-type: request_statechange
 X-OBS-Request-Creator: Iggy
 X-OBS-Request-Id: REQUESTID
-X-OBS-Request-State: revoked
+X-OBS-Request-State: declined
 X-OBS-Request-Action-type: set_bugowner
 X-OBS-Request-Action-target: home:tom
 
 Visit http://localhost/request/show/REQUESTID
 
-State of request REQUESTID was changed by Iggy:
+State of request REQUESTID was changed by tom:
 
-  new -> revoked
+  new -> declined
 
 Actions:
 - set the bugowner of project home:tom to Iggy

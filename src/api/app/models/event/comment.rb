@@ -7,10 +7,15 @@ module CommitEvent
   end
 
   def expanded_payload
-    p = payload
+    p = payload.dup
     p['commenter'] = User.find(p['commenter'])
     p
   end
+
+  def originator
+    User.find(payload['commenter']).email
+  end
+
 end
 
 class Event::CommentForProject < ::Event::Project

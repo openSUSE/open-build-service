@@ -55,10 +55,12 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
 
     ActionMailer::Base.deliveries.clear
 
+    login_tom
+
     # now check if we get an email about revokes
     # user1 should get one (as always) and Iggy, the creator
     assert_difference 'ActionMailer::Base.deliveries.size', +2 do
-      raw_post "/request/#{myid}?cmd=changestate&newstate=revoked", ''
+      raw_post "/request/#{myid}?cmd=changestate&newstate=declined", ''
       assert_response :success
     end
     email = nil
@@ -67,8 +69,8 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     end
 
     email.message_id = 'test@localhost' # easier to compare :)
-    assert_equal "Request state of #{myid} (set_bugowner home:tom) changed to revoked", email.subject
-    verify_email('iggy_revoked', myid, email)
+    assert_equal "Request state of #{myid} (set_bugowner home:tom) changed to declined", email.subject
+    verify_email('adrian_declined', myid, email)
   end
 
   test 'group emails' do

@@ -12,6 +12,10 @@ class Event::Request < ::Event::Base
     Event::Request.message_id(payload['id'])
   end
 
+  def originator
+    payload_address('who') || mail_sender
+  end
+
   def custom_headers
     mid = my_message_id
     h = super

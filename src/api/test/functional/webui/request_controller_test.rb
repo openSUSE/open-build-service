@@ -260,7 +260,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   end
 
   test 'comment event' do
-    login_Iggy to: request_show_path(4)
+    login_tom to: request_show_path(4)
 
     Timecop.travel(2013, 8, 20, 12, 0, 0)
 
@@ -273,7 +273,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
     email = ActionMailer::Base.deliveries.last
 
-    assert_equal "New comment in request 4 by Iggy", email.subject
+    assert_equal "New comment in request 4 by tom", email.subject
     assert_equal %w(Iggy@pop.org), email.to
     verify_email('comment_event', "4", email)
   end

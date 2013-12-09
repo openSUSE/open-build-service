@@ -163,6 +163,18 @@ module Event
       'obs-email@opensuse.org'
     end
 
+    def payload_address(field)
+      if payload[field]
+        u = User.find_by_login(payload[field])
+        return u.email if u
+      end
+      nil
+    end
+
+    def originator
+      payload_address('sender') || mail_sender
+    end
+
     def template_name
       self.class.name.gsub('Event::', '').underscore
     end

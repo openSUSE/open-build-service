@@ -17,8 +17,14 @@ class EventMailer < ActionMailer::Base
     headers(e.custom_headers)
 
     template_name = e.template_name
-    mail(to: user.email,
+    orig = e.originator
+    to = user.email
+    # no need to tell user about this own actions
+    # TODO: make configurable?
+    return if orig == to
+    mail(to: to,
          subject: e.subject,
+         reply_to: orig,
          from: e.mail_sender,
          template_name: template_name)
   end
