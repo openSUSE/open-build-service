@@ -1,0 +1,27 @@
+<% @pagetitle = "Notifications of #{@displayed_user}" %>
+<% @crumb_list = [@pagetitle] %>
+
+<% gs = User.current.groups_users %>
+
+<%= form_tag(:action => :update_notifications) do %>
+
+<% unless gs.empty? %>
+<h1>Get mails if in group ...</h1>
+<dl>
+  <% gs.each do |gu| %>
+  <dt><%= check_box_tag gu.group, '1', gu.email %></dt>
+  <dd><%= gu.group.title %></dd>
+  <% end %>
+</dl>
+<% end %>
+
+<h1>Events to get email for ...</h1>
+<dl>
+  <% @notifications.each do |k,v| %>
+  <dt><%= check_box_tag k, '1', v %></dt>
+  <dd><%= k %></dd>
+  <% end %>
+</dl>
+
+<p><%= submit_tag 'Update' %></p>
+<% end %>
