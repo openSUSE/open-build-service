@@ -277,6 +277,8 @@ OBSApi::Application.routes.draw do
       post 'user/do_login' => :do_login
       get 'configuration/users/:user' => :edit, as: 'configuration_user'
 
+      post 'user/notifications' => :update_notifications
+      get 'user/notifications' => :notifications
     end
 
     controller 'webui/group' do

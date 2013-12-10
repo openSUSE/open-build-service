@@ -4,8 +4,9 @@ class Webui::UserController < Webui::WebuiController
 
   include Webui::WebuiHelper
 
-  before_filter :check_user, :only => [:edit, :save, :change_password, :register, :delete, :confirm, :lock, :admin, :login]
-  before_filter :require_login, :only => [:edit, :save]
+  before_filter :check_user, :only => [:edit, :save, :change_password, :register, :delete, :confirm,
+                                       :lock, :admin, :login, :notifications, :update_notifications]
+  before_filter :require_login, :only => [:edit, :save, :notifications, :update_notifications]
   before_filter :overwrite_user, :only => [:edit]
   before_filter :require_admin, :only => [:edit, :delete, :lock, :confirm, :admin]
 
@@ -52,7 +53,7 @@ class Webui::UserController < Webui::WebuiController
       redirect_to params[:return_to_path] and return
     end
     flash[:error] = 'Authentication failed'
-    redirect_to :action => 'login'
+   redirect_to :action => 'login'
   end
 
   def save
@@ -185,6 +186,22 @@ class Webui::UserController < Webui::WebuiController
   def tokens
     required_parameters :q
     render json: list_users(params[:q], true)
+  end
+
+  def notifications
+    @notifications = {}
+    %w{RequestCreate BuildFail}.each do |event_type|
+      @notifications[event_type.underscore] = EventSubscription.subscription_value('Event::'+event_type, User.current)
+    end
+    Rails.logger.debug @notifications.inspect
+  end
+  
+  def update_notifications
+    User.current.groups_users.each do |gu|
+      gu.email = params[gu.group.title] == '1'
+      gu.save
+    end
+    redirect_to action: :notifications
   end
 
   protected
