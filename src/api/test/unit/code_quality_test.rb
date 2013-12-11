@@ -124,7 +124,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'SourceController#delete_package' => 65.55,
       'SourceController#delete_project' => 64.16,
       'SourceController#package_command' => 65.31,
-      'SourceController#package_command_copy' => 64.36,
       'SourceController#project_command_copy' => 140.04,
       'SourceController#project_command_set_flag' => 53.57,
       'SourceController#project_command_undelete' => 53.7,

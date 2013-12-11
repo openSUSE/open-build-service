@@ -167,7 +167,6 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     end
 
     # create a patchinfo if missing and incident has just been created
-    incident_project.update_packages_if_dirty
     if opts[:check_for_patchinfo] and !incident_project.packages.joins(:package_kinds).where("kind = 'patchinfo'").exists?
       Patchinfo.new.create_patchinfo_from_request(incident_project, self.bs_request)
     end

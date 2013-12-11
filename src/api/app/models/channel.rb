@@ -4,13 +4,6 @@ class Channel < ActiveRecord::Base
   has_many :channel_targets, dependent: :destroy
   has_many :channel_binary_lists, dependent: :destroy
 
-  class UnknownPackage < APIException
-    setup 'unknown_package', 404, "Unknown referenced package"
-  end
-  class UnknownRepository < APIException
-    setup 'unknown_repository', 404, "Unknown referenced repository"
-  end
-
   def self.verify_xml!(xmlhash)
     xmlhash = Xmlhash.parse(xmlhash) if xmlhash.is_a? String
     xmlhash.elements('target') { |p|
