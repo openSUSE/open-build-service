@@ -214,6 +214,20 @@ class Webui::UserController < Webui::WebuiController
       gu.email = params[gu.group.title] == '1'
       gu.save
     end
+## XX
+    #params[gu.group.title] == '1'
+
+    event_types.each do |event_type|
+      tmp = {}
+      type = 'Event::'+event_type
+      display_roles = type.constantize.receiver_roles
+      roles.each do |role|
+        next unless display_roles.include?(role)
+        EventSubscription.update_subscription(eventtype, role, User.current, value)
+      end
+    end
+
+    flash[:notice] = 'Notifications settings updated'
     redirect_to action: :notifications
   end
 
