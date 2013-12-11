@@ -32,7 +32,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     email = ActionMailer::Base.deliveries.last
 
     assert_equal "Iggy created request #{myid} (add_role home:tom)", email.subject
-    assert_equal %w(user1@example.com), email.to
+    assert_equal %w(tschmidt@example.com), email.to # tom is maintainer
     verify_email('request_event', myid, email)
   end
 
@@ -50,16 +50,15 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     email = ActionMailer::Base.deliveries.last
 
     assert_equal "Iggy created request #{myid} (set_bugowner home:tom)", email.subject
-    assert_equal %w(user1@example.com), email.to
+    assert_equal %w(tschmidt@example.com), email.to
     verify_email('set_bugowner_event', myid, email)
 
     ActionMailer::Base.deliveries.clear
 
     login_tom
 
-    # now check if we get an email about revokes
-    # user1 should get one (as always) and Iggy, the creator
-    assert_difference 'ActionMailer::Base.deliveries.size', +2 do
+    # now check if Iggy (the creator) gets an email about revokes
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       raw_post "/request/#{myid}?cmd=changestate&newstate=declined", ''
       assert_response :success
     end

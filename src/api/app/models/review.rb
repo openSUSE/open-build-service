@@ -87,7 +87,7 @@ class Review < ActiveRecord::Base
   def create_notification(params = {})
     params = params.merge(_get_attributes)
     params[:comment] = self.reason
-    params[:users] = users_for_review
+    params[:reviewers] = users_for_review
 
     # send email later
     Event::ReviewWanted.create params

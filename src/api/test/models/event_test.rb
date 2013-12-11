@@ -29,7 +29,7 @@ class EventTest < ActiveSupport::TestCase
     # for this test we don't want fixtures to interfere
     EventSubscription.delete_all
 
-    all_get_events = EventSubscription.create eventtype: 'Event::CreatePackage', receive: 'maintainer'
+    all_get_events = EventSubscription.create eventtype: 'Event::CreatePackage', receiver_role: :maintainer
 
     e = Event::Factory.new_from_type('SRCSRV_CREATE_PACKAGE',
                                      {'project' => 'kde4',
@@ -39,10 +39,9 @@ class EventTest < ActiveSupport::TestCase
     # fred, fredlibs and king are maintainer, adrian is in test_group
     assert_equal %w(adrian fred fredlibs king), users_for_event(e)
 
-    # now fred configures off for the project
+    # now fred configures it off
     EventSubscription.create eventtype: 'Event::CreatePackage',
-                             project: projects(:kde4),
-                             user: users(:fred), receive: 'none'
+                             user: users(:fred), receiver_role: :all, receive: false
 
     # fred, fredlibs and king are maintainer, adrian is in test_group - fred disabled it
     assert_equal %w(adrian fredlibs king), users_for_event(e)
@@ -51,10 +50,10 @@ class EventTest < ActiveSupport::TestCase
     all_get_events.delete
     assert_equal [], users_for_event(e)
 
-    # now fredlibs configures on for the project
+    # now fredlibs configures on
     EventSubscription.create eventtype: 'Event::CreatePackage',
-                             project: projects(:kde4),
-                             user: users(:fredlibs), receive: 'all'
+                             user: users(:fredlibs),
+                             receiver_role: :all, receive: true
 
     assert_equal %w(fredlibs), users_for_event(e)
 

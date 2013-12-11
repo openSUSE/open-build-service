@@ -1,6 +1,6 @@
 module Event
-  # This class represents some kind of event within the build service
-  # that users (or services) would like to know about
+# This class represents some kind of event within the build service
+# that users (or services) would like to know about
   class Base < ActiveRecord::Base
 
     scope :not_in_queue, -> { where(queued: false) }
@@ -178,6 +178,36 @@ module Event
     def template_name
       self.class.name.gsub('Event::', '').underscore
     end
+
+    def obj_maintainers(obj)
+      # old/deleted obj
+      return [] unless obj
+
+      maintainer = obj.relationships.where(role: Role.rolecache['maintainer'])
+      users = maintainer.joins(:user).pluck('users.id')
+      users |= maintainer.joins(:groups_users).pluck('groups_users.user_id')
+
+      if users.empty? && obj.respond_to?(:project)
+        users = obj_maintainers(obj.project)
+      end
+      users
+    end
+
+    def maintainers
+      Rails.logger.debug "Maintainers #{payload.inspect}"
+      ret = _maintainers(payload['project'], payload['package'])
+      Rails.logger.debug "Maintainers ret #{ret.inspect}"
+      ret
+    end
+
+    def _maintainers(project, package = nil)
+      return [] unless project
+      p = nil
+      p = ::Package.find_by_project_and_name(project, package) if package
+      p ||= ::Project.find_by_name(project)
+      obj_maintainers(p)
+    end
+
   end
 
 end

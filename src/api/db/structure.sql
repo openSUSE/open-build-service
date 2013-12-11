@@ -417,12 +417,13 @@ CREATE TABLE `downloads` (
 CREATE TABLE `event_subscriptions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `eventtype` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `receive` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `receiver_role` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `user_id` int(11) DEFAULT NULL,
   `project_id` int(11) DEFAULT NULL,
   `package_id` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
+  `receive` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `index_event_subscriptions_on_user_id` (`user_id`),
   KEY `index_event_subscriptions_on_project_id` (`project_id`),
@@ -1417,6 +1418,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131127091624');
 INSERT INTO schema_migrations (version) VALUES ('20131209095749');
 
 INSERT INTO schema_migrations (version) VALUES ('20131209103450');
+
+INSERT INTO schema_migrations (version) VALUES ('20131210182719');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

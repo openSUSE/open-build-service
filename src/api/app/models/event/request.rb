@@ -87,6 +87,25 @@ class Event::Request < ::Event::Base
     ret
   end
 
+  def reviewers
+    ret = []
+    BsRequest.find(payload['id']).reviews.each do |r|
+      ret.concat(r.users_for_review)
+    end
+    ret.uniq
+  end
+
+  def creator
+    User.find_by_login(payload['author']).id
+  end
+
+  def target_maintainers
+    ret = []
+    payload['actions'].each do |a|
+      ret.concat _maintainers(a['targetproject'], a['targetpackage'])
+    end
+    ret.uniq
+  end
 end
 
 class Event::RequestChange < Event::Request
@@ -103,7 +122,7 @@ class Event::RequestCreate < Event::Request
     # we're the one they mean
     base.delete('In-Reply-To')
     base.delete('References')
-    base.merge({ 'Message-ID' => my_message_id })
+    base.merge({'Message-ID' => my_message_id})
   end
 
   def subject
@@ -133,14 +152,10 @@ end
 class Event::ReviewWanted < Event::Request
   self.description = 'Review was created'
 
-  payload_keys :users, :by_user, :by_group, :by_project, :by_package
+  payload_keys :reviewers, :by_user, :by_group, :by_project, :by_package
 
   def subject
     "Review required for request #{payload['id']} (#{actions_summary})"
-  end
-
-  def subscribers
-    User.where(id: payload['users'])
   end
 
   def expanded_payload
@@ -161,4 +176,8 @@ class Event::ReviewWanted < Event::Request
     h
   end
 
+  # for review_wanted we ignore all the other reviews
+  def reviewers
+    payload['reviewers']
+  end
 end
