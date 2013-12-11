@@ -1,46 +1,65 @@
 record_0:
-  eventtype: Event::Request
-  receive: none
-  created_at: 2013-08-20 17:45:23.000000000 Z
-  updated_at: 2013-08-20 17:45:23.000000000 Z
-  user: tom
+  eventtype: Event::Package
+  receiver_role: all
+  created_at: 2013-11-29 16:20:18.000000000 Z
+  updated_at: 2013-11-29 16:20:18.000000000 Z
+  receive: 1
+  user: user1
 record_1:
   eventtype: Event::Build
-  receive: all
-  created_at: 2013-08-20 17:45:46.000000000 Z
-  updated_at: 2013-08-20 17:45:46.000000000 Z
-  user: fred
+  receiver_role: all
+  created_at: 2013-11-29 16:20:18.000000000 Z
+  updated_at: 2013-11-29 16:20:18.000000000 Z
+  receive: 1
+  user: user1
 record_2:
-  eventtype: Event::Request
-  receive: maintainer
+  eventtype: Event::RequestCreate
+  receiver_role: target_maintainer
   created_at: 2013-08-20 15:32:05.000000000 Z
   updated_at: 2013-08-20 15:32:05.000000000 Z
-record_3:
-  eventtype: Event::Package
-  receive: all
-  created_at: 2013-11-29 16:20:18.000000000 Z
-  updated_at: 2013-11-29 16:20:18.000000000 Z
-  user: user1
+  receive: 1
 record_4:
   eventtype: Event::Project
-  receive: all
+  receiver_role: all
   created_at: 2013-11-29 16:20:18.000000000 Z
   updated_at: 2013-11-29 16:20:18.000000000 Z
+  receive: 1
   user: user1
 record_5:
-  eventtype: Event::Request
-  receive: all
-  created_at: 2013-11-29 16:20:18.000000000 Z
-  updated_at: 2013-11-29 16:20:18.000000000 Z
-  user: user1
-record_6:
-  eventtype: Event::Build
-  receive: all
-  created_at: 2013-11-29 16:20:18.000000000 Z
-  updated_at: 2013-11-29 16:20:18.000000000 Z
-  user: user1
-record_8:
   eventtype: Event::RequestStateChange
-  receive: creator
+  receiver_role: creator
   created_at: 2013-11-29 16:20:19.000000000 Z
   updated_at: 2013-11-29 16:20:19.000000000 Z
+  receive: 1
+record_6:
+  eventtype: Event::Request
+  receiver_role: maintainer
+  created_at: 2013-08-20 17:45:23.000000000 Z
+  updated_at: 2013-12-10 19:00:58.000000000 Z
+  receive: 0
+  user: tom
+record_7:
+  eventtype: Event::Build
+  receiver_role: all
+  created_at: 2013-08-20 17:45:46.000000000 Z
+  updated_at: 2013-08-20 17:45:46.000000000 Z
+  receive: 1
+  user: fred
+record_8:
+  eventtype: Event::CommentForRequest
+  receiver_role: reviewer
+  created_at: 2013-08-20 17:45:46.000000000 Z
+  updated_at: 2013-08-20 17:45:46.000000000 Z
+  receive: 1
+record_9:
+  eventtype: Event::CommentForRequest
+  receiver_role: commenter
+  created_at: 2013-08-20 17:45:46.000000000 Z
+  updated_at: 2013-08-20 17:45:46.000000000 Z
+  receive: 1
+record_10:
+  eventtype: Event::ReviewWanted
+  receiver_role: reviewer
+  created_at: 2013-08-20 17:45:46.000000000 Z
+  updated_at: 2013-08-20 17:45:46.000000000 Z
+  receive: 1
