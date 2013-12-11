@@ -1,4 +1,5 @@
 require 'base64'
+require 'event'
 
 class Webui::UserController < Webui::WebuiController
 
@@ -190,8 +191,20 @@ class Webui::UserController < Webui::WebuiController
 
   def notifications
     @notifications = {}
-    %w{RequestCreate BuildFail}.each do |event_type|
-      @notifications[event_type.underscore] = EventSubscription.subscription_value('Event::'+event_type, User.current)
+    
+    roles = [:maintainer, :source_maintainer, :target_maintainer, :reviewer, :commenter, :creator]
+    event_types = %w{RequestCreate RequestStatechange CommentForProject CommentForPackage CommentForRequest BuildFail ReviewWanted}
+
+    event_types.each do |event_type|
+      tmp = {}
+      type = 'Event::'+event_type
+      display_roles = type.constantize.receiver_roles
+      roles.each do |role|
+        next unless display_roles.include?(role)
+        value = EventSubscription.subscription_value(type, role, User.current)
+        @notifications[event_type.underscore] ||= []
+        @notifications[event_type.underscore] << [role, value]
+      end
     end
     Rails.logger.debug @notifications.inspect
   end

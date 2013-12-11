@@ -13,6 +13,7 @@ module Event
       @payload_keys = nil
       @create_jobs = nil
       @classnames = nil
+      @receiver_roles = nil
 
       def classnames
         @classnames || [self.name]
@@ -40,6 +41,15 @@ module Event
         @create_jobs += keys
       end
 
+      def receiver_roles(*keys)
+        # this function serves both for reading and setting
+        if keys.empty?
+          return @receiver_roles || []
+        end
+        @receiver_roles ||= []
+        @receiver_roles += keys
+      end
+
       # make sure that subclasses can set shared attributes
       def inherited(subclass)
         super
@@ -47,6 +57,7 @@ module Event
         subclass.add_classname(self.name) unless self.name == 'Event::Base'
         subclass.payload_keys(*self.payload_keys)
         subclass.create_jobs(*self.create_jobs)
+        subclass.receiver_roles(*self.receiver_roles)
       end
 
     end
@@ -58,6 +69,10 @@ module Event
 
     def create_jobs
       self.class.create_jobs
+    end
+
+    def receiver_roles
+      self.class.receiver_roles
     end
 
     def raw_type
