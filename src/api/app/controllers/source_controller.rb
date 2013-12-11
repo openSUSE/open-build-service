@@ -1463,26 +1463,7 @@ class SourceController < ApplicationController
     spackage = params[:opackage] if params[:opackage]
 
     # create target package, if it does not exist
-    if @package.nil?
-      answer = Suse::Backend.get("/source/#{CGI.escape(sproject)}/#{CGI.escape(spackage)}/_meta")
-      if answer
-        Package.transaction do
-          adata = Xmlhash.parse(answer.body)
-          adata['name'] = params[:package]
-          p = @project.packages.new(name: params[:package])
-          p.update_from_xml(adata)
-          p.remove_all_persons
-          p.remove_all_groups
-          p.develpackage = nil
-          p.store
-        end
-        @package = Package.find_by_project_and_name(params[:project], params[:package])
-      else
-        render_error :status => 404, :errorcode => 'unknown_package',
-          :message => "Unknown package #{spackage} in project #{sproject}"
-        return
-      end
-    end
+    reparse_backend_package(spackage, sproject) unless @package
 
     # We need to use the project name of package object, since it might come via a project linked project
     path = @package.source_path
@@ -1491,6 +1472,25 @@ class SourceController < ApplicationController
     pass_to_backend path
 
     @package.sources_changed
+  end
+
+  def reparse_backend_package(spackage, sproject)
+    answer = Suse::Backend.get("/source/#{CGI.escape(sproject)}/#{CGI.escape(spackage)}/_meta")
+    if answer
+      Package.transaction do
+        adata = Xmlhash.parse(answer.body)
+        adata['name'] = params[:package]
+        p = @project.packages.new(name: params[:package])
+        p.update_from_xml(adata)
+        p.remove_all_persons
+        p.remove_all_groups
+        p.develpackage = nil
+        p.store
+      end
+      @package = Package.find_by_project_and_name(params[:project], params[:package])
+    else
+      raise UnknownPackage.new "Unknown package #{spackage} in project #{sproject}"
+    end
   end
 
   # POST /source/<project>/<package>?cmd=release

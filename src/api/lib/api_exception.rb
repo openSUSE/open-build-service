@@ -51,6 +51,13 @@ end
 class NotFoundError < APIException
   setup 404
 end
+class UnknownPackage < APIException
+  setup 404
+end
+class UnknownRepository < APIException
+  setup 404
+end
+
 # 400 errors
 class MissingParameterError < APIException; end
 class InvalidParameterError < APIException; end
