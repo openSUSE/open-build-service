@@ -18,11 +18,11 @@ class EventTest < ActiveSupport::TestCase
                                       'sender' => 'tom'})
     assert_equal 'Event::CreatePackage', e.class.name
     assert_equal 'kdelibs', e.payload['package']
-    assert_equal [], e.receive_roles
+    assert_equal [], e.receiver_roles
   end
 
   test 'receive roles for build failure' do
-    assert_equal [:maintainers], events(:build_fails_with_deleted_user_and_request).receive_roles
+    assert_equal [:maintainer], events(:build_fails_with_deleted_user_and_request).receiver_roles
   end
 
   def users_for_event(e)
