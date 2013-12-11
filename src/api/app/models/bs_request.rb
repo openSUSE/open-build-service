@@ -393,8 +393,13 @@ class BsRequest < ActiveRecord::Base
     end
   end
 
+  IntermediateStates = %w(new review)
+
   def send_state_change
-    Event::RequestStatechange.create(self.notify_parameters) if self.state_was.to_s != self.state.to_s
+    return if self.state_was.to_s == self.state.to_s
+    # new->review && review->new are not worth an event - it's just spam
+    return if IntermediateStates.include?(self.state.to_s) && IntermediateStates.include?(self.state_was.to_s)
+    Event::RequestStatechange.create(self.notify_parameters)
   end
 
   def notify_parameters(ret = {})
