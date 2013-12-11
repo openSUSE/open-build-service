@@ -5374,8 +5374,10 @@ sub copyproject {
       # always do one new commit, we don't use addrev to have full control over vrev
       my $files = lsrev({ %$lastorev, 'project' => $oprojid, 'package' => $packid });
       copyfiles($projid, $packid, $oprojid, $packid, $files);
-      addmeta($projid, $packid, $files);
       my $newrev = { %$lastorev };
+      # Set new srcmd5 because lsrev() skips "/SERVICE" entry and 
+      # that cause new MD5SUMS for the same sources
+      $newrev->{'srcmd5'} = addmeta($projid, $packid, $files);
       $newrev->{'user'} = $user;
       $newrev->{'comment'} = $comment;
       $newrev->{'requestid'} = $cgi->{'requestid'};
