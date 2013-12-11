@@ -24,7 +24,7 @@ end
 
 class Event::CommentForProject < ::Event::Project
   include CommitEvent
-  self.description = 'New comment for project created.'
+  self.description = 'New comment for project created'
 
   def subject
     "New comment in project #{payload['project']} by #{User.find(payload['commenter']).login}: #{payload['comment_title']}"
@@ -35,7 +35,7 @@ end
 class Event::CommentForPackage < ::Event::Package
   include CommitEvent
 
-  self.description = 'New comment for package created.'
+  self.description = 'New comment for package created'
 
   def subject
     "New comment in package #{payload['project']}/#{payload['package']} by #{User.find(payload['commenter']).login}: #{payload['comment_title']}"
@@ -46,7 +46,8 @@ end
 class Event::CommentForRequest < ::Event::Request
 
   include CommitEvent
-  self.description = 'New comment for request created.'
+  self.description = 'New comment for request created'
+  payload_keys :request_id
 
   def subject
     "New comment in request #{payload['id']} by #{User.find(payload['commenter']).login}: #{payload['comment_title']}"
