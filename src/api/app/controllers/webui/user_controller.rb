@@ -189,17 +189,17 @@ class Webui::UserController < Webui::WebuiController
     render json: list_users(params[:q], true)
   end
 
+  Roles = [:maintainer, :source_maintainer, :target_maintainer, :reviewer, :commenter, :creator]
+  Event_types = %w{RequestCreate RequestStatechange CommentForProject CommentForPackage CommentForRequest BuildFail ReviewWanted}
+
   def notifications
     @notifications = {}
-    
-    roles = [:maintainer, :source_maintainer, :target_maintainer, :reviewer, :commenter, :creator]
-    event_types = %w{RequestCreate RequestStatechange CommentForProject CommentForPackage CommentForRequest BuildFail ReviewWanted}
 
-    event_types.each do |event_type|
+    Event_types.each do |event_type|
       tmp = {}
       type = 'Event::'+event_type
       display_roles = type.constantize.receiver_roles
-      roles.each do |role|
+      Roles.each do |role|
         next unless display_roles.include?(role)
         value = EventSubscription.subscription_value(type, role, User.current)
         @notifications[event_type.underscore] ||= []
@@ -214,16 +214,14 @@ class Webui::UserController < Webui::WebuiController
       gu.email = params[gu.group.title] == '1'
       gu.save
     end
-## XX
-    #params[gu.group.title] == '1'
 
-    event_types.each do |event_type|
-      tmp = {}
+    Event_types.each do |event_type|
+      values = params[event_type.underscore] || {}
       type = 'Event::'+event_type
       display_roles = type.constantize.receiver_roles
-      roles.each do |role|
+      Roles.each do |role|
         next unless display_roles.include?(role)
-        EventSubscription.update_subscription(eventtype, role, User.current, value)
+        EventSubscription.update_subscription(type, role, User.current, !values[role].nil?)
       end
     end
 
