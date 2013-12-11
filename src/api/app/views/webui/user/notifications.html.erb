@@ -21,7 +21,7 @@
 <%= field_set_tag type do %>
 <ul>
   <% roles.each do |role, value| %>
-  <li><%= check_box_tag role, '1', value %><%= label_tag role, role.capitalize %></li>
+  <li><%= check_box_tag "#{type}[#{role}]", '1', value %><%= label_tag "#{type}[#{role}]", role %></li>
   <% end %>
 </ul>
 <% end %>

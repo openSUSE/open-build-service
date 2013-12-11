@@ -32,4 +32,23 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     flash_message.must_equal 'Notifications settings updated'
   end
 
+  test 'notification settings for events' do
+    login_adrian to: user_notifications_path
+
+    page.must_have_text 'Events to get email for'
+    page.must_have_checked_field('request_statechange_creator')
+    uncheck('request_statechange_creator')
+    check('comment_for_package_maintainer')
+    check('comment_for_package_creator')
+    check('comment_for_project_maintainer')
+    check('comment_for_project_reviewer')
+    click_button 'Update'
+    flash_message.must_equal 'Notifications settings updated'
+    page.must_have_text 'Events to get email for'
+    page.must_have_unchecked_field('request_statechange_creator')
+    page.must_have_checked_field('comment_for_package_maintainer')
+    page.must_have_checked_field('comment_for_package_creator')
+    page.must_have_checked_field('comment_for_prxoject_maintainer')
+    page.must_have_checked_field('comment_for_project_reviewer')
+  end
 end

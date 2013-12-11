@@ -3,7 +3,7 @@ module CommitEvent
   def self.included(base)
     base.class_eval do
       payload_keys :commenters, :commenter, :comment_body, :comment_title
-      receiver_roles :maintainer, :creator, :reviewer, :commenters
+      receiver_roles :maintainer, :creator, :reviewer, :commenter
     end
   end
 
