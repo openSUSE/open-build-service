@@ -120,6 +120,7 @@ end
 class Event::RequestCreate < Event::Request
   self.raw_type = 'SRCSRV_REQUEST_CREATE'
   self.description = 'Request created'
+  receiver_roles :source_maintainer, :target_maintainer
 
   def custom_headers
     base = super
@@ -147,6 +148,7 @@ class Event::RequestStatechange < Event::Request
   self.raw_type = 'SRCSRV_REQUEST_STATECHANGE'
   self.description = 'Request state was changed'
   payload_keys :oldstate
+  receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer
 
   def subject
     "Request state of #{payload['id']} (#{actions_summary}) changed to #{payload['state']}"
@@ -157,6 +159,7 @@ class Event::ReviewWanted < Event::Request
   self.description = 'Review was created'
 
   payload_keys :reviewers, :by_user, :by_group, :by_project, :by_package
+  receiver_roles :reviewer
 
   def subject
     "Review required for request #{payload['id']} (#{actions_summary})"

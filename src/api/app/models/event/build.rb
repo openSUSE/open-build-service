@@ -13,6 +13,7 @@ end
 class Event::BuildFail < Event::Build
   self.raw_type = 'BUILD_FAIL'
   self.description = 'Package has failed to build'
+  receiver_roles :maintainer
 end
 
 class Event::BuildUnchanged < Event::Build

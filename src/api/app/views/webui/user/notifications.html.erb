@@ -16,12 +16,16 @@
 <% end %>
 
 <h1>Events to get email for ...</h1>
-<dl>
-  <% @notifications.each do |k,v| %>
-  <dt><%= check_box_tag k, '1', v %></dt>
-  <dd><%= k %></dd>
+
+<% @notifications.each do |type,roles| %>
+<%= field_set_tag type do %>
+<ul>
+  <% roles.each do |role, value| %>
+  <li><%= check_box_tag role, '1', value %><%= label_tag role, role %></li>
   <% end %>
-</dl>
+</ul>
+<% end %>
+<% end %>
 
 <p><%= submit_tag 'Update' %></p>
 <% end %>
