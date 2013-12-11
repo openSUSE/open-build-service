@@ -815,10 +815,6 @@ class BsRequestAction < ActiveRecord::Base
     return newactions
   end
 
-  class UnknownPackage < APIException
-    setup 404, 'No target package specified'
-  end
-
   class IncidentHasNoMaintenanceProject < APIException
   end
 
@@ -950,7 +946,7 @@ class BsRequestAction < ActiveRecord::Base
 
       if self.action_type == :change_devel
         unless tpkg
-          raise UnknownPackage.new
+          raise UnknownPackage.new 'No target package specified'
         end
       end
     else

@@ -320,15 +320,34 @@ class Package < ActiveRecord::Base
 
   before_destroy :check_for_product
 
-  def sources_changed(backend_answer = nil)
+  def private_set_package_kind(dir)
+    kinds = detect_package_kinds(dir)
+
+    self.package_kinds.each do |pk|
+      if kinds.include? pk.kind
+        kinds.delete(pk.kind)
+      else
+        pk.delete
+      end
+    end
+    kinds.each do |k|
+      self.package_kinds.create :kind => k
+    end
+  end
+
+  def sources_changed(dir_xml = nil)
     update_activity
     # mark the backend infos "dirty"
     BackendPackage.where(package_id: self.id).delete_all
-    if backend_answer
-      backend_answer = backend_answer.body if backend_answer.is_a? Net::HTTPSuccess
-      private_set_package_kind Xmlhash.parse(backend_answer)
+    if dir_xml
+      dir_xml = dir_xml.body if dir_xml.is_a? Net::HTTPSuccess
+    else
+      dir_xml = source_file(nil)
     end
+    private_set_package_kind Xmlhash.parse(dir_xml)
     check_for_product
+    # now trigger a delayed job
+    self.delay.update_if_dirty
   end
 
   def self.source_path(project, package, file = nil, opts = {})
@@ -359,21 +378,6 @@ class Package < ActiveRecord::Base
     Package.dir_hash(self.project.name, self.name, opts)
   end
 
-  def private_set_package_kind(dir)
-    raise ArgumentError.new 'need a xmlhash' unless dir.is_a? Xmlhash::XMLHash
-    kinds = detect_package_kinds(dir)
-    oldkinds = self.package_kinds.pluck(:kind).sort
-
-    # recreate list if changes
-    Package.transaction do
-      self.package_kinds.delete_all
-      kinds.each do |k|
-        self.package_kinds.create :kind => k
-      end
-    end if oldkinds != kinds.sort
-
-  end
-
   def is_patchinfo?
     is_of_kind? :patchinfo
   end
@@ -391,7 +395,6 @@ class Package < ActiveRecord::Base
   end
 
   def is_of_kind? kind
-    update_if_dirty
     self.package_kinds.where(kind: kind).exists?
   end
 
@@ -816,7 +819,6 @@ class Package < ActiveRecord::Base
 
   def update_backendinfo_unexpanded(bp)
     dir = self.dir_hash
-    private_set_package_kind(dir)
 
     bp.srcmd5 = dir['srcmd5']
     li = dir['linkinfo']
