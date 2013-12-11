@@ -193,19 +193,20 @@ class Webui::UserController < Webui::WebuiController
   Event_types = %w{RequestCreate RequestStatechange CommentForProject CommentForPackage CommentForRequest BuildFail ReviewWanted}
 
   def notifications
-    @notifications = {}
+    @notifications = []
 
     Event_types.each do |event_type|
-      tmp = {}
       type = 'Event::'+event_type
       display_roles = type.constantize.receiver_roles
+      tmp = []
       Roles.each do |role|
         next unless display_roles.include?(role)
         value = EventSubscription.subscription_value(type, role, User.current)
-        @notifications[event_type.underscore] ||= []
-        @notifications[event_type.underscore] << [role, value]
+        tmp << [role, value]
       end
+      @notifications << [event_type, type.constantize.description, tmp]
     end
+
     Rails.logger.debug @notifications.inspect
   end
   
@@ -216,7 +217,7 @@ class Webui::UserController < Webui::WebuiController
     end
 
     Event_types.each do |event_type|
-      values = params[event_type.underscore] || {}
+      values = params[event_type] || {}
       type = 'Event::'+event_type
       display_roles = type.constantize.receiver_roles
       Roles.each do |role|

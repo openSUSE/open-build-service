@@ -36,19 +36,19 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     login_adrian to: user_notifications_path
 
     page.must_have_text 'Events to get email for'
-    page.must_have_checked_field('request_statechange_creator')
-    uncheck('request_statechange_creator')
-    check('comment_for_package_maintainer')
-    check('comment_for_package_creator')
-    check('comment_for_project_maintainer')
-    check('comment_for_project_reviewer')
+    page.must_have_checked_field('RequestStatechange_creator')
+    uncheck('RequestStatechange_creator')
+    check('CommentForPackage_maintainer')
+    check('CommentForPackage_creator')
+    check('CommentForProject_maintainer')
+    check('CommentForProject_reviewer')
     click_button 'Update'
     flash_message.must_equal 'Notifications settings updated'
     page.must_have_text 'Events to get email for'
     page.must_have_unchecked_field('request_statechange_creator')
-    page.must_have_checked_field('comment_for_package_maintainer')
-    page.must_have_checked_field('comment_for_package_creator')
-    page.must_have_checked_field('comment_for_prxoject_maintainer')
-    page.must_have_checked_field('comment_for_project_reviewer')
+    page.must_have_checked_field('CommentForPackage_maintainer')
+    page.must_have_checked_field('CommentForPackage_creator')
+    page.must_have_checked_field('ComentForProject_maintainer')
+    page.must_have_checked_field('CommentForProject_reviewer')
   end
 end
