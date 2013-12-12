@@ -45,10 +45,10 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     click_button 'Update'
     flash_message.must_equal 'Notifications settings updated'
     page.must_have_text 'Events to get email for'
-    page.must_have_unchecked_field('request_statechange_creator')
+    page.must_have_unchecked_field('RequestStatechange_creator')
     page.must_have_checked_field('CommentForPackage_maintainer')
     page.must_have_checked_field('CommentForPackage_creator')
-    page.must_have_checked_field('ComentForProject_maintainer')
+    page.must_have_checked_field('CommentForProject_maintainer')
     page.must_have_checked_field('CommentForProject_reviewer')
   end
 end

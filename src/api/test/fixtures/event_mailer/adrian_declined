@@ -30,4 +30,5 @@ Actions:
 - set the bugowner of project home:tom to Iggy
 
 -- 
+Configure notifications at http://localhost/user/notifications
 Open Build Service (http://localhost/)

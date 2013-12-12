@@ -81,6 +81,7 @@ class Review < ActiveRecord::Base
     else
       obj = Project.find_by_name(self.by_project)
     end
+    return [] unless obj
     User.where(id: obj.relationships.users.where(role: Role.rolecache['maintainer']).pluck(:user_id))
   end
 

@@ -20,7 +20,7 @@ class EventFindSubscribers
   def expand_one_rule(r)
     ret = []
     users=[]
-    if [:commenter, :target_maintainer, :reviewer, :maintainer].include?(r.receiver_role)
+    if [:commenter, :source_maintainer, :target_maintainer, :reviewer, :maintainer].include?(r.receiver_role)
       nu = @event.send("#{r.receiver_role}s")
       raise "we need an array for #{@event.inspect} -> #{r.receiver_role}" unless nu.is_a? Array
       users.concat(nu)

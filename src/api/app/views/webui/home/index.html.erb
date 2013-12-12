@@ -54,6 +54,7 @@
       <% if @configuration['change_password'] and CONFIG['proxy_auth_mode'] != :on %>
         <%= link_to(sprited_text('key', 'Change your password'), { :controller => 'user', :action => 'password_dialog', :user => User.current }, {:id => 'password_dialog', :remote => true}) %><br />
       <% end %>
+      <%= link_to(sprited_text('email', 'Change your notifications'), user_notifications_path) %><br />
       </p>
     <% end %>
 </div>
@@ -73,7 +74,7 @@
                                                              :action => 'show',
                                                              :project => 'REPLACEPRJ',
                                                              :package => 'REPLACEPKG') %> ">
-      <% content_for :ready_function do %> 
+      <% content_for :ready_function do %>
         var ipackages = [ <%= @ipackages.map {|p|
                            "['#{p[0]}','#{escape_javascript(p[1])}']" }.join(",\n").html_safe %> ];
         renderPackagesProjectsTable({packages: ipackages, length: '15', name: 'ipackages_wrapper'});
@@ -110,7 +111,7 @@
                                                              :action => 'show',
                                                              :project => 'REPLACEPRJ',
                                                              :package => 'REPLACEPKG') %> ">
-          <% content_for :ready_function do %> 
+          <% content_for :ready_function do %>
             var iowned = [ <%= @owned.map {|p|
                                 "['#{p[1]}','#{escape_javascript(p[0])}']" }.join(",\n").html_safe %> ];
             renderPackagesProjectsTable({packages: iowned, length: '15', name: 'iowned_wrapper'});
@@ -127,7 +128,7 @@
   </div>
 </div>
 
-<div class="clear"></div>  
+<div class="clear"></div>
 
  <% if @requests and @reviews_in.count > 0 %>
   <div class="grid_16 alpha omega box box-shadow">

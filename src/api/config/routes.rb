@@ -61,6 +61,9 @@ OBSApi::Application.routes.draw do
       post 'configuration/save_instance' => :save_instance
       post 'configuration/update_configuration' => :update_configuration
       post 'configuration/update_architectures' => :update_architectures
+
+      get 'configuration/notifications' => :notifications
+      post 'configuration/notifications' => :update_notifications
     end
 
     controller 'webui/driver_update' do
