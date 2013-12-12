@@ -99,7 +99,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response 400
     assert_match(/not_existing/, @response.body) # multiple line error shows up
 
-    raw_put '/source/home:tom/service/_service', '<services> <service name="set_version" > <param name="version">0816</param> <param name="file">pack.spec</param> </service> </services>'
+    raw_put '/source/home:tom/service/_service', '<services> <service name="download_url" > <param name="host">localhost</param> <param name="path">/directory/subdirectory/file</param> </service> </services>'
     assert_response :success
     post '/source/home:tom/service?cmd=runservice'
     assert_response :success
@@ -108,10 +108,10 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'succeeded' }
     assert_no_xml_tag :parent => { :tag => 'serviceinfo' }, :tag => 'error'
-    get '/source/home:tom/service/_service:set_version:pack.spec?expand=1'
+    get '/source/home:tom/service/_service:download_url:file?expand=1'
     assert_response :success
     post '/source/home:tom/service?cmd=servicediff', nil
-    assert_match(/\+Version: 0816/, @response.body)
+    assert_match(/download_url:file/, @response.body)
     assert_response :success
 
     # submit to other package
@@ -135,7 +135,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'succeeded' }
     assert_no_xml_tag :parent => { :tag => 'serviceinfo' }, :tag => 'error'
-    get '/source/home:tom/new_package/_service:set_version:pack.spec?expand=1'
+    get '/source/home:tom/new_package/_service:download_url:file?expand=1'
     assert_response :success
 
     # branch and submit requsts
@@ -144,7 +144,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     put '/source/home:tom:branches:home:tom/service/new_file', 'content'
     assert_response :success
     wait_for_service( 'home:tom:branches:home:tom', 'service')
-    get '/source/home:tom:branches:home:tom/service/_service:set_version:pack.spec?expand=1'
+    get '/source/home:tom:branches:home:tom/service/_service:download_url:file?expand=1'
     assert_response :success
     post '/request?cmd=create', '<request>
                                    <action type="submit">
@@ -162,9 +162,52 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     # accept
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response :success 
-    get '/source/home:tom:branches:home:tom/service/_service:set_version:pack.spec?expand=1'
+    get '/source/home:tom:branches:home:tom/service/_service:download_url:file?expand=1'
     assert_response :success
-    get '/source/home:tom/service/_service:set_version:pack.spec?expand=1'
+    get '/source/home:tom/service/_service:download_url:file?expand=1'
+    assert_response :success
+
+    # package copy tests
+    get '/source/home:tom/service/_service:download_url:file?expand=1'
+    assert_response :success
+    original_file = @response.body
+    post '/source/home:tom/copied_service', :cmd => 'copy', :noservice => '1', :opackage => 'service', :oproject => 'home:tom'
+    assert_response :success
+    get '/source/home:tom/copied_service?expand=1'
+    assert_response :success
+    assert_xml_tag :tag => "entry", :attributes => { :name => "_service:download_url:file" }
+    get '/source/home:tom/copied_service/_service:download_url:file?expand=1'
+    assert_response :success
+    assert_equal(@response.body, original_file)
+    post '/source/home:tom/copied_service', :cmd => 'copy', :opackage => 'service', :oproject => 'home:tom'
+    assert_response :success
+    get '/source/home:tom/copied_service?expand=1'
+    assert_response :success
+    assert_xml_tag :tag => "entry", :attributes => { :name => "_service:download_url:file" }
+    get '/source/home:tom/copied_service/_service:download_url:file?expand=1'
+    assert_response :success
+    delete '/source/home:tom/copied_service'
+    assert_response :success
+    assert_not_equal(@response.body, original_file)
+
+    # project copy tests
+    post '/source/home:tom:COPY', :cmd => 'copy', :noservice => '1', :oproject => 'home:tom'
+    assert_response :success
+    get '/source/home:tom:COPY/service?expand=1'
+    assert_response :success
+    assert_xml_tag :tag => "entry", :attributes => { :name => "_service:download_url:file" }
+    get '/source/home:tom:COPY/service/_service:download_url:file?expand=1'
+    assert_response :success
+    assert_equal(@response.body, original_file)
+    post '/source/home:tom:COPY/service', :cmd => 'copy', :oproject => 'home:tom'
+    assert_response :success
+    get '/source/home:tom:COPY/service?expand=1'
+    assert_response :success
+    assert_xml_tag :tag => "entry", :attributes => { :name => "_service:download_url:file" }
+    get '/source/home:tom:COPY/service/_service:download_url:file?expand=1'
+    assert_response :success
+    assert_not_equal(@response.body, original_file)
+    delete '/source/home:tom:COPY'
     assert_response :success
 
     # remove service
@@ -177,7 +220,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'succeeded' }
     assert_no_xml_tag :parent => { :tag => 'serviceinfo' }, :tag => 'error'
-    get '/source/home:tom/service/_service:set_version:pack.spec?expand=1'
+    get '/source/home:tom/service/_service:download_url:file?expand=1'
     assert_response 404
 
     # cleanup

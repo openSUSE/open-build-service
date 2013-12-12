@@ -420,6 +420,7 @@ Parameters:
   makeolder: make a split, the source is bumped by two numbers and target by one
   withhistory: copies sources with history on copy command
   withbinaries: copies also binaries on copy command
+  noservice: do not run source services
 
 === Packages
 
@@ -746,6 +747,7 @@ Parameters:
   view: may be "xml" for structured answered (for diff commands)
   withissues: set to get issues parsed from changelogs (for diff commands)
   onlyissues: used to limit to issues (for diff commands)
+  noservice: do not run source services
 
 
 

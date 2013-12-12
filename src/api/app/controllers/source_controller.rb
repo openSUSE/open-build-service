@@ -1468,7 +1468,8 @@ class SourceController < ApplicationController
     # We need to use the project name of package object, since it might come via a project linked project
     path = @package.source_path
     path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, 
-                                           :keeplink, :repairlink, :linkrev, :olinkrev, :requestid, :dontupdatesource, :withhistory])
+                                           :keeplink, :repairlink, :linkrev, :olinkrev, :requestid,
+                                           :noservice, :dontupdatesource, :withhistory])
     pass_to_backend path
 
     @package.sources_changed

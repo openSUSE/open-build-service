@@ -1048,7 +1048,7 @@ class Project < ActiveRecord::Base
     # copy entire project in the backend
     begin
       path = "/source/#{URI.escape(self.name)}"
-      path << Suse::Backend.build_query_from_hash(params, [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory, :makeolder])
+      path << Suse::Backend.build_query_from_hash(params, [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory, :makeolder, :noservice])
       Suse::Backend.post path, nil
     rescue ActiveXML::Transport::Error => e
       logger.debug "copy failed: #{e.summary}"
