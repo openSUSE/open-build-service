@@ -1,6 +1,7 @@
 class Webui::ConfigurationController < Webui::WebuiController
 
   include Webui::WebuiHelper
+  include Webui::NotificationSettings
 
   before_filter :require_admin
   before_filter :require_available_architectures, :only => [:index, :update_architectures]
@@ -96,4 +97,14 @@ class Webui::ConfigurationController < Webui::WebuiController
     redirect_to :action => 'index'
   end
 
+  def notifications
+    notifications_for_user(nil)
+  end
+
+  def update_notifications
+    update_notifications_for_user(nil)
+
+    flash[:notice] = 'Notifications settings updated'
+    redirect_to action: :notifications
+  end
 end

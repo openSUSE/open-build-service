@@ -4,6 +4,7 @@ require 'event'
 class Webui::UserController < Webui::WebuiController
 
   include Webui::WebuiHelper
+  include Webui::NotificationSettings
 
   before_filter :check_user, :only => [:edit, :save, :change_password, :register, :delete, :confirm,
                                        :lock, :admin, :login, :notifications, :update_notifications]
@@ -46,7 +47,7 @@ class Webui::UserController < Webui::WebuiController
         reset_session
         flash.now[:error] = 'Authentication failed'
         User.current = User.find_by_login('_nobody_')
-        render :template => 'webui/user/login', :locals => {:return_to_path => @return_to_path}
+        render :template => 'webui/user/login', :locals => { :return_to_path => @return_to_path }
         return
       end
       flash[:success] = 'You are logged in now'
@@ -54,7 +55,7 @@ class Webui::UserController < Webui::WebuiController
       redirect_to params[:return_to_path] and return
     end
     flash[:error] = 'Authentication failed'
-   redirect_to :action => 'login'
+    redirect_to :action => 'login'
   end
 
   def save
@@ -124,11 +125,11 @@ class Webui::UserController < Webui::WebuiController
 
 
   def register
-    opts = {:login => params[:login],
-            :email => params[:email],
-            :realname => params[:realname],
-            :password => params[:password],
-            :state => params[:state]}
+    opts = { :login => params[:login],
+             :email => params[:email],
+             :realname => params[:realname],
+             :password => params[:password],
+             :state => params[:state] }
     begin
       User.register(opts)
     rescue APIException => e
@@ -189,42 +190,17 @@ class Webui::UserController < Webui::WebuiController
     render json: list_users(params[:q], true)
   end
 
-  Roles = [:maintainer, :source_maintainer, :target_maintainer, :reviewer, :commenter, :creator]
-  Event_types = %w{RequestCreate RequestStatechange CommentForProject CommentForPackage CommentForRequest BuildFail ReviewWanted}
-
   def notifications
-    @notifications = []
-
-    Event_types.each do |event_type|
-      type = 'Event::'+event_type
-      display_roles = type.constantize.receiver_roles
-      tmp = []
-      Roles.each do |role|
-        next unless display_roles.include?(role)
-        value = EventSubscription.subscription_value(type, role, User.current)
-        tmp << [role, value]
-      end
-      @notifications << [event_type, type.constantize.description, tmp]
-    end
-
-    Rails.logger.debug @notifications.inspect
+    notifications_for_user(User.current)
   end
-  
+
   def update_notifications
     User.current.groups_users.each do |gu|
       gu.email = params[gu.group.title] == '1'
       gu.save
     end
 
-    Event_types.each do |event_type|
-      values = params[event_type] || {}
-      type = 'Event::'+event_type
-      display_roles = type.constantize.receiver_roles
-      Roles.each do |role|
-        next unless display_roles.include?(role)
-        EventSubscription.update_subscription(type, role, User.current, !values[role].nil?)
-      end
-    end
+    update_notifications_for_user(User.current)
 
     flash[:notice] = 'Notifications settings updated'
     redirect_to action: :notifications
@@ -237,7 +213,7 @@ class Webui::UserController < Webui::WebuiController
     users = User.arel_table
     User.where(users[:login].matches("#{prefix}%")).pluck(:login).each do |user|
       if hash
-        names << {'name' => user}
+        names << { 'name' => user }
       else
         names << user
       end

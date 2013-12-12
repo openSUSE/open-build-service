@@ -37,9 +37,11 @@ class EventSubscription < ActiveRecord::Base
   def self.subscription_value(eventtype, role, user)
     rel = _get_rel(eventtype)
 
-    # check user config first
-    rule = _get_role_rule(rel.where(user: user), role)
-    return rule.receive if rule
+    if user
+      # check user config first
+      rule = _get_role_rule(rel.where(user: user), role)
+      return rule.receive if rule
+    end
 
     # now global default
     rule = _get_role_rule(rel.where(user_id: nil), role)
@@ -51,6 +53,11 @@ class EventSubscription < ActiveRecord::Base
 
   def self.update_subscription(eventtype, role, user, value)
     rel = _get_rel(eventtype)
+    if user
+      rel = rel.where(user: user)
+    else
+      rel = rel.where(user_id: nil)
+    end
     rule = rel.where(receiver_role: role).first_or_create
     rule.receive = value
     rule.save

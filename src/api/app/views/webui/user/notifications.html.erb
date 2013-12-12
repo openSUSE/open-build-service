@@ -5,28 +5,17 @@
 
 <% gs = User.current.groups_users %>
 
-<%= form_tag({:action => :update_notifications}, id: 'notification_form') do %>
+<%= form_tag({ :action => :update_notifications }, id: 'notification_form') do %>
 
-<% unless gs.empty? %>
-<h3>Get mails if in group ...</h3>
-<ul style="list-style-type:none;">
-  <% gs.each do |gu| %>
-  <li><%= check_box_tag gu.group, '1', gu.email %><%= label_tag gu.group.title %></li>
-  <% end %>
-</ul>
-<% end %>
+    <% unless gs.empty? %>
+        <h3>Get mails if in group ...</h3>
+        <ul style="list-style-type:none;">
+          <% gs.each do |gu| %>
+              <li><%= check_box_tag gu.group, '1', gu.email %><%= label_tag gu.group.title %></li>
+          <% end %>
+        </ul>
+    <% end %>
 
-<h3>Events to get email for ...</h3>
-
-<% @notifications.each do |type,description,roles| %>
-<%= field_set_tag description do %>
-<ul class="horizontal-list">
-  <% roles.each do |role, value| %>
-  <li><%= check_box_tag "#{type}[#{role}]", '1', value %><%= label_tag "#{type}[#{role}]", role %></li>
-  <% end %>
-</ul>
-<% end %>
-<% end %>
-
-<p><%= submit_tag 'Update' %></p>
+    <%= render partial: 'webui/configuration/notification_roles' %>
+    <p><%= submit_tag 'Update' %></p>
 <% end %>
