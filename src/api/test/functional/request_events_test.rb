@@ -102,4 +102,20 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test 'devel package event' do
+    login_Iggy
+
+    Timecop.travel(2013, 8, 20, 12, 0, 0)
+    assert_difference 'ActionMailer::Base.deliveries.size', +5 do
+      raw_post '/request?cmd=create', "<request><action type='add_role'><target project='kde4' package='kdelibs'/><person name='Iggy' role='reviewer'/></action></request>"
+      assert_response :success
+    end
+
+    # what we want to test here is that tom - as devel package maintainer gets an email too
+    ActionMailer::Base.deliveries.each do |email|
+      # adrian actually gets 2 mails as he's reviewer and maintainer (not my idea :)
+      assert_includes %w(Iggy@pop.org adrian@example.com tschmidt@example.com fred@feuerstein.de), email.to[0]
+    end
+  end
+
 end

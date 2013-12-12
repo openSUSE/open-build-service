@@ -205,6 +205,11 @@ module Event
       if users.empty? && obj.respond_to?(:project)
         users = obj_maintainers(obj.project)
       end
+
+      # for now we define develpackage maintainers as being maintainers too
+      if obj.respond_to?(:develpackage)
+        users.concat(obj_maintainers(obj.develpackage))
+      end
       users
     end
 
