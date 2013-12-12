@@ -48,7 +48,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     page.must_have_unchecked_field('RequestStatechange_creator')
     page.must_have_checked_field('CommentForPackage_maintainer')
     page.must_have_checked_field('CommentForPackage_creator')
-    page.must_have_checked_field('ComentForProject_maintainer')
+    page.must_have_checked_field('CommentForProject_maintainer')
     page.must_have_checked_field('CommentForProject_reviewer')
   end
 end
