@@ -10,28 +10,36 @@ class EventFindSubscribers
 
     nt = []
     @toconsider.each do |r|
-      users=[]
-      if [:target_maintainer, :reviewer, :maintainer].include?(r.receiver_role)
-        users.concat(@event.send("#{r.receiver_role}s"))
-      elsif r.receiver_role == :creator
-        users << @event.creator
-      elsif r.receiver_role == :all
-        nt << r
-      else
-        raise "unknown receive? #{r.inspect}"
-      end
-      users.each do |u|
-        e = EventSubscription.new(eventtype: r.eventtype, receiver_role: :all)
-        unless r.user_id.nil?
-          next if u != r.user_id
-        end
-        e.user_id = u
-        nt << e
-      end
+      nt.concat(expand_one_rule(r))
     end
 
     Rails.logger.debug "Expanded #{@toconsider.inspect}"
     @toconsider = nt
+  end
+
+  def expand_one_rule(r)
+    ret = []
+    users=[]
+    if [:commenter, :target_maintainer, :reviewer, :maintainer].include?(r.receiver_role)
+      nu = @event.send("#{r.receiver_role}s")
+      raise "we need an array for #{@event.inspect} -> #{r.receiver_role}" unless nu.is_a? Array
+      users.concat(nu)
+    elsif r.receiver_role == :creator
+      users << @event.creator
+    elsif r.receiver_role == :all
+      ret << r
+    else
+      raise "unknown receive? #{r.inspect}"
+    end
+    users.each do |u|
+      e = EventSubscription.new(eventtype: r.eventtype, receiver_role: :all)
+      unless r.user_id.nil?
+        next if u != r.user_id
+      end
+      e.user_id = u
+      ret << e
+    end
+    ret
   end
 
   def compare_two_rules(x, y)

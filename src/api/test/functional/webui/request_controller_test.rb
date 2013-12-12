@@ -7,6 +7,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   uses_transaction :test_can_request_role_addition_for_packages
   uses_transaction :test_can_request_role_addition_for_projects
   uses_transaction :test_submit_package_and_revoke
+  uses_transaction :test_comment_event
 
   fixtures :all
 
@@ -24,7 +25,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     super
     # we need to do this as transaction rollback does not reset the ids
     # and we rely on fixed request ids in tests
-    BsRequest.connection.execute("alter table bs_requests AUTO_INCREMENT = 1001")
+    BsRequest.connection.execute('alter table bs_requests AUTO_INCREMENT = 1001')
   end
 
   def test_my_involved_requests
@@ -262,21 +263,41 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   test 'comment event' do
     login_tom to: request_show_path(4)
 
-    Timecop.travel(2013, 8, 20, 12, 0, 0)
-
-    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+    # adrian is reviewer, Iggy creator, Admin (fixture) commenter
+    # tom is commenter *and* author, so doesn't get mail
+    assert_difference 'ActionMailer::Base.deliveries.size', +3 do
       fill_in 'title', with: 'Comment Title'
       fill_in 'body', with: 'Comment Body'
       find_button('Add comment').click
       page.must_have_text 'Comment Title'
     end
 
-    email = ActionMailer::Base.deliveries.last
+    ActionMailer::Base.deliveries.each do |email|
+      assert_equal 'New comment in request 4 by tom: Comment Title', email.subject
+      assert_includes %w(Iggy@pop.org adrian@example.com root@localhost), email.to[0]
 
-    assert_equal "New comment in request 4 by tom", email.subject
-    assert_equal %w(Iggy@pop.org), email.to
-    verify_email('comment_event', "4", email)
+      if email.to[0] =~ %r{Iggy}
+        verify_email('comment_event', '4', email)
+      end
+    end
+
+    # now check the commenters get no more mails too if unsubscribed
+    EventSubscription.where(eventtype: 'Event::CommentForRequest', receiver_role: :commenter).delete_all
+
+    ActionMailer::Base.deliveries.clear
+
+    # adrian is reviewer, Iggy creator, Admin (fixture) commenter
+    assert_difference 'ActionMailer::Base.deliveries.size', +2 do
+      fill_in 'title', with: 'Another Title'
+      fill_in 'body', with: 'Another Body'
+      find_button('Add comment').click
+      page.must_have_text 'Another Title'
+    end
+
+    ActionMailer::Base.deliveries.each do |email|
+      assert_equal 'New comment in request 4 by tom: Another Title', email.subject
+      assert_includes %w(Iggy@pop.org adrian@example.com), email.to[0]
+    end
   end
-
 end
 

@@ -2,7 +2,7 @@ module CommitEvent
 
   def self.included(base)
     base.class_eval do
-      payload_keys :involved_users, :commenter, :comment
+      payload_keys :commenters, :commenter, :comment_body, :comment_title
     end
   end
 
@@ -16,6 +16,9 @@ module CommitEvent
     User.find(payload['commenter']).email
   end
 
+  def commenters
+    payload['commenters'] || []
+  end
 end
 
 class Event::CommentForProject < ::Event::Project
@@ -23,7 +26,7 @@ class Event::CommentForProject < ::Event::Project
   self.description = 'New comment for project created.'
 
   def subject
-    "New comment in project #{payload['project']} by #{User.find(payload['commenter']).login}"
+    "New comment in project #{payload['project']} by #{User.find(payload['commenter']).login}: #{payload['comment_title']}"
   end
 
 end
@@ -34,26 +37,18 @@ class Event::CommentForPackage < ::Event::Package
   self.description = 'New comment for package created.'
 
   def subject
-    "New comment in package #{payload['project']}/#{payload['package']} by #{User.find(payload['commenter']).login}"
+    "New comment in package #{payload['project']}/#{payload['package']} by #{User.find(payload['commenter']).login}: #{payload['comment_title']}"
   end
 
 end
 
-class Event::CommentForRequest < ::Event::Base
+class Event::CommentForRequest < ::Event::Request
 
   include CommitEvent
   self.description = 'New comment for request created.'
-  payload_keys :request_id
 
   def subject
-    "New comment in request #{payload['request_id']} by #{User.find(payload['commenter']).login}"
-  end
-
-  def subscribers
-    req = BsRequest.find(payload['request_id'])
-    subs = super
-    subs << User.find_by_login(req.creator)
-    subs.uniq
+    "New comment in request #{payload['id']} by #{User.find(payload['commenter']).login}: #{payload['comment_title']}"
   end
 
 end

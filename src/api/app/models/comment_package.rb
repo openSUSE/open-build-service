@@ -6,7 +6,7 @@ class CommentPackage < Comment
     super
     params[:project] = self.package.project.name
     params[:package] = self.package.name
-    params[:involved_users] = involved_users(:package_id, self.package.id)
+    params[:commenters] = involved_users(:package_id, self.package.id)
 
     # call the action
     Event::CommentForPackage.create params
