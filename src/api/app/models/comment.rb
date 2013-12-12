@@ -15,7 +15,8 @@ class Comment < ActiveRecord::Base
 
   def create_notification(params = {})
     params[:commenter] = self.user.id
-    params[:comment] = self.body
+    params[:comment_body] = self.body
+    params[:comment_title] = self.title
   end
 
   # build an array of users, commenting on a specific object type

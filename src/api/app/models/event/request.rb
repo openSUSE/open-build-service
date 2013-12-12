@@ -25,6 +25,11 @@ class Event::Request < ::Event::Base
     h['X-OBS-Request-Id'] = payload['id']
     h['X-OBS-Request-State'] = payload['state']
 
+    h.merge(headers_for_actions)
+  end
+
+  def headers_for_actions
+    ret = {}
     payload['actions'].each_with_index do |a, index|
       if payload['actions'].length == 1 || index == 0
         suffix = 'X-OBS-Request-Action'
@@ -32,20 +37,19 @@ class Event::Request < ::Event::Base
         suffix = "X-OBS-Request-Action-#{index}"
       end
 
-      h[suffix + '-type'] = a['type']
+      ret[suffix + '-type'] = a['type']
       if a['targetpackage']
-        h[suffix + '-target'] = "#{a['targetproject']}/#{a['targetpackage']}"
+        ret[suffix + '-target'] = "#{a['targetproject']}/#{a['targetpackage']}"
       elsif a['targetproject']
-        h[suffix + '-target'] = a['targetproject']
+        ret[suffix + '-target'] = a['targetproject']
       end
       if a['sourcepackage']
-        h[suffix + '-source'] = "#{a['sourceproject']}/#{a['sourcepackage']}"
+        ret[suffix + '-source'] = "#{a['sourceproject']}/#{a['sourcepackage']}"
       elsif a['sourceproject']
-        h[suffix + '-source'] = a['sourceproject']
+        ret[suffix + '-source'] = a['sourceproject']
       end
     end
-
-    h
+    ret
   end
 
   def actions_summary

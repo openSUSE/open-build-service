@@ -2,7 +2,9 @@ From: obs-email@opensuse.org
 Reply-To: tschmidt@example.com
 To: Iggy@pop.org
 Message-ID: <test@localhost>
-Subject: New comment in request 4 by tom
+In-Reply-To: obs-request-4@localhost
+References: obs-request-4@localhost
+Subject: New comment in request 4 by tom: Comment Title
 Mime-Version: 1.0
 Content-Type: text/plain;
  charset=UTF-8
@@ -12,6 +14,12 @@ X-Mailer: OBS Notification System
 X-OBS-URL: http://localhost
 Auto-Submitted: auto-generated
 X-OBS-event-type: comment_for_request
+X-OBS-Request-Creator: Iggy
+X-OBS-Request-Id: 4
+X-OBS-Request-State: review
+X-OBS-Request-Action-type: submit
+X-OBS-Request-Action-target: Apache/BranchPack
+X-OBS-Request-Action-source: home:Iggy:branches:kde4/BranchPack
 
 Visit http://localhost/request/show/4
 
