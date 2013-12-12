@@ -63,24 +63,5 @@ class EventSubscription < ActiveRecord::Base
     rule.save
   end
 
-  def self.subscription_value(eventtype, role, user)
-    # returns yes or no
-    rel = EventSubscription.where(eventtype: eventtype).where('package_id is null and project_id is null')
-
-    # check user config first
-    rule = rel.where(user: user).first
-    return rule.receive if rule
-    
-    # now global default
-    rule = rel.where(user_id: nil).first
-    return rule.receive if rule
-
-    # if nothing set, no value
-    return nil
-  end
-
-  def self.update_subscription(eventtype, role, user, value)
-  end
-
 end
 
