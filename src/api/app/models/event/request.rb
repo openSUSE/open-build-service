@@ -103,13 +103,22 @@ class Event::Request < ::Event::Base
     User.find_by_login(payload['author']).id
   end
 
-  def target_maintainers
+  def action_maintainers(prjname, pkgname)
     ret = []
     payload['actions'].each do |a|
-      ret.concat _maintainers(a['targetproject'], a['targetpackage'])
+      ret.concat _maintainers(a[prjname], a[pkgname])
     end
     ret.uniq
   end
+
+  def target_maintainers
+    action_maintainers('targetproject', 'targetpackage')
+  end
+
+  def source_maintainers
+    action_maintainers('sourceproject', 'sourcepackage')
+  end
+
 end
 
 class Event::RequestChange < Event::Request
