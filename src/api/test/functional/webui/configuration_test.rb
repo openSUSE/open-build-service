@@ -39,5 +39,52 @@ class Webui::ConfigurationTest < Webui::IntegrationTest
     assert_equal Architecture.find_by_name( "s390" ).available, false
   end
 
+  test 'change notification defaults'  do
+    # set some defaults as admin
+    login_king to: configuration_notifications_path
+
+    page.must_have_text 'Events to get email for'
+    page.must_have_checked_field('RequestStatechange_creator')
+    uncheck('RequestStatechange_creator')
+    checks = %w{CommentForPackage_commenter CommentForProject_maintainer CommentForProject_reviewer BuildFail_maintainer}
+    checks.each do |chk|
+      check(chk)
+    end
+    click_button 'Update'
+    find('#flash-messages').must_have_text 'Notifications settings updated'
+
+    # check defaults
+    page.must_have_text 'Events to get email for'
+    page.must_have_unchecked_field('RequestStatechange_creator')
+    checks.each do |chk|
+      page.must_have_checked_field(chk)
+    end
+
+    # check settings as user
+    login_adrian to: user_notifications_path
+
+    page.must_have_text 'Events to get email for'
+    page.must_have_unchecked_field('RequestStatechange_creator')
+    checks.each do |chk|
+      page.must_have_checked_field(chk)
+    end
+
+    # change settings as user
+    uncheck('CommentForProject_maintainer')
+    user_checks = %w{RequestStatechange_source_maintainer ReviewWanted_reviewer}
+    user_checks.each do |chk|
+      check(chk)
+    end
+    click_button 'Update'
+    find('#flash-messages').must_have_text 'Notifications settings updated'
+
+    # check defaults again
+    page.must_have_unchecked_field('CommentForProject_maintainer')
+    user_checks.each do |chk|
+      page.must_have_checked_field(chk)
+    end
+
+
+  end
 end
 
