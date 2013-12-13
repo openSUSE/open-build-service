@@ -675,7 +675,7 @@ class Webui::PackageController < Webui::WebuiController
       redirect_back_or_to :action => :show, :project => @project, :package => @package and return
     end
     if @spider_bot
-      render :template => 'package/simple_file_view' and return
+      render :template => 'webui/package/simple_file_view' and return
     end
   end
 
