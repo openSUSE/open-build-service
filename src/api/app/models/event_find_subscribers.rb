@@ -13,31 +13,24 @@ class EventFindSubscribers
       nt.concat(expand_one_rule(r))
     end
 
-    Rails.logger.debug "Expanded #{@toconsider.inspect}"
     @toconsider = nt
+    Rails.logger.debug "Expanded #{@toconsider.inspect}"
   end
 
   def expand_one_rule(r)
-    ret = []
-    users=[]
-    if [:commenter, :source_maintainer, :target_maintainer, :reviewer, :maintainer].include?(r.receiver_role)
-      nu = @event.send("#{r.receiver_role}s")
-      raise "we need an array for #{@event.inspect} -> #{r.receiver_role}" unless nu.is_a? Array
-      users.concat(nu)
-    elsif r.receiver_role == :creator
-      users << @event.creator
-    elsif r.receiver_role == :all
-      ret << r
-    else
-      raise "unknown receive? #{r.inspect}"
+    if r.receiver_role == :all
+      return [r]
     end
+
+    users = @event.send("#{r.receiver_role}s")
+    raise "we need an array for #{@event.inspect} -> #{r.receiver_role}" unless users.is_a? Array
+
+    # fetch database settings
+    ret = EventSubscription.where(eventtype: r.eventtype, receiver_role: r.receiver_role, user_id: users).to_a
+
     users.each do |u|
-      e = EventSubscription.new(eventtype: r.eventtype, receiver_role: :all)
-      unless r.user_id.nil?
-        next if u != r.user_id
-      end
-      e.user_id = u
-      ret << e
+      # add a default
+      ret << EventSubscription.new(eventtype: r.eventtype, receiver_role: r.receiver_role, receive: r.receive, user_id: u)
     end
     ret
   end
@@ -82,6 +75,15 @@ class EventFindSubscribers
     ret
   end
 
+  def receiver_role_set(role)
+    @toconsider.each do |r|
+      if r.receiver_role == r
+        return true
+      end
+    end
+    false
+  end
+
   def subscribers
     @payload = @event.payload
     @subscriptions = EventSubscription.where(eventtype: @event.class.classnames)
@@ -90,6 +92,11 @@ class EventFindSubscribers
 
     # 1. generic defaults
     @toconsider = @subscriptions.where('user_id is null and package_id is null and project_id is null').to_a
+    @event.class.receiver_roles.each do |r|
+      unless receiver_role_set(r)
+        @toconsider << EventSubscription.new(eventtype: @event.class.name, receiver_role: r, receive: false)
+      end
+    end
 
     # 2. user specifics
     usergenerics = @subscriptions.where('package_id is null and project_id is null')

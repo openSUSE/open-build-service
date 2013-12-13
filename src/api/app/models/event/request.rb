@@ -99,8 +99,8 @@ class Event::Request < ::Event::Base
     ret.uniq
   end
 
-  def creator
-    User.find_by_login(payload['author']).id
+  def creators
+    [User.find_by_login(payload['author']).id]
   end
 
   def action_maintainers(prjname, pkgname)

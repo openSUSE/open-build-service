@@ -111,4 +111,14 @@ class EventTest < ActiveSupport::TestCase
     CleanupEvents.new.perform
     assert Event::Base.count != firstcount, 'now its gone'
   end
+
+  test 'maintainer mails for build failure' do
+    # for this test we don't want fixtures to interfere
+    EventSubscription.delete_all
+
+    # just one subsciption
+    EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :maintainer, user: users(:Iggy)
+
+    assert_equal %w(Iggy), users_for_event(events(:build_failure_for_iggy))
+  end
 end

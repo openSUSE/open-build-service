@@ -88,7 +88,7 @@ events_5:
   created_at: 2013-08-31 14:56:50.000000000 Z
   updated_at: 2013-08-31 14:56:50.000000000 Z
   project_logged: 0
-events_6:
+build_failure_for_iggy:
   id: 6
   eventtype: Event::BuildFail
   payload: '{"project":"home:Iggy","package":"TestPack","repository":"10.2","arch":"i586","release":"42.1","versrel":"1.0-42","readytime":"1377958901","srcmd5":"1ac07842727acaf13d0e2b3213b47785","rev":"2","revtime":"1377958897","reason":"new
