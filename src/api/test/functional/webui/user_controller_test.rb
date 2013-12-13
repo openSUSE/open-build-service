@@ -39,16 +39,16 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     page.must_have_checked_field('RequestStatechange_creator')
     uncheck('RequestStatechange_creator')
     check('CommentForPackage_maintainer')
-    check('CommentForPackage_creator')
+    check('CommentForPackage_commenter')
     check('CommentForProject_maintainer')
-    check('CommentForProject_reviewer')
+    check('CommentForProject_commenter')
     click_button 'Update'
     flash_message.must_equal 'Notifications settings updated'
     page.must_have_text 'Events to get email for'
     page.must_have_unchecked_field('RequestStatechange_creator')
     page.must_have_checked_field('CommentForPackage_maintainer')
-    page.must_have_checked_field('CommentForPackage_creator')
+    page.must_have_checked_field('CommentForPackage_commenter')
     page.must_have_checked_field('CommentForProject_maintainer')
-    page.must_have_checked_field('CommentForProject_reviewer')
+    page.must_have_checked_field('CommentForProject_commenter')
   end
 end

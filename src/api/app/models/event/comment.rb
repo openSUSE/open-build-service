@@ -3,7 +3,7 @@ module CommitEvent
   def self.included(base)
     base.class_eval do
       payload_keys :commenters, :commenter, :comment_body, :comment_title
-      receiver_roles :maintainer, :creator, :reviewer, :commenter
+      receiver_roles :commenter
     end
   end
 
@@ -24,6 +24,8 @@ end
 
 class Event::CommentForProject < ::Event::Project
   include CommitEvent
+  receiver_roles :maintainer
+
   self.description = 'New comment for project created'
 
   def subject
@@ -34,6 +36,7 @@ end
 
 class Event::CommentForPackage < ::Event::Package
   include CommitEvent
+  receiver_roles :maintainer
 
   self.description = 'New comment for package created'
 
@@ -48,6 +51,7 @@ class Event::CommentForRequest < ::Event::Request
   include CommitEvent
   self.description = 'New comment for request created'
   payload_keys :request_id
+  receiver_roles :target_maintainer, :creator, :reviewer
 
   def subject
     "New comment in request #{payload['id']} by #{User.find(payload['commenter']).login}: #{payload['comment_title']}"
