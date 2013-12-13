@@ -46,7 +46,7 @@ class Webui::ConfigurationTest < Webui::IntegrationTest
     page.must_have_text 'Events to get email for'
     page.must_have_checked_field('RequestStatechange_creator')
     uncheck('RequestStatechange_creator')
-    checks = %w{CommentForPackage_commenter CommentForProject_maintainer CommentForProject_reviewer BuildFail_maintainer}
+    checks = %w{CommentForPackage_commenter CommentForProject_maintainer CommentForRequest_reviewer BuildFail_maintainer}
     checks.each do |chk|
       check(chk)
     end

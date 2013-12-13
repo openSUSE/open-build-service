@@ -31,7 +31,7 @@ class Event::BuildFail < Event::Build
         log = log.slice(-19, log.length)
       end
       log.join
-    rescue ActiveXML::Transport::NotFoundError => e
+    rescue ActiveXML::Transport::NotFoundError
       nil
     end
   end
