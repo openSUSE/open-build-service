@@ -1,10 +1,11 @@
-@subject: Build failure of <%= @e['project']%>/<%= @e['package']%> <%= @e['repository']%>/<%= @e['arch']%>
-Package <%= @e['package']%> (version <%= @e['versrel']%>.<%= @e['bcnt']%>) of 
-project <%= @e['project']%> failed to build
-for <%= @e['repository']%> / <%= @e['arch']%>.
+Visit <%= url_for(controller: :package, action: :live_build_log, project: @e['project'], package: @e['package'], repository: @e['repository'], arch: @e['arch'], only_path: false, host: @host) %>
 
-Review the build log:
-   osc remotebuildlog <%= @e['project']%> <%= @e['package']%> <%= @e['repository']%> <%= @e['arch']%> | less
+Package <%= @e['project'] %>/<%= @e['package']%> failed to build in <%= @e['repository']%>/<%= @e['arch']%>
 
 Check out the package for editing:
    osc checkout <%= @e['project']%> <%= @e['package']%>
+
+<% if @e['faillog'] %>
+Last lines of build log:
+<%= @e['faillog'] %>
+<% end %>

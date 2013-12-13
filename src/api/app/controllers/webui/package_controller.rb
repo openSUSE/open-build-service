@@ -11,7 +11,8 @@ class Webui::PackageController < Webui::WebuiController
   include Webui::LoadBuildresults
   include Webui::RequiresProject
   include Webui::ManageRelationships
-   
+  include BuildLogSupport
+
   helper 'webui/comment'
 
   before_filter :require_project, :except => [:submit_request, :devel_project]
@@ -712,11 +713,11 @@ class Webui::PackageController < Webui::WebuiController
     @arch = params[:arch]
     @repo = params[:repository]
     begin
-      size = frontend.get_size_of_log(@project, @package, @repo, @arch)
+      size = get_size_of_log(@project, @package, @repo, @arch)
       logger.debug('log size is %d' % size)
       @offset = size - 32 * 1024
       @offset = 0 if @offset < 0
-      @initiallog = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, size)
+      @initiallog = get_log_chunk( @project, @package, @repo, @arch, @offset, size)
     rescue => e
       logger.error "Got #{e.class}: #{e.message}; returning empty log."
       @initiallog = ''
@@ -737,7 +738,7 @@ class Webui::PackageController < Webui::WebuiController
     @maxsize = 1024 * 64
 
     begin
-      @log_chunk = frontend.get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + @maxsize)
+      @log_chunk = get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + @maxsize)
 
       if( @log_chunk.length == 0 )
         @finished = true
