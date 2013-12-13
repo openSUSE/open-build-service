@@ -46,7 +46,7 @@
       <p>
       <% if CONFIG['proxy_auth_mode'] == :on %>
         <% unless CONFIG['proxy_auth_account_page'].blank? %>
-          <%= link_to 'Edit your account', "#{CONFIG['proxy_auth_account_page']}" %><br />
+          <%= link_to sprited_text('user_edit', 'Edit your account'), "#{CONFIG['proxy_auth_account_page']}" %><br />
         <% end %>
       <% else %>
         <%= link_to(sprited_text('user_edit', 'Edit your account'), { :controller => 'user', :action => 'save_dialog', :user => User.current }, {:id => 'save_dialog', :remote => true}) %><br />
