@@ -17,7 +17,7 @@ class EventMailerTest < ActionMailer::TestCase
 
     # just one subsciption
     EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :maintainer, user: users(:Iggy)
-    Suse::Backend.start_test_backend
+    Suse::Backend.wait_for_scheduler_start
 
     mail = EventMailer.event(users(:Iggy), events(:build_failure_for_iggy))
     assert_equal "Build failure of home:Iggy/TestPack in 10.2/i586", mail.subject

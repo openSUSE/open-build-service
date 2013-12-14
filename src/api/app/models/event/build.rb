@@ -26,7 +26,13 @@ class Event::BuildFail < Event::Build
       size = get_size_of_log(payload['project'], payload['package'], payload['repository'], payload['arch'])
       offset = size - 18 * 1024
       offset = 0 if offset < 0
-      log = get_log_chunk(payload['project'], payload['package'], payload['repository'], payload['arch'], offset, size).lines
+      log = raw_log_chunk(payload['project'], payload['package'], payload['repository'], payload['arch'], offset, size)
+      begin
+        log.encode!(invalid: :replace, undef: :replace, cr_newline: true)
+      rescue Encoding::UndefinedConversionError
+        # encode is documented not to throw it if undef: is :replace, but at least we tried - and ruby 1.9.3 is buggy
+      end
+      log = log.lines
       if log.length > 20
         log = log.slice(-19, log.length)
       end

@@ -2,10 +2,14 @@ module BuildLogSupport
 
   include Escaper
 
-  def get_log_chunk( project, package, repo, arch, start, theend )
+  def raw_log_chunk( project, package, repo, arch, start, theend )
     logger.debug "get log chunk #{start}-#{theend}"
     path = "/build/#{pesc project}/#{pesc repo}/#{pesc arch}/#{pesc package}/_log?nostream=1&start=#{start}&end=#{theend}"
-    log = ActiveXML::backend.direct_http URI("#{path}"), :timeout => 500
+    ActiveXML::backend.direct_http URI("#{path}"), :timeout => 500
+  end
+
+  def get_log_chunk( project, package, repo, arch, start, theend )
+    log = raw_log_chunk( project, package, repo, arch, start, theend )
     begin
       log.encode!(invalid: :replace, xml: :text, undef: :replace, cr_newline: true)
     rescue Encoding::UndefinedConversionError

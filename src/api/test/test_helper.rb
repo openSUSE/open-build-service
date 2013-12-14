@@ -419,16 +419,7 @@ module ActionDispatch
     end
 
     def wait_for_scheduler_start
-      # make sure it's actually tried to start
-      Suse::Backend.start_test_backend
-      Rails.logger.debug 'Wait for scheduler thread to finish start'
-      counter = 0
-      marker = Rails.root.join('tmp', 'scheduler.done')
-      while counter < 100
-        return if File.exists?(marker)
-        sleep 0.5
-        counter = counter + 1
-      end
+      Suse::Backend.wait_for_scheduler_start
     end
 
     def run_scheduler(arch)

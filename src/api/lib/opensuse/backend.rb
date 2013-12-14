@@ -12,11 +12,11 @@ module Suse
     @source_host = CONFIG['source_host']
     @source_port = CONFIG['source_port']
 
-    @@backend_logger = Logger.new( "#{Rails.root}/log/backend_access.log" )
+    @@backend_logger = Logger.new("#{Rails.root}/log/backend_access.log")
     @@backend_time = 0
-    
+
     def initialize
-     Rails.logger.debug "init backend"
+      Rails.logger.debug "init backend"
     end
 
     class << self
@@ -47,7 +47,7 @@ module Suse
         start_test_backend
         @start_of_last = Time.now
         logger.debug "[backend] GET: #{path}"
-	timeout = in_headers.delete('Timeout') || 1000
+        timeout = in_headers.delete('Timeout') || 1000
         backend_request = Net::HTTP::Get.new(path, in_headers)
 
         response = Net::HTTP.start(host, port) do |http|
@@ -63,7 +63,7 @@ module Suse
         start_test_backend
         @start_of_last = Time.now
         logger.debug "[backend] #{method}: #{path}"
-	timeout = in_headers.delete('Timeout')
+        timeout = in_headers.delete('Timeout')
         if method == "PUT"
           backend_request = Net::HTTP::Put.new(path, in_headers)
         else
@@ -95,10 +95,10 @@ module Suse
       def put(path, data, in_headers={})
         put_or_post("PUT", path, data, in_headers)
       end
-      
+
       def post(path, data, in_headers={})
         in_headers = {
-          'Content-Type' => 'application/octet-stream'
+            'Content-Type' => 'application/octet-stream'
         }.merge in_headers
         put_or_post("POST", path, data, in_headers)
       end
@@ -107,7 +107,7 @@ module Suse
         start_test_backend
         @start_of_last = Time.now
         logger.debug "[backend] DELETE: #{path}"
-	timeout = in_headers.delete('Timeout') || 1000
+        timeout = in_headers.delete('Timeout') || 1000
         backend_request = Net::HTTP::Delete.new(path, in_headers)
         response = Net::HTTP.start(host, port) do |http|
           http.read_timeout = timeout
@@ -135,9 +135,9 @@ module Suse
 
             if hash[key].nil?
               # just a boolean argument ?
-              [hash[key]].flatten.map {|x| "#{key}"}.join("&")
+              [hash[key]].flatten.map { |x| "#{key}" }.join("&")
             else
-              [hash[key]].flatten.map {|x| "#{key}=#{CGI.escape(hash[key].to_s)}"}.join("&")
+              [hash[key]].flatten.map { |x| "#{key}=#{CGI.escape(hash[key].to_s)}" }.join("&")
             end
           end
         end
@@ -167,24 +167,24 @@ module Suse
           data = response.body
           if data.nil?
             @@backend_logger.info "(no data)"
-          elsif data.class == 'String' and data[0,1] == "<"
+          elsif data.class == 'String' and data[0, 1] == "<"
             @@backend_logger.info data
           else
-            @@backend_logger.info"(non-XML data) #{data.class}"
+            @@backend_logger.info "(non-XML data) #{data.class}"
           end
         end
       end
 
-      def handle_response( response )
+      def handle_response(response)
         case response
-        when Net::HTTPSuccess, Net::HTTPRedirection, Net::HTTPOK
-          return response
-        when Net::HTTPNotFound
-          raise ActiveXML::Transport::NotFoundError, response.read_body.force_encoding("UTF-8")
-        else
-          message = response.read_body
-          message = response.to_s if message.blank?
-          raise ActiveXML::Transport::Error, message.force_encoding("UTF-8")
+          when Net::HTTPSuccess, Net::HTTPRedirection, Net::HTTPOK
+            return response
+          when Net::HTTPNotFound
+            raise ActiveXML::Transport::NotFoundError, response.read_body.force_encoding("UTF-8")
+          else
+            message = response.read_body
+            message = response.to_s if message.blank?
+            raise ActiveXML::Transport::Error, message.force_encoding("UTF-8")
         end
       end
 
@@ -196,15 +196,15 @@ module Suse
         return true if @@backend && @@backend != :dont
       end
 
-      def do_not_start_test_backend 
+      def do_not_start_test_backend
         @@backend = :dont
       end
 
       def start_test_backend
-	#do_not_start_test_backend
+        #do_not_start_test_backend
         return unless Rails.env.test?
         return if @@backend
-	return if ENV['BACKEND_STARTED']
+        return if ENV['BACKEND_STARTED']
         puts "Starting test backend..."
         @@backend = IO.popen("#{Rails.root}/script/start_test_backend")
         logger.debug "Test backend started with pid: #{@@backend.pid}"
@@ -216,11 +216,24 @@ module Suse
         end
         CONFIG['global_write_through'] = true
         WebMock.disable_net_connect!(allow_localhost: true)
-	ENV['BACKEND_STARTED'] = '1'
+        ENV['BACKEND_STARTED'] = '1'
         at_exit do
           $stderr.puts "kill backend: #{@@backend.pid}"
           Process.kill "INT", @@backend.pid
           @@backend = nil
+        end
+      end
+
+      def wait_for_scheduler_start
+        # make sure it's actually tried to start
+        start_test_backend
+        Rails.logger.debug 'Wait for scheduler thread to finish start'
+        counter = 0
+        marker = Rails.root.join('tmp', 'scheduler.done')
+        while counter < 100
+          return if File.exists?(marker)
+          sleep 0.5
+          counter = counter + 1
         end
       end
 
