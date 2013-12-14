@@ -1,0 +1,10 @@
+Visit http://localhost/package/live_build_log/home:Iggy/TestPack/10.2/i586
+
+Package home:Iggy/TestPack failed to build in 10.2/i586
+
+Check out the package for editing:
+   osc checkout home:Iggy TestPack
+
+-- 
+Configure notifications at http://localhost/user/notifications
+Open Build Service (http://localhost/)
