@@ -3,7 +3,7 @@ Visit <%= url_for(controller: 'webui/package', action: :live_build_log, project:
 Package <%= @e['project'] %>/<%= @e['package']%> failed to build in <%= @e['repository']%>/<%= @e['arch']%>
 
 Check out the package for editing:
-   osc checkout <%= @e['project']%> <%= @e['package']%>
+  osc checkout <%= @e['project']%> <%= @e['package']%>
 <% if @e['faillog'] -%>
 
 Last lines of build log:

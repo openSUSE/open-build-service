@@ -3,6 +3,12 @@ require_relative '../test_helper'
 class EventMailerTest < ActionMailer::TestCase
   fixtures :all
 
+  def verify_email(fixture_name, email)
+    email.message_id = '<test@localhost>'
+    should = load_fixture("event_mailer/#{fixture_name}").chomp
+    assert_equal should, email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }.join("\n")
+  end
+
   test "commit event" do
 
     mail = EventMailer.event(users(:adrian), events(:pack1_commit))
@@ -20,9 +26,6 @@ class EventMailerTest < ActionMailer::TestCase
     Suse::Backend.wait_for_scheduler_start
 
     mail = EventMailer.event(users(:Iggy), events(:build_failure_for_iggy))
-    assert_equal "Build failure of home:Iggy/TestPack in 10.2/i586", mail.subject
-    assert_equal ["Iggy@pop.org"], mail.to
-    assert_equal read_fixture('build_fail').join, mail.body.to_s
-
+    verify_email('build_fail', mail)
   end
 end

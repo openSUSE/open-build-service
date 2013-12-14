@@ -46,6 +46,15 @@ class Event::BuildFail < Event::Build
     payload.merge('faillog' => faillog)
   end
 
+  def custom_headers
+    h = super
+    h['X-OBS-Package'] = "#{payload['project']}/#{payload['package']}"
+    h['X-OBS-Repository'] = "#{payload['repository']}/#{payload['arch']}"
+    h['X-OBS-Worker'] = payload['workerid']
+    h['X-OBS-Rebuild-Reason'] = payload['reason']
+    h
+  end
+
 end
 
 class Event::BuildUnchanged < Event::Build
