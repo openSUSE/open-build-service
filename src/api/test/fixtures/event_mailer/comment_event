@@ -1,6 +1,5 @@
-From: obs-email@opensuse.org
-Reply-To: tschmidt@example.com
-To: Iggy@pop.org
+From: Thor <tschmidt@example.com>
+To: Iggy Pop <Iggy@pop.org>
 Message-ID: <test@localhost>
 In-Reply-To: obs-request-4@localhost
 References: obs-request-4@localhost

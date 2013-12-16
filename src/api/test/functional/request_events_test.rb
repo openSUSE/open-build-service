@@ -69,7 +69,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
 
     email.message_id = 'test@localhost' # easier to compare :)
     assert_equal "Request state of #{myid} (set_bugowner home:tom) changed to declined", email.subject
-    verify_email('adrian_declined', myid, email)
+    verify_email('tom_declined', myid, email)
   end
 
   test 'group emails' do
@@ -105,17 +105,23 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
   test 'devel package event' do
     login_Iggy
 
+    # for this test, ignore reviewers
+    packages(:kde4_kdelibs).relationships.where(role: Role.rolecache['reviewer']).delete_all
+    projects(:kde4).relationships.where(role: Role.rolecache['reviewer']).delete_all
+
     Timecop.travel(2013, 8, 20, 12, 0, 0)
-    assert_difference 'ActionMailer::Base.deliveries.size', +5 do
+    myid = ''
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       raw_post '/request?cmd=create', "<request><action type='add_role'><target project='kde4' package='kdelibs'/><person name='Iggy' role='reviewer'/></action></request>"
       assert_response :success
+      assert_response :success
+      myid = Xmlhash.parse(@response.body)['id']
     end
 
+    email = ActionMailer::Base.deliveries.last
+    email.message_id = 'test@localhost' # easier to compare :)
     # what we want to test here is that tom - as devel package maintainer gets an email too
-    ActionMailer::Base.deliveries.each do |email|
-      # adrian actually gets 2 mails as he's reviewer and maintainer (not my idea :)
-      assert_includes %w(Iggy@pop.org adrian@example.com tschmidt@example.com fred@feuerstein.de), email.to[0]
-    end
+    verify_email('tom_gets_mail_too', myid, email)
   end
 
 end

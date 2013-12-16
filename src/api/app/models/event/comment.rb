@@ -14,7 +14,7 @@ module CommitEvent
   end
 
   def originator
-    User.find(payload['commenter']).email
+    User.find(payload['commenter'])
   end
 
   def commenters

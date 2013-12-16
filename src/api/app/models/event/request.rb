@@ -13,7 +13,7 @@ class Event::Request < ::Event::Base
   end
 
   def originator
-    payload_address('who') || mail_sender
+    payload_address('who')
   end
 
   def custom_headers

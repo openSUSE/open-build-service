@@ -9,10 +9,6 @@ class SendEventEmails
   def perform
     users = event.subscribers
     return if users.empty?
-    users.each do |u|
-      u = User.find_by_id(u)
-      raise 'we need valid users' unless u
-      EventMailer.event(u, event).deliver
-    end
+    EventMailer.event(User.where(id: users), event).deliver
   end
 end
