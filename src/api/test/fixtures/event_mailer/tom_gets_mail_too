@@ -3,7 +3,7 @@ To: Johnny Thunders <adrian@example.com>,
  Frederic Feuerstone <fred@feuerstein.de>, 
  Thor <tschmidt@example.com>
 message-id: test@localhost
-Subject: Iggy created request REQUESTID (add_role kde4/kdelibs)
+Subject: Request REQUESTID created by Iggy (add_role kde4/kdelibs)
 Mime-Version: 1.0
 Content-Type: text/plain;
  charset=UTF-8

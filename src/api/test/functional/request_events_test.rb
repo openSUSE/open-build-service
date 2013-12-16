@@ -31,7 +31,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
 
     email = ActionMailer::Base.deliveries.last
 
-    assert_equal "Iggy created request #{myid} (add_role home:tom)", email.subject
+    assert_equal "Request #{myid} created by Iggy (add_role home:tom)", email.subject
     assert_equal %w(tschmidt@example.com), email.to # tom is maintainer
     verify_email('request_event', myid, email)
   end
@@ -49,7 +49,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
 
     email = ActionMailer::Base.deliveries.last
 
-    assert_equal "Iggy created request #{myid} (set_bugowner home:tom)", email.subject
+    assert_equal "Request #{myid} created by Iggy (set_bugowner home:tom)", email.subject
     assert_equal %w(tschmidt@example.com), email.to
     verify_email('set_bugowner_event', myid, email)
 
@@ -68,7 +68,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     end
 
     email.message_id = 'test@localhost' # easier to compare :)
-    assert_equal "Request state of #{myid} (set_bugowner home:tom) changed to declined", email.subject
+    assert_equal "Request #{myid} changed to declined (set_bugowner home:tom)", email.subject
     verify_email('tom_declined', myid, email)
   end
 
@@ -85,7 +85,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
 
     email = ActionMailer::Base.deliveries.last
 
-    assert_equal "Review required for request #{myid} (submit Apache/BranchPack)", email.subject
+    assert_equal "Request #{myid} requires review (submit Apache/BranchPack)", email.subject
     assert_equal %w(adrian@example.com), email.to
   end
 

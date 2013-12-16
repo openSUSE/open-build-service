@@ -140,7 +140,7 @@ class Event::RequestCreate < Event::Request
   end
 
   def subject
-    "#{payload['who']} created request #{payload['id']} (#{actions_summary})"
+    "Request #{payload['id']} created by #{payload['who']} (#{actions_summary})"
   end
 
   def expanded_payload
@@ -160,7 +160,7 @@ class Event::RequestStatechange < Event::Request
   receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer
 
   def subject
-    "Request state of #{payload['id']} (#{actions_summary}) changed to #{payload['state']}"
+    "Request #{payload['id']} changed to #{payload['state']} (#{actions_summary})"
   end
 end
 
@@ -171,7 +171,7 @@ class Event::ReviewWanted < Event::Request
   receiver_roles :reviewer
 
   def subject
-    "Review required for request #{payload['id']} (#{actions_summary})"
+    "Request #{payload['id']} requires review (#{actions_summary})"
   end
 
   def expanded_payload

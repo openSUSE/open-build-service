@@ -73,7 +73,7 @@ class EventTest < ActiveSupport::TestCase
     end
     email = ActionMailer::Base.deliveries.last
 
-    assert_equal "Review required for request #{myid} (submit Apache/BranchPack)", email.subject
+    assert_equal "Request #{myid} requires review (submit Apache/BranchPack)", email.subject
     assert_equal %w(tschmidt@example.com), email.to
     should = load_fixture('event_mailer/review_wanted').gsub('REQUESTID', myid.to_s).chomp
     email.message_id = '<test@localhost>'

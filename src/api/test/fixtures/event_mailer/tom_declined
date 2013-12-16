@@ -3,7 +3,7 @@ To: Iggy Pop <Iggy@pop.org>
 message-id: test@localhost
 In-Reply-To: obs-request-REQUESTID@localhost
 References: obs-request-REQUESTID@localhost
-Subject: Request state of REQUESTID (set_bugowner home:tom) changed to declined
+Subject: Request REQUESTID changed to declined (set_bugowner home:tom)
 Mime-Version: 1.0
 Content-Type: text/plain;
  charset=UTF-8
