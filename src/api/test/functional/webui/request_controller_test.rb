@@ -265,21 +265,16 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
     # adrian is reviewer, Iggy creator, Admin (fixture) commenter
     # tom is commenter *and* author, so doesn't get mail
-    assert_difference 'ActionMailer::Base.deliveries.size', +3 do
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       fill_in 'title', with: 'Comment Title'
       fill_in 'body', with: 'Comment Body'
       find_button('Add comment').click
       page.must_have_text 'Comment Title'
     end
 
-    ActionMailer::Base.deliveries.each do |email|
-      assert_equal 'New comment in request 4 by tom: Comment Title', email.subject
-      assert_includes %w(Iggy@pop.org adrian@example.com root@localhost), email.to[0]
-
-      if email.to[0] =~ %r{Iggy}
-        verify_email('comment_event', '4', email)
-      end
-    end
+    email = ActionMailer::Base.deliveries.last
+    assert_equal 'New comment in request 4 by tom: Comment Title', email.subject
+    verify_email('comment_event', '4', email)
 
     # now check the commenters get no more mails too if unsubscribed
     EventSubscription.where(eventtype: 'Event::CommentForRequest', receiver_role: :commenter).delete_all
@@ -287,17 +282,16 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     ActionMailer::Base.deliveries.clear
 
     # adrian is reviewer, Iggy creator, Admin (fixture) commenter
-    assert_difference 'ActionMailer::Base.deliveries.size', +2 do
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       fill_in 'title', with: 'Another Title'
       fill_in 'body', with: 'Another Body'
       find_button('Add comment').click
       page.must_have_text 'Another Title'
     end
 
-    ActionMailer::Base.deliveries.each do |email|
-      assert_equal 'New comment in request 4 by tom: Another Title', email.subject
-      assert_includes %w(Iggy@pop.org adrian@example.com), email.to[0]
-    end
+    email = ActionMailer::Base.deliveries.last
+    assert_equal 'New comment in request 4 by tom: Another Title', email.subject
+    verify_email('another_comment_event', '4', email)
   end
 end
 
