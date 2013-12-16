@@ -2,6 +2,8 @@ From: obs-email@opensuse.org
 Reply-To: obs-email@opensuse.org
 To: Iggy@pop.org
 Message-ID: <test@localhost>
+In-Reply-To: build-f22a287c0bb24a0a9c2bac8d59f35aa3@localhost
+References: build-f22a287c0bb24a0a9c2bac8d59f35aa3@localhost
 Subject: Build failure of home:Iggy/TestPack in 10.2/i586
 Mime-Version: 1.0
 Content-Type: text/plain;
