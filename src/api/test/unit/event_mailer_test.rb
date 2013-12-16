@@ -11,7 +11,7 @@ class EventMailerTest < ActionMailer::TestCase
 
   test "commit event" do
 
-    mail = EventMailer.event(users(:adrian), events(:pack1_commit))
+    mail = EventMailer.event([users(:adrian)], events(:pack1_commit))
     assert_equal "BaseDistro/pack1 r1 commited", mail.subject
     assert_equal ["adrian@example.com"], mail.to
     assert_equal read_fixture('commit_event').join, mail.body.to_s
@@ -25,7 +25,7 @@ class EventMailerTest < ActionMailer::TestCase
     EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :maintainer, user: users(:Iggy)
     Suse::Backend.wait_for_scheduler_start
 
-    mail = EventMailer.event(users(:Iggy), events(:build_failure_for_iggy))
+    mail = EventMailer.event([users(:Iggy)], events(:build_failure_for_iggy))
     verify_email('build_fail', mail)
   end
 end

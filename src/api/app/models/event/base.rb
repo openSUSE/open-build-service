@@ -174,20 +174,15 @@ module Event
       payload
     end
 
-    def mail_sender
-      'obs-email@opensuse.org'
-    end
-
     def payload_address(field)
       if payload[field]
-        u = User.find_by_login(payload[field])
-        return u.email if u
+        return User.find_by_login(payload[field])
       end
       nil
     end
 
     def originator
-      payload_address('sender') || mail_sender
+      payload_address('sender')
     end
 
     def template_name

@@ -1,7 +1,9 @@
 From: Iggy Pop <Iggy@pop.org>
-To: Thor <tschmidt@example.com>
-Message-ID: obs-request-REQUESTID@localhost
-Subject: Iggy created request REQUESTID (add_role home:tom)
+To: Johnny Thunders <adrian@example.com>, 
+ Frederic Feuerstone <fred@feuerstein.de>, 
+ Thor <tschmidt@example.com>
+message-id: test@localhost
+Subject: Iggy created request REQUESTID (add_role kde4/kdelibs)
 Mime-Version: 1.0
 Content-Type: text/plain;
  charset=UTF-8
@@ -15,12 +17,12 @@ X-OBS-Request-Creator: Iggy
 X-OBS-Request-Id: REQUESTID
 X-OBS-Request-State: new
 X-OBS-Request-Action-type: add_role
-X-OBS-Request-Action-target: home:tom
+X-OBS-Request-Action-target: kde4/kdelibs
 
 Visit http://localhost/request/show/REQUESTID
 
 Actions:
-- Iggy wants to be reviewer in project home:tom
+- Iggy wants to be reviewer in package kde4/kdelibs
 
 To REVIEW against the previous version:
    osc request show --diff REQUESTID

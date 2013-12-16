@@ -10,7 +10,19 @@ class EventMailer < ActionMailer::Base
     headers['Auto-Submitted'] = 'auto-generated'
   end
 
-  def event(user, e)
+  def mail_sender
+    'obs-email@opensuse.org'
+  end
+
+  def format_email(user)
+    address = Mail::Address.new user.email
+    address.display_name = user.realname
+    address.format
+  end
+
+  def event(users, e)
+    users = users.to_a
+
     set_headers
     @e = e.expanded_payload
 
@@ -18,14 +30,23 @@ class EventMailer < ActionMailer::Base
 
     template_name = e.template_name
     orig = e.originator
-    to = user.email
+
     # no need to tell user about this own actions
     # TODO: make configurable?
-    return if orig == to
-    mail(to: to,
+    users.delete(orig)
+    return if users.empty?
+
+    tos = users.map { |u| format_email(u) }
+
+    if orig
+      orig = format_email(orig)
+    else
+      orig = mail_sender
+    end
+
+    mail(to: tos,
          subject: e.subject,
-         reply_to: orig,
-         from: e.mail_sender,
+         from: orig,
          template_name: template_name)
   end
 
