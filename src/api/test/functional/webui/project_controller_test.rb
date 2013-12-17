@@ -246,14 +246,24 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.must_have_text 'Include version updates' # just don't crash
   end
 
+  def verify_email(fixture_name, email)
+    should = load_fixture("event_mailer/#{fixture_name}").chomp
+    email.message_id = '<test@localhost>'
+    assert_equal should, email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }.join("\n")
+  end
+
   test 'succesful comment creation' do
     use_js
 
-    login_Iggy to: '/project/show/home:Iggy'
-    fill_in 'title', with: 'Comment Title'
-    fill_in 'body', with: 'Comment Body'
-    find_button('Add comment').click
-    find('#flash-messages').must_have_text 'Comment added successfully '
+    login_tom to: '/project/show/home:Iggy'
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+      fill_in 'title', with: 'Comment Title'
+      fill_in 'body', with: 'Comment Body'
+      find_button('Add comment').click
+      find('#flash-messages').must_have_text 'Comment added successfully '
+    end
+    email = ActionMailer::Base.deliveries.last
+    verify_email('project_comment', email)
   end
 
   test 'another succesful comment creation' do
