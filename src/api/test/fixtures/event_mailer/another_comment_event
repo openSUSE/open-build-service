@@ -3,8 +3,8 @@ From: Thor <tschmidt@example.com>
 To: Iggy Pop <Iggy@pop.org>, 
  Johnny Thunders <adrian@example.com>
 Message-ID: <test@localhost>
-In-Reply-To: obs-request-4@localhost
-References: obs-request-4@localhost
+In-Reply-To: <obs-request-4@localhost>
+References: <obs-request-4@localhost>
 Subject: New comment in request 4 by tom: Another Title
 Mime-Version: 1.0
 Content-Type: text/plain;
