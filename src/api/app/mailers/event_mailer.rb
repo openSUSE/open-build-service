@@ -8,10 +8,11 @@ class EventMailer < ActionMailer::Base
     headers['X-Mailer'] = 'OBS Notification System'
     headers['X-OBS-URL'] = ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false, host: @host)
     headers['Auto-Submitted'] = 'auto-generated'
+    headers['Return-Path'] = mail_sender
   end
 
   def mail_sender
-    'obs-email@opensuse.org'
+    'OBS Notification <obs-email@opensuse.org>'
   end
 
   def format_email(user)

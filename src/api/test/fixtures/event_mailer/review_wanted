@@ -1,8 +1,9 @@
+Return-Path: <obs-email@opensuse.org>
 From: Iggy Pop <Iggy@pop.org>
 To: Thor <tschmidt@example.com>
 Message-ID: <test@localhost>
-In-Reply-To: obs-request-4@localhost
-References: obs-request-4@localhost
+In-Reply-To: <obs-request-4@localhost>
+References: <obs-request-4@localhost>
 Subject: Request 4 requires review (submit Apache/BranchPack)
 Mime-Version: 1.0
 Content-Type: text/plain;
