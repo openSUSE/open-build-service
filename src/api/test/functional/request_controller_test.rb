@@ -291,6 +291,79 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_set_bugowner_request_locked_project
+    login_Iggy
+    raw_put '/source/home:Iggy:Test/_meta', "<project name='home:Iggy:Test'><title></title><description></description>  <lock><enable/></lock></project>"
+    assert_response :success
+
+    login_adrian
+    post '/request?cmd=create', '<request>
+                                   <action type="set_bugowner">
+                                     <target project="home:Iggy:Test"/>
+                                     <person name="adrian" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:id)
+    id = node.value('id')
+
+    login_Iggy
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response 403
+    assert_xml_tag(:tag => 'status', :attributes => {:code => 'post_request_no_permission'})
+    get '/source/home:Iggy:Test/_meta'
+    assert_response :success
+    assert_no_xml_tag(:tag => 'person', :attributes => {:role => 'bugowner'})
+
+    # works with force
+    post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
+    assert_response :success
+    get '/source/home:Iggy:Test/_meta'
+    assert_response :success
+    assert_xml_tag(:tag => 'person', :attributes => {:role => 'bugowner'})
+
+    # unlock and try with a locked package
+    post '/source/home:Iggy:Test', { :cmd => 'unlock', :comment => "cleanup" }
+    assert_response :success
+
+    raw_put '/source/home:Iggy:Test/pack/_meta', "<package project='home:Iggy:Test' name='pack'><title></title><description></description>  <lock><enable/></lock></package>"
+    assert_response :success
+
+    login_adrian
+    post '/request?cmd=create', '<request>
+                                   <action type="set_bugowner">
+                                     <target project="home:Iggy:Test" package="pack"/>
+                                     <person name="adrian" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:id)
+    id = node.value('id')
+
+    login_Iggy
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response 403
+    assert_xml_tag(:tag => 'status', :attributes => {:code => 'post_request_no_permission'})
+    get '/source/home:Iggy:Test/pack/_meta'
+    assert_response :success
+    assert_no_xml_tag(:tag => 'person', :attributes => {:role => 'bugowner'})
+
+    # works with force
+    post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
+    assert_response :success
+    get '/source/home:Iggy:Test/pack/_meta'
+    assert_response :success
+    assert_xml_tag(:tag => 'person', :attributes => {:role => 'bugowner'})
+
+    # cleanup
+    delete '/source/home:Iggy:Test'
+    assert_response :success
+  end
+
   def test_create_request_anonymous
     # try it without anonymous - login required
     post '/request?cmd=create', load_backend_file('request/add_role')

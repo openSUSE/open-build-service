@@ -259,11 +259,11 @@ class Project < ActiveRecord::Base
 
   end
 
-  def check_write_access!
+  def check_write_access!(ignoreLock=nil)
     return if Rails.env.test? and User.current.nil? # for unit tests
 
     # the can_create_check is inconsistent with package class check_write_access! check
-    unless User.current.can_modify_project?(self) || User.current.can_create_project?(self.name)
+    unless User.current.can_modify_project?(self, ignoreLock) || User.current.can_create_project?(self.name)
       raise WritePermissionError, "No permission to modify project '#{self.name}' for user '#{User.current.login}'"
     end
   end

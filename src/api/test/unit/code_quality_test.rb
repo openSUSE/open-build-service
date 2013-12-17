@@ -78,7 +78,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BsRequest#webui_actions' => 130.13,
       'BsRequest::new_from_xml' => 126.34,
       'BsRequestAction#check_action_permission!' => 217,
-      'BsRequestAction#check_newstate!' => 372.38,
+      'BsRequestAction#check_newstate!' => 376.24,
       'BsRequestAction#check_sanity' => 78.06,
       'BsRequestAction#create_expand_package' => 350.52,
       'BsRequestAction#default_reviewers' => 135.96,

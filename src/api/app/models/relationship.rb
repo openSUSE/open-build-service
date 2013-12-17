@@ -61,8 +61,8 @@ class Relationship < ActiveRecord::Base
   class SaveError < APIException;
   end
 
-  def self.add_user(obj, user, role)
-    obj.check_write_access!
+  def self.add_user(obj, user, role, ignoreLock=nil)
+    obj.check_write_access!(ignoreLock)
 
     unless role.kind_of? Role
       role = Role.find_by_title!(role)
@@ -91,8 +91,8 @@ class Relationship < ActiveRecord::Base
     end
   end
 
-  def self.add_group(obj, group, role)
-    obj.check_write_access!
+  def self.add_group(obj, group, role, ignoreLock=nil)
+    obj.check_write_access!(ignoreLock)
 
     unless role.kind_of? Role
       role = Role.find_by_title!(role)

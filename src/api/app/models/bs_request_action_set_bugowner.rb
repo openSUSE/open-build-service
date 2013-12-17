@@ -13,7 +13,7 @@ class BsRequestActionSetBugowner < BsRequestAction
     object.relationships.where("role_id = ?", bugowner).each do |r|
       r.destroy
     end
-    object.add_user( self.person_name, bugowner )
+    object.add_user( self.person_name, bugowner, true ) # runs with ignoreLock
     object.store
   end
   

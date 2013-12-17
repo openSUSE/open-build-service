@@ -4,12 +4,12 @@ module HasRelationships
   class SaveError < APIException
   end
 
-  def add_user(user, role)
-    Relationship.add_user(self, user, role)
+  def add_user(user, role, ignoreLock=nil)
+    Relationship.add_user(self, user, role, ignoreLock)
   end
 
-  def add_group(group, role)
-    Relationship.add_group(self, group, role)
+  def add_group(group, role, ignoreLock=nil)
+    Relationship.add_group(self, group, role, ignoreLock)
   end
 
   def users_and_roles

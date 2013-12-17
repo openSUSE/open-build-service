@@ -264,10 +264,9 @@ class Package < ActiveRecord::Base
     return self.project.is_locked?
   end
 
-  def check_write_access!
+  def check_write_access!(ignoreLock=nil)
     return if Rails.env.test? and User.current.nil? # for unit tests
-
-    unless User.current.can_modify_package? self
+    unless User.current.can_modify_package? self, ignoreLock
       raise WritePermissionError, "No permission to modify package '#{self.name}' for user '#{User.current.login}'"
     end
   end

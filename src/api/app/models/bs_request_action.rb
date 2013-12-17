@@ -543,8 +543,10 @@ class BsRequestAction < ActiveRecord::Base
 
     # general write permission check on the target on accept
     write_permission_in_this_action = false
+    # meta data change shall also be allowed after freezing a project using force:
+    ignoreLock = opts[:force] and [:set_bugowner].include? self.action_type
     if target_package
-      if User.current.can_modify_package? target_package
+      if User.current.can_modify_package?(target_package, ignoreLock)
         write_permission_in_target = true
         write_permission_in_this_action = true
       end
@@ -552,7 +554,7 @@ class BsRequestAction < ActiveRecord::Base
       if target_project and User.current.can_create_package_in?(target_project, true)
         write_permission_in_target = true
       end
-      if target_project and User.current.can_create_package_in?(target_project)
+      if target_project and User.current.can_create_package_in?(target_project, ignoreLock)
         write_permission_in_this_action = true
       end
     end
