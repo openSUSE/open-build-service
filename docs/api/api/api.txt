@@ -416,6 +416,7 @@ Parameters:
   status: enable or disable for set_flag command
   comment: description for the history
   # for copy command only:
+  oproject: origin project name (required)
   resign: resign all binaries with new target project key
   makeolder: make a split, the source is bumped by two numbers and target by one
   withhistory: copies sources with history on copy command
