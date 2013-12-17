@@ -9,7 +9,7 @@ class Event::Build < Event::Package
     md5 = payload['verifymd5'][0..6]
     domain = URI.parse(::Configuration.first.obs_url)
     mid = Digest::MD5.hexdigest("#{payload['project']}-#{payload['package']}-#{payload['repository']}-#{md5}")
-    "build-#{mid}@#{domain.host.downcase}"
+    "<build-#{mid}@#{domain.host.downcase}>"
   end
 
   def custom_headers

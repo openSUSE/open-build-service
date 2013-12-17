@@ -5,7 +5,7 @@ class Event::Request < ::Event::Base
 
   def self.message_id(id)
     domain = URI.parse(::Configuration.first.obs_url)
-    "obs-request-#{id}@#{domain.host.downcase}"
+    "<obs-request-#{id}@#{domain.host.downcase}>"
   end
 
   def my_message_id
