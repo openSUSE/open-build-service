@@ -67,7 +67,6 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
       email = m if m.to.include? 'Iggy@pop.org'
     end
 
-    email.message_id = 'test@localhost' # easier to compare :)
     assert_equal "Request #{myid} changed to declined (set_bugowner home:tom)", email.subject
     verify_email('tom_declined', myid, email)
   end
@@ -119,7 +118,6 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     end
 
     email = ActionMailer::Base.deliveries.last
-    email.message_id = 'test@localhost' # easier to compare :)
     # what we want to test here is that tom - as devel package maintainer gets an email too
     verify_email('tom_gets_mail_too', myid, email)
   end

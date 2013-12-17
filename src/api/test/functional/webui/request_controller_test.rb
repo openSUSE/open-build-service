@@ -256,7 +256,6 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
   def verify_email(fixture_name, myid, email)
     should = load_fixture("event_mailer/#{fixture_name}").gsub('REQUESTID', myid).chomp
-    email.message_id = '<test@localhost>'
     assert_equal should, email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }.join("\n")
   end
 

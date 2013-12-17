@@ -2,7 +2,7 @@ Return-Path: <obs-email@opensuse.org>
 From: Iggy Pop <Iggy@pop.org>
 Sender: OBS Notification <obs-email@opensuse.org>
 To: Thor <tschmidt@example.com>
-Message-ID: <test@localhost>
+Message-ID: <notrandom@localhost>
 In-Reply-To: <obs-request-4@localhost>
 References: <obs-request-4@localhost>
 Subject: Request 4 requires review (submit Apache/BranchPack)
