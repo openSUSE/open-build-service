@@ -72,7 +72,7 @@ class Event::Request < ::Event::Base
     end
   end
 
-  DiffLimit = 200
+  DiffLimit = 120
 
   def payload_with_diff
     ret = payload
