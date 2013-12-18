@@ -8,6 +8,8 @@ class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 
   before_filter :require_login, :only => [:save_comment]
+  # requests do not really add much value for our page rank :)
+  before_filter :lockout_spiders
 
   def add_reviewer_dialog
     @request_id = params[:id]
