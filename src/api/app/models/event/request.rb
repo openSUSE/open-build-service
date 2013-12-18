@@ -4,8 +4,7 @@ class Event::Request < ::Event::Base
   payload_keys :author, :comment, :description, :id, :actions, :state, :when, :who
 
   def self.message_id(id)
-    domain = URI.parse(::Configuration.first.obs_url)
-    "<obs-request-#{id}@#{domain.host.downcase}>"
+    "<obs-request-#{id}@#{message_domain}>"
   end
 
   def my_message_id

@@ -1,9 +1,11 @@
-<ul class="horizontal-list">
-  <li class="togglable_comment" data-toggle="reply_form_of_<%= comment[:id] %>">
+<%= possibly_empty_ul class: 'horizontal-list' do %>
+  <% unless User.current.is_nobody? %>
+   <li class="togglable_comment" data-toggle="reply_form_of_<%= comment[:id] %>">
     <a id="reply_link_id_<%= comment[:id] %>">
       <%= sprited_text('comment_add', 'Reply') %>
     </a>
-  </li>
+   </li>
+  <% end %>
   <% if User.current.login == comment[:user] || User.current.is_admin? %>
       <!-- editing is missing and as such broken
          <li class="togglable_comment" data-toggle="edit_form_of_<%= comment[:id] %>">
@@ -16,4 +18,4 @@
                      id: comment[:id]}, method: :delete) %>
       </li>
   <% end %>
-</ul>
+<% end %>

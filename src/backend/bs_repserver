@@ -1705,6 +1705,7 @@ sub putjob {
   my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo);
   my $projid = $info->{'project'} || $info->{'path'}->[0]->{'project'};
   my $repoid = $info->{'repository'} || $info->{'path'}->[0]->{'repository'};
+  my $prpa = "$projid/$repoid/$arch";
 
   my $now = time();
 
@@ -1796,6 +1797,8 @@ sub putjob {
   $ninfo{'starttime'} = $jobstatus->{'starttime'};
   $ninfo{'endtime'} = $jobstatus->{'endtime'};
   $ninfo{'workerid'} = $jobstatus->{'workerid'};
+
+  $ninfo{'previouslyfailed'} = 1 if -e "$reporoot/$prpa/:logfiles.fail/$info->{package}";
 
   if ($cgi->{'code'} && $cgi->{'code'} eq 'unchanged') {
     $jobstatus->{'result'} = 'unchanged';

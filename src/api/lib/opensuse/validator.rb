@@ -93,6 +93,7 @@ module Suse
         if content.nil?
           raise "illegal option; need content for #{schema_base_filename}"
         end
+        content = content.to_s
         if content.empty?
           logger.debug "no content, skipping validation for #{schema_file}"
           raise ValidationError, "Document is empty, not allowed for #{schema_base_filename}"

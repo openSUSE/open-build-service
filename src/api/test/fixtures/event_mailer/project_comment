@@ -3,7 +3,7 @@ From: Thor <tschmidt@example.com>
 Sender: OBS Notification <obs-email@opensuse.org>
 To: Iggy Pop <Iggy@pop.org>, 
  user is maintainer in hidden project <homer@nospam.net>
-Message-ID: <test@localhost>
+Message-ID: <notrandom@localhost>
 Subject: New comment in project home:Iggy by tom: Comment Title
 Mime-Version: 1.0
 Content-Type: text/plain;

@@ -76,7 +76,6 @@ class EventTest < ActiveSupport::TestCase
     assert_equal "Request #{myid} requires review (submit Apache/BranchPack)", email.subject
     assert_equal %w(tschmidt@example.com), email.to
     should = load_fixture('event_mailer/review_wanted').gsub('REQUESTID', myid.to_s).chomp
-    email.message_id = '<test@localhost>'
     assert_equal should, email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }.join("\n")
   end
 

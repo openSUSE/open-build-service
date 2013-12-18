@@ -2,7 +2,7 @@ Return-Path: <obs-email@opensuse.org>
 From: Thor <tschmidt@example.com>
 Sender: OBS Notification <obs-email@opensuse.org>
 To: Iggy Pop <Iggy@pop.org>
-message-id: test@localhost
+Message-ID: <notrandom@localhost>
 In-Reply-To: <obs-request-REQUESTID@localhost>
 References: <obs-request-REQUESTID@localhost>
 Subject: Request REQUESTID changed to declined (set_bugowner home:tom)

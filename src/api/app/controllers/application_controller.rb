@@ -637,12 +637,21 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  class LazyRequestReader
+    def initialize(req)
+      @req = req
+    end
+    def to_s
+      @req.raw_post
+    end
+  end
+
   def validate_xml_request(method = nil)
     opt = params()
     opt[:method] = method || request.method.to_s
     opt[:type] = 'request'
     logger.debug "Validate XML request: #{request}"
-    Suse::Validator.validate(opt, request.raw_post.to_s)
+    Suse::Validator.validate(opt, LazyRequestReader.new(request))
   end
 
   def validate_xml_response

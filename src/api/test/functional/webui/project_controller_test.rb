@@ -248,7 +248,6 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
   def verify_email(fixture_name, email)
     should = load_fixture("event_mailer/#{fixture_name}").chomp
-    email.message_id = '<test@localhost>'
     assert_equal should, email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }.join("\n")
   end
 

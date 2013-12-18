@@ -20,7 +20,6 @@ class SourceController < ApplicationController
   validate_action update_project_meta: { request: :project, response: :status}
   validate_action update_package_meta: { request: :package, response: :status}
 
-  skip_before_action :validate_xml_request, :only => [:file]
   skip_before_action :extract_user, only: [:lastevents_public]
 
   before_action :require_valid_project_name, except: [:index, :lastevents, :lastevents_public, :global_command]

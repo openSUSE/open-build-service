@@ -157,11 +157,21 @@ module Event
       'Build Service Notification'
     end
 
+    def self.message_domain
+      domain = URI.parse(::Configuration.first.obs_url)
+      domain.host.downcase
+    end
+
     # needs to return a hash (merge super)
     def custom_headers
       # not to break user's filters for now
       ret = {}
       ret['X-OBS-event-type'] = template_name # cheating
+      if Rails.env.test?
+        ret['Message-ID'] = "<notrandom@#{self.class.message_domain}>"
+      else
+        ret['Message-ID'] = "<#{Mail.random_tag}@#{self.class.message_domain}>"
+      end
       ret
     end
 

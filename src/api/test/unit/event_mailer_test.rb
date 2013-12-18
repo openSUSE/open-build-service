@@ -4,7 +4,6 @@ class EventMailerTest < ActionMailer::TestCase
   fixtures :all
 
   def verify_email(fixture_name, email)
-    email.message_id = '<test@localhost>'
     should = load_fixture("event_mailer/#{fixture_name}").chomp
     assert_equal should, email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }.join("\n")
   end

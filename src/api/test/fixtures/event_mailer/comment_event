@@ -4,7 +4,7 @@ Sender: OBS Notification <obs-email@opensuse.org>
 To: Iggy Pop <Iggy@pop.org>, 
  OBS Instance Superuser <root@localhost>, 
  Johnny Thunders <adrian@example.com>
-Message-ID: <test@localhost>
+Message-ID: <notrandom@localhost>
 In-Reply-To: <obs-request-4@localhost>
 References: <obs-request-4@localhost>
 Subject: New comment in request 4 by tom: Comment Title
