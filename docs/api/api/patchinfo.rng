@@ -47,6 +47,12 @@
           <ref name="issue-element"/>
         </zeroOrMore>
 
+        <optional>
+          <element name="name"> <!-- old style patch name -->
+            <text/>
+          </element>
+        </optional>
+
         <element name="category"> 
           <ref name="patchinfo-categories" />
         </element>

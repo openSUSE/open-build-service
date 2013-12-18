@@ -547,14 +547,10 @@ module MaintenanceHelper
 
   def release_package(sourcePackage, targetProjectName, targetPackageName,
                       filterSourceRepository = nil, request = nil)
-    
     targetProject = Project.get_by_name targetProjectName
 
     # create package container, if missing
     tpkg = create_package_container_if_missing(sourcePackage, targetPackageName, targetProject)
-
-    # get updateinfo id in case the source package comes from a maintenance project
-    updateinfoId = get_updateinfo_id(sourcePackage, targetProject)
 
     # detect local links
     begin
@@ -567,16 +563,16 @@ module MaintenanceHelper
       release_package_relink(link, request, targetPackageName, targetProject, tpkg)
     else
       # copy sources
-      release_package_copy_sources(request, sourcePackage, targetPackageName, targetProject, updateinfoId)
+      release_package_copy_sources(request, sourcePackage, targetPackageName, targetProject)
       tpkg.sources_changed
     end
 
     # copy binaries
-    copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, updateinfoId)
+    copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject)
 
     # create or update main package linking to incident package
     unless sourcePackage.is_patchinfo?
-      release_package_create_main_package(request, sourcePackage, targetPackageName, targetProject, updateinfoId)
+      release_package_create_main_package(request, sourcePackage, targetPackageName, targetProject)
     end
 
     # publish incident if source is read protect, but release target is not. assuming it got public now.
@@ -609,7 +605,7 @@ module MaintenanceHelper
     tpkg.sources_changed(answer)
   end
 
-  def release_package_create_main_package(request, sourcePackage, targetPackageName, targetProject, updateinfoId)
+  def release_package_create_main_package(request, sourcePackage, targetPackageName, targetProject)
     basePackageName = targetPackageName.gsub(/\.[^\.]*$/, '')
 
     # only if package does not contain a _patchinfo file
@@ -626,7 +622,6 @@ module MaintenanceHelper
         :rev => 'repository',
         :comment => "Set link to #{targetPackageName} via maintenance_release request",
     }
-    upload_params[:comment] += ", for updateinfo ID #{updateinfoId}" if updateinfoId
     upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(basePackageName)}/_link"
     upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :rev])
     link = "<link package='#{targetPackageName}' cicount='copy' />\n"
@@ -642,7 +637,7 @@ module MaintenanceHelper
     lpkg.sources_changed(answer)
   end
 
-  def release_package_copy_sources(request, sourcePackage, targetPackageName, targetProject, updateinfoId)
+  def release_package_copy_sources(request, sourcePackage, targetPackageName, targetProject)
     # backend copy of current sources as full copy
     # that means the xsrcmd5 is different, but we keep the incident project anyway.
     cp_params = {
@@ -655,21 +650,22 @@ module MaintenanceHelper
         :withvrev => '1',
         :noservice => '1',
     }
-    cp_params[:comment] += ", setting updateinfo to #{updateinfoId}" if updateinfoId
     cp_params[:requestid] = request.id if request
     cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
     cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :expand, :withvrev, :noservice])
     Suse::Backend.post cp_path, nil
   end
 
-  def copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, updateinfoId)
+  def copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject)
     sourcePackage.project.repositories.each do |sourceRepo|
       next if filterSourceRepository and filterSourceRepository != sourceRepo
       sourceRepo.release_targets.each do |releasetarget|
         #FIXME2.5: filter given release and/or target repos here
         sourceRepo.architectures.each do |arch|
           if releasetarget.target_repository.project == targetProject
-            copy_single_binary(arch, releasetarget, sourcePackage, sourceRepo, targetPackageName, updateinfoId)
+            # get updateinfo id in case the source package comes from a maintenance project
+            uID = get_updateinfo_id(sourcePackage, releasetarget.target_repository)
+            copy_single_binary(arch, releasetarget, sourcePackage, sourceRepo, targetPackageName, uID)
           end
         end
         # remove maintenance release trigger in source
@@ -697,22 +693,34 @@ module MaintenanceHelper
     Suse::Backend.post cp_path, nil
   end
 
-  def get_updateinfo_id(sourcePackage, targetProject)
+  def get_updateinfo_id(sourcePackage, targetRepo)
+    return nil unless sourcePackage.is_patchinfo?
+
+    # check for patch name inside of _patchinfo file
+    xml = Patchinfo.new.read_patchinfo_xmlhash(sourcePackage)
+    e = xml.elements("name")
+    patchName = e ? e.first : ""
+
     mi = MaintenanceIncident.find_by_db_project_id(sourcePackage.project_id)
-    updateinfoId = nil
-    if mi
-      id_template = nil
-      # check for a definition in maintenance project
-      if a = mi.maintenance_db_project.find_attribute('OBS', 'MaintenanceIdTemplate')
-        id_template = a.values[0].value
-      end
-      # a definition in channel release project is superseeding this
-      if sourcePackage.is_channel? and a = targetProject.find_attribute('OBS', 'MaintenanceIdTemplate')
-        id_template = a.values[0].value
-      end
-      updateinfoId = mi.getUpdateinfoId(id_template)
+    return nil unless mi
+
+    id_template = nil
+    # check for a definition in maintenance project
+    if a = mi.maintenance_db_project.find_attribute('OBS', 'MaintenanceIdTemplate')
+      id_template = a.values[0].value
     end
-    updateinfoId
+    uID = mi.getUpdateinfoId(id_template, patchName)
+
+    # expand a possible defined release target channel tag
+    projectFilter = nil
+    if p = sourcePackage.project.find_parent and p.is_maintenance?
+      projectFilter = p.maintained_projects
+    end
+    channelTag="" # or strip away a possibly %T in any case
+    if ct = ChannelTarget.find_by_repo(targetRepo, projectFilter)
+       channelTag=ct.tag if ct.tag
+    end
+    return uID.gsub(/%T/,channelTag)
   end
 
   def create_package_container_if_missing(sourcePackage, targetPackageName, targetProject)

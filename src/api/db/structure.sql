@@ -280,6 +280,8 @@ CREATE TABLE `channel_targets` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `channel_id` int(11) NOT NULL,
   `repository_id` int(11) NOT NULL,
+  `prefix` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `tag` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_channel_targets_on_channel_id_and_repository_id` (`channel_id`,`repository_id`),
   KEY `repository_id` (`repository_id`),
@@ -1420,6 +1422,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131209095749');
 INSERT INTO schema_migrations (version) VALUES ('20131209103450');
 
 INSERT INTO schema_migrations (version) VALUES ('20131210182719');
+
+INSERT INTO schema_migrations (version) VALUES ('20131218071042');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

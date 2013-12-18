@@ -8,3 +8,8 @@ attrib_values_UpdateProject_for_BaseDistro2_0:
   attrib_id: 103
   value: BaseDistro2.0:LinkedUpdateProject
   position: 0
+attrib_My_Maintenance_updateinfo:
+  id: 3
+  attrib_id: 1040753499
+  value: "%Tupdateinfo%N-%Y-%C"
+  position: 0

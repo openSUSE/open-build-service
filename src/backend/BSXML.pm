@@ -226,6 +226,7 @@ our $patchinfo = [
 	 ]],
             'category',
             'rating',
+            'name', # optional, old patchinfo name which will become part of incident string
             'summary',
             'description',
             'swampid',	# obsolete
@@ -245,6 +246,7 @@ our $channel = [
      [[ 'target' =>
 	    'project',
 	    'repository',
+	    'tag',         # optional
      ]],
      [[ 'binaries' =>
 	    'project',

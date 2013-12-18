@@ -33,6 +33,9 @@
      <element ns="" name="target">
        <attribute name="project"/>
        <attribute name="repository"/>
+       <optional>
+         <attribute name="tag"/>
+       </optional>
        <empty/>
      </element>
   </define>

@@ -99,8 +99,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_maintenance_request_from_foreign_project
-    # special kdelibs
     login_king
+    # special kdelibs
     put '/source/BaseDistro2.0:LinkedUpdateProject/kdelibs/_meta', "<package name='kdelibs'><title/><description/></package>"
     assert_response :success
     put '/source/BaseDistro2.0:LinkedUpdateProject/kdelibs/empty', 'NOOP'
@@ -216,8 +216,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # cleanup
     login_king
-    delete '/source/BaseDistro2.0:LinkedUpdateProject/kdelibs'
-    assert_response :success
+#    delete '/source/BaseDistro2.0:LinkedUpdateProject/kdelibs'
+#    assert_response :success
     delete '/source/home:tom:branches:kde4'
     assert_response :success
   end
@@ -432,6 +432,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     put '/source/Channel/_meta', '<project name="Channel"><title/><description/>
                                    </project>'
     assert_response :success
+    # create channel package
     put '/source/Channel/BaseDistro3/_meta', '<package project="Channel" name="BaseDistro3"><title/><description/></package>'
     assert_response :success
     put '/source/Channel/BaseDistro3/_channel', '<?xml version="1.0" encoding="UTF-8"?>
@@ -447,7 +448,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'binary', :attributes => { :project => 'BaseDistro2.0', :package => 'pack2.linked'}
     put '/source/Channel/BaseDistro3/_channel', '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
-          <target project="BaseDistro3Channel" repository="channel_repo" />
+          <target project="BaseDistro3Channel" repository="channel_repo" tag="UpdateInfoTag-" />
           <binaries project="BaseDistro3" repository="BaseDistro3_repo" arch="i586">
             <binary name="package" package="pack2" project="BaseDistro3" supportstatus="l3" />
             <binary name="does_not_exist" />
@@ -485,6 +486,18 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'releasetarget', :attributes => { :project=> 'BaseDistro3Channel', :repository=> 'channel_repo', :trigger=> 'maintenance'},
                    :parent => { :tag => 'repository', :attributes => {:name=> 'BaseDistro3Channel'} }
 
+    # inject build results
+    run_scheduler('x86_64')
+    run_scheduler('i586')
+    inject_build_job( incidentProject, 'pack2.BaseDistro3', 'BaseDistro3', 'i586')
+    run_scheduler('x86_64')
+    run_scheduler('i586')
+    wait_for_publisher()
+    get "/build/#{incidentProject}/_result"
+    assert_response :success
+    assert_xml_tag :parent => { :tag => 'result', :attributes => { :repository=> 'BaseDistro3', :arch=> 'i586', :state=> 'published'} }, :tag => 'status', :attributes => { :package=> 'patchinfo', :code=> 'succeeded'}
+    assert_xml_tag :parent => { :tag => 'result', :attributes => { :repository=> 'BaseDistro3Channel', :arch=> 'i586', :state=> 'published'} }, :tag => 'status', :attributes => { :package=> 'patchinfo', :code=> 'succeeded'}
+
     # create release request
     post '/request?cmd=create&ignore_build_state=1', '<request>
                                    <action type="maintenance_release">
@@ -505,7 +518,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # and check what happens after modifing _channel file
     put '/source/My:Maintenance:0/BaseDistro3.Channel/_channel', '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
-          <target project="BaseDistro3Channel" repository="channel_repo" />
+          <target project="BaseDistro3Channel" repository="channel_repo" tag="UpdateInfoTagNew-" />
           <binaries project="BaseDistro3" repository="BaseDistro3_repo" arch="i586">
             <binary name="package" package="pack2" project="BaseDistro3" />
           </binaries>
@@ -534,22 +547,40 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert node.has_attribute?(:id)
     reqid = node.value(:id)
 
-    #FIXME: add test case for accepting the request
-    # revoke try new request
-    post "/request/#{reqid}?cmd=changestate&newstate=revoked"
+    # accept new request
+    login_king
+    post "/request/#{reqid}?cmd=changestate&newstate=accepted&force=1"
     assert_response :success
+    run_scheduler('x86_64')
+    run_scheduler('i586')
+    wait_for_publisher()
+
+    # collect the job results
+    get "/build/#{incidentProject}/_result"
+    assert_response :success
+    assert_xml_tag :parent => { :tag => 'result', :attributes => { :repository=> 'BaseDistro3', :arch=> 'i586', :state=> 'published'} }, :tag => 'status', :attributes => { :package=> 'patchinfo', :code=> 'locked'}
+    assert_xml_tag :parent => { :tag => 'result', :attributes => { :repository=> 'BaseDistro3Channel', :arch=> 'i586', :state=> 'published'} }, :tag => 'status', :attributes => { :package=> 'patchinfo', :code=> 'locked'}
+
+    # validate update info channel tag
+    incidentID=incidentProject.gsub(/.*:/,'')
+    get "/build/BaseDistro3Channel/channel_repo/i586/patchinfo.#{incidentID}/updateinfo.xml"
+    assert_response :success
+    # check for changed updateinfoid.
+    assert_xml_tag :parent => { :tag => 'update', :attributes => { :from => 'tom', :status => 'stable',  :type => 'recommended', :version => '1'} }, :tag => 'id', :content => "UpdateInfoTagNew-updateinfo-#{Time.now.utc.year.to_s}-1"
 
     #cleanup
     login_king
     delete '/source/BaseDistro3Channel'
     assert_response 400 # incident still refers to it
     delete "/source/#{incidentProject}"
+    assert_response 403 # still locked, so unlock it ...
+    post "/source/#{incidentProject}", { :cmd => 'unlock', :comment => 'cleanup'}
     assert_response :success
+    delete "/source/#{incidentProject}"
+    assert_response :success
+#    delete '/source/BaseDistro3Channel'
+#    assert_response :success
     delete '/source/Channel'
-    assert_response :success
-    delete '/source/BaseDistro3Channel'
-    assert_response :success
-    delete '/source/BaseDistro3/pack2/file'
     assert_response :success
   end
 
@@ -924,7 +955,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     raw_put '/source/My:Maintenance/_meta', maintenance_project_meta.to_s
     assert_response :success
 
-    raw_post '/source/My:Maintenance/_attribute', "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-%Y-%C</value></attribute></attributes>"
+    raw_post '/source/My:Maintenance/_attribute', "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-%N-%Y-%C</value></attribute></attributes>"
     assert_response :success
 
     Timecop.freeze(1)
@@ -1042,6 +1073,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     pi.find_first('summary').text = 'if you are bored'
     pi.find_first('description').text = 'if you are bored and really want fixes'
     pi.find_first('rating').text = 'low'
+    pi.add_element('name').text = 'oldname'
     pi.add_element 'issue', { 'id' => '0815', 'tracker' => 'bnc'}
     pi.add_element 'releasetarget', { :project => 'BaseDistro2.0:LinkedUpdateProject'}
     pi.add_element 'releasetarget', { :project => 'BaseDistro3'}
@@ -1383,7 +1415,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/build/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/patchinfo.#{incidentID}/updateinfo.xml"
     assert_response :success
     # check for changed updateinfoid 
-    assert_xml_tag :parent => { :tag => 'update', :attributes => { :from => 'maintenance_coord', :status => 'stable',  :type => 'security', :version => '1'} }, :tag => 'id', :content => "My-#{Time.now.utc.year.to_s}-1"
+    assert_xml_tag :parent => { :tag => 'update', :attributes => { :from => 'maintenance_coord', :status => 'stable',  :type => 'security', :version => '1'} }, :tag => 'id', :content => "My-oldname-#{Time.now.utc.year.to_s}-1"
     # check :full tree
     get '/build/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/_repository'
     assert_response :success
@@ -1439,7 +1471,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-updateinfo.xml.gz") do |io|
        node = REXML::Document.new( io.read )
     end
-    assert_equal "My-#{Time.now.year}-1", node.elements['/updates/update/id'].first.to_s
+    assert_equal "My-oldname-#{Time.now.year}-1", node.elements['/updates/update/id'].first.to_s
     # verify meta data created by createrepo
     IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-primary.xml.gz") do |io|
        hashed = Xmlhash.parse(io.read)

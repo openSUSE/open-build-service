@@ -48,7 +48,7 @@ class Channel < ActiveRecord::Base
     xmlhash.elements('target') { |p|
       prj = Project.find_by_name(p['project'])
       r = prj.repositories.find_by_name(p['repository'])
-      self.channel_targets.create(:repository => r) if r
+      self.channel_targets.create(:repository => r, :tag => p['tag']) if r
     }
     xmlhash.elements('binaries').each { |p|
       cbl = self.channel_binary_lists.create()
