@@ -126,6 +126,8 @@ class Webui::WebuiController < ActionController::Base
       # Set the headers for direct connection to the api, TODO: is this thread safe?
       ActiveXML::api.set_additional_header( 'X-Username', proxy_user )
       ActiveXML::api.set_additional_header( 'X-Email', proxy_email ) if proxy_email
+      # FIXME: hot fix to allow new users to login at all again
+      frontend.transport.direct_http(URI("/person/#{URI.escape(proxy_user)}"), :method => 'GET')
     else
       session[:login] = nil
       session[:email] = nil
