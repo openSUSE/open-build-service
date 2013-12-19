@@ -722,7 +722,7 @@ class Webui::PackageController < Webui::WebuiController
       logger.error "Got #{e.class}: #{e.message}; returning empty log."
       @initiallog = ''
     end
-    @offset = (@offset || 0) + ActiveXML::api.last_body_length
+    @offset = (@offset || 0) + ActiveXML::backend.last_body_length
   end
 
   def update_build_log
@@ -743,7 +743,7 @@ class Webui::PackageController < Webui::WebuiController
       if( @log_chunk.length == 0 )
         @finished = true
       else
-        @offset += ActiveXML::api.last_body_length
+        @offset += ActiveXML::backend.last_body_length
       end
 
     rescue Timeout::Error, IOError
