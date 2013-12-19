@@ -191,6 +191,11 @@
   <% end %>
 </div>
 
+<div class="grid_16 box box-shadow alpha omega" style="margin-top: 15px;">
+  <h2 class="box-header">Comments for request <%= @id %> (<%= @comments.length %>)</h2>
+  <%= render :partial => 'webui/comment/show' %>
+</div>
+
 <div class="grid_16 alpha omega">
   <div class="grid_10 alpha">
     <div class="box box-shadow">
@@ -279,7 +284,3 @@
   </div>
 </div>
 
-<div class="grid_16 box box-shadow alpha omega" style="margin-top: 15px;">
-  <h2 class="box-header">Comments for request <%= @id %> (<%= @comments.length %>)</h2>
-  <%= render :partial => 'webui/comment/show' %>
-</div>
