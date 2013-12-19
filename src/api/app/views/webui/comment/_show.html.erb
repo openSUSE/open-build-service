@@ -1,6 +1,3 @@
-<div class="comment_thread grid_16 alpha omega">
-  <%=render partial: "webui/comment/new"%>
-</div>
 <% @comments.each do |comment| %>
   <%= javascript_tag do %>
     <%= render partial: "webui/comment/expand_collapse.js.erb", locals: {comment_id: comment[:id]}%>
@@ -33,6 +30,9 @@
     </div>
   </div>
 <% end %>
+<div class="comment_thread grid_16 alpha omega">
+  <%=render partial: "webui/comment/new"%>
+</div>
 
 <% content_for :ready_function do %>
    setup_comment_toggles();
