@@ -20,17 +20,7 @@
   <div class="grid_10 alpha">
     <h3><%= @pagetitle %> (<%= @state %>)</h3>
     <%= description_wrapper(@req['description']) %>
-
-    <div class="grid_16 alpha omega">
-
-      <%= possibly_empty_ul class: 'horizontal-list' do %>
-          <% if @can_add_reviews %>
-              <li><%= link_to(sprited_text('user_add', 'Add a review'), { controller: 'request', action: 'add_reviewer_dialog', id: @id }, remote: true) %></li>
-          <% end %>
-      <% end %>
-    </div>
-
-  </div>
+ </div>
   <div class="grid_6 omega">
     <%= possibly_empty_ul class: 'clean_list' do %>
         <li><%= sprite_tag('user_green') %> Created
@@ -153,7 +143,40 @@
           <% end %>
         </p>
 
+        <div class="box-header header-tabs">
+          <%= possibly_empty_ul id: 'info_select' do %>
+            <li class="selected">
+              <a class="info_select_link" id="info_select_link_0" href="#">History</a>
+            </li>
+            <li>
+              <a class="info_select_link" id="info_select_link_1" href="#">Comments (<%= @comments.length %>)</a>
+            </li>
+            <% if action[:sourcediff] %>
+              <li>
+                <a class="info_select_link" id="info_select_link_2" href="#">Changes</a>
+              </li>
+            <% end %>
+          <% end %>
+        </div>
+        <%= content_for :ready_function do %>
+          setupInfoLink();
+        <% end %>
+
+        <div class="info_display" id="info_display_0">
+          <%= render :partial => 'recent_events_table' %>
+          <%= possibly_empty_ul class: 'horizontal-list' do %>
+            <% if @can_add_reviews %>
+              <li><%= link_to(sprited_text('user_add', 'Add a review'), { controller: 'request', action: 'add_reviewer_dialog', id: @id }, remote: true) %></li>
+            <% end %>
+          <% end %>
+        </div>
+
+        <div class="info_display" id="info_display_1">
+          <%= render :partial => 'webui/comment/show' %>
+        </div>
+
         <% if action[:sourcediff] %>
+          <div class="info_display" id="info_display_2">
             <% action[:sourcediff].each_with_index do |sourcediff, sourcediff_index| %>
                 <div class="grid_10 alpha">
                   <% if sourcediff[:error] %>
@@ -180,24 +203,20 @@
                 </div>
                 <div class="grid_6 omega">
                   <%= render :partial => 'shared/buildresult_box', locals: { project: action[:sprj], package: action[:spkg], index: action_index } %>
-                  <% if sourcediff['issues'].present? %>
-                      <p><b>Mentioned Issues (<%= sourcediff['issues'].length %>)</b></p>
-                      <%= render partial: 'issues_table', locals: { issues: sourcediff['issues'] } %>
-                  <% end %>
-                </div>
+                <% if sourcediff['issues'].present? %>
+                  <div class="info_display" id="info_display_3">
+                    <%= render partial: 'issues_table', locals: { issues: sourcediff['issues'] } %>
+                  </div>
+                <% end %>
+               </div>
             <% end %>
-        <% end %>
+          </div>
+       <% end %>
       </div>
   <% end %>
 </div>
 
-<div class="grid_16 box box-shadow alpha omega" style="margin-top: 15px;">
-  <h2 class="box-header">Comments for request <%= @id %> (<%= @comments.length %>)</h2>
-  <%= render :partial => 'webui/comment/show' %>
-</div>
-
 <div class="grid_16 alpha omega">
-  <div class="grid_10 alpha">
     <div class="box box-shadow">
       <div class="box-header header-tabs">
         <%= possibly_empty_ul id: 'review_descision_select', fallback: "<p><i>There's nothing to be done right now</i></p>".html_safe do %>
@@ -275,12 +294,5 @@
     </div>
   </div>
 
-  <div class="grid_6 omega">
-    <div class="box box-shadow" id="request_history">
-      <h2 class="box-header">Request History</h2>
-      <%# TODO: Replace with reviews listing only, nobody cares for the history %>
-      <%= render :partial => 'recent_events_table' %>
-    </div>
-  </div>
 </div>
 
