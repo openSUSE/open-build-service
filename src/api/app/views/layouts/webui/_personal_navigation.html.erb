@@ -2,10 +2,16 @@
   <% unless User.current.is_nobody? %>
     <% nr_requests_that_need_work = User.current.nr_of_requests_that_need_work -%>
     <% if nr_requests_that_need_work > 0 -%>
-      <%= link_to User.current, { controller: 'home', action: :index}, id: 'link-to-user-home' %>
-      <%= link_to '(' + pluralize(nr_requests_that_need_work, 'task') + ')', {controller: 'home', action: 'index'}, {title: 'where an action is requested from you' } %>
+      <%= link_to(user_show_path(User.current), :id  => 'link-to-user-home') do %>
+	<%= User.current.login %>
+      <% end %>
+      <%= link_to(user_show_path(User.current), title: 'where an action is requested from you') do %>
+	 <%= '(' + pluralize(nr_requests_that_need_work, 'task') + ')' %>
+      <% end %>
      <% else -%>
-       <%= link_to User.current, { controller: 'home', action: :index}, id: 'link-to-user-home' %>
+       <%= link_to(user_show_path(User.current), :id => 'link-to-user-home') do %>
+        <%= User.current %>
+       <% end %>
     <% end %> |
     <%= link_to 'Home Project', controller: 'project', action: :show, project: "home:#{User.current.login}" %> |
     <%= link_to 'Logout', { controller: 'user', action: 'logout' }, method: :post, id: 'logout-link' %>

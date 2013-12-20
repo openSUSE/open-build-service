@@ -1,6 +1,6 @@
 <% @pagetitle = "Requests for #{@displayed_user}" %>
 <% @crumb_list = [@pagetitle] %>
 
-<h3>Requests for <%= link_to(@displayed_user.to_s, :controller => 'home', :user => @displayed_user.to_s) %></h3>
+<h3>Requests for <%= link_to(@displayed_user) %></h3>
 
 <%= render(:partial => 'shared/select_requests', :locals => {:requests => @requests, :userid => @displayed_user.to_s}) %>

@@ -81,9 +81,9 @@
     <div id="footer" class="container_12">
     <% unless User.current.is_nobody? -%>
       <div class="grid_3">
-        <strong class="grey-medium spacer1"><%= link_to User.current.login, :controller => 'home', :action => :index %>:</strong>
+        <strong class="grey-medium spacer1"><%= link_to(user_show_path(User.current)) do %><%= User.current %><% end %>:</strong>
         <ul>
-          <li><%= link_to "Your Home", :controller => :home, :action => :index %></li>
+          <li><%= link_to "Your Profile", user_show_path(User.current) %> </li>
           <li><%= link_to "Home Project", :controller => 'project', :action => :show, :project => "home:#{User.current.login}" %></li>
           <li><%= link_to 'Logout', { :controller => 'user', :action => 'logout'}, method: :post %></li>
         </ul>

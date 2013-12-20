@@ -7,9 +7,9 @@ class Webui::UserController < Webui::WebuiController
   include Webui::NotificationSettings
 
   before_filter :check_user, :only => [:edit, :save, :change_password, :register, :delete, :confirm,
-                                       :lock, :admin, :login, :notifications, :update_notifications]
+                                       :lock, :admin, :login, :notifications, :update_notifications, :show]
   before_filter :require_login, :only => [:edit, :save, :notifications, :update_notifications]
-  before_filter :overwrite_user, :only => [:edit]
+  before_filter :overwrite_user, :only => [:show, :edit, :requests, :list_my]
   before_filter :require_admin, :only => [:edit, :delete, :lock, :confirm, :admin]
 
   def logout
@@ -58,6 +58,56 @@ class Webui::UserController < Webui::WebuiController
     redirect_to :action => 'login'
   end
 
+  def show
+    if params['user'].present?
+      user = User.find_by_login(params['user'])
+      if user
+        @displayed_user = user
+      else
+        redirect_to :back, error: "User not found #{params['user']}"
+      end
+    end
+    @iprojects = @displayed_user.involved_projects.pluck(:name, :title)
+    @ipackages = @displayed_user.involved_packages.joins(:project).pluck(:name, 'projects.name as pname')
+    @owned = @displayed_user.owned_packages
+
+    if User.current == @displayed_user
+        @reviews = @displayed_user.involved_reviews
+        @patchinfos = @displayed_user.involved_patchinfos
+        @requests_in = @displayed_user.incomming_requests
+        @requests_out = @displayed_user.outgouing_requests
+        @declined_requests = @displayed_user.declined_requests
+    end
+  end
+
+  def home
+    if params[:user].present?
+      redirect_to :action => :show, user: params[:user]
+    else
+      redirect_to :action => :show, user: User.current
+    end
+  end
+
+  def requests
+    session[:requests] = @displayed_user.declined_requests.pluck(:id) + @displayed_user.involved_reviews.map { |r| r.id } + @displayed_user.incomming_requests.pluck(:id)
+    @requests = @displayed_user.declined_requests + @displayed_user.involved_reviews + @displayed_user.incomming_requests
+    @default_request_type = params[:type] if params[:type]
+    @default_request_state = params[:state] if params[:state]
+    respond_to do |format|
+      format.html
+      format.json { render_requests_json }
+    end
+  end
+
+  def render_requests_json
+    rawdata = Hash.new
+    rawdata['review'] = @displayed_user.involved_reviews.to_a
+    rawdata['new'] = @displayed_user.incomming_requests.to_a
+    rawdata['declined'] = @displayed_user.declined_requests.to_a
+    rawdata['patchinfos'] = @displayed_user.involved_patchinfos.to_a
+    render json: Yajl::Encoder.encode(rawdata)
+  end
+
   def save
     if User.current.is_admin?
       person = User.find_by_login!(params[:user])
@@ -78,7 +128,7 @@ class Webui::UserController < Webui::WebuiController
     person.save!
 
     flash[:success] = "User data for user '#{person.login}' successfully updated."
-    redirect_back_or_to :controller => 'home', :action => :index
+    redirect_back_or_to :action => 'show', user: person
   end
 
   def edit
@@ -123,6 +173,22 @@ class Webui::UserController < Webui::WebuiController
 
   private :overwrite_user
 
+  def icon
+    required_parameters :user
+    user = User.find_by_login! params[:user]
+    size = params[:size].to_i || '20'
+    content = user.gravatar_image(size)
+
+    if content == :none
+      redirect_to ActionController::Base.helpers.asset_path('default_face.png')
+      return
+    end
+
+    expires_in 5.hours, public: true
+    if stale?(etag: Digest::MD5.hexdigest(content))
+      render text: content, layout: false, content_type: 'image/png'
+    end
+  end
 
   def register
     opts = { :login => params[:login],
@@ -167,7 +233,7 @@ class Webui::UserController < Webui::WebuiController
     end
     if errmsg
       flash[:error] = errmsg
-      redirect_to :controller => :home, :action => :index
+      redirect_to :action => :show, user: User.current
       return
     end
 
@@ -177,7 +243,7 @@ class Webui::UserController < Webui::WebuiController
 
     session[:password] = params[:new_password]
     flash[:success] = 'Your password has been changed successfully.'
-    redirect_to :controller => :home, :action => :index
+    redirect_to :action => :show, user: User.current
   end
 
   def autocomplete

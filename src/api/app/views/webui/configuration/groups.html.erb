@@ -23,7 +23,7 @@
               <td><%= link_to(group.title, {:controller => 'group', :action => 'show', id: group.title}, {id: group.title}) %></td>
               <td class='users'>
                 <%= group.groups_users.map { |member|
-                  link_to(member.user, controller: 'home', action: 'index', user: member.user.login) }.join(', ').html_safe %>
+                  link_to(member.user, user_show_path(member.user)) }.join(', ').html_safe %>
               </td>
               <td class="nowrap">
                 <%= link_to(sprited_text('accessories-text-editor', 'Edit Group'), :controller => 'group', :action => 'edit', :group => group.title) %>

@@ -154,7 +154,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::SearchController#set_parameters' => 98.04,
       'Webui::DriverUpdateController#save' => 97.16,
       'Webui::ProjectController#save_new' => 90,
-      'Webui::RequestController#show' => 72.45,
+      'Webui::RequestController#show' => 78.31,
       'Webui::PatchinfoController#new_tracker' => 68.43,
       'Webui::ProjectController#status' => 58.09,
       'Webui::ProjectController#call_diststats' => 57.81, 

@@ -65,12 +65,12 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def show
-    redirect_back_or_to :controller => 'home', :action => 'requests' and return if !params[:id]
+    redirect_back_or_to user_requests_path(User.current) and return if !params[:id]
     begin
       @req = BsRequest.find(params[:id])
     rescue ActiveRecord::RecordNotFound
       flash[:error] = "Can't find request #{params[:id]}"
-      redirect_back_or_to :controller => 'home', :action => 'requests' and return
+      redirect_back_or_to user_requests_path(User.current) and return
     end
 
     @req = @req.webui_infos
@@ -115,7 +115,7 @@ class Webui::RequestController < Webui::WebuiController
     @req = WebuiRequest.find params[:id]
     unless @req
       flash[:error] = "Can't find request #{params[:id]}"
-      redirect_back_or_to :controller => 'home', :action => 'requests' and return
+      redirect_back_or_to user_requests_path(User.current) and return
     end
 
     changestate = nil
@@ -183,7 +183,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def list
-    redirect_to :controller => :home, :action => :requests and return unless request.xhr? # non ajax request
+    redirect_to user_requests_path(User.current) and return unless request.xhr? # non ajax request
     requests = BsRequestCollection.list_ids(params)
     elide_len = 44
     elide_len = params[:elide_len].to_i if params[:elide_len]
@@ -194,7 +194,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def list_small
     required_parameters :project # the minimum
-    redirect_to :controller => :home, :action => :requests and return unless request.xhr? # non ajax request
+    redirect_to user_requests_path(User.current) and return unless request.xhr? # non ajax request
     requests = BsRequestCollection.list_ids(params)
     requests = BsRequestCollection.new(ids: requests).relation
     render partial: 'requests_small', locals: {requests: requests}
