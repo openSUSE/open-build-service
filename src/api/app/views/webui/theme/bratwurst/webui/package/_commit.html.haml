@@ -17,7 +17,7 @@
           - user = User.find_by_login commit['user']
           - if user
             = user_icon(user, 20, 'img-rounded')
-            = link_to({:controller => :home, :user => user}) do
+            = link_to(user_show_path(user)) do
               = user.realname || user.login
           - else
             / hmm no user. whatever...

@@ -282,6 +282,17 @@ OBSApi::Application.routes.draw do
 
       post 'user/notifications' => :update_notifications
       get 'user/notifications' => :notifications
+
+      get 'user/show/:user' => :show, as: 'user_show'
+      get 'user/icon/:user' => :icon, as: 'user_icon'
+      get 'user/requests/:user' => :requests, as: 'user_requests'
+      # Only here to make old /home url's work
+      get 'home/' => :home, as: 'home'
+      get 'home/my_work' => :home
+      get 'home/list_my' => :home
+      get 'home/requests' => :requests
+      get 'home/home_project' => :home_project
+      get 'user/:user/icon' => :icon, constraints: cons
     end
 
     controller 'webui/group' do
@@ -295,16 +306,6 @@ OBSApi::Application.routes.draw do
 
     namespace :webui do
       resource :comment, only: [:destroy]
-    end
-
-    controller 'webui/home' do
-      # Only here to make old url's work
-      get 'home/' => :index
-      get 'home/my_work' => :index
-      get 'home/list_my' => :index
-      get 'home/requests' => :requests
-      get 'home/home_project' => :home_project
-      get 'user/:user/icon' => :icon, constraints: cons
     end
 
     ### /apidocs

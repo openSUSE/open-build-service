@@ -750,6 +750,81 @@ class User < ActiveRecord::Base
     return Package.where(id: packages).where('project_id not in (?)', projects)
   end
 
+  # list packages owned by this user.
+  def owned_packages
+    owned = []
+    begin
+      Owner.search({}, @self).each do |owner|
+        owned << [owner.project, owner.package]
+      end
+    rescue APIException => e # no attribute set
+      Rails.logger.debug "0wned #{e.inspect}"
+    end
+    return owned
+  end
+
+  # lists reviews involving this user
+  def involved_reviews
+    open_reviews = BsRequestCollection.new(user: self.login, roles: %w(reviewer creator), reviewstates: %w(new), states: %w(review)).relation
+    reviews_in = []
+    open_reviews.each do |review|
+      if review['creator'] != self
+        reviews_in << review
+      end
+    end
+    return reviews_in
+  end
+
+  # list requests involving this user
+  def declined_requests
+    declined_requests = BsRequestCollection.new(user: self.login, states: %w(declined), roles: %w(creator)).relation
+    return declined_requests
+  end
+
+  # list incomming requests involving this user
+  def incomming_requests
+    requests_in = BsRequestCollection.new(user: self.login, states: %w(new), roles: %w(maintainer)).relation
+    return requests_in
+  end
+
+  # list outgoing requests involving this user
+  def outgouing_requests
+    requests_out = BsRequestCollection.new(user: self.login, states: %w(new review), roles: %w(creator)).relation
+    return requests_out
+  end
+
+  # lists running maintenance updates where this user is involved in
+  def involved_patchinfos
+    array = Array.new
+
+    rel = PackageIssue.joins(:issue).where(issues: { state: 'OPEN', owner_id: self.id})
+    rel = rel.joins('LEFT JOIN package_kinds ON package_kinds.package_id = package_issues.package_id')
+    ids = rel.where('package_kinds.kind="patchinfo"').pluck('distinct package_issues.package_id')
+
+    Package.where(id: ids).each do |p|
+      hash = {:package => {:project => p.project.name, :name => p.name}}
+      issues = Array.new
+
+      p.issues.each do |is|
+        i = {}
+        i[:name]= is.name
+        i[:tracker]= is.issue_tracker.name
+        i[:label]= is.label
+        i[:url]= is.url
+        i[:summary] = is.summary
+        i[:state] = is.state
+        i[:login] = is.owner.login if is.owner
+        i[:updated_at] = is.updated_at
+        issues << i
+      end
+
+      hash[:issues] = issues
+      array << hash
+    end
+
+    return array
+  end
+
   def forbidden_project_ids
     @f_ids ||= Relationship.forbidden_project_ids_for_user(self)
   end

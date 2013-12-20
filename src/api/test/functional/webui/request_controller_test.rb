@@ -1,7 +1,5 @@
 require_relative '../../test_helper'
 
-require 'webui/home_controller'
-
 class Webui::RequestControllerTest < Webui::IntegrationTest
 
   uses_transaction :test_can_request_role_addition_for_packages
@@ -29,7 +27,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   end
 
   def test_my_involved_requests
-    login_Iggy to: home_requests_path(user: 'king')
+    login_Iggy to: user_requests_path(user: 'king')
 
     page.must_have_selector 'table#request_table tr'
 
@@ -125,7 +123,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   end
 
   test 'tom adds reviewer Iggy' do
-    login_tom to: home_path
+    login_tom to: user_show_path(user: 'tom')
 
     within('tr#tr_request_4') do
       page.must_have_text '~:kde4 / BranchPack'

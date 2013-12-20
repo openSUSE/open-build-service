@@ -9,7 +9,7 @@ class Webui::LoginTest < Webui::IntegrationTest
   
   #
   def open_home
-    find(:css, "div#subheader a[href='#{home_path}']").click
+    find(:id, "link-to-user-home").click
     page.must_have_text "Edit your account"
   end
 

@@ -2,7 +2,6 @@ require_relative '../../test_helper'
 
 require 'benchmark'
 require 'nokogiri'
-require 'webui/home_controller'
 
 class Webui::SpiderTest < Webui::IntegrationTest
 
@@ -73,7 +72,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
     return if url.end_with? '/project/meta/HiddenRemoteInstance'
     return if url.end_with? '/project/show/HiddenRemoteInstance'
     return if url.end_with? '/project/edit/HiddenRemoteInstance'
-    return if url.end_with? '/home?user=unknown'
+    return if url.end_with? '/user/show/unknown'
     return if url =~ %r{/source/}
 
     $stderr.puts "Found #{message} on #{url}, crawling path"

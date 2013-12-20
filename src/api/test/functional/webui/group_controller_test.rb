@@ -17,7 +17,7 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
     find(:id, 'test_group').click
     find(:id, 'group_members_table_wrapper').must_have_text 'Showing 1 to 1 of 1 entries'
     find(:link, 'adrian').click
-    assert page.current_url.end_with? home_path(user: 'adrian')
+    assert page.current_url.end_with? user_show_path(user: 'adrian')
   end
 
   test 'edit group' do

@@ -58,7 +58,7 @@ module Webui::WebuiHelper
       end
       "<img src='data:image/jpeg;base64,#{Base64.encode64(content)}' width='#{size}' height='#{size}' alt='#{alt}' class='#{css_class}'/>".html_safe
     else
-      image_tag(url_for(controller: :home, action: :icon, user: user.login, size: size),
+      image_tag(url_for(controller: :user, action: :icon, user: user.login, size: size),
                 width: size, height: size, alt: alt, class: css_class)
     end
   end
@@ -423,7 +423,7 @@ module Webui::WebuiHelper
       printed_name += ' as ' + role
     end
     unless User.current.is_nobody?
-      output += link_to_if(!opt[:no_link], printed_name, :controller => 'home', :user => user)
+      output += link_to_if(!opt[:no_link], printed_name, user_show_path(user))
     else
       output += printed_name
     end
@@ -515,7 +515,7 @@ module Webui::WebuiHelper
       end
 
       user_icon(user) + ' ' + link_to_if(!opts[:no_link], printed_name,
-                                         controller: 'home', user: user.login)
+                                         user_show_path(user))
     end
   end
 
