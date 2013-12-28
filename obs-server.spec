@@ -49,6 +49,7 @@ Patch21:        0021-Require-newer-rake-0.9.6-which-is-included-in-Ruby-2.patch
 Patch22:        0022-don-t-hardcode-ruby1.9.patch
 Patch23:        0023-api-Use-dup-method-instead-of-initialize_dup-to-copy.patch
 Patch24:        0024-api-Fix-unused-variable-warnings.patch
+Patch25:        0025-Require-newer-Rails-3.2.13.patch
 BuildRequires:  python-devel
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
@@ -175,12 +176,12 @@ BuildRequires:  xorg-x11-Xvnc
 BuildRequires:  xorg-x11-server
 BuildRequires:  xorg-x11-server-extra
 # OBS_SERVER_BEGIN
-Requires:       rubygem(1.9.1:actionmailer) = 3.2.12
-Requires:       rubygem(1.9.1:actionpack) = 3.2.12
-Requires:       rubygem(1.9.1:activemodel) = 3.2.12
-Requires:       rubygem(1.9.1:activerecord) = 3.2.12
-Requires:       rubygem(1.9.1:activeresource) = 3.2.12
-Requires:       rubygem(1.9.1:activesupport) = 3.2.12
+Requires:       rubygem(1.9.1:actionmailer) = 3.2.13
+Requires:       rubygem(1.9.1:actionpack) = 3.2.13
+Requires:       rubygem(1.9.1:activemodel) = 3.2.13
+Requires:       rubygem(1.9.1:activerecord) = 3.2.13
+Requires:       rubygem(1.9.1:activeresource) = 3.2.13
+Requires:       rubygem(1.9.1:activesupport) = 3.2.13
 Requires:       rubygem(1.9.1:arel) = 3.0.2
 Requires:       rubygem(1.9.1:builder) = 3.0.4
 Requires:       rubygem(1.9.1:bundler) = 1.2.3
@@ -208,9 +209,9 @@ Requires:       rubygem(1.9.1:rack) = 1.4.5
 Requires:       rubygem(1.9.1:rack-cache) = 1.2
 Requires:       rubygem(1.9.1:rack-ssl) = 1.3.3
 Requires:       rubygem(1.9.1:rack-test) = 0.6.2
-Requires:       rubygem(1.9.1:rails) = 3.2.12
+Requires:       rubygem(1.9.1:rails) = 3.2.13
 Requires:       rubygem(1.9.1:rails-api) = 0.0.3
-Requires:       rubygem(1.9.1:railties) = 3.2.12
+Requires:       rubygem(1.9.1:railties) = 3.2.13
 Requires:       rubygem(1.9.1:rake) = 0.9.2.2
 Requires:       rubygem(1.9.1:rdoc) = 3.12
 Requires:       rubygem(1.9.1:ruby-ldap) = 0.9.12
@@ -304,6 +305,7 @@ obs_project_update is a tool to copy a packages of a project from one obs to ano
 %patch22 -p1
 %patch23 -p1
 %patch24 -p1
+%patch25 -p1
 # drop build script, we require the installed one from own package
 rm -rf src/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf

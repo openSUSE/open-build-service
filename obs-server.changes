@@ -1,3 +1,5 @@
+* Sun Dec 29 2013 Oleg Girko <oleg.girko@jolla.com> - 2.4.5-1
+- Require newer Rails 3.2.13
 * Sat Dec 28 2013 Oleg Girko <oleg.girko@jolla.com> - 2.4.5-1
 - Add patches to port to Ruby 2.0
 * Fri Dec 06 2013 Oleg Girko <oleg.girko@jolla.com> - 2.4.5-1
