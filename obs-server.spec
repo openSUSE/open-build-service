@@ -45,6 +45,10 @@ Patch17:        0017-Don-t-use-ftools.patch
 Patch18:        0018-api-Rename-Flag-model-s-package-field-to-pkgname.patch
 Patch19:        0019-api-Allow-Repository-model-s-linkedbuild-attribute-t.patch
 Patch20:        0020-api-Actually-preserve-flags-during-project-copy.patch
+Patch21:        0021-Require-newer-rake-0.9.6-which-is-included-in-Ruby-2.patch
+Patch22:        0022-don-t-hardcode-ruby1.9.patch
+Patch23:        0023-api-Use-dup-method-instead-of-initialize_dup-to-copy.patch
+Patch24:        0024-api-Fix-unused-variable-warnings.patch
 BuildRequires:  python-devel
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
@@ -296,6 +300,10 @@ obs_project_update is a tool to copy a packages of a project from one obs to ano
 %patch18 -p1
 %patch19 -p1
 %patch20 -p1
+%patch21 -p1
+%patch22 -p1
+%patch23 -p1
+%patch24 -p1
 # drop build script, we require the installed one from own package
 rm -rf src/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
