@@ -162,7 +162,7 @@ BuildRequires:  rubygem-sqlite3
 Requires:       mysql
 
 Requires:       memcached
-Requires:       ruby >= 1.9
+Requires:       ruby >= 2.0
 Supplements:    rubygem-ruby-ldap
 BuildRequires:  obs-api-testsuite-deps
 BuildRequires:  rubygem-ruby-ldap
@@ -176,52 +176,52 @@ BuildRequires:  xorg-x11-Xvnc
 BuildRequires:  xorg-x11-server
 BuildRequires:  xorg-x11-server-extra
 # OBS_SERVER_BEGIN
-Requires:       rubygem(1.9.1:actionmailer) = 3.2.13
-Requires:       rubygem(1.9.1:actionpack) = 3.2.13
-Requires:       rubygem(1.9.1:activemodel) = 3.2.13
-Requires:       rubygem(1.9.1:activerecord) = 3.2.13
-Requires:       rubygem(1.9.1:activeresource) = 3.2.13
-Requires:       rubygem(1.9.1:activesupport) = 3.2.13
-Requires:       rubygem(1.9.1:arel) = 3.0.2
-Requires:       rubygem(1.9.1:builder) = 3.0.4
-Requires:       rubygem(1.9.1:bundler) = 1.2.3
-Requires:       rubygem(1.9.1:daemons) = 1.1.9
-Requires:       rubygem(1.9.1:delayed_job) = 3.0.5
-Requires:       rubygem(1.9.1:delayed_job_active_record) = 0.3.3
-Requires:       rubygem(1.9.1:erubis) = 2.7.0
-Requires:       rubygem(1.9.1:fast_xs) = 0.8.0
-Requires:       rubygem(1.9.1:hike) = 1.2.1
-Requires:       rubygem(1.9.1:hoptoad_notifier) = 2.4.11
-Requires:       rubygem(1.9.1:i18n) = 0.6.1
-Requires:       rubygem(1.9.1:journey) = 1.0.4
-Requires:       rubygem(1.9.1:jquery-rails) = 2.1.4
-Requires:       rubygem(1.9.1:json) = 1.7.7
-Requires:       rubygem(1.9.1:mail) = 2.4.4
-Requires:       rubygem(1.9.1:memcache-client) = 1.8.5
-Requires:       rubygem(1.9.1:mime-types) = 1.19
-Requires:       rubygem(1.9.1:mobileesp_converted) = 0.2.1
-Requires:       rubygem(1.9.1:multi_json) = 1.5.0
-Requires:       rubygem(1.9.1:mysql2) = 0.3.11
-Requires:       rubygem(1.9.1:nokogiri) = 1.5.6
-Requires:       rubygem(1.9.1:pkg-config) = 1.1.4
-Requires:       rubygem(1.9.1:polyglot) = 0.3.3
-Requires:       rubygem(1.9.1:rack) = 1.4.5
-Requires:       rubygem(1.9.1:rack-cache) = 1.2
-Requires:       rubygem(1.9.1:rack-ssl) = 1.3.3
-Requires:       rubygem(1.9.1:rack-test) = 0.6.2
-Requires:       rubygem(1.9.1:rails) = 3.2.13
-Requires:       rubygem(1.9.1:rails-api) = 0.0.3
-Requires:       rubygem(1.9.1:railties) = 3.2.13
-Requires:       rubygem(1.9.1:rake) = 0.9.2.2
-Requires:       rubygem(1.9.1:rdoc) = 3.12
-Requires:       rubygem(1.9.1:ruby-ldap) = 0.9.12
-Requires:       rubygem(1.9.1:sprockets) = 2.2.2
-Requires:       rubygem(1.9.1:thor) = 0.17.0
-Requires:       rubygem(1.9.1:tilt) = 1.3.3
-Requires:       rubygem(1.9.1:treetop) = 1.4.12
-Requires:       rubygem(1.9.1:tzinfo) = 0.3.35
-Requires:       rubygem(1.9.1:xmlhash) = 1.3.5
-Requires:       rubygem(1.9.1:yajl-ruby) = 1.1.0
+Requires:       rubygem(2.0.0:actionmailer) = 3.2.13
+Requires:       rubygem(2.0.0:actionpack) = 3.2.13
+Requires:       rubygem(2.0.0:activemodel) = 3.2.13
+Requires:       rubygem(2.0.0:activerecord) = 3.2.13
+Requires:       rubygem(2.0.0:activeresource) = 3.2.13
+Requires:       rubygem(2.0.0:activesupport) = 3.2.13
+Requires:       rubygem(2.0.0:arel) = 3.0.2
+Requires:       rubygem(2.0.0:builder) = 3.0.4
+Requires:       rubygem(2.0.0:bundler) = 1.2.3
+Requires:       rubygem(2.0.0:daemons) = 1.1.9
+Requires:       rubygem(2.0.0:delayed_job) = 3.0.5
+Requires:       rubygem(2.0.0:delayed_job_active_record) = 0.3.3
+Requires:       rubygem(2.0.0:erubis) = 2.7.0
+Requires:       rubygem(2.0.0:fast_xs) = 0.8.0
+Requires:       rubygem(2.0.0:hike) = 1.2.1
+Requires:       rubygem(2.0.0:hoptoad_notifier) = 2.4.11
+Requires:       rubygem(2.0.0:i18n) = 0.6.1
+Requires:       rubygem(2.0.0:journey) = 1.0.4
+Requires:       rubygem(2.0.0:jquery-rails) = 2.1.4
+Requires:       rubygem(2.0.0:json) = 1.7.7
+Requires:       rubygem(2.0.0:mail) = 2.4.4
+Requires:       rubygem(2.0.0:memcache-client) = 1.8.5
+Requires:       rubygem(2.0.0:mime-types) = 1.19
+Requires:       rubygem(2.0.0:mobileesp_converted) = 0.2.1
+Requires:       rubygem(2.0.0:multi_json) = 1.5.0
+Requires:       rubygem(2.0.0:mysql2) = 0.3.11
+Requires:       rubygem(2.0.0:nokogiri) = 1.5.6
+Requires:       rubygem(2.0.0:pkg-config) = 1.1.4
+Requires:       rubygem(2.0.0:polyglot) = 0.3.3
+Requires:       rubygem(2.0.0:rack) = 1.4.5
+Requires:       rubygem(2.0.0:rack-cache) = 1.2
+Requires:       rubygem(2.0.0:rack-ssl) = 1.3.3
+Requires:       rubygem(2.0.0:rack-test) = 0.6.2
+Requires:       rubygem(2.0.0:rails) = 3.2.13
+Requires:       rubygem(2.0.0:rails-api) = 0.0.3
+Requires:       rubygem(2.0.0:railties) = 3.2.13
+Requires:       rubygem(2.0.0:rake) = 0.9.6
+Requires:       rubygem(2.0.0:rdoc) = 3.12
+Requires:       rubygem(2.0.0:ruby-ldap) = 0.9.12
+Requires:       rubygem(2.0.0:sprockets) = 2.2.2
+Requires:       rubygem(2.0.0:thor) = 0.17.0
+Requires:       rubygem(2.0.0:tilt) = 1.3.3
+Requires:       rubygem(2.0.0:treetop) = 1.4.12
+Requires:       rubygem(2.0.0:tzinfo) = 0.3.35
+Requires:       rubygem(2.0.0:xmlhash) = 1.3.5
+Requires:       rubygem(2.0.0:yajl-ruby) = 1.1.0
 # OBS_SERVER_END
 # requires for webui:
 Requires:       ghostscript-fonts-std
