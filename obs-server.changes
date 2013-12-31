@@ -1,5 +1,6 @@
 * Mon Dec 30 2013 Oleg Girko <oleg.girko@jolla.com> - 2.4.5-1
 - Require Ruby 2.0
+- Require rubygem-bundler 1.3.5
 * Sun Dec 29 2013 Oleg Girko <oleg.girko@jolla.com> - 2.4.5-1
 - Require newer Rails 3.2.13
 * Sat Dec 28 2013 Oleg Girko <oleg.girko@jolla.com> - 2.4.5-1
