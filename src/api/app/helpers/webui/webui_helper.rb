@@ -67,6 +67,9 @@ module Webui::WebuiHelper
     if Time.now - time < 60
       return 'now' # rails' 'less than a minute' is a bit long
     end
+    if ( Time.now - time ) / ( 3024000 ) > 1 #  = 60 * 60 * 24 * 7 * 5 - more than three weeks ago
+      return time.to_date.to_formatted_s(:long_ordinal) # Display full date for ancient history
+    end
     time_ago_in_words(time) + ' ago'
   end
 
