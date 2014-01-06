@@ -8,7 +8,7 @@ class CodeQualityTest < ActiveSupport::TestCase
   def setup
     @ruby_files = []
     RAILS_BASE_DIRS.each do |base_dir|
-      Find.find(base_dir) do |path|
+      Find.find(base_dir.to_s) do |path|
         @ruby_files << path if FileTest.file?(path) and path.end_with?('.rb')
       end
     end
