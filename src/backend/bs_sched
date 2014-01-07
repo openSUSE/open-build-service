@@ -4006,6 +4006,7 @@ sub fakejobfinished_nouseforbuild {
       rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.success/$packid");
       unlink("$gdst/:logfiles.fail/$packid");
     }
+    rename("$jobdatadir/logfile", "$dst/logfile");
   }
   rename("$jobdatadir/meta", "$gdst/:meta/$packid");
   if ($code eq 'succeeded') {
@@ -5182,7 +5183,7 @@ sub rebuildpatchinfo {
   BSUtil::store("$jobdatadir/.updateinfodata", undef, $updateinfodata);
   if ($broken) {
     BSUtil::cleandir($jobdatadir);
-    writestr("$jobdatadir/logfile", undef, "update built failed".localtime($now)."\n\n$broken\n");
+    writestr("$jobdatadir/logfile", undef, "update built failed ".localtime($now)."\n\n$broken\n");
   }
   my @new_meta = ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
   for my $apackid (sort(keys %metas)) {
