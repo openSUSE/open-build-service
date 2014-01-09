@@ -166,3 +166,7 @@ record_41:
   user: Iggy
   role: maintainer
   project: home_Iggy
+record_42:
+  role: maintainer
+  group: test_group_b
+  package: home_Iggy_TestPack
