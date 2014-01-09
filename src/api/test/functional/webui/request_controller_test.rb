@@ -202,6 +202,19 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_text '+DummyContent'
   end
 
+  test 'add_submitter_as_maintainer' do
+    use_js
+
+    # Accept the request adding submitter
+    login_king to: request_show_path(4)
+    check('add_submitter_as_maintainer_0')
+    click_button 'Accept request'
+    find('#flash-messages').must_have_text "Request 4 accepted"
+    # Iggy should be a maintainer now
+    visit package_users_path(project: "Apache", package: "BranchPack")
+    find('#user_table').must_have_text "(Iggy)"
+  end
+
   def visit_requests
     visit request_show_path(1)
     page.must_have_text 'Request 1'
