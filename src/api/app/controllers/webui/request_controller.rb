@@ -138,7 +138,7 @@ class Webui::RequestController < Webui::WebuiController
           else
             target = Project.Project.find_by_name tprj
           end
-          target.add_person(:userid => @req.creator, :role => 'maintainer')
+          target.add_user(@req.api_obj.creator, 'maintainer')
           target.save
         end
       end
