@@ -3195,6 +3195,14 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_select 'status[code] > summary', %r{invalid project name}
   end
 
+  # _attribute is a "file", but can only be written by API->backend not directly
+  test 'puting _attribute to backend' do
+    login_tom
+    put "/source/home:tom/_project/_attribute?meta=1", ''
+    assert_response 400
+    assert_select 'status[code] > summary', "Attributes need to be changed through /project/attributes/home:tom"
+  end
+
   test 'issue 441' do
     login_tom
     get '/source/Foo'

@@ -768,6 +768,8 @@ class SourceController < ApplicationController
     setup 403
   end
 
+  class WrongRouteForAttribute < APIException; end
+
   def check_permissions_for_file
     @project_name = params[:project]
     @package_name = params[:package]
@@ -783,6 +785,10 @@ class SourceController < ApplicationController
 
     if @package_name == '_project' or @package_name == '_pattern'
       @allowed = permissions.project_change? @prj
+
+      if @file == '_attribute' &&  @package_name == '_project'
+        raise WrongRouteForAttribute.new "Attributes need to be changed through #{project_attributes_path(project: params[:project])}"
+      end
     else
       # we need a local package here in any case for modifications
       @pack = Package.get_by_project_and_name(@project_name, @package_name)
