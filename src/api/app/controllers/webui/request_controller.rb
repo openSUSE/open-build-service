@@ -11,6 +11,8 @@ class Webui::RequestController < Webui::WebuiController
   # requests do not really add much value for our page rank :)
   before_filter :lockout_spiders
 
+  before_filter :require_request, only: [:changerequest]
+
   def add_reviewer_dialog
     @request_id = params[:id]
     render_dialog 'requestAddReviewAutocomplete'
@@ -110,14 +112,16 @@ class Webui::RequestController < Webui::WebuiController
     render :partial => 'shared/editor', :locals => {:text => params[:text], :mode => 'diff', :read_only => true, :height => 'auto', :width => '750px', :no_border => true, uid: params[:uid]}
   end
 
-  def changerequest
+  def require_request
     required_parameters :id
     @req = WebuiRequest.find params[:id]
     unless @req
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_back_or_to user_requests_path(User.current) and return
     end
+  end
 
+  def changerequest
     changestate = nil
     %w(accepted declined revoked new).each do |s|
       if params.has_key? s
