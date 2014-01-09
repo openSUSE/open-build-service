@@ -67,6 +67,7 @@ class Webui::OwnerSearchTest < Webui::IntegrationTest
     assert result[:owners].include? "(fred) as maintainer"
     assert result[:owners].include? "(Iggy) as maintainer"
     assert result[:owners].include? "(Iggy) as bugowner"
+    assert result[:owners].include? "test_group_b as maintainer"
   end
 
   test "owner_search_with_devel" do

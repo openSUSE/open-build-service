@@ -8,9 +8,8 @@
     <%= project_or_package_link project: result.project, package: result.package, short: false %>
     </h6>
     <p>
-    <%= search_users_list(result.users) %>
-    <%# Does it work with group names? %>
-    <%= search_users_list(result.groups) %>
+    <%= search_owners_list(result.users) %>
+    <%= search_owners_list(result.groups, :group) %>
     </p>
   </div>
 <% end %>
