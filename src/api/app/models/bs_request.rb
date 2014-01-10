@@ -38,6 +38,10 @@ class BsRequest < ActiveRecord::Base
     end
   end
 
+  def superseding
+    BsRequest.where(superseded_by: id)
+  end
+
   def comment_class
     CommentRequest
   end
@@ -569,6 +573,7 @@ class BsRequest < ActiveRecord::Base
     result['created_at'] = self.created_at
     result['accept_at'] = self.accept_at if self.accept_at
     result['superseded_by'] = self.superseded_by if self.superseded_by
+    result['superseding'] = self.superseding unless self.superseding.empty?
     result['is_target_maintainer'] = self.is_target_maintainer?(User.current)
 
     result['my_open_reviews'], result['other_open_reviews'] = self.reviews_for_user_and_others(User.current)

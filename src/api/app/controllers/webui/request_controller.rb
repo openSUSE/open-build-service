@@ -82,6 +82,7 @@ class Webui::RequestController < Webui::WebuiController
     @req['creator'] = User.find_by_login! @req['creator']
     @is_author = @req['creator'] == User.current
     @superseded_by = @req['superseded_by']
+    @superseding = @req['superseding']
     @is_target_maintainer = @req['is_target_maintainer']
 
     @my_open_reviews = @req['my_open_reviews']

@@ -89,6 +89,40 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
   end
 
+  test 'superseding is displayed when needed' do
+    # create testing superseded submission first
+    login_tom to: package_show_path(project: 'Apache', package: 'apache2')
+    click_link 'Submit package'
+    fill_in 'targetproject', with: 'kde4'
+    fill_in 'description', with: 'I want to see his reaction'
+    uncheck('supersede')
+    click_button 'Ok'
+    click_link 'submit request 1001'
+
+    # verify it is not superseding anything
+    visit request_show_path(1001)
+    page.wont_have_text('Superseding')
+
+    # create submission that is superseding the former one
+    visit package_show_path(project: 'Apache', package: 'apache2')
+    click_link 'Submit package'
+    fill_in 'targetproject', with: 'kde4'
+    fill_in 'description', with: 'I want to see his reaction'
+    check('supersede')
+    click_button 'Ok'
+    click_link 'submit request 1002'
+
+    # Verify we know which pkg we superseded
+    page.must_have_text('Supersedes')
+    page.must_have_link('1001')
+
+    # Check if the superseded pkg knows which one is replacing it
+    click_link '1001'
+    page.must_have_text('Superseded by')
+    page.wont_have_text('Supersedes')
+    page.must_have_link('1002')
+  end
+
   test 'invalid id gives error' do
     login_Iggy
     visit request_show_path(2000)
