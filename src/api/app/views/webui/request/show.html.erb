@@ -37,6 +37,13 @@
           by <%= user_with_realname_and_icon(@req['creator'], no_icon: true, short: true) %> <%= fuzzy_time(@req['created_at']) %></li>
         <li><%= sprite_tag('information') %> In
           state <%= link_to @state, { :anchor => 'request_history' }, { :style => "color: #{request_state_color(@state)};" } %></li>
+        <% if @superseding %>
+            <li><%= sprite_tag('information', title: '') %> Supersedes
+              <% @superseding.each do |supersed| %>
+                <%= link_to supersed['id'], id: supersed %>
+              <% end %>
+            </li>
+        <% end %>
         <% if @superseded_by %>
             <li><%= sprite_tag('exclamation', title: '') %> Superseded
               by <%= link_to @superseded_by, id: @superseded_by %></li>
