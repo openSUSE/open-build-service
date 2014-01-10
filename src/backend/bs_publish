@@ -1195,13 +1195,11 @@ sub publish {
         my $appdataxml = readstr("$r/$bin", 1) || '';
 	$appdatas_state .= Digest::MD5::md5_hex($appdataxml);
 	my $appdata = readxml("$r/$bin", $BSXML::appdata, 1) || {};
+        # merge the applications
 	if ($appdatas) {
-	    # merge the applications
-	    for my $ai (@{$appdata->{'application'} || []}) {
-		push(@{$appdatas->{'application'}}, $ai);
-	    }
+	  push @{$appdatas->{'application'}}, @{$appdata->{'application'} || []};
 	} else {
-	    $appdatas = $appdata;
+	  $appdatas = $appdata;
 	}
       }
 
