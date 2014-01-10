@@ -3776,7 +3776,7 @@ sub postmdload {
   for (keys %$newmdload) {
     if (!$oldmdload->{$_} || $oldmdload->{$_}->[0] < $newmdload->{$_}->[0]) {
       $oldmdload->{$_} = $newmdload->{$_};
-    } elsif ($newmdload->{$_}->[3] && $oldmdload->{$_}->[3] < $newmdload->{$_}->[3]) {
+    } elsif ($newmdload->{$_}->[2] && $oldmdload->{$_}->[2] < $newmdload->{$_}->[2]) {
       ($oldmdload->{$_}->[2], $oldmdload->{$_}->[3]) = ($newmdload->{$_}->[2], $newmdload->{$_}->[3]);
     }
   }
