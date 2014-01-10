@@ -1846,7 +1846,7 @@ sub fctx_add_binary_to_full {
     delete $fctx->{'oldids'}->{"$n.$osuf"};
   }
   if ($meta) {
-    if (!$fctx->{'lastmeta'} || $fctx->{'lastmeta'} != $meta) {
+    if (!$fctx->{'lastmeta'} || $fctx->{'lastmeta'} ne $meta) {
       delete $fctx->{'metamd5'};
       delete $fctx->{'metaid'};
       delete $fctx->{'linkedmeta'};
