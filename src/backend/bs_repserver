@@ -360,6 +360,7 @@ sub getpackagebinaryversionlist {
     }
     for my $packid (sort keys %$gbininfo) {
       next if %packids && !$packids{$packid};
+      next if $packid eq '_volatile' && !$packids;
       my $bininfo = $gbininfo->{$packid};
       filtersources_bininfo($bininfo) if $bininfo->{'.nosourceaccess'};
       my @pres;
@@ -2458,6 +2459,7 @@ sub getkiwiproductpackages {
       # fast if we have gbininfo
       if ($gbininfo) {
         for my $apackid (sort keys %$gbininfo) {
+	  next if $apackid eq '_volatile';
 	  my $bininfo = $gbininfo->{$apackid} || {};
 	  my $needit;
 	  for my $b (values %$bininfo) {

@@ -246,6 +246,7 @@ sub writesolv {
 }
 
 my $projpacks;		# global project/package data
+my %prpcheckuseforbuild;	# project/package meta has changed
 
 #  'lastscan'   last time we scanned
 #  'meta'       meta cache
@@ -1537,6 +1538,7 @@ sub createexportjob {
   for my $rp (sort keys %$oldrepo) {
     my $r = $oldrepo->{$rp};
     next unless $r->{'source'};	# no src rpms in full tree
+    next if $r->{'imported'};	# imported stuff never was re-exported
     next if $seen{$r->{'id'}};
     my $suf;
     $suf = $1 if $rp =~ /\.($binsufsre)$/;
@@ -1622,6 +1624,7 @@ sub compile_exportfilter {
 }
 
 # apply the export filter to a job repo
+#  sets suf and imported
 sub set_suf_and_filter_exports {
   my ($repo, $filter, $exports) = @_;
   my %n;
@@ -1636,6 +1639,12 @@ sub set_suf_and_filter_exports {
     $r->{'suf'} = $suf;
     my $nn = $rp;
     $nn =~ s/.*\///;
+    if ($nn =~ /^::import::/) {
+      # do not re-export. Also set imported so that local binaries come first
+      $r->{'imported'} = 1;
+      $n{$nn} = $r;
+      next;
+    }
     if ($filter) {
       my $skip;
       for (@$filter) {
@@ -1681,7 +1690,9 @@ sub read_bininfo {
   for my $file (ls($dir)) {
     $bininfo->{'.nosourceaccess'} = {} if $file eq '.nosourceaccess';
     if ($file !~ /\.(?:$binsufsre)$/) {
-      if ($file =~ /-appdata\.xml$/) {
+      if ($file eq '.channelinfo' && $file eq 'updateinfo.xml') {
+        $bininfo->{'.nouseforbuild'} = {};
+      } elsif ($file =~ /-appdata\.xml$/) {
 	local *F;
 	open(F, '<', "$dir/$file") || next;
 	my @s = stat(F);
@@ -1762,14 +1773,14 @@ sub read_gbininfo {
   return $gbininfo if $alien;
   eval {
     BSUtil::store("$dir/.:bininfo", "$dir/:bininfo", $gbininfo);
+    unlink("$dir/:bininfo.merge");
   };
   warn($@) if $@;
-  unlink("$dir/:bininfo.merge");
   return $gbininfo;
 }
 
 # calculate id/md5 of the meta file and cache it
-sub fctx_set_metamd5 {
+sub fctx_set_metaidmd5 {
   my ($fctx) = @_;
   local *F;
   my $metamd5 = '0' x 32;
@@ -1782,16 +1793,21 @@ sub fctx_set_metamd5 {
     close F;
     $metamd5 = $ctx->hexdigest();
   }    
-  $fctx->{'metamd5'} = $metamd5;
   $fctx->{'metaid'} = $metaid;
+  $fctx->{'metamd5'} = $metamd5;
 }
 
 # workaround for btrfs hardlink limitation. sigh.
-sub fctx_reset_linkedmeta {
+sub fctx_check_linkedmeta {
   my ($fctx) = @_;
-  my $meta = $fctx->{'meta'};
-  writestr("$meta.dup", $meta, readstr($meta));
-  $fctx->{'linkedmeta'} = 0;
+  my $meta = $fctx->{'lastmeta'};
+  if (!defined($fctx->{'linkedmeta'})) {
+    my @s = stat($meta);
+    $fctx->{'linkedmeta'} = $s[3] - 1;	# nlink
+  }
+  return unless ++$fctx->{'linkedmeta'} >= $BSConfig::maxmetahardlink;
+  writestr("$meta.linkedmetadup", $meta, readstr($meta));
+  $fctx->{'linkedmeta'} = 1;
   if ($fctx->{'metaid'}) {
     my @s = stat($meta);
     $fctx->{'metaid'} = "$s[9]/$s[7]/$s[1]" if @s;
@@ -1799,33 +1815,48 @@ sub fctx_reset_linkedmeta {
 }
 
 # add a single binary to the full tree
-sub add_binary_to_full {
-  my ($fctx, $dir, $rp, $r) = @_;
+# (packid/meta overrides the fctx data)
+sub fctx_add_binary_to_full {
+  my ($fctx, $fn, $r, $packid, $meta) = @_;
   my $n = $r->{'name'};
   my $suf = $r->{'suf'};
-  print "      + :full/$n.$suf ($rp)\n";
   my $gdst = "$reporoot/$fctx->{'prp'}/$myarch";
+  my $dir;
+  if (!defined($packid)) {
+    print "      + :full/$n.$suf ($fn)\n";
+    $packid = $fctx->{'packid'};
+    $meta = $fctx->{'meta'};
+    $dir = $fctx->{'dst'};
+  } else {
+    print "      + :full/$n.$suf ($packid/$fn)\n";
+    $dir = "$gdst/$packid";
+  }
   # link gives an error if the dest exists, so we dup
   # and rename instead.
   # when the dest is the same file, rename doesn't do
   # anything, so we need the unlink after the rename
-  unlink("$dir/$rp.dup");
-  link("$dir/$rp", "$dir/$rp.dup");
-  rename("$dir/$rp.dup", "$gdst/:full/$n.$suf") || die("rename $dir/$rp.dup $gdst/:full/$n.$suf: $!\n");
-  unlink("$dir/$rp.dup");
+  unlink("$dir/$fn.dup");
+  link("$dir/$fn", "$dir/$fn.dup");
+  rename("$dir/$fn.dup", "$gdst/:full/$n.$suf") || die("rename $dir/$fn.dup $gdst/:full/$n.$suf: $!\n");
+  unlink("$dir/$fn.dup");
   $fctx->{'oldids'}->{"$n.$suf"} = $r->{'id'};
   for my $osuf (@binsufs) {
     next if $suf eq $osuf;
     unlink("$gdst/:full/$n.$osuf");
     delete $fctx->{'oldids'}->{"$n.$osuf"};
   }
-  if ($fctx->{'meta'}) {
-    fctx_reset_linkedmeta($fctx) if $BSConfig::maxmetahardlink && ++$fctx->{'linkedmeta'} >= $BSConfig::maxmetahardlink;
-    my $meta = $fctx->{'meta'};
+  if ($meta) {
+    if (!$fctx->{'lastmeta'} || $fctx->{'lastmeta'} != $meta) {
+      delete $fctx->{'metamd5'};
+      delete $fctx->{'metaid'};
+      delete $fctx->{'linkedmeta'};
+      $fctx->{'lastmeta'} = $meta;
+    }
+    fctx_check_linkedmeta($fctx) if $BSConfig::maxmetahardlink;
     link($meta, "$meta.dup");
     rename("$meta.dup", "$gdst/:full/$n.meta") || die("rename $meta.dup $gdst/:full/$n.meta: $!\n");
     unlink("$meta.dup");
-    fctx_set_metamd5($fctx) if $fctx->{'metacache'} && !$fctx->{'metamd5'};
+    fctx_set_metaidmd5($fctx) if $fctx->{'metacache'} && !$fctx->{'metamd5'};
     $fctx->{'metacache'}->{$n} = [$fctx->{'metaid'}, $fctx->{'metamd5'}] if $fctx->{'metacache'};
   } else {
     unlink("$gdst/:full/$n.meta");
@@ -1838,7 +1869,7 @@ sub add_binary_to_full {
 }
 
 # remove a single binary from the full tree
-sub del_binary_from_full {
+sub fctx_del_binary_from_full {
   my ($fctx, $r) = @_;
   my $n = $r->{'name'};
   my $suf = $r->{'suf'};
@@ -1857,17 +1888,421 @@ sub del_binary_from_full {
   delete $fctx->{'dep2meta'}->{$n} if $fctx->{'dep2meta'};
 }
 
+# create full tree hash from gbininfo
+#   maps name -> binobj
+#   sets packid and filename as side effect
+sub fctx_gbininfo2full {
+  my ($fctx, $gbininfo, $oldpackid, $old, $useforbuildoverride) = @_;
+  my $hadoldpackid;
+  if (defined($oldpackid)) {
+    $hadoldpackid = $gbininfo->{$oldpackid};
+    $gbininfo->{$oldpackid} ||= {};	# make sure oldpackid is included
+  }
+  my ($projid, $repoid) = split('/', $fctx->{'prp'}, 2);
+  my $prjuseforbuildenabled = 1;
+  $prjuseforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $prjuseforbuildenabled);
+  my $pdatas = $projpacks->{$projid}->{'package'} || {};
+  my @packids = sort keys %$gbininfo;
+  # bring specials to back
+  for my $packid ('_volatile') {
+    next unless $gbininfo->{$packid};
+    @packids = grep {$_ ne $packid} @packids;
+    push @packids, $packid;
+  }
+  # construct new full
+  my %full;
+  for my $packid (@packids) {
+    if ($packid ne '_volatile') {
+      if ($useforbuildoverride) {
+	next unless $useforbuildoverride->{$packid};
+      } else {
+	my $useforbuildflags = ($pdatas->{$packid} || {})->{'useforbuild'};
+	my $useforbuildenabled = $prjuseforbuildenabled;
+	$useforbuildenabled = enabled($repoid, $useforbuildflags, $useforbuildenabled) if $useforbuildflags;
+	$useforbuildenabled = 1 if $packid eq '_volatile';
+	next unless $useforbuildenabled;
+      }
+    }
+    my $bininfo = $gbininfo->{$packid};
+    next if $bininfo->{'.nouseforbuild'};		# channels/patchinfos don't go into the full tree
+    $bininfo = $old if defined($oldpackid) && $oldpackid eq $packid;
+    my %f = set_suf_and_filter_exports($bininfo, $fctx->{'filter'});
+    for my $fn (sort { ($f{$a}->{'imported'} || 0) <=> ($f{$b}->{'imported'} || 0) || $a cmp $b} keys %f) {
+      my $r = $f{$fn};
+      $r->{'packid'} = $packid;
+      $r->{'filename'} = $fn;
+      $full{$r->{'name'}} ||= $r;
+    }
+  }
+  delete $gbininfo->{$oldpackid} if defined($oldpackid) && !$hadoldpackid;
+  return %full;
+}
+
+# find the correct meta for a binary in a package directory
+sub findmeta {
+  my ($gdst, $packid, $r, $zerook) = @_;
+  if ($r->{'imported'}) {
+    my $fn = $r->{'filename'};
+    if ($fn =~ s/^::import::/.meta.success.import./s) {
+      $fn =~ s/::.*//;
+      return "$gdst/$packid/$fn" if -s "$gdst/$packid/$fn";
+    }
+  } else {
+    return "$gdst/$packid/.meta.success" if -s "$gdst/$packid/.meta.success";
+  }
+  my $fn = $r->{'filename'};
+  $fn = substr($fn, 0, length($fn) - length($r->{'suf'}) - 1) . '.meta';
+  if ($zerook) {
+    return "$gdst/$packid/$fn" if -e "$gdst/$packid/$fn";
+  } else {
+    return "$gdst/$packid/$fn" if -s "$gdst/$packid/$fn";
+  }
+  return undef;
+}
+
+sub fctx_remove_from_volatile {
+  my ($fctx, $del) = @_;
+  my $prp = $fctx->{'prp'};
+  my $gdst = "$reporoot/$prp/$myarch";
+  for my $r (@$del) {
+    my $bin = $r->{'filename'};
+    next unless $bin =~ /^(.*)\.($binsufsre)$/;	# hmm?
+    print "      - _volatile/$bin\n";
+    unlink("$gdst/_volatile/$1.meta");
+    unlink("$gdst/_volatile/$bin");
+  }
+  unlink("$gdst/_volatile/.bininfo");
+  my $bininfo = read_bininfo("$gdst/_volatile", 1);
+  update_bininfo_merge($gdst, '_volatile', $bininfo);
+}
+
+# completely rebuild the full tree. Expensive, as it has to stat() all of
+# the old files. Called when an inconsistency is found.
+sub fctx_rebuild_full {
+  my ($fctx, $newfull, $gbininfo) = @_;
+  my $prp = $fctx->{'prp'};
+  my $gdst = "$reporoot/$prp/$myarch";
+
+  if (-d "$gdst/:full" && ! -e "$gdst/:full.useforbuild") {
+    fctx_migrate_full($fctx, $gbininfo);
+    return;
+  }
+  print "rebuilding full tree for $prp\n";
+
+  # create newfullsuf
+  my %newfullsuf = map {("$_->{'name'}.$_->{'suf'}" => $_)} values %$newfull;
+  my %kept;
+  for my $bin (sort(ls("$gdst/:full"))) {
+    next unless $bin =~ /\.($binsufsre)$/;	# hmm?
+    my $suf = $1;
+    my $r = $newfullsuf{$bin};
+    if ($r) {
+      my @s = stat("$gdst/:full/$bin");
+      if (@s && $r->{'id'} eq "$s[9]/$s[7]/$s[1]") {
+	# keep it
+	$kept{$bin} = 1;
+	next;
+      }
+    }
+    # kill it
+    $r = { 'name' => substr($bin, 0, length($bin) - length($suf) - 1), 'suf' => $suf };
+    fctx_del_binary_from_full($fctx, $r);
+  }
+  mkdir_p("$gdst/:full") if %newfullsuf;
+  # now the full tree contains only entries we want. put the missing ones in.
+  for my $bin (sort {$newfullsuf{$a}->{'packid'} cmp $newfullsuf{$b}->{'packid'} || $a cmp $b} grep {!$kept{$_}} keys(%newfullsuf)) {
+    my $r = $newfullsuf{$bin};
+    my $packid = $r->{'packid'};
+    if (defined($fctx->{'packid'}) && $packid eq $fctx->{'packid'}) {
+      fctx_add_binary_to_full($fctx, $r->{'filename'}, $r);
+    } else {
+      my $meta = findmeta($gdst, $packid, $r);
+      fctx_add_binary_to_full($fctx, $r->{'filename'}, $r, $packid, $meta);
+    }
+  }
+  if ($gbininfo->{'_volatile'}) {
+    # try to clean up _volatile
+    my $bininfo = $gbininfo->{'_volatile'};
+    my @del;
+    for my $r (sort(keys %$bininfo)) {
+      push @del, $r if $r->{'name'} && $newfull->{$r->{'name'}} != $r;
+    }
+    fctx_remove_from_volatile($fctx, \@del) if @del;
+  }
+}
+
+# this is used to switch to the new full handling
+# currently only puts unknown stuff into _volatile.
+sub fctx_migrate_full {
+  my ($fctx, $gbininfo) = @_;
+
+  my $prp = $fctx->{'prp'};
+  print "migrating full tree for $prp\n";
+  my $gdst = "$reporoot/$prp/$myarch";
+  my %knownids;
+  for my $packid (keys %$gbininfo) {
+    for (values %{$gbininfo->{$packid}}) {
+      push @{$knownids{$_->{'id'}}}, $packid if $_->{'id'};
+    }
+  }
+  my $dirty;
+  my %packidschecked;
+  for my $bin (sort(ls("$gdst/:full"))) {
+    next unless $bin =~ /\.($binsufsre)$/;      # hmm?
+    my $suf = $1;
+    my @s = stat("$gdst/:full/$bin");
+    next unless @s;
+    my $id = "$s[9]/$s[7]/$s[1]";
+    my $name = substr($bin, 0, length($bin) - length($suf) - 1);
+    my $meta = $name;
+    if (-e "$gdst/:full/$meta.meta") {
+      $meta = "$gdst/:full/$meta.meta";
+    } elsif (-e "$gdst/:full/$meta-MD5SUMS.meta") {
+      $meta = "$gdst/:full/$meta-MD5SUMS.meta";
+    } else {
+      undef $meta;
+    }
+    if ($knownids{$id}) {
+      next unless $meta;
+      my $isbad;
+      for my $packid (@{$knownids{$id}}) {
+	next if $packidschecked{$packid};
+	if (-e "$gdst/$packid/.meta.success") {
+	  $packidschecked{$packid} = 1;
+	  next;
+	}
+        $isbad = 1;
+      }
+      if ($isbad) {
+	local *F;
+	my $m;
+	if (open(F, '<', $meta)) {
+	  $m = <F>;
+	  chomp $m;
+	  close F;
+	}
+	next unless $m && $m =~ s/^.*?  //;;
+	next if $packidschecked{$m};
+	next unless grep {$_ eq $m} @{$knownids{$id}};
+	link($meta, "$gdst/$m/.meta.success");
+	$packidschecked{$m} = 1;
+      }
+      next;
+    }
+    mkdir_p("$gdst/_volatile");
+    unlink("$gdst/_volatile/$bin");
+    unlink("$gdst/_volatile/$name.meta");
+    link("$gdst/:full/$bin", "$gdst/_volatile/$bin") || die("link $gdst/:full/$bin $gdst/_volatile/$bin: $!\n");
+    if ($meta) {
+      link($meta, "$gdst/_volatile/$name.meta") || die("link $meta $gdst/_volatile/$name.meta: $!\n");
+    }
+    $dirty = 1;
+  }
+  if ($dirty) {
+    unlink("$gdst/_volatile/.bininfo");
+    my $bininfo = read_bininfo("$gdst/_volatile", 1);
+    update_bininfo_merge($gdst, '_volatile', $bininfo);
+    delete $bininfo->{'.bininfo'};
+    $gbininfo->{'_volatile'} = $bininfo;
+  }
+  # create newuseforbuild
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my $pdatas = $projpacks->{$projid}->{'package'} || {};
+  my $newuseforbuild = [];
+  my $prjuseforbuildenabled = 1;
+  $prjuseforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $prjuseforbuildenabled);
+  for my $packid (sort keys %$pdatas) {
+    my $useforbuildflags = ($pdatas->{$packid} || {})->{'useforbuild'};
+    my $useforbuildenabled = $prjuseforbuildenabled;
+    $useforbuildenabled = enabled($repoid, $useforbuildflags, $useforbuildenabled) if $useforbuildflags;
+    push @$newuseforbuild, $packid if $useforbuildenabled;
+  }
+  my %newuseforbuild = map {$_ => 1} @$newuseforbuild;
+  my %newfull = fctx_gbininfo2full($fctx, $gbininfo, undef, undef, \%newuseforbuild);
+  BSUtil::store("$gdst/.:full.useforbuild", "$gdst/:full.useforbuild", $newuseforbuild);
+  fctx_rebuild_full($fctx, \%newfull, $gbininfo);
+}
+
+# put files from a package into the full tree. knows how to deal
+# with overlapping packages.
+# both $old and $new need to contain all the imports as well.
+sub fctx_integrate_package_into_full {
+  my ($fctx, $old, $new) = @_;
+  my $packid = $fctx->{'packid'};
+  my $prp = $fctx->{'prp'};
+  my $gdst = "$reporoot/$prp/$myarch";
+
+  my %oldfull;
+  my %newfull;
+  my $bad;
+  if (defined($packid)) {
+    # sort by file name, but put imported stuff last
+    for my $fn (sort { ($old->{$a}->{'imported'} || 0) <=> ($old->{$b}->{'imported'} || 0) || $a cmp $b} keys %$old) {
+      my $r = $old->{$fn};
+      $oldfull{$r->{'name'}} ||= $fn;
+    }
+    for my $fn (sort { ($new->{$a}->{'imported'} || 0) <=> ($new->{$b}->{'imported'} || 0) || $a cmp $b} keys %$new) {
+      my $r = $new->{$fn};
+      $newfull{$r->{'name'}} ||= $fn;
+    }
+
+    # check if just the versions changed
+    $bad = 1 if grep {!$newfull{$_}} keys %oldfull;
+    $bad = 1 if grep {!$oldfull{$_}} keys %newfull;
+    if (!$bad) {
+      # just same names with new versions. see if all of the old files are there.
+      for my $n (keys %oldfull) {
+	my $r = $old->{$oldfull{$n}};
+	my @s = stat("$gdst/:full/$r->{'name'}.$r->{'suf'}");
+	next if @s && $r->{'id'} ne "$s[9]/$s[7]/$s[1]";
+	$bad = 1;
+	last;
+      }
+    }
+    if (!$bad) {
+      # nice! just new versions and all old files seen. move em over.
+      # this should be the common case
+      for my $n (sort keys %newfull) {
+	my $or = $old->{$oldfull{$n}};
+	my $nr = $new->{$newfull{$n}};
+	fctx_add_binary_to_full($fctx, $newfull{$n}, $nr) if $or != $nr;
+      }
+      return;
+    }
+  }
+
+  # could not do easy integration, read gbininfo
+  my $gbininfo = read_gbininfo($gdst);
+  my $olduseforbuild = $fctx->{'olduseforbuild'};
+  my $newuseforbuild = $fctx->{'newuseforbuild'};
+  %oldfull = fctx_gbininfo2full($fctx, $gbininfo, $packid, $old, $olduseforbuild);
+  %newfull = fctx_gbininfo2full($fctx, $gbininfo, $packid, $new, $newuseforbuild);
+
+  # check if all interesting packages are correct
+  undef $bad;
+  my %interesting;
+  if (defined($packid)) {
+    %interesting = map {$_->{'name'} => 1} (values(%$old), values(%$new));
+  } elsif (defined($olduseforbuild)) {
+    for my $p (keys %$gbininfo) {
+      next if $olduseforbuild->{$p} && $newuseforbuild->{$p};
+      next if !$olduseforbuild->{$p} && !$newuseforbuild->{$p};
+      $interesting{$_->{'name'}} = 1 for grep {exists($_->{'name'})} values %{$gbininfo->{$p}};
+    }
+    mkdir_p("$gdst/:full") if %interesting;
+  } else {
+    # bad. do full integration.
+    fctx_rebuild_full($fctx, \%newfull, $gbininfo);
+    return;
+  }
+  for my $n (sort keys %interesting) {
+    my $or = $oldfull{$n};
+    my $nr = $newfull{$n};
+    if ($or) {
+      my @s = stat("$gdst/:full/$or->{'name'}.$or->{'suf'}");
+      if (!@s || $or->{'id'} ne "$s[9]/$s[7]/$s[1]") {
+        $bad = 1;	# missing interesting old package
+        last;
+      }
+      next if $nr && $or == $nr;	# already in full tree
+    }
+    if ($nr && $nr->{'packid'} ne ($packid || '')) {
+      my @s = stat("$gdst/$nr->{'packid'}/$nr->{'filename'}");
+      if (!@s || $nr->{'id'} ne "$s[9]/$s[7]/$s[1]") {
+        $bad = 1;		# replaced with binary from different packid
+        last;
+      }
+      # check if we have the meta
+      my $meta = findmeta($gdst, $nr->{'packid'}, $nr, 1);
+      if (!$meta) {
+        $bad = 1;		# too bad, no meta available. probably not migrated. better rebuild...
+        last;
+      }
+    }
+  }
+  if (!$bad) {
+    # put new stuff in
+    for my $n (sort keys %interesting) {
+      my $or = $oldfull{$n};
+      my $nr = $newfull{$n};
+      next unless $nr;
+      next if $or && $or == $nr;
+      if ($nr->{'packid'} ne $packid) {
+	my $meta = findmeta($gdst, $nr->{'packid'}, $nr);
+        fctx_add_binary_to_full($fctx, $nr->{'filename'}, $nr, $nr->{'packid'}, $meta);
+      } else {
+        fctx_add_binary_to_full($fctx, $nr->{'filename'}, $nr);
+      }
+    }
+    # delete old stuff
+    my @volrm;
+    for my $n (sort keys %interesting) {
+      my $or = $oldfull{$n};
+      my $nr = $newfull{$n};
+      next unless $or && !$nr;
+      fctx_del_binary_from_full($fctx, $or);
+      push @volrm, $or if $or->{'packid'} eq '_volatile';
+    }
+    fcrx_remove_from_volatile($fctx, \@volrm) if @volrm;
+    return;
+  }
+
+  # too bad. rebuild all. slow as we need to stat the complete full tree...
+  fctx_rebuild_full($fctx, \%newfull, $gbininfo);
+}
+
 #
 # moves binary packages from jobrepo to dst and updates full repository
 #
 
+sub calculate_exportfilter {
+  my ($prp, $prpsearchpath, $fullcache) = @_;
+
+  my $filter;
+  # argh, need a bconf, this slows us down a bit
+  my $bconf;
+  if ($prpsearchpath) {
+    $bconf = $fullcache->{'config'} if $fullcache && $fullcache->{'config'};
+    $bconf ||= getconfig($myarch, $prpsearchpath);
+    $fullcache->{'config'} = $bconf if $fullcache;
+  }
+  $filter = $bconf->{'exportfilter'} if $bconf;
+  undef $filter if $filter && !%$filter;
+  $filter ||= $default_exportfilters{$myarch};
+  $filter = [ map {[$_, $filter->{$_}]} reverse sort keys %$filter ] if $filter;
+  return compile_exportfilter($filter);
+}
+
+sub update_bininfo_merge {
+  my ($gdst, $packid, $bininfo) = @_;
+  my $gbininfo = {};
+  $gbininfo = BSUtil::retrieve("$gdst/:bininfo.merge", 1) if -e "$gdst/:bininfo.merge";
+  if ($gbininfo) {
+    if ($bininfo) {
+      # currently not needed, maybe later
+      for (values %$bininfo) {
+	delete $_->{'provides'};
+	delete $_->{'requires'};
+      }
+      $gbininfo->{$packid} = $bininfo;
+    } else {
+      $gbininfo->{$packid} = undef;
+    }
+    BSUtil::store("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", $gbininfo);
+  } else {
+    writestr("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", '');	# corrupt file, mark
+  }
+}
+
 sub update_dst_full {
   my ($prp, $packid, $dst, $jobdir, $meta, $useforbuildenabled, $prpsearchpath, $fullcache, $importarch) = @_;
+
+  die unless defined($dst);	# just in case...
 
   my ($projid, $repoid) = split('/', $prp, 2);
 
   # do extra preinstallimage processing
-  if ((defined($dst) && -e "$dst/.preinstallimage") || (defined($jobdir) && -e "$jobdir/.preinstallimage")) {
+  if ((-e "$dst/.preinstallimage") || (defined($jobdir) && -e "$jobdir/.preinstallimage")) {
     update_preinstallimage($prp, $packid, $dst, $jobdir);
   }
 
@@ -1884,6 +2319,13 @@ sub update_dst_full {
     $useforbuildenabled = 0 if $pdata->{'patchinfo'};
   }
 
+  # further down we assume that the useforbuild setting of the full tree
+  # matches the current setting, so make sure they are in sync.
+  if ($prpcheckuseforbuild{$prp}) {
+    checkuseforbuild($prp, $prpsearchpath, undef);
+    delete $prpcheckuseforbuild{$prp};
+  }
+
   my $jobrepo;
   my @jobfiles;
   my $jobbininfo;
@@ -1891,7 +2333,7 @@ sub update_dst_full {
     @jobfiles = sort(ls($jobdir));
     @jobfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && $_ ne '.bininfo'} @jobfiles;
     $jobbininfo = BSUtil::retrieve("$jobdir/.bininfo", 1);
-    if ($jobbininfo && !($dst && $jobdir eq $dst) && !$jobbininfo->{'.bininfo'}) {
+    if ($jobbininfo && !($jobdir eq $dst) && !$jobbininfo->{'.bininfo'}) {
       # old style jobdir bininfo, ignore
       unlink("$jobdir/.bininfo");
       undef $jobbininfo;
@@ -1912,16 +2354,20 @@ sub update_dst_full {
   my $oldrepo;
   my $bininfo;
 
-  if (!$importarch && $dst && $jobdir && $dst eq $jobdir) {
+  if (!$importarch && $jobdir && $dst eq $jobdir) {
     # a "refresh" operation, nothing to do here
     $oldrepo = $jobrepo;
     $bininfo = $jobbininfo;
     $bininfo->{'.nosourceaccess'} = {} if -e "$dst/.nosourceaccess";
-  } elsif (!$importarch && $dst) {
-    # get old state
+    $bininfo->{'.nouseforbuild'} = {} if -e "$dst/.channelinfo" || -e "$dst/updateinfoxml";
+  } elsif ($BSConfig::new_full_handling || !$importarch) {
+    # get old state: oldfiles, oldbininfo, oldrepo
     my @oldfiles = sort(ls($dst));
     @oldfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && $_ ne '.bininfo' && $_ ne '.meta.success'} @oldfiles;
-    $oldrepo = findbins_dir([ map {"$dst/$_"} grep {/\.(?:$binsufsre)$/ && !/\.delta\.rpm$/} @oldfiles ]);
+    my $oldbininfo = read_bininfo($dst);
+    delete $oldbininfo->{'.bininfo'};	# delete new version marker
+    my $oldcache = { map {$_->{'id'} => $_} grep {$_->{'id'}} values %$oldbininfo };
+    $oldrepo = findbins_dir([ map {"$dst/$_"} grep {/\.(?:$binsufsre)$/ && !/\.delta\.rpm$/} @oldfiles ], $oldcache);
 
     # move files over
     mkdir_p($dst);
@@ -1931,11 +2377,25 @@ sub update_dst_full {
 	BSUtil::cleandir("$dst/$f");
 	rmdir("$dst/$f");
       }
-      rename("$jobdir/$f", "$dst/$f") || die("rename $jobdir/$f $dst/$f: $!\n");
-      $new{$f} = 1;
-      $bininfo->{$f} = $jobbininfo->{$f} if $jobbininfo->{$f};
+      my $df = $importarch ? "::import::$importarch::$f" : $f;
+      rename("$jobdir/$f", "$dst/$df") || die("rename $jobdir/$f $dst/$df: $!\n");
+      $new{$df} = 1;
+      $bininfo->{$df} = $jobbininfo->{$f} if $jobbininfo->{$f};
     }
     for my $f (grep {!$new{$_}} @oldfiles) {
+      if (!$importarch) {
+	if ($f =~ /^::import::/) {
+	  $bininfo->{$f} = $oldbininfo->{$f} if $oldbininfo->{$f};
+	  $jobrepo->{$f} = $oldrepo->{$f} if $oldrepo->{$f};
+	  next;
+	}
+      } else {
+	if ($f !~ /^::import::\Q$importarch\E::/) {
+	  $bininfo->{$f} = $oldbininfo->{$f} if $oldbininfo->{$f};
+	  $jobrepo->{$f} = $oldrepo->{$f} if $oldrepo->{$f};
+	  next;
+	}
+      }
       if (! -l "$dst/$f" && -d _) {
 	BSUtil::cleandir("$dst/$f");
 	rmdir("$dst/$f");
@@ -1944,9 +2404,10 @@ sub update_dst_full {
       }
     }
     # save meta into .meta.success file
-    unlink("$dst/.meta.success");
+    my $dmeta = $importarch ? ".meta.success.import.$importarch" : '.meta.success';
+    unlink("$dst/$dmeta");
     if ($meta) {
-      link($meta, "$dst/.meta.success") || die("link $meta $dst/.meta.success: $!\n");
+      link($meta, "$dst/$dmeta") || die("link $meta $dst/$dmeta: $!\n");
     }
     # we only check 'sourceaccess', not 'access' here. 'access' has
     # to be handled anyway, so we don't gain anything by limiting
@@ -1955,7 +2416,9 @@ sub update_dst_full {
       BSUtil::touch("$dst/.nosourceaccess");
       $bininfo->{'.nosourceaccess'} = {};
     }
+    # now jobrepo + bininfo contain all the files of dst
   } else {
+    # old stype import handling
     my $replaced = (readxml("$jobdir/replaced.xml", $BSXML::dir, 1) || {})->{'entry'};
     $oldrepo = {};
     for (@{$replaced || []}) {
@@ -1970,7 +2433,7 @@ sub update_dst_full {
   }
 
   # write .bininfo file and update :bininfo.merge (jobdir is undef for package deletion)
-  if (!$importarch) {
+  if ($BSConfig::new_full_handling || !$importarch) {
     my @bininfo_s;
     if (defined($jobdir) && defined($bininfo)) {
       BSUtil::store("$dst/.bininfo.new", "$dst/.bininfo", $bininfo);
@@ -1979,69 +2442,36 @@ sub update_dst_full {
     } else {
       unlink("$dst/.bininfo");
     }
-
-    my $gbininfo = {};
-    $gbininfo = BSUtil::retrieve("$gdst/:bininfo.merge", 1) if -e "$gdst/:bininfo.merge";
-    if ($gbininfo) {
-      if (defined($jobdir) && $bininfo) {
-	# currently not needed, maybe later
-	for (values %$bininfo) {
-	  delete $_->{'provides'};
-	  delete $_->{'requires'};
-	}
-	$gbininfo->{$packid} = $bininfo;
-      } else {
-        $gbininfo->{$packid} = undef;
-      }
-      BSUtil::store("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", $gbininfo);
-    } else {
-      writestr("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", '');	# corrupt file, mark
-    }
+    update_bininfo_merge($gdst, $packid, defined($jobdir) ? $bininfo : undef);
     delete $bininfo->{'.bininfo'} if $bininfo;
   }
 
   ##################################################################
   # part 2: link needed binaries into :full tree
 
-  my $filter;
-  # argh, this slows us down a bit
-  my $bconf;
   if ($fullcache) {
     sync_fullcache($fullcache) if $fullcache->{'prp'} && $fullcache->{'prp'} ne $prp;
     $fullcache->{'prp'} = $prp;
   }
-  if ($prpsearchpath) {
-    $bconf = $fullcache->{'config'} if $fullcache && $fullcache->{'config'};
-    $bconf ||= getconfig($myarch, $prpsearchpath);
-    $fullcache->{'config'} = $bconf if $fullcache;
-  }
-  $filter = $bconf->{'exportfilter'} if $bconf;
-  undef $filter if $filter && !%$filter;
-  $filter ||= $default_exportfilters{$myarch};
-  $filter = [ map {[$_, $filter->{$_}]} reverse sort keys %$filter ] if $filter;
-  $filter = compile_exportfilter($filter);
+  my $filter = calculate_exportfilter($prp, $prpsearchpath, $fullcache);
+  my %oldexports;
+  my %newexports;
+  my %old = set_suf_and_filter_exports($oldrepo, $filter, \%oldexports);
+  my %new = set_suf_and_filter_exports($jobrepo, $filter, \%newexports);
 
-  my %exports;
-  my %new = set_suf_and_filter_exports($jobrepo, $filter, \%exports);
-  if ($filter && !$importarch) {
-    my %exports_replaced;
-    # also filter old entries to make sure createexportjob is called for all exportarchs
-    set_suf_and_filter_exports($oldrepo, $filter, \%exports_replaced);
-    $exports{$_} ||= [] for keys %exports_replaced;
-  } else {
-    set_suf_and_filter_exports($oldrepo);	# just set suf
-  }
+  # make sure the old export archs are known
+  $newexports{$_} ||= [] for keys %oldexports;
 
-  if ($filter && !$importarch && %exports) {
+  if ($filter && !$importarch && %newexports) {
     # we always export, the other schedulers are free to reject the job
     # if move to full is also disabled for them
-    for my $exportarch (sort keys %exports) {
+    for my $exportarch (sort keys %newexports) {
       # check if this prp supports the arch
       next unless $projpacks->{$projid};
       my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
       if ($repo && grep {$_ eq $exportarch} @{$repo->{'arch'} || []}) {
 	print "    sending filtered packages to $exportarch\n";
-	createexportjob($prp, $exportarch, $packid, $jobrepo, $dst, $oldrepo, $meta, @{$exports{$exportarch}});
+	createexportjob($prp, $exportarch, $packid, $jobrepo, $dst, $oldrepo, $meta, @{$newexports{$exportarch}});
       }
     }
   }
@@ -2051,6 +2481,27 @@ sub update_dst_full {
     return;
   }
 
+  my $fctx = {
+    'prp' => $prp,
+    'packid' => $packid,
+    'dst' => $dst,
+    'meta' => $meta,
+    'filter' => $filter,
+    'importarch' => $importarch,
+  };
+  if ($BSConfig::new_full_handling) {
+    move_into_full($fctx, \%old, \%new, $oldrepo, $fullcache);
+  } else {
+    # note that we use oldrepo here instead of \%old
+    move_into_full($fctx, $oldrepo, \%new, $fullcache);
+  }
+}
+
+sub move_into_full {
+  my ($fctx, $old, $new, $fullcache) = @_;
+
+  my $prp = $fctx->{'prp'};
+  my $gdst = "$reporoot/$prp/$myarch";
   my $pool;
   my $satrepo;
   my %oldids;	# maps path => id
@@ -2073,33 +2524,33 @@ sub update_dst_full {
       $metacache_ismerge = 1;
     }
   }
-
   # move em over into :full
-  my $fctx = {
-    'prp' => $prp,
-    'oldids' => \%oldids,
-    'meta' => $meta,
-    'metacache' => $metacache,
-    'metacache_ismerge' => $metacache_ismerge,
-    'linkedmeta' => 0,
-  };
+  $fctx->{'oldids'} = \%oldids;
+  $fctx->{'metacache'} = $metacache;
+  $fctx->{'metacache__ismerge'} = $metacache_ismerge;
   $fctx->{'dep2meta'} = $repodatas{$prp}->{'meta'} if $repodatas{$prp} && $repodatas{$prp}->{'meta'};
-  mkdir_p("$gdst/:full") if %new && ! -d "$gdst/:full";
-  my %fnew;
-  for my $rp (sort keys %new) {
-    my $r = $new{$rp};
-    next unless $r->{'suf'} && $r->{'id'};
-    add_binary_to_full($fctx, $dst, $rp, $r);
-    $fnew{$r->{'name'}} = 1;
+  mkdir_p("$gdst/:full") if $new && %$new && ! -d "$gdst/:full";
+
+  if ($BSConfig::new_full_handling) {
+    fctx_integrate_package_into_full($fctx, $old, $new);
+  } else {
+    my %fnew;
+    for my $rp (sort keys %$new) {
+      my $r = $new->{$rp};
+      next unless $r->{'suf'} && $r->{'id'};
+      fctx_add_binary_to_full($fctx, $rp, $r);
+      $fnew{$r->{'name'}} = 1;
+    }
+    for my $rp (sort keys %$old) {
+      my $r = $old->{$rp};
+      next unless $r->{'suf'} && $r->{'id'};
+      next if $fnew{$r->{'name'}};	# already overwritten with new version
+      my @s = stat("$gdst/:full/$r->{'name'}.$r->{'suf'}");
+      next unless @s && $r->{'id'} eq "$s[9]/$s[7]/$s[1]";	# don't delete package if not ours
+      fctx_del_binary_from_full($fctx, $r);
+    }
   }
-  for my $rp (sort keys %$oldrepo) {
-    my $r = $oldrepo->{$rp};
-    next unless $r->{'suf'} && $r->{'id'};
-    next if $fnew{$r->{'name'}};	# already overwritten with new version
-    my @s = stat("$gdst/:full/$r->{'name'}.$r->{'suf'}");
-    next unless @s && $r->{'id'} eq "$s[9]/$s[7]/$s[1]";	# don't delete package if not ours
-    del_binary_from_full($fctx, $r);
-  }
+
   mkdir_p($gdst) unless -d $gdst;
   if ($fullcache) {
     # delayed writing of the solv file, just update the fullcache
@@ -2123,6 +2574,68 @@ sub update_dst_full {
     }
   }
   delete $repodatas{$prp}->{'solv'};
+}
+
+# check if the useforbuild settings have changed. If yes, update the :full tree
+sub checkuseforbuild {
+  my ($prp, $prpsearchpath, $fullcache) = @_;
+  return unless $BSConfig::new_full_handling;
+  my $gdst = "$reporoot/$prp/$myarch";
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my $pdatas = $projpacks->{$projid}->{'package'} || {};
+  if (enabled($repoid, $projpacks->{$projid}->{'locked'}, 0)) {
+    my $unlocked;
+    for my $packid (sort keys %$pdatas) {
+      my $lockedflags = $pdatas->{$packid}->{'locked'};
+      if ($lockedflags && !enabled($repoid, $lockedflags, 1)) {
+	$unlocked = 1;
+	last;
+      }
+    }
+    return unless $unlocked;
+  }
+  my $newuseforbuild = [];
+  my $prjuseforbuildenabled = 1;
+  $prjuseforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $prjuseforbuildenabled);
+  for my $packid (sort keys %$pdatas) {
+    my $useforbuildflags = ($pdatas->{$packid} || {})->{'useforbuild'};
+    my $useforbuildenabled = $prjuseforbuildenabled;
+    $useforbuildenabled = enabled($repoid, $useforbuildflags, $useforbuildenabled) if $useforbuildflags;
+    push @$newuseforbuild, $packid if $useforbuildenabled;
+  }
+  my %olduseforbuild;
+  my %newuseforbuild;
+  my $olduseforbuild = BSUtil::retrieve("$gdst/:full.useforbuild", 1);
+  if (!$olduseforbuild) {
+    $olduseforbuild = [] unless -d "$gdst/:full";
+  }
+  if ($olduseforbuild) {
+    return if join('/', @$olduseforbuild) eq join('/', $newuseforbuild);
+    # diff it. only care about current packages.
+    %olduseforbuild = map {$_ => 1} @$olduseforbuild;
+    %newuseforbuild = map {$_ => 1} @$newuseforbuild;
+    # work around added/removed packages
+    for (keys %newuseforbuild) {
+      next if $olduseforbuild{$_};
+      $olduseforbuild{$_} = 1 if ! -d "$gdst/$_";	# did not exist before
+    }
+  }
+  if ($fullcache) {
+    sync_fullcache($fullcache) if $fullcache->{'prp'} && $fullcache->{'prp'} ne $prp;
+    $fullcache->{'prp'} = $prp;
+  }
+  my $filter = calculate_exportfilter($prp, $prpsearchpath, $fullcache);
+  my $fctx = {
+    'prp' => $prp,
+    'filter' => $filter,
+  };
+  if ($olduseforbuild) {
+    $fctx->{'olduseforbuild'} = \%olduseforbuild;
+    $fctx->{'newuseforbuild'} = \%newuseforbuild;
+  }
+  # this will also remove no longer existing packages from the :full tree
+  move_into_full($fctx, undef, undef, $fullcache);
+  BSUtil::store("$gdst/.:full.useforbuild", "$gdst/:full.useforbuild", $newuseforbuild);
 }
 
 sub update_preinstallimage {
@@ -2603,16 +3116,32 @@ sub get_projpacks {
   }
 }
 
+sub update_prpcheckuseforbuild {
+  my ($projid, $proj) = @_;
+  if (!$proj) {
+    for my $prp (keys %prpcheckuseforbuild) {
+      delete $prpcheckuseforbuild{$prp} if (split('/', $prp, 2))[0] eq $projid;
+    }
+  } else {
+    for my $repo (@{$proj->{'repository'}}) {
+      next unless grep {$_ eq $myarch} @{$repo->{'arch'} || []};
+      $prpcheckuseforbuild{"$projid/$repo->{'name'}"} = 1;
+    }
+  }
+}
+
 # incorporate all the new data from projpacksin into our projpacks data
 sub update_projpacks {
   my ($projpacksin, $projid, $packids) = @_;
 
   checkbuildrepoid($projpacksin);
+  my $isgone;
   # free old data
   if (!defined($projid)) {
     $projpacks = {};
   } elsif (!($packids && @$packids)) {
     delete $projpacks->{$projid};
+    $isgone = 1;
   } elsif ($projpacks->{$projid} && $projpacks->{$projid}->{'package'}) {
     for my $packid (@$packids) {
       delete $projpacks->{$projid}->{'package'}->{$packid};
@@ -2635,6 +3164,8 @@ sub update_projpacks {
 	}
       }
     }
+    undef $isgone if defined($projid) && $proj->{'name'} eq $projid;
+    update_prpcheckuseforbuild($proj->{'name'}, $proj);
     $projpacks->{$proj->{'name'}} = $proj;
     delete $proj->{'name'};
     my $packages = {};
@@ -2651,6 +3182,7 @@ sub update_projpacks {
   if (!defined($projid)) {
     %remoteprojs = ();
   } elsif (!($packids && @$packids)) {
+    update_prpcheckuseforbuild($projid) if $isgone;
     delete $remoteprojs{$projid};
   }
   remotemap2remoteprojs($projpacksin->{'remotemap'});
@@ -2662,12 +3194,14 @@ sub update_projpacks_meta {
   my $proj = $projpacksin->{'project'}->[0];
   if (!$proj) {
     delete $projpacks->{$projid};
+    update_prpcheckuseforbuild($projid);
   } else {
     delete $proj->{'name'};
     delete $proj->{'package'};
     my $oldproj = $projpacks->{$projid};
     $proj->{'package'} = $oldproj->{'package'} if $oldproj->{'package'};
     $projpacks->{$projid} = $proj;
+    update_prpcheckuseforbuild($projid, $proj);
   }
   delete $remoteprojs{$projid};
   remotemap2remoteprojs($projpacksin->{'remotemap'});
@@ -4018,6 +4552,7 @@ sub fakejobfinished_nouseforbuild {
       BSUtil::touch("$dst/.nosourceaccess");
       $bininfo->{'.nosourceaccess'} = {};
     }
+    $bininfo->{'.nouseforbuild'} = {};
     BSUtil::store("$dst/.bininfo.new", "$dst/.bininfo", $bininfo);
     my @bininfo_s = stat("$dst/.bininfo");
     $bininfo->{'.bininfo'} = {'id' => "$bininfo_s[9]/$bininfo_s[7]/$bininfo_s[1]"} if @bininfo_s;
@@ -5523,6 +6058,7 @@ sub checkaggregate {
 	  next;
 	}
 	for my $apackid (keys %$gbininfo) {
+	  next if $apackid eq '_volatile';
 	  my $bininfo = $gbininfo->{$apackid};
 	  if ($abinfilter) {
 	    next unless grep {defined($_->{'name'}) && $abinfilter->{$_->{'name'}}} values %$bininfo;
@@ -7130,6 +7666,7 @@ if (!$projpacks && $startupmode) {
   }
   @lookat_low = sort keys %$projpacks;
   push @lookat_low, @prps;
+  $prpcheckuseforbuild{$_} = 1 for @prps;
 }
 
 if (!$projpacks) {
@@ -7512,6 +8049,7 @@ NEXTPRP:
 	delete $prpchecktimes{$prp};
 	delete $repodatas{$prp};
 	delete $lastcheck{$prp};
+	delete $prpcheckuseforbuild{$prp};
 	for my $dir (ls("$reporoot/$prp/$myarch")) {
 	  # need lock for deleting publish area
 	  next if $dir eq ':repo' || $dir eq ':repoinfo';
@@ -7673,6 +8211,10 @@ NEXTPRP:
 
     print "  - $prp\n";
 
+    if ($prpcheckuseforbuild{$prp}) {
+      checkuseforbuild($prp, $prpsearchpath{$prp}, undef);
+      delete $prpcheckuseforbuild{$prp};
+    }
     if (!$lastcheck{$prp}) {
       my $oldlastcheck = BSUtil::retrieve("$reporoot/$prp/$myarch/:lastcheck", 1) || {};
       my $packs = $projpacks->{$projid}->{'package'} || {};
@@ -7705,6 +8247,7 @@ NEXTPRP:
 
     # Step 2a: check if packages got deleted/excluded
     for my $packid (grep {!/^[:\.]/} ls("$reporoot/$prp/$myarch")) {
+      next if $packid eq '_volatile';
       if (!$packs->{$packid}) {
 	next if $packid eq '_deltas';
 	next if $projpacks->{$projid}->{'missingpackages'};
