@@ -528,4 +528,8 @@ module Webui::WebuiHelper
       content_tag(:ul, content, html_opts)
     end
   end
+
+  def array_cachekey(array)
+    Digest::MD5.hexdigest(array.join)
+  end
 end
