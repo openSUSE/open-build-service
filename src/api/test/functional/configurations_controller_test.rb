@@ -11,8 +11,16 @@ class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     login_tom
+    get '/public/configuration.json' # is done by webui from OBS 2.4
+    assert_response :success
+    json = JSON.parse(@response.body)
+    assert_equal json['title'], "Open Build Service" # got json
+    get '/public/configuration.xml'
+    assert_response :success
+    assert_xml_tag :tag => "configuration" # is xml
     get '/public/configuration'
     assert_response :success
+    assert_xml_tag :tag => "configuration" # is xml
     get '/configuration' # default
     assert_response :success
     config = @response.body

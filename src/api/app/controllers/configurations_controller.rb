@@ -12,10 +12,14 @@ class ConfigurationsController < ApplicationController
 
   # GET /configuration
   # GET /configuration.xml
+  # GET /configuration.json
   def show
     @configuration = ::Configuration.first
 
-    render xml: @configuration.render_xml
+    respond_to do |format|
+      format.xml  { render :xml => @configuration.render_xml }
+      format.json { render :json => @configuration.to_json }
+    end
   end
 
   # PUT /configuration
