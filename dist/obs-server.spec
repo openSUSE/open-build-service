@@ -588,6 +588,8 @@ chmod 0640 $SECRET_KEY
 chown root.www $SECRET_KEY
 # update config
 sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/api/config/database.yml
+touch /srv/www/obs/api/log/production.log
+chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 %restart_on_update apache2
 %restart_on_update obsapisetup
@@ -757,7 +759,6 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/api/config/dat
 %config(noreplace) /srv/www/obs/api/config/active_rbac_config.rb
 
 %dir %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/api/log
-%verify(not size md5) %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/api/log/production.log
 %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/api/tmp
 
 # these dirs primarily belong to apache2:
@@ -770,6 +771,7 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/api/config/dat
 %ghost /srv/www/obs/api/log/delayed_job.log
 %ghost /srv/www/obs/api/log/error.log
 %ghost /srv/www/obs/api/log/lastevents.access.log
+%ghost /srv/www/obs/api/log/production.log
 
 %files -n obs-utils
 %defattr(-,root,root)
