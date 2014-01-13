@@ -421,7 +421,7 @@ sub verify_nevraquery {
 }
 
 sub verify_attribute {
-  my $attribute = $_;
+  my ($attribute) = @_;
   die("no namespace defined\n") unless $attribute->{'namespace'};
   die("no name defined\n") unless $attribute->{'name'};
   verify_simple($attribute->{'namespace'});
@@ -433,9 +433,25 @@ sub verify_attribute {
 }
 
 sub verify_attributes {
-  my $attributes = $_;
+  my ($attributes) = @_;
   for my $attribute (@{$attributes || []}) {
     verify_attribute($attribute);
+  }
+}
+
+sub verify_frozenlinks {
+  my ($frozenlinks) = @_;
+  my %seen;
+  for my $fp (@{$frozenlinks->{'frozenlink'} || []}) {
+    my $xp = exists($fp->{'project'}) ? $fp->{'project'} : '/all';
+    verify_projid($fp->{'project'}) if exists $fp->{'project'};
+    die("project listed multiple times in frozenlinks\n") if $seen{$xp} || $seen{'/all'};
+    $seen{$xp} = 1;
+    for my $p (@{$fp->{'package'} || []}) {
+      verify_packid($p->{'name'});
+      verify_srcmd5($p->{'srcmd5'});
+      verify_simple($p->{'vrev'}) if defined $p->{'vrev'};
+    }
   }
 }
 

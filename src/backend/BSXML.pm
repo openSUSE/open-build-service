@@ -1538,94 +1538,94 @@ our $attribute = [
         'name', 
         'binary', 
       [ 'value' ],
-      [[ 'issue' =>
-          'name',
-          'tracker'
-      ]],
+     [[ 'issue' =>
+	    'name',
+	    'tracker'
+     ]],
 ];
 
 our $attributes = [
-     'attributes' => 
+    'attributes' => 
       [ $attribute ],
 ];
 
 our $size = [
-     'size' => 
-         'unit',
-         [],
-         '_content',
+    'size' => 
+        'unit',
+        [],
+        '_content',
 ];
 
 our $time = [
-     'time' => 
-         'unit',
-         [],
-         '_content',
+    'time' => 
+        'unit',
+        [],
+        '_content',
 ];
 
 # define constraints for build jobs in packages or projects.
 our $constraints = [
-  'constraints' => 
-    [],
-  [[ 'hostlabel' =>
-       'exclude',   # true or false. default is false.
-       [],
-       '_content' # workers might get labels defined by admin, for example for benchmarking.
-  ]],
-  [ 'sandbox' =>
-       'exclude',   # true or false. default is false.
-       [],
-       '_content' # xen/kvm/zvm/lxc/emulator/chroot/secure
-  ],
-  [ 'linux' =>
-      [ 'version' =>
+    'constraints' => 
+	[],
+     [[ 'hostlabel' =>
+        'exclude',   # true or false. default is false.
         [],
-        'max' ,
-        'min' ,
+        '_content' # workers might get labels defined by admin, for example for benchmarking.
+     ]],
+      [ 'sandbox' =>
+	    'exclude',   # true or false. default is false.
+	    [],
+	    '_content' # xen/kvm/zvm/lxc/emulator/chroot/secure
       ],
-    'flavor',
-  ],
-  [ 'hardware' =>
-      [ 'cpu' =>
-	 [ 'flag' ],
+      [ 'linux' =>
+	  [ 'version' =>
+		[],
+		'max' ,
+		'min' ,
+	  ],
+	'flavor',
       ],
-	'processors',
-      [ 'disk' => $size ],
-      [ 'memory' => $size ],
-      [ 'physicalmemory' => $size ],
-  ],
+      [ 'hardware' =>
+	  [ 'cpu' =>
+	      [ 'flag' ],
+	  ],
+	    'processors',
+	  [ 'disk' => $size ],
+	  [ 'memory' => $size ],
+	  [ 'physicalmemory' => $size ],
+      ],
 ];
 
 our $buildstatistics = [
     'buildstatistics' =>
-	[ 'disk' =>
-              [ 'usage' => 
-                 [ 'size' =>
-                     'unit',
-                     [],
-                     '_content',
-                 ],
-                 'io_requests',
-                 'io_sectors',
-              ],
-        ],
-	[ 'memory' =>
-              [ 'usage' => $size ],
-        ],
-	[ 'times' =>
-              [ 'total' => $time ],
-              [ 'preinstall' => $time ],
-              [ 'install' => $time ],
-              [ 'main' => $time ],
-              [ 'download' => $time ],
-        ],
-	[ 'download' =>
-              [],
-              $size,
-              'binaries',
-              'cachehits',
-              'preinstallimage',
-        ],
+      [ 'disk' =>
+	  [ 'usage' => 
+	      [ 'size' =>
+		    'unit',
+		    [],
+		    '_content',
+	      ],
+	    'io_requests',
+	    'io_sectors',
+	  ],
+      ],
+      [ 'memory' =>
+	  [ 'usage' => $size ],
+      ],
+      [ 'times' =>
+	  [ 'total' => $time ],
+	  [ 'preinstall' => $time ],
+	  [ 'install' => $time ],
+	  [ 'main' => $time ],
+	  [ 'download' => $time ],
+      ],
+      [ 'download' =>
+	    [],
+	    $size,
+	    'binaries',
+	    'cachehits',
+	    'preinstallimage',
+      ],
 ];
 
 our $notifications = [
@@ -1638,6 +1638,18 @@ our $notifications = [
 	 [[ 'data' =>
 		'key',
 		'_content',
+	 ]],
+     ]],
+];
+
+our $frozenlinks = [
+    'frozenlinks' =>
+     [[ 'frozenlink' =>
+	    'project',
+	 [[ 'package' =>
+		'name',
+		'srcmd5',
+		'vrev',
 	 ]],
      ]],
 ];
