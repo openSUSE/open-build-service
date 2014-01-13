@@ -1,4 +1,5 @@
 Visit <%= url_for(project: @e['project'], package: @e['package'], controller: 'webui/package', action: :show, only_path: false, host: @host) %>
 
 <%= @e['commenter'].realname %> wrote in package <%= @e['project'] %>/<%= @e['package'] %>:
+
 <%= @e['comment_body'] %>
