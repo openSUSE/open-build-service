@@ -107,6 +107,7 @@ my $emptysrcmd5 = 'd41d8cd98f00b204e9800998ecf8427e';
 my $collect_remote_getrev;
 my $remote_getrev_todo;
 my %remote_getrev_cache;
+my $frozenlinks_cache;
 
 sub notify {
   my ($type, $p) = @_;
@@ -875,6 +876,27 @@ sub getrev_git {
   return $rev;
 }
 
+sub get_frozenlinks {
+  my ($projid) = @_;
+  return $frozenlinks_cache->{$projid} if $frozenlinks_cache && exists $frozenlinks_cache->{$projid};
+  my $rev = getrev_meta($projid);
+  my $files = lsrev($rev);
+  my $frozen;
+  if ($files->{'_frozenlinks'}) {
+    my $frozenx = repreadxml($rev, '_frozenlinks', $files->{'_frozenlinks'}, $BSXML::frozenlinks);
+    $frozen = {};
+    for my $fp (@{$frozenx->{'frozenlink'} || []}) {
+      my $n = defined($fp->{'project'}) ? $fp->{'project'} : '/all';
+      for my $p (@{$fp->{'package'} || []}) {
+	my $pn = delete $p->{'name'};
+        $frozen->{$n}->{$pn} = $p if defined($pn) && $p->{'srcmd5'};
+      }
+    }
+  }
+  $frozenlinks_cache->{$projid} = $frozen if $frozenlinks_cache;
+  return $frozen;
+}
+
 #
 # get a revision object from a revision identifier
 #
@@ -887,13 +909,19 @@ sub getrev {
     if ($proj && $proj->{'link'}) {
       my $collect_error;
       $linked ||= [];
+      my $frozen = get_frozenlinks($projid);
       for my $lprojid (map {$_->{'project'}} @{$proj->{'link'}}) {
 	next if $lprojid eq $projid;
 	next if grep {$_->{'project'} eq $lprojid && $_->{'package'} eq $packid} @$linked;
 	push @$linked, {'project' => $lprojid, 'package' => $packid};
+        my $frozenp = $frozen->{'/all'} || $frozen->{$lprojid};
 	my $lrev;
+        if ($frozenp->{$packid}) {
+	  $lrev = getrev($lprojid, $packid, $frozenp->{$packid}->{'srcmd5'}, $linked, $missingok);
+	  $lrev->{'vrev'} = $frozenp->{$packid}->{'vrev'} if defined $frozenp->{$packid}->{'vrev'};
+	}
 	eval {
-	  $lrev = getrev($lprojid, $packid, $rev, $linked, $missingok);
+	  $lrev ||= getrev($lprojid, $packid, $rev, $linked, $missingok);
 	};
 	next if $collect_error;
 	if ($@ && $@ !~ /^404/) {
@@ -2208,17 +2236,23 @@ sub findpackages {
   if ($proj->{'link'} && !$noexpand) {
     $seen ||= {};
     $seen->{$projid} = 1;
+    my $frozen = get_frozenlinks($projid);
     for my $lprojid (map {$_->{'project'}} @{$proj->{'link'}}) {
       next if $seen->{$lprojid};
       $seen->{$lprojid} = 1;
       my @lpackids;
+      my $frozenp = $frozen->{'/all'} || $frozen->{$lprojid};
       my $lorigins = defined($origins) ? {} : undef;
-      my $lproj = readproj($lprojid, 1);
-      if (!$lproj || $lproj->{'remoteurl'}) {
-        $lproj = remoteprojid($lprojid);
-	next unless $lproj;	# linked project does not exist
+      if ($frozenp) {
+	@lpackids = sort keys %$frozenp;
+      } else {
+        my $lproj = readproj($lprojid, 1);
+        if (!$lproj || $lproj->{'remoteurl'}) {
+          $lproj = remoteprojid($lprojid);
+	  next unless $lproj;	# linked project does not exist
+        }
+        @lpackids = findpackages($lprojid, $lproj, $nonfatal || -1, $seen, $lorigins);
       }
-      @lpackids = findpackages($lprojid, $lproj, $nonfatal || -1, $seen, $lorigins);
       if (grep {$_ eq '_product'} @packids) {
 	@lpackids = grep {$_ ne '_product' && !/^_product:/} @lpackids;
       }
@@ -2762,6 +2796,7 @@ sub getprojpack {
   $packids = { map {$_ => 1} @$packids } if $packids;
   my $bconf = Build::read_config($arch);
 
+  $frozenlinks_cache = {};
   my @res;
   for my $projid (@$projids) {
     my $jinfo = { 'name' => $projid };
@@ -3261,6 +3296,7 @@ sub getprojpack {
     $jinfo->{'package'} = \@pinfo;
     push @res, $jinfo;
   }
+  $frozenlinks_cache = undef;
   my $ret = {'repoid' => $repoid, 'project' => \@res};
   if ($remotemap) {
     delete $remotemap->{':partition'};
@@ -3593,7 +3629,7 @@ sub getpackage {
     delete $pack->{$_} for map {$_->[0]} @BSXML::flags;
     return ($pack, $BSXML::pack);
   }
-  if ($cgi->{'rev'} || $cgi->{'deleted'}) {
+  if ($cgi->{'rev'} || $cgi->{'deleted'} || $packid eq '_project') {
     # return the exact file here
     # we also do not look at project links
     # we return the data as string so that the md5 sum matches
@@ -4667,6 +4703,10 @@ sub putfile {
       my $attribs = readxml("$uploaddir/$$", $BSXML::attributes);
       BSVerify::verify_attributes($attribs);
       writexml("$uploaddir/$$", undef, $attribs, $BSXML::attributes);
+    } elsif ($filename eq '_frozenlinks') {
+      my $frozenx = readxml("$uploaddir/$$", $BSXML::frozenlinks);
+      BSVerify::verify_frozenlinks($frozenx);
+      writexml("$uploaddir/$$", undef, $frozenx, $BSXML::frozenlinks);
     } else {
       die("unsupported meta operation\n");
     }
@@ -5759,7 +5799,7 @@ sub delfile {
   die("no filename\n") unless defined($filename) && $filename ne '';
   die("bad filename\n") if $filename =~ /\// || $filename =~ /^\./;
   if ($cgi->{'meta'}) {
-    if ($filename ne '_attribute') {
+    if ($filename ne '_attribute' && $filename ne '_frozenlinks') {
       die("unsupported meta operation\n");
     }
     my $rev = addrev_meta($cgi, $projid, $packid, undef, undef, $filename);
@@ -7591,6 +7631,7 @@ sub getprojectsourceinfo {
   my ($cgi, $projid) = @_;
   checkprojrepoarch($projid, $cgi->{'repository'}, $cgi->{'arch'});
   my @packages = @{$cgi->{'package'} || []};
+  $frozenlinks_cache = {};
   @packages = findpackages($projid) unless @packages;
   my $bconf;
   if (!$cgi->{'nofilename'}) {
@@ -7621,6 +7662,7 @@ sub getprojectsourceinfo {
   for my $packid (@packages) {
     push @res, sourceinfo($cgi, $projid, $packid, $bconf);
   }
+  $frozenlinks_cache = undef;
   return ({'sourceinfo' => \@res}, $BSXML::sourceinfolist);
 }
 
