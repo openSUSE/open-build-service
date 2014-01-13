@@ -81,12 +81,12 @@
                     <%= content_tag(:td, data: { group: group, role: role.title, type: 'group' }) do %>
                         <% if @package %>
                             <%= check_box_tag('group_' + role.title + '_' + group.title, '', @package.group_has_role?(group, role), disabled: !user_is_maintainer, :class => :trigger) %>
-                            <% if @project.group_has_role?(group, role) %>
+                            <% if @project.api_obj.group_has_role?(group, role) %>
                                 <%= link_to(sprite_tag('project', title: 'Inherited from project'), :controller => 'project', :action => 'users', :project => @project) %>
                             <% end %>
                         <% else %>
-				<%= check_box_tag('group_' + role.title + '_' + group.title, '', 
-						   @project.group_has_role?(group, role), disabled: !user_is_maintainer, :class => :trigger) %>
+                            <%= check_box_tag('group_' + role.title + '_' + group.title, '',
+                                              @project.api_obj.group_has_role?(group, role), disabled: !user_is_maintainer, :class => :trigger) %>
                         <% end %>
                     <% end %>
                 <% end %>
