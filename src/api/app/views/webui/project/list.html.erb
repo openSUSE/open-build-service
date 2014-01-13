@@ -28,7 +28,7 @@
   <% end -%>
 </div>
 
-<% cachekey = Project.maximum(:updated_at)
+<% cachekey = array_cachekey(@main_projects) +  array_cachekey(@excl_projects)
    projecturl = url_for(controller: 'project', action: 'show', project: 'REPLACEIT')
 %>
 
