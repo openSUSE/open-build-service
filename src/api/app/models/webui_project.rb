@@ -174,24 +174,10 @@ class WebuiProject < ActiveXML::Node
     return result
   end
 
-  def user_has_role?(user, role)
-    user && api_obj.relationships.where(user: user, role_id: Role.rolecache[role]).exists?
-  end
-
-  def group_has_role?(group, role)
-    each('group') do |g|
-      return true if g.value(:role) == role and g.value(:groupid) == group
-    end
-    false
-  end
-
   def users(role = nil)
     rels = api_obj.relationships
     rels = rels.where(role: Role.rolecache[role]) if role
     users = rels.users.pluck(:user_id)
-    rels.groups.each do |g|
-      users << g.groups_users.pluck(:user_id)
-    end
     User.where(id: users.flatten.uniq)
   end
 
