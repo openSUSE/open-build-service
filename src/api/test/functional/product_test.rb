@@ -13,9 +13,12 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_response :success
     put "/source/home:tom:temporary/_product/_meta",
         '<package project="home:tom:temporary" name="_product"> <title/> <description/> 
+            <person userid="adrian" role="maintainer" />
          </package>'
     assert_response :success
 
+    # everything works even when the project is not owner by me?
+    login_adrian
     # upload sources in right order
     ["defaults-archsets.include", "defaults-conditionals.include", "defaults-repositories.include", "obs.group", "obs-release.spec", "simple.product"].each do |file|
       raw_put "/source/home:tom:temporary/_product/#{file}",
@@ -53,6 +56,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "status", :attributes => { :code => '400', :origin => 'backend' }
     assert_match(/Illegal support key ILLEGAL for obs-server/, @response.body)
 
+    login_tom
     delete "/source/home:tom:temporary"
     assert_response :success
   end

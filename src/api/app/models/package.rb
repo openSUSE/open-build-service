@@ -266,7 +266,10 @@ class Package < ActiveRecord::Base
 
   def check_write_access!(ignoreLock=nil)
     return if Rails.env.test? and User.current.nil? # for unit tests
-    unless User.current.can_modify_package? self, ignoreLock
+    # test _product permissions if any other _product: subcontainer is used
+    obj = self
+    obj = self.project.packages.where(:name => "_product").first if self.name =~ /\A_product:\w[-+\w\.]*\z/
+    unless User.current.can_modify_package? obj, ignoreLock
       raise WritePermissionError, "No permission to modify package '#{self.name}' for user '#{User.current.login}'"
     end
   end

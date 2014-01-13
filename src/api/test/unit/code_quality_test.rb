@@ -113,6 +113,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Project::check_access?' => 54.05,
       'Project::get_by_name' => 53.44,
       'Project#release_targets_ng' => 57.91,
+      'Project#update_product_autopackages' => 52.05,
       'ProjectStatusCalculator#calc_status' => 74.59,
       'PublicController#binary_packages' => 131.24,
       'Repository#cleanup_before_destroy' => 85.53,
