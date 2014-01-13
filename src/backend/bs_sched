@@ -5113,7 +5113,7 @@ sub checkkiwiproduct {
       print "      - $packid (kiwi-product)\n";
       print "        unblocked\n";
     }
-    return ('excluded');
+    return ('excluded', "is built in architecture '$archs[0]'");
   }
 
   # now create meta info
