@@ -256,7 +256,6 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
     login_tom to: '/project/show/home:Iggy'
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      fill_in 'title', with: 'Comment Title'
       fill_in 'body', with: 'Comment Body'
       find_button('Add comment').click
       find('#flash-messages').must_have_text 'Comment added successfully '
@@ -267,7 +266,6 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
   test 'another succesful comment creation' do
     login_Iggy to: '/project/show?project=home:Iggy'
-    fill_in 'title', with: 'Comment Title'
     fill_in 'body', with: 'Comment Body'
     find_button('Add comment').click
     find('#flash-messages').must_have_text 'Comment added successfully '

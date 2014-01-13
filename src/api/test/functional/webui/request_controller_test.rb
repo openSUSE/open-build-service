@@ -237,7 +237,6 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
   test 'succesful comment creation' do
     login_Iggy to: request_show_path(1)
-    fill_in 'title', with: 'Comment Title'
     fill_in 'body', with: 'Comment Body'
     find_button('Add comment').click
     find('#flash-messages').must_have_text 'Comment added successfully '
@@ -276,14 +275,13 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     # adrian is reviewer, Iggy creator, Admin (fixture) commenter
     # tom is commenter *and* author, so doesn't get mail
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      fill_in 'title', with: 'Comment Title'
       fill_in 'body', with: 'Comment Body'
       find_button('Add comment').click
-      page.must_have_text 'Comment Title'
+      page.must_have_text 'Comment Body'
     end
 
     email = ActionMailer::Base.deliveries.last
-    assert_equal 'New comment in request 4 by tom: Comment Title', email.subject
+    assert_equal 'Request 4 got a new comment by tom', email.subject
     verify_email('comment_event', '4', email)
 
     # now check the commenters get no more mails too if unsubscribed
@@ -293,14 +291,13 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
     # adrian is reviewer, Iggy creator, Admin (fixture) commenter
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      fill_in 'title', with: 'Another Title'
       fill_in 'body', with: 'Another Body'
       find_button('Add comment').click
-      page.must_have_text 'Another Title'
+      page.must_have_text 'Another Body'
     end
 
     email = ActionMailer::Base.deliveries.last
-    assert_equal 'New comment in request 4 by tom: Another Title', email.subject
+    assert_equal 'Request 4 got a new comment by tom', email.subject
     verify_email('another_comment_event', '4', email)
   end
 end

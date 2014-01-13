@@ -1,13 +1,9 @@
 <% level ||= 1 %>
 <% if children.present? %>
     <% children.each do |comment| %>
-        <div class="comment_child <%= 'comment_odd' if level.odd? %>"
-             style="<%= "margin-left: #{level * 10}px;" if level <= 4 %><%= "padding: 20px 20px 20px 0;" if level <= 3 %>">
+        <div class="comment comment_child <%= 'comment_odd' if level.odd? %>">
           <%= user_icon(comment[:user], 24, 'comment_image') %>
-          <%= comment[:user] %>
-          <br/>
-          <span class="comment_time"><%= fuzzy_time(comment[:created_at]) %>
-            ago:</span>
+          <%= comment[:user] %> wrote <span class="comment_time"><%= fuzzy_time(comment[:created_at]) %></span>
           <%= simple_format(comment[:body]) %>
           <%= render :partial => "webui/comment/links", :locals => {:comment => comment} %>
           <%= render :partial => "webui/comment/reply", :locals => {:comment => comment, level: level} %>

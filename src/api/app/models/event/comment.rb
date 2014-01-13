@@ -29,7 +29,7 @@ class Event::CommentForProject < ::Event::Project
   self.description = 'New comment for project created'
 
   def subject
-    "New comment in project #{payload['project']} by #{User.find(payload['commenter']).login}: #{payload['comment_title']}"
+    "New comment in project #{payload['project']} by #{User.find(payload['commenter']).login}"
   end
 
 end
@@ -41,7 +41,7 @@ class Event::CommentForPackage < ::Event::Package
   self.description = 'New comment for package created'
 
   def subject
-    "New comment in package #{payload['project']}/#{payload['package']} by #{User.find(payload['commenter']).login}: #{payload['comment_title']}"
+    "New comment in package #{payload['project']}/#{payload['package']} by #{User.find(payload['commenter']).login}"
   end
 
 end
@@ -54,7 +54,7 @@ class Event::CommentForRequest < ::Event::Request
   receiver_roles :target_maintainer, :creator, :reviewer
 
   def subject
-    "New comment in request #{payload['id']} by #{User.find(payload['commenter']).login}: #{payload['comment_title']}"
+    "Request #{payload['id']} got a new comment by #{User.find(payload['commenter']).login}"
   end
 
 end

@@ -1,11 +1,6 @@
 <% unless User.current.is_nobody? %>
   <%= save_comment_form do %>
-    <p>
-      <%= text_field_tag 'title',@title, :placeholder => 'Comment Title', :required => 'required'%>
-    </p>
-    <p>
-      <%= text_area_tag 'body', nil, :size => "80x1", :onkeyup => "sz(this);", :onclick => "sz(this);", :style => "width: 90%;", :placeholder => "Comment Text", :required => 'required' %>
-    </p>
-    <p><%= submit_tag "Add comment"%></p>
+    <%= text_area_tag 'body', nil, :size => '80x4', :onkeyup => 'sz(this);', :onclick => 'sz(this);', :style => 'width: 90%;', :placeholder => 'Add a new comment', :required => 'required' %>
+    <%= submit_tag 'Add comment'%>
   <%end%>
 <% end %>

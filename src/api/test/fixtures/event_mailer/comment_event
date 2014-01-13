@@ -7,7 +7,7 @@ To: Iggy Pop <Iggy@pop.org>,
 Message-ID: <notrandom@localhost>
 In-Reply-To: <obs-request-4@localhost>
 References: <obs-request-4@localhost>
-Subject: New comment in request 4 by tom: Comment Title
+Subject: Request 4 got a new comment by tom
 Mime-Version: 1.0
 Content-Type: text/plain;
  charset=UTF-8
@@ -27,6 +27,7 @@ X-OBS-Request-Action-source: home:Iggy:branches:kde4/BranchPack
 Visit http://localhost/request/show/4
 
 Thor wrote in request 4:
+
 Comment Body
 
 -- 

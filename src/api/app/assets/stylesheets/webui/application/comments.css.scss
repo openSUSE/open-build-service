@@ -1,27 +1,33 @@
-.comment_collapse{
-  float: right;
+.comments {
+  margin-left: 15px;
 }
 
 .comment_links {
   float: right;
 }
 
-.comment_thread{
-  margin-bottom: 20px;
+.comment_thread {
 }
 
 .comment{
-  padding: 0px 20px 20px 0; 
+  margin-right: 2em;
+  border-top: 1px solid lightgrey;
+  padding-top: 10px;
+}
+
+.comment_0 {
+  border-top: none;
+}
+
+.comment-actions {
 }
 
 .comment_child{
   background: #fff;
-  padding: 20px 0 0 0;
-  border-top: 3px solid grey;
+  margin-left: 2em;
 }
 
 .comment_odd{
-  background: #EEEEEE;
 }
 
 .comment_image{
