@@ -51,7 +51,7 @@ class ConfigurationController < ApplicationController
     if @project.save
       if Project.exists? "home:#{@user.login.to_s}"
         flash[:notice] = "Project '#{project_name}' was created successfully"
-        redirect_to :controller => project, :action => 'show', :project => project_name and return
+        redirect_to :controller => :project, :action => 'show', :project => project_name and return
       else
         flash[:note] = "Project '#{project_name}' was created successfully. Next step is create your home project"
         redirect_to :controller => :project, :action => :new, :ns => "home:#{@user.login.to_s}"
