@@ -170,3 +170,17 @@ function setupActionLink() {
         return false;
     });
 }
+
+function setupInfoLink() {
+    $('.info_select_link').click(function (event) {
+        $('#info_select li.selected').attr('class', '');
+        $(event.target).parent().attr('class', 'selected')
+        $('.info_display').hide();
+        index = event.target.id.split('info_select_link_')[1]
+        $('#info_display_' + index).show();
+	window.dispatchEvent(new Event('resize'));
+        return false;
+    });
+    $('.info_display').hide();
+    $('#info_display_0').show();
+}
