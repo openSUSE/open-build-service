@@ -302,7 +302,6 @@ CREATE TABLE `comments` (
   `project_id` int(11) DEFAULT NULL,
   `package_id` int(11) DEFAULT NULL,
   `bs_request_id` int(11) DEFAULT NULL,
-  `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `body` text COLLATE utf8_unicode_ci,
   `parent_id` int(11) DEFAULT NULL,
   `type` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -1424,6 +1423,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131209103450');
 INSERT INTO schema_migrations (version) VALUES ('20131210182719');
 
 INSERT INTO schema_migrations (version) VALUES ('20131218071042');
+
+INSERT INTO schema_migrations (version) VALUES ('20140113110551');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
