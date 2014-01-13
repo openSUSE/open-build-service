@@ -362,9 +362,28 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.must_have_link 'Apache'
   end
 
-  test 'test zypper on webui' do
+  test 'zypper on webui' do
     # people do strange things
     visit '/project/repository_state/Apache/content?repository=SLE11'
     flash_message.must_equal "Repository 'content' not found"
+  end
+
+  test 'do not cache hidden' do
+    use_js
+
+    login_king to: project_list_all_path
+    # king can see HiddenProject
+    page.must_have_link 'HiddenProject'
+
+    logout
+
+    # anoynmous should not see king's project list
+    visit project_list_all_path
+    page.must_have_link 'kde4'
+    page.wont_have_link 'HiddenProject'
+
+    login_adrian to: project_list_all_path
+    # adrian is in test group, which is maintainer so he should see it too
+    page.must_have_link 'HiddenProject'
   end
 end
