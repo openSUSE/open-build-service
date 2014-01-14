@@ -4711,6 +4711,7 @@ sub putfile {
       die("unsupported meta operation\n");
     }
     my $rev = addrev_meta($cgi, $projid, $packid, "$uploaddir/$$", undef, $filename);
+    notify_repservers('package', $projid) if $cgi->{'meta'} && $filename eq '_frozenlinks';
     delete $rev->{'project'};
     delete $rev->{'package'};
     return ($rev, $BSXML::revision);
@@ -5803,6 +5804,7 @@ sub delfile {
       die("unsupported meta operation\n");
     }
     my $rev = addrev_meta($cgi, $projid, $packid, undef, undef, $filename);
+    notify_repservers('package', $projid) if $filename eq '_frozenlinks';
     delete $rev->{'project'};
     delete $rev->{'package'};
     return ($rev, $BSXML::revision);
