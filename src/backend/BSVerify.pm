@@ -434,7 +434,7 @@ sub verify_attribute {
 
 sub verify_attributes {
   my ($attributes) = @_;
-  for my $attribute (@{$attributes || []}) {
+  for my $attribute (@{$attributes->{'attribute'} || []}) {
     verify_attribute($attribute);
   }
 }
