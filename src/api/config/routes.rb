@@ -296,7 +296,7 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/group' do
-      get 'group/show/:id' => :show, as: 'group_show'
+      get 'group/show/:id' => :show, constraints: {:id => /[^\/]*/}, as: 'group_show'
       get 'group/add' => :add
       post 'group/save' => :save
       get 'group/autocomplete' => :autocomplete
