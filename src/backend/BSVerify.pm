@@ -125,6 +125,12 @@ sub verify_md5 {
   die("not a md5 sum\n") unless $md5 && $md5 =~ /^[0-9a-f]{32}$/s;
 }
 
+# can be a md5sum or a git id
+sub verify_srcmd5 {
+  my $srcmd5 = $_[0];
+  die("not a srcmd5 sum\n") unless $srcmd5 && ($srcmd5 =~ /^[0-9a-f]{32}$/s || $srcmd5 =~ /^[0-9a-f]{40}$/s);
+}
+
 sub verify_rev {
   my $rev = $_[0];
   die("revision is empty\n") unless defined($rev) && $rev ne '';
@@ -422,15 +428,11 @@ sub verify_nevraquery {
 
 sub verify_attribute {
   my ($attribute) = @_;
-  die("no namespace defined\n") unless $attribute->{'namespace'};
-  die("no name defined\n") unless $attribute->{'name'};
+  die("no namespace defined\n") unless defined $attribute->{'namespace'};
+  die("no name defined\n") unless defined $attribute->{'name'};
   verify_simple($attribute->{'namespace'});
   verify_simple($attribute->{'name'});
-  verify_simple($attribute->{'binary'}) if $attribute->{'binary'};
-  # I don't see any reason to forbid chinese in values (coolo)
-  #for my $value (@{$attribute->{'value'} || []}) {
-  #  verify_simple($value);
-  #}
+  verify_simple($attribute->{'binary'}) if exists $attribute->{'binary'};
 }
 
 sub verify_attributes {
@@ -465,6 +467,7 @@ our $verifyers = {
   'package_repository' => \&verify_packid_repository,
   'filename' => \&verify_filename,
   'md5' => \&verify_md5,
+  'srcmd5' => \&verify_srcmd5,
   'rev' => \&verify_rev,
   'linkrev' => \&verify_linkrev,
   'bool' => \&verify_bool,
