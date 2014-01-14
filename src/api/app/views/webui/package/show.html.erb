@@ -132,6 +132,7 @@
   </h3>
   <% unless @forced_unexpand.blank? %>
       <p><i>Sources could not be expanded: <%= @forced_unexpand %></i></p>
+      <p><%= link_to 'Show unmerged sources', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '0' %></p>
   <% else %>
       <%= render :partial => 'files_view' %>
   <% end %>
