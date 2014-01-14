@@ -210,8 +210,8 @@ class Webui::UserController < Webui::WebuiController
     if User.current.is_admin?
       redirect_to :controller => :configuration, :action => :users
     else
-      session[:login] = unreg_person_opts[:login]
-      session[:password] = unreg_person_opts[:password]
+      session[:login] = opts[:login]
+      session[:password] = opts[:password]
       authenticate_form_auth
       redirect_back_or_to :controller => :main, :action => :index
     end
