@@ -427,9 +427,10 @@ sub verify_attribute {
   verify_simple($attribute->{'namespace'});
   verify_simple($attribute->{'name'});
   verify_simple($attribute->{'binary'}) if $attribute->{'binary'};
-  for my $value (@{$attribute->{'value'} || []}) {
-    verify_simple($value);
-  }
+  # I don't see any reason to forbid chinese in values (coolo)
+  #for my $value (@{$attribute->{'value'} || []}) {
+  #  verify_simple($value);
+  #}
 }
 
 sub verify_attributes {
