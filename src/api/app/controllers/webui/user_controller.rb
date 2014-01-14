@@ -140,23 +140,27 @@ class Webui::UserController < Webui::WebuiController
     u = User.find_by_login(params[:user])
     u.state = User.states['deleted']
     u.save
+    redirect_back_or_to :action => 'show', user: u
   end
 
   def confirm
     u = User.find_by_login(params[:user])
     u.state = User.states['confirmed']
     u.save
+    redirect_back_or_to :action => 'show', user: u
   end
 
   def lock
     u = User.find_by_login(params[:user])
     u.state = User.states['locked']
+    redirect_back_or_to :action => 'show', user: u
     u.save
   end
 
   def admin
     u = User.find_by_login(params[:user])
     u.update_globalroles(%w(Admin))
+    redirect_back_or_to :action => 'show', user: u
     u.save
   end
 
