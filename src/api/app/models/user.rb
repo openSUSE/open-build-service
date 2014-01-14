@@ -768,7 +768,7 @@ class User < ActiveRecord::Base
     open_reviews = BsRequestCollection.new(user: self.login, roles: %w(reviewer creator), reviewstates: %w(new), states: %w(review)).relation
     reviews_in = []
     open_reviews.each do |review|
-      if review['creator'] != self
+      if review['creator'] != login
         reviews_in << review
       end
     end
@@ -781,8 +781,8 @@ class User < ActiveRecord::Base
     return declined_requests
   end
 
-  # list incomming requests involving this user
-  def incomming_requests
+  # list incoming requests involving this user
+  def incoming_requests
     requests_in = BsRequestCollection.new(user: self.login, states: %w(new), roles: %w(maintainer)).relation
     return requests_in
   end

@@ -74,7 +74,7 @@ class Webui::UserController < Webui::WebuiController
     if User.current == @displayed_user
         @reviews = @displayed_user.involved_reviews
         @patchinfos = @displayed_user.involved_patchinfos
-        @requests_in = @displayed_user.incomming_requests
+        @requests_in = @displayed_user.incoming_requests
         @requests_out = @displayed_user.outgouing_requests
         @declined_requests = @displayed_user.declined_requests
     end
@@ -89,8 +89,8 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def requests
-    session[:requests] = @displayed_user.declined_requests.pluck(:id) + @displayed_user.involved_reviews.map { |r| r.id } + @displayed_user.incomming_requests.pluck(:id)
-    @requests = @displayed_user.declined_requests + @displayed_user.involved_reviews + @displayed_user.incomming_requests
+    session[:requests] = @displayed_user.declined_requests.pluck(:id) + @displayed_user.involved_reviews.map { |r| r.id } + @displayed_user.incoming_requests.pluck(:id)
+    @requests = @displayed_user.declined_requests + @displayed_user.involved_reviews + @displayed_user.incoming_requests
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
     respond_to do |format|
@@ -102,7 +102,7 @@ class Webui::UserController < Webui::WebuiController
   def render_requests_json
     rawdata = Hash.new
     rawdata['review'] = @displayed_user.involved_reviews.to_a
-    rawdata['new'] = @displayed_user.incomming_requests.to_a
+    rawdata['new'] = @displayed_user.incoming_requests.to_a
     rawdata['declined'] = @displayed_user.declined_requests.to_a
     rawdata['patchinfos'] = @displayed_user.involved_patchinfos.to_a
     render json: Yajl::Encoder.encode(rawdata)
