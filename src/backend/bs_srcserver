@@ -917,12 +917,15 @@ sub getrev {
         my $frozenp = $frozen->{'/all'} || $frozen->{$lprojid};
 	my $lrev;
         if ($frozenp->{$packid}) {
-	  $lrev = getrev($lprojid, $packid, $frozenp->{$packid}->{'srcmd5'}, $linked, $missingok);
-	  $lrev->{'vrev'} = $frozenp->{$packid}->{'vrev'} if defined $frozenp->{$packid}->{'vrev'};
+	  eval {
+	    $lrev = getrev($lprojid, $packid, $frozenp->{$packid}->{'srcmd5'}, $linked, $missingok);
+	    $lrev->{'vrev'} = $frozenp->{$packid}->{'vrev'} if defined $frozenp->{$packid}->{'vrev'};
+	  };
+	} else {
+	  eval {
+	    $lrev = getrev($lprojid, $packid, $rev, $linked, $missingok);
+	  };
 	}
-	eval {
-	  $lrev ||= getrev($lprojid, $packid, $rev, $linked, $missingok);
-	};
 	next if $collect_error;
 	if ($@ && $@ !~ /^404/) {
 	  if ($collect_remote_getrev && $@ =~ /collect_remote_getrev$/) {
@@ -2245,6 +2248,9 @@ sub findpackages {
       my $lorigins = defined($origins) ? {} : undef;
       if ($frozenp) {
 	@lpackids = sort keys %$frozenp;
+	if ($lorigins) {
+	  $lorigins->{$_} = $lprojid for @lpackids;
+	}
       } else {
         my $lproj = readproj($lprojid, 1);
         if (!$lproj || $lproj->{'remoteurl'}) {
