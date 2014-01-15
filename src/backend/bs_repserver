@@ -2449,7 +2449,7 @@ sub getkiwiproductpackages {
 	for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
 	  my %bins;
 	  for my $binary (@{$binaryversionlist->{'binary'} || []}) {
-	    next unless $binary->{'name'} =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	    next unless $binary->{'name'} =~ /^(?:::import::.*::)?(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
 	    $bins{$binary->{'name'}} = {'filename' => $binary->{'name'}, 'name' => $1, 'arch' => $2};
 	  }
 	  $gbininfo->{$binaryversionlist->{'package'}} = \%bins;
@@ -2498,7 +2498,7 @@ sub getkiwiproductpackages {
 	my @bins = grep {/\.rpm$|\.xml$/} ls ("$reporoot/$aprp/$arch/$apackid");
         my $needit;
 	for my $b (@bins) {
-	  next unless $b =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	  next unless $b =~ /^(?:::import::.*::)?(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
 	  next unless $deps{$1} || ($allpacks && !$deps{"-$1"});
 	  next if $nodbgpkgs && $b =~ /-(?:debuginfo|debugsource)-/;
 	  next if $nosrcpkgs && $b =~ /\.(?:nosrc|src)\.rpm$/;
@@ -2507,7 +2507,7 @@ sub getkiwiproductpackages {
 	}
         next unless $needit;
 	for my $b (@bins) {
-	  next unless $b =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	  next unless $b =~ /^(?:::import::.*::)?(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
 	  next if $nodbgpkgs && $b =~ /-(?:debuginfo|debugsource)-/;
 	  next if $nosrcpkgs && $b =~ /\.(?:nosrc|src)\.rpm$/;
 	  push @got, "$aprp/$arch/$apackid/$b";

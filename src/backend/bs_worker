@@ -1499,7 +1499,7 @@ sub getbinaries_kiwiproduct {
     my @todometa_f;
     for my $f (@$res) {
       my (undef, $name) = split('/', $f->{'name'}, 2);
-      next unless defined($name) && $name =~ /^(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+      next unless defined($name) && $name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
       my ($n, $rarch) = ($1, $2);
       my $id = $knownmd5{$f->{'name'}};
       $id ||= Build::queryhdrmd5("$ddir/$f->{'name'}");
