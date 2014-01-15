@@ -3657,7 +3657,7 @@ sub calc_prps {
       }
       if (@kiwiinfos) {
         # push repositories used in all kiwi files
-	push @xsp, map {"$_->{'project'}/$_->{'repository'}"} map {@{$_->{'path'}}} grep {$_->{'repository'} eq $repoid} @kiwiinfos;
+	push @xsp, map {"$_->{'project'}/$_->{'repository'}"} grep {$_->{'project'} ne '_obsrepositories'} map {@{$_->{'path'}}} grep {$_->{'repository'} eq $repoid} @kiwiinfos;
       }
       if ($channelrepos{$repoid}) {
         # let a channel repo target all non-channel repos
