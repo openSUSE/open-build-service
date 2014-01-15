@@ -2387,15 +2387,15 @@ sub update_dst_full {
     }
     for my $f (grep {!$new{$_}} @oldfiles) {
       if (!$importarch) {
-	if ($f =~ /^::import::/) {
+	if (defined($jobdir) && $f =~ /^::import::/) {
 	  $bininfo->{$f} = $oldbininfo->{$f} if $oldbininfo->{$f};
-	  $jobrepo->{$f} = $oldrepo->{$f} if $oldrepo->{$f};
+	  $jobrepo->{"$jobdir/$f"} = $oldrepo->{"$dst/$f"} if $oldrepo->{"$dst/$f"};
 	  next;
 	}
       } else {
 	if ($f !~ /^::import::\Q$importarch\E::/) {
 	  $bininfo->{$f} = $oldbininfo->{$f} if $oldbininfo->{$f};
-	  $jobrepo->{$f} = $oldrepo->{$f} if $oldrepo->{$f};
+	  $jobrepo->{"$jobdir/$f"} = $oldrepo->{"$dst/$f"} if $oldrepo->{"$dst/$f"};
 	  next;
 	}
       }
@@ -2493,7 +2493,7 @@ sub update_dst_full {
     'importarch' => $importarch,
   };
   if ($BSConfig::new_full_handling) {
-    move_into_full($fctx, \%old, \%new, $oldrepo, $fullcache);
+    move_into_full($fctx, \%old, \%new, $fullcache);
   } else {
     # note that we use oldrepo here instead of \%old
     move_into_full($fctx, $oldrepo, \%new, $fullcache);
