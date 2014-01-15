@@ -2024,7 +2024,8 @@ sub fctx_rebuild_full {
     # try to clean up _volatile
     my $bininfo = $gbininfo->{'_volatile'};
     my @del;
-    for my $r (sort(keys %$bininfo)) {
+    for (sort(keys %$bininfo)) {
+      my $r = $bininfo->{$_};
       push @del, $r if $r->{'name'} && $newfull->{$r->{'name'}} != $r;
     }
     fctx_remove_from_volatile($fctx, \@del) if @del;
@@ -2369,18 +2370,20 @@ sub update_dst_full {
     my $oldcache = { map {$_->{'id'} => $_} grep {$_->{'id'}} values %$oldbininfo };
     $oldrepo = findbins_dir([ map {"$dst/$_"} grep {/\.(?:$binsufsre)$/ && !/\.delta\.rpm$/} @oldfiles ], $oldcache);
 
-    # move files over
+    # move files over (and rename in import case)
     mkdir_p($dst);
     my %new;
     for my $f (@jobfiles) {
+      next if $importarch && $f eq 'replaced.xml';	# not needed
       if (! -l "$dst/$f" && -d _) {
 	BSUtil::cleandir("$dst/$f");
 	rmdir("$dst/$f");
       }
-      my $df = $importarch ? "::import::$importarch::$f" : $f;
+      my $df = $importarch ? "::import::${importarch}::$f" : $f;
       rename("$jobdir/$f", "$dst/$df") || die("rename $jobdir/$f $dst/$df: $!\n");
       $new{$df} = 1;
       $bininfo->{$df} = $jobbininfo->{$f} if $jobbininfo->{$f};
+      $jobrepo->{"$jobdir/$df"} = delete $jobrepo->{"$jobdir/$f"} if $df ne $f;
     }
     for my $f (grep {!$new{$_}} @oldfiles) {
       if (!$importarch) {
