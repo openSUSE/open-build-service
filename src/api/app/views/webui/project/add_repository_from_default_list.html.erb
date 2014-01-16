@@ -20,13 +20,19 @@
             project = dist['project']
             repo = dist['repository']
             reponame = dist['reponame']
+            architectures = dist['architectures'] || []
+            # in case remote instance is OBS 2.4:
+            @available_architectures.each do |a|
+              architectures << a.name if a.available
+            end unless architectures.length
+
             selected = @project.has_element?("repository/path[@project='#{project}' and @repository='#{repo}']")
           -%>
 
         <span class="nowrap"><%= check_box_tag 'repo[]', reponame, selected, :disabled => selected, :id => 'repo_' + reponame, :class => 'repocheckbox' -%>
           <%= hidden_field_tag reponame + '_repo', (project + '/' + repo) -%>
-          <% @available_architectures.each do |arch| %>
-            <%= hidden_field_tag(reponame + '_arch[]', arch.name, :id => reponame + '_arch_' + arch.name) if arch.available %>
+          <% architectures.each do |arch| %>
+            <%= hidden_field_tag(reponame + '_arch[]', arch, :id => reponame + '_arch_' + arch) %>
           <% end %>
           <%= name %>
         </span>
