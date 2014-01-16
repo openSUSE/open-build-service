@@ -1697,7 +1697,7 @@ sub applylink {
         $fbas = lsrev(\%brev);
       };
       return "baserev $baserev does not exist" unless $fbas;
-      return "baserev is link" if $fbas->{'link'};
+      return "baserev is link" if $fbas->{'_link'};
 
       # ignore linked generated service files if our link contains service files
       if (grep {/^_service/} keys %$flnk) {
