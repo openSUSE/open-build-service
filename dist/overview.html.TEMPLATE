@@ -1,10 +1,6 @@
 
 <p>
-<a href="___WEBUI_URL___">The OBS webui</a> can be used to setup OBS, browse the content and to build packages.
-</p>
-
-<p>
-<a href="___API_URL___">The OBS api URL(___API_URL___)</a> can be used in clients like osc and to manage user accounts via a browser.
+<a href="___WEBUI_URL___">The OBS</a> can be used to setup OBS, browse the content and to build packages. It is also the api url to be used with clients like osc.
 </p>
 
 <p>

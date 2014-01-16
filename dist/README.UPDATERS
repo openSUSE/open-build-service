@@ -1,3 +1,39 @@
+For Updaters to OBS 2.5 from OBS 2.4
+====================================
+
+Appliance users can just do a package update and reboot or use the
+new appliance image to update their configurations.
+
+In case the installation is not done via packages all 
+rubygems according to Gemfile need to get installed.
+
+Biggest change setup wise is the unification of API and WEBUI instance.
+This means only one rails stack is running which can be used for both,
+browsing via web browser and also as api to be used with osc.
+
+In case you do not use the obs apache configuration which comes with
+package, you need to disable your webui configuration.
+
+Users which used port 444 as api have to reconfigure their clients to
+use port 443 now.
+
+ 1) Database migration
+
+    # cd /srv/www/obs/api/
+    # RAILS_ENV="production" rake db:migrate
+    # chown -R wwwrun.www log tmp
+
+    # cd /srv/www/obs/webui/
+    # RAILS_ENV="production" rake db:migrate
+    # chown -R wwwrun.www log tmp
+
+ 2) Restart memcached after database migration to wipe possible broken
+    cache data.
+
+ 3) configuration settings moved to /configuration api route as much as 
+    possible to allow a uniq configuration through all OBS frontend and
+    backend parts. Check the release notes for details on this.
+
 For Updaters to OBS 2.4 from OBS 2.3
 ====================================
 
