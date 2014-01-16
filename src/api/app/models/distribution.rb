@@ -56,9 +56,10 @@ class Distribution < ActiveRecord::Base
       xmlhash.elements('distribution') do |d|
         next if repositories.include?( d['reponame'] )
         repositories << d['reponame']
-        iconlist = architecturelist = []
+        iconlist = []
+        architecturelist = []
         d.elements('architecture') do |a|
-          architecturelist << { "_content" => a.to_s }
+          architecturelist << a.to_s
         end
         d.elements('icon') do |i|
           iconlist << { "width" => i['width'], "height" => i['height'], "url" => i['url'] }

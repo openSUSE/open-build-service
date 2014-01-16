@@ -109,6 +109,16 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "repository", :content => "standard"
     assert_xml_tag :tag => "link", :content => "http://www.opensuse.org/"
     assert_xml_tag :tag => "icon", :attributes => { :url => "https://static.opensuse.org/distributions/logos/opensuse-12.2-8.png", :width => "8", :height => "8" }
+    # local repos
+    assert_no_xml_tag :parent => { :tag => "distribution", :attributes => { :vendor => "openSUSE", :version =>"1.0" } },
+                   :tag => 'architecture'
+    assert_xml_tag :parent => { :tag => "distribution", :attributes => { :vendor => "OBS", :version =>"Base" } },
+                   :tag => 'architecture', :content => "x86_64"
+    # remote repos
+    assert_no_xml_tag :parent => { :tag => "distribution", :attributes => { :vendor => "openSUSE", :version =>"Factory" } },
+                   :tag => 'architecture'
+    assert_xml_tag :parent => { :tag => "distribution", :attributes => { :vendor => "openSUSE", :version =>"12.2" } },
+                   :tag => 'architecture', :content => "aarch64"
   end
 
 
