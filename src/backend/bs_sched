@@ -2615,7 +2615,7 @@ sub checkuseforbuild {
     $olduseforbuild = [] unless -d "$gdst/:full";
   }
   if ($olduseforbuild) {
-    return if join('/', @$olduseforbuild) eq join('/', $newuseforbuild);
+    return if join('/', @$olduseforbuild) eq join('/', @$newuseforbuild);
     # diff it. only care about current packages.
     %olduseforbuild = map {$_ => 1} @$olduseforbuild;
     %newuseforbuild = map {$_ => 1} @$newuseforbuild;
