@@ -1736,7 +1736,7 @@ sub read_bininfo {
 
 # alien: gbininfo is from another scheduler
 sub read_gbininfo {
-  my ($dir, $alien) = @_;
+  my ($dir, $alien, $dontmerge) = @_;
 
   return {} unless -d $dir;
   my $gbininfo = BSUtil::retrieve("$dir/:bininfo", 1);
@@ -1753,6 +1753,7 @@ sub read_gbininfo {
 	delete $gbininfo->{$_};
       }
     }
+    return $gbininfo if $dontmerge;
   } else {
     return undef if $alien;
     $gbininfo = {};
@@ -2156,7 +2157,7 @@ sub fctx_integrate_package_into_full {
       for my $n (keys %oldfull) {
 	my $r = $old->{$oldfull{$n}};
 	my @s = stat("$gdst/:full/$r->{'name'}.$r->{'suf'}");
-	next if @s && $r->{'id'} ne "$s[9]/$s[7]/$s[1]";
+	next if @s && $r->{'id'} eq "$s[9]/$s[7]/$s[1]";
 	$bad = 1;
 	last;
       }
@@ -2174,7 +2175,7 @@ sub fctx_integrate_package_into_full {
   }
 
   # could not do easy integration, read gbininfo
-  my $gbininfo = read_gbininfo($gdst);
+  my $gbininfo = read_gbininfo($gdst, undef, 1);
   my $olduseforbuild = $fctx->{'olduseforbuild'};
   my $newuseforbuild = $fctx->{'newuseforbuild'};
   %oldfull = fctx_gbininfo2full($fctx, $gbininfo, $packid, $old, $olduseforbuild);
