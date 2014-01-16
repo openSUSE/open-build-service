@@ -3038,6 +3038,8 @@ sub getprojpack {
 	  if ($linkinfo->{'xservicemd5'}) {
 	    $files = handleservice($rev, $files, $linkinfo->{'xservicemd5'});
 	    $pinfo->{'srcmd5'} = $rev->{'srcmd5'};
+	  }
+	  if ($linkinfo->{'xservicemd5'} || $linkinfo->{'lsrcmd5'}) {
 	    my $meta = '';
 	    $meta .= "$files->{$_}  $_\n" for sort keys %$files;
 	    $pinfo->{'verifymd5'} = Digest::MD5::md5_hex($meta);
