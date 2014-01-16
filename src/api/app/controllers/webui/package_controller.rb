@@ -483,7 +483,8 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     begin
-      linked_package = Package.get_by_project_and_name(@linked_project, @linked_package)
+      # just as existens check
+      Package.get_by_project_and_name(@linked_project, @linked_package)
     rescue APIException
       flash[:error] = "Unable to find package '#{@linked_package}' in project '#{@linked_project}'."
       redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
@@ -499,7 +500,7 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
     end
 
-    dirhash = linked_package.api_obj.dir_hash
+    dirhash = Package.dir_hash(@linked_project, @linked_package)
     revision = dirhash['xsrcmd5'] || dirhash['rev']
     unless revision
       flash[:error] = "Unable to branch package '#{@target_package}', it has no source revision yet"
@@ -510,7 +511,7 @@ class Webui::PackageController < Webui::WebuiController
 
     logger.debug "link params doing branch: #{@linked_project}, #{@linked_package}"
     begin
-      path = linked_package.api_obj.source_path('', { cmd: :branch, target_project: @project.name, target_package: @target_package})
+      path = Package.source_path(@linked_project, @linked_package, nil, { cmd: :branch, target_project: @project.name, target_package: @target_package})
       path += "&rev=#{CGI.escape(@revision)}" if @revision
       frontend.transport.direct_http( URI(path), :method => 'POST', :data => '')
       flash[:success] = "Branched package #{@project.name} / #{@target_package}"
