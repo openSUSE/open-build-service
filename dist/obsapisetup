@@ -26,7 +26,6 @@ base=${0##*/}
 link=${base#*[SK][0-9][0-9]}
 
 apidir=/srv/www/obs/api
-webuidir=/srv/www/obs/webui
 
 
 
@@ -104,28 +103,18 @@ case "$1" in
 		fi
 		echo "$FQHOSTNAME" > $backenddir/.oldfqhostname
 
-		if grep -q ^FRONTEND_HOST /srv/www/obs/webui/config/environments/production.rb; then
-		    echo "Switching from Rails 2.x style configuration to Rails 3.x"
-                    for file in /srv/www/obs/api/config/environments/production.rb \
-                                /srv/www/obs/api/config/options.yml \
-                                /srv/www/obs/webui/config/environments/production.rb \
-                                /srv/www/obs/webui/config/options.yml; do
-                        [ -f "${file}.rpmnew" ] && mv "${file}.rpmnew" "$file"
-                    done
-                    sed -i 's,adapter:[ \t]*mysql.*,adapter: mysql2,' /srv/www/obs/api/config/database.yml
-                fi
-
-		echo "Adjust webui configuration for api"
+		echo "Adjust configuration for this hostname"
                 sed -i 's,^frontend_host: .*,frontend_host: "'"$FQHOSTNAME"'",' \
-		    /srv/www/obs/webui/config/options.yml
-                sed -i 's,^frontend_port: .*,frontend_port: 444,' \
-		    /srv/www/obs/webui/config/options.yml
-                sed -i 's,^frontend_protocol: .*,frontend_protocol: "'"https"'",' \
-		    /srv/www/obs/webui/config/options.yml
-                sed -i 's,^download_url: .*,download_url: \"http://'"$FQHOSTNAME:82"'\",' \
-		    /srv/www/obs/webui/config/options.yml
-                sed -i 's,^read_only_hosts: .*,read_only_hosts: [ "'"$FQHOSTNAME"'" ],' \
 		    /srv/www/obs/api/config/options.yml
+                sed -i 's,^frontend_port: .*,frontend_port: 444,' \
+		    /srv/www/obs/api/config/options.yml
+                sed -i 's,^frontend_protocol: .*,frontend_protocol: "'"https"'",' \
+		    /srv/www/obs/api/config/options.yml
+# Not needed anymore since 2.5? 
+#               sed -i 's,^download_url: .*,download_url: \"http://'"$FQHOSTNAME:82"'\",' \
+#       	    /srv/www/obs/api/config/options.yml
+#               sed -i 's,^read_only_hosts: .*,read_only_hosts: [ "'"$FQHOSTNAME"'" ],' \
+#       	    /srv/www/obs/api/config/options.yml
 		OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
 		OS=`head -n 1 /etc/SuSE-release`
                 RUN_INITIAL_SETUP=""
@@ -144,20 +133,6 @@ case "$1" in
 			echo "Migrate OBS api database"
 			cd $apidir
 			RAILS_ENV=production bundle exec rake db:migrate >> $apidir/log/db_migrate.log
-			echo
-		fi
-                if [ -n "$RUN_INITIAL_SETUP" ]; then
-			echo "Initialize OBS webui database (first time only)"
-        		cd $webuidir
-			RAILS_ENV=production bundle exec rake db:create db:setup >> $webuidir/log/db_migrate.log
-                        ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >config/secret.key)
-			chmod 0640 config/secret.key
-			chown root.www config/secret.key
-		else
-			echo
-			echo "Migrate OBS webui database"
-			cd $webuidir
-			RAILS_ENV=production bundle exec rake db:migrate >> $webuidir/log/db_migrate.log
 			echo
 		fi
 
@@ -192,7 +167,7 @@ test@email.address
                        fi
                 fi
 
-                # webui has to trust the api ssl certificate
+                # apache has to trust the api ssl certificate
                 if [ ! -e /etc/ssl/certs/server.${FQHOSTNAME}.pem ]; then
                        cp $backenddir/certs/server.${FQHOSTNAME}.pem /etc/ssl/certs/
                        c_rehash /etc/ssl/certs/ > /dev/null || true
@@ -203,8 +178,6 @@ test@email.address
 		ln -sf $backenddir/certs/server.${FQHOSTNAME}.crt $backenddir/certs/server.crt
 		ln -sf $backenddir/certs/server.${FQHOSTNAME}.pem $backenddir/certs/server.pem
 
-                cd $webuidir
-		chown -R wwwrun.www $webuidir/log
                 cd $apidir
 		chown -R wwwrun.www $apidir/log
 

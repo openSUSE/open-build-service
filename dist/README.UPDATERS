@@ -34,6 +34,13 @@ use port 443 now.
     possible to allow a uniq configuration through all OBS frontend and
     backend parts. Check the release notes for details on this.
 
+ 4) api interface configuration must be configured in /srv/www/obs/api/config/options.yml
+    now. Ensure that at least the following parameters are configured there:
+
+      frontend_host: 
+      frontend_port:
+      frontend_protocol:
+
 For Updaters to OBS 2.4 from OBS 2.3
 ====================================
 

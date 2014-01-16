@@ -22,9 +22,21 @@ min_votes_for_rating: 3
 # Set to true to verify XML reponses comply to the schema
 response_schema_validation: false
 
+# backend source server
 source_host: localhost
 source_port: 5352
 #source_protocol: https
+
+# api access to this instance
+frontend_host: localhost
+frontend_port: 443
+frontend_protocol: https
+# if your users access the hosts through a proxy (or just a different name, use this to
+# overwrite the settings for users)
+#external_frontend_host: api.opensuse.org
+#external_frontend_port: 443
+#external_frontend_protocol: https
+
 
 extended_backend_log: false
 
