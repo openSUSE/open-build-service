@@ -1564,9 +1564,7 @@ our $time = [
 ];
 
 # define constraints for build jobs in packages or projects.
-our $constraints = [
-    'constraints' => 
-	[],
+our @constraint = (
      [[ 'hostlabel' =>
         'exclude',   # true or false. default is false.
         [],
@@ -1593,7 +1591,18 @@ our $constraints = [
 	  [ 'disk' => $size ],
 	  [ 'memory' => $size ],
 	  [ 'physicalmemory' => $size ],
-      ],
+      ]
+);
+our $constraints = [
+    'constraints' => 
+        @constraint,
+        [[ 'overwrite' =>
+             [ 'conditions' =>
+               [ 'arch' ],
+               [ 'package' ],
+             ],
+             @constraint,
+        ]]
 ];
 
 our $buildstatistics = [

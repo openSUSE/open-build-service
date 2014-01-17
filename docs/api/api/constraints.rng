@@ -9,9 +9,27 @@
 
   <define ns="" name="constraints-element">
     <element name="constraints">
-      <zeroOrMore>
+        <!-- generic part -->
         <ref name="constraint-element"/>
-      </zeroOrMore>
+
+        <zeroOrMore>
+          <!-- multiple arch specific parts -->
+          <element name="overwrite">
+            <element name="conditions">
+              <zeroOrMore>
+                <element name="arch">
+                  <ref name="build-arch" />
+                </element>
+              </zeroOrMore>
+              <zeroOrMore>
+                <element name="package">
+                  <text/> <!-- package container name for multiple spec file packages -->
+                </element>
+              </zeroOrMore>
+            </element>
+            <ref name="constraint-element"/>
+          </element>
+        </zeroOrMore>
     </element>
   </define>
 
