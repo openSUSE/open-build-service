@@ -277,8 +277,20 @@ sub staleness {
   return $ret;
 }
 
+sub overwrite {
+  my ($dst, $src) = @_;
+  for my $k (sort keys %$src) {
+    my $d = $src->{$k};
+    if (!exists($dst->{$k}) || !ref($d) || ref($d) ne 'HASH') {
+      $dst->{$k} = $d;
+    } else {
+      overwrite($dst->{$k}, $d);
+    }
+  }
+}
+
 sub getconstraints {
-  my ($info, $constraintsmd5) = @_;
+  my ($info, $architecture, $constraintsmd5) = @_;
   my $param = {
     'uri' => "$BSConfig::srcserver/source/$info->{'project'}/$info->{'package'}/_constraints",
     'timeout' => 300,
@@ -293,14 +305,28 @@ sub getconstraints {
     return [ time() + 600 ];	# better luck next time
   }
   return undef unless $constraintsxml;
-  return BSUtil::fromxml($constraintsxml, $BSXML::constraints, 1);
+  my $xml = BSUtil::fromxml($constraintsxml, $BSXML::constraints, 1);
+  # use condition specific constraints to merge it properly
+  for my $o (@{$xml->{'overwrite'}||[]}) {
+    next unless $o and $o->{'conditions'};
+    if ($o->{'conditions'}->{'arch'}) {
+      next if grep {$_ eq $architecture} @{$o->{'conditions'}->{'arch'}};
+    }
+    if ($o->{'conditions'}->{'package'}) {
+      next if grep {$_ eq $info->{'package'}} @{$o->{'conditions'}->{'package'}};
+    }
+    # conditions are matching, overwrite...
+    overwrite($xml, $o);
+  }
+  return $xml;
 }
 
 # last one wins
 sub mergeconstraints {
-  my ($con, @other) = @_;
+  my ($con, @xmlcons) = @_;
   $con = Storable::dclone($con);
-  for my $con2 (@other) {
+  # merge constraints
+  for my $con2 (@xmlcons) {
     if ($con2->{'hostlabel'}) {
       $con->{'hostlabel'} = [ @{$con->{'hostlabel'} || []},  @{$con2->{'hostlabel'}} ];
     }
@@ -1143,7 +1169,7 @@ while (1) {
       if ($ic->{$job}->{'constraintsmd5'}) {
 	my $constraintsmd5 = $ic->{$job}->{'constraintsmd5'};
 	if (!exists($constraintscache{$constraintsmd5})) {
-	  $constraintscache{$constraintsmd5} = getconstraints($ic->{$job}, $constraintsmd5);
+	  $constraintscache{$constraintsmd5} = getconstraints($ic->{$job}, $arch, $constraintsmd5);
 	}
 	$constraints = $constraintscache{$constraintsmd5};
 	if (!ref($constraints)) {
