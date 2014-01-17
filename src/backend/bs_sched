@@ -2390,6 +2390,12 @@ sub update_dst_full {
     }
     for my $f (grep {!$new{$_}} @oldfiles) {
       if (!$importarch) {
+	if (defined($importarch) && !defined($jobdir) && $f =~ /^::import::/) {
+	  # a wipe, keep the imports
+	  $bininfo->{$f} = $oldbininfo->{$f} if $oldbininfo->{$f};
+	  $jobrepo->{"$dst/$f"} = $oldrepo->{"$dst/$f"} if $oldrepo->{"$dst/$f"};
+	  next;
+	}
 	if (defined($jobdir) && $f =~ /^::import::/) {
 	  $bininfo->{$f} = $oldbininfo->{$f} if $oldbininfo->{$f};
 	  $jobrepo->{"$jobdir/$f"} = $oldrepo->{"$dst/$f"} if $oldrepo->{"$dst/$f"};
@@ -7096,7 +7102,8 @@ sub event_wipe {
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled) if $projpacks->{$projid};
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($prp, $packid, "$gdst/$packid" , undef, undef, $useforbuildenabled, $prpsearchpath{$prp});
+  my $importarch = '';	# keep those imports
+  update_dst_full($prp, $packid, "$gdst/$packid" , undef, undef, $useforbuildenabled, $prpsearchpath{$prp}, undef, $importarch);
   delete $repounchanged{$prp};
   # delete other files
   unlink("$gdst/:logfiles.success/$packid");
@@ -8276,7 +8283,9 @@ NEXTPRP:
       $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
       # hmm, need to exclude patchinfos here. cheating.
       $useforbuildenabled = 0 if -s "$gdst/$packid/.updateinfodata";
-      update_dst_full($prp, $packid, "$gdst/$packid" , undef, undef, $useforbuildenabled, $prpsearchpath{$prp});
+      # don't wipe imports if we're excluded
+      my $importarch = $packs->{$packid} ? '' : undef;
+      update_dst_full($prp, $packid, "$gdst/$packid" , undef, undef, $useforbuildenabled, $prpsearchpath{$prp}, undef, $importarch);
       $changed_med{$prp} = 2;
       sendrepochangeevent($prp);
       # delete other files
