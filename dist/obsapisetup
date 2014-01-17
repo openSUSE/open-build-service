@@ -106,7 +106,7 @@ case "$1" in
 		echo "Adjust configuration for this hostname"
                 sed -i 's,^frontend_host: .*,frontend_host: "'"$FQHOSTNAME"'",' \
 		    /srv/www/obs/api/config/options.yml
-                sed -i 's,^frontend_port: .*,frontend_port: 444,' \
+                sed -i 's,^frontend_port: .*,frontend_port: 443,' \
 		    /srv/www/obs/api/config/options.yml
                 sed -i 's,^frontend_protocol: .*,frontend_protocol: "'"https"'",' \
 		    /srv/www/obs/api/config/options.yml
@@ -195,15 +195,14 @@ EOF
 		fi
 
 		if [ -n "$FQHOSTNAME" ]; then
-                        sed -e "s,___WEBUI_URL___,https://$FQHOSTNAME,g" \
-                            -e "s,___API_URL___,https://$FQHOSTNAME:444,g" \
+                        sed -e "s,___API_URL___,https://$FQHOSTNAME,g" \
                             -e "s,___REPO_URL___,http://$FQHOSTNAME:82,g" \
                             /srv/www/obs/overview/overview.html.TEMPLATE > /srv/www/obs/overview/index.html
 
 			cat >> /etc/issue <<EOF
 
   Connect to the web interface via:     https://$FQHOSTNAME
-  Connect to the api interface via:     https://$FQHOSTNAME:444
+  Connect to the api interface via:     https://$FQHOSTNAME
   Browse the build packages via:        http://$FQHOSTNAME:82
 
  * "Admin"/"root" user password is "opensuse" by default.

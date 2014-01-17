@@ -132,7 +132,6 @@ available after adding the SDK to the available installation repositories.
 
     # mysql -u root -p
     mysql> create database api_production;
-    mysql> create database webui_production;
     mysql> quit
 
 * If you use the MySQL database for other services, too, then
@@ -145,17 +144,13 @@ available after adding the SDK to the available installation repositories.
     mysql> GRANT all privileges
       ON api_production.*
       TO 'obs'@'%', 'obs'@'localhost';
-    mysql> GRANT all privileges
-      ON webui_production.*
-      TO 'obs'@'%', 'obs'@'localhost';
     mysql> FLUSH PRIVILEGES;
     mysql> quit
 
 * Configure your MySQL user and password in
-  in the "production" section of the api and webui config:
+  in the "production" section of the api config:
 
     /srv/www/obs/api/config/database.yml
-    /srv/www/obs/webui/config/database.yml
 
   A template for this file can be found in same directory as
   "database.yml.example".
@@ -168,18 +163,12 @@ available after adding the SDK to the available installation repositories.
     sudo chown -R wwwrun.www log tmp
 
 
-    cd /srv/www/obs/webui/
-    sudo RAILS_ENV="production" rake db:setup
-    sudo chown -R wwwrun.www log tmp
-
-
 3.2 Setup and configure apache2 for the api and webui
 =====================================================
 
 Now we need to configure the webserver. By default, you can reach the
-familiar web user interface on port 443 (e.g: https://localhost), the api
-on port 444 (e.g. https://localhost:444), and the repos on port 82 (once
-some packages are built).
+familiar web user interface and also api both on port 443 speaking https.
+Repositories can be accessed via http on port 82 (once some packages are built).
 An overview page about your OBS instance can be found behind http://localhost
 
 The obs-api package comes with a apache vhost file, which does not need to get
@@ -191,7 +180,7 @@ Install the required packages via
 
 Add the follwing apache modules in /etc/sysconfig/apache2:
 
-  APACHE_MODULES="... passenger rewrite proxy proxy_http xforward headers"
+  APACHE_MODULES="... passenger rewrite proxy proxy_http xforward headers socache_shmcb"
 
 Enable SSL in /etc/sysconfig/apache2 via
 
@@ -214,24 +203,12 @@ certificate as well:
   cp /srv/obs/certs/server.pem /etc/ssl/certs/
   c_rehash /etc/ssl/certs/
 
-3.2.1 Change /srv/www/obs/webui/config/options.yml
-==================================================
-
-You should set "exception_recipients" to a valid mail address which
-should receive notification mail if the WebUI hits any program exception.
-
-It is recommended to enable
-
-  use_xforward:true
-
-as well here.
-
 
 3.2.2 Change /srv/www/obs/api/config/options.yml
 ================================================
 
 If you change the hostnames/ips of the api, you need to adjust
-"source_server_url" accordingly in
+"frontend_host" accordingly in
 
   /srv/www/obs/api/config/options.yml
 
@@ -329,10 +306,6 @@ The default user is "Admin" with the password "opensuse".
 To change the default URLs of the api, configure the lighttpd vhosts
 accordingly. Edit /etc/apache2/vhosts.d/obs.conf and add the new virtual
 hostnames.
-
-Then change the FRONTEND_HOST variable in
-/srv/www/obs/webui/config/environments/production.rb
-to also point to the new api URL.
 
 
 6. Using osc with your local build service:
@@ -478,5 +451,4 @@ opensuse-buildservice@opensuse.org
        apache2: /var/log/apache2
        obs: /srv/obs/log
        api: /srv/www/obs/api/log
-       webui: /srv/www/obs/webui/log
 
