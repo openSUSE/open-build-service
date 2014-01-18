@@ -323,6 +323,12 @@ case "$1" in
                 DEVICE=
                 SWAP=
                 MEMORY=
+		if [ "${OBS_VM_TYPE_NONE_CONSTRAINTS}" = "on" ]; then
+		    MEMORY="--vm-memory ${OBS_INSTANCE_MEMORY}"
+		    if [ -n ${OBS_WORKER_ROOT_SIZE} ]; then
+			MEMORY="${MEMORY} --vmdisk-rootsize ${OBS_WORKER_ROOT_SIZE}"
+		    fi
+		fi
             fi
 	    echo "screen -t $WORKERID nice -n $OBS_NICE ./bs_worker $vmopt $port --root $R" \
                 "--statedir $workerdir/$I --id $WORKERID $REPO_PARAM $HUGETLBFS $HOSTLABELS" \
