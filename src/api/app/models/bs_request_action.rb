@@ -508,7 +508,7 @@ class BsRequestAction < ActiveRecord::Base
       if self.target_package
         target_package = target_project.packages.find_by_name(self.target_package) if target_project
       end
-      if opts[:newstate] == 'accepted'
+      if opts[:newstate] == 'accepted' && opts[:cmd] == 'changestate'
         # target must exist
         if self.target_package
           unless target_package

@@ -277,13 +277,9 @@ class Package < ActiveRecord::Base
   # NOTE: this is no permission check, should it be added ?
   def can_be_deleted?
     # check if other packages have me as devel package
-    msg = ''
-    packs = []
-    self.develpackages.each do |dpkg|
-      msg += dpkg.project.name + '/' + dpkg.name + ', '
-      packs << dpkg
-    end
-    unless msg.blank?
+    packs = self.develpackages.to_a
+    unless packs.empty?
+      msg = packs.map { |p| p.project.name + '/' + p.name }.join(', ') 
       de = DeleteError.new "Package is used by following packages as devel package: #{msg}"
       de.packages = packs
       raise de
