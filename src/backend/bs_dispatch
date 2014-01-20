@@ -89,6 +89,7 @@ my $jobsdir = "$BSConfig::bsdir/jobs";
 my $eventdir = "$BSConfig::bsdir/events";
 
 my $reporoot = "$BSConfig::bsdir/build";
+my $testdir;
 
 sub getcodemd5 {
   my ($dir, $cache) = @_;
@@ -166,6 +167,12 @@ sub assignjob {
     $workercode = getcodemd5('worker', $workerdircache);
     $buildcode = getcodemd5('build', $builddircache);
     $lastcodechecktime = $now;
+  }
+
+  if ($testdir) {
+    mkdir("$testdir/$arch/$idlename");
+    touch("$testdir/$arch/$idlename/$job");
+    return undef;
   }
 
   # get the worker data
@@ -280,6 +287,7 @@ sub staleness {
 sub overwrite {
   my ($dst, $src) = @_;
   for my $k (sort keys %$src) {
+    next if $k eq "conditions";
     my $d = $src->{$k};
     if (!exists($dst->{$k}) || !ref($d) || ref($d) ne 'HASH') {
       $dst->{$k} = $d;
@@ -288,6 +296,24 @@ sub overwrite {
     }
   }
 }
+
+sub parseconstraints {
+  my ($package, $architecture, $constraintsxml) = @_;
+  my $xml = BSUtil::fromxml($constraintsxml, $BSXML::constraints, 1);
+  # use condition specific constraints to merge it properly
+  for my $o (@{$xml->{'overwrite'}||[]}) {
+    next unless $o and $o->{'conditions'};
+    if ($o->{'conditions'}->{'arch'}) {
+      next unless grep {$_ eq $architecture} @{$o->{'conditions'}->{'arch'}};
+    }
+    if ($o->{'conditions'}->{'package'}) {
+      next unless grep {$_ eq $package} @{$o->{'conditions'}->{'package'}};
+    }
+    # conditions are matching, overwrite...
+    overwrite($xml, $o);
+  }
+  return $xml;
+};
 
 sub getconstraints {
   my ($info, $architecture, $constraintsmd5) = @_;
@@ -305,20 +331,7 @@ sub getconstraints {
     return [ time() + 600 ];	# better luck next time
   }
   return undef unless $constraintsxml;
-  my $xml = BSUtil::fromxml($constraintsxml, $BSXML::constraints, 1);
-  # use condition specific constraints to merge it properly
-  for my $o (@{$xml->{'overwrite'}||[]}) {
-    next unless $o and $o->{'conditions'};
-    if ($o->{'conditions'}->{'arch'}) {
-      next if grep {$_ eq $architecture} @{$o->{'conditions'}->{'arch'}};
-    }
-    if ($o->{'conditions'}->{'package'}) {
-      next if grep {$_ eq $info->{'package'}} @{$o->{'conditions'}->{'package'}};
-    }
-    # conditions are matching, overwrite...
-    overwrite($xml, $o);
-  }
-  return $xml;
+  return parseconstraints($info->{'package'}, $architecture, $constraintsxml);
 }
 
 # last one wins
@@ -457,7 +470,7 @@ if ($BSConfig::secure_sandboxes) {
 }
 
 sub oracle {
-  my ($job, $worker, $constraints) = @_;
+  my ($worker, $constraints) = @_;
   for my $l (@{$constraints->{'hostlabel'} || []}) {
     if ($l->{'exclude'} && $l->{'exclude'} eq 'true') {
       return 0 if grep {$_ eq $l->{'_content'}} @{$worker->{'hostlabel'} || []};
@@ -746,6 +759,44 @@ sub filechecks {
     unlink("$rundir/bs_dispatch.dropbadhosts");
     print "removing all badhost entries...\n";
     %badhost = ();
+  }
+}
+
+while (@ARGV) {
+  if ($ARGV[0] eq '--test-directory') {
+    shift @ARGV;
+    $testdir = shift @ARGV;
+    next;
+  } elsif ($ARGV[0] eq '--test-constraints') {
+    shift @ARGV;
+    my $package = shift @ARGV;
+    my $architecture = shift @ARGV;
+    my $workerinfo_file = shift @ARGV;
+    my $constraints_file = shift @ARGV;
+    my $constraintsprj_file = shift @ARGV;
+    my $workerinfo = readxml($workerinfo_file, $BSXML::worker);
+
+    my $constraints;
+    if ($constraints_file && $constraints_file ne "") {
+      my $xml = readstr($constraints_file);
+      $constraints = parseconstraints($package, $architecture, $xml);
+    }
+    if ($constraintsprj_file && $constraintsprj_file ne "" && open(FILE, "<", $constraintsprj_file)) {
+      while(<FILE>) {
+        chomp;
+        my @l = map { [ split(' ', $_) ] } $_;
+        my $prjconfconstraint = list2struct($BSXML::constraints, \@l);
+        if ($prjconfconstraint) {
+          $constraints = $constraints ? mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
+        }
+      }
+      close FILE;
+    }
+    die("No parseable workerinfo") unless $workerinfo;
+    die("No parseable constraints") unless $constraints;
+    my $o = oracle($workerinfo, $constraints);
+    exit 0 if (defined($o) && $o > 0);
+    exit 1;
   }
 }
 
@@ -1216,7 +1267,7 @@ while (1) {
 	  next if !$BSConfig::dispatch_constraint->($ic->{$job}, $workerinfo{$idle});
 	}
 	if ($constraints) {
-	  my $ora = oracle($ic->{$job}, $workerinfo{$idle}, $constraints);
+	  my $ora = oracle($workerinfo{$idle}, $constraints);
 	  next unless defined($ora) && $ora > 0;
 	  if ($ora < 1) {
 	    if ($lastoracleidle && $lastoracleidle eq '__lastoracle') {

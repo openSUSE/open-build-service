@@ -52,8 +52,12 @@ set -xe
 setup_git
 setup_api
 
-cd src/api
+cd src/backend
+echo "Invoke backend tests"
+bash testdata/test_dispatcher || ret=1
+cd ../..
 
+cd src/api
 echo "Invoke rake"
 bundle exec rake ci:setup:minitest test:api test:webui CI_REPORTS=results --trace || ret=1
 cd ../..

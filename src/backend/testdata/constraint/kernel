@@ -1,0 +1,28 @@
+<constraints>
+  <hardware>
+    <processors>8</processors>
+  </hardware>
+
+  <overwrite>
+    <conditions>
+      <arch>armv7l</arch>
+      <arch>armv6l</arch>
+      <package>kernel-default</package>
+      <package>kernel-smp</package>
+    </conditions>
+    <hardware>
+      <processors>1</processors>
+    </hardware>
+  </overwrite>
+
+  <overwrite>
+    <conditions>
+      <arch>aarch64</arch>
+      <package>kernel-default</package>
+    </conditions>
+    <hardware>
+      <processors>2</processors>
+    </hardware>
+  </overwrite>
+</constraints>
+
