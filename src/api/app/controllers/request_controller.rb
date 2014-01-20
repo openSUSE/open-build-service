@@ -85,7 +85,7 @@ class RequestController < ApplicationController
 
     unless %w(addrequest removerequest setincident
               addreview changereviewstate changestate).include? params[:cmd]
-      raise UnknownCommandError.new "Unknown command '#{params[opt[:cmd_param]]}' for path #{request.path}"
+      raise UnknownCommandError.new "Unknown command '#{params[:cmd]}' for path #{request.path}"
     end
 
     params[:user] = User.current.login

@@ -243,10 +243,10 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     login_king to: request_show_path(4)
     check('add_submitter_as_maintainer_0')
     click_button 'Accept request'
-    find('#flash-messages').must_have_text "Request 4 accepted"
+    find('#flash-messages').must_have_text 'Request 4 accepted'
     # Iggy should be a maintainer now
-    visit package_users_path(project: "Apache", package: "BranchPack")
-    find('#user_table').must_have_text "(Iggy)"
+    visit package_users_path(project: 'Apache', package: 'BranchPack')
+    find('#user_table').must_have_text '(Iggy)'
   end
 
   def visit_requests
@@ -334,5 +334,6 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     assert_equal 'Request 4 got a new comment by tom', email.subject
     verify_email('another_comment_event', '4', email)
   end
+
 end
 
