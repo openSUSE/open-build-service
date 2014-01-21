@@ -18,6 +18,10 @@ function td()
   prjconfconstraint=""
   [ -n "$6" ] && srcconstraint=$DATADIR/constraint/$6
   [ -n "$7" ] && prjconfconstraint=$DATADIR/constraintprj/$7
+
+#For debugging, skip all except:
+# [ "${testname#sandbox}" == "$testname" ] && return
+
   if ./bs_dispatch --test-constraints "$package" "$arch" $worker "$srcconstraint" "$prjconfconstraint"; then
     if [ $expected != "true" ]; then
       echo "Failed for $package $arch $worker $srcconstraint $prjconfconstraint"
@@ -58,14 +62,54 @@ td simple17 false "kernel-default" aarch64 medium "" kernel-default
 td simple18 true "kernel-default" aarch64 large "" kernel-default
 
 # combined constraints for processor numbers and disk storage
-td simple21 true "kernel" i586 large kernel kernel-default
+td simple21 true  "kernel" i586 large kernel kernel-default
 td simple22 false "kernel" i586 small kernel kernel-default
 td simple23 false "kernel" armv7l small kernel kernel-default
 td simple24 false "kernel-default" i586 small kernel kernel-default
 td simple25 false "kernel-default" armv7l small kernel kernel-default
 td simple26 false "kernel-default" aarch64 small kernel kernel-default
-td simple27 true "kernel-default" aarch64 medium kernel kernel-default
-td simple28 true "kernel-default" aarch64 large kernel kernel-default
+td simple27 true  "kernel-default" aarch64 medium kernel kernel-default
+td simple28 true  "kernel-default" aarch64 large kernel kernel-default
+
+# simple source constraints for hostlabels
+td hostlabel1 false "kernel" i586 small  hostlabel ""
+td hostlabel2 true  "kernel" i586 medium hostlabel ""
+td hostlabel3 false "kernel" i586 large  hostlabel ""
+
+# simple project constraints for hostlabels
+td hostlabel11 false "kernel" i586 small  "" hostlabel
+td hostlabel12 true  "kernel" i586 medium "" hostlabel
+td hostlabel13 true  "kernel" i586 large  "" hostlabel
+
+# combined hostlabel constraints
+td hostlabel21 false "kernel" i586 small  hostlabel hostlabel
+td hostlabel22 true  "kernel" i586 medium hostlabel hostlabel
+td hostlabel23 false "kernel" i586 large  hostlabel hostlabel
+
+# simple source constraints for sandbox
+td sandbox1 false "kernel" i586 small  sandbox
+td sandbox2 false "kernel" i586 small  sandbox_secure
+td sandbox3 true  "kernel" i586 medium sandbox
+td sandbox4 true  "kernel" i586 medium sandbox_secure
+td sandbox5 true  "kernel" i586 large  sandbox
+td sandbox6 true  "kernel" i586 large  sandbox_secure
+
+# prjconf constraints for sandbox
+td sandbox11 false "kernel" i586 small  ""  enforce_kvm
+td sandbox12 false "kernel" i586 small  ""  enforce_kvm
+td sandbox13 false "kernel" i586 medium ""  enforce_kvm
+td sandbox14 false "kernel" i586 medium ""  enforce_kvm
+td sandbox15 true  "kernel" i586 large  ""  enforce_kvm
+td sandbox16 true  "kernel" i586 large  ""  enforce_kvm
+
+# combined constraints for sandbox
+td sandbox21 false "kernel" i586 small  sandbox         enforce_kvm
+td sandbox22 false "kernel" i586 small  sandbox_secure  enforce_kvm
+# package constraints are more important here
+td sandbox23 true  "kernel" i586 medium sandbox         enforce_kvm
+td sandbox24 true  "kernel" i586 medium sandbox_secure  enforce_kvm
+td sandbox25 true  "kernel" i586 large  sandbox         enforce_kvm
+td sandbox26 true  "kernel" i586 large  sandbox_secure  enforce_kvm
 
 echo
 

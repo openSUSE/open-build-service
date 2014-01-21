@@ -3,7 +3,8 @@
   <buildarch>i586</buildarch>
   <hostlabel>small_label</hostlabel>
   <hostlabel>junk_label</hostlabel>
-  <sandbox>none</sandbox>
+  <hostlabel>more_junk_label</hostlabel>
+  <sandbox>chroot</sandbox>
 
   <linux>
       <version>1.0</version>

@@ -2,6 +2,8 @@
 <worker hostarch="i586" workerid="small">
   <buildarch>i586</buildarch>
   <hostlabel>medium_label</hostlabel>
+  <hostlabel>junk_label</hostlabel>
+  <hostlabel>more_junk_label</hostlabel>
   <sandbox>xen</sandbox>
 
   <linux>

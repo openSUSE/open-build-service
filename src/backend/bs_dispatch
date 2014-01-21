@@ -63,6 +63,15 @@ if ($BSConfig::powerpkgs) {
   }
 }
 
+my %secure_sandboxes;
+if ($BSConfig::secure_sandboxes) {
+  %secure_sandboxes = map {$_ => 1} @$BSConfig::secure_sandboxes;
+} else {
+  # we just define xen, kvm and zvm as entirely secure sandboxes atm
+  # chroot, emulator, lxc are currently considered as not safe
+  $secure_sandboxes{$_} = 1 for qw{xen kvm zvm};
+}
+
 my $testdir;
 while (@ARGV) {
   if ($ARGV[0] eq '--test-directory') {
@@ -94,8 +103,8 @@ while (@ARGV) {
       }
       close FILE;
     }
-    die("No parseable workerinfo") unless $workerinfo;
-    die("No parseable constraints") unless $constraints;
+    die("No parseable workerinfo") unless keys $workerinfo;
+    die("No parseable constraints") unless keys $constraints;
     my $o = oracle($workerinfo, $constraints);
     exit 0 if (defined($o) && $o > 0);
     exit 1;
@@ -496,15 +505,6 @@ sub getmbsize {
   $size *= 1024 * 1024 if $unit eq 'T';
   $size *= 1024 * 1024 * 1024 if $unit eq 'P';
   return $size;
-}
-
-my %secure_sandboxes;
-if ($BSConfig::secure_sandboxes) {
-  %secure_sandboxes = map {$_ => 1} @$BSConfig::secure_sandboxes;
-} else {
-  # we just define xen, kvm and zvm as entirely secure sandboxes atm
-  # chroot, emulator, lxc are currently considered as not safe
-  $secure_sandboxes{$_} = 1 for qw{xen kvm zvm};
 }
 
 sub oracle {
