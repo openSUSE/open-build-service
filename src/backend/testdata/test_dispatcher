@@ -2,22 +2,26 @@
 
 DATADIR=${0%/*}
 
+FAILS=""
+
 #
 # test constraints
 #
 function td()
 {
-  package=$2
-  arch=$3
-  worker=testdata/workerinfo/$4
+  testname=$1
+  expected=$2
+  package=$3
+  arch=$4
+  worker=$DATADIR/workerinfo/$5
   srcconstraint=""
   prjconfconstraint=""
-  [ -n "$5" ] && srcconstraint=$DATADIR/$5
-  [ -n "$6" ] && prjconfconstraint=$DATADIR/$6
+  [ -n "$6" ] && srcconstraint=$DATADIR/constraint/$6
+  [ -n "$7" ] && prjconfconstraint=$DATADIR/constraintprj/$7
   if ./bs_dispatch --test-constraints "$package" "$arch" $worker "$srcconstraint" "$prjconfconstraint"; then
-    if [ $1 != "true" ]; then
+    if [ $expected != "true" ]; then
       echo "Failed for $package $arch $worker $srcconstraint $prjconfconstraint"
-      exit 1
+      FAILS="$FAILS $testname"
     fi
     echo -n .
   else
@@ -25,43 +29,51 @@ function td()
       echo "CODE ERROR for $package $arch $worker $srcconstraint $prjconfconstraint"
       exit 2
     fi
-    if [ $1 != "false" ]; then
+    if [ $expected != "false" ]; then
       echo "Failed for $package $arch $worker $srcconstraint $prjconfconstraint"
-      exit 1
+      FAILS="$FAILS $testname"
     fi
     echo -n .
   fi
 }
 
-# simple source constraints for processor numbers
-td true "kernel" i586 large kernel
-td false "kernel" i586 small kernel
-td false "kernel" armv7l small kernel
-td false "kernel-default" i586 small kernel
-td true "kernel-default" armv7l small kernel
-td false "kernel-default" aarch64 small kernel
-td true "kernel-default" aarch64 medium kernel
-td true "kernel-default" aarch64 large kernel
+# simple source constraints for processor numbers and disk storage
+td simple1 true "kernel" i586 large kernel
+td simple2 false "kernel" i586 small kernel
+td simple3 false "kernel" armv7l small kernel
+td simple4 false "kernel-default" i586 small kernel
+td simple5 false "kernel-default" armv7l small kernel
+td simple6 false "kernel-default" aarch64 small kernel
+td simple7 true "kernel-default" aarch64 medium kernel
+td simple8 true "kernel-default" aarch64 large kernel
 
-# simple prjconf constraints for processor numbers
-td true "kernel" i586 large "" kernel-default
-td false "kernel" i586 small "" kernel-default
-td false "kernel" armv7l small "" kernel-default
-td false "kernel-default" i586 small "" kernel-default
-td false "kernel-default" armv7l small "" kernel-default
-td false "kernel-default" aarch64 small "" kernel-default
-td false "kernel-default" aarch64 medium "" kernel-default
-td true "kernel-default" aarch64 large "" kernel-default
+# simple prjconf constraints for processor numbers and disk storage
+td simple11 true "kernel" i586 large "" kernel-default
+td simple12 false "kernel" i586 small "" kernel-default
+td simple13 false "kernel" armv7l small "" kernel-default
+td simple14 false "kernel-default" i586 small "" kernel-default
+td simple15 false "kernel-default" armv7l small "" kernel-default
+td simple16 false "kernel-default" aarch64 small "" kernel-default
+td simple17 false "kernel-default" aarch64 medium "" kernel-default
+td simple18 true "kernel-default" aarch64 large "" kernel-default
 
-# combined constraints for processor numbers
-td true "kernel" i586 large kernel kernel-default
-td false "kernel" i586 small kernel kernel-default
-td false "kernel" armv7l small kernel kernel-default
-td false "kernel-default" i586 small kernel kernel-default
-td false "kernel-default" armv7l small kernel kernel-default
-td false "kernel-default" aarch64 small kernel kernel-default
-td false "kernel-default" aarch64 medium kernel kernel-default
-td true "kernel-default" aarch64 large kernel kernel-default
+# combined constraints for processor numbers and disk storage
+td simple21 true "kernel" i586 large kernel kernel-default
+td simple22 false "kernel" i586 small kernel kernel-default
+td simple23 false "kernel" armv7l small kernel kernel-default
+td simple24 false "kernel-default" i586 small kernel kernel-default
+td simple25 false "kernel-default" armv7l small kernel kernel-default
+td simple26 false "kernel-default" aarch64 small kernel kernel-default
+td simple27 true "kernel-default" aarch64 medium kernel kernel-default
+td simple28 true "kernel-default" aarch64 large kernel kernel-default
 
 echo
+
+if [ -n "$FAILS" ]; then
+  echo "ERROR: Following test cases failed:"
+  echo "$FAILS"
+  exit 1
+fi
+
+exit 0
 

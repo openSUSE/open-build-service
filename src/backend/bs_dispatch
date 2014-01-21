@@ -63,6 +63,45 @@ if ($BSConfig::powerpkgs) {
   }
 }
 
+my $testdir;
+while (@ARGV) {
+  if ($ARGV[0] eq '--test-directory') {
+    shift @ARGV;
+    $testdir = shift @ARGV;
+    next;
+  } elsif ($ARGV[0] eq '--test-constraints') {
+    shift @ARGV;
+    my $package = shift @ARGV;
+    my $architecture = shift @ARGV;
+    my $workerinfo_file = shift @ARGV;
+    my $constraints_file = shift @ARGV;
+    my $constraintsprj_file = shift @ARGV;
+    my $workerinfo = readxml($workerinfo_file, $BSXML::worker);
+
+    my $constraints;
+    if ($constraints_file && $constraints_file ne "") {
+      my $xml = readstr($constraints_file);
+      $constraints = parseconstraints($package, $architecture, $xml);
+    }
+    if ($constraintsprj_file && $constraintsprj_file ne "" && open(FILE, "<", $constraintsprj_file)) {
+      while(<FILE>) {
+        chomp;
+        my @l = map { [ split(' ', $_) ] } $_;
+        my $prjconfconstraint = list2struct($BSXML::constraints, \@l);
+        if ($prjconfconstraint) {
+          $constraints = $constraints ? mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
+        }
+      }
+      close FILE;
+    }
+    die("No parseable workerinfo") unless $workerinfo;
+    die("No parseable constraints") unless $constraints;
+    my $o = oracle($workerinfo, $constraints);
+    exit 0 if (defined($o) && $o > 0);
+    exit 1;
+  }
+}
+
 BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
 
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
@@ -89,7 +128,6 @@ my $jobsdir = "$BSConfig::bsdir/jobs";
 my $eventdir = "$BSConfig::bsdir/events";
 
 my $reporoot = "$BSConfig::bsdir/build";
-my $testdir;
 
 sub getcodemd5 {
   my ($dir, $cache) = @_;
@@ -759,44 +797,6 @@ sub filechecks {
     unlink("$rundir/bs_dispatch.dropbadhosts");
     print "removing all badhost entries...\n";
     %badhost = ();
-  }
-}
-
-while (@ARGV) {
-  if ($ARGV[0] eq '--test-directory') {
-    shift @ARGV;
-    $testdir = shift @ARGV;
-    next;
-  } elsif ($ARGV[0] eq '--test-constraints') {
-    shift @ARGV;
-    my $package = shift @ARGV;
-    my $architecture = shift @ARGV;
-    my $workerinfo_file = shift @ARGV;
-    my $constraints_file = shift @ARGV;
-    my $constraintsprj_file = shift @ARGV;
-    my $workerinfo = readxml($workerinfo_file, $BSXML::worker);
-
-    my $constraints;
-    if ($constraints_file && $constraints_file ne "") {
-      my $xml = readstr($constraints_file);
-      $constraints = parseconstraints($package, $architecture, $xml);
-    }
-    if ($constraintsprj_file && $constraintsprj_file ne "" && open(FILE, "<", $constraintsprj_file)) {
-      while(<FILE>) {
-        chomp;
-        my @l = map { [ split(' ', $_) ] } $_;
-        my $prjconfconstraint = list2struct($BSXML::constraints, \@l);
-        if ($prjconfconstraint) {
-          $constraints = $constraints ? mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
-        }
-      }
-      close FILE;
-    }
-    die("No parseable workerinfo") unless $workerinfo;
-    die("No parseable constraints") unless $constraints;
-    my $o = oracle($workerinfo, $constraints);
-    exit 0 if (defined($o) && $o > 0);
-    exit 1;
   }
 }
 

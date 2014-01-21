@@ -1,6 +1,9 @@
 <constraints>
   <hardware>
     <processors>8</processors>
+    <disk>
+      <size unit="G">14</size>
+    </disk>
   </hardware>
 
   <overwrite>
@@ -12,6 +15,9 @@
     </conditions>
     <hardware>
       <processors>1</processors>
+      <disk>
+        <size unit="G">6</size>
+      </disk>
     </hardware>
   </overwrite>
 
@@ -22,6 +28,9 @@
     </conditions>
     <hardware>
       <processors>2</processors>
+      <disk>
+        <size unit="G">4</size>
+      </disk>
     </hardware>
   </overwrite>
 </constraints>
