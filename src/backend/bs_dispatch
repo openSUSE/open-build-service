@@ -93,15 +93,16 @@ while (@ARGV) {
       $constraints = parseconstraints($package, $architecture, $xml);
     }
     if ($constraintsprj_file && $constraintsprj_file ne "" && open(FILE, "<", $constraintsprj_file)) {
+      my @lines;
       while(<FILE>) {
         chomp;
-        my @l = map { [ split(' ', $_) ] } $_;
-        my $prjconfconstraint = list2struct($BSXML::constraints, \@l);
-        if ($prjconfconstraint) {
-          $constraints = $constraints ? mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
-        }
+        push @lines, [ split(' ', $_) ];
       }
       close FILE;
+      my $prjconfconstraint = list2struct($BSXML::constraints, \@lines);
+      if ($prjconfconstraint) {
+        $constraints = $constraints ? mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
+      }
     }
     die("No parseable workerinfo") unless keys %$workerinfo;
     die("No parseable constraints") unless keys %$constraints;

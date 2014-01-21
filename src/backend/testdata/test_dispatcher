@@ -2,6 +2,8 @@
 
 DATADIR=${0%/*}
 
+TEST_CASE="$1"
+
 FAILS=""
 
 #
@@ -19,8 +21,7 @@ function td()
   [ -n "$6" ] && srcconstraint=$DATADIR/constraint/$6
   [ -n "$7" ] && prjconfconstraint=$DATADIR/constraintprj/$7
 
-#For debugging, skip all except:
-# [ "${testname#sandbox}" == "$testname" ] && return
+  [ -n "$TEST_CASE" -a "${testname#$TEST_CASE}" == "$testname" ] && return
 
   if ./bs_dispatch --test-constraints "$package" "$arch" $worker "$srcconstraint" "$prjconfconstraint"; then
     if [ $expected != "true" ]; then
@@ -42,14 +43,14 @@ function td()
 }
 
 # simple source constraints for processor numbers and disk storage
-td simple1 true "kernel" i586 large kernel
-td simple2 false "kernel" i586 small kernel
-td simple3 false "kernel" armv7l small kernel
-td simple4 false "kernel-default" i586 small kernel
-td simple5 false "kernel-default" armv7l small kernel
-td simple6 false "kernel-default" aarch64 small kernel
-td simple7 true "kernel-default" aarch64 medium kernel
-td simple8 true "kernel-default" aarch64 large kernel
+td simple01 true "kernel" i586 large kernel
+td simple02 false "kernel" i586 small kernel
+td simple03 false "kernel" armv7l small kernel
+td simple04 false "kernel-default" i586 small kernel
+td simple05 false "kernel-default" armv7l small kernel
+td simple06 false "kernel-default" aarch64 small kernel
+td simple07 true "kernel-default" aarch64 medium kernel
+td simple08 true "kernel-default" aarch64 large kernel
 
 # simple prjconf constraints for processor numbers and disk storage
 td simple11 true "kernel" i586 large "" kernel-default
@@ -60,6 +61,8 @@ td simple15 false "kernel-default" armv7l small "" kernel-default
 td simple16 false "kernel-default" aarch64 small "" kernel-default
 td simple17 false "kernel-default" aarch64 medium "" kernel-default
 td simple18 true "kernel-default" aarch64 large "" kernel-default
+# multiple definitions for disk size in kernel-source, last one wins
+td simple19 true "kernel" i586 small "" kernel-source
 
 # combined constraints for processor numbers and disk storage
 td simple21 true  "kernel" i586 large kernel kernel-default
@@ -72,9 +75,9 @@ td simple27 true  "kernel-default" aarch64 medium kernel kernel-default
 td simple28 true  "kernel-default" aarch64 large kernel kernel-default
 
 # simple source constraints for hostlabels
-td hostlabel1 false "kernel" i586 small  hostlabel ""
-td hostlabel2 true  "kernel" i586 medium hostlabel ""
-td hostlabel3 false "kernel" i586 large  hostlabel ""
+td hostlabel01 false "kernel" i586 small  hostlabel ""
+td hostlabel02 true  "kernel" i586 medium hostlabel ""
+td hostlabel03 false "kernel" i586 large  hostlabel ""
 
 # simple project constraints for hostlabels
 td hostlabel11 false "kernel" i586 small  "" hostlabel
