@@ -470,7 +470,7 @@ ln -sf /usr/lib/build build # just for %%check, it is a %%ghost
 for i in bs_*; do
   perl -wc "$i"
 done
-bash $RPM_BUILD_DIR/src/backend/testdata/test_dispatcher || exit 1
+bash $RPM_BUILD_DIR/%name-%version/src/backend/testdata/test_dispatcher || exit 1
 popd
 
 # run in build environment
