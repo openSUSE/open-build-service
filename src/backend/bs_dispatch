@@ -323,7 +323,7 @@ sub getconstraints {
   };
   my $constraintsxml;
   eval {
-    $constraintsxml = BSRPC::rpc($param, undef, "rev=$info->{'srcmd5'}");
+    $constraintsxml = BSRPC::rpc($param, undef, "expand=1", "rev=$info->{'srcmd5'}");
     die("huh? constaints md5 does not match\n") unless Digest::MD5::md5_hex($constraintsxml) eq $constraintsmd5;
   };
   if ($@) {
