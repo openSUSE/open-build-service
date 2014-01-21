@@ -103,8 +103,8 @@ while (@ARGV) {
       }
       close FILE;
     }
-    die("No parseable workerinfo") unless keys $workerinfo;
-    die("No parseable constraints") unless keys $constraints;
+    die("No parseable workerinfo") unless keys %$workerinfo;
+    die("No parseable constraints") unless keys %$constraints;
     my $o = oracle($workerinfo, $constraints);
     exit 0 if (defined($o) && $o > 0);
     exit 1;
