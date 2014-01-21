@@ -437,7 +437,7 @@ sub list2struct {
 	my $ke = $known{$e};
 	die("unknown element: $e\n") unless $ke;
 	delete $out->{$e} if $delit;
-	if ($delit && !@loc) {
+	if ($delit && !@loc && !@l) {
 	  @how = ();
 	  last;
 	}
@@ -470,6 +470,11 @@ sub list2struct {
       if (@how) {
 	my $am = shift @how;
 	my %known = map {ref($_) ? (!@$_ ? () : (ref($_->[0]) ? $_->[0]->[0] : $_->[0] => $_)) : ($_=> $_)} @how;
+	# clean old attribs
+	for (@how) {
+	  last if ref($_) || $_ eq '_content';
+	  delete $out->{$_};
+	}
 	while (@l && $l[0] =~ /^(.*?)=(.*)$/) {
 	  my ($a, $av) = ($1, $2);
 	  die("element '$am' contains unknown attribute '$a'\n") unless $known{$a};
