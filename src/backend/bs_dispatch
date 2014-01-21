@@ -557,6 +557,7 @@ my %syncedjobs;
 my %lastmastersync;
 my $lastmdloadsync;
 
+0 if $BSConfig::partition; # skip perl warning
 #
 # XXX: should not be here! Use src server instead!
 sub projid2reposerver {
