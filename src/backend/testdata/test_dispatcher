@@ -73,6 +73,8 @@ td simple25 false "kernel-default" armv7l small kernel kernel-default
 td simple26 false "kernel-default" aarch64 small kernel kernel-default
 td simple27 true  "kernel-default" aarch64 medium kernel kernel-default
 td simple28 true  "kernel-default" aarch64 large kernel kernel-default
+# package constraints win over prjconf constraints
+td simple29 false "kernel" i586 small kernel kernel-source
 
 # simple source constraints for hostlabels
 td hostlabel01 false "kernel" i586 small  hostlabel ""
