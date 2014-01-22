@@ -1356,6 +1356,7 @@ sub prpfinished {
 
   # link all packages into :repo
   my %origin;
+  my %supportstatus;
   my $changed;
   my $filter;
   $filter = $bconf->{'publishfilter'} if $bconf;
@@ -1378,18 +1379,25 @@ sub prpfinished {
 	}
       }
       print "        $packid: publishing disabled\n";
+      my $rs = $rinfo->{'supportstatus'};
       for my $bin (@{$rinfo_packid2bins->{$packid} || []}) {
         next if exists $origin{$bin};	# first one wins
         $origin{$bin} = $packid;
+	$supportstatus{$bin} = $rs->{$bin} if $rs->{$bin};
       }
       next;
     }
     my $pdir = "$reporoot/$prp/$myarch/$packid";
     my @all = sort(ls($pdir));
+    my %all = map {$_ => 1} @all;
+    next if $all{'.preinstallimage'};
     my $debian = grep {/\.dsc$/} @all;
-    next if grep {$_ eq '.preinstallimage'} @all;
-    my $nosourceaccess = grep {$_ eq '.nosourceaccess'} @all;
+    my $nosourceaccess = $all{'.nosourceaccess'};
     @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'rpmlint.log' && $_ ne '_statistics' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && !/^\./} @all;
+    my $psupportstatus;
+    if ($all{'.supportstatus'}) {
+      $psupportstatus = BSUtil::retrieve("$pdir/.supportstatus", 2);
+    }
     for my $bin (@all) {
       next if $bin =~ /^::import::/;
       my $rbin = $bin;
@@ -1411,6 +1419,8 @@ sub prpfinished {
 	next if $bad;
       }
       $origin{$rbin} = $packid;
+      $supportstatus{$rbin} = $psupportstatus->{$bin} if $psupportstatus->{$bin};
+     
       # link from package dir (pdir) to repo dir (rdir)
       my @sr = lstat("$rdir/$rbin");
       if (@sr) {
@@ -1459,15 +1469,6 @@ sub prpfinished {
   undef $rinfo_packid2bins;	# no longer needed
   for my $rbin (sort(ls($rdir))) {
     next if exists $origin{$rbin};
-    if (0) {
-      if (!$rinfo) {
-	$rinfo = {};
-	$rinfo = BSUtil::retrieve("${rdir}info") if -s "${rdir}info";
-	$rinfo->{'binaryorigins'} ||= {};
-      }
-      $origin{$rbin} = $rinfo->{'binaryorigins'}->{$rbin} if $rinfo->{'binaryorigins'}->{$rbin};
-      next;
-    }
     print "      - :repo/$rbin\n";
     if (! -l "$rdir/$rbin" && -d _) {
       BSUtil::cleandir("$rdir/$rbin");
@@ -1482,6 +1483,7 @@ sub prpfinished {
 
   # write new rpminfo
   $rinfo = {'binaryorigins' => \%origin};
+  $rinfo = {'supportstatus' => \%supportstatus} if %supportstatus;
   BSUtil::store("${rdir}info.new", "${rdir}info", $rinfo);
 
   # release lock and ping publisher
@@ -5561,12 +5563,19 @@ sub rebuildpatchinfo {
     %updateinfodata_tocopy = map {$_ => 1} @{$updateinfodata->{'packages'} || []};
   }
 
+  my $supportstatus;
+  my $oldsupportstatus;
+  if (-s "$reporoot/$prp/$myarch/$packid/.supportstatus") {
+    $oldsupportstatus = BSUtil::retrieve("$reporoot/$prp/$myarch/$packid/.supportstatus");
+  }
+
   for my $tocopy (@tocopy) {
     my ($arch, $apackid) = split('/', $tocopy, 2);
     my @bins;
     my $meta;
     my $from;
     my $mpackid;
+    my $channelinfo;
 
     if ($ptype eq 'local') {
       # always reuse old packages
@@ -5589,9 +5598,20 @@ sub rebuildpatchinfo {
       print "        reusing old packages for '$tocopy'\n";
       $from = "$reporoot/$projid/$repoid/$myarch/$packid";
       @bins = grep {$updateinfodata->{'binaryorigins'}->{$_} eq $tocopy} keys(%{$updateinfodata->{'binaryorigins'}});
+      if ($oldsupportstatus) {
+	# fake channelinfo
+        for (@bins) {
+	  next unless $oldsupportstatus->{$_};
+	  $channelinfo ||= {};
+	  $channelinfo->{$_} = { 'supportstatus' => $oldsupportstatus->{$_} };
+	}
+      }
     } else {
       $from = "$reporoot/$projid/$repoid/$tocopy";
-      @bins = grep {/\.rpm$/} ls ($from);
+      @bins = grep {/\.rpm$/} ls($from);
+      if (-e "$from/.channelinfo") {
+        $channelinfo = BSUtil::retrieve("$from/.channelinfo");
+      }
     }
     if (defined($mpackid)) {
       my $meta = $ckmetas->{$mpackid};
@@ -5658,6 +5678,13 @@ sub rebuildpatchinfo {
       $upd->{'relogin_suggested'} = 'True' if exists $patchinfo->{'relogin_needed'};
       $upd->{'restart_suggested'} = 'True' if exists $patchinfo->{'zypp_restart_needed'};
       push @upackages, $upd;
+      if ($channelinfo) {
+	my $ci = $channelinfo->{$bin};
+	if ($ci->{'supportstatus'}) {
+	  $supportstatus ||= {};
+	  $supportstatus->{$bin} = $channelinfo->{$bin};
+	}
+      }
     }
     $metas{$mpackid} = Digest::MD5::md5_hex($m) if $ptype eq 'binary';
   }
@@ -5728,6 +5755,7 @@ sub rebuildpatchinfo {
   };
   $updateinfodata->{'filtered'} = \%filtered if %filtered;
   BSUtil::store("$jobdatadir/.updateinfodata", undef, $updateinfodata);
+  BSUtil::store("$jobdatadir/.supportstatus", undef, $supportstatus) if $supportstatus;
   if ($broken) {
     BSUtil::cleandir($jobdatadir);
     writestr("$jobdatadir/logfile", undef, "update built failed ".localtime($now)."\n\n$broken\n");
@@ -5882,9 +5910,11 @@ sub checkchannel {
 	next if $collected{$bi->{'filename'}};
 	next unless $filter{"$arepoid/$n"};
 	my $found;
+	my $supportstatus;
 	for my $f (@{$filter{"$arepoid/$n"}}) {
           next if $f->{'package'} && $apackid ne $f->{'package'} && $lapackid ne $f->{'package'};
           next if $f->{'binaryarch'} && $bi->{'arch'} ne $f->{'binaryarch'};
+	  $supportstatus = $f->{'supportstatus'};
 	  $found = 1;
 	  last;
 	}
@@ -5894,7 +5924,7 @@ sub checkchannel {
 	$usedsrc{$bi->{'source'}} = 1;
 	my $m = Digest::MD5::md5_hex($bi->{'id'})."  $arepoid/$apackid/$n.$bi->{'arch'}";
 	push @new_meta, $m;
-	push @channelbins, [ $arepoid, $apackid, $bi ];
+	push @channelbins, [ $arepoid, $apackid, $bi, $supportstatus ];
       }
       if (%usedsrc) {
 	for my $bi (@sbins) {
@@ -5956,7 +5986,7 @@ sub rebuildchannel {
   my %channelinfo;
   my $bininfo = {};
   for my $cb (@$channelbins) {
-    my ($arepoid, $apackid, $bi) = @$cb;
+    my ($arepoid, $apackid, $bi, $supportstatus) = @$cb;
     my $file = "$reporoot/$projid/$arepoid/$myarch/$apackid/$bi->{'filename'}";
     my @s = stat($file);
     if (!@s || "$s[9]/$s[7]/$s[1]" ne $bi->{'id'}) {
@@ -5966,7 +5996,9 @@ sub rebuildchannel {
     }
     link($file, "$jobdatadir/$bi->{'filename'}") || die("link $file $jobdatadir/$bi->{'filename'}: $!\n");
     $bininfo->{$bi->{'filename'}} = $bi;
-    $channelinfo{$bi->{'filename'}} = { 'repository' => $arepoid, 'package' => $apackid };
+    my $ci = { 'repository' => $arepoid, 'package' => $apackid };
+    $ci->{'supportstatus'} = $supportstatus if defined $supportstatus;
+    $channelinfo{$bi->{'filename'}} = $ci;
   }
   BSUtil::store("$jobdatadir/.channelinfo", undef, \%channelinfo);
   writestr("$jobdatadir/meta", undef, $new_meta);
