@@ -2979,7 +2979,7 @@ sub get_projpacks_resume {
   if ($error) {
     chomp $error;
     warn("$error\n");
-    addretryevent({'type' => 'project', 'project' => $projid});
+    addretryevent({'type' => 'package', 'project' => $projid});
     return;
   }
   my $wasremote = !$projpacks->{$projid} && $remoteprojs{$projid} ? 1 : undef;
@@ -3459,7 +3459,7 @@ sub addretryevent {
     if ($ev->{'type'} eq 'repository' || $ev->{'type'} eq 'recheck') {
       next if $ev->{'repository'} ne $oev->{'repository'};
     } elsif ($ev->{'type'} eq 'package') {
-      next if $ev->{'package'} ne $oev->{'package'};
+      next if ($ev->{'package'} || '') ne ($oev->{'package'} || '');
     }
     return;
   }
