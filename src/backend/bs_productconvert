@@ -288,7 +288,6 @@ sub createProductOptions($$$)
     $varsH{DISTNAME} = $product->{'name'};
     $varsH{VERSION} = $product->{'version'};
     $varsH{FLAVOR} = $medium->{'flavor'};
-    $varsH{CPEID} = getCpeId($prodRef, $product);
     $varsH{PRODUCT_DIR} = "/";
     $varsH{PRODUCT_NAME} = '$DISTNAME-$FLAVOR';
     $varsH{PRODUCT_VERSION} = '$VERSION';
@@ -330,6 +329,9 @@ sub createProductOptions($$$)
     }
     if (defined($medium->{'preselected_patterns'})){
         $info{'PATTERNS'} .= join(' ',map( $_->{'name'},@{$medium->{'preselected_patterns'}->[0]->{'pattern'}}));
+    }
+    unless($mediaStyle =~ "^suse-11" || $mediaStyle =~ "^suse-12" || $mediaStyle =~ "^suse-sle11") {
+        $info{CPEID} = getCpeId($prodRef, $product);
     }
     foreach my $summary ( @{$product->{'summary'}} ){
       $info{'LABEL'}      = $summary->{'_content'} if ( ! $summary->{'language'} );
