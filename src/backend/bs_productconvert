@@ -288,6 +288,7 @@ sub createProductOptions($$$)
     $varsH{DISTNAME} = $product->{'name'};
     $varsH{VERSION} = $product->{'version'};
     $varsH{FLAVOR} = $medium->{'flavor'};
+    $varsH{CPEID} = getCpeId($prodRef, $product);
     $varsH{PRODUCT_DIR} = "/";
     $varsH{PRODUCT_NAME} = '$DISTNAME-$FLAVOR';
     $varsH{PRODUCT_VERSION} = '$VERSION';
@@ -967,6 +968,7 @@ sub writeProductSPECfile( $$$$ )
      # Create product file to be packaged
      my $zypp_product_file = createProductFile($prodRef,$product);
         $zypp_product_file.= createFlavorReadme($prodRef,$product);
+     my $os_release_file = createOsReleaseFile($prodRef,$product);
 
      my $str = readstr($infile);
 
@@ -995,6 +997,7 @@ sub writeProductSPECfile( $$$$ )
      $str =~ s/___DESCRIPTION___/$product->{description}[0]->{_content}/g; # FIXME: find the non-lang one
      $str =~ s/___FLAVOR_PACKAGES___/$product_flavors/g;
      $str =~ s/___CREATE_PRODUCT_FILES___/$zypp_product_file/g;
+     $str =~ s/___CREATE_OS_RELEASE_FILE___/$os_release_file/g;
 
      $str =~ s/___PRODUCT_PROVIDES___/$productprovides/g;
      $str =~ s/___OBSOLETE_PACKAGES___/$obsoletepackage/g;
@@ -1121,6 +1124,42 @@ sub writekwd ( $$$ ) {
      writestr($file, undef, $str);
 }
 
+sub getCpeId ($$) {
+    my ($prodRef, $product) = @_;
+    my $tag = "/o"; # operating system
+    # is this an add-on product?
+    foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
+      # application add-on
+      $tag = "/a" if (defined($flavor->{'productdependency'}));
+    }
+    my $vendor = $product->{vendor};
+    # SLE people wants sometime short, sometime long version
+    $vendor = "suse" if $product->{vendor} =~ /^SUSE LINUX/;
+    my $cpeid_uri = lc("cpe:".$tag.":".$vendor.":".$product->{name}.":".$product->{version});
+    return $cpeid_uri;
+}
+
+
+sub createOsReleaseFile ($) {
+    my ($prodRef, $product) = @_;
+    my $bugtracker=getUrl($product,"i586","bugtracker");
+    my $rfile = "\$RPM_BUILD_ROOT/etc/os-release";
+    my $os_release_file = "mkdir -p \$RPM_BUILD_ROOT/etc\n";
+    $os_release_file .= "cat >$rfile << EOF\n";
+    my $name = $product->{'name'};
+    # shall we strip ^SUSE_ here or better modify the name in SLE 12?
+    $os_release_file .= "NAME=\"".$name."\"\n";
+    $os_release_file .= "VERSION=\"%{version}%{betaversion?: }%{betaversion}\"\n";
+    $os_release_file .= "VERSION_ID=\"%{version}%{betaversion?: }%{betaversion}\"\n";
+    $os_release_file .= "PRETTY_NAME=\"".$product->{'summary'}."\"\n" if $product->{'summary'};
+    $os_release_file .= "BUG_REPORT_URL=\"".$bugtracker."\"\n" if $bugtracker;
+    $os_release_file .= "ID=\"".lc($name)."\"\n";
+    $os_release_file .= "ANSI_COLOR=\"0;32\"\n";
+    $os_release_file .= "CPE_NAME=\"".getCpeId($prodRef, $product)."\"\n";
+    $os_release_file .= "EOF\n";
+
+}
+
 sub createProductFile ( $$ ) {
     my ($prodRef, $product) = @_;
     my $zypp_product_file = "";
@@ -1131,6 +1170,7 @@ sub createProductFile ( $$ ) {
     $zypp_product_file = "mkdir -p \$RPM_BUILD_ROOT/etc/products.d\n";
     $zypp_product->{'arch'} = '%{_target_cpu}'; # write product architecture during rpm build
     $zypp_product->{'schemeversion'} = "0";
+    $zypp_product->{'cpeid'} = getCpeId($prodRef, $product);
 
     $d->{"target"}  = $product->{'register'}->{'target'};
     $d->{"release"} = $product->{'register'}->{'release'};

@@ -94,6 +94,7 @@ our $product = [
            'migrationtarget',
            'release',
            'arch',
+           'cpeid',         # generated, not for input
            'productline',
            [ 'register' => 
               [],
