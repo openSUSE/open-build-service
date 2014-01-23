@@ -3879,17 +3879,17 @@ my $dispatches = [
   'POST:/event $type: $project $package? repository? arch? job?' => \&forwardevent,
 
   # worker calls
-  '!worker /worker $arch $port $state: workerid:? working:bool? memory:num? disk:num? buildarch:arch* tellnojob:bool?' => \&workerstate,
+  '!worker /worker $arch $port $state: workerid? working:bool? memory:num? disk:num? buildarch:arch* tellnojob:bool?' => \&workerstate,
   '!worker /getbuildcode' => \&getbuildcode,
   '!worker /getworkercode' => \&getworkercode,
-  '!worker POST:/putjob $arch $job $jobid:md5 $code:? now:num? kiwitree:bool? workerid:?' => \&putjob,
-  '!worker POST:/workerdispatched $arch $job $jobid:md5 hostarch:arch port workerid:?' => \&workerdispatched,
-  '!worker /getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool?' => \&getbinaries,
-  '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
-  '!worker /getjobdata $arch $job $jobid:md5' => \&getjobdata,
-  '!worker /getpackagebinaryversionlist $project $repository $arch $package* withcode:bool?' => \&getpackagebinaryversionlist,
-  '!worker /badpackagebinaryversionlist $project $repository $arch $package*' => \&badpackagebinaryversionlist,
-  '!worker /getpreinstallimageinfos $prpa+ match:?' => \&getpreinstallimageinfos,
+  '!worker POST:/putjob $arch $job $jobid $code:? now:num? kiwitree:bool? workerid?' => \&putjob,
+  '!worker POST:/workerdispatched $arch $job $jobid hostarch:arch port workerid?' => \&workerdispatched,
+  '!worker /getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? workerid?' => \&getbinaries,
+  '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool? workerid?' => \&getbinaryversions,
+  '!worker /getjobdata $arch $job $jobid workerid?' => \&getjobdata,
+  '!worker /getpackagebinaryversionlist $project $repository $arch $package* withcode:bool? workerid?' => \&getpackagebinaryversionlist,
+  '!worker /badpackagebinaryversionlist $project $repository $arch $package* workerid?' => \&badpackagebinaryversionlist,
+  '!worker /getpreinstallimageinfos $prpa+ match:? workerid?' => \&getpreinstallimageinfos,
 
   # published files
   '/published' => \&publisheddir,
@@ -3904,7 +3904,7 @@ my $dispatches = [
   'POST:/jobs/_mdload' => \&postmdload,
   '/jobs/$arch' => \&listjobs,
   'PUT:/jobs/$arch/$job' => \&addjob,
-  'POST:/jobs/$arch/$job cmd=idleworker workerid: jobid:md5?' => \&idleworkerjob,
+  'POST:/jobs/$arch/$job cmd=idleworker workerid jobid?' => \&idleworkerjob,
   'DELETE:/jobs/$arch/$job' => \&deljob,
   '/jobs/$arch/$job view:?' => \&getjob,
 

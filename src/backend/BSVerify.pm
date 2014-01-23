@@ -191,6 +191,9 @@ sub verify_resultview {
   die("unknown view parameter: '$view'\n") if $view ne 'summary' && $view ne 'status' && $view ne 'binarylist' && $view ne 'stats';
 }
 
+sub verify_workerid {
+}
+
 sub verify_disableenable {
   my ($disen) = @_;
   for my $d (@{$disen->{'disable'} || []}, @{$disen->{'enable'} || []}) {
@@ -477,6 +480,8 @@ our $verifyers = {
   'prp' => \&verify_prp,
   'prpa' => \&verify_prpa,
   'resultview' => \&verify_resultview,
+  'jobid' => \&verify_md5,
+  'workerid' => \&verify_workerid,
 };
 
 1;
