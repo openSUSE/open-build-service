@@ -24,6 +24,7 @@ class Configuration < ActiveRecord::Base
                    :bugzilla_url => CONFIG['bugzilla_host'],
                    :http_proxy => CONFIG['http_proxy'],
                    :no_proxy => nil,
+                   :cleanup_after_days => nil,
                    :theme => CONFIG['theme'],
                  }
   ON_OFF_OPTIONS = [ :anonymous, :default_access_disabled, :allow_user_to_create_home_project, :disallow_group_creation, :change_password, :hide_private_options, :gravatar, :download_on_demand, :enforce_project_keys ]

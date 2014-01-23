@@ -57,6 +57,38 @@ class BsRequest < ActiveRecord::Base
     Rails.cache.delete('xml_bs_request_%d' % id)
   end
 
+  def self.open_requests_for_source(obj)
+   if obj.kind_of? Project
+     project = obj.name
+   elsif obj.kind_of? Package
+     project = obj.project.name
+     package = obj.name
+   else
+     raise "Invalid object #{obj.class}"
+   end
+   # all open requests
+   BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
+             where(bs_request_actions: {source_project: project, source_package: package})
+  end
+
+  def self.open_requests_for_target(obj)
+   if obj.kind_of? Project
+     project = obj.name
+   elsif obj.kind_of? Package
+     project = obj.project.name
+     package = obj.name
+   else
+     raise "Invalid object #{obj.class}"
+   end
+   # all open requests
+   BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
+             where(bs_request_actions: {target_project: project, target_package: package})
+  end
+
+  def self.open_requests_for(obj)
+    self.open_requests_for_target(obj) + self.open_requests_for_source(obj)
+  end
+
   def self.new_from_xml(xml)
     hashed = Xmlhash.parse(xml)
 

@@ -24,6 +24,7 @@ seed:
   disallow_group_creation: 0
   change_password: 1
   hide_private_options: 0
+  cleanup_after_days: 3
   gravatar: 0
   enforce_project_keys: 1
   download_on_demand: 1

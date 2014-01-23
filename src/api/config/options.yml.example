@@ -49,6 +49,9 @@ proxy_auth_mode: :off
 proxy_auth_test_user: coolguy
 proxy_auth_test_email: coolguy@example.com
 
+# set this to enable auto cleanup requests after the given days
+auto_cleanup_after_days: 30
+
 #schema_location
 
 #version
