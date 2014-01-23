@@ -485,7 +485,10 @@ class Package < ActiveRecord::Base
   end
 
   def update_product_list
-    return unless self.is_product?
+    unless self.is_product?
+      self.products.destroy_all
+      return
+    end
     Product.transaction do
       begin
         xml = Xmlhash.parse(Suse::Backend.get(self.source_path(nil, view: :products)).body)
@@ -496,7 +499,7 @@ class Package < ActiveRecord::Base
       xml.elements('productdefinition') do |pd|
         pd.elements('products') do |ps|
           ps.elements('product') do |p|
-            Product.find_or_create_by_name_and_package(p['name'], self)
+            product = Product.find_or_create_by_name_and_package(p['name'], self)
           end
         end
       end
