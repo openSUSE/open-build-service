@@ -145,6 +145,12 @@
           </element>
         </optional>
         <optional>
+          <element name="cleanup_after_days">
+            <!-- Enables delete requests for branch projects after given number of days. -->
+            <text/>
+          </element>
+        </optional>
+        <optional>
           <element name="gravatar">
             <!-- Loads pictures of users from gravatar. This works via a hash of their email adress. -->
             <choice>

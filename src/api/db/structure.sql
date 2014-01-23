@@ -344,6 +344,7 @@ CREATE TABLE `configurations` (
   `no_proxy` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `theme` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `obs_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `cleanup_after_days` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -1425,6 +1426,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131210182719');
 INSERT INTO schema_migrations (version) VALUES ('20131218071042');
 
 INSERT INTO schema_migrations (version) VALUES ('20140113110551');
+
+INSERT INTO schema_migrations (version) VALUES ('20140123063641');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

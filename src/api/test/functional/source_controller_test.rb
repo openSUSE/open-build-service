@@ -2724,6 +2724,22 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     post '/source/home:Iggy/TestPack', :cmd => :branch
     assert_response :success
 
+    # auto delete attribute got created
+    get '/source/home:fredlibs:branches:home:Iggy/_attribute'
+    assert_response :success
+    assert_xml_tag :tag => "value", :parent =>
+                 { :tag => "attribute", :attributes =>{ :name=>"AutoCleanup", :namespace=>"OBS"} }
+
+    Timecop.freeze(10.days) # in future
+    ProjectCreateAutoCleanupRequests.new.perform
+    Timecop.return
+    #validate request
+    br = BsRequest.all.last
+    assert_equal  br.state, :new
+    assert_equal  br.bs_request_actions.first.type, "delete"
+    assert_equal  br.bs_request_actions.first.target_project, "home:fredlibs:branches:home:Iggy"
+    assert_not_nil  br.accept_at
+
     # cleanup and try again with defaults
     c.allow_user_to_create_home_project = true
     c.save!
