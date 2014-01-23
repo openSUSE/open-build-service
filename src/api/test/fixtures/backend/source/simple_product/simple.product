@@ -2,7 +2,7 @@
 <productdefinition xmlns:xi="http://www.w3.org/2001/XInclude">
   <products>
     <product id="simple">
-      <vendor>OBS Fuzzies</vendor>
+      <vendor>OBS_Fuzzies</vendor>
       <name>simple</name>
       <baseversion>11</baseversion>
       <patchlevel>2</patchlevel>

@@ -497,9 +497,22 @@ class Package < ActiveRecord::Base
       end
       self.products.destroy_all
       xml.elements('productdefinition') do |pd|
+        # we are either an operating system or an application for CPE
+        swClass = "o"
+        pd.elements("mediasets") do |ms|
+          ms.elements("media") do |m|
+            # product depends on others, so it is no standalone operating system
+            swClass = "a" if m.elements("productdependency").length > 0
+          end
+        end
         pd.elements('products') do |ps|
           ps.elements('product') do |p|
             product = Product.find_or_create_by_name_and_package(p['name'], self)
+            unless version = p['version']
+              version = "#{p['baseversion']}.#{p['patchlevel']}"
+            end
+            product.set_CPE(swClass, p['vendor'], version)
+            product.save!
           end
         end
       end

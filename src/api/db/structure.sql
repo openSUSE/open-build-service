@@ -659,6 +659,7 @@ CREATE TABLE `products` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `package_id` int(11) NOT NULL,
+  `cpe` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_products_on_name_and_package_id` (`name`,`package_id`),
   KEY `package_id` (`package_id`),
@@ -1425,6 +1426,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131210182719');
 INSERT INTO schema_migrations (version) VALUES ('20131218071042');
 
 INSERT INTO schema_migrations (version) VALUES ('20140113110551');
+
+INSERT INTO schema_migrations (version) VALUES ('20140123071042');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

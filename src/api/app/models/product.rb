@@ -15,4 +15,9 @@ class Product < ActiveRecord::Base
     return self.where(name: name, package: package).load
   end
 
+  def set_CPE(swClass, vendor, version=nil)
+    self.cpe = "cpe:/#{swClass}:#{vendor}:#{self.name}"
+    self.cpe += ":#{version}" if version
+  end
+
 end
