@@ -66,6 +66,7 @@ module MaintenanceHelper
       params[:attribute] = 'OBS:Maintained'
     end
     target_project = nil
+    auto_cleanup = nil
     if params[:target_project]
       target_project = params[:target_project]
     else
@@ -77,6 +78,7 @@ module MaintenanceHelper
         target_project = "home:#{User.current.login}:branches:#{params[:attribute].gsub(':', '_')}"
         target_project += ":#{params[:package]}" if params[:package]
       end
+      auto_cleanup = ::Configuration.first.cleanup_after_days
     end
     unless params[:update_project_attribute]
       params[:update_project_attribute] = 'OBS:UpdateProject'
@@ -316,6 +318,7 @@ module MaintenanceHelper
         # set default based on first found package location
         unless target_project
           target_project = "home:#{User.current.login}:branches:#{p[:link_target_project].name}"
+          auto_cleanup = ::Configuration.first.cleanup_after_days
         end
 
         # link against srcmd5 instead of plain revision
@@ -432,6 +435,11 @@ module MaintenanceHelper
         tprj.flags.create( :flag => 'build', :status => 'disable') if extend_names
         tprj.flags.create( :flag => 'access', :status => 'disable') if noaccess
         tprj.store
+        if auto_cleanup and at = AttribType.find_by_namespace_and_name("OBS", "AutoCleanup")
+          a = Attrib.new(:project => tprj, :attrib_type => at)
+          a.values << AttribValue.new(:value => (DateTime.now + auto_cleanup.days), :position => 1)
+          a.save
+        end
       end
       if params[:request]
         ans = AttribNamespace.find_by_name 'OBS'

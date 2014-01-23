@@ -1459,6 +1459,7 @@ our $configuration = [
 	'multiaction_notify_support',
 	'disallow_group_creation',
 	'change_password',
+	'cleanup_after_days',
 	'hide_private_options',
 	'gravatar',
 	'enforce_project_keys',
