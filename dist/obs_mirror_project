@@ -48,9 +48,9 @@ system("mkdir -p #{destinationdir} #{projectdir}")
 
 # create meta data
 puts "Creating project meta data: osc meta prj #{project} > #{projectdir}/#{project}.xml\n" if verbose
-system("osc meta prj #{project} > #{projectdir}/#{project}.xml")
+system("osc -A https://api.opensuse.org meta prj #{project} > #{projectdir}/#{project}.xml")
 puts "Creating project configuration data: osc meta prjconf #{project} > #{projectdir}/#{project}.conf\n" if verbose
-system("osc meta prjconf #{project} > #{projectdir}/#{project}.conf")
+system("osc -A https://api.opensuse.org meta prjconf #{project} > #{projectdir}/#{project}.conf")
 
 # download all binary packages
 puts "Downloading: osc api -m GET https://api.opensuse.org/build/#{project}/#{repository}/#{architecture}/_repository\n" if verbose
